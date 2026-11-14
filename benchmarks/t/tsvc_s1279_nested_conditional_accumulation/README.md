@@ -32,3 +32,4 @@ The independent oracle is [`benchmarks/tsvc_s1279_nested_conditional_accumulatio
 | Rust | [`tsvc_s1279_nested_conditional_accumulation.rs`](../../../rust/t/tsvc_s1279_nested_conditional_accumulation.rs) |
 | V | [`tsvc_s1279_nested_conditional_accumulation.v`](../../../v/t/tsvc_s1279_nested_conditional_accumulation.v) |
 | Zig | [`tsvc_s1279_nested_conditional_accumulation.zig`](../../../zig/t/tsvc_s1279_nested_conditional_accumulation.zig) |
+| Mojo | [`tsvc_s1279_nested_conditional_accumulation.mojo`](../../../mojo/t/tsvc_s1279_nested_conditional_accumulation.mojo) |

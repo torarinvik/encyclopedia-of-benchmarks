@@ -315,7 +315,8 @@ def main() -> int:
     except ValueError:
         parser.error("--source must be inside the encyclopedia repository")
 
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     if workload["algorithm"] != args.algorithm:
         parser.error(f"workload algorithm is {workload['algorithm']!r}, not {args.algorithm!r}")
 

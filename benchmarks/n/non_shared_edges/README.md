@@ -18,6 +18,8 @@ Invalid input returns `-1`; null output or capacity below 8 bytes returns
 define each edge in the source problem, rather than choosing internal vertex
 names or an edge ordering.
 
+For n leaves, validation and comparison take O(n²) time and O(n) space.
+
 The primary oracle compares canonical split masks. The independent verifier
 converts them to leaf sets and validates the compatible hierarchy before
 counting shared partitions. The bounded contract uses the chapter's exact
@@ -45,6 +47,7 @@ malformed/incompatible split sets, null buffers, and insufficient capacity.
 | C3 | `c3/n/non_shared_edges.c3` |
 | C++ | `cpp/n/non_shared_edges.cpp` |
 | Elisa | `elisa/n/non_shared_edges.elisa` |
+| Mojo | [`mojo/n/non_shared_edges.mojo`](../../../mojo/n/non_shared_edges.mojo) (draft; not compiled or run) |
 | Nim | `nim/n/non_shared_edges.nim` |
 | Odin | `odin/n/non_shared_edges.odin` |
 | Rust | `rust/n/non_shared_edges.rs` |

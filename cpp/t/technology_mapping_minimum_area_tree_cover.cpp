@@ -38,7 +38,7 @@ extern "C" std::int64_t technology_mapping_minimum_area_tree_cover(const std::in
     if (best[0] == Inf) return -1;
     int mapping[MaxN]; for (std::size_t i = 0; i < n; ++i) mapping[i] = kind[i] == 0 ? -1 : -3;
     int stack[2 * MaxN], top = 0; if (kind[0] != 0) stack[top++] = 0;
-    while (top > 0) { const int node = stack[--top], p = choice[node]; mapping[node] = p;
+    while (top > 0) { const int node = stack[--top], p = choice[node]; if (kind[node] == 0) continue; mapping[node] = p;
         if (p == 0) stack[top++] = left[node]; else if (p == 1) { stack[top++] = left[node]; stack[top++] = right[node]; }
         else if (p == 2) { mapping[left[node]] = -2; stack[top++] = left[left[node]]; stack[top++] = right[node]; }
         else if (p == 3) { mapping[right[node]] = -2; stack[top++] = left[node]; stack[top++] = left[right[node]]; }

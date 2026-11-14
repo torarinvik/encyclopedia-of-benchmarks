@@ -127,8 +127,9 @@ static int mst_after_contract(const int w[N][N], const int h[N][N], int mask) {
 int64_t steiner_tree_gain_greedy(const int64_t *input, size_t length,
                                  uint8_t *output, size_t capacity) {
     if (!input || length < 4 || length > 37) return -1;
-    int n = (int)input[0]; int64_t mask0 = input[1], count0 = input[2];
-    if (n < 2 || n > N || mask0 <= 0 || (mask0 >> n) != 0 || count0 < 1 || count0 > C) return -1;
+    int64_t n0 = input[0], mask0 = input[1], count0 = input[2];
+    if (n0 < 2 || n0 > N || mask0 <= 0 || (mask0 >> n0) != 0 || count0 < 1 || count0 > C) return -1;
+    int n = (int)n0;
     int mask = (int)mask0, count = (int)count0, terminal_count = 0;
     for (int i = 0; i < n; ++i) if (mask & (1 << i)) ++terminal_count;
     if (terminal_count < 2) return -1;

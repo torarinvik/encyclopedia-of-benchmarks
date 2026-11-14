@@ -6,14 +6,14 @@ extern "C" std::int64_t z_algorithm(const std::int64_t *input, std::size_t lengt
                                      std::uint8_t *output,
                                      std::size_t output_capacity) noexcept
 {
-    if (input == nullptr || length < 1 || length > 2048) return -1;
-    if (input[0] < 0 || input[0] > 2047) return -1;
+    if (input == nullptr || length < 1 || length > 4096) return -1;
+    if (input[0] < 0 || input[0] > 4095) return -1;
     const auto count = static_cast<std::size_t>(input[0]);
     if (length != count + 1) return -1;
     const auto output_bytes = count * 4;
     if (output_capacity < output_bytes || (count != 0 && output == nullptr)) return -2;
 
-    std::size_t z[2047]{};
+    std::size_t z[4095]{};
     std::size_t left = 0, right = 0;
     for (std::size_t index = 1; index < count; ++index) {
         if (index < right) {

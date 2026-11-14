@@ -1,7 +1,7 @@
 module closest_string_center;
 
 fn long closest_string_center(long* x, usz length, char* out, usz cap) @export("closest_string_center") {
-    if(x==null)return -2;if(length<3||length>51)return -1;long nv=x[0],mv=x[1],qv=x[2];
+    if(x==null)return -1;if(length<3||length>51)return -1;long nv=x[0],mv=x[1],qv=x[2];
     if(nv<1||nv>6||mv<1||mv>8||(qv!=2&&qv!=3)||length!=3+(usz)nv*(usz)mv)return -1;
     usz n=(usz)nv,m=(usz)mv,q=(usz)qv;for(usz i=3;i<length;i++)if(x[i]<0||x[i]>=qv)return -1;
     usz total=1;for(usz i=0;i<m;i++)total*=q;usz best=m+1;usz[8] bestc,candidate;

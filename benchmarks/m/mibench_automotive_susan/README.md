@@ -77,8 +77,13 @@ use and is not for sale.
 | C3 | [`c3/m/mibench_automotive_susan.c3`](../../../c3/m/mibench_automotive_susan.c3) |
 | C++ | [`cpp/m/mibench_automotive_susan.cpp`](../../../cpp/m/mibench_automotive_susan.cpp) |
 | Elisa | [`elisa/m/mibench_automotive_susan.elisa`](../../../elisa/m/mibench_automotive_susan.elisa) |
+| Mojo | [`mojo/m/mibench_automotive_susan.mojo`](../../../mojo/m/mibench_automotive_susan.mojo) (unvalidated draft) |
 | Nim | [`nim/m/mibench_automotive_susan.nim`](../../../nim/m/mibench_automotive_susan.nim) |
 | Odin | [`odin/m/mibench_automotive_susan.odin`](../../../odin/m/mibench_automotive_susan.odin) |
 | Rust | [`rust/m/mibench_automotive_susan.rs`](../../../rust/m/mibench_automotive_susan.rs) |
 | V | [`v/m/mibench_automotive_susan.v`](../../../v/m/mibench_automotive_susan.v) |
 | Zig | [`zig/m/mibench_automotive_susan.zig`](../../../zig/m/mibench_automotive_susan.zig) |
+
+For an `s`-by-`s` image and radius `r`, filtering takes O(s²r²) time;
+the bounded implementation uses O(s² + r²) space. The Mojo draft has not
+been compiled or executed.

@@ -24,3 +24,5 @@ The profile accepts J and q0sqr explicitly at the kernel boundary. The source's 
 - Relevant citations: Y. Yu and S. Acton, “Speckle Reducing Anisotropic Diffusion,” *IEEE Transactions on Image Processing*, 11(11), 2002; S. Che et al., “Rodinia: A Benchmark Suite for Heterogeneous Computing,” IISWC, 2009.
 
 The scalar workload includes uniform-state, interior-neighbor, and replicated-corner fixtures. `benchmarks/rodinia_srad_v2_oracle.py` independently evaluates both kernels and the fixed-point checksum.
+
+The Mojo draft is [`mojo/r/rodinia_srad_v2.mojo`](../../../mojo/r/rodinia_srad_v2.mojo); its floating-point contraction behavior has not been verified.

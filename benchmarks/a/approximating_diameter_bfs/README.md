@@ -40,6 +40,7 @@ Independent verifier: [`approximating_diameter_bfs_verifier_oracle.py`](../../ap
 | C3 | [`c3/a/approximating_diameter_bfs.c3`](../../../c3/a/approximating_diameter_bfs.c3) |
 | C++ | [`cpp/a/approximating_diameter_bfs.cpp`](../../../cpp/a/approximating_diameter_bfs.cpp) |
 | Elisa | [`elisa/a/approximating_diameter_bfs.elisa`](../../../elisa/a/approximating_diameter_bfs.elisa) |
+| Mojo | [`mojo/a/approximating_diameter_bfs.mojo`](../../../mojo/a/approximating_diameter_bfs.mojo) (draft, unverified) |
 | Nim | [`nim/a/approximating_diameter_bfs.nim`](../../../nim/a/approximating_diameter_bfs.nim) |
 | Odin | [`odin/a/approximating_diameter_bfs.odin`](../../../odin/a/approximating_diameter_bfs.odin) |
 | Rust | [`rust/a/approximating_diameter_bfs.rs`](../../../rust/a/approximating_diameter_bfs.rs) |

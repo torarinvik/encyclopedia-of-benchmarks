@@ -12,6 +12,9 @@ This package ports the bounded byte encoder from [`BitBench/uuencode/uuencode.c`
 
 The upstream program encodes the same input 1,000 times inside its timing loop, replacing the previous output each time, then prints the final stream length. Its pinned full-input reference is `1030121\n`. The suite preserves that repeat count as `repetitions_per_sample: 1000`; one ABI call returns one encoded stream. The largest fixture is the first 4,096 bytes of the pinned upstream `input` file, whose complete source input is 747,648 bytes.
 
+For n input bytes, the encoder uses O(n) time and O(n) staged input space.
+The [Mojo draft](../../../mojo/u/uuencode.mojo) has not been compiled or run.
+
 ## Workload and ports
 
 [`workload.json`](workload.json) includes empty and short tails, exact 45-byte line boundaries, all byte values, invalid and capacity cases, and the pinned source input prefix. [`benchmarks/uuencode_oracle.py`](../../uuencode_oracle.py) supplies the Python oracle.

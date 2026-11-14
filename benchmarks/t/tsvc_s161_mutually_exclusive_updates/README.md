@@ -69,3 +69,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s161_mutually_exclusive_updates.rs`](../../../rust/t/tsvc_s161_mutually_exclusive_updates.rs) |
 | V | [`tsvc_s161_mutually_exclusive_updates.v`](../../../v/t/tsvc_s161_mutually_exclusive_updates.v) |
 | Zig | [`tsvc_s161_mutually_exclusive_updates.zig`](../../../zig/t/tsvc_s161_mutually_exclusive_updates.zig) |
+| Mojo | [`tsvc_s161_mutually_exclusive_updates.mojo`](../../../mojo/t/tsvc_s161_mutually_exclusive_updates.mojo) |

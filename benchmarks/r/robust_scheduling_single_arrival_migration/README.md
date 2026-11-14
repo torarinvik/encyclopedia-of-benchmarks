@@ -37,6 +37,7 @@ partition enumeration.
 | C3 | `c3/r/robust_scheduling_single_arrival_migration.c3` |
 | C++ | `cpp/r/robust_scheduling_single_arrival_migration.cpp` |
 | Elisa | `elisa/r/robust_scheduling_single_arrival_migration.elisa` |
+| Mojo | `mojo/r/robust_scheduling_single_arrival_migration.mojo` |
 | Nim | `nim/r/robust_scheduling_single_arrival_migration.nim` |
 | Odin | `odin/r/robust_scheduling_single_arrival_migration.odin` |
 | Rust | `rust/r/robust_scheduling_single_arrival_migration.rs` |

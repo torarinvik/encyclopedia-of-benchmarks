@@ -53,6 +53,7 @@ proc kirkpatrick_hierarchical_point_location*(input:ptr UncheckedArray[int64],le
   let nv64=input[0];let nl64=input[1];let qx=input[2];let qy=input[3]
   if nv64<3 or nv64>MaxVertices or nl64<1 or nl64>MaxLevels or qx< -1000 or qx>1000 or qy< -1000 or qy>1000:return -1
   let nv=int(nv64);let nl=int(nl64)
+  if length<csize_t(4+2*nv):return -1
   var xy:XY
   var faces:array[MaxLevels*MaxFaces*3,int64]
   var faceCount:array[MaxLevels,int]

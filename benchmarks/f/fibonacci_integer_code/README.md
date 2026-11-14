@@ -6,6 +6,9 @@ Input is `[n,values...]`, with `1<=n<=32` and values in `0..1,000,000`. Output i
 
 The package covers the Fibonacci code only. The chapter also discusses unary, binary, Elias, and byte-aligned codes, which are not included in this profile. It is distinct from local packages that compute Fibonacci numbers or search Fibonacci sequences.
 
+For `n` values bounded by `M`, the greedy encoding takes `O(n log M)` time
+and `O(n log M)` space including staged output.
+
 ## Implementations
 
 | Language | Source |
@@ -14,6 +17,7 @@ The package covers the Fibonacci code only. The chapter also discusses unary, bi
 | C3 | [`c3/f/fibonacci_integer_code.c3`](../../../c3/f/fibonacci_integer_code.c3) |
 | C++ | [`cpp/f/fibonacci_integer_code.cpp`](../../../cpp/f/fibonacci_integer_code.cpp) |
 | Elisa | [`elisa/f/fibonacci_integer_code.elisa`](../../../elisa/f/fibonacci_integer_code.elisa) |
+| Mojo | [`mojo/f/fibonacci_integer_code.mojo`](../../../mojo/f/fibonacci_integer_code.mojo) |
 | Nim | [`nim/f/fibonacci_integer_code.nim`](../../../nim/f/fibonacci_integer_code.nim) |
 | Odin | [`odin/f/fibonacci_integer_code.odin`](../../../odin/f/fibonacci_integer_code.odin) |
 | Rust | [`rust/f/fibonacci_integer_code.rs`](../../../rust/f/fibonacci_integer_code.rs) |

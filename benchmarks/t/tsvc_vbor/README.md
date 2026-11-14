@@ -63,3 +63,4 @@ factor, and malformed-input cases. The independent integer oracle is
 | Rust | [`tsvc_vbor.rs`](../../../rust/t/tsvc_vbor.rs) |
 | V | [`tsvc_vbor.v`](../../../v/t/tsvc_vbor.v) |
 | Zig | [`tsvc_vbor.zig`](../../../zig/t/tsvc_vbor.zig) |
+| Mojo | [`tsvc_vbor.mojo`](../../../mojo/t/tsvc_vbor.mojo) |

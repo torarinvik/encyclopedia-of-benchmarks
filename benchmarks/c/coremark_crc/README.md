@@ -20,6 +20,7 @@ The algorithm is independently reimplemented from EEMBC CoreMark's `core_util.c`
 | C3 | [`c3/c/coremark_crc.c3`](../../../c3/c/coremark_crc.c3) |
 | C++ | [`cpp/c/coremark_crc.cpp`](../../../cpp/c/coremark_crc.cpp) |
 | Elisa | [`elisa/c/coremark_crc.elisa`](../../../elisa/c/coremark_crc.elisa) |
+| Mojo | [`mojo/c/coremark_crc.mojo`](../../../mojo/c/coremark_crc.mojo) |
 | Nim | [`nim/c/coremark_crc.nim`](../../../nim/c/coremark_crc.nim) |
 | Odin | [`odin/c/coremark_crc.odin`](../../../odin/c/coremark_crc.odin) |
 | Rust | [`rust/c/coremark_crc.rs`](../../../rust/c/coremark_crc.rs) |

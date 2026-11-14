@@ -27,6 +27,9 @@ smallest `(forward_id,backward_id)`. Input is bounded to 86 words; output is 24
 bytes; fixed workspace is 4096 bytes. Invalid input returns `-1`; null output
 or insufficient capacity returns `-2` without writes.
 
+For N transit nodes and F and B access nodes, validation and lookup take
+O(N² + FB) time and O(N² + F + B) space.
+
 Source: Dominik Schultes, “Routing in Road Networks with Transit Nodes,”
 Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_353,
 `OEBPS/AChap353.html`, Key Results. The chapter defines the access-node table
@@ -45,6 +48,7 @@ Primary and independent verifier oracles:
 | C3 | `c3/t/transit_node_routing_table_query.c3` |
 | C++ | `cpp/t/transit_node_routing_table_query.cpp` |
 | Elisa | `elisa/t/transit_node_routing_table_query.elisa` |
+| Mojo | [`mojo/t/transit_node_routing_table_query.mojo`](../../../mojo/t/transit_node_routing_table_query.mojo) (draft; not compiled or run) |
 | Nim | `nim/t/transit_node_routing_table_query.nim` |
 | Odin | `odin/t/transit_node_routing_table_query.odin` |
 | Rust | `rust/t/transit_node_routing_table_query.rs` |

@@ -6,14 +6,17 @@ The pinned Python routine compares eight neighbors with the center using >= and 
 
 Input is nine row-major grayscale byte values. Output is the 8-bit weighted comparison pattern at the center. Invalid input returns -1.
 
+The fixed 3×3 patch requires constant time and constant auxiliary space.
+
 See [workload](workload.json), [independent oracle](../../local_binary_pattern_oracle.py), and pinned [Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/digital_image_processing/filters/local_binary_pattern.py).
 
 | Language | Port |
 |---|---|
 | C | [c/l/local_binary_pattern.c](../../../c/l/local_binary_pattern.c) |
 | C3 | [c3/l/local_binary_pattern.c3](../../../c3/l/local_binary_pattern.c3) |
-| C++ | [c++/l/local_binary_pattern.cpp](../../../c++/l/local_binary_pattern.cpp) |
+| C++ | [cpp/l/local_binary_pattern.cpp](../../../cpp/l/local_binary_pattern.cpp) |
 | Elisa | [elisa/l/local_binary_pattern.elisa](../../../elisa/l/local_binary_pattern.elisa) |
+| Mojo | [mojo/l/local_binary_pattern.mojo](../../../mojo/l/local_binary_pattern.mojo) (draft; not compiled or run in this session) |
 | Nim | [nim/l/local_binary_pattern.nim](../../../nim/l/local_binary_pattern.nim) |
 | Odin | [odin/l/local_binary_pattern.odin](../../../odin/l/local_binary_pattern.odin) |
 | Rust | [rust/l/local_binary_pattern.rs](../../../rust/l/local_binary_pattern.rs) |

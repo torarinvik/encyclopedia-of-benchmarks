@@ -75,9 +75,8 @@ static int64_t block_get(int64_t blocks[MAX_NODES][2 * BLOCK_SIZE + 1], size_t s
 int64_t indexed_block_list(const int64_t *input, size_t length, uint8_t *output, size_t capacity) {
     size_t access_count = 0;
     if (!valid_input(input, length, &access_count)) return -1;
-    if (access_count == 0) return 0;
     const size_t required = access_count * 8;
-    if (output == NULL || capacity < required) return -2;
+    if (required > 0 && (output == NULL || capacity < required)) return -2;
 
     int64_t blocks[MAX_NODES][2 * BLOCK_SIZE + 1] = {{0}};
     size_t sizes[MAX_NODES] = {0};

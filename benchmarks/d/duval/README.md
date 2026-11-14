@@ -24,6 +24,7 @@ The C++ source applies Duval's scan to find the least cyclic shift. The separate
 | C3 | [c3/d/duval.c3](../../../c3/d/duval.c3) |
 | C++ | [cpp/d/duval.cpp](../../../cpp/d/duval.cpp) |
 | Elisa | [elisa/d/duval.elisa](../../../elisa/d/duval.elisa) |
+| Mojo | [mojo/d/duval.mojo](../../../mojo/d/duval.mojo) (draft, unverified) |
 | Nim | [nim/d/duval.nim](../../../nim/d/duval.nim) |
 | Odin | [odin/d/duval.odin](../../../odin/d/duval.odin) |
 | Rust | [rust/d/duval.rs](../../../rust/d/duval.rs) |

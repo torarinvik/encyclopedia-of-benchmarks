@@ -11,5 +11,5 @@ extern "C" std::int64_t counting_triangles_stream_reservoir(const std::int64_t* 
     auto base=2+2*m;for(std::size_t t=1;t<=m;t++)for(std::size_t s=0;s<2;s++){auto r=input[base+2*(t-1)+s];if(r<0||r>=static_cast<std::int64_t>(t))return -1;}
     std::int64_t slots[2][2]={{-1,-1},{-1,-1}},staged[112]{};std::size_t at=0;
     for(std::size_t t=1;t<=m;t++){for(std::size_t s=0;s<2;s++)if(input[base+2*(t-1)+s]==0){slots[s][0]=edges[t-1][0];slots[s][1]=edges[t-1][1];}for(std::size_t s=0;s<2;s++){staged[at++]=slots[s][0];staged[at++]=slots[s][1];}}
-    auto bytes=16*m;if(!output||capacity<bytes)return -2;for(std::size_t i=0;i<at;i++)put_i64(output+8*i,staged[i]);return static_cast<std::int64_t>(bytes);
+    auto bytes=32*m;if(!output||capacity<bytes)return -2;for(std::size_t i=0;i<at;i++)put_i64(output+8*i,staged[i]);return static_cast<std::int64_t>(bytes);
 }

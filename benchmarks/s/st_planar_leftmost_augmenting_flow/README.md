@@ -48,3 +48,4 @@ bottleneck-augmentation profile.
 | V | `v/s/st_planar_leftmost_augmenting_flow.v` |
 | C3 | `c3/s/st_planar_leftmost_augmenting_flow.c3` |
 | Elisa | `elisa/s/st_planar_leftmost_augmenting_flow.elisa` |
+| Mojo | [mojo/s/st_planar_leftmost_augmenting_flow.mojo](../../../mojo/s/st_planar_leftmost_augmenting_flow.mojo) |

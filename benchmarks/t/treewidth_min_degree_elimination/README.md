@@ -10,7 +10,7 @@ This package implements the minimum-degree heuristic described in Hans L. Bodlae
 - The output is `[width,elimination_order[0..n-1],fill_edge_count,u0,v0,...]`. `width` is the maximum degree at elimination time, so this heuristic's chordal completion gives a treewidth upper bound. The ordering and fill list make the heuristic result observable.
 - Maximum output is 2064 bytes (n=16 and 120 recorded fill edges). Invalid input returns `-1`; null or short output returns `-2` without writes.
 
-The source chapter distinguishes the minimum-degree heuristic from the exact treewidth problem. This package does **not** claim to compute exact treewidth or recognize all graphs of a requested width; it benchmarks the specific source-described heuristic with deterministic tie-breaking. No local graph package implements this elimination-and-fill recurrence.
+The source chapter distinguishes the minimum-degree heuristic from the exact treewidth problem. This package does **not** claim to compute exact treewidth or recognize all graphs of a requested width; it benchmarks the specific source-described heuristic with deterministic tie-breaking. The related [minimum-fill profile](../treewidth_min_fill_elimination/README.md) uses a different vertex-selection rule.
 
 ## Provenance and rights
 
@@ -33,3 +33,4 @@ The source is Hans L. Bodlaender, “Treewidth of Graphs,” DOI `10.1007/978-1-
 | Rust | [`rust/t/treewidth_min_degree_elimination.rs`](../../../rust/t/treewidth_min_degree_elimination.rs) |
 | V | [`v/t/treewidth_min_degree_elimination.v`](../../../v/t/treewidth_min_degree_elimination.v) |
 | Zig | [`zig/t/treewidth_min_degree_elimination.zig`](../../../zig/t/treewidth_min_degree_elimination.zig) |
+| Mojo | [`mojo/t/treewidth_min_degree_elimination.mojo`](../../../mojo/t/treewidth_min_degree_elimination.mojo) (draft, unverified) |

@@ -31,7 +31,7 @@ fn read_word(p: &mut Parser, out: &mut [u8; MAX_NAME + 1]) -> usize {
     while p.pos < p.length && { c = i32::from(p.input[p.pos]); c >= 0 && (c >= 65 && c <= 90 || c >= 97 && c <= 122 || c >= 48 && c <= 57 || c == 95) } {
         if used >= MAX_NAME { return 0; }
         out[used] = c as u8;
-        used += 1; p.pos += 1; c = peek(p);
+        used += 1; p.pos += 1;
     }
     out[used] = 0;
     used
@@ -49,7 +49,7 @@ fn decimal(p: &mut Parser) -> Option<i32> {
     let mut result = 0;
     while p.pos < p.length && { c = i32::from(p.input[p.pos]); c >= 48 && c <= 57 } {
         result = result * 10 + c - 48; if result > 99 { return None; }
-        p.pos += 1; c = peek(p);
+        p.pos += 1;
     }
     if result < 1 { None } else { Some(result) }
 }

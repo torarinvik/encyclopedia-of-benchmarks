@@ -29,7 +29,7 @@
     "zero_radius_semantics": "Two distinct point-circles have one common line; one point-circle and one circle have two, one, or zero tangent lines according to whether the point is outside, on, or inside the circle.",
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Enumerate the four sign choices for signed radii and count nonnegative squared tangent discriminants; collapse the duplicate line at positive-radius internal or external tangency and handle point-circle degeneracies explicitly.",
     "independent_oracle": "Compare exact squared center distance against the squared radius sum and absolute radius difference, with separate point-circle cases.",
     "primary_complexity": "O(1) time and O(1) space.",

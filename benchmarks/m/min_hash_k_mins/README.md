@@ -11,6 +11,7 @@ Input is `[n,k, rank_0_0,...,rank_(n-1)_(k-1)]` in row-major order, with
 for each rank function, in function order; equal ranks select the lower ID.
 Output uses little-endian signed i64 values. Invalid inputs return `-1`; null
 output or insufficient capacity returns `-2` without writing.
+The explicit rank scan takes O(nk) time and O(k) space.
 
 Source: “Min-Hash Sketches,” DOI
 [`10.1007/978-1-4939-2864-4_573`](https://doi.org/10.1007/978-1-4939-2864-4_573).
@@ -23,6 +24,7 @@ different state and query contracts.
 | C3 | `c3/m/min_hash_k_mins.c3` |
 | C++ | `cpp/m/min_hash_k_mins.cpp` |
 | Elisa | `elisa/m/min_hash_k_mins.elisa` |
+| Mojo | `mojo/m/min_hash_k_mins.mojo` |
 | Nim | `nim/m/min_hash_k_mins.nim` |
 | Odin | `odin/m/min_hash_k_mins.odin` |
 | Rust | `rust/m/min_hash_k_mins.rs` |

@@ -1,6 +1,6 @@
 module z_algorithm;
 
-const usz MAX_LENGTH = 2047;
+const usz MAX_LENGTH = 4095;
 
 fn long z_algorithm(long* input, usz length, char* output, usz output_capacity)
         @export("z_algorithm") {

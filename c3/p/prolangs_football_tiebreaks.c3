@@ -61,7 +61,7 @@ fn void refine(long* v, int n, int* ids, int lo, int hi, int stage, bool same_di
         while (j > lo) {
             Fraction previous = score_for(v, n, ids, lo, hi, ids[j - 1], stage, same_div);
             if (compare_score(item_score, previous) <= 0) break;
-            ids[j] = ids[j - 1]; j--;
+            ids[j] = ids[j - 1]; ids[j - 1] = item; j--;
         }
         ids[j] = item;
     }

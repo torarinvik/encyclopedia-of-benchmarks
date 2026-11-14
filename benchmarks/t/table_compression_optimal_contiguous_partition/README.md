@@ -10,6 +10,9 @@ This package implements Problem 1 from Encyclopedia of Algorithms chapter DOI [`
 - The port applies the source DP to all possible contiguous intervals. Starts are considered in ascending order and equal costs retain the first cut. Output is `[minimum_compressed_bytes,group_count,cut_mask]`; bit `i-1` in `cut_mask` records a boundary after column `i-1` (equivalently, before zero-based column `i`). This compactly reconstructs every interval.
 - Output is three little-endian signed 64-bit words (24 bytes). Invalid input returns `-1`; null or short output returns `-2` without writes.
 
+For R rows and C columns, recomputing each interval's run count takes
+O(RC³) time; the table and DP use O(RC + C) space.
+
 This is the chapter's contiguous-partition optimizer for the explicitly selected RLE compressor. It does not claim the output partition is optimal for gzip, LZ, BWT, or another compressor. It is distinct from local symbol-stream codecs, which compress a stream but do not optimize a table's contiguous column partition, and from `columnar_transposition`, which performs a different column permutation.
 
 ## Provenance and rights
@@ -28,6 +31,7 @@ The source chapter is Raffaele Giancarlo and Adam L. Buchsbaum, “Table Compres
 | C3 | [`c3/t/table_compression_optimal_contiguous_partition.c3`](../../../c3/t/table_compression_optimal_contiguous_partition.c3) |
 | C++ | [`cpp/t/table_compression_optimal_contiguous_partition.cpp`](../../../cpp/t/table_compression_optimal_contiguous_partition.cpp) |
 | Elisa | [`elisa/t/table_compression_optimal_contiguous_partition.elisa`](../../../elisa/t/table_compression_optimal_contiguous_partition.elisa) |
+| Mojo | [`mojo/t/table_compression_optimal_contiguous_partition.mojo`](../../../mojo/t/table_compression_optimal_contiguous_partition.mojo) (draft; not compiled or run) |
 | Nim | [`nim/t/table_compression_optimal_contiguous_partition.nim`](../../../nim/t/table_compression_optimal_contiguous_partition.nim) |
 | Odin | [`odin/t/table_compression_optimal_contiguous_partition.odin`](../../../odin/t/table_compression_optimal_contiguous_partition.odin) |
 | Rust | [`rust/t/table_compression_optimal_contiguous_partition.rs`](../../../rust/t/table_compression_optimal_contiguous_partition.rs) |

@@ -3,7 +3,7 @@ module exact_graph_coloring_inclusion_exclusion;
 fn long exact_graph_coloring_inclusion_exclusion(long* x, usz length, char* out, usz cap)
     @export("exact_graph_coloring_inclusion_exclusion")
 {
-    if(x==null)return -2;if(length<2||length>44)return -1;long nv=x[0],mv=x[1];
+    if(x==null)return -1;if(length<2||length>44)return -1;long nv=x[0],mv=x[1];
     if(nv<1||nv>7||mv<0||mv>21||length!=2+2*(usz)mv)return -1;usz n=(usz)nv,m=(usz)mv;
     bool[7][7] adj=zeroed;
     for(usz e=0;e<m;e++){long uv=x[2+2*e],vv=x[3+2*e];if(uv<0||vv<0||uv>=nv||vv>=nv||uv==vv)return -1;usz u=(usz)uv,v=(usz)vv;if(adj[u][v])return -1;adj[u][v]=true;adj[v][u]=true;}

@@ -13645,9 +13645,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "bitap_exact_match_31",
-      "benchmark_contract": "benchmarks/b/bitap_exact_match_31/README.md",
-      "review_notes": "The pinned C# exact matcher returns the first lowercase-ASCII byte match and supports patterns through length 31. It shares the core operation with bitap_string_match but remains a separate contract because that package permits 63-character patterns."
+      "benchmark_name": "bitap_string_match",
+      "benchmark_contract": "benchmarks/b/bitap_string_match/README.md",
+      "review_notes": "The pinned C# exact matcher uses the same shift-OR recurrence as bitap_string_match. Its 31-character bound is covered by the retained benchmark's 63-character bound."
     },
     {
       "candidate_id": "bitap_string_match",
@@ -13677,7 +13677,7 @@
         }
       ],
       "benchmark_name": "bitap_string_match",
-      "review_notes": "The pinned Python source and nine ports implement exact first-match search over lowercase ASCII. Empty pattern returns 0; no match or a pattern longer than the text returns -1. The workload bounds the pattern to 63 characters for a portable 64-bit Bitap state. The separate C# `bitap` candidate has a 31-character limit and is not mapped to this wider contract.",
+      "review_notes": "The pinned Python source and ports implement exact first-match search over lowercase ASCII. Empty pattern returns 0; no match or a pattern longer than the text returns -1. The workload bounds the pattern to 63 characters for a portable 64-bit Bitap state; the C# candidate's 31-character profile uses the same recurrence.",
       "benchmark_contract": "benchmarks/b/bitap_string_match/README.md"
     },
     {
@@ -14394,7 +14394,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_excluded_non_benchmarkable_source",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -14404,7 +14404,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "At the pinned Go revision, bom.go declares the package but every implementation and CLI/demo block is commented out; there is no active matching routine to port or benchmark."
+      "benchmark_name": "backward_oracle_match",
+      "benchmark_contract": "benchmarks/b/backward_oracle_match/README.md",
+      "review_notes": "At the pinned Go revision, bom.go contains no active matching routine and was not used as code. The algorithm is covered by the independently authored backward_oracle_match draft based on published factor-oracle descriptions; the ports remain unverified."
     },
     {
       "candidate_id": "bool",
@@ -21369,7 +21371,7 @@
         }
       ],
       "benchmark_name": "convex_hull_quickhull",
-      "review_notes": "The pinned Java and Python `convex_hull` sources use Quickhull-style recursive partitioning and map to a separate Quickhull benchmark. The Rust `src/general/convex_hull.rs` source is a polar-angle Graham scan and maps to the additional `convex_hull_graham_scan` benchmark, which preserves unique boundary points and emits CCW original indices. The JavaScript `convex_hull_graham` source is a separate monotone-chain method and remains under independent review.",
+      "review_notes": "The pinned Java and Python `convex_hull` sources use Quickhull-style recursive partitioning and map to a separate Quickhull benchmark. The Rust `src/general/convex_hull.rs` source is a polar-angle Graham scan and maps to `convex_hull_graham_scan`, which preserves unique boundary points and emits CCW original indices. The JavaScript `convex_hull_graham` source uses x-sorted chains, not a polar-angle Graham scan, and is mapped to `monotone_chain` in its own catalog record.",
       "benchmark_contract": "benchmarks/c/convex_hull_quickhull/README.md",
       "additional_benchmark_names": [
         "convex_hull_graham_scan"
@@ -21395,9 +21397,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "convex_hull_graham",
-      "benchmark_contract": "benchmarks/c/convex_hull_graham/README.md",
-      "review_notes": "The pinned JavaScript `convexHull` sorts by x and constructs upper and lower chains around the leftmost-to-rightmost baseline; it is distinct from the polar-angle scan in `convex_hull_graham_scan`. The bounded contract requires unique x coordinates and no interior baseline-collinear points, preserves the source orientation labels and collinear chain points, and emits original input indexes in source order. The oracle, nine ports, and byte-output verifier integration follow this contract."
+      "benchmark_name": "monotone_chain",
+      "benchmark_contract": "benchmarks/m/monotone_chain/README.md",
+      "review_notes": "The pinned JavaScript `convexHull` sorts by x and constructs upper and lower chains around the leftmost-to-rightmost baseline, making it an Andrew monotone-chain variant rather than a polar-angle Graham scan. Map it to `monotone_chain` on distinct-x inputs without collinear triples: convert original-index output to point coordinates and normalize cyclic order and direction before comparison. The JavaScript routine retains collinear boundary points and uses a different order; the canonical benchmark drops intermediate collinear points, so those cases are outside the source mapping. The redundant benchmark package and registration were removed."
     },
     {
       "candidate_id": "convolution",
@@ -55538,8 +55540,8 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java factorize method implements Duval's linear-time Lyndon factorization, comparing UTF-16 code units and returning factors in non-increasing lexicographic order. It resets the match position on a strict increase and emits the period repeatedly while the factor boundary remains within the matched prefix. The bounded contract restricts input to lowercase ASCII bytes (preserving code-unit ordering), n<=256, and encodes each factor followed by NUL; output capacity must be at least 2*n. Empty input returns empty output; malformed input returns -1 and insufficient capacity returns -2.",
-      "benchmark_contract": "benchmarks/l/lyndon_factorization/README.md"
+      "review_notes": "The pinned Java factorization implements the same Duval scan as the retained duval_algorithm profile. Its separate narrower benchmark was removed as a duplicate; the retained profile accepts ASCII arrays up to length 4096 and emits factor lengths.",
+      "benchmark_contract": "benchmarks/d/duval_algorithm/README.md"
     },
     {
       "candidate_id": "lz77_java",
@@ -84300,8 +84302,10 @@
           "local_folder_source": null
         }
       ],
-      "review_status": "reviewed_excluded_non_benchmarkable_source",
-      "review_notes": "The pinned Java sampler constructs an unseeded Random per call and exposes no deterministic random-stream injection seam."
+      "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "reservoir_sampling_algorithm_r",
+      "benchmark_contract": "benchmarks/r/reservoir_sampling_algorithm_r/README.md",
+      "review_notes": "The pinned Java sampler uses an unseeded Random and is not used as code. The independently authored Algorithm R draft accepts explicit bounded draw outcomes; language and suite coverage remain incomplete."
     },
     {
       "candidate_id": "resistor_color_code",
@@ -104849,7 +104853,7 @@
         }
       ],
       "benchmark_name": "z_algorithm",
-      "review_notes": "The pinned Rust module exposes a generic raw z_array that returns one prefix-match length per input index and leaves z[0]=0; empty input returns an empty vector. The contract accepts up to 2,047 arbitrary signed-i64 equality tokens and returns one u32 little-endian value per input item. This is distinct from z_algorithm_search, which returns case-insensitive ASCII match positions.",
+      "review_notes": "The pinned Rust module exposes a generic raw z_array that returns one prefix-match length per input index and leaves z[0]=0; empty input returns an empty vector. The contract accepts up to 4,095 arbitrary signed-i64 equality tokens and returns one u32 little-endian value per input item. The former search wrapper used the same Z-array kernel and was consolidated here.",
       "benchmark_contract": "benchmarks/z/z_algorithm/README.md"
     },
     {
@@ -104879,8 +104883,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned R function uses the Z algorithm on pattern + separator + text and reports all candidate positions. The benchmark repairs the source's strict comparison that misses exact matches and replaces its colliding literal separator with an out-of-domain value, while preserving all-match behavior and documented one-based output.",
-      "benchmark_contract": "benchmarks/z/z_algorithm_search/README.md"
+      "review_notes": "The pinned R function uses the Z algorithm on pattern + separator + text and reports candidate positions. The search wrapper has been consolidated into the raw Z-array benchmark; case folding and position filtering are no longer part of its benchmark interface.",
+      "alias_of": "z_algorithm",
+      "benchmark_contract": "benchmarks/z/z_algorithm/README.md"
     },
     {
       "candidate_id": "z_function",
@@ -104917,8 +104922,8 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/z/z_function/README.md",
-      "review_notes": "The pinned C++ and Python sources return the Z-array with z[0]=0. This is the prefix-match array operation, distinct from the existing z_algorithm pattern-search benchmark."
+      "benchmark_contract": "benchmarks/z/z_algorithm/README.md",
+      "review_notes": "The pinned C++ and Python sources compute the same Z-array as z_algorithm, with z[0]=0. The duplicate z_function benchmark was consolidated into the broader signed-symbol z_algorithm profile."
     },
     {
       "candidate_id": "zalgorithm",
@@ -104968,8 +104973,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/z/zblock_substring_search/README.md",
-      "review_notes": "The pinned C# FindSubstring computes Z blocks for pattern + \"$\" + text and returns a count of exact matches, including overlaps. The bounded benchmark excludes \"$\" bytes to prevent the literal separator collision, preserves case-sensitive exact matching and count output, and is distinct from the existing Z search benchmark that returns case-insensitive match positions."
+      "alias_of": "z_algorithm",
+      "benchmark_contract": "benchmarks/z/z_algorithm/README.md",
+      "review_notes": "The pinned C# FindSubstring computes the same Z-array for pattern, separator, and text before counting matches. The duplicate benchmark was consolidated into z_algorithm; callers must perform match counting themselves."
     },
     {
       "candidate_id": "zellers_congruence",

@@ -11,6 +11,9 @@ Output is `[total_cover_time, element_order...]` as little-endian signed i64
 values. Invalid input returns `-1`; null output or insufficient capacity
 returns `-2` without writing.
 
+For n elements and m sets, the direct implementation takes O(n²m) time and
+O(n + m) space.
+
 The profile instantiates the greedy MSSC algorithm from “Min-Sum Set Cover and
 Its Generalizations,” DOI
 [`10.1007/978-1-4939-2864-4_806`](https://doi.org/10.1007/978-1-4939-2864-4_806).
@@ -24,6 +27,7 @@ ordering rule, rather than selecting a small family of sets.
 | C3 | `c3/m/min_sum_set_cover_greedy.c3` |
 | C++ | `cpp/m/min_sum_set_cover_greedy.cpp` |
 | Elisa | `elisa/m/min_sum_set_cover_greedy.elisa` |
+| Mojo | `mojo/m/min_sum_set_cover_greedy.mojo` |
 | Nim | `nim/m/min_sum_set_cover_greedy.nim` |
 | Odin | `odin/m/min_sum_set_cover_greedy.odin` |
 | Rust | `rust/m/min_sum_set_cover_greedy.rs` |

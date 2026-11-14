@@ -27,6 +27,10 @@ row-wise seam removal described in Trekhleb's seam-carving implementation.
 The workload includes deterministic seam selection and tie cases, a maximum
 image, malformed inputs, null input/output, and short/exact output capacities.
 
+For width W and height H, the energy and dynamic-programming passes use
+O(WH) time and O(WH) auxiliary space. The [Mojo draft](../../../mojo/s/seam_carving.mojo)
+has not been compiled or run.
+
 ## Pinned source and license
 
 The energy, dynamic-programming, and seam-removal procedure is adapted from

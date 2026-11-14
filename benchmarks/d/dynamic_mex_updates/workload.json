@@ -38,7 +38,7 @@
     "bytes": 256,
     "meaning": "Maximum external output-buffer capacity; bounded frequency and segment-tree arrays use fixed local storage."
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Maintain candidate frequencies for values 0..N and a segment tree storing occupied-value counts. Update leaves when a frequency crosses zero, then descend to the first interval whose occupied count is below its width.",
     "independent_oracle": "Apply each point update to a plain array and scan candidates from zero through N for the first absent value.",
     "primary_complexity": "O(N log N + Q log N) time and O(N) space.",

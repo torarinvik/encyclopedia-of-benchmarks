@@ -51,6 +51,8 @@ independently from the source's documented tree model and equations.
 | V | [v/o/olden_power.v](../../../v/o/olden_power.v) |
 | Zig | [zig/o/olden_power.zig](../../../zig/o/olden_power.zig) |
 
+The Mojo draft is [`mojo/o/olden_power.mojo`](../../../mojo/o/olden_power.mojo). Floating-point contraction, math-library behavior, and rounding remain unverified.
+
 ## Pinned source files
 
 - [`build.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/power/build.c)

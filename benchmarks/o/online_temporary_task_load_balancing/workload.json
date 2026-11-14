@@ -44,7 +44,7 @@
     "bytes": 2048,
     "meaning": "Staged output and fixed arrays for machine loads and at most 32 task-expiration events."
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Process arrivals in input order, remove all completion events with completion_time <= arrival, select the lowest-ID machine with minimum active load, assign irrevocably, add the task weight, update peak, and insert its completion event into a min-heap.",
     "independent_oracle": "At every arrival, recompute each machine's active load by scanning every prior assignment and retaining exactly tasks whose completion time is greater than the arrival; apply the same least-load rule and update peak.",
     "primary_complexity": "O(task_count log task_count + task_count*machine_count) time and O(task_count + machine_count) space.",

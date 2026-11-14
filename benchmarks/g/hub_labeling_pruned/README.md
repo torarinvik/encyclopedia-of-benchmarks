@@ -29,6 +29,15 @@ neighbors in increasing vertex-ID order.
 This profile fixes a single order and an undirected unit-length graph; it does
 not implement the chapter's greedy order selection, general-labeling
 approximation, or directed forward/backward variant.
+The dense bounded representation uses O(n³) time for uniqueness validation
+and pruned searches, and O(n²) space for adjacency and labels. The Mojo
+draft has not been compiled or run.
+The three-vertex path fixture and its short-output variant use the order
+`[1,0,2]` and edges `(0,1),(1,2)`; their framing was corrected by static
+review. The workload and references remain unexecuted.
+Verifier source enumerates every simple graph on up to four vertices and
+every rank order, compares the two references, and specifies output-capacity
+and null-pointer cases. These checks have not been run.
 
 Source: “Hub Labeling (2-Hop Labeling),” Daniel Delling, Andrew V. Goldberg,
 and Renato F. Werneck, *Encyclopedia of Algorithms*, DOI
@@ -45,6 +54,7 @@ Independent verifier: [`hub_labeling_pruned_verifier_oracle.py`](../../hub_label
 | C3 | `c3/g/hub_labeling_pruned.c3` |
 | C++ | `cpp/g/hub_labeling_pruned.cpp` |
 | Elisa | `elisa/g/hub_labeling_pruned.elisa` |
+| Mojo | [mojo/g/hub_labeling_pruned.mojo](../../../mojo/g/hub_labeling_pruned.mojo) (uncompiled draft) |
 | Nim | `nim/g/hub_labeling_pruned.nim` |
 | Odin | `odin/g/hub_labeling_pruned.odin` |
 | Rust | `rust/g/hub_labeling_pruned.rs` |

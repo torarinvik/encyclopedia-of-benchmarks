@@ -45,6 +45,7 @@ All nine language implementations are clean-room ports.
 | C3 | [`c3/k/gbbs_k_core_decomposition.c3`](../../../c3/k/gbbs_k_core_decomposition.c3) |
 | C++ | [`cpp/k/gbbs_k_core_decomposition.cpp`](../../../cpp/k/gbbs_k_core_decomposition.cpp) |
 | Elisa | [`elisa/k/gbbs_k_core_decomposition.elisa`](../../../elisa/k/gbbs_k_core_decomposition.elisa) |
+| Mojo | [`mojo/g/gbbs_k_core_decomposition.mojo`](../../../mojo/g/gbbs_k_core_decomposition.mojo) |
 | Nim | [`nim/k/gbbs_k_core_decomposition.nim`](../../../nim/k/gbbs_k_core_decomposition.nim) |
 | Odin | [`odin/k/gbbs_k_core_decomposition.odin`](../../../odin/k/gbbs_k_core_decomposition.odin) |
 | Rust | [`rust/k/gbbs_k_core_decomposition.rs`](../../../rust/k/gbbs_k_core_decomposition.rs) |

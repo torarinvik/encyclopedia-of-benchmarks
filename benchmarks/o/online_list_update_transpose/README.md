@@ -28,8 +28,11 @@ without exchange and repeated accesses that advance one position per request.
 
 The chapter also discusses Frequency Count, Timestamp, and randomized Bit
 and Comb policies; those policies are not part of this package. The local
-[Move-to-Front profile](../m/move_to_front/README.md) covers the chapter's MTF
+[Move-to-Front profile](../../m/move_to_front/README.md) covers the chapter's MTF
 algorithm, while this package covers Transpose.
+
+For n items and q requests, direct list searches take O(nq) time; the
+order and recorded access positions occupy O(n+q) space.
 
 ## Workload and ports
 
@@ -43,6 +46,7 @@ See [workload.json](workload.json), [RIGHTS.md](RIGHTS.md), the
 | C3 | [`c3/o/online_list_update_transpose.c3`](../../../c3/o/online_list_update_transpose.c3) |
 | C++ | [`cpp/o/online_list_update_transpose.cpp`](../../../cpp/o/online_list_update_transpose.cpp) |
 | Elisa | [`elisa/o/online_list_update_transpose.elisa`](../../../elisa/o/online_list_update_transpose.elisa) |
+| Mojo | [`mojo/o/online_list_update_transpose.mojo`](../../../mojo/o/online_list_update_transpose.mojo) (unverified draft) |
 | Nim | [`nim/o/online_list_update_transpose.nim`](../../../nim/o/online_list_update_transpose.nim) |
 | Odin | [`odin/o/online_list_update_transpose.odin`](../../../odin/o/online_list_update_transpose.odin) |
 | Rust | [`rust/o/online_list_update_transpose.rs`](../../../rust/o/online_list_update_transpose.rs) |

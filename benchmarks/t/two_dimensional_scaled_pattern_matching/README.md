@@ -16,6 +16,9 @@ are returned in row-major order as `[match_count,row_0,col_0,...]`. The maximum
 result is 289 signed i64 values (2312 bytes). Invalid input returns `-1`;
 null output or insufficient capacity returns `-2` without writing.
 
+For H×W text and scaled footprint h×w, the direct search uses O(HW + HW·h·w)
+time and O(HW + h·w) space for input and staged matches.
+
 This is a fixed-scale matching profile: it does not search continuously over
 all real scales or implement the chapter's faster all-scales algorithms. The
 geometric center-sampling rule and all-placement output come from the chapter's
@@ -35,6 +38,7 @@ The ports and documentation are clean-room; no book prose or code was copied.
 | C3 | `c3/t/two_dimensional_scaled_pattern_matching.c3` |
 | C++ | `cpp/t/two_dimensional_scaled_pattern_matching.cpp` |
 | Elisa | `elisa/t/two_dimensional_scaled_pattern_matching.elisa` |
+| Mojo | [`mojo/t/two_dimensional_scaled_pattern_matching.mojo`](../../../mojo/t/two_dimensional_scaled_pattern_matching.mojo) (draft; not compiled or run) |
 | Nim | `nim/t/two_dimensional_scaled_pattern_matching.nim` |
 | Odin | `odin/t/two_dimensional_scaled_pattern_matching.odin` |
 | Rust | `rust/t/two_dimensional_scaled_pattern_matching.rs` |

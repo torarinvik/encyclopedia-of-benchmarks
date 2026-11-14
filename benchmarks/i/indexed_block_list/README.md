@@ -13,3 +13,8 @@ The longest valid input has 178 words and the parseable malformed-frame limit is
 The existing `unrolled_linked_list` package only appends and flattens, with tail splitting. This package exercises indexed insertion, indexed access, and interior block splitting. Its operation design follows the linked-array block-list description in [OI Wiki](https://oi-wiki.org/ds/block-list/). The implementation and workload were written independently; no source code or examples were copied.
 
 The primary oracle simulates linked fixed-array blocks and the prescribed split. The independent oracle uses a flat Python list and checks only sequence semantics.
+Insertion-only traces still build and update the list, even though they return
+zero output bytes; the final structure is unobservable and optimized builds may
+eliminate work in those traces. The suite source also defines insertion-and-read traces at every index around
+the block split threshold and compares the two references. These checks have
+not been run.

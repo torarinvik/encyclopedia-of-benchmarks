@@ -43,8 +43,6 @@ def expected_output(values, output_capacity=None, output_is_null=False,
             or any(x < 0 or x >= n for x in roots+col)):
         return -1, []
     result_size = roots_count*22
-    if output_is_null or output_capacity is not None and output_capacity < result_size:
-        return -2, []
     all_levels = [roots[:]]
     cursor = 0
     for fanout in STEPS:
@@ -63,4 +61,6 @@ def expected_output(values, output_capacity=None, output_is_null=False,
     flattened = []
     for level in all_levels:
         flattened.extend(level)
+    if output_is_null or output_capacity is not None and output_capacity < result_size:
+        return -2, []
     return len(flattened), flattened

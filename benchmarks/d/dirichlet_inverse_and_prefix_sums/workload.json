@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-dirichlet-inverse-prefix-i64-bytes-v1",
+  "algorithm": "dirichlet_inverse_and_prefix_sums",
+  "function_symbol": "dirichlet_inverse_and_prefix_sums",
+  "abi": "i64_array_bytes_output",
+  "source": {"repository": "yosupo06/library-checker-problems", "path": "number_theory/dirichlet_inverse_and_prefix_sums/task.md", "license": "Apache-2.0; algorithm idea only"},
+  "input": {"kind": "signed_i64_array", "layout": "[N,F(q_0),...,F(q_(K-1))]", "n_range": [1,64], "modulus": 998244353, "maximum_valid_input_length": 16, "maximum_parseable_input_length": 17, "invalid_result": -1},
+  "output": {"kind": "little_endian_signed_i64", "maximum_output_bytes": 120, "invalid_result": -1, "output_error_result": -2, "no_write_on_error": true},
+  "workspace": {"bytes": 120},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {"id": "unit_function", "input_values": [4,1,1,1], "input_length": 4, "expected_result": 24, "expected_output_hex": "010000000000000001000000000000000100000000000000"},
+    {"id": "constant_function", "input_values": [4,1,2,4], "input_length": 4, "expected_result": 24, "expected_output_hex": "010000000000000000000000000000000000803b00000000"},
+    {"id": "single_quotient", "input_values": [1,1], "input_length": 2, "expected_result": 8, "expected_output_hex": "0100000000000000"},
+    {"id": "nonunit_first_coefficient", "input_values": [1,2], "input_length": 2, "expected_result": 8, "expected_output_hex": "0100c01d00000000"},
+    {"id": "zero_first_invalid", "input_values": [1,0], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "residue_out_of_range", "input_values": [1,998244353], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output", "input_values": [1,1], "input_length": 2, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [1,1], "input_length": 2, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

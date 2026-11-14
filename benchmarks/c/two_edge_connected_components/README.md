@@ -53,3 +53,7 @@ implementation has been run or compiled.
 | V | [`v/t/two_edge_connected_components.v`](../../../v/t/two_edge_connected_components.v) |
 | Zig | [`zig/t/two_edge_connected_components.zig`](../../../zig/t/two_edge_connected_components.zig) |
 | Mojo | [`mojo/t/two_edge_connected_components.mojo`](../../../mojo/t/two_edge_connected_components.mojo) |
+
+The build and byte-output suite resolve this workload in `c/`; C and C++
+sources use the links above, while the other ports use `t/`. This path wiring
+has been reviewed statically and has not been run.

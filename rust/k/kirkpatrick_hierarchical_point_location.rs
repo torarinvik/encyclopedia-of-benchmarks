@@ -35,6 +35,7 @@ pub unsafe extern "C" fn kirkpatrick_hierarchical_point_location(input:*const i6
     if input.is_null()||length<14||length>MAX_INPUT{return -1;}
     let nv=*input;let nl=*input.add(1);let q=[*input.add(2),*input.add(3)];
     if nv<3||nv>MAX_VERTICES as i64||nl<1||nl>MAX_LEVELS as i64||q[0]< -1000||q[0]>1000||q[1]< -1000||q[1]>1000{return -1;}
+    if length<4+2*nv as usize{return -1;}
     let mut xy=[[0i64;2];MAX_VERTICES];let mut faces=[[[0i64;3];MAX_FACES];MAX_LEVELS];let mut face_count=[0usize;MAX_LEVELS];
     let mut cand_count=[[0usize;MAX_FACES];MAX_LEVELS];let mut cand_ids=[[[0usize;MAX_FACES];MAX_FACES];MAX_LEVELS];let mut pos=4usize;
     for v in 0..nv as usize{xy[v]=[*input.add(pos),*input.add(pos+1)];pos+=2;if xy[v][0]< -1000||xy[v][0]>1000||xy[v][1]< -1000||xy[v][1]>1000{return -1;}}

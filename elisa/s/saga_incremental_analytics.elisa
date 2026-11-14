@@ -4,11 +4,12 @@ const MAX_E: usize = 28
 const MAX_INPUT: usize = 97
 const INF_VALUE: i64 = 1000000000
 
-def push_once(vertex: usize, queue: mutable usize&, count: mutable usize&, seen: mutable bool&) -> void:
+def push_once(vertex: usize, queue: mutable view[usize], count: usize, seen: mutable view[bool]) -> usize:
     if not seen[vertex]:
         seen[vertex] <- true
         queue[count] <- vertex
-        count <- count + 1
+        return count + 1
+    count
 
 def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
     bits: u64 = value.u64()
@@ -19,12 +20,13 @@ def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("saga_incremental_analytics"):
     if input.is_null() or length < 5 or length > MAX_INPUT: return -1
-    mode64: i64 = input[0]
-    n64: i64 = input[1]
-    base64: i64 = input[2]
-    added64: i64 = input[3]
-    source64: i64 = input[4]
-    if mode64 < 1 or mode64 > 6 or n64 < 2 or n64 > 8 or base64 < 0 or added64 < 1 or
+    values: view[i64] = input[0:length]
+    mode64: i64 = values[0]
+    n64: i64 = values[1]
+    base64: i64 = values[2]
+    added64: i64 = values[3]
+    source64: i64 = values[4]
+    if mode64 < 1 or mode64 > 6 or n64 < 2 or n64 > 8 or base64 < 0 or base64 > 28 or added64 < 1 or added64 > 28 or
         base64 + added64 > 28 or length != 5 + n64.usize() + 3 * (base64 + added64).usize(): return -1
     mode: usize = mode64.usize()
     n: usize = n64.usize()
@@ -37,7 +39,7 @@ def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, 
     property: mutable i64[8] = zeroed
     v: mutable usize = 0
     while v < n:
-        value: i64 = input[5 + v]
+        value: i64 = values[5 + v]
         if mode == 1 and (value < -1 or value >= n64): return -1
         if (mode == 2 or mode == 5) and (value < -1 or value > INF_VALUE): return -1
         if mode == 3 and (value < -1 or value > 1000000): return -1
@@ -53,9 +55,9 @@ def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, 
     edge: mutable usize = 0
     while edge < edge_count:
         pos: usize = edge_start + 3 * edge
-        u64: i64 = input[pos]
-        v64: i64 = input[pos + 1]
-        w: i64 = input[pos + 2]
+        u64: i64 = values[pos]
+        v64: i64 = values[pos + 1]
+        w: i64 = values[pos + 2]
         if u64 < 0 or v64 <= u64 or v64 >= n64 or w < 1 or w > 9: return -1
         u: usize = u64.usize()
         vv: usize = v64.usize()
@@ -122,7 +124,7 @@ def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, 
                 if difference > 1.0e-7:
                     j <- 0
                     while j < degree[v]:
-                        push_once(neighbors[v * 8 + j], queue, count, seen)
+                        count <- push_once(neighbors[v * 8 + j], queue[0:8], count, seen[0:8])
                         j <- j + 1
             v <- v + 1
         rounds: mutable usize = 0
@@ -151,7 +153,9 @@ def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, 
                 if difference < 0.0: difference <- 0.0 - difference
                 if difference > 1.0e-7:
                     j <- 0
-                    while j < degree[v]: push_once(neighbors[v * 8 + j], queue, count, seen); j <- j + 1
+                    while j < degree[v]:
+                        count <- push_once(neighbors[v * 8 + j], queue[0:8], count, seen[0:8])
+                        j <- j + 1
                 q <- q + 1
         v <- 0
         while v < n:
@@ -176,6 +180,17 @@ def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, 
             while a < active_count:
                 v <- active[a]
                 old: i64 = property[v]
+                if mode == 1 and not first:
+                    j: mutable usize = 0
+                    while j < degree[v]:
+                        let neighbor: usize = neighbors[v * 8 + j]
+                        let update: i64 = property[v] + 1
+                        if property[neighbor] == -1 or update < property[neighbor]:
+                            property[neighbor] <- update
+                            next_count <- push_once(neighbor, next[0:8], next_count, next_seen[0:8])
+                        j <- j + 1
+                    a <- a + 1
+                    continue
                 candidate: mutable i64 = if mode == 1 or mode == 2 or mode == 4: INF_VALUE else: 0
                 j: mutable usize = 0
                 if mode == 1:
@@ -210,16 +225,16 @@ def saga_incremental_analytics(input: i64&, length: usize, output: mutable u8&, 
                     if mode == 1:
                         j <- 0
                         while j < degree[v]:
-                            neighbor <- neighbors[v * 8 + j]
-                            update <- property[v] + 1
+                            let neighbor: usize = neighbors[v * 8 + j]
+                            let update: i64 = property[v] + 1
                             if property[neighbor] == -1 or update < property[neighbor]:
                                 property[neighbor] <- update
-                                push_once(neighbor, next, next_count, next_seen)
+                                next_count <- push_once(neighbor, next[0:8], next_count, next_seen[0:8])
                             j <- j + 1
                     else:
                         j <- 0
                         while j < degree[v]:
-                            push_once(neighbors[v * 8 + j], next, next_count, next_seen)
+                            next_count <- push_once(neighbors[v * 8 + j], next[0:8], next_count, next_seen[0:8])
                             j <- j + 1
                 a <- a + 1
             active <- next

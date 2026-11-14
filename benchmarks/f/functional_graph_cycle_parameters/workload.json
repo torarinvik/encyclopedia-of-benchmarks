@@ -30,7 +30,7 @@
     "valid_range": [1, 4096],
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Floyd tortoise-and-hare meeting, reset-to-start preperiod recovery, then one cycle lap; O(N) time and O(1) auxiliary space.",
     "independent_oracle": "Follow successors while recording the first step at each node; the repeated node's first step is mu and the step difference is lambda.",
     "primary_complexity": "O(N) time, O(1) auxiliary space.",

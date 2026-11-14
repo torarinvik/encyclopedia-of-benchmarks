@@ -52,3 +52,4 @@ claimed. See [`LICENSE.txt`](LICENSE.txt).
 | Rust | [`tsvc_s2102_identity_matrix_initialize.rs`](../../../rust/t/tsvc_s2102_identity_matrix_initialize.rs) |
 | V | [`tsvc_s2102_identity_matrix_initialize.v`](../../../v/t/tsvc_s2102_identity_matrix_initialize.v) |
 | Zig | [`tsvc_s2102_identity_matrix_initialize.zig`](../../../zig/t/tsvc_s2102_identity_matrix_initialize.zig) |
+| Mojo | [`tsvc_s2102_identity_matrix_initialize.mojo`](../../../mojo/t/tsvc_s2102_identity_matrix_initialize.mojo) |

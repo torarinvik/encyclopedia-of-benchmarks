@@ -4,6 +4,9 @@ This profile decides whether a binary character-state matrix admits a directed p
 
 Input is `[taxa_count,character_count,matrix...]` in row-major order, with 1–12 taxa, 1–12 characters, and entries in `{0,1}`. Maximum input length is 146 words; output is 8 bytes. Invalid input returns `-1`; null or short output returns `-2` without writing.
 
+For `n` taxa and `m` characters, the bounded bitmask implementation takes
+`O(n*m + m^2)` time and `O(m)` machine words of space.
+
 ## Implementations
 
 | Language | Source |
@@ -12,6 +15,7 @@ Input is `[taxa_count,character_count,matrix...]` in row-major order, with 1–1
 | C3 | [`c3/d/directed_perfect_phylogeny.c3`](../../../c3/directed_perfect_phylogeny.c3) |
 | C++ | [`cpp/d/directed_perfect_phylogeny.cpp`](../../../cpp/directed_perfect_phylogeny.cpp) |
 | Elisa | [`elisa/d/directed_perfect_phylogeny.elisa`](../../../elisa/d/directed_perfect_phylogeny.elisa) |
+| Mojo | [`mojo/d/directed_perfect_phylogeny.mojo`](../../../mojo/d/directed_perfect_phylogeny.mojo) |
 | Nim | [`nim/d/directed_perfect_phylogeny.nim`](../../../nim/d/directed_perfect_phylogeny.nim) |
 | Odin | [`odin/d/directed_perfect_phylogeny.odin`](../../../odin/d/directed_perfect_phylogeny.odin) |
 | Rust | [`rust/d/directed_perfect_phylogeny.rs`](../../../rust/d/directed_perfect_phylogeny.rs) |

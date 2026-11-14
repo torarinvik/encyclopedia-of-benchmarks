@@ -10,6 +10,8 @@ Input is `[pixel_count, Y0, Cb0, Cr0, ...]`, with `1 <= pixel_count <= 16` and e
 
 The contract preserves the source's fixed-point constants and operation order, including the distinct rounding path for green. Its source profile is 8-bit samples with center 128; higher sample precisions and YCCK/CMYK modes are excluded.
 
+For P pixels, conversion takes O(P) time and O(P) space for staged output.
+
 ## Provenance and rights
 
 - Repository and pin: [`lac-dcc/Benchmarks@5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38).
@@ -25,6 +27,7 @@ The independent oracle is [`mibench_jpeg_ycbcr_to_rgb_oracle.py`](../../mibench_
 - C3: [`c3/m/mibench_jpeg_ycbcr_to_rgb.c3`](../../../c3/m/mibench_jpeg_ycbcr_to_rgb.c3)
 - C++: [`cpp/m/mibench_jpeg_ycbcr_to_rgb.cpp`](../../../cpp/m/mibench_jpeg_ycbcr_to_rgb.cpp)
 - Elisa: [`elisa/m/mibench_jpeg_ycbcr_to_rgb.elisa`](../../../elisa/m/mibench_jpeg_ycbcr_to_rgb.elisa)
+- Mojo: [`mojo/m/mibench_jpeg_ycbcr_to_rgb.mojo`](../../../mojo/m/mibench_jpeg_ycbcr_to_rgb.mojo) (draft; not compiled or run)
 - Nim: [`nim/m/mibench_jpeg_ycbcr_to_rgb.nim`](../../../nim/m/mibench_jpeg_ycbcr_to_rgb.nim)
 - Odin: [`odin/m/mibench_jpeg_ycbcr_to_rgb.odin`](../../../odin/m/mibench_jpeg_ycbcr_to_rgb.odin)
 - Rust: [`rust/m/mibench_jpeg_ycbcr_to_rgb.rs`](../../../rust/m/mibench_jpeg_ycbcr_to_rgb.rs)

@@ -1,0 +1,37 @@
+const PDA_MODULUS: i64 = 998244353
+
+def polynomial_discrete_antiderivative_impl(input: i64&, length: usize,
+                                              output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 33: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 32: return -1
+    n: usize = values[0].usize()
+    if length != n+1: return -1
+    for i in 0..<n:
+        if values[1+i] < 0 or values[1+i] >= PDA_MODULUS: return -1
+    if output == null or capacity < 8*(n+1): return -2
+    result: mutable view[u8] = output[0:8*(n+1)]
+    choose: mutable i64[1089] = zeroed
+    inverse: mutable i64[33] = zeroed
+    g: mutable i64[33] = zeroed
+    choose[0] <- 1
+    for k in 1..<n+1:
+        choose[33*k] <- 1
+        choose[33*k+k] <- 1
+        for j in 1..<k:
+            choose[33*k+j] <- (choose[33*(k-1)+j-1]+choose[33*(k-1)+j]) % PDA_MODULUS
+    inverse[1] <- 1
+    for k in 2..<n+1:
+        inverse[k] <- PDA_MODULUS-(PDA_MODULUS/k.i64())*inverse[(PDA_MODULUS%k.i64()).usize()] % PDA_MODULUS
+    j: mutable usize = n
+    while j>0:
+        j <- j-1
+        sum: mutable i64 = 0
+        for k in j+2..<n+1: sum <- (sum+choose[33*k+j]*g[k]) % PDA_MODULUS
+        g[j+1] <- ((values[1+j]-sum+PDA_MODULUS) % PDA_MODULUS)*inverse[j+1] % PDA_MODULUS
+    for i in 0..<n+1:
+        bits: u64 = g[i].u64()
+        for byte in 0..<8: result[8*i+byte] <- ((bits >> (8*byte)) & 255.u64()).u8()
+    (8*(n+1)).i64()
+
+export fn polynomial_discrete_antiderivative(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = polynomial_discrete_antiderivative_impl

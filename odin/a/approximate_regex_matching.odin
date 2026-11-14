@@ -6,7 +6,7 @@ import "core:c"
 @(export)
 approximate_regex_matching :: proc "c" (x: [^]i64, length: c.size_t,
         output: [^]u8, capacity: c.size_t) -> i64 {
-    if x == nil do return -2
+    if x == nil do return -1
     if length < 6 || length > 66 do return -1
     sv, ev, tv, kv, startv, acceptv := x[0],x[1],x[2],x[3],x[4],x[5]
     if sv<2||sv>8||ev<1||ev>16||tv<0||tv>12||kv<0||kv>3||startv<0||acceptv<0||startv>=sv||acceptv>=sv||startv==acceptv do return -1

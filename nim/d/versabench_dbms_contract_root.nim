@@ -11,7 +11,7 @@ proc versabench_dbms_contract_root*(values: ptr UncheckedArray[int64], length: c
   for i in 0 ..< count:
     levels[i]=values[1+2*i];entries[i]=values[2+2*i]
     if levels[i] < 0 or levels[i] > 4 or entries[i] < 0 or entries[i] > 4: return -1
-    if i+1<count and (levels[i]==0 or entries[i]!=1 or levels[i+1]!=levels[i]-1): return -1
+    if i+1<count and (levels[i]==0 or entries[i]!=1 or values[1+2*(i+1)]!=levels[i]-1): return -1
   if levels[count-1]>0 and entries[count-1]==1: return -1
   if levels[count-1]>0 and entries[count-1]==0 and count!=1: return -1
   var root=0;var promotions=0

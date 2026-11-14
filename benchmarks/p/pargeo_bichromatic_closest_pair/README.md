@@ -23,3 +23,7 @@ The algorithm is based on ParGeo's `bichromaticClosestPair` and `bcpHelper`, wit
 - License: MIT; the complete repository license is in [`LICENSE.txt`](LICENSE.txt). The source header attributes the implementation to Yiqiu Wang, Shangdi Yu, Laxman Dhulipala, Yan Gu, and Julian Shun.
 
 The integer coordinate restriction is a deterministic bounded profile of the source's double-precision geometry. The benchmark reports distance only, so equal-distance point identity and traversal ties are intentionally unobservable.
+
+A [Mojo draft](../../../mojo/p/pargeo_bichromatic_closest_pair.mojo) and a
+ten-language source-presence check are present. They have not been compiled or
+run.

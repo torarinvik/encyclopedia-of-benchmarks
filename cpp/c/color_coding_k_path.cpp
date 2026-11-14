@@ -4,7 +4,7 @@
 
 extern "C" int64_t color_coding_k_path(const int64_t *values, size_t length,
                                         uint8_t *output, size_t output_capacity) {
-    if (!values) return -2;
+    if (!values) return -1;
     if (length < 3 || length > 147) return -1;
     auto nv=values[0], mv=values[1], kv=values[2];
     if (nv<1 || nv>12 || mv<0 || mv>66 || kv<1 || kv>6 || kv>nv) return -1;

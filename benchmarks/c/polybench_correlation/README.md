@@ -8,13 +8,18 @@ The `float64_slice_io` symbol is `polybench_correlation(input,input_length,outpu
 
 Return the complete `m*m` correlation matrix row-major. Invalid input returns -1; null or undersized output returns -2 after validation. Implementations stage the result before writing, so errors do not modify output. Maximum output is 36 doubles. The numeric vector follows binary64 operations and source loop order rather than the source's formatted dump.
 
+The algorithm takes O(nm² + nm) time and O(nm + m²) space.
+
 ## Workload and oracle
 
 [`workload.json`](workload.json) specifies valid and invalid cases. [`benchmarks/polybench_correlation_oracle.py`](../../polybench_correlation_oracle.py) independently carries out initialization, standardization, and pairwise accumulation.
 
 ## Ports
 
-Ports are in `c/c/polybench_correlation.c`, `c3/c/polybench_correlation.c3`, `cpp/c/polybench_correlation.cpp`, `elisa/c/polybench_correlation.elisa`, `nim/c/polybench_correlation.nim`, `odin/c/polybench_correlation.odin`, `rust/c/polybench_correlation.rs`, `v/c/polybench_correlation.v`, and `zig/c/polybench_correlation.zig`.
+Ports are in `c/c/polybench_correlation.c`, `c3/c/polybench_correlation.c3`, `cpp/c/polybench_correlation.cpp`, `elisa/c/polybench_correlation.elisa`, `mojo/c/polybench_correlation.mojo`, `nim/c/polybench_correlation.nim`, `odin/c/polybench_correlation.odin`, `rust/c/polybench_correlation.rs`, `v/c/polybench_correlation.v`, and `zig/c/polybench_correlation.zig`. The [Mojo draft](../../../mojo/c/polybench_correlation.mojo) has not been compiled or run.
+
+The suite validator includes a static source-presence check for these ten
+ports. It does not establish that they compile or produce correct results.
 
 ## Pinned source and license
 

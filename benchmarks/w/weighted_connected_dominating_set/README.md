@@ -14,6 +14,8 @@ example, a disconnected graph). Both fields are signed little-endian i64.
 Invalid input returns `-1`; null output or insufficient capacity returns
 `-2` without writing.
 
+The subset enumeration uses O(2ⁿn²) worst-case time and O(n) auxiliary space.
+
 The chapter focuses on a distributed approximation algorithm with clustering
 and connector phases. This profile measures the exact weighted connected
 dominating set objective
@@ -32,6 +34,7 @@ The ports are clean-room; no chapter prose or source code was copied.
 | C3 | `c3/w/weighted_connected_dominating_set.c3` |
 | C++ | `cpp/w/weighted_connected_dominating_set.cpp` |
 | Elisa | `elisa/w/weighted_connected_dominating_set.elisa` |
+| Mojo | [`mojo/w/weighted_connected_dominating_set.mojo`](../../../mojo/w/weighted_connected_dominating_set.mojo) (draft; not compiled or run) |
 | Nim | `nim/w/weighted_connected_dominating_set.nim` |
 | Odin | `odin/w/weighted_connected_dominating_set.odin` |
 | Rust | `rust/w/weighted_connected_dominating_set.rs` |

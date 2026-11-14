@@ -34,6 +34,9 @@ insufficient capacity returns `-2` without writing. The randomized LMR delay
 scheduler, conditional-probability derandomization, path selection, and
 approximation guarantees are excluded.
 
+For T time steps, P packets, and M links, scheduling takes O(T(P+M)) time;
+input validation and staged records use O(Pn + M + total transmissions) space.
+
 Source: Lenore J. Cowen, “Packet Routing,” *Encyclopedia of Algorithms*, DOI
 `10.1007/978-1-4939-2864-4_273`, EPUB `OEBPS/AChap273.html`, “Problem Definition”
 and “Key Results.” The chapter says one packet may cross each individual link
@@ -52,3 +55,4 @@ packet-ID tie refinement.
 | V | `v/p/packet_routing_work_conserving_schedule.v` |
 | C3 | `c3/p/packet_routing_work_conserving_schedule.c3` |
 | Elisa | `elisa/p/packet_routing_work_conserving_schedule.elisa` |
+| Mojo | [`mojo/p/packet_routing_work_conserving_schedule.mojo`](../../../mojo/p/packet_routing_work_conserving_schedule.mojo) (draft; not compiled or run) |

@@ -1,4 +1,5 @@
 from std.ffi import c_size_t
+from std.collections import InlineArray
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 @export("rc4")
 fn rc4(v:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UInt8,MutAnyOrigin],cap:c_size_t) abi("C")->Int64:

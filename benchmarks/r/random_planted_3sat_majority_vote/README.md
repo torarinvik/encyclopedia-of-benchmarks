@@ -8,6 +8,8 @@ This package captures the chapter's initial Majority Vote heuristic from “Rand
 - For variable `v`, set it true exactly when its positive occurrence count exceeds its negative count. Ties, including unseen variables, are false.
 - Output is one signed-i64 word per variable (`1` for true, `-1` for false), little-endian. Invalid input returns `-1`; null output or insufficient capacity returns `-2` without writing. Maximum output is 96 bytes.
 
+For n variables and m clauses, the occurrence count takes O(n+m) time and O(n) space.
+
 This package measures only the deterministic initialization step. It does not generate planted formulas or claim a success-probability theorem. It differs from `random_3sat_greedy_dpll`, which chooses a changing most-frequent literal during a no-backtrack residual-formula trace.
 
 ## Provenance and rights
@@ -26,6 +28,7 @@ Source: “Random Planted 3-SAT,” *Encyclopedia of Algorithms*, DOI `10.1007/9
 | C3 | [`c3/r/random_planted_3sat_majority_vote.c3`](../../../c3/r/random_planted_3sat_majority_vote.c3) |
 | C++ | [`cpp/r/random_planted_3sat_majority_vote.cpp`](../../../cpp/r/random_planted_3sat_majority_vote.cpp) |
 | Elisa | [`elisa/r/random_planted_3sat_majority_vote.elisa`](../../../elisa/r/random_planted_3sat_majority_vote.elisa) |
+| Mojo | [`mojo/r/random_planted_3sat_majority_vote.mojo`](../../../mojo/r/random_planted_3sat_majority_vote.mojo) (draft; not compiled or run) |
 | Nim | [`nim/r/random_planted_3sat_majority_vote.nim`](../../../nim/r/random_planted_3sat_majority_vote.nim) |
 | Odin | [`odin/r/random_planted_3sat_majority_vote.odin`](../../../odin/r/random_planted_3sat_majority_vote.odin) |
 | Rust | [`rust/r/random_planted_3sat_majority_vote.rs`](../../../rust/r/random_planted_3sat_majority_vote.rs) |

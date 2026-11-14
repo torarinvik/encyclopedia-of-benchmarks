@@ -10,5 +10,5 @@ pub unsafe extern "C" fn counting_triangles_stream_reservoir(input:*const i64,le
     let base=2+2*m;for t in 1..=m{for s in 0..2{let r=a[base+2*(t-1)+s];if r<0||r>=t as i64{return -1;}}}
     let mut slots=[[-1i64,-1i64];2];let mut staged=[0i64;112];let mut at=0usize;
     for t in 1..=m{for s in 0..2{if a[base+2*(t-1)+s]==0{slots[s]=edges[t-1];}}for slot in slots{staged[at]=slot[0];at+=1;staged[at]=slot[1];at+=1;}}
-    let bytes=16*m;if output.is_null()||capacity<bytes{return -2;}let dst=std::slice::from_raw_parts_mut(output,bytes);for i in 0..at{put_i64(&mut dst[8*i..],staged[i]);}bytes as i64
+    let bytes=32*m;if output.is_null()||capacity<bytes{return -2;}let dst=std::slice::from_raw_parts_mut(output,bytes);for i in 0..at{put_i64(&mut dst[8*i..],staged[i]);}bytes as i64
 }

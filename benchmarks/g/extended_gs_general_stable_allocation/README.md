@@ -24,6 +24,10 @@ The maximum input is 19 i64 values and the maximum output is 104 bytes.
 Malformed input returns `-1`; null output or insufficient capacity returns
 `-2` without writes.
 
+For e edges, the bounded exhaustive maximizations examine 3^e allocations per
+iteration. With O(e) iterations and O(e) work per allocation, the worst-case
+time is O(e² 3^e), using O(e) working space.
+
 The repeated-unit allocations and concave utility state make this distinct
 from strict one-to-one [stable marriage](../stable_matching/README.md) and
 many-to-one [hospitals/residents](../hospitals_residents_rgs/README.md). The
@@ -40,6 +44,9 @@ maximization. The independent verifier optimizes person by person, then
 executes Extended-GS with the same deterministic tie rule. The [workload]
 (workload.json) includes repeated units, a bound-lowering step, interacting
 quota constraints, and maximum framing.
+The verifier source also generates bounded concave marginal profiles, checks
+zero and maximum marginal utilities, and compares the two references; these
+checks have not been run.
 
 | Language | Port |
 |---|---|
@@ -47,6 +54,7 @@ quota constraints, and maximum framing.
 | C3 | `c3/g/extended_gs_general_stable_allocation.c3` |
 | C++ | `cpp/g/extended_gs_general_stable_allocation.cpp` |
 | Elisa | `elisa/g/extended_gs_general_stable_allocation.elisa` |
+| Mojo | [`mojo/g/extended_gs_general_stable_allocation.mojo`](../../../mojo/g/extended_gs_general_stable_allocation.mojo) (draft; not compiled or run) |
 | Nim | `nim/g/extended_gs_general_stable_allocation.nim` |
 | Odin | `odin/g/extended_gs_general_stable_allocation.odin` |
 | Rust | `rust/g/extended_gs_general_stable_allocation.rs` |

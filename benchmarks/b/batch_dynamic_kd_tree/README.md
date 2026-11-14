@@ -13,6 +13,11 @@ component boxes but are ignored as candidates. The bounded ports rebuild these
 compact trees for each query, excluding ParGeo's parallel rebuild and
 multi-neighbor machinery.
 
+For `N` inserted points and `B` batches, the Mojo draft's insertion-sort tree
+rebuilds and linear duplicate checks take `O((B + 1)N²)` time in the worst
+case; its fixed-capacity level storage uses `O(N log N)` space. The draft has
+not been compiled or run.
+
 This operation is distinct from [`kdtree`](../kdtree/README.md), which runs
 single-point insertions and several point queries on one median-built tree,
 and [`k_d_tree`](../k_d_tree/README.md), which builds a static floating-point
@@ -42,6 +47,9 @@ The independent [`batch_dynamic_kd_tree_oracle.py`](../../batch_dynamic_kd_tree_
 applies batches to a simple active-point set and computes each nearest distance
 by exhaustive scan. [`workload.json`](workload.json) defines fixtures and
 strict frame bounds.
+Verifier source also specifies hand-derived traces for tombstone coordinate
+reuse, logarithmic carries through 32 inserted IDs, and output-capacity
+boundaries. These cases have not been run.
 
 ## Pinned source and license
 
@@ -62,6 +70,7 @@ are bundled in [`LICENSE.txt`](LICENSE.txt).
 | C3 | [`c3/b/batch_dynamic_kd_tree.c3`](../../../c3/b/batch_dynamic_kd_tree.c3) |
 | C++ | [`cpp/b/batch_dynamic_kd_tree.cpp`](../../../cpp/b/batch_dynamic_kd_tree.cpp) |
 | Elisa | [`elisa/b/batch_dynamic_kd_tree.elisa`](../../../elisa/b/batch_dynamic_kd_tree.elisa) |
+| Mojo | [`mojo/b/batch_dynamic_kd_tree.mojo`](../../../mojo/b/batch_dynamic_kd_tree.mojo) (unverified draft) |
 | Nim | [`nim/b/batch_dynamic_kd_tree.nim`](../../../nim/b/batch_dynamic_kd_tree.nim) |
 | Odin | [`odin/b/batch_dynamic_kd_tree.odin`](../../../odin/b/batch_dynamic_kd_tree.odin) |
 | Rust | [`rust/b/batch_dynamic_kd_tree.rs`](../../../rust/b/batch_dynamic_kd_tree.rs) |

@@ -71,3 +71,4 @@ oracle is
 | Rust | [`tsvc_s257_column_coupled_update.rs`](../../../rust/t/tsvc_s257_column_coupled_update.rs) |
 | V | [`tsvc_s257_column_coupled_update.v`](../../../v/t/tsvc_s257_column_coupled_update.v) |
 | Zig | [`tsvc_s257_column_coupled_update.zig`](../../../zig/t/tsvc_s257_column_coupled_update.zig) |
+| Mojo | [`tsvc_s257_column_coupled_update.mojo`](../../../mojo/t/tsvc_s257_column_coupled_update.mojo) |

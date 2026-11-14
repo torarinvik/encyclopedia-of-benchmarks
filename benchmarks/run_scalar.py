@@ -1953,6 +1953,12 @@ def validate_mcgill_chomp_workload(workload: dict) -> None:
             or "no explicit license grant" not in readme
             or "fixed at seven columns" not in readme):
         raise ValueError("mcgill_chomp README is missing its source, license, or bounded-board notes")
+    for relative in ("c/mcgill_chomp.c", "c3/mcgill_chomp.c3", "cpp/mcgill_chomp.cpp",
+                     "elisa/m/mcgill_chomp.elisa", "mojo/m/mcgill_chomp.mojo", "nim/mcgill_chomp.nim",
+                     "odin/m/mcgill_chomp.odin", "rust/mcgill_chomp.rs", "v/m/mcgill_chomp.v",
+                     "zig/mcgill_chomp.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"mcgill_chomp source is missing: {relative}")
     for case in cases:
         input_value = case.get("input_value")
         expected = case.get("expected_result")
@@ -2195,6 +2201,13 @@ def validate_freebench_pifft_workload(workload: dict) -> None:
             or "No upstream license is inferred" not in readme
             or "six fractional decimal places" not in readme or "nfft=8" not in readme):
         raise ValueError("freebench_pifft README is missing provenance, rights, or profile notes")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "f" / f"freebench_pifft.{extension}"
+        if not port.is_file() or "freebench_pifft" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"freebench_pifft source missing for {language}")
     observed: set[int] = set()
     for case in cases:
         input_value = case.get("input_value")

@@ -70,3 +70,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s211_ordered_neighbor_rewrite.rs`](../../../rust/t/tsvc_s211_ordered_neighbor_rewrite.rs) |
 | V | [`tsvc_s211_ordered_neighbor_rewrite.v`](../../../v/t/tsvc_s211_ordered_neighbor_rewrite.v) |
 | Zig | [`tsvc_s211_ordered_neighbor_rewrite.zig`](../../../zig/t/tsvc_s211_ordered_neighbor_rewrite.zig) |
+| Mojo | [`tsvc_s211_ordered_neighbor_rewrite.mojo`](../../../mojo/t/tsvc_s211_ordered_neighbor_rewrite.mojo) |

@@ -40,7 +40,7 @@
     "bytes": 256,
     "meaning": "Maximum external output-buffer capacity; line coefficients and staged counts use bounded fixed storage."
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Translate each line to the circle center and compare D=r^2*(a^2+b^2)-k^2 against zero, where k=a*cx+b*cy+c.",
     "independent_oracle": "Substitute a line parameter into the circle equation and classify the quadratic discriminant, with a direct vertical-line branch.",
     "primary_complexity": "O(Q) time and O(Q) output staging space.",

@@ -36,6 +36,7 @@ clean-room ports are listed below.
 | C3 | [`c3/g/gardenia_gm_vertex_coloring.c3`](../../../c3/g/gardenia_gm_vertex_coloring.c3) |
 | C++ | [`cpp/g/gardenia_gm_vertex_coloring.cpp`](../../../cpp/g/gardenia_gm_vertex_coloring.cpp) |
 | Elisa | [`elisa/g/gardenia_gm_vertex_coloring.elisa`](../../../elisa/g/gardenia_gm_vertex_coloring.elisa) |
+| Mojo | [`mojo/g/gardenia_gm_vertex_coloring.mojo`](../../../mojo/g/gardenia_gm_vertex_coloring.mojo) |
 | Nim | [`nim/g/gardenia_gm_vertex_coloring.nim`](../../../nim/g/gardenia_gm_vertex_coloring.nim) |
 | Odin | [`odin/g/gardenia_gm_vertex_coloring.odin`](../../../odin/g/gardenia_gm_vertex_coloring.odin) |
 | Rust | [`rust/g/gardenia_gm_vertex_coloring.rs`](../../../rust/g/gardenia_gm_vertex_coloring.rs) |

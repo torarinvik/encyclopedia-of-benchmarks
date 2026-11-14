@@ -48,6 +48,7 @@ The repository is MIT licensed; its full upstream license is retained in
 | C3 | [`c3/w/gbbs_ss_widest_path.c3`](../../../c3/w/gbbs_ss_widest_path.c3) |
 | C++ | [`cpp/w/gbbs_ss_widest_path.cpp`](../../../cpp/w/gbbs_ss_widest_path.cpp) |
 | Elisa | [`elisa/w/gbbs_ss_widest_path.elisa`](../../../elisa/w/gbbs_ss_widest_path.elisa) |
+| Mojo | [`mojo/w/gbbs_ss_widest_path.mojo`](../../../mojo/w/gbbs_ss_widest_path.mojo) |
 | Nim | [`nim/w/gbbs_ss_widest_path.nim`](../../../nim/w/gbbs_ss_widest_path.nim) |
 | Odin | [`odin/w/gbbs_ss_widest_path.odin`](../../../odin/w/gbbs_ss_widest_path.odin) |
 | Rust | [`rust/w/gbbs_ss_widest_path.rs`](../../../rust/w/gbbs_ss_widest_path.rs) |

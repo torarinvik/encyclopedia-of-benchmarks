@@ -26,7 +26,7 @@ int64_t counting_triangles_stream_reservoir(const int64_t *input,size_t length,u
         for(size_t s=0;s<2;s++)if(input[draw_base+2*(t-1)+s]==0){slot[s][0]=edges[t-1][0];slot[s][1]=edges[t-1][1];}
         for(size_t s=0;s<2;s++){staged[at++]=slot[s][0];staged[at++]=slot[s][1];}
     }
-    size_t bytes=16*m;if(!output||capacity<bytes)return -2;
+    size_t bytes=32*m;if(!output||capacity<bytes)return -2;
     for(size_t i=0;i<at;i++)put_i64(output+8*i,staged[i]);
     return (int64_t)bytes;
 }

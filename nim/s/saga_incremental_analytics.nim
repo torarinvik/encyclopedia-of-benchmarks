@@ -28,7 +28,7 @@ proc saga_incremental_analytics*(input: ptr UncheckedArray[int64], length: csize
   let added64 = input[3]
   let source64 = input[4]
   if mode64 < 1 or mode64 > 6 or n64 < 2 or n64 > int64(MaxN) or
-      base64 < 0 or added64 < 1 or base64 + added64 > int64(MaxE) or
+      base64 < 0 or base64 > int64(MaxE) or added64 < 1 or added64 > int64(MaxE) or base64 + added64 > int64(MaxE) or
       int64(length) != 5 + n64 + 3 * (base64 + added64): return -1
   let mode = int(mode64)
   let n = int(n64)
@@ -150,6 +150,14 @@ proc saga_incremental_analytics*(input: ptr UncheckedArray[int64], length: csize
       for a in 0..<activeCount:
         let vertex = active[a]
         let old = property[vertex]
+        if mode == 1 and not first:
+          for j in 0..<degree[vertex]:
+            let neighbor = neighbors[vertex][j]
+            let update = property[vertex] + 1
+            if property[neighbor] == -1 or update < property[neighbor]:
+              property[neighbor] = update
+              pushOnce(neighbor, next, nextCount, seen)
+          continue
         var candidate: int64 = if mode == 1 or mode == 2 or mode == 4: InfValue else: 0
         if mode == 1:
           for j in 0..<degree[vertex]:

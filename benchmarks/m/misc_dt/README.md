@@ -25,6 +25,8 @@ The bounded profile is smaller than the source's fixed 131,072 iterations and
 2,048-element vectors. See [`workload.json`](workload.json) and the independent
 [`misc_dt_oracle`](../../misc_dt_oracle.py).
 
+For I iterations and N vector elements, the profile uses O(IN) time and O(N) space.
+
 ## Pinned source
 
 - [`dt.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/dt/dt.c)
@@ -41,6 +43,7 @@ and no license is inferred.
 | C3 | [c3/m/misc_dt.c3](../../../c3/m/misc_dt.c3) |
 | C++ | [cpp/m/misc_dt.cpp](../../../cpp/m/misc_dt.cpp) |
 | Elisa | [elisa/m/misc_dt.elisa](../../../elisa/m/misc_dt.elisa) |
+| Mojo | [mojo/m/misc_dt.mojo](../../../mojo/m/misc_dt.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/misc_dt.nim](../../../nim/m/misc_dt.nim) |
 | Odin | [odin/m/misc_dt.odin](../../../odin/m/misc_dt.odin) |
 | Rust | [rust/m/misc_dt.rs](../../../rust/m/misc_dt.rs) |

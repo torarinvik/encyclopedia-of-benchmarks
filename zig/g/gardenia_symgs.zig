@@ -13,6 +13,7 @@ export fn gardenia_symgs(input_opt:?[*]const f64,length:usize,output_opt:?[*]f64
     for(0..colors+1)|k|{const z=input[fa+k];if(@trunc(z)!=z or z<0 or z>nd)return -1;offsets[k]=@intFromFloat(z);}
     if(offsets[0]!=0 or offsets[colors]!=n)return -1;for(0..colors)|k|{if(offsets[k]>=offsets[k+1])return -1;for(offsets[k]..offsets[k+1])|p|group[order[p]]=k;}
     for(0..n+1)|i|{const z=input[ra+i];if(@trunc(z)!=z or z<0 or z>md)return -1;rows[i]=@intFromFloat(z);if(i>0 and rows[i]<rows[i-1])return -1;}if(rows[0]!=0 or rows[n]!=m)return -1;
+    for(0..m)|e|{const z=input[ca+e];if(@trunc(z)!=z or z<0 or z>=nd)return -1;cols[e]=@intFromFloat(z);mat[e]=input[va+e];}
     for(0..n)|u|{var diag:usize=0;var d:f64=0;var offsum:f64=0;var prev:usize=0;for(rows[u]..rows[u+1])|e|{const z=input[ca+e];if(@trunc(z)!=z or z<0 or z>=nd)return -1;cols[e]=@intFromFloat(z);if(e>rows[u] and cols[e]<=prev)return -1;prev=cols[e];mat[e]=input[va+e];if(mat[e]<-4 or mat[e]>4)return -1;if(cols[e]==u){diag+=1;d=mat[e];}else{if(group[u]==group[cols[e]])return -1;offsum+=@abs(mat[e]);}}
         if(diag!=1 or d<=offsum)return -1;for(rows[u]..rows[u+1])|e|{const v=cols[e];var found=false;for(rows[v]..rows[v+1])|f|{if(cols[f]==u){if(mat[f]!=mat[e])return -1;found=true;break;}}if(!found)return -1;}}
     for(0..n)|i|{x[i]=input[xa+i];rhs[i]=input[ba+i];if(x[i]<-4 or x[i]>4 or rhs[i]<-4 or rhs[i]>4)return -1;}

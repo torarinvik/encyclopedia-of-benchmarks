@@ -1,0 +1,54 @@
+def hll_raw_gcd(a0: u64, b0: u64) -> u64:
+    a: mutable u64 = a0
+    b: mutable u64 = b0
+    while b != 0:
+        remainder: u64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def hyperloglog_raw_estimate_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 130: return -1
+    values: view[i64] = input[0:length]
+    raw: i64 = values[0]
+    if raw < 0 or raw > 128: return -1
+    n: usize = raw.usize()
+    if length != n + 1: return -1
+    registers: mutable usize[16] = zeroed
+    for i in 0..<n:
+        value: i64 = values[i + 1]
+        if value < 0 or value > 4294967295: return -1
+        hash: u64 = value.u64()
+        bucket: usize = (hash >> 28).usize()
+        suffix: u64 = hash & 268435455
+        rank: mutable usize = 1
+        mask: mutable u64 = 1.u64() << 27
+        while mask != 0 and (suffix & mask) == 0:
+            rank <- rank + 1
+            mask <- mask >> 1
+        if rank > registers[bucket]: registers[bucket] <- rank
+    sum: mutable u64 = 0
+    for i in 0..<16: sum <- sum + (1.u64() << (29 - registers[i]))
+    numerator: mutable u64 = 673.u64() * 256 * (1.u64() << 29)
+    denominator: mutable u64 = 1000 * sum
+    factor: u64 = hll_raw_gcd(numerator, denominator)
+    numerator <- numerator / factor
+    denominator <- denominator / factor
+    if output.is_null() or capacity < 144: return -2
+    target: mutable view[u8] = output[0:144]
+    words: mutable u64[18] = zeroed
+    words[0] <- numerator
+    words[1] <- denominator
+    for i in 0..<16: words[i + 2] <- registers[i].u64()
+    staged: mutable u8[144] = zeroed
+    for i in 0..<18:
+        bits: mutable u64 = words[i]
+        for byte in 0..<8:
+            staged[8 * i + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+    for i in 0..<144: target[i] <- staged[i]
+    144
+
+export fn hyperloglog_raw_estimate(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = hyperloglog_raw_estimate_impl

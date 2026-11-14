@@ -8,6 +8,8 @@ The `i64_array_scalar` symbol `versabench_dbms_penalty` accepts exactly 16 signe
 
 For each dimension the implementation takes the lower of the two lower bounds and the higher of the two upper bounds, multiplies the four spans, then subtracts A's four-dimensional volume. The result is exact and ranges from 0 through 65,535 in this bounded domain. The package measures this single directional enlargement calculation, not child selection, pair seeding, R-tree mutation, or database I/O.
 
+The fixed four-dimensional calculation uses constant time and constant extra space.
+
 ## Provenance and rights
 
 Pinned operation: [`penalty` in `VersaBench/dbms/penalty.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/penalty.c), using `keyUnion.c`, `volume.c`, `index.h`, and `indexKey.h`, at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The source headers identify M. L. Rivas and `Copyright 1999, Atlantic Aerospace Electronics Corp.`; no explicit redistribution license was present in the pinned directory. The ports independently implement the documented bounded formula and contain no copied source code or comments; see [NOTICE.txt](NOTICE.txt).
@@ -20,6 +22,7 @@ The independent oracle is [`versabench_dbms_penalty_oracle.py`](../../versabench
 - C3: [../../../c3/d/versabench_dbms_penalty.c3](../../../c3/d/versabench_dbms_penalty.c3)
 - C++: [../../../cpp/d/versabench_dbms_penalty.cpp](../../../cpp/d/versabench_dbms_penalty.cpp)
 - Elisa: [../../../elisa/d/versabench_dbms_penalty.elisa](../../../elisa/d/versabench_dbms_penalty.elisa)
+- Mojo: [../../../mojo/d/versabench_dbms_penalty.mojo](../../../mojo/d/versabench_dbms_penalty.mojo)
 - Nim: [../../../nim/d/versabench_dbms_penalty.nim](../../../nim/d/versabench_dbms_penalty.nim)
 - Odin: [../../../odin/d/versabench_dbms_penalty.odin](../../../odin/d/versabench_dbms_penalty.odin)
 - Rust: [../../../rust/d/versabench_dbms_penalty.rs](../../../rust/d/versabench_dbms_penalty.rs)

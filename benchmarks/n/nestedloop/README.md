@@ -13,6 +13,9 @@ iteration. It returns the count `n^6`. The selected bound keeps the maximum
 count, `15^6 = 11,390,625`, within the source's signed `int` range and the loop
 work manageable. Negative inputs and values above 15 return `-1`.
 
+The source-level loop nest takes O(n⁶) time and O(1) auxiliary space; compiler
+optimization may reduce the repeated counting work.
+
 The independent oracle is [`benchmarks/nestedloop_oracle.py`](../../nestedloop_oracle.py).
 [`workload.json`](workload.json) covers zero, one, increasing loop counts, the
 maximum safe bound, and invalid input boundaries.
@@ -38,6 +41,7 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/n/nestedloop/rust
 | C3 | [c3/n/nestedloop.c3](../../../c3/n/nestedloop.c3) |
 | C++ | [cpp/n/nestedloop.cpp](../../../cpp/n/nestedloop.cpp) |
 | Elisa | [elisa/n/nestedloop.elisa](../../../elisa/n/nestedloop.elisa) |
+| Mojo | [mojo/n/nestedloop.mojo](../../../mojo/n/nestedloop.mojo) (draft; not compiled or run) |
 | Nim | [nim/n/nestedloop.nim](../../../nim/n/nestedloop.nim) |
 | Odin | [odin/n/nestedloop.odin](../../../odin/n/nestedloop.odin) |
 | Rust | [rust/n/nestedloop.rs](../../../rust/n/nestedloop.rs) |

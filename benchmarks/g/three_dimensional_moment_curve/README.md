@@ -30,3 +30,6 @@ Source attribution: David R. Wood, “Three-Dimensional Graph Drawing,” *Encyc
 | Rust | [`rust/g/three_dimensional_moment_curve.rs`](../../../rust/g/three_dimensional_moment_curve.rs) |
 | V | [`v/g/three_dimensional_moment_curve.v`](../../../v/g/three_dimensional_moment_curve.v) |
 | Zig | [`zig/g/three_dimensional_moment_curve.zig`](../../../zig/g/three_dimensional_moment_curve.zig) |
+| Mojo | [`mojo/g/three_dimensional_moment_curve.mojo`](../../../mojo/g/three_dimensional_moment_curve.mojo) (unverified draft) |
+
+Coordinate generation takes O(n) time and O(1) auxiliary space beyond the output buffer.

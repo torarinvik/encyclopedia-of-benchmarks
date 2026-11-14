@@ -70,9 +70,8 @@ unsafe fn get(blocks: &[[i64; 2 * B + 1]; MAX_NODES], sizes: &[usize; MAX_NODES]
 #[no_mangle]
 pub unsafe extern "C" fn indexed_block_list(input: *const i64, length: usize, output: *mut u8, capacity: usize) -> i64 {
     let access_count = match valid_input(input, length) { Some(value) => value, None => return -1 };
-    if access_count == 0 { return 0; }
     let required = 8 * access_count;
-    if output.is_null() || capacity < required { return -2; }
+    if required > 0 && (output.is_null() || capacity < required) { return -2; }
     let mut blocks = [[0i64; 2 * B + 1]; MAX_NODES];
     let mut sizes = [0usize; MAX_NODES];
     let mut next = [-1i32; MAX_NODES];

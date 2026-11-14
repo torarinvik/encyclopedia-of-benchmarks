@@ -44,3 +44,4 @@ Independent oracle: [`benchmarks/tsvc_s293_first_element_broadcast_oracle.py`](.
 | Rust | [Rust](../../../rust/t/tsvc_s293_first_element_broadcast.rs) |
 | V | [V](../../../v/t/tsvc_s293_first_element_broadcast.v) |
 | Zig | [Zig](../../../zig/t/tsvc_s293_first_element_broadcast.zig) |
+| Mojo | [Mojo draft](../../../mojo/t/tsvc_s293_first_element_broadcast.mojo) (unverified) |

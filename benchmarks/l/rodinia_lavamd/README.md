@@ -12,6 +12,8 @@ This package extracts the source's `kernel_gpu_cuda` force and potential accumul
 
 All source variables are binary64 (`fp` is `double`). The independent oracle retains the source loops and arithmetic order. Workload fixtures include exact zero-separation interactions, a nonzero force with `r2=0`, and malformed ranges/framing.
 
+For H home and N neighboring particles, the profile takes O(H(H + N)) time and O(H + N) space.
+
 ## Pinned source and rights
 
 - Source tree: [`cuda/lavaMD`](https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/lavaMD), pinned at commit `f30e63663cfb114939a15c7ffc4ae112055ae6a8`.
@@ -22,4 +24,4 @@ All source variables are binary64 (`fp` is `double`). The independent oracle ret
 
 ## Ports and workload
 
-Implementations are in `c/l`, `c3/l`, `cpp/l`, `elisa/l`, `nim/l`, `odin/l`, `rust/l`, `v/l`, and `zig/l`. The independent oracle is [`benchmarks/rodinia_lavamd_oracle.py`](../../rodinia_lavamd_oracle.py); static fixtures are in [`workload.json`](workload.json).
+Implementations are in `c/l`, `c3/l`, `cpp/l`, `elisa/l`, [`mojo/l`](../../../mojo/l/rodinia_lavamd.mojo), `nim/l`, `odin/l`, `rust/l`, `v/l`, and `zig/l`. The Mojo draft has not been compiled or run. The independent oracle is [`benchmarks/rodinia_lavamd_oracle.py`](../../rodinia_lavamd_oracle.py); static fixtures are in [`workload.json`](workload.json).

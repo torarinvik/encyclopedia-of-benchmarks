@@ -7,6 +7,8 @@ This package isolates the pinned source's `lower_StringImpl` helper. It lowercas
 The `i64_array_bytes_output` symbol is `misc_lowercase(input, input_length, output, output_capacity)`. Input is `[character_count, code_unit_0, ...]`; the count is 0 through 31, the frame must contain exactly that many code units after its header, and each unit is 0 through 65,535. Output is one ASCII-status byte (`1` if every original code unit is at most `0x7f`, otherwise `0`), followed by the mapped code units as little-endian 16-bit values. Only values in `A` through `Z` change, by adding 32. Invalid input returns -1. A null or undersized output buffer returns -2 without writing. Maximum output is 63 bytes.
 
 The output is a numeric encoding of the helper result, not the source driver's printed `iterations (N characters)` status lines. See [workload.json](workload.json) and the independent [oracle](../../misc_lowercase_oracle.py).
+The suite uses this `l/` category and resolves its sources under the
+`lac_dcc_lowercase` filename. This path correction has not been executed.
 
 ## Pinned source
 
@@ -21,6 +23,7 @@ The output is a numeric encoding of the helper result, not the source driver's p
 | C3 | [c3/l/lac_dcc_lowercase.c3](../../../c3/l/lac_dcc_lowercase.c3) |
 | C++ | [cpp/l/lac_dcc_lowercase.cpp](../../../cpp/l/lac_dcc_lowercase.cpp) |
 | Elisa | [elisa/l/lac_dcc_lowercase.elisa](../../../elisa/l/lac_dcc_lowercase.elisa) |
+| Mojo | [mojo/l/lac_dcc_lowercase.mojo](../../../mojo/l/lac_dcc_lowercase.mojo) (draft; not compiled or run) |
 | Nim | [nim/l/lac_dcc_lowercase.nim](../../../nim/l/lac_dcc_lowercase.nim) |
 | Odin | [odin/l/lac_dcc_lowercase.odin](../../../odin/l/lac_dcc_lowercase.odin) |
 | Rust | [rust/l/lac_dcc_lowercase.rs](../../../rust/l/lac_dcc_lowercase.rs) |

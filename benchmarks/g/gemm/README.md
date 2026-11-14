@@ -19,6 +19,9 @@ The source uses binary64 by default, and its launcher selects `EXTRALARGE_DATASE
 | Rust | [`rust/g/gemm.rs`](../../../rust/g/gemm.rs) |
 | V | [`v/g/gemm.v`](../../../v/g/gemm.v) |
 | Zig | [`zig/g/gemm.zig`](../../../zig/g/gemm.zig) |
+| Mojo | [`mojo/g/gemm.mojo`](../../../mojo/g/gemm.mojo) (unverified draft) |
+
+The implementation uses O(ni·nj·nk) time and O(ni·nk + nk·nj + ni·nj) matrix storage.
 
 Build a port with the shared ABI commands:
 

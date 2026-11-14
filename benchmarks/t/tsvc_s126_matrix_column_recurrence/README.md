@@ -36,3 +36,4 @@ The independent oracle is [`benchmarks/tsvc_s126_matrix_column_recurrence_oracle
 | Rust | [`tsvc_s126_matrix_column_recurrence.rs`](../../../rust/t/tsvc_s126_matrix_column_recurrence.rs) |
 | V | [`tsvc_s126_matrix_column_recurrence.v`](../../../v/t/tsvc_s126_matrix_column_recurrence.v) |
 | Zig | [`tsvc_s126_matrix_column_recurrence.zig`](../../../zig/t/tsvc_s126_matrix_column_recurrence.zig) |
+| Mojo | [`tsvc_s126_matrix_column_recurrence.mojo`](../../../mojo/t/tsvc_s126_matrix_column_recurrence.mojo) (draft, unverified) |

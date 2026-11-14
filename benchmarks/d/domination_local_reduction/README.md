@@ -28,6 +28,9 @@ This is one local reduction step, not the chapter's full planar-graph kernel
 or its second rule for diamond structures. It exposes the transformed graph
 for reproducibility; it does not solve Dominating Set.
 
+The bounded bitmask implementation takes `O(n^2+m)` time and `O(n)` words
+of auxiliary space, including its staged output.
+
 ## Source and rights
 
 Based on the abstract rule in Chapter 99, “Data Reduction for Domination in
@@ -46,6 +49,7 @@ Independent verifier: [`domination_local_reduction_verifier_oracle.py`](../../do
 | C3 | [`c3/d/domination_local_reduction.c3`](../../../c3/d/domination_local_reduction.c3) |
 | C++ | [`cpp/d/domination_local_reduction.cpp`](../../../cpp/d/domination_local_reduction.cpp) |
 | Elisa | [`elisa/d/domination_local_reduction.elisa`](../../../elisa/d/domination_local_reduction.elisa) |
+| Mojo | [`mojo/d/domination_local_reduction.mojo`](../../../mojo/d/domination_local_reduction.mojo) |
 | Nim | [`nim/d/domination_local_reduction.nim`](../../../nim/d/domination_local_reduction.nim) |
 | Odin | [`odin/d/domination_local_reduction.odin`](../../../odin/d/domination_local_reduction.odin) |
 | Rust | [`rust/d/domination_local_reduction.rs`](../../../rust/d/domination_local_reduction.rs) |

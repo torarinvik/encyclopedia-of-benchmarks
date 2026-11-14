@@ -15,14 +15,14 @@ fn power(base_value: Int64, exponent_value: Int64) -> Int64:
     return result
 
 fn multiply(left: InlineArray[Int64, 16], right: InlineArray[Int64, 16], width: Int) -> InlineArray[Int64, 16]:
-    var result = InlineArray[Int64, 16](0)
+    var result = InlineArray[Int64, 16](fill=0)
     for i in range(width):
         for j in range(width - i):
             result[i + j] = (result[i + j] + left[i] * right[j]) % MODULUS
     return result
 
 fn compose(outer: InlineArray[Int64, 16], inner: InlineArray[Int64, 16], width: Int) -> InlineArray[Int64, 16]:
-    var result = InlineArray[Int64, 16](0)
+    var result = InlineArray[Int64, 16](fill=0)
     var degree = width
     while degree > 0:
         degree -= 1
@@ -42,9 +42,9 @@ fn newton_compositional_inverse_fps(input: UnsafePointer[Int64, ImmutAnyOrigin],
     if input[1] != 0 or input[2] == 0: return -1
     let bytes = 8 * n
     if output == UnsafePointer[UInt8, MutAnyOrigin]() or capacity < c_size_t(bytes): return -2
-    var f = InlineArray[Int64, 16](0)
-    var derivative = InlineArray[Int64, 16](0)
-    var inverse = InlineArray[Int64, 16](0)
+    var f = InlineArray[Int64, 16](fill=0)
+    var derivative = InlineArray[Int64, 16](fill=0)
+    var inverse = InlineArray[Int64, 16](fill=0)
     for i in range(n): f[i] = input[i + 1]
     for i in range(1, n): derivative[i - 1] = Int64(i) * f[i] % MODULUS
     let inverse_linear = power(f[1], MODULUS - 2)
@@ -56,7 +56,7 @@ fn newton_compositional_inverse_fps(input: UnsafePointer[Int64, ImmutAnyOrigin],
         var residual = compose(f, inverse, width)
         residual[1] = (residual[1] + MODULUS - 1) % MODULUS
         let slope = compose(derivative, inverse, width)
-        var reciprocal = InlineArray[Int64, 16](0)
+        var reciprocal = InlineArray[Int64, 16](fill=0)
         reciprocal[0] = inverse_linear
         for i in range(1, width):
             var sum = Int64(0)

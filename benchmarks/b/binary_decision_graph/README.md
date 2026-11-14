@@ -14,6 +14,7 @@ Input is `[n, truth_table[2^n]]` with `1<=n<=6` and truth values 0 or 1. Truth-t
 | C3 | [`c3/b/binary_decision_graph.c3`](../../../c3/b/binary_decision_graph.c3) |
 | C++ | [`cpp/b/binary_decision_graph.cpp`](../../../cpp/b/binary_decision_graph.cpp) |
 | Elisa | [`elisa/b/binary_decision_graph.elisa`](../../../elisa/b/binary_decision_graph.elisa) |
+| Mojo | [`mojo/b/binary_decision_graph.mojo`](../../../mojo/b/binary_decision_graph.mojo) (draft, unverified) |
 | Nim | [`nim/b/binary_decision_graph.nim`](../../../nim/b/binary_decision_graph.nim) |
 | Odin | [`odin/b/binary_decision_graph.odin`](../../../odin/b/binary_decision_graph.odin) |
 | Rust | [`rust/b/binary_decision_graph.rs`](../../../rust/b/binary_decision_graph.rs) |

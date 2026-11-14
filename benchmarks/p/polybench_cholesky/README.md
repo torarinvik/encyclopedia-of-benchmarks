@@ -8,7 +8,7 @@ Input is a one-element signed 64-bit array `[n]`, where `1 <= n <= 64`. The sour
 
 The factorization preserves the source order: for increasing `i`, it updates each `j < i` using increasing `k < j`, divides by the earlier diagonal, then updates the diagonal using increasing `k < i` and takes its square root. The original program dumps the final lower triangle. This scalar-output package returns the binary64 sum of those lower-triangle elements in row-major order. Wrong-length or out-of-range inputs return `-1e300`.
 
-Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for the bounded cases and [`polybench_cholesky_oracle.py`](../../polybench_cholesky_oracle.py) for the independent reference model.
+Ports are provided in C, C3, C++, Elisa, Mojo, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for the bounded cases and [`polybench_cholesky_oracle.py`](../../polybench_cholesky_oracle.py) for the independent reference model. The Mojo draft's floating-point contraction behavior has not been verified.
 
 ## Upstream license
 

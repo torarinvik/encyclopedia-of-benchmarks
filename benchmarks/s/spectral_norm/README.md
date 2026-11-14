@@ -8,6 +8,8 @@ Input is a one-element signed 64-bit array `[n]`, with `1 <= n <= 64`. The upper
 
 The source inventory is pinned to upstream commit [`5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/spectral-norm/spectral-norm.c), whose C file credits Sebastien Loisel and carries no explicit license notice. This package contains independently written implementations. See [`workload.json`](workload.json) and the [shared oracle](../../spectral_norm_oracle.py).
 
+The fixed ten paired iterations take O(n²) time and O(n) auxiliary space.
+
 | Language | Port |
 |---|---|
 | C | [`c/s/spectral_norm.c`](../../../c/s/spectral_norm.c) |
@@ -19,6 +21,7 @@ The source inventory is pinned to upstream commit [`5d7b75df749241efa7a6e6f5be61
 | Rust | [`rust/s/spectral_norm.rs`](../../../rust/s/spectral_norm.rs) |
 | V | [`v/s/spectral_norm.v`](../../../v/s/spectral_norm.v) |
 | Zig | [`zig/s/spectral_norm.zig`](../../../zig/s/spectral_norm.zig) |
+| Mojo | [`mojo/s/spectral_norm.mojo`](../../../mojo/s/spectral_norm.mojo) (draft, unverified) |
 
 ## Run
 

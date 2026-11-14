@@ -26,6 +26,7 @@ Behavior reference: [`src/cc_sv.cc::ShiloachVishkin`](https://github.com/sbeamer
 | C3 | [`c3/a/gapbs_shiloach_vishkin_components.c3`](../../../c3/a/gapbs_shiloach_vishkin_components.c3) |
 | C++ | [`cpp/a/gapbs_shiloach_vishkin_components.cpp`](../../../cpp/a/gapbs_shiloach_vishkin_components.cpp) |
 | Elisa | [`elisa/a/gapbs_shiloach_vishkin_components.elisa`](../../../elisa/a/gapbs_shiloach_vishkin_components.elisa) |
+| Mojo | [`mojo/a/gapbs_shiloach_vishkin_components.mojo`](../../../mojo/a/gapbs_shiloach_vishkin_components.mojo) (draft, unverified) |
 | Nim | [`nim/a/gapbs_shiloach_vishkin_components.nim`](../../../nim/a/gapbs_shiloach_vishkin_components.nim) |
 | Odin | [`odin/a/gapbs_shiloach_vishkin_components.odin`](../../../odin/a/gapbs_shiloach_vishkin_components.odin) |
 | Rust | [`rust/a/gapbs_shiloach_vishkin_components.rs`](../../../rust/a/gapbs_shiloach_vishkin_components.rs) |

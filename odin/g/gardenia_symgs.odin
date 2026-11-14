@@ -19,6 +19,7 @@ gardenia_symgs :: proc "c" (input:[^]f64,length:c.size_t,output:[^]f64,capacity:
 	for k:=0;k<colors;k+=1 { if offsets[k]>=offsets[k+1] do return -1;for p:=offsets[k];p<offsets[k+1];p+=1 { group[order[p]]=k } }
 	for i:=0;i<=n;i+=1 { z:=input[ra+i];if math.trunc(z)!=z||z<0||z>md do return -1;rows[i]=int(z);if i>0&&rows[i]<rows[i-1] do return -1 }
 	if rows[0]!=0||rows[n]!=m do return -1
+	for e:=0;e<m;e+=1 { z:=input[ca+e];if math.trunc(z)!=z||z<0||z>=nd do return -1;cols[e]=int(z);mat[e]=input[va+e] }
 	for u:=0;u<n;u+=1 { diag:=0;d,offsum:=0.0,0.0;prev:=0
 		for e:=rows[u];e<rows[u+1];e+=1 { z:=input[ca+e];if math.trunc(z)!=z||z<0||z>=nd do return -1;cols[e]=int(z);if e>rows[u]&&cols[e]<=prev do return -1;prev=cols[e];mat[e]=input[va+e];if mat[e]<-4||mat[e]>4 do return -1
 			if cols[e]==u { diag+=1;d=mat[e] } else { if group[u]==group[cols[e]] do return -1;offsum+=math.abs(mat[e]) }

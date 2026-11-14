@@ -39,11 +39,18 @@ The chapter also surveys `(S,C)`-byte-aligned variants, Simple-9 extensions, PFo
 | C3 | [`c3/i/integer_sequence_codes.c3`](../../../c3/i/integer_sequence_codes.c3) |
 | C++ | [`cpp/i/integer_sequence_codes.cpp`](../../../cpp/i/integer_sequence_codes.cpp) |
 | Elisa | [`elisa/i/integer_sequence_codes.elisa`](../../../elisa/i/integer_sequence_codes.elisa) |
+| Mojo | [`mojo/i/integer_sequence_codes.mojo`](../../../mojo/i/integer_sequence_codes.mojo) (draft, unverified) |
 | Nim | [`nim/i/integer_sequence_codes.nim`](../../../nim/i/integer_sequence_codes.nim) |
 | Odin | [`odin/i/integer_sequence_codes.odin`](../../../odin/i/integer_sequence_codes.odin) |
 | Rust | [`rust/i/integer_sequence_codes.rs`](../../../rust/i/integer_sequence_codes.rs) |
 | V | [`v/i/integer_sequence_codes.v`](../../../v/i/integer_sequence_codes.v) |
 | Zig | [`zig/i/integer_sequence_codes.zig`](../../../zig/i/integer_sequence_codes.zig) |
+
+The Mojo draft has not been compiled or run.
+The workload specifies the zero-bit interpolative case explicitly: it returns
+zero with a nonnull zero-capacity buffer, but a null output still returns `-2`.
+Verifier source also specifies all Simple-9 selectors and maximum-size traces
+for several modes; those cases have not been run.
 
 ## Provenance and rights
 

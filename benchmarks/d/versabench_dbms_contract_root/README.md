@@ -12,6 +12,8 @@ The output is three little-endian signed i64 values: `[number_of_promotions, fin
 
 Only the root normalization loop is modeled. The package does not allocate/free nodes, represent their data entries, perform deletion, or model the full database and command stream.
 
+For n nodes, validation and contraction take O(n) time and O(n) storage (bounded here by five nodes).
+
 ## Source and rights
 
 Source: [`VersaBench/dbms/delete.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/delete.c), pinned to `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`, especially the empty-root normalization and single-child promotion logic. Related paths: `deleteEntry.c`, `deleteIndexNode.c`, `index.h`, and `delete.h`; launcher: `VersaBench/dbms/info.sh`. Source headers identify M. L. Rivas and `Copyright 1999, Atlantic Aerospace Electronics Corp.` No explicit redistribution license was found in the pinned directory. This package is clean-room and contains no copied source text or comments; see [`NOTICE.txt`](NOTICE.txt).
@@ -24,6 +26,7 @@ Independent model: [`versabench_dbms_contract_root_oracle.py`](../../versabench_
 - C3: [`c3/d/versabench_dbms_contract_root.c3`](../../../c3/d/versabench_dbms_contract_root.c3)
 - C++: [`cpp/d/versabench_dbms_contract_root.cpp`](../../../cpp/d/versabench_dbms_contract_root.cpp)
 - Elisa: [`elisa/d/versabench_dbms_contract_root.elisa`](../../../elisa/d/versabench_dbms_contract_root.elisa)
+- Mojo: [`mojo/d/versabench_dbms_contract_root.mojo`](../../../mojo/d/versabench_dbms_contract_root.mojo)
 - Nim: [`nim/d/versabench_dbms_contract_root.nim`](../../../nim/d/versabench_dbms_contract_root.nim)
 - Odin: [`odin/d/versabench_dbms_contract_root.odin`](../../../odin/d/versabench_dbms_contract_root.odin)
 - Rust: [`rust/d/versabench_dbms_contract_root.rs`](../../../rust/d/versabench_dbms_contract_root.rs)

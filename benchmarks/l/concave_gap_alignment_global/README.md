@@ -14,6 +14,8 @@ exact recurrence; it does not claim the asymptotically accelerated algorithm
 from the chapter. Invalid input returns `-1`; null output or insufficient
 capacity returns `-2` without writing.
 
+The direct recurrence takes `O(n*m*(n+m))` time and `O(n*m)` dynamic-programming space.
+
 Source: “Local Alignment (with Concave Gap Weights),” DOI
 [`10.1007/978-1-4939-2864-4_208`](https://doi.org/10.1007/978-1-4939-2864-4_208).
 The implementation is clean-room.
@@ -24,6 +26,7 @@ The implementation is clean-room.
 | C3 | `c3/l/concave_gap_alignment_global.c3` |
 | C++ | `cpp/l/concave_gap_alignment_global.cpp` |
 | Elisa | `elisa/l/concave_gap_alignment_global.elisa` |
+| Mojo | [`mojo/l/concave_gap_alignment_global.mojo`](../../../mojo/l/concave_gap_alignment_global.mojo) |
 | Nim | `nim/l/concave_gap_alignment_global.nim` |
 | Odin | `odin/l/concave_gap_alignment_global.odin` |
 | Rust | `rust/l/concave_gap_alignment_global.rs` |

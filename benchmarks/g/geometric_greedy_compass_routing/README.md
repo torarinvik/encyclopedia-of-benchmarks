@@ -42,3 +42,6 @@ stateless modes.
 The nine ports are under `c/g`, `cpp/g`, `rust/g`, `c3/g`, `nim/g`, `odin/g`,
 `elisa/g`, `v/g`, and `zig/g`. `workload.json` and the two independent Python
 oracles specify the bounded input and byte output.
+
+The [Mojo draft](../../../mojo/g/geometric_greedy_compass_routing.mojo) uses
+the same exact comparison and path-record contract.

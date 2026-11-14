@@ -22,6 +22,6 @@ The Python oracle uses a comparison sort and independently validates the same fr
 
 ## Files
 
-- Nine language ports are in `c/r`, `c3/r`, `cpp/r`, `elisa/r`, `nim/r`, `odin/r`, `rust/r`, `v/r`, and `zig/r`.
+- Language ports are in `c/r`, `c3/r`, `cpp/r`, `elisa/r`, `mojo/r`, `nim/r`, `odin/r`, `rust/r`, `v/r`, and `zig/r`. The Mojo draft's floating-point behavior has not been verified.
 - Independent oracle: [`benchmarks/rodinia_hybridsort_oracle.py`](../../rodinia_hybridsort_oracle.py).
 - Workload and fixtures: [`workload.json`](workload.json).

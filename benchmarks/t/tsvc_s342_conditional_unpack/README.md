@@ -77,3 +77,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s342_conditional_unpack.rs`](../../../rust/t/tsvc_s342_conditional_unpack.rs) |
 | V | [`tsvc_s342_conditional_unpack.v`](../../../v/t/tsvc_s342_conditional_unpack.v) |
 | Zig | [`tsvc_s342_conditional_unpack.zig`](../../../zig/t/tsvc_s342_conditional_unpack.zig) |
+| Mojo | [`tsvc_s342_conditional_unpack.mojo`](../../../mojo/t/tsvc_s342_conditional_unpack.mojo) (draft, unverified) |

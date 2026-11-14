@@ -1,6 +1,6 @@
 ## Bounded exact closest-substring center by lexicographic exhaustive search.
 proc closest_substring_center*(x:ptr UncheckedArray[int64],length:csize_t,out:ptr UncheckedArray[uint8],cap:csize_t):int64 {.cdecl,exportc:"closest_substring_center".}=
-  if x==nil:return -2
+  if x==nil:return -1
   if length<4 or length>44:return -1
   let nv=x[0];let mv=x[1];let lv=x[2];let qv=x[3]
   if nv<1 or nv>4 or mv<1 or mv>10 or lv<1 or lv>8 or lv>mv or (qv!=2 and qv!=3) or int(length)!=4+int(nv*mv):return -1

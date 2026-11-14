@@ -72,3 +72,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s272_threshold_dual_accumulate.rs`](../../../rust/t/tsvc_s272_threshold_dual_accumulate.rs) |
 | V | [`tsvc_s272_threshold_dual_accumulate.v`](../../../v/t/tsvc_s272_threshold_dual_accumulate.v) |
 | Zig | [`tsvc_s272_threshold_dual_accumulate.zig`](../../../zig/t/tsvc_s272_threshold_dual_accumulate.zig) |
+| Mojo | [`tsvc_s272_threshold_dual_accumulate.mojo`](../../../mojo/t/tsvc_s272_threshold_dual_accumulate.mojo) (draft, unverified) |

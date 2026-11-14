@@ -16,11 +16,12 @@ def dinic_maxflow_dfs(u: usize, sink: usize, pushed: i64, residual: mutable view
     0
 
 def dinic_maxflow_impl(input: i64&, length: usize) -> i64:
-    if length < 4: return -1
-    nv: i64 = input[0]
-    mv: i64 = input[1]
-    sv: i64 = input[2]
-    tv: i64 = input[3]
+    if input.is_null() or length < 4 or length > 196: return -1
+    values: view[i64] = input[0:length]
+    nv: i64 = values[0]
+    mv: i64 = values[1]
+    sv: i64 = values[2]
+    tv: i64 = values[3]
     if nv < 2 or nv > 16 or mv < 0 or mv > 64 or sv < 1 or sv > nv or tv < 1 or tv > nv or sv == tv: return -1
     n: usize = nv.usize()
     m: usize = mv.usize()
@@ -29,9 +30,9 @@ def dinic_maxflow_impl(input: i64&, length: usize) -> i64:
     if length != 4 + 3 * m: return -1
     residual: mutable i64[256] = zeroed
     for i in 0..<m:
-        u: i64 = input[4 + 3 * i]
-        v: i64 = input[5 + 3 * i]
-        c: i64 = input[6 + 3 * i]
+        u: i64 = values[4 + 3 * i]
+        v: i64 = values[5 + 3 * i]
+        c: i64 = values[6 + 3 * i]
         if u < 1 or u > nv or v < 1 or v > nv or u == v or c < 0 or c > 100: return -1
         index: usize = (u - 1).usize() * 16 + (v - 1).usize()
         residual[index] <- residual[index] + c

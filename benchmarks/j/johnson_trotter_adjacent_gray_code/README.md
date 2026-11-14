@@ -45,3 +45,6 @@ capacity boundaries.
 | Rust | [`rust/j/johnson_trotter_adjacent_gray_code.rs`](../../../rust/j/johnson_trotter_adjacent_gray_code.rs) |
 | V | [`v/j/johnson_trotter_adjacent_gray_code.v`](../../../v/j/johnson_trotter_adjacent_gray_code.v) |
 | Zig | [`zig/j/johnson_trotter_adjacent_gray_code.zig`](../../../zig/j/johnson_trotter_adjacent_gray_code.zig) |
+| Mojo | [`mojo/j/johnson_trotter_adjacent_gray_code.mojo`](../../../mojo/j/johnson_trotter_adjacent_gray_code.mojo) (unverified draft) |
+
+The direct mobile-element scan and output take O(n·n!) time and O(n) auxiliary space beyond the output.

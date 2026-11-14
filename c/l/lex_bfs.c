@@ -59,9 +59,7 @@ int64_t lex_bfs(const int64_t *input, size_t length, uint8_t *output, size_t cap
         order[step] = (int64_t)current;
         for (size_t neighbor = 0; neighbor < n; ++neighbor) {
             if (!adjacency[current][neighbor] || selected[neighbor]) continue;
-            for (size_t position = label_len[neighbor]; position > 0; --position)
-                labels[neighbor][position] = labels[neighbor][position - 1];
-            labels[neighbor][0] = (int64_t)step;
+            labels[neighbor][label_len[neighbor]] = (int64_t)(n - step);
             ++label_len[neighbor];
         }
     }

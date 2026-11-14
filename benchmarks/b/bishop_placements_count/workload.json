@@ -24,7 +24,7 @@
     "meaning": "Exact number of nonattacking bishop placements.",
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Run the per-color diagonal-size recurrence and combine black/white counts over all splits of K.",
     "independent_oracle": "Process each descending diagonal once and use a subset mask to prevent reuse of ascending diagonals.",
     "primary_complexity": "O(N*K) time and O(N*K) space.",

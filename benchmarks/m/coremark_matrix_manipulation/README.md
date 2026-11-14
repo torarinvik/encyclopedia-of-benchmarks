@@ -17,3 +17,5 @@ The operation follows `matrix_test`, `matrix_sum`, and the matrix helpers in [`c
 ## Workload and oracle
 
 The independent oracle is [`benchmarks/coremark_matrix_manipulation_oracle.py`](../../coremark_matrix_manipulation_oracle.py). Ports are provided in C, C++, C3, Rust, Nim, Odin, V, Zig, and Elisa.
+
+The [Mojo draft](../../../mojo/m/coremark_matrix_manipulation.mojo) follows the same ordered stages and retains the source attribution. It has not been compiled or run.

@@ -45,6 +45,7 @@ clean-room implementations.
 | C3 | [c3/g/gbbs_cosimrank_pair_similarity.c3](../../../c3/g/gbbs_cosimrank_pair_similarity.c3) |
 | C++ | [cpp/g/gbbs_cosimrank_pair_similarity.cpp](../../../cpp/g/gbbs_cosimrank_pair_similarity.cpp) |
 | Elisa | [elisa/g/gbbs_cosimrank_pair_similarity.elisa](../../../elisa/g/gbbs_cosimrank_pair_similarity.elisa) |
+| Mojo | [mojo/g/gbbs_cosimrank_pair_similarity.mojo](../../../mojo/g/gbbs_cosimrank_pair_similarity.mojo) |
 | Nim | [nim/g/gbbs_cosimrank_pair_similarity.nim](../../../nim/g/gbbs_cosimrank_pair_similarity.nim) |
 | Odin | [odin/g/gbbs_cosimrank_pair_similarity.odin](../../../odin/g/gbbs_cosimrank_pair_similarity.odin) |
 | Rust | [rust/g/gbbs_cosimrank_pair_similarity.rs](../../../rust/g/gbbs_cosimrank_pair_similarity.rs) |

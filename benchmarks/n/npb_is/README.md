@@ -29,3 +29,5 @@ The pinned source grants permission to use, copy, distribute, and modify the sof
 | Rust | [`rust/n/npb_is.rs`](../../../rust/n/npb_is.rs) |
 | V | [`v/n/npb_is.v`](../../../v/n/npb_is.v) |
 | Zig | [`zig/n/npb_is.zig`](../../../zig/n/npb_is.zig) |
+
+The Mojo draft is [`mojo/n/npb_is.mojo`](../../../mojo/n/npb_is.mojo). It has not been compiled or run.

@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "hyperloglog-raw-estimate-i64-array-bytes-output-v1",
+  "algorithm": "hyperloglog_raw_estimate",
+  "function_symbol": "hyperloglog_raw_estimate",
+  "abi": "i64_array_bytes_output",
+  "description": "Sixteen-register HyperLogLog raw estimate from supplied 32-bit hashes.",
+  "source": {
+    "url": "https://dmtcs.episciences.org/en/articles/3545",
+    "reuse": "Mathematical method only; independently authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,hash0,...,hash(n-1)]",
+    "count_range": [
+      0,
+      128
+    ],
+    "hash_range": [
+      0,
+      4294967295
+    ],
+    "maximum_valid_input_length": 129,
+    "maximum_parseable_input_length": 130,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "encoding": "[reduced_numerator,positive_denominator,registers[16]]",
+    "maximum_output_bytes": 144,
+    "success_result": 144,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Bounded registers and staged output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_stream",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 144,
+      "expected_result": 144,
+      "expected_output_hex": "42050000000000007d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "all_buckets_rank_one",
+      "input_values": [
+        16,
+        134217728,
+        402653184,
+        671088640,
+        939524096,
+        1207959552,
+        1476395008,
+        1744830464,
+        2013265920,
+        2281701376,
+        2550136832,
+        2818572288,
+        3087007744,
+        3355443200,
+        3623878656,
+        3892314112,
+        4160749568
+      ],
+      "input_length": 17,
+      "output_capacity": 144,
+      "expected_result": 144,
+      "expected_output_hex": "840a0000000000007d000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000"
+    },
+    { "id": "maximum_stream_all_zero_suffixes", "input_values": [128, 0, 268435456, 536870912, 805306368, 1073741824, 1342177280, 1610612736, 1879048192, 2147483648, 2415919104, 2684354560, 2952790016, 3221225472, 3489660928, 3758096384, 4026531840, 0, 268435456, 536870912, 805306368, 1073741824, 1342177280, 1610612736, 1879048192, 2147483648, 2415919104, 2684354560, 2952790016, 3221225472, 3489660928, 3758096384, 4026531840, 0, 268435456, 536870912, 805306368, 1073741824, 1342177280, 1610612736, 1879048192, 2147483648, 2415919104, 2684354560, 2952790016, 3221225472, 3489660928, 3758096384, 4026531840, 0, 268435456, 536870912, 805306368, 1073741824, 1342177280, 1610612736, 1879048192, 2147483648, 2415919104, 2684354560, 2952790016, 3221225472, 3489660928, 3758096384, 4026531840, 0, 268435456, 536870912, 805306368, 1073741824, 1342177280, 1610612736, 1879048192, 2147483648, 2415919104, 2684354560, 2952790016, 3221225472, 3489660928, 3758096384, 4026531840, 0, 268435456, 536870912, 805306368, 1073741824, 1342177280, 1610612736, 1879048192, 2147483648, 2415919104, 2684354560, 2952790016, 3221225472, 3489660928, 3758096384, 4026531840, 0, 268435456, 536870912, 805306368, 1073741824, 1342177280, 1610612736, 1879048192, 2147483648, 2415919104, 2684354560, 2952790016, 3221225472, 3489660928, 3758096384, 4026531840, 0, 268435456, 536870912, 805306368, 1073741824, 1342177280, 1610612736, 1879048192, 2147483648, 2415919104, 2684354560, 2952790016, 3221225472, 3489660928, 3758096384, 4026531840], "input_length": 129, "output_capacity": 144, "expected_result": 144, "expected_output_hex": "00000040a80000007d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d000000000000001d00000000000000" },
+    { "id": "rank_increase_and_duplicate", "input_values": [3, 134217728, 67108864, 134217728], "input_length": 4, "output_capacity": 144, "expected_result": 144, "expected_output_hex": "8050010000000000c91d0000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" },
+    {
+      "id": "negative_hash",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "output_capacity": 144,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "oversized_hash",
+      "input_values": [
+        1,
+        4294967296
+      ],
+      "input_length": 2,
+      "output_capacity": 144,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 144,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 143,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -21,6 +21,10 @@ the final input row, but the last-line flag suppresses downward diffusion and
 the row is not emitted, so it does not affect the result. The output length is
 `ceil(width / 8) * (height - 1)`. A null output pointer or insufficient output
 capacity returns `-2` without writing.
+The bounded implementation takes O(width·height) time and space for its
+working image and staged output. The Mojo draft has not been compiled or run.
+Verifier source specifies byte-boundary row widths, threshold extremes, and
+independence from the un-emitted final row; these cases remain unrun.
 
 The benchmark omits TIFF parsing, metadata, and file I/O while preserving the
 active launcher's grayscale `fsdither` operation. The threshold input exposes
@@ -81,6 +85,7 @@ OF THIS SOFTWARE.
 | C3 | [`c3/cbench_tiffdither.c3`](../../../c3/c/cbench_tiffdither.c3) |
 | C++ | [`cpp/cbench_tiffdither.cpp`](../../../cpp/c/cbench_tiffdither.cpp) |
 | Elisa | [`elisa/cbench_tiffdither.elisa`](../../../elisa/c/cbench_tiffdither.elisa) |
+| Mojo | [`mojo/cbench_tiffdither.mojo`](../../../mojo/c/cbench_tiffdither.mojo) (uncompiled draft) |
 | Nim | [`nim/cbench_tiffdither.nim`](../../../nim/c/cbench_tiffdither.nim) |
 | Odin | [`odin/cbench_tiffdither.odin`](../../../odin/c/cbench_tiffdither.odin) |
 | Rust | [`rust/cbench_tiffdither.rs`](../../../rust/c/cbench_tiffdither.rs) |

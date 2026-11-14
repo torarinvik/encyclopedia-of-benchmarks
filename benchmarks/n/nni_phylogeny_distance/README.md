@@ -39,8 +39,13 @@ Independent verifier: [`nni_phylogeny_distance_verifier_oracle.py`](../../nni_ph
 | C3 | `c3/n/nni_phylogeny_distance.c3` |
 | C++ | `cpp/n/nni_phylogeny_distance.cpp` |
 | Elisa | `elisa/n/nni_phylogeny_distance.elisa` |
+| Mojo | `mojo/n/nni_phylogeny_distance.mojo` |
 | Nim | `nim/n/nni_phylogeny_distance.nim` |
 | Odin | `odin/n/nni_phylogeny_distance.odin` |
 | Rust | `rust/n/nni_phylogeny_distance.rs` |
 | V | `v/n/nni_phylogeny_distance.v` |
 | Zig | `zig/n/nni_phylogeny_distance.zig` |
+
+The Mojo draft and ten-language suite source-presence check have not been
+compiled or run. Verifier source includes a four-leaf one-interchange case
+with its distance specified directly.

@@ -8,6 +8,10 @@ The launcher passes the binary `input-file`, which is preserved in this package.
 
 The independent Python oracle is [`benchmarks/five11_oracle.py`](../../five11_oracle.py). The pinned source and launcher are [`five11.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/five11/five11.c) and [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/five11/info.sh) at revision `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`.
 
+The [Mojo draft](../../../mojo/f/five11.mojo) retains the repeated decoding
+schedule. Its running time is proportional to the number of encoded fields
+times 10,000, with constant auxiliary space.
+
 Build a port with the `i64_array_scalar` ABI family, for example:
 
 ```sh

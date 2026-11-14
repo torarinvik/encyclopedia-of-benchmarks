@@ -10,6 +10,12 @@ The source defaults (500,000 elements, five arrays, 200 scans per array) are sca
 
 The RNG preserves the source's 64-bit unsigned wrap, 32-bit truncation of the shifted state, and 1–32767 result range. `workload.json` includes the first deterministic draw, multiple generated arrays at the minimum size, repeat scans, malformed inputs, and output-buffer errors. The oracle is [`benchmarkgame_puzzle_oracle.py`](../../benchmarkgame_puzzle_oracle.py).
 
+For array size `n`, `r` generated arrays, and `s` scans per array, the
+workload takes `O(rn(s+1))` time and `O(n+r)` auxiliary space.
+The byte-output verifier source uses an [independent reference](../benchmarkgame_puzzle_verifier_oracle.py)
+that jumps over shuffle draws and uses XOR invariance to obtain each duplicate;
+it compares those results with the primary reference. These checks are unrun.
+
 The source is pinned to commit [`5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/puzzle/puzzle.c), whose Git blob ID is `b86d38a55c3a1719e43771929030429f75da9ab5`.
 
 Build and record using the `i64_array_bytes_output` ABI family:
@@ -25,6 +31,7 @@ python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_arra
 | C3 | [`c3/b/benchmarkgame_puzzle.c3`](../../../c3/b/benchmarkgame_puzzle.c3) |
 | C++ | [`cpp/b/benchmarkgame_puzzle.cpp`](../../../cpp/b/benchmarkgame_puzzle.cpp) |
 | Elisa | [`elisa/b/benchmarkgame_puzzle.elisa`](../../../elisa/b/benchmarkgame_puzzle.elisa) |
+| Mojo | [`mojo/b/benchmarkgame_puzzle.mojo`](../../../mojo/b/benchmarkgame_puzzle.mojo) (unverified draft) |
 | Nim | [`nim/b/benchmarkgame_puzzle.nim`](../../../nim/b/benchmarkgame_puzzle.nim) |
 | Odin | [`odin/b/benchmarkgame_puzzle.odin`](../../../odin/b/benchmarkgame_puzzle.odin) |
 | Rust | [`rust/b/benchmarkgame_puzzle.rs`](../../../rust/b/benchmarkgame_puzzle.rs) |

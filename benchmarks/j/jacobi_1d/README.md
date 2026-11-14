@@ -31,6 +31,9 @@ The independent reference is
 | Rust | [rust/j/jacobi_1d.rs](../../../rust/j/jacobi_1d.rs) |
 | V | [v/j/jacobi_1d.v](../../../v/j/jacobi_1d.v) |
 | Zig | [zig/j/jacobi_1d.zig](../../../zig/j/jacobi_1d.zig) |
+| Mojo | [mojo/j/jacobi_1d.mojo](../../../mojo/j/jacobi_1d.mojo) (unverified draft) |
+
+Initialization and the requested sweeps take O((tsteps+1)·n) time and O(n) working storage.
 
 The shared `float64_slice_io` suite will use these commands after runner
 integration:

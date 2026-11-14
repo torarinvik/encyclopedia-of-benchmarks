@@ -23,3 +23,5 @@ Pinned source is s1112 in `TSVC/tsc.inc`, lines 924–948, at LAC-DCC
 [`Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc#L924). The launcher is `TSVC/LinearDependence-dbl/info.sh` (`3570 14`; float uses `3570 5`). It initializes then overwrites A in descending order. TSVC comments attribute codelets to David Callahan, Jack Dongarra, and David Levine.
 
 No explicit redistribution grant was found in the pinned repository material reviewed. The nine ports independently implement the bounded operation and copy no source code or comments; no upstream license or endorsement is claimed. See [LICENSE.txt](LICENSE.txt).
+
+A [Mojo draft](../../../mojo/t/tsvc_s1112_reverse_constant_offset_map.mojo) is also present and remains unverified.

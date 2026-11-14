@@ -12,7 +12,7 @@ fn gfMultiply(left_input: u8, right_input: u8) u8 {
     var right = right_input;
     var product: u16 = 0;
     while (right != 0) {
-        if (right & 1) != 0) product ^= left;
+        if ((right & 1) != 0) product ^= left;
         right >>= 1;
         left <<= 1;
         if ((left & 0x100) != 0) left ^= 0x11d;

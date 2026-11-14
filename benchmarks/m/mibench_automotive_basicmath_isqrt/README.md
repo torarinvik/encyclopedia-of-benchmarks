@@ -16,6 +16,9 @@ MiBench automotive-basicmath. It returns a 16-bit-fraction fixed-point root,
 - The result is `floor(sqrt(input) * 2^16)`. Invalid framing or values return
   `-1`.
 
+The fixed-width recurrence takes O(1) time and O(1) auxiliary space: it
+always processes 32 two-bit groups.
+
 The independent [oracle](../../mibench_automotive_basicmath_isqrt_oracle.py)
 replays the 32-bit recurrence. The workload covers perfect and non-perfect
 roots, zero, the upper bounded value, and invalid framing and values.
@@ -39,6 +42,7 @@ uses independent ports of the described recurrence.
 | C3 | [c3/m/mibench_automotive_basicmath_isqrt.c3](../../../c3/m/mibench_automotive_basicmath_isqrt.c3) |
 | C++ | [cpp/m/mibench_automotive_basicmath_isqrt.cpp](../../../cpp/m/mibench_automotive_basicmath_isqrt.cpp) |
 | Elisa | [elisa/m/mibench_automotive_basicmath_isqrt.elisa](../../../elisa/m/mibench_automotive_basicmath_isqrt.elisa) |
+| Mojo | [mojo/m/mibench_automotive_basicmath_isqrt.mojo](../../../mojo/m/mibench_automotive_basicmath_isqrt.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/mibench_automotive_basicmath_isqrt.nim](../../../nim/m/mibench_automotive_basicmath_isqrt.nim) |
 | Odin | [odin/m/mibench_automotive_basicmath_isqrt.odin](../../../odin/m/mibench_automotive_basicmath_isqrt.odin) |
 | Rust | [rust/m/mibench_automotive_basicmath_isqrt.rs](../../../rust/m/mibench_automotive_basicmath_isqrt.rs) |

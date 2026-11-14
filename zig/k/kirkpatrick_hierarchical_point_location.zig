@@ -17,6 +17,7 @@ export fn kirkpatrick_hierarchical_point_location(input_opt:?[*]const i64,length
     const input=input_opt.?;const nv64=input[0];const nl64=input[1];const qx=input[2];const qy=input[3];
     if(nv64<3 or nv64>16 or nl64<1 or nl64>4 or qx< -1000 or qx>1000 or qy< -1000 or qy>1000)return -1;
     const nv:usize=@intCast(nv64);const nl:usize=@intCast(nl64);
+    if(length<4+2*nv)return -1;
     var xy:[max_vertices*2]i64=@splat(0);var faces:[max_levels*max_faces*3]i64=@splat(0);var fc:[max_levels]usize=@splat(0);var cc:[max_levels*max_faces]usize=@splat(0);var ids:[max_levels*max_faces*max_faces]usize=@splat(0);var pos:usize=4;
     for(0..nv)|v|{xy[2*v]=input[pos];xy[2*v+1]=input[pos+1];pos+=2;if(xy[2*v]< -1000 or xy[2*v]>1000 or xy[2*v+1]< -1000 or xy[2*v+1]>1000)return -1;}
     for(0..nl)|level|{if(pos>=length)return -1;const count64=input[pos];pos+=1;if(count64<1 or count64>8 or(level==0 and count64!=1))return -1;const count:usize=@intCast(count64);fc[level]=count;

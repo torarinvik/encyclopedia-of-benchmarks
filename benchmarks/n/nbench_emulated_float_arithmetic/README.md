@@ -9,3 +9,8 @@ Each result is a 12-byte record: type and sign bytes, signed little-endian 16-bi
 This is a bounded algorithm-kernel workload, not an official NBench result. It is based on ANSIbench's NBench BYTEmark source nbench/src/emfloat.c (AddSubInternalFPF, MultiplyInternalFPF, DivideInternalFPF, normalize, and RoundInternalFPF) at [nfinit/ansibench commit ef90abd09d7b7bb1f2809f896d6f67fb9724bebe](https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/nbench/src/emfloat.c), with representation constants from nbench/include/emfloat.h. The source credits Rick Grehan of BYTE Magazine and notes that some routines draw on work by Steve Snelgrove and Neill Graham. The implementation is written independently; no source blocks are copied.
 
 The exact upstream BYTEmark notice is preserved in [LICENSE](LICENSE). It makes the source, executable, and documentation available “as is” and disclaims warranties and liability; it is not presented as a standard permissive license. Preserve the notice and attribution when redistributing derived work. The notice is also available at [nbench/LICENSE](https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/nbench/LICENSE).
+
+The [Mojo draft](../../../mojo/n/nbench_emulated_float_arithmetic.mojo) has not
+been compiled or run. In particular, unsigned wraparound in carry and borrow
+operations remains unverified. Each record uses bounded 64-bit shifts and
+O(1) storage; a call processes at most eight records.

@@ -6,6 +6,8 @@ The `gemver` slug accepts signed 64-bit input `[n]`, with `n` bounded to 1–64.
 
 The upstream launcher selects `EXTRALARGE_DATASET` (`N=20000`); this suite profile uses bounded dimensions. Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. The kernel file has no inline license header; the PolyBench repository-level Ohio State Software Distribution License is reproduced in this package's [`LICENSE.txt`](LICENSE.txt).
 
+The independent [Mojo draft](../../../mojo/g/gemver.mojo) has not been compiled or run. The matrix updates and products take O(n²) time and O(n²) working storage.
+
 Build and run a port with the shared ABI commands:
 
 ```sh

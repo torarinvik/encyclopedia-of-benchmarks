@@ -34,4 +34,6 @@ This is a bounded decoder profile, not a general JPEG implementation: it exclude
 | V | [`v/p/picojpeg.v`](../../../v/p/picojpeg.v) |
 | Zig | [`zig/p/picojpeg.zig`](../../../zig/p/picojpeg.zig) |
 
+The Mojo draft is [`mojo/p/picojpeg.mojo`](../../../mojo/p/picojpeg.mojo).
+
 No runtime or compiler verification is claimed.

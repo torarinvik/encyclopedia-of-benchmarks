@@ -28,6 +28,10 @@ ignored null and empty rows, signed boundary values, maximum rows and cells,
 invalid empty flattenings, malformed framing, and null, short, and exact output
 capacities.
 
+Flattening takes O(r + n) time for r rows and n values. The Mojo draft uses
+insertion sort, taking O(n²) time and O(n) storage; other ports may use their
+language's sorting library, with different sorting costs.
+
 ## Pinned source
 
 [TheAlgorithms/Java `MedianOfMatrix.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/matrix/MedianOfMatrix.java)
@@ -41,6 +45,7 @@ at commit `e43ec3897e48f23843972d02cd05a5bb1b6864a2`.
 | C3 | [c3/m/median_of_matrix.c3](../../c3/m/median_of_matrix.c3) |
 | C++ | [cpp/m/median_of_matrix.cpp](../../cpp/m/median_of_matrix.cpp) |
 | Elisa | [elisa/m/median_of_matrix.elisa](../../elisa/m/median_of_matrix.elisa) |
+| Mojo | [mojo/m/median_of_matrix.mojo](../../mojo/m/median_of_matrix.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/median_of_matrix.nim](../../nim/m/median_of_matrix.nim) |
 | Odin | [odin/m/median_of_matrix.odin](../../odin/m/median_of_matrix.odin) |
 | Rust | [rust/m/median_of_matrix.rs](../../rust/m/median_of_matrix.rs) |

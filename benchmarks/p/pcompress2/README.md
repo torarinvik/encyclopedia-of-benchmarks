@@ -14,6 +14,8 @@ This bounded package preserves the compression core of FreeBench's `pcompress2`:
 
 The pinned launcher compresses a file four times and then decompresses it. This profile performs one compression pass and exposes its complete compressed record, so BWT, RLE, adaptive-model updates, renormalization, and bit packing all affect the observable output.
 
+The Mojo draft is [`mojo/p/pcompress2.mojo`](../../../mojo/p/pcompress2.mojo). It has not been compiled or run.
+
 ## Provenance and rights
 
 Source: [`FreeBench/pcompress2`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/FreeBench/pcompress2), pinned at commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The upstream headers identify pCompress/pUnCompress as part of FreeBench v1, intended only as a benchmark, and name Peter Rundberg (April 2001). `arithmetic.c` attributes its adaptive arithmetic-coding source to the 1987 CACM article by Witten, Neal, and Cleary. The pinned [`info.sh` launcher](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/FreeBench/pcompress2/info.sh) performs four compression passes followed by decompression. No explicit license grant was found in the pinned directory or repository root. These ports are clean-room implementations of the documented bounded behavior; no upstream implementation text was copied. This package does not claim an upstream license grant.

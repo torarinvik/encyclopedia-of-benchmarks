@@ -27,6 +27,7 @@ The `i64_scalar_bytes_output` entry point is `stanford_queens(runs, output, outp
 | Rust | [rust/s/stanford_queens.rs](../../../rust/s/stanford_queens.rs) |
 | V | [v/s/stanford_queens.v](../../../v/s/stanford_queens.v) |
 | Zig | [zig/s/stanford_queens.zig](../../../zig/s/stanford_queens.zig) |
+| Mojo | [mojo/s/stanford_queens.mojo](../../../mojo/s/stanford_queens.mojo) |
 
 ## Pinned source
 

@@ -16,6 +16,7 @@ The maximum input frame is 116 signed-i64 values and output is one little-endian
 | C3 | [`c3/a/ams_sketch.c3`](../../../c3/a/ams_sketch.c3) |
 | C++ | [`cpp/a/ams_sketch.cpp`](../../../cpp/a/ams_sketch.cpp) |
 | Elisa | [`elisa/a/ams_sketch.elisa`](../../../elisa/a/ams_sketch.elisa) |
+| Mojo | [`mojo/a/ams_sketch.mojo`](../../../mojo/a/ams_sketch.mojo) (draft, unverified) |
 | Nim | [`nim/a/ams_sketch.nim`](../../../nim/a/ams_sketch.nim) |
 | Odin | [`odin/a/ams_sketch.odin`](../../../odin/a/ams_sketch.odin) |
 | Rust | [`rust/a/ams_sketch.rs`](../../../rust/a/ams_sketch.rs) |

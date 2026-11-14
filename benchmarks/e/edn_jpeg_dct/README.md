@@ -9,3 +9,7 @@ This is a fixed-point fast 2D forward JPEG DCT kernel. It differs from the local
 Pinned source is `jpegdct` in [`src/edn/libedn.c`](https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/edn/libedn.c), at commit `09c2ed8c3b7008c95d08b038de4a3f6dc103ed70`. The source is GPL-3.0-or-later and records WCET Benchmarks provenance and Björn Lisper's email permission to license under GPL. Full text and attribution are in [`LICENSE.txt`](LICENSE.txt) and [`NOTICE.txt`](NOTICE.txt).
 
 Fixtures are in [`workload.json`](workload.json); an independent oracle is [`benchmarks/edn_jpeg_dct_oracle.py`](../../edn_jpeg_dct_oracle.py). These files specify the profile and do not claim runtime verification.
+
+The fixed 8×8 profile takes `O(1)` time and auxiliary space. A
+[Mojo draft](../../../mojo/e/edn_jpeg_dct.mojo) is present but has not been
+compiled or run.

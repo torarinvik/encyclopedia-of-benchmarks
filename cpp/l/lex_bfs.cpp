@@ -63,9 +63,7 @@ extern "C" std::int64_t lex_bfs(const std::int64_t* input, std::size_t length,
         order[step] = static_cast<std::int64_t>(current);
         for (std::size_t neighbor = 0; neighbor < n; ++neighbor) {
             if (!adjacency[current][neighbor] || selected[neighbor]) continue;
-            for (auto position = labelLen[neighbor]; position > 0; --position)
-                labels[neighbor][position] = labels[neighbor][position - 1];
-            labels[neighbor][0] = static_cast<std::int64_t>(step);
+            labels[neighbor][labelLen[neighbor]] = static_cast<std::int64_t>(n - step);
             ++labelLen[neighbor];
         }
     }

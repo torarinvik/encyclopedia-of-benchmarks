@@ -50,3 +50,4 @@ Fixtures are in [workload.json](workload.json); the independent oracle is
 | Rust | [tsvc_vtvtv_triple_product_map.rs](../../../rust/t/tsvc_vtvtv_triple_product_map.rs) |
 | V | [tsvc_vtvtv_triple_product_map.v](../../../v/t/tsvc_vtvtv_triple_product_map.v) |
 | Zig | [tsvc_vtvtv_triple_product_map.zig](../../../zig/t/tsvc_vtvtv_triple_product_map.zig) |
+| Mojo | [tsvc_vtvtv_triple_product_map.mojo](../../../mojo/t/tsvc_vtvtv_triple_product_map.mojo) |

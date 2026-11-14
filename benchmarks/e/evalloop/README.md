@@ -19,6 +19,7 @@ The ABI is `i64_scalar_bytes_output`: `evalloop(passes, output, output_capacity)
 | Rust | [rust/e/evalloop.rs](../../../rust/e/evalloop.rs) |
 | V | [v/e/evalloop.v](../../../v/e/evalloop.v) |
 | Zig | [zig/e/evalloop.zig](../../../zig/e/evalloop.zig) |
+| Mojo | [mojo/e/evalloop.mojo](../../../mojo/e/evalloop.mojo) (unverified draft) |
 
 ## Pinned source
 

@@ -26,13 +26,13 @@ fn newton_reciprocal_fps(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_
     if input[1] == 0: return -1
     let bytes = 8 * n
     if output == UnsafePointer[UInt8, MutAnyOrigin]() or capacity < c_size_t(bytes): return -2
-    var inverse = InlineArray[Int64, 64](0)
+    var inverse = InlineArray[Int64, 64](fill=0)
     inverse[0] = power(input[1], MODULUS - 2)
     var precision = 1
     while precision < n:
         var width = 2 * precision
         if width > n: width = n
-        var correction = InlineArray[Int64, 64](0)
+        var correction = InlineArray[Int64, 64](fill=0)
         for i in range(width):
             var j = 0
             while j < precision and i + j < width:
@@ -40,7 +40,7 @@ fn newton_reciprocal_fps(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_
                 j += 1
         correction[0] = (2 + MODULUS - correction[0]) % MODULUS
         for i in range(1, width): correction[i] = (MODULUS - correction[i]) % MODULUS
-        var next = InlineArray[Int64, 64](0)
+        var next = InlineArray[Int64, 64](fill=0)
         for i in range(precision):
             for j in range(width - i):
                 next[i + j] = (next[i + j] + inverse[i] * correction[j]) % MODULUS

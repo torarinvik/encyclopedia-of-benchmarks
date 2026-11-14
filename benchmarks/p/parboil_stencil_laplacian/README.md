@@ -41,6 +41,7 @@ See [`workload.json`](workload.json) and the independent
 - C3: [`c3/p/parboil_stencil_laplacian.c3`](../../../c3/p/parboil_stencil_laplacian.c3)
 - C++: [`cpp/p/parboil_stencil_laplacian.cpp`](../../../cpp/p/parboil_stencil_laplacian.cpp)
 - Elisa: [`elisa/p/parboil_stencil_laplacian.elisa`](../../../elisa/p/parboil_stencil_laplacian.elisa)
+- Mojo: [`mojo/p/parboil_stencil_laplacian.mojo`](../../../mojo/p/parboil_stencil_laplacian.mojo)
 - Nim: [`nim/p/parboil_stencil_laplacian.nim`](../../../nim/p/parboil_stencil_laplacian.nim)
 - Odin: [`odin/p/parboil_stencil_laplacian.odin`](../../../odin/p/parboil_stencil_laplacian.odin)
 - Rust: [`rust/p/parboil_stencil_laplacian.rs`](../../../rust/p/parboil_stencil_laplacian.rs)

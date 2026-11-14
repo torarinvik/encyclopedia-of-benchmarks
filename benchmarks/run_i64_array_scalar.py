@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+from i.ida_star_graph_oracle import expected_result as ida_star_graph_expected
+from i.ida_star_graph.check_inventory import static_issues as ida_star_graph_static_issues
 from collections import deque
 import datetime as dt
 import heapq
@@ -27,6 +29,7 @@ from hpcc_random_access_oracle import MAX_N as HPCC_RANDOM_ACCESS_MAX_N
 from hpcc_random_access_oracle import expected_result as hpcc_random_access_expected
 from kth_root_integer_oracle import MAX_PARSEABLE_INPUT_LENGTH as KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
 from kth_root_integer_oracle import expected_result as kth_root_integer_expected
+from square_free_factor_list_oracle import expected_result as square_free_factor_list_expected
 from h.hunt_szymanski_lcs.primary_oracle import (
     MAX_INPUT_LENGTH as HUNT_SZYMANSKI_LCS_MAX_INPUT_LENGTH,
     expected_result as hunt_szymanski_lcs_expected,
@@ -64,6 +67,20 @@ from mccat_08_main_oracle import MAX_INPUT_LENGTH as MCCAT_08_MAIN_MAX_INPUT_LEN
 from mccat_08_main_oracle import expected_result as mccat_08_main_expected
 from mccat_09_vor_oracle import MAX_INPUT_LENGTH as MCCAT_09_VOR_MAX_INPUT_LENGTH
 from mccat_09_vor_oracle import expected_output as mccat_09_vor_expected
+from h.hook_length_tableaux.independent_oracle import expected as hook_length_tableaux_expected
+from h.hook_length_tableaux.validation import validate_workload as validate_hook_length_tableaux_workload
+from d.difference_product.independent_oracle import expected as difference_product_expected
+from d.difference_product.validation import validate_workload as validate_difference_product_workload
+from p.polynomial_resultant_half_gcd.remainder_oracle import expected as polynomial_resultant_half_gcd_expected
+from p.polynomial_resultant_half_gcd.validation import validate_workload as validate_polynomial_resultant_half_gcd_workload
+from s.subsequence_automaton.primary_oracle import expected as subsequence_automaton_expected
+from s.subsequence_automaton.validation import validate_workload as validate_subsequence_automaton_workload
+from m.maximum_area_triangle_convex.independent_oracle import expected as maximum_area_triangle_convex_expected
+from m.maximum_area_triangle_convex.validation import validate_workload as validate_maximum_area_triangle_convex_workload
+from r.range_constraint_topological_feasibility.independent_oracle import expected as range_constraint_topological_feasibility_expected
+from r.range_constraint_topological_feasibility.validation import validate_workload as validate_range_constraint_topological_feasibility_workload
+from h.hopcroft_dfa_minimization.independent_oracle import expected as hopcroft_dfa_minimization_expected
+from h.hopcroft_dfa_minimization.validation import validate_workload as validate_hopcroft_dfa_minimization_workload
 from mallocbench_espresso_oracle import mallocbench_espresso as mallocbench_espresso_expected
 from mallocbench_cfrac_oracle import mallocbench_cfrac as mallocbench_cfrac_expected
 from agrep_approx_substring_count_oracle import (
@@ -507,10 +524,33 @@ from roulette_wheel_selection_oracle import MAX_INPUT_LENGTH as MAX_ROULETTE_WHE
 from roulette_wheel_selection_oracle import expected_result as roulette_wheel_selection_expected
 from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
 from k.karger_contraction_trial.primary_oracle import expected_output as karger_contraction_trial_expected
+from d.directed_girth_bfs.primary_oracle import expected_output as directed_girth_bfs_expected
+from f.functional_graph_cycle_brent.primary_oracle import expected_output as functional_graph_cycle_brent_expected
+from o.offline_range_distinct_fenwick.primary_oracle import expected_output as offline_range_distinct_fenwick_expected
+from d.dinic_capacity_scaling.primary_oracle import expected_output as dinic_capacity_scaling_expected
+from h.highest_label_push_relabel.primary_oracle import expected_output as highest_label_push_relabel_expected
+from c.closest_pair_sweep.primary_oracle import expected_output as closest_pair_sweep_expected
+from m.monotone_radix_heap.primary_oracle import expected_output as monotone_radix_heap_expected
+from b.backward_nondeterministic_dawg_match.independent_oracle import expected_output as bndm_expected
+from check_backward_nondeterministic_dawg_match_package import static_issues as bndm_static_issues
+from b.backward_oracle_match.independent_oracle import expected_output as bom_expected
+from check_backward_oracle_match_package import static_issues as bom_static_issues
+from w.wavelet_matrix.independent_oracle import expected_output as wavelet_matrix_expected
+from check_wavelet_matrix_package import static_issues as wavelet_matrix_static_issues
+from x.xor_filter_peeling.independent_oracle import expected_output as xor_filter_peeling_expected
+from check_xor_filter_peeling_package import static_issues as xor_filter_peeling_static_issues
+from check_monotone_radix_heap_package import static_issues as monotone_radix_heap_static_issues
+from check_closest_pair_sweep_package import static_issues as closest_pair_sweep_static_issues
+from check_highest_label_push_relabel_package import static_issues as highest_label_push_relabel_static_issues
+from check_dinic_capacity_scaling_package import static_issues as dinic_capacity_scaling_static_issues
+from check_offline_range_distinct_fenwick_package import static_issues as offline_range_distinct_fenwick_static_issues
+from check_functional_graph_cycle_brent_package import static_issues as functional_graph_cycle_brent_static_issues
+from check_directed_girth_bfs_package import static_issues as directed_girth_bfs_static_issues
 from check_karger_contraction_trial_package import static_issues as karger_contraction_trial_static_issues
 from t.turnstile_one_sparse_fingerprint_recovery.primary_oracle import expected_output as sparse_recovery_expected
 from check_turnstile_one_sparse_fingerprint_recovery_package import static_issues as sparse_recovery_static_issues
 from s.second_best_mst_binary_lifting.primary_oracle import expected_output as lifting_mst_expected
+from longest_common_substring_sam_oracle import evaluate as longest_common_substring_sam_expected
 from check_second_best_mst_binary_lifting_package import static_issues as lifting_mst_static_issues
 from stoer_wagner_oracle import expected_result as stoer_wagner_expected
 from pushdown_automaton_oracle import INVALID_RESULT as PUSHDOWN_AUTOMATON_INVALID_RESULT
@@ -7824,10 +7864,59 @@ def validate_solution42_workload(workload: dict) -> None:
             raise ValueError(f"solution42 workload mismatch: {case.get('id')}")
 
 
+def validate_longest_common_substring_sam_workload(workload: dict) -> None:
+    algorithm = "longest_common_substring_sam"
+    path = ROOT / "benchmarks/l/longest_common_substring_sam/workload.json"
+    if workload != json.loads(path.read_text(encoding="utf-8")):
+        raise ValueError("suffix-automaton LCS workload differs from its package file")
+    if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm or workload.get("abi") != "i64_array_scalar"
+            or not isinstance(workload.get("cases"), list) or not workload["cases"]
+            or workload.get("input", {}).get("maximum_valid_length") != 514
+            or workload.get("input", {}).get("maximum_parseable_length") != 515):
+        raise ValueError("suffix-automaton LCS metadata differs from its bounded contract")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "mojo": "mojo",
+                  "nim": "nim", "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        port = ROOT / language / "l" / f"{algorithm}.{extension}"
+        if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"suffix-automaton LCS port missing symbol: {port}")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(is_null) is not bool
+                or type(case.get("expected_result")) is not int
+                or case.get("input_length") != len(values) or len(values) > 515
+                or any(type(x) is not int or not -(1 << 63) <= x < (1 << 63) for x in values)
+                or is_null and values
+                or case.get("expected_result") != longest_common_substring_sam_expected(None if is_null else values)):
+            raise ValueError(f"suffix-automaton LCS invalid fixture: {case.get('id')}")
+
+
+def validate_naive_knapsack_solver_workload(workload: dict) -> None:
+    if (workload.get("algorithm") != "naive_knapsack_solver"
+            or workload.get("function_symbol") != "naive_knapsack_solver"
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(workload.get("cases"), list) or not workload["cases"]):
+        raise ValueError("naive_knapsack_solver workload metadata is invalid")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "k" / f"naive_knapsack_solver.{extension}"
+        if not source.is_file():
+            raise ValueError(f"naive_knapsack_solver missing {language} source")
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     # Permit one extra element so this profile can exercise its exact-length rejection case.
-    max_input_length = (2 if algorithm == "hpcc_random_access" else
+    max_input_length = (355 if algorithm == "subsequence_automaton" else
+                        100002 if algorithm == "polynomial_resultant_half_gcd" else
+                        20483 if algorithm == "hopcroft_dfa_minimization" else
+                        32771 if algorithm == "range_constraint_topological_feasibility" else
+                        2050 if algorithm == "maximum_area_triangle_convex" else
+                        65538 if algorithm in ("hook_length_tableaux", "difference_product") else
+                        2 if algorithm == "hpcc_random_access" else
                         CONVEX_LAYERS_MAX_INPUT_LENGTH if algorithm == "convex_layers" else
                         5 if algorithm in {"sum_of_floor_of_linear", "min_of_mod_of_linear"} else
                         EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH + 1
@@ -7941,6 +8030,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "parallel_binary_search_range_threshold" else
                         CDQ_DOMINANCE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "cdq_three_dimensional_dominance" else
+                        113 if algorithm == "ida_star_graph" else
                         BAREISS_DETERMINANT_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "bareiss_determinant" else
                         PERSISTENT_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH
@@ -8260,7 +8350,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_INTENSITY_BASED_SEGMENTATION_INPUT_LENGTH if algorithm == "intensity_based_segmentation"
                         else MAX_ISO7816_D4_PADDING_INPUT_LENGTH if algorithm == "iso7816_d4_padding"
                         else MAX_LIANG_BARSKY_INPUT_LENGTH if algorithm == "liang_barsky"
-                        else MAX_IS_INPUT_LENGTH if algorithm == "is"
+                        else MAX_IS_INPUT_LENGTH if algorithm in ("is", "uint53_is")
                         else MAX_LINEAR_DIOPHANTINE_EQUATIONS_SOLVER_INPUT_LENGTH if algorithm == "linear_diophantine_equations_solver"
                         else MAX_DSA_VERIFY_INPUT_LENGTH if algorithm == "dsa_verify"
                         else MAX_KAHN_INPUT_LENGTH if algorithm == "kahn"
@@ -8380,8 +8470,20 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_WA_TOR_PARSEABLE_INPUT_LENGTH if algorithm == "wa_tor"
                         else MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH if algorithm == "largest_product_in_a_grid"
                         else MAX_STOER_WAGNER_INPUT_LENGTH if algorithm == "stoer_wagner"
+                        else 131 if algorithm == "directed_girth_bfs"
+                        else 67 if algorithm == "functional_graph_cycle_brent"
+                        else 195 if algorithm == "offline_range_distinct_fenwick"
+                        else 197 if algorithm == "dinic_capacity_scaling"
+                        else 197 if algorithm == "highest_label_push_relabel"
+                        else 130 if algorithm == "closest_pair_sweep"
+                        else 130 if algorithm == "monotone_radix_heap"
+                        else 4162 if algorithm == "backward_nondeterministic_dawg_match"
+                        else 4162 if algorithm == "backward_oracle_match"
+                        else 707 if algorithm == "wavelet_matrix"
+                        else 260 if algorithm == "xor_filter_peeling"
                         else 57 if algorithm == "karger_contraction_trial"
                         else 260 if algorithm == "turnstile_one_sparse_fingerprint_recovery"
+                        else 515 if algorithm == "longest_common_substring_sam"
                         else 63 if algorithm == "second_best_mst_binary_lifting"
                         else MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH if algorithm == "pushdown_automaton"
                         else MAX_SPRAGUE_GRUNDY_INPUT_LENGTH if algorithm == "sprague_grundy_theorem"
@@ -8508,7 +8610,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else 31 if algorithm == "rodinia_bplus_tree"
                         else XGBOOST_MAX_INPUT_LENGTH if algorithm == "xgboost"
                         else 516 if algorithm == "euler" else 100001)
-    if algorithm in {"sum_of_floor_of_linear", "min_of_mod_of_linear"}:
+    if algorithm == "square_free_factor_list":
+        max_input_length = 257
+    elif algorithm in {"sum_of_floor_of_linear", "min_of_mod_of_linear"}:
         max_input_length = 5
     elif algorithm == "kth_root_integer":
         max_input_length = KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
@@ -8618,7 +8722,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "min_of_mod_of_linear":
+    if algorithm == "square_free_factor_list":
+        if expected != square_free_factor_list_expected(values):
+            raise ValueError("square_free_factor_list expected_result disagrees with the uniqueness oracle")
+    elif algorithm == "min_of_mod_of_linear":
         if expected != min_of_mod_of_linear_expected(values):
             raise ValueError("min_of_mod_of_linear expected_result must match the modular-prefix-minimum oracle")
     elif algorithm == "sum_of_floor_of_linear":
@@ -8732,6 +8839,40 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("mccat_09_vor expected_result must match the bounded hull-contraction circle")
+    elif algorithm == "hook_length_tableaux":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = hook_length_tableaux_expected(
+            None if input_is_null else values, case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("hook_length_tableaux expected_result differs from the bounded hook-length count")
+    elif algorithm == "difference_product":
+        expected_from_source = difference_product_expected(
+            None if case.get("input_is_null", False) else values, case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("difference_product expected_result differs from the pairwise product")
+    elif algorithm == "polynomial_resultant_half_gcd":
+        expected_from_source = polynomial_resultant_half_gcd_expected(
+            None if case.get("input_is_null", False) else values)
+        if expected != expected_from_source:
+            raise ValueError("polynomial resultant differs from the remainder reference")
+    elif algorithm == "subsequence_automaton":
+        if expected != subsequence_automaton_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("subsequence automaton differs from its reference")
+    elif algorithm == "maximum_area_triangle_convex":
+        expected_from_source = maximum_area_triangle_convex_expected(
+            None if case.get("input_is_null", False) else values)
+        if expected != expected_from_source:
+            raise ValueError("maximum_area_triangle_convex expected_result differs from the exhaustive reference")
+    elif algorithm == "range_constraint_topological_feasibility":
+        expected_from_source = range_constraint_topological_feasibility_expected(
+            None if case.get("input_is_null", False) else values)
+        if expected != expected_from_source:
+            raise ValueError("range constraint feasibility differs from the expanded reference")
+    elif algorithm == "hopcroft_dfa_minimization":
+        expected_from_source = hopcroft_dfa_minimization_expected(
+            None if case.get("input_is_null", False) else values)
+        if expected != expected_from_source:
+            raise ValueError("DFA minimization differs from the refinement reference")
     elif algorithm == "mallocbench_espresso":
         input_is_null = case.get("input_is_null", False)
         expected_from_source = mallocbench_espresso_expected(
@@ -9026,6 +9167,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = roulette_wheel_selection_expected(values)
         if expected != expected_from_source:
             raise ValueError("roulette_wheel_selection expected_result must match deterministic weighted ticket selection")
+    elif algorithm == "longest_common_substring_sam":
+        expected_from_source = longest_common_substring_sam_expected(None if case.get("input_is_null", False) else values)
+        if expected != expected_from_source:
+            raise ValueError("suffix-automaton longest common substring fixture differs from reference")
     elif algorithm == "second_best_mst_binary_lifting":
         if expected != lifting_mst_expected(values, case.get("input_is_null", False),
                                              case.get("input_length", len(values))):
@@ -9034,6 +9179,46 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         if expected != sparse_recovery_expected(
                 values, case.get("input_is_null", False), case.get("input_length", len(values))):
             raise ValueError("singleton fingerprint recovery expected_result differs from replay")
+    elif algorithm == "directed_girth_bfs":
+        if expected != directed_girth_bfs_expected(values, case.get("input_is_null", False),
+                                                    case.get("input_length", len(values))):
+            raise ValueError("directed_girth_bfs expected_result differs from reference")
+    elif algorithm == "functional_graph_cycle_brent":
+        if expected != functional_graph_cycle_brent_expected(values, case.get("input_is_null", False),
+                                                               case.get("input_length", len(values))):
+            raise ValueError("functional_graph_cycle_brent expected_result differs from reference")
+    elif algorithm == "offline_range_distinct_fenwick":
+        if expected != offline_range_distinct_fenwick_expected(values, case.get("input_is_null", False),
+                                                               case.get("input_length", len(values))):
+            raise ValueError("offline_range_distinct_fenwick expected_result differs from reference")
+    elif algorithm == "dinic_capacity_scaling":
+        if expected != dinic_capacity_scaling_expected(values, case.get("input_is_null", False),
+                                                       case.get("input_length", len(values))):
+            raise ValueError("dinic_capacity_scaling expected_result differs from reference")
+    elif algorithm == "highest_label_push_relabel":
+        if expected != highest_label_push_relabel_expected(values, case.get("input_is_null", False),
+                                                          case.get("input_length", len(values))):
+            raise ValueError("highest_label_push_relabel expected_result differs from reference")
+    elif algorithm == "closest_pair_sweep":
+        if expected != closest_pair_sweep_expected(values, case.get("input_is_null", False),
+                                                  case.get("input_length", len(values))):
+            raise ValueError("closest_pair_sweep expected_result differs from reference")
+    elif algorithm == "xor_filter_peeling":
+        if expected != xor_filter_peeling_expected(values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("xor_filter_peeling expected_result differs from reference")
+    elif algorithm == "wavelet_matrix":
+        if expected != wavelet_matrix_expected(values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("wavelet_matrix expected_result differs from reference")
+    elif algorithm == "backward_oracle_match":
+        if expected != bom_expected(values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("backward_oracle_match expected_result differs from reference")
+    elif algorithm == "backward_nondeterministic_dawg_match":
+        if expected != bndm_expected(values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("backward_nondeterministic_dawg_match expected_result differs from reference")
+    elif algorithm == "monotone_radix_heap":
+        if expected != monotone_radix_heap_expected(values, case.get("input_is_null", False),
+                                                   case.get("input_length", len(values))):
+            raise ValueError("monotone_radix_heap expected_result differs from reference")
     elif algorithm == "karger_contraction_trial":
         if expected != karger_contraction_trial_expected(values, case.get("input_is_null", False),
                                                           case.get("input_length", len(values))):
@@ -9260,6 +9445,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("cdq_three_dimensional_dominance expected_result must match CDQ dominance counts")
+    elif algorithm == "ida_star_graph":
+        expected_from_source = (-(1 << 63) if case.get("input_is_null", False)
+                                else ida_star_graph_expected(values))
+        if expected != expected_from_source:
+            raise ValueError("ida_star_graph expected_result differs from BFS reference")
     elif algorithm == "bareiss_determinant":
         expected_from_source = bareiss_determinant_expected(
             values,
@@ -9669,22 +9859,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = two_pointer_expected(values)
         if expected != expected_from_source:
             raise ValueError("two_pointer expected_result must match the sorted-array inward scan")
-    elif algorithm == "zblock_substring_search":
-        if (len(values) < 2 or values[0] < 0 or values[0] > 256
-                or values[1] < 1 or values[1] > 64
-                or len(values) != values[0] + values[1] + 2
-                or any(byte < 0 or byte > 127 or byte == 36 for byte in values[2:])):
-            expected_from_source = -1
-        else:
-            text_length, pattern_length = values[0], values[1]
-            text = values[2:2 + text_length]
-            pattern = values[2 + text_length:]
-            expected_from_source = sum(
-                text[start:start + pattern_length] == pattern
-                for start in range(text_length - pattern_length + 1)
-            )
-        if expected != expected_from_source:
-            raise ValueError("zblock_substring_search expected_result must count exact overlapping matches")
     elif algorithm == "car_pool":
         expected_from_source = car_pool_expected(values)
         if expected != expected_from_source:
@@ -9909,7 +10083,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = dsa_verify_expected(values)
         if expected != expected_from_source:
             raise ValueError("dsa_verify expected_result must match the bounded Go DSA Verify equation")
-    elif algorithm == "is":
+    elif algorithm in ("is", "uint53_is"):
         expected_from_source = is_expected(values)
         if expected != expected_from_source:
             raise ValueError("is expected_result must match the bounded Lua uint53 predicate")
@@ -10766,24 +10940,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 expected_from_source = text.find(pattern)
         if expected != expected_from_source:
             raise ValueError("bitap_string_match expected_result must match the bounded lowercase-ASCII first-match contract")
-    elif algorithm == "bitap_exact_match_31":
-        valid = (len(values) >= 2 and 0 <= values[0] <= 4096 and 0 <= values[1] <= 31
-                 and len(values) == 2 + values[0] + values[1]
-                 and all(97 <= value <= 122 for value in values[2:]))
-        if not valid:
-            expected_from_source = -2
-        else:
-            text_length, pattern_length = values[:2]
-            if pattern_length == 0:
-                expected_from_source = 0
-            elif pattern_length > text_length:
-                expected_from_source = -1
-            else:
-                text = bytes(values[2:2 + text_length])
-                pattern = bytes(values[2 + text_length:])
-                expected_from_source = text.find(pattern)
-        if expected != expected_from_source:
-            raise ValueError("bitap_exact_match_31 expected_result must match the 31-bit lowercase-ASCII first-match contract")
     elif algorithm == "reversort_cost":
         valid = (len(values) <= 256
                  and all(-(2**31) <= value <= 2**31 - 1 for value in values))
@@ -17515,6 +17671,12 @@ def validate_olden_health_workload(workload: dict) -> None:
             or "no license is inferred" not in readme
             or "Park-Miller" not in readme or "1 through 4" not in readme):
         raise ValueError("olden_health README is missing provenance or numeric-contract notes")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "o" / f"olden_health.{extension}"
+        if not port.is_file() or "olden_health" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"olden_health port missing: {port}")
     for case in cases:
         values = case.get("input_values")
         if (set(case) != {"id", "input_values", "expected_result"}
@@ -17668,6 +17830,12 @@ def validate_olden_voronoi_workload(workload: dict) -> None:
     if (source["url"] not in readme or "no upstream license is inferred" not in readme
             or "quad-edge" not in readme or "Fortune" not in readme):
         raise ValueError("olden_voronoi README is missing provenance or algorithm distinction notes")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "v" / f"olden_voronoi.{extension}"
+        if not port.is_file() or "olden_voronoi" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"Olden Voronoi port missing: {port}")
     for case in cases:
         values = case.get("input_values")
         if (set(case) != {"id", "input_values", "expected_result"}
@@ -17866,7 +18034,7 @@ def validate_richards_benchmark_workload(workload: dict) -> None:
         "paths": ["Misc/richards_benchmark/richards_benchmark.c", "Misc/richards_benchmark/info.sh"],
         "symbols": ["createtask", "schedule", "Wait", "holdself", "release", "qpkt", "idlefn", "workfn", "handlerfn", "devfn"],
         "url": source_url,
-        "license_note": "The pinned C file and package launcher contain no license declaration. No upstream license is inferred; the nine ports and oracle are clean-room implementations of the observed behavior.",
+        "license_note": "The pinned C file and package launcher contain no license declaration. No upstream license is inferred; the ports and oracle are clean-room implementations of the observed behavior.",
     }
     expected_launcher = {
         "repository": "lac-dcc/Benchmarks", "commit": pinned,
@@ -17920,6 +18088,12 @@ def validate_richards_benchmark_workload(workload: dict) -> None:
     if (source_url not in readme or "does not infer an upstream license" not in readme
             or "FIFO" not in readme or "cooperative scheduler" not in readme):
         raise ValueError("richards_benchmark README is missing provenance or algorithm notes")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "r" / f"richards_benchmark.{extension}"
+        if not source.is_file() or "richards_benchmark" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"Richards scheduler port missing: {source}")
     for case in cases:
         values = case.get("input_values")
         if (set(case) != {"id", "input_values", "expected_result"}
@@ -18084,6 +18258,12 @@ def validate_fourinarow_minimax_workload(workload: dict) -> None:
     if ("Plese feel free to distribute this program as you like." not in readme
             or "Fhourstones" not in readme or "row * 6" not in readme):
         raise ValueError("fourinarow_minimax README is missing distribution, variant, or source-behavior notes")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "f" / f"fourinarow_minimax.{extension}"
+        if not source.is_file() or "fourinarow_minimax" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"fourinarow_minimax source missing for {language}")
     for case in cases:
         values = case.get("input_values")
         if (set(case) != {"id", "input_values", "expected_result"}
@@ -18159,8 +18339,14 @@ def validate_freebench_mason_workload(workload: dict) -> None:
     readme = (ROOT / "benchmarks" / "f" / "freebench_mason" / "README.md").read_text(encoding="utf-8")
     if (source_url not in readme or "Tord Hansson" not in readme
             or "no upstream license is inferred" not in readme
-            or "unbounded" not in readme or "depth 8" not in readme):
+            or "without a depth cap" not in readme or "stops at 8" not in readme):
         raise ValueError("freebench_mason README is missing provenance, rights, or search-bound notes")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "f" / f"freebench_mason.{extension}"
+        if not source.is_file() or "freebench_mason" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"freebench_mason source missing for {language}")
     for case in cases:
         values = case.get("input_values")
         if (set(case) != {"id", "input_values", "expected_result"}
@@ -18243,6 +18429,13 @@ def validate_fhourstones_exact_workload(workload: dict) -> None:
     if (source_url not in readme or "John Tromp" not in readme
             or "no sale for profit" not in readme or "John Tromp" not in rights):
         raise ValueError("fhourstones_exact README or rights record is missing source attribution")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "f" / f"fhourstones_exact.{extension}"
+        if not port.is_file() or "fhourstones_exact" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"fhourstones_exact source missing for {language}")
     for case in cases:
         values = case.get("input_values")
         if (set(case) != {"id", "input_values", "expected_result"}
@@ -18558,6 +18751,12 @@ def validate_mccat_08_main_workload(workload: dict) -> None:
             or "vector3_axis_rotation" not in readme
             or "Copyright (C) 1996 McGill University." not in readme):
         raise ValueError("mccat_08_main README or source notice is missing provenance or distinctness details")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "m" / f"mccat_08_main.{extension}"
+        if not source.is_file() or "mccat_08_main" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"mccat_08_main source missing for {language}")
     cases = workload.get("cases")
     ids = ({case.get("id") for case in cases if isinstance(case, dict)}
            if isinstance(cases, list) else set())
@@ -18784,6 +18983,12 @@ def validate_ptrdist_anagram_workload(workload: dict) -> None:
             or "multiword decomposition search" not in readme
             or "single-word frequency comparison" not in readme):
         raise ValueError("ptrdist_anagram README is missing provenance, rights, or distinctness details")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "p" / f"ptrdist_anagram.{extension}"
+        if not port.is_file() or "ptrdist_anagram" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"ptrdist_anagram port missing: {port}")
     cases = workload.get("cases")
     ids = ({case.get("id") for case in cases if isinstance(case, dict)}
            if isinstance(cases, list) else set())
@@ -18955,6 +19160,12 @@ def validate_stanford_puzzle_workload(workload: dict) -> None:
             or "distinct from the local BenchmarkGame puzzle" not in readme
             or "2,005 calls" not in readme):
         raise ValueError("stanford_puzzle README is missing attribution, license, bound, or distinctness notes")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "p" / f"stanford_puzzle.{extension}"
+        if not source.is_file() or "stanford_puzzle" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"stanford_puzzle source missing for {language}")
     cases = workload.get("cases")
     ids = ({case.get("id") for case in cases if isinstance(case, dict)}
            if isinstance(cases, list) else set())
@@ -19484,6 +19695,15 @@ def validate_prolangs_c_assembler_workload(workload: dict) -> None:
             or "two-pass" not in readme or "forward-reference" not in readme
             or "format-3" not in readme):
         raise ValueError("prolangs_c_assembler README is missing source, permission notice, or adaptation details")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "p" / f"prolangs_c_assembler.{extension}"
+        if not source.is_file():
+            raise ValueError(f"prolangs_c_assembler missing {language} source")
+        source_text = source.read_text(encoding="utf-8")
+        if "William Landi 1991" not in source_text or "copyright" not in source_text.lower():
+            raise ValueError(f"prolangs_c_assembler {language} source lacks its attribution")
     cases = workload.get("cases")
     ids = ({case.get("id") for case in cases if isinstance(case, dict)}
            if isinstance(cases, list) else set())
@@ -19512,6 +19732,7 @@ def validate_prolangs_football_tiebreaks_workload(workload: dict) -> None:
     pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
     max_input_length = 1 + 12 * PROLANGS_FOOTBALL_MAX_TEAMS + 2 * PROLANGS_FOOTBALL_MAX_TEAMS ** 2
     expected_ids = {
+        "head_to_head_winner_moves_across_two_teams",
         "same_division_head_to_head_percentage",
         "cross_division_sweep_moves_winner_first",
         "strict_division_split_restarts_head_to_head_for_remaining_three",
@@ -19562,8 +19783,15 @@ def validate_prolangs_football_tiebreaks_workload(workload: dict) -> None:
     permission = "Permission to use this code is granted as long as the copyright notice remains in place."
     if (source_url not in readme or "William Landi" not in readme
             or permission not in readme or "clean-room" not in readme
-            or "no broader redistribution or relicensing grant is inferred" not in readme):
+            or "no broader redistribution or relicensing grant is inferred" not in readme.lower()):
         raise ValueError("prolangs_football_tiebreaks README is missing provenance, rights, or adaptation notes")
+
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "p" / f"prolangs_football_tiebreaks.{extension}"
+        if not port.is_file() or "prolangs_football_tiebreaks" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"prolangs_football_tiebreaks port missing: {port}")
 
     cases = workload.get("cases")
     case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
@@ -19724,6 +19952,12 @@ def validate_prolangs_c_bison_nullable_workload(workload: dict) -> None:
             or "BISON GENERAL PUBLIC LICENSE" not in notice
             or "Copyright (C) 1988 Richard M. Stallman" not in notice):
         raise ValueError("prolangs_c_bison_nullable README or license attribution is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "p" / f"prolangs_c_bison_nullable.{extension}"
+        if not source.is_file():
+            raise ValueError(f"prolangs_c_bison_nullable missing {language} source")
 
     cases = workload.get("cases")
     ids = ({case.get("id") for case in cases if isinstance(case, dict)}
@@ -20609,6 +20843,7 @@ def validate_cbench_ghostscript_rop3_workload(workload: dict) -> None:
     for relative in (
             "c/g/cbench_ghostscript_rop3.c", "c3/g/cbench_ghostscript_rop3.c3",
             "cpp/g/cbench_ghostscript_rop3.cpp", "elisa/g/cbench_ghostscript_rop3.elisa",
+            "mojo/g/cbench_ghostscript_rop3.mojo",
             "nim/g/cbench_ghostscript_rop3.nim", "odin/g/cbench_ghostscript_rop3.odin",
             "rust/g/cbench_ghostscript_rop3.rs", "v/g/cbench_ghostscript_rop3.v",
             "zig/g/cbench_ghostscript_rop3.zig"):
@@ -20945,6 +21180,7 @@ def validate_cbench_rsynth_f0_flutter_workload(workload: dict) -> None:
     for relative in (
             "c/m/cbench_rsynth_f0_flutter.c", "c3/m/cbench_rsynth_f0_flutter.c3",
             "cpp/m/cbench_rsynth_f0_flutter.cpp", "elisa/m/cbench_rsynth_f0_flutter.elisa",
+            "mojo/m/cbench_rsynth_f0_flutter.mojo",
             "nim/m/cbench_rsynth_f0_flutter.nim", "odin/m/cbench_rsynth_f0_flutter.odin",
             "rust/m/cbench_rsynth_f0_flutter.rs", "v/m/cbench_rsynth_f0_flutter.v",
             "zig/m/cbench_rsynth_f0_flutter.zig"):
@@ -21023,6 +21259,7 @@ def validate_cbench_ghostscript_rop3_idempotence_workload(workload: dict) -> Non
             "c3/g/cbench_ghostscript_rop3_idempotence.c3",
             "cpp/g/cbench_ghostscript_rop3_idempotence.cpp",
             "elisa/g/cbench_ghostscript_rop3_idempotence.elisa",
+            "mojo/g/cbench_ghostscript_rop3_idempotence.mojo",
             "nim/g/cbench_ghostscript_rop3_idempotence.nim",
             "odin/g/cbench_ghostscript_rop3_idempotence.odin",
             "rust/g/cbench_ghostscript_rop3_idempotence.rs",
@@ -21103,6 +21340,7 @@ def validate_cbench_ghostscript_rop3_operand_usage_workload(workload: dict) -> N
             "c3/g/cbench_ghostscript_rop3_operand_usage.c3",
             "cpp/g/cbench_ghostscript_rop3_operand_usage.cpp",
             "elisa/g/cbench_ghostscript_rop3_operand_usage.elisa",
+            "mojo/g/cbench_ghostscript_rop3_operand_usage.mojo",
             "nim/g/cbench_ghostscript_rop3_operand_usage.nim",
             "odin/g/cbench_ghostscript_rop3_operand_usage.odin",
             "rust/g/cbench_ghostscript_rop3_operand_usage.rs",
@@ -21187,6 +21425,7 @@ def validate_cbench_ghostscript_rop3_transform_workload(workload: dict) -> None:
             "c3/g/cbench_ghostscript_rop3_transform.c3",
             "cpp/g/cbench_ghostscript_rop3_transform.cpp",
             "elisa/g/cbench_ghostscript_rop3_transform.elisa",
+            "mojo/g/cbench_ghostscript_rop3_transform.mojo",
             "nim/g/cbench_ghostscript_rop3_transform.nim",
             "odin/g/cbench_ghostscript_rop3_transform.odin",
             "rust/g/cbench_ghostscript_rop3_transform.rs",
@@ -21758,6 +21997,7 @@ def validate_versabench_dbms_valid_attributes_workload(workload: dict) -> None:
     for relative in (
             "c/d/versabench_dbms_valid_attributes.c", "c3/d/versabench_dbms_valid_attributes.c3",
             "cpp/d/versabench_dbms_valid_attributes.cpp", "elisa/d/versabench_dbms_valid_attributes.elisa",
+            "mojo/d/versabench_dbms_valid_attributes.mojo",
             "nim/d/versabench_dbms_valid_attributes.nim", "odin/d/versabench_dbms_valid_attributes.odin",
             "rust/d/versabench_dbms_valid_attributes.rs", "v/d/versabench_dbms_valid_attributes.v",
             "zig/d/versabench_dbms_valid_attributes.zig"):
@@ -21827,6 +22067,7 @@ def validate_versabench_dbms_valid_index_key_workload(workload: dict) -> None:
     for relative in (
             "c/d/versabench_dbms_valid_index_key.c", "c3/d/versabench_dbms_valid_index_key.c3",
             "cpp/d/versabench_dbms_valid_index_key.cpp", "elisa/d/versabench_dbms_valid_index_key.elisa",
+            "mojo/d/versabench_dbms_valid_index_key.mojo",
             "nim/d/versabench_dbms_valid_index_key.nim", "odin/d/versabench_dbms_valid_index_key.odin",
             "rust/d/versabench_dbms_valid_index_key.rs", "v/d/versabench_dbms_valid_index_key.v",
             "zig/d/versabench_dbms_valid_index_key.zig"):
@@ -21910,10 +22151,13 @@ def validate_versabench_dbms_scalar_helper_workload(workload: dict, algorithm: s
     if (source_path not in readme or pinned not in readme
             or "No explicit redistribution license" not in notice):
         raise ValueError(f"{algorithm} source attribution or rights notice is incomplete")
+    mojo_ports = ((f"mojo/d/{algorithm}.mojo",) if algorithm in {
+        "versabench_dbms_consistent_key", "versabench_dbms_penalty", "versabench_dbms_partition_entries"
+    } else ())
     for relative in (
             f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
             f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
-            f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
+            f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig", *mojo_ports):
         port = ROOT / relative
         if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
             raise ValueError(f"{algorithm} port is missing its symbol: {relative}")
@@ -21997,6 +22241,7 @@ def validate_versabench_dbms_choose_entry_workload(workload: dict) -> None:
     for relative in (
             "c/d/versabench_dbms_choose_entry.c", "c3/d/versabench_dbms_choose_entry.c3",
             "cpp/d/versabench_dbms_choose_entry.cpp", "elisa/d/versabench_dbms_choose_entry.elisa",
+            "mojo/d/versabench_dbms_choose_entry.mojo",
             "nim/d/versabench_dbms_choose_entry.nim", "odin/d/versabench_dbms_choose_entry.odin",
             "rust/d/versabench_dbms_choose_entry.rs", "v/d/versabench_dbms_choose_entry.v",
             "zig/d/versabench_dbms_choose_entry.zig"):
@@ -22310,12 +22555,13 @@ def validate_embench_aha_mont64_workload(workload: dict) -> None:
     paths = (
         "c/a/embench_aha_mont64.c", "c3/a/embench_aha_mont64.c3",
         "cpp/a/embench_aha_mont64.cpp", "elisa/a/embench_aha_mont64.elisa",
+        "mojo/a/embench_aha_mont64.mojo",
         "nim/a/embench_aha_mont64.nim", "odin/a/embench_aha_mont64.odin",
         "rust/a/embench_aha_mont64.rs", "v/a/embench_aha_mont64.v",
         "zig/a/embench_aha_mont64.zig",
     )
     if any(not (ROOT / path).is_file() for path in paths):
-        raise ValueError("embench_aha_mont64 is missing one or more of its nine language ports")
+        raise ValueError("embench_aha_mont64 is missing one or more of its ten language ports")
     for case in cases:
         values = case.get("input_values")
         if (set(case) != {"id", "input_values", "input_length", "expected_result"}
@@ -22865,6 +23111,7 @@ def validate_rodinia_bplus_tree_workload(workload: dict) -> None:
     for relative in (
             "c/b/rodinia_bplus_tree.c", "c3/b/rodinia_bplus_tree.c3",
             "cpp/b/rodinia_bplus_tree.cpp", "elisa/b/rodinia_bplus_tree.elisa",
+                "mojo/b/rodinia_bplus_tree.mojo",
             "nim/b/rodinia_bplus_tree.nim", "odin/b/rodinia_bplus_tree.odin",
             "rust/b/rodinia_bplus_tree.rs", "v/b/rodinia_bplus_tree.v",
             "zig/b/rodinia_bplus_tree.zig"):
@@ -23061,6 +23308,38 @@ def validate_cdq_three_dimensional_dominance_workload(workload: dict) -> None:
             raise ValueError(
                 f"cdq_three_dimensional_dominance fixture differs from its oracle: {case.get('id')}"
             )
+
+
+def validate_ida_star_graph_workload(workload: dict) -> None:
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "korf-ida-star-directed-graph-i64-array-scalar-v1"
+            or workload.get("algorithm") != "ida_star_graph"
+            or workload.get("function_symbol") != "ida_star_graph"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input", {}).get("maximum_valid_length") != 112
+            or workload.get("input", {}).get("maximum_parseable_length") != 113
+            or workload.get("workspace", {}).get("bytes") != 1024
+            or workload.get("source", {}).get("url") != "https://ijcai.org/proceedings/1985/208"
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("ida_star_graph metadata differs from its contract")
+    issues = ida_star_graph_static_issues()
+    if issues:
+        raise ValueError("ida_star_graph package is incomplete: " + "; ".join(issues))
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or not cases:
+        raise ValueError("ida_star_graph requires workload cases")
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError("ida_star_graph case must be an object")
+        values = case.get("input_values")
+        null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(null) is not bool
+                or case.get("input_length") != len(values) or len(values) > 113
+                or (null and values)):
+            raise ValueError("ida_star_graph fixture framing is invalid")
+        expected = -(1 << 63) if null else ida_star_graph_expected(values)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError("ida_star_graph fixture differs from BFS reference")
 
 
 def validate_bareiss_determinant_workload(workload: dict) -> None:
@@ -23569,25 +23848,85 @@ def main() -> int:
             or sha256_file(executable) != binary["sha256"]
             or sha256_file(runner) != binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
+    if algorithm == "polynomial_resultant_half_gcd" and language == "cpp":
+        required_dependencies = {
+            "cpp/p/polynomial_resultant_half_gcd_primitives.hpp",
+            "cpp/p/polynomial_resultant_half_gcd_reduction.hpp",
+            "cpp/p/polynomial_resultant_half_gcd_kernel.hpp",
+        }
+        dependencies = manifest.get("source_dependencies")
+        if (not isinstance(dependencies, list) or len(dependencies) != len(required_dependencies)
+                or any(not isinstance(item, dict) or not isinstance(item.get("path"), str)
+                       or not isinstance(item.get("sha256"), str) for item in dependencies)
+                or {item["path"] for item in dependencies} != required_dependencies):
+            parser.error("resultant C++ manifest must record all kernel dependencies; rebuild first")
+        for item in dependencies:
+            dependency = (ROOT / item["path"]).resolve()
+            dependency.relative_to(ROOT)
+            if not dependency.is_file() or sha256_file(dependency) != item["sha256"]:
+                parser.error("resultant C++ dependency changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_subdirectory = {
+        "cbench_rsynth_f0_flutter": "m",
+        "cbench_ispell_lookup_chain": "i",
+        "cbench_ghostscript_rop3": "g",
+        "cbench_ghostscript_rop3_idempotence": "g",
+        "cbench_ghostscript_rop3_operand_usage": "g",
+        "cbench_ghostscript_rop3_transform": "g",
         "gapbs_ordered_triangle_count": "t",
         "gapbs_betweenness_centrality": "b",
         "gapbs_pagerank_pull_gs": "p",
         "maximum_independent_set": "m",
     }.get(algorithm, letter)
     workload_path = args.workload or (
+        ROOT / "benchmarks" / "k" / algorithm / "workload.json"
+        if algorithm == "naive_knapsack_solver" else
+        ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+        if algorithm == "clojure_persistent_list_queue" else
+        ROOT / "benchmarks" / "b" / algorithm / "workload.json"
+        if algorithm == "rodinia_bplus_tree" else
+        ROOT / "benchmarks" / "p" / algorithm / "workload.json"
+        if algorithm == "steiner_tree_subset_dp" else
+        ROOT / "benchmarks" / "p" / algorithm / "workload.json"
+        if algorithm == "stanford_puzzle" else
+        ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+        if algorithm == "max_jobs_before_deadlines" else
+        ROOT / "benchmarks" / "a" / algorithm / "workload.json"
+        if algorithm == "embench_aha_mont64" else
         ROOT / "benchmarks" / algorithm / "workload.json"
         if algorithm == "mcnaughton_yamada_thompson" else
+        ROOT / "benchmarks" / "i" / "is" / "workload.json"
+        if algorithm == "uint53_is" else
         ROOT / "benchmarks" / "d" / algorithm / "workload.json"
         if algorithm.startswith("versabench_dbms_") else
         ROOT / "benchmarks" / workload_subdirectory / algorithm / "workload.json")
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    if args.workload is None and not workload_path.is_file():
+        flat_workload = ROOT / "benchmarks" / algorithm / "workload.json"
+        if flat_workload.is_file():
+            workload_path = flat_workload
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
+    if algorithm == "naive_knapsack_solver":
+        validate_naive_knapsack_solver_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
         parser.error("workload does not match the built array scalar algorithm")
     if algorithm == "msd_radix_string_sorter":
         validate_msd_radix_string_sorter_workload(workload)
+    elif algorithm == "hook_length_tableaux":
+        validate_hook_length_tableaux_workload(workload)
+    elif algorithm == "difference_product":
+        validate_difference_product_workload(workload)
+    elif algorithm == "polynomial_resultant_half_gcd":
+        validate_polynomial_resultant_half_gcd_workload(workload)
+    elif algorithm == "subsequence_automaton":
+        validate_subsequence_automaton_workload(workload)
+    elif algorithm == "maximum_area_triangle_convex":
+        validate_maximum_area_triangle_convex_workload(workload)
+    elif algorithm == "range_constraint_topological_feasibility":
+        validate_range_constraint_topological_feasibility_workload(workload)
+    elif algorithm == "hopcroft_dfa_minimization":
+        validate_hopcroft_dfa_minimization_workload(workload)
     elif algorithm == "mpm_maxflow":
         validate_mpm_maxflow_package_workload(workload)
     elif algorithm == "mono_alphabetic_cipher":
@@ -23925,6 +24264,8 @@ def main() -> int:
         validate_eertree_workload(workload)
     elif algorithm == "segment_add_get_min":
         validate_segment_add_get_min_workload(workload)
+    elif algorithm == "longest_common_substring_sam":
+        validate_longest_common_substring_sam_workload(workload)
     elif algorithm == "second_best_mst_binary_lifting":
         issues = lifting_mst_static_issues(workload)
         if issues:
@@ -23933,6 +24274,50 @@ def main() -> int:
         issues = sparse_recovery_static_issues(workload)
         if issues:
             raise ValueError("singleton fingerprint recovery package: " + "; ".join(issues))
+    elif algorithm == "directed_girth_bfs":
+        issues = directed_girth_bfs_static_issues(workload)
+        if issues:
+            raise ValueError("directed_girth_bfs package: " + "; ".join(issues))
+    elif algorithm == "functional_graph_cycle_brent":
+        issues = functional_graph_cycle_brent_static_issues(workload)
+        if issues:
+            raise ValueError("functional_graph_cycle_brent package: " + "; ".join(issues))
+    elif algorithm == "offline_range_distinct_fenwick":
+        issues = offline_range_distinct_fenwick_static_issues(workload)
+        if issues:
+            raise ValueError("offline_range_distinct_fenwick package: " + "; ".join(issues))
+    elif algorithm == "dinic_capacity_scaling":
+        issues = dinic_capacity_scaling_static_issues(workload)
+        if issues:
+            raise ValueError("dinic_capacity_scaling package: " + "; ".join(issues))
+    elif algorithm == "highest_label_push_relabel":
+        issues = highest_label_push_relabel_static_issues(workload)
+        if issues:
+            raise ValueError("highest_label_push_relabel package: " + "; ".join(issues))
+    elif algorithm == "closest_pair_sweep":
+        issues = closest_pair_sweep_static_issues(workload)
+        if issues:
+            raise ValueError("closest_pair_sweep package: " + "; ".join(issues))
+    elif algorithm == "xor_filter_peeling":
+        issues = xor_filter_peeling_static_issues(workload)
+        if issues:
+            raise ValueError("xor_filter_peeling package: " + "; ".join(issues))
+    elif algorithm == "wavelet_matrix":
+        issues = wavelet_matrix_static_issues(workload)
+        if issues:
+            raise ValueError("wavelet_matrix package: " + "; ".join(issues))
+    elif algorithm == "backward_oracle_match":
+        issues = bom_static_issues(workload)
+        if issues:
+            raise ValueError("backward_oracle_match package: " + "; ".join(issues))
+    elif algorithm == "backward_nondeterministic_dawg_match":
+        issues = bndm_static_issues(workload)
+        if issues:
+            raise ValueError("backward_nondeterministic_dawg_match package: " + "; ".join(issues))
+    elif algorithm == "monotone_radix_heap":
+        issues = monotone_radix_heap_static_issues(workload)
+        if issues:
+            raise ValueError("monotone_radix_heap package: " + "; ".join(issues))
     elif algorithm == "karger_contraction_trial":
         issues = karger_contraction_trial_static_issues(workload)
         if issues:
@@ -23991,6 +24376,8 @@ def main() -> int:
         validate_parallel_binary_search_range_threshold_workload(workload)
     elif algorithm == "cdq_three_dimensional_dominance":
         validate_cdq_three_dimensional_dominance_workload(workload)
+    elif algorithm == "ida_star_graph":
+        validate_ida_star_graph_workload(workload)
     elif algorithm == "bareiss_determinant":
         validate_bareiss_determinant_workload(workload)
     elif algorithm == "pollard_p_minus_one_factorization":
@@ -24018,6 +24405,8 @@ def main() -> int:
     run_id = dt.datetime.now(dt.timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
     implementation = {key: manifest[key] for key in (
         "language", "source_path", "source_sha256", "compiler", "compiler_version", "build_flags")}
+    if "source_dependencies" in manifest:
+        implementation["source_dependencies"] = manifest["source_dependencies"]
     implementation.update({"runner_source_sha256": binary["harness_sha256"],
                            "binary_sha256": binary["sha256"],
                            "build_command": "\n".join(shlex.join(command) for command in manifest["commands"])})
@@ -24035,7 +24424,7 @@ def main() -> int:
             minimum_null_length = 0 if algorithm in (
                 "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
                 "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
-                "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc", "npb_dc_smallest_parent",
+                "stanford_puzzle", "mallocbench_cfrac", "hook_length_tableaux", "difference_product", "polynomial_resultant_half_gcd", "subsequence_automaton", "maximum_area_triangle_convex", "range_constraint_topological_feasibility", "hopcroft_dfa_minimization", "npb_serial_dc", "npb_dc_smallest_parent",
                 "prolangs_c_assembler", "prolangs_c_bison_nullable",
                 "versabench_dbms_choose_entry", "tsvc_s424_alias_overlap_feedback",
                 "tsvc_s423_antidependence_offset64", "tsvc_s258_wrapped_scalar_expansion",
@@ -24051,7 +24440,7 @@ def main() -> int:
                 "stirling_number_of_the_first_kind_small_p_large_n",
                 "parallel_binary_search_range_threshold",
                 "cdq_three_dimensional_dominance",
-                "bareiss_determinant",
+                "bareiss_determinant", "ida_star_graph",
                 "pollard_p_minus_one_factorization",
                 "factoring_exponentiation",
                 "isap_maxflow",
@@ -24059,12 +24448,24 @@ def main() -> int:
                 "ordered_set_avl_order_statistics",
                 "persistent_segment_tree_range_kth",
                 "count_different_palindromic_subsequences",
-                "karger_contraction_trial", "turnstile_one_sparse_fingerprint_recovery",
-                "second_best_mst_binary_lifting") else 1
+                "karger_contraction_trial", "directed_girth_bfs", "functional_graph_cycle_brent", "offline_range_distinct_fenwick", "dinic_capacity_scaling", "highest_label_push_relabel", "closest_pair_sweep", "monotone_radix_heap", "backward_nondeterministic_dawg_match", "backward_oracle_match", "wavelet_matrix", "xor_filter_peeling", "turnstile_one_sparse_fingerprint_recovery",
+                "second_best_mst_binary_lifting", "longest_common_substring_sam") else 1
             maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
                                    if algorithm == "segment_add_get_min" else
                                    260 if algorithm == "turnstile_one_sparse_fingerprint_recovery" else
+                                   515 if algorithm == "longest_common_substring_sam" else
                                    63 if algorithm == "second_best_mst_binary_lifting" else
+                                   131 if algorithm == "directed_girth_bfs" else
+                                   67 if algorithm == "functional_graph_cycle_brent" else
+                                   195 if algorithm == "offline_range_distinct_fenwick" else
+                                   197 if algorithm == "dinic_capacity_scaling" else
+                                   197 if algorithm == "highest_label_push_relabel" else
+                                   130 if algorithm == "closest_pair_sweep" else
+                                   130 if algorithm == "monotone_radix_heap" else
+                                   4162 if algorithm == "backward_nondeterministic_dawg_match" else
+                                   4162 if algorithm == "backward_oracle_match" else
+                                   707 if algorithm == "wavelet_matrix" else
+                                   260 if algorithm == "xor_filter_peeling" else
                                    57 if algorithm == "karger_contraction_trial" else
                                    382 if algorithm == "edmonds_blossom_algorithm" else
                                    8195 if algorithm in {"hopcroft_karp_cardinality", "bipartite_matching_kuhn"} else
@@ -24074,6 +24475,7 @@ def main() -> int:
                                    if algorithm == "parallel_binary_search_range_threshold" else
                                    CDQ_DOMINANCE_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "cdq_three_dimensional_dominance" else
+                                   113 if algorithm == "ida_star_graph" else
                                    BAREISS_DETERMINANT_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "bareiss_determinant" else
                                    POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH

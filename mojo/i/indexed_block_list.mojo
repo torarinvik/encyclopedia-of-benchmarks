@@ -96,14 +96,12 @@ fn indexed_block_list(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_siz
             return -1
     if cursor != n or size > IBL_MAX_ITEMS:
         return -1
-    if accesses == 0:
-        return 0
     let required = accesses * 8
-    if output == UnsafePointer[UInt8, MutAnyOrigin]() or Int(capacity) < required:
+    if required > 0 and (output == UnsafePointer[UInt8, MutAnyOrigin]() or Int(capacity) < required):
         return -2
 
     var blocks = InlineArray[Int64, 144]()
-    var sizes = InlineArray[Int32, 16]()
+    var sizes = InlineArray[Int32, 16](fill=0)
     var next = InlineArray[Int32, 16](fill=-1)
     var answers = InlineArray[Int64, 32]()
     var node_count = 1
@@ -123,7 +121,7 @@ fn indexed_block_list(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_siz
             answer_count += 1
             cursor += 2
     for i in range(answer_count):
-        let bits = UInt64(answers[i])
+        let bits = bitcast[UInt64](answers[i])
         for b in range(8):
             output[8 * i + b] = UInt8((bits >> (8 * b)) & UInt64(255))
     return Int64(required)

@@ -29,3 +29,5 @@ See [workload.json](workload.json) and the independent reference model [`benchma
 | Rust | `rust/p/prolangs_c_gnugo_suicide.rs` |
 | V | `v/p/prolangs_c_gnugo_suicide.v` |
 | Zig | `zig/p/prolangs_c_gnugo_suicide.zig` |
+
+The Mojo draft is [`mojo/p/prolangs_c_gnugo_suicide.mojo`](../../../mojo/p/prolangs_c_gnugo_suicide.mojo). Its repeated per-stone group searches take O(B²) time and O(B) space for B board cells in the worst case.

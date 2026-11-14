@@ -17,6 +17,9 @@ assignments are mapped back to original item order. Invalid input returns `-1`;
 null or insufficient output storage returns `-2` without writes. Maximum input
 is 65 words, output is 520 bytes, and fixed workspace is 1,024 bytes.
 
+The draft's stable insertion sort and direct bin scan use `O(n^2)` time and
+`O(n)` space.
+
 ## Source and rights
 
 Source: David S. Johnson, “Bin Packing,” *Encyclopedia of Algorithms*, DOI
@@ -37,6 +40,7 @@ Independent verifier: [`first_fit_decreasing_bin_packing_verifier_oracle.py`](..
 | C3 | [`c3/f/first_fit_decreasing_bin_packing.c3`](../../../c3/f/first_fit_decreasing_bin_packing.c3) |
 | C++ | [`cpp/f/first_fit_decreasing_bin_packing.cpp`](../../../cpp/f/first_fit_decreasing_bin_packing.cpp) |
 | Elisa | [`elisa/f/first_fit_decreasing_bin_packing.elisa`](../../../elisa/f/first_fit_decreasing_bin_packing.elisa) |
+| Mojo | [`mojo/f/first_fit_decreasing_bin_packing.mojo`](../../../mojo/f/first_fit_decreasing_bin_packing.mojo) |
 | Nim | [`nim/f/first_fit_decreasing_bin_packing.nim`](../../../nim/f/first_fit_decreasing_bin_packing.nim) |
 | Odin | [`odin/f/first_fit_decreasing_bin_packing.odin`](../../../odin/f/first_fit_decreasing_bin_packing.odin) |
 | Rust | [`rust/f/first_fit_decreasing_bin_packing.rs`](../../../rust/f/first_fit_decreasing_bin_packing.rs) |

@@ -53,3 +53,5 @@ upstream license or grant additional rights.
 | Zig | [`zig/p/ptrdist_sim_local_affine_alignment.zig`](../../../zig/p/ptrdist_sim_local_affine_alignment.zig) |
 
 Independent oracle: [`ptrdist_sim_local_affine_alignment_oracle.py`](../../ptrdist_sim_local_affine_alignment_oracle.py).
+
+The Mojo draft is [`mojo/p/ptrdist_sim_local_affine_alignment.mojo`](../../../mojo/p/ptrdist_sim_local_affine_alignment.mojo). For sequence lengths n and m, the full-matrix profile takes O(nm) time and O(nm) space.

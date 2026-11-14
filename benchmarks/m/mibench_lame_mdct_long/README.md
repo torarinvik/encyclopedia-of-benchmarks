@@ -27,6 +27,9 @@ return `-1` before output-capacity checks. A null output or capacity below 18
 returns `-2`. Success writes all 18 values and returns 18. Errors do not write
 the output.
 
+The fixed 18-by-18 direct transform uses O(1) time and O(1) auxiliary space.
+The [Mojo draft](../../../mojo/m/mibench_lame_mdct_long.mojo) has not been compiled or run.
+
 ## Source and rights
 
 Pinned source: `lac-dcc/Benchmarks` commit

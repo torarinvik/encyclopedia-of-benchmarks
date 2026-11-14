@@ -43,17 +43,18 @@ def emst_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> vo
 
 def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    if input == null || length < 1 || length > EMST_MAX_INPUT_LENGTH:
+    if input.is_null() or length < 1 or length > EMST_MAX_INPUT_LENGTH:
         return -1
-    raw_count: i64 = input[0]
+    values: view[i64] = input[0:length]
+    raw_count: i64 = values[0]
     if raw_count < 1 || raw_count > 8:
         return -1
     point_count: usize = raw_count.usize()
     if length != 1 + 2 * point_count:
         return -1
     points: mutable EuclideanPoint[EMST_MAX_POINTS] = zeroed
-    for i in 0..<point_count |input, points|:
-        points[i] <- EuclideanPoint{x: input[1 + 2 * i], y: input[2 + 2 * i]}
+    for i in 0..<point_count |values, points|:
+        points[i] <- EuclideanPoint{x: values[1 + 2 * i], y: values[2 + 2 * i]}
         if points[i].x < -10 || points[i].x > 10 || points[i].y < -10 || points[i].y > 10:
             return -1
     for a in 0..<point_count |points|:
@@ -70,8 +71,9 @@ def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
                         return -1
     output_words: usize = 2 * point_count - 1
     output_bytes: usize = 8 * output_words
-    if output == null || output_capacity < output_bytes:
+    if output.is_null() or output_capacity < output_bytes:
         return -2
+    target: mutable view[u8] = output[0:output_bytes]
 
     candidate: mutable bool[EMST_MAX_POINTS * EMST_MAX_POINTS] = zeroed
     if point_count == 2:
@@ -137,8 +139,8 @@ def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
     selected: mutable usize = 0
     edge_index: mutable usize = 0
     while edge_index < edge_count && selected < point_count - 1:
-        left: usize = emst_find_root(parent[0:EMST_MAX_POINTS], edges[edge_index].u)
-        right: usize = emst_find_root(parent[0:EMST_MAX_POINTS], edges[edge_index].v)
+        left: mutable usize = emst_find_root(parent[0:EMST_MAX_POINTS], edges[edge_index].u)
+        right: mutable usize = emst_find_root(parent[0:EMST_MAX_POINTS], edges[edge_index].v)
         if left != right:
             if sizes[left] < sizes[right]:
                 temporary: usize = left
@@ -152,8 +154,8 @@ def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
         edge_index <- edge_index + 1
     if selected != point_count - 1:
         return -1
-    for word in 0..<output_words |words, output|:
-        emst_store_i64_le(words[word], output[0:output_bytes], 8 * word)
+    for word in 0..<output_words |words, target|:
+        emst_store_i64_le(words[word], target, 8 * word)
     output_bytes.i64()
 
 export fn euclidean_mst(input: i64&, length: usize, output: mutable u8&,

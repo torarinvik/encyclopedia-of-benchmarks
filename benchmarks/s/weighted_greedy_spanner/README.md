@@ -14,6 +14,9 @@ or insufficient capacity returns `-2` without writes. The profile caps output
 at 28 bytes and uses Dijkstra for each bounded insertion decision; it makes no
 claim to the source's asymptotic runtime.
 
+With n vertices and m edges, insertion sorting and the dense Dijkstra scans
+take O(m² + mn²) time and O(n² + m) space.
+
 The package oracle follows the greedy edge sequence with Dijkstra. The
 independent verifier recomputes current-spanner distances with Floyd–Warshall.
 
@@ -36,6 +39,7 @@ shortcut, `k=1`, maximum-output, malformed, null, and capacity cases.
 | C3 | [`c3/s/weighted_greedy_spanner.c3`](../../../c3/s/weighted_greedy_spanner.c3) |
 | C++ | [`cpp/s/weighted_greedy_spanner.cpp`](../../../cpp/s/weighted_greedy_spanner.cpp) |
 | Elisa | [`elisa/s/weighted_greedy_spanner.elisa`](../../../elisa/s/weighted_greedy_spanner.elisa) |
+| Mojo | [`mojo/s/weighted_greedy_spanner.mojo`](../../../mojo/s/weighted_greedy_spanner.mojo) (draft; not compiled or run) |
 | Nim | [`nim/s/weighted_greedy_spanner.nim`](../../../nim/s/weighted_greedy_spanner.nim) |
 | Odin | [`odin/s/weighted_greedy_spanner.odin`](../../../odin/s/weighted_greedy_spanner.odin) |
 | Rust | [`rust/s/weighted_greedy_spanner.rs`](../../../rust/s/weighted_greedy_spanner.rs) |

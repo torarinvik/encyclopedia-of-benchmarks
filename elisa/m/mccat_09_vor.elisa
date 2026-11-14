@@ -97,7 +97,7 @@ def mccat_vor_pack(points: view[VorPoint], hull: view[usize]) -> i64:
     a: VorPoint = points[hull[0]]
     b: VorPoint = points[hull[1]]
     c: VorPoint = points[hull[2]]
-    sides: i64[3] = [mccat_vor_length2(a, b), mccat_vor_length2(b, c), mccat_vor_length2(a, c)]
+    sides: i64[3] = [mccat_vor_length2(b, c), mccat_vor_length2(a, c), mccat_vor_length2(a, b)]
     opposite: mutable usize = 0
     first: mutable usize = 1
     second: mutable usize = 2

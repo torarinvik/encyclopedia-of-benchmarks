@@ -26,7 +26,7 @@ export fn saga_incremental_analytics(input_opt: ?[*]const i64, length: usize,
     const base64 = input[2];
     const added64 = input[3];
     const source64 = input[4];
-    if (mode64 < 1 or mode64 > 6 or n64 < 2 or n64 > 8 or base64 < 0 or added64 < 1 or
+    if (mode64 < 1 or mode64 > 6 or n64 < 2 or n64 > 8 or base64 < 0 or base64 > 28 or added64 < 1 or added64 > 28 or
         base64 + added64 > @as(i64, @intCast(max_e)) or length != 5 + @as(usize, @intCast(n64)) + 3 * @as(usize, @intCast(base64 + added64))) return -1;
     const mode: usize = @intCast(mode64);
     const n: usize = @intCast(n64);
@@ -144,6 +144,17 @@ export fn saga_incremental_analytics(input_opt: ?[*]const i64, length: usize,
             for (0..active_count) |a| {
                 const v = active[a];
                 const old = property[v];
+                if (mode == 1 and !first) {
+                    for (0..degree[v]) |j| {
+                        const u = neighbors[v][j];
+                        const update = property[v] + 1;
+                        if (property[u] == -1 or update < property[u]) {
+                            property[u] = update;
+                            pushOnce(u, &next, &next_count, &next_seen);
+                        }
+                    }
+                    continue;
+                }
                 var candidate: i64 = 0;
                 if (mode == 1 or mode == 2 or mode == 4) candidate = inf_value;
                 if (mode == 1) {

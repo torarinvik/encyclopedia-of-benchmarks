@@ -2140,6 +2140,12 @@ def validate_smallest_enclosing_ball_3d_workload(workload: dict) -> None:
     if (source_url not in readme or "MIT License" not in license_text
             or "Welzl" not in readme or "smallest_circle" not in readme):
         raise ValueError("smallest_enclosing_ball_3d source or license attribution is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source_path = ROOT / language / "s" / f"smallest_enclosing_ball_3d.{extension}"
+        if not source_path.is_file() or "smallest_enclosing_ball_3d" not in source_path.read_text(encoding="utf-8"):
+            raise ValueError(f"smallest_enclosing_ball_3d source missing for {language}")
     absolute_tolerance, relative_tolerance = tolerances(workload)
     if absolute_tolerance != 1e-9 or relative_tolerance != 1e-9:
         raise ValueError("smallest_enclosing_ball_3d tolerances differ from its contract")
@@ -2170,6 +2176,8 @@ def validate_euclidean_t_spanner_workload(workload: dict) -> None:
     expected_ids = {
         "two_points", "three_point_line", "square", "clustered_six",
         "invalid_stretch", "duplicate_coordinates", "capacity_short", "null_output",
+        "coordinate_not_integer", "invalid_length", "invalid_before_null_output",
+        "null_input", "exact_capacity",
     }
     case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
                 if isinstance(cases, list) else [])
@@ -2210,6 +2218,11 @@ def validate_euclidean_t_spanner_workload(workload: dict) -> None:
     if (source["url"] not in readme or "MIT License" not in license_text
             or "well-separated" not in readme.lower()):
         raise ValueError("euclidean_t_spanner README or bundled license attribution is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        if not (ROOT / language / "e" / f"euclidean_t_spanner.{extension}").is_file():
+            raise ValueError(f"euclidean_t_spanner missing {language} source")
     absolute_tolerance, relative_tolerance = tolerances(workload)
     if absolute_tolerance != 0.0 or relative_tolerance != 0.0:
         raise ValueError("euclidean_t_spanner requires exact index-vector comparison")
@@ -4927,6 +4940,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                       "cbench_lame_mid_side",
                                                       "cbench_rsynth_natural_glottal_sample",
                                                       "cbench_rsynth_impulsive_glottal_sample",
+                                                      "euclidean_t_spanner",
                                                       "adaptive_simpson_quadrature",
                                                       "smo_dual_pair_update",
                                                       "blocked_lu_factorization",
@@ -6876,6 +6890,9 @@ def validate_versabench_beamformer_workload(workload: dict) -> None:
             or "does not implement the preceding FIR decimators" not in readme
             or "LICENSE" not in readme):
         raise ValueError("versabench_beamformer README is missing source attribution or scope limits")
+    mojo_source = ROOT / "mojo" / "b" / "versabench_beamformer.mojo"
+    if not mojo_source.is_file() or '@export("versabench_beamformer")' not in mojo_source.read_text(encoding="utf-8"):
+        raise ValueError("versabench_beamformer Mojo draft or exported symbol is missing")
     absolute_tolerance, relative_tolerance = tolerances(workload)
     if absolute_tolerance != 0.00002 or relative_tolerance != 0.000002:
         raise ValueError("versabench_beamformer tolerances differ from its binary32 contract")
@@ -8829,6 +8846,13 @@ def _validate_polybench_simple_matrix_workload(workload: dict, algorithm: str) -
 
 def validate_polybench_correlation_workload(workload: dict) -> None:
     _validate_polybench_simple_matrix_workload(workload, "polybench_correlation")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "c" / f"polybench_correlation.{extension}"
+        if not port.is_file() or "polybench_correlation" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"polybench_correlation source missing for {language}")
 
 
 def validate_polybench_seidel_2d_workload(workload: dict) -> None:
@@ -9411,6 +9435,7 @@ def validate_cbench_lame_mid_side_workload(workload: dict) -> None:
     for relative in (
             "c/m/cbench_lame_mid_side.c", "c3/m/cbench_lame_mid_side.c3",
             "cpp/m/cbench_lame_mid_side.cpp", "elisa/m/cbench_lame_mid_side.elisa",
+            "mojo/m/cbench_lame_mid_side.mojo",
             "nim/m/cbench_lame_mid_side.nim", "odin/m/cbench_lame_mid_side.odin",
             "rust/m/cbench_lame_mid_side.rs", "v/m/cbench_lame_mid_side.v",
             "zig/m/cbench_lame_mid_side.zig"):
@@ -9531,6 +9556,7 @@ def validate_cbench_rsynth_natural_glottal_workload(workload: dict) -> None:
     for relative in (
             "c/m/cbench_rsynth_natural_glottal.c", "c3/m/cbench_rsynth_natural_glottal.c3",
             "cpp/m/cbench_rsynth_natural_glottal.cpp", "elisa/m/cbench_rsynth_natural_glottal.elisa",
+            "mojo/m/cbench_rsynth_natural_glottal.mojo",
             "nim/m/cbench_rsynth_natural_glottal.nim", "odin/m/cbench_rsynth_natural_glottal.odin",
             "rust/m/cbench_rsynth_natural_glottal.rs", "v/m/cbench_rsynth_natural_glottal.v",
             "zig/m/cbench_rsynth_natural_glottal.zig"):
@@ -9640,6 +9666,7 @@ def validate_cbench_rsynth_impulsive_glottal_workload(workload: dict) -> None:
     for relative in (
             "c/m/cbench_rsynth_impulsive_glottal.c", "c3/m/cbench_rsynth_impulsive_glottal.c3",
             "cpp/m/cbench_rsynth_impulsive_glottal.cpp", "elisa/m/cbench_rsynth_impulsive_glottal.elisa",
+            "mojo/m/cbench_rsynth_impulsive_glottal.mojo",
             "nim/m/cbench_rsynth_impulsive_glottal.nim", "odin/m/cbench_rsynth_impulsive_glottal.odin",
             "rust/m/cbench_rsynth_impulsive_glottal.rs", "v/m/cbench_rsynth_impulsive_glottal.v",
             "zig/m/cbench_rsynth_impulsive_glottal.zig"):
@@ -9774,6 +9801,12 @@ def validate_mibench_automotive_basicmath_cubic_workload(workload: dict) -> None
             or "Ross Cottrell" not in readme
             or "public domain by Ross Cottrell" not in notice):
         raise ValueError("mibench_automotive_basicmath_cubic attribution is incomplete")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "m" / f"mibench_automotive_basicmath_cubic.{extension}"
+        if not source.is_file():
+            raise ValueError(f"mibench_automotive_basicmath_cubic missing {language} source")
 
     cases = workload.get("cases")
     if (not isinstance(cases, list) or len(cases) != len(expected_cases)
@@ -17464,7 +17497,7 @@ def validate_mafft_falign_fft_lag_correlation_workload(workload: dict) -> None:
             or "THE AUTHOR BE LIABLE" not in license_text):
         raise ValueError("mafft_falign_fft_lag_correlation README or BSD notice is incomplete")
     for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
-                                ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"), ("odin", "odin"),
                                 ("rust", "rs"), ("v", "v"), ("zig", "zig")):
         source_path = ROOT / language / "m" / f"mafft_falign_fft_lag_correlation.{extension}"
         if not source_path.is_file():
@@ -17504,7 +17537,8 @@ def main() -> int:
             or sha256_file(runner_source) != runner_binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
 
-    letter = {"hjm_forward_path": "m", "splash2_fmm": "f",
+    letter = {"hjm_forward_path": "m", "splash2_fmm": "f", "versabench_beamformer": "b",
+              "npb_ft_3d_spectral_step": "f",
               "splash2_fft_six_step": "f",
               "splash2_ocean_rbgs": "o",
               "splash2_radiosity_refine": "f",
@@ -17515,8 +17549,15 @@ def main() -> int:
               "cbench_lame_mid_side": "m",
               "cbench_rsynth_natural_glottal_sample": "m",
               "cbench_rsynth_impulsive_glottal_sample": "m"}.get(algorithm, algorithm[0])
-    workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    package_name = {"cbench_rsynth_natural_glottal_sample": "cbench_rsynth_natural_glottal",
+                    "cbench_rsynth_impulsive_glottal_sample": "cbench_rsynth_impulsive_glottal"}.get(algorithm, algorithm)
+    workload_path = args.workload or ROOT / "benchmarks" / letter / package_name / "workload.json"
+    if args.workload is None and not workload_path.is_file():
+        flat_workload = ROOT / "benchmarks" / package_name / "workload.json"
+        if flat_workload.is_file():
+            workload_path = flat_workload
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"):
         parser.error("workload does not match the float64_slice_io algorithm")

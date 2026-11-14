@@ -7,3 +7,5 @@ The input contains dimension, JDS depth, nonzero count, row lengths, row permuta
 Values use signed Q1e-6 integers and are converted to binary32. Each row rank is evaluated in order, with `j = ptr[k] + rank`; each matrix/vector product is rounded to binary32, then added to a binary32 accumulator in increasing diagonal order. The result is stored at `perm[rank]`. This preserves the source loop's JDS traversal and single-precision accumulation order. The output is little-endian `uint32 dimension` followed by row-major IEEE binary32 values.
 
 The profile excludes the source benchmark's file/CLI handling, COO-to-JDS conversion, repeated timing loop, and device/runtime behavior. The ports are clean-room implementations of the bounded kernel contract. The source license is reproduced verbatim; no runtime verification is claimed here.
+
+The Mojo draft is [`mojo/p/parboil_spmv_jds.mojo`](../../../mojo/p/parboil_spmv_jds.mojo); its floating-point contraction behavior has not been verified.

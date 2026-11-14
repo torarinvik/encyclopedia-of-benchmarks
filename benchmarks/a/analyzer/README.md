@@ -65,3 +65,6 @@ published source behavior and do not copy the upstream implementation.
 | Rust | [rust/a/analyzer.rs](../../../rust/a/analyzer.rs) |
 | V | [v/a/analyzer.v](../../../v/a/analyzer.v) |
 | Zig | [zig/a/analyzer.zig](../../../zig/a/analyzer.zig) |
+| Mojo | [mojo/a/analyzer.mojo](../../../mojo/a/analyzer.mojo) |
+
+The Mojo implementation is a draft and has not been compiled or run. The trace scan takes O(n²) time in the worst case and uses O(256) writer-position storage.

@@ -41,7 +41,6 @@ def graphai_frontier_sampler_impl(input: f64&, length: usize,
         value: f64 = input[col_at+e]
         if trunc(value) != value or value < 0.0 or value >= n.f64(): return -1
         colind[e] <- value.usize()
-    if output.is_null() or capacity < required: return -2
     fanouts: usize[3] = [3,2,2]
     front_size: usize = r
     choice: usize = 0
@@ -64,6 +63,7 @@ def graphai_frontier_sampler_impl(input: f64&, length: usize,
         for i in 0..<next_size: front[i] <- next[i]
         front_size <- next_size
     if choice != 21*r or out_at != required: return -1
+    if output.is_null() or capacity < required: return -2
     for q in 0..<required: output[q] <- staged[q]
     required.i64()
 

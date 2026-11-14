@@ -66,3 +66,4 @@ invalid inputs. The independent oracle is
 | Rust | [`tsvc_s273_dependent_conditional_update.rs`](../../../rust/t/tsvc_s273_dependent_conditional_update.rs) |
 | V | [`tsvc_s273_dependent_conditional_update.v`](../../../v/t/tsvc_s273_dependent_conditional_update.v) |
 | Zig | [`tsvc_s273_dependent_conditional_update.zig`](../../../zig/t/tsvc_s273_dependent_conditional_update.zig) |
+| Mojo | [`tsvc_s273_dependent_conditional_update.mojo`](../../../mojo/t/tsvc_s273_dependent_conditional_update.mojo) (draft, unverified) |

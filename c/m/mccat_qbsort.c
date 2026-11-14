@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #define MAX_ITEMS 32
 
@@ -9,19 +10,40 @@ static void bubble(int32_t *a, size_t n) {
             if (a[i + 1] < a[i]) { int32_t t = a[i]; a[i] = a[i + 1]; a[i + 1] = t; }
 }
 
-static void quick(int32_t *a, size_t n) {
-    if (n < 2) return;
-    const int32_t pivot = a[0];
-    int32_t lower[MAX_ITEMS], upper[MAX_ITEMS];
-    size_t nl = 0, nu = 0;
-    for (size_t i = 1; i < n; ++i) {
-        if (a[i] < pivot) lower[nl++] = a[i]; else upper[nu++] = a[i];
+typedef struct node { int32_t value; struct node *next; } node;
+
+static void free_nodes(node *list) {
+    while (list) { node *next = list->next; free(list); list = next; }
+}
+
+static node *prepend(node *list, int32_t value, int *failed) {
+    node *item = malloc(sizeof *item);
+    if (!item) { *failed = 1; return list; }
+    item->value = value;
+    item->next = list;
+    return item;
+}
+
+static node *quick(const node *items, int *failed) {
+    if (!items || *failed) return NULL;
+    const int32_t pivot = items->value;
+    node *lower = NULL, *upper = NULL;
+    for (const node *item = items->next; item && !*failed; item = item->next) {
+        if (item->value < pivot) lower = prepend(lower, item->value, failed);
+        else upper = prepend(upper, item->value, failed);
     }
-    quick(upper, nu); quick(lower, nl);
-    size_t k = 0;
-    for (size_t i = 0; i < nl; ++i) a[k++] = lower[i];
-    a[k++] = pivot;
-    for (size_t i = 0; i < nu; ++i) a[k++] = upper[i];
+    node *sorted_upper = quick(upper, failed);
+    node *sorted_lower = quick(lower, failed);
+    free_nodes(upper);
+    free_nodes(lower);
+    if (*failed) { free_nodes(sorted_upper); free_nodes(sorted_lower); return NULL; }
+    node *pivot_node = prepend(sorted_upper, pivot, failed);
+    if (*failed) { free_nodes(sorted_upper); free_nodes(sorted_lower); return NULL; }
+    if (!sorted_lower) return pivot_node;
+    node *tail = sorted_lower;
+    while (tail->next) tail = tail->next;
+    tail->next = pivot_node;
+    return sorted_lower;
 }
 
 int64_t mccat_qbsort(const int64_t *input, size_t length, uint8_t *output, size_t output_capacity) {
@@ -37,7 +59,18 @@ int64_t mccat_qbsort(const int64_t *input, size_t length, uint8_t *output, size_
     }
     for (size_t pass = 0; pass < 1000; ++pass) {
         for (size_t i = 0; i < n; ++i) values[i] = (int32_t)input[i + 2];
-        if (mode == 0) bubble(values, n); else quick(values, n);
+        if (mode == 0) bubble(values, n);
+        else {
+            node *items = NULL;
+            int failed = 0;
+            for (size_t i = n; i > 0 && !failed; --i) items = prepend(items, values[i - 1], &failed);
+            node *sorted = quick(items, &failed);
+            free_nodes(items);
+            if (failed) { free_nodes(sorted); return -1; }
+            size_t i = 0;
+            for (const node *item = sorted; item; item = item->next) values[i++] = item->value;
+            free_nodes(sorted);
+        }
     }
     const size_t required = 4 * n;
     if (output == NULL || output_capacity < required) return -2;

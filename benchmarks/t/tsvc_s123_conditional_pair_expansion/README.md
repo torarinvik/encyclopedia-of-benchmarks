@@ -41,3 +41,4 @@ The independent oracle is [`benchmarks/tsvc_s123_conditional_pair_expansion_orac
 | Rust | [`tsvc_s123_conditional_pair_expansion.rs`](../../../rust/t/tsvc_s123_conditional_pair_expansion.rs) |
 | V | [`tsvc_s123_conditional_pair_expansion.v`](../../../v/t/tsvc_s123_conditional_pair_expansion.v) |
 | Zig | [`tsvc_s123_conditional_pair_expansion.zig`](../../../zig/t/tsvc_s123_conditional_pair_expansion.zig) |
+| Mojo | [`tsvc_s123_conditional_pair_expansion.mojo`](../../../mojo/t/tsvc_s123_conditional_pair_expansion.mojo) |

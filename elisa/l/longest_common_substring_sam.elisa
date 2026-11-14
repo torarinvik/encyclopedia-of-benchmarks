@@ -1,0 +1,63 @@
+def longest_common_substring_sam_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 515: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > 256: return -1
+    n: usize = values[0].usize()
+    if length < n+2 or values[n+1] < 0 or values[n+1] > 256: return -1
+    m: usize = values[n+1].usize()
+    if length != n+m+2: return -1
+    for i in 0..<n:
+        if values[1+i] < 32 or values[1+i] > 126: return -1
+    for i in 0..<m:
+        if values[n+2+i] < 32 or values[n+2+i] > 126: return -1
+    edges: mutable i32[48735] = zeroed
+    links: mutable i32[513] = zeroed
+    lens: mutable usize[513] = zeroed
+    for i in 0..<48735: edges[i] <- -1
+    for i in 0..<513: links[i] <- -1
+    size: mutable usize = 1
+    last: mutable usize = 0
+    for i in 0..<n:
+        symbol: usize = (values[1+i]-32).usize()
+        current: usize = size
+        size <- size+1
+        lens[current] <- lens[last]+1
+        p: mutable i32 = last.i32()
+        while p >= 0 and edges[95*p.usize()+symbol] < 0:
+            edges[95*p.usize()+symbol] <- current.i32()
+            p <- links[p.usize()]
+        if p < 0: links[current] <- 0
+        else:
+            q: usize = edges[95*p.usize()+symbol].usize()
+            if lens[p.usize()]+1 == lens[q]: links[current] <- q.i32()
+            else:
+                clone: usize = size
+                size <- size+1
+                for a in 0..<95: edges[95*clone+a] <- edges[95*q+a]
+                links[clone] <- links[q]
+                lens[clone] <- lens[p.usize()]+1
+                while p >= 0 and edges[95*p.usize()+symbol] == q.i32():
+                    edges[95*p.usize()+symbol] <- clone.i32()
+                    p <- links[p.usize()]
+                links[q] <- clone.i32()
+                links[current] <- clone.i32()
+        last <- current
+    state: mutable usize = 0
+    matched: mutable usize = 0
+    best: mutable usize = 0
+    for i in 0..<m:
+        symbol: usize = (values[n+2+i]-32).usize()
+        while state != 0 and edges[95*state+symbol] < 0:
+            state <- links[state].usize()
+            matched <- lens[state]
+        next: i32 = edges[95*state+symbol]
+        if next < 0:
+            state <- 0
+            matched <- 0
+        else:
+            state <- next.usize()
+            matched <- matched+1
+            if matched > best: best <- matched
+    best.i64()
+
+export fn longest_common_substring_sam(input: i64&, length: usize) -> i64 = longest_common_substring_sam_impl

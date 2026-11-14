@@ -8,6 +8,8 @@ The `i64_array_bytes_output` frame is `[item_count, size_0, ..., size_(n-1)]`. `
 
 Output is `[bin_count, bin_for_item_0, ..., bin_for_item_(n-1)]`, as little-endian signed-i64 values. Bin IDs are zero-based and assignments follow input order. The return value is output bytes; malformed input returns `-1`; a short or null output pointer returns `-2`. The entire frame is validated before capacity is checked and no output is written on either error. Empty input returns one zero bin-count value.
 
+The direct scan uses `O(n^2)` worst-case time and `O(n)` space.
+
 ## Implementations
 
 | Language | Source |
@@ -16,6 +18,7 @@ Output is `[bin_count, bin_for_item_0, ..., bin_for_item_(n-1)]`, as little-endi
 | C3 | [`c3/f/first_fit_bin_packing.c3`](../../../c3/f/first_fit_bin_packing.c3) |
 | C++ | [`cpp/f/first_fit_bin_packing.cpp`](../../../cpp/f/first_fit_bin_packing.cpp) |
 | Elisa | [`elisa/f/first_fit_bin_packing.elisa`](../../../elisa/f/first_fit_bin_packing.elisa) |
+| Mojo | [`mojo/f/first_fit_bin_packing.mojo`](../../../mojo/f/first_fit_bin_packing.mojo) |
 | Nim | [`nim/f/first_fit_bin_packing.nim`](../../../nim/f/first_fit_bin_packing.nim) |
 | Odin | [`odin/f/first_fit_bin_packing.odin`](../../../odin/f/first_fit_bin_packing.odin) |
 | Rust | [`rust/f/first_fit_bin_packing.rs`](../../../rust/f/first_fit_bin_packing.rs) |

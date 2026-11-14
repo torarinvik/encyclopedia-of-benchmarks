@@ -1,0 +1,77 @@
+def maer_projection(values: view[i64], index: usize, dx: i64, dy: i64, axis: usize) -> i64:
+    x: i64 = values[1 + 2 * index]
+    y: i64 = values[2 + 2 * index]
+    if axis == 2: return dx * y - dy * x
+    dx * x + dy * y
+
+def maer_gcd(a_input: i64, b_input: i64) -> i64:
+    a: mutable i64 = a_input
+    b: mutable i64 = b_input
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def maer_solve(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 7 or length > 34: return -1
+    values: view[i64] = input[0:length]
+    count: i64 = values[0]
+    if count < 3 or count > 16: return -1
+    n: usize = count.usize()
+    if length != 1 + 2 * n: return -1
+    for i in 1..<length:
+        if values[i] < -100 or values[i] > 100: return -1
+    for i in 0..<n:
+        next: usize = (i + 1) % n
+        ax: i64 = values[1 + 2 * i]
+        ay: i64 = values[2 + 2 * i]
+        dx: i64 = values[1 + 2 * next] - ax
+        dy: i64 = values[2 + 2 * next] - ay
+        for j in 0..<n:
+            if j != i and j != next:
+                if dx * (values[2 + 2 * j] - ay) - dy * (values[1 + 2 * j] - ax) <= 0: return -1
+    first_dx: i64 = values[3] - values[1]
+    first_dy: i64 = values[4] - values[2]
+    supports: mutable usize[3] = zeroed
+    for i in 1..<n:
+        for axis in 0..<3:
+            current: i64 = maer_projection(values, supports[axis], first_dx, first_dy, axis)
+            candidate: i64 = maer_projection(values, i, first_dx, first_dy, axis)
+            if (axis == 1 and candidate < current) or (axis != 1 and candidate > current): supports[axis] <- i
+    best_num: mutable i64 = 0
+    best_den: mutable i64 = 1
+    for i in 0..<n:
+        next: usize = (i + 1) % n
+        ax: i64 = values[1 + 2 * i]
+        ay: i64 = values[2 + 2 * i]
+        dx: i64 = values[1 + 2 * next] - ax
+        dy: i64 = values[2 + 2 * next] - ay
+        for axis in 0..<3:
+            for steps in 0..<n:
+                following: usize = (supports[axis] + 1) % n
+                current: i64 = maer_projection(values, supports[axis], dx, dy, axis)
+                candidate: i64 = maer_projection(values, following, dx, dy, axis)
+                if (axis == 1 and candidate <= current) or (axis != 1 and candidate >= current): supports[axis] <- following
+                else: break
+        span: i64 = maer_projection(values, supports[0], dx, dy, 0) - maer_projection(values, supports[1], dx, dy, 1)
+        thickness: i64 = maer_projection(values, supports[2], dx, dy, 2) - (dx * ay - dy * ax)
+        numerator: i64 = span * thickness
+        denominator: i64 = dx * dx + dy * dy
+        if i == 0 or numerator * best_den < best_num * denominator:
+            best_num <- numerator
+            best_den <- denominator
+    divisor: i64 = maer_gcd(best_num, best_den)
+    words: mutable i64[2] = zeroed
+    words[0] <- best_num / divisor
+    words[1] <- best_den / divisor
+    if output.is_null() or capacity < 16: return -2
+    target: mutable view[u8] = output[0:16]
+    for i in 0..<2:
+        bits: mutable u64 = words[i].u64()
+        for b in 0..<8:
+            target[8 * i + b] <- (bits & 255).u8()
+            bits <- bits >> 8
+    16
+
+export fn minimum_area_enclosing_rectangle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = maer_solve

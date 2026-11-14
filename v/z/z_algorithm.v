@@ -1,18 +1,18 @@
 module z_algorithm
 
-const max_length = 2047
+const max_length = 4095
 
 @[export: 'z_algorithm']
 pub fn z_algorithm(input &i64, length usize, output &mut u8, output_capacity usize) i64 {
-	if length < 1 || length > 2048 { return -1 }
+	if unsafe { input == nil } || length < 1 || length > 4096 { return -1 }
 	count_value := unsafe { input[0] }
 	if count_value < 0 || count_value > max_length { return -1 }
 	count := int(count_value)
 	if length != usize(count + 1) { return -1 }
 	output_bytes := count * 4
-	if output_capacity < usize(output_bytes) { return -2 }
+	if output_capacity < usize(output_bytes) || (count > 0 && unsafe { output == nil }) { return -2 }
 
-	mut z := [2047]int{}
+	mut z := [4095]int{}
 	mut left := 0
 	mut right := 0
 	for index := 1; index < count; index++ {

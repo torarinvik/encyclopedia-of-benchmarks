@@ -39,3 +39,5 @@ code was copied.
 
 Primary exact-output oracle: `benchmarks/vector_scheduling_oracle.py`.
 Independent verifier oracle: `benchmarks/vector_scheduling_verifier_oracle.py`.
+
+The Mojo draft is [`mojo/v/vector_scheduling.mojo`](../../../mojo/v/vector_scheduling.mojo). Accumulating the supplied assignments takes O(nd + md) time and O(n + md) space.

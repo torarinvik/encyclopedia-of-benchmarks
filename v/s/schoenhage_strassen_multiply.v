@@ -64,6 +64,7 @@ fn ss_ifft(a &i64, l int, m int, buf &i64) {
 		}
 		d*=2
 	}
+	unsafe { for i in 0 .. len * block { a[i] /= i64(len) } }
 }
 
 fn ss_naive(a &i64, b &i64, n int, buf &i64) {
@@ -80,7 +81,7 @@ fn ss_mul(a &i64, b &i64, n int, buf &i64) {
 	ss_fft(&aa[0],l,m+1,buf);ss_fft(&bb[0],l,m+1,buf)
 	for i in 0..len {unsafe{ss_mul(&aa[i*block*2],&bb[i*block*2],m+1,buf)}}
 	ss_ifft(&aa[0],l,m+1,buf)
-	unsafe { for i in 0..len { s:=i*(2*block/len);ss_copy(buf,&aa[i*block*2],2*block);ss_rot(&aa[i*block*2],buf,2*block,s) } }
+	unsafe { for i in 0..len { s:=(4*block-(i*(2*block/len))%(4*block))%(4*block);ss_copy(buf,&aa[i*block*2],2*block);ss_rot(&aa[i*block*2],buf,2*block,s) } }
 	unsafe { for i in 0..len {for j in 0..block {a[i*block+j]=aa[i*block*2+j];if i==0 {a[i*block+j]-=aa[(len-1)*block*2+block+j]} else {a[i*block+j]+=aa[(i-1)*block*2+block+j]}}} }
 }
 

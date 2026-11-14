@@ -2,7 +2,7 @@
 proc color_coding_k_path*(values: ptr UncheckedArray[int64], length: csize_t,
     output: ptr UncheckedArray[uint8], outputCapacity: csize_t): int64
     {.cdecl, exportc: "color_coding_k_path".} =
-  if values == nil: return -2
+  if values == nil: return -1
   if length < 3 or length > 147: return -1
   let nv=values[0];let mv=values[1];let kv=values[2]
   if nv<1 or nv>12 or mv<0 or mv>66 or kv<1 or kv>6 or kv>nv:return -1

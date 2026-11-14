@@ -37,3 +37,4 @@ The independent oracle is [`benchmarks/tsvc_s353_unrolled_sparse_saxpy_oracle.py
 | Rust | [`tsvc_s353_unrolled_sparse_saxpy.rs`](../../../rust/t/tsvc_s353_unrolled_sparse_saxpy.rs) |
 | V | [`tsvc_s353_unrolled_sparse_saxpy.v`](../../../v/t/tsvc_s353_unrolled_sparse_saxpy.v) |
 | Zig | [`tsvc_s353_unrolled_sparse_saxpy.zig`](../../../zig/t/tsvc_s353_unrolled_sparse_saxpy.zig) |
+| Mojo | [`tsvc_s353_unrolled_sparse_saxpy.mojo`](../../../mojo/t/tsvc_s353_unrolled_sparse_saxpy.mojo) (draft, unverified) |

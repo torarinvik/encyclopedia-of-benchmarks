@@ -83,6 +83,22 @@
       "input_length": 29,
       "output_capacity": 23,
       "expected_result": -2
+    },
+    {
+      "id": "invalid-finger-before-null-output",
+      "input_values": [4,5,0,10,0,2,5,9,13,1,1,2,4,2,2,3,4,3,3,3,4,4,4,4,1,0,0,1,2],
+      "input_length": 29,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1
     }
   ]
 }

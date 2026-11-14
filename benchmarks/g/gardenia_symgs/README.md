@@ -49,6 +49,7 @@ retained in [`LICENSE.txt`](LICENSE.txt).
 | C3 | [`c3/g/gardenia_symgs.c3`](../../../c3/g/gardenia_symgs.c3) |
 | C++ | [`cpp/g/gardenia_symgs.cpp`](../../../cpp/g/gardenia_symgs.cpp) |
 | Elisa | [`elisa/g/gardenia_symgs.elisa`](../../../elisa/g/gardenia_symgs.elisa) |
+| Mojo | [`mojo/g/gardenia_symgs.mojo`](../../../mojo/g/gardenia_symgs.mojo) |
 | Nim | [`nim/g/gardenia_symgs.nim`](../../../nim/g/gardenia_symgs.nim) |
 | Odin | [`odin/g/gardenia_symgs.odin`](../../../odin/g/gardenia_symgs.odin) |
 | Rust | [`rust/g/gardenia_symgs.rs`](../../../rust/g/gardenia_symgs.rs) |

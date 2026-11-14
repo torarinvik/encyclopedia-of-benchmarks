@@ -17,6 +17,8 @@ length is 65 signed 64-bit integers. Output is one byte (`0` or `1`) per input
 variable, for at most 16 bytes. Invalid input returns `-1`; null output or
 insufficient capacity returns `-2` without writing.
 
+The n exact comparisons take O(n) time and O(n) space for staged output.
+
 The profile covers the chapter's basic independent Bernoulli rule. It does not
 solve the LP or claim the approximation guarantees of any of the chapter's
 VLSI-routing, congestion, or hypergraph-matching applications. It is distinct
@@ -30,6 +32,7 @@ random hyperplane signs.
 | C3 | `c3/r/randomized_rounding_bernoulli.c3` |
 | C++ | `cpp/r/randomized_rounding_bernoulli.cpp` |
 | Elisa | `elisa/r/randomized_rounding_bernoulli.elisa` |
+| Mojo | [`mojo/r/randomized_rounding_bernoulli.mojo`](../../../mojo/r/randomized_rounding_bernoulli.mojo) (draft; not compiled or run) |
 | Nim | `nim/r/randomized_rounding_bernoulli.nim` |
 | Odin | `odin/r/randomized_rounding_bernoulli.odin` |
 | Rust | `rust/r/randomized_rounding_bernoulli.rs` |

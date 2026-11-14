@@ -43,6 +43,7 @@ python3 benchmarks/run_i64_triple.py --build-manifest build/i64_triple/t/takeuch
 | C3 | [c3/t/takeuchi.c3](../../../c3/t/takeuchi.c3) |
 | C++ | [cpp/t/takeuchi.cpp](../../../cpp/t/takeuchi.cpp) |
 | Elisa | [elisa/t/takeuchi.elisa](../../../elisa/t/takeuchi.elisa) |
+| Mojo | [mojo/t/takeuchi.mojo](../../../mojo/t/takeuchi.mojo) (draft; not compiled or run) |
 | Nim | [nim/t/takeuchi.nim](../../../nim/t/takeuchi.nim) |
 | Odin | [odin/t/takeuchi.odin](../../../odin/t/takeuchi.odin) |
 | Rust | [rust/t/takeuchi.rs](../../../rust/t/takeuchi.rs) |

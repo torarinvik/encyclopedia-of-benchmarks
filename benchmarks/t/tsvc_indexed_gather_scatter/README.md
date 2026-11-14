@@ -69,3 +69,4 @@ repeated destinations, untouched entries, and invalid frames.
 | Rust | [`tsvc_indexed_gather_scatter.rs`](../../../rust/t/tsvc_indexed_gather_scatter.rs) |
 | V | [`tsvc_indexed_gather_scatter.v`](../../../v/t/tsvc_indexed_gather_scatter.v) |
 | Zig | [`tsvc_indexed_gather_scatter.zig`](../../../zig/t/tsvc_indexed_gather_scatter.zig) |
+| Mojo | [`tsvc_indexed_gather_scatter.mojo`](../../../mojo/t/tsvc_indexed_gather_scatter.mojo) |

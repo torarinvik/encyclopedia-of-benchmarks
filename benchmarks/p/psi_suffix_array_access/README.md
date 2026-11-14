@@ -35,6 +35,11 @@ permutation/cycle, or sample data returns `-1`; null or short output storage
 returns `-2` without writes. Maximum input length is 67 words and fixed
 workspace is 1,024 bytes.
 
+Full validation takes O(n) time and space; the subsequent access uses at most
+stride−1 Ψ steps.
+
+The [Mojo draft](../../../mojo/p/psi_suffix_array_access.mojo) has not been compiled or run.
+
 ## Source and rights
 
 Source: Djamel Belazzougui, Veli Mäkinen, and Daniel Valenzuela, “Compressed

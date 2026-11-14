@@ -33,3 +33,4 @@ The independent oracle is [`benchmarks/tsvc_s1251_per_element_dual_update_oracle
 | Rust | [`tsvc_s1251_per_element_dual_update.rs`](../../../rust/t/tsvc_s1251_per_element_dual_update.rs) |
 | V | [`tsvc_s1251_per_element_dual_update.v`](../../../v/t/tsvc_s1251_per_element_dual_update.v) |
 | Zig | [`tsvc_s1251_per_element_dual_update.zig`](../../../zig/t/tsvc_s1251_per_element_dual_update.zig) |
+| Mojo | [`tsvc_s1251_per_element_dual_update.mojo`](../../../mojo/t/tsvc_s1251_per_element_dual_update.mojo) |

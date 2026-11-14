@@ -10,6 +10,9 @@ Input is `[machine_count, job_count, processing_times...]`, with 1–8 machines,
 little-endian signed-i64 vector. Invalid input returns `-1`; null output or
 insufficient capacity returns `-2` without writing.
 
+For J jobs and M machines, the direct scan takes O(JM) time and O(J + M)
+space for assignments, job durations, and machine loads.
+
 Source: “List Scheduling,” DOI
 [`10.1007/978-1-4939-2864-4_205`](https://doi.org/10.1007/978-1-4939-2864-4_205).
 This is a deterministic clean-room bounded profile of Graham's online rule.
@@ -20,6 +23,7 @@ This is a deterministic clean-room bounded profile of Graham's online rule.
 | C3 | `c3/l/list_scheduling.c3` |
 | C++ | `cpp/l/list_scheduling.cpp` |
 | Elisa | `elisa/l/list_scheduling.elisa` |
+| Mojo | [`mojo/l/list_scheduling.mojo`](../../../mojo/l/list_scheduling.mojo) (draft; not compiled or run) |
 | Nim | `nim/l/list_scheduling.nim` |
 | Odin | `odin/l/list_scheduling.odin` |
 | Rust | `rust/l/list_scheduling.rs` |

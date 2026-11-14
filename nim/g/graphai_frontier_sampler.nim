@@ -23,7 +23,6 @@ proc graphai_frontier_sampler*(input:ptr UncheckedArray[float64],length:csize_t,
   for e in 0..<m:
     let x=input[colAt+e];if x!=floor(x) or x<0 or x>=float64(n):return -1
     cols[e]=int(x)
-  if output.isNil or capacity<csize_t(required):return -2
   let fanouts=[3,2,2]
   var frontSize=r;var choice=0;var outAt=r
   for round in 0..<3:
@@ -38,5 +37,6 @@ proc graphai_frontier_sampler*(input:ptr UncheckedArray[float64],length:csize_t,
     for i in 0..<nextSize:front[i]=next[i]
     frontSize=nextSize
   if choice!=21*r or outAt!=required:return -1
+  if output.isNil or capacity<csize_t(required):return -2
   for q in 0..<required:output[q]=staged[q]
   int64(required)

@@ -28,7 +28,7 @@
     "maximum_result": 36000,
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Seed all boundary cells into a min-heap and expand inward by effective escape level; add max(level,height)-height for each newly reached cell.",
     "independent_oracle": "For each interior cell independently, binary-search distinct elevations and run a threshold-constrained BFS to test whether the cell can reach a boundary.",
     "primary_complexity": "O(R*C*log(R*C)) time and O(R*C) space.",

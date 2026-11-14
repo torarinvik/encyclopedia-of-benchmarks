@@ -25,6 +25,8 @@ The profile leaves out command-language processing, English-to-C declaration gen
 - Independent oracle: [`prolangs_c_cdecl_oracle.py`](../../prolangs_c_cdecl_oracle.py)
 - Workload: [`workload.json`](workload.json)
 
+The workload includes separate-token cases for identifiers and array dimensions; whitespace cannot join tokens.
+
 | Language | Port |
 |---|---|
 | C | [`prolangs_c_cdecl.c`](../../../c/c/prolangs_c_cdecl.c) |
@@ -36,3 +38,5 @@ The profile leaves out command-language processing, English-to-C declaration gen
 | Rust | [`prolangs_c_cdecl.rs`](../../../rust/c/prolangs_c_cdecl.rs) |
 | V | [`prolangs_c_cdecl.v`](../../../v/c/prolangs_c_cdecl.v) |
 | Zig | [`prolangs_c_cdecl.zig`](../../../zig/c/prolangs_c_cdecl.zig) |
+
+The Mojo draft is [`mojo/c/prolangs_c_cdecl.mojo`](../../../mojo/c/prolangs_c_cdecl.mojo). It has not been compiled or run.

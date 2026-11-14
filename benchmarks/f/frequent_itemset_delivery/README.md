@@ -30,6 +30,9 @@ The primary oracle follows the row-at-a-time delivery sweep. The independent
 verifier forms every child occurrence set separately by containment tests.
 Neither oracle calls the benchmark ports.
 
+For `r` rows and `n` items, the delivery scan takes `O(r*n)` time and
+`O(n)` machine words of auxiliary space.
+
 ## Source and rights
 
 Source: Takeaki Uno, “Frequent Pattern Mining,” *Encyclopedia of Algorithms*,
@@ -50,6 +53,7 @@ Independent verifier: [`frequent_itemset_delivery_verifier_oracle.py`](../../fre
 | C3 | [`c3/f/frequent_itemset_delivery.c3`](../../../c3/f/frequent_itemset_delivery.c3) |
 | C++ | [`cpp/f/frequent_itemset_delivery.cpp`](../../../cpp/f/frequent_itemset_delivery.cpp) |
 | Elisa | [`elisa/f/frequent_itemset_delivery.elisa`](../../../elisa/f/frequent_itemset_delivery.elisa) |
+| Mojo | [`mojo/f/frequent_itemset_delivery.mojo`](../../../mojo/f/frequent_itemset_delivery.mojo) |
 | Nim | [`nim/f/frequent_itemset_delivery.nim`](../../../nim/f/frequent_itemset_delivery.nim) |
 | Odin | [`odin/f/frequent_itemset_delivery.odin`](../../../odin/f/frequent_itemset_delivery.odin) |
 | Rust | [`rust/f/frequent_itemset_delivery.rs`](../../../rust/f/frequent_itemset_delivery.rs) |

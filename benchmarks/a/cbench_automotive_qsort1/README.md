@@ -22,11 +22,18 @@ The source algorithm is the custom `qsortx`: midpoint pivot, in-place partition,
 | C3 | [c3/a/cbench_automotive_qsort1.c3](../../../c3/a/cbench_automotive_qsort1.c3) |
 | C++ | [cpp/a/cbench_automotive_qsort1.cpp](../../../cpp/a/cbench_automotive_qsort1.cpp) |
 | Elisa | [elisa/a/cbench_automotive_qsort1.elisa](../../../elisa/a/cbench_automotive_qsort1.elisa) |
+| Mojo | [mojo/a/cbench_automotive_qsort1.mojo](../../../mojo/a/cbench_automotive_qsort1.mojo) (uncompiled draft) |
 | Nim | [nim/a/cbench_automotive_qsort1.nim](../../../nim/a/cbench_automotive_qsort1.nim) |
 | Odin | [odin/a/cbench_automotive_qsort1.odin](../../../odin/a/cbench_automotive_qsort1.odin) |
 | Rust | [rust/a/cbench_automotive_qsort1.rs](../../../rust/a/cbench_automotive_qsort1.rs) |
 | V | [v/a/cbench_automotive_qsort1.v](../../../v/a/cbench_automotive_qsort1.v) |
 | Zig | [zig/a/cbench_automotive_qsort1.zig](../../../zig/a/cbench_automotive_qsort1.zig) |
+
+Duplicate-radius validation and worst-case partitioning take O(n²) time;
+the bounded point and partition arrays use O(n) space. The Mojo draft has
+not been compiled or run.
+Verifier source specifies ordered and reversed point sets around the
+eight-element short-sort cutoff; these cases remain unrun.
 
 ## Pinned source and notices
 

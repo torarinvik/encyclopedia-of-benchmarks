@@ -1,6 +1,6 @@
 # LAME stereo mid-side conversion
 
-This package isolates the per-coefficient `ms_convert` operation in LAME's `convert_mdct` branch. The upstream helper transforms each left/right spectral pair into normalized mid and side values. It is distinct from LAME's long-block MDCT package: this kernel runs after the spectral values exist and changes the two-channel representation. The pinned launcher supplies no mode option, so this standalone contract covers the conditional helper rather than claiming every default launcher invocation reaches it.
+This package isolates the per-coefficient `ms_convert` operation in LAME's `convert_mdct=1` branch. The upstream helper transforms each left/right spectral pair into normalized mid and side values. It is distinct from LAME's long-block MDCT package: this kernel runs after the spectral values exist and changes the two-channel representation. The pinned launcher supplies no mode option, so this standalone contract covers the conditional helper rather than claiming every default launcher invocation reaches it.
 
 ## Contract
 
@@ -25,6 +25,7 @@ The independent oracle is [`cbench_lame_mid_side_oracle.py`](../../cbench_lame_m
 - C3: [`c3/m/cbench_lame_mid_side.c3`](../../../c3/m/cbench_lame_mid_side.c3)
 - C++: [`cpp/m/cbench_lame_mid_side.cpp`](../../../cpp/m/cbench_lame_mid_side.cpp)
 - Elisa: [`elisa/m/cbench_lame_mid_side.elisa`](../../../elisa/m/cbench_lame_mid_side.elisa)
+- Mojo: [`mojo/m/cbench_lame_mid_side.mojo`](../../../mojo/m/cbench_lame_mid_side.mojo)
 - Nim: [`nim/m/cbench_lame_mid_side.nim`](../../../nim/m/cbench_lame_mid_side.nim)
 - Odin: [`odin/m/cbench_lame_mid_side.odin`](../../../odin/m/cbench_lame_mid_side.odin)
 - Rust: [`rust/m/cbench_lame_mid_side.rs`](../../../rust/m/cbench_lame_mid_side.rs)

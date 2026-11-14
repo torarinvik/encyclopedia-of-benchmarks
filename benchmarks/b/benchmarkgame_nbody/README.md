@@ -7,3 +7,11 @@ Input is `[step_count]` with `0 <= step_count <= 1000`. Each step uses `dt=0.01`
 The upstream program defaults to five million steps; this bounded profile caps steps at 1000 so the complete pairwise simulation remains practical. It reports an energy pair, not an official Benchmark Game score. The referenced C source has no explicit license notice; the implementations here are independent ports and the immutable source reference is recorded in `workload.json`.
 
 Invalid step counts or framing return `-1`. A null output pointer or capacity below 16 bytes returns `-2` without writes.
+
+With five bodies and `s` steps, this fixed-size profile takes `O(s + 1)` time
+and `O(1)` auxiliary space. A [Mojo draft](../../../mojo/b/benchmarkgame_nbody.mojo)
+is present but has not been compiled or run.
+The byte-output verifier source registers the workload and additional step-count
+and buffer-boundary probes. Its [high-precision reference](../benchmarkgame_nbody_verifier_oracle.py)
+uses decimal arithmetic and compares its results with the binary64 reference.
+The models share the fixed initial body constants. These checks remain unexecuted.

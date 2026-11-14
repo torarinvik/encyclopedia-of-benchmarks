@@ -2,7 +2,7 @@
 #[no_mangle]
 pub extern "C" fn color_coding_k_path(values: *const i64, length: usize,
     output: *mut u8, output_capacity: usize) -> i64 {
-    if values.is_null() { return -2; }
+    if values.is_null() { return -1; }
     if length < 3 || length > 147 { return -1; }
     let x=unsafe{std::slice::from_raw_parts(values,length)};
     let (nv,mv,kv)=(x[0],x[1],x[2]);

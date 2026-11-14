@@ -1,0 +1,34 @@
+def fgcbrent_next(values: view[i64], node: i64) -> i64:
+    values[(2 + node) as usize]
+
+def fgcbrent_solve(values: view[i64]) -> i64:
+    if values.len() < 3 or values.len() > 67: return -1
+    n: i64 = values[0]
+    start: i64 = values[1]
+    if n < 1 or n > 64 or start < 0 or start >= n or values.len() != (n + 2) as usize: return -1
+    for i in 0..<n as usize:
+        if values[2 + i] < 0 or values[2 + i] >= n: return -1
+    checkpoint: mutable i64 = start
+    moving: mutable i64 = fgcbrent_next(values, start)
+    power: mutable i64 = 1
+    period: mutable i64 = 1
+    while checkpoint != moving:
+        if power == period:
+            checkpoint <- moving
+            power <- power * 2
+            period <- 0
+        moving <- fgcbrent_next(values, moving)
+        period <- period + 1
+    left: mutable i64 = start
+    right: mutable i64 = start
+    for i in 0..<period as usize: right <- fgcbrent_next(values, right)
+    tail: mutable i64 = 0
+    while left != right:
+        left <- fgcbrent_next(values, left)
+        right <- fgcbrent_next(values, right)
+        tail <- tail + 1
+    65 * tail + period
+
+export fn functional_graph_cycle_brent(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 67: return -1
+    fgcbrent_solve(input[0:length])

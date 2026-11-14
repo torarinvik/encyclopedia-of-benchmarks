@@ -25,8 +25,13 @@ The workload covers zero input, exact complex products, accumulation, invalid le
 | C3 | [c3/b/versabench_beamformer.c3](../../../c3/b/versabench_beamformer.c3) |
 | C++ | [cpp/b/versabench_beamformer.cpp](../../../cpp/b/versabench_beamformer.cpp) |
 | Elisa | [elisa/b/versabench_beamformer.elisa](../../../elisa/b/versabench_beamformer.elisa) |
+| Mojo | [mojo/b/versabench_beamformer.mojo](../../../mojo/b/versabench_beamformer.mojo) (draft; not compiled or run) |
 | Nim | [nim/b/versabench_beamformer.nim](../../../nim/b/versabench_beamformer.nim) |
 | Odin | [odin/b/versabench_beamformer.odin](../../../odin/b/versabench_beamformer.odin) |
 | Rust | [rust/b/versabench_beamformer.rs](../../../rust/b/versabench_beamformer.rs) |
 | V | [v/b/versabench_beamformer.v](../../../v/b/versabench_beamformer.v) |
 | Zig | [zig/b/versabench_beamformer.zig](../../../zig/b/versabench_beamformer.zig) |
+
+The Mojo draft names each binary32 intermediate explicitly, but compiler
+contraction and numerical agreement with the oracle remain unverified. The
+kernel uses O(12) operations and O(12) bounded input storage.

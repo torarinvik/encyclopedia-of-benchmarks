@@ -29,9 +29,10 @@ binary64 values. Invalid input returns `-1`; null output or capacity below
 modified.
 
 The workload uses one source-loop pass. It excludes TSVC timing repetitions,
-dummy calls, and other initialization helpers. The exact finite seed set keeps the
-recurrence exactly representable and produces identical values for the
-binary32 and binary64 source variants.
+dummy calls, and other initialization helpers. The seed set is exactly
+representable in binary64, but repeated squaring can underflow; binary32 and
+binary64 can therefore differ for sufficiently long recurrences. This
+contract returns binary64 results.
 
 ## Source and rights
 
@@ -59,3 +60,4 @@ The independent oracle and fixtures are in
 | Rust | [`tsvc_s222_interleaved_square_recurrence.rs`](../../../rust/t/tsvc_s222_interleaved_square_recurrence.rs) |
 | V | [`tsvc_s222_interleaved_square_recurrence.v`](../../../v/t/tsvc_s222_interleaved_square_recurrence.v) |
 | Zig | [`tsvc_s222_interleaved_square_recurrence.zig`](../../../zig/t/tsvc_s222_interleaved_square_recurrence.zig) |
+| Mojo | [`tsvc_s222_interleaved_square_recurrence.mojo`](../../../mojo/t/tsvc_s222_interleaved_square_recurrence.mojo) |

@@ -14,6 +14,6 @@ counting_triangles_stream_reservoir :: proc "c" (input:[^]i64,length:c.size_t,ou
 	for t:=1;t<=m;t+=1{for s:=0;s<2;s+=1{r:=input[base+2*(t-1)+s];if r<0||r>=i64(t) do return -1}}
 	slots:[2][2]i64;slots[0]=.{-1,-1};slots[1]=.{-1,-1};staged:[112]i64;at:=0
 	for t:=1;t<=m;t+=1{for s:=0;s<2;s+=1{if input[base+2*(t-1)+s]==0{slots[s]=edges[t-1]}};for s:=0;s<2;s+=1{staged[at]=slots[s][0];at+=1;staged[at]=slots[s][1];at+=1}}
-	bytes:=16*m;if output==nil||capacity<c.size_t(bytes) do return -2
+	bytes:=32*m;if output==nil||capacity<c.size_t(bytes) do return -2
 	for i:=0;i<at;i+=1{put_i64(output,8*i,staged[i])};return i64(bytes)
 }

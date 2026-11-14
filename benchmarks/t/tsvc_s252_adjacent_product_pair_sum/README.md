@@ -68,3 +68,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s252_adjacent_product_pair_sum.rs`](../../../rust/t/tsvc_s252_adjacent_product_pair_sum.rs) |
 | V | [`tsvc_s252_adjacent_product_pair_sum.v`](../../../v/t/tsvc_s252_adjacent_product_pair_sum.v) |
 | Zig | [`tsvc_s252_adjacent_product_pair_sum.zig`](../../../zig/t/tsvc_s252_adjacent_product_pair_sum.zig) |
+| Mojo | [`tsvc_s252_adjacent_product_pair_sum.mojo`](../../../mojo/t/tsvc_s252_adjacent_product_pair_sum.mojo) |

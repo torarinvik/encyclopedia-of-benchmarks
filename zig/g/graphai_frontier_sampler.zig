@@ -11,10 +11,9 @@ export fn graphai_frontier_sampler(input_opt:?[*]const f64,length:usize,output_o
     if(input[row_at]!=0 or input[col_at-1]!=@as(f64,@floatFromInt(m)))return -1;
     for(0..n+1)|i|{const x=input[row_at+i];if(@trunc(x)!=x or x<0 or x>@as(f64,@floatFromInt(m)))return -1;rows[i]=@intFromFloat(x);if(i>0 and rows[i]<rows[i-1])return -1;}
     for(0..m)|e|{const x=input[col_at+e];if(@trunc(x)!=x or x<0 or x>=@as(f64,@floatFromInt(n)))return -1;cols[e]=@intFromFloat(x);}
-    if(output_opt==null or capacity<required)return -2;
     const fanouts=[_]usize{3,2,2};var front_size=r;var choice:usize=0;var out_at=r;
     for(fanouts)|fanout|{const next_size=front_size*fanout;for(0..front_size)|i|{const parent=front[i];const begin=rows[parent];const degree=rows[parent+1]-begin;if(degree==0)return -1;
         for(0..fanout)|j|{const x=input[choice_at+choice];choice+=1;if(@trunc(x)!=x or x<0 or x>=@as(f64,@floatFromInt(degree)))return -1;const vertex=cols[begin+@as(usize,@intFromFloat(x))];next[i*fanout+j]=vertex;staged[out_at]=@floatFromInt(vertex);out_at+=1;}}
         for(0..next_size)|i|front[i]=next[i];front_size=next_size;}
-    if(choice!=21*r or out_at!=required)return -1;const output=output_opt.?;for(0..required)|q|output[q]=staged[q];return @intCast(required);
+    if(choice!=21*r or out_at!=required)return -1;if(output_opt==null or capacity<required)return -2;const output=output_opt.?;for(0..required)|q|output[q]=staged[q];return @intCast(required);
 }

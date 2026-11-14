@@ -59,6 +59,7 @@ is in [`LICENSE.txt`](LICENSE.txt). All ports are clean-room implementations.
 | C3 | `c3/g/gbbs_barenboim_elkin_degeneracy_order.c3` |
 | C++ | `cpp/g/gbbs_barenboim_elkin_degeneracy_order.cpp` |
 | Elisa | `elisa/g/gbbs_barenboim_elkin_degeneracy_order.elisa` |
+| Mojo | [`mojo/g/gbbs_barenboim_elkin_degeneracy_order.mojo`](../../../mojo/g/gbbs_barenboim_elkin_degeneracy_order.mojo) |
 | Nim | `nim/g/gbbs_barenboim_elkin_degeneracy_order.nim` |
 | Odin | `odin/g/gbbs_barenboim_elkin_degeneracy_order.odin` |
 | Rust | `rust/g/gbbs_barenboim_elkin_degeneracy_order.rs` |

@@ -32,6 +32,10 @@ with a distinct 6-point basis, three interleaved window outputs, and short
 window coefficient scaling. It does not claim to encode a short-block MP3
 frame.
 
+The fixed-size transform takes O(1) time and O(1) auxiliary space.
+
+The [Mojo port](../../../mojo/m/cbench_consumer_lame_mdct_short.mojo) is a draft and has not been compiled or run.
+
 ## Source and rights
 
 Pinned source: `lac-dcc/Benchmarks` commit

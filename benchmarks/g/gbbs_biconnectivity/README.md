@@ -58,6 +58,7 @@ implementations.
 | C3 | c3/g/gbbs_biconnectivity.c3 |
 | C++ | cpp/g/gbbs_biconnectivity.cpp |
 | Elisa | elisa/g/gbbs_biconnectivity.elisa |
+| Mojo | [mojo/g/gbbs_biconnectivity.mojo](../../../mojo/g/gbbs_biconnectivity.mojo) (unverified draft) |
 | Nim | nim/g/gbbs_biconnectivity.nim |
 | Odin | odin/g/gbbs_biconnectivity.odin |
 | Rust | rust/g/gbbs_biconnectivity.rs |
@@ -67,3 +68,7 @@ implementations.
 Fixtures are in workload.json. The package oracle follows the source stages;
 the independent verifier determines block equivalence by checking whether a
 single deleted vertex separates any pair of edges.
+
+With the bounded adjacency matrix and input-order label canonicalization, this
+implementation uses `O(n² + m²)` time and `O(n² + m)` auxiliary space. The
+Mojo draft has not been compiled or run.

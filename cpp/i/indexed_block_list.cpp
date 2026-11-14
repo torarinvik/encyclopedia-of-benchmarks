@@ -66,9 +66,8 @@ std::int64_t get(const Blocks &blocks, const Sizes &sizes, const Links &next, st
 extern "C" std::int64_t indexed_block_list(const std::int64_t *input, std::size_t length, std::uint8_t *output, std::size_t capacity) noexcept {
     std::size_t access_count = 0;
     if (!valid_input(input, length, access_count)) return -1;
-    if (access_count == 0) return 0;
     const auto required = 8 * access_count;
-    if (output == nullptr || capacity < required) return -2;
+    if (required > 0 && (output == nullptr || capacity < required)) return -2;
     Blocks blocks{}; Sizes sizes{}; Links next{}; next.fill(-1); std::size_t node_count = 1;
     const auto initial = static_cast<std::size_t>(input[0]);
     for (std::size_t i = 0; i < initial; ++i) insert(blocks, sizes, next, node_count, i, input[1 + i]);

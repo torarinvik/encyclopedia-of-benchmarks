@@ -26,8 +26,12 @@ The operation follows the independently reimplemented integer kernel in [`hint/s
 | C3 | [`c3/h/hint_area_bound_refinement.c3`](../../../c3/h/hint_area_bound_refinement.c3) |
 | C++ | [`cpp/h/hint_area_bound_refinement.cpp`](../../../cpp/h/hint_area_bound_refinement.cpp) |
 | Elisa | [`elisa/h/hint_area_bound_refinement.elisa`](../../../elisa/h/hint_area_bound_refinement.elisa) |
+| Mojo | [`mojo/h/hint_area_bound_refinement.mojo`](../../../mojo/h/hint_area_bound_refinement.mojo) (unverified draft) |
 | Nim | [`nim/h/hint_area_bound_refinement.nim`](../../../nim/h/hint_area_bound_refinement.nim) |
 | Odin | [`odin/h/hint_area_bound_refinement.odin`](../../../odin/h/hint_area_bound_refinement.odin) |
 | Rust | [`rust/h/hint_area_bound_refinement.rs`](../../../rust/h/hint_area_bound_refinement.rs) |
 | V | [`v/h/hint_area_bound_refinement.v`](../../../v/h/hint_area_bound_refinement.v) |
 | Zig | [`zig/h/hint_area_bound_refinement.zig`](../../../zig/h/hint_area_bound_refinement.zig) |
+
+For `s` requested splits, the queue-based profile takes `O(s + 1)` time and
+`O(s + 1)` space. The Mojo draft has not been compiled or run.

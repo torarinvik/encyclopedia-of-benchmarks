@@ -24,6 +24,13 @@ derivative's critical points and bisecting sign-changing intervals. This
 checks the source formula against a different numerical method. The workload
 includes source-driver examples, one-root and three-root cubics, a negative
 leading coefficient, malformed input, and short output capacity.
+The fixed-degree closed-form calculation uses O(1) time and space. The Mojo
+draft has not been compiled or run.
+Verifier source also constructs cubics from distinct integer roots and checks
+the independent reference against those roots for both leading-coefficient
+signs. These cases remain unrun.
+The float64 workload validator specifies source-presence checks for all ten
+ports; this check has not been executed.
 
 ## Pinned source and license
 
@@ -40,6 +47,7 @@ leading coefficient, malformed input, and short output capacity.
 | C3 | [c3/m/mibench_automotive_basicmath_cubic.c3](../../../c3/m/mibench_automotive_basicmath_cubic.c3) |
 | C++ | [cpp/m/mibench_automotive_basicmath_cubic.cpp](../../../cpp/mibench_automotive_basicmath_cubic.cpp) |
 | Elisa | [elisa/m/mibench_automotive_basicmath_cubic.elisa](../../../elisa/m/mibench_automotive_basicmath_cubic.elisa) |
+| Mojo | [mojo/m/mibench_automotive_basicmath_cubic.mojo](../../../mojo/m/mibench_automotive_basicmath_cubic.mojo) (uncompiled draft) |
 | Nim | [nim/m/mibench_automotive_basicmath_cubic.nim](../../../nim/m/mibench_automotive_basicmath_cubic.nim) |
 | Odin | [odin/m/mibench_automotive_basicmath_cubic.odin](../../../odin/m/mibench_automotive_basicmath_cubic.odin) |
 | Rust | [rust/m/mibench_automotive_basicmath_cubic.rs](../../../rust/m/mibench_automotive_basicmath_cubic.rs) |

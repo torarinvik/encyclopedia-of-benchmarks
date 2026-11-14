@@ -28,6 +28,9 @@ cannot reach the target in the remaining four moves.
   states and uses at most nine stack frames. The Python oracle uses breadth-first
   exploration without the source's per-piece prune table.
 
+For a maximum bound `D`, iterative deepening takes `O(2^D)` time in the
+unpruned worst case and `O(D)` auxiliary space for its recursive search.
+
 ## Workload and build
 
 [`workload.json`](workload.json) includes an initial goal, two- and four-move
@@ -61,6 +64,7 @@ pruning behavior; they do not copy the C source.
 | C3 | [c3/f/freebench_mason.c3](../../../c3/f/freebench_mason.c3) |
 | C++ | [cpp/f/freebench_mason.cpp](../../../cpp/f/freebench_mason.cpp) |
 | Elisa | [elisa/f/freebench_mason.elisa](../../../elisa/f/freebench_mason.elisa) |
+| Mojo | [mojo/f/freebench_mason.mojo](../../../mojo/f/freebench_mason.mojo) (unverified draft) |
 | Nim | [nim/f/freebench_mason.nim](../../../nim/f/freebench_mason.nim) |
 | Odin | [odin/f/freebench_mason.odin](../../../odin/f/freebench_mason.odin) |
 | Rust | [rust/f/freebench_mason.rs](../../../rust/f/freebench_mason.rs) |

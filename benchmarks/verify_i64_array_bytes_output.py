@@ -3,6 +3,16 @@
 
 from __future__ import annotations
 
+from b.benchmarkgame_nbody_oracle import expected_output as benchmarkgame_nbody_oracle
+from b.benchmarkgame_nbody_verifier_oracle import expected_output as benchmarkgame_nbody_independent_oracle
+from b.benchmarkgame_puzzle_verifier_oracle import expected_output as benchmarkgame_puzzle_independent_oracle
+from benchmarkgame_puzzle_oracle import expected_output as benchmarkgame_puzzle_primary_oracle
+from run_i64_array_bytes_output import validate_benchmarkgame_nbody_workload
+from x.xor_leaf_tree_traversal.oracle import expected_output as xor_leaf_tree_traversal_oracle
+from x.xor_leaf_tree_traversal.primary_oracle import expected_output as xor_leaf_tree_traversal_primary
+from kmp_slp_jump_output_oracle import expected_output as kmp_slp_jump_output_primary_oracle
+from extended_gs_general_stable_allocation_oracle import expected_output as extended_gs_primary_oracle
+
 import argparse
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -10,7 +20,7 @@ import datetime as dt
 from decimal import Decimal, ROUND_HALF_UP
 import hashlib
 import heapq
-from itertools import combinations, product
+from itertools import combinations, permutations, product
 import json
 import math
 from pathlib import Path
@@ -40,6 +50,61 @@ from c.crochemore_perrin_two_way.primary_oracle import (
 )
 from i.indexed_block_list.independent_oracle import (
     expected_output as indexed_block_list_independent_oracle,
+)
+from i.incremental_minimum_spanning_forest.independent_oracle import expected_output as incremental_msf_independent_oracle
+from s.static_range_sum_with_upper_bound.oracle import expected_output as static_range_sum_upper_oracle
+from m.dynamic_range_majority.oracle import expected_output as dynamic_range_majority_oracle
+from a.all_farthest_neighbors_convex.oracle import expected_output as all_farthest_neighbors_oracle
+from d.dirichlet_inverse_and_prefix_sums.oracle import expected_output as dirichlet_inverse_prefix_oracle
+from p.polynomial_discrete_antiderivative.oracle import expected_output as polynomial_discrete_antiderivative_oracle
+from i.inv_of_formal_power_series_2d.oracle import expected_output as inv_of_formal_power_series_2d_oracle
+from l.log_of_set_power_series.oracle import expected_output as log_of_set_power_series_oracle
+from r.range_add_range_min.oracle import expected_output as range_add_range_min_oracle
+from d.discrete_logarithm_fixed_mod.oracle import expected_output as discrete_logarithm_fixed_mod_oracle
+from i.indexed_deque.oracle import expected_output as indexed_deque_oracle
+from i.incremental_minimum_spanning_forest.primary_oracle import expected_output as incremental_msf_primary_oracle
+from w.walker_vose_alias_sampling.independent_oracle import expected_output as walker_vose_alias_sampling_independent_oracle
+from a.articulation_points.independent_oracle import expected_output as articulation_points_independent_oracle
+from w.walker_vose_alias_sampling.primary_oracle import expected_output as walker_vose_alias_sampling_primary_oracle
+from s.space_saving_frequent_items.independent_oracle import expected_output as space_saving_frequent_items_independent_oracle
+from s.space_saving_frequent_items.primary_oracle import expected_output as space_saving_frequent_items_primary_oracle
+from m.melkman_simple_polyline_hull.independent_oracle import expected_output as melkman_simple_polyline_hull_independent_oracle
+from c.chan_output_sensitive_hull.independent_oracle import expected_output as chan_output_sensitive_hull_independent_oracle
+from d.divide_conquer_tangent_hull.independent_oracle import expected_output as divide_conquer_tangent_hull_independent_oracle
+from p.planted_3sat_clause_generator.independent_oracle import expected_output as planted_3sat_clause_generator_independent_oracle
+from p.planted_3sat_clause_generator.primary_oracle import expected_output as planted_3sat_clause_generator_primary_oracle
+from m.minimum_area_enclosing_rectangle.independent_oracle import expected_output as minimum_area_enclosing_rectangle_independent_oracle
+from l.lexicographically_minimal_concatenation.independent_oracle import expected_output as minimal_concatenation_oracle
+from l.lexicographically_minimal_concatenation.validation import validate_workload as validate_minimal_concatenation_workload
+from r.rrr_class_offset_rank_select.independent_oracle import expected_output as rrr_class_offset_rank_select_independent_oracle
+from r.rrr_class_offset_rank_select.primary_oracle import expected_output as rrr_class_offset_rank_select_primary_oracle
+from check_rrr_class_offset_rank_select_package import static_issues as rrr_class_offset_rank_select_static_issues
+from r.reservoir_sampling_algorithm_r.independent_oracle import expected_output as reservoir_sampling_algorithm_r_independent_oracle
+from r.reservoir_sampling_algorithm_r.primary_oracle import expected_output as reservoir_sampling_algorithm_r_primary_oracle
+from check_reservoir_sampling_algorithm_r_package import static_issues as reservoir_sampling_algorithm_r_static_issues
+from l.lossy_counting_summary.independent_oracle import expected_output as lossy_counting_summary_independent_oracle
+from l.lossy_counting_summary.primary_oracle import expected_output as lossy_counting_summary_primary_oracle
+from check_lossy_counting_summary_package import static_issues as lossy_counting_summary_static_issues
+from s.sticky_sampling_summary.independent_oracle import expected_output as sticky_sampling_summary_independent_oracle
+from s.sticky_sampling_summary.primary_oracle import expected_output as sticky_sampling_summary_primary_oracle
+from check_sticky_sampling_summary_package import static_issues as sticky_sampling_summary_static_issues
+from e.exponential_histogram_window.independent_oracle import expected_output as exponential_histogram_window_independent_oracle
+from e.exponential_histogram_window.primary_oracle import expected_output as exponential_histogram_window_primary_oracle
+from check_exponential_histogram_window_package import static_issues as exponential_histogram_window_static_issues
+from m.minimum_area_enclosing_rectangle.primary_oracle import expected_output as minimum_area_enclosing_rectangle_primary_oracle
+from check_minimum_area_enclosing_rectangle_package import static_issues as minimum_area_enclosing_rectangle_static_issues
+from check_planted_3sat_clause_generator_package import static_issues as planted_3sat_clause_generator_static_issues
+from d.divide_conquer_tangent_hull.primary_oracle import expected_output as divide_conquer_tangent_hull_primary_oracle
+from check_divide_conquer_tangent_hull_package import static_issues as divide_conquer_tangent_hull_static_issues
+from c.chan_output_sensitive_hull.grouped_reference import expected_output as chan_output_sensitive_hull_grouped_reference
+from check_chan_output_sensitive_hull_package import static_issues as chan_output_sensitive_hull_static_issues
+from m.melkman_simple_polyline_hull.primary_oracle import expected_output as melkman_simple_polyline_hull_primary_oracle
+from h.hyperloglog_raw_estimate.independent_oracle import expected_output as hyperloglog_raw_estimate_independent_oracle
+from h.hyperloglog_raw_estimate.primary_oracle import expected_output as hyperloglog_raw_estimate_primary_oracle
+from h.hyperloglog_corrected_estimate.independent_oracle import expected_output as hyperloglog_corrected_estimate_independent_oracle
+from h.hyperloglog_corrected_estimate.primary_oracle import expected_output as hyperloglog_corrected_estimate_primary_oracle
+from i.indexed_block_list.primary_oracle import (
+    expected_output as indexed_block_list_primary_oracle,
 )
 from i.indexed_block_list.verify_indexed_block_list_package import (
     static_issues as indexed_block_list_static_issues,
@@ -109,6 +174,7 @@ from lengauer_tarjan_dominator_tree_oracle import (
     MAX_INPUT_LENGTH as LENGAUER_TARJAN_DOMINATOR_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as LENGAUER_TARJAN_DOMINATOR_MAX_OUTPUT_BYTES,
     MAX_VERTICES as LENGAUER_TARJAN_DOMINATOR_MAX_VERTICES,
+    expected_output as lengauer_tarjan_dominator_tree_primary_oracle,
 )
 from lengauer_tarjan_dominator_tree_independent_oracle import (
     expected_output as lengauer_tarjan_dominator_tree_independent_oracle,
@@ -633,9 +699,8 @@ from maskwords_oracle import MAX_OUTPUT_BYTES as MASKWORDS_MAX_OUTPUT_BYTES
 from maskwords_oracle import MAX_PARSEABLE_INPUT_LENGTH as MASKWORDS_MAX_PARSEABLE_INPUT_LENGTH
 from maskwords_oracle import MAX_TEXT_BYTES as MASKWORDS_MAX_TEXT_BYTES
 from maskwords_oracle import expected_output as maskwords_oracle
-from lyndon_factorization_oracle import MAX_INPUT_LENGTH as MAX_LYNDON_FACTORIZATION_INPUT_LENGTH
-from lyndon_factorization_oracle import MAX_SEQUENCE_LENGTH as LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH
-from lyndon_factorization_oracle import expected_output as lyndon_factorization_oracle
+from d.duval_algorithm.independent_oracle import factor_lengths as direct_lyndon_factor_lengths
+from run_i64_array_bytes_output import expected_output as recorder_expected_output
 from fifocache_oracle import MAX_INPUT_LENGTH as MAX_FIFOCACHE_INPUT_LENGTH
 from fifocache_oracle import MAX_OUTPUT_BYTES as FIFOCACHE_MAX_OUTPUT_BYTES
 from fifocache_oracle import expected_output as fifocache_oracle
@@ -3690,10 +3755,6 @@ from correlation_matrix_analysis_oracle import expected_output as correlation_ma
 from unique_letters_count_oracle import MAX_INPUT_LENGTH as MAX_UNIQUE_LETTERS_COUNT_INPUT_LENGTH
 from unique_letters_count_oracle import MAX_OUTPUT_BYTES as MAX_UNIQUE_LETTERS_COUNT_OUTPUT_BYTES
 from unique_letters_count_oracle import expected_output as unique_letters_count_oracle
-from convex_hull_graham_oracle import MAX_INPUT_LENGTH as MAX_CONVEX_HULL_GRAHAM_INPUT_LENGTH
-from convex_hull_graham_oracle import MAX_POINTS as MAX_CONVEX_HULL_GRAHAM_POINTS
-from convex_hull_graham_oracle import MAX_OUTPUT_BYTES as MAX_CONVEX_HULL_GRAHAM_OUTPUT_BYTES
-from convex_hull_graham_oracle import expected_output as convex_hull_graham_oracle
 from sorted_arrays_intersection_oracle import MAX_ARRAY_LENGTH as MAX_SORTED_ARRAYS_INTERSECTION_ARRAY_LENGTH
 from sorted_arrays_intersection_oracle import MAX_INPUT_LENGTH as MAX_SORTED_ARRAYS_INTERSECTION_INPUT_LENGTH
 from sorted_arrays_intersection_oracle import MAX_OUTPUT_BYTES as MAX_SORTED_ARRAYS_INTERSECTION_OUTPUT_BYTES
@@ -4710,6 +4771,7 @@ from randomized_ray_search_verifier_oracle import expected_output as randomized_
 from suffix_array_lcp_search_verifier_oracle import expected_output as suffix_array_lcp_search_independent_oracle
 from suffix_tree_pattern_occurrences_verifier_oracle import expected_output as suffix_tree_pattern_occurrences_independent_oracle
 from suffix_array_dc3_verifier_oracle import expected_output as suffix_array_dc3_independent_oracle
+from suffix_array_dc3_oracle import expected_output as suffix_array_dc3_primary_oracle
 from packet_switching_sgr_multi_queue_verifier_oracle import expected_output as packet_switching_sgr_multi_queue_independent_oracle
 from packet_switching_single_buffer_verifier_oracle import expected_output as packet_switching_single_buffer_independent_oracle
 from minimal_dominating_sets_interval_oracle import MAX_INPUT_LENGTH as MINIMAL_DOMINATING_SETS_INTERVAL_MAX_INPUT_LENGTH
@@ -4732,10 +4794,13 @@ from truthful_multicast_pmst_tree_verifier_oracle import expected_output as trut
 from johnson_trotter_adjacent_gray_code_verifier_oracle import expected_output as johnson_trotter_adjacent_gray_code_independent_oracle
 from truthful_multiunit_ca_greedy2_verifier_oracle import expected_output as truthful_multiunit_ca_greedy2_independent_oracle
 from truthful_ufp_greedy1_verifier_oracle import expected_output as truthful_ufp_greedy1_independent_oracle
+from truthful_ufp_greedy1_oracle import expected_output as truthful_ufp_greedy1_primary_oracle
 from dc_tree_k_server_path_oracle import MAX_INPUT_LENGTH as DC_TREE_K_SERVER_PATH_MAX_INPUT_LENGTH
 from dc_tree_k_server_path_verifier_oracle import verify as dc_tree_k_server_path_independent_check
 from hub_labeling_pruned_verifier_oracle import expected_output as hub_labeling_pruned_independent_oracle
+from hub_labeling_pruned_oracle import expected_output as hub_labeling_pruned_primary_oracle
 from hub_labeling_greedy_order_verifier_oracle import expected_output as hub_labeling_greedy_order_independent_oracle
+from hub_labeling_greedy_order_oracle import expected_output as hub_labeling_greedy_order_primary_oracle
 from dense_graph_bipartiteness_tester_verifier_oracle import expected_output as dense_graph_bipartiteness_tester_independent_oracle
 from a.all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
 from a.all_distances_sketch_bottom_k_verifier_oracle import verify as all_distances_sketch_bottom_k_independent_check
@@ -4783,6 +4848,7 @@ from clique_reverse_search_enumeration_verifier_oracle import MAX_INPUT as CLIQU
 from clique_reverse_search_enumeration_verifier_oracle import expected_output as clique_reverse_search_enumeration_independent_oracle
 from procedure_s_general_cnf_sat_verifier_oracle import MAX_INPUT_LENGTH as PROCEDURE_S_GENERAL_CNF_SAT_MAX_INPUT_LENGTH
 from procedure_s_general_cnf_sat_verifier_oracle import evaluate as procedure_s_general_cnf_sat_independent_check
+from procedure_s_general_cnf_sat_oracle import evaluate as procedure_s_general_cnf_sat_primary_check
 from srpt_flow_time_verifier_oracle import expected_output as srpt_flow_time_independent_oracle
 from yds_speed_scaling_verifier_oracle import expected_output as yds_speed_scaling_independent_oracle
 from concave_gap_alignment_global_verifier_oracle import expected_output as concave_gap_alignment_global_independent_oracle
@@ -4841,6 +4907,7 @@ from fm_index_display_verifier_oracle import expected_output as fm_index_display
 from psi_suffix_array_access_verifier_oracle import MAX_INPUT_LENGTH as PSI_SUFFIX_ARRAY_ACCESS_MAX_INPUT_LENGTH
 from psi_suffix_array_access_verifier_oracle import verify as psi_suffix_array_access_independent_oracle
 from p2p_chord_finger_lookup_verifier_oracle import expected_output as p2p_chord_finger_lookup_independent_oracle
+from p2p_chord_finger_lookup_oracle import expected_output as p2p_chord_finger_lookup_primary_oracle
 from point_pattern_translation_voting_verifier_oracle import expected_output as point_pattern_translation_voting_independent_oracle
 from point_pattern_translation_lex_scan_verifier_oracle import expected_output as point_pattern_translation_lex_scan_independent_oracle
 from phylogenetic_tree_from_distance_matrix_verifier_oracle import expected_output as phylogenetic_tree_from_distance_matrix_independent_oracle
@@ -4853,8 +4920,13 @@ from online_list_update_transpose_verifier_oracle import expected_output as onli
 from reverse_search_permutation_enumeration_verifier_oracle import expected_output as reverse_search_permutation_enumeration_independent_oracle
 from frequency_count_list_update_verifier_oracle import expected_output as frequency_count_list_update_independent_oracle
 from timestamp_list_update_verifier_oracle import expected_output as timestamp_list_update_independent_oracle
+from online_list_update_transpose_oracle import expected_output as online_list_update_transpose_primary_oracle
+from frequency_count_list_update_oracle import expected_output as frequency_count_list_update_primary_oracle
+from timestamp_list_update_oracle import expected_output as timestamp_list_update_primary_oracle
 from bit_list_update_verifier_oracle import expected_output as bit_list_update_independent_oracle
 from comb_list_update_verifier_oracle import expected_output as comb_list_update_independent_oracle
+from bit_list_update_oracle import expected_output as bit_list_update_primary_oracle
+from comb_list_update_oracle import expected_output as comb_list_update_primary_oracle
 from randomized_marking_page_caching_verifier_oracle import expected_output as randomized_marking_page_caching_independent_oracle
 from weak_stable_matching_ties_incomplete_oracle import MAX_INPUT_LENGTH as WEAK_STABLE_MATCHING_TIES_INCOMPLETE_MAX_INPUT_LENGTH
 from weak_stable_matching_ties_incomplete_verifier_oracle import expected_output as weak_stable_matching_ties_incomplete_independent_oracle
@@ -4867,6 +4939,7 @@ from online_interval_coloring_verifier_oracle import expected_output as online_i
 from weighted_random_sampling_verifier_oracle import expected_output as weighted_random_sampling_independent_oracle
 from mdp_value_iteration_deterministic_verifier_oracle import expected_output as mdp_value_iteration_deterministic_independent_oracle
 from radio_network_decay_phase_verifier_oracle import expected_output as radio_network_decay_phase_independent_oracle
+from radio_network_decay_phase_oracle import expected_output as radio_network_decay_phase_primary_oracle
 from rumor_blocking_greedy_live_edge_verifier_oracle import expected_output as rumor_blocking_greedy_live_edge_independent_oracle
 from distributed_coupon_collection_replay_verifier_oracle import expected_output as distributed_coupon_collection_replay_independent_oracle
 from routing_cost_constrained_cds_goc_mcds_c_verifier_oracle import expected_output as routing_cost_constrained_cds_goc_mcds_c_independent_oracle
@@ -4986,7 +5059,7 @@ ALGORITHMS = ("letter_combinations_of_phone_number", "blake2b", "charoccurrence"
               "a1z26_cipher", "a1z26_decipher", "centroid_decomposition", "chacha", "chebyshev_iteration", "date_to_day",
               "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "choiceset", "chudnovsky_algorithm",
               "serialize_deserialize_binary_tree", "cramers_rule_2x2", "create_binary_tree_from_inorder_preorder",
-              "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "floor_and_ceiling", "cusum_detector", "complex_number_multiply", "complex_arithmetic", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "des_ecb", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "composite_lfsr_majority_clock", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler")
+              "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "floor_and_ceiling", "cusum_detector", "complex_number_multiply", "complex_arithmetic", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "des_ecb", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "composite_lfsr_majority_clock", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler")
 ALGORITHMS = (*ALGORITHMS, "recursive_shuffler", "graph_coloring", "fisher_yates_shuffle")
 ALGORITHMS = (*ALGORITHMS, "sattolo_cycle")
 ALGORITHMS = (*ALGORITHMS, "predecessor_problem")
@@ -5199,7 +5272,7 @@ ALGORITHMS = (*ALGORITHMS, "double_point_crossover")
 ALGORITHMS = (*ALGORITHMS, "dynamicarray", "flatten_multilevel_linked_list")
 ALGORITHMS = (*ALGORITHMS, "flip_augmentation")
 ALGORITHMS = (*ALGORITHMS, "from_sequence")
-ALGORITHMS = (*ALGORITHMS, "lyndon_factorization")
+ALGORITHMS = (*ALGORITHMS, "duval_algorithm")
 ALGORITHMS = (*ALGORITHMS, "elliptic_curve_key_exchange", "iso10126_d2_padding")
 ALGORITHMS = (*ALGORITHMS, "tbc_padding")
 ALGORITHMS = (*ALGORITHMS, "pkcs7_padding")
@@ -5389,7 +5462,7 @@ WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_uniq
                         "a1z26_cipher", "a1z26_decipher", "centroid_decomposition", "chacha", "chebyshev_iteration", "date_to_day",
                         "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "choiceset", "chudnovsky_algorithm",
                         "serialize_deserialize_binary_tree", "cramers_rule_2x2", "crc_polynomial_division", "power_for_huge_numbers", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "create_binary_tree_from_inorder_preorder",
-                        "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "solve_quadratic_equation", "cusum_detector", "complex_number_multiply", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "des_ecb", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler"}
+                        "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "solve_quadratic_equation", "cusum_detector", "complex_number_multiply", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "des_ecb", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler"}
 WORKSPACE_ALGORITHMS.update({
     "depthconv", "versabench_dbms_keys_union", "versabench_dbms_query",
     "versabench_dbms_insert_entry", "tsvc_s241_cross_coupled_product_map",
@@ -5491,7 +5564,7 @@ WORKSPACE_ALGORITHMS.add("floor_and_ceiling")
 WORKSPACE_ALGORITHMS.add("solve_quadratic_equation")
 WORKSPACE_ALGORITHMS.update({"dynamicarray", "flatten_multilevel_linked_list", "flip_augmentation"})
 WORKSPACE_ALGORITHMS.add("from_sequence")
-WORKSPACE_ALGORITHMS.add("lyndon_factorization")
+WORKSPACE_ALGORITHMS.add("duval_algorithm")
 WORKSPACE_ALGORITHMS.add("elliptic_curve_key_exchange")
 WORKSPACE_ALGORITHMS.add("iso10126_d2_padding")
 WORKSPACE_ALGORITHMS.add("tbc_padding")
@@ -5800,11 +5873,13 @@ WORKSPACE_ALGORITHMS.update({
     "cbench_consumer_mad_alias_reduce",
 })
 ALGORITHMS = (*ALGORITHMS, "tarfind")
+ALGORITHMS = (*ALGORITHMS, "benchmarkgame_nbody")
+ALGORITHMS = (*ALGORITHMS, "benchmarkgame_puzzle")
 ALGORITHMS = (*ALGORITHMS, "8b10b")
+ALGORITHMS = (*ALGORITHMS, "z_algorithm")
 ALGORITHMS = (*ALGORITHMS, "uudecode")
 ALGORITHMS = (*ALGORITHMS, "cbench_automotive_qsort1")
 ALGORITHMS = (*ALGORITHMS, "polybench_adi")
-ALGORITHMS = (*ALGORITHMS, "trimaran_enc_rc4")
 ALGORITHMS = (*ALGORITHMS, "trimaran_enc_3des")
 ALGORITHMS = (*ALGORITHMS, "ansibench_dhrystone", "stream_vector_kernels",
               "string_heap_sort", "bitmap_block_allocation", "idea_encrypt_decrypt",
@@ -6158,14 +6233,50 @@ from statistical_region_merging_table_oracle import expected_output as statistic
 from statistical_region_merging_table_verifier_oracle import expected_output as statistical_region_merging_table_independent_oracle
 from multiprobe_lsh_probe_sequence_oracle import expected_output as multiprobe_lsh_probe_sequence_primary_oracle
 from multiprobe_lsh_probe_sequence_verifier_oracle import expected_output as multiprobe_lsh_probe_sequence_independent_oracle
+from chord_stabilization_trace_oracle import expected_output as chord_stabilization_trace_primary_oracle
+from chord_stabilization_trace_verifier_oracle import expected_output as chord_stabilization_trace_independent_oracle
+from shortest_absent_substring_sam_oracle import expected_output as shortest_absent_substring_sam_primary_oracle
+from shortest_absent_substring_sam_verifier_oracle import expected_output as shortest_absent_substring_sam_independent_oracle
 
 ALGORITHMS = (*ALGORITHMS, "rabin_content_defined_chunking")
 ALGORITHMS = (*ALGORITHMS, "multiprobe_lsh_probe_sequence")
+ALGORITHMS = (*ALGORITHMS, "chord_stabilization_trace")
+ALGORITHMS = (*ALGORITHMS, "shortest_absent_substring_sam")
+WORKSPACE_ALGORITHMS.add("shortest_absent_substring_sam")
+WORKSPACE_ALGORITHMS.add("chord_stabilization_trace")
 WORKSPACE_ALGORITHMS.add("multiprobe_lsh_probe_sequence")
 ALGORITHMS = (*ALGORITHMS, "statistical_region_merging_table")
 WORKSPACE_ALGORITHMS.add("statistical_region_merging_table")
 WORKSPACE_ALGORITHMS.add("rabin_content_defined_chunking")
 ALGORITHMS = (*ALGORITHMS, "indexed_block_list")
+ALGORITHMS = (*ALGORITHMS, "xor_leaf_tree_traversal")
+ALGORITHMS = (*ALGORITHMS, "incremental_minimum_spanning_forest")
+ALGORITHMS = (*ALGORITHMS, "static_range_sum_with_upper_bound")
+ALGORITHMS = (*ALGORITHMS, "dynamic_range_majority")
+ALGORITHMS = (*ALGORITHMS, "all_farthest_neighbors_convex")
+ALGORITHMS = (*ALGORITHMS, "dirichlet_inverse_and_prefix_sums")
+ALGORITHMS = (*ALGORITHMS, "polynomial_discrete_antiderivative")
+ALGORITHMS = (*ALGORITHMS, "inv_of_formal_power_series_2d")
+ALGORITHMS = (*ALGORITHMS, "log_of_set_power_series")
+ALGORITHMS = (*ALGORITHMS, "range_add_range_min")
+ALGORITHMS = (*ALGORITHMS, "discrete_logarithm_fixed_mod")
+ALGORITHMS = (*ALGORITHMS, "indexed_deque")
+ALGORITHMS = (*ALGORITHMS, "walker_vose_alias_sampling")
+ALGORITHMS = (*ALGORITHMS, "space_saving_frequent_items")
+ALGORITHMS = (*ALGORITHMS, "articulation_points")
+ALGORITHMS = (*ALGORITHMS, "melkman_simple_polyline_hull")
+ALGORITHMS = (*ALGORITHMS, "chan_output_sensitive_hull")
+ALGORITHMS = (*ALGORITHMS, "divide_conquer_tangent_hull")
+ALGORITHMS = (*ALGORITHMS, "planted_3sat_clause_generator")
+ALGORITHMS = (*ALGORITHMS, "minimum_area_enclosing_rectangle")
+ALGORITHMS = (*ALGORITHMS, "lexicographically_minimal_concatenation")
+ALGORITHMS = (*ALGORITHMS, "rrr_class_offset_rank_select")
+ALGORITHMS = (*ALGORITHMS, "reservoir_sampling_algorithm_r")
+ALGORITHMS = (*ALGORITHMS, "lossy_counting_summary")
+ALGORITHMS = (*ALGORITHMS, "sticky_sampling_summary")
+ALGORITHMS = (*ALGORITHMS, "exponential_histogram_window")
+ALGORITHMS = (*ALGORITHMS, "hyperloglog_raw_estimate")
+ALGORITHMS = (*ALGORITHMS, "hyperloglog_corrected_estimate")
 ALGORITHMS = (*ALGORITHMS, "prime_modulus_inverse_table")
 ALGORITHMS = (*ALGORITHMS, "sparse_supernodal_cholesky")
 ALGORITHMS = (*ALGORITHMS, "newton_compositional_inverse_fps")
@@ -6173,6 +6284,34 @@ ALGORITHMS = (*ALGORITHMS, "newton_reciprocal_fps")
 ALGORITHMS = (*ALGORITHMS, "newton_inverse_sqrt_fps")
 ALGORITHMS = (*ALGORITHMS, "seidel_unweighted_apsp")
 WORKSPACE_ALGORITHMS.add("indexed_block_list")
+WORKSPACE_ALGORITHMS.add("xor_leaf_tree_traversal")
+WORKSPACE_ALGORITHMS.add("incremental_minimum_spanning_forest")
+WORKSPACE_ALGORITHMS.add("static_range_sum_with_upper_bound")
+WORKSPACE_ALGORITHMS.add("dynamic_range_majority")
+WORKSPACE_ALGORITHMS.add("all_farthest_neighbors_convex")
+WORKSPACE_ALGORITHMS.add("dirichlet_inverse_and_prefix_sums")
+WORKSPACE_ALGORITHMS.add("polynomial_discrete_antiderivative")
+WORKSPACE_ALGORITHMS.add("inv_of_formal_power_series_2d")
+WORKSPACE_ALGORITHMS.add("log_of_set_power_series")
+WORKSPACE_ALGORITHMS.add("range_add_range_min")
+WORKSPACE_ALGORITHMS.add("discrete_logarithm_fixed_mod")
+WORKSPACE_ALGORITHMS.add("indexed_deque")
+WORKSPACE_ALGORITHMS.add("walker_vose_alias_sampling")
+WORKSPACE_ALGORITHMS.add("space_saving_frequent_items")
+WORKSPACE_ALGORITHMS.add("articulation_points")
+WORKSPACE_ALGORITHMS.add("melkman_simple_polyline_hull")
+WORKSPACE_ALGORITHMS.add("chan_output_sensitive_hull")
+WORKSPACE_ALGORITHMS.add("divide_conquer_tangent_hull")
+WORKSPACE_ALGORITHMS.add("planted_3sat_clause_generator")
+WORKSPACE_ALGORITHMS.add("minimum_area_enclosing_rectangle")
+WORKSPACE_ALGORITHMS.add("lexicographically_minimal_concatenation")
+WORKSPACE_ALGORITHMS.add("rrr_class_offset_rank_select")
+WORKSPACE_ALGORITHMS.add("reservoir_sampling_algorithm_r")
+WORKSPACE_ALGORITHMS.add("lossy_counting_summary")
+WORKSPACE_ALGORITHMS.add("sticky_sampling_summary")
+WORKSPACE_ALGORITHMS.add("exponential_histogram_window")
+WORKSPACE_ALGORITHMS.add("hyperloglog_raw_estimate")
+WORKSPACE_ALGORITHMS.add("hyperloglog_corrected_estimate")
 WORKSPACE_ALGORITHMS.add("prime_modulus_inverse_table")
 WORKSPACE_ALGORITHMS.add("sparse_supernodal_cholesky")
 WORKSPACE_ALGORITHMS.add("newton_compositional_inverse_fps")
@@ -6419,6 +6558,7 @@ WORKSPACE_ALGORITHMS.add("uudecode")
 WORKSPACE_ALGORITHMS.add("misc_lowercase")
 WORKSPACE_ALGORITHMS.add("mibench_security_blowfish")
 WORKSPACE_ALGORITHMS.add("cbench_security_rijndael_decrypt")
+WORKSPACE_ALGORITHMS.add("z_algorithm")
 WORKSPACE_ALGORITHMS.add("mibench_automotive_susan")
 WORKSPACE_ALGORITHMS.update({"cbench_automotive_susan_c", "cbench_automotive_susan_e"})
 WORKSPACE_ALGORITHMS.add("freebench_distray")
@@ -6471,7 +6611,6 @@ WORKSPACE_ALGORITHMS.add("tarfind")
 WORKSPACE_ALGORITHMS.add("8b10b")
 WORKSPACE_ALGORITHMS.add("cbench_automotive_qsort1")
 WORKSPACE_ALGORITHMS.add("polybench_adi")
-WORKSPACE_ALGORITHMS.add("trimaran_enc_rc4")
 WORKSPACE_ALGORITHMS.add("trimaran_enc_3des")
 WORKSPACE_ALGORITHMS.update({
     "ansibench_dhrystone", "stream_vector_kernels", "string_heap_sort",
@@ -6567,12 +6706,6 @@ MCCAT_BISECT_EPSILON = 2.2204460492503131e-16
 CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS = 128
 CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES = 1 + 3 * CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS
 CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES = 12 * CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS
-TRIMARAN_ENC_RC4_MIN_PASSES = 1
-TRIMARAN_ENC_RC4_MAX_PASSES = 2000
-TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES = 2
-TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES = 82
-TRIMARAN_ENC_RC4_INVALID_RESULT = -1
-TRIMARAN_ENC_RC4_OUTPUT_ERROR = -2
 TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH = 9
 TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES = 10
 TRIMARAN_ENC_3DES_OUTPUT_BYTES = 8
@@ -6667,70 +6800,6 @@ def trimaran_enc_3des_verifier_oracle(
         block = _des3_block(block, key2, False)
         block = _des3_block(block, key1, True)
     return TRIMARAN_ENC_3DES_OUTPUT_BYTES, block.to_bytes(TRIMARAN_ENC_3DES_OUTPUT_BYTES, "big")
-
-
-_TRIMARAN_ENC_RC4_VECTORS = (
-    (bytes.fromhex("0123456789abcdef"), bytes.fromhex("0123456789abcdef")),
-    (bytes.fromhex("0123456789abcdef"), bytes(8)),
-    (bytes(8), bytes(8)),
-    (bytes.fromhex("ef012345"), bytes(20)),
-    (bytes.fromhex("0123456789abcdef"), bytes.fromhex("123456789abcdef0" * 3 + "12345678")),
-    (bytes.fromhex("ef012345"), bytes(10)),
-)
-
-
-def _trimaran_enc_rc4_reference_crypt(key: bytes, plaintext: bytes) -> bytes:
-    state = list(range(256))
-    cursor = 0
-    for index in range(256):
-        cursor = (cursor + state[index] + key[index % len(key)]) & 255
-        state[index], state[cursor] = state[cursor], state[index]
-
-    output = bytearray(plaintext)
-    x = y = 0
-    for offset, original in enumerate(plaintext):
-        x = (x + 1) & 255
-        y = (y + state[x]) & 255
-        state[x], state[y] = state[y], state[x]
-        output[offset] = original ^ state[(state[x] + state[y]) & 255]
-    return bytes(output)
-
-
-def trimaran_enc_rc4_verifier_oracle(
-        values: tuple[int, ...] | list[int], capacity: int | None = None,
-        output_is_null: bool = False, input_is_null: bool = False,
-        input_length: int | None = None) -> tuple[int, bytes]:
-    if (type(output_is_null) is not bool or type(input_is_null) is not bool
-            or not isinstance(values, (tuple, list))
-            or len(values) > TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
-            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
-                   for value in values)
-            or (capacity is not None and (type(capacity) is not int or capacity < 0))
-            or (input_length is not None
-                and (type(input_length) is not int
-                     or not 0 <= input_length <= TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES))):
-        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
-    if input_is_null:
-        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
-    if input_length is not None and input_length != len(values):
-        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
-    if (len(values) != 1
-            or not TRIMARAN_ENC_RC4_MIN_PASSES <= values[0] <= TRIMARAN_ENC_RC4_MAX_PASSES):
-        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
-    if output_is_null or (capacity is not None and capacity < TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES):
-        return TRIMARAN_ENC_RC4_OUTPUT_ERROR, b""
-
-    passes = values[0]
-    ciphertexts = []
-    for key, plaintext in _TRIMARAN_ENC_RC4_VECTORS:
-        ciphertext = b""
-        for _ in range(passes):
-            ciphertext = _trimaran_enc_rc4_reference_crypt(key, plaintext)
-        ciphertexts.append(ciphertext)
-    output = b"".join(ciphertexts)
-    if len(output) != TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES:
-        raise ValueError("independent Trimaran ARC4 model produced the wrong byte count")
-    return TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES, output
 
 
 def misc_lowercase_verifier_oracle(
@@ -13536,10 +13605,39 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "newton_compositional_inverse_fps": newton_compositional_inverse_fps_independent_oracle,
     "sparse_supernodal_cholesky": sparse_supernodal_cholesky_independent_oracle,
     "gabow_scc": gabow_scc_independent_oracle,
+    "shortest_absent_substring_sam": shortest_absent_substring_sam_independent_oracle,
+    "chord_stabilization_trace": chord_stabilization_trace_independent_oracle,
     "multiprobe_lsh_probe_sequence": multiprobe_lsh_probe_sequence_independent_oracle,
     "statistical_region_merging_table": statistical_region_merging_table_independent_oracle,
     "rabin_content_defined_chunking": rabin_content_defined_chunking_independent_oracle,
     "indexed_block_list": indexed_block_list_independent_oracle,
+    "xor_leaf_tree_traversal": xor_leaf_tree_traversal_oracle,
+    "incremental_minimum_spanning_forest": incremental_msf_independent_oracle,
+    "static_range_sum_with_upper_bound": static_range_sum_upper_oracle,
+    "dynamic_range_majority": dynamic_range_majority_oracle,
+    "all_farthest_neighbors_convex": all_farthest_neighbors_oracle,
+    "dirichlet_inverse_and_prefix_sums": dirichlet_inverse_prefix_oracle,
+    "polynomial_discrete_antiderivative": polynomial_discrete_antiderivative_oracle,
+    "inv_of_formal_power_series_2d": inv_of_formal_power_series_2d_oracle,
+    "log_of_set_power_series": log_of_set_power_series_oracle,
+    "range_add_range_min": range_add_range_min_oracle,
+    "discrete_logarithm_fixed_mod": discrete_logarithm_fixed_mod_oracle,
+    "indexed_deque": indexed_deque_oracle,
+    "walker_vose_alias_sampling": walker_vose_alias_sampling_independent_oracle,
+    "space_saving_frequent_items": space_saving_frequent_items_independent_oracle,
+    "melkman_simple_polyline_hull": melkman_simple_polyline_hull_independent_oracle,
+    "chan_output_sensitive_hull": chan_output_sensitive_hull_independent_oracle,
+    "divide_conquer_tangent_hull": divide_conquer_tangent_hull_independent_oracle,
+    "planted_3sat_clause_generator": planted_3sat_clause_generator_independent_oracle,
+    "minimum_area_enclosing_rectangle": minimum_area_enclosing_rectangle_independent_oracle,
+    "lexicographically_minimal_concatenation": minimal_concatenation_oracle,
+    "rrr_class_offset_rank_select": rrr_class_offset_rank_select_independent_oracle,
+    "reservoir_sampling_algorithm_r": reservoir_sampling_algorithm_r_independent_oracle,
+    "lossy_counting_summary": lossy_counting_summary_independent_oracle,
+    "sticky_sampling_summary": sticky_sampling_summary_independent_oracle,
+    "exponential_histogram_window": exponential_histogram_window_independent_oracle,
+    "hyperloglog_raw_estimate": hyperloglog_raw_estimate_independent_oracle,
+    "hyperloglog_corrected_estimate": hyperloglog_corrected_estimate_independent_oracle,
     "prime_modulus_inverse_table": prime_modulus_inverse_table_independent_oracle,
     "crochemore_perrin_two_way": crochemore_perrin_two_way_independent_oracle,
     "virtual_tree": virtual_tree_independent_oracle,
@@ -14052,7 +14150,6 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "cbench_automotive_susan_e": cbench_automotive_susan_e_verifier_oracle,
     "cbench_automotive_qsort1": cbench_automotive_qsort1_verifier_oracle,
     "8b10b": versabench_8b10b_verifier_oracle,
-    "trimaran_enc_rc4": trimaran_enc_rc4_verifier_oracle,
     "trimaran_enc_3des": trimaran_enc_3des_verifier_oracle,
     "mibench_security_rijndael": mibench_security_rijndael_verifier_oracle,
     "cbench_security_rijndael_decrypt": cbench_security_rijndael_decrypt_verifier_oracle,
@@ -14197,6 +14294,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "beebs_lcdnum": beebs_lcdnum_verifier_oracle,
     "npb_cg_sparse_inverse_power": npb_cg_sparse_inverse_power_independent_oracle,
     "npb_lu_block_ssor": npb_lu_block_ssor_independent_oracle,
+    "benchmarkgame_nbody": _adapt_array_verifier(benchmarkgame_nbody_independent_oracle, 2),
+    "benchmarkgame_puzzle": _adapt_array_verifier(benchmarkgame_puzzle_independent_oracle, 4),
     "q_binomial_coefficient_prime_mod": q_binomial_coefficient_prime_mod_independent_oracle,
     "hpcg_profile": hpcg_profile_independent_oracle,
     "baswana_sen_weighted_spanner": baswana_sen_weighted_spanner_independent_oracle,
@@ -15877,6 +15976,20 @@ def bentley_ottmann_corpus(workload: dict) -> tuple[str, int]:
 def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
+    if algorithm == "qrduino":
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "q" / f"qrduino.{extension}"
+            if not path.is_file() or "qrduino" not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"qrduino source missing for {language}")
+    if algorithm == "schoenhage_strassen_multiply":
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "s" / f"schoenhage_strassen_multiply.{extension}"
+            if not path.is_file() or "schoenhage_strassen_multiply" not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"schoenhage_strassen_multiply source missing for {language}")
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
     input_spec = workload.get("input", {})
     output_spec = workload.get("output", {})
@@ -15966,10 +16079,6 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             raise ValueError("trimaran_enc_3des README or GPL notice is incomplete")
         max_input, max_output = (TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES,
                                  TRIMARAN_ENC_3DES_OUTPUT_BYTES)
-    elif algorithm == "trimaran_enc_rc4":
-        validate_new_byte_output_workload(workload, algorithm)
-        max_input, max_output = (TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES,
-                                 TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES)
     elif algorithm == "depthconv":
         pinned = "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70"
         expected_ids = {
@@ -16122,6 +16231,12 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or "acknowledged by his name" not in license_text
                 or "no responsibility is accepted" not in license_text):
             raise ValueError("misc_reed_solomon README or permission notice is incomplete")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "m" / f"misc_reed_solomon.{extension}"
+            if not source_path.is_file() or "misc_reed_solomon" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"misc_reed_solomon source missing for {language}")
         max_input, max_output = 191, 204
     elif algorithm == "mibench_security_rijndael":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
@@ -16209,6 +16324,12 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or "must reproduce the above copyright" not in license_text
                 or "provided 'as is'" not in license_text):
             raise ValueError("mibench_security_rijndael README/license attribution is incomplete")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "m" / f"mibench_security_rijndael.{extension}"
+            if not path.is_file() or "mibench_security_rijndael" not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"mibench_security_rijndael source missing for {language}")
         max_input, max_output = 49, 16
     elif algorithm == "cbench_security_rijndael_decrypt":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
@@ -16284,14 +16405,32 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or "Brian Gladman" not in readme
                 or any(fragment not in license_text for fragment in required_notice)):
             raise ValueError("cbench_security_rijndael_decrypt README or LICENSE.txt is incomplete")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "m" / f"cbench_security_rijndael_decrypt.{extension}"
+            if not path.is_file() or "cbench_security_rijndael_decrypt" not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"cbench_security_rijndael_decrypt source missing for {language}")
         max_input, max_output = 49, 16
     elif algorithm == "mibench_automotive_susan":
         validate_new_byte_output_workload(workload, algorithm)
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "m" / f"mibench_automotive_susan.{extension}"
+            if not path.is_file() or "mibench_automotive_susan" not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"mibench_automotive_susan source missing for {language}")
         max_input, max_output = (
             MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
             MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES)
     elif algorithm in {"cbench_automotive_susan_c", "cbench_automotive_susan_e"}:
         validate_new_byte_output_workload(workload, algorithm)
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "c" / f"{algorithm}.{extension}"
+            if not path.is_file() or algorithm not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"{algorithm} source missing for {language}")
         max_input, max_output = (
             CBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
             CBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES)
@@ -16884,6 +17023,7 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             "pointer-to-function", "array-of-function-pointers",
             "void-parameter-normalization", "array-of-function-invalid",
             "dimension-out-of-profile", "null-input", "short-output", "null-output",
+            "separate-identifiers-invalid", "split-dimension-invalid",
         }
         if (workload.get("schema_version") != 1
                 or workload.get("id") != "lac-dcc-prolangs-c-cdecl-i64-array-bytes-output-v1"
@@ -17260,7 +17400,22 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or workload.get("measurement", {}).get("repetitions_per_sample") != 1
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("8b10b metadata differs from its pinned bounded state-machine contract")
+    elif algorithm == "cbench_consumer_lame_window_subband":
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "m" / f"cbench_consumer_lame_window_subband.{extension}"
+            if not path.is_file() or "cbench_consumer_lame_window_subband" not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"cbench_consumer_lame_window_subband source missing for {language}")
+        max_input, max_output = (CBENCH_LAME_WINDOW_SUBBAND_MAX_INPUT_LENGTH,
+                                 CBENCH_LAME_WINDOW_SUBBAND_MAX_OUTPUT_BYTES)
     elif algorithm == "mediabench_g721_encode":
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "g" / f"mediabench_g721_encode.{extension}"
+            if not source_path.is_file() or "mediabench_g721_encode" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"mediabench_g721_encode source missing for {language}")
         max_input, max_output = (MEDIABENCH_G721_MAX_INPUT_LENGTH,
                                  MEDIABENCH_G721_MAX_OUTPUT_BYTES)
     elif algorithm in {"cbench_tiffdither", "cbench_consumer_tiffmedian",
@@ -19914,6 +20069,113 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
         if (max_input, max_output, workspace_bytes) != (34, 128, 4096):
             raise ValueError("prime_modulus_inverse_table bounds differ from its contract")
+    elif algorithm == "hyperloglog_corrected_estimate":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (130, 8, 1024):
+            raise ValueError("corrected HyperLogLog bounds differ from its contract")
+    elif algorithm == "hyperloglog_raw_estimate":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (130, 144, 1024):
+            raise ValueError("HyperLogLog raw bounds differ from its contract")
+    elif algorithm == "exponential_histogram_window":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = exponential_histogram_window_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (131, 1024) or workspace_bytes != 1024:
+            raise ValueError("exponential histogram package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "sticky_sampling_summary":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = sticky_sampling_summary_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (324, 264) or workspace_bytes != 264:
+            raise ValueError("Sticky Sampling package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "lossy_counting_summary":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = lossy_counting_summary_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (67, 392) or workspace_bytes != 392:
+            raise ValueError("Lossy Counting package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "reservoir_sampling_algorithm_r":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = reservoir_sampling_algorithm_r_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (131, 512) or workspace_bytes != 512:
+            raise ValueError("reservoir sampler package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "rrr_class_offset_rank_select":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = rrr_class_offset_rank_select_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (36, 128) or workspace_bytes != 512:
+            raise ValueError("RRR package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "minimum_area_enclosing_rectangle":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = minimum_area_enclosing_rectangle_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (34, 16) or workspace_bytes != 16:
+            raise ValueError("minimum-area rectangle package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "lexicographically_minimal_concatenation":
+        validate_minimal_concatenation_workload(workload)
+        if EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (81922, 65536) or workspace_bytes != 65536:
+            raise ValueError("minimal-concatenation package bounds differ from its contract")
+    elif algorithm == "planted_3sat_clause_generator":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = planted_3sat_clause_generator_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (83, 768) or workspace_bytes != 768:
+            raise ValueError("planted 3-SAT generator package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "divide_conquer_tangent_hull":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = divide_conquer_tangent_hull_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (66, 512) or workspace_bytes != 512:
+            raise ValueError("tangent-merge hull package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "chan_output_sensitive_hull":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = chan_output_sensitive_hull_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (66, 512) or workspace_bytes != 512:
+            raise ValueError("Chan package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "melkman_simple_polyline_hull":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (66, 256, 2048):
+            raise ValueError("Melkman bounds differ from its contract")
+    elif algorithm == "space_saving_frequent_items":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (67, 200, 2048):
+            raise ValueError("Space-Saving bounds differ from its contract")
+    elif algorithm == "walker_vose_alias_sampling":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (83, 256, 2048):
+            raise ValueError("Walker–Vose bounds differ from its contract")
+    elif algorithm == "extended_gs_general_stable_allocation":
+        validate_new_byte_output_workload(workload, algorithm)
+        if EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (19, 104):
+            raise ValueError("extended GS bounds differ from its contract")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"),
+                                    ("nim", "nim"), ("odin", "odin"),
+                                    ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            port = ROOT / language / "g" / f"extended_gs_general_stable_allocation.{extension}"
+            if not port.is_file() or "extended_gs_general_stable_allocation" not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"extended GS source missing for {language}")
+    elif algorithm == "xor_leaf_tree_traversal":
+        validate_new_byte_output_workload(workload, algorithm)
+        if EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (128, 1024) or workspace_bytes != 1024:
+            raise ValueError("xor leaf traversal bounds differ from its contract")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"),
+                                    ("nim", "nim"), ("odin", "odin"),
+                                    ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            port = ROOT / language / "x" / f"xor_leaf_tree_traversal.{extension}"
+            if not port.is_file() or "xor_leaf_tree_traversal" not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"xor leaf traversal source missing for {language}")
+    elif algorithm == "kmp_slp_jump_output":
+        validate_new_byte_output_workload(workload, algorithm)
+        if EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (53, 520):
+            raise ValueError("compressed KMP bounds differ from its contract")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"),
+                                    ("nim", "nim"), ("odin", "odin"),
+                                    ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            port = ROOT / language / "k" / f"kmp_slp_jump_output.{extension}"
+            if not port.is_file() or "kmp_slp_jump_output" not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"compressed KMP source missing for {language}")
     elif algorithm == "indexed_block_list":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -19921,6 +20183,61 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         if (issues or max_input != 179 or max_output != 256 or workspace_bytes != 4096):
             detail = "; ".join(issues) if issues else "bounds or workspace differ"
             raise ValueError("indexed_block_list package is incomplete: " + detail)
+    elif algorithm == "incremental_minimum_spanning_forest":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (98, 256, 2048):
+            raise ValueError("incremental spanning forest bounds differ from its contract")
+    elif algorithm == "static_range_sum_with_upper_bound":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (259, 1024, 1024):
+            raise ValueError("range-sum bounds differ from its contract")
+    elif algorithm == "dynamic_range_majority":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (259, 512, 512):
+            raise ValueError("dynamic-majority bounds differ from its contract")
+    elif algorithm == "all_farthest_neighbors_convex":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (130, 512, 512):
+            raise ValueError("farthest-neighbor bounds differ from its contract")
+    elif algorithm == "dirichlet_inverse_and_prefix_sums":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (17, 120, 120):
+            raise ValueError("Dirichlet-inverse bounds differ from its contract")
+    elif algorithm == "polynomial_discrete_antiderivative":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (34, 264, 264):
+            raise ValueError("polynomial-antiderivative bounds differ from its contract")
+    elif algorithm == "inv_of_formal_power_series_2d":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (67, 512, 512):
+            raise ValueError("bivariate reciprocal bounds differ from its contract")
+    elif algorithm == "log_of_set_power_series":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (34, 256, 256):
+            raise ValueError("set-logarithm bounds differ from its contract")
+    elif algorithm == "range_add_range_min":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (323, 512, 512):
+            raise ValueError("range-add/min bounds differ from its contract")
+    elif algorithm == "discrete_logarithm_fixed_mod":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (260, 2048, 2048):
+            raise ValueError("fixed-modulus discrete-log bounds differ from its contract")
+    elif algorithm == "indexed_deque":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (514, 2048, 2048):
+            raise ValueError("indexed deque bounds differ from its contract")
     elif algorithm == "fluidanimate_sph":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20614,6 +20931,28 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or output_spec.get("insufficient_output_capacity_result") != -2
                 or workspace_bytes != workload.get("workspace", {}).get("bytes")):
             raise ValueError("all_shortest_paths_unweighted bounds differ from its predecessor-DAG profile")
+    elif algorithm == "procedure_s_general_cnf_sat":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if max_input != 39 or max_output != 48:
+            raise ValueError("procedure_s_general_cnf_sat bounds differ from its bounded profile")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "p" / f"procedure_s_general_cnf_sat.{extension}"
+            if not source_path.is_file() or "procedure_s_general_cnf_sat" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"procedure_s_general_cnf_sat source missing for {language}")
+    elif algorithm == "suffix_array_dc3":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != 18 or max_output != 128 or workspace_bytes != 8192):
+            raise ValueError("suffix_array_dc3 bounds differ from its bounded profile")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "s" / f"suffix_array_dc3.{extension}"
+            if not source_path.is_file() or "suffix_array_dc3" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"suffix_array_dc3 source missing for {language}")
     elif algorithm == "suffix_array_sais":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20633,6 +20972,24 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or input_spec.get("maximum_parseable_input_length") != max_input
                 or output_spec.get("maximum_output_bytes") != max_output):
             raise ValueError("minkowski_sum_convex_polygons bounds differ from its bounded edge-merge profile")
+    elif algorithm == "benchmarkgame_nbody":
+        validate_benchmarkgame_nbody_workload(workload)
+        max_input, max_output = 2, 16
+    elif algorithm == "benchmarkgame_puzzle":
+        if (workload.get("algorithm") != algorithm or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 4
+                or output_spec.get("maximum_output_bytes") != 32):
+            raise ValueError("benchmarkgame_puzzle verifier contract is inconsistent")
+        max_input, max_output = 4, 32
+    elif algorithm == "batch_dynamic_kd_tree":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "b" / f"batch_dynamic_kd_tree.{extension}"
+            if not source_path.is_file() or "batch_dynamic_kd_tree" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"batch_dynamic_kd_tree source missing for {language}")
     elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = GENERIC_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20785,13 +21142,14 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                                          "point_in_convex_polygon_log_query",
                                          "mst_edge_classification",
                                          "indexed_block_list",
+                                         "walker_vose_alias_sampling",
                                          "prime_modulus_inverse_table",
                                      }
                                      and result == 0 and not output)
                                  or capacity < result)
                 or result < 0 and (result not in (-1, -2) or output)
             )
-        if algorithm == "discrete_rejection_sampling":
+        if algorithm in {"discrete_rejection_sampling", "hyperloglog_corrected_estimate"}:
             inconsistent_framing = (
                 result >= 0 and (result != len(output) or len(output) > max_output
                                  or output_is_null or capacity < result)
@@ -20812,6 +21170,9 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         input_is_null = fixture.get("input_is_null", False)
         input_length = fixture.get("input_length", len(values))
         result, output = oracle(values, capacity, output_is_null, input_is_null, input_length)
+        if algorithm == "xor_leaf_tree_traversal" and (result, output) != xor_leaf_tree_traversal_primary(
+                values, capacity, output_is_null, input_is_null, input_length):
+            raise ValueError(f"xor leaf traversal references disagree on fixture: {fixture.get('id')}")
         if algorithm == "mediabench_gsm_rpe_grid_selection":
             expected_values = fixture.get("expected_values")
             output_matches_fixture = (
@@ -20840,8 +21201,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 if result >= 0 else not output)
         elif algorithm == "min_plus_convolution_convex_convex" and "expected_output_hex" not in fixture:
             output_matches_fixture = result >= 0 and len(output) == result
-        elif algorithm in {"npb_cg_sparse_inverse_power", "hpcg_profile", "npb_lu_block_ssor",
-                           "sparse_supernodal_cholesky"}:
+        elif algorithm in {"benchmarkgame_nbody", "npb_cg_sparse_inverse_power", "hpcg_profile", "npb_lu_block_ssor",
+                           "sparse_supernodal_cholesky", "hyperloglog_corrected_estimate"}:
             expected_vector = fixture.get("expected_output")
             if result >= 0 and result % 8 == 0 and len(output) == result:
                 actual_vector = struct.unpack("<" + "d" * (result // 8), output)
@@ -20871,7 +21232,60 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add(values, capacity, output_is_null=output_is_null,
             input_is_null=input_is_null, input_length=input_length)
 
-    if algorithm == "gabow_scc":
+    if algorithm == "benchmarkgame_nbody":
+        for steps in (0, 1, 2, 17, 100, 999, 1000):
+            result, independent = add((steps,))
+            primary_result, primary = benchmarkgame_nbody_oracle((steps,))
+            if result != primary_result or len(independent) != 16 or len(primary) != 16:
+                raise ValueError("five-body reference framing differs")
+            a = struct.unpack("<2d", independent)
+            b = struct.unpack("<2d", primary)
+            if any(abs(x - y) > 5.1e-10 + 1e-12 * abs(y) for x, y in zip(a, b)):
+                raise ValueError("five-body references disagree beyond the workload tolerance")
+        for capacity in (0, 15, 16):
+            add((1,), capacity)
+        add((1,), output_is_null=True)
+        add((), input_is_null=True, input_length=1)
+        for malformed in ((), (-1,), (1001,), (1, 0)):
+            add(malformed)
+    elif algorithm == "benchmarkgame_puzzle":
+        for size in (1, 2, 7, 128, 1024, 100000):
+            for rounds in (1, 2, 8):
+                values = (size, rounds, 3)
+                result, output = add(values)
+                if (result, output) != benchmarkgame_puzzle_primary_oracle(list(values)):
+                    raise ValueError("benchmarkgame_puzzle references disagree")
+        for capacity in (0, 3, 4):
+            add((10, 1, 1), capacity)
+        add((10, 1, 1), output_is_null=True)
+        add((), input_is_null=True, input_length=3)
+        for malformed in ((), (0, 1, 1), (1, 0, 1), (1, 1, 0), (1, 1, 1, 0)):
+            add(malformed)
+    elif algorithm == "batch_dynamic_kd_tree":
+        tombstone = (2, 0, 0, 0, 1, 10, 0, 3,
+                     1, 1, 0, 0, 0,
+                     0, 1, 2, 0, 0, 0, 0,
+                     1, 1, 2, 0, 0)
+        result, output = add(tombstone)
+        if result != 24 or struct.unpack("<3q", output) != (100, 0, 100):
+            raise ValueError("batch_dynamic_kd_tree tombstone trace has unexpected distances")
+        initial = tuple(value for point in range(8) for value in (point, point, 0))
+        additions_1 = tuple(value for point in range(8, 16) for value in (point, point, 0))
+        additions_2 = tuple(value for point in range(16, 24) for value in (point, point, 0))
+        additions_3 = tuple(value for point in range(24, 32) for value in (point, point, 0))
+        carry_trace = (8, *initial, 5, 0, 8, *additions_1, 0, 0,
+                       1, 8, *range(8), 0, 0,
+                       0, 8, *additions_2, 0, 0,
+                       0, 8, *additions_3, 0, 0,
+                       1, 7, *range(8, 15), 0, 0)
+        result, output = add(carry_trace)
+        if result != 40 or struct.unpack("<5q", output) != (0, 64, 64, 64, 225):
+            raise ValueError("batch_dynamic_kd_tree component-carry trace has unexpected distances")
+        for capacity in (0, 39, 40):
+            add(carry_trace, capacity)
+        add(carry_trace, output_is_null=True)
+        add((), input_is_null=True, input_length=2)
+    elif algorithm == "gabow_scc":
         rng_gabow_scc = random.Random(0x4741424F57)
         for case_index in range(48):
             vertex_count = (40 if case_index == 47
@@ -21180,6 +21594,16 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         def pack_dominator_graph(vertex_count, root, edges):
             return (vertex_count, root, len(edges),
                     *(endpoint for edge in edges for endpoint in edge))
+
+        for n in range(1, 4):
+            possible = tuple(product(range(n), repeat=2))
+            for mask in range(1 << len(possible)):
+                edges = tuple(edge for index, edge in enumerate(possible)
+                              if mask & (1 << index))
+                for root in range(n):
+                    values = pack_dominator_graph(n, root, edges)
+                    if add(values) != lengauer_tarjan_dominator_tree_primary_oracle(values):
+                        raise ValueError("Lengauer–Tarjan references disagree on a small graph")
 
         rng_lengauer_tarjan = random.Random(0x1A79)
         generated_inputs = []
@@ -22880,6 +23304,51 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_result, null_output = add((), input_is_null=True, input_length=0)
         if null_result != -1 or null_output:
             raise ValueError("disjoint affine accepted a null input pointer")
+    elif algorithm == "procedure_s_general_cnf_sat":
+        literals = (-2, -1, 1, 2)
+        clauses = [(literal,) for literal in literals]
+        clauses.extend((first, second) for first in literals for second in literals
+                       if abs(first) != abs(second))
+        for k in (1, 2):
+            for first in clauses:
+                for second in clauses:
+                    values = (2, 2, k, len(first), *first, len(second), *second)
+                    result, output = add(values)
+                    if (result, output) != procedure_s_general_cnf_sat_primary_check(values):
+                        raise ValueError("Procedure S references disagree on a generated formula")
+                    if result != 48 or len(output) != 48:
+                        raise ValueError("Procedure S generated output framing differs")
+        valid = (2, 2, 1, 2, 1, 2, 1, -1)
+        for capacity in (0, 47, 48):
+            add(valid, capacity)
+        add(valid, output_is_null=True)
+        add((), input_is_null=True, input_length=3)
+        for malformed in ((), (0, 0, 1), (2, 1, 1, 2, 1, -1),
+                          (2, 1, 1, 1, 0), (2, 0, 1, 0)):
+            add(malformed)
+    elif algorithm == "suffix_array_dc3":
+        generated = []
+        for n in range(9):
+            for mask in range(1 << n):
+                generated.append((n, *((mask >> index) & 1 for index in range(n))))
+        for n in range(9, 17):
+            generated.extend(((n, *([0] * n)), (n, *([255] * n)),
+                              (n, *(i % 3 for i in range(n))),
+                              (n, *(255 - i for i in range(n)))))
+        for values in generated:
+            result, output = add(values)
+            if (result, output) != suffix_array_dc3_primary_oracle(values):
+                raise ValueError("suffix_array_dc3 references disagree on generated input")
+            if result != 8 * values[0] or len(output) != result:
+                raise ValueError("suffix_array_dc3 generated output framing differs")
+        maximum = (16, *(i % 2 for i in range(16)))
+        for capacity in (0, 127, 128):
+            add(maximum, capacity)
+        add((0,), output_is_null=True)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=1)
+        for malformed in ((), (-1,), (17, *([0] * 17)), (1, 256), (1, -1), (1, 0, 0)):
+            add(malformed)
     elif algorithm == "suffix_array_sais":
         rng_suffix_array_sais = random.Random(0x5A15)
         generated_texts = [
@@ -23867,6 +24336,17 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add((), input_is_null=True, input_length=0)
         add((), input_is_null=True, input_length=max_input)
     elif algorithm == "mediabench_jpeg_optimal_huffman_table":
+        # Symbol-frequency input order must not change tie resolution or
+        # output order; exercise the upper symbol boundary as well.
+        for entries in (((0, 1), (7, 1), (128, 1), (255, 1)),
+                        ((1, 1), (42, 2), (200, 2), (254, 5))):
+            reference = None
+            for ordering in permutations(entries):
+                values = (len(ordering), *(word for pair in ordering for word in pair))
+                result = add(values)
+                if reference is None: reference = result
+                elif result != reference:
+                    raise ValueError("JPEG Huffman table depends on input entry order")
         skewed_frequencies = (
             1, 1, 2, 3, 5, 8, 13, 21, 34, 55,
             89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765,
@@ -24787,6 +25267,16 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(malformed)
     elif algorithm == "rodinia_mummergpu":
         rng = random.Random(0x4D554D)
+
+        # The terminator sorts after A/C/G/T: the longer repeated suffix
+        # therefore precedes each shorter prefix when the query ends first.
+        prefix_case = (4, 1, 1, 0, 0, 0, 0, 0)
+        prefix_result, prefix_output = add(prefix_case)
+        expected_prefix = b"".join(struct.pack("<qqq", start, 1, 1)
+                                   for start in (1, 2, 3, 4))
+        if prefix_result != 96 or prefix_output != expected_prefix:
+            raise ValueError("rodinia_mummergpu terminated suffix order differs")
+        add(prefix_case, 95)
 
         def make_mummer_case(ref_length: int, query_length: int,
                              min_length: int) -> tuple[int, ...]:
@@ -27271,6 +27761,26 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 result, output = add(values)
                 if result != text_length or len(output) != text_length:
                     raise ValueError("IDEA CFB64 generated case has inconsistent output length")
+        for text_length in range(1, 25):
+            encrypt_values = make_idea_cfb64_case(0, text_length)
+            encrypted_length, ciphertext = add(encrypt_values)
+            decrypt_values = (1, text_length, *encrypt_values[2:26], *ciphertext)
+            decrypted_length, plaintext = add(decrypt_values)
+            if (encrypted_length != text_length or decrypted_length != text_length
+                    or plaintext != bytes(encrypt_values[26:])):
+                raise ValueError("IDEA CFB64 reference round-trip failed")
+        for octet in (0, 255):
+            key_bytes = (octet,) * 16
+            iv = (octet,) * 8
+            values = (0, 8, *key_bytes, *iv, *([0] * 8))
+            _, stream = add(values)
+            block_input = tuple(key_bytes[2 * i] * 256 + key_bytes[2 * i + 1]
+                                for i in range(8)) + tuple(iv[2 * i] * 256 + iv[2 * i + 1]
+                                                           for i in range(4))
+            block_result, block_output = idea_encrypt_decrypt_oracle(block_input)
+            expected_stream = b"".join(block_output[2 * i:2 * i + 2][::-1] for i in range(4))
+            if block_result != 16 or stream != expected_stream:
+                raise ValueError("IDEA CFB64 first block differs from the block profile")
         maximum = make_idea_cfb64_case(0, 24)
         for capacity in (0, 15, 16, workspace_bytes):
             add(maximum, capacity)
@@ -27313,6 +27823,21 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(values)
     elif algorithm == "rodinia_streamcluster_pgain":
         rng = random.Random(0x5C1A57)
+
+        # For one existing center and one candidate, fee equal to the
+        # squared distance is a strict no-open tie. Adjacent fee values
+        # exercise both sides of the opening decision.
+        for distance in range(1, 9):
+            square = distance*distance
+            for fee in (square-1, square, square+1):
+                if not 1 <= fee <= 64: continue
+                values = (2, 1, 1, fee, 1, 0, 0, 1, 1, 0, square, 0, distance)
+                result, payload = add(values)
+                if result != 9 or len(payload) != 72:
+                    raise ValueError("Streamcluster threshold case has invalid framing")
+                opened = int.from_bytes(payload[:8], "little", signed=True)
+                if opened != int(fee < square):
+                    raise ValueError("Streamcluster strict opening threshold differs")
 
         def make_streamcluster_case(n: int, dimension: int) -> tuple[int, ...]:
             candidate = rng.randrange(1, n)
@@ -27448,6 +27973,11 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add((*zero_payload, 0))
         add((*ascending, 0))
         add((*all_ones, 0))
+        unchanged_word = _rs_verify_encode(ascending)
+        for position in (0, 187, 188, 203):
+            result, output = add((*ascending, 1, position, unchanged_word[position]))
+            if result != 204 or output != bytes(unchanged_word):
+                raise ValueError("misc_reed_solomon changed an unchanged replacement")
         for payload, position in (
                 (ascending, 0), (ascending, 51), (ascending, 187),
                 (ascending, 188), (ascending, 203), (zero_payload, 203),
@@ -27846,7 +28376,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in malformed:
             add(values)
     elif algorithm == "bmm":
-        for values in ((1, 1), (2, 1), (4, 2), (8, 4), (32, 8), (128, 32)):
+        for values in ((1, 1), (2, 1), (4, 1), (4, 2), (4, 4),
+                       (8, 4), (10, 5), (15, 3), (15, 15), (32, 8), (128, 32)):
             result, _ = add(values)
             if result > 0:
                 add(values, result - 1)
@@ -27896,6 +28427,15 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         ):
             add(values)
     elif algorithm == "cbench_automotive_qsort1":
+        # Exercise the short-sort/partition transition with ordered,
+        # reversed, and alternating signed coordinates of unique radii.
+        for count in (1, 7, 8, 9, 10, 16, 17, 32):
+            points = tuple((i if i % 2 else -i, 0, 0) for i in range(1, count+1))
+            for ordering in (points, tuple(reversed(points)), points[::2] + points[1::2]):
+                values = (count, *(coordinate for point in ordering for coordinate in point))
+                result, _ = add(values)
+                if result != 12*count:
+                    raise ValueError("automotive point sort rejected a valid transition case")
         rng = random.Random(20261019)
         for index in range(96):
             count = rng.randint(1, CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS)
@@ -27937,6 +28477,12 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add((2, 1, 0, 0, 0, 1, 0), 0, output_is_null=True)
     elif algorithm == "8b10b":
         rng = random.Random(20261019)
+        # Exhaust the packed-word domain, including control codes. The second
+        # position runs after a prefix that either keeps or changes disparity.
+        for word in range(512):
+            add((word,))
+            add((0, word))
+            add((2, word))
         for length in (0, 1, 2, 7, 31, 127, 128, 129, 160):
             values = tuple(rng.randrange(512) for _ in range(length))
             result, _ = add(values)
@@ -27959,27 +28505,6 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in (
                 (512,), (-1,), tuple([0] * VERSABENCH_8B10B_MAX_PARSEABLE_WORDS),
                 (-(1 << 63),), ((1 << 63) - 1,)):
-            add(values)
-    elif algorithm == "trimaran_enc_rc4":
-        for passes in (1, 2, 17, 499, 1999, TRIMARAN_ENC_RC4_MAX_PASSES):
-            add((passes,))
-
-        maximum_input = (TRIMARAN_ENC_RC4_MAX_PASSES,)
-        maximum_result, maximum_output = add(maximum_input)
-        if (maximum_result != TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES
-                or len(maximum_output) != TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES):
-            raise ValueError("trimaran_enc_rc4 maximum-pass result does not fill the output bound")
-        for capacity in (0, TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES - 1,
-                         TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
-                         TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES + 1):
-            add(maximum_input, capacity)
-        add(maximum_input, output_is_null=True)
-        add((TRIMARAN_ENC_RC4_MIN_PASSES,), 0, output_is_null=True)
-        add((), input_is_null=True, input_length=0)
-        add((), input_is_null=True, input_length=1)
-        add((), input_is_null=True, input_length=2)
-        for values in ((), (0,), (-1,), (TRIMARAN_ENC_RC4_MAX_PASSES + 1,),
-                       (1, 0), (-(1 << 63),), ((1 << 63) - 1,)):
             add(values)
     elif algorithm == "beebs_nettle_cast128":
         if (max_input != BEEBS_NETTLE_CAST128_MAX_INPUT_LENGTH
@@ -28131,17 +28656,25 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 for capacity in (0, result - 1, result, workspace_bytes):
                     add(values, capacity)
                 add(values, output_is_null=True)
+        for size in range(56):
+            message = tuple((index * 131 + size * 17) & 255 for index in range(size))
+            result, output = add((size, *message))
+            if result != 20 or len(output) != 20:
+                raise ValueError("SHA-0 digest framing differs for a valid message length")
         add((), input_is_null=True, input_length=0)
         add((), input_is_null=True, input_length=max_input)
         for values in ((56,), (1, 256), (1, -1), (0, 0),
                        tuple([0] * max_input)):
             add(values)
     elif algorithm == "lac_adpcm":
+        for packed in range(256):
+            add((2, 1, packed))
         encode_traces = (
             (1, 0),
             (1, 1, 0),
             (1, 2, 7, 17),
             (1, 7, -32768, -12000, -1, 0, 1, 12000, 32767),
+            (1, 64, *([-32768, 32767] * 32)),
             (1, LAC_ADPCM_MAX_ENCODE_SAMPLES,
              *(index * 257 % 65536 - 32768
                for index in range(LAC_ADPCM_MAX_ENCODE_SAMPLES))),
@@ -28277,6 +28810,19 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         ):
             add(values)
     elif algorithm == "cbench_tiffdither":
+        for width in (1, 7, 8, 9, 15, 16, 17, 31, 32):
+            for threshold in (0, 127, 255):
+                # Alternate high and low samples around the threshold to
+                # exercise both positive and negative propagated errors.
+                first_rows = tuple((x*73 + y*119) % 256
+                                   for y in range(2) for x in range(width))
+                values = (width, 3, threshold, *first_rows, *((0,) * width))
+                result, payload = add(values)
+                changed_last = (width, 3, threshold, *first_rows, *((255,) * width))
+                if add(changed_last) != (result, payload):
+                    raise ValueError("TIFF dithering incorrectly depends on the suppressed final row")
+                if result != 2*((width+7)//8):
+                    raise ValueError("TIFF dithering row packing differs from its contract")
         width = CBENCH_TIFFDITHER_MAX_WIDTH
         height = CBENCH_TIFFDITHER_MAX_HEIGHT
         pixels = tuple((index * 73 + 19) % 256 for index in range(width * height))
@@ -28300,6 +28846,18 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         ):
             add(values)
     elif algorithm == "cbench_consumer_tiffmedian":
+        # The palette is determined by histogram populations, not the input
+        # order. Include equal channel spans, repeated bins and sparse gaps.
+        for colors in (((0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255)),
+                       ((8, 16, 24), (8, 16, 24), (200, 16, 24), (240, 240, 240))):
+            for limit in (1, 2, 4, 8):
+                reference = None
+                for ordering in permutations(colors):
+                    values = (limit, len(ordering), *(channel for color in ordering for channel in color))
+                    result = add(values)
+                    if reference is None: reference = result
+                    elif result != reference:
+                        raise ValueError("TIFF median-cut palette depends on pixel order")
         pixels = tuple(
             component
             for red_bin in range(CBENCH_TIFFMEDIAN_MAX_PIXELS)
@@ -28361,6 +28919,21 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         if (max_input != CBENCH_BZIP2_MTF_RLE_MAX_INPUT_LENGTH
                 or max_output != CBENCH_BZIP2_MTF_RLE_MAX_OUTPUT_BYTES):
             raise ValueError("cbench_bzip2_mtf_rle suite bounds differ from the oracle contract")
+        # Generate mixed MTF ranks as well as zero runs, and independently
+        # require the decoder to recover the original last-column bytes.
+        for size in range(1, 6):
+            for block in product((3, 17, 251), repeat=size):
+                _, tokens = add((0, 0, size, *block))
+                alphabet = tuple(sorted(set(block)))
+                result, decoded = add((1, len(alphabet), len(tokens), *alphabet, *tokens))
+                if result != size or decoded != bytes(block):
+                    raise ValueError("cbench_bzip2_mtf_rle round trip differs from its input")
+        # Cover each possible run length, including binary carry boundaries.
+        for size in range(1, CBENCH_BZIP2_MTF_RLE_MAX_BLOCK_LENGTH + 1):
+            _, tokens = add((0, 0, size, *([42] * size)))
+            result, decoded = add((1, 1, len(tokens), 42, *tokens))
+            if result != size or decoded != bytes([42] * size):
+                raise ValueError("cbench_bzip2_mtf_rle zero-run round trip failed")
         max_block = CBENCH_BZIP2_MTF_RLE_MAX_BLOCK_LENGTH
         max_output_bytes = max_output
         max_output_input = (0, 0, max_block, *range(max_block))
@@ -28695,7 +29268,7 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in invalid_inputs:
             add(values)
-    elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
+    elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS or algorithm == "incremental_minimum_spanning_forest":
         for case in workload["cases"]:
             values = tuple(case["input_values"])
             if case["expected_result"] >= 0:
@@ -28704,7 +29277,439 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, 0)
                     add(values, result - 1)
                 add(values, output_is_null=True)
-        if algorithm == "multiprobe_lsh_probe_sequence":
+        if algorithm == "delaunay_triangulation":
+            for points in permutations(((0, 0), (4, 0), (0, 4))):
+                frame = (3, *(coordinate for point in points for coordinate in point))
+                result, encoded = add(frame)
+                if result != 32 or encoded != struct.pack("<4q", 1, 0, 1, 2):
+                    raise ValueError("Delaunay single-triangle reference differs")
+                add(frame, 31)
+        if algorithm == "delaunay_mesh_refinement":
+            frame = (3, 0, 0, 1, 10, -1, 10)
+            result, encoded = add(frame)
+            expected = (4, 0, 0, 1_000_000, 10_000_000, -1_000_000, 10_000_000,
+                        0, 5_050_000, 3, 0, 1, 3, 1, 2, 3, 2, 0, 3)
+            if result != 152 or encoded != struct.pack("<19q", *expected):
+                raise ValueError("Delaunay refinement circumcenter reference differs")
+            add(frame, result-1)
+        if algorithm == "nni_phylogeny_distance":
+            # Two different four-leaf topologies differ by exactly one NNI.
+            frame = (4, 2, 4, 8, 14, 6, 2, 4, 8, 14, 10)
+            result, encoded = add(frame)
+            if result != 8 or encoded != struct.pack("<q", 1):
+                raise ValueError("NNI four-leaf neighbor reference differs")
+            add(frame, 7)
+        if algorithm == "phylogenetic_tree_from_distance_matrix":
+            # An equidistant triple has three half-unit branches.
+            frame = (3, 0, 1, 1, 1, 0, 1, 1, 1, 0)
+            result, encoded = add(frame)
+            if result != 56 or encoded != struct.pack("<7q", 3, 1, 1, 3, 1, 5, 1):
+                raise ValueError("additive phylogeny half-unit star reference differs")
+            add(frame, 55)
+            nonadditive = (3, 0, 1, 1, 1, 0, 3, 1, 3, 0)
+            result, encoded = add(nonadditive, output_is_null=True)
+            if result != 0 or encoded:
+                raise ValueError("nonadditive phylogeny should produce a null tree")
+        if algorithm == "kirkpatrick_hierarchical_point_location":
+            # Header declares 16 vertices but supplies only five coordinate pairs.
+            malformed = (16, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2, 0, 0, 2)
+            result, encoded = add(malformed, output_is_null=True)
+            if result != -1 or encoded:
+                raise ValueError("Kirkpatrick accepted a truncated coordinate frame")
+        if algorithm == "steiner_tree_gain_greedy":
+            simple = (2, 3, 1, 5, 1, 0, 1)
+            result, encoded = add(simple)
+            if result != 40 or encoded != struct.pack("<5q", 1, 5, 1, 0, 1):
+                raise ValueError("Steiner gain-greedy two-terminal reference differs")
+            add(simple, 39)
+            # Values that narrow to a valid vertex count must still be invalid.
+            for n in (4294967298, 4294967299, 4294967300):
+                frame = (n, 3, 1, 1, 1, 0, 1)
+                result, encoded = add(frame, output_is_null=True)
+                if result != -1 or encoded:
+                    raise ValueError("Steiner gain-greedy accepted a narrowed vertex count")
+        if algorithm == "upward_planarity_angle_assignment":
+            # Either orientation of a single edge has both vertices on the
+            # outer face; corner indices follow the supplied boundary walk.
+            for tail, head in ((0, 1), (1, 0)):
+                frame = (2, 1, 1, 0, tail, head, 2, 0, 1, 1, 0)
+                result, encoded = add(frame)
+                if result != 64 or encoded != struct.pack("<8q", 1, 2, 0, 0, 1, 1, 0, 0):
+                    raise ValueError("upward-planarity single-edge reference differs")
+                add(frame, 63)
+                add(frame, output_is_null=True)
+            # Invalid framing takes precedence over a null output buffer.
+            for frame in ((), (2, 1, 1, 0, 0, 1, 2, 0, 1, 1),
+                          (2, 1, 1, 0, 0, 1, 2, 0, 1, 0, 1)):
+                result, encoded = add(frame, output_is_null=True)
+                if result != -1 or encoded:
+                    raise ValueError("upward-planarity accepted an invalid frame")
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "ansibench_dhrystone":
+            for passes in range(1, 9):
+                add((passes,))
+                add((passes,), 18)
+            for values in ((), (0,), (9,), (-(1 << 63),), ((1 << 63) - 1,)):
+                add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "embedded_list_stress":
+            for count in (4, 5, 31, 32):
+                for seed in (1, 127, 255):
+                    for searches in (0, 1, 32):
+                        for mode in (-1, 1):
+                            values = (count, seed, searches, mode)
+                            add(values)
+                            add(values, 1)
+            for values in ((3, 1, 0, -1), (33, 1, 0, 1),
+                           (4, 0, 0, -1), (4, 256, 0, 1),
+                           (4, 1, 33, -1), (4, 1, 0, 0)):
+                add(values, output_is_null=True)
+        if algorithm == "static_range_sum_with_upper_bound":
+            for n in (1, 2, 31, 64):
+                numbers = tuple((i * 1234567) % 1000000001 for i in range(n))
+                queries = ((0, n, 0), (0, n, 1000000000), (n, n, 42),
+                           (n // 2, n, numbers[n // 2]))
+                frame = (n, len(queries), *numbers, *(v for query in queries for v in query))
+                result, _ = add(frame)
+                add(frame, result-1)
+                add(frame, output_is_null=True)
+            add((1, 1, 1000000001, 0, 1, 0), output_is_null=True)
+            add((1, 1, 0, 0, 2, 0), output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            maximum = (64, 64, *([1000000000] * 64),
+                       *([0, 64, 1000000000] * 64))
+            result, encoded = add(maximum)
+            if len(maximum) != 258 or result != 1024 or len(encoded) != 1024:
+                raise ValueError("range-sum maximum frame differs from its contract")
+            add(maximum, 1023)
+            add(maximum + (0,))
+        if algorithm == "dynamic_range_majority":
+            # Exhaust small starting sequences and an update that can create
+            # or remove a strict majority, including even-sized ties.
+            for data in product(range(3), repeat=4):
+                for new_value in range(3):
+                    add((4, 3, *data, 1, 0, 4, 0, 1, new_value, 1, 0, 4))
+            maximum = (64, 64, *([7] * 64), *([1, 0, 64] * 64))
+            result, encoded = add(maximum)
+            if len(maximum) != 258 or result != 512 or len(encoded) != 512:
+                raise ValueError("dynamic-majority maximum frame differs from its contract")
+            add(maximum, 511)
+            add(maximum + (0,))
+            edge = (64, 4, *([0] * 64), 0, 63, 1, 1, 63, 64, 0, 0, 1, 1, 0, 64)
+            add(edge)
+            add(edge, output_is_null=True)
+            for invalid in ((1, 1, 0, 1, 0, 0), (1, 1, 0, 0, 0, 1),
+                            (1, 1, 0, 0, 1, 1), (1, 1, 0, 2, 0, 1)):
+                add(invalid, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "all_farthest_neighbors_convex":
+            polygon = ([(x, 1024-x*x) for x in range(-16, 16)] +
+                       [(x, x*x-1024) for x in range(15, -17, -1)])
+            for shift in (0, 1, 17, 32, 63):
+                rotated = polygon[shift:] + polygon[:shift]
+                frame = (64, *(coordinate for point in rotated for coordinate in point))
+                result, encoded = add(frame)
+                if len(frame) != 129 or result != 512 or len(encoded) != 512:
+                    raise ValueError("farthest-neighbor maximum frame differs from its contract")
+                add(frame, 511)
+            add(frame + (0,))
+            add((3, 0, 0, 0, 1, 0, 2), output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "dirichlet_inverse_and_prefix_sums":
+            for n in range(1, 65):
+                quotients = sorted({n//i for i in range(1, n+1)})
+                for prefixes in (quotients, [1]*len(quotients),
+                                 [(x*x + 1) % 998244353 for x in quotients]):
+                    frame = (n, *prefixes)
+                    result, _ = add(frame)
+                    add(frame, result-1)
+            maximum = (64, *([1]*15))
+            result, encoded = add(maximum)
+            if len(maximum) != 16 or result != 120 or len(encoded) != 120:
+                raise ValueError("Dirichlet-inverse maximum frame differs from its contract")
+            add(maximum + (0,))
+            add((1, 0), output_is_null=True)
+            add((1, 998244353), output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "polynomial_discrete_antiderivative":
+            for n in range(1, 33):
+                for coefficients in ([0]*n, [998244352]*n,
+                                     [(i*i+17*i+3) % 998244353 for i in range(n)]):
+                    frame = (n, *coefficients)
+                    result, _ = add(frame)
+                    add(frame, result-1)
+            maximum = (32, *([998244352]*32))
+            result, encoded = add(maximum)
+            if len(maximum) != 33 or result != 264 or len(encoded) != 264:
+                raise ValueError("polynomial-antiderivative maximum frame differs from its contract")
+            add(maximum + (0,))
+            add((1, 998244353), output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "inv_of_formal_power_series_2d":
+            for n in range(1, 9):
+                for m in range(1, 9):
+                    coefficients = [1] + [(i*i+3*i+5) % 998244353 for i in range(1, n*m)]
+                    frame = (n, m, *coefficients)
+                    result, _ = add(frame)
+                    add(frame, result-1)
+            maximum = (8, 8, 1, *([998244352]*63))
+            result, encoded = add(maximum)
+            if len(maximum) != 66 or result != 512 or len(encoded) != 512:
+                raise ValueError("bivariate reciprocal maximum frame differs from its contract")
+            add(maximum + (0,))
+            add((1, 1, 0), output_is_null=True)
+            add((1, 1, 998244353), output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "log_of_set_power_series":
+            for n in range(6):
+                size = 1 << n
+                for coefficients in ([1] + [0]*(size-1),
+                                     [1] + [998244352]*(size-1),
+                                     [1] + [(i*i+3*i+7) % 998244353 for i in range(1, size)]):
+                    frame = (n, *coefficients)
+                    result, encoded = add(frame)
+                    add(frame, result-1)
+                    logarithm = struct.unpack(f"<{size}q", encoded)
+                    exp_result, restored = exp_of_set_power_series_independent_oracle((n, *logarithm))
+                    if exp_result != result or restored != struct.pack(f"<{size}q", *coefficients):
+                        raise ValueError("set-logarithm and exponential references disagree")
+            maximum = (5, 1, *([998244352]*31))
+            result, encoded = add(maximum)
+            if len(maximum) != 33 or result != 256 or len(encoded) != 256:
+                raise ValueError("set-logarithm maximum frame differs from its contract")
+            add(maximum + (0,))
+            add((0, 0), output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "indexed_deque":
+            for count in (2, 8, 64, 127):
+                operations = [(0, i) for i in range(count)] + [(4, count-1), (3, 0), (4, 0)]
+                frame = (len(operations), *(value for operation in operations for value in operation))
+                result, _ = add(frame)
+                add(frame, result-1)
+            operations = [(1, 42)] + [(0, i) if i % 2 == 0 else (2, 0)
+                                       for i in range(200)] + [(4, 0)]
+            wraparound = (len(operations), *(value for op in operations for value in op))
+            add(wraparound)
+            maximum = (256, 1, -5, *((4, 0) * 255))
+            result, encoded = add(maximum)
+            if len(maximum) != 513 or result != 2040 or len(encoded) != 2040:
+                raise ValueError("indexed deque maximum trace differs from its contract")
+            add(maximum + (0,))
+            add((3, 1, 5, 4, 0, 4, 1), output_is_null=True)
+            add((1, 2, 0))
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "discrete_logarithm_fixed_mod":
+            for p, g in ((2, 1), (3, 2), (5, 2), (7, 3), (11, 2), (17, 3)):
+                frame = (p, g, p-1, *range(1, p))
+                result, _ = add(frame)
+                add(frame, result-1)
+            maximum = (7, 3, 256, *([1, 3, 2, 6] * 64))
+            result, encoded = add(maximum)
+            if len(maximum) != 259 or result != 2048 or len(encoded) != 2048:
+                raise ValueError("fixed-modulus discrete-log maximum frame differs from its contract")
+            add(maximum + (0,))
+            add((7, 2, 1, 1), output_is_null=True)
+            add((9, 2, 1, 1))
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "range_add_range_min":
+            for n in (1, 2, 7, 64):
+                values = tuple(i - 10 for i in range(n))
+                frame = (n, 4, *values, 1, 0, n, 0, 0, 0, n, -3,
+                         0, n - 1, n, 8, 1, n - 1, n, 0)
+                result, _ = add(frame)
+                add(frame, result - 1)
+            maximum = (64, 64, *([0] * 64), *((1, 0, 64, 0) * 64))
+            result, encoded = add(maximum)
+            if len(maximum) != 322 or result != 512 or len(encoded) != 512:
+                raise ValueError("range-add/min maximum frame differs from its contract")
+            add(maximum + (0,))
+            add((1, 1, 0, 1, 0, 0, 0), output_is_null=True)
+            add((1, 2, 0, 1, 0, 1, 0, 0, 0, 1, 100001), output_is_null=True)
+            add((1, 1, 0, 1, 0, 1, 1))
+            add((1, 1, 0, 0, 0, 1, 0))
+            add((), input_is_null=True, input_length=0)
+        if algorithm == "nbench_emulated_float_arithmetic":
+            # Normalized operands at the mantissa and exponent boundaries
+            # exercise carry, cancellation, normalization, and sticky shifts.
+            for op in range(4):
+                for sx, sy in product((0, 1), repeat=2):
+                    for ex, ey in ((-8, 8), (0, 0), (8, -8)):
+                        for leading, trailing in ((32768, 0), (65535, 65535)):
+                            x = (leading, 0, 0, trailing)
+                            y = (leading, 0, 0, trailing)
+                            add((1, op, sx, ex, *x, sy, ey, *y))
+        if algorithm == "integer_sequence_codes":
+            # Force each Simple-9 layout, including a partially filled word.
+            for value in (0, 2, 4, 8, 16, 32, 128, 512, 16384):
+                add((8, 1, 0, value))
+            # Invalid parameters and values must take precedence over a null
+            # output buffer, independently for the different coding modes.
+            for values in (
+                    (0, 1, 0, 32), (1, 1, 1, 0), (1, 1, 4, 4),
+                    (2, 1, 1, 0), (3, 1, 0, 1_000_001),
+                    (4, 1, 0, 0), (4, 1, 128, 128),
+                    (5, 2, 4, 1, 1), (6, 2, 4, 2, 1),
+                    (7, 1, 0, -1), (8, 1, 0, 1 << 28),
+                    (9, 1, 21, 0), (9, 1, 1, 1_000_001)):
+                add(values, output_is_null=True)
+            for values in (
+                    (0, 32, 0, *([31] * 32)),
+                    (5, 32, 4096, *(i * 127 for i in range(32))),
+                    (6, 32, 32, *range(32)),
+                    (9, 32, 1, *([1_000_000] * 32)),
+                    (7, 3, 0, 127, 128, 16384)):
+                result, _ = add(values)
+                if result > 0:
+                    add(values, result - 1)
+                add(values, output_is_null=True)
+        if algorithm in {"online_list_update_transpose", "frequency_count_list_update", "timestamp_list_update"}:
+            primary = {
+                "online_list_update_transpose": online_list_update_transpose_primary_oracle,
+                "frequency_count_list_update": frequency_count_list_update_primary_oracle,
+                "timestamp_list_update": timestamp_list_update_primary_oracle,
+            }[algorithm]
+            for n in range(1, 4):
+                for initial in permutations(range(n)):
+                    for q in range(5):
+                        for requests in product(range(n), repeat=q):
+                            values = (n, q, *initial, *requests)
+                            if add(values) != primary(values):
+                                raise ValueError(f"{algorithm} references disagree")
+            for invalid in ((), (0, 0), (2, 1, 0, 0, 1), (2, 1, 0, 1, 2)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError(f"{algorithm} accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm in {"bit_list_update", "comb_list_update"}:
+            for n in range(1, 4):
+                for initial in permutations(range(n)):
+                    for q in range(4):
+                        for requests in product(range(n), repeat=q):
+                            for bits in product((0, 1), repeat=n):
+                                base = (n, q, *initial, *requests, *bits)
+                                if algorithm == "bit_list_update":
+                                    result, output = add(base)
+                                    if (result, output) != bit_list_update_primary_oracle(base):
+                                        raise ValueError("Bit list-update references disagree")
+                                    combined = (*base, *((0,) * q))
+                                    if (result, output) != comb_list_update_independent_oracle(combined):
+                                        raise ValueError("Comb all-Bit trace differs from Bit policy")
+                                else:
+                                    for modes in product((0, 4), repeat=q):
+                                        values = (*base, *modes)
+                                        result, output = add(values)
+                                        if (result, output) != comb_list_update_primary_oracle(values):
+                                            raise ValueError("Comb list-update references disagree")
+                                        if all(mode == 4 for mode in modes):
+                                            timestamp_values = (n, q, *initial, *requests)
+                                            size, encoded = timestamp_list_update_primary_oracle(timestamp_values)
+                                            expected_bits = struct.pack("<" + "q" * n, *bits)
+                                            if (result, output) != (size + 8 * n, encoded + expected_bits):
+                                                raise ValueError("Comb all-Timestamp trace differs from Timestamp policy")
+            for invalid in ((1, 0, 0, 2), (1, 1, 0, 1, 0)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("list-update accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "shortest_absent_substring_sam":
+            # A binary de Bruijn cycle of order five contains every five-bit
+            # word; extending it to 64 symbols still leaves some six-bit word
+            # absent because there are only 59 length-six windows.
+            cycle = tuple(int(bit) for bit in "00000100011001010011101011011111")
+            symbols = cycle + cycle[:4] + (0,) * 28
+            if len(symbols) != 64 or len({symbols[i:i+5] for i in range(60)}) != 32:
+                raise ValueError("shortest absent substring maximum fixture is malformed")
+            values = (2, 64, *symbols)
+            result, output = add(values)
+            if result != 6 or (result, output) != shortest_absent_substring_sam_primary_oracle(values):
+                raise ValueError("shortest absent substring six-byte bound failed")
+            add(values, 5)
+            add(values, output_is_null=True)
+            for alphabet in (2, 3):
+                for n in range(0, 9 if alphabet == 2 else 6):
+                    for symbols in product(range(alphabet), repeat=n):
+                        values = (alphabet, n, *symbols)
+                        result, output = add(values)
+                        if (result, output) != shortest_absent_substring_sam_primary_oracle(values):
+                            raise ValueError("shortest absent substring references disagree")
+                        if not 1 <= result <= 6:
+                            raise ValueError("shortest absent substring exceeds its bound")
+            rng = random.Random(0x53414D)
+            for alphabet in (2, 3, 4):
+                for _ in range(16):
+                    values = (alphabet, 64, *(rng.randrange(alphabet) for _ in range(64)))
+                    result, output = add(values)
+                    if (result, output) != shortest_absent_substring_sam_primary_oracle(values):
+                        raise ValueError("shortest absent substring maximum input differs")
+                    add(values, result-1)
+                    add(values, output_is_null=True)
+            for invalid in ((), (1, 0), (5, 0), (2, 1), (2, 1, 2), (2, 0, 0)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("shortest absent substring accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "p2p_chord_finger_lookup":
+            for bits in range(1, 4):
+                ring = 1 << bits
+                for n in range(2, min(4, ring) + 1):
+                    for ids in combinations(range(ring), n):
+                        fingers = tuple(next((i for i, value in enumerate(ids) if value >= (node + (1 << level)) % ring), 0)
+                                        for node in ids for level in range(bits))
+                        for start in range(n):
+                            for key in range(ring):
+                                values = (bits, n, start, key, *ids, *fingers)
+                                result, output = add(values)
+                                if (result, output) != p2p_chord_finger_lookup_primary_oracle(values):
+                                    raise ValueError("Chord lookup references disagree")
+                                owner = next((value for value in ids if value >= key), ids[0])
+                                if result < 8 or result % 8 or struct.unpack_from("<q", output, result-8)[0] != owner:
+                                    raise ValueError("Chord lookup route did not end at its owner")
+            bits, n = 6, 16
+            ids = tuple(4*i for i in range(n))
+            fingers = tuple(next((i for i, value in enumerate(ids) if value >= (node + (1 << level)) % 64), 0)
+                            for node in ids for level in range(bits))
+            values = (bits, n, 15, 63, *ids, *fingers)
+            result, output = add(values)
+            if len(values) != 116 or result != 16 or output != struct.pack("<qq", 60, 0):
+                raise ValueError("Chord lookup maximum-frame wraparound failed")
+            add(values, result-1)
+            add(values, output_is_null=True)
+            corrupted = (*values[:4+n], (fingers[0]+1) % n, *fingers[1:])
+            if add(corrupted, output_is_null=True) != (-1, b""):
+                raise ValueError("Chord lookup accepted an invalid finger table")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "chord_stabilization_trace":
+            ids = tuple(range(16))
+            successors = tuple(range(1, 16)) + (0,)
+            predecessors = (15,) + tuple(range(15))
+            maximum = (6, 16, 64, *ids, *successors, *predecessors, *(i % 16 for i in range(64)))
+            result, output = add(maximum)
+            if len(maximum) != 115 or result != 32 or output != bytes((*successors, *predecessors)):
+                raise ValueError("Chord stabilization changed a stable maximum ring")
+            for n in range(1, 4):
+                ids = tuple(range(n))
+                for succ in product(range(n), repeat=n):
+                    for pred in product(range(-1, n), repeat=n):
+                        for node in range(n):
+                            values = (2, n, 1, *ids, *succ, *pred, node)
+                            result, output = add(values)
+                            if result != 2*n or (result, output) != chord_stabilization_trace_primary_oracle(values):
+                                raise ValueError("Chord stabilization references disagree")
+            rng = random.Random(0x43484F5244)
+            for n in (1, 2, 8, 16):
+                ids = tuple(range(n))
+                for _ in range(8):
+                    succ = tuple(rng.randrange(n) for _ in range(n))
+                    pred = tuple(rng.randrange(-1, n) for _ in range(n))
+                    schedule = tuple(rng.randrange(n) for _ in range(64))
+                    values = (6, n, len(schedule), *ids, *succ, *pred, *schedule)
+                    result, output = add(values)
+                    if (result, output) != chord_stabilization_trace_primary_oracle(values):
+                        raise ValueError("Chord stabilization trace references disagree")
+                    add(values, 2*n-1)
+                    add(values, output_is_null=True)
+            for invalid in ((), (1, 1, 0, 0, 1, -1), (1, 1, 0, 0, 0, -2), (1, 1, 1, 0, 0, -1, 1)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Chord stabilization accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "multiprobe_lsh_probe_sequence":
             for m in range(1, 5):
                 for distances in product(range(4), repeat=m):
                     values = (m, 3, 3**m - 1, *distances)
@@ -28757,6 +29762,806 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 if add(invalid, output_is_null=True) != (-1, b""):
                     raise ValueError("content-defined chunking accepted malformed input")
             add((), input_is_null=True, input_length=0)
+        elif algorithm == "hyperloglog_corrected_estimate":
+            for active in range(17):
+                values = (active, *((bucket << 28) | (1 << 27) for bucket in range(active)))
+                result, output = add(values)
+                reference_result, reference_output = hyperloglog_corrected_estimate_primary_oracle(values)
+                if result != reference_result or result != 8 or not math.isclose(
+                        struct.unpack("<d", output)[0], struct.unpack("<d", reference_output)[0],
+                        rel_tol=1e-12, abs_tol=1e-8):
+                    raise ValueError("corrected HyperLogLog small-range references disagree")
+            for rank in range(1, 30):
+                suffix = 0 if rank == 29 else 1 << (28-rank)
+                values = (16, *((bucket << 28) | suffix for bucket in range(16)))
+                result, output = add(values)
+                reference_result, reference_output = hyperloglog_corrected_estimate_primary_oracle(values)
+                if result != reference_result:
+                    raise ValueError("corrected HyperLogLog reference status mismatch")
+                if result == 8 and not math.isclose(struct.unpack("<d", output)[0],
+                        struct.unpack("<d", reference_output)[0], rel_tol=1e-12, abs_tol=1e-8):
+                    raise ValueError("corrected HyperLogLog references disagree")
+                if rank <= 23:
+                    raw_status, raw_output = hyperloglog_raw_estimate_independent_oracle(values)
+                    if raw_status != 144:
+                        raise ValueError("HyperLogLog raw reference rejected a valid stream")
+                    numerator, denominator = struct.unpack_from("<2q", raw_output)
+                    if result != 8 or not math.isclose(struct.unpack("<d", output)[0],
+                            numerator / denominator, rel_tol=1e-12, abs_tol=1e-8):
+                        raise ValueError("HyperLogLog intermediate estimate differs from raw core")
+                if result == 8:
+                    add(values, 7)
+                    add(values, output_is_null=True)
+            for ranks, expected in (((27, 28, 28, 28, *((29,) * 12)), 8),
+                                    ((27, 28, 28, *((29,) * 13)), -3)):
+                values = (16, *((bucket << 28) | (0 if rank == 29 else 1 << (28-rank))
+                                for bucket, rank in enumerate(ranks)))
+                result, output = add(values)
+                reference_result, reference_output = hyperloglog_corrected_estimate_primary_oracle(values)
+                if result != expected or result != reference_result:
+                    raise ValueError("corrected HyperLogLog saturation boundary mismatch")
+                if result == 8 and not math.isclose(struct.unpack("<d", output)[0],
+                        struct.unpack("<d", reference_output)[0], rel_tol=1e-12, abs_tol=1e-8):
+                    raise ValueError("corrected HyperLogLog finite boundary references disagree")
+            hashes = tuple((bucket << 28) | (1 << 26) for bucket in range(16))
+            baseline = add((16, *hashes))
+            maximum = (128, *(hashes * 8))
+            if len(maximum) != 129 or add(maximum) != baseline or baseline[0] != 8:
+                raise ValueError("corrected HyperLogLog maximum stream changed under duplicates")
+            add(maximum, 7)
+            add(maximum, output_is_null=True)
+            mixed = (0, 0x08000000, 0x10000000, 0x30000001,
+                     0x3fffffff, 0xf0000000, 0xffffffff)
+            mixed_result = add((len(mixed), *mixed))
+            if add((len(mixed), *reversed(mixed))) != mixed_result:
+                raise ValueError("corrected HyperLogLog changed under stream reversal")
+            if add((2 * len(mixed), *(mixed * 2))) != mixed_result:
+                raise ValueError("corrected HyperLogLog changed under duplicate hashes")
+            primary_result, primary_output = hyperloglog_corrected_estimate_primary_oracle((len(mixed), *mixed))
+            if mixed_result[0] != primary_result or (primary_result == 8 and not math.isclose(
+                    struct.unpack("<d", mixed_result[1])[0], struct.unpack("<d", primary_output)[0],
+                    rel_tol=1e-12, abs_tol=1e-8)):
+                raise ValueError("corrected HyperLogLog mixed-stream references disagree")
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((), (-1,), (129,), (1, -1), (1, 1 << 32), (0, 0)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("corrected HyperLogLog accepted malformed input")
+        elif algorithm == "hyperloglog_raw_estimate":
+            for rank in range(1, 30):
+                suffix = 0 if rank == 29 else 1 << (28 - rank)
+                values = (16, *((bucket << 28) | suffix for bucket in range(16)))
+                expected = struct.pack("<18q", 1346 * (1 << rank), 125,
+                                       *((rank,) * 16))
+                if add(values) != (144, expected):
+                    raise ValueError("HyperLogLog uniform-register estimate differs from its formula")
+            for bucket in range(16):
+                for rank in range(1, 30):
+                    suffix = 0 if rank == 29 else 1 << (28 - rank)
+                    value = (bucket << 28) | suffix
+                    values = (1, value)
+                    result, output = add(values)
+                    if (result, output) != hyperloglog_raw_estimate_primary_oracle(values):
+                        raise ValueError("HyperLogLog raw references disagree")
+                    words = struct.unpack("<18q", output)
+                    if words[2+bucket] != rank or sum(words[2:]) != rank:
+                        raise ValueError("HyperLogLog bucket or rank mismatch")
+                    if add((2, value, value)) != (result, output):
+                        raise ValueError("HyperLogLog duplicate changed a register")
+            mixed = (0, 0x08000000, 0x10000000, 0x30000001,
+                     0x3fffffff, 0xf0000000, 0xffffffff)
+            mixed_result, mixed_output = add((len(mixed), *mixed))
+            if add((len(mixed), *reversed(mixed))) != (mixed_result, mixed_output):
+                raise ValueError("HyperLogLog raw sketch changed under stream reversal")
+            if add((2 * len(mixed), *(mixed * 2))) != (mixed_result, mixed_output):
+                raise ValueError("HyperLogLog raw sketch changed under duplicate hashes")
+            if (mixed_result, mixed_output) != hyperloglog_raw_estimate_primary_oracle((len(mixed), *mixed)):
+                raise ValueError("HyperLogLog raw mixed-stream references disagree")
+            maximum = (128, *((0,) * 128))
+            result, output = add(maximum)
+            if len(maximum) != 129 or result != 144 or len(output) != 144:
+                raise ValueError("HyperLogLog maximum frame differs from its contract")
+            add(maximum, 143)
+            add(maximum, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((), (-1,), (129,), (1, -1), (1, 1 << 32), (0, 0), maximum + (0,)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("HyperLogLog raw accepted malformed input")
+        elif algorithm == "all_distances_sketch_bottom_k":
+            edges = tuple((u, v) for u in range(10) for v in range(10) if u != v)
+            values = (10, len(edges), 10, 0, *range(10), *(field for edge in edges for field in edge))
+            result, output = add(values)
+            expected = (10, 0, 0, *(field for v in range(1, 10) for field in (v, 1)))
+            if len(values) != 194 or result != 168 or struct.unpack("<21q", output) != expected:
+                raise ValueError("bottom-k ADS complete directed graph mismatch")
+            add(values, 167)
+            add(values, output_is_null=True)
+            add(values + (0,), output_is_null=True)
+            add((), input_is_null=True, input_length=195)
+        elif algorithm == "closest_substring_center":
+            maximum = (4, 10, 8, 3, *([0]*40))
+            if add(maximum) != (72, bytes(72)):
+                raise ValueError("closest-substring maximum frame mismatch")
+            add(maximum, 71)
+            add(maximum, output_is_null=True)
+            add(maximum + (0,), output_is_null=True)
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("closest-substring null input contract mismatch")
+            if add((), input_is_null=True, input_length=45) != (-1, b""):
+                raise ValueError("closest-substring null input boundary mismatch")
+            if add((1, 1, 1, 2, 2), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("closest-substring input validation precedence mismatch")
+        elif algorithm == "closest_string_center":
+            maximum = (6, 8, 3, *([0]*48))
+            if add(maximum) != (72, bytes(72)):
+                raise ValueError("closest-string maximum frame mismatch")
+            add(maximum, 71)
+            add(maximum, output_is_null=True)
+            add(maximum + (0,), output_is_null=True)
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("closest-string null input contract mismatch")
+            if add((), input_is_null=True, input_length=52) != (-1, b""):
+                raise ValueError("closest-string null input boundary mismatch")
+            if add((1, 1, 2, 2), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("closest-string input validation precedence mismatch")
+        elif algorithm == "color_coding_k_path":
+            edges = tuple((u, v) for u in range(12) for v in range(u+1, 12))
+            complete = (12, len(edges), 6, *(v % 6 for v in range(12)),
+                        *(field for edge in edges for field in edge))
+            if len(complete) != 147 or add(complete) != (8, struct.pack("<q", 1)):
+                raise ValueError("color-coding complete-graph reference mismatch")
+            add(complete, 7)
+            add(complete, output_is_null=True)
+            add(complete + (0,), output_is_null=True)
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("color-coding null input contract mismatch")
+            if add((), input_is_null=True, input_length=148) != (-1, b""):
+                raise ValueError("color-coding null input boundary mismatch")
+            if add((2, 1, 2, 0, 1, 0, 0), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("color-coding input validation precedence mismatch")
+        elif algorithm == "approximate_regex_matching":
+            empty_text = (2, 1, 0, 0, 0, 1, 0, 1, 97)
+            if add(empty_text, 0, output_is_null=True) != (0, b""):
+                raise ValueError("approximate regex empty output contract mismatch")
+            nonempty = (2, 1, 1, 0, 0, 1, 0, 1, 97, 97)
+            if add(nonempty, 1, output_is_null=True) != (-2, b""):
+                raise ValueError("approximate regex null output contract mismatch")
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("approximate regex null input contract mismatch")
+            if add((), input_is_null=True, input_length=67) != (-1, b""):
+                raise ValueError("approximate regex null input boundary mismatch")
+            if add((2, 1, 1, 0, 0, 1, 0, 1, 0, 97), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("approximate regex input validation precedence mismatch")
+        elif algorithm == "sqrt_tree":
+            for n in (1, 2, 3, 15, 16, 17, 63, 64, 65, 255, 256):
+                data = tuple(((i * 37) % 101) - 50 for i in range(n))
+                queries = tuple((i, n-1) for i in range(n))
+                values = (n, n, *data, *(field for query in queries for field in query))
+                result, output = add(values)
+                expected = tuple(min(data[left:right+1]) for left, right in queries)
+                if result != 8*n or struct.unpack(f"<{n}q", output) != expected:
+                    raise ValueError("sqrt-tree boundary-query reference mismatch")
+                add(values, result-1)
+            maximum = (256, 256, *range(256), *((0, 255)*256))
+            add(maximum, 2048)
+            add(maximum, 2047)
+            add(maximum, output_is_null=True)
+            add(maximum + (0,), output_is_null=True)
+        elif algorithm == "exponential_histogram_window":
+            for window in (1, 2, 3, 4, 8, 64):
+                for n in range(10):
+                    for stream in product((0, 1), repeat=n):
+                        values = (window, n, *stream)
+                        observed = add(values)
+                        if observed != exponential_histogram_window_primary_oracle(values):
+                            raise ValueError("exponential histogram references disagree")
+                        estimates = struct.unpack(f"<{n}q", observed[1])
+                        for i, estimate in enumerate(estimates):
+                            exact = sum(stream[max(0, i-window+1):i+1])
+                            if not 0 <= estimate <= 2*(i+1) or abs(estimate - 2*exact) > exact:
+                                raise ValueError("exponential histogram count bound violated")
+            for window in (1, 64):
+                maximum = (window, 128, *([1]*128))
+                observed = add(maximum)
+                if observed[0] != 1024 or observed != exponential_histogram_window_primary_oracle(maximum):
+                    raise ValueError("exponential histogram maximum frame mismatch")
+                add(maximum, 1023)
+                add(maximum + (0,), output_is_null=True)
+                zeros = (window, 128, *([0]*128))
+                if add(zeros) != (1024, bytes(1024)):
+                    raise ValueError("exponential histogram zero stream mismatch")
+            add((1, 0), 0, output_is_null=True)
+            add((0, 0), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=131)
+        elif algorithm == "sticky_sampling_summary":
+            for t in (1, 2, 8):
+                for n in range(5):
+                    for stream in product((0, 1), repeat=n):
+                        for k in range(7):
+                            for tape in product((0, 1), repeat=k):
+                                values = (t, n, k, *stream, *tape)
+                                observed = add(values)
+                                if observed != sticky_sampling_summary_primary_oracle(values):
+                                    raise ValueError("Sticky Sampling references disagree")
+            maximum = (8, 16, 16, *range(16), *([0]*16))
+            observed = add(maximum)
+            if observed[0] != 264 or observed != sticky_sampling_summary_primary_oracle(maximum):
+                raise ValueError("Sticky Sampling maximum output mismatch")
+            add(maximum, 263)
+            add(maximum, output_is_null=True)
+            for t, tape in ((1, (0, 1, 1, 1, 1, 1)), (8, (0, 1, 1))):
+                longest = (t, 64, len(tape), *([0]*64), *tape)
+                expected = struct.pack("<3q", 1, 0, 64)
+                if add(longest) != (24, expected):
+                    raise ValueError("Sticky Sampling maximum stream mismatch")
+                add(longest, 23)
+                add(longest + (0,), output_is_null=True)
+            add((1, 1, 0, 0), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=324)
+        elif algorithm == "lossy_counting_summary":
+            for width in (2, 3, 4, 16):
+                for n in range(8):
+                    for stream in product((0, 1, 2), repeat=n):
+                        values = (width, n, *stream)
+                        observed = add(values)
+                        if observed != lossy_counting_summary_primary_oracle(values):
+                            raise ValueError("Lossy Counting references disagree")
+                        words = struct.unpack(f"<{observed[0]//8}q", observed[1])
+                        for j in range(words[0]):
+                            item, count, error = words[1+3*j:4+3*j]
+                            actual = stream.count(item)
+                            if not count <= actual <= count+error:
+                                raise ValueError("Lossy Counting frequency bounds disagree")
+                        retained = set(words[1::3])
+                        if any(stream.count(item)*width > n and item not in retained
+                               for item in (0, 1, 2)):
+                            raise ValueError("Lossy Counting omitted a frequent item")
+            full = (16, 31, 0, 0, *range(1, 15), *range(1, 16))
+            observed = add(full)
+            if observed[0] != 392 or observed != lossy_counting_summary_primary_oracle(full):
+                raise ValueError("Lossy Counting maximum output mismatch")
+            add(full, 391)
+            max_frame = (2, 64, *((0, 1)*32))
+            add(max_frame)
+            add(max_frame+(0,), output_is_null=True)
+            add((1, 0), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=67)
+        elif algorithm == "reservoir_sampling_algorithm_r":
+            for n in range(7):
+                for k in range(n+1):
+                    draws = [range(i+1) for i in range(k, n)]
+                    subset_counts = {}
+                    for tape in product(*draws):
+                        values = (n, k, *range(n), *tape)
+                        observed = add(values)
+                        if observed != reservoir_sampling_algorithm_r_primary_oracle(values):
+                            raise ValueError("reservoir sampler references disagree")
+                        if observed[0] != 8*k:
+                            raise ValueError("reservoir sampler output length mismatch")
+                        chosen = struct.unpack(f"<{k}q", observed[1])
+                        if len(set(chosen)) != k:
+                            raise ValueError("reservoir sampler repeated a stream position")
+                        subset = tuple(sorted(chosen))
+                        subset_counts[subset] = subset_counts.get(subset, 0) + 1
+                    if len(subset_counts) != math.comb(n, k) or len(set(subset_counts.values())) != 1:
+                        raise ValueError("reservoir sampler small-tape subset frequencies differ")
+            maximum = (64, 64, *range(64))
+            if add(maximum) != reservoir_sampling_algorithm_r_primary_oracle(maximum):
+                raise ValueError("reservoir sampler maximum output mismatch")
+            add(maximum, 511)
+            max_frame = (64, 0, *range(64), *range(64))
+            add(max_frame, 0)
+            add(max_frame+(0,), output_is_null=True)
+            add((1, 0, 0, 1), 0, output_is_null=True)
+            add((0, 0), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=131)
+        elif algorithm == "rrr_class_offset_rank_select":
+            for byte in range(256):
+                queries = tuple((0, i) for i in range(1, 9)) + tuple((1, i) for i in range(1, 9))
+                values = (8, byte, 16, *(field for query in queries for field in query))
+                observed = add(values)
+                if observed != rrr_class_offset_rank_select_primary_oracle(values):
+                    raise ValueError("RRR class/offset and direct references disagree")
+                add(values, 127)
+            for n in (1, 7, 8, 9, 15, 16, 63):
+                for bits in (0, 1, (1 << n)-1, 1 << (n-1)):
+                    values = (n, bits, 4, 0, 1, 0, n, 1, 1, 1, 64)
+                    observed = add(values)
+                    if observed != rrr_class_offset_rank_select_primary_oracle(values):
+                        raise ValueError("RRR boundary reference disagreement")
+                    add(values, output_is_null=True)
+            add((1, 0, 0), 0)
+            add((1, 0, 0), 0, output_is_null=True)
+            add((3, 0, 1, 0, 4), 0, output_is_null=True)
+            maximum = (63, (1 << 63)-1, 16, *((1, 64)*16))
+            observed = add(maximum)
+            if observed != rrr_class_offset_rank_select_primary_oracle(maximum) or observed != (128, b"\xff"*128):
+                raise ValueError("RRR maximum-frame reference disagreement")
+            add(maximum + (0,), output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=36)
+        elif algorithm == "minimum_area_enclosing_rectangle":
+            for n in range(3, 17):
+                points = tuple((x, x*x) for x in range(-7, n-7))
+                for offset in range(n):
+                    rotated = points[offset:]+points[:offset]
+                    values = (n, *(coordinate for point in rotated for coordinate in point))
+                    observed = add(values)
+                    if observed != minimum_area_enclosing_rectangle_primary_oracle(values) or observed[0] != 16:
+                        raise ValueError("minimum-area rectangle references disagree")
+                    add(values, 15)
+            maximum = (16, *(coordinate for x in range(-7, 9) for coordinate in (x, x*x)))
+            add(maximum, output_is_null=True)
+            add(maximum+(0,), output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=34)
+        elif algorithm == "lexicographically_minimal_concatenation":
+            alphabet_words = (b"a", b"b", b"aa", b"ab", b"ba", b"bb")
+            for words in product(alphabet_words, repeat=3):
+                values = (3, *(item for word in words for item in (len(word), *word)))
+                add(values)
+            for words in ((b"b", b"ba"), (b"ab", b"abab", b"a"), (b"abc", b"ab", b"aba")):
+                values = (len(words), *(item for word in words for item in (len(word), *word)))
+                result, data = add(values)
+                if result != len(data):
+                    raise ValueError("minimal-concatenation reference returned an invalid length")
+                add(values, max(0, len(data) - 1))
+                add(values, output_is_null=True)
+            # Long shared prefixes exercise LCP truncation at both segment
+            # boundaries; the direct reference does not use a suffix array.
+            long_prefix = b"a" * 2048
+            words = (long_prefix + b"b", long_prefix, long_prefix + b"c")
+            values = (len(words), *(item for word in words for item in (len(word), *word)))
+            result, data = add(values)
+            if result != len(data):
+                raise ValueError("minimal-concatenation long-prefix reference length mismatch")
+            # A single maximum-size word and a maximum-count frame separately
+            # cover both allocation bounds with known concatenations.
+            single_max = (1, 65536, *([97] * 65536))
+            if add(single_max) != (65536, b"a" * 65536):
+                raise ValueError("minimal-concatenation maximum word mismatch")
+            count_max = (16384, *((4, 97, 97, 97, 97) * 16384))
+            if add(count_max) != (65536, b"a" * 65536):
+                raise ValueError("minimal-concatenation maximum frame mismatch")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=81922)
+        elif algorithm == "planted_3sat_clause_generator":
+            for n in range(3, 6):
+                choices = n*(n-1)*(n-2)//6
+                for assignment in product((0, 1), repeat=n):
+                    for rank in range(choices):
+                        for mask in range(1, 8):
+                            values = (n, 1, *assignment, rank, mask)
+                            observed = add(values)
+                            if observed != planted_3sat_clause_generator_primary_oracle(values) or observed[0] != 24:
+                                raise ValueError("planted 3-SAT generator references disagree")
+                            literals = struct.unpack("<3q", observed[1])
+                            if (len({abs(v) for v in literals}) != 3
+                                    or not any((literal > 0) == bool(assignment[abs(literal)-1]) for literal in literals)):
+                                raise ValueError("planted 3-SAT generator produced an unsatisfied clause")
+            maximum = (16, 32, *((0, 1)*8), *((559, 7)*32))
+            result, output = add(maximum)
+            if len(maximum) != 82 or result != 768 or len(output) != 768:
+                raise ValueError("planted 3-SAT generator maximum frame mismatch")
+            add(maximum, 767)
+            add(maximum, output_is_null=True)
+            add((3, 0, 0, 1, 0), 0, output_is_null=True)
+            for values in ((), (2, 0, 0, 0), (3, 1, 0, 1, 0, -1, 1),
+                           (3, 1, 0, 1, 0, 0, 0), (3, 1, 0, 1, 2, 0, 1), maximum+(0,)):
+                if add(values, output_is_null=True) != (-1, b""):
+                    raise ValueError("planted 3-SAT generator accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=83)
+        elif algorithm == "divide_conquer_tangent_hull":
+            tangent_rng = random.Random(0x54414E47)
+            for n in (3, 4, 8, 16, 32):
+                accepted = 0
+                for _ in range(256):
+                    xs = tangent_rng.sample(range(-1000, 1001), n)
+                    points = tuple((x, tangent_rng.randrange(-1000, 1001)) for x in xs)
+                    values = (n, *(coordinate for point in points for coordinate in point))
+                    expected = divide_conquer_tangent_hull_independent_oracle(values)
+                    if expected[0] < 0:
+                        continue
+                    observed = add(values)
+                    if observed != expected or observed != divide_conquer_tangent_hull_primary_oracle(values):
+                        raise ValueError("tangent-merge hull references disagree on generated points")
+                    reversed_values = (n, *(coordinate for point in reversed(points) for coordinate in point))
+                    if add(reversed_values) != expected:
+                        raise ValueError("tangent-merge hull changed under input reversal")
+                    accepted += 1
+                    if accepted == 8:
+                        break
+                if accepted != 8:
+                    raise ValueError("could not generate tangent-merge general-position corpus")
+            for n in range(3, 33):
+                for sign in (-1, 1):
+                    points = tuple((x, sign*x*x) for x in range(-(n//2), n-(n//2)))
+                    for order in (points, points[::-1]):
+                        values = (n, *(coordinate for point in order for coordinate in point))
+                        observed = add(values)
+                        if observed != divide_conquer_tangent_hull_primary_oracle(values) or observed[0] != 16*n:
+                            raise ValueError("tangent-merge hull references disagree on convex chain")
+                        if n == 32:
+                            add(values, 511)
+                            add(values, output_is_null=True)
+            mixed = ((0, 0), (10, 0), (1, 8), (2, 3), (3, 2))
+            for order in permutations(mixed):
+                values = (5, *(coordinate for point in order for coordinate in point))
+                observed = add(values)
+                if observed != divide_conquer_tangent_hull_primary_oracle(values):
+                    raise ValueError("tangent-merge hull references disagree on input order")
+            for values in ((), (2, 0, 0, 1, 1), (3, 0, 0, 1, 1, 2, 2),
+                           (3, 0, 0, 0, 1, 2, 0), (3, 0, 0, 1, 0, 2, 1001),
+                           (3, 0, 0, 1, 2, 2, 0, 9)):
+                if add(values, output_is_null=True) != (-1, b""):
+                    raise ValueError("tangent-merge hull accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=66)
+        elif algorithm == "chan_output_sensitive_hull":
+            # The inner points force subgroup hulls that differ from the final
+            # hull; permutations also change group membership and wrap order.
+            mixed_points = ((0, 0), (10, 0), (0, 10), (2, 3), (3, 2))
+            for order in permutations(mixed_points):
+                values = (5, *(coordinate for point in order for coordinate in point))
+                observed = add(values)
+                if observed[0] != 48 or observed != chan_output_sensitive_hull_grouped_reference(values):
+                    raise ValueError("Chan references disagree on interior-point groups")
+            vertical_pairs = ((0, 0), (0, 4), (3, 1), (3, 5))
+            for order in permutations(vertical_pairs):
+                values = (4, *(coordinate for point in order for coordinate in point))
+                observed = add(values)
+                if observed[0] != 64 or observed != chan_output_sensitive_hull_grouped_reference(values):
+                    raise ValueError("Chan references disagree on equal-x coordinates")
+            # Vary group membership and hull sizes beyond parabola-only inputs.
+            chan_rng = random.Random(0x4348414E)
+            for n in (4, 8, 16, 32):
+                accepted = 0
+                for _ in range(256):
+                    points = tuple((chan_rng.randrange(-1000, 1001), chan_rng.randrange(-1000, 1001))
+                                   for _ in range(n))
+                    values = (n, *(coordinate for point in points for coordinate in point))
+                    expected = chan_output_sensitive_hull_independent_oracle(values)
+                    if expected[0] < 0:
+                        continue
+                    observed = add(values)
+                    if observed != expected or observed != chan_output_sensitive_hull_grouped_reference(values):
+                        raise ValueError("Chan references disagree on generated point sets")
+                    accepted += 1
+                    if accepted == 8:
+                        break
+                if accepted != 8:
+                    raise ValueError("could not generate Chan general-position corpus")
+            for n in range(3, 33):
+                points = tuple((x, x*x) for x in range(-(n//2), n-(n//2)))
+                for order in (points, points[::-1]):
+                    values = (n, *(coordinate for point in order for coordinate in point))
+                    observed = add(values)
+                    if observed != chan_output_sensitive_hull_grouped_reference(values) or observed[0] != 16*n:
+                        raise ValueError("Chan references disagree on convex chain")
+                    if n == 32:
+                        add(values, 511)
+                        add(values, output_is_null=True)
+            for values in ((), (2, 0, 0, 1, 1), (3, 0, 0, 1, 1, 2, 2),
+                           (3, 0, 0, 1, 0, 0, 1001), (3, 0, 0, 2, 0, 0, 1, 9)):
+                if add(values, output_is_null=True) != (-1, b""):
+                    raise ValueError("Chan accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=66)
+        elif algorithm == "melkman_simple_polyline_hull":
+            # Points on a parabola have distinct x coordinates, no three
+            # collinear, and form a simple chain in either traversal order.
+            for n in range(3, 33):
+                for sign in (-1, 1):
+                    points = tuple((i, sign * (i * i - 500)) for i in range(n))
+                    for order in (points, points[::-1]):
+                        values = (n, *(coordinate for point in order for coordinate in point))
+                        result, output = add(values)
+                        if (result, output) != melkman_simple_polyline_hull_primary_oracle(values):
+                            raise ValueError("Melkman references disagree")
+                        if result != 8 * n:
+                            raise ValueError("Melkman parabola must retain every vertex")
+                        translated = (n, *(coordinate for x, y in order
+                                           for coordinate in (x + 100, y + 100)))
+                        if add(translated) != (result, output):
+                            raise ValueError("Melkman hull indices changed under translation")
+                        if n == 32:
+                            add(values, result - 1)
+                            add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((), (2, 0, 0, 1, 0), (3, 0, 0, 1, 1, 2, 2),
+                            (3, 0, 0, 1001, 0, 0, 1), (3, 0, 0, 2, 0, 0, 2, 9)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Melkman accepted malformed input")
+        elif algorithm == "space_saving_frequent_items":
+            # If every distinct item fits, estimates are exact and have no
+            # inherited error. This exercises updates without replacement.
+            for k in range(1, 9):
+                stream = tuple((i % k) - 4 for i in range(64))
+                values = (k, len(stream), *stream)
+                words = [k]
+                for item in sorted(set(stream)):
+                    words.extend((item, stream.count(item), 0))
+                expected = struct.pack("<" + "q" * len(words), *words)
+                if add(values) != (len(expected), expected):
+                    raise ValueError("Space-Saving exact-fit invariant failed")
+            for n in range(1, 65):
+                stream = tuple(i % 2 for i in range(n))
+                values = (1, n, *stream)
+                expected = struct.pack("<qqqq", 1, stream[-1], n, n - 1)
+                if add(values) != (32, expected):
+                    raise ValueError("Space-Saving alternating single-slot invariant failed")
+            for k in range(1, 5):
+                for n in range(7):
+                    for stream in product((-1, 0, 1), repeat=n):
+                        values = (k, n, *stream)
+                        result, output = add(values)
+                        if (result, output) != space_saving_frequent_items_primary_oracle(values):
+                            raise ValueError("Space-Saving references disagree")
+            maximum = (8, 64, *(i % 9 - 4 for i in range(64)))
+            for boundary in (-1000, 1000):
+                values = (8, 1, boundary)
+                if add(values) != space_saving_frequent_items_primary_oracle(values):
+                    raise ValueError("Space-Saving boundary item differs between references")
+            for k in (1, 2, 4, 8):
+                stream = tuple((i % (k + 1)) - 4 for i in range(64))
+                values = (k, len(stream), *stream)
+                result, output = add(values)
+                if (result, output) != space_saving_frequent_items_primary_oracle(values):
+                    raise ValueError("Space-Saving references disagree on repeated evictions")
+                words = struct.unpack("<" + "q" * (result // 8), output)
+                if sum(words[2::3]) != len(stream):
+                    raise ValueError("Space-Saving estimates do not sum to stream length")
+                add(values, result - 1)
+                add(values, output_is_null=True)
+            result, output = add(maximum)
+            if len(maximum) != 66 or result != 200 or len(output) != 200:
+                raise ValueError("Space-Saving maximum frame differs from its contract")
+            add(maximum, 199)
+            add(maximum, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((), (0, 0), (9, 0), (1, -1), (1, 65),
+                            (1, 1, -1001), (1, 1, 1001), maximum + (0,)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Space-Saving accepted malformed input")
+        elif algorithm == "walker_vose_alias_sampling":
+            for weights in ((1, 2, 3), (0, 1, 4, 2), (5, 5, 5)):
+                total = sum(weights)
+                n = len(weights)
+                for column in range(n):
+                    for ticket in range(total):
+                        original = (n, 1, *weights, column, ticket)
+                        scaled = (n, 1, *(2 * weight for weight in weights),
+                                  column, 2 * ticket + 1)
+                        if add(original) != add(scaled):
+                            raise ValueError("Walker–Vose output changed under proportional scaling")
+            for n in range(1, 5):
+                for weights in product(range(3), repeat=n):
+                    total = sum(weights)
+                    if total == 0:
+                        continue
+                    counts = [0] * n
+                    for column in range(n):
+                        for ticket in range(total):
+                            values = (n, 1, *weights, column, ticket)
+                            result, output = add(values)
+                            if (result, output) != walker_vose_alias_sampling_primary_oracle(values):
+                                raise ValueError("Walker–Vose references disagree")
+                            counts[struct.unpack("<q", output)[0]] += 1
+                    if counts != [n * weight for weight in weights]:
+                        raise ValueError("Walker–Vose table does not preserve the distribution")
+            maximum = (16, 32, *((1,) * 16), *((0, 0) * 32))
+            result, output = add(maximum)
+            if len(maximum) != 82 or result != 256 or len(output) != 256:
+                raise ValueError("Walker–Vose maximum frame differs from its contract")
+            add(maximum, 255)
+            add(maximum, output_is_null=True)
+            add((1, 0, 1), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            for invalid in ((), (0, 0), (1, 0, 0), (1, 1, 1, 1, 0),
+                            (1, 1, 1, 0, 1), maximum + (0,)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Walker–Vose accepted malformed input")
+        elif algorithm == "radio_network_decay_phase":
+            # Enumerate initial sender sets on stars and paths, with tapes
+            # that stop immediately or keep all initial senders active.
+            for n in range(2, 6):
+                for star in (False, True):
+                    edges = tuple((0 if star else i-1, i) for i in range(1, n))
+                    adjacency = [0] * n
+                    for u, v in edges:
+                        adjacency[u] |= 1 << v
+                        adjacency[v] |= 1 << u
+                    for initial in range(1, 1 << n):
+                        for bit in (0, 1):
+                            values = (n, 3, initial, *adjacency, *((bit,) * (3*n)))
+                            if add(values) != radio_network_decay_phase_primary_oracle(values):
+                                raise ValueError("radio Decay references disagree on a small graph")
+            valid = (2, 1, 1, 2, 1, 0, 0)
+            for capacity in (0, 15, 16, workspace_bytes): add(valid, capacity)
+            add(valid, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "truthful_ufp_greedy1":
+            # Paths have a unique route, so this comparison exercises price
+            # updates without introducing floating-point path ties.
+            for n in range(2, 6):
+                for caps in product((2, 3, 5), repeat=n-1):
+                    edges = tuple(word for i, cap in enumerate(caps) for word in (i, i+1, cap))
+                    for source in range(n):
+                        for target in range(n):
+                            if source == target: continue
+                            values = (n, n-1, 1, *edges, source, target, 11)
+                            if add(values) != truthful_ufp_greedy1_primary_oracle(values):
+                                raise ValueError("Greedy-1 references disagree on a path graph")
+            valid = (2, 1, 1, 0, 1, 2, 0, 1, 100)
+            result, _ = add(valid)
+            for capacity in (0, result-1, result, workspace_bytes):
+                add(valid, capacity)
+            add(valid, output_is_null=True)
+            for invalid in ((3, 1, 1, 0, 1, 2, 0, 2, 1),
+                            (2, 1, 1, 0, 1, 1, 0, 1, 1),
+                            (2, 1, 1, 0, 1, 2, 0, 0, 1)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Greedy-1 accepted invalid graph or commodity")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "min_cost_max_flow":
+            # Enumerate small directed networks with zero-capacity and
+            # differently priced arcs. The expected values come from the
+            # independent Bellman-Ford residual-network oracle.
+            arcs = ((0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1))
+            for choices in product(((0, 0), (1, 0), (1, 2)), repeat=len(arcs)):
+                values = (3, len(arcs), 0, 2, 2,
+                          *(word for (u, v), (cap, cost) in zip(arcs, choices)
+                            for word in (u, v, cap, cost)))
+                add(values)
+            # Parallel edges and loops exercise residual-edge indexing.
+            values = (3, 5, 0, 2, 4, 0, 0, 5, 0, 0, 1, 2, 3,
+                      0, 1, 2, 1, 1, 2, 4, 2, 1, 1, 5, 0)
+            add(values)
+            for capacity in (0, 15, 16, workspace_bytes):
+                add(values, capacity)
+            add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "hub_labeling_greedy_order":
+            # Exhaust all small simple graphs; the references independently
+            # reject disconnected graphs and nonunique shortest paths.
+            for n in range(1, 5):
+                possible_edges = tuple(combinations(range(n), 2))
+                for flags in product((False, True), repeat=len(possible_edges)):
+                    edges = tuple(edge for edge, selected in zip(possible_edges, flags) if selected)
+                    values = (n, len(edges), *(vertex for edge in edges for vertex in edge))
+                    if add(values) != hub_labeling_greedy_order_primary_oracle(values):
+                        raise ValueError("greedy hub-labeling references disagree on a small graph")
+            for values in ((1, 0), (3, 2, 0, 1, 1, 2)):
+                result, _ = add(values)
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "hub_labeling_pruned":
+            # Compare pruned BFS with the canonical shortest-path definition
+            # across all small graphs and every supplied ranking order.
+            for n in range(1, 5):
+                possible_edges = tuple(combinations(range(n), 2))
+                for edge_flags in product((False, True), repeat=len(possible_edges)):
+                    edges = tuple(edge for edge, selected in zip(possible_edges, edge_flags) if selected)
+                    flattened = tuple(vertex for edge in edges for vertex in edge)
+                    for order in permutations(range(n)):
+                        values = (n, len(edges), *order, *flattened)
+                        result = add(values)
+                        if result != hub_labeling_pruned_primary_oracle(values):
+                            raise ValueError("hub labeling references disagree on a small graph")
+            for values in ((1, 0, 0), (3, 2, 1, 0, 2, 0, 1, 1, 2)):
+                result, _ = add(values)
+                add(values, 0)
+                add(values, result - 1)
+                add(values, result)
+                add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "incremental_minimum_spanning_forest":
+            # Exercise every insertion order of a triangle, including parallel
+            # edges and a self-loop, with weights fixed to their edge identity.
+            edges = ((0, 1, 7), (1, 2, 3), (0, 2, 5), (0, 1, 2), (2, 2, 1))
+            for ordering in permutations(edges):
+                values = (3, len(ordering), *(word for edge in ordering for word in edge))
+                if add(values) != incremental_msf_primary_oracle(values):
+                    raise ValueError("incremental spanning forest references disagree on insertion order")
+            for n in range(1, 6):
+                edges = [(u, v, 1 + u * n + v) for u in range(n) for v in range(u, n)]
+                values = (n, len(edges), *(value for edge in reversed(edges) for value in edge))
+                result = add(values)
+                if result != incremental_msf_primary_oracle(values):
+                    raise ValueError("incremental spanning forest references disagree")
+                add(values, output_is_null=True)
+                add(values, capacity=8 * len(edges) - 1)
+            maximum = (16, 32, *(word for i in range(32) for word in (i % 16, i % 16, i + 1)))
+            result, output = add(maximum)
+            if len(maximum) != 98 or result != 256 or len(output) != 256:
+                raise ValueError("incremental spanning forest maximum frame differs from its contract")
+            if (result, output) != incremental_msf_primary_oracle(maximum):
+                raise ValueError("incremental spanning forest references disagree at maximum size")
+            for capacity in (0, 255, 256, workspace_bytes):
+                add(maximum, capacity)
+            add(maximum, output_is_null=True)
+            for invalid in ((), (0, 1, 0, 0, 1), (2, 1, 0, 2, 1),
+                            (2, 2, 0, 1, 4, 1, 0, 4)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("incremental spanning forest accepted malformed input")
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "extended_gs_general_stable_allocation":
+            rng_extended_gs = random.Random(0x45584753)
+            for quota in (1, 2):
+                for mf, ms, wf, ws in ((0, 0, 0, 0), (8, 0, 8, 0),
+                                       (8, 8, 0, 0), (0, 0, 8, 8)):
+                    values = (1, 1, quota, mf, ms, wf, ws)
+                    if add(values) != extended_gs_primary_oracle(values):
+                        raise ValueError("extended GS boundary references disagree")
+            for men in (1, 2):
+                for women in (1, 2):
+                    for quota in (1, 2):
+                        for _ in range(8):
+                            marginal = []
+                            for _edge in range(men * women):
+                                mf = rng_extended_gs.randrange(9)
+                                wf = rng_extended_gs.randrange(9)
+                                marginal.extend((mf, rng_extended_gs.randrange(mf + 1),
+                                                 wf, rng_extended_gs.randrange(wf + 1)))
+                            values = (men, women, quota, *marginal)
+                            result, output = add(values)
+                            if (result, output) != extended_gs_primary_oracle(values):
+                                raise ValueError("extended GS independent references disagree")
+                            if result >= 0:
+                                add(values, capacity=result - 1)
+                                add(values, output_is_null=True)
+        elif algorithm == "kmp_slp_jump_output":
+            # Shared subexpressions and overlapping matches at every length.
+            for pattern_length in range(1, 7):
+                for level in range(7):
+                    definitions = [0, 0, 0]
+                    for i in range(1, level + 1):
+                        definitions.extend((1, i - 1, i - 1))
+                    values = (pattern_length, *((0,) * pattern_length), level + 1,
+                              *definitions, 1, level)
+                    result, output = add(values)
+                    if (result, output) != kmp_slp_jump_output_primary_oracle(values):
+                        raise ValueError("compressed KMP independent references disagree")
+                    matches = max(0, (1 << level) - pattern_length + 1)
+                    if result != 8 * (matches + 1) or len(output) != result:
+                        raise ValueError("compressed KMP overlapping-match framing differs")
+                    add(values, capacity=result - 1)
+                    add(values, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+        elif algorithm == "xor_leaf_tree_traversal":
+            for n in (1, 2, 3, 8, 64):
+                for root in sorted({0, n // 2, n - 1}):
+                    for star in (False, True):
+                        edges = [(0 if star else i - 1, i) for i in range(1, n)]
+                        for ordered_edges in (edges, list(reversed(edges))):
+                            values = (n, root, *(word for edge in ordered_edges for word in edge))
+                            if add(values) != xor_leaf_tree_traversal_primary(values):
+                                raise ValueError("xor leaf traversal references disagree")
+                            add(values, capacity=16 * n - 1)
+                            add(values, output_is_null=True)
+            add((3, 0, 0, 1, 1, 0), output_is_null=True)
+            add((4, 0, 0, 1, 1, 2, 2, 0))
+            add((2, 0, 1, 1))
+            add((2, 2, 0, 1))
+            add((), input_is_null=True, input_length=0)
+            rng_xor_tree = random.Random(0x584F5254)
+            for _ in range(64):
+                n = rng_xor_tree.randint(1, 64)
+                root = rng_xor_tree.randrange(n)
+                edges = [(rng_xor_tree.randrange(v), v) for v in range(1, n)]
+                rng_xor_tree.shuffle(edges)
+                values = (n, root, *(word for edge in edges for word in edge))
+                result, output = add(values)
+                if result != 16 * n or len(output) != result:
+                    raise ValueError("xor leaf traversal random tree output framing differs")
+                if (result, output) != xor_leaf_tree_traversal_primary(values):
+                    raise ValueError("xor leaf traversal references disagree on a random tree")
         elif algorithm == "indexed_block_list":
             maximum_case = next(case for case in workload["cases"]
                                 if case["id"] == "maximum_frame_and_output")
@@ -28770,6 +30575,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(maximum_input, output_is_null=True)
             zero_access = (2, 7, 8, 0)
             add(zero_access, 0, output_is_null=True)
+            insertion_only = (2, 7, 8, 3, 0, 0, 5, 0, 2, 6, 0, 4, 9)
+            add(insertion_only, 0, output_is_null=True)
             add((), input_is_null=True, input_length=0)
             add((), input_is_null=True, input_length=max_input)
             malformed = (
@@ -28779,6 +30586,18 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             )
             for values in malformed:
                 add(values)
+
+            # Insert at every position in lists around the split threshold,
+            # then read the whole result across both sides of any split.
+            for initial_count in (0, 3, 4, 7, 8, 9, 16):
+                initial = tuple(range(initial_count))
+                for index in range(initial_count + 1):
+                    reads = tuple(word for position in range(initial_count + 1)
+                                  for word in (1, position))
+                    values = (initial_count, *initial, initial_count + 2,
+                              0, index, -100, *reads)
+                    if add(values) != indexed_block_list_primary_oracle(values):
+                        raise ValueError("indexed_block_list references disagree at a split boundary")
 
             rng = random.Random(0xB10C1157)
             for _sample in range(96):
@@ -28871,6 +30690,22 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                         raise ValueError("newton_inverse_sqrt_fps inverse identity failed")
                 add(values, result - 1)
                 add(values, output_is_null=True)
+            # (1+x)^2 has reciprocal square root 1-x+x^2-x^3+...
+            # across every doubling boundary, including the maximum length.
+            n = 64
+            values = (n, 1, 2, 1, *([0] * (n - 3)))
+            result, output = add(values)
+            expected = b"".join(struct.pack("<q", 1 if i % 2 == 0 else 998244352)
+                                for i in range(n))
+            if result != 8*n or output != expected:
+                raise ValueError("newton_inverse_sqrt_fps alternating-series identity failed")
+            # With only the highest nonconstant coefficient set, the single
+            # surviving correction there is -1/2 in the field.
+            values = (n, 1, *([0] * (n - 2)), 1)
+            result, output = add(values)
+            expected = struct.pack("<q", 1) + bytes(8*(n-2)) + struct.pack("<q", 499122176)
+            if result != 8*n or output != expected:
+                raise ValueError("newton_inverse_sqrt_fps high-degree correction failed")
             add((), input_is_null=True, input_length=0)
             for invalid in ((0,), (1, 0), (1, 2), (2, 1, -1), (2, 1, 998244353), (2, 1)):
                 if add(invalid, 0) != (-1, b"") or add(invalid, output_is_null=True) != (-1, b""):
@@ -28886,6 +30721,16 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     raise ValueError("newton_reciprocal_fps oracles disagree")
                 add(values, result - 1)
                 add(values, output_is_null=True)
+            n = 64
+            values = (n, 1, 998244352, *([0] * (n - 2)))
+            result, output = add(values)
+            if result != 8*n or output != struct.pack("<q", 1)*n:
+                raise ValueError("newton_reciprocal_fps geometric-series identity failed")
+            values = (n, 2, *([0] * (n - 2)), 1)
+            result, output = add(values)
+            expected = struct.pack("<q", 499122177) + bytes(8*(n-2)) + struct.pack("<q", 249561088)
+            if result != 8*n or output != expected:
+                raise ValueError("newton_reciprocal_fps high-degree correction failed")
             add((), input_is_null=True, input_length=0)
             for invalid in ((0,), (1, 0), (1, -1), (1, 998244353), (2, 1)):
                 if add(invalid, 0) != (-1, b"") or add(invalid, output_is_null=True) != (-1, b""):
@@ -28893,6 +30738,13 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add((1, 1, *([0] * 64)))
         elif algorithm == "newton_compositional_inverse_fps":
             rng = random.Random(0x4E4557544F4E)
+            # x/(1-x) reverts to x/(1+x), with alternating coefficients.
+            values = (16, 0, *([1] * 15))
+            result, output = add(values)
+            expected = b"".join(struct.pack("<q", 0 if i == 0 else (1 if i % 2 else 998244352))
+                                for i in range(16))
+            if result != 128 or output != expected:
+                raise ValueError("newton_compositional_inverse_fps geometric reversion failed")
             for n in range(2, 17):
                 for _ in range(8):
                     values = (n, 0, rng.randrange(1, 998244353),
@@ -32987,6 +34839,19 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             )
             for values in generated_states:
                 add(values)
+            # The new shortcut must propagate through several queued vertices.
+            result, encoded = add((1, 8, 7, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7,
+                                   0, 1, 1, 1, 2, 1, 2, 3, 1, 3, 4, 1,
+                                   4, 5, 1, 5, 6, 1, 6, 7, 1, 0, 3, 1))
+            if result != 64 or encoded != struct.pack("<8q", 0, 1, 2, 1, 2, 3, 4, 5):
+                raise ValueError("SAGA BFS multi-wave reference result is inconsistent")
+            for base_count, added_count in ((I64_MAX, 1), (1, I64_MAX),
+                                             (I64_MAX, I64_MAX), (28, 1),
+                                             (0, 29)):
+                malformed = (1, 2, base_count, added_count, 0, 0, -1)
+                result, output = add(malformed, output_is_null=True)
+                if result != -1 or output:
+                    raise ValueError("SAGA accepted an out-of-range edge count")
         elif algorithm in {"npb_cg_sparse_inverse_power", "hpcg_profile"}:
             dimension = 32
             neighbors_by_row = []
@@ -33142,6 +35007,24 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     return "".join(lines), len(records)
 
 
+def z_array_verifier_oracle(values: tuple[int, ...] | list[int], capacity: int,
+                            output_is_null: bool = False,
+                            input_is_null: bool = False) -> tuple[int, bytes]:
+    if input_is_null or not values or len(values) > 4096:
+        return -1, b""
+    count = values[0]
+    if not 0 <= count <= 4095 or len(values) != count + 1:
+        return -1, b""
+    if count and (output_is_null or capacity < 4 * count):
+        return -2, b""
+    seq = values[1:]
+    matches = [0] * count
+    for i in range(1, count):
+        while i + matches[i] < count and seq[matches[i]] == seq[i + matches[i]]:
+            matches[i] += 1
+    return count, b"".join(value.to_bytes(4, "little") for value in matches)
+
+
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     if algorithm == "bentley_ottmann":
         return bentley_ottmann_corpus(workload)
@@ -33154,7 +35037,37 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     records: list[Record] = []
     null_input_cases: set[tuple[tuple[int, ...], int | None]] = set()
     null_output_cases: set[tuple[tuple[int, ...], int | None]] = set()
-    if algorithm == "big_integer_multiply":
+    if algorithm == "z_algorithm":
+        if (workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_length") != 4095):
+            raise ValueError("z_algorithm workload contract differs")
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", max(0, 4 * (len(values) - 1)))
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            result, output = z_array_verifier_oracle(values, capacity, output_is_null, input_is_null)
+            if result != case["expected_result"]:
+                raise ValueError(f"z_algorithm fixture differs: {case['id']}")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, case.get("input_length", len(values))))
+        for values in ((0,), (1, 9), (6, 3, 3, 3, 3, 3, 3),
+                       (5, 1, 2, 1, 2, 1), (1, -1)):
+            result, output = z_array_verifier_oracle(values, 4 * (len(values)-1))
+            records.append((values, result, output, 4 * (len(values)-1)))
+            if result > 0:
+                records.append((values, -2, b"", 4 * result - 1))
+                records.append((values, -2, b"", 4 * result, True))
+        maximum = (4095, *range(4095))
+        result, output = z_array_verifier_oracle(maximum, 16380)
+        records.append((maximum, result, output, 16380))
+        repeated = (1024, *([7] * 1024))
+        result, output = z_array_verifier_oracle(repeated, 4096)
+        records.append((repeated, result, output, 4096))
+        records.append(((0,), 0, b"", 0, True))
+        records.append(((), -1, b"", 0, False, True, 0))
+    elif algorithm == "big_integer_multiply":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
         if (input_spec.get("left_length_range") != [1, 32]
@@ -34908,6 +36821,12 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 != "Maximum ciphertext output size for 256 plaintext bytes."
                 or measurement.get("comparison_model") != "i64_array_bytes_output_call"):
             raise ValueError("rc4 workload metadata does not match its reviewed contract")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "r" / f"rc4.{extension}"
+            if not source_path.is_file() or "rc4" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"rc4 source missing for {language}")
 
         def add(values: tuple[int, ...], capacity: int = default_capacity,
                 output_is_null: bool = False) -> None:
@@ -34954,6 +36873,23 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             key = tuple(rng_rc4.randint(0, 255) for _ in range(key_length))
             plaintext = tuple(rng_rc4.randint(0, 255) for _ in range(plaintext_length))
             add((key_length, plaintext_length, *key, *plaintext))
+
+        # Independently generated sizes cover repeated one-block and multi-block
+        # workloads without depending on another suite's fixed vectors.
+        for key_length in (1, 4, 8, 16):
+            key = tuple((41 * i + 17) & 255 for i in range(key_length))
+            for plaintext_length in (1, 8, 10, 20, 28):
+                plaintext = tuple((73 * i + key_length) & 255 for i in range(plaintext_length))
+                values = (key_length, plaintext_length, *key, *plaintext)
+                result, ciphertext = rc4_oracle(values)
+                if result != plaintext_length:
+                    raise ValueError("rc4 generated case has invalid output length")
+                decrypt = (key_length, plaintext_length, *key, *ciphertext)
+                decrypted_length, recovered = rc4_oracle(decrypt)
+                if decrypted_length != plaintext_length or recovered != bytes(plaintext):
+                    raise ValueError("rc4 reference failed a generated round trip")
+                add(values)
+                add(decrypt)
 
         capacity_input = (1, 2, 93, 0, 255)
         for capacity in (0, 1, 2, 3):
@@ -36890,6 +38826,56 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         records.extend((values, result, output, capacity, output_is_null)
                        for (values, capacity, output_is_null), (result, output)
                        in sorted(cases.items()))
+    elif algorithm == "articulation_points":
+        if (workload.get("schema_version") != 1
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("vertex_count_range") != [0, 64]
+                or workload.get("input", {}).get("edge_count_range") != [0, 2047]
+                or workload.get("workspace", {}).get("bytes") != 64):
+            raise ValueError("articulation_points workload metadata differs from its contract")
+        cases: dict[tuple[tuple[int, ...], int, bool], tuple[int, bytes]] = {}
+
+        def add_articulation_case(values: tuple[int, ...], capacity: int = 64,
+                                  output_is_null: bool = False) -> tuple[int, bytes]:
+            result = articulation_points_independent_oracle(values, capacity, output_is_null)
+            cases[(values, capacity, output_is_null)] = result
+            return result
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            result, output = add_articulation_case(values)
+            if (case.get("input_length", len(values)) != len(values)
+                    or result != case["expected_result"]
+                    or output != bytes(case.get("expected_output_bytes", []))):
+                raise ValueError(f"articulation_points workload mismatch: {case['id']}")
+        for n in range(6):
+            possible = tuple(combinations(range(n), 2))
+            for mask in range(1 << len(possible)):
+                edges = tuple(edge for index, edge in enumerate(possible) if mask & (1 << index))
+                values = (n, len(edges), *(vertex for edge in edges for vertex in edge))
+                result, output = add_articulation_case(values)
+                if result > 0:
+                    add_articulation_case(values, result - 1)
+                    add_articulation_case(values, 64, True)
+                elif result == 0:
+                    add_articulation_case(values, 0, True)
+        for values in ((0, 1, 0, 0), (2, 1, 0), (2, 1, 0, 2), (65, 0)):
+            add_articulation_case(values, 0, True)
+        repeated = (4, 7, 0, 1, 1, 0, 1, 2, 2, 1, 2, 3, 1, 1, 3, 3)
+        if add_articulation_case(repeated) != (2, bytes((1, 2))):
+            raise ValueError("articulation_points duplicate/self-loop semantics differ")
+        maximum_path = (64, 63, *(vertex for edge in zip(range(63), range(1, 64))
+                                   for vertex in edge))
+        if add_articulation_case(maximum_path) != (62, bytes(range(1, 63))):
+            raise ValueError("articulation_points maximum path differs")
+        add_articulation_case(maximum_path, 61)
+        add_articulation_case(maximum_path, 64, True)
+        add_articulation_case((), 64)
+        null_input_cases.add(((), 64))
+        records.extend((values, result, output, capacity, output_is_null)
+                       for (values, capacity, output_is_null), (result, output)
+                       in sorted(cases.items()))
     elif algorithm == "prufer_code":
         cases: dict[tuple[tuple[int, ...], int, bool], tuple[int, bytes]] = {}
         input_spec = workload.get("input", {})
@@ -37003,7 +38989,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
 
         for values in ((0, 2, 0, 1), (0, 1)):
             add(values, 0, output_is_null=True)
-        decode_two_vertices = (1, 2, 0, 1)
+        decode_two_vertices = (1, 2)
         for capacity in (0, 23, 24, 25, PRUFER_CODE_MAX_OUTPUT_BYTES):
             add(decode_two_vertices, capacity)
         add(decode_two_vertices, default_capacity, output_is_null=True)
@@ -37016,6 +39002,19 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             encode_values = (0, vertex_count,
                              *(value for edge in edges for value in edge))
             add(encode_values)
+            if vertex_count >= 2:
+                _, encoded = prufer_code_oracle(encode_values)
+                code = tuple(int.from_bytes(encoded[i:i+8], "little", signed=True)
+                             for i in range(0, len(encoded), 8))
+                decoded_result, decoded = prufer_code_oracle((1, vertex_count, *code))
+                decoded_words = tuple(int.from_bytes(decoded[i:i+8], "little", signed=True)
+                                      for i in range(0, len(decoded), 8))
+                expected_edges = tuple(sorted(tuple(sorted(edge)) for edge in edges))
+                actual_edges = tuple(zip(decoded_words[1::2], decoded_words[2::2]))
+                if (decoded_result != 8 * (2 * vertex_count - 1)
+                        or decoded_words[0] != vertex_count - 1 or actual_edges != expected_edges):
+                    raise ValueError("prufer_code reference failed tree round trip")
+                add((1, vertex_count, *code))
         for _ in range(64):
             vertex_count = rng_prufer_code.randint(2, PRUFER_CODE_MAX_VERTICES)
             code = tuple(rng_prufer_code.randrange(vertex_count)
@@ -39613,52 +41612,6 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             (), (-1,), (257,), (1,), (2, 65), (0, 65),
             (1, -1), (1, 128),
             tuple([0] * (MAX_UNIQUE_LETTERS_COUNT_INPUT_LENGTH + 2)),
-        )
-        for values in malformed:
-            add(values)
-        records.extend((values, result, output, capacity)
-                       for (values, capacity), (result, output) in sorted(cases.items()))
-    elif algorithm == "convex_hull_graham":
-        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
-        default_capacity = workload.get("workspace", {}).get("bytes")
-        if type(default_capacity) is not int or default_capacity < MAX_CONVEX_HULL_GRAHAM_OUTPUT_BYTES:
-            raise ValueError("invalid convex-hull output workspace size")
-
-        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
-            cases[(values, capacity)] = convex_hull_graham_oracle(values, capacity)
-
-        for case in workload["cases"]:
-            values = tuple(case["input_values"])
-            capacity = case.get("workspace_bytes", default_capacity)
-            result, output = convex_hull_graham_oracle(values, capacity)
-            if (case.get("input_length") not in (None, len(values))
-                    or case["expected_result"] != result
-                    or case.get("expected_output_hex", "").lower() != output.hex()):
-                raise ValueError(f"workload oracle mismatch: {case['id']}")
-            add(values, capacity)
-
-        rng = random.Random(20261016)
-        for _ in range(128):
-            point_count = rng.randint(3, MAX_CONVEX_HULL_GRAHAM_POINTS)
-            for _attempt in range(64):
-                xs = sorted(rng.sample(range(-2000, 2001), point_count))
-                values = tuple(coordinate for x in xs
-                               for coordinate in (x, rng.randint(-2000, 2000)))
-                result, output = convex_hull_graham_oracle(values, default_capacity)
-                if result >= 0:
-                    add(values)
-                    if output:
-                        add(values, len(output) - 1)
-                    break
-            else:
-                raise ValueError("could not generate a valid convex-hull corpus case")
-
-        malformed = (
-            (), (0, 0, 1, 1), (0, 0, 1, 1, 2),
-            (0, 0, 0, 1, 2, 0), (0, 0, 1, 0, 2, 0),
-            (0, 0, 1, 2001, 2, 0),
-            tuple([0] * (MAX_CONVEX_HULL_GRAHAM_INPUT_LENGTH + 2)),
-            (-(2**63), 0, 0, 1, 1, 2), (0, 0, 1, 2, 2**63 - 1, 0),
         )
         for values in malformed:
             add(values)
@@ -47500,6 +49453,13 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "maskwords":
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"),
+                                    ("nim", "nim"), ("odin", "odin"),
+                                    ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            port = ROOT / language / "w" / f"maskwords.{extension}"
+            if not port.is_file() or "maskwords" not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"maskwords source missing for {language}")
         default_capacity = workload.get("workspace", {}).get("bytes")
         if default_capacity != MASKWORDS_MAX_OUTPUT_BYTES:
             raise ValueError("maskwords workspace must be 1447 bytes")
@@ -48312,72 +50272,64 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_input_cases.add(null_case)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
-    elif algorithm == "lyndon_factorization":
-        default_capacity = workload.get("workspace", {}).get("bytes")
-        if default_capacity != 2 * LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH:
-            raise ValueError("lyndon_factorization workspace must be 512 bytes")
+    elif algorithm == "duval_algorithm":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
 
-        def add(values: tuple[int, ...], capacity: int) -> None:
-            cases[(values, capacity)] = lyndon_factorization_oracle(list(values), capacity)
+        def add_duval(values: tuple[int, ...], capacity: int) -> None:
+            result, output = recorder_expected_output(list(values), algorithm)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
 
         for case in workload["cases"]:
             values = tuple(case["input_values"])
-            capacity = case.get("workspace_bytes")
-            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
-                raise ValueError(f"invalid lyndon_factorization capacity in {case['id']}")
-            result, output = lyndon_factorization_oracle(list(values), capacity)
+            capacity = case.get("workspace_bytes", 4 * len(values))
+            add_duval(values, capacity)
             if (case.get("input_length") != len(values)
-                    or case["expected_result"] != result
-                    or case.get("expected_output_hex", "").lower() != output.hex()):
-                raise ValueError(f"lyndon_factorization workload mismatch: {case['id']}")
-            if len(values) > MAX_LYNDON_FACTORIZATION_INPUT_LENGTH:
-                raise ValueError(f"lyndon_factorization fixture exceeds its parseable input length: {case['id']}")
-            count = values[0] if values else -1
-            valid_shape = (0 <= count <= LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH
-                           and len(values) == count + 1
-                           and all(97 <= value <= 122 for value in values[1:]))
-            if valid_shape and result >= 0 and capacity != 2 * count:
-                raise ValueError(f"lyndon_factorization fixture must reserve 2*n bytes: {case['id']}")
-            if valid_shape and result == -2 and capacity >= 2 * count:
-                raise ValueError(f"lyndon_factorization capacity fixture must be below 2*n: {case['id']}")
-            add(values, capacity)
+                    or cases[(values, capacity)] != (case["expected_result"],
+                                                     bytes.fromhex(case["expected_output_hex"]))):
+                raise ValueError(f"Duval workload mismatch: {case['id']}")
 
-        rng = random.Random(20261016)
+        for length in range(9):
+            for values in product((0, 1), repeat=length):
+                lengths = direct_lyndon_factor_lengths(values)
+                expected = b"".join(struct.pack("<I", size) for size in lengths)
+                if recorder_expected_output(list(values), algorithm) != (len(lengths), expected):
+                    raise ValueError("Duval factorization references disagree")
+                add_duval(values, 4 * length)
+
+        rng_duval = random.Random(20261016)
         for _ in range(256):
-            count = rng.randint(0, LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH)
-            values = (count, *(rng.randint(97, 122) for _ in range(count)))
-            # The ABI contract reserves the worst-case two bytes per input symbol.
-            add(values, 2 * count)
+            length = rng_duval.randint(0, 256)
+            values = tuple(rng_duval.randint(97, 122) for _ in range(length))
+            result, output = recorder_expected_output(list(values), algorithm)
+            if result < 0 or len(output) != 4 * result:
+                raise ValueError("Duval factor-length output has invalid size")
+            add_duval(values, 4 * length)
+            if output:
+                add_duval(values, len(output) - 1)
 
-        maximum_values = (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH,
-                          *([97] * LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH))
-        maximum_result, maximum_output = lyndon_factorization_oracle(list(maximum_values))
-        if maximum_result != default_capacity or len(maximum_output) != default_capacity:
-            raise ValueError("lyndon_factorization maximum output must be 512 bytes")
-        add(maximum_values, default_capacity - 1)
-        add(maximum_values, default_capacity)
+        for values in ((0,), (127,), (0, 127, 0), (127, 0, 127), (97, 98, 99)):
+            lengths = direct_lyndon_factor_lengths(values)
+            expected = b"".join(struct.pack("<I", size) for size in lengths)
+            if recorder_expected_output(list(values), algorithm) != (len(lengths), expected):
+                raise ValueError("Duval ASCII boundary reference mismatch")
+            add_duval(values, 4 * len(values))
 
-        capacity_probe = (3, 97, 98, 99)
-        for capacity in (0, 5, 6, default_capacity):
-            add(capacity_probe, capacity)
-
-        malformed = (
-            (), (1,), (2, 97), (1, 97, 98), (0, 97),
-            (1, 96), (1, 123), (1, -(1 << 63)),
-            (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH, *([97] * (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH - 1))),
-            (0, *([0] * (MAX_LYNDON_FACTORIZATION_INPUT_LENGTH - 1))),
-            (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH + 1,
-             *([97] * (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH + 1))),
-            ((1 << 63) - 1, 97),
-        )
-        for values in malformed:
-            add(values, default_capacity)
-
-        null_values = (1, 97)
-        null_key = (null_values, 2)
-        cases[null_key] = (-1, b"")
-        null_input_cases.add(null_key)
+        maximum = (97,) * 4096
+        if recorder_expected_output(list(maximum), algorithm) != (4096, struct.pack("<I", 1) * 4096):
+            raise ValueError("Duval maximum-length result mismatch")
+        add_duval(maximum, 16384)
+        add_duval(maximum, 16383)
+        add_duval((97,) * 4097, 16384)
+        add_duval((-1,), 4)
+        add_duval((128,), 4)
+        null_input_key = ((65,), 4)
+        cases[null_input_key] = (-1, b"")
+        null_input_cases.add(null_input_key)
+        null_output_key = ((66,), 4)
+        cases[null_output_key] = (-2, b"")
+        null_output_cases.add(null_output_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "from_sequence":
@@ -56064,6 +58016,14 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     or case.get("expected_output_hex", "").lower() != output.hex()):
                 raise ValueError(f"monotone_chain workload mismatch: {case['id']}")
             add_monotone_chain_case(record_values, capacity, output_is_null, input_is_null)
+
+        # Reordering inputs cannot change the coordinate-based canonical hull.
+        mixed = (5, 2, -2, 0, 0, 4, 0, 1, 2, 3, 2)
+        reversed_mixed = (5, 3, 2, 1, 2, 4, 0, 0, 0, 2, -2)
+        if monotone_chain_oracle(mixed) != monotone_chain_oracle(reversed_mixed):
+            raise ValueError("monotone_chain hull changed under input permutation")
+        add_monotone_chain_case(mixed)
+        add_monotone_chain_case(reversed_mixed)
 
         maximum_case = next((case for case in workload["cases"]
                              if case.get("id") == "maximum_point_and_hull_count"), None)
@@ -67941,11 +69901,18 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
         input_is_null = case.get("input_is_null", False)
         if "expected_output_hex" in case:
             expected_output_length = len(bytes.fromhex(case["expected_output_hex"]))
+        elif "expected_output_bytes" in case:
+            expected_output_length = len(bytes(case["expected_output_bytes"]))
         elif algorithm == "common_interval_decomposition_tree":
             _oracle_result, oracle_bytes = common_interval_decomposition_tree_independent_oracle(values)
             expected_output_length = len(oracle_bytes)
         elif algorithm == "min_plus_convolution_convex_convex":
             _oracle_result, oracle_bytes = min_plus_convolution_convex_convex_independent_oracle(values)
+            expected_output_length = len(oracle_bytes)
+        elif algorithm == "z_algorithm":
+            _, oracle_bytes = z_array_verifier_oracle(
+                values, case.get("output_capacity", max(0, 4 * (len(values) - 1))),
+                output_is_null=case.get("output_is_null", False), input_is_null=input_is_null)
             expected_output_length = len(oracle_bytes)
         elif workload.get("output", {}).get("kind") in {"float64_vector", "float64_records"}:
             expected_vector = case.get("expected_output")
@@ -68004,8 +69971,62 @@ def main() -> int:
     directory = args.build_dir.resolve()
     directory.mkdir(parents=True, exist_ok=True)
     algorithm = args.algorithm
-    workload_path = (ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
+    workload_path = (ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+                     if algorithm == "mibench_security_sha0" else
+                     ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
                      if algorithm == "merge_sort_linked_list" else
+                     ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+                     if algorithm == "misc_lowercase" else
+                     ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+                     if algorithm == "radio_network_decay_phase" else
+                     ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+                     if algorithm == "rodinia_streamcluster_pgain" else
+                     ROOT / "benchmarks" / "p" / algorithm / "workload.json"
+                     if algorithm in {"kinetic_tournament_tree", "minkowski_sum_convex_polygons", "main_lorentz_tandem_repetitions", "indexed_priority_queue"} else
+                     ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+                     if algorithm in {"intersection_of_f2_vector_spaces", "hafnian_of_matrix"} else
+                     ROOT / "benchmarks" / "a" / algorithm / "workload.json"
+                     if algorithm == "cbench_automotive_qsort1" else
+                     ROOT / "benchmarks" / "m" / algorithm / "workload.json"
+                     if algorithm == "euclidean_mst" else
+                     ROOT / "benchmarks" / "f" / algorithm / "workload.json"
+                     if algorithm == "string_fibonacci" else
+                     ROOT / "benchmarks" / "n" / algorithm / "workload.json"
+                     if algorithm in {"open_knight_tour", "hpcg_profile"} else
+                     ROOT / "benchmarks" / "o" / algorithm / "workload.json"
+                     if algorithm == "number_container_system" else
+                     ROOT / "benchmarks" / "i" / algorithm / "workload.json"
+                     if algorithm in {"lsb_image_steganography", "lac_adpcm"} else
+                     ROOT / "benchmarks" / "p" / algorithm / "workload.json"
+                     if algorithm == "idea_cfb64" else
+                     ROOT / "benchmarks" / "f" / algorithm / "workload.json"
+                     if algorithm == "beebs_fasta" else
+                     ROOT / "benchmarks" / "g" / algorithm / "workload.json"
+                     if algorithm in {"three_dimensional_moment_curve", "approximate_matching_greedy", "extended_gs_general_stable_allocation"} else
+                     ROOT / "benchmarks" / "m" / algorithm / "workload.json"
+                     if algorithm in {"characteristic_polynomial", "srpt_flow_time", "submodular_ranking_greedy", "smith_weighted_completion_time"} else
+                     ROOT / "benchmarks" / "u" / algorithm / "workload.json"
+                     if algorithm == "range_parallel_unionfind" else
+                     ROOT / "benchmarks" / "t" / algorithm / "workload.json"
+                     if algorithm in {"dynamic_tree_vertex_set_path_composite", "universal_sequencing_doubling"} else
+                     ROOT / "benchmarks" / "g" / algorithm / "workload.json"
+                     if algorithm in {"hub_labeling_pruned", "truthful_ufp_greedy1", "truthful_multiunit_ca_greedy2"} else
+                     ROOT / "benchmarks" / "g" / algorithm / "workload.json"
+                     if algorithm in {"weighted_greedy_set_cover", "counting_eulerian_circuits", "chordal_graph_recognition"} else
+                     ROOT / "benchmarks" / "o" / algorithm / "workload.json"
+                     if algorithm == "substring_parsimony" else
+                     ROOT / "benchmarks" / "c" / algorithm / "workload.json"
+                     if algorithm == "two_edge_connected_components" else
+                     ROOT / "benchmarks" / "o" / algorithm / "workload.json"
+                     if algorithm == "quine_mccluskey_minimization" else
+                     ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+                     if algorithm == "crust_pole_triangle_filter" else
+                     ROOT / "benchmarks" / "a" / algorithm / "workload.json"
+                     if algorithm == "prolangs_c_allroots" else
+                     ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+                     if algorithm == "felsenstein_substitution_likelihood" else
+                     ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+                     if algorithm == "concave_gap_alignment_global" else
                      ROOT / "benchmarks" / "l" / algorithm / "workload.json"
                      if algorithm == "beebs_lcdnum" else
                      ROOT / "benchmarks" / "w" / algorithm / "workload.json"
@@ -68021,7 +70042,7 @@ def main() -> int:
                          "mediabench_gsm_rpe_grid_positioning",
                          "cbench_consumer_lame_window_subband"} else
                      ROOT / "benchmarks" / "r" / algorithm / "workload.json"
-                     if algorithm == "range_set_range_composite" else
+                     if algorithm in {"range_set_range_composite", "clique_reverse_search_enumeration"} else
                      ROOT / "benchmarks" / "d" / algorithm / "workload.json"
                      if algorithm == "versabench_dbms_keys_union" else
                      ROOT / "benchmarks" / "merge_ksorted_linked_list" / "workload.json"
@@ -68034,8 +70055,17 @@ def main() -> int:
                      if algorithm == "median_search2" else
                      ROOT / "benchmarks" / "median_of_matrix" / "workload.json"
                      if algorithm == "median_of_matrix" else
+                     ROOT / "benchmarks" / "k" / algorithm / "workload.json"
+                     if algorithm == "stochastic_knapsack_greedy" else
+                     ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+                     if algorithm == "kiraly_max_smt_i_approx" else
                      ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json")
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    if not workload_path.is_file():
+        flat_workload = ROOT / "benchmarks" / algorithm / "workload.json"
+        if flat_workload.is_file():
+            workload_path = flat_workload
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     data, case_count = corpus(workload, algorithm)
     corpus_path = directory / f"{algorithm}-corpus.txt"
     corpus_path.write_text(data, encoding="utf-8")

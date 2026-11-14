@@ -46,6 +46,7 @@ and
 | C3 | [`c3/a/approximate_tandem_k_repetitions.c3`](../../../c3/a/approximate_tandem_k_repetitions.c3) |
 | C++ | [`cpp/a/approximate_tandem_k_repetitions.cpp`](../../../cpp/a/approximate_tandem_k_repetitions.cpp) |
 | Elisa | [`elisa/a/approximate_tandem_k_repetitions.elisa`](../../../elisa/a/approximate_tandem_k_repetitions.elisa) |
+| Mojo | [`mojo/a/approximate_tandem_k_repetitions.mojo`](../../../mojo/a/approximate_tandem_k_repetitions.mojo) (draft, unverified) |
 | Nim | [`nim/a/approximate_tandem_k_repetitions.nim`](../../../nim/a/approximate_tandem_k_repetitions.nim) |
 | Odin | [`odin/a/approximate_tandem_k_repetitions.odin`](../../../odin/a/approximate_tandem_k_repetitions.odin) |
 | Rust | [`rust/a/approximate_tandem_k_repetitions.rs`](../../../rust/a/approximate_tandem_k_repetitions.rs) |

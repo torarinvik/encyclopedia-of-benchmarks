@@ -1,0 +1,26 @@
+{
+  "schema_version":1,
+  "id":"lexicographically-minimal-concatenation-v1",
+  "algorithm":"lexicographically_minimal_concatenation",
+  "function_symbol":"lexicographically_minimal_concatenation",
+  "abi":"i64_array_bytes_output",
+  "input":{"kind":"signed_i64_array","maximum_strings":16384,"maximum_total_bytes":65536,"maximum_valid_input_length":81921,"maximum_parseable_input_length":81922,"invalid_input_result":-1,"insufficient_output_capacity_result":-2},
+  "output":{"kind":"byte_array","maximum_output_bytes":65536,"null_output_result":-2,"short_capacity_writes_nothing":true},
+  "workspace":{"bytes":65536},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":10},
+  "cases":[
+    {"id":"empty","input_values":[0],"input_length":1,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"prefix_order","input_values":[2,1,98,2,98,97],"input_length":6,"output_capacity":3,"expected_result":3,"expected_output_hex":"626162"},
+    {"id":"prefix_a_first","input_values":[2,2,97,98,1,97],"input_length":6,"output_capacity":3,"expected_result":3,"expected_output_hex":"616162"},
+    {"id":"periodic_tie","input_values":[3,2,97,98,4,97,98,97,98,1,97],"input_length":11,"output_capacity":7,"expected_result":7,"expected_output_hex":"61616261626162"},
+    {"id":"common_prefix","input_values":[2,3,99,97,98,2,99,97],"input_length":8,"output_capacity":5,"expected_result":5,"expected_output_hex":"6361636162"},
+    {"id":"invalid_character","input_values":[1,1,65],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"empty_word","input_values":[1,0],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_frame","input_values":[1,2,97],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_value","input_values":[0,97],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output","input_values":[1,2,97,98],"input_length":4,"output_capacity":1,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_output_empty","input_values":[0],"input_length":1,"output_is_null":true,"output_capacity":0,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_before_null_output","input_values":[1,1,65],"input_length":3,"output_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

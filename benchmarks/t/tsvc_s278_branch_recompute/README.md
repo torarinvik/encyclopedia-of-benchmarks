@@ -69,3 +69,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s278_branch_recompute.rs`](../../../rust/t/tsvc_s278_branch_recompute.rs) |
 | V | [`tsvc_s278_branch_recompute.v`](../../../v/t/tsvc_s278_branch_recompute.v) |
 | Zig | [`tsvc_s278_branch_recompute.zig`](../../../zig/t/tsvc_s278_branch_recompute.zig) |
+| Mojo | [`tsvc_s278_branch_recompute.mojo`](../../../mojo/t/tsvc_s278_branch_recompute.mojo) (draft, unverified) |

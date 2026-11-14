@@ -27,6 +27,9 @@ outcome.
   and history heuristic, which are not needed to establish the bounded exact
   result. The independent oracle uses an unpruned cell-array minimax and line
   scan.
+- The verifier source also derives valid prefixes and horizontally reflected
+  histories from workload positions and checks malformed histories. These
+  additional cases have not been run.
 
 ## Provenance and rights
 
@@ -55,6 +58,7 @@ path-by-path source and rights record.
 | C3 | [c3/f/fhourstones_exact.c3](../../../c3/f/fhourstones_exact.c3) |
 | C++ | [cpp/f/fhourstones_exact.cpp](../../../cpp/f/fhourstones_exact.cpp) |
 | Elisa | [elisa/f/fhourstones_exact.elisa](../../../elisa/f/fhourstones_exact.elisa) |
+| Mojo | [mojo/f/fhourstones_exact.mojo](../../../mojo/f/fhourstones_exact.mojo) (draft; not compiled or run) |
 | Nim | [nim/f/fhourstones_exact.nim](../../../nim/f/fhourstones_exact.nim) |
 | Odin | [odin/f/fhourstones_exact.odin](../../../odin/f/fhourstones_exact.odin) |
 | Rust | [rust/f/fhourstones_exact.rs](../../../rust/f/fhourstones_exact.rs) |

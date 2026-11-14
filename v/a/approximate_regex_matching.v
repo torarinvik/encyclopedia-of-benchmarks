@@ -4,6 +4,7 @@ module approximate_regex_matching
 @[export: 'approximate_regex_matching']
 pub fn approximate_regex_matching(x &i64, length usize, output &u8, capacity usize) i64 {
     unsafe {
+        if x == nil { return -1 }
         if length < 6 || length > 66 { return -1 }
         sv:=x[0];ev:=x[1];tv:=x[2];kv:=x[3];startv:=x[4];acceptv:=x[5]
         if sv<2||sv>8||ev<1||ev>16||tv<0||tv>12||kv<0||kv>3||startv<0||acceptv<0||startv>=sv||acceptv>=sv||startv==acceptv{return -1}

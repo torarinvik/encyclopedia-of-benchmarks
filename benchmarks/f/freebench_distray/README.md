@@ -25,6 +25,7 @@ The workload includes hand-derived top-left sky cases for launcher distributions
 | C3 | [c3/f/freebench_distray.c3](../../../c3/f/freebench_distray.c3) |
 | C++ | [cpp/f/freebench_distray.cpp](../../../cpp/f/freebench_distray.cpp) |
 | Elisa | [elisa/f/freebench_distray.elisa](../../../elisa/f/freebench_distray.elisa) |
+| Mojo | [mojo/f/freebench_distray.mojo](../../../mojo/f/freebench_distray.mojo) |
 | Nim | [nim/f/freebench_distray.nim](../../../nim/f/freebench_distray.nim) |
 | Odin | [odin/f/freebench_distray.odin](../../../odin/f/freebench_distray.odin) |
 | Rust | [rust/f/freebench_distray.rs](../../../rust/f/freebench_distray.rs) |
@@ -33,3 +34,6 @@ The workload includes hand-derived top-left sky cases for launcher distributions
 
 - Oracle: [freebench_distray_oracle.py](../../freebench_distray_oracle.py)
 - Contract and fixtures: [workload.json](workload.json)
+
+The Mojo draft and ten-language runner source-presence check have not been
+compiled or run.

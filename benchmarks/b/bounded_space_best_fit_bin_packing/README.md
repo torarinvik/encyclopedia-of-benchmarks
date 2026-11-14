@@ -41,6 +41,7 @@ Independent verifier: [`bounded_space_best_fit_bin_packing_verifier_oracle.py`](
 | C3 | [`c3/b/bounded_space_best_fit_bin_packing.c3`](../../../c3/b/bounded_space_best_fit_bin_packing.c3) |
 | C++ | [`cpp/b/bounded_space_best_fit_bin_packing.cpp`](../../../cpp/b/bounded_space_best_fit_bin_packing.cpp) |
 | Elisa | [`elisa/b/bounded_space_best_fit_bin_packing.elisa`](../../../elisa/b/bounded_space_best_fit_bin_packing.elisa) |
+| Mojo | [`mojo/b/bounded_space_best_fit_bin_packing.mojo`](../../../mojo/b/bounded_space_best_fit_bin_packing.mojo) (draft, unverified) |
 | Nim | [`nim/b/bounded_space_best_fit_bin_packing.nim`](../../../nim/b/bounded_space_best_fit_bin_packing.nim) |
 | Odin | [`odin/b/bounded_space_best_fit_bin_packing.odin`](../../../odin/b/bounded_space_best_fit_bin_packing.odin) |
 | Rust | [`rust/b/bounded_space_best_fit_bin_packing.rs`](../../../rust/b/bounded_space_best_fit_bin_packing.rs) |

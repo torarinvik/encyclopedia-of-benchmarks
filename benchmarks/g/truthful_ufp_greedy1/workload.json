@@ -44,7 +44,7 @@
   "workspace": {"bytes": 648, "meaning": "Maximum staged list of selected commodities and simple paths."},
   "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 3, "warmup_rounds": 1, "repetitions_per_sample": 3},
   "cases": [
-    {"id": "triangle-routes-and-price-threshold", "input_values": [3, 3, 3, 0, 1, 3, 1, 2, 3, 0, 2, 4, 0, 2, 10, 0, 1, 5, 1, 2, 5], "input_length": 21, "output_capacity": 648, "expected_result": 104, "expected_output_hex": "030000000000000000000000000000000200000000000000000000000000000002000000000000000100000000000000020000000000000000000000000000000100000000000000020000000000000001000000000000000200000000000000"},
+    {"id": "triangle-routes-and-price-threshold", "input_values": [3, 3, 3, 0, 1, 3, 0, 2, 4, 1, 2, 3, 0, 2, 10, 0, 1, 5, 1, 2, 5], "input_length": 21, "output_capacity": 648, "expected_result": 104, "expected_output_hex": "0300000000000000000000000000000002000000000000000000000000000000020000000000000001000000000000000200000000000000000000000000000001000000000000000200000000000000020000000000000001000000000000000200000000000000"},
     {"id": "single-edge-single-commodity", "input_values": [2, 1, 1, 0, 1, 2, 0, 1, 100], "input_length": 9, "output_capacity": 648, "expected_result": 40, "expected_output_hex": "01000000000000000000000000000000020000000000000000000000000000000100000000000000"}
   ]
 }

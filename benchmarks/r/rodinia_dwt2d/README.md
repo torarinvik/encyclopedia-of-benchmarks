@@ -29,6 +29,7 @@ The smaller square/evenly divisible domain is a deterministic bounded profile of
 | C3 | [`c3/r/rodinia_dwt2d.c3`](../../../c3/r/rodinia_dwt2d.c3) |
 | C++ | [`cpp/r/rodinia_dwt2d.cpp`](../../../cpp/r/rodinia_dwt2d.cpp) |
 | Elisa | [`elisa/r/rodinia_dwt2d.elisa`](../../../elisa/r/rodinia_dwt2d.elisa) |
+| Mojo | [`mojo/r/rodinia_dwt2d.mojo`](../../../mojo/r/rodinia_dwt2d.mojo) |
 | Nim | [`nim/r/rodinia_dwt2d.nim`](../../../nim/r/rodinia_dwt2d.nim) |
 | Odin | [`odin/r/rodinia_dwt2d.odin`](../../../odin/r/rodinia_dwt2d.odin) |
 | Rust | [`rust/r/rodinia_dwt2d.rs`](../../../rust/r/rodinia_dwt2d.rs) |

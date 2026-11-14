@@ -54,3 +54,4 @@ is [`tsvc_s221_partial_recursive_fused_update_oracle.py`](../../tsvc_s221_partia
 | Rust | [tsvc_s221_partial_recursive_fused_update.rs](../../../rust/t/tsvc_s221_partial_recursive_fused_update.rs) |
 | V | [tsvc_s221_partial_recursive_fused_update.v](../../../v/t/tsvc_s221_partial_recursive_fused_update.v) |
 | Zig | [tsvc_s221_partial_recursive_fused_update.zig](../../../zig/t/tsvc_s221_partial_recursive_fused_update.zig) |
+| Mojo | [tsvc_s221_partial_recursive_fused_update.mojo](../../../mojo/t/tsvc_s221_partial_recursive_fused_update.mojo) |

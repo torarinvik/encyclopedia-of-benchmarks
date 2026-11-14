@@ -44,5 +44,8 @@ resolves each round's proposals by hospital ranking.
 | Nim | [`hospitals_residents_rgs.nim`](../../../nim/h/hospitals_residents_rgs.nim) |
 | Odin | [`hospitals_residents_rgs.odin`](../../../odin/h/hospitals_residents_rgs.odin) |
 | Rust | [`hospitals_residents_rgs.rs`](../../../rust/h/hospitals_residents_rgs.rs) |
-| V | [`hospitals_residents_rgs.v`](../../../v/hospitals_residents_rgs.v) |
+| V | [`hospitals_residents_rgs.v`](../../../v/h/hospitals_residents_rgs.v) |
 | Zig | [`hospitals_residents_rgs.zig`](../../../zig/h/hospitals_residents_rgs.zig) |
+| Mojo | [`hospitals_residents_rgs.mojo`](../../../mojo/h/hospitals_residents_rgs.mojo) (unverified draft) |
+
+The direct implementation makes at most R·H proposals and scans up to R residents for each full hospital; its worst-case time is O(R²H + RH²), including preference validation, with O(RH) rank storage.

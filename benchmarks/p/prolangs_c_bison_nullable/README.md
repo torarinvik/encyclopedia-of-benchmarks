@@ -28,6 +28,12 @@ The pinned Bison subtree includes the Bison General Public License in `COPYING`.
 [`workload.json`](workload.json) includes a small source-shaped production set, dependency propagation, repeated RHS occurrences, a cycle without an empty seed, terminal blocking, malformed input, and a null input. The Python oracle uses repeated whole-grammar scans rather than the source's queue/dependency-count algorithm.
 
 The oracle is [`benchmarks/prolangs_c_bison_nullable_oracle.py`](../../prolangs_c_bison_nullable_oracle.py).
+For N nonterminals and L total right-hand-side symbols, the bounded ports
+scan the rules for each newly nullable symbol, taking O(N(R + L)) time for R
+rules and O(N + R + L) space. The Mojo draft and its suite source check have
+not been run. The verifier also specifies every pair of productions over two
+nonterminals and one terminal with right sides of length at most two, plus a
+16-symbol propagation chain with repeated dependencies; these remain unrun.
 
 ## Ports
 
@@ -37,6 +43,7 @@ The oracle is [`benchmarks/prolangs_c_bison_nullable_oracle.py`](../../prolangs_
 | C3 | [`c3/p/prolangs_c_bison_nullable.c3`](../../../c3/p/prolangs_c_bison_nullable.c3) |
 | C++ | [`cpp/p/prolangs_c_bison_nullable.cpp`](../../../cpp/p/prolangs_c_bison_nullable.cpp) |
 | Elisa | [`elisa/p/prolangs_c_bison_nullable.elisa`](../../../elisa/p/prolangs_c_bison_nullable.elisa) |
+| Mojo | [`mojo/p/prolangs_c_bison_nullable.mojo`](../../../mojo/p/prolangs_c_bison_nullable.mojo) (uncompiled draft) |
 | Nim | [`nim/p/prolangs_c_bison_nullable.nim`](../../../nim/p/prolangs_c_bison_nullable.nim) |
 | Odin | [`odin/p/prolangs_c_bison_nullable.odin`](../../../odin/p/prolangs_c_bison_nullable.odin) |
 | Rust | [`rust/p/prolangs_c_bison_nullable.rs`](../../../rust/p/prolangs_c_bison_nullable.rs) |

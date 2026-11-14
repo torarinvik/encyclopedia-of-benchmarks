@@ -60,7 +60,7 @@ def expected_output(values: Sequence[int] | None, capacity: int | None = None,
         order.append(current)
         for neighbor in range(n):
             if adjacency[current][neighbor] and not selected[neighbor]:
-                labels[neighbor].insert(0, step)
+                labels[neighbor].append(n - step)
     output = b"".join(struct.pack("<q", vertex) for vertex in order)
     if output_is_null or capacity is not None and capacity < len(output):
         return -2, b""

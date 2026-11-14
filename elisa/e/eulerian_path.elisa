@@ -11,10 +11,13 @@ def eulerian_path_put_i64(output: mutable view[u8], byte_offset: usize, value: i
         byte <- byte + 1
 
 def eulerian_path_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null or length < 2 or input[0] < 0 or input[0] > MAX_VERTICES.i64() or input[1] < 0 or input[1] > MAX_EDGES.i64():
+    if input.is_null() or length < 2 or length > 2 + 2 * MAX_EDGES:
         return -1
-    vertices: usize = input[0].usize()
-    edges: usize = input[1].usize()
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > MAX_VERTICES.i64() or values[1] < 0 or values[1] > MAX_EDGES.i64():
+        return -1
+    vertices: usize = values[0].usize()
+    edges: usize = values[1].usize()
     if length != 2 + 2 * edges:
         return -1
 
@@ -23,8 +26,8 @@ def eulerian_path_impl(input: i64&, length: usize, output: mutable u8&, capacity
     out_degree: mutable usize[MAX_VERTICES] = zeroed
     edge: mutable usize = 0
     while edge < edges:
-        source: i64 = input[2 + 2 * edge]
-        destination: i64 = input[3 + 2 * edge]
+        source: i64 = values[2 + 2 * edge]
+        destination: i64 = values[3 + 2 * edge]
         if source < 0 or source >= vertices.i64() or destination < 0 or destination >= vertices.i64():
             return -1
         source_index: usize = source.usize()
@@ -82,11 +85,12 @@ def eulerian_path_impl(input: i64&, length: usize, output: mutable u8&, capacity
     if path_count != edges + 1:
         return 0
     bytes: usize = path_count * 8
-    if output == null or capacity < bytes:
+    if output.is_null() or capacity < bytes:
         return -2
+    target: mutable view[u8] = output[0:bytes]
     index: mutable usize = 0
     while index < path_count:
-        eulerian_path_put_i64(output[0:bytes], index * 8, reverse_path[path_count - index - 1].i64())
+        eulerian_path_put_i64(target, index * 8, reverse_path[path_count - index - 1].i64())
         index <- index + 1
     bytes.i64()
 

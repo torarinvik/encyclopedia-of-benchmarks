@@ -22,6 +22,10 @@ The output contains the complete ordered frontiers concatenated as
 `n<=8`, `m<=24`, `1<=r<=4`. Graph loading, random-number generation, printed
 timings, and materializing a sampled subgraph are outside the profile.
 Malformed input returns `-1`; null output or insufficient capacity returns
-`-2` without writes. See `workload.json`,
+`-2` without writes. The entire sampling trace is validated before output
+capacity is checked. See `workload.json`,
 `../../graphai_frontier_sampler_oracle.py`, and the suite's independent
 verifier oracle.
+
+The [Mojo draft](../../../mojo/g/graphai_frontier_sampler.mojo) follows this
+same deterministic trace and validation order.

@@ -17,6 +17,8 @@ small and exactly representable in the TSVC float and double families.
 See the independent [oracle](../../tsvc_s1113_feedback_anchor_add_oracle.py)
 and [workload](workload.json).
 
+A [Mojo draft](../../../mojo/t/tsvc_s1113_feedback_anchor_add.mojo) is present and remains unverified.
+
 ## Source and rights
 
 Source is `s1113` in `TSVC/tsc.inc`, lines 977–1000, pinned to LAC-DCC

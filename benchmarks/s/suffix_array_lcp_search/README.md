@@ -9,6 +9,9 @@ This package implements the chapter's LCP-enhanced binary search over a suffix a
 - Output is `[occurrence_count,start_0,...]`, with starts emitted in suffix-array lexicographic order. The text-index construction is a bounded insertion sort and direct adjacent-LCP scan; the package makes no construction-time claim. The query recurrence matches the chapter's search cases, with a fixed suffix-prefix comparator for the upper bound. Maximum input is 50 words and output is 264 bytes.
 - This profile is distinct from [suffix_array](../suffix_array/README.md), which only returns sorted suffix starts, and from exact brute-force/KMP matching packages, which do not use endpoint LCP reuse. It does not claim a randomized or compressed index, nor a generalized collection index.
 
+The bounded insertion-sort construction has O(n³) worst-case time; interval
+precomputation and the two searches use O(n²) workspace in this profile.
+
 ## Provenance and rights
 
 Source attribution: Srinivas Aluru, “Text Indexing,” *Encyclopedia of Algorithms*, DOI `10.1007/978-1-4939-2864-4_422`; the LCP binary-search procedure is attributed there to reference [15], Manber and Myers. The chapter and summarized research remain copyrighted. This package is a clean-room implementation and copies no code, prose, or figures; no source-code license is asserted. See [`RIGHTS.md`](RIGHTS.md).
@@ -25,6 +28,7 @@ Source attribution: Srinivas Aluru, “Text Indexing,” *Encyclopedia of Algori
 | C3 | [`c3/s/suffix_array_lcp_search.c3`](../../../c3/s/suffix_array_lcp_search.c3) |
 | C++ | [`cpp/s/suffix_array_lcp_search.cpp`](../../../cpp/s/suffix_array_lcp_search.cpp) |
 | Elisa | [`elisa/s/suffix_array_lcp_search.elisa`](../../../elisa/s/suffix_array_lcp_search.elisa) |
+| Mojo | [`mojo/s/suffix_array_lcp_search.mojo`](../../../mojo/s/suffix_array_lcp_search.mojo) (draft; not compiled or run) |
 | Nim | [`nim/s/suffix_array_lcp_search.nim`](../../../nim/s/suffix_array_lcp_search.nim) |
 | Odin | [`odin/s/suffix_array_lcp_search.odin`](../../../odin/s/suffix_array_lcp_search.odin) |
 | Rust | [`rust/s/suffix_array_lcp_search.rs`](../../../rust/s/suffix_array_lcp_search.rs) |

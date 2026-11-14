@@ -22,11 +22,16 @@ The `i64_scalar_bytes_output` entry point is `almabench(days, output, output_cap
 | C3 | [c3/a/almabench.c3](../../../c3/a/almabench.c3) |
 | C++ | [cpp/a/almabench.cpp](../../../cpp/a/almabench.cpp) |
 | Elisa | [elisa/a/almabench.elisa](../../../elisa/a/almabench.elisa) |
+| Mojo | [mojo/a/almabench.mojo](../../../mojo/a/almabench.mojo) |
 | Nim | [nim/a/almabench.nim](../../../nim/a/almabench.nim) |
 | Odin | [odin/a/almabench.odin](../../../odin/a/almabench.odin) |
 | Rust | [rust/a/almabench.rs](../../../rust/a/almabench.rs) |
 | V | [v/a/almabench.v](../../../v/a/almabench.v) |
 | Zig | [zig/a/almabench.zig](../../../zig/a/almabench.zig) |
+
+The Mojo draft has not been compiled or run. Floating-point equivalence and
+preservation of the daily and velocity calculations under optimization need
+verification.
 
 ## Pinned source
 

@@ -9,6 +9,9 @@ This benchmark ports the pinned Rust Jarvis march (gift-wrapping) routine. It re
 - Zero, one, and two points produce an empty hull, matching the source. Invalid shape, coordinate bounds, duplicate points, or collinear triples return `-1`.
 - Output is the ordered hull as `[x_0, y_0, x_1, y_1, ...]`, encoded as little-endian signed 64-bit integers. The return value is the number of output bytes; an empty hull returns `0`, and insufficient output capacity returns `-2`.
 - The fixed-size ports use integer cross products over the bounded coordinate range, so orientation does not depend on architecture-specific floating-point behavior.
+- The wrapping step takes `O(nh)` time for `h` hull vertices; validation of
+  the no-collinear-triple contract takes `O(n³)` time. Auxiliary storage is
+  `O(n)`.
 
 [`workload.json`](workload.json) covers empty and small inputs, triangle and rectangle hulls, a 64-point general-position set, malformed geometry, and output-capacity failure.
 
@@ -26,6 +29,7 @@ python3 benchmarks/verify_i64_array_bytes_output.py --algorithms jarvis_scan
 | C3 | [`c3/j/jarvis_scan.c3`](../../../c3/j/jarvis_scan.c3) |
 | C++ | [`cpp/j/jarvis_scan.cpp`](../../../cpp/j/jarvis_scan.cpp) |
 | Elisa | [`elisa/j/jarvis_scan.elisa`](../../../elisa/j/jarvis_scan.elisa) |
+| Mojo | [`mojo/j/jarvis_scan.mojo`](../../../mojo/j/jarvis_scan.mojo) (unverified draft) |
 | Nim | [`nim/j/jarvis_scan.nim`](../../../nim/j/jarvis_scan.nim) |
 | Odin | [`odin/j/jarvis_scan.odin`](../../../odin/j/jarvis_scan.odin) |
 | Rust | [`rust/j/jarvis_scan.rs`](../../../rust/j/jarvis_scan.rs) |

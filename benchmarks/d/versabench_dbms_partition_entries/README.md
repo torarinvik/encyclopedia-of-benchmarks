@@ -10,6 +10,8 @@ The source enumerates pairs in input order and chooses the pair whose union has 
 
 Bounded integer coordinates make 4D volumes small exact integers that are exactly representable by the source's binary32 `Float`. This profile covers the split partition rule only; it does not model linked-list mutation, node allocation, parent-bound updates, recursive insertion, or database I/O.
 
+For n entries, seed selection takes O(n²) time, assignment takes O(n), and extra space is O(1), with four dimensions fixed.
+
 ## Source attribution and rights
 
 The algorithm is `partitionEntries` in [`VersaBench/dbms/partitionEntries.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/partitionEntries.c), supported by `penalty.c`, `keyUnion.c`, `volume.c`, and `indexKey.h`, pinned at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The source headers identify M. L. Rivas and state `Copyright 1999, Atlantic Aerospace Electronics Corp.`. No explicit redistribution license was present in the pinned directory. This package independently implements the documented split heuristic and copies no upstream code or comments; see [NOTICE.txt](NOTICE.txt) for the rights status.
@@ -22,6 +24,7 @@ The independent oracle is [`versabench_dbms_partition_entries_oracle.py`](../../
 - C3: [`c3/d/versabench_dbms_partition_entries.c3`](../../../c3/d/versabench_dbms_partition_entries.c3)
 - C++: [`cpp/d/versabench_dbms_partition_entries.cpp`](../../../cpp/d/versabench_dbms_partition_entries.cpp)
 - Elisa: [`elisa/d/versabench_dbms_partition_entries.elisa`](../../../elisa/d/versabench_dbms_partition_entries.elisa)
+- Mojo: [`mojo/d/versabench_dbms_partition_entries.mojo`](../../../mojo/d/versabench_dbms_partition_entries.mojo)
 - Nim: [`nim/d/versabench_dbms_partition_entries.nim`](../../../nim/d/versabench_dbms_partition_entries.nim)
 - Odin: [`odin/d/versabench_dbms_partition_entries.odin`](../../../odin/d/versabench_dbms_partition_entries.odin)
 - Rust: [`rust/d/versabench_dbms_partition_entries.rs`](../../../rust/d/versabench_dbms_partition_entries.rs)

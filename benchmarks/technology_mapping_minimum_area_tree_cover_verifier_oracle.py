@@ -57,11 +57,11 @@ def _solve(parsed):
             left_cost, right_cost = minimum(left)[0], minimum(right)[0]
             if costs[1] >= 0 and left_cost is not None and right_cost is not None:
                 candidates.append((costs[1] + left_cost + right_cost, 1))
-            if costs[2] >= 0 and nodes[left][0] == 1 and left_cost is not None:
+            if costs[2] >= 0 and nodes[left][0] == 1:
                 cut_cost = minimum(nodes[left][1])[0]
                 if cut_cost is not None and right_cost is not None:
                     candidates.append((costs[2] + cut_cost + right_cost, 2))
-            if costs[3] >= 0 and nodes[right][0] == 1 and right_cost is not None:
+            if costs[3] >= 0 and nodes[right][0] == 1:
                 cut_cost = minimum(nodes[right][1])[0]
                 if left_cost is not None and cut_cost is not None:
                     candidates.append((costs[3] + left_cost + cut_cost, 3))

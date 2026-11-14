@@ -8,6 +8,9 @@ The `i64_array_scalar` entry point is `mccat_09_vor`. Input is `[site_count, x0,
 
 The convex hull is built in counterclockwise order, with collinear hull points omitted. Interior sites do not participate in the contraction, matching the source's hull-only construction. At each step the maximum circumradius-squared key is removed; equal radius keys use the smaller signed cosine-squared angle. The remaining three sites produce the source's final circle: the circumcircle for an acute/right triangle, and the minimum enclosing circle with diameter on the longest side for an obtuse triangle. The center coordinates are truncated toward zero and the radius is rounded to hundredths (ties upward).
 
+The bounded implementation uses `O(n³)` time for input validation and
+repeated priority comparisons, and `O(n)` auxiliary space.
+
 The result encodes `(center_x, center_y, radius_cents)` as `(((center_x + 1024) * 2049 + (center_y + 1024)) * 200000 + radius_cents)`. Invalid inputs or unencodable outputs return `-1`. The profile keeps all intermediate geometry small and the maximum input length is 17 signed 64-bit words.
 
 ## Relationship to local packages
@@ -16,6 +19,9 @@ This is not another port of the local Fortune sweep (`fortune_voronoi`), Olden q
 
 ## Pinned source and license
 
-Source: [`McCat/09-vor`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/09-vor) at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The source launcher `info.sh` compiles `vor.c`, `ch.c`, `intersec.c`, `pointlis.c`, `splay.c`, and `splay2.c` with `-lm`; its sample input is `vor.in3`. The source files carry a 1996 McGill University, McCAT System Group, and ACAPS Benchmark Administrator notice that permits redistribution and modification if the notice is maintained. The complete notice is preserved in [LICENSE_NOTICE.txt](LICENSE_NOTICE.txt) and in all nine language ports. The ports are independent implementations of the bounded contract, not copied source files.
+Source: [`McCat/09-vor`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/09-vor) at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The source launcher `info.sh` compiles `vor.c`, `ch.c`, `intersec.c`, `pointlis.c`, `splay.c`, and `splay2.c` with `-lm`; its sample input is `vor.in3`. The source files carry a 1996 McGill University, McCAT System Group, and ACAPS Benchmark Administrator notice that permits redistribution and modification if the notice is maintained. The complete notice is preserved in [LICENSE_NOTICE.txt](LICENSE_NOTICE.txt). The ports are independent implementations of the bounded contract, not copied source files.
 
 See [workload.json](workload.json) and the independent [Python oracle](../../mccat_09_vor_oracle.py).
+
+The [Mojo draft](../../../mojo/m/mccat_09_vor.mojo) retains the copyright
+attribution and points to the package notice. It has not been compiled or run.

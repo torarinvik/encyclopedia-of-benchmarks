@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "exponential-histogram-window-i64-array-bytes-output-v1",
+  "algorithm": "exponential_histogram_window",
+  "function_symbol": "exponential_histogram_window",
+  "abi": "i64_array_bytes_output",
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[window,n,bits[n]]", "maximum_valid_length": 130, "maximum_parseable_length": 131, "invalid_input_result": -1},
+  "output": {"encoding": "little-endian i64 twice-estimates for each stream prefix", "maximum_bytes": 1024, "invalid_input_result": -1, "output_error_result": -2, "output_untouched_on_error": true},
+  "workspace": {"bytes": 1024, "meaning": "Maximum serialized prefix estimates."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 5},
+  "source": {"url": "https://www.cs.princeton.edu/courses/archive/spr04/cos598B/bib/DatarGIM.pdf", "reuse": "Algorithmic idea only; independently authored code and fixtures."},
+  "cases": [
+    {"id": "empty", "input_values": [1,0], "input_length": 2, "output_capacity": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "zeros", "input_values": [3,3,0,0,0], "input_length": 5, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "000000000000000000000000000000000000000000000000"},
+    {"id": "merge_and_expire", "input_values": [4,6,1,1,1,0,0,0], "input_length": 8, "output_capacity": 48, "expected_result": 48, "expected_output_hex": "010000000000000003000000000000000400000000000000040000000000000004000000000000000100000000000000"},
+    {"id": "single_bit_window", "input_values": [1,3,1,0,1], "input_length": 5, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "010000000000000000000000000000000100000000000000"},
+    {"id": "invalid_window", "input_values": [0,0], "input_length": 2, "output_capacity": 1024, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_bit_before_output", "input_values": [1,1,2], "input_length": 3, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output", "input_values": [1,1,1], "input_length": 3, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output_empty", "input_values": [1,0], "input_length": 2, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 2, "input_is_null": true, "output_capacity": 1024, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

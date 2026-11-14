@@ -1,0 +1,473 @@
+# Uncompiled and unexecuted Elisa half-GCD resultant draft.
+extern calloc(count: usize, size: usize) -> mutable i64&?
+extern free(memory: mutable i64&) -> void
+const RP_MOD: i64 = 998244353
+
+def rp_power(value: i64, exponent_value: usize) -> i64:
+    base: mutable i64 = value
+    exponent: mutable usize = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * base) % RP_MOD
+        base <- (base * base) % RP_MOD
+        exponent <- exponent >> 1
+    result
+
+def rp_transform(values: mutable view[i64], count: usize, inverse: bool) -> void:
+    reversed: mutable usize = 0
+    for i in 1..<count:
+        bit: mutable usize = count >> 1
+        while (reversed & bit) != 0:
+            reversed <- reversed ^ bit
+            bit <- bit >> 1
+        reversed <- reversed ^ bit
+        if i < reversed:
+            tmp: i64 = values[i]
+            values[i] <- values[reversed]
+            values[reversed] <- tmp
+    width: mutable usize = 2
+    while width <= count:
+        root: mutable i64 = rp_power(3, ((RP_MOD - 1) / width.i64()).usize())
+        if inverse: root <- rp_power(root, (RP_MOD - 2).usize())
+        start: mutable usize = 0
+        while start < count:
+            factor: mutable i64 = 1
+            for k in 0..<(width / 2):
+                x: i64 = values[start + k]
+                y: i64 = (values[start + k + width / 2] * factor) % RP_MOD
+                values[start + k] <- (x + y) % RP_MOD
+                values[start + k + width / 2] <- (x - y + RP_MOD) % RP_MOD
+                factor <- (factor * root) % RP_MOD
+            start <- start + width
+        width <- width * 2
+    if inverse:
+        scale: i64 = rp_power(count.i64(), (RP_MOD - 2).usize())
+        for i in 0..<count: values[i] <- (values[i] * scale) % RP_MOD
+
+# All output and scratch views must be disjoint from inputs and each other.
+# output holds at least an+bn-1 values; both scratch views hold the next
+# power of two of that length. Return the canonical output length.
+def rp_mul(a: view[i64], an: usize, b: view[i64], bn: usize,
+           output: mutable view[i64], left: mutable view[i64],
+           right: mutable view[i64]) -> usize:
+    if an == 0 or bn == 0: return 0
+    needed: usize = an + bn - 1
+    for i in 0..<needed: output[i] <- 0
+    if an <= 32 or bn <= 32:
+        for i in 0..<an:
+            for j in 0..<bn: output[i+j] <- (output[i+j] + a[i]*b[j]) % RP_MOD
+    else:
+        size: mutable usize = 1
+        while size < needed: size <- size * 2
+        for i in 0..<size:
+            left[i] <- 0
+            right[i] <- 0
+        for i in 0..<an: left[i] <- a[i]
+        for i in 0..<bn: right[i] <- b[i]
+        rp_transform(left[0:size], size, false)
+        rp_transform(right[0:size], size, false)
+        for i in 0..<size: left[i] <- (left[i] * right[i]) % RP_MOD
+        rp_transform(left[0:size], size, true)
+        for i in 0..<needed: output[i] <- left[i]
+    used: mutable usize = needed
+    while used > 0 and output[used-1] == 0: used <- used - 1
+    used
+
+# The inverse is a fixed-length series, so zero padding must be retained.
+def rp_inverse(poly: view[i64], poly_len: usize, count: usize,
+               inverse: mutable view[i64], product: mutable view[i64],
+               correction: mutable view[i64], left: mutable view[i64],
+               right: mutable view[i64]) -> void:
+    inverse[0] <- rp_power(poly[0], (RP_MOD - 2).usize())
+    length: mutable usize = 1
+    while length < count:
+        next: mutable usize = 2 * length
+        if next > count: next <- count
+        prefix: mutable usize = poly_len
+        if prefix > next: prefix <- next
+        product_len: usize = rp_mul(poly[0:prefix], prefix, inverse[0:length], length,
+                                    product, left, right)
+        for i in 0..<next:
+            value: mutable i64 = 0
+            if i < product_len: value <- product[i]
+            correction[i] <- (RP_MOD - value) % RP_MOD
+        correction[0] <- (correction[0] + 2) % RP_MOD
+        updated_len: usize = rp_mul(inverse[0:length], length, correction[0:next], next,
+                                    product, left, right)
+        for i in 0..<next:
+            inverse[i] <- 0
+            if i < updated_len: inverse[i] <- product[i]
+        length <- next
+
+# Writes quotient and remainder into disjoint caller-owned views and stores
+# their canonical lengths in lengths[0] and lengths[1]. The divisor is
+# nonzero. Work views must be disjoint and sized for the largest product.
+def rp_divrem(a: view[i64], an: usize, b: view[i64], bn: usize,
+              quotient: mutable view[i64], remainder: mutable view[i64],
+              lengths: mutable view[usize], high: mutable view[i64],
+              reversed: mutable view[i64], inverse: mutable view[i64],
+              product: mutable view[i64], correction: mutable view[i64],
+              left: mutable view[i64], right: mutable view[i64]) -> void:
+    if an < bn:
+        lengths[0] <- 0
+        lengths[1] <- an
+        for i in 0..<an: remainder[i] <- a[i]
+        return
+    count: usize = an - bn + 1
+    for i in 0..<count: high[i] <- a[an - 1 - i]
+    for i in 0..<bn: reversed[i] <- b[bn - 1 - i]
+    rp_inverse(reversed[0:bn], bn, count, inverse, product, correction, left, right)
+    qrev_len: usize = rp_mul(high[0:count], count, inverse[0:count], count,
+                             product, left, right)
+    for i in 0..<count:
+        index: usize = count - 1 - i
+        quotient[i] <- 0
+        if index < qrev_len: quotient[i] <- product[index]
+    removed_len: usize = rp_mul(quotient[0:count], count, b[0:bn], bn,
+                                product, left, right)
+    for i in 0..<(bn - 1):
+        sub: mutable i64 = 0
+        if i < removed_len: sub <- product[i]
+        remainder[i] <- (a[i] - sub + RP_MOD) % RP_MOD
+    qlen: mutable usize = count
+    rlen: mutable usize = bn - 1
+    while qlen > 0 and quotient[qlen-1] == 0: qlen <- qlen - 1
+    while rlen > 0 and remainder[rlen-1] == 0: rlen <- rlen - 1
+    lengths[0] <- qlen
+    lengths[1] <- rlen
+
+# Four matrix entries occupy consecutive slots of `stride` coefficients in
+# row-major order. Lengths are canonical; a zero polynomial has length zero.
+def rp_identity(matrix: mutable view[i64], lengths: mutable view[usize], stride: usize) -> void:
+    for i in 0..<4: lengths[i] <- 0
+    lengths[0] <- 1
+    lengths[3] <- 1
+    matrix[0] <- 1
+    matrix[3 * stride] <- 1
+
+def rp_step(quotient: view[i64], qlen: usize, matrix: mutable view[i64],
+            lengths: mutable view[usize], stride: usize) -> void:
+    lengths[0] <- 0
+    lengths[1] <- 1
+    lengths[2] <- 1
+    lengths[3] <- qlen
+    matrix[stride] <- 1
+    matrix[2 * stride] <- 1
+    for i in 0..<qlen:
+        matrix[3 * stride + i] <- (RP_MOD - quotient[i]) % RP_MOD
+
+# Computes a*b+c*d. Temporary products and NTT views are disjoint from the
+# inputs and destination. `product_a` and `product_b` each hold a complete
+# product, and output has room for the longer one.
+def rp_dot(a: view[i64], an: usize, b: view[i64], bn: usize,
+           c: view[i64], cn: usize, d: view[i64], dn: usize,
+           output: mutable view[i64], product_a: mutable view[i64],
+           product_b: mutable view[i64], left: mutable view[i64],
+           right: mutable view[i64]) -> usize:
+    first_len: usize = rp_mul(a, an, b, bn, product_a, left, right)
+    second_len: usize = rp_mul(c, cn, d, dn, product_b, left, right)
+    used: mutable usize = first_len
+    if second_len > used: used <- second_len
+    for i in 0..<used:
+        x: mutable i64 = 0
+        y: mutable i64 = 0
+        if i < first_len: x <- product_a[i]
+        if i < second_len: y <- product_b[i]
+        output[i] <- (x + y) % RP_MOD
+    while used > 0 and output[used-1] == 0: used <- used - 1
+    used
+
+# `output` cannot alias either input matrix. All entries use one shared
+# stride; caller must ensure each product and sum fits that stride.
+def rp_compose(x: view[i64], x_lengths: view[usize],
+               y: view[i64], y_lengths: view[usize],
+               output: mutable view[i64], out_lengths: mutable view[usize], stride: usize,
+               product_a: mutable view[i64], product_b: mutable view[i64],
+               left: mutable view[i64], right: mutable view[i64]) -> void:
+    for row in 0..<2:
+        for column in 0..<2:
+            xi: usize = 2 * row
+            yi: usize = column
+            slot: usize = 2 * row + column
+            out_lengths[slot] <- rp_dot(
+                x[xi*stride:(xi+1)*stride], x_lengths[xi],
+                y[yi*stride:(yi+1)*stride], y_lengths[yi],
+                x[(xi+1)*stride:(xi+2)*stride], x_lengths[xi+1],
+                y[(yi+2)*stride:(yi+3)*stride], y_lengths[yi+2],
+                output[slot*stride:(slot+1)*stride], product_a, product_b, left, right)
+
+# Applies a forward matrix to a polynomial pair. Outputs and scratch views
+# are distinct from one another and from the matrix and input pair.
+def rp_apply(matrix: view[i64], lengths: view[usize], stride: usize,
+             a: view[i64], an: usize, b: view[i64], bn: usize,
+             output_a: mutable view[i64], output_b: mutable view[i64],
+             out_lengths: mutable view[usize], product_a: mutable view[i64],
+             product_b: mutable view[i64], left: mutable view[i64],
+             right: mutable view[i64]) -> void:
+    out_lengths[0] <- rp_dot(matrix[0:stride], lengths[0], a, an,
+                             matrix[stride:2*stride], lengths[1], b, bn,
+                             output_a, product_a, product_b, left, right)
+    out_lengths[1] <- rp_dot(matrix[2*stride:3*stride], lengths[2], a, an,
+                             matrix[3*stride:4*stride], lengths[3], b, bn,
+                             output_b, product_a, product_b, left, right)
+
+# Left-compose the forward Euclidean step [[0,1],[1,-q]] with a matrix.
+# The input and output matrices are disjoint. This specialization avoids
+# constructing a separate step matrix and performs only two multiplications.
+def rp_left_step(matrix: view[i64], lengths: view[usize], stride: usize,
+                 quotient: view[i64], qlen: usize,
+                 output: mutable view[i64], out_lengths: mutable view[usize],
+                 product: mutable view[i64], left: mutable view[i64],
+                 right: mutable view[i64]) -> void:
+    for column in 0..<2:
+        top: usize = column
+        bottom: usize = column + 2
+        out_lengths[top] <- lengths[bottom]
+        for i in 0..<lengths[bottom]:
+            output[top*stride+i] <- matrix[bottom*stride+i]
+        product_len: usize = rp_mul(quotient, qlen,
+                                    matrix[bottom*stride:(bottom+1)*stride], lengths[bottom],
+                                    product, left, right)
+        used: mutable usize = lengths[top]
+        if product_len > used: used <- product_len
+        for i in 0..<used:
+            a: mutable i64 = 0
+            b: mutable i64 = 0
+            if i < lengths[top]: a <- matrix[top*stride+i]
+            if i < product_len: b <- product[i]
+            output[bottom*stride+i] <- (a - b + RP_MOD) % RP_MOD
+        while used > 0 and output[bottom*stride+used-1] == 0: used <- used - 1
+        out_lengths[bottom] <- used
+
+def rp_matrix_copy(source: view[i64], source_lengths: view[usize], source_stride: usize,
+                   target: mutable view[i64], target_lengths: mutable view[usize],
+                   target_stride: usize) -> void:
+    for slot in 0..<4:
+        target_lengths[slot] <- source_lengths[slot]
+        for i in 0..<source_lengths[slot]:
+            target[slot*target_stride+i] <- source[slot*source_stride+i]
+
+# Recursive matrix reduction draft. Each frame reserves 16*stride entries,
+# with stride = 2*an+2: three matrices followed by c, d, quotient, remainder.
+# Child frames use the remaining workspace; arithmetic scratch is shared only
+# between calls, never concurrently. False signals insufficient workspace.
+# Callers must separately ensure output and scratch views are sufficiently
+# large and disjoint. `degrees` and `leading` hold the quotient heads in order.
+def rp_half(a: view[i64], an: usize, b: view[i64], bn: usize,
+            output: mutable view[i64], out_lengths: mutable view[usize], out_stride: usize,
+            workspace: mutable view[i64], workspace_len: usize,
+            degrees: mutable view[i64], leading: mutable view[i64],
+            head_count: mutable usize&, head_capacity: usize,
+            high: mutable view[i64], reversed: mutable view[i64], inverse: mutable view[i64],
+            work_a: mutable view[i64], work_b: mutable view[i64],
+            product_a: mutable view[i64], product_b: mutable view[i64],
+            left: mutable view[i64], right: mutable view[i64]) -> bool:
+    if bn == 0:
+        rp_identity(output, out_lengths, out_stride)
+        return true
+    degree: usize = an - 1
+    threshold: usize = (degree + 1) / 2
+    if bn <= threshold:
+        rp_identity(output, out_lengths, out_stride)
+        return true
+    stride: usize = 2 * an + 2
+    frame: usize = 16 * stride
+    if workspace_len < frame: return false
+    first_lengths: mutable usize[4] = zeroed
+    prefix_lengths: mutable usize[4] = zeroed
+    last_lengths: mutable usize[4] = zeroed
+    pair_lengths: mutable usize[2] = zeroed
+    div_lengths: mutable usize[2] = zeroed
+    child_len: usize = workspace_len - frame
+    if not rp_half(a[threshold:an], an-threshold, b[threshold:bn], bn-threshold,
+                   workspace[0:4*stride], first_lengths[0:4], stride,
+                   workspace[frame:workspace_len], child_len,
+                   degrees, leading, head_count, head_capacity,
+                   high, reversed, inverse, work_a, work_b, product_a, product_b, left, right):
+        return false
+    rp_apply(workspace[0:4*stride], first_lengths[0:4], stride, a, an, b, bn,
+             workspace[12*stride:13*stride], workspace[13*stride:14*stride],
+             pair_lengths[0:2], product_a, product_b, left, right)
+    if pair_lengths[1] == 0 or pair_lengths[1] <= threshold:
+        rp_matrix_copy(workspace[0:4*stride], first_lengths[0:4], stride,
+                       output, out_lengths, out_stride)
+        return true
+    rp_divrem(workspace[12*stride:13*stride], pair_lengths[0],
+              workspace[13*stride:14*stride], pair_lengths[1],
+              workspace[14*stride:15*stride], workspace[15*stride:16*stride],
+              div_lengths[0:2], high, reversed, inverse, work_a, work_b, left, right)
+    if div_lengths[0] == 0 or head_count >= head_capacity: return false
+    degrees[head_count] <- (div_lengths[0] - 1).i64()
+    leading[head_count] <- workspace[14*stride + div_lengths[0] - 1]
+    head_count <- head_count + 1
+    rp_left_step(workspace[0:4*stride], first_lengths[0:4], stride,
+                 workspace[14*stride:15*stride], div_lengths[0],
+                 workspace[4*stride:8*stride], prefix_lengths[0:4],
+                 product_a, left, right)
+    if div_lengths[1] == 0:
+        rp_matrix_copy(workspace[4*stride:8*stride], prefix_lengths[0:4], stride,
+                       output, out_lengths, out_stride)
+        return true
+    shift: usize = 2 * threshold - (pair_lengths[1] - 1)
+    if shift >= div_lengths[1]:
+        rp_matrix_copy(workspace[4*stride:8*stride], prefix_lengths[0:4], stride,
+                       output, out_lengths, out_stride)
+        return true
+    if not rp_half(workspace[13*stride+shift:13*stride+pair_lengths[1]], pair_lengths[1]-shift,
+                   workspace[15*stride+shift:15*stride+div_lengths[1]], div_lengths[1]-shift,
+                   workspace[8*stride:12*stride], last_lengths[0:4], stride,
+                   workspace[frame:workspace_len], child_len,
+                   degrees, leading, head_count, head_capacity,
+                   high, reversed, inverse, work_a, work_b, product_a, product_b, left, right):
+        return false
+    rp_compose(workspace[8*stride:12*stride], last_lengths[0:4],
+               workspace[4*stride:8*stride], prefix_lengths[0:4],
+               workspace[0:4*stride], first_lengths[0:4], stride,
+               product_a, product_b, left, right)
+    rp_matrix_copy(workspace[0:4*stride], first_lengths[0:4], stride,
+                   output, out_lengths, out_stride)
+    true
+
+# Compute the contribution of a nonempty quotient sequence. The final
+# remainder degree is taken from the full lifted pair, rather than the
+# truncated final remainder of any recursive call. Returns -1 if the supplied
+# metadata is inconsistent, allowing the caller to reject a broken invariant.
+def rp_factors(first_degree: usize, second_degree: usize, second_leading: i64,
+               final_degree: usize, degrees: view[i64], leading: view[i64],
+               count: usize) -> i64:
+    if count == 0 or first_degree <= second_degree: return -1
+    if second_leading <= 0 or second_leading >= RP_MOD: return -1
+    da: mutable usize = first_degree
+    db: mutable usize = second_degree
+    lead: mutable i64 = second_leading
+    factor: mutable i64 = 1
+    for i in 0..<count:
+        if degrees[i] != (da - db).i64() or leading[i] <= 0 or leading[i] >= RP_MOD: return -1
+        last: bool = i + 1 == count
+        dr: mutable usize = final_degree
+        if not last:
+            if degrees[i + 1] <= 0: return -1
+            next_degree: usize = degrees[i + 1].usize()
+            if next_degree == 0 or next_degree > db: return -1
+            dr <- db - next_degree
+        if dr >= db: return -1
+        if (da & 1) != 0 and (db & 1) != 0: factor <- RP_MOD - factor
+        factor <- (factor * rp_power(lead, da - dr)) % RP_MOD
+        if not last:
+            if leading[i + 1] <= 0 or leading[i + 1] >= RP_MOD: return -1
+            lead <- (lead * rp_power(leading[i + 1], (RP_MOD - 2).usize())) % RP_MOD
+        da <- db
+        db <- dr
+    factor
+
+# Runs the top-level remainder sequence in caller-owned, non-overlapping
+# buffers. `a` and `b` contain canonical nonzero polynomials and are ordered
+# with an >= bn. `matrix_stride` and all scratch capacities are supplied by
+# the eventual ABI wrapper. Returns -1 if a reduction invariant or the
+# recursive frame capacity fails.
+def rp_resultant_work(a: mutable view[i64], first_len: usize,
+                      b: mutable view[i64], second_len: usize,
+                      matrix: mutable view[i64], matrix_stride: usize,
+                      frames: mutable view[i64], frame_capacity: usize,
+                      degrees: mutable view[i64], leading: mutable view[i64],
+                      head_capacity: usize,
+                      c: mutable view[i64], d: mutable view[i64],
+                      quotient: mutable view[i64], remainder: mutable view[i64],
+                      high: mutable view[i64], reversed: mutable view[i64],
+                      inverse: mutable view[i64], work_a: mutable view[i64],
+                      work_b: mutable view[i64], product_a: mutable view[i64],
+                      product_b: mutable view[i64], left: mutable view[i64],
+                      right: mutable view[i64]) -> i64:
+    an: mutable usize = first_len
+    bn: mutable usize = second_len
+    answer: mutable i64 = 1
+    matrix_lengths: mutable usize[4] = zeroed
+    pair_lengths: mutable usize[2] = zeroed
+    div_lengths: mutable usize[2] = zeroed
+    while true:
+        if bn == 1: return (answer * rp_power(b[0], an-1)) % RP_MOD
+        head_count: mutable usize = 0
+        if an != bn:
+            if not rp_half(a[0:an], an, b[0:bn], bn,
+                           matrix, matrix_lengths[0:4], matrix_stride,
+                           frames, frame_capacity, degrees, leading, head_count, head_capacity,
+                           high, reversed, inverse, work_a, work_b,
+                           product_a, product_b, left, right):
+                return -1
+        if head_count == 0:
+            rp_divrem(a[0:an], an, b[0:bn], bn, quotient, remainder,
+                      div_lengths[0:2], high, reversed, inverse, work_a, work_b, left, right)
+            if div_lengths[1] == 0: return 0
+            da: usize = an-1
+            db: usize = bn-1
+            dr: usize = div_lengths[1]-1
+            if (da & 1) != 0 and (db & 1) != 0: answer <- RP_MOD-answer
+            answer <- (answer * rp_power(b[bn-1], da-dr)) % RP_MOD
+            for i in 0..<bn: a[i] <- b[i]
+            for i in 0..<div_lengths[1]: b[i] <- remainder[i]
+            an <- bn
+            bn <- div_lengths[1]
+        else:
+            rp_apply(matrix, matrix_lengths[0:4], matrix_stride, a[0:an], an, b[0:bn], bn,
+                     c, d, pair_lengths[0:2], product_a, product_b, left, right)
+            if pair_lengths[1] == 0: return 0
+            contribution: i64 = rp_factors(an-1, bn-1, b[bn-1], pair_lengths[1]-1,
+                                           degrees, leading, head_count)
+            if contribution < 0: return -1
+            answer <- (answer * contribution) % RP_MOD
+            for i in 0..<pair_lengths[0]: a[i] <- c[i]
+            for i in 0..<pair_lengths[1]: b[i] <- d[i]
+            an <- pair_lengths[0]
+            bn <- pair_lengths[1]
+
+# ABI storage uses one heap allocation, then disjoint views. The frame budget
+# below is conservative but its recursion bound still needs independent review.
+export fn polynomial_resultant_half_gcd(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > 100002: return -1
+    m: i64 = input[0]
+    n: i64 = input[1]
+    if m < 0 or m > 50000 or n < 0 or n > 50000 or m+n > 99998: return -1
+    first_count: usize = m.usize() + 1
+    second_count: usize = n.usize() + 1
+    if length != first_count + second_count + 2: return -1
+    for i in 2..<length:
+        if input[i] < 0 or input[i] >= RP_MOD: return -1
+    if input[1 + first_count] == 0 or input[length - 1] == 0: return -1
+    max_count: mutable usize = first_count
+    if second_count > max_count: max_count <- second_count
+    stride: usize = 2 * max_count + 2
+    frame_capacity: usize = 192 * (max_count + 2)
+    transform_capacity: mutable usize = 1
+    while transform_capacity < 4 * stride: transform_capacity <- transform_capacity * 2
+    frame_start: usize = 22 * stride + 2 * transform_capacity
+    memory_size: usize = frame_start + frame_capacity
+    memory: mutable i64& = get calloc(memory_size, 8) else return -1
+    workspace: mutable view[i64] = memory[0:memory_size]
+    an: mutable usize = first_count
+    bn: mutable usize = second_count
+    sign: mutable i64 = 1
+    if first_count >= second_count:
+        for i in 0..<first_count: workspace[i] <- input[2+i]
+        for i in 0..<second_count: workspace[stride+i] <- input[2+first_count+i]
+    else:
+        an <- second_count
+        bn <- first_count
+        if (m & 1) != 0 and (n & 1) != 0: sign <- RP_MOD-1
+        for i in 0..<second_count: workspace[i] <- input[2+first_count+i]
+        for i in 0..<first_count: workspace[stride+i] <- input[2+i]
+    value: i64 = rp_resultant_work(
+        workspace[0:stride], an, workspace[stride:2*stride], bn,
+        workspace[12*stride:16*stride], stride,
+        workspace[frame_start:memory_size], frame_capacity,
+        workspace[10*stride:11*stride], workspace[11*stride:12*stride], stride,
+        workspace[2*stride:3*stride], workspace[3*stride:4*stride],
+        workspace[4*stride:5*stride], workspace[5*stride:6*stride],
+        workspace[6*stride:7*stride], workspace[7*stride:8*stride],
+        workspace[8*stride:9*stride], workspace[16*stride:18*stride],
+        workspace[9*stride:10*stride], workspace[18*stride:20*stride],
+        workspace[20*stride:22*stride],
+        workspace[22*stride:22*stride+transform_capacity],
+        workspace[22*stride+transform_capacity:frame_start])
+    free(memory)
+    if value < 0: return -1
+    (value * sign) % RP_MOD

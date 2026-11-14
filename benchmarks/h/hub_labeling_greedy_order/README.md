@@ -25,6 +25,12 @@ returns `-2` without writing. The maximum input is 58 i64 words. The maximum
 output is 81 i64 words (648 bytes): one header, up to eight order entries, and
 up to eight labels per each of eight vertices. The bounded serial simulation
 does not claim the chapter's large-graph running-time bounds.
+The dense bounded implementation takes O(n⁴) time for repeated path counting
+and O(n²) space for shortest-path trees, coverage, and labels. The Mojo
+draft is uncompiled and untested.
+The verifier specifies every simple graph on up to four vertices, comparing
+the independent path-enumeration and tree-based references, along with output
+capacity and null-pointer cases. These checks have not been run.
 
 This is distinct from [`hub_labeling_pruned`](../hub_labeling_pruned/README.md),
 which takes a supplied order and constructs labels with pruned BFS. Here the
@@ -44,6 +50,7 @@ Source: Delling, Goldberg, and Werneck, “Hub Labeling (2-Hop Labeling),”
 | C3 | `c3/h/hub_labeling_greedy_order.c3` |
 | C++ | `cpp/h/hub_labeling_greedy_order.cpp` |
 | Elisa | `elisa/h/hub_labeling_greedy_order.elisa` |
+| Mojo | [mojo/h/hub_labeling_greedy_order.mojo](../../../mojo/h/hub_labeling_greedy_order.mojo) |
 | Nim | `nim/h/hub_labeling_greedy_order.nim` |
 | Odin | `odin/h/hub_labeling_greedy_order.odin` |
 | Rust | `rust/h/hub_labeling_greedy_order.rs` |

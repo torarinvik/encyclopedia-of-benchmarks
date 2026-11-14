@@ -18,6 +18,7 @@ int64_t gardenia_symgs(const double *a,size_t len,double *out,size_t cap){
     for(size_t k=0;k<c;++k)for(size_t p=offs[k];p<offs[k+1];++p)group[order[p]]=k;
     for(size_t i=0;i<=n;++i){double z=a[ra+i];if(trunc(z)!=z||z<0||z>md)return -1;row[i]=(size_t)z;if(i&&row[i]<row[i-1])return -1;}
     if(row[0]!=0||row[n]!=m)return -1;
+    for(size_t e=0;e<m;++e){double z=a[ca+e];if(trunc(z)!=z||z<0||z>=nd)return -1;col[e]=(size_t)z;mat[e]=a[va+e];}
     for(size_t u=0;u<n;++u){size_t diag=0;double d=0.0,offsum=0.0;size_t prev=0;
         for(size_t e=row[u];e<row[u+1];++e){double z=a[ca+e];if(trunc(z)!=z||z<0||z>=nd)return -1;col[e]=(size_t)z;if(e>row[u]&&col[e]<=prev)return -1;prev=col[e];mat[e]=a[va+e];if(mat[e]<-4||mat[e]>4)return -1;if(col[e]==u){++diag;d=mat[e];}else{offsum+=fabs(mat[e]);if(group[u]==group[col[e]])return -1;}}
         if(diag!=1||d<=offsum)return -1;

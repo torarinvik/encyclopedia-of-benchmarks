@@ -32,7 +32,7 @@
     "valid_range": [0, 255],
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Root the tree and record each DFS-tour edge traversal in one of two directional segment trees. A paint sets both occurrences; an ancestor-path query subtracts reverse-direction sums from forward-direction sums, and an arbitrary path splits at its LCA.",
     "independent_oracle": "For each query, BFS the current tree to recover its unique path and count painted edge IDs directly.",
     "primary_complexity": "O(N^2 + (N+Q) log N) time and O(N) auxiliary space in the bounded edge-scan implementation.",

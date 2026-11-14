@@ -2,7 +2,7 @@
 proc approximate_regex_matching*(x: ptr UncheckedArray[int64], length: csize_t,
     output: ptr UncheckedArray[uint8], capacity: csize_t): int64
     {.cdecl, exportc: "approximate_regex_matching".} =
-  if x == nil: return -2
+  if x == nil: return -1
   if length < 6 or length > 66: return -1
   let sv=x[0];let ev=x[1];let tv=x[2];let kv=x[3];let startv=x[4];let acceptv=x[5]
   if sv<2 or sv>8 or ev<1 or ev>16 or tv<0 or tv>12 or kv<0 or kv>3 or startv<0 or acceptv<0 or startv>=sv or acceptv>=sv or startv==acceptv:return -1

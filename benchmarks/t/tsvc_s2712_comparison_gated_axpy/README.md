@@ -35,3 +35,4 @@ The independent oracle is [`benchmarks/tsvc_s2712_comparison_gated_axpy_oracle.p
 | Rust | [`tsvc_s2712_comparison_gated_axpy.rs`](../../../rust/t/tsvc_s2712_comparison_gated_axpy.rs) |
 | V | [`tsvc_s2712_comparison_gated_axpy.v`](../../../v/t/tsvc_s2712_comparison_gated_axpy.v) |
 | Zig | [`tsvc_s2712_comparison_gated_axpy.zig`](../../../zig/t/tsvc_s2712_comparison_gated_axpy.zig) |
+| Mojo | [`tsvc_s2712_comparison_gated_axpy.mojo`](../../../mojo/t/tsvc_s2712_comparison_gated_axpy.mojo) |

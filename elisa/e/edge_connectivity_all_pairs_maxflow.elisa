@@ -5,10 +5,11 @@ const ECMF_MAX_PARSEABLE: usize = 93
 def ecmf_pair_flow(adjacency: view[u8], n: usize, source: usize, sink: usize, limit: i64) -> i64:
     residual: mutable i64[ECMF_MAX_VERTICES * ECMF_MAX_VERTICES] = zeroed
     u: mutable usize = 0
+    v: mutable usize = 0
     while u < n:
-        v: mutable usize = 0
+        v <- 0
         while v < n:
-            residual[u * ECMF_MAX_VERTICES + v] = adjacency[u * ECMF_MAX_VERTICES + v].i64()
+            residual[u * ECMF_MAX_VERTICES + v] <- adjacency[u * ECMF_MAX_VERTICES + v].i64()
             v <- v + 1
         u <- u + 1
 
@@ -25,7 +26,7 @@ def ecmf_pair_flow(adjacency: view[u8], n: usize, source: usize, sink: usize, li
         tail: mutable usize = 1
         queue[0] <- source
         while head < tail and parent[sink] < 0:
-            u = queue[head]
+            u <- queue[head]
             head <- head + 1
             v <- 0
             while v < n:
@@ -40,13 +41,13 @@ def ecmf_pair_flow(adjacency: view[u8], n: usize, source: usize, sink: usize, li
         amount: mutable i64 = limit - flow
         v <- sink
         while v != source:
-            u = parent[v].usize()
+            u <- parent[v].usize()
             if residual[u * ECMF_MAX_VERTICES + v] < amount:
                 amount <- residual[u * ECMF_MAX_VERTICES + v]
             v <- u
         v <- sink
         while v != source:
-            u = parent[v].usize()
+            u <- parent[v].usize()
             residual[u * ECMF_MAX_VERTICES + v] <- residual[u * ECMF_MAX_VERTICES + v] - amount
             residual[v * ECMF_MAX_VERTICES + u] <- residual[v * ECMF_MAX_VERTICES + u] + amount
             v <- u

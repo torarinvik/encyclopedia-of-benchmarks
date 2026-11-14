@@ -65,3 +65,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s452_index_weighted_vector_map.rs`](../../../rust/t/tsvc_s452_index_weighted_vector_map.rs) |
 | V | [`tsvc_s452_index_weighted_vector_map.v`](../../../v/t/tsvc_s452_index_weighted_vector_map.v) |
 | Zig | [`tsvc_s452_index_weighted_vector_map.zig`](../../../zig/t/tsvc_s452_index_weighted_vector_map.zig) |
+| Mojo | [`tsvc_s452_index_weighted_vector_map.mojo`](../../../mojo/t/tsvc_s452_index_weighted_vector_map.mojo) (draft, unverified) |

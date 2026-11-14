@@ -36,7 +36,7 @@ fn prune(mut node Node, leaves int) {
 			if i == j { continue }
 			b := node.candidates[j]
 			if b.height <= a.height && b.width <= a.width &&
-				(b.height < a.height || b.width < a.width || mask_lex_less(b.mask, a.mask, leaves) || (b.mask == a.mask && j < i)) {
+				(mask_lex_less(b.mask, a.mask, leaves) || (b.mask == a.mask && j < i)) {
 				dominated[i] = true
 				break
 			}

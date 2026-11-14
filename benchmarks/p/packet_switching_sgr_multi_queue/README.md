@@ -22,6 +22,9 @@ slot, or `-1` for an idle slot. This is the chapter's unit-value case; it does
 not model packet priorities, the general-valued policy, SGR competitive-ratio
 analysis, or the randomized RS algorithm.
 
+For Q queues and S slots, the simulation takes O(QS) time and O(Q + S)
+auxiliary space.
+
 The primary oracle directly simulates the slot transitions. The independent
 verifier reconstructs the candidate set from active queues, high-water marks,
 and the threshold, then selects by a sorted priority order.
@@ -43,6 +46,7 @@ insufficient output capacity.
 | C3 | [`c3/p/packet_switching_sgr_multi_queue.c3`](../../../c3/p/packet_switching_sgr_multi_queue.c3) |
 | C++ | [`cpp/p/packet_switching_sgr_multi_queue.cpp`](../../../cpp/p/packet_switching_sgr_multi_queue.cpp) |
 | Elisa | [`elisa/p/packet_switching_sgr_multi_queue.elisa`](../../../elisa/p/packet_switching_sgr_multi_queue.elisa) |
+| Mojo | [`mojo/p/packet_switching_sgr_multi_queue.mojo`](../../../mojo/p/packet_switching_sgr_multi_queue.mojo) (draft; not compiled or run) |
 | Nim | [`nim/p/packet_switching_sgr_multi_queue.nim`](../../../nim/p/packet_switching_sgr_multi_queue.nim) |
 | Odin | [`odin/p/packet_switching_sgr_multi_queue.odin`](../../../odin/p/packet_switching_sgr_multi_queue.odin) |
 | Rust | [`rust/p/packet_switching_sgr_multi_queue.rs`](../../../rust/p/packet_switching_sgr_multi_queue.rs) |

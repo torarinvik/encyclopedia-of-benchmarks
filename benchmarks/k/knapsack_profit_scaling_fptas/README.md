@@ -21,3 +21,5 @@ The source description is the supplied Encyclopedia of Algorithms EPUB, “Knaps
 ## Ports
 
 The C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig implementations export `knapsack_profit_scaling_fptas` through `i64_array_bytes_output`.
+
+The [Mojo draft](../../../mojo/k/knapsack_profit_scaling_fptas.mojo) has not been compiled or run. For n items, the scaled-profit bound is O(n²), giving O(n³) time and O(n²) DP space.

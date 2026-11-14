@@ -18,6 +18,7 @@ The algorithm is based on ANSIbench `whetstone/src/whetstone.c`, pinned at [comm
 | C3 | [`c3/a/ansibench_whetstone.c3`](../../../c3/a/ansibench_whetstone.c3) |
 | C++ | [`cpp/a/ansibench_whetstone.cpp`](../../../cpp/a/ansibench_whetstone.cpp) |
 | Elisa | [`elisa/a/ansibench_whetstone.elisa`](../../../elisa/a/ansibench_whetstone.elisa) |
+| Mojo | [`mojo/a/ansibench_whetstone.mojo`](../../../mojo/a/ansibench_whetstone.mojo) (draft, unverified) |
 | Nim | [`nim/a/ansibench_whetstone.nim`](../../../nim/a/ansibench_whetstone.nim) |
 | Odin | [`odin/a/ansibench_whetstone.odin`](../../../odin/a/ansibench_whetstone.odin) |
 | Rust | [`rust/a/ansibench_whetstone.rs`](../../../rust/a/ansibench_whetstone.rs) |
@@ -25,3 +26,5 @@ The algorithm is based on ANSIbench `whetstone/src/whetstone.c`, pinned at [comm
 | Zig | [`zig/a/ansibench_whetstone.zig`](../../../zig/a/ansibench_whetstone.zig) |
 
 The independent bounded source-order oracle is [`ansibench_whetstone_oracle.py`](../../ansibench_whetstone_oracle.py). The workload uses the `i64_array_float64` comparison model; see [`workload.json`](workload.json).
+Static review of the Mojo draft retained the PA and P3 procedure calls as well
+as the module order. The draft has not been compiled or run.

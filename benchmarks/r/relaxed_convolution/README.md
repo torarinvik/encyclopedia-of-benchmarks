@@ -26,6 +26,8 @@ computes each coefficient directly from its full prefix sum. The package
 [`workload.json`](workload.json) includes singleton, sparse, dense, and
 boundary vectors.
 
+The bounded direct block products take O(n²) time and O(n) auxiliary space.
+
 ## Pinned source and license
 
 The schedule and coefficient update semantics are based on NyaanNyaan's
@@ -43,6 +45,7 @@ These bounded ports are fresh implementations of the schedule.
 | C3 | [`c3/r/relaxed_convolution.c3`](../../../c3/r/relaxed_convolution.c3) |
 | C++ | [`cpp/r/relaxed_convolution.cpp`](../../../cpp/r/relaxed_convolution.cpp) |
 | Elisa | [`elisa/r/relaxed_convolution.elisa`](../../../elisa/r/relaxed_convolution.elisa) |
+| Mojo | [`mojo/r/relaxed_convolution.mojo`](../../../mojo/r/relaxed_convolution.mojo) (draft; not compiled or run) |
 | Nim | [`nim/r/relaxed_convolution.nim`](../../../nim/r/relaxed_convolution.nim) |
 | Odin | [`odin/r/relaxed_convolution.odin`](../../../odin/r/relaxed_convolution.odin) |
 | Rust | [`rust/r/relaxed_convolution.rs`](../../../rust/r/relaxed_convolution.rs) |

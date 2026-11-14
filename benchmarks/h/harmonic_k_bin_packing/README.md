@@ -50,6 +50,7 @@ independent verifier uses a separate per-bin load/closed-state model in
 | C3 | `c3/h/harmonic_k_bin_packing.c3` |
 | C++ | `cpp/h/harmonic_k_bin_packing.cpp` |
 | Elisa | `elisa/h/harmonic_k_bin_packing.elisa` |
+| Mojo | [`mojo/h/harmonic_k_bin_packing.mojo`](../../../mojo/h/harmonic_k_bin_packing.mojo) |
 | Nim | `nim/h/harmonic_k_bin_packing.nim` |
 | Odin | `odin/h/harmonic_k_bin_packing.odin` |
 | Rust | `rust/h/harmonic_k_bin_packing.rs` |

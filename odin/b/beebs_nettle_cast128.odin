@@ -259,7 +259,7 @@ SBOXES: [2048]u32 = { 0x30FB40D4, 0x9FA0FF0B, 0x6BECCD2F, 0x3F258C7A, 0x1E213F2F
 sb :: proc "contextless"(box,index:int)->u32{return SBOXES[box*256+index]}
 rd :: proc "contextless"(p:[^]u8,o:int)->u32{return (u32(p[o])<<24)|(u32(p[o+1])<<16)|(u32(p[o+2])<<8)|u32(p[o+3])}
 wr :: proc "contextless"(p:[^]u8,o:int,v:u32){p[o]=u8(v>>24);p[o+1]=u8(v>>16);p[o+2]=u8(v>>8);p[o+3]=u8(v)}
-expand_step :: proc "contextless"(x,k:[^]u8,q:int){
+expand_step :: proc "contextless"(x:[^]u8,k:[^]u32,q:int){
  z:[16]u8; n:[16]u8
  wr(&z[0],0,rd(x,0)^sb(4,int(x[13]))^sb(5,int(x[15]))^sb(6,int(x[12]))^sb(7,int(x[14]))^sb(6,int(x[8])))
  wr(&z[0],4,rd(x,8)^sb(4,int(z[0]))^sb(5,int(z[2]))^sb(6,int(z[1]))^sb(7,int(z[3]))^sb(7,int(x[10])))
@@ -267,13 +267,25 @@ expand_step :: proc "contextless"(x,k:[^]u8,q:int){
  wr(&z[0],12,rd(x,4)^sb(4,int(z[10]))^sb(5,int(z[9]))^sb(6,int(z[11]))^sb(7,int(z[8]))^sb(5,int(x[11])))
  k[q]=sb(4,int(z[8]))^sb(5,int(z[9]))^sb(6,int(z[7]))^sb(7,int(z[6]))^sb(4,int(z[2]));k[q+1]=sb(4,int(z[10]))^sb(5,int(z[11]))^sb(6,int(z[5]))^sb(7,int(z[4]))^sb(5,int(z[6]))
  k[q+2]=sb(4,int(z[12]))^sb(5,int(z[13]))^sb(6,int(z[3]))^sb(7,int(z[2]))^sb(6,int(z[9]));k[q+3]=sb(4,int(z[14]))^sb(5,int(z[15]))^sb(6,int(z[1]))^sb(7,int(z[0]))^sb(7,int(z[12]))
+ if (q/8)%2!=0 {
+  k[q]=sb(4,int(z[3]))^sb(5,int(z[2]))^sb(6,int(z[12]))^sb(7,int(z[13]))^sb(4,int(z[9]))
+  k[q+1]=sb(4,int(z[1]))^sb(5,int(z[0]))^sb(6,int(z[14]))^sb(7,int(z[15]))^sb(5,int(z[12]))
+  k[q+2]=sb(4,int(z[7]))^sb(5,int(z[6]))^sb(6,int(z[8]))^sb(7,int(z[9]))^sb(6,int(z[2]))
+  k[q+3]=sb(4,int(z[5]))^sb(5,int(z[4]))^sb(6,int(z[10]))^sb(7,int(z[11]))^sb(7,int(z[6]))
+ }
  wr(&n[0],0,rd(&z[0],8)^sb(4,int(z[5]))^sb(5,int(z[7]))^sb(6,int(z[4]))^sb(7,int(z[6]))^sb(6,int(z[0])))
- wr(&n[0],4,rd(&z[0],0)^sb(4,int(x[0]))^sb(5,int(x[2]))^sb(6,int(x[1]))^sb(7,int(x[3]))^sb(7,int(z[2])))
- wr(&n[0],8,rd(&z[0],4)^sb(4,int(x[7]))^sb(5,int(x[6]))^sb(6,int(x[5]))^sb(7,int(x[4]))^sb(4,int(z[1])))
- wr(&n[0],12,rd(&z[0],12)^sb(4,int(x[10]))^sb(5,int(x[9]))^sb(6,int(x[11]))^sb(7,int(x[8]))^sb(5,int(z[3])))
+ wr(&n[0],4,rd(&z[0],0)^sb(4,int(n[0]))^sb(5,int(n[2]))^sb(6,int(n[1]))^sb(7,int(n[3]))^sb(7,int(z[2])))
+ wr(&n[0],8,rd(&z[0],4)^sb(4,int(n[7]))^sb(5,int(n[6]))^sb(6,int(n[5]))^sb(7,int(n[4]))^sb(4,int(z[1])))
+ wr(&n[0],12,rd(&z[0],12)^sb(4,int(n[10]))^sb(5,int(n[9]))^sb(6,int(n[11]))^sb(7,int(n[8]))^sb(5,int(z[3])))
  for i:=0;i<16;i+=1{x[i]=n[i]}
  k[q+4]=sb(4,int(x[3]))^sb(5,int(x[2]))^sb(6,int(x[12]))^sb(7,int(x[13]))^sb(4,int(x[8]));k[q+5]=sb(4,int(x[1]))^sb(5,int(x[0]))^sb(6,int(x[14]))^sb(7,int(x[15]))^sb(5,int(x[13]))
  k[q+6]=sb(4,int(x[7]))^sb(5,int(x[6]))^sb(6,int(x[8]))^sb(7,int(x[9]))^sb(6,int(x[3]));k[q+7]=sb(4,int(x[5]))^sb(5,int(x[4]))^sb(6,int(x[10]))^sb(7,int(x[11]))^sb(7,int(x[7]))
+ if (q/8)%2!=0 {
+  k[q+4]=sb(4,int(x[8]))^sb(5,int(x[9]))^sb(6,int(x[7]))^sb(7,int(x[6]))^sb(4,int(x[3]))
+  k[q+5]=sb(4,int(x[10]))^sb(5,int(x[11]))^sb(6,int(x[5]))^sb(7,int(x[4]))^sb(5,int(x[7]))
+  k[q+6]=sb(4,int(x[12]))^sb(5,int(x[13]))^sb(6,int(x[3]))^sb(7,int(x[2]))^sb(6,int(x[8]))
+  k[q+7]=sb(4,int(x[14]))^sb(5,int(x[15]))^sb(6,int(x[1]))^sb(7,int(x[0]))^sb(7,int(x[13]))
+ }
 }
 rotl :: proc "contextless"(v,n:u32)->u32{n&=31;return (v<<n)|(v>>((32-n)&31))}
 encrypt :: proc "contextless"(key: [16]u8, block: [8]u8) -> [8]u8 {

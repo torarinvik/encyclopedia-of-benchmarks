@@ -31,6 +31,7 @@ Independent oracle: [`benchmarks/parboil_mri_q_oracle.py`](../../parboil_mri_q_o
 | C3 | [`parboil_mri_q.c3`](../../../c3/p/parboil_mri_q.c3) |
 | C++ | [`parboil_mri_q.cpp`](../../../cpp/p/parboil_mri_q.cpp) |
 | Elisa | [`parboil_mri_q.elisa`](../../../elisa/p/parboil_mri_q.elisa) |
+| Mojo | [`parboil_mri_q.mojo`](../../../mojo/p/parboil_mri_q.mojo) |
 | Nim | [`parboil_mri_q.nim`](../../../nim/p/parboil_mri_q.nim) |
 | Odin | [`parboil_mri_q.odin`](../../../odin/p/parboil_mri_q.odin) |
 | Rust | [`parboil_mri_q.rs`](../../../rust/p/parboil_mri_q.rs) |

@@ -26,6 +26,10 @@ behavior, not a claim that it implements textbook full Boyer–Moore or its
 good-suffix rule. Empty patterns are excluded because the C source's
 `size_t` endpoint initialization underflows for that case.
 
+For text length `n` and pattern length `m`, preprocessing uses `O(m + 128)`
+time and `O(128)` table space. Full-window comparisons can make the worst-case
+search time `O(n*m)`.
+
 ## Pinned source and rights
 
 - Launcher: [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/office_stringsearch1/src/info.sh)
@@ -64,6 +68,7 @@ false-positive, and malformed-input cases. The independent scalar model is
 | C3 | [`c3/c/cbench_office_pratt_boyer_moore.c3`](../../../c3/c/cbench_office_pratt_boyer_moore.c3) |
 | C++ | [`cpp/c/cbench_office_pratt_boyer_moore.cpp`](../../../cpp/c/cbench_office_pratt_boyer_moore.cpp) |
 | Elisa | [`elisa/c/cbench_office_pratt_boyer_moore.elisa`](../../../elisa/c/cbench_office_pratt_boyer_moore.elisa) |
+| Mojo | [`mojo/c/cbench_office_pratt_boyer_moore.mojo`](../../../mojo/c/cbench_office_pratt_boyer_moore.mojo) |
 | Nim | [`nim/c/cbench_office_pratt_boyer_moore.nim`](../../../nim/c/cbench_office_pratt_boyer_moore.nim) |
 | Odin | [`odin/c/cbench_office_pratt_boyer_moore.odin`](../../../odin/c/cbench_office_pratt_boyer_moore.odin) |
 | Rust | [`rust/c/cbench_office_pratt_boyer_moore.rs`](../../../rust/c/cbench_office_pratt_boyer_moore.rs) |

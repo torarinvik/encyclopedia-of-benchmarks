@@ -96,6 +96,7 @@ fn ss_ifft(a: &mut [i64], l: usize, m: usize, buf: &mut [i64]) {
         }
         d *= 2;
     }
+    for value in &mut a[..len * block] { *value /= len as i64; }
 }
 
 fn ss_naive(a: &mut [i64], b: &[i64], n: usize, buf: &mut [i64]) {
@@ -134,7 +135,8 @@ fn ss_mul(a: &mut [i64], b: &[i64], n: usize, buf: &mut [i64]) {
     for i in 0..len {
         let start = i * block * 2;
         buf[..2 * block].copy_from_slice(&aa[start..start + 2 * block]);
-        ss_rot(&mut aa[start..start + 2 * block], &buf[..2 * block], 2 * block, (i * (2 * block / len)) % (4 * block));
+        let shift = (4 * block - (i * (2 * block / len)) % (4 * block)) % (4 * block);
+        ss_rot(&mut aa[start..start + 2 * block], &buf[..2 * block], 2 * block, shift);
     }
     for i in 0..len { for j in 0..block {
         let at = i * block + j;

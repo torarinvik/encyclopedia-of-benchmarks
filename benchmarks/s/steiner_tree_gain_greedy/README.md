@@ -54,12 +54,19 @@ Primary and independent verifier oracles:
 `benchmarks/steiner_tree_gain_greedy_oracle.py` and
 `benchmarks/steiner_tree_gain_greedy_verifier_oracle.py`.
 
+Static review corrected the C and C++ drafts to validate the full-width vertex
+count before narrowing it. Verifier source now includes large values that could
+narrow to valid counts. A Mojo draft is also present. None of these changes has
+been compiled or run. Verifier source also specifies a two-terminal single-edge
+result and short-buffer case.
+
 | Language | Port |
 |---|---|
 | C | `c/s/steiner_tree_gain_greedy.c` |
 | C3 | `c3/s/steiner_tree_gain_greedy.c3` |
 | C++ | `cpp/s/steiner_tree_gain_greedy.cpp` |
 | Elisa | `elisa/s/steiner_tree_gain_greedy.elisa` |
+| Mojo | `mojo/s/steiner_tree_gain_greedy.mojo` |
 | Nim | `nim/s/steiner_tree_gain_greedy.nim` |
 | Odin | `odin/s/steiner_tree_gain_greedy.odin` |
 | Rust | `rust/s/steiner_tree_gain_greedy.rs` |

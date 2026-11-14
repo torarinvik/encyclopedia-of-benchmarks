@@ -57,6 +57,7 @@ ss_ifft :: proc(a: [^]i64, l, m: int, buf: [^]i64) {
 			s += 2*d; if s >= len { break }; k += 1; w -= dw[ss_ctz(uint(k))]; if w < 0 { w += 2*block }
 		}
 	}
+    for i := 0; i < len * block; i += 1 { a[i] /= i64(len) }
 }
 
 ss_naive :: proc(a, b: [^]i64, n: int, buf: [^]i64) {
@@ -75,7 +76,7 @@ ss_mul :: proc(a, b: [^]i64, n: int, buf: [^]i64) {
 	ss_fft(&A[0],l,m+1,buf); ss_fft(&B[0],l,m+1,buf)
 	for i := 0; i < len; i += 1 { ss_mul(&A[i*block*2],&B[i*block*2],m+1,buf) }
 	ss_ifft(&A[0],l,m+1,buf)
-	for i := 0; i < len; i += 1 { s:=i*(2*block/len); ss_copy(buf,&A[i*block*2],2*block); ss_rot(&A[i*block*2],buf,2*block,s) }
+	for i := 0; i < len; i += 1 { s:=(4*block-(i*(2*block/len))%(4*block))%(4*block); ss_copy(buf,&A[i*block*2],2*block); ss_rot(&A[i*block*2],buf,2*block,s) }
 	for i := 0; i < len; i += 1 { for j := 0; j < block; j += 1 { a[i*block+j]=A[i*block*2+j]; if i==0 { a[i*block+j]-=A[(len-1)*block*2+block+j] } else { a[i*block+j]+=A[(i-1)*block*2+block+j] } } }
 }
 

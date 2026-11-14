@@ -71,6 +71,7 @@ Independent oracle: [`benchmarks/parboil_sad_oracle.py`](../../parboil_sad_oracl
 | C3 | [`parboil_sad.c3`](../../../c3/p/parboil_sad.c3) |
 | C++ | [`parboil_sad.cpp`](../../../cpp/p/parboil_sad.cpp) |
 | Elisa | [`parboil_sad.elisa`](../../../elisa/p/parboil_sad.elisa) |
+| Mojo | [`parboil_sad.mojo`](../../../mojo/p/parboil_sad.mojo) |
 | Nim | [`parboil_sad.nim`](../../../nim/p/parboil_sad.nim) |
 | Odin | [`parboil_sad.odin`](../../../odin/p/parboil_sad.odin) |
 | Rust | [`parboil_sad.rs`](../../../rust/p/parboil_sad.rs) |

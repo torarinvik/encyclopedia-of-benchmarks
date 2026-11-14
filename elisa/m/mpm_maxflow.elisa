@@ -72,10 +72,11 @@ def mpm_maxflow_remove_vertex(vertex: usize, n: usize,
 
 def mpm_maxflow_impl(input: i64&, length: usize) -> i64:
     if input.is_null() or length < 4 or length > MAX_INPUT_VALUES: return -1
-    n_value: i64 = input[0]
-    edge_count_value: i64 = input[1]
-    source_value: i64 = input[2]
-    sink_value: i64 = input[3]
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
+    edge_count_value: i64 = values[1]
+    source_value: i64 = values[2]
+    sink_value: i64 = values[3]
     if n_value < 2 or n_value > MAX_VERTICES.i64() or edge_count_value < 0 or
         edge_count_value > MAX_EDGES.i64() or source_value < 1 or source_value > n_value or
         sink_value < 1 or sink_value > n_value or source_value == sink_value: return -1
@@ -88,9 +89,9 @@ def mpm_maxflow_impl(input: i64&, length: usize) -> i64:
     residual: mutable i64[MAX_VERTICES * MAX_VERTICES] = zeroed
     edge: mutable usize = 0
     while edge < edge_count:
-        from_value: i64 = input[4 + 3 * edge]
-        to_value: i64 = input[5 + 3 * edge]
-        capacity: i64 = input[6 + 3 * edge]
+        from_value: i64 = values[4 + 3 * edge]
+        to_value: i64 = values[5 + 3 * edge]
+        capacity: i64 = values[6 + 3 * edge]
         if from_value < 1 or from_value > n_value or to_value < 1 or to_value > n_value or
             from_value == to_value or capacity < 0 or capacity > 100: return -1
         from: usize = from_value.usize() - 1

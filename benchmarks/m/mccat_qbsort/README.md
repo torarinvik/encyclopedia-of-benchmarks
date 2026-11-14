@@ -8,9 +8,11 @@ This package adapts the two sorting paths in McCat's `01-qbsort` benchmark. Mode
 - Values must fit signed 32-bit integers. Duplicates are allowed. Invalid mode, framing, count, or values return `-1` before output-buffer checks.
 - Successful calls return the output byte count. The ascending values are encoded as little-endian signed 32-bit integers. Null output or insufficient capacity returns `-2` without writes.
 - The pinned launcher passes repeat count `1000`. Each call repeats its selected sorting path 1,000 times, restoring the original input before each pass, and returns the last result. Input is bounded to 34 signed 64-bit words and output to 128 bytes.
-- QuickSort follows the source's head pivot and `< pivot` / `>= pivot` linked-list partitions, recursively sorting the upper partition before the lower partition. BubbleSort uses adjacent swaps in the source's pass order.
+- QuickSort uses the source's head pivot and `< pivot` / `>= pivot` partition rule. The C, C++, Nim, Rust, and Zig drafts use linked lists, prepend partition entries, and process the upper partition first, as in the pinned source. The C3, Elisa, Mojo, Odin, and V drafts follow the same traversal using index-linked node pools; their allocation behavior differs from the source. This representation difference affects what the benchmark measures and remains a coverage gap. The C and Zig drafts return `-1` on allocation failure. BubbleSort uses adjacent swaps in the source's pass order.
 
 The workload records the launcher repeat profile and exercises both modes, duplicates, signed boundaries, invalid frames, and output-buffer errors. The [oracle](../mccat_qbsort_oracle.py) independently checks sorted bytes and ABI statuses.
+
+For n values, each bubble-sort pass takes O(n²) time and O(n) working storage for the copied input. First-pivot quicksort takes O(n²) time in the worst case, including sorted or equal-valued inputs; its balanced-partition case takes O(n log n) time. The linked partition copies can retain O(n²) nodes at once in the worst case. These bounds apply per pass; the contract repeats the chosen path 1,000 times.
 
 ## Pinned source
 
@@ -20,12 +22,13 @@ The workload records the launcher repeat profile and exercises both modes, dupli
 
 | Language | Source |
 |---|---|
-| C | [c/m/mccat_qbsort.c](../../c/m/mccat_qbsort.c) |
-| C3 | [c3/m/mccat_qbsort.c3](../../c3/m/mccat_qbsort.c3) |
-| C++ | [cpp/m/mccat_qbsort.cpp](../../cpp/m/mccat_qbsort.cpp) |
-| Elisa | [elisa/m/mccat_qbsort.elisa](../../elisa/m/mccat_qbsort.elisa) |
-| Nim | [nim/m/mccat_qbsort.nim](../../nim/m/mccat_qbsort.nim) |
-| Odin | [odin/m/mccat_qbsort.odin](../../odin/m/mccat_qbsort.odin) |
-| Rust | [rust/m/mccat_qbsort.rs](../../rust/m/mccat_qbsort.rs) |
-| V | [v/m/mccat_qbsort.v](../../v/m/mccat_qbsort.v) |
-| Zig | [zig/m/mccat_qbsort.zig](../../zig/m/mccat_qbsort.zig) |
+| C | [c/m/mccat_qbsort.c](../../../c/m/mccat_qbsort.c) |
+| C3 | [c3/m/mccat_qbsort.c3](../../../c3/m/mccat_qbsort.c3) |
+| C++ | [cpp/m/mccat_qbsort.cpp](../../../cpp/m/mccat_qbsort.cpp) |
+| Elisa | [elisa/m/mccat_qbsort.elisa](../../../elisa/m/mccat_qbsort.elisa) |
+| Mojo | [mojo/m/mccat_qbsort.mojo](../../../mojo/m/mccat_qbsort.mojo) |
+| Nim | [nim/m/mccat_qbsort.nim](../../../nim/m/mccat_qbsort.nim) |
+| Odin | [odin/m/mccat_qbsort.odin](../../../odin/m/mccat_qbsort.odin) |
+| Rust | [rust/m/mccat_qbsort.rs](../../../rust/m/mccat_qbsort.rs) |
+| V | [v/m/mccat_qbsort.v](../../../v/m/mccat_qbsort.v) |
+| Zig | [zig/m/mccat_qbsort.zig](../../../zig/m/mccat_qbsort.zig) |

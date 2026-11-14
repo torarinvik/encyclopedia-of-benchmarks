@@ -48,3 +48,4 @@ Cases live in [workload.json](workload.json), and the independent oracle is
 | Rust | [tsvc_s451_sincos_vector_map.rs](../../../rust/t/tsvc_s451_sincos_vector_map.rs) |
 | V | [tsvc_s451_sincos_vector_map.v](../../../v/t/tsvc_s451_sincos_vector_map.v) |
 | Zig | [tsvc_s451_sincos_vector_map.zig](../../../zig/t/tsvc_s451_sincos_vector_map.zig) |
+| Mojo | [tsvc_s451_sincos_vector_map.mojo](../../../mojo/t/tsvc_s451_sincos_vector_map.mojo) |

@@ -1,0 +1,62 @@
+def mrh_bucket(key: i64, last: i64) -> usize:
+    difference: mutable i64 = key ^ last
+    bits: mutable usize = 0
+    while difference != 0:
+        bits <- bits + 1
+        difference <- difference >> 1
+    bits
+
+def mrh_solve(values: view[i64]) -> i64:
+    if values.len() < 1 or values.len() > 130: return -1
+    count: i64 = values[0]
+    if count < 0 or count > 64: return -1
+    q: usize = count.usize()
+    if values.len() != 1 + 2 * q: return -1
+    heads: mutable i64[32] = zeroed
+    next: mutable i64[64] = zeroed
+    keys: mutable i64[64] = zeroed
+    for i in 0..<32: heads[i] <- -1
+    used: mutable usize = 0
+    last: mutable i64 = 0
+    removals: mutable i64 = 0
+    result: mutable i64 = 0
+    for i in 0..<q:
+        op: i64 = values[1 + 2 * i]
+        key: i64 = values[2 + 2 * i]
+        if op == 0:
+            if key < last or key > 2147483647: return -1
+            bucket: usize = mrh_bucket(key, last)
+            keys[used] <- key
+            next[used] <- heads[bucket]
+            heads[bucket] <- used.i64()
+            used <- used + 1
+        elif op == 1 and key == 0:
+            if heads[0] < 0:
+                bucket: mutable usize = 1
+                while bucket < 32 and heads[bucket] < 0: bucket <- bucket + 1
+                if bucket == 32: return -1
+                smallest: mutable i64 = 2147483647
+                node: mutable i64 = heads[bucket]
+                while node >= 0:
+                    if keys[node.usize()] < smallest: smallest <- keys[node.usize()]
+                    node <- next[node.usize()]
+                last <- smallest
+                node <- heads[bucket]
+                heads[bucket] <- -1
+                while node >= 0:
+                    index: usize = node.usize()
+                    following: i64 = next[index]
+                    destination: usize = mrh_bucket(keys[index], last)
+                    next[index] <- heads[destination]
+                    heads[destination] <- node
+                    node <- following
+            node: usize = heads[0].usize()
+            heads[0] <- next[node]
+            removals <- removals + 1
+            result <- result + removals * keys[node]
+        else: return -1
+    result
+
+export fn monotone_radix_heap(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 130: return -1
+    mrh_solve(input[0:length])

@@ -22,8 +22,12 @@ The source description is NBench BYTEmark's IDEA encryption kernel in [`nfinit/a
 | C++ | [`cpp/i/idea_encrypt_decrypt.cpp`](../../../cpp/i/idea_encrypt_decrypt.cpp) |
 | C3 | [`c3/i/idea_encrypt_decrypt.c3`](../../../c3/i/idea_encrypt_decrypt.c3) |
 | Elisa | [`elisa/i/idea_encrypt_decrypt.elisa`](../../../elisa/i/idea_encrypt_decrypt.elisa) |
+| Mojo | [`mojo/i/idea_encrypt_decrypt.mojo`](../../../mojo/i/idea_encrypt_decrypt.mojo) (unverified draft) |
 | Nim | [`nim/i/idea_encrypt_decrypt.nim`](../../../nim/i/idea_encrypt_decrypt.nim) |
 | Odin | [`odin/i/idea_encrypt_decrypt.odin`](../../../odin/i/idea_encrypt_decrypt.odin) |
 | Rust | [`rust/i/idea_encrypt_decrypt.rs`](../../../rust/i/idea_encrypt_decrypt.rs) |
 | V | [`v/i/idea_encrypt_decrypt.v`](../../../v/i/idea_encrypt_decrypt.v) |
 | Zig | [`zig/i/idea_encrypt_decrypt.zig`](../../../zig/i/idea_encrypt_decrypt.zig) |
+
+The fixed eight-round block and key schedule use `O(1)` time and space. The
+Mojo draft has not been compiled or run.

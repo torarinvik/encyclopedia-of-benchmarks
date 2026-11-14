@@ -26,6 +26,7 @@ The independent oracle uses direct enumeration of vertex triples rather than the
 | C3 | [`c3/t/gapbs_ordered_triangle_count.c3`](../../../c3/t/gapbs_ordered_triangle_count.c3) |
 | C++ | [`cpp/t/gapbs_ordered_triangle_count.cpp`](../../../cpp/t/gapbs_ordered_triangle_count.cpp) |
 | Elisa | [`elisa/t/gapbs_ordered_triangle_count.elisa`](../../../elisa/t/gapbs_ordered_triangle_count.elisa) |
+| Mojo | [`mojo/t/gapbs_ordered_triangle_count.mojo`](../../../mojo/t/gapbs_ordered_triangle_count.mojo) |
 | Nim | [`nim/t/gapbs_ordered_triangle_count.nim`](../../../nim/t/gapbs_ordered_triangle_count.nim) |
 | Odin | [`odin/t/gapbs_ordered_triangle_count.odin`](../../../odin/t/gapbs_ordered_triangle_count.odin) |
 | Rust | [`rust/t/gapbs_ordered_triangle_count.rs`](../../../rust/t/gapbs_ordered_triangle_count.rs) |

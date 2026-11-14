@@ -37,6 +37,13 @@ the chapter's K-cut recurrence for this bounded DAG projection; it does not
 implement LUT covering/area optimization or claim the chapter's general
 sequential mapping behavior.
 
+For a node with `d` incoming edges and at most `C` retained cuts per
+predecessor, the direct enumeration considers up to `C^d` combinations;
+deduplication adds a linear scan of retained cuts per combination. The
+profile caps `d` at three and `C` at 45, using bounded storage for the cut
+sets. These bounds describe this DAG projection rather than the general
+cyclic-network algorithm.
+
 Source: “Sequential Circuit Technology Mapping,” Encyclopedia of Algorithms,
 DOI `10.1007/978-1-4939-2864-4_364`, `OEBPS/AChap364.html`, including the
 K-feasible cut recurrence and its merge definition. No source-code license is
@@ -58,3 +65,4 @@ Primary and independent verifier oracles:
 | Rust | `rust/s/sequential_lut_k_cut_enumeration.rs` |
 | V | `v/s/sequential_lut_k_cut_enumeration.v` |
 | Zig | `zig/s/sequential_lut_k_cut_enumeration.zig` |
+| Mojo | [mojo/s/sequential_lut_k_cut_enumeration.mojo](../../../mojo/s/sequential_lut_k_cut_enumeration.mojo) |

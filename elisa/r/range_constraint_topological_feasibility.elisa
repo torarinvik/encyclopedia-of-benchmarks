@@ -1,0 +1,135 @@
+# Independent event-graph draft; compilation and output are unverified.
+# Internal graph storage uses disjoint bounded views over a heap workspace.
+extern calloc(count: usize, size: usize) -> mutable i64&?
+extern free(memory: mutable i64&) -> void
+
+def rct_node(first_flag: i64, heads: mutable view[i64], degrees: mutable view[i64],
+             first: mutable view[i64], counts: mutable view[i64]) -> usize:
+    node: usize = counts[0].usize()
+    counts[0] <- counts[0] + 1
+    heads[node] <- -1
+    degrees[node] <- 0
+    first[node] <- first_flag
+    node
+
+def rct_edge(source: usize, target: usize, heads: mutable view[i64], degrees: mutable view[i64],
+             edge_to: mutable view[i64], edge_next: mutable view[i64], counts: mutable view[i64]) -> void:
+    edge: usize = counts[1].usize()
+    counts[1] <- counts[1] + 1
+    edge_to[edge] <- target.i64()
+    edge_next[edge] <- heads[source]
+    heads[source] <- edge.i64()
+    degrees[target] <- degrees[target] + 1
+
+def rct_build(index: usize, left: usize, right: usize, down: mutable view[i64],
+              up: mutable view[i64], any: mutable view[i64], heads: mutable view[i64],
+              degrees: mutable view[i64], first: mutable view[i64], edge_to: mutable view[i64],
+              edge_next: mutable view[i64], counts: mutable view[i64]) -> void:
+    down[index] <- rct_node(0, heads, degrees, first, counts).i64()
+    up[index] <- rct_node(0, heads, degrees, first, counts).i64()
+    any[index] <- rct_node(1, heads, degrees, first, counts).i64()
+    if right - left == 1:
+        rct_edge(down[index].usize(), left, heads, degrees, edge_to, edge_next, counts)
+        rct_edge(left, up[index].usize(), heads, degrees, edge_to, edge_next, counts)
+        rct_edge(left, any[index].usize(), heads, degrees, edge_to, edge_next, counts)
+        return
+    middle: usize = left + (right - left) / 2
+    rct_build(2 * index, left, middle, down, up, any, heads, degrees, first, edge_to, edge_next, counts)
+    rct_build(2 * index + 1, middle, right, down, up, any, heads, degrees, first, edge_to, edge_next, counts)
+    for side in 0..<2:
+        child: usize = 2 * index + side
+        rct_edge(down[index].usize(), down[child].usize(), heads, degrees, edge_to, edge_next, counts)
+        rct_edge(up[child].usize(), up[index].usize(), heads, degrees, edge_to, edge_next, counts)
+        rct_edge(any[child].usize(), any[index].usize(), heads, degrees, edge_to, edge_next, counts)
+
+def rct_connect(index: usize, left: usize, right: usize, query_left: usize, query_right: usize,
+                kind: i64, target: usize, down: view[i64], up: view[i64], any: view[i64],
+                heads: mutable view[i64], degrees: mutable view[i64], edge_to: mutable view[i64],
+                edge_next: mutable view[i64], counts: mutable view[i64]) -> void:
+    if query_left <= left and right <= query_right:
+        if kind == 1:
+            rct_edge(target, down[index].usize(), heads, degrees, edge_to, edge_next, counts)
+        elif kind == 2:
+            rct_edge(up[index].usize(), target, heads, degrees, edge_to, edge_next, counts)
+        else:
+            rct_edge(any[index].usize(), target, heads, degrees, edge_to, edge_next, counts)
+        return
+    middle: usize = left + (right - left) / 2
+    if query_left < middle:
+        rct_connect(2 * index, left, middle, query_left, query_right, kind, target,
+                    down, up, any, heads, degrees, edge_to, edge_next, counts)
+    if query_right > middle:
+        rct_connect(2 * index + 1, middle, right, query_left, query_right, kind, target,
+                    down, up, any, heads, degrees, edge_to, edge_next, counts)
+
+export fn range_constraint_topological_feasibility(input: i64&, length: usize) -> i64:
+    if input == null or length < 2: return -1
+    if input[0] < 1 or input[0] > 4096 or input[1] < 0 or input[1] > 8192: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 4 * m: return -1
+    values: view[i64] = input[0:length]
+    for i in 0..<m:
+        kind: i64 = values[2 + 4 * i]
+        left: i64 = values[3 + 4 * i]
+        right: i64 = values[4 + 4 * i]
+        target: i64 = values[5 + 4 * i]
+        if kind < 1 or kind > 3 or left < 0 or left >= right or right > n.i64(): return -1
+        if target < 0 or target >= n.i64() or (left <= target and target < right): return -1
+    # Nodes: n original + 3*(2*n-1) tree nodes + at most m gates.
+    # An interval uses at most 2*ceil(log2(n)) canonical nodes (<=24).
+    node_capacity: usize = 7 * n + m + 1
+    edge_capacity: usize = 9 * n + 32 * m + 1
+    tree_capacity: usize = 4 * n
+    total: usize = 4 * node_capacity + 2 * edge_capacity + 3 * tree_capacity
+    memory: mutable i64& = get calloc(total, 8) else return -1
+    workspace: mutable view[i64] = memory[0:total]
+    heads: mutable view[i64] = workspace[0:node_capacity]
+    degrees: mutable view[i64] = workspace[node_capacity:2 * node_capacity]
+    first: mutable view[i64] = workspace[2 * node_capacity:3 * node_capacity]
+    queue: mutable view[i64] = workspace[3 * node_capacity:4 * node_capacity]
+    edge_to: mutable view[i64] = workspace[4 * node_capacity:4 * node_capacity + edge_capacity]
+    edge_next: mutable view[i64] = workspace[4 * node_capacity + edge_capacity:4 * node_capacity + 2 * edge_capacity]
+    tree_start: usize = 4 * node_capacity + 2 * edge_capacity
+    down: mutable view[i64] = workspace[tree_start:tree_start + tree_capacity]
+    up: mutable view[i64] = workspace[tree_start + tree_capacity:tree_start + 2 * tree_capacity]
+    any: mutable view[i64] = workspace[tree_start + 2 * tree_capacity:tree_start + 3 * tree_capacity]
+    counters: mutable i64[2] = zeroed
+    for i in 0..<n:
+        unused: usize = rct_node(0, heads, degrees, first, counters[0:2])
+    rct_build(1, 0, n, down, up, any, heads, degrees, first, edge_to, edge_next, counters[0:2])
+    for i in 0..<m:
+        kind: i64 = values[2 + 4 * i]
+        left: usize = values[3 + 4 * i].usize()
+        right: usize = values[4 + 4 * i].usize()
+        target: usize = values[5 + 4 * i].usize()
+        if kind == 3:
+            gate: usize = rct_node(1, heads, degrees, first, counters[0:2])
+            rct_connect(1, 0, n, left, right, kind, gate, down, up, any, heads, degrees, edge_to, edge_next, counters[0:2])
+            rct_edge(gate, target, heads, degrees, edge_to, edge_next, counters[0:2])
+        else:
+            rct_connect(1, 0, n, left, right, kind, target, down, up, any, heads, degrees, edge_to, edge_next, counters[0:2])
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    emitted: mutable usize = 0
+    for i in 0..<counters[0].usize():
+        if first[i] != 0: degrees[i] <- 1
+        if degrees[i] == 0:
+            queue[tail] <- i.i64()
+            tail <- tail + 1
+    while head < tail:
+        node: usize = queue[head].usize()
+        head <- head + 1
+        if node < n: emitted <- emitted + 1
+        edge: mutable i64 = heads[node]
+        while edge >= 0:
+            target: usize = edge_to[edge.usize()].usize()
+            if degrees[target] > 0:
+                degrees[target] <- degrees[target] - 1
+                if degrees[target] == 0:
+                    queue[tail] <- target.i64()
+                    tail <- tail + 1
+            edge <- edge_next[edge.usize()]
+    free(memory)
+    if emitted == n: return 1
+    0

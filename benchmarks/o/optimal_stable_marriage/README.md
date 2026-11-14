@@ -24,6 +24,7 @@ The chapter is by Robert W. Irving and summarizes the minimum-regret algorithm o
 | C3 | [`c3/o/optimal_stable_marriage.c3`](../../../c3/o/optimal_stable_marriage.c3) |
 | C++ | [`cpp/o/optimal_stable_marriage.cpp`](../../../cpp/o/optimal_stable_marriage.cpp) |
 | Elisa | [`elisa/o/optimal_stable_marriage.elisa`](../../../elisa/o/optimal_stable_marriage.elisa) |
+| Mojo | [`mojo/o/optimal_stable_marriage.mojo`](../../../mojo/o/optimal_stable_marriage.mojo) |
 | Nim | [`nim/o/optimal_stable_marriage.nim`](../../../nim/o/optimal_stable_marriage.nim) |
 | Odin | [`odin/o/optimal_stable_marriage.odin`](../../../odin/o/optimal_stable_marriage.odin) |
 | Rust | [`rust/o/optimal_stable_marriage.rs`](../../../rust/o/optimal_stable_marriage.rs) |

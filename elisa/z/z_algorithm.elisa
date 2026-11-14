@@ -1,18 +1,22 @@
-const MAX_LENGTH: usize = 2047
+const MAX_LENGTH: usize = 4095
 
 def z_algorithm_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length < 1 or length > MAX_LENGTH + 1:
+    if input.is_null() or length < 1 or length > MAX_LENGTH + 1:
         return -1
-    if input[0] < 0 or input[0] > i64(MAX_LENGTH):
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > i64(MAX_LENGTH):
         return -1
-    count: usize = input[0].usize()
+    count: usize = values[0].usize()
     if length != count + 1:
         return -1
     output_bytes: usize = count * 4
-    if output_capacity < output_bytes:
+    if output_capacity < output_bytes or (count > 0 and output.is_null()):
         return -2
+    if count == 0:
+        return 0
+    result: mutable view[u8] = output[0:output_bytes]
 
-    z: mutable usize[2047] = zeroed
+    z: mutable usize[4095] = zeroed
     left: mutable usize = 0
     right: mutable usize = 0
     for index in 1..<count |z|:
@@ -23,14 +27,14 @@ def z_algorithm_impl(input: i64&, length: usize, output: mutable u8&, output_cap
                 z[index] <- reused
             else:
                 z[index] <- remaining
-        while index + z[index] < count and input[1 + z[index]] == input[1 + index + z[index]]:
+        while index + z[index] < count and values[1 + z[index]] == values[1 + index + z[index]]:
             z[index] <- z[index] + 1
         if index + z[index] > right:
             left <- index
             right <- index + z[index]
-    for index in 0..<count |z, output|:
-        for byte in 0..<4 |output|:
-            output[index * 4 + byte] <- u8((z[index] >> (byte * 8)) & 255)
+    for index in 0..<count |z, result|:
+        for byte in 0..<4 |result|:
+            result[index * 4 + byte] <- u8((z[index] >> (byte * 8)) & 255)
     count.i64()
 
 export fn z_algorithm(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = z_algorithm_impl

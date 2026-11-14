@@ -10,6 +10,8 @@ Output is `[total_distance_traveled, zero_based_leg_index]` as two little-endian
 
 This profile measures the no-information deterministic line-search strategy, not the chapter’s known-distance variant, randomized strategies, or multi-ray/star search.
 
+For target distance `d`, the strategy performs `O(log d)` legs and uses constant space.
+
 ## Implementations
 
 | Language | Source |
@@ -18,6 +20,7 @@ This profile measures the no-information deterministic line-search strategy, not
 | C3 | [`c3/d/deterministic_line_search.c3`](../../../c3/d/deterministic_line_search.c3) |
 | C++ | [`cpp/d/deterministic_line_search.cpp`](../../../cpp/d/deterministic_line_search.cpp) |
 | Elisa | [`elisa/d/deterministic_line_search.elisa`](../../../elisa/d/deterministic_line_search.elisa) |
+| Mojo | [`mojo/d/deterministic_line_search.mojo`](../../../mojo/d/deterministic_line_search.mojo) |
 | Nim | [`nim/d/deterministic_line_search.nim`](../../../nim/d/deterministic_line_search.nim) |
 | Odin | [`odin/d/deterministic_line_search.odin`](../../../odin/d/deterministic_line_search.odin) |
 | Rust | [`rust/d/deterministic_line_search.rs`](../../../rust/d/deterministic_line_search.rs) |

@@ -27,6 +27,9 @@ The workload covers zero and empty lists, interleaving, duplicate values,
 negative and boundary values, maximum list and node counts, invalid sortedness
 and framing, and null, zero, short, exact, and maximum output capacities.
 
+The heap-based merge takes O(n log(k + 1) + k) time for n nodes and k lists,
+with O(k) auxiliary space, excluding the output.
+
 ## Pinned source
 
 [TheAlgorithms/Java `MergeKSortedLinkedList.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/lists/MergeKSortedLinkedList.java)
@@ -40,6 +43,7 @@ at commit `e43ec3897e48f23843972d02cd05a5bb1b6864a2`.
 | C3 | [c3/m/merge_ksorted_linked_list.c3](../../c3/m/merge_ksorted_linked_list.c3) |
 | C++ | [cpp/m/merge_ksorted_linked_list.cpp](../../cpp/m/merge_ksorted_linked_list.cpp) |
 | Elisa | [elisa/m/merge_ksorted_linked_list.elisa](../../elisa/m/merge_ksorted_linked_list.elisa) |
+| Mojo | [mojo/m/merge_ksorted_linked_list.mojo](../../mojo/m/merge_ksorted_linked_list.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/merge_ksorted_linked_list.nim](../../nim/m/merge_ksorted_linked_list.nim) |
 | Odin | [odin/m/merge_ksorted_linked_list.odin](../../odin/m/merge_ksorted_linked_list.odin) |
 | Rust | [rust/m/merge_ksorted_linked_list.rs](../../rust/m/merge_ksorted_linked_list.rs) |

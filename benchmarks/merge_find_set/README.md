@@ -24,6 +24,12 @@ and tie rules. The workload covers both unequal-rank orientations as well as
 equal-rank ties. All addressed elements are initialized in the set, matching
 the source's precondition that queried elements are present.
 
+Union by rank bounds parent walks to O(log n), so initializing n elements and
+processing m merges plus one query takes O(n + (m + 1) log n) time and O(n)
+space. Unlike the path-compressing variants described in the
+[`union_find` guide](../u/union_find/README.md), this profile never rewrites
+parent links during a find.
+
 ## Pinned source
 
 - TheAlgorithms/Haskell [`src/SpecializedStructure/MergeFindSet.hs`](https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/SpecializedStructure/MergeFindSet.hs), commit `9dcabef99fb8995a760ff25a9e0d659114c0b9d3`
@@ -46,20 +52,10 @@ oracle is [`benchmarks/merge_find_set_oracle.py`](../merge_find_set_oracle.py).
 | C3 | [`c3/m/merge_find_set.c3`](../../c3/m/merge_find_set.c3) |
 | C++ | [`cpp/m/merge_find_set.cpp`](../../cpp/m/merge_find_set.cpp) |
 | Elisa | [`elisa/m/merge_find_set.elisa`](../../elisa/m/merge_find_set.elisa) |
+| Mojo | [`mojo/m/merge_find_set.mojo`](../../mojo/m/merge_find_set.mojo) (draft; not compiled or run) |
 | Nim | [`nim/m/merge_find_set.nim`](../../nim/m/merge_find_set.nim) |
 | Odin | [`odin/m/merge_find_set.odin`](../../odin/m/merge_find_set.odin) |
 | Rust | [`rust/m/merge_find_set.rs`](../../rust/m/merge_find_set.rs) |
 | V | [`v/m/merge_find_set.v`](../../v/m/merge_find_set.v) |
 | Zig | [`zig/m/merge_find_set.zig`](../../zig/m/merge_find_set.zig) |
 
-## Implementations
-
-- C: [`c/m/merge_find_set.c`](../../c/m/merge_find_set.c)
-- C3: [`c3/m/merge_find_set.c3`](../../c3/m/merge_find_set.c3)
-- C++: [`cpp/m/merge_find_set.cpp`](../../cpp/m/merge_find_set.cpp)
-- Elisa: [`elisa/m/merge_find_set.elisa`](../../elisa/m/merge_find_set.elisa)
-- Nim: [`nim/m/merge_find_set.nim`](../../nim/m/merge_find_set.nim)
-- Odin: [`odin/m/merge_find_set.odin`](../../odin/m/merge_find_set.odin)
-- Rust: [`rust/m/merge_find_set.rs`](../../rust/m/merge_find_set.rs)
-- V: [`v/m/merge_find_set.v`](../../v/m/merge_find_set.v)
-- Zig: [`zig/m/merge_find_set.zig`](../../zig/m/merge_find_set.zig)

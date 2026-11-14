@@ -8,8 +8,8 @@ launcher selects the same codelet with a different timing option).
 
 For each pass, the source visits `i=0,5,10,...` while `i<n-5` and executes in
 order `A[i]=A[i+1]*A[i]`, `A[i+1]=A[i+2]*A[i+1]`, through
-`A[i+4]=A[i+5]*A[i+4]`. These are in-place dependencies: later statements
-consume values written by earlier statements in the same chunk. A final
+`A[i+4]=A[i+5]*A[i+4]`. Each statement reads the next element before that
+element is updated in the current pass. A final
 sentinel at index `n-1` supplies the last product in each chunk and is not
 written by that chunk.
 
@@ -25,3 +25,5 @@ write. The oracle is independently implemented in
 The benchmark captures this bounded codelet, not TSVC's initialization,
 repetition count, timing, or checker harness. See `LICENSE.txt` for attribution
 and the upstream rights limitation.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s116_unrolled_product_chain.mojo) is a draft and has not been compiled or run.

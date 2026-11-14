@@ -45,6 +45,7 @@ ports are clean-room implementations.
 | C3 | [c3/g/gbbs_k_clique_count.c3](../../../c3/g/gbbs_k_clique_count.c3) |
 | C++ | [cpp/g/gbbs_k_clique_count.cpp](../../../cpp/g/gbbs_k_clique_count.cpp) |
 | Elisa | [elisa/g/gbbs_k_clique_count.elisa](../../../elisa/g/gbbs_k_clique_count.elisa) |
+| Mojo | [mojo/g/gbbs_k_clique_count.mojo](../../../mojo/g/gbbs_k_clique_count.mojo) |
 | Nim | [nim/g/gbbs_k_clique_count.nim](../../../nim/g/gbbs_k_clique_count.nim) |
 | Odin | [odin/g/gbbs_k_clique_count.odin](../../../odin/g/gbbs_k_clique_count.odin) |
 | Rust | [rust/g/gbbs_k_clique_count.rs](../../../rust/g/gbbs_k_clique_count.rs) |

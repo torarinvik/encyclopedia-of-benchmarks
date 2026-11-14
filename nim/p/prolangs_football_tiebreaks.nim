@@ -46,6 +46,7 @@ proc refine(v: ptr UncheckedArray[int64], n: int, order: var array[8, int],
     var j = i
     while j > lo and compare(itemScore, scoreFor(v, n, order, lo, hi, order[j - 1], stage, sameDiv)) > 0:
       order[j] = order[j - 1]
+      order[j - 1] = item
       dec j
     order[j] = item
   let best = scoreFor(v, n, order, lo, hi, order[lo], stage, sameDiv)

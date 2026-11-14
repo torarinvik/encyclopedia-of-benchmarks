@@ -52,3 +52,4 @@ Cases are in [workload.json](workload.json), with the independent oracle at
 | Rust | [tsvc_s423_antidependence_offset64.rs](../../../rust/t/tsvc_s423_antidependence_offset64.rs) |
 | V | [tsvc_s423_antidependence_offset64.v](../../../v/t/tsvc_s423_antidependence_offset64.v) |
 | Zig | [tsvc_s423_antidependence_offset64.zig](../../../zig/t/tsvc_s423_antidependence_offset64.zig) |
+| Mojo | [tsvc_s423_antidependence_offset64.mojo](../../../mojo/t/tsvc_s423_antidependence_offset64.mojo) (draft, unverified) |

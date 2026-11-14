@@ -13,6 +13,11 @@ Espresso is a heuristic two-level Boolean and multi-valued PLA minimizer. The pi
 
 This profile is deliberately narrower than the source executable. It preserves the source algorithm's EXPAND and IRREDUNDANT operations, but omits multi-output PLA parsing, essential-prime removal, the repeated REDUCE/EXPAND/IRREDUNDANT and LAST_GASP convergence loop, MAKE_SPARSE, command-line handling, and timing/output. It should therefore be read as a bounded source-phase benchmark, not as a port of the entire Berkeley Espresso optimizer or as a reproduction of `largest.espresso`'s result.
 
+For `P` ON minterms, `V` variables and `M = 2^V` possible minterms, the
+bitset-based [Mojo draft](../../../mojo/e/mallocbench_espresso.mojo) takes
+O(P V M + P²) time and O(P) space in this fixed-width profile. It has not
+been compiled or executed.
+
 ## Workload and oracle
 
 [`workload.json`](workload.json) includes hand-checkable constant, minterm, adjacent-minterm, don't-care, and overlapping-cover cases plus malformed inputs. [`mallocbench_espresso_oracle.py`](../../mallocbench_espresso_oracle.py) is an independent Python implementation using explicit minterm sets.

@@ -44,6 +44,7 @@ ports of the published operation.
 | C3 | [`c3/p/pannotia_local_minimum_mis.c3`](../../../c3/p/pannotia_local_minimum_mis.c3) |
 | C++ | [`cpp/p/pannotia_local_minimum_mis.cpp`](../../../cpp/p/pannotia_local_minimum_mis.cpp) |
 | Elisa | [`elisa/p/pannotia_local_minimum_mis.elisa`](../../../elisa/p/pannotia_local_minimum_mis.elisa) |
+| Mojo | [`mojo/p/pannotia_local_minimum_mis.mojo`](../../../mojo/p/pannotia_local_minimum_mis.mojo) |
 | Nim | [`nim/p/pannotia_local_minimum_mis.nim`](../../../nim/p/pannotia_local_minimum_mis.nim) |
 | Odin | [`odin/p/pannotia_local_minimum_mis.odin`](../../../odin/p/pannotia_local_minimum_mis.odin) |
 | Rust | [`rust/p/pannotia_local_minimum_mis.rs`](../../../rust/p/pannotia_local_minimum_mis.rs) |

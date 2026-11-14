@@ -50,8 +50,6 @@ def expected_output(values, output_capacity=None, output_is_null=False,
             or any(x < 0 or x >= n for x in cols)):
         return -1, []
     required = 22 * root_count
-    if output_is_null or (output_capacity is not None and output_capacity < required):
-        return -2, []
     frontiers = [roots]
     choice_index = 0
     for fanout in FANOUTS:
@@ -70,4 +68,6 @@ def expected_output(values, output_capacity=None, output_is_null=False,
                 following.append(cols[begin + ordinal])
         frontiers.append(following)
     output = [vertex for frontier in frontiers for vertex in frontier]
+    if output_is_null or (output_capacity is not None and output_capacity < required):
+        return -2, []
     return len(output), output

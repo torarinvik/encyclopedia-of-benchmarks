@@ -1,5 +1,6 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin, UnsafePointer
+from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 from std.math import pow
 fn sh_prec(c:Int64)->Int:
     if c==94:return 3
@@ -21,7 +22,7 @@ fn shunting_yard(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Flo
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or n>257:return -1.0e300
     let bytes=a[0];if bytes<1 or bytes>255 or n!=c_size_t(bytes+1):return -1.0e300
     for i in range(Int(bytes)):if a[i+1]<0 or a[i+1]>127:return -1.0e300
-    var nums=InlineArray[Float64,16]();var ops=InlineArray[Int64,15]();var nc=InlineArray[Int32,1]();var oc=InlineArray[Int32,1]()
+    var nums=InlineArray[Float64,16](fill=0.0);var ops=InlineArray[Int64,15](fill=0);var nc=InlineArray[Int32,1](fill=0);var oc=InlineArray[Int32,1](fill=0)
     var pos=1;var operands=0;var opcount=0;var expect=True
     while pos<=Int(bytes):
         while pos<=Int(bytes) and (a[pos]==32 or (a[pos]>=9 and a[pos]<=13)):pos+=1

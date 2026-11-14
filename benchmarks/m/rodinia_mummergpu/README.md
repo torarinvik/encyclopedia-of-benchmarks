@@ -11,6 +11,11 @@ This package implements MUMmerGPU's all-maxmatch query semantics for one short r
 - Each record is three signed 64-bit little-endian values. Return the byte count (`24 * match_count`); return 0 for a valid query with no qualifying matches. Invalid input returns `-1`; null or short output returns `-2` without writes.
 - Bounds cap each string at 32 bases (at most 1,024 candidate coordinate pairs) and output at 24,576 bytes. Only uppercase DNA bases are represented. FASTA parsing, multiple-query files, reverse-complement matching, and output headers are outside this contract.
 
+For reference length `r` and query length `q`, the bounded ports build the
+uncompressed trie in `O(r²)` time, sort suffixes with up to `O(r³)` comparison
+work, and scan up to `r` suffixes at each matched depth for `O(q*r²)` query
+work. The trie, path table, and staged records use `O(r² + r*q)` space.
+
 The source CLI defaults to minimum match length 20 and forces the all-maxmatch mode. The workload includes a length-20 fixture at the source default, along with repeated-base ties, left-maximal filtering, no-match, and error cases.
 
 ## Source and rights
@@ -22,6 +27,6 @@ The source CLI defaults to minimum match length 20 and forces the all-maxmatch m
 
 ## Files
 
-- Nine ports are in `c/m`, `c3/m`, `cpp/m`, `elisa/m`, `nim/m`, `odin/m`, `rust/m`, `v/m`, and `zig/m`.
+- Ports are in `c/m`, `c3/m`, `cpp/m`, `elisa/m`, `mojo/m`, `nim/m`, `odin/m`, `rust/m`, `v/m`, and `zig/m`. The Mojo draft has not been compiled or run.
 - Independent oracle: [`benchmarks/rodinia_mummergpu_oracle.py`](../../rodinia_mummergpu_oracle.py).
 - Workload and fixtures: [`workload.json`](workload.json).

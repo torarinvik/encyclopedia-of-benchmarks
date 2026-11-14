@@ -32,18 +32,19 @@ def articulation_points_visit(adjacency: view[u64], discovery: mutable view[i64]
 
 def articulation_points_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if length < 2 or length > MAX_INPUT_LENGTH:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    if input[0] < 0 or input[0] > i64(MAX_VERTEX_COUNT) or input[1] < 0 or input[1] > i64(MAX_EDGE_COUNT):
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > i64(MAX_VERTEX_COUNT) or values[1] < 0 or values[1] > i64(MAX_EDGE_COUNT):
         return -1
-    vertex_count: usize = input[0].usize()
-    edge_count: usize = input[1].usize()
+    vertex_count: usize = values[0].usize()
+    edge_count: usize = values[1].usize()
     if length != 2 + 2 * edge_count:
         return -1
     adjacency: mutable u64[MAX_VERTEX_COUNT] = zeroed
-    for edge in 0..<edge_count |input, adjacency|:
-        left_value: i64 = input[2 + 2 * edge]
-        right_value: i64 = input[3 + 2 * edge]
+    for edge in 0..<edge_count |values, adjacency|:
+        left_value: i64 = values[2 + 2 * edge]
+        right_value: i64 = values[3 + 2 * edge]
         if left_value < 0 or right_value < 0 or left_value >= vertex_count.i64() or right_value >= vertex_count.i64():
             return -1
         left: usize = left_value.usize()
@@ -73,13 +74,15 @@ def articulation_points_impl(input: i64&, length: usize,
         if is_articulation[vertex] != 0:
             point_count <- point_count + 1
         vertex <- vertex + 1
-    if output_capacity < point_count:
+    if output_capacity < point_count or (point_count > 0 and output.is_null()):
         return -2
+    if point_count == 0: return 0
+    target: mutable view[u8] = output[0:point_count]
     position: mutable usize = 0
     vertex <- 0
-    while vertex < vertex_count |vertex, is_articulation, position, output|:
+    while vertex < vertex_count |vertex, is_articulation, position, target|:
         if is_articulation[vertex] != 0:
-            output[position] <- vertex.u8()
+            target[position] <- vertex.u8()
             position <- position + 1
         vertex <- vertex + 1
     point_count.i64()

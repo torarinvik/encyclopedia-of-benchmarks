@@ -82,3 +82,5 @@ Independent oracle: [`benchmarks/parboil_mri_gridding_oracle.py`](../../parboil_
 | Rust | [`parboil_mri_gridding.rs`](../../../rust/p/parboil_mri_gridding.rs) |
 | V | [`parboil_mri_gridding.v`](../../../v/p/parboil_mri_gridding.v) |
 | Zig | [`parboil_mri_gridding.zig`](../../../zig/p/parboil_mri_gridding.zig) |
+
+The Mojo draft is [`mojo/p/parboil_mri_gridding.mojo`](../../../mojo/p/parboil_mri_gridding.mojo). Mixed-precision arithmetic, contraction, and rounding remain unverified.

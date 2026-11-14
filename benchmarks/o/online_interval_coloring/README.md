@@ -10,6 +10,8 @@ For each interval, choose the smallest level `k` such that adding it to the unio
 
 Output is one little-endian signed i64 global color per interval in arrival order. The maximum valid input is 129 words; output is at most 512 bytes, with maximum color ID 191. Malformed input returns `-1`; a null output or insufficient capacity returns `-2` without writing. Empty input `[0]` returns zero bytes when the output pointer is non-null.
 
+The direct level and overlap scans take O(n⁴) worst-case time and O(n) space.
+
 ## Oracles
 
 The primary oracle emits exact bytes using the prefix level rule. The independent verifier uses a grouped endpoint event sweep to compute clique peaks and independently checks the prescribed level and First-Fit choices.
@@ -23,4 +25,4 @@ The algorithm was identified from “Online Interval Coloring,” in Ming-Yang K
 - Workload: [`workload.json`](workload.json)
 - Primary oracle: [`online_interval_coloring_oracle.py`](../../online_interval_coloring_oracle.py)
 - Independent verifier: [`online_interval_coloring_verifier_oracle.py`](../../online_interval_coloring_verifier_oracle.py)
-- Nine language ports: `c/o`, `c3/o`, `cpp/o`, `elisa/o`, `nim/o`, `odin/o`, `rust/o`, `v/o`, and `zig/o`.
+- Language ports: `c/o`, `c3/o`, `cpp/o`, `elisa/o`, `mojo/o`, `nim/o`, `odin/o`, `rust/o`, `v/o`, and `zig/o`.

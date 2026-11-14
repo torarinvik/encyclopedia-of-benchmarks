@@ -12,6 +12,8 @@ little-endian signed i64 values. Ties choose shorter length, then earlier
 start, then earlier end. Invalid input returns `-1`; null output or
 insufficient capacity returns `-2` without writing.
 
+The bounded exhaustive scan takes O(nU) time and O(n) auxiliary space.
+
 The problem is from “Maximum-Average Segments,” DOI
 [`10.1007/978-1-4939-2864-4_224`](https://doi.org/10.1007/978-1-4939-2864-4_224).
 This is a bounded exact-search profile of the source problem, not a claim to
@@ -26,6 +28,7 @@ average, not total sum.
 | C3 | `c3/m/max_average_length_bounded_segment.c3` |
 | C++ | `cpp/m/max_average_length_bounded_segment.cpp` |
 | Elisa | `elisa/m/max_average_length_bounded_segment.elisa` |
+| Mojo | [`mojo/m/max_average_length_bounded_segment.mojo`](../../../mojo/m/max_average_length_bounded_segment.mojo) (draft; not compiled or run) |
 | Nim | `nim/m/max_average_length_bounded_segment.nim` |
 | Odin | `odin/m/max_average_length_bounded_segment.odin` |
 | Rust | `rust/m/max_average_length_bounded_segment.rs` |

@@ -12,6 +12,13 @@ The result sums, for each unique point and every frame, the nearest-milli projec
 
 This is related to the local single-axis `vector3_axis_rotation` operation, but the package preserves the source's two-level scale/rotation/translation sequence, Euler matrix order, point deduplication, and repeated scene update loop.
 
+With `n` points and `f` frames, the direct deduplication and transformation
+profile takes `O(n² + fn)` time and `O(n)` auxiliary space. A
+[Mojo draft](../../../mojo/m/mccat_08_main.mojo) is present but has not been
+compiled or run.
+Verifier source specifies a hand-derived two-level scale-and-translation case
+and a duplicate-point version; these checks have not been run.
+
 ## Pinned source and notice
 
 Source: [`McCat/08-main`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/08-main) in `lac-dcc/Benchmarks`, commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The launcher compiles `convert.c`, `main.c`, `object.c`, and `trig.c` with `-lm`. The source credits Peter Riishoej Brinkler and carries this permission notice:

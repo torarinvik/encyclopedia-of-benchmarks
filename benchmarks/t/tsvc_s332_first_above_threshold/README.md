@@ -66,3 +66,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s332_first_above_threshold.rs`](../../../rust/t/tsvc_s332_first_above_threshold.rs) |
 | V | [`tsvc_s332_first_above_threshold.v`](../../../v/t/tsvc_s332_first_above_threshold.v) |
 | Zig | [`tsvc_s332_first_above_threshold.zig`](../../../zig/t/tsvc_s332_first_above_threshold.zig) |
+| Mojo | [`tsvc_s332_first_above_threshold.mojo`](../../../mojo/t/tsvc_s332_first_above_threshold.mojo) (draft, unverified) |

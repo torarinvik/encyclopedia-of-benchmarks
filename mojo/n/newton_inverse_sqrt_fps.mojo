@@ -6,7 +6,7 @@ comptime MODULUS: Int64 = 998244353
 comptime HALF: Int64 = 499122177
 
 fn multiply(left: InlineArray[Int64, 64], right: InlineArray[Int64, 64], width: Int) -> InlineArray[Int64, 64]:
-    var result = InlineArray[Int64, 64](0)
+    var result = InlineArray[Int64, 64](fill=0)
     for i in range(width):
         for j in range(width - i):
             result[i + j] = (result[i + j] + left[i] * right[j]) % MODULUS
@@ -24,8 +24,8 @@ fn newton_inverse_sqrt_fps(input: UnsafePointer[Int64, ImmutAnyOrigin], length: 
     if input[1] != 1: return -1
     let bytes = 8 * n
     if output == UnsafePointer[UInt8, MutAnyOrigin]() or capacity < c_size_t(bytes): return -2
-    var f = InlineArray[Int64, 64](0)
-    var inverse = InlineArray[Int64, 64](0)
+    var f = InlineArray[Int64, 64](fill=0)
+    var inverse = InlineArray[Int64, 64](fill=0)
     for i in range(n): f[i] = input[i + 1]
     inverse[0] = 1
     var precision = 1
@@ -34,7 +34,7 @@ fn newton_inverse_sqrt_fps(input: UnsafePointer[Int64, ImmutAnyOrigin], length: 
         if width > n: width = n
         let square = multiply(inverse, inverse, width)
         let product = multiply(f, square, width)
-        var correction = InlineArray[Int64, 64](0)
+        var correction = InlineArray[Int64, 64](fill=0)
         correction[0] = (3 + MODULUS - product[0]) * HALF % MODULUS
         for i in range(1, width): correction[i] = (MODULUS - product[i]) * HALF % MODULUS
         inverse = multiply(inverse, correction, width)

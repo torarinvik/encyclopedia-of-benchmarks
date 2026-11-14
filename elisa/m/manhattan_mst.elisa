@@ -1,8 +1,9 @@
 # Prim's algorithm over the complete Manhattan metric graph.
 def manhattan_mst_impl(values: i64&, length: usize) -> i64:
-    if length < 1 or length > 65:
+    if values.is_null() or length < 1 or length > 65:
         return -1
-    count_value: i64 = values[0]
+    input: view[i64] = values[0:length]
+    count_value: i64 = input[0]
     if count_value < 1 or count_value > 32:
         return -1
     count: usize = count_value.usize()
@@ -13,8 +14,8 @@ def manhattan_mst_impl(values: i64&, length: usize) -> i64:
     y: mutable i64[32] = zeroed
     point: mutable usize = 0
     while point < count:
-        x[point] <- values[1 + 2 * point]
-        y[point] <- values[2 + 2 * point]
+        x[point] <- input[1 + 2 * point]
+        y[point] <- input[2 + 2 * point]
         if x[point] < -1000000 or x[point] > 1000000 or y[point] < -1000000 or y[point] > 1000000:
             return -1
         point <- point + 1

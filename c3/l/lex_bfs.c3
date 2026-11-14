@@ -60,9 +60,7 @@ long lex_bfs(long* input, usz length, char* output, usz capacity) @export("lex_b
         order[step] = (long)current;
         for (usz neighbor = 0; neighbor < n; neighbor += 1) {
             if (!adjacency[current][neighbor] || selected[neighbor]) continue;
-            for (usz position = label_len[neighbor]; position > 0; position -= 1)
-                labels[neighbor][position] = labels[neighbor][position - 1];
-            labels[neighbor][0] = (long)step;
+            labels[neighbor][label_len[neighbor]] = (long)(n - step);
             label_len[neighbor] += 1;
         }
     }

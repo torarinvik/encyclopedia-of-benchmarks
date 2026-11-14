@@ -1,0 +1,64 @@
+const DIPS_MOD: i64 = 998244353
+
+def dips_power(base_input: i64, exponent_input: usize) -> i64:
+    base: mutable i64 = base_input
+    exponent: mutable usize = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result*base % DIPS_MOD
+        base <- base*base % DIPS_MOD
+        exponent <- exponent >> 1
+    result
+
+def dips_locate(q: view[usize], count: usize, value: usize) -> i64:
+    lo: mutable usize = 0
+    hi: mutable usize = count
+    while lo < hi:
+        mid: usize = lo+(hi-lo)/2
+        if q[mid] < value: lo <- mid+1
+        else: hi <- mid
+    if lo < count and q[lo] == value: return lo.i64()
+    -1
+
+def dips_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 16: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 64: return -1
+    n: usize = values[0].usize()
+    q: mutable usize[15] = zeroed
+    count: mutable usize = 0
+    i: mutable usize = n
+    while i > 0:
+        value: usize = n/i
+        if count == 0 or q[count-1] != value:
+            q[count] <- value
+            count <- count+1
+        i <- i-1
+    if length != 1+count or values[1] == 0: return -1
+    for j in 0..<count:
+        if values[1+j] < 0 or values[1+j] >= DIPS_MOD: return -1
+    if output == null or capacity < 8*count: return -2
+    result: mutable view[u8] = output[0:8*count]
+    inverse: i64 = dips_power(values[1],998244351)
+    g: mutable i64[15] = zeroed
+    for j in 0..<count:
+        x: usize = q[j]
+        left: mutable usize = 2
+        total: mutable i64 = 0
+        while left <= x:
+            quotient: usize = x/left
+            right: usize = x/quotient
+            hi: i64 = dips_locate(q[0:count],count,right)
+            lo: i64 = dips_locate(q[0:count],count,left-1)
+            gi: i64 = dips_locate(q[0:count],count,quotient)
+            if hi < 0 or lo < 0 or gi < 0: return -1
+            interval: i64 = (values[1+hi.usize()]-values[1+lo.usize()]+DIPS_MOD) % DIPS_MOD
+            total <- (total+interval*g[gi.usize()]) % DIPS_MOD
+            left <- right+1
+        g[j] <- ((1-total+DIPS_MOD) % DIPS_MOD)*inverse % DIPS_MOD
+    for j in 0..<count:
+        bits: u64 = g[j].u64()
+        for byte in 0..<8: result[8*j+byte] <- ((bits >> (8*byte)) & 255.u64()).u8()
+    (8*count).i64()
+
+export fn dirichlet_inverse_and_prefix_sums(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dips_impl

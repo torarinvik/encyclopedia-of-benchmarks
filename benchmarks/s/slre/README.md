@@ -7,3 +7,5 @@ Input is `[text_length, pattern_length, text_bytes..., pattern_bytes...]`; text 
 The source is `src/slre/libslre.c` and `src/slre/slre.h` at [Embench-IoT commit `09c2ed8c3b7008c95d08b038de4a3f6dc103ed70`](https://github.com/embench/embench-iot/tree/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/slre). It is SPDX GPL-3.0-or-later. Upstream credits Sergey Lyubka (2004–2013), Cesanta Software Limited (2013), Embecosm Limited and University of Bristol (2014–2019), with contributions by James Pallister and Jeremy Bennett. See [`LICENSE.txt`](LICENSE.txt) and [`NOTICE.txt`](NOTICE.txt). The ports are modifications implementing only the documented bounded profile.
 
 The workload provides deterministic examples and the independent Python oracle is `benchmarks/slre_oracle.py`. These artifacts specify the contract; they do not claim execution or runtime verification.
+
+The Mojo draft is [`mojo/s/slre.mojo`](../../../mojo/s/slre.mojo). It has not been compiled or run.

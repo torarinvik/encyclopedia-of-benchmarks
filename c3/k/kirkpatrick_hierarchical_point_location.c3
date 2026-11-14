@@ -13,6 +13,7 @@ fn void put64(char*out,usz pos,long value){ulong bits=(ulong)value;for(usz j=0;j
 long kirkpatrick_hierarchical_point_location(long*in,usz len,char*out,usz cap) @export("kirkpatrick_hierarchical_point_location") {
     if(in==null||len<14||len>MAX_INPUT)return -1;
     long nv=in[0],nl=in[1],qx=in[2],qy=in[3];if(nv<3||nv>(long)MAX_VERTICES||nl<1||nl>(long)MAX_LEVELS||qx< -1000||qx>1000||qy< -1000||qy>1000)return -1;
+    if(len<4+2*(usz)nv)return -1;
     long[MAX_VERTICES*2] xy=zeroed;long[MAX_LEVELS*MAX_FACES*3] faces=zeroed;long[MAX_LEVELS] face_count=zeroed;long[MAX_LEVELS*MAX_FACES] cc=zeroed;long[MAX_LEVELS*MAX_FACES*MAX_FACES] ids=zeroed;
     usz pos=4;
     for(usz v=0;v<(usz)nv;v+=1){xy[2*v]=in[pos];xy[2*v+1]=in[pos+1];pos+=2;if(xy[2*v]< -1000||xy[2*v]>1000||xy[2*v+1]< -1000||xy[2*v+1]>1000)return -1;}

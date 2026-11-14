@@ -15,6 +15,8 @@ diagonal. The function returns the full binary64 solution vector `x` in row
 order. Invalid input returns `-1`; a null output pointer or capacity below n
 returns `-2` without writing output.
 
+Initialization and forward substitution take O(n²) time and O(n²) space.
+
 The independent reference is [`benchmarks/trisolv_oracle.py`](../../trisolv_oracle.py).
 
 ## Implementations
@@ -25,6 +27,7 @@ The independent reference is [`benchmarks/trisolv_oracle.py`](../../trisolv_orac
 | C3 | [c3/t/trisolv.c3](../../../c3/t/trisolv.c3) |
 | C++ | [cpp/t/trisolv.cpp](../../../cpp/t/trisolv.cpp) |
 | Elisa | [elisa/t/trisolv.elisa](../../../elisa/t/trisolv.elisa) |
+| Mojo | [mojo/t/trisolv.mojo](../../../mojo/t/trisolv.mojo) (draft; not compiled or run) |
 | Nim | [nim/t/trisolv.nim](../../../nim/t/trisolv.nim) |
 | Odin | [odin/t/trisolv.odin](../../../odin/t/trisolv.odin) |
 | Rust | [rust/t/trisolv.rs](../../../rust/t/trisolv.rs) |

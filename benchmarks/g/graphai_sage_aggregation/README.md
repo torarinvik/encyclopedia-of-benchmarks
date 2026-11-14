@@ -19,8 +19,14 @@ Arithmetic uses binary64 in this ABI projection; GraphAIBench stores float
 features and uses a binary32 neighbor scale. Graph loading, training,
 backpropagation, and parallel scheduling are excluded.
 
+The implemented arithmetic computes the reciprocal degree once and adds each
+scaled neighbor feature in edge order, which fixes floating-point rounding.
+
 Malformed input returns `-1`; null output and insufficient capacity return
 `-2` without writes. The input CSR and feature order are explicit.
 
 See `workload.json` for bounded fixtures and `../../graphai_sage_aggregation_oracle.py`
 for the package oracle. The float64 suite uses a separate independent verifier.
+
+The [Mojo draft](../../../mojo/g/graphai_sage_aggregation.mojo) follows the
+same bounded aggregation order.

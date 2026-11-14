@@ -33,7 +33,7 @@ pub extern "C" fn technology_mapping_minimum_area_tree_cover(input: *const i64, 
     if best[0] == i64::MAX / 4 { return -1; }
     let mut mapping = [-3i64; MAX_N]; for i in 0..n { if kind[i] == 0 { mapping[i] = -1; } }
     let mut stack = [0usize; 2 * MAX_N]; let mut top = 0usize; if kind[0] != 0 { stack[top] = 0; top += 1; }
-    while top > 0 { top -= 1; let node = stack[top]; let p = choice[node]; mapping[node] = p as i64; let l = left[node] as usize;
+    while top > 0 { top -= 1; let node = stack[top]; if kind[node] == 0 { continue; } let p = choice[node]; mapping[node] = p as i64; let l = left[node] as usize;
         if p == 0 { stack[top] = l; top += 1; }
         else if p == 1 { stack[top] = l; top += 1; stack[top] = right[node] as usize; top += 1; }
         else if p == 2 { mapping[l] = -2; stack[top] = left[l] as usize; top += 1; stack[top] = right[node] as usize; top += 1; }

@@ -32,6 +32,7 @@ The oracle computes the recurrence's affine transform by exponentiation by squar
 | Rust | [rust/s/shootout_random.rs](../../../rust/s/shootout_random.rs) |
 | V | [v/s/shootout_random.v](../../../v/s/shootout_random.v) |
 | Zig | [zig/s/shootout_random.zig](../../../zig/s/shootout_random.zig) |
+| Mojo | [mojo/s/shootout_random.mojo](../../../mojo/s/shootout_random.mojo) |
 
 ## Pinned source
 

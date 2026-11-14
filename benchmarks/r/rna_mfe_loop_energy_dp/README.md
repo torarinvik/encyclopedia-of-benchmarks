@@ -45,3 +45,5 @@ is 112 bytes, and declared workspace is 16384 bytes.
 | Rust | `rust/r/rna_mfe_loop_energy_dp.rs` |
 | V | `v/r/rna_mfe_loop_energy_dp.v` |
 | Zig | `zig/r/rna_mfe_loop_energy_dp.zig` |
+
+The Mojo draft is [`mojo/r/rna_mfe_loop_energy_dp.mojo`](../../../mojo/r/rna_mfe_loop_energy_dp.mojo). It has not been compiled or run.

@@ -31,3 +31,6 @@ Source: Piotr Krysta and Berthold Vöcking, “Utilitarian Mechanism Design for 
 | Rust | [`rust/g/truthful_multiunit_ca_greedy2.rs`](../../../rust/g/truthful_multiunit_ca_greedy2.rs) |
 | V | [`v/g/truthful_multiunit_ca_greedy2.v`](../../../v/g/truthful_multiunit_ca_greedy2.v) |
 | Zig | [`zig/g/truthful_multiunit_ca_greedy2.zig`](../../../zig/g/truthful_multiunit_ca_greedy2.zig) |
+| Mojo | [`mojo/g/truthful_multiunit_ca_greedy2.mojo`](../../../mojo/g/truthful_multiunit_ca_greedy2.mojo) (unverified draft) |
+
+For m items and n bidders, the direct selection loop takes O(mn²) time in the worst case and O(m+n) working space.

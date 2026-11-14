@@ -70,3 +70,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s323_coupled_recurrence.rs`](../../../rust/t/tsvc_s323_coupled_recurrence.rs) |
 | V | [`tsvc_s323_coupled_recurrence.v`](../../../v/t/tsvc_s323_coupled_recurrence.v) |
 | Zig | [`tsvc_s323_coupled_recurrence.zig`](../../../zig/t/tsvc_s323_coupled_recurrence.zig) |
+| Mojo | [`tsvc_s323_coupled_recurrence.mojo`](../../../mojo/t/tsvc_s323_coupled_recurrence.mojo) (draft, unverified) |

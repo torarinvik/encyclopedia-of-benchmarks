@@ -1,0 +1,70 @@
+def rrr_popcount(value: u64) -> i64:
+    result: mutable i64 = 0
+    for bit in 0..<8: result <- result + ((value >> bit) & 1).i64()
+    result
+
+def rrr_decode(class_count: i64, offset: i64) -> u64:
+    remaining: mutable i64 = offset
+    for candidate in 0..<256:
+        if rrr_popcount(candidate.u64()) == class_count:
+            if remaining == 0: return candidate.u64()
+            remaining <- remaining - 1
+    0
+
+def rrr_solve(input: view[i64], output: mutable view[u8]) -> i64:
+    length: usize = input.len()
+    n: usize = input[0].usize()
+    bits: u64 = input[1].u64()
+    q: usize = input[2].usize()
+    classes: mutable i64[8] = zeroed
+    offsets: mutable i64[8] = zeroed
+    prefix: mutable i64[9] = zeroed
+    blocks: usize = (n + 7) / 8
+    for block in 0..<blocks:
+        byte: u64 = (bits >> (8 * block)) & 255
+        classes[block] <- rrr_popcount(byte)
+        for candidate in 0..<byte.usize():
+            if rrr_popcount(candidate.u64()) == classes[block]: offsets[block] <- offsets[block] + 1
+        prefix[block + 1] <- prefix[block] + classes[block]
+    for i in 0..<q:
+        op: i64 = input[3 + 2 * i]
+        index: usize = input[4 + 2 * i].usize()
+        answer: mutable i64 = -1
+        if op == 0:
+            block: usize = (index - 1) / 8
+            byte: u64 = rrr_decode(classes[block], offsets[block])
+            answer <- prefix[block]
+            for bit in 0..<index - 8 * block: answer <- answer + ((byte >> bit) & 1).i64()
+        else:
+            block: mutable usize = 0
+            while block < blocks and prefix[block + 1] < index.i64(): block <- block + 1
+            if block < blocks:
+                remaining: mutable i64 = index.i64() - prefix[block]
+                byte: u64 = rrr_decode(classes[block], offsets[block])
+                bit: mutable usize = 0
+                while bit < 8 and 8 * block + bit < n:
+                    if ((byte >> bit) & 1) != 0:
+                        remaining <- remaining - 1
+                        if remaining == 0:
+                            answer <- (8 * block + bit + 1).i64()
+                            break
+                    bit <- bit + 1
+        encoded: mutable u64 = answer.u64()
+        for byte in 0..<8:
+            output[8 * i + byte] <- (encoded & 255).u8()
+            encoded <- encoded >> 8
+    (8 * q).i64()
+
+export fn rrr_class_offset_rank_select(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 35: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 63 or values[1] < 0 or values[2] < 0 or values[2] > 16: return -1
+    n: usize = values[0].usize()
+    q: usize = values[2].usize()
+    if (values[1].u64() >> n) != 0 or length != 3 + 2 * q: return -1
+    for i in 0..<q:
+        op: i64 = values[3 + 2 * i]
+        index: i64 = values[4 + 2 * i]
+        if (op != 0 and op != 1) or index < 1 or (op == 0 and index > n.i64()) or (op == 1 and index > 64): return -1
+    if output.is_null() or capacity < 8 * q: return -2
+    rrr_solve(values, output[0:8 * q])

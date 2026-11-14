@@ -38,10 +38,12 @@
   },
   "cases": [
     {"id":"repeated-single-child-promotion", "input_values":[4,3,1,2,1,1,1,0,2], "output_capacity":24, "expected_result":24, "expected_output_hex":"030000000000000000000000000000000200000000000000"},
+    {"id":"maximum-promotion-chain", "input_values":[5,4,1,3,1,2,1,1,1,0,4], "output_capacity":24, "expected_result":24, "expected_output_hex":"040000000000000000000000000000000400000000000000"},
     {"id":"stop-at-multi-child-root", "input_values":[2,3,1,2,2], "output_capacity":24, "expected_result":24, "expected_output_hex":"010000000000000002000000000000000200000000000000"},
     {"id":"empty-internal-root-becomes-leaf", "input_values":[1,3,0], "output_capacity":24, "expected_result":24, "expected_output_hex":"000000000000000000000000000000000000000000000000"},
     {"id":"leaf-root-unchanged", "input_values":[1,0,2], "output_capacity":24, "expected_result":24, "expected_output_hex":"000000000000000000000000000000000200000000000000"},
     {"id":"invalid-level-transition", "input_values":[2,3,1,1,2], "output_capacity":24, "expected_result":-1, "expected_output_hex":""},
+    {"id":"invalid-before-output-capacity", "input_values":[2,2,1,0,2], "output_capacity":0, "expected_result":-1, "expected_output_hex":""},
     {"id":"short-output-capacity", "input_values":[1,0,2], "output_capacity":23, "expected_result":-2, "expected_output_hex":""},
     {"id":"null-output", "input_values":[1,0,2], "output_capacity":24, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
     {"id":"null-input", "input_values":[], "input_is_null":true, "input_length":0, "output_capacity":24, "expected_result":-1, "expected_output_hex":""}

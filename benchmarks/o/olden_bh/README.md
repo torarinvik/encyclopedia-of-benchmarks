@@ -3,7 +3,7 @@
 This package exposes the 3D hierarchical gravity-field query from the pinned
 Olden `bh` benchmark. It builds an octree of point masses, computes each cell's
 center of mass, and walks the tree for one query point. This is distinct from
-the repository's direct pairwise [`n_body_simulation`](../n_body_simulation/README.md)
+the repository's direct pairwise [`n_body_simulation`](../../n/n_body_simulation/README.md)
 and `benchmarkgame_nbody` benchmarks.
 
 ## Contract
@@ -59,3 +59,5 @@ See [`workload.json`](workload.json) and the independent
 | Rust | [rust/o/olden_bh.rs](../../../rust/o/olden_bh.rs) |
 | V | [v/o/olden_bh.v](../../../v/o/olden_bh.v) |
 | Zig | [zig/o/olden_bh.zig](../../../zig/o/olden_bh.zig) |
+
+The Mojo draft is [`mojo/o/olden_bh.mojo`](../../../mojo/o/olden_bh.mojo). It uses the same bounded octree partition and child-order walk; floating-point behavior remains unverified.

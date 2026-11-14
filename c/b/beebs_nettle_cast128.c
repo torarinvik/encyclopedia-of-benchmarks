@@ -287,15 +287,27 @@ static void expand_step(uint8_t x[16], uint32_t keys[32], size_t slot) {
     keys[slot + 1] = sbox(4, z[10]) ^ sbox(5, z[11]) ^ sbox(6, z[5]) ^ sbox(7, z[4]) ^ sbox(5, z[6]);
     keys[slot + 2] = sbox(4, z[12]) ^ sbox(5, z[13]) ^ sbox(6, z[3]) ^ sbox(7, z[2]) ^ sbox(6, z[9]);
     keys[slot + 3] = sbox(4, z[14]) ^ sbox(5, z[15]) ^ sbox(6, z[1]) ^ sbox(7, z[0]) ^ sbox(7, z[12]);
+    if ((slot / 8) % 2 != 0) {
+        keys[slot] = sbox(4,z[3]) ^ sbox(5,z[2]) ^ sbox(6,z[12]) ^ sbox(7,z[13]) ^ sbox(4,z[9]);
+        keys[slot+1] = sbox(4,z[1]) ^ sbox(5,z[0]) ^ sbox(6,z[14]) ^ sbox(7,z[15]) ^ sbox(5,z[12]);
+        keys[slot+2] = sbox(4,z[7]) ^ sbox(5,z[6]) ^ sbox(6,z[8]) ^ sbox(7,z[9]) ^ sbox(6,z[2]);
+        keys[slot+3] = sbox(4,z[5]) ^ sbox(5,z[4]) ^ sbox(6,z[10]) ^ sbox(7,z[11]) ^ sbox(7,z[6]);
+    }
     write32(next_x, 0, read32(z, 8) ^ sbox(4, z[5]) ^ sbox(5, z[7]) ^ sbox(6, z[4]) ^ sbox(7, z[6]) ^ sbox(6, z[0]));
-    write32(next_x, 4, read32(z, 0) ^ sbox(4, x[0]) ^ sbox(5, x[2]) ^ sbox(6, x[1]) ^ sbox(7, x[3]) ^ sbox(7, z[2]));
-    write32(next_x, 8, read32(z, 4) ^ sbox(4, x[7]) ^ sbox(5, x[6]) ^ sbox(6, x[5]) ^ sbox(7, x[4]) ^ sbox(4, z[1]));
-    write32(next_x, 12, read32(z, 12) ^ sbox(4, x[10]) ^ sbox(5, x[9]) ^ sbox(6, x[11]) ^ sbox(7, x[8]) ^ sbox(5, z[3]));
+    write32(next_x, 4, read32(z, 0) ^ sbox(4, next_x[0]) ^ sbox(5, next_x[2]) ^ sbox(6, next_x[1]) ^ sbox(7, next_x[3]) ^ sbox(7, z[2]));
+    write32(next_x, 8, read32(z, 4) ^ sbox(4, next_x[7]) ^ sbox(5, next_x[6]) ^ sbox(6, next_x[5]) ^ sbox(7, next_x[4]) ^ sbox(4, z[1]));
+    write32(next_x, 12, read32(z, 12) ^ sbox(4, next_x[10]) ^ sbox(5, next_x[9]) ^ sbox(6, next_x[11]) ^ sbox(7, next_x[8]) ^ sbox(5, z[3]));
     memcpy(x, next_x, 16);
     keys[slot + 4] = sbox(4, x[3]) ^ sbox(5, x[2]) ^ sbox(6, x[12]) ^ sbox(7, x[13]) ^ sbox(4, x[8]);
     keys[slot + 5] = sbox(4, x[1]) ^ sbox(5, x[0]) ^ sbox(6, x[14]) ^ sbox(7, x[15]) ^ sbox(5, x[13]);
     keys[slot + 6] = sbox(4, x[7]) ^ sbox(5, x[6]) ^ sbox(6, x[8]) ^ sbox(7, x[9]) ^ sbox(6, x[3]);
     keys[slot + 7] = sbox(4, x[5]) ^ sbox(5, x[4]) ^ sbox(6, x[10]) ^ sbox(7, x[11]) ^ sbox(7, x[7]);
+    if ((slot / 8) % 2 != 0) {
+        keys[slot+4] = sbox(4,x[8]) ^ sbox(5,x[9]) ^ sbox(6,x[7]) ^ sbox(7,x[6]) ^ sbox(4,x[3]);
+        keys[slot+5] = sbox(4,x[10]) ^ sbox(5,x[11]) ^ sbox(6,x[5]) ^ sbox(7,x[4]) ^ sbox(5,x[7]);
+        keys[slot+6] = sbox(4,x[12]) ^ sbox(5,x[13]) ^ sbox(6,x[3]) ^ sbox(7,x[2]) ^ sbox(6,x[8]);
+        keys[slot+7] = sbox(4,x[14]) ^ sbox(5,x[15]) ^ sbox(6,x[1]) ^ sbox(7,x[0]) ^ sbox(7,x[13]);
+    }
 }
 
 static uint32_t rotate_left(uint32_t value, uint32_t amount) {

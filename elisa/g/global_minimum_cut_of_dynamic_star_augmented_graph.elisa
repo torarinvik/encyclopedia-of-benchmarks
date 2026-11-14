@@ -45,8 +45,9 @@ def gmc_stoer_wagner(n: usize, spokes: i64[16], m: usize,
         while step < count:
             selected: mutable usize = 17
             z: mutable usize = 0
+            candidate: mutable usize = 0
             while z < count:
-                candidate: usize = active[z]
+                candidate <- active[z]
                 if not used[candidate] and (selected == 17 or connection[candidate] > connection[selected]
                         or (connection[candidate] == connection[selected] and candidate < selected)):
                     selected <- candidate
@@ -81,9 +82,10 @@ def gmc_stoer_wagner(n: usize, spokes: i64[16], m: usize,
 def global_minimum_cut_of_dynamic_star_augmented_graph_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 3 or length > GMC_MAX_INPUT: return -1
-    n_value: i64 = input[0]
-    m_value: i64 = input[1]
-    q_value: i64 = input[2]
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    q_value: i64 = values[2]
     if n_value < 1 or n_value > 16 or m_value < 0 or m_value > 64
             or m_value > n_value * (n_value - 1) / 2 or q_value < 1 or q_value > 32: return -1
     n: usize = n_value.usize()
@@ -94,7 +96,7 @@ def global_minimum_cut_of_dynamic_star_augmented_graph_impl(input: i64&, length:
     spokes: mutable i64[16] = zeroed
     i: mutable usize = 0
     while i < n:
-        spokes[i] <- input[position]
+        spokes[i] <- values[position]
         if spokes[i] < 0 or spokes[i] > GMC_MAX_W: return -1
         position <- position + 1
         i <- i + 1
@@ -104,9 +106,9 @@ def global_minimum_cut_of_dynamic_star_augmented_graph_impl(input: i64&, length:
     seen: mutable bool[256] = zeroed
     edge: mutable usize = 0
     while edge < m:
-        u: i64 = input[position]
-        v: i64 = input[position + 1]
-        weight: i64 = input[position + 2]
+        u: i64 = values[position]
+        v: i64 = values[position + 1]
+        weight: i64 = values[position + 2]
         position <- position + 3
         if u < 0 or u >= n_value or v < 0 or v >= n_value or u == v or weight < 0 or weight > GMC_MAX_W: return -1
         a: mutable usize = 0
@@ -124,8 +126,8 @@ def global_minimum_cut_of_dynamic_star_augmented_graph_impl(input: i64&, length:
     update_y: mutable i64[32] = zeroed
     i <- 0
     while i < q:
-        x: i64 = input[position]
-        y: i64 = input[position + 1]
+        x: i64 = values[position]
+        y: i64 = values[position + 1]
         position <- position + 2
         if x < 0 or x >= n_value or y < 0 or y > GMC_MAX_W: return -1
         update_x[i] <- x.usize()

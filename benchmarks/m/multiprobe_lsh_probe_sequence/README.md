@@ -22,8 +22,10 @@ choice, each popped subset generates a shifted child (replace its highest set
 bit with the next bit) and an expanded child (add that next bit). Discard
 invalid sets only when emitting, so their descendants remain reachable. The
 ordering's population-count and mask tie breaks ensure a parent precedes a
-same-score child. Heap space is O(K), and time is O(m log m + K log K + Km),
-where K is the number of popped sets including invalid sets; K<=2^(2m)-1.
+same-score child. Heap space is O(K). Ports that store computed keys take
+O(m log m + Km + K log K) time; drafts that recompute scores during heap
+comparisons take O(m log m + Km log K). Here K is the number of popped sets,
+including invalid sets, and K<=2^(2m)-1.
 This is the probe-sequence kernel, not a full ANN index or a reproduction of
 Ferret's complete pipeline.
 

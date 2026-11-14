@@ -14,6 +14,8 @@ At each branch, the selected child minimizes `volume(union(child,incoming))-volu
 
 All arithmetic is exact integer arithmetic. On these bounds the volume products match the source's floating-point volume comparisons exactly. The workload includes depth-zero and recursive insertion cases, a malformed path, short output, null output, and null input.
 
+For e supplied child boxes and leaf records, validation, selection, and MBR updates take O(e) time and O(depth) extra space with four dimensions fixed.
+
 ## Source and rights
 
 The source is [`VersaBench/dbms/insertEntry.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/insertEntry.c) at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. Related source paths are `chooseEntry.c`, `penalty.c`, `volume.c`, `keyUnion.c`, `splitNode.c`, `partitionEntries.c`, `index.h`, and `indexKey.h`; launcher: `VersaBench/dbms/info.sh`. The source headers identify M. L. Rivas and `Copyright 1999, Atlantic Aerospace Electronics Corp.` No explicit redistribution license was found in the pinned directory. These are independent clean-room implementations of the bounded behavior and contain no copied source text or comments; the notice preserves attribution and records the licensing limitation.
@@ -26,6 +28,7 @@ The independent oracle is [`versabench_dbms_insert_entry_oracle.py`](../../versa
 - C3: [`c3/d/versabench_dbms_insert_entry.c3`](../../../c3/d/versabench_dbms_insert_entry.c3)
 - C++: [`cpp/d/versabench_dbms_insert_entry.cpp`](../../../cpp/d/versabench_dbms_insert_entry.cpp)
 - Elisa: [`elisa/d/versabench_dbms_insert_entry.elisa`](../../../elisa/d/versabench_dbms_insert_entry.elisa)
+- Mojo: [`mojo/d/versabench_dbms_insert_entry.mojo`](../../../mojo/d/versabench_dbms_insert_entry.mojo) (draft; not compiled or run)
 - Nim: [`nim/d/versabench_dbms_insert_entry.nim`](../../../nim/d/versabench_dbms_insert_entry.nim)
 - Odin: [`odin/d/versabench_dbms_insert_entry.odin`](../../../odin/d/versabench_dbms_insert_entry.odin)
 - Rust: [`rust/d/versabench_dbms_insert_entry.rs`](../../../rust/d/versabench_dbms_insert_entry.rs)

@@ -72,3 +72,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s241_cross_coupled_product_map.rs`](../../../rust/t/tsvc_s241_cross_coupled_product_map.rs) |
 | V | [`tsvc_s241_cross_coupled_product_map.v`](../../../v/t/tsvc_s241_cross_coupled_product_map.v) |
 | Zig | [`tsvc_s241_cross_coupled_product_map.zig`](../../../zig/t/tsvc_s241_cross_coupled_product_map.zig) |
+| Mojo | [`tsvc_s241_cross_coupled_product_map.mojo`](../../../mojo/t/tsvc_s241_cross_coupled_product_map.mojo) (draft, unverified) |

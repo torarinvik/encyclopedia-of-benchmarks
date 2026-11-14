@@ -2,9 +2,9 @@
 
 This package builds a canonical zero-suppressed decision diagram (ZDD) for an explicitly supplied family of subsets, then counts the represented subsets by dynamic programming over the diagram. The chapter distinguishes ZDD reduction from ordinary BDD reduction: a ZDD node whose 1-edge points to the zero terminal is suppressed; equal low/high children are retained. Identical `(variable,low,high)` nodes are shared.
 
-Input is `[n,m,mask[0..m))`, where `1<=n<=6`, `0<=m<=32`, each mask is a distinct integer in `[0,2^n)`, and bit `i` denotes item `i`. Variable order is item 0 through item n-1. The output is `[root_id,node_count,set_count,(variable,low_id,high_id)*]`, with terminals 0 and 1 and deterministic bottom-up postorder IDs. The bounds are 34 input words and 192 output words (1,536 bytes). Invalid frames return `-1`; null or short output returns `-2` without writes.
+Input is `[n,m,mask[0..m))`, where `1<=n<=6`, `0<=m<=32`, each mask is a distinct integer in `[0,2^n)`, and bit `i` denotes item `i`. Root-to-terminal variable order is descending from item n-1 to item 0; construction assigns IDs bottom-up in the opposite order. The output is `[root_id,node_count,set_count,(variable,low_id,high_id)*]`, with terminals 0 and 1 and deterministic bottom-up IDs. The bounds are 34 input words and 192 output words (1,536 bytes). Invalid frames return `-1`; null or short output returns `-2` without writes.
 
-The profile covers the chapter’s ZDD representation and counting core for a finite family already materialized as masks. It does not implement the chapter’s frontier-based construction of all simple source-to-target paths or general graph-enumeration constraints. The package is distinct from [`binary_decision_graph`](../binary_decision_graph/README.md): ZDD zero suppression is not BDD equal-branch elimination.
+The profile covers the chapter’s ZDD representation and counting core for a finite family already materialized as masks. It does not implement the chapter’s frontier-based construction of all simple source-to-target paths or general graph-enumeration constraints. The package is distinct from [`binary_decision_graph`](../../b/binary_decision_graph/README.md): ZDD zero suppression is not BDD equal-branch elimination.
 
 ## Implementations
 
@@ -21,6 +21,8 @@ The profile covers the chapter’s ZDD representation and counting core for a fi
 | Zig | [`zig/z/zdd_family_count.zig`](../../../zig/z/zdd_family_count.zig) |
 
 Primary oracle: [`zdd_family_count_oracle.py`](../../zdd_family_count_oracle.py). Independent recursive verifier: [`zdd_family_count_verifier_oracle.py`](../../zdd_family_count_verifier_oracle.py).
+
+The Mojo draft is [`mojo/z/zdd_family_count.mojo`](../../../mojo/z/zdd_family_count.mojo). With linear unique-node lookup, construction takes O(4ⁿ) time and O(2ⁿ) space in the worst case.
 
 ## Attribution and rights
 

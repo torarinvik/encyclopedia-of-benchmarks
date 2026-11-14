@@ -46,3 +46,5 @@ and an insufficient-capacity case.
 | Rust | `rust/r/reverse_search_permutation_enumeration.rs` |
 | V | `v/r/reverse_search_permutation_enumeration.v` |
 | Zig | `zig/r/reverse_search_permutation_enumeration.zig` |
+
+The Mojo draft is [`mojo/r/reverse_search_permutation_enumeration.mojo`](../../../mojo/r/reverse_search_permutation_enumeration.mojo). It has not been compiled or run.

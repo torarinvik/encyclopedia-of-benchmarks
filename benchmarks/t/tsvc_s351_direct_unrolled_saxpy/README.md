@@ -33,3 +33,4 @@ The oracle is [`benchmarks/tsvc_s351_direct_unrolled_saxpy_oracle.py`](../../tsv
 | Rust | [`tsvc_s351_direct_unrolled_saxpy.rs`](../../../rust/t/tsvc_s351_direct_unrolled_saxpy.rs) |
 | V | [`tsvc_s351_direct_unrolled_saxpy.v`](../../../v/t/tsvc_s351_direct_unrolled_saxpy.v) |
 | Zig | [`tsvc_s351_direct_unrolled_saxpy.zig`](../../../zig/t/tsvc_s351_direct_unrolled_saxpy.zig) |
+| Mojo | [`tsvc_s351_direct_unrolled_saxpy.mojo`](../../../mojo/t/tsvc_s351_direct_unrolled_saxpy.mojo) (draft, unverified) |

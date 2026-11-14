@@ -24,3 +24,5 @@ any write. The independent oracle is
 The package covers the bounded codelet only, not TSVC initialization, its
 timing/repetition profile, or the checker. See `LICENSE.txt` for source
 attribution and rights status.
+
+A [Mojo draft](../../../mojo/t/tsvc_s118_triangular_convolution_recurrence.mojo) is present and remains unverified.

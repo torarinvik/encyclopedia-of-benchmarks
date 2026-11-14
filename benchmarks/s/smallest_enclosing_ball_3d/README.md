@@ -17,6 +17,10 @@ input returns `-1`; null output or capacity below four values returns `-2`
 without writing. The independent oracle enumerates all candidate support sets
 of size at most four, rather than using Welzl recursion.
 
+The existing [`smallest_circle`](../smallest_circle/README.md) profile solves
+the corresponding planar problem; this package handles three-dimensional
+supports, including four-point spheres.
+
 ## Pinned source and license
 
 Based on Anton Semechko, `ExactMinBoundSphere3D.m` and
@@ -29,5 +33,12 @@ The repository is MIT licensed. Its complete notice is bundled in
 
 ## Ports
 
-The nine ports are under `c/s`, `c3/s`, `cpp/s`, `elisa/s`, `nim/s`, `odin/s`,
-`rust/s`, `v/s`, and `zig/s`.
+The ports are under `c/s`, `c3/s`, `cpp/s`, `elisa/s`, `mojo/s`, `nim/s`,
+`odin/s`, `rust/s`, `v/s`, and `zig/s`. The [Mojo draft](../../../mojo/s/smallest_enclosing_ball_3d.mojo)
+uses a Gram-system support fit and has not been compiled or run.
+
+For fixed dimension three and a deterministic input order, the recursive
+support-set algorithm has `O(n⁴)` worst-case time and `O(n)` recursion space;
+this profile bounds `n` to eight.
+Verifier source includes collinear, coplanar, and repeated-point supports;
+these cases have not been run.

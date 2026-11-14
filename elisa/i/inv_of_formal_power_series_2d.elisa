@@ -1,0 +1,41 @@
+const FPS2D_MOD: i64 = 998244353
+
+def fps2d_power(initial: i64) -> i64:
+    x: mutable i64 = initial
+    exponent: mutable usize = 998244351
+    result: mutable i64 = 1
+    while exponent>0:
+        if (exponent & 1)!=0: result <- result*x % FPS2D_MOD
+        x <- x*x % FPS2D_MOD
+        exponent <- exponent >> 1
+    result
+
+def inv_of_formal_power_series_2d_impl(input: i64&, length: usize,
+                                        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length<3 or length>66: return -1
+    values: view[i64] = input[0:length]
+    if values[0]<1 or values[0]>8 or values[1]<1 or values[1]>8: return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if length!=2+n*m or values[2]==0: return -1
+    for i in 0..<n*m:
+        if values[2+i]<0 or values[2+i]>=FPS2D_MOD: return -1
+    if output == null or capacity<8*n*m: return -2
+    result: mutable view[u8] = output[0:8*n*m]
+    g: mutable i64[64] = zeroed
+    inverse: i64 = fps2d_power(values[2])
+    g[0] <- inverse
+    for i in 0..<n:
+        for j in 0..<m:
+            if i==0 and j==0: continue
+            sum: mutable i64 = 0
+            for a in 0..<i+1:
+                for b in 0..<j+1:
+                    if a!=0 or b!=0: sum <- (sum+values[2+a*m+b]*g[(i-a)*m+j-b]) % FPS2D_MOD
+            g[i*m+j] <- ((FPS2D_MOD-sum) % FPS2D_MOD)*inverse % FPS2D_MOD
+    for i in 0..<n*m:
+        bits: u64 = g[i].u64()
+        for byte in 0..<8: result[8*i+byte] <- ((bits >> (8*byte)) & 255.u64()).u8()
+    (8*n*m).i64()
+
+export fn inv_of_formal_power_series_2d(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = inv_of_formal_power_series_2d_impl

@@ -49,6 +49,7 @@ The repository is MIT licensed; its full notice is retained in
 | C3 | [c3/g/graphai_hac_complete_linkage.c3](../../../c3/g/graphai_hac_complete_linkage.c3) |
 | C++ | [cpp/g/graphai_hac_complete_linkage.cpp](../../../cpp/g/graphai_hac_complete_linkage.cpp) |
 | Elisa | [elisa/g/graphai_hac_complete_linkage.elisa](../../../elisa/g/graphai_hac_complete_linkage.elisa) |
+| Mojo | [mojo/g/graphai_hac_complete_linkage.mojo](../../../mojo/g/graphai_hac_complete_linkage.mojo) |
 | Nim | [nim/g/graphai_hac_complete_linkage.nim](../../../nim/g/graphai_hac_complete_linkage.nim) |
 | Odin | [odin/g/graphai_hac_complete_linkage.odin](../../../odin/g/graphai_hac_complete_linkage.odin) |
 | Rust | [rust/g/graphai_hac_complete_linkage.rs](../../../rust/g/graphai_hac_complete_linkage.rs) |

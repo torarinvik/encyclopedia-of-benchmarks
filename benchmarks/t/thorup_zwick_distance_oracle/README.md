@@ -22,4 +22,7 @@ The algorithm was implemented independently from the mathematical description in
 - Rights note: [`RIGHTS.md`](RIGHTS.md)
 - Primary oracle: [`thorup_zwick_distance_oracle_oracle.py`](../../thorup_zwick_distance_oracle_oracle.py)
 - Independent verifier oracle: [`thorup_zwick_distance_verifier_oracle.py`](../../thorup_zwick_distance_verifier_oracle.py)
-- Ports: `c/t/thorup_zwick_distance_oracle.c`, `c3/t/thorup_zwick_distance_oracle.c3`, `cpp/t/thorup_zwick_distance_oracle.cpp`, `elisa/t/thorup_zwick_distance_oracle.elisa`, `nim/t/thorup_zwick_distance_oracle.nim`, `odin/t/thorup_zwick_distance_oracle.odin`, `rust/t/thorup_zwick_distance_oracle.rs`, `v/t/thorup_zwick_distance_oracle.v`, and `zig/t/thorup_zwick_distance_oracle.zig`.
+- Ports: `c/t/thorup_zwick_distance_oracle.c`, `c3/t/thorup_zwick_distance_oracle.c3`, `cpp/t/thorup_zwick_distance_oracle.cpp`, `elisa/t/thorup_zwick_distance_oracle.elisa`, `mojo/t/thorup_zwick_distance_oracle.mojo`, `nim/t/thorup_zwick_distance_oracle.nim`, `odin/t/thorup_zwick_distance_oracle.odin`, `rust/t/thorup_zwick_distance_oracle.rs`, `v/t/thorup_zwick_distance_oracle.v`, and `zig/t/thorup_zwick_distance_oracle.zig`.
+
+The Mojo port and ten-language suite source check are static drafts; neither
+has been compiled or run.

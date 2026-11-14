@@ -29,6 +29,7 @@ included in `LICENSE.txt`.
 [C3](../../../c3/g/gbbs_charikar_densest_subgraph.c3) ·
 [C++](../../../cpp/g/gbbs_charikar_densest_subgraph.cpp) ·
 [Elisa](../../../elisa/g/gbbs_charikar_densest_subgraph.elisa) ·
+[Mojo](../../../mojo/g/gbbs_charikar_densest_subgraph.mojo) ·
 [Nim](../../../nim/g/gbbs_charikar_densest_subgraph.nim) ·
 [Odin](../../../odin/g/gbbs_charikar_densest_subgraph.odin) ·
 [Rust](../../../rust/g/gbbs_charikar_densest_subgraph.rs) ·

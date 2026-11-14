@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-discrete-log-fixed-mod-i64-bytes-v1",
+  "algorithm": "discrete_logarithm_fixed_mod",
+  "function_symbol": "discrete_logarithm_fixed_mod",
+  "abi": "i64_array_bytes_output",
+  "source": {"repository": "yosupo06/library-checker-problems", "path": "number_theory/discrete_logarithm_fixed_mod/task.md", "license": "Apache-2.0; algorithm idea only"},
+  "input": {"kind": "signed_i64_array", "layout": "[p,g,n,targets[n]]", "maximum_valid_input_length": 259, "maximum_parseable_input_length": 260, "invalid_result": -1},
+  "output": {"kind": "little_endian_signed_i64", "maximum_output_bytes": 2048, "invalid_result": -1, "output_error_result": -2, "no_write_on_error": true},
+  "workspace": {"bytes": 2048},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {"id": "batch_mod_7", "input_values": [7,3,4,1,3,2,6], "input_length": 7, "expected_result": 32, "expected_output_hex": "0000000000000000010000000000000002000000000000000300000000000000"},
+    {"id": "smallest_prime", "input_values": [2,1,2,1,1], "input_length": 5, "expected_result": 16, "expected_output_hex": "00000000000000000000000000000000"},
+    {"id": "nonprimitive_root", "input_values": [7,2,1,1], "input_length": 4, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "composite_modulus", "input_values": [9,2,1,1], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "zero_target", "input_values": [7,3,1,0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output", "input_values": [7,3,1,2], "input_length": 4, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [7,3,1,2], "input_length": 4, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

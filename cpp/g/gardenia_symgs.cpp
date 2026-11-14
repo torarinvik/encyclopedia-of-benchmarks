@@ -13,6 +13,7 @@ extern "C" std::int64_t gardenia_symgs(const double* a,std::size_t len,double* o
     for(std::size_t k=0;k<=c;++k){double z=a[fa+k];if(std::trunc(z)!=z||z<0||z>nd)return -1;offs[k]=std::size_t(z);}if(offs[0]!=0||offs[c]!=n)return -1;for(std::size_t k=0;k<c;++k)if(offs[k]>=offs[k+1])return -1;
     for(std::size_t k=0;k<c;++k)for(std::size_t p=offs[k];p<offs[k+1];++p)group[order[p]]=k;
     for(std::size_t i=0;i<=n;++i){double z=a[ra+i];if(std::trunc(z)!=z||z<0||z>md)return -1;row[i]=std::size_t(z);if(i&&row[i]<row[i-1])return -1;}if(row[0]!=0||row[n]!=m)return -1;
+    for(std::size_t e=0;e<m;++e){double z=a[ca+e];if(std::trunc(z)!=z||z<0||z>=nd)return -1;col[e]=std::size_t(z);mat[e]=a[va+e];}
     for(std::size_t u=0;u<n;++u){std::size_t diag=0,prev=0;double d=0,offsum=0;for(std::size_t e=row[u];e<row[u+1];++e){double z=a[ca+e];if(std::trunc(z)!=z||z<0||z>=nd)return -1;col[e]=std::size_t(z);if(e>row[u]&&col[e]<=prev)return -1;prev=col[e];mat[e]=a[va+e];if(mat[e]<-4||mat[e]>4)return -1;if(col[e]==u){++diag;d=mat[e];}else{offsum+=std::fabs(mat[e]);if(group[u]==group[col[e]])return -1;}}
         if(diag!=1||d<=offsum)return -1;for(std::size_t e=row[u];e<row[u+1];++e){auto v=col[e];bool found=false;for(std::size_t f=row[v];f<row[v+1];++f)if(col[f]==u){if(mat[f]!=mat[e])return -1;found=true;break;}if(!found)return -1;}}
     for(std::size_t i=0;i<n;++i){x[i]=a[xa+i];rhs[i]=a[ba+i];if(x[i]<-4||x[i]>4||rhs[i]<-4||rhs[i]>4)return -1;}if(!out||cap<n)return -2;

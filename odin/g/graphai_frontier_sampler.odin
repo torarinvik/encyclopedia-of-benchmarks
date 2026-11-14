@@ -15,7 +15,6 @@ graphai_frontier_sampler :: proc "c" (input:[^]f64,length:c.size_t,output:[^]f64
     if input[row_at]!=0||input[col_at-1]!=f64(m) do return -1
     for i:=0;i<=n;i+=1 { x:=input[row_at+i];if math.trunc(x)!=x||x<0||x>f64(m) do return -1;rows[i]=int(x);if i>0&&rows[i]<rows[i-1] do return -1 }
     for e:=0;e<m;e+=1 { x:=input[col_at+e];if math.trunc(x)!=x||x<0||x>=f64(n) do return -1;cols[e]=int(x) }
-    if output==nil||capacity<c.size_t(required) do return -2
     fanouts:=[3]int{3,2,2};front_size:=r;choice:=0;out_at:=r
     for round:=0;round<3;round+=1 { fanout:=fanouts[round];next_size:=front_size*fanout
         for i:=0;i<front_size;i+=1 { parent:=front[i];begin:=rows[parent];degree:=rows[parent+1]-begin;if degree==0 do return -1
@@ -24,5 +23,6 @@ graphai_frontier_sampler :: proc "c" (input:[^]f64,length:c.size_t,output:[^]f64
         for i:=0;i<next_size;i+=1 { front[i]=next[i] };front_size=next_size
     }
     if choice!=21*r||out_at!=required do return -1
+    if output==nil||capacity<c.size_t(required) do return -2
     for q:=0;q<required;q+=1 { output[q]=staged[q] };return i64(required)
 }

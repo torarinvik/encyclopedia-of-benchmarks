@@ -16,6 +16,8 @@ Intersection is closed: touching faces count as consistent, matching `consistent
 
 The profile excludes database file parsing, recursive insert/delete, result formatting, and non-key string filtering. It measures tree traversal/pruning rather than merely the four-dimensional intersection predicate.
 
+For n nodes and e entries, validation and traversal take O(n + e) time and O(n + e) extra space in this bounded profile.
+
 ## Provenance and rights
 
 Pinned source: [`query` in `VersaBench/dbms/query.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/query.c), with node/entry representation in [`index.h`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/index.h), key layout in `indexKey.h`, and intersection semantics in `consistent.c`; pinned commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. Headers identify M. L. Rivas and `Copyright 1999, Atlantic Aerospace Electronics Corp.`; no explicit redistribution license was found in the pinned directory. These are clean-room ports of the bounded algorithm, without copied source text/comments. See [NOTICE.txt](NOTICE.txt).
@@ -28,6 +30,7 @@ Oracle: [`versabench_dbms_query_oracle.py`](../../versabench_dbms_query_oracle.p
 - C3: [../../../c3/d/versabench_dbms_query.c3](../../../c3/d/versabench_dbms_query.c3)
 - C++: [../../../cpp/d/versabench_dbms_query.cpp](../../../cpp/d/versabench_dbms_query.cpp)
 - Elisa: [../../../elisa/d/versabench_dbms_query.elisa](../../../elisa/d/versabench_dbms_query.elisa)
+- Mojo: [../../../mojo/d/versabench_dbms_query.mojo](../../../mojo/d/versabench_dbms_query.mojo) (draft; not compiled or run)
 - Nim: [../../../nim/d/versabench_dbms_query.nim](../../../nim/d/versabench_dbms_query.nim)
 - Odin: [../../../odin/d/versabench_dbms_query.odin](../../../odin/d/versabench_dbms_query.odin)
 - Rust: [../../../rust/d/versabench_dbms_query.rs](../../../rust/d/versabench_dbms_query.rs)

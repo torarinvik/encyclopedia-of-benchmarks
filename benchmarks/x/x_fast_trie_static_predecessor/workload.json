@@ -33,7 +33,7 @@
     "empty_key_set_result": 0,
     "zero_query_result": 0
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Build sorted distinct key-prefix catalogs for depths 0..16; binary-search depths for each query's longest present prefix, then climb to the nearest represented left sibling and return that subtree's maximum key.",
     "independent_oracle": "Sort the key set and answer each query using a direct upper-bound search.",
     "primary_complexity": "O(16N) preprocessing and O(16 log N) worst-case query work with deterministic sorted prefix catalogs.",

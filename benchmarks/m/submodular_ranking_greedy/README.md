@@ -28,6 +28,9 @@ nonnegativity, monotonicity, and diminishing returns (submodularity).
 - Invalid framing, bounds, or function tables return `-1`. Null output or
   short capacity returns `-2` before writing.
 
+With S=2^n subsets, explicit validation takes O(mnS²) time and the greedy
+selection takes O(mn²); auxiliary space is O(mS + n).
+
 The profile covers the source-described greedy SR rule on explicit finite
 tables. It does not implement the chapter's LP rounding, alternative
 approximation algorithms, or prove an approximation guarantee. The chapter
@@ -47,6 +50,7 @@ Boolean indicator that some member has been scheduled.
 | C3 | `c3/m/submodular_ranking_greedy.c3` |
 | C++ | `cpp/m/submodular_ranking_greedy.cpp` |
 | Elisa | `elisa/m/submodular_ranking_greedy.elisa` |
+| Mojo | [`mojo/m/submodular_ranking_greedy.mojo`](../../../mojo/m/submodular_ranking_greedy.mojo) (draft; not compiled or run) |
 | Nim | `nim/m/submodular_ranking_greedy.nim` |
 | Odin | `odin/m/submodular_ranking_greedy.odin` |
 | Rust | `rust/m/submodular_ranking_greedy.rs` |

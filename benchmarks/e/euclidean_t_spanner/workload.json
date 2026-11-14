@@ -27,6 +27,11 @@
     {"id":"invalid_stretch","input_values":[2.0,1.0,0.0,0.0,4.0,0.0],"input_length":6,"expected_result":-1,"expected_output":[]},
     {"id":"duplicate_coordinates","input_values":[2.0,2.0,0.0,0.0,0.0,0.0],"input_length":6,"expected_result":-1,"expected_output":[]},
     {"id":"capacity_short","input_values":[2.0,2.0,0.0,0.0,4.0,0.0],"input_length":6,"output_capacity":2,"expected_result":-2,"expected_output":[]},
-    {"id":"null_output","input_values":[2.0,2.0,0.0,0.0,4.0,0.0],"input_length":6,"output_capacity":3,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+    {"id":"null_output","input_values":[2.0,2.0,0.0,0.0,4.0,0.0],"input_length":6,"output_capacity":3,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"coordinate_not_integer","input_values":[2.0,2.0,0.5,0.0,4.0,0.0],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_length","input_values":[2.0,2.0,0.0,0.0,4.0,0.0,9.0],"input_length":7,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_before_null_output","input_values":[2.0,1.0,0.0,0.0,4.0,0.0],"input_length":6,"output_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"exact_capacity","input_values":[2.0,4.0,-1000.0,1000.0,1000.0,-1000.0],"input_length":6,"output_capacity":3,"expected_result":3,"expected_output":[1.0,0.0,1.0]}
   ]
 }

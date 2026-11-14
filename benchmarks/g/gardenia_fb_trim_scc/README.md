@@ -35,6 +35,7 @@ The nine clean-room ports are listed below.
 | C3 | [`c3/g/gardenia_fb_trim_scc.c3`](../../../c3/g/gardenia_fb_trim_scc.c3) |
 | C++ | [`cpp/g/gardenia_fb_trim_scc.cpp`](../../../cpp/g/gardenia_fb_trim_scc.cpp) |
 | Elisa | [`elisa/g/gardenia_fb_trim_scc.elisa`](../../../elisa/g/gardenia_fb_trim_scc.elisa) |
+| Mojo | [`mojo/g/gardenia_fb_trim_scc.mojo`](../../../mojo/g/gardenia_fb_trim_scc.mojo) |
 | Nim | [`nim/g/gardenia_fb_trim_scc.nim`](../../../nim/g/gardenia_fb_trim_scc.nim) |
 | Odin | [`odin/g/gardenia_fb_trim_scc.odin`](../../../odin/g/gardenia_fb_trim_scc.odin) |
 | Rust | [`rust/g/gardenia_fb_trim_scc.rs`](../../../rust/g/gardenia_fb_trim_scc.rs) |

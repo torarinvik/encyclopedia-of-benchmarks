@@ -39,3 +39,4 @@ The independent oracle is [`benchmarks/tsvc_s424_alias_overlap_feedback_oracle.p
 | Rust | [`tsvc_s424_alias_overlap_feedback.rs`](../../../rust/t/tsvc_s424_alias_overlap_feedback.rs) |
 | V | [`tsvc_s424_alias_overlap_feedback.v`](../../../v/t/tsvc_s424_alias_overlap_feedback.v) |
 | Zig | [`tsvc_s424_alias_overlap_feedback.zig`](../../../zig/t/tsvc_s424_alias_overlap_feedback.zig) |
+| Mojo | [`tsvc_s424_alias_overlap_feedback.mojo`](../../../mojo/t/tsvc_s424_alias_overlap_feedback.mojo) (draft, unverified) |

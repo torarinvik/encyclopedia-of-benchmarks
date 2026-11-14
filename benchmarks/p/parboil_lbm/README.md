@@ -88,3 +88,5 @@ Independent oracle: [`benchmarks/parboil_lbm_oracle.py`](../../parboil_lbm_oracl
 | Rust | [`parboil_lbm.rs`](../../../rust/p/parboil_lbm.rs) |
 | V | [`parboil_lbm.v`](../../../v/p/parboil_lbm.v) |
 | Zig | [`parboil_lbm.zig`](../../../zig/p/parboil_lbm.zig) |
+
+The Mojo draft is [`mojo/p/parboil_lbm.mojo`](../../../mojo/p/parboil_lbm.mojo). Its mixed-precision and contraction behavior remains unverified.

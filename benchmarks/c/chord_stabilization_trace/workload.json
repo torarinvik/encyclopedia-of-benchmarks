@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "chord-stabilization-trace-i64-array-bytes-output-v1",
+  "algorithm": "chord_stabilization_trace",
+  "function_symbol": "chord_stabilization_trace",
+  "abi": "i64_array_bytes_output",
+  "description": "Atomic replay of Chord successor stabilization and predecessor notifications.",
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[bits,n,q,ids[n],successor_indices[n],predecessor_indices[n],schedule[q]]", "maximum_valid_length": 115, "maximum_parseable_length": 115, "invalid_input_result": -1},
+  "output": {"kind": "byte_vector", "encoding": "successor indices then predecessor indices; 255 means absent", "maximum_bytes": 32, "null_output_result": -2, "insufficient_capacity_result": -2, "no_write_on_error": true},
+  "workspace": {"bytes": 1024, "meaning": "Node IDs, successor and predecessor arrays, and staged output."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {"id": "discover_intermediate_successor", "input_values": [3,3,1,1,3,6,2,2,0,-1,-1,1,0], "input_length": 13, "output_capacity": 6, "expected_result": 6, "expected_output_hex": "010200ff0001"},
+    {"id": "sequential_notifications", "input_values": [3,3,3,1,3,6,2,2,0,-1,-1,1,0,1,2], "input_length": 15, "output_capacity": 6, "expected_result": 6, "expected_output_hex": "010200020001"},
+    {"id": "wraparound_intermediate_successor", "input_values": [3,3,1,1,3,6,1,2,1,-1,0,0,2], "input_length": 13, "output_capacity": 6, "expected_result": 6, "expected_output_hex": "010200020000"},
+    {"id": "single_node_notify_self", "input_values": [1,1,1,0,0,-1,0], "input_length": 7, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0000"},
+    {"id": "short_output", "input_values": [1,1,0,0,0,-1], "input_length": 6, "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "bad_pointer", "input_values": [1,1,0,0,1,-1], "input_length": 6, "output_capacity": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_before_null_output", "input_values": [1,1,0,0,1,-1], "input_length": 6, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [1,1,0,0,0,-1], "input_length": 6, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

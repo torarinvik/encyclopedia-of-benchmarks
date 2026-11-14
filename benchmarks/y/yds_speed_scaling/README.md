@@ -48,3 +48,5 @@ Independent verifier: `benchmarks/yds_speed_scaling_verifier_oracle.py`.
 | Rust | `rust/y/yds_speed_scaling.rs` |
 | V | `v/y/yds_speed_scaling.v` |
 | Zig | `zig/y/yds_speed_scaling.zig` |
+
+The Mojo draft is [`mojo/y/yds_speed_scaling.mojo`](../../../mojo/y/yds_speed_scaling.mojo). With a fixed time range of nine endpoints, scanning candidate intervals and jobs over at most n stages takes O(n²) time and O(n) space.

@@ -66,6 +66,7 @@ def kirkpatrick_hierarchical_point_location(input:i64&,length:usize,output:mutab
     if input.is_null() or length<14 or length>MAX_INPUT:return -1
     nv:i64=input[0]; nl:i64=input[1]; qx:i64=input[2]; qy:i64=input[3]
     if nv<3 or nv>16 or nl<1 or nl>4 or qx< -1000 or qx>1000 or qy< -1000 or qy>1000:return -1
+    if length<4+2*nv.usize():return -1
     xy:mutable i64[32]=zeroed; faces:mutable i64[96]=zeroed; face_counts:mutable i64[4]=zeroed; cc:mutable i64[32]=zeroed; ids:mutable i64[256]=zeroed
     pos:mutable usize=4; v:mutable usize=0
     while v<nv.usize():

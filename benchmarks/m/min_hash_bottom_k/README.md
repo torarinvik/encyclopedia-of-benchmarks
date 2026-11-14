@@ -15,6 +15,8 @@ Input is `[n,k,(item_id,rank)[n]]`, with `1<=n<=16`, `1<=k<=8`, unique IDs in
 integers. The valid input maximum is 34 words (35 parseable); output maximum
 is 136 bytes. Invalid input returns `-1`; null output or insufficient capacity
 returns `-2` without writes.
+The bounded sorted-array update takes O(nk) time and O(k) sketch space,
+plus the fixed-size ID-presence mask.
 
 This is an explicit-rank profile of the bottom-k order statistic and threshold
 update behavior. It omits hash generation, coordinated random-rank guarantees,
@@ -33,6 +35,7 @@ or code is copied. See [RIGHTS.md](RIGHTS.md) and [workload.json](workload.json)
 | C3 | `c3/m/min_hash_bottom_k.c3` |
 | C++ | `cpp/m/min_hash_bottom_k.cpp` |
 | Elisa | `elisa/m/min_hash_bottom_k.elisa` |
+| Mojo | `mojo/m/min_hash_bottom_k.mojo` |
 | Nim | `nim/m/min_hash_bottom_k.nim` |
 | Odin | `odin/m/min_hash_bottom_k.odin` |
 | Rust | `rust/m/min_hash_bottom_k.rs` |

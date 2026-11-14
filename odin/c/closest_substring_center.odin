@@ -3,7 +3,7 @@ import "core:c"
 // Bounded exact closest-substring center by lexicographic exhaustive search.
 @(export)
 closest_substring_center :: proc "c" (x:[^]i64,length:c.size_t,out:[^]u8,cap:c.size_t)->i64{
- if x==nil do return -2
+ if x==nil do return -1
  if length<4||length>44 do return -1
  nv,mv,lv,qv:=x[0],x[1],x[2],x[3]
  if nv<1||nv>4||mv<1||mv>10||lv<1||lv>8||lv>mv||(qv!=2&&qv!=3)||int(length)!=4+int(nv*mv) do return -1

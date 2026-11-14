@@ -20,11 +20,15 @@ The [independent oracle](../../mcgill_misr_oracle.py) models the 48-bit random r
 | C3 | [c3/m/mcgill_misr.c3](../../../c3/m/mcgill_misr.c3) |
 | C++ | [cpp/m/mcgill_misr.cpp](../../../cpp/m/mcgill_misr.cpp) |
 | Elisa | [elisa/m/mcgill_misr.elisa](../../../elisa/m/mcgill_misr.elisa) |
+| Mojo | [mojo/m/mcgill_misr.mojo](../../../mojo/m/mcgill_misr.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/mcgill_misr.nim](../../../nim/m/mcgill_misr.nim) |
 | Odin | [odin/m/mcgill_misr.odin](../../../odin/m/mcgill_misr.odin) |
 | Rust | [rust/m/mcgill_misr.rs](../../../rust/m/mcgill_misr.rs) |
 | V | [v/m/mcgill_misr.v](../../../v/m/mcgill_misr.v) |
 | Zig | [zig/m/mcgill_misr.zig](../../../zig/m/mcgill_misr.zig) |
+
+For `n` experiments the kernel performs O(n) work and uses O(1) working
+storage. The Mojo draft's random recurrence and formatting remain unverified.
 
 ## Pinned source
 

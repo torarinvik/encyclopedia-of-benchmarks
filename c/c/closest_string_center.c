@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 int64_t closest_string_center(const int64_t*x,size_t len,uint8_t*out,size_t cap){
- if(!x)return -2;if(len<3||len>51)return -1;int64_t nv=x[0],mv=x[1],qv=x[2];
+ if(!x)return -1;if(len<3||len>51)return -1;int64_t nv=x[0],mv=x[1],qv=x[2];
  if(nv<1||nv>6||mv<1||mv>8||(qv!=2&&qv!=3)||len!=3+(size_t)nv*(size_t)mv)return -1;
  size_t n=(size_t)nv,m=(size_t)mv,q=(size_t)qv;for(size_t i=3;i<len;i++)if(x[i]<0||x[i]>=qv)return -1;
  size_t total=1;for(size_t i=0;i<m;i++)total*=q;size_t best=m+1,bestc[8]={0},candidate[8];

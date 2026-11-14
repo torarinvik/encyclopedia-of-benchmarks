@@ -1,0 +1,46 @@
+def lossy_put(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for j in 0..<8:
+        output[offset+j] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def lossy_solve(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    width: usize = input[0].usize()
+    n: usize = input[1].usize()
+    count: mutable i64[16] = zeroed
+    error: mutable i64[16] = zeroed
+    for i in 0..<n:
+        item: usize = input[2+i].usize()
+        bucket: i64 = (i/width+1).i64()
+        if count[item] == 0: error[item] <- bucket-1
+        count[item] <- count[item]+1
+        if (i+1)%width == 0:
+            for j in 0..<16:
+                if count[j] != 0 and count[j]+error[j] <= bucket:
+                    count[j] <- 0
+                    error[j] <- 0
+    active: mutable usize = 0
+    for i in 0..<16:
+        if count[i] != 0: active <- active+1
+    bytes: usize = 8+24*active
+    if output.is_null() or capacity < bytes: return -2
+    out_view: mutable view[u8] = output[0:bytes]
+    lossy_put(out_view, 0, active.i64())
+    offset: mutable usize = 8
+    for i in 0..<16:
+        if count[i] != 0:
+            lossy_put(out_view, offset, i.i64())
+            lossy_put(out_view, offset+8, count[i])
+            lossy_put(out_view, offset+16, error[i])
+            offset <- offset+24
+    bytes.i64()
+
+export fn lossy_counting_summary(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 66: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 2 or values[0] > 16 or values[1] < 0 or values[1] > 64: return -1
+    n: usize = values[1].usize()
+    if length != 2+n: return -1
+    for i in 0..<n:
+        if values[2+i] < 0 or values[2+i] > 15: return -1
+    lossy_solve(values, output, capacity)

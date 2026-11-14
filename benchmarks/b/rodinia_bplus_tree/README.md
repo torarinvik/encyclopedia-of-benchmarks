@@ -20,4 +20,9 @@ The independent Python oracle stores leaves as key/value tuples and performs rou
 
 ## Ports and workload
 
-Ports are in `c/b`, `c3/b`, `cpp/b`, `elisa/b`, `nim/b`, `odin/b`, `rust/b`, `v/b`, and `zig/b`. The independent oracle is [`benchmarks/rodinia_bplus_tree_oracle.py`](../../rodinia_bplus_tree_oracle.py); static cases are in [`workload.json`](workload.json).
+Ports are in `c/b`, `c3/b`, `cpp/b`, `elisa/b`, `mojo/b`, `nim/b`, `odin/b`, `rust/b`, `v/b`, and `zig/b`. The [Mojo draft](../../../mojo/b/rodinia_bplus_tree.mojo) has not been compiled or run. The independent oracle is [`benchmarks/rodinia_bplus_tree_oracle.py`](../../rodinia_bplus_tree_oracle.py); static cases are in [`workload.json`](workload.json).
+
+For Q queries and leaf capacity L, the bounded scan takes O(QL + L) time and
+O(L) space.
+Verifier source specifies separator hits and neighboring misses for every
+supported pair of leaf sizes; those cases remain unrun.

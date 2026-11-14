@@ -66,6 +66,7 @@ proc technology_mapping_minimum_area_tree_cover*(input: ptr UncheckedArray[int64
   while top > 0:
     dec top
     let node = stack[top]; let p = choice[node]; let l, r = left[node], right[node]
+    if kind[node] == 0: continue
     mapping[node] = p
     if p == 0: stack[top] = l; inc top
     elif p == 1: stack[top] = l; inc top; stack[top] = r; inc top

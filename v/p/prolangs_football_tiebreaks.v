@@ -75,6 +75,7 @@ fn refine(v &i64, n int, mut order []int, lo int, hi int, stage int, same_div bo
 			previous := score_for(v, n, order, lo, hi, order[j - 1], stage, same_div)
 			if compare_score(item_score, previous) <= 0 { break }
 			order[j] = order[j - 1]
+			order[j - 1] = item
 			j--
 		}
 		order[j] = item

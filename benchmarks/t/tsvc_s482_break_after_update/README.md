@@ -32,3 +32,4 @@ The independent oracle is [`benchmarks/tsvc_s482_break_after_update_oracle.py`](
 | Rust | [`tsvc_s482_break_after_update.rs`](../../../rust/t/tsvc_s482_break_after_update.rs) |
 | V | [`tsvc_s482_break_after_update.v`](../../../v/t/tsvc_s482_break_after_update.v) |
 | Zig | [`tsvc_s482_break_after_update.zig`](../../../zig/t/tsvc_s482_break_after_update.zig) |
+| Mojo | [`tsvc_s482_break_after_update.mojo`](../../../mojo/t/tsvc_s482_break_after_update.mojo) |

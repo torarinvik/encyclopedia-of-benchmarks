@@ -18,7 +18,7 @@ Adapted from the recursive construction in [cp-algorithms' Sqrt Tree article](ht
 
 ## Implementations
 
-The nine ports use the `i64_array_bytes_output` ABI. Their sources are linked below.
+The ten ports use the `i64_array_bytes_output` ABI. The Mojo port is a draft and has not been compiled or run.
 
 | Language | Source |
 | --- | --- |
@@ -26,6 +26,7 @@ The nine ports use the `i64_array_bytes_output` ABI. Their sources are linked be
 | C3 | [`c3/s/sqrt_tree.c3`](../../../c3/s/sqrt_tree.c3) |
 | C++ | [`cpp/s/sqrt_tree.cpp`](../../../cpp/s/sqrt_tree.cpp) |
 | Elisa | [`elisa/s/sqrt_tree.elisa`](../../../elisa/s/sqrt_tree.elisa) |
+| Mojo | [`mojo/s/sqrt_tree.mojo`](../../../mojo/s/sqrt_tree.mojo) |
 | Nim | [`nim/s/sqrt_tree.nim`](../../../nim/s/sqrt_tree.nim) |
 | Odin | [`odin/s/sqrt_tree.odin`](../../../odin/s/sqrt_tree.odin) |
 | Rust | [`rust/s/sqrt_tree.rs`](../../../rust/s/sqrt_tree.rs) |

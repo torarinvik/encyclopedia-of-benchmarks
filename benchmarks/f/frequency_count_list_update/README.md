@@ -27,12 +27,16 @@ This is a clean-room profile; no book code or prose was copied. See
 oracle](../../frequency_count_list_update_oracle.py), and the [independent
 verifier](../../frequency_count_list_update_verifier_oracle.py).
 
+For n items and q requests, searching and repositioning take O(nq) time;
+the bounded order, counters and recorded positions use O(n+q) space.
+
 | Language | Port |
 |---|---|
 | C | [`c/f/frequency_count_list_update.c`](../../../c/f/frequency_count_list_update.c) |
 | C3 | [`c3/f/frequency_count_list_update.c3`](../../../c3/f/frequency_count_list_update.c3) |
 | C++ | [`cpp/f/frequency_count_list_update.cpp`](../../../cpp/f/frequency_count_list_update.cpp) |
 | Elisa | [`elisa/f/frequency_count_list_update.elisa`](../../../elisa/f/frequency_count_list_update.elisa) |
+| Mojo | [`mojo/f/frequency_count_list_update.mojo`](../../../mojo/f/frequency_count_list_update.mojo) (unverified draft) |
 | Nim | [`nim/f/frequency_count_list_update.nim`](../../../nim/f/frequency_count_list_update.nim) |
 | Odin | [`odin/f/frequency_count_list_update.odin`](../../../odin/f/frequency_count_list_update.odin) |
 | Rust | [`rust/f/frequency_count_list_update.rs`](../../../rust/f/frequency_count_list_update.rs) |

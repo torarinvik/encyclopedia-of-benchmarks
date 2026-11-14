@@ -41,13 +41,19 @@ he becomes an inactive old bachelor. A bachelor remains a bachelor if engaged.
 The source's three-proposals-per-acceptable-pair bound gives a finite
 worst-case loop bound for these 6-by-6 instances.
 
+With `m` men and `w` women, the bounded implementation uses O(mw) storage.
+Its proposal and exhaustion steps scan up to O(m + w) entries each, for
+O(mw(m + w)) worst-case time under the stated proposal bound.
+
 This is algorithmically distinct from ordinary strict-preference
 Gale–Shapley and from resident-oriented Hospitals/Residents deferred
 acceptance. The package does not solve MAX-SMTI exactly or report the optimum.
 
 ## Package contents
 
-The nine ports live under `c/s`, `cpp/s`, `rust/s`, `c3/s`, `nim/s`, `odin/s`,
-`elisa/s`, `v/s` and `zig/s`. `workload.json` records bounded examples and
+The ten ports live under `c/s`, `cpp/s`, `rust/s`, `c3/s`, `nim/s`, `odin/s`,
+`elisa/s`, `v/s`, `zig/s`, and `mojo/s`. `workload.json` records bounded examples and
 malformed/capacity cases. The package oracle and a separately written
 verifier oracle provide expected bytes.
+The [Mojo draft](../../../mojo/s/kiraly_max_smt_i_approx.mojo) and suite path
+corrections have not been compiled or run.

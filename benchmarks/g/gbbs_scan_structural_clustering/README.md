@@ -62,6 +62,7 @@ the nine language ports are clean-room implementations.
 | C3 | [c3/g/gbbs_scan_structural_clustering.c3](../../../c3/g/gbbs_scan_structural_clustering.c3) |
 | C++ | [cpp/g/gbbs_scan_structural_clustering.cpp](../../../cpp/g/gbbs_scan_structural_clustering.cpp) |
 | Elisa | [elisa/g/gbbs_scan_structural_clustering.elisa](../../../elisa/g/gbbs_scan_structural_clustering.elisa) |
+| Mojo | [mojo/g/gbbs_scan_structural_clustering.mojo](../../../mojo/g/gbbs_scan_structural_clustering.mojo) |
 | Nim | [nim/g/gbbs_scan_structural_clustering.nim](../../../nim/g/gbbs_scan_structural_clustering.nim) |
 | Odin | [odin/g/gbbs_scan_structural_clustering.odin](../../../odin/g/gbbs_scan_structural_clustering.odin) |
 | Rust | [rust/g/gbbs_scan_structural_clustering.rs](../../../rust/g/gbbs_scan_structural_clustering.rs) |

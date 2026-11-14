@@ -47,7 +47,7 @@ read_word :: proc(p: ^Parser, out: ^[17]u8) -> int {
     for p.pos < p.length && word_part(int(p.input[p.pos])) {
         ch = int(p.input[p.pos])
         if used >= MAX_NAME do return 0
-        out[used] = u8(ch); used += 1; p.pos += 1; ch = peek(p)
+        out[used] = u8(ch); used += 1; p.pos += 1
     }
     out[used] = 0
     return used
@@ -75,7 +75,7 @@ decimal :: proc(p: ^Parser, value: ^int) -> bool {
         ch = int(p.input[p.pos])
         result = result * 10 + ch - 48
         if result > 99 do return false
-        p.pos += 1; ch = peek(p)
+        p.pos += 1
     }
     if result < 1 do return false
     value^ = result

@@ -26,7 +26,7 @@
     "invalid_input_result": -1,
     "maximum_valid_result": 16000
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Partition jobs by a_i < b_i; sort that group by increasing a_i and the other group by decreasing b_i; break equal keys by input index, then simulate both machines.",
     "independent_oracle": "Enumerate all job permutations and retain the least simulated makespan.",
     "primary_complexity": "O(N*N) time and O(N) space for the bounded insertion ordering.",

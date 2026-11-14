@@ -17,3 +17,5 @@ The upstream BYTEmark notice makes the source, executable, and documentation ava
 ## ABI
 
 Uses `i64_array_bytes_output`: exported `string_heap_sort(values, length, output, output_capacity)` returns the number of bytes written, `-1` for invalid input, and `-2` for null/short output.
+
+The Mojo draft is [`mojo/s/string_heap_sort.mojo`](../../../mojo/s/string_heap_sort.mojo). It has not been compiled or run.

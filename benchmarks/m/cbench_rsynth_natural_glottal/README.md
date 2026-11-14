@@ -25,6 +25,7 @@ The independent oracle is [`cbench_rsynth_natural_glottal_oracle.py`](../../cben
 - C3: [`c3/m/cbench_rsynth_natural_glottal.c3`](../../../c3/m/cbench_rsynth_natural_glottal.c3)
 - C++: [`cpp/m/cbench_rsynth_natural_glottal.cpp`](../../../cpp/m/cbench_rsynth_natural_glottal.cpp)
 - Elisa: [`elisa/m/cbench_rsynth_natural_glottal.elisa`](../../../elisa/m/cbench_rsynth_natural_glottal.elisa)
+- Mojo: [`mojo/m/cbench_rsynth_natural_glottal.mojo`](../../../mojo/m/cbench_rsynth_natural_glottal.mojo)
 - Nim: [`nim/m/cbench_rsynth_natural_glottal.nim`](../../../nim/m/cbench_rsynth_natural_glottal.nim)
 - Odin: [`odin/m/cbench_rsynth_natural_glottal.odin`](../../../odin/m/cbench_rsynth_natural_glottal.odin)
 - Rust: [`rust/m/cbench_rsynth_natural_glottal.rs`](../../../rust/m/cbench_rsynth_natural_glottal.rs)

@@ -32,3 +32,5 @@ The workload includes hand-described open and blocked planes that exercise each 
 | Rust | [rust/p/ptrdist_yacr2_maze1_dogleg.rs](../../../rust/p/ptrdist_yacr2_maze1_dogleg.rs) |
 | V | [v/p/ptrdist_yacr2_maze1_dogleg.v](../../../v/p/ptrdist_yacr2_maze1_dogleg.v) |
 | Zig | [zig/p/ptrdist_yacr2_maze1_dogleg.zig](../../../zig/p/ptrdist_yacr2_maze1_dogleg.zig) |
+
+The Mojo draft is [`mojo/p/ptrdist_yacr2_maze1_dogleg.mojo`](../../../mojo/p/ptrdist_yacr2_maze1_dogleg.mojo). Validation scans O(columns × tracks) cells; each candidate scans O(tracks + columns) cells and uses O(1) auxiliary space.

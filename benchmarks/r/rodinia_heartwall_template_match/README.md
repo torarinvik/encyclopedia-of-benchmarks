@@ -63,6 +63,7 @@ and [`rodinia_heartwall_template_match_verifier_oracle.py`](../../rodinia_heartw
 |---|---|
 | C | [`c/r/rodinia_heartwall_template_match.c`](../../../c/r/rodinia_heartwall_template_match.c) |
 | C3 | [`c3/r/rodinia_heartwall_template_match.c3`](../../../c3/r/rodinia_heartwall_template_match.c3) |
+| Mojo | [`mojo/r/rodinia_heartwall_template_match.mojo`](../../../mojo/r/rodinia_heartwall_template_match.mojo) |
 | C++ | [`cpp/r/rodinia_heartwall_template_match.cpp`](../../../cpp/r/rodinia_heartwall_template_match.cpp) |
 | Elisa | [`elisa/r/rodinia_heartwall_template_match.elisa`](../../../elisa/r/rodinia_heartwall_template_match.elisa) |
 | Nim | [`nim/r/rodinia_heartwall_template_match.nim`](../../../nim/r/rodinia_heartwall_template_match.nim) |

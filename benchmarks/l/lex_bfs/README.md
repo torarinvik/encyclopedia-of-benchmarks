@@ -2,10 +2,15 @@
 
 This package implements the LexBFS ordering described by the “LexBFS,
 Structure, and Algorithms” entry. It starts at the supplied vertex, repeatedly
-selects the unnumbered vertex with the lexicographically greatest sequence of
-previously selected adjacent-vertex positions, and prepends the current
-position to the labels of its unnumbered neighbors. Equal labels are resolved
-by the lowest vertex ID.
+selects the unnumbered vertex with the lexicographically greatest label, and
+appends a decreasing selection number to the labels of its unnumbered
+neighbors. Earlier selected neighbors therefore take priority. Equal labels
+are resolved by the lowest vertex ID.
+
+For example, with start vertex 0 and edges (0,1), (0,2), and (1,3),
+the order is `[0, 1, 2, 3]`: vertex 2 retains the earlier label from 0
+and is selected before vertex 3. A newest-neighbor-first search would instead
+choose vertex 3 at that point.
 
 ## Contract
 
@@ -15,9 +20,12 @@ simple undirected pairs with `u < v`. Bounds are `1 <= node_count <= 16` and
 signed 64-bit vertex IDs. Invalid input returns `-1`; a null output or
 insufficient capacity returns `-2` without writing.
 
-The primary oracle compares explicit newest-first labels. The independent
+The primary oracle compares explicit labels in selection order. The independent
 verifier uses ordered partition refinement. The source permits any starting
 vertex; explicit minimum-ID tie-breaking makes the profile reproducible.
+
+The explicit-label implementation takes O(n³ + m) time and O(n²) space in
+the worst case; the benchmark bounds n to 16.
 
 ## Source and clean-room status
 
@@ -35,6 +43,7 @@ upstream source code is copied.
 | C3 | `c3/l/lex_bfs.c3` |
 | C++ | `cpp/l/lex_bfs.cpp` |
 | Elisa | `elisa/l/lex_bfs.elisa` |
+| Mojo | [`mojo/l/lex_bfs.mojo`](../../../mojo/l/lex_bfs.mojo) |
 | Nim | `nim/l/lex_bfs.nim` |
 | Odin | `odin/l/lex_bfs.odin` |
 | Rust | `rust/l/lex_bfs.rs` |

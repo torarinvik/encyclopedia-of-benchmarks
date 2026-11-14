@@ -7,3 +7,5 @@ The input is a single integer `n` in `[1, 8]`. The upstream program defaults to 
 The referenced C file carries no explicit license notice. This repository's implementations are independently written ports, with attribution and source reference recorded in `workload.json`; no upstream source blocks are copied.
 
 Malformed framing, values outside the bound, or trailing input return `-1`.
+
+The [Mojo port](../../../mojo/f/fannkuch.mojo) is a draft and has not been compiled or run. The permutation traversal uses O(n) auxiliary storage and visits n! permutations; reversal work depends on their flip counts.

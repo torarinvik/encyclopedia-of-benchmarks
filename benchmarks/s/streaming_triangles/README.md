@@ -36,6 +36,8 @@ before output checks; null output or capacity below `24*m` bytes returns
 `-2` without writes. Maximum input is 340 words and maximum output is 672
 bytes.
 
+The Mojo draft is [`mojo/s/streaming_triangles.mojo`](../../../mojo/s/streaming_triangles.mojo).
+
 The package preserves a limitation the paper explicitly notes in §6.1: when
 an edge-reservoir replacement removes a wedge from the current `W_t`, an old
 sampled wedge can remain in the wedge reservoir until that slot is replaced.

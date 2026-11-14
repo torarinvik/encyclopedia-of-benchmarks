@@ -706,6 +706,7 @@ def validate_rodinia_myocyte_cam_rhs_workload(workload: dict) -> None:
     for relative in (
             "c/m/rodinia_myocyte_cam_rhs.c", "c3/m/rodinia_myocyte_cam_rhs.c3",
             "cpp/m/rodinia_myocyte_cam_rhs.cpp", "elisa/m/rodinia_myocyte_cam_rhs.elisa",
+            "mojo/m/rodinia_myocyte_cam_rhs.mojo",
             "nim/m/rodinia_myocyte_cam_rhs.nim", "odin/m/rodinia_myocyte_cam_rhs.odin",
             "rust/m/rodinia_myocyte_cam_rhs.rs", "v/m/rodinia_myocyte_cam_rhs.v",
             "zig/m/rodinia_myocyte_cam_rhs.zig"):
@@ -2467,6 +2468,13 @@ def validate_freebench_fbench_workload(workload: dict) -> None:
             or "four-surface achromatic telescope" not in readme):
         raise ValueError("freebench_fbench README is missing source, license, or algorithm details")
 
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "f" / f"freebench_fbench.{extension}"
+        if not port.is_file() or "freebench_fbench" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"freebench_fbench port missing: {port}")
+
     for case in workload["cases"]:
         values, actual = case.get("input_values"), case.get("expected_result")
         if (not isinstance(values, list) or len(values) > 2
@@ -2545,6 +2553,13 @@ def validate_doe_rsbench_doppler_xs_workload(workload: dict) -> None:
             or "complete notice is included in each port" not in readme
             or "small-|Z|" not in readme):
         raise ValueError("doe_rsbench_doppler_xs README or license is missing provenance")
+
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "r" / f"doe_rsbench_doppler_xs.{extension}"
+        if not source.is_file() or "doe_rsbench_doppler_xs" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"RSBench Doppler port missing: {source}")
 
     for case in workload["cases"]:
         values = case.get("input_values")
@@ -2668,9 +2683,15 @@ def validate_doe_simplemoc_quadratic_attenuation_workload(workload: dict) -> Non
     readme = (package / "README.md").read_text(encoding="utf-8")
     license_text = (package / "LICENSE").read_text(encoding="utf-8")
     if (source_url not in readme or "attenuate_fluxes" not in readme
-            or "full notice appears in each port" not in readme
+            or "full notice is preserved" not in readme
             or "MIT License" not in license_text or "Copyright (c) 2014 John Tramm" not in license_text):
         raise ValueError("doe_simplemoc_quadratic_attenuation README or license is missing provenance")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "d" / f"doe_simplemoc_quadratic_attenuation.{extension}"
+        if not source.is_file() or "doe_simplemoc_quadratic_attenuation" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"doe_simplemoc_quadratic_attenuation source missing for {language}")
 
     if not isinstance(cases, list):
         raise ValueError("doe_simplemoc_quadratic_attenuation cases must be an array")
@@ -6434,9 +6455,18 @@ def main() -> int:
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     default_workload = (ROOT / "benchmarks" / "maxwells_equations" / "workload.json"
                         if algorithm == "maxwells_equations" else
+                        ROOT / "benchmarks" / "r" / algorithm / "workload.json"
+                        if algorithm == "doe_rsbench_doppler_xs" else
+                        ROOT / "benchmarks" / "x" / algorithm / "workload.json"
+                        if algorithm == "doe_xsbench_unionized_macro_xs" else
                         ROOT / "benchmarks" / letter / algorithm / "workload.json")
     workload_path = args.workload or default_workload
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    if args.workload is None and not workload_path.is_file():
+        flat_workload = ROOT / "benchmarks" / algorithm / "workload.json"
+        if flat_workload.is_file():
+            workload_path = flat_workload
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     if algorithm == "temperature_conversions":
         validate_temperature_conversions_workload(workload)
     elif algorithm == "gbbs_charikar_densest_subgraph":

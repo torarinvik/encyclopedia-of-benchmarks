@@ -25,3 +25,5 @@ repetition, and checker behavior. The pinned `s1119` function also calls
 `init("s119 ")`; this profile uses explicit matrices in its frame and does not
 model that source initialization typo. See `LICENSE.txt` for attribution and
 rights status.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s1119_same_column_matrix_prefix.mojo) is a draft and has not been compiled or run.

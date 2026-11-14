@@ -7,3 +7,6 @@ Input is `[N, f_0, ..., f_(N-1)]`, `1 <= N <= 64`, each coefficient in `0..99824
 The iteration starts with the inverse of the constant coefficient and repeatedly computes `g <- g*(2-f*g)` modulo `x^min(2m,N)`, doubling the known precision `m`. With the bounded schoolbook multiplications here, time is O(N²) field operations and space is O(N); no fast-convolution performance claim is made.
 
 [FLINT's inversion documentation](https://flintlib.org/doc/nmod_poly/inv_series.html) describes both the recurrence and Newton methods. [Library Checker](https://github.com/yosupo06/library-checker-problems) provides the operation index and uses Apache-2.0. Only mathematical ideas are used; code and fixtures are independently written. Drafts in all ten languages, a workload, a static inventory checker, and byte-output suite registration are present. The Newton primary and coefficient-recurrence reference reuse the existing local reciprocal package's oracles. Nothing has been run; further review remains necessary.
+
+The verifier source includes maximum-length geometric-series and highest-degree
+correction checks. These checks have not been executed.

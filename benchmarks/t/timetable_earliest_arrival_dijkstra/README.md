@@ -63,6 +63,8 @@ and null buffers.
 | V | [`v/t/timetable_earliest_arrival_dijkstra.v`](../../../v/t/timetable_earliest_arrival_dijkstra.v) |
 | Zig | [`zig/t/timetable_earliest_arrival_dijkstra.zig`](../../../zig/t/timetable_earliest_arrival_dijkstra.zig) |
 
+The Mojo draft is [`mojo/t/timetable_earliest_arrival_dijkstra.mojo`](../../../mojo/t/timetable_earliest_arrival_dijkstra.mojo). With a linear station selection and trip scans, the search takes O(n² + m k) time and O(n + m k) space, where k is the maximum number of trips per arc.
+
 The [primary oracle](../../timetable_earliest_arrival_dijkstra_oracle.py),
 [independent verifier](../../timetable_earliest_arrival_dijkstra_verifier_oracle.py),
 and [rights note](RIGHTS.md) document the profile's provenance and checks.

@@ -11,10 +11,11 @@ pub unsafe extern "C" fn gardenia_symgs(a:*const f64,len:usize,out:*mut f64,cap:
     for k in 0..=c{let z=*a.add(fa+k);if z.fract()!=0.0||z<0.0||z>nd{return -1;}offsets[k]=z as usize;}if offsets[0]!=0||offsets[c]!=n{return -1;}
     for k in 0..c{if offsets[k]>=offsets[k+1]{return -1;}for p in offsets[k]..offsets[k+1]{group[order[p]]=k;}}
     for i in 0..=n{let z=*a.add(ra+i);if z.fract()!=0.0||z<0.0||z>md{return -1;}rows[i]=z as usize;if i>0&&rows[i]<rows[i-1]{return -1;}}if rows[0]!=0||rows[n]!=m{return -1;}
-    for u in 0..n{let mut diag=0;let mut d=0.0;let mut offsum=0.0;let mut prev=0;for e in rows[u]..rows[u+1]{let z=*a.add(ca+e);if z.fract()!=0.0||z<0.0||z>=nd{return -1;}cols[e]=z as usize;if e>rows[u]&&cols[e]<=prev{return -1;}prev=cols[e];mat[e]=*a.add(va+e);if mat[e]<-4.0||mat[e]>4.0{return -1;}if cols[e]==u{diag+=1;d=mat[e];}else{if group[u]==group[cols[e]]{return -1;}offsum+=mat[e].abs();}}
+    for e in 0..m{let z=*a.add(ca+e);if z.fract()!=0.0||z<0.0||z>=nd{return -1;}cols[e]=z as usize;mat[e]=*a.add(va+e);}
+    for u in 0..n{let mut diag=0;let mut d=0.0;let mut offsum=0.0;let mut prev=0;for e in rows[u]..rows[u+1]{let z=*a.add(ca+e);if z.fract()!=0.0||z<0.0||z>=nd{return -1;}cols[e]=z as usize;if e>rows[u]&&cols[e]<=prev{return -1;}prev=cols[e];mat[e]=*a.add(va+e);if mat[e]< -4.0||mat[e]>4.0{return -1;}if cols[e]==u{diag+=1;d=mat[e];}else{if group[u]==group[cols[e]]{return -1;}offsum+=mat[e].abs();}}
         if diag!=1||d<=offsum{return -1;}for e in rows[u]..rows[u+1]{let v=cols[e];let mut found=false;for f in rows[v]..rows[v+1]{if cols[f]==u{if mat[f]!=mat[e]{return -1;}found=true;break;}}if !found{return -1;}}
     }
-    for i in 0..n{x[i]=*a.add(xa+i);rhs[i]=*a.add(ba+i);if x[i]<-4.0||x[i]>4.0||rhs[i]<-4.0||rhs[i]>4.0{return -1;}}
+    for i in 0..n{x[i]=*a.add(xa+i);rhs[i]=*a.add(ba+i);if x[i]< -4.0||x[i]>4.0||rhs[i]< -4.0||rhs[i]>4.0{return -1;}}
     if out.is_null()||cap<n{return -2;}
     for pass in 0..2{for step in 0..c{let k=if pass==0{step}else{c-1-step};for p in offsets[k]..offsets[k+1]{let u=order[p];let mut sum=0.0;let mut d=0.0;for e in rows[u]..rows[u+1]{let v=cols[e];if v==u{d=mat[e];}else{sum+=x[v]*mat[e];}}if d!=0.0{x[u]=(rhs[u]-sum)/d;}}}}
     staged[..n].copy_from_slice(&x[..n]);std::ptr::copy_nonoverlapping(staged.as_ptr(),out,n);n as i64

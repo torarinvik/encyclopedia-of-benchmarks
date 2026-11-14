@@ -38,7 +38,7 @@ export fn technology_mapping_minimum_area_tree_cover(input_opt: ?[*]const i64, l
     if (best[0] == Inf) return -1;
     var mapping: [MaxN]i64 = @splat(-3); for (0..n) |i| if (kind[i] == 0) { mapping[i] = -1; };
     var stack: [2 * MaxN]usize = @splat(0); var top: usize = 0; if (kind[0] != 0) { stack[top] = 0; top += 1; }
-    while (top > 0) { top -= 1; const node = stack[top]; const p = choice[node]; const l: usize = @intCast(left[node]); const r: usize = if (right[node] < 0) 0 else @intCast(right[node]); mapping[node] = p;
+    while (top > 0) { top -= 1; const node = stack[top]; if (kind[node] == 0) continue; const p = choice[node]; const l: usize = @intCast(left[node]); const r: usize = if (right[node] < 0) 0 else @intCast(right[node]); mapping[node] = p;
         if (p == 0) { stack[top] = l; top += 1; }
         else if (p == 1) { stack[top] = l; top += 1; stack[top] = r; top += 1; }
         else if (p == 2) { mapping[l] = -2; stack[top] = @intCast(left[l]); top += 1; stack[top] = r; top += 1; }

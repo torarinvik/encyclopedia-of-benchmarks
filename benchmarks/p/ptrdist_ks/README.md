@@ -65,3 +65,5 @@ below uses small hand-described inputs, not the source's large netlist.
 | Rust | [rust/k/ptrdist_ks.rs](../../../rust/k/ptrdist_ks.rs) |
 | V | [v/k/ptrdist_ks.v](../../../v/k/ptrdist_ks.v) |
 | Zig | [zig/k/ptrdist_ks.zig](../../../zig/k/ptrdist_ks.zig) |
+
+The Mojo draft is [`mojo/k/ptrdist_ks.mojo`](../../../mojo/k/ptrdist_ks.mojo). It retains greedy pair scans and best-prefix commits; it has not been compiled or run.

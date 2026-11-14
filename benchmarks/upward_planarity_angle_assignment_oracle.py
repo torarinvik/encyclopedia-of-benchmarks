@@ -18,7 +18,7 @@ def _decode(values: Sequence[int] | None):
             or any(type(x) is not int or not -(1 << 63) <= x < (1 << 63) for x in values)):
         return None
     n, m, fcount, outer = values[:4]
-    if not 2 <= n <= MAX_N or not 1 <= m <= min(MAX_M, 3 * n - 6) or not 1 <= fcount <= MAX_F or not 0 <= outer < fcount:
+    if not 2 <= n <= MAX_N or not 1 <= m <= MAX_M or not 1 <= fcount <= MAX_F or not 0 <= outer < fcount:
         return None
     edge_end = 4 + 2 * m
     if len(values) < edge_end + fcount:

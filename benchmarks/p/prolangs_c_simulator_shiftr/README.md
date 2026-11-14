@@ -8,6 +8,8 @@ The `prolangs_c_simulator_shiftr` symbol uses the `i64_array_scalar_call` ABI wi
 
 The implementation preserves `SHIFTR_P`’s bit order: output bit positions through `REG2` repeat the source word’s most-significant bit; remaining positions copy `REG_BITS[LOOP-REG2-1]`. It excludes PC mutation, debugging output, interrupts, and unrelated format-2 instructions.
 
+The fixed-width shift takes O(1) time and O(1) auxiliary space.
+
 ## Source and rights
 
 Pinned sources at commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`: [`instruct2.c::SHIFTR_P`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/simulator/instruct2.c), [`format.c::FORMAT2`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/simulator/format.c), and [`machine.c::BYTES_TO_BITS`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/simulator/machine.c). Launcher: [`Prolangs-C/simulator/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/simulator/info.sh).
@@ -24,6 +26,7 @@ See [workload.json](workload.json) and the independent bit-position model at [`b
 | C3 | `c3/p/prolangs_c_simulator_shiftr.c3` |
 | C++ | `cpp/p/prolangs_c_simulator_shiftr.cpp` |
 | Elisa | `elisa/p/prolangs_c_simulator_shiftr.elisa` |
+| Mojo | [`mojo/p/prolangs_c_simulator_shiftr.mojo`](../../../mojo/p/prolangs_c_simulator_shiftr.mojo) (draft; not compiled or run) |
 | Nim | `nim/p/prolangs_c_simulator_shiftr.nim` |
 | Odin | `odin/p/prolangs_c_simulator_shiftr.odin` |
 | Rust | `rust/p/prolangs_c_simulator_shiftr.rs` |

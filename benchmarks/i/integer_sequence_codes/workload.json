@@ -59,6 +59,8 @@
     {"id":"golomb-with-explicit-b-three","input_values":[4,4,3,0,2,3,5],"input_length":7,"output_capacity":512,"expected_result":2,"expected_output_hex":"1cb0"},
     {"id":"elias-fano-two-part-layout","input_values":[5,4,10,0,3,6,9],"input_length":7,"output_capacity":512,"expected_result":2,"expected_output_hex":"a528"},
     {"id":"interpolative-lower-middle-first","input_values":[6,4,10,0,3,6,9],"input_length":7,"output_capacity":512,"expected_result":1,"expected_output_hex":"6b"},
+    {"id":"interpolative-zero-bit-result","input_values":[6,2,2,0,1],"input_length":5,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"interpolative-zero-bit-null-output","input_values":[6,2,2,0,1],"input_length":5,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
     {"id":"byte-aligned-continuation-flags","input_values":[7,4,0,0,127,128,300],"input_length":7,"output_capacity":512,"expected_result":6,"expected_output_hex":"007f8100822c"},
     {"id":"simple9-selector-two-word","input_values":[8,4,0,0,1,3,7],"input_length":7,"output_capacity":512,"expected_result":4,"expected_output_hex":"205f0000"},
     {"id":"pfordelta-explicit-exception-layout","input_values":[9,2,2,1,4],"input_length":5,"output_capacity":512,"expected_result":4,"expected_output_hex":"40600008"},

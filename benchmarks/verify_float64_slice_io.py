@@ -13,7 +13,7 @@ import struct
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from kahan_summation_oracle import (
     MAX_INPUT_LENGTH as KAHAN_SUMMATION_MAX_INPUT_LENGTH,
 )
@@ -3375,7 +3375,24 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     values, result_count, _ = valid_case
     records.append((values, -2, [], result_count - 1, 0, 0))
     records.append((values, -2, [], workspace, 0, 1))
-    if algorithm == "tsvc_s313_dot_product_reduction":
+    if algorithm == "smallest_enclosing_ball_3d":
+        support_cases = (
+            ([3.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+             [0.0, 0.0, 0.0, 1.0]),
+            ([4.0, -1.0, -1.0, 0.0, 1.0, -1.0, 0.0,
+              1.0, 1.0, 0.0, -1.0, 1.0, 0.0],
+             [0.0, 0.0, 0.0, math.sqrt(2.0)]),
+            ([4.0, 2.0, 1.0, -3.0, 2.0, 1.0, -3.0,
+              2.0, 1.0, -3.0, 2.0, 1.0, -3.0],
+             [2.0, 1.0, -3.0, 0.0]),
+        )
+        for point_input, expected in support_cases:
+            reference = ORACLES[algorithm](point_input)
+            if reference is None or not _matches_output(expected, reference, absolute_tolerance, relative_tolerance):
+                raise ValueError("smallest_enclosing_ball_3d support reference disagrees with a hand-derived case")
+            records.append((point_input, 4, [_output_token(value) for value in expected],
+                            workspace, 0, 0))
+    elif algorithm == "tsvc_s313_dot_product_reduction":
         maximum_input = [64.0, *([1000.0] * 64), *([1000.0] * 64)]
         result, output = ORACLES[algorithm](maximum_input)
         independent_result, independent_output = tsvc_s313_verifier_oracle(maximum_input)
@@ -3834,6 +3851,23 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                 raise ValueError("MiBench cubic verifier rejected a supported bounded polynomial")
             records.append((generated_input, result,
                             [_output_token(value) for value in output], result, 0, 0))
+        # Expand polynomials from known distinct integer roots so the
+        # independent numerical reference can also be checked analytically.
+        for first in range(-3, 2):
+            for middle in range(first + 1, 3):
+                for last in range(middle + 1, 4):
+                    for scale in (-1.0, 1.0):
+                        coefficients = [scale, -scale * (first + middle + last),
+                                        scale * (first * middle + first * last + middle * last),
+                                        -scale * first * middle * last]
+                        result, output = mibench_automotive_basicmath_cubic_verifier_oracle(
+                            coefficients, workspace)
+                        expected = (first, last, middle)
+                        if result != 3 or any(abs(actual - target) > 1e-8
+                                              for actual, target in zip(output, expected)):
+                            raise ValueError("MiBench cubic verifier disagrees with known roots")
+                        records.append((coefficients, result,
+                                        [_output_token(value) for value in output], result, 0, 0))
         maximum_input = [1.0, -6.0, 11.0, -6.0]
         result, output = mibench_automotive_basicmath_cubic_verifier_oracle(
             maximum_input, workspace)
@@ -9522,7 +9556,8 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--algorithm", choices=ALGORITHMS, required=True)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS | OPTIONAL_EXTENSIONS,
+                        default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path)
@@ -9530,7 +9565,8 @@ def main() -> int:
     if args.jobs < 1 or len(set(args.languages)) != len(args.languages):
         parser.error("jobs must be positive and language selections must be unique")
     algorithm = args.algorithm
-    package_dir = {"hjm_forward_path": "m", "splash2_fmm": "f",
+    package_dir = {"hjm_forward_path": "m", "splash2_fmm": "f", "versabench_beamformer": "b",
+                   "npb_ft_3d_spectral_step": "f",
                    "splash2_fft_six_step": "f", "splash2_ocean_rbgs": "o",
                    "splash2_radiosity_refine": "f",
                    "polybench_lu": "l", "polybench_gramschmidt": "p", "polybench_correlation": "c",
@@ -9539,6 +9575,7 @@ def main() -> int:
                    "cbench_consumer_lame_mdct_short": "m",
                    "cbench_lame_mid_side": "m",
                    "cbench_rsynth_natural_glottal_sample": "m",
+                   "cbench_rsynth_impulsive_glottal_sample": "m",
                    "tsvc_s2251_carried_scalar_expansion": "t",
                    "tsvc_s1251_per_element_dual_update": "t",
                    "tsvc_s3251_forward_shifted_array_expansion": "t",
@@ -9550,8 +9587,15 @@ def main() -> int:
                    "tsvc_s441_s443_d_sign_branch_updates": "t",
                    "tsvc_s242_fused_prefix_update": "t",
                    "tsvc_s351_direct_unrolled_saxpy": "t"}.get(algorithm, algorithm[0])
-    workload_path = ROOT / "benchmarks" / package_dir / algorithm / "workload.json"
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    package_name = {"cbench_rsynth_natural_glottal_sample": "cbench_rsynth_natural_glottal",
+                    "cbench_rsynth_impulsive_glottal_sample": "cbench_rsynth_impulsive_glottal"}.get(algorithm, algorithm)
+    workload_path = ROOT / "benchmarks" / package_dir / package_name / "workload.json"
+    if not workload_path.is_file():
+        flat_workload = ROOT / "benchmarks" / package_name / "workload.json"
+        if flat_workload.is_file():
+            workload_path = flat_workload
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     if workload.get("algorithm") != algorithm:
         parser.error("workload algorithm does not match the requested algorithm")
     if algorithm == "tsvc_s111_odd_index_neighbor_update":

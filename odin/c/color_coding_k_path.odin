@@ -6,7 +6,7 @@ import "core:c"
 @(export)
 color_coding_k_path :: proc "c" (values: [^]i64, length: c.size_t,
         output: [^]u8, output_capacity: c.size_t) -> i64 {
-    if values == nil do return -2
+    if values == nil do return -1
     if length < 3 || length > 147 do return -1
     nv, mv, kv := values[0], values[1], values[2]
     if nv < 1 || nv > 12 || mv < 0 || mv > 66 || kv < 1 || kv > 6 || kv > nv do return -1

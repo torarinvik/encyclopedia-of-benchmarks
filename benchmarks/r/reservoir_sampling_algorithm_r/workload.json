@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "reservoir-sampling-algorithm-r-i64-array-bytes-output-v1",
+  "algorithm": "reservoir_sampling_algorithm_r",
+  "function_symbol": "reservoir_sampling_algorithm_r",
+  "abi": "i64_array_bytes_output",
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[n,k,values[n],draws[n-k]]", "maximum_valid_length": 130, "maximum_parseable_length": 131, "invalid_input_result": -1},
+  "output": {"encoding": "final reservoir as little-endian signed i64", "maximum_bytes": 512, "invalid_input_result": -1, "output_error_result": -2, "output_untouched_on_error": true},
+  "workspace": {"bytes": 512, "meaning": "At most 64 reservoir values and output bytes."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 5},
+  "source": {"url": "https://doi.org/10.1145/3147.3165", "reuse": "Algorithmic idea only; independently authored code and fixtures."},
+  "cases": [
+    {"id": "replace_and_skip", "input_values": [5,2,10,-2,30,40,50,1,3,0], "input_length": 10, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "32000000000000001e00000000000000"},
+    {"id": "retain_initial", "input_values": [3,3,1,-1,2], "input_length": 5, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "0100000000000000ffffffffffffffff0200000000000000"},
+    {"id": "negative_boundary", "input_values": [2,1,-1000000,1000000,1], "input_length": 5, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "c0bdf0ffffffffff"},
+    {"id": "replace_same_slot", "input_values": [4,1,3,4,5,6,0,0,0], "input_length": 9, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0600000000000000"},
+    {"id": "empty_reservoir", "input_values": [2,0,7,8,0,1], "input_length": 6, "output_capacity": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "empty_stream", "input_values": [0,0], "input_length": 2, "output_capacity": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "invalid_draw", "input_values": [3,2,1,2,3,3], "input_length": 6, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_value", "input_values": [1,1,-1000001], "input_length": 3, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_before_output", "input_values": [1,0,0,1], "input_length": 4, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output", "input_values": [1,1,4], "input_length": 3, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output_empty", "input_values": [0,0], "input_length": 2, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 2, "input_is_null": true, "output_capacity": 512, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

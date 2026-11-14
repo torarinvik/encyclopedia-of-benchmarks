@@ -19,6 +19,7 @@ The suite exposes the existing `i64_scalar_bytes_output` ABI with a one-valued `
 | Rust | [rust/s/shootout_hello.rs](../../../rust/s/shootout_hello.rs) |
 | V | [v/s/shootout_hello.v](../../../v/s/shootout_hello.v) |
 | Zig | [zig/s/shootout_hello.zig](../../../zig/s/shootout_hello.zig) |
+| Mojo | [mojo/s/shootout_hello.mojo](../../../mojo/s/shootout_hello.mojo) |
 
 ## Pinned source
 

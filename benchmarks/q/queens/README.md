@@ -16,6 +16,7 @@ The source supports dimensions through 100, but its no-argument launcher default
 | C3 | [`c3/q/queens.c3`](../../../c3/q/queens.c3) |
 | C++ | [`cpp/q/queens.cpp`](../../../cpp/q/queens.cpp) |
 | Elisa | [`elisa/q/queens.elisa`](../../../elisa/q/queens.elisa) |
+| Mojo | [`mojo/q/queens.mojo`](../../../mojo/q/queens.mojo) |
 | Nim | [`nim/q/queens.nim`](../../../nim/q/queens.nim) |
 | Odin | [`odin/q/queens.odin`](../../../odin/q/queens.odin) |
 | Rust | [`rust/q/queens.rs`](../../../rust/q/queens.rs) |

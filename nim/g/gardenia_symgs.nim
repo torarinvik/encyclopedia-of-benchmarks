@@ -35,6 +35,10 @@ proc gardenia_symgs*(input: ptr UncheckedArray[float64], length: csize_t,
     rows[i]=int(z)
     if i>0 and rows[i]<rows[i-1]: return -1
   if rows[0]!=0 or rows[n]!=m: return -1
+  for e in 0 ..< m:
+    let z=input[ca+e]
+    if z!=floor(z) or z<0 or z>=nd: return -1
+    cols[e]=int(z);mat[e]=input[va+e]
   for u in 0 ..< n:
     var diag=0;var d=0.0;var offsum=0.0;var prev=0
     for e in rows[u] ..< rows[u+1]:

@@ -4,7 +4,7 @@
 static void put_i64(uint8_t *out, int64_t x) { uint64_t b=(uint64_t)x; for(size_t i=0;i<8;i++) out[i]=(uint8_t)(b>>(8*i)); }
 
 int64_t all_distances_sketch_bottom_k(const int64_t *input,size_t length,uint8_t *output,size_t capacity) {
-    if(!input||length<6||length>104)return -1;
+    if(!input||length<6||length>194)return -1;
     int64_t n0=input[0],m0=input[1],k0=input[2],s0=input[3];
     if(n0<2||n0>10||m0<0||m0>n0*(n0-1)||k0<1||k0>n0||s0<0||s0>=n0||length!=4+(size_t)n0+2*(size_t)m0)return -1;
     size_t n=(size_t)n0,m=(size_t)m0,k=(size_t)k0,source=(size_t)s0;

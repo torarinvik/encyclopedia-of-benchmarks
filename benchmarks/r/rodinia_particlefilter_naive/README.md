@@ -26,3 +26,5 @@ The scalar result is the deterministic checksum `round_away(x_estimate*1000) + 2
 - The pinned source names Michael Trotter and Matt Goodrum. The complete University of Virginia BSD-3-Clause notice and citation list are in [`LICENSE.txt`](LICENSE.txt). These are independent implementations of the bounded recurrence; no upstream code or comments are copied.
 - The workload's two-particle fixture has equal likelihoods and a hand-derived CDF tie case; the independent [Python oracle](../../rodinia_particlefilter_naive_oracle.py) covers the bounded transition.
 
+The Mojo draft is [`mojo/r/rodinia_particlefilter_naive.mojo`](../../../mojo/r/rodinia_particlefilter_naive.mojo); its math-library and floating-point contraction behavior have not been verified.
+

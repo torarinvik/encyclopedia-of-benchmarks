@@ -39,11 +39,17 @@ The bounded implementation uses numeric records instead of source-line parsing, 
 | C3 | [`c3/p/prolangs_c_assembler.c3`](../../../c3/p/prolangs_c_assembler.c3) |
 | C++ | [`cpp/p/prolangs_c_assembler.cpp`](../../../cpp/p/prolangs_c_assembler.cpp) |
 | Elisa | [`elisa/p/prolangs_c_assembler.elisa`](../../../elisa/p/prolangs_c_assembler.elisa) |
+| Mojo | [`mojo/p/prolangs_c_assembler.mojo`](../../../mojo/p/prolangs_c_assembler.mojo) (uncompiled draft) |
 | Nim | [`nim/p/prolangs_c_assembler.nim`](../../../nim/p/prolangs_c_assembler.nim) |
 | Odin | [`odin/p/prolangs_c_assembler.odin`](../../../odin/p/prolangs_c_assembler.odin) |
 | Rust | [`rust/p/prolangs_c_assembler.rs`](../../../rust/p/prolangs_c_assembler.rs) |
 | V | [`v/p/prolangs_c_assembler.v`](../../../v/p/prolangs_c_assembler.v) |
 | Zig | [`zig/p/prolangs_c_assembler.zig`](../../../zig/p/prolangs_c_assembler.zig) |
+
+For R records and a bounded label table, both passes take O(R) time and
+O(R) space. The Mojo draft has not been compiled or run.
+Verifier source specifies forward and backward PC-relative offsets at the
+representable limits and just beyond them; those checks remain unrun.
 
 ## Source and rights
 

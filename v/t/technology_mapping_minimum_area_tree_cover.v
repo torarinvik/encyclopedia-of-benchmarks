@@ -21,7 +21,7 @@ pub fn technology_mapping_minimum_area_tree_cover(input &i64,length usize,mut ou
             if costs[3]>=0&&kind[r]==1{candidate=costs[3]+best[l]+best[left[r]];if candidate<inf&&candidate<best[i]{best[i]=candidate;choice[i]=3}}
             if costs[4]>=0&&kind[l]==1&&kind[r]==1{candidate=costs[4]+best[left[l]]+best[left[r]];if candidate<inf&&candidate<best[i]{best[i]=candidate;choice[i]=4}}}}
     if best[0]==inf{return -1};mut mapping:=[max_n]i64{};for i in 0..n{mapping[i]=-3;if kind[i]==0{mapping[i]=-1}}
-    mut stack:=[2*max_n]int{};mut top:=0;if kind[0]!=0{stack[top]=0;top++};for top>0{top--;node:=stack[top];p:=choice[node];l,r:=left[node],right[node];mapping[node]=i64(p)
+    mut stack:=[2*max_n]int{};mut top:=0;if kind[0]!=0{stack[top]=0;top++};for top>0{top--;node:=stack[top];if kind[node]==0{continue};p:=choice[node];l,r:=left[node],right[node];mapping[node]=i64(p)
         if p==0{stack[top]=l;top++}else if p==1{stack[top]=l;top++;stack[top]=r;top++}else if p==2{mapping[l]=-2;stack[top]=left[l];top++;stack[top]=r;top++}else if p==3{mapping[r]=-2;stack[top]=l;top++;stack[top]=left[r];top++}else{mapping[l]=-2;mapping[r]=-2;stack[top]=left[l];top++;stack[top]=left[r];top++}}
     bytes:=8*(n+1);if output==nil||capacity<usize(bytes){return -2};mut staged:=[max_output]u8{};put_i64(mut &staged[0],0,best[0]);for i in 0..n{put_i64(mut &staged[0],8*(i+1),mapping[i])};for i in 0..bytes{output[i]=staged[i]};return i64(bytes)
 }}

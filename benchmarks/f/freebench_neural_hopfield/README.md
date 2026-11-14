@@ -33,6 +33,10 @@ patterns are recalled. The source's default sequence is `readvector`,
   oracle validates the convergence invariant directly instead of reproducing
   the ports' float32 matrix loops.
 
+For the bounded one-pass profile, matrix construction, recall, and updates use
+O(PN²) time and O(PN + N²) space for P patterns and N neurons; the defensive
+recall iteration limits are fixed constants.
+
 ## Workload and build
 
 [`workload.json`](workload.json) includes two- and eight-neuron profiles,
@@ -66,6 +70,7 @@ algorithm and do not copy the C implementation or its letter-pattern data.
 | C3 | [c3/f/freebench_neural_hopfield.c3](../../../c3/f/freebench_neural_hopfield.c3) |
 | C++ | [cpp/f/freebench_neural_hopfield.cpp](../../../cpp/f/freebench_neural_hopfield.cpp) |
 | Elisa | [elisa/f/freebench_neural_hopfield.elisa](../../../elisa/f/freebench_neural_hopfield.elisa) |
+| Mojo | [mojo/f/freebench_neural_hopfield.mojo](../../../mojo/f/freebench_neural_hopfield.mojo) (draft; not compiled or run) |
 | Nim | [nim/f/freebench_neural_hopfield.nim](../../../nim/f/freebench_neural_hopfield.nim) |
 | Odin | [odin/f/freebench_neural_hopfield.odin](../../../odin/f/freebench_neural_hopfield.odin) |
 | Rust | [rust/f/freebench_neural_hopfield.rs](../../../rust/f/freebench_neural_hopfield.rs) |

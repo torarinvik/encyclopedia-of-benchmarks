@@ -27,6 +27,9 @@ The workload covers empty, singleton, odd and even lengths, duplicate node
 values, negative and boundary values, maximum size, malformed framing, and
 null, zero, short, exact, and maximum output capacities.
 
+Building the indexed chain and traversing it take O(n) time; the chain uses
+O(n) auxiliary space and the two traversal cursors use O(1) space.
+
 ## Pinned sources
 
 - [TheAlgorithms/C-Plus-Plus `median_search2.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/search/median_search2.cpp)
@@ -42,6 +45,7 @@ null, zero, short, exact, and maximum output capacities.
 | C3 | [c3/m/median_search2.c3](../../c3/m/median_search2.c3) |
 | C++ | [cpp/m/median_search2.cpp](../../cpp/m/median_search2.cpp) |
 | Elisa | [elisa/m/median_search2.elisa](../../elisa/m/median_search2.elisa) |
+| Mojo | [mojo/m/median_search2.mojo](../../mojo/m/median_search2.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/median_search2.nim](../../nim/m/median_search2.nim) |
 | Odin | [odin/m/median_search2.odin](../../odin/m/median_search2.odin) |
 | Rust | [rust/m/median_search2.rs](../../rust/m/median_search2.rs) |

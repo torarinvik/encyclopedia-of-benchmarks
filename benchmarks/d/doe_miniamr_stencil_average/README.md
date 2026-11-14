@@ -41,3 +41,5 @@ option) any later version; it also notes retained U.S. Government rights and
 names Courtenay T. Vaughan and Richard F. Barrett as contacts. The pinned
 miniAMR subtree supplies the full GNU LGPL version 3 text, copied to
 [`LICENSE.txt`](LICENSE.txt). Each port retains the complete source header.
+
+The independent [Mojo draft](../../../mojo/d/doe_miniamr_stencil_average.mojo) implements the documented bounded stencil without copying the source header or implementation; the upstream attribution and license remain in this package. It has not been compiled or run. With a fixed seven- or 27-point neighborhood, time and staged space are O(nx·ny·nz).

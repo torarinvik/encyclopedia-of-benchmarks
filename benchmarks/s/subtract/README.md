@@ -10,6 +10,9 @@ Input is `[rows_a, columns_a, A row-major values..., rows_b, columns_b, B row-ma
 
 For matching dimensions, subtract corresponding cells in row-major order modulo 2^32 and emit each result as a little-endian signed-i32 bit pattern. The return value is the cell count, not the output byte count. Invalid dimensions, framing, or cell domain return `-2`. A valid shape mismatch returns `-1` before cell-domain or output-buffer checks. A null output buffer or insufficient capacity for a nonempty result returns `-3` without writing. A matching zero-cell shape returns `0`, including with null output and zero capacity. Maximum output and workspace are 1,024 bytes.
 
+For n cells, validation and subtraction take O(n) time; the output uses O(n)
+space and the kernel uses O(1) auxiliary space.
+
 ## Workload and oracle
 
 [workload.json](workload.json) covers signed values, modulo wraparound, empty and zero-column matrices, shape mismatch, invalid framing/dimensions/domain, null and short output, and maximum-size matrices. The independent integer oracle is [subtract_oracle.py](../../subtract_oracle.py).
@@ -22,6 +25,7 @@ For matching dimensions, subtract corresponding cells in row-major order modulo 
 | C3 | [c3/m/subtract.c3](../../../c3/m/subtract.c3) |
 | C++ | [cpp/m/subtract.cpp](../../../cpp/m/subtract.cpp) |
 | Elisa | [elisa/m/subtract.elisa](../../../elisa/m/subtract.elisa) |
+| Mojo | [mojo/m/subtract.mojo](../../../mojo/m/subtract.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/subtract.nim](../../../nim/m/subtract.nim) |
 | Odin | [odin/m/subtract.odin](../../../odin/m/subtract.odin) |
 | Rust | [rust/m/subtract.rs](../../../rust/m/subtract.rs) |

@@ -19,7 +19,9 @@
     "encoding": "n little-endian signed i32 zero-based column indices",
     "maximum_output_bytes": 32,
     "success_result": "output byte count",
+    "invalid_input_result": -1,
     "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
     "short_capacity_writes_nothing": true
   },
   "measurement": {
@@ -38,6 +40,7 @@
     {"id":"single-resource","input_values":[1,7],"input_length":2,"output_capacity":32,"expected_result":4,"expected_output_hex":"00000000"},
     {"id":"two-resource-diagonal","input_values":[2,1,9,8,2],"input_length":5,"output_capacity":32,"expected_result":8,"expected_output_hex":"0000000001000000"},
     {"id":"equal-cost-stable-first-choice","input_values":[2,5,5,5,5],"input_length":5,"output_capacity":32,"expected_result":8,"expected_output_hex":"0000000001000000"},
+    {"id":"tableau-adjustment","input_values":[3,0,1,1,0,1,1,1,0,0],"input_length":10,"output_capacity":32,"expected_result":12,"expected_output_hex":"000000000100000002000000"},
     {"id":"invalid-dimension","input_values":[0],"input_length":1,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
     {"id":"negative-cost","input_values":[1,-1],"input_length":2,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
     {"id":"trailing-input","input_values":[1,7,8],"input_length":3,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},

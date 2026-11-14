@@ -1,0 +1,72 @@
+def dcs_send(u: usize, sink: usize, amount: i64, residual: mutable view[i64], level: view[i64], cursor: mutable view[usize], n: usize, threshold: i64) -> i64:
+    if u == sink: return amount
+    while cursor[u] < n:
+        v: usize = cursor[u]
+        edge: usize = u * 16 + v
+        if level[v] == level[u] + 1 and residual[edge] >= threshold:
+            bound: mutable i64 = amount
+            if residual[edge] < bound: bound <- residual[edge]
+            pushed: i64 = dcs_send(v, sink, bound, residual, level, cursor, n, threshold)
+            if pushed > 0:
+                residual[edge] <- residual[edge] - pushed
+                residual[v * 16 + u] <- residual[v * 16 + u] + pushed
+                return pushed
+        cursor[u] <- cursor[u] + 1
+    0
+
+def dcs_solve(values: view[i64]) -> i64:
+    if values.len() < 4 or values.len() > 197: return -1
+    nv: i64 = values[0]
+    mv: i64 = values[1]
+    sv: i64 = values[2]
+    tv: i64 = values[3]
+    if nv < 2 or nv > 16 or mv < 0 or mv > 64 or sv < 1 or sv > nv or tv < 1 or tv > nv or sv == tv: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    source: usize = (sv - 1).usize()
+    sink: usize = (tv - 1).usize()
+    if values.len() != 4 + 3 * m: return -1
+    residual: mutable i64[256] = zeroed
+    for i in 0..<m:
+        u: i64 = values[4 + 3 * i]
+        v: i64 = values[5 + 3 * i]
+        capacity: i64 = values[6 + 3 * i]
+        if u < 1 or u > nv or v < 1 or v > nv or u == v or capacity < 0 or capacity > 100: return -1
+        edge: usize = (u - 1).usize() * 16 + (v - 1).usize()
+        residual[edge] <- residual[edge] + capacity
+    greatest: mutable i64 = 0
+    for i in 0..<(n * 16):
+        if residual[i] > greatest: greatest <- residual[i]
+    threshold: mutable i64 = 1
+    while threshold <= greatest / 2: threshold <- threshold * 2
+    if greatest == 0: threshold <- 0
+    flow: mutable i64 = 0
+    while threshold > 0:
+        while true:
+            level: mutable i64[16] = zeroed
+            queue: mutable usize[16] = zeroed
+            for i in 0..<n: level[i] <- -1
+            head: mutable usize = 0
+            tail: mutable usize = 1
+            level[source] <- 0
+            queue[0] <- source
+            while head < tail:
+                u: usize = queue[head]
+                head <- head + 1
+                for v in 0..<n:
+                    if level[v] < 0 and residual[u * 16 + v] >= threshold:
+                        level[v] <- level[u] + 1
+                        queue[tail] <- v
+                        tail <- tail + 1
+            if level[sink] < 0: break
+            cursor: mutable usize[16] = zeroed
+            while true:
+                pushed: i64 = dcs_send(source, sink, 6401, residual[0..<(n * 16)], level[0:n], cursor[0:n], n, threshold)
+                if pushed == 0: break
+                flow <- flow + pushed
+        threshold <- threshold / 2
+    flow
+
+export fn dinic_capacity_scaling(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 197: return -1
+    dcs_solve(input[0:length])

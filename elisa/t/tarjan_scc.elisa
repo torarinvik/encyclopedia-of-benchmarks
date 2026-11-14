@@ -39,18 +39,19 @@ def tarjan_scc_visit(adjacency: view[u64], on_stack: mutable view[u8], scc_stack
 
 def tarjan_scc_impl(input: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    if length < 2 or length > MAX_INPUT_LENGTH:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    if input[0] < 0 or input[0] > i64(MAX_VERTEX_COUNT) or input[1] < 0 or input[1] > i64(MAX_EDGE_COUNT):
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > i64(MAX_VERTEX_COUNT) or values[1] < 0 or values[1] > i64(MAX_EDGE_COUNT):
         return -1
-    vertex_count: usize = input[0].usize()
-    edge_count: usize = input[1].usize()
+    vertex_count: usize = values[0].usize()
+    edge_count: usize = values[1].usize()
     if length != 2 + 2 * edge_count:
         return -1
     adjacency: mutable u64[MAX_VERTEX_COUNT] = zeroed
-    for edge in 0..<edge_count |input, adjacency|:
-        from_value: i64 = input[2 + 2 * edge]
-        to_value: i64 = input[3 + 2 * edge]
+    for edge in 0..<edge_count |values, adjacency|:
+        from_value: i64 = values[2 + 2 * edge]
+        to_value: i64 = values[3 + 2 * edge]
         if from_value < 0 or to_value < 0 or from_value >= vertex_count.i64() or to_value >= vertex_count.i64():
             return -1
         from: usize = from_value.usize()
@@ -78,11 +79,12 @@ def tarjan_scc_impl(input: i64&, length: usize, output: mutable u8&,
                 vertex_count, vertex, time, component_count)
         vertex <- vertex + 1
     output_length: usize = 1 + vertex_count + component_count
-    if output_capacity < output_length:
+    if output.is_null() or output_capacity < output_length:
         return -2
-    output[0] <- component_count.u8()
+    target: mutable view[u8] = output[0:output_length]
+    target[0] <- component_count.u8()
     position: mutable usize = 1
-    for first in 0..<vertex_count |first, component_id, position, output|:
+    for first in 0..<vertex_count |first, component_id, position, target|:
         id: i64 = component_id[first]
         emitted: mutable bool = false
         for earlier in 0..<first |earlier, component_id, emitted|:
@@ -94,11 +96,11 @@ def tarjan_scc_impl(input: i64&, length: usize, output: mutable u8&,
         for member in first..<vertex_count |member, component_id, component_size|:
             if component_id[member] == id:
                 component_size <- component_size + 1
-        output[position] <- component_size.u8()
+        target[position] <- component_size.u8()
         position <- position + 1
-        for member in first..<vertex_count |member, component_id, position, output|:
+        for member in first..<vertex_count |member, component_id, position, target|:
             if component_id[member] == id:
-                output[position] <- member.u8()
+                target[position] <- member.u8()
                 position <- position + 1
     output_length.i64()
 

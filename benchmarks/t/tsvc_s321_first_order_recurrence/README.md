@@ -66,3 +66,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s321_first_order_recurrence.rs`](../../../rust/t/tsvc_s321_first_order_recurrence.rs) |
 | V | [`tsvc_s321_first_order_recurrence.v`](../../../v/t/tsvc_s321_first_order_recurrence.v) |
 | Zig | [`tsvc_s321_first_order_recurrence.zig`](../../../zig/t/tsvc_s321_first_order_recurrence.zig) |
+| Mojo | [`tsvc_s321_first_order_recurrence.mojo`](../../../mojo/t/tsvc_s321_first_order_recurrence.mojo) |

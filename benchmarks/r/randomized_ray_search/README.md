@@ -24,6 +24,8 @@ Malformed permutations or framing return `-1`; null output or capacity below
 16 bytes returns `-2` without writing. Maximum valid input is 10 values and
 maximum parseable length is 11.
 
+For E explorations and R rays, the simulation uses O(E + R) time and O(R) space.
+
 The primary oracle simulates each trip. The independent verifier computes the
 first growth round that reaches the target and sums the missed round-trip
 distances as a geometric series.
@@ -47,6 +49,7 @@ capacity.
 | C3 | [`c3/r/randomized_ray_search.c3`](../../../c3/r/randomized_ray_search.c3) |
 | C++ | [`cpp/r/randomized_ray_search.cpp`](../../../cpp/r/randomized_ray_search.cpp) |
 | Elisa | [`elisa/r/randomized_ray_search.elisa`](../../../elisa/r/randomized_ray_search.elisa) |
+| Mojo | [`mojo/r/randomized_ray_search.mojo`](../../../mojo/r/randomized_ray_search.mojo) (draft; not compiled or run) |
 | Nim | [`nim/r/randomized_ray_search.nim`](../../../nim/r/randomized_ray_search.nim) |
 | Odin | [`odin/r/randomized_ray_search.odin`](../../../odin/r/randomized_ray_search.odin) |
 | Rust | [`rust/r/randomized_ray_search.rs`](../../../rust/r/randomized_ray_search.rs) |

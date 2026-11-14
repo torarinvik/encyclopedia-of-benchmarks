@@ -2,6 +2,16 @@
 
 This benchmark follows the pinned Python Andrew monotone-chain routine on bounded integer points. It sorts the points lexicographically, removes duplicates, then builds the lower and upper chains while discarding any last turn whose cross product is nonpositive.
 
+The pinned [JavaScript `ConvexHullGraham.convexHull`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Geometry/ConvexHullGraham.js)
+also belongs to this family. Its original-index output can be compared with
+this benchmark's coordinate output on distinct-x inputs with no collinear
+triples after normalizing cyclic order and direction. The JavaScript version
+retains intermediate boundary-collinear points; those inputs are excluded from
+this source mapping because this benchmark discards them.
+The verifier source includes the migrated mixed-side fixture and its reversed
+input ordering to check that the coordinate hull is independent of input order;
+these checks have not been run.
+
 ## Contract
 
 - The packed `i64_array_bytes_output` input is `[point_count, x_0, y_0, ..., x_(n-1), y_(n-1)]`; the frame length is exactly `1 + 2 * point_count`.

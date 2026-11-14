@@ -51,3 +51,4 @@ All language ports are clean-room implementations.
 - Workload: [`workload.json`](workload.json)
 - Primary oracle: [`gbbs_approximate_set_cover_oracle.py`](../../gbbs_approximate_set_cover_oracle.py)
 - Independent verifier model: [`gbbs_approximate_set_cover_verifier_oracle.py`](../../gbbs_approximate_set_cover_verifier_oracle.py)
+- [Mojo draft](../../../mojo/g/gbbs_approximate_set_cover.mojo)

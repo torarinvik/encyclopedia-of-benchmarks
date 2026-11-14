@@ -27,7 +27,7 @@
     "maximum_result": 28,
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Sort incident neighbors by polar angle and count orbits of the directed-edge face permutation.",
     "independent_oracle": "Use Euler's formula F=M-N+2 after separate bounded validation of the connected planar input.",
     "primary_complexity": "O(M^2+M log M) time including crossing validation and O(N^2+M) fixed storage.",

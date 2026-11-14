@@ -11,7 +11,10 @@ This package implements the dense-model property tester from Oded Goldreich and 
 - Maximum input is 82 words; output is exactly 16 bytes. Invalid input returns `-1`; null or short output returns `-2` without writes.
 - `q` is explicit and fixed by the workload. The profile preserves the sampling and induced-sample decision operation but does not claim an epsilon-to-sample-size schedule, the chapter's soundness guarantee, or an asymptotic query bound. A supplied trace can accept a graph that is far from bipartite.
 
-This package is distinct from exact whole-graph [bipartite recognition](../b/bipartite_graph_dfs/README.md): it selects a random vertex sample and queries only the induced sample. The supplied draw trace makes that randomized outer procedure observable and reproducible.
+This package is distinct from exact whole-graph [bipartite recognition](../../b/bipartite_graph_dfs/README.md): it selects a random vertex sample and queries only the induced sample. The supplied draw trace makes that randomized outer procedure observable and reproducible.
+
+Validation uses `O(N^2)` time; sampling and induced-graph coloring use
+`O(N+q^2)` time and `O(N+q^2)` auxiliary space.
 
 ## Provenance and rights
 
@@ -29,6 +32,7 @@ Source attribution: Oded Goldreich and Dana Ron, “Testing Bipartiteness in the
 | C3 | [`c3/t/dense_graph_bipartiteness_tester.c3`](../../../c3/t/dense_graph_bipartiteness_tester.c3) |
 | C++ | [`cpp/t/dense_graph_bipartiteness_tester.cpp`](../../../cpp/t/dense_graph_bipartiteness_tester.cpp) |
 | Elisa | [`elisa/t/dense_graph_bipartiteness_tester.elisa`](../../../elisa/t/dense_graph_bipartiteness_tester.elisa) |
+| Mojo | [`mojo/d/dense_graph_bipartiteness_tester.mojo`](../../../mojo/d/dense_graph_bipartiteness_tester.mojo) |
 | Nim | [`nim/t/dense_graph_bipartiteness_tester.nim`](../../../nim/t/dense_graph_bipartiteness_tester.nim) |
 | Odin | [`odin/t/dense_graph_bipartiteness_tester.odin`](../../../odin/t/dense_graph_bipartiteness_tester.odin) |
 | Rust | [`rust/t/dense_graph_bipartiteness_tester.rs`](../../../rust/t/dense_graph_bipartiteness_tester.rs) |

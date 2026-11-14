@@ -10,6 +10,9 @@ This benchmark ports the pinned C++ `backtracking::rat_maze::solveMaze` search. 
 
 The workload covers right-before-down choice, backtracking from a dead-end right branch, the pinned sample, no-path cases, maximum dimensions, malformed input, error precedence, and output capacity. See [workload.json](workload.json) and the independent [oracle](../../rat_maze_oracle.py).
 
+The build resolves this workload from `m/` while the language sources remain
+under `r/`. This path correction has not been executed.
+
 Pinned source: [TheAlgorithms/C-Plus-Plus `rat_maze.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/backtracking/rat_maze.cpp), function `backtracking::rat_maze::solveMaze`, at commit `fdcc29b0ac2848e9d1a8d926e171cc5b39f97759`.
 
 ## Reproduce

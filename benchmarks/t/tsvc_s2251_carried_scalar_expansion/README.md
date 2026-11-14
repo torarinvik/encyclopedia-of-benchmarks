@@ -9,3 +9,5 @@ This profiles one loop-body sweep with explicit arrays. Launcher timing, repeate
 Source: lac-dcc/Benchmarks commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38, TSVC/tsc.inc codelet s2251, selected by Expansion-dbl and Expansion-flt. The source comments attribute codelets to David Callahan, Jack Dongarra, and David Levine. No explicit license grant was found in the pinned materials reviewed; ports are clean-room and claim no upstream license. See LICENSE.txt. Oracle: benchmarks/tsvc_s2251_carried_scalar_expansion_oracle.py.
 
 Ports exist in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig under their respective t/ directories.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s2251_carried_scalar_expansion.mojo) is a draft and has not been compiled or run.

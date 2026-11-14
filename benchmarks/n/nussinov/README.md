@@ -6,6 +6,8 @@ The input is `[n]`, with `1 <= n <= 128`. The upstream EXTRALARGE dataset uses `
 
 The Python source-order oracle is [`benchmarks/nussinov_oracle.py`](../../nussinov_oracle.py). The pinned source is [`PolyBench/medley/nussinov/nussinov.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/medley/nussinov/nussinov.c).
 
+The Mojo draft is [`mojo/n/nussinov.mojo`](../../../mojo/n/nussinov.mojo). The recurrence takes O(n³) time and O(n²) space; the draft has not been compiled or run.
+
 Build a language implementation with the `i64_array_scalar` ABI family, for example:
 
 ```sh

@@ -30,6 +30,10 @@ Malformed inputs return `-1`; null output or insufficient capacity returns
 accepted for malformed-input checks, maximum output is 72 bytes, and fixed
 workspace is bounded at 8192 bytes.
 
+For n items and S joint outcomes, the profile uses O(n² + Sn) time and O(n)
+extra space, excluding the supplied atom arrays (which require O(n) space
+under the fixed three-atom bound).
+
 Primary oracle: [`stochastic_knapsack_greedy_oracle.py`](../../stochastic_knapsack_greedy_oracle.py)
 enumerates all joint outcomes. The independent verifier
 [`stochastic_knapsack_greedy_verifier_oracle.py`](../../stochastic_knapsack_greedy_verifier_oracle.py)
@@ -55,6 +59,7 @@ buffers, and insufficient capacity.
 | C3 | [`c3/k/stochastic_knapsack_greedy.c3`](../../../c3/k/stochastic_knapsack_greedy.c3) |
 | C++ | [`cpp/k/stochastic_knapsack_greedy.cpp`](../../../cpp/k/stochastic_knapsack_greedy.cpp) |
 | Elisa | [`elisa/k/stochastic_knapsack_greedy.elisa`](../../../elisa/k/stochastic_knapsack_greedy.elisa) |
+| Mojo | [`mojo/k/stochastic_knapsack_greedy.mojo`](../../../mojo/k/stochastic_knapsack_greedy.mojo) (draft; not compiled or run) |
 | Nim | [`nim/k/stochastic_knapsack_greedy.nim`](../../../nim/k/stochastic_knapsack_greedy.nim) |
 | Odin | [`odin/k/stochastic_knapsack_greedy.odin`](../../../odin/k/stochastic_knapsack_greedy.odin) |
 | Rust | [`rust/k/stochastic_knapsack_greedy.rs`](../../../rust/k/stochastic_knapsack_greedy.rs) |

@@ -44,6 +44,7 @@ multi-block, boundary-propagation, maximum-size, and malformed cases.
 | C3 | `c3/r/rle_lcs_block_dp.c3` |
 | C++ | `cpp/r/rle_lcs_block_dp.cpp` |
 | Elisa | `elisa/r/rle_lcs_block_dp.elisa` |
+| Mojo | `mojo/r/rle_lcs_block_dp.mojo` |
 | Nim | `nim/r/rle_lcs_block_dp.nim` |
 | Odin | `odin/r/rle_lcs_block_dp.odin` |
 | Rust | `rust/r/rle_lcs_block_dp.rs` |

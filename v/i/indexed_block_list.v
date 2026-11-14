@@ -76,9 +76,8 @@ pub fn indexed_block_list(input &i64, length usize, output &u8, output_capacity 
 			} else { return -1 }
 		}
 		if cursor != int(length) || size > max_items { return -1 }
-		if accesses == 0 { return 0 }
 		required := accesses * 8
-		if output == nil || output_capacity < usize(required) { return -2 }
+		if required > 0 && (output == nil || output_capacity < usize(required)) { return -2 }
 		mut blocks := [max_nodes * stride]i64{}
 		mut sizes := [max_nodes]int{}
 		mut next := [max_nodes]int{}

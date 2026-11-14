@@ -27,7 +27,7 @@ int64_t saga_incremental_analytics(const int64_t *input, size_t length,
     const int64_t mode64 = input[0], n64 = input[1], base64 = input[2];
     const int64_t added64 = input[3], source64 = input[4];
     if (mode64 < 1 || mode64 > 6 || n64 < 2 || n64 > MAX_N ||
-        base64 < 0 || added64 < 1 || base64 + added64 > MAX_E ||
+        base64 < 0 || base64 > MAX_E || added64 < 1 || added64 > MAX_E || base64 + added64 > MAX_E ||
         length != 5 + (size_t)n64 + 3 * (size_t)(base64 + added64)) return -1;
     const int mode = (int)mode64, n = (int)n64;
     const int base_edges = (int)base64, added_edges = (int)added64;

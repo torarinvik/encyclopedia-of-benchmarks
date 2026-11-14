@@ -27,6 +27,9 @@ before output-capacity checks. A null output or capacity below 36 returns
 `-2`. Errors leave output untouched. Success writes all 36 samples and returns
 36. Comparison tolerances are `1e-11` absolute and relative.
 
+The fixed-size direct transform takes O(1) time and O(1) auxiliary space.
+The [Mojo draft](../../../mojo/m/cbench_consumer_mad_imdct36.mojo) has not been compiled or run.
+
 The default fixture is a bounded deterministic coefficient vector, not an
 encoded MP3 frame. It exercises the same standalone transform selected by the
 source's default build (`FPM_DEFAULT`) while keeping bitstream parsing and

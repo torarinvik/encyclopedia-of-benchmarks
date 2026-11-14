@@ -31,6 +31,6 @@ overlap counts.
 
 ## Files
 
-Nine ports are under `c/p`, `cpp/p`, `rust/p`, `c3/p`, `nim/p`, `odin/p`,
-`elisa/p`, `v/p`, and `zig/p`; workload and primary/independent oracles are
+Ports are under `c/p`, `cpp/p`, `rust/p`, `c3/p`, `nim/p`, `odin/p`,
+`elisa/p`, `mojo/p`, `v/p`, and `zig/p`; workload and primary/independent oracles are
 included here and in `benchmarks/`.

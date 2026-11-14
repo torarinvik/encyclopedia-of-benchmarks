@@ -46,8 +46,7 @@ long slicing_floorplan_stockmeyer(long* input, usz length, char* output, usz cap
                 if (i == j) continue;
                 usz ai = base + i, bi = base + j;
                 if (cand_h[bi] <= cand_h[ai] && cand_w[bi] <= cand_w[ai] &&
-                    (cand_h[bi] < cand_h[ai] || cand_w[bi] < cand_w[ai] ||
-                     mask_lex_less(cand_mask[bi], cand_mask[ai], leaves) ||
+                    (mask_lex_less(cand_mask[bi], cand_mask[ai], leaves) ||
                      (cand_mask[bi] == cand_mask[ai] && j < i))) dominated[i] = true;
             }
             usz kept = 0;
@@ -81,8 +80,7 @@ long slicing_floorplan_stockmeyer(long* input, usz length, char* output, usz cap
                 if (i == j) continue;
                 usz ai = base + i, bi = base + j;
                 if (cand_h[bi] <= cand_h[ai] && cand_w[bi] <= cand_w[ai] &&
-                    (cand_h[bi] < cand_h[ai] || cand_w[bi] < cand_w[ai] ||
-                     mask_lex_less(cand_mask[bi], cand_mask[ai], leaves) ||
+                    (mask_lex_less(cand_mask[bi], cand_mask[ai], leaves) ||
                      (cand_mask[bi] == cand_mask[ai] && j < i))) dominated[i] = true;
             }
             usz kept = 0;

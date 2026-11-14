@@ -46,7 +46,7 @@ make_hull :: proc(p:[^]Point,n:int,h:[^]int)->int{
     k-=1;for i:=0;i<k;i+=1{h[i]=stack[i]};return k
 }
 pack_circle :: proc(p:[^]Point,h:[^]int)->i64{
-    tri:=[3]Point{p[h[0]],p[h[1]],p[h[2]]};sides:=[3]i64{length2(tri[0],tri[1]),length2(tri[1],tri[2]),length2(tri[0],tri[2])}
+    tri:=[3]Point{p[h[0]],p[h[1]],p[h[2]]};sides:=[3]i64{length2(tri[1],tri[2]),length2(tri[0],tri[2]),length2(tri[0],tri[1])}
     opposite:=0;u:=1;v:=2;longest:=sides[0]
     if sides[1]>longest{longest=sides[1];opposite=1;u=0;v=2};if sides[2]>longest{longest=sides[2];opposite=2;u=0;v=1}
     o:=tri[opposite];dot:=f64(tri[u].x-o.x)*f64(tri[v].x-o.x)+f64(tri[u].y-o.y)*f64(tri[v].y-o.y)

@@ -49,6 +49,14 @@
   },
   "cases": [
     {
+      "id": "two_chain_unsorted_mixed_sides",
+      "input_values": [5, 2, -2, 0, 0, 4, 0, 1, 2, 3, 2],
+      "input_length": 11,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "000000000000000002000000feffffff040000000000000003000000020000000100000002000000"
+    },
+    {
       "id": "empty_input",
       "input_values": [
         0

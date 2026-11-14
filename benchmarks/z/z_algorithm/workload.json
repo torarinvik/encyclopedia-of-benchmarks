@@ -7,9 +7,10 @@
     "kind": "packed_signed_64_bit_symbol_sequence",
     "encoding": "[length, item_0, ..., item_(length-1)]",
     "minimum_length": 0,
-    "maximum_length": 2047,
+    "maximum_length": 4095,
     "symbol_domain": "all signed 64-bit integers; exact equality",
     "invalid_input_result": -1,
+    "null_input_result": -1,
     "insufficient_output_capacity_result": -2
   },
   "output": {
@@ -17,6 +18,10 @@
     "meaning": "Z value at every index, with z[0] = 0",
     "element_encoding": "unsigned 32-bit little-endian integer",
     "result": "number of Z values written"
+  },
+  "workspace": {
+    "bytes": 16380,
+    "meaning": "Maximum output capacity for 4,095 packed 32-bit Z values."
   },
   "measurement": {
     "comparison_model": "i64_array_bytes_output_call",
@@ -30,11 +35,19 @@
     {"id": "source_basic_z_array", "input_values": [8, 97, 97, 98, 97, 97, 98, 97, 98], "expected_result": 8},
     {"id": "source_repeated_characters", "input_values": [6, 97, 97, 97, 97, 97, 97], "expected_result": 6},
     {"id": "no_repeated_prefix", "input_values": [6, 97, 98, 99, 100, 101, 102], "expected_result": 6},
+    {"id": "alternating_prefix", "input_values": [5, 17, 23, 17, 23, 17], "expected_result": 5},
+    {"id": "embedded_zero_prefix", "input_values": [5, 0, 4, 0, 4, 0], "expected_result": 5},
+    {"id": "prepared_pattern_and_text", "input_values": [9, 97, 98, 97, -1, 97, 98, 97, 98, 97], "expected_result": 9},
+    {"id": "prepared_overlapping_match_sequence", "input_values": [8, 120, 120, -1, 120, 120, 120, 120, 120], "expected_result": 8},
     {"id": "signed_symbols", "input_values": [5, -1, 2, -1, 2, -1], "expected_result": 5},
     {"id": "signed_value_boundary", "input_values": [2, -9223372036854775808, -9223372036854775808], "expected_result": 2},
+    {"id": "short_output_capacity", "input_values": [2, 7, 7], "output_capacity": 7, "expected_result": -2},
+    {"id": "empty_null_output", "input_values": [0], "output_capacity": 0, "output_is_null": true, "expected_result": 0},
+    {"id": "nonempty_null_output", "input_values": [1, 7], "output_capacity": 4, "output_is_null": true, "expected_result": -2},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 0, "expected_result": -1},
     {"id": "invalid_empty_packed_input", "input_values": [], "expected_result": -1},
     {"id": "invalid_negative_length", "input_values": [-1], "expected_result": -1},
-    {"id": "length_above_bound", "input_values": [2048], "expected_result": -1},
+    {"id": "length_above_bound", "input_values": [4096], "expected_result": -1},
     {"id": "truncated_sequence", "input_values": [3, 1, 2], "expected_result": -1},
     {"id": "extra_sequence_item", "input_values": [1, 65, 66], "expected_result": -1}
   ]

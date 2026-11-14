@@ -17,6 +17,9 @@ zero-based starts in ascending order. The maximum output is 200 bytes. Invalid
 input returns `-1`; a null output or insufficient capacity returns `-2`
 without writing.
 
+For text length n, pattern length m, and alphabet size σ=16, the direct
+window scan takes O((n-m+1)(m+σ) + m) time when m≤n, and O(n+m+σ) space.
+
 The primary oracle compares predecessor encodings independently for each
 window. The verifier instead checks whether each window and pattern admit a
 consistent one-to-one symbol map. These are separate formulations of the
@@ -50,6 +53,7 @@ the independent verifier is
 | C3 | `c3/p/parameterized_pattern_matching.c3` |
 | C++ | `cpp/p/parameterized_pattern_matching.cpp` |
 | Elisa | `elisa/p/parameterized_pattern_matching.elisa` |
+| Mojo | [`mojo/p/parameterized_pattern_matching.mojo`](../../../mojo/p/parameterized_pattern_matching.mojo) (draft; not compiled or run) |
 | Nim | `nim/p/parameterized_pattern_matching.nim` |
 | Odin | `odin/p/parameterized_pattern_matching.odin` |
 | Rust | `rust/p/parameterized_pattern_matching.rs` |

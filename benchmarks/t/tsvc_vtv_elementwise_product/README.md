@@ -18,6 +18,8 @@ three-factor map in `vtvtv`.
   integer profile keeps values exact in both formats and bounds repeated
   products to `[-512,512]`.
 
+For n elements and P passes, the loop takes O(Pn) time and O(n) space.
+
 ## Provenance and rights
 
 Pinned source: `lac-dcc/Benchmarks`, commit
@@ -36,6 +38,7 @@ Independent oracle: [`benchmarks/tsvc_vtv_elementwise_product_oracle.py`](../../
 | C3 | [C3](../../../c3/t/tsvc_vtv_elementwise_product.c3) |
 | C++ | [C++](../../../cpp/t/tsvc_vtv_elementwise_product.cpp) |
 | Elisa | [Elisa](../../../elisa/t/tsvc_vtv_elementwise_product.elisa) |
+| Mojo | [Mojo](../../../mojo/t/tsvc_vtv_elementwise_product.mojo) (draft; not compiled or run) |
 | Nim | [Nim](../../../nim/t/tsvc_vtv_elementwise_product.nim) |
 | Odin | [Odin](../../../odin/t/tsvc_vtv_elementwise_product.odin) |
 | Rust | [Rust](../../../rust/t/tsvc_vtv_elementwise_product.rs) |

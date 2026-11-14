@@ -8,6 +8,8 @@ Input is `[n,m,edge_pairs[2*m]]` for a simple undirected graph with `1<=n<=7` an
 
 The independent verifier uses exhaustive restricted-growth color assignments rather than the inclusion–exclusion formula. This package is distinct from local greedy/backtracking graph-coloring profiles because it measures the chapter’s independent-set subset counts and alternating-sum criterion.
 
+The direct evaluation takes `O(n^2 * 2^n + m)` time and `O(2^n + n)` space.
+
 ## Implementations
 
 | Language | Source |
@@ -16,6 +18,7 @@ The independent verifier uses exhaustive restricted-growth color assignments rat
 | C3 | [`c3/e/exact_graph_coloring_inclusion_exclusion.c3`](../../../c3/e/exact_graph_coloring_inclusion_exclusion.c3) |
 | C++ | [`cpp/e/exact_graph_coloring_inclusion_exclusion.cpp`](../../../cpp/e/exact_graph_coloring_inclusion_exclusion.cpp) |
 | Elisa | [`elisa/e/exact_graph_coloring_inclusion_exclusion.elisa`](../../../elisa/e/exact_graph_coloring_inclusion_exclusion.elisa) |
+| Mojo | [`mojo/e/exact_graph_coloring_inclusion_exclusion.mojo`](../../../mojo/e/exact_graph_coloring_inclusion_exclusion.mojo) |
 | Nim | [`nim/e/exact_graph_coloring_inclusion_exclusion.nim`](../../../nim/e/exact_graph_coloring_inclusion_exclusion.nim) |
 | Odin | [`odin/e/exact_graph_coloring_inclusion_exclusion.odin`](../../../odin/e/exact_graph_coloring_inclusion_exclusion.odin) |
 | Rust | [`rust/e/exact_graph_coloring_inclusion_exclusion.rs`](../../../rust/e/exact_graph_coloring_inclusion_exclusion.rs) |

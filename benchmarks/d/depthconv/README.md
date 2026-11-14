@@ -10,6 +10,8 @@ For each channel the accumulator starts at zero and adds `filter[y,channel] * (i
 
 The multiplier/shift, bias, and channel bounds keep all source-style int32 accumulations and the int64 multiplier intermediate in range. The source's default input offset, output offset, activation bounds, depth multiplier, stride, dilation, and padding are fixed in this profile.
 
+For C channels, the fixed four-row convolution takes O(C) time and O(C) space.
+
 ## Provenance and rights
 
 - Repository: [embench/embench-iot](https://github.com/embench/embench-iot)
@@ -25,6 +27,7 @@ The multiplier/shift, bias, and channel bounds keep all source-style int32 accum
 | C3 | [`c3/d/depthconv.c3`](../../../c3/d/depthconv.c3) |
 | C++ | [`cpp/d/depthconv.cpp`](../../../cpp/d/depthconv.cpp) |
 | Elisa | [`elisa/d/depthconv.elisa`](../../../elisa/d/depthconv.elisa) |
+| Mojo | [`mojo/d/depthconv.mojo`](../../../mojo/d/depthconv.mojo) (draft; not compiled or run) |
 | Nim | [`nim/d/depthconv.nim`](../../../nim/d/depthconv.nim) |
 | Odin | [`odin/d/depthconv.odin`](../../../odin/d/depthconv.odin) |
 | Rust | [`rust/d/depthconv.rs`](../../../rust/d/depthconv.rs) |

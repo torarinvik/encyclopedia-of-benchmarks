@@ -36,6 +36,14 @@ route, zero flow, and malformed/boundary cases. [`workload.json`](workload.json)
 contains fixture outputs. The independent
 [`min_cost_max_flow_oracle.py`](../../min_cost_max_flow_oracle.py) uses
 Bellman-Ford over residual edges rather than the ports' reduced-cost Dijkstra.
+For F units of flow, V vertices, and E edges, the array-based implementation
+takes O(F·V·(V+E)) time in the worst case and O(V+E) space. The Mojo draft
+has not been compiled or run.
+Verifier source also specifies small directed networks with zero-capacity
+and differently priced edges, plus parallel-edge and self-loop cases. These
+checks remain unrun.
+The byte-output workload validator also specifies source-presence checks for
+all ten ports; those checks have not been executed.
 
 ## Pinned source and attribution
 
@@ -51,6 +59,7 @@ Bellman-Ford over residual edges rather than the ports' reduced-cost Dijkstra.
 | C3 | [`c3/m/min_cost_max_flow.c3`](../../../c3/m/min_cost_max_flow.c3) |
 | C++ | [`cpp/m/min_cost_max_flow.cpp`](../../../cpp/m/min_cost_max_flow.cpp) |
 | Elisa | [`elisa/m/min_cost_max_flow.elisa`](../../../elisa/m/min_cost_max_flow.elisa) |
+| Mojo | [`mojo/m/min_cost_max_flow.mojo`](../../../mojo/m/min_cost_max_flow.mojo) |
 | Nim | [`nim/m/min_cost_max_flow.nim`](../../../nim/m/min_cost_max_flow.nim) |
 | Odin | [`odin/m/min_cost_max_flow.odin`](../../../odin/m/min_cost_max_flow.odin) |
 | Rust | [`rust/m/min_cost_max_flow.rs`](../../../rust/m/min_cost_max_flow.rs) |

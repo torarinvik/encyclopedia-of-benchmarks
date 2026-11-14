@@ -10,13 +10,15 @@ The kernel performs in-place LU factorization without pivoting, following the so
 
 Invalid input returns -1. Null or undersized output returns -2 after input validation. Implementations stage results before writing, so errors leave output untouched. Maximum output is 36 doubles. The contract follows binary64 arithmetic and source accumulation order rather than formatted PolyBench output.
 
+The matrix initialization and factorization take O(n³) time and O(n²) auxiliary space.
+
 ## Workload and oracle
 
 [`workload.json`](workload.json) contains valid and invalid cases. [`benchmarks/polybench_lu_oracle.py`](../../polybench_lu_oracle.py) independently constructs the Gram matrix and applies the source-ordered factorization.
 
 ## Ports
 
-The nine source ports are `c/l/polybench_lu.c`, `c3/l/polybench_lu.c3`, `cpp/l/polybench_lu.cpp`, `elisa/l/polybench_lu.elisa`, `nim/l/polybench_lu.nim`, `odin/l/polybench_lu.odin`, `rust/l/polybench_lu.rs`, `v/l/polybench_lu.v`, and `zig/l/polybench_lu.zig`.
+The source ports are `c/l/polybench_lu.c`, `c3/l/polybench_lu.c3`, `cpp/l/polybench_lu.cpp`, `elisa/l/polybench_lu.elisa`, [`mojo/l/polybench_lu.mojo`](../../../mojo/l/polybench_lu.mojo), `nim/l/polybench_lu.nim`, `odin/l/polybench_lu.odin`, `rust/l/polybench_lu.rs`, `v/l/polybench_lu.v`, and `zig/l/polybench_lu.zig`. The Mojo draft has not been compiled or run.
 
 ## Pinned source and license
 

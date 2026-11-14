@@ -22,6 +22,10 @@ distance, k, sorted final center IDs]`, each as little-endian signed 64-bit;
 maximum output is 48 bytes. Malformed input returns `-1` before output checks;
 null or short output returns `-2` without writes.
 
+Metric validation takes O(n³) time. Each local-search round examines at most
+k(n-k) swaps, each costing O(nk), and uses O(n + k) extra space. The integer
+objective strictly decreases between rounds.
+
 This is a bounded deterministic p=1 best-improvement profile. It does not
 claim the chapter's arbitrary-p locality-gap guarantee, nor does it implement
 facility-location opening costs, capacitated variants, or randomized
@@ -46,6 +50,7 @@ Fixtures: [`workload.json`](workload.json).
 | C3 | `c3/k/k_median_p1_local_search.c3` |
 | C++ | `cpp/k/k_median_p1_local_search.cpp` |
 | Elisa | `elisa/k/k_median_p1_local_search.elisa` |
+| Mojo | [`mojo/k/k_median_p1_local_search.mojo`](../../../mojo/k/k_median_p1_local_search.mojo) (draft; not compiled or run) |
 | Nim | `nim/k/k_median_p1_local_search.nim` |
 | Odin | `odin/k/k_median_p1_local_search.odin` |
 | Rust | `rust/k/k_median_p1_local_search.rs` |

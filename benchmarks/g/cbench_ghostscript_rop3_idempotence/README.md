@@ -7,3 +7,5 @@ The pinned `gsropt.h` comment describes mathematical idempotence as rejecting an
 Source: [`gsropt.h`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/office_ghostscript/src/gsropt.h), at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. Copyright (C) 1995, 1996 Aladdin Enterprises. The complete Aladdin Free Public License v5 is bundled in [`LICENSE.txt`](LICENSE.txt); it allows modification and redistribution subject to its conditions, including restrictive noncommercial distribution terms. Observe those terms for this source-derived profile. The ports are independently written.
 
 The independent oracle is [`benchmarks/ghostscript_rop3_idempotence_oracle.py`](../../ghostscript_rop3_idempotence_oracle.py). Workload fixtures are in [`workload.json`](workload.json). No runtime verification is claimed.
+
+The [Mojo port](../../../mojo/g/cbench_ghostscript_rop3_idempotence.mojo) implements the same bounded predicate.

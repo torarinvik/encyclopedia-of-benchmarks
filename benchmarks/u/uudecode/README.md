@@ -14,4 +14,7 @@ The upstream launcher passes `input-file`. The pinned file is 747,647 bytes and 
 
 [`workload.json`](workload.json) includes empty and short groups, 45-byte line boundaries, the bounded pinned fixture, maximum output, malformed streams, invalid byte values, and capacity cases. [`benchmarks/uudecode_oracle.py`](../../uudecode_oracle.py) supplies the runner oracle; [`benchmarks/uudecode_verifier_oracle.py`](../../uudecode_verifier_oracle.py) is an independent verification model.
 
+For n encoded bytes, validation and decoding take O(n) time and O(n) staged space.
+The [Mojo draft](../../../mojo/u/uudecode.mojo) has not been compiled or run.
+
 Nine independent ports are provided: [C](../../../c/u/uudecode.c), [C3](../../../c3/u/uudecode.c3), [C++](../../../cpp/u/uudecode.cpp), [Elisa](../../../elisa/u/uudecode.elisa), [Nim](../../../nim/u/uudecode.nim), [Odin](../../../odin/u/uudecode.odin), [Rust](../../../rust/u/uudecode.rs), [V](../../../v/u/uudecode.v), and [Zig](../../../zig/u/uudecode.zig). The upstream GNU GPL and Berkeley BSD notices are retained in [`LICENSE-GPL-2.0-or-later.txt`](LICENSE-GPL-2.0-or-later.txt) and [`LICENSE-BSD-4-Clause.txt`](LICENSE-BSD-4-Clause.txt).

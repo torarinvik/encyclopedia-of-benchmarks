@@ -8,6 +8,8 @@ The `prolangs_c_simulator_format3_4` symbol uses the `i64_array_scalar_call` ABI
 
 The profile models `DEMAND != VALUE_1`, so it returns addresses/immediate constants and does not read operand values from simulated memory. It covers format-3 simple and immediate, indexed/base/PC-relative addressing, and format-4 simple/immediate with optional indexing. It excludes indirect addressing, which dereferences three memory bytes, and value-demand loads, which read the requested number of bytes. Plane-SIC `n=i=0` reaches the source's final fallback return of zero despite first extracting the 12-bit field; this source behavior is preserved. Format-3 `b=p=1` and format-4 `b` or `p` flags follow the source's illegal-instruction path. The source's order of adding X/B before applying the PC-relative sign check is preserved.
 
+The bounded decoder uses O(1) time and O(1) auxiliary space.
+
 ## Source and rights
 
 Pinned source: [`format.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/simulator/format.c), symbol `FORMAT3_4`; supporting constants are from [`constants.h`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/simulator/constants.h), all at commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. Launcher: [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/simulator/info.sh).
@@ -24,6 +26,7 @@ See [workload.json](workload.json) and the independent reference model at [`benc
 | C3 | `c3/p/prolangs_c_simulator_format3_4.c3` |
 | C++ | `cpp/p/prolangs_c_simulator_format3_4.cpp` |
 | Elisa | `elisa/p/prolangs_c_simulator_format3_4.elisa` |
+| Mojo | [`mojo/p/prolangs_c_simulator_format3_4.mojo`](../../../mojo/p/prolangs_c_simulator_format3_4.mojo) (draft; not compiled or run) |
 | Nim | `nim/p/prolangs_c_simulator_format3_4.nim` |
 | Odin | `odin/p/prolangs_c_simulator_format3_4.odin` |
 | Rust | `rust/p/prolangs_c_simulator_format3_4.rs` |

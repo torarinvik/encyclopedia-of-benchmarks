@@ -51,6 +51,7 @@ independently written from the observed queue and relaxation behavior.
 | C3 | [c3/d/mibench_network_dijkstra.c3](../../../c3/d/mibench_network_dijkstra.c3) |
 | C++ | [cpp/d/mibench_network_dijkstra.cpp](../../../cpp/d/mibench_network_dijkstra.cpp) |
 | Elisa | [elisa/d/mibench_network_dijkstra.elisa](../../../elisa/d/mibench_network_dijkstra.elisa) |
+| Mojo | [mojo/m/mibench_network_dijkstra.mojo](../../../mojo/m/mibench_network_dijkstra.mojo) |
 | Nim | [nim/d/mibench_network_dijkstra.nim](../../../nim/d/mibench_network_dijkstra.nim) |
 | Odin | [odin/d/mibench_network_dijkstra.odin](../../../odin/d/mibench_network_dijkstra.odin) |
 | Rust | [rust/d/mibench_network_dijkstra.rs](../../../rust/d/mibench_network_dijkstra.rs) |

@@ -40,3 +40,4 @@ The independent oracle is [`benchmarks/tsvc_s124_conditional_fma_map_oracle.py`]
 | Rust | [`tsvc_s124_conditional_fma_map.rs`](../../../rust/t/tsvc_s124_conditional_fma_map.rs) |
 | V | [`tsvc_s124_conditional_fma_map.v`](../../../v/t/tsvc_s124_conditional_fma_map.v) |
 | Zig | [`tsvc_s124_conditional_fma_map.zig`](../../../zig/t/tsvc_s124_conditional_fma_map.zig) |
+| Mojo | [`tsvc_s124_conditional_fma_map.mojo`](../../../mojo/t/tsvc_s124_conditional_fma_map.mojo) |

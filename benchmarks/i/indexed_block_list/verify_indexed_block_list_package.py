@@ -22,7 +22,7 @@ SOURCES = {
     "zig": ROOT / "zig/i/indexed_block_list.zig",
 }
 EXPECTED_CASES = {
-    "empty_sequence", "maximum_frame_and_output", "access_initial_items",
+    "empty_sequence", "negative_signed_value", "maximum_frame_and_output", "access_initial_items",
     "interior_insert_split_and_front_insert", "repeated_interior_split",
     "zero_access_null_output", "malformed_opcode", "out_of_range_access",
     "insert_past_end", "trailing_word", "null_input", "null_output_for_access",

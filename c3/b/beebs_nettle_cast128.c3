@@ -266,13 +266,25 @@ fn void expand_step(u8* x,uint* k,usz q){
  wr(&z[0],12,rd(x,4)^sb(4,z[10])^sb(5,z[9])^sb(6,z[11])^sb(7,z[8])^sb(5,x[11]));
  k[q]=sb(4,z[8])^sb(5,z[9])^sb(6,z[7])^sb(7,z[6])^sb(4,z[2]);k[q+1]=sb(4,z[10])^sb(5,z[11])^sb(6,z[5])^sb(7,z[4])^sb(5,z[6]);
  k[q+2]=sb(4,z[12])^sb(5,z[13])^sb(6,z[3])^sb(7,z[2])^sb(6,z[9]);k[q+3]=sb(4,z[14])^sb(5,z[15])^sb(6,z[1])^sb(7,z[0])^sb(7,z[12]);
+ if((q/8)%2!=0){
+  k[q]=sb(4,z[3])^sb(5,z[2])^sb(6,z[12])^sb(7,z[13])^sb(4,z[9]);
+  k[q+1]=sb(4,z[1])^sb(5,z[0])^sb(6,z[14])^sb(7,z[15])^sb(5,z[12]);
+  k[q+2]=sb(4,z[7])^sb(5,z[6])^sb(6,z[8])^sb(7,z[9])^sb(6,z[2]);
+  k[q+3]=sb(4,z[5])^sb(5,z[4])^sb(6,z[10])^sb(7,z[11])^sb(7,z[6]);
+ }
  wr(&n[0],0,rd(&z[0],8)^sb(4,z[5])^sb(5,z[7])^sb(6,z[4])^sb(7,z[6])^sb(6,z[0]));
- wr(&n[0],4,rd(&z[0],0)^sb(4,x[0])^sb(5,x[2])^sb(6,x[1])^sb(7,x[3])^sb(7,z[2]));
- wr(&n[0],8,rd(&z[0],4)^sb(4,x[7])^sb(5,x[6])^sb(6,x[5])^sb(7,x[4])^sb(4,z[1]));
- wr(&n[0],12,rd(&z[0],12)^sb(4,x[10])^sb(5,x[9])^sb(6,x[11])^sb(7,x[8])^sb(5,z[3]));
+ wr(&n[0],4,rd(&z[0],0)^sb(4,n[0])^sb(5,n[2])^sb(6,n[1])^sb(7,n[3])^sb(7,z[2]));
+ wr(&n[0],8,rd(&z[0],4)^sb(4,n[7])^sb(5,n[6])^sb(6,n[5])^sb(7,n[4])^sb(4,z[1]));
+ wr(&n[0],12,rd(&z[0],12)^sb(4,n[10])^sb(5,n[9])^sb(6,n[11])^sb(7,n[8])^sb(5,z[3]));
  for(usz i=0;i<16;i++)x[i]=n[i];
  k[q+4]=sb(4,x[3])^sb(5,x[2])^sb(6,x[12])^sb(7,x[13])^sb(4,x[8]);k[q+5]=sb(4,x[1])^sb(5,x[0])^sb(6,x[14])^sb(7,x[15])^sb(5,x[13]);
  k[q+6]=sb(4,x[7])^sb(5,x[6])^sb(6,x[8])^sb(7,x[9])^sb(6,x[3]);k[q+7]=sb(4,x[5])^sb(5,x[4])^sb(6,x[10])^sb(7,x[11])^sb(7,x[7]);
+ if((q/8)%2!=0){
+  k[q+4]=sb(4,x[8])^sb(5,x[9])^sb(6,x[7])^sb(7,x[6])^sb(4,x[3]);
+  k[q+5]=sb(4,x[10])^sb(5,x[11])^sb(6,x[5])^sb(7,x[4])^sb(5,x[7]);
+  k[q+6]=sb(4,x[12])^sb(5,x[13])^sb(6,x[3])^sb(7,x[2])^sb(6,x[8]);
+  k[q+7]=sb(4,x[14])^sb(5,x[15])^sb(6,x[1])^sb(7,x[0])^sb(7,x[13]);
+ }
 }
 fn uint rotl(uint v,uint n){n=n&31;return (v<<n)|(v>>((32-n)&31));}
 fn void encrypt(u8* key,u8* block,u8* out){u8[16] x;uint[32] k;for(usz i=0;i<16;i++)x[i]=key[i];for(usz i=0;i<32;i++)k[i]=0;for(usz s=0;s<4;s++)expand_step(&x[0],&k[0],s*8);uint l=rd(block,0),r=rd(block,4);

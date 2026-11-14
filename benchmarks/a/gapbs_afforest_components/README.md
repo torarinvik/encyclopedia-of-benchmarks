@@ -28,6 +28,7 @@ The fixed cases and expected byte outputs are in [`workload.json`](workload.json
 | C3 | [`c3/a/gapbs_afforest_components.c3`](../../../c3/a/gapbs_afforest_components.c3) |
 | C++ | [`cpp/a/gapbs_afforest_components.cpp`](../../../cpp/a/gapbs_afforest_components.cpp) |
 | Elisa | [`elisa/a/gapbs_afforest_components.elisa`](../../../elisa/a/gapbs_afforest_components.elisa) |
+| Mojo | [`mojo/a/gapbs_afforest_components.mojo`](../../../mojo/a/gapbs_afforest_components.mojo) (draft, unverified) |
 | Nim | [`nim/a/gapbs_afforest_components.nim`](../../../nim/a/gapbs_afforest_components.nim) |
 | Odin | [`odin/a/gapbs_afforest_components.odin`](../../../odin/a/gapbs_afforest_components.odin) |
 | Rust | [`rust/a/gapbs_afforest_components.rs`](../../../rust/a/gapbs_afforest_components.rs) |

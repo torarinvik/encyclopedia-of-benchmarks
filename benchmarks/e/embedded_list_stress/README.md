@@ -12,6 +12,9 @@ The upstream source attribution is Copyright 2018 Embedded Microprocessor Benchm
 
 ## Files
 
-- Oracle: [embedded_list_stress_oracle.py](../embedded_list_stress_oracle.py)
+- Oracle: [embedded_list_stress_oracle.py](../../embedded_list_stress_oracle.py)
 - Workload: [workload.json](workload.json)
-- Ports: C, C++, C3, Rust, Nim, Odin, V, Zig, Elisa under their respective `e/` directories.
+- Ports: C, C++, C3, Rust, Nim, Odin, V, Zig, Elisa, and Mojo under their respective `e/` directories. The Mojo draft has not been compiled or run.
+
+For `n` items and `q` searches, the bounded list operations take
+O(n log n + qn) time and O(n) storage.

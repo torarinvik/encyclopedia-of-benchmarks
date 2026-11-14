@@ -8,11 +8,12 @@ enum { QR_SIDE = 25, QR_CELLS = 625, DATA_WORDS = 34, ECC_WORDS = 10,
 
 static uint8_t gf_multiply(uint8_t left, uint8_t right) {
     unsigned product = 0;
+    unsigned factor = left;
     while (right != 0) {
-        if (right & 1u) product ^= left;
+        if (right & 1u) product ^= factor;
         right >>= 1;
-        left <<= 1;
-        if (left & 0x100u) left ^= 0x11Du;
+        factor <<= 1;
+        if (factor & 0x100u) factor ^= 0x11Du;
     }
     return (uint8_t)product;
 }

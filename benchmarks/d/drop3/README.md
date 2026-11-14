@@ -6,6 +6,9 @@ The bounded input is a signed 64-bit array of bytes in `[0, 255]`, with at most 
 
 The independent Python source-order oracle is [`benchmarks/drop3_oracle.py`](../../drop3_oracle.py). The pinned source is [`BitBench/drop3/drop3.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/drop3/drop3.c).
 
+The 20 passes take O(n) time and O(1) auxiliary space for n input bytes.
+The [Mojo port](../../../mojo/d/drop3.mojo) is a draft and has not been compiled or run.
+
 Build a language implementation with the `i64_array_scalar` ABI family, for example:
 
 ```sh

@@ -7,8 +7,8 @@ pub unsafe extern "C" fn cbench_ispell_lookup_chain(input:*const i64,len:usize)-
  if len<3+q+m+2*n{return -1}let h0=3+q;let nx0=h0+m;let l0=nx0+n;let mut p=l0+n;
  let query=&a[3..3+q];if query.iter().any(|x|*x<97||*x>122){return -1}
  let mut heads=[-1i64;M];let mut next=[-1i64;E];let mut lens=[0usize;E];let mut off=[0usize;E];
- for b in 0..m{heads[b]=a[h0+b];if heads[b]<-1||heads[b]>=n as i64{return -1}}
- for i in 0..n{next[i]=a[nx0+i];if next[i]<-1||next[i]>=n as i64||a[l0+i]<1||a[l0+i]>W as i64{return -1}lens[i]=a[l0+i] as usize;if p+lens[i]>len{return -1}off[i]=p;if a[p..p+lens[i]].iter().any(|x|*x<97||*x>122){return -1}p+=lens[i]}
+ for b in 0..m{heads[b]=a[h0+b];if heads[b]< -1||heads[b]>=n as i64{return -1}}
+ for i in 0..n{next[i]=a[nx0+i];if next[i]< -1||next[i]>=n as i64||a[l0+i]<1||a[l0+i]>W as i64{return -1}lens[i]=a[l0+i] as usize;if p+lens[i]>len{return -1}off[i]=p;if a[p..p+lens[i]].iter().any(|x|*x<97||*x>122){return -1}p+=lens[i]}
  if p!=len{return -1}let mut seen=[false;E];let mut count=0;
  for b in 0..m{let mut x=heads[b];while x!=-1{let i=x as usize;if seen[i]{return -1}seen[i]=true;count+=1;if ihash(&a[off[i]..off[i]+lens[i]],m)!=b{return -1}x=next[i]}}
  if count!=n{return -1}let b=ihash(query,m);let mut x=heads[b];while x!=-1{let i=x as usize;if lens[i]==q&&a[off[i]..off[i]+q]==a[3..3+q]{return i as i64+1}x=next[i]}0

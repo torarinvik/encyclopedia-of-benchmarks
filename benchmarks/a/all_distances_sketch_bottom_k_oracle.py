@@ -1,6 +1,6 @@
 """Primary oracle for one deterministic bottom-k all-distances sketch."""
 
-MAX_INPUT_LENGTH = 104
+MAX_INPUT_LENGTH = 194
 MAX_OUTPUT_BYTES = 168
 
 

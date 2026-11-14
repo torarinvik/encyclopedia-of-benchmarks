@@ -58,6 +58,7 @@ reproduces the binary32 expression order and table profile independently.
 | C3 | [`c3/d/doe_simplemoc_quadratic_attenuation.c3`](../../../c3/d/doe_simplemoc_quadratic_attenuation.c3) |
 | C++ | [`cpp/d/doe_simplemoc_quadratic_attenuation.cpp`](../../../cpp/d/doe_simplemoc_quadratic_attenuation.cpp) |
 | Elisa | [`elisa/d/doe_simplemoc_quadratic_attenuation.elisa`](../../../elisa/d/doe_simplemoc_quadratic_attenuation.elisa) |
+| Mojo | [`mojo/d/doe_simplemoc_quadratic_attenuation.mojo`](../../../mojo/d/doe_simplemoc_quadratic_attenuation.mojo) (unverified draft) |
 | Nim | [`nim/d/doe_simplemoc_quadratic_attenuation.nim`](../../../nim/d/doe_simplemoc_quadratic_attenuation.nim) |
 | Odin | [`odin/d/doe_simplemoc_quadratic_attenuation.odin`](../../../odin/d/doe_simplemoc_quadratic_attenuation.odin) |
 | Rust | [`rust/d/doe_simplemoc_quadratic_attenuation.rs`](../../../rust/d/doe_simplemoc_quadratic_attenuation.rs) |
@@ -74,4 +75,12 @@ with `axial_exp=2` and builds `solver.c`; random initialization and the full
 one-iteration proxy application are excluded from this bounded workload.
 
 The source is distributed under the MIT License, copyright John Tramm (2014).
-The full notice appears in each port and in [`LICENSE`](LICENSE).
+The full notice is preserved in [`LICENSE`](LICENSE); the Mojo draft points
+to that notice and retains the upstream copyright attribution.
+
+For `g` groups, this fixed-table profile takes `O(g)` time and `O(1)`
+auxiliary space. The Mojo draft records the attribution and references the
+package license notice; it has not been compiled or run.
+Verifier source also includes generated probes on both sides of the final
+interpolation interval and at both permitted axial-offset endpoints; these
+probes have not been run.

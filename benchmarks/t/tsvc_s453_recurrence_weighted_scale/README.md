@@ -40,3 +40,4 @@ The independent oracle is [`benchmarks/tsvc_s453_recurrence_weighted_scale_oracl
 | Rust | [`tsvc_s453_recurrence_weighted_scale.rs`](../../../rust/t/tsvc_s453_recurrence_weighted_scale.rs) |
 | V | [`tsvc_s453_recurrence_weighted_scale.v`](../../../v/t/tsvc_s453_recurrence_weighted_scale.v) |
 | Zig | [`tsvc_s453_recurrence_weighted_scale.zig`](../../../zig/t/tsvc_s453_recurrence_weighted_scale.zig) |
+| Mojo | [`tsvc_s453_recurrence_weighted_scale.mojo`](../../../mojo/t/tsvc_s453_recurrence_weighted_scale.mojo) |

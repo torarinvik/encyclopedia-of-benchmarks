@@ -25,3 +25,5 @@ The ports implement each mode as a mapping over the eight truth-table entries. T
 Source: [`gsropt.h`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/office_ghostscript/src/gsropt.h), at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. Copyright (C) 1995, 1996 Aladdin Enterprises. The complete Aladdin Free Public License v5 is bundled in [`LICENSE.txt`](LICENSE.txt). It permits modification and redistribution subject to conditions, including restrictive noncommercial distribution terms; those restrictions apply to this source-derived profile and must be observed. The ports are independently written.
 
 The independent truth-table remapping oracle is [`benchmarks/ghostscript_rop3_transform_oracle.py`](../../ghostscript_rop3_transform_oracle.py); workload fixtures include every mode and invalid mode/code cases. No runtime verification is claimed.
+
+The [Mojo port](../../../mojo/g/cbench_ghostscript_rop3_transform.mojo) implements the same bounded transformations.

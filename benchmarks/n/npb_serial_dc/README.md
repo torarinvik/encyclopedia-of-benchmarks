@@ -28,6 +28,8 @@ The bounded ports use fixed-size arrays and insertion sorting. They omit generat
 | V | [`v/n/npb_serial_dc.v`](../../../v/n/npb_serial_dc.v) |
 | Zig | [`zig/n/npb_serial_dc.zig`](../../../zig/n/npb_serial_dc.zig) |
 
+The Mojo draft is [`mojo/n/npb_serial_dc.mojo`](../../../mojo/n/npb_serial_dc.mojo). Grouping and insertion-sorting all nonempty views take O(2^d r² d) time and O(rd) space for d dimensions and r rows.
+
 ## Source and rights
 
 The source is pinned to [`lac-dcc/Benchmarks` at `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/NPB-serial/dc). The inspected files are `dc.c`, `adc.c`, `extbuild.c`, `rbt.c`, `ADC.par`, and `info.sh`. The launcher requests ten million input tuples and an external parameter file; this package keeps only the bounded grouping behavior.

@@ -8,7 +8,7 @@ Input is a signed 64-bit array `[m, n]`, where `m` is the square symmetric matri
 
 The computation preserves the source loop order: increasing `i`, then `j`, then `k<i`. It applies each lower-triangle contribution to earlier rows of `C`, accumulates `temp2` in increasing `k`, and updates the current `C[i][j]` with the source expression order. The original program dumps every final `C` element; this scalar-output package returns their binary64 sum in row-major order. Inputs with the wrong length or dimensions outside the bound return `-1e300`.
 
-The ports are independently written in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for bounds and deterministic cases, and [`polybench_symm_oracle.py`](../../polybench_symm_oracle.py) for the separate reference model.
+The ports are independently written in C, C3, C++, Elisa, Mojo, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for bounds and deterministic cases, and [`polybench_symm_oracle.py`](../../polybench_symm_oracle.py) for the separate reference model. The Mojo draft's floating-point contraction behavior has not been verified.
 
 ## Upstream license
 

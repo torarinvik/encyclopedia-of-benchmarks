@@ -8,6 +8,8 @@ This benchmark ports the pinned lac-dcc Shootout `fib2` source. The source recur
 - Return `-1` for negative inputs and inputs above 30. This keeps the uncached recursion bounded and avoids the source's unsafe conversion of negative command-line values to `unsigned long`.
 - Preserve the recursive implementation without memoization. The largest result is 2,178,309, which fits in the signed 64-bit ABI.
 
+The recursive tree takes Θ(φⁿ) time and O(n) call-stack space, where φ is the golden ratio.
+
 [`workload.json`](workload.json) covers the base cases, representative indices, the bound, and invalid inputs. The independent oracle is [`benchmarks/fib2_oracle.py`](../../fib2_oracle.py).
 
 ## Implementations
@@ -23,6 +25,7 @@ This benchmark ports the pinned lac-dcc Shootout `fib2` source. The source recur
 | Rust | [`rust/f/fib2.rs`](../../../rust/f/fib2.rs) |
 | V | [`v/f/fib2.v`](../../../v/f/fib2.v) |
 | Zig | [`zig/f/fib2.zig`](../../../zig/f/fib2.zig) |
+| Mojo | [`mojo/f/fib2.mojo`](../../../mojo/f/fib2.mojo) (unverified draft) |
 
 ## Pinned source
 

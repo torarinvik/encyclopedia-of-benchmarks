@@ -41,6 +41,8 @@ using one in-memory record and a scalar count as its bounded ABI.
 
 ## Implementations
 
+The [Mojo draft](../../../mojo/a/agrep_approx_substring_count.mojo) uses the same streaming dynamic-programming contract and has not been compiled or run.
+
 | Language | Source |
 | --- | --- |
 | C | [`c/a/agrep_approx_substring_count.c`](../../../c/a/agrep_approx_substring_count.c) |

@@ -16,6 +16,8 @@ Only the lower triangle is updated. The strict upper triangle retains its initia
 
 The pinned launcher is [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/syr2k/info.sh); it selects `*.c`, enables `POLYBENCH_DUMP_ARRAYS` and `EXTRALARGE_DATASET`, and supplies no runtime options. The source header defines the extra-large dimensions as `n=2600,m=2000` and defaults the element type to double. The benchmark keeps source loop order while using the bounded profile above.
 
+Initialization and update take O(n²m + n²) time and O(nm + n²) space.
+
 ## Workload and provenance
 
 [`workload.json`](workload.json) records the bounded inputs and source contract. [`syr2k_oracle.py`](../../syr2k_oracle.py) is the independent reference model. Source and launcher files are pinned to commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`:
@@ -30,6 +32,7 @@ The pinned launcher is [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d
 | C | [`c/s/syr2k.c`](../../../c/s/syr2k.c) |
 | C3 | [`c3/s/syr2k.c3`](../../../c3/s/syr2k.c3) |
 | C++ | [`cpp/s/syr2k.cpp`](../../../cpp/s/syr2k.cpp) |
+| Mojo | [`mojo/s/syr2k.mojo`](../../../mojo/s/syr2k.mojo) (draft; not compiled or run) |
 | Elisa | [`elisa/s/syr2k.elisa`](../../../elisa/s/syr2k.elisa) |
 | Nim | [`nim/s/syr2k.nim`](../../../nim/s/syr2k.nim) |
 | Odin | [`odin/s/syr2k.odin`](../../../odin/s/syr2k.odin) |

@@ -41,6 +41,7 @@ extern "C" int64_t kirkpatrick_hierarchical_point_location(const int64_t *input,
     if(!input||length<14||length>MAX_INPUT)return -1;
     int64_t nv=input[0],nl=input[1],qx=input[2],qy=input[3];
     if(nv<3||nv>MAX_VERTICES||nl<1||nl>MAX_LEVELS||qx< -1000||qx>1000||qy< -1000||qy>1000)return -1;
+    if(length<4+2*(size_t)nv)return -1;
     int64_t xy[MAX_VERTICES][2]={{0}},faces[MAX_LEVELS][MAX_FACES][3]={{{0}}};
     int64_t face_count[MAX_LEVELS]={0},candidate_count[MAX_LEVELS][MAX_FACES]={{0}},candidate_ids[MAX_LEVELS][MAX_FACES][MAX_FACES]={{{0}}};
     size_t pos=4;

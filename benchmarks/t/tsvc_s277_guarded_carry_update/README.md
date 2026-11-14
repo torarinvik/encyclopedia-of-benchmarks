@@ -77,3 +77,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s277_guarded_carry_update.rs`](../../../rust/t/tsvc_s277_guarded_carry_update.rs) |
 | V | [`tsvc_s277_guarded_carry_update.v`](../../../v/t/tsvc_s277_guarded_carry_update.v) |
 | Zig | [`tsvc_s277_guarded_carry_update.zig`](../../../zig/t/tsvc_s277_guarded_carry_update.zig) |
+| Mojo | [`tsvc_s277_guarded_carry_update.mojo`](../../../mojo/t/tsvc_s277_guarded_carry_update.mojo) |

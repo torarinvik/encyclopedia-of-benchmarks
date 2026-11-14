@@ -5,7 +5,7 @@ import "core:c"
 // Exact chromatic number through independent-set inclusion-exclusion.
 @(export)
 exact_graph_coloring_inclusion_exclusion :: proc "c" (x:[^]i64,length:c.size_t,out:[^]u8,cap:c.size_t)->i64{
-    if x==nil do return -2
+    if x==nil do return -1
     if length<2||length>44 do return -1
     nv,mv:=x[0],x[1]
     if nv<1||nv>7||mv<0||mv>21||int(length)!=2+2*int(mv) do return -1

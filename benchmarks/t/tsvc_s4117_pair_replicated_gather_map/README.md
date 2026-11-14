@@ -60,3 +60,4 @@ and [workload.json](workload.json).
 | Rust | [tsvc_s4117_pair_replicated_gather_map.rs](../../../rust/t/tsvc_s4117_pair_replicated_gather_map.rs) |
 | V | [tsvc_s4117_pair_replicated_gather_map.v](../../../v/t/tsvc_s4117_pair_replicated_gather_map.v) |
 | Zig | [tsvc_s4117_pair_replicated_gather_map.zig](../../../zig/t/tsvc_s4117_pair_replicated_gather_map.zig) |
+| Mojo | [tsvc_s4117_pair_replicated_gather_map.mojo](../../../mojo/t/tsvc_s4117_pair_replicated_gather_map.mojo) |

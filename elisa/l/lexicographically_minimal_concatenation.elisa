@@ -1,0 +1,227 @@
+# Independent suffix-array/LCP draft; compilation and output are unverified.
+extern calloc(count: usize, size: usize) -> mutable i64&?
+extern free(memory: mutable i64&) -> void
+
+def lmc_suffix_before(a: usize, b: usize, step: usize, n: usize, classes: view[i64]) -> bool:
+    if classes[a] != classes[b]: return classes[a] < classes[b]
+    av: mutable i64 = -1
+    bv: mutable i64 = -1
+    if a + step < n: av <- classes[a + step]
+    if b + step < n: bv <- classes[b + step]
+    av < bv
+
+def lmc_sort_suffixes(sa: mutable view[i64], scratch: mutable view[i64], n: usize,
+                      step: usize, classes: view[i64]) -> void:
+    width: mutable usize = 1
+    while width < n:
+        start: mutable usize = 0
+        while start < n:
+            middle: mutable usize = start + width
+            finish: mutable usize = start + 2 * width
+            if middle > n: middle <- n
+            if finish > n: finish <- n
+            a: mutable usize = start
+            b: mutable usize = middle
+            out: mutable usize = start
+            while a < middle and b < finish:
+                if lmc_suffix_before(sa[b].usize(), sa[a].usize(), step, n, classes):
+                    scratch[out] <- sa[b]
+                    b <- b + 1
+                else:
+                    scratch[out] <- sa[a]
+                    a <- a + 1
+                out <- out + 1
+            while a < middle:
+                scratch[out] <- sa[a]
+                a <- a + 1
+                out <- out + 1
+            while b < finish:
+                scratch[out] <- sa[b]
+                b <- b + 1
+                out <- out + 1
+            start <- finish
+        for i in 0..<n: sa[i] <- scratch[i]
+        width <- width * 2
+
+def lmc_common(a: usize, b: usize, limit: usize, n: usize, rank: view[i64],
+               logs: view[i64], table: view[i64]) -> usize:
+    if a == b: return limit
+    low: mutable usize = rank[a].usize()
+    high: mutable usize = rank[b].usize()
+    if low > high:
+        swap: usize = low
+        low <- high
+        high <- swap
+    low <- low + 1
+    level: usize = logs[high - low + 1].usize()
+    span: usize = 1 << level
+    left: usize = table[level * n + low].usize()
+    right: usize = table[level * n + high - span + 1].usize()
+    best: mutable usize = left
+    if right < best: best <- right
+    if limit < best: best <- limit
+    best
+
+def lmc_word_before(a: usize, b: usize, starts: view[i64], sizes: view[i64], text: view[i64],
+                    n: usize, rank: view[i64], logs: view[i64], table: view[i64]) -> bool:
+    li: mutable usize = 0
+    ri: mutable usize = 0
+    lp: mutable usize = 0
+    rp: mutable usize = 0
+    while li < 2 and ri < 2:
+        lw: mutable usize = a
+        rw: mutable usize = b
+        if li == 1: lw <- b
+        if ri == 1: rw <- a
+        remaining_left: usize = sizes[lw].usize() - lp
+        remaining_right: usize = sizes[rw].usize() - rp
+        limit: mutable usize = remaining_left
+        if remaining_right < limit: limit <- remaining_right
+        start_left: usize = starts[lw].usize() + lp
+        start_right: usize = starts[rw].usize() + rp
+        same: usize = lmc_common(start_left, start_right, limit, n, rank, logs, table)
+        if same < limit: return text[start_left + same] < text[start_right + same]
+        lp <- lp + same
+        rp <- rp + same
+        if lp == sizes[lw].usize():
+            li <- li + 1
+            lp <- 0
+        if rp == sizes[rw].usize():
+            ri <- ri + 1
+            rp <- 0
+    a < b
+
+def lmc_sort_words(order: mutable view[i64], scratch: mutable view[i64], count: usize,
+                   starts: view[i64], sizes: view[i64], text: view[i64], n: usize,
+                   rank: view[i64], logs: view[i64], table: view[i64]) -> void:
+    width: mutable usize = 1
+    while width < count:
+        start: mutable usize = 0
+        while start < count:
+            middle: mutable usize = start + width
+            finish: mutable usize = start + 2 * width
+            if middle > count: middle <- count
+            if finish > count: finish <- count
+            a: mutable usize = start
+            b: mutable usize = middle
+            out: mutable usize = start
+            while a < middle and b < finish:
+                if lmc_word_before(order[b].usize(), order[a].usize(), starts, sizes, text, n, rank, logs, table):
+                    scratch[out] <- order[b]
+                    b <- b + 1
+                else:
+                    scratch[out] <- order[a]
+                    a <- a + 1
+                out <- out + 1
+            while a < middle:
+                scratch[out] <- order[a]
+                a <- a + 1
+                out <- out + 1
+            while b < finish:
+                scratch[out] <- order[b]
+                b <- b + 1
+                out <- out + 1
+            start <- finish
+        for i in 0..<count: order[i] <- scratch[i]
+        width <- width * 2
+
+export fn lexicographically_minimal_concatenation(input: i64&, length: usize,
+                                                   output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length == 0 or input[0] < 0 or input[0] > 16384: return -1
+    count: usize = input[0].usize()
+    values: view[i64] = input[0:length]
+    offset: mutable usize = 1
+    total: mutable usize = 0
+    for i in 0..<count:
+        if offset >= length or values[offset] < 1 or values[offset] > 65536: return -1
+        size: usize = values[offset].usize()
+        offset <- offset + 1
+        if size > 65536 - total or size > length - offset: return -1
+        for j in 0..<size:
+            if values[offset + j] < 97 or values[offset + j] > 122: return -1
+        offset <- offset + size
+        total <- total + size
+    if offset != length: return -1
+    if output == null or capacity < total: return -2
+    if count == 0: return 0
+    n: usize = total + count
+    levels: mutable usize = 1
+    while (1 << levels) <= n: levels <- levels + 1
+    # Six n-sized suffix arrays, n+1 logarithms, a levels*n RMQ table,
+    # and four count-sized word arrays share one heap allocation.
+    workspace_size: usize = (7 + levels) * n + 1 + 4 * count
+    memory: mutable i64& = get calloc(workspace_size, 8) else return -1
+    workspace: mutable view[i64] = memory[0:workspace_size]
+    text: mutable view[i64] = workspace[0:n]
+    sa: mutable view[i64] = workspace[n:2 * n]
+    scratch: mutable view[i64] = workspace[2 * n:3 * n]
+    classes: mutable view[i64] = workspace[3 * n:4 * n]
+    next_classes: mutable view[i64] = workspace[4 * n:5 * n]
+    rank: mutable view[i64] = workspace[5 * n:6 * n]
+    logs: mutable view[i64] = workspace[6 * n:7 * n + 1]
+    table: mutable view[i64] = workspace[7 * n + 1:(7 + levels) * n + 1]
+    word_start: usize = (7 + levels) * n + 1
+    starts: mutable view[i64] = workspace[word_start:word_start + count]
+    sizes: mutable view[i64] = workspace[word_start + count:word_start + 2 * count]
+    order: mutable view[i64] = workspace[word_start + 2 * count:word_start + 3 * count]
+    word_scratch: mutable view[i64] = workspace[word_start + 3 * count:word_start + 4 * count]
+    offset <- 1
+    used: mutable usize = 0
+    for i in 0..<count:
+        size: usize = values[offset].usize()
+        offset <- offset + 1
+        starts[i] <- used.i64()
+        sizes[i] <- size.i64()
+        for j in 0..<size:
+            text[used] <- values[offset + j]
+            used <- used + 1
+        offset <- offset + size
+        text[used] <- 0
+        used <- used + 1
+    for i in 0..<n:
+        sa[i] <- i.i64()
+        classes[i] <- text[i]
+    step: mutable usize = 1
+    while step < n:
+        lmc_sort_suffixes(sa, scratch, n, step, classes)
+        next_classes[sa[0].usize()] <- 0
+        for i in 1..<n:
+            a: usize = sa[i - 1].usize()
+            b: usize = sa[i].usize()
+            next_classes[b] <- next_classes[a]
+            if lmc_suffix_before(a, b, step, n, classes): next_classes[b] <- next_classes[b] + 1
+        for i in 0..<n: classes[i] <- next_classes[i]
+        if classes[sa[n - 1].usize()] == (n - 1).i64(): break
+        step <- step * 2
+    for i in 0..<n: rank[sa[i].usize()] <- i.i64()
+    shared: mutable usize = 0
+    for i in 0..<n:
+        r: usize = rank[i].usize()
+        if r == 0:
+            shared <- 0
+            continue
+        j: usize = sa[r - 1].usize()
+        while i + shared < n and j + shared < n and text[i + shared] == text[j + shared]:
+            shared <- shared + 1
+        table[r] <- shared.i64()
+        if shared > 0: shared <- shared - 1
+    for i in 2..<(n + 1): logs[i] <- logs[i / 2] + 1
+    for level in 1..<levels:
+        width: usize = 1 << level
+        half: usize = width / 2
+        for i in 0..<(n - width + 1):
+            a: i64 = table[(level - 1) * n + i]
+            b: i64 = table[(level - 1) * n + i + half]
+            table[level * n + i] <- a
+            if b < a: table[level * n + i] <- b
+    for i in 0..<count: order[i] <- i.i64()
+    lmc_sort_words(order, word_scratch, count, starts, sizes, text, n, rank, logs, table)
+    output_view: mutable view[u8] = output[0:capacity]
+    written: mutable usize = 0
+    for i in 0..<count:
+        word: usize = order[i].usize()
+        for j in 0..<sizes[word].usize():
+            output_view[written] <- text[starts[word].usize() + j].u8()
+            written <- written + 1
+    free(memory)
+    written.i64()

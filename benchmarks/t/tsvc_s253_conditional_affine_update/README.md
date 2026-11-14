@@ -73,3 +73,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s253_conditional_affine_update.rs`](../../../rust/t/tsvc_s253_conditional_affine_update.rs) |
 | V | [`tsvc_s253_conditional_affine_update.v`](../../../v/t/tsvc_s253_conditional_affine_update.v) |
 | Zig | [`tsvc_s253_conditional_affine_update.zig`](../../../zig/t/tsvc_s253_conditional_affine_update.zig) |
+| Mojo | [`tsvc_s253_conditional_affine_update.mojo`](../../../mojo/t/tsvc_s253_conditional_affine_update.mojo) |

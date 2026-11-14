@@ -50,6 +50,7 @@ and
 | C3 | [`c3/a/apsp_min_plus_repeated_squaring.c3`](../../../c3/a/apsp_min_plus_repeated_squaring.c3) |
 | C++ | [`cpp/a/apsp_min_plus_repeated_squaring.cpp`](../../../cpp/a/apsp_min_plus_repeated_squaring.cpp) |
 | Elisa | [`elisa/a/apsp_min_plus_repeated_squaring.elisa`](../../../elisa/a/apsp_min_plus_repeated_squaring.elisa) |
+| Mojo | [`mojo/a/apsp_min_plus_repeated_squaring.mojo`](../../../mojo/a/apsp_min_plus_repeated_squaring.mojo) (draft, unverified) |
 | Nim | [`nim/a/apsp_min_plus_repeated_squaring.nim`](../../../nim/a/apsp_min_plus_repeated_squaring.nim) |
 | Odin | [`odin/a/apsp_min_plus_repeated_squaring.odin`](../../../odin/a/apsp_min_plus_repeated_squaring.odin) |
 | Rust | [`rust/a/apsp_min_plus_repeated_squaring.rs`](../../../rust/a/apsp_min_plus_repeated_squaring.rs) |

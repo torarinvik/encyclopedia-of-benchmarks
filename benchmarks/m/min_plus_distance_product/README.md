@@ -19,6 +19,9 @@ output checks. Null output or capacity below `8*n*n` bytes returns `-2`
 without writes. Maximum input length is 130 words and maximum output is 512
 bytes.
 
+The direct product takes O(n²m) time and O(n²) auxiliary space for the staged
+output.
+
 This package measures the distance-product operation only. It uses the
 straightforward bounded min-plus loops and does not claim to implement the
 chapter’s Romani fast-multiplication encoding, Zwick bridging-set selection,
@@ -47,6 +50,7 @@ and [`min_plus_distance_product_verifier_oracle.py`](../../min_plus_distance_pro
 | C3 | [`c3/m/min_plus_distance_product.c3`](../../../c3/m/min_plus_distance_product.c3) |
 | C++ | [`cpp/m/min_plus_distance_product.cpp`](../../../cpp/m/min_plus_distance_product.cpp) |
 | Elisa | [`elisa/m/min_plus_distance_product.elisa`](../../../elisa/m/min_plus_distance_product.elisa) |
+| Mojo | [`mojo/m/min_plus_distance_product.mojo`](../../../mojo/m/min_plus_distance_product.mojo) (draft; not compiled or run) |
 | Nim | [`nim/m/min_plus_distance_product.nim`](../../../nim/m/min_plus_distance_product.nim) |
 | Odin | [`odin/m/min_plus_distance_product.odin`](../../../odin/m/min_plus_distance_product.odin) |
 | Rust | [`rust/m/min_plus_distance_product.rs`](../../../rust/m/min_plus_distance_product.rs) |

@@ -1,7 +1,7 @@
 ## Exact chromatic number through independent-set inclusion-exclusion.
 proc exact_graph_coloring_inclusion_exclusion*(x: ptr UncheckedArray[int64], length:csize_t,
     output:ptr UncheckedArray[uint8],cap:csize_t):int64 {.cdecl,exportc:"exact_graph_coloring_inclusion_exclusion".}=
-  if x==nil:return -2
+  if x==nil:return -1
   if length<2 or length>44:return -1
   let nv=x[0];let mv=x[1]
   if nv<1 or nv>7 or mv<0 or mv>21 or int(length)!=2+2*int(mv):return -1

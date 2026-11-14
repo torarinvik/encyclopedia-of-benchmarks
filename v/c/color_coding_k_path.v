@@ -4,6 +4,7 @@ module color_coding_k_path
 @[export: 'color_coding_k_path']
 pub fn color_coding_k_path(values &i64, length usize, output &u8, output_capacity usize) i64 {
     unsafe {
+        if values == nil { return -1 }
         if length < 3 || length > 147 { return -1 }
         nv := values[0]; mv := values[1]; kv := values[2]
         if nv < 1 || nv > 12 || mv < 0 || mv > 66 || kv < 1 || kv > 6 || kv > nv { return -1 }
@@ -36,7 +37,7 @@ pub fn color_coding_k_path(values &i64, length usize, output &u8, output_capacit
                 }
             }
         }
-        if output_capacity < 8 { return -2 }
+        if output == nil || output_capacity < 8 { return -2 }
         if found { output[0] = 1 } else { output[0] = 0 }
         for i := 1; i < 8; i++ { output[i] = 0 }
         return 8

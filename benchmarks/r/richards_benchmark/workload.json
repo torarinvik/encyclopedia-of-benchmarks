@@ -10,7 +10,7 @@
     "paths": ["Misc/richards_benchmark/richards_benchmark.c", "Misc/richards_benchmark/info.sh"],
     "symbols": ["createtask", "schedule", "Wait", "holdself", "release", "qpkt", "idlefn", "workfn", "handlerfn", "devfn"],
     "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/richards_benchmark",
-    "license_note": "The pinned C file and package launcher contain no license declaration. No upstream license is inferred; the nine ports and oracle are clean-room implementations of the observed behavior."
+    "license_note": "The pinned C file and package launcher contain no license declaration. No upstream license is inferred; the ports and oracle are clean-room implementations of the observed behavior."
   },
   "pinned_launcher": {
     "repository": "lac-dcc/Benchmarks",

@@ -57,3 +57,4 @@ and [workload.json](workload.json).
 | Rust | [tsvc_s171_stride_indexed_accumulate.rs](../../../rust/t/tsvc_s171_stride_indexed_accumulate.rs) |
 | V | [tsvc_s171_stride_indexed_accumulate.v](../../../v/t/tsvc_s171_stride_indexed_accumulate.v) |
 | Zig | [tsvc_s171_stride_indexed_accumulate.zig](../../../zig/t/tsvc_s171_stride_indexed_accumulate.zig) |
+| Mojo | [tsvc_s171_stride_indexed_accumulate.mojo](../../../mojo/t/tsvc_s171_stride_indexed_accumulate.mojo) |

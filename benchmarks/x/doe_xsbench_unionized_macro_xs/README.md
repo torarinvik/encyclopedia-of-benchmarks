@@ -76,6 +76,8 @@ search, interpolation, and material accumulation.
 | V | [`v/x/doe_xsbench_unionized_macro_xs.v`](../../../v/x/doe_xsbench_unionized_macro_xs.v) |
 | Zig | [`zig/x/doe_xsbench_unionized_macro_xs.zig`](../../../zig/x/doe_xsbench_unionized_macro_xs.zig) |
 
+The Mojo draft is [`mojo/x/doe_xsbench_unionized_macro_xs.mojo`](../../../mojo/x/doe_xsbench_unionized_macro_xs.mojo). Floating-point contraction and tolerance behavior have not been verified.
+
 ## Provenance and license
 
 The source is pinned to [`lac-dcc/Benchmarks`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/DOE_ProxyApps_C/XSBench)

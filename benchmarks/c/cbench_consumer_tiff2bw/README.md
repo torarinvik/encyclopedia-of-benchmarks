@@ -56,12 +56,18 @@ null input, null output, and insufficient capacity. The independent oracle is
 
 | Language | Port |
 |---|---|
-| C | [`cbench_consumer_tiff2bw.c`](../../../c/cbench_consumer_tiff2bw.c) |
-| C3 | [`cbench_consumer_tiff2bw.c3`](../../../c3/cbench_consumer_tiff2bw.c3) |
-| C++ | [`cbench_consumer_tiff2bw.cpp`](../../../cpp/cbench_consumer_tiff2bw.cpp) |
+| C | [`cbench_consumer_tiff2bw.c`](../../../c/c/cbench_consumer_tiff2bw.c) |
+| C3 | [`cbench_consumer_tiff2bw.c3`](../../../c3/c/cbench_consumer_tiff2bw.c3) |
+| C++ | [`cbench_consumer_tiff2bw.cpp`](../../../cpp/c/cbench_consumer_tiff2bw.cpp) |
 | Elisa | [`cbench_consumer_tiff2bw.elisa`](../../../elisa/c/cbench_consumer_tiff2bw.elisa) |
+| Mojo | [`cbench_consumer_tiff2bw.mojo`](../../../mojo/c/cbench_consumer_tiff2bw.mojo) (uncompiled draft) |
 | Nim | [`cbench_consumer_tiff2bw.nim`](../../../nim/c/cbench_consumer_tiff2bw.nim) |
 | Odin | [`cbench_consumer_tiff2bw.odin`](../../../odin/c/cbench_consumer_tiff2bw.odin) |
 | Rust | [`cbench_consumer_tiff2bw.rs`](../../../rust/c/cbench_consumer_tiff2bw.rs) |
 | V | [`cbench_consumer_tiff2bw.v`](../../../v/c/cbench_consumer_tiff2bw.v) |
 | Zig | [`cbench_consumer_tiff2bw.zig`](../../../zig/c/cbench_consumer_tiff2bw.zig) |
+
+The conversion takes O(n) time and O(1) auxiliary space for n pixels. The
+Mojo draft has not been compiled or run.
+The workload validator specifies source-presence and notice checks for all
+ten ports; those checks have not been executed.

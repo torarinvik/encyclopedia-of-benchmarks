@@ -70,3 +70,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s442_indexed_square_accumulate.rs`](../../../rust/t/tsvc_s442_indexed_square_accumulate.rs) |
 | V | [`tsvc_s442_indexed_square_accumulate.v`](../../../v/t/tsvc_s442_indexed_square_accumulate.v) |
 | Zig | [`tsvc_s442_indexed_square_accumulate.zig`](../../../zig/t/tsvc_s442_indexed_square_accumulate.zig) |
+| Mojo | [`tsvc_s442_indexed_square_accumulate.mojo`](../../../mojo/t/tsvc_s442_indexed_square_accumulate.mojo) (draft, unverified) |

@@ -57,3 +57,4 @@ benchmarks/sugiyama_barycentric_crossing_reduction_verifier_oracle.py.
 | Rust | rust/s/sugiyama_barycentric_crossing_reduction.rs |
 | V | v/s/sugiyama_barycentric_crossing_reduction.v |
 | Zig | zig/s/sugiyama_barycentric_crossing_reduction.zig |
+| Mojo | [mojo/s/sugiyama_barycentric_crossing_reduction.mojo](../../../mojo/s/sugiyama_barycentric_crossing_reduction.mojo) |

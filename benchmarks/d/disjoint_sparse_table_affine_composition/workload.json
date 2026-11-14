@@ -39,7 +39,7 @@
     "bytes": 512,
     "meaning": "Maximum output-buffer capacity for 32 affine query-result pairs."
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Precompute disjoint suffix and prefix folds around each power-of-two midpoint; select a query level by the highest set bit of left XOR right and combine its two ordered folds.",
     "independent_oracle": "For each range, directly apply every map to x=0 and x=1, then recover B=F(0) and A=F(1)-F(0) modulo the field.",
     "complexity": "O(N log N) preprocessing and O(1) combines per query; direct oracle work is O(sum of queried range lengths)."

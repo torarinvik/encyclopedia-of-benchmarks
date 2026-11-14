@@ -34,3 +34,4 @@ The independent oracle is [`benchmarks/tsvc_s2275_matrix_vector_axpy_interleave_
 | Rust | [`tsvc_s2275_matrix_vector_axpy_interleave.rs`](../../../rust/t/tsvc_s2275_matrix_vector_axpy_interleave.rs) |
 | V | [`tsvc_s2275_matrix_vector_axpy_interleave.v`](../../../v/t/tsvc_s2275_matrix_vector_axpy_interleave.v) |
 | Zig | [`tsvc_s2275_matrix_vector_axpy_interleave.zig`](../../../zig/t/tsvc_s2275_matrix_vector_axpy_interleave.zig) |
+| Mojo | [`tsvc_s2275_matrix_vector_axpy_interleave.mojo`](../../../mojo/t/tsvc_s2275_matrix_vector_axpy_interleave.mojo) |

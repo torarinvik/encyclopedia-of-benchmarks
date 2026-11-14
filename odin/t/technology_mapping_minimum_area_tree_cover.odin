@@ -22,7 +22,7 @@ technology_mapping_minimum_area_tree_cover :: proc "c" (input:[^]i64,length:c.si
             if costs[3]>=0&&kind[r]==1{candidate=costs[3]+best[l]+best[left[r]];if candidate<INF&&candidate<best[i]{best[i]=candidate;choice[i]=3}}
             if costs[4]>=0&&kind[l]==1&&kind[r]==1{candidate=costs[4]+best[left[l]]+best[left[r]];if candidate<INF&&candidate<best[i]{best[i]=candidate;choice[i]=4}}}}
     if best[0]==INF{return -1};mapping:[MAX_N]i64;for i:=0;i<n;i+=1{mapping[i]=-3;if kind[i]==0{mapping[i]=-1}}
-    stack:[2*MAX_N]int;top:=0;if kind[0]!=0{stack[top]=0;top+=1};for top>0{top-=1;node:=stack[top];p:=choice[node];l,r:=left[node],right[node];mapping[node]=i64(p)
+    stack:[2*MAX_N]int;top:=0;if kind[0]!=0{stack[top]=0;top+=1};for top>0{top-=1;node:=stack[top];if kind[node]==0{continue};p:=choice[node];l,r:=left[node],right[node];mapping[node]=i64(p)
         if p==0{stack[top]=l;top+=1}else if p==1{stack[top]=l;top+=1;stack[top]=r;top+=1}else if p==2{mapping[l]=-2;stack[top]=left[l];top+=1;stack[top]=r;top+=1}else if p==3{mapping[r]=-2;stack[top]=l;top+=1;stack[top]=left[r];top+=1}else{mapping[l]=-2;mapping[r]=-2;stack[top]=left[l];top+=1;stack[top]=left[r];top+=1}}
     bytes:=8*(n+1);if output==nil||capacity<c.size_t(bytes){return -2};staged:[MAX_OUTPUT]u8;put_i64(&staged[0],0,best[0]);for i:=0;i<n;i+=1{put_i64(&staged[0],8*(i+1),mapping[i])};for i:=0;i<bytes;i+=1{output[i]=staged[i]};return i64(bytes)
 }

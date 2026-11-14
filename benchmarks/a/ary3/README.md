@@ -4,7 +4,7 @@ This package ports [the `Shootout/ary3/ary3.c` source](https://github.com/lac-dc
 
 The bounded profile accepts a signed 64-bit length `n` from 1 through 4096. It initializes `x[i]=i+1` and zeroes `y`, then performs 1000 passes over indices in descending order with `y[i] += x[i]`. The function returns the exact ASCII bytes the source prints: `y[0]`, one space, `y[n-1]`, and a newline. The source defaults to 1,500,000 elements (150,000 with `SMALL_PROBLEM_SIZE`), but this suite contract uses explicit bounded lengths. Nonpositive lengths are rejected because `n=0` would access `y[-1]` in the source.
 
-The independent [Python oracle](../../ary3_oracle.py) performs the same bounded initialization and repeated reverse traversal. [`workload.json`](workload.json) includes ordinary, boundary, invalid, short-capacity, and null-output cases. The ports are independently written in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig.
+The independent [Python oracle](../../ary3_oracle.py) performs the same bounded initialization and repeated reverse traversal. [`workload.json`](workload.json) includes ordinary, boundary, invalid, short-capacity, and null-output cases. Ten language sources are present; the Mojo draft remains unverified.
 
 ## Implementations
 
@@ -14,6 +14,7 @@ The independent [Python oracle](../../ary3_oracle.py) performs the same bounded 
 | C3 | [`c3/a/ary3.c3`](../../../c3/a/ary3.c3) |
 | C++ | [`cpp/a/ary3.cpp`](../../../cpp/a/ary3.cpp) |
 | Elisa | [`elisa/a/ary3.elisa`](../../../elisa/a/ary3.elisa) |
+| Mojo | [`mojo/a/ary3.mojo`](../../../mojo/a/ary3.mojo) (draft, unverified) |
 | Nim | [`nim/a/ary3.nim`](../../../nim/a/ary3.nim) |
 | Odin | [`odin/a/ary3.odin`](../../../odin/a/ary3.odin) |
 | Rust | [`rust/a/ary3.rs`](../../../rust/a/ary3.rs) |

@@ -62,7 +62,7 @@ fn makeHull(points: *[MAX_SITES]Point, n: usize, hull: *[MAX_SITES*2]usize) usiz
 }
 fn packCircle(points: *const [MAX_SITES]Point, hull: *const [MAX_SITES*2]usize) i64 {
     const tri=[_]Point{points.*[hull.*[0]],points.*[hull.*[1]],points.*[hull.*[2]]};
-    const sides=[_]i64{length2(tri[0],tri[1]),length2(tri[1],tri[2]),length2(tri[0],tri[2])};
+    const sides=[_]i64{length2(tri[1],tri[2]),length2(tri[0],tri[2]),length2(tri[0],tri[1])};
     var opposite:usize=0;var u:usize=1;var v:usize=2;var longest=sides[0];
     if(sides[1]>longest){longest=sides[1];opposite=1;u=0;v=2;}if(sides[2]>longest){longest=sides[2];opposite=2;u=0;v=1;}
     const o=tri[opposite];const dot=@as(f64,@floatFromInt(tri[u].x-o.x))*@as(f64,@floatFromInt(tri[v].x-o.x))+@as(f64,@floatFromInt(tri[u].y-o.y))*@as(f64,@floatFromInt(tri[v].y-o.y));

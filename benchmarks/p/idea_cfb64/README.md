@@ -20,8 +20,15 @@ Independent oracle: [`idea_cfb64_oracle.py`](../../idea_cfb64_oracle.py). Worklo
 - C3: [`c3/p/idea_cfb64.c3`](../../../c3/p/idea_cfb64.c3)
 - C++: [`cpp/p/idea_cfb64.cpp`](../../../cpp/p/idea_cfb64.cpp)
 - Elisa: [`elisa/p/idea_cfb64.elisa`](../../../elisa/p/idea_cfb64.elisa)
+- Mojo: [`mojo/p/idea_cfb64.mojo`](../../../mojo/p/idea_cfb64.mojo) (unverified draft)
 - Nim: [`nim/p/idea_cfb64.nim`](../../../nim/p/idea_cfb64.nim)
 - Odin: [`odin/p/idea_cfb64.odin`](../../../odin/p/idea_cfb64.odin)
 - Rust: [`rust/p/idea_cfb64.rs`](../../../rust/p/idea_cfb64.rs)
 - V: [`v/p/idea_cfb64.v`](../../../v/p/idea_cfb64.v)
 - Zig: [`zig/p/idea_cfb64.zig`](../../../zig/p/idea_cfb64.zig)
+
+For `n` payload bytes, this fixed-block profile takes `O(n)` time and `O(n)`
+staging space. The Mojo source has not been compiled or run.
+The verifier source also specifies encryption/decryption round trips for each
+supported length and compares first-block output with the single-block IDEA
+reference for boundary-valued keys and IVs. These checks have not been run.

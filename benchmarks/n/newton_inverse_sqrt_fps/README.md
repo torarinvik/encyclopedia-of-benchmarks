@@ -7,3 +7,7 @@ The `i64_array_bytes_output` input is `[N,f_0,...,f_(N-1)]`, with `1<=N<=64`, ea
 Starting at `g=1 mod x`, each iteration doubles the correct precision using `g <- g*(3-f*g²)/2` in the truncated field-series ring. Direct schoolbook multiplication gives O(N²) field operations across the doubling stages and O(N) storage. This differs from the local [`sqrt_of_formal_power_series`](../../s/sqrt_of_formal_power_series/README.md), which solves for a square root by coefficient recurrence, and [`newton_reciprocal_fps`](../newton_reciprocal_fps/README.md), which computes a reciprocal without a square root.
 
 The method is based on the mathematical description in [FLINT](https://flintlib.org/doc/acb_poly/index.html); no source code or prose was copied. The primary oracle uses Newton iteration and the independently validating reference uses a derivative-based coefficient recurrence. Drafts in all ten languages, workload, package checker, and byte-output suite registration are present. Nothing has been run; further review remains necessary.
+
+The generated verifier source includes a maximum-length alternating-series
+identity and a highest-degree correction case, in addition to random series.
+These checks have not been run.

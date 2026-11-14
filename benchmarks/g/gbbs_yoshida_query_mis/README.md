@@ -43,8 +43,13 @@ ParlayLib commit
 where the transform is in
 [`include/parlay/utilities.h`](https://github.com/ParAlg/parlaylib/blob/352f5367a6b3bd2f0c6f05882cdd02e978e349ea/include/parlay/utilities.h#L176-L185).
 GBBS and ParlayLib are MIT licensed; both complete notices are retained in
-[`LICENSE.txt`](LICENSE.txt). The nine language ports are clean-room
+[`LICENSE.txt`](LICENSE.txt). The language ports are clean-room
 implementations of the query semantics.
+
+For n vertices, the bounded adjacency representation and insertion-sorted
+neighbor lists take O(n³) worst-case preprocessing time and O(n²) space.
+The recursive query inspects at most the supplied cutoff number of neighbors;
+strictly decreasing priorities bound its recursion depth by n.
 
 ## Ports
 
@@ -54,6 +59,7 @@ implementations of the query semantics.
 | C3 | [`c3/g/gbbs_yoshida_query_mis.c3`](../../../c3/g/gbbs_yoshida_query_mis.c3) |
 | C++ | [`cpp/g/gbbs_yoshida_query_mis.cpp`](../../../cpp/g/gbbs_yoshida_query_mis.cpp) |
 | Elisa | [`elisa/g/gbbs_yoshida_query_mis.elisa`](../../../elisa/g/gbbs_yoshida_query_mis.elisa) |
+| Mojo | [`mojo/g/gbbs_yoshida_query_mis.mojo`](../../../mojo/g/gbbs_yoshida_query_mis.mojo) (draft; not compiled or run) |
 | Nim | [`nim/g/gbbs_yoshida_query_mis.nim`](../../../nim/g/gbbs_yoshida_query_mis.nim) |
 | Odin | [`odin/g/gbbs_yoshida_query_mis.odin`](../../../odin/g/gbbs_yoshida_query_mis.odin) |
 | Rust | [`rust/g/gbbs_yoshida_query_mis.rs`](../../../rust/g/gbbs_yoshida_query_mis.rs) |

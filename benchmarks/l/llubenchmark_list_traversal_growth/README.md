@@ -23,7 +23,10 @@ The independent oracle uses a separately written index-linked model. The workloa
 
 The pinned source is [`llubenchmark/llubenchmark.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/llubenchmark/llubenchmark.c) in LAC-DCC `Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`; the launcher is [`llubenchmark/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/llubenchmark/info.sh). The source header attributes the benchmark to Craig Zilles and describes linked-list traversal with optional extension. No explicit license grant was found in the pinned source or repository material reviewed. These ports are clean-room implementations and claim no upstream license or endorsement. See [`LICENSE.txt`](LICENSE.txt) for the rights note.
 
-The independent oracle is [`benchmarks/llubenchmark_list_traversal_growth_oracle.py`](../../llubenchmark_list_traversal_growth_oracle.py). Suite registration is handled separately.
+The independent oracle is [`benchmarks/llubenchmark_list_traversal_growth_oracle.py`](../../llubenchmark_list_traversal_growth_oracle.py). The package is registered in the `i64_array_bytes_output` runner and verifier.
+
+For L lists, initial length N, and I iterations, this profile uses
+O(L(N + I)(I + 1)) time and O(L(N + I)) space.
 
 ## Ports
 
@@ -33,6 +36,7 @@ The independent oracle is [`benchmarks/llubenchmark_list_traversal_growth_oracle
 | C3 | [`llubenchmark_list_traversal_growth.c3`](../../../c3/l/llubenchmark_list_traversal_growth.c3) |
 | C++ | [`llubenchmark_list_traversal_growth.cpp`](../../../cpp/l/llubenchmark_list_traversal_growth.cpp) |
 | Elisa | [`llubenchmark_list_traversal_growth.elisa`](../../../elisa/l/llubenchmark_list_traversal_growth.elisa) |
+| Mojo | [`llubenchmark_list_traversal_growth.mojo`](../../../mojo/l/llubenchmark_list_traversal_growth.mojo) |
 | Nim | [`llubenchmark_list_traversal_growth.nim`](../../../nim/l/llubenchmark_list_traversal_growth.nim) |
 | Odin | [`llubenchmark_list_traversal_growth.odin`](../../../odin/l/llubenchmark_list_traversal_growth.odin) |
 | Rust | [`llubenchmark_list_traversal_growth.rs`](../../../rust/l/llubenchmark_list_traversal_growth.rs) |

@@ -27,6 +27,7 @@ Source: “Color Coding,” *Encyclopedia of Algorithms*, DOI `10.1007/978-1-493
 | C3 | [`c3/c/color_coding_random_k_path.c3`](../../../c3/c/color_coding_random_k_path.c3) |
 | C++ | [`cpp/c/color_coding_random_k_path.cpp`](../../../cpp/c/color_coding_random_k_path.cpp) |
 | Elisa | [`elisa/c/color_coding_random_k_path.elisa`](../../../elisa/c/color_coding_random_k_path.elisa) |
+| Mojo | [`mojo/c/color_coding_random_k_path.mojo`](../../../mojo/c/color_coding_random_k_path.mojo) (draft, unverified) |
 | Nim | [`nim/c/color_coding_random_k_path.nim`](../../../nim/c/color_coding_random_k_path.nim) |
 | Odin | [`odin/c/color_coding_random_k_path.odin`](../../../odin/c/color_coding_random_k_path.odin) |
 | Rust | [`rust/c/color_coding_random_k_path.rs`](../../../rust/c/color_coding_random_k_path.rs) |

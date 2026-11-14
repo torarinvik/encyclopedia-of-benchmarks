@@ -12,6 +12,9 @@ This clean-room profile implements the deterministic Doubling Algorithm summariz
 
 The output is a permutation because the highest level has capacity `W` and positive processing times make its selected set contain all jobs; the per-job lowest containing level assigns each job once. The stable tie choices only select one of the chapter-permitted optimal knapsack subsets and one permitted within-level ordering.
 
+For n jobs and total weight W, the level DPs take O(nW) time in total and
+O(W+n) auxiliary space, plus O(n log W) for grouping jobs by level.
+
 ## Provenance and rights
 
 The mathematical algorithm is attributed to Julián Mestre and Nicole Megow, “Universal Sequencing on an Unreliable Machine,” *Encyclopedia of Algorithms*, DOI `10.1007/978-1-4939-2864-4_543`. The chapter and its summarized original papers remain copyrighted. This package contains no copied source code, prose, or figures; the ports are clean-room implementations of the stated knapsack-and-doubling rule. No upstream code license is asserted. See [`RIGHTS.md`](RIGHTS.md).
@@ -28,6 +31,7 @@ The mathematical algorithm is attributed to Julián Mestre and Nicole Megow, “
 | C3 | [`c3/t/universal_sequencing_doubling.c3`](../../../c3/t/universal_sequencing_doubling.c3) |
 | C++ | [`cpp/t/universal_sequencing_doubling.cpp`](../../../cpp/t/universal_sequencing_doubling.cpp) |
 | Elisa | [`elisa/t/universal_sequencing_doubling.elisa`](../../../elisa/t/universal_sequencing_doubling.elisa) |
+| Mojo | [`mojo/t/universal_sequencing_doubling.mojo`](../../../mojo/t/universal_sequencing_doubling.mojo) (draft; not compiled or run) |
 | Nim | [`nim/t/universal_sequencing_doubling.nim`](../../../nim/t/universal_sequencing_doubling.nim) |
 | Odin | [`odin/t/universal_sequencing_doubling.odin`](../../../odin/t/universal_sequencing_doubling.odin) |
 | Rust | [`rust/t/universal_sequencing_doubling.rs`](../../../rust/t/universal_sequencing_doubling.rs) |

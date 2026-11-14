@@ -25,10 +25,13 @@ pub extern "C" fn rodinia_myocyte_cam_rhs(input: *const i64, length: usize) -> f
     if !(kd02 > 0.0 && kd24 > 0.0) { return BAD; }
     let (k20, k42) = (10.0f32, 500.0f32);
     let (k02, k24) = (k20/kd02, k42/kd24);
-    let (k0boff, k0bon) = (0.0014f32, (0.0014f64/0.2) as f32);
+    let k0boff = 0.0014f32;
+    let k0bon = (k0boff as f64 / 0.2) as f32;
     let (k2boff, k2bon, k4boff, k4bon) = (k0boff/100.0, k0bon, k0boff/100.0, k0bon);
     let (k20b, k02b, k42b, k24b) = (k20/100.0, k02, k42, k24);
-    let (kbi, kib, kpp1, kmpp1) = (2.2f32, (2.2f64/33.5e-3) as f32, 1.72f32, 11.5f32);
+    let kbi = 2.2f32;
+    let kib = (kbi as f64 / 33.5e-3) as f32;
+    let (kpp1, kmpp1) = (1.72f32, 11.5f32);
     let (kib2, kb2i, kb24, kb42) = (kib, kib*5.0, k24, (500.0f64*33.5e-3/5.0) as f32);
     let (kta, kat, kt42, kt24, kat2, kt2a) = (kbi/1000.0, kib, (500.0f64*33.5e-6/5.0) as f32, k24, kib, kib*5.0);
     let (kcan_caoff, kcan_caon) = (1.0f32, (1.0f64/0.5) as f32);

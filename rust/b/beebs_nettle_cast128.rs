@@ -260,18 +260,30 @@ fn write32(p: &mut [u8], o: usize, v: u32) { p[o]=(v>>24) as u8;p[o+1]=(v>>16) a
 fn expand_step(x: &mut [u8;16], k: &mut [u32;32], q: usize) {
     let mut z=[0u8;16];let mut n=[0u8;16];
     write32(&mut z,0,read32(x,0)^sbox(4,x[13])^sbox(5,x[15])^sbox(6,x[12])^sbox(7,x[14])^sbox(6,x[8]));
-    write32(&mut z,4,read32(x,8)^sbox(4,z[0])^sbox(5,z[2])^sbox(6,z[1])^sbox(7,z[3])^sbox(7,x[10]));
-    write32(&mut z,8,read32(x,12)^sbox(4,z[7])^sbox(5,z[6])^sbox(6,z[5])^sbox(7,z[4])^sbox(4,x[9]));
-    write32(&mut z,12,read32(x,4)^sbox(4,z[10])^sbox(5,z[9])^sbox(6,z[11])^sbox(7,z[8])^sbox(5,x[11]));
+    let word=read32(x,8)^sbox(4,z[0])^sbox(5,z[2])^sbox(6,z[1])^sbox(7,z[3])^sbox(7,x[10]); write32(&mut z,4,word);
+    let word=read32(x,12)^sbox(4,z[7])^sbox(5,z[6])^sbox(6,z[5])^sbox(7,z[4])^sbox(4,x[9]); write32(&mut z,8,word);
+    let word=read32(x,4)^sbox(4,z[10])^sbox(5,z[9])^sbox(6,z[11])^sbox(7,z[8])^sbox(5,x[11]); write32(&mut z,12,word);
     k[q]=sbox(4,z[8])^sbox(5,z[9])^sbox(6,z[7])^sbox(7,z[6])^sbox(4,z[2]);k[q+1]=sbox(4,z[10])^sbox(5,z[11])^sbox(6,z[5])^sbox(7,z[4])^sbox(5,z[6]);
     k[q+2]=sbox(4,z[12])^sbox(5,z[13])^sbox(6,z[3])^sbox(7,z[2])^sbox(6,z[9]);k[q+3]=sbox(4,z[14])^sbox(5,z[15])^sbox(6,z[1])^sbox(7,z[0])^sbox(7,z[12]);
+    if (q / 8) % 2 != 0 {
+        k[q]=sbox(4,z[3])^sbox(5,z[2])^sbox(6,z[12])^sbox(7,z[13])^sbox(4,z[9]);
+        k[q+1]=sbox(4,z[1])^sbox(5,z[0])^sbox(6,z[14])^sbox(7,z[15])^sbox(5,z[12]);
+        k[q+2]=sbox(4,z[7])^sbox(5,z[6])^sbox(6,z[8])^sbox(7,z[9])^sbox(6,z[2]);
+        k[q+3]=sbox(4,z[5])^sbox(5,z[4])^sbox(6,z[10])^sbox(7,z[11])^sbox(7,z[6]);
+    }
     write32(&mut n,0,read32(&z,8)^sbox(4,z[5])^sbox(5,z[7])^sbox(6,z[4])^sbox(7,z[6])^sbox(6,z[0]));
-    write32(&mut n,4,read32(&z,0)^sbox(4,x[0])^sbox(5,x[2])^sbox(6,x[1])^sbox(7,x[3])^sbox(7,z[2]));
-    write32(&mut n,8,read32(&z,4)^sbox(4,x[7])^sbox(5,x[6])^sbox(6,x[5])^sbox(7,x[4])^sbox(4,z[1]));
-    write32(&mut n,12,read32(&z,12)^sbox(4,x[10])^sbox(5,x[9])^sbox(6,x[11])^sbox(7,x[8])^sbox(5,z[3]));
+    let word=read32(&z,0)^sbox(4,n[0])^sbox(5,n[2])^sbox(6,n[1])^sbox(7,n[3])^sbox(7,z[2]); write32(&mut n,4,word);
+    let word=read32(&z,4)^sbox(4,n[7])^sbox(5,n[6])^sbox(6,n[5])^sbox(7,n[4])^sbox(4,z[1]); write32(&mut n,8,word);
+    let word=read32(&z,12)^sbox(4,n[10])^sbox(5,n[9])^sbox(6,n[11])^sbox(7,n[8])^sbox(5,z[3]); write32(&mut n,12,word);
     *x=n;
     k[q+4]=sbox(4,x[3])^sbox(5,x[2])^sbox(6,x[12])^sbox(7,x[13])^sbox(4,x[8]);k[q+5]=sbox(4,x[1])^sbox(5,x[0])^sbox(6,x[14])^sbox(7,x[15])^sbox(5,x[13]);
     k[q+6]=sbox(4,x[7])^sbox(5,x[6])^sbox(6,x[8])^sbox(7,x[9])^sbox(6,x[3]);k[q+7]=sbox(4,x[5])^sbox(5,x[4])^sbox(6,x[10])^sbox(7,x[11])^sbox(7,x[7]);
+    if (q / 8) % 2 != 0 {
+        k[q+4]=sbox(4,x[8])^sbox(5,x[9])^sbox(6,x[7])^sbox(7,x[6])^sbox(4,x[3]);
+        k[q+5]=sbox(4,x[10])^sbox(5,x[11])^sbox(6,x[5])^sbox(7,x[4])^sbox(5,x[7]);
+        k[q+6]=sbox(4,x[12])^sbox(5,x[13])^sbox(6,x[3])^sbox(7,x[2])^sbox(6,x[8]);
+        k[q+7]=sbox(4,x[14])^sbox(5,x[15])^sbox(6,x[1])^sbox(7,x[0])^sbox(7,x[13]);
+    }
 }
 fn rotl(v:u32,n:u32)->u32{let n=n&31;(v<<n)|(v>>((32-n)&31))}
 fn encrypt(key:&[u8;16],block:&[u8;8])->[u8;8]{

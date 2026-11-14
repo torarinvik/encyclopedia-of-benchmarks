@@ -23,11 +23,17 @@ The pinned source contains Hewlett-Packard's restrictive software license notice
 | C3 | [`c3/b/bmm.c3`](../../../c3/b/bmm.c3) |
 | C++ | [`cpp/b/bmm.cpp`](../../../cpp/b/bmm.cpp) |
 | Elisa | [`elisa/b/bmm.elisa`](../../../elisa/b/bmm.elisa) |
+| Mojo | [`mojo/b/bmm.mojo`](../../../mojo/b/bmm.mojo) (draft, unverified) |
 | Nim | [`nim/b/bmm.nim`](../../../nim/b/bmm.nim) |
 | Odin | [`odin/b/bmm.odin`](../../../odin/b/bmm.odin) |
 | Rust | [`rust/b/bmm.rs`](../../../rust/b/bmm.rs) |
 | V | [`v/b/bmm.v`](../../../v/b/bmm.v) |
 | Zig | [`zig/b/bmm.zig`](../../../zig/b/bmm.zig) |
+
+The bounded kernel takes O(NUM³ + 1024·NUM) time and O(NUM²) working
+space. The verifier specifies several block sizes for the same matrix size and
+non-power-of-two dimensions to exercise tile traversal. The Mojo draft and
+those cases have not been compiled or run.
 
 ## Pinned source
 

@@ -8,13 +8,16 @@ The `float64_slice_io` symbol is `polybench_seidel_2d(input,input_length,output,
 
 Return all `n*n` cells row-major. Invalid input returns -1. Null or undersized output returns -2 after validation; implementations stage results before writing, so errors leave output untouched. The maximum output is 36 doubles, returned numerically rather than in the source's formatted dump.
 
+For T sweeps and dimension n, initialization and updates take O((T+1)n²)
+time and O(n²) space.
+
 ## Workload and oracle
 
 [`workload.json`](workload.json) defines bounded valid and invalid cases. [`benchmarks/polybench_seidel_2d_oracle.py`](../../polybench_seidel_2d_oracle.py) independently applies the in-place traversal and source initialization.
 
 ## Ports
 
-The nine implementations are in the corresponding `c/s`, `c3/s`, `cpp/s`, `elisa/s`, `nim/s`, `odin/s`, `rust/s`, `v/s`, and `zig/s` directories as `polybench_seidel_2d` source files.
+Implementations are in the corresponding `c/s`, `c3/s`, `cpp/s`, `elisa/s`, [`mojo/s`](../../../mojo/s/polybench_seidel_2d.mojo), `nim/s`, `odin/s`, `rust/s`, `v/s`, and `zig/s` directories as `polybench_seidel_2d` source files. The Mojo draft has not been compiled or run.
 
 ## Pinned source and license
 

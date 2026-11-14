@@ -5,7 +5,7 @@
 int64_t color_coding_k_path(const int64_t *values, size_t length,
                             uint8_t *output, size_t output_capacity)
 {
-    if (values == NULL) return -2;
+    if (values == NULL) return -1;
     if (length < 3 || length > 147) return -1;
     int64_t nv = values[0], mv = values[1], kv = values[2];
     if (nv < 1 || nv > 12 || mv < 0 || mv > 66 || kv < 1 || kv > 6 || kv > nv) return -1;

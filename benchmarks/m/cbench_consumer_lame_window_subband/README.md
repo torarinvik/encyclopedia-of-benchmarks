@@ -55,6 +55,7 @@ hand-derived case. No runtime validation is claimed.
 - C3: [`c3/m/cbench_consumer_lame_window_subband.c3`](../../../c3/m/cbench_consumer_lame_window_subband.c3)
 - C++: [`cpp/m/cbench_consumer_lame_window_subband.cpp`](../../../cpp/m/cbench_consumer_lame_window_subband.cpp)
 - Elisa: [`elisa/m/cbench_consumer_lame_window_subband.elisa`](../../../elisa/m/cbench_consumer_lame_window_subband.elisa)
+- Mojo: [`mojo/m/cbench_consumer_lame_window_subband.mojo`](../../../mojo/m/cbench_consumer_lame_window_subband.mojo) (unvalidated draft)
 - Nim: [`nim/m/cbench_consumer_lame_window_subband.nim`](../../../nim/m/cbench_consumer_lame_window_subband.nim)
 - Odin: [`odin/m/cbench_consumer_lame_window_subband.odin`](../../../odin/m/cbench_consumer_lame_window_subband.odin)
 - Rust: [`rust/m/cbench_consumer_lame_window_subband.rs`](../../../rust/m/cbench_consumer_lame_window_subband.rs)
@@ -62,3 +63,6 @@ hand-derived case. No runtime validation is claimed.
 - Zig: [`zig/m/cbench_consumer_lame_window_subband.zig`](../../../zig/m/cbench_consumer_lame_window_subband.zig)
 - Oracle: [`cbench_consumer_lame_window_subband_oracle.py`](../../cbench_consumer_lame_window_subband_oracle.py)
 - Workload: [`workload.json`](workload.json)
+
+The fixed 511-sample, 32-band profile uses O(1) time and space per call;
+generalizing the cosine mix to `b` bands gives O(b²) mixing work.

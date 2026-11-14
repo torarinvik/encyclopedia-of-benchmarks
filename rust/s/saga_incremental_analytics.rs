@@ -24,7 +24,7 @@ pub unsafe extern "C" fn saga_incremental_analytics(
     let mode64 = values[0]; let n64 = values[1]; let base64 = values[2];
     let added64 = values[3]; let source64 = values[4];
     if !(1..=6).contains(&mode64) || !(2..=MAX_N as i64).contains(&n64) ||
-        base64 < 0 || added64 < 1 || base64 + added64 > MAX_E as i64 ||
+        base64 < 0 || base64 > MAX_E as i64 || added64 < 1 || added64 > MAX_E as i64 || base64 + added64 > MAX_E as i64 ||
         length != 5 + n64 as usize + 3 * (base64 + added64) as usize { return -1; }
     let mode = mode64 as usize; let n = n64 as usize;
     let base_edges = base64 as usize; let edge_count = (base64 + added64) as usize;
@@ -116,6 +116,17 @@ pub unsafe extern "C" fn saga_incremental_analytics(
             let mut next = [0usize; MAX_N]; let mut next_count = 0usize; let mut seen = [false; MAX_N];
             for a in 0..active_count {
                 let v = active[a]; let old = property[v];
+                if mode == 1 && !first {
+                    for j in 0..degree[v] {
+                        let u = neighbors[v][j];
+                        let update = property[v] + 1;
+                        if property[u] == -1 || update < property[u] {
+                            property[u] = update;
+                            push_once(u, &mut next, &mut next_count, &mut seen);
+                        }
+                    }
+                    continue;
+                }
                 let mut candidate = if mode == 1 || mode == 2 || mode == 4 { INF } else { 0 };
                 if mode == 1 {
                     for j in 0..degree[v] { let p = property[neighbors[v][j]]; if p != -1 && p + 1 < candidate { candidate = p + 1; } }

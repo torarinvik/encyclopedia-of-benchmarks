@@ -10,6 +10,19 @@ Successful output is the raw ciphertext bytes, without a prefix, and the return 
 
 The package covers only encryption. The source's decryption wrapper and interactive command-line interface are outside the benchmark contract.
 
+For a plaintext of `n` bytes, key setup and encryption take `O(256 + n)`
+time and `O(256 + n)` auxiliary space when output is staged. The Mojo draft
+has not been compiled or run.
+
+The verifier source includes independently generated one-block and multi-block
+inputs and checks that applying the same stream twice recovers the plaintext.
+These cases are written but have not been run.
+
+The Trimaran ARC4 source is recorded as a duplicate algorithm in the shared
+coverage ledger. Its [source notice](TRIMARAN_LICENSE_NOTICE.txt) and
+[GPL-2.0-or-later text](TRIMARAN_LICENSE-GPL-2.0-or-later.txt) are retained
+here following consolidation into this package.
+
 Pinned source: [`rc4.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/rc4.py), function `encrypt`.
 
 See [workload](workload.json) and [oracle](../../rc4_oracle.py).
@@ -20,6 +33,7 @@ See [workload](workload.json) and [oracle](../../rc4_oracle.py).
 | C3 | [rc4.c3](../../../c3/r/rc4.c3) |
 | C++ | [rc4.cpp](../../../cpp/r/rc4.cpp) |
 | Elisa | [rc4.elisa](../../../elisa/r/rc4.elisa) |
+| Mojo | [rc4.mojo](../../../mojo/r/rc4.mojo) (unverified draft) |
 | Nim | [rc4.nim](../../../nim/r/rc4.nim) |
 | Odin | [rc4.odin](../../../odin/r/rc4.odin) |
 | Rust | [rc4.rs](../../../rust/r/rc4.rs) |

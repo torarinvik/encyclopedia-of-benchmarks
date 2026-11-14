@@ -11,7 +11,9 @@ This package implements the parity-collision kernel described in Oded Goldreich 
 - Output is `[accept_bit]`, one little-endian signed 64-bit word (8 bytes). Invalid input returns `-1`; null or short output returns `-2` without writes. Maximum input length is 330 words.
 - The random starts and transition choices are supplied to make one execution reproducible. This package implements the walk/query decision kernel, not the chapter's probabilistic query-count schedule or rapid-mixing soundness proof. A fixed supplied trace can accept a graph far from bipartite.
 
-The profile is distinct from exact [full-graph bipartite recognition](../b/bipartite_graph_dfs/README.md), which traverses all graph edges, and from the [dense-model induced-sample tester](../d/dense_graph_bipartiteness_tester/README.md), which samples vertices and queries all pairs among them rather than running lazy incidence walks.
+The profile is distinct from exact [full-graph bipartite recognition](../../b/bipartite_graph_dfs/README.md), which traverses all graph edges, and from the [dense-model induced-sample tester](../../d/dense_graph_bipartiteness_tester/README.md), which samples vertices and queries all pairs among them rather than running lazy incidence walks.
+
+Building the bounded adjacency lists takes O(N + m d) time and O(N d) space. Validating and replaying the supplied tape takes O(T R L + T N) time and O(N) additional space; replay may stop early after a parity collision.
 
 ## Provenance and rights
 
@@ -34,3 +36,5 @@ Source attribution: Oded Goldreich and Dana Ron, “Testing Bipartiteness of Gra
 | Rust | [`rust/t/sublinear_bipartiteness_walk_tester.rs`](../../../rust/t/sublinear_bipartiteness_walk_tester.rs) |
 | V | [`v/t/sublinear_bipartiteness_walk_tester.v`](../../../v/t/sublinear_bipartiteness_walk_tester.v) |
 | Zig | [`zig/t/sublinear_bipartiteness_walk_tester.zig`](../../../zig/t/sublinear_bipartiteness_walk_tester.zig) |
+
+The Mojo draft is [`mojo/t/sublinear_bipartiteness_walk_tester.mojo`](../../../mojo/t/sublinear_bipartiteness_walk_tester.mojo).

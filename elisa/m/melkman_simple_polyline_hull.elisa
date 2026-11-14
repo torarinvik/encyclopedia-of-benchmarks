@@ -1,0 +1,60 @@
+def melkman_turn(values: view[i64], a: usize, b: usize, c: usize) -> i64:
+    ax: i64 = values[1 + 2 * a]
+    ay: i64 = values[2 + 2 * a]
+    (values[1 + 2 * b] - ax) * (values[2 + 2 * c] - ay) - (values[2 + 2 * b] - ay) * (values[1 + 2 * c] - ax)
+
+def melkman_simple_polyline_hull_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 7 or length > 66: return -1
+    values: view[i64] = input[0:length]
+    raw: i64 = values[0]
+    if raw < 3 or raw > 32: return -1
+    n: usize = raw.usize()
+    if length != 1 + 2 * n: return -1
+    for i in 1..<length:
+        if values[i] < -1000 or values[i] > 1000: return -1
+    initial: i64 = melkman_turn(values, 0, 1, 2)
+    if initial == 0: return -1
+    deque: mutable usize[68] = zeroed
+    first: mutable usize = 32
+    last: mutable usize = 35
+    deque[32] <- 2
+    deque[35] <- 2
+    if initial > 0:
+        deque[33] <- 0
+        deque[34] <- 1
+    else:
+        deque[33] <- 1
+        deque[34] <- 0
+    for i in 3..<n:
+        if melkman_turn(values, deque[first], deque[first + 1], i) > 0 and melkman_turn(values, deque[last - 1], deque[last], i) > 0: continue
+        while last > first and melkman_turn(values, deque[first], deque[first + 1], i) <= 0:
+            first <- first + 1
+        if last <= first or first == 0: return -1
+        first <- first - 1
+        deque[first] <- i
+        while last > first and melkman_turn(values, deque[last - 1], deque[last], i) <= 0:
+            last <- last - 1
+        if last <= first or last + 1 >= 68: return -1
+        last <- last + 1
+        deque[last] <- i
+    count: usize = last - first
+    start: mutable usize = 0
+    for i in 1..<count:
+        a: usize = deque[first + i]
+        b: usize = deque[first + start]
+        if values[1 + 2 * a] < values[1 + 2 * b] or (values[1 + 2 * a] == values[1 + 2 * b] and values[2 + 2 * a] < values[2 + 2 * b]): start <- i
+    bytes: usize = 8 * count
+    if output.is_null() or capacity < bytes: return -2
+    target: mutable view[u8] = output[0:bytes]
+    staged: mutable u8[256] = zeroed
+    for i in 0..<count:
+        bits: mutable u64 = deque[first + (start + i) % count].u64()
+        for b in 0..<8:
+            staged[8 * i + b] <- (bits & 255).u8()
+            bits <- bits >> 8
+    for i in 0..<bytes: target[i] <- staged[i]
+    bytes.i64()
+
+export fn melkman_simple_polyline_hull(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = melkman_simple_polyline_hull_impl

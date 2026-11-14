@@ -23,6 +23,7 @@ python3 benchmarks/run_i64_array_scalar.py --build-manifest build/i64_array_scal
 | C3 | [`c3/b/bitap_string_match.c3`](../../../c3/b/bitap_string_match.c3) |
 | C++ | [`cpp/b/bitap_string_match.cpp`](../../../cpp/b/bitap_string_match.cpp) |
 | Elisa | [`elisa/b/bitap_string_match.elisa`](../../../elisa/b/bitap_string_match.elisa) |
+| Mojo | [`mojo/b/bitap_string_match.mojo`](../../../mojo/b/bitap_string_match.mojo) |
 | Nim | [`nim/b/bitap_string_match.nim`](../../../nim/b/bitap_string_match.nim) |
 | Odin | [`odin/b/bitap_string_match.odin`](../../../odin/b/bitap_string_match.odin) |
 | Rust | [`rust/b/bitap_string_match.rs`](../../../rust/b/bitap_string_match.rs) |
@@ -32,3 +33,4 @@ python3 benchmarks/run_i64_array_scalar.py --build-manifest build/i64_array_scal
 ## Pinned source
 
 - Python [`strings/bitap_string_match.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/bitap_string_match.py)
+- C# [`Bitap.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Strings/PatternMatching/Bitap.cs): the same shift-OR recurrence with a 31-character limit, covered by this package's wider bound.

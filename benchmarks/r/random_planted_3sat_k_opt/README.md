@@ -12,6 +12,9 @@ This package implements the bounded deterministic k-OPT profile described in “
 
 The chapter leaves move arbitration unspecified; this profile fixes it by lexicographic order. The bounded implementation enumerates all assignments up to `n=12` to realize the paper's set-based improving-move semantics. Feige–Vilenchik describe a depth-k search tree that limits the search; this profile does not claim that running-time optimization or the paper's probabilistic performance guarantees. It is distinct from the local no-backtrack `random_3sat_greedy_dpll` and from PPSZ.
 
+Each neighborhood scan takes O(2^n(n + m)) time for n variables and m clauses.
+At most m successful moves and n increases of k occur; auxiliary space is O(n).
+
 ## Provenance and rights
 
 Sources: “Random Planted 3-SAT,” *Encyclopedia of Algorithms*, DOI `10.1007/978-1-4939-2864-4_330`, and U. Feige and D. Vilenchik, “A local search algorithm for 3-SAT,” Weizmann Institute technical report (2004), [author-hosted PDF](https://www.wisdom.weizmann.ac.il/~feige/TechnicalReports/FeigeVilenchik.pdf). The book and report are used as behavioral references only; no source code or prose is copied. See [`RIGHTS.md`](RIGHTS.md).
@@ -28,6 +31,7 @@ Sources: “Random Planted 3-SAT,” *Encyclopedia of Algorithms*, DOI `10.1007/
 | C3 | [`c3/r/random_planted_3sat_k_opt.c3`](../../../c3/r/random_planted_3sat_k_opt.c3) |
 | C++ | [`cpp/r/random_planted_3sat_k_opt.cpp`](../../../cpp/r/random_planted_3sat_k_opt.cpp) |
 | Elisa | [`elisa/r/random_planted_3sat_k_opt.elisa`](../../../elisa/r/random_planted_3sat_k_opt.elisa) |
+| Mojo | [`mojo/r/random_planted_3sat_k_opt.mojo`](../../../mojo/r/random_planted_3sat_k_opt.mojo) (draft; not compiled or run) |
 | Nim | [`nim/r/random_planted_3sat_k_opt.nim`](../../../nim/r/random_planted_3sat_k_opt.nim) |
 | Odin | [`odin/r/random_planted_3sat_k_opt.odin`](../../../odin/r/random_planted_3sat_k_opt.odin) |
 | Rust | [`rust/r/random_planted_3sat_k_opt.rs`](../../../rust/r/random_planted_3sat_k_opt.rs) |

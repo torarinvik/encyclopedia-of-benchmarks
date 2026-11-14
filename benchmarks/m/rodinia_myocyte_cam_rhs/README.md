@@ -18,5 +18,9 @@ The static workload includes zero-calcium, zero-state cases on both sides of the
 
 - Pinned source: [`utcs-scea/rodinia/cuda/myocyte`](https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/myocyte), commit `f30e63663cfb114939a15c7ffc4ae112055ae6a8`.
 - Kernel: `kernel_cam` in the Myocyte CUDA source subtree.
-- The complete University of Virginia BSD-3-Clause terms and Rodinia citation list are included in [`LICENSE.txt`](LICENSE.txt). The nine ports are clean-room implementations; they contain no copied CUDA wrapper or source comments.
+- The complete University of Virginia BSD-3-Clause terms and Rodinia citation list are included in [`LICENSE.txt`](LICENSE.txt). The ports are clean-room implementations; they contain no copied CUDA wrapper or source comments.
 - Rodinia citation: S. Che et al., “Rodinia: A Benchmark Suite for Heterogeneous Computing,” IISWC 2009. The source license also lists the Myocyte systems-biology publication; see `LICENSE.txt`.
+
+The [Mojo draft](../../../mojo/m/rodinia_myocyte_cam_rhs.mojo) has not been
+compiled or run. Its binary32 rounding and mixed-precision expression order
+require verification against the independent oracle.

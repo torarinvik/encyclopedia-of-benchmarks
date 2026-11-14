@@ -8,6 +8,8 @@ The `i64_array_scalar` input is `[child_count, child bounds..., incoming bounds]
 
 For each child, compute `volume(union(child,incoming)) - volume(child)`, where volume is the product of the four side lengths. Return the zero-based child index with the smallest penalty. The source stores these values as `Float`; this bounded profile uses exact integer arithmetic because all coordinates and resulting volumes are small integers exactly representable in binary32. Strictly smaller penalties replace the current choice, so ties keep the first entry.
 
+For n child entries, this uses O(n) time and O(1) extra space with four dimensions fixed.
+
 This is the bounded R-tree branch-choice helper, not the complete database benchmark. The source's insert/split/query/delete routines, dataset parser, output formatting, and metrics harness are outside the profile.
 
 ## Source attribution and rights
@@ -22,6 +24,7 @@ The independent oracle is [`versabench_dbms_choose_entry_oracle.py`](../../versa
 - C3: [`c3/d/versabench_dbms_choose_entry.c3`](../../../c3/d/versabench_dbms_choose_entry.c3)
 - C++: [`cpp/d/versabench_dbms_choose_entry.cpp`](../../../cpp/d/versabench_dbms_choose_entry.cpp)
 - Elisa: [`elisa/d/versabench_dbms_choose_entry.elisa`](../../../elisa/d/versabench_dbms_choose_entry.elisa)
+- Mojo: [`mojo/d/versabench_dbms_choose_entry.mojo`](../../../mojo/d/versabench_dbms_choose_entry.mojo)
 - Nim: [`nim/d/versabench_dbms_choose_entry.nim`](../../../nim/d/versabench_dbms_choose_entry.nim)
 - Odin: [`odin/d/versabench_dbms_choose_entry.odin`](../../../odin/d/versabench_dbms_choose_entry.odin)
 - Rust: [`rust/d/versabench_dbms_choose_entry.rs`](../../../rust/d/versabench_dbms_choose_entry.rs)

@@ -18,3 +18,5 @@ output returns -2 before mutation or writes.
 The oracle is `benchmarks/tsvc_s232_triangular_row_square_recurrence_oracle.py`.
 The profile excludes TSVC initialization, repetition/timing, and checker code.
 See `LICENSE.txt` for attribution and rights status.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s232_triangular_row_square_recurrence.mojo) is a draft and has not been compiled or run.

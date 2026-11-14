@@ -21,6 +21,12 @@ package isolates its SHA-0 core as a bounded arbitrary-byte call and returns
 raw bytes. The independent Python oracle implements the compression recurrence
 and padding directly. Standard empty-message and `abc` SHA-0 vectors are in
 [`workload.json`](workload.json).
+The verifier source also constructs binary messages of every supported length,
+including bytes with the high bit set; these checks have not been run.
+
+The bounded profile processes one block in O(1) time and space; an unbounded
+streaming SHA-0 implementation takes O(n) time for n message bytes and O(1)
+working space.
 
 ## Provenance and rights
 
@@ -48,6 +54,7 @@ paths are recorded in the workload metadata.
 | C3 | [c3/s/mibench_security_sha0.c3](../../../c3/s/mibench_security_sha0.c3) |
 | C++ | [cpp/s/mibench_security_sha0.cpp](../../../cpp/s/mibench_security_sha0.cpp) |
 | Elisa | [elisa/s/mibench_security_sha0.elisa](../../../elisa/s/mibench_security_sha0.elisa) |
+| Mojo | [mojo/s/mibench_security_sha0.mojo](../../../mojo/s/mibench_security_sha0.mojo) (draft; not compiled or run) |
 | Nim | [nim/s/mibench_security_sha0.nim](../../../nim/s/mibench_security_sha0.nim) |
 | Odin | [odin/s/mibench_security_sha0.odin](../../../odin/s/mibench_security_sha0.odin) |
 | Rust | [rust/s/mibench_security_sha0.rs](../../../rust/s/mibench_security_sha0.rs) |

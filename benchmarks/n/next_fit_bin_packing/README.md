@@ -20,6 +20,8 @@ word. Invalid input returns `-1`; null or insufficient output storage returns
 `-2` without writes. Maximum input is 65 words, output is 520 bytes, and fixed
 workspace is 1,024 bytes.
 
+The ordered scan takes O(n) time and O(n) space for staged assignments.
+
 The independent verifier partitions the input into maximal consecutive runs
 whose total size fits in one bin, rather than using the port's running-load
 simulation.
@@ -43,6 +45,7 @@ Independent verifier: [`next_fit_bin_packing_verifier_oracle.py`](../../next_fit
 | C3 | [`c3/n/next_fit_bin_packing.c3`](../../../c3/n/next_fit_bin_packing.c3) |
 | C++ | [`cpp/n/next_fit_bin_packing.cpp`](../../../cpp/n/next_fit_bin_packing.cpp) |
 | Elisa | [`elisa/n/next_fit_bin_packing.elisa`](../../../elisa/n/next_fit_bin_packing.elisa) |
+| Mojo | [`mojo/n/next_fit_bin_packing.mojo`](../../../mojo/n/next_fit_bin_packing.mojo) (draft; not compiled or run) |
 | Nim | [`nim/n/next_fit_bin_packing.nim`](../../../nim/n/next_fit_bin_packing.nim) |
 | Odin | [`odin/n/next_fit_bin_packing.odin`](../../../odin/n/next_fit_bin_packing.odin) |
 | Rust | [`rust/n/next_fit_bin_packing.rs`](../../../rust/n/next_fit_bin_packing.rs) |

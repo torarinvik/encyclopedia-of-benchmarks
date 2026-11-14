@@ -29,5 +29,6 @@ The bounded profile changes the launcher input count to cap work at the first 20
 | Rust | [`rust/t/trimaran_enc_pc1.rs`](../../../rust/t/trimaran_enc_pc1.rs) |
 | V | [`v/t/trimaran_enc_pc1.v`](../../../v/t/trimaran_enc_pc1.v) |
 | Zig | [`zig/t/trimaran_enc_pc1.zig`](../../../zig/t/trimaran_enc_pc1.zig) |
+| Mojo | [`mojo/t/trimaran_enc_pc1.mojo`](../../../mojo/t/trimaran_enc_pc1.mojo) (draft, unverified) |
 
 The independent oracle is [`trimaran_enc_pc1_oracle.py`](../../trimaran_enc_pc1_oracle.py), and the bounded fixtures are in [`workload.json`](workload.json).

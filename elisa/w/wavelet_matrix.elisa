@@ -1,0 +1,91 @@
+def wm_less(prefix: view[i64], zeros: view[i64], first: usize, last: usize, key: i64) -> i64:
+    left: mutable usize = first
+    right: mutable usize = last
+    result: mutable i64 = 0
+    for level in 0..<11:
+        lz: usize = prefix[level * 65 + left].usize()
+        rz: usize = prefix[level * 65 + right].usize()
+        if ((key >> (10 - level)) & 1) != 0:
+            result <- result + (rz - lz).i64()
+            left <- zeros[level].usize() + left - lz
+            right <- zeros[level].usize() + right - rz
+        else:
+            left <- lz
+            right <- rz
+    result
+
+def wm_quantile(prefix: view[i64], zeros: view[i64], first: usize, last: usize, rank: usize) -> i64:
+    left: mutable usize = first
+    right: mutable usize = last
+    k: mutable usize = rank
+    key: mutable i64 = 0
+    for level in 0..<11:
+        lz: usize = prefix[level * 65 + left].usize()
+        rz: usize = prefix[level * 65 + right].usize()
+        count: usize = rz - lz
+        if k < count:
+            left <- lz
+            right <- rz
+        else:
+            k <- k - count
+            key <- key | ((1).i64() << (10 - level))
+            left <- zeros[level].usize() + left - lz
+            right <- zeros[level].usize() + right - rz
+    key - 1000
+
+def wm_solve(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > 706 or input[0] < 1 or input[0] > 64: return -1
+    n: usize = input[0].usize()
+    if length < n + 2: return -1
+    for i in 0..<n:
+        if input[1 + i] < -1000 or input[1 + i] > 1000: return -1
+    qv: i64 = input[n + 1]
+    if qv < 0 or qv > 128 or length != n + 2 + 5 * qv.usize(): return -1
+    prefix: mutable i64[715] = zeroed
+    zeros: mutable i64[11] = zeroed
+    current: mutable i64[64] = zeroed
+    scratch: mutable i64[64] = zeroed
+    for i in 0..<n: current[i] <- input[1 + i] + 1000
+    for level in 0..<11:
+        bit: usize = 10 - level
+        for i in 0..<n:
+            value: mutable i64 = prefix[level * 65 + i]
+            if ((current[i] >> bit) & 1) == 0: value <- value + 1
+            prefix[level * 65 + i + 1] <- value
+        zeros[level] <- prefix[level * 65 + n]
+        z: mutable usize = 0
+        o: mutable usize = zeros[level].usize()
+        for i in 0..<n:
+            if ((current[i] >> bit) & 1) == 0:
+                scratch[z] <- current[i]
+                z <- z + 1
+            else:
+                scratch[o] <- current[i]
+                o <- o + 1
+        for i in 0..<n: current[i] <- scratch[i]
+    total: mutable i64 = 0
+    for j in 0..<qv.usize():
+        at: usize = n + 2 + 5 * j
+        op: i64 = input[at]
+        a: i64 = input[at + 1]
+        b: i64 = input[at + 2]
+        c: i64 = input[at + 3]
+        d: i64 = input[at + 4]
+        answer: mutable i64 = 0
+        if op == 0:
+            if a < -1000 or a > 1000 or b < -1 or b >= n.i64(): return -1
+            answer <- wm_less(prefix[0:715], zeros[0:11], 0, (b + 1).usize(), a + 1001) - wm_less(prefix[0:715], zeros[0:11], 0, (b + 1).usize(), a + 1000)
+        elif op == 1:
+            if a < 0 or a > b or b >= n.i64() or c < 0 or c > b - a: return -1
+            answer <- wm_quantile(prefix[0:715], zeros[0:11], a.usize(), (b + 1).usize(), c.usize())
+        elif op == 2:
+            if a < 0 or a > b or b >= n.i64() or c < -1000 or c > d or d > 1000: return -1
+            answer <- wm_less(prefix[0:715], zeros[0:11], a.usize(), (b + 1).usize(), d + 1001) - wm_less(prefix[0:715], zeros[0:11], a.usize(), (b + 1).usize(), c + 1000)
+        else: return -1
+        total <- total + (j + 1).i64() * (answer + 1000001)
+    total
+
+export fn wavelet_matrix(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 706: return -1
+    wm_solve(input[0:length])

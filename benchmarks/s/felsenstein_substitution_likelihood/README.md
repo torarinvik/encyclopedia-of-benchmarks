@@ -41,6 +41,7 @@ Primary and independent verifier oracles:
 | C3 | `c3/s/felsenstein_substitution_likelihood.c3` |
 | C++ | `cpp/s/felsenstein_substitution_likelihood.cpp` |
 | Elisa | `elisa/s/felsenstein_substitution_likelihood.elisa` |
+| Mojo | [`mojo/s/felsenstein_substitution_likelihood.mojo`](../../../mojo/s/felsenstein_substitution_likelihood.mojo) |
 | Nim | `nim/s/felsenstein_substitution_likelihood.nim` |
 | Odin | `odin/s/felsenstein_substitution_likelihood.odin` |
 | Rust | `rust/s/felsenstein_substitution_likelihood.rs` |

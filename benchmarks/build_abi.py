@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import sys
 from urllib.parse import unquote, urlsplit
+from workload_json import load_workload
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTENSIONS = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
@@ -192,13 +193,53 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
           implementation_flags: tuple[str, ...] = ()) -> dict:
     if re.fullmatch(r"[a-z0-9]+(?:_[a-z0-9]+)*", algorithm) is None:
         raise ValueError("algorithm must be a normalized catalog name")
-    letter = {"hjm_forward_path": "m", "splash2_fmm": "f",
+    letter = {"mibench_security_sha0": "s", "subtract": "m", "polybench_correlation": "c", "hjm_forward_path": "m", "splash2_fmm": "f", "uint53_is": "i", "stochastic_knapsack_greedy": "k", "prolangs_c_allroots": "a",
+              "quine_mccluskey_minimization": "o",
+              "substring_parsimony": "o", "weighted_greedy_set_cover": "g",
+              "counting_eulerian_circuits": "g", "chordal_graph_recognition": "g",
+              "range_parallel_unionfind": "u", "hub_labeling_pruned": "g",
+              "dynamic_tree_vertex_set_path_composite": "t", "universal_sequencing_doubling": "t",
+              "truthful_ufp_greedy1": "g", "truthful_multiunit_ca_greedy2": "g",
+              "three_dimensional_moment_curve": "g", "approximate_matching_greedy": "g",
+              "extended_gs_general_stable_allocation": "g", "characteristic_polynomial": "m",
+              "srpt_flow_time": "m", "submodular_ranking_greedy": "m", "smith_weighted_completion_time": "m",
+              "open_knight_tour": "n", "hpcg_profile": "n", "number_container_system": "o",
+              "lsb_image_steganography": "i", "lac_adpcm": "i", "idea_cfb64": "p",
+              "embench_aha_mont64": "a", "beebs_fasta": "f", "versabench_beamformer": "b", "kiraly_max_smt_i_approx": "s",
+              "stanford_puzzle": "p", "max_jobs_before_deadlines": "d",
+              "npb_ft_3d_spectral_step": "f",
+              "kinetic_tournament_tree": "p", "minkowski_sum_convex_polygons": "p",
+              "main_lorentz_tandem_repetitions": "p", "indexed_priority_queue": "p",
+              "intersection_of_f2_vector_spaces": "l", "hafnian_of_matrix": "l",
+              "rodinia_streamcluster_pgain": "s",
+              "rodinia_bplus_tree": "b",
+              "clojure_persistent_list_queue": "l", "doe_xsbench_unionized_macro_xs": "x",
+              "naive_knapsack_solver": "k",
+              "radio_network_decay_phase": "d",
+              "misc_lowercase": "l",
+              "doe_rsbench_doppler_xs": "r",
+              "cbench_automotive_qsort1": "a", "euclidean_mst": "m", "string_fibonacci": "f",
+              "felsenstein_substitution_likelihood": "s",
+              "concave_gap_alignment_global": "l",
+              "cbench_rsynth_natural_glottal_sample": "m",
+              "cbench_rsynth_impulsive_glottal_sample": "m",
+              "cbench_rsynth_f0_flutter": "m",
+              "cbench_lame_mid_side": "m",
+              "cbench_ispell_lookup_chain": "i",
+              "coremark_matrix_manipulation": "m",
+              "cbench_ghostscript_rop3": "g", "cbench_ghostscript_rop3_idempotence": "g",
+              "cbench_ghostscript_rop3_transform": "g",
+              "cbench_ghostscript_rop3_operand_usage": "g",
+              "clique_reverse_search_enumeration": "r",
               "splash2_fft_six_step": "f", "splash2_ocean_rbgs": "o",
               "splash2_radiosity_refine": "f"}.get(
         algorithm, algorithm[0] if algorithm[0].isalpha() else "0-9")
     language_root = ROOT / language / letter
     source_extension = {**EXTENSIONS, **OPTIONAL_EXTENSIONS}[language]
-    source_name = f"{algorithm}.{source_extension}"
+    package_name = {"cbench_rsynth_natural_glottal_sample": "cbench_rsynth_natural_glottal",
+                    "cbench_rsynth_impulsive_glottal_sample": "cbench_rsynth_impulsive_glottal"}.get(algorithm, algorithm)
+    source_name = (f"lac_dcc_lowercase.{source_extension}" if algorithm == "misc_lowercase"
+                   else f"{package_name}.{source_extension}")
     # Prefer the conventional first-letter layout when present, preserving
     # existing build resolution. Some source-backed packages keep a port in
     # its original language category directory; below, an explicit README link
@@ -210,6 +251,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     source = next((candidate for candidate in source_candidates if candidate.is_file()),
                   source_candidates[0])
     workload_letters = {
+        "subtract": "s",
         "gapbs_afforest_components": "a",
         "gapbs_shiloach_vishkin_components": "a",
         "gapbs_betweenness_centrality": "b",
@@ -228,10 +270,24 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         "splash2_fft_six_step": "f",
         "splash2_ocean_rbgs": "o",
         "splash2_radiosity_refine": "f",
+        "uint53_is": "i",
+        "stochastic_knapsack_greedy": "k",
+        "prolangs_c_allroots": "a",
+        "crust_pole_triangle_filter": "s",
+        "two_edge_connected_components": "c",
+        "rat_maze": "m",
+        "steiner_tree_subset_dp": "p",
     }
     workload_letter = workload_letters.get(
         algorithm, "d" if algorithm.startswith("versabench_dbms_") else letter)
-    workload = ROOT / "benchmarks" / workload_letter / algorithm / "workload.json"
+    workload_package = "is" if algorithm == "uint53_is" else package_name
+    workload = ROOT / "benchmarks" / workload_letter / workload_package / "workload.json"
+    # Older packages keep their workloads directly under benchmarks/<name>.
+    # Prefer the categorized path when both layouts exist.
+    if not workload.is_file():
+        flat_workload = ROOT / "benchmarks" / workload_package / "workload.json"
+        if flat_workload.is_file():
+            workload = flat_workload
     if not source.is_file():
         guide = workload.with_name("README.md")
         if guide.is_file():
@@ -262,7 +318,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
                 source = next(iter(linked_sources))
     if not source.is_file() or not workload.is_file():
         raise ValueError(f"source or workload missing for {algorithm}/{language}")
-    spec = json.loads(workload.read_text(encoding="utf-8"))
+    spec = load_workload(workload)
     if family not in FAMILIES:
         raise ValueError(f"unknown C ABI family: {family}")
     model, family_harnesses = FAMILIES[family]
@@ -472,6 +528,19 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             for path in (source.resolve() for source in extra_link_sources)
         ],
     }
+    if algorithm == "polynomial_resultant_half_gcd" and language == "cpp":
+        # This implementation splits the translation unit across local
+        # headers; record their hashes alongside the entry-point source so
+        # benchmark provenance includes the actual kernel and arithmetic.
+        dependencies = (
+            ROOT / "cpp/p/polynomial_resultant_half_gcd_primitives.hpp",
+            ROOT / "cpp/p/polynomial_resultant_half_gcd_reduction.hpp",
+            ROOT / "cpp/p/polynomial_resultant_half_gcd_kernel.hpp",
+        )
+        manifest["source_dependencies"] = [
+            {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256_file(path)}
+            for path in dependencies
+        ]
     if language in {"c", "cpp"}:
         manifest["target_cpu_probe"] = probe_compile_target(commands[0])
     (directory / "build.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
@@ -493,7 +562,44 @@ def main(family: str | None = None) -> int:
     parser.add_argument("--implementation-flag", action="append", default=[],
                         help="Additional language-specific implementation compiler argument; recorded in the manifest (repeatable)")
     args = parser.parse_args()
-    letter = ({"hjm_forward_path": "m", "splash2_fmm": "f",
+    letter = ({"mibench_security_sha0": "s", "subtract": "m", "polybench_correlation": "c", "hjm_forward_path": "m", "splash2_fmm": "f",
+               "quine_mccluskey_minimization": "o",
+               "substring_parsimony": "o", "weighted_greedy_set_cover": "g",
+               "counting_eulerian_circuits": "g", "chordal_graph_recognition": "g",
+               "range_parallel_unionfind": "u", "hub_labeling_pruned": "g",
+               "dynamic_tree_vertex_set_path_composite": "t", "universal_sequencing_doubling": "t",
+               "truthful_ufp_greedy1": "g", "truthful_multiunit_ca_greedy2": "g",
+               "three_dimensional_moment_curve": "g", "approximate_matching_greedy": "g",
+               "extended_gs_general_stable_allocation": "g", "characteristic_polynomial": "m",
+               "srpt_flow_time": "m", "submodular_ranking_greedy": "m", "smith_weighted_completion_time": "m",
+               "open_knight_tour": "n", "hpcg_profile": "n", "number_container_system": "o",
+               "lsb_image_steganography": "i", "lac_adpcm": "i", "idea_cfb64": "p",
+               "embench_aha_mont64": "a", "beebs_fasta": "f", "versabench_beamformer": "b", "kiraly_max_smt_i_approx": "s",
+               "stanford_puzzle": "p", "max_jobs_before_deadlines": "d",
+               "npb_ft_3d_spectral_step": "f",
+               "kinetic_tournament_tree": "p", "minkowski_sum_convex_polygons": "p",
+               "main_lorentz_tandem_repetitions": "p", "indexed_priority_queue": "p",
+               "intersection_of_f2_vector_spaces": "l", "hafnian_of_matrix": "l",
+               "rodinia_streamcluster_pgain": "s",
+               "rodinia_bplus_tree": "b",
+               "clojure_persistent_list_queue": "l", "doe_xsbench_unionized_macro_xs": "x",
+               "naive_knapsack_solver": "k",
+               "radio_network_decay_phase": "d",
+               "misc_lowercase": "l",
+               "doe_rsbench_doppler_xs": "r",
+               "cbench_automotive_qsort1": "a", "euclidean_mst": "m", "string_fibonacci": "f",
+               "felsenstein_substitution_likelihood": "s",
+               "concave_gap_alignment_global": "l",
+               "cbench_rsynth_natural_glottal_sample": "m",
+               "cbench_rsynth_impulsive_glottal_sample": "m",
+               "cbench_rsynth_f0_flutter": "m",
+               "cbench_lame_mid_side": "m",
+               "cbench_ispell_lookup_chain": "i",
+               "coremark_matrix_manipulation": "m",
+               "cbench_ghostscript_rop3": "g", "cbench_ghostscript_rop3_idempotence": "g",
+               "cbench_ghostscript_rop3_transform": "g",
+               "cbench_ghostscript_rop3_operand_usage": "g",
+               "clique_reverse_search_enumeration": "r",
                "splash2_fft_six_step": "f", "splash2_ocean_rbgs": "o",
                "splash2_radiosity_refine": "f"}.get(args.algorithm)
               or (args.algorithm[0] if args.algorithm and args.algorithm[0].isalpha() else "0-9"))

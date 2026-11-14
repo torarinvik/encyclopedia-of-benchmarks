@@ -18,7 +18,7 @@ fn lex_less_mask(left: u64, right: u64, count: usize) -> bool {
         li += 1; ri += 1;
     }
 }
-fn loop_cost(input: *const i64, n: usize, kind: i32, unpaired: usize, children: usize) -> i64 {
+unsafe fn loop_cost(input: *const i64, n: usize, kind: i32, unpaired: usize, children: usize) -> i64 {
     *input.add(1 + n + kind as usize * 39 + unpaired * 3 + children)
 }
 unsafe fn put64(output: *mut u8, offset: usize, value: i64) {

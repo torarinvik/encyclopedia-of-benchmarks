@@ -27,12 +27,16 @@ insufficient capacity returns `-2` without writing. The primary oracle uses
 integer fixed-scale updates; the independent verifier evaluates the same
 finite recurrence with exact rational fractions.
 
+For S states, A actions, and H sweeps, this implementation takes O(HSA)
+time and O(SA + S) auxiliary space.
+
 | Language | Port |
 |---|---|
 | C | `c/m/mdp_value_iteration_deterministic.c` |
 | C3 | `c3/m/mdp_value_iteration_deterministic.c3` |
 | C++ | `cpp/m/mdp_value_iteration_deterministic.cpp` |
 | Elisa | `elisa/m/mdp_value_iteration_deterministic.elisa` |
+| Mojo | [`mojo/m/mdp_value_iteration_deterministic.mojo`](../../../mojo/m/mdp_value_iteration_deterministic.mojo) (draft; not compiled or run) |
 | Nim | `nim/m/mdp_value_iteration_deterministic.nim` |
 | Odin | `odin/m/mdp_value_iteration_deterministic.odin` |
 | Rust | `rust/m/mdp_value_iteration_deterministic.rs` |

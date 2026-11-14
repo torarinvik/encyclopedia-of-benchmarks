@@ -54,3 +54,5 @@ written and no license is inferred.
 | Rust | [rust/o/olden_em3d.rs](../../../rust/o/olden_em3d.rs) |
 | V | [v/o/olden_em3d.v](../../../v/o/olden_em3d.v) |
 | Zig | [zig/o/olden_em3d.zig](../../../zig/o/olden_em3d.zig) |
+
+The Mojo draft is [`mojo/o/olden_em3d.mojo`](../../../mojo/o/olden_em3d.mojo). Validation takes O(n d²) time, the update takes O(n d), and auxiliary space is O(n); floating-point contraction behavior remains unverified.

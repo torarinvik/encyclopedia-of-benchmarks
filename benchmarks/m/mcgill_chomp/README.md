@@ -13,6 +13,12 @@ This package ports the outcome-solving core of the `chomp` launcher in the pinne
 - Invalid row profiles return -1. The workload covers both pinned launcher profiles, invalid bounds, and signed 64-bit extremes.
 - The independent oracle uses memoized recursion over resulting board shapes rather than the ports' source-order state-table traversal.
 
+For R rows and seven columns, the table uses O((R+1)^7) space; evaluating
+each legal shape scans O(R·7²) move and column positions. The Mojo draft has
+not been compiled or run.
+The scalar workload validator specifies source-presence checks for all ten
+ports; those checks have not been run.
+
 ## Pinned provenance and license
 
 - [`chomp.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/chomp/chomp.c), commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`.
@@ -27,6 +33,7 @@ This package ports the outcome-solving core of the `chomp` launcher in the pinne
 | C3 | [`c3/mcgill_chomp.c3`](../../../c3/mcgill_chomp.c3) |
 | C++ | [`cpp/mcgill_chomp.cpp`](../../../cpp/mcgill_chomp.cpp) |
 | Elisa | [`elisa/m/mcgill_chomp.elisa`](../../../elisa/m/mcgill_chomp.elisa) |
+| Mojo | [`mojo/m/mcgill_chomp.mojo`](../../../mojo/m/mcgill_chomp.mojo) (uncompiled draft) |
 | Nim | [`nim/mcgill_chomp.nim`](../../../nim/mcgill_chomp.nim) |
 | Odin | [`odin/m/mcgill_chomp.odin`](../../../odin/m/mcgill_chomp.odin) |
 | Rust | [`rust/mcgill_chomp.rs`](../../../rust/mcgill_chomp.rs) |

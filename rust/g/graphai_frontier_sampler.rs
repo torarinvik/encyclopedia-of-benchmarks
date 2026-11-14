@@ -9,9 +9,8 @@ pub unsafe extern "C" fn graphai_frontier_sampler(input:*const f64,length:usize,
     if *input.add(row_at)!=0.0||*input.add(col_at-1)!=m as f64{return -1;}
     for i in 0..=n{let x=*input.add(row_at+i);if x.fract()!=0.0||x<0.0||x>m as f64{return -1;}rows[i]=x as usize;if i>0&&rows[i]<rows[i-1]{return -1;}}
     for e in 0..m{let x=*input.add(col_at+e);if x.fract()!=0.0||x<0.0||x>=n as f64{return -1;}cols[e]=x as usize;}
-    if output.is_null()||capacity<required{return -2;}
     let fanouts=[3usize,2,2];let mut front_size=r;let mut choice=0usize;let mut out_at=r;
     for fanout in fanouts{let next_size=front_size*fanout;for i in 0..front_size{let parent=front[i];let begin=rows[parent];let degree=rows[parent+1]-begin;if degree==0{return -1;}for j in 0..fanout{let x=*input.add(choice_at+choice);choice+=1;if x.fract()!=0.0||x<0.0||x>=degree as f64{return -1;}let v=cols[begin+x as usize];next[i*fanout+j]=v;staged[out_at]=v as f64;out_at+=1;}}
         for i in 0..next_size{front[i]=next[i];}front_size=next_size;}
-    if choice!=21*r||out_at!=required{return -1;}for q in 0..required{*output.add(q)=staged[q];}required as i64
+    if choice!=21*r||out_at!=required{return -1;}if output.is_null()||capacity<required{return -2;}for q in 0..required{*output.add(q)=staged[q];}required as i64
 }

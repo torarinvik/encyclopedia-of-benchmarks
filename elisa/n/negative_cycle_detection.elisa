@@ -12,8 +12,9 @@ def negative_cycle_store_i64_le(value: i64, output: mutable view[u8], offset: us
 
 def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("negative_cycle_detection"):
     if input.is_null() or length < 2 or length > NEG_CYCLE_MAX_INPUT: return -1
-    n64: i64 = input[0]
-    m64: i64 = input[1]
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
     if n64 < 0 or n64 > 20 or m64 < 0 or m64 > 64 or length != 2 + 3 * m64.usize(): return -1
     n: usize = n64.usize()
     m: usize = m64.usize()
@@ -22,9 +23,9 @@ def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, ca
     edge_weight: mutable i64[64] = zeroed
     edge: mutable usize = 0
     while edge < m:
-        u: i64 = input[2 + 3 * edge]
-        v: i64 = input[3 + 3 * edge]
-        weight: i64 = input[4 + 3 * edge]
+        u: i64 = values[2 + 3 * edge]
+        v: i64 = values[3 + 3 * edge]
+        weight: i64 = values[4 + 3 * edge]
         if u < 0 or u >= n64 or v < 0 or v >= n64 or weight < -1000 or weight > 1000: return -1
         edge_from[edge] <- u.usize()
         edge_to[edge] <- v.usize()
@@ -95,8 +96,9 @@ def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, ca
 
     output_bytes: usize = record_length * 8
     if output.is_null() or capacity < output_bytes: return -2
+    target: mutable view[u8] = output[0:output_bytes]
     index <- 0
     while index < record_length:
-        negative_cycle_store_i64_le(record[index], output[0:capacity], 8 * index)
+        negative_cycle_store_i64_le(record[index], target, 8 * index)
         index <- index + 1
     output_bytes.i64()

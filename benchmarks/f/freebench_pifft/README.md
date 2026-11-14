@@ -31,6 +31,8 @@ arithmetic-geometric-mean iteration.
   repeat of the standalone transform package.
 - The Python oracle evaluates the same fixed-point recurrence with exact
   integer multiplication instead of FFT convolution.
+- The suite's source-presence check covers ten language drafts; it does not
+  establish that they compile or produce the expected result.
 
 ## Provenance and rights
 
@@ -58,6 +60,7 @@ behavior; they do not copy upstream source code or comments.
 | C3 | [c3/f/freebench_pifft.c3](../../../c3/f/freebench_pifft.c3) |
 | C++ | [cpp/f/freebench_pifft.cpp](../../../cpp/f/freebench_pifft.cpp) |
 | Elisa | [elisa/f/freebench_pifft.elisa](../../../elisa/f/freebench_pifft.elisa) |
+| Mojo | [mojo/f/freebench_pifft.mojo](../../../mojo/f/freebench_pifft.mojo) (draft; not compiled or run) |
 | Nim | [nim/f/freebench_pifft.nim](../../../nim/f/freebench_pifft.nim) |
 | Odin | [odin/f/freebench_pifft.odin](../../../odin/f/freebench_pifft.odin) |
 | Rust | [rust/f/freebench_pifft.rs](../../../rust/f/freebench_pifft.rs) |

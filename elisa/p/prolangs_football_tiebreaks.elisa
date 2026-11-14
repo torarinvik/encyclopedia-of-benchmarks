@@ -69,6 +69,7 @@ def football_refine(input: view[i64], n: usize, order: mutable view[usize], lo: 
             previous: FootballFraction = football_score(input, n, order, lo, hi, order[position - 1], stage, same_div)
             if football_compare(item_score, previous) <= 0: break
             order[position] <- order[position - 1]
+            order[position - 1] <- item
             position <- position - 1
         order[position] <- item
         index <- index + 1

@@ -29,8 +29,7 @@ proc prune(node: var Node, leaves: int) =
       if i == j: continue
       let b = node.candidates[j]
       if b.height <= a.height and b.width <= a.width:
-        if b.height < a.height or b.width < a.width or
-            maskLexLess(b.mask, a.mask, leaves) or (b.mask == a.mask and j < i):
+        if maskLexLess(b.mask, a.mask, leaves) or (b.mask == a.mask and j < i):
           dominated[i] = true
           break
   var kept = 0

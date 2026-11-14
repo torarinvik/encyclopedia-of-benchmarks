@@ -17,4 +17,4 @@ The output is R row-major followed by Q row-major, preserving the order of the s
 
 ## Workload and ports
 
-[`workload.json`](workload.json) records bounds and source-derived fixtures. [`benchmarks/polybench_gramschmidt_oracle.py`](../../polybench_gramschmidt_oracle.py) independently computes the initialized QR profile. Nine ports are provided for C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig.
+[`workload.json`](workload.json) records bounds and source-derived fixtures. [`benchmarks/polybench_gramschmidt_oracle.py`](../../polybench_gramschmidt_oracle.py) independently computes the initialized QR profile. Ports are provided for C, C3, C++, Elisa, Mojo, Nim, Odin, Rust, V, and Zig. The Mojo draft's floating-point contraction behavior has not been verified.

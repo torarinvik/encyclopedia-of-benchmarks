@@ -691,6 +691,24 @@ C LeetCode candidate 2304 uses row-by-row dynamic programming to minimize each n
 
 [Bitap String Match](benchmarks/b/bitap_string_match/README.md) uses a 64-bit shift-OR mask to return the first lowercase-ASCII substring match, with a shared 63-byte pattern bound. All nine ports passed 8,541 independent oracle inputs each and recorded 17 workload cases; see [the verifier](benchmarks/verify_bitap_string_match.py).
 
+[Backward Nondeterministic DAWG Matching](benchmarks/b/backward_nondeterministic_dawg_match/README.md) uses bit-parallel backward scans and skips candidate windows. Ten language drafts and scalar-suite integration are present; they have not been compiled or run.
+
+[Backward Oracle Matching](benchmarks/b/backward_oracle_match/README.md) searches backward using a factor oracle for the reversed pattern. Ten language drafts and scalar-suite integration are present; they have not been compiled or run.
+
+[Wavelet Matrix](benchmarks/w/wavelet_matrix/README.md) builds levelwise stable partitions for rank, quantile, and range-count queries, using the same bounded contract as the existing wavelet tree. Ten language drafts and scalar-suite integration are present; they have not been compiled or run.
+
+[XOR Filter Peeling](benchmarks/x/xor_filter_peeling/README.md) builds a static approximate-membership filter from caller-supplied slot triples and fingerprints. Ten language drafts and scalar-suite integration are present; they have not been compiled or run.
+
+[RRR-style Rank and Select](benchmarks/r/rrr_class_offset_rank_select/README.md) encodes bit blocks by their one-count class and within-class offset. Ten language drafts and byte-output suite integration are present; they have not been compiled or run.
+
+[Reservoir Sampling Algorithm R](benchmarks/r/reservoir_sampling_algorithm_r/README.md) replays supplied draws to maintain a fixed-size sample without replacement. Ten language drafts and byte-output suite integration are present; they have not been compiled or run.
+
+[Lossy Counting](benchmarks/l/lossy_counting_summary/README.md) maintains approximate frequency counters with bucket-based pruning. Ten language drafts and byte-output suite integration are present; they have not been compiled or run.
+
+[Sticky Sampling](benchmarks/s/sticky_sampling_summary/README.md) maintains sampled frequency counters with a changing admission rate and counter thinning. Ten language drafts, replayable workloads, and byte-output suite integration are present; they have not been compiled or run.
+
+[Exponential histogram](benchmarks/e/exponential_histogram_window/README.md) estimates the number of one-bits in a fixed sliding window using power-of-two buckets. Ten language drafts and byte-output suite integration are present; they have not been compiled or run.
+
 [Reversort](benchmarks/r/reversort/README.md) repeatedly reverses the current prefix through its minimum to sort the remaining suffix; [Reversort Cost](benchmarks/r/reversort_cost/README.md) sums those segment lengths. All nine sort ports passed 5,681 arrays and four workload lengths each; all nine cost ports passed 1,620 oracle arrays and 12 workload records each. See [the sort verifier](benchmarks/verify_reversort.py) and [the cost verifier](benchmarks/verify_reversort_cost.py).
 
 [Excess-3 Code](benchmarks/e/excess_3_code/README.md) converts each decimal digit to its four-bit value after adding three, preserving the pinned `0b` output prefix and negative-input clamp. All nine ports passed 7,183 oracle/capacity cases each and recorded 10 workload inputs; see [the verifier](benchmarks/verify_excess_3_code.py).
@@ -795,7 +813,7 @@ Several H candidates reuse existing contracts: F-Sharp prefix/suffix checks, Pyt
 
 [Welsh–Powell greedy coloring](benchmarks/w/welsh_powell/README.md) preserves the pinned Java degree sort, stable index ties, and its rule for admitting uncolored vertices to each color class across all nine languages.
 [XTEA](benchmarks/x/xtea/README.md) adds bounded 64-bit block encryption with the pinned Python source's big-endian encoding across nine languages.
-[Z-block substring search](benchmarks/z/zblock_substring_search/README.md) returns an exact, overlapping match count using Z blocks across nine languages.
+[Z algorithm](benchmarks/z/z_algorithm/README.md) computes the Z-array used for overlapping substring search.
 [Interleaving strings](benchmarks/i/interleavingstrings/README.md) adds the bounded two-source order-preserving dynamic program across nine languages.
 [Half-wave rectifier](benchmarks/h/half_wave_rectifier/README.md) ports six selected current/voltage calculations and their resistance constraints across nine languages.
 [IPv4-mapped IPv6 conversion](benchmarks/i/ipv6_converter/README.md) adds both raw-byte conversion directions across nine languages.
@@ -1121,6 +1139,16 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 
 [Indexed block list](benchmarks/i/indexed_block_list/README.md) benchmarks arbitrary-index insertion and access over linked fixed-size blocks, including interior splits. Ten ports, primary and independent oracles, bounded workloads, and byte-output suite registration are included.
 
+[Walker–Vose alias sampling](benchmarks/w/walker_vose_alias_sampling/README.md) has ten unverified language drafts and byte-output suite wiring for exact integer alias-table construction and deterministic categorical draws.
+
+[Space-Saving frequent-item summaries](benchmarks/s/space_saving_frequent_items/README.md) have ten unverified language drafts and byte-output suite wiring for deterministic bounded streaming summaries.
+
+[Melkman simple-polyline hull](benchmarks/m/melkman_simple_polyline_hull/README.md) has ten unverified language drafts and byte-output suite wiring for a linear-time deque hull on a promised simple chain.
+
+[HyperLogLog raw estimate](benchmarks/h/hyperloglog_raw_estimate/README.md) has ten unverified drafts for fixed-bucket sketch updates and an exact rational raw estimate; correction branches are covered separately by the draft below.
+
+[Corrected HyperLogLog estimate](benchmarks/h/hyperloglog_corrected_estimate/README.md) has ten unverified drafts and byte-output suite wiring for the original small- and large-range corrections, including an explicit saturation result.
+
 [Prime-modulus inverse table](benchmarks/p/prime_modulus_inverse_table/README.md) builds a recurrence table for a bounded batch of modular inverses. Ten ports and byte-output suite registration are included.
 
 [Newton formal-series reversion](benchmarks/n/newton_compositional_inverse_fps/README.md) uses precision doubling to invert a series under composition. Its ten language drafts and suite wiring remain unexecuted.
@@ -1134,3 +1162,23 @@ The [SPLASH-2-inspired water profiles](benchmarks/s/splash2_water_nsquared/READM
 [Sparse supernodal Cholesky](benchmarks/s/sparse_supernodal_cholesky/README.md) factors a supplied filled sparse pattern in bounded supernodes, with ten language ports and byte-output suite registration. The package remains unexecuted.
 
 [Second-best MST with binary lifting](benchmarks/s/second_best_mst_binary_lifting/README.md) finds the least strictly heavier spanning-tree weight using lifted path summaries. Ten language drafts and scalar-suite registration are present; they remain unexecuted.
+
+[Static range count and sum under a threshold](benchmarks/s/static_range_sum_with_upper_bound/README.md) augments a wavelet matrix with value sums. Ten language drafts, a direct reference, workload, and byte-output suite wiring are present; none has been executed.
+
+[Dynamic range majority](benchmarks/m/dynamic_range_majority/README.md) combines point updates and subrange majority queries using cancellation summaries and position bitmaps. Its ten language drafts and byte-output suite wiring remain unexecuted.
+
+[All farthest neighbors on a convex polygon](benchmarks/a/all_farthest_neighbors_convex/README.md) uses an implicit totally monotone distance matrix and SMAWK to select one farthest vertex for every vertex. Its ten language drafts and byte-output suite wiring remain unexecuted.
+
+[Dirichlet inverse prefix sums](benchmarks/d/dirichlet_inverse_and_prefix_sums/README.md) reconstructs inverse-function prefix values on floor-quotient indices. Its ten language drafts and byte-output suite wiring remain unexecuted.
+
+[Polynomial discrete antidifferentiation](benchmarks/p/polynomial_discrete_antiderivative/README.md) converts a polynomial to the coefficients of its prefix-sum polynomial. Its ten language drafts and byte-output suite wiring remain unexecuted.
+
+[Bivariate formal-series reciprocal](benchmarks/i/inv_of_formal_power_series_2d/README.md) inverts a rectangularly truncated two-variable series. Its ten language drafts and byte-output suite wiring remain unexecuted.
+
+[Set power-series logarithm](benchmarks/l/log_of_set_power_series/README.md) uses a pivot-subset recurrence in square-zero algebra. Its ten language drafts and byte-output suite wiring remain unexecuted.
+
+[Range addition and minimum queries](benchmarks/r/range_add_range_min/README.md) uses a lazy segment tree. Its ten language drafts and byte-output suite wiring remain unexecuted.
+
+[Fixed-modulus discrete logarithms](benchmarks/d/discrete_logarithm_fixed_mod/README.md) amortizes a power table across a batch of targets. Its ten language drafts and byte-output suite wiring remain unexecuted.
+
+[Indexed deque](benchmarks/i/indexed_deque/README.md) combines both-ended mutations with indexed reads in a circular array. Its ten language drafts and byte-output suite wiring remain unexecuted.

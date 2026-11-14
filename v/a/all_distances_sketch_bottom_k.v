@@ -7,7 +7,7 @@ fn put_i64(out &u8, offset int, value i64) {
 
 @[export: 'all_distances_sketch_bottom_k']
 pub fn all_distances_sketch_bottom_k(input &i64,length usize,mut output &u8,capacity usize) i64 {
-	if input == unsafe { nil } || length<6 || length>104 { return -1 }
+	if input == unsafe { nil } || length<6 || length>194 { return -1 }
 	n0:=unsafe{input[0]};m0:=unsafe{input[1]};k0:=unsafe{input[2]};s0:=unsafe{input[3]}
 	if n0<2||n0>10||m0<0||m0>n0*(n0-1)||k0<1||k0>n0||s0<0||s0>=n0{return -1}
 	n:=int(n0);m:=int(m0);k:=int(k0);source:=int(s0);if length!=usize(4+n+2*m){return -1}

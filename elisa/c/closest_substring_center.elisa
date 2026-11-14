@@ -1,5 +1,6 @@
 // Bounded exact closest-substring center by lexicographic exhaustive search.
 def closest_substring_center_impl(x:i64&,length:usize,out:mutable u8&,cap:usize)->i64:
+ if x.is_null():return -1
  if length<4 or length>44:return -1
  nv:i64=x[0];mv:i64=x[1];lv:i64=x[2];qv:i64=x[3]
  if nv<1 or nv>4 or mv<1 or mv>10 or lv<1 or lv>8 or lv>mv or (qv!=2 and qv!=3) or length!=4+(nv*mv).usize():return -1
@@ -23,7 +24,7 @@ def closest_substring_center_impl(x:i64&,length:usize,out:mutable u8&,cap:usize)
    best<-radius
    for j in 0..l:bc[j]<-candidate[j]
  bytes:usize=8*(l+1)
- if cap<bytes:return -2
+ if out.is_null() or cap<bytes:return -2
  z:u64=best.u64()
  for b in 0..8:out[b]<-((z>>(8*b)) & 255).u8()
  for j in 0..l:

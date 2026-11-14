@@ -68,3 +68,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s132_shifted_row_update.rs`](../../../rust/t/tsvc_s132_shifted_row_update.rs) |
 | V | [`tsvc_s132_shifted_row_update.v`](../../../v/t/tsvc_s132_shifted_row_update.v) |
 | Zig | [`tsvc_s132_shifted_row_update.zig`](../../../zig/t/tsvc_s132_shifted_row_update.zig) |
+| Mojo | [`tsvc_s132_shifted_row_update.mojo`](../../../mojo/t/tsvc_s132_shifted_row_update.mojo) |

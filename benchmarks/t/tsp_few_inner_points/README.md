@@ -32,6 +32,10 @@ does not claim an exact optimum for the unrounded Euclidean TSP. The bounded
 coordinate and point-count rules keep all scaled distances and tour costs
 within signed 64-bit arithmetic.
 
+The profile evaluates k! inner orders with O(n(k+1)) dynamic-programming work
+per order, plus fixed-width integer square-root calculations. It uses O(n+k)
+extra space.
+
 Source: *Encyclopedia of Algorithms*, “Traveling Sales Person with Few Inner
 Points,” DOI [`10.1007/978-1-4939-2864-4_426`](https://doi.org/10.1007/978-1-4939-2864-4_426).
 The implementation is clean-room and does not reproduce book prose or code.
@@ -42,6 +46,7 @@ The implementation is clean-room and does not reproduce book prose or code.
 | C3 | `c3/t/tsp_few_inner_points.c3` |
 | C++ | `cpp/t/tsp_few_inner_points.cpp` |
 | Elisa | `elisa/t/tsp_few_inner_points.elisa` |
+| Mojo | [`mojo/t/tsp_few_inner_points.mojo`](../../../mojo/t/tsp_few_inner_points.mojo) (draft; not compiled or run) |
 | Nim | `nim/t/tsp_few_inner_points.nim` |
 | Odin | `odin/t/tsp_few_inner_points.odin` |
 | Rust | `rust/t/tsp_few_inner_points.rs` |

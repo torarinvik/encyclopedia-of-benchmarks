@@ -68,3 +68,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s212_next_element_dependency.rs`](../../../rust/t/tsvc_s212_next_element_dependency.rs) |
 | V | [`tsvc_s212_next_element_dependency.v`](../../../v/t/tsvc_s212_next_element_dependency.v) |
 | Zig | [`tsvc_s212_next_element_dependency.zig`](../../../zig/t/tsvc_s212_next_element_dependency.zig) |
+| Mojo | [`tsvc_s212_next_element_dependency.mojo`](../../../mojo/t/tsvc_s212_next_element_dependency.mojo) (draft, unverified) |

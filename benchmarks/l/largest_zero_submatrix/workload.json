@@ -28,7 +28,7 @@
     "result_range": [0, 256],
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Maintain the most recent one-row per column, then use monotone stacks to find each column's nearest strictly higher blocker on both sides for every bottom row.",
     "independent_oracle": "Enumerate every top, bottom, left, and right boundary and inspect each candidate rectangle's cells directly.",
     "primary_complexity": "O(R*C) time and O(C) auxiliary space.",

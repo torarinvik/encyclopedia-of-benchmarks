@@ -10,6 +10,8 @@ For each row, the implementation accumulates `sum`, running `mean`, and `M2` in 
 
 The static workload contains the hand-solvable two-point row set whose largest score is exactly 4.5, plus malformed and zero-variance cases. The independent oracle in `benchmarks/rodinia_leukocyte_gicov_oracle.py` reproduces binary32 rounding while using a separate Python implementation of the row reduction.
 
+The Mojo draft is [`mojo/r/rodinia_leukocyte_gicov.mojo`](../../../mojo/r/rodinia_leukocyte_gicov.mojo); its floating-point contraction behavior has not been verified.
+
 ## Provenance and rights
 
 - Pinned source: [`utcs-scea/rodinia/cuda/leukocyte/CUDA/find_ellipse_kernel.cu`](https://github.com/utcs-scea/rodinia/blob/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/leukocyte/CUDA/find_ellipse_kernel.cu), commit `f30e63663cfb114939a15c7ffc4ae112055ae6a8`, function `GICOV_kernel`.

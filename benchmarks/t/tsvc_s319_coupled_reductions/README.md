@@ -70,3 +70,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s319_coupled_reductions.rs`](../../../rust/t/tsvc_s319_coupled_reductions.rs) |
 | V | [`tsvc_s319_coupled_reductions.v`](../../../v/t/tsvc_s319_coupled_reductions.v) |
 | Zig | [`tsvc_s319_coupled_reductions.zig`](../../../zig/t/tsvc_s319_coupled_reductions.zig) |
+| Mojo | [`tsvc_s319_coupled_reductions.mojo`](../../../mojo/t/tsvc_s319_coupled_reductions.mojo) |

@@ -6,6 +6,8 @@ Input is `[n,max_items,capacity,sizes...]`, with `1<=n<=32`, `1<=max_items<=32`,
 
 The per-bin count condition changes the placement feasibility test, so this is distinct from ordinary [`first_fit_bin_packing`](../first_fit_bin_packing/README.md), which only checks capacity. This profile instantiates the First-Fit adaptation discussed in the chapter; it does not implement the chapter’s asymptotic approximation schemes or all cardinality-constrained variants.
 
+The direct bin scan takes `O(n^2)` time in the worst case and `O(n)` space.
+
 ## Implementations
 
 | Language | Source |
@@ -14,6 +16,7 @@ The per-bin count condition changes the placement feasibility test, so this is d
 | C3 | [`c3/f/first_fit_cardinality_bin_packing.c3`](../../../c3/f/first_fit_cardinality_bin_packing.c3) |
 | C++ | [`cpp/f/first_fit_cardinality_bin_packing.cpp`](../../../cpp/f/first_fit_cardinality_bin_packing.cpp) |
 | Elisa | [`elisa/f/first_fit_cardinality_bin_packing.elisa`](../../../elisa/f/first_fit_cardinality_bin_packing.elisa) |
+| Mojo | [`mojo/f/first_fit_cardinality_bin_packing.mojo`](../../../mojo/f/first_fit_cardinality_bin_packing.mojo) |
 | Nim | [`nim/f/first_fit_cardinality_bin_packing.nim`](../../../nim/f/first_fit_cardinality_bin_packing.nim) |
 | Odin | [`odin/f/first_fit_cardinality_bin_packing.odin`](../../../odin/f/first_fit_cardinality_bin_packing.odin) |
 | Rust | [`rust/f/first_fit_cardinality_bin_packing.rs`](../../../rust/f/first_fit_cardinality_bin_packing.rs) |

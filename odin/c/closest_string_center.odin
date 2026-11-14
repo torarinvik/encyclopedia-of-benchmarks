@@ -5,7 +5,7 @@ import "core:c"
 // Bounded exact closest-string center by lexicographic exhaustive search.
 @(export)
 closest_string_center :: proc "c" (x:[^]i64,length:c.size_t,out:[^]u8,cap:c.size_t)->i64{
-    if x==nil do return -2
+    if x==nil do return -1
     if length<3||length>51 do return -1
     nv,mv,qv:=x[0],x[1],x[2]
     if nv<1||nv>6||mv<1||mv>8||(qv!=2&&qv!=3)||int(length)!=3+int(nv*mv) do return -1

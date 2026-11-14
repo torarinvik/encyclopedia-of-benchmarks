@@ -31,3 +31,5 @@ See [`workload.json`](workload.json) and the independent reference model [`bench
 | Zig | [`zig/p/prolangs_c_numeric_token.zig`](../../../zig/p/prolangs_c_numeric_token.zig) |
 
 All ports are clean-room implementations. The upstream source's license status remains unresolved; this note is not a license grant for the original compiler.
+
+The Mojo draft is [`mojo/p/prolangs_c_numeric_token.mojo`](../../../mojo/p/prolangs_c_numeric_token.mojo). Float32 behavior remains unverified.

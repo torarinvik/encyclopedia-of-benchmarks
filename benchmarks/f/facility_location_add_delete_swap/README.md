@@ -54,6 +54,7 @@ objective. See [RIGHTS.md](RIGHTS.md).
 | C3 | `c3/f/facility_location_add_delete_swap.c3` |
 | C++ | `cpp/f/facility_location_add_delete_swap.cpp` |
 | Elisa | `elisa/f/facility_location_add_delete_swap.elisa` |
+| Mojo | [`mojo/f/facility_location_add_delete_swap.mojo`](../../../mojo/f/facility_location_add_delete_swap.mojo) |
 | Nim | `nim/f/facility_location_add_delete_swap.nim` |
 | Odin | `odin/f/facility_location_add_delete_swap.odin` |
 | Rust | `rust/f/facility_location_add_delete_swap.rs` |

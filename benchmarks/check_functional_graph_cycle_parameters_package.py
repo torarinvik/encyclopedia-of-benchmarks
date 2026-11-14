@@ -46,6 +46,9 @@ def static_issues() -> list[str]:
 
     if workload.get("algorithm") != "functional_graph_cycle_parameters":
         issues.append("unexpected algorithm name")
+    details = workload.get("algorithm_details")
+    if not isinstance(details, dict) or not details.get("primary") or not details.get("independent_oracle"):
+        issues.append("missing algorithm and reference descriptions")
     if workload.get("function_symbol") != "functional_graph_cycle_parameters":
         issues.append("unexpected exported symbol")
     if workload.get("abi") != "i64_array_scalar":

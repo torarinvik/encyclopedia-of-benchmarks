@@ -96,6 +96,7 @@ static void ss_ifft(int64_t *a, int l, int m, int64_t *buf) {
             if (w < 0) w += 2 * M;
         }
     }
+    for (int i = 0; i < L * M; ++i) a[i] /= L;
 }
 
 static void ss_naive_mul(int64_t *a, const int64_t *b, int n, int64_t *buf) {

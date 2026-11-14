@@ -31,6 +31,7 @@ The pinned notice is:
 | C3 | [c3/m/mccat_bisect.c3](../../../c3/m/mccat_bisect.c3) |
 | C++ | [cpp/m/mccat_bisect.cpp](../../../cpp/m/mccat_bisect.cpp) |
 | Elisa | [elisa/m/mccat_bisect.elisa](../../../elisa/m/mccat_bisect.elisa) |
+| Mojo | [mojo/m/mccat_bisect.mojo](../../../mojo/m/mccat_bisect.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/mccat_bisect.nim](../../../nim/m/mccat_bisect.nim) |
 | Odin | [odin/m/mccat_bisect.odin](../../../odin/m/mccat_bisect.odin) |
 | Rust | [rust/m/mccat_bisect.rs](../../../rust/m/mccat_bisect.rs) |

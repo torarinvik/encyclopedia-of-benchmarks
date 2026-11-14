@@ -48,3 +48,6 @@ are in the corresponding language directories as `gardenia_sgd`.
 | Rust | [`rust/g/gardenia_sgd.rs`](../../../rust/g/gardenia_sgd.rs) |
 | V | [`v/g/gardenia_sgd.v`](../../../v/g/gardenia_sgd.v) |
 | Zig | [`zig/g/gardenia_sgd.zig`](../../../zig/g/gardenia_sgd.zig) |
+| Mojo | [`mojo/g/gardenia_sgd.mojo`](../../../mojo/g/gardenia_sgd.mojo) (unverified draft) |
+
+Each of at most three passes takes O(users + ratings·factors) time; working storage is O(users + ratings + vertices·factors).

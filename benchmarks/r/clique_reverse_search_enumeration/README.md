@@ -36,6 +36,8 @@ pivot model.
 
 ## Workload and ports
 
+The [Mojo draft](../../../mojo/r/clique_reverse_search_enumeration.mojo) preserves the same reverse-search preorder and has not been compiled or run.
+
 The [workload](workload.json) covers an empty graph, a path, a complete
 maximum-size graph, malformed graph encodings, null buffers, and a short
 capacity probe.

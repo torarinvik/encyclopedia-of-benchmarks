@@ -55,9 +55,10 @@ int compare(Fraction a, Fraction b) {
 void resolve(const std::int64_t *, int, Group &, int);
 
 void split_by_score(const std::int64_t *v, int n, Group &group, int stage, bool same_div) {
+    const Group scoring_group = group;
     std::stable_sort(group.begin(), group.end(), [&](int a, int b) {
-        return compare(score_for(v, n, group, a, stage, same_div),
-                       score_for(v, n, group, b, stage, same_div)) > 0;
+        return compare(score_for(v, n, scoring_group, a, stage, same_div),
+                       score_for(v, n, scoring_group, b, stage, same_div)) > 0;
     });
     bool split = false;
     const auto best = score_for(v, n, group, group[0], stage, same_div);

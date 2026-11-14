@@ -22,6 +22,9 @@ The ports use an iterative radix-2 transform. The independent
 uses the direct O(n²) modular DFT, rather than the ports' butterfly stages.
 [`workload.json`](workload.json) defines the bounded cases.
 
+The butterfly stages take O(n log n) time and O(n) auxiliary space; computing
+their roots adds O(log n × log modulus) modular multiplications.
+
 ## Pinned source and license
 
 This contract is based on AtCoder Library's convolution implementation and
@@ -41,6 +44,7 @@ AtCoder Library is CC0 1.0 Universal; the complete notice is in
 | C3 | [`c3/n/number_theoretic_transform.c3`](../../../c3/n/number_theoretic_transform.c3) |
 | C++ | [`cpp/n/number_theoretic_transform.cpp`](../../../cpp/n/number_theoretic_transform.cpp) |
 | Elisa | [`elisa/n/number_theoretic_transform.elisa`](../../../elisa/n/number_theoretic_transform.elisa) |
+| Mojo | [`mojo/n/number_theoretic_transform.mojo`](../../../mojo/n/number_theoretic_transform.mojo) (draft; not compiled or run) |
 | Nim | [`nim/n/number_theoretic_transform.nim`](../../../nim/n/number_theoretic_transform.nim) |
 | Odin | [`odin/n/number_theoretic_transform.odin`](../../../odin/n/number_theoretic_transform.odin) |
 | Rust | [`rust/n/number_theoretic_transform.rs`](../../../rust/n/number_theoretic_transform.rs) |

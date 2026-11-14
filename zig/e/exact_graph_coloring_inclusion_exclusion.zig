@@ -1,6 +1,6 @@
 /// Exact chromatic number through independent-set inclusion-exclusion.
 export fn exact_graph_coloring_inclusion_exclusion(x:?[*]const i64,length:usize,out:?[*]u8,cap:usize)i64{
- const a=x orelse return -2;if(length<2 or length>44)return -1;const nv=a[0];const mv=a[1];if(nv<1 or nv>7 or mv<0 or mv>21)return -1;
+ const a=x orelse return -1;if(length<2 or length>44)return -1;const nv=a[0];const mv=a[1];if(nv<1 or nv>7 or mv<0 or mv>21)return -1;
  const n:usize=@intCast(nv);const m:usize=@intCast(mv);if(length!=2+2*m)return -1;var adj:[7][7]bool=@splat(@splat(false));
  for(0..m)|e|{const u=a[2+2*e];const v=a[3+2*e];if(u<0 or v<0 or u>=nv or v>=nv or u==v)return -1;const uu:usize=@intCast(u);const vv:usize=@intCast(v);if(adj[uu][vv])return -1;adj[uu][vv]=true;adj[vv][uu]=true;}
  const lim:usize=@as(usize,1)<<@intCast(n);var cnt:[128]i64=@splat(0);cnt[0]=1;

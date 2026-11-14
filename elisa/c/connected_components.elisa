@@ -8,17 +8,19 @@ def connected_components_visit(vertex: usize, n: usize, adjacency: view[bool], s
         next <- next + 1
 
 def connected_components_impl(input: i64&, length: usize) -> i64:
-    if length < 2 or length > 1026 or input[0] < 0 or input[0] > 256 or input[1] < 0 or input[1] > 512:
+    if input.is_null() or length < 2 or length > 1026:
         return -1
-    n: usize = input[0].usize()
-    m: usize = input[1].usize()
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > 256 or values[1] < 0 or values[1] > 512: return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
     if length != 2 + 2 * m:
         return -1
     adjacency: mutable bool[65536] = zeroed
     edge: mutable usize = 0
     while edge < m:
-        u: i64 = input[2 + 2 * edge]
-        v: i64 = input[3 + 2 * edge]
+        u: i64 = values[2 + 2 * edge]
+        v: i64 = values[3 + 2 * edge]
         if u < 1 or u > n.i64() or v < 1 or v > n.i64():
             return -1
         a: usize = (u - 1).usize()

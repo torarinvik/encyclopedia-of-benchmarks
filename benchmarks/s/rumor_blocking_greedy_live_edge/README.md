@@ -48,6 +48,9 @@ and synchronous high-effectiveness MCICM competition, with deterministic
 supplied simulation worlds and an explicit tie rule. COICM, `d>0`, stochastic
 world generation, and edge/node blocking (Problem 2) are not included.
 
+For n vertices, m edges, w supplied worlds, and k selections, the direct
+simulation profile takes O(kwn²(m+n)) time and O(n+k) extra space.
+
 Source: Lidan Fan and Weili Wu, “Rumor Blocking,” Encyclopedia of Algorithms,
 DOI `10.1007/978-1-4939-2864-4_623`, `OEBPS/AChap623.html`, Problem 1,
 MCICM, high-effectiveness property, and Algorithm 1. The chapter provides no
@@ -63,6 +66,7 @@ Primary and independent verifier oracles:
 | C3 | `c3/s/rumor_blocking_greedy_live_edge.c3` |
 | C++ | `cpp/s/rumor_blocking_greedy_live_edge.cpp` |
 | Elisa | `elisa/s/rumor_blocking_greedy_live_edge.elisa` |
+| Mojo | [`mojo/s/rumor_blocking_greedy_live_edge.mojo`](../../../mojo/s/rumor_blocking_greedy_live_edge.mojo) (draft; not compiled or run) |
 | Nim | `nim/s/rumor_blocking_greedy_live_edge.nim` |
 | Odin | `odin/s/rumor_blocking_greedy_live_edge.odin` |
 | Rust | `rust/s/rumor_blocking_greedy_live_edge.rs` |

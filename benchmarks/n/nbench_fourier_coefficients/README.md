@@ -6,7 +6,9 @@ Compute the first `n` Fourier coefficients for the source waveform `(x+1)^x` ove
 
 The `i64_array_float64` ABI accepts `[n]`, with integer `n` from 1 through 16. The parser accepts one extra input value to reject trailing data. Invalid or null input returns `-1e300`. The result is a deterministic scalar projection that keeps the computed coefficient vector observable: `sum((i+1)*A[i], i=0..n-1) + sum(i*B[i], i=1..n-1)`. Compare with absolute tolerance `1e-10` and relative tolerance `1e-12`.
 
-The source integration operation order is preserved: initialize with the half-weighted lower endpoint, accumulate interior points using repeated `x += dx`, then add the half-weighted upper endpoint and multiply by `dx`.
+The source integration operation order is preserved: initialize with the half-weighted lower endpoint, accumulate 198 interior points using repeated `x += dx`, then add the half-weighted upper endpoint and multiply by `dx`. The source's loop count is retained even though a conventional 200-subinterval trapezoid rule would use 199 interior points.
+
+The Mojo draft is [`mojo/n/nbench_fourier_coefficients.mojo`](../../../mojo/n/nbench_fourier_coefficients.mojo). Its math-library and floating-point tolerance behavior remain unverified. Computing n coefficients takes O(n) time with the fixed 200-step profile and O(n) space.
 
 ## Upstream attribution and terms
 

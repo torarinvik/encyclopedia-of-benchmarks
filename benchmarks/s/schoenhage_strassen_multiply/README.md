@@ -18,6 +18,12 @@ transforms exponent 6 before reaching the exponent-4 naive base case. The
 bounded 64-bit coefficient domain keeps every exact transform intermediate
 within signed 64-bit range.
 
+Static review identified missing inverse-transform normalization across the
+existing ports, incorrect inverse rotations in several ports, and an
+overlapping reconstruction buffer in Zig. The source drafts have been edited
+to address these issues; the edits and the full transform remain unverified by
+compilation or execution.
+
 Success writes the product as a fixed-width, big-endian 129-byte integer.
 Invalid input returns `-1`. Null output or capacity below 129 returns `-2`,
 without writing any bytes. Both operands are at least 512 bits, so the product
@@ -46,6 +52,7 @@ schedule.
 | C3 | [`c3/s/schoenhage_strassen_multiply.c3`](../../../c3/s/schoenhage_strassen_multiply.c3) |
 | C++ | [`cpp/s/schoenhage_strassen_multiply.cpp`](../../../cpp/s/schoenhage_strassen_multiply.cpp) |
 | Elisa | [`elisa/s/schoenhage_strassen_multiply.elisa`](../../../elisa/s/schoenhage_strassen_multiply.elisa) |
+| Mojo | [`mojo/s/schoenhage_strassen_multiply.mojo`](../../../mojo/s/schoenhage_strassen_multiply.mojo) (unvalidated draft) |
 | Nim | [`nim/s/schoenhage_strassen_multiply.nim`](../../../nim/s/schoenhage_strassen_multiply.nim) |
 | Odin | [`odin/s/schoenhage_strassen_multiply.odin`](../../../odin/s/schoenhage_strassen_multiply.odin) |
 | Rust | [`rust/s/schoenhage_strassen_multiply.rs`](../../../rust/s/schoenhage_strassen_multiply.rs) |

@@ -19,6 +19,9 @@ flow time. For multiple machines, the chapter identifies SRPT as a
 preemptive policy with a bound depending on the largest-to-smallest processing
 time ratio; this profile does not assert an optimality guarantee there.
 
+For n jobs, m machines, and T simulated busy time slots, direct selection
+takes O(Tmn + n²) time (including idle jumps) and O(n + m) space.
+
 ## Source and scope
 
 The single-machine behavior is based on “Minimum Flow Time,” DOI
@@ -41,6 +44,7 @@ Fixtures are in [`workload.json`](workload.json).
 | C3 | `c3/m/srpt_flow_time.c3` |
 | C++ | `cpp/m/srpt_flow_time.cpp` |
 | Elisa | `elisa/m/srpt_flow_time.elisa` |
+| Mojo | [`mojo/m/srpt_flow_time.mojo`](../../../mojo/m/srpt_flow_time.mojo) (draft; not compiled or run) |
 | Nim | `nim/m/srpt_flow_time.nim` |
 | Odin | `odin/m/srpt_flow_time.odin` |
 | Rust | `rust/m/srpt_flow_time.rs` |

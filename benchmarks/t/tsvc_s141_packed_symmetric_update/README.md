@@ -66,3 +66,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s141_packed_symmetric_update.rs`](../../../rust/t/tsvc_s141_packed_symmetric_update.rs) |
 | V | [`tsvc_s141_packed_symmetric_update.v`](../../../v/t/tsvc_s141_packed_symmetric_update.v) |
 | Zig | [`tsvc_s141_packed_symmetric_update.zig`](../../../zig/t/tsvc_s141_packed_symmetric_update.zig) |
+| Mojo | [`tsvc_s141_packed_symmetric_update.mojo`](../../../mojo/t/tsvc_s141_packed_symmetric_update.mojo) |

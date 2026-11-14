@@ -18,6 +18,9 @@ NextFit starts its `counter` at zero for each call and retains it across that ca
 
 Output is one signed-i64 result per process, in process order, encoded as little-endian words. The value is the zero-based chosen block index or `-255` when allocation fails. The maximum valid input length is 51 words; 52 words are parseable for a trailing-data probe. Output and workspace are bounded at 256 bytes. A valid call returns the output byte count; an empty process list succeeds with zero bytes when given a non-null output pointer. Null input, malformed framing, an invalid policy, an empty block array, or an out-of-domain size returns `-1` before output checks. Null output or insufficient capacity returns `-2` after input validation. Errors write no bytes.
 
+For b blocks and p processes, these sequential policies take O(b(p + 1))
+time and O(b + p) space, including staged results.
+
 ## Pinned source
 
 - Java [`MemoryManagementAlgorithms.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/MemoryManagementAlgorithms.java), policies `FirstFitCPU`, `BestFitCPU`, `WorstFitCPU`, and `NextFit`, commit `e43ec3897e48f23843972d02cd05a5bb1b6864a2`.
@@ -31,12 +34,13 @@ Output is one signed-i64 result per process, in process order, encoded as little
 
 | Language | Port |
 |---|---|
-| C | [`c/m/memory_management_algorithms.c`](../../../c/m/memory_management_algorithms.c) |
-| C3 | [`c3/m/memory_management_algorithms.c3`](../../../c3/m/memory_management_algorithms.c3) |
-| C++ | [`cpp/m/memory_management_algorithms.cpp`](../../../cpp/m/memory_management_algorithms.cpp) |
-| Elisa | [`elisa/m/memory_management_algorithms.elisa`](../../../elisa/m/memory_management_algorithms.elisa) |
-| Nim | [`nim/m/memory_management_algorithms.nim`](../../../nim/m/memory_management_algorithms.nim) |
-| Odin | [`odin/m/memory_management_algorithms.odin`](../../../odin/m/memory_management_algorithms.odin) |
-| Rust | [`rust/m/memory_management_algorithms.rs`](../../../rust/m/memory_management_algorithms.rs) |
-| V | [`v/m/memory_management_algorithms.v`](../../../v/m/memory_management_algorithms.v) |
-| Zig | [`zig/m/memory_management_algorithms.zig`](../../../zig/m/memory_management_algorithms.zig) |
+| C | [`c/m/memory_management_algorithms.c`](../../c/m/memory_management_algorithms.c) |
+| C3 | [`c3/m/memory_management_algorithms.c3`](../../c3/m/memory_management_algorithms.c3) |
+| C++ | [`cpp/m/memory_management_algorithms.cpp`](../../cpp/m/memory_management_algorithms.cpp) |
+| Elisa | [`elisa/m/memory_management_algorithms.elisa`](../../elisa/m/memory_management_algorithms.elisa) |
+| Mojo | [`mojo/m/memory_management_algorithms.mojo`](../../mojo/m/memory_management_algorithms.mojo) (draft; not compiled or run) |
+| Nim | [`nim/m/memory_management_algorithms.nim`](../../nim/m/memory_management_algorithms.nim) |
+| Odin | [`odin/m/memory_management_algorithms.odin`](../../odin/m/memory_management_algorithms.odin) |
+| Rust | [`rust/m/memory_management_algorithms.rs`](../../rust/m/memory_management_algorithms.rs) |
+| V | [`v/m/memory_management_algorithms.v`](../../v/m/memory_management_algorithms.v) |
+| Zig | [`zig/m/memory_management_algorithms.zig`](../../zig/m/memory_management_algorithms.zig) |

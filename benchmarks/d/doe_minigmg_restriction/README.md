@@ -34,3 +34,5 @@ The pinned miniGMG subtree includes an explicit BSD-3-Clause-style license and
 an additional enhancement-license paragraph. Its complete text is preserved
 in [`LICENSE.txt`](LICENSE.txt); no upstream implementation code is copied
 into these ports. The ports are written from the documented source behavior.
+
+The optional [Mojo port](../../../mojo/d/doe_minigmg_restriction.mojo) is a draft and has not been compiled or run. The restriction visits each fine-grid cell once, taking O(nx·ny·nz) time and O(1) auxiliary space.

@@ -18,3 +18,8 @@ The algorithm is based on `src/core/cdt.c` in [`dtcc-platform/dtcc-mesher`](http
 ## Oracle and ports
 
 The independent oracle is [`delaunay_mesh_refinement_oracle.py`](../../delaunay_mesh_refinement_oracle.py). Each language implementation follows the same input, quantization, output order, and error contract.
+
+A [Mojo draft](../../../mojo/d/delaunay_mesh_refinement.mojo) is present, and
+the runner checks all ten source paths. Verifier source includes a slender
+acute triangle with an explicitly calculated rational circumcenter. None of
+these changes has been compiled or run.

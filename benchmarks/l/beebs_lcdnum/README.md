@@ -28,9 +28,12 @@ The source is pinned to [`mageec/beebs` `src/lcdnum/liblcdnum.c`](https://github
 at commit `049ded9f3aeb5591f553879d3a0376b8614e9422`. The file declares
 GPL-3.0-or-later and attributes copyright to Embecosm Limited and the
 University of Bristol, with James Pallister as a contributor. See
-[LICENSE.txt](LICENSE.txt) and [NOTICE.txt](NOTICE.txt). The nine ports are
+[LICENSE.txt](LICENSE.txt) and [NOTICE.txt](NOTICE.txt). The language ports are
 clean-room implementations of the bounded lookup profile; no upstream
 implementation text was copied or translated.
+
+The [Mojo draft](../../../mojo/l/beebs_lcdnum.mojo) implements the documented
+lookup mapping and has not been compiled or run.
 
 ## Files
 

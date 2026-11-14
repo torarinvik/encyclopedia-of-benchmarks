@@ -49,8 +49,12 @@ the isolated variants are `Misc/flops-1/flops-1.c` through
 | C3 | [c3/m/misc_flops.c3](../../../c3/m/misc_flops.c3) |
 | C++ | [cpp/m/misc_flops.cpp](../../../cpp/m/misc_flops.cpp) |
 | Elisa | [elisa/m/misc_flops.elisa](../../../elisa/m/misc_flops.elisa) |
+| Mojo | [mojo/m/misc_flops.mojo](../../../mojo/m/misc_flops.mojo) (draft, unverified) |
 | Nim | [nim/m/misc_flops.nim](../../../nim/m/misc_flops.nim) |
 | Odin | [odin/m/misc_flops.odin](../../../odin/m/misc_flops.odin) |
 | Rust | [rust/m/misc_flops.rs](../../../rust/m/misc_flops.rs) |
 | V | [v/m/misc_flops.v](../../../v/m/misc_flops.v) |
 | Zig | [zig/m/misc_flops.zig](../../../zig/m/misc_flops.zig) |
+
+Each module takes O(steps) time and O(1) working space. The Mojo draft has not
+been compiled or run.

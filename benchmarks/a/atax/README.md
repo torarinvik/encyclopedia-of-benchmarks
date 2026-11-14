@@ -4,7 +4,7 @@ This package ports the `PolyBench/linear-algebra/kernels/atax/atax.c` kernel fro
 
 The `atax` slug takes signed 64-bit input `[m, n]`, with both dimensions bounded to 1–64. In increasing row order, it computes each `tmp[i]` by accumulating `A[i][j] * x[j]` for increasing `j`, then adds `A[i][j] * tmp[i]` into `y[j]` in increasing `j` order. This matches the source's row-by-row matrix-vector calculation followed by its transpose contributions, including the source's per-row interleaving. The scalar output is the binary64 sum of final `y[j]` values in increasing column order. Invalid inputs return `-1e300`.
 
-The original default dimensions are reduced to keep calls bounded. Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for source attribution, bounds, and cases.
+The original default dimensions are reduced to keep calls bounded. Ports are provided in C, C3, C++, Elisa, Mojo, Nim, Odin, Rust, V, and Zig. The [Mojo draft](../../../mojo/a/atax.mojo) is unverified. See [`workload.json`](workload.json) for source attribution, bounds, and cases.
 
 ## Upstream license
 

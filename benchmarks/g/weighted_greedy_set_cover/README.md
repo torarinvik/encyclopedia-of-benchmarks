@@ -42,3 +42,6 @@ uses exact rational-number comparisons with a separate set representation.
 | Rust | [`weighted_greedy_set_cover.rs`](../../../rust/g/weighted_greedy_set_cover.rs) |
 | V | [`weighted_greedy_set_cover.v`](../../../v/g/weighted_greedy_set_cover.v) |
 | Zig | [`weighted_greedy_set_cover.zig`](../../../zig/g/weighted_greedy_set_cover.zig) |
+| Mojo | [`weighted_greedy_set_cover.mojo`](../../../mojo/g/weighted_greedy_set_cover.mojo) (unverified draft) |
+
+With n universe elements and m sets, at most min(n,m) rounds scan m masks; the bounded bit-count loop gives O(m·n·min(n,m)) time and O(m) selected-set storage.

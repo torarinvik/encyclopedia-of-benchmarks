@@ -25,6 +25,9 @@ returns `-2` without writes. The bounded profile reports assignments and
 doesn't evaluate the GCBP concave bin-cost function or claim its approximation
 ratio.
 
+The stable insertion sort takes O(n²) worst-case time; packing takes O(n)
+time and the profile uses O(n) space.
+
 ## Source and rights
 
 Leah Epstein, “Bin Packing, Variants,” *Encyclopedia of Algorithms*, DOI
@@ -48,6 +51,7 @@ Primary and independent verifier oracles:
 | C3 | [`c3/n/next_fit_increasing_bin_packing.c3`](../../../c3/n/next_fit_increasing_bin_packing.c3) |
 | C++ | [`cpp/n/next_fit_increasing_bin_packing.cpp`](../../../cpp/n/next_fit_increasing_bin_packing.cpp) |
 | Elisa | [`elisa/n/next_fit_increasing_bin_packing.elisa`](../../../elisa/n/next_fit_increasing_bin_packing.elisa) |
+| Mojo | [`mojo/n/next_fit_increasing_bin_packing.mojo`](../../../mojo/n/next_fit_increasing_bin_packing.mojo) |
 | Nim | [`nim/n/next_fit_increasing_bin_packing.nim`](../../../nim/n/next_fit_increasing_bin_packing.nim) |
 | Odin | [`odin/n/next_fit_increasing_bin_packing.odin`](../../../odin/n/next_fit_increasing_bin_packing.odin) |
 | Rust | [`rust/n/next_fit_increasing_bin_packing.rs`](../../../rust/n/next_fit_increasing_bin_packing.rs) |

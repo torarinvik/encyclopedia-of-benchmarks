@@ -14,6 +14,7 @@ The upstream notice identifies BYTEmark (tm), BYTE's Native Mode Benchmarks, and
 
 ## Files
 
-- Oracle: [nbench_huffman_compression_oracle.py](../nbench_huffman_compression_oracle.py)
+- Oracle: [nbench_huffman_compression_oracle.py](../../nbench_huffman_compression_oracle.py)
 - Workload: [workload.json](workload.json)
 - Ports: C, C++, C3, Rust, Nim, Odin, V, Zig, Elisa under their respective `n/` directories.
+- [Mojo draft](../../../mojo/n/nbench_huffman_compression.mojo); Float32 tie behavior remains unverified.

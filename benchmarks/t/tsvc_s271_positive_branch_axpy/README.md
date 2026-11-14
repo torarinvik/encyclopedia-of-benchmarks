@@ -71,3 +71,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s271_positive_branch_axpy.rs`](../../../rust/t/tsvc_s271_positive_branch_axpy.rs) |
 | V | [`tsvc_s271_positive_branch_axpy.v`](../../../v/t/tsvc_s271_positive_branch_axpy.v) |
 | Zig | [`tsvc_s271_positive_branch_axpy.zig`](../../../zig/t/tsvc_s271_positive_branch_axpy.zig) |
+| Mojo | [`tsvc_s271_positive_branch_axpy.mojo`](../../../mojo/t/tsvc_s271_positive_branch_axpy.mojo) (draft, unverified) |

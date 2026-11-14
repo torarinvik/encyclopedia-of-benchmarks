@@ -10,6 +10,8 @@ For key codes 0..7, `payload` carries the unsigned IEEE-754 binary32 bit pattern
 
 Return 1 when every attribute is valid, 0 for a source-level invalid attribute (including code outside 0..50), and -1 for malformed framing or a payload outside its tagged representation. Validation is ordered; an invalid code returns 0 before its union payload is interpreted. The empty list returns 1, matching the source's null/empty linked-list traversal. The profile excludes data-object allocation, attribute content, query traversal, and error-message side effects.
 
+For n attributes, the ordered validation takes O(n) time and O(1) auxiliary space.
+
 ## Provenance and rights
 
 Pinned source: [`validAttributes` in `VersaBench/dbms/valid.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/valid.c), with attribute layout/ranges from [`dataObject.h`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/dataObject.h) and primitive definitions in `dataManagement.h`; repository commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. Headers identify M. L. Rivas and `Copyright 1999, Atlantic Aerospace Electronics Corp.`. No explicit redistribution license was found in the pinned directory. The local profile is independently written, preserves the documented validation behavior, and copies no upstream code or comments; see [NOTICE.txt](NOTICE.txt).
@@ -22,6 +24,7 @@ Oracle: [`versabench_dbms_valid_attributes_oracle.py`](../../versabench_dbms_val
 - C3: [../../../c3/d/versabench_dbms_valid_attributes.c3](../../../c3/d/versabench_dbms_valid_attributes.c3)
 - C++: [../../../cpp/d/versabench_dbms_valid_attributes.cpp](../../../cpp/d/versabench_dbms_valid_attributes.cpp)
 - Elisa: [../../../elisa/d/versabench_dbms_valid_attributes.elisa](../../../elisa/d/versabench_dbms_valid_attributes.elisa)
+- Mojo: [`mojo/d/versabench_dbms_valid_attributes.mojo`](../../../mojo/d/versabench_dbms_valid_attributes.mojo) (draft; not compiled or run)
 - Nim: [../../../nim/d/versabench_dbms_valid_attributes.nim](../../../nim/d/versabench_dbms_valid_attributes.nim)
 - Odin: [../../../odin/d/versabench_dbms_valid_attributes.odin](../../../odin/d/versabench_dbms_valid_attributes.odin)
 - Rust: [../../../rust/d/versabench_dbms_valid_attributes.rs](../../../rust/d/versabench_dbms_valid_attributes.rs)

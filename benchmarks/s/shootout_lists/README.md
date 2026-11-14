@@ -6,6 +6,8 @@ The suite exposes the `i64_scalar_bytes_output` ABI with `shootout_lists(runs, o
 
 [`workload.json`](workload.json) records the launcher, bounds, stdout cases, and buffer errors. [`shootout_lists_oracle.py`](../../shootout_lists_oracle.py) models the node movements independently with Python sequences and verifies the source’s list invariants.
 
+Each pass takes `O(SIZE)` time and `O(SIZE)` space for the list nodes; the pinned `SIZE` is 100. The head and tail transfers are distinct operations on circular doubly linked lists, followed by an in-place reversal and equality checks.
+
 ## Implementations
 
 | Language | Source |
@@ -19,6 +21,7 @@ The suite exposes the `i64_scalar_bytes_output` ABI with `shootout_lists(runs, o
 | Rust | [rust/s/shootout_lists.rs](../../../rust/s/shootout_lists.rs) |
 | V | [v/s/shootout_lists.v](../../../v/s/shootout_lists.v) |
 | Zig | [zig/s/shootout_lists.zig](../../../zig/s/shootout_lists.zig) |
+| Mojo | [mojo/s/shootout_lists.mojo](../../../mojo/s/shootout_lists.mojo) |
 
 ## Pinned source
 

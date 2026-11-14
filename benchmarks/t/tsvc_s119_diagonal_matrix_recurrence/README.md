@@ -41,3 +41,5 @@ No explicit redistribution grant was found in the pinned repository material rev
 ## Ports
 
 C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig implementations are provided under the matching `*/t/tsvc_s119_diagonal_matrix_recurrence.*` paths.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s119_diagonal_matrix_recurrence.mojo) is a draft and has not been compiled or run.

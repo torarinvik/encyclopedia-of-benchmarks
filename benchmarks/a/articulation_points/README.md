@@ -10,9 +10,20 @@ The pinned C# implementation scans all vertices and returns a set. The Python im
 - There are 0–64 vertices and 0–2,047 packed edges. Endpoints must be valid. Edges are undirected; repeated edges are coalesced, and self-loops are allowed.
 - The exact input length is `2 + 2 * edge_count`. Invalid input returns `-1`.
 - The output contains each articulation point as one byte, in ascending vertex order. A graph with no articulation points returns an empty byte sequence. The result is the output byte count.
-- If the output buffer is too small, the function returns `-2` without writing output.
+- If the output buffer is too small, or is null for a nonempty result, the function returns `-2` without writing output. An empty result accepts a null output buffer.
+
+The bitset-adjacency implementations scan all vertex pairs during DFS, so their
+time is O(m+n²) and their stored adjacency and traversal state use O(n) machine
+words for the bounded 64-vertex graph. This differs from the O(n+m) bound of an
+adjacency-list implementation.
 
 [`workload.json`](workload.json) covers empty and disconnected graphs, root handling, cycles, tails, duplicate edges, self-loops, a maximum-size path, and malformed inputs. Runtime verification is pending.
+
+The independent [component-deletion oracle](independent_oracle.py) counts
+components before and after deleting each vertex. The verifier source includes
+all simple graphs on up to five vertices, a maximum-size path, duplicate edges,
+self-loops, and output-buffer cases. Neither the oracle nor the suite changes
+have been executed.
 
 ## Pinned sources
 

@@ -73,6 +73,7 @@ fn void ss_ifft(long* a, int l, int m, long* buf) {
             k++; w -= dw[ss_ctz((uint)k)]; if (w < 0) w += 2 * M;
         }
     }
+    for (int i = 0; i < L * M; i++) a[i] /= L;
 }
 
 fn void ss_naive(long* a, long* b, int n, long* buf) {

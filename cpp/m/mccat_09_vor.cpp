@@ -47,7 +47,7 @@ int make_hull(Point* p,int n,int* h) {
 }
 std::int64_t pack_circle(const Point* p,const int* h) {
     Point a=p[h[0]],b=p[h[1]],c=p[h[2]];
-    int sides[3]={length2(a,b),length2(b,c),length2(a,c)};
+    int sides[3]={length2(b,c),length2(a,c),length2(a,b)};
     int opposite=0,u=1,v=2,longest=sides[0];
     if(sides[1]>longest){longest=sides[1];opposite=1;u=0;v=2;}
     if(sides[2]>longest){longest=sides[2];opposite=2;u=0;v=1;}

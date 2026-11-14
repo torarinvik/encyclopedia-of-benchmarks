@@ -24,6 +24,9 @@ problem. It is separate from the value-partitioned [wavelet tree](../wavelet_tre
 which answers rank over arbitrary values and does not expose bitvector
 `select₁`.
 
+For n bits and q queries, the direct block index uses O(n) preprocessing,
+O(q(n/8 + 8)) worst-case query time, and O(n/8 + q) auxiliary space.
+
 Source: “Rank and Select Operations on Bit Strings,” Rajeev Raman,
 *Encyclopedia of Algorithms*, DOI
 [`10.1007/978-1-4939-2864-4_332`](https://doi.org/10.1007/978-1-4939-2864-4_332).
@@ -39,6 +42,7 @@ Independent verifier: [`rank_select_bitstring_verifier_oracle.py`](../../rank_se
 | C3 | `c3/r/rank_select_bitstring.c3` |
 | C++ | `cpp/r/rank_select_bitstring.cpp` |
 | Elisa | `elisa/r/rank_select_bitstring.elisa` |
+| Mojo | [`mojo/r/rank_select_bitstring.mojo`](../../../mojo/r/rank_select_bitstring.mojo) (draft; not compiled or run) |
 | Nim | `nim/r/rank_select_bitstring.nim` |
 | Odin | `odin/r/rank_select_bitstring.odin` |
 | Rust | `rust/r/rank_select_bitstring.rs` |

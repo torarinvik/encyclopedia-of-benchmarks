@@ -1,6 +1,6 @@
 /// Layered edit-distance shortest paths over a supplied literal NFA.
 export fn approximate_regex_matching(x: ?[*]const i64, length: usize, output: ?[*]u8, capacity: usize) i64 {
-    const a=x orelse return -2;
+    const a=x orelse return -1;
     if(length<6 or length>66)return -1;
     const sv=a[0];const ev=a[1];const tv=a[2];const kv=a[3];const startv=a[4];const acceptv=a[5];
     if(sv<2 or sv>8 or ev<1 or ev>16 or tv<0 or tv>12 or kv<0 or kv>3 or startv<0 or acceptv<0 or startv>=sv or acceptv>=sv or startv==acceptv)return -1;

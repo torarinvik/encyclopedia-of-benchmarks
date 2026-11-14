@@ -36,7 +36,7 @@
     "bytes": 4096,
     "meaning": "Fixed 8-by-8 residual matrix, distance labels, gap counts, current-edge cursors, BFS queue, and bounded DFS state."
   },
-  "algorithm": {
+  "algorithm_details": {
     "initial_labels": "Reverse residual BFS from sink; a predecessor is discovered when its residual capacity into the current vertex is positive.",
     "augmenting_rule": "DFS follows only residual arcs with distance[u] = distance[v] + 1 and pushes integral bottlenecks.",
     "relabel_rule": "After exhausting admissible outgoing arcs, assign min(N, 1 + minimum distance of any residual neighbor), reset that vertex's current arc, and update the label count.",

@@ -5,10 +5,11 @@ const MAX_INPUT_LENGTH: usize = 227
 const MAX_CAPACITY: i64 = 1000000
 
 export def push_relabel(input: i64&, length: usize) -> i64:
-    if length < 3 or length > MAX_INPUT_LENGTH:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
         return -1
-    n64: i64 = input[0]
-    source_count64: i64 = input[1]
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    source_count64: i64 = values[1]
     if n64 < 2 or n64 > MAX_VERTICES.i64() or source_count64 < 1 or source_count64 >= n64:
         return -1
     n: usize = n64.usize()
@@ -22,14 +23,14 @@ export def push_relabel(input: i64&, length: usize) -> i64:
     sources: mutable usize[MAX_VERTICES] = zeroed
     index: mutable usize = 0
     while index < source_count:
-        node64: i64 = input[2 + index]
+        node64: i64 = values[2 + index]
         if node64 < 0 or node64 >= n64 or is_source[node64.usize()]:
             return -1
         sources[index] <- node64.usize()
         is_source[node64.usize()] <- true
         index <- index + 1
 
-    sink_count64: i64 = input[sink_count_index]
+    sink_count64: i64 = values[sink_count_index]
     if sink_count64 < 1 or sink_count64 > n64 - source_count64:
         return -1
     sink_count: usize = sink_count64.usize()
@@ -38,7 +39,7 @@ export def push_relabel(input: i64&, length: usize) -> i64:
         return -1
     index <- 0
     while index < sink_count:
-        node64: i64 = input[sink_count_index + 1 + index]
+        node64: i64 = values[sink_count_index + 1 + index]
         if node64 < 0 or node64 >= n64 or is_sink[node64.usize()] or is_source[node64.usize()]:
             return -1
         is_sink[node64.usize()] <- true
@@ -51,7 +52,7 @@ export def push_relabel(input: i64&, length: usize) -> i64:
     while row < n:
         column: mutable usize = 0
         while column < n:
-            capacity: i64 = input[matrix_start + row * n + column]
+            capacity: i64 = values[matrix_start + row * n + column]
             if capacity < 0 or capacity > MAX_CAPACITY or (row == column and capacity != 0):
                 return -1
             residual[row * AUGMENTED_VERTICES + column] <- capacity
@@ -69,7 +70,7 @@ export def push_relabel(input: i64&, length: usize) -> i64:
         index <- index + 1
     index <- 0
     while index < sink_count:
-        sink: usize = input[sink_count_index + 1 + index].usize()
+        sink: usize = values[sink_count_index + 1 + index].usize()
         residual[sink * AUGMENTED_VERTICES + super_sink] <- flow_limit
         index <- index + 1
 

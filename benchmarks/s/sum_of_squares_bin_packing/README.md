@@ -18,6 +18,10 @@ ABI: `i64_array_bytes_output`; symbol: `sum_of_squares_bin_packing`. Input is
 Maximum input is 66 words, output is 520 bytes, and fixed workspace is 2,048
 bytes. The empty instance returns one zero word.
 
+For `n` items and capacity `C`, the histogram-based implementation scans at
+most `n` existing bins per item, taking O(n² + C) time and O(n + C) space.
+This score-minimizing online rule differs from first-fit and next-fit placement.
+
 ## Source and rights
 
 Source: David S. Johnson, “Bin Packing,” *Encyclopedia of Algorithms*, DOI
@@ -39,6 +43,7 @@ Independent verifier: [`sum_of_squares_bin_packing_verifier_oracle.py`](../../su
 | C3 | [`c3/s/sum_of_squares_bin_packing.c3`](../../../c3/s/sum_of_squares_bin_packing.c3) |
 | C++ | [`cpp/s/sum_of_squares_bin_packing.cpp`](../../../cpp/s/sum_of_squares_bin_packing.cpp) |
 | Elisa | [`elisa/s/sum_of_squares_bin_packing.elisa`](../../../elisa/s/sum_of_squares_bin_packing.elisa) |
+| Mojo | [`mojo/s/sum_of_squares_bin_packing.mojo`](../../../mojo/s/sum_of_squares_bin_packing.mojo) |
 | Nim | [`nim/s/sum_of_squares_bin_packing.nim`](../../../nim/s/sum_of_squares_bin_packing.nim) |
 | Odin | [`odin/s/sum_of_squares_bin_packing.odin`](../../../odin/s/sum_of_squares_bin_packing.odin) |
 | Rust | [`rust/s/sum_of_squares_bin_packing.rs`](../../../rust/s/sum_of_squares_bin_packing.rs) |

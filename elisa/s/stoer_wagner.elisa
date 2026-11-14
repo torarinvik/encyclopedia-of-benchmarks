@@ -5,7 +5,8 @@ const MAX_WEIGHT: i64 = 1000000
 def stoer_wagner_impl(input: i64&, length: usize) -> i64:
     if input.is_null() or length < 1 or length > MAX_INPUT_VALUES:
         return -1
-    n_value: i64 = input[0]
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
     if n_value < 2 or n_value > 16:
         return -1
     n: usize = n_value.usize()
@@ -17,7 +18,7 @@ def stoer_wagner_impl(input: i64&, length: usize) -> i64:
     while row < n:
         column: mutable usize = 0
         while column < n:
-            weight: i64 = input[1 + row * n + column]
+            weight: i64 = values[1 + row * n + column]
             if weight < 0 or weight > MAX_WEIGHT:
                 return -1
             graph[row * MAX_N + column] <- weight
@@ -43,10 +44,11 @@ def stoer_wagner_impl(input: i64&, length: usize) -> i64:
         previous: mutable i64 = -1
         last: mutable i64 = -1
         step: mutable usize = 0
+        vertex: mutable usize = 0
         while step < n - phase:
             current: mutable i64 = -1
             max_weight: mutable i64 = -1
-            vertex: mutable usize = 0
+            vertex <- 0
             while vertex < n:
                 if not merged[vertex] and not in_set[vertex] and weights[vertex] > max_weight:
                     current <- vertex.i64()

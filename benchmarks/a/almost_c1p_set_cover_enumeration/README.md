@@ -35,8 +35,8 @@ from [weighted greedy set cover](../weighted_greedy_set_cover/README.md).
 
 ## Files
 
-Nine ports are under `c/a`, `cpp/a`, `rust/a`, `c3/a`, `nim/a`, `odin/a`,
-`elisa/a`, `v/a`, and `zig/a`, with a workload and independent oracles.
+Ten language sources are present, with a workload and independent oracles.
+The [Mojo draft](../../../mojo/a/almost_c1p_set_cover_enumeration.mojo) has not been compiled or run.
 
 ## Source and rights
 

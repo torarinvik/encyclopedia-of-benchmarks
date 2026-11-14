@@ -16,4 +16,4 @@ The kernel is based on `DoNNetIteration`, `do_mid_forward`, `do_out_forward`, `d
 
 ## Workload and oracle
 
-The independent oracle is [`benchmarks/nbench_neural_network_oracle.py`](../../nbench_neural_network_oracle.py). Implementations are provided in C, C++, C3, Elisa, Nim, Odin, Rust, V, and Zig.
+The independent oracle is [`benchmarks/nbench_neural_network_oracle.py`](../../nbench_neural_network_oracle.py). Implementations are provided in C, C++, C3, Elisa, Nim, Odin, Rust, V, and Zig. A [Mojo draft](../../../mojo/n/nbench_neural_network.mojo) is present; floating-point contraction, math-library behavior, and truncated outputs remain unverified.

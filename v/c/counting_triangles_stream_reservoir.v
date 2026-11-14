@@ -31,7 +31,7 @@ pub fn counting_triangles_stream_reservoir(input &i64, length usize, mut output 
 			for s in 0 .. 2 { if input[base+2*(t-1)+s] == 0 { slot_u[s] = edges_u[t-1]; slot_v[s] = edges_v[t-1] } }
 			for s in 0 .. 2 { staged[at] = slot_u[s]; at++; staged[at] = slot_v[s]; at++ }
 		}
-		bytes := usize(16*m)
+		bytes := usize(32*m)
 		if output == nil || capacity < bytes { return -2 }
 		for i in 0 .. at { put_i64(mut output, i*8, staged[i]) }
 		return i64(bytes)

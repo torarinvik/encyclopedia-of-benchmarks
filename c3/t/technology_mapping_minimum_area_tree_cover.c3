@@ -16,7 +16,7 @@ fn long technology_mapping_minimum_area_tree_cover(long* v,usz length,char* outp
    if(cost[3]>=0&&kind[r]==1){cand=cost[3]+best[l]+best[left[r]];if(cand<INF&&cand<best[i]){best[i]=cand;choice[i]=3;}}
    if(cost[4]>=0&&kind[l]==1&&kind[r]==1){cand=cost[4]+best[left[l]]+best[left[r]];if(cand<INF&&cand<best[i]){best[i]=cand;choice[i]=4;}}}}
  if(best[0]==INF)return -1;int[NMAX] mapping={};for(int i=0;i<n;i++)mapping[i]=kind[i]==0?-1:-3;int[2*NMAX] stack={};int top=0;if(kind[0]!=0)stack[top++]=0;
- while(top>0){int node=stack[--top],p=choice[node],l=left[node],r=right[node];mapping[node]=p;
+ while(top>0){int node=stack[--top],p=choice[node],l=left[node],r=right[node];if(kind[node]==0)continue;mapping[node]=p;
   if(p==0)stack[top++]=l;else if(p==1){stack[top++]=l;stack[top++]=r;}else if(p==2){mapping[l]=-2;stack[top++]=left[l];stack[top++]=r;}else if(p==3){mapping[r]=-2;stack[top++]=l;stack[top++]=left[r];}else{mapping[l]=-2;mapping[r]=-2;stack[top++]=left[l];stack[top++]=left[r];}}
  usz bytes=(usz)(8*(n+1));if(output==null||capacity<bytes)return -2;char[OUTMAX] staged={};put_i64(staged,0,best[0]);for(int i=0;i<n;i++)put_i64(staged,(usz)(8*(i+1)),mapping[i]);for(usz i=0;i<bytes;i++)output[i]=staged[i];return (long)bytes;
 }

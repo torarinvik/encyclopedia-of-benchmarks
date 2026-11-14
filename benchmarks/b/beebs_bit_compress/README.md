@@ -20,6 +20,7 @@ Pinned source: [`src/aha-compress/compress_test.c`](https://github.com/mageec/be
 | C3 | [`c3/b/beebs_bit_compress.c3`](../../../c3/b/beebs_bit_compress.c3) |
 | C++ | [`cpp/b/beebs_bit_compress.cpp`](../../../cpp/b/beebs_bit_compress.cpp) |
 | Elisa | [`elisa/b/beebs_bit_compress.elisa`](../../../elisa/b/beebs_bit_compress.elisa) |
+| Mojo | [`mojo/b/beebs_bit_compress.mojo`](../../../mojo/b/beebs_bit_compress.mojo) (draft, unverified) |
 | Nim | [`nim/b/beebs_bit_compress.nim`](../../../nim/b/beebs_bit_compress.nim) |
 | Odin | [`odin/b/beebs_bit_compress.odin`](../../../odin/b/beebs_bit_compress.odin) |
 | Rust | [`rust/b/beebs_bit_compress.rs`](../../../rust/b/beebs_bit_compress.rs) |

@@ -21,6 +21,11 @@ This bounded profile ends after palette construction. The TIFF reader/writer, TI
 - The pinned `tiffmedian.c` file has no explicit license grant in its own text, and this package does not infer or claim one. These ports are clean-room implementations of the abstract median-cut behavior; no upstream source code or comments are copied. The separate notice in bundled `tiffio.h` applies to that header and is not presented as a license for `tiffmedian.c`; the header is not included here.
 
 The package records attribution and the source pin for provenance. It does not redistribute the upstream source or grant rights in it.
+With P requested palette entries and B bins per channel, the dense histogram
+implementation takes O(n + P·B³) time and O(B³ + P) space. The Mojo draft
+has not been compiled or run.
+Verifier source specifies pixel-order permutations with repeated bins, equal
+channel spans, and several palette limits; those cases remain unrun.
 
 ## Ports
 
@@ -30,6 +35,7 @@ The package records attribution and the source pin for provenance. It does not r
 | C3 | [`cbench_consumer_tiffmedian.c3`](../../../c3/c/cbench_consumer_tiffmedian.c3) |
 | C++ | [`cbench_consumer_tiffmedian.cpp`](../../../cpp/c/cbench_consumer_tiffmedian.cpp) |
 | Elisa | [`cbench_consumer_tiffmedian.elisa`](../../../elisa/c/cbench_consumer_tiffmedian.elisa) |
+| Mojo | [`cbench_consumer_tiffmedian.mojo`](../../../mojo/c/cbench_consumer_tiffmedian.mojo) (uncompiled draft) |
 | Nim | [`cbench_consumer_tiffmedian.nim`](../../../nim/c/cbench_consumer_tiffmedian.nim) |
 | Odin | [`cbench_consumer_tiffmedian.odin`](../../../odin/c/cbench_consumer_tiffmedian.odin) |
 | Rust | [`cbench_consumer_tiffmedian.rs`](../../../rust/c/cbench_consumer_tiffmedian.rs) |

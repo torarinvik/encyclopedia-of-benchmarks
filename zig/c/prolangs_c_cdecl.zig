@@ -34,7 +34,7 @@ fn word(p: *Parser, out: *[MAX_NAME + 1]u8) usize {
         c = @intCast(p.input[p.pos]);
         if (!((c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z') or (c >= '0' and c <= '9') or c == '_')) break;
         if (used >= MAX_NAME) return 0;
-        out[used] = @intCast(c); used += 1; p.pos += 1; c = peek(p);
+        out[used] = @intCast(c); used += 1; p.pos += 1;
     }
     out[used] = 0;
     return used;

@@ -4,7 +4,7 @@ proc putI64(out: ptr UncheckedArray[uint8], offset: int, x: int64) =
 
 proc all_distances_sketch_bottom_k*(input: ptr UncheckedArray[int64], length:csize_t,
     output:ptr UncheckedArray[uint8],capacity:csize_t):int64 {.cdecl,exportc:"all_distances_sketch_bottom_k".} =
-  if input==nil or length<6 or length>104:return -1
+  if input==nil or length<6 or length>194:return -1
   let n0=input[0];let m0=input[1];let k0=input[2];let s0=input[3]
   if n0<2 or n0>10 or m0<0 or m0>n0*(n0-1) or k0<1 or k0>n0 or s0<0 or s0>=n0:return -1
   let n=int(n0);let m=int(m0);let k=int(k0);let source=int(s0)

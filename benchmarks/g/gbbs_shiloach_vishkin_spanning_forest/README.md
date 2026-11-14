@@ -55,6 +55,7 @@ is included in `LICENSE.txt`. The ports are clean-room implementations.
 | C3 | `c3/g/gbbs_shiloach_vishkin_spanning_forest.c3` |
 | C++ | `cpp/g/gbbs_shiloach_vishkin_spanning_forest.cpp` |
 | Elisa | `elisa/g/gbbs_shiloach_vishkin_spanning_forest.elisa` |
+| Mojo | [`mojo/g/gbbs_shiloach_vishkin_spanning_forest.mojo`](../../../mojo/g/gbbs_shiloach_vishkin_spanning_forest.mojo) |
 | Nim | `nim/g/gbbs_shiloach_vishkin_spanning_forest.nim` |
 | Odin | `odin/g/gbbs_shiloach_vishkin_spanning_forest.odin` |
 | Rust | `rust/g/gbbs_shiloach_vishkin_spanning_forest.rs` |

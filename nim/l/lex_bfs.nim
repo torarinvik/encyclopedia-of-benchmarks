@@ -61,11 +61,7 @@ proc lex_bfs*(input: ptr UncheckedArray[int64], length: csize_t,
     order[step] = int64(current)
     for neighbor in 0..<n:
       if adjacency[current][neighbor] and not selected[neighbor]:
-        var position = labelLen[neighbor]
-        while position > 0:
-          labels[neighbor][position] = labels[neighbor][position - 1]
-          dec position
-        labels[neighbor][0] = int64(step)
+        labels[neighbor][labelLen[neighbor]] = int64(n - step)
         inc labelLen[neighbor]
   for index in 0..<n:
     storeI64LE(output, 8 * index, order[index])

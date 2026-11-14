@@ -33,3 +33,4 @@ The source is Hans L. Bodlaender, “Treewidth of Graphs,” DOI `10.1007/978-1-
 | Rust | [`rust/t/treewidth_min_fill_elimination.rs`](../../../rust/t/treewidth_min_fill_elimination.rs) |
 | V | [`v/t/treewidth_min_fill_elimination.v`](../../../v/t/treewidth_min_fill_elimination.v) |
 | Zig | [`zig/t/treewidth_min_fill_elimination.zig`](../../../zig/t/treewidth_min_fill_elimination.zig) |
+| Mojo | [`mojo/t/treewidth_min_fill_elimination.mojo`](../../../mojo/t/treewidth_min_fill_elimination.mojo) (draft, unverified) |

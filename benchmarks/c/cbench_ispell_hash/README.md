@@ -27,6 +27,7 @@ The helper permits use, copying, modification, and redistribution subject to the
 | C3 | [`c3/c/cbench_ispell_hash.c3`](../../../c3/c/cbench_ispell_hash.c3) |
 | C++ | [`cpp/c/cbench_ispell_hash.cpp`](../../../cpp/c/cbench_ispell_hash.cpp) |
 | Elisa | [`elisa/c/cbench_ispell_hash.elisa`](../../../elisa/c/cbench_ispell_hash.elisa) |
+| Mojo | [`mojo/c/cbench_ispell_hash.mojo`](../../../mojo/c/cbench_ispell_hash.mojo) |
 | Nim | [`nim/c/cbench_ispell_hash.nim`](../../../nim/c/cbench_ispell_hash.nim) |
 | Odin | [`odin/c/cbench_ispell_hash.odin`](../../../odin/c/cbench_ispell_hash.odin) |
 | Rust | [`rust/c/cbench_ispell_hash.rs`](../../../rust/c/cbench_ispell_hash.rs) |

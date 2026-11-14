@@ -65,3 +65,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s131_forward_neighbor_update.rs`](../../../rust/t/tsvc_s131_forward_neighbor_update.rs) |
 | V | [`tsvc_s131_forward_neighbor_update.v`](../../../v/t/tsvc_s131_forward_neighbor_update.v) |
 | Zig | [`tsvc_s131_forward_neighbor_update.zig`](../../../zig/t/tsvc_s131_forward_neighbor_update.zig) |
+| Mojo | [`tsvc_s131_forward_neighbor_update.mojo`](../../../mojo/t/tsvc_s131_forward_neighbor_update.mojo) |

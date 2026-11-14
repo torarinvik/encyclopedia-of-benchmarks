@@ -49,3 +49,5 @@ was copied or translated.
 | Rust | [statemate.rs](../../../rust/s/statemate.rs) |
 | V | [statemate.v](../../../v/s/statemate.v) |
 | Zig | [statemate.zig](../../../zig/s/statemate.zig) |
+
+The Mojo draft is [`mojo/s/statemate.mojo`](../../../mojo/s/statemate.mojo). It has not been compiled or run.

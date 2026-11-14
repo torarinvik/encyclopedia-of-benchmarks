@@ -26,6 +26,7 @@ Behavior reference: [`src/pr.cc::PageRankPullGS`](https://github.com/sbeamer/gap
 | C3 | [`c3/p/gapbs_pagerank_pull_gs.c3`](../../../c3/p/gapbs_pagerank_pull_gs.c3) |
 | C++ | [`cpp/p/gapbs_pagerank_pull_gs.cpp`](../../../cpp/p/gapbs_pagerank_pull_gs.cpp) |
 | Elisa | [`elisa/p/gapbs_pagerank_pull_gs.elisa`](../../../elisa/p/gapbs_pagerank_pull_gs.elisa) |
+| Mojo | [`mojo/p/gapbs_pagerank_pull_gs.mojo`](../../../mojo/p/gapbs_pagerank_pull_gs.mojo) |
 | Nim | [`nim/p/gapbs_pagerank_pull_gs.nim`](../../../nim/p/gapbs_pagerank_pull_gs.nim) |
 | Odin | [`odin/p/gapbs_pagerank_pull_gs.odin`](../../../odin/p/gapbs_pagerank_pull_gs.odin) |
 | Rust | [`rust/p/gapbs_pagerank_pull_gs.rs`](../../../rust/p/gapbs_pagerank_pull_gs.rs) |

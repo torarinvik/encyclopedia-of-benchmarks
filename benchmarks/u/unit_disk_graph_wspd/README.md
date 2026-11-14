@@ -14,6 +14,10 @@ This is an exact bounded WSPD profile for the shortest-path metric of a unit-dis
 
 This is a small deterministic construction of the chapter's WSPD object under its unit-disk graph metric. It does not implement Gao–Zhang's bounded-density clustering and near-linear-size construction; the integer-lattice restriction and the exact shortest-path metric make the profile portable and independently checkable.
 
+The Floyd–Warshall distance stage takes O(n³) time and O(n²) space. The
+straightforward decomposition scans up to O(n²) distances per visited pair;
+the output contains at most n(n-1)/2 pairs.
+
 ## Provenance and implementations
 
 The source description is Rolf Klein, “Well Separated Pair Decomposition for Unit-Disk Graph,” DOI [`10.1007/978-1-4939-2864-4_480`](https://doi.org/10.1007/978-1-4939-2864-4_480), summarizing Gao and Zhang, “Well-separated pair decomposition for the unit-disk graph metric and its applications” (STOC 2003). The clean-room ports implement the mathematical definition and bounded traversal above; they do not copy the chapter or paper's prose or code.
@@ -26,6 +30,7 @@ See [`RIGHTS.md`](RIGHTS.md), [`workload.json`](workload.json), the [primary ora
 | C3 | [`c3/u/unit_disk_graph_wspd.c3`](../../../c3/u/unit_disk_graph_wspd.c3) |
 | C++ | [`cpp/u/unit_disk_graph_wspd.cpp`](../../../cpp/u/unit_disk_graph_wspd.cpp) |
 | Elisa | [`elisa/u/unit_disk_graph_wspd.elisa`](../../../elisa/u/unit_disk_graph_wspd.elisa) |
+| Mojo | [`mojo/u/unit_disk_graph_wspd.mojo`](../../../mojo/u/unit_disk_graph_wspd.mojo) (draft; not compiled or run) |
 | Nim | [`nim/u/unit_disk_graph_wspd.nim`](../../../nim/u/unit_disk_graph_wspd.nim) |
 | Odin | [`odin/u/unit_disk_graph_wspd.odin`](../../../odin/u/unit_disk_graph_wspd.odin) |
 | Rust | [`rust/u/unit_disk_graph_wspd.rs`](../../../rust/u/unit_disk_graph_wspd.rs) |

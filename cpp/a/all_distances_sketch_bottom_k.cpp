@@ -2,7 +2,7 @@
 #include <cstdint>
 namespace { void put_i64(std::uint8_t*out,std::int64_t x){auto b=static_cast<std::uint64_t>(x);for(std::size_t i=0;i<8;i++)out[i]=static_cast<std::uint8_t>(b>>(8*i));} }
 extern "C" std::int64_t all_distances_sketch_bottom_k(const std::int64_t*input,std::size_t length,std::uint8_t*output,std::size_t capacity){
-    if(!input||length<6||length>104)return -1;auto n0=input[0],m0=input[1],k0=input[2],s0=input[3];
+    if(!input||length<6||length>194)return -1;auto n0=input[0],m0=input[1],k0=input[2],s0=input[3];
     if(n0<2||n0>10||m0<0||m0>n0*(n0-1)||k0<1||k0>n0||s0<0||s0>=n0||length!=4+static_cast<std::size_t>(n0)+2*static_cast<std::size_t>(m0))return -1;
     auto n=static_cast<std::size_t>(n0),m=static_cast<std::size_t>(m0),k=static_cast<std::size_t>(k0),source=static_cast<std::size_t>(s0);
     std::int64_t rank[10];bool used[10]{};for(std::size_t i=0;i<n;i++){auto r=input[4+i];if(r<0||r>=n0||used[r])return -1;used[r]=true;rank[i]=r;}

@@ -19,4 +19,6 @@ No explicit upstream license grant was found in the pinned TSVC materials review
 
 ## Ports
 
-Ports are provided in `c/t`, `c3/t`, `cpp/t`, `elisa/t`, `nim/t`, `odin/t`, `rust/t`, `v/t`, and `zig/t`.
+Ports are provided in `c/t`, `c3/t`, `cpp/t`, `elisa/t`, `nim/t`, `odin/t`, `rust/t`, `v/t`, and `zig/t`. A [Mojo draft](../../../mojo/t/tsvc_s331_last_negative_index.mojo) is also present and remains unverified.
+
+The full scan takes O(n) time and O(1) auxiliary space.

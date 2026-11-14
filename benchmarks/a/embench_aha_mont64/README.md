@@ -27,10 +27,14 @@ workload.json records source pin, bounds, and fixtures. embench_aha_mont64_oracl
 | C3 | c3/a/embench_aha_mont64.c3 |
 | C++ | cpp/a/embench_aha_mont64.cpp |
 | Elisa | elisa/a/embench_aha_mont64.elisa |
+| Mojo | [mojo/a/embench_aha_mont64.mojo](../../../mojo/a/embench_aha_mont64.mojo) (uncompiled draft) |
 | Nim | nim/a/embench_aha_mont64.nim |
 | Odin | odin/a/embench_aha_mont64.odin |
 | Rust | rust/a/embench_aha_mont64.rs |
 | V | v/a/embench_aha_mont64.v |
 | Zig | zig/a/embench_aha_mont64.zig |
 
-No runtime or compiler verification is claimed.
+The fixed-width limb operations and six inverse-refinement rounds take O(1)
+time and space. Verifier source specifies operands around 32-bit limb
+boundaries and near the largest supported moduli, as well as invalid frames.
+These cases and the Mojo draft have not been run or compiled.

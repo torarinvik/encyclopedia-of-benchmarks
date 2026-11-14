@@ -21,3 +21,5 @@ validation and before writes. The independent oracle is
 This package covers the fused kernel only, excluding TSVC initialization,
 timing/repetition, and checker behavior. See `LICENSE.txt` for attribution and
 rights status.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s235_fused_vector_matrix_recurrence.mojo) is a draft and has not been compiled or run.

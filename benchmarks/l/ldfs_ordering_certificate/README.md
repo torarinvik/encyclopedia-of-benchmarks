@@ -4,7 +4,10 @@ This package computes a bounded Lexicographic Depth-First Search (LDFS)
 ordering of a connected undirected simple graph. The first vertex is supplied;
 for every later choice, the algorithm selects an unvisited vertex with the
 lexicographically greatest sequence of already visited neighbors, listed in
-reverse visitation order. Ties go to the lowest vertex ID.
+reverse visitation order, compared by visitation position rather than vertex
+ID. Ties go to the lowest vertex ID. For example, starting at 3 with edges
+`(0,2)`, `(0,3)`, and `(1,3)` produces `[3,0,2,1]`: after selecting 0,
+its neighbor 2 has a more recent label than vertex 1.
 
 Input is `[n,start,adjacency_mask[n]]`, with `1 <= n <= 8`; each row mask
 encodes the undirected neighborhood of a vertex. Disconnected graphs,
@@ -16,6 +19,10 @@ edge `db` and nonedge `dc`. A valid LDFS ordering has a witness for each such
 triple by the chapter's four-vertex characterization. The largest output is
 234 signed i64 values (1872 bytes). Invalid input returns `-1`; null output or
 insufficient capacity returns `-2` without writing.
+
+The bounded implementation uses O(n³) time to choose the ordering and
+O(n⁴) time to enumerate triples and search for witnesses, with O(n³) space
+for the output and O(n²) or less auxiliary space depending on the port.
 
 This bounded profile implements the search ordering and emits its
 four-vertex-characterization witnesses. It does not implement the chapter's
@@ -35,6 +42,7 @@ code was copied.
 | C3 | `c3/l/ldfs_ordering_certificate.c3` |
 | C++ | `cpp/l/ldfs_ordering_certificate.cpp` |
 | Elisa | `elisa/l/ldfs_ordering_certificate.elisa` |
+| Mojo | `mojo/l/ldfs_ordering_certificate.mojo` |
 | Nim | `nim/l/ldfs_ordering_certificate.nim` |
 | Odin | `odin/l/ldfs_ordering_certificate.odin` |
 | Rust | `rust/l/ldfs_ordering_certificate.rs` |

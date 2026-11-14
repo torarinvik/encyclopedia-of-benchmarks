@@ -26,12 +26,16 @@ The primary oracle scans the open-bin list per step. The independent verifier
 forms an open-bin bitmask and accepts a collection step only when its
 population count is one.
 
+For `n` bins, `c` coupon types and `T` replay steps, the direct scan takes
+`O(n*(c+T))` time and constant auxiliary space.
+
 | Language | Port |
 |---|---|
 | C | `c/d/distributed_coupon_collection_replay.c` |
 | C3 | `c3/d/distributed_coupon_collection_replay.c3` |
 | C++ | `cpp/d/distributed_coupon_collection_replay.cpp` |
 | Elisa | `elisa/d/distributed_coupon_collection_replay.elisa` |
+| Mojo | [`mojo/d/distributed_coupon_collection_replay.mojo`](../../../mojo/d/distributed_coupon_collection_replay.mojo) |
 | Nim | `nim/d/distributed_coupon_collection_replay.nim` |
 | Odin | `odin/d/distributed_coupon_collection_replay.odin` |
 | Rust | `rust/d/distributed_coupon_collection_replay.rs` |

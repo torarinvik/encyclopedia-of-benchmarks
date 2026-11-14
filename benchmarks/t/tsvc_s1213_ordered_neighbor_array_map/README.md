@@ -21,3 +21,5 @@ The independent oracle is
 Only the bounded codelet is measured; TSVC initialization, repeated timing, and
 checker behavior are excluded. See `LICENSE.txt` for attribution and rights
 status.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s1213_ordered_neighbor_array_map.mojo) is a draft and has not been compiled or run.

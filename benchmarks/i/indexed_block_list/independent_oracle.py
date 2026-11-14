@@ -81,15 +81,14 @@ def expected_output(values: Sequence[int] | None, capacity: int | None = None,
     if parsed is None:
         return INVALID_RESULT, b""
     sequence, operations, access_count = parsed
-    if access_count == 0:
-        return 0, b""
-    if type(output_is_null) is not bool:
-        return CAPACITY_ERROR, b""
-    effective_capacity = MAX_OUTPUT_BYTES if capacity is None else capacity
-    required = 8 * access_count
-    if (type(effective_capacity) is not int or effective_capacity < required
-            or output_is_null):
-        return CAPACITY_ERROR, b""
+    if access_count:
+        if type(output_is_null) is not bool:
+            return CAPACITY_ERROR, b""
+        effective_capacity = MAX_OUTPUT_BYTES if capacity is None else capacity
+        required = 8 * access_count
+        if (type(effective_capacity) is not int or effective_capacity < required
+                or output_is_null):
+            return CAPACITY_ERROR, b""
     answers: list[int] = []
     for operation in operations:
         if operation[0] == 0:

@@ -6,6 +6,10 @@ The suite exposes `shootout_methcall(calls, output, output_capacity)` through th
 
 The pinned launcher defaults to 500,000,000 calls (50,000,000 with `SMALL_PROBLEM_SIZE`). The bounded profile keeps the callback dispatch loops finite while retaining both state machines and their per-call updates. The language ports keep activation and value callbacks on each object so the hot loops retain indirect dispatch. C3 uses `void*` callback contexts because ordinary `.c3` modules cannot forward-declare these object types; it still makes the two indirect callback calls on every iteration. [`workload.json`](workload.json) covers the flip boundaries, counter reset, source framing, profile bounds, and buffer errors. [`shootout_methcall_oracle.py`](../../shootout_methcall_oracle.py) independently simulates both state machines.
 
+For `c` calls, the two loops take `O(max(c, 0))` time and use `O(1)` space.
+The measurement is intended to include callback dispatch, so a port must not
+replace the loops with a parity calculation even though the output permits it.
+
 ## Implementations
 
 | Language | Source |
@@ -14,11 +18,15 @@ The pinned launcher defaults to 500,000,000 calls (50,000,000 with `SMALL_PROBLE
 | C3 | [c3/s/shootout_methcall.c3](../../../c3/s/shootout_methcall.c3) |
 | C++ | [cpp/s/shootout_methcall.cpp](../../../cpp/s/shootout_methcall.cpp) |
 | Elisa | [elisa/s/shootout_methcall.elisa](../../../elisa/s/shootout_methcall.elisa) |
+| Mojo | [mojo/s/shootout_methcall.mojo](../../../mojo/s/shootout_methcall.mojo) |
 | Nim | [nim/s/shootout_methcall.nim](../../../nim/s/shootout_methcall.nim) |
 | Odin | [odin/s/shootout_methcall.odin](../../../odin/s/shootout_methcall.odin) |
 | Rust | [rust/s/shootout_methcall.rs](../../../rust/s/shootout_methcall.rs) |
 | V | [v/s/shootout_methcall.v](../../../v/s/shootout_methcall.v) |
 | Zig | [zig/s/shootout_methcall.zig](../../../zig/s/shootout_methcall.zig) |
+
+The Mojo callback draft has not been compiled or run. Its function-value
+representation and preservation of indirect dispatch require verification.
 
 ## Pinned source
 

@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MAX_LENGTH 2047
+#define MAX_LENGTH 4095
 
 int64_t z_algorithm(const int64_t *input, size_t length,
                     uint8_t *output, size_t output_capacity)

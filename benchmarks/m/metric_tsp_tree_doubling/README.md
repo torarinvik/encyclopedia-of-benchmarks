@@ -12,6 +12,9 @@ Output is `[tour_cost, 0, preorder_after_root..., 0]` as little-endian signed
 i64 values. Invalid input returns `-1`; null output or insufficient capacity
 returns `-2` without writing.
 
+Repeated Kruskal edge scans take O(n⁴) time, metric validation takes O(n³),
+and the profile uses O(n²) space.
+
 The source is “Metric TSP,” DOI
 [`10.1007/978-1-4939-2864-4_230`](https://doi.org/10.1007/978-1-4939-2864-4_230).
 The tree-doubling profile is clean-room and does not copy book prose or source
@@ -23,6 +26,7 @@ code. It is distinct from nearest-neighbor and exact subset-DP TSP profiles.
 | C3 | `c3/m/metric_tsp_tree_doubling.c3` |
 | C++ | `cpp/m/metric_tsp_tree_doubling.cpp` |
 | Elisa | `elisa/m/metric_tsp_tree_doubling.elisa` |
+| Mojo | `mojo/m/metric_tsp_tree_doubling.mojo` |
 | Nim | `nim/m/metric_tsp_tree_doubling.nim` |
 | Odin | `odin/m/metric_tsp_tree_doubling.odin` |
 | Rust | `rust/m/metric_tsp_tree_doubling.rs` |

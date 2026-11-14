@@ -12,6 +12,9 @@ start wins, then the earliest end. Values and output fields are signed i64;
 output uses little-endian encoding. Invalid input returns `-1`; null output
 or insufficient capacity returns `-2` without writing.
 
+Each prefix index enters and leaves the deque at most once, giving O(n) time
+and O(n) auxiliary space.
+
 The source chapter is “Maximum-Sum Segments,” DOI
 [`10.1007/978-1-4939-2864-4_226`](https://doi.org/10.1007/978-1-4939-2864-4_226).
 This bounded profile is clean-room and does not copy book prose or source code.
@@ -22,6 +25,7 @@ This bounded profile is clean-room and does not copy book prose or source code.
 | C3 | `c3/m/max_sum_length_bounded_segment.c3` |
 | C++ | `cpp/m/max_sum_length_bounded_segment.cpp` |
 | Elisa | `elisa/m/max_sum_length_bounded_segment.elisa` |
+| Mojo | [`mojo/m/max_sum_length_bounded_segment.mojo`](../../../mojo/m/max_sum_length_bounded_segment.mojo) (draft; not compiled or run) |
 | Nim | `nim/m/max_sum_length_bounded_segment.nim` |
 | Odin | `odin/m/max_sum_length_bounded_segment.odin` |
 | Rust | `rust/m/max_sum_length_bounded_segment.rs` |

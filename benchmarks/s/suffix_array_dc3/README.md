@@ -20,6 +20,12 @@ is bounded to 8,192 bytes. This implementation uses insertion sorting for its
 bounded triples and residue-0 list, so it makes no linear-time performance
 claim for those finite arrays.
 
+With input-sized arrays, the insertion-sort profile has `O(n²)` worst-case
+time and `O(n)` recursive auxiliary space. The fixed maximum here bounds both.
+Verifier source includes all binary strings through length eight, repeated
+and periodic longer strings, and comparisons between the two references;
+these cases have not been run.
+
 The primary oracle follows the DC3 sample recursion and merge. The independent
 verifier sorts complete suffix slices directly. The existing
 [`suffix_array`](../suffix_array/README.md) package implements rank doubling
@@ -42,6 +48,7 @@ ascending text, malformed framing, null buffers, and output capacity.
 | C3 | [`c3/s/suffix_array_dc3.c3`](../../../c3/s/suffix_array_dc3.c3) |
 | C++ | [`cpp/s/suffix_array_dc3.cpp`](../../../cpp/s/suffix_array_dc3.cpp) |
 | Elisa | [`elisa/s/suffix_array_dc3.elisa`](../../../elisa/s/suffix_array_dc3.elisa) |
+| Mojo | [`mojo/s/suffix_array_dc3.mojo`](../../../mojo/s/suffix_array_dc3.mojo) (unverified draft) |
 | Nim | [`nim/s/suffix_array_dc3.nim`](../../../nim/s/suffix_array_dc3.nim) |
 | Odin | [`odin/s/suffix_array_dc3.odin`](../../../odin/s/suffix_array_dc3.odin) |
 | Rust | [`rust/s/suffix_array_dc3.rs`](../../../rust/s/suffix_array_dc3.rs) |

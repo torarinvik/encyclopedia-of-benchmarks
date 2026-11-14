@@ -69,3 +69,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s315_maximum_with_index.rs`](../../../rust/t/tsvc_s315_maximum_with_index.rs) |
 | V | [`tsvc_s315_maximum_with_index.v`](../../../v/t/tsvc_s315_maximum_with_index.v) |
 | Zig | [`tsvc_s315_maximum_with_index.zig`](../../../zig/t/tsvc_s315_maximum_with_index.zig) |
+| Mojo | [`tsvc_s315_maximum_with_index.mojo`](../../../mojo/t/tsvc_s315_maximum_with_index.mojo) |

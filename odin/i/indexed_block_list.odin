@@ -70,9 +70,8 @@ indexed_block_list :: proc "c" (input: [^]i64, length: c.size_t, output: [^]u8, 
 		} else do return -1
 	}
 	if cursor != int(length) || size > MAX_ITEMS do return -1
-	if accesses == 0 do return 0
 	required := accesses * 8
-	if output == nil || int(output_capacity) < required do return -2
+	if required > 0 && (output == nil || int(output_capacity) < required) do return -2
 
 	blocks: [MAX_NODES*STRIDE]i64
 	sizes: [MAX_NODES]int

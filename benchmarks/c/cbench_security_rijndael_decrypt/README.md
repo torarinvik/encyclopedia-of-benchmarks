@@ -24,6 +24,7 @@ The port builds the AES-256 encryption round-key schedule, constructs the invers
 | C3 | [`c3/m/cbench_security_rijndael_decrypt.c3`](../../../c3/m/cbench_security_rijndael_decrypt.c3) |
 | C++ | [`cpp/m/cbench_security_rijndael_decrypt.cpp`](../../../cpp/m/cbench_security_rijndael_decrypt.cpp) |
 | Elisa | [`elisa/m/cbench_security_rijndael_decrypt.elisa`](../../../elisa/m/cbench_security_rijndael_decrypt.elisa) |
+| Mojo | [`mojo/m/cbench_security_rijndael_decrypt.mojo`](../../../mojo/m/cbench_security_rijndael_decrypt.mojo) (unvalidated draft) |
 | Nim | [`nim/m/cbench_security_rijndael_decrypt.nim`](../../../nim/m/cbench_security_rijndael_decrypt.nim) |
 | Odin | [`odin/m/cbench_security_rijndael_decrypt.odin`](../../../odin/m/cbench_security_rijndael_decrypt.odin) |
 | Rust | [`rust/m/cbench_security_rijndael_decrypt.rs`](../../../rust/m/cbench_security_rijndael_decrypt.rs) |
@@ -31,3 +32,6 @@ The port builds the AES-256 encryption round-key schedule, constructs the invers
 | Zig | [`zig/m/cbench_security_rijndael_decrypt.zig`](../../../zig/m/cbench_security_rijndael_decrypt.zig) |
 
 No runtime or compiler verification is claimed.
+
+The AES-256 key schedule and the 14 inverse rounds operate on fixed-size
+inputs and use O(1) time and space per block.

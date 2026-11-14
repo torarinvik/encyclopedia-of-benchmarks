@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "difference-product-v1",
+  "algorithm": "difference_product",
+  "function_symbol": "difference_product",
+  "input": {
+    "kind": "i64_array_scalar",
+    "encoding": "[count, ordered canonical field elements...]",
+    "maximum_count": 65536,
+    "modulus": 998244353,
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"empty_product","input_values":[0],"input_length":1,"expected_result":1},
+    {"id":"singleton","input_values":[1,42],"input_length":2,"expected_result":1},
+    {"id":"ascending_pair","input_values":[2,0,1],"input_length":3,"expected_result":998244352},
+    {"id":"descending_pair","input_values":[2,1,0],"input_length":3,"expected_result":1},
+    {"id":"ascending_three","input_values":[3,0,1,2],"input_length":4,"expected_result":998244351},
+    {"id":"descending_three","input_values":[3,2,1,0],"input_length":4,"expected_result":2},
+    {"id":"irregular_three","input_values":[3,2,5,9],"input_length":4,"expected_result":998244269},
+    {"id":"field_boundary_three","input_values":[3,998244352,0,1],"input_length":4,"expected_result":998244351},
+    {"id":"maximum_field_element","input_values":[1,998244352],"input_length":2,"expected_result":1},
+    {"id":"duplicates","input_values":[3,9,5,9],"input_length":4,"expected_result":0},
+    {"id":"cross_tree_duplicate","input_values":[33,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"input_length":34,"expected_result":0},
+    {"id":"transform_cross_tree_duplicate","input_values":[129,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,0,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127],"input_length":130,"expected_result":0},
+    {"id":"negative_value","input_values":[1,-1],"input_length":2,"expected_result":-1},
+    {"id":"negative_count","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"field_upper_bound","input_values":[1,998244353],"input_length":2,"expected_result":-1},
+    {"id":"too_many_points","input_values":[65537],"input_length":1,"expected_result":-1},
+    {"id":"truncated","input_values":[2,1],"input_length":2,"expected_result":-1},
+    {"id":"extra_value","input_values":[1,4,5],"input_length":3,"expected_result":-1},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ],
+  "measurement": {"comparison_model":"i64_array_scalar_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":10}
+}

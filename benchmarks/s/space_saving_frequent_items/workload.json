@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "space-saving-frequent-items-i64-array-bytes-output-v1",
+  "algorithm": "space_saving_frequent_items",
+  "function_symbol": "space_saving_frequent_items",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded Space-Saving summary with deterministic minimum-count replacement.",
+  "source": {
+    "url": "https://dblp.dagstuhl.de/rec/conf/icdt/MetwallyAA05.html",
+    "reuse": "Algorithm description only; independent implementation and fixtures."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[k,n,items...]",
+    "capacity_range": [
+      1,
+      8
+    ],
+    "stream_length_range": [
+      0,
+      64
+    ],
+    "item_range": [
+      -1000,
+      1000
+    ],
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 67,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "encoding": "[candidate_count,(item,estimate,error)*candidate_count] sorted by item",
+    "maximum_output_bytes": 200,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Bounded counters and staged output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_stream",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "replace_increment_and_error",
+      "input_values": [
+        2,
+        5,
+        1,
+        2,
+        3,
+        3,
+        2
+      ],
+      "input_length": 7,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000020000000000000002000000000000000000000000000000030000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "negative_item_retained",
+      "input_values": [2, 2, -1, 2],
+      "input_length": 4,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000ffffffffffffffff01000000000000000000000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "minimum_tie_negative_item",
+      "input_values": [
+        2,
+        3,
+        -1,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000020000000000000001000000000000000000000000000000030000000000000002000000000000000100000000000000"
+    },
+    {
+      "id": "successive_tied_evictions",
+      "input_values": [2, 4, 1, 2, 3, 4],
+      "input_length": 6,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000030000000000000002000000000000000100000000000000040000000000000002000000000000000100000000000000"
+    },
+    {
+      "id": "single_counter_replacement",
+      "input_values": [
+        1,
+        4,
+        5,
+        5,
+        7,
+        5
+      ],
+      "input_length": 6,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000050000000000000004000000000000000300000000000000"
+    },
+    {
+      "id": "invalid_k",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_item",
+      "input_values": [
+        1,
+        1,
+        1001
+      ],
+      "input_length": 3,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

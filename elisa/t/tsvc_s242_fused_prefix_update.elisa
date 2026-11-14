@@ -14,9 +14,9 @@ def tsvc_s242_fused_prefix_update_impl(x:f64&,l:usize,mutable y:f64&,cap:usize)-
     for i in 1..n:
         v:f64=a[i-1]+x[1]
         v=v+x[2]
+        v=v+x[3+n+i]
         v=v+x[3+2*n+i]
         v=v+x[3+3*n+i]
-        v=v+x[3+4*n+i]
         a[i]=v
     for i in 0..n:y[i]<-a[i]
     return n.i64()

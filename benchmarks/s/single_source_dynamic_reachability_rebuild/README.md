@@ -33,6 +33,8 @@ Nine language ports are under `c/s`, `cpp/s`, `rust/s`, `c3/s`, `nim/s`,
 `odin/s`, `elisa/s`, `v/s`, and `zig/s`. The workload and two oracles define
 the bounded trace and independent query-time BFS check.
 
+A Mojo draft is available at [mojo/s/single_source_dynamic_reachability_rebuild.mojo](../../../mojo/s/single_source_dynamic_reachability_rebuild.mojo).
+
 ## Source and rights
 
 Camil Demetrescu and Giuseppe F. Italiano, “Single-Source Fully Dynamic

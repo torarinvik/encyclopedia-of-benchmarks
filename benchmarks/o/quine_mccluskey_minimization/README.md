@@ -12,6 +12,14 @@ This package implements the exact Quine–McCluskey method described in the Ency
 
 The chapter explains Quine–McCluskey's two phases: prime-implicant generation by repeated merging, then minimum-cardinality unate cover selection with literal-count tie-breaking. This clean-room profile enumerates the bounded cube lattice and solves the same two-stage objective exactly. See [RIGHTS.md](RIGHTS.md) for attribution.
 
+For n variables and P prime implicants, cube enumeration takes
+O(n · 3^n · 2^n) time; the subset-cover dynamic program takes
+O(P · 2^(2^n)) time and O(2^(2^n) + P) space. The declared n ≤ 3 bound
+keeps these tables small. The Mojo draft has not been compiled or run.
+The build, byte-output runner, and verifier resolve this package under `o/`,
+its existing chapter category, even though its function name begins with `q`.
+That integration is written but has not been exercised.
+
 ## Workload and independent check
 
 [workload.json](workload.json) covers constants, minterm merging, don't-cares, multi-term covers, the maximum variable count, malformed statuses/framing, and output errors. The primary [oracle](../../quine_mccluskey_minimization_oracle.py) uses prime implicants and dynamic programming over ON-set masks. The independent [verifier](../../quine_mccluskey_minimization_verifier_oracle.py) searches legal cubes recursively by uncovered minterm and ranks complete covers.
@@ -24,6 +32,7 @@ The chapter explains Quine–McCluskey's two phases: prime-implicant generation 
 | C3 | [c3/o/quine_mccluskey_minimization.c3](../../../c3/o/quine_mccluskey_minimization.c3) |
 | C++ | [cpp/o/quine_mccluskey_minimization.cpp](../../../cpp/o/quine_mccluskey_minimization.cpp) |
 | Elisa | [elisa/o/quine_mccluskey_minimization.elisa](../../../elisa/o/quine_mccluskey_minimization.elisa) |
+| Mojo | [mojo/o/quine_mccluskey_minimization.mojo](../../../mojo/o/quine_mccluskey_minimization.mojo) (uncompiled draft) |
 | Nim | [nim/o/quine_mccluskey_minimization.nim](../../../nim/o/quine_mccluskey_minimization.nim) |
 | Odin | [odin/o/quine_mccluskey_minimization.odin](../../../odin/o/quine_mccluskey_minimization.odin) |
 | Rust | [rust/o/quine_mccluskey_minimization.rs](../../../rust/o/quine_mccluskey_minimization.rs) |

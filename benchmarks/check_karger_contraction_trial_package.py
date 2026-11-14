@@ -66,7 +66,7 @@ def static_issues(workload=None):
     if not seen:
         issues.append("no workload cases")
     required = {"single_edge", "parallel_edges", "triangle", "cycle", "uneven_cut",
-                "maximum_graph", "disconnected", "self_loop", "vertex_out_of_range",
+                "maximum_graph", "nonminimum_trial", "disconnected", "self_loop", "vertex_out_of_range",
                 "negative_rank", "rank_too_large", "rank_after_internal_edges",
                 "truncated", "trailing_value", "null_input", "null_input_max_length"}
     if not required <= seen:

@@ -1,0 +1,31 @@
+def discrete_logarithm_fixed_mod_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > 259: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 2 or values[0] > 4093 or values[1] < 1 or values[1] >= values[0] or values[2] < 1 or values[2] > 256: return -1
+    let p: usize = values[0].usize()
+    let g: usize = values[1].usize()
+    let n: usize = values[2].usize()
+    if length != n + 3: return -1
+    divisor: mutable usize = 2
+    while divisor * divisor <= p:
+        if p % divisor == 0: return -1
+        divisor <- divisor + 1
+    for i in 0..<n:
+        if values[3+i] < 1 or values[3+i] >= values[0]: return -1
+    table: mutable i64[4094] = zeroed
+    for i in 0..<p: table[i] <- -1
+    residue: mutable usize = 1
+    for exponent in 0..<(p-1):
+        if table[residue] != -1: return -1
+        table[residue] <- exponent.i64()
+        residue <- (residue * g) % p
+    if residue != 1: return -1
+    if output == null or capacity < 8*n: return -2
+    bytes: mutable view[u8] = output[0:8*n]
+    for i in 0..<n:
+        let value: u64 = table[values[3+i].usize()].u64()
+        for byte in 0..<8:
+            bytes[8*i+byte] <- ((value >> (8*byte)) & 255.u64()).u8()
+    (8*n).i64()
+
+export fn discrete_logarithm_fixed_mod(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = discrete_logarithm_fixed_mod_impl

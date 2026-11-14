@@ -58,7 +58,6 @@ def cdecl_read_word(p: mutable CdeclParser&, out: mutable view[u8]) -> usize:
         out[used] <- c.u8()
         used <- used + 1
         p.pos <- p.pos + 1
-        c <- cdecl_peek(p)
     out[used] <- 0
     used
 
@@ -102,7 +101,6 @@ def cdecl_decimal(p: mutable CdeclParser&, value: mutable i64&) -> bool:
         result <- result * 10 + c - 48
         if result > 99: return false
         p.pos <- p.pos + 1
-        c <- cdecl_peek(p)
     if result < 1: return false
     value <- result
     true

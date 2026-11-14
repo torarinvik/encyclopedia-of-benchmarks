@@ -24,3 +24,10 @@ The oracle uses a tree-of-leaf-lists Huffman representation rather than the sour
 This software is based in part on the work of the Independent JPEG Group.
 
 This table-construction kernel is distinct from local JPEG forward/inverse DCT, color conversion, component upsampling, baseline block decoding, generic Huffman compression, and Huffman weighted-cost packages.
+
+The [Mojo draft](../../../mojo/m/mediabench_jpeg_optimal_huffman_table.mojo)
+uses the bounded frequency and branch tables and has not been compiled or
+run. For alphabet size A, active symbols S, and maximum code depth D, its
+table scans take O(A·(S+D)) time and O(A+D) space.
+Verifier source specifies permutations of tied frequencies and boundary
+symbol IDs; these checks and the ten-port presence check remain unrun.

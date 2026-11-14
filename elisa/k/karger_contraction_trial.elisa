@@ -9,9 +9,9 @@ def karger_contraction_trial_impl(input: view[i64], length: usize) -> i64:
     n: usize = input[0].usize()
     m: usize = input[1].usize()
     if length != 2 + 2 * m + n - 2: return -1
-    lefts: mutable [24]usize = [0; 24]
-    rights: mutable [24]usize = [0; 24]
-    parent: mutable [8]usize = [0; 8]
+    lefts: mutable usize[24] = zeroed
+    rights: mutable usize[24] = zeroed
+    parent: mutable usize[8] = zeroed
     for i in 0..<n: parent[i] <- i
     for i in 0..<m:
         a: i64 = input[2 + 2 * i]

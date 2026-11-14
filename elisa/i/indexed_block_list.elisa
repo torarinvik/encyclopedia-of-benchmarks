@@ -62,10 +62,8 @@ def indexed_block_list_impl(values: i64&, length: usize, output: mutable u8&, ou
         operation <- operation + 1
     if cursor != length or current_size > MAX_ITEMS:
         return -1
-    if accesses == 0:
-        return 0
     required: usize = accesses * 8
-    if output.is_null() or output_capacity < required:
+    if required > 0 and (output.is_null() or output_capacity < required):
         return -2
 
     blocks: mutable i64[144] = zeroed

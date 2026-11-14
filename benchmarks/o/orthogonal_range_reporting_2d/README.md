@@ -23,6 +23,7 @@ The chapter surveys many discrete-grid range-reporting and range-searching struc
 | C3 | [c3/o/orthogonal_range_reporting_2d.c3](../../../c3/o/orthogonal_range_reporting_2d.c3) |
 | C++ | [cpp/o/orthogonal_range_reporting_2d.cpp](../../../cpp/o/orthogonal_range_reporting_2d.cpp) |
 | Elisa | [elisa/o/orthogonal_range_reporting_2d.elisa](../../../elisa/o/orthogonal_range_reporting_2d.elisa) |
+| Mojo | [mojo/o/orthogonal_range_reporting_2d.mojo](../../../mojo/o/orthogonal_range_reporting_2d.mojo) |
 | Nim | [nim/o/orthogonal_range_reporting_2d.nim](../../../nim/o/orthogonal_range_reporting_2d.nim) |
 | Odin | [odin/o/orthogonal_range_reporting_2d.odin](../../../odin/o/orthogonal_range_reporting_2d.odin) |
 | Rust | [rust/o/orthogonal_range_reporting_2d.rs](../../../rust/o/orthogonal_range_reporting_2d.rs) |

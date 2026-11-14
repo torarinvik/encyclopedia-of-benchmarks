@@ -40,11 +40,15 @@ geometric predicates, divide-and-conquer merge, and dual construction.
 | C3 | [c3/v/olden_voronoi.c3](../../../c3/v/olden_voronoi.c3) |
 | C++ | [cpp/v/olden_voronoi.cpp](../../../cpp/v/olden_voronoi.cpp) |
 | Elisa | [elisa/v/olden_voronoi.elisa](../../../elisa/v/olden_voronoi.elisa) |
+| Mojo | [mojo/v/olden_voronoi.mojo](../../../mojo/v/olden_voronoi.mojo) |
 | Nim | [nim/v/olden_voronoi.nim](../../../nim/v/olden_voronoi.nim) |
 | Odin | [odin/v/olden_voronoi.odin](../../../odin/v/olden_voronoi.odin) |
 | Rust | [rust/v/olden_voronoi.rs](../../../rust/v/olden_voronoi.rs) |
 | V | [v/v/olden_voronoi.v](../../../v/v/olden_voronoi.v) |
 | Zig | [zig/v/olden_voronoi.zig](../../../zig/v/olden_voronoi.zig) |
+
+The Mojo draft is uncompiled and unexecuted; the existing suite registration
+and independent oracle cover this ABI when validation is permitted.
 
 ## Pinned source files
 

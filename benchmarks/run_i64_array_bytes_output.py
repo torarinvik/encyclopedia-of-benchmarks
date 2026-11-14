@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from x.xor_leaf_tree_traversal.primary_oracle import expected_output as xor_leaf_tree_traversal_oracle
+from l.lexicographically_minimal_concatenation.independent_oracle import expected_output as minimal_concatenation_oracle
+from l.lexicographically_minimal_concatenation.validation import validate_workload as validate_minimal_concatenation_workload
+
 import argparse
 import bisect
 from collections import Counter, deque
@@ -50,6 +54,42 @@ from i.indexed_block_list.primary_oracle import (
     MAX_OUTPUT_BYTES as INDEXED_BLOCK_LIST_MAX_OUTPUT_BYTES,
     expected_output as indexed_block_list_oracle,
 )
+from i.incremental_minimum_spanning_forest.primary_oracle import (
+    expected_output as incremental_msf_oracle,
+)
+from s.static_range_sum_with_upper_bound.oracle import expected_output as static_range_sum_upper_oracle
+from m.dynamic_range_majority.oracle import expected_output as dynamic_range_majority_oracle
+from a.all_farthest_neighbors_convex.oracle import expected_output as all_farthest_neighbors_oracle
+from d.dirichlet_inverse_and_prefix_sums.oracle import expected_output as dirichlet_inverse_prefix_oracle
+from p.polynomial_discrete_antiderivative.oracle import expected_output as polynomial_discrete_antiderivative_oracle
+from i.inv_of_formal_power_series_2d.oracle import expected_output as inv_of_formal_power_series_2d_oracle
+from l.log_of_set_power_series.oracle import expected_output as log_of_set_power_series_oracle
+from r.range_add_range_min.oracle import expected_output as range_add_range_min_oracle
+from d.discrete_logarithm_fixed_mod.oracle import expected_output as discrete_logarithm_fixed_mod_oracle
+from i.indexed_deque.oracle import expected_output as indexed_deque_oracle
+from w.walker_vose_alias_sampling.primary_oracle import expected_output as walker_vose_alias_sampling_oracle
+from s.space_saving_frequent_items.primary_oracle import expected_output as space_saving_frequent_items_oracle
+from m.melkman_simple_polyline_hull.primary_oracle import expected_output as melkman_simple_polyline_hull_oracle
+from c.chan_output_sensitive_hull.grouped_reference import expected_output as chan_output_sensitive_hull_oracle
+from d.divide_conquer_tangent_hull.primary_oracle import expected_output as divide_conquer_tangent_hull_oracle
+from p.planted_3sat_clause_generator.primary_oracle import expected_output as planted_3sat_clause_generator_oracle
+from m.minimum_area_enclosing_rectangle.primary_oracle import expected_output as minimum_area_enclosing_rectangle_oracle
+from r.rrr_class_offset_rank_select.primary_oracle import expected_output as rrr_class_offset_rank_select_oracle
+from check_rrr_class_offset_rank_select_package import static_issues as rrr_class_offset_rank_select_static_issues
+from r.reservoir_sampling_algorithm_r.primary_oracle import expected_output as reservoir_sampling_algorithm_r_oracle
+from check_reservoir_sampling_algorithm_r_package import static_issues as reservoir_sampling_algorithm_r_static_issues
+from l.lossy_counting_summary.primary_oracle import expected_output as lossy_counting_summary_oracle
+from check_lossy_counting_summary_package import static_issues as lossy_counting_summary_static_issues
+from s.sticky_sampling_summary.primary_oracle import expected_output as sticky_sampling_summary_oracle
+from check_sticky_sampling_summary_package import static_issues as sticky_sampling_summary_static_issues
+from e.exponential_histogram_window.primary_oracle import expected_output as exponential_histogram_window_oracle
+from check_exponential_histogram_window_package import static_issues as exponential_histogram_window_static_issues
+from check_minimum_area_enclosing_rectangle_package import static_issues as minimum_area_enclosing_rectangle_static_issues
+from check_planted_3sat_clause_generator_package import static_issues as planted_3sat_clause_generator_static_issues
+from check_divide_conquer_tangent_hull_package import static_issues as divide_conquer_tangent_hull_static_issues
+from check_chan_output_sensitive_hull_package import static_issues as chan_output_sensitive_hull_static_issues
+from h.hyperloglog_raw_estimate.primary_oracle import expected_output as hyperloglog_raw_estimate_oracle
+from h.hyperloglog_corrected_estimate.primary_oracle import expected_output as hyperloglog_corrected_estimate_oracle
 from i.indexed_block_list.verify_indexed_block_list_package import (
     static_issues as indexed_block_list_static_issues,
 )
@@ -2119,8 +2159,6 @@ from nysiis_encoder_oracle import expected_output as nysiis_encoder_expected_out
 from prefix_function_oracle import MAX_INPUT_LENGTH as PREFIX_FUNCTION_MAX_INPUT_LENGTH
 from prefix_function_oracle import expected_output as prefix_function_expected_output
 from reverse_array_oracle import expected_result as reverse_array_expected
-from lyndon_factorization_oracle import MAX_INPUT_LENGTH as MAX_LYNDON_FACTORIZATION_INPUT_LENGTH
-from lyndon_factorization_oracle import expected_output as lyndon_factorization_expected_output
 from pairwise_iteration_oracle import MAX_INPUT_LENGTH as MAX_PAIRWISE_ITERATION_INPUT_LENGTH
 from pairwise_iteration_oracle import expected_output as pairwise_iteration_expected_output
 from postfix_to_infix_oracle import MAX_INPUT_LENGTH as MAX_POSTFIX_TO_INFIX_INPUT_LENGTH
@@ -4232,13 +4270,6 @@ from versabench_8b10b_oracle import MAX_OUTPUT_BYTES as VERSABENCH_8B10B_MAX_OUT
 from versabench_8b10b_oracle import MAX_PARSEABLE_WORDS as VERSABENCH_8B10B_MAX_PARSEABLE_WORDS
 from versabench_8b10b_oracle import MAX_WORDS as VERSABENCH_8B10B_MAX_WORDS
 from versabench_8b10b_oracle import expected_output as versabench_8b10b_oracle
-from trimaran_enc_rc4_oracle import INVALID_RESULT as TRIMARAN_ENC_RC4_INVALID_RESULT
-from trimaran_enc_rc4_oracle import MAX_OUTPUT_BYTES as TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES
-from trimaran_enc_rc4_oracle import MAX_PARSEABLE_INPUT_VALUES as TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
-from trimaran_enc_rc4_oracle import MAX_PASSES as TRIMARAN_ENC_RC4_MAX_PASSES
-from trimaran_enc_rc4_oracle import MIN_PASSES as TRIMARAN_ENC_RC4_MIN_PASSES
-from trimaran_enc_rc4_oracle import OUTPUT_ERROR as TRIMARAN_ENC_RC4_OUTPUT_ERROR
-from trimaran_enc_rc4_oracle import expected_output as trimaran_enc_rc4_expected_output
 from trimaran_enc_3des_oracle import INVALID_RESULT as TRIMARAN_ENC_3DES_INVALID_RESULT
 from trimaran_enc_3des_oracle import MAX_INPUT_LENGTH as TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH
 from trimaran_enc_3des_oracle import OUTPUT_BYTES as TRIMARAN_ENC_3DES_OUTPUT_BYTES
@@ -4492,8 +4523,6 @@ from correlation_matrix_analysis_oracle import OBSERVATIONS as CORRELATION_MATRI
 from correlation_matrix_analysis_oracle import expected_output as correlation_matrix_analysis_expected_output
 from unique_letters_count_oracle import MAX_PACKED_INPUT_LENGTH as MAX_UNIQUE_LETTERS_COUNT_INPUT_LENGTH
 from unique_letters_count_oracle import expected_output as unique_letters_count_expected_output
-from convex_hull_graham_oracle import MAX_INPUT_LENGTH as MAX_CONVEX_HULL_GRAHAM_INPUT_LENGTH
-from convex_hull_graham_oracle import expected_output as convex_hull_graham_expected_output
 from sorted_arrays_intersection_oracle import MAX_INPUT_LENGTH as MAX_SORTED_ARRAYS_INTERSECTION_INPUT_LENGTH
 from sorted_arrays_intersection_oracle import expected_output as sorted_arrays_intersection_expected_output
 from compress_oracle import MAX_INPUT_LENGTH as MAX_COMPRESS_INPUT_LENGTH
@@ -4678,7 +4707,6 @@ RECORDER_WORKSPACE_ALGORITHMS = {
     'compress',
     'conjugate_gradient',
     'continued_fraction',
-    'convex_hull_graham',
     'convolution',
     'convolution_fft',
     'convolution_neural_network',
@@ -5650,7 +5678,7 @@ def round_half_away_from_zero(value: float) -> int:
 
 
 RECORDER_WORKSPACE_ALGORITHMS.add('from_sequence')
-RECORDER_WORKSPACE_ALGORITHMS.add('lyndon_factorization')
+RECORDER_WORKSPACE_ALGORITHMS.add('duval_algorithm')
 RECORDER_WORKSPACE_ALGORITHMS.add('gaussian_filter')
 RECORDER_WORKSPACE_ALGORITHMS.add('gaussian_mixture_model')
 RECORDER_WORKSPACE_ALGORITHMS.add('gabor_filter')
@@ -5680,6 +5708,7 @@ RECORDER_WORKSPACE_ALGORITHMS.add('tree_234')
 RECORDER_WORKSPACE_ALGORITHMS.add('proportional_fair_scheduling')
 RECORDER_WORKSPACE_ALGORITHMS.add('product_cipher')
 RECORDER_WORKSPACE_ALGORITHMS.add('prufer_code')
+RECORDER_WORKSPACE_ALGORITHMS.add('articulation_points')
 RECORDER_WORKSPACE_ALGORITHMS.add('indexed_priority_queue')
 RECORDER_WORKSPACE_ALGORITHMS.add('simple_blockchain')
 RECORDER_WORKSPACE_ALGORITHMS.add('min_cost_string_conversion')
@@ -6044,27 +6073,6 @@ def beebs_lcdnum_suite_oracle(
         values,
         BEEBS_LCDNUM_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity,
         output_is_null, input_is_null, input_length)
-
-
-def trimaran_enc_rc4_suite_oracle(
-        values: list[int] | tuple[int, ...], capacity: int | None = None,
-        output_is_null: bool = False, input_is_null: bool = False,
-        input_length: int | None = None) -> tuple[int, bytes]:
-    if (input_is_null or type(output_is_null) is not bool
-            or not isinstance(values, (list, tuple))
-            or len(values) > TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
-            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
-                   for value in values)
-            or (input_length is not None
-                and (type(input_length) is not int or input_length != len(values)))
-            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
-        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
-    result, output = trimaran_enc_rc4_expected_output(values)
-    if result < 0:
-        return result, output
-    if output_is_null or (capacity is not None and capacity < result):
-        return TRIMARAN_ENC_RC4_OUTPUT_ERROR, b""
-    return result, output
 
 
 def trimaran_enc_3des_suite_oracle(
@@ -7025,8 +7033,23 @@ def prefix_substring_lcs_oracle(values, capacity=None, output_is_null=False,
 from rabin_content_defined_chunking_oracle import expected_output as rabin_content_defined_chunking_oracle
 from statistical_region_merging_table_oracle import expected_output as statistical_region_merging_table_oracle
 from multiprobe_lsh_probe_sequence_oracle import expected_output as multiprobe_lsh_probe_sequence_oracle
+from chord_stabilization_trace_oracle import expected_output as chord_stabilization_trace_oracle
+from shortest_absent_substring_sam_oracle import expected_output as shortest_absent_substring_sam_oracle
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "log_of_set_power_series": log_of_set_power_series_oracle,
+    "range_add_range_min": range_add_range_min_oracle,
+    "discrete_logarithm_fixed_mod": discrete_logarithm_fixed_mod_oracle,
+    "indexed_deque": indexed_deque_oracle,
+    "inv_of_formal_power_series_2d": inv_of_formal_power_series_2d_oracle,
+    "polynomial_discrete_antiderivative": polynomial_discrete_antiderivative_oracle,
+    "dirichlet_inverse_and_prefix_sums": dirichlet_inverse_prefix_oracle,
+    "all_farthest_neighbors_convex": all_farthest_neighbors_oracle,
+    "dynamic_range_majority": dynamic_range_majority_oracle,
+    "static_range_sum_with_upper_bound": static_range_sum_upper_oracle,
+    "incremental_minimum_spanning_forest": incremental_msf_oracle,
+    "shortest_absent_substring_sam": shortest_absent_substring_sam_oracle,
+    "chord_stabilization_trace": chord_stabilization_trace_oracle,
     "multiprobe_lsh_probe_sequence": multiprobe_lsh_probe_sequence_oracle,
     "statistical_region_merging_table": statistical_region_merging_table_oracle,
     "rabin_content_defined_chunking": rabin_content_defined_chunking_oracle,
@@ -7037,6 +7060,22 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "sparse_supernodal_cholesky": sparse_supernodal_cholesky_oracle,
     "gabow_scc": gabow_scc_oracle,
     "indexed_block_list": indexed_block_list_oracle,
+    "xor_leaf_tree_traversal": xor_leaf_tree_traversal_oracle,
+    "walker_vose_alias_sampling": walker_vose_alias_sampling_oracle,
+    "space_saving_frequent_items": space_saving_frequent_items_oracle,
+    "melkman_simple_polyline_hull": melkman_simple_polyline_hull_oracle,
+    "chan_output_sensitive_hull": chan_output_sensitive_hull_oracle,
+    "divide_conquer_tangent_hull": divide_conquer_tangent_hull_oracle,
+    "planted_3sat_clause_generator": planted_3sat_clause_generator_oracle,
+    "minimum_area_enclosing_rectangle": minimum_area_enclosing_rectangle_oracle,
+    "lexicographically_minimal_concatenation": minimal_concatenation_oracle,
+    "rrr_class_offset_rank_select": rrr_class_offset_rank_select_oracle,
+    "reservoir_sampling_algorithm_r": reservoir_sampling_algorithm_r_oracle,
+    "lossy_counting_summary": lossy_counting_summary_oracle,
+    "sticky_sampling_summary": sticky_sampling_summary_oracle,
+    "exponential_histogram_window": exponential_histogram_window_oracle,
+    "hyperloglog_raw_estimate": hyperloglog_raw_estimate_oracle,
+    "hyperloglog_corrected_estimate": hyperloglog_corrected_estimate_oracle,
     "prime_modulus_inverse_table": prime_modulus_inverse_table_oracle,
     "crochemore_perrin_two_way": crochemore_perrin_two_way_oracle,
     "virtual_tree": virtual_tree_oracle,
@@ -7542,7 +7581,6 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "prolangs_c_cdecl": prolangs_c_cdecl_oracle,
     "cbench_automotive_qsort1": cbench_automotive_qsort1_suite_oracle,
     "8b10b": versabench_8b10b_oracle,
-    "trimaran_enc_rc4": trimaran_enc_rc4_suite_oracle,
     "trimaran_enc_3des": trimaran_enc_3des_suite_oracle,
     "polybench_adi": polybench_adi_oracle,
     "uuencode": uuencode_oracle,
@@ -7700,6 +7738,33 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
 EXTERNAL_BYTE_OUTPUT_BOUNDS = {
+    "log_of_set_power_series": (34, 256),
+    "range_add_range_min": (323, 512),
+    "discrete_logarithm_fixed_mod": (260, 2048),
+    "indexed_deque": (514, 2048),
+    "inv_of_formal_power_series_2d": (67, 512),
+    "polynomial_discrete_antiderivative": (34, 264),
+    "dirichlet_inverse_and_prefix_sums": (17, 120),
+    "all_farthest_neighbors_convex": (130, 512),
+    "dynamic_range_majority": (259, 512),
+    "static_range_sum_with_upper_bound": (259, 1024),
+    "walker_vose_alias_sampling": (83, 256),
+    "space_saving_frequent_items": (67, 200),
+    "melkman_simple_polyline_hull": (66, 256),
+    "chan_output_sensitive_hull": (66, 512),
+    "divide_conquer_tangent_hull": (66, 512),
+    "planted_3sat_clause_generator": (83, 768),
+    "minimum_area_enclosing_rectangle": (34, 16),
+    "lexicographically_minimal_concatenation": (81922, 65536),
+    "rrr_class_offset_rank_select": (36, 128),
+    "reservoir_sampling_algorithm_r": (131, 512),
+    "lossy_counting_summary": (67, 392),
+    "sticky_sampling_summary": (324, 264),
+    "exponential_histogram_window": (131, 1024),
+    "hyperloglog_raw_estimate": (130, 144),
+    "hyperloglog_corrected_estimate": (130, 8),
+    "shortest_absent_substring_sam": (66, 6),
+    "chord_stabilization_trace": (115, 32),
     "multiprobe_lsh_probe_sequence": (7, 80),
     "statistical_region_merging_table": (74, 36),
     "rabin_content_defined_chunking": (65, 64),
@@ -7714,6 +7779,8 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
         INDEXED_BLOCK_LIST_MAX_PARSEABLE_INPUT_LENGTH,
         INDEXED_BLOCK_LIST_MAX_OUTPUT_BYTES,
     ),
+    "xor_leaf_tree_traversal": (128, 1024),
+    "incremental_minimum_spanning_forest": (98, 256),
     "gabow_scc": (GABOW_SCC_MAX_INPUT_LENGTH, GABOW_SCC_MAX_OUTPUT_BYTES),
     "crochemore_perrin_two_way": (
         CROCHEMORE_PERRIN_TWO_WAY_MAX_INPUT_LENGTH,
@@ -12114,20 +12181,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         output = struct.pack("<" + "q" * pattern_count, *counts)
         return len(output), output
 
-    if algorithm == "z_function":
-        if (not isinstance(values, list) or len(values) > 256
-                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
-            return -1, b""
-        z_values = [0] * len(values)
-        for index in range(1, len(values)):
-            match_length = 0
-            while (index + match_length < len(values)
-                   and values[match_length] == values[index + match_length]):
-                match_length += 1
-            z_values[index] = match_length
-        output = b"".join(struct.pack("<q", value) for value in z_values)
-        return len(output), output
-
     if algorithm == "infix_to_postfix_conversion":
         if (not isinstance(values, list) or not values or len(values) > 257
                 or any(type(value) is not int for value in values)):
@@ -13425,8 +13478,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return correlation_matrix_analysis_expected_output(values)
     if algorithm == "unique_letters_count":
         return unique_letters_count_expected_output(values)
-    if algorithm == "convex_hull_graham":
-        return convex_hull_graham_expected_output(values)
 
     if algorithm == "cantor_set":
         if (not isinstance(values, list) or len(values) != 3
@@ -14811,11 +14862,11 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return len(output), bytes(output)
 
     if algorithm == "z_algorithm":
-        if (not isinstance(values, list) or not 1 <= len(values) <= 2048
+        if (not isinstance(values, list) or not 1 <= len(values) <= 4096
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
             return -1, b""
         count = values[0]
-        if not 0 <= count <= 2047 or len(values) != count + 1:
+        if not 0 <= count <= 4095 or len(values) != count + 1:
             return -1, b""
         sequence = values[1:]
         z_values = [0] * count
@@ -14830,26 +14881,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             encoded.extend(value.to_bytes(4, "little"))
         return count, bytes(encoded)
 
-    if algorithm == "z_algorithm_search":
-        if (len(values) < 2 or any(type(value) is not int for value in values)
-                or not 0 <= values[0] <= 2047 or not 0 <= values[1] <= 2047
-                or len(values) != 2 + values[0] + values[1]
-                or any(not 0 <= value <= 127 for value in values[2:])):
-            return -1, b""
-        text_length, pattern_length = values[:2]
-        text = [value + 32 if 65 <= value <= 90 else value for value in values[2:2 + text_length]]
-        pattern = [value + 32 if 65 <= value <= 90 else value for value in values[2 + text_length:]]
-        if pattern_length == 0:
-            positions = range(1, text_length + 2)
-        else:
-            positions = (start + 1 for start in range(text_length - pattern_length + 1)
-                         if text[start:start + pattern_length] == pattern)
-        encoded = bytearray()
-        count = 0
-        for position in positions:
-            encoded.extend(position.to_bytes(4, "little"))
-            count += 1
-        return count, bytes(encoded)
     if algorithm == "adagrad":
 
         input_scale = 1_000_000_000
@@ -15996,8 +16027,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         result, output = reverse_array_expected(values)
         return result, output
 
-    if algorithm == "lyndon_factorization":
-        return lyndon_factorization_expected_output(values)
 
     if algorithm == "pairwise_iteration":
         return pairwise_iteration_expected_output(values)
@@ -29480,6 +29509,13 @@ def validate_maximum_fenwick_tree_workload(workload: dict) -> None:
         encoding="utf-8")
     if source["url"] not in readme:
         raise ValueError("maximum_fenwick_tree README is missing its pinned source link")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "m" / f"maximum_fenwick_tree.{extension}"
+        if not port.is_file() or "maximum_fenwick_tree" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"maximum_fenwick_tree source missing for {language}")
     maximum = next(case for case in cases if case["id"] == "maximum_operations")
     abi = {case["id"]: case for case in abi_cases}
     if (len(maximum.get("input_values", [])) != MAXIMUM_FENWICK_TREE_MAX_INPUT_LENGTH
@@ -35378,6 +35414,13 @@ def validate_spigotpi_workload(workload: dict) -> None:
             or "null output pointer or insufficient capacity returns `-2`" not in readme
             or "without writing" not in readme):
         raise ValueError("spigotpi README is missing its pinned source or reviewed semantics")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"),
+                                ("nim", "nim"), ("odin", "odin"),
+                                ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        port = ROOT / language / "m" / f"spigotpi.{extension}"
+        if not port.is_file() or "spigotpi" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"spigotpi source missing for {language}")
 
     for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
         for case in fixture_list:
@@ -38314,6 +38357,487 @@ def _saga_base_state_is_valid(values: list[int]) -> bool:
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
+    if algorithm == "lexicographically_minimal_concatenation":
+        validate_minimal_concatenation_workload(workload)
+        return
+    if algorithm == "indexed_deque":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 513
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 514
+                or workload.get("output", {}).get("maximum_output_bytes") != 2048
+                or workload.get("workspace", {}).get("bytes") != 2048):
+            raise ValueError("indexed deque workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = indexed_deque_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"indexed deque fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "i" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"indexed deque port missing: {source}")
+        return
+    if algorithm == "discrete_logarithm_fixed_mod":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 259
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 260
+                or workload.get("output", {}).get("maximum_output_bytes") != 2048
+                or workload.get("workspace", {}).get("bytes") != 2048):
+            raise ValueError("fixed-modulus discrete-log workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = discrete_logarithm_fixed_mod_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"fixed-modulus discrete-log fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "d" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"fixed-modulus discrete-log port missing: {source}")
+        return
+    if algorithm == "range_add_range_min":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 322
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 323
+                or workload.get("output", {}).get("maximum_output_bytes") != 512
+                or workload.get("workspace", {}).get("bytes") != 512):
+            raise ValueError("range-add/min workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = range_add_range_min_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"range-add/min fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "r" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"range-add/min port missing: {source}")
+        return
+    if algorithm == "log_of_set_power_series":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 33
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 34
+                or workload.get("output", {}).get("maximum_output_bytes") != 256
+                or workload.get("workspace", {}).get("bytes") != 256):
+            raise ValueError("set-logarithm workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = log_of_set_power_series_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"set-logarithm fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "l" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"set-logarithm port missing: {source}")
+        return
+    if algorithm == "inv_of_formal_power_series_2d":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 66
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 67
+                or workload.get("output", {}).get("maximum_output_bytes") != 512
+                or workload.get("workspace", {}).get("bytes") != 512):
+            raise ValueError("bivariate reciprocal workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = inv_of_formal_power_series_2d_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"bivariate reciprocal fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "i" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"bivariate reciprocal port missing: {source}")
+        return
+    if algorithm == "polynomial_discrete_antiderivative":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 33
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 34
+                or workload.get("output", {}).get("maximum_output_bytes") != 264
+                or workload.get("workspace", {}).get("bytes") != 264):
+            raise ValueError("polynomial-antiderivative workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = polynomial_discrete_antiderivative_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"polynomial-antiderivative fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "p" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"polynomial-antiderivative port missing: {source}")
+        return
+    if algorithm == "dirichlet_inverse_and_prefix_sums":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 16
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 17
+                or workload.get("output", {}).get("maximum_output_bytes") != 120
+                or workload.get("workspace", {}).get("bytes") != 120):
+            raise ValueError("Dirichlet-inverse workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = dirichlet_inverse_prefix_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"Dirichlet-inverse fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "d" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"Dirichlet-inverse port missing: {source}")
+        return
+    if algorithm == "all_farthest_neighbors_convex":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 129
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 130
+                or workload.get("output", {}).get("maximum_output_bytes") != 512
+                or workload.get("workspace", {}).get("bytes") != 512):
+            raise ValueError("farthest-neighbor workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = all_farthest_neighbors_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"farthest-neighbor fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "a" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"farthest-neighbor port missing: {source}")
+        return
+    if algorithm == "dynamic_range_majority":
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 258
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 259
+                or workload.get("output", {}).get("maximum_output_bytes") != 512
+                or workload.get("workspace", {}).get("bytes") != 512):
+            raise ValueError("dynamic-majority workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = dynamic_range_majority_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"dynamic-majority fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "m" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"dynamic-majority port missing: {source}")
+        return
+    if algorithm == "static_range_sum_with_upper_bound":
+        path = ROOT / "benchmarks/s/static_range_sum_with_upper_bound/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("range-sum workload differs from its package")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("input", {}).get("maximum_valid_input_length") != 258
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 259
+                or workload.get("output", {}).get("maximum_output_bytes") != 1024
+                or workload.get("workspace", {}).get("bytes") != 1024):
+            raise ValueError("range-sum workload metadata differs from its contract")
+        for case in workload["cases"]:
+            result, data = static_range_sum_upper_oracle(
+                case.get("input_values"), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if result != case.get("expected_result") or data.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"range-sum fixture differs from its reference: {case.get('id')}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "s" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"range-sum port missing: {source}")
+        return
+    if algorithm == "min_cost_max_flow":
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "m" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"min-cost-flow port missing: {source}")
+    if algorithm == "incremental_minimum_spanning_forest":
+        path = ROOT / "benchmarks/i/incremental_minimum_spanning_forest/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("incremental spanning forest workload differs from its package")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "i" / f"{algorithm}.{extension}"
+            if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"incremental spanning forest port missing: {source}")
+        return
+    if algorithm == "exponential_histogram_window":
+        path = ROOT / "benchmarks/e/exponential_histogram_window/workload.json"
+        from workload_json import load_workload
+        if workload != load_workload(path):
+            raise ValueError("exponential histogram workload differs from its package file")
+        issues = exponential_histogram_window_static_issues(workload)
+        if issues:
+            raise ValueError("exponential histogram package: " + "; ".join(issues))
+    if algorithm == "sticky_sampling_summary":
+        path = ROOT / "benchmarks/s/sticky_sampling_summary/workload.json"
+        from workload_json import load_workload
+        if workload != load_workload(path):
+            raise ValueError("Sticky Sampling workload differs from its package file")
+        issues = sticky_sampling_summary_static_issues(workload)
+        if issues:
+            raise ValueError("Sticky Sampling package: " + "; ".join(issues))
+    if algorithm == "lossy_counting_summary":
+        path = ROOT / "benchmarks/l/lossy_counting_summary/workload.json"
+        from workload_json import load_workload
+        if workload != load_workload(path):
+            raise ValueError("Lossy Counting workload differs from its package file")
+        issues = lossy_counting_summary_static_issues(workload)
+        if issues:
+            raise ValueError("Lossy Counting package: " + "; ".join(issues))
+    if algorithm == "reservoir_sampling_algorithm_r":
+        path = ROOT / "benchmarks/r/reservoir_sampling_algorithm_r/workload.json"
+        from workload_json import load_workload
+        if workload != load_workload(path):
+            raise ValueError("reservoir sampler workload differs from its package file")
+        issues = reservoir_sampling_algorithm_r_static_issues(workload)
+        if issues:
+            raise ValueError("reservoir sampler package: " + "; ".join(issues))
+    if algorithm == "rrr_class_offset_rank_select":
+        path = ROOT / "benchmarks/r/rrr_class_offset_rank_select/workload.json"
+        from workload_json import load_workload
+        if workload != load_workload(path):
+            raise ValueError("RRR workload differs from its package file")
+        issues = rrr_class_offset_rank_select_static_issues(workload)
+        if issues:
+            raise ValueError("RRR package: " + "; ".join(issues))
+    if algorithm == "minimum_area_enclosing_rectangle":
+        path = ROOT / "benchmarks/m/minimum_area_enclosing_rectangle/workload.json"
+        from workload_json import load_workload
+        if workload != load_workload(path):
+            raise ValueError("minimum-area rectangle workload differs from its package file")
+        issues = minimum_area_enclosing_rectangle_static_issues(workload)
+        if issues:
+            raise ValueError("minimum-area rectangle package: " + "; ".join(issues))
+    if algorithm == "planted_3sat_clause_generator":
+        path = ROOT / "benchmarks/p/planted_3sat_clause_generator/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("planted 3-SAT generator workload differs from its package file")
+        issues = planted_3sat_clause_generator_static_issues(workload)
+        if issues:
+            raise ValueError("planted 3-SAT generator package: " + "; ".join(issues))
+    if algorithm == "divide_conquer_tangent_hull":
+        path = ROOT / "benchmarks/d/divide_conquer_tangent_hull/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("tangent-merge hull workload differs from its package file")
+        issues = divide_conquer_tangent_hull_static_issues(workload)
+        if issues:
+            raise ValueError("tangent-merge hull package: " + "; ".join(issues))
+    if algorithm == "chan_output_sensitive_hull":
+        path = ROOT / "benchmarks/c/chan_output_sensitive_hull/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("Chan workload differs from its package file")
+        issues = chan_output_sensitive_hull_static_issues(workload)
+        if issues:
+            raise ValueError("Chan package: " + "; ".join(issues))
+        if (workload.get("workspace", {}).get("bytes") != 512
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("Chan workload metadata differs from its contract")
+    if algorithm == "hyperloglog_corrected_estimate":
+        path = ROOT / "benchmarks/h/hyperloglog_corrected_estimate/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("corrected HyperLogLog workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "h" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"corrected HyperLogLog port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("count_range") != [0, 128]
+                or workload.get("input", {}).get("hash_range") != [0, 4294967295]
+                or workload.get("input", {}).get("maximum_valid_input_length") != 129
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 130
+                or workload.get("output", {}).get("kind") != "float64_vector"
+                or workload.get("output", {}).get("maximum_output_bytes") != 8
+                or workload.get("output", {}).get("saturation_result") != -3
+                or workload.get("output", {}).get("absolute_tolerance") != 1e-8
+                or workload.get("output", {}).get("relative_tolerance") != 1e-12
+                or workload.get("output", {}).get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != 1024
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("corrected HyperLogLog metadata differs from its contract")
+    if algorithm == "hyperloglog_raw_estimate":
+        path = ROOT / "benchmarks/h/hyperloglog_raw_estimate/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("HyperLogLog raw workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "h" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"HyperLogLog raw port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("count_range") != [0, 128]
+                or workload.get("input", {}).get("hash_range") != [0, 4294967295]
+                or workload.get("input", {}).get("maximum_valid_input_length") != 129
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 130
+                or workload.get("output", {}).get("maximum_output_bytes") != 144
+                or workload.get("output", {}).get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != 1024
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("HyperLogLog raw workload metadata differs from its contract")
+        # Continue to the shared fixture checks.
+    if algorithm == "melkman_simple_polyline_hull":
+        path = ROOT / "benchmarks/m/melkman_simple_polyline_hull/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("Melkman workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "m" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Melkman port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("point_count_range") != [3, 32]
+                or workload.get("input", {}).get("coordinate_range") != [-1000, 1000]
+                or workload.get("input", {}).get("maximum_valid_input_length") != 65
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 66
+                or workload.get("output", {}).get("maximum_output_bytes") != 256
+                or workload.get("output", {}).get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != 2048
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("Melkman workload metadata differs from its contract")
+        # Continue into the shared fixture checks.
+    if algorithm == "space_saving_frequent_items":
+        path = ROOT / "benchmarks/s/space_saving_frequent_items/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("Space-Saving workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "s" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Space-Saving port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("capacity_range") != [1, 8]
+                or workload.get("input", {}).get("stream_length_range") != [0, 64]
+                or workload.get("input", {}).get("item_range") != [-1000, 1000]
+                or workload.get("input", {}).get("maximum_valid_input_length") != 66
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 67
+                or workload.get("output", {}).get("maximum_output_bytes") != 200
+                or workload.get("output", {}).get("no_write_on_error") is not True
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or workload.get("workspace", {}).get("bytes") != 2048):
+            raise ValueError("Space-Saving workload metadata differs from its contract")
+    if algorithm == "walker_vose_alias_sampling":
+        path = ROOT / "benchmarks/w/walker_vose_alias_sampling/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("Walker–Vose workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "w" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Walker–Vose port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("category_count_range") != [1, 16]
+                or workload.get("input", {}).get("draw_count_range") != [0, 32]
+                or workload.get("input", {}).get("weight_range") != [0, 100]
+                or workload.get("input", {}).get("maximum_valid_input_length") != 82
+                or workload.get("input", {}).get("maximum_parseable_input_length") != 83
+                or workload.get("output", {}).get("maximum_output_bytes") != 256
+                or workload.get("output", {}).get("empty_draws_accept_null_output") is not True
+                or workload.get("output", {}).get("no_write_on_error") is not True
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or workload.get("workspace", {}).get("bytes") != 2048):
+            raise ValueError("Walker–Vose workload metadata differs from its contract")
+        # Continue to the shared fixture framing and oracle checks below.
+    if algorithm == "shortest_absent_substring_sam":
+        path = ROOT / "benchmarks/s/shortest_absent_substring_sam/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("shortest absent substring workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "s" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"shortest absent substring port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("maximum_valid_length") != 66
+                or workload.get("input", {}).get("maximum_parseable_length") != 66
+                or workload.get("output", {}).get("maximum_bytes") != 6
+                or workload.get("workspace", {}).get("bytes") != 4096):
+            raise ValueError("shortest absent substring metadata differs from its bounded contract")
+        # Continue into the generic fixture and oracle checks below.
+    if algorithm == "chord_stabilization_trace":
+        path = ROOT / "benchmarks/c/chord_stabilization_trace/workload.json"
+        if workload != json.loads(path.read_text(encoding="utf-8")):
+            raise ValueError("Chord stabilization workload differs from its package file")
+        extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                      "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                      "v": "v", "zig": "zig"}
+        for language, extension in extensions.items():
+            port = ROOT / language / "c" / f"{algorithm}.{extension}"
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Chord stabilization port is missing its symbol: {port}")
+        if (workload.get("schema_version") != 1 or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("input", {}).get("maximum_valid_length") != 115
+                or workload.get("input", {}).get("maximum_parseable_length") != 115
+                or workload.get("output", {}).get("maximum_bytes") != 32
+                or workload.get("workspace", {}).get("bytes") != 1024):
+            raise ValueError("Chord stabilization metadata differs from its bounded contract")
+        # Continue into the generic fixture and oracle checks below.
     if algorithm == "multiprobe_lsh_probe_sequence":
         path = ROOT / "benchmarks/m/multiprobe_lsh_probe_sequence/workload.json"
         if workload != json.loads(path.read_text(encoding="utf-8")):
@@ -44062,7 +44586,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 "projection": "The bounded ABI exposes one query result and work count rather than the launcher-wide maximum-work, total-work, and fraction-covered summary. Parallel per-vertex queries, graph I/O, timing, and unlimited cutoff are excluded.",
                 "dependency": {"repository": "ParAlg/parlaylib", "commit": "352f5367a6b3bd2f0c6f05882cdd02e978e349ea", "path": "include/parlay/utilities.h", "symbol": "parlay::hash64", "license_path": "LICENSE", "license": "MIT"},
                 "case_ids": {"isolated-query-at-zero-cutoff", "isolated-root-with-separate-edge", "nonisolated-zero-cutoff-is-unknown", "maximum-bounded-graph-zero-cutoff", "self-loop-invalid", "duplicate-undirected-edge-invalid", "root-out-of-range", "cutoff-out-of-range", "length-mismatch", "insufficient-output-capacity", "null-output", "null-input"},
-                "ports": [f"{lang}/g/gbbs_yoshida_query_mis.{ext}" for lang, ext in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"), ("elisa", "elisa"), ("nim", "nim"), ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig"))],
+                "ports": [f"{lang}/g/gbbs_yoshida_query_mis.{ext}" for lang, ext in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"), ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"), ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig"))],
             },
         }
         spec = definitions[algorithm]
@@ -44868,6 +45392,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/g/gbbs_biconnectivity.c", "c3/g/gbbs_biconnectivity.c3",
                 "cpp/g/gbbs_biconnectivity.cpp", "elisa/g/gbbs_biconnectivity.elisa",
+                "mojo/g/gbbs_biconnectivity.mojo",
                 "nim/g/gbbs_biconnectivity.nim", "odin/g/gbbs_biconnectivity.odin",
                 "rust/g/gbbs_biconnectivity.rs", "v/g/gbbs_biconnectivity.v",
                 "zig/g/gbbs_biconnectivity.zig"):
@@ -44933,6 +45458,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/s/saga_incremental_analytics.c", "c3/s/saga_incremental_analytics.c3",
                 "cpp/s/saga_incremental_analytics.cpp", "elisa/s/saga_incremental_analytics.elisa",
+                "mojo/s/saga_incremental_analytics.mojo",
                 "nim/s/saga_incremental_analytics.nim", "odin/s/saga_incremental_analytics.odin",
                 "rust/s/saga_incremental_analytics.rs", "v/s/saga_incremental_analytics.v",
                 "zig/s/saga_incremental_analytics.zig"):
@@ -45029,7 +45555,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("beebs_fasta source attribution or license notices are incomplete")
         for relative in (
                 "c/f/beebs_fasta.c", "c3/f/beebs_fasta.c3", "cpp/f/beebs_fasta.cpp",
-                "elisa/f/beebs_fasta.elisa", "nim/f/beebs_fasta.nim", "odin/f/beebs_fasta.odin",
+                "elisa/f/beebs_fasta.elisa", "mojo/f/beebs_fasta.mojo", "nim/f/beebs_fasta.nim", "odin/f/beebs_fasta.odin",
                 "rust/f/beebs_fasta.rs", "v/f/beebs_fasta.v", "zig/f/beebs_fasta.zig"):
             port = ROOT / relative
             if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
@@ -45116,6 +45642,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/l/beebs_lcdnum.c", "c3/l/beebs_lcdnum.c3", "cpp/l/beebs_lcdnum.cpp",
                 "elisa/l/beebs_lcdnum.elisa", "nim/l/beebs_lcdnum.nim", "odin/l/beebs_lcdnum.odin",
+                "mojo/l/beebs_lcdnum.mojo",
                 "rust/l/beebs_lcdnum.rs", "v/l/beebs_lcdnum.v", "zig/l/beebs_lcdnum.zig"):
             port = ROOT / relative
             if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
@@ -46477,6 +47004,12 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("idea_encrypt_decrypt metadata differs from its pinned byte-output contract")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "i" / f"idea_encrypt_decrypt.{extension}"
+            if not source_path.is_file() or "idea_encrypt_decrypt" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"idea_encrypt_decrypt source missing for {language}")
     elif algorithm == "tripforce_tripcode":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -46545,6 +47078,9 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("embedded_list_stress metadata differs from its pinned byte-output contract")
+        mojo_source = ROOT / "mojo" / "e" / "embedded_list_stress.mojo"
+        if not mojo_source.is_file() or '@export("embedded_list_stress")' not in mojo_source.read_text(encoding="utf-8"):
+            raise ValueError("embedded_list_stress Mojo draft or exported symbol is missing")
     elif algorithm == "numeric_token_state_machine":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -46689,6 +47225,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/p/paq8p_context_mixer.c", "c3/p/paq8p_context_mixer.c3",
                 "cpp/p/paq8p_context_mixer.cpp", "elisa/p/paq8p_context_mixer.elisa",
+                "mojo/p/paq8p_context_mixer.mojo",
                 "nim/p/paq8p_context_mixer.nim", "odin/p/paq8p_context_mixer.odin",
                 "rust/p/paq8p_context_mixer.rs", "v/p/paq8p_context_mixer.v",
                 "zig/p/paq8p_context_mixer.zig"):
@@ -46745,6 +47282,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/p/pargeo_bichromatic_closest_pair.c", "c3/p/pargeo_bichromatic_closest_pair.c3",
                 "cpp/p/pargeo_bichromatic_closest_pair.cpp", "elisa/p/pargeo_bichromatic_closest_pair.elisa",
+                "mojo/p/pargeo_bichromatic_closest_pair.mojo",
                 "nim/p/pargeo_bichromatic_closest_pair.nim", "odin/p/pargeo_bichromatic_closest_pair.odin",
                 "rust/p/pargeo_bichromatic_closest_pair.rs", "v/p/pargeo_bichromatic_closest_pair.v",
                 "zig/p/pargeo_bichromatic_closest_pair.zig"):
@@ -46919,6 +47457,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/a/gapbs_afforest_components.c", "c3/a/gapbs_afforest_components.c3",
                 "cpp/a/gapbs_afforest_components.cpp", "elisa/a/gapbs_afforest_components.elisa",
+                "mojo/a/gapbs_afforest_components.mojo",
                 "nim/a/gapbs_afforest_components.nim", "odin/a/gapbs_afforest_components.odin",
                 "rust/a/gapbs_afforest_components.rs", "v/a/gapbs_afforest_components.v",
                 "zig/a/gapbs_afforest_components.zig"):
@@ -47002,6 +47541,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 "elisa/a/gapbs_shiloach_vishkin_components.elisa",
                 "nim/a/gapbs_shiloach_vishkin_components.nim",
                 "odin/a/gapbs_shiloach_vishkin_components.odin",
+                "mojo/a/gapbs_shiloach_vishkin_components.mojo",
                 "rust/a/gapbs_shiloach_vishkin_components.rs",
                 "v/a/gapbs_shiloach_vishkin_components.v",
                 "zig/a/gapbs_shiloach_vishkin_components.zig"):
@@ -47086,6 +47626,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 "c/k/gbbs_k_core_decomposition.c", "c3/k/gbbs_k_core_decomposition.c3",
                 "cpp/k/gbbs_k_core_decomposition.cpp", "elisa/k/gbbs_k_core_decomposition.elisa",
                 "nim/k/gbbs_k_core_decomposition.nim", "odin/k/gbbs_k_core_decomposition.odin",
+                "mojo/g/gbbs_k_core_decomposition.mojo",
                 "rust/k/gbbs_k_core_decomposition.rs", "v/k/gbbs_k_core_decomposition.v",
                 "zig/k/gbbs_k_core_decomposition.zig"):
             if not (ROOT / relative).is_file():
@@ -47266,6 +47807,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/w/gbbs_ss_widest_path.c", "c3/w/gbbs_ss_widest_path.c3",
                 "cpp/w/gbbs_ss_widest_path.cpp", "elisa/w/gbbs_ss_widest_path.elisa",
+                "mojo/w/gbbs_ss_widest_path.mojo",
                 "nim/w/gbbs_ss_widest_path.nim", "odin/w/gbbs_ss_widest_path.odin",
                 "rust/w/gbbs_ss_widest_path.rs", "v/w/gbbs_ss_widest_path.v",
                 "zig/w/gbbs_ss_widest_path.zig"):
@@ -47434,6 +47976,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 "c3/m/mediabench_jpeg_optimal_huffman_table.c3",
                 "cpp/m/mediabench_jpeg_optimal_huffman_table.cpp",
                 "elisa/m/mediabench_jpeg_optimal_huffman_table.elisa",
+                "mojo/m/mediabench_jpeg_optimal_huffman_table.mojo",
                 "nim/m/mediabench_jpeg_optimal_huffman_table.nim",
                 "odin/m/mediabench_jpeg_optimal_huffman_table.odin",
                 "rust/m/mediabench_jpeg_optimal_huffman_table.rs",
@@ -47468,6 +48011,12 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("hint_area_bound_refinement metadata differs from its pinned byte-output contract")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "h" / f"hint_area_bound_refinement.{extension}"
+            if not source_path.is_file() or "hint_area_bound_refinement" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"hint_area_bound_refinement source missing for {language}")
     elif algorithm == "nbench_huffman_compression":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -47497,7 +48046,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     elif algorithm == "nbench_resource_assignment":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
-        expected_ids = {"single-resource", "two-resource-diagonal", "equal-cost-stable-first-choice",
+        expected_ids = {"single-resource", "two-resource-diagonal", "equal-cost-stable-first-choice", "tableau-adjustment",
                         "invalid-dimension", "negative-cost", "trailing-input", "short-output", "null-output"}
         if (workload.get("schema_version") != 1
                 or workload.get("id") != "nbench-resource-assignment-hungarian-i64-i32le-v1"
@@ -47541,6 +48090,9 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("nbench_emulated_float_arithmetic metadata differs from its pinned byte-output contract")
+        mojo_source = ROOT / "mojo" / "n" / "nbench_emulated_float_arithmetic.mojo"
+        if not mojo_source.is_file() or '@export("nbench_emulated_float_arithmetic")' not in mojo_source.read_text(encoding="utf-8"):
+            raise ValueError("nbench_emulated_float_arithmetic Mojo draft or exported symbol is missing")
     elif algorithm == "nbench_neural_network":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -47702,6 +48254,12 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or not isinstance(workload.get("cases"), list)
                 or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
             raise ValueError("benchmarkgame_puzzle metadata differs from its bounded pinned-source contract")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source_path = ROOT / language / "b" / f"benchmarkgame_puzzle.{extension}"
+            if not source_path.is_file() or "benchmarkgame_puzzle" not in source_path.read_text(encoding="utf-8"):
+                raise ValueError(f"benchmarkgame_puzzle source missing for {language}")
     elif algorithm == "revert_bits":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -48134,6 +48692,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             "pointer-to-function", "array-of-function-pointers",
             "void-parameter-normalization", "array-of-function-invalid",
             "dimension-out-of-profile", "null-input", "short-output", "null-output",
+            "separate-identifiers-invalid", "split-dimension-invalid",
         }
         if (workload.get("schema_version") != 1
                 or workload.get("id") != "lac-dcc-prolangs-c-cdecl-i64-array-bytes-output-v1"
@@ -48293,98 +48852,6 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("repetitions_per_sample") != 1
                 or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
             raise ValueError("8b10b metadata differs from its pinned bounded state-machine contract")
-    elif algorithm == "trimaran_enc_rc4":
-        input_spec = workload.get("input", {})
-        output_spec = workload.get("output", {})
-        source = workload.get("pinned_source", {})
-        launcher = workload.get("pinned_launcher", {})
-        source_bound = workload.get("source_bound", {})
-        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
-        expected_case_ids = {
-            "one_source_pass", "small_launcher_pass_bound", "zero_passes",
-            "passes_above_bound", "trailing_input_value", "short_output_capacity",
-            "null_output", "null_input",
-        }
-        cases = workload.get("cases")
-        case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
-                    if isinstance(cases, list) else [])
-        if (set(workload) != {
-                    "schema_version", "id", "algorithm", "function_symbol", "description",
-                    "pinned_source", "pinned_launcher", "source_bound", "input", "output",
-                    "measurement", "cases"}
-                or workload.get("schema_version") != 1
-                or workload.get("id") != "lac-dcc-trimaran-enc-rc4-bounded-v1"
-                or workload.get("algorithm") != algorithm
-                or workload.get("function_symbol") != "trimaran_enc_rc4"
-                or workload.get("description") != "Run the six fixed Trimaran ARC4 validation vectors for a bounded number of source-style setup/encrypt passes."
-                or source != {
-                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
-                    "path": "Trimaran/enc-rc4/rc4.c",
-                    "symbols": ["rc4_setup", "rc4_crypt"],
-                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Trimaran/enc-rc4/rc4.c",
-                    "license": "GPL-2.0-or-later", "license_notice": "LICENSE_NOTICE.txt",
-                }
-                or launcher != {
-                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
-                    "path": "Trimaran/enc-rc4/info.sh", "bench_name": "enc-rc4",
-                    "source_files": ["rc4.c"],
-                    "small_problem_run_options": ["2000"],
-                    "default_run_options": ["1000000"],
-                }
-                or source_bound != {
-                    "description": "The source iterates over its six fixed tests in order; for each test it restores the initial data, initializes a fresh 256-entry RC4 state from the fixed key, and encrypts for the requested number of passes. The bounded profile uses the launcher's 2,000-pass small-mode count as its maximum.",
-                    "minimum_passes": TRIMARAN_ENC_RC4_MIN_PASSES,
-                    "maximum_passes": TRIMARAN_ENC_RC4_MAX_PASSES,
-                    "source_tests_per_pass": 6,
-                    "ciphertext_lengths": [8, 8, 8, 20, 28, 10],
-                    "maximum_output_bytes": TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
-                }
-                or workload.get("input") != {
-                    "kind": "signed_i64_array", "encoding": "[passes]",
-                    "passes_range": [TRIMARAN_ENC_RC4_MIN_PASSES,
-                                     TRIMARAN_ENC_RC4_MAX_PASSES],
-                    "maximum_valid_input_length": 1,
-                    "maximum_parseable_input_length": TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES,
-                    "invalid_input_result": TRIMARAN_ENC_RC4_INVALID_RESULT,
-                    "null_input_result": TRIMARAN_ENC_RC4_INVALID_RESULT,
-                }
-                or workload.get("output") != {
-                    "kind": "byte_array",
-                    "encoding": "82 raw ciphertext bytes concatenated in the source's six-vector order",
-                    "success_result": TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
-                    "maximum_output_bytes": TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
-                    "invalid_input_result": TRIMARAN_ENC_RC4_INVALID_RESULT,
-                    "invalid_output_buffer_result": TRIMARAN_ENC_RC4_OUTPUT_ERROR,
-                    "null_output_result": TRIMARAN_ENC_RC4_OUTPUT_ERROR,
-                    "no_write_on_error": True,
-                }
-                or workload.get("measurement") != {
-                    "comparison_model": "i64_array_bytes_output_call",
-                    "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 1,
-                }
-                or not isinstance(cases, list)
-                or len(case_ids) != len(expected_case_ids)
-                or len(case_ids) != len(set(case_ids))
-                or set(case_ids) != expected_case_ids):
-            raise ValueError("trimaran_enc_rc4 metadata differs from its pinned launcher contract")
-
-        package = ROOT / "benchmarks" / "t" / "trimaran_enc_rc4"
-        readme = (package / "README.md").read_text(encoding="utf-8")
-        notice = (package / "LICENSE_NOTICE.txt").read_text(encoding="utf-8")
-        gpl = (package / "LICENSE-GPL-2.0-or-later.txt").read_text(encoding="utf-8")
-        required_readme = (
-            "Trimaran/enc-rc4/rc4.c", pinned, "2,000 repetitions in small mode",
-            "1,000,000 repetitions otherwise", "LICENSE_NOTICE.txt",
-            "LICENSE-GPL-2.0-or-later.txt", "generic [`rc4`]",
-        )
-        if (any(text not in readme for text in required_readme)
-                or "Copyright (C) 2001-2003  Christophe Devine" not in notice
-                or "you can redistribute it and/or modify" not in notice
-                or "either version 2 of the License, or" not in notice
-                or "GNU GENERAL PUBLIC LICENSE" not in gpl
-                or "TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION" not in gpl
-                or "END OF TERMS AND CONDITIONS" not in gpl):
-            raise ValueError("trimaran_enc_rc4 README or GPL notice is incomplete")
     elif algorithm == "trimaran_enc_3des":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         source = workload.get("source", {})
@@ -48630,6 +49097,13 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "unrotated SHA-0 recurrence" not in readme
                 or "no explicit license or redistribution grant" not in readme):
             raise ValueError("mibench_security_sha0 README is missing SHA-0 provenance or rights context")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"),
+                                    ("nim", "nim"), ("odin", "odin"),
+                                    ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            port = ROOT / language / "s" / f"mibench_security_sha0.{extension}"
+            if not port.is_file() or "mibench_security_sha0" not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"mibench_security_sha0 source missing for {language}")
     elif algorithm == "lac_adpcm":
         sources = workload.get("pinned_sources", [])
         contract = workload.get("contract", {})
@@ -49195,6 +49669,16 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "THE SOFTWARE IS PROVIDED \"AS-IS\"" not in readme
                 or "IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS" not in readme):
             raise ValueError("cbench_tiffdither README is missing source or full permission notice")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "c" / f"{algorithm}.{extension}"
+            if not source.is_file():
+                raise ValueError(f"cbench_tiffdither missing {language} source")
+            source_text = source.read_text(encoding="utf-8")
+            if ("Copyright (c) 1988-1997 Sam Leffler" not in source_text
+                    or "THE SOFTWARE IS PROVIDED \"AS-IS\"" not in source_text):
+                raise ValueError(f"cbench_tiffdither {language} source lacks its license notice")
     elif algorithm == "cbench_consumer_tiffmedian":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         expected_ids = {
@@ -49281,6 +49765,12 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "no upstream source code or comments are copied" not in readme
                 or "not presented as a license for tiffmedian.c" not in readme):
             raise ValueError("cbench_consumer_tiffmedian README is missing source/rights details")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "c" / f"{algorithm}.{extension}"
+            if not source.is_file():
+                raise ValueError(f"cbench_consumer_tiffmedian missing {language} source")
     elif algorithm == "cbench_consumer_tiff2bw":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         expected_ids = {
@@ -49368,6 +49858,16 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "THE SOFTWARE IS PROVIDED \"AS-IS\"" not in notice
                 or "IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS" not in notice):
             raise ValueError("cbench_consumer_tiff2bw README is missing source or full permission notice")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "c" / f"{algorithm}.{extension}"
+            if not source.is_file():
+                raise ValueError(f"cbench_consumer_tiff2bw missing {language} source")
+            source_text = source.read_text(encoding="utf-8")
+            if ("Copyright (c) 1988-1997 Sam Leffler" not in source_text
+                    or "THE SOFTWARE IS PROVIDED \"AS-IS\"" not in source_text):
+                raise ValueError(f"cbench_consumer_tiff2bw {language} source lacks its license notice")
     elif algorithm == "cbench_bzip2_mtf_rle":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         expected_ids = {
@@ -49460,6 +49960,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/c/cbench_bzip2_mtf_rle.c", "c3/c/cbench_bzip2_mtf_rle.c3",
                 "cpp/c/cbench_bzip2_mtf_rle.cpp", "elisa/c/cbench_bzip2_mtf_rle.elisa",
+                "mojo/c/cbench_bzip2_mtf_rle.mojo",
                 "nim/c/cbench_bzip2_mtf_rle.nim", "odin/c/cbench_bzip2_mtf_rle.odin",
                 "rust/c/cbench_bzip2_mtf_rle.rs", "v/c/cbench_bzip2_mtf_rle.v",
                 "zig/c/cbench_bzip2_mtf_rle.zig"):
@@ -50175,6 +50676,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/m/rodinia_mummergpu.c", "c3/m/rodinia_mummergpu.c3",
                 "cpp/m/rodinia_mummergpu.cpp", "elisa/m/rodinia_mummergpu.elisa",
+                "mojo/m/rodinia_mummergpu.mojo",
                 "nim/m/rodinia_mummergpu.nim", "odin/m/rodinia_mummergpu.odin",
                 "rust/m/rodinia_mummergpu.rs", "v/m/rodinia_mummergpu.v",
                 "zig/m/rodinia_mummergpu.zig"):
@@ -51491,6 +51993,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("versabench_dbms_keys_union source attribution or rights note is incomplete")
         for relative in (
                 f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"mojo/d/{algorithm}.mojo",
                 f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
                 f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
             if not (ROOT / relative).is_file():
@@ -51537,6 +52040,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("versabench_dbms_query attribution or rights note is incomplete")
         for relative in (
                 f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"mojo/d/{algorithm}.mojo",
                 f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
                 f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
             if not (ROOT / relative).is_file():
@@ -51582,6 +52086,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("versabench_dbms_insert_entry attribution or rights note is incomplete")
         for relative in (
                 f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"mojo/d/{algorithm}.mojo",
                 f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
                 f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
             if not (ROOT / relative).is_file():
@@ -51627,6 +52132,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("versabench_dbms_delete_entry attribution or rights note is incomplete")
         for relative in (
                 f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"mojo/d/{algorithm}.mojo",
                 f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
                 f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
             if not (ROOT / relative).is_file():
@@ -51634,9 +52140,9 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     elif algorithm == "versabench_dbms_contract_root":
         pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
         expected_ids = {
-            "repeated-single-child-promotion", "stop-at-multi-child-root",
+            "repeated-single-child-promotion", "maximum-promotion-chain", "stop-at-multi-child-root",
             "empty-internal-root-becomes-leaf", "leaf-root-unchanged",
-            "invalid-level-transition", "short-output-capacity", "null-output", "null-input",
+            "invalid-level-transition", "invalid-before-output-capacity", "short-output-capacity", "null-output", "null-input",
         }
         source = workload.get("source", {})
         contract = workload.get("contract", {})
@@ -51681,6 +52187,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("versabench_dbms_contract_root attribution or rights note is incomplete")
         for relative in (
                 f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"mojo/d/{algorithm}.mojo",
                 f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
                 f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
             if not (ROOT / relative).is_file():
@@ -53377,6 +53884,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/s/rodinia_streamcluster_pgain.c", "c3/s/rodinia_streamcluster_pgain.c3",
                 "cpp/s/rodinia_streamcluster_pgain.cpp", "elisa/s/rodinia_streamcluster_pgain.elisa",
+                "mojo/s/rodinia_streamcluster_pgain.mojo",
                 "nim/s/rodinia_streamcluster_pgain.nim", "odin/s/rodinia_streamcluster_pgain.odin",
                 "rust/s/rodinia_streamcluster_pgain.rs", "v/s/rodinia_streamcluster_pgain.v",
                 "zig/s/rodinia_streamcluster_pgain.zig"):
@@ -53433,7 +53941,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             raise ValueError("IDEA CFB64 attribution or rights notice is incomplete")
         for relative in (
                 "c/p/idea_cfb64.c", "c3/p/idea_cfb64.c3", "cpp/p/idea_cfb64.cpp",
-                "elisa/p/idea_cfb64.elisa", "nim/p/idea_cfb64.nim", "odin/p/idea_cfb64.odin",
+                "elisa/p/idea_cfb64.elisa", "mojo/p/idea_cfb64.mojo", "nim/p/idea_cfb64.nim", "odin/p/idea_cfb64.odin",
                 "rust/p/idea_cfb64.rs", "v/p/idea_cfb64.v", "zig/p/idea_cfb64.zig"):
             port = ROOT / relative
             if not port.is_file() or "idea_cfb64" not in port.read_text(encoding="utf-8"):
@@ -54141,6 +54649,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         for relative in (
                 "c/b/beebs_nettle_cast128.c", "c3/b/beebs_nettle_cast128.c3",
                 "cpp/b/beebs_nettle_cast128.cpp", "elisa/b/beebs_nettle_cast128.elisa",
+                "mojo/b/beebs_nettle_cast128.mojo",
                 "nim/b/beebs_nettle_cast128.nim", "odin/b/beebs_nettle_cast128.odin",
                 "rust/b/beebs_nettle_cast128.rs", "v/b/beebs_nettle_cast128.v",
                 "zig/b/beebs_nettle_cast128.zig"):
@@ -54258,6 +54767,30 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
             port = ROOT / relative
             if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
                 raise ValueError(f"tsp_few_inner_points port is missing its symbol: {relative}")
+    elif algorithm == "xor_leaf_tree_traversal":
+        source = workload.get("source", {})
+        pinned = "7a28ec7ac05eabf2ceeed1778e2b2110a1e1c022"
+        if (workload.get("schema_version") != 1
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "cp-algorithms/cp-algorithms-aux",
+                    "commit": pinned,
+                    "blob": "03694fe919ee845066dda0e365413b68b63ce24d",
+                    "path": "cp-algo/tree/ascending_dfs.hpp",
+                    "url": f"https://github.com/cp-algorithms/cp-algorithms-aux/blob/{pinned}/cp-algo/tree/ascending_dfs.hpp",
+                    "use": "algorithm idea only",
+                }
+                or workload.get("input", {}).get("maximum_input_length") != 128
+                or workload.get("output", {}).get("maximum_output_bytes") != 1024
+                or workload.get("workspace", {}).get("bytes") != 1024
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("xor leaf traversal metadata differs from its bounded contract")
+        package = ROOT / "benchmarks" / "x" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "RIGHTS.md").read_text(encoding="utf-8")
+        if pinned not in readme or pinned not in rights:
+            raise ValueError("xor leaf traversal provenance is incomplete")
     elif algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
         max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][1]
         input_spec = workload.get("input", {})
@@ -54278,6 +54811,76 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                         or workload.get("comparison_model") == "i64_array_bytes_output_call"
                         or measurement.get("comparison_model") == "i64_array_bytes_output_call")):
             raise ValueError(f"{algorithm} metadata differs from its bounded byte-output contract")
+        if algorithm == "delaunay_mesh_refinement":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "d" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"Delaunay mesh refinement port missing: {source}")
+        if algorithm == "fortune_voronoi":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "f" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"Fortune Voronoi port missing: {source}")
+        if algorithm == "delaunay_triangulation":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "d" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"Delaunay triangulation port missing: {source}")
+        if algorithm == "nni_phylogeny_distance":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "n" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"NNI phylogeny distance port missing: {source}")
+        if algorithm == "kirkpatrick_hierarchical_point_location":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "k" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"Kirkpatrick point-location port missing: {source}")
+        if algorithm == "freebench_distray":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "f" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"FreeBench Distray port missing: {source}")
+        if algorithm == "phylogenetic_tree_from_distance_matrix":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "p" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"Additive phylogeny port missing: {source}")
+        if algorithm == "thorup_zwick_distance_oracle":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "t" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"Thorup-Zwick port missing: {source}")
+        if algorithm == "steiner_tree_gain_greedy":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "s" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"Steiner gain-greedy port missing: {source}")
+        if algorithm == "upward_planarity_angle_assignment":
+            for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                        ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                        ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+                source = ROOT / language / "u" / f"{algorithm}.{extension}"
+                if not source.is_file() or algorithm not in source.read_text(encoding="utf-8"):
+                    raise ValueError(f"Upward-planarity port missing: {source}")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -54296,8 +54899,6 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      CBENCH_RIJNDAEL_DECRYPT_INPUT_BYTES + 1
                      if algorithm == "cbench_security_rijndael_decrypt" else
                      TARFIND_MAX_INPUT_LENGTH if algorithm == "tarfind" else
-                     TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
-                     if algorithm == "trimaran_enc_rc4" else
                      SMITH_WATERMAN_PYTHON_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "smith_waterman_python" else
                      SMITH_WATERMAN_RUST_MAX_PARSEABLE_INPUT_LENGTH
@@ -54385,7 +54986,16 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         seen_ids.add(case_id)
         result, output = oracle(values, capacity, output_is_null, input_is_null, input_length)
         expected_hex = case.get("expected_output_hex", "")
-        if algorithm == "beebs_fasta":
+        if algorithm == "hyperloglog_corrected_estimate":
+            declared = case.get("expected_output")
+            if result < 0:
+                output_matches_fixture = declared == [] and not output
+            else:
+                output_matches_fixture = (isinstance(declared, list) and len(declared) == 1
+                    and type(declared[0]) in (int, float) and math.isfinite(declared[0])
+                    and len(output) == 8 and math.isclose(struct.unpack("<d", output)[0], declared[0],
+                        rel_tol=1e-12, abs_tol=1e-8))
+        elif algorithm == "beebs_fasta":
             expected_text = case.get("expected_output_text")
             output_matches_fixture = (isinstance(expected_text, str)
                                       and output == expected_text.encode("ascii"))
@@ -54459,6 +55069,12 @@ def validate_benchmarkgame_nbody_workload(workload: dict) -> None:
             or len(cases) != len(expected_ids)
             or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
         raise ValueError("benchmarkgame_nbody metadata or fixture IDs differ from its bounded source contract")
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source_path = ROOT / language / "b" / f"benchmarkgame_nbody.{extension}"
+        if not source_path.is_file() or "benchmarkgame_nbody" not in source_path.read_text(encoding="utf-8"):
+            raise ValueError(f"benchmarkgame_nbody source missing for {language}")
 
 
 def main() -> int:
@@ -54485,6 +55101,62 @@ def main() -> int:
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_path = args.workload or (
+        ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+        if algorithm in {"mibench_security_sha0", "kiraly_max_smt_i_approx"} else
+        ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+        if algorithm == "misc_lowercase" else
+        ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+        if algorithm == "radio_network_decay_phase" else
+        ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+        if algorithm == "rodinia_streamcluster_pgain" else
+        ROOT / "benchmarks" / "p" / algorithm / "workload.json"
+        if algorithm in {"kinetic_tournament_tree", "minkowski_sum_convex_polygons", "main_lorentz_tandem_repetitions", "indexed_priority_queue"} else
+        ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+        if algorithm in {"intersection_of_f2_vector_spaces", "hafnian_of_matrix"} else
+        ROOT / "benchmarks" / "a" / algorithm / "workload.json"
+        if algorithm == "cbench_automotive_qsort1" else
+        ROOT / "benchmarks" / "m" / algorithm / "workload.json"
+        if algorithm == "euclidean_mst" else
+        ROOT / "benchmarks" / "f" / algorithm / "workload.json"
+        if algorithm == "string_fibonacci" else
+        ROOT / "benchmarks" / "n" / algorithm / "workload.json"
+        if algorithm in {"open_knight_tour", "hpcg_profile"} else
+        ROOT / "benchmarks" / "o" / algorithm / "workload.json"
+        if algorithm == "number_container_system" else
+        ROOT / "benchmarks" / "i" / algorithm / "workload.json"
+        if algorithm in {"lsb_image_steganography", "lac_adpcm"} else
+        ROOT / "benchmarks" / "p" / algorithm / "workload.json"
+        if algorithm == "idea_cfb64" else
+        ROOT / "benchmarks" / "f" / algorithm / "workload.json"
+        if algorithm == "beebs_fasta" else
+        ROOT / "benchmarks" / "g" / algorithm / "workload.json"
+        if algorithm in {"three_dimensional_moment_curve", "approximate_matching_greedy", "extended_gs_general_stable_allocation"} else
+        ROOT / "benchmarks" / "m" / algorithm / "workload.json"
+        if algorithm in {"characteristic_polynomial", "srpt_flow_time", "submodular_ranking_greedy", "smith_weighted_completion_time"} else
+        ROOT / "benchmarks" / "u" / algorithm / "workload.json"
+        if algorithm == "range_parallel_unionfind" else
+        ROOT / "benchmarks" / "t" / algorithm / "workload.json"
+        if algorithm in {"dynamic_tree_vertex_set_path_composite", "universal_sequencing_doubling"} else
+        ROOT / "benchmarks" / "g" / algorithm / "workload.json"
+        if algorithm in {"hub_labeling_pruned", "truthful_ufp_greedy1", "truthful_multiunit_ca_greedy2"} else
+        ROOT / "benchmarks" / "g" / algorithm / "workload.json"
+        if algorithm in {"weighted_greedy_set_cover", "counting_eulerian_circuits", "chordal_graph_recognition"} else
+        ROOT / "benchmarks" / "o" / algorithm / "workload.json"
+        if algorithm == "substring_parsimony" else
+        ROOT / "benchmarks" / "c" / algorithm / "workload.json"
+        if algorithm == "two_edge_connected_components" else
+        ROOT / "benchmarks" / "o" / algorithm / "workload.json"
+        if algorithm == "quine_mccluskey_minimization" else
+        ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+        if algorithm == "crust_pole_triangle_filter" else
+        ROOT / "benchmarks" / "a" / algorithm / "workload.json"
+        if algorithm == "prolangs_c_allroots" else
+        ROOT / "benchmarks" / "k" / algorithm / "workload.json"
+        if algorithm == "stochastic_knapsack_greedy" else
+        ROOT / "benchmarks" / "s" / algorithm / "workload.json"
+        if algorithm == "felsenstein_substitution_likelihood" else
+        ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+        if algorithm == "concave_gap_alignment_global" else
         ROOT / "benchmarks" / "a" / algorithm / "workload.json"
         if algorithm in {"gapbs_afforest_components",
                          "gapbs_shiloach_vishkin_components"} else
@@ -54500,7 +55172,7 @@ def main() -> int:
                          "mediabench_gsm_rpe_grid_positioning",
                          "cbench_consumer_lame_window_subband"} else
         ROOT / "benchmarks" / "r" / algorithm / "workload.json"
-        if algorithm == "range_set_range_composite" else
+        if algorithm in {"range_set_range_composite", "clique_reverse_search_enumeration"} else
         ROOT / "benchmarks" / "d" / algorithm / "workload.json"
         if algorithm == "versabench_dbms_keys_union" else
         ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
@@ -54518,7 +55190,12 @@ def main() -> int:
         ROOT / "benchmarks" / "memory_management_algorithms" / "workload.json"
         if algorithm == "memory_management_algorithms" else
         ROOT / "benchmarks" / letter / algorithm / "workload.json")
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    if args.workload is None and not workload_path.is_file():
+        flat_workload = ROOT / "benchmarks" / algorithm / "workload.json"
+        if flat_workload.is_file():
+            workload_path = flat_workload
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     if algorithm == "splash2_water_nsquared":
         validate_new_byte_output_workload(workload, algorithm)
         verify_splash2_water_nsquared_package()
@@ -54895,7 +55572,7 @@ def main() -> int:
                             MAX_WUS_LINE_INPUT_LENGTH if algorithm == "wus_line" else
                             MAX_WORDS_TO_NUMBER_BYTE_LENGTH + 1 if algorithm == "words_to_number" else
                             MAX_WORD_OCCURRENCE_BYTE_LENGTH + 1 if algorithm == "word_occurrence" else
-                            MAX_LYNDON_FACTORIZATION_INPUT_LENGTH if algorithm == "lyndon_factorization" else
+                            4097 if algorithm == "duval_algorithm" else
                             MAX_STRIP_INPUT_LENGTH if algorithm == "strip" else
                             MAX_WORD_FREQUENCY_FUNCTIONS_PARSEABLE_INPUT_LENGTH if algorithm == "word_frequency_functions" else
                             MAX_MEAN_THRESHOLD_PARSEABLE_INPUT_LENGTH if algorithm == "mean_threshold" else
@@ -55165,7 +55842,6 @@ def main() -> int:
                             MAX_UNION_OF_TWO_ARRAYS_INPUT_LENGTH if algorithm == "union_of_two_arrays" else
                             MAX_THREE_WAY_PARTITION_INPUT_LENGTH if algorithm == "three_way_partition" else
                             MAX_UNIQUE_LETTERS_COUNT_INPUT_LENGTH if algorithm == "unique_letters_count" else
-                            MAX_CONVEX_HULL_GRAHAM_INPUT_LENGTH if algorithm == "convex_hull_graham" else
                             MAX_SORTED_ARRAYS_INTERSECTION_INPUT_LENGTH if algorithm == "sorted_arrays_intersection" else
                             MAX_COMPRESS_INPUT_LENGTH if algorithm == "compress" else
                             MAX_DILATION_OPERATION_INPUT_LENGTH if algorithm == "dilation_operation" else
@@ -55325,8 +56001,6 @@ def main() -> int:
                             VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                             TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES
                             if algorithm == "trimaran_enc_3des" else
-                            TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
-                            if algorithm == "trimaran_enc_rc4" else
                             UUENCODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uuencode" else
                             UUDECODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uudecode" else
                             MAX_INPUT_LENGTH)
@@ -55345,7 +56019,7 @@ def main() -> int:
                 minimum_null_input_length = 0 if algorithm in {
                     "print_reverse", "lru", "linkedlist_implentation_usingarray", "random",
                     "self_organizing_linked_list", "simple_proof_of_work", "mandelbrot",
-                    "singlylinkedlist", "scapegoat_tree", "tabu_search",
+                    "singlylinkedlist", "scapegoat_tree", "tabu_search", "z_algorithm",
                     *BYTE_OUTPUT_ALGORITHM_ORACLES} else 1
                 valid_null_input_length = (type(input_length) is int
                                            and minimum_null_input_length <= input_length <= max_input_length)
@@ -55388,7 +56062,7 @@ def main() -> int:
                 "logistic_regression_cost_gradient",
                 "procentual_proximity",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2", "polybench_adi", "fluidanimate_sph", "npb_cg_sparse_inverse_power", "hpcg_profile",
-                "npb_lu_block_ssor", "sparse_supernodal_cholesky",
+                "npb_lu_block_ssor", "sparse_supernodal_cholesky", "hyperloglog_corrected_estimate",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",
                 "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "benchmarkgame_nbody", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix", "sobel_filter", "thomas_algorithm"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
@@ -56332,6 +57006,9 @@ def main() -> int:
                 "shree_dharacharya_formula", "mediabench_g721_encode",
                 "simplify_fraction"} and required_count < 0:
             expected_count, expected = required_count, b""
+        elif output_is_null and algorithm == "z_algorithm":
+            expected_count = required_count if required_count <= 0 else -2
+            expected = b""
         elif output_is_null:
             null_result = workload.get("output", {}).get("null_output_result")
             if (type(null_result) is not int or required_count < 0
@@ -56391,14 +57068,6 @@ def main() -> int:
             first_length = values[0] if values else -1
             second_position = 1 + first_length if type(first_length) is int and first_length >= 0 else len(values)
             required_capacity = (first_length + values[second_position]) * 4 if second_position < len(values) else 0
-            if required_count == -1:
-                expected_count, expected = -1, b""
-            elif output_capacity < required_capacity:
-                expected_count, expected = -2, b""
-            else:
-                expected_count, expected = required_count, required_output
-        elif algorithm == "lyndon_factorization":
-            required_capacity = 2 * values[0] if values and type(values[0]) is int and 0 <= values[0] <= 256 else 0
             if required_count == -1:
                 expected_count, expected = -1, b""
             elif output_capacity < required_capacity:

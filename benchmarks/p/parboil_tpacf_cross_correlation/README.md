@@ -37,3 +37,5 @@ Oracle: [`benchmarks/parboil_tpacf_cross_correlation_oracle.py`](../../parboil_t
 | Rust | [`parboil_tpacf_cross_correlation.rs`](../../../rust/p/parboil_tpacf_cross_correlation.rs) |
 | V | [`parboil_tpacf_cross_correlation.v`](../../../v/p/parboil_tpacf_cross_correlation.v) |
 | Zig | [`parboil_tpacf_cross_correlation.zig`](../../../zig/p/parboil_tpacf_cross_correlation.zig) |
+
+The Mojo draft is [`mojo/p/parboil_tpacf_cross_correlation.mojo`](../../../mojo/p/parboil_tpacf_cross_correlation.mojo). Math-library boundaries and Float32 contraction behavior remain unverified.

@@ -272,15 +272,27 @@ static void expand_step(std::uint8_t x[16], std::uint32_t k[32], std::size_t q) 
     k[q+1]=sbox(4,z[10])^sbox(5,z[11])^sbox(6,z[5])^sbox(7,z[4])^sbox(5,z[6]);
     k[q+2]=sbox(4,z[12])^sbox(5,z[13])^sbox(6,z[3])^sbox(7,z[2])^sbox(6,z[9]);
     k[q+3]=sbox(4,z[14])^sbox(5,z[15])^sbox(6,z[1])^sbox(7,z[0])^sbox(7,z[12]);
+    if ((q/8)%2 != 0) {
+        k[q]=sbox(4,z[3])^sbox(5,z[2])^sbox(6,z[12])^sbox(7,z[13])^sbox(4,z[9]);
+        k[q+1]=sbox(4,z[1])^sbox(5,z[0])^sbox(6,z[14])^sbox(7,z[15])^sbox(5,z[12]);
+        k[q+2]=sbox(4,z[7])^sbox(5,z[6])^sbox(6,z[8])^sbox(7,z[9])^sbox(6,z[2]);
+        k[q+3]=sbox(4,z[5])^sbox(5,z[4])^sbox(6,z[10])^sbox(7,z[11])^sbox(7,z[6]);
+    }
     write32(n,0,read32(z,8)^sbox(4,z[5])^sbox(5,z[7])^sbox(6,z[4])^sbox(7,z[6])^sbox(6,z[0]));
-    write32(n,4,read32(z,0)^sbox(4,x[0])^sbox(5,x[2])^sbox(6,x[1])^sbox(7,x[3])^sbox(7,z[2]));
-    write32(n,8,read32(z,4)^sbox(4,x[7])^sbox(5,x[6])^sbox(6,x[5])^sbox(7,x[4])^sbox(4,z[1]));
-    write32(n,12,read32(z,12)^sbox(4,x[10])^sbox(5,x[9])^sbox(6,x[11])^sbox(7,x[8])^sbox(5,z[3]));
+    write32(n,4,read32(z,0)^sbox(4,n[0])^sbox(5,n[2])^sbox(6,n[1])^sbox(7,n[3])^sbox(7,z[2]));
+    write32(n,8,read32(z,4)^sbox(4,n[7])^sbox(5,n[6])^sbox(6,n[5])^sbox(7,n[4])^sbox(4,z[1]));
+    write32(n,12,read32(z,12)^sbox(4,n[10])^sbox(5,n[9])^sbox(6,n[11])^sbox(7,n[8])^sbox(5,z[3]));
     std::memcpy(x,n,16);
     k[q+4]=sbox(4,x[3])^sbox(5,x[2])^sbox(6,x[12])^sbox(7,x[13])^sbox(4,x[8]);
     k[q+5]=sbox(4,x[1])^sbox(5,x[0])^sbox(6,x[14])^sbox(7,x[15])^sbox(5,x[13]);
     k[q+6]=sbox(4,x[7])^sbox(5,x[6])^sbox(6,x[8])^sbox(7,x[9])^sbox(6,x[3]);
     k[q+7]=sbox(4,x[5])^sbox(5,x[4])^sbox(6,x[10])^sbox(7,x[11])^sbox(7,x[7]);
+    if ((q/8)%2 != 0) {
+        k[q+4]=sbox(4,x[8])^sbox(5,x[9])^sbox(6,x[7])^sbox(7,x[6])^sbox(4,x[3]);
+        k[q+5]=sbox(4,x[10])^sbox(5,x[11])^sbox(6,x[5])^sbox(7,x[4])^sbox(5,x[7]);
+        k[q+6]=sbox(4,x[12])^sbox(5,x[13])^sbox(6,x[3])^sbox(7,x[2])^sbox(6,x[8]);
+        k[q+7]=sbox(4,x[14])^sbox(5,x[15])^sbox(6,x[1])^sbox(7,x[0])^sbox(7,x[13]);
+    }
 }
 static std::uint32_t rotl(std::uint32_t v,std::uint32_t n){n&=31U;return (v<<n)|(v>>((32U-n)&31U));}
 static void encrypt_block(const std::uint8_t key[16],const std::uint8_t block[8],std::uint8_t out[8]){

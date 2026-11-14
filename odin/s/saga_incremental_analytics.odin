@@ -28,7 +28,7 @@ saga_incremental_analytics :: proc "c" (input: [^]i64, length: c.size_t,
 	output: [^]u8, capacity: c.size_t) -> i64 {
 	if input == nil || length < 5 || length > MAX_INPUT do return -1
 	mode64, n64, base64, added64, source64 := input[0], input[1], input[2], input[3], input[4]
-	if mode64 < 1 || mode64 > 6 || n64 < 2 || n64 > MAX_N || base64 < 0 || added64 < 1 ||
+	if mode64 < 1 || mode64 > 6 || n64 < 2 || n64 > MAX_N || base64 < 0 || base64 > MAX_E || added64 < 1 || added64 > MAX_E ||
 		base64+added64 > MAX_E || length != c.size_t(5+n64+3*(base64+added64)) do return -1
 	mode, n, base_edges, edge_count := int(mode64), int(n64), int(base64), int(base64+added64)
 	if mode == 1 || mode == 2 || mode == 5 {
@@ -149,6 +149,16 @@ saga_incremental_analytics :: proc "c" (input: [^]i64, length: c.size_t,
 			for a := 0; a < active_count; a += 1 {
 				v := active[a]
 				old := property[v]
+				if mode == 1 && !first {
+					for j := 0; j < degree[v]; j += 1 {
+						u := neighbors[v][j]; update := property[v] + 1
+						if property[u] == -1 || update < property[u] {
+							property[u] = update
+							push_once(u, &next, &next_count, &seen)
+						}
+					}
+					continue
+				}
 				candidate: i64 = 0
 				if mode == 1 || mode == 2 || mode == 4 { candidate = INF_VALUE }
 				if mode == 1 {

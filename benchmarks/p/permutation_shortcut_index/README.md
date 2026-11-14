@@ -32,6 +32,9 @@ from a separately constructed predecessor table.
 
 ## Source and implementation
 
+Building the bounded index takes O(n) time and space; each inverse query takes
+O(n) in the worst case with the direct bitmap-rank scan. The [Mojo draft](../../../mojo/p/permutation_shortcut_index.mojo) has not been compiled or run.
+
 Based on J. Ian Munro, Venkatesh Raman, Rajeev Raman, and S. Srinivasa Rao,
 “Succinct and Compressed Data Structures for Permutations and Integer
 Functions,” *Encyclopedia of Algorithms* (2016), DOI

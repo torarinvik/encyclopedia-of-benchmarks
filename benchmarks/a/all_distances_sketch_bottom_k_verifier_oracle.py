@@ -1,11 +1,11 @@
 """Independent rank-prefix verifier for bottom-k ADS output."""
 
-MAX_INPUT_LENGTH = 104
+MAX_INPUT_LENGTH = 194
 MAX_OUTPUT_BYTES = 168
 
 
 def verify(values):
-    if values is None or len(values) < 6 or len(values) > 104:
+    if values is None or len(values) < 6 or len(values) > 194:
         return -1, b""
     n, m, k, root = values[0:4]
     if any(not isinstance(z, int) for z in (n, m, k, root)) or not (2 <= n <= 10 and 0 <= m <= n*(n-1) and 1 <= k <= n and 0 <= root < n):

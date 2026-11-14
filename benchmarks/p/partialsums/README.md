@@ -24,6 +24,8 @@ and vector-lane order differences.
 The bounded workload includes `n` values 1, 2, 10, 100, 1000, and 10000. The
 independent oracle is [`benchmarks/partialsums_oracle.py`](../../partialsums_oracle.py).
 
+The direct summation takes O(n) time and O(1) auxiliary space.
+
 ## Implementations
 
 | Language | Source |
@@ -32,6 +34,7 @@ independent oracle is [`benchmarks/partialsums_oracle.py`](../../partialsums_ora
 | C3 | [c3/p/partialsums.c3](../../../c3/p/partialsums.c3) |
 | C++ | [cpp/p/partialsums.cpp](../../../cpp/p/partialsums.cpp) |
 | Elisa | [elisa/p/partialsums.elisa](../../../elisa/p/partialsums.elisa) |
+| Mojo | [mojo/p/partialsums.mojo](../../../mojo/p/partialsums.mojo) (draft; not compiled or run) |
 | Nim | [nim/p/partialsums.nim](../../../nim/p/partialsums.nim) |
 | Odin | [odin/p/partialsums.odin](../../../odin/p/partialsums.odin) |
 | Rust | [rust/p/partialsums.rs](../../../rust/p/partialsums.rs) |

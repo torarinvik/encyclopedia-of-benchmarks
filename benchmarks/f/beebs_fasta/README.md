@@ -30,7 +30,7 @@ The source is pinned to [`mageec/beebs` `src/fasta/libfasta.c`](https://github.c
 at commit `049ded9f3aeb5591f553879d3a0376b8614e9422`. Its header declares
 GPL-3.0-or-later and includes the Benchmark Game Revised BSD notice, copyright
 2004–2009 Brent Fulgham. See [LICENSE.txt](LICENSE.txt) and [NOTICE.txt](NOTICE.txt)
-for the retained license texts. The nine ports are independently written
+for the retained license texts. The ports are independently written
 implementations of the described bounded profile; no upstream implementation
 code was copied or translated.
 
@@ -38,5 +38,5 @@ code was copied or translated.
 
 - `workload.json` records the pinned source, input/output bounds, and fixtures.
 - `../../beebs_fasta_oracle.py` is the independent reference implementation.
-- Ports are in `c/f`, `c3/f`, `cpp/f`, `elisa/f`, `nim/f`, `odin/f`, `rust/f`,
-  `v/f`, and `zig/f`.
+- Ports are in `c/f`, `c3/f`, `cpp/f`, `elisa/f`, `mojo/f`, `nim/f`, `odin/f`,
+  `rust/f`, `v/f`, and `zig/f`. The Mojo draft has not been compiled or run.

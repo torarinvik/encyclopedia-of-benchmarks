@@ -8,6 +8,9 @@ Input is a signed i64 array `[byte_count, corruption_step, seed, ASCII bytes...]
 
 The source attribution is Copyright 2018 Embedded Microprocessor Benchmark Consortium (EEMBC), with original source by Shay Gal-on. The source subtree's applicable license is Apache License 2.0; see the included license notice and pinned source references. This local kernel variant is independently bounded and does not claim official benchmark results.
 
+For n input bytes, the two scans and corruption take O(n) time and O(n) space.
+The [Mojo draft](../../../mojo/n/numeric_token_state_machine.mojo) has not been compiled or run.
+
 ## Files
 
 - Oracle: [numeric_token_state_machine_oracle.py](../numeric_token_state_machine_oracle.py)

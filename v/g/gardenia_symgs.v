@@ -18,6 +18,7 @@ pub fn gardenia_symgs(input &f64,length usize,mut output &f64,capacity usize) i6
 		for k in 0..colors { if offsets[k]>=offsets[k+1]{return -1};for p in offsets[k]..offsets[k+1]{group[order[p]]=k} }
 		for i in 0..n+1 { z:=input[ra+i];if math.trunc(z)!=z||z<0||z>md{return -1};rows[i]=int(z);if i>0&&rows[i]<rows[i-1]{return -1} }
 		if rows[0]!=0||rows[n]!=m{return -1}
+		for e in 0..m { z:=input[ca+e];if math.trunc(z)!=z||z<0||z>=nd{return -1};cols[e]=int(z);mat[e]=input[va+e] }
 		for u in 0..n { mut diag:=0;mut d:=0.0;mut offsum:=0.0;mut prev:=0
 			for e in rows[u]..rows[u+1] { z:=input[ca+e];if math.trunc(z)!=z||z<0||z>=nd{return -1};cols[e]=int(z);if e>rows[u]&&cols[e]<=prev{return -1};prev=cols[e];mat[e]=input[va+e];if mat[e]<-4||mat[e]>4{return -1};if cols[e]==u{diag++;d=mat[e]}else{if group[u]==group[cols[e]]{return -1};offsum+=math.abs(mat[e])} }
 			if diag!=1||d<=offsum{return -1};for e in rows[u]..rows[u+1]{v:=cols[e];mut found:=false;for f in rows[v]..rows[v+1]{if cols[f]==u{if mat[f]!=mat[e]{return -1};found=true;break}};if !found{return -1}}

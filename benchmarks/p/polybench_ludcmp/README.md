@@ -8,7 +8,7 @@ Input is a one-element signed 64-bit array `[n]`, where `1 <= n <= 64`. The kern
 
 The kernel then computes an unpivoted LU factorization with the original `i`, `j`, `k` loop order, solves `L*y=b` by forward substitution, and solves `U*x=y` by backward substitution. The original program prints the `x` vector with two decimal places. To fit the suite's scalar binary64 ABI, this package returns the sum of `x` in increasing index order; the independent oracle preserves the source arithmetic and loop ordering before applying that reduction. Wrong-length and out-of-range inputs return `-1e300`.
 
-Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for bounded fixtures and [`polybench_ludcmp_oracle.py`](../../polybench_ludcmp_oracle.py) for the independent reference model.
+Ports are provided in C, C3, C++, Elisa, Mojo, Nim, Odin, Rust, V, and Zig. See [`workload.json`](workload.json) for bounded fixtures and [`polybench_ludcmp_oracle.py`](../../polybench_ludcmp_oracle.py) for the independent reference model. The Mojo draft's floating-point contraction behavior has not been verified.
 
 ## Upstream license
 

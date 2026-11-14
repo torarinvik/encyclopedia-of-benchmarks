@@ -62,6 +62,7 @@ upstream source.
 | C3 | [`c3/a/asci_purple_smg2000_residual.c3`](../../../c3/a/asci_purple_smg2000_residual.c3) |
 | C++ | [`cpp/a/asci_purple_smg2000_residual.cpp`](../../../cpp/a/asci_purple_smg2000_residual.cpp) |
 | Elisa | [`elisa/a/asci_purple_smg2000_residual.elisa`](../../../elisa/a/asci_purple_smg2000_residual.elisa) |
+| Mojo | [`mojo/a/asci_purple_smg2000_residual.mojo`](../../../mojo/a/asci_purple_smg2000_residual.mojo) |
 | Nim | [`nim/a/asci_purple_smg2000_residual.nim`](../../../nim/a/asci_purple_smg2000_residual.nim) |
 | Odin | [`odin/a/asci_purple_smg2000_residual.odin`](../../../odin/a/asci_purple_smg2000_residual.odin) |
 | Rust | [`rust/a/asci_purple_smg2000_residual.rs`](../../../rust/a/asci_purple_smg2000_residual.rs) |

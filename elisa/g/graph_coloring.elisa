@@ -29,8 +29,9 @@ def graph_coloring_impl(input: i64&, length: usize,
                         output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 2 or length > 11:
         return -1
-    n64: i64 = input[0]
-    m64: i64 = input[1]
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
     if n64 < 1 or n64 > 8 or m64 < 1 or m64 > 4:
         return -1
     n: usize = n64.usize()
@@ -39,7 +40,7 @@ def graph_coloring_impl(input: i64&, length: usize,
         return -1
     vertex: mutable usize = 0
     while vertex < n:
-        row: i64 = input[2 + vertex]
+        row: i64 = values[2 + vertex]
         if row < 0 or row >= (1 << n) or (row & (1 << vertex)) != 0:
             return -1
         vertex <- vertex + 1
@@ -47,8 +48,8 @@ def graph_coloring_impl(input: i64&, length: usize,
     while vertex < n:
         neighbor: mutable usize = 0
         while neighbor < n:
-            edge: i64 = (input[2 + vertex] >> neighbor) & 1
-            reverse_edge: i64 = (input[2 + neighbor] >> vertex) & 1
+            edge: i64 = (values[2 + vertex] >> neighbor) & 1
+            reverse_edge: i64 = (values[2 + neighbor] >> vertex) & 1
             if edge != reverse_edge:
                 return -1
             neighbor <- neighbor + 1
@@ -56,8 +57,9 @@ def graph_coloring_impl(input: i64&, length: usize,
     if output.is_null() or capacity < 8:
         return -2
     colors: mutable u8[8] = zeroed
-    count: i64 = graph_coloring_count(input[0:length], colors[0:n], n, m, 0)
-    graph_coloring_put_i64(output[0:8], count)
+    count: i64 = graph_coloring_count(values, colors[0:n], n, m, 0)
+    target: mutable view[u8] = output[0:8]
+    graph_coloring_put_i64(target, count)
     8
 
 export fn graph_coloring(input: i64&, length: usize,

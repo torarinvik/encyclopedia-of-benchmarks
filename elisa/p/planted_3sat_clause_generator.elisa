@@ -1,0 +1,47 @@
+def planted_3sat_clause_generator_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > 83: return -1
+    values: view[i64] = input[0:length]
+    n_raw: i64 = values[0]
+    m_raw: i64 = values[1]
+    if n_raw < 3 or n_raw > 16 or m_raw < 0 or m_raw > 32: return -1
+    n: usize = n_raw.usize()
+    m: usize = m_raw.usize()
+    if length != 2 + n + 2 * m: return -1
+    for i in 0..<n:
+        if values[2 + i] != 0 and values[2 + i] != 1: return -1
+    choices: usize = n * (n - 1) * (n - 2) / 6
+    literals: mutable i64[96] = zeroed
+    for clause in 0..<m:
+        raw: i64 = values[2 + n + 2 * clause]
+        mask: i64 = values[3 + n + 2 * clause]
+        if raw < 0 or raw >= choices.i64() or mask < 1 or mask > 7: return -1
+        rank: mutable usize = raw.usize()
+        next: mutable usize = 0
+        for position in 0..<3:
+            variable: mutable usize = next
+            while variable < n - (2 - position):
+                remaining: usize = n - variable - 1
+                ways: mutable usize = 1
+                if position == 0: ways <- remaining * (remaining - 1) / 2
+                elif position == 1: ways <- remaining
+                if rank >= ways:
+                    rank <- rank - ways
+                    variable <- variable + 1
+                    continue
+                value: i64 = (variable + 1).i64()
+                if values[2 + variable] == ((mask >> position) & 1): literals[3 * clause + position] <- value
+                else: literals[3 * clause + position] <- -value
+                next <- variable + 1
+                break
+    bytes: usize = 24 * m
+    if bytes == 0: return 0
+    if output.is_null() or capacity < bytes: return -2
+    target: mutable view[u8] = output[0:bytes]
+    for i in 0..<(3 * m):
+        bits: mutable u64 = literals[i].u64()
+        for b in 0..<8:
+            target[8 * i + b] <- (bits & 255).u8()
+            bits <- bits >> 8
+    bytes.i64()
+
+export fn planted_3sat_clause_generator(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = planted_3sat_clause_generator_impl

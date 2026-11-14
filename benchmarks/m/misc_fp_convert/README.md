@@ -8,6 +8,9 @@ The `float64_slice_io` symbol is `misc_fp_convert(input, input_length, output, o
 
 This numeric ABI omits the source's `Total is %g` display formatting. See [workload.json](workload.json) and the independent [oracle](../../misc_fp_convert_oracle.py).
 
+For I iterations and fixed vector length 2048, the source-level work is O(I)
+and auxiliary space is O(1) with respect to I.
+
 ## Pinned source
 
 - [fp-convert.c at the pinned commit](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/fp-convert/fp-convert.c)
@@ -21,6 +24,7 @@ This numeric ABI omits the source's `Total is %g` display formatting. See [workl
 | C3 | [c3/m/misc_fp_convert.c3](../../../c3/m/misc_fp_convert.c3) |
 | C++ | [cpp/m/misc_fp_convert.cpp](../../../cpp/m/misc_fp_convert.cpp) |
 | Elisa | [elisa/m/misc_fp_convert.elisa](../../../elisa/m/misc_fp_convert.elisa) |
+| Mojo | [mojo/m/misc_fp_convert.mojo](../../../mojo/m/misc_fp_convert.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/misc_fp_convert.nim](../../../nim/m/misc_fp_convert.nim) |
 | Odin | [odin/m/misc_fp_convert.odin](../../../odin/m/misc_fp_convert.odin) |
 | Rust | [rust/m/misc_fp_convert.rs](../../../rust/m/misc_fp_convert.rs) |

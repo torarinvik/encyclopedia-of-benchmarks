@@ -29,7 +29,7 @@ proc counting_triangles_stream_reservoir*(input:ptr UncheckedArray[int64],length
     for s in 0..<2:
       staged[at]=slots[s][0];inc at
       staged[at]=slots[s][1];inc at
-  let bytes=16*m
+  let bytes=32*m
   if output.isNil or int(capacity)<bytes:return -2
   for i in 0..<at:putI64(output,8*i,staged[i])
   int64(bytes)

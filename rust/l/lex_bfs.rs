@@ -65,10 +65,7 @@ pub unsafe extern "C" fn lex_bfs(
         order[step] = current as i64;
         for neighbor in 0..n {
             if !adjacency[current][neighbor] || selected[neighbor] { continue; }
-            for position in (1..=label_len[neighbor]).rev() {
-                labels[neighbor][position] = labels[neighbor][position - 1];
-            }
-            labels[neighbor][0] = step as i64;
+            labels[neighbor][label_len[neighbor]] = (n - step) as i64;
             label_len[neighbor] += 1;
         }
     }

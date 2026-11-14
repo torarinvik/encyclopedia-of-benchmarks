@@ -1,0 +1,130 @@
+# Independent Hopcroft partition-refinement draft; uncompiled and unrun.
+# Partition and queue state use bounded views over a heap allocation.
+extern calloc(count: usize, size: usize) -> mutable i64&?
+extern free(memory: mutable i64&) -> void
+
+def hdm_enqueue(id: usize, queued: mutable view[i64], queue: mutable view[i64],
+                capacity: usize, tail: mutable usize&) -> void:
+    if queued[id] == 0:
+        queued[id] <- 1
+        queue[tail] <- id.i64()
+        tail <- (tail + 1) % capacity
+
+export fn hopcroft_dfa_minimization(input: i64&, length: usize) -> i64:
+    if input == null or length < 2: return -1
+    if input[0] < 1 or input[0] > 4096 or input[1] < 1 or input[1] > 4: return -1
+    n: usize = input[0].usize()
+    k: usize = input[1].usize()
+    if length != 2 + n * (k + 1): return -1
+    values: view[i64] = input[0:length]
+    for s in 0..<n:
+        if values[2 + s] != 0 and values[2 + s] != 1: return -1
+    for i in 0..<(n * k):
+        if values[2 + n + i] < 0 or values[2 + n + i] >= n.i64(): return -1
+    nk: usize = n * k
+    queue_capacity: usize = nk + 1
+    memory_size: usize = 4 * nk + 9 * n + 1
+    memory: mutable i64& = get calloc(memory_size, 8) else return -1
+    workspace: mutable view[i64] = memory[0:memory_size]
+    reverse_head: mutable view[i64] = workspace[0:nk]
+    reverse_next: mutable view[i64] = workspace[nk:2 * nk]
+    queued: mutable view[i64] = workspace[2 * nk:3 * nk]
+    queue: mutable view[i64] = workspace[3 * nk:4 * nk + 1]
+    base: usize = 4 * nk + 1
+    block_head: mutable view[i64] = workspace[base:base + n]
+    block_size: mutable view[i64] = workspace[base + n:base + 2 * n]
+    block_of: mutable view[i64] = workspace[base + 2 * n:base + 3 * n]
+    previous: mutable view[i64] = workspace[base + 3 * n:base + 4 * n]
+    following: mutable view[i64] = workspace[base + 4 * n:base + 5 * n]
+    selected_head: mutable view[i64] = workspace[base + 5 * n:base + 6 * n]
+    selected_next: mutable view[i64] = workspace[base + 6 * n:base + 7 * n]
+    selected_count: mutable view[i64] = workspace[base + 7 * n:base + 8 * n]
+    touched: mutable view[i64] = workspace[base + 8 * n:base + 9 * n]
+    for i in 0..<nk: reverse_head[i] <- -1
+    for i in 0..<n:
+        block_head[i] <- -1
+        selected_head[i] <- -1
+    for state in 0..<n:
+        for symbol in 0..<k:
+            edge: usize = state * k + symbol
+            dest: usize = values[2 + n + edge].usize()
+            reverse_next[edge] <- reverse_head[symbol * n + dest]
+            reverse_head[symbol * n + dest] <- edge.i64()
+    has_zero: mutable bool = false
+    has_one: mutable bool = false
+    for state in 0..<n:
+        if values[2 + state] == 0: has_zero <- true
+        else: has_one <- true
+    block_count: mutable usize = 0
+    if has_zero: block_count <- block_count + 1
+    if has_one: block_count <- block_count + 1
+    for state in 0..<n:
+        block: mutable usize = 0
+        if has_zero and values[2 + state] == 1: block <- 1
+        block_of[state] <- block.i64()
+        previous[state] <- -1
+        following[state] <- block_head[block]
+        if following[state] >= 0: previous[following[state].usize()] <- state.i64()
+        block_head[block] <- state.i64()
+        block_size[block] <- block_size[block] + 1
+    qhead: mutable usize = 0
+    qtail: mutable usize = 0
+    for block in 0..<block_count:
+        for symbol in 0..<k: hdm_enqueue(block * k + symbol, queued, queue, queue_capacity, qtail)
+    while qhead != qtail:
+        id: usize = queue[qhead].usize()
+        qhead <- (qhead + 1) % queue_capacity
+        queued[id] <- 0
+        splitter: usize = id / k
+        symbol: usize = id % k
+        touched_count: mutable usize = 0
+        dest: mutable i64 = block_head[splitter]
+        while dest >= 0:
+            edge: mutable i64 = reverse_head[symbol * n + dest.usize()]
+            while edge >= 0:
+                state: usize = edge.usize() / k
+                block: usize = block_of[state].usize()
+                if selected_count[block] == 0:
+                    touched[touched_count] <- block.i64()
+                    touched_count <- touched_count + 1
+                selected_count[block] <- selected_count[block] + 1
+                selected_next[state] <- selected_head[block]
+                selected_head[block] <- state.i64()
+                edge <- reverse_next[edge.usize()]
+            dest <- following[dest.usize()]
+        for i in 0..<touched_count:
+            block: usize = touched[i].usize()
+            if selected_count[block] == block_size[block]:
+                selected_count[block] <- 0
+                selected_head[block] <- -1
+                continue
+            fresh: usize = block_count
+            block_count <- block_count + 1
+            state: mutable i64 = selected_head[block]
+            while state >= 0:
+                current: usize = state.usize()
+                after: i64 = selected_next[current]
+                prev: i64 = previous[current]
+                next: i64 = following[current]
+                if prev < 0: block_head[block] <- next
+                else: following[prev.usize()] <- next
+                if next >= 0: previous[next.usize()] <- prev
+                block_size[block] <- block_size[block] - 1
+                previous[current] <- -1
+                following[current] <- block_head[fresh]
+                if following[current] >= 0: previous[following[current].usize()] <- state
+                block_head[fresh] <- state
+                block_size[fresh] <- block_size[fresh] + 1
+                block_of[current] <- fresh.i64()
+                state <- after
+            selected_head[block] <- -1
+            selected_count[block] <- 0
+            for c in 0..<k:
+                if queued[block * k + c] != 0:
+                    hdm_enqueue(fresh * k + c, queued, queue, queue_capacity, qtail)
+                else:
+                    smaller: mutable usize = block
+                    if block_size[fresh] < block_size[block]: smaller <- fresh
+                    hdm_enqueue(smaller * k + c, queued, queue, queue_capacity, qtail)
+    free(memory)
+    block_count.i64()

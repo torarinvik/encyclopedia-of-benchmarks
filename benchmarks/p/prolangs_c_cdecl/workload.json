@@ -16,7 +16,7 @@
   "pinned_launcher": {
     "repository": "lac-dcc/Benchmarks",
     "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
-    "info_path": "Prolangs-C/cdecl/info.sh",
+    "path": "Prolangs-C/cdecl/info.sh",
     "bench_name": "cdecl",
     "source_files": ["cdecl.c"],
     "compile_flags": ["-std=gnu89"],
@@ -124,6 +124,22 @@
     {
       "id": "dimension-out-of-profile",
       "input_values": [105, 110, 116, 32, 120, 91, 49, 48, 48, 93],
+      "input_length": 10,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "separate-identifiers-invalid",
+      "input_values": [105, 110, 116, 32, 120, 32, 121],
+      "input_length": 7,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "split-dimension-invalid",
+      "input_values": [105, 110, 116, 32, 120, 91, 49, 32, 50, 93],
       "input_length": 10,
       "output_capacity": 128,
       "expected_result": -1,

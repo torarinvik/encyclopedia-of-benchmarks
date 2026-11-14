@@ -1,7 +1,7 @@
 module all_distances_sketch_bottom_k;
 fn void put_i64(uint8* out, usz offset, long x){ulong b=(ulong)x;for(usz i=0;i<8;i++)out[offset+i]=(uint8)(b>>(8*i));}
 fn long all_distances_sketch_bottom_k(long* input, usz length, uint8* output, usz capacity) @export("all_distances_sketch_bottom_k") {
-    if(input==null||length<6||length>104)return -1;long n0=input[0],m0=input[1],k0=input[2],s0=input[3];
+    if(input==null||length<6||length>194)return -1;long n0=input[0],m0=input[1],k0=input[2],s0=input[3];
     if(n0<2||n0>10||m0<0||m0>n0*(n0-1)||k0<1||k0>n0||s0<0||s0>=n0||length!=(usz)(4+n0+2*m0))return -1;
     usz n=(usz)n0,m=(usz)m0,k=(usz)k0,source=(usz)s0;long[10] rank=zeroed;bool[10] used=zeroed;
     for(usz i=0;i<n;i++){long r=input[4+i];if(r<0||r>=n0||used[(usz)r])return -1;used[(usz)r]=true;rank[i]=r;}

@@ -30,6 +30,9 @@ augmented Delaunay computation. Pole generation from Voronoi cells, Delaunay
 construction, orienting a watertight surface, and repairing noisy or sparse
 reconstructions are excluded.
 
+For f supplied facets, direct duplicate detection and insertion sorting take
+O(f²) time and O(f) extra space in this bounded profile.
+
 Source: Nina Amenta, “Surface Reconstruction,” Encyclopedia of Algorithms,
 DOI `10.1007/978-1-4939-2864-4_713`, `OEBPS/AChap713.html`, “Crust Algorithm.”
 The chapter describes choosing farthest Voronoi-cell poles and filtering
@@ -47,6 +50,7 @@ Primary and independent verifier oracles:
 | C3 | `c3/c/crust_pole_triangle_filter.c3` |
 | C++ | `cpp/c/crust_pole_triangle_filter.cpp` |
 | Elisa | `elisa/c/crust_pole_triangle_filter.elisa` |
+| Mojo | [`mojo/c/crust_pole_triangle_filter.mojo`](../../../mojo/c/crust_pole_triangle_filter.mojo) (draft; not compiled or run) |
 | Nim | `nim/c/crust_pole_triangle_filter.nim` |
 | Odin | `odin/c/crust_pole_triangle_filter.odin` |
 | Rust | `rust/c/crust_pole_triangle_filter.rs` |

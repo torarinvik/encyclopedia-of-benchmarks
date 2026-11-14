@@ -2279,7 +2279,8 @@ def main() -> int:
                         if algorithm == "rat_maze" else
                         ROOT / "benchmarks" / letter / algorithm / "workload.json")
     workload_path = args.workload or default_workload
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model")
             != "i32_array_bytes_output_call"):

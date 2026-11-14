@@ -40,3 +40,4 @@ The local `tsvc_s353_unrolled_sparse_saxpy` gathers through an explicit index ve
 | Rust | [`tsvc_s122_reverse_strided_gather_add.rs`](../../../rust/t/tsvc_s122_reverse_strided_gather_add.rs) |
 | V | [`tsvc_s122_reverse_strided_gather_add.v`](../../../v/t/tsvc_s122_reverse_strided_gather_add.v) |
 | Zig | [`tsvc_s122_reverse_strided_gather_add.zig`](../../../zig/t/tsvc_s122_reverse_strided_gather_add.zig) |
+| Mojo | [`tsvc_s122_reverse_strided_gather_add.mojo`](../../../mojo/t/tsvc_s122_reverse_strided_gather_add.mojo) |

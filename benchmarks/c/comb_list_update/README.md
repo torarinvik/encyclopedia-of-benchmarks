@@ -22,6 +22,13 @@ At every request, the selected policy sees the current shared list. Timestamp
 counts intervening requests in the complete request trace; Bit state changes
 only on a Bit-selected request. This makes the hybrid's mixed component state
 explicit and reproducible from its supplied random tapes.
+The suite source defines exhaustive small mixed Bit/Timestamp traces, compares
+both references, and checks the all-Timestamp case against the Timestamp
+profile. These checks are unexecuted.
+
+For n items and q requests, the direct Timestamp history scans give this
+bounded implementation an O(nq²+nq) worst-case time bound and O(n+q)
+space, including its request history and output trace.
 
 Source: Shahin Kamali, “Online List Update,” *Encyclopedia of Algorithms*,
 DOI [`10.1007/978-1-4939-2864-4_266`](https://doi.org/10.1007/978-1-4939-2864-4_266).
@@ -32,12 +39,13 @@ verifier](../../comb_list_update_verifier_oracle.py).
 
 | Language | Port |
 |---|---|
-| C | [`c/c/comb_list_update.c`](../../../c/c/comb_list_update.c) |
-| C3 | [`c3/c/comb_list_update.c3`](../../../c3/c/comb_list_update.c3) |
-| C++ | [`cpp/c/comb_list_update.cpp`](../../../cpp/c/comb_list_update.cpp) |
-| Elisa | [`elisa/c/comb_list_update.elisa`](../../../elisa/c/comb_list_update.elisa) |
-| Nim | [`nim/c/comb_list_update.nim`](../../../nim/c/comb_list_update.nim) |
-| Odin | [`odin/c/comb_list_update.odin`](../../../odin/c/comb_list_update.odin) |
-| Rust | [`rust/c/comb_list_update.rs`](../../../rust/c/comb_list_update.rs) |
-| V | [`v/c/comb_list_update.v`](../../../v/c/comb_list_update.v) |
-| Zig | [`zig/c/comb_list_update.zig`](../../../zig/c/comb_list_update.zig) |
+| C | [`c/b/comb_list_update.c`](../../../c/b/comb_list_update.c) |
+| C3 | [`c3/b/comb_list_update.c3`](../../../c3/b/comb_list_update.c3) |
+| C++ | [`cpp/b/comb_list_update.cpp`](../../../cpp/b/comb_list_update.cpp) |
+| Elisa | [`elisa/b/comb_list_update.elisa`](../../../elisa/b/comb_list_update.elisa) |
+| Mojo | [`mojo/c/comb_list_update.mojo`](../../../mojo/c/comb_list_update.mojo) (unverified draft) |
+| Nim | [`nim/b/comb_list_update.nim`](../../../nim/b/comb_list_update.nim) |
+| Odin | [`odin/b/comb_list_update.odin`](../../../odin/b/comb_list_update.odin) |
+| Rust | [`rust/b/comb_list_update.rs`](../../../rust/b/comb_list_update.rs) |
+| V | [`v/b/comb_list_update.v`](../../../v/b/comb_list_update.v) |
+| Zig | [`zig/b/comb_list_update.zig`](../../../zig/b/comb_list_update.zig) |

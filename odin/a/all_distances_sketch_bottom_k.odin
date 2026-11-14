@@ -9,7 +9,7 @@ put_i64 :: proc(out: [^]u8, offset: int, x: i64) {
 
 @(export)
 all_distances_sketch_bottom_k :: proc "c" (input: [^]i64, length: c.size_t, output: [^]u8, capacity: c.size_t) -> i64 {
-	if input == nil || length < 6 || length > 104 do return -1
+	if input == nil || length < 6 || length > 194 do return -1
 	n0,m0,k0,s0 := input[0],input[1],input[2],input[3]
 	if n0<2 || n0>10 || m0<0 || m0>n0*(n0-1) || k0<1 || k0>n0 || s0<0 || s0>=n0 do return -1
 	n,m,k,source := int(n0),int(m0),int(k0),int(s0)

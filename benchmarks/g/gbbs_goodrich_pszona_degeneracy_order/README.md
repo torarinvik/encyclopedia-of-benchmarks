@@ -47,6 +47,7 @@ Ports are clean-room implementations.
 | C3 | [`c3/g/gbbs_goodrich_pszona_degeneracy_order.c3`](../../../c3/g/gbbs_goodrich_pszona_degeneracy_order.c3) |
 | C++ | [`cpp/g/gbbs_goodrich_pszona_degeneracy_order.cpp`](../../../cpp/g/gbbs_goodrich_pszona_degeneracy_order.cpp) |
 | Elisa | [`elisa/g/gbbs_goodrich_pszona_degeneracy_order.elisa`](../../../elisa/g/gbbs_goodrich_pszona_degeneracy_order.elisa) |
+| Mojo | [`mojo/g/gbbs_goodrich_pszona_degeneracy_order.mojo`](../../../mojo/g/gbbs_goodrich_pszona_degeneracy_order.mojo) |
 | Nim | [`nim/g/gbbs_goodrich_pszona_degeneracy_order.nim`](../../../nim/g/gbbs_goodrich_pszona_degeneracy_order.nim) |
 | Odin | [`odin/g/gbbs_goodrich_pszona_degeneracy_order.odin`](../../../odin/g/gbbs_goodrich_pszona_degeneracy_order.odin) |
 | Rust | [`rust/g/gbbs_goodrich_pszona_degeneracy_order.rs`](../../../rust/g/gbbs_goodrich_pszona_degeneracy_order.rs) |

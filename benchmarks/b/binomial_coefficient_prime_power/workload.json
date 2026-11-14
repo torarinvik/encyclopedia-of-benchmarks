@@ -50,7 +50,7 @@
     "bytes": 2560,
     "meaning": "Fixed unit-prefix and p-free-factorial tables, compact p-adic valuations, and staged u32 residues; includes capacity for the 128-byte external output."
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Build the p-free factorial part and p-adic valuation for every n through 128. For each query, return zero when the binomial valuation is at least e; otherwise multiply the p-free numerator by the modular inverse of the p-free denominator and p raised to the remaining valuation.",
     "independent_oracle": "Build each requested Pascal row by descending additions modulo p^e, without modular division.",
     "primary_complexity": "O(MAX_N + Q log(p^e)) time and O(MAX_N) fixed storage.",

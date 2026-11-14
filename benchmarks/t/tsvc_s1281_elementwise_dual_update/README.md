@@ -50,3 +50,4 @@ The independent oracle is
 | Rust | [Rust port](../../../rust/t/tsvc_s1281_elementwise_dual_update.rs) |
 | V | [V port](../../../v/t/tsvc_s1281_elementwise_dual_update.v) |
 | Zig | [Zig port](../../../zig/t/tsvc_s1281_elementwise_dual_update.zig) |
+| Mojo | [Mojo draft](../../../mojo/t/tsvc_s1281_elementwise_dual_update.mojo) (unverified) |

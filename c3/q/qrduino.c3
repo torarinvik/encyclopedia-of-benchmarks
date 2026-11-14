@@ -11,11 +11,12 @@ const int PREFIX_BYTES = 22;
 
 fn uchar gf_multiply(uchar left, uchar right) {
     uint product = 0;
+    uint factor = left;
     while (right != 0) {
-        if (right & 1) product ^= left;
+        if (right & 1) product ^= factor;
         right >>= 1;
-        left <<= 1;
-        if (left & 0x100) left ^= 0x11d;
+        factor <<= 1;
+        if (factor & 0x100) factor ^= 0x11d;
     }
     return (uchar)product;
 }

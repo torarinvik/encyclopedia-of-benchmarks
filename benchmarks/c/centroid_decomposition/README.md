@@ -17,7 +17,7 @@ The pinned Rust source uses vertices numbered from 1 and reports parent 0 for it
 
 `workload.json` covers singleton and two-vertex trees, paths, stars, a balanced tree, a branching tree, the maximum input size, malformed graphs, and output-capacity failures. The verifier also enumerates every labeled tree through five vertices and checks seeded random trees against a separate oracle that measures each candidate centroid's branches directly.
 
-Run all nine implementations with:
+Run the registered implementations with:
 
 ```sh
 python3 benchmarks/verify_i64_array_bytes_output.py --algorithm centroid_decomposition --elisa-compiler ../Elisa-compiler/bin/elisac-stage1
@@ -36,6 +36,7 @@ python3 benchmarks/verify_i64_array_bytes_output.py --algorithm centroid_decompo
 | C3 | [c3/c/centroid_decomposition.c3](../../../c3/c/centroid_decomposition.c3) |
 | C++ | [cpp/c/centroid_decomposition.cpp](../../../cpp/c/centroid_decomposition.cpp) |
 | Elisa | [elisa/c/centroid_decomposition.elisa](../../../elisa/c/centroid_decomposition.elisa) |
+| Mojo | [mojo/c/centroid_decomposition.mojo](../../../mojo/c/centroid_decomposition.mojo) (unverified draft) |
 | Nim | [nim/c/centroid_decomposition.nim](../../../nim/c/centroid_decomposition.nim) |
 | Odin | [odin/c/centroid_decomposition.odin](../../../odin/c/centroid_decomposition.odin) |
 | Rust | [rust/c/centroid_decomposition.rs](../../../rust/c/centroid_decomposition.rs) |

@@ -10,6 +10,8 @@ Input is exactly `[predictor, r_size, motion_code, motion_residual]`. `r_size` i
 
 This component profile excludes motion-code VLC parsing, residual bitstream reads, predictor-array selection/update, MPEG-1 full-pel scaling, dual-prime arithmetic, reference-frame interpolation, and the decoder pipeline.
 
+The bounded component update takes O(1) time and O(1) auxiliary space.
+
 ## Source and rights
 
 Source: [`mediabench/mpeg2/mpeg2dec/motion.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/mpeg2/mpeg2dec/motion.c), pinned to `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`; symbol: `decode_motion_vector`. Launcher: [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/mpeg2/mpeg2dec/info.sh). The source states Copyright (C) 1996, MPEG Software Simulation Group and describes the code as available without license fee or royalty on an “as is” basis, while disclaiming third-party patent status and noting patent royalties for commercial MPEG implementations. The pinned source does not state an explicit source-code redistribution license. These ports are clean-room implementations of the mathematical operation and contain no copied upstream code or comments; see [`NOTICE.txt`](NOTICE.txt) for the rights caveat.
@@ -22,6 +24,7 @@ Independent oracle: [`mediabench_mpeg2_motion_vector_component_oracle.py`](../..
 - C3: [`c3/m/mediabench_mpeg2_motion_vector_component.c3`](../../../c3/m/mediabench_mpeg2_motion_vector_component.c3)
 - C++: [`cpp/m/mediabench_mpeg2_motion_vector_component.cpp`](../../../cpp/m/mediabench_mpeg2_motion_vector_component.cpp)
 - Elisa: [`elisa/m/mediabench_mpeg2_motion_vector_component.elisa`](../../../elisa/m/mediabench_mpeg2_motion_vector_component.elisa)
+- Mojo: [`mojo/m/mediabench_mpeg2_motion_vector_component.mojo`](../../../mojo/m/mediabench_mpeg2_motion_vector_component.mojo) (draft; not compiled or run)
 - Nim: [`nim/m/mediabench_mpeg2_motion_vector_component.nim`](../../../nim/m/mediabench_mpeg2_motion_vector_component.nim)
 - Odin: [`odin/m/mediabench_mpeg2_motion_vector_component.odin`](../../../odin/m/mediabench_mpeg2_motion_vector_component.odin)
 - Rust: [`rust/m/mediabench_mpeg2_motion_vector_component.rs`](../../../rust/m/mediabench_mpeg2_motion_vector_component.rs)

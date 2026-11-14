@@ -63,3 +63,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s312_array_product.rs`](../../../rust/t/tsvc_s312_array_product.rs) |
 | V | [`tsvc_s312_array_product.v`](../../../v/t/tsvc_s312_array_product.v) |
 | Zig | [`tsvc_s312_array_product.zig`](../../../zig/t/tsvc_s312_array_product.zig) |
+| Mojo | [`tsvc_s312_array_product.mojo`](../../../mojo/t/tsvc_s312_array_product.mojo) (draft, unverified) |

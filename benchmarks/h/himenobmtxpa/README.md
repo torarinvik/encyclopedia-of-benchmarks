@@ -8,6 +8,8 @@ The ABI is float64_slice_io, symbol himenobmtxpa. Input is exactly [nx, ny, nz, 
 
 The routine returns one output element. Invalid input returns -1; null output or capacity below one returns -2 without writing. The profile is capped at 216 cells and four iterations. The maximum-profile workload uses only small static arrays.
 
+For a grid of nx × ny × nz cells and t iterations, the work is O((t + 1)nx ny nz), and storage is O(nx ny nz).
+
 ## Workload and oracle
 
 workload.json defines the bounded profile, source pin, and ABI cases. benchmarks/himenobmtxpa_oracle.py independently implements the recurrence with explicit binary32 rounding.
@@ -21,4 +23,4 @@ The pinned source has no explicit license grant. These implementations were writ
 
 ## Ports
 
-The nine implementations are in c/h, c3/h, cpp/h, elisa/h, nim/h, odin/h, rust/h, v/h, and zig/h as himenobmtxpa source files.
+The implementations are in c/h, c3/h, cpp/h, elisa/h, mojo/h, nim/h, odin/h, rust/h, v/h, and zig/h as himenobmtxpa source files. The [Mojo draft](../../../mojo/h/himenobmtxpa.mojo) has not been compiled or run.

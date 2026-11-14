@@ -41,7 +41,7 @@ fn make_hull(p:&mut [Point;MAX_SITES],n:usize,h:&mut [usize;MAX_SITES*2])->usize
     k-=1;h[..k].copy_from_slice(&stack[..k]);k
 }
 fn pack_circle(p:&[Point;MAX_SITES],h:&[usize;MAX_SITES*2])->i64{
-    let tri=[p[h[0]],p[h[1]],p[h[2]]];let sides=[length2(tri[0],tri[1]),length2(tri[1],tri[2]),length2(tri[0],tri[2])];
+    let tri=[p[h[0]],p[h[1]],p[h[2]]];let sides=[length2(tri[1],tri[2]),length2(tri[0],tri[2]),length2(tri[0],tri[1])];
     let(mut opposite,mut u,mut v,mut longest)=(0usize,1usize,2usize,sides[0]);
     if sides[1]>longest{longest=sides[1];opposite=1;u=0;v=2;}if sides[2]>longest{longest=sides[2];opposite=2;u=0;v=1;}
     let o=tri[opposite];let dot=f64::from(tri[u].x-o.x)*f64::from(tri[v].x-o.x)+f64::from(tri[u].y-o.y)*f64::from(tri[v].y-o.y);

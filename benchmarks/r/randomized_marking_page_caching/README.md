@@ -56,6 +56,7 @@ See [workload.json](workload.json), [RIGHTS.md](RIGHTS.md), the
 | C3 | [`c3/r/randomized_marking_page_caching.c3`](../../../c3/r/randomized_marking_page_caching.c3) |
 | C++ | [`cpp/r/randomized_marking_page_caching.cpp`](../../../cpp/r/randomized_marking_page_caching.cpp) |
 | Elisa | [`elisa/r/randomized_marking_page_caching.elisa`](../../../elisa/r/randomized_marking_page_caching.elisa) |
+| Mojo | [`mojo/r/randomized_marking_page_caching.mojo`](../../../mojo/r/randomized_marking_page_caching.mojo) |
 | Nim | [`nim/r/randomized_marking_page_caching.nim`](../../../nim/r/randomized_marking_page_caching.nim) |
 | Odin | [`odin/r/randomized_marking_page_caching.odin`](../../../odin/r/randomized_marking_page_caching.odin) |
 | Rust | [`rust/r/randomized_marking_page_caching.rs`](../../../rust/r/randomized_marking_page_caching.rs) |

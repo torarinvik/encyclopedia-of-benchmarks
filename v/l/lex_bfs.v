@@ -64,12 +64,7 @@ pub fn lex_bfs(input &i64, length usize, output &u8, capacity usize) i64 {
 			order[step] = i64(current)
 			for neighbor in 0 .. n {
 				if !adjacency[current][neighbor] || selected[neighbor] { continue }
-				mut position := label_len[neighbor]
-				for position > 0 {
-					labels[neighbor][position] = labels[neighbor][position-1]
-					position--
-				}
-				labels[neighbor][0] = i64(step)
+				labels[neighbor][label_len[neighbor]] = i64(n - step)
 				label_len[neighbor]++
 			}
 		}

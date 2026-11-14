@@ -49,6 +49,7 @@ Primary and independent verifier oracles:
 | C3 | [`c3/f/fm_index_display.c3`](../../../c3/f/fm_index_display.c3) |
 | C++ | [`cpp/f/fm_index_display.cpp`](../../../cpp/f/fm_index_display.cpp) |
 | Elisa | [`elisa/f/fm_index_display.elisa`](../../../elisa/f/fm_index_display.elisa) |
+| Mojo | [`mojo/f/fm_index_display.mojo`](../../../mojo/f/fm_index_display.mojo) |
 | Nim | [`nim/f/fm_index_display.nim`](../../../nim/f/fm_index_display.nim) |
 | Odin | [`odin/f/fm_index_display.odin`](../../../odin/f/fm_index_display.odin) |
 | Rust | [`rust/f/fm_index_display.rs`](../../../rust/f/fm_index_display.rs) |

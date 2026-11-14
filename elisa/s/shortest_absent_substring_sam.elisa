@@ -1,0 +1,79 @@
+def shortest_absent_substring_sam_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 66: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 2 or values[0] > 4 or values[1] < 0 or values[1] > 64: return -1
+    alphabet: usize = values[0].usize()
+    n: usize = values[1].usize()
+    if length != 2+n: return -1
+    for i in 0..<n:
+        if values[2+i] < 0 or values[2+i] >= alphabet.i64(): return -1
+    edges: mutable i32[516] = zeroed
+    links: mutable i32[129] = zeroed
+    lens: mutable usize[129] = zeroed
+    for i in 0..<516: edges[i] <- -1
+    for i in 0..<129: links[i] <- -1
+    size: mutable usize = 1
+    last: mutable usize = 0
+    for i in 0..<n:
+        symbol: usize = values[2+i].usize()
+        current: usize = size
+        size <- size+1
+        lens[current] <- lens[last]+1
+        p: mutable i32 = last.i32()
+        while p >= 0 and edges[4*p.usize()+symbol] < 0:
+            edges[4*p.usize()+symbol] <- current.i32()
+            p <- links[p.usize()]
+        if p < 0: links[current] <- 0
+        else:
+            q: usize = edges[4*p.usize()+symbol].usize()
+            if lens[p.usize()]+1 == lens[q]: links[current] <- q.i32()
+            else:
+                clone: usize = size
+                size <- size+1
+                for a in 0..<4: edges[4*clone+a] <- edges[4*q+a]
+                links[clone] <- links[q]
+                lens[clone] <- lens[p.usize()]+1
+                while p >= 0 and edges[4*p.usize()+symbol] == q.i32():
+                    edges[4*p.usize()+symbol] <- clone.i32()
+                    p <- links[p.usize()]
+                links[q] <- clone.i32()
+                links[current] <- clone.i32()
+        last <- current
+    counts: mutable usize[65] = zeroed
+    order: mutable usize[129] = zeroed
+    dp: mutable usize[129] = zeroed
+    for s in 0..<size: counts[lens[s]] <- counts[lens[s]]+1
+    for i in 1..<(n+1): counts[i] <- counts[i]+counts[i-1]
+    for offset in 0..<size:
+        s: usize = size-1-offset
+        counts[lens[s]] <- counts[lens[s]]-1
+        order[counts[lens[s]]] <- s
+    for offset in 0..<size:
+        s: usize = order[size-1-offset]
+        best: mutable usize = 100
+        for a in 0..<alphabet:
+            child: i32 = edges[4*s+a]
+            candidate: mutable usize = 1
+            if child >= 0: candidate <- candidate+dp[child.usize()]
+            if candidate < best: best <- candidate
+        dp[s] <- best
+    result: mutable u8[6] = zeroed
+    count: mutable usize = 0
+    state: mutable i32 = 0
+    while state >= 0:
+        for a in 0..<alphabet:
+            child: i32 = edges[4*state.usize()+a]
+            eligible: mutable bool = child < 0 and dp[state.usize()] == 1
+            if child >= 0: eligible <- dp[state.usize()] == 1+dp[child.usize()]
+            if eligible:
+                result[count] <- a.u8()
+                count <- count+1
+                state <- child
+                break
+    if output.is_null() or capacity < count: return -2
+    out: mutable view[u8] = output[0:count]
+    for i in 0..<count: out[i] <- result[i]
+    count.i64()
+
+export fn shortest_absent_substring_sam(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = shortest_absent_substring_sam_impl

@@ -21,7 +21,7 @@ long saga_incremental_analytics(long* input, usz length, char* output, usz capac
         @export("saga_incremental_analytics") {
     if (input == null || length < 5 || length > MAX_INPUT) return -1;
     long mode64 = input[0], n64 = input[1], base64 = input[2], added64 = input[3], source64 = input[4];
-    if (mode64 < 1 || mode64 > 6 || n64 < 2 || n64 > (long)MAX_N || base64 < 0 || added64 < 1 ||
+    if (mode64 < 1 || mode64 > 6 || n64 < 2 || n64 > (long)MAX_N || base64 < 0 || base64 > (long)MAX_E || added64 < 1 || added64 > (long)MAX_E ||
         base64 + added64 > (long)MAX_E || length != 5 + (usz)n64 + 3 * (usz)(base64 + added64)) return -1;
     usz mode = (usz)mode64, n = (usz)n64, base_edges = (usz)base64, edge_count = (usz)(base64 + added64);
     if (mode == 1 || mode == 2 || mode == 5) {
@@ -115,6 +115,16 @@ long saga_incremental_analytics(long* input, usz length, char* output, usz capac
             bool[MAX_N] seen = zeroed;
             for (usz a = 0; a < active_count; a += 1) {
                 usz v = active[a]; long old = property[v];
+                if (mode == 1 && !first) {
+                    for (usz j = 0; j < degree[v]; j += 1) {
+                        usz u = neighbors[v][j]; long update = property[v] + 1;
+                        if (property[u] == -1 || update < property[u]) {
+                            property[u] = update;
+                            push_once(u, &next[0], &next_count, &seen[0]);
+                        }
+                    }
+                    continue;
+                }
                 long candidate = (mode == 1 || mode == 2 || mode == 4) ? INF_VALUE : 0;
                 if (mode == 1) for (usz j = 0; j < degree[v]; j += 1) {
                     long p = property[neighbors[v][j]]; if (p != -1 && p + 1 < candidate) candidate = p + 1;

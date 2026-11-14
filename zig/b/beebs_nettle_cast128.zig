@@ -265,16 +265,28 @@ fn expandStep(x:*[16]u8,k:*[32]u32,q:usize)void{
  wr(z[0..],12,rd(x[0..],4)^sb(4,z[10])^sb(5,z[9])^sb(6,z[11])^sb(7,z[8])^sb(5,x[11]));
  k[q]=sb(4,z[8])^sb(5,z[9])^sb(6,z[7])^sb(7,z[6])^sb(4,z[2]);k[q+1]=sb(4,z[10])^sb(5,z[11])^sb(6,z[5])^sb(7,z[4])^sb(5,z[6]);
  k[q+2]=sb(4,z[12])^sb(5,z[13])^sb(6,z[3])^sb(7,z[2])^sb(6,z[9]);k[q+3]=sb(4,z[14])^sb(5,z[15])^sb(6,z[1])^sb(7,z[0])^sb(7,z[12]);
+ if((q/8)%2!=0){
+  k[q]=sb(4,z[3])^sb(5,z[2])^sb(6,z[12])^sb(7,z[13])^sb(4,z[9]);
+  k[q+1]=sb(4,z[1])^sb(5,z[0])^sb(6,z[14])^sb(7,z[15])^sb(5,z[12]);
+  k[q+2]=sb(4,z[7])^sb(5,z[6])^sb(6,z[8])^sb(7,z[9])^sb(6,z[2]);
+  k[q+3]=sb(4,z[5])^sb(5,z[4])^sb(6,z[10])^sb(7,z[11])^sb(7,z[6]);
+ }
  wr(n[0..],0,rd(z[0..],8)^sb(4,z[5])^sb(5,z[7])^sb(6,z[4])^sb(7,z[6])^sb(6,z[0]));
- wr(n[0..],4,rd(z[0..],0)^sb(4,x[0])^sb(5,x[2])^sb(6,x[1])^sb(7,x[3])^sb(7,z[2]));
- wr(n[0..],8,rd(z[0..],4)^sb(4,x[7])^sb(5,x[6])^sb(6,x[5])^sb(7,x[4])^sb(4,z[1]));
- wr(n[0..],12,rd(z[0..],12)^sb(4,x[10])^sb(5,x[9])^sb(6,x[11])^sb(7,x[8])^sb(5,z[3]));
+ wr(n[0..],4,rd(z[0..],0)^sb(4,n[0])^sb(5,n[2])^sb(6,n[1])^sb(7,n[3])^sb(7,z[2]));
+ wr(n[0..],8,rd(z[0..],4)^sb(4,n[7])^sb(5,n[6])^sb(6,n[5])^sb(7,n[4])^sb(4,z[1]));
+ wr(n[0..],12,rd(z[0..],12)^sb(4,n[10])^sb(5,n[9])^sb(6,n[11])^sb(7,n[8])^sb(5,z[3]));
  x.* = n;
  k[q+4]=sb(4,x[3])^sb(5,x[2])^sb(6,x[12])^sb(7,x[13])^sb(4,x[8]);k[q+5]=sb(4,x[1])^sb(5,x[0])^sb(6,x[14])^sb(7,x[15])^sb(5,x[13]);
  k[q+6]=sb(4,x[7])^sb(5,x[6])^sb(6,x[8])^sb(7,x[9])^sb(6,x[3]);k[q+7]=sb(4,x[5])^sb(5,x[4])^sb(6,x[10])^sb(7,x[11])^sb(7,x[7]);
+ if((q/8)%2!=0){
+  k[q+4]=sb(4,x[8])^sb(5,x[9])^sb(6,x[7])^sb(7,x[6])^sb(4,x[3]);
+  k[q+5]=sb(4,x[10])^sb(5,x[11])^sb(6,x[5])^sb(7,x[4])^sb(5,x[7]);
+  k[q+6]=sb(4,x[12])^sb(5,x[13])^sb(6,x[3])^sb(7,x[2])^sb(6,x[8]);
+  k[q+7]=sb(4,x[14])^sb(5,x[15])^sb(6,x[1])^sb(7,x[0])^sb(7,x[13]);
+ }
 }
 fn rotl(v:u32,n:u32)u32{const a:u5=@intCast(n&31);const b:u5=@intCast((32-(n&31))&31);return (v<<a)|(v>>b);}
-fn encrypt(key:[16]u8,block:[8]u8) [8]u8{var x=key;var k=[_]u32{0}**32;for(0..4)|i|expandStep(&x,&k,i*8);var l=rd(block[0..],0);var r=rd(block[0..],4);for(0..16)|i|{const km=k[i];const kr=k[i+16]&31;var t:u32=0;var f:u32=0;if(i%3==0){t=rotl(km+%r,kr);f=((sb(0,@truncate(t>>24))^sb(1,@truncate(t>>16)))-%sb(2,@truncate(t>>8)))+%sb(3,@truncate(t);}else if(i%3==1){t=rotl(km^r,kr);f=((sb(0,@truncate(t>>24))-%sb(1,@truncate(t>>16)))+%sb(2,@truncate(t>>8)))^sb(3,@truncate(t));}else{t=rotl(km-%r,kr);f=((sb(0,@truncate(t>>24))+%sb(1,@truncate(t>>16)))^sb(2,@truncate(t>>8)))-%sb(3,@truncate(t));}const nr=l^f;l=r;r=nr;}var out=[_]u8{0}**8;wr(out[0..],0,r);wr(out[0..],4,l);return out;}
+fn encrypt(key:[16]u8,block:[8]u8) [8]u8{var x=key;var k=[_]u32{0}**32;for(0..4)|i|expandStep(&x,&k,i*8);var l=rd(block[0..],0);var r=rd(block[0..],4);for(0..16)|i|{const km=k[i];const kr=k[i+16]&31;var t:u32=0;var f:u32=0;if(i%3==0){t=rotl(km+%r,kr);f=((sb(0,@truncate(t>>24))^sb(1,@truncate(t>>16)))-%sb(2,@truncate(t>>8)))+%sb(3,@truncate(t));}else if(i%3==1){t=rotl(km^r,kr);f=((sb(0,@truncate(t>>24))-%sb(1,@truncate(t>>16)))+%sb(2,@truncate(t>>8)))^sb(3,@truncate(t));}else{t=rotl(km-%r,kr);f=((sb(0,@truncate(t>>24))+%sb(1,@truncate(t>>16)))^sb(2,@truncate(t>>8)))-%sb(3,@truncate(t));}const nr=l^f;l=r;r=nr;}var out=[_]u8{0}**8;wr(out[0..],0,r);wr(out[0..],4,l);return out;}
 export fn beebs_nettle_cast128(input:?[*]const i64,length:usize,output:?[*]u8,capacity:usize)i64{
  if(input==null or length<24 or length>25 or length!=24)return -1;const values=input.?[0..length];for(values)|v|if(v<0 or v>255)return -1;
  if(output==null or capacity<8)return -2;var key=[_]u8{0}**16;var block=[_]u8{0}**8;for(0..16)|i|key[i]=@intCast(values[i]);for(0..8)|i|block[i]=@intCast(values[i+16]);const out=encrypt(key,block);@memcpy(output.?[0..8],out[0..]);return 8;

@@ -54,7 +54,6 @@ proc readWord(p: var Parser, outWord: var array[MaxName + 1, char]): int =
     outWord[used] = char(c)
     inc used
     inc p.pos
-    c = p.peek()
   outWord[used] = '\0'
   used
 
@@ -83,7 +82,6 @@ proc decimal(p: var Parser, value: var int): bool =
     result = result * 10 + c - ord('0')
     if result > 99: return false
     inc p.pos
-    c = p.peek()
   if result < 1: return false
   value = result
   true

@@ -32,6 +32,9 @@ below `8*n*n` bytes returns `-2` without writes. A successful call returns
 `8*n*n`; the maximum input length is 74 signed 64-bit words and maximum output
 is 512 bytes. The output is staged until validation and capacity checks pass.
 
+For n points and L processed levels, the metric validation and refinement take
+O(n³ + Ln²) time and O(n²) extra space in this bounded profile.
+
 ## Source
 
 Based on Jittat Fakcharoenphol, Satish Rao, and Kunal Talwar, “Approximating
@@ -46,3 +49,5 @@ Fixtures and bounds are in [`workload.json`](workload.json). The primary
 oracle is [`frt_tree_metric_oracle.py`](../../frt_tree_metric_oracle.py), and
 the independent verifier oracle is
 [`frt_tree_metric_verifier_oracle.py`](../../frt_tree_metric_verifier_oracle.py).
+
+The [Mojo port](../../../mojo/f/frt_tree_metric.mojo) is a draft and has not been compiled or run.

@@ -1,6 +1,6 @@
 # Liouville function
 
-The pinned Python source defines Liouville's function by counting prime factors with multiplicity. This benchmark keeps that definition and uses integer trial division in all nine portable ports.
+The pinned Python source defines Liouville's function by counting prime factors with multiplicity. This benchmark keeps that definition and uses integer trial division in its portable ports.
 
 ## Contract
 
@@ -12,6 +12,8 @@ The pinned Python source defines Liouville's function by counting prime factors 
 For example, `λ(4) = 1` because `4 = 2×2` has two prime factors with multiplicity. This distinguishes Liouville's function from the Möbius function, which returns zero for nonsquarefree inputs such as 4.
 
 The common upper bound matches Java's positive signed-32-bit input domain and keeps the JavaScript `Number` input exact. The input range also matches the repository's `prime_factors` benchmark. Each implementation uses overflow-safe integer trial division (`factor <= remaining / factor`) and toggles the sign for every occurrence of a factor.
+
+Trial division takes O(sqrt(n)) time in the worst case and O(1) auxiliary space.
 
 ## Workload
 
@@ -34,6 +36,7 @@ The Java and JavaScript candidates are aliases of this benchmark: both compute t
 | C3 | [`c3/l/liouville_lambda.c3`](../../../c3/l/liouville_lambda.c3) |
 | C++ | [`cpp/l/liouville_lambda.cpp`](../../../cpp/l/liouville_lambda.cpp) |
 | Elisa | [`elisa/l/liouville_lambda.elisa`](../../../elisa/l/liouville_lambda.elisa) |
+| Mojo | [`mojo/l/liouville_lambda.mojo`](../../../mojo/l/liouville_lambda.mojo) (draft; not compiled or run in this session) |
 | Nim | [`nim/l/liouville_lambda.nim`](../../../nim/l/liouville_lambda.nim) |
 | Odin | [`odin/l/liouville_lambda.odin`](../../../odin/l/liouville_lambda.odin) |
 | Rust | [`rust/l/liouville_lambda.rs`](../../../rust/l/liouville_lambda.rs) |

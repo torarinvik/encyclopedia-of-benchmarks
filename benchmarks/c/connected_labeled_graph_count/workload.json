@@ -27,7 +27,7 @@
     "maximum_valid_result": 998244352,
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Use G_n=2^(n choose 2) and C_n=G_n-sum_{k=1}^{n-1} binom(n-1,k-1)*C_k*G_{n-k}, separating the root vertex's connected component.",
     "independent_oracle": "Form A(x)=sum_n G_n*x^n/n!, invert A as a formal power series, and obtain connected counts from log(A)=integral(A'/A).",
     "primary_complexity": "O(N^2) time and O(N) space.",

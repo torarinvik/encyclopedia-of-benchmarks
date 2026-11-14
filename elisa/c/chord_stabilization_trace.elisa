@@ -1,0 +1,40 @@
+def chord_between(ids: view[usize], ring: usize, left: usize, item: usize, right: usize) -> bool:
+    distance: usize = (ids[item] + ring - ids[left]) % ring
+    span: usize = (ids[right] + ring - ids[left]) % ring
+    distance > 0 and (span == 0 or distance < span)
+
+def chord_stabilization_trace_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > 115: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 6 or values[1] < 1 or values[1] > 16 or values[2] < 0 or values[2] > 64: return -1
+    ring: usize = 1.usize() << values[0].usize()
+    n: usize = values[1].usize()
+    q: usize = values[2].usize()
+    if n > ring or length != 3+3*n+q: return -1
+    ids: mutable usize[16] = zeroed
+    succ: mutable usize[16] = zeroed
+    pred: mutable i64[16] = zeroed
+    for i in 0..<n:
+        if values[3+i] < 0 or values[3+i] >= ring.i64(): return -1
+        if i > 0 and values[3+i] <= ids[i-1].i64(): return -1
+        if values[3+n+i] < 0 or values[3+n+i] >= n.i64() or values[3+2*n+i] < -1 or values[3+2*n+i] >= n.i64(): return -1
+        ids[i] <- values[3+i].usize()
+        succ[i] <- values[3+n+i].usize()
+        pred[i] <- values[3+2*n+i]
+    for i in 0..<q:
+        if values[3+3*n+i] < 0 or values[3+3*n+i] >= n.i64(): return -1
+    for i in 0..<q:
+        node: usize = values[3+3*n+i].usize()
+        candidate: i64 = pred[succ[node]]
+        if candidate >= 0 and chord_between(ids[0:n], ring, node, candidate.usize(), succ[node]): succ[node] <- candidate.usize()
+        receiver: usize = succ[node]
+        if pred[receiver] < 0 or chord_between(ids[0:n], ring, pred[receiver].usize(), node, receiver): pred[receiver] <- node.i64()
+    if output.is_null() or capacity < 2*n: return -2
+    out: mutable view[u8] = output[0:2*n]
+    for i in 0..<n:
+        out[i] <- succ[i].u8()
+        out[n+i] <- if pred[i] < 0: 255 else: pred[i].u8()
+    (2*n).i64()
+
+export fn chord_stabilization_trace(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = chord_stabilization_trace_impl

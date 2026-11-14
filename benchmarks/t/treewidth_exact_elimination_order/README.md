@@ -31,3 +31,4 @@ Source attribution: Hans L. Bodlaender, “Treewidth of Graphs,” *Encyclopedia
 | Rust | [`rust/t/treewidth_exact_elimination_order.rs`](../../../rust/t/treewidth_exact_elimination_order.rs) |
 | V | [`v/t/treewidth_exact_elimination_order.v`](../../../v/t/treewidth_exact_elimination_order.v) |
 | Zig | [`zig/t/treewidth_exact_elimination_order.zig`](../../../zig/t/treewidth_exact_elimination_order.zig) |
+| Mojo | [`mojo/t/treewidth_exact_elimination_order.mojo`](../../../mojo/t/treewidth_exact_elimination_order.mojo) (draft, unverified) |

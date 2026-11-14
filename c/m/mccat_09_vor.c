@@ -90,7 +90,7 @@ static int make_hull(Point *points, int n, int *hull) {
 
 static int64_t pack_circle(Point *points, int *hull) {
     Point p[3]={points[hull[0]],points[hull[1]],points[hull[2]]};
-    int side[3]={length2(p[0],p[1]),length2(p[1],p[2]),length2(p[0],p[2])};
+    int side[3]={length2(p[1],p[2]),length2(p[0],p[2]),length2(p[0],p[1])};
     int opposite=0, a=1, b=2, longest=side[0];
     if (side[1]>longest) { longest=side[1]; opposite=1; a=0; b=2; }
     if (side[2]>longest) { longest=side[2]; opposite=2; a=0; b=1; }

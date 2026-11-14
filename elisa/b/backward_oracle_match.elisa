@@ -1,0 +1,43 @@
+def bom_solve(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 4161: return -2
+    if values[0] < 0 or values[0] > 4096 or values[1] < 0 or values[1] > 63: return -2
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if values.len() != 2 + n + m: return -2
+    for i in 2..<values.len():
+        if values[i] < 97 or values[i] > 122: return -2
+    if m == 0: return 0
+    if m > n: return -1
+    next: mutable i64[1664] = zeroed
+    suffix: mutable i64[64] = zeroed
+    for i in 0..<1664: next[i] <- -1
+    for i in 0..<64: suffix[i] <- -1
+    for i in 0..<m:
+        letter: usize = (values[2 + n + m - 1 - i] - 97).usize()
+        next[i * 26 + letter] <- (i + 1).i64()
+        k: mutable i64 = suffix[i]
+        while k >= 0 and next[k.usize() * 26 + letter] < 0:
+            next[k.usize() * 26 + letter] <- (i + 1).i64()
+            k <- suffix[k.usize()]
+        if k < 0: suffix[i + 1] <- 0
+        else: suffix[i + 1] <- next[k.usize() * 26 + letter]
+    start: mutable usize = 0
+    while start <= n - m:
+        state: mutable usize = 0
+        remaining: mutable usize = m
+        shift: mutable usize = m
+        while remaining > 0:
+            remaining <- remaining - 1
+            letter: usize = (values[2 + start + remaining] - 97).usize()
+            dest: i64 = next[state * 26 + letter]
+            if dest < 0:
+                shift <- remaining + 1
+                break
+            state <- dest.usize()
+            if remaining == 0: return start.i64()
+        start <- start + shift
+    -1
+
+export fn backward_oracle_match(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 4161: return -2
+    bom_solve(input[0:length])

@@ -66,9 +66,8 @@ export fn indexed_block_list(input: [*c]const i64, length: usize, output: [*c]u8
     if (input == null or length < 2 or length > MAX_PARSEABLE) return -1;
     const values = input[0..length];
     const access_count = validInput(values) orelse return -1;
-    if (access_count == 0) return 0;
     const required = 8 * access_count;
-    if (output == null or capacity < required) return -2;
+    if (required > 0 and (output == null or capacity < required)) return -2;
     var blocks: [MAX_NODES][2 * B + 1]i64 = @splat(@splat(0));
     var sizes: [MAX_NODES]usize = @splat(0);
     var next: [MAX_NODES]i32 = @splat(-1);
@@ -83,6 +82,7 @@ export fn indexed_block_list(input: [*c]const i64, length: usize, output: [*c]u8
         if (opcode == 0) { blockInsert(&blocks, &sizes, &next, &node_count, index, values[cursor + 2]); cursor += 3; }
         else { answers[answer_count] = blockGet(&blocks, &sizes, &next, index); answer_count += 1; cursor += 2; }
     }
+    if (required == 0) return 0;
     const out = output[0..required];
     for (0..answer_count) |i| {
         const bytes = @as(u64, @bitCast(answers[i]));

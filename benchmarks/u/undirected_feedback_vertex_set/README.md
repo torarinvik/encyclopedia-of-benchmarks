@@ -39,3 +39,5 @@ or code were copied.
 Primary oracle: `benchmarks/undirected_feedback_vertex_set_oracle.py`.
 Independent subset-enumeration verifier:
 `benchmarks/undirected_feedback_vertex_set_verifier_oracle.py`.
+
+The Mojo draft is [`mojo/u/undirected_feedback_vertex_set.mojo`](../../../mojo/u/undirected_feedback_vertex_set.mojo). Exhaustive compression is exponential in the bounded vertex count; each forest check uses O(n²) time and O(n) auxiliary space.

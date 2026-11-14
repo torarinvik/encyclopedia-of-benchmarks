@@ -16,6 +16,8 @@ Invalid input returns -1. Null or undersized output returns -2 after validation.
 
 Language implementations are in `c/h/heat_3d`, `c3/h/heat_3d`, `cpp/h/heat_3d`, `elisa/h/heat_3d`, `nim/h/heat_3d`, `odin/h/heat_3d`, `rust/h/heat_3d`, `v/h/heat_3d`, and `zig/h/heat_3d`.
 
+The independent [Mojo draft](../../../mojo/h/heat_3d.mojo) has not been compiled or run. Initialization and updates take O((tsteps+1)·n³) time and O(n³) field storage.
+
 ## Pinned source and license
 
 - [heat-3d.c](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/heat-3d/heat-3d.c)

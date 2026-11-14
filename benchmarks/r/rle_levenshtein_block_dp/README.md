@@ -40,6 +40,7 @@ propagation, a maximum-size input, and malformed inputs.
 | C3 | `c3/r/rle_levenshtein_block_dp.c3` |
 | C++ | `cpp/r/rle_levenshtein_block_dp.cpp` |
 | Elisa | `elisa/r/rle_levenshtein_block_dp.elisa` |
+| Mojo | `mojo/r/rle_levenshtein_block_dp.mojo` |
 | Nim | `nim/r/rle_levenshtein_block_dp.nim` |
 | Odin | `odin/r/rle_levenshtein_block_dp.odin` |
 | Rust | `rust/r/rle_levenshtein_block_dp.rs` |

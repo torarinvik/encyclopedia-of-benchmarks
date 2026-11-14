@@ -68,3 +68,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_vif_masked_assignment.rs`](../../../rust/t/tsvc_vif_masked_assignment.rs) |
 | V | [`tsvc_vif_masked_assignment.v`](../../../v/t/tsvc_vif_masked_assignment.v) |
 | Zig | [`tsvc_vif_masked_assignment.zig`](../../../zig/t/tsvc_vif_masked_assignment.zig) |
+| Mojo | [`tsvc_vif_masked_assignment.mojo`](../../../mojo/t/tsvc_vif_masked_assignment.mojo) |

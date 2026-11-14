@@ -37,6 +37,10 @@ def gardenia_symgs_impl(input: f64&, length: usize, output: mutable f64&, capaci
         rows[i] <- z.usize()
         if i > 0 and rows[i] < rows[i-1]: return -1
     if rows[0] != 0 or rows[n] != m: return -1
+    for e in 0..<m:
+        z: f64 = input[ca+e]
+        if trunc(z) != z or z < 0.0 or z >= nd: return -1
+        cols[e] <- z.usize(); mat[e] <- input[va+e]
     for u in 0..<n:
         diag: usize = 0; d: f64 = 0.0; offsum: f64 = 0.0; prev: usize = 0
         for e in rows[u]..<rows[u+1]:

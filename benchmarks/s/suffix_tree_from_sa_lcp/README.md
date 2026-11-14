@@ -61,3 +61,4 @@ buffers, and insufficient capacity.
 | Rust | [`rust/s/suffix_tree_from_sa_lcp.rs`](../../../rust/s/suffix_tree_from_sa_lcp.rs) |
 | V | [`v/s/suffix_tree_from_sa_lcp.v`](../../../v/s/suffix_tree_from_sa_lcp.v) |
 | Zig | [`zig/s/suffix_tree_from_sa_lcp.zig`](../../../zig/s/suffix_tree_from_sa_lcp.zig) |
+| Mojo | [`mojo/s/suffix_tree_from_sa_lcp.mojo`](../../../mojo/s/suffix_tree_from_sa_lcp.mojo) (draft, unverified) |

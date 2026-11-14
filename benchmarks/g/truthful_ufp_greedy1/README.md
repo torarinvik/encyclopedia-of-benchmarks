@@ -10,6 +10,16 @@ This package implements the source-defined Greedy-1 primal-dual routine for unsp
 - Output is `[selected_count,(commodity_id,vertex_count,vertex_ids...)...]` in selection order. Maximum input is 75 words and output is 648 bytes. Exponential updates use IEEE-754 binary64; workload instances avoid near-tie comparisons.
 - The route-selection and price-update loop is covered; the profile does not compute critical payments or claim to implement the full truthful mechanism. It is distinct from the chapter's Greedy-2 set-packing auction profile.
 
+For K commodities, V vertices, and E edges, the bounded array-scanning
+implementation takes O(K²·V·(V+E)) time and O(KV+E+V) space. The Mojo
+draft has not been compiled or run.
+Static review corrected the triangle fixture to list edges in the required
+lexicographic order and to encode the three two-vertex routes. The fixture
+and both references remain unexecuted.
+Verifier source also specifies unique-route path graphs with varied edge
+capacities and terminal pairs, reference comparisons, invalid inputs, and
+output-capacity boundaries. These cases have not been run.
+
 ## Provenance and rights
 
 Source: Piotr Krysta and Berthold Vöcking, “Utilitarian Mechanism Design for Single-Minded Agents,” *Encyclopedia of Algorithms*, DOI `10.1007/978-1-4939-2864-4_454`, Figure 2 and the UFP definitions. The chapter is copyrighted and carries no source-code license. This is a clean-room implementation of the stated mathematical loop and shortest-path subproblem; no code, figure, or prose is copied. See [`RIGHTS.md`](RIGHTS.md).
@@ -26,6 +36,7 @@ Source: Piotr Krysta and Berthold Vöcking, “Utilitarian Mechanism Design for 
 | C3 | [`c3/g/truthful_ufp_greedy1.c3`](../../../c3/g/truthful_ufp_greedy1.c3) |
 | C++ | [`cpp/g/truthful_ufp_greedy1.cpp`](../../../cpp/g/truthful_ufp_greedy1.cpp) |
 | Elisa | [`elisa/g/truthful_ufp_greedy1.elisa`](../../../elisa/g/truthful_ufp_greedy1.elisa) |
+| Mojo | [`mojo/g/truthful_ufp_greedy1.mojo`](../../../mojo/g/truthful_ufp_greedy1.mojo) (uncompiled draft) |
 | Nim | [`nim/g/truthful_ufp_greedy1.nim`](../../../nim/g/truthful_ufp_greedy1.nim) |
 | Odin | [`odin/g/truthful_ufp_greedy1.odin`](../../../odin/g/truthful_ufp_greedy1.odin) |
 | Rust | [`rust/g/truthful_ufp_greedy1.rs`](../../../rust/g/truthful_ufp_greedy1.rs) |

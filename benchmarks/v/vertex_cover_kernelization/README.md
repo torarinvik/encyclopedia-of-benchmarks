@@ -46,3 +46,5 @@ degree preprocessing; it does not copy book prose or source code.
 The exact-output oracle is `benchmarks/vertex_cover_kernelization_oracle.py`;
 the independent verifier oracle is
 `benchmarks/vertex_cover_kernelization_verifier_oracle.py`.
+
+The Mojo draft is [`mojo/v/vertex_cover_kernelization.mojo`](../../../mojo/v/vertex_cover_kernelization.mojo). The repeated bounded degree scans take O(n³ + m) time in this implementation and O(n + m) output-inclusive space.

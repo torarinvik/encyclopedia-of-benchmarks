@@ -28,6 +28,6 @@ pub unsafe extern "C" fn mmpfh_compacted_trie_rank(input:*const i64,length:usize
     let mut nodes=[Node::EMPTY;NN];let mut node_used=0;build(0,d as usize,w as usize,&keys,&mut nodes,&mut node_used);
     let mut staged=[0i64;OUT];let mut used=0;staged[used]=d;used+=1;staged[used]=node_used as i64;used+=1;staged[used]=q;used+=1;
     for node in nodes.iter().take(node_used){staged[used]=node.bit;used+=1;staged[used]=node.left;used+=1;staged[used]=node.right;used+=1;staged[used]=node.low as i64;used+=1;staged[used]=node.high as i64;used+=1;}
-    for i in 0..q as usize{staged[used]=rank_key(*input.add(3+d as usize+i) as u32,w as usize) as i64;used+=1;}
+    for i in 0..q as usize{staged[used]=rank_key(*input.add(3+d as usize+i) as u32,w as usize,&nodes) as i64;used+=1;}
     let required=used*8;if output.is_null()||capacity<required{return -2;}for i in 0..used{put(output,i*8,staged[i]);}required as i64
 }

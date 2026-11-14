@@ -4,7 +4,7 @@ fn put_i64(out: [*]u8, offset: usize, x: i64) void {
 }
 
 export fn all_distances_sketch_bottom_k(input: [*]const i64, length: usize, output: [*]u8, capacity: usize) i64 {
-    if (@intFromPtr(input)==0 or length<6 or length>104) return -1;
+    if (@intFromPtr(input)==0 or length<6 or length>194) return -1;
     const n0=input[0];const m0=input[1];const k0=input[2];const s0=input[3];
     if(n0<2 or n0>10 or m0<0 or m0>n0*(n0-1) or k0<1 or k0>n0 or s0<0 or s0>=n0)return -1;
     const n:usize=@intCast(n0);const m:usize=@intCast(m0);const k:usize=@intCast(k0);const source:usize=@intCast(s0);

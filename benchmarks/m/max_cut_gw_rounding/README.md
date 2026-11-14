@@ -16,6 +16,8 @@ coordinates and the nonzero hyperplane normal have magnitude at most 100; all
 vertex vectors must have the same nonzero squared norm. The output is
 `[cut_weight, side_0, ..., side_(n-1)]` as little-endian i64 values. Invalid
 input returns `-1`; null or undersized output returns `-2` without writing.
+For n vertices, m edges, and d dimensions, the profile takes O(nd + m) time
+and O(nd + m) space.
 
 ## Scope
 
@@ -40,6 +42,7 @@ All implementations are clean-room and use no copied book prose or code.
 | C3 | `c3/m/max_cut_gw_rounding.c3` |
 | C++ | `cpp/m/max_cut_gw_rounding.cpp` |
 | Elisa | `elisa/m/max_cut_gw_rounding.elisa` |
+| Mojo | `mojo/m/max_cut_gw_rounding.mojo` |
 | Nim | `nim/m/max_cut_gw_rounding.nim` |
 | Odin | `odin/m/max_cut_gw_rounding.odin` |
 | Rust | `rust/m/max_cut_gw_rounding.rs` |

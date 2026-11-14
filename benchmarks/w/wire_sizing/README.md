@@ -12,6 +12,9 @@ This package implements a bounded, clean-room profile of the wire-sizing quadrat
 
 The primary oracle solves the KKT faces with exact rational Gauss-Jordan elimination. The independent verifier oracle uses Cramer's rule with permutation determinants. The byte outputs are consequently checked against exact rational solutions rather than a floating-point reference. Port calculations use binary64 arithmetic; the bounded integer domain and micro-unit result projection are included to keep the suite profile reproducible. A width may receive zero length, which is the chapter's nonnegativity-boundary case.
 
+Enumerating supports and solving each KKT system takes O(2^n n³) time and
+O(n²) auxiliary space for n width choices.
+
 ## Source and rights
 
 The source is Chris Chu's “Wire Sizing” chapter, which summarizes Chu and Wong's 1999 convex-quadratic-programming formulation. The benchmark derives only the displayed objective, coefficients, and constraints; no chapter prose or upstream implementation is copied. See [`RIGHTS.md`](RIGHTS.md) for attribution and redistribution scope.
@@ -28,6 +31,7 @@ The source is Chris Chu's “Wire Sizing” chapter, which summarizes Chu and Wo
 | C3 | [`c3/w/wire_sizing.c3`](../../../c3/w/wire_sizing.c3) |
 | C++ | [`cpp/w/wire_sizing.cpp`](../../../cpp/w/wire_sizing.cpp) |
 | Elisa | [`elisa/w/wire_sizing.elisa`](../../../elisa/w/wire_sizing.elisa) |
+| Mojo | [`mojo/w/wire_sizing.mojo`](../../../mojo/w/wire_sizing.mojo) (draft; not compiled or run) |
 | Nim | [`nim/w/wire_sizing.nim`](../../../nim/w/wire_sizing.nim) |
 | Odin | [`odin/w/wire_sizing.odin`](../../../odin/w/wire_sizing.odin) |
 | Rust | [`rust/w/wire_sizing.rs`](../../../rust/w/wire_sizing.rs) |

@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 int64_t closest_substring_center(const int64_t*x,size_t len,uint8_t*out,size_t cap){
- if(!x)return -2;if(len<4||len>44)return -1;int64_t nv=x[0],mv=x[1],lv=x[2],qv=x[3];
+ if(!x)return -1;if(len<4||len>44)return -1;int64_t nv=x[0],mv=x[1],lv=x[2],qv=x[3];
  if(nv<1||nv>4||mv<1||mv>10||lv<1||lv>8||lv>mv||(qv!=2&&qv!=3)||len!=4+(size_t)nv*(size_t)mv)return -1;
  size_t n=nv,m=mv,l=lv,q=qv;for(size_t i=4;i<len;i++)if(x[i]<0||x[i]>=qv)return -1;
  size_t total=1;for(size_t i=0;i<l;i++)total*=q;size_t best=l+1,bestc[8]={0},cand[8];

@@ -16,7 +16,6 @@ int64_t graphai_frontier_sampler(const double *input,size_t length,double *outpu
     if(input[row_at]!=0||input[col_at-1]!=(double)m)return -1;
     for(size_t i=0;i<=n;++i){double x=input[row_at+i];if(trunc(x)!=x||x<0||x>m)return -1;rows[i]=(size_t)x;if(i&&rows[i]<rows[i-1])return -1;}
     for(size_t e=0;e<m;++e){double x=input[col_at+e];if(trunc(x)!=x||x<0||x>=n)return -1;cols[e]=(size_t)x;}
-    if(!output||capacity<required)return -2;
     size_t fanouts[3]={3,2,2},front_size=r,choice=0,out_at=r;
     for(size_t round=0;round<3;++round){size_t next_size=front_size*fanouts[round];
         for(size_t i=0;i<front_size;++i){size_t parent=front[i],begin=rows[parent],degree=rows[parent+1]-begin;if(degree==0)return -1;
@@ -24,5 +23,5 @@ int64_t graphai_frontier_sampler(const double *input,size_t length,double *outpu
         }
         for(size_t i=0;i<next_size;++i)front[i]=next[i];front_size=next_size;
     }
-    if(choice!=21*r||out_at!=required)return -1;for(size_t q=0;q<required;++q)output[q]=staged[q];return (int64_t)required;
+    if(choice!=21*r||out_at!=required)return -1;if(!output||capacity<required)return -2;for(size_t q=0;q<required;++q)output[q]=staged[q];return (int64_t)required;
 }

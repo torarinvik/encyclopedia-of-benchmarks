@@ -14,6 +14,7 @@ The profile covers approximate squares (the chapter’s first definition). It do
 | C3 | [`c3/a/approximate_tandem_squares.c3`](../../../c3/a/approximate_tandem_squares.c3) |
 | C++ | [`cpp/a/approximate_tandem_squares.cpp`](../../../cpp/a/approximate_tandem_squares.cpp) |
 | Elisa | [`elisa/a/approximate_tandem_squares.elisa`](../../../elisa/a/approximate_tandem_squares.elisa) |
+| Mojo | [`mojo/a/approximate_tandem_squares.mojo`](../../../mojo/a/approximate_tandem_squares.mojo) (draft, unverified) |
 | Nim | [`nim/a/approximate_tandem_squares.nim`](../../../nim/a/approximate_tandem_squares.nim) |
 | Odin | [`odin/a/approximate_tandem_squares.odin`](../../../odin/a/approximate_tandem_squares.odin) |
 | Rust | [`rust/a/approximate_tandem_squares.rs`](../../../rust/a/approximate_tandem_squares.rs) |

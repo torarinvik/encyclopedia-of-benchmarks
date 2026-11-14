@@ -10,6 +10,10 @@ The solver follows the source's reduction schedule and shifted QR recurrence, in
 
 The workload has diagonal and single-coupling matrices with hand-solvable spectra for every supported order, plus a three-by-three quantized source-shaped Gaussian-band matrix. The independent Python oracle uses cyclic Jacobi rotations rather than the source's Givens reduction and shifted QR.
 
+For matrix order `n` and up to `S = 4096` QR sweeps, the bounded implementation
+uses `O(n³ + S n)` time and `O(n²)` space. The [Mojo draft](../../../mojo/m/mccat_05_eks.mojo)
+implements the same reduction and iteration schedule; it is uncompiled and unrun.
+
 ## Pinned source and notice
 
 Source: [`McCat/05-eks`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/05-eks) in `lac-dcc/Benchmarks`, commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The source files identify Mikkel Damsgaard as author and retain this distribution notice:

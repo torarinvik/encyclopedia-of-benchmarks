@@ -16,13 +16,18 @@ count.
   10,000,000 iterations; this package exposes the smaller compile-time profile
   as a bounded input domain.
 - The six tasks retain source priorities, list insertion order, packet queue
-  ordering, state-bit transitions, strict priority preemption on an empty
+  FIFO ordering, state-bit transitions, strict priority preemption on an empty
   queue, and worker/device/handler callbacks. The initial two work packets and
   six device packets are reused through the bounded scheduler.
 - The result is `qpkt_count * 2^31 + hold_count`, preserving both source
   counters, which use signed `int` fields. The source's small-problem profile
   gives 2,326,389 queue packets and 930,555 holds.
 - Invalid array length or iteration bounds return `-1`.
+
+For `D` scheduler dispatches, the bounded implementation takes `O(D)` time:
+its six tasks and eight packets make each queue scan constant-sized. It uses
+`O(1)` space for this fixed profile. The number of dispatches depends on the
+packet and hold transitions induced by the idle count.
 
 The independent [Python oracle](../../richards_benchmark_oracle.py) represents
 packet links with integer indices and simulates the scheduler transitions.
@@ -38,6 +43,7 @@ upstream source text.
 
 - [Pinned C source](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/richards_benchmark/richards_benchmark.c)
 - [Pinned launcher](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/richards_benchmark/info.sh)
+- [Pinned package directory](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/richards_benchmark)
 
 ## Language ports
 
@@ -47,8 +53,11 @@ upstream source text.
 | C3 | [c3/r/richards_benchmark.c3](../../../c3/r/richards_benchmark.c3) |
 | C++ | [cpp/r/richards_benchmark.cpp](../../../cpp/r/richards_benchmark.cpp) |
 | Elisa | [elisa/r/richards_benchmark.elisa](../../../elisa/r/richards_benchmark.elisa) |
+| Mojo | [mojo/r/richards_benchmark.mojo](../../../mojo/r/richards_benchmark.mojo) |
 | Nim | [nim/r/richards_benchmark.nim](../../../nim/r/richards_benchmark.nim) |
 | Odin | [odin/r/richards_benchmark.odin](../../../odin/r/richards_benchmark.odin) |
 | Rust | [rust/r/richards_benchmark.rs](../../../rust/r/richards_benchmark.rs) |
 | V | [v/r/richards_benchmark.v](../../../v/r/richards_benchmark.v) |
 | Zig | [zig/r/richards_benchmark.zig](../../../zig/r/richards_benchmark.zig) |
+
+The Mojo draft and ten-language source-presence check have not been compiled or run.

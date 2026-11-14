@@ -26,6 +26,7 @@ not Karger's complete minimum-cut algorithm.
 | C3 | `c3/r/randomized_contraction_edge_sampling.c3` |
 | C++ | `cpp/r/randomized_contraction_edge_sampling.cpp` |
 | Elisa | `elisa/r/randomized_contraction_edge_sampling.elisa` |
+| Mojo | `mojo/r/randomized_contraction_edge_sampling.mojo` |
 | Nim | `nim/r/randomized_contraction_edge_sampling.nim` |
 | Odin | `odin/r/randomized_contraction_edge_sampling.odin` |
 | Rust | `rust/r/randomized_contraction_edge_sampling.rs` |

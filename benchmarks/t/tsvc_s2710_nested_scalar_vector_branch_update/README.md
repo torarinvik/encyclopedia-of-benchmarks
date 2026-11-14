@@ -35,3 +35,4 @@ The independent oracle is [`benchmarks/tsvc_s2710_nested_scalar_vector_branch_up
 | Rust | [`tsvc_s2710_nested_scalar_vector_branch_update.rs`](../../../rust/t/tsvc_s2710_nested_scalar_vector_branch_update.rs) |
 | V | [`tsvc_s2710_nested_scalar_vector_branch_update.v`](../../../v/t/tsvc_s2710_nested_scalar_vector_branch_update.v) |
 | Zig | [`tsvc_s2710_nested_scalar_vector_branch_update.zig`](../../../zig/t/tsvc_s2710_nested_scalar_vector_branch_update.zig) |
+| Mojo | [`tsvc_s2710_nested_scalar_vector_branch_update.mojo`](../../../mojo/t/tsvc_s2710_nested_scalar_vector_branch_update.mojo) |

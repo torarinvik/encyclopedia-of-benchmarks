@@ -31,3 +31,5 @@ The operation checks the six P1 permutations in source order. A matching triple 
 | Rust | [`rust/n/nsichneu.rs`](../../../rust/n/nsichneu.rs) |
 | V | [`v/n/nsichneu.v`](../../../v/n/nsichneu.v) |
 | Zig | [`zig/n/nsichneu.zig`](../../../zig/n/nsichneu.zig) |
+
+The Mojo draft is [`mojo/n/nsichneu.mojo`](../../../mojo/n/nsichneu.mojo). For R runs, the fixed transition enumeration takes O(R) time and O(1) bounded space.

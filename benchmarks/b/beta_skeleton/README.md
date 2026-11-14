@@ -37,6 +37,9 @@ predicates and a direct pair scan rather than ParGeo's Delaunay/KD-tree
 acceleration. The pinned repository uses the MIT License; the complete notice
 is bundled in [`LICENSE.txt`](LICENSE.txt).
 
+The direct implementation uses `O(n^3)` time in the worst case and `O(n^2)`
+space for the staged edge output.
+
 ## Ports
 
 | Language | Port |
@@ -45,6 +48,7 @@ is bundled in [`LICENSE.txt`](LICENSE.txt).
 | C3 | [`c3/b/beta_skeleton.c3`](../../../c3/b/beta_skeleton.c3) |
 | C++ | [`cpp/b/beta_skeleton.cpp`](../../../cpp/b/beta_skeleton.cpp) |
 | Elisa | [`elisa/b/beta_skeleton.elisa`](../../../elisa/b/beta_skeleton.elisa) |
+| Mojo | [`mojo/b/beta_skeleton.mojo`](../../../mojo/b/beta_skeleton.mojo) |
 | Nim | [`nim/b/beta_skeleton.nim`](../../../nim/b/beta_skeleton.nim) |
 | Odin | [`odin/b/beta_skeleton.odin`](../../../odin/b/beta_skeleton.odin) |
 | Rust | [`rust/b/beta_skeleton.rs`](../../../rust/b/beta_skeleton.rs) |

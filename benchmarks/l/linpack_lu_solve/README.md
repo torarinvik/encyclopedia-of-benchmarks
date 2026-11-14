@@ -8,6 +8,8 @@ Input is `[n, A, b]`, where `n` is 2 through 4, `A` is in the source's column-ma
 
 The profile executes the rolled `dgefa` path with `lda=n`, including `idamax` partial pivot search, row swaps, multiplier scaling, and `daxpy_r` elimination. It then runs rolled `dgesl` with `job=0` to solve `A*x=b`. Equal-magnitude pivot candidates keep the first index, matching upstream `idamax`'s strict-greater comparison. A nonzero `info` or zero diagonal is invalid. The returned scalar is `sum((i+1)*x[i])` in solution order. Invalid or null input returns `-1e300`; compare with absolute tolerance `1e-10` and relative tolerance `1e-12`.
 
+For an n-by-n matrix, factorization takes O(n³) time and the solve takes O(n²); the stored factors use O(n²) space.
+
 ## Upstream attribution and terms
 
 The implementation is based on ANSIbench [`linpack/src/linpack.c`](https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/linpack/src/linpack.c), pinned at commit `ef90abd09d7b7bb1f2809f896d6f67fb9724bebe`. The source identifies the Netlib LINPACK benchmark as public domain, credits Bonnie Toy's 1988 C translation and Will Menninger's 1993 modifications, and states that ict@nfinit.systems' 2018 and 2022 modifications are public domain. This bounded profile is independently implemented; see [LICENSE](LICENSE) for the upstream notice.
@@ -18,6 +20,7 @@ The implementation is based on ANSIbench [`linpack/src/linpack.c`](https://githu
 | C3 | [`c3/l/linpack_lu_solve.c3`](../../../c3/l/linpack_lu_solve.c3) |
 | C++ | [`cpp/l/linpack_lu_solve.cpp`](../../../cpp/l/linpack_lu_solve.cpp) |
 | Elisa | [`elisa/l/linpack_lu_solve.elisa`](../../../elisa/l/linpack_lu_solve.elisa) |
+| Mojo | [`mojo/l/linpack_lu_solve.mojo`](../../../mojo/l/linpack_lu_solve.mojo) (draft; not compiled or run) |
 | Nim | [`nim/l/linpack_lu_solve.nim`](../../../nim/l/linpack_lu_solve.nim) |
 | Odin | [`odin/l/linpack_lu_solve.odin`](../../../odin/l/linpack_lu_solve.odin) |
 | Rust | [`rust/l/linpack_lu_solve.rs`](../../../rust/l/linpack_lu_solve.rs) |

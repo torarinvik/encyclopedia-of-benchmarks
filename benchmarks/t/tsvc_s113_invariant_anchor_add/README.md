@@ -23,3 +23,5 @@ Source is `s113` in `TSVC/tsc.inc`, lines 952–975, pinned to LAC-DCC
 [`Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc#L952). It is selected by `TSVC/LinearDependence-dbl/info.sh` (`3570 14`; float `3570 5`). TSVC codelet comments attribute this collection to David Callahan, Jack Dongarra, and David Levine.
 
 No explicit redistribution grant was found in the pinned source/repository material reviewed. The ports are independent clean-room implementations and reuse no upstream code or comments; no upstream license or endorsement is claimed. See [LICENSE.txt](LICENSE.txt).
+
+The optional [Mojo port](../../../mojo/t/tsvc_s113_invariant_anchor_add.mojo) is a draft and has not been compiled or run.

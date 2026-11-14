@@ -31,7 +31,7 @@
     "maximum_valid_result": 998244352,
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Represent the recurrence generating function as P(x)/Q(x), multiply numerator and denominator by Q(-x), retain coefficients with parity k mod 2 in the numerator and even coefficients in the denominator, then halve k. Use direct polynomial convolution at the bounded order.",
     "independent_oracle": "Raise the recurrence companion matrix to the required power by binary exponentiation.",
     "primary_complexity": "O(d^2 log(k+1)) time and O(d) space.",

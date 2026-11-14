@@ -28,6 +28,10 @@ the first containing candidate at each descent. Structural validation tests
 are excluded from the count. Malformed inputs return `-1`; null output or
 capacity below 16 returns `-2` without writing.
 
+Static review added a coordinate-frame length check to the nine existing
+ports before reading vertex coordinates. The Mojo draft also checks the frame
+before reading coordinates. These changes are uncompiled and unexecuted.
+
 This is a bounded supplied-hierarchy query profile, not a measurement of
 Kirkpatrick hierarchy construction or its preprocessing bounds. The primary
 oracle checks triangle intersections by edge/vertex tests; the independent
@@ -39,6 +43,7 @@ verifier uses separating-axis overlap checks and area-sum containment.
 | C3 | `c3/k/kirkpatrick_hierarchical_point_location.c3` |
 | C++ | `cpp/k/kirkpatrick_hierarchical_point_location.cpp` |
 | Elisa | `elisa/k/kirkpatrick_hierarchical_point_location.elisa` |
+| Mojo | `mojo/k/kirkpatrick_hierarchical_point_location.mojo` |
 | Nim | `nim/k/kirkpatrick_hierarchical_point_location.nim` |
 | Odin | `odin/k/kirkpatrick_hierarchical_point_location.odin` |
 | Rust | `rust/k/kirkpatrick_hierarchical_point_location.rs` |

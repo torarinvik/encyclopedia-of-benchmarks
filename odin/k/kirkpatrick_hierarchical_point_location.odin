@@ -21,6 +21,7 @@ kirkpatrick_hierarchical_point_location :: proc "c" (input:[^]i64,length:c.size_
     nv:=input[0];nl:=input[1];qx:=input[2];qy:=input[3]
     if nv<3||nv>MAX_VERTICES||nl<1||nl>MAX_LEVELS||qx< -1000||qx>1000||qy< -1000||qy>1000 do return -1
     n:=int(nv);levels:=int(nl)
+    if length<c.size_t(4+2*n) do return -1
     length_i:=int(length)
     xy:[MAX_VERTICES*2]i64={};faces:[MAX_LEVELS*MAX_FACES*3]i64={};fc:[MAX_LEVELS]int={};cc:[MAX_LEVELS*MAX_FACES]int={};ids:[MAX_LEVELS*MAX_FACES*MAX_FACES]int={}
     pos:=4

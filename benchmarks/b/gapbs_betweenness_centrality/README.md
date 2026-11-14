@@ -39,6 +39,8 @@ parallel scheduling, source sampling, or command-line output.
 
 ## Source and rights
 
+The [Mojo draft](../../../mojo/b/gapbs_betweenness_centrality.mojo) follows the same ordered BFS and binary32 storage rules; it has not been compiled or run.
+
 Behavior reference: [`src/bc.cc::PBFS` and `Brandes`](https://github.com/sbeamer/gapbs/blob/b5e3e19c2845f22fb338f4a4bc4b1ccee861d026/src/bc.cc), pinned to GAPBS commit
 `b5e3e19c2845f22fb338f4a4bc4b1ccee861d026`. The ports are independent
 implementations of the algorithm and do not copy upstream source text or

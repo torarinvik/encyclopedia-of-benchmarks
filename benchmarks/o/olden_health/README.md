@@ -25,8 +25,12 @@ The static workload is [`workload.json`](workload.json); the independent oracle 
 | C3 | [`c3/o/olden_health.c3`](../../../c3/o/olden_health.c3) |
 | C++ | [`cpp/o/olden_health.cpp`](../../../cpp/o/olden_health.cpp) |
 | Elisa | [`elisa/o/olden_health.elisa`](../../../elisa/o/olden_health.elisa) |
+| Mojo | [`mojo/o/olden_health.mojo`](../../../mojo/o/olden_health.mojo) |
 | Nim | [`nim/o/olden_health.nim`](../../../nim/o/olden_health.nim) |
 | Odin | [`odin/o/olden_health.odin`](../../../odin/o/olden_health.odin) |
 | Rust | [`rust/o/olden_health.rs`](../../../rust/o/olden_health.rs) |
 | V | [`v/o/olden_health.v`](../../../v/o/olden_health.v) |
 | Zig | [`zig/o/olden_health.zig`](../../../zig/o/olden_health.zig) |
+
+The Mojo draft and ten-language runner source-presence check have not been
+compiled or run.

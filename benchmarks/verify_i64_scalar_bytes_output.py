@@ -718,6 +718,9 @@ def corpus(workload: dict) -> tuple[str, int]:
             encoding="utf-8")
         if source_url not in readme or launcher_url not in readme:
             raise ValueError("McGill MISR README is missing its pinned source or launcher link")
+        mojo_source = ROOT / "mojo" / "m" / "mcgill_misr.mojo"
+        if not mojo_source.is_file() or '@export("mcgill_misr")' not in mojo_source.read_text(encoding="utf-8"):
+            raise ValueError("McGill MISR Mojo draft or exported symbol is missing")
     elif encoding == "shootout_hello_stdout_ascii":
         source_url = (
             "https://github.com/lac-dcc/Benchmarks/blob/"
@@ -1126,6 +1129,12 @@ def corpus(workload: dict) -> tuple[str, int]:
             encoding="utf-8")
         if source_url not in readme or launcher_url not in readme:
             raise ValueError("shootout_methcall README is missing its pinned source or launcher link")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "s" / f"shootout_methcall.{extension}"
+            if not source.is_file() or "shootout_methcall" not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"Shootout method-call port missing: {source}")
         fixtures = {case["id"]: case for case in cases}
         for case_id, calls in (("zero_calls", 0), ("one_call", 1), ("two_calls", 2),
                                ("nth_toggle_first_flip", 3), ("nth_toggle_after_reset", 4),
@@ -1237,6 +1246,21 @@ def corpus(workload: dict) -> tuple[str, int]:
             encoding="utf-8")
         if source_url not in readme or launcher_url not in readme:
             raise ValueError("shootout_objinst README is missing its pinned source or launcher link")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "s" / f"shootout_objinst.{extension}"
+            if not source.is_file() or "shootout_objinst" not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"Shootout object-instantiation port missing: {source}")
+        helper = ROOT / "benchmarks" / "s" / "shootout_objinst" / "observe_object.c"
+        if not helper.is_file():
+            raise ValueError("Shootout object-instantiation observer is missing")
+        helper_text = helper.read_text(encoding="utf-8")
+        if any(symbol not in helper_text for symbol in (
+                "benchmark_observe_object", "benchmark_allocate_toggle", "benchmark_release_toggle",
+                "benchmark_observe_toggle", "benchmark_allocate_nth_toggle",
+                "benchmark_release_nth_toggle", "benchmark_observe_nth_toggle")):
+            raise ValueError("Shootout object-instantiation helper symbols are missing")
         fixtures = {case["id"]: case for case in cases}
         for case_id, n in (("negative_n_skips_constructor_loops", SHOOTOUT_OBJINST_MIN_N),
                            ("zero_n_fixed_dispatch_output", 0),
@@ -1568,6 +1592,12 @@ def corpus(workload: dict) -> tuple[str, int]:
             encoding="utf-8")
         if source_url not in readme or launcher_url not in readme:
             raise ValueError("almabench README is missing its pinned source or launcher link")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            source = ROOT / language / "a" / f"almabench.{extension}"
+            if not source.is_file() or "almabench" not in source.read_text(encoding="utf-8"):
+                raise ValueError(f"Almabench port missing: {source}")
         fixtures = {case["id"]: case for case in cases}
         for case_id, days in (("first_day", 1), ("second_day", 2),
                               ("small_problem_size_default", 3652), ("launcher_default", 36525)):
@@ -1845,10 +1875,15 @@ def corpus(workload: dict) -> tuple[str, int]:
         license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
         if (source_url not in readme or launcher_url not in readme
                 or "elisa/h/huffbench.elisa" not in readme
+                or "mojo/h/huffbench.mojo" not in readme
                 or "zig/h/huffbench.zig" not in readme
                 or "No rights reserved. This is public domain software, for use by anyone." not in license_text
                 or "Scott Robert Ladd" not in license_text):
             raise ValueError("huffbench README or public-domain attribution is incomplete")
+        mojo_source = ROOT / "mojo" / "h" / "huffbench.mojo"
+        if (not mojo_source.is_file()
+                or '@export("coyote_huffbench")' not in mojo_source.read_text(encoding="utf-8")):
+            raise ValueError("huffbench Mojo source or exported symbol is missing")
         fixtures = {case["id"]: case for case in cases}
         for case_id, passes in (("one_round", 1), ("two_rounds", 2),
                                 ("pinned_launcher_round_count", HUFFBENCH_MAX_PASSES),
@@ -1956,7 +1991,8 @@ def corpus(workload: dict) -> tuple[str, int]:
             add(value, required - 1)
             add(value, SHOOTOUT_STRCAT_MAX_OUTPUT_BYTES, output_is_null=True)
     elif encoding == "shootout_methcall_stdout_ascii":
-        for value in (SHOOTOUT_METHCALL_MIN_CALLS, -1, 0, 1, 2, 3, 4, 6,
+        for value in (SHOOTOUT_METHCALL_MIN_CALLS, -1, 0, 1, 2, 3, 4, 5, 6,
+                      7, 8, 9, 10, 11, 12,
                       SHOOTOUT_METHCALL_MAX_CALLS):
             add(value)
         for value in (SHOOTOUT_METHCALL_MIN_CALLS - 1,
@@ -2042,7 +2078,7 @@ def corpus(workload: dict) -> tuple[str, int]:
             add(value, STREAM_SIEVE_MAX_OUTPUT_BYTES, output_is_null=True)
         add(STREAM_SIEVE_MIN_COUNT - 1, 0, output_is_null=True)
     elif encoding == "huffbench_summary_ascii":
-        for value in (HUFFBENCH_MIN_PASSES, 2, 3, 17, 29, HUFFBENCH_MAX_PASSES,
+        for value in (HUFFBENCH_MIN_PASSES, 2, 3, 9, 10, 11, 17, 19, 20, 21, 29, HUFFBENCH_MAX_PASSES,
                       0, -1, HUFFBENCH_MAX_PASSES + 1, I64_MIN, I64_MAX):
             add(value)
         for value in (HUFFBENCH_MIN_PASSES, 2, HUFFBENCH_MAX_PASSES):

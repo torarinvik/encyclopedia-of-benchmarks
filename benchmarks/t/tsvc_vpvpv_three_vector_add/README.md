@@ -31,3 +31,5 @@ Independent oracle: [`benchmarks/tsvc_vpvpv_three_vector_add_oracle.py`](../../t
 
 C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig ports are provided under their
 respective `t/` directories; each exports the symbol above.
+
+The optional [Mojo port](../../../mojo/t/tsvc_vpvpv_three_vector_add.mojo) is a draft and has not been compiled or run.

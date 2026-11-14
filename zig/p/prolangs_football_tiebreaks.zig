@@ -55,6 +55,7 @@ fn refine(v: [*]const i64, n: usize, order: *[8]usize, lo: usize, hi: usize,
             const previous = scoreFor(v, n, order, lo, hi, order[j - 1], stage, same_div);
             if (compare(item_score, previous) <= 0) break;
             order[j] = order[j - 1];
+            order[j - 1] = item;
             j -= 1;
         }
         order[j] = item;

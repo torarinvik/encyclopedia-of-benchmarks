@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "sticky-sampling-summary-i64-array-bytes-output-v1",
+  "algorithm": "sticky_sampling_summary",
+  "function_symbol": "sticky_sampling_summary",
+  "abi": "i64_array_bytes_output",
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[t,n,k,items[n],draws[k]]", "maximum_valid_length": 323, "maximum_parseable_length": 324, "invalid_input_result": -1},
+  "output": {"encoding": "little-endian i64 [count,(item,estimate)*count]", "maximum_bytes": 264, "invalid_input_result": -1, "output_error_result": -2, "output_untouched_on_error": true},
+  "workspace": {"bytes": 264, "meaning": "Maximum serialized snapshot."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 5},
+  "source": {"url": "https://www.vldb.org/conf/2002/S10P03.pdf", "reuse": "Algorithmic idea only; independently authored code and fixtures."},
+  "cases": [
+    {"id": "empty", "input_values": [1,0,0], "input_length": 3, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "single", "input_values": [1,1,1,5,7], "input_length": 5, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "010000000000000005000000000000000100000000000000"},
+    {"id": "thin_then_reject", "input_values": [1,3,4,0,0,1,9,0,1,1], "input_length": 10, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "010000000000000000000000000000000100000000000000"},
+    {"id": "delete_then_reinsert", "input_values": [1,3,4,0,0,0,9,0,0,0], "input_length": 10, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "010000000000000000000000000000000100000000000000"},
+    {"id": "thinning_item_order", "input_values": [1,3,5,1,0,2,0,0,0,1,0], "input_length": 11, "output_capacity": 40, "expected_result": 40, "expected_output_hex": "02000000000000000100000000000000010000000000000002000000000000000100000000000000"},
+    {"id": "insufficient_draws", "input_values": [1,3,1,0,0,1,9], "input_length": 7, "output_capacity": 264, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "unused_draw", "input_values": [1,1,2,5,7,8], "input_length": 6, "output_capacity": 264, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_draw_before_output", "input_values": [1,1,1,5,256], "input_length": 5, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output", "input_values": [1,0,0], "input_length": 3, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [1,0,0], "input_length": 3, "output_capacity": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 3, "input_is_null": true, "output_capacity": 264, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

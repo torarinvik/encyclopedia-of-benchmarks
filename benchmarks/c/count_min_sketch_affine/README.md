@@ -20,6 +20,7 @@ This deterministic bounded profile does not claim a probabilistic error guarante
 | C3 | [`c3/c/count_min_sketch_affine.c3`](../../../c3/c/count_min_sketch_affine.c3) |
 | C++ | [`cpp/c/count_min_sketch_affine.cpp`](../../../cpp/c/count_min_sketch_affine.cpp) |
 | Elisa | [`elisa/c/count_min_sketch_affine.elisa`](../../../elisa/c/count_min_sketch_affine.elisa) |
+| Mojo | [`mojo/c/count_min_sketch_affine.mojo`](../../../mojo/c/count_min_sketch_affine.mojo) |
 | Nim | [`nim/c/count_min_sketch_affine.nim`](../../../nim/c/count_min_sketch_affine.nim) |
 | Odin | [`odin/c/count_min_sketch_affine.odin`](../../../odin/c/count_min_sketch_affine.odin) |
 | Rust | [`rust/c/count_min_sketch_affine.rs`](../../../rust/c/count_min_sketch_affine.rs) |

@@ -12,6 +12,10 @@ This benchmark follows the pinned Python implementation of recursive merge sort 
 
 The workload covers empty/singleton lists, two-node and odd/even splits, already sorted and interleaved inputs, signed 32-bit boundaries, duplicate-key rejection, maximum size, and exact, short, null, and empty output-buffer cases. The independent [oracle](../merge_sort_linked_list_oracle.py) checks the serialized values and ABI statuses.
 
+The merge sort takes O(n log n) time, with O(n) worst-case recursion depth for
+the recursive merge. Duplicate validation uses O(n²) time; the adapter stores
+O(n) nodes.
+
 ## Pinned source
 
 [TheAlgorithms/Python `merge_sort_linked_list.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/linked_list/merge_sort_linked_list.py) at commit `e1a2a8b016001309a73d5fec4818c35cca139795`.
@@ -24,6 +28,7 @@ The workload covers empty/singleton lists, two-node and odd/even splits, already
 | C3 | [c3/m/merge_sort_linked_list.c3](../../c3/m/merge_sort_linked_list.c3) |
 | C++ | [cpp/m/merge_sort_linked_list.cpp](../../cpp/m/merge_sort_linked_list.cpp) |
 | Elisa | [elisa/m/merge_sort_linked_list.elisa](../../elisa/m/merge_sort_linked_list.elisa) |
+| Mojo | [mojo/m/merge_sort_linked_list.mojo](../../mojo/m/merge_sort_linked_list.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/merge_sort_linked_list.nim](../../nim/m/merge_sort_linked_list.nim) |
 | Odin | [odin/m/merge_sort_linked_list.odin](../../odin/m/merge_sort_linked_list.odin) |
 | Rust | [rust/m/merge_sort_linked_list.rs](../../rust/m/merge_sort_linked_list.rs) |

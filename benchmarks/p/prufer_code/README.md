@@ -11,6 +11,10 @@ The `i64_array_bytes_output` input is `[mode, vertex_count, payload...]`, with c
 
 The maximum valid input is 128 i64 values; the parser cap is 129. Maximum output/workspace is 1,016 bytes for 64 vertices. Invalid mode, framing, labels, tree, or code returns `-1`. For nonempty output, a null pointer or short capacity returns `-2` without writes. Success returns bytes written.
 
+The Mojo draft uses a dense adjacency matrix and repeated linear scans: encoding
+takes O(n²) time and O(n²) auxiliary space; decoding takes O(n²) time and O(n)
+auxiliary space. Its draft has not been compiled or run.
+
 The pinned source is TheAlgorithms/Rust, commit `650541d6244016117121870a3e672157bb65005d`, path `src/graph/prufer_code.rs`. See the [pinned source](https://github.com/TheAlgorithms/Rust/blob/650541d6244016117121870a3e672157bb65005d/src/graph/prufer_code.rs), [workload](workload.json), and [oracle](../../prufer_code_oracle.py).
 
 | Language | Port |
@@ -19,6 +23,7 @@ The pinned source is TheAlgorithms/Rust, commit `650541d6244016117121870a3e67215
 | C3 | ../../../c3/p/prufer_code.c3 |
 | C++ | ../../../cpp/p/prufer_code.cpp |
 | Elisa | ../../../elisa/p/prufer_code.elisa |
+| Mojo | ../../../mojo/p/prufer_code.mojo |
 | Nim | ../../../nim/p/prufer_code.nim |
 | Odin | ../../../odin/p/prufer_code.odin |
 | Rust | ../../../rust/p/prufer_code.rs |

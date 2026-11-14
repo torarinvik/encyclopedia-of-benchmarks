@@ -1,0 +1,48 @@
+extern log(value: f64) -> f64
+extern log1p(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def hyperloglog_corrected_estimate_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 130: return -1
+    values: view[i64] = input[0:length]
+    raw: i64 = values[0]
+    if raw < 0 or raw > 128: return -1
+    n: usize = raw.usize()
+    if length != n + 1: return -1
+    registers: mutable usize[16] = zeroed
+    for i in 0..<n:
+        value: i64 = values[i + 1]
+        if value < 0 or value > 4294967295: return -1
+        hash: u64 = value.u64()
+        bucket: usize = (hash >> 28).usize()
+        suffix: u64 = hash & 268435455
+        rank: mutable usize = 1
+        mask: mutable u64 = 1.u64() << 27
+        while mask != 0 and (suffix & mask) == 0:
+            rank <- rank + 1
+            mask <- mask >> 1
+        if rank > registers[bucket]: registers[bucket] <- rank
+    sum: mutable u64 = 0
+    zeros: mutable usize = 0
+    for i in 0..<16:
+        sum <- sum + (1.u64() << (29 - registers[i]))
+        if registers[i] == 0: zeros <- zeros + 1
+    estimate: mutable f64 = (673.0 * 256.0 * 536870912.0) / (1000.0 * sum.f64())
+    universe: f64 = 4294967296.0
+    if estimate <= 40.0 and zeros != 0:
+        estimate <- 16.0 * log(16.0 / zeros.f64())
+    elif estimate > universe / 30.0:
+        if estimate >= universe: return -3
+        estimate <- -universe * log1p(-estimate / universe)
+    if output.is_null() or capacity < 8: return -2
+    target: mutable view[u8] = output[0:8]
+    bits: mutable u64 = 0
+    memcpy(&bits, &estimate, 8)
+    for i in 0..<8:
+        target[i] <- (bits & 255).u8()
+        bits <- bits >> 8
+    8
+
+export fn hyperloglog_corrected_estimate(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = hyperloglog_corrected_estimate_impl

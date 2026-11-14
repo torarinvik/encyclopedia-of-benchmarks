@@ -44,6 +44,7 @@ The repository is MIT licensed. The full notice is retained in
 | C3 | [c3/g/gbbs_five_cycle_count.c3](../../../c3/g/gbbs_five_cycle_count.c3) |
 | C++ | [cpp/g/gbbs_five_cycle_count.cpp](../../../cpp/g/gbbs_five_cycle_count.cpp) |
 | Elisa | [elisa/g/gbbs_five_cycle_count.elisa](../../../elisa/g/gbbs_five_cycle_count.elisa) |
+| Mojo | [mojo/g/gbbs_five_cycle_count.mojo](../../../mojo/g/gbbs_five_cycle_count.mojo) |
 | Nim | [nim/g/gbbs_five_cycle_count.nim](../../../nim/g/gbbs_five_cycle_count.nim) |
 | Odin | [odin/g/gbbs_five_cycle_count.odin](../../../odin/g/gbbs_five_cycle_count.odin) |
 | Rust | [rust/g/gbbs_five_cycle_count.rs](../../../rust/g/gbbs_five_cycle_count.rs) |

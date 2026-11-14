@@ -74,3 +74,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s274_dependent_conditional_overwrite.rs`](../../../rust/t/tsvc_s274_dependent_conditional_overwrite.rs) |
 | V | [`tsvc_s274_dependent_conditional_overwrite.v`](../../../v/t/tsvc_s274_dependent_conditional_overwrite.v) |
 | Zig | [`tsvc_s274_dependent_conditional_overwrite.zig`](../../../zig/t/tsvc_s274_dependent_conditional_overwrite.zig) |
+| Mojo | [`tsvc_s274_dependent_conditional_overwrite.mojo`](../../../mojo/t/tsvc_s274_dependent_conditional_overwrite.mojo) (draft, unverified) |

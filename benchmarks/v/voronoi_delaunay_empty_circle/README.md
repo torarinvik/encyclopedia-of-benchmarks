@@ -41,3 +41,5 @@ No chapter prose or source code is copied.
 
 Primary oracle: `benchmarks/voronoi_delaunay_empty_circle_oracle.py`.
 Independent verifier oracle: `benchmarks/voronoi_delaunay_empty_circle_verifier_oracle.py`.
+
+The Mojo draft is [`mojo/v/voronoi_delaunay_empty_circle.mojo`](../../../mojo/v/voronoi_delaunay_empty_circle.mojo). Exhaustive triple and site enumeration takes O(n⁴) time and O(n²) output-inclusive space.

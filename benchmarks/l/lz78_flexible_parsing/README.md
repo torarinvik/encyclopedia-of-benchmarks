@@ -71,6 +71,7 @@ Primary and independent verifier oracles:
 | C3 | [`c3/l/lz78_flexible_parsing.c3`](../../../c3/l/lz78_flexible_parsing.c3) |
 | C++ | [`cpp/l/lz78_flexible_parsing.cpp`](../../../cpp/l/lz78_flexible_parsing.cpp) |
 | Elisa | [`elisa/l/lz78_flexible_parsing.elisa`](../../../elisa/l/lz78_flexible_parsing.elisa) |
+| Mojo | [`mojo/l/lz78_flexible_parsing.mojo`](../../../mojo/l/lz78_flexible_parsing.mojo) |
 | Nim | [`nim/l/lz78_flexible_parsing.nim`](../../../nim/l/lz78_flexible_parsing.nim) |
 | Odin | [`odin/l/lz78_flexible_parsing.odin`](../../../odin/l/lz78_flexible_parsing.odin) |
 | Rust | [`rust/l/lz78_flexible_parsing.rs`](../../../rust/l/lz78_flexible_parsing.rs) |

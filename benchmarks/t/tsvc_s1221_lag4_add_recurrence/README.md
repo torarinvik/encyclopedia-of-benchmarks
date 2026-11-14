@@ -40,3 +40,4 @@ The local TSVC first- and second-order recurrence packages depend on the precedi
 | Rust | [`tsvc_s1221_lag4_add_recurrence.rs`](../../../rust/t/tsvc_s1221_lag4_add_recurrence.rs) |
 | V | [`tsvc_s1221_lag4_add_recurrence.v`](../../../v/t/tsvc_s1221_lag4_add_recurrence.v) |
 | Zig | [`tsvc_s1221_lag4_add_recurrence.zig`](../../../zig/t/tsvc_s1221_lag4_add_recurrence.zig) |
+| Mojo | [`tsvc_s1221_lag4_add_recurrence.mojo`](../../../mojo/t/tsvc_s1221_lag4_add_recurrence.mojo) (draft, unverified) |

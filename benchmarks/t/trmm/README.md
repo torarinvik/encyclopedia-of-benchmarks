@@ -8,6 +8,8 @@ The `float64_slice_io` symbol is `trmm(input, input_length, output, output_capac
 
 Malformed dimensions return -1. A null or undersized output returns -2. Validation precedes capacity checks and implementations stage results before writing. Maximum output is 64 doubles. The numeric-vector contract preserves source arithmetic order; it does not serialize PolyBench's `%0.2lf` dump formatting.
 
+Initialization and multiplication take O(m²n + m²) time and O(m² + mn) space.
+
 ## Workload and oracle
 
 [`workload.json`](workload.json) covers unit, rectangular, and maximum bounded dimensions, invalid dimensions, null output, and insufficient capacity. [`benchmarks/trmm_oracle.py`](../../trmm_oracle.py) independently initializes and evaluates the source recurrence.
@@ -20,6 +22,7 @@ Malformed dimensions return -1. A null or undersized output returns -2. Validati
 | C3 | [c3/t/trmm.c3](../../../c3/t/trmm.c3) |
 | C++ | [cpp/t/trmm.cpp](../../../cpp/t/trmm.cpp) |
 | Elisa | [elisa/t/trmm.elisa](../../../elisa/t/trmm.elisa) |
+| Mojo | [mojo/t/trmm.mojo](../../../mojo/t/trmm.mojo) (draft; not compiled or run) |
 | Nim | [nim/t/trmm.nim](../../../nim/t/trmm.nim) |
 | Odin | [odin/t/trmm.odin](../../../odin/t/trmm.odin) |
 | Rust | [rust/t/trmm.rs](../../../rust/t/trmm.rs) |

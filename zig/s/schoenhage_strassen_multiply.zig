@@ -97,6 +97,7 @@ fn ssIfft(a: [*]i64, l: usize, m: usize, buf: [*]i64) void {
             if (w < 0) w += 2 * @as(i32, @intCast(block));
         }
     }
+    for (0..len * block) |i| a[i] = @divTrunc(a[i], @as(i64, @intCast(len)));
 }
 
 fn ssNaive(a: [*]i64, b: [*]const i64, n: usize, buf: [*]i64) void {
@@ -131,22 +132,21 @@ fn ssMul(a: [*]i64, b: [*]const i64, n: usize, buf: [*]i64) void {
     for (0..len) |i| ssMul(&aa[i * block * 2], &bb[i * block * 2], m + 1, buf);
     ssIfft(&aa[0], l, m + 1, buf);
     for (0..len) |i| {
-        const s = i * (2 * block / len);
+        const s = (4 * block - (i * (2 * block / len)) % (4 * block)) % (4 * block);
         ssCopy(buf, &aa[i * block * 2], 2 * block);
         ssRot(&aa[i * block * 2], buf, 2 * block, s);
     }
     for (0..len) |i| {
         for (0..block) |j| {
             const index = i * block + j;
-            aa[index] = aa[i * block * 2 + j];
+            a[index] = aa[i * block * 2 + j];
             if (i == 0) {
-                aa[index] -= aa[(len - 1) * block * 2 + block + j];
+                a[index] -= aa[(len - 1) * block * 2 + block + j];
             } else {
-                aa[index] += aa[(i - 1) * block * 2 + block + j];
+                a[index] += aa[(i - 1) * block * 2 + block + j];
             }
         }
     }
-    for (0..len * block) |i| a[i] = aa[i];
 }
 
 fn ssMulCyclic(a: [*]i64, b: [*]const i64, n: usize, buf: [*]i64) void {

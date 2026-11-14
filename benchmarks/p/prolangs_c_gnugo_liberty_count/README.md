@@ -29,3 +29,5 @@ See [workload.json](workload.json) and the independent graph-traversal model at 
 | Rust | `rust/p/prolangs_c_gnugo_liberty_count.rs` |
 | V | `v/p/prolangs_c_gnugo_liberty_count.v` |
 | Zig | `zig/p/prolangs_c_gnugo_liberty_count.zig` |
+
+The Mojo draft is [`mojo/p/prolangs_c_gnugo_liberty_count.mojo`](../../../mojo/p/prolangs_c_gnugo_liberty_count.mojo). Board construction and traversal take O(k + 361) time and O(361) space for k supplied stones.

@@ -5,20 +5,21 @@ const MAX_OUTPUT: usize = 81
 
 def gabow_scc_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    if input[0] < 0 or input[0] > 40 or input[1] < 0 or input[1] > 2047: return -1
-    n: usize = input[0].usize()
-    m: usize = input[1].usize()
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > 40 or values[1] < 0 or values[1] > 2047: return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
     if length != 2 + 2*m: return -1
     adjacency: mutable u64[40] = zeroed
     neighbors: mutable usize[1600] = zeroed
     degree: mutable usize[40] = zeroed
     for e in 0..<m:
-        source: i64 = input[2+2*e]
-        target: i64 = input[3+2*e]
+        source: i64 = values[2+2*e]
+        target: i64 = values[3+2*e]
         if source < 0 or target < 0 or source >= n.i64() or target >= n.i64(): return -1
         u: usize = source.usize()
         v: usize = target.usize()
-        bit: u64 = 1u64 << v
+        bit: u64 = 1.u64() << v
         if (adjacency[u] & bit) == 0:
             adjacency[u] <- adjacency[u] | bit
             neighbors[u*MAX_N+degree[u]] <- v
@@ -32,11 +33,11 @@ def gabow_scc_impl(input: i64&, length: usize, output: mutable u8&, output_capac
     for v in 0..<n:
         preorder[v] <- -1
         component[v] <- -1
-    vertex_count: usize = 0
-    boundary_count: usize = 0
-    depth: usize = 0
-    clock: usize = 0
-    component_count: usize = 0
+    vertex_count: mutable usize = 0
+    boundary_count: mutable usize = 0
+    depth: mutable usize = 0
+    clock: mutable usize = 0
+    component_count: mutable usize = 0
     for root in 0..<n:
         if preorder[root] >= 0: continue
         preorder[root] <- clock.i64()
@@ -71,7 +72,7 @@ def gabow_scc_impl(input: i64&, length: usize, output: mutable u8&, output_capac
                 depth <- depth - 1
                 if boundary_count > 0 and boundaries[boundary_count-1] == v:
                     boundary_count <- boundary_count - 1
-                    done: bool = false
+                    done: mutable bool = false
                     while not done:
                         vertex_count <- vertex_count - 1
                         member: usize = vertices[vertex_count]
@@ -79,15 +80,15 @@ def gabow_scc_impl(input: i64&, length: usize, output: mutable u8&, output_capac
                         done <- member == v
                     component_count <- component_count + 1
     staged: mutable u8[81] = zeroed
-    position: usize = 1
+    position: mutable usize = 1
     staged[0] <- component_count.u8()
     for first in 0..<n:
         id: i64 = component[first]
-        seen: bool = false
+        seen: mutable bool = false
         for earlier in 0..<first:
             if component[earlier] == id: seen <- true
         if seen: continue
-        size: usize = 0
+        size: mutable usize = 0
         for v in first..<n:
             if component[v] == id: size <- size + 1
         staged[position] <- size.u8()
@@ -97,7 +98,8 @@ def gabow_scc_impl(input: i64&, length: usize, output: mutable u8&, output_capac
                 staged[position] <- v.u8()
                 position <- position + 1
     if output.is_null() or output_capacity < position: return -2
-    for q in 0..<position: output[q] <- staged[q]
+    target: mutable view[u8] = output[0:position]
+    for q in 0..<position: target[q] <- staged[q]
     position.i64()
 
 export fn gabow_scc(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = gabow_scc_impl

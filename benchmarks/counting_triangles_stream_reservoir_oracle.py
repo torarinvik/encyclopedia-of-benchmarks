@@ -1,7 +1,7 @@
 """Primary oracle for the bounded uniform-edge reservoir profile."""
 
 MAX_INPUT_LENGTH = 114
-MAX_OUTPUT_BYTES = 448
+MAX_OUTPUT_BYTES = 896
 
 
 def _parse(a):

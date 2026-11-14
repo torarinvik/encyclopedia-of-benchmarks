@@ -1994,6 +1994,8 @@ The pinned C `merge()` operation alternately splices nodes from a second list be
 
 The pinned R `iddfs()` normalizes named adjacency to vertices `1..max`, preserves neighbor order, and repeats depth-limited DFS while avoiding cycles on the current path. [`iddfs`](benchmarks/i/iddfs/README.md) returns the first shallowest path or a not-found record as little-endian signed-i64 fields. [R source](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/graph_algorithms/iddfs.r).
 
+[`ida_star_graph`](benchmarks/i/ida_star_graph/README.md) uses iterative depth-first searches with cost-plus-heuristic thresholds on bounded directed graphs. It is method-distinct from depth-limited `iddfs` and frontier-based `astar`; its ten language drafts and suite registration are unverified. Algorithm reference: [Korf's 1985 paper](https://ijcai.org/proceedings/1985/208).
+
 The pinned Java and Python power functions both use linear recursion, multiplying by the base until the exponent reaches zero. [`power_using_recursion`](benchmarks/p/power_using_recursion/README.md) bounds inputs to small integers so both source return types produce the same exact integral result. [Java source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PowerUsingRecursion.java), [Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/power_using_recursion.py).
 
 The pinned Java slack scheduler stably sorts tasks by deadline minus execution time and returns task names in that order. [`slack_time_scheduling`](benchmarks/s/slack_time_scheduling/README.md) uses stable input indices to represent task identities and does not simulate execution. [Java source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/SlackTimeScheduling.java).
@@ -2295,7 +2297,7 @@ The pinned Python source pads each value to four digits, subtracts the ascending
 
 ## Z-function
 
-The pinned C++ and Python implementations return the Z-array, with `z[0]=0`; this is distinct from pattern search in `z_algorithm`. See the [benchmark guide](benchmarks/z/z_function/README.md).
+The pinned C++ and Python implementations return the same Z-array as the Rust `z_algorithm` profile, with `z[0]=0`. Their shared operation is covered by the [Z-algorithm guide](benchmarks/z/z_algorithm/README.md).
 
 
 ## Recursive find minimum
@@ -2697,7 +2699,7 @@ The pinned Java `AVLSimple` source implements unique-key AVL insertion with heig
 
 ## Bitap String Match
 
-The pinned Python source uses exact Bitap shift-OR matching and returns the first zero-based occurrence. The portable contract bounds text to 4,096 lowercase ASCII bytes and pattern length to 63 so the mask fits a standard 64-bit integer; an empty pattern returns 0, absence returns -1, and malformed inputs return -2. The separate C# `bitap` candidate supports only 31-character patterns and remains unmapped to this wider workload. All nine ports passed 8,541 independent naive-search inputs and recorded 17 workload cases. See the [guide](benchmarks/b/bitap_string_match/README.md), [verifier](benchmarks/verify_bitap_string_match.py), and [pinned Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/bitap_string_match.py).
+The pinned Python source uses exact Bitap shift-OR matching and returns the first zero-based occurrence. The portable contract bounds text to 4,096 lowercase ASCII bytes and pattern length to 63 so the mask fits a standard 64-bit integer; an empty pattern returns 0, absence returns -1, and malformed inputs return -2. The C# `bitap` candidate uses the same recurrence with a 31-character bound and is mapped to this wider workload. All nine ports passed 8,541 independent naive-search inputs and recorded 17 workload cases. See the [guide](benchmarks/b/bitap_string_match/README.md), [verifier](benchmarks/verify_bitap_string_match.py), and [pinned Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/bitap_string_match.py).
 
 
 ## Bipartite Graph by DFS
@@ -2853,7 +2855,7 @@ The pinned Java `BaseLFSR` file declares initialization, clocking, and key/frame
 
 ## Bitap Exact Match (31-bit)
 
-The pinned C# exact matcher returns the first lowercase-ASCII match and supports patterns up to 31 characters. It has a separate package from the Python Bitap contract, which permits 63-character patterns. See the [guide](benchmarks/b/bitap_exact_match_31/README.md).
+The pinned C# exact matcher returns the first lowercase-ASCII match and supports patterns up to 31 characters. Its shift-OR recurrence is covered by the retained [Bitap guide](benchmarks/b/bitap_string_match/README.md), whose contract permits 63-character patterns.
 
 
 ## Positive Subset Sum Value Enumeration
@@ -3343,7 +3345,7 @@ The four pinned C TCP client/server programs are interactive network demonstrati
 
 ## Z-block substring search
 
-The pinned C# implementation uses Z blocks and returns the count of exact pattern matches. The benchmark keeps overlapping matches, excludes `$` to avoid separator collisions, and remains distinct from the position-list Z search contract; see [`benchmarks/z/zblock_substring_search/README.md`](benchmarks/z/zblock_substring_search/README.md).
+The pinned C# implementation computes a Z-array for a prepared pattern and text, then counts matches. Its Z computation is covered by [`z_algorithm`](benchmarks/z/z_algorithm/README.md); the separate count-output benchmark was consolidated there.
 
 The pinned Java `WelfordAlgorithm` shares the online add recurrence and sample-variance definition with [`welfords_variance`](benchmarks/w/welfords_variance/README.md); its extra remove/merge operations are outside that contract.
 
@@ -3738,7 +3740,7 @@ The Python `dimensionality_reduction.py` source’s bounded one-component PCA pa
 
 The pinned Python `erosion` function multiplies each image window by its kernel and marks a pixel when the sum equals five. The bounded [`erosion_operation`](benchmarks/e/erosion_operation/README.md) contract preserves the demo’s 3×3 cross kernel and zero padding on binary grids; grayscale conversion and file I/O are outside the operation. [Pinned source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/digital_image_processing/morphological_operations/erosion_operation.py).
 
-The pinned Java `LyndonFactorization.factorize` uses Duval's linear-time algorithm, compares UTF-16 code units, and returns factors in non-increasing lexicographic order, repeating a factor when the matched period is shorter. The bounded [`lyndon_factorization`](benchmarks/l/lyndon_factorization/README.md) contract uses lowercase ASCII through length 256 and emits each factor followed by NUL; its maximum output buffer is `2*n` bytes across all nine ports. [Pinned source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/LyndonFactorization.java).
+The pinned Java `LyndonFactorization.factorize` uses Duval's linear-time algorithm. The [`duval_algorithm`](benchmarks/d/duval_algorithm/README.md) profile captures the same factorization over ASCII arrays of up to 4096 elements and emits factor lengths. The older lowercase-only `lyndon_factorization` profile was removed as a duplicate. [Pinned Java source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/LyndonFactorization.java).
 The pinned C# `RgbHsvConversion` exposes HSV-to-RGB conversion by six hue sections with nearest-even byte rounding and RGB-to-HSV conversion by max/min/chroma branches with red-first tie handling. The bounded [`rgbhsvconversion`](benchmarks/r/rgbhsvconversion/README.md) package covers both directions and packs their quantized results across nine languages. [Pinned source](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/RGBHSVConversion.cs).
 
 
@@ -5724,6 +5726,18 @@ This bounded dynamic-set profile supports idempotent insert/delete, one-based kt
 ## Indexed block list (`indexed_block_list`)
 
 This bounded sequence profile supports insertion at any index and indexed access using a linked chain of fixed-size blocks. A block splits after growing beyond eight values by moving its last four values to a new successor. Ten language ports use the `i64_array_bytes_output` suite; a linked-block oracle and an independent flat-list oracle check sequence behavior. The profile accepts up to 16 initial items, 32 insertions, and 32 accesses, with a maximum 178-word input and 256 output bytes. See the [guide](benchmarks/i/indexed_block_list/README.md), [workload](benchmarks/i/indexed_block_list/workload.json), and [OI Wiki block-list description](https://oi-wiki.org/ds/block-list/).
+
+## Lossy Counting summary (`lossy_counting_summary`)
+
+This bounded stream profile maintains approximate frequency counters and removes entries at bucket boundaries according to their count and error. It emits a sorted snapshot of retained item IDs, estimates, and errors. Ten language drafts and the `i64_array_bytes_output` suite integration are present, alongside two independently structured references. See the [contract](benchmarks/l/lossy_counting_summary/README.md), [workload](benchmarks/l/lossy_counting_summary/workload.json), and [original algorithm paper](https://www.vldb.org/conf/2002/S10P03.pdf). The drafts and checks have not been compiled or executed.
+
+## Sticky Sampling summary (`sticky_sampling_summary`)
+
+This bounded stream profile samples new items at a rate that changes by phase and thins existing counters at phase changes. An explicit draw tape makes each run replayable; arbitrary input tapes do not imply probabilistic guarantees. Ten language drafts, two references, workload fixtures, and byte-output suite registration are present. See the [contract](benchmarks/s/sticky_sampling_summary/README.md) and [original algorithm paper](https://www.vldb.org/conf/2002/S10P03.pdf). The drafts and checks have not been compiled or executed.
+
+## Exponential histogram window (`exponential_histogram_window`)
+
+This fixed-window bit-stream profile merges power-of-two buckets and estimates the one-bit count after every arrival. It emits twice each estimate as an integer. Ten language drafts, two references, workload fixtures, and byte-output suite registration are present. See the [contract](benchmarks/e/exponential_histogram_window/README.md) and [algorithm paper](https://www.cs.princeton.edu/courses/archive/spr04/cos598B/bib/DatarGIM.pdf). The drafts and checks have not been compiled or executed.
 
 ## Prime-modulus inverse table (`prime_modulus_inverse_table`)
 

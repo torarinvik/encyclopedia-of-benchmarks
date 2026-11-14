@@ -15,6 +15,9 @@ graphs are valid. The frame length must equal `2+2*M` and cannot exceed 92
 words. Invalid or null input returns `-1`.
 
 The result is the minimum number of edges whose removal disconnects the graph.
+The verifier source also compares generated simple graphs against the independent
+vertex-connectivity oracle and their minimum degree using the standard inequality
+`vertex connectivity <= edge connectivity <= minimum degree`; it has not run.
 The primary implementation uses bounded Edmonds–Karp searches for every
 terminal pair. The independent oracle enumerates all nontrivial vertex cuts
 and counts crossing edges directly. The all-pairs flow method is distinct from

@@ -25,6 +25,7 @@ Source attribution: Paola Flocchini, “Uniform Covering of Rings and Lines by M
 | C3 | [`c3/r/ring_exact_covering_protocol.c3`](../../../c3/r/ring_exact_covering_protocol.c3) |
 | C++ | [`cpp/r/ring_exact_covering_protocol.cpp`](../../../cpp/r/ring_exact_covering_protocol.cpp) |
 | Elisa | [`elisa/r/ring_exact_covering_protocol.elisa`](../../../elisa/r/ring_exact_covering_protocol.elisa) |
+| Mojo | [`mojo/r/ring_exact_covering_protocol.mojo`](../../../mojo/r/ring_exact_covering_protocol.mojo) |
 | Nim | [`nim/r/ring_exact_covering_protocol.nim`](../../../nim/r/ring_exact_covering_protocol.nim) |
 | Odin | [`odin/r/ring_exact_covering_protocol.odin`](../../../odin/r/ring_exact_covering_protocol.odin) |
 | Rust | [`rust/r/ring_exact_covering_protocol.rs`](../../../rust/r/ring_exact_covering_protocol.rs) |

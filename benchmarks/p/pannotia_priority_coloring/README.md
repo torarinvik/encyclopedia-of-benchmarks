@@ -53,6 +53,7 @@ clean-room implementations.
 | C3 | [`c3/p/pannotia_priority_coloring.c3`](../../../c3/p/pannotia_priority_coloring.c3) |
 | C++ | [`cpp/p/pannotia_priority_coloring.cpp`](../../../cpp/p/pannotia_priority_coloring.cpp) |
 | Elisa | [`elisa/p/pannotia_priority_coloring.elisa`](../../../elisa/p/pannotia_priority_coloring.elisa) |
+| Mojo | [`mojo/p/pannotia_priority_coloring.mojo`](../../../mojo/p/pannotia_priority_coloring.mojo) |
 | Nim | [`nim/p/pannotia_priority_coloring.nim`](../../../nim/p/pannotia_priority_coloring.nim) |
 | Odin | [`odin/p/pannotia_priority_coloring.odin`](../../../odin/p/pannotia_priority_coloring.odin) |
 | Rust | [`rust/p/pannotia_priority_coloring.rs`](../../../rust/p/pannotia_priority_coloring.rs) |

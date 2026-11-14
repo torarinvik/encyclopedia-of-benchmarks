@@ -46,6 +46,7 @@ metadata, null buffers, and insufficient capacity.
 | C3 | `c3/g/greedy_dual_weighted_caching.c3` |
 | C++ | `cpp/g/greedy_dual_weighted_caching.cpp` |
 | Elisa | `elisa/g/greedy_dual_weighted_caching.elisa` |
+| Mojo | [`mojo/g/greedy_dual_weighted_caching.mojo`](../../../mojo/g/greedy_dual_weighted_caching.mojo) |
 | Nim | `nim/g/greedy_dual_weighted_caching.nim` |
 | Odin | `odin/g/greedy_dual_weighted_caching.odin` |
 | Rust | `rust/g/greedy_dual_weighted_caching.rs` |

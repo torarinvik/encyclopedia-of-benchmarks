@@ -10,6 +10,8 @@ On success, return 64 and write eight signed little-endian i64 values: union low
 
 This is the list-union helper only. It excludes linked-list mutation, R-tree insertion, node splitting, query, deletion, and database/launcher behavior. It is distinct from `consistentKey` (intersection predicate), `chooseEntry` (minimum enlargement selection), `partitionEntries` (seed/assignment), and 2D set-union-area algorithms.
 
+For n four-dimensional boxes, the scan uses O(n) time and O(1) auxiliary space.
+
 ## Provenance and rights
 
 Pinned source: [`keysUnion` in `VersaBench/dbms/keyUnion.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/keyUnion.c), with layout in `indexKey.h`, launcher `info.sh`, at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. Its header identifies M. L. Rivas and `Copyright 1999, Atlantic Aerospace Electronics Corp.`. No explicit redistribution license was found in the pinned directory. These ports are clean-room implementations of the bounded operation and do not copy upstream source text or comments. See [NOTICE.txt](NOTICE.txt).
@@ -22,6 +24,7 @@ The independent oracle is [`versabench_dbms_keys_union_oracle.py`](../../versabe
 - C3: [../../../c3/d/versabench_dbms_keys_union.c3](../../../c3/d/versabench_dbms_keys_union.c3)
 - C++: [../../../cpp/d/versabench_dbms_keys_union.cpp](../../../cpp/d/versabench_dbms_keys_union.cpp)
 - Elisa: [../../../elisa/d/versabench_dbms_keys_union.elisa](../../../elisa/d/versabench_dbms_keys_union.elisa)
+- Mojo: [`mojo/d/versabench_dbms_keys_union.mojo`](../../../mojo/d/versabench_dbms_keys_union.mojo) (draft; not compiled or run)
 - Nim: [../../../nim/d/versabench_dbms_keys_union.nim](../../../nim/d/versabench_dbms_keys_union.nim)
 - Odin: [../../../odin/d/versabench_dbms_keys_union.odin](../../../odin/d/versabench_dbms_keys_union.odin)
 - Rust: [../../../rust/d/versabench_dbms_keys_union.rs](../../../rust/d/versabench_dbms_keys_union.rs)

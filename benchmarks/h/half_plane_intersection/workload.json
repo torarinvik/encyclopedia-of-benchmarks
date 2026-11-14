@@ -41,7 +41,7 @@
     "bytes": 8192,
     "meaning": "Bound for line/deque/intersection work arrays and the external output buffer."
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Sort by exact normal angle, collapse repeated same-direction constraints to the tightest offset, and prune the deque at both ends by exact rational intersection-side tests.",
     "independent_oracle": "Enumerate every nonparallel pair of boundary lines, retain feasible intersections, and form their exact monotone-chain convex hull.",
     "complexity": "O(N log N) primary time and O(N) workspace; O(N^3 log N) bounded independent-oracle time."

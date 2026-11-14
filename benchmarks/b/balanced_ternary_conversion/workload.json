@@ -34,7 +34,7 @@
     "bytes": 41,
     "meaning": "Maximum external output-buffer capacity; fixed local storage holds at most 41 digits."
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Repeated signed division by three with balanced remainder correction: remainder 2 becomes digit -1 and increments the quotient; remainder -2 becomes digit +1 and decrements it.",
     "independent_oracle": "Convert the absolute value to ordinary ternary, propagate carries through trits 2 and 3 into balanced digits, then invert digits for a negative value.",
     "primary_complexity": "O(log |value|) time and O(log |value|) temporary space.",

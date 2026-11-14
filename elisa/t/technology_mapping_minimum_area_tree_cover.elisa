@@ -98,6 +98,7 @@ def technology_mapping_minimum_area_tree_cover(input: i64&, length: usize,
     while top > 0:
         top <- top - 1
         node: usize = stack[top]
+        if kind[node] == 0: continue
         pat: usize = choice[node].usize()
         l: usize = left[node]
         r: usize = right[node]

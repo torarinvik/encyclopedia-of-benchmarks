@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 int64_t approximate_regex_matching(const int64_t *x, size_t len, uint8_t *out, size_t cap) {
-    if (x == NULL) return -2;
+    if (x == NULL) return -1;
     if (len < 6 || len > 66) return -1;
     int64_t sv=x[0], ev=x[1], tv=x[2], kv=x[3], stv=x[4], av=x[5];
     if (sv<2||sv>8||ev<1||ev>16||tv<0||tv>12||kv<0||kv>3||stv<0||av<0||stv>=sv||av>=sv||stv==av) return -1;

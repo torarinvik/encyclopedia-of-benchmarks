@@ -25,3 +25,5 @@ The result converts each binary32 flux component to binary64, multiplies by 1000
 - The source identifies Andrew Corrigan's AIAA-2009-4001 implementation and says permission was granted to include it under Rodinia's license. The complete pinned Rodinia BSD-3-Clause notice and citation list are in [`LICENSE.txt`](LICENSE.txt). These ports are independent implementations of the equations and contain no copied kernel text.
 - The static workload includes one hand-derived uniform-state cancellation fixture plus invalid-frame cases. The independent [Python oracle](../../rodinia_euler3d_flux_oracle.py) covers the bounded recurrence.
 
+The Mojo draft is [`mojo/r/rodinia_euler3d_flux.mojo`](../../../mojo/r/rodinia_euler3d_flux.mojo). Float32 operation ordering, contraction, and rounding remain unverified.
+

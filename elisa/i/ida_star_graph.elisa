@@ -1,0 +1,73 @@
+const IDA_INVALID: i64 = -9223372036854775807 - 1
+
+def ida_star_graph_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 5 or length > 112:
+        return IDA_INVALID
+    values: view[i64] = input[0:length]
+    nv: i64 = values[0]
+    mv: i64 = values[1]
+    sv: i64 = values[2]
+    gv: i64 = values[3]
+    if nv < 1 or nv > 12 or mv < 0 or mv > 48 or sv < 0 or sv >= nv or gv < 0 or gv >= nv:
+        return IDA_INVALID
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    start: usize = sv.usize()
+    goal: usize = gv.usize()
+    if length != 4 + n + 2 * m:
+        return IDA_INVALID
+    h: mutable i64[12] = zeroed
+    adjacency: mutable bool[144] = zeroed
+    for i in 0..<n:
+        if values[4+i] < 0 or values[4+i] >= nv:
+            return IDA_INVALID
+        h[i] <- values[4+i]
+    if h[goal] != 0:
+        return IDA_INVALID
+    for i in 0..<m:
+        uv: i64 = values[4+n+2*i]
+        vv: i64 = values[5+n+2*i]
+        if uv < 0 or uv >= nv or vv < 0 or vv >= nv or uv == vv:
+            return IDA_INVALID
+        u: usize = uv.usize()
+        v: usize = vv.usize()
+        if adjacency[u*12+v] or h[u] > h[v]+1:
+            return IDA_INVALID
+        adjacency[u*12+v] <- true
+    bound: mutable i64 = h[start]
+    while true:
+        next_bound: mutable i64 = 1000
+        vertices: mutable usize[12] = zeroed
+        neighbors: mutable usize[12] = zeroed
+        on_path: mutable bool[12] = zeroed
+        top: mutable usize = 1
+        vertices[0] <- start
+        on_path[start] <- true
+        while top > 0:
+            depth: usize = top-1
+            u: usize = vertices[depth]
+            if u == goal:
+                return depth.i64()
+            v: mutable usize = neighbors[depth]
+            while v < n and (not adjacency[u*12+v] or on_path[v]):
+                v <- v+1
+            if v == n:
+                on_path[u] <- false
+                top <- top-1
+            else:
+                neighbors[depth] <- v+1
+                score: i64 = top.i64()+h[v]
+                if score > bound:
+                    if score < next_bound:
+                        next_bound <- score
+                else:
+                    vertices[top] <- v
+                    neighbors[top] <- 0
+                    on_path[v] <- true
+                    top <- top+1
+        if next_bound == 1000:
+            return -1
+        bound <- next_bound
+    return -1
+
+export fn ida_star_graph(input: i64&, length: usize) -> i64 = ida_star_graph_impl

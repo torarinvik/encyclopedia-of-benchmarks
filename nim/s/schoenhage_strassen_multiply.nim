@@ -107,6 +107,7 @@ proc ssIfft(a: I64Buffer, l, m: int, buf: I64Buffer) =
       w -= dw[ssCtz(uint(k))]
       if w < 0: w += 2 * blockSize
     d *= 2
+  for i in 0 ..< len * blockSize: a[i] = a[i] div int64(len)
 
 proc ssNaive(a, b: I64Buffer, n: int, buf: I64Buffer) =
   let size = 1 shl n
@@ -142,7 +143,7 @@ proc ssMul(a, b: I64Buffer, n: int, buf: I64Buffer) =
   for i in 0 ..< len: ssMul(plus(ap, i * blockSize * 2), plus(bp, i * blockSize * 2), m + 1, buf)
   ssIfft(ap, l, m + 1, buf)
   for i in 0 ..< len:
-    let s = i * (2 * blockSize div len)
+    let s = (4 * blockSize - (i * (2 * blockSize div len)) mod (4 * blockSize)) mod (4 * blockSize)
     ssCopy(buf, plus(ap, i * blockSize * 2), blockSize * 2)
     ssRot(plus(ap, i * blockSize * 2), buf, blockSize * 2, s)
   for i in 0 ..< len:

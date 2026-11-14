@@ -33,6 +33,11 @@ The primary oracle constructs the bucket delimiters and evaluates queries
 through the `d0`/`d1` maps. The verifier oracle independently forms groups and
 their common bit prefixes, then resolves each query from those tables.
 
+The direct bounded implementation uses O(n + q(n + b)) time and O(n + q + b)
+space, where b is the number of buckets and key width is fixed at 16 bits.
+
+The Mojo draft is [`mojo/m/mmpfh_bucketing.mojo`](../../../mojo/m/mmpfh_bucketing.mojo).
+
 Source: Boldi and Vigna, “Monotone Minimal Perfect Hash Functions,” in
 *Encyclopedia of Algorithms*, DOI 10.1007/978-1-4939-2864-4_639. See
 [`RIGHTS.md`](RIGHTS.md) for scope and attribution.

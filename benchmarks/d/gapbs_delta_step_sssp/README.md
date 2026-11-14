@@ -26,6 +26,7 @@ The independent oracle uses Bellman–Ford relaxation rather than delta buckets.
 | C3 | [`c3/d/gapbs_delta_step_sssp.c3`](../../../c3/d/gapbs_delta_step_sssp.c3) |
 | C++ | [`cpp/d/gapbs_delta_step_sssp.cpp`](../../../cpp/d/gapbs_delta_step_sssp.cpp) |
 | Elisa | [`elisa/d/gapbs_delta_step_sssp.elisa`](../../../elisa/d/gapbs_delta_step_sssp.elisa) |
+| Mojo | [`mojo/d/gapbs_delta_step_sssp.mojo`](../../../mojo/d/gapbs_delta_step_sssp.mojo) |
 | Nim | [`nim/d/gapbs_delta_step_sssp.nim`](../../../nim/d/gapbs_delta_step_sssp.nim) |
 | Odin | [`odin/d/gapbs_delta_step_sssp.odin`](../../../odin/d/gapbs_delta_step_sssp.odin) |
 | Rust | [`rust/d/gapbs_delta_step_sssp.rs`](../../../rust/d/gapbs_delta_step_sssp.rs) |

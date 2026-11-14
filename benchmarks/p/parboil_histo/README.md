@@ -61,3 +61,5 @@ Independent oracle: [`benchmarks/parboil_histo_oracle.py`](../../parboil_histo_o
 | Rust | [`parboil_histo.rs`](../../../rust/p/parboil_histo.rs) |
 | V | [`parboil_histo.v`](../../../v/p/parboil_histo.v) |
 | Zig | [`parboil_histo.zig`](../../../zig/p/parboil_histo.zig) |
+
+The Mojo draft is [`mojo/p/parboil_histo.mojo`](../../../mojo/p/parboil_histo.mojo). Validation and repeated passes take O(samples + iterations × (bins + samples)) time and O(bins + samples) space.

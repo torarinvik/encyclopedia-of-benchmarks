@@ -58,6 +58,7 @@ int64_t technology_mapping_minimum_area_tree_cover(const int64_t *v, size_t leng
     if (kind[0] != 0) stack[top++] = 0;
     while (top > 0) {
         const int node = stack[--top], pattern = choice[node];
+        if (kind[node] == 0) continue;
         mapping[node] = pattern;
         if (pattern == 0) stack[top++] = left[node];
         else if (pattern == 1) { stack[top++] = left[node]; stack[top++] = right[node]; }

@@ -32,6 +32,10 @@ array so that the same search can be benchmarked across multiple cases.
   returns 864; the scalar ABI exposes the final evaluated result instead of
   reproducing the upstream textual expression trace.
 
+The exhaustive search explores O(4^n (2n)^(2n)) combinations in a loose
+worst-case bound and uses O(n) workspace for n leaves; this profile bounds n
+at four.
+
 ## Pinned provenance
 
 - [`exptree.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/exptree/exptree.c), commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`.
@@ -49,6 +53,7 @@ array so that the same search can be benchmarked across multiple cases.
 | C3 | [c3/m/mcgill_exptree.c3](../../../c3/m/mcgill_exptree.c3) |
 | C++ | [cpp/m/mcgill_exptree.cpp](../../../cpp/m/mcgill_exptree.cpp) |
 | Elisa | [elisa/m/mcgill_exptree.elisa](../../../elisa/m/mcgill_exptree.elisa) |
+| Mojo | [mojo/m/mcgill_exptree.mojo](../../../mojo/m/mcgill_exptree.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/mcgill_exptree.nim](../../../nim/m/mcgill_exptree.nim) |
 | Odin | [odin/m/mcgill_exptree.odin](../../../odin/m/mcgill_exptree.odin) |
 | Rust | [rust/m/mcgill_exptree.rs](../../../rust/m/mcgill_exptree.rs) |

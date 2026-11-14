@@ -38,6 +38,10 @@ Fhourstones family, which is an exact Connect Four solving benchmark; this
 package neither searches to a proven outcome nor uses an exact transposition
 table solver.
 
+For depth limit `D`, the search examines at most `O(7^(D-1))` positions;
+alpha-beta cutoffs can reduce that work. The fixed-size board and recursive
+search use `O(D)` space beyond the input.
+
 ## Provenance and distribution notice
 
 The pinned source identifies Peter Rundberg (`biff@ce.chalmers.se`) and says:
@@ -55,6 +59,7 @@ distribution notice.
 | C3 | [c3/f/fourinarow_minimax.c3](../../../c3/f/fourinarow_minimax.c3) |
 | C++ | [cpp/f/fourinarow_minimax.cpp](../../../cpp/f/fourinarow_minimax.cpp) |
 | Elisa | [elisa/f/fourinarow_minimax.elisa](../../../elisa/f/fourinarow_minimax.elisa) |
+| Mojo | [mojo/f/fourinarow_minimax.mojo](../../../mojo/f/fourinarow_minimax.mojo) |
 | Nim | [nim/f/fourinarow_minimax.nim](../../../nim/f/fourinarow_minimax.nim) |
 | Odin | [odin/f/fourinarow_minimax.odin](../../../odin/f/fourinarow_minimax.odin) |
 | Rust | [rust/f/fourinarow_minimax.rs](../../../rust/f/fourinarow_minimax.rs) |

@@ -17,6 +17,8 @@ are counted separately. Output is one signed-i64 count in eight little-endian
 bytes. Invalid input returns `-1`; null output or capacity below eight bytes
 returns `-2`, after input validation. Errors do not write output.
 
+The direct pair-state construction and path count use O(n³) time and O(n²) auxiliary space.
+
 ## Source scope
 
 - Encyclopedia of Algorithms DOI `10.1007/978-1-4939-2864-4_721`,
@@ -48,6 +50,7 @@ algorithm reference, not a source-code license.
 | C3 | [`c3/m/minimal_dominating_sets_interval.c3`](../../../c3/m/minimal_dominating_sets_interval.c3) |
 | C++ | [`cpp/m/minimal_dominating_sets_interval.cpp`](../../../cpp/m/minimal_dominating_sets_interval.cpp) |
 | Elisa | [`elisa/m/minimal_dominating_sets_interval.elisa`](../../../elisa/m/minimal_dominating_sets_interval.elisa) |
+| Mojo | [`mojo/m/minimal_dominating_sets_interval.mojo`](../../../mojo/m/minimal_dominating_sets_interval.mojo) (draft; not compiled or run) |
 | Nim | [`nim/m/minimal_dominating_sets_interval.nim`](../../../nim/m/minimal_dominating_sets_interval.nim) |
 | Odin | [`odin/m/minimal_dominating_sets_interval.odin`](../../../odin/m/minimal_dominating_sets_interval.odin) |
 | Rust | [`rust/m/minimal_dominating_sets_interval.rs`](../../../rust/m/minimal_dominating_sets_interval.rs) |

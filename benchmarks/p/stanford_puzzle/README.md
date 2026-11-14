@@ -8,6 +8,9 @@ The `i64_array_scalar` function is `stanford_puzzle`. Its input is the one-eleme
 
 The returned scalar sums one packed observation per pass: `source_first_empty_index * 1,000,000 + recursive_call_count`. The first empty cell after the initial placement is source index 77. The pinned program asserts that the DFS makes 2,005 calls. Invalid input or exceeding the 2,005-call safety bound returns `-1`.
 
+The fixed-size profile takes `O(p)` time for `p` passes under its per-pass
+call bound, with constant auxiliary space for the fixed board and search stack.
+
 This is a 3D fixed-piece packing search. It is distinct from the local BenchmarkGame puzzle's shuffle/XOR workload, the 2D L-tromino divide-and-conquer tiler, 2×n domino counting, and the general binary-matrix Algorithm X package. It does not implement rotations beyond the 13 source orientations or enumerate all packings.
 
 ## Source attribution and rights
@@ -24,6 +27,7 @@ See [workload.json](workload.json) and the independent [Python oracle](../../sta
 | C3 | [`c3/p/stanford_puzzle.c3`](../../../c3/p/stanford_puzzle.c3) |
 | C++ | [`cpp/p/stanford_puzzle.cpp`](../../../cpp/p/stanford_puzzle.cpp) |
 | Elisa | [`elisa/p/stanford_puzzle.elisa`](../../../elisa/p/stanford_puzzle.elisa) |
+| Mojo | [`mojo/p/stanford_puzzle.mojo`](../../../mojo/p/stanford_puzzle.mojo) (unverified draft) |
 | Nim | [`nim/p/stanford_puzzle.nim`](../../../nim/p/stanford_puzzle.nim) |
 | Odin | [`odin/p/stanford_puzzle.odin`](../../../odin/p/stanford_puzzle.odin) |
 | Rust | [`rust/p/stanford_puzzle.rs`](../../../rust/p/stanford_puzzle.rs) |

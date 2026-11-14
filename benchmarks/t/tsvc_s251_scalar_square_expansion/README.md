@@ -70,3 +70,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s251_scalar_square_expansion.rs`](../../../rust/t/tsvc_s251_scalar_square_expansion.rs) |
 | V | [`tsvc_s251_scalar_square_expansion.v`](../../../v/t/tsvc_s251_scalar_square_expansion.v) |
 | Zig | [`tsvc_s251_scalar_square_expansion.zig`](../../../zig/t/tsvc_s251_scalar_square_expansion.zig) |
+| Mojo | [`tsvc_s251_scalar_square_expansion.mojo`](../../../mojo/t/tsvc_s251_scalar_square_expansion.mojo) |

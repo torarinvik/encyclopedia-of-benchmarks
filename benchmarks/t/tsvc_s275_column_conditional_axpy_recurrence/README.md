@@ -7,3 +7,5 @@ The bounded input is `[n, A row-major n×n, B row-major n×n, C row-major n×n]`
 Pinned provenance: `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`, `TSVC/tsc.inc::s275` (lines 2904–2931), selected by `TSVC/ControlFlow-dbl/info.sh` and `TSVC/ControlFlow-flt/info.sh`. Their launcher profiles use `2325 14` and `2325 5`, respectively; this package executes one bounded pass. TSVC attributes the non-four-digit loops to David Callahan, Jack Dongarra, and David Levine. No explicit redistribution grant was found; all ports are clean-room and reuse no upstream code or comments.
 
 See [workload.json](workload.json), [LICENSE.txt](LICENSE.txt), and the [independent oracle](../../tsvc_s275_column_conditional_axpy_recurrence_oracle.py). Nine language ports are included.
+
+A [Mojo draft](../../../mojo/t/tsvc_s275_column_conditional_axpy_recurrence.mojo) is also present and remains unverified.

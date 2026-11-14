@@ -30,3 +30,4 @@ Source attribution: Weizhao Wang, Xiang-Yang Li, and Yu Wang, “Truthful Multic
 | Rust | [`rust/t/truthful_multicast_pmst_tree.rs`](../../../rust/t/truthful_multicast_pmst_tree.rs) |
 | V | [`v/t/truthful_multicast_pmst_tree.v`](../../../v/t/truthful_multicast_pmst_tree.v) |
 | Zig | [`zig/t/truthful_multicast_pmst_tree.zig`](../../../zig/t/truthful_multicast_pmst_tree.zig) |
+| Mojo | [`mojo/t/truthful_multicast_pmst_tree.mojo`](../../../mojo/t/truthful_multicast_pmst_tree.mojo) (draft, unverified) |

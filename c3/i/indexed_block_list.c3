@@ -39,9 +39,8 @@ fn long indexed_block_list(long* input, usz length, char* output, usz output_cap
 {
     usz access_count = 0;
     if (!valid_input(input, length, &access_count)) return -1;
-    if (access_count == 0) return 0;
     usz required = access_count * 8;
-    if (output == null || output_capacity < required) return -2;
+    if (required > 0 && (output == null || output_capacity < required)) return -2;
     long[144] blocks;
     usz[16] sizes;
     int[16] next;

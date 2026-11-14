@@ -40,3 +40,4 @@ The oracle is [`benchmarks/tsvc_s114_transposed_lower_triangle_update_oracle.py`
 | Rust | [`tsvc_s114_transposed_lower_triangle_update.rs`](../../../rust/t/tsvc_s114_transposed_lower_triangle_update.rs) |
 | V | [`tsvc_s114_transposed_lower_triangle_update.v`](../../../v/t/tsvc_s114_transposed_lower_triangle_update.v) |
 | Zig | [`tsvc_s114_transposed_lower_triangle_update.zig`](../../../zig/t/tsvc_s114_transposed_lower_triangle_update.zig) |
+| Mojo | [`tsvc_s114_transposed_lower_triangle_update.mojo`](../../../mojo/t/tsvc_s114_transposed_lower_triangle_update.mojo) (draft, unverified) |

@@ -24,8 +24,13 @@ The pinned source is Jean Bégaint's [`delaunay.hpp`](https://github.com/jbegain
 | C3 | [`c3/d/delaunay_triangulation.c3`](../../../c3/d/delaunay_triangulation.c3) |
 | C++ | [`cpp/d/delaunay_triangulation.cpp`](../../../cpp/d/delaunay_triangulation.cpp) |
 | Elisa | [`elisa/d/delaunay_triangulation.elisa`](../../../elisa/d/delaunay_triangulation.elisa) |
+| Mojo | [`mojo/d/delaunay_triangulation.mojo`](../../../mojo/d/delaunay_triangulation.mojo) |
 | Nim | [`nim/d/delaunay_triangulation.nim`](../../../nim/d/delaunay_triangulation.nim) |
 | Odin | [`odin/d/delaunay_triangulation.odin`](../../../odin/d/delaunay_triangulation.odin) |
 | Rust | [`rust/d/delaunay_triangulation.rs`](../../../rust/d/delaunay_triangulation.rs) |
 | V | [`v/d/delaunay_triangulation.v`](../../../v/d/delaunay_triangulation.v) |
 | Zig | [`zig/d/delaunay_triangulation.zig`](../../../zig/d/delaunay_triangulation.zig) |
+
+The Mojo port and ten-language source-presence check are static drafts. The
+verifier source includes all insertion orders of a single triangle. None has
+been compiled or run.

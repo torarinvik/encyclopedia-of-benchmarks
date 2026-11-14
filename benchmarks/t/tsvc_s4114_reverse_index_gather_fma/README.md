@@ -65,3 +65,4 @@ and [workload.json](workload.json).
 | Rust | [tsvc_s4114_reverse_index_gather_fma.rs](../../../rust/t/tsvc_s4114_reverse_index_gather_fma.rs) |
 | V | [tsvc_s4114_reverse_index_gather_fma.v](../../../v/t/tsvc_s4114_reverse_index_gather_fma.v) |
 | Zig | [tsvc_s4114_reverse_index_gather_fma.zig](../../../zig/t/tsvc_s4114_reverse_index_gather_fma.zig) |
+| Mojo | [tsvc_s4114_reverse_index_gather_fma.mojo](../../../mojo/t/tsvc_s4114_reverse_index_gather_fma.mojo) |

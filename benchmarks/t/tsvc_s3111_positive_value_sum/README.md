@@ -63,3 +63,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s3111_positive_value_sum.rs`](../../../rust/t/tsvc_s3111_positive_value_sum.rs) |
 | V | [`tsvc_s3111_positive_value_sum.v`](../../../v/t/tsvc_s3111_positive_value_sum.v) |
 | Zig | [`tsvc_s3111_positive_value_sum.zig`](../../../zig/t/tsvc_s3111_positive_value_sum.zig) |
+| Mojo | [`tsvc_s3111_positive_value_sum.mojo`](../../../mojo/t/tsvc_s3111_positive_value_sum.mojo) (draft, unverified) |

@@ -35,3 +35,5 @@ distance algorithm from DOI 383.
 Nine language ports live under `c/s`, `cpp/s`, `rust/s`, `c3/s`, `nim/s`,
 `odin/s`, `elisa/s`, `v/s`, and `zig/s`. The workload and both Python oracles
 define the bounded source profile.
+
+The Mojo draft is [`mojo/s/signed_permutation_reversal_sequence.mojo`](../../../mojo/s/signed_permutation_reversal_sequence.mojo). It has not been compiled or run.

@@ -36,4 +36,27 @@ Behavior is based on SAGA-Bench commit [`de61f442b39ffecd8630adc4cb1e39569d0d90c
 
 - Workload fixtures: [`workload.json`](workload.json)
 - Independent Python oracle: [`saga_incremental_analytics_oracle.py`](../../saga_incremental_analytics_oracle.py)
-- Nine language ports: `c/s`, `c3/s`, `cpp/s`, `elisa/s`, `nim/s`, `odin/s`, `rust/s`, `v/s`, and `zig/s`.
+- Ten language drafts: `c/s`, `c3/s`, `cpp/s`, `elisa/s`, `mojo/s`, `nim/s`, `odin/s`, `rust/s`, `v/s`, and `zig/s`.
+
+Static review added individual edge-count bounds before summing the counts in
+all nine ports, preventing signed overflow on malformed inputs. Verifier source
+now includes maximum-i64 and over-limit count pairs, including invalid-input
+precedence over a null output. The changes have not been compiled or run. A
+The Mojo port is also a draft.
+
+Further static review found that the C3, Elisa, Nim, Odin, Rust, V, and Zig
+drafts use a combined frontier loop that fails to propagate previously updated
+BFS vertices beyond the first wave. All seven now relax outgoing edges in
+subsequent waves; the C and C++ drafts already use a separate BFS frontier
+loop. Verifier source includes a multi-wave shortcut case. All changes are
+uncompiled and unexecuted.
+
+The Elisa draft now accesses its validated input through a bounded view and
+passes bounded views to its frontier helper, returning the new queue length
+instead of passing mutable raw references internally. Its C ABI still accepts
+input and output pointers. This rewrite is uncompiled and unexecuted.
+
+The Mojo draft implements all six update modes and preserves wave-local
+frontiers and the binary32 PageRank recurrence. The multi-wave verifier case
+also specifies the expected distances directly. These are uncompiled and
+unexecuted.

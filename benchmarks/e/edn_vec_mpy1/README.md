@@ -7,3 +7,5 @@ The output contains updated `y` values as little-endian signed 64-bit words. Inv
 Pinned source: [`vec_mpy1` in `src/edn/libedn.c`](https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/edn/libedn.c), commit `09c2ed8c3b7008c95d08b038de4a3f6dc103ed70`. The source is SPDX GPL-3.0-or-later and records WCET Benchmarks provenance and email permission from Björn Lisper to license under GPL. See [`LICENSE.txt`](LICENSE.txt) and [`NOTICE.txt`](NOTICE.txt) for full rights/attribution.
 
 The independent oracle is [`benchmarks/edn_vec_mpy1_oracle.py`](../../edn_vec_mpy1_oracle.py); examples and malformed cases are in [`workload.json`](workload.json). The nine ports implement this bounded source operation; no runtime verification is claimed.
+
+An independently written [Mojo draft](../../../mojo/e/edn_vec_mpy1.mojo) implements the documented Q15 operation and has not been compiled or run. Validation and the vector update take O(count) time and O(count) staged output storage.

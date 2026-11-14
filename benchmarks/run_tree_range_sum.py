@@ -40,7 +40,8 @@ def main() -> int:
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     timing = workload.get("measurement", {})
     if workload.get("algorithm") != algorithm or timing.get("comparison_model") != "tree_range_sum_call":
         parser.error("workload does not match the indexed-tree range-sum benchmark")

@@ -27,5 +27,5 @@ direct translated-point membership.
 
 ## Files
 
-Nine ports live under `c/p`, `cpp/p`, `rust/p`, `c3/p`, `nim/p`, `odin/p`,
-`elisa/p`, `v/p`, and `zig/p`, alongside the workload and dual Python oracles.
+Ports live under `c/p`, `cpp/p`, `rust/p`, `c3/p`, `nim/p`, `odin/p`,
+`elisa/p`, `mojo/p`, `v/p`, and `zig/p`, alongside the workload and dual Python oracles.

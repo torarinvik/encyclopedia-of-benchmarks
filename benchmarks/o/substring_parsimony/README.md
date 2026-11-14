@@ -49,6 +49,7 @@ Independent verifier: [`substring_parsimony_verifier_oracle.py`](../../substring
 | C3 | [`c3/o/substring_parsimony.c3`](../../../c3/o/substring_parsimony.c3) |
 | C++ | [`cpp/o/substring_parsimony.cpp`](../../../cpp/o/substring_parsimony.cpp) |
 | Elisa | [`elisa/o/substring_parsimony.elisa`](../../../elisa/o/substring_parsimony.elisa) |
+| Mojo | [`mojo/o/substring_parsimony.mojo`](../../../mojo/o/substring_parsimony.mojo) |
 | Nim | [`nim/o/substring_parsimony.nim`](../../../nim/o/substring_parsimony.nim) |
 | Odin | [`odin/o/substring_parsimony.odin`](../../../odin/o/substring_parsimony.odin) |
 | Rust | [`rust/o/substring_parsimony.rs`](../../../rust/o/substring_parsimony.rs) |

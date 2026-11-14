@@ -16,6 +16,9 @@ For supplied rational `U`, this preserves the source key ordering exactly.
 Finite rational inputs are a deterministic fixture projection and do not
 claim to reproduce the ideal continuous random probability law.
 
+The bounded selection scan takes O(nm) time and O(n) auxiliary space; each
+exact key comparison uses at most three multiplications per exponentiation.
+
 Source: “Weighted Random Sampling,” DOI
 [`10.1007/978-1-4939-2864-4_478`](https://doi.org/10.1007/978-1-4939-2864-4_478).
 This profile is clean-room; no book prose or source code is copied.
@@ -26,6 +29,7 @@ This profile is clean-room; no book prose or source code is copied.
 | C3 | `c3/w/weighted_random_sampling.c3` |
 | C++ | `cpp/w/weighted_random_sampling.cpp` |
 | Elisa | `elisa/w/weighted_random_sampling.elisa` |
+| Mojo | [`mojo/w/weighted_random_sampling.mojo`](../../../mojo/w/weighted_random_sampling.mojo) (draft; not compiled or run) |
 | Nim | `nim/w/weighted_random_sampling.nim` |
 | Odin | `odin/w/weighted_random_sampling.odin` |
 | Rust | `rust/w/weighted_random_sampling.rs` |

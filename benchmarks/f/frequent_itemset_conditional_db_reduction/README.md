@@ -37,6 +37,9 @@ single row reduction pass. The independent verifier computes each extension
 support separately and constructs each reduced row independently before
 counting duplicates.
 
+With `r` rows and `n` items, the direct grouping and sorting implementation
+uses `O(r*n + r^2)` time and `O(r+n)` auxiliary space.
+
 ## Source and rights
 
 Source: Takeaki Uno, “Frequent Pattern Mining,” *Encyclopedia of Algorithms*,
@@ -57,6 +60,7 @@ Independent verifier: [`frequent_itemset_conditional_db_reduction_verifier_oracl
 | C3 | [`c3/f/frequent_itemset_conditional_db_reduction.c3`](../../../c3/f/frequent_itemset_conditional_db_reduction.c3) |
 | C++ | [`cpp/f/frequent_itemset_conditional_db_reduction.cpp`](../../../cpp/f/frequent_itemset_conditional_db_reduction.cpp) |
 | Elisa | [`elisa/f/frequent_itemset_conditional_db_reduction.elisa`](../../../elisa/f/frequent_itemset_conditional_db_reduction.elisa) |
+| Mojo | [`mojo/f/frequent_itemset_conditional_db_reduction.mojo`](../../../mojo/f/frequent_itemset_conditional_db_reduction.mojo) |
 | Nim | [`nim/f/frequent_itemset_conditional_db_reduction.nim`](../../../nim/f/frequent_itemset_conditional_db_reduction.nim) |
 | Odin | [`odin/f/frequent_itemset_conditional_db_reduction.odin`](../../../odin/f/frequent_itemset_conditional_db_reduction.odin) |
 | Rust | [`rust/f/frequent_itemset_conditional_db_reduction.rs`](../../../rust/f/frequent_itemset_conditional_db_reduction.rs) |

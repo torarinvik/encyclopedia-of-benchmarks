@@ -33,6 +33,7 @@ iterative update.
 | C3 | `c3/p/private_noisy_power_iteration.c3` |
 | C++ | `cpp/p/private_noisy_power_iteration.cpp` |
 | Elisa | `elisa/p/private_noisy_power_iteration.elisa` |
+| Mojo | `mojo/p/private_noisy_power_iteration.mojo` |
 | Nim | `nim/p/private_noisy_power_iteration.nim` |
 | Odin | `odin/p/private_noisy_power_iteration.odin` |
 | Rust | `rust/p/private_noisy_power_iteration.rs` |

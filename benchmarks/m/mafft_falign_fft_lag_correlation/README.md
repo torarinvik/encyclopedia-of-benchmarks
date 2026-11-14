@@ -71,8 +71,11 @@ capacity. The oracle is
 | C3 | [`c3/m/mafft_falign_fft_lag_correlation.c3`](../../../c3/m/mafft_falign_fft_lag_correlation.c3) |
 | C++ | [`cpp/m/mafft_falign_fft_lag_correlation.cpp`](../../../cpp/m/mafft_falign_fft_lag_correlation.cpp) |
 | Elisa | [`elisa/m/mafft_falign_fft_lag_correlation.elisa`](../../../elisa/m/mafft_falign_fft_lag_correlation.elisa) |
+| Mojo | [`mojo/m/mafft_falign_fft_lag_correlation.mojo`](../../../mojo/m/mafft_falign_fft_lag_correlation.mojo) |
 | Nim | [`nim/m/mafft_falign_fft_lag_correlation.nim`](../../../nim/m/mafft_falign_fft_lag_correlation.nim) |
 | Odin | [`odin/m/mafft_falign_fft_lag_correlation.odin`](../../../odin/m/mafft_falign_fft_lag_correlation.odin) |
 | Rust | [`rust/m/mafft_falign_fft_lag_correlation.rs`](../../../rust/m/mafft_falign_fft_lag_correlation.rs) |
 | V | [`v/m/mafft_falign_fft_lag_correlation.v`](../../../v/m/mafft_falign_fft_lag_correlation.v) |
 | Zig | [`zig/m/mafft_falign_fft_lag_correlation.zig`](../../../zig/m/mafft_falign_fft_lag_correlation.zig) |
+
+The Mojo port is a static draft; it has not been compiled or run.

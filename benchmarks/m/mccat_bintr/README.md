@@ -31,6 +31,9 @@ The source uses sentinel-terminated stdin lists and the launcher dataset. This
 package represents the defined full 100-probe behavior through a bounded
 array contract and does not include input parsing or printing.
 
+With n inserted values and q probes, this unbalanced tree takes O(n² + qn)
+time in the worst case and O(n) extra space.
+
 ## Provenance and license
 
 Pinned source: [`lac-dcc/Benchmarks` McCat/17-bintr at commit
@@ -59,6 +62,7 @@ port:
 | C3 | [c3/m/mccat_bintr.c3](../../../c3/m/mccat_bintr.c3) |
 | C++ | [cpp/m/mccat_bintr.cpp](../../../cpp/m/mccat_bintr.cpp) |
 | Elisa | [elisa/m/mccat_bintr.elisa](../../../elisa/m/mccat_bintr.elisa) |
+| Mojo | [mojo/m/mccat_bintr.mojo](../../../mojo/m/mccat_bintr.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/mccat_bintr.nim](../../../nim/m/mccat_bintr.nim) |
 | Odin | [odin/m/mccat_bintr.odin](../../../odin/m/mccat_bintr.odin) |
 | Rust | [rust/m/mccat_bintr.rs](../../../rust/m/mccat_bintr.rs) |

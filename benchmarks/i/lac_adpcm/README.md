@@ -22,9 +22,15 @@ predictor 0 and step index 0 for each call. Invalid input returns `-1`; a null
 or undersized output for nonempty results returns `-2` without writing. Zero
 count returns zero without needing an output buffer.
 
+Both modes process a bounded constant amount of state per input item, taking
+O(count) time and O(1) auxiliary space apart from the output buffer.
+
 The independent Python oracle implements code quantization, predictor clamping,
 step-index adaptation, and nibble order separately from the language ports.
 Small encoder and decoder traces are in [`workload.json`](workload.json).
+An unverified [Mojo draft](../../../mojo/i/lac_adpcm.mojo) covers both modes.
+Verifier source specifies every possible single encoded byte and an alternating
+extreme-sample trace; these cases have not been run.
 
 ## Provenance and license
 
@@ -77,6 +83,7 @@ stdout handling.
 | C3 | [c3/i/lac_adpcm.c3](../../../c3/i/lac_adpcm.c3) |
 | C++ | [cpp/i/lac_adpcm.cpp](../../../cpp/i/lac_adpcm.cpp) |
 | Elisa | [elisa/i/lac_adpcm.elisa](../../../elisa/i/lac_adpcm.elisa) |
+| Mojo | [mojo/i/lac_adpcm.mojo](../../../mojo/i/lac_adpcm.mojo) (draft, unverified) |
 | Nim | [nim/i/lac_adpcm.nim](../../../nim/i/lac_adpcm.nim) |
 | Odin | [odin/i/lac_adpcm.odin](../../../odin/i/lac_adpcm.odin) |
 | Rust | [rust/i/lac_adpcm.rs](../../../rust/i/lac_adpcm.rs) |

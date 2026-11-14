@@ -14,6 +14,9 @@ equipment. The trace length does not affect earlier decisions. Malformed
 input returns `-1`; a null output or insufficient capacity returns `-2`
 without writes. Maximum output is 32 bytes.
 
+For `t` trips, emitting the decisions takes O(t) time and O(1) auxiliary
+space apart from the output. The decision threshold is computed once.
+
 The primary oracle computes the threshold directly. The independent verifier
 simulates the rental-spend counter and purchase state. This deterministic
 profile does not include randomized threshold distributions or the chapter's
@@ -41,3 +44,4 @@ input, null buffers, and capacity errors.
 | Rust | [`rust/s/ski_rental_deterministic.rs`](../../../rust/s/ski_rental_deterministic.rs) |
 | V | [`v/s/ski_rental_deterministic.v`](../../../v/s/ski_rental_deterministic.v) |
 | Zig | [`zig/s/ski_rental_deterministic.zig`](../../../zig/s/ski_rental_deterministic.zig) |
+| Mojo | [`mojo/s/ski_rental_deterministic.mojo`](../../../mojo/s/ski_rental_deterministic.mojo) |

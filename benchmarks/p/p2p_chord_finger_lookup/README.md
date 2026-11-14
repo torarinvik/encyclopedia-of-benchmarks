@@ -12,6 +12,16 @@ This is a bounded static Chord lookup profile for the P2P chapter (DOI [`10.1007
 
 The profile fixes membership and finger links so calls measure the chapter's lookup behavior without mixing in network transport, maintenance, or random ID generation. The supplied table is checked against the canonical static ring before routing.
 
+With `n` nodes and `b` finger levels, the bounded implementation validates
+each finger by a linear successor scan, taking O(n²b) time. Routing takes at
+most O(n(b+n)) time including its cycle check, and its fixed arrays use
+O(nb) space. These costs include contract validation and are not a claim
+about the message complexity of an unconstrained Chord deployment.
+
+The verifier source defines exhaustive small rings, an upper-size frame with
+wraparound, and malformed-finger and output-capacity checks. These checks and
+the Mojo draft have not been executed.
+
 ## Provenance and rights
 
 Source: “P2P,” *Encyclopedia of Algorithms*, DOI `10.1007/978-1-4939-2864-4_272`, describing binary ring IDs, exponentially spaced shortcuts, and greedy distance reduction. This implementation is clean-room and uses only the algorithm description; it does not copy book prose or code. The chapter does not grant a source-code license. See [`RIGHTS.md`](RIGHTS.md).
@@ -28,6 +38,7 @@ Source: “P2P,” *Encyclopedia of Algorithms*, DOI `10.1007/978-1-4939-2864-4_
 | C3 | [`c3/p/p2p_chord_finger_lookup.c3`](../../../c3/p/p2p_chord_finger_lookup.c3) |
 | C++ | [`cpp/p/p2p_chord_finger_lookup.cpp`](../../../cpp/p/p2p_chord_finger_lookup.cpp) |
 | Elisa | [`elisa/p/p2p_chord_finger_lookup.elisa`](../../../elisa/p/p2p_chord_finger_lookup.elisa) |
+| Mojo | [`mojo/p/p2p_chord_finger_lookup.mojo`](../../../mojo/p/p2p_chord_finger_lookup.mojo) (unverified draft) |
 | Nim | [`nim/p/p2p_chord_finger_lookup.nim`](../../../nim/p/p2p_chord_finger_lookup.nim) |
 | Odin | [`odin/p/p2p_chord_finger_lookup.odin`](../../../odin/p/p2p_chord_finger_lookup.odin) |
 | Rust | [`rust/p/p2p_chord_finger_lookup.rs`](../../../rust/p/p2p_chord_finger_lookup.rs) |

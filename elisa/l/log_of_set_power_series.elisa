@@ -1,0 +1,27 @@
+const LSPS_MOD: i64 = 998244353
+
+def log_of_set_power_series_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length<2 or length>33: return -1
+    values: view[i64] = input[0:length]
+    if values[0]<0 or values[0]>5: return -1
+    size: usize = 1 << values[0].usize()
+    if length!=1+size or values[1]!=1: return -1
+    for i in 0..<size:
+        if values[1+i]<0 or values[1+i]>=LSPS_MOD: return -1
+    if output == null or capacity<8*size: return -2
+    output_bytes: mutable view[u8] = output[0:8*size]
+    coefficients: mutable i64[32] = zeroed
+    for mask in 1..<size:
+        pivot: usize = mask & ((~mask)+1)
+        sub: mutable usize = (mask-1) & mask
+        sum: mutable i64 = 0
+        while sub!=0:
+            if (sub & pivot)!=0: sum <- (sum+coefficients[sub]*values[1+(mask^sub)]) % LSPS_MOD
+            sub <- (sub-1) & mask
+        coefficients[mask] <- (values[1+mask]-sum+LSPS_MOD) % LSPS_MOD
+    for i in 0..<size:
+        bits: u64 = coefficients[i].u64()
+        for byte in 0..<8: output_bytes[8*i+byte] <- ((bits >> (8*byte)) & 255.u64()).u8()
+    (8*size).i64()
+
+export fn log_of_set_power_series(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = log_of_set_power_series_impl

@@ -42,3 +42,4 @@ The independent oracle is [`benchmarks/tsvc_s127_fixed_pair_expansion_oracle.py`
 | Rust | [`tsvc_s127_fixed_pair_expansion.rs`](../../../rust/t/tsvc_s127_fixed_pair_expansion.rs) |
 | V | [`tsvc_s127_fixed_pair_expansion.v`](../../../v/t/tsvc_s127_fixed_pair_expansion.v) |
 | Zig | [`tsvc_s127_fixed_pair_expansion.zig`](../../../zig/t/tsvc_s127_fixed_pair_expansion.zig) |
+| Mojo | [`tsvc_s127_fixed_pair_expansion.mojo`](../../../mojo/t/tsvc_s127_fixed_pair_expansion.mojo) (draft, unverified) |

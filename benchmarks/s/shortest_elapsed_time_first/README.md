@@ -15,6 +15,9 @@ output is one byte per time unit through completion: `0` means idle; values
 input returns `-1`; null output or insufficient capacity returns `-2` without
 writes.
 
+For `n` jobs and a trace of `T` time units, scanning the ready jobs at each
+decision takes O(nT) time. The trace and job state take O(T+n) space.
+
 The primary oracle scans the ready set at each time step. The independent
 verifier uses a priority heap and pushes a job back after each service slice.
 The profile measures a bounded execution trace, not competitive ratios or
@@ -42,3 +45,4 @@ buffers, and capacity errors.
 | Rust | [`rust/s/shortest_elapsed_time_first.rs`](../../../rust/s/shortest_elapsed_time_first.rs) |
 | V | [`v/s/shortest_elapsed_time_first.v`](../../../v/s/shortest_elapsed_time_first.v) |
 | Zig | [`zig/s/shortest_elapsed_time_first.zig`](../../../zig/s/shortest_elapsed_time_first.zig) |
+| Mojo | [`mojo/s/shortest_elapsed_time_first.mojo`](../../../mojo/s/shortest_elapsed_time_first.mojo) |

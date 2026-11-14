@@ -24,6 +24,9 @@ movement rule while avoiding arbitrary branch geometry. It does not implement
 the competitive-analysis proof. [`work_function_k_server`](../work_function_k_server/README.md)
 uses a finite-metric work-function strategy, which is a different algorithm.
 
+For k servers and q requests, the straightforward co-location scan takes
+O(qk²) time and O(qk + k) extra space, including the staged output.
+
 ## Source and rights
 
 Based on Marek Chrobak, “Algorithm DC-Tree for k-Servers on Trees,”
@@ -40,6 +43,6 @@ and independent verifier
 
 Language ports: `c/d/dc_tree_k_server_path.c`,
 `c3/d/dc_tree_k_server_path.c3`, `cpp/d/dc_tree_k_server_path.cpp`,
-`elisa/d/dc_tree_k_server_path.elisa`, `nim/d/dc_tree_k_server_path.nim`,
+`elisa/d/dc_tree_k_server_path.elisa`, `mojo/d/dc_tree_k_server_path.mojo` (draft; not compiled or run), `nim/d/dc_tree_k_server_path.nim`,
 `odin/d/dc_tree_k_server_path.odin`, `rust/d/dc_tree_k_server_path.rs`,
 `v/d/dc_tree_k_server_path.v`, and `zig/d/dc_tree_k_server_path.zig`.

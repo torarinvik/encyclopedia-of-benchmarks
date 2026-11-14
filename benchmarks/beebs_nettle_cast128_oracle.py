@@ -293,17 +293,25 @@ def _expand_step(x: list[int], keys: list[int], slot: int) -> int:
     _put_word(z, 4, _word(x, 8) ^ _s(4, z[0]) ^ _s(5, z[2]) ^ _s(6, z[1]) ^ _s(7, z[3]) ^ _s(7, x[10]))
     _put_word(z, 8, _word(x, 12) ^ _s(4, z[7]) ^ _s(5, z[6]) ^ _s(6, z[5]) ^ _s(7, z[4]) ^ _s(4, x[9]))
     _put_word(z, 12, _word(x, 4) ^ _s(4, z[10]) ^ _s(5, z[9]) ^ _s(6, z[11]) ^ _s(7, z[8]) ^ _s(5, x[11]))
+    first_pattern = (slot // 8) % 2 == 0
     keys[slot:slot + 4] = [
         _s(4, z[8]) ^ _s(5, z[9]) ^ _s(6, z[7]) ^ _s(7, z[6]) ^ _s(4, z[2]),
         _s(4, z[10]) ^ _s(5, z[11]) ^ _s(6, z[5]) ^ _s(7, z[4]) ^ _s(5, z[6]),
         _s(4, z[12]) ^ _s(5, z[13]) ^ _s(6, z[3]) ^ _s(7, z[2]) ^ _s(6, z[9]),
         _s(4, z[14]) ^ _s(5, z[15]) ^ _s(6, z[1]) ^ _s(7, z[0]) ^ _s(7, z[12]),
     ]
+    if not first_pattern:
+        keys[slot:slot + 4] = [
+            _s(4,z[3]) ^ _s(5,z[2]) ^ _s(6,z[12]) ^ _s(7,z[13]) ^ _s(4,z[9]),
+            _s(4,z[1]) ^ _s(5,z[0]) ^ _s(6,z[14]) ^ _s(7,z[15]) ^ _s(5,z[12]),
+            _s(4,z[7]) ^ _s(5,z[6]) ^ _s(6,z[8]) ^ _s(7,z[9]) ^ _s(6,z[2]),
+            _s(4,z[5]) ^ _s(5,z[4]) ^ _s(6,z[10]) ^ _s(7,z[11]) ^ _s(7,z[6]),
+        ]
     next_x = [0] * 16
     _put_word(next_x, 0, _word(z, 8) ^ _s(4, z[5]) ^ _s(5, z[7]) ^ _s(6, z[4]) ^ _s(7, z[6]) ^ _s(6, z[0]))
-    _put_word(next_x, 4, _word(z, 0) ^ _s(4, x[0]) ^ _s(5, x[2]) ^ _s(6, x[1]) ^ _s(7, x[3]) ^ _s(7, z[2]))
-    _put_word(next_x, 8, _word(z, 4) ^ _s(4, x[7]) ^ _s(5, x[6]) ^ _s(6, x[5]) ^ _s(7, x[4]) ^ _s(4, z[1]))
-    _put_word(next_x, 12, _word(z, 12) ^ _s(4, x[10]) ^ _s(5, x[9]) ^ _s(6, x[11]) ^ _s(7, x[8]) ^ _s(5, z[3]))
+    _put_word(next_x, 4, _word(z, 0) ^ _s(4, next_x[0]) ^ _s(5, next_x[2]) ^ _s(6, next_x[1]) ^ _s(7, next_x[3]) ^ _s(7, z[2]))
+    _put_word(next_x, 8, _word(z, 4) ^ _s(4, next_x[7]) ^ _s(5, next_x[6]) ^ _s(6, next_x[5]) ^ _s(7, next_x[4]) ^ _s(4, z[1]))
+    _put_word(next_x, 12, _word(z, 12) ^ _s(4, next_x[10]) ^ _s(5, next_x[9]) ^ _s(6, next_x[11]) ^ _s(7, next_x[8]) ^ _s(5, z[3]))
     x[:] = next_x
     keys[slot + 4:slot + 8] = [
         _s(4, x[3]) ^ _s(5, x[2]) ^ _s(6, x[12]) ^ _s(7, x[13]) ^ _s(4, x[8]),
@@ -311,6 +319,13 @@ def _expand_step(x: list[int], keys: list[int], slot: int) -> int:
         _s(4, x[7]) ^ _s(5, x[6]) ^ _s(6, x[8]) ^ _s(7, x[9]) ^ _s(6, x[3]),
         _s(4, x[5]) ^ _s(5, x[4]) ^ _s(6, x[10]) ^ _s(7, x[11]) ^ _s(7, x[7]),
     ]
+    if not first_pattern:
+        keys[slot + 4:slot + 8] = [
+            _s(4,x[8]) ^ _s(5,x[9]) ^ _s(6,x[7]) ^ _s(7,x[6]) ^ _s(4,x[3]),
+            _s(4,x[10]) ^ _s(5,x[11]) ^ _s(6,x[5]) ^ _s(7,x[4]) ^ _s(5,x[7]),
+            _s(4,x[12]) ^ _s(5,x[13]) ^ _s(6,x[3]) ^ _s(7,x[2]) ^ _s(6,x[8]),
+            _s(4,x[14]) ^ _s(5,x[15]) ^ _s(6,x[1]) ^ _s(7,x[0]) ^ _s(7,x[13]),
+        ]
     return slot + 8
 
 

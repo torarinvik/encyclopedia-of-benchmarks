@@ -49,6 +49,7 @@ and
 | C3 | `c3/m/metric_tsp_christofides.c3` |
 | C++ | `cpp/m/metric_tsp_christofides.cpp` |
 | Elisa | `elisa/m/metric_tsp_christofides.elisa` |
+| Mojo | `mojo/m/metric_tsp_christofides.mojo` |
 | Nim | `nim/m/metric_tsp_christofides.nim` |
 | Odin | `odin/m/metric_tsp_christofides.odin` |
 | Rust | `rust/m/metric_tsp_christofides.rs` |

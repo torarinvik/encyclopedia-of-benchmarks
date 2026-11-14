@@ -1,0 +1,64 @@
+def range_sum_upper_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 258: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 64 or values[1] < 1 or values[1] > 64: return -1
+    n: usize = values[0].usize()
+    q: usize = values[1].usize()
+    if length != 2+n+3*q: return -1
+    current: mutable i64[64] = zeroed
+    scratch: mutable i64[64] = zeroed
+    for i in 0..<n:
+        if values[2+i] < 0 or values[2+i] > 1000000000: return -1
+        current[i] <- values[2+i]
+    for i in 0..<q:
+        b: usize = 2+n+3*i
+        if values[b] < 0 or values[b] > values[b+1] or values[b+1] > n.i64(): return -1
+        if values[b+2] < 0 or values[b+2] > 1000000000: return -1
+    if output == null or capacity < 16*q: return -2
+    result: mutable view[u8] = output[0:16*q]
+    counts: mutable usize[1950] = zeroed
+    sums: mutable i64[1950] = zeroed
+    offsets: mutable usize[30] = zeroed
+    for level in 0..<30:
+        mask: i64 = 1.i64() << (29-level)
+        for i in 0..<n:
+            counts[65*level+i+1] <- counts[65*level+i]
+            sums[65*level+i+1] <- sums[65*level+i]
+            if (current[i] & mask) == 0:
+                counts[65*level+i+1] <- counts[65*level+i+1]+1
+                sums[65*level+i+1] <- sums[65*level+i+1]+current[i]
+        offsets[level] <- counts[65*level+n]
+        z: mutable usize = 0
+        o: mutable usize = offsets[level]
+        for i in 0..<n:
+            if (current[i] & mask) == 0:
+                scratch[z] <- current[i]
+                z <- z+1
+            else:
+                scratch[o] <- current[i]
+                o <- o+1
+        for i in 0..<n: current[i] <- scratch[i]
+    for i in 0..<q:
+        b: usize = 2+n+3*i
+        l: mutable usize = values[b].usize()
+        r: mutable usize = values[b+1].usize()
+        key: i64 = values[b+2]+1
+        count: mutable i64 = 0
+        total: mutable i64 = 0
+        for level in 0..<30:
+            zl: usize = counts[65*level+l]
+            zr: usize = counts[65*level+r]
+            if (key & (1.i64() << (29-level))) != 0:
+                count <- count+(zr-zl).i64()
+                total <- total+sums[65*level+r]-sums[65*level+l]
+                l <- l+offsets[level]-zl
+                r <- r+offsets[level]-zr
+            else:
+                l <- zl
+                r <- zr
+        for byte in 0..<8:
+            result[16*i+byte] <- ((count >> (8*byte)) & 255).u8()
+            result[16*i+8+byte] <- ((total >> (8*byte)) & 255).u8()
+    return (16*q).i64()
+
+export fn static_range_sum_with_upper_bound(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = range_sum_upper_impl

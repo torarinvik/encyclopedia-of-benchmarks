@@ -52,3 +52,5 @@ small-item fill.
 
 C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig export
 `knapsack_profit_scaling_small_large_fptas` via `i64_array_bytes_output`.
+
+The [Mojo draft](../../../mojo/k/knapsack_profit_scaling_small_large_fptas.mojo) has not been compiled or run. With n items and O(n) scaled-profit states in this fixed-epsilon profile, the direct DP and candidate fills take O(n²) time and O(n) auxiliary space.

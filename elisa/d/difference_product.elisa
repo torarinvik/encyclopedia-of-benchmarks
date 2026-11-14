@@ -1,0 +1,356 @@
+# Independent difference-product Elisa draft; see package README.
+# View-based polynomial and product/remainder-tree implementation draft.
+extern calloc(count: usize, size: usize) -> mutable i64&?
+extern free(memory: mutable i64&) -> void
+
+const DP_PRIME: i64 = 998244353
+const DP_TREE_CAPACITY: usize = 1245184
+const DP_WORKSPACE_CAPACITY: usize = 3670021
+const DP_METADATA_CAPACITY: usize = 131072
+
+def dp_power(value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * base) % DP_PRIME
+        base <- (base * base) % DP_PRIME
+        exponent <- exponent >> 1
+    result
+
+# values is an exact power-of-two view with at most 2^23 entries.
+def dp_transform(values: mutable view[i64], count: usize, inverse: bool) -> void:
+    reversed: mutable usize = 0
+    for i in 1..<count:
+        bit: mutable usize = count >> 1
+        while (reversed & bit) != 0:
+            reversed <- reversed ^ bit
+            bit <- bit >> 1
+        reversed <- reversed ^ bit
+        if i < reversed:
+            temporary: i64 = values[i]
+            values[i] <- values[reversed]
+            values[reversed] <- temporary
+    width: mutable usize = 2
+    while width <= count:
+        step: mutable i64 = dp_power(3, (DP_PRIME - 1) / width.i64())
+        if inverse: step <- dp_power(step, DP_PRIME - 2)
+        start: mutable usize = 0
+        while start < count:
+            root: mutable i64 = 1
+            for j in 0..<(width / 2):
+                even: i64 = values[start + j]
+                odd: i64 = (values[start + j + width / 2] * root) % DP_PRIME
+                values[start + j] <- (even + odd) % DP_PRIME
+                values[start + j + width / 2] <- (even - odd + DP_PRIME) % DP_PRIME
+                root <- (root * step) % DP_PRIME
+            start <- start + width
+        width <- width * 2
+    if inverse:
+        scale: i64 = dp_power(count.i64(), DP_PRIME - 2)
+        for i in 0..<count: values[i] <- (values[i] * scale) % DP_PRIME
+
+# Caller provides distinct result and scratch views, sized for the output and
+# next power-of-two transform respectively. Inputs hold canonical residues.
+def dp_multiply(left: view[i64], left_len: usize, right: view[i64], right_len: usize,
+                output: mutable view[i64], scratch_left: mutable view[i64],
+                scratch_right: mutable view[i64]) -> usize:
+    if left_len == 0 or right_len == 0: return 0
+    needed: usize = left_len + right_len - 1
+    for i in 0..<needed: output[i] <- 0
+    if left_len <= 32 or right_len <= 32:
+        for i in 0..<left_len:
+            for j in 0..<right_len:
+                output[i + j] <- (output[i + j] + left[i] * right[j]) % DP_PRIME
+        return needed
+    size: mutable usize = 1
+    while size < needed: size <- size * 2
+    for i in 0..<size:
+        scratch_left[i] <- 0
+        scratch_right[i] <- 0
+    for i in 0..<left_len: scratch_left[i] <- left[i]
+    for i in 0..<right_len: scratch_right[i] <- right[i]
+    dp_transform(scratch_left[0:size], size, false)
+    dp_transform(scratch_right[0:size], size, false)
+    for i in 0..<size: scratch_left[i] <- (scratch_left[i] * scratch_right[i]) % DP_PRIME
+    dp_transform(scratch_left[0:size], size, true)
+    for i in 0..<needed: output[i] <- scratch_left[i]
+    needed
+
+# Newton doubling returns the first count coefficients of the inverse.
+# The caller supplies disjoint views: result >= count, product >= 2*count,
+# correction >= count, and both transform scratch views large enough for
+# the next power of two covering each multiplication.
+def dp_inverse(poly: view[i64], poly_len: usize, count: usize,
+               result: mutable view[i64], product: mutable view[i64],
+               correction: mutable view[i64], scratch_left: mutable view[i64],
+               scratch_right: mutable view[i64]) -> void:
+    result[0] <- dp_power(poly[0], DP_PRIME - 2)
+    length: mutable usize = 1
+    while length < count:
+        next: mutable usize = 2 * length
+        if next > count: next <- count
+        prefix: mutable usize = poly_len
+        if prefix > next: prefix <- next
+        product_len: usize = dp_multiply(poly[0:prefix], prefix, result[0:length], length,
+                                         product, scratch_left, scratch_right)
+        for i in 0..<next:
+            value: mutable i64 = 0
+            if i < product_len: value <- product[i]
+            correction[i] <- (DP_PRIME - value) % DP_PRIME
+        correction[0] <- (correction[0] + 2) % DP_PRIME
+        updated_len: usize = dp_multiply(result[0:length], length, correction[0:next], next,
+                                         product, scratch_left, scratch_right)
+        for i in 0..<next: result[i] <- product[i]
+        length <- next
+
+# Divide by a nonzero monic divisor. Every workspace view below is disjoint;
+# high, inverse and quotient hold quotient_len coefficients; reversed holds
+# divisor_len; work_a is large enough for either full multiplication;
+# work_b holds quotient_len; transform scratch views cover the largest NTT.
+def dp_remainder(dividend: view[i64], dividend_len: usize,
+                 divisor: view[i64], divisor_len: usize,
+                 output: mutable view[i64], high: mutable view[i64],
+                 reversed: mutable view[i64], inverse: mutable view[i64],
+                 quotient: mutable view[i64], work_a: mutable view[i64],
+                 work_b: mutable view[i64], scratch_left: mutable view[i64],
+                 scratch_right: mutable view[i64]) -> usize:
+    if dividend_len < divisor_len:
+        for i in 0..<dividend_len: output[i] <- dividend[i]
+        return dividend_len
+    if divisor_len == 1: return 0
+    quotient_len: usize = dividend_len - divisor_len + 1
+    for i in 0..<quotient_len: high[i] <- dividend[dividend_len - 1 - i]
+    for i in 0..<divisor_len: reversed[i] <- divisor[divisor_len - 1 - i]
+    dp_inverse(reversed[0:divisor_len], divisor_len, quotient_len, inverse, work_a,
+               work_b, scratch_left, scratch_right)
+    high_product_len: usize = dp_multiply(high[0:quotient_len], quotient_len,
+                                          inverse[0:quotient_len], quotient_len,
+                                          work_a, scratch_left, scratch_right)
+    for i in 0..<quotient_len: quotient[i] <- work_a[quotient_len - 1 - i]
+    removed_len: usize = dp_multiply(quotient[0:quotient_len], quotient_len,
+                                     divisor[0:divisor_len], divisor_len,
+                                     work_a, scratch_left, scratch_right)
+    result_len: mutable usize = divisor_len - 1
+    for i in 0..<result_len:
+        output[i] <- (dividend[i] - work_a[i] + DP_PRIME) % DP_PRIME
+    while result_len > 0 and output[result_len - 1] == 0: result_len <- result_len - 1
+    result_len
+
+# Build the product tree of (x - point). Identity leaves pad to leaf_count,
+# which must be a power of two >= point_count. The caller supplies coefficient
+# storage for the sum of every node's polynomial length, two metadata views of
+# at least 2*leaf_count, and transform scratch for the largest product. All
+# views must be disjoint. Return the number of coefficient slots used.
+def dp_build_tree(points: view[i64], point_count: usize, leaf_count: usize,
+                  coefficients: mutable view[i64], offsets: mutable view[usize],
+                  lengths: mutable view[usize], scratch_left: mutable view[i64],
+                  scratch_right: mutable view[i64]) -> usize:
+    cursor: mutable usize = 0
+    for i in 0..<leaf_count:
+        node: usize = leaf_count + i
+        offsets[node] <- cursor
+        if i < point_count:
+            lengths[node] <- 2
+            coefficients[cursor] <- (DP_PRIME - points[i]) % DP_PRIME
+            coefficients[cursor + 1] <- 1
+            cursor <- cursor + 2
+        else:
+            lengths[node] <- 1
+            coefficients[cursor] <- 1
+            cursor <- cursor + 1
+    node: mutable usize = leaf_count
+    while node > 1:
+        node <- node - 1
+        left: usize = node * 2
+        right: usize = left + 1
+        left_len: usize = lengths[left]
+        right_len: usize = lengths[right]
+        left_start: usize = offsets[left]
+        right_start: usize = offsets[right]
+        needed: usize = left_len + right_len - 1
+        offsets[node] <- cursor
+        lengths[node] <- dp_multiply(coefficients[left_start:left_start + left_len], left_len,
+                                     coefficients[right_start:right_start + right_len], right_len,
+                                     coefficients[cursor:cursor + needed], scratch_left, scratch_right)
+        cursor <- cursor + needed
+    cursor
+
+# Evaluate polynomial at the tree's original points. Node remainders occupy
+# disjoint slices of a caller-owned arena and are propagated in heap order.
+# The tree, metadata, remainder arena and all polynomial scratch views must be
+# disjoint; each needs capacity for its largest intermediate. The arena holds
+# the root remainder plus the sum of each descendant's possible remainder
+# length. Padded identity leaves produce empty remainders.
+def dp_evaluate_tree(poly: view[i64], poly_len: usize, tree: view[i64],
+                     tree_offsets: view[usize], tree_lengths: view[usize],
+                     leaf_count: usize, point_count: usize,
+                     arena: mutable view[i64], rem_offsets: mutable view[usize],
+                     rem_lengths: mutable view[usize], output: mutable view[i64],
+                     high: mutable view[i64], reversed: mutable view[i64],
+                     inverse: mutable view[i64], quotient: mutable view[i64],
+                     work_a: mutable view[i64], work_b: mutable view[i64],
+                     scratch_left: mutable view[i64], scratch_right: mutable view[i64]) -> usize:
+    root_offset: usize = tree_offsets[1]
+    root_length: usize = tree_lengths[1]
+    root_capacity: mutable usize = poly_len
+    if poly_len >= root_length: root_capacity <- root_length - 1
+    rem_offsets[1] <- 0
+    rem_lengths[1] <- dp_remainder(poly, poly_len, tree[root_offset:root_offset + root_length],
+                                   root_length, arena[0:root_capacity], high, reversed, inverse,
+                                   quotient, work_a, work_b, scratch_left, scratch_right)
+    cursor: mutable usize = root_capacity
+    for node in 1..<leaf_count:
+        parent_start: usize = rem_offsets[node]
+        parent_length: usize = rem_lengths[node]
+        for child_index in 0..<2:
+            child: usize = 2 * node + child_index
+            divisor_start: usize = tree_offsets[child]
+            divisor_length: usize = tree_lengths[child]
+            capacity: mutable usize = parent_length
+            if parent_length >= divisor_length: capacity <- divisor_length - 1
+            rem_offsets[child] <- cursor
+            rem_lengths[child] <- dp_remainder(arena[parent_start:parent_start + parent_length],
+                                                parent_length,
+                                                tree[divisor_start:divisor_start + divisor_length],
+                                                divisor_length, arena[cursor:cursor + capacity],
+                                                high, reversed, inverse, quotient, work_a, work_b,
+                                                scratch_left, scratch_right)
+            cursor <- cursor + capacity
+    for i in 0..<point_count:
+        node: usize = leaf_count + i
+        if rem_lengths[node] == 0: output[i] <- 0
+        else: output[i] <- arena[rem_offsets[node]]
+    cursor
+
+# Evaluate only the leaves below subtree_root. Output uses global leaf indices,
+# so a parent can multiply just its right child's contiguous output range.
+# The explicit stack and remainder arena are reused for every cross product.
+def dp_evaluate_subtree(poly: view[i64], poly_len: usize, tree: view[i64],
+                        tree_offsets: view[usize], tree_lengths: view[usize],
+                        leaf_count: usize, subtree_root: usize,
+                        arena: mutable view[i64], rem_offsets: mutable view[usize],
+                        rem_lengths: mutable view[usize], stack: mutable view[usize],
+                        output: mutable view[i64], high: mutable view[i64],
+                        reversed: mutable view[i64], inverse: mutable view[i64],
+                        quotient: mutable view[i64], work_a: mutable view[i64],
+                        work_b: mutable view[i64], scratch_left: mutable view[i64],
+                        scratch_right: mutable view[i64]) -> usize:
+    root_offset: usize = tree_offsets[subtree_root]
+    root_length: usize = tree_lengths[subtree_root]
+    capacity: mutable usize = poly_len
+    if poly_len >= root_length: capacity <- root_length - 1
+    rem_offsets[subtree_root] <- 0
+    rem_lengths[subtree_root] <- dp_remainder(poly, poly_len,
+                                               tree[root_offset:root_offset + root_length], root_length,
+                                               arena[0:capacity], high, reversed, inverse, quotient,
+                                               work_a, work_b, scratch_left, scratch_right)
+    cursor: mutable usize = capacity
+    stack[0] <- subtree_root
+    depth: mutable usize = 1
+    while depth > 0:
+        depth <- depth - 1
+        node: usize = stack[depth]
+        if node >= leaf_count:
+            position: usize = node - leaf_count
+            if rem_lengths[node] == 0: output[position] <- 0
+            else: output[position] <- arena[rem_offsets[node]]
+        else:
+            start: usize = rem_offsets[node]
+            length: usize = rem_lengths[node]
+            for child_index in 0..<2:
+                child: usize = 2 * node + child_index
+                divisor_start: usize = tree_offsets[child]
+                divisor_len: usize = tree_lengths[child]
+                child_capacity: mutable usize = length
+                if length >= divisor_len: child_capacity <- divisor_len - 1
+                rem_offsets[child] <- cursor
+                rem_lengths[child] <- dp_remainder(arena[start:start + length], length,
+                                                    tree[divisor_start:divisor_start + divisor_len],
+                                                    divisor_len, arena[cursor:cursor + child_capacity],
+                                                    high, reversed, inverse, quotient, work_a, work_b,
+                                                    scratch_left, scratch_right)
+                cursor <- cursor + child_capacity
+                stack[depth] <- child
+                depth <- depth + 1
+    cursor
+
+# Each ordered pair separates at exactly one internal node. Evaluate that
+# node's left-root polynomial at its right-subtree points, multiply the values,
+# and reverse the sign for every cross pair. Identity leaves are skipped.
+def dp_cross_product(tree: view[i64], tree_offsets: view[usize],
+                     tree_lengths: view[usize], leaf_count: usize,
+                     arena: mutable view[i64], rem_offsets: mutable view[usize],
+                     rem_lengths: mutable view[usize], stack: mutable view[usize],
+                     values: mutable view[i64], high: mutable view[i64],
+                     reversed: mutable view[i64], inverse: mutable view[i64],
+                     quotient: mutable view[i64], work_a: mutable view[i64],
+                     work_b: mutable view[i64], scratch_left: mutable view[i64],
+                     scratch_right: mutable view[i64]) -> i64:
+    result: mutable i64 = 1
+    for node in 1..<leaf_count:
+        left: usize = node * 2
+        right: usize = left + 1
+        left_count: usize = tree_lengths[left] - 1
+        right_count: usize = tree_lengths[right] - 1
+        if left_count == 0 or right_count == 0: continue
+        left_offset: usize = tree_offsets[left]
+        left_len: usize = tree_lengths[left]
+        used: usize = dp_evaluate_subtree(tree[left_offset:left_offset + left_len], left_len,
+                                          tree, tree_offsets, tree_lengths, leaf_count, right,
+                                          arena, rem_offsets, rem_lengths, stack, values, high,
+                                          reversed, inverse, quotient, work_a, work_b,
+                                          scratch_left, scratch_right)
+        first_leaf: mutable usize = right
+        while first_leaf < leaf_count: first_leaf <- first_leaf * 2
+        start: usize = first_leaf - leaf_count
+        for i in start..<start + right_count:
+            result <- (result * values[i]) % DP_PRIME
+        if (left_count & 1) != 0 and (right_count & 1) != 0 and result != 0:
+            result <- DP_PRIME - result
+        if result == 0: return 0
+    result
+
+# The product tree uses at most n*(log2(leaf_count)+1) + 2*leaf_count-1
+# coefficients. For n<=65536 this is below DP_TREE_CAPACITY. The remainder
+# arena uses the same conservative bound; polynomial work and NTT buffers have
+# separate segments. Metadata uses five bounded local arrays.
+export fn difference_product(input: i64&, length: usize) -> i64:
+    if input == null or length == 0: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > 65536: return -1
+    count: usize = count_value.usize()
+    if length != count + 1: return -1
+    for i in 0..<count:
+        if input[i + 1] < 0 or input[i + 1] >= DP_PRIME: return -1
+    if count <= 1: return 1
+    points: view[i64] = input[1:length]
+    leaf_count: mutable usize = 1
+    while leaf_count < count: leaf_count <- leaf_count * 2
+
+    metadata_offsets: mutable usize[DP_METADATA_CAPACITY] = zeroed
+    metadata_lengths: mutable usize[DP_METADATA_CAPACITY] = zeroed
+    remainder_offsets: mutable usize[DP_METADATA_CAPACITY] = zeroed
+    remainder_lengths: mutable usize[DP_METADATA_CAPACITY] = zeroed
+    stack: mutable usize[DP_METADATA_CAPACITY] = zeroed
+    memory: mutable i64& = get calloc(DP_WORKSPACE_CAPACITY, 8) else return -1
+    workspace: mutable view[i64] = memory[0:DP_WORKSPACE_CAPACITY]
+
+    tree_used: usize = dp_build_tree(points, count, leaf_count,
+                                     workspace[0:1245184],
+                                     metadata_offsets[0:DP_METADATA_CAPACITY],
+                                     metadata_lengths[0:DP_METADATA_CAPACITY],
+                                     workspace[3145733:3407877], workspace[3407877:3670021])
+    result: i64 = dp_cross_product(workspace[0:tree_used],
+                                   metadata_offsets[0:DP_METADATA_CAPACITY],
+                                   metadata_lengths[0:DP_METADATA_CAPACITY], leaf_count,
+                                   workspace[1245184:2490368],
+                                   remainder_offsets[0:DP_METADATA_CAPACITY],
+                                   remainder_lengths[0:DP_METADATA_CAPACITY],
+                                   stack[0:DP_METADATA_CAPACITY], workspace[2490368:2555904],
+                                   workspace[2555904:2621441], workspace[2621441:2686978],
+                                   workspace[2686978:2752515], workspace[2752515:2818052],
+                                   workspace[2818052:3080196], workspace[3080196:3145733],
+                                   workspace[3145733:3407877], workspace[3407877:3670021])
+    free(memory)
+    result

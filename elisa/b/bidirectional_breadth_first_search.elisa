@@ -11,15 +11,16 @@ def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
 
 def bidirectional_breadth_first_search_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 5 or length > MAX_INPUT_LENGTH: return -1
-    rows_value: i64 = input[0]
-    cols_value: i64 = input[1]
+    values: view[i64] = input[0:length]
+    rows_value: i64 = values[0]
+    cols_value: i64 = values[1]
     if rows_value < 1 or rows_value > MAX_DIMENSION.i64() or cols_value < 1 or cols_value > MAX_DIMENSION.i64(): return -1
     rows: usize = rows_value.usize()
     cols: usize = cols_value.usize()
     cells: usize = rows * cols
-    start_value: i64 = input[2]
-    goal_value: i64 = input[3]
-    blocked_count_value: i64 = input[4]
+    start_value: i64 = values[2]
+    goal_value: i64 = values[3]
+    blocked_count_value: i64 = values[4]
     if start_value < 0 or start_value >= cells.i64() or goal_value < 0 or goal_value >= cells.i64() or blocked_count_value < 0 or blocked_count_value > cells.i64(): return -1
     blocked_count: usize = blocked_count_value.usize()
     if length != 5 + blocked_count: return -1
@@ -27,7 +28,7 @@ def bidirectional_breadth_first_search_impl(input: i64&, length: usize, output: 
     blocked: mutable bool[MAX_CELLS] = zeroed
     index: mutable usize = 0
     while index < blocked_count:
-        value: i64 = input[5 + index]
+        value: i64 = values[5 + index]
         if value < 0 or value >= cells.i64(): return -1
         cell: usize = value.usize()
         if blocked[cell]: return -1
@@ -112,9 +113,10 @@ def bidirectional_breadth_first_search_impl(input: i64&, length: usize, output: 
         value_count <- value_count + path_count
     required: usize = value_count * 8
     if output.is_null() or capacity < required: return -2
+    target: mutable view[u8] = output[0:required]
     index <- 0
     while index < value_count:
-        put_i64(output[0:required], index * 8, encoded[index])
+        put_i64(target, index * 8, encoded[index])
         index <- index + 1
     required.i64()
 

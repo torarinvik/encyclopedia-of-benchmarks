@@ -8,5 +8,5 @@ export fn counting_triangles_stream_reservoir(input:[*c]const i64,length:usize,o
     const base=2+2*m;for(1..m+1)|t|{for(0..2)|s|{const r=input[base+2*(t-1)+s];if(r<0 or r>=@as(i64,@intCast(t)))return -1;}}
     var su=[_]i64{-1}**2;var sv=[_]i64{-1}**2;var staged=[_]i64{0}**112;var at:usize=0;
     for(1..m+1)|t|{for(0..2)|s|{if(input[base+2*(t-1)+s]==0){su[s]=eu[t-1];sv[s]=ev[t-1];}}for(0..2)|s|{staged[at]=su[s];at+=1;staged[at]=sv[s];at+=1;}}
-    const bytes=16*m;if(output==null or capacity<bytes)return -2;for(0..at)|i|put_i64(output,8*i,staged[i]);return @intCast(bytes);
+    const bytes=32*m;if(output==null or capacity<bytes)return -2;for(0..at)|i|put_i64(output,8*i,staged[i]);return @intCast(bytes);
 }

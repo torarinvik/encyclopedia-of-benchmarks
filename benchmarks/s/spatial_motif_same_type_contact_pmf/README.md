@@ -28,6 +28,9 @@ coefficients and products fit signed 64-bit words; the maximum output is 112
 bytes and fixed workspace is 4096 bytes. Invalid input returns `-1`; null
 output or insufficient capacity returns `-2` without writing.
 
+With `s` support values, the direct multiplicative binomial calculations take
+O(s·l) time and O(s) space for the output, where `l` is the fragment length.
+
 This is a precise partial profile of DOI 601's same-type spatial-contact
 permutation null model. It does not implement mixed-type dependent contact
 significance, positional null models, sequence motifs, multiple-sequence
@@ -54,3 +57,4 @@ Primary and independent verifier oracles:
 | Rust | `rust/s/spatial_motif_same_type_contact_pmf.rs` |
 | V | `v/s/spatial_motif_same_type_contact_pmf.v` |
 | Zig | `zig/s/spatial_motif_same_type_contact_pmf.zig` |
+| Mojo | [mojo/s/spatial_motif_same_type_contact_pmf.mojo](../../../mojo/s/spatial_motif_same_type_contact_pmf.mojo) |

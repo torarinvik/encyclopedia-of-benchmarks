@@ -63,7 +63,7 @@ all-pairs/cutoff workload concept.
 | Nim | [`nim/s/splash2_water_nsquared.nim`](../../../nim/s/splash2_water_nsquared.nim) |
 | Odin | [`odin/s/splash2_water_nsquared.odin`](../../../odin/s/splash2_water_nsquared.odin) |
 | Rust | [`rust/s/splash2_water_nsquared.rs`](../../../rust/s/splash2_water_nsquared.rs) |
-| V | [`v/s/splash2_water_nsquared.v`](../../../v/splash2_water_nsquared.v) |
+| V | [`v/s/splash2_water_nsquared.v`](../../../v/s/splash2_water_nsquared.v) |
 | Zig | [`zig/s/splash2_water_nsquared.zig`](../../../zig/s/splash2_water_nsquared.zig) |
 
 The independent oracle is [`splash2_water_nsquared_oracle.py`](../../splash2_water_nsquared_oracle.py).

@@ -41,6 +41,7 @@ pub fn kirkpatrick_hierarchical_point_location(input &i64, length usize, output 
 		if input==nil||length<14||length>max_input{return -1}
 		nv64:=input[0];nl64:=input[1];qx:=input[2];qy:=input[3]
 		if nv64<3||nv64>max_vertices||nl64<1||nl64>max_levels||qx< -1000||qx>1000||qy< -1000||qy>1000{return -1}
+		if length<usize(4+2*nv64){return -1}
 		n:=int(nv64);levels:=int(nl64);mut xy:=[max_vertices*2]i64{};mut faces:=[max_levels*max_faces*3]i64{};mut face_count:=[max_levels]int{};mut cc:=[max_levels*max_faces]int{};mut ids:=[max_levels*max_faces*max_faces]int{}
 		mut pos:=4
 		for v in 0..n {xy[2*v]=input[pos];xy[2*v+1]=input[pos+1];pos+=2;if xy[2*v]< -1000||xy[2*v]>1000||xy[2*v+1]< -1000||xy[2*v+1]>1000{return -1}}

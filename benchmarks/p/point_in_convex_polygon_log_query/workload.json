@@ -41,7 +41,7 @@
     "bytes": 8192,
     "meaning": "Bound for polygon, fan vectors, batched query/answer arrays, and external output capacity."
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Rotate to the lexicographically smallest vertex, check the two fan rays, binary-search their polar-order triangle, and classify with exact cross products and a segment boundary test.",
     "independent_oracle": "Scan all polygon edges using exact even-odd horizontal-ray crossings after a separate inclusive boundary check.",
     "complexity": "O(N^2) bounded input validation, O(log N) per primary query, and O(N) per independent query."

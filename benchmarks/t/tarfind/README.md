@@ -50,12 +50,16 @@ the middle of the record list. This contract accepts explicit bounded names
 and queries so the same linear scan can be checked for early, late, duplicate,
 and absent matches across all nine ports.
 
+For r records, q queries, and maximum name length L, parsing and lookup take
+O((r+q)L + qrL) time and O(r+q) auxiliary space.
+
 | Language | Port |
 | --- | --- |
 | C | [tarfind.c](../../../c/t/tarfind.c) |
 | C3 | [tarfind.c3](../../../c3/t/tarfind.c3) |
 | C++ | [tarfind.cpp](../../../cpp/t/tarfind.cpp) |
 | Elisa | [tarfind.elisa](../../../elisa/t/tarfind.elisa) |
+| Mojo | [tarfind.mojo](../../../mojo/t/tarfind.mojo) (draft; not compiled or run) |
 | Nim | [tarfind.nim](../../../nim/t/tarfind.nim) |
 | Odin | [tarfind.odin](../../../odin/t/tarfind.odin) |
 | Rust | [tarfind.rs](../../../rust/t/tarfind.rs) |

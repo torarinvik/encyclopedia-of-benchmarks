@@ -13,6 +13,10 @@ This package ports the pinned Java and Python implementations of merge intervals
 
 The Java source mutates its input rows while merging, while Python sorts a copy. Each ABI call decodes its own input and returns only the merged pairs, so those mutation differences do not affect the observable result.
 
+The Mojo draft uses insertion sort followed by a linear merge, taking O(n²)
+worst-case time and O(n) storage for n input intervals. Other ports may use
+their language's sorting library, with different sorting costs.
+
 ## Workload and oracle
 
 [workload.json](workload.json) covers empty, overlapping, touching, nested, duplicate, unsorted, signed-boundary, maximum-size, malformed-input, null-output, and short-capacity cases. The independent union-find oracle is [merge_intervals_oracle.py](../merge_intervals_oracle.py).
@@ -44,6 +48,7 @@ Verify a selected port with:
 | C3 | [c3/m/merge_intervals.c3](../../c3/m/merge_intervals.c3) |
 | C++ | [cpp/m/merge_intervals.cpp](../../cpp/m/merge_intervals.cpp) |
 | Elisa | [elisa/m/merge_intervals.elisa](../../elisa/m/merge_intervals.elisa) |
+| Mojo | [mojo/m/merge_intervals.mojo](../../mojo/m/merge_intervals.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/merge_intervals.nim](../../nim/m/merge_intervals.nim) |
 | Odin | [odin/m/merge_intervals.odin](../../odin/m/merge_intervals.odin) |
 | Rust | [rust/m/merge_intervals.rs](../../rust/m/merge_intervals.rs) |

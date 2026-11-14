@@ -69,11 +69,7 @@ def lex_bfs(input: i64&, length: usize,
         neighbor: mutable usize = 0
         while neighbor < n:
             if adjacency[current][neighbor] and not selected[neighbor]:
-                position: mutable usize = label_len[neighbor]
-                while position > 0:
-                    labels[neighbor][position] <- labels[neighbor][position - 1]
-                    position <- position - 1
-                labels[neighbor][0] <- step.i64()
+                labels[neighbor][label_len[neighbor]] <- (n - step).i64()
                 label_len[neighbor] <- label_len[neighbor] + 1
             neighbor <- neighbor + 1
         step <- step + 1

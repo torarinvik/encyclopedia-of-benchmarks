@@ -41,6 +41,7 @@ algorithm package.
 | C3 | [c3/a/automotive_bitcount.c3](../../../c3/a/automotive_bitcount.c3) |
 | C++ | [cpp/a/automotive_bitcount.cpp](../../../cpp/a/automotive_bitcount.cpp) |
 | Elisa | [elisa/a/automotive_bitcount.elisa](../../../elisa/a/automotive_bitcount.elisa) |
+| Mojo | [mojo/a/automotive_bitcount.mojo](../../../mojo/a/automotive_bitcount.mojo) (draft, unverified) |
 | Nim | [nim/a/automotive_bitcount.nim](../../../nim/a/automotive_bitcount.nim) |
 | Odin | [odin/a/automotive_bitcount.odin](../../../odin/a/automotive_bitcount.odin) |
 | Rust | [rust/a/automotive_bitcount.rs](../../../rust/a/automotive_bitcount.rs) |

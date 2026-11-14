@@ -37,3 +37,5 @@ model and First Fit rule. No book prose or source code is copied.
 
 Primary exact-output oracle: `benchmarks/vector_bin_packing_oracle.py`.
 Independent verifier oracle: `benchmarks/vector_bin_packing_verifier_oracle.py`.
+
+The Mojo draft is [`mojo/v/vector_bin_packing.mojo`](../../../mojo/v/vector_bin_packing.mojo). The First Fit scan takes O(n²d) time and O(nd) space.

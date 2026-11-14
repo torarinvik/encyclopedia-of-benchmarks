@@ -25,6 +25,12 @@ is lexicographically smallest in terminal order. If feasible, output is `[1,r,(v
 in ascending terminal vertex order. `corner_index` is the first matching
 boundary corner in that face walk. If infeasible, output is `[0,r,(-1,-1,-1)*]`.
 
+For `r` terminals and `f` faces, canonicalization tries at most `r*f`
+residual matchings. A simple augmenting-path matching takes at most `O(r^3)`
+time, giving an `O(f*r^4)` upper bound for this phase. Embedding validation
+uses `O(n^2 + n*f + m)` time and `O(n^2 + n*f + m)` space; the matcher uses
+`O(r + f)` additional space. All dimensions are bounded by the profile.
+
 ABI: `i64_array_bytes_output`, symbol `upward_planarity_angle_assignment`.
 Malformed framing, a disconnected/nonplanar face system, a directed cycle, or
 a non-bimodal embedding returns `-1`. Null output or insufficient capacity
@@ -47,8 +53,12 @@ DOI 10.1007/978-1-4939-2864-4_653. See [`RIGHTS.md`](RIGHTS.md).
 | C3 | `c3/u/upward_planarity_angle_assignment.c3` |
 | C++ | `cpp/u/upward_planarity_angle_assignment.cpp` |
 | Elisa | `elisa/u/upward_planarity_angle_assignment.elisa` |
+| Mojo | `mojo/u/upward_planarity_angle_assignment.mojo` |
 | Nim | `nim/u/upward_planarity_angle_assignment.nim` |
 | Odin | `odin/u/upward_planarity_angle_assignment.odin` |
 | Rust | `rust/u/upward_planarity_angle_assignment.rs` |
 | V | `v/u/upward_planarity_angle_assignment.v` |
 | Zig | `zig/u/upward_planarity_angle_assignment.zig` |
+
+The Mojo draft and ten-language suite source-presence check have not been
+compiled or run.

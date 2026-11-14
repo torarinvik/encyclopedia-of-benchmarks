@@ -27,6 +27,8 @@ buffer controller.
 Malformed input returns `-1`. A null output pointer or insufficient capacity
 returns `-2`; output is staged so errors do not modify caller memory.
 
+For width W and height H, the profile takes O(WH) time and O(WH) space.
+
 This benchmark covers only the 2x2 fancy sample expansion. It excludes JPEG
 parsing, component selection, context-buffer management, other sampling
 ratios, color conversion, inverse DCT, and image/file handling. It is distinct
@@ -66,6 +68,7 @@ independent oracle is
 | C | [`c/cbench_consumer_jpeg_h2v2_fancy_upsample.c`](../../../c/c/cbench_consumer_jpeg_h2v2_fancy_upsample.c) |
 | C3 | [`c3/cbench_consumer_jpeg_h2v2_fancy_upsample.c3`](../../../c3/c/cbench_consumer_jpeg_h2v2_fancy_upsample.c3) |
 | C++ | [`cpp/cbench_consumer_jpeg_h2v2_fancy_upsample.cpp`](../../../cpp/c/cbench_consumer_jpeg_h2v2_fancy_upsample.cpp) |
+| Mojo | [`mojo/c/cbench_consumer_jpeg_h2v2_fancy_upsample.mojo`](../../../mojo/c/cbench_consumer_jpeg_h2v2_fancy_upsample.mojo) (draft; not compiled or run) |
 | Elisa | [`elisa/cbench_consumer_jpeg_h2v2_fancy_upsample.elisa`](../../../elisa/c/cbench_consumer_jpeg_h2v2_fancy_upsample.elisa) |
 | Nim | [`nim/cbench_consumer_jpeg_h2v2_fancy_upsample.nim`](../../../nim/c/cbench_consumer_jpeg_h2v2_fancy_upsample.nim) |
 | Odin | [`odin/cbench_consumer_jpeg_h2v2_fancy_upsample.odin`](../../../odin/c/cbench_consumer_jpeg_h2v2_fancy_upsample.odin) |

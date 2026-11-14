@@ -15,3 +15,5 @@ The upstream BYTEmark notice makes the source, executable, and documentation ava
 ## ABI
 
 Uses `i64_array_bytes_output`: exported `bitmap_block_allocation(values, length, output, output_capacity)` returns the number of output bytes, `-1` for invalid input, and `-2` for null/short output.
+
+The [Mojo draft](../../../mojo/b/bitmap_block_allocation.mojo) implements the same ordered bitmap operations and has not been compiled or run.

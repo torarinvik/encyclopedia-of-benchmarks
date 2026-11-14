@@ -12,3 +12,5 @@ python3 benchmarks/run_i64_array_float64.py --algorithm deriche --language c
 ```
 
 Ports are provided in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig. The kernel file has no inline license header; the PolyBench repository-level Ohio State Software Distribution License is reproduced in this package's [`LICENSE.txt`](LICENSE.txt).
+
+A [Mojo draft](../../../mojo/d/deriche.mojo) is also available; it has not been compiled or run. For an image of width w and height h with p passes, the filter takes O(pwh) time and O(wh) extra space.

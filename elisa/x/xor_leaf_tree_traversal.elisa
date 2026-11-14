@@ -1,0 +1,82 @@
+def xor_leaf_tree_traversal_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2: return -1
+    if input[0] < 1 or input[0] > 64: return -1
+    n: usize = input[0].usize()
+    if input[1] < 0 or input[1] >= n.i64() or length != 2 * n: return -1
+    root: usize = input[1].usize()
+    degree: mutable i64[64] = zeroed
+    edge_xor: mutable i64[64] = zeroed
+    parents: mutable i64[64] = zeroed
+    dsu: mutable i64[64] = zeroed
+    ranks: mutable i64[64] = zeroed
+    order: mutable i64[64] = zeroed
+    a: mutable i64[63] = zeroed
+    b: mutable i64[63] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        dsu[i] <- i.i64()
+        parents[i] <- -1
+        i <- i + 1
+    e: mutable usize = 0
+    while e + 1 < n:
+        ur: i64 = input[2 + 2 * e]
+        vr: i64 = input[3 + 2 * e]
+        if ur < 0 or ur >= n.i64() or vr < 0 or vr >= n.i64() or ur == vr: return -1
+        u: usize = ur.usize()
+        v: usize = vr.usize()
+        x: mutable usize = u
+        y: mutable usize = v
+        while dsu[x] != x.i64():
+            dsu[x] <- dsu[dsu[x].usize()]
+            x <- dsu[x].usize()
+        while dsu[y] != y.i64():
+            dsu[y] <- dsu[dsu[y].usize()]
+            y <- dsu[y].usize()
+        if x == y: return -1
+        if ranks[x] < ranks[y]:
+            dsu[x] <- y.i64()
+        else:
+            dsu[y] <- x.i64()
+            if ranks[x] == ranks[y]: ranks[x] <- ranks[x] + 1
+        a[e] <- ur
+        b[e] <- vr
+        degree[u] <- degree[u] + 1
+        degree[v] <- degree[v] + 1
+        edge_xor[u] <- edge_xor[u] ^ e.i64()
+        edge_xor[v] <- edge_xor[v] ^ e.i64()
+        e <- e + 1
+    degree[root] <- 0
+    used: mutable usize = 0
+    start: mutable usize = 0
+    while start < n:
+        v: mutable usize = start
+        while degree[v] == 1:
+            edge: usize = edge_xor[v].usize()
+            next: usize = (a[edge] ^ b[edge] ^ v.i64()).usize()
+            parents[v] <- edge.i64()
+            order[used] <- v.i64()
+            used <- used + 1
+            degree[v] <- 0
+            degree[next] <- degree[next] - 1
+            edge_xor[next] <- edge_xor[next] ^ edge.i64()
+            v <- next
+        start <- start + 1
+    order[used] <- root.i64()
+    used <- used + 1
+    if used != n: return -1
+    required: usize = 16 * n
+    if output.is_null() or capacity < required: return -2
+    i <- 0
+    while i < 2 * n:
+        value: mutable i64 = 0
+        if i < n: value <- parents[i]
+        else: value <- order[i - n]
+        bits: u64 = value.u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[8 * i + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        i <- i + 1
+    required.i64()
+
+export fn xor_leaf_tree_traversal(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = xor_leaf_tree_traversal_impl

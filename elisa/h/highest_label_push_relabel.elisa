@@ -1,0 +1,59 @@
+def hlpr_solve(values: view[i64]) -> i64:
+    if values.len() < 4 or values.len() > 197: return -1
+    nv: i64 = values[0]
+    mv: i64 = values[1]
+    sv: i64 = values[2]
+    tv: i64 = values[3]
+    if nv < 2 or nv > 16 or mv < 0 or mv > 64 or sv < 1 or sv > nv or tv < 1 or tv > nv or sv == tv: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    source: usize = (sv - 1).usize()
+    sink: usize = (tv - 1).usize()
+    if values.len() != 4 + 3 * m: return -1
+    residual: mutable i64[256] = zeroed
+    excess: mutable i64[16] = zeroed
+    height: mutable i64[16] = zeroed
+    for i in 0..<m:
+        u: i64 = values[4 + 3 * i]
+        v: i64 = values[5 + 3 * i]
+        capacity: i64 = values[6 + 3 * i]
+        if u < 1 or u > nv or v < 1 or v > nv or u == v or capacity < 0 or capacity > 100: return -1
+        edge: usize = (u - 1).usize() * 16 + (v - 1).usize()
+        residual[edge] <- residual[edge] + capacity
+    height[source] <- nv
+    for v in 0..<n:
+        amount: i64 = residual[source * 16 + v]
+        residual[source * 16 + v] <- 0
+        residual[v * 16 + source] <- residual[v * 16 + source] + amount
+        excess[v] <- excess[v] + amount
+        excess[source] <- excess[source] - amount
+    while true:
+        active: mutable i64 = -1
+        for v in 0..<n:
+            if v != source and v != sink and excess[v] > 0:
+                if active < 0: active <- v.i64()
+                elif height[v] > height[active.usize()]: active <- v.i64()
+        if active < 0: return excess[sink]
+        u: usize = active.usize()
+        destination: mutable i64 = -1
+        minimum: mutable i64 = 2 * nv + 1
+        for v in 0..<n:
+            if residual[u * 16 + v] > 0:
+                if height[v] < minimum: minimum <- height[v]
+                if destination < 0 and height[u] == height[v] + 1: destination <- v.i64()
+        if destination < 0:
+            if minimum > 2 * nv: return -1
+            height[u] <- minimum + 1
+        else:
+            v: usize = destination.usize()
+            amount: mutable i64 = excess[u]
+            if residual[u * 16 + v] < amount: amount <- residual[u * 16 + v]
+            residual[u * 16 + v] <- residual[u * 16 + v] - amount
+            residual[v * 16 + u] <- residual[v * 16 + u] + amount
+            excess[u] <- excess[u] - amount
+            excess[v] <- excess[v] + amount
+    -1
+
+export fn highest_label_push_relabel(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 197: return -1
+    hlpr_solve(input[0:length])

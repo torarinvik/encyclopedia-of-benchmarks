@@ -1,7 +1,7 @@
 /// Subset/endpoint dynamic program for a colorful path of exactly k vertices.
 export fn color_coding_k_path(values: ?[*]const i64, length: usize,
     output: ?[*]u8, output_capacity: usize) i64 {
-    const input = values orelse return -2;
+    const input = values orelse return -1;
     if (length < 3 or length > 147) return -1;
     const nv=input[0]; const mv=input[1]; const kv=input[2];
     if(nv<1 or nv>12 or mv<0 or mv>66 or kv<1 or kv>6 or kv>nv)return -1;

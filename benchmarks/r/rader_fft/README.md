@@ -10,6 +10,9 @@ This package implements a bounded five-point complex forward DFT using the Rader
 - Return `10` on success. Invalid input returns `-1`; a null output or output capacity below ten returns `-2`. Errors write nothing. Workspace is two padded complex arrays of length eight plus a ten-element staged result.
 - Compare output with absolute and relative tolerances of `1e-10`.
 
+The fixed five-point profile uses constant time and space; its length-eight
+radix-2 convolution transforms have O(L log L) time and O(L) space for L=8.
+
 ## Source and license
 
 The source is NyaanNyaan/library [`ntt/rader-ntt.hpp`](https://github.com/NyaanNyaan/library/blob/b3981adc80a800b2584980b01821324ea6c77183/ntt/rader-ntt.hpp), symbol `RaderNTT::ntt`, pinned at commit `b3981adc80a800b2584980b01821324ea6c77183`. That implementation uses a primitive-root permutation, an inverse-power kernel, arbitrary convolution, and folds the convolution into the transform output. This package ports those Rader mechanics to a fixed-size complex forward DFT. The upstream repository is licensed CC0 1.0 Universal; the full license text is included in [`LICENSE.txt`](LICENSE.txt).
@@ -28,6 +31,7 @@ The separate [oracle](../../rader_fft_oracle.py) computes the five-point DFT dir
 | C3 | [`c3/r/rader_fft.c3`](../../../c3/r/rader_fft.c3) |
 | C++ | [`cpp/r/rader_fft.cpp`](../../../cpp/r/rader_fft.cpp) |
 | Elisa | [`elisa/r/rader_fft.elisa`](../../../elisa/r/rader_fft.elisa) |
+| Mojo | [`mojo/r/rader_fft.mojo`](../../../mojo/r/rader_fft.mojo) (draft; not compiled or run) |
 | Nim | [`nim/r/rader_fft.nim`](../../../nim/r/rader_fft.nim) |
 | Odin | [`odin/r/rader_fft.odin`](../../../odin/r/rader_fft.odin) |
 | Rust | [`rust/r/rader_fft.rs`](../../../rust/r/rader_fft.rs) |

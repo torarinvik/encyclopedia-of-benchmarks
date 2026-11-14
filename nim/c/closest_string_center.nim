@@ -1,6 +1,6 @@
 ## Bounded exact closest-string center by lexicographic exhaustive search.
 proc closest_string_center*(x:ptr UncheckedArray[int64],length:csize_t,out:ptr UncheckedArray[uint8],cap:csize_t):int64 {.cdecl,exportc:"closest_string_center".}=
-  if x==nil:return -2
+  if x==nil:return -1
   if length<3 or length>51:return -1
   let nv=x[0];let mv=x[1];let qv=x[2]
   if nv<1 or nv>6 or mv<1 or mv>8 or (qv!=2 and qv!=3) or int(length)!=3+int(nv*mv):return -1

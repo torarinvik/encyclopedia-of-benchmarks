@@ -6,6 +6,8 @@ The exported symbol is `shootout_strcat(append_count, output, output_capacity)`.
 
 [workload.json](workload.json) describes ordinary, growth-boundary, maximum, invalid-input, and output-buffer cases. [shootout_strcat_oracle.py](../../shootout_strcat_oracle.py) provides the exact output oracle.
 
+For `n` appends, the bounded implementation writes and scans `O(n)` bytes and uses `O(n)` workspace. Its append-and-scan workload is retained separately from substring search and string concatenation routines with different observable work.
+
 ## Implementations
 
 | Language | Source |
@@ -19,6 +21,7 @@ The exported symbol is `shootout_strcat(append_count, output, output_capacity)`.
 | Rust | [rust/s/shootout_strcat.rs](../../../rust/s/shootout_strcat.rs) |
 | V | [v/s/shootout_strcat.v](../../../v/s/shootout_strcat.v) |
 | Zig | [zig/s/shootout_strcat.zig](../../../zig/s/shootout_strcat.zig) |
+| Mojo | [mojo/s/shootout_strcat.mojo](../../../mojo/s/shootout_strcat.mojo) |
 
 ## Pinned source
 

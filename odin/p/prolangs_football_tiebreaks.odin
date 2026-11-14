@@ -47,7 +47,7 @@ refine :: proc(v: [^]i64, n: int, order: ^[8]int, lo, hi, stage: int, same_div: 
 		for j > lo {
 			previous := score_for(v,n,order,lo,hi,order[j-1],stage,same_div)
 			if compare_score(item_score,previous) <= 0 { break }
-			order[j] = order[j-1]; j -= 1
+			order[j] = order[j-1]; order[j-1] = item; j -= 1
 		}
 		order[j] = item
 	}

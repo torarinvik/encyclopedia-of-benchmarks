@@ -21,6 +21,11 @@ The supplied initial bit vector makes each randomized initialization
 reproducible; uniformly sampled vectors preserve the source's initialization
 distribution. The primary oracle moves an item to the front when its toggled
 bit becomes 1. The independent verifier tracks item positions explicitly.
+The suite source also defines exhaustive small traces and checks that an
+all-Bit Comb trace produces the same result; these checks are unexecuted.
+
+For n items and q requests, direct list searches and front moves take
+O(nq) time and O(n+q) space, including the recorded access positions.
 
 Source: Shahin Kamali, “Online List Update,” *Encyclopedia of Algorithms*,
 DOI [`10.1007/978-1-4939-2864-4_266`](https://doi.org/10.1007/978-1-4939-2864-4_266).
@@ -35,6 +40,7 @@ verifier](../../bit_list_update_verifier_oracle.py).
 | C3 | [`c3/b/bit_list_update.c3`](../../../c3/b/bit_list_update.c3) |
 | C++ | [`cpp/b/bit_list_update.cpp`](../../../cpp/b/bit_list_update.cpp) |
 | Elisa | [`elisa/b/bit_list_update.elisa`](../../../elisa/b/bit_list_update.elisa) |
+| Mojo | [`mojo/b/bit_list_update.mojo`](../../../mojo/b/bit_list_update.mojo) (unverified draft) |
 | Nim | [`nim/b/bit_list_update.nim`](../../../nim/b/bit_list_update.nim) |
 | Odin | [`odin/b/bit_list_update.odin`](../../../odin/b/bit_list_update.odin) |
 | Rust | [`rust/b/bit_list_update.rs`](../../../rust/b/bit_list_update.rs) |

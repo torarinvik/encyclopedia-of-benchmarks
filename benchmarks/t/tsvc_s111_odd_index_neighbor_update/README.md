@@ -7,3 +7,5 @@ Input is `[n, A[0..n), B[0..n)]`, where `1 <= n <= 64` and all vector values are
 Provenance: `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`, `TSVC/tsc.inc::s111` (lines 845–869), selected by the `LinearDependence-dbl` and `LinearDependence-flt` launchers. The pinned launchers use `3570 14` and `3570 5`, respectively; the package exposes one bounded pass. This operation is distinct from s131's all-index forward-neighbor update because s111 writes only odd destinations. TSVC attributes its non-four-digit loops to David Callahan, Jack Dongarra, and David Levine. No explicit redistribution grant was found. These nine ports are clean-room implementations and reuse no upstream code or comments.
 
 See [workload.json](workload.json), [LICENSE.txt](LICENSE.txt), and the [independent oracle](../../tsvc_s111_odd_index_neighbor_update_oracle.py).
+
+A [Mojo draft](../../../mojo/t/tsvc_s111_odd_index_neighbor_update.mojo) is also present and remains unverified.

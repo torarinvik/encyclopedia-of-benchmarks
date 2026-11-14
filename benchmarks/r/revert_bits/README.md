@@ -14,6 +14,8 @@ bits. Results are returned as four little-endian bytes for the 32-bit reversal,
 followed by eight little-endian bytes for the 64-bit reversal. This preserves
 all unsigned result bits even when the 64-bit result has its high bit set.
 
+The fixed-width staged reversals take O(1) time and O(1) auxiliary space.
+
 The workload includes the pinned source's `0x12345678` and
 `0x0123456789012345` sample words, bit-position boundaries, invalid 32-bit
 inputs, and output-buffer errors. The independent oracle is
@@ -27,6 +29,7 @@ inputs, and output-buffer errors. The independent oracle is
 | C3 | [c3/r/revert_bits.c3](../../../c3/r/revert_bits.c3) |
 | C++ | [cpp/r/revert_bits.cpp](../../../cpp/r/revert_bits.cpp) |
 | Elisa | [elisa/r/revert_bits.elisa](../../../elisa/r/revert_bits.elisa) |
+| Mojo | [mojo/r/revert_bits.mojo](../../../mojo/r/revert_bits.mojo) (draft; not compiled or run) |
 | Nim | [nim/r/revert_bits.nim](../../../nim/r/revert_bits.nim) |
 | Odin | [odin/r/revert_bits.odin](../../../odin/r/revert_bits.odin) |
 | Rust | [rust/r/revert_bits.rs](../../../rust/r/revert_bits.rs) |

@@ -66,3 +66,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s4115_indexed_gather_product_sum.rs`](../../../rust/t/tsvc_s4115_indexed_gather_product_sum.rs) |
 | V | [`tsvc_s4115_indexed_gather_product_sum.v`](../../../v/t/tsvc_s4115_indexed_gather_product_sum.v) |
 | Zig | [`tsvc_s4115_indexed_gather_product_sum.zig`](../../../zig/t/tsvc_s4115_indexed_gather_product_sum.zig) |
+| Mojo | [`tsvc_s4115_indexed_gather_product_sum.mojo`](../../../mojo/t/tsvc_s4115_indexed_gather_product_sum.mojo) (draft, unverified) |

@@ -46,6 +46,7 @@ and the independent direct-search verifier at
 | C3 | [`c3/f/fm_index_count.c3`](../../../c3/f/fm_index_count.c3) |
 | C++ | [`cpp/f/fm_index_count.cpp`](../../../cpp/f/fm_index_count.cpp) |
 | Elisa | [`elisa/f/fm_index_count.elisa`](../../../elisa/f/fm_index_count.elisa) |
+| Mojo | [`mojo/f/fm_index_count.mojo`](../../../mojo/f/fm_index_count.mojo) |
 | Nim | [`nim/f/fm_index_count.nim`](../../../nim/f/fm_index_count.nim) |
 | Odin | [`odin/f/fm_index_count.odin`](../../../odin/f/fm_index_count.odin) |
 | Rust | [`rust/f/fm_index_count.rs`](../../../rust/f/fm_index_count.rs) |

@@ -47,8 +47,15 @@ See [`workload.json`](workload.json) and the independent
 | C3 | [`c3/i/improved_perlin_noise_3d.c3`](../../../c3/i/improved_perlin_noise_3d.c3) |
 | C++ | [`cpp/i/improved_perlin_noise_3d.cpp`](../../../cpp/i/improved_perlin_noise_3d.cpp) |
 | Elisa | [`elisa/i/improved_perlin_noise_3d.elisa`](../../../elisa/i/improved_perlin_noise_3d.elisa) |
+| Mojo | [`mojo/i/improved_perlin_noise_3d.mojo`](../../../mojo/i/improved_perlin_noise_3d.mojo) (draft, unverified) |
 | Nim | [`nim/i/improved_perlin_noise_3d.nim`](../../../nim/i/improved_perlin_noise_3d.nim) |
 | Odin | [`odin/i/improved_perlin_noise_3d.odin`](../../../odin/i/improved_perlin_noise_3d.odin) |
 | Rust | [`rust/i/improved_perlin_noise_3d.rs`](../../../rust/i/improved_perlin_noise_3d.rs) |
 | V | [`v/i/improved_perlin_noise_3d.v`](../../../v/i/improved_perlin_noise_3d.v) |
 | Zig | [`zig/i/improved_perlin_noise_3d.zig`](../../../zig/i/improved_perlin_noise_3d.zig) |
+
+The verifier source also specifies exact coordinate bounds and equivalent
+wrapped points. The Mojo draft initializes its fixed permutation inside each
+call; whether the compiler hoists or folds that setup is unverified, so its
+measured work may differ from ports with static tables. The Mojo draft and these
+cases have not been compiled or run.

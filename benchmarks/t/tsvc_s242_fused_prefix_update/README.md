@@ -6,8 +6,12 @@ Input is [n,s1,s2,A[n],B[n],C[n],D[n]], with n in 1..64. All numeric values are 
 
 The source initializer and timing harness are excluded. The explicit A[0] field represents the initialized seed, while B/C/D and s1/s2 are supplied so the loop-body recurrence is directly benchmarkable.
 
+Validation and the recurrence each take O(n) time. The ports retain an O(n) working copy of A before writing the output.
+
 ## Source and rights
 
 Pinned source: lac-dcc/Benchmarks commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38, TSVC/tsc.inc s242 (lines 2184-2205), selected by TSVC/NodeSplitting-dbl and NodeSplitting-flt. The source loops from i=1 to LEN-1 and evaluates A[i-1]+s1+s2+B[i]+C[i]+D[i] in that order. The source comments attribute codelets to David Callahan, Jack Dongarra, and David Levine. No explicit modification or redistribution grant was found; these are clean-room ports and claim no upstream license. See LICENSE.txt.
 
 Oracle: benchmarks/tsvc_s242_fused_prefix_update_oracle.py. Fixed workload: workload.json.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s242_fused_prefix_update.mojo) is a draft and has not been compiled or run. The existing ports' B, C, and D offsets were corrected by static review; execution validation remains pending.

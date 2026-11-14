@@ -1,0 +1,33 @@
+def bndm_solve(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 4161: return -2
+    if values[0] < 0 or values[0] > 4096 or values[1] < 0 or values[1] > 63: return -2
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if values.len() != 2 + n + m: return -2
+    for i in 2..<values.len():
+        if values[i] < 97 or values[i] > 122: return -2
+    if m == 0: return 0
+    if m > n: return -1
+    masks: mutable u64[26] = zeroed
+    for i in 0..<m:
+        letter: usize = (values[2 + n + i] - 97).usize()
+        masks[letter] <- masks[letter] | ((1).u64() << (m - 1 - i))
+    start: mutable usize = 0
+    while start <= n - m:
+        remaining: mutable usize = m
+        shift: mutable usize = m
+        states: mutable u64 = (-1).u64()
+        while remaining > 0 and states != 0:
+            remaining <- remaining - 1
+            letter: usize = (values[2 + start + remaining] - 97).usize()
+            states <- states & masks[letter]
+            if states != 0:
+                if remaining == 0: return start.i64()
+                shift <- remaining
+            states <- states << 1
+        start <- start + shift
+    -1
+
+export fn backward_nondeterministic_dawg_match(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 4161: return -2
+    bndm_solve(input[0:length])

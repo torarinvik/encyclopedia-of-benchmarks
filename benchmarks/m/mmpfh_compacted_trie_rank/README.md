@@ -45,6 +45,7 @@ Functions,” *Encyclopedia of Algorithms*, DOI
 | C3 | `c3/m/mmpfh_compacted_trie_rank.c3` |
 | C++ | `cpp/m/mmpfh_compacted_trie_rank.cpp` |
 | Elisa | `elisa/m/mmpfh_compacted_trie_rank.elisa` |
+| Mojo | `mojo/m/mmpfh_compacted_trie_rank.mojo` |
 | Nim | `nim/m/mmpfh_compacted_trie_rank.nim` |
 | Odin | `odin/m/mmpfh_compacted_trie_rank.odin` |
 | Rust | `rust/m/mmpfh_compacted_trie_rank.rs` |

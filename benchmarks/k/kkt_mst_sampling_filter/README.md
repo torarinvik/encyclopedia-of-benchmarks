@@ -22,12 +22,17 @@ writing. The profile covers one sampled-MSF filtering stage, not the full
 recursive randomized KKT minimum-spanning-tree algorithm. It does not make a
 runtime, success-probability, or linear-time claim.
 
+For n vertices and m edges, this straightforward bounded implementation uses
+O(nm²) time and O(n + m) extra space; the path scans visit forest edges
+for each reached vertex.
+
 | Language | Port |
 |---|---|
 | C | `c/k/kkt_mst_sampling_filter.c` |
 | C3 | `c3/k/kkt_mst_sampling_filter.c3` |
 | C++ | `cpp/k/kkt_mst_sampling_filter.cpp` |
 | Elisa | `elisa/k/kkt_mst_sampling_filter.elisa` |
+| Mojo | [`mojo/k/kkt_mst_sampling_filter.mojo`](../../../mojo/k/kkt_mst_sampling_filter.mojo) (draft; not compiled or run) |
 | Nim | `nim/k/kkt_mst_sampling_filter.nim` |
 | Odin | `odin/k/kkt_mst_sampling_filter.odin` |
 | Rust | `rust/k/kkt_mst_sampling_filter.rs` |

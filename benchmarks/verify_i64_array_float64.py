@@ -15,7 +15,7 @@ import struct
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from atax_oracle import expected_result as atax_oracle
 from polybench_symm_oracle import expected_result as polybench_symm_oracle
 from polybench_cholesky_oracle import (
@@ -1535,6 +1535,16 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             if result == DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT or not math.isfinite(result):
                 raise ValueError("SimpleMOC generated a random input outside its valid domain")
             cases[sample] = result
+        # Exercise interpolation on both sides of the last table interval,
+        # the upper tau bound, and the permitted axial-offset endpoints.
+        for ds in (9_971_000, 9_972_000, 10_000_000):
+            for zin in (-500_000, 500_000):
+                sample = (1, zin, 1_000_000, ds, 500_000, 750_000, 250_000,
+                          -500_000, 1_000_000, 2_000_000, 1_000_000, 500_000, 250_000)
+                result = doe_simplemoc_quadratic_attenuation_oracle(sample)
+                if result == DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT or not math.isfinite(result):
+                    raise ValueError("SimpleMOC interpolation-boundary sample is invalid")
+                cases[sample] = result
         for malformed in (
                 (), (0, 0, 1_000_000, 1_000_000, 1_000_000, 1_000_000, 1_000_000),
                 (1, 0, 1_000_000, 1_000_000, 1_000_000, 1_000_000, 1_000_000),
@@ -6945,7 +6955,8 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--algorithm", choices=ALGORITHMS, default="hubble_parameter")
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS | OPTIONAL_EXTENSIONS,
+                        default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/i64_array_float64")
@@ -6957,7 +6968,15 @@ def main() -> int:
     algorithm = args.algorithm
     workload_path = (ROOT / "benchmarks" / "maxwells_equations" / "workload.json"
                      if algorithm == "maxwells_equations" else
+                     ROOT / "benchmarks" / "r" / algorithm / "workload.json"
+                     if algorithm == "doe_rsbench_doppler_xs" else
+                     ROOT / "benchmarks" / "x" / algorithm / "workload.json"
+                     if algorithm == "doe_xsbench_unionized_macro_xs" else
                      ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json")
+    if not workload_path.is_file():
+        flat_workload = ROOT / "benchmarks" / algorithm / "workload.json"
+        if flat_workload.is_file():
+            workload_path = flat_workload
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     data, case_count = corpus(workload, algorithm)
     (directory / f"{algorithm}-corpus.txt").write_text(data, encoding="utf-8")

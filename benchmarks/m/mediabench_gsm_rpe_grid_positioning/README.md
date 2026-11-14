@@ -17,6 +17,8 @@ The grid is 0–3 and each sample is a signed 16-bit word. The operation forms
 (80 bytes). Invalid input returns `-1`; null or insufficient output returns
 `-2` without writing. Successful calls stage the result before writing.
 
+The fixed-size scatter takes O(1) time and O(1) space.
+
 The independent oracle is
 [`mediabench_gsm_rpe_grid_positioning_oracle.py`](../../mediabench_gsm_rpe_grid_positioning_oracle.py).
 The workload includes all four grid offsets, signed word boundaries, and
@@ -41,6 +43,7 @@ upstream function body.
 - C3: [`c3/m/mediabench_gsm_rpe_grid_positioning.c3`](../../../c3/m/mediabench_gsm_rpe_grid_positioning.c3)
 - C++: [`cpp/m/mediabench_gsm_rpe_grid_positioning.cpp`](../../../cpp/m/mediabench_gsm_rpe_grid_positioning.cpp)
 - Elisa: [`elisa/m/mediabench_gsm_rpe_grid_positioning.elisa`](../../../elisa/m/mediabench_gsm_rpe_grid_positioning.elisa)
+- Mojo: [`mojo/m/mediabench_gsm_rpe_grid_positioning.mojo`](../../../mojo/m/mediabench_gsm_rpe_grid_positioning.mojo) (draft; not compiled or run)
 - Nim: [`nim/m/mediabench_gsm_rpe_grid_positioning.nim`](../../../nim/m/mediabench_gsm_rpe_grid_positioning.nim)
 - Odin: [`odin/m/mediabench_gsm_rpe_grid_positioning.odin`](../../../odin/m/mediabench_gsm_rpe_grid_positioning.odin)
 - Rust: [`rust/m/mediabench_gsm_rpe_grid_positioning.rs`](../../../rust/m/mediabench_gsm_rpe_grid_positioning.rs)

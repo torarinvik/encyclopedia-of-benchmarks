@@ -17,6 +17,9 @@ all senders stop at the end of slot `k`. Newly informed nodes are reported but
 do not transmit during this phase; they can join a later phase in the full
 broadcast algorithm.
 
+For n nodes and k slots, direct neighbor scans take O(kn²) time and O(nk)
+space for the supplied coin tape.
+
 The output is `[newly_informed_mask,total_transmissions]` as two little-endian
 i64 values (16 bytes). Malformed input returns `-1`; null output or insufficient
 capacity returns `-2` without writing. The bounded profile replays supplied
@@ -27,6 +30,11 @@ reception, or implement the repeated global broadcast schedule.
 The primary oracle simulates active senders and scans each sender's neighbors.
 The independent verifier forms a sender bitmask each round and counts its
 intersection with each receiver's adjacency mask.
+The build and byte-output suite use the package's `d/` category; this path
+wiring has not been executed.
+Verifier source compares the sender-scan and receiver-mask references on
+small path and star graphs with varied sender sets and coin tapes. These
+cases remain unrun.
 
 | Language | Port |
 |---|---|
@@ -34,6 +42,7 @@ intersection with each receiver's adjacency mask.
 | C3 | `c3/d/radio_network_decay_phase.c3` |
 | C++ | `cpp/d/radio_network_decay_phase.cpp` |
 | Elisa | `elisa/d/radio_network_decay_phase.elisa` |
+| Mojo | [`mojo/d/radio_network_decay_phase.mojo`](../../../mojo/d/radio_network_decay_phase.mojo) (draft; not compiled or run) |
 | Nim | `nim/d/radio_network_decay_phase.nim` |
 | Odin | `odin/d/radio_network_decay_phase.odin` |
 | Rust | `rust/d/radio_network_decay_phase.rs` |

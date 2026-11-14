@@ -38,6 +38,12 @@ direct symbol comparison. The 64-symbol cap is only a workload bound; the
 profile preserves the compressed-state transition method and does not
 benchmark decompression.
 
+For v variables, pattern length p, f factors, and expanded length t, these
+fixed-64-bit-mask ports take O(vp² + f + t) worst-case time and O(vp + t)
+space, including the staged result. The p² term accounts for failure-link
+walks when constructing terminal summaries; concatenation summaries take
+constant time per state.
+
 This package does not implement collage-system truncation or repetition,
 general LZW/LZ77/BPE encodings, Boyer–Moore variants, or the paper's succinct
 data structures and asymptotic bounds.
@@ -49,6 +55,8 @@ variable boundary, a nonmatching pattern, repeated references to a shared
 variable, the maximum 64-symbol expansion, and a 64-zero text that reaches the
 full 520-byte occurrence output. It also covers invalid grammar references
 and operations, null buffers, and capacity failure.
+The verifier source additionally compares both references on repeated-zero
+grammars across all supported pattern lengths; this check has not been run.
 
 | Language | Port |
 | --- | --- |
@@ -56,6 +64,7 @@ and operations, null buffers, and capacity failure.
 | C3 | [`c3/k/kmp_slp_jump_output.c3`](../../../c3/k/kmp_slp_jump_output.c3) |
 | C++ | [`cpp/k/kmp_slp_jump_output.cpp`](../../../cpp/k/kmp_slp_jump_output.cpp) |
 | Elisa | [`elisa/k/kmp_slp_jump_output.elisa`](../../../elisa/k/kmp_slp_jump_output.elisa) |
+| Mojo | [`mojo/k/kmp_slp_jump_output.mojo`](../../../mojo/k/kmp_slp_jump_output.mojo) (draft; not compiled or run) |
 | Nim | [`nim/k/kmp_slp_jump_output.nim`](../../../nim/k/kmp_slp_jump_output.nim) |
 | Odin | [`odin/k/kmp_slp_jump_output.odin`](../../../odin/k/kmp_slp_jump_output.odin) |
 | Rust | [`rust/k/kmp_slp_jump_output.rs`](../../../rust/k/kmp_slp_jump_output.rs) |

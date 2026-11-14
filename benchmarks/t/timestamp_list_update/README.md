@@ -22,6 +22,10 @@ The primary oracle scans the bounded request trace between repeated requests
 to `x`. The independent verifier stores each item's occurrence times and
 counts those strictly between the previous and current request to `x`.
 
+For n items and q requests, the direct history-scan implementation takes
+O(nq²+nq) time in the worst case and O(n+q) space. These bounds describe
+the bounded implementation rather than an optimized timestamp structure.
+
 Source: Shahin Kamali, “Online List Update,” *Encyclopedia of Algorithms*,
 DOI [`10.1007/978-1-4939-2864-4_266`](https://doi.org/10.1007/978-1-4939-2864-4_266).
 This is a clean-room profile; no book code or prose was copied. See
@@ -35,6 +39,7 @@ verifier](../../timestamp_list_update_verifier_oracle.py).
 | C3 | [`c3/t/timestamp_list_update.c3`](../../../c3/t/timestamp_list_update.c3) |
 | C++ | [`cpp/t/timestamp_list_update.cpp`](../../../cpp/t/timestamp_list_update.cpp) |
 | Elisa | [`elisa/t/timestamp_list_update.elisa`](../../../elisa/t/timestamp_list_update.elisa) |
+| Mojo | [`mojo/t/timestamp_list_update.mojo`](../../../mojo/t/timestamp_list_update.mojo) (unverified draft) |
 | Nim | [`nim/t/timestamp_list_update.nim`](../../../nim/t/timestamp_list_update.nim) |
 | Odin | [`odin/t/timestamp_list_update.odin`](../../../odin/t/timestamp_list_update.odin) |
 | Rust | [`rust/t/timestamp_list_update.rs`](../../../rust/t/timestamp_list_update.rs) |

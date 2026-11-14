@@ -30,15 +30,15 @@
   "output": {
     "kind": "little_endian_signed_64_bit_array",
     "maximum_output_elements": 112,
-    "maximum_output_bytes": 448,
-    "success_result": "16*m bytes",
+    "maximum_output_bytes": 896,
+    "success_result": "32*m bytes",
     "invalid_result": -1,
     "null_output_result": -2,
     "insufficient_capacity_result": -2,
     "no_write_on_error": true
   },
   "workspace": {
-    "bytes": 512,
+    "bytes": 2048,
     "meaning": "Two resident edge slots and staged prefix output for at most 28 streamed edges."
   },
   "measurement": {"sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
@@ -55,7 +55,7 @@
       "input_values":[3,2,0,1,1,2,0,0,1,1],
       "input_length":10,
       "expected_result":64,
-      "expected_output_hex":"000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000"
+      "expected_output_hex":"00000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000"
     },
     {
       "id":"repeated-edge",
@@ -75,7 +75,7 @@
       "id":"short-output-capacity",
       "input_values":[2,1,0,1,0,0],
       "input_length":6,
-      "output_capacity":15,
+      "output_capacity":31,
       "expected_result":-2,
       "expected_output_hex":""
     }

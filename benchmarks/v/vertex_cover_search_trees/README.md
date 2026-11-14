@@ -37,3 +37,5 @@ book prose, pseudocode blocks, or source code are copied.
 The primary exact-output oracle is `benchmarks/vertex_cover_search_trees_oracle.py`;
 the independent verifier oracle uses exhaustive subset enumeration in
 `benchmarks/vertex_cover_search_trees_verifier_oracle.py`.
+
+The Mojo draft is [`mojo/v/vertex_cover_search_trees.mojo`](../../../mojo/v/vertex_cover_search_trees.mojo). The search is exponential in n, with O(n²) degree-scanning work per search node and O(n) recursion depth; the adjacency representation uses O(n) bounded bit masks.

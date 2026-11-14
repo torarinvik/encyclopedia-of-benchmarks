@@ -64,3 +64,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s2101_diagonal_matrix_fma.rs`](../../../rust/t/tsvc_s2101_diagonal_matrix_fma.rs) |
 | V | [`tsvc_s2101_diagonal_matrix_fma.v`](../../../v/t/tsvc_s2101_diagonal_matrix_fma.v) |
 | Zig | [`tsvc_s2101_diagonal_matrix_fma.zig`](../../../zig/t/tsvc_s2101_diagonal_matrix_fma.zig) |
+| Mojo | [`tsvc_s2101_diagonal_matrix_fma.mojo`](../../../mojo/t/tsvc_s2101_diagonal_matrix_fma.mojo) |

@@ -6,6 +6,9 @@ Sort a mutable sequence of signed 64-bit integers into ascending order. The nine
 
 This is an independently written bounded profile that preserves WikiSort's small-run, fixed-cache, and block/rotation merge architecture. It does not reproduce the complete upstream implementation, its internal key-buffer tagging strategy, nine test-case generators, or benchmark harness. The `i64` sort runner checks sorted values; stability follows from the left-before-right comparisons but is not observable for equal scalar values.
 
+The bounded rotation fallback has a conservative O(n² log n) time bound.
+Auxiliary storage is the fixed cache of at most 512 elements.
+
 The C ABI entry point is:
 
 ```c
@@ -34,6 +37,7 @@ Build a port with `python3 benchmarks/build_abi.py --family sort --algorithm wik
 | C3 | [`c3/w/wikisort.c3`](../../../c3/w/wikisort.c3) |
 | C++ | [`cpp/w/wikisort.cpp`](../../../cpp/w/wikisort.cpp) |
 | Elisa | [`elisa/w/wikisort.elisa`](../../../elisa/w/wikisort.elisa) |
+| Mojo | [`mojo/w/wikisort.mojo`](../../../mojo/w/wikisort.mojo) (draft; not compiled or run) |
 | Nim | [`nim/w/wikisort.nim`](../../../nim/w/wikisort.nim) |
 | Odin | [`odin/w/wikisort.odin`](../../../odin/w/wikisort.odin) |
 | Rust | [`rust/w/wikisort.rs`](../../../rust/w/wikisort.rs) |

@@ -27,7 +27,7 @@
     "range": [0, 12],
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Sort by deadline, then sweep intervals from the largest deadline down. Keep residual durations in a min-heap, completing shortest jobs within each interval and reinserting a residual when the interval ends mid-job.",
     "independent_oracle": "Enumerate job subsets and test each with a forward earliest-deadline schedule.",
     "primary_complexity": "O(N*N + N*log(N)) time with bounded insertion sorting, O(N) space.",

@@ -48,7 +48,7 @@ fn refine(v: &[i64], n: usize, order: &mut [usize], stage: usize, same_div: bool
         while j > 0 {
             let previous = score_for(v, n, order, order[j - 1], stage, same_div);
             if compare(item_score, previous) != std::cmp::Ordering::Greater { break; }
-            order[j] = order[j - 1];
+            order.swap(j, j - 1);
             j -= 1;
         }
         order[j] = item;

@@ -1,0 +1,28 @@
+def reservoir_r_solve(input: view[i64], output: mutable view[u8]) -> i64:
+    n: usize = input[0].usize()
+    k: usize = input[1].usize()
+    reservoir: mutable i64[64] = zeroed
+    for i in 0..<k: reservoir[i] <- input[2+i]
+    for i in k..<n:
+        draw: usize = input[2+n+i-k].usize()
+        if draw < k: reservoir[draw] <- input[2+i]
+    for i in 0..<k:
+        bits: mutable u64 = reservoir[i].u64()
+        for j in 0..<8:
+            output[8*i+j] <- (bits & 255).u8()
+            bits <- bits >> 8
+    (8*k).i64()
+
+export fn reservoir_sampling_algorithm_r(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 130: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > 64 or values[1] < 0 or values[1] > values[0]: return -1
+    n: usize = values[0].usize()
+    k: usize = values[1].usize()
+    if length != 2+2*n-k: return -1
+    for i in 0..<n:
+        if values[2+i] < -1000000 or values[2+i] > 1000000: return -1
+    for i in k..<n:
+        if values[2+n+i-k] < 0 or values[2+n+i-k] > i.i64(): return -1
+    if output.is_null() or capacity < 8*k: return -2
+    reservoir_r_solve(values, output[0:8*k])

@@ -76,3 +76,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s276_index_split_axpy.rs`](../../../rust/t/tsvc_s276_index_split_axpy.rs) |
 | V | [`tsvc_s276_index_split_axpy.v`](../../../v/t/tsvc_s276_index_split_axpy.v) |
 | Zig | [`tsvc_s276_index_split_axpy.zig`](../../../zig/t/tsvc_s276_index_split_axpy.zig) |
+| Mojo | [`tsvc_s276_index_split_axpy.mojo`](../../../mojo/t/tsvc_s276_index_split_axpy.mojo) (draft, unverified) |

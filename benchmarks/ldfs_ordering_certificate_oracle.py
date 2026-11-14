@@ -50,7 +50,8 @@ def expected_output(values: Sequence[int] | None, capacity: int | None = None,
         for vertex in range(n):
             if vertex in order:
                 continue
-            label = tuple(visited for visited in reversed(order) if adjacency[vertex] & (1 << visited))
+            label = tuple(position for position in range(len(order) - 1, -1, -1)
+                          if adjacency[vertex] & (1 << order[position]))
             if best is None or label > best[0] or label == best[0] and vertex < best[1]:
                 best = (label, vertex)
         assert best is not None

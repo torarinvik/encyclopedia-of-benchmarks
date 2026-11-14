@@ -15,6 +15,8 @@ The exact input length follows the selected mode. `n` is in `0..=128`; every sup
 
 Malformed mode, framing, count, range, or overflow returns `-1`. A null output pointer returns `-2`, including for empty output; a non-null output with capacity zero is sufficient for a valid empty result. A short buffer returns `-2`. Errors write no output.
 
+Each bounded kernel takes O(n) time and O(n) space for staged results.
+
 ## Source and attribution
 
 The four operations follow the scalar loops in John D. McCalpin's STREAM source, [`stream/src/stream.c` at `nfinit/ansibench` commit `ef90abd09d7b7bb1f2809f896d6f67fb9724bebe`](https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/stream/src/stream.c), Copyright 1991–2013. The corresponding upstream notice is [`stream/LICENSE` at the same commit](https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/stream/LICENSE). This bounded integer adaptation changes the data type, sizes, interface, and measurement method. The upstream license permits use and modification; published results from modified source must be clearly labeled as a variant. Use of the name “STREAM benchmark results” is reserved for runs conforming to the STREAM run rules. This package should be identified as a bounded integer STREAM-kernel variant, not as an official STREAM benchmark result.
@@ -29,6 +31,7 @@ The four operations follow the scalar loops in John D. McCalpin's STREAM source,
 | C++ | [`cpp/s/stream_vector_kernels.cpp`](../../../cpp/s/stream_vector_kernels.cpp) |
 | C3 | [`c3/s/stream_vector_kernels.c3`](../../../c3/s/stream_vector_kernels.c3) |
 | Elisa | [`elisa/s/stream_vector_kernels.elisa`](../../../elisa/s/stream_vector_kernels.elisa) |
+| Mojo | [`mojo/s/stream_vector_kernels.mojo`](../../../mojo/s/stream_vector_kernels.mojo) (draft; not compiled or run) |
 | Nim | [`nim/s/stream_vector_kernels.nim`](../../../nim/s/stream_vector_kernels.nim) |
 | Odin | [`odin/s/stream_vector_kernels.odin`](../../../odin/s/stream_vector_kernels.odin) |
 | Rust | [`rust/s/stream_vector_kernels.rs`](../../../rust/s/stream_vector_kernels.rs) |

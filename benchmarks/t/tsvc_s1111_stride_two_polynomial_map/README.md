@@ -29,3 +29,5 @@ Source is `s1111` in `TSVC/tsc.inc`, lines 871–893, pinned to LAC-DCC
 [`Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc#L871), selected in `TSVC/LinearDependence-dbl/info.sh` (`3570 14`; float uses `3570 5`). The package exposes caller-provided arrays rather than the source initializer/checksum harness. TSVC comments attribute its codelets to David Callahan, Jack Dongarra, and David Levine.
 
 No explicit redistribution grant was found in the pinned repository material reviewed. The nine ports are independent clean-room implementations and reuse no upstream source or comments; no upstream license or endorsement is claimed. See [`LICENSE.txt`](LICENSE.txt).
+
+The optional [Mojo port](../../../mojo/t/tsvc_s1111_stride_two_polynomial_map.mojo) is a draft and has not been compiled or run.

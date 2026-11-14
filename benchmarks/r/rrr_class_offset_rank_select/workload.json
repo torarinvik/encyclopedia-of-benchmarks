@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "rrr-class-offset-rank-select-i64-array-bytes-output-v1",
+  "algorithm": "rrr_class_offset_rank_select",
+  "function_symbol": "rrr_class_offset_rank_select",
+  "abi": "i64_array_bytes_output",
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[bit_length,packed_bits,query_count,(opcode,index)*]", "maximum_valid_length": 35, "maximum_parseable_length": 36, "invalid_input_result": -1},
+  "output": {"encoding": "little-endian signed i64 answers", "maximum_bytes": 128, "invalid_input_result": -1, "output_error_result": -2, "output_untouched_on_error": true},
+  "workspace": {"bytes": 512, "meaning": "Eight classes and offsets, nine prefix totals, and staged answers."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 5},
+  "source": {"url": "https://arxiv.org/abs/0705.0552", "reuse": "Algorithmic ideas only; independently authored implementation and cases."},
+  "cases": [
+    {"id": "block_boundary", "input_values": [9,257,4,0,8,0,9,1,2,1,3], "input_length": 11, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "010000000000000002000000000000000900000000000000ffffffffffffffff"},
+    {"id": "full_byte", "input_values": [8,255,2,0,8,1,8], "input_length": 7, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "08000000000000000800000000000000"},
+    {"id": "maximum_length_ones", "input_values": [63,9223372036854775807,3,0,63,1,63,1,64], "input_length": 9, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "3f000000000000003f00000000000000ffffffffffffffff"},
+    {"id": "mixed_class_offsets", "input_values": [16,32869,3,0,8,0,16,1,4], "input_length": 9, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "040000000000000005000000000000000700000000000000"},
+    {"id": "zero_bits", "input_values": [7,0,2,0,3,1,1], "input_length": 7, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "0000000000000000ffffffffffffffff"},
+    {"id": "zero_queries", "input_values": [1,0,0], "input_length": 3, "output_capacity": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "short_output", "input_values": [1,1,1,0,1], "input_length": 5, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [1,0,0], "input_length": 3, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "invalid_before_capacity", "input_values": [3,0,1,0,4], "input_length": 5, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "bits_outside_length", "input_values": [3,8,0], "input_length": 3, "output_capacity": 128, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_opcode", "input_values": [1,1,1,2,1], "input_length": 5, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "select_over_limit", "input_values": [1,1,1,1,65], "input_length": 5, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 3, "input_is_null": true, "output_capacity": 128, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

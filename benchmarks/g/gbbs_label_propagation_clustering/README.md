@@ -45,6 +45,7 @@ The repository is MIT licensed. The full notice is retained in
 | C3 | [c3/g/gbbs_label_propagation_clustering.c3](../../../c3/g/gbbs_label_propagation_clustering.c3) |
 | C++ | [cpp/g/gbbs_label_propagation_clustering.cpp](../../../cpp/g/gbbs_label_propagation_clustering.cpp) |
 | Elisa | [elisa/g/gbbs_label_propagation_clustering.elisa](../../../elisa/g/gbbs_label_propagation_clustering.elisa) |
+| Mojo | [mojo/g/gbbs_label_propagation_clustering.mojo](../../../mojo/g/gbbs_label_propagation_clustering.mojo) |
 | Nim | [nim/g/gbbs_label_propagation_clustering.nim](../../../nim/g/gbbs_label_propagation_clustering.nim) |
 | Odin | [odin/g/gbbs_label_propagation_clustering.odin](../../../odin/g/gbbs_label_propagation_clustering.odin) |
 | Rust | [rust/g/gbbs_label_propagation_clustering.rs](../../../rust/g/gbbs_label_propagation_clustering.rs) |

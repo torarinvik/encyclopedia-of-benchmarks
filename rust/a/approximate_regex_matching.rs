@@ -1,7 +1,7 @@
 /// Layered edit-distance shortest paths over a supplied literal NFA.
 #[no_mangle]
 pub extern "C" fn approximate_regex_matching(x:*const i64,len:usize,out:*mut u8,cap:usize)->i64{
- if x.is_null(){return -2}if len<6||len>66{return -1}let a=unsafe{std::slice::from_raw_parts(x,len)};
+ if x.is_null(){return -1}if len<6||len>66{return -1}let a=unsafe{std::slice::from_raw_parts(x,len)};
  let (sv,ev,tv,kv,stv,av)=(a[0],a[1],a[2],a[3],a[4],a[5]);
  if sv<2||sv>8||ev<1||ev>16||tv<0||tv>12||kv<0||kv>3||stv<0||av<0||stv>=sv||av>=sv||stv==av{return -1}
  let (s,e,t,k,start,accept)=(sv as usize,ev as usize,tv as usize,kv as usize,stv as usize,av as usize);let ts=6+3*e;if len!=ts+t{return -1}

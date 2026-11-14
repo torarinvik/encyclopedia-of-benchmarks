@@ -256,7 +256,7 @@ const SBOXES: array[2048,uint32] = [ 0x30FB40D4'u32, 0x9FA0FF0B'u32, 0x6BECCD2F'
   0x04F19130'u32, 0xBA6E4EC0'u32, 0x99265164'u32, 0x1EE7230D'u32, 0x50B2AD80'u32, 0xEAEE6801'u32, 0x8DB2A283'u32, 0xEA8BF59E'u32 ]
 proc sb(box: int, index: uint8): uint32 = SBOXES[box*256+int(index)]
 proc rd(data: openArray[uint8], off: int): uint32 = (uint32(data[off]) shl 24) or (uint32(data[off+1]) shl 16) or (uint32(data[off+2]) shl 8) or uint32(data[off+3])
-proc wr(data: var openArray[uint8], off: int, value: uint32) = data[off]=uint8(value shr 24);data[off+1]=uint8(value shr 16);data[off+2]=uint8(value shr 8);data[off+3]=uint8(value)
+proc wr(data: var openArray[uint8], off: int, value: uint32) = data[off]=uint8((value shr 24) and 255);data[off+1]=uint8((value shr 16) and 255);data[off+2]=uint8((value shr 8) and 255);data[off+3]=uint8(value and 255)
 proc expandStep(x: var array[16,uint8], k: var array[32,uint32], q: int) =
   var z: array[16,uint8];var n: array[16,uint8]
   wr(z,0,rd(x,0) xor sb(4,x[13]) xor sb(5,x[15]) xor sb(6,x[12]) xor sb(7,x[14]) xor sb(6,x[8]))
@@ -265,13 +265,23 @@ proc expandStep(x: var array[16,uint8], k: var array[32,uint32], q: int) =
   wr(z,12,rd(x,4) xor sb(4,z[10]) xor sb(5,z[9]) xor sb(6,z[11]) xor sb(7,z[8]) xor sb(5,x[11]))
   k[q]=sb(4,z[8]) xor sb(5,z[9]) xor sb(6,z[7]) xor sb(7,z[6]) xor sb(4,z[2]);k[q+1]=sb(4,z[10]) xor sb(5,z[11]) xor sb(6,z[5]) xor sb(7,z[4]) xor sb(5,z[6])
   k[q+2]=sb(4,z[12]) xor sb(5,z[13]) xor sb(6,z[3]) xor sb(7,z[2]) xor sb(6,z[9]);k[q+3]=sb(4,z[14]) xor sb(5,z[15]) xor sb(6,z[1]) xor sb(7,z[0]) xor sb(7,z[12])
+  if (q div 8) mod 2 != 0:
+    k[q]=sb(4,z[3]) xor sb(5,z[2]) xor sb(6,z[12]) xor sb(7,z[13]) xor sb(4,z[9])
+    k[q+1]=sb(4,z[1]) xor sb(5,z[0]) xor sb(6,z[14]) xor sb(7,z[15]) xor sb(5,z[12])
+    k[q+2]=sb(4,z[7]) xor sb(5,z[6]) xor sb(6,z[8]) xor sb(7,z[9]) xor sb(6,z[2])
+    k[q+3]=sb(4,z[5]) xor sb(5,z[4]) xor sb(6,z[10]) xor sb(7,z[11]) xor sb(7,z[6])
   wr(n,0,rd(z,8) xor sb(4,z[5]) xor sb(5,z[7]) xor sb(6,z[4]) xor sb(7,z[6]) xor sb(6,z[0]))
-  wr(n,4,rd(z,0) xor sb(4,x[0]) xor sb(5,x[2]) xor sb(6,x[1]) xor sb(7,x[3]) xor sb(7,z[2]))
-  wr(n,8,rd(z,4) xor sb(4,x[7]) xor sb(5,x[6]) xor sb(6,x[5]) xor sb(7,x[4]) xor sb(4,z[1]))
-  wr(n,12,rd(z,12) xor sb(4,x[10]) xor sb(5,x[9]) xor sb(6,x[11]) xor sb(7,x[8]) xor sb(5,z[3]))
+  wr(n,4,rd(z,0) xor sb(4,n[0]) xor sb(5,n[2]) xor sb(6,n[1]) xor sb(7,n[3]) xor sb(7,z[2]))
+  wr(n,8,rd(z,4) xor sb(4,n[7]) xor sb(5,n[6]) xor sb(6,n[5]) xor sb(7,n[4]) xor sb(4,z[1]))
+  wr(n,12,rd(z,12) xor sb(4,n[10]) xor sb(5,n[9]) xor sb(6,n[11]) xor sb(7,n[8]) xor sb(5,z[3]))
   x=n
   k[q+4]=sb(4,x[3]) xor sb(5,x[2]) xor sb(6,x[12]) xor sb(7,x[13]) xor sb(4,x[8]);k[q+5]=sb(4,x[1]) xor sb(5,x[0]) xor sb(6,x[14]) xor sb(7,x[15]) xor sb(5,x[13])
   k[q+6]=sb(4,x[7]) xor sb(5,x[6]) xor sb(6,x[8]) xor sb(7,x[9]) xor sb(6,x[3]);k[q+7]=sb(4,x[5]) xor sb(5,x[4]) xor sb(6,x[10]) xor sb(7,x[11]) xor sb(7,x[7])
+  if (q div 8) mod 2 != 0:
+    k[q+4]=sb(4,x[8]) xor sb(5,x[9]) xor sb(6,x[7]) xor sb(7,x[6]) xor sb(4,x[3])
+    k[q+5]=sb(4,x[10]) xor sb(5,x[11]) xor sb(6,x[5]) xor sb(7,x[4]) xor sb(5,x[7])
+    k[q+6]=sb(4,x[12]) xor sb(5,x[13]) xor sb(6,x[3]) xor sb(7,x[2]) xor sb(6,x[8])
+    k[q+7]=sb(4,x[14]) xor sb(5,x[15]) xor sb(6,x[1]) xor sb(7,x[0]) xor sb(7,x[13])
 proc rotl(value:uint32, amount:int):uint32 = (value shl amount) or (value shr ((32-amount) and 31))
 proc encrypt(key: array[16,uint8], block: array[8,uint8]): array[8,uint8] =
   var x=key;var k:array[32,uint32]
@@ -280,11 +290,11 @@ proc encrypt(key: array[16,uint8], block: array[8,uint8]): array[8,uint8] =
   for round in 0..<16:
     let km=k[round];let kr=int(k[round+16] and 31'u32);var mixed:uint32;var f:uint32
     if round mod 3==0:
-      mixed=rotl(km +% right,kr);f=((sb(0,uint8(mixed shr 24)) xor sb(1,uint8(mixed shr 16))) -% sb(2,uint8(mixed shr 8))) +% sb(3,uint8(mixed))
+      mixed=rotl(km +% right,kr);f=((sb(0,uint8((mixed shr 24) and 255)) xor sb(1,uint8((mixed shr 16) and 255))) -% sb(2,uint8((mixed shr 8) and 255))) +% sb(3,uint8(mixed and 255))
     elif round mod 3==1:
-      mixed=rotl(km xor right,kr);f=((sb(0,uint8(mixed shr 24)) -% sb(1,uint8(mixed shr 16))) +% sb(2,uint8(mixed shr 8))) xor sb(3,uint8(mixed))
+      mixed=rotl(km xor right,kr);f=((sb(0,uint8((mixed shr 24) and 255)) -% sb(1,uint8((mixed shr 16) and 255))) +% sb(2,uint8((mixed shr 8) and 255))) xor sb(3,uint8(mixed and 255))
     else:
-      mixed=rotl(km -% right,kr);f=((sb(0,uint8(mixed shr 24)) +% sb(1,uint8(mixed shr 16))) xor sb(2,uint8(mixed shr 8))) -% sb(3,uint8(mixed))
+      mixed=rotl(km -% right,kr);f=((sb(0,uint8((mixed shr 24) and 255)) +% sb(1,uint8((mixed shr 16) and 255))) xor sb(2,uint8((mixed shr 8) and 255))) -% sb(3,uint8(mixed and 255))
     let next=left xor f;left=right;right=next
   var out:array[8,uint8];wr(out,0,right);wr(out,4,left);out
 proc beebs_nettle_cast128*(input: ptr UncheckedArray[int64], length:csize_t, output:ptr UncheckedArray[uint8], capacity:csize_t):int64 {.cdecl,exportc:"beebs_nettle_cast128".} =

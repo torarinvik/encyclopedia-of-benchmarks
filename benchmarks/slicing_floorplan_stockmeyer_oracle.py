@@ -66,9 +66,6 @@ def _skyline(candidates: list[tuple[int, int, int]], leaves: int) -> list[tuple[
             if i == j:
                 continue
             if other_height <= height and other_width <= width:
-                if other_height < height or other_width < width:
-                    keep[i] = False
-                    break
                 if _mask_key(other_mask, leaves) < _mask_key(mask, leaves):
                     keep[i] = False
                     break

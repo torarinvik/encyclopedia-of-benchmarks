@@ -36,3 +36,4 @@ The independent oracle is [`benchmarks/tsvc_s258_wrapped_scalar_expansion_oracle
 | Rust | [`tsvc_s258_wrapped_scalar_expansion.rs`](../../../rust/t/tsvc_s258_wrapped_scalar_expansion.rs) |
 | V | [`tsvc_s258_wrapped_scalar_expansion.v`](../../../v/t/tsvc_s258_wrapped_scalar_expansion.v) |
 | Zig | [`tsvc_s258_wrapped_scalar_expansion.zig`](../../../zig/t/tsvc_s258_wrapped_scalar_expansion.zig) |
+| Mojo | [`tsvc_s258_wrapped_scalar_expansion.mojo`](../../../mojo/t/tsvc_s258_wrapped_scalar_expansion.mojo) (draft, unverified) |

@@ -10,6 +10,6 @@ proc tsvc_s242_fused_prefix_update*(x:ptr UncheckedArray[float64],l:csize_t,y:pt
  if y.isNil or cap<csize_t(n):return -2
  var a:array[MaxN,float64]
  for i in 0..<n:a[i]=x[3+i]
- for i in 1..<n:var v=a[i-1]+x[1];v+=x[2];v+=x[3+2*n+i];v+=x[3+3*n+i];v+=x[3+4*n+i];a[i]=v
+ for i in 1..<n:var v=a[i-1]+x[1];v+=x[2];v+=x[3+n+i];v+=x[3+2*n+i];v+=x[3+3*n+i];a[i]=v
  for i in 0..<n:y[i]=a[i]
  int64(n)

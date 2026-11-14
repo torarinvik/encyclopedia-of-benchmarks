@@ -25,6 +25,9 @@ which grows weighted conditional FP-tree paths and returns only a count. This
 package enumerates the masks and supports using the Backtrack tail-extension
 and down-projection traversal.
 
+The bounded depth-first traversal takes `O(r*n*2^n)` time in the worst case
+for `n` items and `r` rows; output storage is `O(2^n)` words.
+
 ## Source attribution and rights
 
 Based on Takeaki Uno, “Frequent Pattern Mining,” *Encyclopedia of Algorithms*,
@@ -46,6 +49,7 @@ The independent verifier oracle is
 | C3 | [`c3/f/frequent_itemset_backtrack.c3`](../../../c3/f/frequent_itemset_backtrack.c3) |
 | C++ | [`cpp/f/frequent_itemset_backtrack.cpp`](../../../cpp/f/frequent_itemset_backtrack.cpp) |
 | Elisa | [`elisa/f/frequent_itemset_backtrack.elisa`](../../../elisa/f/frequent_itemset_backtrack.elisa) |
+| Mojo | [`mojo/f/frequent_itemset_backtrack.mojo`](../../../mojo/f/frequent_itemset_backtrack.mojo) |
 | Nim | [`nim/f/frequent_itemset_backtrack.nim`](../../../nim/f/frequent_itemset_backtrack.nim) |
 | Odin | [`odin/f/frequent_itemset_backtrack.odin`](../../../odin/f/frequent_itemset_backtrack.odin) |
 | Rust | [`rust/f/frequent_itemset_backtrack.rs`](../../../rust/f/frequent_itemset_backtrack.rs) |

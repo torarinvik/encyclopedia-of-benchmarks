@@ -26,6 +26,12 @@ and returns only membership, and from
 LCP-accelerated binary search over suffix order. It does not profile suffix
 tree preprocessing alone.
 
+With the bounded linear child scans used here, construction takes O(n³) time
+in the worst case and O(n²) space for the fixed-width child tables. The query
+and descendant enumeration take O(m n + n) time before the O(n²) suffix-order
+sorting comparisons, each of which may inspect O(n) symbols. These are bounds
+for this package's implementation, not for an optimally constructed suffix tree.
+
 Source: Srinivas Aluru, “Text Indexing,” *Encyclopedia of Algorithms*, DOI
 [`10.1007/978-1-4939-2864-4_422`](https://doi.org/10.1007/978-1-4939-2864-4_422),
 suffix-tree pattern-search discussion. The chapter provides no source-code
@@ -47,3 +53,5 @@ Independent direct-match verifier:
 | Rust | `rust/s/suffix_tree_pattern_occurrences.rs` |
 | V | `v/s/suffix_tree_pattern_occurrences.v` |
 | Zig | `zig/s/suffix_tree_pattern_occurrences.zig` |
+
+The Mojo draft is [`mojo/s/suffix_tree_pattern_occurrences.mojo`](../../../mojo/s/suffix_tree_pattern_occurrences.mojo).

@@ -18,4 +18,9 @@ This is the source's `pgain` core, not the randomized `pspeedy` initializer, rep
 
 Pinned repository: [`utcs-scea/rodinia`](https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8), commit `f30e63663cfb114939a15c7ffc4ae112055ae6a8`. The algorithm is taken from [`cuda/streamcluster/streamcluster_original.cpp`](https://github.com/utcs-scea/rodinia/blob/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/streamcluster/streamcluster_original.cpp), especially `dist` and `pgain`; the pinned launcher is [`cuda/streamcluster/run`](https://github.com/utcs-scea/rodinia/blob/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/streamcluster/run). Ports are independently written implementations of the bounded contract. The source's Princeton notice and the repository's University of Virginia notice/citation request are retained in [`LICENSE.txt`](LICENSE.txt).
 
-The independent model is [`benchmarks/rodinia_streamcluster_pgain_oracle.py`](../../rodinia_streamcluster_pgain_oracle.py). Static workload fixtures are in [`workload.json`](workload.json). Ports are in `c/s`, `c3/s`, `cpp/s`, `elisa/s`, `nim/s`, `odin/s`, `rust/s`, `v/s`, and `zig/s`.
+The independent model is [`benchmarks/rodinia_streamcluster_pgain_oracle.py`](../../rodinia_streamcluster_pgain_oracle.py). Static workload fixtures are in [`workload.json`](workload.json). Ports are in `c/s`, `c3/s`, `cpp/s`, `elisa/s`, `mojo/s`, `nim/s`, `odin/s`, `rust/s`, `v/s`, and `zig/s`. The [Mojo draft](../../../mojo/s/rodinia_streamcluster_pgain.mojo) has not been compiled or run.
+
+For n points in d dimensions, the operation takes O(nd) time and O(nd)
+space for the stored points and result state.
+Verifier source specifies exact ties and neighboring facility costs around
+the opening threshold; these cases have not been run.

@@ -14,8 +14,14 @@ This package captures the real-root path from the pinned `Prolangs-C/allroots` l
 
 Pinned source: [`Prolangs-C/allroots`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/allroots) at commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`, launcher `info.sh`, source files `all.c`, `horners.c`, and `newton.c`. The source attributes the simultaneous Horner evaluation to Algorithm 2.6 in Burden and Faires, *Numerical Analysis*.
 
+The driver is `Prolangs-C/allroots/all.c`.
+
 No per-package license file or redistribution grant was present in the pinned launcher and source files inspected. These ports are independently written from the documented numerical method and observed call contract; they do not copy the original C source. The original benchmark's text diagnostics are normalized to the three numerical roots in source order.
 
 ## ABI and workload
 
 Exported symbol: `prolangs_c_allroots`. Workload: [`workload.json`](workload.json). Independent Python oracle: [`../../prolangs_c_allroots_oracle.py`](../../prolangs_c_allroots_oracle.py).
+
+The fixed cubic and bounded Newton iterations use O(1) time and space. The
+[Mojo port](../../../mojo/a/prolangs_c_allroots.mojo) is a draft and has not
+been compiled or run.

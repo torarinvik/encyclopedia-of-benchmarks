@@ -11,3 +11,13 @@ The contract fixes one unresolved overall-record tie group and starts from the s
 Source benchmark: [`Prolangs-C/football`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/football), pinned at LAC-DCC Benchmarks commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The upstream C files identify William Landi (1991) and state: “Permission to use this code is granted as long as the copyright notice remains in place.” This package is a clean-room, bounded re-expression of the tie-break behavior; no upstream C implementation or comments are copied. The attribution and permission notice are retained here. No broader redistribution or relicensing grant is inferred.
 
 The nine language ports and Python oracle use the same array/scalar contract. The ports use bounded in-place group refinement; the oracle uses recursive tie-group splitting with exact fractions as an independent formulation.
+
+Static review corrected score-based sorting to keep the entire tied group
+available when comparing head-to-head records. The in-place insertion ports
+now preserve the group as a permutation at each comparison; the C++ port
+compares against a snapshot. These corrections have not been compiled or run.
+The `head_to_head_winner_moves_across_two_teams` fixture specifies a descending
+win hierarchy that requires the last team to move across both earlier teams.
+A Mojo draft now follows the same recursive criteria and retains the complete
+tie group during score comparisons. The runner checks all ten source paths.
+Neither change has been compiled or run.

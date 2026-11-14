@@ -19,6 +19,9 @@ The source inventory is pinned to upstream commit [`5d7b75df749241efa7a6e6f5be61
 | Rust | [`rust/g/gesummv.rs`](../../../rust/g/gesummv.rs) |
 | V | [`v/g/gesummv.v`](../../../v/g/gesummv.v) |
 | Zig | [`zig/g/gesummv.zig`](../../../zig/g/gesummv.zig) |
+| Mojo | [`mojo/g/gesummv.mojo`](../../../mojo/g/gesummv.mojo) (unverified draft) |
+
+The bounded implementation evaluates matrix entries on demand, taking O(n²) time and O(n) auxiliary space for the vector.
 
 ## Run
 

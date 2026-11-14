@@ -8,6 +8,8 @@ Input is `[state_count,transition_count,text_length,max_errors,start_state,accep
 
 The function returns the text length on success, `-1` for malformed input, and `-2` for a null or short output buffer. All framing, automaton, byte, and capacity checks finish before output is written. Regex parsing, Thompson-NFA construction, weighted edit costs, and reporting a best alignment are outside this bounded profile.
 
+Null input is malformed and returns `-1`. A null output is accepted for empty text; nonempty output requires a non-null buffer. The verifier source specifies these pointer and validation-precedence cases, but they have not been executed since the port corrections.
+
 The primary oracle uses layered dynamic programming with same-layer insertion closure. The independent verifier runs 0-1 shortest-path searches over the automaton/text product separately for each possible substring start.
 
 ## Implementations
@@ -18,6 +20,7 @@ The primary oracle uses layered dynamic programming with same-layer insertion cl
 | C3 | [`c3/a/approximate_regex_matching.c3`](../../../c3/a/approximate_regex_matching.c3) |
 | C++ | [`cpp/a/approximate_regex_matching.cpp`](../../../cpp/a/approximate_regex_matching.cpp) |
 | Elisa | [`elisa/a/approximate_regex_matching.elisa`](../../../elisa/a/approximate_regex_matching.elisa) |
+| Mojo | [`mojo/a/approximate_regex_matching.mojo`](../../../mojo/a/approximate_regex_matching.mojo) (draft, unverified) |
 | Nim | [`nim/a/approximate_regex_matching.nim`](../../../nim/a/approximate_regex_matching.nim) |
 | Odin | [`odin/a/approximate_regex_matching.odin`](../../../odin/a/approximate_regex_matching.odin) |
 | Rust | [`rust/a/approximate_regex_matching.rs`](../../../rust/a/approximate_regex_matching.rs) |

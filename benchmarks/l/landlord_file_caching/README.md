@@ -20,8 +20,9 @@ Invalid input returns `-1`; null output or capacity below 40 bytes returns
 `-2` without writing.
 
 Credits use integer units scaled by 12, the least common multiple of allowed
-file sizes. This keeps every proportional reduction exact across the nine
-ports. The profile covers the chapter's file-caching Landlord rule; it does
+file sizes. This keeps every proportional reduction exact across the ports.
+For R requests and F distinct files, the simulation uses O(RF²) time in the
+worst case and O(F) space. The profile covers the chapter's file-caching Landlord rule; it does
 not include the separate hit-reset variants, randomized marking, or
 equal-size weighted-caching Greedy Dual specialization.
 
@@ -40,6 +41,7 @@ Independent verifier: [`landlord_file_caching_verifier_oracle.py`](../../landlor
 | C3 | `c3/l/landlord_file_caching.c3` |
 | C++ | `cpp/l/landlord_file_caching.cpp` |
 | Elisa | `elisa/l/landlord_file_caching.elisa` |
+| Mojo | `mojo/l/landlord_file_caching.mojo` |
 | Nim | `nim/l/landlord_file_caching.nim` |
 | Odin | `odin/l/landlord_file_caching.odin` |
 | Rust | `rust/l/landlord_file_caching.rs` |

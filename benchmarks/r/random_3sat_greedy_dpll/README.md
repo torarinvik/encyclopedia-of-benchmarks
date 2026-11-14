@@ -28,6 +28,7 @@ Source: “Thresholds of Random k-SAT,” *Encyclopedia of Algorithms*, DOI `10.
 | C3 | [`c3/r/random_3sat_greedy_dpll.c3`](../../../c3/r/random_3sat_greedy_dpll.c3) |
 | C++ | [`cpp/r/random_3sat_greedy_dpll.cpp`](../../../cpp/r/random_3sat_greedy_dpll.cpp) |
 | Elisa | [`elisa/r/random_3sat_greedy_dpll.elisa`](../../../elisa/r/random_3sat_greedy_dpll.elisa) |
+| Mojo | [`mojo/r/random_3sat_greedy_dpll.mojo`](../../../mojo/r/random_3sat_greedy_dpll.mojo) |
 | Nim | [`nim/r/random_3sat_greedy_dpll.nim`](../../../nim/r/random_3sat_greedy_dpll.nim) |
 | Odin | [`odin/r/random_3sat_greedy_dpll.odin`](../../../odin/r/random_3sat_greedy_dpll.odin) |
 | Rust | [`rust/r/random_3sat_greedy_dpll.rs`](../../../rust/r/random_3sat_greedy_dpll.rs) |

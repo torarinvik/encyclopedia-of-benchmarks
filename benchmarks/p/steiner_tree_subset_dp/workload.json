@@ -33,7 +33,7 @@
     "disconnected_terminal_result": -2,
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "For each terminal mask, merge complementary states at every candidate root and propagate the state by multi-source Dijkstra over graph edges.",
     "independent_oracle": "Enumerate all edge subsets and use disjoint sets to test whether they connect every terminal.",
     "primary_complexity": "O(3^K*N + 2^K*(N^2+M)) with fixed-array O(N^2+M) multi-source Dijkstra per mask.",

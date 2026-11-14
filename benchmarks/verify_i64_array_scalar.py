@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+from i.ida_star_graph_oracle import expected_result as ida_star_graph_oracle
+from run_i64_array_scalar import validate_ida_star_graph_workload
 from collections import deque
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -20,7 +22,7 @@ import struct
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from optimal_binary_search_tree_oracle import (
     MAX_INPUT_LENGTH as OPTIMAL_BST_MAX_INPUT_LENGTH,
     expected_result as optimal_binary_search_tree_oracle,
@@ -116,6 +118,7 @@ from kth_root_integer_oracle import MAX_A as KTH_ROOT_INTEGER_MAX_A
 from kth_root_integer_oracle import MAX_K as KTH_ROOT_INTEGER_MAX_K
 from kth_root_integer_oracle import MAX_PARSEABLE_INPUT_LENGTH as KTH_ROOT_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
 from kth_root_integer_oracle import expected_result as kth_root_integer_oracle
+from square_free_factor_list_oracle import expected_result as square_free_factor_list_oracle
 from discrete_logarithm_mod_oracle import MAX_MODULUS as DISCRETE_LOG_MOD_MAX_MODULUS
 from discrete_logarithm_mod_oracle import MAX_VALID_INPUT_LENGTH as DISCRETE_LOG_MOD_MAX_VALID_INPUT_LENGTH
 from discrete_logarithm_mod_oracle import MAX_PARSEABLE_INPUT_LENGTH as DISCRETE_LOG_MOD_MAX_PARSEABLE_INPUT_LENGTH
@@ -143,6 +146,29 @@ from mccat_08_main_oracle import expected_result as mccat_08_main_oracle
 from mccat_09_vor_oracle import MAX_INPUT_LENGTH as MCCAT_09_VOR_MAX_INPUT_LENGTH
 from mccat_09_vor_oracle import expected_output as mccat_09_vor_oracle
 from mallocbench_espresso_oracle import mallocbench_espresso as mallocbench_espresso_oracle
+from h.hook_length_tableaux.independent_oracle import expected as hook_length_tableaux_oracle
+from h.hook_length_tableaux.small_shape_oracle import count_tableaux as hook_length_corner_oracle
+from h.hook_length_tableaux.validation import validate_workload as validate_hook_length_tableaux_workload
+from d.difference_product.independent_oracle import expected as difference_product_oracle
+from d.difference_product.validation import validate_workload as validate_difference_product_workload
+from p.polynomial_resultant_half_gcd.remainder_oracle import expected as polynomial_resultant_half_gcd_oracle
+from p.polynomial_resultant_half_gcd.sylvester_oracle import expected as polynomial_resultant_determinant_oracle
+from p.polynomial_resultant_half_gcd.matrix_reference import direct_reduction as resultant_direct_matrix
+from p.polynomial_resultant_half_gcd.matrix_reference import recursive_reduction as resultant_recursive_matrix
+from p.polynomial_resultant_half_gcd.matrix_reference import apply as resultant_apply_matrix
+from p.polynomial_resultant_half_gcd.validation import validate_workload as validate_polynomial_resultant_half_gcd_workload
+from p.polynomial_resultant_half_gcd.structured_cases import cases as polynomial_resultant_structured_cases
+from s.subsequence_automaton.primary_oracle import expected as subsequence_automaton_primary
+from s.subsequence_automaton.independent_oracle import expected as subsequence_automaton_oracle
+from s.subsequence_automaton.validation import validate_workload as validate_subsequence_automaton_workload
+from m.maximum_area_triangle_convex.independent_oracle import expected as maximum_area_triangle_convex_oracle
+from m.maximum_area_triangle_convex.validation import validate_workload as validate_maximum_area_triangle_convex_workload
+from r.range_constraint_topological_feasibility.independent_oracle import expected as range_constraint_topological_feasibility_oracle
+from r.range_constraint_topological_feasibility.independent_oracle import exhaustive_small as range_constraint_topological_feasibility_exhaustive
+from r.range_constraint_topological_feasibility.validation import validate_workload as validate_range_constraint_topological_feasibility_workload
+from h.hopcroft_dfa_minimization.independent_oracle import expected as hopcroft_dfa_minimization_oracle
+from h.hopcroft_dfa_minimization.pair_oracle import count_classes as hopcroft_dfa_pair_oracle
+from h.hopcroft_dfa_minimization.validation import validate_workload as validate_hopcroft_dfa_minimization_workload
 from mallocbench_cfrac_oracle import mallocbench_cfrac as mallocbench_cfrac_oracle
 from agrep_approx_substring_count_oracle import (
     MAX_ERRORS as AGREP_MAX_ERRORS,
@@ -420,10 +446,46 @@ from roulette_wheel_selection_oracle import MIN_VALIDATORS as ROULETTE_WHEEL_SEL
 from roulette_wheel_selection_oracle import expected_result as roulette_wheel_selection_oracle
 from stoer_wagner_oracle import INVALID_RESULT as STOER_WAGNER_INVALID_RESULT
 from k.karger_contraction_trial.independent_oracle import expected_output as karger_contraction_trial_oracle
+from d.directed_girth_bfs.independent_oracle import expected_output as directed_girth_bfs_oracle
+from f.functional_graph_cycle_brent.independent_oracle import expected_output as functional_graph_cycle_brent_oracle
+from f.functional_graph_cycle_brent.primary_oracle import expected_output as functional_graph_cycle_brent_primary
+from o.offline_range_distinct_fenwick.independent_oracle import expected_output as offline_range_distinct_fenwick_oracle
+from o.offline_range_distinct_fenwick.primary_oracle import expected_output as offline_range_distinct_fenwick_primary
+from d.dinic_capacity_scaling.independent_oracle import expected_output as dinic_capacity_scaling_oracle
+from d.dinic_capacity_scaling.primary_oracle import expected_output as dinic_capacity_scaling_primary
+from h.highest_label_push_relabel.independent_oracle import expected_output as highest_label_push_relabel_oracle
+from h.highest_label_push_relabel.primary_oracle import expected_output as highest_label_push_relabel_primary
+from c.closest_pair_sweep.independent_oracle import expected_output as closest_pair_sweep_oracle
+from c.closest_pair_sweep.primary_oracle import expected_output as closest_pair_sweep_primary
+from m.monotone_radix_heap.independent_oracle import expected_output as monotone_radix_heap_oracle
+from m.monotone_radix_heap.primary_oracle import expected_output as monotone_radix_heap_primary
+from b.backward_nondeterministic_dawg_match.independent_oracle import expected_output as bndm_oracle
+from b.backward_nondeterministic_dawg_match.primary_oracle import expected_output as bndm_primary
+from check_backward_nondeterministic_dawg_match_package import static_issues as bndm_static_issues
+from b.backward_oracle_match.independent_oracle import expected_output as bom_oracle
+from b.backward_oracle_match.primary_oracle import expected_output as bom_primary
+from check_backward_oracle_match_package import static_issues as bom_static_issues
+from w.wavelet_matrix.independent_oracle import expected_output as wavelet_matrix_oracle
+from w.wavelet_matrix.primary_oracle import expected_output as wavelet_matrix_primary
+from check_wavelet_matrix_package import static_issues as wavelet_matrix_static_issues
+from x.xor_filter_peeling.independent_oracle import expected_output as xor_filter_peeling_oracle
+from x.xor_filter_peeling.primary_oracle import expected_output as xor_filter_peeling_primary
+from check_xor_filter_peeling_package import static_issues as xor_filter_peeling_static_issues
+from check_monotone_radix_heap_package import static_issues as monotone_radix_heap_static_issues
+from check_closest_pair_sweep_package import static_issues as closest_pair_sweep_static_issues
+from check_highest_label_push_relabel_package import static_issues as highest_label_push_relabel_static_issues
+from check_dinic_capacity_scaling_package import static_issues as dinic_capacity_scaling_static_issues
+from check_offline_range_distinct_fenwick_package import static_issues as offline_range_distinct_fenwick_static_issues
+from check_functional_graph_cycle_brent_package import static_issues as functional_graph_cycle_brent_static_issues
+from d.directed_girth_bfs.primary_oracle import expected_output as directed_girth_bfs_primary
+from check_directed_girth_bfs_package import static_issues as directed_girth_bfs_static_issues
 from check_karger_contraction_trial_package import static_issues as karger_contraction_trial_static_issues
 from t.turnstile_one_sparse_fingerprint_recovery.independent_oracle import expected_output as sparse_recovery_oracle
 from check_turnstile_one_sparse_fingerprint_recovery_package import static_issues as sparse_recovery_static_issues
 from s.second_best_mst_binary_lifting.independent_oracle import expected_output as lifting_mst_oracle
+from longest_common_substring_sam_oracle import evaluate as longest_common_substring_sam_primary
+from longest_common_substring_sam_verifier_oracle import evaluate as longest_common_substring_sam_oracle
+from run_i64_array_scalar import validate_longest_common_substring_sam_workload
 from s.second_best_mst_binary_lifting.primary_oracle import expected_output as lifting_mst_primary
 from check_second_best_mst_binary_lifting_package import static_issues as lifting_mst_static_issues
 from h.hopcroft_karp_cardinality.independent_oracle import expected_output as hopcroft_karp_oracle
@@ -2232,7 +2294,12 @@ ALGORITHMS += ("mallocbench_espresso",)
 ALGORITHMS += ("ptrdist_anagram",)
 ALGORITHMS += ("ptrdist_sim_local_affine_alignment",)
 ALGORITHMS += ("stanford_puzzle",)
-ALGORITHMS += ("mallocbench_cfrac", "agrep_approx_substring_count")
+ALGORITHMS += ("mallocbench_cfrac", "agrep_approx_substring_count", "hook_length_tableaux", "difference_product")
+ALGORITHMS += ("maximum_area_triangle_convex",)
+ALGORITHMS += ("range_constraint_topological_feasibility",)
+ALGORITHMS += ("hopcroft_dfa_minimization",)
+ALGORITHMS += ("polynomial_resultant_half_gcd",)
+ALGORITHMS += ("subsequence_automaton",)
 ALGORITHMS += ("npb_serial_dc",)
 ALGORITHMS += ("npb_dc_smallest_parent",)
 ALGORITHMS += ("doe_pathfinder_signature_search",)
@@ -2395,8 +2462,20 @@ ALGORITHMS += ("smith_waterman_java",)
 ALGORITHMS += ("roulette_wheel_selection",)
 ALGORITHMS += ("stoer_wagner",)
 ALGORITHMS += ("karger_contraction_trial",)
+ALGORITHMS += ("directed_girth_bfs",)
+ALGORITHMS += ("functional_graph_cycle_brent",)
+ALGORITHMS += ("offline_range_distinct_fenwick",)
+ALGORITHMS += ("dinic_capacity_scaling",)
+ALGORITHMS += ("highest_label_push_relabel",)
+ALGORITHMS += ("closest_pair_sweep",)
+ALGORITHMS += ("monotone_radix_heap",)
+ALGORITHMS += ("backward_nondeterministic_dawg_match",)
+ALGORITHMS += ("backward_oracle_match",)
+ALGORITHMS += ("wavelet_matrix",)
+ALGORITHMS += ("xor_filter_peeling",)
 ALGORITHMS += ("turnstile_one_sparse_fingerprint_recovery",)
 ALGORITHMS += ("second_best_mst_binary_lifting",)
+ALGORITHMS += ("longest_common_substring_sam",)
 ALGORITHMS += ("hopcroft_karp_cardinality",)
 ALGORITHMS += ("bipartite_matching_kuhn",)
 ALGORITHMS += ("pushdown_automaton",)
@@ -2504,6 +2583,7 @@ ALGORITHMS += ("bishop_placements_count",)
 ALGORITHMS += ("johnson_two_machine_flow_shop",)
 ALGORITHMS += ("undirected_chinese_postman",)
 ALGORITHMS += ("max_jobs_before_deadlines",)
+ALGORITHMS += ("naive_knapsack_solver",)
 ALGORITHMS += ("connected_labeled_graph_count",)
 ALGORITHMS += ("bostan_mori_recurrence_term",)
 ALGORITHMS += ("common_tangents_two_circles",)
@@ -2513,6 +2593,7 @@ ALGORITHMS += ("minimum_queue_two_stacks",)
 ALGORITHMS += ("parallel_binary_search_range_threshold",)
 ALGORITHMS += ("cdq_three_dimensional_dominance",)
 ALGORITHMS += ("bareiss_determinant",)
+ALGORITHMS += ("ida_star_graph",)
 ALGORITHMS += ("pollard_p_minus_one_factorization",)
 ALGORITHMS += ("factoring_exponentiation",)
 ALGORITHMS += ("isap_maxflow",)
@@ -2534,6 +2615,7 @@ ALGORITHMS += ("deque_operate_all_composite",)
 ALGORITHMS += ("sum_of_floor_of_linear",)
 ALGORITHMS += ("min_of_mod_of_linear",)
 ALGORITHMS += ("kth_root_integer",)
+ALGORITHMS += ("square_free_factor_list",)
 ALGORITHMS += ("discrete_logarithm_mod",)
 ALGORITHMS += ("tetration_mod",)
 ALGORITHMS += ("sum_of_multiplicative_function_large",)
@@ -4313,6 +4395,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return min_of_mod_of_linear_oracle(values)
     if algorithm == "sum_of_floor_of_linear":
         return sum_of_floor_of_linear_oracle(values)
+    if algorithm == "square_free_factor_list":
+        return square_free_factor_list_oracle(values)
     if algorithm == "kth_root_integer":
         return kth_root_integer_oracle(values)
     if algorithm == "discrete_logarithm_mod":
@@ -4335,6 +4419,20 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return stanford_puzzle_oracle(values)
     if algorithm == "mallocbench_cfrac":
         return mallocbench_cfrac_oracle(values)
+    if algorithm == "hook_length_tableaux":
+        return hook_length_tableaux_oracle(values)
+    if algorithm == "difference_product":
+        return difference_product_oracle(values)
+    if algorithm == "polynomial_resultant_half_gcd":
+        return polynomial_resultant_half_gcd_oracle(values)
+    if algorithm == "subsequence_automaton":
+        return subsequence_automaton_oracle(values)
+    if algorithm == "maximum_area_triangle_convex":
+        return maximum_area_triangle_convex_oracle(values)
+    if algorithm == "range_constraint_topological_feasibility":
+        return range_constraint_topological_feasibility_oracle(values)
+    if algorithm == "hopcroft_dfa_minimization":
+        return hopcroft_dfa_minimization_oracle(values)
     if algorithm == "agrep_approx_substring_count":
         return agrep_approx_substring_count_oracle(values)
     if algorithm == "npb_serial_dc":
@@ -4571,6 +4669,9 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return undirected_chinese_postman_oracle(values)
     if algorithm == "max_jobs_before_deadlines":
         return max_jobs_before_deadlines_oracle(values)
+    if algorithm == "naive_knapsack_solver":
+        from naive_knapsack_solver_oracle import expected_result
+        return expected_result(values)
     if algorithm == "connected_labeled_graph_count":
         return connected_labeled_graph_count_oracle(values)
     if algorithm == "bostan_mori_recurrence_term":
@@ -4587,6 +4688,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return parallel_binary_search_range_threshold_oracle(values)
     if algorithm == "cdq_three_dimensional_dominance":
         return cdq_three_dimensional_dominance_oracle(values)
+    if algorithm == "ida_star_graph":
+        return ida_star_graph_oracle(values)
     if algorithm == "bareiss_determinant":
         return bareiss_determinant_oracle(values)
     if algorithm == "pollard_p_minus_one_factorization":
@@ -4774,10 +4877,34 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return kuhn_flow_oracle(values)
     if algorithm == "hopcroft_karp_cardinality":
         return hopcroft_karp_oracle(values)
+    if algorithm == "longest_common_substring_sam":
+        return longest_common_substring_sam_oracle(values)
     if algorithm == "second_best_mst_binary_lifting":
         return lifting_mst_oracle(values)
     if algorithm == "turnstile_one_sparse_fingerprint_recovery":
         return sparse_recovery_oracle(values)
+    if algorithm == "directed_girth_bfs":
+        return directed_girth_bfs_oracle(values)
+    if algorithm == "functional_graph_cycle_brent":
+        return functional_graph_cycle_brent_oracle(values)
+    if algorithm == "offline_range_distinct_fenwick":
+        return offline_range_distinct_fenwick_oracle(values)
+    if algorithm == "dinic_capacity_scaling":
+        return dinic_capacity_scaling_oracle(values)
+    if algorithm == "highest_label_push_relabel":
+        return highest_label_push_relabel_oracle(values)
+    if algorithm == "closest_pair_sweep":
+        return closest_pair_sweep_oracle(values)
+    if algorithm == "monotone_radix_heap":
+        return monotone_radix_heap_oracle(values)
+    if algorithm == "backward_nondeterministic_dawg_match":
+        return bndm_oracle(values)
+    if algorithm == "backward_oracle_match":
+        return bom_oracle(values)
+    if algorithm == "wavelet_matrix":
+        return wavelet_matrix_oracle(values)
+    if algorithm == "xor_filter_peeling":
+        return xor_filter_peeling_oracle(values)
     if algorithm == "karger_contraction_trial":
         return karger_contraction_trial_oracle(values)
     if algorithm == "stoer_wagner":
@@ -5512,7 +5639,21 @@ def oracle(algorithm: str, values: list[int]) -> int:
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "mpm_maxflow":
+    if algorithm == "naive_knapsack_solver":
+        from run_i64_array_scalar import validate_naive_knapsack_solver_workload
+        validate_naive_knapsack_solver_workload(workload)
+    if algorithm == "square_free_factor_list":
+        fixtures = workload.get("cases")
+        if (workload.get("algorithm") != algorithm or not isinstance(fixtures, list)
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+            raise ValueError("square_free_factor_list workload has invalid metadata")
+        for fixture in fixtures:
+            values = fixture.get("input_values")
+            if (not isinstance(values, list) or fixture.get("input_length") != len(values)
+                    or any(type(value) is not int for value in values)
+                    or fixture.get("expected_result") != square_free_factor_list_oracle(values)):
+                raise ValueError(f"square_free_factor_list fixture disagrees with oracle: {fixture.get('id')}")
+    elif algorithm == "mpm_maxflow":
         validate_mpm_maxflow_workload(workload)
     elif algorithm == "optimal_binary_search_tree":
         for fixture in workload.get("cases", []):
@@ -5727,6 +5868,25 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_rodinia_lavamd_workload(workload)
     elif algorithm == "rodinia_pathfinder":
         validate_rodinia_pathfinder_workload(workload)
+    elif algorithm == "fhourstones_exact":
+        # Prefixes of legal workload histories remain legal; reflecting columns
+        # exercises the same positions under the opposite horizontal ordering.
+        for fixture in workload["cases"]:
+            values = fixture.get("input_values", [])
+            if fixture.get("expected_result") not in (-2, 0, 2) or not values:
+                continue
+            history = values[1:]
+            for count in range(FHOURSTONES_EXACT_MIN_MOVES,
+                               min(len(history), FHOURSTONES_EXACT_MAX_MOVES) + 1):
+                for reflected in (False, True):
+                    moves = tuple(6 - column if reflected else column for column in history[:count])
+                    candidate = (count, *moves)
+                    cases[candidate] = fhourstones_exact_oracle(candidate)
+        for candidate in ((35, *([0] * 35)), (36, *([0] * 36)),
+                          (36, *([7] * 36)), (42, *([0] * 42))):
+            if len(candidate) <= FHOURSTONES_EXACT_MAX_INPUT_LENGTH:
+                cases[candidate] = fhourstones_exact_oracle(candidate)
+        special_records.append("NULL 0 -1\n")
     elif algorithm == "rodinia_bplus_tree":
         validate_rodinia_bplus_tree_workload(workload)
     elif algorithm == "xgboost":
@@ -5807,8 +5967,28 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_mccat_08_main_workload(workload)
     elif algorithm == "mccat_09_vor":
         validate_mccat_09_vor_workload(workload)
+    elif algorithm == "hook_length_tableaux":
+        validate_hook_length_tableaux_workload(workload)
+    elif algorithm == "difference_product":
+        validate_difference_product_workload(workload)
+    elif algorithm == "polynomial_resultant_half_gcd":
+        validate_polynomial_resultant_half_gcd_workload(workload)
+    elif algorithm == "subsequence_automaton":
+        validate_subsequence_automaton_workload(workload)
+    elif algorithm == "maximum_area_triangle_convex":
+        validate_maximum_area_triangle_convex_workload(workload)
+    elif algorithm == "range_constraint_topological_feasibility":
+        validate_range_constraint_topological_feasibility_workload(workload)
+    elif algorithm == "hopcroft_dfa_minimization":
+        validate_hopcroft_dfa_minimization_workload(workload)
     elif algorithm == "mallocbench_espresso":
         validate_mallocbench_espresso_workload(workload)
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "e" / f"mallocbench_espresso.{extension}"
+            if not path.is_file() or "mallocbench_espresso" not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"mallocbench_espresso source missing for {language}")
     elif algorithm == "ptrdist_anagram":
         validate_ptrdist_anagram_workload(workload)
     elif algorithm == "ptrdist_sim_local_affine_alignment":
@@ -5817,6 +5997,12 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_stanford_puzzle_workload(workload)
     elif algorithm == "mallocbench_cfrac":
         validate_mallocbench_cfrac_workload(workload)
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            path = ROOT / language / "c" / f"mallocbench_cfrac.{extension}"
+            if not path.is_file() or "mallocbench_cfrac" not in path.read_text(encoding="utf-8"):
+                raise ValueError(f"mallocbench_cfrac source missing for {language}")
     elif algorithm == "agrep_approx_substring_count":
         validate_agrep_approx_substring_count_workload(workload)
     elif algorithm == "npb_serial_dc":
@@ -5829,6 +6015,21 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_ptrdist_ks_workload(workload)
     elif algorithm == "prolangs_c_assembler":
         validate_prolangs_c_assembler_workload(workload)
+    elif algorithm == "embench_aha_mont64":
+        # Probe both 32-bit limb boundaries and operands close to the largest
+        # supported odd moduli. The oracle uses arbitrary-precision arithmetic.
+        for modulus in (3, 5, (1 << 32) - 5, (1 << 32) + 1,
+                        (1 << 62) + 1, (1 << 63) - 25, (1 << 63) - 1):
+            candidates = {0, 1, modulus // 2, modulus - 2, modulus - 1}
+            candidates.update(value for value in ((1 << 32) - 1, 1 << 32, (1 << 32) + 1)
+                              if value < modulus)
+            for a, b in product(sorted(candidates), repeat=2):
+                values = (a, b, modulus)
+                cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (1, 1), (-1, 0, 3), (0, -1, 3),
+                       (0, 0, 2), (0, 0, 4), (3, 0, 3), (0, 3, 3),
+                       (0, 0, 3, 0)):
+            cases[values] = oracle(algorithm, list(values))
     elif algorithm == "prolangs_c_bison_nullable":
         validate_prolangs_c_bison_nullable_workload(workload)
     elif algorithm == "prolangs_c_gnugo_liberty_count":
@@ -6027,6 +6228,8 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_parallel_binary_search_range_threshold_workload(workload)
     elif algorithm == "cdq_three_dimensional_dominance":
         validate_cdq_three_dimensional_dominance_workload(workload)
+    elif algorithm == "ida_star_graph":
+        validate_ida_star_graph_workload(workload)
     elif algorithm == "bareiss_determinant":
         validate_bareiss_determinant_workload(workload)
     elif algorithm == "pollard_p_minus_one_factorization":
@@ -6234,6 +6437,147 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
+    if algorithm == "subsequence_automaton":
+        for n in range(5):
+            for text in product(range(2), repeat=n):
+                for size in range(4):
+                    for query in product(range(2), repeat=size):
+                        values = (n, 1, *text, size, *query)
+                        expected = subsequence_automaton_oracle(values)
+                        if expected != subsequence_automaton_primary(values):
+                            raise ValueError("subsequence table and scan references disagree")
+                        cases[values] = expected
+        # Maximum text, query count and total symbols; all queries match.
+        text = tuple(i % 4 for i in range(64))
+        query = tuple(i % 4 for i in range(8))
+        cases[(64, 32, *text, *((8, *query) * 32))] = 528
+        cases[(0, 1, 257, *([0] * 257))] = -1
+        cases[(0, 0, *([0] * 353))] = -1
+        special_records.append("NULL 0 -1\n")
+    if algorithm == "polynomial_resultant_half_gcd":
+        # Compare recursive lifting to independently sequenced elementary
+        # Euclidean reductions, with a low cutoff to exercise small inputs.
+        for degree in range(2, 13):
+            for second_degree in range(degree):
+                for seed in (2, 11, 37):
+                    a = tuple((seed * (i + 1) + i * i) % 101 + 1 for i in range(degree + 1))
+                    b = tuple((seed * (i + 3) + 2 * i * i) % 103 + 1 for i in range(second_degree + 1))
+                    direct = resultant_direct_matrix(a, b)
+                    recursive = resultant_recursive_matrix(a, b, cutoff=2)
+                    if direct != recursive or resultant_apply_matrix(direct, a, b) != resultant_apply_matrix(recursive, a, b):
+                        raise ValueError("recursive resultant matrix differs from elementary reduction")
+        # Compare the division recurrence with a determinant for small dense
+        # inputs. Larger dense cases exercise recursive lifting and factors.
+        for m in range(5):
+            for n in range(5):
+                for seed in (1, 17, 91):
+                    a = [((i + 1) * (i + seed) + seed) % 998244352 + 1 for i in range(m + 1)]
+                    b = [((i + 3) * (i + 2 * seed) + 1) % 998244352 + 1 for i in range(n + 1)]
+                    values = (m, n, *a, *b)
+                    expected = polynomial_resultant_half_gcd_oracle(values)
+                    if expected != polynomial_resultant_determinant_oracle(values):
+                        raise ValueError("resultant remainder and determinant references disagree")
+                    cases[values] = expected
+        for m, n in ((65, 64), (66, 65), (129, 128), (129, 63)):
+            a = [((i + 11) * (i + 19) + 3) % 998244352 + 1 for i in range(m + 1)]
+            b = [((i + 7) * (i + 29) + 5) % 998244352 + 1 for i in range(n + 1)]
+            values = (m, n, *a, *b)
+            cases[values] = polynomial_resultant_half_gcd_oracle(values)
+        # Their high slices divide exactly, but lifting exposes 1-x as the
+        # true remainder. This stresses the deferred boundary remainder.
+        a = [0] * 66
+        b = [0] * 65
+        a[0], a[2], a[65] = 1, 1, 1
+        b[0], b[1], b[64] = 1, 1, 1
+        for values in ((65, 64, *a, *b), (64, 65, *b, *a)):
+            cases[values] = polynomial_resultant_half_gcd_oracle(values)
+        for _, values, expected in polynomial_resultant_structured_cases():
+            cases[tuple(values)] = expected
+        special_records.append("NULL 1 -1\n")
+    if algorithm == "hopcroft_dfa_minimization":
+        for n, alphabet in ((1, 1), (2, 1), (2, 2), (3, 1), (3, 2)):
+            for flags in product((0, 1), repeat=n):
+                for transitions in product(range(n), repeat=n * alphabet):
+                    values = (n, alphabet, *flags, *transitions)
+                    result = hopcroft_dfa_minimization_oracle(values)
+                    if result != hopcroft_dfa_pair_oracle(values):
+                        raise ValueError("DFA signature and pair-distinguishability references disagree")
+                    cases[values] = result
+        # Unary chain: each state has a different distance to acceptance.
+        cases[(4096, 1, *([0] * 4095), 1, *range(1, 4096), 4095)] = 4096
+        # Four-symbol maximum frame with no accepting states is one class.
+        cases[(4096, 4, *([0] * 4096), *([0] * 16384))] = 1
+        special_records.append("NULL 1 -1\n")
+    if algorithm == "range_constraint_topological_feasibility":
+        # Every single constraint and every pair for three vertices.
+        constraints = [(kind, left, right, target)
+                       for kind in (1, 2, 3) for left in range(3)
+                       for right in range(left + 1, 4) for target in range(3)
+                       if not left <= target < right]
+        for first in constraints:
+            for second in constraints:
+                values = (3, 2, *first, *second)
+                result = range_constraint_topological_feasibility_oracle(values)
+                if result != range_constraint_topological_feasibility_exhaustive(values):
+                    raise ValueError("range-constraint greedy reference differs from exhaustive ordering")
+                cases[values] = result
+        # Known outcomes cover each maximum independently without expanding
+        # the largest frames through the deliberately slow reference.
+        cases[(4096, 0)] = 1
+        cases[(2, 8192, *((1, 1, 2, 0) * 8192))] = 1
+        cases[(2, 8192, *((1, 1, 2, 0) * 8191), 3, 1, 2, 0)] = 0
+        special_records.append("NULL 1 -1\n")
+    if algorithm == "maximum_area_triangle_convex":
+        # Convex parabola chains exercise asymmetric polygons and each start position.
+        for count in (3, 4, 8, 16, 32, 64):
+            points = [(x, x * x) for x in range(count - 1)]
+            points.append(((count - 2) // 2, count * count + 1))
+            for shift in (0, 1, count // 2):
+                ordered = points[shift:] + points[:shift]
+                values = (count, *(coordinate for point in ordered for coordinate in point))
+                cases[values] = maximum_area_triangle_convex_oracle(values)
+    if algorithm == "difference_product":
+        # Cross split and transform boundaries in both input orders.
+        for count in (0, 1, 2, 31, 32, 33, 34, 63, 64, 65, 127, 128, 1024, 65536):
+            points = tuple(range(count))
+            for ordered in (points, points[::-1]):
+                values = (count, *ordered)
+                cases[values] = difference_product_oracle(values)
+        # Irregular distinct inputs use the direct pairwise oracle, independently
+        # of the progression shortcut used by the largest cases.
+        for count in (33, 65, 129):
+            points = tuple(i * i + 3 * i for i in range(count))
+            for ordered in (points, points[::-1]):
+                values = (count, *ordered)
+                cases[values] = difference_product_oracle(values)
+        points = (*range(32), 0, *range(32, 64))
+        cases[(len(points), *points)] = 0
+    if algorithm == "hook_length_tableaux":
+        # Check all small partitions against a different combinatorial recurrence.
+        def add_shapes(prefix, remaining, largest):
+            shape = tuple(prefix)
+            values = (len(shape), *shape)
+            result = hook_length_tableaux_oracle(list(values))
+            if result != hook_length_corner_oracle(shape):
+                raise ValueError("hook-length formula differs from corner-removal recurrence")
+            cases[values] = result
+            for width in range(min(largest, remaining), 0, -1):
+                add_shapes((*prefix, width), remaining - width, width)
+
+        add_shapes((), 10, 10)
+        cases[(1, 1000000)] = 1
+        cases[(65536, *([1] * 65536))] = 1
+        special_records.append("NULL 1 -1\n")
+    if algorithm == "naive_knapsack_solver":
+        for capacity in range(6):
+            for count in range(5):
+                for weights in product(range(4), repeat=count):
+                    values = (capacity, count, *weights)
+                    cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (-1, 0), (0, -1), (0, 1, -1),
+                       (0, 1, 1000001), (0, 31, *([0] * 30))):
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 0 -1\n")
     if algorithm == "beebs_bit_compress":
         edge_masks = (
             0, 1, 2, 3, 0x80000000, 0xFFFFFFFF,
@@ -6264,6 +6608,17 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         def pack_bplus(left, right, queries):
             return (len(left), len(right), len(queries),
                     *(item for pair in (*left, *right) for item in pair), *queries)
+
+        for left_count in range(1, 4):
+            for right_count in range(1, 4):
+                left = [(key, 100 + key) for key in range(-left_count, 0)]
+                right = [(key, 200 + key) for key in range(right_count)]
+                queries = (-left_count-1, -1, 0, right_count-1, right_count)
+                values = pack_bplus(left, right, queries)
+                expected = 2*100 + 3*201 + 4*(200+right_count)
+                if oracle(algorithm, list(values)) != expected:
+                    raise ValueError("B+ tree oracle differs at a separator boundary")
+                cases[values] = expected
 
         for _ in range(96):
             keys = sorted(rng_bplus.sample(range(-1000, 1001), rng_bplus.randint(2, 6)))
@@ -6372,6 +6727,25 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 values.extend((rng.randint(-8, 8), rng.randint(-8, 8)))
             if len(values) <= OLDEN_VORONOI_MAX_INPUT_LENGTH:
                 cases[tuple(values)] = olden_voronoi_oracle(values)
+        # Generate ordered x-coordinates deliberately, so these cases reach the
+        # quad-edge merge instead of almost always failing the ordering check.
+        for count, xs in ((3, (-7, 0, 7)), (5, (-8, -4, 0, 4, 8))):
+            accepted = 0
+            for _ in range(256):
+                ys = [rng.randint(-8, 8) for _ in xs]
+                frame = [count, *(coordinate for point in zip(xs, ys) for coordinate in point)]
+                expected = olden_voronoi_oracle(frame)
+                if expected == -1:
+                    continue
+                cases[tuple(frame)] = expected
+                # A y-reflection changes center coordinates while preserving
+                # general position and the number of faces and dual edges.
+                reflected = [count, *(coordinate for point in zip(xs, (-y for y in ys))
+                                      for coordinate in point)]
+                cases[tuple(reflected)] = olden_voronoi_oracle(reflected)
+                accepted += 1
+                if accepted == 32:
+                    break
     elif algorithm == "mibench_network_dijkstra":
         rng = random.Random(0xD1A5)
         edge_choices = (MIBENCH_NETWORK_DIJKSTRA_NONE,
@@ -6930,7 +7304,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             minimum_null_length = 0 if algorithm in (
                 "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
                 "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
-                "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc", "npb_dc_smallest_parent",
+                "stanford_puzzle", "mallocbench_cfrac", "hook_length_tableaux", "difference_product", "polynomial_resultant_half_gcd", "subsequence_automaton", "maximum_area_triangle_convex", "range_constraint_topological_feasibility", "hopcroft_dfa_minimization", "npb_serial_dc", "npb_dc_smallest_parent",
                 "prolangs_c_assembler", "prolangs_c_bison_nullable", "tsvc_vbor",
                 "versabench_dbms_choose_entry",
                 "versabench_dbms_partition_entries", "versabench_dbms_consistent_key",
@@ -7013,6 +7387,17 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         add_transform_case((1, 16, *identity_header, *max_points))
         add_transform_case((3, 2, *identity_header, 1_000_000, 2_000_000, 3_000_000,
                             1_000_000, 2_000_000, 3_000_000))
+        composed_header = (2_000_000, -1_000_000, 500_000,
+                           0, 0, 0, 1_000_000, 2_000_000, 3_000_000,
+                           -1_000_000, 2_000_000, 1_000_000,
+                           0, 0, 0, 0, -1_000_000, 1_000_000)
+        point = (1_000_000, 2_000_000, 4_000_000)
+        for values in ((1, 1, *composed_header, *point),
+                       (1, 2, *composed_header, *point, *point)):
+            result = oracle(algorithm, list(values))
+            if result != 36_000:
+                raise ValueError("mccat_08_main reference disagrees with the hand-derived transform")
+            cases[values] = result
         malformed = (
             (), (1,), (1, 0, *identity_header),
             (0, 1, *identity_header, 0, 0, 0),
@@ -7027,6 +7412,9 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
     elif algorithm == "mccat_09_vor":
         candidates = (
             (3, -4, -1, 3, -2, 0, 4),
+            (3, 0, 0, 1, -4, 1, 4),
+            (3, 0, 0, 1, 0, 4, 1),
+            (3, 0, 0, 4, 0, 1, 1),
             (4, -3, -2, 3, -1, 2, 3, -1, 2),
             (5, -3, -1, 2, -3, 3, 1, 0, 4, -2, 3),
             (8, -4, -1, -3, 2, -2, -4, -1, 1, 0, 4, 2, -3, 4, 1, 3, 3),
@@ -7198,6 +7586,28 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= PTRDIST_KS_MAX_INPUT_LENGTH + 1:
                 cases[values] = oracle(algorithm, list(values))
     elif algorithm == "prolangs_c_assembler":
+        # Exercise both ends of the signed 12-bit PC-relative displacement,
+        # including the first value outside each end. RESB is limited to 256,
+        # so construct larger gaps from multiple records.
+        for gap in (0, 2047, 2048):
+            reserves = [(2, 0, 0, min(256, gap - offset))
+                        for offset in range(0, gap, 256)]
+            records = [(0, 1, 0, 0), (5, 0, 2, 2), *reserves,
+                       (4, 2, 0, 0), (1, 0, 0, 0)]
+            values = (len(records), *(word for record in records for word in record))
+            result = oracle(algorithm, list(values))
+            if (result >= 0) != (gap <= 2047):
+                raise ValueError("assembler forward displacement boundary differs from its contract")
+            cases[values] = result
+        for gap in (0, 2045, 2046):
+            reserves = [(2, 0, 0, min(256, gap - offset))
+                        for offset in range(0, gap, 256)]
+            records = [(0, 1, 0, 0), *reserves, (5, 0, 3, 1), (1, 0, 0, 0)]
+            values = (len(records), *(word for record in records for word in record))
+            result = oracle(algorithm, list(values))
+            if (result >= 0) != (gap <= 2045):
+                raise ValueError("assembler backward displacement boundary differs from its contract")
+            cases[values] = result
         maximum_records = [0, 1, 0, 0]
         maximum_records.extend(value for label in range(2, 16)
                                for value in (2, label, 0, 1))
@@ -7215,6 +7625,28 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH + 1:
                 cases[values] = oracle(algorithm, list(values))
     elif algorithm == "prolangs_c_bison_nullable":
+        # Enumerate pairs of small productions, including repeated symbols,
+        # terminals, empty seeds and cycles. The fixed-point oracle supplies
+        # expected masks independently of the ports' queue propagation.
+        productions = [
+            (lhs, len(rhs), *rhs)
+            for lhs in range(2)
+            for rhs_length in range(3)
+            for rhs in product(range(3), repeat=rhs_length)
+        ]
+        for first, second in product(productions, repeat=2):
+            values = (2, 1, 2, *first, *second)
+            cases[values] = oracle(algorithm, list(values))
+        # Propagate a seed through every possible nonterminal in reverse rule
+        # order so the queue must revisit earlier rules after new discoveries.
+        chain = [16, 0, 16]
+        for symbol in range(15):
+            chain.extend((symbol, 2, symbol + 1, symbol + 1))
+        chain.extend((15, 0))
+        chain_result = oracle(algorithm, chain)
+        if chain_result != (1 << 16) - 1:
+            raise ValueError("nullable reference failed the repeated-symbol propagation chain")
+        cases[tuple(chain)] = chain_result
         maximum = [16, 16, 32]
         for rule in range(32):
             maximum.extend((rule % 16, 8,
@@ -7360,6 +7792,21 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= PROLANGS_C_SIMULATOR_SHIFTR_MAX_INPUT_LENGTH + 1:
                 cases[values] = oracle(algorithm, list(values))
     elif algorithm == "prolangs_football_tiebreaks":
+        # Exercise every directed win pattern for three same-division teams.
+        # In particular, several patterns move an item more than one place
+        # while head-to-head scores depend on the full tied group.
+        directed_pairs = tuple((a, b) for a in range(3) for b in range(3) if a != b)
+        for present in product((0, 1), repeat=len(directed_pairs)):
+            values = [3]
+            for team in range(3):
+                values.extend((team, *([0] * 11)))
+            wins = [0] * 9
+            for (a, b), flag in zip(directed_pairs, present):
+                wins[3 * a + b] = flag
+            values.extend(wins)
+            values.extend([0] * 9)
+            cases[tuple(values)] = oracle(algorithm, values)
+
         team_count = PROLANGS_FOOTBALL_MAX_TEAMS
         maximum = [team_count]
         for team in range(team_count):
@@ -9616,6 +10063,33 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             cases[values] = independent
         if not any("NULL 0 -1\n" == record for record in special_records):
             special_records.append("NULL 0 -1\n")
+    elif algorithm == "ida_star_graph":
+        validate_ida_star_graph_workload(workload)
+        for fixture in workload["cases"]:
+            values = fixture["input_values"]
+            if fixture.get("input_is_null", False):
+                special_records.append(f"NULL 0 {I64_MIN}\n")
+            else:
+                cases[tuple(values)] = ida_star_graph_oracle(values)
+        arcs = tuple((u, v) for u in range(12) for v in range(12) if u != v)[:48]
+        maximum = (12, 48, 0, 11, *([0] * 12), *(x for edge in arcs for x in edge))
+        cases[maximum] = ida_star_graph_oracle(maximum)
+        cases[maximum + (0,)] = I64_MIN
+        special_records.append(f"NULL 113 {I64_MIN}\n")
+        rng_ida = random.Random(0x1DA57A)
+        for _ in range(32):
+            n = rng_ida.randint(2, 8)
+            arcs = [(u, v) for u in range(n) for v in range(n)
+                    if u != v and rng_ida.randrange(5) == 0][:48]
+            packed = (n, len(arcs), rng_ida.randrange(n), rng_ida.randrange(n),
+                      *([0] * n), *(x for edge in arcs for x in edge))
+            cases[packed] = ida_star_graph_oracle(packed)
+            goal = rng_ida.randrange(n)
+            heuristic = tuple(0 if vertex == goal else rng_ida.randrange(2)
+                              for vertex in range(n))
+            packed = (n, len(arcs), rng_ida.randrange(n), goal,
+                      *heuristic, *(x for edge in arcs for x in edge))
+            cases[packed] = ida_star_graph_oracle(packed)
     elif algorithm == "bareiss_determinant":
         validate_bareiss_determinant_workload(workload)
         for fixture in workload.get("cases", []):
@@ -10375,7 +10849,12 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                      if rng_edge_connectivity.randrange(3) == 0]
             packed = (vertex_count, len(edges),
                       *(endpoint for edge in edges for endpoint in edge))
-            add_edge_connectivity_case(packed, require_valid=True)
+            edge_connectivity = add_edge_connectivity_case(packed, require_valid=True)
+            vertex_connectivity = vertex_connectivity_oracle(list(packed))
+            minimum_degree = min(sum(vertex in edge for edge in edges)
+                                 for vertex in range(vertex_count))
+            if not 0 <= vertex_connectivity <= edge_connectivity <= minimum_degree:
+                raise ValueError("graph connectivity values violate the degree bounds")
 
         maximum_parseable_invalid = (*maximum_values, 0)
         if len(maximum_parseable_invalid) != EDGE_CONNECTIVITY_MAX_PARSEABLE_INPUT_LENGTH:
@@ -11787,6 +12266,37 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         cases[complete] = 64
         cases[complete + (0,)] = -1
         special_records.append("NULL 3 -1\n")
+    elif algorithm == "longest_common_substring_sam":
+        validate_longest_common_substring_sam_workload(workload)
+        for case in workload.get("cases", []):
+            if not case.get("input_is_null", False):
+                values = tuple(case["input_values"])
+                cases[values] = longest_common_substring_sam_oracle(values)
+        words = [word for n in range(6) for word in product((65, 66), repeat=n)]
+        for left in words:
+            for right in words:
+                values = (len(left), *left, len(right), *right)
+                expected = longest_common_substring_sam_oracle(values)
+                if longest_common_substring_sam_primary(values) != expected:
+                    raise ValueError("suffix-automaton LCS references disagree")
+                cases[values] = expected
+        left = tuple(32 + i % 95 for i in range(256))
+        maximum = (256, *left, 256, *left)
+        if longest_common_substring_sam_primary(maximum) != 256 or longest_common_substring_sam_oracle(maximum) != 256:
+            raise ValueError("suffix-automaton LCS maximum identity failed")
+        cases[maximum] = 256
+        # Exercise suffix-link fallback repeatedly near the maximal lengths.
+        left = (65, 66) * 128
+        right = (66, 65) * 127 + (66, 67)
+        alternating = (256, *left, 256, *right)
+        expected = longest_common_substring_sam_oracle(alternating)
+        if expected != 255 or longest_common_substring_sam_primary(alternating) != expected:
+            raise ValueError("suffix-automaton LCS long fallback differs")
+        cases[alternating] = expected
+        for values in ((), (0,), (0, -1), (0, 257), (1, 31, 0), (0, 1, 127), maximum + (0,)):
+            cases[values] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 515 -1\n")
     elif algorithm == "second_best_mst_binary_lifting":
         issues = lifting_mst_static_issues(workload)
         if issues:
@@ -11805,6 +12315,17 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 if lifting_mst_primary(values) != expected:
                     raise ValueError("binary-lifting second MST references disagree")
                 cases[values] = expected
+                shifted = (n, len(chosen), *(item for i, (u, v) in enumerate(chosen)
+                                             for item in (u, v, i % 3 + 1)))
+                shifted_expected = expected + n - 1 if expected > 0 else expected
+                if lifting_mst_oracle(shifted) != shifted_expected:
+                    raise ValueError("second MST changed incorrectly under uniform weight shift")
+                cases[shifted] = shifted_expected
+                relabeled = (n, len(chosen), *(item for i, (u, v) in enumerate(chosen)
+                                               for item in (n - 1 - v, n - 1 - u, i % 3)))
+                if lifting_mst_oracle(relabeled) != expected:
+                    raise ValueError("second MST changed under vertex relabeling")
+                cases[relabeled] = expected
         chain = tuple((i, i + 1) for i in range(7))
         extras = tuple(edge for edge in combinations(range(8), 2) if edge not in chain)[:13]
         maximum = (8, 20, *(item for u, v in chain for item in (u, v, 1)),
@@ -11839,6 +12360,388 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             cases[values] = sparse_recovery_oracle(list(values))
         special_records.append("NULL 1 -1\n")
         special_records.append("NULL 260 -1\n")
+    elif algorithm == "xor_filter_peeling":
+        issues = xor_filter_peeling_static_issues(workload)
+        if issues:
+            raise ValueError("xor_filter_peeling package: " + "; ".join(issues))
+        triples = tuple(combinations(range(5), 3))
+        for n in range(4):
+            for edges in product(triples, repeat=n):
+                records = tuple((*edge, i+1) for i, edge in enumerate(edges))
+                queries = tuple((*edge, i+1) for i, edge in enumerate(edges)) + ((0, 1, 2, 0),)
+                values = (n, 5, len(queries), *(x for record in records+queries for x in record))
+                expected = xor_filter_peeling_oracle(values)
+                if xor_filter_peeling_primary(values) != expected:
+                    raise ValueError("XOR filter references disagree")
+                cases[values] = expected
+        ordered_triples = ((0, 1, 2), (0, 2, 1), (1, 0, 2),
+                           (1, 2, 0), (2, 0, 1), (2, 1, 0))
+        for n in (1, 2):
+            for edges in product(ordered_triples, repeat=n):
+                for fingerprints in product((0, 255), repeat=n):
+                    records = tuple((*edge, f) for edge, f in zip(edges, fingerprints))
+                    values = (n, 3, n, *(x for record in records+records for x in record))
+                    expected = xor_filter_peeling_oracle(values)
+                    if xor_filter_peeling_primary(values) != expected:
+                        raise ValueError("XOR filter ordered-slot references disagree")
+                    if expected != -2 and expected != n*(n+1)//2:
+                        raise ValueError("XOR filter lost an inserted key")
+                    cases[values] = expected
+        records = tuple((3*i, 3*i+1, 3*i+2, i) for i in range(32))
+        maximum = (32, 96, 32, *(x for record in records+records for x in record))
+        expected = xor_filter_peeling_oracle(maximum)
+        if expected != 528 or xor_filter_peeling_primary(maximum) != expected:
+            raise ValueError("XOR filter maximum-frame reference disagreement")
+        cases[maximum] = expected
+        cases[maximum + (0,)] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 260 -1\n")
+    elif algorithm == "wavelet_matrix":
+        issues = wavelet_matrix_static_issues(workload)
+        if issues:
+            raise ValueError("wavelet_matrix package: " + "; ".join(issues))
+        for n in range(1, 6):
+            for sequence in product((-1000, 0, 1000), repeat=n):
+                for left in range(n):
+                    for right in range(left, n):
+                        queries = [(1, left, right, k, 0) for k in range(right-left+1)]
+                        queries.extend((2, left, right, low, high)
+                                       for low, high in ((-1000, -1000), (-1000, 0), (0, 1000), (1000, 1000)))
+                        queries.extend((0, value, right, 0, 0) for value in (-1000, 0, 1000))
+                        values = (n, *sequence, len(queries), *(x for query in queries for x in query))
+                        expected = wavelet_matrix_oracle(values)
+                        if wavelet_matrix_primary(values) != expected:
+                            raise ValueError("wavelet matrix and direct references disagree")
+                        cases[values] = expected
+        maximum = (64, *(0 for _ in range(64)), 128, *((0, 0, 63, 0, 0) * 128))
+        expected = wavelet_matrix_oracle(maximum)
+        if wavelet_matrix_primary(maximum) != expected:
+            raise ValueError("wavelet matrix maximum-frame reference disagreement")
+        cases[maximum] = expected
+        cases[maximum + (0,)] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 707 -1\n")
+    elif algorithm == "backward_oracle_match":
+        issues = bom_static_issues(workload)
+        if issues:
+            raise ValueError("backward_oracle_match package: " + "; ".join(issues))
+        for n in range(8):
+            for text in product((97, 98), repeat=n):
+                for m in range(6):
+                    for pattern in product((97, 98), repeat=m):
+                        values = (n, m, *text, *pattern)
+                        expected = bom_oracle(values)
+                        if bom_primary(values) != expected:
+                            raise ValueError("factor-oracle and direct-search references disagree")
+                        cases[values] = expected
+        for n in range(6):
+            for text in product((97, 98, 99), repeat=n):
+                for m in range(5):
+                    for pattern in product((97, 98, 99), repeat=m):
+                        values = (n, m, *text, *pattern)
+                        expected = bom_oracle(values)
+                        if bom_primary(values) != expected:
+                            raise ValueError("factor-oracle and direct-search references disagree")
+                        cases[values] = expected
+        for m in (31, 32, 63):
+            late = (m + 1, m, 98, *(97 for _ in range(m)), *(97 for _ in range(m)))
+            absent = (m + 1, m, *(97 for _ in range(m + 1)), *(97 for _ in range(m - 1)), 98)
+            for values in (late, absent):
+                expected = bom_oracle(values)
+                if bom_primary(values) != expected:
+                    raise ValueError("factor-oracle long-pattern reference disagreement")
+                cases[values] = expected
+        maximum = (4096, 63, *(97 for _ in range(4096)), *(97 for _ in range(63)))
+        if bom_primary(maximum) != 0 or bom_oracle(maximum) != 0:
+            raise ValueError("factor-oracle maximum-frame reference disagreement")
+        cases[maximum] = 0
+        cases[maximum + (97,)] = -2
+        special_records.append("NULL 0 -2\n")
+        special_records.append("NULL 4162 -2\n")
+    elif algorithm == "backward_nondeterministic_dawg_match":
+        issues = bndm_static_issues(workload)
+        if issues:
+            raise ValueError("backward_nondeterministic_dawg_match package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                cases[values] = bndm_oracle(values)
+        for n in range(7):
+            for text in product((97, 98), repeat=n):
+                for m in range(5):
+                    for pattern in product((97, 98), repeat=m):
+                        values = (n, m, *text, *pattern)
+                        expected = bndm_oracle(values)
+                        if bndm_primary(values) != expected:
+                            raise ValueError("BNDM and direct-search references disagree")
+                        cases[values] = expected
+        for m in (31, 32, 63):
+            values = (m + 1, m, *(97 for _ in range(m)), 98, *(97 for _ in range(m)))
+            late = (m + 1, m, 98, *(97 for _ in range(m)), *(97 for _ in range(m)))
+            absent = (m + 1, m, *(97 for _ in range(m + 1)), *(97 for _ in range(m - 1)), 98)
+            for candidate in (values, late, absent):
+                expected = bndm_oracle(candidate)
+                if bndm_primary(candidate) != expected:
+                    raise ValueError("BNDM long-pattern reference disagreement")
+                cases[candidate] = expected
+        maximum = (4096, 63, *(97 for _ in range(4096)), *(97 for _ in range(63)))
+        if bndm_primary(maximum) != 0 or bndm_oracle(maximum) != 0:
+            raise ValueError("BNDM maximum-frame reference disagreement")
+        cases[maximum] = 0
+        cases[maximum + (97,)] = -2
+        special_records.append("NULL 0 -2\n")
+        special_records.append("NULL 4162 -2\n")
+    elif algorithm == "monotone_radix_heap":
+        issues = monotone_radix_heap_static_issues(workload)
+        if issues:
+            raise ValueError("monotone_radix_heap package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                cases[values] = monotone_radix_heap_oracle(values)
+        events = ((0, 0), (0, 1), (0, 3), (1, 0))
+        for q in range(6):
+            for trace in product(events, repeat=q):
+                values = (q, *(item for event in trace for item in event))
+                expected = monotone_radix_heap_oracle(values)
+                if monotone_radix_heap_primary(values) != expected:
+                    raise ValueError("radix-heap and multiset references disagree")
+                cases[values] = expected
+        maximum = (64, *((0, 1)*32), *((1, 0)*32))
+        if monotone_radix_heap_oracle(maximum) != 528 or monotone_radix_heap_primary(maximum) != 528:
+            raise ValueError("radix-heap maximum frame mismatch")
+        cases[maximum] = 528
+        cases[maximum+(0,)] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 130 -1\n")
+    elif algorithm == "closest_pair_sweep":
+        issues = closest_pair_sweep_static_issues(workload)
+        if issues:
+            raise ValueError("closest_pair_sweep package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                cases[values] = closest_pair_sweep_oracle(values)
+        grid = tuple((x, y) for x in range(-1, 2) for y in range(-1, 2))
+        for n in range(2, 6):
+            for points in combinations(grid, n):
+                values = (n, *(coordinate for point in points for coordinate in point))
+                expected = closest_pair_sweep_oracle(values)
+                if closest_pair_sweep_primary(values) != expected:
+                    raise ValueError("closest-pair sweep references disagree")
+                cases[values] = expected
+                reversed_values = (n, *(coordinate for point in reversed(points) for coordinate in point))
+                if closest_pair_sweep_primary(reversed_values) != expected:
+                    raise ValueError("closest-pair result changed under input reversal")
+                cases[reversed_values] = expected
+        maximum_points = tuple((x, x*x-24) for x in range(-31, 33))
+        maximum = (64, *(coordinate for point in maximum_points for coordinate in point))
+        if closest_pair_sweep_oracle(maximum) != 2 or closest_pair_sweep_primary(maximum) != 2:
+            raise ValueError("closest-pair maximum frame mismatch")
+        cases[maximum] = 2
+        cases[maximum+(0,)] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 130 -1\n")
+    elif algorithm == "highest_label_push_relabel":
+        issues = highest_label_push_relabel_static_issues(workload)
+        if issues:
+            raise ValueError("highest_label_push_relabel package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                cases[values] = highest_label_push_relabel_oracle(values)
+        edges = ((1, 2), (2, 1), (2, 3), (1, 3))
+        for capacities in product((0, 1, 2, 3, 4), repeat=len(edges)):
+            values = (3, len(edges), 1, 3,
+                      *(item for ((u, v), capacity) in zip(edges, capacities) for item in (u, v, capacity)))
+            expected = highest_label_push_relabel_oracle(values)
+            if (highest_label_push_relabel_primary(values) != expected
+                    or dinic_capacity_scaling_primary(values) != expected):
+                raise ValueError("highest-label, scaled-Dinic, and cut references disagree")
+            cases[values] = expected
+            transposed = (3, len(edges), 3, 1,
+                          *(item for ((u, v), capacity) in zip(edges, capacities)
+                            for item in (v, u, capacity)))
+            if (highest_label_push_relabel_oracle(transposed) != expected
+                    or highest_label_push_relabel_primary(transposed) != expected):
+                raise ValueError("highest-label flow changed under transposition")
+            cases[transposed] = expected
+        maximum = (2, 64, 1, 2, *((1, 2, 100)*64))
+        if highest_label_push_relabel_oracle(maximum) != 6400 or highest_label_push_relabel_primary(maximum) != 6400:
+            raise ValueError("highest-label maximum frame mismatch")
+        cases[maximum] = 6400
+        cases[maximum+(0,)] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 197 -1\n")
+    elif algorithm == "dinic_capacity_scaling":
+        issues = dinic_capacity_scaling_static_issues(workload)
+        if issues:
+            raise ValueError("dinic_capacity_scaling package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                cases[values] = dinic_capacity_scaling_oracle(values)
+        # Exhaust capacities around the threshold transitions on a three-node
+        # directed graph, including independent antiparallel arcs.
+        edges = ((1, 2), (2, 1), (2, 3), (1, 3))
+        for capacities in product((0, 1, 2, 3, 4), repeat=len(edges)):
+            values = (3, len(edges), 1, 3,
+                      *(item for ((u, v), capacity) in zip(edges, capacities) for item in (u, v, capacity)))
+            expected = dinic_capacity_scaling_oracle(values)
+            if dinic_capacity_scaling_primary(values) != expected:
+                raise ValueError("scaled Dinic and cut references disagree")
+            cases[values] = expected
+            # Transposing every arc while exchanging source and sink keeps
+            # the maximum-flow value, including when antiparallel arcs exist.
+            transposed = (3, len(edges), 3, 1,
+                          *(item for ((u, v), capacity) in zip(edges, capacities)
+                            for item in (v, u, capacity)))
+            if (dinic_capacity_scaling_oracle(transposed) != expected
+                    or dinic_capacity_scaling_primary(transposed) != expected):
+                raise ValueError("scaled Dinic changed under network transposition")
+            cases[transposed] = expected
+            # Replace each edge by two parallel edges whose capacities sum to
+            # the original, exercising aggregation before threshold selection.
+            split = (3, 2*len(edges), 1, 3,
+                     *(item for ((u, v), capacity) in zip(edges, capacities)
+                       for item in (u, v, capacity//2, u, v, capacity-capacity//2)))
+            if (dinic_capacity_scaling_oracle(split) != expected
+                    or dinic_capacity_scaling_primary(split) != expected):
+                raise ValueError("scaled Dinic changed after splitting parallel edges")
+            cases[split] = expected
+        maximum = (2, 64, 1, 2, *((1, 2, 100)*64))
+        if dinic_capacity_scaling_oracle(maximum) != 6400 or dinic_capacity_scaling_primary(maximum) != 6400:
+            raise ValueError("scaled Dinic maximum frame mismatch")
+        cases[maximum] = 6400
+        cases[maximum+(0,)] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 197 -1\n")
+    elif algorithm == "offline_range_distinct_fenwick":
+        issues = offline_range_distinct_fenwick_static_issues(workload)
+        if issues:
+            raise ValueError("offline_range_distinct_fenwick package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                cases[values] = offline_range_distinct_fenwick_oracle(values)
+        for n in range(1, 6):
+            for data in product(range(3), repeat=n):
+                intervals = tuple((left, right) for left in range(n+1) for right in range(left, n+1))
+                values = (n, len(intervals), *data, *(endpoint for pair in intervals for endpoint in pair))
+                expected = offline_range_distinct_fenwick_oracle(values)
+                if offline_range_distinct_fenwick_primary(values) != expected:
+                    raise ValueError("range-distinct references disagree")
+                cases[values] = expected
+                # The sweep must retain original query indices when its bucket
+                # traversal reorders distinct right endpoints.
+                reversed_intervals = tuple(reversed(intervals))
+                reversed_values = (n, len(reversed_intervals), *data,
+                                   *(endpoint for pair in reversed_intervals for endpoint in pair))
+                reversed_expected = offline_range_distinct_fenwick_oracle(reversed_values)
+                if offline_range_distinct_fenwick_primary(reversed_values) != reversed_expected:
+                    raise ValueError("range-distinct reversed-query references disagree")
+                cases[reversed_values] = reversed_expected
+                # Renaming values bijectively must preserve every distinct count.
+                renamed = (n, len(intervals), *(255-value for value in data),
+                           *(endpoint for pair in intervals for endpoint in pair))
+                if (offline_range_distinct_fenwick_oracle(renamed) != expected
+                        or offline_range_distinct_fenwick_primary(renamed) != expected):
+                    raise ValueError("range-distinct result changed under value renaming")
+                cases[renamed] = expected
+        maximum = (64, 64, *range(64), *((0, 64)*64))
+        if offline_range_distinct_fenwick_oracle(maximum) != 133120 or offline_range_distinct_fenwick_primary(maximum) != 133120:
+            raise ValueError("range-distinct maximum frame mismatch")
+        cases[maximum] = 133120
+        cases[maximum + (0,)] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 195 -1\n")
+    elif algorithm == "functional_graph_cycle_brent":
+        issues = functional_graph_cycle_brent_static_issues(workload)
+        if issues:
+            raise ValueError("functional_graph_cycle_brent package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                cases[values] = functional_graph_cycle_brent_oracle(values)
+        # Exhaust all maps of up to four nodes, from every start node.
+        for n in range(1, 5):
+            for successors in product(range(n), repeat=n):
+                for start in range(n):
+                    values = (n, start, *successors)
+                    expected = functional_graph_cycle_brent_oracle(values)
+                    if (functional_graph_cycle_brent_primary(values) != expected
+                            or functional_graph_cycle_parameters_primary_oracle(values) != expected):
+                        raise ValueError("Brent, Floyd, and first-visit references disagree")
+                    cases[values] = expected
+                    # Rename every vertex with the bijection v -> n-1-v.
+                    renamed = [0] * n
+                    for node, successor in enumerate(successors):
+                        renamed[n - 1 - node] = n - 1 - successor
+                    relabeled = (n, n - 1 - start, *renamed)
+                    if functional_graph_cycle_brent_oracle(relabeled) != expected:
+                        raise ValueError("cycle parameters changed under relabeling")
+                    cases[relabeled] = expected
+        # Every possible tail and cycle length within the maximum frame.
+        for tail in range(64):
+            for period in range(1, 65 - tail):
+                n = tail + period
+                values = (n, 0, *range(1, n), tail)
+                expected = 65 * tail + period
+                if (functional_graph_cycle_brent_oracle(values) != expected
+                        or functional_graph_cycle_brent_primary(values) != expected):
+                    raise ValueError("Brent lasso parameters disagree")
+                cases[values] = expected
+        for values in ((), (0, 0), (1, -1, 0), (1, 0, -1), (1, 0, 1), (1, 0, 0, 0)):
+            cases[values] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 67 -1\n")
+    elif algorithm == "directed_girth_bfs":
+        issues = directed_girth_bfs_static_issues(workload)
+        if issues:
+            raise ValueError("directed_girth_bfs package: " + "; ".join(issues))
+        for fixture in workload["cases"]:
+            if not fixture.get("input_is_null", False):
+                values = tuple(fixture["input_values"])
+                cases[values] = directed_girth_bfs_oracle(values)
+        # Reversing all arcs, relabeling vertices, and duplicating an arc
+        # preserve directed girth. Submit the transformed graphs to every
+        # implementation, as well as checking both references agree.
+        for fixture in workload["cases"]:
+            values = fixture["input_values"]
+            if fixture.get("input_is_null", False) or fixture["expected_result"] < 0:
+                continue
+            n, m = values[:2]
+            edges = list(zip(values[2::2], values[3::2]))
+            transforms = [
+                [(v, u) for u, v in edges],
+                [((u + 1) % n, (v + 1) % n) for u, v in edges],
+            ]
+            if edges and m < 64:
+                transforms.append(edges + [edges[0]])
+            for transformed_edges in transforms:
+                transformed = (n, len(transformed_edges),
+                               *(endpoint for edge in transformed_edges for endpoint in edge))
+                expected = fixture["expected_result"]
+                if (directed_girth_bfs_oracle(transformed) != expected
+                        or directed_girth_bfs_primary(transformed) != expected):
+                    raise ValueError("directed girth transformation changed the result")
+                cases[transformed] = expected
+        for n in range(1, 5):
+            edges = tuple(product(range(n), repeat=2))
+            for mask in range(1 << len(edges)):
+                selected = tuple(edge for i, edge in enumerate(edges) if mask & (1 << i))
+                values = (n, len(selected), *(x for edge in selected for x in edge))
+                expected = directed_girth_bfs_oracle(values)
+                if directed_girth_bfs_primary(values) != expected:
+                    raise ValueError("directed girth references disagree")
+                cases[values] = expected
+        maximum = (16, 64, *((0, 1) * 63), 1, 0)
+        cases[maximum] = 2
+        cases[maximum + (0,)] = -1
+        for values in ((), (0, 0), (17, 0), (1, -1), (2, 1, -1, 0), (2, 1, 0, 2)):
+            cases[values] = -1
+        special_records.append("NULL 0 -1\n")
+        special_records.append("NULL 131 -1\n")
     elif algorithm == "karger_contraction_trial":
         issues = karger_contraction_trial_static_issues(workload)
         if issues:
@@ -11862,7 +12765,14 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 packed = (n, len(selected), *(endpoint for edge in selected for endpoint in edge))
                 for ranks in product(range(len(selected)), repeat=n - 2):
                     values = packed + ranks
-                    cases[values] = karger_contraction_trial_oracle(list(values))
+                    result = karger_contraction_trial_oracle(list(values))
+                    cases[values] = result
+                    reversed_edges = (n, len(selected),
+                                      *(endpoint for u, v in selected for endpoint in (v, u)),
+                                      *ranks)
+                    if karger_contraction_trial_oracle(list(reversed_edges)) != result:
+                        raise ValueError("Karger contraction changed under endpoint reversal")
+                    cases[reversed_edges] = result
         special_records.append("NULL 1 -1\n")
         special_records.append("NULL 57 -1\n")
     elif algorithm == "stoer_wagner":
@@ -22434,6 +23344,16 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 raise ValueError("hunt_szymanski_lcs verifier accepted malformed input")
             cases[tuple(values)] = result
 
+    if algorithm == "square_free_factor_list":
+        for values in ((), (1,), (1, 1), (1, 1, 2147483648),
+                       (-2147483649, 1, 1), tuple(range(256)), tuple(range(257))):
+            cases[tuple(values)] = square_free_factor_list_oracle(list(values))
+        rng_square_free = random.Random(20261113)
+        for _ in range(128):
+            values = tuple(rng_square_free.randrange(-50, 51)
+                           for _ in range(rng_square_free.randrange(0, 65)))
+            cases[values] = square_free_factor_list_oracle(list(values))
+
     if algorithm == "kth_root_integer":
         rng_kth_root = random.Random(20261111)
         for degree in (1, 2, 3, 4, 5, 8, 16, 32, 63, 64):
@@ -22956,6 +23876,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
+                or record["implementation"].get("source_dependencies") != manifest.get("source_dependencies")
                 or record["workload"]["input_length"] != input_length
                 or record["workload"]["input_values"] != values
                 or record["workload"].get("input_is_null", False) != input_is_null
@@ -22973,7 +23894,8 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--algorithms", nargs="+", choices=ALGORITHMS, default=list(ALGORITHMS))
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS | OPTIONAL_EXTENSIONS,
+                        default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/i64_array_scalar")
@@ -22988,6 +23910,12 @@ def main() -> int:
         jobs = {}
         for algorithm in args.algorithms:
             workload_subdirectory = {
+                "cbench_rsynth_f0_flutter": "m",
+                "cbench_ispell_lookup_chain": "i",
+                "cbench_ghostscript_rop3": "g",
+                "cbench_ghostscript_rop3_idempotence": "g",
+                "cbench_ghostscript_rop3_operand_usage": "g",
+                "cbench_ghostscript_rop3_transform": "g",
                 "gapbs_ordered_triangle_count": "t",
                 "gapbs_betweenness_centrality": "b",
                 "gapbs_pagerank_pull_gs": "p",
@@ -22995,10 +23923,29 @@ def main() -> int:
             }.get(algorithm, algorithm[0])
             workload_path = (ROOT / "benchmarks" / algorithm / "workload.json"
                              if algorithm == "mcnaughton_yamada_thompson" else
+                             ROOT / "benchmarks" / "k" / algorithm / "workload.json"
+                             if algorithm == "naive_knapsack_solver" else
+                             ROOT / "benchmarks" / "l" / algorithm / "workload.json"
+                             if algorithm == "clojure_persistent_list_queue" else
+                             ROOT / "benchmarks" / "b" / algorithm / "workload.json"
+                             if algorithm == "rodinia_bplus_tree" else
+                             ROOT / "benchmarks" / "p" / algorithm / "workload.json"
+                             if algorithm == "steiner_tree_subset_dp" else
+                             ROOT / "benchmarks" / "p" / algorithm / "workload.json"
+                             if algorithm == "stanford_puzzle" else
+                             ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+                             if algorithm == "max_jobs_before_deadlines" else
+                             ROOT / "benchmarks" / "a" / algorithm / "workload.json"
+                             if algorithm == "embench_aha_mont64" else
                              ROOT / "benchmarks" / "d" / algorithm / "workload.json"
                              if algorithm.startswith("versabench_dbms_") else
                              ROOT / "benchmarks" / workload_subdirectory / algorithm / "workload.json")
-            workload = json.loads(workload_path.read_text(encoding="utf-8"))
+            if not workload_path.is_file():
+                flat_workload = ROOT / "benchmarks" / algorithm / "workload.json"
+                if flat_workload.is_file():
+                    workload_path = flat_workload
+            from workload_json import load_workload
+            workload = load_workload(workload_path)
             data, case_count = corpus(algorithm, workload)
             (directory / f"{algorithm}-corpus.txt").write_text(data, encoding="utf-8")
             for language in args.languages:

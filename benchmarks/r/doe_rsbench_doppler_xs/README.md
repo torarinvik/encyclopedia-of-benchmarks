@@ -9,6 +9,8 @@ The `i64_array_float64` ABI is `double doe_rsbench_doppler_xs(const int64_t *inp
 There are 1–4 windows, 0–8 poles, and 1–4 angular-momentum factors. Background and pseudo-K0RS values are in `[0,1]`; pole components are in `[0,152.5]`; each `l_value` is in `[0,numL)`. Each window has `0 <= start <= end <= n_poles`. The output combines all four source channels as `sigT + 2*sigA + 3*sigF + 5*sigE`, with `sigE = sigT - sigA`. Invalid input or a non-finite result returns `-1e300`. Compare valid results with absolute tolerance `1e-9` and relative tolerance `1e-12` to account for platform math-library differences.
 
 Ports keep the source expression order in the complex Abrarov and asymptotic formulas, angular factor construction, and per-pole channel accumulation. Fixed-point input makes fixtures deterministic; the output itself remains binary64.
+The build and scalar-float suite use this package's `r/` category; the path
+correction has not been executed.
 
 ## Workload and oracle
 
@@ -22,11 +24,15 @@ Ports keep the source expression order in the complex Abrarov and asymptotic for
 | C3 | [`c3/r/doe_rsbench_doppler_xs.c3`](../../../c3/r/doe_rsbench_doppler_xs.c3) |
 | C++ | [`cpp/r/doe_rsbench_doppler_xs.cpp`](../../../cpp/r/doe_rsbench_doppler_xs.cpp) |
 | Elisa | [`elisa/r/doe_rsbench_doppler_xs.elisa`](../../../elisa/r/doe_rsbench_doppler_xs.elisa) |
+| Mojo | [`mojo/r/doe_rsbench_doppler_xs.mojo`](../../../mojo/r/doe_rsbench_doppler_xs.mojo) |
 | Nim | [`nim/r/doe_rsbench_doppler_xs.nim`](../../../nim/r/doe_rsbench_doppler_xs.nim) |
 | Odin | [`odin/r/doe_rsbench_doppler_xs.odin`](../../../odin/r/doe_rsbench_doppler_xs.odin) |
 | Rust | [`rust/r/doe_rsbench_doppler_xs.rs`](../../../rust/r/doe_rsbench_doppler_xs.rs) |
 | V | [`v/r/doe_rsbench_doppler_xs.v`](../../../v/r/doe_rsbench_doppler_xs.v) |
 | Zig | [`zig/r/doe_rsbench_doppler_xs.zig`](../../../zig/r/doe_rsbench_doppler_xs.zig) |
+
+The Mojo draft has not been compiled or run; floating-point agreement and
+retention of the selected approximation path require verification.
 
 ## Provenance and license
 

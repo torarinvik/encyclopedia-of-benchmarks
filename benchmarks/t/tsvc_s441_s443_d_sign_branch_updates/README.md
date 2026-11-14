@@ -32,3 +32,4 @@ The independent oracle is [`benchmarks/tsvc_s441_s443_d_sign_branch_updates_orac
 | Rust | [`tsvc_s441_s443_d_sign_branch_updates.rs`](../../../rust/t/tsvc_s441_s443_d_sign_branch_updates.rs) |
 | V | [`tsvc_s441_s443_d_sign_branch_updates.v`](../../../v/t/tsvc_s441_s443_d_sign_branch_updates.v) |
 | Zig | [`tsvc_s441_s443_d_sign_branch_updates.zig`](../../../zig/t/tsvc_s441_s443_d_sign_branch_updates.zig) |
+| Mojo | [`tsvc_s441_s443_d_sign_branch_updates.mojo`](../../../mojo/t/tsvc_s441_s443_d_sign_branch_updates.mojo) |

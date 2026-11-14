@@ -29,6 +29,9 @@ recurrence. The chapter's I/O-complexity analysis, sorting passes, randomized
 independent-set selection, parallel coin-tossing, and machine-model costs are
 not part of this single-call profile.
 
+The serial profile uses O(n) total time and O(n) space: each round scans the
+remaining path and removes at least a third of its non-tail vertices.
+
 Source: “List Ranking,” Riko Jacob, Ulrich Meyer, and Laura Toma, *Encyclopedia
 of Algorithms*, DOI
 [`10.1007/978-1-4939-2864-4_592`](https://doi.org/10.1007/978-1-4939-2864-4_592).
@@ -43,6 +46,7 @@ computes prefix sums by direct traversal.
 | C3 | [`list_ranking_independent_set_contraction.c3`](../../../c3/l/list_ranking_independent_set_contraction.c3) |
 | C++ | [`list_ranking_independent_set_contraction.cpp`](../../../cpp/l/list_ranking_independent_set_contraction.cpp) |
 | Elisa | [`list_ranking_independent_set_contraction.elisa`](../../../elisa/l/list_ranking_independent_set_contraction.elisa) |
+| Mojo | [`list_ranking_independent_set_contraction.mojo`](../../../mojo/l/list_ranking_independent_set_contraction.mojo) |
 | Nim | [`list_ranking_independent_set_contraction.nim`](../../../nim/l/list_ranking_independent_set_contraction.nim) |
 | Odin | [`list_ranking_independent_set_contraction.odin`](../../../odin/l/list_ranking_independent_set_contraction.odin) |
 | Rust | [`list_ranking_independent_set_contraction.rs`](../../../rust/l/list_ranking_independent_set_contraction.rs) |

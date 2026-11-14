@@ -14,6 +14,8 @@ The exported symbol is `tsvc_s244_false_dependence_cycle_break` and uses the `i6
 
 Fixtures cover the transient write and its overwrite, the minimum vector, malformed shape/range data, null pointers, and insufficient capacity. The oracle derives final A/B and the pre-overwrite trace by direct formulas rather than replaying source statements.
 
+Validation, the sweep, and output serialization take O(n) time. Retaining the two updated vectors and transient trace uses O(n) auxiliary space.
+
 ## Source and rights
 
 The codelet is `s244` at lines 2237–2261 of [`TSVC/tsc.inc`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc), selected by [`TSVC/NodeSplitting-dbl/tsc.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/NodeSplitting-dbl/tsc.c) at LAC-DCC `Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The pinned [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/NodeSplitting-dbl/info.sh) compiles `dummy.c` and `tsc.c` with `-std=gnu99 -lm` and supplies `10000 14`. The TSVC source attributes its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, *Test Suite for Vectorizing Compilers*. No explicit license grant was found in the pinned TSVC files or repository material reviewed. These ports implement the bounded loop independently, reuse no upstream source code or comments, and claim no upstream license or endorsement. See [`LICENSE.txt`](LICENSE.txt) for the rights note.
@@ -35,3 +37,4 @@ This is distinct from the local [`s241` cross-coupled product map](../tsvc_s241_
 | Rust | [`tsvc_s244_false_dependence_cycle_break.rs`](../../../rust/t/tsvc_s244_false_dependence_cycle_break.rs) |
 | V | [`tsvc_s244_false_dependence_cycle_break.v`](../../../v/t/tsvc_s244_false_dependence_cycle_break.v) |
 | Zig | [`tsvc_s244_false_dependence_cycle_break.zig`](../../../zig/t/tsvc_s244_false_dependence_cycle_break.zig) |
+| Mojo | [`tsvc_s244_false_dependence_cycle_break.mojo`](../../../mojo/t/tsvc_s244_false_dependence_cycle_break.mojo) |

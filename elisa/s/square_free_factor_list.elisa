@@ -1,15 +1,20 @@
 # Check that an integer factor list has no repeated values.
 def square_free_factor_list_impl(values: i64&, length: usize) -> i64:
-    if length > 256:
+    if length > 256 or (length > 0 and values == null):
         return -1
+    if length == 0: return 1
+    input: view[i64] = values[0:length]
     i: mutable usize = 0
     while i < length:
-        value: i64 = values[i]
+        value: i64 = input[i]
         if value < -2147483648 or value > 2147483647:
             return -1
+        i <- i + 1
+    i <- 0
+    while i < length:
         j: mutable usize = 0
         while j < i:
-            if values[i] == values[j]:
+            if input[i] == input[j]:
                 return 0
             j <- j + 1
         i <- i + 1

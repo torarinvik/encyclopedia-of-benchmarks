@@ -30,3 +30,5 @@ The pinned reference is Domagoj Matijević's [`wspd_pip` implementation](https:/
 | Rust | [`rust/w/wspd.rs`](../../../rust/w/wspd.rs) |
 | V | [`v/w/wspd.v`](../../../v/w/wspd.v) |
 | Zig | [`zig/w/wspd.zig`](../../../zig/w/wspd.zig) |
+
+The Mojo draft is [`mojo/w/wspd.mojo`](../../../mojo/w/wspd.mojo). Its floating-point boundary behavior has not been verified.

@@ -1,0 +1,107 @@
+struct MajoritySummary:
+    value: i64
+    count: usize
+
+def majority_merge(a: MajoritySummary, b: MajoritySummary) -> MajoritySummary:
+    if a.count == 0: return b
+    if b.count == 0: return a
+    if a.value == b.value: return MajoritySummary{value: a.value, count: a.count+b.count}
+    if a.count >= b.count: return MajoritySummary{value: a.value, count: a.count-b.count}
+    MajoritySummary{value: b.value, count: b.count-a.count}
+
+def majority_slot(value: i64, names: mutable view[i64], size: mutable usize&) -> usize:
+    for i in 0..<size:
+        if names[i] == value: return i
+    result: usize = size
+    names[size] <- value
+    size <- size+1
+    result
+
+def majority_prefix(position: usize) -> u64:
+    if position == 64: return 18446744073709551615.u64()
+    (1.u64() << position)-1.u64()
+
+def dynamic_range_majority_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 258: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 64 or values[1] < 1 or values[1] > 64: return -1
+    n: usize = values[0].usize()
+    q: usize = values[1].usize()
+    if length != 2+n+3*q: return -1
+    for i in 0..<n:
+        if values[2+i] < 0 or values[2+i] > 1000000000: return -1
+    queries: mutable usize = 0
+    for i in 0..<q:
+        b: usize = 2+n+3*i
+        if values[b] == 0:
+            if values[b+1] < 0 or values[b+1] >= n.i64() or values[b+2] < 0 or values[b+2] > 1000000000: return -1
+        elif values[b] == 1:
+            if values[b+1] < 0 or values[b+1] >= values[b+2] or values[b+2] > n.i64(): return -1
+            queries <- queries+1
+        else: return -1
+    if queries == 0: return -1
+    if output == null or capacity < 8*queries: return -2
+    result: mutable view[u8] = output[0:8*queries]
+    tree: mutable MajoritySummary[128] = zeroed
+    names: mutable i64[128] = zeroed
+    masks: mutable u64[128] = zeroed
+    data: mutable i64[64] = zeroed
+    distinct: mutable usize = 0
+    for i in 0..<n:
+        data[i] <- values[2+i]
+        tree[64+i] <- MajoritySummary{value: data[i], count: 1}
+        s: usize = majority_slot(data[i],names[0:128],distinct)
+        masks[s] <- masks[s] | (1.u64() << i)
+    node: mutable usize = 63
+    while node > 0:
+        tree[node] <- majority_merge(tree[2*node],tree[2*node+1])
+        node <- node-1
+    written: mutable usize = 0
+    for i in 0..<q:
+        b: usize = 2+n+3*i
+        if values[b] == 0:
+            p: usize = values[b+1].usize()
+            value: i64 = values[b+2]
+            old: usize = majority_slot(data[p],names[0:128],distinct)
+            fresh: usize = majority_slot(value,names[0:128],distinct)
+            masks[old] <- masks[old] & ~(1.u64() << p)
+            masks[fresh] <- masks[fresh] | (1.u64() << p)
+            data[p] <- value
+            node <- 64+p
+            tree[node] <- MajoritySummary{value: value, count: 1}
+            while node > 1:
+                node <- node/2
+                tree[node] <- majority_merge(tree[2*node],tree[2*node+1])
+        else:
+            lo: usize = values[b+1].usize()
+            hi: usize = values[b+2].usize()
+            l: mutable usize = 64+lo
+            r: mutable usize = 64+hi
+            a: mutable MajoritySummary = zeroed
+            z: mutable MajoritySummary = zeroed
+            while l < r:
+                if (l & 1) != 0:
+                    a <- majority_merge(a,tree[l])
+                    l <- l+1
+                if (r & 1) != 0:
+                    r <- r-1
+                    z <- majority_merge(tree[r],z)
+                l <- l/2
+                r <- r/2
+            candidate: MajoritySummary = majority_merge(a,z)
+            answer: mutable i64 = -1
+            if candidate.count > 0:
+                s: usize = majority_slot(candidate.value,names[0:128],distinct)
+                bits: mutable u64 = masks[s] & (majority_prefix(hi) ^ majority_prefix(lo))
+                count: mutable usize = 0
+                while bits != 0.u64():
+                    bits <- bits & (bits-1.u64())
+                    count <- count+1
+                if 2*count > hi-lo: answer <- candidate.value
+            for byte in 0..<8:
+                if answer < 0: result[8*written+byte] <- 255
+                else: result[8*written+byte] <- ((answer >> (8*byte)) & 255).u8()
+            written <- written+1
+    (8*written).i64()
+
+export fn dynamic_range_majority(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dynamic_range_majority_impl

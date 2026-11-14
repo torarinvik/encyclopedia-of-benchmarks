@@ -54,7 +54,7 @@ fn int make_hull(Point* p, int n, int* h) {
 
 fn long pack_circle(Point* p, int* h) {
     Point a=p[h[0]], b=p[h[1]], c=p[h[2]];
-    int s0=length2(a,b), s1=length2(b,c), s2=length2(a,c), opposite=0, u=1, v=2, longest=s0;
+    int s0=length2(b,c), s1=length2(a,c), s2=length2(a,b), opposite=0, u=1, v=2, longest=s0;
     if (s1>longest) { longest=s1; opposite=1; u=0; v=2; }
     if (s2>longest) { longest=s2; opposite=2; u=0; v=1; }
     Point tri[3]={a,b,c}, o=tri[opposite];

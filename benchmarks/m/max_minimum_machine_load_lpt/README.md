@@ -12,6 +12,10 @@ job ID, final loads by machine ID]`, encoded as little-endian signed i64s.
 This is the source's greedy approximation rule on identical machines; the
 reported objective is the least final load produced by this schedule.
 
+The insertion-sort and machine-scan implementation takes O(n² + nm) time
+and O(n + m) auxiliary space. Invalid input returns -1; a null or undersized
+output returns -2 without writing.
+
 The ports are clean-room implementations.
 
 | Language | Port |
@@ -20,6 +24,7 @@ The ports are clean-room implementations.
 | C3 | `c3/m/max_minimum_machine_load_lpt.c3` |
 | C++ | `cpp/m/max_minimum_machine_load_lpt.cpp` |
 | Elisa | `elisa/m/max_minimum_machine_load_lpt.elisa` |
+| Mojo | [`mojo/m/max_minimum_machine_load_lpt.mojo`](../../../mojo/m/max_minimum_machine_load_lpt.mojo) (draft; not compiled or run) |
 | Nim | `nim/m/max_minimum_machine_load_lpt.nim` |
 | Odin | `odin/m/max_minimum_machine_load_lpt.odin` |
 | Rust | `rust/m/max_minimum_machine_load_lpt.rs` |

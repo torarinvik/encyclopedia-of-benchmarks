@@ -22,3 +22,6 @@ Malformed input returns `-1`; null output or insufficient capacity returns
 `-2` without writes. See `workload.json` and
 `../../graphai_gat_aggregation_oracle.py`; the suite uses a separate verifier
 oracle.
+
+The [Mojo draft](../../../mojo/g/graphai_gat_aggregation.mojo) retains the
+bounded ordered softmax and feature aggregation.

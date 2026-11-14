@@ -7,3 +7,12 @@ The input is [n, cost_00, cost_01, ..., cost_(n-1,n-1)], with an n × n row-majo
 This is an algorithm-kernel workload, not an official NBench result. It is based on ANSIbench's NBench BYTEmark source nbench/src/nbench1.c (DoAssign, first_assignments, and second_assignments) at [nfinit/ansibench commit ef90abd09d7b7bb1f2809f896d6f67fb9724bebe](https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/nbench/src/nbench1.c). NBench credits Rick Grehan/BYTE Magazine for BYTEmark and Uwe F. Mayer for the Linux/Unix port. The implementation is written independently; no source blocks are copied.
 
 The upstream BYTEmark notice makes its source, executable, and documentation available “as is” and disclaims warranties and liability. Preserve the notice and attribution when redistributing derived work; the upstream package is commonly tagged freedist, not a standard permissive license. See the copied [LICENSE](LICENSE) notice.
+
+For an `n` by `n` matrix and at most `A = 2049` assignment attempts, the
+bounded implementation takes `O(A n³)` worst-case time and `O(n²)` space.
+The [Mojo draft](../../../mojo/n/nbench_resource_assignment.mojo) follows the
+same deterministic zero-selection and tableau-adjustment order; it has not been
+compiled or run.
+The workload also specifies a three-resource case that requires a tableau
+adjustment before a complete assignment. Its expected result is hand-derived
+and remains unverified.

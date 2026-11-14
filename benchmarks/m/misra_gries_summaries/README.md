@@ -21,6 +21,10 @@ Every item occurring more than `item_count/(k+1)` times is guaranteed to
 appear among the candidates. The bound and finite integer alphabet make the
 profile deterministic across ports.
 
+The bounded-alphabet Mojo draft uses direct indexed counters. For n items and
+an alphabet of size 16, its worst-case time is O(16n + 16) and its auxiliary
+space is O(16).
+
 ## Source and clean-room status
 
 The algorithm family is attributed to Misra and Gries (1982), as summarized in
@@ -37,6 +41,7 @@ algorithm; no book prose or upstream source code is copied.
 | C3 | `c3/m/misra_gries_summaries.c3` |
 | C++ | `cpp/m/misra_gries_summaries.cpp` |
 | Elisa | `elisa/m/misra_gries_summaries.elisa` |
+| Mojo | [`mojo/m/misra_gries_summaries.mojo`](../../../mojo/m/misra_gries_summaries.mojo) (draft; not compiled or run) |
 | Nim | `nim/m/misra_gries_summaries.nim` |
 | Odin | `odin/m/misra_gries_summaries.odin` |
 | Rust | `rust/m/misra_gries_summaries.rs` |

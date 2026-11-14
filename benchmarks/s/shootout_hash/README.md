@@ -21,6 +21,12 @@ launcher profile returns `356799`. The independent oracle counts decimal
 strings whose same digits, interpreted in base 16, identify an inserted key;
 it does not construct or query a hash table.
 
+For `n` keys, converting and hashing each key takes `O(log n)` digit work.
+Collision-chain traversal can take `O(n²)` in the worst case; storage is
+`O(n + b)` for `b` buckets. This workload remains distinct from a generic
+hash-table benchmark because its hexadecimal inserts and decimal lookups
+deliberately exercise different representations of the same integers.
+
 ## Implementations
 
 | Language | Source |
@@ -34,6 +40,7 @@ it does not construct or query a hash table.
 | Rust | [rust/shootout_hash.rs](../../../rust/s/shootout_hash.rs) |
 | V | [v/shootout_hash.v](../../../v/s/shootout_hash.v) |
 | Zig | [zig/shootout_hash.zig](../../../zig/s/shootout_hash.zig) |
+| Mojo | [mojo/s/shootout_hash.mojo](../../../mojo/s/shootout_hash.mojo) |
 
 Run the shared scalar suite with:
 

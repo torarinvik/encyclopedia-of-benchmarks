@@ -8,6 +8,8 @@ The `i64_array_bytes_output` ABI packs `[n, x0, y0, ..., x(n-1), y(n-1)]`. It ac
 
 Each port computes the 32-bit interleaved Morton code and orders point indices by `(code, original_index)`. The bound keeps the workload small while exercising bit spreading and ordering across all coordinate bits.
 
+The Mojo draft uses stable insertion sort, taking O(n²) time and O(n) space.
+
 ## Source and attribution
 
 This is an independent implementation of the Morton ordering workload listed by [ParGeo](https://github.com/ParAlg/ParGeo), a MIT-licensed parallel geometry library. No ParGeo implementation code is copied.
@@ -20,6 +22,7 @@ The independent oracle is [`morton_sort_oracle.py`](../../morton_sort_oracle.py)
 | C3 | [`c3/m/morton_sort.c3`](../../../c3/m/morton_sort.c3) |
 | C++ | [`cpp/m/morton_sort.cpp`](../../../cpp/m/morton_sort.cpp) |
 | Elisa | [`elisa/m/morton_sort.elisa`](../../../elisa/m/morton_sort.elisa) |
+| Mojo | [`mojo/m/morton_sort.mojo`](../../../mojo/m/morton_sort.mojo) (draft; not compiled or run) |
 | Nim | [`nim/m/morton_sort.nim`](../../../nim/m/morton_sort.nim) |
 | Odin | [`odin/m/morton_sort.odin`](../../../odin/m/morton_sort.odin) |
 | Rust | [`rust/m/morton_sort.rs`](../../../rust/m/morton_sort.rs) |

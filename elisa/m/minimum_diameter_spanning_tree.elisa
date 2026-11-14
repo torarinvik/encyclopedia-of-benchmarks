@@ -106,8 +106,9 @@ def mdst_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> vo
 def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
-    n_value: i64 = input[0]
-    m_value: i64 = input[1]
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
     if n_value < 1 or n_value > MAX_N.i64() or m_value < 0 or m_value > MAX_M.i64(): return -1
     n: usize = n_value.usize()
     m: usize = m_value.usize()
@@ -118,8 +119,9 @@ def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
     edge_weight: mutable i64[MAX_M] = zeroed
     graph_distance: mutable i64[MATRIX_CELLS] = zeroed
     u: mutable usize = 0
+    v: mutable usize = 0
     while u < n:
-        v: mutable usize = 0
+        v <- 0
         while v < n:
             graph_distance[u * MAX_N + v] <- if u == v: 0 else: INF
             v <- v + 1
@@ -127,9 +129,9 @@ def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
     edge_id: mutable usize = 0
     while edge_id < m:
         offset: usize = 2 + 3 * edge_id
-        u_value: i64 = input[offset]
-        v_value: i64 = input[offset + 1]
-        edge_w: i64 = input[offset + 2]
+        u_value: i64 = values[offset]
+        v_value: i64 = values[offset + 1]
+        edge_w: i64 = values[offset + 2]
         if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or
             edge_w < 0 or edge_w > 9: return -1
         u <- u_value.usize()

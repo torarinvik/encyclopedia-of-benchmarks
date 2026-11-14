@@ -1,0 +1,161 @@
+# AVL node slots are key, left child, right child, and height; zero is null.
+def cps_height(nodes: view[i64], node: i64) -> i64:
+    if node == 0: return 0
+    nodes[node.usize() * 4 + 3]
+
+def cps_fix(nodes: mutable view[i64], node: i64) -> void:
+    base: usize = node.usize() * 4
+    lh: i64 = cps_height(nodes, nodes[base + 1])
+    rh: i64 = cps_height(nodes, nodes[base + 2])
+    if lh > rh: nodes[base + 3] <- lh + 1
+    else: nodes[base + 3] <- rh + 1
+
+def cps_rotate_right(nodes: mutable view[i64], root: i64) -> i64:
+    base: usize = root.usize() * 4
+    pivot: i64 = nodes[base + 1]
+    pb: usize = pivot.usize() * 4
+    nodes[base + 1] <- nodes[pb + 2]
+    nodes[pb + 2] <- root
+    cps_fix(nodes, root)
+    cps_fix(nodes, pivot)
+    pivot
+
+def cps_rotate_left(nodes: mutable view[i64], root: i64) -> i64:
+    base: usize = root.usize() * 4
+    pivot: i64 = nodes[base + 2]
+    pb: usize = pivot.usize() * 4
+    nodes[base + 2] <- nodes[pb + 1]
+    nodes[pb + 1] <- root
+    cps_fix(nodes, root)
+    cps_fix(nodes, pivot)
+    pivot
+
+def cps_balance(nodes: mutable view[i64], root: i64) -> i64:
+    cps_fix(nodes, root)
+    base: usize = root.usize() * 4
+    difference: i64 = cps_height(nodes, nodes[base + 1]) - cps_height(nodes, nodes[base + 2])
+    if difference > 1:
+        child: i64 = nodes[base + 1]
+        cb: usize = child.usize() * 4
+        if cps_height(nodes, nodes[cb + 1]) < cps_height(nodes, nodes[cb + 2]):
+            nodes[base + 1] <- cps_rotate_left(nodes, child)
+        return cps_rotate_right(nodes, root)
+    if difference < -1:
+        child: i64 = nodes[base + 2]
+        cb: usize = child.usize() * 4
+        if cps_height(nodes, nodes[cb + 2]) < cps_height(nodes, nodes[cb + 1]):
+            nodes[base + 2] <- cps_rotate_right(nodes, child)
+        return cps_rotate_left(nodes, root)
+    root
+
+def cps_insert(nodes: mutable view[i64], root: i64, index: i64) -> i64:
+    if root == 0: return index
+    base: usize = root.usize() * 4
+    if nodes[index.usize() * 4] < nodes[base]:
+        nodes[base + 1] <- cps_insert(nodes, nodes[base + 1], index)
+    else:
+        nodes[base + 2] <- cps_insert(nodes, nodes[base + 2], index)
+    cps_balance(nodes, root)
+
+def cps_erase(nodes: mutable view[i64], root: i64, key: i64) -> i64:
+    if root == 0: return 0
+    base: usize = root.usize() * 4
+    if key < nodes[base]: nodes[base + 1] <- cps_erase(nodes, nodes[base + 1], key)
+    elif key > nodes[base]: nodes[base + 2] <- cps_erase(nodes, nodes[base + 2], key)
+    elif nodes[base + 1] == 0: return nodes[base + 2]
+    elif nodes[base + 2] == 0: return nodes[base + 1]
+    else:
+        successor: mutable i64 = nodes[base + 2]
+        while nodes[successor.usize() * 4 + 1] != 0: successor <- nodes[successor.usize() * 4 + 1]
+        replacement: i64 = nodes[successor.usize() * 4]
+        nodes[base] <- replacement
+        nodes[base + 2] <- cps_erase(nodes, nodes[base + 2], replacement)
+    cps_balance(nodes, root)
+
+def cps_range(nodes: view[i64], root: i64, low: i64, high: i64, x: i64, y: i64, initial: i64) -> i64:
+    if root == 0: return initial
+    base: usize = root.usize() * 4
+    key: i64 = nodes[base]
+    best: mutable i64 = initial
+    if key >= low: best <- cps_range(nodes, nodes[base + 1], low, high, x, y, best)
+    if key >= low and key <= high:
+        old_y: i64 = key / 2001 - 1000
+        old_x: i64 = key % 2001 - 1000
+        dx: i64 = x - old_x
+        dy: i64 = y - old_y
+        distance: i64 = dx * dx + dy * dy
+        if distance < best: best <- distance
+    if key <= high: best <- cps_range(nodes, nodes[base + 2], low, high, x, y, best)
+    best
+
+def cps_solve(values: view[i64]) -> i64:
+    if values.len() < 5 or values.len() > 130: return -1
+    count: i64 = values[0]
+    if count < 2 or count > 64: return -1
+    n: usize = count.usize()
+    if values.len() != 1 + 2 * n: return -1
+    points: mutable i64[64] = zeroed
+    scratch: mutable i64[64] = zeroed
+    for i in 0..<n:
+        x: i64 = values[1 + 2 * i]
+        y: i64 = values[2 + 2 * i]
+        if x < -1000 or x > 1000 or y < -1000 or y > 1000: return -1
+        points[i] <- (x + 1000) * 2001 + y + 1000
+    width: mutable usize = 1
+    while width < n:
+        begin: mutable usize = 0
+        while begin < n:
+            middle: mutable usize = begin + width
+            if middle > n: middle <- n
+            finish: mutable usize = begin + 2 * width
+            if finish > n: finish <- n
+            left: mutable usize = begin
+            right: mutable usize = middle
+            for dest in begin..<finish:
+                if right == finish or (left < middle and points[left] <= points[right]):
+                    scratch[dest] <- points[left]
+                    left <- left + 1
+                else:
+                    scratch[dest] <- points[right]
+                    right <- right + 1
+            begin <- begin + 2 * width
+        for i in 0..<n: points[i] <- scratch[i]
+        width <- width * 2
+    for i in 1..<n:
+        if points[i] == points[i - 1]: return 0
+    nodes: mutable i64[260] = zeroed
+    root: mutable i64 = 0
+    oldest: mutable usize = 0
+    best: mutable i64 = 8000001
+    for i in 0..<n:
+        x: i64 = points[i] / 2001 - 1000
+        y: i64 = points[i] % 2001 - 1000
+        while oldest < i:
+            old_x: i64 = points[oldest] / 2001 - 1000
+            dx: i64 = x - old_x
+            if dx * dx <= best: break
+            old_y: i64 = points[oldest] % 2001 - 1000
+            key: i64 = (old_y + 1000) * 2001 + old_x + 1000
+            root <- cps_erase(nodes[0:260], root, key)
+            oldest <- oldest + 1
+        lo: mutable i64 = 0
+        hi: mutable i64 = 3000
+        while lo < hi:
+            middle: i64 = (lo + hi + 1) / 2
+            if middle * middle <= best: lo <- middle
+            else: hi <- middle - 1
+        low: i64 = (y - lo + 1000) * 2001
+        high: i64 = (y + lo + 1000) * 2001 + 2000
+        best <- cps_range(nodes[0:260], root, low, high, x, y, best)
+        index: i64 = (i + 1).i64()
+        base: usize = index.usize() * 4
+        nodes[base] <- (y + 1000) * 2001 + x + 1000
+        nodes[base + 1] <- 0
+        nodes[base + 2] <- 0
+        nodes[base + 3] <- 1
+        root <- cps_insert(nodes[0:260], root, index)
+    best
+
+export fn closest_pair_sweep(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 5 or length > 130: return -1
+    cps_solve(input[0:length])

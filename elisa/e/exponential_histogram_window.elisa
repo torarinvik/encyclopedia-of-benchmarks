@@ -1,0 +1,57 @@
+def histogram_put(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for j in 0..<8:
+        output[offset+j] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def histogram_solve(input: view[i64], output: mutable view[u8]) -> void:
+    window: usize = input[0].usize()
+    n: usize = input[1].usize()
+    ends: mutable usize[128] = zeroed
+    sizes: mutable usize[128] = zeroed
+    used: mutable usize = 0
+    for time in 0..<n:
+        while used != 0 and time >= window and ends[0] <= time-window:
+            for j in 1..<used:
+                ends[j-1] <- ends[j]
+                sizes[j-1] <- sizes[j]
+            used <- used-1
+        if input[2+time] == 1:
+            ends[used] <- time
+            sizes[used] <- 1
+            used <- used+1
+        size: mutable usize = 1
+        while size <= 128:
+            first: mutable usize = used
+            second: mutable usize = used
+            found: mutable usize = 0
+            for j in 0..<used:
+                if sizes[j] == size:
+                    if found == 0: first <- j
+                    if found == 1: second <- j
+                    found <- found+1
+            if found > 2:
+                sizes[second] <- 2*size
+                for j in first+1..<used:
+                    ends[j-1] <- ends[j]
+                    sizes[j-1] <- sizes[j]
+                used <- used-1
+            size <- size*2
+        total: mutable usize = 0
+        for j in 0..<used: total <- total+sizes[j]
+        oldest: mutable usize = 0
+        if used != 0: oldest <- sizes[0]
+        histogram_put(output, 8*time, (2*total-oldest).i64())
+
+export fn exponential_histogram_window(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 130: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 64 or values[1] < 0 or values[1] > 128: return -1
+    n: usize = values[1].usize()
+    if length != 2+n: return -1
+    for i in 0..<n:
+        if values[2+i] != 0 and values[2+i] != 1: return -1
+    if output.is_null() or capacity < 8*n: return -2
+    out: mutable view[u8] = output[0:8*n]
+    histogram_solve(values, out)
+    (8*n).i64()

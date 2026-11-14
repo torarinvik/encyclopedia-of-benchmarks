@@ -9,3 +9,5 @@ The upstream benchmark also exercises vector multiply, dot/energy MAC, two FIR i
 Source: [`latsynth` in `src/edn/libedn.c`](https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/edn/libedn.c) at commit `09c2ed8c3b7008c95d08b038de4a3f6dc103ed70`. The file is SPDX GPL-3.0-or-later and records original WCET Benchmarks provenance and email permission from Björn Lisper to license under GPL. Embench header attribution and complete GPL text are in [`NOTICE.txt`](NOTICE.txt) and [`LICENSE.txt`](LICENSE.txt). The nine ports independently implement this bounded contract.
 
 The independent oracle is [`benchmarks/edn_lattice_synthesis_oracle.py`](../../edn_lattice_synthesis_oracle.py). Fixtures are in [`workload.json`](workload.json); no runtime verification is claimed here.
+
+An independent [Mojo draft](../../../mojo/e/edn_lattice_synthesis.mojo) follows the documented recurrence and has not been compiled or run. It takes O(order) time and O(order) state storage.

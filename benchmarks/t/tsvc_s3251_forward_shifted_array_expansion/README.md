@@ -35,3 +35,4 @@ The independent oracle is [`benchmarks/tsvc_s3251_forward_shifted_array_expansio
 | Rust | [`tsvc_s3251_forward_shifted_array_expansion.rs`](../../../rust/t/tsvc_s3251_forward_shifted_array_expansion.rs) |
 | V | [`tsvc_s3251_forward_shifted_array_expansion.v`](../../../v/t/tsvc_s3251_forward_shifted_array_expansion.v) |
 | Zig | [`tsvc_s3251_forward_shifted_array_expansion.zig`](../../../zig/t/tsvc_s3251_forward_shifted_array_expansion.zig) |
+| Mojo | [`tsvc_s3251_forward_shifted_array_expansion.mojo`](../../../mojo/t/tsvc_s3251_forward_shifted_array_expansion.mojo) |

@@ -18,6 +18,8 @@ success returns n. Malformed input returns -1. Null output or capacity below
 See the independent [oracle](../../tsvc_s115_upper_triangular_saxpy_elimination_oracle.py)
 and [workload](workload.json).
 
+A [Mojo draft](../../../mojo/t/tsvc_s115_upper_triangular_saxpy_elimination.mojo) is present and remains unverified.
+
 ## Source and rights
 
 Source is `s115` in `TSVC/tsc.inc`, lines 1035–1060, pinned to LAC-DCC

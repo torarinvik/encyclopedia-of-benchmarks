@@ -34,12 +34,16 @@ implements the byte-oriented AES-256 round schedule.
 
 | Language | Port |
 |---|---|
-| C | [`c/m/mibench_security_rijndael.c`](../../../c/mibench_security_rijndael.c) |
+| C | [`c/m/mibench_security_rijndael.c`](../../../c/m/mibench_security_rijndael.c) |
 | C3 | [`c3/m/mibench_security_rijndael.c3`](../../../c3/m/mibench_security_rijndael.c3) |
 | C++ | [`cpp/m/mibench_security_rijndael.cpp`](../../../cpp/m/mibench_security_rijndael.cpp) |
 | Elisa | [`elisa/m/mibench_security_rijndael.elisa`](../../../elisa/m/mibench_security_rijndael.elisa) |
+| Mojo | [`mojo/m/mibench_security_rijndael.mojo`](../../../mojo/m/mibench_security_rijndael.mojo) (unvalidated draft) |
 | Nim | [`nim/m/mibench_security_rijndael.nim`](../../../nim/m/mibench_security_rijndael.nim) |
 | Odin | [`odin/m/mibench_security_rijndael.odin`](../../../odin/m/mibench_security_rijndael.odin) |
 | Rust | [`rust/m/mibench_security_rijndael.rs`](../../../rust/m/mibench_security_rijndael.rs) |
 | V | [`v/m/mibench_security_rijndael.v`](../../../v/m/mibench_security_rijndael.v) |
 | Zig | [`zig/m/mibench_security_rijndael.zig`](../../../zig/m/mibench_security_rijndael.zig) |
+
+The fixed AES-256 key schedule and 14 block rounds use O(1) time and space
+per call; the algebraic substitution table also has a fixed 256-byte domain.

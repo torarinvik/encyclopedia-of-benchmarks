@@ -81,7 +81,7 @@ def slicing_floorplan_stockmeyer_impl(input: i64&, length: usize,
                         bh: i64 = cand_h[base + j]
                         bw: i64 = cand_w[base + j]
                         bm: i64 = cand_mask[base + j]
-                        if bh <= ah and bw <= aw and (bh < ah or bw < aw or mask_lex_less(bm, am, leaves) or (bm == am and j < i)):
+                        if bh <= ah and bw <= aw and (mask_lex_less(bm, am, leaves) or (bm == am and j < i)):
                             dominated[i] <- true
                     j <- j + 1
                 i <- i + 1
@@ -138,8 +138,7 @@ def slicing_floorplan_stockmeyer_impl(input: i64&, length: usize,
                         ai: usize = base + i
                         bi: usize = base + j
                         if cand_h[bi] <= cand_h[ai] and cand_w[bi] <= cand_w[ai] and
-                            (cand_h[bi] < cand_h[ai] or cand_w[bi] < cand_w[ai] or
-                             mask_lex_less(cand_mask[bi], cand_mask[ai], leaves) or
+                            (mask_lex_less(cand_mask[bi], cand_mask[ai], leaves) or
                              (cand_mask[bi] == cand_mask[ai] and j < i)):
                             dominated[i] <- true
                     j <- j + 1

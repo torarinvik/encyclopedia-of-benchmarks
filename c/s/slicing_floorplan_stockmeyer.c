@@ -33,8 +33,7 @@ static void prune(Node *node, size_t leaves)
             if (i == j) continue;
             const Candidate b = node->candidates[j];
             if (b.height <= a.height && b.width <= a.width) {
-                if (b.height < a.height || b.width < a.width
-                    || mask_lex_less(b.mask, a.mask, leaves)
+                if (mask_lex_less(b.mask, a.mask, leaves)
                     || (b.mask == a.mask && j < i)) {
                     dominated[i] = 1;
                     break;

@@ -52,3 +52,4 @@ and [`tsvc_s2711_nonzero_branch_axpy_verifier_oracle.py`](../../tsvc_s2711_nonze
 | Rust | [`rust/t/tsvc_s2711_nonzero_branch_axpy.rs`](../../../rust/t/tsvc_s2711_nonzero_branch_axpy.rs) |
 | V | [`v/t/tsvc_s2711_nonzero_branch_axpy.v`](../../../v/t/tsvc_s2711_nonzero_branch_axpy.v) |
 | Zig | [`zig/t/tsvc_s2711_nonzero_branch_axpy.zig`](../../../zig/t/tsvc_s2711_nonzero_branch_axpy.zig) |
+| Mojo | [`mojo/t/tsvc_s2711_nonzero_branch_axpy.mojo`](../../../mojo/t/tsvc_s2711_nonzero_branch_axpy.mojo) (draft, unverified) |

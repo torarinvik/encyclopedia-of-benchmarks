@@ -8,6 +8,8 @@ The `prolangs_c_loader_relocation_add` entry point uses the `i64_array_bytes_out
 
 The value is interpreted as an unsigned big-endian integer, the signed delta is added, and the result is formatted to exactly `2*width` uppercase hexadecimal digits and stored as big-endian bytes. If the adjusted value exceeds the field width, the source formatter keeps the low field digits and reports a diagnostic; this package models the stored low-width result and omits that process message. Malformed input returns `-1`; insufficient output capacity or null output returns `-2` after input validation; success returns the number of bytes written (1 through 3).
 
+The bounded field operation uses O(1) time and O(1) auxiliary space.
+
 ## Provenance and rights
 
 Pinned upstream: [`lac-dcc/Benchmarks` revision `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/loader), specifically `memory.c::ADD_INT_TO_LOC`, with formatting behavior from `convert.c::NUM_TO_STR` and `STR_TO_NUM`. The launcher is `Prolangs-C/loader/info.sh`. The source notice grants use on condition that its copyright notice remains; the exact William Landi 1991 notice is retained in [`LICENSE.txt`](LICENSE.txt) and each port. The implementations are independently written and redistribute no upstream source code.
@@ -25,6 +27,7 @@ The complete two-pass loader, object-record parser, symbol table, and memory-dum
 | C3 | [`c3/p/prolangs_c_loader_relocation_add.c3`](../../../c3/p/prolangs_c_loader_relocation_add.c3) |
 | C++ | [`cpp/p/prolangs_c_loader_relocation_add.cpp`](../../../cpp/p/prolangs_c_loader_relocation_add.cpp) |
 | Elisa | [`elisa/p/prolangs_c_loader_relocation_add.elisa`](../../../elisa/p/prolangs_c_loader_relocation_add.elisa) |
+| Mojo | [`mojo/p/prolangs_c_loader_relocation_add.mojo`](../../../mojo/p/prolangs_c_loader_relocation_add.mojo) (draft; not compiled or run) |
 | Nim | [`nim/p/prolangs_c_loader_relocation_add.nim`](../../../nim/p/prolangs_c_loader_relocation_add.nim) |
 | Odin | [`odin/p/prolangs_c_loader_relocation_add.odin`](../../../odin/p/prolangs_c_loader_relocation_add.odin) |
 | Rust | [`rust/p/prolangs_c_loader_relocation_add.rs`](../../../rust/p/prolangs_c_loader_relocation_add.rs) |

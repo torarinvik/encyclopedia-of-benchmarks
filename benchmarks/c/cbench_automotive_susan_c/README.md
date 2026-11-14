@@ -74,6 +74,7 @@ http://www.fmrib.ox.ac.uk/~steve/susan/index.html
 | C3 | [`c3/c/cbench_automotive_susan_c.c3`](../../../c3/c/cbench_automotive_susan_c.c3) |
 | C++ | [`cpp/c/cbench_automotive_susan_c.cpp`](../../../cpp/c/cbench_automotive_susan_c.cpp) |
 | Elisa | [`elisa/c/cbench_automotive_susan_c.elisa`](../../../elisa/c/cbench_automotive_susan_c.elisa) |
+| Mojo | [`mojo/c/cbench_automotive_susan_c.mojo`](../../../mojo/c/cbench_automotive_susan_c.mojo) (unvalidated draft) |
 | Nim | [`nim/c/cbench_automotive_susan_c.nim`](../../../nim/c/cbench_automotive_susan_c.nim) |
 | Odin | [`odin/c/cbench_automotive_susan_c.odin`](../../../odin/c/cbench_automotive_susan_c.odin) |
 | Rust | [`rust/c/cbench_automotive_susan_c.rs`](../../../rust/c/cbench_automotive_susan_c.rs) |
@@ -82,4 +83,8 @@ http://www.fmrib.ox.ac.uk/~steve/susan/index.html
 
 - Independent package oracle: [`cbench_automotive_susan_c_oracle.py`](../../cbench_automotive_susan_c_oracle.py)
 - Harness contract: [`workload.json`](workload.json)
+
+For an `s`-by-`s` image and mask radius `r`, the scan and local-maximum
+search take O(s²r²) time and O(s² + r²) space. The Mojo draft has not been
+compiled or executed.
 

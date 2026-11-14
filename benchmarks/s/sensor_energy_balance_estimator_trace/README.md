@@ -31,6 +31,10 @@ makes no randomness, convergence, energy-balance, network-lifetime, or
 data-routing guarantee and does not model network discovery or station
 probability computation.
 
+For `N` slices and `H` observations, processing the supplied draws and updates
+takes O(NH) time after the small bounded denominator calculation, with O(N)
+state besides the input and output.
+
 The primary oracle maintains exact integer numerators with the least-common
 multiple denominator. The independent verifier uses rational fractions and
 reconstructs the same scale only for serialization.
@@ -46,3 +50,4 @@ reconstructs the same scale only for serialization.
 | Rust | `rust/s/sensor_energy_balance_estimator_trace.rs` |
 | V | `v/s/sensor_energy_balance_estimator_trace.v` |
 | Zig | `zig/s/sensor_energy_balance_estimator_trace.zig` |
+| Mojo | [mojo/s/sensor_energy_balance_estimator_trace.mojo](../../../mojo/s/sensor_energy_balance_estimator_trace.mojo) |

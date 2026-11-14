@@ -28,6 +28,9 @@ an idle slot. The trace measures the three policies' actual finite-run FIFO
 behavior; it does not evaluate their competitive ratios or simulate an
 offline optimum.
 
+For P packets, S slots, and buffer capacity B, the direct FIFO simulation uses
+O(PB + SB) time and O(P + S + B) space.
+
 The primary oracle simulates arrival-time updates and FIFO service. The
 independent verifier finds preemption candidates through separate earliest
 eligible searches and independently reconstructs the resident trace.
@@ -48,6 +51,7 @@ insufficient capacity.
 | C3 | [`c3/s/packet_switching_single_buffer.c3`](../../../c3/s/packet_switching_single_buffer.c3) |
 | C++ | [`cpp/s/packet_switching_single_buffer.cpp`](../../../cpp/s/packet_switching_single_buffer.cpp) |
 | Elisa | [`elisa/s/packet_switching_single_buffer.elisa`](../../../elisa/s/packet_switching_single_buffer.elisa) |
+| Mojo | [`mojo/s/packet_switching_single_buffer.mojo`](../../../mojo/s/packet_switching_single_buffer.mojo) (draft; not compiled or run) |
 | Nim | [`nim/s/packet_switching_single_buffer.nim`](../../../nim/s/packet_switching_single_buffer.nim) |
 | Odin | [`odin/s/packet_switching_single_buffer.odin`](../../../odin/s/packet_switching_single_buffer.odin) |
 | Rust | [`rust/s/packet_switching_single_buffer.rs`](../../../rust/s/packet_switching_single_buffer.rs) |

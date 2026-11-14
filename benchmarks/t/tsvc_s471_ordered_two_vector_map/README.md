@@ -45,3 +45,4 @@ Independent oracle: [`benchmarks/tsvc_s471_ordered_two_vector_map_oracle.py`](..
 | Rust | [Rust](../../../rust/t/tsvc_s471_ordered_two_vector_map.rs) |
 | V | [V](../../../v/t/tsvc_s471_ordered_two_vector_map.v) |
 | Zig | [Zig](../../../zig/t/tsvc_s471_ordered_two_vector_map.zig) |
+| Mojo | [Mojo draft](../../../mojo/t/tsvc_s471_ordered_two_vector_map.mojo) (unverified) |

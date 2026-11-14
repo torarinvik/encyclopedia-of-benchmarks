@@ -1,7 +1,7 @@
 """Independent last-accepted-position verifier for the edge reservoir."""
 
 MAX_INPUT_LENGTH = 114
-MAX_OUTPUT_BYTES = 448
+MAX_OUTPUT_BYTES = 896
 
 
 def verify(a):

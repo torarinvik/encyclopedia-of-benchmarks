@@ -58,6 +58,8 @@ written from the published source data model and algorithm.
 | V | [v/t/olden_tsp.v](../../../v/t/olden_tsp.v) |
 | Zig | [zig/t/olden_tsp.zig](../../../zig/t/olden_tsp.zig) |
 
+The Mojo draft is [`mojo/t/olden_tsp.mojo`](../../../mojo/t/olden_tsp.mojo). Floating-point tie and rounding behavior remain unverified.
+
 ## Pinned source files
 
 - [`tsp.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/tsp/tsp.c)

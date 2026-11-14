@@ -32,3 +32,5 @@ Source attribution: Kurt Keutzer and Kaushik Ravindran, â€œTechnology Mapping,â€
 | Rust | [`rust/t/technology_mapping_minimum_area_tree_cover.rs`](../../../rust/t/technology_mapping_minimum_area_tree_cover.rs) |
 | V | [`v/t/technology_mapping_minimum_area_tree_cover.v`](../../../v/t/technology_mapping_minimum_area_tree_cover.v) |
 | Zig | [`zig/t/technology_mapping_minimum_area_tree_cover.zig`](../../../zig/t/technology_mapping_minimum_area_tree_cover.zig) |
+
+The Mojo draft is [`mojo/t/technology_mapping_minimum_area_tree_cover.mojo`](../../../mojo/t/technology_mapping_minimum_area_tree_cover.mojo). The fixed five-pattern library yields O(n) time and O(n) space for validation, optimization, and cover reconstruction.

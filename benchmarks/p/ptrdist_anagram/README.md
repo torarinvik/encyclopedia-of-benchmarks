@@ -40,7 +40,10 @@ program prints a periodic sample of found decompositions; this adapted pure
 function returns the full decomposition count instead, while retaining the
 rare-letter depth-first search and its candidate deferral behavior. The
 independent Python oracle uses letter-frequency maps rather than packed
-bitfields.
+bitfields. The Mojo draft checks each packed field before subtraction to avoid
+unsigned underflow; the other ports use sign-bit detection. The Mojo draft has
+not been compiled or run. The suite's source-presence check includes all ten
+language drafts and is likewise unexecuted.
 
 ## Provenance and rights
 
@@ -62,6 +65,7 @@ list.
 | C3 | [`c3/p/ptrdist_anagram.c3`](../../../c3/p/ptrdist_anagram.c3) |
 | C++ | [`cpp/p/ptrdist_anagram.cpp`](../../../cpp/p/ptrdist_anagram.cpp) |
 | Elisa | [`elisa/p/ptrdist_anagram.elisa`](../../../elisa/p/ptrdist_anagram.elisa) |
+| Mojo | [`mojo/p/ptrdist_anagram.mojo`](../../../mojo/p/ptrdist_anagram.mojo) |
 | Nim | [`nim/p/ptrdist_anagram.nim`](../../../nim/p/ptrdist_anagram.nim) |
 | Odin | [`odin/p/ptrdist_anagram.odin`](../../../odin/p/ptrdist_anagram.odin) |
 | Rust | [`rust/p/ptrdist_anagram.rs`](../../../rust/p/ptrdist_anagram.rs) |

@@ -29,7 +29,7 @@
     "meaning": "minimum possible maximum squared Euclidean edge length, including polygon boundary edges",
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "Interval minimax dynamic programming over vertex intervals; each split combines the two subinterval optima and the interval closing edge.",
     "independent_oracle": "Recursively enumerate every triangulation of the convex polygon, collect its boundary and diagonal edges, and directly minimize each triangulation's maximum squared edge length.",
     "primary_complexity": "O(N^3) time and O(N^2) space.",

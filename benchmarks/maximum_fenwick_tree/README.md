@@ -29,6 +29,12 @@ maxima, repeated values, empty/singleton/full ranges, invalid bounds and
 opcodes, maximum operation/output capacity, and null, zero, short, and exact
 output-buffer cases.
 
+A query takes O(log n) time. Assignment can take O(log² n) in the worst case
+when decreasing maxima requires rebuilding buckets; the tree uses O(n) space.
+The suite's workload validator checks that each listed source file is present
+and names the exported operation; this is a static inventory check, not proof
+that a port compiles or computes the correct result.
+
 ## Pinned source
 
 [TheAlgorithms/Python `maximum_fenwick_tree.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/maximum_fenwick_tree.py)
@@ -42,6 +48,7 @@ at commit `e1a2a8b016001309a73d5fec4818c35cca139795`.
 | C3 | [c3/m/maximum_fenwick_tree.c3](../../c3/m/maximum_fenwick_tree.c3) |
 | C++ | [cpp/m/maximum_fenwick_tree.cpp](../../cpp/m/maximum_fenwick_tree.cpp) |
 | Elisa | [elisa/m/maximum_fenwick_tree.elisa](../../elisa/m/maximum_fenwick_tree.elisa) |
+| Mojo | [mojo/m/maximum_fenwick_tree.mojo](../../mojo/m/maximum_fenwick_tree.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/maximum_fenwick_tree.nim](../../nim/m/maximum_fenwick_tree.nim) |
 | Odin | [odin/m/maximum_fenwick_tree.odin](../../odin/m/maximum_fenwick_tree.odin) |
 | Rust | [rust/m/maximum_fenwick_tree.rs](../../rust/m/maximum_fenwick_tree.rs) |

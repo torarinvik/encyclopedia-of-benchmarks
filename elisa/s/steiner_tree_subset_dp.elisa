@@ -5,7 +5,7 @@ const STD_MAX_INPUT: usize = 50
 const STD_MAX_MASKS: usize = 32
 const STD_INF: i64 = 1000000000000000000
 
-def fn std_impl(input: view[i64]) -> i64:
+def std_impl(input: view[i64]) -> i64:
     length: usize = input.len()
     if length < 3 or length > STD_MAX_INPUT: return -1
     if input[0] < 1 or input[0] > 8 or input[1] < 0 or input[1] > 14 or input[2] < 1 or input[2] > 5 or input[2] > input[0]: return -1

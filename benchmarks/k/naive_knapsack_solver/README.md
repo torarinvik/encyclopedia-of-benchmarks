@@ -17,6 +17,7 @@ The pinned C# solver makes one greedy pass over items in input order. It admits 
 - C3: [`c3/k/naive_knapsack_solver.c3`](../../../c3/k/naive_knapsack_solver.c3)
 - C++: [`cpp/k/naive_knapsack_solver.cpp`](../../../cpp/k/naive_knapsack_solver.cpp)
 - Elisa: [`elisa/k/naive_knapsack_solver.elisa`](../../../elisa/k/naive_knapsack_solver.elisa)
+- Mojo: [`mojo/k/naive_knapsack_solver.mojo`](../../../mojo/k/naive_knapsack_solver.mojo) (uncompiled draft)
 - Nim: [`nim/k/naive_knapsack_solver.nim`](../../../nim/k/naive_knapsack_solver.nim)
 - Odin: [`odin/k/naive_knapsack_solver.odin`](../../../odin/k/naive_knapsack_solver.odin)
 - Rust: [`rust/k/naive_knapsack_solver.rs`](../../../rust/k/naive_knapsack_solver.rs)
@@ -24,3 +25,6 @@ The pinned C# solver makes one greedy pass over items in input order. It admits 
 - Zig: [`zig/k/naive_knapsack_solver.zig`](../../../zig/k/naive_knapsack_solver.zig)
 
 The implementation follows the pinned [C# source](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Knapsack/NaiveKnapsackSolver.cs), whose `Solve` method scans each item once and adds it if the cumulative weight fits.
+
+The scalar verifier now registers this profile and specifies exhaustive short
+weight sequences and invalid inputs. These checks have not been run.

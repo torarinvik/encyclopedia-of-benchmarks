@@ -45,7 +45,7 @@ fn read_word(mut p Parser, mut out [17]u8) int {
     for p.pos < p.length && is_word_part(int(unsafe { p.input[p.pos] })) {
         c = int(unsafe { p.input[p.pos] })
         if used >= max_name { return 0 }
-        out[used] = u8(c); used++; p.pos++; c = peek(mut p)
+        out[used] = u8(c); used++; p.pos++
     }
     out[used] = 0
     return used
@@ -73,7 +73,7 @@ fn decimal(mut p Parser, mut value int) bool {
         c = int(unsafe { p.input[p.pos] })
         result = result * 10 + c - 48
         if result > 99 { return false }
-        p.pos++; c = peek(mut p)
+        p.pos++
     }
     if result < 1 { return false }
     value = result

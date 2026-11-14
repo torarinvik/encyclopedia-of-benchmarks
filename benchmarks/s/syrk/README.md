@@ -10,6 +10,8 @@ For each `i` in ascending order, the kernel first scales `C[i][j]` by beta for a
 
 The pinned launcher selects `EXTRALARGE_DATASET` (`n=2600`, `m=2000`), which is too large for the shared array-output ABI. The suite uses the documented bounded profile. The independent [`syrk_oracle.py`](../../syrk_oracle.py) reproduces the source initialization, lower-triangle update, and order. [`workload.json`](workload.json) includes the initialization dimensions, boundary and malformed inputs, and matrix outputs.
 
+The initialization and update take O(n²m + n²) time and O(nm + n²) space.
+
 ## Implementations
 
 | Language | Source |
@@ -18,6 +20,7 @@ The pinned launcher selects `EXTRALARGE_DATASET` (`n=2600`, `m=2000`), which is 
 | C3 | [`c3/s/syrk.c3`](../../../c3/s/syrk.c3) |
 | C++ | [`cpp/s/syrk.cpp`](../../../cpp/s/syrk.cpp) |
 | Elisa | [`elisa/s/syrk.elisa`](../../../elisa/s/syrk.elisa) |
+| Mojo | [`mojo/s/syrk.mojo`](../../../mojo/s/syrk.mojo) (draft; not compiled or run) |
 | Nim | [`nim/s/syrk.nim`](../../../nim/s/syrk.nim) |
 | Odin | [`odin/s/syrk.odin`](../../../odin/s/syrk.odin) |
 | Rust | [`rust/s/syrk.rs`](../../../rust/s/syrk.rs) |

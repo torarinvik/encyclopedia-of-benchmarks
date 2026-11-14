@@ -6,6 +6,8 @@ This package implements the closest-string problem defined in “Closest String 
 
 Input is `[n,m,q,strings[n*m]]` with `1<=n<=6`, `1<=m<=8`, alphabet size `q` in `{2,3}`, and symbols in `[0,q)`. The output is `[minimum_radius, center_symbols[m]]`, encoded as little-endian signed 64-bit values. Among optimal centers, the lexicographically smallest is selected. The function returns `8*(m+1)`, `-1` for malformed input, and `-2` for a null or short output buffer. Exhaustive search is bounded by `3^8` candidate centers.
 
+Null input returns `-1`. Verifier source specifies null-input, capacity, validation-precedence, and maximum-frame cases; those checks have not been executed since the port corrections.
+
 ## Implementations
 
 | Language | Source |
@@ -14,6 +16,7 @@ Input is `[n,m,q,strings[n*m]]` with `1<=n<=6`, `1<=m<=8`, alphabet size `q` in 
 | C3 | [`c3/c/closest_string_center.c3`](../../../c3/c/closest_string_center.c3) |
 | C++ | [`cpp/c/closest_string_center.cpp`](../../../cpp/c/closest_string_center.cpp) |
 | Elisa | [`elisa/c/closest_string_center.elisa`](../../../elisa/c/closest_string_center.elisa) |
+| Mojo | [`mojo/c/closest_string_center.mojo`](../../../mojo/c/closest_string_center.mojo) (draft, unverified) |
 | Nim | [`nim/c/closest_string_center.nim`](../../../nim/c/closest_string_center.nim) |
 | Odin | [`odin/c/closest_string_center.odin`](../../../odin/c/closest_string_center.odin) |
 | Rust | [`rust/c/closest_string_center.rs`](../../../rust/c/closest_string_center.rs) |

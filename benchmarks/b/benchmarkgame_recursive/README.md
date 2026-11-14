@@ -20,6 +20,7 @@ The `i64_scalar_bytes_output` entry point accepts `n`, returns the complete five
 | C3 | [c3/b/benchmarkgame_recursive.c3](../../../c3/b/benchmarkgame_recursive.c3) |
 | C++ | [cpp/b/benchmarkgame_recursive.cpp](../../../cpp/b/benchmarkgame_recursive.cpp) |
 | Elisa | [elisa/b/benchmarkgame_recursive.elisa](../../../elisa/b/benchmarkgame_recursive.elisa) |
+| Mojo | [mojo/b/benchmarkgame_recursive.mojo](../../../mojo/b/benchmarkgame_recursive.mojo) (draft, unverified) |
 | Nim | [nim/b/benchmarkgame_recursive.nim](../../../nim/b/benchmarkgame_recursive.nim) |
 | Odin | [odin/b/benchmarkgame_recursive.odin](../../../odin/b/benchmarkgame_recursive.odin) |
 | Rust | [rust/b/benchmarkgame_recursive.rs](../../../rust/b/benchmarkgame_recursive.rs) |

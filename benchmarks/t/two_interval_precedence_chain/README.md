@@ -15,6 +15,9 @@ sequence wins. The maximum output is 17 signed i64 values (136 bytes). Invalid
 input returns `-1`; null output or insufficient capacity returns `-2` without
 writing.
 
+The direct dynamic program uses O(n³) time for chain comparisons and O(n²)
+space for stored paths.
+
 This package implements only the precedence-only model from the chapter; it
 does not allow nesting or crossing between selected 2-intervals and does not
 claim to solve the other compatibility variants surveyed there.
@@ -31,6 +34,7 @@ The package is clean-room work; no textbook wording or code was copied.
 | C3 | `c3/t/two_interval_precedence_chain.c3` |
 | C++ | `cpp/t/two_interval_precedence_chain.cpp` |
 | Elisa | `elisa/t/two_interval_precedence_chain.elisa` |
+| Mojo | [`mojo/t/two_interval_precedence_chain.mojo`](../../../mojo/t/two_interval_precedence_chain.mojo) (draft; not compiled or run) |
 | Nim | `nim/t/two_interval_precedence_chain.nim` |
 | Odin | `odin/t/two_interval_precedence_chain.odin` |
 | Rust | `rust/t/two_interval_precedence_chain.rs` |

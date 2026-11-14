@@ -8,6 +8,10 @@ The existing [`dominator_tree`](../../d/dominator_tree/README.md) package has th
 
 The primary oracle independently implements the simple Lengauer–Tarjan steps. The verifier oracle instead removes each reachable vertex in turn and searches the remaining graph to find dominators, then identifies the nearest strict dominator. Workload fixtures are in [`workload.json`](workload.json); the package-local source and fixture inventory checker is [`verify_lengauer_tarjan_dominator_tree_package.py`](verify_lengauer_tarjan_dominator_tree_package.py).
 
+The verifier source also specifies every directed graph, including self-loops,
+through three vertices with every root, comparing the two references. These
+checks have not been executed.
+
 ## Source and rights
 
 The method is attributed to Lengauer and Tarjan, [“A Fast Algorithm for Finding Dominators in a Flowgraph,”](https://doi.org/10.1145/357062.357071) *ACM Transactions on Programming Languages and Systems* 1(1), 1979. The [author-hosted paper copy](https://www.cs.princeton.edu/courses/archive/fall03/cs528/handouts/a%20fast%20algorithm%20for%20finding.pdf) describes the simple path-compression variant and its `O(m log n)` bound. The paper retains ACM copyright; only its high-level algorithm description informed these clean-room implementations.

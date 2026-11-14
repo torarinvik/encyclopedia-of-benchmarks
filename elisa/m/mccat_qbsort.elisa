@@ -4,38 +4,43 @@ def mccat_qbsort_bubble(a: mutable view[i32], n: usize):
     while end > 1:
         end <- end - 1
         i: mutable usize = 0
-        while i + 1 < end:
+        while i < end:
             if a[i + 1] < a[i]:
                 t: i32 = a[i]
                 a[i] <- a[i + 1]
                 a[i + 1] <- t
             i <- i + 1
 
-def mccat_qbsort_quick(a: mutable view[i32], n: usize):
-    if n < 2: return
-    pivot: i32 = a[0]
-    lower: mutable i32[32] = zeroed
-    upper: mutable i32[32] = zeroed
-    nl: mutable usize = 0
-    nu: mutable usize = 0
-    i: usize = 1
-    while i < n:
-        if a[i] < pivot:
-            lower[nl] <- a[i]
-            nl <- nl + 1
+def mccat_qbsort_quick(head: i64, nodes: mutable view[i32], links: mutable view[i64], used: mutable view[usize]) -> i64:
+    if head < 0: return -1
+    pivot: i32 = nodes[head.usize()]
+    lower: mutable i64 = -1
+    upper: mutable i64 = -1
+    current: mutable i64 = links[head.usize()]
+    while current >= 0:
+        value: i32 = nodes[current.usize()]
+        following: i64 = links[current.usize()]
+        created: usize = used[0]
+        used[0] <- created + 1
+        nodes[created] <- value
+        if value < pivot:
+            links[created] <- lower
+            lower <- created.i64()
         else:
-            upper[nu] <- a[i]
-            nu <- nu + 1
-        i <- i + 1
-    mccat_qbsort_quick(lower[0:nl], nl)
-    mccat_qbsort_quick(upper[0:nu], nu)
-    k: mutable usize = 0
-    i <- 0
-    while i < nl: a[k] <- lower[i]; k <- k + 1; i <- i + 1
-    a[k] <- pivot
-    k <- k + 1
-    i <- 0
-    while i < nu: a[k] <- upper[i]; k <- k + 1; i <- i + 1
+            links[created] <- upper
+            upper <- created.i64()
+        current <- following
+    sorted_upper: i64 = mccat_qbsort_quick(upper, nodes, links, used)
+    sorted_lower: i64 = mccat_qbsort_quick(lower, nodes, links, used)
+    pivot_node: usize = used[0]
+    used[0] <- pivot_node + 1
+    nodes[pivot_node] <- pivot
+    links[pivot_node] <- sorted_upper
+    if sorted_lower < 0: return pivot_node.i64()
+    tail: mutable i64 = sorted_lower
+    while links[tail.usize()] >= 0: tail <- links[tail.usize()]
+    links[tail.usize()] <- pivot_node.i64()
+    return sorted_lower
 
 def mccat_qbsort_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if input.is_null() or length < 3 or length > 34: return -1
@@ -45,18 +50,34 @@ def mccat_qbsort_impl(input: i64&, length: usize, output: mutable u8&, output_ca
     count: usize = count_value.usize()
     if length != count + 2: return -1
     values: mutable i32[32] = zeroed
-    i: usize = 0
+    i: mutable usize = 0
     while i < count:
         value: i64 = input[i + 2]
         if value < -2147483648 or value > 2147483647: return -1
         values[i] <- value.i32()
         i <- i + 1
-    pass: usize = 0
+    pass: mutable usize = 0
     while pass < 1000:
         i <- 0
         while i < count: values[i] <- input[i + 2].i32(); i <- i + 1
         if mode == 0: mccat_qbsort_bubble(values[0:count], count)
-        else: mccat_qbsort_quick(values[0:count], count)
+        else:
+            nodes: mutable i32[560] = zeroed
+            links: mutable i64[560] = zeroed
+            used: mutable usize[1] = zeroed
+            used[0] <- count
+            i <- 0
+            while i < count:
+                nodes[i] <- values[i]
+                links[i] <- -1
+                if i + 1 < count: links[i] <- (i + 1).i64()
+                i <- i + 1
+            current: mutable i64 = mccat_qbsort_quick(0, nodes[0:560], links[0:560], used[0:1])
+            i <- 0
+            while current >= 0:
+                values[i] <- nodes[current.usize()]
+                current <- links[current.usize()]
+                i <- i + 1
         pass <- pass + 1
     required: usize = 4 * count
     if output.is_null() or output_capacity < required: return -2

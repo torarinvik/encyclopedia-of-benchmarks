@@ -47,6 +47,7 @@
   },
   "cases": [
     {"id": "empty_sequence", "input_values": [0, 0], "expected_result": 0, "expected_output_hex": ""},
+    {"id": "negative_signed_value", "input_values": [1, -1, 1, 1, 0], "expected_result": 8, "expected_output_hex": "ffffffffffffffff"},
     {
       "id": "maximum_frame_and_output",
       "input_values": [

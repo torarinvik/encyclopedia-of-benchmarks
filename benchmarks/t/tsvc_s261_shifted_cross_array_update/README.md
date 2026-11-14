@@ -69,3 +69,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s261_shifted_cross_array_update.rs`](../../../rust/t/tsvc_s261_shifted_cross_array_update.rs) |
 | V | [`tsvc_s261_shifted_cross_array_update.v`](../../../v/t/tsvc_s261_shifted_cross_array_update.v) |
 | Zig | [`tsvc_s261_shifted_cross_array_update.zig`](../../../zig/t/tsvc_s261_shifted_cross_array_update.zig) |
+| Mojo | [`tsvc_s261_shifted_cross_array_update.mojo`](../../../mojo/t/tsvc_s261_shifted_cross_array_update.mojo) |

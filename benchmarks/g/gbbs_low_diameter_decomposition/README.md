@@ -55,6 +55,7 @@ implementations.
 | C3 | `c3/g/gbbs_low_diameter_decomposition.c3` |
 | C++ | `cpp/g/gbbs_low_diameter_decomposition.cpp` |
 | Elisa | `elisa/g/gbbs_low_diameter_decomposition.elisa` |
+| Mojo | [`mojo/g/gbbs_low_diameter_decomposition.mojo`](../../../mojo/g/gbbs_low_diameter_decomposition.mojo) |
 | Nim | `nim/g/gbbs_low_diameter_decomposition.nim` |
 | Odin | `odin/g/gbbs_low_diameter_decomposition.odin` |
 | Rust | `rust/g/gbbs_low_diameter_decomposition.rs` |

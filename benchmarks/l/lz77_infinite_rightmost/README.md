@@ -31,6 +31,8 @@ The workload includes literals, overlapping matches, a rightmost equal-length
 tie, terminal phrases, and malformed/capacity cases.
 The primary oracle uses direct candidate scans; the verifier independently
 builds a suffix-LCP table before selecting each rightmost longest match.
+The direct scan takes O(n³) time in the worst case and O(n) staged-output
+space for an input of length n.
 
 ## Source and rights
 
@@ -42,5 +44,5 @@ upstream code are copied. See [RIGHTS.md](RIGHTS.md).
 
 ## Ports
 
-C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig export
+C, C3, C++, Elisa, Mojo, Nim, Odin, Rust, V, and Zig export
 `lz77_infinite_rightmost` through `i64_array_bytes_output`.

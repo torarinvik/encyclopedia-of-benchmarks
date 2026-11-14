@@ -21,4 +21,4 @@ The workload uses hand-derived small grids, including one-row and one-column bou
 
 ## Ports and workload
 
-Implementations are in `c/r`, `c3/r`, `cpp/r`, `elisa/r`, `nim/r`, `odin/r`, `rust/r`, `v/r`, and `zig/r`. The independent oracle is [`benchmarks/rodinia_pathfinder_oracle.py`](../../rodinia_pathfinder_oracle.py); fixtures are in [`workload.json`](workload.json).
+Implementations are in `c/r`, `c3/r`, `cpp/r`, `elisa/r`, `mojo/r`, `nim/r`, `odin/r`, `rust/r`, `v/r`, and `zig/r`. The independent oracle is [`benchmarks/rodinia_pathfinder_oracle.py`](../../rodinia_pathfinder_oracle.py); fixtures are in [`workload.json`](workload.json).

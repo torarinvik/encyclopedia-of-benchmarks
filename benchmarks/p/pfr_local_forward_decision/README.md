@@ -24,12 +24,15 @@ Malformed input returns `-1`; null output or insufficient capacity returns
 `-2` without writing. The primary oracle compares the integer cross-products;
 the independent verifier computes the equivalent integer cutoff.
 
+The fixed-width decision takes O(1) time and O(1) auxiliary space.
+
 | Language | Port |
 |---|---|
 | C | `c/p/pfr_local_forward_decision.c` |
 | C3 | `c3/p/pfr_local_forward_decision.c3` |
 | C++ | `cpp/p/pfr_local_forward_decision.cpp` |
 | Elisa | `elisa/p/pfr_local_forward_decision.elisa` |
+| Mojo | [`mojo/p/pfr_local_forward_decision.mojo`](../../../mojo/p/pfr_local_forward_decision.mojo) (draft; not compiled or run) |
 | Nim | `nim/p/pfr_local_forward_decision.nim` |
 | Odin | `odin/p/pfr_local_forward_decision.odin` |
 | Rust | `rust/p/pfr_local_forward_decision.rs` |

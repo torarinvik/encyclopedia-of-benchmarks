@@ -16,11 +16,16 @@ The ABI is `i64_scalar_bytes_output`: `coyote_huffbench(passes, output, output_c
 | C3 | [c3/h/huffbench.c3](../../../c3/h/huffbench.c3) |
 | C++ | [cpp/h/huffbench.cpp](../../../cpp/h/huffbench.cpp) |
 | Elisa | [elisa/h/huffbench.elisa](../../../elisa/h/huffbench.elisa) |
+| Mojo | [mojo/h/huffbench.mojo](../../../mojo/h/huffbench.mojo) (draft, unverified) |
 | Nim | [nim/h/huffbench.nim](../../../nim/h/huffbench.nim) |
 | Odin | [odin/h/huffbench.odin](../../../odin/h/huffbench.odin) |
 | Rust | [rust/h/huffbench.rs](../../../rust/h/huffbench.rs) |
 | V | [v/h/huffbench.v](../../../v/h/huffbench.v) |
 | Zig | [zig/h/huffbench.zig](../../../zig/h/huffbench.zig) |
+
+Verifier source checks the Mojo source and exported symbol and includes pass
+counts around decimal-formatting transitions.
+The Mojo draft and those cases have not been compiled or run.
 
 ## Pinned source
 

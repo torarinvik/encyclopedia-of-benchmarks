@@ -13,6 +13,9 @@ signed little-endian i64: the chosen zero-based arrival index, or `-1` when no
 post-sample candidate exceeds the sample maximum. Invalid input returns `-1`;
 null output or capacity below eight bytes returns `-2` without writing.
 
+Validation and selection take O(n) time and O(n) space for the permutation
+check. The selection phase itself keeps only the sample maximum.
+
 The input order is a supplied deterministic replay of the chapter's uniformly
 random arrival-order assumption. The package does not generate random
 permutations and makes no per-input probability or mechanism-design claim. It
@@ -30,3 +33,4 @@ multiple-choice, matroid, submodular, or auction mechanisms.
 | Rust | `rust/s/secretary_1e_threshold.rs` |
 | V | `v/s/secretary_1e_threshold.v` |
 | Zig | `zig/s/secretary_1e_threshold.zig` |
+| Mojo | [mojo/s/secretary_1e_threshold.mojo](../../../mojo/s/secretary_1e_threshold.mojo) |

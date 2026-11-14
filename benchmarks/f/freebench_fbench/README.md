@@ -43,6 +43,7 @@ attribution here and in each port.
 | C3 | [c3/f/freebench_fbench.c3](../../../c3/f/freebench_fbench.c3) |
 | C++ | [cpp/f/freebench_fbench.cpp](../../../cpp/f/freebench_fbench.cpp) |
 | Elisa | [elisa/f/freebench_fbench.elisa](../../../elisa/f/freebench_fbench.elisa) |
+| Mojo | [mojo/f/freebench_fbench.mojo](../../../mojo/f/freebench_fbench.mojo) |
 | Nim | [nim/f/freebench_fbench.nim](../../../nim/f/freebench_fbench.nim) |
 | Odin | [odin/f/freebench_fbench.odin](../../../odin/f/freebench_fbench.odin) |
 | Rust | [rust/f/freebench_fbench.rs](../../../rust/f/freebench_fbench.rs) |
@@ -50,3 +51,6 @@ attribution here and in each port.
 | Zig | [zig/f/freebench_fbench.zig](../../../zig/f/freebench_fbench.zig) |
 
 The independent ray-trace oracle is [`freebench_fbench_oracle.py`](../../freebench_fbench_oracle.py); [`workload.json`](workload.json) describes the bounded profile and cases.
+
+The Mojo port and ten-language suite source check are static drafts; neither
+has been compiled or run.

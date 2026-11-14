@@ -36,3 +36,4 @@ short capacity returns `-2`; no output is written on an error.
 - `../../graphai_gcn_aggregation_oracle.py`: workload oracle.
 - `../../verify_float64_slice_io.py`: independent row-wise verifier oracle.
 - `LICENSE.txt`: MIT notice copied from the pinned repository license.
+- [Mojo draft](../../../mojo/g/graphai_gcn_aggregation.mojo): bounded aggregation port.

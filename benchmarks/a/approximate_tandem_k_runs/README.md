@@ -45,6 +45,7 @@ and
 | C3 | [`c3/a/approximate_tandem_k_runs.c3`](../../../c3/a/approximate_tandem_k_runs.c3) |
 | C++ | [`cpp/a/approximate_tandem_k_runs.cpp`](../../../cpp/a/approximate_tandem_k_runs.cpp) |
 | Elisa | [`elisa/a/approximate_tandem_k_runs.elisa`](../../../elisa/a/approximate_tandem_k_runs.elisa) |
+| Mojo | [`mojo/a/approximate_tandem_k_runs.mojo`](../../../mojo/a/approximate_tandem_k_runs.mojo) (draft, unverified) |
 | Nim | [`nim/a/approximate_tandem_k_runs.nim`](../../../nim/a/approximate_tandem_k_runs.nim) |
 | Odin | [`odin/a/approximate_tandem_k_runs.odin`](../../../odin/a/approximate_tandem_k_runs.odin) |
 | Rust | [`rust/a/approximate_tandem_k_runs.rs`](../../../rust/a/approximate_tandem_k_runs.rs) |

@@ -13,6 +13,8 @@ order. Invalid input returns `-1`; a null output pointer or capacity below n
 returns `-2` without writing output. The independent oracle is
 [`benchmarks/durbin_oracle.py`](../../durbin_oracle.py).
 
+The recurrence takes `O(n^2)` time and `O(n)` auxiliary space.
+
 ## Implementations
 
 | Language | Source |
@@ -21,6 +23,7 @@ returns `-2` without writing output. The independent oracle is
 | C3 | [c3/d/durbin.c3](../../../c3/d/durbin.c3) |
 | C++ | [cpp/d/durbin.cpp](../../../cpp/d/durbin.cpp) |
 | Elisa | [elisa/d/durbin.elisa](../../../elisa/d/durbin.elisa) |
+| Mojo | [mojo/d/durbin.mojo](../../../mojo/d/durbin.mojo) |
 | Nim | [nim/d/durbin.nim](../../../nim/d/durbin.nim) |
 | Odin | [odin/d/durbin.odin](../../../odin/d/durbin.odin) |
 | Rust | [rust/d/durbin.rs](../../../rust/d/durbin.rs) |

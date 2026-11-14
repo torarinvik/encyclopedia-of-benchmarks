@@ -10,6 +10,9 @@ The `i64_array_bytes_output` input is `[n, f[0..2^n), g[0..2^n)]`, with `0 <= n 
 
 The bounded domain keeps the full subset-indexed workload explicit while exercising the fast rank-transform algorithm. The result is exact modulo `P`; no floating-point arithmetic or probabilistic behavior is involved.
 
+The ranked-transform implementation takes `O(n^2 * 2^n)` time and
+`O(n * 2^n)` auxiliary space.
+
 ## Implementations
 
 | Language | Source |
@@ -18,6 +21,7 @@ The bounded domain keeps the full subset-indexed workload explicit while exercis
 | C3 | [`c3/f/fast_subset_convolution.c3`](../../../c3/f/fast_subset_convolution.c3) |
 | C++ | [`cpp/f/fast_subset_convolution.cpp`](../../../cpp/f/fast_subset_convolution.cpp) |
 | Elisa | [`elisa/f/fast_subset_convolution.elisa`](../../../elisa/f/fast_subset_convolution.elisa) |
+| Mojo | [`mojo/f/fast_subset_convolution.mojo`](../../../mojo/f/fast_subset_convolution.mojo) |
 | Nim | [`nim/f/fast_subset_convolution.nim`](../../../nim/f/fast_subset_convolution.nim) |
 | Odin | [`odin/f/fast_subset_convolution.odin`](../../../odin/f/fast_subset_convolution.odin) |
 | Rust | [`rust/f/fast_subset_convolution.rs`](../../../rust/f/fast_subset_convolution.rs) |

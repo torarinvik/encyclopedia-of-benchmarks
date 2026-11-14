@@ -32,6 +32,7 @@ Cases and expected scalar outputs are in [workload.json](workload.json). The ind
 | C3 | [`c3/s/shunting_yard.c3`](../../../c3/s/shunting_yard.c3) |
 | C++ | [`cpp/s/shunting_yard.cpp`](../../../cpp/s/shunting_yard.cpp) |
 | Elisa | [`elisa/p/shunting_yard.elisa`](../../../elisa/p/shunting_yard.elisa) |
+| Mojo | [`mojo/s/shunting_yard.mojo`](../../../mojo/s/shunting_yard.mojo) (draft; not compiled or run) |
 | Nim | [`nim/p/shunting_yard.nim`](../../../nim/p/shunting_yard.nim) |
 | Odin | [`odin/p/shunting_yard.odin`](../../../odin/p/shunting_yard.odin) |
 | Rust | [`rust/p/shunting_yard.rs`](../../../rust/p/shunting_yard.rs) |

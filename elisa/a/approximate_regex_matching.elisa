@@ -1,5 +1,6 @@
 // Layered edit-distance shortest paths over a supplied literal NFA.
 def approximate_regex_matching_impl(x: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if x.is_null(): return -1
     if length < 6 or length > 66: return -1
     sv:i64=x[0];ev:i64=x[1];tv:i64=x[2];kv:i64=x[3];startv:i64=x[4];acceptv:i64=x[5]
     if sv<2 or sv>8 or ev<1 or ev>16 or tv<0 or tv>12 or kv<0 or kv>3 or startv<0 or acceptv<0 or startv>=sv or acceptv>=sv or startv==acceptv:return -1
@@ -12,7 +13,7 @@ def approximate_regex_matching_impl(x: i64&, length: usize, output: mutable u8&,
         from[i]<-u.usize();to[i]<-v.usize();label[i]<-ch.u8()
         for j in 0..i: if from[i]==from[j] and to[i]==to[j] and label[i]==label[j]:return -1
     for i in 0..t:if x[ts+i]<1 or x[ts+i]>127:return -1
-    if capacity<t:return -2
+    if capacity<t or (t>0 and output.is_null()):return -2
     inf:usize=k+1;cur:mutable usize[8]=zeroed;next:mutable usize[8]=zeroed
     for q in 0..s:cur[q]<-inf
     for pos in 0..t:

@@ -33,6 +33,9 @@ The workload covers empty inputs, interleaving, duplicate tie stability,
 negative and boundary values, maximum sizes, malformed framing and ordering,
 and null, zero, short, exact, and maximum output capacities.
 
+Building and merging the chains take O(n) time and O(n) storage for n total
+nodes; relinking the already built chains uses O(1) additional space.
+
 ## Pinned source
 
 [TheAlgorithms/Java `MergeSortedSinglyLinkedList.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/lists/MergeSortedSinglyLinkedList.java)
@@ -46,6 +49,7 @@ at commit `e43ec3897e48f23843972d02cd05a5bb1b6864a2`.
 | C3 | [c3/m/merge_sorted_singly_linked_list.c3](../../c3/m/merge_sorted_singly_linked_list.c3) |
 | C++ | [cpp/m/merge_sorted_singly_linked_list.cpp](../../cpp/m/merge_sorted_singly_linked_list.cpp) |
 | Elisa | [elisa/m/merge_sorted_singly_linked_list.elisa](../../elisa/m/merge_sorted_singly_linked_list.elisa) |
+| Mojo | [mojo/m/merge_sorted_singly_linked_list.mojo](../../mojo/m/merge_sorted_singly_linked_list.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/merge_sorted_singly_linked_list.nim](../../nim/m/merge_sorted_singly_linked_list.nim) |
 | Odin | [odin/m/merge_sorted_singly_linked_list.odin](../../odin/m/merge_sorted_singly_linked_list.odin) |
 | Rust | [rust/m/merge_sorted_singly_linked_list.rs](../../rust/m/merge_sorted_singly_linked_list.rs) |

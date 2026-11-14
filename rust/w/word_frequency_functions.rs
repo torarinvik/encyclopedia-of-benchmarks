@@ -54,7 +54,7 @@ pub unsafe extern "C" fn word_frequency_functions(input: *const i64, length: usi
         if df<0||df>MAX_COUNT||n<0||n>MAX_COUNT||(smooth!=0&&smooth!=1){return -1;}
         if smooth==1&&n==0{kind=4;out_len=4;}else if smooth==0&&df==0{kind=3;out_len=4;}else if smooth==0&&n==0{kind=4;out_len=4;}else{let value=if smooth==1{1.0+(n as f64/(1+df) as f64).log10()}else{(n as f64/df as f64).log10()};kind=2;a=milli(value);}
     } else if op == 3 {
-        if length!=3||v[1]<0||v[1]>MAX_COUNT||v[2]<-MAX_COUNT||v[2]>MAX_COUNT{return -1;}
+        if length!=3||v[1]<0||v[1]>MAX_COUNT||v[2]< -MAX_COUNT||v[2]>MAX_COUNT{return -1;}
         kind=2;a=v[1]*v[2];
     } else { return -1; }
     if output.is_null()||capacity<out_len{return -2;}

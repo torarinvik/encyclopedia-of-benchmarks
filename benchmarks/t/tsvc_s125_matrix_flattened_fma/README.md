@@ -40,3 +40,4 @@ The independent oracle is [`benchmarks/tsvc_s125_matrix_flattened_fma_oracle.py`
 | Rust | [`tsvc_s125_matrix_flattened_fma.rs`](../../../rust/t/tsvc_s125_matrix_flattened_fma.rs) |
 | V | [`tsvc_s125_matrix_flattened_fma.v`](../../../v/t/tsvc_s125_matrix_flattened_fma.v) |
 | Zig | [`tsvc_s125_matrix_flattened_fma.zig`](../../../zig/t/tsvc_s125_matrix_flattened_fma.zig) |
+| Mojo | [`tsvc_s125_matrix_flattened_fma.mojo`](../../../mojo/t/tsvc_s125_matrix_flattened_fma.mojo) (draft, unverified) |

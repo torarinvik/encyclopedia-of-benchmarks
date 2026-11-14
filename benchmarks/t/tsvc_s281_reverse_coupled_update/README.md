@@ -64,3 +64,4 @@ length/range cases, and output errors. The independent oracle is
 | Rust | [`tsvc_s281_reverse_coupled_update.rs`](../../../rust/t/tsvc_s281_reverse_coupled_update.rs) |
 | V | [`tsvc_s281_reverse_coupled_update.v`](../../../v/t/tsvc_s281_reverse_coupled_update.v) |
 | Zig | [`tsvc_s281_reverse_coupled_update.zig`](../../../zig/t/tsvc_s281_reverse_coupled_update.zig) |
+| Mojo | [`tsvc_s281_reverse_coupled_update.mojo`](../../../mojo/t/tsvc_s281_reverse_coupled_update.mojo) |

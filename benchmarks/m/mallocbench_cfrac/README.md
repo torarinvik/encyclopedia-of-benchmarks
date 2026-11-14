@@ -14,6 +14,12 @@ The pinned launcher exercises Morrison–Brillhart continued-fraction factorizat
 
 The full factorization path remains data dependent: if a norm is not fully smooth, it contributes no relation. The iteration limit counts recurrence steps, not only smooth relations. The source's large 35- and 39-digit launch inputs are outside this portable profile.
 
+With `I` recurrence steps and `B` factor-base primes, relation collection,
+elimination, and dependency reconstruction take O(I² B + I B log n)
+bounded arithmetic operations, plus the factor-base prime scan. Stored
+relations use O(I B) space. The [Mojo port](../../../mojo/c/mallocbench_cfrac.mojo)
+is a draft and has not yet been compiled or executed.
+
 ## Workload and oracle
 
 [`workload.json`](workload.json) contains the hand-derived `n=91` relation case, a shorter bound that returns the original input, and invalid-domain cases. [`mallocbench_cfrac_oracle.py`](../../mallocbench_cfrac_oracle.py) uses Python integers, `math.isqrt`, and a dictionary-based GF(2) basis to compute bounded results independently.

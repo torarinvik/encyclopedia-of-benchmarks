@@ -34,12 +34,13 @@ def send_tight_level_flow(u: usize, sink: usize, limit: i64,
 
 def min_cost_max_flow_blocking_paths_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input == null || length < 5 || length > MCMF_MAX_INPUT: return -1
-    n_value: i64 = input[0]
-    m_value: i64 = input[1]
-    source_value: i64 = input[2]
-    sink_value: i64 = input[3]
-    flow_limit: i64 = input[4]
+    if input.is_null() or length < 5 or length > MCMF_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    source_value: i64 = values[2]
+    sink_value: i64 = values[3]
+    flow_limit: i64 = values[4]
     if n_value < 2 || n_value > 8 || m_value < 0 || m_value > 16: return -1
     m: usize = m_value.usize()
     if length != 5 + 4 * m: return -1
@@ -51,10 +52,10 @@ def min_cost_max_flow_blocking_paths_impl(input: i64&, length: usize,
     edges: mutable McmfEdge[32] = zeroed
     index: mutable usize = 0
     while index < m:
-        u_value: i64 = input[5 + 4 * index]
-        v_value: i64 = input[6 + 4 * index]
-        cap: i64 = input[7 + 4 * index]
-        cost: i64 = input[8 + 4 * index]
+        u_value: i64 = values[5 + 4 * index]
+        v_value: i64 = values[6 + 4 * index]
+        cap: i64 = values[7 + 4 * index]
+        cost: i64 = values[8 + 4 * index]
         if u_value < 0 || u_value >= n_value || v_value < 0 || v_value >= n_value ||
                 cap < 0 || cap > 5 || cost < 0 || cost > 20: return -1
         u: usize = u_value.usize()
@@ -71,7 +72,8 @@ def min_cost_max_flow_blocking_paths_impl(input: i64&, length: usize,
         edges[edge_index + 1].capacity <- 0
         edges[edge_index + 1].cost <- -cost
         index <- index + 1
-    if output == null || capacity < 16: return -2
+    if output.is_null() or capacity < 16: return -2
+    target: mutable view[u8] = output[0:16]
     total_flow: mutable i64 = 0
     total_cost: mutable i64 = 0
     while total_flow < flow_limit:
@@ -138,15 +140,15 @@ def min_cost_max_flow_blocking_paths_impl(input: i64&, length: usize,
                     edge <- edge + 1
             if level[sink] < 0: break
             amount: i64 = send_tight_level_flow(source, sink, flow_limit - total_flow,
-                edges, 2 * m, dist, level, current)
+                edges[0:2 * m], 2 * m, dist[0:n], level[0:n], current[0:n])
             if amount == 0: break
             total_flow <- total_flow + amount
             total_cost <- total_cost + amount * dist[sink]
     flow_bits: u64 = total_flow.u64()
     cost_bits: u64 = total_cost.u64()
     for byte in 0..<8:
-        output[byte] <- (flow_bits >> (8 * byte)).u8()
-        output[8 + byte] <- (cost_bits >> (8 * byte)).u8()
+        target[byte] <- (flow_bits >> (8 * byte)).u8()
+        target[8 + byte] <- (cost_bits >> (8 * byte)).u8()
     16
 
 export fn min_cost_max_flow_blocking_paths(input: i64&, input_length: usize,

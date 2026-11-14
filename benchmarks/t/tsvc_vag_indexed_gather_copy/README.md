@@ -66,3 +66,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_vag_indexed_gather_copy.rs`](../../../rust/t/tsvc_vag_indexed_gather_copy.rs) |
 | V | [`tsvc_vag_indexed_gather_copy.v`](../../../v/t/tsvc_vag_indexed_gather_copy.v) |
 | Zig | [`tsvc_vag_indexed_gather_copy.zig`](../../../zig/t/tsvc_vag_indexed_gather_copy.zig) |
+| Mojo | [`tsvc_vag_indexed_gather_copy.mojo`](../../../mojo/t/tsvc_vag_indexed_gather_copy.mojo) |

@@ -62,3 +62,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s291_cyclic_neighbor_average.rs`](../../../rust/t/tsvc_s291_cyclic_neighbor_average.rs) |
 | V | [`tsvc_s291_cyclic_neighbor_average.v`](../../../v/t/tsvc_s291_cyclic_neighbor_average.v) |
 | Zig | [`tsvc_s291_cyclic_neighbor_average.zig`](../../../zig/t/tsvc_s291_cyclic_neighbor_average.zig) |
+| Mojo | [`tsvc_s291_cyclic_neighbor_average.mojo`](../../../mojo/t/tsvc_s291_cyclic_neighbor_average.mojo) (draft, unverified) |

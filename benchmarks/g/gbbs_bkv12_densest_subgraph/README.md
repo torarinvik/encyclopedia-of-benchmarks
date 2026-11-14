@@ -51,6 +51,7 @@ All language ports are clean-room implementations.
 | C3 | `c3/g/gbbs_bkv12_densest_subgraph.c3` |
 | C++ | `cpp/g/gbbs_bkv12_densest_subgraph.cpp` |
 | Elisa | `elisa/g/gbbs_bkv12_densest_subgraph.elisa` |
+| Mojo | [`mojo/g/gbbs_bkv12_densest_subgraph.mojo`](../../../mojo/g/gbbs_bkv12_densest_subgraph.mojo) |
 | Nim | `nim/g/gbbs_bkv12_densest_subgraph.nim` |
 | Odin | `odin/g/gbbs_bkv12_densest_subgraph.odin` |
 | Rust | `rust/g/gbbs_bkv12_densest_subgraph.rs` |

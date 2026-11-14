@@ -28,3 +28,6 @@ training orchestration, and OpenMP scheduling are excluded. Malformed input
 returns `-1`; null output or insufficient capacity returns `-2` without
 writes. See `workload.json` and `../../graphai_cf_sgd_sweep_oracle.py`; the
 float64 suite uses an independent verifier oracle.
+
+The [Mojo draft](../../../mojo/g/graphai_cf_sgd_sweep.mojo) follows the same
+synchronous factor-update contract.

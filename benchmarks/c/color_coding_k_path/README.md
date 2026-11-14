@@ -8,6 +8,8 @@ The `i64_array_bytes_output` frame is `[n,m,k,colors[n],edges[2*m]]`. Graphs are
 
 The output is one little-endian signed-i64 Boolean: 1 if there is a simple path containing exactly `k` vertices with pairwise distinct colors, otherwise 0. The function returns 8, `-1` for malformed input, and `-2` for null or short output. Validation precedes capacity checks and output is written only on success.
 
+Null input returns `-1`. The verifier source specifies null input, short and null output, invalid-input precedence, and the complete 12-vertex graph; these checks have not been executed since the port corrections.
+
 ## Implementations
 
 | Language | Source |
@@ -16,6 +18,7 @@ The output is one little-endian signed-i64 Boolean: 1 if there is a simple path 
 | C3 | [`c3/c/color_coding_k_path.c3`](../../../c3/c/color_coding_k_path.c3) |
 | C++ | [`cpp/c/color_coding_k_path.cpp`](../../../cpp/c/color_coding_k_path.cpp) |
 | Elisa | [`elisa/c/color_coding_k_path.elisa`](../../../elisa/c/color_coding_k_path.elisa) |
+| Mojo | [`mojo/c/color_coding_k_path.mojo`](../../../mojo/c/color_coding_k_path.mojo) (draft, unverified) |
 | Nim | [`nim/c/color_coding_k_path.nim`](../../../nim/c/color_coding_k_path.nim) |
 | Odin | [`odin/c/color_coding_k_path.odin`](../../../odin/c/color_coding_k_path.odin) |
 | Rust | [`rust/c/color_coding_k_path.rs`](../../../rust/c/color_coding_k_path.rs) |

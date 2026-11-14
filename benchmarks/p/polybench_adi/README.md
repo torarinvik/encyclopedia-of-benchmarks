@@ -22,6 +22,7 @@ The pinned source bundle is covered by the Ohio State University Software Distri
 | C3 | [c3/p/polybench_adi.c3](../../../c3/p/polybench_adi.c3) |
 | C++ | [cpp/p/polybench_adi.cpp](../../../cpp/p/polybench_adi.cpp) |
 | Elisa | [elisa/p/polybench_adi.elisa](../../../elisa/p/polybench_adi.elisa) |
+| Mojo | [mojo/p/polybench_adi.mojo](../../../mojo/p/polybench_adi.mojo) |
 | Nim | [nim/p/polybench_adi.nim](../../../nim/p/polybench_adi.nim) |
 | Odin | [odin/p/polybench_adi.odin](../../../odin/p/polybench_adi.odin) |
 | Rust | [rust/p/polybench_adi.rs](../../../rust/p/polybench_adi.rs) |

@@ -3,11 +3,12 @@ const MAX_VERTICES: usize = 16
 const MAX_CAPACITY: i64 = 1000000
 
 export def edmonds_karp(input: i64&, length: usize) -> i64:
-    if length < 3:
+    if input.is_null() or length < 3 or length > 259:
         return -1
-    n64: i64 = input[0]
-    source64: i64 = input[1]
-    sink64: i64 = input[2]
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    source64: i64 = values[1]
+    sink64: i64 = values[2]
     if n64 < 1 or n64 > 16 or source64 < 0 or source64 >= n64 or sink64 < 0 or sink64 >= n64:
         return -1
     n: usize = n64.usize()
@@ -19,7 +20,7 @@ export def edmonds_karp(input: i64&, length: usize) -> i64:
     while row < n:
         column: mutable usize = 0
         while column < n:
-            capacity: i64 = input[3 + row * n + column]
+            capacity: i64 = values[3 + row * n + column]
             if capacity < 0 or capacity > MAX_CAPACITY or (row == column and capacity != 0):
                 return -1
             residual[row * n + column] <- capacity

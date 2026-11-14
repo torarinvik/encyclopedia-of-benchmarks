@@ -9,5 +9,5 @@ fn long counting_triangles_stream_reservoir(long* input,usz length,uint8* output
     usz base=2+2*m;for(usz t=1;t<=m;t++)for(usz s=0;s<2;s++){long r=input[base+2*(t-1)+s];if(r<0||r>=(long)t)return -1;}
     long[2][2] slots;slots[0][0]=-1;slots[0][1]=-1;slots[1][0]=-1;slots[1][1]=-1;long[112] staged;usz at=0;
     for(usz t=1;t<=m;t++){for(usz s=0;s<2;s++)if(input[base+2*(t-1)+s]==0){slots[s][0]=edges[t-1][0];slots[s][1]=edges[t-1][1];}for(usz s=0;s<2;s++){staged[at]=slots[s][0];at++;staged[at]=slots[s][1];at++;}}
-    usz bytes=16*m;if(output==null||capacity<bytes)return -2;for(usz i=0;i<at;i++)put_i64(output+8*i,staged[i]);return (long)bytes;
+    usz bytes=32*m;if(output==null||capacity<bytes)return -2;for(usz i=0;i<at;i++)put_i64(output+8*i,staged[i]);return (long)bytes;
 }

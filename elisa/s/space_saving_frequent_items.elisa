@@ -1,0 +1,71 @@
+def space_saving_frequent_items_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 67: return -1
+    values: view[i64] = input[0:length]
+    kr: i64 = values[0]
+    nr: i64 = values[1]
+    if kr < 1 or kr > 8 or nr < 0 or nr > 64: return -1
+    k: usize = kr.usize()
+    n: usize = nr.usize()
+    if length != 2 + n: return -1
+    for i in 0..<n:
+        if values[2 + i] < -1000 or values[2 + i] > 1000: return -1
+    items: mutable i64[8] = zeroed
+    counts: mutable i64[8] = zeroed
+    errors: mutable i64[8] = zeroed
+    used: mutable usize = 0
+    for i in 0..<n:
+        item: i64 = values[2 + i]
+        slot: mutable usize = 0
+        while slot < used and items[slot] != item: slot <- slot + 1
+        if slot < used:
+            counts[slot] <- counts[slot] + 1
+        elif used < k:
+            items[used] <- item
+            counts[used] <- 1
+            errors[used] <- 0
+            used <- used + 1
+        else:
+            victim: mutable usize = 0
+            for j in 1..<used:
+                if counts[j] < counts[victim] or (counts[j] == counts[victim] and items[j] < items[victim]): victim <- j
+            minimum: i64 = counts[victim]
+            items[victim] <- item
+            counts[victim] <- minimum + 1
+            errors[victim] <- minimum
+    i: mutable usize = 1
+    while i < used:
+        item: i64 = items[i]
+        count: i64 = counts[i]
+        error: i64 = errors[i]
+        j: mutable usize = i
+        while j > 0 and items[j - 1] > item:
+            items[j] <- items[j - 1]
+            counts[j] <- counts[j - 1]
+            errors[j] <- errors[j - 1]
+            j <- j - 1
+        items[j] <- item
+        counts[j] <- count
+        errors[j] <- error
+        i <- i + 1
+    words: usize = 1 + 3 * used
+    bytes: usize = 8 * words
+    if output.is_null() or capacity < bytes: return -2
+    target: mutable view[u8] = output[0:bytes]
+    fields: mutable i64[25] = zeroed
+    fields[0] <- used.i64()
+    for i in 0..<used:
+        fields[1 + 3 * i] <- items[i]
+        fields[2 + 3 * i] <- counts[i]
+        fields[3 + 3 * i] <- errors[i]
+    staged: mutable u8[200] = zeroed
+    for i in 0..<words:
+        bits: mutable u64 = fields[i].u64()
+        for b in 0..<8:
+            staged[8 * i + b] <- (bits & 255).u8()
+            bits <- bits >> 8
+    for i in 0..<bytes: target[i] <- staged[i]
+    bytes.i64()
+
+export fn space_saving_frequent_items(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = space_saving_frequent_items_impl

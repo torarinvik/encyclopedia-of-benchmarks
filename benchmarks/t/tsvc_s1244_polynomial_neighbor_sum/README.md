@@ -69,3 +69,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s1244_polynomial_neighbor_sum.rs`](../../../rust/t/tsvc_s1244_polynomial_neighbor_sum.rs) |
 | V | [`tsvc_s1244_polynomial_neighbor_sum.v`](../../../v/t/tsvc_s1244_polynomial_neighbor_sum.v) |
 | Zig | [`tsvc_s1244_polynomial_neighbor_sum.zig`](../../../zig/t/tsvc_s1244_polynomial_neighbor_sum.zig) |
+| Mojo | [`tsvc_s1244_polynomial_neighbor_sum.mojo`](../../../mojo/t/tsvc_s1244_polynomial_neighbor_sum.mojo) |

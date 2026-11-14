@@ -52,6 +52,12 @@ upstream notice below.
 nonzero MTF ranks, inverse runs, malformed alphabet/token streams, null
 pointers, and output-capacity errors. The independent oracle is
 [`cbench_bzip2_mtf_rle_oracle.py`](../../cbench_bzip2_mtf_rle_oracle.py).
+The verifier also specifies mixed-symbol round trips and every supported
+single-symbol run length; these checks have not been run.
+
+For a block of length n and alphabet size a, both modes use O(na) time for
+move-to-front searches and shifts, with O(n+a) auxiliary space including
+staged output.
 
 ## Upstream license notice
 
@@ -102,6 +108,7 @@ bzip2/libbzip2 version 1.0.4 of 20 December 2006
 | C3 | [`c3/cbench_bzip2_mtf_rle.c3`](../../../c3/c/cbench_bzip2_mtf_rle.c3) |
 | C++ | [`cpp/cbench_bzip2_mtf_rle.cpp`](../../../cpp/c/cbench_bzip2_mtf_rle.cpp) |
 | Elisa | [`elisa/cbench_bzip2_mtf_rle.elisa`](../../../elisa/c/cbench_bzip2_mtf_rle.elisa) |
+| Mojo | [`mojo/cbench_bzip2_mtf_rle.mojo`](../../../mojo/c/cbench_bzip2_mtf_rle.mojo) (uncompiled draft) |
 | Nim | [`nim/cbench_bzip2_mtf_rle.nim`](../../../nim/c/cbench_bzip2_mtf_rle.nim) |
 | Odin | [`odin/cbench_bzip2_mtf_rle.odin`](../../../odin/c/cbench_bzip2_mtf_rle.odin) |
 | Rust | [`rust/cbench_bzip2_mtf_rle.rs`](../../../rust/c/cbench_bzip2_mtf_rle.rs) |

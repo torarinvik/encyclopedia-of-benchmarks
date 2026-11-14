@@ -12,8 +12,12 @@ The output workspace is sized for the bounded profile. The sweep is deliberately
 
 ## Source and license
 
-The sweep and diagram representation are based on Mathias Westerdahl's `JCash/voronoi` implementation, pinned at [`28bcb7b5d7c1bb0f1a74e97f233c67afb5b48179`](https://github.com/JCash/voronoi/tree/28bcb7b5d7c1bb0f1a74e97f233c67afb5b48179). Its README identifies Fortune's sweep algorithm, and its `LICENSE` grants use, modification, and redistribution under the MIT terms. The full upstream notice is retained in [LICENSE.txt](LICENSE.txt). This package uses a bounded linked-list beachline and exact rational clipping/canonicalization to make outputs comparable across the nine language ports.
+The sweep and diagram representation are based on Mathias Westerdahl's `JCash/voronoi` implementation, pinned at [`28bcb7b5d7c1bb0f1a74e97f233c67afb5b48179`](https://github.com/JCash/voronoi/tree/28bcb7b5d7c1bb0f1a74e97f233c67afb5b48179). Its README identifies Fortune's sweep algorithm, and its `LICENSE` grants use, modification, and redistribution under the MIT terms. The full upstream notice is retained in [LICENSE.txt](LICENSE.txt). This package uses a bounded linked-list beachline and rational clipping/canonicalization to make outputs comparable across ports.
 
 ## Measurement profile
 
 The benchmark ABI is `i64_array_bytes_output`. The bounded workload fixtures cover one-site, two-site, triangular, and four-site diagrams. The upstream `jc_voronoi` library supports much larger inputs; this package intentionally limits the profile for portable static-array implementations.
+
+A [Mojo draft](../../../mojo/f/fortune_voronoi.mojo) is now present alongside
+the other nine ports. It has not been compiled or run; its exact-arithmetic
+intermediates and sweep behavior require verification.

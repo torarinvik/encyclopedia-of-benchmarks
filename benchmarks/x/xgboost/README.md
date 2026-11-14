@@ -7,3 +7,5 @@ The compact model is synthetic and source-shaped, not copied from the pinned MNI
 Input is 64 signed 64-bit values in `[0,255]`; other lengths or values return `-1`. Output is a class index in `[0,2]`, with ties resolved toward the lowest index. The oracle is `benchmarks/xgboost_oracle.py`; fixtures are in [`workload.json`](workload.json).
 
 Pinned source: [Embench-IoT commit `09c2ed8c3b7008c95d08b038de4a3f6dc103ed70`, `src/xgboost/xgboost.c`](https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/xgboost/xgboost.c), with `xgboost.h` and `testbench.c`. The source is SPDX GPL-3.0-or-later, credits Zachary Susskind and Konrad Moron; full license and attribution are bundled in [`LICENSE.txt`](LICENSE.txt) and [`NOTICE.txt`](NOTICE.txt). These ports independently implement the documented bounded profile.
+
+The Mojo draft is [`mojo/x/xgboost.mojo`](../../../mojo/x/xgboost.mojo). For this fixed model, validation and inference take O(64 + trees × depth) time and O(1) bounded space.

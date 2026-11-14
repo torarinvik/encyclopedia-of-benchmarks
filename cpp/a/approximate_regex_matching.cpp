@@ -3,7 +3,7 @@
 #include <cstdint>
 
 extern "C" int64_t approximate_regex_matching(const int64_t*x,size_t len,uint8_t*out,size_t cap){
- if(!x)return -2;if(len<6||len>66)return -1;
+ if(!x)return -1;if(len<6||len>66)return -1;
  auto sv=x[0],ev=x[1],tv=x[2],kv=x[3],stv=x[4],av=x[5];
  if(sv<2||sv>8||ev<1||ev>16||tv<0||tv>12||kv<0||kv>3||stv<0||av<0||stv>=sv||av>=sv||stv==av)return -1;
  size_t s=sv,e=ev,t=tv,k=kv,start=stv,accept=av,ts=6+3*e;if(len!=ts+t)return -1;

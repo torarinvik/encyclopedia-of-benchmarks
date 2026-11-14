@@ -64,7 +64,7 @@ proc makeHull(points: var array[MaxSites,Point], n:int, hull: var array[MaxSites
 
 proc packCircle(points: array[MaxSites,Point], hull: array[MaxSites*2,int]): int64 =
   let tri=[points[hull[0]],points[hull[1]],points[hull[2]]]
-  let sides=[length2(tri[0],tri[1]),length2(tri[1],tri[2]),length2(tri[0],tri[2])]
+  let sides=[length2(tri[1],tri[2]),length2(tri[0],tri[2]),length2(tri[0],tri[1])]
   var opposite=0; var u=1; var v=2; var longest=sides[0]
   if sides[1]>longest: longest=sides[1]; opposite=1; u=0; v=2
   if sides[2]>longest: longest=sides[2]; opposite=2; u=0; v=1

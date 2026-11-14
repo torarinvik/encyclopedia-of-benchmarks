@@ -103,6 +103,7 @@ def ss_ifft(a: mutable view[i64], l: usize, m: usize, buf: mutable view[i64]) ->
             w <- w - dw[ss_ctz(k)]
             if w < 0: w <- w + 2 * block.i64()
         d <- d * 2
+    for i in 0..<len * block: a[i] <- a[i] / len.i64()
 
 def ss_naive(a: mutable view[i64], b: view[i64], n: usize, buf: mutable view[i64]) -> void:
     size: usize = 1 << n
@@ -139,7 +140,7 @@ def ss_mul(a: mutable view[i64], b: view[i64], n: usize, buf: mutable view[i64])
     for i in 0..<len: ss_mul(aa[i * block * 2:i * block * 2 + 2 * block], bb[i * block * 2:i * block * 2 + 2 * block], m + 1, buf)
     ss_ifft(aa[0:SCRATCH_SIZE], l, m + 1, buf)
     for i in 0..<len:
-        s: usize = i * (2 * block / len)
+        s: usize = (4 * block - (i * (2 * block / len)) % (4 * block)) % (4 * block)
         ss_copy(buf[0:2 * block], aa[i * block * 2:i * block * 2 + 2 * block], 2 * block)
         ss_rot(aa[i * block * 2:i * block * 2 + 2 * block], buf[0:2 * block], 2 * block, s)
     for i in 0..<len:

@@ -70,3 +70,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s256_array_expansion.rs`](../../../rust/t/tsvc_s256_array_expansion.rs) |
 | V | [`tsvc_s256_array_expansion.v`](../../../v/t/tsvc_s256_array_expansion.v) |
 | Zig | [`tsvc_s256_array_expansion.zig`](../../../zig/t/tsvc_s256_array_expansion.zig) |
+| Mojo | [`tsvc_s256_array_expansion.mojo`](../../../mojo/t/tsvc_s256_array_expansion.mojo) |

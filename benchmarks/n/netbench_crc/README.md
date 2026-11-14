@@ -8,6 +8,8 @@ The launcher’s packet generation, 10,000-entry packet data tables, loop count,
 
 The independent expected-value model is [`benchmarks/netbench_crc_oracle.py`](../../netbench_crc_oracle.py). The checked workload is [`workload.json`](workload.json).
 
+For n input bytes, table generation and the update take O(256 × 8 + n) time and O(256) space. The [Mojo draft](../../../mojo/n/netbench_crc.mojo) has not been compiled or run.
+
 The package uses the `i64_array_scalar` ABI family:
 
 ```sh

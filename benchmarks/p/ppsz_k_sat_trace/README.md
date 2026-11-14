@@ -26,6 +26,7 @@ Source attribution: Timon Hertli, “Unique k-SAT and General k-SAT,” *Encyclo
 | C3 | [`c3/p/ppsz_k_sat_trace.c3`](../../../c3/p/ppsz_k_sat_trace.c3) |
 | C++ | [`cpp/p/ppsz_k_sat_trace.cpp`](../../../cpp/p/ppsz_k_sat_trace.cpp) |
 | Elisa | [`elisa/p/ppsz_k_sat_trace.elisa`](../../../elisa/p/ppsz_k_sat_trace.elisa) |
+| Mojo | [`mojo/p/ppsz_k_sat_trace.mojo`](../../../mojo/p/ppsz_k_sat_trace.mojo) |
 | Nim | [`nim/p/ppsz_k_sat_trace.nim`](../../../nim/p/ppsz_k_sat_trace.nim) |
 | Odin | [`odin/p/ppsz_k_sat_trace.odin`](../../../odin/p/ppsz_k_sat_trace.odin) |
 | Rust | [`rust/p/ppsz_k_sat_trace.rs`](../../../rust/p/ppsz_k_sat_trace.rs) |

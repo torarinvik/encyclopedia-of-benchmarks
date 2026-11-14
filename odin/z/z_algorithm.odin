@@ -2,12 +2,12 @@ package z_algorithm
 
 import "core:c"
 
-MAX_LENGTH :: 2047
+MAX_LENGTH :: 4095
 
 @(export)
 z_algorithm :: proc "c" (input: [^]i64, length: c.size_t,
 		output: [^]u8, output_capacity: c.size_t) -> i64 {
-	if input == nil || length < 1 || length > 2048 do return -1
+	if input == nil || length < 1 || length > 4096 do return -1
 	if input[0] < 0 || input[0] > MAX_LENGTH do return -1
 	count := c.size_t(input[0])
 	if length != count + 1 do return -1

@@ -16,7 +16,7 @@ This benchmark is distinct from generic explicit-edge MST benchmarks such as `pr
 
 ## Taxonomy and limits
 
-The task is classified as a Manhattan MST following [Library Checker: Manhattan MST](https://judge.yosupo.jp/problem/manhattanmst). This package deliberately uses a small complete-graph Prim profile instead of a geometry-specific candidate-edge reduction. The bounded profile makes the distance rule and MST result directly comparable across the nine language ports.
+The task is classified as a Manhattan MST following [Library Checker: Manhattan MST](https://judge.yosupo.jp/problem/manhattanmst). This package deliberately uses a small complete-graph Prim profile instead of a geometry-specific candidate-edge reduction. The bounded profile makes the distance rule and MST result directly comparable across language ports.
 
 The package oracle uses Kruskal on the explicitly generated complete metric graph as an independent workload reference. The published [`workload.json`](workload.json) includes singleton, tied-distance, duplicate-point, coordinate-boundary, maximum-size, and malformed-input cases.
 
@@ -28,6 +28,7 @@ The package oracle uses Kruskal on the explicitly generated complete metric grap
 | C3 | [c3/m/manhattan_mst.c3](../../../c3/m/manhattan_mst.c3) |
 | C++ | [cpp/m/manhattan_mst.cpp](../../../cpp/m/manhattan_mst.cpp) |
 | Elisa | [elisa/m/manhattan_mst.elisa](../../../elisa/m/manhattan_mst.elisa) |
+| Mojo | [mojo/m/manhattan_mst.mojo](../../../mojo/m/manhattan_mst.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/manhattan_mst.nim](../../../nim/m/manhattan_mst.nim) |
 | Odin | [odin/m/manhattan_mst.odin](../../../odin/m/manhattan_mst.odin) |
 | Rust | [rust/m/manhattan_mst.rs](../../../rust/m/manhattan_mst.rs) |

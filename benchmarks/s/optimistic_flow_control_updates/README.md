@@ -37,8 +37,13 @@ rational rates for at most three sessions and six updates; outputs are reduced
 fractions. This profile is distinct from static max-min allocation and from
 max-min widest-path graph algorithms.
 
+For n sessions, l links, and q updates, the direct scheduler and breakpoint
+scans take O(q ln²) time and O(nl) space in this bounded profile.
+
 ## Files
 
 The nine ports are under `c/s`, `cpp/s`, `rust/s`, `c3/s`, `nim/s`, `odin/s`,
 `elisa/s`, `v/s`, and `zig/s`. The workload, primary Fraction oracle, and
 independent breakpoint verifier define the bounded trace.
+
+The [Mojo port](../../../mojo/s/optimistic_flow_control_updates.mojo) is a draft and has not been compiled or run.

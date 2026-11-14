@@ -24,6 +24,9 @@ This is a bounded, deterministic finite-metric projection of the work-function
 algorithm, not a randomized workload. The configuration space and all tie rules
 are explicit. No source code or book prose is copied.
 
+With C possible configurations and q requests, the work-function updates use
+O(q C² k!) time and O(C + qk) extra space, with k at most three.
+
 Source: “Work-Function Algorithm for k-Servers,” *Encyclopedia of Algorithms*,
 DOI [`10.1007/978-1-4939-2864-4_484`](https://doi.org/10.1007/978-1-4939-2864-4_484).
 
@@ -35,6 +38,7 @@ DOI [`10.1007/978-1-4939-2864-4_484`](https://doi.org/10.1007/978-1-4939-2864-4_
 | C3 | `c3/w/work_function_k_server.c3` |
 | C++ | `cpp/w/work_function_k_server.cpp` |
 | Elisa | `elisa/w/work_function_k_server.elisa` |
+| Mojo | [`mojo/w/work_function_k_server.mojo`](../../../mojo/w/work_function_k_server.mojo) (draft; not compiled or run) |
 | Nim | `nim/w/work_function_k_server.nim` |
 | Odin | `odin/w/work_function_k_server.odin` |
 | Rust | `rust/w/work_function_k_server.rs` |

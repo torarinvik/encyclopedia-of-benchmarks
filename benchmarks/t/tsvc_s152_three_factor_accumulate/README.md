@@ -67,3 +67,4 @@ and [`workload.json`](workload.json).
 | Rust | [`tsvc_s152_three_factor_accumulate.rs`](../../../rust/t/tsvc_s152_three_factor_accumulate.rs) |
 | V | [`tsvc_s152_three_factor_accumulate.v`](../../../v/t/tsvc_s152_three_factor_accumulate.v) |
 | Zig | [`tsvc_s152_three_factor_accumulate.zig`](../../../zig/t/tsvc_s152_three_factor_accumulate.zig) |
+| Mojo | [`tsvc_s152_three_factor_accumulate.mojo`](../../../mojo/t/tsvc_s152_three_factor_accumulate.mojo) |

@@ -38,3 +38,4 @@ Python oracle is [`trimaran_netbench_url_internet_checksum_oracle.py`](../../tri
 | Rust | [`rust/t/trimaran_netbench_url_internet_checksum.rs`](../../../rust/t/trimaran_netbench_url_internet_checksum.rs) |
 | V | [`v/t/trimaran_netbench_url_internet_checksum.v`](../../../v/t/trimaran_netbench_url_internet_checksum.v) |
 | Zig | [`zig/t/trimaran_netbench_url_internet_checksum.zig`](../../../zig/t/trimaran_netbench_url_internet_checksum.zig) |
+| Mojo | [`mojo/t/trimaran_netbench_url_internet_checksum.mojo`](../../../mojo/t/trimaran_netbench_url_internet_checksum.mojo) (draft, unverified) |

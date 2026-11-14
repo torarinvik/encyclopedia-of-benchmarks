@@ -42,8 +42,9 @@ The 3.1 header identifies John Tromp and states:
 > if your distributees have the same rights and restrictions.
 
 The pinned directories do not contain a separate license file. Each of the
-nine language ports retains both complete source copyright and redistribution
-notices in its source header. The package follows the no-sale restriction and
+original nine language ports retains both complete source copyright and redistribution
+notices in its source header. The independently written Mojo draft points to
+this file for those notices. The package follows the no-sale restriction and
 keeps the redistribution condition visible here and in the README.
 
 ## Port scope

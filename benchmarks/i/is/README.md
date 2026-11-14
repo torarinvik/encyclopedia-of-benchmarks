@@ -6,6 +6,8 @@ The pinned Lua `is` function returns true only for a number whose value is integ
 
 Input is a one-element array `[n]` with any signed 64-bit integer. Output is 1 iff `0 <= n < 2^53`, otherwise 0. A null input or invalid array shape returns -1.
 
+The range check takes O(1) time and O(1) extra space.
+
 See [workload](workload.json), [independent oracle](../../is_oracle.py), and pinned [Lua source](https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/bit/uint53/is.lua).
 
 | Language | Port |
@@ -14,6 +16,7 @@ See [workload](workload.json), [independent oracle](../../is_oracle.py), and pin
 | C3 | [`c3/i/uint53_is.c3`](../../../c3/i/uint53_is.c3) |
 | C++ | [`cpp/i/uint53_is.cpp`](../../../cpp/i/uint53_is.cpp) |
 | Elisa | [`elisa/i/uint53_is.elisa`](../../../elisa/i/uint53_is.elisa) |
+| Mojo | [`mojo/i/uint53_is.mojo`](../../../mojo/i/uint53_is.mojo) (draft; not compiled or run) |
 | Nim | [`nim/i/uint53_is.nim`](../../../nim/i/uint53_is.nim) |
 | Odin | [`odin/i/uint53_is.odin`](../../../odin/i/uint53_is.odin) |
 | Rust | [`rust/i/uint53_is.rs`](../../../rust/i/uint53_is.rs) |

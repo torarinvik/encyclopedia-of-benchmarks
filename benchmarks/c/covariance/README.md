@@ -8,12 +8,15 @@ Input is a two-element signed 64-bit array. The observation count is bounded to 
 
 The source defaults to binary64. Its launcher does not select a dataset flag, so the header's default LARGE profile is `m=1200`, `n=1400`; this suite profile bounds both dimensions to at most 64. Source and launcher are pinned to upstream commit [`5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/datamining/covariance). Ports are independently written.
 
+The calculation takes `O(n*m^2)` time and `O(n*m + m^2)` space.
+
 | Language | Port |
 |---|---|
 | C | [`c/c/covariance.c`](../../../c/c/covariance.c) |
 | C3 | [`c3/c/covariance.c3`](../../../c3/c/covariance.c3) |
 | C++ | [`cpp/c/covariance.cpp`](../../../cpp/c/covariance.cpp) |
 | Elisa | [`elisa/c/covariance.elisa`](../../../elisa/c/covariance.elisa) |
+| Mojo | [`mojo/c/covariance.mojo`](../../../mojo/c/covariance.mojo) |
 | Nim | [`nim/c/covariance.nim`](../../../nim/c/covariance.nim) |
 | Odin | [`odin/c/covariance.odin`](../../../odin/c/covariance.odin) |
 | Rust | [`rust/c/covariance.rs`](../../../rust/c/covariance.rs) |

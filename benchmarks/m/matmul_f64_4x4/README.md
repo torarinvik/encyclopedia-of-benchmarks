@@ -8,6 +8,8 @@ The `float64_slice_io` symbol is `matmul_f64_4x4(input, input_length, output, ou
 
 The independent [oracle](../../matmul_f64_4x4_oracle.py) computes the fixed matrix product in row-major order. [workload.json](workload.json) covers the first, repeated, and maximum bounded iteration counts plus malformed inputs and output-buffer errors.
 
+For I requested iterations, the source-level loop performs O(I) work and uses O(1) space because the matrices have fixed size. As with other repeated fixed-input kernels, compiler optimization can affect the actual amount of work performed.
+
 ## Pinned source
 
 - [matmul_f64_4x4.c at the pinned commit](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/matmul_f64_4x4/matmul_f64_4x4.c)
@@ -21,6 +23,7 @@ The independent [oracle](../../matmul_f64_4x4_oracle.py) computes the fixed matr
 | C3 | [c3/m/matmul_f64_4x4.c3](../../../c3/m/matmul_f64_4x4.c3) |
 | C++ | [cpp/m/matmul_f64_4x4.cpp](../../../cpp/m/matmul_f64_4x4.cpp) |
 | Elisa | [elisa/m/matmul_f64_4x4.elisa](../../../elisa/m/matmul_f64_4x4.elisa) |
+| Mojo | [mojo/m/matmul_f64_4x4.mojo](../../../mojo/m/matmul_f64_4x4.mojo) (draft; not compiled or run) |
 | Nim | [nim/m/matmul_f64_4x4.nim](../../../nim/m/matmul_f64_4x4.nim) |
 | Odin | [odin/m/matmul_f64_4x4.odin](../../../odin/m/matmul_f64_4x4.odin) |
 | Rust | [rust/m/matmul_f64_4x4.rs](../../../rust/m/matmul_f64_4x4.rs) |

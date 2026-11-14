@@ -11,10 +11,10 @@ pub unsafe extern "C" fn private_noisy_power_iteration(input:*const i64,length:u
     if n64<2||n64>MAX_N as i64||l64<1||l64>MAX_L as i64||sigma<0||sigma>S||length!=3+n64 as usize*n64 as usize+n64 as usize+l64 as usize*n64 as usize{return -1;}
     let n=n64 as usize;let rounds=l64 as usize;let vstart=3+n*n;let nstart=vstart+n;
     let mut a=[0i64;MAX_N*MAX_N];let mut x=[0i64;MAX_N];let mut noise=[0i64;MAX_L*MAX_N];
-    for i in 0..n*n{a[i]=*input.add(3+i);if a[i]<-S||a[i]>S{return -1;}}
+    for i in 0..n*n{a[i]=*input.add(3+i);if a[i]< -S||a[i]>S{return -1;}}
     for i in 0..n{for j in 0..n{if a[i*n+j]!=a[j*n+i]{return -1;}}}
-    let mut norm=0i64;for i in 0..n{x[i]=*input.add(vstart+i);if x[i]<-S||x[i]>S{return -1;}norm+=x[i]*x[i];}if norm!=S*S{return -1;}
-    for i in 0..rounds*n{noise[i]=*input.add(nstart+i);if noise[i]<-2*S||noise[i]>2*S{return -1;}}
+    let mut norm=0i64;for i in 0..n{x[i]=*input.add(vstart+i);if x[i]< -S||x[i]>S{return -1;}norm+=x[i]*x[i];}if norm!=S*S{return -1;}
+    for i in 0..rounds*n{noise[i]=*input.add(nstart+i);if noise[i]< -2*S||noise[i]>2*S{return -1;}}
     let mut y=[0i64;MAX_N];
     for step in 0..rounds{let mut norm_sq=0i64;for i in 0..n{let mut sum=sigma*noise[step*n+i];for j in 0..n{sum+=a[i*n+j]*x[j];}y[i]=trunc_div(sum,S);norm_sq+=y[i]*y[i];}if norm_sq==0{return -1;}let radius=floor_sqrt(norm_sq);for i in 0..n{x[i]=trunc_div(y[i]*S,radius);}}
     let bytes=8*n;if output.is_null()||capacity<bytes{return -2;}let mut staged=[0u8;8*MAX_N];for i in 0..n{put64(staged.as_mut_ptr(),8*i,x[i]);}for i in 0..bytes{*output.add(i)=staged[i];}bytes as i64

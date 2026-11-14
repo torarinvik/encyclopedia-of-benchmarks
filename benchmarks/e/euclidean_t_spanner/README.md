@@ -27,6 +27,10 @@ source's bounding-box sphere rule
 Representatives are the smallest original input indices in their nodes.
 These deterministic choices may differ from ParGeo's in-place partition
 order while preserving the separation rule and t-stretch guarantee.
+For the bounded implementation, tree construction takes O(n² log n) time
+using insertion-sorted median partitions in the worst case; enumerating the
+decomposition takes O(n²) time and can emit O(n²) edges. The tree and
+output require O(n²) space including the output edge list.
 
 The existing [`wspd`](../wspd/README.md) benchmark returns decomposition
 pairs as point masks. This package instead turns each pair into a graph edge
@@ -41,3 +45,4 @@ licensed; the complete notice is bundled in [`LICENSE.txt`](LICENSE.txt).
 
 [`workload.json`](workload.json) contains fixtures and limits. The independent
 oracle is [`euclidean_t_spanner_oracle.py`](../../euclidean_t_spanner_oracle.py).
+The Mojo port is a draft and has not been compiled or run.

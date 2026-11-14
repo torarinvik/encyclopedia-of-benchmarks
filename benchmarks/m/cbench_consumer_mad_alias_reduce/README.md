@@ -36,6 +36,9 @@ right result. Output length and successful return value are `64 *
 boundary_count` bytes, at most 256. Invalid input returns `-1`; null output or
 insufficient capacity returns `-2`. Every error leaves output untouched.
 
+For B boundaries, the profile takes O(B) time and O(B) space to stage input.
+The [Mojo draft](../../../mojo/m/cbench_consumer_mad_alias_reduce.mojo) has not been compiled or run.
+
 The zero fixture and a single 4096-unit impulse have hand-derived results.
 The independent oracle models the fixed-point arithmetic directly rather
 than using libmad source code. `workload.json` defines malformed-length,

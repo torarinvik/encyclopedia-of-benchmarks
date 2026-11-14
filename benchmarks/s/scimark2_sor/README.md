@@ -4,7 +4,7 @@ This package ports the SciMark2 C kernel's in-place two-dimensional
 successive-over-relaxation update. The pinned SciMark driver calls the kernel
 with fixed `omega = 1.25`; the bounded profile retains that non-unit value,
 the five-point stencil, and the source's pass/row/column order. It is distinct
-from the local [`gauss_seidel_method`](../gauss_seidel_method/README.md): that
+from the local [`gauss_seidel_method`](../../g/gauss_seidel_method/README.md): that
 package solves a bounded linear system with unweighted coordinate updates
 (`omega = 1`), while this kernel performs a weighted 2D grid relaxation.
 
@@ -29,6 +29,8 @@ is explicit and deterministic; random matrix initialization, timing, cycle
 doubling, and the benchmark's Mflop reporting are outside the kernel contract.
 The independent Python [oracle](../../scimark2_sor_oracle.py) applies the
 recurrence with a separately defined truncation-toward-zero helper.
+
+The Mojo draft is [`mojo/s/scimark2_sor.mojo`](../../../mojo/s/scimark2_sor.mojo). It has not been compiled or run.
 
 ## Provenance and rights
 

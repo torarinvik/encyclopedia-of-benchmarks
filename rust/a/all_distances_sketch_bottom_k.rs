@@ -3,7 +3,7 @@ fn put_i64(out: &mut [u8], x: i64) { out[..8].copy_from_slice(&x.to_le_bytes());
 #[no_mangle]
 pub unsafe extern "C" fn all_distances_sketch_bottom_k(input: *const i64, length: usize,
     output: *mut u8, capacity: usize) -> i64 {
-    if input.is_null() || length < 6 || length > 104 { return -1; }
+    if input.is_null() || length < 6 || length > 194 { return -1; }
     let a=std::slice::from_raw_parts(input,length);let(n0,m0,k0,s0)=(a[0],a[1],a[2],a[3]);
     if n0<2||n0>10||m0<0||m0>n0*(n0-1)||k0<1||k0>n0||s0<0||s0>=n0||length!=4+n0 as usize+2*m0 as usize{return -1;}
     let(n,m,k,source)=(n0 as usize,m0 as usize,k0 as usize,s0 as usize);let mut rank=[0i64;10];let mut used=[false;10];

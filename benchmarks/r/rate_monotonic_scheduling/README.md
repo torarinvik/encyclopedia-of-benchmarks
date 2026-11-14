@@ -28,7 +28,7 @@ Source: “Rate-Monotonic Scheduling,” Nathan Fisher and Sanjoy K. Baruah,
 [`10.1007/978-1-4939-2864-4_334`](https://doi.org/10.1007/978-1-4939-2864-4_334).
 The chapter is used only to identify the model and critical-instant method;
 the package is clean-room and contains no copied book text, figures, or code.
-It is distinct from generic [`preemptive_priority_scheduling`](../preemptive_priority_scheduling/README.md),
+It is distinct from generic [`preemptive_priority_scheduling`](../../p/preemptive_priority_scheduling/README.md),
 whose priorities and arrivals are explicit per process and do not model
 periodically recurring jobs.
 
@@ -52,3 +52,5 @@ the independent verifier is
 | Rust | `rust/r/rate_monotonic_scheduling.rs` |
 | V | `v/r/rate_monotonic_scheduling.v` |
 | Zig | `zig/r/rate_monotonic_scheduling.zig` |
+
+The Mojo draft is [`mojo/r/rate_monotonic_scheduling.mojo`](../../../mojo/r/rate_monotonic_scheduling.mojo). For n tasks and maximum period T, the discrete simulation takes O(n²T) time and O(n) space.

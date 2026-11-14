@@ -7,3 +7,5 @@ Input is `[section_count, input_sample, coefficients[4*section_count], states[2*
 Pinned source is `iir1` in [`src/edn/libedn.c`](https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/edn/libedn.c), commit `09c2ed8c3b7008c95d08b038de4a3f6dc103ed70`. The source header records WCET Benchmarks provenance, Embecosm/Bristol contributors, GPL-3.0-or-later, and permission obtained by email from Björn Lisper. Full license and attribution are bundled in [`LICENSE.txt`](LICENSE.txt) and [`NOTICE.txt`](NOTICE.txt).
 
 See [`workload.json`](workload.json) and [`benchmarks/edn_iir_cascade_oracle.py`](../../edn_iir_cascade_oracle.py). The nine ports implement this bounded source kernel; no runtime verification is claimed.
+
+An independently written [Mojo draft](../../../mojo/e/edn_iir_cascade.mojo) follows the documented recurrence and has not been compiled or run. It takes O(section_count) time and O(section_count) state storage.

@@ -21,3 +21,5 @@ returns -2 after validation and before writes. The independent oracle is
 The profiles expose the selected matrix operations only; TSVC initialization,
 timing repetitions, and checker behavior are excluded. See `LICENSE.txt` for
 attribution and rights status.
+
+The optional [Mojo port](../../../mojo/t/tsvc_s233_s2233_matrix_prefix.mojo) is a draft and has not been compiled or run.

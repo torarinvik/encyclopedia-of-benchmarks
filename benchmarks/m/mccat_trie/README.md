@@ -26,6 +26,7 @@ The largest valid input has 2,113 signed values. The output capacity is at most 
 | C3 | [`c3/m/mccat_trie.c3`](../../../c3/m/mccat_trie.c3) |
 | C++ | [`cpp/m/mccat_trie.cpp`](../../../cpp/m/mccat_trie.cpp) |
 | Elisa | [`elisa/m/mccat_trie.elisa`](../../../elisa/m/mccat_trie.elisa) |
+| Mojo | [`mojo/m/mccat_trie.mojo`](../../../mojo/m/mccat_trie.mojo) (draft; not compiled or run) |
 | Nim | [`nim/m/mccat_trie.nim`](../../../nim/m/mccat_trie.nim) |
 | Odin | [`odin/m/mccat_trie.odin`](../../../odin/m/mccat_trie.odin) |
 | Rust | [`rust/m/mccat_trie.rs`](../../../rust/m/mccat_trie.rs) |

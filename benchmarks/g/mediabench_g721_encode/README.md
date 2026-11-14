@@ -61,6 +61,7 @@ packing behavior. No rights are inferred from unrelated codec copies.
 | C3 | [c3/g/mediabench_g721_encode.c3](../../../c3/g/mediabench_g721_encode.c3) |
 | C++ | [cpp/g/mediabench_g721_encode.cpp](../../../cpp/g/mediabench_g721_encode.cpp) |
 | Elisa | [elisa/g/mediabench_g721_encode.elisa](../../../elisa/g/mediabench_g721_encode.elisa) |
+| Mojo | [mojo/g/mediabench_g721_encode.mojo](../../../mojo/g/mediabench_g721_encode.mojo) (unvalidated draft) |
 | Nim | [nim/g/mediabench_g721_encode.nim](../../../nim/g/mediabench_g721_encode.nim) |
 | Odin | [odin/g/mediabench_g721_encode.odin](../../../odin/g/mediabench_g721_encode.odin) |
 | Rust | [rust/g/mediabench_g721_encode.rs](../../../rust/g/mediabench_g721_encode.rs) |
@@ -68,3 +69,6 @@ packing behavior. No rights are inferred from unrelated codec copies.
 | Zig | [zig/g/mediabench_g721_encode.zig](../../../zig/g/mediabench_g721_encode.zig) |
 
 Independent oracle: [`mediabench_g721_encode_oracle.py`](../../mediabench_g721_encode_oracle.py).
+
+For `n` input samples the encoder takes O(n) time and uses O(1) codec
+state, with fixed-size predictor and quantizer tables.

@@ -53,3 +53,5 @@ Primary and independent verifier oracles:
 | Rust | [`rust/n/next_fit_decreasing_bin_packing.rs`](../../../rust/n/next_fit_decreasing_bin_packing.rs) |
 | V | [`v/n/next_fit_decreasing_bin_packing.v`](../../../v/n/next_fit_decreasing_bin_packing.v) |
 | Zig | [`zig/n/next_fit_decreasing_bin_packing.zig`](../../../zig/n/next_fit_decreasing_bin_packing.zig) |
+
+The Mojo draft is [`mojo/n/next_fit_decreasing_bin_packing.mojo`](../../../mojo/n/next_fit_decreasing_bin_packing.mojo). Stable insertion sorting takes O(n²) time and O(n) space.

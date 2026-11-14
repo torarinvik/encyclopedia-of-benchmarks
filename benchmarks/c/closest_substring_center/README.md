@@ -6,6 +6,8 @@ This package implements the closest-substring problem defined in “Closest Stri
 
 Input is `[n,m,L,q,strings[n*m]]` with `1<=n<=4`, `1<=m<=10`, `1<=L<=min(8,m)`, alphabet size `q` in `{2,3}`, and symbols in `[0,q)`. Output is `[minimum_radius, lexicographically smallest optimal center[L]]`, encoded as little-endian signed 64-bit values. The function returns `8*(L+1)`, `-1` for malformed input, and `-2` for a null or short output buffer. Exhaustive search is bounded by `3^8` centers.
 
+Null input returns `-1`. The verifier source specifies null-input, output-capacity, validation-precedence, and maximum-frame cases; these checks have not been executed since the port corrections.
+
 ## Implementations
 
 | Language | Source |
@@ -14,6 +16,7 @@ Input is `[n,m,L,q,strings[n*m]]` with `1<=n<=4`, `1<=m<=10`, `1<=L<=min(8,m)`, 
 | C3 | [`c3/c/closest_substring_center.c3`](../../../c3/c/closest_substring_center.c3) |
 | C++ | [`cpp/c/closest_substring_center.cpp`](../../../cpp/c/closest_substring_center.cpp) |
 | Elisa | [`elisa/c/closest_substring_center.elisa`](../../../elisa/c/closest_substring_center.elisa) |
+| Mojo | [`mojo/c/closest_substring_center.mojo`](../../../mojo/c/closest_substring_center.mojo) (draft, unverified) |
 | Nim | [`nim/c/closest_substring_center.nim`](../../../nim/c/closest_substring_center.nim) |
 | Odin | [`odin/c/closest_substring_center.odin`](../../../odin/c/closest_substring_center.odin) |
 | Rust | [`rust/c/closest_substring_center.rs`](../../../rust/c/closest_substring_center.rs) |

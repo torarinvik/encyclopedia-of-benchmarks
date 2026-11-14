@@ -30,3 +30,5 @@ Source attribution: Moshe Babaioff, “Truthful Mechanisms for One-Parameter Age
 | Rust | [`rust/s/single_parameter_truthful_payment.rs`](../../../rust/s/single_parameter_truthful_payment.rs) |
 | V | [`v/s/single_parameter_truthful_payment.v`](../../../v/s/single_parameter_truthful_payment.v) |
 | Zig | [`zig/s/single_parameter_truthful_payment.zig`](../../../zig/s/single_parameter_truthful_payment.zig) |
+
+The Mojo draft is [`mojo/s/single_parameter_truthful_payment.mojo`](../../../mojo/s/single_parameter_truthful_payment.mojo). It has not been compiled or run.

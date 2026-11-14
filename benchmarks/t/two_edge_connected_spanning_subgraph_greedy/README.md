@@ -26,6 +26,9 @@ Input is `[n,m,(u,v)[m]]` with zero-based vertices and `u<v`.
   58 words (59 parseable); maximum output is 456 bytes. Invalid input returns
   `-1`; null or insufficient output returns `-2` with no writes.
 
+With n vertices and m edges, the repeated edge-removal reachability checks use
+O(m²nm) time with this edge-list scan and O(n + m) auxiliary space.
+
 The chapter calls this simple algorithm a 2-approximation for minimum-size
 2-connected spanning subgraphs: the returned graph has only critical edges
 and at most `2n` edges. This profile represents only the `k=2` edge-connected
@@ -47,6 +50,7 @@ copied. See [RIGHTS.md](RIGHTS.md).
 | C3 | `c3/t/two_edge_connected_spanning_subgraph_greedy.c3` |
 | C++ | `cpp/t/two_edge_connected_spanning_subgraph_greedy.cpp` |
 | Elisa | `elisa/t/two_edge_connected_spanning_subgraph_greedy.elisa` |
+| Mojo | [`mojo/t/two_edge_connected_spanning_subgraph_greedy.mojo`](../../../mojo/t/two_edge_connected_spanning_subgraph_greedy.mojo) (draft; not compiled or run) |
 | Nim | `nim/t/two_edge_connected_spanning_subgraph_greedy.nim` |
 | Odin | `odin/t/two_edge_connected_spanning_subgraph_greedy.odin` |
 | Rust | `rust/t/two_edge_connected_spanning_subgraph_greedy.rs` |

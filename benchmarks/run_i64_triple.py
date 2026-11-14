@@ -87,7 +87,8 @@ def main() -> int:
             or sha256_file(runner) != binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     workload_path = args.workload or ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json"
-    workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    from workload_json import load_workload
+    workload = load_workload(workload_path)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_triple_call"):
         parser.error("workload does not match the built i64 triple algorithm")

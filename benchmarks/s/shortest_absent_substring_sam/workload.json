@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "shortest-absent-substring-sam-i64-array-bytes-output-v1",
+  "algorithm": "shortest_absent_substring_sam",
+  "function_symbol": "shortest_absent_substring_sam",
+  "abi": "i64_array_bytes_output",
+  "description": "Shortest lexicographically first missing word via suffix-automaton DP.",
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[alphabet_size,n,symbols[n]]", "maximum_valid_length": 66, "maximum_parseable_length": 66, "invalid_input_result": -1},
+  "output": {"kind": "byte_vector", "encoding": "raw alphabet symbols of the shortest lexicographically first absent substring", "maximum_bytes": 6, "null_output_result": -2, "insufficient_capacity_result": -2, "no_write_on_error": true},
+  "workspace": {"bytes": 4096, "meaning": "Bounded suffix automaton, state order, and DP."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {"id": "empty_text", "input_values": [2,0], "input_length": 2, "output_capacity": 1, "expected_result": 1, "expected_output_hex": "00"},
+    {"id": "both_symbols_present", "input_values": [2,2,0,1], "input_length": 4, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0000"},
+    {"id": "first_missing_pair_not_zero", "input_values": [2,4,0,0,1,1], "input_length": 6, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0100"},
+    {"id": "short_output", "input_values": [2,2,0,1], "input_length": 4, "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "invalid_symbol", "input_values": [2,1,2], "input_length": 3, "output_capacity": 6, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_before_null_output", "input_values": [2,1,2], "input_length": 3, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [2,0], "input_length": 2, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

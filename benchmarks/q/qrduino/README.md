@@ -27,6 +27,12 @@ prefix, malformed framing and payload values, null input and output, and
 insufficient capacity. The independent oracle is
 [qrduino_oracle.py](../../qrduino_oracle.py).
 
+Static review corrected the C, C++, and C3 finite-field multiply helpers to
+retain the ninth bit until polynomial reduction, and fixed a Zig syntax error.
+The returned prefix does not necessarily expose parity or mask-selection
+errors, and the selected mask is discarded; an optimizing compiler may remove
+some or all mask evaluation. These corrections have not been compiled or run.
+
 ## Provenance and rights
 
 The source is
@@ -50,8 +56,13 @@ tables were copied or translated.
 | C3 | [qrduino.c3](../../../c3/q/qrduino.c3) |
 | C++ | [qrduino.cpp](../../../cpp/q/qrduino.cpp) |
 | Elisa | [qrduino.elisa](../../../elisa/q/qrduino.elisa) |
+| Mojo | [qrduino.mojo](../../../mojo/q/qrduino.mojo) (unvalidated draft) |
 | Nim | [qrduino.nim](../../../nim/q/qrduino.nim) |
 | Odin | [qrduino.odin](../../../odin/q/qrduino.odin) |
 | Rust | [qrduino.rs](../../../rust/q/qrduino.rs) |
 | V | [qrduino.v](../../../v/q/qrduino.v) |
 | Zig | [qrduino.zig](../../../zig/q/qrduino.zig) |
+
+The fixed version 2-L encoder uses O(1) time and space per call. For a
+general `s`-by-`s` frame and a fixed number of masks, frame placement and
+mask scoring take O(s²) time and space.

@@ -8,6 +8,8 @@ Input is exactly 16 signed i64 values: box A lower `(T,X,Y,Z)`, box A upper `(T,
 
 The bounded predicate is used to filter branches during R-tree `query` and `deleteEntry`. It does not implement tree traversal, output matching, or non-key attribute substring checks.
 
+The fixed four-dimensional predicate uses O(1) time and O(1) auxiliary space.
+
 ## Source attribution and rights
 
 Pinned operation: [`consistentKey` in `VersaBench/dbms/consistent.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/consistent.c), with 4D key layout from `indexKey.h` and call sites in `query.c` and `deleteEntry.c`, at `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. The source headers identify M. L. Rivas and state `Copyright 1999, Atlantic Aerospace Electronics Corp.`. No explicit redistribution license was present in the pinned directory. This package independently implements the documented interval predicate and copies no upstream code or comments; see [NOTICE.txt](NOTICE.txt).
@@ -20,6 +22,7 @@ The independent oracle is [`versabench_dbms_consistent_key_oracle.py`](../../ver
 - C3: [`c3/d/versabench_dbms_consistent_key.c3`](../../../c3/d/versabench_dbms_consistent_key.c3)
 - C++: [`cpp/d/versabench_dbms_consistent_key.cpp`](../../../cpp/d/versabench_dbms_consistent_key.cpp)
 - Elisa: [`elisa/d/versabench_dbms_consistent_key.elisa`](../../../elisa/d/versabench_dbms_consistent_key.elisa)
+- Mojo: [`mojo/d/versabench_dbms_consistent_key.mojo`](../../../mojo/d/versabench_dbms_consistent_key.mojo) (draft; not compiled or run)
 - Nim: [`nim/d/versabench_dbms_consistent_key.nim`](../../../nim/d/versabench_dbms_consistent_key.nim)
 - Odin: [`odin/d/versabench_dbms_consistent_key.odin`](../../../odin/d/versabench_dbms_consistent_key.odin)
 - Rust: [`rust/d/versabench_dbms_consistent_key.rs`](../../../rust/d/versabench_dbms_consistent_key.rs)

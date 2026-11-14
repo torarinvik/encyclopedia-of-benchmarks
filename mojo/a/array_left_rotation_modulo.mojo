@@ -2,7 +2,7 @@ from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
 fn array_left_mod_write(output: UnsafePointer[UInt8, MutAnyOrigin], index: Int, value: Int64):
-    let bits = UInt32(value)
+    let bits = bitcast[UInt64](value)
     for b in range(4): output[index * 4 + b] = UInt8((bits >> UInt(8 * b)) & 255)
 
 @export("array_left_rotation_modulo")

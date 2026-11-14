@@ -1,0 +1,165 @@
+def chan_turn(values: view[i64], a: usize, b: usize, c: usize) -> i64:
+    ax: i64 = values[1 + 2 * a]
+    ay: i64 = values[2 + 2 * a]
+    (values[1 + 2 * b] - ax) * (values[2 + 2 * c] - ay) - (values[2 + 2 * b] - ay) * (values[1 + 2 * c] - ax)
+
+def chan_less(values: view[i64], a: usize, b: usize) -> bool:
+    values[1 + 2 * a] < values[1 + 2 * b] or (values[1 + 2 * a] == values[1 + 2 * b] and values[2 + 2 * a] < values[2 + 2 * b])
+
+def chan_tangent(values: view[i64], hull: view[usize], query: usize) -> usize:
+    size: usize = hull.len()
+    if size == 1: return hull[0]
+    if size == 2:
+        if chan_turn(values, query, hull[0], hull[1]) > 0: return hull[0]
+        return hull[1]
+    initial_up: bool = chan_turn(values, query, hull[0], hull[1]) > 0
+    lo: mutable usize = 0
+    hi: mutable usize = size
+    while lo < hi:
+        mid: usize = lo + (hi - lo) / 2
+        previous: usize = (mid + size - 1) % size
+        next: usize = (mid + 1) % size
+        less_previous: bool = chan_turn(values, query, hull[mid], hull[previous]) > 0
+        less_next: bool = chan_turn(values, query, hull[mid], hull[next]) > 0
+        if less_previous and less_next: return hull[mid]
+        before_anchor: bool = mid != 0 and chan_turn(values, query, hull[mid], hull[0]) > 0
+        after_anchor: bool = mid != 0 and chan_turn(values, query, hull[0], hull[mid]) > 0
+        search_left: mutable bool = less_next or after_anchor
+        if initial_up: search_left <- less_next and before_anchor
+        if search_left: hi <- mid
+        else: lo <- mid + 1
+    32
+
+def chan_output_sensitive_hull_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 7 or length > 66: return -1
+    values: view[i64] = input[0:length]
+    raw: i64 = values[0]
+    if raw < 3 or raw > 32: return -1
+    n: usize = raw.usize()
+    if length != 1 + 2 * n: return -1
+    for i in 0..<n:
+        x: i64 = values[1 + 2 * i]
+        y: i64 = values[2 + 2 * i]
+        if x < -1000 or x > 1000 or y < -1000 or y > 1000: return -1
+        for j in 0..<i:
+            if x == values[1 + 2 * j] and y == values[2 + 2 * j]: return -1
+    for i in 0..<n:
+        for j in (i + 1)..<n:
+            for k in (j + 1)..<n:
+                if chan_turn(values, i, j, k) == 0: return -1
+    start: mutable usize = 0
+    for i in 1..<n:
+        if chan_less(values, i, start): start <- i
+    guess: mutable usize = 4
+    if n < guess: guess <- n
+    while true:
+        hulls: mutable usize[32] = zeroed
+        offsets: mutable usize[32] = zeroed
+        sizes: mutable usize[32] = zeroed
+        group_of: mutable usize[32] = zeroed
+        position: mutable usize[32] = zeroed
+        groups: mutable usize = 0
+        stored: mutable usize = 0
+        begin: mutable usize = 0
+        while begin < n:
+            end: mutable usize = begin + guess
+            if end > n: end <- n
+            count: usize = end - begin
+            order: mutable usize[32] = zeroed
+            scratch: mutable usize[32] = zeroed
+            for i in 0..<count:
+                order[i] <- begin + i
+                group_of[begin + i] <- groups
+                position[begin + i] <- 32
+            width: mutable usize = 1
+            while width < count:
+                block: mutable usize = 0
+                while block < count:
+                    middle: mutable usize = block + width
+                    if middle > count: middle <- count
+                    finish: mutable usize = block + 2 * width
+                    if finish > count: finish <- count
+                    left: mutable usize = block
+                    right: mutable usize = middle
+                    destination: mutable usize = block
+                    while left < middle and right < finish:
+                        if chan_less(values, order[right], order[left]):
+                            scratch[destination] <- order[right]
+                            right <- right + 1
+                        else:
+                            scratch[destination] <- order[left]
+                            left <- left + 1
+                        destination <- destination + 1
+                    while left < middle:
+                        scratch[destination] <- order[left]
+                        left <- left + 1
+                        destination <- destination + 1
+                    while right < finish:
+                        scratch[destination] <- order[right]
+                        right <- right + 1
+                        destination <- destination + 1
+                    block <- block + 2 * width
+                for i in 0..<count: order[i] <- scratch[i]
+                width <- width * 2
+            chain: mutable usize[64] = zeroed
+            used: mutable usize = 0
+            if count == 1:
+                chain[0] <- order[0]
+                used <- 1
+            else:
+                for i in 0..<count:
+                    while used >= 2 and chan_turn(values, chain[used - 2], chain[used - 1], order[i]) <= 0: used <- used - 1
+                    chain[used] <- order[i]
+                    used <- used + 1
+                lower: usize = used
+                i: mutable usize = count - 1
+                while i > 0:
+                    i <- i - 1
+                    while used > lower and chan_turn(values, chain[used - 2], chain[used - 1], order[i]) <= 0: used <- used - 1
+                    chain[used] <- order[i]
+                    used <- used + 1
+                used <- used - 1
+            offsets[groups] <- stored
+            sizes[groups] <- used
+            for i in 0..<used:
+                hulls[stored + i] <- chain[i]
+                position[chain[i]] <- i
+            stored <- stored + used
+            groups <- groups + 1
+            begin <- end
+        result: mutable usize[32] = zeroed
+        result[0] <- start
+        used: mutable usize = 1
+        for step in 0..<guess:
+            current: usize = result[used - 1]
+            candidate: mutable usize = 32
+            for group in 0..<groups:
+                local: mutable usize = 32
+                if group == group_of[current]:
+                    if position[current] == 32: return -1
+                    if sizes[group] > 1: local <- hulls[offsets[group] + (position[current] + 1) % sizes[group]]
+                else:
+                    local <- chan_tangent(values, hulls[offsets[group]:offsets[group] + sizes[group]], current)
+                    if local == 32: return -1
+                if local != 32 and (candidate == 32 or chan_turn(values, current, candidate, local) < 0): candidate <- local
+            if candidate == 32: return -1
+            if candidate == start:
+                bytes: usize = 16 * used
+                if output.is_null() or capacity < bytes: return -2
+                target: mutable view[u8] = output[0:bytes]
+                for i in 0..<used:
+                    for axis in 0..<2:
+                        bits: mutable u64 = values[1 + 2 * result[i] + axis].u64()
+                        for b in 0..<8:
+                            target[16 * i + 8 * axis + b] <- (bits & 255).u8()
+                            bits <- bits >> 8
+                return bytes.i64()
+            if used == n: return -1
+            result[used] <- candidate
+            used <- used + 1
+        if guess == n: return -1
+        guess <- guess * guess
+        if guess > n: guess <- n
+    -1
+
+export fn chan_output_sensitive_hull(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = chan_output_sensitive_hull_impl

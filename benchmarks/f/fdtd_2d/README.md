@@ -16,6 +16,8 @@ Malformed input returns -1. Null or undersized output returns -2 after input val
 
 The nine ports are in the corresponding `c/f`, `c3/f`, `cpp/f`, `elisa/f`, `nim/f`, `odin/f`, `rust/f`, `v/f`, and `zig/f` directories.
 
+The independent [Mojo draft](../../../mojo/f/fdtd_2d.mojo) has not been compiled or run. Initialization and the time steps take O((tmax+1)·nx·ny) time and O(nx·ny) working storage.
+
 ## Pinned source and license
 
 - [fdtd-2d.c](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/fdtd-2d/fdtd-2d.c)

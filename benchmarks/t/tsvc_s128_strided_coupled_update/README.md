@@ -36,3 +36,4 @@ The independent oracle is [`benchmarks/tsvc_s128_strided_coupled_update_oracle.p
 | Rust | [`tsvc_s128_strided_coupled_update.rs`](../../../rust/t/tsvc_s128_strided_coupled_update.rs) |
 | V | [`tsvc_s128_strided_coupled_update.v`](../../../v/t/tsvc_s128_strided_coupled_update.v) |
 | Zig | [`tsvc_s128_strided_coupled_update.zig`](../../../zig/t/tsvc_s128_strided_coupled_update.zig) |
+| Mojo | [`tsvc_s128_strided_coupled_update.mojo`](../../../mojo/t/tsvc_s128_strided_coupled_update.mojo) |

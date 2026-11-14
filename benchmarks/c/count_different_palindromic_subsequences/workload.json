@@ -28,7 +28,7 @@
     "empty_sequence_result": 0,
     "invalid_input_result": -1
   },
-  "algorithm": {
+  "algorithm_details": {
     "primary": "O(n^2) interval DP with inclusion-exclusion for unequal endpoints and duplicate-aware endpoint wrapping for equal symbols; next and previous equal-symbol indices are precomputed.",
     "independent_oracle": "Enumerate every nonempty index mask, form the selected symbol tuple, retain palindromic tuples in a set, and count distinct values.",
     "primary_complexity": "O(n^2) time and O(n^2) space.",

@@ -14,7 +14,7 @@ The output is one little-endian unsigned 16-bit prediction per step (values 0–
 
 The profile is based on `PAQ8p/paq8p.cpp` at pinned `lac-dcc/Benchmarks` revision `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`, specifically `squash`, `Stretch`, `dot_product`, `train`, `Mixer`, and its nested combiner. The launcher `PAQ8p/info.sh` runs the complete file compressor; this package only measures the mixer update kernel with a bounded, caller-supplied feature trace. It must not be reported as full PAQ compression coverage.
 
-The source declares Copyright (C) 2008 Matt Mahoney, Serge Osnach, Alexander Ratushnyak, Bill Pettis, Przemyslaw Skibinski, Matthew Fite, wowtiger, Andrew Paterson, Jan Ondrus, Andreas Morphis, Pavel L. Holoborodko, and KZ, under the GNU General Public License version 2 or (at the user's option) any later version. See [`LICENSE.txt`](LICENSE.txt). All nine package ports are GPL-2.0-or-later.
+The source declares Copyright (C) 2008 Matt Mahoney, Serge Osnach, Alexander Ratushnyak, Bill Pettis, Przemyslaw Skibinski, Matthew Fite, wowtiger, Andrew Paterson, Jan Ondrus, Andreas Morphis, Pavel L. Holoborodko, and KZ, under the GNU General Public License version 2 or (at the user's option) any later version. See [`LICENSE.txt`](LICENSE.txt). All package ports are GPL-2.0-or-later.
 
 ## Workload and ports
 
@@ -26,8 +26,11 @@ The independent model is [`benchmarks/paq8p_context_mixer_oracle.py`](../../paq8
 | C3 | [`c3/p/paq8p_context_mixer.c3`](../../../c3/p/paq8p_context_mixer.c3) |
 | C++ | [`cpp/p/paq8p_context_mixer.cpp`](../../../cpp/p/paq8p_context_mixer.cpp) |
 | Elisa | [`elisa/p/paq8p_context_mixer.elisa`](../../../elisa/p/paq8p_context_mixer.elisa) |
+| Mojo | [`mojo/p/paq8p_context_mixer.mojo`](../../../mojo/p/paq8p_context_mixer.mojo) |
 | Nim | [`nim/p/paq8p_context_mixer.nim`](../../../nim/p/paq8p_context_mixer.nim) |
 | Odin | [`odin/p/paq8p_context_mixer.odin`](../../../odin/p/paq8p_context_mixer.odin) |
 | Rust | [`rust/p/paq8p_context_mixer.rs`](../../../rust/p/paq8p_context_mixer.rs) |
 | V | [`v/p/paq8p_context_mixer.v`](../../../v/p/paq8p_context_mixer.v) |
 | Zig | [`zig/p/paq8p_context_mixer.zig`](../../../zig/p/paq8p_context_mixer.zig) |
+
+The Mojo port is a static draft and has not been compiled or run.

@@ -84,3 +84,5 @@ Independent oracle: [`benchmarks/parboil_cutcp_oracle.py`](../../parboil_cutcp_o
 | Rust | [`parboil_cutcp.rs`](../../../rust/p/parboil_cutcp.rs) |
 | V | [`parboil_cutcp.v`](../../../v/p/parboil_cutcp.v) |
 | Zig | [`parboil_cutcp.zig`](../../../zig/p/parboil_cutcp.zig) |
+
+The Mojo draft is [`mojo/p/parboil_cutcp.mojo`](../../../mojo/p/parboil_cutcp.mojo). Float32 arithmetic and output rounding remain unverified.

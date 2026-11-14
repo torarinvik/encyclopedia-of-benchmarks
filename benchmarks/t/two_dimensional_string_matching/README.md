@@ -13,6 +13,10 @@ coordinates in column-major start order, as little-endian signed i64 values.
 Invalid input returns `-1`;
 null output or insufficient capacity returns `-2` without writing.
 
+For text dimensions R×C and pattern dimensions H×W, row marking takes
+O(R(C−W+1)HW) time; the vertical KMP scans take O(R(C−W+1)). The bounded
+mark table uses O(R(C−W+1)H) space.
+
 Source: “Multidimensional String Matching,” DOI
 [`10.1007/978-1-4939-2864-4_247`](https://doi.org/10.1007/978-1-4939-2864-4_247).
 This profile fixes the two-dimensional case and uses a bounded direct row
@@ -25,6 +29,7 @@ higher-dimensional generalizations.
 | C3 | `c3/t/two_dimensional_string_matching.c3` |
 | C++ | `cpp/t/two_dimensional_string_matching.cpp` |
 | Elisa | `elisa/t/two_dimensional_string_matching.elisa` |
+| Mojo | [`mojo/t/two_dimensional_string_matching.mojo`](../../../mojo/t/two_dimensional_string_matching.mojo) (draft; not compiled or run) |
 | Nim | `nim/t/two_dimensional_string_matching.nim` |
 | Odin | `odin/t/two_dimensional_string_matching.odin` |
 | Rust | `rust/t/two_dimensional_string_matching.rs` |

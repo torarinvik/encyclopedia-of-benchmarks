@@ -68,3 +68,4 @@ and [workload.json](workload.json).
 | Rust | [tsvc_s162_guarded_shifted_fma.rs](../../../rust/t/tsvc_s162_guarded_shifted_fma.rs) |
 | V | [tsvc_s162_guarded_shifted_fma.v](../../../v/t/tsvc_s162_guarded_shifted_fma.v) |
 | Zig | [tsvc_s162_guarded_shifted_fma.zig](../../../zig/t/tsvc_s162_guarded_shifted_fma.zig) |
+| Mojo | [tsvc_s162_guarded_shifted_fma.mojo](../../../mojo/t/tsvc_s162_guarded_shifted_fma.mojo) |

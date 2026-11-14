@@ -67,4 +67,5 @@ documented search contract and does not copy upstream source or comments.
 | Rust | [`rust/d/doe_pathfinder_signature_search.rs`](../../../rust/d/doe_pathfinder_signature_search.rs) |
 | V | [`v/d/doe_pathfinder_signature_search.v`](../../../v/d/doe_pathfinder_signature_search.v) |
 | Zig | [`zig/d/doe_pathfinder_signature_search.zig`](../../../zig/d/doe_pathfinder_signature_search.zig) |
+| Mojo | [`mojo/d/doe_pathfinder_signature_search.mojo`](../../../mojo/d/doe_pathfinder_signature_search.mojo) (unverified draft) |
 

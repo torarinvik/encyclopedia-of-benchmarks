@@ -18,6 +18,8 @@ returns `-1`; null output or capacity below `16*k` returns `-2` without
 writing. Maximum input is 66 i64 words. Maximum output is 16 i64 words (128
 bytes). The primary oracle models streaming bucket updates; the independent
 verifier selects each bucket's minimum from the complete item set.
+Processing n stream items and emitting k buckets takes O(n + k) time and
+O(k) space.
 
 This is distinct from [`min_hash_k_mins`](../min_hash_k_mins/README.md), which
 uses `k` independent rank assignments and samples with replacement, and from
@@ -35,6 +37,7 @@ Source: Edith Cohen, “Min-Hash Sketches,” *Encyclopedia of Algorithms*, DOI
 | C3 | `c3/m/min_hash_k_partition.c3` |
 | C++ | `cpp/m/min_hash_k_partition.cpp` |
 | Elisa | `elisa/m/min_hash_k_partition.elisa` |
+| Mojo | `mojo/m/min_hash_k_partition.mojo` |
 | Nim | `nim/m/min_hash_k_partition.nim` |
 | Odin | `odin/m/min_hash_k_partition.odin` |
 | Rust | `rust/m/min_hash_k_partition.rs` |

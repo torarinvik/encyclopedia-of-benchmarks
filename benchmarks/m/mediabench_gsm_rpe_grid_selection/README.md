@@ -26,6 +26,8 @@ errors leave output untouched. The independent oracle is
 [`mediabench_gsm_rpe_grid_selection_oracle.py`](../../mediabench_gsm_rpe_grid_selection_oracle.py);
 the fixed and malformed cases are in [`workload.json`](workload.json).
 
+The fixed four-grid, 40-sample profile takes O(1) time and O(1) space.
+
 ## Pinned source and rights
 
 The kernel is `RPE_grid_selection` in
@@ -46,6 +48,7 @@ not copy the upstream function body.
 - C3: [`c3/m/mediabench_gsm_rpe_grid_selection.c3`](../../../c3/m/mediabench_gsm_rpe_grid_selection.c3)
 - C++: [`cpp/m/mediabench_gsm_rpe_grid_selection.cpp`](../../../cpp/m/mediabench_gsm_rpe_grid_selection.cpp)
 - Elisa: [`elisa/m/mediabench_gsm_rpe_grid_selection.elisa`](../../../elisa/m/mediabench_gsm_rpe_grid_selection.elisa)
+- Mojo: [`mojo/m/mediabench_gsm_rpe_grid_selection.mojo`](../../../mojo/m/mediabench_gsm_rpe_grid_selection.mojo) (draft; not compiled or run)
 - Nim: [`nim/m/mediabench_gsm_rpe_grid_selection.nim`](../../../nim/m/mediabench_gsm_rpe_grid_selection.nim)
 - Odin: [`odin/m/mediabench_gsm_rpe_grid_selection.odin`](../../../odin/m/mediabench_gsm_rpe_grid_selection.odin)
 - Rust: [`rust/m/mediabench_gsm_rpe_grid_selection.rs`](../../../rust/m/mediabench_gsm_rpe_grid_selection.rs)

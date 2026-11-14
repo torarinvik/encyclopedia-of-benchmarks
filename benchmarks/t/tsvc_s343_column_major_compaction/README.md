@@ -31,3 +31,4 @@ This operation is distinct from local matrix transposition or nested-list flatte
 | Rust | [rust/t/tsvc_s343_column_major_compaction.rs](../../../rust/t/tsvc_s343_column_major_compaction.rs) |
 | V | [v/t/tsvc_s343_column_major_compaction.v](../../../v/t/tsvc_s343_column_major_compaction.v) |
 | Zig | [zig/t/tsvc_s343_column_major_compaction.zig](../../../zig/t/tsvc_s343_column_major_compaction.zig) |
+| Mojo | [mojo/t/tsvc_s343_column_major_compaction.mojo](../../../mojo/t/tsvc_s343_column_major_compaction.mojo) (draft, unverified) |

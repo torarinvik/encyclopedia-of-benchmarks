@@ -10,11 +10,12 @@ def connected_components_with_dsu_find_root(parent: mutable view[usize], node: u
     current
 
 def connected_components_with_dsu_impl(input: i64&, length: usize) -> i64:
-    if (length < 2 or length > MAX_INPUT_LENGTH or input[0] < 0 or input[0] > i64(MAX_NODE_COUNT) or
-            input[1] < 0 or input[1] > i64(MAX_EDGE_COUNT)):
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    node_count: usize = input[0].usize()
-    edge_count: usize = input[1].usize()
+    values: view[i64] = input[0:length]
+    if values[0] < 0 or values[0] > i64(MAX_NODE_COUNT) or values[1] < 0 or values[1] > i64(MAX_EDGE_COUNT): return -1
+    node_count: usize = values[0].usize()
+    edge_count: usize = values[1].usize()
     if length != 2 + 2 * edge_count:
         return -1
 
@@ -24,9 +25,9 @@ def connected_components_with_dsu_impl(input: i64&, length: usize) -> i64:
         parent[node] <- node
         set_size[node] <- 1
     component_count: mutable usize = node_count
-    for edge in 0..<edge_count |input, parent, set_size, component_count|:
-        left_arg: i64 = input[2 + 2 * edge]
-        right_arg: i64 = input[3 + 2 * edge]
+    for edge in 0..<edge_count |values, parent, set_size, component_count|:
+        left_arg: i64 = values[2 + 2 * edge]
+        right_arg: i64 = values[3 + 2 * edge]
         if left_arg < 1 or left_arg > node_count.i64() or right_arg < 1 or right_arg > node_count.i64():
             return -1
         left: mutable usize = connected_components_with_dsu_find_root(parent[0:node_count + 1], left_arg.usize())

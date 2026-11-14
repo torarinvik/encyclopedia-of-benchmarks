@@ -74,6 +74,7 @@ http://www.fmrib.ox.ac.uk/~steve/susan/index.html
 | C3 | [`c3/c/cbench_automotive_susan_e.c3`](../../../c3/c/cbench_automotive_susan_e.c3) |
 | C++ | [`cpp/c/cbench_automotive_susan_e.cpp`](../../../cpp/c/cbench_automotive_susan_e.cpp) |
 | Elisa | [`elisa/c/cbench_automotive_susan_e.elisa`](../../../elisa/c/cbench_automotive_susan_e.elisa) |
+| Mojo | [`mojo/c/cbench_automotive_susan_e.mojo`](../../../mojo/c/cbench_automotive_susan_e.mojo) (unvalidated draft) |
 | Nim | [`nim/c/cbench_automotive_susan_e.nim`](../../../nim/c/cbench_automotive_susan_e.nim) |
 | Odin | [`odin/c/cbench_automotive_susan_e.odin`](../../../odin/c/cbench_automotive_susan_e.odin) |
 | Rust | [`rust/c/cbench_automotive_susan_e.rs`](../../../rust/c/cbench_automotive_susan_e.rs) |
@@ -82,4 +83,9 @@ http://www.fmrib.ox.ac.uk/~steve/susan/index.html
 
 - Independent package oracle: [`cbench_automotive_susan_e_oracle.py`](../../cbench_automotive_susan_e_oracle.py)
 - Harness contract: [`workload.json`](workload.json)
+
+For an `s`-by-`s` image, the fixed 37-site response and topology scan use
+O(s²) storage. The thinning pass may revisit pixels as it extends or removes
+edges, so its running time depends on the image and scan updates. The Mojo
+draft has not been compiled or executed.
 

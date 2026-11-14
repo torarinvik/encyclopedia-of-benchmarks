@@ -4,4 +4,6 @@ Implements the behavior of [TheAlgorithms/C LeetCode 217 source](https://github.
 
 The shared ABI accepts at most 1,024 signed 32-bit values packed in an i64 array. Invalid lengths or values return -1. Empty and one-element arrays return 0. The algorithm takes O(n log n) time and O(n) additional storage for the private copy.
 
+[`square_free_factor_list`](../../s/square_free_factor_list/README.md) returns the complementary uniqueness predicate using a bounded pairwise scan. It is retained separately because its quadratic comparison workload differs from this benchmark's heapsort and adjacent scan.
+
 Run `python3 benchmarks/verify_contains_duplicate.py --elisa-compiler ../Elisa-compiler/bin/elisac-stage1` from the repository root to check all nine language ports against exhaustive, boundary, randomized, and published-workload cases.

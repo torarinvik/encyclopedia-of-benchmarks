@@ -62,10 +62,7 @@ export fn lex_bfs(input_opt: ?[*]const i64, length: usize,
         order[step] = @intCast(current);
         for (0..n) |neighbor| {
             if (!adjacency[current][neighbor] or selected[neighbor]) continue;
-            var position = label_len[neighbor];
-            while (position > 0) : (position -= 1)
-                labels[neighbor][position] = labels[neighbor][position - 1];
-            labels[neighbor][0] = @intCast(step);
+            labels[neighbor][label_len[neighbor]] = @intCast(n - step);
             label_len[neighbor] += 1;
         }
     }

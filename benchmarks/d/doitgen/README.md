@@ -8,12 +8,15 @@ Each dimension is a signed 64-bit integer bounded to 1–16. For each `(r,q)` pa
 
 The source defaults to binary64. Its launcher selects `EXTRALARGE_DATASET` (`nr=250`, `nq=220`, `np=270`); this suite profile caps every dimension at 16. Source and launcher are pinned to upstream commit [`5d7b75df749241efa7a6e6f5be613d3fcc5cce38`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/doitgen). Ports are independently written.
 
+The kernel takes `O(nr*nq*np^2)` time and uses `O(nr*nq*np + np^2)` space.
+
 | Language | Port |
 |---|---|
 | C | [`c/d/doitgen.c`](../../../c/d/doitgen.c) |
 | C3 | [`c3/d/doitgen.c3`](../../../c3/d/doitgen.c3) |
 | C++ | [`cpp/d/doitgen.cpp`](../../../cpp/d/doitgen.cpp) |
 | Elisa | [`elisa/d/doitgen.elisa`](../../../elisa/d/doitgen.elisa) |
+| Mojo | [`mojo/d/doitgen.mojo`](../../../mojo/d/doitgen.mojo) |
 | Nim | [`nim/d/doitgen.nim`](../../../nim/d/doitgen.nim) |
 | Odin | [`odin/d/doitgen.odin`](../../../odin/d/doitgen.odin) |
 | Rust | [`rust/d/doitgen.rs`](../../../rust/d/doitgen.rs) |

@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 int64_t exact_graph_coloring_inclusion_exclusion(const int64_t*x,size_t len,uint8_t*out,size_t cap){
- if(!x)return -2;if(len<2||len>44)return -1;int64_t nv=x[0],mv=x[1];
+ if(!x)return -1;if(len<2||len>44)return -1;int64_t nv=x[0],mv=x[1];
  if(nv<1||nv>7||mv<0||mv>21||len!=2+2*(size_t)mv)return -1;size_t n=(size_t)nv,m=(size_t)mv;
  uint8_t adj[7][7]={{0}};for(size_t e=0;e<m;e++){int64_t av=x[2+2*e],bv=x[3+2*e];if(av<0||bv<0||av>=nv||bv>=nv||av==bv)return -1;size_t a=(size_t)av,b=(size_t)bv;if(adj[a][b])return -1;adj[a][b]=adj[b][a]=1;}
  int64_t counts[128]={0};counts[0]=1;size_t limit=(size_t)1<<n;

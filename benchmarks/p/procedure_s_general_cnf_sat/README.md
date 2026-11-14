@@ -14,6 +14,15 @@ This package implements a bounded profile of Procedure S described in “Exact A
 
 The recursive clause branching and prefix shortening distinguish this profile from [`random_3sat_greedy_dpll`](../random_3sat_greedy_dpll/README.md), whose package implements a no-backtrack DPLL trace. The `multi-literal-prefix-branch` workload case falsifies a two-literal prefix in one Procedure S branch and then solves its remaining tail in a child call.
 
+With `n` variables and `m` clauses, a loose bound for this direct profile is
+`O((m + 1)^n · 2^n · (mn + 1))` time: each recursive level fixes at least
+one variable, and each node can enumerate all assignments. Copying bounded
+formula state across recursion uses `O(mn² + n)` auxiliary space. The Mojo
+draft has not been compiled or run.
+Verifier source enumerates ordered pairs of small two-variable clauses for
+both supported prefix widths and compares the two references; those checks
+have not been run.
+
 ## Provenance and rights
 
 The source is the cited book chapter. This package is a clean-room implementation of its mathematical recurrence; it copies no chapter prose, figures, or source code and asserts no license over the chapter. The truth-table replacement subroutine and deterministic model/counter output are bounded benchmark refinements. See [`RIGHTS.md`](RIGHTS.md).
@@ -30,6 +39,7 @@ The source is the cited book chapter. This package is a clean-room implementatio
 | C3 | [`c3/p/procedure_s_general_cnf_sat.c3`](../../../c3/p/procedure_s_general_cnf_sat.c3) |
 | C++ | [`cpp/p/procedure_s_general_cnf_sat.cpp`](../../../cpp/p/procedure_s_general_cnf_sat.cpp) |
 | Elisa | [`elisa/p/procedure_s_general_cnf_sat.elisa`](../../../elisa/p/procedure_s_general_cnf_sat.elisa) |
+| Mojo | [`mojo/p/procedure_s_general_cnf_sat.mojo`](../../../mojo/p/procedure_s_general_cnf_sat.mojo) (unverified draft) |
 | Nim | [`nim/p/procedure_s_general_cnf_sat.nim`](../../../nim/p/procedure_s_general_cnf_sat.nim) |
 | Odin | [`odin/p/procedure_s_general_cnf_sat.odin`](../../../odin/p/procedure_s_general_cnf_sat.odin) |
 | Rust | [`rust/p/procedure_s_general_cnf_sat.rs`](../../../rust/p/procedure_s_general_cnf_sat.rs) |

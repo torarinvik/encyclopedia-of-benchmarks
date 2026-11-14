@@ -12,6 +12,8 @@ The output serializes the post-delete root child list as `[remaining_child_count
 
 This is the one-internal-level recursive deletion profile. Root-level conversion/collapse performed by the outer `delete()` routine, non-key attribute filters, object memory release, error messages, the larger database, and its command stream are excluded.
 
+For n leaf records, validation, deletion, and serialization take O(n) time and O(n) extra space in the bounded profile.
+
 ## Source and rights
 
 Source: [`VersaBench/dbms/deleteEntry.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/dbms/deleteEntry.c), pinned to `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`. Related files are `delete.c`, `deleteIndexEntry.c`, `consistent.c`, `keysUnion.c`, `index.h`, and `indexKey.h`; launcher: `VersaBench/dbms/info.sh`. The source identifies M. L. Rivas and carries `Copyright 1999, Atlantic Aerospace Electronics Corp.` No explicit redistribution license was present in the pinned directory. This package is independently written and contains no copied source code or comments; the notice records the source provenance and license status.
@@ -24,6 +26,7 @@ Independent model: [`versabench_dbms_delete_entry_oracle.py`](../../versabench_d
 - C3: [`c3/d/versabench_dbms_delete_entry.c3`](../../../c3/d/versabench_dbms_delete_entry.c3)
 - C++: [`cpp/d/versabench_dbms_delete_entry.cpp`](../../../cpp/d/versabench_dbms_delete_entry.cpp)
 - Elisa: [`elisa/d/versabench_dbms_delete_entry.elisa`](../../../elisa/d/versabench_dbms_delete_entry.elisa)
+- Mojo: [`mojo/d/versabench_dbms_delete_entry.mojo`](../../../mojo/d/versabench_dbms_delete_entry.mojo) (draft; not compiled or run)
 - Nim: [`nim/d/versabench_dbms_delete_entry.nim`](../../../nim/d/versabench_dbms_delete_entry.nim)
 - Odin: [`odin/d/versabench_dbms_delete_entry.odin`](../../../odin/d/versabench_dbms_delete_entry.odin)
 - Rust: [`rust/d/versabench_dbms_delete_entry.rs`](../../../rust/d/versabench_dbms_delete_entry.rs)

@@ -19,9 +19,9 @@ reservoir update (`x <= 1/t`).
 
 For each prefix, output both slots in order as `(u,v)` pairs, flattened by
 prefix, in little-endian signed 64-bit words. Both slots contain the first
-edge after prefix one. Success returns `16*m` bytes. Malformed input returns
-`-1` before output checks; null output or capacity below `16*m` returns `-2`
-without writes. Maximum input length is 114 words; maximum output is 448
+edge after prefix one. Success returns `32*m` bytes. Malformed input returns
+`-1` before output checks; null output or capacity below `32*m` returns `-2`
+without writes. Maximum input length is 114 words; maximum output is 896
 bytes.
 
 ## Source and limits
@@ -39,3 +39,4 @@ See [`workload.json`](workload.json), primary oracle
 [`counting_triangles_stream_reservoir_oracle.py`](../../counting_triangles_stream_reservoir_oracle.py),
 and independent verifier
 [`counting_triangles_stream_reservoir_verifier_oracle.py`](../../counting_triangles_stream_reservoir_verifier_oracle.py).
+The [Mojo draft](../../../mojo/c/counting_triangles_stream_reservoir.mojo) follows the same contract.
