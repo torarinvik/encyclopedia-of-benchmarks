@@ -28,19 +28,20 @@ def stack_run(values: i64&, operation_count: usize, data_stack: mutable i32&) ->
         payload: i64 = values[2 * operation + 1]
         operation <- operation + 1
         if opcode == 0:
-            if payload < -1000000 or payload > 1000000 or top == 256:
+            encoded: u64 = payload.u64() + 1000000
+            if encoded > 2000000 or top == 256:
                 return -1
-            data_stack[top] <- payload.i32()
+            data_stack[top] <- encoded.i32()
             top <- top + 1
         elif opcode == 1:
             if payload != 0 or top == 0:
                 return -1
             top <- top - 1
-            checksum <- checksum + operation.i64() * (data_stack[top & 255].i64() + 1000000)
+            checksum <- checksum + operation.i64() * data_stack[top & 255].i64()
         elif opcode == 2:
             if payload != 0 or top == 0:
                 return -1
-            checksum <- checksum + operation.i64() * (data_stack[(top - 1) & 255].i64() + 1000000)
+            checksum <- checksum + operation.i64() * data_stack[(top - 1) & 255].i64()
         elif opcode == 3:
             if payload != 0:
                 return -1
@@ -50,7 +51,7 @@ def stack_run(values: i64&, operation_count: usize, data_stack: mutable i32&) ->
             return -1
     index: mutable usize = 0
     while index < top:
-        checksum <- checksum + (operation_count + index + 1).i64() * (data_stack[index].i64() + 1000000)
+        checksum <- checksum + (operation_count + index + 1).i64() * data_stack[index].i64()
         index <- index + 1
     checksum
 
