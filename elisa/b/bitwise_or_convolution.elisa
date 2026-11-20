@@ -1,65 +1,84 @@
-const OR_MAX_N: usize = 8
-const OR_MAX_SIZE: usize = 256
-const OR_MAX_INPUT: usize = 513
-const OR_MOD: i64 = 998244353
+const MAX_N: usize = 8
+const MAX_SIZE: usize = 1 << MAX_N
+const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_SIZE
+const MODULUS: u32 = 998244353
 
-def bitwise_or_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+# Size is a checked power of two and both arrays cover its entire prefix.
+def bitwise_or_transform(values: mutable u32&, size: usize, inverse: bool) -> void:
+    half: mutable usize = 1
+    while half < size:
+        block: mutable usize = 0
+        while block < size:
+            offset: mutable usize = 0
+            while offset < half:
+                left: u32 = values[block + half + offset]
+                right: u32 = values[block + offset]
+                combined: u32 = left + MODULUS - right if inverse else left + right
+                values[block + half + offset] <- combined - MODULUS if combined >= MODULUS else combined
+                offset <- offset + 1
+            block <- block + 2 * half
+        half <- half * 2
+
+def bitwise_or_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
-    byte: mutable usize = 0
-    while byte < 8:
-        output[offset + byte] <- (bits & 255).u8()
-        bits <- bits >> 8
-        byte <- byte + 1
+    output[offset + 0] <- (bits >> 0).u8()
+    output[offset + 1] <- (bits >> 8).u8()
+    output[offset + 2] <- (bits >> 16).u8()
+    output[offset + 3] <- (bits >> 24).u8()
+    output[offset + 4] <- (bits >> 32).u8()
+    output[offset + 5] <- (bits >> 40).u8()
+    output[offset + 6] <- (bits >> 48).u8()
+    output[offset + 7] <- (bits >> 56).u8()
 
-export fn bitwise_or_convolution(input: i64&, length: usize, output: mutable u8&,
-        capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > OR_MAX_INPUT: return -1
+
+def bitwise_or_convolution_impl(
+    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
+) -> i64:
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH:
+        return -1
     n_value: i64 = input[0]
-    if n_value < 0 or n_value > 8: return -1
+    if n_value < 0 or n_value > MAX_N.i64():
+        return -1
     n: usize = n_value.usize()
     size: usize = 1 << n
-    if length != 1 + 2 * size: return -1
-    i: mutable usize = 0
-    while i < 2 * size:
-        value: i64 = input[1 + i]
-        if value < 0 or value >= OR_MOD: return -1
-        i <- i + 1
-    bytes: usize = 8 * size
-    if output.is_null() or capacity < bytes: return -2
-    a: mutable i64[256] = zeroed
-    b: mutable i64[256] = zeroed
-    i <- 0
-    while i < size:
-        a[i] <- input[1 + i]
-        b[i] <- input[1 + size + i]
-        i <- i + 1
-    bit: mutable usize = 0
-    while bit < n:
-        bit_mask: usize = 1 << bit
-        mask: mutable usize = 0
-        while mask < size:
-            if (mask & bit_mask) != 0:
-                a[mask] <- (a[mask] + a[mask ^ bit_mask]) % OR_MOD
-                b[mask] <- (b[mask] + b[mask ^ bit_mask]) % OR_MOD
-            mask <- mask + 1
-        bit <- bit + 1
-    i <- 0
-    while i < size:
-        a[i] <- (a[i] * b[i]) % OR_MOD
-        i <- i + 1
-    bit <- 0
-    while bit < n:
-        bit_mask <- 1 << bit
-        mask <- 0
-        while mask < size:
-            if (mask & bit_mask) != 0:
-                a[mask] <- a[mask] - a[mask ^ bit_mask]
-                if a[mask] < 0: a[mask] <- a[mask] + OR_MOD
-            mask <- mask + 1
-        bit <- bit + 1
-    output_view: mutable view[u8] = output[0:bytes]
-    i <- 0
-    while i < size:
-        bitwise_or_store(a[i], output_view, 8 * i)
-        i <- i + 1
-    bytes.i64()
+    if input_length != 1 + 2 * size:
+        return -1
+    # A one-element convolution is just the product of its coefficients.
+    if size == 1:
+        left: u64 = input[1].u64()
+        right: u64 = input[2].u64()
+        if left >= MODULUS.u64() or right >= MODULUS.u64():
+            return -1
+        if output == null or output_capacity < 8:
+            return -2
+        bitwise_or_store_i64(output, 0, ((left * right) % MODULUS.u64()).i64())
+        return 8
+    first: mutable u32[MAX_SIZE] = zeroed
+    second: mutable u32[MAX_SIZE] = zeroed
+    index: mutable usize = 0
+    while index < size:
+        left: u64 = input[1 + index].u64()
+        right: u64 = input[1 + size + index].u64()
+        if left >= MODULUS.u64() or right >= MODULUS.u64():
+            return -1
+        first[index] <- left.u32()
+        second[index] <- right.u32()
+        index <- index + 1
+    output_bytes: usize = 8 * size
+    if output == null or output_capacity < output_bytes:
+        return -2
+    bitwise_or_transform(&first[0], size, false)
+    bitwise_or_transform(&second[0], size, false)
+    index <- 0
+    while index < size:
+        first[index] <- ((first[index].u64() * second[index].u64()) % MODULUS.u64()).u32()
+        index <- index + 1
+    bitwise_or_transform(&first[0], size, true)
+
+    index <- 0
+    while index < size:
+        bitwise_or_store_i64(output, 8 * index, first[index].i64())
+        index <- index + 1
+    output_bytes.i64()
+
+export fn bitwise_or_convolution(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bitwise_or_convolution_impl
