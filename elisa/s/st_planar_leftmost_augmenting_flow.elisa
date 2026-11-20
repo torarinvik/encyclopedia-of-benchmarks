@@ -22,7 +22,8 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
     eu: mutable usize[MAX_M] = zeroed
     ev: mutable usize[MAX_M] = zeroed
     caps: mutable i64[MAX_M] = zeroed
-    pairs: mutable bool[MAX_N * MAX_N] = zeroed
+    # Each byte holds the undirected neighbors of one vertex.
+    adjacency: mutable u64 = 0
     at: mutable usize = 4
     e: mutable usize = 0
     while (e < m):
@@ -34,10 +35,10 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             return (-1)
         u: usize = u0.usize()
         v: usize = v0.usize()
-        if (pairs[((u * MAX_N) + v)] or pairs[((v * MAX_N) + u)]):
-            return (-1)
-        pairs[((u * MAX_N) + v)] <- true
-        pairs[((v * MAX_N) + u)] <- true
+        edge_bit: u64 = 1 << (8 * u + v)
+        if (adjacency & edge_bit) != 0:
+            return -1
+        adjacency <- adjacency | edge_bit | (1.u64() << (8 * v + u))
         eu[e] <- u
         ev[e] <- v
         caps[e] <- c
@@ -75,34 +76,17 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         x <- (x + 1)
     if at != length or occurrences != ((1.u64() << (2 * m)) - 1):
         return -1
-    connected: mutable bool[MAX_N] = zeroed
-    queue: mutable usize[MAX_N] = zeroed
-    head: mutable usize = 0
-    queue_end: mutable usize = 0
-    connected[s] <- true
-    queue[queue_end] <- s
-    queue_end <- (queue_end + 1)
-    while (head < queue_end):
-        u: usize = queue[head]
-        head <- (head + 1)
-        e <- 0
-        while (e < m):
-            v: mutable usize = MAX_N
-            if (eu[e] == u):
-                v <- ev[e]
-            else:
-                if (ev[e] == u):
-                    v <- eu[e]
-            if ((v < MAX_N) and (not connected[v])):
-                connected[v] <- true
-                queue[queue_end] <- v
-                queue_end <- (queue_end + 1)
-            e <- (e + 1)
-    x <- 0
-    while (x < n):
-        if (not connected[x]):
-            return (-1)
-        x <- (x + 1)
+    all_vertices: u64 = (1.u64() << n) - 1
+    connected: mutable u64 = 1 << s
+    while connected != all_vertices:
+        previous: u64 = connected
+        vertex: mutable usize = 0
+        while vertex < n:
+            if (connected & (1.u64() << vertex)) != 0:
+                connected <- connected | ((adjacency >> (8 * vertex)) & 255)
+            vertex <- vertex + 1
+        if connected == previous:
+            return -1
     flow: mutable i64[MAX_M] = zeroed
     total: mutable i64 = 0
     while true:
