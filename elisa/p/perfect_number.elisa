@@ -1,9 +1,9 @@
 def perfect_number_scan(number: u64, stride: u64, initial_total: u64) -> i64:
     factor: mutable u64 = 3
     total: mutable u64 = initial_total
-    while true:
+    # The public input cap is 10^12, so factor never exceeds 1,000,002.
+    while factor * factor <= number:
         partner: u64 = number / factor
-        break if factor > partner
         if partner * factor == number:
             total <- total + factor
             if partner != factor:
