@@ -72,7 +72,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             if e0.u64() >= m0.u64():
                 return (-1)
             edge: usize = e0.usize()
-            forward_arc: usize = 2 * edge
+            forward_arc: usize = (2 * edge) & (ARC_SLOTS - 2)
             if arc_target[forward_arc + 1].usize() != x and arc_target[forward_arc].usize() != x:
                 return -1
             arc: usize = forward_arc + (0 if arc_target[forward_arc + 1].usize() == x else 1)
