@@ -1,4 +1,4 @@
-# Standard happy-number test using Floyd cycle detection.
+# Standard happy-number test using the decimal digit-square cycle.
 def digit_square_sum(n: i64) -> i64:
     total: mutable i64 = 0
     value: mutable i64 = n
@@ -11,13 +11,10 @@ def digit_square_sum(n: i64) -> i64:
 def happy_number_impl(n: i64) -> i64:
     if n <= 0:
         return -1
-    slow: mutable i64 = digit_square_sum(n)
-    fast: mutable i64 = digit_square_sum(digit_square_sum(n))
-    while slow != fast:
-        slow <- digit_square_sum(slow)
-        fast <- digit_square_sum(digit_square_sum(fast))
-    if slow == 1:
-        return 1
-    0
+    # Decimal digit-square iteration reaches either 1 or the cycle containing 4.
+    value: mutable i64 = n
+    while value != 1 and value != 4:
+        value <- digit_square_sum(value)
+    return 1 if value == 1 else 0
 
 export fn happy_number(n: i64) -> i64 = happy_number_impl
