@@ -72,7 +72,8 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable u32&, chec
         cursor <- &cursor[2]
     index: mutable u32 = 0
     weight: mutable u32 = operation_count + 1
-    while index < top:
+    depth: u32 = top if check_capacity or top <= 8 else 8
+    while index < depth:
         checksum <- checksum + weight.u64() * data_stack[index].u64()
         index <- index + 1
         weight <- weight + 1
