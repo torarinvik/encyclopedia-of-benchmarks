@@ -15,6 +15,9 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     if input_length != 4 + 2 * m:
         return -1
 
+    if n > 2 and m < n:
+        return -1
+
     # Each of the eight byte lanes holds one vertex’s adjacency mask.
     adjacency: mutable u64 = 0
     # Set the high bit of each four-bit entry so vertex zero is distinguishable
@@ -49,8 +52,6 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
         return 2
 
     if n == 3:
-        if m != 3:
-            return -1
         if output == null or output_capacity < 3:
             return -2
         output[s] <- 1
