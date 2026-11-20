@@ -36,7 +36,7 @@ def search_leg(values: i64&, labels_start: usize, signature_start: usize,
 
 def doe_pathfinder_signature_search_impl(values: i64&, length: usize) -> i64:
     if values == null or length < 3 or values[0] < 1 or values[0] > MAX_NODES.i64() or
-       values[1] < 0 or values[1] > MAX_EDGES.i64() or values[2] < 2 or
+       values[1].u64() > MAX_EDGES.u64() or values[2] < 2 or
        values[2] > MAX_SIGNATURE_LENGTH.i64():
         return -2
     node_count: usize = values[0].usize()
@@ -62,9 +62,10 @@ def doe_pathfinder_signature_search_impl(values: i64&, length: usize) -> i64:
         if values[labels_start + node] < -1 or values[labels_start + node] > MAX_LABEL:
             return -2
     for index in 0..<signature_length:
-        if values[signature_start + index] < 0 or values[signature_start + index] > MAX_LABEL:
+        if values[signature_start + index].u64() > MAX_LABEL.u64():
             return -2
 
+    if edge_count == 0: return 0
     first_label: i64 = values[signature_start]
     for node in 0..<node_count:
         if values[labels_start + node] == first_label:
