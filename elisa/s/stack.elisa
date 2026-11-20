@@ -32,7 +32,7 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&, chec
         operation <- operation + 1
         if opcode == 0:
             encoded: u64 = payload.u64() + 1000000
-            if encoded > 2000000 or (check_capacity and top == 256):
+            if (check_capacity and top == 256) or encoded > 2000000:
                 return -1
             data_stack[top] <- encoded.i32()
             top <- top + 1
