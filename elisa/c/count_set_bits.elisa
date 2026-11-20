@@ -6,6 +6,11 @@ def count_set_bits_impl(value: i64) -> i64:
     if value.u64() > 67108863:
         return -1
     remaining: mutable u32 = value.u32()
+    return 0 if remaining == 0
+    # In a complete power-of-two block, each bit is set in half the values.
+    if (remaining & (remaining + 1)) == 0:
+        width: u32 = 31 - leading_zeros(remaining + 1, true)
+        return (width * ((remaining + 1) >> 1)).i64()
     total: mutable u32 = 0
     while remaining != 0:
         # The lower full block contributes position * power / 2 set bits.
