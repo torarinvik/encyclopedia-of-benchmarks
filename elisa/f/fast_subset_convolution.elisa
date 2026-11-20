@@ -29,12 +29,13 @@ def fast_subset_convolution_impl(input: i64&, length: usize, output: mutable u8&
             return -2
         fast_subset_convolution_put(output, 0, ((left * right) % MOD.u64()).i64())
         return 8
-    index: mutable usize = 0
-    while index < 2 * size:
-        value: i64 = input[1 + index]
-        if value.u64() >= MOD.u64():
-            return -1
-        index <- index + 1
+    # Unsigned maximum detects negative and oversized coefficients in one pass.
+    largest_coefficient: mutable u64 = 0
+    for index in 0..<(2 * size):
+        value: u64 = input[1 + index].u64()
+        largest_coefficient <- value if value > largest_coefficient else largest_coefficient
+    if largest_coefficient >= MOD.u64():
+        return -1
     required: usize = size * 8
     if capacity < required or output == null:
         return -2
