@@ -52,11 +52,13 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     packed_ids: mutable u64 = 0
     pivot_index: mutable usize = 0
     kept: mutable usize = 0
-    for u in 0..<n:
-        if (candidates & (1.u16() << u)) == 0:
-            packed_ids <- packed_ids | (u.u64() << (4 * kept))
-            if u == p: pivot_index <- kept
-            kept <- kept + 1
+    remaining_kept: mutable u32 = ((1.u32() << n) - 1.u32()) & ~candidates.u32()
+    while remaining_kept != 0:
+        u: usize = domination_trailing_zeros(remaining_kept, true).usize()
+        remaining_kept <- remaining_kept & (remaining_kept - 1.u32())
+        packed_ids <- packed_ids | (u.u64() << (4 * kept))
+        if u == p: pivot_index <- kept
+        kept <- kept + 1
     k: usize = kept + 1
     leaf: usize = k - 1
     bytes: usize = (1 + 2 * k) * 8
