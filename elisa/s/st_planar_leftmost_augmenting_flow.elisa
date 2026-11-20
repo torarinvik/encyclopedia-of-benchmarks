@@ -26,7 +26,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
     if length != 4 + 5 * m + n:
         return (-1)
     arc_target: mutable u8[ARC_SLOTS] = zeroed
-    residual_capacity: mutable i64[ARC_SLOTS] = zeroed
+    residual_capacity: mutable u8[ARC_SLOTS] = zeroed
     # Each byte holds the undirected neighbors of one vertex.
     adjacency: mutable u64 = 0
     at: mutable usize = 4
@@ -46,7 +46,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         adjacency <- adjacency | edge_bit | (1.u64() << (8 * v + u))
         arc_target[2 * e] <- v.u8()
         arc_target[2 * e + 1] <- u.u8()
-        residual_capacity[2 * e] <- c
+        residual_capacity[2 * e] <- c.u8()
         e <- (e + 1)
     # Each rotation stores up to five five-bit arc codes, in input order.
     rotations: mutable u32[VERTEX_SLOTS] = zeroed
@@ -112,16 +112,16 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             arc: usize = (remaining.usize() - 1) & (ARC_SLOTS - 1)
             pending[u] <- remaining >> 5
             v: usize = arc_target[arc].usize() & (VERTEX_SLOTS - 1)
-            available: i64 = residual_capacity[arc]
+            available: u8 = residual_capacity[arc]
             if available > 0 and not seen[v]:
                 seen[v] <- true
-                parent_capacity: i64 = (path[u] >> 8).i64()
-                path_capacity: i64 = available if available < parent_capacity else parent_capacity
+                parent_capacity: u8 = (path[u] >> 8).u8()
+                path_capacity: u8 = available if available < parent_capacity else parent_capacity
                 path[v] <- (u | (arc << 3) | (path_capacity.usize() << 8)).u16()
                 u <- v
         if (not seen[t]):
             break
-        delta: i64 = (path[t] >> 8).i64()
+        delta: u8 = (path[t] >> 8).u8()
         y: mutable usize = t & (VERTEX_SLOTS - 1)
         while (y != s):
             link: usize = path[y].usize()
@@ -130,7 +130,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             residual_capacity[arc] <- residual_capacity[arc] - delta
             residual_capacity[reverse_arc] <- residual_capacity[reverse_arc] + delta
             y <- link & (VERTEX_SLOTS - 1)
-        total <- (total + delta)
+        total <- (total + delta.i64())
     if ((output == null) or (capacity < 8)):
         return (-2)
     bits: u64 = total.u64()
