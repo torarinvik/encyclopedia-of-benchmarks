@@ -92,8 +92,8 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable u32&, chec
                     return -1
                 last: u32 = top - 1
                 value: u64 = data_stack[last].u64()
-                if opcode == 1:
-                    top <- last
+                # Pop (1) keeps last as the depth, while peek (2) restores the old depth.
+                top <- last + (opcode.u32() >> 1)
                 observed <- value
             checksum <- checksum + operation.u64() * observed
         if operation == operation_count:
