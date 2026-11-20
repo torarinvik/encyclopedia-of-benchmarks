@@ -96,6 +96,10 @@ def circular_linked_list_impl(values: i64&, length: usize) -> i64:
         small_values: mutable u32[16] = zeroed
         small_links: mutable u16[16] = zeroed
         return circular_linked_list_trace(values, operation_count, &small_values[0], &small_links[0])
+    circular_linked_list_long_trace(values, operation_count)
+
+@inline(never)
+def circular_linked_list_long_trace(values: i64&, operation_count: usize) -> i64:
     node_values: mutable u32[257] = zeroed
     links: mutable u16[257] = zeroed
     circular_linked_list_trace(values, operation_count, &node_values[0], &links[0])
