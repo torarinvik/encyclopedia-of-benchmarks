@@ -3,7 +3,9 @@ const MAX_SIZE: usize = 1 << MAX_N
 const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_SIZE
 const MODULUS: u32 = 998244353
 
-def bitwise_xor_transform(values: mutable view[u32], size: usize) -> void:
+# Callers pass a MAX_SIZE array and a checked power-of-two prefix size.
+# Each stage partitions that prefix into complete blocks of 2 * half.
+def bitwise_xor_transform(values: mutable u32&, size: usize) -> void:
     half: mutable usize = 1
     while half < size:
         block: mutable usize = 0
@@ -69,13 +71,13 @@ def bitwise_xor_convolution_impl(
     output_bytes: usize = 8 * size
     if output == null or output_capacity < output_bytes:
         return -2
-    bitwise_xor_transform(first[0:MAX_SIZE], size)
-    bitwise_xor_transform(second[0:MAX_SIZE], size)
+    bitwise_xor_transform(&first[0], size)
+    bitwise_xor_transform(&second[0], size)
     index <- 0
     while index < size:
         first[index] <- ((first[index].u64() * second[index].u64()) % MODULUS.u64()).u32()
         index <- index + 1
-    bitwise_xor_transform(first[0:MAX_SIZE], size)
+    bitwise_xor_transform(&first[0], size)
 
     # The modulus is one modulo size, so size * inverse_size is one modulo the modulus.
     inverse_size: u64 = MODULUS.u64() - ((MODULUS.u64() - 1) >> n)
