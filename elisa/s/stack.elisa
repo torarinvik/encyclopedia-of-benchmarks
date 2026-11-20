@@ -24,18 +24,18 @@ def stack_benchmark_impl(values: i64&, length: usize) -> i64:
 
 @inline(never)
 def stack_short(values: i64&, operation_count: u32) -> i64:
-    small_stack: mutable i32[8] = zeroed
+    small_stack: mutable u32[8] = zeroed
     stack_run(values, operation_count, &small_stack[0], false)
 
 @inline(never)
 def stack_large(values: i64&, operation_count: u32) -> i64:
     if operation_count <= 8 or operation_count > 512:
         return -1
-    data_stack: mutable i32[256] = zeroed
+    data_stack: mutable u32[256] = zeroed
     stack_run(values, operation_count, &data_stack[0], true)
 
 @inline(always)
-def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&, check_capacity: bool) -> i64:
+def stack_run(values: i64&, operation_count: u32, data_stack: mutable u32&, check_capacity: bool) -> i64:
     top: mutable u32 = 0
     # At most 768 terms, each bounded by 768 * 2000000.
     checksum: mutable u64 = 0
@@ -48,7 +48,7 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&, chec
             encoded: u64 = payload.u64() + 1000000
             if (check_capacity and top == 256) or encoded > 2000000:
                 return -1
-            data_stack[top] <- encoded.i32()
+            data_stack[top] <- encoded.u32()
             top <- top + 1
         else:
             if (payload.u64() | (opcode.u64() >> 2)) != 0:
@@ -75,7 +75,7 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&, chec
     index: mutable u32 = 0
     weight: mutable u32 = operation_count + 1
     while index < top:
-        checksum <- checksum + (weight * data_stack[index].u32()).u64()
+        checksum <- checksum + (weight * data_stack[index]).u64()
         index <- index + 1
         weight <- weight + 1
     checksum.i64()
