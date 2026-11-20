@@ -7,6 +7,12 @@ def push_new(main_queue: view[i64], temp_queue: mutable view[i64], head: usize, 
 def stack_using_two_queues_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 1 or length > 257: return -1
     if input[0] < 0 or input[0] > 128 or length != 1 + 2 * input[0].usize(): return -1
+    if input[0] == 0:
+        return -2 if output == null else 0
+    stack_using_two_queues_run(input, input[0].usize(), output, capacity)
+
+@inline(never)
+def stack_using_two_queues_run(input: i64&, operation_count: usize, output: mutable u8&?, capacity: usize) -> i64:
     queue_a: mutable i64[128] = zeroed
     queue_b: mutable i64[128] = zeroed
     records: mutable i64[256] = zeroed
@@ -16,7 +22,7 @@ def stack_using_two_queues_impl(input: i64&?, length: usize, output: mutable u8&
     record_count: mutable usize = 0
     position: mutable usize = 1
     operation_index: mutable usize = 0
-    while operation_index < input[0].usize():
+    while operation_index < operation_count:
         opcode: i64 = input[position]
         operand: i64 = input[position + 1]
         position <- position + 2
