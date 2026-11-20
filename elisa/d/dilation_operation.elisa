@@ -21,19 +21,38 @@ def dilation_operation_impl(input: i64&, length: usize, output: mutable u8&, out
             return -1
     if output == null or output_capacity < cells * 4:
         return -2
+    kernel_offset: usize = 2 + cells
+    if columns == 1:
+        # Only the middle kernel column can overlap a one-column image.
+        for row in 0..<rows:
+            hit: mutable i64 = 0
+            for kernel_row in 0..<3:
+                image_row: i64 = row.i64() + kernel_row.i64() - 1
+                if image_row >= 0 and image_row < rows.i64():
+                    hit <- hit | (input[2 + image_row.usize()] & input[kernel_offset + kernel_row * 3 + 1])
+            dilation_put_i32_le(output, row * 4, hit)
+        return cells.i64()
+
+    # Each bit represents one column. Shifts provide the zero-padded neighbors.
+    image_rows: mutable array[u32, 16] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for y in 0..<rows:
+        mask: mutable u32 = 0
         for x in 0..<columns:
-            sum: mutable i64 = 0
-            for ky in 0..<3:
-                for kx in 0..<3:
-                    image_y: i64 = y.i64() + ky.i64() - 1
-                    image_x: i64 = x.i64() + kx.i64() - 1
-                    if image_y >= 0 and image_y < rows.i64() and image_x >= 0 and image_x < columns.i64():
-                        sum <- sum + input[2 + image_y.usize() * columns + image_x.usize()] * input[2 + cells + ky * 3 + kx]
-            value: mutable i64 = 0
-            if sum > 0:
-                value <- 1
-            dilation_put_i32_le(output, (y * columns + x) * 4, value)
+            mask <- mask | (input[2 + y * columns + x].u32() << x.u32())
+        image_rows[y] <- mask
+    for y in 0..<rows:
+        hit: mutable u32 = 0
+        for ky in 0..<3:
+            image_y: i64 = y.i64() + ky.i64() - 1
+            if image_y >= 0 and image_y < rows.i64():
+                mask: u32 = image_rows[image_y.usize()]
+                base: usize = kernel_offset + ky * 3
+                # Subtracting a binary kernel cell from zero gives a full-width mask.
+                hit <- hit | ((mask << 1) & (0.u32() - input[base].u32()))
+                hit <- hit | (mask & (0.u32() - input[base + 1].u32()))
+                hit <- hit | ((mask >> 1) & (0.u32() - input[base + 2].u32()))
+        for x in 0..<columns:
+            dilation_put_i32_le(output, (y * columns + x) * 4, ((hit >> x.u32()) & 1).i64())
     cells.i64()
 
 export fn dilation_operation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = dilation_operation_impl
