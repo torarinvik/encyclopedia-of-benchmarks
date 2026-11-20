@@ -110,12 +110,14 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         # A discovered vertex has a parent chain back to the source.
         seen[s] <- true
         u: mutable usize = s & (VERTEX_SLOTS - 1)
+        parent_capacity: mutable u8 = 5
         while not seen[t]:
             remaining: u32 = pending[u]
             if remaining == 0:
                 if u == s:
                     break
                 u <- path[u].usize() & (VERTEX_SLOTS - 1)
+                parent_capacity <- (path[u] >> 8).u8()
                 continue
             arc: usize = (remaining.usize() - 1) & (ARC_SLOTS - 1)
             pending[u] <- remaining >> 5
@@ -123,9 +125,9 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             available: u8 = residual_capacity[arc]
             if available > 0 and not seen[v]:
                 seen[v] <- true
-                parent_capacity: u8 = (path[u] >> 8).u8()
                 path_capacity: u8 = available if available < parent_capacity else parent_capacity
                 path[v] <- (u | (arc << 3) | (path_capacity.usize() << 8)).u16()
+                parent_capacity <- path_capacity
                 u <- v
         if (not seen[t]):
             break
