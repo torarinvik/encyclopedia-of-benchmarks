@@ -44,8 +44,8 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
         elif opcode == 1:
             if operand != 0 or queue_size == 0: return -1
             records[record_end] <- 0
-            if main_is_a: records[record_end + 1] <- queue_a[head]
-            else: records[record_end + 1] <- queue_b[head]
+            selected_queue: i64& = &queue_a[0] if main_is_a else &queue_b[0]
+            records[record_end + 1] <- selected_queue[head]
             record_end <- record_end + 2
             head <- head + 1
             queue_size <- queue_size - 1
