@@ -39,17 +39,18 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&) -> i
         else:
             if (payload.u64() | (opcode.u64() >> 2)) != 0:
                 return -1
+            observed: mutable u64 = 0
             if opcode == 3:
-                observed: u64 = 1000001 if top == 0 else 1000000
-                checksum <- checksum + operation.u64() * observed
+                observed <- 1000001 if top == 0 else 1000000
             else:
                 if top == 0:
                     return -1
-                # Push validation caps top at 256, and the empty check protects subtraction.
                 last: u32 = top - 1
-                checksum <- checksum + operation.u64() * data_stack[last].u64()
+                value: u64 = data_stack[last].u64()
                 if opcode == 1:
                     top <- last
+                observed <- value
+            checksum <- checksum + operation.u64() * observed
     # Each product fits in u32 (weight at most 768, value at most 2000000).
     index: mutable u32 = 0
     while index < top:
