@@ -1,14 +1,21 @@
+# Iterative Euclidean GCD for nonnegative signed 64-bit inputs.
+def lcm_gcd(left: u64, right: u64) -> u64:
+    dividend: mutable u64 = left
+    divisor: mutable u64 = right
+    while divisor != 0:
+        remainder: u64 = dividend % divisor
+        if remainder == 0:
+            return divisor
+        # Two Euclidean steps restore the dividend and divisor to their original roles.
+        dividend <- remainder
+        divisor <- divisor % remainder
+    dividend
+
 # Portable LCM with overflow checked after dividing by the GCD.
 def lcm_impl(left: u64, right: u64) -> i64:
     if left == 0 or right == 0:
         return 0
-    a: mutable u64 = left
-    b: mutable u64 = right
-    while b != 0:
-        remainder: u64 = a % b
-        a <- b
-        b <- remainder
-    reduced: u64 = left / a
+    reduced: u64 = left / lcm_gcd(left, right)
     max_result: u64 = 9223372036854775807.u64()
     if reduced > max_result / right:
         return -1
