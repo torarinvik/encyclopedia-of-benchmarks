@@ -1,3 +1,6 @@
+@link_name("llvm.assume")
+extern assume_reduced_denominator(condition: bool) -> void
+
 const SQ_MAX_NUMBER: i64 = 1000000000000
 const SQ_MAX_STEPS: i64 = 256
 
@@ -19,6 +22,8 @@ def sq_gcd(left_value: i64, right_value: i64) -> i64:
 def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64) -> i64:
     # For the nonsquare discriminant D, reduced forms keep p*p < D.
     # Consecutive denominators multiply to D - p*p and start positive.
+    # Reduced denominators are at most twice the discriminant root.
+    assume_reduced_denominator(q > 0 and q < 3000000)
     root: i64 = sqrt(q.f64()).i32().i64()
     if root * root != q:
         return 0
@@ -27,6 +32,7 @@ def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64)
     s: mutable i64 = (discriminant - r.i32().i64() * r.i32().i64()) / root
     step: mutable i64 = 0
     while step < cap:
+        assume_reduced_denominator(s > 0 and s < 3000000)
         next_quotient: i64 = ((a.i32().i64() + r.i32().i64()).u32() / s.u32()).i64()
         next_r: i64 = a - ((a.i32().i64() + r.i32().i64()).u32() % s.u32()).i64()
         if next_r == r:
