@@ -35,7 +35,6 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     index: mutable usize = 0
     while index < n:
         woman_partner[index] <- -1
-        man_partner[index] <- -1
         free_queue[index] <- index
         index <- index + 1
     head: mutable usize = 0
@@ -55,7 +54,6 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         elif women_rank[woman * MAX_N + man] < women_rank[woman * MAX_N + incumbent.usize()]:
             woman_partner[woman] <- man.i64()
             man_partner[man] <- woman.i64()
-            man_partner[incumbent.usize()] <- -1
             free_queue[queue_end] <- incumbent.usize()
             queue_end <- (queue_end + 1) & 7
             queue_count <- queue_count + 1
