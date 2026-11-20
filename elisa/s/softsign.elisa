@@ -1,8 +1,10 @@
+@link_name("llvm.fabs.f64")
 extern fabs(value: f64) -> f64
 
 def softsign_impl(x: f64) -> f64:
-    if x != x or x < -1.0e100 or x > 1.0e100:
+    magnitude: f64 = fabs(x)
+    if not (magnitude <= 1.0e100):
         return -1.0e300
-    x / (1.0 + fabs(x))
+    x / (1.0 + magnitude)
 
 export fn softsign(x: f64) -> f64 = softsign_impl
