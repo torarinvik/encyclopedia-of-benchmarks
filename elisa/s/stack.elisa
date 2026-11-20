@@ -33,22 +33,19 @@ def stack_run(values: i64&, operation_count: usize, data_stack: mutable i32&) ->
                 return -1
             data_stack[top] <- encoded.i32()
             top <- top + 1
-        elif opcode == 1:
-            if payload != 0 or top == 0:
-                return -1
-            top <- top - 1
-            checksum <- checksum + operation.i64() * data_stack[top & 255].i64()
-        elif opcode == 2:
-            if payload != 0 or top == 0:
-                return -1
-            checksum <- checksum + operation.i64() * data_stack[(top - 1) & 255].i64()
-        elif opcode == 3:
-            if payload != 0:
-                return -1
-            observed: i64 = 1000001 if top == 0 else 1000000
-            checksum <- checksum + operation.i64() * observed
         else:
-            return -1
+            if payload != 0 or opcode.u64() > 3:
+                return -1
+            if opcode == 3:
+                observed: i64 = 1000001 if top == 0 else 1000000
+                checksum <- checksum + operation.i64() * observed
+            else:
+                if top == 0:
+                    return -1
+                last: usize = top - 1
+                checksum <- checksum + operation.i64() * data_stack[last & 255].i64()
+                if opcode == 1:
+                    top <- last
     # Each product fits in i32 (weight at most 768, value at most 2000000).
     index: mutable usize = 0
     while index < top:
