@@ -14,8 +14,7 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     row: mutable usize = 0
     while row < 2 * n:
         seen: mutable bool[8] = zeroed
-        row_start: mutable usize = 1 + row * n
-        if row >= n: row_start <- 1 + side_size + (row - n) * n
+        row_start: usize = 1 + row * n
         rank: mutable usize = 0
         while rank < n:
             participant: i64 = input[row_start + rank]
