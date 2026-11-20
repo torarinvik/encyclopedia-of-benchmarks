@@ -22,10 +22,8 @@ def binary_exponentiation_impl(values: i64&, length: usize) -> i64:
     # Either negative or out-of-range operand sets a bit above bit 30.
     if ((base_input.u64() | exponent_input.u64()) >> 31) != 0:
         return -1
-    if exponent_input == 0:
-        return 1
-    if base_input <= 1:
-        return base_input
+    if exponent_input <= 1 or base_input <= 1:
+        return 1 if exponent_input == 0 else base_input
     # Every base above one overflows at exponent 63 or higher.
     if exponent_input > 62:
         return -1
