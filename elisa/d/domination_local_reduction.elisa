@@ -12,46 +12,37 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     n: usize = n0.usize()
     m: usize = m0.usize()
     p: usize = p0.usize()
-    adj: mutable bool[144] = zeroed
+    adj: mutable u16[12] = zeroed
     for e in 0..<m:
         u0: i64 = input[3 + 2 * e]
         v0: i64 = input[4 + 2 * e]
         if u0 < 0 or v0 <= u0 or v0 >= n0: return -1
         u: usize = u0.usize()
         v: usize = v0.usize()
-        if adj[u * 12 + v]: return -1
-        adj[u * 12 + v] <- true
-        adj[v * 12 + u] <- true
-    closed: mutable bool[12] = zeroed
-    exits: mutable bool[12] = zeroed
-    guards: mutable bool[12] = zeroed
-    prisoners: mutable bool[12] = zeroed
-    closed[p] <- true
+        u_bit: u16 = 1.u16() << u
+        v_bit: u16 = 1.u16() << v
+        if (adj[u] & v_bit) != 0: return -1
+        adj[u] <- adj[u] | v_bit
+        adj[v] <- adj[v] | u_bit
+    neighbors: u16 = adj[p]
+    closed: u16 = neighbors | (1.u16() << p)
+    exits: mutable u16 = 0
     for u in 0..<n:
-        if adj[p * 12 + u]: closed[u] <- true
+        bit: u16 = 1.u16() << u
+        if (neighbors & bit) != 0 and (adj[u] & ~closed) != 0:
+            exits <- exits | bit
+    candidates: u16 = neighbors & ~exits
+    guards: mutable u16 = 0
     for u in 0..<n:
-        if adj[p * 12 + u]:
-            for x in 0..<n:
-                if adj[u * 12 + x] and not closed[x]:
-                    exits[u] <- true
-                    break
-    for u in 0..<n:
-        if adj[p * 12 + u] and not exits[u]:
-            for x in 0..<n:
-                if exits[x] and adj[u * 12 + x]:
-                    guards[u] <- true
-                    break
-    np: mutable usize = 0
-    for u in 0..<n:
-        if adj[p * 12 + u] and not exits[u] and not guards[u]:
-            prisoners[u] <- true
-            np <- np + 1
-    if np == 0: return -1
+        bit: u16 = 1.u16() << u
+        if (candidates & bit) != 0 and (adj[u] & exits) != 0:
+            guards <- guards | bit
+    if (candidates & ~guards) == 0: return -1
     ids: mutable usize[12] = zeroed
     pivot_index: mutable usize = 0
     kept: mutable usize = 0
     for u in 0..<n:
-        if not guards[u] and not prisoners[u]:
+        if (candidates & (1.u16() << u)) == 0:
             ids[kept] <- u
             if u == p: pivot_index <- kept
             kept <- kept + 1
@@ -66,7 +57,7 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     for i in 0..<kept:
         row: mutable i64 = 0
         for j in 0..<kept:
-            if adj[ids[i] * 12 + ids[j]]:
+            if (adj[ids[i]] & (1.u16() << ids[j])) != 0:
                 row <- row | (1.i64() << j)
         if i == pivot_index: row <- row | (1.i64() << leaf)
         domination_local_reduction_put_word(output, 8 * (1 + k + i), row)
