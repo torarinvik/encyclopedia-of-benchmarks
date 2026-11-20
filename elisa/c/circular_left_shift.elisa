@@ -4,7 +4,7 @@ def circular_left_shift_impl(value: u64, shift: u64) -> i64:
     if value > mask or shift > 53:
         return -1
     amount: u64 = shift
-    low: u64 = (value & (mask >> amount)) << amount
+    low: u64 = (value << amount) & mask
     high: u64 = value >> (53 - amount)
     (low | high)
 
