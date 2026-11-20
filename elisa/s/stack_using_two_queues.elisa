@@ -2,6 +2,9 @@
 # copies into the other array and can increase the live length by at most one.
 def push_new(main_queue: i64&, temp_queue: mutable i64&, head: usize, queue_size: usize, value: i64) -> usize:
     temp_queue[0] <- value
+    if queue_size == 1:
+        temp_queue[1] <- main_queue[head + 0]
+        return 2
     for index in 0.usize()..<queue_size:
         temp_queue[index + 1] <- main_queue[head + index]
     queue_size + 1
