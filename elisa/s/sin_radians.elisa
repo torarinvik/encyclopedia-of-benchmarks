@@ -1,23 +1,21 @@
+@link_name("llvm.fabs.f64")
+extern magnitude(x: f64) -> f64
+
 extern floor(value: f64) -> f64
 
-def sin_radians_impl(radians: f64) -> f64:
-    if not (radians >= -1000000.0 and radians <= 1000000.0):
-        return -1.0
+@inline(never)
+def sin_approximation(radians: f64) -> f64:
     x: mutable f64 = (3.141592653589793 / 2.0) - radians
     tp: f64 = 1.0 / (2.0 * 3.141592653589793)
     x <- x * tp
     x <- x - (0.25 + floor(x + 0.25))
-    absolute: mutable f64 = 0.0
-    if x < 0.0:
-        absolute <- -x
-    else:
-        absolute <- x
-    x <- x * (16.0 * (absolute - 0.5))
-    if x < 0.0:
-        absolute <- -x
-    else:
-        absolute <- x
-    x <- x + 0.225 * x * (absolute - 1.0)
+    x <- x * (16.0 * (magnitude(x) - 0.5))
+    x <- x + 0.225 * x * (magnitude(x) - 1.0)
     x
+
+def sin_radians_impl(radians: f64) -> f64:
+    if not (radians >= -1000000.0 and radians <= 1000000.0):
+        return -1.0
+    sin_approximation(radians)
 
 export fn sin_radians(radians: f64) -> f64 = sin_radians_impl
