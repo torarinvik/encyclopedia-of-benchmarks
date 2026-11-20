@@ -19,13 +19,13 @@ def stack_benchmark_impl(values: i64&, length: usize) -> i64:
     operation_count: usize = length / 2
     # Even an all-push trace fits here, so the inlined loop needs no capacity check.
     if operation_count <= 8:
-        return stack_short(values, operation_count.u32())
+        return stack_short(values, operation_count.u8())
     stack_large(values, operation_count.u32())
 
 @inline(never)
-def stack_short(values: i64&, operation_count: u32) -> i64:
+def stack_short(values: i64&, operation_count: u8) -> i64:
     small_stack: mutable u32[8] = zeroed
-    stack_run(values, operation_count, &small_stack[0], false)
+    stack_run(values, operation_count.u32(), &small_stack[0], false)
 
 @inline(never)
 def stack_large(values: i64&, operation_count: u32) -> i64:
