@@ -64,7 +64,7 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     previous_q: mutable i64 = 1
     q: mutable i64 = discriminant - a * a
     p: mutable i64 = a
-    remaining: mutable i64 = forward_cap
+    remaining: mutable u32 = forward_cap.u32()
     while true:
         quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
         next_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
