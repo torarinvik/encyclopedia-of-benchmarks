@@ -12,10 +12,8 @@ def sum_of_divisors_impl(n: i64) -> i64:
     sigma: mutable u32 = 2 * power_of_two - 1
     factor: mutable u32 = 3
     while factor * factor <= remaining:
-        quotient: u32 = remaining / factor
-        if quotient * factor == remaining:
-            remaining <- quotient
-            geometric_sum: mutable u32 = 1 + factor
+        if remaining % factor == 0:
+            geometric_sum: mutable u32 = 1
             while remaining % factor == 0:
                 remaining <- remaining / factor
                 geometric_sum <- geometric_sum * factor + 1
