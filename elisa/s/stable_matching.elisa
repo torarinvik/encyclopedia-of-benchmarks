@@ -11,30 +11,33 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
 
     men_preferences: mutable u8[64] = zeroed
     women_rank: mutable u8[64] = zeroed
+    complete_row: u64 = (1.u64() << n) - 1
     row: mutable usize = 0
     while row < n:
-        seen: mutable bool[8] = zeroed
+        seen: mutable u64 = 0
         row_start: usize = 1 + row * n
         rank: mutable usize = 0
         while rank < n:
             participant: i64 = input[row_start + rank]
-            if participant < 0 or participant >= n_arg or seen[participant.usize()]: return -1
-            seen[participant.usize()] <- true
+            if participant.u64() >= n_arg.u64(): return -1
+            seen <- seen | (1.u64() << participant.u64())
             men_preferences[row * MAX_N + rank] <- participant.u8()
             rank <- rank + 1
+        if seen != complete_row: return -1
         row <- row + 1
 
     row <- 0
     while row < n:
-        seen: mutable bool[8] = zeroed
+        seen: mutable u64 = 0
         row_start: usize = 1 + side_size + row * n
         rank: mutable usize = 0
         while rank < n:
             participant: i64 = input[row_start + rank]
-            if participant < 0 or participant >= n_arg or seen[participant.usize()]: return -1
-            seen[participant.usize()] <- true
+            if participant.u64() >= n_arg.u64(): return -1
+            seen <- seen | (1.u64() << participant.u64())
             women_rank[row * MAX_N + participant.usize()] <- rank.u8()
             rank <- rank + 1
+        if seen != complete_row: return -1
         row <- row + 1
 
     output_bytes: usize = 16 * n
