@@ -4,14 +4,18 @@ const MAX_ARRAY_LENGTH: usize = 10000
 def squares_of_a_sorted_array_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if length > MAX_ARRAY_LENGTH:
         return -1
-    index: mutable usize = 0
-    while index < length:
-        value: i64 = input[index]
-        if value < -10000 or value > 10000:
+    if length > 0:
+        previous: mutable i64 = input[0]
+        # Once ordering is verified, the endpoints bound every value.
+        if previous < -10000 or input[length - 1] > 10000:
             return -1
-        if index > 0 and input[index - 1] > value:
-            return -1
-        index <- index + 1
+        index: mutable usize = 1
+        while index < length:
+            value: i64 = input[index]
+            if previous > value:
+                return -1
+            previous <- value
+            index <- index + 1
 
     output_bytes: usize = length * 8
     if output_capacity < output_bytes:
@@ -24,14 +28,8 @@ def squares_of_a_sorted_array_impl(input: i64&, length: usize, output: mutable u
         destination <- destination - 1
         left_value: i64 = input[left]
         right_value: i64 = input[right - 1]
-        left_magnitude: mutable i64 = left_value
-        if left_value < 0:
-            left_magnitude <- -left_value
-        right_magnitude: mutable i64 = right_value
-        if right_value < 0:
-            right_magnitude <- -right_value
         value: mutable i64 = 0
-        if left_magnitude > right_magnitude:
+        if left_value + right_value < 0:
             value <- left_value
             left <- left + 1
         else:
