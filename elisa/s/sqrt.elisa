@@ -13,8 +13,8 @@ def newton_step(x2: f32, y: f32) -> f32:
     correction: f32 = 1.5.f32() - product2
     y * correction
 
-def sqrt_impl(value: f64) -> f64:
-    if not (value >= 1e-6 and value <= 1e6): return -1.0
+@inline(never)
+def sqrt_refinement(value: f64) -> f64:
     number: f32 = value.f32()
     x2: f32 = number * 0.5.f32()
     bits: mutable u32 = 0
@@ -26,5 +26,9 @@ def sqrt_impl(value: f64) -> f64:
     inverse_root <- newton_step(x2, inverse_root)
     root: f32 = 1.0.f32() / inverse_root
     root.f64()
+
+def sqrt_impl(value: f64) -> f64:
+    if not (value >= 1e-6 and value <= 1e6): return -1.0
+    sqrt_refinement(value)
 
 export fn go_sqrt_f32(value: f64) -> f64 = sqrt_impl
