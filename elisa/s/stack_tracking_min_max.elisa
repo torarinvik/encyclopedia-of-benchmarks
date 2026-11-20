@@ -33,13 +33,24 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
     if output == null or capacity < 24:
         return -2
 
+    # Each operation pushes at most one value and emits at most one record.
+    if operation_count <= 8:
+        values: mutable i32[8] = zeroed
+        minima: mutable i32[8] = zeroed
+        maxima: mutable i32[8] = zeroed
+        records: mutable i64[24] = zeroed
+        return minmax_execute(input, output, capacity, max_size, operation_count, &values[0], &minima[0], &maxima[0], &records[0])
     values: mutable i32[64] = zeroed
     minima: mutable i32[64] = zeroed
     maxima: mutable i32[64] = zeroed
     records: mutable i64[192] = zeroed
+    minmax_execute(input, output, capacity, max_size, operation_count, &values[0], &minima[0], &maxima[0], &records[0])
+
+@inline(always)
+def minmax_execute(input: i64&, output: mutable u8&, capacity: usize, max_size: u64, operation_count: u64, values: mutable i32&, minima: mutable i32&, maxima: mutable i32&, records: mutable i64&) -> i64:
     top: mutable usize = 0
     words: mutable usize = 0
-    position <- 2
+    position: mutable usize = 2
     for operation in 0..<operation_count.usize():
         opcode: i64 = input[position]
         position <- position + 1
