@@ -40,14 +40,13 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
             exits <- exits | bit.u16()
     candidates: u16 = neighbors & ~exits
     remaining_candidates: mutable u32 = candidates.u32()
-    has_prisoner: mutable bool = exits == 0 and candidates != 0
-    while not has_prisoner and remaining_candidates != 0:
-        u: usize = domination_trailing_zeros(remaining_candidates, true).usize()
-        if (adj[u] & exits) == 0:
-            has_prisoner <- true
-            break
-        remaining_candidates <- remaining_candidates & (remaining_candidates - 1.u32())
-    if not has_prisoner: return -1
+    if remaining_candidates == 0: return -1
+    if exits != 0:
+        while true:
+            u: usize = domination_trailing_zeros(remaining_candidates, true).usize()
+            if (adj[u] & exits) == 0: break
+            remaining_candidates <- remaining_candidates & (remaining_candidates - 1.u32())
+            if remaining_candidates == 0: return -1
     # At most twelve vertex IDs fit in twelve four-bit slots.
     packed_ids: mutable u64 = 0
     pivot_index: mutable usize = 0
