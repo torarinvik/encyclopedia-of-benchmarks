@@ -2,6 +2,9 @@ const MAX_N: usize = 6
 
 const MAX_M: usize = 10
 
+# DFS paths store the residual arc index in five bits.
+const ARC_SLOTS: usize = 32
+
 const MAX_INPUT: usize = 60
 
 def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
@@ -19,8 +22,8 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
     t: usize = t0.usize()
     if (length < (4 + (3 * m))):
         return (-1)
-    arc_target: mutable usize[MAX_M * 2] = zeroed
-    residual_capacity: mutable i64[MAX_M * 2] = zeroed
+    arc_target: mutable usize[ARC_SLOTS] = zeroed
+    residual_capacity: mutable i64[ARC_SLOTS] = zeroed
     # Each byte holds the undirected neighbors of one vertex.
     adjacency: mutable u64 = 0
     at: mutable usize = 4
@@ -104,7 +107,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             if (next_edge[u] >= degree[u]):
                 top <- (top - 1)
                 continue
-            arc: usize = rot[u * MAX_N + next_edge[u]]
+            arc: usize = rot[u * MAX_N + next_edge[u]] & (ARC_SLOTS - 1)
             next_edge[u] <- next_edge[u] + 1
             v: usize = arc_target[arc]
             if residual_capacity[arc] > 0 and not seen[v]:
