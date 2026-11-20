@@ -5,25 +5,41 @@ const INVALID_RESULT: f64 = -1.0e300
 @link_name("llvm.sqrt.f64")
 extern sqrt(value: f64) -> f64
 
+struct GaussLegendreState:
+    a: f64
+    b: f64
+    t: f64
+
+@inline(always)
+def gauss_legendre_step(state: GaussLegendreState, weight: f64) -> GaussLegendreState:
+    next_a: f64 = (state.a + state.b) / 2.0
+    difference: f64 = state.a - next_a
+    return GaussLegendreState{a: next_a, b: sqrt(state.a * state.b), t: state.t - weight * difference * difference}
+
+def gauss_legendre_result(state: GaussLegendreState) -> f64:
+    sum: f64 = state.a + state.b
+    return sum * sum / (4.0 * state.t)
+
 def gauss_legendre_pi(iterations: i64) -> f64:
-    a: mutable f64 = 1.0
-    b: mutable f64 = sqrt(0.5)
-    t: mutable f64 = 0.25
-    p: mutable f64 = 1.0
-    index: mutable i64 = 0
-    while index < iterations:
-        next_a: f64 = (a + b) / 2.0
-        next_b: f64 = sqrt(a * b)
-        difference: f64 = a - next_a
-        next_t: f64 = t - p * difference * difference
-        next_p: f64 = 2.0 * p
-        a <- next_a
-        b <- next_b
-        t <- next_t
-        p <- next_p
-        index <- index + 1
-    sum: f64 = a + b
-    sum * sum / (4.0 * t)
+    # The eight bounded steps expose each constant state to the optimizer.
+    state: mutable GaussLegendreState = GaussLegendreState{a: 1.0, b: sqrt(0.5), t: 0.25}
+    if iterations == 0: return gauss_legendre_result(state)
+    state <- gauss_legendre_step(state, 1.0)
+    if iterations == 1: return gauss_legendre_result(state)
+    state <- gauss_legendre_step(state, 2.0)
+    if iterations == 2: return gauss_legendre_result(state)
+    state <- gauss_legendre_step(state, 4.0)
+    if iterations == 3: return gauss_legendre_result(state)
+    state <- gauss_legendre_step(state, 8.0)
+    if iterations == 4: return gauss_legendre_result(state)
+    state <- gauss_legendre_step(state, 16.0)
+    if iterations == 5: return gauss_legendre_result(state)
+    state <- gauss_legendre_step(state, 32.0)
+    if iterations == 6: return gauss_legendre_result(state)
+    state <- gauss_legendre_step(state, 64.0)
+    if iterations == 7: return gauss_legendre_result(state)
+    state <- gauss_legendre_step(state, 128.0)
+    return gauss_legendre_result(state)
 
 def gauss_legendre_impl(iterations_value: f64) -> f64:
     if not (iterations_value >= 0.0 and iterations_value <= MAX_ITERATIONS.f64()):
