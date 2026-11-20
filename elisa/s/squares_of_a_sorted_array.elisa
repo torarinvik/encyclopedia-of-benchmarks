@@ -2,20 +2,21 @@ const MAX_ARRAY_LENGTH: usize = 10000
 
 # Square a sorted array and emit the results in ascending order.
 def squares_of_a_sorted_array_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0:
+        return 0
     if length > MAX_ARRAY_LENGTH:
         return -1
-    if length > 0:
-        previous: mutable i64 = input[0]
-        # Once ordering is verified, the endpoints bound every value.
-        if previous < -10000 or input[length - 1] > 10000:
+    previous: mutable i64 = input[0]
+    # Once ordering is verified, the endpoints bound every value.
+    if previous < -10000 or input[length - 1] > 10000:
+        return -1
+    index: mutable usize = 1
+    while index < length:
+        value: i64 = input[index]
+        if previous > value:
             return -1
-        index: mutable usize = 1
-        while index < length:
-            value: i64 = input[index]
-            if previous > value:
-                return -1
-            previous <- value
-            index <- index + 1
+        previous <- value
+        index <- index + 1
 
     output_bytes: usize = length * 8
     if output_capacity < output_bytes:
@@ -29,13 +30,16 @@ def squares_of_a_sorted_array_impl(input: i64&, length: usize, output: mutable u
         left_value: i64 = input[left]
         right_value: i64 = input[right - 1]
         value: mutable i64 = 0
-        if left_value + right_value < 0:
+        # Compare the sum with zero without forming it.
+        if left_value <= ~right_value:
             value <- left_value
             left <- left + 1
         else:
             value <- right_value
             right <- right - 1
-        square: u64 = (value * value).u64()
+        # The validated value fits i32, and its square fits i64.
+        small: i64 = value.i32().i64()
+        square: u64 = (small * small).u64()
         byte: mutable usize = 0
         while byte < 8:
             output[destination * 8 + byte] <- ((square >> (byte * 8)) & 255).u8()
