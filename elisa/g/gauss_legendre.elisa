@@ -1,6 +1,8 @@
 const MAX_ITERATIONS: i64 = 8
 const INVALID_RESULT: f64 = -1.0e300
 
+# The iteration averages and takes geometric means of positive values.
+@link_name("llvm.sqrt.f64")
 extern sqrt(value: f64) -> f64
 
 def gauss_legendre_pi(iterations: i64) -> f64:
