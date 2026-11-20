@@ -15,7 +15,8 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
     if input_length != 4 + 2 * m:
         return -1
 
-    adjacent: mutable u64[8] = zeroed
+    # Each of the eight byte lanes holds one vertex’s adjacency mask.
+    adjacency: mutable u64 = 0
     # Set the high bit of each four-bit entry so vertex zero is distinguishable
     # from an empty list. Each vertex has at most seven neighbors.
     pending_neighbors: mutable u32[8] = zeroed
@@ -28,17 +29,16 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             return -1
         u: usize = u_value.usize()
         v: usize = v_value.usize()
-        u_bit: u64 = 1 << v
-        v_bit: u64 = 1 << u
-        if (adjacent[u] & u_bit) != 0:
+        u_bit: u64 = 1 << (8 * u + v)
+        v_bit: u64 = 1 << (8 * v + u)
+        if (adjacency & u_bit) != 0:
             return -1
-        adjacent[u] <- adjacent[u] | u_bit
-        adjacent[v] <- adjacent[v] | v_bit
+        adjacency <- adjacency | u_bit | v_bit
         if u != s and v != s:
             pending_neighbors[u] <- (pending_neighbors[u] << 4) | (v.u32() | 8)
             pending_neighbors[v] <- (pending_neighbors[v] << 4) | (u.u32() | 8)
         edge <- edge + 1
-    if (adjacent[s] & (1 << t)) == 0:
+    if (adjacency & (1 << (8 * s + t))) == 0:
         return -1
 
     parent: mutable i64[8] = zeroed
@@ -54,7 +54,6 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
     low_rank[t] <- 2
     preorder[0] <- s
     preorder[1] <- t
-    root_bit: u64 = 1 << s
     vertex <- t
     while vertex != s:
         neighbors: u32 = pending_neighbors[vertex]
@@ -79,7 +78,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             preorder[preorder_count] <- neighbor
             preorder_count <- preorder_count + 1
             discovery[neighbor] <- preorder_count.u8()
-            low_rank[neighbor] <- 1 if (adjacent[neighbor] & root_bit) != 0 else preorder_count.u8()
+            low_rank[neighbor] <- 1 if (adjacency & (1 << (8 * s + neighbor))) != 0 else preorder_count.u8()
             vertex <- neighbor
         elif discovery[neighbor] < low_rank[vertex]:
             low_rank[vertex] <- discovery[neighbor]
@@ -124,7 +123,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
         vertex <- vertex_value.usize()
         if vertex != s and vertex != t:
             # Previously visited vertices have lower rank, and self-loops were rejected.
-            neighbors: u64 = adjacent[vertex]
+            neighbors: u64 = (adjacency >> (vertex * 8)) & 255
             if (neighbors & lower_vertices) == 0 or (neighbors & ~lower_vertices) == 0:
                 return -1
         lower_vertices <- lower_vertices | (1 << vertex)
