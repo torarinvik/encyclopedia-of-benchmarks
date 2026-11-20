@@ -15,6 +15,7 @@ def sq_gcd(left_value: i64, right_value: i64) -> i64:
 
 # In both walks, reduced forms keep the numerator magnitude and denominator
 # within twice the discriminant root. The quotients and differences fit i32.
+# Both division operands are positive and fit u32.
 def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64) -> i64:
     if q <= 0:
         return 0
@@ -28,8 +29,8 @@ def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64)
     s: mutable i64 = (discriminant - r * r) / root
     step: mutable i64 = 0
     while step < cap:
-        next_quotient: i64 = (a.i32().i64() + r.i32().i64()) / s
-        next_r: i64 = a - (a.i32().i64() + r.i32().i64()) % s
+        next_quotient: i64 = ((a.i32().i64() + r.i32().i64()).u32() / s.u32()).i64()
+        next_r: i64 = a - ((a.i32().i64() + r.i32().i64()).u32() % s.u32()).i64()
         if next_r == r:
             factor: i64 = sq_gcd(number, r)
             if factor > 1 and factor < number:
@@ -64,8 +65,8 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     p: mutable i64 = a
     step: mutable i64 = 0
     while step < forward_cap:
-        quotient: i64 = (a.i32().i64() + p.i32().i64()) / q
-        next_p: i64 = a - (a.i32().i64() + p.i32().i64()) % q
+        quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
+        next_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
         next_q: i64 = previous_q + quotient.i32().i64() * (p.i32().i64() - next_p.i32().i64()).i32().i64()
         previous_q <- q
         q <- next_q
