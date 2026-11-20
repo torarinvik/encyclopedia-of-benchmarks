@@ -40,13 +40,9 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     output_bytes: usize = 16 * n
     if output == null or capacity < output_bytes: return -2
 
-    woman_partner: mutable i64[8] = zeroed
+    woman_partner: mutable u8[8] = zeroed
     man_partner: mutable i64[8] = zeroed
     next_proposal: mutable usize[8] = zeroed
-    index: mutable usize = 0
-    while index < n:
-        woman_partner[index] <- -1
-        index <- index + 1
     proposer: mutable usize = 0
     while proposer < n:
         active: mutable usize = proposer
@@ -54,15 +50,15 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             rank: usize = next_proposal[active]
             next_proposal[active] <- rank + 1
             woman: usize = men_preferences[active * MAX_N + rank].usize()
-            incumbent: i64 = woman_partner[woman]
-            if incumbent < 0:
-                woman_partner[woman] <- active.i64()
+            incumbent_code: usize = woman_partner[woman].usize()
+            if incumbent_code == 0:
+                woman_partner[woman] <- (active + 1).u8()
                 man_partner[active] <- woman.i64()
                 break
-            if women_rank[woman * MAX_N + active] < women_rank[woman * MAX_N + incumbent.usize()]:
-                woman_partner[woman] <- active.i64()
+            if women_rank[woman * MAX_N + active] < women_rank[woman * MAX_N + (incumbent_code - 1)]:
+                woman_partner[woman] <- (active + 1).u8()
                 man_partner[active] <- woman.i64()
-                active <- incumbent.usize()
+                active <- (incumbent_code - 1)
         proposer <- proposer + 1
 
     man: mutable usize = 0
