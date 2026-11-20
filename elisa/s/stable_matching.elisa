@@ -26,7 +26,6 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
 def stable_matching_valid_input(input: i64&, n: usize, output: mutable u8&?, capacity: usize) -> i64:
     n_arg: i64 = n.i64()
     side_size: usize = n * n
-    men_preferences: mutable u8[64] = zeroed
     women_rank: mutable u8[64] = zeroed
     complete_row: u64 = (1.u64() << n) - 1
     row: mutable usize = 0
@@ -38,7 +37,6 @@ def stable_matching_valid_input(input: i64&, n: usize, output: mutable u8&?, cap
             participant: i64 = input[row_start + rank]
             if participant.u64() >= n_arg.u64(): return -1
             seen <- seen | (1.u64() << participant.u64())
-            men_preferences[row * MAX_N + rank] <- participant.u8()
             rank <- rank + 1
         if seen != complete_row: return -1
         row <- row + 1
@@ -69,7 +67,7 @@ def stable_matching_valid_input(input: i64&, n: usize, output: mutable u8&?, cap
         while true:
             rank: usize = next_proposal[active]
             next_proposal[active] <- rank + 1
-            woman: usize = men_preferences[active * MAX_N + rank].usize()
+            woman: usize = input[1 + active * n + rank].usize()
             incumbent_code: usize = woman_partner[woman].usize()
             if incumbent_code == 0:
                 woman_partner[woman] <- (active + 1).u8()
