@@ -1,8 +1,6 @@
-def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, node_value: mutable u32&, next_node: mutable u16&, prev_node: mutable u16&) -> i64:
-    next_node[sentinel] <- sentinel.u16()
-    prev_node[sentinel] <- sentinel.u16()
-    free_head: mutable usize = sentinel
-    next_unused: mutable usize = 0
+def circular_list_trace(values: i64&, operation_count: usize, node_value: mutable u32&, next_node: mutable u16&, prev_node: mutable u16&) -> i64:
+    free_head: mutable usize = 0
+    next_unused: mutable usize = 1
     count: mutable usize = 0
     # Biased results and their weighted sum fit in i64 for every bounded trace.
     checksum: mutable u64 = 0
@@ -11,22 +9,22 @@ def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, n
         payload: i64 = values[2 * operation + 1]
         biased_payload: u64 = payload.u64() + 1000000
         observed: mutable u64 = 1000000
-        removed: mutable usize = sentinel
+        removed: mutable usize = 0
         if opcode == 0 or opcode == 1:
             if biased_payload > 2000000 or count == 256:
                 return -1
-            node: usize = next_unused if free_head == sentinel else free_head
-            if free_head == sentinel:
+            node: usize = next_unused if free_head == 0 else free_head
+            if free_head == 0:
                 next_unused <- next_unused + 1
             else:
                 free_head <- next_node[node].usize()
             node_value[node] <- biased_payload.u32()
-            before: mutable usize = sentinel
-            after: mutable usize = sentinel
+            before: mutable usize = 0
+            after: mutable usize = 0
             if opcode == 0:
-                before <- prev_node[sentinel].usize()
+                before <- prev_node[0].usize()
             else:
-                after <- next_node[sentinel].usize()
+                after <- next_node[0].usize()
             next_node[node] <- after.u16()
             prev_node[node] <- before.u16()
             next_node[before] <- node.u16()
@@ -36,18 +34,18 @@ def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, n
         elif opcode == 2 or opcode == 3:
             if payload != 0 or count == 0:
                 return -1
-            node: usize = next_node[sentinel].usize() if opcode == 2 else prev_node[sentinel].usize()
+            node: usize = next_node[0].usize() if opcode == 2 else prev_node[0].usize()
             observed <- node_value[node].u64()
             removed <- node
         elif opcode == 4 or opcode == 5:
             if biased_payload > 2000000:
                 return -1
             node: usize =
-                while current != sentinel and node_value[current] != biased_payload.u32() |current: mutable usize = next_node[sentinel].usize()| -> current:
+                while current != 0 and node_value[current] != biased_payload.u32() |current: mutable usize = next_node[0].usize()| -> current:
                     current <- next_node[current].usize()
-            if node != sentinel:
+            if node != 0:
                 observed <- 1000001
-            if opcode == 4 and node != sentinel:
+            if opcode == 4 and node != 0:
                 removed <- node
         elif opcode == 6:
             if payload != 0:
@@ -60,7 +58,7 @@ def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, n
             if opcode == 7:
                 index <- index % count
             node: usize =
-                while step < index |step: mutable usize = 0, current: mutable usize = next_node[sentinel].usize()| -> current:
+                while step < index |step: mutable usize = 0, current: mutable usize = next_node[0].usize()| -> current:
                     current <- next_node[current].usize()
                     step <- step + 1
             observed <- node_value[node].u64()
@@ -68,7 +66,7 @@ def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, n
                 removed <- node
         else:
             return -1
-        if removed != sentinel:
+        if removed != 0:
             before: usize = prev_node[removed].usize()
             after: usize = next_node[removed].usize()
             next_node[before] <- after.u16()
@@ -77,7 +75,7 @@ def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, n
             free_head <- removed
             count <- count - 1
         checksum <- checksum + (operation + 1).u64() * observed
-    checksum <- while forward != sentinel |forward: mutable usize = next_node[sentinel].usize(), backward: mutable usize = prev_node[sentinel].usize(), index: mutable usize = 0, total: mutable u64 = checksum| -> total:
+    checksum <- while forward != 0 |forward: mutable usize = next_node[0].usize(), backward: mutable usize = prev_node[0].usize(), index: mutable usize = 0, total: mutable u64 = checksum| -> total:
         weight: u64 = (operation_count + index + 1).u64()
         total <- total + weight * node_value[forward].u64()
         total <- total + (weight + count.u64()) * node_value[backward].u64()
@@ -94,13 +92,13 @@ def circular_doubly_linked_list_impl(values: i64&, length: usize) -> i64:
     if operation_count == 0:
         return 0
     if operation_count <= 8:
-        small_values: mutable u32[8] = zeroed
+        small_values: mutable u32[9] = zeroed
         small_next: mutable u16[9] = zeroed
         small_previous: mutable u16[9] = zeroed
-        return circular_list_trace(values, operation_count, 8, &small_values[0], &small_next[0], &small_previous[0])
-    node_values: mutable u32[256] = zeroed
+        return circular_list_trace(values, operation_count, &small_values[0], &small_next[0], &small_previous[0])
+    node_values: mutable u32[257] = zeroed
     next_nodes: mutable u16[257] = zeroed
     previous_nodes: mutable u16[257] = zeroed
-    circular_list_trace(values, operation_count, 256, &node_values[0], &next_nodes[0], &previous_nodes[0])
+    circular_list_trace(values, operation_count, &node_values[0], &next_nodes[0], &previous_nodes[0])
 
 export fn circular_doubly_linked_list_benchmark(values: i64&, length: usize) -> i64 = circular_doubly_linked_list_impl
