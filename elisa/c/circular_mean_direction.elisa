@@ -45,11 +45,15 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
 
 @inline(never)
 def circular_mean_multiple(values: f64&, count: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    sum_cos: mutable f64 = 0.0
-    sum_sin: mutable f64 = 0.0
+    first: f64 = values[1]
+    if not (fabs(first) <= 8.0 * CMD_PI): return -1
+    first_angle: f64 = first if fabs(first) <= CMD_ZERO_QUOTIENT_LIMIT else cmd_wrap(first)
+    # With zero initial sums the first Kahan correction is exactly zero.
+    sum_cos: mutable f64 = 0.0 + cos(first_angle)
+    sum_sin: mutable f64 = 0.0 + sin(first_angle)
     correction_cos: mutable f64 = 0.0
     correction_sin: mutable f64 = 0.0
-    for index in 0..<count:
+    for index in 1..<count:
         raw: f64 = values[index + 1]
         if not (fabs(raw) <= 8.0 * CMD_PI): return -1
         angle: f64 = raw if fabs(raw) <= CMD_ZERO_QUOTIENT_LIMIT else cmd_wrap(raw)
