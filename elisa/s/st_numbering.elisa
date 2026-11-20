@@ -1,3 +1,28 @@
+def st_numbering_small(input: i64&, n: usize, m: usize, s: usize, t: usize, output: mutable u8&?, output_capacity: usize) -> i64:
+    # With at most three vertices, a valid graph must be complete.
+    if m != (1 if n == 2 else 3):
+        return -1
+    seen: mutable u64 = 0
+    edge: mutable usize = 0
+    while edge < m:
+        u: u64 = input[4 + 2 * edge].u64()
+        v: u64 = input[5 + 2 * edge].u64()
+        if u == v or u >= n.u64() or v >= n.u64():
+            return -1
+        # The three possible unordered edges have distinct endpoint sums.
+        bit: u64 = 1 << (u + v)
+        if (seen & bit) != 0:
+            return -1
+        seen <- seen | bit
+        edge <- edge + 1
+    if output == null or output_capacity < n:
+        return -2
+    output[s] <- 1
+    if n == 3:
+        output[3 - s - t] <- 2
+    output[t] <- n.u8()
+    n.i64()
+
 @inline(never)
 def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input_length < 4 or input_length > 60:
@@ -18,6 +43,9 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     if n > 2 and m < n:
         return -1
 
+    if n <= 3:
+        return st_numbering_small(input, n, m, s, t, output, output_capacity)
+
     # Each of the eight byte lanes holds one vertex’s adjacency mask.
     adjacency: mutable u64 = 0
     # Set the high bit of each four-bit entry so vertex zero is distinguishable
@@ -37,27 +65,12 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
         if (adjacency & u_bit) != 0:
             return -1
         adjacency <- adjacency | u_bit | v_bit
-        if n > 3 and u != s and v != s:
+        if u != s and v != s:
             pending_neighbors[u] <- (pending_neighbors[u] << 4) | (v.u32() | 8)
             pending_neighbors[v] <- (pending_neighbors[v] << 4) | (u.u32() | 8)
         edge <- edge + 1
     if (adjacency & (1 << (8 * s + t))) == 0:
         return -1
-
-    if n == 2:
-        if output == null or output_capacity < 2:
-            return -2
-        output[s] <- 1
-        output[t] <- 2
-        return 2
-
-    if n == 3:
-        if output == null or output_capacity < 3:
-            return -2
-        output[s] <- 1
-        output[3 - s - t] <- 2
-        output[t] <- 3
-        return 3
 
     # DFS links store validated vertex IDs in 0..7. Mask array indices after
     # testing link sentinels so the compiler can eliminate redundant checks.
