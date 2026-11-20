@@ -12,11 +12,13 @@ def euler_totient_impl(n: i64) -> i64:
         remaining <- remaining / power_of_two
     factor: mutable u32 = 3
     while factor <= remaining / factor:
-        if remaining % factor == 0:
-            while remaining % factor == 0:
-                remaining <- remaining / factor
-            result <- result - result / factor
-            return result.i64() if remaining == 1
+        if remaining % factor != 0:
+            factor <- factor + 2
+            continue
+        while remaining % factor == 0:
+            remaining <- remaining / factor
+        result <- result - result / factor
+        return result.i64() if remaining == 1
         factor <- factor + 2
     (result - result / remaining).i64()
 
