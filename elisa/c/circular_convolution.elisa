@@ -19,17 +19,26 @@ def circular_convolution_impl(values: i64&, length: usize, output: mutable u8&, 
     if output == null or output_capacity < n:
         return -2
 
+    if n == 1:
+        output[0] <- (values[2].u32() * values[3].u32()).u8()
+        return 1
     coefficients: mutable u32[16] = zeroed
+    results: mutable u32& = &coefficients[0]
     first: i64& = &values[2]
     second: i64& = &values[2 + a_length]
+    # Zero padding makes each eight-lane multiply-add safe for all signal lengths.
+    packed_second: mutable u32[8] = zeroed
+    second_words: mutable u32& = &packed_second[0]
+    for right_index in 0..<b_length:
+        second_words[right_index] <- second[right_index].u32()
     # First form the linear convolution, then fold the tail into the prefix.
     for left_index in 0..<a_length:
         left: u32 = first[left_index].u32()
-        for right_index in 0..<b_length:
+        for right_index in 0..<8:
             position: usize = left_index + right_index
-            coefficients[position] <- coefficients[position] + left * second[right_index].u32()
+            results[position] <- results[position] + left * second_words[right_index]
     for position in 0..<n:
-        output[position] <- (coefficients[position] + coefficients[position + n]).u8()
+        output[position] <- (results[position] + results[position + n]).u8()
     n.i64()
 
 export fn circular_convolution(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = circular_convolution_impl
