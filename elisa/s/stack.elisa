@@ -3,7 +3,17 @@ def stack_benchmark_impl(values: i64&, length: usize) -> i64:
     if length > 1024 or length % 2 != 0:
         return -1
     operation_count: usize = length / 2
+    if operation_count == 0:
+        return 0
+    # Even an all-push trace cannot exceed the small stack here.
+    if operation_count <= 8:
+        small_stack: mutable i32[8] = zeroed
+        return stack_run(values, operation_count, &small_stack[0])
     data_stack: mutable i32[256] = zeroed
+    stack_run(values, operation_count, &data_stack[0])
+
+@inline(never)
+def stack_run(values: i64&, operation_count: usize, data_stack: mutable i32&) -> i64:
     top: mutable usize = 0
     checksum: mutable i64 = 0
     operation: mutable usize = 0
