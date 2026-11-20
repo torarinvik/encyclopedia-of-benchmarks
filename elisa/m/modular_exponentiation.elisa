@@ -18,12 +18,32 @@ def modular_exponentiation_impl(values: i64&, length: usize) -> i64:
     divisor: u64 = modulus.u64()
     exponent: mutable u64 = exponent_input.u64()
     result: mutable u64 = 1
-    # Handle the highest set bit separately so the last base is never squared.
-    while exponent > 1:
+    # Amortize the loop branch across four low bits.
+    while exponent >= 16:
+        if (exponent & 1) != 0:
+            result <- (result * base) % divisor
+        base <- (base * base) % divisor
+        if (exponent & 2) != 0:
+            result <- (result * base) % divisor
+        base <- (base * base) % divisor
+        if (exponent & 4) != 0:
+            result <- (result * base) % divisor
+        base <- (base * base) % divisor
+        if (exponent & 8) != 0:
+            result <- (result * base) % divisor
+        base <- (base * base) % divisor
+        exponent <- exponent >> 4
+    while exponent >= 4:
         if (exponent & 1) != 0:
             result <- (result * base) % divisor
         base <- (base * base) % divisor
         exponent <- exponent >> 1
+    # Only the last one or two bits remain, so skip the unused final square.
+    if exponent == 1:
+        return ((result * base) % divisor).i64()
+    if exponent == 3:
+        result <- (result * base) % divisor
+    base <- (base * base) % divisor
     ((result * base) % divisor).i64()
 
 export fn modular_exponentiation(values: i64&, length: usize) -> i64 = modular_exponentiation_impl
