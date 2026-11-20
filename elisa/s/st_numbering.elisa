@@ -58,30 +58,22 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
     low_vertex: mutable usize[8] = zeroed
     next_arc: mutable i8[8] = zeroed
     preorder: mutable usize[8] = zeroed
-    vertex <- 0
-    while vertex < n:
-        parent[vertex] <- -1
-        low_vertex[vertex] <- vertex
-        next_arc[vertex] <- -1
-        vertex <- vertex + 1
     # A valid root has only the terminal t as its DFS child. Start there and
     # reject the graph if this subtree does not reach every vertex.
-    dfs_stack: mutable usize[8] = zeroed
-    top: mutable usize = 1
     clock: mutable i64 = 2
     preorder_count: mutable usize = 2
     discovery[s] <- 1
     discovery[t] <- 2
     parent[t] <- s.i64()
+    low_vertex[s] <- s
+    low_vertex[t] <- t
     preorder[0] <- s
     preorder[1] <- t
     next_arc[t] <- head[t]
-    dfs_stack[0] <- t
-    while top > 0:
-        vertex <- dfs_stack[top - 1]
+    vertex <- t
+    while vertex != s:
         arc_value: mutable i8 = next_arc[vertex]
         if arc_value < 0:
-            top <- top - 1
             ancestor_value: i64 = parent[vertex]
             if ancestor_value != s.i64():
                 ancestor: usize = ancestor_value.usize()
@@ -90,11 +82,12 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
                     return -1
                 if child_low < discovery[low_vertex[ancestor]]:
                     low_vertex[ancestor] <- low_vertex[vertex]
+            vertex <- ancestor_value.usize()
             continue
         arc: usize = arc_value.usize()
         next_arc[vertex] <- arc_next[arc]
         neighbor: usize = arc_to[arc].usize()
-        if parent[vertex] >= 0 and neighbor == parent[vertex].usize():
+        if neighbor == parent[vertex].usize():
             continue
         if discovery[neighbor] == 0:
             parent[neighbor] <- vertex.i64()
@@ -104,8 +97,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             preorder[preorder_count] <- neighbor
             preorder_count <- preorder_count + 1
             next_arc[neighbor] <- head[neighbor]
-            dfs_stack[top] <- neighbor
-            top <- top + 1
+            vertex <- neighbor
         elif discovery[neighbor] < discovery[vertex] and discovery[neighbor] < discovery[low_vertex[vertex]]:
             low_vertex[vertex] <- neighbor
     if preorder_count != n:
