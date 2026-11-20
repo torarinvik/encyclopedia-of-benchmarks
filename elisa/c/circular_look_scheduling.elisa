@@ -87,10 +87,14 @@ def circular_look_scheduling_impl(input: i64&, length: usize, output: mutable u8
     if moving_up.u64() > 1 or input[3].u64() != request_count.u64():
         return -1
 
-    if request_count > 16:
-        return circular_look_large(input, request_count, max_cylinder, start, moving_up, output, output_capacity)
     if request_count == 0:
         return 0
+    if request_count > 16:
+        return circular_look_large(input, request_count, max_cylinder, start, moving_up, output, output_capacity)
+    circular_look_short(input, request_count, max_cylinder, start, moving_up, output, output_capacity)
+
+@inline(never)
+def circular_look_short(input: i64&, request_count: usize, max_cylinder: i64, start: i64, moving_up: i64, output: mutable u8&, output_capacity: usize) -> i64:
     ordered: mutable u8[16] = zeroed
     count: mutable usize = 0
     for index in 0..<request_count:
