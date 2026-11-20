@@ -17,8 +17,8 @@ def stable_roommates_impl(input: i64&?, length: usize) -> i64:
 @inline(never)
 def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
     n_value: i64 = n.i64()
-    preference: mutable i64[SR_MAX_PARTICIPANTS][SR_MAX_PARTICIPANTS] = zeroed
-    rank: mutable i64[SR_MAX_PARTICIPANTS][SR_MAX_PARTICIPANTS] = zeroed
+    preference: mutable u8[SR_MAX_PARTICIPANTS][SR_MAX_PARTICIPANTS] = zeroed
+    rank: mutable u8[SR_MAX_PARTICIPANTS][SR_MAX_PARTICIPANTS] = zeroed
     cursor: mutable usize = 1
     person: mutable usize = 0
     while person < n:
@@ -30,11 +30,11 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
             if other < 0 or other >= n_value or other == person.i64() or seen[other.usize()]:
                 return -1
             seen[other.usize()] <- true
-            preference[person][position] <- other
-            rank[person][other.usize()] <- position.i64()
+            preference[person][position] <- other.u8()
+            rank[person][other.usize()] <- position.u8()
             position <- position + 1
-        preference[person][n - 1] <- person.i64()
-        rank[person][person] <- (n - 1).i64()
+        preference[person][n - 1] <- person.u8()
+        rank[person][person] <- (n - 1).u8()
         person <- person + 1
 
     left: mutable i64[SR_MAX_PARTICIPANTS] = zeroed
@@ -51,19 +51,19 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
     while person < n:
         proposer <- person.i64()
         while true:
-            choice <- preference[proposer.usize()][left[proposer.usize()].usize()]
+            choice <- preference[proposer.usize()][left[proposer.usize()].usize()].i64()
             if choice == proposer:
                 return 0
-            current: mutable i64 = preference[choice.usize()][right[choice.usize()].usize()]
-            while rank[choice.usize()][proposer.usize()] > rank[choice.usize()][current.usize()]:
+            current: mutable i64 = preference[choice.usize()][right[choice.usize()].usize()].i64()
+            while rank[choice.usize()][proposer.usize()].i64() > rank[choice.usize()][current.usize()].i64():
                 left[proposer.usize()] <- left[proposer.usize()] + 1
                 if left[proposer.usize()].usize() >= n:
                     return 0
-                choice <- preference[proposer.usize()][left[proposer.usize()].usize()]
+                choice <- preference[proposer.usize()][left[proposer.usize()].usize()].i64()
                 if choice == proposer:
                     return 0
-                current <- preference[choice.usize()][right[choice.usize()].usize()]
-            right[choice.usize()] <- rank[choice.usize()][proposer.usize()]
+                current <- preference[choice.usize()][right[choice.usize()].usize()].i64()
+            right[choice.usize()] <- rank[choice.usize()][proposer.usize()].i64()
             proposer <- current
             if not proposed_to[choice.usize()]:
                 break
@@ -97,9 +97,9 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
             while person < n:
                 if left[person] != right[person]:
                     return 0
-                partner: i64 = preference[person][left[person].usize()]
+                partner: i64 = preference[person][left[person].usize()].i64()
                 if partner == person.i64() or
-                        preference[partner.usize()][left[partner.usize()].usize()] != person.i64():
+                        preference[partner.usize()][left[partner.usize()].usize()].i64() != person.i64():
                     return 0
                 person <- person + 1
             return 1
@@ -127,17 +127,17 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
             next_choice: mutable i64 = -1
             found_choice: mutable bool = false
             while list_position.usize() < n:
-                next_choice <- preference[proposer.usize()][list_position.usize()]
+                next_choice <- preference[proposer.usize()][list_position.usize()].i64()
                 list_position <- list_position + 1
                 if next_choice == proposer:
                     return 0
-                if rank[next_choice.usize()][proposer.usize()] <= right[next_choice.usize()]:
+                if rank[next_choice.usize()][proposer.usize()].i64() <= right[next_choice.usize()]:
                     found_choice <- true
                     break
             if not found_choice:
                 return 0
             second[proposer.usize()] <- list_position - 1
-            proposer <- preference[next_choice.usize()][right[next_choice.usize()].usize()]
+            proposer <- preference[next_choice.usize()][right[next_choice.usize()].usize()].i64()
             if cycle_set[proposer.usize()]:
                 break
 
@@ -163,8 +163,8 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
             proposer <- cycle[cycle_index]
             left[proposer.usize()] <- second[proposer.usize()]
             second[proposer.usize()] <- left[proposer.usize()] + 1
-            choice <- preference[proposer.usize()][left[proposer.usize()].usize()]
-            right[choice.usize()] <- rank[choice.usize()][proposer.usize()]
+            choice <- preference[proposer.usize()][left[proposer.usize()].usize()].i64()
+            right[choice.usize()] <- rank[choice.usize()][proposer.usize()].i64()
             cycle_index <- cycle_index + 1
         cycle_index <- first_in_cycle
         while cycle_index <= last_in_cycle:
