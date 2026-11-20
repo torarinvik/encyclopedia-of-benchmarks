@@ -1,5 +1,8 @@
 const MAX_N: usize = 6
 
+# Packed predecessors use three bits for a vertex ID.
+const VERTEX_SLOTS: usize = 8
+
 const MAX_M: usize = 10
 
 # DFS paths store the residual arc index in five bits.
@@ -45,8 +48,8 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         arc_target[2 * e + 1] <- u
         residual_capacity[2 * e] <- c
         e <- (e + 1)
-    degree: mutable usize[MAX_N] = zeroed
-    rot: mutable usize[MAX_N * MAX_N] = zeroed
+    degree: mutable usize[VERTEX_SLOTS] = zeroed
+    rot: mutable usize[VERTEX_SLOTS * VERTEX_SLOTS] = zeroed
     # Each edge has two bits, one for each endpoint in the rotation.
     occurrences: mutable u64 = 0
     x: mutable usize = 0
@@ -74,7 +77,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             if (occurrences & bit) != 0:
                 return -1
             occurrences <- occurrences | bit
-            rot[x * MAX_N + j] <- arc
+            rot[x * VERTEX_SLOTS + j] <- arc
             j <- (j + 1)
         x <- (x + 1)
     if at != length or occurrences != ((1.u64() << (2 * m)) - 1):
@@ -92,23 +95,23 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             return -1
     total: mutable i64 = 0
     while true:
-        seen: mutable bool[MAX_N] = zeroed
+        seen: mutable bool[VERTEX_SLOTS] = zeroed
         # The low byte stores predecessor and arc, and the high byte stores capacity.
-        path: mutable u16[MAX_N] = zeroed
+        path: mutable u16[VERTEX_SLOTS] = zeroed
         path[s] <- 5 << 8
-        next_edge: mutable usize[MAX_N] = zeroed
+        next_edge: mutable usize[VERTEX_SLOTS] = zeroed
         # A discovered vertex has a parent chain back to the source.
         seen[s] <- true
-        u: mutable usize = s
+        u: mutable usize = s & (VERTEX_SLOTS - 1)
         while not seen[t]:
             if next_edge[u] >= degree[u]:
                 if u == s:
                     break
-                u <- path[u].usize() & 7
+                u <- path[u].usize() & (VERTEX_SLOTS - 1)
                 continue
-            arc: usize = rot[u * MAX_N + next_edge[u]] & (ARC_SLOTS - 1)
+            arc: usize = rot[u * VERTEX_SLOTS + (next_edge[u] & (VERTEX_SLOTS - 1))] & (ARC_SLOTS - 1)
             next_edge[u] <- next_edge[u] + 1
-            v: usize = arc_target[arc]
+            v: usize = arc_target[arc] & (VERTEX_SLOTS - 1)
             available: i64 = residual_capacity[arc]
             if available > 0 and not seen[v]:
                 seen[v] <- true
@@ -119,14 +122,14 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         if (not seen[t]):
             break
         delta: i64 = (path[t] >> 8).i64()
-        y: mutable usize = t
+        y: mutable usize = t & (VERTEX_SLOTS - 1)
         while (y != s):
             link: usize = path[y].usize()
             arc: usize = (link >> 3) & (ARC_SLOTS - 1)
             reverse_arc: usize = arc ^ 1
             residual_capacity[arc] <- residual_capacity[arc] - delta
             residual_capacity[reverse_arc] <- residual_capacity[reverse_arc] + delta
-            y <- link & 7
+            y <- link & (VERTEX_SLOTS - 1)
         total <- (total + delta)
     if ((output == null) or (capacity < 8)):
         return (-2)
