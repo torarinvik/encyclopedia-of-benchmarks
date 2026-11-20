@@ -15,6 +15,7 @@ const CMD_TAU: f64 = 6.28318530717958647692528676655900576
 
 def cmd_wrap(angle: f64) -> f64:
     value: f64 = angle - floor((angle + CMD_PI) / CMD_TAU) * CMD_TAU
+    if fabs(value) < CMD_PI: return value
     if value < -CMD_PI: return value + CMD_TAU
     if value >= CMD_PI: return value - CMD_TAU
     value
