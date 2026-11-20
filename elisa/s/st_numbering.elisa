@@ -66,10 +66,8 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     # A valid root has only the terminal t as its DFS child. Start there and
     # reject the graph if this subtree does not reach every vertex.
     preorder_count: mutable usize = 2
-    discovery[s] <- 1
     discovery[t] <- 2
     parent[t] <- s.i64()
-    low_rank[t] <- 2
     vertex <- t
     current_parent: mutable usize = s
     while vertex != s:
