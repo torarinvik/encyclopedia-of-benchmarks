@@ -90,15 +90,17 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
 
 # Bounded singly circular linked list with a sentinel and reusable node pool.
 def circular_linked_list_impl(values: i64&, length: usize) -> i64:
-    if length > 1024 or length % 2 != 0:
-        return -1
-    operation_count: usize = length / 2
-    if operation_count == 0:
+    if length == 0:
         return 0
-    if operation_count < 16:
+    operation_count: usize = length / 2
+    if length < 32:
+        if length % 2 != 0:
+            return -1
         small_values: mutable u32[16] = zeroed
         small_links: mutable u16[16] = zeroed
         return circular_linked_list_trace(values, operation_count, &small_values[0], &small_links[0])
+    if length > 1024 or length % 2 != 0:
+        return -1
     circular_linked_list_long_trace(values, operation_count)
 
 @inline(never)
