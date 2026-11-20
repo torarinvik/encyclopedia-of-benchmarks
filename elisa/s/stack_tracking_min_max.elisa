@@ -48,7 +48,7 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
         if opcode == 1:
             value: i64 = input[position]
             position <- position + 1
-            if top == max_size.usize():
+            if top >= max_size.usize():
                 records[words] <- 1
                 records[words + 1] <- 4
                 records[words + 2] <- 1
