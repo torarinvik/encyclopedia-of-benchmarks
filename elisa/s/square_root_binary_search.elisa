@@ -1,19 +1,17 @@
 # Floor square root by binary search, with division avoiding square overflow.
 def square_root_binary_search_impl(value: i64) -> i64:
-    if value < 0:
-        return -1
     if value < 2:
-        return value
-    low: mutable i64 = 1
-    high: mutable i64 = value
-    answer: mutable i64 = 0
-    while low <= high:
-        middle: i64 = low + (high - low) / 2
-        if middle <= value / middle:
-            answer <- middle
-            low <- middle + 1
+        return -1 if value < 0 else value
+    input: u64 = value.u64()
+    lower: mutable u64 = 1
+    # The upper endpoint cannot be a root. The largest i64 root is 3037000499.
+    upper: mutable u64 = 3037000500 if input > 3037000500 else input
+    while upper - lower > 1:
+        midpoint: u64 = (lower + upper) >> 1
+        if midpoint <= input / midpoint:
+            lower <- midpoint
         else:
-            high <- middle - 1
-    answer
+            upper <- midpoint
+    lower.i64()
 
-export fn square_root_binary_search(value: i64) -> i64 = square_root_binary_search_impl(value)
+export fn square_root_binary_search(value: i64) -> i64 = square_root_binary_search_impl
