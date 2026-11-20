@@ -21,8 +21,7 @@ def sum_of_divisors_impl(n: i64) -> i64:
                 geometric_sum <- geometric_sum + power
             sigma <- sigma * geometric_sum
         factor <- factor + 2
-    if remaining > 1:
-        sigma <- sigma * (remaining + 1)
-    sigma
+    return sigma if remaining == 1
+    sigma * remaining + sigma
 
 export fn sum_of_divisors(n: i64) -> i64 = sum_of_divisors_impl
