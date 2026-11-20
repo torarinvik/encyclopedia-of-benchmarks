@@ -89,7 +89,10 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             ancestor_value: i64 = parent[vertex]
             if ancestor_value >= 0:
                 ancestor: usize = ancestor_value.usize()
-                if discovery[low_vertex[vertex]] < discovery[low_vertex[ancestor]]:
+                child_low: i64 = discovery[low_vertex[vertex]]
+                if ancestor != s and child_low >= discovery[ancestor]:
+                    return -1
+                if child_low < discovery[low_vertex[ancestor]]:
                     low_vertex[ancestor] <- low_vertex[vertex]
             continue
         arc: usize = arc_value.usize()
@@ -112,16 +115,6 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             low_vertex[vertex] <- neighbor
     if preorder_count != n or children[s] != 1:
         return -1
-    vertex <- 0
-    while vertex < n:
-        if vertex != s:
-            child: mutable usize = 0
-            while child < n:
-                if parent[child] == vertex.i64() and discovery[low_vertex[child]] >= discovery[vertex]:
-                    return -1
-                child <- child + 1
-        vertex <- vertex + 1
-
     previous: mutable i64[8] = zeroed
     following: mutable i64[8] = zeroed
     sign: mutable i64[8] = zeroed
