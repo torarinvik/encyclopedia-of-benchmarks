@@ -6,7 +6,7 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     m_value: i64 = input[1]
     s_value: i64 = input[2]
     t_value: i64 = input[3]
-    if n_value < 2 or n_value > 8 or m_value.u64() > 28 or s_value.u64() >= n_value.u64() or t_value.u64() >= n_value.u64() or s_value == t_value:
+    if n_value < 2 or n_value > 8 or s_value == t_value or m_value.u64() > 28 or s_value.u64() >= n_value.u64() or t_value.u64() >= n_value.u64():
         return -1
     n: usize = n_value.usize()
     m: usize = m_value.usize()
