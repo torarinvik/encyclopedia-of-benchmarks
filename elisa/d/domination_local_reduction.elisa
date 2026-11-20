@@ -15,7 +15,9 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     n: usize = n0.usize()
     m: usize = m0.usize()
     p: usize = p0.usize()
-    adj: mutable u16[12] = zeroed
+    # Vertex IDs are validated below 12. A 16-entry table makes the index bound
+    # explicit for validated endpoints, pivot IDs, and IDs derived from masks.
+    adj: mutable u16[16] = zeroed
     for e in 0..<m:
         u0: i64 = input[3 + 2 * e]
         v0: i64 = input[4 + 2 * e]
@@ -25,10 +27,10 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
         v: usize = v0.usize()
         u_bit: u16 = 1.u16() << u
         v_bit: u16 = 1.u16() << v
-        if (adj[u] & v_bit) != 0: return -1
-        adj[u] <- adj[u] | v_bit
-        adj[v] <- adj[v] | u_bit
-    neighbors: u16 = adj[p]
+        if (adj[u & 15] & v_bit) != 0: return -1
+        adj[u & 15] <- adj[u & 15] | v_bit
+        adj[v & 15] <- adj[v & 15] | u_bit
+    neighbors: u16 = adj[p & 15]
     closed: u16 = neighbors | (1.u16() << p)
     exits: mutable u16 = 0
     remaining_neighbors: mutable u32 = neighbors.u32()
@@ -36,7 +38,7 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
         u: usize = domination_trailing_zeros(remaining_neighbors, true).usize()
         bit: u32 = remaining_neighbors & (0.u32() - remaining_neighbors)
         remaining_neighbors <- remaining_neighbors ^ bit
-        if (adj[u] & ~closed) != 0:
+        if (adj[u & 15] & ~closed) != 0:
             exits <- exits | bit.u16()
     candidates: u16 = neighbors & ~exits
     remaining_candidates: mutable u32 = candidates.u32()
@@ -44,7 +46,7 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     if exits != 0:
         while true:
             u: usize = domination_trailing_zeros(remaining_candidates, true).usize()
-            if (adj[u] & exits) == 0: break
+            if (adj[u & 15] & exits) == 0: break
             remaining_candidates <- remaining_candidates & (remaining_candidates - 1.u32())
             if remaining_candidates == 0: return -1
     # At most twelve vertex IDs fit in twelve four-bit slots.
