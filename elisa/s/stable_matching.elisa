@@ -10,6 +10,16 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     if length != 1 + 2 * side_size: return -1
 
     if n == 0: return -2 if output == null else 0
+    if n == 1:
+        if input[1] != 0 or input[2] != 0:
+            return -1
+        if output == null or capacity < 16:
+            return -2
+        offset: mutable usize = 0
+        while offset < 16:
+            output[offset] <- 0
+            offset <- offset + 1
+        return 16
     stable_matching_valid_input(input, n, output, capacity)
 
 @inline(never)
