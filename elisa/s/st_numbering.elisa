@@ -16,7 +16,6 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
         return -1
 
     adjacent: mutable u64[8] = zeroed
-    terminals_adjacent: mutable bool = false
     # At most 56 arcs fit in signed bytes, with -1 reserved for the sentinel.
     head: mutable i8[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
     vertex: mutable usize = 0
@@ -37,9 +36,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             return -1
         adjacent[u] <- adjacent[u] | u_bit
         adjacent[v] <- adjacent[v] | v_bit
-        if (u == s and v == t) or (u == t and v == s):
-            terminals_adjacent <- true
-        else:
+        if u != s and v != s:
             arc_to[arc_count] <- v_value.i8()
             arc_next[arc_count] <- head[u]
             head[u] <- arc_count.i8()
@@ -49,7 +46,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             head[v] <- arc_count.i8()
             arc_count <- arc_count + 1
         edge <- edge + 1
-    if not terminals_adjacent:
+    if (adjacent[s] & (1 << t)) == 0:
         return -1
 
 
@@ -69,6 +66,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
     preorder[0] <- s
     preorder[1] <- t
     next_arc[t] <- head[t]
+    root_bit: u64 = 1 << s
     vertex <- t
     while vertex != s:
         arc_value: mutable i8 = next_arc[vertex]
@@ -90,7 +88,8 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             continue
         if discovery[neighbor] == 0:
             parent[neighbor] <- vertex.i64()
-            low_vertex[neighbor] <- neighbor
+            # An edge to s reaches the earliest discovery rank immediately.
+            low_vertex[neighbor] <- s if (adjacent[neighbor] & root_bit) != 0 else neighbor
             preorder[preorder_count] <- neighbor
             preorder_count <- preorder_count + 1
             discovery[neighbor] <- preorder_count.u8()
