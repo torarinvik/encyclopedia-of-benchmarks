@@ -6,6 +6,11 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
     if max_size > 64 or operation_count > 64:
         return -1
 
+    if operation_count == 0:
+        if length != 2:
+            return -1
+        return -2 if output == null else 0
+
     position: mutable usize = 2
     for operation in 0..<operation_count.usize():
         if position >= length:
