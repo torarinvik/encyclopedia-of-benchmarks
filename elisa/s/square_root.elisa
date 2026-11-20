@@ -21,10 +21,10 @@ def square_root_impl(value: f64) -> f64:
     estimate: mutable f64 = value
     if value < 1.0:
         estimate <- 1.0
-    if value > 0.0 and value <= 1e300:
-        bits: mutable u64 = 0
-        copy_seed_bits(&bits, &value, 8, false)
-        # Halve the binary64 exponent with its bias and approximate the mantissa.
+    bits: mutable u64 = 0
+    copy_seed_bits(&bits, &value, 8, false)
+    if bits < 0x7ff0000000000000:
+        # Positive finite binary64 values have unsigned encodings below infinity.
         seed: u64 = (bits >> 1) + 0x1ff8000000000000
         copy_seed_value(&estimate, &seed, 8, false)
     iteration: mutable usize = 0
