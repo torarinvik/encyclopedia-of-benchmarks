@@ -4,8 +4,18 @@ def trailing_zeroes_impl(n: i64) -> i64:
         return -1
     if n == 0:
         return 1
-    while remaining > 0 and remaining % 10 == 0 |remaining: i64 = n, count: i64 = 0| -> count:
+    return 0 if (n & 1) != 0
+    remaining: mutable u64 = n.u64()
+    count: mutable i64 = 0
+    while true:
+        # Multiplication by the inverse of five and a rotate undo 10*q
+        # modulo 2^64. The bound on q rules out wraparound.
+        product: u64 = remaining * 0xcccccccccccccccd.u64()
+        quotient: u64 = (product >> 1) | (product << 63)
+        if quotient > 1844674407370955161:
+            break
+        remaining <- quotient
         count <- count + 1
-        remaining <- remaining / 10
+    count
 
 export fn trailing_zeroes(n: i64) -> i64 = trailing_zeroes_impl
