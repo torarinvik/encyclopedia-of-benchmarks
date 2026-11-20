@@ -42,7 +42,7 @@ def workload_issues() -> list[str]:
             or input_spec.get("operation_count_range") != [0, 64]
             or input_spec.get("universe_range") != [1, 128]
             or input_spec.get("bucket_count_range") != [1, 8]
-            or input_spec.get("hash_mapping") != "floor(key*B/U")
+            or input_spec.get("hash_mapping") != "floor(key*B/U)"
             or workload.get("output", {}).get("maximum_bytes") != MAX_OUTPUT_BYTES
             or workload.get("workspace", {}).get("bytes") != WORKSPACE_BYTES):
         issues.append("workload bounds differ from the profile constants")
