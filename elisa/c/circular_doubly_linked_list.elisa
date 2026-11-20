@@ -79,13 +79,12 @@ def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, n
             if returns_value:
                 checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
             if operation + 1 == operation_count:
-                checksum <- while current != sentinel |current: mutable usize = next_node_pointer[sentinel].usize(), index: mutable usize = 0, total: mutable i64 = checksum| -> total:
-                    total <- total + (operation_count + index + 1).i64() * (node_value_pointer[current].i64() + 1000000)
-                    current <- next_node_pointer[current].usize()
-                    index <- index + 1
-                checksum <- while current != sentinel |current: mutable usize = prev_node_pointer[sentinel].usize(), index: mutable usize = 0, total: mutable i64 = checksum| -> total:
-                    total <- total + (operation_count + count + index + 1).i64() * (node_value_pointer[current].i64() + 1000000)
-                    current <- prev_node_pointer[current].usize()
+                checksum <- while forward != sentinel |forward: mutable usize = next_node_pointer[sentinel].usize(), backward: mutable usize = prev_node_pointer[sentinel].usize(), index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    weight: i64 = (operation_count + index + 1).i64()
+                    total <- total + weight * (node_value_pointer[forward].i64() + 1000000)
+                    total <- total + (weight + count.i64()) * (node_value_pointer[backward].i64() + 1000000)
+                    forward <- next_node_pointer[forward].usize()
+                    backward <- prev_node_pointer[backward].usize()
                     index <- index + 1
             operation <- operation + 1
     checksum
@@ -97,11 +96,11 @@ def circular_doubly_linked_list_impl(values: i64&, length: usize) -> i64:
     operation_count: usize = length / 2
     if operation_count == 0:
         return 0
-    if operation_count <= 16:
-        small_values: mutable i32[16] = zeroed
-        small_next: mutable u16[17] = zeroed
-        small_previous: mutable u16[17] = zeroed
-        return circular_list_trace(values, operation_count, 16, &small_values[0], &small_next[0], &small_previous[0])
+    if operation_count <= 8:
+        small_values: mutable i32[8] = zeroed
+        small_next: mutable u16[9] = zeroed
+        small_previous: mutable u16[9] = zeroed
+        return circular_list_trace(values, operation_count, 8, &small_values[0], &small_next[0], &small_previous[0])
     node_values: mutable i32[256] = zeroed
     next_nodes: mutable u16[257] = zeroed
     previous_nodes: mutable u16[257] = zeroed
