@@ -54,7 +54,7 @@
   "cases": [
     {"id":"zero-bit-domain","input_values":[0,3,4],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0c00000000000000"},
     {"id":"one-bit-domain","input_values":[1,0,1,2,3],"input_length":5,"output_capacity":16,"expected_result":16,"expected_output_hex":"02000000000000000300000000000000"},
-    {"id":"two-bit-dense-domain","input_values":[2,1,2,3,4,5,6,7,8],"input_length":9,"output_capacity":32,"expected_result":32,"expected_output_hex":"5900000000000000340000000000000049000000000000002000000000000000"},
+    {"id":"two-bit-dense-domain","input_values":[2,1,2,3,4,5,6,7,8],"input_length":9,"output_capacity":32,"expected_result":32,"expected_output_hex":"6700000000000000340000000000000049000000000000002000000000000000"},
     {"id":"zero-coefficients","input_values":[2,0,0,0,0,0,0,0,0],"input_length":9,"output_capacity":32,"expected_result":32,"expected_output_hex":"0000000000000000000000000000000000000000000000000000000000000000"},
     {"id":"negative-domain-size","input_values":[-1],"input_length":1,"output_capacity":2048,"expected_result":-1,"expected_output_hex":""},
     {"id":"domain-size-above-bound","input_values":[9],"input_length":1,"output_capacity":2048,"expected_result":-1,"expected_output_hex":""},

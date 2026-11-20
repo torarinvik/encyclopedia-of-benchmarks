@@ -1,48 +1,84 @@
-# Superset zeta transform, pointwise multiplication, and inverse Möbius transform.
 const MAX_N: usize = 8
 const MAX_SIZE: usize = 1 << MAX_N
 const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_SIZE
-const MODULUS: i64 = 998244353
+const MODULUS: u32 = 998244353
 
-def bitwise_and_convolution_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
-    bits: mutable u64 = value.u64()
-    for byte in 0..8:
-        output[offset + byte] <- (bits & 255).u8()
-        bits <- bits >> 8
+# Size is a checked power of two and both arrays cover its entire prefix.
+def bitwise_and_transform(values: mutable u32&, size: usize, inverse: bool) -> void:
+    half: mutable usize = 1
+    while half < size:
+        block: mutable usize = 0
+        while block < size:
+            offset: mutable usize = 0
+            while offset < half:
+                left: u32 = values[block + offset]
+                right: u32 = values[block + half + offset]
+                combined: u32 = left + MODULUS - right if inverse else left + right
+                values[block + offset] <- combined - MODULUS if combined >= MODULUS else combined
+                offset <- offset + 1
+            block <- block + 2 * half
+        half <- half * 2
 
-def bitwise_and_convolution(input: i64&, input_length: usize,
-                            output: mutable u8&, output_capacity: usize) -> i64
-        @export("bitwise_and_convolution"):
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+def bitwise_and_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    output[offset + 0] <- (bits >> 0).u8()
+    output[offset + 1] <- (bits >> 8).u8()
+    output[offset + 2] <- (bits >> 16).u8()
+    output[offset + 3] <- (bits >> 24).u8()
+    output[offset + 4] <- (bits >> 32).u8()
+    output[offset + 5] <- (bits >> 40).u8()
+    output[offset + 6] <- (bits >> 48).u8()
+    output[offset + 7] <- (bits >> 56).u8()
+
+
+def bitwise_and_convolution_impl(
+    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
+) -> i64:
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH:
+        return -1
     n_value: i64 = input[0]
-    if n_value < 0 or n_value > MAX_N.i64(): return -1
+    if n_value < 0 or n_value > MAX_N.i64():
+        return -1
     n: usize = n_value.usize()
     size: usize = 1 << n
-    if input_length != 1 + 2 * size: return -1
-    for index in 0..2 * size:
-        value: i64 = input[1 + index]
-        if value < 0 or value >= MODULUS: return -1
+    if input_length != 1 + 2 * size:
+        return -1
+    # A one-element convolution is just the product of its coefficients.
+    if size == 1:
+        left: u64 = input[1].u64()
+        right: u64 = input[2].u64()
+        if left >= MODULUS.u64() or right >= MODULUS.u64():
+            return -1
+        if output == null or output_capacity < 8:
+            return -2
+        bitwise_and_store_i64(output, 0, ((left * right) % MODULUS.u64()).i64())
+        return 8
+    first: mutable u32[MAX_SIZE] = zeroed
+    second: mutable u32[MAX_SIZE] = zeroed
+    index: mutable usize = 0
+    while index < size:
+        left: u64 = input[1 + index].u64()
+        right: u64 = input[1 + size + index].u64()
+        if left >= MODULUS.u64() or right >= MODULUS.u64():
+            return -1
+        first[index] <- left.u32()
+        second[index] <- right.u32()
+        index <- index + 1
     output_bytes: usize = 8 * size
-    if output.is_null() or output_capacity < output_bytes: return -2
+    if output == null or output_capacity < output_bytes:
+        return -2
+    bitwise_and_transform(&first[0], size, false)
+    bitwise_and_transform(&second[0], size, false)
+    index <- 0
+    while index < size:
+        first[index] <- ((first[index].u64() * second[index].u64()) % MODULUS.u64()).u32()
+        index <- index + 1
+    bitwise_and_transform(&first[0], size, true)
 
-    a: mutable i64[MAX_SIZE] = zeroed
-    b: mutable i64[MAX_SIZE] = zeroed
-    for index in 0..size:
-        a[index] <- input[1 + index]
-        b[index] <- input[1 + size + index]
-    for bit in 0..n:
-        bit_mask: usize = 1 << bit
-        for mask in 0..size:
-            if (mask & bit_mask) == 0:
-                a[mask] <- (a[mask] + a[mask | bit_mask]) % MODULUS
-                b[mask] <- (b[mask] + b[mask | bit_mask]) % MODULUS
-    for mask in 0..size: a[mask] <- (a[mask] * b[mask]) % MODULUS
-    for bit in 0..n:
-        bit_mask: usize = 1 << bit
-        for mask in 0..size:
-            if (mask & bit_mask) == 0:
-                a[mask] <- a[mask] - a[mask | bit_mask]
-                if a[mask] < 0: a[mask] <- a[mask] + MODULUS
-    for mask in 0..size:
-        bitwise_and_convolution_store_i64(output, 8 * mask, a[mask])
+    index <- 0
+    while index < size:
+        bitwise_and_store_i64(output, 8 * index, first[index].i64())
+        index <- index + 1
     output_bytes.i64()
+
+export fn bitwise_and_convolution(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bitwise_and_convolution_impl
