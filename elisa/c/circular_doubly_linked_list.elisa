@@ -1,92 +1,92 @@
 def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, node_value: mutable i32&, next_node: mutable u16&, prev_node: mutable u16&) -> i64:
-    checksum: i64 =
-        while operation < operation_count |node_value_pointer: mutable i32& = node_value, next_node_pointer: mutable u16& = next_node, prev_node_pointer: mutable u16& = prev_node, operation: mutable usize = 0, free_head: mutable usize = sentinel, next_unused: mutable usize = 0, count: mutable usize = 0, checksum: mutable i64 = 0| -> checksum:
-            if operation == 0:
-                next_node_pointer[sentinel] <- sentinel.u16()
-                prev_node_pointer[sentinel] <- sentinel.u16()
-            opcode: i64 = values[2 * operation]
-            payload: i64 = values[2 * operation + 1]
-            observed: mutable i64 = 0
-            returns_value: mutable bool = true
-            if opcode == 0 or opcode == 1:
-                if payload < -1000000 or payload > 1000000 or count == 256:
-                    break -1
-                node: usize = next_unused if free_head == sentinel else free_head
-                if free_head == sentinel:
-                    next_unused <- next_unused + 1
-                else:
-                    free_head <- next_node_pointer[node].usize()
-                node_value_pointer[node] <- payload.i32()
-                before: mutable usize = sentinel
-                after: mutable usize = sentinel
-                if opcode == 0:
-                    before <- prev_node_pointer[sentinel].usize()
-                else:
-                    after <- next_node_pointer[sentinel].usize()
-                next_node_pointer[node] <- after.u16()
-                prev_node_pointer[node] <- before.u16()
-                next_node_pointer[before] <- node.u16()
-                prev_node_pointer[after] <- node.u16()
-                count <- count + 1
-                returns_value <- false
-            elif opcode == 2 or opcode == 3:
-                if payload != 0 or count == 0:
-                    break -1
-                node: usize = next_node_pointer[sentinel].usize() if opcode == 2 else prev_node_pointer[sentinel].usize()
-                observed <- node_value_pointer[node].i64()
-                next_node_pointer[prev_node_pointer[node].usize()] <- next_node_pointer[node]
-                prev_node_pointer[next_node_pointer[node].usize()] <- prev_node_pointer[node]
-                next_node_pointer[node] <- free_head.u16()
+    next_node[sentinel] <- sentinel.u16()
+    prev_node[sentinel] <- sentinel.u16()
+    free_head: mutable usize = sentinel
+    next_unused: mutable usize = 0
+    count: mutable usize = 0
+    checksum: mutable i64 = 0
+    for operation in 0..<operation_count:
+        opcode: i64 = values[2 * operation]
+        payload: i64 = values[2 * operation + 1]
+        observed: mutable i64 = 0
+        returns_value: mutable bool = true
+        if opcode == 0 or opcode == 1:
+            if payload < -1000000 or payload > 1000000 or count == 256:
+                return -1
+            node: usize = next_unused if free_head == sentinel else free_head
+            if free_head == sentinel:
+                next_unused <- next_unused + 1
+            else:
+                free_head <- next_node[node].usize()
+            node_value[node] <- payload.i32()
+            before: mutable usize = sentinel
+            after: mutable usize = sentinel
+            if opcode == 0:
+                before <- prev_node[sentinel].usize()
+            else:
+                after <- next_node[sentinel].usize()
+            next_node[node] <- after.u16()
+            prev_node[node] <- before.u16()
+            next_node[before] <- node.u16()
+            prev_node[after] <- node.u16()
+            count <- count + 1
+            returns_value <- false
+        elif opcode == 2 or opcode == 3:
+            if payload != 0 or count == 0:
+                return -1
+            node: usize = next_node[sentinel].usize() if opcode == 2 else prev_node[sentinel].usize()
+            observed <- node_value[node].i64()
+            next_node[prev_node[node].usize()] <- next_node[node]
+            prev_node[next_node[node].usize()] <- prev_node[node]
+            next_node[node] <- free_head.u16()
+            free_head <- node
+            count <- count - 1
+        elif opcode == 4 or opcode == 5:
+            if payload < -1000000 or payload > 1000000:
+                return -1
+            node: usize =
+                while current != sentinel and node_value[current].i64() != payload |current: mutable usize = next_node[sentinel].usize()| -> current:
+                    current <- next_node[current].usize()
+            if node != sentinel:
+                observed <- 1
+            if opcode == 4 and node != sentinel:
+                next_node[prev_node[node].usize()] <- next_node[node]
+                prev_node[next_node[node].usize()] <- prev_node[node]
+                next_node[node] <- free_head.u16()
                 free_head <- node
                 count <- count - 1
-            elif opcode == 4 or opcode == 5:
-                if payload < -1000000 or payload > 1000000:
-                    break -1
-                node: usize =
-                    while current != sentinel and node_value_pointer[current].i64() != payload |current: mutable usize = next_node_pointer[sentinel].usize()| -> current:
-                        current <- next_node_pointer[current].usize()
-                if node != sentinel:
-                    observed <- 1
-                if opcode == 4 and node != sentinel:
-                    next_node_pointer[prev_node_pointer[node].usize()] <- next_node_pointer[node]
-                    prev_node_pointer[next_node_pointer[node].usize()] <- prev_node_pointer[node]
-                    next_node_pointer[node] <- free_head.u16()
-                    free_head <- node
-                    count <- count - 1
-            elif opcode == 6:
-                if payload != 0:
-                    break -1
-                observed <- count.i64()
-            elif opcode == 7 or opcode == 8:
-                if payload < 0 or payload > 1000000 or count == 0 or (opcode == 8 and payload >= count.i64()):
-                    break -1
-                index: mutable usize = payload.usize()
-                if opcode == 7:
-                    index <- index % count
-                node: usize =
-                    while step < index |step: mutable usize = 0, current: mutable usize = next_node_pointer[sentinel].usize()| -> current:
-                        current <- next_node_pointer[current].usize()
-                        step <- step + 1
-                observed <- node_value_pointer[node].i64()
-                if opcode == 8:
-                    next_node_pointer[prev_node_pointer[node].usize()] <- next_node_pointer[node]
-                    prev_node_pointer[next_node_pointer[node].usize()] <- prev_node_pointer[node]
-                    next_node_pointer[node] <- free_head.u16()
-                    free_head <- node
-                    count <- count - 1
-            else:
-                break -1
-            if returns_value:
-                checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
-            if operation + 1 == operation_count:
-                checksum <- while forward != sentinel |forward: mutable usize = next_node_pointer[sentinel].usize(), backward: mutable usize = prev_node_pointer[sentinel].usize(), index: mutable usize = 0, total: mutable i64 = checksum| -> total:
-                    weight: i64 = (operation_count + index + 1).i64()
-                    total <- total + weight * (node_value_pointer[forward].i64() + 1000000)
-                    total <- total + (weight + count.i64()) * (node_value_pointer[backward].i64() + 1000000)
-                    forward <- next_node_pointer[forward].usize()
-                    backward <- prev_node_pointer[backward].usize()
-                    index <- index + 1
-            operation <- operation + 1
+        elif opcode == 6:
+            if payload != 0:
+                return -1
+            observed <- count.i64()
+        elif opcode == 7 or opcode == 8:
+            if payload < 0 or payload > 1000000 or count == 0 or (opcode == 8 and payload >= count.i64()):
+                return -1
+            index: mutable usize = payload.usize()
+            if opcode == 7:
+                index <- index % count
+            node: usize =
+                while step < index |step: mutable usize = 0, current: mutable usize = next_node[sentinel].usize()| -> current:
+                    current <- next_node[current].usize()
+                    step <- step + 1
+            observed <- node_value[node].i64()
+            if opcode == 8:
+                next_node[prev_node[node].usize()] <- next_node[node]
+                prev_node[next_node[node].usize()] <- prev_node[node]
+                next_node[node] <- free_head.u16()
+                free_head <- node
+                count <- count - 1
+        else:
+            return -1
+        if returns_value:
+            checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
+    checksum <- while forward != sentinel |forward: mutable usize = next_node[sentinel].usize(), backward: mutable usize = prev_node[sentinel].usize(), index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+        weight: i64 = (operation_count + index + 1).i64()
+        total <- total + weight * (node_value[forward].i64() + 1000000)
+        total <- total + (weight + count.i64()) * (node_value[backward].i64() + 1000000)
+        forward <- next_node[forward].usize()
+        backward <- prev_node[backward].usize()
+        index <- index + 1
     checksum
 
 # Bounded circular doubly linked list using a circular sentinel ring.
