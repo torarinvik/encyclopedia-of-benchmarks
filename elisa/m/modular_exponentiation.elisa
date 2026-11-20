@@ -7,16 +7,23 @@ def modular_exponentiation_impl(values: i64&, length: usize) -> i64:
     modulus: i64 = values[2]
     if base_input < -2147483648 or base_input > 2147483647 or exponent_input < 0 or exponent_input > 2147483647 or modulus < 1 or modulus > 2147483647:
         return -1
-    base: mutable i64 = base_input % modulus
-    if base < 0:
-        base <- base + modulus
+    if modulus == 1:
+        return 0
+    if exponent_input == 0:
+        return 1
+    signed_base: i64 = base_input % modulus
+    base: mutable u64 = (signed_base + modulus if signed_base < 0 else signed_base).u64()
+    if base <= 1:
+        return base.i64()
+    divisor: u64 = modulus.u64()
     exponent: mutable u64 = exponent_input.u64()
-    result: mutable i64 = 1 % modulus
-    while exponent != 0:
-        if (exponent & 1.u64()) != 0.u64():
-            result <- (result * base) % modulus
-        base <- (base * base) % modulus
+    result: mutable u64 = 1
+    # Handle the highest set bit separately so the last base is never squared.
+    while exponent > 1:
+        if (exponent & 1) != 0:
+            result <- (result * base) % divisor
+        base <- (base * base) % divisor
         exponent <- exponent >> 1
-    result
+    ((result * base) % divisor).i64()
 
 export fn modular_exponentiation(values: i64&, length: usize) -> i64 = modular_exponentiation_impl
