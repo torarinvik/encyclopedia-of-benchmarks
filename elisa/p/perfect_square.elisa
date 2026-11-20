@@ -1,4 +1,6 @@
-# Search only roots whose square fits in a signed 64-bit input.
+@intrinsic("llvm.sqrt.f64")
+extern square_root(number: f64) -> f64
+
 def perfect_square_impl(input: i64) -> i64:
     if input < 0:
         return 0
@@ -8,19 +10,10 @@ def perfect_square_impl(input: i64) -> i64:
     # Only 0, 1, 4 and 9 are squares modulo 16.
     if ((0x0213.u64() >> (number & 15)) & 1) == 0:
         return 0
-    low: mutable u64 = 1
-    root_limit: u64 = 65535 if number <= 0xffffffff.u64() else 3037000499
-    half: u64 = number >> 1
-    high: mutable u64 = half if half < root_limit else root_limit
-    while low <= high:
-        middle: u64 = (low + high) >> 1
-        square: u64 = middle * middle
-        if square == number:
-            return 1
-        if square < number:
-            low <- middle + 1
-        else:
-            high <- middle - 1
-    0
+    # For a perfect square in the signed 64-bit range, f64 conversion and
+    # square root leave the result within half a unit of the integer root.
+    # The integer product decides equality exactly.
+    root: u64 = (square_root(number.f64()) + 0.5).u64()
+    return 1 if root * root == number else 0
 
 export fn perfect_square(input: i64) -> i64 = perfect_square_impl
