@@ -57,12 +57,11 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     domination_local_reduction_put_word(output, 8 * (1 + kept), -1)
     for i in 0..<kept:
         neighbors_of_vertex: u16 = adj[((packed_ids >> (4 * i)) & 15).usize()]
-        remaining_ids: mutable u64 = packed_ids
         row: mutable i64 = 0
         for j in 0..<kept:
-            if (neighbors_of_vertex & (1.u16() << (remaining_ids & 15))) != 0:
-                row <- row | (1.i64() << j)
-            remaining_ids <- remaining_ids >> 4
+            original_vertex: u64 = (packed_ids >> (4 * (kept - 1 - j))) & 15
+            edge: i64 = ((neighbors_of_vertex >> original_vertex) & 1).i64()
+            row <- (row << 1) | edge
         if i == pivot_index: row <- row | (1.i64() << leaf)
         domination_local_reduction_put_word(output, 8 * (1 + k + i), row)
     domination_local_reduction_put_word(output, 8 * (1 + k + leaf), 1.i64() << pivot_index)
