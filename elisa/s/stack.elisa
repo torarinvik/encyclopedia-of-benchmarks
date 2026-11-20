@@ -76,7 +76,8 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable u32&, chec
         operation <- operation + 1
         if opcode == 0:
             encoded: u64 = payload.u64() + 1000000
-            if (check_capacity and top == 256) or encoded > 2000000:
+            # Pushes stop at 256, so bit 8 is set exactly when the large stack is full.
+            if (check_capacity and (top & 256) != 0) or encoded > 2000000:
                 return -1
             data_stack[top] <- encoded.u32()
             top <- top + 1
