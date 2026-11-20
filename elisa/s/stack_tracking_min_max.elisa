@@ -29,9 +29,9 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
     if position != length:
         return -1
 
-    values: mutable i64[64] = zeroed
-    minima: mutable i64[64] = zeroed
-    maxima: mutable i64[64] = zeroed
+    values: mutable i32[64] = zeroed
+    minima: mutable i32[64] = zeroed
+    maxima: mutable i32[64] = zeroed
     records: mutable i64[192] = zeroed
     top: mutable usize = 0
     words: mutable usize = 0
@@ -50,14 +50,14 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
                 records[words + 2] <- 1
                 words <- words + 3
                 break
-            values[top] <- value
-            minima[top] <- value
-            maxima[top] <- value
+            values[top] <- value.i32()
+            minima[top] <- value.i32()
+            maxima[top] <- value.i32()
             if top != 0:
-                previous_min: i64 = minima[top - 1]
-                previous_max: i64 = maxima[top - 1]
-                minima[top] <- previous_min if previous_min < value else value
-                maxima[top] <- previous_max if previous_max > value else value
+                previous_min: i64 = minima[top - 1].i64()
+                previous_max: i64 = maxima[top - 1].i64()
+                minima[top] <- (previous_min if previous_min < value else value).i32()
+                maxima[top] <- (previous_max if previous_max > value else value).i32()
             top <- top + 1
             tag <- 1
             result <- 1
@@ -68,11 +68,11 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
             tag <- 3
         elif opcode == 2:
             top <- top - 1
-            result <- values[top]
+            result <- values[top].i64()
         elif opcode == 3:
-            result <- minima[top - 1]
+            result <- minima[top - 1].i64()
         else:
-            result <- maxima[top - 1]
+            result <- maxima[top - 1].i64()
         records[words] <- opcode
         records[words + 1] <- tag
         records[words + 2] <- result
