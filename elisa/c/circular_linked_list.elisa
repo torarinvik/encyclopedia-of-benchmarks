@@ -5,13 +5,13 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
     count: mutable usize = 0
     checksum: mutable u64 = 0
     for operation in 0..<operation_count:
-        opcode: i64 = values[2 * operation]
+        opcode: u64 = values[2 * operation].u64()
         payload: i64 = values[2 * operation + 1]
         observed: mutable u64 = 1000000
         biased_payload: u64 = payload.u64() + 1000000
         removed: mutable usize = 0
         predecessor: mutable usize = 0
-        if opcode == 0 or opcode == 1:
+        if opcode < 2:
             if biased_payload > 2000000 or count == 256:
                 return -1
             node: usize = next_unused if free_head == 0 else free_head
@@ -31,7 +31,7 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
                     tail_index <- node
             count <- count + 1
             continue
-        elif opcode == 2 or opcode == 3:
+        elif opcode < 4:
             if payload != 0 or count == 0:
                 return -1
             previous: mutable usize = 0
@@ -42,7 +42,7 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
             observed <- node_value[node].u64()
             removed <- node
             predecessor <- previous
-        elif opcode == 4 or opcode == 5:
+        elif opcode < 6:
             if biased_payload > 2000000:
                 return -1
             previous: mutable usize = 0
@@ -58,7 +58,7 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
             if payload != 0:
                 return -1
             observed <- count.u64() + 1000000
-        elif opcode == 7 or opcode == 8:
+        elif opcode < 9:
             if payload.u64() >= count.u64():
                 return -1
             previous: mutable usize = 0
