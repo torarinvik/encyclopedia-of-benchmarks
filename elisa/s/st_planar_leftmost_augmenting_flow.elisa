@@ -17,13 +17,13 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
     m0: i64 = input[1]
     s0: i64 = input[2]
     t0: i64 = input[3]
-    if (((((((((n0 < 2) or (n0 > 6)) or (m0 < 1)) or (m0 > 10)) or (s0 < 0)) or (s0 >= n0)) or (t0 < 0)) or (t0 >= n0)) or (s0 == t0)):
+    if n0 < 2 or n0 > 6 or m0 < 1 or m0 > 10 or s0 == t0 or s0.u64() >= n0.u64() or t0.u64() >= n0.u64():
         return (-1)
     n: usize = n0.usize()
     m: usize = m0.usize()
     s: usize = s0.usize()
     t: usize = t0.usize()
-    if (length < (4 + (3 * m))):
+    if length != 4 + 5 * m + n:
         return (-1)
     arc_target: mutable usize[ARC_SLOTS] = zeroed
     residual_capacity: mutable i64[ARC_SLOTS] = zeroed
@@ -36,7 +36,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         v0: i64 = input[(at + 1)]
         c: i64 = input[(at + 2)]
         at <- (at + 3)
-        if (((((((u0 < 0) or (u0 >= n0)) or (v0 < 0)) or (v0 >= n0)) or (u0 == v0)) or (c < 0)) or (c > 5)):
+        if u0 == v0 or u0.u64() >= n0.u64() or v0.u64() >= n0.u64() or c.u64() > 5:
             return (-1)
         u: usize = u0.usize()
         v: usize = v0.usize()
@@ -58,14 +58,14 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             return (-1)
         d0: i64 = input[at]
         at <- (at + 1)
-        if (((d0 < 0) or (d0 >= n0)) or ((at + d0.usize()) > length)):
+        if d0.u64() >= n0.u64() or at + d0.usize() > length:
             return (-1)
         d: usize = d0.usize()
         j: mutable usize = 0
         while (j < d):
             e0: i64 = input[at]
             at <- (at + 1)
-            if ((e0 < 0) or (e0 >= m0)):
+            if e0.u64() >= m0.u64():
                 return (-1)
             edge: usize = e0.usize()
             forward_arc: usize = 2 * edge
@@ -79,7 +79,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             rotations[x] <- rotations[x] | ((arc.u32() + 1) << (5 * j))
             j <- (j + 1)
         x <- (x + 1)
-    if at != length or occurrences != ((1.u64() << (2 * m)) - 1):
+    if occurrences != ((1.u64() << (2 * m)) - 1):
         return -1
     all_vertices: u64 = (1.u64() << n) - 1
     connected: mutable u64 = 1 << s
