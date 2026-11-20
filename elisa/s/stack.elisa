@@ -35,7 +35,7 @@ def stack_run(values: i64&, operation_count: usize, data_stack: mutable i32&) ->
             data_stack[top] <- encoded.i32()
             top <- top + 1
         else:
-            if payload != 0 or opcode.u64() > 3:
+            if (payload.u64() | (opcode.u64() >> 2)) != 0:
                 return -1
             if opcode == 3:
                 observed: i64 = 1000001 if top == 0 else 1000000
