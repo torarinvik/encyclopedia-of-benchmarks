@@ -98,15 +98,13 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         path[s] <- 5 << 8
         next_edge: mutable usize[MAX_N] = zeroed
         # A discovered vertex has a parent chain back to the source.
-        search_stack: mutable usize[MAX_N] = zeroed
-        top: mutable usize = 0
         seen[s] <- true
-        search_stack[top] <- s
-        top <- (top + 1)
-        while ((top > 0) and (not seen[t])):
-            u: usize = search_stack[(top - 1)]
-            if (next_edge[u] >= degree[u]):
-                top <- (top - 1)
+        u: mutable usize = s
+        while not seen[t]:
+            if next_edge[u] >= degree[u]:
+                if u == s:
+                    break
+                u <- path[u].usize() & 7
                 continue
             arc: usize = rot[u * MAX_N + next_edge[u]] & (ARC_SLOTS - 1)
             next_edge[u] <- next_edge[u] + 1
@@ -117,8 +115,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
                 parent_capacity: i64 = (path[u] >> 8).i64()
                 path_capacity: i64 = available if available < parent_capacity else parent_capacity
                 path[v] <- (u | (arc << 3) | (path_capacity.usize() << 8)).u16()
-                search_stack[top] <- v
-                top <- (top + 1)
+                u <- v
         if (not seen[t]):
             break
         delta: i64 = (path[t] >> 8).i64()
