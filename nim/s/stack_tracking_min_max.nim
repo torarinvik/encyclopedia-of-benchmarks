@@ -22,7 +22,12 @@ proc stack_tracking_min_max*(input:ptr UncheckedArray[int64],length:csize_t,outp
     if op==1:
       let x=input[p];inc p
       if top==int(maxSize):records[rc]=[1'i64,4,1];inc rc;break
-      vals[top]=x;minima[top]=if top==0:x else:minima[top-1].min(x);maxima[top]=if top==0:x else:maxima[top-1].max(x);inc top;tag=1;result=1
+      vals[top] = x
+      minima[top] = if top == 0: x else: minima[top - 1].min(x)
+      maxima[top] = if top == 0: x else: maxima[top - 1].max(x)
+      inc top
+      tag = 1
+      result = 1
     elif op==2:
       if top>0:dec top;result=vals[top]
       else:tag=3
