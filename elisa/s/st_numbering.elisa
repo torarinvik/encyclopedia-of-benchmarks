@@ -1,4 +1,4 @@
-# Even-Tarjan DFS/lowpoint st-numbering with a fixed linked adjacency list.
+# Even-Tarjan DFS/lowpoint st-numbering with a packed adjacency lists.
 def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or input_length < 4 or input_length > 60:
         return -1
@@ -16,12 +16,10 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
         return -1
 
     adjacent: mutable u64[8] = zeroed
-    # At most 56 arcs fit in signed bytes, with -1 reserved for the sentinel.
-    head: mutable i8[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
+    # Encode each neighbor as its vertex ID plus one. Each list has at most
+    # seven four-bit entries, and zero marks an empty list.
+    pending_neighbors: mutable u32[8] = zeroed
     vertex: mutable usize = 0
-    arc_to: mutable i8[56] = zeroed
-    arc_next: mutable i8[56] = zeroed
-    arc_count: mutable usize = 0
     edge: mutable usize = 0
     while edge < m:
         u_value: i64 = input[4 + 2 * edge]
@@ -37,23 +35,15 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
         adjacent[u] <- adjacent[u] | u_bit
         adjacent[v] <- adjacent[v] | v_bit
         if u != s and v != s:
-            arc_to[arc_count] <- v_value.i8()
-            arc_next[arc_count] <- head[u]
-            head[u] <- arc_count.i8()
-            arc_count <- arc_count + 1
-            arc_to[arc_count] <- u_value.i8()
-            arc_next[arc_count] <- head[v]
-            head[v] <- arc_count.i8()
-            arc_count <- arc_count + 1
+            pending_neighbors[u] <- (pending_neighbors[u] << 4) | (v.u32() + 1)
+            pending_neighbors[v] <- (pending_neighbors[v] << 4) | (u.u32() + 1)
         edge <- edge + 1
     if (adjacent[s] & (1 << t)) == 0:
         return -1
 
-
     parent: mutable i64[8] = zeroed
     discovery: mutable u8[8] = zeroed
     low_vertex: mutable usize[8] = zeroed
-    next_arc: mutable i8[8] = zeroed
     preorder: mutable usize[8] = zeroed
     # A valid root has only the terminal t as its DFS child. Start there and
     # reject the graph if this subtree does not reach every vertex.
@@ -65,12 +55,11 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
     low_vertex[t] <- t
     preorder[0] <- s
     preorder[1] <- t
-    next_arc[t] <- head[t]
     root_bit: u64 = 1 << s
     vertex <- t
     while vertex != s:
-        arc_value: mutable i8 = next_arc[vertex]
-        if arc_value < 0:
+        neighbors: u32 = pending_neighbors[vertex]
+        if neighbors == 0:
             ancestor_value: i64 = parent[vertex]
             if ancestor_value != s.i64():
                 ancestor: usize = ancestor_value.usize()
@@ -81,9 +70,8 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
                     low_vertex[ancestor] <- low_vertex[vertex]
             vertex <- ancestor_value.usize()
             continue
-        arc: usize = arc_value.usize()
-        next_arc[vertex] <- arc_next[arc]
-        neighbor: usize = arc_to[arc].usize()
+        pending_neighbors[vertex] <- neighbors >> 4
+        neighbor: usize = ((neighbors & 15) - 1).usize()
         if neighbor == parent[vertex].usize():
             continue
         if discovery[neighbor] == 0:
@@ -93,7 +81,6 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             preorder[preorder_count] <- neighbor
             preorder_count <- preorder_count + 1
             discovery[neighbor] <- preorder_count.u8()
-            next_arc[neighbor] <- head[neighbor]
             vertex <- neighbor
         elif discovery[neighbor] < discovery[vertex] and discovery[neighbor] < discovery[low_vertex[vertex]]:
             low_vertex[vertex] <- neighbor
