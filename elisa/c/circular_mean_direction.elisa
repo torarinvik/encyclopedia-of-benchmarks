@@ -38,7 +38,7 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
             angle <- cmd_wrap(raw)
         if output == null or output_capacity < 1: return -2
         direction: f64 = atan2(0.0 + sin(angle), 0.0 + cos(angle))
-        output[0] <- -CMD_PI if direction >= CMD_PI else direction
+        output[0] <- -direction if direction >= CMD_PI else direction
         return 1
 
     circular_mean_multiple(values, count, output, output_capacity)
@@ -71,7 +71,7 @@ def circular_mean_multiple(values: f64&, count: usize, output: mutable f64&, out
     if output == null or output_capacity < 1: return -2
     # atan2 already returns an angle in [-pi, pi].
     direction: f64 = atan2(sum_sin, sum_cos)
-    output[0] <- -CMD_PI if direction >= CMD_PI else direction
+    output[0] <- -direction if direction >= CMD_PI else direction
     1
 
 export fn circular_mean_direction(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = circular_mean_direction_impl
