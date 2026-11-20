@@ -51,11 +51,19 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&, chec
                     top <- last
                 observed <- value
             checksum <- checksum + operation.u64() * observed
+    if not check_capacity:
+        remaining: mutable u32 = top
+        while remaining != 0:
+            remaining <- remaining - 1
+            checksum <- checksum + (operation_count + remaining + 1).u64() * data_stack[remaining].u64()
+        return checksum.i64()
     # Each product fits in u32 (weight at most 768, value at most 2000000).
     index: mutable u32 = 0
+    weight: mutable u32 = operation_count + 1
     while index < top:
-        checksum <- checksum + ((operation_count + index + 1) * data_stack[index].u32()).u64()
+        checksum <- checksum + (weight * data_stack[index].u32()).u64()
         index <- index + 1
+        weight <- weight + 1
     checksum.i64()
 
 export fn stack_benchmark(values: i64&, length: usize) -> i64 = stack_benchmark_impl
