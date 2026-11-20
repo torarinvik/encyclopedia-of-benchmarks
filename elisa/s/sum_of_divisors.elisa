@@ -2,19 +2,23 @@
 def sum_of_divisors_impl(n: i64) -> i64:
     if n < 1 or n > 1000000:
         return -1
-    remaining: mutable i64 = n
-    sigma: mutable i64 = 1
-    factor: mutable i64 = 2
-    while factor <= remaining / factor:
-        if remaining % factor == 0:
-            power: mutable i64 = 1
-            geometric_sum: mutable i64 = 1
+    # The lowest set bit is the largest power of two dividing n.
+    power_of_two: i64 = n & -n
+    remaining: mutable i64 = n / power_of_two
+    sigma: mutable i64 = 2 * power_of_two - 1
+    factor: mutable i64 = 3
+    while factor * factor <= remaining:
+        quotient: i64 = remaining / factor
+        if quotient * factor == remaining:
+            remaining <- quotient
+            power: mutable i64 = factor
+            geometric_sum: mutable i64 = 1 + factor
             while remaining % factor == 0:
                 remaining <- remaining / factor
                 power <- power * factor
                 geometric_sum <- geometric_sum + power
             sigma <- sigma * geometric_sum
-        factor <- factor + 1
+        factor <- factor + 2
     if remaining > 1:
         sigma <- sigma * (remaining + 1)
     sigma
