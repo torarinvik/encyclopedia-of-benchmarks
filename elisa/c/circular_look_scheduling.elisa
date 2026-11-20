@@ -1,7 +1,10 @@
 @inline(never)
 def circular_look_large(input: i64&, request_count: usize, max_cylinder: i64, start: i64, moving_up: i64, output: mutable u8&, output_capacity: usize) -> i64:
-    up: mutable u8[MAX_REQUESTS] = zeroed
-    down: mutable u8[MAX_REQUESTS] = zeroed
+    # Each partition holds at most request_count entries, which is bounded by MAX_REQUESTS.
+    up_storage: mutable u8[MAX_REQUESTS] = zeroed
+    up: mutable u8& = &up_storage[0]
+    down_storage: mutable u8[MAX_REQUESTS] = zeroed
+    down: mutable u8& = &down_storage[0]
     up_count: mutable usize = 0
     down_count: mutable usize = 0
     index: mutable usize = 0
