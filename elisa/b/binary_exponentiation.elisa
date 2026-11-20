@@ -1,3 +1,6 @@
+@intrinsic("llvm.ctlz.i32")
+extern leading_zeros(value: u32, zero_undefined: bool) -> u32
+
 # Exponentiation by squaring with exact i64 overflow detection.
 def binary_exponentiation_impl(values: i64&, length: usize) -> i64:
     if values == null or length != 2:
@@ -6,20 +9,35 @@ def binary_exponentiation_impl(values: i64&, length: usize) -> i64:
     exponent_input: i64 = values[1]
     if base_input < 0 or base_input > 2147483647 or exponent_input < 0 or exponent_input > 2147483647:
         return -1
-    base: mutable u64 = base_input.u64()
-    exponent: mutable u64 = exponent_input.u64()
-    result: mutable u64 = 1.u64()
-    maximum: u64 = 9223372036854775807.u64()
-    while exponent != 0.u64():
-        if (exponent & 1.u64()) != 0.u64():
-            if base != 0.u64() and result > maximum / base:
+    if exponent_input == 0:
+        return 1
+    if base_input <= 1:
+        return base_input
+    # Every base above one overflows at exponent 63 or higher.
+    if exponent_input > 62:
+        return -1
+    if (base_input & (base_input - 1)) == 0:
+        shift: u32 = (31 - leading_zeros(base_input.u32(), true)) * exponent_input.u32()
+        if shift > 62:
+            return -1
+        return (1.u64() << shift).i64()
+    base: u64 = base_input.u64()
+    # Scanning from the top bit keeps the non-square multiplier fixed.
+    maximum_factor: u64 = 9223372036854775807.u64() / base
+    exponent: u32 = exponent_input.u32()
+    highest_bit: u32 = 31 - leading_zeros(exponent, true)
+    bit: mutable u32 = (1.u32() << highest_bit) >> 1
+    result: mutable u64 = base
+    while bit != 0:
+        # 3037000499 is the largest integer whose square fits in i64.
+        if result > 3037000499:
+            return -1
+        result <- result * result
+        if (exponent & bit) != 0:
+            if result > maximum_factor:
                 return -1
             result <- result * base
-        exponent <- exponent >> 1
-        if exponent != 0.u64():
-            if base != 0.u64() and base > maximum / base:
-                return -1
-            base <- base * base
+        bit <- bit >> 1
     result.i64()
 
 export fn binary_exponentiation(values: i64&, length: usize) -> i64 = binary_exponentiation_impl
