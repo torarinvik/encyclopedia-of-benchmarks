@@ -14,19 +14,23 @@ def inverse_square_root_seed(value: f64) -> f64:
     first: f64 = seed * (1.5 - half_value * seed * seed)
     first * (1.5 - half_value * first * first)
 
+@inline(never)
+def fallback_seed(value: f64) -> f64:
+    1.0 if value < 1.0 else value
+
 # Newton square root using binary64 arithmetic and a portable initial estimate.
 def square_root_impl(value: f64) -> f64:
     if value == 0.0:
         return 0.0
-    estimate: mutable f64 = value
-    if value < 1.0:
-        estimate <- 1.0
+    estimate: mutable f64 = 0.0
     bits: mutable u64 = 0
     copy_seed_bits(&bits, &value, 8, false)
     if bits < 0x7ff0000000000000:
         # Positive finite binary64 values have unsigned encodings below infinity.
         seed: u64 = (bits >> 1) + 0x1ff8000000000000
         copy_seed_value(&estimate, &seed, 8, false)
+    else:
+        estimate <- fallback_seed(value)
     iteration: mutable usize = 0
     while iteration < 1100:
         next: f64 = 0.5 * estimate + 0.5 * (value / estimate)
