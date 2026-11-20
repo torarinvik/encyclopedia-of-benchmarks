@@ -1,4 +1,6 @@
-def push_new(main_queue: view[i64], temp_queue: mutable view[i64], head: usize, queue_end: usize, value: i64) -> usize:
+# The validated limit of 128 operations bounds both queues. Each push
+# copies into the other array and can increase the live length by at most one.
+def push_new(main_queue: i64&, temp_queue: mutable i64&, head: usize, queue_end: usize, value: i64) -> usize:
     temp_queue[0] <- value
     for index in head..<queue_end:
         temp_queue[index - head + 1] <- main_queue[index]
@@ -29,9 +31,9 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
         if opcode == 0:
             if operand < -2147483648 or operand > 2147483647: return -1
             if main_is_a:
-                queue_end <- push_new(queue_a[0:128], queue_b[0:128], head, queue_end, operand)
+                queue_end <- push_new(&queue_a[0], &queue_b[0], head, queue_end, operand)
             else:
-                queue_end <- push_new(queue_b[0:128], queue_a[0:128], head, queue_end, operand)
+                queue_end <- push_new(&queue_b[0], &queue_a[0], head, queue_end, operand)
             head <- 0
             main_is_a <- not main_is_a
         elif opcode == 1:
