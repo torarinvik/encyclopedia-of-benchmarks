@@ -158,32 +158,23 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             sign[ancestor] <- -1
         order <- order + 1
 
-    rank: mutable i64[8] = zeroed
     staged: mutable u8[8] = zeroed
+    lower_vertices: mutable u64 = 0
     rank_value: mutable i64 = 1
     vertex_value: mutable i64 = list_head.i64()
     while vertex_value >= 0 and rank_value <= n.i64():
         vertex <- vertex_value.usize()
-        rank[vertex] <- rank_value
+        if vertex != s and vertex != t:
+            # Previously visited vertices have lower rank, and self-loops were rejected.
+            neighbors: u64 = adjacent[vertex]
+            if (neighbors & lower_vertices) == 0 or (neighbors & ~lower_vertices) == 0:
+                return -1
+        lower_vertices <- lower_vertices | (1 << vertex)
         staged[vertex] <- rank_value.u8()
         rank_value <- rank_value + 1
         vertex_value <- following[vertex]
-    if rank_value != n.i64() + 1 or rank[s] != 1 or rank[t] != n.i64():
+    if rank_value != n.i64() + 1 or staged[s] != 1 or staged[t] != n.u8():
         return -1
-    vertex <- 0
-    while vertex < n:
-        if vertex != s and vertex != t:
-            lower: mutable bool = false
-            higher: mutable bool = false
-            arc_value: mutable i8 = head[vertex]
-            while arc_value >= 0:
-                neighbor: usize = arc_to[arc_value.usize()].usize()
-                lower <- lower or rank[neighbor] < rank[vertex]
-                higher <- higher or rank[neighbor] > rank[vertex]
-                arc_value <- arc_next[arc_value.usize()]
-            if not lower or not higher:
-                return -1
-        vertex <- vertex + 1
     if output == null or output_capacity < n:
         return -2
     vertex <- 0
