@@ -15,10 +15,9 @@ def fast_subset_convolution_impl(input: i64&, length: usize, output: mutable u8&
     if input == null or length < 3 or length > 33:
         return -1
     n64: i64 = input[0]
-    if n64 < 0 or n64 > 4:
+    if n64.u64() > 4:
         return -1
-    n: usize = n64.usize()
-    size: usize = 1 << n
+    size: usize = (1.u32() << n64.u32()).usize()
     if length != 1 + 2 * size:
         return -1
     if size == 1:
