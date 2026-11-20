@@ -60,14 +60,15 @@ def stable_matching_valid_input(input: i64&, n: usize, output: mutable u8&?, cap
 
     woman_partner: mutable u8[8] = zeroed
     man_partner: mutable i64[8] = zeroed
-    next_proposal: mutable usize[8] = zeroed
+    next_offset: mutable usize[8] = zeroed
     proposer: mutable usize = 0
     while proposer < n:
+        next_offset[proposer] <- 1 + proposer * n
         active: mutable usize = proposer
         while true:
-            rank: usize = next_proposal[active]
-            next_proposal[active] <- rank + 1
-            woman: usize = input[1 + active * n + rank].usize()
+            offset: usize = next_offset[active]
+            next_offset[active] <- offset + 1
+            woman: usize = input[offset].usize()
             incumbent_code: usize = woman_partner[woman].usize()
             if incumbent_code != 0:
                 incumbent: usize = incumbent_code - 1
