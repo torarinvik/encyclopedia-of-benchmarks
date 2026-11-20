@@ -1,22 +1,23 @@
 # Euler's totient via distinct-prime factorization.
 def euler_totient_impl(n: i64) -> i64:
-    if n < 1 or n > 1000000:
-        return -1
+    return (1 if n == 1 else -1) if n <= 1
+    return -1 if n > 1000000
     # Validated positive input keeps the factorization and result nonnegative.
     result: mutable u32 = n.u32()
     remaining: mutable u32 = n.u32()
     if (remaining & 1) == 0:
         result <- result >> 1
-        remaining <- remaining / (remaining & (0.u32() - remaining))
+        power_of_two: u32 = remaining & (0.u32() - remaining)
+        return result.i64() if power_of_two == remaining
+        remaining <- remaining / power_of_two
     factor: mutable u32 = 3
     while factor <= remaining / factor:
         if remaining % factor == 0:
             while remaining % factor == 0:
                 remaining <- remaining / factor
             result <- result - result / factor
+            return result.i64() if remaining == 1
         factor <- factor + 2
-    if remaining > 1:
-        result <- result - result / remaining
-    result.i64()
+    (result - result / remaining).i64()
 
 export fn euler_totient(n: i64) -> i64 = euler_totient_impl
