@@ -12,10 +12,10 @@ def prime_check_impl(n: i64) -> i64:
     # Every prime factor above 3 is one below or one above a multiple of 6.
     composite: bool =
         while factor * factor <= number |factor: u32 = 5, found: bool = false| -> found:
-            if number % factor == 0:
-                break true
             # factor + 2 is smaller than number whenever factor squared fits.
             if number % (factor + 2) == 0:
+                break true
+            if number % factor == 0:
                 break true
             factor <- factor + 6
     if composite:
