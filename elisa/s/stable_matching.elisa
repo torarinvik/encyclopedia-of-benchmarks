@@ -31,36 +31,27 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     woman_partner: mutable i64[8] = zeroed
     man_partner: mutable i64[8] = zeroed
     next_proposal: mutable usize[8] = zeroed
-    free_queue: mutable usize[8] = zeroed
     index: mutable usize = 0
     while index < n:
         woman_partner[index] <- -1
-        free_queue[index] <- index
         index <- index + 1
-    head: mutable usize = 0
-    queue_end: mutable usize = n & 7
-    queue_count: mutable usize = n
-    while queue_count > 0:
-        man: usize = free_queue[head]
-        head <- (head + 1) & 7
-        queue_count <- queue_count - 1
-        rank: usize = next_proposal[man]
-        next_proposal[man] <- next_proposal[man] + 1
-        woman: usize = men_preferences[man * MAX_N + rank].usize()
-        incumbent: i64 = woman_partner[woman]
-        if incumbent < 0:
-            woman_partner[woman] <- man.i64()
-            man_partner[man] <- woman.i64()
-        elif women_rank[woman * MAX_N + man] < women_rank[woman * MAX_N + incumbent.usize()]:
-            woman_partner[woman] <- man.i64()
-            man_partner[man] <- woman.i64()
-            free_queue[queue_end] <- incumbent.usize()
-            queue_end <- (queue_end + 1) & 7
-            queue_count <- queue_count + 1
-        else:
-            free_queue[queue_end] <- man
-            queue_end <- (queue_end + 1) & 7
-            queue_count <- queue_count + 1
+    proposer: mutable usize = 0
+    while proposer < n:
+        active: mutable usize = proposer
+        while true:
+            rank: usize = next_proposal[active]
+            next_proposal[active] <- rank + 1
+            woman: usize = men_preferences[active * MAX_N + rank].usize()
+            incumbent: i64 = woman_partner[woman]
+            if incumbent < 0:
+                woman_partner[woman] <- active.i64()
+                man_partner[active] <- woman.i64()
+                break
+            if women_rank[woman * MAX_N + active] < women_rank[woman * MAX_N + incumbent.usize()]:
+                woman_partner[woman] <- active.i64()
+                man_partner[active] <- woman.i64()
+                active <- incumbent.usize()
+        proposer <- proposer + 1
 
     man: mutable usize = 0
     while man < n:
