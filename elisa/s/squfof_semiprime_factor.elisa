@@ -77,6 +77,8 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     p: mutable i64 = a
     remaining: mutable u32 = forward_cap.u32()
     while true:
+        # The forward reduced-form recurrence also preserves positivity.
+        assume_reduced_denominator(q > 0)
         quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
         next_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
         next_q: i64 = previous_q + quotient.i32().i64() * (p.i32().i64() - next_p.i32().i64()).i32().i64()
@@ -89,6 +91,7 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
         if remaining == 1:
             return 0
         # The intervening odd-index step does not trigger a reverse walk.
+        assume_reduced_denominator(q > 0)
         second_quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
         second_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
         second_q: i64 = previous_q + second_quotient.i32().i64() * (p.i32().i64() - second_p.i32().i64()).i32().i64()
