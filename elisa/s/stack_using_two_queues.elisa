@@ -20,11 +20,13 @@ def stack_using_two_queues_impl(input: i64&?, length: usize, output: mutable u8&
 def stack_using_two_queues_run(input: i64&, operation_count: usize, output: mutable u8&?, capacity: usize) -> i64:
     queue_a: mutable i64[128] = zeroed
     queue_b: mutable i64[128] = zeroed
-    records: mutable i64[256] = zeroed
+    # Each operation emits at most two words, so the validated operation count bounds this buffer.
+    record_storage: mutable i64[256] = zeroed
+    records: mutable i64& = &record_storage[0]
     main_is_a: mutable bool = true
     head: mutable usize = 0
     queue_size: mutable usize = 0
-    record_count: mutable usize = 0
+    record_end: mutable usize = 0
     position: mutable usize = 1
     operation_index: mutable usize = 0
     while operation_index < operation_count:
@@ -41,28 +43,28 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
             main_is_a <- not main_is_a
         elif opcode == 1:
             if operand != 0 or queue_size == 0: return -1
-            records[2 * record_count] <- 0
-            if main_is_a: records[2 * record_count + 1] <- queue_a[head]
-            else: records[2 * record_count + 1] <- queue_b[head]
-            record_count <- record_count + 1
+            records[record_end] <- 0
+            if main_is_a: records[record_end + 1] <- queue_a[head]
+            else: records[record_end + 1] <- queue_b[head]
+            record_end <- record_end + 2
             head <- head + 1
             queue_size <- queue_size - 1
         elif opcode == 2:
             if operand != 0: return -1
             if queue_size == 0:
-                records[2 * record_count] <- 1
-                records[2 * record_count + 1] <- 0
+                records[record_end] <- 1
+                records[record_end + 1] <- 0
             else:
-                records[2 * record_count] <- 0
-                if main_is_a: records[2 * record_count + 1] <- queue_a[head]
-                else: records[2 * record_count + 1] <- queue_b[head]
-            record_count <- record_count + 1
+                records[record_end] <- 0
+                if main_is_a: records[record_end + 1] <- queue_a[head]
+                else: records[record_end + 1] <- queue_b[head]
+            record_end <- record_end + 2
         else:
             return -1
         operation_index <- operation_index + 1
-    output_length: usize = record_count * 16
+    output_length: usize = record_end * 8
     if output == null or capacity < output_length: return -2
-    for index in 0..<2 * record_count:
+    for index in 0..<record_end:
         bits: u64 = records[index].u64()
         for byte in 0..<8:
             output[index * 8 + byte] <- (bits >> (byte * 8)).u8()
