@@ -14,9 +14,9 @@ const CMD_PI: f64 = 3.14159265358979323846264338327950288
 const CMD_TAU: f64 = 6.28318530717958647692528676655900576
 
 def cmd_wrap(angle: f64) -> f64:
-    value: mutable f64 = angle - floor((angle + CMD_PI) / CMD_TAU) * CMD_TAU
-    if value >= CMD_PI: value <- value - CMD_TAU
-    if value < -CMD_PI: value <- value + CMD_TAU
+    value: f64 = angle - floor((angle + CMD_PI) / CMD_TAU) * CMD_TAU
+    if value < -CMD_PI: return value + CMD_TAU
+    if value >= CMD_PI: return value - CMD_TAU
     value
 
 def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
