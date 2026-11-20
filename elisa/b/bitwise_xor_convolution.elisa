@@ -45,23 +45,30 @@ def bitwise_xor_convolution_impl(
     size: usize = 1 << n
     if input_length != 1 + 2 * size:
         return -1
-    index: mutable usize = 0
-    while index < 2 * size:
-        value: i64 = input[1 + index]
-        if value < 0 or value >= MODULUS.i64():
+    # A one-element convolution is just the product of its coefficients.
+    if size == 1:
+        left: u64 = input[1].u64()
+        right: u64 = input[2].u64()
+        if left >= MODULUS.u64() or right >= MODULUS.u64():
             return -1
+        if output == null or output_capacity < 8:
+            return -2
+        bitwise_xor_store_i64(output, 0, ((left * right) % MODULUS.u64()).i64())
+        return 8
+    first: mutable u32[MAX_SIZE] = zeroed
+    second: mutable u32[MAX_SIZE] = zeroed
+    index: mutable usize = 0
+    while index < size:
+        left: u64 = input[1 + index].u64()
+        right: u64 = input[1 + size + index].u64()
+        if left >= MODULUS.u64() or right >= MODULUS.u64():
+            return -1
+        first[index] <- left.u32()
+        second[index] <- right.u32()
         index <- index + 1
-
     output_bytes: usize = 8 * size
     if output == null or output_capacity < output_bytes:
         return -2
-    first: mutable u32[MAX_SIZE] = zeroed
-    second: mutable u32[MAX_SIZE] = zeroed
-    index <- 0
-    while index < size:
-        first[index] <- input[1 + index].u32()
-        second[index] <- input[1 + size + index].u32()
-        index <- index + 1
     bitwise_xor_transform(first[0:MAX_SIZE], size)
     bitwise_xor_transform(second[0:MAX_SIZE], size)
     index <- 0
