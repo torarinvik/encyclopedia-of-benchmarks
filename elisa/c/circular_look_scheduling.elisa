@@ -15,8 +15,8 @@ def circular_look_scheduling_impl(input: i64&, length: usize, output: mutable u8
     if length != 4 + request_count.usize():
         return -1
 
-    up: mutable i64[MAX_REQUESTS] = zeroed
-    down: mutable i64[MAX_REQUESTS] = zeroed
+    up: mutable u8[MAX_REQUESTS] = zeroed
+    down: mutable u8[MAX_REQUESTS] = zeroed
     up_count: mutable usize = 0
     down_count: mutable usize = 0
     index: mutable usize = 0
@@ -26,16 +26,16 @@ def circular_look_scheduling_impl(input: i64&, length: usize, output: mutable u8
             return -1
         if request >= 0 and request < max_cylinder and request != start:
             if request > start:
-                up[up_count] <- request
+                up[up_count] <- request.u8()
                 up_count <- up_count + 1
             else:
-                down[down_count] <- request
+                down[down_count] <- request.u8()
                 down_count <- down_count + 1
         index <- index + 1
 
     index <- 1
     while index < up_count:
-        value: i64 = up[index]
+        value: u8 = up[index]
         position: mutable usize = index
         while position > 0 and up[position - 1] > value:
             up[position] <- up[position - 1]
@@ -44,7 +44,7 @@ def circular_look_scheduling_impl(input: i64&, length: usize, output: mutable u8
         index <- index + 1
     index <- 1
     while index < down_count:
-        value: i64 = down[index]
+        value: u8 = down[index]
         position: mutable usize = index
         while position > 0 and down[position - 1] > value:
             down[position] <- down[position - 1]
