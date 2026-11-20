@@ -1,3 +1,6 @@
+@intrinsic("llvm.cttz.i32")
+extern domination_trailing_zeros(value: u32, zero_undefined: bool) -> u32
+
 def domination_local_reduction_put_word(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for b in 0..<8:
@@ -28,17 +31,22 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     neighbors: u16 = adj[p]
     closed: u16 = neighbors | (1.u16() << p)
     exits: mutable u16 = 0
-    for u in 0..<n:
-        bit: u16 = 1.u16() << u
-        if (neighbors & bit) != 0 and (adj[u] & ~closed) != 0:
-            exits <- exits | bit
+    remaining_neighbors: mutable u32 = neighbors.u32()
+    while remaining_neighbors != 0:
+        u: usize = domination_trailing_zeros(remaining_neighbors, true).usize()
+        bit: u32 = remaining_neighbors & (0.u32() - remaining_neighbors)
+        remaining_neighbors <- remaining_neighbors ^ bit
+        if (adj[u] & ~closed) != 0:
+            exits <- exits | bit.u16()
     candidates: u16 = neighbors & ~exits
-    has_prisoner: mutable bool = false
-    for u in 0..<n:
-        bit: u16 = 1.u16() << u
-        if (candidates & bit) != 0 and (adj[u] & exits) == 0:
+    remaining_candidates: mutable u32 = candidates.u32()
+    has_prisoner: mutable bool = exits == 0 and candidates != 0
+    while not has_prisoner and remaining_candidates != 0:
+        u: usize = domination_trailing_zeros(remaining_candidates, true).usize()
+        if (adj[u] & exits) == 0:
             has_prisoner <- true
             break
+        remaining_candidates <- remaining_candidates & (remaining_candidates - 1.u32())
     if not has_prisoner: return -1
     # At most twelve vertex IDs fit in twelve four-bit slots.
     packed_ids: mutable u64 = 0
