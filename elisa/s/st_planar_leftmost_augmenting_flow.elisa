@@ -44,8 +44,8 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         e <- (e + 1)
     degree: mutable usize[MAX_N] = zeroed
     rot: mutable usize[MAX_N * MAX_N] = zeroed
-    occ: mutable usize[MAX_M * 2] = zeroed
-    used: mutable bool[MAX_N * MAX_M] = zeroed
+    # Each edge has two bits, one for each endpoint in the rotation.
+    occurrences: mutable u64 = 0
     x: mutable usize = 0
     while (x < n):
         if (at >= length):
@@ -63,26 +63,18 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             if ((e0 < 0) or (e0 >= m0)):
                 return (-1)
             edge: usize = e0.usize()
-            if used[((x * MAX_M) + edge)]:
-                return (-1)
-            used[((x * MAX_M) + edge)] <- true
-            rot[((x * MAX_N) + j)] <- edge
-            if (eu[edge] == x):
-                occ[(2 * edge)] <- (occ[(2 * edge)] + 1)
-            else:
-                if (ev[edge] == x):
-                    occ[((2 * edge) + 1)] <- (occ[((2 * edge) + 1)] + 1)
-                else:
-                    return (-1)
+            if eu[edge] != x and ev[edge] != x:
+                return -1
+            endpoint: usize = 0 if eu[edge] == x else 1
+            bit: u64 = 1 << (2 * edge + endpoint)
+            if (occurrences & bit) != 0:
+                return -1
+            occurrences <- occurrences | bit
+            rot[x * MAX_N + j] <- edge
             j <- (j + 1)
         x <- (x + 1)
-    if (at != length):
-        return (-1)
-    e <- 0
-    while (e < m):
-        if ((occ[(2 * e)] != 1) or (occ[((2 * e) + 1)] != 1)):
-            return (-1)
-        e <- (e + 1)
+    if at != length or occurrences != ((1.u64() << (2 * m)) - 1):
+        return -1
     connected: mutable bool[MAX_N] = zeroed
     queue: mutable usize[MAX_N] = zeroed
     head: mutable usize = 0
