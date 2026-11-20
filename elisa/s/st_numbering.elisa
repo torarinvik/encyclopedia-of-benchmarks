@@ -6,7 +6,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
     m_value: i64 = input[1]
     s_value: i64 = input[2]
     t_value: i64 = input[3]
-    if n_value < 2 or n_value > 8 or m_value < 0 or m_value > 28 or s_value < 0 or s_value >= n_value or t_value < 0 or t_value >= n_value or s_value == t_value:
+    if n_value < 2 or n_value > 8 or m_value.u64() > 28 or s_value.u64() >= n_value.u64() or t_value.u64() >= n_value.u64() or s_value == t_value:
         return -1
     n: usize = n_value.usize()
     m: usize = m_value.usize()
@@ -17,19 +17,17 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
 
     adjacent: mutable u64[8] = zeroed
     terminals_adjacent: mutable bool = false
-    head: mutable i64[8] = zeroed
+    # At most 56 arcs fit in signed bytes, with -1 reserved for the sentinel.
+    head: mutable i8[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
     vertex: mutable usize = 0
-    while vertex < n:
-        head[vertex] <- -1
-        vertex <- vertex + 1
-    arc_to: mutable i64[56] = zeroed
-    arc_next: mutable i64[56] = zeroed
+    arc_to: mutable i8[56] = zeroed
+    arc_next: mutable i8[56] = zeroed
     arc_count: mutable usize = 0
     edge: mutable usize = 0
     while edge < m:
         u_value: i64 = input[4 + 2 * edge]
         v_value: i64 = input[5 + 2 * edge]
-        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value:
+        if u_value.u64() >= n_value.u64() or v_value.u64() >= n_value.u64() or u_value == v_value:
             return -1
         u: usize = u_value.usize()
         v: usize = v_value.usize()
@@ -42,31 +40,31 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
         if (u == s and v == t) or (u == t and v == s):
             terminals_adjacent <- true
         else:
-            arc_to[arc_count] <- v_value
+            arc_to[arc_count] <- v_value.i8()
             arc_next[arc_count] <- head[u]
-            head[u] <- arc_count.i64()
+            head[u] <- arc_count.i8()
             arc_count <- arc_count + 1
-            arc_to[arc_count] <- u_value
+            arc_to[arc_count] <- u_value.i8()
             arc_next[arc_count] <- head[v]
-            head[v] <- arc_count.i64()
+            head[v] <- arc_count.i8()
             arc_count <- arc_count + 1
         edge <- edge + 1
     if not terminals_adjacent:
         return -1
 
-    arc_to[arc_count] <- t.i64()
+    arc_to[arc_count] <- t.i8()
     arc_next[arc_count] <- head[s]
-    head[s] <- arc_count.i64()
+    head[s] <- arc_count.i8()
     arc_count <- arc_count + 1
-    arc_to[arc_count] <- s.i64()
+    arc_to[arc_count] <- s.i8()
     arc_next[arc_count] <- head[t]
-    head[t] <- arc_count.i64()
+    head[t] <- arc_count.i8()
 
     parent: mutable i64[8] = zeroed
     discovery: mutable i64[8] = zeroed
     low_vertex: mutable usize[8] = zeroed
     children: mutable usize[8] = zeroed
-    next_arc: mutable i64[8] = zeroed
+    next_arc: mutable i8[8] = zeroed
     preorder: mutable usize[8] = zeroed
     vertex <- 0
     while vertex < n:
@@ -85,7 +83,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
     top <- top + 1
     while top > 0:
         vertex <- dfs_stack[top - 1]
-        arc_value: mutable i64 = next_arc[vertex]
+        arc_value: mutable i8 = next_arc[vertex]
         if arc_value < 0:
             top <- top - 1
             ancestor_value: i64 = parent[vertex]
@@ -177,7 +175,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
         if vertex != s and vertex != t:
             lower: mutable bool = false
             higher: mutable bool = false
-            arc_value: mutable i64 = head[vertex]
+            arc_value: mutable i8 = head[vertex]
             while arc_value >= 0:
                 neighbor: usize = arc_to[arc_value.usize()].usize()
                 lower <- lower or rank[neighbor] < rank[vertex]
