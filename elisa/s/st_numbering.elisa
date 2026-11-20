@@ -70,8 +70,6 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     discovery[t] <- 2
     parent[t] <- s.i64()
     low_rank[t] <- 2
-    preorder[0] <- s
-    preorder[1] <- t
     vertex <- t
     current_parent: mutable usize = s
     while vertex != s:
