@@ -12,6 +12,8 @@ def stable_roommates_impl(input: i64&?, length: usize) -> i64:
     if length != 1 + n * (n - 1):
         return -1
 
+    if n == 2:
+        return 1 if input[1] == 1 and input[2] == 0 else -1
     stable_roommates_valid_shape(input, n)
 
 @inline(never)
