@@ -55,22 +55,23 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     preorder[0] <- s
     preorder[1] <- t
     vertex <- t
+    current_parent: mutable usize = s
     while vertex != s:
         neighbors: u32 = pending_neighbors[vertex]
         if neighbors == 0:
-            ancestor_value: i64 = parent[vertex]
-            if ancestor_value != s.i64():
-                ancestor: usize = ancestor_value.usize()
+            ancestor: usize = current_parent
+            if ancestor != s:
                 child_low: u8 = low_rank[vertex]
                 if child_low >= discovery[ancestor]:
                     return -1
                 if child_low < low_rank[ancestor]:
                     low_rank[ancestor] <- child_low
-            vertex <- ancestor_value.usize()
+            vertex <- ancestor
+            current_parent <- parent[vertex].usize()
             continue
         pending_neighbors[vertex] <- neighbors >> 4
         neighbor: usize = (neighbors & 7).usize()
-        if neighbor == parent[vertex].usize():
+        if neighbor == current_parent:
             continue
         if discovery[neighbor] == 0:
             parent[neighbor] <- vertex.i64()
@@ -79,6 +80,7 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
             preorder_count <- preorder_count + 1
             discovery[neighbor] <- preorder_count.u8()
             low_rank[neighbor] <- 1 if (adjacency & (1 << (8 * s + neighbor))) != 0 else preorder_count.u8()
+            current_parent <- vertex
             vertex <- neighbor
         elif discovery[neighbor] < low_rank[vertex]:
             low_rank[vertex] <- discovery[neighbor]
