@@ -6,8 +6,9 @@ def palindrome_number_impl(value: i64) -> i64:
         return 1
     if value % 10 == 0:
         return 0
-    remaining: mutable i64 = value
-    reversed_half: mutable i64 = 0
+    # A valid input has at most ten digits. Reversal stops after at most six.
+    remaining: mutable u32 = value.u32()
+    reversed_half: mutable u32 = 0
     while remaining > reversed_half:
         reversed_half <- reversed_half * 10 + remaining % 10
         remaining <- remaining / 10
