@@ -57,23 +57,20 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
             kept <- kept + 1
     k: usize = kept + 1
     leaf: usize = k - 1
-    words: mutable i64[25] = zeroed
-    words[0] <- k.i64()
+    bytes: usize = (1 + 2 * k) * 8
+    if output == null or capacity < bytes: return -2
+    domination_local_reduction_put_word(output, 0, k.i64())
     for i in 0..<kept:
-        words[1 + i] <- ids[i].i64()
-    words[1 + kept] <- -1
+        domination_local_reduction_put_word(output, 8 * (1 + i), ids[i].i64())
+    domination_local_reduction_put_word(output, 8 * (1 + kept), -1)
     for i in 0..<kept:
+        row: mutable i64 = 0
         for j in 0..<kept:
             if adj[ids[i] * 12 + ids[j]]:
-                words[1 + k + i] <- words[1 + k + i] | (1.i64() << j)
-    rp: usize = pivot_index
-    words[1 + k + rp] <- words[1 + k + rp] | (1.i64() << leaf)
-    words[1 + k + leaf] <- 1.i64() << rp
-    count: usize = 1 + 2 * k
-    bytes: usize = count * 8
-    if output == null or capacity < bytes: return -2
-    for i in 0..<count:
-        domination_local_reduction_put_word(output, i * 8, words[i])
+                row <- row | (1.i64() << j)
+        if i == pivot_index: row <- row | (1.i64() << leaf)
+        domination_local_reduction_put_word(output, 8 * (1 + k + i), row)
+    domination_local_reduction_put_word(output, 8 * (1 + k + leaf), 1.i64() << pivot_index)
     bytes.i64()
 
 export fn domination_local_reduction(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = domination_local_reduction_impl
