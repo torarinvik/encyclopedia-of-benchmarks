@@ -1,3 +1,15 @@
+# Entry e is the largest signed-32-bit base b for which b^e fits in i64.
+const MAXIMUM_BASE: array[u32, 63] = [
+    2147483647, 2147483647, 2147483647, 2097151, 55108, 6208, 1448, 511,
+    234, 127, 78, 52, 38, 28, 22, 18,
+    15, 13, 11, 9, 8, 7, 7, 6,
+    6, 5, 5, 5, 4, 4, 4, 4,
+    3, 3, 3, 3, 3, 3, 3, 3,
+    2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2,
+]
+
 @intrinsic("llvm.ctlz.i32")
 extern leading_zeros(value: u32, zero_undefined: bool) -> u32
 
@@ -22,20 +34,16 @@ def binary_exponentiation_impl(values: i64&, length: usize) -> i64:
             return -1
         return (1.u64() << shift).i64()
     base: u64 = base_input.u64()
-    # Scanning from the top bit keeps the non-square multiplier fixed.
-    maximum_factor: u64 = 9223372036854775807.u64() / base
+    if base > MAXIMUM_BASE[exponent_input.usize()].u64():
+        return -1
+    # All intermediate powers have exponents at most the requested exponent.
     exponent: u32 = exponent_input.u32()
     highest_bit: u32 = 31 - leading_zeros(exponent, true)
     bit: mutable u32 = (1.u32() << highest_bit) >> 1
     result: mutable u64 = base
     while bit != 0:
-        # 3037000499 is the largest integer whose square fits in i64.
-        if result > 3037000499:
-            return -1
         result <- result * result
         if (exponent & bit) != 0:
-            if result > maximum_factor:
-                return -1
             result <- result * base
         bit <- bit >> 1
     result.i64()
