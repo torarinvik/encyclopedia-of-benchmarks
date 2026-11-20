@@ -11,20 +11,21 @@ def stack_benchmark_impl(values: i64&, length: usize) -> i64:
         return 1000001 if ((opcode ^ 3) | payload) == 0 else -1
     if length > 1024 or length % 2 != 0:
         return -1
+    # Validated length bounds the operation count to 512.
     operation_count: usize = length / 2
     # Even an all-push trace cannot exceed the small stack here.
     if operation_count <= 8:
         small_stack: mutable i32[8] = zeroed
-        return stack_run(values, operation_count, &small_stack[0])
+        return stack_run(values, operation_count.u32(), &small_stack[0])
     data_stack: mutable i32[256] = zeroed
-    stack_run(values, operation_count, &data_stack[0])
+    stack_run(values, operation_count.u32(), &data_stack[0])
 
 @inline(never)
-def stack_run(values: i64&, operation_count: usize, data_stack: mutable i32&) -> i64:
-    top: mutable usize = 0
+def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&) -> i64:
+    top: mutable u32 = 0
     # At most 768 terms, each bounded by 768 * 2000000.
     checksum: mutable u64 = 0
-    operation: mutable usize = 0
+    operation: mutable u32 = 0
     while operation < operation_count:
         opcode: i64 = values[2 * operation]
         payload: i64 = values[2 * operation + 1]
@@ -44,14 +45,14 @@ def stack_run(values: i64&, operation_count: usize, data_stack: mutable i32&) ->
             else:
                 if top == 0:
                     return -1
-                last: usize = top - 1
+                last: u32 = top - 1
                 checksum <- checksum + operation.u64() * data_stack[last & 255].u64()
                 if opcode == 1:
                     top <- last
     # Each product fits in u32 (weight at most 768, value at most 2000000).
-    index: mutable usize = 0
+    index: mutable u32 = 0
     while index < top:
-        checksum <- checksum + ((operation_count + index + 1).u32() * data_stack[index].u32()).u64()
+        checksum <- checksum + ((operation_count + index + 1) * data_stack[index].u32()).u64()
         index <- index + 1
     checksum.i64()
 
