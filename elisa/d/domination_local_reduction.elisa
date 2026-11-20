@@ -16,7 +16,8 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     for e in 0..<m:
         u0: i64 = input[3 + 2 * e]
         v0: i64 = input[4 + 2 * e]
-        if u0 < 0 or v0 <= u0 or v0 >= n0: return -1
+        # Unsigned ordering rejects negative endpoints and enforces 0 <= u < v < n.
+        if v0.u64() >= n0.u64() or u0.u64() >= v0.u64(): return -1
         u: usize = u0.usize()
         v: usize = v0.usize()
         u_bit: u16 = 1.u16() << u
