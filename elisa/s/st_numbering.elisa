@@ -54,13 +54,12 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
 
 
     parent: mutable i64[8] = zeroed
-    discovery: mutable i64[8] = zeroed
+    discovery: mutable u8[8] = zeroed
     low_vertex: mutable usize[8] = zeroed
     next_arc: mutable i8[8] = zeroed
     preorder: mutable usize[8] = zeroed
     # A valid root has only the terminal t as its DFS child. Start there and
     # reject the graph if this subtree does not reach every vertex.
-    clock: mutable i64 = 2
     preorder_count: mutable usize = 2
     discovery[s] <- 1
     discovery[t] <- 2
@@ -77,7 +76,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             ancestor_value: i64 = parent[vertex]
             if ancestor_value != s.i64():
                 ancestor: usize = ancestor_value.usize()
-                child_low: i64 = discovery[low_vertex[vertex]]
+                child_low: u8 = discovery[low_vertex[vertex]]
                 if child_low >= discovery[ancestor]:
                     return -1
                 if child_low < discovery[low_vertex[ancestor]]:
@@ -91,25 +90,19 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             continue
         if discovery[neighbor] == 0:
             parent[neighbor] <- vertex.i64()
-            clock <- clock + 1
-            discovery[neighbor] <- clock
             low_vertex[neighbor] <- neighbor
             preorder[preorder_count] <- neighbor
             preorder_count <- preorder_count + 1
+            discovery[neighbor] <- preorder_count.u8()
             next_arc[neighbor] <- head[neighbor]
             vertex <- neighbor
         elif discovery[neighbor] < discovery[vertex] and discovery[neighbor] < discovery[low_vertex[vertex]]:
             low_vertex[vertex] <- neighbor
     if preorder_count != n:
         return -1
-    previous: mutable i64[8] = zeroed
-    following: mutable i64[8] = zeroed
-    sign: mutable i64[8] = zeroed
-    vertex <- 0
-    while vertex < n:
-        previous[vertex] <- -1
-        following[vertex] <- -1
-        vertex <- vertex + 1
+    previous: mutable i64[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
+    following: mutable i64[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
+    sign: mutable i8[8] = zeroed
     sign[s] <- -1
     following[s] <- t.i64()
     previous[t] <- s.i64()
