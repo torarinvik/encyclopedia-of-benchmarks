@@ -13,15 +13,15 @@ def stack_benchmark_impl(values: i64&, length: usize) -> i64:
         return -1
     # Validated length bounds the operation count to 512.
     operation_count: usize = length / 2
-    # Even an all-push trace cannot exceed the small stack here.
+    # Even an all-push trace fits here, so the inlined loop needs no capacity check.
     if operation_count <= 8:
         small_stack: mutable i32[8] = zeroed
-        return stack_run(values, operation_count.u32(), &small_stack[0])
+        return stack_run(values, operation_count.u32(), &small_stack[0], false)
     data_stack: mutable i32[256] = zeroed
-    stack_run(values, operation_count.u32(), &data_stack[0])
+    stack_run(values, operation_count.u32(), &data_stack[0], true)
 
-@inline(never)
-def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&) -> i64:
+@inline(always)
+def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&, check_capacity: bool) -> i64:
     top: mutable u32 = 0
     # At most 768 terms, each bounded by 768 * 2000000.
     checksum: mutable u64 = 0
@@ -32,7 +32,7 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable i32&) -> i
         operation <- operation + 1
         if opcode == 0:
             encoded: u64 = payload.u64() + 1000000
-            if encoded > 2000000 or top == 256:
+            if encoded > 2000000 or (check_capacity and top == 256):
                 return -1
             data_stack[top] <- encoded.i32()
             top <- top + 1
