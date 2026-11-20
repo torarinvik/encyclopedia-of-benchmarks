@@ -1,3 +1,5 @@
+extern memcpy(destination: mutable u8&, source: i64&, length: usize) -> mutable u8&
+
 def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 130:
         return -1
@@ -35,11 +37,19 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
 
     # Each operation pushes at most one value and emits at most one record.
     if operation_count <= 8:
-        values: mutable i32[8] = zeroed
-        minima: mutable i32[8] = zeroed
-        maxima: mutable i32[8] = zeroed
-        records: mutable i64[24] = zeroed
-        return minmax_execute(input, output, capacity, max_size, operation_count, &values[0], &minima[0], &maxima[0], &records[0])
+        return minmax_small(input, output, capacity, max_size, operation_count)
+    minmax_large(input, output, capacity, max_size, operation_count)
+
+@inline(never)
+def minmax_small(input: i64&, output: mutable u8&, capacity: usize, max_size: u64, operation_count: u64) -> i64:
+    values: mutable i32[8] = zeroed
+    minima: mutable i32[8] = zeroed
+    maxima: mutable i32[8] = zeroed
+    records: mutable i64[24] = zeroed
+    minmax_execute(input, output, capacity, max_size, operation_count, &values[0], &minima[0], &maxima[0], &records[0])
+
+@inline(never)
+def minmax_large(input: i64&, output: mutable u8&, capacity: usize, max_size: u64, operation_count: u64) -> i64:
     values: mutable i32[64] = zeroed
     minima: mutable i32[64] = zeroed
     maxima: mutable i32[64] = zeroed
@@ -96,6 +106,13 @@ def minmax_execute(input: i64&, output: mutable u8&, capacity: usize, max_size: 
     output_bytes: usize = words * 8
     if output == null or capacity < output_bytes:
         return -2
+    # Byte order is part of the benchmark ABI.
+    marker: i64 = 1
+    bytes: mutable u8[8] = zeroed
+    memcpy(&bytes[0], &marker, 8)
+    if bytes[0] == 1:
+        memcpy(output, records, output_bytes)
+        return output_bytes.i64()
     for word in 0..<words:
         bits: u64 = records[word].u64()
         for byte in 0..<8:
