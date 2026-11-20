@@ -93,8 +93,9 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
     total: mutable i64 = 0
     while true:
         seen: mutable bool[MAX_N] = zeroed
-        # One byte stores predecessor (3 bits) and residual arc (5 bits).
-        path: mutable u8[MAX_N] = zeroed
+        # The low byte stores predecessor and arc, and the high byte stores capacity.
+        path: mutable u16[MAX_N] = zeroed
+        path[s] <- 5 << 8
         next_edge: mutable usize[MAX_N] = zeroed
         # A discovered vertex has a parent chain back to the source.
         search_stack: mutable usize[MAX_N] = zeroed
@@ -110,26 +111,21 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             arc: usize = rot[u * MAX_N + next_edge[u]] & (ARC_SLOTS - 1)
             next_edge[u] <- next_edge[u] + 1
             v: usize = arc_target[arc]
-            if residual_capacity[arc] > 0 and not seen[v]:
+            available: i64 = residual_capacity[arc]
+            if available > 0 and not seen[v]:
                 seen[v] <- true
-                path[v] <- (u | (arc << 3)).u8()
+                parent_capacity: i64 = (path[u] >> 8).i64()
+                path_capacity: i64 = available if available < parent_capacity else parent_capacity
+                path[v] <- (u | (arc << 3) | (path_capacity.usize() << 8)).u16()
                 search_stack[top] <- v
                 top <- (top + 1)
         if (not seen[t]):
             break
-        delta: mutable i64 = 1000000
+        delta: i64 = (path[t] >> 8).i64()
         y: mutable usize = t
         while (y != s):
             link: usize = path[y].usize()
-            arc: usize = link >> 3
-            residual: i64 = residual_capacity[arc]
-            if (residual < delta):
-                delta <- residual
-            y <- link & 7
-        y <- t
-        while (y != s):
-            link: usize = path[y].usize()
-            arc: usize = link >> 3
+            arc: usize = (link >> 3) & (ARC_SLOTS - 1)
             reverse_arc: usize = arc ^ 1
             residual_capacity[arc] <- residual_capacity[arc] - delta
             residual_capacity[reverse_arc] <- residual_capacity[reverse_arc] + delta
