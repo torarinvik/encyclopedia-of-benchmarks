@@ -53,7 +53,7 @@ def circular_mean_multiple(values: f64&, count: usize, output: mutable f64&, out
     sum_sin: mutable f64 = 0.0 + sin(first_angle)
     correction_cos: mutable f64 = 0.0
     correction_sin: mutable f64 = 0.0
-    for index in 1..<(count - 1):
+    for index in 1..<count:
         raw: f64 = values[index + 1]
         if not (fabs(raw) <= 8.0 * CMD_PI): return -1
         angle: f64 = raw if fabs(raw) <= CMD_ZERO_QUOTIENT_LIMIT else cmd_wrap(raw)
@@ -65,11 +65,6 @@ def circular_mean_multiple(values: f64&, count: usize, output: mutable f64&, out
         next_sin: f64 = sum_sin + adjusted_sin
         correction_sin <- (next_sin - sum_sin) - adjusted_sin
         sum_sin <- next_sin
-    last: f64 = values[count]
-    if not (fabs(last) <= 8.0 * CMD_PI): return -1
-    last_angle: f64 = last if fabs(last) <= CMD_ZERO_QUOTIENT_LIMIT else cmd_wrap(last)
-    sum_cos <- sum_cos + (cos(last_angle) - correction_cos)
-    sum_sin <- sum_sin + (sin(last_angle) - correction_sin)
     resultant: f64 = sqrt(sum_cos * sum_cos + sum_sin * sum_sin)
     if not (resultant > count.f64() * 0.0000000037252902984619140625):
         return -1
