@@ -17,9 +17,8 @@ def sq_gcd(left_value: i64, right_value: i64) -> i64:
 # within twice the discriminant root. The quotients and differences fit i32.
 # Both division operands are positive and fit u32.
 def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64) -> i64:
-    if q <= 0:
-        return 0
-    # Consecutive denominators multiply to D - p*p, so q is at most D.
+    # For the nonsquare discriminant D, reduced forms keep p*p < D.
+    # Consecutive denominators multiply to D - p*p and start positive.
     root: i64 = sqrt(q.f64()).i32().i64()
     if root * root != q:
         return 0
