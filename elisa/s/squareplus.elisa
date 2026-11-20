@@ -1,4 +1,5 @@
 # Squareplus activation for one element of the source vector.
+@link_name("llvm.sqrt.f64")
 extern sqrt(value: f64) -> f64
 
 def squareplus_impl(x: f64, beta: f64) -> f64:
