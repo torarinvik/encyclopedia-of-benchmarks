@@ -13,12 +13,10 @@ def sum_of_divisors_impl(n: i64) -> i64:
         quotient: i64 = remaining / factor
         if quotient * factor == remaining:
             remaining <- quotient
-            power: mutable i64 = factor
             geometric_sum: mutable i64 = 1 + factor
             while remaining % factor == 0:
                 remaining <- remaining / factor
-                power <- power * factor
-                geometric_sum <- geometric_sum + power
+                geometric_sum <- geometric_sum * factor + 1
             sigma <- sigma * geometric_sum
             return sigma if remaining == 1
         factor <- factor + 2
