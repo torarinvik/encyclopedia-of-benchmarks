@@ -65,7 +65,8 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     # A zero budget in either walk precludes a split after the square check.
     if forward_cap.i32().i64() * reverse_cap.i32().i64() == 0:
         return 0
-    discriminant: i64 = 2 * number if number % 4 == 1 else number
+    # The input is odd, so bit 1 distinguishes the residues 1 and 3 modulo 4.
+    discriminant: i64 = number << 1 if (number & 2) == 0 else number
     a: i64 = sqrt(discriminant.f64()).i32().i64()
     previous_q: mutable i64 = 1
     q: mutable i64 = discriminant - a * a
