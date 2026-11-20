@@ -9,8 +9,7 @@ def stack_using_two_queues_impl(input: i64&?, length: usize, output: mutable u8&
     if input[0] < 0 or input[0] > 128 or length != 1 + 2 * input[0].usize(): return -1
     queue_a: mutable i64[128] = zeroed
     queue_b: mutable i64[128] = zeroed
-    tags: mutable i64[128] = zeroed
-    results: mutable i64[128] = zeroed
+    records: mutable i64[256] = zeroed
     main_is_a: mutable bool = true
     head: mutable usize = 0
     queue_end: mutable usize = 0
@@ -31,36 +30,30 @@ def stack_using_two_queues_impl(input: i64&?, length: usize, output: mutable u8&
             main_is_a <- not main_is_a
         elif opcode == 1:
             if operand != 0 or head == queue_end: return -1
-            tags[record_count] <- 0
-            if main_is_a: results[record_count] <- queue_a[head]
-            else: results[record_count] <- queue_b[head]
+            records[2 * record_count] <- 0
+            if main_is_a: records[2 * record_count + 1] <- queue_a[head]
+            else: records[2 * record_count + 1] <- queue_b[head]
             record_count <- record_count + 1
             head <- head + 1
         elif opcode == 2:
             if operand != 0: return -1
             if head == queue_end:
-                tags[record_count] <- 1
-                results[record_count] <- 0
+                records[2 * record_count] <- 1
+                records[2 * record_count + 1] <- 0
             else:
-                tags[record_count] <- 0
-                if main_is_a: results[record_count] <- queue_a[head]
-                else: results[record_count] <- queue_b[head]
+                records[2 * record_count] <- 0
+                if main_is_a: records[2 * record_count + 1] <- queue_a[head]
+                else: records[2 * record_count + 1] <- queue_b[head]
             record_count <- record_count + 1
         else:
             return -1
         operation_index <- operation_index + 1
     output_length: usize = record_count * 16
     if output == null or capacity < output_length: return -2
-    index: mutable usize = 0
-    while index < record_count:
-        tag_bits: u64 = tags[index].u64()
-        value_bits: u64 = results[index].u64()
-        byte: mutable usize = 0
-        while byte < 8:
-            output[index * 16 + byte] <- ((tag_bits >> (byte * 8)) & 255).u8()
-            output[index * 16 + 8 + byte] <- ((value_bits >> (byte * 8)) & 255).u8()
-            byte <- byte + 1
-        index <- index + 1
+    for index in 0..<2 * record_count:
+        bits: u64 = records[index].u64()
+        for byte in 0..<8:
+            output[index * 8 + byte] <- (bits >> (byte * 8)).u8()
     output_length.i64()
 
 export fn stack_using_two_queues(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = stack_using_two_queues_impl
