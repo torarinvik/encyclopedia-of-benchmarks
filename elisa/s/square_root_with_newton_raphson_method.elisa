@@ -4,14 +4,18 @@ extern absolute(value: f64) -> f64
 
 extern trunc(value: f64) -> f64
 
-def square_root_with_newton_raphson_method_impl(input: f64) -> f64:
-    if not (input >= 1.0 and input < 2147483648.0 and trunc(input) == input):
-        return -1.0e300
+@inline(never)
+def refine(input: f64) -> f64:
     guess: mutable f64 = input
     root: mutable f64 = 0.5 * (guess + input / guess)
     while absolute(root - guess) > 1e-7:
         guess <- root
         root <- 0.5 * (guess + input / guess)
     root
+
+def square_root_with_newton_raphson_method_impl(input: f64) -> f64:
+    if not (input >= 1.0 and input < 2147483648.0 and trunc(input) == input):
+        return -1.0e300
+    refine(input)
 
 export fn square_root_with_newton_raphson_method(input: f64) -> f64 = square_root_with_newton_raphson_method_impl
