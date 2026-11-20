@@ -35,6 +35,10 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
         output[0] <- -CMD_PI if direction >= CMD_PI else direction
         return 1
 
+    circular_mean_multiple(values, count, output, output_capacity)
+
+@inline(never)
+def circular_mean_multiple(values: f64&, count: usize, output: mutable f64&, output_capacity: usize) -> i64:
     sum_cos: mutable f64 = 0.0
     sum_sin: mutable f64 = 0.0
     correction_cos: mutable f64 = 0.0
