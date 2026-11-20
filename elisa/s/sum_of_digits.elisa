@@ -6,12 +6,16 @@ def sum_of_digits_impl(input: i64) -> i64:
     if input < 0:
         magnitude <- (-input).u32()
 
-    # The remainders telescope: sum(q - 10 * next_q) = magnitude - 9 * sum(next_q).
-    quotients: u32 =
-        while remaining >= 10 |remaining: u32 = magnitude, total: u32 = 0| -> total:
-            next_quotient: u32 = remaining / 10
-            remaining <- remaining / 100
-            total <- total + next_quotient + remaining
-    (magnitude - 9 * quotients).i64()
+    return magnitude.i64() if magnitude < 10
+    quotient_1: u32 = magnitude / 10
+    quotient_2: u32 = magnitude / 100
+    quotient_3: u32 = magnitude / 1000
+    quotient_4: u32 = magnitude / 10000
+    quotient_5: u32 = magnitude / 100000
+    quotient_6: u32 = magnitude / 1000000
+    quotient_7: u32 = magnitude / 10000000
+    quotient_8: u32 = magnitude / 100000000
+    quotient_9: u32 = magnitude / 1000000000
+    (magnitude - 9 * (quotient_1 + quotient_2 + quotient_3 + quotient_4 + quotient_5 + quotient_6 + quotient_7 + quotient_8 + quotient_9)).i64()
 
 export fn sum_of_digits(input: i64) -> i64 = sum_of_digits_impl
