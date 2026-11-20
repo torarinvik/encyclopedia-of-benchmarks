@@ -6,7 +6,7 @@ def trailing_zeroes_impl(n: i64) -> i64:
         return 1
     return 0 if (n & 1) != 0
     remaining: mutable u64 = n.u64()
-    count: mutable i64 = 0
+    count: mutable u64 = 0
     while true:
         # Multiplication by the inverse of five and a rotate undo 10*q
         # modulo 2^64. The bound on q rules out wraparound.
@@ -16,6 +16,6 @@ def trailing_zeroes_impl(n: i64) -> i64:
             break
         remaining <- quotient
         count <- count + 1
-    count
+    count.i64()
 
 export fn trailing_zeroes(n: i64) -> i64 = trailing_zeroes_impl
