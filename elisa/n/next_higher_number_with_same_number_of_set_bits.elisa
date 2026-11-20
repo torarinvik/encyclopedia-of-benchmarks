@@ -3,11 +3,13 @@ extern trailing_zeros(value: u32, zero_undefined: bool) -> u32
 
 # Return the next larger positive integer with the same population count.
 def next_higher_number_with_same_number_of_set_bits_impl(input: i64) -> i64:
-    if input == 0 or (input.u64() >> 30) != 0:
+    if (input.u64() >> 30) != 0:
         return -1
     bits: u32 = input.u32()
     lowest_bit: u32 = bits & (0.u32() - bits)
     next_higher: u32 = bits + lowest_bit
+    # The checked range rules out wraparound, so only zero stays zero.
+    return -1 if next_higher == 0
     packed_ones: u32 = (bits ^ next_higher) >> trailing_zeros(bits, true)
     (next_higher | (packed_ones >> 2)).i64()
 
