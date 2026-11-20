@@ -4,9 +4,13 @@ const MAX_N: i64 = 1000000000
 def factorial_trailing_zeroes_impl(n: i64) -> i64:
     if n < 0 or n > MAX_N:
         return -1
-    count: u32 = while remaining >= 5 |remaining: u32 = n.u32(), count: u32 = 0| -> count:
-        remaining <- remaining / 5
-        count <- count + remaining
-    count.i64()
+    return n / 5 if n < 25
+    remaining: mutable u32 = n.u32()
+    total: mutable u32 = 0
+    while remaining >= 25:
+        total <- total + remaining / 5
+        remaining <- remaining / 25
+        total <- total + remaining
+    (total + remaining / 5).i64()
 
 export fn factorial_trailing_zeroes(n: i64) -> i64 = factorial_trailing_zeroes_impl
