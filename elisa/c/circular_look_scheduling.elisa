@@ -9,7 +9,7 @@ def circular_look_large(input: i64&, request_count: usize, max_cylinder: i64, st
         request: i64 = input[4 + index]
         if request < -128 or request > 255:
             return -1
-        if request >= 0 and request < max_cylinder and request != start:
+        if request.u64() < max_cylinder.u64() and request != start:
             if request > start:
                 up[up_count] <- request.u8()
                 up_count <- up_count + 1
@@ -94,12 +94,14 @@ def circular_look_scheduling_impl(input: i64&, length: usize, output: mutable u8
         request: i64 = input[4 + index]
         if request < -128 or request > 255:
             return -1
-        if request >= 0 and request < max_cylinder and request != start:
+        if request.u64() < max_cylinder.u64() and request != start:
             first_segment: bool = (request > start) == (moving_up == 1)
             cylinder: u8 = request.u8() if moving_up == 1 else 127.u8() - request.u8()
             ordered[count] <- cylinder if first_segment else cylinder + 128.u8()
             count <- count + 1
-    if output_capacity < count or (count > 0 and output == null):
+    if count == 0:
+        return 0
+    if output_capacity < count or output == null:
         return -2
     for index in 1..<count:
         value: u8 = ordered[index]
