@@ -19,12 +19,25 @@ def circular_convolution_impl(values: i64&, length: usize, output: mutable u8&, 
             return -2
         output[0] <- left.u8() * right.u8()
         return 1
-    index: mutable usize = 0
-    while index < a_length + b_length:
-        sample: i64 = values[2 + index]
-        if sample < -2 or sample > 2:
+    index: mutable usize = 2
+    while index + 3 < length:
+        sample_a: i64 = values[index]
+        sample_b: i64 = values[index + 1]
+        sample_c: i64 = values[index + 2]
+        sample_d: i64 = values[index + 3]
+        if sample_a < -2 or sample_a > 2 or sample_b < -2 or sample_b > 2 or sample_c < -2 or sample_c > 2 or sample_d < -2 or sample_d > 2:
             return -1
-        index <- index + 1
+        index <- index + 4
+    while index + 1 < length:
+        first_sample: i64 = values[index]
+        second_sample: i64 = values[index + 1]
+        if first_sample < -2 or first_sample > 2 or second_sample < -2 or second_sample > 2:
+            return -1
+        index <- index + 2
+    if index < length:
+        last_sample: i64 = values[index]
+        if last_sample < -2 or last_sample > 2:
+            return -1
     n: usize = a_length if a_length > b_length else b_length
     if output == null or output_capacity < n:
         return -2
