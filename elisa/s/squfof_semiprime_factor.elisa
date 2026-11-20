@@ -72,10 +72,19 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
         previous_q <- q
         q <- next_q
         p <- next_p
-        if (step & 1) == 0:
-            factor: i64 = sq_reverse(number, discriminant, a, p, q, reverse_cap)
-            if factor != 0:
-                return factor
+        factor: i64 = sq_reverse(number, discriminant, a, p, q, reverse_cap)
+        if factor != 0:
+            return factor
+        step <- step + 1
+        if step == forward_cap:
+            return 0
+        # The intervening odd-index step does not trigger a reverse walk.
+        second_quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
+        second_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
+        second_q: i64 = previous_q + second_quotient.i32().i64() * (p.i32().i64() - second_p.i32().i64()).i32().i64()
+        previous_q <- q
+        q <- second_q
+        p <- second_p
         step <- step + 1
     0
 
