@@ -13,6 +13,9 @@ extern fabs(value: f64) -> f64
 const CMD_PI: f64 = 3.14159265358979323846264338327950288
 const CMD_TAU: f64 = 6.28318530717958647692528676655900576
 
+# Two binary64 steps below pi keep angle + pi strictly below tau after rounding.
+const CMD_ZERO_QUOTIENT_LIMIT: f64 = 3.1415926535897922
+
 def cmd_wrap(angle: f64) -> f64:
     value: f64 = angle - floor((angle + CMD_PI) / CMD_TAU) * CMD_TAU
     if fabs(value) < CMD_PI: return value
@@ -30,7 +33,7 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
         magnitude: f64 = fabs(raw)
         angle: mutable f64 = raw
         # The reduction quotient is zero throughout this interval.
-        if not (magnitude <= CMD_PI * 0.5):
+        if not (magnitude <= CMD_ZERO_QUOTIENT_LIMIT):
             if not (magnitude <= 8.0 * CMD_PI): return -1
             angle <- cmd_wrap(raw)
         if output == null or output_capacity < 1: return -2
@@ -49,7 +52,7 @@ def circular_mean_multiple(values: f64&, count: usize, output: mutable f64&, out
     for index in 0..<count:
         raw: f64 = values[index + 1]
         if not (fabs(raw) <= 8.0 * CMD_PI): return -1
-        angle: f64 = cmd_wrap(raw)
+        angle: f64 = raw if fabs(raw) <= CMD_ZERO_QUOTIENT_LIMIT else cmd_wrap(raw)
         adjusted_cos: f64 = cos(angle) - correction_cos
         next_cos: f64 = sum_cos + adjusted_cos
         correction_cos <- (next_cos - sum_cos) - adjusted_cos
