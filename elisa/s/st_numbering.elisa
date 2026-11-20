@@ -1,6 +1,6 @@
 # Even-Tarjan DFS/lowpoint st-numbering with a fixed linked adjacency list.
-def st_numbering(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 @export("st_numbering"):
-    if input.is_null() or input_length < 4 or input_length > 60:
+def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
+    if input == null or input_length < 4 or input_length > 60:
         return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
@@ -15,10 +15,16 @@ def st_numbering(input: i64&, input_length: usize, output: mutable u8&, output_c
     if input_length != 4 + 2 * m:
         return -1
 
-    edge_u: mutable i64[28] = zeroed
-    edge_v: mutable i64[28] = zeroed
     adjacent: mutable u64[8] = zeroed
-    st_edge: mutable i64 = -1
+    terminals_adjacent: mutable bool = false
+    head: mutable i64[8] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        head[vertex] <- -1
+        vertex <- vertex + 1
+    arc_to: mutable i64[56] = zeroed
+    arc_next: mutable i64[56] = zeroed
+    arc_count: mutable usize = 0
     edge: mutable usize = 0
     while edge < m:
         u_value: i64 = input[4 + 2 * edge]
@@ -33,36 +39,21 @@ def st_numbering(input: i64&, input_length: usize, output: mutable u8&, output_c
             return -1
         adjacent[u] <- adjacent[u] | u_bit
         adjacent[v] <- adjacent[v] | v_bit
-        edge_u[edge] <- u_value
-        edge_v[edge] <- v_value
         if (u == s and v == t) or (u == t and v == s):
-            st_edge <- edge.i64()
-        edge <- edge + 1
-    if st_edge < 0:
-        return -1
-
-    head: mutable i64[8] = zeroed
-    vertex: mutable usize = 0
-    while vertex < n:
-        head[vertex] <- -1
-        vertex <- vertex + 1
-    arc_to: mutable i64[56] = zeroed
-    arc_next: mutable i64[56] = zeroed
-    arc_count: mutable usize = 0
-    edge <- 0
-    while edge < m:
-        if edge.i64() != st_edge:
-            u: usize = edge_u[edge].usize()
-            v: usize = edge_v[edge].usize()
-            arc_to[arc_count] <- v.i64()
+            terminals_adjacent <- true
+        else:
+            arc_to[arc_count] <- v_value
             arc_next[arc_count] <- head[u]
             head[u] <- arc_count.i64()
             arc_count <- arc_count + 1
-            arc_to[arc_count] <- u.i64()
+            arc_to[arc_count] <- u_value
             arc_next[arc_count] <- head[v]
             head[v] <- arc_count.i64()
             arc_count <- arc_count + 1
         edge <- edge + 1
+    if not terminals_adjacent:
+        return -1
+
     arc_to[arc_count] <- t.i64()
     arc_next[arc_count] <- head[s]
     head[s] <- arc_count.i64()
@@ -83,18 +74,18 @@ def st_numbering(input: i64&, input_length: usize, output: mutable u8&, output_c
         low_vertex[vertex] <- vertex
         next_arc[vertex] <- -1
         vertex <- vertex + 1
-    stack: mutable usize[8] = zeroed
+    dfs_stack: mutable usize[8] = zeroed
     top: mutable usize = 0
     clock: mutable i64 = 1
     preorder_count: mutable usize = 1
     discovery[s] <- clock
     preorder[0] <- s
     next_arc[s] <- head[s]
-    stack[top] <- s
+    dfs_stack[top] <- s
     top <- top + 1
     while top > 0:
-        vertex <- stack[top - 1]
-        arc_value: i64 = next_arc[vertex]
+        vertex <- dfs_stack[top - 1]
+        arc_value: mutable i64 = next_arc[vertex]
         if arc_value < 0:
             top <- top - 1
             ancestor_value: i64 = parent[vertex]
@@ -117,9 +108,9 @@ def st_numbering(input: i64&, input_length: usize, output: mutable u8&, output_c
             preorder[preorder_count] <- neighbor
             preorder_count <- preorder_count + 1
             next_arc[neighbor] <- head[neighbor]
-            stack[top] <- neighbor
+            dfs_stack[top] <- neighbor
             top <- top + 1
-        else if discovery[neighbor] < discovery[vertex] and discovery[neighbor] < discovery[low_vertex[vertex]]:
+        elif discovery[neighbor] < discovery[vertex] and discovery[neighbor] < discovery[low_vertex[vertex]]:
             low_vertex[vertex] <- neighbor
     if preorder_count != n or children[s] != 1:
         return -1
@@ -186,7 +177,7 @@ def st_numbering(input: i64&, input_length: usize, output: mutable u8&, output_c
         if vertex != s and vertex != t:
             lower: mutable bool = false
             higher: mutable bool = false
-            arc_value: i64 = head[vertex]
+            arc_value: mutable i64 = head[vertex]
             while arc_value >= 0:
                 neighbor: usize = arc_to[arc_value.usize()].usize()
                 lower <- lower or rank[neighbor] < rank[vertex]
@@ -195,10 +186,12 @@ def st_numbering(input: i64&, input_length: usize, output: mutable u8&, output_c
             if not lower or not higher:
                 return -1
         vertex <- vertex + 1
-    if output.is_null() or output_capacity < n:
+    if output == null or output_capacity < n:
         return -2
     vertex <- 0
     while vertex < n:
         output[vertex] <- staged[vertex]
         vertex <- vertex + 1
     n.i64()
+
+export fn st_numbering(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64 = st_numbering_impl
