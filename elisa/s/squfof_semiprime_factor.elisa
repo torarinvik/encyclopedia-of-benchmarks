@@ -51,12 +51,14 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     number: i64 = input[0]
     forward_cap: i64 = input[1]
     reverse_cap: i64 = input[2]
-    if number < 3 or number > SQ_MAX_NUMBER or number % 2 == 0 or forward_cap.u64() > SQ_MAX_STEPS.u64() or reverse_cap.u64() > SQ_MAX_STEPS.u64():
+    if number == 1 or number.u64() > SQ_MAX_NUMBER.u64() or (number & 1) == 0 or forward_cap.u64() > SQ_MAX_STEPS.u64() or reverse_cap.u64() > SQ_MAX_STEPS.u64():
         return -1
     # Validation bounds the number and discriminant below 2^41 for exact floor roots.
     exact_root: i64 = sqrt(number.f64()).i32().i64()
     if exact_root * exact_root == number:
         return exact_root
+    if forward_cap == 0:
+        return 0
     discriminant: i64 = 2 * number if number % 4 == 1 else number
     a: i64 = sqrt(discriminant.f64()).i32().i64()
     previous_q: mutable i64 = 1
