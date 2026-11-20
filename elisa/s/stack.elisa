@@ -40,9 +40,12 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable u32&, chec
     # At most 768 terms, each bounded by 768 * 2000000.
     checksum: mutable u64 = 0
     operation: mutable u32 = 0
-    while operation < operation_count:
-        opcode: i64 = values[2 * operation]
-        payload: i64 = values[2 * operation + 1]
+    cursor: mutable i64& = values
+    if operation_count == 0:
+        return 0
+    while true:
+        opcode: i64 = cursor[0]
+        payload: i64 = cursor[1]
         operation <- operation + 1
         if opcode == 0:
             encoded: u64 = payload.u64() + 1000000
@@ -65,6 +68,9 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable u32&, chec
                     top <- last
                 observed <- value
             checksum <- checksum + operation.u64() * observed
+        if operation == operation_count:
+            break
+        cursor <- &cursor[2]
     index: mutable u32 = 0
     weight: mutable u32 = operation_count + 1
     while index < top:
