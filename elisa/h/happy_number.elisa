@@ -2,11 +2,11 @@
 def digit_square_sum(n: u64) -> u64:
     total: mutable u64 = 0
     value: mutable u64 = n
-    while value > 0:
+    while value >= 10:
         digit: u64 = value % 10
         total <- total + digit * digit
         value <- value / 10
-    total
+    total + value * value
 
 def happy_number_impl(n: i64) -> i64:
     if n <= 0:
