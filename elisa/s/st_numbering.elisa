@@ -37,7 +37,7 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
         if (adjacency & u_bit) != 0:
             return -1
         adjacency <- adjacency | u_bit | v_bit
-        if u != s and v != s:
+        if n > 3 and u != s and v != s:
             pending_neighbors[u] <- (pending_neighbors[u] << 4) | (v.u32() | 8)
             pending_neighbors[v] <- (pending_neighbors[v] << 4) | (u.u32() | 8)
         edge <- edge + 1
