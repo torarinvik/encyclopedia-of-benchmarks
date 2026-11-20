@@ -59,9 +59,11 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     if number == 1 or number.u64() > SQ_MAX_NUMBER.u64() or (number & 1) == 0 or forward_cap.u64() > SQ_MAX_STEPS.u64() or reverse_cap.u64() > SQ_MAX_STEPS.u64():
         return -1
     # Validation bounds the number and discriminant below 2^41 for exact floor roots.
-    exact_root: i64 = sqrt(number.f64()).i32().i64()
-    if exact_root * exact_root == number:
-        return exact_root
+    # Every odd square is 1 modulo 8.
+    if (number & 7) == 1:
+        exact_root: i64 = sqrt(number.f64()).i32().i64()
+        if exact_root * exact_root == number:
+            return exact_root
     # A zero budget in either walk precludes a split after the square check.
     if forward_cap.i32().i64() * reverse_cap.i32().i64() == 0:
         return 0
