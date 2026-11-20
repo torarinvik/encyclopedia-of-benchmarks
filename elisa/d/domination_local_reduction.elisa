@@ -52,11 +52,11 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
     bytes: usize = (1 + 2 * k) * 8
     if output == null or capacity < bytes: return -2
     domination_local_reduction_put_word(output, 0, k.i64())
-    for i in 0..<kept:
-        domination_local_reduction_put_word(output, 8 * (1 + i), ((packed_ids >> (4 * i)) & 15).i64())
     domination_local_reduction_put_word(output, 8 * (1 + kept), -1)
     for i in 0..<kept:
-        neighbors_of_vertex: u16 = adj[((packed_ids >> (4 * i)) & 15).usize()]
+        vertex: usize = ((packed_ids >> (4 * i)) & 15).usize()
+        domination_local_reduction_put_word(output, 8 * (1 + i), vertex.i64())
+        neighbors_of_vertex: u16 = adj[vertex]
         row: mutable i64 = 0
         for j in 0..<kept:
             original_vertex: u64 = (packed_ids >> (4 * (kept - 1 - j))) & 15
