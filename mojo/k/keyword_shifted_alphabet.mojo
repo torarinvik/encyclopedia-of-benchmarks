@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 @export("keyword_shifted_alphabet")
@@ -5,7 +6,7 @@ fn keyword_shifted_alphabet(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:U
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<3 or n>542:return -1
     let op=a[0];let kn=a[1];let mn=a[2]
     if (op!=0 and op!=1) or kn<1 or kn>26 or mn<1 or mn>512 or n!=c_size_t(3+kn+mn):return -1
-    var seen=InlineArray[Bool,26]();var key=InlineArray[Int64,26]()
+    var seen=InlineArray[Bool,26](fill=False);var key=InlineArray[Int64,26]()
     for i in range(Int(kn)):
         var c=a[3+i]
         if c>=65 and c<=90:c+=32

@@ -1,0 +1,182 @@
+const MAX_N: usize = 8
+const MAX_D: usize = 3
+const MAX_INPUT: usize = 37
+const MAX_OUTPUT: usize = 12
+const TOL: f64 = 0.001
+const EPS: f64 = 0.001
+
+def smo_field(x: f64, low: i64, high: i64) -> bool:
+    if x != x or x > 1.7976931348623157e308 or x < -1.7976931348623157e308:
+        return false
+    if x < low.f64() or x > high.f64(): return false
+    x.i64().f64() == x
+
+def smo_kernel(points: view[f64], i: usize, j: usize, d: usize) -> f64:
+    total: mutable f64 = 0.0
+    for k in 0..d:
+        total <- total + points[i * MAX_D + k] * points[j * MAX_D + k]
+    total
+
+def smo_decision(index: usize, alpha: view[f64], bias: f64, labels: view[i64],
+                 points: view[f64], n: usize, d: usize) -> f64:
+    total: mutable f64 = bias
+    for k in 0..n:
+        total <- total + alpha[k] * labels[k].f64() * smo_kernel(points, k, index, d)
+    total
+
+def smo_dual(alpha: view[f64], labels: view[i64], points: view[f64],
+             n: usize, d: usize) -> f64:
+    total: mutable f64 = 0.0
+    for i in 0..n: total <- total + alpha[i]
+    for i in 0..n:
+        for j in 0..n:
+            total <- total - 0.5 * alpha[i] * alpha[j] *
+                (labels[i] * labels[j]).f64() * smo_kernel(points, i, j, d)
+    total
+
+def smo_take_step(i: usize, j: usize, alpha: mutable view[f64], bias: mutable view[f64],
+                  c: f64, labels: view[i64], points: view[f64], n: usize, d: usize) -> bool:
+    if i == j: return false
+    yi: i64 = labels[i]
+    yj: i64 = labels[j]
+    sign: i64 = yi * yj
+    old_i: f64 = alpha[i]
+    old_j: f64 = alpha[j]
+    error_i: f64 = smo_decision(i, alpha, bias[0], labels, points, n, d) - yi.f64()
+    error_j: f64 = smo_decision(j, alpha, bias[0], labels, points, n, d) - yj.f64()
+    low: mutable f64 = 0.0
+    high: mutable f64 = 0.0
+    if yi != yj:
+        low <- if old_j - old_i > 0.0 then old_j - old_i else 0.0
+        high <- if c < c + old_j - old_i then c else c + old_j - old_i
+    else:
+        low <- if old_i + old_j - c > 0.0 then old_i + old_j - c else 0.0
+        high <- if c < old_i + old_j then c else old_i + old_j
+    if low == high: return false
+    kii: f64 = smo_kernel(points, i, i, d)
+    kjj: f64 = smo_kernel(points, j, j, d)
+    kij: f64 = smo_kernel(points, i, j, d)
+    curvature: f64 = kii + kjj - 2.0 * kij
+    next_j: mutable f64 = 0.0
+    if curvature > 0.0:
+        next_j <- old_j + yj.f64() * (error_i - error_j) / curvature
+        if next_j < low: next_j <- low
+        if next_j > high: next_j <- high
+    else:
+        trial: mutable f64[MAX_N] = zeroed
+        trial_view: mutable view[f64] = trial[0:MAX_N]
+        for k in 0..n: trial_view[k] <- alpha[k]
+        trial_view[i] <- old_i + sign.f64() * (old_j - low)
+        trial_view[j] <- low
+        low_score: f64 = smo_dual(trial_view, labels, points, n, d)
+        trial_view[i] <- old_i + sign.f64() * (old_j - high)
+        trial_view[j] <- high
+        high_score: f64 = smo_dual(trial_view, labels, points, n, d)
+        if low_score > high_score + EPS: next_j <- low
+        else if high_score > low_score + EPS: next_j <- high
+        else: next_j <- old_j
+    if abs(next_j - old_j) < EPS * (next_j + old_j + EPS): return false
+    next_i: f64 = old_i + sign.f64() * (old_j - next_j)
+    delta_i: f64 = next_i - old_i
+    delta_j: f64 = next_j - old_j
+    bias_i: f64 = bias[0] - error_i - yi.f64() * delta_i * kii - yj.f64() * delta_j * kij
+    bias_j: f64 = bias[0] - error_j - yi.f64() * delta_i * kij - yj.f64() * delta_j * kjj
+    if next_i > 0.0 and next_i < c: bias[0] <- bias_i
+    else if next_j > 0.0 and next_j < c: bias[0] <- bias_j
+    else: bias[0] <- 0.5 * (bias_i + bias_j)
+    alpha[i] <- next_i
+    alpha[j] <- next_j
+    true
+
+def smo_examine(j: usize, alpha: mutable view[f64], bias: mutable view[f64], c: f64,
+                labels: view[i64], points: view[f64], n: usize, d: usize) -> bool:
+    error_j: f64 = smo_decision(j, alpha, bias[0], labels, points, n, d) - labels[j].f64()
+    residual: f64 = error_j * labels[j].f64()
+    if not ((residual < -TOL and alpha[j] < c) or (residual > TOL and alpha[j] > 0.0)):
+        return false
+    free_count: mutable usize = 0
+    preferred: mutable usize = 0
+    greatest_gap: mutable f64 = -1.0
+    for i in 0..n:
+        if alpha[i] > 0.0 and alpha[i] < c:
+            free_count <- free_count + 1
+            error_i: f64 = smo_decision(i, alpha, bias[0], labels, points, n, d) - labels[i].f64()
+            gap: f64 = abs(error_i - error_j)
+            if gap > greatest_gap:
+                greatest_gap <- gap
+                preferred <- i
+    if free_count > 1 and smo_take_step(preferred, j, alpha, bias, c, labels, points, n, d):
+        return true
+    for i in 0..n:
+        if alpha[i] > 0.0 and alpha[i] < c and
+            smo_take_step(i, j, alpha, bias, c, labels, points, n, d): return true
+    for i in 0..n:
+        if smo_take_step(i, j, alpha, bias, c, labels, points, n, d): return true
+    false
+
+def smo_deterministic_training_impl(input: view[f64], input_length: usize,
+                                    staged: mutable view[f64]) -> i64:
+    if input_length < 4 or input_length > MAX_INPUT: return -1
+    if not smo_field(input[0], 2, MAX_N.i64()) or not smo_field(input[1], 1, MAX_D.i64()) or
+        not smo_field(input[2], 1, 5000) or not smo_field(input[3], 1, 16): return -1
+    n: usize = input[0].usize()
+    d: usize = input[1].usize()
+    c_milli: i64 = input[2].i64()
+    pass_cap: usize = input[3].usize()
+    if input_length != 4 + n + n * d: return -1
+    labels: mutable i64[MAX_N] = zeroed
+    alpha: mutable f64[MAX_N] = zeroed
+    points: mutable f64[MAX_N * MAX_D] = zeroed
+    positive: mutable bool = false
+    negative: mutable bool = false
+    at: mutable usize = 4
+    for i in 0..n:
+        if not smo_field(input[at], -1, 1) or input[at] == 0.0: return -1
+        labels[i] <- input[at].i64()
+        if labels[i] > 0: positive <- true
+        else: negative <- true
+        at <- at + 1
+    if not positive or not negative: return -1
+    for i in 0..n:
+        for k in 0..d:
+            if not smo_field(input[at], -32, 32): return -1
+            points[i * MAX_D + k] <- input[at]
+            at <- at + 1
+    if staged.len() < n + 4: return -2
+    label_view: view[i64] = labels[0:MAX_N]
+    point_view: view[f64] = points[0:MAX_N * MAX_D]
+    alpha_view: mutable view[f64] = alpha[0:MAX_N]
+    bias_cell: mutable f64[1] = zeroed
+    bias_view: mutable view[f64] = bias_cell[0:1]
+    c: f64 = c_milli.f64() / 1000.0
+    changed: mutable usize = 0
+    examine_all: mutable bool = true
+    passes: mutable usize = 0
+    while passes < pass_cap and (changed > 0 or examine_all):
+        changed <- 0
+        for j in 0..n:
+            if (examine_all or (alpha_view[j] > 0.0 and alpha_view[j] < c)) and
+                smo_examine(j, alpha_view, bias_view, c, label_view, point_view, n, d):
+                changed <- changed + 1
+        passes <- passes + 1
+        if examine_all: examine_all <- false
+        else if changed == 0: examine_all <- true
+    staged[0] <- passes.f64()
+    staged[1] <- changed.f64()
+    staged[2] <- if passes < pass_cap and changed == 0 and not examine_all then 1.0 else 0.0
+    for i in 0..n: staged[3 + i] <- alpha_view[i]
+    staged[3 + n] <- bias_view[0]
+    (n + 4).i64()
+
+export fn smo_deterministic_training(input: f64&, input_length: usize,
+                                    output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length > MAX_INPUT: return -1
+    input_view: view[f64] = input[0:input_length]
+    staged: mutable f64[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[f64] = staged[0:MAX_OUTPUT]
+    result: i64 = smo_deterministic_training_impl(input_view, input_length, staged_view)
+    if result < 0: return result
+    if output.is_null() or output_capacity < result.usize(): return -2
+    output_view: mutable view[f64] = output[0:result.usize()]
+    for k in 0..result.usize(): output_view[k] <- staged_view[k]
+    result

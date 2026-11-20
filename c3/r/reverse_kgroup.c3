@@ -12,7 +12,7 @@ fn void write_i32_le(char* output, usz index, int value) {
     }
 }
 
-long reverse_kgroup(int* input, usz length, char* output, usz output_capacity) @export("reverse_kgroup") {
+fn long reverse_kgroup(int* input, usz length, char* output, usz output_capacity) @export("reverse_kgroup") {
     if (input == null || length < 1 || length > MAX_INPUT_LENGTH) return -1;
     int group_size_value = input[0];
     usz list_length = length - 1;

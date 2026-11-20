@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "number-of-ways-of-cutting-a-pizza-i64-array-scalar-v1",
+  "algorithm": "number_of_ways_of_cutting_a_pizza",
+  "function_symbol": "number_of_ways_of_cutting_a_pizza",
+  "abi": "i64_array_scalar",
+  "description": "Count ordered guillotine-cut sequences where every piece contains an apple.",
+  "source": {
+    "title": "Number of Ways of Cutting a Pizza",
+    "reference_url": "https://leetcode.com/problems/number-of-ways-of-cutting-a-pizza/",
+    "algorithm_attribution": "Official hints specify the top-left/cuts-remaining state and suffix apple-query table.",
+    "implementation_status": "Clean-room implementation from high-level algorithm hints only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rows, columns, cuts, row_major_binary_cells...]",
+    "rows_range": [1, 6],
+    "columns_range": [1, 6],
+    "cuts_range": [0, 5],
+    "cell_values": [0, 1],
+    "exact_length": "3 + rows * columns",
+    "maximum_valid_length": 39,
+    "maximum_parseable_length": 39,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "number of ordered legal cut sequences modulo 1000000007",
+    "modulus": 1000000007,
+    "zero_cut_rule": "1 iff the whole pizza contains an apple, otherwise 0",
+    "invalid_input_result": -1
+  },
+  "complexity": {
+    "primary": "O(cuts * rows * columns * (rows + columns)) time and O(rows * columns) auxiliary space",
+    "independent_reference": "bounded first-cut recursion with direct region scans and memoized states"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-apple-zero-cuts","input_values":[1,1,0,1],"input_length":4,"expected_result":1},
+    {"id":"empty-pizza-zero-cuts","input_values":[1,1,0,0],"input_length":4,"expected_result":0},
+    {"id":"single-cell-positive-cut","input_values":[1,1,1,1],"input_length":4,"expected_result":0},
+    {"id":"one-row-two-legal-cuts","input_values":[1,3,1,1,0,1],"input_length":6,"expected_result":2},
+    {"id":"one-column-two-legal-cuts","input_values":[3,1,1,1,0,1],"input_length":6,"expected_result":2},
+    {"id":"full-2x2-one-cut","input_values":[2,2,1,1,1,1,1],"input_length":7,"expected_result":2},
+    {"id":"full-2x2-two-cuts","input_values":[2,2,2,1,1,1,1],"input_length":7,"expected_result":2},
+    {"id":"diagonal-apples-one-cut","input_values":[2,2,1,1,0,0,1],"input_length":7,"expected_result":2},
+    {"id":"only-vertical-cut-is-valid","input_values":[2,2,1,1,1,0,0],"input_length":7,"expected_result":1},
+    {"id":"too-few-apples-for-two-cuts","input_values":[2,2,2,1,1,0,0],"input_length":7,"expected_result":0},
+    {
+      "id": "full-3x3-two-cuts",
+      "input_values": [
+        3, 3, 2,
+        1, 1, 1,
+        1, 1, 1,
+        1, 1, 1
+      ],
+      "input_length": 12,
+      "expected_result": 10
+    },
+    {
+      "id": "maximum-valid-frame",
+      "input_values": [
+        6, 6, 5,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1
+      ],
+      "input_length": 39,
+      "expected_result": 2252
+    },
+    {
+      "id": "maximum-length-trailing-frame",
+      "input_values": [
+        1, 1, 0,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 39,
+      "expected_result": -1
+    },
+    {"id":"invalid-zero-rows","input_values":[0,1,0],"input_length":3,"expected_result":-1},
+    {"id":"invalid-cuts-above-profile","input_values":[1,1,6,1],"input_length":4,"expected_result":-1},
+    {"id":"invalid-nonbinary-cell","input_values":[1,1,0,2],"input_length":4,"expected_result":-1},
+    {"id":"truncated-frame","input_values":[2,2,1,1,1,1],"input_length":6,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

@@ -66,12 +66,12 @@ fn void inorder(Tree* tree, int root, usz* count) {
     tree.answer[*count] = root; *count = *count + 1;
     inorder(tree, tree.right[root], count);
 }
-fn void store_le(uint8* output, usz offset, long value) {
+fn void store_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
-    for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (uint8)(bits & 255); bits >>= 8; }
+    for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-fn long suffix_balanced_tree(long* input, usz length, uint8* output, usz capacity)
+fn long suffix_balanced_tree(long* input, usz length, char* output, usz capacity)
     @export("suffix_balanced_tree") {
     if (input == null || length < 1 || length > MAX_INPUT) return -1;
     long nv = input[0];

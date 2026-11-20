@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi568-wulff-nilsen-logarithmic-query-i64-array-bytes-output-v1",
+  "algorithm": "wulff_nilsen_logarithmic_distance_query",
+  "function_symbol": "wulff_nilsen_logarithmic_distance_query",
+  "description": "Answer bounded approximate-distance queries using Wulff-Nilsen's even-level interval search over a supplied k=16 Thorup-Zwick hierarchy.",
+  "pinned_sources": [
+    {
+      "repository": "Encyclopedia of Algorithms EPUB supplied by the user",
+      "chapter": "Approximate Distance Oracles with Improved Query Time",
+      "doi": "10.1007/978-1-4939-2864-4_568",
+      "path": "OEBPS/AChap568.html",
+      "role": "chapter crosswalk"
+    },
+    {
+      "repository": "arXiv",
+      "title": "Approximate Distance Oracles with Improved Query Time",
+      "url": "https://arxiv.org/abs/1202.2336",
+      "sections": "2-3, Figures 2-3",
+      "role": "operational algorithm source"
+    }
+  ],
+  "contract": {
+    "operation": "For fixed k=16, preprocess the source-specific even-index interval split tree from distance gaps, then answer each query by binary interval search and the ordinary alternating-bunch dist_k scan in the terminal short interval.",
+    "input_layout": "[n,m,A1,...,A15,(u,v,weight)[m],q,(source,target)[q]]",
+    "hierarchy": "A0=V; A1 through A15 are supplied nonempty nested masks; A16 is empty. The masks replay a hierarchy realization and no randomized expectation is measured.",
+    "graph": "Simple connected undirected graph for n>1, positive integer weights 1..1000, endpoints u<v, edges in strict lexicographic order.",
+    "nearest_sample_tie": "Minimum by (shortest-path distance, vertex ID).",
+    "interval_split": "For [i1,i2] with i2-i1>4, choose even i in [i1+2,i2-2] nearest the midpoint, lower i on ties. Choose even j in [i1,i-2] maximizing delta_j(source)=d(source,p_(j+2)(source))-d(source,p_j(source)); lower j on ties. Recurse on [i1,j] and [i,i2].",
+    "query_rule": "At each split evaluate both membership tests p_j(source) in B(target) and p_(j+1)(target) in B(source). If both are false, take [i,i2]; otherwise take [i1,j]. When i2-i1<=4, run Figure 2 dist_k from i1, alternating endpoints and increasing the level after each failed membership test.",
+    "probe_count": "Equal endpoints use a profile-level exact-distance fast path and emit (0,0) without entering the recurrence. Otherwise count each individual bunch-membership lookup: two at every internal interval split and one per dist_k loop iteration.",
+    "output_encoding": "Little-endian signed i64 words [q,(estimate_0,probe_count_0),...].",
+    "bounds": {
+      "vertices": [1, 8],
+      "edges": [0, 28],
+      "queries": [0, 32],
+      "edge_weight": [1, 1000],
+      "sample_levels": 16
+    },
+    "invalid_input_result": -1,
+    "no_write_on_error": true,
+    "error_precedence": "Input validation precedes output-null and output-capacity checks."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_valid_input_length": 166,
+    "maximum_parseable_input_length": 167,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_array",
+    "encoding": "[q,(estimate,probe_count)*q]",
+    "maximum_bytes": 520,
+    "success_result": "output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "16,384-byte cap. The widest 64-bit int layout uses 13,568 bytes for State (512 distance + 1,024 nearest + 64 bunch + 11,904 interval nodes + 64 counts), plus 128 hierarchy-mask bytes and 520 staged-output bytes = 14,216 bytes before scalar locals. The build tree has at most four recursive frames and is built before staged output allocation."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "singleton-same-endpoint",
+      "input_values": [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+      "input_length": 20,
+      "output_capacity": 520,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "equal-endpoint-zero-distance-fast-path",
+      "input_values": [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 7, 1, 1, 1],
+      "input_length": 23,
+      "output_capacity": 520,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "left-branch-and-odd-level-alternation",
+      "input_values": [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 1, 0, 0, 1],
+      "input_length": 25,
+      "output_capacity": 520,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000100000000000000040000000000000001000000000000000300000000000000"
+    },
+    {
+      "id": "right-then-left-branch-distance-gap-tie",
+      "input_values": [4, 3, 15, 7, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 2, 1, 2, 3, 1, 1, 3, 0],
+      "input_length": 29,
+      "output_capacity": 520,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000003000000000000000500000000000000"
+    },
+    {
+      "id": "nonnested-hierarchy-invalid",
+      "input_values": [2, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+      "input_length": 18,
+      "output_capacity": 520,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "disconnected-valid-shape-invalid-before-capacity",
+      "input_values": [2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+      "input_length": 18,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-valid-input",
+      "input_values": [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+      "input_length": 20,
+      "output_capacity": 520,
+      "output_is_null": true,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-valid-input",
+      "input_values": [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+      "input_length": 20,
+      "output_capacity": 23,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-word-invalid",
+      "input_values": [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 9],
+      "input_length": 21,
+      "output_capacity": 520,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

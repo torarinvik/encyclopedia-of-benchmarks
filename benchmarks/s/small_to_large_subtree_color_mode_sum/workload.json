@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "small-to-large-subtree-color-mode-sum-v1",
+  "algorithm": "small_to_large_subtree_color_mode_sum",
+  "function_symbol": "small_to_large_subtree_color_mode_sum",
+  "abi": "i64_array_bytes_output",
+  "description": "Merge per-subtree color-frequency maps small-to-large and return the sum of modal labels for each subtree.",
+  "source": {
+    "title": "Smaller to Larger",
+    "authors": ["Joël Benjamin Huber"],
+    "url": "https://soi.ch/wiki/smaller-to-larger/",
+    "license": "not stated/unknown; algorithm idea only",
+    "license_note": "No upstream material is reproduced; the page is cited only to identify the high-level method."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,parent[1..N-1],color[0..N-1]]",
+    "root": 0,
+    "vertex_count_range": [1, 64],
+    "parent_rule": "For each vertex v with 1 <= v < N, 0 <= parent[v] < v.",
+    "color_range": [-1000, 1000],
+    "exact_length": "2*N",
+    "maximum_valid_length": 128,
+    "maximum_parseable_length": 129,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "encoding": "For each vertex in ascending ID order, sum the color labels attaining the maximum frequency in its rooted subtree.",
+    "maximum_output_bytes": 512,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 73728,
+    "meaning": "Conservative maximum local scratch budget (72 KiB), including the fixed 64-by-64 frequency and key tables; the output buffer is separate and bounded by 512 bytes."
+  },
+  "algorithm_details": {
+    "primary": "Compress colors, process vertices in reverse parent order, retain each node's largest child map, merge entries from the smaller child maps, add the node color, and record the sum of modal color labels.",
+    "independent_oracle": "For each vertex, classify every candidate vertex by climbing its parent chain, build that subtree's frequency table, and sum the modal labels.",
+    "complexity": "O(N^2 log N) entry visits in the bounded small-to-large profile, O(N^2) fixed map storage; direct compressed-color updates are O(1)."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"singleton-negative-label","input_values":[1,-5],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"fbffffffffffffff"},
+    {"id":"two-modal-labels-at-root-and-child","input_values":[4,0,0,1,5,3,3,5],"input_length":8,"output_capacity":32,"expected_result":32,"expected_output_hex":"0800000000000000080000000000000003000000000000000500000000000000"},
+    {"id":"negative-tie-on-chain","input_values":[3,0,1,-2,-1,-2],"input_length":6,"output_capacity":24,"expected_result":24,"expected_output_hex":"fefffffffffffffffdfffffffffffffffeffffffffffffff"},
+    {"id":"star-with-a-root-tie","input_values":[5,0,0,0,0,7,7,9,9,10],"input_length":10,"output_capacity":48,"expected_result":48,"expected_output_hex":"100000000000000007000000000000000700000000000000090000000000000009000000000000000a00000000000000"},
+    {"id":"all-equal-labels","input_values":[5,0,0,0,0,-4,-4,-4,-4,-4],"input_length":10,"output_capacity":40,"expected_result":40,"expected_output_hex":"fcfffffffffffffffcfffffffffffffffcfffffffffffffffcfffffffffffffffcffffffffffffff"},
+    {"id":"parent-not-earlier-than-child","input_values":[3,0,2,1,2,3],"input_length":6,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"color-out-of-range","input_values":[1,1001],"input_length":2,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[1,4,9],"input_length":3,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"malformed-input-precedes-null-output","input_values":[1,1001],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,12],"input_length":2,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,12],"input_length":2,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":512,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

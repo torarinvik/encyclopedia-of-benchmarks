@@ -7,6 +7,7 @@ from .forward_reference import forward
 from .inverse_reference import inverse
 from .convolution_reference import convolve as transform_convolution
 from .abi_reference import expected as abi_expected, structured as structured_convolution
+from .abi_reference import near_constant_structured
 
 
 def apply(columns, vector):
@@ -31,6 +32,14 @@ def check_small_references():
             raise ValueError("transform convolution differs from the small reference case")
         if structured_convolution(n, a, b) != expected:
             raise ValueError("structured convolution differs from the small reference case")
+    # Perturb the first entry too, so baseline detection cannot simply use it.
+    # Check both operand orders because permutation composition is noncommutative.
+    near = [7] * 24
+    near[0], near[5], near[17] = 0, P - 1, 9
+    dense = [(11 * index + 3) % P for index in range(24)]
+    for a, b in ((near, dense), (dense, near)):
+        if near_constant_structured(4, a, b) != pair_convolution(4, a, b):
+            raise ValueError("near-constant convolution reference differs from direct pairs")
 
 
 def check_abi_boundaries():

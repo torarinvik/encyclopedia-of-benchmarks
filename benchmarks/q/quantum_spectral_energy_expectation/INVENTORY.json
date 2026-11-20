@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "algorithm": "quantum_spectral_energy_expectation",
+  "abi": "i64_array_float64",
+  "status": "implemented; static validation only, execution intentionally not run",
+  "suite_integration": "benchmarks/run_i64_array_float64.py and benchmarks/verify_i64_array_float64.py",
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "ports": {
+    "c": "c/q/quantum_spectral_energy_expectation.c",
+    "c3": "c3/q/quantum_spectral_energy_expectation.c3",
+    "cpp": "cpp/q/quantum_spectral_energy_expectation.cpp",
+    "elisa": "elisa/q/quantum_spectral_energy_expectation.elisa",
+    "mojo": "mojo/q/quantum_spectral_energy_expectation.mojo",
+    "nim": "nim/q/quantum_spectral_energy_expectation.nim",
+    "odin": "odin/q/quantum_spectral_energy_expectation.odin",
+    "rust": "rust/q/quantum_spectral_energy_expectation.rs",
+    "v": "v/q/quantum_spectral_energy_expectation.v",
+    "zig": "zig/q/quantum_spectral_energy_expectation.zig"
+  },
+  "bounds": {
+    "maximum_valid_input_length": 97,
+    "maximum_parseable_input_length": 98
+  },
+  "suite_registration": {
+    "runner": "benchmarks/run_i64_array_float64.py",
+    "verifier": "benchmarks/verify_i64_array_float64.py",
+    "model": "i64_array_float64"
+  }
+}

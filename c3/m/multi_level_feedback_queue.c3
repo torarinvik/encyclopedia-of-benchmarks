@@ -22,7 +22,7 @@ fn void put_i32_le(char* output, usz offset, int value) {
     }
 }
 
-long multi_level_feedback_queue(int* input, usz length, char* output, usz output_capacity)
+fn long multi_level_feedback_queue(int* input, usz length, char* output, usz output_capacity)
         @export("multi_level_feedback_queue") {
     if (input == null || length < 2 || length > MAX_INPUT_WORDS) return -1;
     int queue_count = input[0], process_count = input[1];

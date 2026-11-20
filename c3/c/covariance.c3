@@ -4,7 +4,7 @@ const usz MAX_DIMENSION = 64;
 const usz MAX_CELLS = MAX_DIMENSION * MAX_DIMENSION;
 const double INVALID_RESULT = -1e300;
 
-double covariance(long* values, ulong length) @export("covariance") {
+fn double covariance(long* values, ulong length) @export("covariance") {
     if (values == null || length != 2 || values[0] < 2 || values[0] > (long)MAX_DIMENSION ||
         values[1] < 1 || values[1] > (long)MAX_DIMENSION) return INVALID_RESULT;
     usz n = (usz)values[0], m = (usz)values[1];

@@ -8,12 +8,12 @@ fn long addition_of_big_integers(long* input, usz length, char* output, usz capa
     usz len_a = (usz)raw_a, len_b = (usz)raw_b;
     if (length != 2 + len_a + len_b) return -1;
 
-    usz starts[2];
-    usz counts[2];
-    bool negatives[2];
+    usz[2] starts;
+    usz[2] counts;
+    bool[2] negatives;
     starts[0] = 2;
     starts[1] = 2 + len_a;
-    usz lengths[2];
+    usz[2] lengths;
     lengths[0] = len_a;
     lengths[1] = len_b;
     for (usz operand = 0; operand < 2; operand++) {
@@ -33,7 +33,7 @@ fn long addition_of_big_integers(long* input, usz length, char* output, usz capa
         if (negatives[operand] && counts[operand] == 1 && input[starts[operand]] == 48) return -1;
     }
 
-    long reversed[33];
+    long[33] reversed;
     for (usz i = 0; i < 33; i++) reversed[i] = 0;
     usz digits = 0;
     bool negative = false;

@@ -22,8 +22,8 @@ extern "C" std::int64_t rabin_content_defined_chunking(
     std::array<std::uint8_t, 64> boundaries{};
     std::size_t count = 0;
     for (std::size_t i = 0; i < n; ++i) {
-        fingerprint = reduce((static_cast<std::uint32_t>(fingerprint) << 8) | static_cast<std::uint32_t>(input[i + 1]));
         if (i >= 4) fingerprint ^= outgoing[static_cast<std::size_t>(input[i - 3])];
+        fingerprint = reduce((static_cast<std::uint32_t>(fingerprint) << 8) | static_cast<std::uint32_t>(input[i + 1]));
         if ((fingerprint & 7) == 0) boundaries[count++] = static_cast<std::uint8_t>(i + 1);
     }
     if (n && (!count || boundaries[count - 1] != n)) boundaries[count++] = static_cast<std::uint8_t>(n);

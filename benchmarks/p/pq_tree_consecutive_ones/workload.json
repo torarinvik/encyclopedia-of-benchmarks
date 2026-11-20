@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-pq-tree-consecutive-ones-i64-array-bytes-output-v1",
+  "algorithm": "pq_tree_consecutive_ones",
+  "function_symbol": "pq_tree_consecutive_ones",
+  "abi": "i64_array_bytes_output",
+  "description": "Incrementally reduce a PQ tree and return its complete canonical frontier family.",
+  "source": {
+    "title": "PQ Tree",
+    "authors": ["OI Wiki contributors"],
+    "url": "https://oi-wiki.org/ds/pq-tree/",
+    "license_notice": "CC BY-SA 4.0 and SATA; method attribution only, all benchmark text and implementations are clean-room.",
+    "primary_reference": "Booth and Lueker, Testing for the consecutive ones property, interval graphs, and graph planarity using PQ-tree algorithms, 1976, https://doi.org/10.1016/S0022-0000(76)80045-1"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[column_count,row_count,row_membership_masks...]",
+    "column_count_range": [2, 20],
+    "row_count_range": [0, 32],
+    "mask_rule": "Bit j is 1 iff column j belongs to the row subset.",
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "exact_length": "2 + row_count",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_vector",
+    "encoding": "[status,frontier_count,node_count,(kind,arg)*] in prefix preorder; status 1 is satisfiable and 0 is unsatisfiable.",
+    "leaf": "kind 0, arg is the zero-based column id",
+    "p_node": "kind 1, arg is child arity; children may be permuted",
+    "q_node": "kind 2, arg is child arity; child order may be reversed",
+    "canonicalization": "Sort P children by recursive encoding; choose the lexicographically smaller Q orientation; remove unary nodes and convert Q nodes of degree two to P nodes.",
+    "unsatisfiable_words": [0, 0, 0],
+    "maximum_node_count": 39,
+    "maximum_bytes": 648,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "128 arena nodes with at most 20 child ids each, color and free-id arrays, reduction scratch, a 648-byte staged output, and count/serialization scratch."
+  },
+  "contract": {
+    "initial_state": "One P root has one leaf for each column.",
+    "reduction": "For each row mask, color leaves and apply one top-down PQ-tree reduction. Reject when a reduction template cannot preserve a single consecutive block.",
+    "frontier_count": "For a P node multiply child counts by arity factorial; for a Q node of degree at least three multiply by two; leaves contribute one.",
+    "error_results": "Malformed input returns -1. Valid input with null or insufficient output returns -2 without writes. Malformed input takes precedence.",
+    "empty_and_full_rows": "Valid constraints that do not reduce the represented family."
+  },
+  "oracle_method": "The primary oracle applies incremental PQ reductions. For small n, the independent oracle enumerates all permutations, intersects their interval sets to find strong intervals, and classifies child orders by the complete frontier set.",
+  "cases": [
+    {
+      "id": "unconstrained-twenty-column-p-root",
+      "input_values": [20, 0],
+      "input_length": 2,
+      "output_capacity": 648,
+      "expected_result": 360,
+      "expected_status": 1,
+      "expected_frontier_count": 2432902008176640000,
+      "expected_node_count": 21,
+      "expected_root": {"kind": 1, "arity": 20}
+    },
+    {
+      "id": "two-independent-ten-column-q-blocks",
+      "input_values": [20, 20, 1023, 3, 6, 12, 24, 48, 96, 192, 384, 768, 1047552, 3072, 6144, 12288, 24576, 49152, 98304, 196608, 393216, 786432],
+      "input_length": 22,
+      "output_capacity": 648,
+      "expected_result": 392,
+      "expected_status": 1,
+      "expected_frontier_count": 26336378880000,
+      "expected_node_count": 23,
+      "expected_root": {"kind": 1, "arity": 2},
+      "expected_child_kinds": [2, 2],
+      "expected_child_arities": [10, 10]
+    },
+    {
+      "id": "sixteen-column-q-core-with-four-free-columns",
+      "input_values": [20, 16, 65535, 3, 6, 12, 24, 48, 96, 192, 384, 768, 1536, 3072, 6144, 12288, 24576, 49152],
+      "input_length": 18,
+      "output_capacity": 648,
+      "expected_result": 376,
+      "expected_status": 1,
+      "expected_frontier_count": 240,
+      "expected_node_count": 22,
+      "expected_root": {"kind": 1, "arity": 5},
+      "expected_child_kinds": [0, 0, 0, 0, 2],
+      "expected_child_arities": [null, null, null, null, 16]
+    },
+    {
+      "id": "three-pair-cycle-is-unsatisfiable",
+      "input_values": [3, 3, 3, 6, 5],
+      "input_length": 5,
+      "output_capacity": 648,
+      "expected_result": 24,
+      "expected_status": 0,
+      "expected_frontier_count": 0,
+      "expected_node_count": 0
+    },
+    {
+      "id": "four-column-path-retains-two-reversals",
+      "input_values": [4, 4, 3, 6, 12, 15],
+      "input_length": 6,
+      "output_capacity": 648,
+      "expected_result": 104,
+      "expected_status": 1,
+      "expected_frontier_count": 2,
+      "expected_node_count": 5,
+      "expected_root": {"kind": 2, "arity": 4}
+    },
+    {
+      "id": "white-sibling-around-a-single-mixed-child",
+      "input_values": [5, 4, 3, 6, 12, 6],
+      "input_length": 6,
+      "output_capacity": 648,
+      "expected_result": 136,
+      "expected_status": 1,
+      "expected_frontier_count": 4,
+      "expected_node_count": 7,
+      "expected_root": {"kind": 1, "arity": 2},
+      "expected_child_kinds": [0, 2],
+      "expected_child_arities": [null, 4]
+    },
+    {
+      "id": "empty-constraint-family",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "output_capacity": 648,
+      "expected_result": 88,
+      "expected_status": 1,
+      "expected_frontier_count": 6,
+      "expected_node_count": 4,
+      "expected_root": {"kind": 1, "arity": 3}
+    },
+    {
+      "id": "trailing-word-is-invalid",
+      "input_values": [3, 0, 9],
+      "input_length": 3,
+      "output_capacity": 648,
+      "expected_result": -1
+    },
+    {
+      "id": "mask-outside-column-domain-is-invalid",
+      "input_values": [3, 1, 8],
+      "input_length": 3,
+      "output_capacity": 648,
+      "expected_result": -1
+    },
+    {
+      "id": "valid-input-short-capacity",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "output_capacity": 23,
+      "expected_result": -2
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 648,
+      "expected_result": -1
+    },
+    {
+      "id": "null-output-after-valid-input",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "output_capacity": 648,
+      "output_is_null": true,
+      "expected_result": -2
+    }
+  ]
+}

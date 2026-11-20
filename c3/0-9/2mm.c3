@@ -4,7 +4,7 @@ const usz MAX_DIMENSION = 16;
 const usz MAX_CELLS = MAX_DIMENSION * MAX_DIMENSION;
 const double INVALID_RESULT = -1e300;
 
-double two_mm(long* values, ulong length) @export("two_mm") {
+fn double two_mm(long* values, ulong length) @export("two_mm") {
     if (values == null || length != 4) return INVALID_RESULT;
     for (usz i = 0; i < 4; i++)
         if (values[i] < 1 || values[i] > (long)MAX_DIMENSION) return INVALID_RESULT;

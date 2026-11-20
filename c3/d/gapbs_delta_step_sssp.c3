@@ -28,7 +28,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
 }
 
 // Clean-room bounded GAPBS delta-stepping profile; see package LICENSE.txt.
-long gapbs_delta_step_sssp(long* input, usz length, char* output, usz capacity)
+fn long gapbs_delta_step_sssp(long* input, usz length, char* output, usz capacity)
         @export("gapbs_delta_step_sssp") {
     if (input == null || length < 4 || length > 196) return -1;
     long n64 = input[0], m64 = input[1], source64 = input[2], delta = input[3];

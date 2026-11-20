@@ -1,0 +1,266 @@
+const TPM_MAX_N: usize = 32
+const TPM_MAX_Q: usize = 32
+const TPM_MAX_INPUT: usize = 160
+
+def tpm_find_root(parent: mutable view[usize], item: usize) -> usize:
+    node: mutable usize = item
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def tpm_less(a: usize, b: usize, blocks: view[usize], right_keys: view[usize], ids: view[usize]) -> bool:
+    if blocks[a] != blocks[b]: return blocks[a] < blocks[b]
+    if right_keys[a] != right_keys[b]: return right_keys[a] < right_keys[b]
+    ids[a] < ids[b]
+
+def tpm_sift_down(root_value: usize, end: usize,
+        order: mutable view[usize], blocks: mutable view[usize],
+        right_keys: mutable view[usize], ids: mutable view[usize]) -> void:
+    root: mutable usize = root_value
+    while root * 2 + 1 < end:
+        child: usize = root * 2 + 1
+        largest: mutable usize = root
+        if tpm_less(order[largest], order[child], blocks, right_keys, ids):
+            largest <- child
+        if child + 1 < end and tpm_less(order[largest], order[child + 1], blocks, right_keys, ids):
+            largest <- child + 1
+        if largest == root: return
+        temporary: usize = order[root]
+        order[root] <- order[largest]
+        order[largest] <- temporary
+        root <- largest
+
+def tpm_heap_sort(count: usize, order: mutable view[usize],
+        blocks: mutable view[usize], right_keys: mutable view[usize], ids: mutable view[usize]) -> void:
+    start: mutable usize = count / 2
+    while start > 0:
+        start <- start - 1
+        tpm_sift_down(start, count, order, blocks, right_keys, ids)
+    end: mutable usize = count
+    while end > 1:
+        end <- end - 1
+        temporary: usize = order[0]
+        order[0] <- order[end]
+        order[end] <- temporary
+        tpm_sift_down(0, end, order, blocks, right_keys, ids)
+
+def tpm_lca(a_value: usize, b_value: usize, parent: view[i64], depth: view[usize]) -> usize:
+    a: mutable usize = a_value
+    b: mutable usize = b_value
+    while depth[a] > depth[b]: a <- parent[a].usize()
+    while depth[b] > depth[a]: b <- parent[b].usize()
+    while a != b:
+        a <- parent[a].usize()
+        b <- parent[b].usize()
+    a
+
+def tpm_toggle(vertex: usize, color_id: view[usize], counts: mutable view[usize],
+        active: mutable view[bool], distinct: mutable usize&) -> void:
+    color: usize = color_id[vertex]
+    if active[vertex]:
+        active[vertex] <- false
+        counts[color] <- counts[color] - 1
+        if counts[color] == 0: distinct <- distinct - 1
+    else:
+        active[vertex] <- true
+        if counts[color] == 0: distinct <- distinct + 1
+        counts[color] <- counts[color] + 1
+
+def tpm_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def tree_path_distinct_mo_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > TPM_MAX_INPUT + 1: return -1
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
+    q_value: i64 = values[1]
+    if n_value < 1 or n_value > TPM_MAX_N.i64() or q_value < 0 or q_value > TPM_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 3 * n + 2 * q: return -1
+
+    colors: mutable i64[TPM_MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        colors[vertex] <- values[2 + vertex]
+        vertex <- vertex + 1
+    adjacent: mutable bool[TPM_MAX_N * TPM_MAX_N] = zeroed
+    dsu_parent: mutable usize[TPM_MAX_N] = zeroed
+    dsu_size: mutable usize[TPM_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        dsu_parent[vertex] <- vertex
+        dsu_size[vertex] <- 1
+        vertex <- vertex + 1
+    offset: mutable usize = 2 + n
+    edge: mutable usize = 0
+    while edge + 1 < n:
+        u_value: i64 = values[offset]
+        v_value: i64 = values[offset + 1]
+        offset <- offset + 2
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        root_u: usize = tpm_find_root(dsu_parent[0:TPM_MAX_N], u)
+        root_v: usize = tpm_find_root(dsu_parent[0:TPM_MAX_N], v)
+        if root_u == root_v: return -1
+        if dsu_size[root_u] < dsu_size[root_v]:
+            temporary: usize = root_u
+            root_u <- root_v
+            root_v <- temporary
+        dsu_parent[root_v] <- root_u
+        dsu_size[root_u] <- dsu_size[root_u] + dsu_size[root_v]
+        adjacent[u * TPM_MAX_N + v] <- true
+        adjacent[v * TPM_MAX_N + u] <- true
+        edge <- edge + 1
+
+    query_u: mutable usize[TPM_MAX_Q] = zeroed
+    query_v: mutable usize[TPM_MAX_Q] = zeroed
+    index: mutable usize = 0
+    while index < q:
+        u_value: i64 = values[offset]
+        v_value: i64 = values[offset + 1]
+        offset <- offset + 2
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value: return -1
+        query_u[index] <- u_value.usize()
+        query_v[index] <- v_value.usize()
+        index <- index + 1
+
+    color_id: mutable usize[TPM_MAX_N] = zeroed
+    first_color: mutable usize[TPM_MAX_N] = zeroed
+    color_count: mutable usize = 0
+    vertex <- 0
+    while vertex < n:
+        rank: mutable usize = 0
+        while rank < color_count and colors[first_color[rank]] != colors[vertex]: rank <- rank + 1
+        if rank == color_count:
+            first_color[color_count] <- vertex
+            color_count <- color_count + 1
+        color_id[vertex] <- rank
+        vertex <- vertex + 1
+
+    parent: mutable i64[TPM_MAX_N] = zeroed
+    depth: mutable usize[TPM_MAX_N] = zeroed
+    entry: mutable usize[TPM_MAX_N] = zeroed
+    leave: mutable usize[TPM_MAX_N] = zeroed
+    euler: mutable usize[2 * TPM_MAX_N] = zeroed
+    event_node: mutable usize[2 * TPM_MAX_N] = zeroed
+    event_parent: mutable usize[2 * TPM_MAX_N] = zeroed
+    event_exit: mutable bool[2 * TPM_MAX_N] = zeroed
+    top: mutable usize = 1
+    clock: mutable usize = 0
+    event_node[0] <- 0
+    event_parent[0] <- n
+    while top > 0:
+        top <- top - 1
+        u: usize = event_node[top]
+        previous: usize = event_parent[top]
+        if event_exit[top]:
+            leave[u] <- clock
+            euler[clock] <- u
+            clock <- clock + 1
+        else:
+            parent[u] <- previous.i64()
+            entry[u] <- clock
+            euler[clock] <- u
+            clock <- clock + 1
+            event_node[top] <- u
+            event_parent[top] <- previous
+            event_exit[top] <- true
+            top <- top + 1
+            next: mutable usize = n
+            while next > 0:
+                next <- next - 1
+                if adjacent[u * TPM_MAX_N + next] and next != previous:
+                    depth[next] <- depth[u] + 1
+                    event_node[top] <- next
+                    event_parent[top] <- u
+                    event_exit[top] <- false
+                    top <- top + 1
+
+    order: mutable usize[TPM_MAX_Q] = zeroed
+    blocks: mutable usize[TPM_MAX_Q] = zeroed
+    right_keys: mutable usize[TPM_MAX_Q] = zeroed
+    ids: mutable usize[TPM_MAX_Q] = zeroed
+    query_lefts: mutable usize[TPM_MAX_Q] = zeroed
+    query_rights: mutable usize[TPM_MAX_Q] = zeroed
+    query_extras: mutable i64[TPM_MAX_Q] = zeroed
+    block_size: mutable usize = 1
+    while (block_size + 1) * (block_size + 1) <= 2 * n: block_size <- block_size + 1
+    index <- 0
+    while index < q:
+        u: mutable usize = query_u[index]
+        v: mutable usize = query_v[index]
+        if entry[u] > entry[v]:
+            temporary: usize = u
+            u <- v
+            v <- temporary
+        ancestor: usize = tpm_lca(u, v, parent[0:TPM_MAX_N], depth[0:TPM_MAX_N])
+        left: usize = entry[u]
+        if ancestor != u: left <- leave[u]
+        right: usize = entry[v]
+        block: usize = left / block_size
+        order[index] <- index
+        blocks[index] <- block
+        query_lefts[index] <- left
+        query_rights[index] <- right
+        query_extras[index] <- if ancestor == u: -1 else: ancestor.i64()
+        if block % 2 == 0:
+            right_keys[index] <- right
+        else:
+            right_keys[index] <- 2 * n - 1 - right
+        ids[index] <- index
+        index <- index + 1
+    tpm_heap_sort(q, order[0:TPM_MAX_Q], blocks[0:TPM_MAX_Q], right_keys[0:TPM_MAX_Q], ids[0:TPM_MAX_Q])
+
+    counts: mutable usize[TPM_MAX_N] = zeroed
+    active: mutable bool[TPM_MAX_N] = zeroed
+    answers: mutable usize[TPM_MAX_Q] = zeroed
+    distinct: mutable usize = 0
+    left: mutable i64 = 0
+    right: mutable i64 = -1
+    sorted_index: mutable usize = 0
+    while sorted_index < q:
+        query_id: usize = order[sorted_index]
+        query_left: usize = query_lefts[query_id]
+        query_right: usize = query_rights[query_id]
+        while left > query_left.i64():
+            left <- left - 1
+            tpm_toggle(euler[left.usize()], color_id[0:TPM_MAX_N], counts[0:TPM_MAX_N], active[0:TPM_MAX_N], distinct)
+        while right < query_right.i64():
+            right <- right + 1
+            tpm_toggle(euler[right.usize()], color_id[0:TPM_MAX_N], counts[0:TPM_MAX_N], active[0:TPM_MAX_N], distinct)
+        while left < query_left.i64():
+            tpm_toggle(euler[left.usize()], color_id[0:TPM_MAX_N], counts[0:TPM_MAX_N], active[0:TPM_MAX_N], distinct)
+            left <- left + 1
+        while right > query_right.i64():
+            tpm_toggle(euler[right.usize()], color_id[0:TPM_MAX_N], counts[0:TPM_MAX_N], active[0:TPM_MAX_N], distinct)
+            right <- right - 1
+        if query_extras[query_id] >= 0:
+            query_extra: usize = query_extras[query_id].usize()
+            tpm_toggle(query_extra, color_id[0:TPM_MAX_N], counts[0:TPM_MAX_N], active[0:TPM_MAX_N], distinct)
+            answers[query_id] <- distinct
+            tpm_toggle(query_extra, color_id[0:TPM_MAX_N], counts[0:TPM_MAX_N], active[0:TPM_MAX_N], distinct)
+        else:
+            answers[query_id] <- distinct
+        sorted_index <- sorted_index + 1
+
+    required: usize = 8 * q
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index <- 0
+    while index < q:
+        tpm_store(answers[index].i64(), output_view, 8 * index)
+        index <- index + 1
+    required.i64()
+
+export fn tree_path_distinct_mo(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tree_path_distinct_mo_impl

@@ -1,0 +1,33 @@
+{
+  "algorithm": "multiply_shift_universal_hash_trace",
+  "abi": "i64_array_bytes_output",
+  "sources": [
+    "c/m/multiply_shift_universal_hash_trace.c",
+    "c3/m/multiply_shift_universal_hash_trace.c3",
+    "cpp/m/multiply_shift_universal_hash_trace.cpp",
+    "elisa/m/multiply_shift_universal_hash_trace.elisa",
+    "mojo/m/multiply_shift_universal_hash_trace.mojo",
+    "nim/m/multiply_shift_universal_hash_trace.nim",
+    "odin/m/multiply_shift_universal_hash_trace.odin",
+    "rust/m/multiply_shift_universal_hash_trace.rs",
+    "v/m/multiply_shift_universal_hash_trace.v",
+    "zig/m/multiply_shift_universal_hash_trace.zig"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "maximum_valid_input_words": 66,
+  "maximum_parseable_input_words": 67,
+  "maximum_output_bytes": 256,
+  "workspace_bytes": 128,
+  "static_checker": "benchmarks/m/multiply_shift_universal_hash_trace/check_inventory.py",
+  "suite_integration": "i64_array_bytes_output runner and verifier registered; README and CATALOG entries present"
+}

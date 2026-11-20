@@ -8,8 +8,8 @@ extern fn double trunc(double value);
 extern fn double fabs(double value);
 extern fn double pow(double base, double exponent);
 
-double distance(double* a,double* b,usz dimensions){double sum=0.0;for(usz d=0;d<dimensions;d++){double diff=a[d]-b[d];sum+=diff*diff;}return pow(sum,0.5);}
-bool near_threshold(double value,double threshold){return fabs(value-threshold)<MARGIN;}
+fn double distance(double* a,double* b,usz dimensions){double sum=0.0;for(usz d=0;d<dimensions;d++){double diff=a[d]-b[d];sum+=diff*diff;}return pow(sum,0.5);}
+fn bool near_threshold(double value,double threshold){return fabs(value-threshold)<MARGIN;}
 
 fn long mean_shift(double* input,usz length,double* output,usz capacity) @export("mean_shift") {
     if(input==null||length<5||length>MAX_INPUT_LENGTH)return -1;

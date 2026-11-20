@@ -1,0 +1,40 @@
+# Uncompiled duplicate-aware distinct-LCS counting draft.
+def cdl_solve(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 131: return -1
+    nr: i64 = values[0]
+    mr: i64 = values[1]
+    if nr < 0 or nr > 64 or mr < 0 or mr > 64: return -1
+    n: usize = nr.usize()
+    m: usize = mr.usize()
+    if values.len() != 2+n+m: return -1
+    for i in 2..<values.len():
+        if values[i] < 0 or values[i] > 255: return -1
+    prev_len: mutable i64[65] = zeroed
+    curr_len: mutable i64[65] = zeroed
+    prev_count: mutable i64[65] = zeroed
+    curr_count: mutable i64[65] = zeroed
+    for j in 0..=m: prev_count[j] <- 1
+    for i in 1..=n:
+        curr_len[0] <- 0
+        curr_count[0] <- 1
+        for j in 1..=m:
+            if values[1+i] == values[1+n+j]:
+                curr_len[j] <- prev_len[j-1]+1
+                curr_count[j] <- prev_count[j-1]
+            else:
+                best: mutable i64 = prev_len[j]
+                if curr_len[j-1] > best: best <- curr_len[j-1]
+                count: mutable i64 = 0
+                if prev_len[j] == best: count <- count + prev_count[j]
+                if curr_len[j-1] == best: count <- count + curr_count[j-1]
+                if prev_len[j-1] == best: count <- count - prev_count[j-1]
+                curr_len[j] <- best
+                curr_count[j] <- (count + 1000000007) % 1000000007
+        for j in 0..=m:
+            prev_len[j] <- curr_len[j]
+            prev_count[j] <- curr_count[j]
+    prev_count[m]
+
+export fn count_distinct_lcs(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 131: return -1
+    cdl_solve(input[0:length])

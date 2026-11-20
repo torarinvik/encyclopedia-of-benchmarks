@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "odd-even-jump-reachability-count-i64-scalar-v1",
+  "algorithm": "odd_even_jump_reachability_count",
+  "function_symbol": "odd_even_jump_reachability_count",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n, values[0], ..., values[n-1]]",
+    "domain": "1 <= n <= 64; each value is in [-1000000,1000000]",
+    "maximum_valid_input_words": 65,
+    "maximum_parseable_input_words": 66,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "count of starts whose alternating value-successor path reaches the final index",
+    "minimum_result": 1,
+    "maximum_result": 64,
+    "invalid_result": -1
+  },
+  "workspace": {
+    "bytes": 4096,
+    "accounting": "O(n) native auxiliary storage. At n=64, four 64-entry 64-bit index/target arrays plus two 64-entry byte state arrays occupy 2,176 bytes; the 4,096-byte cap includes scalar locals, alignment, and return-value temporaries. Input storage is excluded."
+  },
+  "complexity": {
+    "primary_time": "O(n^2): insertion-sorting the two index orders dominates; stack assignment and reverse DP are O(n), with n<=64.",
+    "primary_auxiliary_space": "O(n): fixed index, successor, and reachability arrays; bounded by workspace.bytes=4096 for native ports, excluding input storage.",
+    "independent_reference_time": "O(n^2): direct suffix scans construct successors in O(n^2), and at most n starts each follow at most n increasing-index transitions.",
+    "independent_reference_auxiliary_space": "O(n): successor arrays and bounded Python reference lists for n<=64; interpreter allocator bytes are not included in the native workspace cap."
+  },
+  "pinned_sources": [
+    {
+      "title": "975. Odd Even Jump",
+      "repository": "LeetCode public title index",
+      "url": "https://leetcode.com/problems/odd-even-jump/",
+      "role": "title discovery only"
+    },
+    {
+      "title": "LeetCode 975: Odd Even Jump",
+      "repository": "Tam Nguyen algorithm notes",
+      "url": "https://tamnd.github.io/brain/practice/leetcode/old/09/0975/",
+      "role": "independent description of sorted-index successor preprocessing and parity-state dynamic programming"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-item", "input_values":[1,7], "input_length":2, "expected_result":1},
+    {"id":"no-odd-successor-at-first", "input_values":[3,3,1,2], "input_length":4, "expected_result":2},
+    {"id":"equal-value-earliest-target", "input_values":[4,2,2,1,3], "input_length":5, "expected_result":4},
+    {"id":"strictly-descending", "input_values":[4,5,4,3,2], "input_length":5, "expected_result":1},
+    {"id":"alternating-duplicate-values", "input_values":[5,2,1,2,1,2], "input_length":6, "expected_result":4},
+    {"id":"mixed-transition-chain", "input_values":[5,1,3,2,4,3], "input_length":6, "expected_result":3},
+    {"id":"mixed-negative-values", "input_values":[4,-2,3,-1,2], "input_length":5, "expected_result":2},
+    {"id":"maximum-equal-array", "input_values":[64,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0], "input_length":65, "expected_result":64},
+    {"id":"empty-frame", "input_values":[], "input_length":0, "expected_result":-1},
+    {"id":"null-pointer", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1},
+    {"id":"zero-count", "input_values":[0], "input_length":1, "expected_result":-1},
+    {"id":"wrong-count", "input_values":[3,4,1], "input_length":3, "expected_result":-1},
+    {"id":"trailing-word", "input_values":[1,9,0], "input_length":3, "expected_result":-1},
+    {"id":"value-above-bound", "input_values":[1,1000001], "input_length":2, "expected_result":-1},
+    {"id":"value-below-bound", "input_values":[1,-1000001], "input_length":2, "expected_result":-1}
+  ]
+}

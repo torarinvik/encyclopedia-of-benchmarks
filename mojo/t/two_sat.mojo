@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 comptime TS_LITS=80
@@ -7,7 +8,7 @@ fn two_sat(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UInt
     let vars=a[0];let clauses=a[1]
     if vars<0 or vars>40 or clauses<0 or clauses>2047 or n!=c_size_t(2+2*clauses):return -1
     let nodes=Int(vars)*2
-    var graph=InlineArray[Bool,6400]();var trans=InlineArray[Bool,6400]()
+    var graph=InlineArray[Bool,6400](fill=False);var trans=InlineArray[Bool,6400](fill=False)
     for ci in range(Int(clauses)):
         let aa=a[2+2*ci];let bb=a[3+2*ci]
         if aa==0 or bb==0 or aa< -vars or aa>vars or bb< -vars or bb>vars:return -1
@@ -15,7 +16,7 @@ fn two_sat(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UInt
         let u1=x^1;let v1=y;let u2=y^1;let v2=x
         graph[u1*TS_LITS+v1]=True;trans[v1*TS_LITS+u1]=True
         graph[u2*TS_LITS+v2]=True;trans[v2*TS_LITS+u2]=True
-    var seen=InlineArray[Bool,80]();var order=InlineArray[Int32,80]();var olen=0
+    var seen=InlineArray[Bool,80](fill=False);var order=InlineArray[Int32,80]();var olen=0
     var stack=InlineArray[Int32,80]();var next=InlineArray[Int32,80]()
     for root in range(nodes):
         if seen[root]:continue

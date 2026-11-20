@@ -14,6 +14,12 @@ The workload records the launcher repeat profile and exercises both modes, dupli
 
 For n values, each bubble-sort pass takes O(n²) time and O(n) working storage for the copied input. First-pivot quicksort takes O(n²) time in the worst case, including sorted or equal-valued inputs; its balanced-partition case takes O(n log n) time. The linked partition copies can retain O(n²) nodes at once in the worst case. These bounds apply per pass; the contract repeats the chosen path 1,000 times.
 
+For the fixed index pools, the 560-node bound follows from at most 32 initial
+nodes, 32 newly created pivot nodes, and 31 + 30 + ... + 1 = 496 partition
+copies in a maximally unbalanced recursion. The verifier specifies ascending,
+descending, and equal-valued maximum-size inputs to exercise that boundary;
+these cases have not been executed.
+
 ## Pinned source
 
 [`McCat/01-qbsort`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/01-qbsort) at commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38`; launcher [`info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/01-qbsort/info.sh), algorithms [`sort.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/01-qbsort/sort.c), harness `benchmark.c`.

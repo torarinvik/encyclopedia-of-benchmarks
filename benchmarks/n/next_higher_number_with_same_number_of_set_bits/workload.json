@@ -1,91 +1,58 @@
 {
   "schema_version": 1,
-  "id": "next-higher-same-set-bits-i30-v1",
+  "id": "next-higher-same-set-bits-i30-scalar-v2",
   "algorithm": "next_higher_number_with_same_number_of_set_bits",
   "function_symbol": "next_higher_number_with_same_number_of_set_bits",
+  "abi": "scalar_call",
   "input": {
-    "kind": "signed_64_bit_integer",
-    "minimum_value": 1,
-    "maximum_value": 1073741823,
-    "result": "smallest larger positive integer with the same number of set bits",
+    "kind": "bounded_integer",
+    "minimum": 1,
+    "maximum": 1073741823,
+    "meaning": "positive signed integer whose next larger equal-popcount value is computed",
     "invalid_result": -1
   },
-  "cases": [
-    {
-      "id": "one",
-      "input_value": 1,
-      "expected_result": 2
-    },
-    {
-      "id": "two",
-      "input_value": 2,
-      "expected_result": 4
-    },
-    {
-      "id": "three",
-      "input_value": 3,
-      "expected_result": 5
-    },
-    {
-      "id": "six",
-      "input_value": 6,
-      "expected_result": 9
-    },
-    {
-      "id": "pinned_cpp_example",
-      "input_value": 12,
-      "expected_result": 17
-    },
-    {
-      "id": "tight_run_of_ones",
-      "input_value": 15,
-      "expected_result": 23
-    },
-    {
-      "id": "five_ones",
-      "input_value": 31,
-      "expected_result": 47
-    },
-    {
-      "id": "single_bit",
-      "input_value": 536870912,
-      "expected_result": 1073741824
-    },
-    {
-      "id": "source_example_97",
-      "input_value": 97,
-      "expected_result": 98
-    },
-    {
-      "id": "upper_boundary",
-      "input_value": 1073741823,
-      "expected_result": 1610612735
-    },
-    {
-      "id": "zero_cpp_returns_zero_java_divides_by_zero",
-      "input_value": 0,
-      "expected_result": -1
-    },
-    {
-      "id": "negative",
-      "input_value": -1,
-      "expected_result": -1
-    },
-    {
-      "id": "above_contract",
-      "input_value": 1073741824,
-      "expected_result": -1
-    },
-    {
-      "id": "signed64_maximum",
-      "input_value": 9223372036854775807,
-      "expected_result": -1
-    }
-  ],
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "smallest larger positive integer with the same number of set bits",
+    "maximum": 1610612735,
+    "invalid_result": -1
+  },
+  "source": {
+    "algorithm_reference": "HAKMEM Item 175, MIT AI Memo 239",
+    "algorithm_reference_url": "https://dspace.mit.edu/bitstream/handle/1721.1/6086/AIM-239.pdf",
+    "cross_implementation_sources": [
+      "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/bit_manipulation/next_higher_number_with_same_number_of_set_bits.cpp",
+      "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/NextHigherSameBitCount.java"
+    ],
+    "discovery_title": "RosettaCodeData: Gospers-hack",
+    "discovery_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_use": "title discovery and duplicate mapping only"
+  },
   "measurement": {
     "comparison_model": "scalar_call",
     "sample_count": 9,
     "warmup_rounds": 2,
-    "repetitions_per_sample": 10000
-  }
+    "repetitions_per_sample": 10000,
+    "profiles": [
+      {"id": "sparse-single-bit", "input_value": 536870912},
+      {"id": "dense-upper-bound", "input_value": 1073741823}
+    ]
+  },
+  "cases": [
+    {"id":"one", "input_value":1, "expected_result":2},
+    {"id":"two", "input_value":2, "expected_result":4},
+    {"id":"three", "input_value":3, "expected_result":5},
+    {"id":"six", "input_value":6, "expected_result":9},
+    {"id":"pinned_cpp_example", "input_value":12, "expected_result":17},
+    {"id":"tight_run_of_ones", "input_value":15, "expected_result":23},
+    {"id":"five_ones", "input_value":31, "expected_result":47},
+    {"id":"single_bit", "input_value":536870912, "expected_result":1073741824},
+    {"id":"source_example_97", "input_value":97, "expected_result":98},
+    {"id":"upper_boundary", "input_value":1073741823, "expected_result":1610612735},
+    {"id":"zero", "input_value":0, "expected_result":-1},
+    {"id":"negative", "input_value":-1, "expected_result":-1},
+    {"id":"above_contract", "input_value":1073741824, "expected_result":-1},
+    {"id":"signed64_minimum", "input_value":-9223372036854775808, "expected_result":-1},
+    {"id":"signed64_maximum", "input_value":9223372036854775807, "expected_result":-1}
+  ]
 }

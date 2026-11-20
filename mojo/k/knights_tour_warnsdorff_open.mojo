@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 comptime KDX:InlineArray[Int64,8]=[1,2,2,1,-1,-2,-2,-1]

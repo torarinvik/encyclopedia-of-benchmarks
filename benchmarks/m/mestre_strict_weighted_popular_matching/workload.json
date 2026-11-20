@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "mestre-strict-weighted-popular-matching-existence-i64-array-scalar-v1",
+  "algorithm": "mestre_strict_weighted_popular_matching",
+  "function_symbol": "mestre_strict_weighted_popular_matching",
+  "abi": "i64_array_scalar",
+  "description": "Decide existence of a one-sided weighted popular matching using strict-list category pruning.",
+  "source": {
+    "title": "Weighted Popular Matchings",
+    "authors": ["Julián Mestre"],
+    "year": 2007,
+    "version": "arXiv:0707.0546v1",
+    "url": "https://arxiv.org/abs/0707.0546",
+    "method_section": "Section 2, Figure 2; completion reduction in Abraham et al., Section 2.2",
+    "encyclopedia_reference": "https://doi.org/10.1007/978-1-4939-2864-4_477",
+    "reuse": "Algorithm descriptions only; all profile details, code, fixtures, references, and prose are clean-room work."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[A,J,weights[A],lengths[A],row_0_jobs...,row_(A-1)_jobs...]",
+    "applicant_count_range": [1, 4],
+    "real_job_count_range": [1, 5],
+    "weight_range": [1, 1000],
+    "preference_list_length_range": [1, 5],
+    "preference_rule": "Each row lists distinct real job IDs in strict best-to-worst order; applicants alone vote.",
+    "last_resort_rule": "A unique private job is appended after each applicant's listed real jobs and is used only in the matching definition.",
+    "maximum_valid_length": 30,
+    "maximum_parseable_length": 31,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "1 if a weighted popular applicant-complete matching exists, otherwise 0.",
+    "maximum_result": 1,
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "primary": "Process distinct positive weights in descending order. Define each applicant's f-job as its first listed job not already used as a higher-category f-job; define s as the first job outside its own-or-higher-category f-job sets, including its private last resort when applicable. Label f-jobs with minimum promotion costs, reject when a higher f-job can be freed for an applicant at cost below its weight, and prune unsafe duplicate f-edges and s-edges. Remove any remaining s-edge that targets an f-job and test whether the reduced graph admits an applicant-complete matching.",
+    "completion": "A deterministic augmenting-path matching over the pruned f/s graph; a successful matching covers every applicant. The bounded implementation returns existence only.",
+    "independent": "Enumerate feasible applicant-complete assignments over listed real jobs plus each private last resort. For every candidate, compare it against every feasible challenger and sum applicant weights for candidate-favoring votes minus challenger-favoring votes; a candidate is popular exactly when no challenger has positive margin.",
+    "tie_policy": "Weights are grouped by exact integer value and categories are processed from larger to smaller. Jobs and applicants are scanned by input ID; augmenting choices follow listed preference order, then applicant order.",
+    "profile_boundary": "Strict incomplete one-sided lists, positive integer weights, scalar existence only; this profile does not return a matching certificate or maximize cardinality."
+  },
+  "complexity": {
+    "primary_time": "O(A*(A+E)) for bounded category scans, label/prune work, and augmenting matching; A<=4 and E<=20.",
+    "primary_auxiliary_space": "O(A+J).",
+    "independent_time": "O(M^2*A), where M is the number of feasible applicant-complete assignments and M<=501 under the profile bounds.",
+    "independent_auxiliary_space": "O(M*A)."
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed preference, category-label, reduced-edge, and augmenting-matching state for four applicants and five real jobs."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/m/mestre_strict_weighted_popular_matching/primary_oracle.py",
+  "independent_oracle": "benchmarks/m/mestre_strict_weighted_popular_matching/independent_oracle.py",
+  "cases": [
+    {"id":"single-applicant-first-choice","input_values":[1,1,7,1,0],"input_length":5,"expected_result":1},
+    {"id":"separate-first-jobs","input_values":[2,2,9,4,1,1,0,1],"input_length":8,"expected_result":1},
+    {"id":"equal-weight-shared-first-job","input_values":[2,2,1,1,2,2,0,1,0,1],"input_length":10,"expected_result":1},
+    {"id":"higher-category-gets-contested-first-job","input_values":[2,2,10,6,2,2,0,1,0,1],"input_length":10,"expected_result":1},
+    {"id":"promotion-label-chain-rejects","input_values":[3,3,10,6,5,3,3,3,0,1,2,0,1,2,1,2,0],"input_length":17,"expected_result":0},
+    {"id":"maximum-valid-frame","input_values":[4,5,100,70,30,5,5,5,5,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4],"input_length":30,"expected_result":1},
+    {"id":"duplicate-job-in-row","input_values":[1,2,5,2,0,0],"input_length":6,"expected_result":-1},
+    {"id":"zero-weight","input_values":[1,1,0,1,0],"input_length":5,"expected_result":-1},
+    {"id":"truncated-row","input_values":[1,1,5,1],"input_length":4,"expected_result":-1},
+    {"id":"trailing-word-at-parseable-bound","input_values":[4,5,100,70,30,5,5,5,5,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,99],"input_length":31,"expected_result":-1},
+    {"id":"null-input-at-parseable-bound","input_values":[],"input_length":31,"input_is_null":true,"expected_result":-1}
+  ]
+}

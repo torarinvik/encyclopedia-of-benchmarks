@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p79_next(inout d:InlineArray[Int32,10],n:Int)->Bool:
     var pivot=n-2
     while pivot>=0 and d[pivot]>=d[pivot+1]:pivot-=1

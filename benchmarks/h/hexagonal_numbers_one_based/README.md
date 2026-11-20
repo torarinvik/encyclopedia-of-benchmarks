@@ -9,7 +9,11 @@ Return the first `n` positive-index hexagonal numbers from the pinned TypeScript
 - Inputs outside the range return `-1`; an output buffer shorter than `8 * n` bytes returns `-2`. For `n=0`, the result is 0 and the output is empty.
 - The formula is exact throughout the bounded input range.
 
-The pinned Python implementation [`hexagonal_numbers`](../hexagonal_numbers/README.md) instead returns values at indices `0..length-1`, including 0. This package keeps the TypeScript source's one-based behavior distinct.
+The pinned [Python implementation](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/series/hexagonal_numbers.py)
+returns the same formula at indices `0..length-1`, including zero. For its
+former bounded contract `1 <= length <= 1024`, prepend zero to this
+benchmark's first `length-1` terms; validate the original domain separately.
+The zero-based duplicate package was removed.
 
 [`workload.json`](workload.json) covers the empty sequence, short sequences, the TypeScript example, the maximum supported length, and invalid lengths.
 
@@ -19,6 +23,7 @@ The pinned Python implementation [`hexagonal_numbers`](../hexagonal_numbers/READ
 | C3 | [`c3/h/hexagonal_numbers_one_based.c3`](../../../c3/h/hexagonal_numbers_one_based.c3) |
 | C++ | [`cpp/h/hexagonal_numbers_one_based.cpp`](../../../cpp/h/hexagonal_numbers_one_based.cpp) |
 | Elisa | [`elisa/h/hexagonal_numbers_one_based.elisa`](../../../elisa/h/hexagonal_numbers_one_based.elisa) |
+| Mojo | [`mojo/h/hexagonal_numbers_one_based.mojo`](../../../mojo/h/hexagonal_numbers_one_based.mojo) |
 | Nim | [`nim/h/hexagonal_numbers_one_based.nim`](../../../nim/h/hexagonal_numbers_one_based.nim) |
 | Odin | [`odin/h/hexagonal_numbers_one_based.odin`](../../../odin/h/hexagonal_numbers_one_based.odin) |
 | Rust | [`rust/h/hexagonal_numbers_one_based.rs`](../../../rust/h/hexagonal_numbers_one_based.rs) |

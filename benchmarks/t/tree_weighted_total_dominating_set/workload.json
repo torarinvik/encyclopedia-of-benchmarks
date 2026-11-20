@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "tree-weighted-total-dominating-set-i64-array-scalar-v1",
+  "algorithm": "tree_weighted_total_dominating_set",
+  "function_symbol": "tree_weighted_total_dominating_set",
+  "abi": "i64_array_scalar",
+  "input": {"layout": "[n,parent[1..n-1],weights]", "maximum_valid_values": 128, "maximum_parseable_values": 129, "invalid_result": -1},
+  "output": {"encoding": "minimum total dominating-set weight", "invalid_result": -1, "infeasible_result": -2},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "source": {"url": "https://www.sciencedirect.com/science/article/pii/S0166218X18306309", "reuse": "Mathematical idea only; independently authored code and fixtures."},
+  "cases": [
+    {"id":"single_vertex_infeasible", "input_values":[1,19], "input_length":2, "expected_result":-2},
+    {"id":"single_vertex_invalid_weight", "input_values":[1,-1], "input_length":2, "expected_result":-1},
+    {"id":"single_edge_requires_both", "input_values":[2,0,3,8], "input_length":4, "expected_result":11},
+    {"id":"star_center_and_cheapest_leaf", "input_values":[4,0,0,0,7,2,3,4], "input_length":8, "expected_result":9},
+    {"id":"expensive_center_required", "input_values":[4,0,0,0,20,2,3,4], "input_length":8, "expected_result":22},
+    {"id":"chain_three_selected", "input_values":[5,0,1,2,3,100,1,1,1,100], "input_length":10, "expected_result":3},
+    {"id":"chain_eight", "input_values":[8,0,1,2,3,4,5,6,1,1,1,1,1,1,1,1], "input_length":16, "expected_result":4},
+    {"id":"zero_weights", "input_values":[3,0,1,0,0,0], "input_length":6, "expected_result":0},
+    {"id":"invalid_parent", "input_values":[2,1,1,1], "input_length":4, "expected_result":-1},
+    {"id":"trailing_word", "input_values":[1,1,0], "input_length":3, "expected_result":-1},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

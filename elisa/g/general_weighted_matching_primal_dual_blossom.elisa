@@ -1,0 +1,337 @@
+const MAX_N: usize = 64
+const SLOTS: usize = 129
+const INF: i64 = 9223372036854775807
+
+struct BlossomSearch:
+    n: usize
+    nodes: usize
+    epoch: i32
+    weight: i64[SLOTS][SLOTS]
+    dual: i64[SLOTS]
+    edge_a: i32[SLOTS][SLOTS]
+    edge_b: i32[SLOTS][SLOTS]
+    mate: i32[SLOTS]
+    slack_from: i32[SLOTS]
+    top: i32[SLOTS]
+    parent: i32[SLOTS]
+    state: i32[SLOTS]
+    seen: i32[SLOTS]
+    members: i32[SLOTS][SLOTS]
+    member_count: i32[SLOTS]
+    child_of: i32[SLOTS][MAX_N + 1]
+    queue: usize[MAX_N]
+    queued: bool[MAX_N + 1]
+    head: usize
+    tail: usize
+    count: usize
+
+def blossom_delta(context: BlossomSearch&, a: usize, b: usize) -> i64:
+    context.dual[context.edge_a[a][b].usize()] + context.dual[context.edge_b[a][b].usize()] - 2 * context.weight[a][b]
+
+def blossom_enqueue_leaf(context: mutable BlossomSearch&, vertex: usize) -> void:
+    if vertex == 0 or vertex > context.n or context.queued[vertex]: return
+    context.queue[context.tail] <- vertex
+    context.tail <- (context.tail + 1) % context.n
+    context.count <- context.count + 1
+    context.queued[vertex] <- true
+
+def blossom_enqueue_members(context: mutable BlossomSearch&, node: usize) -> void:
+    if node <= context.n:
+        blossom_enqueue_leaf(context&, node)
+        return
+    for i in 0..<context.member_count[node].usize():
+        blossom_enqueue_members(context&, context.members[node][i].usize())
+
+def blossom_set_top(context: mutable BlossomSearch&, node: usize, representative: usize) -> void:
+    context.top[node] <- representative.i32()
+    if node > context.n:
+        for i in 0..<context.member_count[node].usize():
+            blossom_set_top(context&, context.members[node][i].usize(), representative)
+
+def blossom_update_slack(context: mutable BlossomSearch&, source: usize, target: usize) -> void:
+    old: usize = context.slack_from[target].usize()
+    if old == 0 or blossom_delta(context&, source, target) < blossom_delta(context&, old, target):
+        context.slack_from[target] <- source.i32()
+
+def blossom_refresh_slack(context: mutable BlossomSearch&, target: usize) -> void:
+    context.slack_from[target] <- 0
+    for source in 1..=context.n:
+        component: usize = context.top[source].usize()
+        if context.weight[source][target] > 0 and component != target and context.state[component] == 0:
+            blossom_update_slack(context&, source, target)
+
+def blossom_cycle_position(context: mutable BlossomSearch&, blossom: usize, child: usize) -> usize:
+    size: usize = context.member_count[blossom].usize()
+    position: mutable usize = 0
+    while position < size and context.members[blossom][position].usize() != child:
+        position <- position + 1
+    if position == size: return 0
+    if position % 2 == 1:
+        left: mutable usize = 1
+        right: mutable usize = size - 1
+        while left < right:
+            temp: i32 = context.members[blossom][left]
+            context.members[blossom][left] <- context.members[blossom][right]
+            context.members[blossom][right] <- temp
+            left <- left + 1
+            right <- right - 1
+        position <- size - position
+    position
+
+def blossom_rotate(context: mutable BlossomSearch&, blossom: usize, start: usize) -> void:
+    size: usize = context.member_count[blossom].usize()
+    saved: mutable i32[SLOTS] = zeroed
+    for i in 0..<size:
+        saved[i] <- context.members[blossom][(i + start) % size]
+    for i in 0..<size:
+        context.members[blossom][i] <- saved[i]
+
+def blossom_set_pair(context: mutable BlossomSearch&, left: usize, right: usize) -> void:
+    context.mate[left] <- context.edge_b[left][right]
+    if left <= context.n: return
+    leaf: usize = context.edge_a[left][right].usize()
+    entry: usize = context.child_of[left][leaf].usize()
+    position: usize = blossom_cycle_position(context&, left, entry)
+    for i in 0..<position:
+        blossom_set_pair(context&, context.members[left][i].usize(), context.members[left][i ^ 1].usize())
+    blossom_set_pair(context&, entry, right)
+    blossom_rotate(context&, left, position)
+
+def blossom_augment(context: mutable BlossomSearch&, start_left: usize, start_right: usize) -> void:
+    u: mutable usize = start_left
+    v: mutable usize = start_right
+    while true:
+        next: usize = context.top[context.mate[u].usize()].usize()
+        blossom_set_pair(context&, u, v)
+        if next == 0: return
+        prior: usize = context.top[context.parent[next].usize()].usize()
+        blossom_set_pair(context&, next, prior)
+        u <- prior
+        v <- next
+
+def blossom_common_base(context: mutable BlossomSearch&, start_u: usize, start_v: usize) -> usize:
+    context.epoch <- context.epoch + 1
+    u: mutable usize = start_u
+    v: mutable usize = start_v
+    while u != 0 or v != 0:
+        if u != 0:
+            if context.seen[u] == context.epoch: return u
+            context.seen[u] <- context.epoch
+            u <- context.top[context.mate[u].usize()].usize()
+            if u != 0: u <- context.top[context.parent[u].usize()].usize()
+        temp: usize = u
+        u <- v
+        v <- temp
+    0
+
+def blossom_add_child(context: mutable BlossomSearch&, blossom: usize, child: usize) -> void:
+    index: usize = context.member_count[blossom].usize()
+    context.members[blossom][index] <- child.i32()
+    context.member_count[blossom] <- context.member_count[blossom] + 1
+
+def blossom_contract(context: mutable BlossomSearch&, left: usize, base: usize, right: usize) -> void:
+    blossom: mutable usize = context.n + 1
+    while blossom <= context.nodes and context.top[blossom] != 0:
+        blossom <- blossom + 1
+    if blossom > context.nodes: context.nodes <- context.nodes + 1
+    context.dual[blossom] <- 0
+    context.state[blossom] <- 0
+    context.mate[blossom] <- context.mate[base]
+    context.member_count[blossom] <- 0
+    blossom_add_child(context&, blossom, base)
+    x: mutable usize = left
+    while x != base:
+        blossom_add_child(context&, blossom, x)
+        y: usize = context.top[context.mate[x].usize()].usize()
+        blossom_add_child(context&, blossom, y)
+        blossom_enqueue_members(context&, y)
+        x <- context.top[context.parent[y].usize()].usize()
+    end: usize = context.member_count[blossom].usize()
+    cycle_left: mutable usize = 1
+    cycle_right: mutable usize = end - 1
+    while cycle_left < cycle_right:
+        temp: i32 = context.members[blossom][cycle_left]
+        context.members[blossom][cycle_left] <- context.members[blossom][cycle_right]
+        context.members[blossom][cycle_right] <- temp
+        cycle_left <- cycle_left + 1
+        cycle_right <- cycle_right - 1
+    x <- right
+    while x != base:
+        blossom_add_child(context&, blossom, x)
+        y: usize = context.top[context.mate[x].usize()].usize()
+        blossom_add_child(context&, blossom, y)
+        blossom_enqueue_members(context&, y)
+        x <- context.top[context.parent[y].usize()].usize()
+    blossom_set_top(context&, blossom, blossom)
+    for other in 1..=context.nodes:
+        context.weight[blossom][other] <- 0
+        context.weight[other][blossom] <- 0
+        context.edge_a[blossom][other] <- 0
+        context.edge_b[blossom][other] <- 0
+        context.edge_a[other][blossom] <- 0
+        context.edge_b[other][blossom] <- 0
+    for leaf in 0..=MAX_N:
+        context.child_of[blossom][leaf] <- 0
+    for i in 0..<context.member_count[blossom].usize():
+        child: usize = context.members[blossom][i].usize()
+        for other in 1..=context.nodes:
+            if context.weight[child][other] == 0: continue
+            if context.weight[blossom][other] == 0 or blossom_delta(context&, child, other) < blossom_delta(context&, blossom, other):
+                context.weight[blossom][other] <- context.weight[child][other]
+                context.edge_a[blossom][other] <- context.edge_a[child][other]
+                context.edge_b[blossom][other] <- context.edge_b[child][other]
+                context.weight[other][blossom] <- context.weight[other][child]
+                context.edge_a[other][blossom] <- context.edge_a[other][child]
+                context.edge_b[other][blossom] <- context.edge_b[other][child]
+        for leaf in 1..=context.n:
+            contains: bool = if child <= context.n: child == leaf else: context.child_of[child][leaf] != 0
+            if contains: context.child_of[blossom][leaf] <- child.i32()
+    blossom_refresh_slack(context&, blossom)
+
+def blossom_expand(context: mutable BlossomSearch&, blossom: usize) -> void:
+    for i in 0..<context.member_count[blossom].usize():
+        child: usize = context.members[blossom][i].usize()
+        blossom_set_top(context&, child, child)
+    outside: usize = context.parent[blossom].usize()
+    entry_leaf: usize = context.edge_a[blossom][outside].usize()
+    entry: usize = context.child_of[blossom][entry_leaf].usize()
+    position: usize = blossom_cycle_position(context&, blossom, entry)
+    i: mutable usize = 0
+    while i < position:
+        inner: usize = context.members[blossom][i].usize()
+        outer: usize = context.members[blossom][i + 1].usize()
+        context.parent[inner] <- context.edge_a[outer][inner]
+        context.state[inner] <- 1
+        context.state[outer] <- 0
+        context.slack_from[inner] <- 0
+        blossom_refresh_slack(context&, outer)
+        blossom_enqueue_members(context&, outer)
+        i <- i + 2
+    context.state[entry] <- 1
+    context.parent[entry] <- outside.i32()
+    for i in position + 1..<context.member_count[blossom].usize():
+        child: usize = context.members[blossom][i].usize()
+        context.state[child] <- -1
+        blossom_refresh_slack(context&, child)
+    context.top[blossom] <- 0
+
+def blossom_process_edge(context: mutable BlossomSearch&, left: usize, right: usize) -> bool:
+    u: usize = context.top[left].usize()
+    v: usize = context.top[right].usize()
+    if context.state[v] == -1:
+        context.parent[v] <- left.i32()
+        context.state[v] <- 1
+        next: usize = context.top[context.mate[v].usize()].usize()
+        context.slack_from[v] <- 0
+        context.slack_from[next] <- 0
+        context.state[next] <- 0
+        blossom_enqueue_members(context&, next)
+    elif context.state[v] == 0:
+        base: usize = blossom_common_base(context&, u, v)
+        if base == 0:
+            blossom_augment(context&, u, v)
+            blossom_augment(context&, v, u)
+            return true
+        blossom_contract(context&, u, base, v)
+    false
+
+def blossom_stage(context: mutable BlossomSearch&) -> bool:
+    for x in 0..=context.nodes:
+        context.state[x] <- -1
+        context.slack_from[x] <- 0
+    context.head <- 0
+    context.tail <- 0
+    context.count <- 0
+    for i in 0..=MAX_N: context.queued[i] <- false
+    for x in 1..=context.nodes:
+        if context.top[x] == x.i32() and context.mate[x] == 0:
+            context.parent[x] <- 0
+            context.state[x] <- 0
+            blossom_enqueue_members(context&, x)
+    if context.count == 0: return false
+    while true:
+        while context.count != 0:
+            u: usize = context.queue[context.head]
+            context.head <- (context.head + 1) % context.n
+            context.count <- context.count - 1
+            context.queued[u] <- false
+            if context.state[context.top[u].usize()] == 1: continue
+            for v in 1..=context.n:
+                if context.weight[u][v] == 0 or context.top[u] == context.top[v]: continue
+                if blossom_delta(context&, u, v) == 0:
+                    if blossom_process_edge(context&, context.edge_a[u][v].usize(), context.edge_b[u][v].usize()): return true
+                else:
+                    blossom_update_slack(context&, u, context.top[v].usize())
+        step: mutable i64 = INF
+        for u in 1..=context.n:
+            if context.state[context.top[u].usize()] == 0 and context.dual[u] < step: step <- context.dual[u]
+        for b in context.n + 1..=context.nodes:
+            if context.top[b] == b.i32() and context.state[b] == 1 and context.dual[b] / 2 < step: step <- context.dual[b] / 2
+        for x in 1..=context.nodes:
+            if context.top[x] != x.i32() or context.slack_from[x] == 0: continue
+            slack: i64 = blossom_delta(context&, context.slack_from[x].usize(), x)
+            if context.state[x] == -1 and slack < step: step <- slack
+            elif context.state[x] == 0 and slack / 2 < step: step <- slack / 2
+        if step == INF: return false
+        for u in 1..=context.n:
+            state: i32 = context.state[context.top[u].usize()]
+            if state == 0:
+                if context.dual[u] == step: return false
+                context.dual[u] <- context.dual[u] - step
+            elif state == 1:
+                context.dual[u] <- context.dual[u] + step
+        for b in context.n + 1..=context.nodes:
+            if context.top[b] != b.i32(): continue
+            if context.state[b] == 0: context.dual[b] <- context.dual[b] + 2 * step
+            elif context.state[b] == 1: context.dual[b] <- context.dual[b] - 2 * step
+        for x in 1..=context.nodes:
+            if context.top[x] != x.i32() or context.slack_from[x] == 0 or context.top[context.slack_from[x].usize()] == x.i32(): continue
+            if blossom_delta(context&, context.slack_from[x].usize(), x) == 0:
+                source: usize = context.slack_from[x].usize()
+                if blossom_process_edge(context&, context.edge_a[source][x].usize(), context.edge_b[source][x].usize()): return true
+        for b in context.n + 1..=context.nodes:
+            if context.top[b] == b.i32() and context.state[b] == 1 and context.dual[b] == 0: blossom_expand(context&, b)
+
+def blossom_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > 6051: return -2
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or m_value < 0 or m_value > n_value * (n_value - 1) / 2: return -2
+    n: usize = n_value.usize()
+    edges: usize = m_value.usize()
+    if length != 2 + 3 * edges: return -2
+    context: mutable BlossomSearch = zeroed
+    context.n <- n
+    context.nodes <- n
+    largest: mutable i64 = 0
+    for i in 0..<edges:
+        u_value: i64 = input[2 + 3 * i]
+        v_value: i64 = input[3 + 3 * i]
+        weight: i64 = input[4 + 3 * i]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value or weight < 1 or weight > 1000000: return -2
+        u: usize = u_value.usize() + 1
+        v: usize = v_value.usize() + 1
+        if context.weight[u][v] != 0: return -2
+        context.weight[u][v] <- weight
+        context.weight[v][u] <- weight
+        context.edge_a[u][v] <- u.i32()
+        context.edge_b[u][v] <- v.i32()
+        context.edge_a[v][u] <- v.i32()
+        context.edge_b[v][u] <- u.i32()
+        if weight > largest: largest <- weight
+    for u in 1..=n:
+        context.top[u] <- u.i32()
+        context.dual[u] <- largest
+        context.child_of[u][u] <- u.i32()
+    while blossom_stage(context&):
+        pass
+    answer: mutable i64 = 0
+    for u in 1..=n:
+        v: usize = context.mate[u].usize()
+        if v > u: answer <- answer + context.weight[u][v]
+    answer
+
+export fn general_weighted_matching_primal_dual_blossom(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 6051: return -2
+    frame: view[i64] = input[0:length]
+    blossom_impl(frame, length)

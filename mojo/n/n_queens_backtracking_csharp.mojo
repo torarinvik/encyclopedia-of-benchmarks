@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import MutAnyOrigin, UnsafePointer
 fn nqb_search(n:Int,col:Int,mut rows:InlineArray[Int64,8],mut out:InlineArray[Int64,737],mut count:Int):

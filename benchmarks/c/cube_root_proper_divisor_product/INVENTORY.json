@@ -1,0 +1,36 @@
+{
+  "algorithm": "cube_root_proper_divisor_product",
+  "function_symbol": "cube_root_proper_divisor_product",
+  "abi": "i64_array_scalar",
+  "workspace_bytes": 2400128,
+  "maximum_valid_input_length": 1,
+  "maximum_parseable_input_length": 2,
+  "maximum_k": 50000,
+  "maximum_result": 600000,
+  "prime_prefix_entries": 600001,
+  "prime_prefix_entry_bytes": 4,
+  "scalar_allowance_bytes": 124,
+  "languages": {
+    "c": "c/c/cube_root_proper_divisor_product.c",
+    "c3": "c3/c/cube_root_proper_divisor_product.c3",
+    "cpp": "cpp/c/cube_root_proper_divisor_product.cpp",
+    "elisa": "elisa/c/cube_root_proper_divisor_product.elisa",
+    "mojo": "mojo/c/cube_root_proper_divisor_product.mojo",
+    "nim": "nim/c/cube_root_proper_divisor_product.nim",
+    "odin": "odin/c/cube_root_proper_divisor_product.odin",
+    "rust": "rust/c/cube_root_proper_divisor_product.rs",
+    "v": "v/c/cube_root_proper_divisor_product.v",
+    "zig": "zig/c/cube_root_proper_divisor_product.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "suite_integration": "registered in run_i64_array_scalar.py and verify_i64_array_scalar.py"
+}

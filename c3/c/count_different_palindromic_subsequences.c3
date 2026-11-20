@@ -8,7 +8,7 @@ fn long normalize(long value) {
     return value < 0 ? value + MODULUS : value;
 }
 
-long count_different_palindromic_subsequences(long* input, usz length)
+fn long count_different_palindromic_subsequences(long* input, usz length)
         @export("count_different_palindromic_subsequences") {
     if (input == null || length < 1 || length > MAX_LENGTH + 2) return -1;
     long n_value = input[0];

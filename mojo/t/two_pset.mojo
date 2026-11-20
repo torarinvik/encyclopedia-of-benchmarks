@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 @export("two_pset")
@@ -5,7 +6,7 @@ fn two_pset(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<1 or n>1025:return -1
     let q=a[0]
     if q<0 or q>256 or n!=c_size_t(1+4*q):return -1
-    var add=InlineArray[Bool,128]();var rem=InlineArray[Bool,128]()
+    var add=InlineArray[Bool,128](fill=False);var rem=InlineArray[Bool,128](fill=False)
     var h:Int64=0;var p=1
     for _ in range(Int(q)):
         let op=a[p];let sid=a[p+1];let value=a[p+2];let other=a[p+3];p+=4

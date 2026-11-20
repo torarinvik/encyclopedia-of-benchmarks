@@ -23,9 +23,10 @@ def q_binomial_prime_mod_power(base_value:i64,exponent_value:i64,modulus:i64)->i
 
 def q_binomial_coefficient_prime_mod(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("q_binomial_coefficient_prime_mod"):
     if input.is_null() or length<3 or length>MAX_PARSEABLE_INPUT_LENGTH:return -1
-    count64:i64=input[0]
-    modulus:i64=input[1]
-    q_value:i64=input[2]
+    frame:view[i64]=input[0:length]
+    count64:i64=frame[0]
+    modulus:i64=frame[1]
+    q_value:i64=frame[2]
     if count64<1 or count64>16 or modulus<2 or modulus>31 or not q_binomial_prime_mod_is_prime(modulus) or q_value<0 or q_value>=modulus:return -1
     count:usize=count64.usize()
     if length!=3+2*count:return -1
@@ -33,23 +34,24 @@ def q_binomial_coefficient_prime_mod(input:i64&,length:usize,output:mutable u8&,
     max_n:mutable usize=0
     query:mutable usize=0
     while query<count:
-        n64:i64=input[3+2*query]
-        k64:i64=input[4+2*query]
+        n64:i64=frame[3+2*query]
+        k64:i64=frame[4+2*query]
         if n64<0 or n64>16 or k64<0 or k64>16 or n64>=modulus or k64>=modulus:return -1
         n:usize=n64.usize()
         if n>max_n:max_n<-n
         query<-query+1
     if output.is_null() or capacity<count:return -2
+    output_view:mutable view[u8]=output[0:count]
 
-    table:mutable InlineArray[i64,289]=zeroed
+    table:mutable i64[289]=zeroed
     table[0]<-1
     n:mutable usize=1
     while n<=max_n:
         table[n*17]<-1
         k:mutable usize=1
         while k<=n:
-            previous:i64=0
-            if k<n:previous=table[(n-1)*17+k]
+            previous:mutable i64=0
+            if k<n:previous<-table[(n-1)*17+k]
             weight:i64=q_binomial_prime_mod_power(q_value,(n-k).i64(),modulus)
             table[n*17+k]<-(previous+weight*table[(n-1)*17+k-1])%modulus
             k<-k+1
@@ -57,10 +59,10 @@ def q_binomial_coefficient_prime_mod(input:i64&,length:usize,output:mutable u8&,
 
     query<-0
     while query<count:
-        n=input[3+2*query].usize()
-        k=input[4+2*query].usize()
-        value:i64=0
-        if k<=n:value=table[n*17+k]
-        output[query]<-value.u8()
+        n<-frame[3+2*query].usize()
+        k:usize=frame[4+2*query].usize()
+        value:mutable i64=0
+        if k<=n:value<-table[n*17+k]
+        output_view[query]<-value.u8()
         query<-query+1
     count.i64()

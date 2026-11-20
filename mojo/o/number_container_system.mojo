@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn ncs_int(mut b:InlineArray[UInt8,128],mut pos:Int,x:Int64):

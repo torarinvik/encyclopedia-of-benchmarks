@@ -1,0 +1,149 @@
+const MAX_TEXT: usize = 16
+const MAX_PARENS: usize = 8
+const MAX_ROWS: usize = 256
+const MAX_OUTPUT: usize = 4354
+
+def minimum_parenthesis_removal_bfs_popcount(value: usize) -> usize:
+    remaining: mutable usize = value
+    count: mutable usize = 0
+    while remaining > 0:
+        count <- count + (remaining & 1)
+        remaining <- remaining >> 1
+    return count
+
+def minimum_parenthesis_removal_bfs_balanced(text: view[u8], text_length: usize) -> bool:
+    depth: mutable i64 = 0
+    index: mutable usize = 0
+    while index < text_length:
+        if text[index] == 40.u8(): depth <- depth + 1
+        if text[index] == 41.u8():
+            depth <- depth - 1
+            if depth < 0: return false
+        index <- index + 1
+    return depth == 0
+
+def minimum_parenthesis_removal_bfs_key_less(key: view[u8], key_length: usize,
+                                               rows: view[u8], row: usize, row_length: usize) -> bool:
+    common: mutable usize = key_length
+    if row_length < common: common <- row_length
+    index: mutable usize = 0
+    while index < common:
+        if key[index] != rows[row * MAX_TEXT + index]:
+            return key[index] < rows[row * MAX_TEXT + index]
+        index <- index + 1
+    return key_length < row_length
+
+export fn minimum_parenthesis_removal_bfs(input: i64&, length: usize,
+                                            output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_TEXT + 1: return -1
+    input_values: view[i64] = input[0:length]
+    n_arg: i64 = input_values[0]
+    if n_arg < 0 or n_arg > 16 or length != n_arg.usize() + 1: return -1
+    text_length: usize = n_arg.usize()
+    text: mutable u8[16]
+    positions: mutable usize[8]
+    paren_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < text_length:
+        value: i64 = input_values[index + 1]
+        if value == 40 or value == 41:
+            if paren_count == MAX_PARENS: return -1
+            positions[paren_count] <- index
+            paren_count <- paren_count + 1
+        else:
+            if value < 97 or value > 122: return -1
+        text[index] <- value.u8()
+        index <- index + 1
+
+    rows: mutable u8[4096]
+    row_lengths: mutable u8[256]
+    result_count: mutable usize = 0
+    state_count: usize = 1 << paren_count
+    deletions: mutable usize = 0
+    while deletions <= paren_count and result_count == 0:
+        mask: mutable usize = 0
+        while mask < state_count:
+            if minimum_parenthesis_removal_bfs_popcount(mask) == deletions:
+                candidate: mutable u8[16]
+                candidate_length: mutable usize = 0
+                ordinal: mutable usize = 0
+                position: mutable usize = 0
+                while position < text_length:
+                    at_paren: bool = ordinal < paren_count and positions[ordinal] == position
+                    remove: bool = at_paren and (mask & (1 << ordinal)) != 0
+                    if at_paren: ordinal <- ordinal + 1
+                    if not remove:
+                        candidate[candidate_length] <- text[position]
+                        candidate_length <- candidate_length + 1
+                    position <- position + 1
+                if minimum_parenthesis_removal_bfs_balanced(candidate[0:candidate_length], candidate_length):
+                    duplicate: mutable bool = false
+                    row: mutable usize = 0
+                    while row < result_count:
+                        same: mutable bool = row_lengths[row].usize() == candidate_length
+                        column: mutable usize = 0
+                        while same and column < candidate_length:
+                            if rows[row * MAX_TEXT + column] != candidate[column]: same <- false
+                            column <- column + 1
+                        if same: duplicate <- true
+                        row <- row + 1
+                    if not duplicate:
+                        column: mutable usize = 0
+                        while column < candidate_length:
+                            rows[result_count * MAX_TEXT + column] <- candidate[column]
+                            column <- column + 1
+                        row_lengths[result_count] <- candidate_length.u8()
+                        result_count <- result_count + 1
+            mask <- mask + 1
+        deletions <- deletions + 1
+    if result_count == 0:
+        row_lengths[0] <- 0.u8()
+        result_count <- 1
+
+    index <- 1
+    while index < result_count:
+        key: mutable u8[16]
+        key_length: usize = row_lengths[index].usize()
+        column: mutable usize = 0
+        while column < key_length:
+            key[column] <- rows[index * MAX_TEXT + column]
+            column <- column + 1
+        row: mutable usize = index
+        while row > 0 and minimum_parenthesis_removal_bfs_key_less(key[0:key_length], key_length,
+                rows[0:4096], row - 1, row_lengths[row - 1].usize()):
+            column <- 0
+            while column < row_lengths[row - 1].usize():
+                rows[row * MAX_TEXT + column] <- rows[(row - 1) * MAX_TEXT + column]
+                column <- column + 1
+            row_lengths[row] <- row_lengths[row - 1]
+            row <- row - 1
+        column <- 0
+        while column < key_length:
+            rows[row * MAX_TEXT + column] <- key[column]
+            column <- column + 1
+        row_lengths[row] <- key_length.u8()
+        index <- index + 1
+
+    needed: mutable usize = 2
+    index <- 0
+    while index < result_count:
+        needed <- needed + 1 + row_lengths[index].usize()
+        index <- index + 1
+    if needed > MAX_OUTPUT: return -1
+    if output.is_null() or capacity < needed: return -2
+    output_view: mutable view[u8] = output[0:needed]
+    output_view[0] <- result_count.u8()
+    output_view[1] <- (result_count >> 8).u8()
+    output_position: mutable usize = 2
+    index <- 0
+    while index < result_count:
+        row_length: usize = row_lengths[index].usize()
+        output_view[output_position] <- row_length.u8()
+        output_position <- output_position + 1
+        column: mutable usize = 0
+        while column < row_length:
+            output_view[output_position] <- rows[index * MAX_TEXT + column]
+            output_position <- output_position + 1
+            column <- column + 1
+        index <- index + 1
+    return output_position.i64()

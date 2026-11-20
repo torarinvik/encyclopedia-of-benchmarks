@@ -1,8 +1,9 @@
 /// Detect directed cycles with iterative three-color depth-first search.
-export fn check_cycle(input: [*]const i64, length: usize) i64 {
+export fn check_cycle(input_ptr: ?[*]const i64, length: usize) i64 {
     const max_vertices: usize = 32;
     const max_edges: usize = 256;
     const max_matrix: usize = max_vertices * max_vertices;
+    const input = input_ptr orelse return -1;
     if (length < 2 or input[0] < 0 or input[0] > 32 or input[1] < 0 or input[1] > 256) return -1;
     const vertices: usize = @intCast(input[0]);
     const edges: usize = @intCast(input[1]);

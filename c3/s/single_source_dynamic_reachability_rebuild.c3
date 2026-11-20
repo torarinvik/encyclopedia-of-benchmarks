@@ -28,7 +28,7 @@ fn void rebuild_reachable(usz n, usz source, bool[MAX_N][MAX_N]* adjacency, bool
     }
 }
 
-long single_source_dynamic_reachability_rebuild(long* input, usz length, char* output, usz capacity)
+fn long single_source_dynamic_reachability_rebuild(long* input, usz length, char* output, usz capacity)
         @export("single_source_dynamic_reachability_rebuild") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     long n_raw = input[0], source_raw = input[1], edge_count_raw = input[2];

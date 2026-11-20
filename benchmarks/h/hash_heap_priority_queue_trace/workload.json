@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "id": "nist-hash-heap-priority-queue-trace-i64-array-bytes-output-v1",
+  "algorithm": "hash_heap_priority_queue_trace",
+  "function_symbol": "hash_heap_priority_queue_trace",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[U,B,q,(opcode,operand)*q]",
+    "universe_range": [1, 128],
+    "bucket_count_range": [1, 8],
+    "operation_count_range": [0, 64],
+    "key_range": "0 <= key < U",
+    "hash_mapping": "floor(key*B/U)",
+    "maximum_valid_length": 131,
+    "maximum_parseable_length": 132,
+    "invalid_result": -1
+  },
+  "operations": {
+    "0": "insert operand as key; operand must be in [0,U)",
+    "1": "peek minimum; operand must be zero",
+    "2": "extract minimum; operand must be zero",
+    "empty_query": -1,
+    "successful_query_encoding": "(zero_based_insertion_operation_index << 8) | key",
+    "successful_insert_encoding": -2,
+    "stable_ties": "ascending key then earlier insertion operation index"
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[q,result_0,...,result_(q-1)]",
+    "maximum_bytes": 520,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "input_validation_precedes_capacity": true,
+    "errors_leave_output_untouched": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "accounting": "eight 64-entry key/id heap lanes, lane sizes, 520-byte output staging, and scalar locals"
+  },
+  "complexity": {
+    "primary_time": "O(q*(B+log(q+1)))",
+    "independent_reference_time": "O(q^2)",
+    "primary_state": "O(B*q+q)",
+    "independent_reference_state": "O(q)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "input_and_correctness_validation": "outside timed call"
+  },
+  "cases": [
+    {
+      "id": "zero-operations",
+      "input_values": [8, 4, 0],
+      "input_length": 3,
+      "output_capacity": 520,
+      "expected_result": 8,
+      "expected_output_words": [0],
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "ordered-buckets-and-stable-ties",
+      "input_values": [16, 4, 8, 0, 9, 0, 3, 0, 3, 0, 5, 1, 0, 2, 0, 2, 0, 2, 0],
+      "input_length": 19,
+      "output_capacity": 520,
+      "expected_result": 72,
+      "expected_output_words": [8, -2, -2, -2, -2, 259, 259, 515, 773],
+      "expected_output_hex": "0800000000000000fefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff0301000000000000030100000000000003020000000000000503000000000000"
+    },
+    {
+      "id": "empty-query-status",
+      "input_values": [8, 4, 4, 2, 0, 1, 0, 0, 2, 1, 0],
+      "input_length": 11,
+      "output_capacity": 520,
+      "expected_result": 40,
+      "expected_output_words": [4, -1, -1, -2, 514],
+      "expected_output_hex": "0400000000000000fffffffffffffffffffffffffffffffeffffffffffffff0202000000000000"
+    },
+    {
+      "id": "small-output-one-byte-short",
+      "input_values": [16, 4, 8, 0, 9, 0, 3, 0, 3, 0, 5, 1, 0, 2, 0, 2, 0, 2, 0],
+      "input_length": 19,
+      "output_capacity": 71,
+      "expected_result": -2,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty-valid-output-is-not-empty-bytes",
+      "input_values": [8, 4, 0],
+      "input_length": 3,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-trailing-word",
+      "input_values": [8, 4, 0, 99],
+      "input_length": 4,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-key-equals-universe",
+      "input_values": [8, 4, 1, 0, 8],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-query-unused-operand",
+      "input_values": [8, 4, 1, 1, 1],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-opcode",
+      "input_values": [8, 4, 1, 7, 0],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [8, 4, 1, 0, 2],
+      "input_length": 5,
+      "output_is_null": true,
+      "output_capacity": 520,
+      "expected_result": -2,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-frame-and-output",
+      "input_values": [128, 8, 64,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0],
+      "input_length": 131,
+      "output_capacity": 520,
+      "expected_result": 520,
+      "expected_output_words": [64,
+        -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+        -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+        -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+        -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+      "expected_output_hex": "4000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "maximum-output-one-byte-short",
+      "input_values": [128, 8, 64,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0],
+      "input_length": 131,
+      "output_capacity": 519,
+      "expected_result": -2,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [128, 8, 64,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0,
+        999],
+      "input_length": 132,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_words": [],
+      "expected_output_hex": ""
+    }
+  ]
+}

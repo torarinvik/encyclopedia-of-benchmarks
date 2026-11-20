@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -68,7 +69,7 @@ fn system_of_linear_equations_mod_2(
             system_of_linear_equations_mod_2_store(output, 0, UInt64.max)
             return 8
 
-    var is_pivot = InlineArray[Bool, MAX_M]()
+    var is_pivot = InlineArray[Bool, MAX_M](fill=False)
     for row in range(pivot_row):
         is_pivot[pivot_columns[row]] = True
     let nullity = m - pivot_row

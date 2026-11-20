@@ -70,4 +70,5 @@ operation contract; no upstream code or generated tests are reused. See
 | V | [`v/p/point_set_tree_path_composite_sum_fixed_root.v`](../../../v/p/point_set_tree_path_composite_sum_fixed_root.v) |
 | Zig | [`zig/p/point_set_tree_path_composite_sum_fixed_root.zig`](../../../zig/p/point_set_tree_path_composite_sum_fixed_root.zig) |
 
-Root owns shared suite registration and benchmark-corpus wiring.
+The package is registered in the shared `i64_array_bytes_output` runner and
+independent verifier.

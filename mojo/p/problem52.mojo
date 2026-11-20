@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p52_same_digits(a_in:Int64,b_in:Int64)->Bool:
     var a=a_in;var b=b_in;var ca=InlineArray[Int32,10](fill=0);var cb=InlineArray[Int32,10](fill=0)
     while a>0:ca[a%10]+=1;a//=10

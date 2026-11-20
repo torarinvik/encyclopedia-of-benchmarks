@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem63")
 fn problem63(max_base:Int64,max_power:Int64) abi("C")->Int64:
     let mb=10 if max_base>10 else Int(max_base);let mp=22 if max_power>22 else Int(max_power);var count=Int64(0)

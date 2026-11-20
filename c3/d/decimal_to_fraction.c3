@@ -17,8 +17,8 @@ fn long gcd_positive(long a, long b) {
 }
 
 fn long decimal_to_fraction(long* values, usz length, char* output, usz capacity) @export("decimal_to_fraction") {
-    long powers10[5] = {1, 10, 100, 1000, 10000};
-    long powers5[5] = {1, 5, 25, 125, 625};
+    long[5] powers10 = {1, 10, 100, 1000, 10000};
+    long[5] powers5 = {1, 5, 25, 125, 625};
     if (values == null || length != 2) return INVALID_RESULT;
     long mantissa = values[0];
     long places = values[1];

@@ -1,0 +1,44 @@
+def is_leap_year(year: i64) -> bool:
+    year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+def decode_offset(offset: i64) -> (i64, i64):
+    shifted: i64 = offset + 719468
+    era: i64 = shifted / 146097
+    day_of_era: i64 = shifted - era * 146097
+    year_of_era: i64 = (day_of_era - day_of_era / 1460 + day_of_era / 36524
+                        - day_of_era / 146096) / 365
+    year: mutable i64 = year_of_era + era * 400
+    day_of_year_march: i64 = day_of_era - (365 * year_of_era
+        + year_of_era / 4 - year_of_era / 100)
+    month_march: i64 = (5 * day_of_year_march + 2) / 153
+    day: i64 = day_of_year_march - (153 * month_march + 2) / 5 + 1
+    month: i64 = month_march + if month_march < 10 then 3 else -9
+    year <- year + if month <= 2 then 1 else 0
+    days_before_month: i64[12] = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+    leap_adjustment: i64 = if month > 2 and is_leap_year(year) then 1 else 0
+    ordinal: i64 = days_before_month[(month - 1).usize()] + leap_adjustment + day
+    (year, ordinal)
+
+def store_i64_le(output: mutable view[u8], offset: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def gregorian_daycount_to_ordinal_date_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 2 or length != 1: return -1
+    input_view: view[i64] = input[0:length]
+    offset: i64 = input_view[0]
+    if offset < -146097 or offset > 146097: return -1
+    if output.is_null() or capacity < 16: return -2
+    year, ordinal = decode_offset(offset)
+    output_view: mutable view[u8] = output[0:capacity]
+    store_i64_le(output_view, 0, year)
+    store_i64_le(output_view, 8, ordinal)
+    16
+
+export fn gregorian_daycount_to_ordinal_date(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = gregorian_daycount_to_ordinal_date_impl

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn ppa_is(text:InlineArray[Int64,12],a:Int,b:Int)->Bool:

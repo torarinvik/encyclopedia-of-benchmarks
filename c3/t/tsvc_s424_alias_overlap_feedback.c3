@@ -5,7 +5,7 @@ const usz MIN_N = 66;
 const usz MAX_N = 192;
 const usz X_LENGTH = 255;
 
-long tsvc_s424_alias_overlap_feedback(long* input, usz length)
+fn long tsvc_s424_alias_overlap_feedback(long* input, usz length)
         @export("tsvc_s424_alias_overlap_feedback") {
     if (input == null || length < 130 || length > 256) return -1;
     if (input[0] < (long)MIN_N || input[0] > (long)MAX_N) return -1;

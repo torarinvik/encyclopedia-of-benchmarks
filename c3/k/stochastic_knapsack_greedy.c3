@@ -17,7 +17,7 @@ fn long stochastic_knapsack_greedy(long* input, usz length, char* output, usz ca
     int n = (int)n_raw, bound = (int)bound_raw;
     long[MAX_ITEMS] rewards = zeroed, denominators = zeroed, fits = zeroed, means = zeroed;
     int[MAX_ITEMS] atom_counts = zeroed;
-    long[MAX_ITEMS][MAX_ATOMS] sizes = zeroed, weights = zeroed;
+    long[MAX_ATOMS][MAX_ITEMS] sizes = zeroed, weights = zeroed;
     usz position = 2;
     for (int item = 0; item < n; item += 1) {
         if (position + 2 > length) return -1;

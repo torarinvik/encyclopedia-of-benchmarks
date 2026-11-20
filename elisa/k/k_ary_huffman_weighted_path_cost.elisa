@@ -1,0 +1,58 @@
+const KARY_HUFFMAN_MAX_N: usize = 10
+const KARY_HUFFMAN_MAX_NODES: usize = 16
+
+def k_ary_huffman_solve(values: view[i64]) -> i64:
+    if values.length < 3 or values.length > 13: return -1
+    arity_value: i64 = values[0]
+    count_value: i64 = values[1]
+    if (arity_value != 3 and arity_value != 4) or count_value < 1 or count_value > KARY_HUFFMAN_MAX_N.i64(): return -1
+    arity: usize = arity_value.usize()
+    count: usize = count_value.usize()
+    if values.length != count + 2: return -1
+    if count > 1 and (count - 1) % (arity - 1) != 0: return -1
+
+    weights: mutable i64[KARY_HUFFMAN_MAX_NODES] = zeroed
+    active: mutable bool[KARY_HUFFMAN_MAX_NODES] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        weight: i64 = values[index + 2]
+        if weight < 0 or weight > 1000: return -1
+        weights[index] <- weight
+        active[index] <- true
+        index <- index + 1
+
+    node_count: mutable usize = count
+    active_count: mutable usize = count
+    cost: mutable i64 = 0
+    while active_count > 1:
+        combined: mutable i64 = 0
+        pick: mutable usize = 0
+        while pick < arity:
+            best: mutable i64 = -1
+            index <- 0
+            while index < node_count:
+                if active[index]:
+                    if best == -1:
+                        best <- index.i64()
+                    elif weights[index] < weights[best.usize()] or (weights[index] == weights[best.usize()] and index < best.usize()):
+                        best <- index.i64()
+                index <- index + 1
+            if best == -1: return -1
+            selected: usize = best.usize()
+            combined <- combined + weights[selected]
+            active[selected] <- false
+            active_count <- active_count - 1
+            pick <- pick + 1
+        cost <- cost + combined
+        weights[node_count] <- combined
+        active[node_count] <- true
+        node_count <- node_count + 1
+        active_count <- active_count + 1
+    cost
+
+@export("k_ary_huffman_weighted_path_cost")
+def k_ary_huffman_weighted_path_cost(input: i64&, length: usize) -> i64 =
+    if input.is_null() or length < 3 or length > 13: -1
+    else:
+        values: view[i64] = input[0:length]
+        k_ary_huffman_solve(values)

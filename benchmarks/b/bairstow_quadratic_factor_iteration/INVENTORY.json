@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "algorithm": "bairstow_quadratic_factor_iteration",
+  "function_symbol": "bairstow_quadratic_factor_iteration",
+  "abi": "i64_array_bytes_output",
+  "status": "integrated in the i64_array_bytes_output suite",
+  "input": {
+    "minimum_valid_length": 8,
+    "maximum_valid_length": 13,
+    "maximum_parseable_length": 14,
+    "degree_range": [3, 8],
+    "iteration_range": [1, 4],
+    "field": "F_998244353",
+    "canonical_residues": true,
+    "leading_coefficient_nonzero": true
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_word_bytes",
+    "encoding": "[K+1,s0,t0,...,sK,tK] over F_998244353",
+    "maximum_bytes": 88
+  },
+  "workspace": {"bytes": 512},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/b/bairstow_quadratic_factor_iteration.c",
+    "c3/b/bairstow_quadratic_factor_iteration.c3",
+    "cpp/b/bairstow_quadratic_factor_iteration.cpp",
+    "elisa/b/bairstow_quadratic_factor_iteration.elisa",
+    "mojo/b/bairstow_quadratic_factor_iteration.mojo",
+    "nim/b/bairstow_quadratic_factor_iteration.nim",
+    "odin/b/bairstow_quadratic_factor_iteration.odin",
+    "rust/b/bairstow_quadratic_factor_iteration.rs",
+    "v/b/bairstow_quadratic_factor_iteration.v",
+    "zig/b/bairstow_quadratic_factor_iteration.zig"
+  ],
+  "source": "https://dlmf.nist.gov/3.8.iv#E10",
+  "correction_source": "https://dlmf.nist.gov/3.8.iv#E11"
+}

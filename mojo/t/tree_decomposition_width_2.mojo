@@ -21,7 +21,7 @@ fn tree_decomposition_width_2(
     let m = Int(m_arg)
     if m > n * (n - 1) // 2 or length != c_size_t(2 + 2 * m): return -1
 
-    var adjacent = InlineArray[Bool, 1024]()
+    var adjacent = InlineArray[Bool, 1024](fill=False)
     for edge in range(m):
         let left_arg = input[2 + 2 * edge]
         let right_arg = input[3 + 2 * edge]

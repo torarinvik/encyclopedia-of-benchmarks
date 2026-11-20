@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn ncr_inverse(a:Int64,m:Int64)->Int64:

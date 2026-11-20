@@ -24,4 +24,7 @@ python3 benchmarks/build_abi.py --family scalar --algorithm index_of_right_most_
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/i/index_of_right_most_set_bit/rust/build.json
 ```
 
-The nine implementations are in `c/i/index_of_right_most_set_bit.c`, `c3/i/index_of_right_most_set_bit.c3`, `cpp/i/index_of_right_most_set_bit.cpp`, `elisa/i/index_of_right_most_set_bit.elisa`, `nim/i/index_of_right_most_set_bit.nim`, `odin/i/index_of_right_most_set_bit.odin`, `rust/i/index_of_right_most_set_bit.rs`, `v/i/index_of_right_most_set_bit.v`, and `zig/i/index_of_right_most_set_bit.zig`.
+The ten implementations are in `c/i/index_of_right_most_set_bit.c`, `c3/i/index_of_right_most_set_bit.c3`, `cpp/i/index_of_right_most_set_bit.cpp`, `elisa/i/index_of_right_most_set_bit.elisa`, `mojo/i/index_of_right_most_set_bit.mojo`, `nim/i/index_of_right_most_set_bit.nim`, `odin/i/index_of_right_most_set_bit.odin`, `rust/i/index_of_right_most_set_bit.rs`, `v/i/index_of_right_most_set_bit.v`, and `zig/i/index_of_right_most_set_bit.zig`.
+
+Scalar verifier registration and an isolated-bit reference are drafted and
+have not been executed.

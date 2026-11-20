@@ -29,6 +29,12 @@ are separate.
 
 The official task permits `N,Q <= 200000`; this bounded profile retains the
 HLD and bidirectional segment-tree query structure at smaller limits.
+The Elisa draft stores a dense adjacency matrix and scans potential neighbors
+when building the decomposition. Its preprocessing takes `O(N² + N log N)`
+time and its updates and path queries take `O(log N)` and `O(log² N)` time,
+respectively. Its auxiliary storage is `O(N² + Q)`. The singleton workload
+case exercises a root with no heavy child. The draft remains uncompiled and
+unexecuted.
 
 ## Distinctness
 

@@ -21,9 +21,9 @@ fn long solve_order(usz* outer,usz outer_n,usz* order,usz k,Point* points){
     long best=add_cost(po[k],dist_scaled(points[outer[outer_n-1]],points[outer[0]]));if(k>0){long close=add_cost(pi[k],dist_scaled(points[order[k-1]],points[outer[0]]));if(close<best)best=close;}return best;
 }
 fn bool next_perm(usz[6]* a,usz n){if(n<2)return false;isz i=(isz)n-2;while(i>=0&&a[(usz)i]>=a[(usz)i+1])i--;if(i<0)return false;usz j=n-1;while(a[j]<=a[(usz)i])j--;usz t=a[(usz)i];a[(usz)i]=a[j];a[j]=t;usz l=(usz)i+1,r=n-1;while(l<r){t=a[l];a[l]=a[r];a[r]=t;l++;r--;}return true;}
-fn void put_i64(uint8* out,long x){ulong b=(ulong)x;for(usz i=0;i<8;i++)out[i]=(uint8)(b>>(8*i));}
+fn void put_i64(char* out,long x){ulong b=(ulong)x;for(usz i=0;i<8;i++)out[i]=(char)(b>>(8*i));}
 
-fn long tsp_few_inner_points(long* input,usz length,uint8* output,usz capacity) @export("tsp_few_inner_points") {
+fn long tsp_few_inner_points(long* input,usz length,char* output,usz capacity) @export("tsp_few_inner_points") {
     if(input==null||length<2||length>51)return -1;long n0=input[0],k0=input[1];if(n0<3||n0>16||k0<0||k0>6||k0>n0-3||length!=(usz)(2+3*n0))return -1;
     usz n=(usz)n0,k=(usz)k0,on=n-k;usz[16] outer;usz[6] inner;bool[16] seen;
     for(usz i=0;i<on;i++){long id=input[2+i];if(id<0||id>=n0||seen[(usz)id])return -1;outer[i]=(usz)id;seen[(usz)id]=true;}

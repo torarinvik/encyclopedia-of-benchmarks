@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 from std.memory import MutAnyOrigin, UnsafePointer
 fn pn_isprime(x:Int)->Bool:
     if x<2:return False

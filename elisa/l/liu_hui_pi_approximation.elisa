@@ -1,0 +1,25 @@
+extern sqrt(value: f64) -> f64
+
+def liu_hui_pi_approximation_impl(doublings: i64) -> i64:
+    if doublings < 0 or doublings > 16:
+        return -1
+
+    sides: mutable i64 = 6
+    side: mutable f64 = 1.0
+    apothem: mutable f64 = sqrt(0.75)
+    index: mutable i64 = 0
+    while index < doublings:
+        half_side: f64 = side / 2.0
+        height: f64 = 1.0 - apothem
+        side <- sqrt(half_side * half_side + height * height)
+        sides <- sides * 2
+        next_half_side: f64 = side / 2.0
+        apothem <- sqrt(1.0 - next_half_side * next_half_side)
+        index <- index + 1
+
+    area: f64 = sides.f64() * side * apothem / 2.0
+    (area * 1000000.0 + 0.5).i64()
+
+export fn liu_hui_pi_approximation(input: i64&, length: usize) -> i64:
+    if input == null or length != 1: return -1
+    liu_hui_pi_approximation_impl(input[0])

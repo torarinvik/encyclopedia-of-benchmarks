@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "algorithm": "aitken_delta_squared_sequence_transform",
+  "abi": "i64_array_bytes_output",
+  "native_paths": [
+    "c/a/aitken_delta_squared_sequence_transform.c",
+    "c3/a/aitken_delta_squared_sequence_transform.c3",
+    "cpp/a/aitken_delta_squared_sequence_transform.cpp",
+    "elisa/a/aitken_delta_squared_sequence_transform.elisa",
+    "mojo/a/aitken_delta_squared_sequence_transform.mojo",
+    "nim/a/aitken_delta_squared_sequence_transform.nim",
+    "odin/a/aitken_delta_squared_sequence_transform.odin",
+    "rust/a/aitken_delta_squared_sequence_transform.rs",
+    "v/a/aitken_delta_squared_sequence_transform.v",
+    "zig/a/aitken_delta_squared_sequence_transform.zig"
+  ],
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ],
+  "bounds": {
+    "minimum_terms": 2,
+    "maximum_terms": 64,
+    "sequence_value_min": -1000000,
+    "sequence_value_max": 1000000,
+    "maximum_valid_input_words": 65,
+    "maximum_parseable_input_words": 66,
+    "maximum_output_bytes": 992,
+    "maximum_absolute_numerator_before_reduction": 2000000000000,
+    "maximum_absolute_second_difference": 4000000,
+    "workspace_bytes": 0
+  }
+}

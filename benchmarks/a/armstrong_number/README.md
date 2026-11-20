@@ -40,7 +40,14 @@ See [`workload.json`](workload.json). The shared [`scalar runner`](../../harness
 
 The Python `armstrong_numbers.py` file defines an `armstrong_number` predicate using the same digit-power sum. Its source rejects zero; this shared contract treats zero as Armstrong, so the filename is cataloged as an alias with that boundary normalized.
 
+The Java `Armstrong` predicate is also cataloged as an alias: it uses the same
+digit-power calculation on signed 32-bit inputs. The shared benchmark accepts
+the wider signed-64-bit domain. Representative Java-range workload cases were
+retained when the duplicate narrower package was removed.
+
 ## TheAlgorithms references
+
+- [Java `Armstrong.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/Armstrong.java)
 
 - [C `math/armstrong_number.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/math/armstrong_number.c)
 - [C++ `math/armstrong_number.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/armstrong_number.cpp)

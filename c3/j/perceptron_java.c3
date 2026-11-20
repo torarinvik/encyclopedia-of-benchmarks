@@ -7,7 +7,7 @@ const usz MAX_INPUT_LENGTH = 61;
 const usz MAX_PARSEABLE_INPUT_LENGTH = 62;
 const usz MAX_OUTPUT_LENGTH = 13;
 
-bool finite_value(double value) {
+fn bool finite_value(double value) {
     return value == value && value - value == 0.0;
 }
 

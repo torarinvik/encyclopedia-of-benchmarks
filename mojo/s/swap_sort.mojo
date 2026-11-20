@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn swap_order_less(keys:UnsafePointer[Int64,ImmutAnyOrigin],order:UnsafePointer[Int,MutAnyOrigin],a:Int,b:Int)->Bool:

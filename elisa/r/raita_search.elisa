@@ -1,0 +1,47 @@
+# Raita's fixed probe order and Horspool shift table, using bounded views internally.
+def raita_compute(values: view[i64], positions: mutable view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > 322 or values[0] < 0.i64() or values[0] > 255.i64() or values[1] < 1.i64() or values[1] > 64.i64():
+        return -1.i64()
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if length != 2 + n + m: return -1.i64()
+    for i in 0..<(n + m):
+        if values[2 + i] < 0.i64() or values[2 + i] > 127.i64(): return -1.i64()
+    match_count: mutable usize = 0
+    if m <= n:
+        shifts: mutable usize[128] = zeroed
+        for byte in 0..<128: shifts[byte] <- m
+        for i in 0..<(m - 1): shifts[values[2 + n + i].usize()] <- m - i - 1
+        middle: usize = m / 2
+        alignment: mutable usize = 0
+        while alignment <= n - m:
+            last: usize = values[2 + alignment + m - 1].usize()
+            matches: mutable bool = values[2 + n + m - 1] == last.i64()
+            if matches: matches <- values[2 + n] == values[2 + alignment]
+            if matches: matches <- values[2 + n + middle] == values[2 + alignment + middle]
+            if matches:
+                index: mutable usize = 1
+                while index + 1 < m and matches:
+                    if values[2 + n + index] != values[2 + alignment + index]: matches <- false
+                    index <- index + 1
+                if matches:
+                    positions[match_count] <- alignment.i64()
+                    match_count <- match_count + 1
+            alignment <- alignment + shifts[last]
+    match_count.i64()
+
+export fn raita_search(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 322: return -1.i64()
+    positions: mutable i64[255] = zeroed
+    match_count: i64 = raita_compute(input[0:length], positions[0:255])
+    if match_count < 0.i64(): return -1.i64()
+    output_bytes: usize = match_count.usize() * 8
+    if output.is_null() or output_capacity < output_bytes: return -2.i64()
+    bytes: mutable view[u8] = output[0:output_bytes]
+    for i in 0..<match_count.usize():
+        bits: mutable u64 = positions[i].u64()
+        for byte in 0..<8:
+            bytes[i * 8 + byte] <- (bits % 256.u64()).u8()
+            bits <- bits / 256.u64()
+    output_bytes.i64()

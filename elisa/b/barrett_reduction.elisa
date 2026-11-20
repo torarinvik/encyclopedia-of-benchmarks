@@ -1,0 +1,34 @@
+const BR_MAX_MODULUS: i64 = 65535
+const BR_MAX_VALUES: usize = 12
+const BR_MAX_LENGTH: usize = 15
+const BR_RADIX: i64 = 4294967296
+
+def barrett_reduction_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > BR_MAX_LENGTH: return -1
+    if input[0] < 2 or input[0] > BR_MAX_MODULUS: return -1
+    if input[1] < 0 or input[1] > BR_MAX_VALUES.i64(): return -1
+    modulus: i64 = input[0]
+    count: usize = input[1].usize()
+    if length != 2+count: return -1
+    square_bound: i64 = modulus*modulus
+    i: mutable usize = 0
+    while i < count:
+        if input[2+i] < 0 or input[2+i] >= square_bound: return -1
+        i <- i+1
+
+    reciprocal: i64 = BR_RADIX/modulus
+    checksum: mutable i64 = 0
+    i <- 0
+    while i < count:
+        value: i64 = input[2+i]
+        quotient: i64 = (value*reciprocal)/BR_RADIX
+        remainder: mutable i64 = value-quotient*modulus
+        if remainder >= modulus: remainder <- remainder-modulus
+        checksum <- checksum+(i.i64()+1)*(remainder+1)
+        i <- i+1
+    checksum
+
+export fn barrett_reduction(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > BR_MAX_LENGTH: return -1
+    barrett_reduction_impl(input[0:length])

@@ -7,8 +7,8 @@ fn long tree_path_value(long* packed, usz length) @export("tree_path_value") {
     usz count = length - 1;
     if (count == 0) return 0;
 
-    long values[120];
-    int left[120], right[120];
+    long[120] values;
+    int[120] left; int[120] right;
     for (usz i = 0; i < count; i++) {
         values[i] = packed[i + 1];
         left[i] = -1; right[i] = -1;
@@ -31,8 +31,8 @@ fn long tree_path_value(long* packed, usz length) @export("tree_path_value") {
     int pivot = 0;
     long maximum = values[0];
     while (left[pivot] >= 0) {
-        int stack_node[16], stack_steps[16];
-        long stack_sum[16];
+        int[16] stack_node; int[16] stack_steps;
+        long[16] stack_sum;
         usz top = 0;
         stack_node[top] = pivot; stack_steps[top] = (int)depth;
         stack_sum[top] = maximum; top++;

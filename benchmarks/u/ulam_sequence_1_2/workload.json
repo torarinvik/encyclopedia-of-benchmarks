@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "ulam-sequence-1-2-i64-array-scalar-v1",
+  "algorithm": "ulam_sequence_1_2",
+  "function_symbol": "ulam_sequence_1_2",
+  "abi": "i64_array_scalar",
+  "description": "Return the one-based kth term of the classical U(1,2) Ulam sequence.",
+  "source": {
+    "definition_url": "https://mathworld.wolfram.com/UlamSequence.html",
+    "sequence_url": "https://oeis.org/A002858",
+    "discovery_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_title": "Ulam numbers",
+    "implementation_status": "bounded clean-room U(1,2) sequence profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[k]",
+    "n_range": [1, 14],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "one-based term U_k of U(1,2)",
+    "valid_result_range": [1, 38],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "recurrence": "U_1=1, U_2=2; for k>2, U_k is the least integer greater than U_(k-1) with exactly one representation as a sum of two distinct earlier terms U_i+U_j where i<j.",
+    "algorithm": "The primary stores representation counts for prior-term pair sums, saturated at two. It scans candidates in increasing order and accepts the first count equal to one, then adds the new term's sums with every existing term.",
+    "independent_method": "The independent reference rescans all distinct prior-term pairs from scratch for every candidate and counts representations until zero, one, or at least two are known.",
+    "candidate_scan_bound": 64,
+    "maximum_pair_sum": 74,
+    "termination_and_bounds": "Only the published U(1,2) prefix through k=14 is in scope. Every valid step in this prefix is found at or below candidate 64; the next term is never requested. A scan that exhausts 64 returns -1.",
+    "invalid_cases": "Null input, empty/non-exact framing, a trailing word, k outside 1..14, or a candidate scan that reaches the explicit cap without a unique candidate returns -1.",
+    "distinction": "Unlike Mian-Chowla's Sidon recurrence, Ulam terms need not make all pair sums globally distinct. Ulam counts representations using distinct earlier terms only and accepts a candidate exactly when its representation count is one."
+  },
+  "complexity": {
+    "primary_time": "At most 12 appended terms scan candidates from the predecessor through 64 and update at most 13 existing-term pair counts per append: O(12*64 + 12^2) bounded operations.",
+    "primary_space": "14 signed 64-bit terms and 75 signed 64-bit saturated representation counts, 712 bytes, plus scalar locals; workspace cap 1024 bytes.",
+    "independent_time": "At most 12 append steps, at most 64 candidates per step, and at most 13*12/2 prior pairs per candidate: fewer than 60,000 pair checks.",
+    "independent_space": "At most 14 signed 64-bit terms plus scalar locals; workspace cap 1024 bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "workspace": {"bytes": 1024},
+  "cases": [
+    {"id":"first-term","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"second-term","input_values":[2],"input_length":1,"expected_result":2},
+    {"id":"third-term","input_values":[3],"input_length":1,"expected_result":3},
+    {"id":"fourth-term","input_values":[4],"input_length":1,"expected_result":4},
+    {"id":"candidate-five-has-two-representations","input_values":[5],"input_length":1,"expected_result":6},
+    {"id":"candidate-seven-has-two-representations","input_values":[6],"input_length":1,"expected_result":8},
+    {"id":"tenth-term","input_values":[10],"input_length":1,"expected_result":18},
+    {"id":"maximum-term","input_values":[14],"input_length":1,"expected_result":38},
+    {"id":"zero-invalid","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"above-maximum-invalid","input_values":[15],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[5,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

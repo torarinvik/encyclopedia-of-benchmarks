@@ -12,7 +12,7 @@ fn void write_i32_le(char* output, usz index, int value) {
     }
 }
 
-long linkedlist_implentation_usingarray(long* input, usz length, char* output, usz output_capacity) @export("linkedlist_implentation_usingarray") {
+fn long linkedlist_implentation_usingarray(long* input, usz length, char* output, usz output_capacity) @export("linkedlist_implentation_usingarray") {
     if (input == null || length < 1 || length > MAX_INPUT_LENGTH) return -1;
     long operation_count = input[0];
     if (operation_count < 0 || operation_count > 100 || length != 1 + 2 * (usz)operation_count) return -1;

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "algorithm": "bagwell_varray_growth_index",
+  "abi": "i64_array_bytes_output",
+  "workload": "benchmarks/b/bagwell_varray_growth_index/workload.json",
+  "primary_reference": "benchmarks/b/bagwell_varray_growth_index/primary_oracle.py",
+  "independent_reference": "benchmarks/b/bagwell_varray_growth_index/independent_oracle.py",
+  "workload_reconciliation": "benchmarks/b/bagwell_varray_growth_index/verify_workload.py",
+  "static_inventory": "benchmarks/b/bagwell_varray_growth_index/check_inventory.py",
+  "languages": {
+    "c": "c/b/bagwell_varray_growth_index.c",
+    "cpp": "cpp/b/bagwell_varray_growth_index.cpp",
+    "rust": "rust/b/bagwell_varray_growth_index.rs",
+    "elisa": "elisa/b/bagwell_varray_growth_index.elisa",
+    "c3": "c3/b/bagwell_varray_growth_index.c3",
+    "nim": "nim/b/bagwell_varray_growth_index.nim",
+    "odin": "odin/b/bagwell_varray_growth_index.odin",
+    "v": "v/b/bagwell_varray_growth_index.v",
+    "zig": "zig/b/bagwell_varray_growth_index.zig",
+    "mojo": "mojo/b/bagwell_varray_growth_index.mojo"
+  },
+  "input": {
+    "layout": "[n,q,values...,indices...]",
+    "maximum_n": 321,
+    "maximum_q": 256,
+    "maximum_valid_words": 579,
+    "maximum_parseable_words": 580,
+    "exact_frame": true
+  },
+  "output": {
+    "encoding": "little-endian signed i64 vector [q, queried values...]",
+    "maximum_bytes": 2056
+  },
+  "growth_headers": {
+    "count": 3,
+    "previous_level_link_slots": 3,
+    "root_previous_level": -1,
+    "previous_level_links": "Headers 1 and 2, created at indices 64 and 320, link to the completed preceding level; indexed reads follow links from the current header until the selected level contains the index."
+  },
+  "workspace_accounting": "352 i64 data slots (2816 bytes), 56 i64 pointer/base entries (448 bytes), and 3 i64 header-prev slots (root sentinel plus two predecessor links; 24 bytes), totaling 3288 fixed-table bytes within the 4096-byte cap.",
+  "workspace_bytes": 4096
+}

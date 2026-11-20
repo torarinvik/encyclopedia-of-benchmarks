@@ -1,0 +1,145 @@
+const SV_MAX_NODES: usize = 256
+const SV_MAX_QUERIES: usize = 1024
+const SV_MAX_ARCS: usize = 510
+const SV_MAX_INPUT: usize = 4 + 2 * (SV_MAX_NODES - 1) + 2 * SV_MAX_QUERIES
+
+def sv_lowbit(value: usize) -> usize:
+    if value == 0: return 0
+    value & ((~value) + 1)
+
+def sv_highbit(value: usize) -> usize:
+    bit: mutable usize = 0
+    rest: mutable usize = value
+    while rest != 0 |rest, bit|:
+        bit <- rest
+        rest <- rest >> 1
+    bit
+
+def schieber_vishkin_lca_impl(input: view[i64], length: usize,
+    output: mutable view[u8], output_capacity: usize, output_is_null: bool) -> i64:
+    if length < 4 or length > SV_MAX_INPUT + 1 or input[0] < 1 or input[0] > i64(SV_MAX_NODES): return -1
+    n: usize = input[0].usize()
+    if input[1] < 0 or input[1] >= i64(n) or input[2] != i64(n - 1) or
+        input[3] < 0 or input[3] > i64(SV_MAX_QUERIES): return -1
+    m: usize = input[2].usize()
+    q: usize = input[3].usize()
+    query_offset: usize = 4 + 2 * m
+    if length != query_offset + 2 * q: return -1
+    root: usize = input[1].usize()
+
+    head: mutable i64[SV_MAX_NODES] = zeroed
+    arc_to: mutable usize[SV_MAX_ARCS] = zeroed
+    arc_next: mutable i64[SV_MAX_ARCS] = zeroed
+    parent: mutable i64[SV_MAX_NODES] = zeroed
+    order: mutable usize[SV_MAX_NODES] = zeroed
+    stack_node: mutable usize[SV_MAX_NODES] = zeroed
+    stack_arc: mutable i64[SV_MAX_NODES] = zeroed
+    preorder: mutable usize[SV_MAX_NODES] = zeroed
+    inlabel: mutable usize[SV_MAX_NODES] = zeroed
+    ascendant: mutable usize[SV_MAX_NODES] = zeroed
+    path_parent: mutable i64[SV_MAX_NODES] = zeroed
+    answers: mutable u8[SV_MAX_QUERIES] = zeroed
+    for node in 0..<n |head, parent|:
+        head[node] <- -1
+        parent[node] <- -2
+    arcs: mutable usize = 0
+    for edge in 0..<m |input, head, arc_to, arc_next, arcs|:
+        a_value: i64 = input[4 + 2 * edge]
+        b_value: i64 = input[5 + 2 * edge]
+        if a_value < 0 or a_value >= i64(n) or b_value < 0 or b_value >= i64(n) or a_value == b_value: return -1
+        a: usize = a_value.usize()
+        b: usize = b_value.usize()
+        arc_to[arcs] <- b
+        arc_next[arcs] <- head[a]
+        head[a] <- arcs.i64()
+        arcs <- arcs + 1
+        arc_to[arcs] <- a
+        arc_next[arcs] <- head[b]
+        head[b] <- arcs.i64()
+        arcs <- arcs + 1
+    for query in 0..<q |input, query_offset|:
+        for side in 0..<2 |input, query_offset, query|:
+            node: i64 = input[query_offset + 2 * query + side]
+            if node < 0 or node >= i64(n): return -1
+
+    reached: mutable usize = 1
+    top: mutable usize = 1
+    parent[root] <- -1
+    preorder[root] <- 1
+    order[0] <- root
+    stack_node[0] <- root
+    stack_arc[0] <- head[root]
+    while top > 0 |top, head, arc_to, arc_next, parent, order, stack_node, stack_arc, preorder, reached|:
+        slot: usize = top - 1
+        node: usize = stack_node[slot]
+        arc: i64 = stack_arc[slot]
+        if arc < 0:
+            top <- top - 1
+            continue
+        stack_arc[slot] <- arc_next[arc.usize()]
+        neighbor: usize = arc_to[arc.usize()]
+        if neighbor.i64() == parent[node]: continue
+        if parent[neighbor] != -2: return -1
+        parent[neighbor] <- node.i64()
+        preorder[neighbor] <- reached + 1
+        order[reached] <- neighbor
+        reached <- reached + 1
+        stack_node[top] <- neighbor
+        stack_arc[top] <- head[neighbor]
+        top <- top + 1
+    if reached != n: return -1
+    if output_capacity < q or (q > 0 and output_is_null): return -2
+
+    for node in 0..<n |inlabel, preorder|: inlabel[node] <- preorder[node]
+    i: mutable usize = n
+    while i > 1 |i, order, parent, inlabel|:
+        i <- i - 1
+        node: usize = order[i - 1]
+        p: usize = parent[node].usize()
+        if sv_lowbit(inlabel[p]) < sv_lowbit(inlabel[node]): inlabel[p] <- inlabel[node]
+    for pos in 0..<n |order, parent, preorder, inlabel, ascendant, path_parent|:
+        node: usize = order[pos]
+        if parent[node] < 0:
+            ascendant[node] <- sv_lowbit(inlabel[node])
+            path_parent[preorder[node] - 1] <- node.i64()
+        else:
+            p: usize = parent[node].usize()
+            ascendant[node] <- ascendant[p] | sv_lowbit(inlabel[node])
+            if inlabel[node] != inlabel[p]: path_parent[preorder[node] - 1] <- p.i64()
+            else: path_parent[preorder[node] - 1] <- path_parent[preorder[p] - 1]
+
+    for query in 0..<q |input, query_offset, inlabel, ascendant, preorder, path_parent, answers|:
+        u: usize = input[query_offset + 2 * query].usize()
+        v: usize = input[query_offset + 2 * query + 1].usize()
+        lu: usize = sv_lowbit(inlabel[u])
+        lv: usize = sv_lowbit(inlabel[v])
+        mask: mutable usize = sv_highbit((inlabel[u] ^ inlabel[v]) | lu | lv) - 1
+        j: usize = sv_lowbit(ascendant[u] & ascendant[v] & (~mask))
+        if j == 0: return -1
+        x: mutable usize = u
+        y: mutable usize = v
+        if j != lu:
+            mask <- sv_highbit(ascendant[u] & (j - 1)) - 1
+            index: usize = ((preorder[u] & (~mask)) | (mask + 1)) - 1
+            x <- path_parent[index].usize()
+        if j != lv:
+            mask <- sv_highbit(ascendant[v] & (j - 1)) - 1
+            index: usize = ((preorder[v] & (~mask)) | (mask + 1)) - 1
+            y <- path_parent[index].usize()
+        answer: usize = x
+        if preorder[y] < preorder[x]: answer <- y
+        answers[query] <- answer.u8()
+    for query in 0..<q |output, answers|: output[query] <- answers[query]
+    q.i64()
+
+export fn schieber_vishkin_lca(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length > SV_MAX_INPUT + 1: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch_output: mutable u8[1] = zeroed
+        return schieber_vishkin_lca_impl(input_view, length, scratch_output[0:0], output_capacity, true)
+    bounded_capacity: mutable usize = output_capacity
+    if bounded_capacity > SV_MAX_QUERIES: bounded_capacity <- SV_MAX_QUERIES
+    output_view: mutable view[u8] = output[0:bounded_capacity]
+    schieber_vishkin_lca_impl(input_view, length, output_view, output_capacity, false)

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "dynamic-tree-maximum-weight-independent-set-i64-array-bytes-output-v1",
+  "algorithm": "dynamic_tree_maximum_weight_independent_set",
+  "function_symbol": "dynamic_tree_maximum_weight_independent_set",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "layout": "[N,Q,weights[N],edges[2*(N-1)],updates[2*Q]]",
+    "vertex_count_range": [1, 64],
+    "update_count_range": [0, 64],
+    "weight_range": [0, 1000000],
+    "maximum_valid_length": 320,
+    "maximum_parseable_length": 320
+  },
+  "output": {
+    "encoding": "one signed little-endian i64 maximum independent-set weight after each update",
+    "maximum_bytes": 512,
+    "invalid_result": -1,
+    "output_error": -2
+  },
+  "workspace": {"bytes": 32768},
+  "source": {
+    "url": "https://en.oi-wiki.org/dp/dynamic/",
+    "license": "CC BY-SA 4.0 and SATA",
+    "reuse": "Algorithm description only; all ports, contract, workload, and references are independently authored."
+  },
+  "oracle": "benchmarks/dynamic_tree_maximum_weight_independent_set_oracle.py",
+  "independent_oracle": "benchmarks/d/dynamic_tree_maximum_weight_independent_set/independent_oracle.py",
+  "cases": [
+    {"id":"single_vertex_updates", "input_values":[1,2,5,0,0,0,9], "input_length":7, "expected_result":16, "expected_output_hex":"00000000000000000900000000000000"},
+    {"id":"two_vertex_path", "input_values":[2,1,4,7,0,1,0,8], "input_length":8, "expected_result":8, "expected_output_hex":"0800000000000000"},
+    {"id":"star_light_child_changes", "input_values":[4,2,20,4,5,6,0,1,0,2,0,3,1,10,2,0], "input_length":16, "expected_result":16, "expected_output_hex":"15000000000000001400000000000000"},
+    {"id":"chain_updates_propagate", "input_values":[5,3,1,10,1,10,1,0,1,1,2,2,3,3,4,2,20,1,0,4,100], "input_length":21, "expected_result":24, "expected_output_hex":"160000000000000016000000000000007900000000000000"},
+    {"id":"zero_update_count", "input_values":[1,0,0], "input_length":3, "expected_result":0, "expected_output_hex":""},
+    {"id":"cycle_and_disconnected_vertex", "input_values":[4,0,0,0,0,0,0,1,1,2,2,0], "input_length":12, "expected_result":-1, "expected_output_hex":""},
+    {"id":"negative_initial_weight", "input_values":[2,0,-1,0,0,1], "input_length":6, "expected_result":-1, "expected_output_hex":""},
+    {"id":"update_vertex_out_of_range", "input_values":[2,1,3,4,0,1,2,5], "input_length":8, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short_frame", "input_values":[1,0], "input_length":2, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null_output", "input_values":[1,1,4,0,3], "input_length":5, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"short_output_capacity", "input_values":[1,2,4,0,3,0,8], "input_length":7, "output_capacity":8, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

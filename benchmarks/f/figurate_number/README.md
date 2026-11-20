@@ -22,6 +22,7 @@ The pinned [TheAlgorithms JavaScript `FigurateNumber.js`](https://github.com/The
 | C3 | [`c3/f/figurate_number.c3`](../../../c3/f/figurate_number.c3) |
 | C++ | [`cpp/f/figurate_number.cpp`](../../../cpp/f/figurate_number.cpp) |
 | Elisa | [`elisa/f/figurate_number.elisa`](../../../elisa/f/figurate_number.elisa) |
+| Mojo | [`mojo/f/figurate_number.mojo`](../../../mojo/f/figurate_number.mojo) |
 | Nim | [`nim/f/figurate_number.nim`](../../../nim/f/figurate_number.nim) |
 | Odin | [`odin/f/figurate_number.odin`](../../../odin/f/figurate_number.odin) |
 | Rust | [`rust/f/figurate_number.rs`](../../../rust/f/figurate_number.rs) |
@@ -29,3 +30,6 @@ The pinned [TheAlgorithms JavaScript `FigurateNumber.js`](https://github.com/The
 | Zig | [`zig/f/figurate_number.zig`](../../../zig/f/figurate_number.zig) |
 
 Build with `python3 benchmarks/build_scalar.py --algorithm figurate_number --language LANGUAGE`; the workload uses the standard scalar runner.
+
+Scalar verifier registration and a binary-search/combination reference are
+drafted and have not been executed.

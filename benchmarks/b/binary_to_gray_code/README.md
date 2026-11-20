@@ -21,3 +21,8 @@ The pinned [Python `binary_to_gray_code.py`](https://github.com/TheAlgorithms/Py
 python3 benchmarks/build_abi.py --family scalar --algorithm binary_to_gray_code --language rust
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/b/binary_to_gray_code/rust/build.json
 ```
+
+The existing Mojo implementation is
+[`mojo/b/binary_to_gray_code.mojo`](../../../mojo/b/binary_to_gray_code.mojo).
+Scalar verifier registration and an adjacent-bit reference are drafted and
+have not been executed.

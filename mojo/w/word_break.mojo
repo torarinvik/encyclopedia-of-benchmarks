@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 @export("word_break")
@@ -15,7 +16,7 @@ fn word_break(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
             if j<Int(wl):
                 if x<1 or x>26:return -1
             elif x!=0:return -1
-    var dp=InlineArray[Bool,65]();dp[0]=True
+    var dp=InlineArray[Bool,65](fill=False);dp[0]=True
     for start in range(Int(tl)):
         if not dp[start]:continue
         for wi in range(Int(wc)):

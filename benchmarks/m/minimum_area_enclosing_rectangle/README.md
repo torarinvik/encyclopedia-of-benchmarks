@@ -25,5 +25,7 @@ copied. The contract, two reference drafts, ten language drafts, workload,
 rights note, package checker, and byte-output suite wiring are independently
 authored. The verifier source specifies rotated convex chains, maximum frames,
 and output and input error probes. The workload includes a polygon whose
-minimum area is the nonintegral fraction `64/5`. Nothing has been compiled or
-run.
+minimum area is the nonintegral fraction `64/5`. Read-only review found the ten
+ports consistent on strict convexity validation, support initialization and
+advancement, squared-edge denominator, exact rational minimization, and reduced
+output. Nothing has been compiled or run.

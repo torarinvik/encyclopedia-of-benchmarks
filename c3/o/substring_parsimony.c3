@@ -51,7 +51,7 @@ fn long substring_parsimony(long* input, usz length, char* output, usz capacity)
             for (usz k = 0; k < q; k += 1)
                 if (distance[i][k] > distance[i][j] + distance[j][k]) return -1;
 
-    long[5][MAX_STATES] dp = zeroed;
+    long[MAX_STATES][5] dp = zeroed;
     for (usz node = 0; node < 5; node += 1)
         for (usz state = 0; state < q; state += 1) dp[node][state] = INF;
     for (usz leaf = 2; leaf <= 4; leaf += 1)

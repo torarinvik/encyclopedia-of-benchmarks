@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "kactl-pisinger-bounded-weight-subset-sum-i64-array-scalar-v1",
+  "algorithm": "pisinger_bounded_weight_subset_sum",
+  "function_symbol": "pisinger_bounded_weight_subset_sum",
+  "abi": "i64_array_scalar",
+  "description": "Maximize a nonnegative subset sum not exceeding a target with Pisinger's balanced bounded-weight state update.",
+  "source": {
+    "title": "Linear Time Algorithms for Knapsack Problems with Bounded Weights",
+    "authors": ["David Pisinger"],
+    "url": "https://doi.org/10.1006/jagm.1999.1034",
+    "secondary_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/various/FastKnapsack.h",
+    "license": "No paper license is asserted; KACTL's reference header is CC0",
+    "algorithm_attribution": "The paper's balancing argument restricts subset-sum states to masses within one maximum weight of the target and updates a boundary index as items are inserted or removed.",
+    "implementation_status": "bounded clean-room BALSUB state-update profile"
+  },
+  "contract": {
+    "operation": "Return the largest sum of a subset of the supplied positive integer weights that is at most target.",
+    "input_encoding": "[n,target,weight_0,...,weight_(n-1)]",
+    "item_semantics": "Every weight is a distinct 0/1 item, including duplicate-valued weights.",
+    "primary_method": "Pisinger's BALSUB recurrence: start from the greedy break filling, store a -1-or-item-boundary value in each of 2W slots for masses target-W+1 through target+W, index mass by mass+W-target-1, insert each later item into lower-side states, then remove eligible earlier items from over-capacity states in descending mass order.",
+    "independent_method": "Descending capacity-indexed Boolean subset-sum dynamic programming.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,target,weight_0,...,weight_(n-1)]",
+    "item_count_range": [0, 32],
+    "target_range": [0, 256],
+    "weight_range": [1, 12],
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "greatest reachable subset mass not exceeding target",
+    "result_range": [0, 256],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Two fixed rolling boundary arrays sized for twice the maximum item weight, plus scalar state; input is read directly and is not copied."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/p/pisinger_bounded_weight_subset_sum/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/pisinger_bounded_weight_subset_sum/independent_oracle.py",
+  "cases": [
+    {"id": "empty-item-set", "input_values": [0, 0], "input_length": 2, "expected_result": 0},
+    {"id": "empty-set-positive-target", "input_values": [0, 23], "input_length": 2, "expected_result": 0},
+    {"id": "all-items-fit", "input_values": [3, 20, 2, 3, 4], "input_length": 5, "expected_result": 9},
+    {"id": "break-item-exact-fit", "input_values": [4, 9, 4, 5, 6, 3], "input_length": 6, "expected_result": 9},
+    {"id": "must-remove-earlier-break-items", "input_values": [6, 20, 8, 8, 7, 7, 6, 6], "input_length": 8, "expected_result": 20},
+    {"id": "nearby-balanced-state-no-exact-fill", "input_values": [5, 13, 9, 8, 7, 6, 5], "input_length": 7, "expected_result": 13},
+    {"id": "duplicate-weights-and-zero-capacity", "input_values": [4, 0, 1, 1, 12, 12], "input_length": 6, "expected_result": 0},
+    {"id": "maximum-items-and-weight", "input_values": [32, 256, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12], "input_length": 34, "expected_result": 252},
+    {"id": "trailing-word", "input_values": [1, 8, 3, 99], "input_length": 4, "expected_result": -1},
+    {"id": "one-over-valid-parseable-length", "input_values": [32, 256, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 0], "input_length": 35, "expected_result": -1},
+    {"id": "invalid-item-count", "input_values": [33, 0], "input_length": 2, "expected_result": -1},
+    {"id": "negative-target", "input_values": [0, -1], "input_length": 2, "expected_result": -1},
+    {"id": "target-over-bound", "input_values": [0, 257], "input_length": 2, "expected_result": -1},
+    {"id": "zero-weight-out-of-profile", "input_values": [1, 4, 0], "input_length": 3, "expected_result": -1},
+    {"id": "weight-over-bound", "input_values": [1, 13, 13], "input_length": 3, "expected_result": -1},
+    {"id": "incorrect-item-count-framing", "input_values": [2, 8, 4], "input_length": 3, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

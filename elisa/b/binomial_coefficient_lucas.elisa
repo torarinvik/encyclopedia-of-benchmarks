@@ -1,0 +1,69 @@
+const BCL_MAX_PRIME: usize = 1009
+
+def bcl_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value % 2 == 0:
+        return value == 2
+    divisor: mutable i64 = 3
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 2
+    true
+
+def bcl_modular_power(base_value: i64, exponent_value: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- result * base % modulus
+        base <- base * base % modulus
+        exponent <- exponent >> 1
+    result
+
+def binomial_coefficient_lucas_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 3:
+        return -1
+
+    n: mutable i64 = input[0]
+    k: mutable i64 = input[1]
+    prime: i64 = input[2]
+    if n < 0 or k < 0 or k > n or prime < 2 or prime > BCL_MAX_PRIME.i64():
+        return -1
+    if not bcl_is_prime(prime):
+        return -1
+
+    prime_size: usize = prime.usize()
+    factorial: mutable i64[BCL_MAX_PRIME] = zeroed
+    inverse_factorial: mutable i64[BCL_MAX_PRIME] = zeroed
+    factorial[0] <- 1
+    index: mutable usize = 1
+    while index < prime_size:
+        factorial[index] <- factorial[index - 1] * index.i64() % prime
+        index <- index + 1
+
+    last: usize = prime_size - 1
+    inverse_factorial[last] <- bcl_modular_power(
+        factorial[last], prime - 2, prime)
+    index <- last
+    while index > 0:
+        inverse_factorial[index - 1] <- inverse_factorial[index] * index.i64() % prime
+        index <- index - 1
+
+    result: mutable i64 = 1
+    while n > 0 or k > 0:
+        n_digit: usize = (n % prime).usize()
+        k_digit: usize = (k % prime).usize()
+        if k_digit > n_digit:
+            return 0
+
+        digit_result: mutable i64 = factorial[n_digit] * inverse_factorial[k_digit] % prime
+        digit_result <- digit_result * inverse_factorial[n_digit - k_digit] % prime
+        result <- result * digit_result % prime
+        n <- n / prime
+        k <- k / prime
+    result
+
+export fn binomial_coefficient_lucas(input: i64&, length: usize) -> i64 = binomial_coefficient_lucas_impl

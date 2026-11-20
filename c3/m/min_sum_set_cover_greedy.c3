@@ -12,7 +12,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long min_sum_set_cover_greedy(long* input, usz length, char* output, usz capacity)
+fn long min_sum_set_cover_greedy(long* input, usz length, char* output, usz capacity)
         @export("min_sum_set_cover_greedy") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

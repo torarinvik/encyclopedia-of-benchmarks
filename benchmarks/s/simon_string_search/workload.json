@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "simon-overlapping-match-count-v1",
+  "algorithm": "simon_string_search",
+  "function_symbol": "simon_string_search",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "packed_small_alphabet_byte_sequences",
+    "encoding": "[text_length, pattern_length, text_symbols..., pattern_symbols...]",
+    "text_length_range": [0, 256],
+    "pattern_length_range": [1, 16],
+    "symbol_range": [0, 15],
+    "maximum_valid_input_length": 274,
+    "maximum_parseable_input_length": 274,
+    "invalid_input_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "number of exact match start positions, including overlaps"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"overlapping-unary-matches","input_values":[5,2,1,1,1,1,1,1,1],"expected_result":4},
+    {"id":"border-reset-overlapping-matches","input_values":[9,5,0,1,0,1,0,1,0,1,0,1,0,1,0,1],"expected_result":2},
+    {"id":"periodic-prefix-fallback","input_values":[8,4,0,1,0,1,0,1,0,1,0,1,0,1],"expected_result":3},
+    {"id":"no-match","input_values":[7,3,0,0,0,0,0,0,0,1,2,3],"expected_result":0},
+    {"id":"single-symbol-repeated","input_values":[3,1,1,2,1,1],"expected_result":2},
+    {"id":"pattern-longer-than-text","input_values":[2,3,1,2,1,2,3],"expected_result":0},
+    {"id":"empty-text","input_values":[0,1,7],"expected_result":0},
+    {"id":"invalid-zero-pattern-length","input_values":[0,0],"expected_result":-2},
+    {"id":"wrong-packed-length","input_values":[3,2,1,2,3],"expected_result":-2},
+    {"id":"symbol-outside-alphabet","input_values":[1,1,16,1],"expected_result":-2},
+    {"id":"null-empty-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-2},
+    {"id":"null-at-parser-limit","input_values":[],"input_length":274,"input_is_null":true,"expected_result":-2},
+    {"id":"maximum-valid-frame-overlap","input_values":[256,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"expected_result":241}
+  ]
+}

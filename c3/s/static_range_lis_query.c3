@@ -12,12 +12,12 @@ fn usz lower(long[MAX_N]* tails, usz count, long value) {
     return lo;
 }
 
-fn void put64(uint8* output, usz offset, long value) {
-    uint64 bits = (uint64)value;
-    for (usz b = 0; b < 8; b += 1) output[offset + b] = (uint8)(bits >> (8 * b));
+fn void put64(char* output, usz offset, long value) {
+    ulong bits = (ulong)value;
+    for (usz b = 0; b < 8; b += 1) output[offset + b] = (char)(bits >> (8 * b));
 }
 
-fn long static_range_lis_query(long* input, usz length, uint8* output, usz capacity)
+fn long static_range_lis_query(long* input, usz length, char* output, usz capacity)
     @export("static_range_lis_query") {
     if (input == null || length < 2 || length > 195) return -1;
     long n64 = input[0], q64 = input[1];

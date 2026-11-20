@@ -57,7 +57,7 @@ fn long sorted_table_benchmark(long* input, usz length) @export("sorted_table_be
     usz operations_start = operation_count_index + 1;
     if (length != operations_start + 3 * operation_count) return -1;
 
-    long items[256];
+    long[256] items;
     for (usz index = 0; index < initial_count; ++index) {
         long key = input[index + 1];
         if (key < MIN_KEY || key > MAX_KEY || (index > 0 && items[index - 1] >= key)) return -1;
@@ -77,7 +77,7 @@ fn long sorted_table_benchmark(long* input, usz length) @export("sorted_table_be
 
         if (opcode == 0 || opcode == 1 || opcode == 4 || opcode == 5 || opcode == 7) {
             if (b != 0 || a < MIN_KEY || a > MAX_KEY) return -1;
-            position = sorted_table_lower_bound(items, size, a);
+            position = sorted_table_lower_bound(&items[0], size, a);
             bool found = position < size && items[position] == a;
             if (opcode == 0) observed = found ? sorted_table_key_code(a) : 0;
             else if (opcode == 1) observed = found ? 1 : 0;
@@ -96,7 +96,7 @@ fn long sorted_table_benchmark(long* input, usz length) @export("sorted_table_be
             if (size > 0) observed = sorted_table_key_code(items[opcode == 2 ? 0 : size - 1]);
         } else if (opcode == 6) {
             if (a < MIN_KEY || a > MAX_KEY || (b != 0 && b != 1)) return -1;
-            position = sorted_table_lower_bound(items, size, a);
+            position = sorted_table_lower_bound(&items[0], size, a);
             bool found = position < size && items[position] == a;
             if (found) observed = sorted_table_key_code(a);
             else {
@@ -108,13 +108,13 @@ fn long sorted_table_benchmark(long* input, usz length) @export("sorted_table_be
         } else if (opcode == 8 || opcode == 9) {
             if (a < MIN_KEY || a > MAX_KEY || b < MIN_KEY || b > MAX_KEY) return -1;
             if (a <= b) {
-                usz first = sorted_table_lower_bound(items, size, a);
-                usz last = sorted_table_upper_bound(items, size, b);
-                observed = sorted_table_sequence_code(items, first, last, opcode == 9);
+                usz first = sorted_table_lower_bound(&items[0], size, a);
+                usz last = sorted_table_upper_bound(&items[0], size, b);
+                observed = sorted_table_sequence_code(&items[0], first, last, opcode == 9);
             }
         } else if (opcode == 10 || opcode == 11) {
             if (a != 0 || b != 0) return -1;
-            observed = sorted_table_sequence_code(items, 0, size, opcode == 11);
+            observed = sorted_table_sequence_code(&items[0], 0, size, opcode == 11);
         } else if (opcode == 12) {
             if (a != 0 || b != 0) return -1;
             observed = size == 0 ? 1 : 0;

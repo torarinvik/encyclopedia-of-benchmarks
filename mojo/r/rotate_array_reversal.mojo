@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn rev32ra(a:UnsafePointer[Int32,MutAnyOrigin],s:Int,e:Int):

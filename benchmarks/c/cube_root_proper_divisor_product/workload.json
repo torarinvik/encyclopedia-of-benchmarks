@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "cube-root-proper-divisor-product-i64-array-scalar-v1",
+  "algorithm": "cube_root_proper_divisor_product",
+  "function_symbol": "cube_root_proper_divisor_product",
+  "abi": "i64_array_scalar",
+  "description": "Return the 1-based sequence term consisting of 1 followed by integers n>1 with exactly eight positive divisors.",
+  "source": {
+    "title": "Numbers which are the cube roots of the product of their proper divisors",
+    "reference_url": "https://rosettacode.org/wiki/Numbers_which_are_the_cube_roots_of_the_product_of_their_proper_divisors",
+    "sequence_reference_url": "https://oeis.org/A111398",
+    "tau_eight_reference_url": "https://oeis.org/A030626",
+    "prime_signature_reference_url": "https://oeis.org/A030626",
+    "numeric_crosscheck_url": "https://docs.zenc-lang.org/examples/rosetta/numbers-which-are-the-cube-roots-of-the-product-of-their-proper-divisors/",
+    "numeric_crosscheck_note": "The linked translation labels the 500th, 5000th, and 50000th terms and reports 2526, 23118, and 223735, respectively.",
+    "license": "Algorithm description cited; clean-room implementation",
+    "algorithm_attribution": "Enumerate the distinct prime signatures 7, 3+1, and 1+1+1 for tau(n)=8, then select the indexed value by binary search over value bounds.",
+    "implementation_status": "Bounded clean-room indexed sequence profile; no upstream code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[k]",
+    "indexing": "1-based",
+    "k_range": [1, 50000],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "a(1)=1; for k>1, a(k) is the (k-1)th increasing integer n>1 with tau(n)=8",
+    "valid_result_range": [1, 600000],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "definition": "For n>1, n is the cube root of the product of its positive proper divisors iff tau(n)=8; the empty proper-divisor product makes n=1 the special first term.",
+    "primary_method": "Build a prime-count prefix table to 600000. Count numbers <=x by disjoint prime signatures p^7, p^3*q with p!=q, and p*q*r with pairwise distinct primes; binary-search the smallest x whose count reaches k-1.",
+    "independent_method": "Sieve tau(n) for all n<=600000 by incrementing every multiple for each divisor; scan the tau=8 positions to select k-1.",
+    "invalid_cases": "Null input, empty or trailing-word frame, k<1, or k>50000 returns -1.",
+    "prime_signature_partition": "If tau(n)=8, the exponent-plus-one factors are 8, 4*2, or 2*2*2, giving p^7, p^3*q, or p*q*r with distinct primes as encoded by each signature.",
+    "binary_search_invariant": "The searched predicate count_tau8(x)>=k-1 is monotone; the lower-bound search returns the first integer attaining it.",
+    "overflow_proof": "All values, prime powers, and products are bounded by 600000 using division guards before multiplication. The prime-prefix table entries and signature counts are at most 600000, so uint32 counters are sufficient. k and returned terms fit signed 64-bit values.",
+    "maximum_term_evidence": "The published task translation reports the 50000th term as 223735, below the conservative contract cap 600000. It also reports the 500th term as 2526 and the 5000th term as 23118; all three checkpoints are pinned in the workload.",
+    "baseline_and_stretch": "The task displays the first 50 terms, reports the 500th and 5000th terms, and includes a 50000th-term stretch checkpoint. The benchmark domain includes that bounded stretch target."
+  },
+  "complexity": {
+    "primary_time": "O(B log log B + log B * B^(5/6)) for B=600000; the first term builds the prime-prefix table and each binary-search count enumerates bounded distinct-prime signatures.",
+    "primary_space": "600001 uint32 prime-prefix entries use 2400004 bytes; at most 124 additional bytes are budgeted for scalar loop, search, and argument state, for a 2400128-byte total cap. No quotient array is stored.",
+    "independent_time": "O(B log B) divisor-count sieve and O(B) scan for B=600000.",
+    "independent_space": "600001 integer divisor-count cells."
+  },
+  "workspace": {"bytes": 2400128},
+  "primary_oracle": "benchmarks/c/cube_root_proper_divisor_product/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/cube_root_proper_divisor_product/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"special-first-term", "input_values":[1], "input_length":1, "expected_result":1},
+    {"id":"first-eight-divisor-number", "input_values":[2], "input_length":1, "expected_result":24},
+    {"id":"second-eight-divisor-number", "input_values":[3], "input_length":1, "expected_result":30},
+    {"id":"signature-p7", "input_values":[4], "input_length":1, "expected_result":40},
+    {"id":"signature-p3-q", "input_values":[5], "input_length":1, "expected_result":42},
+    {"id":"early-sequence-check", "input_values":[10], "input_length":1, "expected_result":78},
+    {"id":"published-500th-checkpoint", "input_values":[500], "input_length":1, "expected_result":2526},
+    {"id":"published-5000th-checkpoint", "input_values":[5000], "input_length":1, "expected_result":23118},
+    {"id":"maximum-valid-50000th-stretch", "input_values":[50000], "input_length":1, "expected_result":223735},
+    {"id":"zero-index-invalid", "input_values":[0], "input_length":1, "expected_result":-1},
+    {"id":"negative-index-invalid", "input_values":[-1], "input_length":1, "expected_result":-1},
+    {"id":"index-above-bound-invalid", "input_values":[50001], "input_length":1, "expected_result":-1},
+    {"id":"wrong-arity-empty", "input_values":[], "input_length":0, "expected_result":-1},
+    {"id":"wrong-arity-extra-word", "input_values":[1,0], "input_length":2, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1},
+    {"id":"i64-min-invalid", "input_values":[-9223372036854775808], "input_length":1, "expected_result":-1},
+    {"id":"i64-max-invalid", "input_values":[9223372036854775807], "input_length":1, "expected_result":-1}
+  ]
+}

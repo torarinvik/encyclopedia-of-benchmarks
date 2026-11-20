@@ -47,3 +47,4 @@ errors. Build with `i64_array_bytes_output` and record with
 - [Odin](../../../odin/s/smith_waterman_python.odin)
 - [V](../../../v/s/smith_waterman_python.v)
 - [Zig](../../../zig/s/smith_waterman_python.zig)
+- [Mojo](../../../mojo/s/smith_waterman_python.mojo) (draft; unverified)

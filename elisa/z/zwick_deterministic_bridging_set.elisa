@@ -1,0 +1,101 @@
+# Deterministic bounded witness-prefix bridge-set construction.
+def zwick_popcount(mask: u16) -> usize:
+    value: mutable u16 = mask
+    count: mutable usize = 0
+    while value != 0:
+        count <- count + (value & 1).usize()
+        value <- value >> 1
+    count
+
+def zwick_subpath(witness: view[u8], n: usize, from: usize, to: usize,
+                  limit: usize, output: mutable view[u8], offset: usize) -> usize:
+    if limit == 0 or witness[from * n + to] == 0: return 0
+    middle: usize = (witness[from * n + to] - 1).usize()
+    count: mutable usize = zwick_subpath(witness, n, from, middle, limit - 1, output, offset)
+    output[offset + count] <- middle.u8()
+    count <- count + 1
+    remaining: usize = limit - count
+    if remaining > 0:
+        count <- count + zwick_subpath(witness, n, middle, to, remaining, output, offset + count)
+    count
+
+def zwick_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > 131: return -1
+    if input[0] < 2 or input[0] > 8: return -1
+    n: usize = input[0].usize()
+    if input[1] < 2 or input[1] > n.i64() or length != 2 + 2 * n * n: return -1
+    threshold: usize = input[1].usize()
+    edge: mutable u8[64] = zeroed
+    witness: mutable u8[64] = zeroed
+    distance: mutable u8[64] = zeroed
+    matrix: usize = n * n
+    for index in 0..<matrix:
+        if input[2 + index] < 0 or input[2 + index] > 1: return -1
+        if input[2 + matrix + index] < 0 or input[2 + matrix + index] > n.i64(): return -1
+        edge[index] <- input[2 + index].u8()
+        witness[index] <- input[2 + matrix + index].u8()
+    for i in 0..<n:
+        if edge[i * n + i] != 0: return -1
+        for j in 0..<n:
+            distance[i * n + j] <- if i == j: 0 else: (if edge[i * n + j] != 0: 1 else: 9)
+    for k in 0..<n:
+        for i in 0..<n:
+            for j in 0..<n:
+                candidate: usize = distance[i * n + k].usize() + distance[k * n + j].usize()
+                if candidate < distance[i * n + j].usize(): distance[i * n + j] <- candidate.u8()
+    for i in 0..<n:
+        for j in 0..<n:
+            d: usize = distance[i * n + j].usize()
+            w: usize = witness[i * n + j].usize()
+            if d >= 9: return -1
+            if d <= 1:
+                if w != 0: return -1
+            else:
+                if w == 0: return -1
+                v: usize = w - 1
+                if v == i or v == j: return -1
+                left: usize = distance[i * n + v].usize()
+                right: usize = distance[v * n + j].usize()
+                if left + right != d or left >= d or right >= d: return -1
+
+    constraints: mutable u16[64] = zeroed
+    constraint_count: mutable usize = 0
+    for i in 0..<n:
+        for j in 0..<n:
+            internal: mutable u8[8] = zeroed
+            count: usize = zwick_subpath(witness[0:64], n, i, j, threshold, internal[0:8], 0)
+            mask: mutable u16 = (1.u16() << i) | (1.u16() << j)
+            for k in 0..<count: mask <- mask | (1.u16() << internal[k].usize())
+            if zwick_popcount(mask) >= threshold:
+                duplicate: mutable bool = false
+                for c in 0..<constraint_count:
+                    if constraints[c] == mask: duplicate <- true
+                if not duplicate:
+                    constraints[constraint_count] <- mask
+                    constraint_count <- constraint_count + 1
+    unhit: mutable bool[64] = zeroed
+    for c in 0..<constraint_count: unhit[c] <- true
+    remaining: mutable usize = constraint_count
+    selected: mutable u16 = 0
+    while remaining > 0:
+        best_vertex: mutable usize = 0
+        best_score: mutable usize = 0
+        for v in 0..<n:
+            score: mutable usize = 0
+            for c in 0..<constraint_count:
+                if unhit[c] and (constraints[c] & (1.u16() << v)) != 0: score <- score + 1
+            if score > best_score:
+                best_score <- score
+                best_vertex <- v
+        if best_score == 0: return -1
+        selected <- selected | (1.u16() << best_vertex)
+        for c in 0..<constraint_count:
+            if unhit[c] and (constraints[c] & (1.u16() << best_vertex)) != 0:
+                unhit[c] <- false
+                remaining <- remaining - 1
+    selected.i64()
+
+export fn zwick_deterministic_bridging_set(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 131: return -1
+    zwick_impl(input[0:length])

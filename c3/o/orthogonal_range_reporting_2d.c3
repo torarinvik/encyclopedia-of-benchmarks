@@ -76,7 +76,7 @@ fn long orthogonal_range_reporting_2d(long* input, usz length, char* output, usz
             if (xs[earlier] == xs[point] && ys[earlier] == ys[point]) return -1;
         }
     }
-    long[MAX_QUERIES][4] queries;
+    long[4][MAX_QUERIES] queries;
     usz start = 2 + 2 * n;
     for (usz query = 0; query < q; query++) {
         for (usz item = 0; item < 4; item++) queries[query][item] = input[start + 4 * query + item];

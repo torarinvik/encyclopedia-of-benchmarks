@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem164")
 fn problem164(n_digits:Int64) abi("C")->Int64:
     if n_digits<0 or n_digits>26:return -1

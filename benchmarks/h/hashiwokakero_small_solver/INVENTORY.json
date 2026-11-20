@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "algorithm": "hashiwokakero_small_solver",
+  "function_symbol": "hashiwokakero_small_solver",
+  "abi": "i64_array_scalar",
+  "languages": {
+    "c": "c/h/hashiwokakero_small_solver.c",
+    "c3": "c3/h/hashiwokakero_small_solver.c3",
+    "cpp": "cpp/h/hashiwokakero_small_solver.cpp",
+    "elisa": "elisa/h/hashiwokakero_small_solver.elisa",
+    "mojo": "mojo/h/hashiwokakero_small_solver.mojo",
+    "nim": "nim/h/hashiwokakero_small_solver.nim",
+    "odin": "odin/h/hashiwokakero_small_solver.odin",
+    "rust": "rust/h/hashiwokakero_small_solver.rs",
+    "v": "v/h/hashiwokakero_small_solver.v",
+    "zig": "zig/h/hashiwokakero_small_solver.zig"
+  },
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "RESERVATION.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "maximum_valid_input_words": 19,
+  "maximum_parseable_input_words": 20,
+  "maximum_candidate_edges": 7,
+  "maximum_independent_vectors": 2187,
+  "references": {
+    "primary": "primary_oracle.py",
+    "independent": "independent_oracle.py"
+  },
+  "workload": "workload.json",
+  "suite_registration": {
+    "runner": "benchmarks/run_i64_array_scalar.py",
+    "verifier": "benchmarks/verify_i64_array_scalar.py",
+    "model": "i64_array_scalar"
+  },
+  "fixture_ids": [
+    "two-islands-double-bridge",
+    "two-islands-single-bridge",
+    "shared-endpoint-chain",
+    "lexicographic-tie-square",
+    "maximum-edge-count-2x3",
+    "disconnected-degree-satisfied",
+    "interior-crossing-required",
+    "valid-but-degree-unsatisfiable",
+    "maximum-length-no-visible-bridges",
+    "duplicate-coordinate",
+    "coordinate-out-of-range",
+    "zero-demand",
+    "one-island-out-of-range",
+    "trailing-word",
+    "null-input"
+  ],
+  "sources": [
+    {
+      "role": "title/tag discovery only",
+      "title": "Codewars Algorithms + Graph Theory listing",
+      "url": "https://www.codewars.com/kata?tags=Algorithms%2CGraph+Theory",
+      "rights_note": "No challenge page, text, code, tests, examples, or submissions were read or reused."
+    },
+    {
+      "role": "rules behavior context",
+      "title": "Nikoli Hashiwokakero rules",
+      "url": "https://www.nikoli.co.jp/en/puzzles/hashiwokakero/",
+      "rights_note": "Copyrighted rules used as idea context only; no wording or puzzle material reused."
+    },
+    {
+      "role": "solver method context",
+      "title": "Benchmark Instances and Branch-and-Cut Algorithm for the Hashiwokakero Puzzle",
+      "url": "https://arxiv.org/abs/1905.00973",
+      "rights_note": "Publication is method context only; its distribution notice is not treated as blanket reuse permission."
+    }
+  ]
+}

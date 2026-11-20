@@ -9,7 +9,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long greedy_dual_weighted_caching(long* input, usz length, char* output, usz output_capacity)
+fn long greedy_dual_weighted_caching(long* input, usz length, char* output, usz output_capacity)
     @export("greedy_dual_weighted_caching") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long cache_capacity = input[0], count_value = input[1];

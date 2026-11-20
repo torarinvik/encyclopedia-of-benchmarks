@@ -27,9 +27,9 @@ fn long rail_fence(long* input, usz length, char* output, usz output_capacity) @
             }
         }
     } else {
-        usz counts[8] = {0,0,0,0,0,0,0,0};
-        usz starts[8] = {0,0,0,0,0,0,0,0};
-        usz used[8] = {0,0,0,0,0,0,0,0};
+        usz[8] counts = {0,0,0,0,0,0,0,0};
+        usz[8] starts = {0,0,0,0,0,0,0,0};
+        usz[8] used = {0,0,0,0,0,0,0,0};
         for (usz position = 0; position < n; position++) counts[rail_for_position(position, rails)]++;
         for (usz rail = 1; rail < rails; rail++) starts[rail] = starts[rail - 1] + counts[rail - 1];
         for (usz position = 0; position < n; position++) {

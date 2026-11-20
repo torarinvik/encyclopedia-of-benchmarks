@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "algorithm": "gaussian_prime_classifier",
+  "function_symbol": "gaussian_prime_classifier",
+  "abi": "i64_array_scalar",
+  "status": "complete; scalar runner and verifier registered",
+  "suite_integration": "benchmarks/run_i64_array_scalar.py and benchmarks/verify_i64_array_scalar.py",
+  "native_paths": [
+    "c/g/gaussian_prime_classifier.c",
+    "c3/g/gaussian_prime_classifier.c3",
+    "cpp/g/gaussian_prime_classifier.cpp",
+    "elisa/g/gaussian_prime_classifier.elisa",
+    "mojo/g/gaussian_prime_classifier.mojo",
+    "nim/g/gaussian_prime_classifier.nim",
+    "odin/g/gaussian_prime_classifier.odin",
+    "rust/g/gaussian_prime_classifier.rs",
+    "v/g/gaussian_prime_classifier.v",
+    "zig/g/gaussian_prime_classifier.zig"
+  ],
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_coordinate_magnitude": 10000,
+    "maximum_norm": 200000000,
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "workspace_bytes": 128
+  },
+  "sources": [
+    {
+      "role": "classification_theorem",
+      "title": "Prime Numbers and Algebraic Number Theory, Lecture 26",
+      "url": "https://math.uwaterloo.ca/~f2alfais/notes/pm340-notes.pdf"
+    },
+    {
+      "role": "formalized_classification_cross_reference",
+      "title": "Archive of Formal Proofs: Gaussian Integers, §1.6.4",
+      "url": "https://isa-afp.org/browser_info/current/AFP/Gaussian_Integers/document.pdf"
+    },
+    {
+      "role": "title_discovery_only",
+      "title": "RosettaCodeData popular-tasks at pinned revision",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+    }
+  ]
+}

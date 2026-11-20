@@ -1,6 +1,6 @@
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
-from std.collections import List
+from std.collections import InlineArray, List
 
 fn euler_undirected_dfs(u:Int,n:Int,m:Int,adj:List[List[Int]],mut seen:InlineArray[Int64,100],mut path:List[Int64]):
     path.append(Int64(u))

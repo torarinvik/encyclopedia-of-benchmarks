@@ -9,7 +9,7 @@ fn long minimum_cost_path(long* values, usz length) @export("minimum_cost_path")
     if (rv < 1 || rv > 16 || cv < 1 || cv > 16) return INVALID_RESULT;
     usz rows = (usz)rv, cols = (usz)cv;
     if (length != 2 + rows * cols) return INVALID_RESULT;
-    long dp[16][16];
+    long[16][16] dp;
     for (usz r = 0; r < rows; r++) for (usz c = 0; c < cols; c++) {
         long x = values[2 + r * cols + c];
         if (x < -2147483648L || x > 2147483647L) return INVALID_RESULT;

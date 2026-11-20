@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn okt_search(mut board:InlineArray[Int32,25],n:Int,r:Int,c:Int,step:Int)->Bool:

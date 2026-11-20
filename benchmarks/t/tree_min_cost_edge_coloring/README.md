@@ -45,11 +45,15 @@ the [Elisa draft](../../../elisa/t/tree_min_cost_edge_coloring.elisa), and the
 [Nim draft](../../../nim/t/tree_min_cost_edge_coloring.nim), and the
 [Zig draft](../../../zig/t/tree_min_cost_edge_coloring.zig), and the
 [Odin draft](../../../odin/t/tree_min_cost_edge_coloring.odin), and the
-[C3 draft](../../../c3/t/tree_min_cost_edge_coloring.c3) use bounded
+[C3 draft](../../../c3/t/tree_min_cost_edge_coloring.c3), and the
+[V draft](../../../v/t/tree_min_cost_edge_coloring.v), and the
+[Mojo draft](../../../mojo/t/tree_min_cost_edge_coloring.mojo) use bounded
 arrays for the matching and sensitivity computation. They have not
 been compiled or run. An independently authored workload covers saturated
-stars, paths, branching, equal and unsorted prices, infeasibility and validation precedence.
+stars including the full 16-color limit, paths, branching, equal and unsorted
+prices, infeasibility and validation precedence.
 A draft source inventory checker checks fixtures against independent small
 oracles and expects all ten ports. Elisa uses
-bounded views after its ABI boundary. Two other ports, suite registration, and
-runtime validation remain outstanding.
+bounded views after its ABI boundary. Draft scalar runner and verifier wiring
+is present, including independent small cases and full-range structured cases.
+All of this integration and runtime validation remain unexecuted.

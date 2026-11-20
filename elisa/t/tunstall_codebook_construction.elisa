@@ -1,0 +1,79 @@
+const MAX_S: i64 = 4222124650659840
+const RESULT_FACTOR: i64 = MAX_S + 1
+
+def tunstall_impl(input: view[i64], length: usize) -> i64:
+    if length < 4 or length > 7: return -1
+    if input[0] < 2 or input[0] > 4 or input[1] < 2 or input[1] > 4: return -1
+    k: usize = input[0].usize()
+    bits: usize = input[1].usize()
+    if length != k + 2: return -1
+
+    weights: mutable i64[4] = zeroed
+    total: mutable i64 = 0
+    for i in 0..<k:
+        weight: i64 = input[2 + i]
+        if weight <= 0 or weight > 8: return -1
+        weights[i] <- weight
+        total <- total + weight
+    if total > 8: return -1
+
+    powers: mutable i64[17] = zeroed
+    powers[0] <- 1
+    for i in 1..<17: powers[i] <- powers[i - 1] * total
+    cap: mutable usize = 1
+    bit: mutable usize = 0
+    while bit < bits:
+        cap <- cap * 2
+        bit <- bit + 1
+    target: mutable usize = cap
+    while (target - 1) % (k - 1) != 0: target <- target - 1
+
+    products: mutable i64[31] = zeroed
+    depths: mutable usize[31] = zeroed
+    phrase_keys: mutable u64[31] = zeroed
+    leaves: mutable usize[16] = zeroed
+    node_count: mutable usize = 1
+    leaf_count: mutable usize = 0
+    for symbol in 0..<k:
+        node: usize = node_count
+        node_count <- node_count + 1
+        products[node] <- weights[symbol]
+        depths[node] <- 1
+        phrase_keys[node] <- (symbol + 1).u64() << 56
+        leaves[leaf_count] <- node
+        leaf_count <- leaf_count + 1
+
+    scaled_expectation: mutable i64 = powers[16]
+    while leaf_count < target:
+        best_position: mutable usize = 0
+        best_node: mutable usize = leaves[0]
+        best_probability: mutable i64 = products[best_node] * powers[15 - depths[best_node]]
+        for position in 1..<leaf_count:
+            candidate: usize = leaves[position]
+            probability: i64 = products[candidate] * powers[15 - depths[candidate]]
+            if probability > best_probability or (probability == best_probability and phrase_keys[candidate] < phrase_keys[best_node]):
+                best_position <- position
+                best_node <- candidate
+                best_probability <- probability
+
+        scaled_expectation <- scaled_expectation + products[best_node] * powers[16 - depths[best_node]]
+        leaf_count <- leaf_count - 1
+        leaves[best_position] <- leaves[leaf_count]
+        symbol: mutable usize = 0
+        while symbol < k:
+            child: usize = node_count
+            node_count <- node_count + 1
+            products[child] <- products[best_node] * weights[symbol]
+            depths[child] <- depths[best_node] + 1
+            shift: usize = 4 * (14 - depths[best_node])
+            phrase_keys[child] <- phrase_keys[best_node] | ((symbol + 1).u64() << shift)
+            leaves[leaf_count] <- child
+            leaf_count <- leaf_count + 1
+            symbol <- symbol + 1
+
+    if scaled_expectation > MAX_S: return -1
+    target.i64() * RESULT_FACTOR + scaled_expectation
+
+def tunstall_codebook_construction(input: i64&, length: usize) -> i64 @export("tunstall_codebook_construction"):
+    if input.is_null() or length < 4 or length > 7: return -1
+    tunstall_impl(input[0:length], length)

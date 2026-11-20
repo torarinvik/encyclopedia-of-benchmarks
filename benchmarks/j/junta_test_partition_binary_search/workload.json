@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "chapter-709-blais-junta-test-replay-v1",
+  "algorithm": "junta_test_partition_binary_search",
+  "function_symbol": "junta_test_partition_binary_search",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Testing Juntas Nearly Optimally",
+    "authors": ["Eric Blais"],
+    "url": "https://www.cs.cmu.edu/~eblais/papers/TestingJuntas.pdf",
+    "section": "3.1, Figure 1",
+    "context_doi": "10.1007/978-1-4939-2864-4_709",
+    "reuse": "Algorithm description only; clean-room bounded contract, fixtures, and implementations."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,part_count,truth_word_count,packed_truth_words...,ordered_part_id_per_coordinate...,(x | (y<<n))*24]; truth value f(z) is bit (z mod 64) of truth_word[floor(z/64)], coordinate 0 is the least-significant assignment bit",
+    "domain": "Boolean cube {0,1}^n with the uniform product distribution",
+    "n_range": [1, 8],
+    "fixed_k": 1,
+    "fixed_epsilon": "1",
+    "fixed_partition_count": "10^20",
+    "fixed_round_count": 24,
+    "truth_word_count": "ceil(2^n/64)",
+    "partition_encoding": "The supplied ordered nonempty groups are the occupied groups of the source partition; empty groups are omitted and occupied group IDs are dense 0..part_count-1 in source order.",
+    "sample_encoding": "Each packed sample word stores x in its low n bits and y in the next n bits; all 24 pairs are supplied, with no random generation.",
+    "unused_truth_bits": "Must be zero above assignment 2^n-1.",
+    "maximum_valid_input_length": 39,
+    "maximum_parseable_input_length": 40,
+    "invalid_result": -1
+  },
+  "profile": {
+    "outer_rule": "Start S=[n] and ell=0. For each of 24 rounds, compare f(x) with f(z), where z uses y on S and x outside S. If equal, continue. If different, binary-search an ordered active partition group while maintaining two assignments with unequal outputs; remove the selected group from S and increment ell. Reject immediately when ell>1; otherwise accept after all rounds.",
+    "binary_search_refinement": "Split the active ordered group list at floor(length/2). Probe the hybrid that takes the right endpoint's bits on the lower half and the left endpoint's bits elsewhere. If the probe differs from the left endpoint's function value, retain the left half and the pair (left,probe); otherwise retain the right half and (probe,right).",
+    "query_count": "Counts two function-oracle evaluations for each entered outer round, plus one for each binary-search hybrid probe; no memoization is used.",
+    "primary_method": "Coordinate bit masks for S and groups, plus ordered midpoint binary search on hybrid endpoints.",
+    "independent_method": "Explicit Boolean coordinate vectors and group coordinate lists, with direct truth-table indexing.",
+    "randomness_scope": "The partition and 24 independent sample pairs are supplied inputs. This measures deterministic replay only and makes no tester probability, completeness, or soundness guarantee."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[decision,found_count,oracle_query_count,(round_index,selected_part_id)*found_count]; decision 0=accept, 1=reject",
+    "maximum_bytes": 56,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded scalar state, at most eight group masks/coordinate lists, two Boolean endpoint vectors or assignment masks, and seven staged i64 output words."
+  },
+  "complexity": {
+    "time": "O(L + r + (k+1)n) for input length L, fixed r=24, and k=1; each function-oracle evaluation is one packed truth-table bit lookup, and group-list/half-mask construction costs O(n) per successful search.",
+    "space": "O(n + output_words), excluding the caller-owned input frame."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "constant-function-accepts-with-no-discoveries",
+      "input_values": [2, 2, 1, 0, 0, 1, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+      "input_length": 30,
+      "output_capacity": 56,
+      "expected_result": 24,
+      "expected_output_values": [0, 0, 48],
+      "expected_output_hex": "000000000000000000000000000000003000000000000000"
+    },
+    {
+      "id": "one-junta-finds-one-group",
+      "input_values": [3, 3, 1, 170, 0, 1, 2, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 31,
+      "output_capacity": 56,
+      "expected_result": 40,
+      "expected_output_values": [0, 1, 49, 0, 0],
+      "expected_output_hex": "00000000000000000100000000000000310000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "two-distinct-groups-reject",
+      "input_values": [3, 3, 1, 102, 0, 1, 2, 8, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 31,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_values": [1, 2, 6, 0, 0, 1, 1],
+      "expected_output_hex": "0100000000000000020000000000000006000000000000000000000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "merged-coordinate-group",
+      "input_values": [3, 2, 1, 170, 0, 0, 1, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 31,
+      "output_capacity": 56,
+      "expected_result": 40,
+      "expected_output_values": [0, 1, 49, 0, 0],
+      "expected_output_hex": "00000000000000000100000000000000310000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "single-group-needs-no-search-probe",
+      "input_values": [3, 1, 1, 136, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 31,
+      "output_capacity": 56,
+      "expected_result": 40,
+      "expected_output_values": [0, 1, 48, 0, 0],
+      "expected_output_hex": "00000000000000000100000000000000300000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-input-frame",
+      "input_values": [8, 8, 4, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280],
+      "input_length": 39,
+      "output_capacity": 56,
+      "expected_result": 24,
+      "expected_output_values": [0, 0, 48],
+      "expected_output_hex": "000000000000000000000000000000003000000000000000"
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [8, 8, 4, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 65280, 0],
+      "input_length": 40,
+      "output_capacity": 56,
+      "expected_result": -1,
+      "expected_output_values": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-trailing-word",
+      "input_values": [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 30,
+      "output_capacity": 56,
+      "expected_result": -1,
+      "expected_output_values": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unused-truth-table-high-bit-rejected",
+      "input_values": [1, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 29,
+      "output_capacity": 56,
+      "expected_result": -1,
+      "expected_output_values": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [2, 2, 1, 0, 0, 1, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+      "input_length": 30,
+      "output_capacity": 8,
+      "expected_result": -2,
+      "expected_output_values": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 2, 1, 0, 0, 1, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+      "input_length": 30,
+      "output_capacity": 56,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_values": [],
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 56,
+      "expected_result": -1,
+      "expected_output_values": [],
+      "expected_output_hex": ""
+    }
+  ]
+}

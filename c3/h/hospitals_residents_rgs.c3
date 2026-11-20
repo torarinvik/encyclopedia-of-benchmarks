@@ -6,19 +6,19 @@ fn void put64(char* output, usz position, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[position + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long hospitals_residents_rgs(long* input, usz length, char* output, usz capacity) @export("hospitals_residents_rgs") {
+fn long hospitals_residents_rgs(long* input, usz length, char* output, usz capacity) @export("hospitals_residents_rgs") {
     if (input == null || length < 5 || length > MAX_INPUT) return -1;
-    long r64 = input[0], h64 = input[1];
+    long r64 = input[0]; long h64 = input[1];
     if (r64 < 1 || r64 > (long)MAX_R || h64 < 1 || h64 > (long)MAX_H) return -1;
-    usz r = (usz)r64, h = (usz)h64;
+    usz r = (usz)r64; usz h = (usz)h64;
     usz expected = 2 + 2 * h + r + 2 * r * h;
     if (length != expected) return -1;
-    usz cap_offset = 2, rlen_offset = cap_offset + h, rpref_offset = rlen_offset + r;
-    usz hlen_offset = rpref_offset + r * h, hpref_offset = hlen_offset + h;
-    long[MAX_H] capacities = zeroed, hospital_length = zeroed, occupancy = zeroed;
-    long[MAX_R] resident_length = zeroed, assignment = zeroed, next_choice = zeroed;
-    long[MAX_R][MAX_H] resident_pref = zeroed;
-    long[MAX_H][MAX_R] hospital_rank = zeroed;
+    usz cap_offset = 2; usz rlen_offset = cap_offset + h; usz rpref_offset = rlen_offset + r;
+    usz hlen_offset = rpref_offset + r * h; usz hpref_offset = hlen_offset + h;
+    long[MAX_H] capacities = zeroed; long[MAX_H] hospital_length = zeroed; long[MAX_H] occupancy = zeroed;
+    long[MAX_R] resident_length = zeroed; long[MAX_R] assignment = zeroed; long[MAX_R] next_choice = zeroed;
+    long[MAX_H][MAX_R] resident_pref = zeroed;
+    long[MAX_R][MAX_H] hospital_rank = zeroed;
     for (usz hospital = 0; hospital < h; hospital += 1) {
         capacities[hospital] = input[cap_offset + hospital];
         hospital_length[hospital] = input[hlen_offset + hospital];

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "catmull-clark-one-step-closed-polygon-mesh-float64-slice-io-v1",
+  "algorithm": "catmull_clark_subdivision",
+  "function_symbol": "catmull_clark_subdivision",
+  "abi": "float64_slice_io",
+  "description": "Perform one Catmull–Clark step on a finite 2D closed polygon mesh and emit the refined control mesh.",
+  "oracle": "benchmarks/c/catmull_clark_subdivision/primary_oracle.py",
+  "oracle_entry_point": "expected_output(values, output_capacity=None, output_is_null=False, input_is_null=False, input_length=None)",
+  "independent_oracle": "benchmarks/c/catmull_clark_subdivision/independent_oracle.py",
+  "independent_oracle_entry_point": "expected_output(values, output_capacity=None, output_is_null=False, input_is_null=False, input_length=None)",
+  "sources": {
+    "title_index": "https://rosettagit.org/tasks/",
+    "discovery_title": "Catmull–Clark subdivision surface",
+    "primary_algorithm_reference": "https://doi.org/10.1016/0010-4485(78)90110-0",
+    "independent_algorithm_reference": "https://mathworld.wolfram.com/Catmull-ClarkSubdivision.html",
+    "source_use": "RosettaGit title index used only for discovery. Algorithm details come from cited mathematical sources; no task content or code is reused."
+  },
+  "input": {
+    "kind": "finite_binary64_array",
+    "encoding": "[V,F,x0,y0,...,x(V-1),y(V-1), face records], each face record [degree, vertex_id_0,...,vertex_id_(degree-1)]",
+    "vertex_count_range": [0, 24],
+    "face_count_range": [0, 8],
+    "face_degree_range": [3, 8],
+    "coordinate_domain": "finite binary64 values; no coordinate magnitude bound",
+    "topology_requirements": [
+      "Only V=F=0 with a two-value frame is an empty valid mesh.",
+      "Each face has distinct vertex IDs in [0,V).",
+      "Every undirected edge occurs in exactly two faces.",
+      "Each vertex link is one connected cycle with at least three vertices.",
+      "Disconnected closed components are allowed; boundaries are not."
+    ],
+    "exact_framing": true,
+    "maximum_parseable_input_length": 122,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "finite_binary64_array",
+    "encoding": "[V_prime,F_prime, coordinates, quad_vertex_indices]",
+    "coordinate_order": "updated old vertices by ID, edge points by lexicographic endpoint pair, face points by original face ID",
+    "quad_order": "original face order and corner order; each quad is [updated_vertex,next_edge_point,face_point,previous_edge_point]",
+    "maximum_elements": 386,
+    "success_result": "number of output doubles",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "face_point": "Mean of the old vertices of that face.",
+    "edge_point": "Mean of the old edge endpoints and the two adjacent face points.",
+    "old_vertex_point": "For valence n, (Fbar + 2*Rbar + (n-3)*P)/n, where Fbar is the adjacent-face-point mean and Rbar is the adjacent-edge-midpoint mean.",
+    "error_precedence": "Validate all input framing and topology before checking output pointer or capacity; errors do not write output.",
+    "complexity": "Bounded fixed-array topology validation and one refinement step; all input dimensions have strict maxima."
+  },
+  "workspace": {
+    "elements": 386,
+    "bytes": 8192,
+    "meaning": "Fixed arrays for at most 24 old vertices, 8 faces, 32 edges, vertex-link validation, and 386 staged output doubles."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id":"empty-closed-mesh","input_values":[0,0],"input_length":2,"output_capacity":2,"expected_result":2,"expected_output":[0,0]},
+    {"id":"tetrahedron-one-step","input_values":[4,4,0,0,2,0,0,2,2,2,3,0,1,2,3,0,3,1,3,0,2,3,3,1,3,2],"input_length":26,"output_capacity":78,"expected_result":78,"expected_output":[14,12,0.7407407407407407,0.7407407407407407,1.2592592592592593,0.7407407407407407,0.7407407407407407,1.2592592592592593,1.2592592592592593,1.2592592592592593,1.0,0.3333333333333333,0.3333333333333333,1.0,1.0,1.0,1.0,1.0,1.6666666666666667,1.0,1.0,1.6666666666666667,0.6666666666666666,0.6666666666666666,1.3333333333333333,0.6666666666666666,0.6666666666666666,1.3333333333333333,1.3333333333333333,1.3333333333333333,0,4,10,5,1,7,10,4,2,5,10,7,0,6,11,4,3,8,11,6,1,4,11,8,0,5,12,6,2,9,12,5,3,6,12,9,1,8,13,7,3,9,13,8,2,7,13,9]},
+    {"id":"valid-empty-insufficient-output","input_values":[0,0],"input_length":2,"output_capacity":1,"expected_result":-2,"expected_output":[]},
+    {"id":"valid-tetrahedron-null-output","input_values":[4,4,0,0,2,0,0,2,2,2,3,0,1,2,3,0,3,1,3,0,2,3,3,1,3,2],"input_length":26,"output_capacity":78,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"open-single-triangle","input_values":[3,1,0,0,1,0,0,1,3,0,1,2],"input_length":12,"output_capacity":386,"expected_result":-1,"expected_output":[]},
+    {"id":"open-mesh-before-null-output","input_values":[3,1,0,0,1,0,0,1,3,0,1,2],"input_length":12,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"two-components-pinch-one-vertex-link","input_values":[7,8,0,0,2,0,0,2,2,2,4,0,6,0,4,2,3,0,1,2,3,0,3,1,3,0,2,3,3,1,3,2,3,0,4,5,3,0,6,4,3,0,5,6,3,4,6,5],"input_length":48,"output_capacity":386,"expected_result":-1,"expected_output":[]},
+    {"id":"vertex-without-faces","input_values":[1,0,0,0],"input_length":4,"output_capacity":10,"expected_result":-1,"expected_output":[]},
+    {"id":"repeated-vertex-in-face","input_values":[3,2,0,0,1,0,0,1,3,0,1,1,3,0,1,2],"input_length":16,"output_capacity":386,"expected_result":-1,"expected_output":[]},
+    {"id":"trailing-word","input_values":[0,0,0],"input_length":3,"output_capacity":2,"expected_result":-1,"expected_output":[]},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":386,"expected_result":-1,"expected_output":[]},
+    {"id":"input-length-mismatch","input_values":[0,0],"input_length":1,"output_capacity":2,"expected_result":-1,"expected_output":[]}
+  ]
+}

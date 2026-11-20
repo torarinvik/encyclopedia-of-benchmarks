@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "elias-fano-monotone-sequence-i64-array-scalar-v1",
+  "algorithm": "elias_fano_monotone_sequence",
+  "function_symbol": "elias_fano_monotone_sequence",
+  "abi": "i64_array_scalar",
+  "source": {
+    "url": "https://doi.org/10.1145/321812.321820",
+    "implementation_notes_url": "https://pages.di.unipi.it/pibiri/papers/ii_compression.pdf"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,U,x_0,...,x_(n-1)]",
+    "count_range": [1, 32],
+    "inclusive_upper_bound_range": [0, 1000000],
+    "feasibility_rule": "n<=U+1",
+    "value_rule": "0<=x_i<=U and x_i<=x_(i+1)",
+    "exact_input_length": "n+2",
+    "maximum_valid_input_length": 34,
+    "maximum_parseable_input_length": 35,
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "low_width": "Choose the largest ell>=0 with n*2^ell<=U+1, equivalently floor(log2((U+1)/n)).",
+    "low_encoding": "Store x_i mod 2^ell for each sequence position i.",
+    "high_encoding": "Use a bit vector of length floor(U/2^ell)+n and set bit (x_i div 2^ell)+i for each i.",
+    "access": "Scan the high bit vector for one positions p_i and recover x_i=((p_i-i)*2^ell)|low_i.",
+    "output_checksum": "Return sum((i+1)*decoded_x_i) over all sequence positions.",
+    "complexity": "O(n+U/2^ell) time and O(n*ell+U/2^ell) bits of storage, with n<=32 and U<=1000000.",
+    "overflow_bound": "The checksum is at most (32*33/2)*1000000=528000000, within signed 64-bit range."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Position-weighted checksum of values accessed from the Elias-Fano representation; -1 for invalid input.",
+    "valid_result_range": [0, 528000000],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"singleton-zero-universe","input_values":[1,0,0],"input_length":3,"expected_result":0},
+    {"id":"sparse-values-with-wide-low-part","input_values":[4,15,0,1,7,15],"input_length":6,"expected_result":83},
+    {"id":"dense-zero-low-width","input_values":[4,3,0,1,2,3],"input_length":6,"expected_result":20},
+    {"id":"duplicate-values","input_values":[5,9,0,0,3,3,9],"input_length":7,"expected_result":66},
+    {"id":"non-power-of-two-density","input_values":[4,6,0,2,4,6],"input_length":6,"expected_result":40},
+    {"id":"large-single-value","input_values":[1,1000000,1000000],"input_length":3,"expected_result":1000000},
+    {"id":"maximum-sequence-length","input_values":[32,1000000,0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,11000,12000,13000,14000,15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000],"input_length":34,"expected_result":10912000},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"universe-too-small","input_values":[4,2,0,1,2,2],"input_length":6,"expected_result":-1},
+    {"id":"negative-upper-bound","input_values":[2,-1,0,0],"input_length":4,"expected_result":-1},
+    {"id":"upper-bound-above-limit","input_values":[1,1000001,0],"input_length":3,"expected_result":-1},
+    {"id":"value-above-upper-bound","input_values":[2,5,0,6],"input_length":4,"expected_result":-1},
+    {"id":"decreasing-sequence","input_values":[3,9,5,2,1],"input_length":5,"expected_result":-1},
+    {"id":"truncated-sequence","input_values":[3,9,1,2],"input_length":4,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,1,1,0],"input_length":4,"expected_result":-1}
+  ]
+}

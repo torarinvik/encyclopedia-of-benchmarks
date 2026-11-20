@@ -10,6 +10,9 @@ MAX_VALID_INPUT_LENGTH = 70
 MAX_PARSEABLE_INPUT_LENGTH = MAX_VALID_INPUT_LENGTH + 1
 MAX_OUTPUT_WORDS = MAX_DIMENSION * MAX_DIMENSION
 MAX_OUTPUT_BYTES = MAX_OUTPUT_WORDS * 8
+# Largest fixed cell and route arrays among the ten language ports. Recursive
+# control frames are separately described by the O(V) space bound.
+MAX_WORKSPACE_BYTES = 2 * MAX_OUTPUT_BYTES
 INVALID_RESULT = -1
 OUTPUT_ERROR = -2
 NO_PATH_RESULT = -3

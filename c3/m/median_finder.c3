@@ -33,7 +33,7 @@ fn long heap_pop(long[32]* heap, usz* size, bool is_max) {
 }
 
 fn void write_f64(char* output, usz position, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[position + byte] = (char)(bits >> (8 * byte));
     }

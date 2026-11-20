@@ -1,0 +1,205 @@
+const GAO_MAX_N: usize = 7
+const GAO_MAX_K: usize = 3
+const GAO_POLY: usize = 8
+
+def gao_mod7(value: i64) -> i64:
+    remainder: i64 = value % 7
+    if remainder < 0: remainder <- remainder + 7
+    remainder
+
+def gao_inverse7(value: i64) -> i64:
+    if value == 1: return 1
+    if value == 2: return 4
+    if value == 3: return 5
+    if value == 4: return 2
+    if value == 5: return 3
+    if value == 6: return 6
+    0
+
+def gao_poly_zero(polynomial: view[i64]) -> bool:
+    degree: mutable usize = 0
+    while degree < GAO_POLY:
+        if polynomial[degree] != 0: return false
+        degree <- degree + 1
+    true
+
+def gao_poly_degree(polynomial: view[i64]) -> usize:
+    degree: mutable usize = GAO_POLY
+    while degree > 0:
+        degree <- degree - 1
+        if polynomial[degree] != 0: return degree
+    0
+
+def gao_poly_copy(destination: mutable view[i64], source: view[i64]) -> void:
+    degree: mutable usize = 0
+    while degree < GAO_POLY:
+        destination[degree] <- source[degree]
+        degree <- degree + 1
+
+def gao_multiply_linear(polynomial: mutable view[i64], root: i64) -> void:
+    product: mutable i64[GAO_POLY] = zeroed
+    degree: mutable usize = 0
+    while degree < GAO_POLY:
+        product[degree] <- gao_mod7(product[degree] - root * polynomial[degree])
+        if degree + 1 < GAO_POLY:
+            product[degree + 1] <- gao_mod7(product[degree + 1] + polynomial[degree])
+        degree <- degree + 1
+    gao_poly_copy(polynomial, product[0:GAO_POLY])
+
+def gao_interpolate(n: usize, values: view[i64], result: mutable view[i64]) -> void:
+    i: mutable usize = 0
+    while i < n:
+        basis: mutable i64[GAO_POLY] = zeroed
+        basis[0] <- 1
+        denominator: mutable i64 = 1
+        j: mutable usize = 0
+        while j < n:
+            if j != i:
+                gao_multiply_linear(basis[0:GAO_POLY], j.i64())
+                denominator <- gao_mod7(denominator * (i.i64() - j.i64()))
+            j <- j + 1
+        scale: i64 = gao_mod7(values[i] * gao_inverse7(denominator))
+        degree: mutable usize = 0
+        while degree < GAO_POLY:
+            result[degree] <- gao_mod7(result[degree] + scale * basis[degree])
+            degree <- degree + 1
+        i <- i + 1
+
+def gao_build_vanishing(n: usize, result: mutable view[i64]) -> void:
+    result[0] <- 1
+    point: mutable usize = 0
+    while point < n:
+        gao_multiply_linear(result, point.i64())
+        point <- point + 1
+
+def gao_divide(numerator: view[i64], denominator: view[i64],
+    quotient: mutable view[i64], remainder: mutable view[i64]) -> bool:
+    if gao_poly_zero(denominator): return false
+    degree: mutable usize = 0
+    while degree < GAO_POLY:
+        quotient[degree] <- 0
+        remainder[degree] <- numerator[degree]
+        degree <- degree + 1
+    denominator_degree: usize = gao_poly_degree(denominator)
+    remainder_degree: mutable usize = gao_poly_degree(remainder)
+    inverse_lead: i64 = gao_inverse7(denominator[denominator_degree])
+    while not gao_poly_zero(remainder) and remainder_degree >= denominator_degree:
+        shift: usize = remainder_degree - denominator_degree
+        factor: i64 = gao_mod7(remainder[remainder_degree] * inverse_lead)
+        quotient[shift] <- gao_mod7(quotient[shift] + factor)
+        degree <- 0
+        while degree <= denominator_degree:
+            remainder[shift + degree] <- gao_mod7(
+                remainder[shift + degree] - factor * denominator[degree])
+            degree <- degree + 1
+        remainder_degree <- gao_poly_degree(remainder)
+    true
+
+def gao_multiply_poly(left: view[i64], right: view[i64],
+    product: mutable view[i64]) -> void:
+    i: mutable usize = 0
+    while i < GAO_POLY:
+        product[i] <- 0
+        i <- i + 1
+    i <- 0
+    while i < GAO_POLY:
+        j: mutable usize = 0
+        while j < GAO_POLY and i + j < GAO_POLY:
+            product[i + j] <- gao_mod7(product[i + j] + left[i] * right[j])
+            j <- j + 1
+        i <- i + 1
+
+def gao_subtract_poly(result: mutable view[i64], left: view[i64], right: view[i64]) -> void:
+    degree: mutable usize = 0
+    while degree < GAO_POLY:
+        result[degree] <- gao_mod7(left[degree] - right[degree])
+        degree <- degree + 1
+
+def gao_decode(n: usize, k: usize, errors: usize, received: view[i64]) -> i64:
+    interpolant: mutable i64[GAO_POLY] = zeroed
+    gao_interpolate(n, received, interpolant[0:GAO_POLY])
+    if gao_poly_zero(interpolant[0:GAO_POLY]): return 1
+
+    r0: mutable i64[GAO_POLY] = zeroed
+    r1: mutable i64[GAO_POLY] = zeroed
+    gao_build_vanishing(n, r0[0:GAO_POLY])
+    gao_poly_copy(r1[0:GAO_POLY], interpolant[0:GAO_POLY])
+    v0: mutable i64[GAO_POLY] = zeroed
+    v1: mutable i64[GAO_POLY] = zeroed
+    v1[0] <- 1
+    candidate_numerator: mutable i64[GAO_POLY] = zeroed
+    candidate_denominator: mutable i64[GAO_POLY] = zeroed
+    found: mutable bool = false
+    while not gao_poly_zero(r1[0:GAO_POLY]):
+        if 2 * gao_poly_degree(r1[0:GAO_POLY]) < n + k:
+            gao_poly_copy(candidate_numerator[0:GAO_POLY], r1[0:GAO_POLY])
+            gao_poly_copy(candidate_denominator[0:GAO_POLY], v1[0:GAO_POLY])
+            found <- true
+            break
+        quotient: mutable i64[GAO_POLY] = zeroed
+        remainder: mutable i64[GAO_POLY] = zeroed
+        if not gao_divide(r0[0:GAO_POLY], r1[0:GAO_POLY],
+            quotient[0:GAO_POLY], remainder[0:GAO_POLY]): return 0
+        if gao_poly_zero(remainder[0:GAO_POLY]): break
+        product: mutable i64[GAO_POLY] = zeroed
+        v2: mutable i64[GAO_POLY] = zeroed
+        gao_multiply_poly(quotient[0:GAO_POLY], v1[0:GAO_POLY], product[0:GAO_POLY])
+        gao_subtract_poly(v2[0:GAO_POLY], v0[0:GAO_POLY], product[0:GAO_POLY])
+        gao_poly_copy(r0[0:GAO_POLY], r1[0:GAO_POLY])
+        gao_poly_copy(r1[0:GAO_POLY], remainder[0:GAO_POLY])
+        gao_poly_copy(v0[0:GAO_POLY], v1[0:GAO_POLY])
+        gao_poly_copy(v1[0:GAO_POLY], v2[0:GAO_POLY])
+    if not found or gao_poly_zero(candidate_denominator[0:GAO_POLY]): return 0
+
+    coefficients: mutable i64[GAO_POLY] = zeroed
+    division_remainder: mutable i64[GAO_POLY] = zeroed
+    if not gao_divide(candidate_numerator[0:GAO_POLY], candidate_denominator[0:GAO_POLY],
+        coefficients[0:GAO_POLY], division_remainder[0:GAO_POLY]): return 0
+    if not gao_poly_zero(division_remainder[0:GAO_POLY])
+        or gao_poly_degree(coefficients[0:GAO_POLY]) >= k: return 0
+    mismatches: mutable usize = 0
+    x: mutable usize = 0
+    while x < n:
+        value: mutable i64 = 0
+        degree: mutable usize = k
+        while degree > 0:
+            degree <- degree - 1
+            value <- (value * x.i64() + coefficients[degree]) % 7
+        if value != received[x]: mismatches <- mismatches + 1
+        x <- x + 1
+    if mismatches > errors: return 0
+
+    result: mutable i64 = 1
+    place: mutable i64 = 1
+    degree: mutable usize = 0
+    while degree < k:
+        result <- result + coefficients[degree] * place
+        place <- place * 7
+        degree <- degree + 1
+    result
+
+def gao_impl(input: view[i64], length: usize) -> i64:
+    if length < 3 or length > 11: return -1
+    n_value: i64 = input[0]
+    k_value: i64 = input[1]
+    t_value: i64 = input[2]
+    if n_value < 2 or n_value > GAO_MAX_N.i64() or k_value < 1
+        or k_value > GAO_MAX_K.i64() or k_value > n_value or t_value < 0
+        or t_value > 2 or 2 * t_value > n_value - k_value: return -1
+    n: usize = n_value.usize()
+    k: usize = k_value.usize()
+    errors: usize = t_value.usize()
+    if length != 3 + n: return -1
+    received: mutable i64[GAO_MAX_N] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        symbol: i64 = input[3 + index]
+        if symbol < 0 or symbol >= 7: return -1
+        received[index] <- symbol
+        index <- index + 1
+    gao_decode(n, k, errors, received[0:n])
+
+export fn gao_rs_decode(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 11: return -1
+    input_view: view[i64] = input[0:length]
+    gao_impl(input_view, length)

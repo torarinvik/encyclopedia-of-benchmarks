@@ -8,7 +8,7 @@ fn long gardenia_symgs(double* a,usz len,double* out,usz cap) @export("gardenia_
     double nd=a[0],md=a[1],cd=a[2];if(trunc(nd)!=nd||trunc(md)!=md||trunc(cd)!=cd||nd<1||nd>NMAX||md<1||md>MMAX||cd<1||cd>nd)return -1;
     usz n=(usz)nd,m=(usz)md,c=(usz)cd;if(len!=5+4*n+c+2*m)return -1;
     usz oa=3,fa=oa+n,ra=fa+c+1,ca=ra+n+1,va=ca+m,xa=va+m,ba=xa+n;
-    usz order[8]={0},offs[9]={0},row[9]={0},col[64]={0},group[8]={0};double mat[64]={0},x[8]={0},rhs[8]={0},staged[8]={0};bool seen[8]={false};
+    usz[8] order={};usz[9] offs={};usz[9] row={};usz[64] col={};usz[8] group={};double[64] mat={};double[8] x={};double[8] rhs={};double[8] staged={};bool[8] seen={};
     for(usz i=0;i<n;i++){double z=a[oa+i];if(trunc(z)!=z||z<0||z>=nd||seen[(usz)z])return -1;order[i]=(usz)z;seen[order[i]]=true;}
     for(usz k=0;k<=c;k++){double z=a[fa+k];if(trunc(z)!=z||z<0||z>nd)return -1;offs[k]=(usz)z;}if(offs[0]!=0||offs[c]!=n)return -1;
     for(usz k=0;k<c;k++){if(offs[k]>=offs[k+1])return -1;for(usz p=offs[k];p<offs[k+1];p++)group[order[p]]=k;}

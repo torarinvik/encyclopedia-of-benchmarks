@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "kactl-constant-intervals-i64-array-bytes-output-v1",
+  "algorithm": "constant_intervals",
+  "function_symbol": "constant_intervals",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "ConstantIntervals",
+    "url": "https://github.com/kth-competitive-programming/kactl/blob/b3548e973f8772010c1ef84e6d427c749733fd2c/content/various/ConstantIntervals.h",
+    "index_url": "https://github.com/kth-competitive-programming/kactl/blob/b3548e973f8772010c1ef84e6d427c749733fd2c/content/various/chapter.tex",
+    "author": "Simon Lindholm",
+    "license": "CC0 (as marked on the cited header)",
+    "algorithm_attribution": "Recursive endpoint-pruned partition of a monotone function into maximal constant half-open intervals.",
+    "implementation_status": "bounded clean-room profile; algorithm description only"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, step, offset, divisor]",
+    "n_range": [0, 256],
+    "step_range": [0, 65535],
+    "offset_range": [0, 65535],
+    "divisor_range": [1, 65535],
+    "function": "f(i)=floor((step*i+offset)/divisor) for 0<=i<n",
+    "maximum_valid_length": 4,
+    "maximum_parseable_length": 5,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_integer_array",
+    "encoding": "For each maximal constant interval in order, emit lo, hi, f(lo) as three signed i32 values.",
+    "successful_result": "Number of interval records; output length is 12 times this count.",
+    "maximum_records": 256,
+    "maximum_bytes": 3072,
+    "capacity_requirement": "At least 12*n bytes, the maximum possible output size.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "monotonicity": "step, offset, and divisor are nonnegative with divisor positive, so f is nondecreasing; no arbitrary array is accepted.",
+    "interval_semantics": "The emitted records are disjoint, adjacent, cover [0,n), and adjacent records have different values.",
+    "primary_method": "Recursively split a half-open index range when endpoint values differ; equal endpoints prune the entire range by monotonicity. Merge adjacent equal pieces produced across a split.",
+    "independent_reference": "Find the next run endpoint from ceil(((f(lo)+1)*divisor-offset)/step); step=0 means the range is constant.",
+    "validation_order": "Validate pointer, exact frame length, and all scalar ranges before checking output capacity; errors write no output.",
+    "integer_safety": "The largest numerator is 65535*255+65535=16776960 and every emitted value fits signed i32."
+  },
+  "workspace": {
+    "bytes": 3072,
+    "meaning": "Maximum byte-output buffer for 256 interval records."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {"id":"empty-domain","input_values":[0,7,3,5],"input_length":4,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"constant-zero-slope","input_values":[12,0,65535,65535],"input_length":4,"output_capacity":144,"expected_result":1,"expected_output_hex":"000000000c00000001000000"},
+    {"id":"three-index-plateaus","input_values":[10,1,0,3],"input_length":4,"output_capacity":120,"expected_result":4,"expected_output_hex":"000000000300000000000000030000000600000001000000060000000900000002000000090000000a00000003000000"},
+    {"id":"fractional-slope-runs","input_values":[9,2,1,5],"input_length":4,"output_capacity":108,"expected_result":4,"expected_output_hex":"000000000200000000000000020000000500000001000000050000000700000002000000070000000900000003000000"},
+    {"id":"several-even-length-plateaus","input_values":[12,3,2,6],"input_length":4,"output_capacity":144,"expected_result":6,"expected_output_hex":"000000000200000000000000020000000400000001000000040000000600000002000000060000000800000003000000080000000a000000040000000a0000000c00000005000000"},
+    {"id":"skipped-function-values","input_values":[8,10,0,3],"input_length":4,"output_capacity":96,"expected_result":8,"expected_output_hex":"00000000010000000000000001000000020000000300000002000000030000000600000003000000040000000a00000004000000050000000d000000050000000600000010000000060000000700000014000000070000000800000017000000"},
+    {"id":"maximum-domain-single-run","input_values":[256,0,65535,65535],"input_length":4,"output_capacity":3072,"expected_result":1,"expected_output_hex":"000000000001000001000000","workspace_bytes":3072},
+    {"id":"invalid-negative-step","input_values":[4,-1,0,2],"input_length":4,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-zero-divisor","input_values":[4,1,0,0],"input_length":4,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-out-of-range-offset","input_values":[4,1,65536,2],"input_length":4,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-n-above-bound","input_values":[257,1,0,2],"input_length":4,"output_capacity":3072,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-short-frame","input_values":[4,1,0],"input_length":3,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-trailing-word","input_values":[1,1,0,2,99],"input_length":5,"output_capacity":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-capacity","input_values":[3,0,0,1],"input_length":4,"output_capacity":35,"workspace_bytes":35,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,1,0,2],"input_length":4,"output_capacity":36,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

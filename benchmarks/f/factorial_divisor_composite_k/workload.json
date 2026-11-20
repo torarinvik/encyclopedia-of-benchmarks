@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "factorial-divisor-composite-k-v1",
+  "algorithm": "factorial_divisor_composite_k",
+  "function_symbol": "factorial_divisor_composite_k",
+  "abi": "binary_scalar",
+  "source": {
+    "title": "Finding Power of Factorial Divisor — Composite k",
+    "url": "https://cp-algorithms.com/algebra/factorial-divisors.html#composite-k",
+    "reuse": "algorithm idea only; clean-room profile"
+  },
+  "input": {
+    "kind": "unsigned_64_pair",
+    "encoding": "[n, k]",
+    "n_range": [0, 1000000000000],
+    "composite_k_range": [4, 1000000],
+    "k_must_be_composite": true,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "largest x such that k^x divides n!",
+    "result_range": [0, 1000000000000],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"empty-factorial","input_values":[0,4],"expected_result":0},
+    {"id":"unit-factorial","input_values":[1,12],"expected_result":0},
+    {"id":"prime-power-divisor","input_values":[10,4],"expected_result":4},
+    {"id":"two-prime-divisor","input_values":[10,6],"expected_result":4},
+    {"id":"unequal-prime-exponents","input_values":[25,12],"expected_result":10},
+    {"id":"equal-limiting-valuations","input_values":[100,12],"expected_result":48},
+    {"id":"several-prime-factors","input_values":[1000,72],"expected_result":249},
+    {"id":"higher-prime-power","input_values":[1000,1024],"expected_result":99},
+    {"id":"maximum-n-prime-power","input_values":[1000000000000,4],"expected_result":499999999993},
+    {"id":"maximum-k","input_values":[1000000,1000000],"expected_result":41666},
+    {"id":"maximum-n-and-k","input_values":[1000000000000,1000000],"expected_result":41666666666},
+    {"id":"prime-k-small","input_values":[100,2],"expected_result":-1},
+    {"id":"prime-k-large","input_values":[100,97],"expected_result":-1},
+    {"id":"k-below-minimum","input_values":[100,3],"expected_result":-1},
+    {"id":"k-above-maximum","input_values":[100,1000001],"expected_result":-1},
+    {"id":"n-above-maximum","input_values":[1000000000001,4],"expected_result":-1},
+    {"id":"uint64-maximum-n","input_values":[18446744073709551615,4],"expected_result":-1}
+  ]
+}

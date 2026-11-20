@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "tree-sibling-distinct-cost-coloring-i64-array-scalar-v1",
+  "algorithm": "tree_sibling_distinct_cost_coloring",
+  "function_symbol": "tree_sibling_distinct_cost_coloring",
+  "abi": "i64_array_scalar",
+  "input": {"layout":"[n,k,parent[1..n-1],row-major costs]", "maximum_valid_values":353, "maximum_parseable_values":354, "invalid_result":-1},
+  "output": {"encoding":"minimum coloring cost", "invalid_result":-1, "infeasible_result":-2},
+  "measurement": {"comparison_model":"i64_array_scalar_call", "sample_count":7, "warmup_rounds":1, "repetitions_per_sample":100},
+  "source": {"url":"https://cp-algorithms.com/graph/hungarian-algorithm.html", "reuse":"Assignment idea only; independent contract, code and fixtures."},
+  "cases": [
+    {"id":"single_vertex", "input_values":[1,3,7,2,9], "input_length":5, "expected_result":2},
+    {"id":"single_vertex_one_color", "input_values":[1,1,1000000], "input_length":3, "expected_result":1000000},
+    {"id":"siblings_need_distinct_colors", "input_values":[3,3,0,0,0,9,9,9,0,5,9,0,4], "input_length":13, "expected_result":4},
+    {"id":"assignment_requires_exchange", "input_values":[3,3,0,0,0,1000,1000,1000,1,2,1000,1,100], "input_length":13, "expected_result":3},
+    {"id":"two_color_chain", "input_values":[3,2,0,1,0,4,0,5,0,7], "input_length":10, "expected_result":5},
+    {"id":"grandparent_color_may_repeat", "input_values":[3,2,0,1,0,100,100,0,0,100], "input_length":10, "expected_result":0},
+    {"id":"saturated_four_color_star", "input_values":[4,4,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], "input_length":21, "expected_result":4},
+    {"id":"two_color_star_infeasible", "input_values":[3,2,0,0,0,0,0,0,0,0], "input_length":10, "expected_result":-2},
+    {"id":"invalid_before_infeasible", "input_values":[3,2,0,0,0,0,0,0,0,-1], "input_length":10, "expected_result":-1},
+    {"id":"invalid_parent", "input_values":[2,2,1,0,0,0,0], "input_length":7, "expected_result":-1},
+    {"id":"trailing_word", "input_values":[1,1,7,0], "input_length":4, "expected_result":-1},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1},
+    {"id":"null_input_at_parse_limit", "input_values":[], "input_length":354, "input_is_null":true, "expected_result":-1}
+  ]
+}

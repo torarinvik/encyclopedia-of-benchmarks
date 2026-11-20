@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn put_triplet(out:UnsafePointer[UInt8,MutAnyOrigin],vals:InlineArray[Int64,3]):

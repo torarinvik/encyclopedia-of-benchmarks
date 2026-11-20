@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "alpha-skip-search-v1",
+  "algorithm": "alpha_skip_search",
+  "function_symbol": "alpha_skip_search",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Alpha Skip Search",
+    "url": "https://igm.univ-mlv.fr/~lecroq/string/node33.html",
+    "paper": "Charras C., Lecroq T., Pehoushek J.D., A very fast string matching algorithm for small alphabets and long patterns, CPM 1998",
+    "reuse": "algorithm description only; independent implementation, contract, and fixtures"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,text[0..n),pattern[0..m)]",
+    "text_length_range": [0, 4096],
+    "pattern_length_range": [1, 128],
+    "alphabet_range": [0, 3],
+    "factor_length": "max(1,floor(log_4(m)))",
+    "maximum_valid_input_length": 4226,
+    "maximum_parseable_input_length": 4227,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "(match_count << 36) | (sum_of_offsets << 12) | xor_of_offsets",
+    "result_range": "0..562949953421311",
+    "invalid_result": -1
+  },
+  "complexity": {
+    "preprocessing_time": "O(m + 4^ell)",
+    "search_worst_case_time": "O(m*n)",
+    "expected_text_comparisons": "O(ell*n/(m-ell+1)) for a uniform four-symbol alphabet",
+    "auxiliary_space": "O(m + 4^ell + n) when the port copies text"
+  },
+  "workspace": {"bytes": 65536},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"overlapping-periodic","input_values":[5,3,0,1,0,1,0,0,1,0],"expected_result":137438961666},
+    {"id":"single-symbol-multiple-hits","input_values":[4,1,1,2,1,1,1],"expected_result":206158450689},
+    {"id":"short-factor-buckets","input_values":[5,2,0,1,0,1,2,0,1],"expected_result":137438961666},
+    {"id":"long-factor-buckets","input_values":[16,16,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],"expected_result":68719476736},
+    {"id":"no-match","input_values":[4,2,0,1,0,1,1,1],"expected_result":0},
+    {"id":"pattern-longer-than-text","input_values":[2,3,0,1,0,1,2],"expected_result":0},
+    {"id":"empty-text","input_values":[0,1,2],"expected_result":0},
+    {"id":"text-symbol-outside-alphabet","input_values":[1,1,4,1],"expected_result":-1},
+    {"id":"pattern-symbol-outside-alphabet","input_values":[1,1,0,4],"expected_result":-1},
+    {"id":"trailing-word","input_values":[0,1,0,0],"expected_result":-1},
+    {"id":"missing-header","input_values":[0],"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_is_null":true,"input_length":0,"expected_result":-1}
+  ]
+}

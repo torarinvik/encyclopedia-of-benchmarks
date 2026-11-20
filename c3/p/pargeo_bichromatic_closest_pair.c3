@@ -71,7 +71,7 @@ fn void search(Tree* a, int ai, Tree* b, int bi, long* best) {
         if (box_distance(nb, a.nodes[l]) < box_distance(nb, a.nodes[r])) { search(a, l, b, bi, best); search(a, r, b, bi, best); }
         else { search(a, r, b, bi, best); search(a, l, b, bi, best); }
     } else {
-        int[4][2] pairs = { {na.left, nb.left}, {na.left, nb.right}, {na.right, nb.left}, {na.right, nb.right} };
+        int[2][4] pairs = { {na.left, nb.left}, {na.left, nb.right}, {na.right, nb.left}, {na.right, nb.right} };
         long[4] distances;
         for (int i = 0; i < 4; i++) distances[i] = box_distance(a.nodes[pairs[i][0]], b.nodes[pairs[i][1]]);
         for (int i = 1; i < 4; i++) {

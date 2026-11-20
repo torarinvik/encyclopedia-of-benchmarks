@@ -1,0 +1,48 @@
+from std.collections import InlineArray
+
+const HEM_MAX_INPUT: usize = 130
+
+fn hem_store_i64(output: mutable view[UInt8], offset: Int, value: Int64) -> Void:
+    let bits = bitcast[UInt64](value)
+    for byte in range(8): output[offset + byte] <- UInt8((bits >> (byte * 8)) & UInt64(255))
+
+@export("hypercube_edge_monotonicity_tester")
+fn hypercube_edge_monotonicity_tester(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize,
+) abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > HEM_MAX_INPUT: return -1
+    let input_view: view[Int64] = input[0:Int(length)]
+    let n_value = input_view[0]
+    let q_value = input_view[1]
+    if n_value < 1 or n_value > 6 or q_value < 1 or q_value > 32: return -1
+    let n = Int(n_value)
+    let q = Int(q_value)
+    let domain = 1 << n
+    if length != 2 + domain + 2 * q: return -1
+    for vertex in range(domain):
+        if input_view[2 + vertex] != 0 and input_view[2 + vertex] != 1: return -1
+    let tape = 2 + domain
+    for round in range(q):
+        let vertex = input_view[tape + 2 * round]
+        let coordinate = input_view[tape + 2 * round + 1]
+        if vertex < 0 or vertex >= Int64(domain) or coordinate < 0 or coordinate >= n_value: return -1
+
+    var accepted = Int64(1)
+    var rounds = Int64(0)
+    for round in range(q):
+        let vertex = Int(input_view[tape + 2 * round])
+        let coordinate = Int(input_view[tape + 2 * round + 1])
+        let bit = 1 << coordinate
+        let lower = vertex & ~bit
+        rounds += 1
+        if input_view[2 + lower] > input_view[2 + (lower | bit)]:
+            accepted = 0
+            break
+    if output.is_null() or capacity < 24: return -2
+    var words = InlineArray[Int64, 3](fill=0)
+    words[0] <- accepted
+    words[1] <- rounds
+    words[2] <- 2 * rounds
+    var output_view: mutable view[UInt8] = output[0:24]
+    for word in range(3): hem_store_i64(output_view&, word * 8, words[word])
+    24

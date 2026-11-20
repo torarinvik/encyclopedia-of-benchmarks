@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "arbitrary-axis-finite-vector-rotation-float64-v1",
+  "algorithm": "rodrigues_arbitrary_axis_rotation",
+  "function_symbol": "rodrigues_arbitrary_axis_rotation",
+  "abi": "float64_slice_io",
+  "description": "Apply one finite rotation to a 3D vector about a caller-supplied arbitrary axis.",
+  "source": {
+    "title": "Euler finite rotation formula, commonly called Rodrigues rotation formula",
+    "url": "https://iel.ucdavis.edu/publication/1989/j_ASMEAM.pdf",
+    "secondary_url": "https://mathworld.wolfram.com/RodriguesRotationFormula.html",
+    "equation": "r' = r*cos(theta) + (n cross r)*sin(theta) + n*(n dot r)*(1-cos(theta))",
+    "notes": "The 1989 historical paper attributes this finite-rotation vector formula to Euler and distinguishes it from Rodrigues' composition formulas/parameters; the common Rodrigues naming is retained for the benchmark identifier."
+  },
+  "contract": {
+    "operation": "Normalize a nonzero axis using max-component scaling and apply the vector form of the finite rotation formula.",
+    "input_encoding": "[axis_x,axis_y,axis_z,vector_x,vector_y,vector_z,angle_radians]",
+    "angle_unit": "radians",
+    "normalization": "scale=max(abs(axis_x),abs(axis_y),abs(axis_z)); q=axis/scale; n=q/sqrt((q_x*q_x+q_y*q_y)+q_z*q_z). The axis must be nonzero.",
+    "operation_order": "Compute c=cos(theta), s=sin(theta), d=1-c; cross=n cross vector in component order; dot=(n_x*v_x+n_y*v_y)+n_z*v_z; each output is (v_i*c+cross_i*s)+(n_i*dot)*d. Do not use fast-math assumptions.",
+    "input_domain": "All seven values finite; each axis/vector component has absolute value at most 1,000,000; abs(angle)<=2*pi. Axis may have any nonzero scale, including subnormal magnitude.",
+    "output_domain": "Three finite components, each with absolute value at most 2,000,000.",
+    "malformed_input_result": -1,
+    "null_or_short_output_result": -2,
+    "success_result": 3,
+    "error_precedence": "Validate and compute the complete result before checking output nullness/capacity; malformed input takes precedence. Errors write nothing."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[axis_x,axis_y,axis_z,vector_x,vector_y,vector_z,angle_radians]",
+    "exact_valid_length": 7,
+    "maximum_valid_length": 7,
+    "maximum_parseable_length": 8,
+    "component_abs_limit": 1000000.0,
+    "angle_abs_limit": 6.283185307179586,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[rotated_x,rotated_y,rotated_z]",
+    "maximum_elements": 3,
+    "success_result": 3,
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 2e-12
+  },
+  "workspace": {
+    "bytes": 256,
+    "elements": 3,
+    "meaning": "Conservative allowance for normalized axis, cross product, and staged three-element output; caller input/output buffers are excluded."
+  },
+  "complexity": {
+    "time": "O(1)",
+    "auxiliary_space": "O(1)"
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 2e-12
+  },
+  "cases": [
+    {"id":"scaled-z-quarter-turn","input_values":[0.0,0.0,7.0,1.0,0.0,0.0,1.5707963267948966],"input_length":7,"expected_result":3,"expected_output":[0.0,1.0,0.0]},
+    {"id":"arbitrary-axis-positive-third-turn","input_values":[1000000.0,1000000.0,1000000.0,1.0,0.0,0.0,2.0943951023931953],"input_length":7,"expected_result":3,"expected_output":[0.0,1.0,0.0]},
+    {"id":"arbitrary-axis-negative-third-turn","input_values":[1.0,1.0,1.0,1.0,0.0,0.0,-2.0943951023931953],"input_length":7,"expected_result":3,"expected_output":[0.0,0.0,1.0]},
+    {"id":"axis-parallel-vector","input_values":[1.0,2.0,2.0,2.0,4.0,4.0,1.0],"input_length":7,"expected_result":3,"expected_output":[2.0,4.0,4.0]},
+    {"id":"subnormal-scale-axis","input_values":[5e-324,0.0,0.0,0.0,1.0,0.0,1.5707963267948966],"input_length":7,"expected_result":3,"expected_output":[0.0,0.0,1.0]},
+    {"id":"zero-angle-identity","input_values":[-3.0,2.0,5.0,4.0,-8.0,9.0,0.0],"input_length":7,"expected_result":3,"expected_output":[4.0,-8.0,9.0]},
+    {"id":"max-vector-components","input_values":[0.0,0.0,1.0,1000000.0,-1000000.0,1000000.0,1.5707963267948966],"input_length":7,"expected_result":3,"expected_output":[1000000.0,1000000.0,1000000.0]},
+    {"id":"negative-axis-direction","input_values":[0.0,0.0,-2.0,1.0,0.0,0.0,1.5707963267948966],"input_length":7,"expected_result":3,"expected_output":[0.0,-1.0,0.0]},
+    {"id":"positive-angle-boundary","input_values":[1.0,3.0,4.0,4.0,-3.0,2.0,6.283185307179586],"input_length":7,"expected_result":3,"expected_output":[4.0,-3.0,2.0]},
+    {"id":"negative-angle-boundary","input_values":[1.0,3.0,4.0,4.0,-3.0,2.0,-6.283185307179586],"input_length":7,"expected_result":3,"expected_output":[4.0,-3.0,2.0]},
+    {"id":"zero-axis","input_values":[0.0,0.0,0.0,1.0,2.0,3.0,1.0],"input_length":7,"expected_result":-1,"expected_output":[]},
+    {"id":"component-over-bound","input_values":[1000001.0,0.0,0.0,1.0,2.0,3.0,1.0],"input_length":7,"expected_result":-1,"expected_output":[]},
+    {"id":"angle-over-bound","input_values":[1.0,0.0,0.0,1.0,2.0,3.0,6.283185307179587],"input_length":7,"expected_result":-1,"expected_output":[]},
+    {"id":"short-input-frame","input_values":[1.0,0.0,0.0,1.0,2.0,3.0],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"trailing-input-value","input_values":[1.0,0.0,0.0,1.0,2.0,3.0,1.0,9.0],"input_length":8,"expected_result":-1,"expected_output":[]},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"null-output","input_values":[0.0,0.0,1.0,1.0,0.0,0.0,1.0],"input_length":7,"output_capacity":3,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"short-output-capacity","input_values":[0.0,0.0,1.0,1.0,0.0,0.0,1.0],"input_length":7,"output_capacity":2,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid-input-precedes-short-output","input_values":[0.0,0.0,0.0,1.0,0.0,0.0,1.0],"input_length":7,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]}
+  ]
+}

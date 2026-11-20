@@ -1,0 +1,107 @@
+# Deterministic bounded two-level FKS static perfect hashing.
+def fks_hash_index(a: usize, b: usize, modulus: usize, key: i64) -> usize:
+    (((a.i64() * key + b.i64()) % 257).usize()) % modulus
+
+def fks_static_perfect_hash_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > 19:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 0 or n_value > 8 or q_value < 0 or q_value > 8:
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + n + q:
+        return -1
+    for i in 0..<(n + q):
+        if input[2 + i] < 0 or input[2 + i] > 255:
+            return -1
+    for i in 0..<n:
+        for j in (i + 1)..<n:
+            if input[2 + i] == input[2 + j]:
+                return -1
+
+    bucket_of: mutable usize[8] = zeroed
+    bucket_sizes: mutable usize[8] = zeroed
+    first_a: mutable usize = 0
+    first_b: mutable usize = 0
+    first_found: mutable bool = n == 0
+    candidate_a: mutable usize = 1
+    while candidate_a <= 256 and not first_found:
+        candidate_b: mutable usize = 0
+        while candidate_b <= 256 and not first_found:
+            counts: mutable usize[8] = zeroed
+            for i in 0..<n:
+                bucket: usize = fks_hash_index(candidate_a, candidate_b, n, input[2 + i])
+                counts[bucket] <- counts[bucket] + 1
+            square_sum: mutable usize = 0
+            for bucket in 0..<n:
+                square_sum <- square_sum + counts[bucket] * counts[bucket]
+            if square_sum <= 4 * n:
+                first_a <- candidate_a
+                first_b <- candidate_b
+                first_found <- true
+            candidate_b <- candidate_b + 1
+        candidate_a <- candidate_a + 1
+    if not first_found:
+        return -1
+    for i in 0..<n:
+        bucket_of[i] <- fks_hash_index(first_a, first_b, n, input[2 + i])
+        bucket_sizes[bucket_of[i]] <- bucket_sizes[bucket_of[i]] + 1
+
+    slot_keys: mutable i64[8][64] = zeroed
+    occupied: mutable bool[8][64] = zeroed
+    local_a: mutable usize[8] = zeroed
+    local_b: mutable usize[8] = zeroed
+    for bucket in 0..<n:
+        count: usize = bucket_sizes[bucket]
+        if count > 0:
+            capacity: usize = count * count
+            local_found: mutable bool = false
+            candidate_a <- 1
+            while candidate_a <= 256 and not local_found:
+                candidate_b: mutable usize = 0
+                while candidate_b <= 256 and not local_found:
+                    used: mutable bool[64] = zeroed
+                    collision: mutable bool = false
+                    for i in 0..<n:
+                        if bucket_of[i] == bucket:
+                            position: usize = fks_hash_index(candidate_a, candidate_b, capacity, input[2 + i])
+                            if used[position]:
+                                collision <- true
+                            else:
+                                used[position] <- true
+                    if not collision:
+                        local_a[bucket] <- candidate_a
+                        local_b[bucket] <- candidate_b
+                        for i in 0..<n:
+                            if bucket_of[i] == bucket:
+                                position: usize = fks_hash_index(candidate_a, candidate_b, capacity, input[2 + i])
+                                slot_keys[bucket][position] <- input[2 + i]
+                                occupied[bucket][position] <- true
+                        local_found <- true
+                    candidate_b <- candidate_b + 1
+                candidate_a <- candidate_a + 1
+            if not local_found:
+                return -1
+
+    result: mutable i64 = 0
+    for i in 0..<q:
+        query: i64 = input[2 + n + i]
+        present: mutable bool = false
+        if n > 0:
+            bucket: usize = fks_hash_index(first_a, first_b, n, query)
+            count: usize = bucket_sizes[bucket]
+            capacity: usize = count * count
+            if capacity > 0:
+                position: usize = fks_hash_index(local_a[bucket], local_b[bucket], capacity, query)
+                present <- occupied[bucket][position] and slot_keys[bucket][position] == query
+        if present:
+            result <- result | (1.i64() << i.usize())
+    result
+
+export fn fks_static_perfect_hash(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 19:
+        return -1
+    fks_static_perfect_hash_impl(input[0:length])

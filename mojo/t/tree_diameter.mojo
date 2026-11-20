@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -61,7 +62,7 @@ fn tree_diameter(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t,
     if length != c_size_t(1 + 3 * (n - 1)):
         return -1
 
-    var adjacent = InlineArray[Bool, MATRIX_CELLS]()
+    var adjacent = InlineArray[Bool, MATRIX_CELLS](fill=False)
     var weights = InlineArray[Int64, MATRIX_CELLS]()
     var dsu_parent = InlineArray[Int, MAX_N]()
     var dsu_size = InlineArray[Int, MAX_N]()

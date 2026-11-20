@@ -20,7 +20,7 @@ fn long bidirectional_breadth_first_search(long* input, usz length, char* output
     usz blocked_count = (usz)blocked_count_value;
     if (length != 5 + blocked_count) return -1;
 
-    bool blocked[MAX_CELLS] = {};
+    bool[MAX_CELLS] blocked = {};
     for (usz index = 0; index < blocked_count; index++) {
         long value = input[5 + index];
         if (value < 0 || value >= cells || blocked[(int)value]) return -1;
@@ -29,9 +29,9 @@ fn long bidirectional_breadth_first_search(long* input, usz length, char* output
     int start = (int)start_value, goal = (int)goal_value;
     if (blocked[start] || blocked[goal]) return -1;
 
-    long distance[2 * MAX_CELLS], parent[2 * MAX_CELLS];
-    usz queue[2 * MAX_CELLS];
-    usz head[2] = {0, 0}, tail[2] = {1, 1};
+    long[2 * MAX_CELLS] distance; long[2 * MAX_CELLS] parent;
+    usz[2 * MAX_CELLS] queue;
+    usz[2] head = {0, 0}; usz[2] tail = {1, 1};
     for (int index = 0; index < 2 * MAX_CELLS; index++) { distance[index] = -1; parent[index] = -1; }
     distance[start] = 0;
     distance[MAX_CELLS + goal] = 0;
@@ -61,11 +61,11 @@ fn long bidirectional_breadth_first_search(long* input, usz length, char* output
         }
       }
     }
-    long encoded[MAX_OUTPUT_VALUES];
+    long[MAX_OUTPUT_VALUES] encoded;
     usz value_count = 1;
     if (meeting < 0) encoded[0] = 0;
     else {
-        usz reverse_path[MAX_CELLS], prefix_count = 0, path_count = 0;
+        usz[MAX_CELLS] reverse_path; usz prefix_count = 0, path_count = 0;
         long current = meeting;
         while (current >= 0) {
             reverse_path[prefix_count++] = (usz)current;

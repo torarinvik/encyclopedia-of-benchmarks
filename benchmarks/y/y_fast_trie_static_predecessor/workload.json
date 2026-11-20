@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-y-fast-trie-static-strict-neighbor-i64-array-scalar-v1",
+  "algorithm": "y_fast_trie_static_predecessor",
+  "function_symbol": "y_fast_trie_static_predecessor",
+  "abi": "i64_array_scalar",
+  "description": "Batch strict predecessor and successor queries using an x-fast separator trie over sorted small clusters.",
+  "source": {
+    "title": "Log-logarithmic worst-case range queries are possible in space Theta(N)",
+    "author": "Dan E. Willard",
+    "year": 1983,
+    "reference": "Information Processing Letters 17(2), DOI 10.1016/0020-0190(83)90075-3",
+    "url": "https://doi.org/10.1016/0020-0190(83)90075-3",
+    "copyright": "Algorithm idea and citation only; implementation and contract are clean-room work."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,key[0..N),query[0..Q)]",
+    "key_count_range": [0, 256],
+    "query_count_range": [0, 256],
+    "key_and_query_range": [0, 65535],
+    "keys_must_be_unique": true,
+    "queries_may_repeat": true,
+    "exact_length": "2+N+Q",
+    "maximum_valid_length": 514,
+    "maximum_parseable_length": 515,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "sum((one_based_query_index)*((strict_predecessor+1)+65537*(strict_successor+1))); a missing neighbor is -1 and contributes zero",
+    "exact_hits_are_excluded_from_both_neighbors": true,
+    "empty_key_set_result": 0,
+    "zero_query_result": 0
+  },
+  "algorithm_details": {
+    "cluster_size": 16,
+    "primary": "Sort keys into consecutive clusters of at most 16; build a 16-bit binary trie over cluster maxima, storing each subtree's minimum cluster rank. Walk the trie to select the first cluster maximum at least the query, then binary-search the cluster for strict neighbors and cross an adjacent cluster boundary if necessary.",
+    "independent_oracle": "Sort keys and use lower-bound and upper-bound positions to find the strict predecessor and successor.",
+    "primary_complexity": "The language ports use insertion sort, giving O(N^2 + 16 ceil(N/16)) preprocessing time and O(N + 16 ceil(N/16)) space; queries cost O(16+log 16) worst-case work in the bounded profile.",
+    "complexity_note": "This deterministic fixed-width profile does not claim the classic expected O(log log U) bound of randomized y-fast trie variants."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-set-queries","input_values":[0,3,0,1,65535],"input_length":5,"expected_result":0},
+    {"id":"zero-query-batch","input_values":[3,0,10,20,30],"input_length":5,"expected_result":0},
+    {"id":"strict-boundaries-and-exact-hits","input_values":[3,4,1,4,9,0,1,5,9],"input_length":9,"expected_result":2752589},
+    {"id":"repeated-query-values","input_values":[3,2,1,4,9,5,5],"input_length":7,"expected_result":1966125},
+    {"id":"cluster-boundary-neighbors","input_values":[17,3,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,16,17,18],"input_length":22,"expected_result":1179770},
+    {"id":"single-key-and-universe-ceiling","input_values":[1,4,42,0,42,43,65535],"input_length":7,"expected_result":2818392},
+    {"id":"duplicate-key","input_values":[2,1,7,7,3],"input_length":5,"expected_result":-1},
+    {"id":"key-out-of-range","input_values":[1,1,65536,0],"input_length":4,"expected_result":-1},
+    {"id":"query-out-of-range","input_values":[0,1,-1],"input_length":3,"expected_result":-1},
+    {"id":"trailing-value","input_values":[1,1,4,3,99],"input_length":5,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-edge-colored-graph-layer-encoding-i64-array-bytes-output-v1",
+  "algorithm": "edge_colored_graph_layer_encoding",
+  "function_symbol": "edge_colored_graph_layer_encoding",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded color-bit layered reduction from an edge-colored graph to a vertex-colored graph.",
+  "source": {
+    "book_title": "Encyclopedia of Algorithms",
+    "book_chapter": "Graph Isomorphism",
+    "book_chapter_doi": "10.1007/978-1-4939-2864-4_172",
+    "algorithm_attribution": "The color-bit layer reduction selects same-layer edge copies; source-vertex copies are joined by path threads",
+    "implementation_status": "bounded clean-room representation-transform benchmark; algorithm description only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,d,q,vertex_colors[n],(u,v,edge_color)*m]",
+    "vertex_count_range": [1, 8],
+    "edge_count_range": [0, 28],
+    "edge_color_layer_range": [1, 3],
+    "vertex_color_class_range": [1, 3],
+    "maximum_valid_length": 96,
+    "maximum_parseable_length": 97,
+    "simple_undirected_graph": true,
+    "edge_order_unrestricted": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[N,K,vertex_colors[N],(u,v)*K]",
+    "vertex_id_order": "layer-major; id(layer,v)=layer*n+v",
+    "transformed_vertex_color": "layer*q+source_vertex_color",
+    "edge_pairs": "normalized endpoints in lexicographic order",
+    "source_edge_copy_rule": "copy to layer l exactly when bit l of edge_color is one",
+    "thread_rule": "join consecutive layer copies of each source vertex as a path",
+    "maximum_bytes": 1808,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 4096, "meaning": "bounded color-mask matrix, transformed edge list and serialization buffer"},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {"id":"two_layers_all_bits_and_threads","input_values":[2,1,2,1,0,0,1,3],"input_length":8,"output_capacity":1808,"expected_result":112,"expected_output_hex":"0400000000000000 0400000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0200000000000000 0100000000000000 0300000000000000 0200000000000000 0300000000000000"},
+    {"id":"one_layer_two_edges","input_values":[3,2,1,1,0,0,0,0,1,1,1,2,1],"input_length":13,"output_capacity":1808,"expected_result":72,"expected_output_hex":"0300000000000000 0200000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0200000000000000"},
+    {"id":"three_layers_sparse_color_bits","input_values":[2,1,3,1,0,0,1,5],"input_length":8,"output_capacity":1808,"expected_result":160,"expected_output_hex":"0600000000000000 0600000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0200000000000000 0200000000000000 0000000000000000 0100000000000000 0000000000000000 0200000000000000 0100000000000000 0300000000000000 0200000000000000 0400000000000000 0300000000000000 0500000000000000 0400000000000000 0500000000000000"},
+    {"id":"zero_edges_keeps_threads","input_values":[3,0,3,2,1,0,1],"input_length":7,"output_capacity":1808,"expected_result":184,"expected_output_hex":"0900000000000000 0600000000000000 0100000000000000 0000000000000000 0100000000000000 0300000000000000 0200000000000000 0300000000000000 0700000000000000 0600000000000000 0700000000000000 0000000000000000 0300000000000000 0100000000000000 0400000000000000 0200000000000000 0500000000000000 0300000000000000 0600000000000000 0400000000000000 0700000000000000 0500000000000000 0800000000000000"},
+    {"id":"permuted_edge_records","input_values":[3,2,2,1,0,0,0,1,2,2,0,1,1],"input_length":13,"output_capacity":1808,"expected_result":144,"expected_output_hex":"0600000000000000 0500000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0300000000000000 0100000000000000 0400000000000000 0200000000000000 0500000000000000 0400000000000000 0500000000000000"},
+    {"id":"duplicate_unordered_edge_invalid","input_values":[3,2,1,1,0,0,0,0,1,1,0,1,1],"input_length":13,"output_capacity":1808,"expected_result":-1,"expected_output_hex":""},
+    {"id":"loop_invalid","input_values":[2,1,1,1,0,0,0,0,1],"input_length":9,"output_capacity":1808,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_vertex_color","input_values":[2,0,1,1,0,1],"input_length":6,"output_capacity":1808,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":1808,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[2,1,2,1,0,0,1,3],"input_length":8,"output_capacity":112,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short_output","input_values":[2,1,2,1,0,0,1,3],"input_length":8,"output_capacity":111,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

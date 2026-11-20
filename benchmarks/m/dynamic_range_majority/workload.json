@@ -12,6 +12,7 @@
   "cases": [
     {"id": "tie_update_and_subrange", "input_values": [4,5,1,2,2,3,1,0,4,0,0,2,1,0,4,0,2,3,1,1,4], "input_length": 21, "expected_result": 24, "expected_output_hex": "ffffffffffffffff02000000000000000300000000000000"},
     {"id": "singleton_max_value", "input_values": [1,1,1000000000,1,0,1], "input_length": 6, "expected_result": 8, "expected_output_hex": "00ca9a3b00000000"},
+    {"id": "alternating_majority_flips", "input_values": [5,4,1,2,1,2,1,1,0,5,0,4,2,1,0,5,1,0,4], "input_length": 19, "expected_result": 24, "expected_output_hex": "01000000000000000200000000000000ffffffffffffffff"},
     {"id": "empty_query_invalid", "input_values": [1,1,0,1,0,0], "input_length": 6, "expected_result": -1, "expected_output_hex": ""},
     {"id": "no_queries_invalid", "input_values": [1,1,0,0,0,1], "input_length": 6, "expected_result": -1, "expected_output_hex": ""},
     {"id": "short_output", "input_values": [1,1,9,1,0,1], "input_length": 6, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},

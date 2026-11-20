@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "id": "brace-range-expansion-i64-array-bytes-output-v1",
+  "algorithm": "brace_range_expansion",
+  "function_symbol": "brace_range_expansion",
+  "abi": "i64_array_bytes_output",
+  "description": "Expand one bounded numeric or same-case ASCII letter sequence inside a printable pattern.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[pattern_length, printable_ascii_byte...]",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 65,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "expanded words separated by NUL bytes, without a final terminator",
+    "maximum_bytes": 591,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Parsed range, bounded staged output, and fixed formatting scratch."
+  },
+  "complexity": {
+    "time": "O(pattern_bytes + output_bytes)",
+    "scratch_space": "O(pattern_bytes + output_bytes), bounded by 4096 bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "simple_integer",
+      "input_values": [6, 123, 49, 46, 46, 51, 125],
+      "input_length": 7,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "3100320033"
+    },
+    {
+      "id": "padded_descending_step",
+      "input_values": [14, 120, 123, 48, 53, 46, 46, 48, 49, 46, 46, 45, 50, 125, 121],
+      "input_length": 15,
+      "output_capacity": 14,
+      "expected_result": 14,
+      "expected_output_hex": "7830357900783033790078303179"
+    },
+    {
+      "id": "same_case_letter_step",
+      "input_values": [9, 123, 97, 46, 46, 101, 46, 46, 50, 125],
+      "input_length": 10,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "6100630065"
+    },
+    {
+      "id": "omitted_descending_step",
+      "input_values": [6, 123, 100, 46, 46, 98, 125],
+      "input_length": 7,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "6400630062"
+    },
+    {
+      "id": "step_does_not_force_endpoint",
+      "input_values": [9, 123, 49, 46, 46, 54, 46, 46, 52, 125],
+      "input_length": 10,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output_hex": "310035"
+    },
+    {
+      "id": "oversized_step",
+      "input_values": [20, 123, 49, 46, 46, 52, 46, 46, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 125],
+      "input_length": 21,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "31"
+    },
+    {
+      "id": "oversized_negative_step",
+      "input_values": [21, 123, 52, 46, 46, 49, 46, 46, 45, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 125],
+      "input_length": 22,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "34"
+    },
+    {
+      "id": "equal_endpoint_positive_step",
+      "input_values": [10, 123, 52, 46, 46, 52, 46, 46, 43, 50, 125],
+      "input_length": 11,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "34"
+    },
+    {
+      "id": "equal_endpoint_negative_step",
+      "input_values": [10, 123, 52, 46, 46, 52, 46, 46, 45, 50, 125],
+      "input_length": 11,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "34"
+    },
+    {
+      "id": "sixteen_padded_items",
+      "input_values": [12, 123, 48, 48, 48, 48, 46, 46, 48, 48, 49, 53, 125],
+      "input_length": 13,
+      "output_capacity": 79,
+      "expected_result": 79,
+      "expected_output_hex": "30303030 00 30303031 00 30303032 00 30303033 00 30303034 00 30303035 00 30303036 00 30303037 00 30303038 00 30303039 00 30303130 00 30303131 00 30303132 00 30303133 00 30303134 00 30303135"
+    },
+    {
+      "id": "maximum_output_short_capacity",
+      "input_values": [
+        44,
+        112, 112, 112, 112,
+        112, 112, 112, 112,
+        112, 112, 112, 112,
+        112, 112, 112, 112,
+        123, 48, 48, 48, 48, 46, 46, 48, 48, 49, 53, 125,
+        115, 115, 115, 115,
+        115, 115, 115, 115,
+        115, 115, 115, 115,
+        115, 115, 115, 115
+      ],
+      "input_length": 45,
+      "output_capacity": 590,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_items",
+      "input_values": [7, 123, 49, 46, 46, 49, 55, 125],
+      "input_length": 8,
+      "output_capacity": 591,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "step_points_away_from_endpoint",
+      "input_values": [10, 123, 49, 46, 46, 52, 46, 46, 45, 49, 125],
+      "input_length": 11,
+      "output_capacity": 591,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "mixed_letter_case",
+      "input_values": [6, 123, 65, 46, 46, 122, 125],
+      "input_length": 7,
+      "output_capacity": 591,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "multiple_brace_pairs",
+      "input_values": [13, 97, 123, 49, 46, 46, 50, 125, 123, 51, 46, 46, 52, 125],
+      "input_length": 14,
+      "output_capacity": 591,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output",
+      "input_values": [6, 123, 49, 46, 46, 50, 125],
+      "input_length": 7,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [6, 123, 49, 46, 46, 50, 125],
+      "input_length": 7,
+      "output_capacity": 3,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

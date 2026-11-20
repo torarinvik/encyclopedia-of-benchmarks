@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-rotation-system-planarity-test-i64-array-scalar-v1",
+  "algorithm": "rotation_system_planarity_test",
+  "function_symbol": "rotation_system_planarity_test",
+  "abi": "i64_array_scalar",
+  "description": "Bounded planarity recognition by enumerating orientable rotation systems and checking Euler characteristic componentwise.",
+  "source": {
+    "title": "Graph embeddings and rotation systems",
+    "primary_reference": "Heffter–Edmonds–Ringel rotation principle and Euler characteristic",
+    "rotation_system_url": "https://openresearch-repository.anu.edu.au/server/api/core/bitstreams/250c3d31-3080-41fe-a9ae-f5dd1ea7537c/content",
+    "dart_face_walk_url": "https://jeffe.cs.illinois.edu/teaching/comptop/2023/notes/09-planar-graphs.html",
+    "independent_reference": "Wagner's excluded-minor characterization",
+    "wagner_theorem_url": "https://kam.mff.cuni.cz/~kyncl/tgg/ggt02.pdf",
+    "copyright": "The cited works are used as mathematical references only; this package is clean-room authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, M, (u, v)*M]",
+    "vertex_count_range": [1, 6],
+    "edge_count_range": [0, 15],
+    "graph": "Simple undirected graph; each edge occurs once with 0 <= u < v < N; edge order is unrestricted.",
+    "exact_length": "2 + 2*M",
+    "maximum_valid_length": 32,
+    "maximum_parseable_length": 33,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "1 if the graph is planar, 0 otherwise.",
+    "maximum_result": 1,
+    "invalid_input_result": -1
+  },
+  "algorithm_details": {
+    "primary": "For each connected component, enumerate the cyclic orders of incident edges at every vertex, fixing the least neighbor as the first item to quotient cyclic shifts. The rotation system induces dart-face cycles by crossing an edge and taking the successor dart at the arrival vertex. Accept a component if some assignment has V-E+F=2; isolated vertices are planar directly.",
+    "independent_oracle": "Apply Wagner's theorem: a graph is nonplanar exactly when it has a K5 or K3,3 minor. With N<=6, test K5 models by either selecting a complete five-vertex subgraph or contracting one existing edge into a two-vertex branch set; test K3,3 by checking all 3+3 vertex bipartitions.",
+    "tie_rules": "Component roots and adjacency scans use ascending vertex ID; component arrays retain BFS discovery order, and mixed-radix enumeration carries from the last discovered vertex toward the first. Each cyclic order fixes its first neighbor to the least-ID neighbor; remaining orders use lexicographic permutation order. The same successor direction is used at every vertex.",
+    "fast_rejection_and_bound": "For N>=3, M>3*N-6 immediately returns nonplanar by the simple planar graph edge bound. A connected component receives the analogous local bound. After this rejection, each component has at most six vertices and twelve edges. At most three vertices can have degree five: four such vertices would force the other two to degree at least four and at least fourteen total edges, exceeding the twelve-edge bound. Each degree-five vertex contributes at most (5-1)!=24 cyclic orders; every other vertex contributes at most (4-1)!=6. Thus no component enumerates more than 24^3*6^3 = 1,990,656 assignments. Each assignment walks at most 24 darts.",
+    "arithmetic_bound": "All graph counts and dart indices are below 32; the output is exactly 0 or 1 for valid frames."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"isolates-only","input_values":[4,0],"input_length":2,"expected_result":1},
+    {"id":"single-edge-and-isolates","input_values":[5,1,0,1],"input_length":4,"expected_result":1},
+    {"id":"tree-with-bridges","input_values":[6,5,0,1,0,2,0,3,0,4,0,5],"input_length":12,"expected_result":1},
+    {"id":"five-cycle","input_values":[5,5,0,1,0,4,1,2,2,3,3,4],"input_length":12,"expected_result":1},
+    {"id":"k4-with-isolates","input_values":[6,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"expected_result":1},
+    {"id":"octahedron-at-planar-edge-bound","input_values":[6,12,0,2,0,3,0,4,0,5,1,2,1,3,1,4,1,5,2,4,2,5,3,4,3,5],"input_length":26,"expected_result":1},
+    {"id":"k33-nonplanar","input_values":[6,9,0,3,0,4,0,5,1,3,1,4,1,5,2,3,2,4,2,5],"input_length":20,"expected_result":0},
+    {"id":"subdivided-k5-minor","input_values":[6,11,0,2,0,3,0,4,0,5,1,2,1,3,1,4,1,5,2,3,2,4,3,4],"input_length":24,"expected_result":0},
+    {"id":"k5-fast-edge-bound","input_values":[5,10,0,1,0,2,0,3,0,4,1,2,1,3,1,4,2,3,2,4,3,4],"input_length":22,"expected_result":0},
+    {"id":"k6-maximum-frame-fast-rejection","input_values":[6,15,0,1,0,2,0,3,0,4,0,5,1,2,1,3,1,4,1,5,2,3,2,4,2,5,3,4,3,5,4,5],"input_length":32,"expected_result":0},
+    {"id":"duplicate-edge","input_values":[3,2,0,1,0,1],"input_length":6,"expected_result":-1},
+    {"id":"loop","input_values":[3,1,1,1],"input_length":4,"expected_result":-1},
+    {"id":"endpoint-out-of-range","input_values":[3,1,0,3],"input_length":4,"expected_result":-1},
+    {"id":"truncated-frame","input_values":[4,2,0,1,1],"input_length":5,"expected_result":-1},
+    {"id":"trailing-word-at-parseable-bound","input_values":[6,15,0,1,0,2,0,3,0,4,0,5,1,2,1,3,1,4,1,5,2,3,2,4,2,5,3,4,3,5,4,5,99],"input_length":33,"expected_result":-1},
+    {"id":"vertex-count-out-of-range","input_values":[7,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"null-input-at-parseable-bound","input_values":[],"input_length":33,"input_is_null":true,"expected_result":-1}
+  ]
+}

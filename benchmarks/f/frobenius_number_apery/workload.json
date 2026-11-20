@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "frobenius-number-apery-i64-array-scalar-v1",
+  "algorithm": "frobenius_number_apery",
+  "function_symbol": "frobenius_number_apery",
+  "abi": "i64_array_scalar",
+  "description": "Return the largest nonnegative integer not representable by a bounded coprime set of denominations.",
+  "source": {
+    "title": "Numerical Semigroups: Apéry Sets and Hilbert Series",
+    "authors": ["J. L. Ramírez Alfonsín", "Ø. J. Rødseth"],
+    "reference_url": "https://doi.org/10.1007/s00233-009-9133-5",
+    "discovery_url": "https://raw.githubusercontent.com/acmeism/RosettaCodeData/main/popular-tasks",
+    "implementation_status": "bounded clean-room Apéry residue shortest-path profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[m, c0, ..., c_(m-1)]",
+    "denomination_count_range": [2, 4],
+    "denomination_range": [2, 16],
+    "denominations_distinct": true,
+    "denomination_gcd": 1,
+    "minimum_valid_length": 3,
+    "maximum_valid_length": 5,
+    "maximum_parseable_length": 6,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "max(Ap(S,a))-a, where Ap(S,a) stores the least representable value in each residue modulo a=min(coins)",
+    "valid_result_range": [1, 209],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "definition": "The Frobenius number is the largest nonnegative integer not expressible as a nonnegative integer combination of the supplied denominations.",
+    "primary_method": "Dense Dijkstra over residues modulo the minimum denomination; every denomination c creates an edge r -> (r+c) mod a with edge weight c; return the greatest shortest distance minus a.",
+    "independent_method": "Boolean unbounded reachability dynamic programming over every amount from zero through 224; scan the proven finite interval for the final unreachable amount.",
+    "invalid_cases": "Null, malformed length, m outside 2..4, length not equal to m+1, denomination outside 2..16, repeated denomination, or gcd other than one returns -1.",
+    "bound_proof": "a=min(coins)<=15. Each residue is reachable because gcd(coins)=1. A shortest residue path is simple and has at most a-1 edges of weight <=16, so max Apéry distance <=16(a-1)<=224. Thus F<=16(a-1)-a=15a-16<=209, attained by {15,16}. Every amount >=224 is representable.",
+    "distinction": "The result is a semigroup gap maximum over all amounts, not a minimum-coin or combination count for one target amount."
+  },
+  "complexity": {
+    "primary_time": "O(m*a^2), with at most 15 residue selections and 60 edge relaxations",
+    "primary_space": "O(a), using fixed arrays of 16 signed 64-bit distances and 16 visited bytes",
+    "independent_time": "O(m*224), bounded Boolean reachability scan",
+    "independent_space": "225 Boolean states"
+  },
+  "workspace": {"bytes": 256},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"smallest-two-denomination-gap","input_values":[2,2,3],"input_length":3,"expected_result":1},
+    {"id":"two-coprime-denominations","input_values":[2,3,5],"input_length":3,"expected_result":7},
+    {"id":"unordered-denominations","input_values":[2,7,5],"input_length":3,"expected_result":23},
+    {"id":"three-denomination-example","input_values":[3,4,6,9],"input_length":4,"expected_result":11},
+    {"id":"consecutive-generators","input_values":[3,5,6,7],"input_length":4,"expected_result":9},
+    {"id":"classical-three-generator-set","input_values":[3,6,9,20],"input_length":4,"expected_result":43},
+    {"id":"upper-denomination-bound","input_values":[2,15,16],"input_length":3,"expected_result":209},
+    {"id":"four-denomination-set","input_values":[4,5,7,8,9],"input_length":5,"expected_result":11},
+    {"id":"invalid-denomination-count-low","input_values":[1,3],"input_length":2,"expected_result":-1},
+    {"id":"invalid-denomination-count-high","input_values":[5,2,3,5,7,11],"input_length":6,"expected_result":-1},
+    {"id":"invalid-frame-trailing-word","input_values":[2,3,5,0],"input_length":4,"expected_result":-1},
+    {"id":"invalid-repeated-denomination","input_values":[2,5,5],"input_length":3,"expected_result":-1},
+    {"id":"invalid-non-coprime-denominations","input_values":[2,4,6],"input_length":3,"expected_result":-1},
+    {"id":"invalid-denomination-one","input_values":[2,1,3],"input_length":3,"expected_result":-1},
+    {"id":"invalid-denomination-above-bound","input_values":[2,3,17],"input_length":3,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

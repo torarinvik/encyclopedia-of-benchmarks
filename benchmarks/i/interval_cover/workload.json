@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "interval-cover-i64-array-scalar-v1",
+  "algorithm": "interval_cover",
+  "function_symbol": "interval_cover",
+  "abi": "i64_array_scalar",
+  "description": "Minimum number of supplied half-open intervals needed to cover a target interval.",
+  "source": {
+    "title": "KACTL IntervalCover and greedy minimum interval covering",
+    "authors": ["KACTL contributors", "Sean McIntyre"],
+    "reference": "KACTL various chapter index; NYU CSCI-UA.0380 Class 04 notes",
+    "url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/various/IntervalCover.h",
+    "index_url": "https://raw.githubusercontent.com/kth-competitive-programming/kactl/main/content/various/chapter.tex",
+    "algorithm_reference_url": "https://cs.nyu.edu/courses/summer13/CSCI-UA.0380-001/slides/Class05.pdf",
+    "algorithm_attribution": "Greedy farthest-reaching interval cover",
+    "implementation_status": "clean-room ports from the algorithm description"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[target_left, target_right, n, left_0, right_0, ...]",
+    "target_range": "0 <= target_left <= target_right <= 32",
+    "interval_count_range": [0, 16],
+    "interval_endpoint_range": "0 <= left_i < right_i <= 32",
+    "interval_semantics": "half-open [left_i, right_i)",
+    "exact_length": "3 + 2*n",
+    "maximum_valid_length": 35,
+    "maximum_parseable_length": 36,
+    "invalid_input_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "minimum number of selected intervals, or -1 if the target is not coverable",
+    "empty_target_result": 0,
+    "impossible_target_result": -1,
+    "invalid_input_result": -2,
+    "maximum_valid_result": 16
+  },
+  "contract": {
+    "greedy_rule": "At each uncovered frontier, choose a supplied interval that starts no later than the frontier and has the furthest right endpoint.",
+    "selection_semantics": "Each input interval may be selected at most once; duplicate intervals are allowed as distinct choices.",
+    "target_semantics": "Every point in the half-open target interval must be covered.",
+    "empty_target": "A target with equal endpoints needs zero intervals.",
+    "invalid_input_result": -2
+  },
+  "complexity": {
+    "primary_time": "O(n^2) bounded repeated candidate scans",
+    "primary_auxiliary_space": "O(1)",
+    "independent_oracle_time": "O(2^n * n * coordinate_span)",
+    "independent_oracle_auxiliary_space": "O(n)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-interval-covers-target","input_values":[3,9,1,0,12],"input_length":5,"expected_result":1},
+    {"id":"farthest-frontier-needs-three","input_values":[1,10,5,0,4,3,7,6,10,2,5,7,9],"input_length":13,"expected_result":3},
+    {"id":"greedy-choice-skips-shorter-reach","input_values":[0,10,5,0,5,0,3,4,8,5,10,8,10],"input_length":13,"expected_result":2},
+    {"id":"empty-target","input_values":[7,7,2,0,1,2,3],"input_length":7,"expected_result":0},
+    {"id":"gap-makes-target-impossible","input_values":[1,9,2,1,4,5,9],"input_length":7,"expected_result":-1},
+    {"id":"no-interval-reaches-start","input_values":[0,8,2,1,4,4,8],"input_length":7,"expected_result":-1},
+    {"id":"duplicate-ranges-are-distinct-choices","input_values":[0,8,3,0,5,0,5,4,8],"input_length":9,"expected_result":2},
+    {"id":"maximum-interval-count","input_values":[0,32,16,0,2,2,4,4,6,6,8,8,10,10,12,12,14,14,16,16,18,18,20,20,22,22,24,24,26,26,28,28,30,30,32],"input_length":35,"expected_result":16},
+    {"id":"too-many-intervals","input_values":[0,1,17],"input_length":3,"expected_result":-2},
+    {"id":"reversed-target","input_values":[5,4,0],"input_length":3,"expected_result":-2},
+    {"id":"endpoint-outside-domain","input_values":[0,4,1,-1,4],"input_length":5,"expected_result":-2},
+    {"id":"empty-input-interval","input_values":[0,4,1,2,2],"input_length":5,"expected_result":-2},
+    {"id":"truncated-interval-row","input_values":[0,4,1,0],"input_length":4,"expected_result":-2},
+    {"id":"trailing-value","input_values":[0,4,0,5],"input_length":4,"expected_result":-2},
+    {"id":"maximum-parseable-trailing-value","input_values":[0,32,16,0,2,2,4,4,6,6,8,8,10,10,12,12,14,14,16,16,18,18,20,20,22,22,24,24,26,26,28,28,30,30,32,0],"input_length":36,"expected_result":-2},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-2}
+  ]
+}

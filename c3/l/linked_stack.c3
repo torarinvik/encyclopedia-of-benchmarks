@@ -18,13 +18,14 @@ fn void put_record(char* output, usz offset, long opcode, long tag, long value) 
     put_i64_le(output, offset + 16, value);
 }
 
-long linked_stack(long* input, usz length, char* output, usz capacity)
+fn long linked_stack(long* input, usz length, char* output, usz capacity)
         @export("linked_stack") {
     if (input == null || length < 1 || length > MAX_INPUT_LENGTH) return -1;
     long raw_count = input[0];
     if (raw_count < 0 || raw_count > (long)MAX_OPERATIONS) return -1;
     usz operation_count = (usz)raw_count;
-    long opcodes[64], arguments[64];
+    long[64] opcodes;
+    long[64] arguments;
     usz cursor = 1;
     for (usz index = 0; index < operation_count; index += 1) {
         if (cursor >= length) return -1;
@@ -41,10 +42,10 @@ long linked_stack(long* input, usz length, char* output, usz capacity)
     }
     if (cursor != length) return -1;
 
-    long node_values[65];
-    usz below[65];
+    long[65] node_values;
+    usz[65] below;
     usz node_count = 0, head = 0, written = 0;
-    char buffer[1536];
+    char[1536] buffer;
     for (usz index = 0; index < operation_count; index += 1) {
         long opcode = opcodes[index];
         long tag = 2, value = 0;

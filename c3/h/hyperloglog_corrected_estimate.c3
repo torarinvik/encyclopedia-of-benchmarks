@@ -2,7 +2,7 @@ module hyperloglog_corrected_estimate;
 extern fn double log(double value);
 extern fn double log1p(double value);
 
-long hyperloglog_corrected_estimate(long* input, usz length, char* output, usz capacity)
+fn long hyperloglog_corrected_estimate(long* input, usz length, char* output, usz capacity)
         @export("hyperloglog_corrected_estimate") {
     if (input == null || length < 1 || length > 130) return -1;
     long raw = input[0];
@@ -31,7 +31,7 @@ long hyperloglog_corrected_estimate(long* input, usz length, char* output, usz c
         estimate = -universe*log1p(-estimate/universe);
     }
     if (output == null || capacity < 8) return -2;
-    ulong bits = @bitcast(ulong,estimate);
+    ulong bits = bitcast(estimate,ulong);
     char[8] staged = zeroed;
     for (usz b = 0; b < 8; b += 1) { staged[b] = (char)(bits & 255); bits >>= 8; }
     for (usz b = 0; b < 8; b += 1) output[b] = staged[b];

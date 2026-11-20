@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "npb-cg-sparse-outer-product-assembly-bounded-v1",
+  "algorithm": "npb_cg_sparse_outer_product_assembly",
+  "function_symbol": "npb_cg_sparse_outer_product_assembly",
+  "abi": "i64_array_bytes_output",
+  "description": "Assemble the bounded NPB CG sparse matrix from supplied sparse vectors, then coalesce into canonical CSC order.",
+  "source": {
+    "title": "The NAS Parallel Benchmarks",
+    "authors": ["D. Bailey", "E. Barszcz", "J. Barton", "D. Browning", "R. Carter", "L. Dagum", "R. Fatoohi", "S. Fineberg", "P. Frederickson", "T. Lasinski", "R. Schreiber", "H. Simon", "V. Venkatakrishnan", "S. Weeratunga"],
+    "institution": "NASA Ames Research Center",
+    "report": "RNR-94-007",
+    "section": "§2.2.3, CG sparse matrix generation (makea)",
+    "url": "https://www.nas.nasa.gov/assets/nas/pdf/techreports/1994/rnr-94-007.pdf",
+    "archive_path": "NPB3.4-MPI/CG/cg.f90 (makea, vecset, sparse)",
+    "archive_url": "https://www.nas.nasa.gov/assets/npb/NPB3.4.4.tar.gz",
+    "role": "Algorithm specification; deterministic supplied-vector adaptation; no source implementation reused"
+  },
+  "oracle": "benchmarks/n/npb_cg_sparse_outer_product_assembly/primary_oracle.py",
+  "independent_oracle": "benchmarks/n/npb_cg_sparse_outer_product_assembly/independent_oracle.py",
+  "contract": {
+    "operation": "Assemble A = sum_i(w_i*x_i*x_i^T) + (0.1-shift)I from caller-supplied sparse vectors, and return its coalesced sparse matrix.",
+    "weight_schedule": "w_i = 0.1^(i/(n-1)), i=0..n-1; endpoints are exactly 1 and 0.1.",
+    "anchor_rule": "The caller's vector may omit coordinate i. The benchmark inserts x_i[i]=0.5 if absent, and replaces the supplied value with 0.5 if coordinate i is present.",
+    "diagonal_shift": "Append (0.1 - shift) to every diagonal coordinate after all vector outer products; shift is supplied in micro-units.",
+    "coalescing": "All repeated (row,column) coordinates from distinct outer products and diagonal additions are accumulated in vector order; touched coordinates remain present if their final value is zero.",
+    "ordering": "Return zero-based CSC; columns ascend, and row indices strictly ascend within each column.",
+    "sampling": "PRNG state and sparse-vector sampling are outside this ABI. Supplied coordinate lists are the deterministic workload input.",
+    "source_version_note": "The report describes geometric endpoint weights 1 and 0.1. NPB3.4.4 makea uses ratio=pow(0.1,1/n) before each of n vectors, so its last emitted weight is 0.1^((n-1)/n); this profile follows the report's endpoint schedule explicitly."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, nonzer, shift_micro, then n records of nonzer (coordinate,value_micro) pairs]",
+    "dimension_range": [2, 16],
+    "nonzero_per_vector_range": [1, 4],
+    "shift_range_micro_units": [0, 10000000],
+    "vector_value_range_micro_units": [-1000000, 1000000],
+    "vector_value_rule": "Each supplied value must be nonzero. Coordinates are zero-based, unique within a vector, and may collide across vectors.",
+    "entry_scale": 1000000,
+    "maximum_valid_length": 131,
+    "maximum_parseable_length": 131,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "comparison_mode": "float64_csc",
+    "encoding": "A contiguous little-endian IEEE-754 binary64 vector [n, nnz, col_ptr[n+1], row_index[nnz], values[nnz]]. Structural fields are integral-valued doubles and exactly representable at these bounds.",
+    "return_value": "total serialized byte length",
+    "maximum_nonzeros": 256,
+    "maximum_output_bytes": 4248,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1,
+    "null_or_insufficient_output_result": -2
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "At most 416 raw COO contributions (including anchor-expanded supports and diagonal shifts), plus bounded coalesced CSC pointers, row indices, values, and one five-coordinate vector workspace."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "anchor-replacement-and-endpoint-weights",
+      "input_values": [2, 1, 100000, 0, 1000000, 1, 800000],
+      "input_length": 7,
+      "expected_result": 72,
+      "expected_output": [2.0, 2.0, 0.0, 1.0, 2.0, 0.0, 1.0, 0.25, 0.025]
+    },
+    {
+      "id": "cross-vector-duplicate-coalescing",
+      "input_values": [2, 2, 100000, 1, 1000000, 0, 300000, 0, 1000000, 1, 250000],
+      "input_length": 11,
+      "expected_result": 104,
+      "expected_output": [2.0, 4.0, 0.0, 2.0, 4.0, 0.0, 1.0, 0.0, 1.0, 0.35, 0.55, 0.55, 1.025]
+    },
+    {
+      "id": "one-byte-short-full-result-capacity",
+      "input_values": [2, 2, 100000, 1, 1000000, 0, 300000, 0, 1000000, 1, 250000],
+      "input_length": 11,
+      "output_capacity": 103,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "duplicate-coordinate-within-vector-invalid",
+      "input_values": [2, 2, 100000, 0, 1000000, 0, 500000, 1, 1000000, 0, 1000000],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "wrong-input-length-invalid",
+      "input_values": [2, 1, 100000, 0, 1000000],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 1, 100000, 0, 1000000, 1, 800000],
+      "input_length": 7,
+      "output_capacity": 72,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

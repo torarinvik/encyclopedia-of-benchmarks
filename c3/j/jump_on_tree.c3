@@ -5,7 +5,7 @@ const usz MAX_Q = 64;
 const usz MAX_LEVELS = 7;
 const usz MAX_INPUT_VALUES = 2 + 2 * (MAX_N - 1) + 3 * MAX_Q;
 
-fn usz find_root(usz[MAX_N]* parent, usz item) {
+fn usz find_root(usz* parent, usz item) {
     while (parent[item] != item) {
         parent[item] = parent[parent[item]];
         item = parent[item];
@@ -13,14 +13,14 @@ fn usz find_root(usz[MAX_N]* parent, usz item) {
     return item;
 }
 
-fn usz lift(usz[MAX_N][MAX_LEVELS]* ancestors, usz vertex, usz distance) {
+fn usz lift(usz[MAX_LEVELS]* ancestors, usz vertex, usz distance) {
     for (usz bit = 0; bit < MAX_LEVELS; bit += 1)
         if (((distance >> bit) & 1) != 0) vertex = ancestors[vertex][bit];
     return vertex;
 }
 
-fn usz lowest_common_ancestor(usz[MAX_N][MAX_LEVELS]* ancestors,
-    usz[MAX_N]* depth, usz left, usz right) {
+fn usz lowest_common_ancestor(usz[MAX_LEVELS]* ancestors,
+    usz* depth, usz left, usz right) {
     if (depth[left] < depth[right]) {
         usz temporary = left;
         left = right;
@@ -47,9 +47,9 @@ fn void store_i64_le(char* output, usz offset, long value) {
 fn long jump_on_tree(long* input, usz length, char* output, usz capacity)
     @export("jump_on_tree") {
     if (input == null || length < 2 || length > MAX_INPUT_VALUES) return -1;
-    long n_value = input[0], q_value = input[1];
+    long n_value = input[0]; long q_value = input[1];
     if (n_value < 2 || n_value > (long)MAX_N || q_value < 1 || q_value > (long)MAX_Q) return -1;
-    usz n = (usz)n_value, q = (usz)q_value;
+    usz n = (usz)n_value; usz q = (usz)q_value;
     usz query_start = 2 + 2 * (n - 1);
     if (length != query_start + 3 * q) return -1;
 
@@ -61,12 +61,12 @@ fn long jump_on_tree(long* input, usz length, char* output, usz capacity)
     }
     for (usz edge = 0; edge + 1 < n; edge += 1) {
         usz offset = 2 + 2 * edge;
-        long left_value = input[offset], right_value = input[offset + 1];
+        long left_value = input[offset]; long right_value = input[offset + 1];
         if (left_value < 0 || left_value >= n_value || right_value < 0 ||
             right_value >= n_value || left_value == right_value) return -1;
-        usz left = (usz)left_value, right = (usz)right_value;
-        usz root_left = find_root(&dsu_parent, left);
-        usz root_right = find_root(&dsu_parent, right);
+        usz left = (usz)left_value; usz right = (usz)right_value;
+        usz root_left = find_root(&dsu_parent[0], left);
+        usz root_right = find_root(&dsu_parent[0], right);
         if (root_left == root_right) return -1;
         if (dsu_size[root_left] < dsu_size[root_right]) {
             usz temporary = root_left;
@@ -79,7 +79,7 @@ fn long jump_on_tree(long* input, usz length, char* output, usz capacity)
         adjacent[right][left] = true;
     }
 
-    usz[MAX_N][MAX_LEVELS] ancestors = zeroed;
+    usz[MAX_LEVELS][MAX_N] ancestors = zeroed;
     usz[MAX_N] depth = zeroed;
     bool[MAX_N] visited = zeroed;
     usz[MAX_N] stack;
@@ -105,17 +105,17 @@ fn long jump_on_tree(long* input, usz length, char* output, usz capacity)
     long[MAX_Q] answers;
     for (usz query = 0; query < q; query += 1) {
         usz offset = query_start + 3 * query;
-        long start_value = input[offset], target_value = input[offset + 1];
+        long start_value = input[offset]; long target_value = input[offset + 1];
         long index_value = input[offset + 2];
         if (start_value < 0 || start_value >= n_value || target_value < 0 ||
             target_value >= n_value || index_value < 0 || index_value >= n_value) return -1;
-        usz start = (usz)start_value, target = (usz)target_value, index = (usz)index_value;
-        usz common = lowest_common_ancestor(&ancestors, &depth, start, target);
+        usz start = (usz)start_value; usz target = (usz)target_value; usz index = (usz)index_value;
+        usz common = lowest_common_ancestor(&ancestors[0], &depth[0], start, target);
         usz upward = depth[start] - depth[common];
         usz path_length = upward + depth[target] - depth[common];
         if (index > path_length) answers[query] = -1;
-        else if (index <= upward) answers[query] = (long)lift(&ancestors, start, index);
-        else answers[query] = (long)lift(&ancestors, target, path_length - index);
+        else if (index <= upward) answers[query] = (long)lift(&ancestors[0], start, index);
+        else answers[query] = (long)lift(&ancestors[0], target, path_length - index);
     }
 
     usz required = 8 * q;

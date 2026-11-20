@@ -1,0 +1,175 @@
+const JOHNSON_MAX_VERTICES: usize = 8
+const JOHNSON_MAX_EDGES: usize = 24
+const JOHNSON_MAX_INPUT: usize = 51
+const JOHNSON_COUNT_SCALE: i64 = 1000000000000
+
+struct JohnsonState:
+    n: usize
+    start: usize
+    depth: usize
+    edge: bool[64]
+    inside: bool[8]
+    blocked: bool[8]
+    dependency: bool[64]
+    path: usize[8]
+    count: i64
+    code_sum: i64
+
+struct JohnsonSccState:
+    n: usize
+    lower_bound: usize
+    next_index: usize
+    component_count: usize
+    stack_length: usize
+    edge: bool[64]
+    index: i64[8]
+    low_link: i64[8]
+    component_id: i64[8]
+    on_stack: bool[8]
+    stack: usize[8]
+    component_size: usize[8]
+    component_minimum: usize[8]
+
+def johnson_strong_connect(state: mutable JohnsonSccState&, vertex: usize) -> void:
+    state.index[vertex] <- state.next_index.i64()
+    state.low_link[vertex] <- state.next_index.i64()
+    state.next_index <- state.next_index + 1
+    state.stack[state.stack_length] <- vertex
+    state.stack_length <- state.stack_length + 1
+    state.on_stack[vertex] <- true
+
+    for neighbor in state.lower_bound..<state.n:
+        if not state.edge[vertex * JOHNSON_MAX_VERTICES + neighbor]:
+            continue
+        if state.index[neighbor] < 0:
+            johnson_strong_connect(state, neighbor)
+            if state.low_link[neighbor] < state.low_link[vertex]:
+                state.low_link[vertex] <- state.low_link[neighbor]
+        elif state.on_stack[neighbor] and state.index[neighbor] < state.low_link[vertex]:
+            state.low_link[vertex] <- state.index[neighbor]
+
+    if state.low_link[vertex] != state.index[vertex]:
+        return
+    component: usize = state.component_count
+    size: mutable usize = 0
+    minimum: mutable usize = state.n
+    while true:
+        state.stack_length <- state.stack_length - 1
+        member: usize = state.stack[state.stack_length]
+        state.on_stack[member] <- false
+        state.component_id[member] <- component.i64()
+        size <- size + 1
+        if member < minimum:
+            minimum <- member
+        if member == vertex:
+            break
+    state.component_size[component] <- size
+    state.component_minimum[component] <- minimum
+    state.component_count <- state.component_count + 1
+
+def johnson_unblock(state: mutable JohnsonState&, vertex: usize) -> void:
+    if not state.blocked[vertex]:
+        return
+    state.blocked[vertex] <- false
+    for dependent in 0..<state.n:
+        slot: usize = vertex * JOHNSON_MAX_VERTICES + dependent
+        if state.dependency[slot]:
+            state.dependency[slot] <- false
+            if state.blocked[dependent]:
+                johnson_unblock(state, dependent)
+
+def johnson_record_cycle(state: mutable JohnsonState&) -> void:
+    code: mutable i64 = 0
+    place: mutable i64 = 1
+    for i in 0..<state.depth:
+        code <- code + (state.path[i].i64() + 1) * place
+        place <- place * 9
+    state.count <- state.count + 1
+    state.code_sum <- state.code_sum + code
+
+def johnson_circuit(state: mutable JohnsonState&, vertex: usize) -> bool:
+    state.path[state.depth] <- vertex
+    state.depth <- state.depth + 1
+    state.blocked[vertex] <- true
+    found: mutable bool = false
+    for neighbor in 0..<state.n:
+        edge_slot: usize = vertex * JOHNSON_MAX_VERTICES + neighbor
+        if not state.inside[neighbor] or not state.edge[edge_slot]:
+            continue
+        if neighbor == state.start:
+            johnson_record_cycle(state)
+            found <- true
+        elif not state.blocked[neighbor] and johnson_circuit(state, neighbor):
+            found <- true
+    if found:
+        johnson_unblock(state, vertex)
+    else:
+        for neighbor in 0..<state.n:
+            edge_slot: usize = vertex * JOHNSON_MAX_VERTICES + neighbor
+            if state.inside[neighbor] and state.edge[edge_slot]:
+                state.dependency[neighbor * JOHNSON_MAX_VERTICES + vertex] <- true
+    state.depth <- state.depth - 1
+    found
+
+def johnson_elementary_circuit_enumeration_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > JOHNSON_MAX_INPUT:
+        return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > JOHNSON_MAX_VERTICES.i64() or values[1] < 0 or values[1] > JOHNSON_MAX_EDGES.i64():
+        return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if length != 2 + 2 * m:
+        return -1
+
+    edge: mutable bool[64] = [false; 64]
+    for e in 0..<m:
+        u_value: i64 = values[2 + 2 * e]
+        v_value: i64 = values[3 + 2 * e]
+        if u_value < 0 or u_value >= n.i64() or v_value < 0 or v_value >= n.i64() or u_value == v_value:
+            return -1
+        slot: usize = u_value.usize() * JOHNSON_MAX_VERTICES + v_value.usize()
+        if edge[slot]:
+            return -1
+        edge[slot] <- true
+
+    total_count: mutable i64 = 0
+    total_code_sum: mutable i64 = 0
+    lower_bound: mutable usize = 0
+    while lower_bound < n:
+        scc: mutable JohnsonSccState = zeroed
+        scc.n <- n
+        scc.lower_bound <- lower_bound
+        for vertex in 0..<JOHNSON_MAX_VERTICES:
+            scc.index[vertex] <- -1
+            scc.component_id[vertex] <- -1
+        for u in lower_bound..<n:
+            for v in lower_bound..<n:
+                scc.edge[u * JOHNSON_MAX_VERTICES + v] <- edge[u * JOHNSON_MAX_VERTICES + v]
+        for vertex in lower_bound..<n:
+            if scc.index[vertex] < 0:
+                johnson_strong_connect(scc, vertex)
+
+        start: mutable usize = n
+        selected_component: mutable i64 = -1
+        for component in 0..<scc.component_count:
+            if scc.component_size[component] > 1 and scc.component_minimum[component] < start:
+                start <- scc.component_minimum[component]
+                selected_component <- component.i64()
+        if selected_component < 0:
+            break
+
+        state: mutable JohnsonState = zeroed
+        state.n <- n
+        state.start <- start
+        for u in lower_bound..<n:
+            state.inside[u] <- scc.component_id[u] == selected_component
+            for v in 0..<n:
+                state.edge[u * JOHNSON_MAX_VERTICES + v] <- edge[u * JOHNSON_MAX_VERTICES + v]
+        johnson_circuit(state, start)
+        total_count <- total_count + state.count
+        total_code_sum <- total_code_sum + state.code_sum
+        lower_bound <- start + 1
+    total_count * JOHNSON_COUNT_SCALE + total_code_sum
+
+export fn johnson_elementary_circuit_enumeration(input: i64&, length: usize) -> i64 = johnson_elementary_circuit_enumeration_impl

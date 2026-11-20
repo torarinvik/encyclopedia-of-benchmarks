@@ -86,7 +86,7 @@ fn void store_u64_le(uint8* output, usz offset, ulong value) {
 		output[offset + byte] = (uint8)((value >> (byte * 8)) & 255);
 }
 
-long biconnected_components(long* input, usz length, uint8* output,
+fn long biconnected_components(long* input, usz length, uint8* output,
 		usz output_capacity) @export("biconnected_components") {
 	if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
 	long n_value = input[0], m_value = input[1];

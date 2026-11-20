@@ -1,0 +1,60 @@
+const MAX_DEGREE: i64 = 4
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 7
+
+def jury_discrete_time_stability_predicate_impl(input: view[i64]) -> i64:
+    if input.len() < 1 or input.len() > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    let degree: i64 = input[0]
+    if degree < 1 or degree > MAX_DEGREE or input.len() != degree.usize() + 2: return -1
+
+    let coefficients: mutable i64[5] = zeroed
+    let mut index: usize = 0
+    while index <= degree.usize():
+        let value: i64 = input[index + 1]
+        if value < -9 or value > 9 or (index == 0 and value == 0): return -1
+        coefficients[index] <- value
+        index <- index + 1
+    if coefficients[0] < 0:
+        index <- 0
+        while index <= degree.usize():
+            coefficients[index] <- -coefficients[index]
+            index <- index + 1
+
+    let mut at_one: i64 = 0
+    let mut at_minus_one: i64 = 0
+    index <- 0
+    while index <= degree.usize():
+        at_one <- at_one + coefficients[index]
+        if (degree.usize() - index) % 2 == 0:
+            at_minus_one <- at_minus_one + coefficients[index]
+        else:
+            at_minus_one <- at_minus_one - coefficients[index]
+        index <- index + 1
+    if at_one <= 0 or ((degree % 2 == 0 and at_minus_one <= 0) or (degree % 2 != 0 and at_minus_one >= 0)): return 0
+
+    let row: mutable i64[5] = zeroed
+    let reduced: mutable i64[5] = zeroed
+    index <- 0
+    while index <= degree.usize():
+        row[index] <- coefficients[index]
+        index <- index + 1
+    let mut current_degree: usize = degree.usize()
+    while current_degree >= 1:
+        let trailing: i64 = row[current_degree]
+        let trailing_magnitude: i64 = if trailing < 0 then -trailing else trailing
+        if row[0] <= trailing_magnitude: return 0
+        if current_degree == 1: break
+        index <- 0
+        while index < current_degree:
+            reduced[index] <- row[0] * row[index] - trailing * row[current_degree - index]
+            index <- index + 1
+        index <- 0
+        while index < current_degree:
+            row[index] <- reduced[index]
+            index <- index + 1
+        current_degree <- current_degree - 1
+    1
+
+export fn jury_discrete_time_stability_predicate(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    input_view: view[i64] = input[0:input_length]
+    jury_discrete_time_stability_predicate_impl(input_view)

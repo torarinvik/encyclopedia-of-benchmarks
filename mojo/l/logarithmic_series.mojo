@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn logdec(mut out:InlineArray[UInt8,8192],mut pos:Int,value:UInt64):

@@ -1,0 +1,442 @@
+const EIBFS_NMAX: usize = 8
+const EIBFS_MMAX: usize = 24
+const EIBFS_INPUT_MAX: usize = 77
+const EIBFS_FREE: i64 = 0
+const EIBFS_S: i64 = 1
+const EIBFS_T: i64 = 2
+
+struct EibfsState:
+    n: usize
+    source: usize
+    sink: usize
+    forward: bool
+    kind: i64[8]
+    parent: i64[8]
+    original: i64[64]
+    residual: i64[64]
+    balance: i64[8]
+    ds: i64[8]
+    dt: i64[8]
+    ds_max: i64
+    dt_max: i64
+    orphaned: bool[8]
+    events: usize
+
+def eibfs_root(state: EibfsState&, start: usize) -> i64:
+    vertex: mutable usize = start
+    for _ in 0..<state.n:
+        if state.parent[vertex] < 0: return vertex.i64()
+        vertex <- state.parent[vertex].usize()
+    -1
+
+def eibfs_bottleneck(state: EibfsState&, start: usize, kind: i64) -> i64:
+    vertex: mutable usize = start
+    answer: mutable i64 = 2401
+    for _ in 0..<state.n:
+        parent: i64 = state.parent[vertex]
+        if parent < 0: return answer
+        p: usize = parent.usize()
+        capacity: i64 = state.residual[p * EIBFS_NMAX + vertex]
+        if kind == EIBFS_T: capacity <- state.residual[vertex * EIBFS_NMAX + p]
+        if capacity < answer: answer <- capacity
+        vertex <- p
+    0
+
+def eibfs_push(state: mutable EibfsState&, u: usize, v: usize, amount: i64) -> void:
+    state.residual[u * EIBFS_NMAX + v] <- state.residual[u * EIBFS_NMAX + v] - amount
+    state.residual[v * EIBFS_NMAX + u] <- state.residual[v * EIBFS_NMAX + u] + amount
+    if u != state.source and u != state.sink: state.balance[u] <- state.balance[u] - amount
+    if v != state.source and v != state.sink: state.balance[v] <- state.balance[v] + amount
+
+def eibfs_mark(state: mutable EibfsState&, vertex: usize, queue: mutable view[usize], tail: mutable usize&) -> void:
+    if not state.orphaned[vertex]:
+        state.orphaned[vertex] <- true
+        queue[tail] <- vertex
+        tail <- tail + 1
+
+def eibfs_detach(state: mutable EibfsState&, vertex: usize, kind: i64,
+                 queue: mutable view[usize], tail: mutable usize&) -> void:
+    for child in 0..<state.n:
+        if state.kind[child] == kind and state.parent[child] == vertex.i64():
+            state.parent[child] <- -1
+            eibfs_mark(state&, child, queue, tail&)
+
+def eibfs_adopt(state: mutable EibfsState&, vertex: usize, kind: i64,
+                queue: mutable view[usize], tail: mutable usize&) -> void:
+    sink_side: bool = kind == EIBFS_T
+    state.orphaned[vertex] <- false
+    old: i64 = if sink_side: state.dt[vertex] else: state.ds[vertex]
+    for candidate in 0..<state.n:
+        cap: i64 = if sink_side: state.residual[vertex * EIBFS_NMAX + candidate] else: state.residual[candidate * EIBFS_NMAX + vertex]
+        here: i64 = if sink_side: state.dt[vertex] else: state.ds[vertex]
+        label: i64 = if sink_side: state.dt[candidate] else: state.ds[candidate]
+        if candidate != vertex and state.kind[candidate] == kind and cap > 0 and here == label + 1:
+            state.parent[vertex] <- candidate.i64()
+            return
+    frontier: i64 = if sink_side: state.dt_max else: state.ds_max
+    subtract: bool = if sink_side: state.forward else: not state.forward
+    limit: i64 = frontier - (if subtract: 1 else: 0)
+    best: mutable i64 = (4 * state.n).i64()
+    for candidate in 0..<state.n:
+        cap: i64 = if sink_side: state.residual[vertex * EIBFS_NMAX + candidate] else: state.residual[candidate * EIBFS_NMAX + vertex]
+        label: i64 = if sink_side: state.dt[candidate] else: state.ds[candidate]
+        if candidate != vertex and state.kind[candidate] == kind and cap > 0 and label <= limit and label < best:
+            best <- label
+    parent: mutable i64 = -1
+    for candidate in 0..<state.n:
+        cap: i64 = if sink_side: state.residual[vertex * EIBFS_NMAX + candidate] else: state.residual[candidate * EIBFS_NMAX + vertex]
+        label: i64 = if sink_side: state.dt[candidate] else: state.ds[candidate]
+        if candidate != vertex and state.kind[candidate] == kind and cap > 0 and label == best:
+            parent <- candidate.i64()
+            break
+    if parent >= 0 and best + 1 > old:
+        eibfs_detach(state&, vertex, kind, queue, tail&)
+        state.parent[vertex] <- parent
+        if sink_side: state.dt[vertex] <- best + 1
+        else: state.ds[vertex] <- best + 1
+        return
+    eibfs_detach(state&, vertex, kind, queue, tail&)
+    state.parent[vertex] <- -1
+    state.kind[vertex] <- EIBFS_FREE
+    if sink_side and state.balance[vertex] > 0:
+        state.kind[vertex] <- EIBFS_S
+        state.ds[vertex] <- state.ds_max + (if state.forward: 1 else: 0)
+    elif not sink_side and state.balance[vertex] < 0:
+        state.kind[vertex] <- EIBFS_T
+        state.dt[vertex] <- state.dt_max + (if state.forward: 0 else: 1)
+
+def eibfs_repair_orphans(state: mutable EibfsState&, kind: i64,
+                         queue: mutable view[usize], head: usize, tail: mutable usize&) -> void:
+    at: mutable usize = head
+    while at < tail:
+        vertex: usize = queue[at]
+        at <- at + 1
+        state.orphaned[vertex] <- false
+        if state.kind[vertex] == kind: eibfs_adopt(state&, vertex, kind, queue, tail&)
+
+def eibfs_drain(state: mutable EibfsState&, start: usize, kind: i64) -> void:
+    root: i64 = eibfs_root(state&, start)
+    if root < 0: return
+    queue: mutable usize[512] = zeroed
+    head: usize = 0
+    tail: mutable usize = 0
+    vertex: mutable usize = start
+    while (if kind == EIBFS_T: state.balance[vertex] > 0 else: state.balance[vertex] < 0) and state.parent[vertex] >= 0:
+        parent: usize = state.parent[vertex].usize()
+        cap: i64 = if kind == EIBFS_T: state.residual[vertex * EIBFS_NMAX + parent] else: state.residual[parent * EIBFS_NMAX + vertex]
+        need: i64 = if kind == EIBFS_T: state.balance[vertex] else: -state.balance[vertex]
+        amount: i64 = if need < cap: need else: cap
+        if amount > 0:
+            if kind == EIBFS_T: eibfs_push(state&, vertex, parent, amount)
+            else: eibfs_push(state&, parent, vertex, amount)
+        after: i64 = if kind == EIBFS_T: state.balance[vertex] else: -state.balance[vertex]
+        remaining: i64 = if kind == EIBFS_T: state.residual[vertex * EIBFS_NMAX + parent] else: state.residual[parent * EIBFS_NMAX + vertex]
+        if remaining == 0 and after >= 0:
+            state.parent[vertex] <- -1
+            eibfs_mark(state&, vertex, queue[0:512], tail&)
+            break
+        if after == 0: break
+        vertex <- parent
+    root_vertex: usize = root.usize()
+    if kind == EIBFS_T and root_vertex != state.sink and state.kind[root_vertex] == kind and state.balance[root_vertex] >= 0:
+        state.parent[root_vertex] <- -1
+        eibfs_mark(state&, root_vertex, queue[0:512], tail&)
+    if kind == EIBFS_S and root_vertex != state.source and state.kind[root_vertex] == kind and state.balance[root_vertex] <= 0:
+        state.parent[root_vertex] <- -1
+        eibfs_mark(state&, root_vertex, queue[0:512], tail&)
+    eibfs_repair_orphans(state&, kind, queue[0:512], head, tail&)
+
+def eibfs_repair(state: mutable EibfsState&) -> void:
+    while true:
+        found: mutable bool = false
+        for vertex in 0..<state.n:
+            if state.kind[vertex] == EIBFS_T and state.balance[vertex] > 0:
+                eibfs_drain(state&, vertex, EIBFS_T)
+                found <- true
+                break
+        if found: continue
+        for vertex in 0..<state.n:
+            if state.kind[vertex] == EIBFS_S and state.balance[vertex] < 0:
+                eibfs_drain(state&, vertex, EIBFS_S)
+                found <- true
+                break
+        if not found: return
+
+def eibfs_augment(state: mutable EibfsState&, v: usize, w: usize) -> bool:
+    rs: i64 = eibfs_root(state&, v)
+    rt: i64 = eibfs_root(state&, w)
+    if rs < 0 or rt < 0 or state.residual[v * EIBFS_NMAX + w] <= 0: return false
+    connector: i64 = state.residual[v * EIBFS_NMAX + w]
+    bs: i64 = eibfs_bottleneck(state&, v, EIBFS_S)
+    bt: i64 = eibfs_bottleneck(state&, w, EIBFS_T)
+    amount: mutable i64 = connector
+    if rs == state.source.i64() and rt == state.sink.i64(): pass
+    elif rs == state.source.i64(): amount <- if bs < connector: bs else: connector
+    elif rt == state.sink.i64(): amount <- if connector < bt: connector else: bt
+    else:
+        amount <- state.balance[rs.usize()]
+        if bs < amount: amount <- bs
+        if connector < amount: amount <- connector
+        if bt < amount: amount <- bt
+        if -state.balance[rt.usize()] < amount: amount <- -state.balance[rt.usize()]
+    if amount <= 0: return false
+    eibfs_push(state&, v, w, amount)
+    eibfs_repair(state&)
+    true
+
+def eibfs_solve(state: mutable EibfsState&) -> i64:
+    finished: mutable bool = false
+    for _ in 0..<(4 * state.n + 4):
+        if finished: break
+        while true:
+            restart: mutable bool = false
+            if state.forward:
+                for v in 0..<state.n:
+                    if restart: break
+                    if state.kind[v] != EIBFS_S or state.ds[v] != state.ds_max: continue
+                    for w in 0..<state.n:
+                        if state.residual[v * EIBFS_NMAX + w] <= 0 or state.kind[w] == EIBFS_S: continue
+                        if state.kind[w] == EIBFS_FREE:
+                            state.kind[w] <- EIBFS_S
+                            state.parent[w] <- v.i64()
+                            state.ds[w] <- state.ds_max + 1
+                        elif state.kind[w] == EIBFS_T and eibfs_augment(state&, v, w):
+                            state.events <- state.events + 1
+                            if state.events > 100000: return -1
+                            restart <- true
+                            break
+                if not restart:
+                    next: mutable bool = false
+                    for v in 0..<state.n:
+                        if state.kind[v] == EIBFS_S and state.ds[v] == state.ds_max + 1: next <- true
+                    if next: state.ds_max <- state.ds_max + 1
+                    else: finished <- true
+                    break
+            else:
+                for w in 0..<state.n:
+                    if restart: break
+                    if state.kind[w] != EIBFS_T or state.dt[w] != state.dt_max: continue
+                    for v in 0..<state.n:
+                        if state.residual[v * EIBFS_NMAX + w] <= 0 or state.kind[v] == EIBFS_T: continue
+                        if state.kind[v] == EIBFS_FREE:
+                            state.kind[v] <- EIBFS_T
+                            state.parent[v] <- w.i64()
+                            state.dt[v] <- state.dt_max + 1
+                        elif state.kind[v] == EIBFS_S and eibfs_augment(state&, v, w):
+                            state.events <- state.events + 1
+                            if state.events > 100000: return -1
+                            restart <- true
+                            break
+                if not restart:
+                    next: mutable bool = false
+                    for v in 0..<state.n:
+                        if state.kind[v] == EIBFS_T and state.dt[v] == state.dt_max + 1: next <- true
+                    if next: state.dt_max <- state.dt_max + 1
+                    else: finished <- true
+                    break
+            if not restart: break
+        if not finished: state.forward <- not state.forward
+    reachable: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    for v in 0..<state.n:
+        if state.kind[v] == EIBFS_S:
+            reachable[v] <- true
+            queue[tail] <- v
+            tail <- tail + 1
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<state.n:
+            if state.residual[u * EIBFS_NMAX + v] > 0 and not reachable[v]:
+                reachable[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+    cut: mutable i64 = 0
+    for u in 0..<state.n:
+        if reachable[u]:
+            for v in 0..<state.n:
+                if not reachable[v]: cut <- cut + state.original[u * EIBFS_NMAX + v]
+    cut
+
+def eibfs_maxflow_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 4 or length > EIBFS_INPUT_MAX: return -1
+    nv,mv,sv,tv := input[0],input[1],input[2],input[3]
+    if nv < 2 or nv > EIBFS_NMAX.i64() or mv < 0 or mv > EIBFS_MMAX.i64() or sv < 0 or sv >= nv or tv < 0 or tv >= nv or sv == tv: return -1
+    n,m,source,sink := nv.usize(),mv.usize(),sv.usize(),tv.usize()
+    if length != 4 + 3 * m: return -1
+    for edge in 0..<m:
+        u,v,c := input[4 + 3 * edge],input[5 + 3 * edge],input[6 + 3 * edge]
+        if u < 0 or u >= nv or v < 0 or v >= nv or u == v or c < 0 or c > 100: return -1
+    state: mutable EibfsState = zeroed
+    state.n <- n
+    state.source <- source
+    state.sink <- sink
+    state.forward <- true
+    for vertex in 0..<n: state.parent[vertex] <- -1
+    for edge in 0..<m:
+        u,v,c := input[4 + 3 * edge].usize(),input[5 + 3 * edge].usize(),input[6 + 3 * edge]
+        state.original[u * EIBFS_NMAX + v] <- state.original[u * EIBFS_NMAX + v] + c
+        state.residual[u * EIBFS_NMAX + v] <- state.residual[u * EIBFS_NMAX + v] + c
+    state.kind[source] <- EIBFS_S
+    state.kind[sink] <- EIBFS_T
+    eibfs_solve(state&)
+
+export fn eibfs_maxflow(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > EIBFS_INPUT_MAX: return -1
+    eibfs_maxflow_impl(input[0:length])
+
+const MERGE_NMAX: usize = 6
+const MERGE_MMAX: usize = 6
+const MERGE_INPUT_MAX: usize = 46
+
+struct MergeEdge:
+    u: usize
+    v: usize
+    uv: i64
+    vu: i64
+
+def merge_find(parent: mutable view[usize], start: usize) -> usize:
+    vertex: mutable usize = start
+    while parent[vertex] != vertex:
+        parent[vertex] <- parent[parent[vertex]]
+        vertex <- parent[vertex]
+    vertex
+
+def merge_component_flow(n: usize, active: view[bool], source_caps: view[i64],
+                         sink_caps: view[i64], edges: view[MergeEdge], m: usize) -> i64:
+    local: mutable i64[6] = zeroed
+    for v in 0..<MERGE_NMAX: local[v] <- -1
+    k: mutable usize = 0
+    for v in 0..<n:
+        if active[v]: local[v] <- k.i64(); k <- k + 1
+    frame: mutable i64[76] = zeroed
+    source, sink := k, k + 1
+    frame[0] <- (k + 2).i64()
+    frame[2] <- source.i64()
+    frame[3] <- sink.i64()
+    at: mutable usize = 4
+    arc_count: mutable usize = 0
+    for v in 0..<n:
+        if active[v]:
+            frame[at] <- source.i64(); at <- at + 1
+            frame[at] <- local[v]; at <- at + 1
+            frame[at] <- source_caps[v]; at <- at + 1
+            frame[at] <- local[v]; at <- at + 1
+            frame[at] <- sink.i64(); at <- at + 1
+            frame[at] <- sink_caps[v]; at <- at + 1
+            arc_count <- arc_count + 2
+    for e in 0..<m:
+        if local[edges[e].u] >= 0 and local[edges[e].v] >= 0:
+            frame[at] <- local[edges[e].u]; at <- at + 1
+            frame[at] <- local[edges[e].v]; at <- at + 1
+            frame[at] <- edges[e].uv; at <- at + 1
+            frame[at] <- local[edges[e].v]; at <- at + 1
+            frame[at] <- local[edges[e].u]; at <- at + 1
+            frame[at] <- edges[e].vu; at <- at + 1
+            arc_count <- arc_count + 2
+    frame[1] <- arc_count.i64()
+    eibfs_maxflow_impl(frame[0:at])
+
+def eibfs_bottom_up_graph_cut_merging_impl(input: view[i64], length: usize) -> i64:
+    if length < 3 or length > MERGE_INPUT_MAX: return -1
+    nv,mv,bv := input[0],input[1],input[2]
+    if nv < 2 or nv > MERGE_NMAX.i64() or mv < 0 or mv > MERGE_MMAX.i64() or bv < 1 or bv > 4 or bv > nv or length != 3 + 3 * nv.usize() + 4 * mv.usize(): return -1
+    n,m,blocks := nv.usize(),mv.usize(),bv.usize()
+    block: mutable usize[6] = zeroed
+    seen: mutable bool[4] = zeroed
+    source_caps: mutable i64[6] = zeroed
+    sink_caps: mutable i64[6] = zeroed
+    for v in 0..<n:
+        raw_id := input[3 + v]
+        if raw_id < 0 or raw_id >= bv: return -1
+        id := raw_id.usize()
+        block[v] <- id
+        seen[id] <- true
+    for b in 0..<blocks:
+        if not seen[b]: return -1
+    for v in 0..<n:
+        source_caps[v] <- input[3 + n + v]
+        sink_caps[v] <- input[3 + 2 * n + v]
+        if source_caps[v] < 0 or source_caps[v] > 7 or sink_caps[v] < 0 or sink_caps[v] > 7: return -1
+    edges: mutable MergeEdge[6] = zeroed
+    for e in 0..<m:
+        p := 3 + 3 * n + 4 * e
+        u,v,uv,vu := input[p],input[p+1],input[p+2],input[p+3]
+        if u < 0 or u >= nv or v < 0 or v >= nv or u == v or uv < 0 or uv > 7 or vu < 0 or vu > 7: return -1
+        edges[e].u <- u.usize(); edges[e].v <- v.usize(); edges[e].uv <- uv; edges[e].vu <- vu
+
+    tags: mutable usize[6] = zeroed
+    flow: mutable i64[4] = zeroed
+    for b in 0..<blocks:
+        vertices: mutable usize[6] = zeroed
+        active: mutable bool[6] = zeroed
+        k: mutable usize = 0
+        for v in 0..<n:
+            if block[v] == b: vertices[k] <- v; k <- k + 1; active[v] <- true
+        best_cost: mutable i64 = 1 << 60
+        best_mask: mutable usize = 0
+        for mask in 0..<(1 << k):
+            cost: mutable i64 = 0
+            for i in 0..<k:
+                v := vertices[i]
+                if (mask & (1 << i)) != 0: cost <- cost + sink_caps[v]
+                else: cost <- cost + source_caps[v]
+            for e in 0..<m:
+                if block[edges[e].u] == b and block[edges[e].v] == b:
+                    iu: mutable usize = 0
+                    iv: mutable usize = 0
+                    while vertices[iu] != edges[e].u: iu <- iu + 1
+                    while vertices[iv] != edges[e].v: iv <- iv + 1
+                    us := (mask & (1 << iu)) != 0
+                    vs := (mask & (1 << iv)) != 0
+                    if us and not vs: cost <- cost + edges[e].uv
+                    else if vs and not us: cost <- cost + edges[e].vu
+            if cost < best_cost or (cost == best_cost and mask < best_mask): best_cost <- cost; best_mask <- mask
+        for i in 0..<k: tags[vertices[i]] <- if (best_mask & (1 << i)) != 0 then 1 else 2
+        flow[b] <- merge_component_flow(n, active[0:n], source_caps[0:n], sink_caps[0:n], edges[0:m], m)
+        if flow[b] < 0: return -1
+
+    score: mutable i64[16] = zeroed
+    has: mutable bool[16] = zeroed
+    for e in 0..<m:
+        if block[edges[e].u] != block[edges[e].v] and (edges[e].uv != 0 or edges[e].vu != 0):
+            a,b := block[edges[e].u],block[edges[e].v]
+            if a > b: a,b = b,a
+            has[a * 4 + b] <- true
+            if tags[edges[e].u] != tags[edges[e].v]: score[a * 4 + b] <- score[a * 4 + b] + (if edges[e].uv > 0 then 1 else 0) + (if edges[e].vu > 0 then 1 else 0)
+    pair_a: mutable usize[6] = zeroed
+    pair_b: mutable usize[6] = zeroed
+    pair_score: mutable i64[6] = zeroed
+    pair_count: mutable usize = 0
+    for a in 0..<blocks:
+        for b in (a + 1)..<blocks:
+            if has[a * 4 + b]:
+                pos: mutable usize = pair_count
+                pair_count <- pair_count + 1
+                while pos > 0 and (pair_score[pos - 1] < score[a * 4 + b] or (pair_score[pos - 1] == score[a * 4 + b] and (pair_a[pos - 1] > a or (pair_a[pos - 1] == a and pair_b[pos - 1] > b))):
+                    pair_a[pos] <- pair_a[pos - 1]; pair_b[pos] <- pair_b[pos - 1]; pair_score[pos] <- pair_score[pos - 1]; pos <- pos - 1
+                pair_a[pos] <- a; pair_b[pos] <- b; pair_score[pos] <- score[a * 4 + b]
+    parent: mutable usize[4] = [0,1,2,3]
+    for i in 0..<pair_count:
+        a := merge_find(parent[0:4], pair_a[i])
+        b := merge_find(parent[0:4], pair_b[i])
+        if a == b: continue
+        root := if a < b then a else b
+        other := if a < b then b else a
+        parent[other] <- root
+        active: mutable bool[6] = zeroed
+        for v in 0..<n: active[v] <- merge_find(parent[0:4], block[v]) == root
+        flow[root] <- merge_component_flow(n, active[0:n], source_caps[0:n], sink_caps[0:n], edges[0:m], m)
+        if flow[root] < 0: return -1
+        flow[other] <- 0
+    answer: mutable i64 = 0
+    for b in 0..<blocks:
+        if merge_find(parent[0:4], b) == b: answer <- answer + flow[b]
+    answer
+
+export fn eibfs_bottom_up_graph_cut_merging(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > MERGE_INPUT_MAX: return -1
+    eibfs_bottom_up_graph_cut_merging_impl(input[0:length], length)

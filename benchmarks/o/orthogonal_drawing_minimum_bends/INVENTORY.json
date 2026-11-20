@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "algorithm": "orthogonal_drawing_minimum_bends",
+  "function_symbol": "orthogonal_drawing_minimum_bends",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/o/orthogonal_drawing_minimum_bends.c",
+    "c3": "c3/o/orthogonal_drawing_minimum_bends.c3",
+    "cpp": "cpp/o/orthogonal_drawing_minimum_bends.cpp",
+    "elisa": "elisa/o/orthogonal_drawing_minimum_bends.elisa",
+    "mojo": "mojo/o/orthogonal_drawing_minimum_bends.mojo",
+    "nim": "nim/o/orthogonal_drawing_minimum_bends.nim",
+    "odin": "odin/o/orthogonal_drawing_minimum_bends.odin",
+    "rust": "rust/o/orthogonal_drawing_minimum_bends.rs",
+    "v": "v/o/orthogonal_drawing_minimum_bends.v",
+    "zig": "zig/o/orthogonal_drawing_minimum_bends.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "check_inventory.py"],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Bend Minimization for Orthogonal Drawings of Plane Graphs",
+    "doi": "10.1007/978-1-4939-2864-4_651",
+    "section": "Key Results; Tamassia minimum-cost flow reduction"
+  },
+  "contract": {
+    "input_layout": "[n,m,f,outer,(u,v)*m,(face_length,face_vertices...)*f]",
+    "maximum_valid_input_words": 78,
+    "maximum_parseable_input_words": 79,
+    "maximum_output_bytes": 8,
+    "workspace_bytes": 8192,
+    "output_layout": "one little-endian signed-i64 minimum bend count",
+    "profile": "simple 2-connected sphere plane graph; vertex degree 2..4; explicit simple face cycles; each vertex link is one connected degree-two cycle; n<=8; min-cost integral flow"
+  }
+}

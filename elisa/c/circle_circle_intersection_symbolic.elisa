@@ -1,0 +1,38 @@
+# Independently authored draft; not compiled or run.
+def fn circle_symbolic_put(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        output[offset + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def fn circle_symbolic_impl(v: view[i64], out: mutable view[u8], output_is_null: bool) -> i64:
+    if v.len() != 6: return -1
+    for i in 0..<6:
+        if v[i] < -1000 or v[i] > 1000: return -1
+    if v[2] < 1 or v[5] < 1: return -1
+    dx: i64 = v[3]-v[0]; dy: i64 = v[4]-v[1]; d: i64 = dx*dx+dy*dy
+    words: mutable i64[7] = zeroed
+    count: mutable usize = 1
+    if d == 0:
+        words[0] <- if v[2] == v[5]: 3 else: 0
+    else:
+        t: i64 = d+v[2]*v[2]-v[5]*v[5]
+        h: i64 = 4*v[2]*v[2]*d-t*t
+        if h >= 0:
+            den: i64 = 2*d
+            count <- 7
+            words[0] <- if h == 0: 1 else: 2
+            words[1] <- den*v[0]+dx*t; words[2] <- den*v[1]+dy*t
+            words[3] <- den; words[4] <- -dy; words[5] <- dx; words[6] <- h
+    needed: usize = 8*count
+    if output_is_null or out.len() < needed: return -2
+    for i in 0..<count: circle_symbolic_put(out, 8*i, words[i])
+    needed.i64()
+
+export fn circle_circle_intersection_symbolic(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 6: return -1
+    if output.is_null():
+        empty: mutable u8[1] = zeroed
+        return circle_symbolic_impl(input[0:length], empty[0:1], true)
+    circle_symbolic_impl(input[0:length], output[0:capacity], false)

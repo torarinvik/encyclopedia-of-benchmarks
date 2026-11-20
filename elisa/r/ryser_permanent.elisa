@@ -1,0 +1,69 @@
+const MAX_DIMENSION: usize = 8
+const MAX_INPUT_LENGTH: usize = 65
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def bit_count(value: usize) -> usize:
+    remaining: mutable usize = value
+    count: mutable usize = 0
+    while remaining != 0:
+        count <- count + (remaining & 1)
+        remaining <- remaining >> 1
+    return count
+
+def ryser_permanent_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+
+    values: mutable i64[65] = zeroed
+    frame_index: mutable usize = 0
+    while frame_index < length:
+        values[frame_index] <- input[frame_index]
+        frame_index <- frame_index + 1
+
+    dimension_value: i64 = values[0]
+    if dimension_value < 1 or dimension_value > 8:
+        return INVALID_RESULT
+    dimension: usize = dimension_value.usize()
+    if length != 1 + dimension * dimension:
+        return INVALID_RESULT
+
+    matrix: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < dimension * dimension:
+        value: i64 = values[1 + index]
+        if value < -4 or value > 4:
+            return INVALID_RESULT
+        matrix[index] <- value
+        index <- index + 1
+
+    row_sums: mutable i64[8] = zeroed
+    total: mutable i64 = 0
+    previous_gray: mutable usize = 0
+    ordinal: mutable usize = 0
+    subset_count: usize = 1 << dimension
+    while ordinal < subset_count:
+        gray: usize = ordinal ^ (ordinal >> 1)
+        if ordinal != 0:
+            changed: usize = gray ^ previous_gray
+            column: mutable usize = 0
+            while ((changed >> column) & 1) == 0:
+                column <- column + 1
+            direction: i64 = if (gray & changed) != 0: 1 else: -1
+            row: mutable usize = 0
+            while row < dimension:
+                row_sums[row] <- row_sums[row] + direction * matrix[row * dimension + column]
+                row <- row + 1
+
+        product: mutable i64 = 1
+        row: mutable usize = 0
+        while row < dimension:
+            product <- product * row_sums[row]
+            row <- row + 1
+        if ((dimension + bit_count(gray)) & 1) != 0:
+            product <- -product
+        total <- total + product
+        previous_gray <- gray
+        ordinal <- ordinal + 1
+    total
+
+export fn ryser_permanent(input: i64&, length: usize) -> i64 = ryser_permanent_impl

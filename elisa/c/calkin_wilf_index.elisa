@@ -1,0 +1,23 @@
+# Uncompiled indexed Calkin–Wilf fraction draft.
+def cwi_solve(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    if input.len() != 1 or input[0] < 1 or input[0] >= 4611686018427387904: return -1
+    if output == null or capacity < 16: return -2
+    result: mutable view[u8] = output[0:16]
+    index: u64 = input[0].u64()
+    high: mutable u64 = 1
+    while high <= index / 2: high <- high * 2
+    numerator: mutable u64 = 1
+    denominator: mutable u64 = 1
+    high <- high / 2
+    while high != 0:
+        if (index & high) != 0: numerator <- numerator + denominator
+        else: denominator <- denominator + numerator
+        high <- high / 2
+    for i in 0..<8:
+        result[i] <- ((numerator >> (8*i)) & 255).u8()
+        result[i+8] <- ((denominator >> (8*i)) & 255).u8()
+    16
+
+export fn calkin_wilf_index(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != 1: return -1
+    cwi_solve(input[0:length], output, capacity)

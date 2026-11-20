@@ -1,7 +1,7 @@
 module exponential_moving_average;
 
 fn void put_f64_le(double value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 

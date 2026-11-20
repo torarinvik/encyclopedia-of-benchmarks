@@ -35,8 +35,8 @@ fn int pattern_cmp(long* text, int start, int n, long* pattern, int m,
 }
 
 fn void build_intervals(int n, int* lcp, int* left_q, int* right_q) {
-    int lo_stack[2 * MAX_N];
-    int hi_stack[2 * MAX_N];
+    int[2 * MAX_N] lo_stack;
+    int[2 * MAX_N] hi_stack;
     int top = 0;
     lo_stack[top] = 0; hi_stack[top] = n - 1; top += 1;
     while (top > 0) {

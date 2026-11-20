@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("prime_pi_sequence")
 fn prime_pi_sequence(index:Int64) abi("C")->Int64:
     if index<0 or index>999:return -1

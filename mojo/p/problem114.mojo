@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem114")
 fn problem114(length:Int64) abi("C")->Int64:
     if length<0 or length>50:return -1

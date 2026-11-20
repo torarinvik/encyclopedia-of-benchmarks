@@ -11,7 +11,7 @@ const long MIN_RISK_FREE_MICRO = -100000;
 const long MAX_RISK_FREE_MICRO = 100000;
 const double INVALID_RESULT = -1.0e300;
 
-double sharpe_ratio(long* values, usz length) @export("sharpe_ratio") {
+fn double sharpe_ratio(long* values, usz length) @export("sharpe_ratio") {
     if (values == null || length < 2 || length > MAX_PARSEABLE_LENGTH) return INVALID_RESULT;
     long count_value = values[0];
     if (count_value < 2 || count_value > MAX_SAMPLE_COUNT

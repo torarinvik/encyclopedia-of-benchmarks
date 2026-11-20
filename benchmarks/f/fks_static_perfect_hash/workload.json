@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "fks-static-perfect-hash-i64-array-scalar-v1",
+  "algorithm": "fks_static_perfect_hash",
+  "function_symbol": "fks_static_perfect_hash",
+  "abi": "i64_array_scalar",
+  "description": "Build a deterministic two-level FKS static perfect hash table and return a membership bit mask for supplied queries.",
+  "source": {
+    "title": "Storing a Sparse Table with O(1) Worst Case Access Time",
+    "authors": ["Michael L. Fredman", "János Komlós", "Endre Szemerédi"],
+    "year": 1984,
+    "reference": "Journal of the ACM 31(3), pages 538–544, DOI 10.1145/828.1884",
+    "url": "https://doi.org/10.1145/828.1884",
+    "algorithm_attribution": "Two-level FKS static perfect hashing with squared bucket capacities",
+    "implementation_status": "clean-room bounded deterministic seed-order profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[stored_key_count, query_count, stored_keys..., query_keys...]",
+    "stored_key_count_range": [0, 8],
+    "query_count_range": [0, 8],
+    "key_and_query_range": [0, 255],
+    "stored_keys_must_be_distinct": true,
+    "query_keys_may_repeat": true,
+    "exact_length": "2 + stored_key_count + query_count",
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "bit i is one iff query i is in the stored set",
+    "maximum_result": 255,
+    "empty_query_result": 0,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "prime": 257,
+    "hash": "((a * key + b) mod 257) mod bucket_count",
+    "seed_order": "a ascends from 1 through 256; for each a, b ascends from 0 through 256",
+    "first_level": "Use n buckets and choose the first seed with sum(bucket_size^2) <= 4*n; skip this level for n=0.",
+    "second_level": "A bucket of size k uses k^2 cells and its first collision-free seed in the same order.",
+    "table_rebuilt_each_call": true,
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "weighted-set-hits-and-misses",
+      "input_values": [5, 6, 10, 20, 30, 40, 50, 10, 9, 50, 30, 0, 255],
+      "input_length": 13,
+      "expected_result": 13
+    },
+    {
+      "id": "three-key-shared-first-level-bucket",
+      "input_values": [3, 3, 0, 3, 6, 0, 3, 4],
+      "input_length": 8,
+      "expected_result": 3
+    },
+    {
+      "id": "empty-set",
+      "input_values": [0, 3, 0, 128, 255],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "zero-key-repeated-query",
+      "input_values": [1, 4, 0, 0, 1, 255, 0],
+      "input_length": 7,
+      "expected_result": 9
+    },
+    {
+      "id": "maximum-key-and-query-count",
+      "input_values": [8, 8, 0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 0, 255, 4, 1, 200, 3],
+      "input_length": 18,
+      "expected_result": 181
+    },
+    {
+      "id": "no-queries",
+      "input_values": [3, 0, 1, 2, 3],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "duplicate-stored-keys",
+      "input_values": [2, 2, 7, 7, 7, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "out-of-range-query",
+      "input_values": [1, 1, 12, 256],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-frame",
+      "input_values": [2, 1, 4, 5],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

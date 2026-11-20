@@ -7,6 +7,11 @@ Use the pinned recursive ternary search to find the value of one known unimodal 
 The recursive interval updates and comparisons match the pinned Rust source. Recursion stops when `abs(end-start) < precision`, and the result is `f(start)` as returned by the source. The bounded width (at most 200) and minimum precision (0.001) require at most 31 interval reductions followed by the base call at depth 32. The binary32 result is promoted to binary64 for the scalar ABI. Workload absolute tolerance is 1e-4. Invalid input returns `-1e300`.
 
 This package measures continuous unimodal optimization. The existing `ternary_search` package searches a sorted integer sequence and has a different contract.
+The related [`ternary`](../ternary/README.md) profile also uses recursive
+unimodal search, but uses binary64 arithmetic, keeps the left two thirds on
+equal objective values, and evaluates the midpoint at termination. This
+profile uses binary32, keeps the middle third on ties, and evaluates the left
+endpoint, so the measured recursion and numerical behavior differ.
 
 ## Workload
 

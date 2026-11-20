@@ -1,0 +1,255 @@
+# Bounded Hochbaum highest-label pseudoflow over a normalized branch forest.
+def pf_build_state(k: usize, root_edge: view[i64], tree_edges: view[i64], tree_count: usize,
+                   edge_u: view[i64], edge_v: view[i64], parent: mutable view[i64],
+                   parent_edge: mutable view[i64], branch_root: mutable view[i64]) -> bool:
+    root: usize = k
+    adjacency: mutable i64[81] = zeroed
+    for i in 0..<81: adjacency[i] <- -2
+    for v in 0..<k:
+        if root_edge[v] != 0:
+            adjacency[root * 9 + v] <- -1
+            adjacency[v * 9 + root] <- -1
+    for i in 0..<tree_count:
+        e: usize = tree_edges[i].usize()
+        u: usize = edge_u[e].usize()
+        v: usize = edge_v[e].usize()
+        adjacency[u * 9 + v] <- e.i64()
+        adjacency[v * 9 + u] <- e.i64()
+    for i in 0..<9:
+        parent[i] <- -2
+        parent_edge[i] <- -2
+    for i in 0..<k: branch_root[i] <- -1
+    queue: mutable i64[9] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    parent[root] <- -1
+    queue[0] <- root.i64()
+    while head < tail:
+        u: usize = queue[head].usize()
+        head <- head + 1
+        for v in 0..<(k + 1):
+            if adjacency[u * 9 + v] != -2 and parent[v] == -2:
+                parent[v] <- u.i64()
+                parent_edge[v] <- adjacency[u * 9 + v]
+                if u == root: branch_root[v] <- v.i64()
+                else: branch_root[v] <- branch_root[u]
+                queue[tail] <- v.i64()
+                tail <- tail + 1
+    tail == k + 1
+
+def pf_balance(k: usize, edge_count: usize, weight: view[i64], edge_u: view[i64], edge_v: view[i64],
+               flow: view[i64], balance: mutable view[i64]) -> void:
+    for v in 0..<k: balance[v] <- weight[v]
+    for e in 0..<edge_count:
+        u: usize = edge_u[e].usize()
+        v: usize = edge_v[e].usize()
+        balance[u] <- balance[u] - flow[e]
+        balance[v] <- balance[v] + flow[e]
+
+def pf_in_tree(tree_edges: view[i64], tree_count: usize, edge: usize) -> bool:
+    for i in 0..<tree_count:
+        if tree_edges[i] == edge.i64(): return true
+    false
+
+def pf_solve(values: view[i64]) -> i64:
+    if values.len() < 4 or values.len() > 77: return -1
+    nv: i64 = values[0]
+    mv: i64 = values[1]
+    sr: i64 = values[2]
+    tr: i64 = values[3]
+    if nv < 2 or nv > 8 or mv < 0 or mv > 24 or sr < 1 or sr > nv or tr < 1 or tr > nv or sr == tr: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    source: usize = (sr - 1).usize()
+    sink: usize = (tr - 1).usize()
+    if values.len() != 4 + 3 * m: return -1
+    local: mutable i64[8] = zeroed
+    for v in 0..<n: local[v] <- -1
+    k: mutable usize = 0
+    for v in 0..<n:
+        if v != source and v != sink:
+            local[v] <- k.i64()
+            k <- k + 1
+    source_cap: mutable i64[6] = zeroed
+    sink_cap: mutable i64[6] = zeroed
+    direct_cap: mutable i64 = 0
+    edge_u: mutable i64[24] = zeroed
+    edge_v: mutable i64[24] = zeroed
+    capacity: mutable i64[24] = zeroed
+    flow: mutable i64[24] = zeroed
+    edge_count: mutable usize = 0
+    for i in 0..<m:
+        ur: i64 = values[4 + 3 * i]
+        vr: i64 = values[5 + 3 * i]
+        cap: i64 = values[6 + 3 * i]
+        if ur < 1 or ur > nv or vr < 1 or vr > nv or ur == vr or cap < 0 or cap > 100: return -1
+        u: usize = (ur - 1).usize()
+        v: usize = (vr - 1).usize()
+        if u == source:
+            if v == sink: direct_cap <- direct_cap + cap
+            else: source_cap[local[v].usize()] <- source_cap[local[v].usize()] + cap
+        elif v == sink:
+            sink_cap[local[u].usize()] <- sink_cap[local[u].usize()] + cap
+        elif v == source or u == sink: return -1
+        else:
+            edge_u[edge_count] <- local[u]
+            edge_v[edge_count] <- local[v]
+            capacity[edge_count] <- cap
+            edge_count <- edge_count + 1
+    weight: mutable i64[6] = zeroed
+    balance: mutable i64[6] = zeroed
+    label: mutable i64[6] = zeroed
+    ticket: mutable i64[6] = zeroed
+    next_ticket: mutable i64 = 0
+    root_edge: mutable i64[6] = zeroed
+    tree_edges: mutable i64[8] = zeroed
+    tree_count: mutable usize = 0
+    for v in 0..<k:
+        weight[v] <- source_cap[v] - sink_cap[v]
+        root_edge[v] <- 1
+        label[v] <- 1
+        ticket[v] <- next_ticket
+        next_ticket <- next_ticket + 1
+    parent: mutable i64[9] = zeroed
+    parent_edge: mutable i64[9] = zeroed
+    branch_root: mutable i64[6] = zeroed
+
+    for iteration in 0..<512:
+        pf_balance(k, edge_count, weight[0:k], edge_u[0:edge_count], edge_v[0:edge_count], flow[0:edge_count], balance[0:k])
+        if not pf_build_state(k, root_edge[0:k], tree_edges[0:tree_count], tree_count,
+                              edge_u[0:edge_count], edge_v[0:edge_count], parent[0:9],
+                              parent_edge[0:9], branch_root[0:k]): return -1
+        active: mutable i64[6] = zeroed
+        strong: mutable i64[6] = zeroed
+        old_label: mutable i64[6] = zeroed
+        for r in 0..<k:
+            old_label[r] <- label[r]
+            if root_edge[r] != 0 and balance[r] > 0: active[r] <- 1
+        for v in 0..<k: strong[v] <- if balance[branch_root[v].usize()] > 0 then 1 else 0
+        crossing: mutable bool = false
+        for e in 0..<edge_count:
+            u: usize = edge_u[e].usize()
+            v: usize = edge_v[e].usize()
+            if strong[u] != 0 and strong[v] == 0 and capacity[e] - flow[e] > 0: crossing <- true
+            if strong[v] != 0 and strong[u] == 0 and flow[e] > 0: crossing <- true
+        if not crossing:
+            cut: mutable i64 = direct_cap
+            for v in 0..<k:
+                if strong[v] != 0: cut <- cut + sink_cap[v]
+                else: cut <- cut + source_cap[v]
+            for e in 0..<edge_count:
+                u: usize = edge_u[e].usize()
+                v: usize = edge_v[e].usize()
+                if strong[u] != 0 and strong[v] == 0: cut <- cut + capacity[e]
+            if cut >= 0 and cut <= 2400: return cut
+            return -1
+        strong_root: mutable i64 = -1
+        for r in 0..<k:
+            if active[r] != 0 and (strong_root < 0 or label[r] > label[strong_root.usize()] or
+                                  (label[r] == label[strong_root.usize()] and ticket[r] < ticket[strong_root.usize()])):
+                strong_root <- r.i64()
+        if strong_root < 0: return -1
+        sr_root: usize = strong_root.usize()
+        low: mutable i64 = 1000
+        for v in 0..<k:
+            if branch_root[v] == strong_root and label[v] < low: low <- label[v]
+        tail_node: mutable i64 = -1
+        head_node: mutable i64 = -1
+        entering: mutable i64 = -1
+        for v in 0..<k:
+            if entering < 0 and branch_root[v] == strong_root and label[v] == low:
+                for e in 0..<edge_count:
+                    if entering < 0 and not pf_in_tree(tree_edges[0:tree_count], tree_count, e):
+                        u: usize = edge_u[e].usize()
+                        w: usize = edge_v[e].usize()
+                        if u == v and capacity[e] - flow[e] > 0 and branch_root[w] != strong_root and label[w] == low - 1:
+                            tail_node <- v.i64(); head_node <- w.i64(); entering <- e.i64()
+                        elif w == v and flow[e] > 0 and branch_root[u] != strong_root and label[u] == low - 1:
+                            tail_node <- v.i64(); head_node <- u.i64(); entering <- e.i64()
+        if entering < 0:
+            relabel: mutable i64 = -1
+            for v in 0..<k:
+                if relabel < 0 and branch_root[v] == strong_root and label[v] == low:
+                    children_ok: mutable bool = true
+                    for child in 0..<k:
+                        if parent[child] == v.i64() and label[child] < low + 1: children_ok <- false
+                    if children_ok: relabel <- v.i64()
+            if relabel < 0: return -1
+            label[relabel.usize()] <- label[relabel.usize()] + 1
+            if relabel == strong_root:
+                ticket[sr_root] <- next_ticket
+                next_ticket <- next_ticket + 1
+            continue
+        tail: usize = tail_node.usize()
+        head: usize = head_node.usize()
+        entry: usize = entering.usize()
+        target_root: usize = branch_root[head].usize()
+        root: usize = k
+        chain: mutable i64[9] = zeroed
+        chain_len: mutable usize = 0
+        cursor: mutable usize = tail
+        while cursor != root:
+            chain[chain_len] <- cursor.i64()
+            chain_len <- chain_len + 1
+            cursor <- parent[cursor].usize()
+        step_from: mutable i64[18] = zeroed
+        step_to: mutable i64[18] = zeroed
+        step_edge: mutable i64[18] = zeroed
+        steps: mutable usize = 0
+        j: mutable i64 = chain_len.i64()
+        while j > 0:
+            j <- j - 1
+            child: usize = chain[j.usize()].usize()
+            if parent[child] != root.i64():
+                step_from[steps] <- parent[child]
+                step_to[steps] <- child.i64()
+                step_edge[steps] <- parent_edge[child]
+                steps <- steps + 1
+        step_from[steps] <- tail.i64()
+        step_to[steps] <- head.i64()
+        step_edge[steps] <- entry.i64()
+        steps <- steps + 1
+        cursor <- head
+        while cursor != target_root:
+            step_from[steps] <- cursor.i64()
+            step_to[steps] <- parent[cursor]
+            step_edge[steps] <- parent_edge[cursor]
+            steps <- steps + 1
+            cursor <- parent[cursor].usize()
+        root_edge[sr_root] <- 0
+        tree_edges[tree_count] <- entry.i64()
+        tree_count <- tree_count + 1
+        for j in 0..<chain_len: label[chain[j].usize()] <- label[head] + 1
+        carry: mutable i64 = balance[sr_root]
+        for j in 0..<steps:
+            e: usize = step_edge[j].usize()
+            u: usize = edge_u[e].usize()
+            v: usize = edge_v[e].usize()
+            residual: i64 = if step_from[j].usize() == u and step_to[j].usize() == v then capacity[e] - flow[e] else flow[e]
+            pushed: mutable i64 = carry
+            if residual < pushed: pushed <- residual
+            if step_from[j].usize() == u and step_to[j].usize() == v: flow[e] <- flow[e] + pushed
+            else: flow[e] <- flow[e] - pushed
+            if residual < carry:
+                remove_at: mutable usize = tree_count
+                for i in 0..<tree_count:
+                    if tree_edges[i] == e.i64(): remove_at <- i
+                if remove_at == tree_count: return -1
+                for i in remove_at..<(tree_count - 1): tree_edges[i] <- tree_edges[i + 1]
+                tree_count <- tree_count - 1
+                root_edge[step_from[j].usize()] <- 1
+            carry <- pushed
+            if carry == 0: break
+        pf_balance(k, edge_count, weight[0:k], edge_u[0:edge_count], edge_v[0:edge_count], flow[0:edge_count], balance[0:k])
+        if not pf_build_state(k, root_edge[0:k], tree_edges[0:tree_count], tree_count,
+                              edge_u[0:edge_count], edge_v[0:edge_count], parent[0:9],
+                              parent_edge[0:9], branch_root[0:k]): return -1
+        for r in 0..<k:
+            if root_edge[r] != 0 and balance[r] > 0 and (active[r] == 0 or label[r] != old_label[r]):
+                ticket[r] <- next_ticket
+                next_ticket <- next_ticket + 1
+    -1
+
+export fn hochbaum_pseudoflow_maxflow(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 77: return -1
+    pf_solve(input[0:length])

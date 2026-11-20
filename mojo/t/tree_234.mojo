@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn t234_new(inout keys:InlineArray[Int64,6147],inout child:InlineArray[Int,8196],inout counts:InlineArray[Int,2049],inout leaf:InlineArray[Bool,2049],inout nodes:Int,isleaf:Bool)->Int:
@@ -13,14 +14,15 @@ fn t234_contains(keys:InlineArray[Int64,6147],child:InlineArray[Int,8196],counts
         if leaf[node]:return False
         node=child[node*4+slot]
     return False
-fn t234_split(inout keys:InlineArray[Int64,6147],inout child:InlineArray[Int,8196],inout counts:InlineArray[Int,2049],leaf:InlineArray[Bool,2049],inout nodes:Int,parent:Int,slot:Int):
-    let ch=child[parent*4+slot];let r=t234_new(keys,child,counts,leaf,nodes,leaf[ch]);keys[r*3]=keys[ch*3+2];counts[r]=1
+fn t234_split(inout keys:InlineArray[Int64,6147],inout child:InlineArray[Int,8196],inout counts:InlineArray[Int,2049],inout leaf:InlineArray[Bool,2049],inout nodes:Int,parent:Int,slot:Int):
+    let ch=child[parent*4+slot];let child_is_leaf=leaf[ch]
+    let r=t234_new(keys,child,counts,leaf,nodes,child_is_leaf);keys[r*3]=keys[ch*3+2];counts[r]=1
     if not leaf[ch]:child[r*4]=child[ch*4+2];child[r*4+1]=child[ch*4+3]
     let middle=keys[ch*3+1];counts[ch]=1;let pc=counts[parent]
     for i in range(pc-slot):let j=pc-i;keys[parent*3+j]=keys[parent*3+j-1]
     for i in range(pc-slot+1):let j=pc+1-i;child[parent*4+j]=child[parent*4+j-1]
     keys[parent*3+slot]=middle;child[parent*4+slot+1]=r;counts[parent]+=1
-fn t234_insert_nonfull(inout keys:InlineArray[Int64,6147],inout child:InlineArray[Int,8196],inout counts:InlineArray[Int,2049],leaf:InlineArray[Bool,2049],inout nodes:Int,node:Int,key:Int64):
+fn t234_insert_nonfull(inout keys:InlineArray[Int64,6147],inout child:InlineArray[Int,8196],inout counts:InlineArray[Int,2049],inout leaf:InlineArray[Bool,2049],inout nodes:Int,node:Int,key:Int64):
     var slot=counts[node]
     if leaf[node]:
         while slot>0 and key<keys[node*3+slot-1]:keys[node*3+slot]=keys[node*3+slot-1];slot-=1
@@ -110,7 +112,7 @@ fn tree_234(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UIn
     let ops=Int(a[0])
     for i in range(ops):
         if a[1+2*i]!=0 and a[1+2*i]!=1:return -1
-    var keys=InlineArray[Int64,6147]();var child=InlineArray[Int,8196](-1);var counts=InlineArray[Int,2049]();var leaf=InlineArray[Bool,2049]();var nodes=0;var root= -1
+    var keys=InlineArray[Int64,6147]();var child=InlineArray[Int,8196](fill=-1);var counts=InlineArray[Int,2049]();var leaf=InlineArray[Bool,2049]();var nodes=0;var root= -1
     var remove_results=InlineArray[Int64,128]();var removed=0
     for i in range(ops):
         let op=a[1+2*i];let key=a[2+2*i]

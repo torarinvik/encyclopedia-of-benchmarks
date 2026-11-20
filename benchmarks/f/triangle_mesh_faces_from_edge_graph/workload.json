@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "triangle-mesh-faces-from-edge-graph-i64-array-bytes-output-v1",
+  "algorithm": "triangle_mesh_faces_from_edge_graph",
+  "function_symbol": "triangle_mesh_faces_from_edge_graph",
+  "abi": "i64_array_bytes_output",
+  "description": "Replay a bounded deterministic edge-incidence heuristic for reconstructing triangular mesh faces from an undirected edge set.",
+  "source": {
+    "title": "Faces from a mesh",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "primary_method_reference": "https://cescg.org/wp-content/uploads/2018/04/Zabran-An-Algorithm-Recreating-3D-Triangle-Mesh-Faces-from-Its-Edges.pdf",
+    "discovery_scope": "RosettaCodeData supplies title discovery only. The CESCG paper supplies the triangle enumeration and edge-incidence heuristic. This package fixes its own bounded graph frame, deterministic tie rules, status encoding, and output format; no task text, submitted code, examples, or tests are reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[vertex_count,edge_count,(u,v)*edge_count]",
+    "vertex_count_range": [3, 8],
+    "edge_count_range": [0, 28],
+    "vertex_ids": "0 through vertex_count-1",
+    "edge_rules": "Undirected simple edges; endpoints must be distinct and in range; duplicate edges are invalid regardless of endpoint order.",
+    "maximum_valid_input_length": 58,
+    "maximum_parseable_input_length": 59,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array_bytes",
+    "encoding": "[status,face_count,(a,b,c)*face_count]; each face is a sorted vertex triple in deterministic selection order",
+    "status_values": {
+      "0": "at least one edge was supplied and every edge was used exactly twice; no fallback selection was needed",
+      "1": "at least one edge was supplied and every edge was used exactly twice; at least one fallback selection was needed",
+      "2": "the edge set is empty or some supplied edge was not used exactly twice; no fallback selection was needed",
+      "3": "the edge set is empty or some supplied edge was not used exactly twice; at least one fallback selection was needed"
+    },
+    "result": "serialized output byte length",
+    "maximum_candidate_triangles": 56,
+    "maximum_output_bytes": 1360,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "triangle_enumeration": "Enumerate every 3-cycle as (a,b,c) with a<b<c, in lexicographic order.",
+    "seed_rule": "Repeatedly select the first remaining triangle containing any input vertex of degree three.",
+    "forced_rule": "For each edge, remaining_need=2-used_count. An edge with positive active-triangle incidence equal to remaining_need forces all its active incident triangles. Select the first active triangle, in lexicographic order, incident to any such edge; recompute after each selection.",
+    "fallback_rule": "If active triangles remain and no edge is forced, select the triangle with the smallest sum of its three current active-edge incidences. Break ties lexicographically and mark fallback_used.",
+    "selection_update": "Selecting a triangle removes it from the active set, increments each of its edge-use counts, and removes every other active triangle containing an edge whose use count has reached two.",
+    "completion": "After no candidate triangles remain, completeness is true only if at least one edge was supplied and every supplied edge has exactly two selected incidences. The empty edge set is intentionally incomplete. Status also reports whether fallback was used. It makes no correctness guarantee that arbitrary graphs describe a mesh or that the heuristic reconstructs a true surface.",
+    "tie_rules": "Lexicographic triangle order and fallback tie-breaking are deterministic conventions added by this benchmark profile.",
+    "validation_precedes_capacity": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Includes the 56-candidate triangle table, edge and vertex state, incidence counters, and the 170-word output stage. Caller-owned input and output buffers are excluded."
+  },
+  "complexity": {
+    "primary_time": "O(V^3 + T^2) with V<=8 and T<=56",
+    "primary_auxiliary_space": "O(V^2 + T + E) fixed arrays",
+    "independent_reference_time": "O(T^2*E) with V<=8 and T<=56",
+    "independent_reference_auxiliary_space": "O(V^2 + T + E) fixed arrays"
+  },
+  "primary_oracle": "benchmarks/f/triangle_mesh_faces_from_edge_graph/primary_oracle.py",
+  "independent_oracle": "benchmarks/f/triangle_mesh_faces_from_edge_graph/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-edge-set","input_values":[3,0],"input_length":2,"output_capacity":1360,"expected_result":16,"expected_output_hex":"02000000000000000000000000000000"},
+    {"id":"tetrahedron-seeded-faces","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"output_capacity":1360,"expected_result":112,"expected_output_hex":"00000000000000000400000000000000000000000000000001000000000000000200000000000000000000000000000001000000000000000300000000000000000000000000000002000000000000000300000000000000010000000000000002000000000000000300000000000000"},
+    {"id":"open-triangle-fallback","input_values":[3,3,0,1,0,2,1,2],"input_length":8,"output_capacity":1360,"expected_result":40,"expected_output_hex":"03000000000000000100000000000000000000000000000001000000000000000200000000000000"},
+    {"id":"malformed-self-loop","input_values":[3,1,1,1],"input_length":4,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"malformed-reversed-duplicate-edge","input_values":[3,2,0,1,1,0],"input_length":6,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"malformed-trailing-word","input_values":[3,0,9],"input_length":3,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":1360,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,0],"input_length":2,"output_capacity":1360,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output","input_values":[3,0],"input_length":2,"output_capacity":15,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

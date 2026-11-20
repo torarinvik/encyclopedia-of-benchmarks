@@ -1,0 +1,102 @@
+const AFS_MAX_STRINGS: usize = 256
+const AFS_MAX_STRING_LENGTH: usize = 32
+const AFS_BUCKET_COUNT: usize = 257
+const AFS_MAX_PARSEABLE_LENGTH: usize = 8450
+
+def afs_key(input: view[i64], offsets: view[usize],
+        string_lengths: view[usize], string_index: usize, depth: usize) -> usize:
+    if depth >= string_lengths[string_index]:
+        return 0
+    (input[offsets[string_index] + depth] + 1).usize()
+
+def afs_sort_indices(order: mutable view[usize], low: usize, high: usize,
+        depth: usize, input: view[i64], offsets: view[usize],
+        string_lengths: view[usize]) -> void:
+    if high - low < 2:
+        return
+
+    counts: mutable usize[AFS_BUCKET_COUNT] = zeroed
+    starts: mutable usize[AFS_BUCKET_COUNT] = zeroed
+    next: mutable usize[AFS_BUCKET_COUNT] = zeroed
+    for index in low..<high:
+        bucket: usize = afs_key(input, offsets, string_lengths, order[index], depth)
+        counts[bucket] <- counts[bucket] + 1
+
+    position: mutable usize = low
+    for bucket in 0..<AFS_BUCKET_COUNT:
+        starts[bucket] <- position
+        next[bucket] <- position
+        position <- position + counts[bucket]
+
+    bucket: mutable usize = 0
+    while bucket < AFS_BUCKET_COUNT:
+        end: usize = starts[bucket] + counts[bucket]
+        while next[bucket] < end:
+            current: usize = next[bucket]
+            target_bucket: usize = afs_key(
+                input, offsets, string_lengths, order[current], depth)
+            if target_bucket == bucket:
+                next[bucket] <- next[bucket] + 1
+            else:
+                target: usize = next[target_bucket]
+                temporary: usize = order[target]
+                order[target] <- order[current]
+                order[current] <- temporary
+                next[target_bucket] <- next[target_bucket] + 1
+        bucket <- bucket + 1
+
+    bucket <- 1
+    while bucket < AFS_BUCKET_COUNT:
+        if counts[bucket] > 1:
+            afs_sort_indices(order, starts[bucket], starts[bucket] + counts[bucket],
+                depth + 1, input, offsets, string_lengths)
+        bucket <- bucket + 1
+
+def american_flag_string_sorter_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > AFS_MAX_PARSEABLE_LENGTH:
+        return -1
+
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > AFS_MAX_STRINGS.i64():
+        return -1
+    count: usize = count_value.usize()
+
+    offsets: mutable usize[AFS_MAX_STRINGS] = zeroed
+    string_lengths: mutable usize[AFS_MAX_STRINGS] = zeroed
+    order: mutable usize[AFS_MAX_STRINGS] = zeroed
+    position: mutable usize = 1
+    for index in 0..<count:
+        if position >= length:
+            return -1
+        string_length_value: i64 = input[position]
+        position <- position + 1
+        if string_length_value < 0 or string_length_value > AFS_MAX_STRING_LENGTH.i64():
+            return -1
+        string_length: usize = string_length_value.usize()
+        if string_length > length - position:
+            return -1
+
+        offsets[index] <- position
+        string_lengths[index] <- string_length
+        order[index] <- index
+        for byte in 0..<string_length:
+            if input[position + byte] < 0 or input[position + byte] > 255:
+                return -1
+        position <- position + string_length
+    if position != length:
+        return -1
+
+    if count > 1:
+        afs_sort_indices(order[0:count], 0, count, 0, input[0:length],
+            offsets[0:count], string_lengths[0:count])
+
+    checksum: mutable i64 = 0
+    for rank in 0..<count:
+        string_index: usize = order[rank]
+        contribution: mutable i64 = string_lengths[string_index].i64() + 1
+        for byte in 0..<string_lengths[string_index]:
+            contribution <- contribution + input[offsets[string_index] + byte] + 1
+        checksum <- checksum + (rank.i64() + 1) * contribution
+    checksum
+
+export fn american_flag_string_sorter(input: i64&, length: usize) -> i64 = american_flag_string_sorter_impl

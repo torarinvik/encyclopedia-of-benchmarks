@@ -1,4 +1,4 @@
-// Chan hull draft. Not compiled or run; tangent-search invariants need review.
+// Chan hull port. Source-reviewed; not compiled or run.
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -34,20 +34,13 @@ std::size_t external_tangent(const std::vector<Point>& points, const std::vector
     const auto size = hull.size();
     auto turn = [&](std::size_t a, std::size_t b) { return cross(points[q], points[hull[a]], points[hull[b]]); };
     if (size == 1) return hull[0];
-    if (size == 2) return hull[turn(0, 1) > 0 ? 0 : 1];
-    const bool initial_up = turn(0, 1) > 0;
-    std::size_t lo = 0, hi = size;
+    std::size_t lo = 0, hi = size-1;
     while (lo < hi) {
         const auto mid = lo + (hi-lo)/2;
-        const bool less_prev = turn(mid, (mid+size-1)%size) > 0;
-        const bool less_next = turn(mid, (mid+1)%size) > 0;
-        if (less_prev && less_next) return hull[mid];
-        const bool before_anchor = mid != 0 && turn(mid, 0) > 0;
-        const bool after_anchor = mid != 0 && turn(0, mid) > 0;
-        const bool left = initial_up ? (less_next && before_anchor) : (less_next || after_anchor);
-        if (left) hi = mid; else lo = mid+1;
+        if (turn(mid, hi) > 0) hi = mid;
+        else lo = mid+1;
     }
-    return points.size();
+    return hull[lo];
 }
 }
 

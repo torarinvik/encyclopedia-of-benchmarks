@@ -2,7 +2,7 @@ module sensor_energy_balance_estimator_trace;
 const usz MAX_N=8;const usz MAX_INPUT=82;const usz MAX_OUTPUT=72;const long INPUT_SCALE=1000000;
 fn long gcd64(long a,long b){while(b!=0){long r=a%b;a=b;b=r;}return a;}
 fn void put64(char*out,usz at,long value){ulong bits=(ulong)value;for(usz b=0;b<8;b+=1){out[at+b]=(char)(bits&255);bits>>=8;}}
-long sensor_energy_balance_estimator_trace(long*input,usz length,char*output,usz capacity) @export("sensor_energy_balance_estimator_trace"){
+fn long sensor_energy_balance_estimator_trace(long*input,usz length,char*output,usz capacity) @export("sensor_energy_balance_estimator_trace"){
     if(input==null||length<4||length>MAX_INPUT)return -1;
     long n64=input[0],h64=input[1];if(n64<1||n64>8||h64<1||h64>8||length!=2+(usz)n64+(usz)h64+(usz)n64*(usz)h64)return -1;
     usz n=(usz)n64,h=(usz)h64;long[MAX_N] lambda=zeroed;long sum=0;

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("nthprime")
 fn nthprime(n:Int64) abi("C")->Int64:
     if n<1 or n>100:return -1

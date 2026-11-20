@@ -1,0 +1,71 @@
+const TPC_MAX_LIMIT: i64 = 61
+const TPC_MAX_TRIPLES: usize = 69
+const TPC_MAX_OUTPUT_BYTES: usize = 832
+
+def tpc_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value % 2 == 0:
+        return value == 2
+    divisor: mutable i64 = 3
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 2
+    true
+
+def tpc_put_u32(value: u32, output: mutable view[u8], offset: usize) -> void:
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- ((value >> (8 * byte).u32()) & 255.u32()).u8()
+        byte <- byte + 1
+
+def three_prime_carmichael_enumerator_impl(input: i64&, length: usize,
+                                           output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+    limit: i64 = input[0]
+    if limit < 2 or limit > TPC_MAX_LIMIT:
+        return -1
+
+    triples: mutable u32[TPC_MAX_TRIPLES * 3] = zeroed
+    triple_count: mutable usize = 0
+    p1: mutable i64 = 2
+    while p1 <= limit:
+        if tpc_is_prime(p1):
+            h3: mutable i64 = 2
+            while h3 < p1:
+                g: i64 = h3 + p1
+                d: mutable i64 = 1
+                while d < g:
+                    if (g * (p1 - 1)) % d == 0:
+                        negative_square_residue: i64 = (h3 - (p1 * p1) % h3) % h3
+                        if negative_square_residue == d % h3:
+                            p2: i64 = 1 + (p1 - 1) * g / d
+                            if p2 > p1 and tpc_is_prime(p2):
+                                p3: i64 = 1 + (p1 * p2) / h3
+                                if p3 > p2 and tpc_is_prime(p3) and
+                                   (p2 * p3) % (p1 - 1) == 1:
+                                    triples[triple_count * 3] <- p1.u32()
+                                    triples[triple_count * 3 + 1] <- p2.u32()
+                                    triples[triple_count * 3 + 2] <- p3.u32()
+                                    triple_count <- triple_count + 1
+                    d <- d + 1
+                h3 <- h3 + 1
+        p1 <- p1 + 1
+
+    required: usize = 4 + triple_count * 12
+    if output.is_null() or capacity < required:
+        return -2
+    output_view: mutable view[u8] = output[0:required]
+    tpc_put_u32(triple_count.u32(), output_view, 0)
+    record: mutable usize = 0
+    while record < triple_count:
+        tpc_put_u32(triples[record * 3], output_view, 4 + record * 12)
+        tpc_put_u32(triples[record * 3 + 1], output_view, 8 + record * 12)
+        tpc_put_u32(triples[record * 3 + 2], output_view, 12 + record * 12)
+        record <- record + 1
+    required.i64()
+
+export fn three_prime_carmichael_enumerator(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = three_prime_carmichael_enumerator_impl

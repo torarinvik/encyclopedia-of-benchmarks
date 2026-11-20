@@ -158,7 +158,7 @@ fn side_operation(mut nodes: InlineArray[Int64, TOTAL_FIELDS], uv: Int, vu: Int,
     result
 
 fn connected(adjacency: InlineArray[Bool, MAX_N * MAX_N], n: Int, start: Int, goal: Int) -> Bool:
-    var seen = InlineArray[Bool, MAX_N]()
+    var seen = InlineArray[Bool, MAX_N](fill=False)
     var queue = InlineArray[Int, MAX_N]()
     var head = 0; var tail = 1
     queue[0] = start; seen[start] = True
@@ -191,7 +191,7 @@ fn validate_fields(input: UnsafePointer[Int64, ImmutAnyOrigin], n: Int, q: Int) 
     result[0] = 1
     result
 fn validate_topology(input: UnsafePointer[Int64, ImmutAnyOrigin], n: Int, q: Int) -> Bool:
-    var adjacency = InlineArray[Bool, MAX_N * MAX_N]()
+    var adjacency = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     let edge_start = 2 + n; let operations = edge_start + 2 * (n - 1)
     for i in range(n - 1):
         let u = Int(input[edge_start + 2 * i]); let v = Int(input[edge_start + 2 * i + 1])

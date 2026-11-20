@@ -1,0 +1,167 @@
+# Bounded hashbelt implementation; the FFI wrapper converts pointers to views.
+const HB_GENERATIONS: usize = 4
+const HB_BUCKETS: usize = 8
+const HB_KEYS: usize = 32
+const HB_MAX_OPERATIONS: usize = 64
+const HB_MAX_WORDS: usize = 194
+const HB_MISS: i64 = -2147483648
+
+def hb_find_in_table(heads: view[i16], keys: view[i16], links: view[i16],
+        table: usize, key: usize) -> i64:
+    node: mutable i64 = heads[table * HB_BUCKETS + key % HB_BUCKETS].i64()
+    while node >= 0:
+        record: usize = table * HB_KEYS + node.usize()
+        if keys[record].i64() == key.i64(): return node
+        node <- links[record].i64()
+    -1
+
+def hb_find(heads: view[i16], keys: view[i16], links: view[i16],
+        newest: usize, key: usize) -> i64:
+    age: mutable usize = 0
+    while age < HB_GENERATIONS:
+        table: usize = (newest + age) % HB_GENERATIONS
+        node: i64 = hb_find_in_table(heads, keys, links, table, key)
+        if node >= 0: return (table * HB_KEYS + node.usize()).i64()
+        age <- age + 1
+    -1
+
+def hb_put(heads: mutable view[i16], keys: mutable view[i16],
+        values: mutable view[i16], links: mutable view[i16],
+        used: mutable view[i16], newest: usize, key: usize, value: i64) -> void:
+    node: mutable i64 = hb_find_in_table(heads, keys, links, newest, key)
+    if node >= 0:
+        values[newest * HB_KEYS + node.usize()] <- value.i16()
+        return
+    node <- 0
+    while node < HB_KEYS.i64() and keys[newest * HB_KEYS + node.usize()] >= 0:
+        node <- node + 1
+    if node >= HB_KEYS.i64(): return
+    used[newest] <- (used[newest].i64() + 1).i16()
+    bucket: usize = key % HB_BUCKETS
+    record: usize = newest * HB_KEYS + node.usize()
+    keys[record] <- key.i16()
+    values[record] <- value.i16()
+    links[record] <- heads[newest * HB_BUCKETS + bucket]
+    heads[newest * HB_BUCKETS + bucket] <- node.i16()
+
+def hb_remove(heads: mutable view[i16], keys: mutable view[i16],
+        values: mutable view[i16], links: mutable view[i16], used: mutable view[i16],
+        table: usize, key: usize, target: usize) -> void:
+    bucket: usize = key % HB_BUCKETS
+    previous: mutable i64 = -1
+    node: mutable i64 = heads[table * HB_BUCKETS + bucket].i64()
+    while node >= 0 and node.usize() != target:
+        previous <- node
+        node <- links[table * HB_KEYS + node.usize()].i64()
+    if node < 0: return
+    record: usize = table * HB_KEYS + node.usize()
+    if previous < 0:
+        heads[table * HB_BUCKETS + bucket] <- links[record]
+    else:
+        links[table * HB_KEYS + previous.usize()] <- links[record]
+    keys[record] <- -1
+    values[record] <- 0
+    links[record] <- -1
+    used[table] <- (used[table].i64() - 1).i16()
+
+def hb_write(output: mutable view[u8], word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def hashbelt_aging_hash_table_impl(input: view[i64], output: mutable u8&,
+        capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > HB_MAX_WORDS: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > HB_MAX_OPERATIONS.i64(): return -1
+    count: usize = count_value.usize()
+    if length != 1 + 3 * count: return -1
+    op: mutable usize = 0
+    while op < count:
+        opcode: i64 = input[1 + 3 * op]
+        key: i64 = input[2 + 3 * op]
+        argument: i64 = input[3 + 3 * op]
+        if opcode == 0:
+            if key < 0 or key >= HB_KEYS.i64() or argument < -1000 or argument > 1000: return -1
+        elif opcode == 1:
+            if key < 0 or key >= HB_KEYS.i64() or argument != 0: return -1
+        elif opcode == 2:
+            if key != 0 or argument != 0: return -1
+        else:
+            return -1
+        op <- op + 1
+    required: usize = count * 8
+    if output.is_null() or capacity < required: return -2
+
+    heads: mutable i16[32] = zeroed
+    keys: mutable i16[128] = zeroed
+    values: mutable i16[128] = zeroed
+    links: mutable i16[128] = zeroed
+    used: mutable i16[4] = zeroed
+    trace: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < 32:
+        heads[index] <- -1
+        index <- index + 1
+    index <- 0
+    while index < 128:
+        keys[index] <- -1
+        index <- index + 1
+    newest: mutable usize = 0
+    op <- 0
+    while op < count:
+        opcode <- input[1 + 3 * op]
+        key <- input[2 + 3 * op]
+        argument <- input[3 + 3 * op]
+        if opcode == 0:
+            found: i64 = hb_find(heads[0:32], keys[0:128], links[0:128], newest, key.usize())
+            trace[op] <- if found < 0: 1 else: 0
+            if found >= 0:
+                table: usize = found.usize() / HB_KEYS
+                node: usize = found.usize() % HB_KEYS
+                if table != newest:
+                    hb_remove(heads[0:32], keys[0:128], values[0:128], links[0:128], used[0:4], table, key.usize(), node)
+            hb_put(heads[0:32], keys[0:128], values[0:128], links[0:128], used[0:4],
+                   newest, key.usize(), argument)
+        elif opcode == 1:
+            found: i64 = hb_find(heads[0:32], keys[0:128], links[0:128], newest, key.usize())
+            if found < 0:
+                trace[op] <- HB_MISS
+            else:
+                table: usize = found.usize() / HB_KEYS
+                node: usize = found.usize() % HB_KEYS
+                value: i64 = values[table * HB_KEYS + node].i64()
+                trace[op] <- value
+                if table != newest:
+                    hb_remove(heads[0:32], keys[0:128], values[0:128], links[0:128], used[0:4], table, key.usize(), node)
+                    hb_put(heads[0:32], keys[0:128], values[0:128], links[0:128], used[0:4],
+                           newest, key.usize(), value)
+        else:
+            oldest: usize = (newest + HB_GENERATIONS - 1) % HB_GENERATIONS
+            trace[op] <- used[oldest].i64()
+            index <- 0
+            while index < HB_BUCKETS:
+                heads[oldest * HB_BUCKETS + index] <- -1
+                index <- index + 1
+            index <- 0
+            while index < HB_KEYS:
+                keys[oldest * HB_KEYS + index] <- -1
+                index <- index + 1
+            used[oldest] <- 0
+            newest <- oldest
+        op <- op + 1
+    result: mutable view[u8] = output[0:required]
+    op <- 0
+    while op < count:
+        hb_write(result, op, trace[op])
+        op <- op + 1
+    required.i64()
+
+@export("hashbelt_aging_hash_table")
+def hashbelt_aging_hash_table(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > HB_MAX_WORDS: return -1
+    hashbelt_aging_hash_table_impl(input[0:length], output, capacity)

@@ -1,0 +1,76 @@
+extern atan2(y: f64, x: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const MAX_INPUT: usize = 37
+const MAX_VERTICES: i64 = 16
+const MAX_COORDINATE: i64 = 32
+const INVALID_RESULT: f64 = -1.0e300
+
+def circle_polygon_intersection_area_impl(values: view[i64]) -> f64:
+    let length: usize = values.len()
+    if length < 10 or length > MAX_INPUT: return INVALID_RESULT
+    let n_value: i64 = values[0]
+    let cx: i64 = values[1]
+    let cy: i64 = values[2]
+    let radius_value: i64 = values[3]
+    if n_value < 3 or n_value > MAX_VERTICES: return INVALID_RESULT
+    if length != (4 + 2 * n_value).usize() or cx < -MAX_COORDINATE or cx > MAX_COORDINATE or
+       cy < -MAX_COORDINATE or cy > MAX_COORDINATE or
+       radius_value < 1 or radius_value > MAX_COORDINATE: return INVALID_RESULT
+
+    let n: usize = n_value.usize()
+    let x: mutable i64[16] = zeroed
+    let y: mutable i64[16] = zeroed
+    for i in 0..<n:
+        x[i] <- values[4 + 2 * i]
+        y[i] <- values[5 + 2 * i]
+        if x[i] < -MAX_COORDINATE or x[i] > MAX_COORDINATE or
+           y[i] < -MAX_COORDINATE or y[i] > MAX_COORDINATE: return INVALID_RESULT
+    for i in 0..<n:
+        let next: usize = (i + 1) % n
+        let dx: i64 = x[next] - x[i]
+        let dy: i64 = y[next] - y[i]
+        for j in 0..<n:
+            if j == i or j == next: continue
+            if dx * (y[j] - y[i]) - dy * (x[j] - x[i]) <= 0: return INVALID_RESULT
+        if dx * (cy - y[i]) - dy * (cx - x[i]) <= 0: return INVALID_RESULT
+
+    let radius: f64 = radius_value.f64()
+    let radius_squared: f64 = radius * radius
+    let doubled_area: mutable f64 = 0.0
+    for i in 0..<n:
+        let next: usize = (i + 1) % n
+        let px: f64 = (x[i] - cx).f64()
+        let py: f64 = (y[i] - cy).f64()
+        let qx: f64 = (x[next] - cx).f64()
+        let qy: f64 = (y[next] - cy).f64()
+        let edge_x: f64 = qx - px
+        let edge_y: f64 = qy - py
+        let edge_squared: f64 = edge_x * edge_x + edge_y * edge_y
+        let projection: f64 = px * edge_x + py * edge_y
+        let constant: f64 = px * px + py * py - radius_squared
+        let discriminant: f64 = projection * projection - edge_squared * constant
+        let full_angle: f64 = atan2(px * qy - py * qx, px * qx + py * qy)
+        if discriminant <= 0.0:
+            doubled_area <- doubled_area + radius_squared * full_angle
+            continue
+        let root: f64 = sqrt(discriminant)
+        let first: f64 = (-projection - root) / edge_squared
+        let second: f64 = (-projection + root) / edge_squared
+        if second < 0.0 or first > 1.0:
+            doubled_area <- doubled_area + radius_squared * full_angle
+            continue
+        let start: f64 = if first > 0.0: first else: 0.0
+        let stop: f64 = if second < 1.0: second else: 1.0
+        let ux: f64 = px + start * edge_x
+        let uy: f64 = py + start * edge_y
+        let vx: f64 = px + stop * edge_x
+        let vy: f64 = py + stop * edge_y
+        let first_angle: f64 = atan2(px * uy - py * ux, px * ux + py * uy)
+        let last_angle: f64 = atan2(vx * qy - vy * qx, vx * qx + vy * qy)
+        doubled_area <- doubled_area + radius_squared * (first_angle + last_angle) + ux * vy - uy * vx
+    0.5 * doubled_area
+
+export fn circle_polygon_intersection_area(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 10 or length > MAX_INPUT: return INVALID_RESULT
+    circle_polygon_intersection_area_impl(input[0:length])

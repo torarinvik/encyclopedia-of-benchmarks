@@ -1,0 +1,32 @@
+def cupif_giannini_tree_traversal_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 3: return -1
+    if length != 2: return -1
+
+    height_value: i64 = input[0]
+    key_value: i64 = input[1]
+    if height_value < 0 or height_value > 6: return -1
+    if key_value < 0: return -1
+    height: usize = height_value.usize()
+    key: usize = key_value.usize()
+    leaf_count: mutable usize = 1
+    level: mutable usize = 0
+    while level < height:
+        leaf_count <- leaf_count * 2
+        level <- level + 1
+    if key >= leaf_count: return -1
+    if output.is_null() or capacity < leaf_count: return -2
+
+    count: mutable usize = 0
+    while count < leaf_count:
+        path: usize = count ^ key
+        leaf_code: mutable u8 = 0
+        depth: mutable usize = 0
+        while depth < height:
+            bit: usize = (path >> depth) & 1
+            if bit != 0: leaf_code <- leaf_code | (1.usize() << depth).u8()
+            depth <- depth + 1
+        output[count] <- leaf_code
+        count <- count + 1
+    leaf_count.i64()
+
+export fn cupif_giannini_tree_traversal(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = cupif_giannini_tree_traversal_impl

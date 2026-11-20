@@ -14,6 +14,11 @@ returns `-2` without writes. Maximum valid input length is 258 words and
 maximum output is 1024 bytes. The 30-bit matrix uses O(30n) build time and
 space and O(30) time per query.
 
+The query walk counts values strictly below `x + 1`, which is equivalent to
+the inclusive threshold in this contract. Since `x <= 1,000,000,000`, the
+increment remains below `2^30`; every threshold bit is represented by the
+30-level matrix. A sum is at most 64,000,000,000 and fits in signed i64.
+
 The [Library Checker task](https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/data_structure/static_range_sum_with_upper_bound/task.md)
 is used for the operation idea; the source repository declares Apache-2.0.
 The contract and implementation are independently written, without copying

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn lzj_store(mut o:InlineArray[UInt8,1536],at:Int,x:Int64):

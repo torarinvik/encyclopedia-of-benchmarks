@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 const MAX_INPUT: Int64 = 10000
 
 fn legendre_phi(primes: InlineArray[Int64, 25], value: Int64, count: Int) -> Int64:

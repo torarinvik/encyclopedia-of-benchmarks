@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 
@@ -59,7 +60,7 @@ fn sum_of_multiplicative_function_large(input: UnsafePointer[Int64, ImmutAnyOrig
     var prime_f = InlineArray[Int64, MAX_TABLE]()
     var values = InlineArray[Int64, MAX_TABLE]()
     var next_values = InlineArray[Int64, MAX_TABLE]()
-    var composite = InlineArray[Bool, MAX_ROOT + 1]()
+    var composite = InlineArray[Bool, MAX_ROOT + 1](fill=False)
     var primes = InlineArray[Int64, MAX_ROOT + 1]()
 
     for index in range(1, high_count):

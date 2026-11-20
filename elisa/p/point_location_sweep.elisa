@@ -1,0 +1,163 @@
+# Offline point location by sweeping edge endpoints and query x-coordinates.
+struct Point:
+    x: i64
+    y: i64
+struct Edge:
+    u: usize
+    v: usize
+    face: i64
+struct Event:
+    x: i64
+    kind: usize
+    id: usize
+
+def pls_cross(a: Point, b: Point, c: Point) -> i64:
+    (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x)
+
+def pls_on_segment(a: Point, b: Point, p: Point) -> bool:
+    if pls_cross(a, b, p) != 0: return false
+    min_x: i64 = if a.x < b.x: a.x else: b.x
+    max_x: i64 = if a.x > b.x: a.x else: b.x
+    min_y: i64 = if a.y < b.y: a.y else: b.y
+    max_y: i64 = if a.y > b.y: a.y else: b.y
+    p.x >= min_x and p.x <= max_x and p.y >= min_y and p.y <= max_y
+
+def pls_intersects(a: Point, b: Point, c: Point, d: Point) -> bool:
+    o1: i64 = pls_cross(a,b,c)
+    o2: i64 = pls_cross(a,b,d)
+    o3: i64 = pls_cross(c,d,a)
+    o4: i64 = pls_cross(c,d,b)
+    if o1 == 0 and pls_on_segment(a,b,c): return true
+    if o2 == 0 and pls_on_segment(a,b,d): return true
+    if o3 == 0 and pls_on_segment(c,d,a): return true
+    if o4 == 0 and pls_on_segment(c,d,b): return true
+    ((o1 < 0 and o2 > 0) or (o1 > 0 and o2 < 0)) and ((o3 < 0 and o4 > 0) or (o3 > 0 and o4 < 0))
+
+def pls_left_x(points: view[Point], edge: Edge) -> usize:
+    if points[edge.u].x < points[edge.v].x: edge.u else: edge.v
+
+def pls_right_x(points: view[Point], edge: Edge) -> usize:
+    if points[edge.u].x < points[edge.v].x: edge.v else: edge.u
+
+def pls_height_num(points: view[Point], edge: Edge, x: i64, den: mutable i64&) -> i64:
+    left: usize = pls_left_x(points, edge)
+    right: usize = pls_right_x(points, edge)
+    den <- points[right].x - points[left].x
+    points[left].y * den + (points[right].y - points[left].y) * (x - points[left].x)
+
+def pls_edge_less(points: view[Point], edges: view[Edge], first: usize, second: usize, x: i64) -> bool:
+    d1: mutable i64 = 0
+    d2: mutable i64 = 0
+    n1: i64 = pls_height_num(points, edges[first], x, d1)
+    n2: i64 = pls_height_num(points, edges[second], x, d2)
+    if n1*d2 != n2*d1: return n1*d2 < n2*d1
+    l1: usize = pls_left_x(points, edges[first])
+    r1: usize = pls_right_x(points, edges[first])
+    l2: usize = pls_left_x(points, edges[second])
+    r2: usize = pls_right_x(points, edges[second])
+    s1: i64 = (points[r1].y-points[l1].y)*(points[r2].x-points[l2].x)
+    s2: i64 = (points[r2].y-points[l2].y)*(points[r1].x-points[l1].x)
+    if s1 != s2: return s1 < s2
+    first < second
+
+def pls_event_less(a: Event, b: Event) -> bool:
+    if a.x != b.x: return a.x < b.x
+    if a.kind != b.kind: return a.kind < b.kind
+    a.id < b.id
+
+def pls_query(points: view[Point], edges: view[Edge], active: view[usize], count: usize,
+              x: i64, y: i64, faces: usize) -> i64:
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = low + (high-low)/2
+        den: mutable i64 = 0
+        num: i64 = pls_height_num(points, edges[active[middle]], x, den)
+        if num < y*den: low <- middle+1
+        else: high <- middle
+    if low < count:
+        den2: mutable i64 = 0
+        num2: i64 = pls_height_num(points, edges[active[low]], x, den2)
+        if num2 == y*den2: return (faces + active[low] + 1).i64()
+    if low == 0: return 0
+    face: i64 = edges[active[low-1]].face
+    if face < 0: return 0
+    face+1
+
+def pls_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 4 or length > 141: return -1
+    nr,mr,qr,fr: i64 = input[0],input[1],input[2],input[3]
+    if nr<2 or nr>16 or mr<1 or mr>24 or qr<0 or qr>16 or fr<1 or fr>16: return -1
+    n,m,q,faces: usize = nr.usize(),mr.usize(),qr.usize(),fr.usize()
+    if length != 4+2*n+3*m+2*q: return -1
+    points: mutable Point[16] = zeroed
+    edges: mutable Edge[24] = zeroed
+    queries: mutable Point[16] = zeroed
+    cursor: mutable usize = 4
+    for i in 0..<n:
+        points[i] <- Point(input[cursor],input[cursor+1])
+        cursor <- cursor+2
+        if points[i].x < -300 or points[i].x > 300 or points[i].y < -300 or points[i].y > 300: return -1
+        for j in 0..<i: if points[j].x == points[i].x: return -1
+    for i in 0..<m:
+        u,v,face: i64 = input[cursor],input[cursor+1],input[cursor+2]
+        cursor <- cursor+3
+        if u<0 or u>=nr or v<0 or v>=nr or u==v or face < -1 or face>=fr: return -1
+        edges[i] <- Edge(u.usize(),v.usize(),face)
+        for j in 0..<i:
+            if (edges[j].u==edges[i].u and edges[j].v==edges[i].v) or (edges[j].u==edges[i].v and edges[j].v==edges[i].u): return -1
+            shared_u: bool = edges[j].u==edges[i].u or edges[j].u==edges[i].v
+            shared_v: bool = edges[j].v==edges[i].u or edges[j].v==edges[i].v
+            if shared_u or shared_v:
+                common: usize = if shared_u: edges[j].u else: edges[j].v
+                oa: usize = if edges[i].u==common: edges[i].v else: edges[i].u
+                ob: usize = if edges[j].u==common: edges[j].v else: edges[j].u
+                if pls_cross(points[common],points[oa],points[ob])==0: return -1
+            elif pls_intersects(points[edges[i].u],points[edges[i].v],points[edges[j].u],points[edges[j].v]): return -1
+    for i in 0..<q:
+        queries[i] <- Point(input[cursor],input[cursor+1])
+        cursor <- cursor+2
+        if queries[i].x < -300 or queries[i].x > 300 or queries[i].y < -300 or queries[i].y > 300: return -1
+        for j in 0..<n: if queries[i].x==points[j].x: return -1
+    events: mutable Event[64] = zeroed
+    event_count: mutable usize = 0
+    for i in 0..<m:
+        left: usize = pls_left_x(points[0:n],edges[i])
+        right: usize = pls_right_x(points[0:n],edges[i])
+        events[event_count] <- Event(points[left].x,1,i); event_count <- event_count+1
+        events[event_count] <- Event(points[right].x,0,i); event_count <- event_count+1
+    for i in 0..<q: events[event_count] <- Event(queries[i].x,2,i); event_count <- event_count+1
+    for i in 1..<event_count:
+        key: Event = events[i]
+        j: mutable usize = i
+        while j>0 and pls_event_less(key,events[j-1]): events[j] <- events[j-1]; j <- j-1
+        events[j] <- key
+    active: mutable usize[24] = zeroed
+    active_count: mutable usize = 0
+    answers: mutable i64[16] = zeroed
+    for event_index in 0..<event_count:
+        event: Event = events[event_index]
+        if event.kind==0:
+            position: mutable usize = 0
+            while position<active_count and active[position]!=event.id: position <- position+1
+            if position==active_count: return -1
+            for j in position+1..<active_count: active[j-1] <- active[j]
+            active_count <- active_count-1
+        elif event.kind==1:
+            low: mutable usize=0; high: mutable usize=active_count
+            while low<high:
+                middle: usize=low+(high-low)/2
+                if pls_edge_less(points[0:n],edges[0:m],active[middle],event.id,event.x): low <- middle+1
+                else: high <- middle
+            j: mutable usize=active_count
+            while j>low: active[j] <- active[j-1]; j <- j-1
+            active[low] <- event.id; active_count <- active_count+1
+        else: answers[event.id] <- pls_query(points[0:n],edges[0:m],active[0:active_count],active_count,event.x,queries[event.id].y,faces)
+    result: mutable i64=0
+    for i in 0..<q: result <- result+(i.i64()+1)*answers[i]
+    result
+
+export fn point_location_sweep(input: i64&, length: usize) -> i64:
+    if input.is_null() or length<4 or length>141: return -1
+    pls_impl(input[0:length])

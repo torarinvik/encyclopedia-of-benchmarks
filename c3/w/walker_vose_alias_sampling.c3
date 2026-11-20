@@ -1,6 +1,6 @@
 module walker_vose_alias_sampling;
 
-long walker_vose_alias_sampling(long* input, usz length, char* output, usz capacity)
+fn long walker_vose_alias_sampling(long* input, usz length, char* output, usz capacity)
         @export("walker_vose_alias_sampling") {
     if (input == null || length < 3 || length > 83) return -1;
     long nr = input[0], qr = input[1];

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 from std.math import exp, log
@@ -15,7 +16,7 @@ fn nb_put_f64(o:UnsafePointer[UInt8,MutAnyOrigin],offset:Int,x:Float64):
 @export("naive_bayes_text_classification")
 fn naive_bayes_text_classification(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UInt8,MutAnyOrigin],cap:c_size_t) abi("C")->Int64:
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<7 or n>71 or a[0]<2 or a[0]>6 or a[1]<1 or a[1]>10000:return -1
-    let docs=Int(a[0]);let alpha=Float64(a[1])/1000.0;var words=InlineArray[Int64,6]();var labs=InlineArray[Int64,6]();var seen=InlineArray[Bool,2]();var totals=InlineArray[Int64,2]();var pos=2
+    let docs=Int(a[0]);let alpha=Float64(a[1])/1000.0;var words=InlineArray[Int64,6]();var labs=InlineArray[Int64,6]();var seen=InlineArray[Bool,2](fill=False);var totals=InlineArray[Int64,2](fill=0);var pos=2
     for i in range(docs):
         if pos+2>Int(n):return -1
         let lab=a[pos];let len=a[pos+1];pos+=2

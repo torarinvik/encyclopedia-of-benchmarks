@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p62_signature(cube_in:Int64)->Int64:
     var cube=cube_in;var counts=InlineArray[Int32,10](fill=0);var length=0
     if cube==0:counts[0]=1;length=1

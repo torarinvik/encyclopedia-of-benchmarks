@@ -32,7 +32,7 @@ proc circle_line_intersection_count*(input: ptr UncheckedArray[int64], length: c
     bValues[query] = b
     cValues[query] = c
   let needed = 8 * queryCount
-  if needed > 0 and (output.isNil or int(capacity) < needed): return -2
+  if needed > 0 and (output.isNil or capacity < csize_t(needed)): return -2
 
   var staged: array[MaxOutputBytes, uint8]
   for query in 0 ..< queryCount:

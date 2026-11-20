@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn wo_space(c:Int64)->Bool:return (c>=9 and c<=13) or (c>=28 and c<=32)

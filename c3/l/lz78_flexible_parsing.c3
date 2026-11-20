@@ -4,24 +4,24 @@ const usz MAX_TEXT = 32;
 const usz MAX_DICT = 33;
 const usz MAX_OUTPUT = 512;
 
-fn void store_u64(uint8* output, usz offset, ulong value) {
-    for (usz i = 0; i < 8; i++) { output[offset + i] = (uint8)(value & 255); value >>= 8; }
+fn void store_u64(char* output, usz offset, ulong value) {
+    for (usz i = 0; i < 8; i++) { output[offset + i] = (char)(value & 255); value >>= 8; }
 }
 
-fn long lz78_flexible_parsing(long* input, usz input_length, uint8* output, usz output_capacity)
+fn long lz78_flexible_parsing(long* input, usz input_length, char* output, usz output_capacity)
     @export("lz78_flexible_parsing") {
     if (input == null || input_length < 1 || input_length > 34) return -1;
     if (input[0] < 0 || input[0] > (long)MAX_TEXT || input_length != 1 + (usz)input[0]) return -1;
     usz n = (usz)input[0];
-    uint8[MAX_TEXT] text = zeroed;
+    char[MAX_TEXT] text = zeroed;
     for (usz i = 0; i < n; i++) {
         if (input[i + 1] < 32 || input[i + 1] > 126) return -1;
-        text[i] = (uint8)input[i + 1];
+        text[i] = (char)input[i + 1];
     }
-    uint8[MAX_DICT][MAX_TEXT] words = zeroed;
+    char[MAX_TEXT][MAX_DICT] words = zeroed;
     usz[MAX_DICT] word_lengths = zeroed;
-    long[MAX_TEXT] token_parent = zeroed, token_symbol = zeroed;
-    usz dictionary_count = 1, token_count = 0, position = 0;
+    long[MAX_TEXT] token_parent = zeroed; long[MAX_TEXT] token_symbol = zeroed;
+    usz dictionary_count = 1; usz token_count = 0; usz position = 0;
     while (position < n) {
         usz final_id = dictionary_count;
         for (usz id = 1; id < dictionary_count; id++) {
@@ -35,10 +35,10 @@ fn long lz78_flexible_parsing(long* input, usz input_length, uint8* output, usz 
             token_parent[token_count] = (long)final_id; token_symbol[token_count] = 0;
             token_count++; position = n; break;
         }
-        bool have_best = false, best_new = false;
-        usz best_parent = 0, best_length = 0, best_next = 0;
-        uint8 best_symbol = 0;
-        uint8[MAX_TEXT] best_word = zeroed;
+        bool have_best = false; bool best_new = false;
+        usz best_parent = 0; usz best_length = 0; usz best_next = 0;
+        char best_symbol = 0;
+        char[MAX_TEXT] best_word = zeroed;
         for (usz parent = 0; parent < dictionary_count; parent++) {
             usz prefix_length = word_lengths[parent];
             if (position + prefix_length > n) continue;
@@ -48,7 +48,7 @@ fn long lz78_flexible_parsing(long* input, usz input_length, uint8* output, usz 
             usz symbol_position = position + prefix_length;
             if (symbol_position >= n) continue;
             usz phrase_length = prefix_length + 1;
-            uint8[MAX_TEXT] phrase = zeroed;
+            char[MAX_TEXT] phrase = zeroed;
             for (usz i = 0; i < prefix_length; i++) phrase[i] = words[parent][i];
             phrase[prefix_length] = text[symbol_position];
             usz phrase_id = dictionary_count;
@@ -59,7 +59,7 @@ fn long lz78_flexible_parsing(long* input, usz input_length, uint8* output, usz 
                 if (same) { phrase_id = id; break; }
             }
             bool is_new = phrase_id == dictionary_count;
-            usz next_position = position + phrase_length, next_match = 0;
+            usz next_position = position + phrase_length; usz next_match = 0;
             for (usz id = 1; id < dictionary_count; id++) {
                 usz candidate_length = word_lengths[id];
                 if (candidate_length <= next_match || next_position + candidate_length > n) continue;

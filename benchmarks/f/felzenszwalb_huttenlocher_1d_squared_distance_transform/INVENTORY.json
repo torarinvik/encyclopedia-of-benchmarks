@@ -1,0 +1,31 @@
+{
+  "algorithm": "felzenszwalb_huttenlocher_1d_squared_distance_transform",
+  "function_symbol": "felzenszwalb_huttenlocher_1d_squared_distance_transform",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.c",
+    "c3": "c3/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.c3",
+    "cpp": "cpp/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.cpp",
+    "elisa": "elisa/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.elisa",
+    "mojo": "mojo/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.mojo",
+    "nim": "nim/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.nim",
+    "odin": "odin/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.odin",
+    "rust": "rust/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.rs",
+    "v": "v/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.v",
+    "zig": "zig/f/felzenszwalb_huttenlocher_1d_squared_distance_transform.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "verify_workload.py", "INVENTORY.md", "check_inventory.py"],
+  "fixture_ids": ["single_site", "equal_value_integer_crossing", "dominated_middle_site", "asymmetric_costs", "maximum_costs", "invalid_zero_sites", "invalid_too_many_sites", "negative_cost", "trailing_input", "short_output_capacity", "null_output", "null_input"],
+  "contract": {
+    "minimum_sites": 1,
+    "maximum_sites": 128,
+    "cost_range": [0, 1000000],
+    "maximum_valid_input_length": 129,
+    "maximum_parseable_input_length": 130,
+    "maximum_output_bytes": 2048,
+    "workspace_bytes": 4096,
+    "output_words_per_site": 2,
+    "tie_rule": "least site index attaining the minimum"
+  },
+  "static_review": "clean-room source drafts; executable validation not run"
+}

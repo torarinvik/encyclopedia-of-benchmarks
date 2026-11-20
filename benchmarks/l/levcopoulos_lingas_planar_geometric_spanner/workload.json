@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-levcopoulos-lingas-planar-geometric-spanner-i64-array-bytes-output-v1",
+  "algorithm": "levcopoulos_lingas_planar_geometric_spanner",
+  "function_symbol": "levcopoulos_lingas_planar_geometric_spanner",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded Algorithm 3.1 Delaunay-pruning kernel with r=1.",
+  "source": {
+    "title": "There Are Planar Graphs Almost as Good as the Complete Graphs and Almost as Cheap as Minimum Spanning Trees",
+    "authors": ["Christos Levcopoulos", "Andrzej Lingas"],
+    "year": 1992,
+    "reference": "Algorithmica 8(1-6), 251-256; Encyclopedia of Algorithms, Chapter 294",
+    "url": "https://doi.org/10.1007/BF01758846",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_294",
+    "algorithm_attribution": "Algorithm 3.1, §§2-3",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, x0, y0, ..., x(n-1), y(n-1), m, (u,v)*m]",
+    "n_range": [3, 8],
+    "coordinate_range": [-10, 10],
+    "m_range": [3, 18],
+    "edge_rule": "0 <= u < v < n; unique edges sorted lexicographically",
+    "delaunay_prerequisite": "The supplied edge set must equal the Euclidean Delaunay triangulation. Duplicate points, any collinear triple, and any cocircular quadruple are invalid.",
+    "maximum_valid_length": 54,
+    "maximum_parseable_length": 55,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "parameter_r": "1",
+    "starting_graph": "Euclidean MST of the supplied Delaunay edges, sorted by (squared_length,u,v) for deterministic Kruskal ties",
+    "contour": "Double each MST edge into a directed embedded-tree contour; start at the lexicographically smallest directed dart and follow clockwise successor at each target",
+    "rotation_order": "Counterclockwise by exact integer half-plane and cross-product comparison",
+    "stack_order": "Initial eligible darts are pushed in canonical contour order. After replacing a two-edge boundary path, push the right exposed candidate first and the left candidate second; LIFO processes the left candidate first. Re-anchor the cyclic contour at its smallest dart after each replacement.",
+    "shortcut_rule": "Keep chord (v,u) iff accumulated boundary path weight is strictly greater than 2*EuclideanLength(v,u); otherwise carry the accumulated weight on that oriented boundary chord",
+    "floating_point": "Binary64 square root per edge; path weights are summed left-to-right; strict greater-than comparison, with no epsilon",
+    "output": "[absorbed_face_count,retained_shortcut_count,edge_count,(u,v)*edge_count] with unique retained edges sorted lexicographically"
+  },
+  "output": {
+    "kind": "little_endian_signed_64_integer_bytes",
+    "maximum_edges": 18,
+    "maximum_bytes": 312,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input and Delaunay validation precede output pointer and capacity checks."
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded point coordinates, Delaunay edge/face tables, rotations, Kruskal state, directed contour, stack events, staged edge list, and output bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "references": {
+    "primary": "primary_oracle.py: triangle-corner LIFO stack and directed contour weights",
+    "independent": "independent_oracle.py: face-event stack and direct exposed-boundary scan"
+  },
+  "cases": [
+    {
+      "id": "triangle_mst_no_interior_face",
+      "input_values": [3,0,0,4,0,2,3,3,0,1,0,2,1,2],
+      "input_length": 14,
+      "output_capacity": 312,
+      "expected_result": 56,
+      "expected_output_hex": "0000000000000000000000000000000002000000000000000000000000000000020000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "convex_quadrilateral_no_absorption",
+      "input_values": [4,0,0,4,0,5,3,0,4,5,0,1,0,3,1,2,1,3,2,3],
+      "input_length": 20,
+      "output_capacity": 312,
+      "expected_result": 72,
+      "expected_output_hex": "000000000000000000000000000000000300000000000000000000000000000001000000000000000000000000000000030000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "interior_point_absorbs_exposed_face",
+      "input_values": [4,0,0,4,0,2,10,2,8,6,0,1,0,2,0,3,1,2,1,3,2,3],
+      "input_length": 22,
+      "output_capacity": 312,
+      "expected_result": 72,
+      "expected_output_hex": "010000000000000000000000000000000300000000000000000000000000000001000000000000000000000000000000030000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "carried_path_triggers_retained_shortcut",
+      "input_values": [5,0,3,-1,0,2,0,5,3,-5,-10,9,0,1,0,2,0,3,0,4,1,2,1,4,2,3,2,4,3,4],
+      "input_length": 30,
+      "output_capacity": 312,
+      "expected_result": 104,
+      "expected_output_hex": "0500000000000000010000000000000005000000000000000000000000000000010000000000000000000000000000000300000000000000010000000000000002000000000000000100000000000000040000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "duplicate_delaunay_edge",
+      "input_values": [3,0,0,4,0,1,3,3,0,1,0,1,1,2],
+      "input_length": 14,
+      "output_capacity": 312,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "collinear_points_rejected",
+      "input_values": [3,0,0,1,1,2,2,3,0,1,0,2,1,2],
+      "input_length": 14,
+      "output_capacity": 312,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [3,0,0,4,0,2,3,3,0,1,0,2,1,2],
+      "input_length": 14,
+      "output_capacity": 312,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [3,0,0,4,0,2,3,3,0,1,0,2,1,2],
+      "input_length": 14,
+      "output_capacity": 55,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_before_null_output",
+      "input_values": [3,0,0,4,0,1,3,3,0,1,0,1,1,2],
+      "input_length": 14,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

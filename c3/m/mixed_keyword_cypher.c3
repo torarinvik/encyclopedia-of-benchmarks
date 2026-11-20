@@ -4,7 +4,7 @@ const usz MAX_KEYWORD_LENGTH = 64;
 const usz MAX_PLAINTEXT_LENGTH = 512;
 const usz MAX_INPUT_LENGTH = 578;
 
-long mixed_keyword_cypher(long* input, usz length, char* output, usz capacity)
+fn long mixed_keyword_cypher(long* input, usz length, char* output, usz capacity)
         @export("mixed_keyword_cypher") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
 
@@ -19,8 +19,8 @@ long mixed_keyword_cypher(long* input, usz length, char* output, usz capacity)
     usz plaintext_length = (usz)raw_plaintext_length;
     if (length != plaintext_length_index + 1 + plaintext_length) return -1;
 
-    char unique_letters[26];
-    bool seen[26];
+    char[26] unique_letters;
+    bool[26] seen;
     for (usz index = 0; index < 26; index += 1) seen[index] = false;
     usz unique_count = 0;
     for (usz index = 0; index < keyword_length; index += 1) {
@@ -44,7 +44,7 @@ long mixed_keyword_cypher(long* input, usz length, char* output, usz capacity)
         if (raw < 0 || raw > 127) return -1;
     }
 
-    char shifted[26];
+    char[26] shifted;
     for (usz index = 0; index < unique_count; index += 1)
         shifted[index] = unique_letters[index];
     usz shifted_count = unique_count;
@@ -55,7 +55,7 @@ long mixed_keyword_cypher(long* input, usz length, char* output, usz capacity)
         }
     }
 
-    char mapping[26];
+    char[26] mapping;
     usz alphabet_index = 0;
     for (usz column = 0; column < unique_count; column += 1) {
         for (usz row_start = 0; row_start < 26; row_start += unique_count) {
@@ -66,7 +66,7 @@ long mixed_keyword_cypher(long* input, usz length, char* output, usz capacity)
         }
     }
 
-    char buffer[512];
+    char[512] buffer;
     for (usz index = 0; index < plaintext_length; index += 1) {
         long letter = input[plaintext_length_index + 1 + index];
         if (letter >= 'a' && letter <= 'z') letter -= 'a' - 'A';

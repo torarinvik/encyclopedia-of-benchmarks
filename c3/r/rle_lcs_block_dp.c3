@@ -1,7 +1,7 @@
 module rle_lcs_block_dp;
 
 // Run-length-native LCS by run-pair blocks and boundary propagation.
-long rle_lcs_block_dp(long* packed, usz length) @export("rle_lcs_block_dp") {
+fn long rle_lcs_block_dp(long* packed, usz length) @export("rle_lcs_block_dp") {
     if (packed == null || length < 4 || length > 18) return -1;
     long left_count_value = packed[0];
     if (left_count_value < 1 || left_count_value > 4) return -1;
@@ -13,9 +13,9 @@ long rle_lcs_block_dp(long* packed, usz length) @export("rle_lcs_block_dp") {
         length != right_count_index + 1 + 2 * (usz)right_count_value) return -1;
     usz right_count = (usz)right_count_value;
     long[4] left_symbol, left_size, right_symbol, right_size;
-    usz left_total = 0, right_total = 0;
+    usz left_total = 0; usz right_total = 0;
     for (usz run = 0; run < left_count; run++) {
-        long symbol = packed[1 + 2 * run], size = packed[2 + 2 * run];
+        long symbol = packed[1 + 2 * run]; long size = packed[2 + 2 * run];
         if (symbol < 0 || symbol > 3 || size < 1 || size > 8) return -1;
         left_total += (usz)size;
         if (left_total > 16) return -1;
@@ -29,11 +29,11 @@ long rle_lcs_block_dp(long* packed, usz length) @export("rle_lcs_block_dp") {
         if (right_total > 16) return -1;
         right_symbol[run] = symbol; right_size[run] = size;
     }
-    long[4][9] bottom = zeroed, next_bottom = zeroed;
+    long[9][4] bottom = zeroed; long[9][4] next_bottom = zeroed;
     for (usz i = 0; i < left_count; i++) {
         long[9] left_boundary = zeroed;
         for (usz j = 0; j < right_count; j++) {
-            usz rows = (usz)left_size[i], columns = (usz)right_size[j];
+            usz rows = (usz)left_size[i]; usz columns = (usz)right_size[j];
             long[9] previous, current, right_boundary;
             for (usz column = 0; column <= columns; column++) previous[column] = bottom[j][column];
             right_boundary[0] = previous[columns];

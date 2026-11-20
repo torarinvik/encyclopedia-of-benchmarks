@@ -13,7 +13,7 @@ fn long stock_span_problem(long* input, usz length, char* output, usz capacity)
 
     usz output_bytes = count * 8;
     if (output == null || capacity < output_bytes) return -2;
-    usz decreasing[64];
+    usz[64] decreasing;
     usz top = 0;
     for (usz day = 0; day < count; day++) {
         long price = input[day + 1];
@@ -24,5 +24,5 @@ fn long stock_span_problem(long* input, usz length, char* output, usz capacity)
             output[day * 8 + byte] = (char)((encoded >> (byte * 8)) & 255);
         decreasing[top++] = day;
     }
-    (long)count
+    return (long)count;
 }

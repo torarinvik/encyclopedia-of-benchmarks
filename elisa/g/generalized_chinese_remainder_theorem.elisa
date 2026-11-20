@@ -1,0 +1,94 @@
+const MAX_PRODUCT: i64 = 16777216
+
+def modular_inverse(value_input: i64, modulus: i64) -> i64:
+    old_remainder: mutable i64 = value_input % modulus
+    remainder: mutable i64 = modulus
+    old_coefficient: mutable i64 = 1
+    coefficient: mutable i64 = 0
+    while remainder != 0:
+        quotient: i64 = old_remainder / remainder
+        next_remainder: i64 = old_remainder - quotient * remainder
+        old_remainder <- remainder
+        remainder <- next_remainder
+        next_coefficient: i64 = old_coefficient - quotient * coefficient
+        old_coefficient <- coefficient
+        coefficient <- next_coefficient
+    old_coefficient <- old_coefficient % modulus
+    if old_coefficient < 0:
+        old_coefficient <- old_coefficient + modulus
+    old_coefficient
+
+def generalized_chinese_remainder_theorem_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > 10:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > 4:
+        return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count:
+        return -1
+    product: mutable i64 = 1
+    index: mutable usize = 0
+    while index < count:
+        residue: i64 = input[1 + 2 * index]
+        modulus: i64 = input[2 + 2 * index]
+        if modulus < 2 or modulus > 64 or residue < 0 or residue >= modulus:
+            return -1
+        if product > MAX_PRODUCT / modulus:
+            return -1
+        product <- product * modulus
+        index <- index + 1
+
+    powers: mutable i64[65] = zeroed
+    residues: mutable i64[65] = zeroed
+    index <- 0
+    while index < count:
+        residue: i64 = input[1 + 2 * index]
+        remaining: mutable i64 = input[2 + 2 * index]
+        prime: mutable i64 = 2
+        while prime <= remaining:
+            if remaining % prime == 0:
+                prime_power: mutable i64 = 1
+                while remaining % prime == 0:
+                    remaining <- remaining / prime
+                    prime_power <- prime_power * prime
+                if prime_power > powers[prime.usize()]:
+                    powers[prime.usize()] <- prime_power
+                    residues[prime.usize()] <- residue % prime_power
+            prime <- prime + 1
+        index <- index + 1
+
+    index <- 0
+    while index < count:
+        residue: i64 = input[1 + 2 * index]
+        remaining: mutable i64 = input[2 + 2 * index]
+        prime: mutable i64 = 2
+        while prime <= remaining:
+            if remaining % prime == 0:
+                prime_power: mutable i64 = 1
+                while remaining % prime == 0:
+                    remaining <- remaining / prime
+                    prime_power <- prime_power * prime
+                if residues[prime.usize()] % prime_power != residue % prime_power:
+                    return -2
+            prime <- prime + 1
+        index <- index + 1
+
+    solution: mutable i64 = 0
+    combined_modulus: mutable i64 = 1
+    prime: mutable usize = 2
+    while prime <= 64:
+        modulus: i64 = powers[prime]
+        if modulus != 0:
+            inverse: i64 = modular_inverse(combined_modulus % modulus, modulus)
+            difference: mutable i64 = (residues[prime] - solution % modulus) % modulus
+            if difference < 0:
+                difference <- difference + modulus
+            multiplier: i64 = difference * inverse % modulus
+            solution <- solution + combined_modulus * multiplier
+            combined_modulus <- combined_modulus * modulus
+            solution <- solution % combined_modulus
+        prime <- prime + 1
+    solution
+
+export fn generalized_chinese_remainder_theorem(input: i64&, length: usize) -> i64 = generalized_chinese_remainder_theorem_impl

@@ -9,24 +9,25 @@ const uint[64] K={
 0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
 0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
 0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2};
-const usz MAX_INPUT=64, MAX_PADDED=128;
+const usz MAX_INPUT=64;
+const usz MAX_PADDED=128;
 fn uint rotr(uint x,uint n){return (x>>n)|(x<<(32-n));}
 fn long lamport_sha256(long* input,usz length,char* output,usz capacity) {
     if(length>MAX_INPUT||(length>0&&input==null))return -1;
     for(usz i=0;i<length;i++)if(input[i]<0||input[i]>255)return -1;
-    u8[MAX_PADDED] padded;for(usz i=0;i<MAX_PADDED;i++)padded[i]=0;
-    for(usz i=0;i<length;i++)padded[i]=(u8)input[i];padded[length]=0x80;
-    usz blocks=(length+9+63)/64,padded_length=blocks*64;ulong bit_length=(ulong)length*8;
-    for(usz i=0;i<8;i++)padded[padded_length-1-i]=(u8)(bit_length>>(8*i));
+    char[MAX_PADDED] padded;for(usz i=0;i<MAX_PADDED;i++)padded[i]=0;
+    for(usz i=0;i<length;i++)padded[i]=(char)input[i];padded[length]=0x80;
+    usz blocks=(length+9+63)/64;usz padded_length=blocks*64;ulong bit_length=(ulong)length*8;
+    for(usz i=0;i<8;i++)padded[padded_length-1-i]=(char)(bit_length>>(8*i));
     uint[8] h={0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19};
     for(usz block=0;block<blocks;block++){
         uint[64] w;
         for(usz i=0;i<16;i++){usz p=block*64+i*4;w[i]=((uint)padded[p]<<24)|((uint)padded[p+1]<<16)|((uint)padded[p+2]<<8)|(uint)padded[p+3];}
-        for(usz i=16;i<64;i++){uint x=w[i-15],y=w[i-2];uint s0=rotr(x,7)^rotr(x,18)^(x>>3),s1=rotr(y,17)^rotr(y,19)^(y>>10);w[i]=s1+w[i-7]+s0+w[i-16];}
-        uint a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
+        for(usz i=16;i<64;i++){uint x=w[i-15];uint y=w[i-2];uint s0=rotr(x,7)^rotr(x,18)^(x>>3);uint s1=rotr(y,17)^rotr(y,19)^(y>>10);w[i]=s1+w[i-7]+s0+w[i-16];}
+        uint a=h[0];uint b=h[1];uint c=h[2];uint d=h[3];uint e=h[4];uint f=h[5];uint g=h[6];uint hh=h[7];
         for(usz i=0;i<64;i++){
-            uint s1=rotr(e,6)^rotr(e,11)^rotr(e,25),ch=(e&f)^(~e&g),t1=hh+s1+ch+K[i]+w[i];
-            uint s0=rotr(a,2)^rotr(a,13)^rotr(a,22),maj=(a&b)^(a&c)^(b&c),t2=s0+maj;
+            uint s1=rotr(e,6)^rotr(e,11)^(rotr(e,25));uint ch=(e&f)^(~e&g);uint t1=hh+s1+ch+K[i]+w[i];
+            uint s0=rotr(a,2)^rotr(a,13)^rotr(a,22);uint maj=(a&b)^(a&c)^(b&c);uint t2=s0+maj;
             hh=g;g=f;f=e;e=d+t1;d=c;c=b;b=a;a=t1+t2;
         }
         h[0]+=a;h[1]+=b;h[2]+=c;h[3]+=d;h[4]+=e;h[5]+=f;h[6]+=g;h[7]+=hh;
@@ -62,9 +63,9 @@ fn long lamport_signature(long* input, usz input_length) @export("lamport_signat
     for (usz i = 0; i < verify_length; i++) if (input[verify_start + i] < 0 || input[verify_start + i] > 255) return -1;
     for (usz i = 0; i < LAMPORT_ENTROPY_BYTES; i++) if (input[entropy_start + i] < 0 || input[entropy_start + i] > 255) return -1;
 
-    char[256][2][32] public_key = zeroed;
+    char[32][2][256] public_key = zeroed;
     long[LAMPORT_SIGNATURE_BYTES] signature = zeroed;
-    u8[32] message_digest;
+    char[32] message_digest;
     for (usz bit = 0; bit < LAMPORT_DIGEST_BITS; bit++) {
         for (usz value = 0; value < 2; value++) {
             usz secret_offset = entropy_start + (bit * 2 + value) * LAMPORT_SECRET_BYTES;
@@ -80,15 +81,15 @@ fn long lamport_signature(long* input, usz input_length) @export("lamport_signat
     if (sign_twice == 1) return -1;
 
     if (tamper_index >= 0) signature[(usz)tamper_index] ^= 1;
-    u8[32] verify_digest;
+    char[32] verify_digest;
     if (lamport_sha256(input + verify_start, verify_length, (char*)&verify_digest[0], 32) != 32) return -1;
-    u8 verified = 1;
+    char verified = 1;
     for (usz bit = 0; bit < LAMPORT_DIGEST_BITS; bit++) {
         usz value = (verify_digest[bit / 8] >> (7 - (bit % 8))) & 1;
-        u8[32] actual_hash;
+        char[32] actual_hash;
         if (lamport_sha256(&signature[bit * LAMPORT_SECRET_BYTES], LAMPORT_SECRET_BYTES, (char*)&actual_hash[0], 32) != 32) return -1;
         for (usz byte = 0; byte < 32; byte++) {
-            if (actual_hash[byte] != (u8)public_key[bit][value][byte]) { verified = 0; break; }
+            if (actual_hash[byte] != (char)public_key[bit][value][byte]) { verified = 0; break; }
         }
         if (verified == 0) break;
     }
@@ -97,10 +98,10 @@ fn long lamport_signature(long* input, usz input_length) @export("lamport_signat
     ulong fingerprint = 0xcbf29ce484222325;
     for (usz bit = 0; bit < LAMPORT_DIGEST_BITS; bit++) {
         for (usz value = 0; value < 2; value++) {
-            for (usz byte = 0; byte < 32; byte++) fingerprint = (fingerprint ^ (u8)public_key[bit][value][byte]) * 0x100000001b3;
+            for (usz byte = 0; byte < 32; byte++) fingerprint = (fingerprint ^ (char)public_key[bit][value][byte]) * 0x100000001b3;
         }
     }
-    for (usz i = 0; i < LAMPORT_SIGNATURE_BYTES; i++) fingerprint = (fingerprint ^ (u8)signature[i]) * 0x100000001b3;
+    for (usz i = 0; i < LAMPORT_SIGNATURE_BYTES; i++) fingerprint = (fingerprint ^ (char)signature[i]) * 0x100000001b3;
     fingerprint = (fingerprint ^ verified) * 0x100000001b3;
     return (long)(fingerprint & 0x7fffffffffffffff);
 }

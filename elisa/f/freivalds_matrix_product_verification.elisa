@@ -1,0 +1,59 @@
+const FREIVALDS_MAX_N: usize = 8
+const FREIVALDS_MAX_ROUNDS: usize = 8
+const FREIVALDS_MAX_INPUT: usize = 259
+
+@export("freivalds_matrix_product_verification")
+def freivalds_matrix_product_verification(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > FREIVALDS_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n64: i64 = input_view[0]
+    rounds64: i64 = input_view[1]
+    if n64 < 1 or n64 > 8 or rounds64 < 1 or rounds64 > 8: return -1
+    n: usize = n64.usize()
+    rounds: usize = rounds64.usize()
+    matrix_words: usize = n * n
+    if length != 2 + 3 * matrix_words + rounds * n: return -1
+    word: mutable usize = 2
+    while word < 2 + 3 * matrix_words:
+        if input_view[word] < -3 or input_view[word] > 3: return -1
+        word <- word + 1
+    signs_offset: usize = 2 + 3 * matrix_words
+    word <- signs_offset
+    while word < length:
+        if input_view[word] != -1 and input_view[word] != 1: return -1
+        word <- word + 1
+
+    bx: mutable i64[8] = zeroed
+    abx: mutable i64[8] = zeroed
+    cx: mutable i64[8] = zeroed
+    round: mutable usize = 0
+    while round < rounds:
+        row: mutable usize = 0
+        while row < n:
+            sum: mutable i64 = 0
+            col: mutable usize = 0
+            while col < n:
+                term: i64 = input_view[2 + matrix_words + row * n + col] * input_view[signs_offset + round * n + col]
+                sum <- sum + term
+                col <- col + 1
+            bx[row] <- sum
+            row <- row + 1
+        row <- 0
+        while row < n:
+            left: mutable i64 = 0
+            right: mutable i64 = 0
+            col <- 0
+            while col < n:
+                left <- left + input_view[2 + row * n + col] * bx[col]
+                term: i64 = input_view[2 + 2 * matrix_words + row * n + col] * input_view[signs_offset + round * n + col]
+                right <- right + term
+                col <- col + 1
+            abx[row] <- left
+            cx[row] <- right
+            row <- row + 1
+        row <- 0
+        while row < n:
+            if abx[row] != cx[row]: return 0
+            row <- row + 1
+        round <- round + 1
+    return 1

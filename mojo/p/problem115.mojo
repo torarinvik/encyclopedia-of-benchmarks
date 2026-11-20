@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem115")
 fn problem115(min_block_length:Int64) abi("C")->Int64:
     if min_block_length<1 or min_block_length>100:return -1

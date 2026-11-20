@@ -7,7 +7,7 @@ const long MAX_FIXED_SAMPLE = 128;
 const double SAMPLE_SCALE = 16.0;
 
 fn void write_f64_le(double value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++)
         output[offset + byte] = (char)((bits >> (8 * byte)) & 255);
 }

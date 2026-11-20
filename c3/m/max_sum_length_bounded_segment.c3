@@ -11,7 +11,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long max_sum_length_bounded_segment(long* input, usz length, char* output, usz capacity)
+fn long max_sum_length_bounded_segment(long* input, usz length, char* output, usz capacity)
         @export("max_sum_length_bounded_segment") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     long n64 = input[0], lower64 = input[1], upper64 = input[2];

@@ -1,0 +1,86 @@
+const DFR_MAX_N: usize = 12
+const DFR_MAX_INPUT: usize = 26
+const DFR_MAX_PARSEABLE: usize = 27
+
+def dfr_gcd(left: i64, right: i64) -> i64:
+    a: mutable i64 = left
+    b: mutable i64 = right
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def dfr_before(a: usize, b: usize, scores: view[i64]) -> bool:
+    if scores[a] != scores[b]: return scores[a] > scores[b]
+    a < b
+
+def dinkelbach_fixed_cardinality_ratio_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > DFR_MAX_PARSEABLE: return -1
+    n_value: i64 = values[0]
+    k_value: i64 = values[1]
+    if n_value < 1 or n_value > DFR_MAX_N.i64() or k_value < 1 or k_value > n_value: return -1
+    n: usize = n_value.usize()
+    k: usize = k_value.usize()
+    if length != 2 + 2 * n or length > DFR_MAX_INPUT: return -1
+
+    numerators: mutable i64[DFR_MAX_N] = zeroed
+    denominators: mutable i64[DFR_MAX_N] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        a_value: i64 = values[2 + 2 * index]
+        b_value: i64 = values[3 + 2 * index]
+        if a_value < 0 or a_value > 10000 or b_value < 1 or b_value > 10000: return -1
+        numerators[index] <- a_value
+        denominators[index] <- b_value
+        index <- index + 1
+
+    combination_count: mutable usize = 1
+    step: mutable usize = 0
+    while step < k:
+        combination_count <- combination_count * (n - step) / (step + 1)
+        step <- step + 1
+
+    ratio_numerator: mutable i64 = 0
+    ratio_denominator: mutable i64 = 1
+    iteration: mutable usize = 0
+    while iteration <= combination_count:
+        scores: mutable i64[DFR_MAX_N] = zeroed
+        order: mutable usize[DFR_MAX_N] = zeroed
+        index <- 0
+        while index < n:
+            scores[index] <- numerators[index] * ratio_denominator - ratio_numerator * denominators[index]
+            order[index] <- index
+            index <- index + 1
+        index <- 1
+        while index < n:
+            item: usize = order[index]
+            position: mutable usize = index
+            while position > 0 and dfr_before(item, order[position - 1], scores[0:DFR_MAX_N]):
+                order[position] <- order[position - 1]
+                position <- position - 1
+            order[position] <- item
+            index <- index + 1
+
+        selected_numerator: mutable i64 = 0
+        selected_denominator: mutable i64 = 0
+        index <- 0
+        while index < k:
+            selected_numerator <- selected_numerator + numerators[order[index]]
+            selected_denominator <- selected_denominator + denominators[order[index]]
+            index <- index + 1
+        residual: i64 = selected_numerator * ratio_denominator - ratio_numerator * selected_denominator
+        if residual == 0:
+            divisor: i64 = dfr_gcd(selected_numerator, selected_denominator)
+            return (selected_numerator / divisor) * 120001 + selected_denominator / divisor
+        if residual < 0: return -1
+        divisor: i64 = dfr_gcd(selected_numerator, selected_denominator)
+        ratio_numerator <- selected_numerator / divisor
+        ratio_denominator <- selected_denominator / divisor
+        iteration <- iteration + 1
+    -1
+
+export fn dinkelbach_fixed_cardinality_ratio(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > DFR_MAX_PARSEABLE: return -1
+    dinkelbach_fixed_cardinality_ratio_impl(input[0:length])

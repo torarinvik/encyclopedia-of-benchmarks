@@ -1,0 +1,63 @@
+extern sqrt(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const COMPONENT_LIMIT: f64 = 1000000.0
+const ANGLE_LIMIT: f64 = 6.283185307179586
+const OUTPUT_LIMIT: f64 = 2000000.0
+
+def rodrigues_finite(value: f64, limit: f64) -> bool:
+    value == value and value >= -limit and value <= limit
+
+def rodrigues_compute(input: view[f64], result: mutable view[f64]) -> bool:
+    for index in 0..<6:
+        if not rodrigues_finite(input[index], COMPONENT_LIMIT): return false
+    theta: f64 = input[6]
+    if not rodrigues_finite(theta, ANGLE_LIMIT): return false
+    scale: mutable f64 = input[0]
+    if scale < 0.0: scale <- -scale
+    next: f64 = input[1]
+    if next < 0.0: next <- -next
+    if next > scale: scale <- next
+    next <- input[2]
+    if next < 0.0: next <- -next
+    if next > scale: scale <- next
+    if scale == 0.0: return false
+
+    qx: f64 = input[0] / scale
+    qy: f64 = input[1] / scale
+    qz: f64 = input[2] / scale
+    norm: f64 = sqrt((qx * qx + qy * qy) + qz * qz)
+    if not rodrigues_finite(norm, 2.0) or norm == 0.0: return false
+    nx: f64 = qx / norm
+    ny: f64 = qy / norm
+    nz: f64 = qz / norm
+    vx: f64 = input[3]
+    vy: f64 = input[4]
+    vz: f64 = input[5]
+    cosine: f64 = cos(theta)
+    sine: f64 = sin(theta)
+    one_minus_cosine: f64 = 1.0 - cosine
+    cx: f64 = ny * vz - nz * vy
+    cy: f64 = nz * vx - nx * vz
+    cz: f64 = nx * vy - ny * vx
+    dot: f64 = (nx * vx + ny * vy) + nz * vz
+    result[0] <- (vx * cosine + cx * sine) + (nx * dot) * one_minus_cosine
+    result[1] <- (vy * cosine + cy * sine) + (ny * dot) * one_minus_cosine
+    result[2] <- (vz * cosine + cz * sine) + (nz * dot) * one_minus_cosine
+    for index in 0..<3:
+        if not rodrigues_finite(result[index], OUTPUT_LIMIT): return false
+    true
+
+export fn rodrigues_arbitrary_axis_rotation(
+    input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize
+) -> i64:
+    if input.is_null() or input_length != 7: return -1
+    input_view: view[f64] = input[0:input_length]
+    staged: mutable f64[3] = zeroed
+    staged_view: mutable view[f64] = staged[0:3]
+    if not rodrigues_compute(input_view, staged_view): return -1
+    if output.is_null() or output_capacity < 3: return -2
+    output_view: mutable view[f64] = output[0:3]
+    for index in 0..<3: output_view[index] <- staged_view[index]
+    3

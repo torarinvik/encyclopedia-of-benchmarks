@@ -1,0 +1,178 @@
+const MAX_N: usize = 6
+const MAX_M: usize = 15
+const MAX_DARTS: usize = 30
+const INVALID_RESULT: i64 = -1
+
+def rotation_system_planarity_test(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 33: return INVALID_RESULT
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 6 or m64 < 0 or m64 > 15 or length != 2 + 2 * m64.usize(): return INVALID_RESULT
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    adjacent: mutable u8[MAX_N * MAX_N] = zeroed
+    edge_u: mutable usize[MAX_M] = zeroed
+    edge_v: mutable usize[MAX_M] = zeroed
+    edge_at: usize = 0
+    while edge_at < m:
+        u64: i64 = input[2 + 2 * edge_at]
+        v64: i64 = input[3 + 2 * edge_at]
+        if u64 < 0 or u64 >= v64 or v64 >= n64: return INVALID_RESULT
+        u_idx: usize = u64.usize()
+        v_idx: usize = v64.usize()
+        if adjacent[u_idx * MAX_N + v_idx] != 0: return INVALID_RESULT
+        adjacent[u_idx * MAX_N + v_idx] <- 1
+        adjacent[v_idx * MAX_N + u_idx] <- 1
+        edge_u[edge_at] <- u_idx
+        edge_v[edge_at] <- v_idx
+        edge_at <- edge_at + 1
+    if n >= 3 and m > 3 * n - 6: return 0
+
+    edge_id: mutable i64[MAX_N * MAX_N] = zeroed
+    row: usize = 0
+    while row < n:
+        col: usize = 0
+        while col < n:
+            edge_id[row * MAX_N + col] <- -1
+            col <- col + 1
+        row <- row + 1
+    edge_at <- 0
+    while edge_at < m:
+        edge_id[edge_u[edge_at] * MAX_N + edge_v[edge_at]] <- edge_at.i64()
+        edge_id[edge_v[edge_at] * MAX_N + edge_u[edge_at]] <- edge_at.i64()
+        edge_at <- edge_at + 1
+    neighbors: mutable usize[MAX_N * MAX_N] = zeroed
+    degree: mutable usize[MAX_N] = zeroed
+    row <- 0
+    while row < n:
+        col <- 0
+        while col < n:
+            if adjacent[row * MAX_N + col] != 0:
+                neighbors[row * MAX_N + degree[row]] <- col
+                degree[row] <- degree[row] + 1
+            col <- col + 1
+        row <- row + 1
+
+    component: mutable i64[MAX_N] = zeroed
+    row <- 0
+    while row < n:
+        component[row] <- -1
+        row <- row + 1
+    component_vertices: mutable usize[MAX_N * MAX_N] = zeroed
+    component_size: mutable usize[MAX_N] = zeroed
+    component_count: mutable usize = 0
+    root: usize = 0
+    while root < n:
+        if component[root] == -1:
+            new_component_id: usize = component_count
+            component_count <- component_count + 1
+            queue: mutable usize[MAX_N] = zeroed
+            head: mutable usize = 0
+            tail: mutable usize = 0
+            component[root] <- new_component_id.i64()
+            queue[tail] <- root
+            tail <- tail + 1
+            while head < tail:
+                here: usize = queue[head]
+                head <- head + 1
+                component_vertices[new_component_id * MAX_N + component_size[new_component_id]] <- here
+                component_size[new_component_id] <- component_size[new_component_id] + 1
+                there: usize = 0
+                while there < n:
+                    if adjacent[here * MAX_N + there] != 0 and component[there] == -1:
+                        component[there] <- new_component_id.i64()
+                        queue[tail] <- there
+                        tail <- tail + 1
+                    there <- there + 1
+        root <- root + 1
+
+    cid: usize = 0
+    while cid < component_count:
+        comp_edge_count: mutable usize = 0
+        edge_at <- 0
+        while edge_at < m:
+            if component[edge_u[edge_at]] == cid.i64(): comp_edge_count <- comp_edge_count + 1
+            edge_at <- edge_at + 1
+        if component_size[cid] >= 3 and comp_edge_count > 3 * component_size[cid] - 6: return 0
+        if component_size[cid] > 1:
+            rotation: mutable usize[MAX_N * MAX_N] = zeroed
+            comp_pos: usize = 0
+            while comp_pos < component_size[cid]:
+                vertex: usize = component_vertices[cid * MAX_N + comp_pos]
+                slot: usize = 0
+                while slot < degree[vertex]:
+                    rotation[vertex * MAX_N + slot] <- neighbors[vertex * MAX_N + slot]
+                    slot <- slot + 1
+                comp_pos <- comp_pos + 1
+            found: mutable bool = false
+            done: mutable bool = false
+            while not found and not done:
+                successor: mutable i64[MAX_DARTS] = zeroed
+                dart_at: usize = 0
+                while dart_at < 2 * m:
+                    successor[dart_at] <- -1
+                    dart_at <- dart_at + 1
+                comp_pos <- 0
+                while comp_pos < component_size[cid]:
+                    vertex <- component_vertices[cid * MAX_N + comp_pos]
+                    deg: usize = degree[vertex]
+                    slot <- 0
+                    while slot < deg:
+                        nextslot: usize = (slot + 1) % deg
+                        eid: usize = edge_id[vertex * MAX_N + rotation[vertex * MAX_N + slot]].usize()
+                        next_eid: usize = edge_id[vertex * MAX_N + rotation[vertex * MAX_N + nextslot]].usize()
+                        dart_index: usize = 2 * eid + (if edge_u[eid] == vertex then 0 else 1)
+                        next_dart_index: usize = 2 * next_eid + (if edge_u[next_eid] == vertex then 0 else 1)
+                        successor[dart_index] <- next_dart_index.i64()
+                        slot <- slot + 1
+                    comp_pos <- comp_pos + 1
+                used: mutable bool[MAX_DARTS] = zeroed
+                face_count: mutable usize = 0
+                edge_at <- 0
+                while edge_at < m:
+                    if component[edge_u[edge_at]] == cid.i64():
+                        orientation: usize = 0
+                        while orientation < 2:
+                            dart_index <- 2 * edge_at + orientation
+                            if not used[dart_index]:
+                                face_count <- face_count + 1
+                                while not used[dart_index]:
+                                    used[dart_index] <- true
+                                    dart_index <- successor[dart_index ^ 1].usize()
+                            orientation <- orientation + 1
+                    edge_at <- edge_at + 1
+                if component_size[cid].i64() - comp_edge_count.i64() + face_count.i64() == 2:
+                    found <- true
+                else:
+                    pos: mutable i64 = component_size[cid].i64() - 1
+                    advanced: mutable bool = false
+                    while pos >= 0 and not advanced:
+                        vertex <- component_vertices[cid * MAX_N + pos.usize()]
+                        deg <- degree[vertex]
+                        pivot: mutable i64 = deg.i64() - 2
+                        while pivot >= 1 and rotation[vertex * MAX_N + pivot.usize()] >= rotation[vertex * MAX_N + pivot.usize() + 1]: pivot <- pivot - 1
+                        if pivot >= 1:
+                            swap_at: mutable usize = deg - 1
+                            while rotation[vertex * MAX_N + swap_at] <= rotation[vertex * MAX_N + pivot.usize()]: swap_at <- swap_at - 1
+                            temp: usize = rotation[vertex * MAX_N + pivot.usize()]
+                            rotation[vertex * MAX_N + pivot.usize()] <- rotation[vertex * MAX_N + swap_at]
+                            rotation[vertex * MAX_N + swap_at] <- temp
+                            left: mutable usize = pivot.usize() + 1
+                            right: mutable usize = deg - 1
+                            while left < right:
+                                value: usize = rotation[vertex * MAX_N + left]
+                                rotation[vertex * MAX_N + left] <- rotation[vertex * MAX_N + right]
+                                rotation[vertex * MAX_N + right] <- value
+                                left <- left + 1
+                                right <- right - 1
+                            advanced <- true
+                        else:
+                            slot <- 0
+                            while slot < deg:
+                                rotation[vertex * MAX_N + slot] <- neighbors[vertex * MAX_N + slot]
+                                slot <- slot + 1
+                            pos <- pos - 1
+                    if not advanced: done <- true
+            if not found: return 0
+        cid <- cid + 1
+    return 1

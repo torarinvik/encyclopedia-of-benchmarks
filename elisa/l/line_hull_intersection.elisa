@@ -1,0 +1,169 @@
+const LHI_MAX_VERTICES: usize = 16
+const LHI_MAX_PARSEABLE_LENGTH: usize = 38
+
+def fn lhi_polar_half(x: i64, y: i64) -> i64:
+    if y > 0 or (y == 0 and x >= 0): return 0
+    1
+
+def fn lhi_angle_before(ax: i64, ay: i64, bx: i64, by: i64) -> bool:
+    ah: i64 = lhi_polar_half(ax, ay)
+    bh: i64 = lhi_polar_half(bx, by)
+    if ah != bh: return ah < bh
+    ax * by - ay * bx > 0
+
+def fn lhi_rotation_minimum(ex: view[i64], ey: view[i64], count: usize) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = count - 1
+    while low < high:
+        middle: usize = (low + high) / 2
+        if lhi_angle_before(ex[middle], ey[middle], ex[high], ey[high]):
+            high <- middle
+        else:
+            low <- middle + 1
+    low
+
+def fn lhi_support_edge(ex: view[i64], ey: view[i64], count: usize,
+                        tx: i64, ty: i64) -> usize:
+    pivot: usize = lhi_rotation_minimum(ex, ey, count)
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = (low + high) / 2
+        index: usize = (pivot + middle) % count
+        if lhi_angle_before(ex[index], ey[index], tx, ty): low <- middle + 1 else: high <- middle
+    (pivot + low) % count
+
+def fn lhi_line_value(xs: view[i64], ys: view[i64], index: usize,
+                      ox: i64, oy: i64, dx: i64, dy: i64) -> i64:
+    dx * (ys[index] - oy) - dy * (xs[index] - ox)
+
+def fn lhi_line_parameter(xs: view[i64], ys: view[i64], index: usize,
+                          ox: i64, oy: i64, dx: i64, dy: i64) -> i64:
+    (xs[index] - ox) * dx + (ys[index] - oy) * dy
+
+def fn lhi_crossing(xs: view[i64], ys: view[i64], count: usize,
+                    ox: i64, oy: i64, dx: i64, dy: i64,
+                    start: usize, end: usize, increasing: bool,
+                    hit: mutable view[i64]) -> void:
+    span: usize = (end + count - start) % count
+    low: mutable usize = 0
+    high: mutable usize = span
+    while high - low > 1:
+        middle: usize = (low + high) / 2
+        index: usize = (start + middle) % count
+        value: i64 = lhi_line_value(xs, ys, index, ox, oy, dx, dy)
+        if (increasing and value < 0) or (not increasing and value > 0): low <- middle else: high <- middle
+    index: mutable usize = (start + low) % count
+    if lhi_line_value(xs, ys, (start + high) % count, ox, oy, dx, dy) == 0:
+        index <- (start + high) % count
+    value: i64 = lhi_line_value(xs, ys, index, ox, oy, dx, dy)
+    if value == 0:
+        hit[0] <- index.i64()
+        hit[1] <- lhi_line_parameter(xs, ys, index, ox, oy, dx, dy)
+        hit[2] <- 1
+        return
+    next: usize = (index + 1) % count
+    next_value: i64 = lhi_line_value(xs, ys, next, ox, oy, dx, dy)
+    denominator: mutable i64 = value - next_value
+    edge_dot: i64 = (xs[next] - xs[index]) * dx + (ys[next] - ys[index]) * dy
+    numerator: mutable i64 = lhi_line_parameter(xs, ys, index, ox, oy, dx, dy) * denominator + value * edge_dot
+    if denominator < 0:
+        numerator <- -numerator
+        denominator <- -denominator
+    hit[0] <- index.i64()
+    hit[1] <- numerator
+    hit[2] <- denominator
+
+def fn lhi_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def fn line_hull_intersection_impl(input: view[i64], output: mutable view[u8],
+                                   capacity: usize, output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > LHI_MAX_PARSEABLE_LENGTH: return -1
+    count_value: i64 = input[0]
+    if count_value < 3 or count_value > LHI_MAX_VERTICES.i64(): return -1
+    count: usize = count_value.usize()
+    if length != 5 + 2 * count: return -1
+    ox: i64 = input[1]
+    oy: i64 = input[2]
+    x2: i64 = input[3]
+    y2: i64 = input[4]
+    if ox < -50 or ox > 50 or oy < -50 or oy > 50 or x2 < -50 or x2 > 50 or y2 < -50 or y2 > 50: return -1
+    dx: i64 = x2 - ox
+    dy: i64 = y2 - oy
+    if dx == 0 and dy == 0: return -1
+
+    xs: mutable i64[16] = zeroed
+    ys: mutable i64[16] = zeroed
+    ex: mutable i64[16] = zeroed
+    ey: mutable i64[16] = zeroed
+    for i in 0..<count:
+        xs[i] <- input[5 + 2 * i]
+        ys[i] <- input[6 + 2 * i]
+        if xs[i] < -50 or xs[i] > 50 or ys[i] < -50 or ys[i] > 50: return -1
+        for j in 0..<i:
+            if xs[j] == xs[i] and ys[j] == ys[i]: return -1
+    area2: mutable i64 = 0
+    for i in 0..<count:
+        next: usize = (i + 1) % count
+        ex[i] <- xs[next] - xs[i]
+        ey[i] <- ys[next] - ys[i]
+        area2 <- area2 + xs[i] * ys[next] - xs[next] * ys[i]
+    if area2 <= 0: return -1
+    for i in 0..<count:
+        next: usize = (i + 1) % count
+        for j in 0..<count:
+            if j == i or j == next: continue
+            side: i64 = ex[i] * (ys[j] - ys[i]) - ey[i] * (xs[j] - xs[i])
+            if side <= 0: return -1
+
+    maximum: usize = lhi_support_edge(ex[0:count], ey[0:count], count, -dx, -dy)
+    minimum: usize = lhi_support_edge(ex[0:count], ey[0:count], count, dx, dy)
+    max_value: i64 = lhi_line_value(xs[0:count], ys[0:count], maximum, ox, oy, dx, dy)
+    min_value: i64 = lhi_line_value(xs[0:count], ys[0:count], minimum, ox, oy, dx, dy)
+    first: mutable i64 = -1
+    second: mutable i64 = -1
+    if min_value > 0 or max_value < 0:
+        first <- -1
+        second <- -1
+    else if min_value == 0 or max_value == 0:
+        touch: usize = if min_value == 0 then minimum else maximum
+        next: usize = (touch + 1) % count
+        previous: usize = (touch + count - 1) % count
+        if lhi_line_value(xs[0:count], ys[0:count], touch, ox, oy, dx, dy) == 0 and lhi_line_value(xs[0:count], ys[0:count], next, ox, oy, dx, dy) == 0:
+            first <- touch.i64()
+            second <- touch.i64()
+        else if lhi_line_value(xs[0:count], ys[0:count], previous, ox, oy, dx, dy) == 0 and lhi_line_value(xs[0:count], ys[0:count], touch, ox, oy, dx, dy) == 0:
+            first <- previous.i64()
+            second <- previous.i64()
+        else:
+            first <- touch.i64()
+            second <- -1
+    else:
+        h1: mutable i64[3] = zeroed
+        h2: mutable i64[3] = zeroed
+        lhi_crossing(xs[0:count], ys[0:count], count, ox, oy, dx, dy, maximum, minimum, false, h1[0:3])
+        lhi_crossing(xs[0:count], ys[0:count], count, ox, oy, dx, dy, minimum, maximum, true, h2[0:3])
+        if h1[1] * h2[2] <= h2[1] * h1[2]:
+            first <- h1[0]
+            second <- h2[0]
+        else:
+            first <- h2[0]
+            second <- h1[0]
+    if output_is_null or capacity < 16: return -2
+    lhi_store_i64(first, output, 0)
+    lhi_store_i64(second, output, 8)
+    16
+
+export fn line_hull_intersection(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length > LHI_MAX_PARSEABLE_LENGTH: return -1
+    if output.is_null():
+        staged: mutable u8[16] = zeroed
+        return line_hull_intersection_impl(input[0:length], staged[0:16], capacity, true)
+    staged_output: mutable view[u8] = output[0:capacity]
+    line_hull_intersection_impl(input[0:length], staged_output, capacity, false)

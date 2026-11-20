@@ -1,7 +1,8 @@
 // Clean-room exact bounded minimum weighted connected dominating set.
 const MAX_N: usize = 16
-def weighted_connected_dominating_set(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("weighted_connected_dominating_set"):
-    if input.is_null() or length < 3 or length > 33 or input[0] < 1 or input[0] > MAX_N.i64(): return -1
+def weighted_connected_dominating_set_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > 33 or input[0] < 1 or input[0] > MAX_N.i64(): return -1
     n: usize = input[0].usize()
     if length != 1+2*n: return -1
     all: u64 = (1.u64() << n)-1
@@ -50,10 +51,15 @@ def weighted_connected_dominating_set(input: i64&, length: usize, output: mutabl
                 best_mask <- subset
         subset <- subset+1
     if output.is_null() or capacity < 16: return -2
+    result: mutable view[u8] = output[0:16]
     bits: u64 = best_cost.u64()
     i <- 0
-    while i < 8: output[i] <- ((bits>>(8*i))&255).u8(); i <- i+1
+    while i < 8: result[i] <- ((bits>>(8*i))&255).u8(); i <- i+1
     bits <- best_mask
     i <- 0
-    while i < 8: output[8+i] <- ((bits>>(8*i))&255).u8(); i <- i+1
+    while i < 8: result[8+i] <- ((bits>>(8*i))&255).u8(); i <- i+1
     16
+
+export fn weighted_connected_dominating_set(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 33: return -1
+    weighted_connected_dominating_set_impl(input[0:length], output, capacity)

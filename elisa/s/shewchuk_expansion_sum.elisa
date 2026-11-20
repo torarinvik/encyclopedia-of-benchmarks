@@ -1,0 +1,74 @@
+const SES_MAX_TERMS: usize = 16
+const SES_MAX_LENGTH: usize = 34
+const SES_MAX_MANTISSA: i64 = 16777216
+const SES_OUTPUT_SCALE: f64 = 1073741824.0
+
+struct SesPair:
+    high: f64
+    low: f64
+
+def ses_two_sum(a: f64, b: f64) -> SesPair:
+    rounded: f64 = a+b
+    b_virtual: f64 = rounded-a
+    a_virtual: f64 = rounded-b_virtual
+    b_roundoff: f64 = b-b_virtual
+    a_roundoff: f64 = a-a_virtual
+    SesPair{high: rounded, low: a_roundoff+b_roundoff}
+
+def ses_grow_expansion(expansion: view[f64], count: usize, value: f64,
+                       grown: mutable view[f64]) -> usize:
+    q: mutable f64 = value
+    grown_count: mutable usize = 0
+    i: mutable usize = 0
+    while i < count:
+        pair: SesPair = ses_two_sum(q, expansion[i])
+        if pair.low != 0.0:
+            grown[grown_count] <- pair.low
+            grown_count <- grown_count+1
+        q <- pair.high
+        i <- i+1
+    if q != 0.0 or grown_count == 0:
+        grown[grown_count] <- q
+        grown_count <- grown_count+1
+    grown_count
+
+def ses_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > SES_MAX_LENGTH: return -1
+    if input[0] < 0 or input[0] > SES_MAX_TERMS.i64(): return -1
+    n: usize = input[0].usize()
+    if length != 1+2*n: return -1
+
+    expansion: mutable f64[SES_MAX_TERMS+1] = zeroed
+    grown: mutable f64[SES_MAX_TERMS+1] = zeroed
+    expansion_count: mutable usize = 0
+    i: mutable usize = 0
+    while i < n:
+        mantissa: i64 = input[1+2*i]
+        exponent: i64 = input[2+2*i]
+        if mantissa < -SES_MAX_MANTISSA or mantissa > SES_MAX_MANTISSA or exponent < -30 or exponent > 0:
+            return -1
+        value: mutable f64 = mantissa.f64()
+        shift: mutable i64 = 0
+        while shift > exponent:
+            value <- value*0.5
+            shift <- shift-1
+        if value != 0.0:
+            grown_count: usize = ses_grow_expansion(expansion[0:SES_MAX_TERMS+1], expansion_count,
+                                                     value, grown[0:SES_MAX_TERMS+1])
+            j: mutable usize = 0
+            while j < grown_count:
+                expansion[j] <- grown[j]
+                j <- j+1
+            expansion_count <- grown_count
+        i <- i+1
+    result: mutable i64 = 288230376151711745
+    i <- 0
+    while i < expansion_count:
+        result <- result+(expansion[i]*SES_OUTPUT_SCALE).i64()
+        i <- i+1
+    result
+
+export fn shewchuk_expansion_sum(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > SES_MAX_LENGTH: return -1
+    ses_impl(input[0:length])

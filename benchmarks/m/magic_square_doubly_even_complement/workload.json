@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "magic-square-doubly-even-complement-v1",
+  "algorithm": "magic_square_doubly_even_complement",
+  "function_symbol": "magic_square_doubly_even_complement",
+  "abi": "scalar_call",
+  "input": {
+    "kind": "signed_i64_scalar",
+    "meaning": "normal magic-square order",
+    "minimum_order": 4,
+    "maximum_order": 64,
+    "valid_orders": "multiples of four",
+    "invalid_input_result": -1
+  },
+  "result": {
+    "kind": "signed_i64_scalar_fnv1a64",
+    "encoding": "low 63 bits of FNV-1a-64 over order as u8, then row-major signed-i32 little-endian entries",
+    "fnv1a_offset_basis": 14695981039346656037,
+    "fnv1a_prime": 1099511628211,
+    "workspace_bytes": 0
+  },
+  "expected_result_provider": {
+    "module": "primary_oracle.py",
+    "function": "expected_result",
+    "cross_check_module": "independent_oracle.py",
+    "cross_check_function": "expected_result",
+    "evaluation": "compute expected scalar from each case input during verification and require both references to agree"
+  },
+  "cases": [
+    {"id": "minimum_order", "input_value": 4},
+    {"id": "order_eight", "input_value": 8},
+    {"id": "order_twelve", "input_value": 12},
+    {"id": "medium_order", "input_value": 32},
+    {"id": "maximum_order", "input_value": 64},
+    {"id": "zero_order", "input_value": 0},
+    {"id": "nonmagic_order_two", "input_value": 2},
+    {"id": "singly_even_order", "input_value": 6},
+    {"id": "above_maximum", "input_value": 68},
+    {"id": "i64_minimum", "input_value": -9223372036854775808},
+    {"id": "i64_maximum", "input_value": 9223372036854775807}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 16,
+    "warmup_rounds": 1,
+    "sample_count": 5
+  }
+}

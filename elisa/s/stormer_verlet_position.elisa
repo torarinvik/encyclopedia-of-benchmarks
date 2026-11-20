@@ -1,0 +1,43 @@
+const SVP_MAX_STEPS: usize = 32
+const SVP_MAX_INPUT_VALUES: usize = SVP_MAX_STEPS + 1
+const SVP_MAX_OUTPUT_BYTES: usize = SVP_MAX_STEPS * 8
+
+def svp_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def stormer_verlet_position_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > SVP_MAX_INPUT_VALUES: return -1
+    count_value: i64 = input[0]
+    if count_value < 2 or count_value > SVP_MAX_STEPS.i64(): return -1
+    if length != (count_value + 1).usize(): return -1
+    if input[1] < -1024 or input[1] > 1024 or input[2] < -1024 or input[2] > 1024: return -1
+    count: usize = count_value.usize()
+    step: mutable usize = 0
+    while step < count - 2:
+        if input[3 + step] < -64 or input[3 + step] > 64: return -1
+        step <- step + 1
+
+    byte_count: usize = 8 * count
+    if output.is_null() or capacity < byte_count: return -2
+    staged: mutable u8[SVP_MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:SVP_MAX_OUTPUT_BYTES]
+    previous: mutable i64 = input[1]
+    current: mutable i64 = input[2]
+    svp_store_i64_le(staged_view, 0, previous)
+    svp_store_i64_le(staged_view, 8, current)
+    index: mutable usize = 2
+    while index < count:
+        next: i64 = 2 * current - previous + input[index + 1]
+        svp_store_i64_le(staged_view, 8 * index, next)
+        previous <- current
+        current <- next
+        index <- index + 1
+    for byte in 0..<byte_count: output[byte] <- staged[byte]
+    byte_count.i64()
+
+export fn stormer_verlet_position(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = stormer_verlet_position_impl

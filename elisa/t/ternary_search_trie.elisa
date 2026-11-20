@@ -1,0 +1,210 @@
+const TST_MAX_OPERATIONS: usize = 64
+const TST_MAX_KEY_LENGTH: usize = 6
+const TST_RECORD_WIDTH: usize = 9
+const TST_MAX_INPUT_VALUES: usize = 577
+const TST_MAX_PARSEABLE_INPUT_VALUES: usize = 578
+const TST_MAX_NODES: usize = 384
+
+struct TSTNode:
+    character: i64
+    left: usize
+    middle: usize
+    right: usize
+    value: i64
+    present: bool
+
+def tst_put(nodes: mutable view[TSTNode], node_index: usize, key: view[i64],
+            length: usize, depth: usize, value: i64,
+            node_count: usize) -> (usize, i64, bool, usize):
+    current: mutable usize = node_index
+    next_node_count: mutable usize = node_count
+    if current == 0:
+        next_node_count <- next_node_count + 1
+        current <- next_node_count
+        nodes[current].character <- key[depth]
+    if key[depth] < nodes[current].character:
+        left_result: (usize, i64, bool, usize) = tst_put(nodes, nodes[current].left,
+            key, length, depth, value, next_node_count)
+        nodes[current].left <- left_result.0
+        return (current, left_result.1, left_result.2, left_result.3)
+    elif key[depth] > nodes[current].character:
+        right_result: (usize, i64, bool, usize) = tst_put(nodes, nodes[current].right,
+            key, length, depth, value, next_node_count)
+        nodes[current].right <- right_result.0
+        return (current, right_result.1, right_result.2, right_result.3)
+    elif depth + 1 < length:
+        middle_result: (usize, i64, bool, usize) = tst_put(nodes, nodes[current].middle,
+            key, length, depth + 1, value, next_node_count)
+        nodes[current].middle <- middle_result.0
+        return (current, middle_result.1, middle_result.2, middle_result.3)
+    else:
+        old_value: i64 = nodes[current].value if nodes[current].present else 0
+        inserted: bool = not nodes[current].present
+        nodes[current].value <- value
+        nodes[current].present <- true
+        return (current, old_value, inserted, next_node_count)
+
+def tst_find(nodes: view[TSTNode], node_index: usize, key: view[i64],
+             length: usize) -> usize:
+    current: mutable usize = node_index
+    depth: mutable usize = 0
+    while current != 0:
+        if key[depth] < nodes[current].character:
+            current <- nodes[current].left
+        elif key[depth] > nodes[current].character:
+            current <- nodes[current].right
+        elif depth + 1 == length:
+            return current
+        else:
+            current <- nodes[current].middle
+            depth <- depth + 1
+    0
+
+def tst_delete(nodes: mutable view[TSTNode], node_index: usize, key: view[i64],
+               length: usize, depth: usize) -> (usize, i64, bool):
+    if node_index == 0: return (0, 0, false)
+    removed_value: mutable i64 = 0
+    deleted: mutable bool = false
+    if key[depth] < nodes[node_index].character:
+        left_result: (usize, i64, bool) =
+            tst_delete(nodes, nodes[node_index].left, key, length, depth)
+        nodes[node_index].left <- left_result.0
+        removed_value <- left_result.1
+        deleted <- left_result.2
+    elif key[depth] > nodes[node_index].character:
+        right_result: (usize, i64, bool) =
+            tst_delete(nodes, nodes[node_index].right, key, length, depth)
+        nodes[node_index].right <- right_result.0
+        removed_value <- right_result.1
+        deleted <- right_result.2
+    elif depth + 1 < length:
+        middle_result: (usize, i64, bool) =
+            tst_delete(nodes, nodes[node_index].middle, key, length, depth + 1)
+        nodes[node_index].middle <- middle_result.0
+        removed_value <- middle_result.1
+        deleted <- middle_result.2
+    elif nodes[node_index].present:
+        removed_value <- nodes[node_index].value
+        deleted <- true
+        nodes[node_index].value <- 0
+        nodes[node_index].present <- false
+    if not nodes[node_index].present and nodes[node_index].left == 0 and
+       nodes[node_index].middle == 0 and nodes[node_index].right == 0:
+        return (0, removed_value, deleted)
+    (node_index, removed_value, deleted)
+
+def tst_count(nodes: view[TSTNode], node_index: usize) -> usize:
+    if node_index == 0: return 0
+    (1 if nodes[node_index].present else 0) +
+        tst_count(nodes, nodes[node_index].left) +
+        tst_count(nodes, nodes[node_index].middle) +
+        tst_count(nodes, nodes[node_index].right)
+
+def tst_matches(nodes: view[TSTNode], node_index: usize, pattern: view[i64],
+                length: usize, depth: usize) -> usize:
+    if node_index == 0: return 0
+    token: i64 = pattern[depth]
+    if token == 46:
+        here: usize = (1 if nodes[node_index].present else 0) if depth + 1 == length else
+            tst_matches(nodes, nodes[node_index].middle, pattern, length, depth + 1)
+        return tst_matches(nodes, nodes[node_index].left, pattern, length, depth) +
+               here + tst_matches(nodes, nodes[node_index].right, pattern, length, depth)
+    if token < nodes[node_index].character:
+        return tst_matches(nodes, nodes[node_index].left, pattern, length, depth)
+    if token > nodes[node_index].character:
+        return tst_matches(nodes, nodes[node_index].right, pattern, length, depth)
+    if depth + 1 == length: return 1 if nodes[node_index].present else 0
+    tst_matches(nodes, nodes[node_index].middle, pattern, length, depth + 1)
+
+def tst_validate(input: view[i64], length: usize) -> (bool, usize):
+    if length < 1 or length > TST_MAX_PARSEABLE_INPUT_VALUES: return (false, 0)
+    if input[0] < 0 or input[0] > TST_MAX_OPERATIONS.i64(): return (false, 0)
+    operation_count: usize = input[0].usize()
+    if length != 1 + operation_count * TST_RECORD_WIDTH: return (false, 0)
+    operation: usize = 0
+    while operation < operation_count:
+        base: usize = 1 + operation * TST_RECORD_WIDTH
+        opcode: i64 = input[base]
+        key_length: i64 = input[base + 1]
+        if opcode < 0 or opcode > 6 or key_length < 0 or
+           key_length > TST_MAX_KEY_LENGTH.i64(): return (false, 0)
+        if (opcode <= 2 and key_length == 0) or (opcode == 6 and key_length != 0):
+            return (false, 0)
+        index: usize = 0
+        while index < TST_MAX_KEY_LENGTH:
+            character: i64 = input[base + 2 + index]
+            if index < key_length.usize():
+                if (character < 97 or character > 122) and
+                   not (opcode == 5 and character == 46): return (false, 0)
+            elif character != 0: return (false, 0)
+            index <- index + 1
+        value: i64 = input[base + TST_RECORD_WIDTH - 1]
+        if opcode == 0:
+            if value < 1 or value > 65535: return (false, 0)
+        elif value != 0: return (false, 0)
+        operation <- operation + 1
+    (true, operation_count)
+
+def tst_impl(input: view[i64], length: usize) -> i64:
+    validation = tst_validate(input, length)
+    if not validation.0: return -1
+    operation_count: usize = validation.1
+    nodes: mutable TSTNode[TST_MAX_NODES + 1] = zeroed
+    node_count: mutable usize = 0
+    root: mutable usize = 0
+    size: mutable usize = 0
+    total: mutable i64 = 0
+    operation: usize = 0
+    while operation < operation_count:
+        base: usize = 1 + operation * TST_RECORD_WIDTH
+        opcode: i64 = input[base]
+        key_length: usize = input[base + 1].usize()
+        key: view[i64] = input[base + 2:base + 2 + TST_MAX_KEY_LENGTH]
+        value: i64 = input[base + TST_RECORD_WIDTH - 1]
+        observed: mutable i64 = 0
+        if opcode == 0:
+            result: (usize, i64, bool, usize) =
+                tst_put(nodes[0:TST_MAX_NODES + 1], root, key, key_length, 0,
+                        value, node_count)
+            root <- result.0
+            observed <- result.1
+            if result.2: size <- size + 1
+            node_count <- result.3
+        elif opcode == 1:
+            found: usize = tst_find(nodes, root, key, key_length)
+            if found != 0 and nodes[found].present: observed <- nodes[found].value
+        elif opcode == 2:
+            result: (usize, i64, bool) =
+                tst_delete(nodes[0:TST_MAX_NODES + 1], root, key, key_length, 0)
+            root <- result.0
+            observed <- result.1
+            if result.2: size <- size - 1
+        elif opcode == 3:
+            current: mutable usize = root
+            depth: mutable usize = 0
+            while current != 0 and depth < key_length:
+                if key[depth] < nodes[current].character:
+                    current <- nodes[current].left
+                elif key[depth] > nodes[current].character:
+                    current <- nodes[current].right
+                else:
+                    depth <- depth + 1
+                    if nodes[current].present: observed <- depth.i64()
+                    current <- nodes[current].middle
+        elif opcode == 4:
+            if key_length == 0: observed <- size.i64()
+            else:
+                found: usize = tst_find(nodes, root, key, key_length)
+                if found != 0:
+                    observed <- (1 if nodes[found].present else 0) +
+                                tst_count(nodes, nodes[found].middle)
+        elif opcode == 5 and key_length != 0:
+            observed <- tst_matches(nodes, root, key, key_length, 0).i64()
+        elif opcode == 6: observed <- size.i64()
+        total <- total + (operation + 1).i64() * observed
+        operation <- operation + 1
+    total
+
+export fn ternary_search_trie(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > TST_MAX_PARSEABLE_INPUT_VALUES: return -1
+    tst_impl(input[0:length], length)

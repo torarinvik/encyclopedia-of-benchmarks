@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "shannon-fano-elias-symbol-codes-i64-array-bytes-output-v1",
+  "algorithm": "shannon_fano_elias_symbol_codes",
+  "function_symbol": "shannon_fano_elias_symbol_codes",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,positive_symbol_weights[n]]",
+    "maximum_valid_length": 9,
+    "maximum_parseable_length": 10,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "encoding": "symbol_count byte followed by (bit_length, MSB-aligned codeword byte) pairs in input symbol order",
+    "maximum_bytes": 17,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Bounded weight, prefix, and staged-output arrays for at most eight symbols."
+  },
+  "source": {
+    "discovery_url": "https://xlinux.nist.gov/dads/HTML/shannonFano.html",
+    "primary_url": "https://doi.org/10.1002/j.1538-7305.1959.tb01583.x",
+    "reuse": "Algorithm descriptions only; independently authored code, references, and fixtures."
+  },
+  "contract": {
+    "minimum_symbols": 1,
+    "maximum_symbols": 8,
+    "minimum_weight": 1,
+    "maximum_weight": 15,
+    "maximum_total_weight": 120,
+    "maximum_codeword_bits": 8,
+    "validation_before_capacity": true
+  },
+  "complexity": {
+    "primary_time": "O(n log W)",
+    "independent_time": "O(n log W)",
+    "workspace_bytes": 1024
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {"id":"single_symbol", "input_values":[1,7], "input_length":2, "output_capacity":3, "expected_result":3, "expected_output_hex":"010180"},
+    {"id":"equal_weights", "input_values":[4,1,1,1,1], "input_length":5, "output_capacity":9, "expected_result":9, "expected_output_hex":"040320036003a003e0"},
+    {"id":"mixed_weights", "input_values":[3,3,1,2], "input_length":4, "output_capacity":7, "expected_result":7, "expected_output_hex":"030240049003c0"},
+    {"id":"unequal_prefix_intervals", "input_values":[3,1,3,1], "input_length":4, "output_capacity":7, "expected_result":7, "expected_output_hex":"030410028004e0"},
+    {"id":"maximum_input_and_output", "input_values":[8,1,15,1,15,1,15,1,15], "input_length":9, "output_capacity":17, "expected_result":17, "expected_output_hex":"080702042007420460078204a007c204e0"},
+    {"id":"maximum_output_short_by_one", "input_values":[8,1,15,1,15,1,15,1,15], "input_length":9, "output_capacity":16, "expected_result":-2, "expected_output_hex":""},
+    {"id":"invalid_zero_symbols", "input_values":[0], "input_length":1, "output_capacity":17, "expected_result":-1, "expected_output_hex":""},
+    {"id":"invalid_zero_weight", "input_values":[2,0,1], "input_length":3, "output_capacity":5, "expected_result":-1, "expected_output_hex":""},
+    {"id":"invalid_weight_above_bound", "input_values":[1,16], "input_length":2, "output_capacity":3, "expected_result":-1, "expected_output_hex":""},
+    {"id":"trailing_word", "input_values":[1,1,99], "input_length":3, "output_capacity":17, "expected_result":-1, "expected_output_hex":""},
+    {"id":"maximum_parseable_trailing_word", "input_values":[8,1,1,1,1,1,1,1,1,99], "input_length":10, "output_capacity":17, "expected_result":-1, "expected_output_hex":""},
+    {"id":"invalid_before_output_error", "input_values":[1,0], "input_length":2, "output_capacity":0, "output_is_null":true, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null_output", "input_values":[1,7], "input_length":2, "output_capacity":3, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "output_capacity":17, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,156 @@
+const HS_MAX_VARS: usize = 12
+const HS_MAX_CLAUSES: usize = 32
+const HS_MAX_INPUT: usize = 98
+const HS_MAX_OUTPUT: usize = 104
+
+def hs_reduce_by_literal(clauses: mutable view[i64], lengths: mutable view[usize],
+        active: mutable view[bool], clause_count: usize, literal: i64) -> bool:
+    clause: mutable usize = 0
+    while clause < clause_count:
+        if active[clause]:
+            satisfied: mutable bool = false
+            at: mutable usize = 0
+            while at < lengths[clause]:
+                if clauses[3 * clause + at] == literal: satisfied <- true
+                at <- at + 1
+            if satisfied:
+                active[clause] <- false
+            else:
+                write: mutable usize = 0
+                at <- 0
+                while at < lengths[clause]:
+                    value: i64 = clauses[3 * clause + at]
+                    if value != -literal:
+                        clauses[3 * clause + write] <- value
+                        write <- write + 1
+                    at <- at + 1
+                lengths[clause] <- write
+                if write == 0: return false
+        clause <- clause + 1
+    true
+
+def hs_choose_free_literal(n: usize, clause_count: usize, clauses: view[i64], lengths: view[usize],
+        active: view[bool], assigned: view[i64]) -> i64:
+    positive: mutable usize[HS_MAX_VARS] = zeroed
+    negative: mutable usize[HS_MAX_VARS] = zeroed
+    clause: mutable usize = 0
+    while clause < clause_count:
+        if active[clause]:
+            at: mutable usize = 0
+            while at < lengths[clause]:
+                literal: i64 = clauses[3 * clause + at]
+                variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+                if literal > 0: positive[variable] <- positive[variable] + 1
+                else: negative[variable] <- negative[variable] + 1
+                at <- at + 1
+        clause <- clause + 1
+    variable: mutable usize = 0
+    while variable < n:
+        if assigned[variable] == 0 and (positive[variable] == 0 or negative[variable] == 0):
+            if positive[variable] < negative[variable]: return (variable + 1).i64()
+            return -((variable + 1).i64())
+        variable <- variable + 1
+    best_difference: mutable usize = 0
+    best_total: mutable usize = 0
+    selected: mutable usize = n
+    variable <- 0
+    while variable < n:
+        if assigned[variable] == 0:
+            difference: usize = if positive[variable] > negative[variable]:
+                positive[variable] - negative[variable]
+            else: negative[variable] - positive[variable]
+            total: usize = positive[variable] + negative[variable]
+            if selected == n or difference > best_difference or
+                    (difference == best_difference and total > best_total):
+                selected <- variable
+                best_difference <- difference
+                best_total <- total
+        variable <- variable + 1
+    if selected == n: return 0
+    if positive[selected] < negative[selected]: return (selected + 1).i64()
+    -((selected + 1).i64())
+
+def hs_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def random_3sat_hajiaghayi_sorkin_algorithm_a_impl(input: view[i64],
+        output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > HS_MAX_INPUT: return -1
+    if input[0] < 3 or input[0] > 12 or input[1] < 0 or input[1] > 32: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 3 * m: return -1
+
+    clauses: mutable i64[HS_MAX_CLAUSES * 3] = zeroed
+    lengths: mutable usize[HS_MAX_CLAUSES] = zeroed
+    active: mutable bool[HS_MAX_CLAUSES] = zeroed
+    clause: mutable usize = 0
+    while clause < m:
+        seen: mutable bool[HS_MAX_VARS] = zeroed
+        at: mutable usize = 0
+        while at < 3:
+            raw: i64 = input[2 + 3 * clause + at]
+            if raw == 0 or raw < -n.i64() or raw > n.i64(): return -1
+            variable: usize = if raw > 0: (raw - 1).usize() else: (-raw - 1).usize()
+            if seen[variable]: return -1
+            seen[variable] <- true
+            clauses[3 * clause + at] <- raw
+            at <- at + 1
+        lengths[clause] <- 3
+        active[clause] <- true
+        clause <- clause + 1
+
+    assigned: mutable i64[HS_MAX_VARS] = zeroed
+    assigned_count: mutable usize = 0
+    failed: mutable bool = false
+    while assigned_count < n and not failed:
+        chosen: i64 = hs_choose_free_literal(n, m, clauses[0:3 * m],
+                lengths[0:m], active[0:m], assigned[0:n])
+        if chosen == 0:
+            failed <- true
+            break
+        variable: usize = if chosen > 0: (chosen - 1).usize() else: (-chosen - 1).usize()
+        assigned[variable] <- if chosen > 0: 1 else: -1
+        assigned_count <- assigned_count + 1
+        if not hs_reduce_by_literal(clauses[0:3 * m], lengths[0:m], active[0:m], m, chosen):
+            failed <- true
+            break
+        while not failed:
+            unit: mutable i64 = 0
+            clause <- 0
+            while clause < m:
+                if active[clause] and lengths[clause] == 1:
+                    unit <- clauses[3 * clause]
+                    break
+                clause <- clause + 1
+            if unit == 0: break
+            variable <- if unit > 0: (unit - 1).usize() else: (-unit - 1).usize()
+            assigned[variable] <- if unit > 0: 1 else: -1
+            assigned_count <- assigned_count + 1
+            if not hs_reduce_by_literal(clauses[0:3 * m], lengths[0:m], active[0:m], m, unit):
+                failed <- true
+
+    byte_count: usize = 8 * (n + 1)
+    if output.is_null() or capacity < byte_count: return -2
+    staged: mutable u8[HS_MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:byte_count]
+    hs_put_i64(if failed: 0 else: 1, staged_view, 0)
+    variable: mutable usize = 0
+    while variable < n:
+        hs_put_i64(assigned[variable], staged_view, 8 * (variable + 1))
+        variable <- variable + 1
+    variable <- 0
+    while variable < byte_count:
+        output[variable] <- staged[variable]
+        variable <- variable + 1
+    byte_count.i64()
+
+export fn random_3sat_hajiaghayi_sorkin_algorithm_a(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > HS_MAX_INPUT: return -1
+    random_3sat_hajiaghayi_sorkin_algorithm_a_impl(input[0:length], output, capacity)

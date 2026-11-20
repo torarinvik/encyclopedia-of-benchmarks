@@ -1,0 +1,171 @@
+const BURST_MAX_STRINGS: usize = 16
+const BURST_MAX_STRING_LENGTH: usize = 8
+const BURST_MAX_NODES: usize = 129
+const BURST_THRESHOLD: usize = 3
+const BURST_MAX_INPUT_LENGTH: usize = 145
+
+struct BurstSortNode:
+    depth: usize
+    burst: bool
+    leaf_count: usize
+    terminal_count: usize
+    children: i64[4]
+    leaf_items: usize[BURST_THRESHOLD]
+    terminal_items: usize[BURST_MAX_STRINGS]
+
+def burstsort_new_node(nodes: mutable view[BurstSortNode], used: mutable usize&,
+                       depth: usize) -> i64:
+    if used >= BURST_MAX_NODES:
+        return -1
+    node_id: usize = used
+    used <- used + 1
+    nodes[node_id] <- zeroed
+    nodes[node_id].depth <- depth
+    for key in 0..<4:
+        nodes[node_id].children[key] <- -1
+    node_id.i64()
+
+def burstsort_insert(nodes: mutable view[BurstSortNode], used: mutable usize&,
+                     node_id: usize, depth: usize, item: usize,
+                     string_lengths: view[usize], string_bytes: view[u8]) -> bool:
+    if string_lengths[item] == depth:
+        if nodes[node_id].terminal_count >= BURST_MAX_STRINGS:
+            return false
+        nodes[node_id].terminal_items[nodes[node_id].terminal_count] <- item
+        nodes[node_id].terminal_count <- nodes[node_id].terminal_count + 1
+        return true
+
+    if not nodes[node_id].burst and nodes[node_id].leaf_count < BURST_THRESHOLD:
+        nodes[node_id].leaf_items[nodes[node_id].leaf_count] <- item
+        nodes[node_id].leaf_count <- nodes[node_id].leaf_count + 1
+        return true
+
+    if not nodes[node_id].burst:
+        saved: mutable usize[BURST_THRESHOLD] = zeroed
+        saved_count: usize = nodes[node_id].leaf_count
+        for i in 0..<saved_count:
+            saved[i] <- nodes[node_id].leaf_items[i]
+        nodes[node_id].leaf_count <- 0
+        nodes[node_id].burst <- true
+        for i in 0..<saved_count:
+            if not burstsort_insert(nodes, used, node_id, depth, saved[i],
+                                    string_lengths, string_bytes):
+                return false
+
+    key: usize = string_bytes[item * BURST_MAX_STRING_LENGTH + depth].usize()
+    if nodes[node_id].children[key] < 0:
+        child: i64 = burstsort_new_node(nodes, used, depth + 1)
+        if child < 0:
+            return false
+        nodes[node_id].children[key] <- child
+    child_id: usize = nodes[node_id].children[key].usize()
+    burstsort_insert(nodes, used, child_id, depth + 1, item,
+                     string_lengths, string_bytes)
+
+def burstsort_string_less(left: usize, right: usize, string_lengths: view[usize],
+                          string_bytes: view[u8]) -> bool:
+    left_length: usize = string_lengths[left]
+    right_length: usize = string_lengths[right]
+    common: usize = if left_length < right_length: left_length else: right_length
+    for i in 0..<common:
+        left_byte: u8 = string_bytes[left * BURST_MAX_STRING_LENGTH + i]
+        right_byte: u8 = string_bytes[right * BURST_MAX_STRING_LENGTH + i]
+        if left_byte != right_byte:
+            return left_byte < right_byte
+    left_length < right_length
+
+def burstsort_emit(nodes: view[BurstSortNode], node_id: usize,
+                   output: mutable view[usize], output_count: mutable usize&,
+                   string_lengths: view[usize], string_bytes: view[u8]) -> void:
+    for i in 0..<nodes[node_id].terminal_count:
+        output[output_count] <- nodes[node_id].terminal_items[i]
+        output_count <- output_count + 1
+
+    if nodes[node_id].burst:
+        for key in 0..<4:
+            child: i64 = nodes[node_id].children[key]
+            if child >= 0:
+                burstsort_emit(nodes, child.usize(), output, output_count,
+                               string_lengths, string_bytes)
+        return
+
+    ordered: mutable usize[BURST_THRESHOLD] = zeroed
+    for i in 0..<nodes[node_id].leaf_count:
+        ordered[i] <- nodes[node_id].leaf_items[i]
+    for i in 1..<nodes[node_id].leaf_count:
+        item: usize = ordered[i]
+        position: mutable usize = i
+        while position > 0 and burstsort_string_less(
+                item, ordered[position - 1], string_lengths, string_bytes):
+            ordered[position] <- ordered[position - 1]
+            position <- position - 1
+        ordered[position] <- item
+    for i in 0..<nodes[node_id].leaf_count:
+        output[output_count] <- ordered[i]
+        output_count <- output_count + 1
+
+def burstsort_impl(input: view[i64], length: usize) -> i64:
+    if length < 1 or length > BURST_MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > BURST_MAX_STRINGS.i64():
+        return -1
+    count: usize = input[0].usize()
+    string_lengths: mutable usize[BURST_MAX_STRINGS] = zeroed
+    string_bytes: mutable u8[BURST_MAX_STRINGS * BURST_MAX_STRING_LENGTH] = zeroed
+
+    cursor: mutable usize = 1
+    for item in 0..<count:
+        if cursor >= length:
+            return -1
+        raw_length: i64 = input[cursor]
+        cursor <- cursor + 1
+        if raw_length < 0 or raw_length > BURST_MAX_STRING_LENGTH.i64():
+            return -1
+        string_length: usize = raw_length.usize()
+        if string_length > length - cursor:
+            return -1
+        string_lengths[item] <- string_length
+        for j in 0..<string_length:
+            byte: i64 = input[cursor]
+            cursor <- cursor + 1
+            if byte < 0 or byte > 3:
+                return -1
+            string_bytes[item * BURST_MAX_STRING_LENGTH + j] <- byte.u8()
+    if cursor != length:
+        return -1
+
+    nodes: mutable BurstSortNode[BURST_MAX_NODES] = zeroed
+    used: mutable usize = 0
+    root_value: i64 = burstsort_new_node(nodes[0:BURST_MAX_NODES], &used, 0)
+    if root_value < 0:
+        return -1
+    root: usize = root_value.usize()
+    for item in 0..<count:
+        if not burstsort_insert(nodes[0:BURST_MAX_NODES], &used, root, 0, item,
+                string_lengths[0:BURST_MAX_STRINGS],
+                string_bytes[0:BURST_MAX_STRINGS * BURST_MAX_STRING_LENGTH]):
+            return -1
+
+    sorted: mutable usize[BURST_MAX_STRINGS] = zeroed
+    sorted_count: mutable usize = 0
+    burstsort_emit(nodes[0:BURST_MAX_NODES], root, sorted[0:BURST_MAX_STRINGS],
+                   &sorted_count, string_lengths[0:BURST_MAX_STRINGS],
+                   string_bytes[0:BURST_MAX_STRINGS * BURST_MAX_STRING_LENGTH])
+    if sorted_count != count:
+        return -1
+
+    powers: i64[8] = [78125, 15625, 3125, 625, 125, 25, 5, 1]
+    checksum: mutable i64 = 0
+    for rank in 0..<count:
+        item: usize = sorted[rank]
+        key: mutable i64 = 0
+        for j in 0..<string_lengths[item]:
+            key <- key + (string_bytes[item * BURST_MAX_STRING_LENGTH + j].i64() + 1) * powers[j]
+        checksum <- checksum + (rank.i64() + 1) * key
+    checksum
+
+export fn burstsort(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > BURST_MAX_INPUT_LENGTH:
+        return -1
+    input_view: view[i64] = input[0:length]
+    burstsort_impl(input_view, length)

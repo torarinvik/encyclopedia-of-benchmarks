@@ -6,7 +6,7 @@ const usz INPUT = 2 + 2 * M;
 const usz ROUNDS = 13;
 const usz[ROUNDS] BATCH = {1, 1, 1, 1, 2, 2, 3, 4, 4, 6, 7, 9, 11};
 
-long gbbs_low_diameter_decomposition(long* input, usz length, char* output, usz capacity)
+fn long gbbs_low_diameter_decomposition(long* input, usz length, char* output, usz capacity)
         @export("gbbs_low_diameter_decomposition") {
     if (input == null || length < 2 || length > INPUT) return -1;
     long n64 = input[0], m64 = input[1];

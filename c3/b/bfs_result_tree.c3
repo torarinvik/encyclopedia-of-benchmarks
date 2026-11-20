@@ -1,5 +1,5 @@
 module bfs_result_tree;
-fn void put_i64(long value,char* output,usz word){ulong bits=@bitcast(ulong,value);for(usz b=0;b<8;b++){output[word*8+b]=(char)(bits&255);bits>>=8;}}
+fn void put_i64(long value,char* output,usz word){ulong bits=bitcast(value,ulong);for(usz b=0;b<8;b++){output[word*8+b]=(char)(bits&255);bits>>=8;}}
 fn long bfs_result_tree(long* input,usz length,char* output,usz capacity) @export("bfs_result_tree") {
  if(input==null||length<3)return -1;long nv=input[0],mv=input[1],sv=input[2];if(nv<1||nv>32||mv<0||mv>126||sv<0||sv>=nv||length!=(usz)(3+2*mv))return -1;
  usz n=(usz)nv,m=(usz)mv,start=(usz)sv;usz[32*126] adj;usz[32] degree;bool[32] seen;long[32] parent,distance;usz[32] queue,order;for(usz v=0;v<32;v++){degree[v]=0;seen[v]=false;parent[v]=-1;distance[v]=-1;}

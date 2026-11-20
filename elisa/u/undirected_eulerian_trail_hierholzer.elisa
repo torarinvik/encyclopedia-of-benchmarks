@@ -1,0 +1,84 @@
+def undirected_eulerian_trail_hierholzer_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 67:
+        return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 16 or values[1] < 0 or values[1] > 32:
+        return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if length != 2 + 2 * m:
+        return -1
+    endpoints: mutable usize[64] = zeroed
+    adjacency: mutable usize[1024] = zeroed
+    degree: mutable usize[16] = zeroed
+    cursor: mutable usize[16] = zeroed
+    e: mutable usize = 0
+    while e < m:
+        u0: i64 = values[2 + 2 * e]
+        v0: i64 = values[3 + 2 * e]
+        if u0 < 0 or v0 < 0 or u0 >= n.i64() or v0 >= n.i64():
+            return -1
+        u: usize = u0.usize()
+        v: usize = v0.usize()
+        endpoints[2 * e] <- u
+        endpoints[2 * e + 1] <- v
+        adjacency[64 * u + degree[u]] <- e
+        degree[u] <- degree[u] + 1
+        adjacency[64 * v + degree[v]] <- e
+        degree[v] <- degree[v] + 1
+        e <- e + 1
+    odd: mutable usize = 0
+    start: mutable usize = 0
+    v: mutable usize = 0
+    while v < n:
+        if degree[v] % 2 != 0:
+            if odd == 0:
+                start <- v
+            odd <- odd + 1
+        v <- v + 1
+    if odd != 0 and odd != 2:
+        return 0
+    if odd == 0 and m != 0:
+        while degree[start] == 0:
+            start <- start + 1
+    used: mutable u8[32] = zeroed
+    stack: mutable usize[33] = zeroed
+    reverse: mutable usize[33] = zeroed
+    top: mutable usize = 1
+    count: mutable usize = 0
+    stack[0] <- start
+    while top != 0:
+        vertex: usize = stack[top - 1]
+        while cursor[vertex] < degree[vertex] and used[adjacency[64 * vertex + cursor[vertex]]] != 0:
+            cursor[vertex] <- cursor[vertex] + 1
+        if cursor[vertex] == degree[vertex]:
+            top <- top - 1
+            reverse[count] <- stack[top]
+            count <- count + 1
+        else:
+            edge: usize = adjacency[64 * vertex + cursor[vertex]]
+            cursor[vertex] <- cursor[vertex] + 1
+            used[edge] <- 1
+            next: mutable usize = endpoints[2 * edge]
+            if next == vertex:
+                next <- endpoints[2 * edge + 1]
+            stack[top] <- next
+            top <- top + 1
+    if count != m + 1:
+        return 0
+    bytes: usize = count * 8
+    if output.is_null() or capacity < bytes:
+        return -2
+    target: mutable view[u8] = output[0:bytes]
+    i: mutable usize = 0
+    while i < count:
+        bits: mutable u64 = reverse[count - 1 - i].u64()
+        b: mutable usize = 0
+        while b < 8:
+            target[8 * i + b] <- (bits & 255).u8()
+            bits <- bits >> 8
+            b <- b + 1
+        i <- i + 1
+    bytes.i64()
+
+export fn undirected_eulerian_trail_hierholzer(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = undirected_eulerian_trail_hierholzer_impl

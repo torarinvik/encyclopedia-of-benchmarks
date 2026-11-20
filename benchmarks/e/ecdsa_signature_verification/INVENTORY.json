@@ -1,0 +1,25 @@
+{
+  "algorithm": "ecdsa_signature_verification",
+  "function_symbol": "ecdsa_signature_verification",
+  "abi": "i64_array_bytes_output",
+  "package": "benchmarks/e/ecdsa_signature_verification",
+  "languages": {
+    "c": "c/e/ecdsa_signature_verification.c",
+    "c3": "c3/e/ecdsa_signature_verification.c3",
+    "cpp": "cpp/e/ecdsa_signature_verification.cpp",
+    "elisa": "elisa/e/ecdsa_signature_verification.elisa",
+    "mojo": "mojo/e/ecdsa_signature_verification.mojo",
+    "nim": "nim/e/ecdsa_signature_verification.nim",
+    "odin": "odin/e/ecdsa_signature_verification.odin",
+    "rust": "rust/e/ecdsa_signature_verification.rs",
+    "v": "v/e/ecdsa_signature_verification.v",
+    "zig": "zig/e/ecdsa_signature_verification.zig"
+  },
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "workload": "workload.json",
+  "workspace_bytes": 512,
+  "status": "source-only; no programs or checks run"
+}

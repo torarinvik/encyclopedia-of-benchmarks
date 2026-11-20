@@ -1,0 +1,377 @@
+const PQ_MAX_N: usize = 20
+const PQ_MAX_M: usize = 32
+const PQ_MAX_INPUT: usize = 35
+const PQ_MAX_NODES: usize = 128
+const PQ_MAX_OUTPUT: usize = 648
+const PQ_LEAF: u8 = 0
+const PQ_P: u8 = 1
+const PQ_Q: u8 = 2
+const PQ_WHITE: u8 = 0
+const PQ_BLACK: u8 = 1
+const PQ_MIXED: u8 = 2
+
+struct PqNode:
+    kind: u8
+    count: usize
+    arg: u8
+    child: u8[PQ_MAX_N]
+
+def pq_new(nodes: mutable view[PqNode], free_ids: mutable view[usize],
+        free_count: mutable usize&, next_id: mutable usize&, kind: u8) -> i64:
+    id: mutable usize = 0
+    if free_count > 0:
+        free_count <- free_count - 1
+        id <- free_ids[free_count]
+    else:
+        if next_id >= PQ_MAX_NODES: return -1
+        id <- next_id
+        next_id <- next_id + 1
+    nodes[id] <- zeroed
+    nodes[id].kind <- kind
+    id.i64()
+
+def pq_delete(nodes: mutable view[PqNode], free_ids: mutable view[usize],
+        free_count: mutable usize&, id: usize) -> void:
+    nodes[id].count <- 0
+    free_ids[free_count] <- id
+    free_count <- free_count + 1
+
+def pq_push(nodes: mutable view[PqNode], id: usize, child: usize) -> void:
+    at: usize = nodes[id].count
+    nodes[id].child[at] <- child.u8()
+    nodes[id].count <- at + 1
+
+def pq_paint(nodes: mutable view[PqNode], colors: mutable view[u8], id: usize, mask: u64) -> u8:
+    node: PqNode = nodes[id]
+    if node.kind == PQ_LEAF:
+        colors[id] <- if ((mask >> node.arg.usize()) & 1) != 0: PQ_BLACK else: PQ_WHITE
+        return colors[id]
+    saw_white: mutable bool = false
+    saw_black: mutable bool = false
+    for i in 0..<node.count:
+        shade: u8 = pq_paint(nodes, colors, node.child[i].usize(), mask)
+        saw_white <- saw_white or shade != PQ_BLACK
+        saw_black <- saw_black or shade != PQ_WHITE
+    colors[id] <- if saw_white and saw_black: PQ_MIXED else: if saw_black: PQ_BLACK else: PQ_WHITE
+    colors[id]
+
+def pq_pattern(colors: view[u8], children: view[u8], count: usize) -> bool:
+    pivot: mutable i64 = -1
+    mixed_count: mutable usize = 0
+    for i in 0..<count:
+        if colors[children[i].usize()] == PQ_MIXED:
+            pivot <- i.i64()
+            mixed_count <- mixed_count + 1
+            if mixed_count > 1: return false
+    if mixed_count == 0:
+        for i in 0..<count:
+            if colors[children[i].usize()] == PQ_BLACK:
+                pivot <- i.i64()
+                break
+    if pivot < 0: return false
+    for i in 0..<pivot.usize():
+        if colors[children[i].usize()] != PQ_WHITE: return false
+    for i in pivot.usize()+1..<count:
+        if colors[children[i].usize()] != PQ_BLACK: return false
+    true
+
+def pq_split(nodes: mutable view[PqNode], colors: mutable view[u8],
+        free_ids: mutable view[usize], free_count: mutable usize&, next_id: mutable usize&,
+        id: usize, output: mutable view[u8]) -> i64:
+    node: PqNode = nodes[id]
+    if colors[id] != PQ_MIXED:
+        output[0] <- id.u8()
+        return 1
+    old: mutable u8[PQ_MAX_N] = zeroed
+    white: mutable u8[PQ_MAX_N] = zeroed
+    black: mutable u8[PQ_MAX_N] = zeroed
+    mixed: mutable u8[PQ_MAX_N] = zeroed
+    nw: mutable usize = 0
+    nb: mutable usize = 0
+    nm: mutable usize = 0
+    used: mutable usize = 0
+    for i in 0..<node.count:
+        old[i] <- node.child[i]
+        shade: u8 = colors[old[i].usize()]
+        if shade == PQ_WHITE:
+            white[nw] <- old[i]
+            nw <- nw + 1
+        elif shade == PQ_BLACK:
+            black[nb] <- old[i]
+            nb <- nb + 1
+        else:
+            mixed[nm] <- old[i]
+            nm <- nm + 1
+    if node.kind == PQ_Q:
+        if not pq_pattern(colors, old[0:node.count], node.count):
+            for left in 0..<node.count/2:
+                right: usize = node.count - 1 - left
+                temp: u8 = old[left]
+                old[left] <- old[right]
+                old[right] <- temp
+            if not pq_pattern(colors, old[0:node.count], node.count): return -1
+        for i in 0..<node.count:
+            child: usize = old[i].usize()
+            if colors[child] == PQ_MIXED:
+                part: mutable u8[PQ_MAX_N] = zeroed
+                part_count: i64 = pq_split(nodes, colors, free_ids, free_count, next_id,
+                    child, part[0:PQ_MAX_N])
+                if part_count < 0: return -1
+                for j in 0..<part_count.usize():
+                    output[used] <- part[j]
+                    used <- used + 1
+            else:
+                output[used] <- old[i]
+                used <- used + 1
+    else:
+        if nm > 1: return -1
+        if nw > 0:
+            group: i64 = pq_new(nodes, free_ids, free_count, next_id, PQ_P)
+            if group < 0: return -1
+            for i in 0..<nw: pq_push(nodes, group.usize(), white[i].usize())
+            output[used] <- group.u8()
+            used <- used + 1
+        if nm > 0:
+            part: mutable u8[PQ_MAX_N] = zeroed
+            part_count: i64 = pq_split(nodes, colors, free_ids, free_count, next_id,
+                mixed[0].usize(), part[0:PQ_MAX_N])
+            if part_count < 0: return -1
+            for i in 0..<part_count.usize():
+                output[used] <- part[i]
+                used <- used + 1
+        if nb > 0:
+            group: i64 = pq_new(nodes, free_ids, free_count, next_id, PQ_P)
+            if group < 0: return -1
+            for i in 0..<nb: pq_push(nodes, group.usize(), black[i].usize())
+            output[used] <- group.u8()
+            used <- used + 1
+    pq_delete(nodes, free_ids, free_count, id)
+    used.i64()
+
+def pq_work(nodes: mutable view[PqNode], colors: mutable view[u8],
+        free_ids: mutable view[usize], free_count: mutable usize&, next_id: mutable usize&,
+        id: usize) -> bool:
+    node: PqNode = nodes[id]
+    if colors[id] != PQ_MIXED: return true
+    old: mutable u8[PQ_MAX_N] = zeroed
+    white: mutable u8[PQ_MAX_N] = zeroed
+    black: mutable u8[PQ_MAX_N] = zeroed
+    mixed: mutable u8[PQ_MAX_N] = zeroed
+    nw: mutable usize = 0
+    nb: mutable usize = 0
+    nm: mutable usize = 0
+    for i in 0..<node.count:
+        old[i] <- node.child[i]
+        shade: u8 = colors[old[i].usize()]
+        if shade == PQ_WHITE:
+            white[nw] <- old[i]
+            nw <- nw + 1
+        elif shade == PQ_BLACK:
+            black[nb] <- old[i]
+            nb <- nb + 1
+        else:
+            mixed[nm] <- old[i]
+            nm <- nm + 1
+    if node.kind == PQ_P:
+        if nb == 0 and nm == 1:
+            return pq_work(nodes, colors, free_ids, free_count, next_id, mixed[0].usize())
+        if nm > 2: return false
+        q: i64 = pq_new(nodes, free_ids, free_count, next_id, PQ_Q)
+        if q < 0: return false
+        for i in 0..<nw: nodes[id].child[i] <- white[i]
+        nodes[id].child[nw] <- q.u8()
+        nodes[id].count <- nw + 1
+        if nm > 0:
+            part: mutable u8[PQ_MAX_N] = zeroed
+            part_count: i64 = pq_split(nodes, colors, free_ids, free_count, next_id,
+                mixed[0].usize(), part[0:PQ_MAX_N])
+            if part_count < 0: return false
+            for i in 0..<part_count.usize(): pq_push(nodes, q.usize(), part[i].usize())
+        if nb > 0:
+            group: i64 = pq_new(nodes, free_ids, free_count, next_id, PQ_P)
+            if group < 0: return false
+            for i in 0..<nb: pq_push(nodes, group.usize(), black[i].usize())
+            pq_push(nodes, q.usize(), group.usize())
+        if nm == 2:
+            part: mutable u8[PQ_MAX_N] = zeroed
+            part_count: i64 = pq_split(nodes, colors, free_ids, free_count, next_id,
+                mixed[1].usize(), part[0:PQ_MAX_N])
+            if part_count < 0: return false
+            i: mutable i64 = part_count - 1
+            while i >= 0:
+                pq_push(nodes, q.usize(), part[i.usize()].usize())
+                i <- i - 1
+        return true
+    left: mutable i64 = -1
+    right: mutable i64 = -1
+    for i in 0..<node.count:
+        if colors[old[i].usize()] != PQ_WHITE:
+            if left < 0: left <- i.i64()
+            right <- i.i64()
+    if left < 0: return false
+    for i in left.usize()+1..<right.usize():
+        if colors[old[i].usize()] != PQ_BLACK: return false
+    if left == right and colors[old[left.usize()].usize()] == PQ_MIXED:
+        return pq_work(nodes, colors, free_ids, free_count, next_id, old[left.usize()].usize())
+    result: mutable u8[PQ_MAX_N] = zeroed
+    used: mutable usize = 0
+    for i in 0..<left.usize():
+        result[used] <- old[i]
+        used <- used + 1
+    part: mutable u8[PQ_MAX_N] = zeroed
+    part_count: mutable i64 = pq_split(nodes, colors, free_ids, free_count, next_id,
+        old[left.usize()].usize(), part[0:PQ_MAX_N])
+    if part_count < 0: return false
+    for i in 0..<part_count.usize():
+        result[used] <- part[i]
+        used <- used + 1
+    for i in left.usize()+1..<right.usize():
+        result[used] <- old[i]
+        used <- used + 1
+    if right != left:
+        part_count <- pq_split(nodes, colors, free_ids, free_count, next_id,
+            old[right.usize()].usize(), part[0:PQ_MAX_N])
+        if part_count < 0: return false
+        i: mutable i64 = part_count - 1
+        while i >= 0:
+            result[used] <- part[i.usize()]
+            used <- used + 1
+            i <- i - 1
+    for i in right.usize()+1..<node.count:
+        result[used] <- old[i]
+        used <- used + 1
+    nodes[id].count <- used
+    for i in 0..<used: nodes[id].child[i] <- result[i]
+    true
+
+def pq_normalize(nodes: mutable view[PqNode], free_ids: mutable view[usize],
+        free_count: mutable usize&, id: usize) -> usize:
+    node: PqNode = nodes[id]
+    if node.kind == PQ_LEAF: return id
+    for i in 0..<node.count:
+        nodes[id].child[i] <- pq_normalize(nodes, free_ids, free_count, node.child[i].usize()).u8()
+    if nodes[id].count == 1:
+        child: usize = nodes[id].child[0].usize()
+        pq_delete(nodes, free_ids, free_count, id)
+        return child
+    if nodes[id].kind == PQ_Q and nodes[id].count == 2: nodes[id].kind <- PQ_P
+    id
+
+def pq_compare(nodes: view[PqNode], a: usize, b: usize) -> i64:
+    x: PqNode = nodes[a]
+    y: PqNode = nodes[b]
+    xa: usize = if x.kind == PQ_LEAF: x.arg.usize() else: x.count
+    ya: usize = if y.kind == PQ_LEAF: y.arg.usize() else: y.count
+    if x.kind != y.kind: return if x.kind < y.kind: -1 else: 1
+    if xa != ya: return if xa < ya: -1 else: 1
+    if x.kind != PQ_LEAF:
+        for i in 0..<x.count:
+            comparison: i64 = pq_compare(nodes, x.child[i].usize(), y.child[i].usize())
+            if comparison != 0: return comparison
+    0
+
+def pq_canonicalize(nodes: mutable view[PqNode], id: usize) -> void:
+    node: PqNode = nodes[id]
+    if node.kind == PQ_LEAF: return
+    for i in 0..<node.count: pq_canonicalize(nodes, node.child[i].usize())
+    if node.kind == PQ_P:
+        for i in 1..<node.count:
+            item: u8 = nodes[id].child[i]
+            j: mutable usize = i
+            while j > 0 and pq_compare(nodes, item.usize(), nodes[id].child[j-1].usize()) < 0:
+                nodes[id].child[j] <- nodes[id].child[j-1]
+                j <- j - 1
+            nodes[id].child[j] <- item
+    else:
+        order: mutable i64 = 0
+        for i in 0..<node.count:
+            order <- pq_compare(nodes, node.child[i].usize(), node.child[node.count-1-i].usize())
+            if order != 0: break
+        if order > 0:
+            for left in 0..<node.count/2:
+                right: usize = node.count-1-left
+                temp: u8 = nodes[id].child[left]
+                nodes[id].child[left] <- nodes[id].child[right]
+                nodes[id].child[right] <- temp
+
+def pq_frontier_count(nodes: view[PqNode], id: usize) -> i64:
+    node: PqNode = nodes[id]
+    if node.kind == PQ_LEAF: return 1
+    result: mutable i64 = 1
+    for i in 0..<node.count: result <- result * pq_frontier_count(nodes, node.child[i].usize())
+    if node.kind == PQ_P:
+        for factor in 2..<node.count+1: result <- result * factor.i64()
+    else: result <- result * 2
+    result
+
+def pq_node_count(nodes: view[PqNode], id: usize) -> usize:
+    node: PqNode = nodes[id]
+    result: mutable usize = 1
+    if node.kind != PQ_LEAF:
+        for i in 0..<node.count: result <- result + pq_node_count(nodes, node.child[i].usize())
+    result
+
+def pq_serialize(nodes: view[PqNode], id: usize, words: mutable view[i64], used: mutable usize&) -> void:
+    node: PqNode = nodes[id]
+    words[used] <- node.kind.i64()
+    used <- used + 1
+    words[used] <- if node.kind == PQ_LEAF: node.arg.i64() else: node.count.i64()
+    used <- used + 1
+    if node.kind != PQ_LEAF:
+        for i in 0..<node.count: pq_serialize(nodes, node.child[i].usize(), words, used)
+
+def pq_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for i in 0..<8:
+        output[offset+i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def pq_tree_consecutive_ones_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > PQ_MAX_INPUT: return -1
+    n_raw: i64 = input[0]
+    m_raw: i64 = input[1]
+    if n_raw < 2 or n_raw > PQ_MAX_N.i64() or m_raw < 0 or m_raw > PQ_MAX_M.i64() or length != 2 + m_raw.usize(): return -1
+    n: usize = n_raw.usize()
+    m: usize = m_raw.usize()
+    valid: u64 = (1 << n) - 1
+    for row in 0..<m:
+        raw: i64 = input[2+row]
+        if raw < 0 or (raw.u64() & ~valid) != 0: return -1
+    nodes: mutable PqNode[PQ_MAX_NODES] = zeroed
+    colors: mutable u8[PQ_MAX_NODES] = zeroed
+    free_ids: mutable usize[PQ_MAX_NODES] = zeroed
+    free_count: mutable usize = 0
+    next_id: mutable usize = n + 1
+    root: mutable usize = n
+    for i in 0..<n:
+        nodes[i].kind <- PQ_LEAF
+        nodes[i].arg <- i.u8()
+        nodes[n].child[i] <- i.u8()
+    nodes[n].kind <- PQ_P
+    nodes[n].count <- n
+    for row in 0..<m:
+        _ = pq_paint(nodes[0:PQ_MAX_NODES], colors[0:PQ_MAX_NODES], root, input[2+row].u64())
+        if not pq_work(nodes[0:PQ_MAX_NODES], colors[0:PQ_MAX_NODES], free_ids[0:PQ_MAX_NODES], free_count, next_id, root):
+            if output.is_null() or capacity < 24: return -2
+            result: mutable view[u8] = output[0:24]
+            for i in 0..<24: result[i] <- 0
+            return 24
+        root <- pq_normalize(nodes[0:PQ_MAX_NODES], free_ids[0:PQ_MAX_NODES], free_count, root)
+    pq_canonicalize(nodes[0:PQ_MAX_NODES], root)
+    words: mutable i64[81] = zeroed
+    used: mutable usize = 0
+    words[used] <- 1; used <- used + 1
+    words[used] <- pq_frontier_count(nodes[0:PQ_MAX_NODES], root); used <- used + 1
+    words[used] <- pq_node_count(nodes[0:PQ_MAX_NODES], root).i64(); used <- used + 1
+    pq_serialize(nodes[0:PQ_MAX_NODES], root, words[0:81], used)
+    staged: mutable u8[PQ_MAX_OUTPUT] = zeroed
+    bytes: usize = used * 8
+    for i in 0..<used: pq_store(words[i], staged[0:PQ_MAX_OUTPUT], i*8)
+    if output.is_null() or capacity < bytes: return -2
+    result: mutable view[u8] = output[0:bytes]
+    for i in 0..<bytes: result[i] <- staged[i]
+    bytes.i64()
+
+export fn pq_tree_consecutive_ones(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("pq_tree_consecutive_ones") = pq_tree_consecutive_ones_impl

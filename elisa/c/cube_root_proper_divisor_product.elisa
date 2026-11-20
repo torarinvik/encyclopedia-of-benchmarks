@@ -1,0 +1,93 @@
+const MAX_INPUT_LENGTH = 2
+const MAX_VALUE = 600000
+const MAX_K: i64 = 50000
+
+def cube_root_product_build_prime_prefix(prefix: mutable view[u32]) -> void:
+    prefix[0] <- 0
+    prefix[1] <- 0
+    value: mutable usize = 2
+    while value <= MAX_VALUE:
+        prefix[value] <- 1
+        value <- value + 1
+    prime: mutable usize = 2
+    while prime <= MAX_VALUE / prime:
+        if prefix[prime] != 0:
+            multiple: mutable usize = prime * prime
+            while multiple <= MAX_VALUE:
+                prefix[multiple] <- 0
+                multiple <- multiple + prime
+        prime <- prime + 1
+    value <- 1
+    while value <= MAX_VALUE:
+        prefix[value] <- prefix[value] + prefix[value - 1]
+        value <- value + 1
+
+def cube_root_product_is_prime(value: usize, prefix: view[u32]) -> bool:
+    value >= 2 and prefix[value] - prefix[value - 1] == 1
+
+def cube_root_product_count_tau_eight(limit: usize, prefix: view[u32]) -> i64:
+    count: mutable i64 = 0
+    prime: mutable usize = 2
+    while true:
+        power: mutable u64 = 1
+        exponent: mutable usize = 0
+        while exponent < 7:
+            if power > limit.u64() / prime.u64():
+                power <- limit.u64() + 1
+                break
+            power <- power * prime.u64()
+            exponent <- exponent + 1
+        if power > limit.u64(): break
+        if cube_root_product_is_prime(prime, prefix): count <- count + 1
+        prime <- prime + 1
+
+    prime <- 2
+    while true:
+        cube: usize = prime * prime * prime
+        if cube > limit: break
+        if cube_root_product_is_prime(prime, prefix):
+            q_max: usize = limit / cube
+            count <- count + prefix[q_max].i64()
+            if prime <= q_max: count <- count - 1
+        prime <- prime + 1
+
+    prime <- 2
+    while prime * prime * prime < limit:
+        if cube_root_product_is_prime(prime, prefix):
+            other: mutable usize = prime + 1
+            while true:
+                if prime > limit / other: break
+                product: usize = prime * other
+                last_prime: usize = limit / product
+                if last_prime <= other: break
+                if cube_root_product_is_prime(other, prefix):
+                    count <- count + (prefix[last_prime] - prefix[other]).i64()
+                other <- other + 1
+        prime <- prime + 1
+    count
+
+def cube_root_product_sequence_term(k: i64) -> i64:
+    if k == 1: return 1
+    prime_prefix: mutable u32[MAX_VALUE + 1] = zeroed
+    cube_root_product_build_prime_prefix(prime_prefix[0:MAX_VALUE + 1])
+    prefix: view[u32] = prime_prefix[0:MAX_VALUE + 1]
+    target: i64 = k - 1
+    if cube_root_product_count_tau_eight(MAX_VALUE, prefix) < target: return -1
+    low: mutable usize = 1
+    high: mutable usize = MAX_VALUE
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if cube_root_product_count_tau_eight(middle, prefix) >= target: high <- middle
+        else: low <- middle + 1
+    low.i64()
+
+def cube_root_product_impl(input: view[i64]) -> i64:
+    if input.len() != 1: return -1
+    k: i64 = input[0]
+    if k < 1 or k > MAX_K: return -1
+    cube_root_product_sequence_term(k)
+
+export fn cube_root_proper_divisor_product(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    return cube_root_product_impl(input_view)

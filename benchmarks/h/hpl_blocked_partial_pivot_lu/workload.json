@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "netlib-hpl-blocked-partial-pivot-lu-f64-v1",
+  "algorithm": "hpl_blocked_partial_pivot_lu",
+  "function_symbol": "hpl_blocked_partial_pivot_lu",
+  "abi": "float64_slice_io",
+  "description": "Serial width-two right-looking LU with deterministic row partial pivoting.",
+  "source": {
+    "title": "HPL Algorithm Description",
+    "publisher": "Netlib",
+    "url": "https://netlib.sandia.gov/benchmark/hpl/algorithm.html",
+    "role": "algorithmic description only; clean-room bounded serial profile"
+  },
+  "contract": {
+    "operation": "Right-looking blocked LU with row partial pivoting and fixed panel width two.",
+    "input_encoding": "[n, A row-major n*n]",
+    "n_range": [2, 8],
+    "entry_range": [-16, 16],
+    "entries_must_be_finite_exact_integers": true,
+    "pivot_selection": "Choose the largest absolute entry in the active column among rows at and below the pivot; ties choose the smallest row index.",
+    "row_swap": "Swap the complete rows, including previously stored L multipliers.",
+    "panel_schedule": "Factor up to two columns with partial pivoting; solve the panel block row; apply a right-looking trailing update with increasing panel index.",
+    "output_encoding": "n zero-based pivot row indices followed by the compact row-major LU matrix; strict-lower entries are L multipliers and diagonal/upper entries are U.",
+    "zero_pivot_rule": "A zero maximum pivot is singular and returns -1.",
+    "errors": {"invalid_input": -1, "null_or_short_output": -2},
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, row-major matrix]",
+    "dimension_range": [2, 8],
+    "entry_range": [-16, 16],
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "exact_length": "1+n*n",
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "n pivot rows followed by n*n compact LU values",
+    "maximum_elements": 72,
+    "maximum_bytes": 576,
+    "success_result": "n+n*n",
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Bounded matrix, pivot vector, and staged output storage for n<=8."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "oracle_method": "Primary: two-column right-looking panel LU with panel triangular solve and trailing update. Independent: scalar one-column Gaussian elimination with partial pivoting.",
+  "cases": [
+    {
+      "id": "two_by_two_no_pivot_swap",
+      "input_values": [2, 4, 1, 2, 3],
+      "input_length": 5,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output": [0, 1, 4, 1, 0.5, 2.5]
+    },
+    {
+      "id": "two_by_two_pivot_swap",
+      "input_values": [2, 0, 1, 2, 3],
+      "input_length": 5,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output": [1, 1, 2, 3, 0, 1]
+    },
+    {
+      "id": "equal_magnitude_tie_keeps_lowest_row",
+      "input_values": [2, 1, 0, -1, 2],
+      "input_length": 5,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output": [0, 1, 1, 0, -1, 2]
+    },
+    {
+      "id": "panel_second_column_swap",
+      "input_values": [3, 4, 0, 0, 1, 1, 2, 0, 3, 4],
+      "input_length": 10,
+      "output_capacity": 12,
+      "expected_result": 12,
+      "expected_output": [0, 2, 2, 4, 0, 0, 0, 3, 4, 0.25, 0.3333333333333333, 0.6666666666666666]
+    },
+    {
+      "id": "maximum_dimension_diagonal",
+      "input_values": [
+        8,
+        1, 0, 0, 0, 0, 0, 0, 0,
+        0, 1, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 1
+      ],
+      "input_length": 65,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output": [
+        0, 1, 2, 3, 4, 5, 6, 7,
+        1, 0, 0, 0, 0, 0, 0, 0,
+        0, 1, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 1
+      ]
+    },
+    {
+      "id": "singular_after_row_pivot",
+      "input_values": [2, 2, 4, 1, 2],
+      "input_length": 5,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_matrix_entry",
+      "input_values": [2, 2, 0.5, 0, 2],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_dimension",
+      "input_values": [2.5],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_matrix",
+      "input_values": [2, 4, 1, 2],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "matrix_entry_out_of_range",
+      "input_values": [2, 17, 0, 0, 2],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_parseable_word",
+      "input_values": [2, 4, 1, 2, 3, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "maximum_parseable_length_trailing_word",
+      "input_values": [
+        8,
+        1, 0, 0, 0, 0, 0, 0, 0,
+        0, 1, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 1,
+        99
+      ],
+      "input_length": 66,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [2, 2, 0.5, 0, 2],
+      "input_length": 5,
+      "output_capacity": 6,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [2, 4, 1, 2, 3],
+      "input_length": 5,
+      "output_capacity": 6,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output",
+      "input_values": [2, 4, 1, 2, 3],
+      "input_length": 5,
+      "output_capacity": 5,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

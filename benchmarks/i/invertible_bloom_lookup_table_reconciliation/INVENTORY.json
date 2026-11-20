@@ -1,0 +1,34 @@
+{
+  "algorithm": "invertible_bloom_lookup_table_reconciliation",
+  "abi": "i64_array_bytes_output",
+  "sources": [
+    "c/i/invertible_bloom_lookup_table_reconciliation.c",
+    "c3/i/invertible_bloom_lookup_table_reconciliation.c3",
+    "cpp/i/invertible_bloom_lookup_table_reconciliation.cpp",
+    "elisa/i/invertible_bloom_lookup_table_reconciliation.elisa",
+    "mojo/i/invertible_bloom_lookup_table_reconciliation.mojo",
+    "nim/i/invertible_bloom_lookup_table_reconciliation.nim",
+    "odin/i/invertible_bloom_lookup_table_reconciliation.odin",
+    "rust/i/invertible_bloom_lookup_table_reconciliation.rs",
+    "v/i/invertible_bloom_lookup_table_reconciliation.v",
+    "zig/i/invertible_bloom_lookup_table_reconciliation.zig"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "verify_workload.py",
+    "check_inventory.py",
+    "INVENTORY.md"
+  ],
+  "maximum_valid_input_words": 18,
+  "maximum_parseable_input_words": 19,
+  "maximum_output_bytes": 152,
+  "workspace_bytes": 2048,
+  "static_checker": "benchmarks/i/invertible_bloom_lookup_table_reconciliation/check_inventory.py",
+  "suite_integration": "registered in i64_array_bytes_output runner and verifier"
+}

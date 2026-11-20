@@ -1,0 +1,42 @@
+# Uncompiled weighted tree dominating-set draft.
+def twd_min(a: i64, b: i64) -> i64:
+    if a < b: return a
+    b
+
+def twd_add(a: i64, b: i64) -> i64:
+    inf: i64 = 1000000000000
+    if a >= inf or b >= inf or a + b >= inf: return inf
+    a + b
+
+def twd_solve(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 129: return -1
+    nv: i64 = values[0]
+    if nv < 1 or nv > 64: return -1
+    n: usize = nv.usize()
+    if values.len() != 2 * n: return -1
+    for vertex in 1..<n:
+        if values[vertex] < 0 or values[vertex] >= vertex.i64(): return -1
+    selected: mutable i64[64] = zeroed
+    covered: mutable i64[64] = zeroed
+    waiting: mutable i64[64] = zeroed
+    for vertex in 0..<n:
+        weight: i64 = values[n + vertex]
+        if weight < 0 or weight > 1000000: return -1
+        selected[vertex] <- weight
+        covered[vertex] <- 1000000000000
+    vertex: mutable usize = n
+    while vertex > 1:
+        vertex <- vertex - 1
+        parent: usize = values[vertex].usize()
+        chosen: i64 = selected[vertex]
+        dominated: i64 = covered[vertex]
+        open: i64 = waiting[vertex]
+        next_covered: i64 = twd_min(twd_add(covered[parent], twd_min(chosen, dominated)), twd_add(waiting[parent], chosen))
+        selected[parent] <- twd_add(selected[parent], twd_min(twd_min(chosen, dominated), open))
+        waiting[parent] <- twd_add(waiting[parent], dominated)
+        covered[parent] <- next_covered
+    twd_min(selected[0], covered[0])
+
+export fn tree_weighted_dominating_set(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 129: return -1
+    twd_solve(input[0:length])

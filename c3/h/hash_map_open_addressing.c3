@@ -87,7 +87,9 @@ fn long hash_map_open_addressing(long* input, usz length) @export("hash_map_open
             query_index += 1; query_sum += query_index * ((long)size + VALUE_OFFSET);
         } else return -1;
     }
-    long keys[MAX_KEYS], values[MAX_KEYS]; usz count = 0;
+    long[MAX_KEYS] keys;
+    long[MAX_KEYS] values;
+    usz count = 0;
     for (usz i = 0; i < capacity; i++) if (table[i].state == 1) {
         usz at = count; count += 1;
         while (at > 0 && keys[at - 1] > table[i].key) { keys[at] = keys[at - 1]; values[at] = values[at - 1]; at -= 1; }

@@ -3,7 +3,7 @@ module cycle_check_directed_graph_kahn
 // Directed cycle detection with Kahn's zero-indegree queue.
 @[export: 'cycle_check_directed_graph_kahn']
 pub fn cycle_check_directed_graph_kahn(values &i64, length usize) i64 {
-	if length == 0 || length > 65 || (length - 1) % 2 != 0 { return -1 }
+	if unsafe { values == nil } || length == 0 || length > 65 || (length - 1) % 2 != 0 { return -1 }
 	unsafe {
 		if values[0] < 0 || values[0] > 64 { return -1 }
 		vertices := usize(values[0])

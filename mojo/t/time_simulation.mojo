@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn tsim_hash(inout h:UInt64,w:UInt64):
@@ -10,7 +11,7 @@ fn time_simulation(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->I
     let actions=a[0]
     if actions<0 or actions>4096 or n!=c_size_t(1+2*actions):return -1
     var now:Int64=0;var nextid:UInt64=1;var active_count=0;var total=0;var fired=0
-    var active=InlineArray[Bool,1024]();var times=InlineArray[Int64,1024]();var ids=InlineArray[UInt64,1024]()
+    var active=InlineArray[Bool,1024](fill=False);var times=InlineArray[Int64,1024]();var ids=InlineArray[UInt64,1024]()
     var fids=InlineArray[UInt64,4096]();var ftimes=InlineArray[Int64,4096]();var hash:UInt64=14695981039346656037
     tsim_hash(hash,UInt64(actions))
     for action in range(Int(actions)):

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "multiset-lexicographic-rank-i64-array-scalar-v1",
+  "algorithm": "alphabetic_anagrams",
+  "function_symbol": "alphabetic_anagrams",
+  "abi": "i64_array_scalar",
+  "source": {
+    "discovery_title": "Alphabetic Anagrams",
+    "discovery_note": "Public title only; no task statement or examples used.",
+    "method_source": "Knuth, The Art of Computer Programming, Volume 4A, section 7.2.1.2; NIST DLMF 26.16",
+    "method_urls": [
+      "https://cs.stanford.edu/~knuth/taocp.html",
+      "https://dlmf.nist.gov/26.16"
+    ],
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, symbol_0, ..., symbol_(n-1)]",
+    "n_range": [0, 8],
+    "symbol_range": [0, 25],
+    "maximum_valid_length": 9,
+    "maximum_parseable_length": 10,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "1-based lexicographic rank among distinct permutations of the input multiset",
+    "valid_result_range": [1, 40320],
+    "empty_word_result": 1,
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 208,
+    "meaning": "A fixed 26-element signed 64-bit frequency table."
+  },
+  "method": {
+    "operation": "For each symbol in the target word, sum the multinomial-sized blocks beginning with each smaller available symbol, then consume the target symbol's block.",
+    "distinct_from": "The local kth permutation selects a zero-based distinct-symbol permutation; unique_permutation enumerates output rows. This method ranks one multiset word using multiplicity-sensitive block sizes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty-word", "input_values": [0], "input_length": 1, "expected_result": 1},
+    {"id": "singleton", "input_values": [1, 25], "input_length": 2, "expected_result": 1},
+    {"id": "sorted-distinct", "input_values": [3, 0, 1, 2], "input_length": 4, "expected_result": 1},
+    {"id": "reverse-distinct", "input_values": [3, 2, 1, 0], "input_length": 4, "expected_result": 6},
+    {"id": "repeated-symbol-middle", "input_values": [3, 0, 1, 0], "input_length": 4, "expected_result": 2},
+    {"id": "repeated-symbol-last", "input_values": [3, 1, 0, 0], "input_length": 4, "expected_result": 3},
+    {"id": "mixed-repeats", "input_values": [4, 1, 0, 2, 0], "input_length": 5, "expected_result": 8},
+    {"id": "maximum-distinct-reverse", "input_values": [8, 7, 6, 5, 4, 3, 2, 1, 0], "input_length": 9, "expected_result": 40320},
+    {"id": "maximum-all-equal", "input_values": [8, 25, 25, 25, 25, 25, 25, 25, 25], "input_length": 9, "expected_result": 1},
+    {"id": "missing-symbol", "input_values": [2, 0], "input_length": 2, "expected_result": -1},
+    {"id": "count-over-bound", "input_values": [9], "input_length": 1, "expected_result": -1},
+    {"id": "negative-symbol", "input_values": [1, -1], "input_length": 2, "expected_result": -1},
+    {"id": "symbol-over-bound", "input_values": [1, 26], "input_length": 2, "expected_result": -1},
+    {"id": "trailing-symbol", "input_values": [0, 3], "input_length": 2, "expected_result": -1},
+    {"id": "maximum-parseable-trailing-word", "input_values": [8, 7, 6, 5, 4, 3, 2, 1, 0, 4], "input_length": 10, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

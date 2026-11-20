@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "four-square-sum-representation-lexicographic-bounded-i64-array-scalar-v1",
+  "algorithm": "four_square_sum_representation",
+  "function_symbol": "four_square_sum_representation",
+  "abi": "i64_array_scalar",
+  "description": "Find the lexicographically greatest nonincreasing four-square representation of one bounded integer.",
+  "source": {
+    "title": "Express number as sum of four squares",
+    "reference": "Codewars kata title used as discovery input only",
+    "url": "https://www.codewars.com/kata/63022799acfb8d00285b4ea0",
+    "mathematical_context": "Lagrange's four-square theorem",
+    "mathematical_reference": "Pollack and Treviño, Finding the Four Squares in Lagrange's Theorem",
+    "mathematical_url": "https://pollack.uga.edu/finding4squares.pdf",
+    "algorithm_attribution": "Bounded descending coordinate enumeration with exact square checks",
+    "implementation_status": "clean-room bounded enumeration"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N]",
+    "n_range": [0, 1024],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "four nonincreasing components packed as base-33 digits: (((a*33)+b)*33+c)*33+d",
+    "component_range": [0, 32],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "decomposition": "Return the lexicographically greatest tuple (a,b,c,d) with 32>=a>=b>=c>=d>=0 and N=a^2+b^2+c^2+d^2.",
+    "canonical_order": "Among all nonincreasing nonnegative representations, maximize a, then b, then c, then d.",
+    "result_decoding": "Read four base-33 digits from most significant to least significant to recover a,b,c,d.",
+    "invalid_input_result": -1,
+    "no_solution_result": -2,
+    "no_solution_note": "Unreachable for valid N by Lagrange's four-square theorem."
+  },
+  "complexity": {
+    "primary_time": "O(N^(3/2))",
+    "primary_space": "O(1)",
+    "independent_time": "O(N) pair construction plus bounded pair-sum lookup",
+    "independent_space": "O(N)"
+  },
+  "workspace": {
+    "bytes": 0,
+    "meaning": "Primary uses scalar loop state only."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "zero", "input_values": [0], "input_length": 1, "expected_result": 0},
+    {"id": "one", "input_values": [1], "input_length": 1, "expected_result": 35937},
+    {"id": "two", "input_values": [2], "input_length": 1, "expected_result": 37026},
+    {"id": "three", "input_values": [3], "input_length": 1, "expected_result": 37059},
+    {"id": "four", "input_values": [4], "input_length": 1, "expected_result": 71874},
+    {"id": "seven", "input_values": [7], "input_length": 1, "expected_result": 72997},
+    {"id": "fifteen", "input_values": [15], "input_length": 1, "expected_result": 110023},
+    {"id": "maximum-square", "input_values": [1024], "input_length": 1, "expected_result": 1149984},
+    {"id": "negative", "input_values": [-1], "input_length": 1, "expected_result": -1},
+    {"id": "above-bound", "input_values": [1025], "input_length": 1, "expected_result": -1},
+    {"id": "empty-frame", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "trailing-value", "input_values": [1, 0], "input_length": 2, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 1, "input_is_null": true, "expected_result": -1}
+  ]
+}

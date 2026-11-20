@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem89")
 fn problem89(placeholder:Int64) abi("C")->Int64:
     if placeholder!=0:return -1

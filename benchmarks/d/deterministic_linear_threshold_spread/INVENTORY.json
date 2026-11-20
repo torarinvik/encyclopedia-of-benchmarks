@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "deterministic_linear_threshold_spread",
+  "function_symbol": "deterministic_linear_threshold_spread",
+  "abi": "i64_array_bytes_output",
+  "workspace_bytes": 2048,
+  "maximum_input_words": 91,
+  "maximum_parseable_words": 92,
+  "maximum_output_bytes": 80,
+  "primary_reference": "primary_oracle.py",
+  "independent_reference": "independent_oracle.py",
+  "workload": "workload.json",
+  "languages": {
+    "c": "c/deterministic_linear_threshold_spread.c",
+    "c3": "c3/deterministic_linear_threshold_spread.c3",
+    "cpp": "cpp/deterministic_linear_threshold_spread.cpp",
+    "elisa": "elisa/deterministic_linear_threshold_spread.elisa",
+    "mojo": "mojo/deterministic_linear_threshold_spread.mojo",
+    "nim": "nim/deterministic_linear_threshold_spread.nim",
+    "odin": "odin/deterministic_linear_threshold_spread.odin",
+    "rust": "rust/deterministic_linear_threshold_spread.rs",
+    "v": "v/deterministic_linear_threshold_spread.v",
+    "zig": "zig/deterministic_linear_threshold_spread.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py",
+    "verify_workload.py"
+  ]
+}

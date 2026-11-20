@@ -1,0 +1,86 @@
+const CORDIC_OUTPUT_BYTES: usize = 24
+const CORDIC_SCALE: i64 = 1000000000
+const CORDIC_HALF_PI: i64 = 1570796327
+
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def cordic_rotation_fixed_point_shift_floor(value: i64, shift: usize) -> i64:
+    if shift == 0: return value
+    divisor: i64 = 1 << shift
+    if value >= 0: return value / divisor
+    -((-value + divisor - 1) / divisor)
+
+def cordic_rotation_fixed_point_angle(shift: usize) -> i64:
+    if shift == 0: return 785398163
+    if shift == 1: return 463647609
+    if shift == 2: return 244978663
+    if shift == 3: return 124354995
+    if shift == 4: return 62418810
+    if shift == 5: return 31239833
+    if shift == 6: return 15623729
+    if shift == 7: return 7812341
+    if shift == 8: return 3906230
+    if shift == 9: return 1953123
+    if shift == 10: return 976562
+    if shift == 11: return 488281
+    if shift == 12: return 244141
+    if shift == 13: return 122070
+    61035
+
+def cordic_rotation_fixed_point_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def cordic_rotation_fixed_point_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 3: return -1
+    if length != 2: return -1
+    angle: i64 = input[0]
+    stages: i64 = input[1]
+    if angle < -3141592653 or angle > 3141592653 or stages < 1 or stages > 16:
+        return -1
+    if output.is_null() or capacity < CORDIC_OUTPUT_BYTES: return -2
+
+    x: mutable i64 = CORDIC_SCALE
+    y: mutable i64 = 0
+    z: mutable i64 = angle
+    direction: mutable i64 = if z >= 0: 1 else: -1
+    if direction > 0:
+        old_x: i64 = x
+        x <- -y
+        y <- old_x
+    else:
+        old_x: i64 = x
+        x <- y
+        y <- -old_x
+    z <- z - direction * CORDIC_HALF_PI
+
+    shift: mutable usize = 0
+    while shift < (stages - 1).usize():
+        direction <- if z >= 0: 1 else: -1
+        old_x: i64 = x
+        old_y: i64 = y
+        x <- old_x - direction * cordic_rotation_fixed_point_shift_floor(old_y, shift)
+        y <- old_y + direction * cordic_rotation_fixed_point_shift_floor(old_x, shift)
+        z <- z - direction * cordic_rotation_fixed_point_angle(shift)
+        shift <- shift + 1
+
+    staged: mutable u8[CORDIC_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:CORDIC_OUTPUT_BYTES]
+    cordic_rotation_fixed_point_put_f64(staged_view, 0, x.f64() / 1000000000.0)
+    cordic_rotation_fixed_point_put_f64(staged_view, 8, y.f64() / 1000000000.0)
+    cordic_rotation_fixed_point_put_f64(staged_view, 16, z.f64() / 1000000000.0)
+    byte: mutable usize = 0
+    while byte < CORDIC_OUTPUT_BYTES:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    CORDIC_OUTPUT_BYTES.i64()
+
+@export("cordic_rotation_fixed_point")
+def cordic_rotation_fixed_point(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    cordic_rotation_fixed_point_impl(input, length, output, capacity)

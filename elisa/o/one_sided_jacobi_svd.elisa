@@ -1,0 +1,69 @@
+extern sqrt(value: f64) -> f64
+
+const SVD_NMAX: usize = 6
+const SVD_TOL: f64 = 1.0e-14
+
+def svd_abs(value: f64) -> f64:
+    if value < 0.0: -value else: value
+
+def one_sided_jacobi_svd_impl(input: view[i64]) -> i64:
+    let length: usize = input.len()
+    if length < 3 or length > 39: return -1
+    let m_value: i64 = input[0]
+    let n_value: i64 = input[1]
+    if n_value < 1 or n_value > 6 or m_value < n_value or m_value > 6: return -1
+    let m: usize = m_value.usize()
+    let n: usize = n_value.usize()
+    if length != 2 + m * n: return -1
+    var a: mutable f64[36] = zeroed
+    for r in 0..<m:
+        for col in 0..<n:
+            let x: i64 = input[2 + r * n + col]
+            if x < -8 or x > 8: return -1
+            a[r * n + col] <- x.f64()
+    var converged: mutable bool = false
+    for sweep in 0..<128:
+        var changed: mutable bool = false
+        for p in 0..<n:
+            for q in (p + 1)..<n:
+                var alpha: mutable f64 = 0.0
+                var beta: mutable f64 = 0.0
+                var gamma: mutable f64 = 0.0
+                for r in 0..<m:
+                    let x: f64 = a[r * n + p]
+                    let y: f64 = a[r * n + q]
+                    alpha <- alpha + x * x
+                    beta <- beta + y * y
+                    gamma <- gamma + x * y
+                if alpha == 0.0 or beta == 0.0 or svd_abs(gamma) <= SVD_TOL * sqrt(alpha * beta): continue
+                let tau: f64 = (beta - alpha) / (2.0 * gamma)
+                let t: f64 = if tau == 0.0: 1.0 else: (if tau > 0.0: 1.0 else: -1.0) / (svd_abs(tau) + sqrt(1.0 + tau * tau))
+                let c: f64 = 1.0 / sqrt(1.0 + t * t)
+                let s: f64 = c * t
+                for r in 0..<m:
+                    let x: f64 = a[r * n + p]
+                    let y: f64 = a[r * n + q]
+                    a[r * n + p] <- c * x - s * y
+                    a[r * n + q] <- s * x + c * y
+                changed <- true
+        if not changed:
+            converged <- true
+            break
+    if not converged: return -1
+    var sigma: mutable f64[6] = zeroed
+    for col in 0..<n:
+        for r in 0..<m: sigma[col] <- sigma[col] + a[r * n + col] * a[r * n + col]
+        sigma[col] <- sqrt(sigma[col])
+    for i in 0..<n:
+        for j in (i + 1)..<n:
+            if sigma[j] > sigma[i]:
+                let t: f64 = sigma[i]
+                sigma[i] <- sigma[j]
+                sigma[j] <- t
+    var signature: mutable f64 = 0.0
+    for i in 0..<n: signature <- signature + (i + 1).f64() * sigma[i]
+    (signature * 1000.0 + 0.5).i64()
+
+export fn one_sided_jacobi_svd(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 39: return -1
+    one_sided_jacobi_svd_impl(input[0:length])

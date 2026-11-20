@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "rfc6238-totp-sha1-six-ascii-v1",
+  "algorithm": "time_based_one_time_password_algorithm",
+  "function_symbol": "time_based_one_time_password_algorithm",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "TOTP: Time-Based One-Time Password Algorithm",
+    "author": "D. M'Raihi, S. Machani, M. Pei, and J. Rydell",
+    "year": 2011,
+    "url": "https://www.rfc-editor.org/rfc/rfc6238.html",
+    "sections": "RFC 6238 §4.1–4.2; RFC 4226 §4 R6 and §5.3",
+    "discovery_title_url": "https://rosettacode.org/wiki/Time-based_one-time_password_algorithm",
+    "discovery_index_url": "https://raw.githubusercontent.com/acmeism/RosettaCodeData/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "discovery_scope": "Pinned RosettaCodeData title index and task page used only to identify this algorithm gap; no task code, wording, examples, or fixtures copied."
+  },
+  "contract": {
+    "input_layout": "[key_length, key_byte_0, ..., key_byte_(key_length-1), unix_seconds]",
+    "key_length_range": [16, 64],
+    "key_byte_range": [0, 255],
+    "unix_seconds_range": [0, 9223372036854775807],
+    "time_step_seconds": 30,
+    "time_origin_seconds": 0,
+    "moving_factor": "floor(unix_seconds / 30), encoded as an unsigned 8-byte big-endian counter",
+    "digest": "HMAC-SHA-1",
+    "truncation": "RFC 4226 §5.3 dynamic truncation to a nonnegative 31-bit integer, then modulo 1000000",
+    "output": "Exactly six ASCII decimal bytes, including leading zeroes; no NUL terminator.",
+    "excluded_behavior": "No wall-clock read, drift window, validation, resynchronization, secret provisioning, URI parsing, or alternative digest/digit count.",
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "bytes",
+    "maximum_bytes": 6,
+    "success_bytes": 6,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "A conservative fixed workspace ceiling. The core arrays total 494 bytes: 64-byte normalized key, 64-byte SHA-1 block, 20-byte digest staging reused between HMAC passes, five 32-bit chaining words, one 80-word SHA-1 schedule, and six-byte output staging. Some ports pass a fixed 64-byte block by value, raising simultaneous array storage to at most 558 bytes; the ceiling leaves room for bounded scalar/index state. Caller-owned input/output are excluded."
+  },
+  "complexity": {
+    "primary_time": "Four SHA-1 block compressions, each with 80 rounds; key normalization and output conversion are constant bounded work.",
+    "primary_auxiliary_space": "At most 494 fixed bytes of scratch, excluding ABI input/output.",
+    "independent_reference_time": "Four 80-round SHA-1 compressions plus fixed-size HMAC and decimal-output work.",
+    "independent_reference_auxiliary_space": "Fixed arrays for one message block, one schedule, normalized key, chaining words, and digest state."
+  },
+  "oracle": "benchmarks/t/time_based_one_time_password_algorithm/primary_oracle.py",
+  "independent_oracle": "benchmarks/t/time_based_one_time_password_algorithm/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "rfc6238-sha1-vector-same-step-second-58",
+      "input_values": [20, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 58],
+      "input_length": 22,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output_hex": "323837303832",
+      "fixture_note": "Derived from RFC 6238 Appendix B's SHA-1 value for second 59: this second lies in the same 30-second counter interval. The RFC's eight-digit value is reduced to the profile's six digits."
+    },
+    {
+      "id": "maximum-64-byte-key-and-66-word-frame",
+      "input_values": [
+        64,
+        49, 50, 51, 52, 53, 54, 55, 56, 57, 48,
+        49, 50, 51, 52, 53, 54, 55, 56, 57, 48,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 58
+      ],
+      "input_length": 66,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output_hex": "323837303832",
+      "fixture_note": "The 64-byte key is the 20-byte RFC-derived key followed by 44 zero bytes. Its HMAC block key is identical to the primary fixture's zero-padded 20-byte key, so this hand-derived result also covers the maximum valid frame."
+    },
+    {
+      "id": "valid-null-output",
+      "input_values": [20, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 59],
+      "input_length": 22,
+      "output_capacity": 6,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid-short-capacity",
+      "input_values": [20, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 59],
+      "input_length": 22,
+      "output_capacity": 5,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty-key-invalid",
+      "input_values": [0, 59],
+      "input_length": 2,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key-byte-out-of-range",
+      "input_values": [
+        16,
+        256, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        59
+      ],
+      "input_length": 18,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-time-invalid",
+      "input_values": [
+        16,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        -1
+      ],
+      "input_length": 18,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-key-below-rfc-minimum",
+      "input_values": [
+        15,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0,
+        59
+      ],
+      "input_length": 17,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key-length-over-bound-invalid",
+      "input_values": [
+        65,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 59
+      ],
+      "input_length": 67,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-invalid",
+      "input_values": [
+        16,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        59, 0
+      ],
+      "input_length": 19,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

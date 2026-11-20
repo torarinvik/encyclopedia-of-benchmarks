@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "cyclotomic-polynomial-coefficients-i64-array-bytes-output-v1",
+  "algorithm": "cyclotomic_polynomial_coefficients",
+  "function_symbol": "cyclotomic_polynomial_coefficients",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n]",
+    "n_range": [1, 32],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "maximum_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "contract": {
+    "operation": "Return the coefficients of Phi_n(x) in ascending degree order.",
+    "recurrence": "Phi_1=x-1; for k>1, Phi_k=(x^k-1)/product(Phi_d for proper divisors d of k), using exact monic polynomial division.",
+    "coefficient_domain": "signed integers",
+    "input_validation_precedes_output_capacity": true,
+    "errors_write_nothing": true
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[coefficient_0,...,coefficient_phi(n)]",
+    "coefficient_order": "ascending degree",
+    "maximum_bytes": 248,
+    "success_result": "8*(phi(n)+1)",
+    "invalid_result": -1,
+    "null_or_insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Fixed cache for Phi_1 through Phi_32, degree table, three polynomial work arrays, scalar state, and conservative alignment allowance; caller input and output are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"phi-1-base-case","input_values":[1],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"ffffffffffffffff0100000000000000"},
+    {"id":"phi-2-linear","input_values":[2],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"phi-3-all-ones","input_values":[3],"input_length":1,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000001000000000000000100000000000000"},
+    {"id":"phi-4-even-power","input_values":[4],"input_length":1,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000100000000000000"},
+    {"id":"phi-6-alternating","input_values":[6],"input_length":1,"output_capacity":24,"expected_result":24,"expected_output_hex":"0100000000000000ffffffffffffffff0100000000000000"},
+    {"id":"phi-12-sparse","input_values":[12],"input_length":1,"output_capacity":40,"expected_result":40,"expected_output_hex":"01000000000000000000000000000000ffffffffffffffff00000000000000000100000000000000"},
+    {"id":"maximum-output-one-byte-short","input_values":[31],"input_length":1,"output_capacity":247,"expected_result":-2,"expected_output_hex":""},
+    {"id":"n-zero-invalid","input_values":[0],"input_length":1,"output_capacity":248,"expected_result":-1,"expected_output_hex":""},
+    {"id":"above-bound-invalid","input_values":[33],"input_length":1,"output_capacity":248,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word-invalid","input_values":[6,0],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"valid-output-one-byte-short","input_values":[1],"input_length":1,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1],"input_length":1,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":248,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

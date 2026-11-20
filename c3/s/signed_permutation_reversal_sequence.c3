@@ -54,7 +54,7 @@ fn void reverse_signed(long* permutation, usz left_start, usz right_start) {
     if (left == right) permutation[left] = -permutation[left];
 }
 
-long signed_permutation_reversal_sequence(long* input, usz length, char* output, usz capacity)
+fn long signed_permutation_reversal_sequence(long* input, usz length, char* output, usz capacity)
         @export("signed_permutation_reversal_sequence") {
     if (input == null || length < 3 || length > MAX_N + 1) return -1;
     long raw_n = input[0];

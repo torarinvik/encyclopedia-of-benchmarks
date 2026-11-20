@@ -1,0 +1,32 @@
+# fcBK max-flow source crosswalk
+
+The [fcBK max-flow benchmark repository](https://github.com/fcBK-maxflow/fcBK-benchmark)
+README was reviewed on 2026-11-16. Its implementation inventory describes
+serial and parallel max-flow/min-cut methods and warns that original source
+licenses vary by subdirectory. This crosswalk uses repository descriptions
+for discovery and primary papers for clean-room algorithm attribution; it does
+not reuse repository code, benchmark instances, or prose.
+
+| Upstream entry | Local comparison | Disposition |
+|---|---|---|
+| `bk` | The repository has [`boykov_kolmogorov_maxflow`](b/boykov_kolmogorov_maxflow/README.md), with source/sink trees and orphan adoption. | Already represented. |
+| `mbk`, `mbk_r`, `cbk`, `fcbk` | These entries reimplement or change storage/arc ordering for the BK family; they retain the source/sink-tree and orphan-adoption algorithm. | Map to `boykov_kolmogorov_maxflow`; do not create method aliases. |
+| `eibfs`, `eibfs_i`, `eibfs_i_nr` | The repository's benchmark suite did not previously include Excesses Incremental Breadth-First Search. The `i` variants alter representation and arc reordering, not the method family. | Implemented as [`eibfs_maxflow`](e/eibfs_maxflow/README.md): ten language ports, a primary EIBFS reference, an exhaustive minimum-cut reference, fixtures including null ABI cases, and `i64_array_scalar` registration. The profile uses deterministic full adjacency scans and a residual-closed blocking-cut extraction. |
+| `hpf` (`hpf_hf`, `hpf_hl`, `hpf_lf`, `hpf_ll`) | No local max-flow profile maintained the pseudoflow/strong-weak normalized-tree branches. Its four variants change highest/lowest label and FIFO/LIFO selection policy. | Implemented as [`hochbaum_pseudoflow_maxflow`](h/hochbaum_pseudoflow_maxflow/README.md), with one documented highest-label/FIFO policy; ten language ports and `i64_array_scalar` registration are included. Do not add four duplicate profiles. |
+| `hi_pr` | Local `highest_label_push_relabel` covers highest-active-label selection, though the profiles have different input/output contracts. | Already represented by the highest-label preflow-push method. |
+| `ppr` | The repository describes the synchronous-round method of Baumstark, Blelloch, and Shun. Local push-relabel profiles use sequential discharge schedules. | Implemented as [`synchronous_round_push_relabel`](s/synchronous_round_push_relabel/README.md) and registered in `i64_array_scalar`. The profile preserves round barriers and deferred excess/relabel updates in a deterministic single call; it starts no worker threads and excludes the Section 3.1 optimization. |
+| `liusun` | Adaptive bottom-up graph-cut merging. Split vertices into disjoint blocks, disable cross-block arcs, solve each block, then restore boundary arcs as blocks merge and continue max-flow from the prior residual state. This differs from serial BK/EIBFS and node-based synchronous PPR. | Implemented as [`adaptive_bottom_up_graph_cut_merging`](a/adaptive_bottom_up_graph_cut_merging/README.md), with ten ports, two references, workload fixtures, a static inventory, and `i64_array_scalar` registration. Its bounded profile uses deterministic static boundary-potential ordering and Edmonds–Karp reaugmentation; it does not claim to reproduce the closed paper implementation's exact parallel schedule or tie behavior. |
+| `peibfs` | The same bottom-up merging framework, but with EIBFS subproblems rather than BK. | Implemented as [`eibfs_bottom_up_graph_cut_merging`](e/eibfs_bottom_up_graph_cut_merging/README.md), a deterministic bounded PEIBFS-inspired composite with ten language ports and independent whole-graph cut enumeration. It uses canonical minimum-cut tags and fresh EIBFS solves for each component; it does not carry pseudoflow state between solves or claim to reproduce the upstream parallel schedule. This differs from BK-backed `liusun` and from the neighboring Edmonds-Karp profile. |
+| `pard` | Region discharge combines path augmentation inside regions with push-relabel updates between regions; the benchmark source writes graph state to disk during initialization. | Implemented as [`region_discharge_path_push_relabel_maxflow`](r/region_discharge_path_push_relabel_maxflow/README.md): ten ports, sequential S-ARD reference, exhaustive min-cut reference, fixtures, static inventory, and `i64_array_scalar` registration. It omits external storage/runtime and does not claim the original parallel/distributed execution. |
+| `psk` | Parallel graph cuts by dual decomposition split overlapping subproblems, constrain overlap labels with dual variables, and maximize a concave dual objective by ascent. | Implemented as [`dual_decomposition_graph_cut_maxflow`](d/dual_decomposition_graph_cut_maxflow/README.md): ten ports, finite supergradient iterations, exact fixed-point scaling, and separate dual-bound/overlap-consensus reporting. The local profile is deterministic and single-call; parallel execution is not claimed. |
+| `grid_cut` | The README says its source is omitted because its license forbids redistribution. | Excluded from source-porting; no code or external binaries are used. |
+
+## Scope and source licensing
+
+The suite includes both an author reference and a clean-room BK implementation;
+the latter is licensed MIT. The repository says other original source trees
+have their own licenses, including GPLv3 and noncommercial or unknown terms.
+No upstream implementation is copied. The EIBFS package cites
+[Goldberg et al., “Faster and More Dynamic Maximum Flow by Incremental
+Breadth-First Search”](https://www.microsoft.com/en-us/research/publication/faster-and-more-dynamic-maximum-flow-incremental-breadth-first-search/).
+The pseudoflow candidate cites Hochbaum's [2008 paper](https://doi.org/10.1287/opre.1080.0524). PPR cites Baumstark, Blelloch, and Shun's [2015 paper](https://doi.org/10.1007/978-3-662-48350-3_10). The adaptive-merging profile cites Liu and Sun, [“Parallel Graph-cuts by Adaptive Bottom-up Merging”](https://doi.org/10.1109/CVPR.2010.5539898), and Jensen et al., [“Review of Serial and Parallel Min-Cut/Max-Flow Algorithms for Computer Vision”](https://arxiv.org/abs/2202.00418). Its bounded clean-room contract also consults the authors' [MIT reimplementation](https://github.com/patmjen/maxflow_algorithms/blob/master/reimpls/liusun.h) to make the merge-potential rule explicit; no implementation code or benchmark instances are copied.

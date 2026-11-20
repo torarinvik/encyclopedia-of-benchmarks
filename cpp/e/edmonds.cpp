@@ -9,8 +9,9 @@
 struct Edge { int u,v,w; };
 extern "C" int64_t edmonds(const int64_t *a, size_t len) {
  if (!a || len<3 || len>39) return -1;
- int n=(int)a[0], root=(int)a[1], m=(int)a[2];
- if (n<1||n>NMAX||root<0||root>=n||m<0||m>EMAX||len!=(size_t)(3+3*m)) return -1;
+ int64_t nn=a[0], rr=a[1], mm=a[2];
+ if (nn<1||nn>NMAX||rr<0||rr>=nn||mm<0||mm>EMAX||len!=(size_t)(3+3*mm)) return -1;
+ int n=(int)nn, root=(int)rr, m=(int)mm;
  struct Edge e[EMAX], ne[EMAX];
  for(int i=0;i<m;i++){int64_t u=a[3+3*i],v=a[4+3*i],w=a[5+3*i]; if(u<0||u>=n||v<0||v>=n||w<0||w>100)return -1; e[i]=(struct Edge){(int)u,(int)v,(int)w};}
  long long answer=0;

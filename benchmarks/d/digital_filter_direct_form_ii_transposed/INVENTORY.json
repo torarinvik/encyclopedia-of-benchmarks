@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "algorithm": "digital_filter_direct_form_ii_transposed",
+  "function_symbol": "digital_filter_direct_form_ii_transposed",
+  "abi": "i64_array_bytes_output",
+  "native_paths": [
+    "c/d/digital_filter_direct_form_ii_transposed.c",
+    "c3/d/digital_filter_direct_form_ii_transposed.c3",
+    "cpp/d/digital_filter_direct_form_ii_transposed.cpp",
+    "elisa/d/digital_filter_direct_form_ii_transposed.elisa",
+    "mojo/d/digital_filter_direct_form_ii_transposed.mojo",
+    "nim/d/digital_filter_direct_form_ii_transposed.nim",
+    "odin/d/digital_filter_direct_form_ii_transposed.odin",
+    "rust/d/digital_filter_direct_form_ii_transposed.rs",
+    "v/d/digital_filter_direct_form_ii_transposed.v",
+    "zig/d/digital_filter_direct_form_ii_transposed.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_order": 4,
+    "maximum_sample_count": 32,
+    "maximum_valid_input_length": 44,
+    "maximum_parseable_input_length": 45,
+    "maximum_output_bytes": 256,
+    "workspace_bytes": 256,
+    "coefficient_domain": [-1, 1],
+    "sample_domain": [-16, 16]
+  }
+}

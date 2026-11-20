@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "id": "wynn-epsilon-finite-tableau-f64-v1",
+  "algorithm": "wynn_epsilon_sequence_algorithm",
+  "function_symbol": "wynn_epsilon_sequence_algorithm",
+  "abi": "float64_slice_io",
+  "description": "Bounded multi-column Wynn epsilon tableau for finite real sequences.",
+  "source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.9(iv), Eq. 3.9.11",
+    "url": "https://dlmf.nist.gov/3.9#E11",
+    "secondary_url": "https://dlmf.nist.gov/3.9#E9",
+    "role": "primary recurrence and independent Hankel determinant identity"
+  },
+  "contract": {
+    "operation": "Construct epsilon rows through order 2K and emit all even rows epsilon_2, epsilon_4, ..., epsilon_2K.",
+    "input_encoding": "[N,K,s_0,...,s_(N-1)] as float64 values",
+    "domain": "5<=N<=10; 2<=K<=3; N>=2K+1; finite samples in [-2,2] on the exact 1/256 grid",
+    "recurrence": "epsilon_-1[n]=0; epsilon_0[n]=s_n; epsilon_(m+1)[n]=epsilon_(m-1)[n+1]+1/(epsilon_m[n+1]-epsilon_m[n])",
+    "singularity": "The binary64 denominator is formed as right-minus-left in that order. A computed +0.0 or -0.0, a marked dependency, or a nonfinite denominator/reciprocal/result marks the cell singular; emit [1,0] and propagate the marker. Otherwise emit [0,value]. No replacement recurrence is used.",
+    "output_encoding": "For each even order 2,4,...,2K, emit increasing n as [status,value] pairs; status is 0 for finite and 1 for singular/unavailable.",
+    "result": "Number of output float64 elements",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors_write_nothing": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[N,K,s_0,...,s_(N-1)]",
+    "minimum_valid_length": 7,
+    "maximum_valid_length": 12,
+    "maximum_parseable_length": 13,
+    "n_range": [5, 10],
+    "k_range": [2, 3],
+    "sample_range": [-2, 2],
+    "sample_grid_denominator": 256,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[status,value] pairs for even epsilon rows, by row then index",
+    "maximum_elements": 36,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "bytes": 2048,
+    "elements": 36,
+    "description": "Fixed 7-by-10 binary64 tableau for epsilon orders 0 through 6, 7-by-10 validity flags, result staging for 36 binary64 elements, and bounded parser/loop state."
+  },
+  "complexity": {
+    "primary_time": "O(N*K)",
+    "independent_time": "O(N^2*K + N*K*(K+1)!) for per-cell determinant setup/expansion plus O(N*K) status replay",
+    "primary_space": "O(N*K)",
+    "independent_space": "O(N*K + K^3)"
+  },
+  "reference_note": "The determinant oracle is an independent check for stable cells. If exact determinant cancellation disagrees with the operational binary64 status, or its quotient falls outside the stated tolerance from the rounded tableau, the operational finite tableau value controls. The tolerances are pinned against this bounded fixture set.",
+  "independent_integer_bounds": {
+    "scaled_sample_range": [-512, 512],
+    "numerator_determinant_abs_bound_exclusive": 2199023255552,
+    "scaled_denominator_abs_bound_exclusive": 17592186044416,
+    "note": "Both integer determinants fit signed i64; bounds follow 4!*512^4 for the size-four numerator and 256*3!*2048^3 for the scaled size-three denominator."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "constant-sequence-singular",
+      "input_values": [5, 2, 1, 1, 1, 1, 1],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output": [1,0, 1,0, 1,0, 1,0]
+    },
+    {
+      "id": "linear-sequence-singular-higher-order",
+      "input_values": [5, 2, 0, 1, 2, 3, 4],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output": [1,0, 1,0, 1,0, 1,0]
+    },
+    {
+      "id": "quadratic-order-two-transform",
+      "input_values": [5, 2, 0, 0.25, 1, 2.25, 4],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output": [0,-0.125, 0,-0.875, 0,-2.125, 1,0]
+    },
+    {
+      "id": "two-exponential-order-four-transform",
+      "input_values": [5, 2, 0.5078125, 0.51953125, 0.55078125, 0.63671875, 0.87890625],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output": [0,0.50078125, 0,0.5016741071428571, 0,0.503515625, 0,0.5]
+    },
+    {
+      "id": "small-nonzero-differences-near-singular",
+      "input_values": [5, 2, 0, 0.00390625, 0.01171875, 0.02734375, 0.05859375],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output": [0,-0.00390625, 0,-0.00390625, 0,-0.00390625, 1,0]
+    },
+    {
+      "id": "order-six-polynomial-sequence",
+      "input_values": [7, 3, 0, 0.03125, 0.125, 0.28125, 0.5, 0.78125, 1.125],
+      "input_length": 9,
+      "output_capacity": 18,
+      "expected_result": 18,
+      "expected_output": [0,-0.015625, 0,-0.109375, 0,-0.265625, 0,-0.484375, 0,-0.765625, 1,0, 1,0, 1,0, 1,0]
+    },
+    {
+      "id": "maximum-frame-and-output-singular",
+      "input_values": [10, 3, 0,0,0,0,0,0,0,0,0,0],
+      "input_length": 12,
+      "output_capacity": 36,
+      "expected_result": 36,
+      "expected_output": [1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0, 1,0]
+    },
+    {
+      "id": "maximum-output-one-element-short",
+      "input_values": [10, 3, 0,0,0,0,0,0,0,0,0,0],
+      "input_length": 12,
+      "output_capacity": 35,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "maximum-parseable-trailing-value",
+      "input_values": [10, 3, 0,0,0,0,0,0,0,0,0,0,0.25],
+      "input_length": 13,
+      "output_capacity": 36,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "reject-sample-off-grid",
+      "input_values": [5, 2, 0, 0.1, 1, 2.25, 4],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "reject-n-below-bound",
+      "input_values": [4, 2, 0, 1, 2, 3],
+      "input_length": 6,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null-input-buffer",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 36,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [5, 2, 0, 0.25, 1, 2.25, 4],
+      "input_length": 7,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

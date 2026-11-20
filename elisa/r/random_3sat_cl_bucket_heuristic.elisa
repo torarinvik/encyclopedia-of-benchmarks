@@ -1,0 +1,321 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 24
+const MAX_PARSEABLE_INPUT: usize = 99
+const MAX_WORDS: usize = 44
+const MAX_OUTPUT: usize = 352
+
+def cl_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def cl_reduce(clauses: mutable view[i64], lengths: mutable view[usize],
+        active: mutable view[bool], assigned: mutable view[i64],
+        clause_count: usize, literal: i64) -> bool:
+    variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+    value: i64 = if literal > 0: 1 else: -1
+    if assigned[variable] != 0 and assigned[variable] != value: return false
+    assigned[variable] <- value
+    clause: mutable usize = 0
+    while clause < clause_count:
+        if active[clause]:
+            satisfied: mutable bool = false
+            at: mutable usize = 0
+            while at < lengths[clause]:
+                if clauses[3 * clause + at] == literal: satisfied <- true
+                at <- at + 1
+            if satisfied:
+                active[clause] <- false
+            else:
+                write: mutable usize = 0
+                at <- 0
+                while at < lengths[clause]:
+                    item: i64 = clauses[3 * clause + at]
+                    if item != -literal:
+                        clauses[3 * clause + write] <- item
+                        write <- write + 1
+                    at <- at + 1
+                lengths[clause] <- write
+                if write == 0: return false
+        clause <- clause + 1
+    true
+
+def cl_propagate(clauses: mutable view[i64], lengths: mutable view[usize],
+        active: mutable view[bool], assigned: mutable view[i64], clause_count: usize,
+        ev_lit: mutable view[i64], ev_kind: mutable view[i64], ev_i: mutable view[i64],
+        ev_j: mutable view[i64], event_count: mutable usize&, record: bool) -> bool:
+    while true:
+        unit: mutable i64 = 0
+        clause: mutable usize = 0
+        while clause < clause_count:
+            if active[clause] and lengths[clause] == 1:
+                unit <- clauses[3 * clause]
+                break
+            clause <- clause + 1
+        if unit == 0: return true
+        if record:
+            ev_lit[event_count] <- unit
+            ev_kind[event_count] <- 1
+            ev_i[event_count] <- -1
+            ev_j[event_count] <- -1
+            event_count <- event_count + 1
+        if not cl_reduce(clauses, lengths, active, assigned, clause_count, unit): return false
+
+def cl_degrees(clauses: view[i64], lengths: view[usize], active: view[bool],
+        clause_count: usize, n: usize, positive: mutable view[usize],
+        negative: mutable view[usize]) -> void:
+    variable: mutable usize = 0
+    while variable < n:
+        positive[variable] <- 0
+        negative[variable] <- 0
+        variable <- variable + 1
+    clause: mutable usize = 0
+    while clause < clause_count:
+        if active[clause]:
+            at: mutable usize = 0
+            while at < lengths[clause]:
+                literal: i64 = clauses[3 * clause + at]
+                variable <- if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+                if literal > 0: positive[variable] <- positive[variable] + 1
+                else: negative[variable] <- negative[variable] + 1
+                at <- at + 1
+        clause <- clause + 1
+
+def cl_member(clauses: view[i64], lengths: view[usize], active: view[bool],
+        assigned: view[i64], clause_count: usize, n: usize, bi: usize, bj: usize) -> i64:
+    positive: mutable usize[MAX_N] = zeroed
+    negative: mutable usize[MAX_N] = zeroed
+    cl_degrees(clauses, lengths, active, clause_count, n, positive[0:n], negative[0:n])
+    variable: usize = 0
+    while variable < n:
+        if assigned[variable] == 0:
+            p: usize = if positive[variable] < 10: positive[variable] else: 10
+            q: usize = if negative[variable] < 10: negative[variable] else: 10
+            if p == bi and q == bj: return (variable + 1).i64()
+            if q == bi and p == bj: return -((variable + 1).i64())
+        variable <- variable + 1
+    0
+
+def cl_flows(clauses: view[i64], lengths: view[usize], active: view[bool],
+        clause_count: usize, n: usize, s2_out: mutable i64&, s3_out: mutable i64&,
+        den_out: mutable i64&) -> void:
+    p2: mutable usize[MAX_N] = zeroed
+    n2: mutable usize[MAX_N] = zeroed
+    p3: mutable usize[MAX_N] = zeroed
+    n3: mutable usize[MAX_N] = zeroed
+    c2: mutable i64 = 0
+    clause: mutable usize = 0
+    while clause < clause_count:
+        if active[clause]:
+            if lengths[clause] == 2: c2 <- c2 + 1
+            if lengths[clause] == 2 or lengths[clause] == 3:
+                at: mutable usize = 0
+                while at < lengths[clause]:
+                    literal: i64 = clauses[3 * clause + at]
+                    variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+                    if lengths[clause] == 2:
+                        if literal > 0: p2[variable] <- p2[variable] + 1
+                        else: n2[variable] <- n2[variable] + 1
+                    else:
+                        if literal > 0: p3[variable] <- p3[variable] + 1
+                        else: n3[variable] <- n3[variable] + 1
+                    at <- at + 1
+        clause <- clause + 1
+    s2_out <- 0
+    s3_out <- 0
+    clause <- 0
+    while clause < clause_count:
+        if active[clause] and lengths[clause] == 2:
+            at: mutable usize = 0
+            while at < 2:
+                literal: i64 = -clauses[3 * clause + at]
+                variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+                if literal > 0:
+                    s2_out <- s2_out + p2[variable].i64()
+                    s3_out <- s3_out + p3[variable].i64()
+                else:
+                    s2_out <- s2_out + n2[variable].i64()
+                    s3_out <- s3_out + n3[variable].i64()
+                at <- at + 1
+        clause <- clause + 1
+    den_out <- if c2 == 0: 1 else: 2 * c2
+
+def cl_choose(clauses: view[i64], lengths: view[usize], active: view[bool],
+        assigned: view[i64], clause_count: usize, n: usize,
+        best_i: mutable usize&, best_j: mutable usize&) -> bool:
+    old2: mutable i64 = 0
+    old3: mutable i64 = 0
+    old_den: mutable i64 = 0
+    cl_flows(clauses, lengths, active, clause_count, n, old2, old3, old_den)
+    found: mutable bool = false
+    best_num: mutable i64 = 0
+    best_den: mutable i64 = 1
+    bi: mutable usize = 0
+    while bi <= 10:
+        bj: mutable usize = 0
+        while bj <= 10:
+            literal: i64 = cl_member(clauses, lengths, active, assigned, clause_count, n, bi, bj)
+            if literal != 0:
+                tc: mutable i64[3 * MAX_M] = zeroed
+                tl: mutable usize[MAX_M] = zeroed
+                ta: mutable bool[MAX_M] = zeroed
+                tv: mutable i64[MAX_N] = zeroed
+                i: mutable usize = 0
+                while i < 3 * clause_count:
+                    tc[i] <- clauses[i]
+                    i <- i + 1
+                i <- 0
+                while i < clause_count:
+                    tl[i] <- lengths[i]
+                    ta[i] <- active[i]
+                    i <- i + 1
+                i <- 0
+                while i < n:
+                    tv[i] <- assigned[i]
+                    i <- i + 1
+                el: mutable i64[MAX_N] = zeroed
+                ek: mutable i64[MAX_N] = zeroed
+                ei: mutable i64[MAX_N] = zeroed
+                ej: mutable i64[MAX_N] = zeroed
+                ec: mutable usize = 0
+                if cl_reduce(tc[0:3 * clause_count], tl[0:clause_count], ta[0:clause_count], tv[0:n], clause_count, literal):
+                    if cl_propagate(tc[0:3 * clause_count], tl[0:clause_count], ta[0:clause_count], tv[0:n], clause_count, el[0:MAX_N], ek[0:MAX_N], ei[0:MAX_N], ej[0:MAX_N], ec, false):
+                        new2: mutable i64 = 0
+                        new3: mutable i64 = 0
+                        new_den: mutable i64 = 0
+                        cl_flows(tc[0:3 * clause_count], tl[0:clause_count], ta[0:clause_count], clause_count, n, new2, new3, new_den)
+                        numerator: mutable i64 = new2 * old_den - old2 * new_den
+                        denominator: mutable i64 = new3 * old_den - old3 * new_den
+                        if denominator != 0:
+                            if denominator < 0:
+                                numerator <- -numerator
+                                denominator <- -denominator
+                            if not found or numerator * best_den > best_num * denominator or
+                                    (numerator * best_den == best_num * denominator and (bi < best_i or (bi == best_i and bj < best_j))):
+                                found <- true
+                                best_num <- numerator
+                                best_den <- denominator
+                                best_i <- bi
+                                best_j <- bj
+            bj <- bj + 1
+        bi <- bi + 1
+    found
+
+def random_3sat_cl_bucket_heuristic_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MAX_PARSEABLE_INPUT: return -1
+    if input[0] < 1 or input[0] > 8 or input[1] < 0 or input[1] > 24: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 4 * m: return -1
+    clauses: mutable i64[MAX_M * 3] = zeroed
+    lengths: mutable usize[MAX_M] = zeroed
+    active: mutable bool[MAX_M] = zeroed
+    clause: mutable usize = 0
+    while clause < m:
+        base: usize = 2 + 4 * clause
+        raw_k: i64 = input[base]
+        if raw_k < 1 or raw_k > 3: return -1
+        k: usize = raw_k.usize()
+        seen: mutable bool[MAX_N] = zeroed
+        at: mutable usize = 0
+        while at < 3:
+            raw: i64 = input[base + 1 + at]
+            if at < k:
+                if raw == 0 or raw < -n.i64() or raw > n.i64(): return -1
+                variable: usize = if raw > 0: (raw - 1).usize() else: (-raw - 1).usize()
+                if seen[variable]: return -1
+                seen[variable] <- true
+                clauses[3 * clause + at] <- raw
+            else if raw != 0:
+                return -1
+            at <- at + 1
+        lengths[clause] <- k
+        active[clause] <- true
+        clause <- clause + 1
+
+    assigned: mutable i64[MAX_N] = zeroed
+    ev_lit: mutable i64[MAX_N] = zeroed
+    ev_kind: mutable i64[MAX_N] = zeroed
+    ev_i: mutable i64[MAX_N] = zeroed
+    ev_j: mutable i64[MAX_N] = zeroed
+    event_count: mutable usize = 0
+    status: mutable i64 = 0
+    if not cl_propagate(clauses[0:3*m], lengths[0:m], active[0:m], assigned[0:n], m, ev_lit[0:MAX_N], ev_kind[0:MAX_N], ev_i[0:MAX_N], ev_j[0:MAX_N], event_count, true):
+        status <- 1
+    while status == 0:
+        pending: mutable bool = false
+        variable: usize = 0
+        while variable < n:
+            if assigned[variable] == 0: pending <- true
+            variable <- variable + 1
+        if not pending: break
+        bi: mutable usize = 0
+        bj: mutable usize = 0
+        if not cl_choose(clauses[0:3*m], lengths[0:m], active[0:m], assigned[0:n], m, n, bi, bj):
+            status <- 2
+            break
+        literal: i64 = cl_member(clauses[0:3*m], lengths[0:m], active[0:m], assigned[0:n], m, n, bi, bj)
+        if literal == 0:
+            status <- 2
+            break
+        ev_lit[event_count] <- literal
+        ev_kind[event_count] <- 0
+        ev_i[event_count] <- bi.i64()
+        ev_j[event_count] <- bj.i64()
+        event_count <- event_count + 1
+        if not cl_reduce(clauses[0:3*m], lengths[0:m], active[0:m], assigned[0:n], m, literal):
+            status <- 1
+            break
+        if not cl_propagate(clauses[0:3*m], lengths[0:m], active[0:m], assigned[0:n], m, ev_lit[0:MAX_N], ev_kind[0:MAX_N], ev_i[0:MAX_N], ev_j[0:MAX_N], event_count, true):
+            status <- 1
+            break
+
+    words: mutable i64[MAX_WORDS] = zeroed
+    at: mutable usize = 0
+    words[at] <- status
+    at <- at + 1
+    words[at] <- n.i64()
+    at <- at + 1
+    assigned_count: mutable usize = 0
+    variable <- 0
+    while variable < n:
+        if assigned[variable] != 0: assigned_count <- assigned_count + 1
+        variable <- variable + 1
+    words[at] <- assigned_count.i64()
+    at <- at + 1
+    variable <- 0
+    while variable < n:
+        words[at] <- assigned[variable]
+        at <- at + 1
+        variable <- variable + 1
+    words[at] <- event_count.i64()
+    at <- at + 1
+    event: usize = 0
+    while event < event_count:
+        words[at] <- ev_lit[event]
+        words[at + 1] <- ev_kind[event]
+        words[at + 2] <- ev_i[event]
+        words[at + 3] <- ev_j[event]
+        at <- at + 4
+        event <- event + 1
+    byte_count: usize = at * 8
+    if output.is_null() or capacity < byte_count: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:byte_count]
+    at <- 0
+    while at < (byte_count / 8):
+        cl_put(words[at], staged_view, at * 8)
+        at <- at + 1
+    at <- 0
+    while at < byte_count:
+        output[at] <- staged[at]
+        at <- at + 1
+    byte_count.i64()
+
+export fn random_3sat_cl_bucket_heuristic(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT: return -1
+    random_3sat_cl_bucket_heuristic_impl(input[0:length], output, capacity)

@@ -12,7 +12,7 @@ fn write_i64(mut output &u8, offset int, value i64) {
 
 @[export: 'circle_line_intersection_count']
 pub fn circle_line_intersection_count(input &i64, length usize, mut output &u8, capacity usize) i64 {
-	if length < 4 || length > 101 { return -1 }
+	if input == nil || length < 4 || length > 101 { return -1 }
 	unsafe {
 		center_x, center_y, radius, query_value := input[0], input[1], input[2], input[3]
 		if center_x < -1000 || center_x > 1000 || center_y < -1000 || center_y > 1000 ||

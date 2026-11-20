@@ -1,0 +1,47 @@
+const CARMICHAEL_MAX_N: i64 = 1024
+const CARMICHAEL_MAX_PARSEABLE_LENGTH: usize = 2
+
+def gcd_i64(left_value: i64, right_value: i64) -> i64:
+    var left: mutable i64 = left_value
+    var right: mutable i64 = right_value
+    while right != 0:
+        let remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def lcm_i64(left: i64, right: i64) -> i64:
+    (left / gcd_i64(left, right)) * right
+
+def prime_power_lambda(prime: i64, exponent: i64, power: i64) -> i64:
+    if prime == 2:
+        if exponent == 1: return 1
+        if exponent == 2: return 2
+        return power / 4
+    (power / prime) * (prime - 1)
+
+def factorization_lambda(n: i64) -> i64:
+    if n == 1: return 1
+    var remaining: mutable i64 = n
+    var result: mutable i64 = 1
+    var prime: mutable i64 = 2
+    while prime * prime <= remaining:
+        if remaining % prime != 0:
+            prime <- if prime == 2: 3 else: prime + 2
+            continue
+        var exponent: mutable i64 = 0
+        var power: mutable i64 = 1
+        while remaining % prime == 0:
+            remaining <- remaining / prime
+            power <- power * prime
+            exponent <- exponent + 1
+        result <- lcm_i64(result, prime_power_lambda(prime, exponent, power))
+        prime <- if prime == 2: 3 else: prime + 2
+    if remaining > 1: result <- lcm_i64(result, remaining - 1)
+    result
+
+export fn carmichael_lambda_function(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > CARMICHAEL_MAX_PARSEABLE_LENGTH: return -1
+    let n: i64 = input[0]
+    if n < 1 or n > CARMICHAEL_MAX_N or length != 1: return -1
+    factorization_lambda(n)

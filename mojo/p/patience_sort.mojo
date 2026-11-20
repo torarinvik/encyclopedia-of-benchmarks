@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import MutAnyOrigin, UnsafePointer
 fn pat_less(keys:InlineArray[Int64,1024],a:Int,b:Int)->Bool:return keys[a]<keys[b] or (keys[a]==keys[b] and a<b)

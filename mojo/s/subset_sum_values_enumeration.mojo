@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn enum_values(a:UnsafePointer[Int64,ImmutAnyOrigin],items:Int,index:Int,target:Int64,total:Int64,chosen:UnsafePointer[Int64,MutAnyOrigin],chosen_n:Int,out:UnsafePointer[UInt8,MutAnyOrigin],pos:UnsafePointer[Int,MutAnyOrigin],emit:Bool)->Int:

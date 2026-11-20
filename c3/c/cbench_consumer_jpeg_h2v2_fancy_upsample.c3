@@ -17,12 +17,12 @@ fn long cbench_consumer_jpeg_h2v2_fancy_upsample(long* input, usz length,
     for (usz i = 0; i < pixels; i++) if (input[i + 2] < 0 || input[i + 2] > 255) return -1;
     usz output_size = 4 * pixels;
     if (output == null || capacity < output_size) return -2;
-    u8 staged[MAX_OUTPUT] = {0};
+    u8[MAX_OUTPUT] staged = {};
     usz p = 0;
     for (usz y = 0; y < height; y++) {
         for (int v = 0; v < 2; v++) {
             usz far_y = v == 0 ? (y == 0 ? 0 : y - 1) : (y + 1 == height ? y : y + 1);
-            int sums[MAX_WIDTH] = {0};
+            int[MAX_WIDTH] sums = {};
             for (usz x = 0; x < width; x++) sums[x] = 3 * input[2 + y * width + x].int() + input[2 + far_y * width + x].int();
             staged[p] = ((sums[0] * 4 + 8) >> 4).u8(); p++;
             staged[p] = ((sums[0] * 3 + sums[1] + 7) >> 4).u8(); p++;

@@ -7,15 +7,15 @@ const long NIL_VALUE = -9223372036854775807 - 1;
 
 struct MapEntry { int id; int priority; usz index; int state; }
 
-usz map_hash(int id) { uint bits=@bitcast(uint,id);return (usz)((bits*2654435761u)&127u); }
-usz map_find(MapEntry* map,int id){usz slot=map_hash(id);for(usz n=0;n<MAP_CAPACITY;n++){if(map[slot].state==0)return MAP_CAPACITY;if(map[slot].state==1&&map[slot].id==id)return slot;slot=(slot+1)&127;}return MAP_CAPACITY;}
-usz map_insert(MapEntry* map,int id,int priority,usz index){usz slot=map_hash(id),tomb=MAP_CAPACITY;for(usz n=0;n<MAP_CAPACITY;n++){if(map[slot].state==2&&tomb==MAP_CAPACITY)tomb=slot;if(map[slot].state==0){if(tomb!=MAP_CAPACITY)slot=tomb;map[slot]=MapEntry{id,priority,index,1};return slot;}if(map[slot].state==1&&map[slot].id==id)return slot;slot=(slot+1)&127;}if(tomb!=MAP_CAPACITY){map[tomb]=MapEntry{id,priority,index,1};return tomb;}return MAP_CAPACITY;}
-void map_remove(MapEntry* map,usz slot){map[slot].state=2;}
-int priority_of(MapEntry* map,int id){return map[map_find(map,id)].priority;}
-void swap_ids(int* heap,MapEntry* map,usz a,usz b,bool update){int x=heap[a];heap[a]=heap[b];heap[b]=x;if(update){map[map_find(map,heap[a])].index=a;map[map_find(map,heap[b])].index=b;}}
-void down(int* heap,usz count,MapEntry* map,usz index,bool update){while(true){usz left=index*2+1;if(left>=count)return;usz child=left+1;if(child>=count||priority_of(map,heap[left])<priority_of(map,heap[child]))child=left;if(priority_of(map,heap[child])>=priority_of(map,heap[index]))return;swap_ids(heap,map,index,child,update);index=child;}}
-void up(int* heap,MapEntry* map,usz index){while(index>0){usz parent=(index-1)/2;if(priority_of(map,heap[index])>=priority_of(map,heap[parent]))return;swap_ids(heap,map,index,parent,true);index=parent;}}
-void store_i64(char* output,usz offset,long value){ulong bits=@bitcast(ulong,value);for(usz b=0;b<8;b++)output[offset+b]=(char)(bits>>(8*b));}
+fn usz map_hash(int id) { uint bits=bitcast(id,uint);return (usz)((bits*2654435761u)&127u); }
+fn usz map_find(MapEntry* map,int id){usz slot=map_hash(id);for(usz n=0;n<MAP_CAPACITY;n++){if(map[slot].state==0)return MAP_CAPACITY;if(map[slot].state==1&&map[slot].id==id)return slot;slot=(slot+1)&127;}return MAP_CAPACITY;}
+fn usz map_insert(MapEntry* map,int id,int priority,usz index){usz slot=map_hash(id),tomb=MAP_CAPACITY;for(usz n=0;n<MAP_CAPACITY;n++){if(map[slot].state==2&&tomb==MAP_CAPACITY)tomb=slot;if(map[slot].state==0){if(tomb!=MAP_CAPACITY)slot=tomb;map[slot]=MapEntry{id,priority,index,1};return slot;}if(map[slot].state==1&&map[slot].id==id)return slot;slot=(slot+1)&127;}if(tomb!=MAP_CAPACITY){map[tomb]=MapEntry{id,priority,index,1};return tomb;}return MAP_CAPACITY;}
+fn void map_remove(MapEntry* map,usz slot){map[slot].state=2;}
+fn int priority_of(MapEntry* map,int id){return map[map_find(map,id)].priority;}
+fn void swap_ids(int* heap,MapEntry* map,usz a,usz b,bool update){int x=heap[a];heap[a]=heap[b];heap[b]=x;if(update){map[map_find(map,heap[a])].index=a;map[map_find(map,heap[b])].index=b;}}
+fn void down(int* heap,usz count,MapEntry* map,usz index,bool update){while(true){usz left=index*2+1;if(left>=count)return;usz child=left+1;if(child>=count||priority_of(map,heap[left])<priority_of(map,heap[child]))child=left;if(priority_of(map,heap[child])>=priority_of(map,heap[index]))return;swap_ids(heap,map,index,child,update);index=child;}}
+fn void up(int* heap,MapEntry* map,usz index){while(index>0){usz parent=(index-1)/2;if(priority_of(map,heap[index])>=priority_of(map,heap[parent]))return;swap_ids(heap,map,index,parent,true);index=parent;}}
+fn void store_i64(char* output,usz offset,long value){ulong bits=bitcast(value,ulong);for(usz b=0;b<8;b++)output[offset+b]=(char)(bits>>(8*b));}
 
 fn long table_heap(long* input,usz length,char* output,usz capacity) @export("table_heap") {
     if(input==null||length<2||length>1155)return -1;if(input[0]<0||input[0]>64)return -1;usz initial=(usz)input[0],op_index=1+2*initial;

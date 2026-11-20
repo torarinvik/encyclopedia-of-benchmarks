@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "algorithm": "stockham_autosort_radix2_fft",
+  "function_symbol": "stockham_autosort_radix2_fft",
+  "abi": "float64_slice_io",
+  "languages": {
+    "c": "c/s/stockham_autosort_radix2_fft.c",
+    "c3": "c3/s/stockham_autosort_radix2_fft.c3",
+    "cpp": "cpp/s/stockham_autosort_radix2_fft.cpp",
+    "elisa": "elisa/s/stockham_autosort_radix2_fft.elisa",
+    "mojo": "mojo/s/stockham_autosort_radix2_fft.mojo",
+    "nim": "nim/s/stockham_autosort_radix2_fft.nim",
+    "odin": "odin/s/stockham_autosort_radix2_fft.odin",
+    "rust": "rust/s/stockham_autosort_radix2_fft.rs",
+    "v": "v/s/stockham_autosort_radix2_fft.v",
+    "zig": "zig/s/stockham_autosort_radix2_fft.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py",
+    "verify_workload.py"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "High-speed convolution and correlation",
+    "author": "Thomas G. Stockham, Jr.",
+    "doi": "10.1145/1464182.1464209",
+    "publication": "AFIPS '66 Spring Joint Computer Conference, pages 229-233 (1966)",
+    "role": "algorithm description; clean-room bounded reconstruction"
+  },
+  "contract": {
+    "input_layout": "[n,re0,im0,...,re(n-1),im(n-1)]",
+    "n_values": [1, 2, 4, 8, 16, 32, 64],
+    "sample_component_range": [-8, 8],
+    "maximum_valid_input_words": 129,
+    "maximum_parseable_input_words": 130,
+    "maximum_output_elements": 128,
+    "workspace_elements": 256,
+    "forward_sign": "exp(-2*pi*i*j*k/n)",
+    "output_order": "natural frequency order with interleaved real and imaginary components",
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  }
+}

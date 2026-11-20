@@ -38,8 +38,9 @@ These references are used for algorithm identification; no source code or
 prose is copied. Ten language drafts, two references, workload fixtures, and
 byte-output runner/verifier wiring are present. The verifier source describes
 small exhaustive draw tapes, exact distribution checks, proportional weight
-scaling, and maximum-frame checks. Static review remains in progress; nothing
-has been executed.
+scaling, and maximum-frame checks. Read-only review found all ten ports
+consistent on stack order, integer mass updates, threshold/alias selection,
+and empty-tape/output error behavior. Nothing has been executed.
 
 | Language | Draft port |
 | --- | --- |

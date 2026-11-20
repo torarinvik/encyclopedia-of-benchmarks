@@ -24,7 +24,7 @@ fn long insertion_slot(long* table, usz capacity, long key) {
 }
 
 fn void rehash(long* table, usz* capacity) {
-    long old_table[128];
+    long[128] old_table;
     usz old_capacity = *capacity;
     for (usz i = 0; i < old_capacity; i++) old_table[i] = table[i];
     *capacity *= 2;
@@ -47,8 +47,8 @@ fn long linear_probing_hash_table(long* input, usz length, char* output, usz out
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 2 || input[0] > 16 || input[1] < 0 || input[1] > (long)MAX_OPERATIONS) return -1;
     usz table_capacity = (usz)input[0], operation_count = (usz)input[1];
-    long table[128] = {0};
-    long words[MAX_OUTPUT_WORDS];
+    long[128] table = {};
+    long[MAX_OUTPUT_WORDS] words;
     usz size = 0, word_count = 0, position = 2;
     for (usz operation = 0; operation < operation_count; operation++) {
         if (position >= length) return -1;
@@ -58,25 +58,25 @@ fn long linear_probing_hash_table(long* input, usz length, char* output, usz out
             long key = input[position++];
             if (key < 1 || key > MAX_KEY) return -1;
             if (opcode == 0) {
-                long slot = insertion_slot(table, table_capacity, key);
+                long slot = insertion_slot(&table[0], table_capacity, key);
                 if (slot < 0) return -1;
                 table[(usz)slot] = key; size++;
-                append(words, &word_count, 0); append(words, &word_count, 1);
-                if (size * 2 >= table_capacity) rehash(table, &table_capacity);
+                append(&words[0], &word_count, 0); append(&words[0], &word_count, 1);
+                if (size * 2 >= table_capacity) rehash(&table[0], &table_capacity);
             } else if (opcode == 1) {
-                long slot = find_slot(table, table_capacity, key);
+                long slot = find_slot(&table[0], table_capacity, key);
                 if (slot < 0) return -1;
                 table[(usz)slot] = -1; size--;
-                append(words, &word_count, 1); append(words, &word_count, 1);
+                append(&words[0], &word_count, 1); append(&words[0], &word_count, 1);
             } else if (opcode == 2) {
-                append(words, &word_count, 2);
-                append(words, &word_count, find_slot(table, table_capacity, key) >= 0 ? 1 : 0);
+                append(&words[0], &word_count, 2);
+                append(&words[0], &word_count, find_slot(&table[0], table_capacity, key) >= 0 ? 1 : 0);
             } else {
-                append(words, &word_count, 3); append(words, &word_count, key);
+                append(&words[0], &word_count, 3); append(&words[0], &word_count, key);
             }
         } else if (opcode == 4) {
-            append(words, &word_count, 4); append(words, &word_count, (long)table_capacity);
-            for (usz i = 0; i < table_capacity; i++) append(words, &word_count, table[i] == 0 ? -2 : table[i]);
+            append(&words[0], &word_count, 4); append(&words[0], &word_count, (long)table_capacity);
+            for (usz i = 0; i < table_capacity; i++) append(&words[0], &word_count, table[i] == 0 ? -2 : table[i]);
         } else return -1;
     }
     if (position != length || word_count > MAX_OUTPUT_WORDS) return -1;

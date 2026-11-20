@@ -44,8 +44,8 @@ def hlc_recover(input: view[i64], a_base: usize, a0: usize, a1: usize,
         return
 
     middle: usize = a0 + a_length / 2
-    hlc_row(input, a_base, a0, middle, b_base, b0, b1, False, False, forward)
-    hlc_row(input, a_base, middle, a1, b_base, b0, b1, True, True, backward)
+    hlc_row(input, a_base, a0, middle, b_base, b0, b1, false, false, forward)
+    hlc_row(input, a_base, middle, a1, b_base, b0, b1, true, true, backward)
     split: mutable usize = 0
     best_score: mutable i64 = -1
     j: mutable usize = 0
@@ -76,10 +76,10 @@ def hirschberg_lcs_impl(input: view[i64], length: usize,
         if input[2 + i] < 0 or input[2 + i] > 127: return -1
         i <- i + 1
 
-    a_base: usize = 2
-    b_base: usize = 2 + first_length
-    a_length: usize = first_length
-    b_length: usize = second_length
+    a_base: mutable usize = 2
+    b_base: mutable usize = 2 + first_length
+    a_length: mutable usize = first_length
+    b_length: mutable usize = second_length
     if a_length < b_length:
         a_base <- 2 + first_length
         b_base <- 2

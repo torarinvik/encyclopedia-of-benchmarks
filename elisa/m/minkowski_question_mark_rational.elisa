@@ -1,0 +1,60 @@
+const MQ_MAX_DENOMINATOR: i64 = 1000000
+const MQ_MAX_CF_SUM: i64 = 60
+
+def mq_store_i64_le(value: i64, output: mutable view[u8], offset: usize): void:
+    let bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def mq_cf_sum(numerator: i64, denominator: i64): i64:
+    let n: mutable i64 = numerator
+    let d: mutable i64 = denominator
+    let total: mutable i64 = 0
+    while n != 0:
+        let quotient: i64 = d / n
+        if quotient > MQ_MAX_CF_SUM - total: return -1
+        total <- total + quotient
+        let remainder: i64 = d % n
+        d <- n
+        n <- remainder
+    total
+
+def mq_alternating_numerator(numerator: i64, denominator: i64, total: i64): i64:
+    let n: mutable i64 = numerator
+    let d: mutable i64 = denominator
+    let prefix: mutable i64 = 0
+    let index: mutable i64 = 1
+    let result: mutable i64 = 0
+    while n != 0:
+        let quotient: i64 = d / n
+        prefix <- prefix + quotient
+        let shift: usize = (total - prefix).usize()
+        let term: i64 = (1).i64() << shift
+        if index % 2 == 1: result <- result + term
+        else: result <- result - term
+        let remainder: i64 = d % n
+        d <- n
+        n <- remainder
+        index <- index + 1
+    result
+
+def mq_impl(input: view[i64], output: mutable u8&, capacity: usize): i64:
+    if input.len() != 2: return -1
+    let p: i64 = input[0]
+    let q: i64 = input[1]
+    if p < 0 or q < 1 or q > MQ_MAX_DENOMINATOR or p > q: return -1
+    let total: i64 = mq_cf_sum(p, q)
+    if total < 0: return -1
+    if output.is_null() or capacity < 16: return -2
+    let bytes: mutable view[u8] = output[0:16]
+    let value: i64 = mq_alternating_numerator(p, q, total)
+    let exponent: i64 = if total == 0: 0 else: total - 1
+    mq_store_i64_le(value, bytes, 0)
+    mq_store_i64_le(exponent, bytes, 8)
+    16
+
+export fn minkowski_question_mark_rational(input: i64&, input_length: usize,
+    output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or input_length < 1 or input_length > 3: return -1
+    mq_impl(input[0:input_length], output, capacity)

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn permute(vals:InlineArray[Int,6],n:Int,depth:Int,current:InlineArray[Int,6],used:InlineArray[UInt8,6],out:UnsafePointer[UInt8,MutAnyOrigin],base:Int) -> Int:

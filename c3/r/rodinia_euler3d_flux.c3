@@ -13,7 +13,7 @@ fn float add32(float a,float b) @noinline{return a+b;}
 fn float sub32(float a,float b) @noinline{return a-b;}
 fn float mul32(float a,float b) @noinline{return a*b;}
 fn float div32(float a,float b) @noinline{return a/b;}
-fn float bits_f32(uint bits) @noinline{return @bitcast(float,bits);}
+fn float bits_f32(uint bits) @noinline{return bitcast(bits,float);}
 
 fn bool read_state(long* v,Flow* f){
     float[5] raw;
@@ -45,7 +45,7 @@ fn long round_away(float value){double scaled=(double)value*1000.0;return scaled
 
 fn long rodinia_euler3d_flux(long* values,usz length) @export("rodinia_euler3d_flux") {
     if(values==null||length!=INPUTS)return -1;Flow center,far;if(!read_state(values,&center))return -1;
-    long[4] kinds;float[4][3] normals;Flow[4] neighbors;
+    long[4] kinds;float[3][4] normals;Flow[4] neighbors;
     for(usz face=0;face<4;face++){usz at=5+face*9;kinds[face]=values[at];if(kinds[face] < -2||kinds[face]>0)return -1;
         for(usz d=0;d<3;d++){long raw=values[at+1+d];if(raw<0||raw>4294967295)return -1;normals[face][d]=bits_f32((uint)raw);if(!math.is_finite((double)normals[face][d])||math.fabs((double)normals[face][d])>1.0)return -1;}
         if(!read_state(values+at+4,&neighbors[face]))return -1;

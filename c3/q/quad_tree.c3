@@ -23,7 +23,7 @@ struct Context {
     usz node_count;
     Point[MAX_POINTS] points;
     usz capacity;
-    usz query_indices[MAX_POINTS];
+    usz[MAX_POINTS] query_indices;
     usz query_count;
     double query_x; double query_y; double query_half_width;
 }
@@ -98,7 +98,7 @@ fn void write_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long quad_tree(long* input, usz input_length, char* output, usz capacity) @export("quad_tree") {
+fn long quad_tree(long* input, usz input_length, char* output, usz capacity) @export("quad_tree") {
     if (input == null || input_length < 8 || input_length > MAX_PARSEABLE_INPUT_LENGTH) return -1;
     if (input[0] < -2048 || input[0] > 2048 || input[1] < -2048 || input[1] > 2048 ||
         input[2] < 1 || input[2] > 1024 || input[3] < 1 || input[3] > (long)MAX_CAPACITY ||

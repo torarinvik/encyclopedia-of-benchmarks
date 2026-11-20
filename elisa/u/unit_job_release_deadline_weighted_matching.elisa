@@ -1,0 +1,46 @@
+def ujs_assign(job: usize, starts: view[i64], ends: view[i64], slots: mutable view[i64], seen: mutable view[i64]) -> bool:
+    slot: mutable usize = starts[job].usize()
+    while slot <= ends[job].usize():
+        if seen[slot] == 0:
+            seen[slot] <- 1
+            old: i64 = slots[slot]
+            if old < 0 or ujs_assign(old.usize(), starts, ends, slots, seen):
+                slots[slot] <- job.i64()
+                return true
+        slot <- slot + 1
+    false
+
+def ujs_solve(values: view[i64]) -> i64:
+    if values.len() < 1 or values.len() > 98: return -1
+    if values[0] < 0 or values[0] > 32: return -1
+    n: usize = values[0].usize()
+    if values.len() != 1 + 3 * n: return -1
+    starts: mutable i64[32] = zeroed
+    ends: mutable i64[32] = zeroed
+    weights: mutable i64[32] = zeroed
+    order: mutable i64[32] = zeroed
+    slots: mutable i64[32] = zeroed
+    for i in 0..<32: slots[i] <- -1
+    for i in 0..<n:
+        r: i64 = values[1 + 3 * i]
+        d: i64 = values[2 + 3 * i]
+        w: i64 = values[3 + 3 * i]
+        if r < 0 or d < r or d >= 32 or w < 0 or w > 1000000: return -1
+        starts[i] <- r
+        ends[i] <- d
+        weights[i] <- w
+        j: mutable usize = i
+        while j > 0 and weights[order[j - 1].usize()] < w:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- i.i64()
+    total: mutable i64 = 0
+    for i in 0..<n:
+        seen: mutable i64[32] = zeroed
+        job: usize = order[i].usize()
+        if ujs_assign(job, starts[0:32], ends[0:32], slots[0:32], seen[0:32]): total <- total + weights[job]
+    total
+
+export fn unit_job_release_deadline_weighted_matching(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 98: return -1
+    ujs_solve(input[0:length])

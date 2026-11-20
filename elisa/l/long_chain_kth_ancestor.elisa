@@ -1,0 +1,135 @@
+const LC_MAX_N: usize = 64
+const LC_MAX_Q: usize = 32
+const LC_MAX_INPUT: usize = 130
+const LC_LOG_LEVELS: usize = 6
+
+struct LcaState:
+    parent: i64[64]
+    depth: i64[64]
+    height: i64[64]
+    heavy: i64[64]
+    chain_head: i64[64]
+    chain_position: i64[64]
+    chain_base: i64[64]
+    chain_nodes: i64[64]
+    head_ancestors: i64[64]
+    up: i64[384]
+
+def lca_solve(state: mutable LcaState&, n: usize) -> void:
+    state.parent[0] <- -1
+    for vertex in 0..<n:
+        state.heavy[vertex] <- -1
+        state.chain_head[vertex] <- -1
+        state.chain_base[vertex] <- -1
+        state.height[vertex] <- 1
+        if vertex > 0:
+            parent: usize = state.parent[vertex].usize()
+            state.depth[vertex] <- state.depth[parent] + 1
+
+    reverse: mutable usize = n
+    while reverse > 1:
+        reverse <- reverse - 1
+        vertex: usize = reverse
+        parent: usize = state.parent[vertex].usize()
+        old: i64 = state.heavy[parent]
+        if old < 0 or state.height[vertex] > state.height[old.usize()] or
+                (state.height[vertex] == state.height[old.usize()] and vertex.i64() < old):
+            state.heavy[parent] <- vertex.i64()
+        if state.height[vertex] + 1 > state.height[parent]:
+            state.height[parent] <- state.height[vertex] + 1
+
+    pool: mutable usize = 0
+    for vertex in 0..<n:
+        is_head: mutable bool = vertex == 0
+        if vertex > 0:
+            parent: usize = state.parent[vertex].usize()
+            is_head <- state.heavy[parent] != vertex.i64()
+        if is_head:
+            state.chain_base[vertex] <- pool.i64()
+            current: mutable i64 = vertex.i64()
+            position: mutable usize = 0
+            while current >= 0:
+                current_index: usize = current.usize()
+                state.chain_head[current_index] <- vertex.i64()
+                state.chain_position[current_index] <- position.i64()
+                state.chain_nodes[pool + position] <- current
+                current <- state.heavy[current_index]
+                position <- position + 1
+            current <- state.parent[vertex]
+            for step in 0..<position:
+                state.head_ancestors[pool + step] <- current
+                if current >= 0:
+                    current <- state.parent[current.usize()]
+                else:
+                    current <- -1
+            pool <- pool + position
+
+    for vertex in 0..<n:
+        state.up[vertex] <- state.parent[vertex]
+    for level in 1..<LC_LOG_LEVELS:
+        for vertex in 0..<n:
+            halfway: i64 = state.up[(level - 1) * LC_MAX_N + vertex]
+            if halfway >= 0:
+                state.up[level * LC_MAX_N + vertex] <-
+                    state.up[(level - 1) * LC_MAX_N + halfway.usize()]
+            else:
+                state.up[level * LC_MAX_N + vertex] <- -1
+
+def lca_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def long_chain_kth_ancestor(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64
+        @export("long_chain_kth_ancestor"):
+    if input.is_null() or input_length < 2 or input_length > LC_MAX_INPUT: return -1
+    values: view[i64] = input[0:input_length]
+    n_value: i64 = values[0]
+    q_value: i64 = values[1]
+    if n_value < 1 or n_value > LC_MAX_N.i64() or q_value < 1 or q_value > LC_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if input_length != n + 1 + 2 * q: return -1
+    for vertex in 1..<n:
+        parent: i64 = values[1 + vertex]
+        if parent < 0 or parent >= vertex.i64(): return -1
+    query_start: usize = n + 1
+    for query in 0..<q:
+        vertex: i64 = values[query_start + 2 * query]
+        distance: i64 = values[query_start + 2 * query + 1]
+        if vertex < 0 or vertex >= n_value or distance < 0 or distance >= LC_MAX_N.i64(): return -1
+    required: usize = 8 * q
+    if output.is_null() or output_capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+
+    state: mutable LcaState = zeroed
+    for vertex in 1..<n:
+        state.parent[vertex] <- values[1 + vertex]
+    lca_solve(state, n)
+    for query in 0..<q:
+        vertex: usize = values[query_start + 2 * query].usize()
+        distance: usize = values[query_start + 2 * query + 1].usize()
+        answer: mutable i64 = -1
+        if distance <= state.depth[vertex].usize():
+            if distance == 0:
+                answer <- vertex.i64()
+            else:
+                level: mutable usize = 0
+                value: mutable usize = distance
+                while value > 1:
+                    level <- level + 1
+                    value <- value >> 1
+                jumped: usize = state.up[level * LC_MAX_N + vertex].usize()
+                remaining: usize = distance - (1 << level)
+                head: usize = state.chain_head[jumped].usize()
+                position: usize = state.chain_position[jumped].usize()
+                base: usize = state.chain_base[head].usize()
+                if remaining <= position:
+                    answer <- state.chain_nodes[base + position - remaining]
+                else:
+                    steps: usize = remaining - position
+                    if steps <= state.height[head].usize():
+                        answer <- state.head_ancestors[base + steps - 1]
+        lca_write_i64(result, 8 * query, answer)
+    required.i64()

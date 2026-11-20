@@ -48,11 +48,11 @@ fn void keccak_f(ulong* state) {
     }
 }
 
-fn void absorb_byte(ulong* state, usz offset, uint8 value) {
+fn void absorb_byte(ulong* state, usz offset, char value) {
     state[offset / 8] ^= (ulong)value << ((offset % 8) * 8);
 }
 
-fn long sha3(long* values, usz length, uint8* output, usz output_capacity)
+fn long sha3(long* values, usz length, char* output, usz output_capacity)
     @export("sha3") {
     if (values == null || length < 2 || length > MAX_PARSEABLE_INPUT_LENGTH) return -1L;
     if (values[0] < 0 || values[0] > 3 || values[1] < 0 || values[1] > (long)MAX_MESSAGE_BYTES) return -1L;
@@ -72,21 +72,21 @@ fn long sha3(long* values, usz length, uint8* output, usz output_capacity)
     usz offset = 0;
     while (message_length - offset >= rate) {
         for (usz index = 0; index < rate; index++)
-            absorb_byte(&state[0], index, (uint8)values[2 + offset + index]);
+            absorb_byte(&state[0], index, (char)values[2 + offset + index]);
         keccak_f(&state[0]);
         offset += rate;
     }
 
-    uint8[144] block = zeroed;
+    char[144] block = zeroed;
     usz remaining = message_length - offset;
     for (usz index = 0; index < remaining; index++)
-        block[index] = (uint8)values[2 + offset + index];
+        block[index] = (char)values[2 + offset + index];
     block[remaining] ^= 0x06;
     block[rate - 1] ^= 0x80;
     for (usz index = 0; index < rate; index++) absorb_byte(&state[0], index, block[index]);
     keccak_f(&state[0]);
 
     for (usz index = 0; index < digest_length; index++)
-        output[index] = (uint8)(state[index / 8] >> ((index % 8) * 8));
+        output[index] = (char)(state[index / 8] >> ((index % 8) * 8));
     return (long)digest_length;
 }

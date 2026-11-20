@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "id": "minimum-parenthesis-removal-bfs-ascii-v1",
+  "algorithm": "minimum_parenthesis_removal_bfs",
+  "function_symbol": "minimum_parenthesis_removal_bfs",
+  "pinned_source": {
+    "discovery": "LeetCode public title index; algorithm semantics independently specified",
+    "title": "Remove Invalid Parentheses",
+    "url": "https://leetcode.com/problems/remove-invalid-parentheses/"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[text_length, ASCII bytes...]",
+    "text_length_range": [0, 16],
+    "byte_domain": "lowercase ASCII a..z, '(' or ')'; at most 8 parentheses",
+    "maximum_valid_input_values": 17,
+    "maximum_parseable_input_values": 18,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "u16 little-endian distinct result count, then lexicographically sorted records of u8 byte length followed by ASCII bytes",
+    "success_result": "number of serialized bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "maximum_output_bytes": 4354
+  },
+  "workspace": {
+    "bytes": 8192,
+    "reason": "Fixed space for at most 256 deletion-mask states, 256 unique result rows of 16 bytes, row lengths, and traversal temporaries."
+  },
+  "error_precedence": "Reject null, malformed, overlong, or over-parenthesized input before checking output pointer or capacity.",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_input_has_one_empty_repair",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 3,
+      "expected_output_hex": "010000"
+    },
+    {
+      "id": "already_balanced_text_is_preserved",
+      "input_values": [6, 97, 40, 98, 41, 99, 100],
+      "input_length": 7,
+      "expected_result": 9,
+      "expected_output_hex": "010006612862296364"
+    },
+    {
+      "id": "two_minimum_repairs_sorted",
+      "input_values": [7, 40, 41, 40, 41, 41, 40, 41],
+      "input_length": 8,
+      "expected_result": 16,
+      "expected_output_hex": "02000628282929282906282928292829"
+    },
+    {
+      "id": "unmatched_close_and_open_remove_both",
+      "input_values": [2, 41, 40],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "010000"
+    },
+    {
+      "id": "ten_distinct_minimum_repairs",
+      "input_values": [13, 40, 97, 40, 98, 40, 99, 40, 100, 40, 101, 41, 41, 41],
+      "input_length": 14,
+      "expected_result": 122,
+      "expected_output_hex": "0a000b28612862286364652929290b28612862632864652929290b28612862636428652929290b28616228632864652929290b28616228636428652929290b28616263286428652929290b61286228632864652929290b61286228636428652929290b61286263286428652929290b6162286328642865292929"
+    },
+    {
+      "id": "maximum_input_length",
+      "input_values": [16, 40, 97, 40, 98, 40, 99, 40, 100, 41, 41, 41, 41, 101, 102, 103, 104],
+      "input_length": 17,
+      "expected_result": 19,
+      "expected_output_hex": "01001028612862286328642929292965666768"
+    },
+    {
+      "id": "one_byte_short_capacity",
+      "input_values": [7, 40, 41, 40, 41, 41, 40, 41],
+      "input_length": 8,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "uppercase_outside_domain",
+      "input_values": [1, 65],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_parentheses",
+      "input_values": [9, 40, 40, 40, 40, 40, 40, 40, 40, 40],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_trailing_byte",
+      "input_values": [1, 97, 98],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_short_capacity",
+      "input_values": [1, 65],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

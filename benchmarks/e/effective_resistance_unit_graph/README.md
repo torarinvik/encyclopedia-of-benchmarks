@@ -28,11 +28,12 @@ The [CP-Algorithms matrix-tree discussion](https://cp-algorithms.com/graph/kirch
 describes the cofactor relationship. Its CC BY-SA article is used for the
 mathematical idea only; this contract, reference, and code are independently
 written. This is distinct from the existing spanning-tree count, which does
-not evaluate the terminal-pair forest minor. Draft work remains unverified;
-no code has been run. See [RIGHTS.md](RIGHTS.md) for the provenance note.
+not evaluate the terminal-pair forest minor. The implementation is present in
+all ten languages; runtime verification remains outstanding. See
+[RIGHTS.md](RIGHTS.md) for the provenance note.
 
-Drafts exist in C, C3, C++, Elisa, Mojo, Nim, Odin, Rust, V, and Zig. The
-Elisa draft converts its ABI input to a bounded view after the null and length
+Ports exist in C, C3, C++, Elisa, Mojo, Nim, Odin, Rust, V, and Zig. The Elisa
+port converts its ABI input to a bounded view after the null and length
 checks, then validates the complete frame before reading edges. The
 scalar runner and verifier are registered in source; the verifier specifies
 all simple graphs through four vertices, terminal orderings, a complete

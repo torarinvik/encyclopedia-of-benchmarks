@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "algorithm": "levin_partial_sum_transform",
+  "function_symbol": "levin_partial_sum_transform",
+  "abi": "i64_array_bytes_output",
+  "status": "integrated",
+  "input": {"minimum_valid_length": 5, "maximum_valid_length": 15, "maximum_parseable_length": 16},
+  "output": {"kind": "little_endian_i64_pair_bytes", "maximum_bytes": 16},
+  "workspace": {"bytes": 0},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/l/levin_partial_sum_transform.c",
+    "c3/l/levin_partial_sum_transform.c3",
+    "cpp/l/levin_partial_sum_transform.cpp",
+    "elisa/l/levin_partial_sum_transform.elisa",
+    "mojo/l/levin_partial_sum_transform.mojo",
+    "nim/l/levin_partial_sum_transform.nim",
+    "odin/l/levin_partial_sum_transform.odin",
+    "rust/l/levin_partial_sum_transform.rs",
+    "v/l/levin_partial_sum_transform.v",
+    "zig/l/levin_partial_sum_transform.zig"
+  ],
+  "source": "https://dlmf.nist.gov/3.9#E13"
+}

@@ -14,7 +14,7 @@ fn Pair solve(long* values, usz n) {
     return Pair{min_left, max_right};
 }
 fn void put_le(long value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz b = 0; b < 8; b++) { output[offset + b] = (char)(bits & 255); bits >>= 8; }
 }
 fn long max_difference_pair(long* input, usz length, char* output, usz capacity) @export("max_difference_pair") {

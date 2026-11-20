@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "nist-dlmf-lentz-convergent-ratio-f998244353-i64-array-bytes-output-v1",
+  "algorithm": "lentz_continued_fraction_convergents",
+  "function_symbol": "lentz_continued_fraction_convergents",
+  "abi": "i64_array_bytes_output",
+  "description": "Trace nonsingular generalized continued-fraction convergents with Lentz's C/D ratio recurrence over a finite field.",
+  "source": {
+    "title": "NIST DLMF §3.10(iii), with the detailed Lentz recurrence in Thompson and Barnett (1986), Appendix III",
+    "url": "https://dlmf.nist.gov/3.10.iii",
+    "primary_recurrence_url": "https://csclub.uwaterloo.ca/~pbarfuss/thompson1986.pdf",
+    "role": "algorithm description only; exact finite-field bounded profile is local"
+  },
+  "contract": {
+    "operation": "Emit h0..hN from the nonsingular generalized fraction b0 + a1/(b1 + ... + aN/bN).",
+    "primary_method": "Lentz C_n and D_n ratio state, multiplying successive convergent ratios into h_n.",
+    "independent_method": "Direct numerator/denominator continuants, with the same strict zero-divisor domain.",
+    "field": "F_998244353",
+    "strict_domain": "b0, each C_n, and each pre-inversion D_n denominator must be nonzero; a zero final C_n is also rejected.",
+    "finite_profile_caveat": "This exact finite-field trace makes no convergence claim for an infinite continued fraction.",
+    "invalid_input_or_zero_divisor_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,b0,a1,b1,...,aN,bN]",
+    "term_count_range": [1, 8],
+    "field": "F_998244353",
+    "canonical_residues": "all b0, an, and bn lie in 0..998244352",
+    "initial_denominator": "b0 is nonzero",
+    "exact_length": "2+2N",
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array_bytes",
+    "encoding": "[N+1,h0,h1,...,hN] over F_998244353",
+    "word_count_range": [3, 10],
+    "maximum_bytes": 80,
+    "success_result": "8*(N+2)",
+    "zero_divisor_result": -1,
+    "null_or_short_output_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Ten-word maximum output staging buffer (80 bytes), scalar Lentz state, and alignment allowance; no coefficient or dynamic-allocation buffer."
+  },
+  "complexity": {
+    "native_primary_time": "O(N log p) field operations due to modular inverses",
+    "native_primary_auxiliary_space": "O(N), capped at 128 bytes",
+    "independent_reference_time": "O(N log p) field operations",
+    "independent_reference_auxiliary_space": "O(N) reference trace"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/l/lentz_continued_fraction_convergents/primary_oracle.py",
+  "independent_oracle": "benchmarks/l/lentz_continued_fraction_convergents/independent_oracle.py",
+  "cases": [
+    {"id":"single-term-fraction","input_values":[1,1,2,1],"input_length":4,"output_capacity":24,"expected_result":24,"expected_output_hex":"0200000000000000 0100000000000000 0300000000000000"},
+    {"id":"two-term-ratio-updates","input_values":[2,1,1,1,1,1],"input_length":6,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000 0100000000000000 0200000000000000 0200c01d00000000"},
+    {"id":"maximum-valid-frame-and-output","input_values":[8,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],"input_length":18,"output_capacity":80,"expected_result":80,"expected_output_hex":"0900000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000"},
+    {"id":"maximum-output-one-byte-short","input_values":[8,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],"input_length":18,"output_capacity":79,"expected_result":-2,"expected_output_hex":""},
+    {"id":"zero-D-denominator-before-capacity","input_values":[1,1,1,0],"input_length":4,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-C-final-stage-before-capacity","input_values":[1,1,1,998244352],"input_length":4,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-initial-b0","input_values":[1,0,1,1],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"noncanonical-coefficient","input_values":[1,1,998244353,1],"input_length":4,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"term-count-below-range","input_values":[0,1],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"term-count-above-range","input_values":[9,1],"input_length":2,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-frame","input_values":[2,1,1,1],"input_length":4,"output_capacity":32,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-frame-word","input_values":[1,1,2,1,0],"input_length":5,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"maximum-parseable-trailing-word","input_values":[8,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],"input_length":19,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,2,1],"input_length":4,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,1,2,1],"input_length":4,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"input-length-mismatch","input_values":[1,1,2,1],"input_length":3,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":24,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

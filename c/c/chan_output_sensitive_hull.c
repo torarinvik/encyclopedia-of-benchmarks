@@ -67,41 +67,27 @@ static size_t chan_group_hull(const chan_point points[32], size_t begin, size_t 
     return used;
 }
 
-/* Returns a subgroup vertex ID, or SIZE_MAX when the group has no candidate.
- * A query that belongs to a group is handled by chan_wrap instead. */
+/* Finds the unique external tangent vertex. A query that belongs to a group
+ * is handled by chan_wrap instead. */
 typedef size_t (*chan_tangent_fn)(const chan_point points[32], const size_t *hull,
                                   size_t hull_size, size_t query_id);
 
 /* A global extreme vertex places all other input points in one open half-plane
- * through that vertex, so orientation orders their rays without an angle wrap.
- * Around a convex subgroup hull those ordered ray angles increase on one arc
- * and decrease on the other. Locate the minimum by its neighboring signs;
- * comparing against hull[0] distinguishes the two pieces of a split arc. */
+ * through that vertex, so polar angles form a rotated sorted sequence in the
+ * subgroup's CCW order. Compare midpoint and high rays to locate its minimum. */
 static size_t chan_external_tangent(const chan_point points[32], const size_t *hull,
                                     size_t size, size_t query_id) {
     chan_point query = points[query_id];
     if (size == 1) return hull[0];
-    if (size == 2)
-        return chan_cross(query, points[hull[0]], points[hull[1]]) > 0 ? hull[0] : hull[1];
-    int initial_up = chan_cross(query, points[hull[0]], points[hull[1]]) > 0;
-    size_t lo = 0, hi = size;
+    size_t lo = 0, hi = size-1;
     while (lo < hi) {
         size_t middle = lo + (hi-lo)/2;
-        size_t before = (middle+size-1) % size, after = (middle+1) % size;
-        int less_before = chan_cross(query, points[hull[middle]], points[hull[before]]) > 0;
-        int less_after = chan_cross(query, points[hull[middle]], points[hull[after]]) > 0;
-        if (less_before && less_after) return hull[middle];
-        int mid_up = less_after;
-        int before_anchor = middle != 0 &&
-            chan_cross(query, points[hull[middle]], points[hull[0]]) > 0;
-        int after_anchor = middle != 0 &&
-            chan_cross(query, points[hull[0]], points[hull[middle]]) > 0;
-        int search_left = initial_up ? (mid_up && before_anchor)
-                                     : (mid_up || after_anchor);
-        if (search_left) hi = middle;
-        else lo = middle + 1;
+        if (chan_cross(query, points[hull[middle]], points[hull[hi]]) > 0)
+            hi = middle;
+        else
+            lo = middle + 1;
     }
-    return SIZE_MAX;
+    return hull[lo];
 }
 
 /* Construct and wrap subgroup hulls, retrying with squared guesses when the

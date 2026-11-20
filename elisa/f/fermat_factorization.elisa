@@ -1,0 +1,34 @@
+def integer_sqrt_i64(value: i64, upper: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = upper + 1
+    while low + 1 < high:
+        middle: i64 = low + (high - low) / 2
+        if middle * middle <= value:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def fermat_factorization_impl(input: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    number: i64 = input[0]
+    max_steps: i64 = input[1]
+    if number < 3 or number > 1000000000000 or number % 2 == 0 or max_steps < 0 or max_steps > 4096:
+        return -1
+    candidate: mutable i64 = integer_sqrt_i64(number, 1000000)
+    if candidate * candidate < number:
+        candidate <- candidate + 1
+    step: mutable i64 = 0
+    while step < max_steps:
+        difference: i64 = candidate * candidate - number
+        root: i64 = integer_sqrt_i64(difference, candidate)
+        if root * root == difference:
+            factor: i64 = candidate - root
+            if factor > 1 and factor < number:
+                return factor
+        candidate <- candidate + 1
+        step <- step + 1
+    0
+
+export fn fermat_factorization(input: i64&, length: usize) -> i64 = fermat_factorization_impl

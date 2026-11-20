@@ -15,7 +15,7 @@ fn long big_integer_multiply(long* input, usz length, char* output, usz capacity
     if ((left_length > 1 && input[2] == 48) ||
         (right_length > 1 && input[right_start] == 48)) return -1;
 
-    long product[64];
+    long[64] product;
     for (usz index = 0; index < 64; index++) product[index] = 0;
     usz product_size = left_length + right_length;
     bool is_zero = (left_length == 1 && input[2] == 48) ||

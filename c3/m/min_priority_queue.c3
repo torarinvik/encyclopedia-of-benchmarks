@@ -14,7 +14,7 @@ fn void put_i32_le(char* output, usz offset, int value) {
     }
 }
 
-long min_priority_queue(long* input, usz length, char* output, usz output_capacity)
+fn long min_priority_queue(long* input, usz length, char* output, usz output_capacity)
         @export("min_priority_queue") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 0 || input[0] > 64 || input[1] < 0 || input[1] > 64) return -1;

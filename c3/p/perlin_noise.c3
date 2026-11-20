@@ -29,7 +29,7 @@ fn bool exact_integer(double value, double minimum, double maximum) {
     return value >= minimum && value <= maximum && (double)(long)value == value;
 }
 
-long perlin_noise(double* input, usz length, double* output, usz output_capacity) @export("perlin_noise") {
+fn long perlin_noise(double* input, usz length, double* output, usz output_capacity) @export("perlin_noise") {
     if (input == null || length < 4 || length > MAX_PARSEABLE_INPUT_ELEMENTS) return -1;
     if (length != MAX_INPUT_ELEMENTS) return -1;
     if (!exact_integer(input[0], 1.0, 8.0) || !exact_integer(input[1], 1.0, 8.0) ||

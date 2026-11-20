@@ -1,0 +1,39 @@
+{
+  "algorithm": "md4_digest",
+  "abi": "i64_array_bytes_output",
+  "sources": {
+    "algorithm": "https://www.rfc-editor.org/rfc/rfc1320",
+    "historic_status": "https://www.rfc-editor.org/rfc/rfc6150",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "native_paths": [
+    "c/m/md4_digest.c",
+    "cpp/m/md4_digest.cpp",
+    "rust/m/md4_digest.rs",
+    "elisa/m/md4_digest.elisa",
+    "c3/m/md4_digest.c3",
+    "nim/m/md4_digest.nim",
+    "odin/m/md4_digest.odin",
+    "v/m/md4_digest.v",
+    "zig/m/md4_digest.zig",
+    "mojo/m/md4_digest.mojo"
+  ],
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_message_bytes": 4096,
+    "maximum_valid_input_words": 4097,
+    "maximum_parseable_input_words": 4098,
+    "maximum_output_bytes": 16,
+    "workspace_bytes": 512
+  }
+}

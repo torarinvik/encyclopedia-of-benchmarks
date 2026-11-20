@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "algorithm": "inverted_list_svs_binary_search",
+  "abi": "i64_array_bytes_output",
+  "status": "complete; byte-output runner and verifier registered",
+  "suite_integration": "benchmarks/run_i64_array_bytes_output.py and benchmarks/verify_i64_array_bytes_output.py",
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "ports": {
+    "c": "c/i/inverted_list_svs_binary_search.c",
+    "c3": "c3/i/inverted_list_svs_binary_search.c3",
+    "cpp": "cpp/i/inverted_list_svs_binary_search.cpp",
+    "elisa": "elisa/i/inverted_list_svs_binary_search.elisa",
+    "mojo": "mojo/i/inverted_list_svs_binary_search.mojo",
+    "nim": "nim/i/inverted_list_svs_binary_search.nim",
+    "odin": "odin/i/inverted_list_svs_binary_search.odin",
+    "rust": "rust/i/inverted_list_svs_binary_search.rs",
+    "v": "v/i/inverted_list_svs_binary_search.v",
+    "zig": "zig/i/inverted_list_svs_binary_search.zig"
+  },
+  "bounds": {
+    "maximum_valid_input_length": 265,
+    "maximum_parseable_input_length": 266,
+    "maximum_output_bytes": 128,
+    "workspace_bytes": 4096
+  }
+}

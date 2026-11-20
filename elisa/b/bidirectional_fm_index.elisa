@@ -1,0 +1,139 @@
+const MAX_TEXT: usize = 64
+const MAX_TOTAL: usize = 65
+const MAX_LENGTH: usize = 195
+
+def bfm_suffix_less(s: view[i64], total: usize, a0: usize, b0: usize) -> bool:
+    a: mutable usize = a0
+    b: mutable usize = b0
+    while a < total and b < total:
+        if s[a] < s[b]: return true
+        if s[a] > s[b]: return false
+        a <- a + 1
+        b <- b + 1
+    a == total and b != total
+
+def bfm_rank_before(bwt: view[i64], end_at: usize, symbol: usize) -> usize:
+    count: mutable usize = 0
+    i: mutable usize = 0
+    while i < end_at:
+        if bwt[i].usize() == symbol: count <- count + 1
+        i <- i + 1
+    count
+
+def bidirectional_fm_index_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MAX_LENGTH: return -1
+    if input[0] < 0 or input[0] > 64 or input[1] < 0 or input[1] > 64: return -1
+    n: usize = input[0].usize()
+    q: usize = input[1].usize()
+    if length != 2 + n + 2 * q: return -1
+    forward_text: mutable i64[65] = zeroed
+    reverse_text: mutable i64[65] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        symbol: i64 = input[2 + i]
+        if symbol < 1 or symbol > 4: return -1
+        forward_text[i] <- symbol
+        reverse_text[n - 1 - i] <- symbol
+        i <- i + 1
+    forward_text[n] <- 0
+    reverse_text[n] <- 0
+    i <- 0
+    while i < q:
+        side: i64 = input[2 + n + 2 * i]
+        symbol: i64 = input[3 + n + 2 * i]
+        if (side != 0 and side != 1) or symbol < 1 or symbol > 4: return -1
+        i <- i + 1
+
+    total: usize = n + 1
+    forward_sa: mutable usize[65] = zeroed
+    reverse_sa: mutable usize[65] = zeroed
+    i <- 0
+    while i < total:
+        forward_sa[i] <- i
+        reverse_sa[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < total:
+        key: usize = forward_sa[i]
+        j: mutable usize = i
+        while j > 0 and bfm_suffix_less(forward_text[0:total], total, key, forward_sa[j - 1]):
+            forward_sa[j] <- forward_sa[j - 1]
+            j <- j - 1
+        forward_sa[j] <- key
+        key <- reverse_sa[i]
+        j <- i
+        while j > 0 and bfm_suffix_less(reverse_text[0:total], total, key, reverse_sa[j - 1]):
+            reverse_sa[j] <- reverse_sa[j - 1]
+            j <- j - 1
+        reverse_sa[j] <- key
+        i <- i + 1
+
+    forward_bwt: mutable i64[65] = zeroed
+    reverse_bwt: mutable i64[65] = zeroed
+    forward_frequency: mutable usize[5] = zeroed
+    reverse_frequency: mutable usize[5] = zeroed
+    i <- 0
+    while i < total:
+        forward_bwt[i] <- forward_text[(forward_sa[i] + total - 1) % total]
+        reverse_bwt[i] <- reverse_text[(reverse_sa[i] + total - 1) % total]
+        forward_frequency[forward_bwt[i].usize()] <- forward_frequency[forward_bwt[i].usize()] + 1
+        reverse_frequency[reverse_bwt[i].usize()] <- reverse_frequency[reverse_bwt[i].usize()] + 1
+        i <- i + 1
+    forward_c: mutable usize[5] = zeroed
+    reverse_c: mutable usize[5] = zeroed
+    seen: mutable usize = 0
+    i <- 0
+    while i < 5:
+        forward_c[i] <- seen
+        seen <- seen + forward_frequency[i]
+        i <- i + 1
+    seen <- 0
+    i <- 0
+    while i < 5:
+        reverse_c[i] <- seen
+        seen <- seen + reverse_frequency[i]
+        i <- i + 1
+
+    fl: mutable usize = 0
+    fr: mutable usize = total
+    rl: mutable usize = 0
+    rr: mutable usize = total
+    checksum: mutable i64 = 0
+    op: mutable usize = 0
+    while op < q:
+        side: usize = input[2 + n + 2 * op].usize()
+        symbol: usize = input[3 + n + 2 * op].usize()
+        old_fl: usize = fl
+        old_fr: usize = fr
+        old_rl: usize = rl
+        old_rr: usize = rr
+        if side == 0:
+            fl <- forward_c[symbol] + bfm_rank_before(forward_bwt[0:total], old_fl, symbol)
+            fr <- forward_c[symbol] + bfm_rank_before(forward_bwt[0:total], old_fr, symbol)
+            start: mutable usize = old_rl
+            smaller: mutable usize = 0
+            while smaller < symbol:
+                start <- start + bfm_rank_before(forward_bwt[0:total], old_fr, smaller) - bfm_rank_before(forward_bwt[0:total], old_fl, smaller)
+                smaller <- smaller + 1
+            count: usize = bfm_rank_before(forward_bwt[0:total], old_fr, symbol) - bfm_rank_before(forward_bwt[0:total], old_fl, symbol)
+            rl <- start
+            rr <- start + count
+        else:
+            rl <- reverse_c[symbol] + bfm_rank_before(reverse_bwt[0:total], old_rl, symbol)
+            rr <- reverse_c[symbol] + bfm_rank_before(reverse_bwt[0:total], old_rr, symbol)
+            start: mutable usize = old_fl
+            smaller: mutable usize = 0
+            while smaller < symbol:
+                start <- start + bfm_rank_before(reverse_bwt[0:total], old_rr, smaller) - bfm_rank_before(reverse_bwt[0:total], old_rl, smaller)
+                smaller <- smaller + 1
+            count: usize = bfm_rank_before(reverse_bwt[0:total], old_rr, symbol) - bfm_rank_before(reverse_bwt[0:total], old_rl, symbol)
+            fl <- start
+            fr <- start + count
+        checksum <- checksum + (op + 1).i64() * (fr - fl).i64()
+        op <- op + 1
+    checksum
+
+export fn bidirectional_fm_index(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > MAX_LENGTH: return -1
+    bidirectional_fm_index_impl(input[0:length])

@@ -1,0 +1,96 @@
+extern sqrt(value: f64) -> f64
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+extern floor(value: f64) -> f64
+extern ceil(value: f64) -> f64
+
+const MAX_VALUES: usize = 64
+const MAX_INPUT_LENGTH: usize = 67
+const SAMPLE_THRESHOLD: usize = 24
+
+def floyd_rivest_select_range(values: mutable view[i64], left_value: usize,
+        right_value: usize, target: usize) -> void:
+    left: mutable usize = left_value
+    right: mutable usize = right_value
+    while true:
+        if right - left > SAMPLE_THRESHOLD:
+            active_count: usize = right - left + 1
+            relative_rank: usize = target - left + 1
+            active_count_f: f64 = active_count.f64()
+            relative_rank_f: f64 = relative_rank.f64()
+            z: f64 = sqrt(log(active_count_f))
+            sample_size: f64 = 0.5 * exp(2.0 * z / 3.0)
+            direction: mutable f64 = 0.0
+            if 2 * relative_rank < active_count:
+                direction <- -1.0
+            elif 2 * relative_rank > active_count:
+                direction <- 1.0
+            spread: f64 = 0.5 * sqrt(z * sample_size *
+                (active_count_f - sample_size) / active_count_f) * direction
+            lower_estimate: f64 = target.f64() -
+                relative_rank_f * sample_size / active_count_f + spread
+            upper_estimate: f64 = target.f64() +
+                (active_count_f - relative_rank_f) * sample_size / active_count_f + spread
+            lower_rounded: i64 = floor(lower_estimate).i64()
+            upper_rounded: i64 = ceil(upper_estimate).i64()
+            sample_left: mutable usize = left
+            if lower_rounded > left.i64():
+                sample_left <- lower_rounded.usize()
+            if sample_left > target:
+                sample_left <- target
+            sample_right: mutable usize = right
+            if upper_rounded < right.i64():
+                sample_right <- upper_rounded.usize()
+            if sample_right < target:
+                sample_right <- target
+            floyd_rivest_select_range(values, sample_left, sample_right, target)
+
+        pivot: i64 = values[target]
+        less: mutable usize = left
+        scan: mutable usize = left
+        greater: mutable usize = right
+        while scan <= greater:
+            if values[scan] < pivot:
+                temporary: i64 = values[less]
+                values[less] <- values[scan]
+                values[scan] <- temporary
+                less <- less + 1
+                scan <- scan + 1
+            elif values[scan] > pivot:
+                temporary: i64 = values[greater]
+                values[greater] <- values[scan]
+                values[scan] <- temporary
+                greater <- greater - 1
+            else:
+                scan <- scan + 1
+        if target < less:
+            right <- less - 1
+        elif target > greater:
+            left <- greater + 1
+        else:
+            return
+
+export fn floyd_rivest_select(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    count64: i64 = input[0]
+    rank64: i64 = input[1]
+    if count64 < 1 or count64 > MAX_VALUES.i64() or rank64 < 0 or rank64 >= count64:
+        return -1
+    count: usize = count64.usize()
+    if length != count + 2:
+        return -1
+
+    values: mutable i64[MAX_VALUES] = zeroed
+    for index in 0..<count:
+        value: i64 = input[index + 2]
+        if value < 0 or value > 2147483647:
+            return -1
+        for previous in 0..<index:
+            if values[previous] == value:
+                return -1
+        values[index] <- value
+
+    target: usize = rank64.usize()
+    floyd_rivest_select_range(values[0:count], 0, count - 1, target)
+    values[target]

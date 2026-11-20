@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "algorithm": "lentz_continued_fraction_convergents",
+  "function_symbol": "lentz_continued_fraction_convergents",
+  "abi": "i64_array_bytes_output",
+  "status": "integrated in the i64_array_bytes_output suite",
+  "input": {
+    "minimum_valid_length": 4,
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "term_count_range": [1, 8],
+    "field": "F_998244353",
+    "canonical_residues": true,
+    "strict_nonzero_C_and_D_divisors": true
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_word_bytes",
+    "encoding": "[N+1,h0,...,hN] over F_998244353",
+    "maximum_bytes": 80
+  },
+  "workspace": {"bytes": 128},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/l/lentz_continued_fraction_convergents.c",
+    "c3/l/lentz_continued_fraction_convergents.c3",
+    "cpp/l/lentz_continued_fraction_convergents.cpp",
+    "elisa/l/lentz_continued_fraction_convergents.elisa",
+    "mojo/l/lentz_continued_fraction_convergents.mojo",
+    "nim/l/lentz_continued_fraction_convergents.nim",
+    "odin/l/lentz_continued_fraction_convergents.odin",
+    "rust/l/lentz_continued_fraction_convergents.rs",
+    "v/lentz_continued_fraction_convergents.v",
+    "zig/l/lentz_continued_fraction_convergents.zig"
+  ],
+  "sources": [
+    "https://dlmf.nist.gov/3.10.iii",
+    "https://doi.org/10.1364/AO.15.000668",
+    "https://csclub.uwaterloo.ca/~pbarfuss/thompson1986.pdf"
+  ]
+}

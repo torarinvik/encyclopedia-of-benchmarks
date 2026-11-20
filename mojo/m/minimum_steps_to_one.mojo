@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("minimum_steps_to_one")
 fn minimum_steps_to_one(n:Int64) abi("C")->Int64:
     if n<1 or n>10000:return -1

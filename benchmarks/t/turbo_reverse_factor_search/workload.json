@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "turbo-reverse-factor-search-bounded-i64-v1",
+  "algorithm": "turbo_reverse_factor_search",
+  "function_symbol": "turbo_reverse_factor_search",
+  "abi": "i64_array_scalar",
+  "description": "Exact all-occurrences search using Reverse Factor with a turbo remembered-prefix reinspection rule.",
+  "source": {
+    "title": "Speeding up two string-matching algorithms",
+    "authors": ["Maxime Crochemore", "Artur Czumaj", "Leszek Gąsieniec", "Stefan Jarominek", "Thierry Lecroq", "Wojciech Plandowski", "Wojciech Rytter"],
+    "publication": "Algorithmica 12(4/5), 247–267 (1994)",
+    "doi": "10.1007/BF01185427",
+    "url": "https://doi.org/10.1007/BF01185427",
+    "algorithm_description": "ESMAJ Chapter 26, Turbo Reverse Factor algorithm",
+    "algorithm_description_url": "https://www-igm.univ-mlv.fr/~lecroq/string/node24.html",
+    "reference_pdf": "https://ligm.univ-eiffel.fr/~lecroq/string/string.pdf",
+    "source_license": "Copyright belongs to cited authors and publishers. Mathematical algorithm descriptions only; independent implementation and workload."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, pattern_length, text[0..n), pattern[0..m)]",
+    "text_length_range": [0, 4096],
+    "pattern_length_range": [1, 128],
+    "alphabet_range": [0, 3],
+    "maximum_valid_length": 4226,
+    "maximum_parseable_length": 4227,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "(match_count << 36) | (sum_of_offsets << 12) | xor_of_offsets",
+    "includes_overlapping_matches": true,
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 28672,
+    "meaning": "Pattern staging and Morris–Pratt border table, plus a fixed dense suffix automaton with transition destinations, transition displacements, suffix links, state lengths, representative positions, and terminal flags. Text is read from the validated input frame."
+  },
+  "contract": {
+    "automaton": "Build a suffix automaton for the reversed pattern. Each defined transition stores a destination and displacement; suffix links, maximum state lengths, representative positions, and terminal states are retained.",
+    "border_table": "For each prefix length k, mp_next[k] is the length of its longest proper border, with mp_next[0]=-1; the pattern period is m-mp_next[m].",
+    "window_scan": "Scan each candidate window from right to left through the reversed-pattern suffix automaton, accumulating transition displacement and retaining the rightmost terminal-state shift.",
+    "turbo_reinspection": "Remember the preceding shift. After matching the new right-hand factor, re-inspect only min(period(prefix), floor(prefix_length/2)) characters for a periodic prefix, or the appropriate right half for a nonperiodic prefix.",
+    "occurrences": "A zero accumulated displacement after scanning through the remembered-prefix boundary reports the current start; shift by the pattern period to retain overlaps.",
+    "complexity": "O(m) preprocessing and O(n) search; the published algorithm performs at most 2n text character inspections.",
+    "state_bound": "Two sentinel states plus at most 2*m pattern-derived states fit in the 2*m+2=258 state allocation.",
+    "workspace_bound": "Two 258-by-4 i64 transition tables, three 258-entry i64 state tables, one 258-entry i64 terminal table, a 128-entry i64 pattern, a 129-entry i64 MP table, and scalar state fit within 28672 bytes.",
+    "result_bounds": "At most 4096 matches and the sum of offsets is below 2^23, so the packed result is below 2^49 and fits signed 64-bit.",
+    "error_precedence": "Validate input pointer, parseable length, header, exact packed length, and symbol ranges before preprocessing.",
+    "output_is_scalar": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "profiles": [
+      {"id": "periodic-overlap", "input_values": [6, 3, 0, 1, 0, 1, 0, 1, 0, 1], "expected_result": 137438961666},
+      {"id": "retained-prefix-fallback-overlap", "input_values": [9, 4, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0], "expected_result": 137438982151}
+    ]
+  },
+  "cases": [
+    {"id": "periodic-overlap", "input_values": [6, 3, 0, 1, 0, 1, 0, 1, 0, 1], "expected_result": 137438961666},
+    {"id": "retained-prefix-fallback-overlap", "input_values": [9, 4, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0], "expected_result": 137438982151},
+    {"id": "nonperiodic-prefix", "input_values": [8, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2], "expected_result": 137438969860},
+    {"id": "exact-single-window", "input_values": [3, 3, 2, 1, 0, 2, 1, 0], "expected_result": 68719476736},
+    {"id": "constant-symbol-pattern", "input_values": [5, 3, 2, 2, 2, 2, 2, 2, 2], "expected_result": 206158442499},
+    {"id": "single-symbol-pattern", "input_values": [4, 1, 0, 2, 0, 1, 0], "expected_result": 137438961666},
+    {"id": "no-match", "input_values": [5, 3, 0, 0, 0, 0, 0, 1, 1, 1], "expected_result": 0},
+    {"id": "pattern-longer-than-text", "input_values": [2, 3, 0, 1, 0, 1, 2], "expected_result": 0},
+    {"id": "empty-text", "input_values": [0, 1, 3], "expected_result": 0},
+    {"id": "text-symbol-outside-alphabet", "input_values": [1, 1, 4, 1], "expected_result": -1},
+    {"id": "pattern-symbol-outside-alphabet", "input_values": [1, 1, 0, 4], "expected_result": -1},
+    {"id": "trailing-word", "input_values": [0, 1, 2, 3], "expected_result": -1},
+    {"id": "missing-header", "input_values": [], "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_is_null": true, "input_length": 0, "expected_result": -1}
+  ]
+}

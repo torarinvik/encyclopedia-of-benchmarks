@@ -1,0 +1,65 @@
+alias MAX_N = 16
+alias MAX_PARSEABLE_LENGTH = 34
+
+def repair_find(parent: mutable view[usize], node_input: usize) -> usize:
+    var node: mutable usize = node_input
+    while parent[node] != node |parent, node|:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    return node
+
+def redundant_directed_connection_repair_impl(values: view[i64]) -> i64:
+    if values.len() < 1 or values.len() > MAX_PARSEABLE_LENGTH: return -1
+    let n_value = values[0]
+    if n_value < 3 or n_value > MAX_N: return -1
+    let n = n_value.usize()
+    if values.len() != 1 + 2 * n: return -1
+    var from: mutable usize[MAX_N] = zeroed
+    var to: mutable usize[MAX_N] = zeroed
+    var incoming: mutable usize[MAX_N] = zeroed
+    var parent: mutable usize[MAX_N] = zeroed
+    var sizes: mutable usize[MAX_N] = zeroed
+    for node in range(n):
+        incoming[node] <- MAX_N
+        parent[node] <- node
+        sizes[node] <- 1
+    for edge in range(n):
+        let u = values[1 + 2 * edge]
+        let v = values[2 + 2 * edge]
+        if u < 0 or u >= n_value or v < 0 or v >= n_value or u == v: return -1
+        from[edge] <- u.usize()
+        to[edge] <- v.usize()
+        for prior in range(edge):
+            if from[prior] == from[edge] and to[prior] == to[edge]: return -1
+    var first_parent: mutable i64 = -1
+    var second_parent: mutable i64 = -1
+    for edge in range(n):
+        let child = to[edge]
+        if incoming[child] == MAX_N:
+            incoming[child] <- edge
+        else:
+            first_parent <- incoming[child].i64()
+            second_parent <- edge.i64()
+            break
+    let parent_view: mutable view[usize] = parent[0:MAX_N]
+    var cycle_edge: mutable i64 = -1
+    for edge in range(n):
+        if edge.i64() == second_parent: continue
+        var a: mutable usize = repair_find(parent_view, from[edge])
+        var b: mutable usize = repair_find(parent_view, to[edge])
+        if a == b:
+            cycle_edge <- edge.i64()
+            break
+        if sizes[a] < sizes[b]:
+            let swap = a
+            a <- b
+            b <- swap
+        parent[b] <- a
+        sizes[a] <- sizes[a] + sizes[b]
+    if cycle_edge >= 0: return if second_parent >= 0: first_parent else: cycle_edge
+    second_parent
+
+export fn redundant_directed_connection_repair(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    redundant_directed_connection_repair_impl(input_view)

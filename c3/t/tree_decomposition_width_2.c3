@@ -35,8 +35,8 @@ fn long tree_decomposition_width_2(long *values, usz length, char *output, usz c
 
     bool[MAX_N] active = {};
     long[MAX_N] order = {};
-    long[MAX_N][3] bag_values = {};
-    long[MAX_N][2] later = {};
+    long[3][MAX_N] bag_values = {};
+    long[2][MAX_N] later = {};
     long[MAX_N] parents = {};
     int[MAX_N] bag_sizes = {};
     int[MAX_N] later_counts = {};

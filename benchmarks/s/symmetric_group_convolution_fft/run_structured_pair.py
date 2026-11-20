@@ -87,9 +87,11 @@ def main():
              for prefix in ("left_identity", "right_identity", "constant_convolution")}
     known.update(f"{prefix}_{n}" for n in range(3, 10)
                  for prefix in ("noncommuting_left_first", "noncommuting_right_first",
-                                "two_support_left", "two_support_right"))
+                                "two_support_left", "two_support_right",
+                                "near_constant_left", "near_constant_right"))
     known.update(f"{prefix}_{n}" for n in range(2, 10)
                  for prefix in ("sign_character_left", "sign_character_right", "even_subgroup_left",
+                                "parity_weighted_left", "parity_weighted_right",
                                 "coordinate_left_first", "coordinate_right_first"))
     known.update(f"{prefix}_{n}" for n in range(3, 6)
                  for prefix in ("three_support_left", "three_support_right"))

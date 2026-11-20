@@ -5,14 +5,14 @@ const int MAX_EVENTS = 32;
 const usz MAX_INPUT_VALUES = 2 + 4 * MAX_EVENTS + 1;
 const int TREE_NODES = 4 * MAX_EVENTS + 8;
 
-fn usz find_root(usz[MAX_VERTICES]* parent, usz vertex) {
+fn usz find_root(usz* parent, usz vertex) {
     while (parent[vertex] != vertex) vertex = parent[vertex];
     return vertex;
 }
 
 fn void add_interval(usz node, usz left, usz right, usz query_left,
-    usz query_right, usz edge_id, usz[MAX_TREE_NODES]* bucket_count,
-    usz[MAX_TREE_NODES][MAX_EVENTS]* buckets) {
+    usz query_right, usz edge_id, usz* bucket_count,
+    usz[MAX_EVENTS]* buckets) {
     if (query_left <= left && right <= query_right) {
         buckets[node][bucket_count[node]] = edge_id;
         bucket_count[node] += 1;
@@ -27,9 +27,9 @@ fn void add_interval(usz node, usz left, usz right, usz query_left,
                      edge_id, bucket_count, buckets);
 }
 
-fn void unite(usz left, usz right, usz[MAX_VERTICES]* parent,
-    usz[MAX_VERTICES]* set_size, usz[MAX_VERTICES]* history_child,
-    usz[MAX_VERTICES]* history_root, usz[MAX_VERTICES]* history_size,
+fn void unite(usz left, usz right, usz* parent,
+    usz* set_size, usz* history_child,
+    usz* history_root, usz* history_size,
     usz* history_count) {
     usz root_left = find_root(parent, left);
     usz root_right = find_root(parent, right);
@@ -47,9 +47,9 @@ fn void unite(usz left, usz right, usz[MAX_VERTICES]* parent,
     set_size[root_right] += set_size[root_left];
 }
 
-fn void rollback_to(usz checkpoint, usz[MAX_VERTICES]* parent,
-    usz[MAX_VERTICES]* set_size, usz[MAX_VERTICES]* history_child,
-    usz[MAX_VERTICES]* history_root, usz[MAX_VERTICES]* history_size,
+fn void rollback_to(usz checkpoint, usz* parent,
+    usz* set_size, usz* history_child,
+    usz* history_root, usz* history_size,
     usz* history_count) {
     while (*history_count > checkpoint) {
         *history_count -= 1;
@@ -61,13 +61,13 @@ fn void rollback_to(usz checkpoint, usz[MAX_VERTICES]* parent,
 }
 
 fn void solve_time_tree(usz node, usz left, usz right,
-    long[MAX_EVENTS]* operation, long[MAX_EVENTS]* first,
-    long[MAX_EVENTS]* second, long[MAX_EVENTS]* edge_left,
-    long[MAX_EVENTS]* edge_right, usz[MAX_TREE_NODES]* bucket_count,
-    usz[MAX_TREE_NODES][MAX_EVENTS]* buckets, usz[MAX_VERTICES]* parent,
-    usz[MAX_VERTICES]* set_size, usz[MAX_VERTICES]* history_child,
-    usz[MAX_VERTICES]* history_root, usz[MAX_VERTICES]* history_size,
-    usz* history_count, long[MAX_EVENTS]* answer) {
+    long* operation, long* first,
+    long* second, long* edge_left,
+    long* edge_right, usz* bucket_count,
+    usz[MAX_EVENTS]* buckets, usz* parent,
+    usz* set_size, usz* history_child,
+    usz* history_root, usz* history_size,
+    usz* history_count, long* answer) {
     usz checkpoint = *history_count;
     for (usz entry = 0; entry < bucket_count[node]; entry += 1) {
         usz edge_id = buckets[node][entry];
@@ -91,23 +91,23 @@ fn void solve_time_tree(usz node, usz left, usz right,
                 history_size, history_count);
 }
 
-fn void store_i64_le(uint8* output, usz offset, long value) {
+fn void store_i64_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte += 1)
-        output[offset + byte] = (uint8)((bits >> (8 * byte)) & 255);
+        output[offset + byte] = (char)((bits >> (8 * byte)) & 255);
 }
 
-fn long offline_dynamic_connectivity(long* input, usz length, uint8* output,
+fn long offline_dynamic_connectivity(long* input, usz length, char* output,
     usz capacity) @export("offline_dynamic_connectivity") {
     if (input == null || length < 2 || length > MAX_INPUT_VALUES) return -1;
     if (input[0] < 1 || input[0] > MAX_VERTICES ||
         input[1] < 0 || input[1] > MAX_EVENTS) return -1;
-    usz vertex_count = (usz)input[0], event_count = (usz)input[1];
+    usz vertex_count = (usz)input[0]; usz event_count = (usz)input[1];
     if (length != 2 + 4 * event_count) return -1;
 
     long[MAX_EVENTS] operation, first, second, edge_left, edge_right;
     usz[MAX_EVENTS] start_time;
-    bool[MAX_EVENTS] used_id = zeroed, active = zeroed;
+    bool[MAX_EVENTS] used_id = zeroed; bool[MAX_EVENTS] active = zeroed;
     usz query_count = 0;
     for (usz time = 0; time < event_count; time += 1) {
         usz offset = 2 + 4 * time;
@@ -140,8 +140,8 @@ fn long offline_dynamic_connectivity(long* input, usz length, uint8* output,
 
     usz required = 8 * query_count;
     if (output == null || capacity < required) return -2;
-    usz[MAX_TREE_NODES] bucket_count = zeroed;
-    usz[MAX_TREE_NODES][MAX_EVENTS] buckets;
+    usz[TREE_NODES] bucket_count = zeroed;
+    usz[MAX_EVENTS][TREE_NODES] buckets;
     for (usz edge_id = 0; edge_id < MAX_EVENTS; edge_id += 1) {
         if (!used_id[edge_id]) continue;
         usz end_time = event_count;
@@ -155,7 +155,7 @@ fn long offline_dynamic_connectivity(long* input, usz length, uint8* output,
         }
         if (start_time[edge_id] < end_time && event_count != 0)
             add_interval(1, 0, event_count, start_time[edge_id], end_time,
-                         edge_id, &bucket_count, &buckets);
+                         edge_id, &bucket_count[0], &buckets[0]);
     }
 
     usz[MAX_VERTICES] parent, set_size;
@@ -167,9 +167,9 @@ fn long offline_dynamic_connectivity(long* input, usz length, uint8* output,
     usz history_count = 0;
     long[MAX_EVENTS] answer = zeroed;
     if (event_count != 0)
-        solve_time_tree(1, 0, event_count, &operation, &first, &second,
-            &edge_left, &edge_right, &bucket_count, &buckets, &parent, &set_size,
-            &history_child, &history_root, &history_size, &history_count, &answer);
+        solve_time_tree(1, 0, event_count, &operation[0], &first[0], &second[0],
+            &edge_left[0], &edge_right[0], &bucket_count[0], &buckets[0], &parent[0], &set_size[0],
+            &history_child[0], &history_root[0], &history_size[0], &history_count, &answer[0]);
 
     usz written = 0;
     for (usz time = 0; time < event_count; time += 1) {

@@ -1,0 +1,32 @@
+{
+  "algorithm": "frobenius_number_apery",
+  "function_symbol": "frobenius_number_apery",
+  "abi": "i64_array_scalar",
+  "workspace_bytes": 256,
+  "maximum_parseable_input_length": 6,
+  "maximum_valid_input_length": 5,
+  "maximum_result": 209,
+  "maximum_explicit_native_state_bytes": 192,
+  "languages": {
+    "c": "c/f/frobenius_number_apery.c",
+    "c3": "c3/f/frobenius_number_apery.c3",
+    "cpp": "cpp/f/frobenius_number_apery.cpp",
+    "elisa": "elisa/f/frobenius_number_apery.elisa",
+    "mojo": "mojo/f/frobenius_number_apery.mojo",
+    "nim": "nim/f/frobenius_number_apery.nim",
+    "odin": "odin/f/frobenius_number_apery.odin",
+    "rust": "rust/f/frobenius_number_apery.rs",
+    "v": "v/f/frobenius_number_apery.v",
+    "zig": "zig/f/frobenius_number_apery.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ]
+}

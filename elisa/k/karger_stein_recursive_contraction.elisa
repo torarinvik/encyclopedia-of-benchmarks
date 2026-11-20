@@ -1,0 +1,91 @@
+# Independently authored draft; not compiled or run.
+def ks_root(parent: view[usize], vertex: usize) -> usize:
+    current: mutable usize = vertex
+    while parent[current] != current: current <- parent[current]
+    current
+
+def ks_solve(edges_u: view[usize], edges_v: view[usize], m: usize,
+             tape: view[i64], position: mutable usize&, parent: view[usize],
+             n: usize, components: usize) -> i64:
+    if components <= 6:
+        index: mutable usize[12] = zeroed
+        count: mutable usize = 0
+        for i in 0..<n:
+            if parent[i] == i:
+                index[i] <- count
+                count <- count + 1
+        best: mutable i64 = m.i64() + 1
+        limit: usize = (1.usize() << (components - 1)) - 1
+        for mask in 0..<limit:
+            side: usize = (mask << 1) | 1
+            cut: mutable i64 = 0
+            for e in 0..<m:
+                a: usize = index[ks_root(parent, edges_u[e])]
+                b: usize = index[ks_root(parent, edges_v[e])]
+                if ((side >> a) & 1) != ((side >> b) & 1): cut <- cut + 1
+            if cut < best: best <- cut
+        return best
+    target: mutable usize = 0
+    if components == 7: target <- 6
+    elif components == 8: target <- 7
+    elif components == 9: target <- 8
+    elif components == 10 or components == 11: target <- 9
+    else: target <- 10
+    best: mutable i64 = m.i64() + 1
+    for branch in 0..<2:
+        next: mutable usize[12] = zeroed
+        for i in 0..<n: next[i] <- parent[i]
+        remaining: mutable usize = components
+        while remaining > target:
+            live: mutable i64 = 0
+            for e in 0..<m:
+                if ks_root(next[0:n], edges_u[e]) != ks_root(next[0:n], edges_v[e]): live <- live + 1
+            if position >= tape.len(): return -1
+            rank: mutable i64 = tape[position]
+            position <- position + 1
+            if rank < 0 or rank >= live: return -1
+            for e in 0..<m:
+                a: usize = ks_root(next[0:n], edges_u[e])
+                b: usize = ks_root(next[0:n], edges_v[e])
+                if a != b:
+                    if rank == 0:
+                        next[b] <- a
+                        break
+                    rank <- rank - 1
+            remaining <- remaining - 1
+        result: i64 = ks_solve(edges_u, edges_v, m, tape, position, next[0:n], n, target)
+        if result < 0: return -1
+        if result < best: best <- result
+    best
+
+def ks_compute(input: view[i64], length: usize) -> i64:
+    if input[0] < 2 or input[0] > 12 or input[1] < 1 or input[1] > 32 or input[2] < 0 or input[2] > 64: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    q: usize = input[2].usize()
+    if length != 3 + 2*m + q: return -1
+    left: mutable usize[32] = zeroed
+    right: mutable usize[32] = zeroed
+    parent: mutable usize[12] = zeroed
+    for i in 0..<n: parent[i] <- i
+    for i in 0..<m:
+        u: i64 = input[3+2*i]
+        v: i64 = input[4+2*i]
+        if u < 0 or v < 0 or u >= n.i64() or v >= n.i64() or u == v: return -1
+        left[i] <- u.usize()
+        right[i] <- v.usize()
+        a: usize = ks_root(parent[0:n], left[i])
+        b: usize = ks_root(parent[0:n], right[i])
+        parent[b] <- a
+    initial: usize = ks_root(parent[0:n], 0)
+    for i in 1..<n:
+        if ks_root(parent[0:n], i) != initial: return -1
+    for i in 0..<n: parent[i] <- i
+    position: mutable usize = 0
+    result: i64 = ks_solve(left[0:m], right[0:m], m, input[3+2*m:length], position, parent[0:n], n, n)
+    if result < 0 or position != q: return -1
+    result
+
+export fn karger_stein_recursive_contraction(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 132: return -1
+    ks_compute(input[0:length], length)

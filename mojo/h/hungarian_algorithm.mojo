@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn hungarian_i32_store(o:UnsafePointer[UInt8,MutAnyOrigin],at:Int,v:Int):

@@ -35,8 +35,9 @@ def srin_before(a: usize, b: usize, left: view[i64], right: view[i64], block_siz
 
 def static_range_inversions_query_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 2 or length > 195: return -1
-    n64: i64 = input[0]
-    q64: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n64: i64 = frame[0]
+    q64: i64 = frame[1]
     if n64 < 1 or n64 > 128 or q64 < 1 or q64 > 32: return -1
     n: usize = n64.usize()
     q: usize = q64.usize()
@@ -45,7 +46,7 @@ def static_range_inversions_query_impl(input: i64&, length: usize, output: mutab
     sorted: mutable i64[MAX_N] = zeroed
     i: mutable usize = 0
     while i < n:
-        values[i] <- input[2 + i]
+        values[i] <- frame[2 + i]
         if values[i] < 0 or values[i] > 1000000000: return -1
         sorted[i] <- values[i]
         i <- i + 1
@@ -78,8 +79,8 @@ def static_range_inversions_query_impl(input: i64&, length: usize, output: mutab
     off: mutable usize = 2 + n
     k: mutable usize = 0
     while k < q:
-        left[k] <- input[off]
-        right[k] <- input[off + 1]
+        left[k] <- frame[off]
+        right[k] <- frame[off + 1]
         off <- off + 2
         if left[k] < 0 or left[k] >= right[k] or right[k] > n64: return -1
         order[k] <- k
@@ -132,12 +133,13 @@ def static_range_inversions_query_impl(input: i64&, length: usize, output: mutab
         qi <- qi + 1
     bytes: usize = 8 * q
     if output.is_null() or capacity < bytes: return -2
+    encoded: mutable view[u8] = output[0:bytes]
     k <- 0
     while k < q:
         bits: u64 = answers[k].u64()
         b: mutable usize = 0
         while b < 8:
-            output[k * 8 + b] <- ((bits >> (b * 8)) & 255).u8()
+            encoded[k * 8 + b] <- ((bits >> (b * 8)) & 255).u8()
             b <- b + 1
         k <- k + 1
     bytes.i64()

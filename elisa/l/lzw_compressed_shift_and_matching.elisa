@@ -1,0 +1,121 @@
+const MAX_ALPHABET: usize = 16
+const MAX_PATTERN: usize = 32
+const MAX_CODES: usize = 32
+const MAX_DICTIONARY: usize = 47
+const MAX_EXPANDED: usize = 528
+const MAX_INPUT: usize = 67
+const MAX_OUTPUT_BYTES: usize = 4232
+
+def lzw_store64(output: mutable u8&, offset: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def lzw_compressed_shift_and_matching_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    alphabet_raw: i64 = input[0]
+    pattern_raw: i64 = input[1]
+    code_count_raw: i64 = input[2]
+    if alphabet_raw < 1 or alphabet_raw > 16 or pattern_raw < 1 or pattern_raw > 32 or code_count_raw < 0 or code_count_raw > 32: return -1
+    alphabet_size: usize = alphabet_raw.usize()
+    pattern_length: usize = pattern_raw.usize()
+    code_count: usize = code_count_raw.usize()
+    if length != 3 + pattern_length + code_count: return -1
+    symbol_mask: mutable u32[MAX_ALPHABET] = zeroed
+    for i in 0..<pattern_length:
+        symbol: i64 = input[3 + i]
+        if symbol < 0 or symbol >= alphabet_raw: return -1
+        symbol_mask[symbol.usize()] <- symbol_mask[symbol.usize()] | (1u32 << i)
+    if code_count > 0 and (input[3 + pattern_length] < 0 or input[3 + pattern_length] >= alphabet_raw): return -1
+
+    phrase_length: mutable usize[MAX_DICTIONARY] = zeroed
+    first_symbol: mutable u8[MAX_DICTIONARY] = zeroed
+    phrase_mask: mutable u32[MAX_DICTIONARY] = zeroed
+    crossing_mask: mutable u32[MAX_DICTIONARY] = zeroed
+    ends_match: mutable bool[MAX_DICTIONARY] = zeroed
+    previous_match: mutable i64[MAX_DICTIONARY] = zeroed
+    top_bit: u32 = 1u32 << (pattern_length - 1)
+    for symbol in 0..<alphabet_size:
+        phrase_length[symbol] <- 1
+        first_symbol[symbol] <- symbol.u8()
+        phrase_mask[symbol] <- symbol_mask[symbol]
+        if pattern_length > 1 and (phrase_mask[symbol] & top_bit) != 0:
+            crossing_mask[symbol] <- 1u32 << (pattern_length - 2)
+        ends_match[symbol] <- pattern_length == 1 and (phrase_mask[symbol] & top_bit) != 0
+        previous_match[symbol] <- -1
+
+    words: mutable i64[1 + MAX_EXPANDED] = zeroed
+    occurrence_count: mutable usize = 0
+    node_count: mutable usize = alphabet_size
+    text_offset: mutable usize = 0
+    state: mutable u32 = 0
+    previous_code: mutable i64 = -1
+    for token in 0..<code_count:
+        code_raw: i64 = input[3 + pattern_length + token]
+        current_code: mutable usize = 0
+        if previous_code < 0:
+            current_code <- code_raw.usize()
+        else:
+            if code_raw < 0 or code_raw > node_count.i64(): return -1
+            appended: mutable u8 = 0
+            if code_raw == node_count.i64():
+                appended <- first_symbol[previous_code.usize()]
+                current_code <- node_count
+            else:
+                current_code <- code_raw.usize()
+                appended <- first_symbol[current_code]
+            if node_count >= MAX_DICTIONARY: return -1
+            node: usize = node_count
+            node_count <- node_count + 1
+            phrase_length[node] <- phrase_length[previous_code.usize()] + 1
+            first_symbol[node] <- first_symbol[previous_code.usize()]
+            phrase_mask[node] <- ((phrase_mask[previous_code.usize()] << 1) | 1u32) & symbol_mask[appended.usize()]
+            crossing_mask[node] <- crossing_mask[previous_code.usize()]
+            if phrase_length[node] < pattern_length and (phrase_mask[node] & top_bit) != 0:
+                crossing_mask[node] <- crossing_mask[node] | (1u32 << (pattern_length - phrase_length[node] - 1))
+            ends_match[node] <- phrase_length[node] >= pattern_length and (phrase_mask[node] & top_bit) != 0
+            previous_match[node] <- if ends_match[previous_code.usize()] then previous_code else previous_match[previous_code.usize()]
+
+        crossing: mutable u32 = state & crossing_mask[current_code]
+        while crossing != 0:
+            highest: mutable usize = 0
+            bits: mutable u32 = crossing
+            while (bits >> 1) != 0:
+                bits <- bits >> 1
+                highest <- highest + 1
+            words[1 + occurrence_count] <- text_offset.i64() - (highest + 1).i64()
+            occurrence_count <- occurrence_count + 1
+            crossing <- crossing & ~(1u32 << highest)
+
+        internal_nodes: mutable usize[MAX_DICTIONARY] = zeroed
+        internal_count: mutable usize = 0
+        node: mutable i64 = if ends_match[current_code] then current_code.i64() else previous_match[current_code]
+        while node >= 0:
+            internal_nodes[internal_count] <- node.usize()
+            internal_count <- internal_count + 1
+            node <- previous_match[node.usize()]
+        while internal_count > 0:
+            internal_count <- internal_count - 1
+            node <- internal_nodes[internal_count].i64()
+            words[1 + occurrence_count] <- text_offset.i64() + phrase_length[node.usize()].i64() - pattern_length.i64()
+            occurrence_count <- occurrence_count + 1
+
+        current_length: usize = phrase_length[current_code]
+        shifted: u32 = if current_length >= pattern_length then 0 else state << current_length
+        fresh: u32 = if current_length >= pattern_length then (if pattern_length == 32 then 0xffffffffu32 else (1u32 << pattern_length) - 1) else (1u32 << current_length) - 1
+        state <- (shifted | fresh) & phrase_mask[current_code]
+        text_offset <- text_offset + current_length
+        previous_code <- current_code.i64()
+
+    words[0] <- occurrence_count.i64()
+    output_bytes: usize = 8 * (1 + occurrence_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    for word in 0..<(1 + occurrence_count): lzw_store64(staged&, 8 * word, words[word])
+    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    output_bytes.i64()
+
+export fn lzw_compressed_shift_and_matching(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64 = lzw_compressed_shift_and_matching_impl

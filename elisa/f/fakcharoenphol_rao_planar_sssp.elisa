@@ -1,0 +1,538 @@
+const FR_MAX_N: usize = 12
+const FR_MAX_M: usize = 60
+const FR_MAX_P: usize = 119
+const FR_MAX_B: usize = 12
+const FR_MAX_BLOCKS: usize = 44
+const FR_MAX_INPUT: usize = 2088
+const FR_INF: i64 = 1152921504606846976
+
+struct FrArc:
+    tail: usize
+    head: usize
+    weight: i64
+
+struct FrPiece:
+    left: i64
+    right: i64
+    boundary_count: usize
+    arc_mask: u64
+    vertex_mask: u16
+    boundary: usize[FR_MAX_B]
+
+struct FrBlock:
+    child: usize
+    row_count: usize
+    column_count: usize
+    rows: usize[FR_MAX_B]
+    columns: usize[FR_MAX_B]
+    weights: i64[FR_MAX_B * FR_MAX_B]
+    best_value: i64[FR_MAX_B]
+    best_row: i64[FR_MAX_B]
+
+struct FrContext:
+    n: usize
+    m: usize
+    source: usize
+    piece_count: usize
+    pieces: FrPiece[FR_MAX_P]
+    arcs: FrArc[FR_MAX_M]
+    ddg: i64[FR_MAX_P * FR_MAX_N * FR_MAX_N]
+    potential: i64[FR_MAX_P * FR_MAX_N]
+
+def fr_ddg_index(piece: usize, from: usize, to: usize) -> usize:
+    piece * FR_MAX_N * FR_MAX_N + from * FR_MAX_N + to
+
+def fr_potential_index(piece: usize, vertex: usize) -> usize:
+    piece * FR_MAX_N + vertex
+
+def fr_popcount16(value_input: u16) -> usize:
+    value: mutable u16 = value_input
+    count: mutable usize = 0
+    while value != 0:
+        count <- count + (value & 1).usize()
+        value <- value >> 1
+    count
+
+def fr_popcount64(value_input: u64) -> usize:
+    value: mutable u64 = value_input
+    count: mutable usize = 0
+    while value != 0:
+        count <- count + (value & 1).usize()
+        value <- value >> 1
+    count
+
+def fr_vertex_mask(ctx: FrContext&, mask: u64) -> u16:
+    result: mutable u16 = 0
+    edge: mutable usize = 0
+    while edge < ctx.m:
+        if (mask & (1.u64() << edge)) != 0:
+            result <- result | (1.u16() << ctx.arcs[edge].tail)
+            result <- result | (1.u16() << ctx.arcs[edge].head)
+        edge <- edge + 1
+    result
+
+def fr_connected(ctx: FrContext&, mask: u64, vertices: u16) -> bool:
+    if vertices == 0: return false
+    start: mutable usize = 0
+    while (vertices & (1.u16() << start)) == 0: start <- start + 1
+    reached: mutable u16 = 1.u16() << start
+    changed: mutable bool = true
+    while changed:
+        changed <- false
+        edge: mutable usize = 0
+        while edge < ctx.m:
+            if (mask & (1.u64() << edge)) != 0:
+                u: usize = ctx.arcs[edge].tail
+                v: usize = ctx.arcs[edge].head
+                ub: u16 = 1.u16() << u
+                vb: u16 = 1.u16() << v
+                if (reached & ub) != 0 and (reached & vb) == 0:
+                    reached <- reached | vb
+                    changed <- true
+                if (reached & vb) != 0 and (reached & ub) == 0:
+                    reached <- reached | ub
+                    changed <- true
+            edge <- edge + 1
+    reached == vertices
+
+def fr_parse(ctx: mutable FrContext&, input: view[i64]) -> bool:
+    length: usize = input.len()
+    if length < 4 or length > FR_MAX_INPUT: return false
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    source_value: i64 = input[2]
+    piece_count_value: i64 = input[3]
+    if n_value < 2 or n_value > FR_MAX_N.i64() or m_value < 1 or m_value > FR_MAX_M.i64(): return false
+    if source_value < 0 or source_value >= n_value or piece_count_value < 1 or piece_count_value > FR_MAX_P.i64() or piece_count_value % 2 == 0: return false
+    ctx.n <- n_value.usize()
+    ctx.m <- m_value.usize()
+    ctx.source <- source_value.usize()
+    ctx.piece_count <- piece_count_value.usize()
+
+    seen_arc: mutable bool[FR_MAX_N * FR_MAX_N] = zeroed
+    seen_pair: mutable bool[FR_MAX_N * FR_MAX_N] = zeroed
+    pair_count: mutable usize = 0
+    offset: mutable usize = 4
+    edge: mutable usize = 0
+    while edge < ctx.m:
+        if offset + 3 > length: return false
+        u_value: i64 = input[offset]
+        v_value: i64 = input[offset + 1]
+        weight: i64 = input[offset + 2]
+        offset <- offset + 3
+        if u_value < 0 or u_value >= ctx.n.i64() or v_value < 0 or v_value >= ctx.n.i64() or u_value == v_value or weight < -100 or weight > 100: return false
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if seen_arc[u * FR_MAX_N + v]: return false
+        seen_arc[u * FR_MAX_N + v] <- true
+        if not seen_pair[u * FR_MAX_N + v]:
+            seen_pair[u * FR_MAX_N + v] <- true
+            seen_pair[v * FR_MAX_N + u] <- true
+            pair_count <- pair_count + 1
+        ctx.arcs[edge].tail <- u
+        ctx.arcs[edge].head <- v
+        ctx.arcs[edge].weight <- weight
+        edge <- edge + 1
+    edge_limit: usize = if ctx.n == 2: 1 else: 3 * ctx.n - 6
+    if pair_count > edge_limit or ctx.m > 2 * edge_limit: return false
+
+    visited: mutable bool[FR_MAX_N] = zeroed
+    queue: mutable usize[FR_MAX_N] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    visited[0] <- true
+    queue[0] <- 0
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        edge <- 0
+        while edge < ctx.m:
+            v: mutable i64 = -1
+            if ctx.arcs[edge].tail == u: v <- ctx.arcs[edge].head.i64()
+            else if ctx.arcs[edge].head == u: v <- ctx.arcs[edge].tail.i64()
+            if v >= 0 and not visited[v.usize()]:
+                visited[v.usize()] <- true
+                queue[tail] <- v.usize()
+                tail <- tail + 1
+            edge <- edge + 1
+    for v in 0..<ctx.n:
+        if not visited[v]: return false
+
+    parents: mutable usize[FR_MAX_P] = zeroed
+    leaf_union: mutable u64 = 0
+    leaf_count: mutable usize = 0
+    full: u64 = (1.u64() << ctx.m) - 1
+    index: mutable usize = 0
+    while index < ctx.piece_count:
+        if offset + 4 > length: return false
+        left: i64 = input[offset]
+        right: i64 = input[offset + 1]
+        mask_value: i64 = input[offset + 2]
+        boundary_count_value: i64 = input[offset + 3]
+        offset <- offset + 4
+        if boundary_count_value < 1 or boundary_count_value > ctx.n.i64() or boundary_count_value > FR_MAX_B.i64(): return false
+        boundary_count: usize = boundary_count_value.usize()
+        if offset + boundary_count > length: return false
+        piece: mutable FrPiece = zeroed
+        piece.left <- left
+        piece.right <- right
+        piece.boundary_count <- boundary_count
+        listed: mutable u16 = 0
+        j: mutable usize = 0
+        while j < boundary_count:
+            vertex_value: i64 = input[offset]
+            offset <- offset + 1
+            if vertex_value < 0 or vertex_value >= ctx.n.i64(): return false
+            vertex: usize = vertex_value.usize()
+            bit: u16 = 1.u16() << vertex
+            if (listed & bit) != 0: return false
+            listed <- listed | bit
+            piece.boundary[j] <- vertex
+            j <- j + 1
+        if left == -1 and right == -1:
+            if mask_value <= 0: return false
+            piece.arc_mask <- mask_value.u64()
+            if (piece.arc_mask & !full) != 0 or fr_popcount64(piece.arc_mask) > 3 or (leaf_union & piece.arc_mask) != 0: return false
+            leaf_union <- leaf_union | piece.arc_mask
+            leaf_count <- leaf_count + 1
+            piece.vertex_mask <- fr_vertex_mask(ctx, piece.arc_mask)
+            if not fr_connected(ctx, piece.arc_mask, piece.vertex_mask): return false
+        else:
+            if left < 0 or right < 0 or left >= index.i64() or right >= index.i64() or left == right or mask_value != -1: return false
+            li: usize = left.usize()
+            ri: usize = right.usize()
+            if parents[li] != 0 or parents[ri] != 0: return false
+            parents[li] <- 1
+            parents[ri] <- 1
+            lp: FrPiece = ctx.pieces[li]
+            rp: FrPiece = ctx.pieces[ri]
+            if (lp.arc_mask & rp.arc_mask) != 0: return false
+            piece.arc_mask <- lp.arc_mask | rp.arc_mask
+            piece.vertex_mask <- lp.vertex_mask | rp.vertex_mask
+            parent_vertices: usize = fr_popcount16(piece.vertex_mask)
+            child_limit: usize = (2 * parent_vertices + 2) / 3
+            if fr_popcount16(lp.vertex_mask) > child_limit or fr_popcount16(rp.vertex_mask) > child_limit or (lp.vertex_mask & rp.vertex_mask) == 0: return false
+        expected: mutable u16 = 0
+        vertex: mutable usize = 0
+        while vertex < ctx.n:
+            bit: u16 = 1.u16() << vertex
+            if (piece.vertex_mask & bit) != 0:
+                if vertex == ctx.source:
+                    expected <- expected | bit
+                else:
+                    edge <- 0
+                    while edge < ctx.m:
+                        if (piece.arc_mask & (1.u64() << edge)) == 0 and (ctx.arcs[edge].tail == vertex or ctx.arcs[edge].head == vertex):
+                            expected <- expected | bit
+                            break
+                        edge <- edge + 1
+            vertex <- vertex + 1
+        if listed != expected or not fr_connected(ctx, piece.arc_mask, piece.vertex_mask): return false
+        if index + 1 == ctx.piece_count and (piece.arc_mask != full or piece.vertex_mask != (1.u16() << ctx.n) - 1): return false
+        ctx.pieces[index] <- piece
+        index <- index + 1
+    if offset != length or ctx.piece_count != 2 * leaf_count - 1 or leaf_union != full or parents[ctx.piece_count - 1] != 0: return false
+    index <- 0
+    while index + 1 < ctx.piece_count:
+        if parents[index] != 1: return false
+        index <- index + 1
+    ctx.pieces[ctx.piece_count - 1].boundary_count == 1 and ctx.pieces[ctx.piece_count - 1].boundary[0] == ctx.source
+
+def fr_bellman_all(nodes: view[usize], arcs: view[FrArc], n: usize, labels: mutable view[i64]) -> bool:
+    for vertex in 0..<n: labels[vertex] <- FR_INF
+    for vertex in nodes: labels[vertex] <- 0
+    pass: mutable usize = 0
+    while pass + 1 < nodes.len:
+        changed: mutable bool = false
+        for arc in arcs:
+            candidate: i64 = labels[arc.tail] + arc.weight
+            if candidate < labels[arc.head]: labels[arc.head] <- candidate; changed <- true
+        if not changed: break
+        pass <- pass + 1
+    for arc in arcs:
+        if labels[arc.tail] + arc.weight < labels[arc.head]: return false
+    true
+
+def fr_bellman_seeded(n: usize, arcs: view[FrArc], seeds: view[i64], labels: mutable view[i64]) -> bool:
+    for vertex in 0..<n: labels[vertex] <- seeds[vertex]
+    pass: mutable usize = 0
+    while pass + 1 < n:
+        changed: mutable bool = false
+        for arc in arcs:
+            if labels[arc.tail] != FR_INF and labels[arc.tail] + arc.weight < labels[arc.head]:
+                labels[arc.head] <- labels[arc.tail] + arc.weight
+                changed <- true
+        if not changed: break
+        pass <- pass + 1
+    for arc in arcs:
+        if labels[arc.tail] != FR_INF and labels[arc.tail] + arc.weight < labels[arc.head]: return false
+    true
+
+def fr_monge_sum(a: i64, b: i64) -> i64:
+    if a == FR_INF or b == FR_INF: FR_INF else: a + b
+
+def fr_check_monge(ctx: FrContext&, index: usize, lo: usize, hi: usize) -> bool:
+    if hi - lo <= 1: return true
+    middle: usize = (lo + hi) / 2
+    direction: mutable usize = 0
+    while direction < 2:
+        row_lo: usize = if direction == 0: lo else: middle
+        row_hi: usize = if direction == 0: middle else: hi
+        column_lo: usize = if direction == 0: middle else: lo
+        column_hi: usize = if direction == 0: hi else: middle
+        i: mutable usize = row_lo
+        while i < row_hi:
+            i2: mutable usize = i + 1
+            while i2 < row_hi:
+                j: mutable usize = column_lo
+                while j < column_hi:
+                    j2: mutable usize = j + 1
+                    while j2 < column_hi:
+                        u: usize = ctx.pieces[index].boundary[i]
+                        u2: usize = ctx.pieces[index].boundary[i2]
+                        v: usize = ctx.pieces[index].boundary[j]
+                        v2: usize = ctx.pieces[index].boundary[j2]
+                        lhs: i64 = fr_monge_sum(ctx.ddg[fr_ddg_index(index,u,v)], ctx.ddg[fr_ddg_index(index,u2,v2)])
+                        rhs: i64 = fr_monge_sum(ctx.ddg[fr_ddg_index(index,u,v2)], ctx.ddg[fr_ddg_index(index,u2,v)])
+                        if lhs > rhs: return false
+                        j2 <- j2 + 1
+                    j <- j + 1
+                i2 <- i2 + 1
+            i <- i + 1
+        direction <- direction + 1
+    fr_check_monge(ctx,index,lo,middle) and fr_check_monge(ctx,index,middle,hi)
+
+def fr_add_block(ctx: FrContext&, child: usize, rows: view[usize], columns: view[usize], potential: view[i64],
+                 blocks: mutable view[FrBlock], block_count: mutable usize&) -> void:
+    if rows.len == 0 or columns.len == 0 or block_count >= FR_MAX_BLOCKS: return
+    block: mutable FrBlock = zeroed
+    block.child <- child
+    block.row_count <- rows.len
+    block.column_count <- columns.len
+    for i in 0..<rows.len: block.rows[i] <- rows[i]
+    for j in 0..<columns.len: block.columns[j] <- columns[j]
+    for i in 0..<rows.len:
+        for j in 0..<columns.len:
+            u: usize = rows[i]
+            v: usize = columns[j]
+            distance: i64 = ctx.ddg[fr_ddg_index(child,u,v)]
+            block.weights[i * FR_MAX_B + j] <- if distance == FR_INF: FR_INF else: distance + potential[u] - potential[v]
+    blocks[block_count] <- block
+    block_count <- block_count + 1
+
+def fr_build_blocks_rec(ctx: FrContext&, child: usize, lo: usize, hi: usize, potential: view[i64],
+                        blocks: mutable view[FrBlock], block_count: mutable usize&) -> void:
+    if hi - lo <= 1: return
+    middle: usize = (lo + hi) / 2
+    fr_add_block(ctx,child,ctx.pieces[child].boundary[lo:middle],ctx.pieces[child].boundary[middle:hi],potential,blocks,block_count)
+    fr_add_block(ctx,child,ctx.pieces[child].boundary[middle:hi],ctx.pieces[child].boundary[lo:middle],potential,blocks,block_count)
+    fr_build_blocks_rec(ctx,child,lo,middle,potential,blocks,block_count)
+    fr_build_blocks_rec(ctx,child,middle,hi,potential,blocks,block_count)
+
+def fr_activate(vertex: usize, value: i64, blocks: mutable view[FrBlock], block_count: usize,
+                settled: view[bool]) -> void:
+    for block_index in 0..<block_count:
+        block: mutable FrBlock& = blocks[block_index]
+        i: mutable usize = 0
+        while i < block.row_count:
+            if block.rows[i] == vertex:
+                j: mutable usize = 0
+                while j < block.column_count:
+                    target: usize = block.columns[j]
+                    weight: i64 = block.weights[i * FR_MAX_B + j]
+                    if not settled[target] and weight != FR_INF:
+                        candidate: i64 = value + weight
+                        if candidate < block.best_value[j] or (candidate == block.best_value[j] and vertex.i64() < block.best_row[j]):
+                            block.best_value[j] <- candidate
+                            block.best_row[j] <- vertex.i64()
+                    j <- j + 1
+            i <- i + 1
+
+def fr_settle(vertex: usize, settled: mutable view[bool], blocks: mutable view[FrBlock], block_count: usize) -> void:
+    settled[vertex] <- true
+    for block_index in 0..<block_count:
+        block: mutable FrBlock& = blocks[block_index]
+        for j in 0..<block.column_count:
+            if block.columns[j] == vertex:
+                block.best_value[j] <- FR_INF
+                block.best_row[j] <- FR_MAX_N.i64()
+
+def fr_dijkstra(nodes: view[usize], blocks: mutable view[FrBlock], seeds: view[i64],
+                labels: mutable view[i64], n: usize) -> void:
+    settled: mutable bool[FR_MAX_N] = zeroed
+    for v in 0..<n: labels[v] <- FR_INF
+    for block_index in 0..<blocks.len:
+        block: mutable FrBlock& = blocks[block_index]
+        for j in 0..<block.column_count: block.best_value[j] <- FR_INF; block.best_row[j] <- FR_MAX_N.i64()
+    for vertex in nodes:
+        if seeds[vertex] < labels[vertex]: labels[vertex] <- seeds[vertex]
+    # Input seeds remain tentative until they win the same global min query.
+    for vertex in nodes:
+        if labels[vertex] != FR_INF: fr_activate(vertex,labels[vertex],blocks,blocks.len,settled[0:FR_MAX_N])
+    while true:
+        best_vertex: mutable i64 = -1
+        best_row: mutable i64 = FR_MAX_N.i64()
+        best_value: mutable i64 = FR_INF
+        for vertex in nodes:
+            value: i64 = labels[vertex]
+            if not settled[vertex] and value != FR_INF and (value < best_value or (value == best_value and vertex.i64() < best_vertex)):
+                best_vertex <- vertex.i64(); best_value <- value; best_row <- -1
+        for block_index in 0..<blocks.len:
+            block: FrBlock& = blocks[block_index]
+            for j in 0..<block.column_count:
+                vertex: usize = block.columns[j]
+                value: i64 = block.best_value[j]
+                row: i64 = block.best_row[j]
+                if settled[vertex] or value == FR_INF: continue
+                if value < best_value or (value == best_value and (best_vertex < 0 or vertex.i64() < best_vertex)) or (value == best_value and vertex.i64() == best_vertex and row < best_row):
+                    best_vertex <- vertex.i64(); best_value <- value; best_row <- row
+        if best_vertex < 0: break
+        vertex: usize = best_vertex.usize()
+        if best_value < labels[vertex]: labels[vertex] <- best_value
+        fr_settle(vertex,settled[0:FR_MAX_N],blocks,blocks.len)
+        fr_activate(vertex,labels[vertex],blocks,blocks.len,settled[0:FR_MAX_N])
+
+def fr_collect_arcs(ctx: FrContext&, mask: u64, output: mutable view[FrArc]) -> usize:
+    count: mutable usize = 0
+    for edge in 0..<ctx.m:
+        if (mask & (1.u64() << edge)) != 0: output[count] <- ctx.arcs[edge]; count <- count + 1
+    count
+
+def fr_build_piece(ctx: mutable FrContext&, index: usize, blocks: mutable view[FrBlock]) -> bool:
+    piece: FrPiece = ctx.pieces[index]
+    for u in 0..<ctx.n:
+        for v in 0..<ctx.n: ctx.ddg[fr_ddg_index(index,u,v)] <- FR_INF
+    if piece.left == -1:
+        arcs: mutable FrArc[3] = zeroed
+        arc_count: usize = fr_collect_arcs(ctx,piece.arc_mask,arcs[0:3])
+        nodes: mutable usize[FR_MAX_N] = zeroed
+        node_count: mutable usize = 0
+        for v in 0..<ctx.n:
+            if (piece.vertex_mask & (1.u16() << v)) != 0: nodes[node_count] <- v; node_count <- node_count + 1
+        potential: mutable i64[FR_MAX_N] = zeroed
+        if not fr_bellman_all(nodes[0:node_count],arcs[0:arc_count],ctx.n,potential[0:FR_MAX_N]): return false
+        for i in 0..<piece.boundary_count:
+            seeds: mutable i64[FR_MAX_N] = zeroed
+            labels: mutable i64[FR_MAX_N] = zeroed
+            for v in 0..<ctx.n: seeds[v] <- FR_INF
+            seeds[piece.boundary[i]] <- 0
+            if not fr_bellman_seeded(ctx.n,arcs[0:arc_count],seeds[0:FR_MAX_N],labels[0:FR_MAX_N]): return false
+            for j in 0..<piece.boundary_count:
+                ctx.ddg[fr_ddg_index(index,piece.boundary[i],piece.boundary[j])] <- labels[piece.boundary[j]]
+        return true
+    left: usize = piece.left.usize()
+    right: usize = piece.right.usize()
+    present: mutable bool[FR_MAX_N] = zeroed
+    for i in 0..<ctx.pieces[left].boundary_count: present[ctx.pieces[left].boundary[i]] <- true
+    for i in 0..<ctx.pieces[right].boundary_count: present[ctx.pieces[right].boundary[i]] <- true
+    nodes: mutable usize[FR_MAX_N] = zeroed
+    node_count: mutable usize = 0
+    for v in 0..<ctx.n:
+        if present[v]: nodes[node_count] <- v; node_count <- node_count + 1
+    union_arcs: mutable FrArc[2 * FR_MAX_B * FR_MAX_B] = zeroed
+    union_count: mutable usize = 0
+    for child in [left,right]:
+        cp: FrPiece = ctx.pieces[child]
+        for i in 0..<cp.boundary_count:
+            for j in 0..<cp.boundary_count:
+                u: usize = cp.boundary[i]; v: usize = cp.boundary[j]
+                distance: i64 = ctx.ddg[fr_ddg_index(child,u,v)]
+                if u != v and distance != FR_INF:
+                    union_arcs[union_count].tail <- u
+                    union_arcs[union_count].head <- v
+                    union_arcs[union_count].weight <- distance
+                    union_count <- union_count + 1
+    potential_view: mutable view[i64] = ctx.potential[fr_potential_index(index,0):fr_potential_index(index,0)+FR_MAX_N]
+    for v in 0..<ctx.n: potential_view[v] <- 0
+    if not fr_bellman_all(nodes[0:node_count],union_arcs[0:union_count],ctx.n,potential_view): return false
+    for e in 0..<union_count:
+        a: FrArc = union_arcs[e]
+        if a.weight + potential_view[a.tail] - potential_view[a.head] < 0: return false
+    block_count: mutable usize = 0
+    for child in [left,right]:
+        if not fr_check_monge(ctx,child,0,ctx.pieces[child].boundary_count): return false
+        fr_build_blocks_rec(ctx,child,0,ctx.pieces[child].boundary_count,potential_view,blocks,block_count)
+    if block_count > FR_MAX_BLOCKS: return false
+    for i in 0..<piece.boundary_count:
+        seeds: mutable i64[FR_MAX_N] = zeroed
+        labels: mutable i64[FR_MAX_N] = zeroed
+        for v in 0..<ctx.n: seeds[v] <- FR_INF
+        seeds[piece.boundary[i]] <- 0
+        fr_dijkstra(nodes[0:node_count],blocks[0:block_count],seeds[0:FR_MAX_N],labels[0:FR_MAX_N],ctx.n)
+        for j in 0..<piece.boundary_count:
+            source: usize = piece.boundary[i]; target: usize = piece.boundary[j]
+            distance: i64 = labels[target]
+            ctx.ddg[fr_ddg_index(index,source,target)] <- if distance == FR_INF: FR_INF else: distance - potential_view[source] + potential_view[target]
+    true
+
+def fr_expand(ctx: mutable FrContext&, index: usize, known: view[i64], result: mutable view[i64], blocks: mutable view[FrBlock]) -> void:
+    piece: FrPiece = ctx.pieces[index]
+    if piece.left == -1:
+        arcs: mutable FrArc[3] = zeroed
+        arc_count: usize = fr_collect_arcs(ctx,piece.arc_mask,arcs[0:3])
+        labels: mutable i64[FR_MAX_N] = zeroed
+        if not fr_bellman_seeded(ctx.n,arcs[0:arc_count],known,labels[0:FR_MAX_N]): return
+        for vertex in 0..<ctx.n:
+            if (piece.vertex_mask & (1.u16() << vertex)) != 0 and labels[vertex] < result[vertex]: result[vertex] <- labels[vertex]
+        return
+    left: usize = piece.left.usize(); right: usize = piece.right.usize()
+    nodes: mutable usize[FR_MAX_N] = zeroed
+    present: mutable bool[FR_MAX_N] = zeroed
+    for i in 0..<ctx.pieces[left].boundary_count: present[ctx.pieces[left].boundary[i]] <- true
+    for i in 0..<ctx.pieces[right].boundary_count: present[ctx.pieces[right].boundary[i]] <- true
+    node_count: mutable usize = 0
+    for v in 0..<ctx.n:
+        if present[v]: nodes[node_count] <- v; node_count <- node_count + 1
+    potential_view: view[i64] = ctx.potential[fr_potential_index(index,0):fr_potential_index(index,0)+FR_MAX_N]
+    block_count: mutable usize = 0
+    fr_build_blocks_rec(ctx,left,0,ctx.pieces[left].boundary_count,potential_view,blocks,block_count)
+    fr_build_blocks_rec(ctx,right,0,ctx.pieces[right].boundary_count,potential_view,blocks,block_count)
+    seeds: mutable i64[FR_MAX_N] = zeroed
+    for v in 0..<ctx.n: seeds[v] <- FR_INF
+    for i in 0..<piece.boundary_count:
+        vertex: usize = piece.boundary[i]
+        if known[vertex] != FR_INF: seeds[vertex] <- known[vertex] - potential_view[vertex]
+    reduced: mutable i64[FR_MAX_N] = zeroed
+    fr_dijkstra(nodes[0:node_count],blocks[0:block_count],seeds[0:FR_MAX_N],reduced[0:FR_MAX_N],ctx.n)
+    raw: mutable i64[FR_MAX_N] = zeroed
+    for v in 0..<ctx.n: raw[v] <- if reduced[v] == FR_INF: FR_INF else: reduced[v] + potential_view[v]
+    for child in [left,right]:
+        child_known: mutable i64[FR_MAX_N] = zeroed
+        for v in 0..<ctx.n: child_known[v] <- FR_INF
+        for i in 0..<ctx.pieces[child].boundary_count:
+            vertex: usize = ctx.pieces[child].boundary[i]
+            child_known[vertex] <- raw[vertex]
+        fr_expand(ctx,child,child_known[0:FR_MAX_N],result,blocks)
+
+def fr_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8: output[offset+byte] <- ((bits>>(8*byte))&255).u8()
+
+def fr_compute(input: view[i64], distances: mutable view[i64]) -> i64:
+    ctx: mutable FrContext = zeroed
+    if not fr_parse(ctx,input): return -1
+    all_nodes: mutable usize[FR_MAX_N] = zeroed
+    for v in 0..<ctx.n: all_nodes[v] <- v
+    global_potential: mutable i64[FR_MAX_N] = zeroed
+    if not fr_bellman_all(all_nodes[0:ctx.n],ctx.arcs[0:ctx.m],ctx.n,global_potential[0:FR_MAX_N]): return -1
+    blocks: mutable FrBlock[FR_MAX_BLOCKS] = zeroed
+    for p in 0..<ctx.piece_count:
+        if not fr_build_piece(ctx,p,blocks[0:FR_MAX_BLOCKS]): return -1
+    known: mutable i64[FR_MAX_N] = zeroed
+    for v in 0..<FR_MAX_N: distances[v] <- FR_INF; known[v] <- FR_INF
+    known[ctx.source] <- 0
+    fr_expand(ctx,ctx.piece_count-1,known[0:FR_MAX_N],distances[0:FR_MAX_N],blocks[0:FR_MAX_BLOCKS])
+    for v in 0..<ctx.n: if distances[v] == FR_INF: distances[v] <- 9223372036854775807
+    ctx.n.i64()
+
+export fn fakcharoenphol_rao_planar_sssp(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > FR_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    distances: mutable i64[FR_MAX_N] = zeroed
+    if fr_compute(input_view,distances[0:FR_MAX_N]) < 0: return -1
+    n: usize = input_view[0].usize()
+    output_bytes: usize = n * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    result: mutable view[u8] = output[0:output_bytes]
+    for vertex in 0..<n: fr_put_i64(distances[vertex],result,8*vertex)
+    output_bytes.i64()

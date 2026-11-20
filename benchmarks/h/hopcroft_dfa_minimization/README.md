@@ -25,11 +25,11 @@ The [Library Checker proposal](https://github.com/yosupo06/library-checker-probl
 is an idea index. The bounded contract, code, reference, and prose are
 independently authored; no upstream text, examples, tests, or code are copied.
 
-Reserved and in progress: ten language drafts, an independent reference,
-initial fixtures, a workload validator and scalar-suite registration are present.
-The verifier specifies exhaustive small automata, compares signature refinement
-with an independent pair-distinguishability reference, and includes known
-maximum-size cases.
-Static review releases temporary predecessor groups after each splitter and
-reclaims partition buffers after geometric shrinkage, bounding retained
-storage with amortized copying. Nothing has been compiled or run.
+Static source review is complete; execution is deferred. All ten ports use the
+same accepting/nonaccepting initial partition, predecessor-set splits, and
+smaller-half worklist update. Their transition, block, selected-state, and
+queue storage fits the stated O(alphabet*n) bound. The verifier specifies
+exhaustive small automata, compares signature refinement with an independent
+pair-distinguishability reference, and includes known maximum-size cases.
+The validator's null-frame length bound matches the runner's 20,483-word
+parseable-input cap. No code has been compiled or run.

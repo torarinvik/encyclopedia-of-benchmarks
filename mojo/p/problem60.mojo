@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p60_prime(value:Int64)->Bool:
     if value<2:return False
     if value==2 or value==3:return True

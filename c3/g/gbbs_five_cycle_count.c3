@@ -13,7 +13,7 @@ fn void store_i64_le(char* output, long value) {
 }
 
 // Clean-room bounded GBBS five-cycle profile; see package LICENSE.txt.
-long gbbs_five_cycle_count(long* input, usz length, char* output, usz capacity)
+fn long gbbs_five_cycle_count(long* input, usz length, char* output, usz capacity)
         @export("gbbs_five_cycle_count") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

@@ -24,7 +24,7 @@ fn long min_plus_convolution_convex_arbitrary(long *input, usz length, uint8 *ou
     if (bytes > MAX_OUTPUT) return -1;
     if (output == null || capacity < bytes) return -2;
     long[63] result;
-    usz[128][4] stack;
+    usz[4][128] stack;
     usz top = 0;
     stack[top][0] = 0; stack[top][1] = count-1; stack[top][2] = 0; stack[top][3] = m-1; top++;
     while (top > 0) {

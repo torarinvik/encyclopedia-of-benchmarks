@@ -1,0 +1,45 @@
+{
+  "algorithm": "clenshaw_curtis_quadrature",
+  "abi": "float64_slice_io",
+  "function_symbol": "clenshaw_curtis_quadrature",
+  "sources": {
+    "primary": "https://dlmf.nist.gov/3.5.E16",
+    "coefficient_identity": "https://dlmf.nist.gov/3.11.E9",
+    "series_integral_identity": "https://dlmf.nist.gov/3.11.E11"
+  },
+  "native_paths": [
+    "c/c/clenshaw_curtis_quadrature.c",
+    "c3/c/clenshaw_curtis_quadrature.c3",
+    "cpp/c/clenshaw_curtis_quadrature.cpp",
+    "elisa/c/clenshaw_curtis_quadrature.elisa",
+    "mojo/c/clenshaw_curtis_quadrature.mojo",
+    "nim/c/clenshaw_curtis_quadrature.nim",
+    "odin/c/clenshaw_curtis_quadrature.odin",
+    "rust/c/clenshaw_curtis_quadrature.rs",
+    "v/c/clenshaw_curtis_quadrature.v",
+    "zig/c/clenshaw_curtis_quadrature.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py", "__init__.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "suite_integration": "benchmarks/run_float64_slice_io.py and benchmarks/verify_float64_slice_io.py",
+  "bounds": {
+    "n_even_min": 2,
+    "n_max": 16,
+    "sample_abs_max": 1000,
+    "maximum_valid_input_length": 18,
+    "maximum_parseable_input_length": 19,
+    "maximum_output_elements": 1,
+    "maximum_output_bytes": 8,
+    "workspace_elements": 1,
+    "workspace_bytes": 8,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "methods": {
+    "primary": "ascending-index Clenshaw-Curtis nodal-weight summation",
+    "independent": "DCT-I Chebyshev coefficient transform and even-mode analytical integration"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "myers-ond-shortest-edit-script-i64-array-bytes-output-v1",
+  "algorithm": "myers_ond_shortest_edit_script",
+  "function_symbol": "myers_ond_shortest_edit_script",
+  "abi": "i64_array_bytes_output",
+  "description": "Myers furthest-reaching edit-graph search with a replayable minimum insert/delete path.",
+  "source": {
+    "title": "An O(ND) Difference Algorithm and Its Variations",
+    "authors": ["Eugene W. Myers"],
+    "year": 1986,
+    "reference": "Algorithmica 1, pp. 251-266, DOI 10.1007/BF01840446",
+    "url": "https://doi.org/10.1007/BF01840446",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[first_length, second_length, first_bytes..., second_bytes...]",
+    "sequence_length_range": [0, 16],
+    "symbol_range": [0, 255],
+    "exact_length": "2 + first_length + second_length",
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 36,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "instruction stream: 0 copies the next equal source byte; 1 deletes the next source byte; 2 inserts the following literal byte",
+    "maximum_output_bytes": 48,
+    "success_result": "number of instruction bytes written",
+    "valid_empty_result": 0,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "edit_cost": "count of instruction tags 1 and 2; insert payload bytes do not count"
+  },
+  "workspace": {
+    "bytes": 48,
+    "meaning": "Maximum caller output-buffer capacity; the fixed-size edit trace is internal working storage."
+  },
+  "algorithm_policy": {
+    "variant": "Myers 1986 O((n+m)D) furthest-reaching D-path algorithm",
+    "diagonal": "k = x - y; frontier stores the furthest x on each active diagonal",
+    "path_rule": "for each D and k=-D,-D+2,...,D, compare predecessor frontiers, then greedily extend the maximal equal-byte snake",
+    "tie_rule": "choose the insertion predecessor only when V[k-1] < V[k+1]; equality chooses the deletion predecessor",
+    "reconstruction": "retain each frontier row and backtrack its selected predecessor and snake",
+    "objective": "minimum number of insertions and deletions; substitution is represented by one delete plus one insert",
+    "time_complexity": "O((n+m)D), where D is minimum insert/delete cost",
+    "auxiliary_space": "O(D^2) frontier snapshots plus O(n+m) path records"
+  },
+  "oracle_method": "Primary stores Myers furthest-reaching wavefronts and backtracks the strict-comparison tie rule. Independent full-table insert/delete DP reconstructs its own deletion-first-on-local-ties witness and verifies replay and optimal cost of the primary bytes without requiring equal tie choices.",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"both_empty","input_values":[0,0],"input_length":2,"output_capacity":48,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty_first","input_values":[0,3,65,66,67],"input_length":5,"output_capacity":48,"expected_result":6,"expected_output_hex":"024102420243"},
+    {"id":"empty_second","input_values":[3,0,65,66,67],"input_length":5,"output_capacity":48,"expected_result":3,"expected_output_hex":"010101"},
+    {"id":"identical","input_values":[3,3,65,66,67,65,66,67],"input_length":8,"output_capacity":48,"expected_result":3,"expected_output_hex":"000000"},
+    {"id":"one_symbol_substitution_as_delete_insert","input_values":[1,1,97,98],"input_length":4,"output_capacity":48,"expected_result":3,"expected_output_hex":"010262"},
+    {"id":"ambiguous_lcs_pins_wavefront_tie","input_values":[2,2,97,98,98,97],"input_length":6,"output_capacity":48,"expected_result":4,"expected_output_hex":"01000261"},
+    {"id":"interior_delete_insert","input_values":[3,3,65,66,67,65,88,67],"input_length":8,"output_capacity":48,"expected_result":5,"expected_output_hex":"0001025800"},
+    {"id":"two_end_insertions","input_values":[3,5,1,2,3,0,1,2,3,4],"input_length":10,"output_capacity":48,"expected_result":7,"expected_output_hex":"02000000000204"},
+    {"id":"repeated_symbol_tie","input_values":[2,1,65,65,65],"input_length":5,"output_capacity":48,"expected_result":2,"expected_output_hex":"0001"},
+    {"id":"nul_and_high_byte_symbols","input_values":[3,3,0,127,255,0,128,255],"input_length":8,"output_capacity":48,"expected_result":5,"expected_output_hex":"0001028000"},
+    {"id":"maximum_identical_sequences","input_values":[16,16,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"input_length":34,"output_capacity":48,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"maximum_disjoint_sequences","input_values":[16,16,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143],"input_length":34,"output_capacity":48,"expected_result":48,"expected_output_hex":"010101010101010101010101010101010280028102820283028402850286028702880289028a028b028c028d028e028f"},
+    {"id":"invalid_symbol_above_byte","input_values":[1,0,256],"input_length":3,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_negative_symbol","input_values":[0,1,-1],"input_length":3,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative_sequence_length","input_values":[-1,0],"input_length":2,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"oversized_sequence","input_values":[17,0],"input_length":2,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input_word","input_values":[1,1,65,65,0],"input_length":5,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_capacity","input_values":[1,1,97,98],"input_length":4,"output_capacity":2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short_maximum_capacity","input_values":[16,16,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143],"input_length":34,"output_capacity":47,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_output_for_empty_script","input_values":[0,0],"input_length":2,"output_capacity":48,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid_input_precedes_null_output","input_values":[1,0,256],"input_length":3,"output_capacity":48,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input_positive_length","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"two_trailing_words_at_parseable_bound","input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":36,"output_capacity":48,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

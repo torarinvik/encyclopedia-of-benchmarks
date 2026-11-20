@@ -24,6 +24,7 @@ The pinned C# generator yields 1 for n=1, then checks each integer from 2 up to 
 | C3 | [`c3/d/divisors_count_sequence.c3`](../../../c3/d/divisors_count_sequence.c3) |
 | C++ | [`cpp/d/divisors_count_sequence.cpp`](../../../cpp/d/divisors_count_sequence.cpp) |
 | Elisa | [`elisa/d/divisors_count_sequence.elisa`](../../../elisa/d/divisors_count_sequence.elisa) |
+| Mojo | [`mojo/d/divisors_count_sequence.mojo`](../../../mojo/d/divisors_count_sequence.mojo) |
 | Nim | [`nim/d/divisors_count_sequence.nim`](../../../nim/d/divisors_count_sequence.nim) |
 | Odin | [`odin/d/divisors_count_sequence.odin`](../../../odin/d/divisors_count_sequence.odin) |
 | Rust | [`rust/d/divisors_count_sequence.rs`](../../../rust/d/divisors_count_sequence.rs) |
@@ -33,3 +34,7 @@ The pinned C# generator yields 1 for n=1, then checks each integer from 2 up to 
 ## TheAlgorithms reference
 
 - [C# `DivisorsCountSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/DivisorsCountSequence.cs)
+
+The existing Mojo port is listed above. Scalar-suite verifier registration and
+an independent factorization oracle are drafted; the new wiring has not been
+executed.

@@ -1,0 +1,28 @@
+{
+  "algorithm": "maximum_matching_word_segmentation",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "maximum_matching_word_segmentation",
+  "implementations": {
+    "c": "c/m/maximum_matching_word_segmentation.c",
+    "c3": "c3/m/maximum_matching_word_segmentation.c3",
+    "cpp": "cpp/m/maximum_matching_word_segmentation.cpp",
+    "elisa": "elisa/m/maximum_matching_word_segmentation.elisa",
+    "mojo": "mojo/m/maximum_matching_word_segmentation.mojo",
+    "nim": "nim/m/maximum_matching_word_segmentation.nim",
+    "odin": "odin/m/maximum_matching_word_segmentation.odin",
+    "rust": "rust/m/maximum_matching_word_segmentation.rs",
+    "v": "v/m/maximum_matching_word_segmentation.v",
+    "zig": "zig/m/maximum_matching_word_segmentation.zig"
+  },
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "INVENTORY.md",
+    "check_inventory.py"
+  ]
+}

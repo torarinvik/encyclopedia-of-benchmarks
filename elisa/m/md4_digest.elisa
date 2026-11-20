@@ -1,0 +1,138 @@
+const MAX_INPUT_WORDS: usize = 4098
+const MAX_MESSAGE_BYTES: usize = 4096
+
+def md4_add32(left: u32, right: u32) -> u32:
+    ((left.u64() + right.u64()) & 0xFFFF_FFFF.u64()).u32()
+
+def md4_rotl(value: u32, shift: usize) -> u32:
+    (value << shift) | (value >> (32 - shift))
+
+def md4_f(x: u32, y: u32, z: u32) -> u32:
+    (x & y) | (~x & z)
+
+def md4_g(x: u32, y: u32, z: u32) -> u32:
+    (x & y) | (x & z) | (y & z)
+
+def md4_h(x: u32, y: u32, z: u32) -> u32:
+    x ^ y ^ z
+
+def md4_shift(round: usize, index: usize) -> usize:
+    phase: usize = index % 4
+    if round == 0:
+        if phase == 0: return 3
+        elif phase == 1: return 7
+        elif phase == 2: return 11
+        else: return 19
+    elif round == 1:
+        if phase == 0: return 3
+        elif phase == 1: return 5
+        elif phase == 2: return 9
+        else: return 13
+    else:
+        if phase == 0: return 3
+        elif phase == 1: return 9
+        elif phase == 2: return 11
+        else: return 15
+
+def md4_round3_word(index: usize) -> usize:
+    group: usize = index / 4
+    phase: usize = index % 4
+    base: usize = 3
+    if group == 0: base <- 0
+    elif group == 1: base <- 2
+    elif group == 2: base <- 1
+    base + (phase % 2) * 8 + (phase / 2) * 4
+
+def md4_word(input: view[i64], message_length: usize, padded_length: usize,
+             bit_length: u64, offset: usize, index: usize) -> u32:
+    word: mutable u32 = 0
+    first: usize = offset + 4 * index
+    for byte_index in 0..<4:
+        position: usize = first + byte_index
+        value: mutable u32 = 0
+        if position < message_length:
+            value <- input[position + 1].u32()
+        elif position == message_length:
+            value <- 0x80.u32()
+        elif position >= padded_length - 8:
+            value <- ((bit_length >> (8 * (position - (padded_length - 8)))) & 255.u64()).u32()
+        word <- word | (value << (8 * byte_index))
+    word
+
+def md4_valid(input: view[i64]) -> bool:
+    if input.len() < 1 or input.len() > MAX_INPUT_WORDS:
+        return False
+    count: i64 = input[0]
+    if count < 0 or count > MAX_MESSAGE_BYTES.i64() or input.len() != count.usize() + 1:
+        return False
+    for index in 0..<count.usize():
+        if input[index + 1] < 0 or input[index + 1] > 255:
+            return False
+    True
+
+def md4_compute(input: view[i64], output: mutable view[u8]) -> i64:
+    message_length: usize = input[0].usize()
+    padded_length: usize = ((message_length + 8) / 64 + 1) * 64
+    bit_length: u64 = message_length.u64() * 8
+    h0: mutable u32 = 0x67452301.u32()
+    h1: mutable u32 = 0xEFCDAB89.u32()
+    h2: mutable u32 = 0x98BADCFE.u32()
+    h3: mutable u32 = 0x10325476.u32()
+    offset: mutable usize = 0
+    while offset < padded_length:
+        words: mutable u32[16]
+        for index in 0..<16:
+            words[index] <- md4_word(input, message_length, padded_length, bit_length, offset, index)
+        a: mutable u32 = h0
+        b: mutable u32 = h1
+        c: mutable u32 = h2
+        d: mutable u32 = h3
+        for step in 0..<48:
+            round: usize = step / 16
+            index: usize = step % 16
+            f: mutable u32 = 0
+            word_index: mutable usize = 0
+            shift: mutable usize = 0
+            constant: mutable u32 = 0
+            if round == 0:
+                f <- md4_f(b, c, d)
+                word_index <- index
+                shift <- md4_shift(round, index)
+            elif round == 1:
+                f <- md4_g(b, c, d)
+                word_index <- (index % 4) * 4 + index / 4
+                shift <- md4_shift(round, index)
+                constant <- 0x5A827999.u32()
+            else:
+                f <- md4_h(b, c, d)
+                word_index <- md4_round3_word(index)
+                shift <- md4_shift(round, index)
+                constant <- 0x6ED9EBA1.u32()
+            total: u32 = md4_add32(md4_add32(md4_add32(a, f), words[word_index]), constant)
+            previous_d: u32 = d
+            d <- c
+            c <- b
+            b <- md4_add32(b, md4_rotl(total, shift))
+            a <- previous_d
+        h0 <- md4_add32(h0, a)
+        h1 <- md4_add32(h1, b)
+        h2 <- md4_add32(h2, c)
+        h3 <- md4_add32(h3, d)
+        offset <- offset + 64
+    state: u32[4] = [h0, h1, h2, h3]
+    for word in 0..<4:
+        for byte_index in 0..<4:
+            output[word * 4 + byte_index] <- ((state[word] >> (8 * byte_index)) & 255.u32()).u8()
+    16
+
+export fn md4_digest(input: i64&, input_length: usize,
+                     output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or input_length < 1 or input_length > MAX_INPUT_WORDS:
+        return -1
+    input_view: mutable view[i64] = input[0:input_length]
+    if not md4_valid(input_view):
+        return -1
+    if output == null or output_capacity < 16:
+        return -2
+    output_view: mutable view[u8] = output[0:16]
+    md4_compute(input_view, output_view)

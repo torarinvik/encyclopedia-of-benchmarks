@@ -33,6 +33,7 @@ as a separate algorithm variant rather than an alias.
 | C3 | [`c3/d/decimal_to_binary_recursion.c3`](../../../c3/d/decimal_to_binary_recursion.c3) |
 | C++ | [`cpp/d/decimal_to_binary_recursion.cpp`](../../../cpp/d/decimal_to_binary_recursion.cpp) |
 | Elisa | [`elisa/d/decimal_to_binary_recursion.elisa`](../../../elisa/d/decimal_to_binary_recursion.elisa) |
+| Mojo | [`mojo/d/decimal_to_binary_recursion.mojo`](../../../mojo/d/decimal_to_binary_recursion.mojo) |
 | Nim | [`nim/d/decimal_to_binary_recursion.nim`](../../../nim/d/decimal_to_binary_recursion.nim) |
 | Odin | [`odin/d/decimal_to_binary_recursion.odin`](../../../odin/d/decimal_to_binary_recursion.odin) |
 | Rust | [`rust/d/decimal_to_binary_recursion.rs`](../../../rust/d/decimal_to_binary_recursion.rs) |
@@ -42,3 +43,6 @@ as a separate algorithm variant rather than an alias.
 ## TheAlgorithms source
 
 - [C `decimal_to_binary_recursion.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/conversions/decimal_to_binary_recursion.c)
+
+The independent formatting oracle and scalar-suite verifier registration are
+drafted and have not been executed.

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "nist-oscillating-merge-sort-i64-sort-call-v1",
+  "algorithm": "oscillating_merge_sort",
+  "function_symbol": "oscillating_merge_sort",
+  "abi": "mutable_i64_array",
+  "input": {
+    "kind": "signed_i64_array",
+    "lengths": [0, 16, 256, 1024],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 48271,
+      "modulus": 2000003,
+      "offset": 1000001,
+      "formula": "values[index] = ((index * 48271) mod 2000003) - 1000001"
+    }
+  },
+  "profile": {
+    "maximum_length": 1024,
+    "minimum_value": -9223372036854775808,
+    "maximum_value": 9223372036854775807,
+    "stable": false,
+    "total_tape_count": 4,
+    "merge_input_tapes": 2,
+    "initial_run_size": 16,
+    "workspace_bytes": 106496,
+    "workspace_description": "106496-byte bounded payload budget: six recursive levels of two 1024-value run buffers plus one 1024-value final output buffer; all workspace is part of the timed call, with dynamic-container allocator metadata excluded",
+    "above_bound_behavior": "input is left unchanged"
+  },
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7,
+    "workspace_timed": true
+  },
+  "source": {
+    "title": "NIST Dictionary of Algorithms and Data Structures: oscillating merge sort",
+    "url": "https://xlinux.nist.gov/dads/HTML/oscillatingMergeSort.html",
+    "primary_reference": "Sheldon Sobel, Oscillating Sort—A New Sort Merging Technique, Journal of the ACM 9(3), 372–374 (1962), DOI 10.1145/321127.321133",
+    "primary_reference_url": "https://doi.org/10.1145/321127.321133",
+    "algorithm_attribution": "Backward-read multi-tape merge with alternating run directions; clean-room implementation.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "cases": [
+    {"id": "empty", "input_values": [], "expected_values": []},
+    {"id": "singleton", "input_values": [42], "expected_values": [42]},
+    {"id": "one-initial-run", "input_values": [9, -1, 4, 4, 2], "expected_values": [-1, 2, 4, 4, 9]},
+    {"id": "two-initial-runs", "input_values": [8, 5, 2, 7, 1, 8, 3, 6, 4, 0, -2, 9, 1, 5, -1, 7, 3, 2, 6], "expected_values": [-2, -1, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9]},
+    {"id": "three-run-partial-top-level", "input_values": [0, 7, 1, 6, 2, 5, 3, 4, -3, 8, -1, 9, 2, 2, 0, -8, 3, 1, 7, -2, 5, 4, -4, 6, 11, -9, 10, 12, -7, 13, -6, 14, -5], "expected_values": [-9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9, 10, 11, 12, 13, 14]},
+    {"id": "signed-extremes-and-duplicates", "input_values": [9223372036854775807, -9223372036854775808, 0, -1, 9223372036854775807, -9223372036854775808, 1], "expected_values": [-9223372036854775808, -9223372036854775808, -1, 0, 1, 9223372036854775807, 9223372036854775807]}
+  ]
+}

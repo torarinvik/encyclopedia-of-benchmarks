@@ -1,0 +1,80 @@
+# Fenwick frequency selection by binary lifting over prefix blocks.
+def fenwick_kth_lowbit(index: usize) -> usize:
+    index & (~index + 1)
+
+def fenwick_kth_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > 163:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 64 or q_value < 0 or q_value > 32:
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + n + 3 * q:
+        return -1
+
+    frequency: mutable i64[64] = zeroed
+    tree: mutable i64[65] = zeroed
+    total: mutable i64 = 0
+    for i in 0..<n:
+        value: i64 = input[2 + i]
+        if value < 0 or value > 1000000:
+            return -1
+        frequency[i] <- value
+        total <- total + value
+        index: usize = i + 1
+        tree[index] <- tree[index] + value
+        parent: usize = index + fenwick_kth_lowbit(index)
+        if parent <= n:
+            tree[parent] <- tree[parent] + tree[index]
+
+    result: mutable i64 = 0
+    query_number: mutable usize = 0
+    cursor: mutable usize = 2 + n
+    for operation in 0..<q:
+        opcode: i64 = input[cursor]
+        first: i64 = input[cursor + 1]
+        second: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if opcode == 0:
+            if first < 0 or first >= n_value or second < -1000000 or second > 1000000:
+                return -1
+            position: usize = first.usize()
+            updated: i64 = frequency[position] + second
+            if updated < 0 or updated > 1000000:
+                return -1
+            frequency[position] <- updated
+            total <- total + second
+            index: mutable usize = position + 1
+            while index <= n:
+                tree[index] <- tree[index] + second
+                index <- index + fenwick_kth_lowbit(index)
+        elif opcode == 1:
+            if second != 0:
+                return -1
+            answer: mutable i64 = -1
+            if first > 0 and first <= total:
+                index: mutable usize = 0
+                step: mutable usize = 1
+                while step <= n / 2:
+                    step <- step * 2
+                rank: mutable i64 = first
+                while step != 0:
+                    candidate: usize = index + step
+                    if candidate <= n and tree[candidate] < rank:
+                        index <- candidate
+                        rank <- rank - tree[candidate]
+                    step <- step / 2
+                answer <- index.i64()
+            result <- result + (query_number.i64() + 1) * (answer + 1)
+            query_number <- query_number + 1
+        else:
+            return -1
+    result
+
+export fn fenwick_kth(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 163:
+        return -1
+    fenwick_kth_impl(input[0:length])

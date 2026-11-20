@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "nyaan-union-find-enumerate-i64-array-scalar-v1",
+  "algorithm": "union_find_enumerate",
+  "function_symbol": "union_find_enumerate",
+  "abi": "i64_array_scalar",
+  "description": "Union-by-size disjoint sets whose circular member lists support component enumeration from any vertex.",
+  "source": {
+    "title": "NyaanNyaan/library union-find-enumerate.hpp",
+    "authors": ["NyaanNyaan library contributors"],
+    "url": "https://nyaannyaan.github.io/library/data-structure/union-find-enumerate.hpp.html",
+    "github_url": "https://github.com/NyaanNyaan/library/blob/master/data-structure/union-find-enumerate.hpp",
+    "license_url": "https://github.com/NyaanNyaan/library/blob/master/LICENSE",
+    "license": "CC0 1.0 Universal; algorithm behavior only, clean-room ports",
+    "algorithm_attribution": "Union by size with circular component-member lists spliced by exchanging root successor links",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "contract": {
+    "input_encoding": "[n,q,(opcode,a,b)*q]",
+    "operation_row_width": 3,
+    "item_count_range": [1, 16],
+    "operation_count_range": [0, 32],
+    "operations": {
+      "union": "[0,a,b]",
+      "enumerate_component_mask": "[1,a,0]"
+    },
+    "indices": "zero-based values in [0,n)",
+    "union_observation": "1 iff a and b were in different components",
+    "enumeration_observation": "n-bit membership mask of the component containing a",
+    "enumeration_reserved_field": "b must be zero",
+    "checksum": "sum((operation_ordinal)*(observation+1)) for one-based operation ordinal",
+    "empty_trace_result": 0,
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,q,(opcode,a,b)*q]",
+    "item_count_range": [1, 16],
+    "operation_count_range": [0, 32],
+    "maximum_valid_length": 98,
+    "maximum_parseable_length": 99,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "one-based weighted sum of each operation observation plus one",
+    "result_range": [0, 34603008],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Two fixed 16-element signed 64-bit arrays for parent/size and circular successor links."
+  },
+  "complexity": {
+    "union": "O(alpha(n)) amortized with union by size and path compression",
+    "enumeration": "O(component size) successor traversal",
+    "auxiliary_space": "O(n)",
+    "independent_oracle_time": "O(q*(n+m)) BFS over the explicit union graph",
+    "independent_oracle_space": "O(n+m)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/u/union_find_enumerate/primary_oracle.py",
+  "independent_oracle": "benchmarks/u/union_find_enumerate/independent_oracle.py",
+  "cases": [
+    {
+      "id": "cycle-splice-overlapping-unions-and-enumeration",
+      "input_values": [8, 11, 0, 0, 1, 0, 2, 3, 0, 1, 2, 1, 3, 0, 0, 4, 5, 1, 0, 0, 0, 5, 6, 1, 6, 0, 0, 0, 6, 1, 4, 0, 0, 2, 5],
+      "input_length": 35,
+      "expected_result": 2409
+    },
+    {
+      "id": "duplicate-union-and-distinct-components",
+      "input_values": [4, 4, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 2, 0],
+      "input_length": 14,
+      "expected_result": 36
+    },
+    {
+      "id": "singleton-component-enumeration",
+      "input_values": [1, 1, 1, 0, 0],
+      "input_length": 5,
+      "expected_result": 2
+    },
+    {
+      "id": "maximum-full-component-mask",
+      "input_values": [16, 16, 0, 0, 1, 0, 2, 3, 0, 1, 2, 0, 4, 5, 0, 6, 7, 0, 5, 6, 0, 0, 4, 0, 8, 9, 0, 10, 11, 0, 9, 10, 0, 12, 13, 0, 14, 15, 0, 13, 14, 0, 8, 12, 0, 0, 8, 0, 1, 15, 0],
+      "input_length": 50,
+      "expected_result": 1048816
+    },
+    {
+      "id": "maximum-valid-operation-frame",
+      "input_values": [16, 32, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
+      "input_length": 98,
+      "expected_result": 1056
+    },
+    {
+      "id": "maximum-parseable-trailing-value",
+      "input_values": [
+        16, 32,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+        1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+        7
+      ],
+      "input_length": 99,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-empty-universe",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "operation-count-too-large",
+      "input_values": [1, 33],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "union-index-out-of-range",
+      "input_values": [2, 1, 0, 0, 2],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "nonzero-enumeration-reserved-field",
+      "input_values": [2, 1, 1, 0, 1],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "unknown-operation",
+      "input_values": [1, 1, 9, 0, 0],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-operation-row",
+      "input_values": [2, 1, 0, 0],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing-input-word",
+      "input_values": [1, 0, 7],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

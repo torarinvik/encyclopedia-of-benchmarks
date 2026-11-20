@@ -1,0 +1,50 @@
+# Uncompiled weighted total-domination tree draft.
+def twt_min(a: i64,b: i64) -> i64:
+    if a < b: return a
+    b
+def twt_add(a: i64,b: i64) -> i64:
+    twt_min(1000000000000,a+b)
+def twt_solve(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 129: return -1
+    nv: i64 = values[0]
+    if nv < 1 or nv > 64: return -1
+    n: usize = nv.usize()
+    if values.len() != 2 * n: return -1
+    for v in 1..<n:
+        if values[v] < 0 or values[v] >= v.i64(): return -1
+    weights: mutable i64[64] = zeroed
+    none: mutable i64[128] = zeroed
+    some: mutable i64[128] = zeroed
+    for v in 0..<n:
+        weight: i64 = values[n+v]
+        if weight < 0 or weight > 1000000: return -1
+        weights[v] <- weight
+        some[2*v] <- 1000000000000
+        some[2*v+1] <- 1000000000000
+    root: mutable i64 = 1000000000000
+    vertex: mutable usize = n
+    while vertex > 0:
+        vertex <- vertex - 1
+        dp: mutable i64[4] = zeroed
+        for chosen in 0..<2:
+            own: mutable i64 = 0
+            if chosen == 1: own <- weights[vertex]
+            dp[2*chosen] <- twt_add(own,some[2*vertex+chosen])
+            dp[2*chosen+1] <- twt_add(own,twt_min(none[2*vertex+chosen],some[2*vertex+chosen]))
+        if vertex == 0:
+            root <- twt_min(dp[0],dp[2])
+            break
+        parent: usize = values[vertex].usize()
+        for chosen in 0..<2:
+            absent: i64 = dp[chosen]
+            present: i64 = dp[2+chosen]
+            index: usize = 2*parent+chosen
+            next: i64 = twt_min(twt_add(some[index],twt_min(absent,present)),twt_add(none[index],present))
+            none[index] <- twt_add(none[index],absent)
+            some[index] <- next
+    if root == 1000000000000: return -2
+    root
+
+export fn tree_weighted_total_dominating_set(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 129: return -1
+    twt_solve(input[0:length])

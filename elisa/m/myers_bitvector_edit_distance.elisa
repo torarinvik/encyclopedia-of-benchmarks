@@ -1,0 +1,62 @@
+# Uncompiled multiword bit-vector global edit-distance draft.
+def myers_solve(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 515: return -1
+    nr: i64 = values[0]
+    mr: i64 = values[1]
+    if nr < 0 or nr > 256 or mr < 0 or mr > 256: return -1
+    n: usize = nr.usize()
+    m: usize = mr.usize()
+    if values.len() != 2 + n + m: return -1
+    for i in 2..<values.len():
+        if values[i] < 0 or values[i] > 255: return -1
+    if n == 0: return mr
+    masks: mutable u64[1024] = zeroed
+    pv: mutable u64[4] = zeroed
+    mv: mutable u64[4] = zeroed
+    words: usize = (n + 63) / 64
+    for j in 0..<words: pv[j] <- ~0.u64()
+    for i in 0..<n:
+        slot: usize = values[2+i].usize() * 4 + i / 64
+        masks[slot] <- masks[slot] | (1.u64() << (i % 64))
+    score: mutable i64 = nr
+    top: u64 = 1.u64() << ((n-1) % 64)
+    maximum: u64 = ~0.u64()
+    for i in 0..<m:
+        symbol: usize = values[2+n+i].usize()
+        add_carry: mutable u64 = 0
+        ph_carry: mutable u64 = 1
+        mh_carry: mutable u64 = 0
+        for j in 0..<words:
+            eq: u64 = masks[symbol*4+j]
+            p: u64 = pv[j]
+            v: u64 = mv[j]
+            term: u64 = eq & p
+            first: mutable u64 = 0
+            carry1: bool = p > maximum - term
+            if carry1: first <- p - (maximum - term) - 1
+            else: first <- p + term
+            sum: mutable u64 = first
+            carry2: bool = add_carry != 0 and first == maximum
+            if carry2: sum <- 0
+            else: sum <- first + add_carry
+            add_carry <- if carry1 or carry2: 1 else: 0
+            xh: u64 = (sum ^ p) | eq
+            xv: u64 = eq | v
+            ph: mutable u64 = v | ~(xh | p)
+            mh: mutable u64 = p & xh
+            if j == words-1:
+                if (ph & top) != 0: score <- score + 1
+                if (mh & top) != 0: score <- score - 1
+            next_ph: u64 = ph >> 63
+            next_mh: u64 = mh >> 63
+            ph <- (ph << 1) | ph_carry
+            mh <- (mh << 1) | mh_carry
+            ph_carry <- next_ph
+            mh_carry <- next_mh
+            pv[j] <- mh | ~(xv | ph)
+            mv[j] <- ph & xv
+    score
+
+export fn myers_bitvector_edit_distance(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 515: return -1
+    myers_solve(input[0:length])

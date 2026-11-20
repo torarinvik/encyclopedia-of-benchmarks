@@ -1,0 +1,261 @@
+# Bounded k=16 Wulff-Nilsen query with an explicitly replayed sample hierarchy.
+const WN_K: usize = 16
+const WN_N: usize = 8
+const WN_M: usize = 28
+const WN_Q: usize = 32
+const WN_INPUT: usize = 167
+const WN_NODES: usize = 31
+const WN_LOG_K: i32 = 4
+const WN_INF: i64 = 2305843009213693951
+
+def wn_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def wn_midpoint(low: i32, high: i32) -> i32:
+    chosen: mutable i32 = -1
+    best: mutable i32 = 2147483647
+    candidate: mutable i32 = low + 2
+    while candidate <= high - 2:
+        gap: i32 = 2 * candidate - low - high
+        if gap < 0: gap <- -gap
+        if gap < best:
+            best <- gap
+            chosen <- candidate
+        candidate <- candidate + 2
+    chosen
+
+def wn_build_tree(source: usize, low: i32, high: i32,
+                  distance: view[i64], nearest: view[i32],
+                  counts: mutable view[usize],
+                  tree_low: mutable view[i32], tree_high: mutable view[i32],
+                  tree_mid: mutable view[i32], tree_gap: mutable view[i32],
+                  tree_left: mutable view[i32], tree_right: mutable view[i32]) -> i32:
+    local_index: usize = counts[source]
+    if local_index >= WN_NODES: return -1
+    counts[source] <- local_index + 1
+    node: usize = source * WN_NODES + local_index
+    tree_low[node] <- low
+    tree_high[node] <- high
+    tree_mid[node] <- -1
+    tree_gap[node] <- -1
+    tree_left[node] <- -1
+    tree_right[node] <- -1
+    if high - low <= WN_LOG_K: return local_index.i32()
+
+    middle: i32 = wn_midpoint(low, high)
+    if middle < 0: return -1
+    selected: mutable i32 = low
+    near_index: usize = nearest[low.usize() * WN_N + source].usize()
+    far_index: usize = nearest[(low + 2).usize() * WN_N + source].usize()
+    best_delta: mutable i64 = distance[source * WN_N + far_index] - distance[source * WN_N + near_index]
+    level: mutable i32 = low + 2
+    while level <= middle - 2:
+        near_index <- nearest[level.usize() * WN_N + source].usize()
+        far_index <- nearest[(level + 2).usize() * WN_N + source].usize()
+        delta: i64 = distance[source * WN_N + far_index] - distance[source * WN_N + near_index]
+        if delta > best_delta:
+            best_delta <- delta
+            selected <- level
+        level <- level + 2
+    tree_mid[node] <- middle
+    tree_gap[node] <- selected
+    left_child: i32 = wn_build_tree(source, low, selected, distance, nearest, counts,
+        tree_low, tree_high, tree_mid, tree_gap, tree_left, tree_right)
+    right_child: i32 = wn_build_tree(source, middle, high, distance, nearest, counts,
+        tree_low, tree_high, tree_mid, tree_gap, tree_left, tree_right)
+    if left_child < 0 or right_child < 0: return -1
+    tree_left[node] <- left_child
+    tree_right[node] <- right_child
+    local_index.i32()
+
+def wn_dist_k(source_value: usize, target_value: usize, start: usize,
+              distance: view[i64], nearest: view[i32], bunch: view[bool],
+              estimate: mutable i64&, probes: mutable i64&) -> bool:
+    source: mutable usize = source_value
+    target: mutable usize = target_value
+    level: mutable usize = start
+    while level < WN_K:
+        pivot: usize = nearest[level * WN_N + source].usize()
+        probes <- probes + 1
+        if bunch[target * WN_N + pivot]:
+            estimate <- distance[source * WN_N + pivot] + distance[target * WN_N + pivot]
+            return true
+        if level + 1 >= WN_K: return false
+        temporary: usize = source
+        source <- target
+        target <- temporary
+        level <- level + 1
+    false
+
+def wn_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 18 or length > WN_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > WN_N.i64() or m_value < 0 or m_value > WN_M.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    valid_bits: u64 = ((1).u64() << n) - 1
+    masks: mutable u64[WN_K] = zeroed
+    level: mutable usize = 1
+    while level < WN_K:
+        raw: i64 = input[1 + level]
+        if raw <= 0 or (raw.u64() & ~valid_bits) != 0: return -1
+        masks[level] <- raw.u64()
+        if level > 1 and (masks[level] & ~masks[level - 1]) != 0: return -1
+        level <- level + 1
+    q_at: usize = 17 + 3 * m
+    if q_at >= length or input[q_at] < 0 or input[q_at] > WN_Q.i64(): return -1
+    q: usize = input[q_at].usize()
+    if length != q_at + 1 + 2 * q: return -1
+
+    distance: mutable i64[WN_N * WN_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            distance[i * WN_N + j] <- if i == j: 0 else: WN_INF
+            j <- j + 1
+        i <- i + 1
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = input[17 + 3 * edge]
+        v: i64 = input[18 + 3 * edge]
+        weight: i64 = input[19 + 3 * edge]
+        if u < 0 or v <= u or v >= n_value or weight < 1 or weight > 1000: return -1
+        if u < previous_u or (u == previous_u and v <= previous_v): return -1
+        previous_u <- u
+        previous_v <- v
+        distance[u.usize() * WN_N + v.usize()] <- weight
+        distance[v.usize() * WN_N + u.usize()] <- weight
+        edge <- edge + 1
+    level <- 0
+    while level < n:
+        i <- 0
+        while i < n:
+            j <- 0
+            while j < n:
+                left: i64 = distance[i * WN_N + level]
+                right: i64 = distance[level * WN_N + j]
+                if left != WN_INF and right != WN_INF and left + right < distance[i * WN_N + j]:
+                    distance[i * WN_N + j] <- left + right
+                j <- j + 1
+            i <- i + 1
+        level <- level + 1
+    i <- 0
+    while i < n:
+        j <- 0
+        while j < n:
+            if distance[i * WN_N + j] == WN_INF: return -1
+            j <- j + 1
+        i <- i + 1
+
+    nearest: mutable i32[WN_K * WN_N] = zeroed
+    i <- 0
+    while i < n:
+        nearest[i] <- i.i32()
+        i <- i + 1
+    level <- 1
+    while level < WN_K:
+        i <- 0
+        while i < n:
+            best: mutable i64 = -1
+            candidate: mutable usize = 0
+            while candidate < n:
+                if ((masks[level] >> candidate) & 1) != 0:
+                    if best < 0 or distance[i * WN_N + candidate] < distance[i * WN_N + best.usize()] or
+                        (distance[i * WN_N + candidate] == distance[i * WN_N + best.usize()] and candidate < best.usize()):
+                        best <- candidate.i64()
+                candidate <- candidate + 1
+            if best < 0: return -1
+            nearest[level * WN_N + i] <- best.i32()
+            i <- i + 1
+        level <- level + 1
+
+    bunch: mutable bool[WN_N * WN_N] = zeroed
+    center: mutable usize = 0
+    while center < n:
+        level <- 0
+        while level < WN_K:
+            current: u64 = if level == 0: valid_bits else: masks[level]
+            following: u64 = if level + 1 == WN_K: 0 else: masks[level + 1]
+            next_distance: mutable i64 = WN_INF
+            candidate <- 0
+            while candidate < n:
+                if ((following >> candidate) & 1) != 0 and distance[center * WN_N + candidate] < next_distance:
+                    next_distance <- distance[center * WN_N + candidate]
+                candidate <- candidate + 1
+            candidate <- 0
+            while candidate < n:
+                in_current: bool = ((current >> candidate) & 1) != 0
+                in_next: bool = ((following >> candidate) & 1) != 0
+                if in_current and not in_next and distance[center * WN_N + candidate] < next_distance:
+                    bunch[center * WN_N + candidate] <- true
+                candidate <- candidate + 1
+            level <- level + 1
+        center <- center + 1
+
+    tree_low: mutable i32[WN_N * WN_NODES] = zeroed
+    tree_high: mutable i32[WN_N * WN_NODES] = zeroed
+    tree_mid: mutable i32[WN_N * WN_NODES] = zeroed
+    tree_gap: mutable i32[WN_N * WN_NODES] = zeroed
+    tree_left: mutable i32[WN_N * WN_NODES] = zeroed
+    tree_right: mutable i32[WN_N * WN_NODES] = zeroed
+    counts: mutable usize[WN_N] = zeroed
+    center <- 0
+    while center < n:
+        if wn_build_tree(center, 0, (WN_K - 1).i32(), distance[0:WN_N * WN_N], nearest[0:WN_K * WN_N], counts[0:WN_N],
+            tree_low[0:WN_N * WN_NODES], tree_high[0:WN_N * WN_NODES], tree_mid[0:WN_N * WN_NODES],
+            tree_gap[0:WN_N * WN_NODES], tree_left[0:WN_N * WN_NODES], tree_right[0:WN_N * WN_NODES]) < 0: return -1
+        center <- center + 1
+
+    staged: mutable i64[1 + 2 * WN_Q] = zeroed
+    staged[0] <- q.i64()
+    query: mutable usize = 0
+    while query < q:
+        source_value: i64 = input[q_at + 1 + 2 * query]
+        target_value: i64 = input[q_at + 2 + 2 * query]
+        if source_value < 0 or source_value >= n_value or target_value < 0 or target_value >= n_value: return -1
+        source: usize = source_value.usize()
+        target: usize = target_value.usize()
+        if source == target:
+            staged[1 + 2 * query] <- 0
+            staged[2 + 2 * query] <- 0
+            query <- query + 1
+            continue
+        node_index: mutable usize = source * WN_NODES
+        probes: mutable i64 = 0
+        while tree_high[node_index] - tree_low[node_index] > WN_LOG_K:
+            j: usize = tree_gap[node_index].usize()
+            first: bool = bunch[target * WN_N + nearest[j * WN_N + source].usize()]
+            second: bool = bunch[source * WN_N + nearest[(j + 1) * WN_N + target].usize()]
+            probes <- probes + 2
+            child: i32 = if not first and not second: tree_right[node_index] else: tree_left[node_index]
+            node_index <- source * WN_NODES + child.usize()
+        estimate: mutable i64 = 0
+        if not wn_dist_k(source, target, tree_low[node_index].usize(), distance[0:WN_N * WN_N],
+            nearest[0:WN_K * WN_N], bunch[0:WN_N * WN_N], estimate, probes): return -1
+        staged[1 + 2 * query] <- estimate
+        staged[2 + 2 * query] <- probes
+        query <- query + 1
+
+    words: usize = 1 + 2 * q
+    output_bytes: usize = words * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    result: mutable view[u8] = output[0:output_bytes]
+    i <- 0
+    while i < words:
+        wn_store_i64(staged[i], result, i * 8)
+        i <- i + 1
+    output_bytes.i64()
+
+export fn wulff_nilsen_logarithmic_distance_query(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 18 or length > WN_INPUT: return -1
+    wn_impl(input[0:length], output, capacity)

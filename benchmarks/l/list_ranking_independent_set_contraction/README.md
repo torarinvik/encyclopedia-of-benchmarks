@@ -25,9 +25,10 @@ The deterministic profile uses the chapter's explicit serial option of
 three is a proper coloring; excluding the tail ensures every contracted
 vertex has a successor to receive its weight. This fixes a concrete bounded
 selection rule while retaining the chapter's contraction and restoration
-recurrence. The chapter's I/O-complexity analysis, sorting passes, randomized
-independent-set selection, parallel coin-tossing, and machine-model costs are
-not part of this single-call profile.
+recurrence. The chapter's distinct randomized Random_Mate method is covered by
+the [separate supplied-tape profile](../list_ranking_random_mate/README.md).
+The I/O-complexity analysis, sorting passes, parallel scheduling, and
+machine-model costs are not part of either single-call profile.
 
 The serial profile uses O(n) total time and O(n) space: each round scans the
 remaining path and removes at least a third of its non-tail vertices.

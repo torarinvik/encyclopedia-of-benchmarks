@@ -16,14 +16,14 @@ fn usz append_small(ulong n, char* output, usz length) {
 }
 fn usz scale_count(int system) { return system == 1 ? 5 : 6; }
 fn ulong scale_power(int system, usz index) {
-    if (system == 0) { ulong values[6] = {1000000000000000,1000000000000,1000000000,1000000,1000,100}; return values[index]; }
-    if (system == 1) { ulong values[5] = {1000000000000000,1000000000,1000000,1000,100}; return values[index]; }
-    ulong values[6] = {100000000000000,1000000000000,10000000,100000,1000,100}; return values[index];
+    if (system == 0) { ulong[6] values = {1000000000000000,1000000000000,1000000000,1000000,1000,100}; return values[index]; }
+    if (system == 1) { ulong[5] values = {1000000000000000,1000000000,1000000,1000,100}; return values[index]; }
+    ulong[6] values = {100000000000000,1000000000000,10000000,100000,1000,100}; return values[index];
 }
 fn usz scale_word(int system, usz index) {
-    if (system == 0) { usz ids[6] = {28,29,30,31,32,33}; return ids[index]; }
-    if (system == 1) { usz ids[5] = {34,35,31,32,33}; return ids[index]; }
-    usz ids[6] = {36,37,38,39,32,33}; return ids[index];
+    if (system == 0) { usz[6] ids = {28,29,30,31,32,33}; return ids[index]; }
+    if (system == 1) { usz[5] ids = {34,35,31,32,33}; return ids[index]; }
+    usz[6] ids = {36,37,38,39,32,33}; return ids[index];
 }
 fn usz append_number(ulong n, int system, char* output, usz length, int depth) {
     if (depth > 8) return length;
@@ -45,9 +45,9 @@ fn long convert_number_to_words(long* input, usz length, char* output, usz capac
     long limit = system == 0 ? 999999999999999999 : 9000000000000000000;
     if (number < -limit || number > limit) return -1;
     ulong magnitude = (ulong)(number < 0 ? -number : number);
-    char words[512] = {}; usz count = 0;
-    if (number < 0) count = append_word(words, count, 40, true);
-    count = append_number(magnitude, system, words, count, 0);
+    char[512] words = {}; usz count = 0;
+    if (number < 0) count = append_word(&words[0], count, 40, true);
+    count = append_number(magnitude, system, &words[0], count, 0);
     if (capacity < count || output == null) return -2;
     for (usz i = 0; i < count; i++) output[i] = words[i];
     return (long)count;

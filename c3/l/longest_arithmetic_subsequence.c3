@@ -6,8 +6,8 @@ fn long longest_arithmetic_subsequence(long* values, usz length) @export("longes
         if (values[i] < -1000000 || values[i] > 1000000) return -1;
     if (length <= 1) return (long)length;
 
-    long[64][127] keys;
-    long[64][127] sizes;
+    long[127][64] keys;
+    long[127][64] sizes;
     long maximum = 2;
     for (usz right = 0; right < length; right++) {
         for (usz slot = 0; slot < 127; slot++) sizes[right][slot] = 0;

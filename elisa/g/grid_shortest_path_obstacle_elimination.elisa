@@ -1,0 +1,54 @@
+def grid_shortest_path_obstacle_elimination_impl(values: view[i64]) -> i64:
+    if values.len() < 3 or values.len() > 40: return -2
+    let rows: i64 = values[0]
+    let columns: i64 = values[1]
+    let budget: i64 = values[2]
+    if rows < 1 or rows > 6 or columns < 1 or columns > 6 or budget < 0 or budget > 6:
+        return -2
+    if values.len() != usize(3 + rows * columns): return -2
+
+    let cell_count: usize = usize(rows * columns)
+    let cells: mutable [i64;36] = [0;36]
+    for cell in 0..<cell_count:
+        let value: i64 = values[3 + cell]
+        if value != 0 and value != 1: return -2
+        cells[cell] <- value
+    if cells[0] != 0 or cells[cell_count - 1] != 0: return -2
+
+    let stride: usize = usize(budget + 1)
+    let queue: mutable [usize;252] = [0;252]
+    let distance: mutable [i64;252] = [-1;252]
+    let start: usize = usize(budget)
+    let head: mutable usize = 0
+    let tail: mutable usize = 1
+    queue[0] <- start
+    distance[start] <- 0
+
+    while head < tail:
+        let state: usize = queue[head]
+        head <- head + 1
+        let cell: usize = state / stride
+        let remaining: i64 = i64(state % stride)
+        if cell + 1 == cell_count: return distance[state]
+        let row: i64 = i64(cell / usize(columns))
+        let column: i64 = i64(cell % usize(columns))
+        let next_rows: [i64;4] = [row - 1,row,row,row + 1]
+        let next_columns: [i64;4] = [column,column - 1,column + 1,column]
+        for direction in 0..<4:
+            let next_row: i64 = next_rows[direction]
+            let next_column: i64 = next_columns[direction]
+            if next_row < 0 or next_row >= rows or next_column < 0 or next_column >= columns:
+                continue
+            let next_cell: usize = usize(next_row * columns + next_column)
+            let next_remaining: i64 = remaining - cells[next_cell]
+            if next_remaining < 0: continue
+            let next_state: usize = next_cell * stride + usize(next_remaining)
+            if distance[next_state] != -1: continue
+            distance[next_state] <- distance[state] + 1
+            queue[tail] <- next_state
+            tail <- tail + 1
+    -1
+
+export fn grid_shortest_path_obstacle_elimination(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > 40: return -2
+    grid_shortest_path_obstacle_elimination_impl(input[0:length])

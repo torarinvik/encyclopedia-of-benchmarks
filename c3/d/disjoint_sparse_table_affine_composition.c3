@@ -47,7 +47,7 @@ fn long disjoint_sparse_table_affine_composition(long* input, usz length,
     usz output_bytes = q * 16;
     if (output == null || capacity < output_bytes) return -2;
 
-    Affine[MAX_LEVELS][MAX_N] table = zeroed;
+    Affine[MAX_N][MAX_LEVELS] table = zeroed;
     usz levels = 0, span = 1;
     while (span < n) { levels++; span *= 2; }
     for (usz level = 0; level < levels; level++) {

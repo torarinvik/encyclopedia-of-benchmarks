@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn wc_write_uint(inout b:InlineArray[UInt8,64],inout p:Int,v:Int):

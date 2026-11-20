@@ -1,0 +1,133 @@
+const MAX_N: usize=8
+const ROUNDS: usize=24
+const MAX_GROUPS: usize=8
+const MAX_OUTPUT_WORDS: usize=7
+
+def truth_at(table:view[u64],point:u32)->i64:
+    word:usize=(point/64).usize()
+    bit:usize=(point%64).usize()
+    ((table[word]>>bit)&1).i64()
+
+def store_i64(value:i64,output:mutable view[u8],offset:usize)->void:
+    bits:mutable u64=value.u64()
+    byte:mutable usize=0
+    while byte<8:
+        output[offset+byte]<-(bits&255).u8()
+        bits<-bits>>8
+        byte<-byte+1
+
+def junta_test_partition_binary_search(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("junta_test_partition_binary_search"):
+    if input.is_null() or length<3 or length>40:return -1
+    frame:view[i64]=input[0:length]
+    n64:i64=frame[0]
+    groups64:i64=frame[1]
+    words64:i64=frame[2]
+    if n64<1 or n64>8 or groups64<1 or groups64>n64:return -1
+    n:usize=n64.usize()
+    group_count:usize=groups64.usize()
+    domain:usize=1<<n
+    truth_words:usize=(domain+63)/64
+    if words64!=truth_words.i64():return -1
+    table_at:usize=3
+    labels_at:usize=table_at+truth_words
+    tape_at:usize=labels_at+n
+    if length!=tape_at+ROUNDS:return -1
+
+    truth:mutable u64[4]=zeroed
+    word:mutable usize=0
+    while word<truth_words:
+        truth[word]<-frame[table_at+word].u64()
+        word<-word+1
+    tail_bits:usize=domain%64
+    if tail_bits!=0 and (truth[truth_words-1]>>tail_bits)!=0:return -1
+
+    group_masks:mutable u32[MAX_GROUPS]=zeroed
+    groups_seen:mutable u32=0
+    coordinate:mutable usize=0
+    while coordinate<n:
+        group:i64=frame[labels_at+coordinate]
+        if group<0 or group>=groups64:return -1
+        group_masks[group.usize()]<-group_masks[group.usize()]|(1.u32<<coordinate)
+        groups_seen<-groups_seen|(1.u32<<group.usize())
+        coordinate<-coordinate+1
+    if groups_seen!=((1.u32<<group_count)-1):return -1
+    pair_limit:u64=1.u64<<(2*n)
+    round:mutable usize=0
+    while round<ROUNDS:
+        pair:i64=frame[tape_at+round]
+        if pair<0 or pair.u64()>=pair_limit:return -1
+        round<-round+1
+
+    result:mutable i64[MAX_OUTPUT_WORDS]=zeroed
+    event_rounds:mutable i64[2]=zeroed
+    event_groups:mutable i64[2]=zeroed
+    found:mutable usize=0
+    query_count:mutable usize=0
+    all_coordinates:u32=(1.u32<<n)-1
+    active:mutable u32=all_coordinates
+    round<-0
+    while round<ROUNDS:
+        packed:u64=frame[tape_at+round].u64()
+        x:u32=(packed&all_coordinates.u64()).u32()
+        y:u32=((packed>>n)&all_coordinates.u64()).u32()
+        hybrid:u32=(x&~active)|(y&active)
+        left_value:mutable i64=truth_at(truth[0:truth_words],x)
+        right_value:i64=truth_at(truth[0:truth_words],hybrid)
+        query_count<-query_count+2
+        if left_value!=right_value:
+            candidates:mutable u8[MAX_GROUPS]=zeroed
+            candidate_count:mutable usize=0
+            group:mutable usize=0
+            while group<group_count:
+                if (group_masks[group]&active)!=0:
+                    candidates[candidate_count]<-group.u8()
+                    candidate_count<-candidate_count+1
+                group<-group+1
+            left_endpoint:mutable u32=x
+            right_endpoint:mutable u32=hybrid
+            while candidate_count>1:
+                cut:usize=candidate_count/2
+                low_mask:mutable u32=0
+                i:mutable usize=0
+                while i<cut:
+                    low_mask<-low_mask|group_masks[candidates[i].usize()]
+                    i<-i+1
+                probe:u32=(left_endpoint&~low_mask)|(right_endpoint&low_mask)
+                probe_value:i64=truth_at(truth[0:truth_words],probe)
+                query_count<-query_count+1
+                if probe_value!=left_value:
+                    right_endpoint<-probe
+                    candidate_count<-cut
+                else:
+                    left_endpoint<-probe
+                    left_value<-probe_value
+                    i<-cut
+                    while i<candidate_count:
+                        candidates[i-cut]<-candidates[i]
+                        i<-i+1
+                    candidate_count<-candidate_count-cut
+            selected:usize=candidates[0].usize()
+            active<-active&~group_masks[selected]
+            event_rounds[found]<-round.i64()
+            event_groups[found]<-selected.i64()
+            found<-found+1
+            if found>1:break
+        round<-round+1
+
+    result[0]<-if found>1 then 1 else 0
+    result[1]<-found.i64()
+    result[2]<-query_count.i64()
+    i:mutable usize=0
+    while i<found:
+        result[3+2*i]<-event_rounds[i]
+        result[4+2*i]<-event_groups[i]
+        i<-i+1
+    result_words:usize=3+2*found
+    output_bytes:usize=result_words*8
+    if output.is_null() or capacity<output_bytes:return -2
+    output_view:mutable view[u8]=output[0:output_bytes]
+    i<-0
+    while i<result_words:
+        store_i64(result[i],output_view,i*8)
+        i<-i+1
+    output_bytes.i64()

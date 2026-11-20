@@ -37,6 +37,7 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/l/lowest_set_bit/
 | C3 | [`c3/l/lowest_set_bit.c3`](../../../c3/l/lowest_set_bit.c3) |
 | C++ | [`cpp/l/lowest_set_bit.cpp`](../../../cpp/l/lowest_set_bit.cpp) |
 | Elisa | [`elisa/l/lowest_set_bit.elisa`](../../../elisa/l/lowest_set_bit.elisa) |
+| Mojo | [`mojo/l/lowest_set_bit.mojo`](../../../mojo/l/lowest_set_bit.mojo) |
 | Nim | [`nim/l/lowest_set_bit.nim`](../../../nim/l/lowest_set_bit.nim) |
 | Odin | [`odin/l/lowest_set_bit.odin`](../../../odin/l/lowest_set_bit.odin) |
 | Rust | [`rust/l/lowest_set_bit.rs`](../../../rust/l/lowest_set_bit.rs) |
@@ -46,3 +47,6 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/l/lowest_set_bit/
 ## Pinned source
 
 - [Java `LowestSetBit.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/LowestSetBit.java)
+
+Scalar verifier registration and a bit-length reference are drafted and have
+not been executed.

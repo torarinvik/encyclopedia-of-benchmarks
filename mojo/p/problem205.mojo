@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p205_dist(sides:Int,dice:Int,inout out:InlineArray[Int64,37]):
     var cur=InlineArray[Int64,37](fill=0);var next=InlineArray[Int64,37](fill=0);cur[0]=1
     for _ in range(dice):

@@ -1,0 +1,27 @@
+{
+  "algorithm": "myrvold_ruskey_permutation_unrank",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "myrvold_ruskey_permutation_unrank",
+  "workspace_bytes": 256,
+  "max_valid_input_length": 2,
+  "max_parseable_input_length": 3,
+  "max_output_bytes": 64,
+  "languages": {
+    "c": "../../../c/m/myrvold_ruskey_permutation_unrank.c",
+    "c3": "../../../c3/m/myrvold_ruskey_permutation_unrank.c3",
+    "cpp": "../../../cpp/m/myrvold_ruskey_permutation_unrank.cpp",
+    "elisa": "../../../elisa/m/myrvold_ruskey_permutation_unrank.elisa",
+    "mojo": "../../../mojo/m/myrvold_ruskey_permutation_unrank.mojo",
+    "nim": "../../../nim/m/myrvold_ruskey_permutation_unrank.nim",
+    "odin": "../../../odin/m/myrvold_ruskey_permutation_unrank.odin",
+    "rust": "../../../rust/m/myrvold_ruskey_permutation_unrank.rs",
+    "v": "../../../v/m/myrvold_ruskey_permutation_unrank.v",
+    "zig": "../../../zig/m/myrvold_ruskey_permutation_unrank.zig"
+  },
+  "artifacts": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "primary_oracle.py", "independent_oracle.py", "workload.json",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "suite_integration": "benchmarks/run_i64_array_bytes_output.py and benchmarks/verify_i64_array_bytes_output.py"
+}

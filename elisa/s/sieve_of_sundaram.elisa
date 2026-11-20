@@ -1,0 +1,25 @@
+# Count primes through limit with Sundaram's index sieve.
+def sieve_of_sundaram_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 4096:
+        return -1
+    if limit < 2:
+        return 0
+    max_index: usize = ((limit - 1) / 2).usize()
+
+    marked: bool[2048] =
+        while 2 * i * (i + 1) <= max_index |i: mutable usize = 1, flags: mutable bool[2048] = zeroed| -> flags:
+            row_flags: bool[2048] =
+                while true |j: mutable usize = i, work_flags: mutable bool[2048] = flags| -> work_flags:
+                    index: usize = i + j + 2 * i * j
+                    if index > max_index:
+                        break work_flags
+                    work_flags[index] <- true
+                    j <- j + 1
+            rebind flags = row_flags
+            i <- i + 1
+
+    for index in 1..<(max_index + 1) |count: mutable i64 = 1| -> count:
+        if not marked[index]:
+            count <- count + 1
+
+export fn sieve_of_sundaram(limit: i64) -> i64 = sieve_of_sundaram_impl

@@ -22,16 +22,17 @@ def compose(left: AffineMap, right: AffineMap) -> AffineMap:
 
 fn point_set_range_composite_impl(input: i64&, length: usize) -> i64:
     if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > 16 or q_value < 0 or q_value > 32: return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
     if length != 2 + 2 * n + 4 * q: return -1
 
     for index in 0..<n:
-        a: i64 = input[2 + 2 * index]
-        b: i64 = input[3 + 2 * index]
+        a: i64 = frame[2 + 2 * index]
+        b: i64 = frame[3 + 2 * index]
         if a < 0 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
 
     base: mutable usize = 1
@@ -40,8 +41,8 @@ fn point_set_range_composite_impl(input: i64&, length: usize) -> i64:
     for index in 0..<TREE_CAPACITY: tree[index] <- identity_map()
     for index in 0..<n:
         map: AffineMap
-        map.a <- input[2 + 2 * index]
-        map.b <- input[3 + 2 * index]
+        map.a <- frame[2 + 2 * index]
+        map.b <- frame[3 + 2 * index]
         tree[base + index] <- map
     node: mutable usize = base
     while node > 1:
@@ -52,10 +53,10 @@ fn point_set_range_composite_impl(input: i64&, length: usize) -> i64:
     query_number: mutable i64 = 0
     cursor: mutable usize = 2 + 2 * n
     for _ in 0..<q:
-        opcode: i64 = input[cursor]
-        first: i64 = input[cursor + 1]
-        second: i64 = input[cursor + 2]
-        third: i64 = input[cursor + 3]
+        opcode: i64 = frame[cursor]
+        first: i64 = frame[cursor + 1]
+        second: i64 = frame[cursor + 2]
+        third: i64 = frame[cursor + 3]
         cursor <- cursor + 4
         if opcode == 0:
             if first < 0 or first >= n_value or second < 0 or second >= MODULUS or

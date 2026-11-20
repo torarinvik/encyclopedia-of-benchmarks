@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn tsp_bit_solve(pos:Int,mask:Int,n:Int,dist:InlineArray[Int64,100],inout memo:InlineArray[Int64,10240],inout seen:InlineArray[Bool,10240])->Int64:
@@ -17,10 +18,10 @@ fn traveling_salesman_bitmask(a:UnsafePointer[Int64,ImmutAnyOrigin],len:c_size_t
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or len<1 or len>102:return -1
     let nv=a[0]
     if nv<2 or nv>10 or len!=c_size_t(1+nv*nv):return -1
-    let n=Int(nv);var dist=InlineArray[Int64,100]()
+    let n=Int(nv);var dist=InlineArray[Int64,100](fill=0)
     for i in range(n*n):
         let x=a[i+1]
         if x<0 or x>1000 or (i/n==i%n and x!=0):return -1
         dist[i]=x
-    var memo=InlineArray[Int64,10240]();var seen=InlineArray[Bool,10240]()
+    var memo=InlineArray[Int64,10240](fill=0);var seen=InlineArray[Bool,10240](fill=False)
     return tsp_bit_solve(0,1,n,dist,memo,seen)

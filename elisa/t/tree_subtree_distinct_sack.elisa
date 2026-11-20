@@ -1,0 +1,149 @@
+const TDS_MAX_N: usize = 64
+const TDS_MAX_COLORS: usize = 256
+const TDS_MAX_INPUT: usize = 130
+
+struct TdsState:
+    n: usize
+    parent: i64[64]
+    first_child: i64[64]
+    next_sibling: i64[64]
+    order: usize[64]
+    tin: usize[64]
+    subtree_size: usize[64]
+    heavy: i64[64]
+    frequency: usize[256]
+    answer: usize[64]
+    distinct: usize
+    frame_vertex: i64[64]
+    frame_keep: bool[64]
+    frame_stage: u8[64]
+    frame_child: i64[64]
+
+def tds_add_interval(state: mutable TdsState&, colors: view[i64], begin: usize,
+                     count: usize, delta: i64) -> void:
+    for position in begin..<(begin + count):
+        vertex: usize = state.order[position]
+        color: usize = colors[vertex].usize()
+        if delta > 0:
+            if state.frequency[color] == 0:
+                state.distinct <- state.distinct + 1
+            state.frequency[color] <- state.frequency[color] + 1
+        else:
+            state.frequency[color] <- state.frequency[color] - 1
+            if state.frequency[color] == 0:
+                state.distinct <- state.distinct - 1
+
+def tds_solve(state: mutable TdsState&, colors: view[i64]) -> void:
+    stack_next: mutable i64[64] = zeroed
+    depth: mutable usize = 1
+    timer: mutable usize = 1
+    state.order[0] <- 0
+    state.tin[0] <- 0
+    stack_next[0] <- state.first_child[0]
+    while depth > 0:
+        frame: usize = depth - 1
+        child: i64 = stack_next[frame]
+        if child >= 0:
+            stack_next[frame] <- state.next_sibling[child.usize()]
+            state.tin[child.usize()] <- timer
+            state.order[timer] <- child.usize()
+            timer <- timer + 1
+            stack_next[depth] <- state.first_child[child.usize()]
+            depth <- depth + 1
+        else:
+            depth <- depth - 1
+
+    for vertex in 0..<state.n:
+        state.subtree_size[vertex] <- 1
+        state.heavy[vertex] <- -1
+    position: mutable usize = state.n
+    while position > 1:
+        position <- position - 1
+        vertex: usize = state.order[position]
+        parent: usize = state.parent[vertex].usize()
+        state.subtree_size[parent] <- state.subtree_size[parent] + state.subtree_size[vertex]
+        previous: i64 = state.heavy[parent]
+        if previous < 0 or state.subtree_size[vertex] > state.subtree_size[previous.usize()]:
+            state.heavy[parent] <- vertex.i64()
+
+    frame_count: mutable usize = 1
+    state.frame_vertex[0] <- 0
+    state.frame_keep[0] <- false
+    state.frame_stage[0] <- 0
+    state.frame_child[0] <- state.first_child[0]
+    while frame_count > 0:
+        frame: usize = frame_count - 1
+        vertex: usize = state.frame_vertex[frame].usize()
+        if state.frame_stage[frame] == 0:
+            child: mutable i64 = state.frame_child[frame]
+            while child >= 0 and child == state.heavy[vertex]:
+                child <- state.next_sibling[child.usize()]
+            if child >= 0:
+                state.frame_child[frame] <- state.next_sibling[child.usize()]
+                state.frame_vertex[frame_count] <- child
+                state.frame_keep[frame_count] <- false
+                state.frame_stage[frame_count] <- 0
+                state.frame_child[frame_count] <- state.first_child[child.usize()]
+                frame_count <- frame_count + 1
+            else:
+                state.frame_stage[frame] <- 1
+        else if state.frame_stage[frame] == 1:
+            state.frame_stage[frame] <- 2
+            child: i64 = state.heavy[vertex]
+            if child >= 0:
+                state.frame_vertex[frame_count] <- child
+                state.frame_keep[frame_count] <- true
+                state.frame_stage[frame_count] <- 0
+                state.frame_child[frame_count] <- state.first_child[child.usize()]
+                frame_count <- frame_count + 1
+        else:
+            child: mutable i64 = state.first_child[vertex]
+            while child >= 0:
+                if child != state.heavy[vertex]:
+                    tds_add_interval(state, colors, state.tin[child.usize()],
+                                     state.subtree_size[child.usize()], 1)
+                child <- state.next_sibling[child.usize()]
+            color: usize = colors[vertex].usize()
+            if state.frequency[color] == 0:
+                state.distinct <- state.distinct + 1
+            state.frequency[color] <- state.frequency[color] + 1
+            state.answer[vertex] <- state.distinct
+            if not state.frame_keep[frame]:
+                tds_add_interval(state, colors, state.tin[vertex], state.subtree_size[vertex], -1)
+            frame_count <- frame_count - 1
+
+def tds_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def tree_subtree_distinct_sack(input: i64&, input_length: usize,
+                               output: mutable u8&, output_capacity: usize) -> i64
+        @export("tree_subtree_distinct_sack"):
+    if input.is_null() or input_length < 2 or input_length > TDS_MAX_INPUT:
+        return -1
+    values: view[i64] = input[0:input_length]
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > TDS_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if input_length != 2 * n: return -1
+    for vertex in 1..<n:
+        if values[vertex] < 0 or values[vertex] >= vertex.i64(): return -1
+    for vertex in 0..<n:
+        if values[n + vertex] < 0 or values[n + vertex] >= TDS_MAX_COLORS.i64(): return -1
+    required: usize = 8 * n
+    if output.is_null() or output_capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+
+    state: mutable TdsState = zeroed
+    state.n <- n
+    for vertex in 0..<n: state.first_child[vertex] <- -1
+    for vertex in 1..<n:
+        parent: usize = values[vertex].usize()
+        state.parent[vertex] <- parent.i64()
+        state.next_sibling[vertex] <- state.first_child[parent]
+        state.first_child[parent] <- vertex.i64()
+    tds_solve(state, values[n:2 * n])
+    for vertex in 0..<n:
+        tds_write_i64(result, 8 * vertex, state.answer[vertex].i64())
+    required.i64()

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn skyline_mark(a:UnsafePointer[Int64,ImmutAnyOrigin],keep:UnsafePointer[Bool,MutAnyOrigin],lo:Int,hi:Int):

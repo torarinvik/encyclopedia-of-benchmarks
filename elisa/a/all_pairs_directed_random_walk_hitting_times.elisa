@@ -1,0 +1,176 @@
+const MAX_N: usize = 8
+const MATRIX_WIDTH: usize = 17
+const MAX_INPUT_LENGTH: usize = 115
+const MODULUS: i64 = 1000000007
+
+def rw_norm(value_input: i64) -> i64:
+    value: mutable i64 = value_input % MODULUS
+    if value < 0: value <- value + MODULUS
+    value
+
+def rw_power(base_input: i64, exponent_input: i64) -> i64:
+    base: mutable i64 = rw_norm(base_input)
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * base) % MODULUS
+        base <- (base * base) % MODULUS
+        exponent <- exponent >> 1
+    result
+
+def rw_reaches_all(graph: view[bool], n: usize, reverse: bool) -> bool:
+    seen: mutable bool[MAX_N] = zeroed
+    queue: mutable usize[MAX_N] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    seen[0] <- true
+    queue[0] <- 0
+    while head < tail:
+        current: usize = queue[head]
+        head <- head + 1
+        to: mutable usize = 0
+        while to < n:
+            has_edge: bool = if reverse: graph[to * MAX_N + current] else: graph[current * MAX_N + to]
+            if has_edge and not seen[to]:
+                seen[to] <- true
+                queue[tail] <- to
+                tail <- tail + 1
+            to <- to + 1
+    tail == n
+
+def rw_eliminate(matrix: mutable view[i64], size: usize, rhs_count: usize) -> bool:
+    width: usize = size + rhs_count
+    column: mutable usize = 0
+    while column < size:
+        pivot: mutable usize = column
+        while pivot < size and rw_norm(matrix[pivot * MATRIX_WIDTH + column]) == 0:
+            pivot <- pivot + 1
+        if pivot == size: return false
+        if pivot != column:
+            j: mutable usize = 0
+            while j < width:
+                temporary: i64 = matrix[column * MATRIX_WIDTH + j]
+                matrix[column * MATRIX_WIDTH + j] <- matrix[pivot * MATRIX_WIDTH + j]
+                matrix[pivot * MATRIX_WIDTH + j] <- temporary
+                j <- j + 1
+        inverse: i64 = rw_power(matrix[column * MATRIX_WIDTH + column], MODULUS - 2)
+        j: mutable usize = 0
+        while j < width:
+            matrix[column * MATRIX_WIDTH + j] <- (matrix[column * MATRIX_WIDTH + j] * inverse) % MODULUS
+            j <- j + 1
+        row: mutable usize = 0
+        while row < size:
+            if row != column:
+                factor: i64 = rw_norm(matrix[row * MATRIX_WIDTH + column])
+                if factor != 0:
+                    j <- 0
+                    while j < width:
+                        matrix[row * MATRIX_WIDTH + j] <- rw_norm(matrix[row * MATRIX_WIDTH + j]
+                            - (factor * matrix[column * MATRIX_WIDTH + j]) % MODULUS)
+                        j <- j + 1
+            row <- row + 1
+        column <- column + 1
+    true
+
+def rw_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def all_pairs_directed_random_walk_hitting_times_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    m_value: i64 = frame[1]
+    if n_value < 3 or n_value > MAX_N.i64(): return -1
+    if m_value < 0 or m_value > n_value * (n_value - 1): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m: return -1
+    graph: mutable bool[MAX_N * MAX_N] = zeroed
+    degree: mutable usize[MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u_value: i64 = frame[2 + 2 * edge]
+        v_value: i64 = frame[3 + 2 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if graph[u * MAX_N + v]: return -1
+        graph[u * MAX_N + v] <- true
+        degree[u] <- degree[u] + 1
+        edge <- edge + 1
+    vertex: mutable usize = 0
+    while vertex < n:
+        if degree[vertex] == 0: return -1
+        vertex <- vertex + 1
+    if not rw_reaches_all(graph[0:MAX_N * MAX_N], n, false)
+            or not rw_reaches_all(graph[0:MAX_N * MAX_N], n, true): return -1
+    output_bytes: usize = 8 * n * n
+    if output.is_null() or capacity < output_bytes: return -2
+
+    stationary: mutable i64[MAX_N * MATRIX_WIDTH] = zeroed
+    reduced: mutable i64[MAX_N * MATRIX_WIDTH] = zeroed
+    destination: mutable usize = 0
+    while destination + 1 < n:
+        source: mutable usize = 0
+        while source < n:
+            transition: i64 = if graph[source * MAX_N + destination]: rw_power(degree[source].i64(), MODULUS - 2) else: 0
+            identity: i64 = if source == destination: 1 else: 0
+            stationary[destination * MATRIX_WIDTH + source] <- rw_norm(transition - identity)
+            source <- source + 1
+        destination <- destination + 1
+    source: mutable usize = 0
+    while source < n:
+        stationary[(n - 1) * MATRIX_WIDTH + source] <- 1
+        source <- source + 1
+    stationary[(n - 1) * MATRIX_WIDTH + n] <- 1
+    if not rw_eliminate(stationary[0:MAX_N * MATRIX_WIDTH], n, 1): return -1
+
+    reciprocal: mutable i64[MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        pi: i64 = rw_norm(stationary[vertex * MATRIX_WIDTH + n])
+        if pi == 0: return -1
+        reciprocal[vertex] <- rw_power(pi, MODULUS - 2)
+        vertex <- vertex + 1
+    row: mutable usize = 0
+    while row + 1 < n:
+        column: mutable usize = 0
+        while column + 1 < n:
+            transition: i64 = if graph[row * MAX_N + column]: rw_power(degree[row].i64(), MODULUS - 2) else: 0
+            identity: i64 = if row == column: 1 else: 0
+            reduced[row * MATRIX_WIDTH + column] <- rw_norm(identity - transition)
+            column <- column + 1
+        target: mutable usize = 0
+        while target < n:
+            correction: i64 = if row == target: reciprocal[target] else: 0
+            reduced[row * MATRIX_WIDTH + n - 1 + target] <- rw_norm(1 - correction)
+            target <- target + 1
+        row <- row + 1
+    if not rw_eliminate(reduced[0:MAX_N * MATRIX_WIDTH], n - 1, n): return -1
+    y: mutable i64[MAX_N * MAX_N] = zeroed
+    row <- 0
+    while row + 1 < n:
+        target <- 0
+        while target < n:
+            y[row * MAX_N + target] <- rw_norm(reduced[row * MATRIX_WIDTH + n - 1 + target])
+            target <- target + 1
+        row <- row + 1
+    output_view: mutable view[u8] = output[0:output_bytes]
+    source <- 0
+    while source < n:
+        target <- 0
+        while target < n:
+            value: i64 = rw_norm(y[source * MAX_N + target] - y[target * MAX_N + target])
+            rw_store_i64(output_view, 8 * (source * n + target), value)
+            target <- target + 1
+        source <- source + 1
+    output_bytes.i64()
+
+export fn all_pairs_directed_random_walk_hitting_times(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = all_pairs_directed_random_walk_hitting_times_impl

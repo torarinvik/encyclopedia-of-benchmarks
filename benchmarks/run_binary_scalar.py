@@ -22,6 +22,11 @@ from exponentiation_oracle import expected_result as exponentiation_expected
 from uint53_xor_oracle import expected_result as uint53_xor_expected
 from problem74_sol2_oracle import expected_result as problem74_sol2_expected
 from ackermann_oracle import expected_result as ackermann_expected
+from fibonacci_sum_oracle import expected_result as fibonacci_sum_expected
+from largest_power_oracle import expected_result as largest_power_expected
+from f.factorial_divisor_composite_k.primary_oracle import (
+    expected_result as factorial_divisor_composite_k_expected,
+)
 
 U64_MAX = 2**64 - 1
 I64_MIN = -(2**63)
@@ -132,7 +137,16 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
             or any(type(value) is not int or not I64_MIN <= value <= U64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError("binary scalar cases require two 64-bit inputs and an integer result")
-    if algorithm == "binary_multiplication":
+    if algorithm == "factorial_divisor_composite_k":
+        if expected != factorial_divisor_composite_k_expected(*values):
+            raise ValueError("factorial_divisor_composite_k result differs from the quotient-sum reference")
+    elif algorithm == "largest_power":
+        if expected != largest_power_expected(values[0], values[1]):
+            raise ValueError("largest_power expected_result differs from the digit-sum reference")
+    elif algorithm == "fibonacci_sum":
+        if expected != fibonacci_sum_expected(values[0], values[1]):
+            raise ValueError("fibonacci_sum expected_result differs from the direct summation reference")
+    elif algorithm == "binary_multiplication":
         left, right = values
         if not (0 <= left <= 1_000_000_000 and 0 <= right <= 1_000_000_000):
             raise ValueError("binary_multiplication workload inputs must lie within the declared 0..1e9 domain")

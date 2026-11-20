@@ -1,0 +1,153 @@
+const CV2_MAX_TEXT: usize = 64
+const CV2_SCRATCH: usize = 128
+const CV2_BYTES: usize = 10
+
+def cv2_match(text: view[u8], at: usize, length: usize,
+        a: u8, b: u8, c: u8, d: u8, old_length: usize) -> bool:
+    if at + old_length > length: return false
+    if old_length > 0 and text[at] != a: return false
+    if old_length > 1 and text[at + 1] != b: return false
+    if old_length > 2 and text[at + 2] != c: return false
+    if old_length > 3 and text[at + 3] != d: return false
+    true
+
+def cv2_match5(text: view[u8], at: usize, length: usize,
+        a: u8, b: u8, c: u8, d: u8, e: u8) -> bool:
+    at + 5 <= length and cv2_match(text, at, length, a, b, c, d, 4) and text[at + 4] == e
+
+def cv2_match6(text: view[u8], at: usize, length: usize,
+        a: u8, b: u8, c: u8, d: u8, e: u8, f: u8) -> bool:
+    at + 6 <= length and cv2_match5(text, at, length, a, b, c, d, e) and text[at + 5] == f
+
+def cv2_replace_all(text: mutable view[u8], length: mutable usize&,
+        a: u8, b: u8, c: u8, d: u8, old_length: usize,
+        x: u8, y: u8, z: u8, w: u8) -> void:
+    next: mutable u8[CV2_SCRATCH] = zeroed
+    next_view: mutable view[u8] = next[0:CV2_SCRATCH]
+    out: mutable usize = 0
+    at: mutable usize = 0
+    while at < length:
+        if cv2_match(text, at, length, a, b, c, d, old_length):
+            next_view[out] <- x
+            if old_length > 1: next_view[out + 1] <- y
+            if old_length > 2: next_view[out + 2] <- z
+            if old_length > 3: next_view[out + 3] <- w
+            out <- out + old_length
+            at <- at + old_length
+        else:
+            next_view[out] <- text[at]
+            out <- out + 1
+            at <- at + 1
+    for i in 0..<out: text[i] <- next_view[i]
+    length <- out
+
+def cv2_prefix(text: mutable view[u8], length: mutable usize&,
+        a: u8, b: u8, c: u8, d: u8, old_length: usize,
+        x: u8, y: u8, z: u8, w: u8) -> void:
+    if not cv2_match(text, 0, length, a, b, c, d, old_length): return
+    if old_length > 0: text[0] <- x
+    if old_length > 1: text[1] <- y
+    if old_length > 2: text[2] <- z
+    if old_length > 3: text[3] <- w
+
+def cv2_suffix(text: mutable view[u8], length: mutable usize&,
+        a: u8, b: u8, old_length: usize, x: u8, y: u8) -> void:
+    if length < old_length: return
+    at: usize = length - old_length
+    if not cv2_match(text, at, length, a, b, 0.u8(), 0.u8(), old_length): return
+    text[at] <- x
+    if old_length > 1: text[at + 1] <- y
+    length <- at + old_length
+
+def cv2_char(text: mutable view[u8], length: usize, old: u8, replacement: u8) -> void:
+    for i in 0..<length:
+        if text[i] == old: text[i] <- replacement
+
+def cv2_squeeze(text: mutable view[u8], length: mutable usize&,
+        letter: u8, marker: u8) -> void:
+    out: mutable usize = 0
+    for i in 0..<length:
+        if text[i] == letter and out > 0 and text[out - 1] == marker: continue
+        if text[i] == letter: text[out] <- marker
+        else: text[out] <- text[i]
+        out <- out + 1
+    length <- out
+
+def cv2_encode(input: view[i64], output: mutable view[u8]) -> void:
+    text: mutable u8[CV2_SCRATCH] = zeroed
+    text_view: mutable view[u8] = text[0:CV2_SCRATCH]
+    n: mutable usize = input[0].usize()
+    for i in 0..<n:
+        code: i64 = input[i + 1]
+        if code >= 65 and code <= 90: code <- code + 32
+        text_view[i] <- code.u8()
+    result: mutable u8[CV2_BYTES] = zeroed
+    if n == 0:
+        for i in 0..<CV2_BYTES: result[i] <- 49.u8()
+    else:
+        if text_view[n - 1] == 101.u8(): n <- n - 1
+        if cv2_match5(text_view, 0, n, 99.u8(),111.u8(),117.u8(),103.u8(),104.u8()):
+            text_view[0] <- 99.u8(); text_view[1] <- 111.u8(); text_view[2] <- 117.u8(); text_view[3] <- 50.u8(); text_view[4] <- 102.u8()
+        elif cv2_match5(text_view, 0, n, 114.u8(),111.u8(),117.u8(),103.u8(),104.u8()):
+            text_view[0] <- 114.u8(); text_view[1] <- 111.u8(); text_view[2] <- 117.u8(); text_view[3] <- 50.u8(); text_view[4] <- 102.u8()
+        elif cv2_match5(text_view, 0, n, 116.u8(),111.u8(),117.u8(),103.u8(),104.u8()):
+            text_view[0] <- 116.u8(); text_view[1] <- 111.u8(); text_view[2] <- 117.u8(); text_view[3] <- 50.u8(); text_view[4] <- 102.u8()
+        elif cv2_match6(text_view, 0, n, 101.u8(),110.u8(),111.u8(),117.u8(),103.u8(),104.u8()):
+            text_view[0] <- 101.u8(); text_view[1] <- 110.u8(); text_view[2] <- 111.u8(); text_view[3] <- 117.u8(); text_view[4] <- 50.u8(); text_view[5] <- 102.u8()
+        elif cv2_match6(text_view, 0, n, 116.u8(),114.u8(),111.u8(),117.u8(),103.u8(),104.u8()):
+            text_view[0] <- 116.u8(); text_view[1] <- 114.u8(); text_view[2] <- 111.u8(); text_view[3] <- 117.u8(); text_view[4] <- 50.u8(); text_view[5] <- 102.u8()
+        cv2_prefix(text_view, n, 103.u8(),110.u8(),0.u8(),0.u8(),2, 50.u8(),110.u8(),0.u8(),0.u8())
+        cv2_suffix(text_view, n, 109.u8(),98.u8(),2, 109.u8(),50.u8())
+        cv2_replace_all(text_view,n,99.u8(),113.u8(),0.u8(),0.u8(),2,50.u8(),113.u8(),0.u8(),0.u8())
+        cv2_replace_all(text_view,n,99.u8(),105.u8(),0.u8(),0.u8(),2,115.u8(),105.u8(),0.u8(),0.u8())
+        cv2_replace_all(text_view,n,99.u8(),101.u8(),0.u8(),0.u8(),2,115.u8(),101.u8(),0.u8(),0.u8())
+        cv2_replace_all(text_view,n,99.u8(),121.u8(),0.u8(),0.u8(),2,115.u8(),121.u8(),0.u8(),0.u8())
+        cv2_replace_all(text_view,n,116.u8(),99.u8(),104.u8(),0.u8(),3,50.u8(),99.u8(),104.u8(),0.u8())
+        cv2_char(text_view,n,99.u8(),107.u8()); cv2_char(text_view,n,113.u8(),107.u8()); cv2_char(text_view,n,120.u8(),107.u8()); cv2_char(text_view,n,118.u8(),102.u8())
+        cv2_replace_all(text_view,n,100.u8(),103.u8(),0.u8(),0.u8(),2,50.u8(),103.u8(),0.u8(),0.u8())
+        cv2_replace_all(text_view,n,116.u8(),105.u8(),111.u8(),0.u8(),3,115.u8(),105.u8(),111.u8(),0.u8())
+        cv2_replace_all(text_view,n,116.u8(),105.u8(),97.u8(),0.u8(),3,115.u8(),105.u8(),97.u8(),0.u8())
+        cv2_char(text_view,n,100.u8(),116.u8()); cv2_replace_all(text_view,n,112.u8(),104.u8(),0.u8(),0.u8(),2,102.u8(),104.u8(),0.u8(),0.u8())
+        cv2_char(text_view,n,98.u8(),112.u8()); cv2_replace_all(text_view,n,115.u8(),104.u8(),0.u8(),0.u8(),2,115.u8(),50.u8(),0.u8(),0.u8()); cv2_char(text_view,n,122.u8(),115.u8())
+        if n > 0 and (text_view[0]==97.u8() or text_view[0]==101.u8() or text_view[0]==105.u8() or text_view[0]==111.u8() or text_view[0]==117.u8()): text_view[0] <- 65.u8()
+        for i in 0..<n:
+            if text_view[i]==97.u8() or text_view[i]==101.u8() or text_view[i]==105.u8() or text_view[i]==111.u8() or text_view[i]==117.u8(): text_view[i] <- 51.u8()
+        cv2_char(text_view,n,106.u8(),121.u8())
+        if cv2_match(text_view,0,n,121.u8(),51.u8(),0.u8(),0.u8(),2): text_view[0] <- 89.u8()
+        else: cv2_prefix(text_view,n,121.u8(),0.u8(),0.u8(),0.u8(),1,65.u8(),0.u8(),0.u8(),0.u8())
+        cv2_char(text_view,n,121.u8(),51.u8())
+        cv2_replace_all(text_view,n,51.u8(),103.u8(),104.u8(),51.u8(),4,51.u8(),107.u8(),104.u8(),51.u8())
+        cv2_replace_all(text_view,n,103.u8(),104.u8(),0.u8(),0.u8(),2,50.u8(),50.u8(),0.u8(),0.u8()); cv2_char(text_view,n,103.u8(),107.u8())
+        cv2_squeeze(text_view,n,115.u8(),83.u8()); cv2_squeeze(text_view,n,116.u8(),84.u8()); cv2_squeeze(text_view,n,112.u8(),80.u8()); cv2_squeeze(text_view,n,107.u8(),75.u8())
+        cv2_squeeze(text_view,n,102.u8(),70.u8()); cv2_squeeze(text_view,n,109.u8(),77.u8()); cv2_squeeze(text_view,n,110.u8(),78.u8())
+        cv2_replace_all(text_view,n,119.u8(),51.u8(),0.u8(),0.u8(),2,87.u8(),51.u8(),0.u8(),0.u8())
+        cv2_replace_all(text_view,n,119.u8(),104.u8(),51.u8(),0.u8(),3,87.u8(),104.u8(),51.u8(),0.u8())
+        cv2_suffix(text_view,n,119.u8(),0.u8(),1,51.u8(),0.u8()); cv2_char(text_view,n,119.u8(),50.u8())
+        if n > 0 and text_view[0]==104.u8(): text_view[0] <- 65.u8()
+        cv2_char(text_view,n,104.u8(),50.u8())
+        cv2_replace_all(text_view,n,114.u8(),51.u8(),0.u8(),0.u8(),2,82.u8(),51.u8(),0.u8(),0.u8()); cv2_suffix(text_view,n,114.u8(),0.u8(),1,51.u8(),0.u8()); cv2_char(text_view,n,114.u8(),50.u8())
+        cv2_replace_all(text_view,n,108.u8(),51.u8(),0.u8(),0.u8(),2,76.u8(),51.u8(),0.u8(),0.u8()); cv2_suffix(text_view,n,108.u8(),0.u8(),1,51.u8(),0.u8()); cv2_char(text_view,n,108.u8(),50.u8())
+        out: mutable usize = 0
+        for i in 0..<n:
+            if text_view[i] != 50.u8(): text_view[out] <- text_view[i]; out <- out + 1
+        n <- out
+        cv2_suffix(text_view,n,51.u8(),0.u8(),1,65.u8(),0.u8())
+        out <- 0
+        for i in 0..<n:
+            if text_view[i] != 51.u8(): text_view[out] <- text_view[i]; out <- out + 1
+        for i in 0..<CV2_BYTES: result[i] <- if i < out: text_view[i] else: 49.u8()
+    for i in 0..<CV2_BYTES: output[i] <- result[i]
+
+export fn caverphone_2_encoder(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > CV2_MAX_TEXT + 1: return -1
+    input_view: view[i64] = input[0:length]
+    count: i64 = input_view[0]
+    if count < 0 or count > CV2_MAX_TEXT.i64() or length != count.usize() + 1: return -1
+    for i in 0..<count.usize():
+        code: i64 = input_view[i + 1]
+        if not ((code >= 65 and code <= 90) or (code >= 97 and code <= 122)): return -1
+    if output.is_null() or output_capacity < CV2_BYTES: return -2
+    output_view: mutable view[u8] = output[0:CV2_BYTES]
+    cv2_encode(input_view, output_view)
+    CV2_BYTES.i64()

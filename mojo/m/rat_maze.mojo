@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn rat_search(maze:InlineArray[Int32,64],mut path:InlineArray[Int32,64],n:Int,r:Int,c:Int)->Bool:

@@ -1,0 +1,67 @@
+from std.collections import InlineArray
+
+const PAGE_COUNT: usize = 16
+const MAX_REQUESTS: usize = 64
+const MAX_INPUT_LENGTH: usize = 67
+const CHECKSUM_RADIX: Int64 = 33281
+
+def belady_optimal_paging_impl(values: view[Int64], length: usize) -> Int64:
+    if length < 2 or length > MAX_INPUT_LENGTH: return -1
+    let capacity_value = values[0]
+    let count_value = values[1]
+    if capacity_value < 1 or capacity_value > 8 or count_value < 0 or count_value > 64:
+        return -1
+    if length != 2 + count_value.usize():
+        return -1
+
+    let count = count_value.usize()
+    var requests = InlineArray[Int, 64](fill=0)
+    for time in range(count):
+        let page = values[2 + time]
+        if page < 0 or page >= 16:
+            return -1
+        requests[time] = Int(page)
+
+    var next_after = InlineArray[Int, 1024](fill=0)
+    var next_position = InlineArray[Int, 16](fill=0)
+    for page in range(16):
+        next_position[page] = Int(count)
+    var cursor = count
+    while cursor > 0:
+        cursor -= 1
+        for page in range(16):
+            next_after[cursor * 16 + page] = next_position[page]
+        next_position[requests[cursor]] = cursor
+
+    var resident = InlineArray[Bool, 16](fill=False)
+    var resident_count = 0
+    var misses: Int64 = 0
+    var eviction_checksum: Int64 = 0
+    for time in range(count):
+        let requested = requests[time]
+        if resident[requested]:
+            continue
+        misses += 1
+        if resident_count == Int(capacity_value):
+            var victim = -1
+            var farthest = -1
+            for page in range(16):
+                if not resident[page]:
+                    continue
+                let following = next_after[time * 16 + page]
+                if following > farthest:
+                    victim = page
+                    farthest = following
+            resident[victim] = False
+            resident_count -= 1
+            eviction_checksum += Int64((time + 1) * (victim + 1))
+        resident[requested] = True
+        resident_count += 1
+    misses * CHECKSUM_RADIX + eviction_checksum
+
+@export("belady_optimal_paging")
+def belady_optimal_paging(input: i64&, length: usize) abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let values: view[Int64] = input[0:length]
+    belady_optimal_paging_impl(values, length)

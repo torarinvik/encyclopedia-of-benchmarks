@@ -19,7 +19,7 @@ fn void put_i32_le(char* output, usz offset, int value) {
     for (usz byte = 0; byte < 4; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long rat_maze(int* input, usz length, char* output, usz capacity) @export("rat_maze") {
+fn long rat_maze(int* input, usz length, char* output, usz capacity) @export("rat_maze") {
     if (input == null || length < 2 || length > MAX_INPUT_WORDS) return -1;
     int n_raw = input[0];
     if (n_raw < 1 || n_raw > 8) return -1;

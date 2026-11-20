@@ -1,0 +1,38 @@
+{
+  "algorithm": "aho_build_rooted_triplet_tree",
+  "function_symbol": "aho_build_rooted_triplet_tree",
+  "abi": "i64_array_bytes_output",
+  "maximum_input_words": 317,
+  "maximum_parseable_words": 318,
+  "maximum_output_bytes": 112,
+  "workspace_bytes": 8192,
+  "source_dois": [
+    "10.1137/0210030",
+    "10.1007/978-1-4939-2864-4_92"
+  ],
+  "languages": {
+    "c": "c/a/aho_build_rooted_triplet_tree.c",
+    "c3": "c3/a/aho_build_rooted_triplet_tree.c3",
+    "cpp": "cpp/a/aho_build_rooted_triplet_tree.cpp",
+    "elisa": "elisa/a/aho_build_rooted_triplet_tree.elisa",
+    "mojo": "mojo/a/aho_build_rooted_triplet_tree.mojo",
+    "nim": "nim/a/aho_build_rooted_triplet_tree.nim",
+    "odin": "odin/a/aho_build_rooted_triplet_tree.odin",
+    "rust": "rust/a/aho_build_rooted_triplet_tree.rs",
+    "v": "v/a/aho_build_rooted_triplet_tree.v",
+    "zig": "zig/a/aho_build_rooted_triplet_tree.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "SOURCE_CROSSWALK.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ]
+}

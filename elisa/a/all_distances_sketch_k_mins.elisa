@@ -1,0 +1,72 @@
+const ADM_MAX_N: usize = 6
+const ADM_MAX_ASSIGNMENTS: usize = 3
+const ADM_MAX_INPUT: usize = 27
+const ADM_MAX_WORDS: usize = 73
+
+def adm_put_i64(value: i64, output: mutable view[u8], word: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def all_distances_sketch_k_mins(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64 @export("all_distances_sketch_k_mins"):
+    if input.is_null() or length < 2 or length > ADM_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    assignments64: i64 = values[1]
+    if n64 < 1 or n64 > ADM_MAX_N.i64() or assignments64 < 1
+            or assignments64 > ADM_MAX_ASSIGNMENTS.i64(): return -1
+    n: usize = n64.usize()
+    assignments: usize = assignments64.usize()
+    if length != 2 + n + assignments * n: return -1
+
+    distances: mutable i64[ADM_MAX_N] = zeroed
+    item: mutable usize = 0
+    while item < n:
+        distance: i64 = values[2 + item]
+        if distance < 0 or distance > 1000000 or (item > 0 and distances[item - 1] >= distance): return -1
+        distances[item] <- distance
+        item <- item + 1
+
+    ranks: mutable i64[ADM_MAX_ASSIGNMENTS * ADM_MAX_N] = zeroed
+    assignment: mutable usize = 0
+    while assignment < assignments:
+        seen: mutable bool[ADM_MAX_N] = zeroed
+        item <- 0
+        while item < n:
+            rank: i64 = values[2 + n + assignment * n + item]
+            if rank < 0 or rank >= n64 or seen[rank.usize()]: return -1
+            seen[rank.usize()] <- true
+            ranks[assignment * ADM_MAX_N + item] <- rank
+            item <- item + 1
+        assignment <- assignment + 1
+
+    staged: mutable i64[ADM_MAX_WORDS] = zeroed
+    count: mutable usize = 0
+    assignment <- 0
+    while assignment < assignments:
+        best_rank: mutable i64 = n64
+        item <- 0
+        while item < n:
+            rank: i64 = ranks[assignment * ADM_MAX_N + item]
+            if rank < best_rank:
+                staged[1 + 4 * count] <- assignment.i64()
+                staged[2 + 4 * count] <- item.i64()
+                staged[3 + 4 * count] <- rank
+                staged[4 + 4 * count] <- distances[item]
+                count <- count + 1
+                best_rank <- rank
+            item <- item + 1
+        assignment <- assignment + 1
+    staged[0] <- count.i64()
+    words: usize = 1 + 4 * count
+    bytes: usize = 8 * words
+    if output.is_null() or capacity < bytes: return -2
+    out: mutable view[u8] = output[0:capacity]
+    word: mutable usize = 0
+    while word < words:
+        adm_put_i64(staged[word], out, word)
+        word <- word + 1
+    bytes.i64()

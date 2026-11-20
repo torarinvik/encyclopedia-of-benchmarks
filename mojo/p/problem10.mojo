@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 from std.math import min
 @export("problem10")
 fn problem10(limit:Int64) abi("C")->Int64:

@@ -1,0 +1,69 @@
+const MCS_MAX_N: usize = 30
+const MCS_MAX_K: usize = 30
+const MCS_MAX_INPUT_LENGTH: usize = 33
+const MCS_DP_CELLS: usize = MCS_MAX_N * MCS_MAX_N * (MCS_MAX_K + 1)
+const MCS_INFINITY: i64 = 1152921504606846976
+
+def mcs_index(left: usize, right: usize, piles: usize) -> usize:
+    (left * MCS_MAX_N + right) * (MCS_MAX_K + 1) + piles
+
+def minimum_cost_to_merge_stones_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > MCS_MAX_INPUT_LENGTH: return -1
+    if input[0] < 1 or input[0] > MCS_MAX_N.i64() or input[1] < 2 or input[1] > MCS_MAX_K.i64(): return -1
+    n: usize = input[0].usize()
+    merge_count: usize = input[1].usize()
+    if length != n + 2: return -1
+
+    prefix: mutable i64[MCS_MAX_N + 1] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        stone: i64 = input[index + 2]
+        if stone < 1 or stone > 100: return -1
+        prefix[index + 1] <- prefix[index] + stone
+        index <- index + 1
+    if (n - 1) % (merge_count - 1) != 0: return -1
+
+    dp_storage: mutable i64[MCS_DP_CELLS] = zeroed
+    dp: mutable view[i64] = dp_storage[0:MCS_DP_CELLS]
+    index <- 0
+    while index < MCS_DP_CELLS:
+        dp[index] <- MCS_INFINITY
+        index <- index + 1
+    index <- 0
+    while index < n:
+        dp[mcs_index(index, index, 1)] <- 0
+        index <- index + 1
+
+    interval_length: mutable usize = 2
+    while interval_length <= n:
+        left: mutable usize = 0
+        while left + interval_length <= n:
+            right: usize = left + interval_length - 1
+            maximum_piles: usize = if merge_count < interval_length: merge_count else: interval_length
+            piles: mutable usize = 2
+            while piles <= maximum_piles:
+                best: mutable i64 = MCS_INFINITY
+                cut: mutable usize = left
+                while cut < right:
+                    first: i64 = dp[mcs_index(left, cut, 1)]
+                    rest: i64 = dp[mcs_index(cut + 1, right, piles - 1)]
+                    if first < MCS_INFINITY and rest < MCS_INFINITY and first + rest < best:
+                        best <- first + rest
+                    cut <- cut + 1
+                dp[mcs_index(left, right, piles)] <- best
+                piles <- piles + 1
+            if interval_length >= merge_count:
+                to_k: i64 = dp[mcs_index(left, right, merge_count)]
+                if to_k < MCS_INFINITY:
+                    dp[mcs_index(left, right, 1)] <- to_k + prefix[right + 1] - prefix[left]
+            left <- left + 1
+        interval_length <- interval_length + 1
+
+    answer: i64 = dp[mcs_index(0, n - 1, 1)]
+    if answer >= MCS_INFINITY: return -1
+    answer
+
+export fn minimum_cost_to_merge_stones(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > MCS_MAX_INPUT_LENGTH: return -1
+    minimum_cost_to_merge_stones_impl(input[0:length])

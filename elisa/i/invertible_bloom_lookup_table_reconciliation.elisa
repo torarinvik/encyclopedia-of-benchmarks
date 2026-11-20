@@ -1,0 +1,179 @@
+from std.collections import InlineArray
+
+const SET_LIMIT: usize = 8
+const KEY_LIMIT: i64 = 63
+const CELL_COUNT: usize = 48
+const MAX_PEELS: usize = 16
+const MAX_INPUT_WORDS: usize = 18
+
+def iblt_slot(key: i64, part: usize) -> usize:
+    x: usize = key.usize()
+    if part == 0: return x % 16
+    if part == 1: return 16 + ((3 * x + 5) % 16)
+    32 + ((5 * x + 9) % 16)
+
+def iblt_checksum(key: i64) -> i64:
+    key * key + 3 * key + 7
+
+def iblt_write(output: mutable view[u8], word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def iblt_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > MAX_INPUT_WORDS + 1: return -1
+    a_raw: i64 = values[0]
+    b_raw: i64 = values[1]
+    if a_raw < 0 or a_raw > SET_LIMIT.i64() or b_raw < 0 or b_raw > SET_LIMIT.i64(): return -1
+    a_count: usize = a_raw.usize()
+    b_count: usize = b_raw.usize()
+    if length != 2 + a_count + b_count: return -1
+    side: mutable usize = 0
+    index: mutable usize = 0
+    part: mutable usize = 0
+    zero: mutable Bool = True
+    while side < 2:
+        count: usize = if side == 0: a_count else: b_count
+        start: usize = if side == 0: 2 else: 2 + a_count
+        previous: mutable i64 = -1
+        index <- 0
+        while index < count:
+            key: i64 = values[start + index]
+            if key < 0 or key > KEY_LIMIT or key <= previous: return -1
+            previous <- key
+            index <- index + 1
+        side <- side + 1
+
+    var counts = InlineArray[i64, CELL_COUNT](fill=0)
+    var sums = InlineArray[i64, CELL_COUNT](fill=0)
+    var checks = InlineArray[i64, CELL_COUNT](fill=0)
+    side <- 0
+    while side < 2:
+        count: usize = if side == 0: a_count else: b_count
+        start: usize = if side == 0: 2 else: 2 + a_count
+        sign: i64 = if side == 0: 1 else: -1
+        index <- 0
+        while index < count:
+            key: i64 = values[start + index]
+            tag: i64 = iblt_checksum(key)
+            part <- 0
+            while part < 3:
+                slot: usize = iblt_slot(key, part)
+                counts[slot] <- counts[slot] + sign
+                sums[slot] <- sums[slot] + sign * key
+                checks[slot] <- checks[slot] + sign * tag
+                part <- part + 1
+            index <- index + 1
+        side <- side + 1
+
+    var positive = InlineArray[i64, MAX_PEELS](fill=0)
+    var negative = InlineArray[i64, MAX_PEELS](fill=0)
+    var positive_count: mutable usize = 0
+    var negative_count: mutable usize = 0
+    var repeated: mutable Bool = False
+    peel: mutable usize = 0
+    while peel < MAX_PEELS:
+        zero <- True
+        index <- 0
+        while index < CELL_COUNT:
+            if counts[index] != 0 or sums[index] != 0 or checks[index] != 0: zero <- False; break
+            index <- index + 1
+        if zero: break
+        var found: mutable Bool = False
+        var sign: mutable i64 = 0
+        var key: mutable i64 = 0
+        index <- 0
+        while index < CELL_COUNT:
+            if counts[index] == 1 or counts[index] == -1:
+                candidate_sign: i64 = counts[index]
+                candidate: i64 = candidate_sign * sums[index]
+                if candidate >= 0 and candidate <= KEY_LIMIT and checks[index] == candidate_sign * iblt_checksum(candidate):
+                    sign <- candidate_sign
+                    key <- candidate
+                    found <- True
+                    break
+            index <- index + 1
+        if not found: break
+        index <- 0
+        while index < positive_count:
+            if positive[index] == key: repeated <- True
+            index <- index + 1
+        index <- 0
+        while index < negative_count:
+            if negative[index] == key: repeated <- True
+            index <- index + 1
+        if repeated: break
+        if sign > 0:
+            positive[positive_count] <- key
+            positive_count <- positive_count + 1
+        else:
+            negative[negative_count] <- key
+            negative_count <- negative_count + 1
+        part <- 0
+        while part < 3:
+            slot <- iblt_slot(key, part)
+            counts[slot] <- counts[slot] - sign
+            sums[slot] <- sums[slot] - sign * key
+            checks[slot] <- checks[slot] - sign * iblt_checksum(key)
+            part <- part + 1
+        peel <- peel + 1
+
+    zero <- True
+    index <- 0
+    while index < CELL_COUNT:
+        if counts[index] != 0 or sums[index] != 0 or checks[index] != 0: zero <- False; break
+        index <- index + 1
+    index <- 1
+    while index < positive_count:
+        value: i64 = positive[index]
+        at: mutable usize = index
+        while at > 0 and positive[at - 1] > value:
+            positive[at] <- positive[at - 1]
+            at <- at - 1
+        positive[at] <- value
+        index <- index + 1
+    index <- 1
+    while index < negative_count:
+        value: i64 = negative[index]
+        at <- index
+        while at > 0 and negative[at - 1] > value:
+            negative[at] <- negative[at - 1]
+            at <- at - 1
+        negative[at] <- value
+        index <- index + 1
+
+    var staged = InlineArray[i64, 3 + 2 * MAX_PEELS](fill=0)
+    var words: mutable usize = 0
+    staged[words] <- if not repeated and zero: 1 else: 0
+    words <- words + 1
+    staged[words] <- positive_count.i64()
+    words <- words + 1
+    staged[words] <- negative_count.i64()
+    words <- words + 1
+    index <- 0
+    while index < positive_count:
+        staged[words] <- positive[index]
+        words <- words + 1
+        index <- index + 1
+    index <- 0
+    while index < negative_count:
+        staged[words] <- negative[index]
+        words <- words + 1
+        index <- index + 1
+    required: usize = words * 8
+    if output.is_null() or capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+    index <- 0
+    while index < words:
+        iblt_write(result, index, staged[index])
+        index <- index + 1
+    required.i64()
+
+@export("invertible_bloom_lookup_table_reconciliation")
+def invertible_bloom_lookup_table_reconciliation(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_WORDS + 1: return -1
+    iblt_impl(input[0:length], output, capacity)

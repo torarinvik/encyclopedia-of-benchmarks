@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "id": "rosetta-boids-bounded-i64-byte-output-v1",
+  "algorithm": "boids_flocking_simulation",
+  "function_symbol": "boids_flocking_simulation",
+  "abi": "i64_array_bytes_output",
+  "description": "Deterministic integer 2D flocking trace with local collision-avoidance, velocity-matching, and flock-centering steering.",
+  "source": {
+    "discovery_title": "Boids",
+    "discovery_url": "https://rosettacode.org/wiki/Boids",
+    "discovery_scope": "Task title only; no task page, examples, submissions, or code consulted.",
+    "algorithm_attribution": "Clean-room bounded profile based on the three local steering behaviors and acceleration arbitration described by Reynolds (1987).",
+    "algorithm_url": "https://www.red3d.com/cwr/papers/1987/SIGGRAPH87.pdf",
+    "source_type": "algorithm_description",
+    "reuse": "Only high-level algorithm ideas are used. Ports, integer rules, workload, references, and documentation are independently authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,steps,radius,max_speed,max_acceleration,(x,y,vx,vy)*N]",
+    "boid_count_range": [1, 16],
+    "step_count_range": [0, 16],
+    "neighborhood_radius_range": [0, 128],
+    "maximum_speed_range": [1, 32],
+    "maximum_acceleration_range": [0, 8],
+    "initial_position_component_range": [-256, 256],
+    "initial_velocity_component_range": [-32, 32],
+    "initial_speed_constraint": "For every boid, vx*vx+vy*vy<=max_speed*max_speed.",
+    "maximum_valid_length": 69,
+    "maximum_parseable_length": 70,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "profile": "Two-dimensional integer lattice, open plane without obstacles or wraparound. Neighborhood sensitivity is a uniform step function: weight 1 inside the radius and 0 outside. All boids update synchronously from one state snapshot per step.",
+    "neighbors": "For boid i, every j!=i with (x[j]-x[i])^2+(y[j]-y[i])^2<=radius^2 is a neighbor. The radius boundary is inclusive. Coincident non-self boids are neighbors, including when radius is zero.",
+    "separation_vector": "For each neighbor j, add the unit-away vector from j to i scaled by 256. For nonzero displacement, each component is trunc_zero(256*(position[i]-position[j])/ceil_sqrt(distance_squared)). For coincident positions use (-256,0) when i<j and (+256,0) when i>j. Average the component sums by neighbor count with trunc_zero.",
+    "alignment_vector": "Average neighbor velocities componentwise with trunc_zero, then subtract boid i's current velocity.",
+    "cohesion_vector": "Average neighbor position offsets (position[j]-position[i]) componentwise with trunc_zero.",
+    "steering_request": "For each nonzero behavior vector, cap its Euclidean magnitude to max_acceleration. Capping leaves a vector unchanged when its squared magnitude is within the cap; otherwise divide each component times the cap by ceil_sqrt(squared_magnitude), using trunc_zero. A zero behavior vector requests (0,0).",
+    "acceleration_arbitration": "Process separation, then alignment, then cohesion. Start with zero acceleration and max_acceleration units of budget. For each request, measure its integer length as ceil_sqrt(request_x^2+request_y^2). Add it and charge that length when it fits the remaining budget. Otherwise cap the request to the remaining budget, add the trimmed vector, and stop. This implements deterministic prioritized allocation with collision avoidance first. If there are no neighbors, acceleration is (0,0).",
+    "speed_cap": "Add acceleration to current velocity, then apply the same Euclidean cap rule using max_speed.",
+    "position_update": "After every boid's next velocity is computed from the old snapshot, set next position to old position plus next velocity. Commit all positions and velocities together.",
+    "integer_rules": "ceil_sqrt(n) is the least nonnegative integer r with r*r>=n. All signed divisions truncate toward zero. Traversal order is ascending boid ID; sums are exact signed 64-bit integers.",
+    "time_complexity": "O(steps*N^2)",
+    "auxiliary_workspace_bytes": 1280,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Validate the complete input and initial speed constraints before checking output pointer and capacity."
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "For each boid in ascending ID, emit x,y,vx,vy as four signed 32-bit little-endian integers.",
+    "bytes_per_boid": 16,
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes written; 16 bytes per boid",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1280,
+    "explicit_state_array_payload_bytes": 1024,
+    "meaning": "Eight fixed 16-element signed-64-bit arrays hold current and next x,y,vx,vy states (1024 bytes); bounded scalar scratch and call frames are covered by the remaining 256 bytes. The external output buffer is capped separately at 256 bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "single-agent-no-neighbors",
+      "input_values": [1, 1, 0, 4, 2, 5, -3, 1, 0],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "06000000fdffffff0100000000000000"
+    },
+    {
+      "id": "coincident-separation-id-tie",
+      "input_values": [2, 1, 0, 16, 8, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 13,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "f8ffffff00000000f8ffffff0000000008000000000000000800000000000000"
+    },
+    {
+      "id": "inclusive-radius-synchronous-three-rule-update",
+      "input_values": [3, 1, 4, 4, 3, 0, 0, 0, 0, 4, 0, 3, 0, 4, 0, 3, 0],
+      "input_length": 17,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "fdffffff00000000fdffffff000000000400000000000000000000000000000008000000000000000400000000000000"
+    },
+    {
+      "id": "radius-zero-excludes-distinct-boids-and-integrates-twice",
+      "input_values": [2, 2, 0, 4, 4, 0, 0, 1, 0, 1, 0, 0, 1],
+      "input_length": 13,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0200000000000000010000000000000001000000020000000000000001000000"
+    },
+    {
+      "id": "zero-steps-preserve-state",
+      "input_values": [1, 0, 128, 8, 8, -7, 9, 3, -2],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "f9ffffff0900000003000000feffffff"
+    },
+    {
+      "id": "maximum-boids-steps-and-output-bound",
+      "input_values": [16, 16, 0, 32, 8, 0,0,0,0, 1,0,0,0, 2,0,0,0, 3,0,0,0, 4,0,0,0, 5,0,0,0, 6,0,0,0, 7,0,0,0, 8,0,0,0, 9,0,0,0, 10,0,0,0, 11,0,0,0, 12,0,0,0, 13,0,0,0, 14,0,0,0, 15,0,0,0],
+      "input_length": 69,
+      "output_capacity": 256,
+      "expected_result": 256,
+      "expected_output_hex": "000000000000000000000000000000000100000000000000000000000000000002000000000000000000000000000000030000000000000000000000000000000400000000000000000000000000000005000000000000000000000000000000060000000000000000000000000000000700000000000000000000000000000008000000000000000000000000000000090000000000000000000000000000000a0000000000000000000000000000000b0000000000000000000000000000000c0000000000000000000000000000000d0000000000000000000000000000000e0000000000000000000000000000000f0000000000000000000000000000000"
+    },
+    {
+      "id": "initial-speed-over-limit-is-invalid",
+      "input_values": [1, 1, 8, 4, 2, 0, 0, 4, 4],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-position-is-invalid",
+      "input_values": [1, 0, 8, 4, 2, 257, 0, 0, 0],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-is-invalid-before-capacity-check",
+      "input_values": [1, 0, 8, 4, 2, 0, 0, 0, 0, 9],
+      "input_length": 10,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "undersized-output-does-not-write",
+      "input_values": [1, 0, 8, 4, 2, 0, 0, 0, 0],
+      "input_length": 9,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-is-invalid-for-nonempty-flock",
+      "input_values": [1, 0, 8, 4, 2, 0, 0, 0, 0],
+      "input_length": 9,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

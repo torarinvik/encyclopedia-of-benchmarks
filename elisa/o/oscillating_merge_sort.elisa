@@ -1,0 +1,75 @@
+# Bounded oscillating multi-tape merge, with safe borrowed views after the ABI boundary.
+const MAX_VALUES: usize = 1024
+const MAX_PARTS: usize = 2
+const INITIAL_RUN_SIZE: usize = 16
+
+def build_run(values: view[i64], run_size: usize, merge_inputs: usize,
+        first_run: usize, run_count: usize, ascending: bool,
+        output: mutable view[i64]) -> usize:
+    if run_count == 1:
+        start: usize = first_run * run_size
+        length: mutable usize = values.len() - start
+        if length > run_size: length <- run_size
+        index: mutable usize = 0
+        while index < length:
+            output[index] <- values[start + index]
+            index <- index + 1
+        index <- 1
+        while index < length:
+            value: i64 = output[index]
+            position: mutable usize = index
+            while position > 0:
+                previous: i64 = output[position - 1]
+                if ascending and value >= previous: break
+                if not ascending and value <= previous: break
+                output[position] <- previous
+                position <- position - 1
+            output[position] <- value
+            index <- index + 1
+        return length
+
+    children: mutable i64[MAX_PARTS][MAX_VALUES] = zeroed
+    lengths: mutable usize[MAX_PARTS] = zeroed
+    positions: mutable usize[MAX_PARTS] = zeroed
+    quotient: usize = run_count / merge_inputs
+    remainder: usize = run_count % merge_inputs
+    next_run: mutable usize = first_run
+    total: mutable usize = 0
+    lane: mutable usize = 0
+    while lane < merge_inputs:
+        child_count: usize = quotient
+        if lane < remainder: child_count <- child_count + 1
+        if child_count > 0:
+            lengths[lane] <- build_run(values, run_size, merge_inputs,
+                next_run, child_count, not ascending, children[lane][0:MAX_VALUES])
+            next_run <- next_run + child_count
+            total <- total + lengths[lane]
+        lane <- lane + 1
+
+    out_index: mutable usize = 0
+    while out_index < total:
+        best_lane: mutable usize = MAX_PARTS
+        best_value: mutable i64 = 0
+        lane <- 0
+        while lane < merge_inputs:
+            if positions[lane] < lengths[lane]:
+                candidate: i64 = children[lane][lengths[lane] - 1 - positions[lane]]
+                if best_lane == MAX_PARTS or (ascending and candidate < best_value) or (not ascending and candidate > best_value):
+                    best_lane <- lane
+                    best_value <- candidate
+            lane <- lane + 1
+        output[out_index] <- best_value
+        positions[best_lane] <- positions[best_lane] + 1
+        out_index <- out_index + 1
+    return total
+
+export fn oscillating_merge_sort(values: mutable i64&, length: usize) -> void:
+    if length == 0 or length > MAX_VALUES or values.is_null(): return
+    values_view: view[i64] = values[0:length]
+    sorted: mutable i64[MAX_VALUES] = zeroed
+    run_count: usize = (length + INITIAL_RUN_SIZE - 1) / INITIAL_RUN_SIZE
+    build_run(values_view, INITIAL_RUN_SIZE, MAX_PARTS, 0, run_count, true, sorted[0:MAX_VALUES])
+    index: mutable usize = 0
+    while index < length:
+        values[index] <- sorted[index]
+        index <- index + 1

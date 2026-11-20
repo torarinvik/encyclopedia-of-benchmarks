@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p551_pow10(k:Int64)->Int64:
     var value=Int64(1)
     for _ in range(Int(k)):value*=10

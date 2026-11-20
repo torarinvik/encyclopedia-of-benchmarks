@@ -31,8 +31,8 @@ fn void spread_sort_segment(int* values, usz length) {
     usz bucket_count = length / INSERTION_THRESHOLD;
     if (bucket_count < 2) bucket_count = 2;
     usz middle_bucket = bucket_count / 2;
-    int bucket_values[MAX_BUCKETS * BUCKET_STRIDE];
-    usz bucket_sizes[MAX_BUCKETS];
+    int[MAX_BUCKETS * BUCKET_STRIDE] bucket_values;
+    usz[MAX_BUCKETS] bucket_sizes;
     for (usz bucket = 0; bucket < MAX_BUCKETS; bucket++) bucket_sizes[bucket] = 0;
 
     for (usz index = 0; index < length; index++) {
@@ -54,7 +54,7 @@ fn void spread_sort_segment(int* values, usz length) {
 
 fn long spread_sort(long* input, usz length, char* output, usz capacity) @export("spread_sort") {
     if (input == null || length > MAX_LENGTH) return -1;
-    int values[MAX_LENGTH];
+    int[MAX_LENGTH] values;
     for (usz index = 0; index < length; index++) {
         if (input[index] < -2147483648 || input[index] > 2147483647) return -1;
         values[index] = (int)input[index];
@@ -63,7 +63,7 @@ fn long spread_sort(long* input, usz length, char* output, usz capacity) @export
 
     usz output_bytes = length * 4;
     if (output == null || capacity < output_bytes) return -2;
-    spread_sort_segment(values, length);
+    spread_sort_segment(&values[0], length);
     for (usz index = 0; index < length; index++) {
         uint bits = (uint)values[index];
         for (usz byte = 0; byte < 4; byte++) {

@@ -1,0 +1,35 @@
+const HANGING_MAX_LENGTH: usize = 64
+const HANGING_INVALID: i64 = -9223372036854775807 - 1
+
+def hanging_line_compute(heights: view[i64], length: usize) -> i64:
+    left: mutable usize[64] = zeroed
+    right: mutable usize[64] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        left[index] <- index
+        while left[index] > 0 and heights[index] <= heights[left[index] - 1]:
+            left[index] <- left[left[index] - 1]
+        index <- index + 1
+    index <- length
+    while index > 0:
+        index <- index - 1
+        right[index] <- index
+        while right[index] + 1 < length and heights[index] <= heights[right[index] + 1]:
+            right[index] <- right[right[index] + 1]
+    best: mutable i64 = 0
+    index <- 0
+    while index < length:
+        width: i64 = (right[index] - left[index] + 1).i64()
+        area: i64 = heights[index] * width
+        if area > best: best <- area
+        index <- index + 1
+    best
+
+export fn hanging_line_largest_rectangle(heights: i64&, length: usize) -> i64:
+    if length == 0: return 0
+    if heights.is_null() or length > HANGING_MAX_LENGTH: return HANGING_INVALID
+    index: mutable usize = 0
+    while index < length:
+        if heights[index] < 0 or heights[index] > 1000000: return HANGING_INVALID
+        index <- index + 1
+    hanging_line_compute(heights[0:length], length)

@@ -1,0 +1,90 @@
+const FME_MAX_VARIABLES: usize = 3
+const FME_MAX_INEQUALITIES: usize = 6
+const FME_MAX_ROWS: usize = 128
+const FME_MAX_PARSEABLE: usize = 27
+const FME_ROW_WIDTH: usize = 4
+
+def fourier_motzkin_feasibility_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > FME_MAX_PARSEABLE: return -1
+    dimension_value: i64 = values[0]
+    count_value: i64 = values[1]
+    if dimension_value < 1 or dimension_value > FME_MAX_VARIABLES.i64(): return -1
+    if count_value < 1 or count_value > FME_MAX_INEQUALITIES.i64(): return -1
+    dimension: usize = dimension_value.usize()
+    count: usize = count_value.usize()
+    if length != 2 + count * (dimension + 1): return -1
+
+    current: mutable i64[FME_MAX_ROWS * FME_ROW_WIDTH] = zeroed
+    next_rows: mutable i64[FME_MAX_ROWS * FME_ROW_WIDTH] = zeroed
+    offset: mutable usize = 2
+    row: mutable usize = 0
+    while row < count:
+        coordinate: mutable usize = 0
+        while coordinate < dimension:
+            value: i64 = values[offset]
+            offset <- offset + 1
+            if value < -3 or value > 3: return -1
+            current[row * FME_ROW_WIDTH + coordinate] <- value
+            coordinate <- coordinate + 1
+        bound: i64 = values[offset]
+        offset <- offset + 1
+        if bound < -6 or bound > 6: return -1
+        current[row * FME_ROW_WIDTH + 3] <- bound
+        row <- row + 1
+
+    row_count: mutable usize = count
+    variable: mutable usize = 0
+    while variable < dimension:
+        next_count: mutable usize = 0
+        row <- 0
+        while row < row_count:
+            if current[row * FME_ROW_WIDTH + variable] == 0:
+                coordinate <- 0
+                while coordinate < FME_ROW_WIDTH:
+                    next_rows[next_count * FME_ROW_WIDTH + coordinate] <- current[row * FME_ROW_WIDTH + coordinate]
+                    coordinate <- coordinate + 1
+                next_count <- next_count + 1
+            row <- row + 1
+        upper: mutable usize = 0
+        while upper < row_count:
+            positive: i64 = current[upper * FME_ROW_WIDTH + variable]
+            if positive > 0:
+                lower: mutable usize = 0
+                while lower < row_count:
+                    negative: i64 = current[lower * FME_ROW_WIDTH + variable]
+                    if negative < 0:
+                        if next_count >= FME_MAX_ROWS: return -1
+                        upper_scale: i64 = positive
+                        lower_scale: i64 = -negative
+                        coordinate <- 0
+                        while coordinate < dimension:
+                            next_rows[next_count * FME_ROW_WIDTH + coordinate] <- if coordinate == variable: 0 else:
+                                lower_scale * current[upper * FME_ROW_WIDTH + coordinate] +
+                                upper_scale * current[lower * FME_ROW_WIDTH + coordinate]
+                            coordinate <- coordinate + 1
+                        next_rows[next_count * FME_ROW_WIDTH + 3] <-
+                            lower_scale * current[upper * FME_ROW_WIDTH + 3] +
+                            upper_scale * current[lower * FME_ROW_WIDTH + 3]
+                        next_count <- next_count + 1
+                    lower <- lower + 1
+            upper <- upper + 1
+        row <- 0
+        while row < next_count:
+            coordinate <- 0
+            while coordinate < FME_ROW_WIDTH:
+                current[row * FME_ROW_WIDTH + coordinate] <- next_rows[row * FME_ROW_WIDTH + coordinate]
+                next_rows[row * FME_ROW_WIDTH + coordinate] <- 0
+                coordinate <- coordinate + 1
+            row <- row + 1
+        row_count <- next_count
+        variable <- variable + 1
+    row <- 0
+    while row < row_count:
+        if current[row * FME_ROW_WIDTH + 3] < 0: return 0
+        row <- row + 1
+    1
+
+export fn fourier_motzkin_feasibility(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > FME_MAX_PARSEABLE: return -1
+    fourier_motzkin_feasibility_impl(input[0:length])

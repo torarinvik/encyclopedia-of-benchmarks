@@ -1,0 +1,131 @@
+# Meissel-Lehmer weighted partial-sieve prime summation.
+const MAX_INPUT: i64 = 1_000_000_000
+const SIEVE_LIMIT: usize = 32_000
+const PRIME_CAPACITY: usize = 3_500
+const PHI_ROWS: usize = 12
+const PHI_COLUMNS: usize = 30_000
+const PRIMES_OFFSET: usize = 32_001
+const PRIME_COUNT_OFFSET: usize = 35_501
+const PRIME_SUM_OFFSET: usize = 67_502
+const PHI_OFFSET: usize = 99_503
+const CONTEXT_LENGTH: usize = 459_503
+
+def integer_sqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = value + 1
+    while low + 1 < high |low, high, value| -> low, high:
+        middle: i64 = low + (high - low) / 2
+        if middle <= value / middle:
+            low <- middle
+        else:
+            high <- middle
+        low, high
+    low
+
+def integer_cuberoot(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = 1
+    while high * high * high <= value |high| -> high:
+        high <- high * 2
+        high
+    while low + 1 < high |low, high, value| -> low, high:
+        middle: i64 = low + (high - low) / 2
+        if middle * middle * middle <= value:
+            low <- middle
+        else:
+            high <- middle
+        low, high
+    low
+
+def weighted_phi(context: mutable view[i64], value: i64, count: usize) -> i64:
+    if value <= 0: return 0
+    if count == 0: return value * (value + 1) / 2
+    prime: i64 = context[PRIMES_OFFSET + count - 1]
+    if value <= prime: return 1
+    if count < PHI_ROWS and value < PHI_COLUMNS.i64():
+        return context[PHI_OFFSET + count * PHI_COLUMNS + value.usize()]
+    if value < SIEVE_LIMIT.i64() and prime * prime >= value:
+        return context[PRIME_SUM_OFFSET + value.usize()] -
+            context[PRIME_SUM_OFFSET + prime.usize()] + 1
+    if value < SIEVE_LIMIT.i64() and prime * prime * prime >= value:
+        result: mutable i64 = context[PRIME_SUM_OFFSET + value.usize()] -
+            context[PRIME_SUM_OFFSET + prime.usize()] + 1
+        limit: usize = context[PRIME_COUNT_OFFSET + integer_sqrt(value).usize()].usize()
+        index: mutable usize = count
+        while index < limit |index, context, value, result| -> index, result:
+            other: i64 = context[PRIMES_OFFSET + index]
+            result <- result + other * (context[PRIME_SUM_OFFSET + (value / other).usize()] -
+                context[PRIME_SUM_OFFSET + (other - 1).usize()])
+            index <- index + 1
+            index, result
+        return result
+    weighted_phi(context, value, count - 1) -
+        prime * weighted_phi(context, value / prime, count - 1)
+
+def sum_primes(context: mutable view[i64], value: i64) -> i64:
+    if value <= SIEVE_LIMIT.i64():
+        return context[PRIME_SUM_OFFSET + value.usize()]
+    cube: usize = integer_cuberoot(value).usize()
+    square: usize = integer_sqrt(value).usize()
+    first: usize = context[PRIME_COUNT_OFFSET + cube].usize()
+    last: usize = context[PRIME_COUNT_OFFSET + square].usize()
+    result: mutable i64 = weighted_phi(context, value, first) +
+        context[PRIME_SUM_OFFSET + cube] - 1
+    index: mutable usize = first
+    while index < last |index, context, value, result| -> index, result:
+        prime: i64 = context[PRIMES_OFFSET + index]
+        quotient: i64 = value / prime
+        result <- result - (sum_primes(context, quotient) -
+            context[PRIME_SUM_OFFSET + (prime - 1).usize()]) * prime
+        index <- index + 1
+        index, result
+    result
+
+def fast_prime_sums_impl(value: i64) -> i64:
+    if value < 0 or value > MAX_INPUT: return -1
+    context: mutable i64[CONTEXT_LENGTH] = zeroed
+    candidate: mutable usize = 2
+    while candidate * candidate <= SIEVE_LIMIT |candidate, context|:
+        if context[candidate] == 0:
+            multiple: mutable usize = candidate * candidate
+            while multiple <= SIEVE_LIMIT |multiple, context, candidate|:
+                context[multiple] <- 1
+                multiple <- multiple + candidate
+                multiple, context
+        candidate <- candidate + 1
+        candidate, context
+    prime_count: mutable usize = 0
+    candidate <- 2
+    while candidate <= SIEVE_LIMIT |candidate, context, prime_count|:
+        if context[candidate] == 0:
+            context[PRIMES_OFFSET + prime_count] <- candidate.i64()
+            prime_count <- prime_count + 1
+        prime_increment: i64 = 0
+        if context[candidate] == 0: prime_increment <- 1
+        context[PRIME_COUNT_OFFSET + candidate] <-
+            context[PRIME_COUNT_OFFSET + candidate - 1] + prime_increment
+        context[PRIME_SUM_OFFSET + candidate] <-
+            context[PRIME_SUM_OFFSET + candidate - 1] +
+            (if context[candidate] == 0: candidate.i64() else: 0)
+        candidate <- candidate + 1
+        candidate, context, prime_count
+    n: mutable usize = 0
+    while n < PHI_COLUMNS |n, context|:
+        context[PHI_OFFSET + n] <- n.i64() * (n.i64() + 1) / 2
+        n <- n + 1
+        n, context
+    row: mutable usize = 1
+    while row < PHI_ROWS |row, context|:
+        prime: i64 = context[PRIMES_OFFSET + row - 1]
+        n <- 0
+        while n < PHI_COLUMNS |n, context, row, prime|:
+            context[PHI_OFFSET + row * PHI_COLUMNS + n] <-
+                context[PHI_OFFSET + (row - 1) * PHI_COLUMNS + n] -
+                prime * context[PHI_OFFSET + (row - 1) * PHI_COLUMNS + n / prime.usize()]
+            n <- n + 1
+            n, context
+        row <- row + 1
+        row, context
+    sum_primes(context[0:CONTEXT_LENGTH], value)
+
+export fn fast_prime_sums(value: i64) -> i64 = fast_prime_sums_impl

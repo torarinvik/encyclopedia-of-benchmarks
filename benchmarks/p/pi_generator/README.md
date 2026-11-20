@@ -1,6 +1,6 @@
 # Pi digit spigot
 
-This benchmark follows the pinned Python `calculate_pi(limit)` routine, which uses the Rabinowitz–Wagon spigot state `(q, r, t, k, n, m)` to append the integer digit, a decimal point, and the requested number of fractional digits.
+This benchmark follows the pinned Python `calculate_pi(limit)` routine, which uses the `q, r, t, k, n, l` linear-fractional-transform recurrence from Jeremy Gibbons's unbounded spigot algorithm. Each step either emits a safe decimal digit or consumes another term of the series for π. The benchmark bounds the routine to eight fractional digits so its fixed-width integer ports stay within signed 64-bit arithmetic.
 
 ## Contract
 
@@ -9,6 +9,10 @@ This benchmark follows the pinned Python `calculate_pi(limit)` routine, which us
 - Inputs outside the range return `-1`.
 
 The ports preserve the source's state updates and termination point. Precision is capped at eight fractional digits to keep intermediate integer values within the shared signed 64-bit range.
+
+## Distinction from the bounded array spigot
+
+[`spigotpi`](../../s/spigotpi/README.md) implements the Rabinowitz–Wagon mixed-radix array method: it initializes a finite array of remainders, sweeps from right to left, and carries each quotient into the preceding slot. This benchmark instead uses Gibbons's streaming recurrence over linear fractional transformations. Both emit decimal digits incrementally, but their state, recurrence, and underlying computation differ; they remain separate algorithm benchmarks.
 
 ## Implementations
 
@@ -31,3 +35,4 @@ The ports preserve the source's state updates and termination point. Precision i
 ## Pinned source
 
 - [TheAlgorithms/Python `pi_generator.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/pi_generator.py)
+- Jeremy Gibbons, [“Unbounded Spigot Algorithms for the Digits of Pi”](https://www.cs.ox.ac.uk/people/jeremy.gibbons/publications/spigot.pdf), especially the streaming recurrence for π.

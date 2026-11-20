@@ -53,13 +53,13 @@
     "repetitions_per_sample": 100
   },
   "cases": [
-    {"id":"unit-square","input_values":[4,1,0,1,-1,0,1,0,1,0,-1,1],"input_length":13,"output_capacity":520,"expected_result":136,"expected_output_hex":"0400000000000000ffffffffffffffff0100000000000000ffffffffffffffff010000000000000001000000000000000100000000000000ffffffffffffffff01000000000000000100000000000000010000000000000001000000000000000100000000000000ffffffffffffffff010000000000000001000000000000000100000000000000"},
-    {"zero-area-line","input_values":[2,1,0,0,-1,0,0],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
-    {"infeasible-opposite-bounds","input_values":[2,1,0,-3,-1,0,2],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
-    {"valid-output-capacity-too-small","input_values":[4,1,0,1,-1,0,1,0,1,0,-1,1],"input_length":13,"output_capacity":135,"expected_result":-2,"expected_output_hex":""},
-    {"nonprimitive-normal-invalid","input_values":[1,2,0,1],"input_length":4,"output_capacity":520,"expected_result":-1,"expected_output_hex":""},
-    {"trailing-word-invalid","input_values":[0,5],"input_length":2,"output_capacity":520,"expected_result":-1,"expected_output_hex":""},
-    {"null-output","input_values":[2,1,0,0,-1,0,0],"input_length":7,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
-    {"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":520,"expected_result":-1,"expected_output_hex":""}
+    {"id":"unit-square","input_values":[4,1,0,1,-1,0,1,0,1,1,0,-1,1],"input_length":13,"output_capacity":520,"expected_result":136,"expected_output_hex":"0400000000000000ffffffffffffffff0100000000000000ffffffffffffffff010000000000000001000000000000000100000000000000ffffffffffffffff01000000000000000100000000000000010000000000000001000000000000000100000000000000ffffffffffffffff010000000000000001000000000000000100000000000000"},
+    {"id":"zero-area-line","input_values":[2,1,0,0,-1,0,0],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"infeasible-opposite-bounds","input_values":[2,1,0,-3,-1,0,2],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"valid-output-capacity-too-small","input_values":[4,1,0,1,-1,0,1,0,1,1,0,-1,1],"input_length":13,"output_capacity":135,"expected_result":-2,"expected_output_hex":""},
+    {"id":"nonprimitive-normal-invalid","input_values":[1,2,0,1],"input_length":4,"output_capacity":520,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word-invalid","input_values":[0,5],"input_length":2,"output_capacity":520,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,1,0,0,-1,0,0],"input_length":7,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":520,"expected_result":-1,"expected_output_hex":""}
   ]
 }

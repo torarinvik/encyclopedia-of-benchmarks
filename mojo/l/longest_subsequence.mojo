@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,UnsafePointer
 fn lseq_solve(a:InlineArray[Int64,10],n:Int,mut out:InlineArray[Int64,10])->Int:

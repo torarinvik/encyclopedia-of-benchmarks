@@ -1,0 +1,32 @@
+# Return A(n,k), the number of permutations with exactly k descents.
+def eulerian_number_impl(values: view[i64]) -> i64:
+    if values.len() != 2: return -1
+    n_value: i64 = values[0]
+    target_value: i64 = values[1]
+    if n_value < 0 or n_value > 20 or target_value < 0
+            or (n_value == 0 and target_value != 0)
+            or (n_value > 0 and target_value >= n_value): return -1
+    n: usize = n_value.usize()
+    target: usize = target_value.usize()
+    previous: mutable i64[21] = zeroed
+    current: mutable i64[21] = zeroed
+    previous[0] <- 1
+    row: mutable usize = 1
+    while row <= n:
+        k: mutable usize = 0
+        while k < row:
+            same: i64 = previous[k]
+            fewer: i64 = if k == 0: 0 else: previous[k - 1]
+            current[k] <- (k.i64() + 1) * same + (row.i64() - k.i64()) * fewer
+            k <- k + 1
+        index: mutable usize = 0
+        while index < 21:
+            previous[index] <- current[index]
+            current[index] <- 0
+            index <- index + 1
+        row <- row + 1
+    previous[target]
+
+export fn eulerian_number(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 2: return -1
+    eulerian_number_impl(values[0:length])

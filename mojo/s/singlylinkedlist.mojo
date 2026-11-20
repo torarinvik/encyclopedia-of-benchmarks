@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn sll_put(o:UnsafePointer[UInt8,MutAnyOrigin],off:Int,v:Int64):

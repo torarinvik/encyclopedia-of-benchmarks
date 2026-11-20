@@ -34,6 +34,7 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/k/kolakoski_seque
 | C3 | [`c3/k/kolakoski_sequence.c3`](../../../c3/k/kolakoski_sequence.c3) |
 | C++ | [`cpp/k/kolakoski_sequence.cpp`](../../../cpp/k/kolakoski_sequence.cpp) |
 | Elisa | [`elisa/k/kolakoski_sequence.elisa`](../../../elisa/k/kolakoski_sequence.elisa) |
+| Mojo | [`mojo/k/kolakoski_sequence.mojo`](../../../mojo/k/kolakoski_sequence.mojo) |
 | Nim | [`nim/k/kolakoski_sequence.nim`](../../../nim/k/kolakoski_sequence.nim) |
 | Odin | [`odin/k/kolakoski_sequence.odin`](../../../odin/k/kolakoski_sequence.odin) |
 | Rust | [`rust/k/kolakoski_sequence.rs`](../../../rust/k/kolakoski_sequence.rs) |
@@ -44,3 +45,6 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/k/kolakoski_seque
 
 - [C# `KolakoskiSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/KolakoskiSequence.cs)
 - [C# `KolakoskiSequence2.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/KolakoskiSequence2.cs)
+
+Scalar verifier registration and an unpacked run-expansion reference are
+drafted and have not been executed.

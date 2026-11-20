@@ -1,0 +1,32 @@
+{
+  "algorithm": "moore_dfa_minimization",
+  "function_symbol": "moore_dfa_minimization",
+  "abi": "i64_array_scalar",
+  "languages": {
+    "c": "c/m/moore_dfa_minimization.c",
+    "c3": "c3/m/moore_dfa_minimization.c3",
+    "cpp": "cpp/m/moore_dfa_minimization.cpp",
+    "elisa": "elisa/m/moore_dfa_minimization.elisa",
+    "mojo": "mojo/m/moore_dfa_minimization.mojo",
+    "nim": "nim/m/moore_dfa_minimization.nim",
+    "odin": "odin/m/moore_dfa_minimization.odin",
+    "rust": "rust/m/moore_dfa_minimization.rs",
+    "v": "v/m/moore_dfa_minimization.v",
+    "zig": "zig/m/moore_dfa_minimization.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "INVENTORY.md", "check_inventory.py", "verify_workload.py"],
+  "fixture_ids": ["one_rejecting_state", "one_accepting_state", "two_initial_classes", "one_refinement_round", "two_refinement_rounds", "unreachable_accepting_state_retained", "maximum_input_frame", "maximum_overlong_frame", "invalid_n", "invalid_start", "invalid_transition", "trailing_word", "null_input"],
+  "contract": {
+    "maximum_states": 8,
+    "maximum_alphabet": 3,
+    "maximum_valid_input_length": 28,
+    "maximum_parseable_input_length": 29,
+    "maximum_classes": 8,
+    "maximum_strict_refinement_rounds": 6,
+    "maximum_result": 2264924159,
+    "workspace_bytes": 4096,
+    "reachability_policy": "all supplied states participate; no unreachable state is removed"
+  },
+  "suite_registration": "registered_i64_array_scalar",
+  "static_review": "source-only; no executable checks run"
+}

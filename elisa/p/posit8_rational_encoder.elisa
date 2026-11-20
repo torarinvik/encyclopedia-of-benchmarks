@@ -1,0 +1,114 @@
+const POSIT8_MAX_COUNT: usize = 32
+const POSIT8_MAX_WORDS: usize = 66
+
+def posit8_bit(code: u8, position: i64) -> u8:
+    if position < 0:
+        return 0.u8()
+    (code >> position.usize()) & 1.u8()
+
+def posit8_positive_units(code: u8) -> u64:
+    cursor: mutable i64 = 6
+    regime_bit: u8 = posit8_bit(code, cursor)
+    run: mutable i64 = 0
+    while cursor >= 0 and posit8_bit(code, cursor) == regime_bit:
+        run <- run + 1
+        cursor <- cursor - 1
+    regime: i64 = if regime_bit == 1.u8(): run - 1 else: -run
+    if cursor >= 0:
+        cursor <- cursor - 1
+    exponent: mutable i64 = 0
+    i: mutable usize = 0
+    while i < 2:
+        exponent <- exponent << 1
+        if cursor >= 0:
+            exponent <- exponent | posit8_bit(code, cursor).i64()
+            cursor <- cursor - 1
+        i <- i + 1
+    width: i64 = cursor + 1
+    fraction: u64 = 0
+    if width > 0:
+        fraction <- (code & ((1.u64() << width.usize()) - 1).u8()).u64()
+    significand: u64 = (1.u64() << width.usize()) + fraction
+    shift: i64 = 4 * regime + exponent + 24 - width
+    significand << shift.usize()
+
+def posit8_compare_ratio_to_unit(scaled: u64, denominator: u64, unit: u64) -> i64:
+    quotient: u64 = scaled / denominator
+    remainder: u64 = scaled % denominator
+    if quotient < unit:
+        return -1
+    if quotient > unit:
+        return 1
+    if remainder == 0:
+        return 0
+    1
+
+def posit8_encode_one(numerator: i64, denominator: i64) -> u8:
+    if numerator == 0:
+        return 0.u8()
+    negative: bool = numerator < 0
+    magnitude: u64 = if negative: (-numerator).u64() else: numerator.u64()
+    scaled: u64 = magnitude << 24
+    chosen: mutable u8 = 0.u8()
+    if posit8_compare_ratio_to_unit(scaled, denominator.u64(), 1.u64()) <= 0:
+        chosen <- 1.u8()
+    elif posit8_compare_ratio_to_unit(scaled, denominator.u64(), posit8_positive_units(127.u8())) >= 0:
+        chosen <- 127.u8()
+    else:
+        low: mutable usize = 1
+        high: mutable usize = 127
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            value: u64 = posit8_positive_units(middle.u8())
+            if posit8_compare_ratio_to_unit(scaled, denominator.u64(), value) > 0:
+                low <- middle + 1
+            else:
+                high <- middle
+        upper: usize = low
+        lower: usize = upper - 1
+        midpoint: u64 = posit8_positive_units(lower.u8()) + posit8_positive_units(upper.u8())
+        midpoint_comparison: i64 = posit8_compare_ratio_to_unit(scaled << 1, denominator.u64(), midpoint)
+        if midpoint_comparison < 0:
+            chosen <- lower.u8()
+        elif midpoint_comparison > 0:
+            chosen <- upper.u8()
+        elif lower % 2 == 0:
+            chosen <- lower.u8()
+        else:
+            chosen <- upper.u8()
+    if negative:
+        return (256.u64() - chosen.u64()).u8()
+    chosen
+
+def posit8_impl(input: view[i64], output: mutable view[u8], count: usize) -> i64:
+    staged: mutable u8[POSIT8_MAX_COUNT] = zeroed
+    i: mutable usize = 0
+    while i < count:
+        staged[i] <- posit8_encode_one(input[1 + 2 * i], input[2 + 2 * i])
+        i <- i + 1
+    i <- 0
+    while i < count:
+        output[i] <- staged[i]
+        i <- i + 1
+    count.i64()
+
+export fn posit8_rational_encoder(input: i64&, length: usize,
+                                  output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > POSIT8_MAX_WORDS:
+        return -1
+    input_view: view[i64] = input[0:length]
+    raw_count: i64 = input_view[0]
+    if raw_count < 0 or raw_count > POSIT8_MAX_COUNT.i64() or length != 1 + raw_count.usize() * 2:
+        return -1
+    count: usize = raw_count.usize()
+    i: mutable usize = 0
+    while i < count:
+        numerator: i64 = input_view[1 + 2 * i]
+        denominator: i64 = input_view[2 + 2 * i]
+        if numerator < -2147483648 or numerator > 2147483648 or denominator < 1 or denominator > 2147483648:
+            return -1
+        i <- i + 1
+    if output.is_null() or capacity < count:
+        return -2
+    output_view: mutable view[u8] = output[0:capacity]
+    posit8_impl(input_view, output_view, count)

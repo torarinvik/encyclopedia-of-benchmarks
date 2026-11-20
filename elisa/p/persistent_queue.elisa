@@ -53,7 +53,8 @@ def persistent_queue_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 1 or length > PERSISTENT_QUEUE_MAX_PARSEABLE_INPUT:
         return -1
-    q_value: i64 = input[0]
+    frame: view[i64] = input[0:length]
+    q_value: i64 = frame[0]
     if q_value < 1 or q_value > PERSISTENT_QUEUE_MAX_Q.i64(): return -1
     q: usize = q_value.usize()
     kind: mutable i64[PERSISTENT_QUEUE_MAX_Q] = zeroed
@@ -66,16 +67,16 @@ def persistent_queue_impl(input: i64&, length: usize,
     pop_count: mutable usize = 0
     for operation in 0..<q:
         if cursor + 2 > length: return -1
-        kind[operation] <- input[cursor]
+        kind[operation] <- frame[cursor]
         cursor <- cursor + 1
-        parent[operation] <- input[cursor]
+        parent[operation] <- frame[cursor]
         cursor <- cursor + 1
         if (kind[operation] != 0 and kind[operation] != 1) or parent[operation] < -1 or
             parent[operation] >= operation.i64(): return -1
         base: usize = (parent[operation] + 1).usize()
         if kind[operation] == 0:
             if cursor >= length: return -1
-            value[operation] <- input[cursor]
+            value[operation] <- frame[cursor]
             cursor <- cursor + 1
             if value[operation] < 0 or value[operation] > PERSISTENT_QUEUE_MAX_VALUE or
                 version_tail[base] >= PERSISTENT_QUEUE_TREE_BASE: return -1

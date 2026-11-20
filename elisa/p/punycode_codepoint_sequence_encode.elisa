@@ -1,0 +1,111 @@
+# Clean-room RFC 3492 payload encoding for bounded Unicode scalar sequences.
+const MAX_POINTS: usize = 32
+const MAX_WORDS: usize = 34
+const MAX_OUTPUT: usize = 320
+
+def punycode_adapt_bias(initial_delta: i64, point_count: i64, first_time: bool) -> i64:
+    delta: mutable i64 = initial_delta
+    if first_time:
+        delta <- delta / 700
+    else:
+        delta <- delta / 2
+    delta <- delta + delta / point_count
+    k: mutable i64 = 0
+    while delta > 455:
+        delta <- delta / 35
+        k <- k + 36
+    k + 36 * delta / (delta + 38)
+
+def punycode_digit(value: i64) -> u8:
+    if value < 26:
+        ('a'.i64() + value).u8()
+    else:
+        ('0'.i64() + value - 26).u8()
+
+def punycode_encode(points: view[i64], staged: mutable view[u8]) -> usize:
+    basic_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < points.length:
+        if points[index] < 0x80:
+            staged[basic_count] <- points[index].u8()
+            basic_count <- basic_count + 1
+        index <- index + 1
+    written: mutable usize = basic_count
+    if basic_count > 0:
+        staged[written] <- '-'.u8()
+        written <- written + 1
+    n: mutable i64 = 128
+    delta: mutable i64 = 0
+    bias: mutable i64 = 72
+    handled: mutable usize = basic_count
+    while handled < points.length:
+        minimum: mutable i64 = 0x110000
+        index <- 0
+        while index < points.length:
+            if points[index] >= n and points[index] < minimum:
+                minimum <- points[index]
+            index <- index + 1
+        delta <- delta + (minimum - n) * (handled + 1).i64()
+        n <- minimum
+        index <- 0
+        while index < points.length:
+            if points[index] < n:
+                delta <- delta + 1
+            if points[index] == n:
+                q: mutable i64 = delta
+                k: mutable i64 = 36
+                while true:
+                    threshold: i64 = 1
+                    if k > bias:
+                        threshold <- k - bias
+                    if k >= bias + 26:
+                        threshold <- 26
+                    if q < threshold:
+                        staged[written] <- punycode_digit(q)
+                        written <- written + 1
+                        break
+                    staged[written] <- punycode_digit(threshold + (q - threshold) % (36 - threshold))
+                    written <- written + 1
+                    q <- (q - threshold) / (36 - threshold)
+                    k <- k + 36
+                bias <- punycode_adapt_bias(delta, (handled + 1).i64(), handled == basic_count)
+                delta <- 0
+                handled <- handled + 1
+            index <- index + 1
+        delta <- delta + 1
+        n <- n + 1
+    written
+
+export fn punycode_codepoint_sequence_encode(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_WORDS:
+        return -1
+    input_view: view[i64] = input[0:length]
+    count_word: i64 = input_view[0]
+    if count_word < 0 or count_word > MAX_POINTS.i64() or length != count_word.usize() + 1:
+        return -1
+    points: usize = count_word.usize()
+    index: mutable usize = 0
+    while index < points:
+        point: i64 = input_view[index + 1]
+        if point < 0 or point > 0x10ffff or (point >= 0xd800 and point <= 0xdfff):
+            return -1
+        index <- index + 1
+    if points == 0:
+        return 0
+    if output.is_null():
+        return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
+    point_view: view[i64] = input_view[1:length]
+    written: usize = punycode_encode(point_view, staged_view)
+    if written > MAX_OUTPUT:
+        return -1
+    if capacity < written:
+        return -2
+    output_view: mutable view[u8] = output[0:written]
+    index: mutable usize = 0
+    while index < written:
+        output_view[index] <- staged[index]
+        index <- index + 1
+    written.i64()

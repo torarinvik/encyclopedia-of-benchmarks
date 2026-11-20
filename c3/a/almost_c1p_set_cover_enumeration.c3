@@ -9,7 +9,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long almost_c1p_set_cover_enumeration(long* input, usz length, char* output, usz capacity)
+fn long almost_c1p_set_cover_enumeration(long* input, usz length, char* output, usz capacity)
         @export("almost_c1p_set_cover_enumeration") {
     if (input == null || length < 4 || length > 21) return -1;
     long rows_raw = input[0], columns_raw = input[1];

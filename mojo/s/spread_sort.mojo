@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn spread_segment(a:UnsafePointer[Int32,MutAnyOrigin],start:Int,end:Int):

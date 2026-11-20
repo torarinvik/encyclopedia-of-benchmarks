@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn trim_valid(a:UnsafePointer[Int64,ImmutAnyOrigin],n:Int,node:Int,lo:Int64,hi:Int64,inout seen:InlineArray[Bool,100],inout count:Int)->Bool:
@@ -26,7 +27,7 @@ fn trim_bst(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,root:Int64,low:Int6
         if o==UnsafePointer[Int64,MutAnyOrigin]() or cap<1:return -2
         o[0]= -1;return 1
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or root<0 or root>=Int64(n):return -1
-    var parents=InlineArray[Int32,100]();var seen=InlineArray[Bool,100]();var visited=0
+    var parents=InlineArray[Int32,100](fill=0);var seen=InlineArray[Bool,100](fill=False);var visited=0
     for i in range(Int(n)):
         let v=a[i*3];let l=a[i*3+1];let r=a[i*3+2]
         if v<1 or v>10000 or l< -1 or l>=Int64(n) or r< -1 or r>=Int64(n):return -1

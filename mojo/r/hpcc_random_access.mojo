@@ -1,5 +1,6 @@
 """Bounded, single-process HPCC RandomAccess table update kernel."""
 
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 

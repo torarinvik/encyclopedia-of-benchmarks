@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "polygon-area-centroid-i64-array-bytes-output-v1",
+  "algorithm": "polygon_area_centroid",
+  "function_symbol": "polygon_area_centroid",
+  "abi": "i64_array_bytes_output",
+  "description": "Computes the uniform-area centroid of a strictly convex polygon using exact signed integer cross sums.",
+  "source": {
+    "title": "Accurate Polygon Centroid Computation Using ARC/INFO GIS",
+    "url": "https://doi.org/10.1061/(ASCE)0887-3801(1995)9:1(88)",
+    "secondary_url": "https://faculty.washington.edu/greulich/Documents/Centroid.pdf",
+    "discovery_title": "PolygonCenter.h",
+    "discovery_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/geometry/chapter.tex",
+    "algorithm_description_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/geometry/PolygonCenter.h",
+    "discovery_scope": "KACTL chapter path/title led to the candidate; the public header description was checked to confirm its operation. No code, prose, examples, or tests copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,x0,y0,...,x(n-1),y(n-1)]",
+    "vertex_count_range": [3, 16],
+    "coordinate_range": [-50, 50],
+    "vertex_rule": "distinct vertices in strict convex cyclic order; clockwise or counterclockwise",
+    "exact_length": "1+2*n",
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "two signed 64-bit little-endian centroid coordinates multiplied by 1000000",
+    "rounding": "nearest integer, exact ties away from zero",
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Maximum external output-buffer capacity; input points and temporary sums use bounded fixed storage."
+  },
+  "algorithm_details": {
+    "primary": "Accumulate S=sum(x_i*y_(i+1)-x_(i+1)*y_i), Nx=sum((x_i+x_(i+1))*cross_i), Ny=sum((y_i+y_(i+1))*cross_i), then round Nx/(3*S) and Ny/(3*S) to micro-units.",
+    "independent_oracle": "Triangulate as a signed fan from vertex zero; sum each triangle's signed area times its arithmetic centroid, then divide by total signed area.",
+    "validation": "For every edge, every non-edge vertex must lie strictly on the side selected by the signed shoelace orientation.",
+    "primary_complexity": "O(n^2) validation and O(n) centroid sums.",
+    "oracle_complexity": "O(n) fan triangulation."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"triangle-centroid","input_values":[3,0,0,6,0,0,0,3],"input_length":7,"output_capacity":16,"expected_result":16,"expected_output_hex":"80841e000000000040420f0000000000"},
+    {"id":"square-centroid","input_values":[4,0,0,4,0,4,4,0,4],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"80841e000000000080841e0000000000"},
+    {"id":"asymmetric-trapezoid","input_values":[4,0,0,4,0,3,2,1,2],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"80841e000000000039900d0000000000"},
+    {"id":"reversed-winding","input_values":[4,1,2,3,2,4,0,0,0],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"80841e000000000039900d0000000000"},
+    {"id":"maximum-vertex-count-symmetric","input_values":[16,50,0,46,19,35,35,19,46,0,50,-19,46,-35,35,-46,19,-50,0,-46,-19,-35,-35,-19,-46,0,-50,19,-46,35,-35,46,-19],"input_length":33,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"negative-coordinate-centroid","input_values":[4,-4,-2,0,-2,0,2,-4,2],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"807be1ffffffffff0000000000000000"},
+    {"id":"pentagram-star-order","input_values":[5,0,10,6,-8,-9,3,9,3,-6,-8],"input_length":11,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"repeated-vertex","input_values":[4,0,0,4,0,4,4,0,0],"input_length":9,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"collinear-degenerate-triangle","input_values":[3,0,0,2,0,4,0],"input_length":7,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-word","input_values":[3,0,0,6,0,0,0,3,99],"input_length":9,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"minimum-invalid-vertex-count","input_values":[2,0,0,1,1],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output-valid-input","input_values":[3,0,0,6,0,0,0,3],"input_length":7,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,0,0,6,0,0,0,3],"input_length":7,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-precedes-null-output","input_values":[3,0,0,2,0,4,0],"input_length":7,"output_capacity":16,"output_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

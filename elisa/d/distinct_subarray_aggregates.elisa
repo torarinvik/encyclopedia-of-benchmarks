@@ -1,0 +1,68 @@
+const MAX_N: usize = 64
+const MAX_INPUT: usize = 67
+const MAX_SEGMENTS: usize = 65
+
+def gcd_nonnegative(left: i64, right: i64) -> i64:
+    a: mutable i64 = left
+    b: mutable i64 = right
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def combine_value(mode: i64, left: i64, right: i64) -> i64:
+    if mode == 0: return gcd_nonnegative(left, right)
+    if mode == 1: return left | right
+    left & right
+
+def distinct_subarray_aggregates_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT: return -1
+    mode: i64 = input[0]
+    n_value: i64 = input[1]
+    if mode < 0 or mode > 2 or n_value < 0 or n_value > 64: return -1
+    n: usize = n_value.usize()
+    if length != 2 + n: return -1
+
+    segment_value: mutable i64[MAX_SEGMENTS] = zeroed
+    segment_left: mutable i64[MAX_SEGMENTS] = zeroed
+    segment_right: mutable i64[MAX_SEGMENTS] = zeroed
+    segment_count: mutable usize = 0
+    aggregate_sum: mutable i64 = 0
+    suffix_distinct_count: mutable i64 = 0
+    right: mutable usize = 0
+    while right < n:
+        value: i64 = input[2 + right]
+        if value < 0 or value > 255: return -1
+        j: mutable usize = 0
+        while j < segment_count:
+            segment_value[j] <- combine_value(mode, segment_value[j], value)
+            j <- j + 1
+        segment_value[segment_count] <- value
+        segment_left[segment_count] <- right.i64()
+        segment_right[segment_count] <- right.i64()
+        segment_count <- segment_count + 1
+
+        write: mutable usize = 0
+        read: mutable usize = 0
+        while read < segment_count:
+            if write > 0 and segment_value[read] == segment_value[write - 1]:
+                segment_right[write - 1] <- segment_right[read]
+            else:
+                segment_value[write] <- segment_value[read]
+                segment_left[write] <- segment_left[read]
+                segment_right[write] <- segment_right[read]
+                write <- write + 1
+            read <- read + 1
+        segment_count <- write
+        suffix_distinct_count <- suffix_distinct_count + segment_count.i64()
+        j <- 0
+        while j < segment_count:
+            aggregate_sum <- aggregate_sum + segment_value[j] * (segment_right[j] - segment_left[j] + 1)
+            j <- j + 1
+        right <- right + 1
+    aggregate_sum * 1024 + suffix_distinct_count
+
+export fn distinct_subarray_aggregates(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    distinct_subarray_aggregates_impl(input[0:length], length)

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn ws_visit(board:InlineArray[UInt8,36],word:InlineArray[UInt8,15],wordlen:Int,rows:Int,cols:Int,cell:Int,index:Int,inout seen:InlineArray[Bool,36])->Bool:
@@ -26,5 +27,5 @@ fn word_search(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64
     for i in range(cells):if not ws_letter(a[2+i]):return -1;else:board[i]=UInt8(a[2+i])
     for i in range(Int(wl)):if not ws_letter(a[wi+1+i]):return -1;else:word[i]=UInt8(a[wi+1+i])
     if wl>cells:return 0
-    var visited=InlineArray[Bool,36]();for i in range(cells):if ws_visit(board,word,Int(wl),Int(rows),Int(cols),i,0,visited):return 1
+    var visited=InlineArray[Bool,36](fill=False);for i in range(cells):if ws_visit(board,word,Int(wl),Int(rows),Int(cols),i,0,visited):return 1
     return 0

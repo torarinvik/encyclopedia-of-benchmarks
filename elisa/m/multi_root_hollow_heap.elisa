@@ -1,0 +1,197 @@
+const MAX_OPERATIONS: usize = 64
+const MAX_ITEMS: usize = 32
+const MAX_NODES: usize = 64
+const MAX_INPUT_LENGTH: usize = 194
+const MAX_KEY: i64 = 1000000
+
+def multi_root_hollow_heap_minimum_root(keys: view[i64], items: view[i64],
+        parents: view[i64], alive: view[bool], node_count: usize) -> i64:
+    best: mutable i64 = -1
+    node: mutable usize = 0
+    while node < node_count:
+        if alive[node] and parents[node] == -1 and items[node] >= 0:
+            if best < 0:
+                best <- node.i64()
+            else:
+                best_index: usize = best.usize()
+                if keys[node] < keys[best_index] or (keys[node] == keys[best_index] and (items[node] < items[best_index] or (items[node] == items[best_index] and node < best_index))):
+                    best <- node.i64()
+        node <- node + 1
+    best
+
+def multi_root_hollow_heap_cleanup(keys: mutable view[i64], items: mutable view[i64],
+        ranks: mutable view[i64], parents: mutable view[i64], alive: mutable view[bool],
+        node_count: usize) -> void:
+    while true:
+        hollow_root: mutable usize = MAX_NODES
+        node: mutable usize = 0
+        while node < node_count:
+            if alive[node] and parents[node] == -1 and items[node] == -1:
+                hollow_root <- node
+                break
+            node <- node + 1
+        if hollow_root == MAX_NODES:
+            break
+        child: mutable usize = 0
+        while child < node_count:
+            if alive[child] and parents[child] == hollow_root.i64():
+                parents[child] <- -1
+            child <- child + 1
+        alive[hollow_root] <- false
+        parents[hollow_root] <- -2
+
+    while true:
+        duplicate_rank: mutable i64 = -1
+        rank_value: mutable i64 = 0
+        while rank_value < node_count.i64():
+            roots_at_rank: mutable usize = 0
+            node <- 0
+            while node < node_count:
+                if alive[node] and parents[node] == -1 and items[node] >= 0 and ranks[node] == rank_value:
+                    roots_at_rank <- roots_at_rank + 1
+                node <- node + 1
+            if roots_at_rank >= 2:
+                duplicate_rank <- rank_value
+                break
+            rank_value <- rank_value + 1
+        if duplicate_rank < 0:
+            return
+
+        first: mutable usize = MAX_NODES
+        second: mutable usize = MAX_NODES
+        node <- 0
+        while node < node_count:
+            if alive[node] and parents[node] == -1 and items[node] >= 0 and ranks[node] == duplicate_rank:
+                if first == MAX_NODES:
+                    first <- node
+                elif second == MAX_NODES:
+                    second <- node
+                    break
+            node <- node + 1
+
+        winner: mutable usize = first
+        loser: mutable usize = second
+        if keys[second] < keys[first] or (keys[second] == keys[first] and (items[second] < items[first] or (items[second] == items[first] and second < first))):
+            winner <- second
+            loser <- first
+        parents[loser] <- winner.i64()
+        ranks[winner] <- ranks[winner] + 1
+
+def multi_root_hollow_heap_impl(values: view[i64]) -> i64:
+    if values.len() < 1 or values.len() > MAX_INPUT_LENGTH:
+        return -1
+    operation_value: i64 = values[0]
+    if operation_value < 0 or operation_value > MAX_OPERATIONS.i64():
+        return -1
+    operation_count: usize = operation_value.usize()
+    if values.len() != 1 + 3 * operation_count or values.len() > 193:
+        return -1
+
+    keys: mutable i64[MAX_NODES] = zeroed
+    items: mutable i64[MAX_NODES] = zeroed
+    ranks: mutable i64[MAX_NODES] = zeroed
+    parents: mutable i64[MAX_NODES] = zeroed
+    alive: mutable bool[MAX_NODES] = zeroed
+    item_nodes: mutable i64[MAX_ITEMS] = zeroed
+    active: mutable bool[MAX_ITEMS] = zeroed
+    item_id: mutable usize = 0
+    while item_id < MAX_ITEMS:
+        item_nodes[item_id] <- -1
+        item_id <- item_id + 1
+
+    node_count: mutable usize = 0
+    result: mutable i64 = 0
+    operation_index: mutable usize = 0
+    root_value: mutable i64 = -1
+    root: mutable usize = 0
+    while operation_index < operation_count:
+        offset: usize = 1 + 3 * operation_index
+        opcode: i64 = values[offset]
+        item_value: i64 = values[offset + 1]
+        value: i64 = values[offset + 2]
+
+        if opcode == 1:
+            if item_value < 0 or item_value >= MAX_ITEMS.i64() or value < 0 or value > MAX_KEY:
+                return -1
+            item_id <- item_value.usize()
+            if active[item_id] or node_count >= MAX_NODES:
+                return -1
+            keys[node_count] <- value
+            items[node_count] <- item_value
+            ranks[node_count] <- 0
+            parents[node_count] <- -1
+            alive[node_count] <- true
+            item_nodes[item_id] <- node_count.i64()
+            active[item_id] <- true
+            node_count <- node_count + 1
+        elif opcode == 2:
+            if item_value < 0 or item_value >= MAX_ITEMS.i64() or value < 0 or value > MAX_KEY:
+                return -1
+            item_id <- item_value.usize()
+            if not active[item_id] or node_count >= MAX_NODES:
+                return -1
+            old_node: usize = item_nodes[item_id].usize()
+            if value >= keys[old_node]:
+                return -1
+            old_rank: i64 = ranks[old_node]
+            new_rank: i64 = 0
+            if old_rank > 2:
+                new_rank <- old_rank - 2
+            new_node: usize = node_count
+            node_count <- node_count + 1
+            items[old_node] <- -1
+            keys[new_node] <- value
+            items[new_node] <- item_value
+            ranks[new_node] <- new_rank
+            parents[new_node] <- -1
+            alive[new_node] <- true
+            child: mutable usize = 0
+            while child + 1 < node_count:
+                if alive[child] and parents[child] == old_node.i64() and ranks[child] < new_rank:
+                    parents[child] <- new_node.i64()
+                child <- child + 1
+            item_nodes[item_id] <- new_node.i64()
+        elif opcode == 3:
+            if item_value != 0 or value != 0:
+                return -1
+            root_value <- multi_root_hollow_heap_minimum_root(keys[0:MAX_NODES], items[0:MAX_NODES], parents[0:MAX_NODES], alive[0:MAX_NODES], node_count)
+            if root_value < 0:
+                return -1
+            root <- root_value.usize()
+            item_id <- items[root].usize()
+            active[item_id] <- false
+            item_nodes[item_id] <- -1
+            items[root] <- -1
+            result <- result + (operation_index + 1).i64() * (keys[root] + 1) + item_id.i64()
+            multi_root_hollow_heap_cleanup(keys[0:MAX_NODES], items[0:MAX_NODES], ranks[0:MAX_NODES], parents[0:MAX_NODES], alive[0:MAX_NODES], node_count)
+        elif opcode == 4:
+            if item_value != 0 or value != 0:
+                return -1
+            root_value <- multi_root_hollow_heap_minimum_root(keys[0:MAX_NODES], items[0:MAX_NODES], parents[0:MAX_NODES], alive[0:MAX_NODES], node_count)
+            if root_value < 0:
+                return -1
+            root <- root_value.usize()
+            result <- result + (operation_index + 1).i64() * (keys[root] + 1) + items[root]
+        elif opcode == 5:
+            if item_value < 0 or item_value >= MAX_ITEMS.i64() or value != 0:
+                return -1
+            item_id <- item_value.usize()
+            if not active[item_id]:
+                return -1
+            node: usize = item_nodes[item_id].usize()
+            delete_item_minimum: i64 = multi_root_hollow_heap_minimum_root(keys[0:MAX_NODES], items[0:MAX_NODES], parents[0:MAX_NODES], alive[0:MAX_NODES], node_count)
+            was_minimum: bool = delete_item_minimum == node.i64()
+            active[item_id] <- false
+            item_nodes[item_id] <- -1
+            items[node] <- -1
+            if was_minimum:
+                multi_root_hollow_heap_cleanup(keys[0:MAX_NODES], items[0:MAX_NODES], ranks[0:MAX_NODES], parents[0:MAX_NODES], alive[0:MAX_NODES], node_count)
+        else:
+            return -1
+        operation_index <- operation_index + 1
+    result
+
+export fn multi_root_hollow_heap(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    multi_root_hollow_heap_impl(input[0:length])

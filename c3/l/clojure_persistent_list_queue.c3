@@ -16,11 +16,11 @@ fn void hash_i32(ulong* hash, int value) {
     for (uint byte = 0; byte < 4; byte++) hash_byte(hash, bits >> (byte * 8));
 }
 fn void hash_i64(ulong* hash, long value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (uint byte = 0; byte < 8; byte++) hash_byte(hash, (uint)(bits >> (byte * 8)));
 }
 
-long clojure_persistent_list_queue(long* input, usz length) @export("clojure_persistent_list_queue") {
+fn long clojure_persistent_list_queue(long* input, usz length) @export("clojure_persistent_list_queue") {
     if (input == null || length < 1 || length > MAX_PARSEABLE_INPUT_LENGTH) return -1;
     if (input[0] < 0 || input[0] > (long)MAX_OPERATIONS) return -1;
     int operation_count = (int)input[0];

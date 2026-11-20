@@ -13,6 +13,9 @@ Both sources use the same two-dimensional recurrence. They initialize `memo[i][0
 
 This counts unordered integer partitions of one integer. It differs from `subset_sum_count`, which counts choices from a supplied indexed array, and from two-set partition tasks such as `minimum_partition` and `partition_problem`.
 
+The new scalar verifier registration uses a generalized-pentagonal recurrence
+reference and has not been executed.
+
 ## Implementations
 
 | Language | Source |
@@ -21,6 +24,7 @@ This counts unordered integer partitions of one integer. It differs from `subset
 | C3 | [`c3/i/integer_partition.c3`](../../../c3/i/integer_partition.c3) |
 | C++ | [`cpp/i/integer_partition.cpp`](../../../cpp/i/integer_partition.cpp) |
 | Elisa | [`elisa/i/integer_partition.elisa`](../../../elisa/i/integer_partition.elisa) |
+| Mojo | [`mojo/i/integer_partition.mojo`](../../../mojo/i/integer_partition.mojo) |
 | Nim | [`nim/i/integer_partition.nim`](../../../nim/i/integer_partition.nim) |
 | Odin | [`odin/i/integer_partition.odin`](../../../odin/i/integer_partition.odin) |
 | Rust | [`rust/i/integer_partition.rs`](../../../rust/i/integer_partition.rs) |

@@ -6,12 +6,12 @@ const usz MAX_TEXT_LENGTH = 64;
 const usz MAX_INPUT_LENGTH = 107;
 const usz MAX_OUTPUT_LENGTH = 256;
 
-fn long translator(long* input, usz length, uint8* output, usz capacity) @export("translator") {
+fn long translator(long* input, usz length, char* output, usz capacity) @export("translator") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 0 || input[0] > 4 || input[1] < 0 || input[1] > 64) return -1;
     usz key_count = (usz)input[0], text_length = (usz)input[1];
-    uint8 keys[4][4] = {{0}}, replacements[4][4] = {{0}};
-    usz key_lengths[4] = {0}, replacement_lengths[4] = {0};
+    char[4][4] keys = {}; char[4][4] replacements = {};
+    usz[4] key_lengths = {}; usz[4] replacement_lengths = {};
     usz cursor = 2;
     for (usz key_index = 0; key_index < key_count; key_index++) {
         if (cursor + 2 > length) return -1;
@@ -22,13 +22,13 @@ fn long translator(long* input, usz length, uint8* output, usz capacity) @export
         for (usz index = 0; index < key_length; index++) {
             long byte = input[cursor + index];
             if (byte < 32 || byte > 126) return -1;
-            keys[key_index][index] = (uint8)byte;
+            keys[key_index][index] = (char)byte;
         }
         cursor += key_length;
         for (usz index = 0; index < value_length; index++) {
             long byte = input[cursor + index];
             if (byte < 32 || byte > 126) return -1;
-            replacements[key_index][index] = (uint8)byte;
+            replacements[key_index][index] = (char)byte;
         }
         cursor += value_length;
         key_lengths[key_index] = key_length;
@@ -41,14 +41,14 @@ fn long translator(long* input, usz length, uint8* output, usz capacity) @export
         }
     }
     if (cursor + text_length != length) return -1;
-    uint8 text[64];
+    char[64] text;
     for (usz index = 0; index < text_length; index++) {
         long byte = input[cursor + index];
         if (byte < 32 || byte > 126) return -1;
-        text[index] = (uint8)byte;
+        text[index] = (char)byte;
     }
 
-    uint8 result[256];
+    char[256] result;
     usz result_length = 0, start = 0;
     while (start < text_length) {
         bool matched = false;

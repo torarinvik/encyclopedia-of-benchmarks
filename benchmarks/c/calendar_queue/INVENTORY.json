@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "algorithm": "calendar_queue",
+  "function_symbol": "calendar_queue",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/calendar_queue.c",
+    "c3": "c3/c/calendar_queue.c3",
+    "cpp": "cpp/c/calendar_queue.cpp",
+    "elisa": "elisa/c/calendar_queue.elisa",
+    "mojo": "mojo/c/calendar_queue.mojo",
+    "nim": "nim/c/calendar_queue.nim",
+    "odin": "odin/c/calendar_queue.odin",
+    "rust": "rust/c/calendar_queue.rs",
+    "v": "v/c/calendar_queue.v",
+    "zig": "zig/c/calendar_queue.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Calendar Queues: A Fast O(1) Priority Queue Implementation for the Simulation Event Set Problem",
+    "author": "Randy Brown",
+    "doi": "10.1145/63039.63045",
+    "publication": "Communications of the ACM 31(10), 1220-1227 (1988)",
+    "sections": "2-4",
+    "discovery": "NIST DADS calendar queue entry"
+  },
+  "contract": {
+    "input_layout": "[operation_count,(opcode,priority_or_zero)*operation_count]",
+    "maximum_valid_input_words": 257,
+    "maximum_parseable_input_words": 258,
+    "maximum_operations": 128,
+    "maximum_live_events": 64,
+    "maximum_priority_tick": 1000000,
+    "maximum_output_bytes": 1032,
+    "workspace_bytes": 8192,
+    "tie_rule": "Equal priorities are removed by increasing insertion ordinal.",
+    "bucket_width_representation": "exact positive rational over integer ticks"
+  }
+}

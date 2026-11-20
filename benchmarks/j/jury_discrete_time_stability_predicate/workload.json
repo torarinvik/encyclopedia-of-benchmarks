@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "jury-discrete-time-stability-predicate-i64-array-scalar-v1",
+  "algorithm": "jury_discrete_time_stability_predicate",
+  "function_symbol": "jury_discrete_time_stability_predicate",
+  "abi": "i64_array_scalar",
+  "description": "Classify strict discrete-time polynomial stability with the division-free Jury coefficient table.",
+  "source": {
+    "title": "Jury stability criterion",
+    "discovery_index": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_score": 7,
+    "jury_blanchard_1961": "https://www.worldradiohistory.com/Archive-IRE/60s/IRE-Proceedings-1961-12-R.pdf",
+    "jury_1962": "https://doi.org/10.1109/JRPROC.1962.288193",
+    "schur_cohn_reference": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/5AB9F1B5788EC10C3C510CB2218B26FE/S0013091500004806a.pdf/schurcohn_theorem_for_matrix_polynomials.pdf"
+  },
+  "contract": {
+    "definition": "For a real polynomial p(z)=a0*z^n+...+an given in descending coefficient order, return 1 exactly when all roots satisfy |z|<1; return 0 for every valid polynomial that is unstable or has a root on |z|=1.",
+    "input_encoding": "[degree, a0, a1, ..., adegree]",
+    "degree_range": [1, 4],
+    "coefficient_range": [-9, 9],
+    "leading_coefficient": "nonzero; the table negates all coefficients when a0<0, which does not change the roots",
+    "primary_method": "The 1961 division-free Jury table. First require p(1)>0 and (-1)^n*p(-1)>0. For each current descending row c of degree k from n down to 1, require |c0|>|ck|. For k>1, replace it by d_i=c0*c_i-ck*c_(k-i), i=0..k-1. Equality is rejected; no epsilon or floating-point pivot handling is used. The final degree-1 comparison is retained as an explicit terminal row condition and is implied by the endpoint checks propagated through the strict reductions.",
+    "strict_boundary": "Roots at +1 and -1 fail the strict endpoint inequalities. A zero/equal reflection comparison is rejected; this division-free form has no quotient pivot or epsilon substitution.",
+    "invalid_input_result": -1,
+    "overflow_behavior": "All arithmetic is signed i64. Starting with coefficient magnitude at most 9, each reduced row entry is bounded by 2*C^2; across degree 4 to degree 1 the row bounds are 9, 162, 52,488, and 5,509,980,288. Endpoint sums are at most 45 in magnitude. The independent Schur–Cohn matrix entries are at most 648 in magnitude and its order-four determinant expansion is bounded by 4!*648^4. Every intermediate fits signed i64.",
+    "independent_method": "Form the real Schur–Cohn matrix X*X^T-Y*Y^T using the two lower-triangular coefficient Toeplitz arrays defined in the package reference, then test every leading principal determinant by exact cofactor expansion. Strict positive definiteness is equivalent to all roots lying in the open unit disk."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[degree, descending coefficients]",
+    "degree_range": [1, 4],
+    "coefficient_range": [-9, 9],
+    "leading_coefficient_nonzero": true,
+    "maximum_valid_input_length": 6,
+    "maximum_parseable_input_length": 7,
+    "null_input_result": -1,
+    "invalid_input_result": -1,
+    "validation_order": "Reject null, lengths outside 1..7, degree outside 1..4, length unequal to degree+2, coefficients outside -9..9, or a zero leading coefficient. Negative nonzero leading coefficients are sign-normalized after validation."
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "1 for strict Schur stability, 0 for a valid polynomial that is unstable or marginal, and -1 for invalid input."
+  },
+  "workspace": {
+    "bytes": 1024,
+    "accounting": "Ports use fixed arrays of at most five i64 coefficients and two five-element Jury rows, plus scalar temporaries. This cap covers those arrays and call bookkeeping; caller-owned input and ABI metadata are excluded. No heap allocation or variable-sized native array is used."
+  },
+  "complexity": {
+    "primary_time": "O(degree^2) integer row updates",
+    "primary_space": "O(degree) fixed integer rows",
+    "independent_time": "O(degree!*degree) cofactor expansion of all leading principal minors, degree at most four",
+    "independent_space": "O(degree^2) exact integer matrices"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"stable-linear","input_values":[1,2,-1],"input_length":3,"expected_result":1},
+    {"id":"unstable-linear","input_values":[1,1,-2],"input_length":3,"expected_result":0},
+    {"id":"negative-leading-stable-linear","input_values":[1,-2,1],"input_length":3,"expected_result":1},
+    {"id":"root-at-positive-one","input_values":[1,1,-1],"input_length":3,"expected_result":0},
+    {"id":"root-at-negative-one","input_values":[1,1,1],"input_length":3,"expected_result":0},
+    {"id":"stable-quadratic","input_values":[2,2,-1,1],"input_length":4,"expected_result":1},
+    {"id":"unstable-quadratic","input_values":[2,1,0,2],"input_length":4,"expected_result":0},
+    {"id":"repeated-stable-root","input_values":[2,4,-4,1],"input_length":4,"expected_result":1},
+    {"id":"unit-circle-pair","input_values":[2,1,0,1],"input_length":4,"expected_result":0},
+    {"id":"reciprocal-pair-equal-row","input_values":[4,1,-5,9,-5,1],"input_length":6,"expected_result":0},
+    {"id":"stable-cubic","input_values":[3,4,0,1,1],"input_length":5,"expected_result":1},
+    {"id":"unstable-cubic","input_values":[3,1,-3,1,0],"input_length":5,"expected_result":0},
+    {"id":"stable-quartic","input_values":[4,4,-4,5,-2,1],"input_length":6,"expected_result":1},
+    {"id":"unstable-quartic","input_values":[4,2,-3,-1,-3,2],"input_length":6,"expected_result":0},
+    {"id":"degree-out-of-range","input_values":[5,1,0,0,0,0,0],"input_length":7,"expected_result":-1},
+    {"id":"zero-leading-coefficient","input_values":[2,0,1,1],"input_length":4,"expected_result":-1},
+    {"id":"coefficient-out-of-range","input_values":[2,1,10,1],"input_length":4,"expected_result":-1},
+    {"id":"degree-frame-mismatch","input_values":[3,1,2,1],"input_length":4,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,2,-1,0],"input_length":4,"expected_result":-1},
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

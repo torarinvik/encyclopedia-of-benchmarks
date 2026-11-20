@@ -1,0 +1,221 @@
+from std.collections import InlineArray
+
+def nn_matches(mask: u32, length: usize, clues: view[i64], start: usize, count: usize) -> bool:
+    found: mutable usize = 0
+    run: mutable usize = 0
+    bit: mutable usize = 0
+    while bit < length:
+        if ((mask >> bit) & 1) != 0:
+            run <- run + 1
+        elif run != 0:
+            if found >= count or clues[start + found] != run.i64(): return false
+            found <- found + 1
+            run <- 0
+        bit <- bit + 1
+    if run != 0:
+        if found >= count or clues[start + found] != run.i64(): return false
+        found <- found + 1
+    found == count
+
+def nn_has(domains: view[u64], line: usize, mask: usize) -> bool:
+    (domains[line * 4 + mask / 64] & (1.u64 << (mask % 64))) != 0
+
+def nn_add(domains: mutable view[u64], line: usize, mask: usize) -> void:
+    domains[line * 4 + mask / 64] <- domains[line * 4 + mask / 64] | (1.u64 << (mask % 64))
+
+def nn_count(domains: view[u64], line: usize, length: usize) -> usize:
+    total: mutable usize = 0
+    mask: mutable usize = 0
+    while mask < (1 << length):
+        if nn_has(domains, line, mask): total <- total + 1
+        mask <- mask + 1
+    total
+
+def nn_filter(domains: mutable view[u64], line: usize, length: usize, pos: usize,
+              allow_zero: bool, allow_one: bool) -> bool:
+    changed: mutable bool = false
+    mask: mutable usize = 0
+    while mask < (1 << length):
+        if nn_has(domains, line, mask):
+            one: bool = ((mask >> pos) & 1) != 0
+            supported: bool = if one: allow_one else: allow_zero
+            if not supported:
+                domains[line * 4 + mask / 64] <- domains[line * 4 + mask / 64] & ~(1.u64 << (mask % 64))
+                changed <- true
+        mask <- mask + 1
+    changed
+
+def nn_support(domains: view[u64], line: usize, length: usize, pos: usize,
+               zero: mutable bool&, one: mutable bool&) -> bool:
+    zero <- false
+    one <- false
+    mask: mutable usize = 0
+    while mask < (1 << length):
+        if nn_has(domains, line, mask):
+            if ((mask >> pos) & 1) != 0: one <- true
+            else: zero <- true
+        mask <- mask + 1
+    zero or one
+
+def nn_propagate(domains: mutable view[u64], height: usize, width: usize) -> bool:
+    changed: mutable bool = true
+    while changed:
+        changed <- false
+        row: mutable usize = 0
+        while row < height:
+            col: mutable usize = 0
+            while col < width:
+                rz: mutable bool = false
+                ro: mutable bool = false
+                cz: mutable bool = false
+                co: mutable bool = false
+                if not nn_support(domains, row, width, col, rz, ro) or not nn_support(domains, height + col, height, row, cz, co): return false
+                if nn_filter(domains, row, width, col, cz, co): changed <- true
+                if nn_filter(domains, height + col, height, row, rz, ro): changed <- true
+                if nn_count(domains, row, width) == 0 or nn_count(domains, height + col, height) == 0: return false
+                col <- col + 1
+            row <- row + 1
+    true
+
+def nn_search(domains: mutable view[u64], height: usize, width: usize) -> bool:
+    if not nn_propagate(domains, height, width): return false
+    branch: mutable usize = height
+    row: mutable usize = 0
+    while row < height:
+        if nn_count(domains, row, width) > 1:
+            branch <- row
+            break
+        row <- row + 1
+    if branch == height: return true
+    mask: mutable usize = 0
+    while mask < (1 << width):
+        if nn_has(domains, branch, mask):
+            trial: mutable InlineArray[u64, 64] = InlineArray[u64, 64](fill=0)
+            index: mutable usize = 0
+            while index < 64:
+                trial[index] = domains[index]
+                index <- index + 1
+            word: mutable usize = 0
+            while word < 4:
+                trial[branch * 4 + word] = 0
+                word <- word + 1
+            nn_add(trial[0:64], branch, mask)
+            if nn_search(trial[0:64], height, width):
+                index <- 0
+                while index < 64:
+                    domains[index] <- trial[index]
+                    index <- index + 1
+                return true
+        mask <- mask + 1
+    false
+
+def nn_parse(input: view[i64], height: mutable usize&, width: mutable usize&,
+             clues: mutable view[i64], counts: mutable view[usize]) -> bool:
+    if input.length < 2 or input[0] < 1 or input[0] > 8 or input[1] < 1 or input[1] > 8: return false
+    height <- input[0].usize()
+    width <- input[1].usize()
+    if input.length != 2 + 5 * height + 5 * width: return false
+    i: mutable usize = 0
+    while i < 128:
+        clues[i] <- 0
+        i <- i + 1
+    i <- 0
+    while i < 16:
+        counts[i] <- 0
+        i <- i + 1
+    offset: mutable usize = 2
+    group: mutable usize = 0
+    while group < 2:
+        lines: usize = if group == 0: height else: width
+        line_length: usize = if group == 0: width else: height
+        line: mutable usize = 0
+        while line < lines:
+            index: usize = if group == 0: line else: height + line
+            raw_count: i64 = input[offset]
+            offset <- offset + 1
+            if raw_count < 0 or raw_count > 4: return false
+            counts[index] <- raw_count.usize()
+            needed: mutable i64 = if raw_count == 0: 0 else: raw_count - 1
+            run: mutable usize = 0
+            while run < 4:
+                value: i64 = input[offset]
+                offset <- offset + 1
+                if run < counts[index]:
+                    if value <= 0 or value > line_length.i64(): return false
+                    clues[index * 8 + run] <- value
+                    needed <- needed + value
+                elif value != 0: return false
+                run <- run + 1
+            if needed > line_length.i64(): return false
+            line <- line + 1
+        group <- group + 1
+    row_total: mutable i64 = 0
+    col_total: mutable i64 = 0
+    line: mutable usize = 0
+    while line < height:
+        run: mutable usize = 0
+        while run < counts[line]:
+            row_total <- row_total + clues[line * 8 + run]
+            run <- run + 1
+        line <- line + 1
+    line <- 0
+    while line < width:
+        index: usize = height + line
+        run: mutable usize = 0
+        while run < counts[index]:
+            col_total <- col_total + clues[index * 8 + run]
+            run <- run + 1
+        line <- line + 1
+    row_total == col_total
+
+def nn_solve(input: view[i64], output: mutable view[u8]) -> i64:
+    height: mutable usize = 0
+    width: mutable usize = 0
+    clues: mutable InlineArray[i64, 128] = InlineArray[i64, 128](fill=0)
+    counts: mutable InlineArray[usize, 16] = InlineArray[usize, 16](fill=0)
+    if not nn_parse(input, height, width, clues[0:128], counts[0:16]): return -1
+    domains: mutable InlineArray[u64, 64] = InlineArray[u64, 64](fill=0)
+    row: mutable usize = 0
+    while row < height:
+        mask: mutable usize = 0
+        while mask < (1 << width):
+            if nn_matches(mask.u32(), width, clues[0:128], row * 8, counts[row]): nn_add(domains[0:64], row, mask)
+            mask <- mask + 1
+        if nn_count(domains[0:64], row, width) == 0: return -1
+        row <- row + 1
+    col: mutable usize = 0
+    while col < width:
+        index: usize = height + col
+        mask: mutable usize = 0
+        while mask < (1 << height):
+            if nn_matches(mask.u32(), height, clues[0:128], index * 8, counts[index]): nn_add(domains[0:64], index, mask)
+            mask <- mask + 1
+        if nn_count(domains[0:64], index, height) == 0: return -1
+        col <- col + 1
+    if not nn_search(domains[0:64], height, width): return -1
+    row <- 0
+    while row < height:
+        mask: mutable usize = 0
+        while mask < (1 << width) and not nn_has(domains[0:64], row, mask): mask <- mask + 1
+        col <- 0
+        while col < width:
+            output[row * width + col] <- ((mask >> col) & 1).u8()
+            col <- col + 1
+        row <- row + 1
+    (height * width).i64()
+
+def nonogram_line_domain_solver_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    bytes: mutable InlineArray[u8, 64] = InlineArray[u8, 64](fill=0)
+    let result = nn_solve(input, bytes[0:64])
+    if result < 0: return result
+    if output.is_null() or capacity < result.usize(): return -2
+    dest: mutable view[u8] = output[0:result.usize()]
+    index: mutable usize = 0
+    while index < result.usize():
+        dest[index] <- bytes[index]
+        index <- index + 1
+    result
+
+export fn nonogram_line_domain_solver(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length > 82: return -1
+    nonogram_line_domain_solver_impl(input[0:length], output, output_capacity)

@@ -1,0 +1,131 @@
+const MAX_OPS: usize = 48
+const HANDLES: usize = 8
+const MAX_INPUT: usize = 146
+
+fn cactus_stack_branch_trace_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    q_word: i64 = values[0]
+    if q_word < 0 or q_word > MAX_OPS.i64() or length != 1 + 3 * q_word.usize(): return -1
+    q: usize = q_word.usize()
+
+    i: mutable usize = 0
+    while i < q |i, values|:
+        op: i64 = values[1 + 3 * i]
+        a: i64 = values[2 + 3 * i]
+        b: i64 = values[3 + 3 * i]
+        if op == 0:
+            if a < 0 or a >= HANDLES.i64() or b < -1000 or b > 1000: return -1
+        elif op >= 1 and op <= 3:
+            if a < 0 or a >= HANDLES.i64() or b != 0: return -1
+        elif op == 4:
+            if a < 0 or a >= HANDLES.i64() or b < 0 or b >= HANDLES.i64(): return -1
+        else:
+            return -1
+        i <- i + 1
+
+    node_value: mutable i64[48] = zeroed
+    node_next: mutable i64[48] = zeroed
+    node_child: mutable i64[48] = zeroed
+    node_kind: mutable i64[48] = zeroed
+    node_live: mutable i64[48] = zeroed
+    heads: mutable i64[8] = zeroed
+    branch_child: mutable i64[8] = zeroed
+    attached_owner: mutable i64[8] = zeroed
+    wrapper_for_child: mutable i64[8] = zeroed
+    statuses: mutable i64[48] = zeroed
+    results: mutable i64[48] = zeroed
+    for h in 0..HANDLES:
+        heads[h] <- -1
+        branch_child[h] <- -1
+        attached_owner[h] <- -1
+        wrapper_for_child[h] <- -1
+
+    node_count: mutable usize = 0
+    i <- 0
+    while i < q |i, values, node_value, node_next, node_child, node_kind, node_live, heads, branch_child, attached_owner, wrapper_for_child, statuses, results, node_count|:
+        op: i64 = values[1 + 3 * i]
+        a: usize = values[2 + 3 * i].usize()
+        b: i64 = values[3 + 3 * i]
+        head: mutable i64 = heads[a]
+        while head >= 0 and node_kind[head.usize()] == 1 and node_live[head.usize()] == 0 |head, node_next, node_kind, node_live|:
+            head <- node_next[head.usize()]
+        heads[a] <- head
+        statuses[i] <- 1
+        if op == 0:
+            node_value[node_count] <- b
+            node_next[node_count] <- head
+            node_child[node_count] <- -1
+            node_kind[node_count] <- 0
+            node_live[node_count] <- 0
+            heads[a] <- node_count.i64()
+            node_count <- node_count + 1
+        elif op == 1:
+            if head < 0 or (node_kind[head.usize()] == 1 and node_live[head.usize()] != 0):
+                statuses[i] <- 0
+            else:
+                results[i] <- node_value[head.usize()]
+                next_head: mutable i64 = node_next[head.usize()]
+                while next_head >= 0 and node_kind[next_head.usize()] == 1 and node_live[next_head.usize()] == 0 |next_head, node_next, node_kind, node_live|:
+                    next_head <- node_next[next_head.usize()]
+                heads[a] <- next_head
+                if next_head < 0 and attached_owner[a] >= 0:
+                    owner: usize = attached_owner[a].usize()
+                    node_live[wrapper_for_child[a].usize()] <- 0
+                    branch_child[owner] <- -1
+                    attached_owner[a] <- -1
+                    wrapper_for_child[a] <- -1
+        elif op == 2:
+            top: mutable i64 = head
+            while top >= 0 and node_kind[top.usize()] == 1 |top, node_next, node_kind, node_live|:
+                top <- node_next[top.usize()]
+                while top >= 0 and node_kind[top.usize()] == 1 and node_live[top.usize()] == 0 |top, node_next, node_kind, node_live|:
+                    top <- node_next[top.usize()]
+            if top < 0: statuses[i] <- 0
+            else: results[i] <- node_value[top.usize()]
+        elif op == 3:
+            if head >= 0 and node_kind[head.usize()] == 1 and node_live[head.usize()] != 0:
+                results[i] <- 1
+        else:
+            child: usize = b.usize()
+            child_head: mutable i64 = heads[child]
+            while child_head >= 0 and node_kind[child_head.usize()] == 1 and node_live[child_head.usize()] == 0 |child_head, node_next, node_kind, node_live|:
+                child_head <- node_next[child_head.usize()]
+            heads[child] <- child_head
+            top: mutable i64 = head
+            while top >= 0 and node_kind[top.usize()] == 1 |top, node_next, node_kind, node_live|:
+                top <- node_next[top.usize()]
+                while top >= 0 and node_kind[top.usize()] == 1 and node_live[top.usize()] == 0 |top, node_next, node_kind, node_live|:
+                    top <- node_next[top.usize()]
+            if a == child or top < 0 or attached_owner[a] >= 0 or branch_child[a] >= 0 or attached_owner[child] >= 0 or branch_child[child] >= 0:
+                return -1
+            if child_head < 0:
+                results[i] <- 0
+            else:
+                node_value[node_count] <- 0
+                node_next[node_count] <- head
+                node_child[node_count] <- child.i64()
+                node_kind[node_count] <- 1
+                node_live[node_count] <- 1
+                wrapper: usize = node_count
+                node_count <- node_count + 1
+                heads[a] <- wrapper.i64()
+                branch_child[a] <- child.i64()
+                attached_owner[child] <- a.i64()
+                wrapper_for_child[child] <- wrapper.i64()
+                results[i] <- 1
+        i <- i + 1
+
+    required: usize = 16 * q
+    if output.is_null() or capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+    for record in 0..q:
+        for field in 0..2:
+            value: mutable i64 = statuses[record]
+            if field == 1: value <- results[record]
+            bits: u64 = value.u64()
+            for byte in 0..8:
+                result[16 * record + 8 * field + byte] <- ((bits >> (8 * byte)) & 255).u8()
+    required.i64()
+
+export fn cactus_stack_branch_trace(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = cactus_stack_branch_trace_impl

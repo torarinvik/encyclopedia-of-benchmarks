@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn np_dfs(v:Int,dest:Int,n:Int,matrix:InlineArray[Int64,100],mut visited:InlineArray[Bool,10])->Int64:

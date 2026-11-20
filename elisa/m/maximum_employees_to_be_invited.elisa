@@ -1,0 +1,64 @@
+const MEI_MAX_N: usize = 8
+const MEI_MAX_INPUT: usize = 10
+
+def mei_solve(values: view[i64]) -> i64:
+    if values.len() < 3 or values.len() > MEI_MAX_INPUT: return -1
+    let n_value: i64 = values[0]
+    if n_value < 2 or n_value > MEI_MAX_N.i64() or values.len() != (n_value + 1) as usize: return -1
+    let n: usize = n_value.usize()
+    var favorite: mutable i64[8] = zeroed
+    var indegree: mutable i64[8] = zeroed
+    var chain: mutable i64[8] = zeroed
+    var queue: mutable usize[8] = zeroed
+    var visited: mutable bool[8] = zeroed
+    var i: mutable usize = 0
+    while i < n:
+        let target: i64 = values[i + 1]
+        if target < 0 or target >= n_value or target == i.i64(): return -1
+        favorite[i] <- target
+        chain[i] <- 1
+        indegree[target.usize()] <- indegree[target.usize()] + 1
+        i <- i + 1
+    var head: mutable usize = 0
+    var tail: mutable usize = 0
+    i <- 0
+    while i < n:
+        if indegree[i] == 0:
+            queue[tail] <- i
+            tail <- tail + 1
+        i <- i + 1
+    while head < tail:
+        let node: usize = queue[head]
+        head <- head + 1
+        let target: usize = favorite[node].usize()
+        if chain[node] + 1 > chain[target]: chain[target] <- chain[node] + 1
+        indegree[target] <- indegree[target] - 1
+        if indegree[target] == 0:
+            queue[tail] <- target
+            tail <- tail + 1
+    var pair_total: i64 = 0
+    var longest_cycle: i64 = 0
+    i <- 0
+    while i < n:
+        if indegree[i] > 0 and not visited[i]:
+            var node: usize = i
+            var first: usize = 0
+            var second: usize = 0
+            var cycle_length: i64 = 0
+            while not visited[node]:
+                visited[node] <- true
+                if cycle_length == 0: first <- node
+                elif cycle_length == 1: second <- node
+                cycle_length <- cycle_length + 1
+                node <- favorite[node].usize()
+            if cycle_length == 2:
+                pair_total <- pair_total + chain[first] + chain[second]
+            elif cycle_length > longest_cycle:
+                longest_cycle <- cycle_length
+        i <- i + 1
+    if pair_total > longest_cycle: pair_total else: longest_cycle
+
+export fn maximum_employees_to_be_invited(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > MEI_MAX_INPUT: return -1
+    let values: view[i64] = input[0:length]
+    mei_solve(values)

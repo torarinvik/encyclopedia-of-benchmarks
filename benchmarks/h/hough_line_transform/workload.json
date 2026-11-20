@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "hough-line-transform-integer-accumulator-v1",
+  "algorithm": "hough_line_transform",
+  "function_symbol": "hough_line_transform",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Use of the Hough Transformation to Detect Lines and Curves in Pictures",
+    "url": "https://doi.org/10.1145/361237.361242",
+    "discovery": "Rosetta title index only; algorithm source is the cited paper",
+    "reuse": "algorithm idea only; bounded profile implemented independently"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[height, width, row-major binary pixels...]",
+    "minimum_height": 1,
+    "maximum_height": 8,
+    "minimum_width": 1,
+    "maximum_width": 8,
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "pixel_values": [0, 1],
+    "invalid_input_result": -1,
+    "invalid_input_writes_bytes": false
+  },
+  "algorithm_profile": {
+    "coordinates": "x=column, y=row; origin at the upper-left",
+    "integer_normals_in_order": [[1, 0], [1, 1], [0, 1], [-1, 1]],
+    "diagonal_normals_are_unnormalized": true,
+    "rho_formula": "rho=nx*x+ny*y",
+    "rho_minimum": -14,
+    "rho_maximum": 14,
+    "rho_bin_count": 29,
+    "output_index": "angle_index*29 + rho + 14",
+    "votes_per_foreground_pixel": 4,
+    "maximum_bin_count": 64,
+    "complexity": "O(4*height*width + 116) time and O(116) workspace"
+  },
+  "output": {
+    "kind": "angle_major_hough_accumulator_bytes",
+    "byte_count": 116,
+    "definition": "29 unsigned count bytes for each normal, in the declared normal order; rho bins run from -14 through 14.",
+    "valid_result": 116,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "errors_write_bytes": false
+  },
+  "workspace": {
+    "bytes": 116,
+    "description": "One fixed 116-byte accumulator; input is read directly."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-one-pixel-grid",
+      "input_values": [1, 1, 0],
+      "expected_result": 116,
+      "expected_output_nonzero_bins": []
+    },
+    {
+      "id": "origin-pixel-votes-at-rho-zero",
+      "input_values": [1, 1, 1],
+      "expected_result": 116,
+      "expected_output_nonzero_bins": [[14, 1], [43, 1], [72, 1], [101, 1]]
+    },
+    {
+      "id": "all-pixels-in-two-by-two-grid",
+      "input_values": [2, 2, 1, 1, 1, 1],
+      "expected_result": 116,
+      "expected_output_nonzero_bins": [[14, 2], [15, 2], [43, 1], [44, 2], [45, 1], [72, 2], [73, 2], [100, 1], [101, 2], [102, 1]]
+    },
+    {
+      "id": "main-diagonal-two-by-two-grid",
+      "input_values": [2, 2, 1, 0, 0, 1],
+      "expected_result": 116,
+      "expected_output_nonzero_bins": [[14, 1], [15, 1], [43, 1], [45, 1], [72, 1], [73, 1], [101, 2]]
+    },
+    {
+      "id": "maximum-dimensions-corner-pixel",
+      "input_values": [
+        8, 8,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 1
+      ],
+      "expected_result": 116,
+      "expected_output_nonzero_bins": [[21, 1], [57, 1], [79, 1], [101, 1]]
+    },
+    {
+      "id": "zero-height",
+      "input_values": [0, 1, 0],
+      "expected_result": -1,
+      "expected_output_nonzero_bins": []
+    },
+    {
+      "id": "width-above-maximum",
+      "input_values": [1, 9, 0],
+      "expected_result": -1,
+      "expected_output_nonzero_bins": []
+    },
+    {
+      "id": "trailing-word-after-valid-grid",
+      "input_values": [1, 1, 0, 5],
+      "expected_result": -1,
+      "expected_output_nonzero_bins": []
+    },
+    {
+      "id": "non-binary-pixel",
+      "input_values": [1, 1, 2],
+      "expected_result": -1,
+      "expected_output_nonzero_bins": []
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_is_null": true,
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_nonzero_bins": []
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1, 1],
+      "output_capacity": 115,
+      "expected_result": -2,
+      "expected_output_nonzero_bins": []
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 1],
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_nonzero_bins": []
+    }
+  ]
+}

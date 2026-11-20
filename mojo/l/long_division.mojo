@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,UnsafePointer
 fn long_div_core(a0:Int64,b0:Int64)->Int64:

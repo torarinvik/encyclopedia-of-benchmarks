@@ -25,7 +25,7 @@ fn long splash2_water_nsquared(long* input, usz length, char* output, usz capaci
         x[i] = input[at]; y[i] = input[at + 1]; z[i] = input[at + 2]; charge[i] = input[at + 3];
         if (x[i] < 0 || x[i] >= side || y[i] < 0 || y[i] >= side || z[i] < 0 || z[i] >= side || charge[i] < -4 || charge[i] > 4) return -1;
     }
-    long[MAX_N][3] force = zeroed;
+    long[3][MAX_N] force = zeroed;
     long energy = 0, pairs = 0;
     for (usz i = 0; i < n; i++) for (usz j = i + 1; j < n; j++) {
         long dx = x[j] - x[i], dy = y[j] - y[i], dz = z[j] - z[i];

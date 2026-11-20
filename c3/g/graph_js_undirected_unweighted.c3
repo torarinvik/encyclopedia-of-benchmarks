@@ -51,14 +51,14 @@ fn long graph_js_undirected_unweighted(long* input, usz length, char* output, us
     usz edge_count = (usz)raw_edge_count;
     if (length != 1 + vertex_count + 1 + 2 * edge_count + 1) return -1;
 
-    char[MAX_VERTICES][MAX_DEGREE] adjacency;
+    char[MAX_DEGREE][MAX_VERTICES] adjacency;
     usz[MAX_VERTICES] degree;
     for (usz index = 0; index < MAX_VERTICES; index += 1) degree[index] = 0;
     usz position = edge_count_offset + 1;
     for (usz edge = 0; edge < edge_count; edge += 1) {
-        long left_value = input[position++], right_value = input[position++];
+        long left_value = input[position++]; long right_value = input[position++];
         if (left_value < 97 || left_value > 122 || right_value < 97 || right_value > 122) return -1;
-        usz left = (usz)(left_value - 97), right = (usz)(right_value - 97);
+        usz left = (usz)(left_value - 97); usz right = (usz)(right_value - 97);
         if (declared[left] && declared[right]) {
             if (degree[left] >= MAX_DEGREE || degree[right] >= MAX_DEGREE) return -1;
             adjacency[left][degree[left]++] = (char)right;
@@ -85,7 +85,7 @@ fn long graph_js_undirected_unweighted(long* input, usz length, char* output, us
     char[MAX_QUEUE] queue;
     char[MAX_QUEUE] levels;
     for (usz index = 0; index < MAX_VERTICES; index += 1) visited[index] = false;
-    usz head = 0, tail = 0, bfs_count = 0;
+    usz head = 0; usz tail = 0; usz bfs_count = 0;
     usz bfs_count_slot = result_length++;
     queue[tail] = (char)start; levels[tail++] = 0;
     while (head < tail) {

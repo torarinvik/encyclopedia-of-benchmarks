@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "star-quadtree-fat-triangulation-i64-array-bytes-output-v1",
+  "algorithm": "star_quadtree_fat_triangulation",
+  "function_symbol": "star_quadtree_fat_triangulation",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "book": "Encyclopedia of Algorithms",
+    "chapter": 585,
+    "chapter_title": "Quadtrees and Morton Indexing",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_585",
+    "paper_title": "Star-quadtrees and guard-quadtrees: I/O-efficient indexes for fat triangulations and low-density planar subdivisions",
+    "paper_authors": ["Mark de Berg", "Herman Haverkort", "Shripad Thite", "Laura Toma"],
+    "paper_journal": "Computational Geometry 43(5), 493-513 (2010)",
+    "paper_doi": "10.1016/j.comgeo.2009.11.001",
+    "paper_url": "https://doi.org/10.1016/j.comgeo.2009.11.001",
+    "open_pdf": "https://tildesites.bowdoin.edu/~ltoma/papers/journal-2008-quad.pdf",
+    "sections": "§2.1 stopping rule; §2.2 Z-order and cell-triangle records; §2.3 direct top-down construction and per-vertex-star I/O-efficient construction"
+  },
+  "contract": {
+    "operation": "Construct the ordinary Star quadtree for a bounded fat triangulation of the square by recursively splitting any cell whose intersecting triangulation edges do not all share a common vertex, then emit every leaf-cell/triangle intersection keyed by the leaf's Z-order interval start.",
+    "profile_scope": "The frame accepts exactly the two diagonal triangulations of the canonical square and its four-triangle center fan. The profile measures the Star stopping rule and linear-quadtree cell-triangle representation; it does not measure arbitrary triangulation validation, per-vertex-star external-memory bulk construction, or B-tree construction.",
+    "input_encoding": "[vertex_count, triangle_count, x0,y0,..., (a,b,c) per triangle]",
+    "coordinate_system": "The canonical square is [0,8] x [0,8], with vertices 0=(0,0), 1=(8,0), 2=(8,8), 3=(0,8); the optional fifth vertex 4=(4,4). Coordinates use x rightward and y upward.",
+    "accepted_topologies": ["V=4,T=2 with triangles (0,1,2),(0,2,3)", "V=4,T=2 with triangles (0,1,3),(1,2,3)", "V=5,T=4 with triangles (0,1,4),(1,2,4),(2,3,4),(3,0,4)"],
+    "fatness": "Every accepted triangle has angles 45,45,90 degrees and is therefore 45-degree fat under the paper's minimum-angle definition.",
+    "cell_rule": "Edges intersect closed canonical squares. A cell stops if it has no intersecting edge or every intersecting edge has one shared endpoint. Otherwise split into NW, NE, SW, SE children in that order.",
+    "maximum_depth": 2,
+    "depth_overflow": "A non-stopping cell at depth 2 is invalid. For the three accepted square triangulations, every nonincident edge pair is separated by at least 4 coordinate units, while a depth-2 cell's diagonal is 2*sqrt(2), so this cap contains the complete stopping subdivision.",
+    "z_key": "The integer Morton start key at fixed depth 2. Interleave top-origin row bits before x bits, matching the paper's Z-index convention and NW,NE,SW,SE order. A shallower leaf uses the first key in its depth-2 interval.",
+    "output_encoding": "Little-endian signed i64 words [pair_count, z_key, triangle_id, ...]. Emit one pair for each closed leaf-cell/triangle intersection; pairs are sorted by z_key then input triangle ID. The canonical square is fully triangulated, so every leaf has at least one triangle pair.",
+    "maximum_input_words": 24,
+    "maximum_parseable_input_words": 25,
+    "maximum_leaves": 16,
+    "maximum_pairs": 64,
+    "maximum_output_words": 129,
+    "maximum_output_bytes": 1032,
+    "workspace_bytes": 8192,
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[vertex_count, triangle_count, x0,y0,..., (a,b,c) per triangle]",
+    "accepted_vertex_counts": [4, 5],
+    "accepted_triangle_counts": [2, 4],
+    "maximum_valid_length": 24,
+    "maximum_parseable_length": 25,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_sequence",
+    "encoding": "[pair_count, z_key, triangle_id, ...]",
+    "maximum_output_bytes": 1032,
+    "capacity_unit": "bytes",
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed vertex, triangle, unique-edge, and cell-triangle pair arrays plus bounded recursion state; caller input and output buffers are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 4,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20,
+    "profiles": [
+      {
+        "id": "diagonal-02-star-cells",
+        "input_values": [4,2,0,0,8,0,8,8,0,8,0,1,2,0,2,3],
+        "output_capacity": 1032,
+        "expected_result": 248,
+        "expected_output_hex": "0f00000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000 0200000000000000 0100000000000000 0300000000000000 0000000000000000 0300000000000000 0100000000000000 0400000000000000 0000000000000000 0400000000000000 0100000000000000 0800000000000000 0000000000000000 0800000000000000 0100000000000000 0c00000000000000 0000000000000000 0c00000000000000 0100000000000000 0d00000000000000 0000000000000000 0e00000000000000 0000000000000000 0f00000000000000 0000000000000000"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "diagonal-02-star-cells",
+      "input_values": [4,2,0,0,8,0,8,8,0,8,0,1,2,0,2,3],
+      "input_length": 16,
+      "output_capacity": 1032,
+      "expected_result": 248,
+      "expected_output_values": [15,0,0,0,1,1,1,2,1,3,0,3,1,4,0,4,1,8,0,8,1,12,0,12,1,13,0,14,0,15,0],
+      "expected_output_hex": "0f00000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000 0200000000000000 0100000000000000 0300000000000000 0000000000000000 0300000000000000 0100000000000000 0400000000000000 0000000000000000 0400000000000000 0100000000000000 0800000000000000 0000000000000000 0800000000000000 0100000000000000 0c00000000000000 0000000000000000 0c00000000000000 0100000000000000 0d00000000000000 0000000000000000 0e00000000000000 0000000000000000 0f00000000000000 0000000000000000"
+    },
+    {
+      "id": "diagonal-13-capacity-short",
+      "input_values": [4,2,0,0,8,0,8,8,0,8,0,1,3,1,2,3],
+      "input_length": 16,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "center-fan-capacity-short",
+      "input_values": [5,4,0,0,8,0,8,8,0,8,4,4,0,1,4,1,2,4,2,3,4,3,0,4],
+      "input_length": 24,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {"id":"invalid-triangle-sequence","input_values":[4,2,0,0,8,0,8,8,0,8,0,1,2,0,1,3],"input_length":16,"output_capacity":1032,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[4,2,0,0,8,0,8,8,0,8,0,1,2,0,2,3,7],"input_length":17,"output_capacity":1032,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[4,2,0,0,8,0,8,8,0,8,0,1,2,0,2,3],"input_length":16,"output_capacity":247,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[4,2,0,0,8,0,8,8,0,8,0,1,2,0,2,3],"input_length":16,"output_is_null":true,"output_capacity":1032,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":1032,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

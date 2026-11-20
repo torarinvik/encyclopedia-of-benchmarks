@@ -6,8 +6,8 @@ const usz MAX_INPUT_LENGTH = 2 + 2 * MAX_EDGES;
 
 fn void refine_for_removal(long* edge_from, long* edge_to, usz vertex_count, usz edge_count,
                            int removed_first, int removed_second, bool* same) {
-    int component[8];
-    int queue[8];
+    int[8] component;
+    int[8] queue;
     for (usz vertex = 0; vertex < vertex_count; vertex++) component[vertex] = -1;
     int next_component = 0;
     for (usz start = 0; start < vertex_count; start++) {
@@ -67,7 +67,7 @@ fn long three_edge_connected_components(long* values, usz length) @export("three
                                (int)first, (int)second, &same[0]);
     }
 
-    int labels[8];
+    int[8] labels;
     for (usz vertex = 0; vertex < vertex_count; vertex++) labels[vertex] = -1;
     int next_label = 0;
     for (usz first = 0; first < vertex_count; first++) {

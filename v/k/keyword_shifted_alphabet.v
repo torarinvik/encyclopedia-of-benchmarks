@@ -7,7 +7,7 @@ const max_input_length = 3 + max_keyword_length + max_message_length + 1
 @[export: 'keyword_shifted_alphabet']
 pub fn keyword_shifted_alphabet(input &i64, length usize, output &u8, output_capacity usize) i64 {
 	if isnil(input) || length < 3 || length > usize(max_input_length) { return -1 }
-	operation := unsafe { input }
+	operation := unsafe { input[0] }
 	keyword_length_value := unsafe { input[1] }
 	message_length_value := unsafe { input[2] }
 	if (operation != 0 && operation != 1) || keyword_length_value < 1 || keyword_length_value > max_keyword_length ||

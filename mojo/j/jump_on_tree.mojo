@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -60,7 +61,7 @@ fn jump_on_tree(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t,
     if length != c_size_t(query_start + 3 * q):
         return -1
 
-    var adjacent = InlineArray[Bool, MAX_N * MAX_N]()
+    var adjacent = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     var dsu_parent = InlineArray[Int, MAX_N]()
     var dsu_size = InlineArray[Int, MAX_N]()
     for vertex in range(n):
@@ -89,9 +90,9 @@ fn jump_on_tree(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t,
         adjacent[left * MAX_N + right] = True
         adjacent[right * MAX_N + left] = True
 
-    var ancestors = InlineArray[Int, MAX_N * MAX_LEVELS]()
-    var depth = InlineArray[Int, MAX_N]()
-    var visited = InlineArray[Bool, MAX_N]()
+    var ancestors = InlineArray[Int, MAX_N * MAX_LEVELS](fill=0)
+    var depth = InlineArray[Int, MAX_N](fill=0)
+    var visited = InlineArray[Bool, MAX_N](fill=False)
     var stack = InlineArray[Int, MAX_N]()
     var top = 1
     stack[0] = 0

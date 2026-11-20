@@ -1,0 +1,48 @@
+const CORNACCHIA_MAX_PRIME: i64 = 1000000
+const CORNACCHIA_MAX_LENGTH: usize = 3
+const CORNACCHIA_PACK_BASE: i64 = 1024
+
+def cornacchia_is_prime(value: i64) -> bool:
+    if value < 2: return false
+    divisor: mutable i64 = 2
+    while divisor <= value/divisor:
+        if value % divisor == 0: return false
+        if divisor == 2: divisor <- 3
+        else: divisor <- divisor+2
+    true
+
+def cornacchia_isqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = 1001
+    while low+1 < high:
+        middle: i64 = (low+high)/2
+        if middle*middle <= value: low <- middle
+        else: high <- middle
+    low
+
+def cornacchia_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > CORNACCHIA_MAX_LENGTH or length != 2: return -1
+    prime: i64 = input[0]
+    root: i64 = input[1]
+    if prime < 3 or prime > CORNACCHIA_MAX_PRIME or (prime & 1) == 0 or root < 1 or root > prime/2: return -1
+    if not cornacchia_is_prime(prime) or (root*root+2)%prime != 0: return -1
+
+    previous: mutable i64 = prime
+    current: mutable i64 = root
+    limit: i64 = cornacchia_isqrt(prime)
+    while current > limit:
+        remainder: i64 = previous%current
+        previous <- current
+        current <- remainder
+    x: i64 = current
+    numerator: i64 = prime-x*x
+    if numerator <= 0 or numerator%2 != 0: return -1
+    y_squared: i64 = numerator/2
+    y: i64 = cornacchia_isqrt(y_squared)
+    if y <= 0 or y*y != y_squared or x*x+2*y*y != prime: return -1
+    x*CORNACCHIA_PACK_BASE+y
+
+export fn cornacchia_x2_plus_2y2(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > CORNACCHIA_MAX_LENGTH: return -1
+    cornacchia_impl(input[0:length])

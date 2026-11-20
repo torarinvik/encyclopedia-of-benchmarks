@@ -4,7 +4,7 @@ fn long turn(long* x, long* y, usz a, usz b, usz c) {
     return (x[b]-x[a])*(y[c]-y[a])-(y[b]-y[a])*(x[c]-x[a]);
 }
 
-long melkman_simple_polyline_hull(long* input, usz length, char* output, usz capacity)
+fn long melkman_simple_polyline_hull(long* input, usz length, char* output, usz capacity)
         @export("melkman_simple_polyline_hull") {
     if (input == null || length < 7 || length > 66) return -1;
     long raw = input[0];

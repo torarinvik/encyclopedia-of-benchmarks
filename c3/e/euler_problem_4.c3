@@ -2,7 +2,7 @@ module euler_problem_4;
 
 const usz MAX_INPUT_LENGTH = 2;
 
-bool is_palindromic(uint value) {
+fn bool is_palindromic(uint value) {
     uint reversed = 0, remaining = value;
     while (remaining > 0) {
         reversed = 10 * reversed + remaining % 10;

@@ -33,3 +33,6 @@ at commit `fed66cb0c74c4a939ec5163648458a8c2b46fd4c`.
 traceback boundary, custom scoring, empty sequences and output errors. Build
 with `i64_array_bytes_output` and record with
 `benchmarks/run_i64_array_bytes_output.py`.
+
+The [Mojo implementation](../../../mojo/s/smith_waterman_rust.mojo) is a
+draft and has not been verified.

@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-network-erosion-strength-of-connection-i64-array-bytes-output-v1",
+  "algorithm": "network_erosion_strength_of_connection",
+  "function_symbol": "network_erosion_strength_of_connection",
+  "abi": "i64_array_bytes_output",
+  "description": "Exact rational strength of connection by shortest-path network erosion for distinct directed endpoints.",
+  "source": {
+    "title": "Quantification of Regulation in Networks with Positive and Negative Interaction Weights",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_598",
+    "paper_title": "Network Analysis Reveals Cross-links of the Immune Pathways Activated by Bacteria and Allergen",
+    "paper_doi": "10.1103/PhysRevE.84.031929",
+    "license": "Copyright remains with the cited publishers; clean-room algorithm description only.",
+    "implementation_status": "bounded clean-room SoC path-erosion profile using original-paper normalization"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,source,target,(from,to)*M]",
+    "vertex_count_range": [2, 8],
+    "edge_count_range": "0..N*(N-1)",
+    "endpoint_range": "0..N-1; source and target must differ",
+    "graph": "Simple directed graph without self-loops; this profile fixes every arc to positive unit length, and the source SoC measure does not distinguish path signs.",
+    "tie_rule": "Choose the lexicographically smallest vertex sequence among shortest source-to-target paths.",
+    "maximum_valid_length": 116,
+    "maximum_parseable_length": 117,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Reduced exact fraction [numerator, denominator] for 2/(N+2) times the sum of reciprocal finite erosion distances; infinite distances contribute zero.",
+    "maximum_values": 2,
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed storage for an eight-vertex adjacency matrix, BFS queue and predecessor arrays, erosion distances, and staged two-word output."
+  },
+  "contract": {
+    "endpoint_branch": "Only distinct endpoints are accepted; the shortest-cycle source==target branch is excluded.",
+    "distance_definition": "Each internal vertex receives the edge length of the first selected shortest path containing it. The two endpoints keep the initial shortest-path length. Vertices left unassigned after erosion have infinite distance.",
+    "erosion": "For a shortest path of length one, delete its direct arc. Otherwise assign still-unset path vertices and delete every internal path vertex with its incident arcs. Repeat until no directed source-to-target path remains.",
+    "normalization": "Use the original paper's distinct-endpoint denominator (N+2)/2. The chapter's displayed i!=j and i==j denominators appear reversed relative to the paper.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "primary_oracle": "benchmarks/n/network_erosion_strength_of_connection/primary_oracle.py",
+  "independent_oracle": "benchmarks/n/network_erosion_strength_of_connection/independent_oracle.py",
+  "cases": [
+    {
+      "id": "complete-three-vertex-normalizes-to-one",
+      "input_values": [3, 6, 0, 1, 0, 1, 0, 2, 1, 0, 1, 2, 2, 0, 2, 1],
+      "input_length": 16,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000100000000000000"
+    },
+    {
+      "id": "single-chain-three-vertices",
+      "input_values": [3, 2, 0, 2, 0, 1, 1, 2],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000500000000000000"
+    },
+    {
+      "id": "lexicographic-tie-between-shortest-paths",
+      "input_values": [4, 4, 0, 3, 0, 1, 1, 3, 0, 2, 2, 3],
+      "input_length": 12,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000300000000000000"
+    },
+    {
+      "id": "unassigned-vertex-contributes-zero",
+      "input_values": [4, 2, 0, 2, 0, 1, 1, 2],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000200000000000000"
+    },
+    {
+      "id": "endpoint-retains-initial-direct-distance",
+      "input_values": [4, 4, 0, 3, 0, 3, 0, 1, 1, 2, 2, 3],
+      "input_length": 12,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "08000000000000000900000000000000"
+    },
+    {
+      "id": "disconnected-endpoints-zero-score",
+      "input_values": [3, 1, 0, 2, 1, 2],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000100000000000000"
+    },
+    {
+      "id": "maximum-complete-directed-graph",
+      "input_values": [
+        8, 56, 0, 7,
+        0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7,
+        1, 0, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7,
+        2, 0, 2, 1, 2, 3, 2, 4, 2, 5, 2, 6, 2, 7,
+        3, 0, 3, 1, 3, 2, 3, 4, 3, 5, 3, 6, 3, 7,
+        4, 0, 4, 1, 4, 2, 4, 3, 4, 5, 4, 6, 4, 7,
+        5, 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 6, 5, 7,
+        6, 0, 6, 1, 6, 2, 6, 3, 6, 4, 6, 5, 6, 7,
+        7, 0, 7, 1, 7, 2, 7, 3, 7, 4, 7, 5, 7, 6
+      ],
+      "input_length": 116,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000100000000000000"
+    },
+    {
+      "id": "duplicate-arc",
+      "input_values": [2, 2, 0, 1, 0, 1, 0, 1],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-endpoint",
+      "input_values": [2, 1, 0, 1, 0, 2],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "same-source-and-target-excluded",
+      "input_values": [2, 0, 1, 1],
+      "input_length": 4,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [3, 2, 0, 2, 0, 1, 1, 2, 9],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3, 2, 0, 2, 0, 1, 1, 2],
+      "input_length": 8,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [3, 2, 0, 2, 0, 1, 1, 2],
+      "input_length": 8,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

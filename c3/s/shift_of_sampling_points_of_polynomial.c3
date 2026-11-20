@@ -15,16 +15,16 @@ fn long mod_pow(long base, long exponent) {
     return result;
 }
 
-fn void store_le(uint8* output, usz offset, long value) {
+fn void store_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte++) {
-        output[offset + byte] = (uint8)(bits & 255ul);
+        output[offset + byte] = (char)(bits & 255ul);
         bits >>= 8;
     }
 }
 
 fn long shift_of_sampling_points_of_polynomial(long* input, usz length,
-                                                uint8* output, usz capacity)
+                                                char* output, usz capacity)
     @export("shift_of_sampling_points_of_polynomial") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     if (input[0] < 1 || input[0] > (long)MAX_N || input[1] < 1 || input[1] > (long)MAX_M) return -1;

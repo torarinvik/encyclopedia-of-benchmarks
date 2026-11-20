@@ -1,0 +1,33 @@
+const MAX_INDEX: i64 = 64
+const MAX_PARSEABLE_LENGTH: usize = 2
+
+def klarner_rado_affine_closure_sequence_impl(input: view[i64]) -> i64:
+    if input.length < 1 or input.length > MAX_PARSEABLE_LENGTH: return -1
+    let requested: i64 = input[0]
+    if input.length != 1 or requested < 1 or requested > MAX_INDEX: return -1
+
+    terms: mutable i64[64] = zeroed
+    terms_view: mutable view[i64] = terms[0:64]
+    terms_view[0] <- 1
+    count: mutable usize = 1
+    twice: mutable usize = 0
+    thrice_plus_two: mutable usize = 0
+    sixfold_plus_three: mutable usize = 0
+    while count < requested.usize():
+        by_two: i64 = 2 * terms_view[twice]
+        by_three: i64 = 3 * terms_view[thrice_plus_two] + 2
+        by_six: i64 = 6 * terms_view[sixfold_plus_three] + 3
+        next: mutable i64 = by_two
+        if by_three < next: next <- by_three
+        if by_six < next: next <- by_six
+        terms_view[count] <- next
+        count <- count + 1
+        if by_two == next: twice <- twice + 1
+        if by_three == next: thrice_plus_two <- thrice_plus_two + 1
+        if by_six == next: sixfold_plus_three <- sixfold_plus_three + 1
+    terms_view[requested.usize() - 1]
+
+export fn klarner_rado_affine_closure_sequence(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    klarner_rado_affine_closure_sequence_impl(input_view)

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn st2_setcol(t:UnsafePointer[Int64,MutAnyOrigin],rn:Int,base:Int,col:Int,value:Int64):

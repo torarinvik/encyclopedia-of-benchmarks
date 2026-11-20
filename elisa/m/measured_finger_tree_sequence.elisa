@@ -1,0 +1,568 @@
+const FT_MAX_Q: usize = 32
+const FT_MAX_ROOTS: usize = 65
+const FT_POOL: usize = 8192
+const FT_MAX_ARENA: usize = 16384
+const FT_LEVELS: usize = 16
+const FT_MAX_INPUT: usize = 194
+const FT_MAX_PARSEABLE: usize = 195
+const FT_MAX_OUTPUT: usize = 1792
+const FT_MAX_VALUE: i64 = 1000000
+const FT_MAX_LENGTH: i32 = 64
+const FT_MAX_SUM: i64 = 64000000
+const FT_NODE_BASE: i32 = 8192
+
+struct FtMeasure:
+    count: i32
+    sum: i64
+
+struct FtTree:
+    kind: u8
+    level: u8
+    prefix_len: u8
+    suffix_len: u8
+    middle: i32
+    prefix: i32[4]
+    suffix: i32[4]
+    count: i32
+    sum: i64
+
+struct FtNode:
+    level: u8
+    arity: u8
+    child: i32[3]
+    count: i32
+    sum: i64
+
+struct FtRoot:
+    tree: i32
+    length: i32
+    sum: i64
+
+struct FtView:
+    found: bool
+    item: i32
+    tree: i32
+
+struct FtSplit:
+    found: bool
+    item: i32
+    left: i32
+    right: i32
+
+struct FtContext:
+    trees: FtTree[FT_POOL]
+    nodes: FtNode[FT_POOL]
+    tree_count: usize
+    node_count: usize
+    object_count: usize
+    failed: bool
+    empty_tree_id: i32[FT_LEVELS]
+    empty_tree_ready: bool[FT_LEVELS]
+
+def ft_add_measure(first: FtMeasure, second: FtMeasure) -> FtMeasure:
+    FtMeasure(count: first.count + second.count, sum: first.sum + second.sum)
+
+def ft_reference_measure(ctx: mutable FtContext&, reference: i32) -> FtMeasure:
+    if reference < 0:
+        return FtMeasure(count: 1, sum: (-reference - 1).i64())
+    if reference < FT_NODE_BASE:
+        ctx.failed <- true
+        return FtMeasure(count: 0, sum: 0)
+    node_index: usize = (reference - FT_NODE_BASE).usize()
+    FtMeasure(count: ctx.nodes[node_index].count, sum: ctx.nodes[node_index].sum)
+
+def ft_tree_measure(ctx: mutable FtContext&, tree_id: i32) -> FtMeasure:
+    tree_index: usize = tree_id.usize()
+    FtMeasure(count: ctx.trees[tree_index].count, sum: ctx.trees[tree_index].sum)
+
+def ft_allocate_tree(ctx: mutable FtContext&) -> i32:
+    if ctx.object_count >= FT_MAX_ARENA or ctx.tree_count >= FT_POOL:
+        ctx.failed <- true
+        return 0
+    result: i32 = ctx.tree_count.i32()
+    ctx.tree_count <- ctx.tree_count + 1
+    ctx.object_count <- ctx.object_count + 1
+    result
+
+def ft_allocate_node(ctx: mutable FtContext&) -> i32:
+    if ctx.object_count >= FT_MAX_ARENA or ctx.node_count >= FT_POOL:
+        ctx.failed <- true
+        return FT_NODE_BASE
+    result: i32 = FT_NODE_BASE + ctx.node_count.i32()
+    ctx.node_count <- ctx.node_count + 1
+    ctx.object_count <- ctx.object_count + 1
+    result
+
+def ft_empty_tree(ctx: mutable FtContext&, level: usize) -> i32:
+    if level >= FT_LEVELS:
+        ctx.failed <- true
+        return 0
+    if ctx.empty_tree_ready[level]:
+        return ctx.empty_tree_id[level]
+    tree_id: i32 = ft_allocate_tree(ctx)
+    tree_index: usize = tree_id.usize()
+    tree: mutable FtTree = zeroed
+    tree.kind <- 0
+    tree.level <- level.u8()
+    tree.middle <- -1
+    ctx.trees[tree_index] <- tree
+    ctx.empty_tree_id[level] <- tree_id
+    ctx.empty_tree_ready[level] <- true
+    tree_id
+
+def ft_make_node(ctx: mutable FtContext&, level: usize, items: view[i32]) -> i32:
+    if items.len() < 2 or items.len() > 3:
+        ctx.failed <- true
+        return FT_NODE_BASE
+    reference: i32 = ft_allocate_node(ctx)
+    node_index: usize = (reference - FT_NODE_BASE).usize()
+    node: mutable FtNode = zeroed
+    node.level <- (level + 1).u8()
+    node.arity <- items.len().u8()
+    measure: mutable FtMeasure = FtMeasure(count: 0, sum: 0)
+    for i in 0..<items.len():
+        node.child[i] <- items[i]
+        measure <- ft_add_measure(measure, ft_reference_measure(ctx, items[i]))
+    node.count <- measure.count
+    node.sum <- measure.sum
+    ctx.nodes[node_index] <- node
+    reference
+
+def ft_make_single(ctx: mutable FtContext&, level: usize, item: i32) -> i32:
+    tree_id: i32 = ft_allocate_tree(ctx)
+    tree_index: usize = tree_id.usize()
+    measure: FtMeasure = ft_reference_measure(ctx, item)
+    tree: mutable FtTree = zeroed
+    tree.kind <- 1
+    tree.level <- level.u8()
+    tree.prefix_len <- 1
+    tree.prefix[0] <- item
+    tree.count <- measure.count
+    tree.sum <- measure.sum
+    ctx.trees[tree_index] <- tree
+    tree_id
+
+def ft_make_deep(ctx: mutable FtContext&, level: usize, prefix: view[i32], middle: i32,
+                 suffix: view[i32]) -> i32:
+    if prefix.len() == 0 or prefix.len() > 4 or suffix.len() == 0 or suffix.len() > 4:
+        ctx.failed <- true
+        return ft_empty_tree(ctx, level)
+    tree_id: i32 = ft_allocate_tree(ctx)
+    tree_index: usize = tree_id.usize()
+    tree: mutable FtTree = zeroed
+    tree.kind <- 2
+    tree.level <- level.u8()
+    tree.prefix_len <- prefix.len().u8()
+    tree.suffix_len <- suffix.len().u8()
+    tree.middle <- middle
+    measure: mutable FtMeasure = ft_tree_measure(ctx, middle)
+    for i in 0..<prefix.len():
+        tree.prefix[i] <- prefix[i]
+        measure <- ft_add_measure(measure, ft_reference_measure(ctx, prefix[i]))
+    for i in 0..<suffix.len():
+        tree.suffix[i] <- suffix[i]
+        measure <- ft_add_measure(measure, ft_reference_measure(ctx, suffix[i]))
+    tree.count <- measure.count
+    tree.sum <- measure.sum
+    ctx.trees[tree_index] <- tree
+    tree_id
+
+def ft_snoc(ctx: mutable FtContext&, level: usize, tree_id: i32, item: i32) -> i32:
+    tree: FtTree = ctx.trees[tree_id.usize()]
+    prefix: view[i32] = tree.prefix[0:tree.prefix_len.usize()]
+    suffix: view[i32] = tree.suffix[0:tree.suffix_len.usize()]
+    if tree.kind == 0:
+        return ft_make_single(ctx, level, item)
+    if tree.kind == 1:
+        one_prefix: mutable i32[1]
+        one_suffix: mutable i32[1]
+        one_prefix[0] <- tree.prefix[0]
+        one_suffix[0] <- item
+        return ft_make_deep(ctx, level, one_prefix[0:1], ft_empty_tree(ctx, level + 1), one_suffix[0:1])
+    if tree.suffix_len < 4:
+        expanded: mutable i32[4]
+        for i in 0..<tree.suffix_len.usize(): expanded[i] <- tree.suffix[i]
+        expanded[tree.suffix_len.usize()] <- item
+        return ft_make_deep(ctx, level, prefix, tree.middle, expanded[0:(tree.suffix_len.usize() + 1)])
+    group: mutable i32[3]
+    group[0] <- tree.suffix[0]
+    group[1] <- tree.suffix[1]
+    group[2] <- tree.suffix[2]
+    middle: i32 = ft_snoc(ctx, level + 1, tree.middle, ft_make_node(ctx, level, group[0:3]))
+    tail: mutable i32[2]
+    tail[0] <- tree.suffix[3]
+    tail[1] <- item
+    ft_make_deep(ctx, level, prefix, middle, tail[0:2])
+
+def ft_cons(ctx: mutable FtContext&, level: usize, item: i32, tree_id: i32) -> i32:
+    tree: FtTree = ctx.trees[tree_id.usize()]
+    suffix: view[i32] = tree.suffix[0:tree.suffix_len.usize()]
+    if tree.kind == 0:
+        return ft_make_single(ctx, level, item)
+    if tree.kind == 1:
+        prefix: mutable i32[1]
+        tail: mutable i32[1]
+        prefix[0] <- item
+        tail[0] <- tree.prefix[0]
+        return ft_make_deep(ctx, level, prefix[0:1], ft_empty_tree(ctx, level + 1), tail[0:1])
+    if tree.prefix_len < 4:
+        expanded: mutable i32[4]
+        expanded[0] <- item
+        for i in 0..<tree.prefix_len.usize(): expanded[i + 1] <- tree.prefix[i]
+        prefix: view[i32] = expanded[0:(tree.prefix_len.usize() + 1)]
+        return ft_make_deep(ctx, level, prefix, tree.middle, suffix)
+    group: mutable i32[3]
+    group[0] <- tree.prefix[1]
+    group[1] <- tree.prefix[2]
+    group[2] <- tree.prefix[3]
+    middle: i32 = ft_cons(ctx, level + 1, ft_make_node(ctx, level, group[0:3]), tree.middle)
+    prefix: mutable i32[2]
+    prefix[0] <- item
+    prefix[1] <- tree.prefix[0]
+    ft_make_deep(ctx, level, prefix[0:2], middle, suffix)
+
+def ft_from_items(ctx: mutable FtContext&, level: usize, items: view[i32]) -> i32:
+    result: mutable i32 = ft_empty_tree(ctx, level)
+    for i in 0..<items.len(): result <- ft_snoc(ctx, level, result, items[i])
+    result
+
+def ft_view_left(ctx: mutable FtContext&, level: usize, tree_id: i32) -> FtView:
+    tree: FtTree = ctx.trees[tree_id.usize()]
+    if tree.kind == 0: return FtView(found: false, item: 0, tree: tree_id)
+    if tree.kind == 1: return FtView(found: true, item: tree.prefix[0], tree: ft_empty_tree(ctx, level))
+    suffix: view[i32] = tree.suffix[0:tree.suffix_len.usize()]
+    if tree.prefix_len > 1:
+        rest: i32 = ft_make_deep(ctx, level, tree.prefix[1:tree.prefix_len.usize()], tree.middle, suffix)
+        return FtView(found: true, item: tree.prefix[0], tree: rest)
+    middle_view: FtView = ft_view_left(ctx, level + 1, tree.middle)
+    if not middle_view.found:
+        rest: i32 = ft_from_items(ctx, level, suffix)
+        return FtView(found: true, item: tree.prefix[0], tree: rest)
+    node: FtNode = ctx.nodes[(middle_view.item - FT_NODE_BASE).usize()]
+    children: view[i32] = node.child[0:node.arity.usize()]
+    rest: i32 = ft_make_deep(ctx, level, children, middle_view.tree, suffix)
+    FtView(found: true, item: tree.prefix[0], tree: rest)
+
+def ft_view_right(ctx: mutable FtContext&, level: usize, tree_id: i32) -> FtView:
+    tree: FtTree = ctx.trees[tree_id.usize()]
+    if tree.kind == 0: return FtView(found: false, item: 0, tree: tree_id)
+    if tree.kind == 1: return FtView(found: true, item: tree.prefix[0], tree: ft_empty_tree(ctx, level))
+    prefix: view[i32] = tree.prefix[0:tree.prefix_len.usize()]
+    last: usize = tree.suffix_len.usize() - 1
+    if tree.suffix_len > 1:
+        rest: i32 = ft_make_deep(ctx, level, prefix, tree.middle, tree.suffix[0:last])
+        return FtView(found: true, item: tree.suffix[last], tree: rest)
+    middle_view: FtView = ft_view_right(ctx, level + 1, tree.middle)
+    if not middle_view.found:
+        rest: i32 = ft_from_items(ctx, level, prefix)
+        return FtView(found: true, item: tree.suffix[last], tree: rest)
+    node: FtNode = ctx.nodes[(middle_view.item - FT_NODE_BASE).usize()]
+    children: view[i32] = node.child[0:node.arity.usize()]
+    rest: i32 = ft_make_deep(ctx, level, prefix, middle_view.tree, children)
+    FtView(found: true, item: tree.suffix[last], tree: rest)
+
+def ft_deep_left(ctx: mutable FtContext&, level: usize, prefix: view[i32], middle: i32,
+                 suffix: view[i32]) -> i32:
+    if prefix.len() > 0: return ft_make_deep(ctx, level, prefix, middle, suffix)
+    middle_view: FtView = ft_view_left(ctx, level + 1, middle)
+    if not middle_view.found: return ft_from_items(ctx, level, suffix)
+    node: FtNode = ctx.nodes[(middle_view.item - FT_NODE_BASE).usize()]
+    children: view[i32] = node.child[0:node.arity.usize()]
+    ft_make_deep(ctx, level, children, middle_view.tree, suffix)
+
+def ft_deep_right(ctx: mutable FtContext&, level: usize, prefix: view[i32], middle: i32,
+                  suffix: view[i32]) -> i32:
+    if suffix.len() > 0: return ft_make_deep(ctx, level, prefix, middle, suffix)
+    middle_view: FtView = ft_view_right(ctx, level + 1, middle)
+    if not middle_view.found: return ft_from_items(ctx, level, prefix)
+    node: FtNode = ctx.nodes[(middle_view.item - FT_NODE_BASE).usize()]
+    children: view[i32] = node.child[0:node.arity.usize()]
+    ft_make_deep(ctx, level, prefix, middle_view.tree, children)
+
+def ft_group_items(ctx: mutable FtContext&, level: usize, items: view[i32],
+                   grouped: mutable view[i32]) -> usize:
+    used: mutable usize = 0
+    position: mutable usize = 0
+    while position < items.len():
+        remaining: usize = items.len() - position
+        take: usize = 2 if remaining == 2 or remaining == 4 else 3
+        if remaining == 1:
+            ctx.failed <- true
+            return used
+        grouped[used] <- ft_make_node(ctx, level, items[position:(position + take)])
+        used <- used + 1
+        position <- position + take
+    used
+
+def ft_append3(ctx: mutable FtContext&, level: usize, left_id: i32, bridge: view[i32],
+               right_id: i32) -> i32:
+    left: FtTree = ctx.trees[left_id.usize()]
+    right: FtTree = ctx.trees[right_id.usize()]
+    if left.kind == 0:
+        result: mutable i32 = right_id
+        position: mutable usize = bridge.len()
+        while position > 0:
+            position <- position - 1
+            result <- ft_cons(ctx, level, bridge[position], result)
+        return result
+    if right.kind == 0:
+        result: mutable i32 = left_id
+        for i in 0..<bridge.len(): result <- ft_snoc(ctx, level, result, bridge[i])
+        return result
+    if left.kind == 1:
+        result: mutable i32 = right_id
+        position: mutable usize = bridge.len()
+        while position > 0:
+            position <- position - 1
+            result <- ft_cons(ctx, level, bridge[position], result)
+        return ft_cons(ctx, level, left.prefix[0], result)
+    if right.kind == 1:
+        result: mutable i32 = left_id
+        for i in 0..<bridge.len(): result <- ft_snoc(ctx, level, result, bridge[i])
+        return ft_snoc(ctx, level, result, right.prefix[0])
+    combined: mutable i32[16]
+    count: mutable usize = 0
+    for i in 0..<left.suffix_len.usize():
+        combined[count] <- left.suffix[i]
+        count <- count + 1
+    for i in 0..<bridge.len():
+        combined[count] <- bridge[i]
+        count <- count + 1
+    for i in 0..<right.prefix_len.usize():
+        combined[count] <- right.prefix[i]
+        count <- count + 1
+    grouped: mutable i32[8]
+    grouped_count: usize = ft_group_items(ctx, level, combined[0:count], grouped[0:8])
+    left_prefix: view[i32] = left.prefix[0:left.prefix_len.usize()]
+    right_suffix: view[i32] = right.suffix[0:right.suffix_len.usize()]
+    middle: i32 = ft_append3(ctx, level + 1, left.middle, grouped[0:grouped_count], right.middle)
+    ft_make_deep(ctx, level, left_prefix, middle, right_suffix)
+
+def ft_predicate(mode: u8, target: i64, measure: FtMeasure) -> bool:
+    if mode == 0: return measure.count.i64() > target
+    measure.sum >= target
+
+def ft_split_tree(ctx: mutable FtContext&, tree_id: i32, accumulated: FtMeasure,
+                  mode: u8, target: i64) -> FtSplit:
+    tree: FtTree = ctx.trees[tree_id.usize()]
+    if tree.kind == 0:
+        return FtSplit(found: false, item: 0, left: tree_id, right: ft_empty_tree(ctx, tree.level.usize()))
+    if tree.kind == 1:
+        item_measure: FtMeasure = ft_add_measure(accumulated, ft_reference_measure(ctx, tree.prefix[0]))
+        if ft_predicate(mode, target, item_measure):
+            empty_left: i32 = ft_empty_tree(ctx, tree.level.usize())
+            empty_right: i32 = ft_empty_tree(ctx, tree.level.usize())
+            return FtSplit(found: true, item: tree.prefix[0], left: empty_left, right: empty_right)
+        empty_right: i32 = ft_empty_tree(ctx, tree.level.usize())
+        return FtSplit(found: false, item: 0, left: tree_id, right: empty_right)
+
+    current: mutable FtMeasure = accumulated
+    for i in 0..<tree.prefix_len.usize():
+        current <- ft_add_measure(current, ft_reference_measure(ctx, tree.prefix[i]))
+        if ft_predicate(mode, target, current):
+            left: i32 = ft_from_items(ctx, tree.level.usize(), tree.prefix[0:i])
+            remaining_prefix: view[i32] = tree.prefix[(i + 1):tree.prefix_len.usize()]
+            right: i32 = ft_deep_left(ctx, tree.level.usize(), remaining_prefix, tree.middle,
+                                      tree.suffix[0:tree.suffix_len.usize()])
+            return FtSplit(found: true, item: tree.prefix[i], left: left, right: right)
+
+    prefix_measure: mutable FtMeasure = accumulated
+    for i in 0..<tree.prefix_len.usize():
+        prefix_measure <- ft_add_measure(prefix_measure, ft_reference_measure(ctx, tree.prefix[i]))
+    middle_measure: FtMeasure = ft_tree_measure(ctx, tree.middle)
+    through_middle: FtMeasure = ft_add_measure(prefix_measure, middle_measure)
+    if ft_predicate(mode, target, through_middle):
+        middle_split: FtSplit = ft_split_tree(ctx, tree.middle, prefix_measure, mode, target)
+        if not middle_split.found:
+            ctx.failed <- true
+            return FtSplit(found: false, item: 0, left: tree_id,
+                           right: ft_empty_tree(ctx, tree.level.usize()))
+        pivot_node: FtNode = ctx.nodes[(middle_split.item - FT_NODE_BASE).usize()]
+        child_accumulated: mutable FtMeasure = ft_add_measure(
+            prefix_measure, ft_tree_measure(ctx, middle_split.left))
+        before: mutable i32[3]
+        after: mutable i32[3]
+        before_count: mutable usize = 0
+        after_count: mutable usize = 0
+        pivot: mutable i32 = 0
+        found_pivot: mutable bool = false
+        for i in 0..<pivot_node.arity.usize():
+            next_measure: FtMeasure = ft_add_measure(
+                child_accumulated, ft_reference_measure(ctx, pivot_node.child[i]))
+            if not found_pivot and ft_predicate(mode, target, next_measure):
+                pivot <- pivot_node.child[i]
+                found_pivot <- true
+            else if not found_pivot:
+                before[before_count] <- pivot_node.child[i]
+                before_count <- before_count + 1
+                child_accumulated <- next_measure
+            else:
+                after[after_count] <- pivot_node.child[i]
+                after_count <- after_count + 1
+        if not found_pivot:
+            ctx.failed <- true
+            return FtSplit(found: false, item: 0, left: tree_id,
+                           right: ft_empty_tree(ctx, tree.level.usize()))
+        left: i32 = ft_deep_right(ctx, tree.level.usize(),
+            tree.prefix[0:tree.prefix_len.usize()], middle_split.left, before[0:before_count])
+        right: i32 = ft_deep_left(ctx, tree.level.usize(), after[0:after_count],
+            middle_split.right, tree.suffix[0:tree.suffix_len.usize()])
+        return FtSplit(found: true, item: pivot, left: left, right: right)
+
+    current <- through_middle
+    for i in 0..<tree.suffix_len.usize():
+        current <- ft_add_measure(current, ft_reference_measure(ctx, tree.suffix[i]))
+        if ft_predicate(mode, target, current):
+            left: i32 = ft_deep_right(ctx, tree.level.usize(),
+                tree.prefix[0:tree.prefix_len.usize()], tree.middle, tree.suffix[0:i])
+            right: i32 = ft_from_items(ctx, tree.level.usize(),
+                tree.suffix[(i + 1):tree.suffix_len.usize()])
+            return FtSplit(found: true, item: tree.suffix[i], left: left, right: right)
+    FtSplit(found: false, item: 0, left: tree_id, right: ft_empty_tree(ctx, tree.level.usize()))
+
+def ft_item_value(item: i32) -> i64:
+    (-item - 1).i64()
+
+def ft_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def measured_finger_tree_sequence_impl(input: view[i64], output: mutable view[u8],
+        output_capacity: usize, output_is_null: bool) -> i64:
+    input_length: usize = input.len()
+    if input_length < 2 or input_length > FT_MAX_PARSEABLE: return -1
+    initial_length_value: i64 = input[0]
+    if initial_length_value < 0 or initial_length_value > 32: return -1
+    initial_length: usize = initial_length_value.usize()
+    if input_length < initial_length + 2: return -1
+    operation_count_value: i64 = input[initial_length + 1]
+    if operation_count_value < 1 or operation_count_value > FT_MAX_Q.i64(): return -1
+    operation_count: usize = operation_count_value.usize()
+    if input_length != initial_length + 2 + 5 * operation_count or input_length > FT_MAX_INPUT:
+        return -1
+
+    context: mutable FtContext = zeroed
+    roots: mutable FtRoot[FT_MAX_ROOTS] = zeroed
+    root_count: mutable usize = 1
+    tree: mutable i32 = ft_empty_tree(context, 0)
+    for i in 0..<initial_length:
+        value: i64 = input[1 + i]
+        if value < 0 or value > FT_MAX_VALUE: return -1
+        tree <- ft_snoc(context, 0, tree, (-value - 1).i32())
+    if context.failed: return -1
+    initial_measure: FtMeasure = ft_tree_measure(context, tree)
+    if initial_measure.count > FT_MAX_LENGTH or initial_measure.sum > FT_MAX_SUM: return -1
+    roots[0] <- FtRoot(tree: tree, length: initial_measure.count, sum: initial_measure.sum)
+
+    records: mutable i64[FT_MAX_Q * 7] = zeroed
+    cursor: mutable usize = initial_length + 2
+    for operation in 0..<operation_count:
+        tag: i64 = input[cursor]
+        a_value: i64 = input[cursor + 1]
+        b_value: i64 = input[cursor + 2]
+        x: i64 = input[cursor + 3]
+        y: i64 = input[cursor + 4]
+        cursor <- cursor + 5
+        if tag < 0 or tag > 6 or a_value < 0 or a_value >= root_count.i64() or
+           root_count >= FT_MAX_ROOTS: return -1
+        a: usize = a_value.usize()
+        source: i32 = roots[a].tree
+        result: mutable i32 = 0
+        result_right: mutable i32 = 0
+        right_root: mutable i64 = -1
+        auxiliary: mutable i64 = -1
+        has_right: mutable bool = false
+
+        if tag == 0 or tag == 1:
+            if b_value != -1 or y != -1 or x < 0 or x > FT_MAX_VALUE or
+               roots[a].length >= FT_MAX_LENGTH or roots[a].sum + x > FT_MAX_SUM: return -1
+            item: i32 = (-x - 1).i32()
+            if tag == 0:
+                result <- ft_cons(context, 0, item, source)
+            else:
+                result <- ft_snoc(context, 0, source, item)
+        else if tag == 2 or tag == 3:
+            if b_value != -1 or x != -1 or y != -1 or roots[a].length == 0: return -1
+            view_result: FtView = if tag == 2:
+                ft_view_left(context, 0, source)
+            else:
+                ft_view_right(context, 0, source)
+            if not view_result.found: return -1
+            result <- view_result.tree
+            auxiliary <- ft_item_value(view_result.item)
+        else if tag == 4:
+            if b_value < 0 or b_value >= root_count.i64() or x != -1 or y != -1: return -1
+            b: usize = b_value.usize()
+            if roots[a].length + roots[b].length > FT_MAX_LENGTH or
+               roots[a].sum + roots[b].sum > FT_MAX_SUM: return -1
+            empty_bridge: mutable i32[1]
+            result <- ft_append3(context, 0, source, empty_bridge[0:0], roots[b].tree)
+        else:
+            if b_value != -1 or y != -1: return -1
+            mode: u8 = 0 if tag == 5 else 1
+            if (tag == 5 and (x < 0 or x > roots[a].length.i64())) or
+               (tag == 6 and (x < 1 or x > FT_MAX_SUM)): return -1
+            split: FtSplit = ft_split_tree(context, source, FtMeasure(count: 0, sum: 0), mode, x)
+            if split.found:
+                if tag == 5:
+                    result <- split.left
+                    result_right <- ft_cons(context, 0, split.item, split.right)
+                    auxiliary <- x
+                else:
+                    result <- ft_snoc(context, 0, split.left, split.item)
+                    result_right <- split.right
+                    auxiliary <- ft_tree_measure(context, result).count.i64()
+            else:
+                result <- source
+                result_right <- ft_empty_tree(context, 0)
+                auxiliary <- x if tag == 5 else -1
+            has_right <- true
+
+        if context.failed: return -1
+        left_measure: FtMeasure = ft_tree_measure(context, result)
+        if left_measure.count > FT_MAX_LENGTH or left_measure.sum > FT_MAX_SUM: return -1
+        left_root_id: usize = root_count
+        roots[root_count] <- FtRoot(tree: result, length: left_measure.count, sum: left_measure.sum)
+        root_count <- root_count + 1
+        right_length: i64 = -1
+        right_sum: i64 = -1
+        if has_right:
+            if root_count >= FT_MAX_ROOTS: return -1
+            right_measure: FtMeasure = ft_tree_measure(context, result_right)
+            if right_measure.count > FT_MAX_LENGTH or right_measure.sum > FT_MAX_SUM: return -1
+            right_root <- root_count.i64()
+            right_length <- right_measure.count.i64()
+            right_sum <- right_measure.sum
+            roots[root_count] <- FtRoot(tree: result_right,
+                length: right_measure.count, sum: right_measure.sum)
+            root_count <- root_count + 1
+        record: usize = operation * 7
+        records[record] <- left_root_id.i64()
+        records[record + 1] <- left_measure.count.i64()
+        records[record + 2] <- left_measure.sum
+        records[record + 3] <- right_root
+        records[record + 4] <- right_length
+        records[record + 5] <- right_sum
+        records[record + 6] <- auxiliary
+
+    required: usize = 56 * operation_count
+    if output_is_null or output_capacity < required or output.len() < required: return -2
+    staged: mutable u8[FT_MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:required]
+    for i in 0..<operation_count * 7:
+        ft_write_i64(staged_view, 8 * i, records[i])
+    for i in 0..<required:
+        output[i] <- staged[i]
+    required.i64()
+
+export fn measured_finger_tree_sequence(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length > FT_MAX_PARSEABLE: return -1
+    values: view[i64] = input[0:input_length]
+    if output.is_null():
+        empty_output: mutable u8[1] = zeroed
+        return measured_finger_tree_sequence_impl(values, empty_output[0:1], output_capacity, true)
+    output_extent: usize = output_capacity if output_capacity < FT_MAX_OUTPUT else FT_MAX_OUTPUT
+    result_output: mutable view[u8] = output[0:output_extent]
+    measured_finger_tree_sequence_impl(values, result_output, output_capacity, false)

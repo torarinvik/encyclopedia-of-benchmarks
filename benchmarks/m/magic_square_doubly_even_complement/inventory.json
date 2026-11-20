@@ -1,0 +1,22 @@
+{
+  "algorithm": "magic_square_doubly_even_complement",
+  "abi": "scalar_call",
+  "function_symbol": "magic_square_doubly_even_complement",
+  "source_url": "https://archive.lib.msu.edu/crcmath/math/math/m/m029.htm",
+  "ports": {
+    "c": "../../../c/m/magic_square_doubly_even_complement.c",
+    "c3": "../../../c3/m/magic_square_doubly_even_complement.c3",
+    "cpp": "../../../cpp/m/magic_square_doubly_even_complement.cpp",
+    "elisa": "../../../elisa/m/magic_square_doubly_even_complement.elisa",
+    "mojo": "../../../mojo/m/magic_square_doubly_even_complement.mojo",
+    "nim": "../../../nim/m/magic_square_doubly_even_complement.nim",
+    "odin": "../../../odin/m/magic_square_doubly_even_complement.odin",
+    "rust": "../../../rust/m/magic_square_doubly_even_complement.rs",
+    "v": "../../../v/m/magic_square_doubly_even_complement.v",
+    "zig": "../../../zig/m/magic_square_doubly_even_complement.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "execution_status": "source-only; no programs, tests, or checks run"
+}

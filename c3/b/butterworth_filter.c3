@@ -59,6 +59,6 @@ fn double butterworth_filter(long* values, usz length) @export("butterworth_filt
     } else {
         b0 = alpha; b1 = 0.0; b2 = -alpha;
     }
-    double output[6] = {a0, a1, a2, b0, b1, b2};
+    double[6] output = {a0, a1, a2, b0, b1, b2};
     return output[coefficient_index];
 }

@@ -12,7 +12,7 @@ fn long dice_throw(long* values, usz length) @export("dice_throw") {
     if (faces < 1 || faces > MAX_FACES || dice < 1 || dice > MAX_DICE || target < 0 || target > MAX_TARGET)
         return -1;
 
-    long[9][65] table;
+    long[65][9] table;
     for (long i = 0; i <= MAX_DICE; i++) {
         for (long j = 0; j <= MAX_TARGET; j++) table[i][j] = 0;
     }

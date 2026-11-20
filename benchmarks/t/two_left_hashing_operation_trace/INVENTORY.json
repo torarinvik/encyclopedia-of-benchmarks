@@ -1,0 +1,24 @@
+{
+  "algorithm": "two_left_hashing_operation_trace",
+  "abi": "i64_array_bytes_output",
+  "sources": [
+    "c/t/two_left_hashing_operation_trace.c",
+    "c3/t/two_left_hashing_operation_trace.c3",
+    "cpp/t/two_left_hashing_operation_trace.cpp",
+    "elisa/t/two_left_hashing_operation_trace.elisa",
+    "mojo/t/two_left_hashing_operation_trace.mojo",
+    "nim/t/two_left_hashing_operation_trace.nim",
+    "odin/t/two_left_hashing_operation_trace.odin",
+    "rust/t/two_left_hashing_operation_trace.rs",
+    "v/t/two_left_hashing_operation_trace.v",
+    "zig/t/two_left_hashing_operation_trace.zig"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "artifacts": ["README.md", "RIGHTS.md", "workload.json", "verify_workload.py", "check_inventory.py", "INVENTORY.md"],
+  "maximum_valid_input_words": 161,
+  "maximum_parseable_input_words": 162,
+  "maximum_output_bytes": 640,
+  "workspace_bytes": 2048,
+  "static_checker": "benchmarks/t/two_left_hashing_operation_trace/check_inventory.py",
+  "suite_integration": "i64_array_bytes_output runner and verifier registered"
+}

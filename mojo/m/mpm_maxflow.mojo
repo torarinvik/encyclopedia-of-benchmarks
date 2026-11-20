@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 
@@ -134,9 +135,9 @@ fn mpm_maxflow(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t) ab
         if level[sink] < 0:
             break
 
-        var incoming = InlineArray[Int64, MAX_VERTICES]()
-        var outgoing = InlineArray[Int64, MAX_VERTICES]()
-        var active = InlineArray[Bool, MAX_VERTICES * MAX_VERTICES]()
+        var incoming = InlineArray[Int64, MAX_VERTICES](fill=0)
+        var outgoing = InlineArray[Int64, MAX_VERTICES](fill=0)
+        var active = InlineArray[Bool, MAX_VERTICES * MAX_VERTICES](fill=False)
         var alive = InlineArray[Bool, MAX_VERTICES]()
         for vertex in range(n):
             alive[vertex] = level[vertex] >= 0 and level[vertex] <= level[sink]

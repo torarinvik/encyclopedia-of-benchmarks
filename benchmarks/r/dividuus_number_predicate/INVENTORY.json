@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "algorithm": "dividuus_number_predicate",
+  "abi": "i64_array_scalar",
+  "function_symbol": "dividuus_number_predicate",
+  "status": "complete; scalar runner and verifier registered",
+  "suite_integration": "benchmarks/run_i64_array_scalar.py and benchmarks/verify_i64_array_scalar.py",
+  "input": {
+    "encoding": "[n]",
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "n_range": [1, 100000]
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 iff n is divisible by digit sum, digit product, digital root, and multiplicative digital root; else 0",
+    "range": [0, 1],
+    "invalid": -1,
+    "zero_divisor": "false result"
+  },
+  "workspace": {"bytes": 256},
+  "bounds": {
+    "maximum_decimal_digits": 6,
+    "maximum_nonzero_digit_count": 5,
+    "maximum_digit_sum": 45,
+    "maximum_digit_product": 59049,
+    "signed_i64_safe": true
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/r/dividuus_number_predicate.c",
+    "c3/r/dividuus_number_predicate.c3",
+    "cpp/r/dividuus_number_predicate.cpp",
+    "elisa/r/dividuus_number_predicate.elisa",
+    "mojo/r/dividuus_number_predicate.mojo",
+    "nim/r/dividuus_number_predicate.nim",
+    "odin/r/dividuus_number_predicate.odin",
+    "rust/r/dividuus_number_predicate.rs",
+    "v/r/dividuus_number_predicate.v",
+    "zig/r/dividuus_number_predicate.zig"
+  ],
+  "sources": [
+    "https://oeis.org/A118575",
+    "https://mathworld.wolfram.com/DigitalRoot.html",
+    "https://mathworld.wolfram.com/MultiplicativeDigitalRoot.html",
+    "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  ],
+  "discovery_band": "RosettaCodeData score-24 popular-title index"
+}

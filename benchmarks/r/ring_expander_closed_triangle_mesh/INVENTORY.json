@@ -1,0 +1,43 @@
+{
+  "algorithm": "ring_expander_closed_triangle_mesh",
+  "suite_abi": "i64_array_bytes_output",
+  "symbol": "ring_expander_closed_triangle_mesh",
+  "max_valid_input_words": 63,
+  "max_parseable_input_words": 64,
+  "max_output_bytes": 504,
+  "workspace_bytes": 8192,
+  "source_level_peak_accounted_bytes": 5816,
+  "complexity": {
+    "edge_incidence_and_opposite_setup": "O(t+v^2)",
+    "dense_vertex_link_validation": "O(v^3)",
+    "ring_expander_pass": "O(t)",
+    "independent_oracle_opposite_lookup": "O(t^2)"
+  },
+  "primary_oracle": "benchmarks/ring_expander_closed_triangle_mesh_oracle.py",
+  "independent_oracle": "benchmarks/ring_expander_closed_triangle_mesh_verifier_oracle.py",
+  "workload": "workload.json",
+  "static_helpers": {
+    "inventory": "check_inventory.py",
+    "workload": "verify_workload.py"
+  },
+  "rights": "RIGHTS.md",
+  "sources": {
+    "chapter_doi": "10.1007/978-1-4939-2864-4_589",
+    "paper_doi": "10.1145/1964921.1964962",
+    "paper_section": "4.2"
+  },
+  "ports": {
+    "c": "c/r/ring_expander_closed_triangle_mesh.c",
+    "c3": "c3/r/ring_expander_closed_triangle_mesh.c3",
+    "cpp": "cpp/r/ring_expander_closed_triangle_mesh.cpp",
+    "elisa": "elisa/r/ring_expander_closed_triangle_mesh.elisa",
+    "mojo": "mojo/r/ring_expander_closed_triangle_mesh.mojo",
+    "nim": "nim/r/ring_expander_closed_triangle_mesh.nim",
+    "odin": "odin/r/ring_expander_closed_triangle_mesh.odin",
+    "rust": "rust/r/ring_expander_closed_triangle_mesh.rs",
+    "v": "v/r/ring_expander_closed_triangle_mesh.v",
+    "zig": "zig/r/ring_expander_closed_triangle_mesh.zig"
+  },
+  "status": "complete; byte-output runner, verifier, catalog, and Chapter 589 crosswalk registered",
+  "suite_integration": "benchmarks/run_i64_array_bytes_output.py and benchmarks/verify_i64_array_bytes_output.py"
+}

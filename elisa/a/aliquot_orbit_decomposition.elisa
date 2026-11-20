@@ -1,0 +1,92 @@
+const MAX_TERMS = 4097
+const MAX_INPUT = 3
+const MAX_SEED = 100000
+const MAX_VALUE = 100000
+const MAX_TRANSITIONS = 4096
+
+def aliquot_orbit_sum(value: i64) -> i64:
+    if value == 1: return 0
+    total: mutable i64 = 1
+    divisor: mutable i64 = 2
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            total <- total + divisor
+            partner: i64 = value / divisor
+            if partner != divisor: total <- total + partner
+        divisor <- divisor + 1
+    total
+
+def aliquot_orbit_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.bitcast[u64]()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def aliquot_orbit_impl(input: view[i64], words: mutable view[i64]) -> i64:
+    if input.len() != 2: return -1
+    seed: i64 = input[0]
+    max_transitions: i64 = input[1]
+    if seed < 1 or seed > MAX_SEED or max_transitions < 1 or max_transitions > MAX_TRANSITIONS: return -1
+
+    keys: mutable i64[MAX_TERMS] = zeroed
+    first_indices: mutable i64[MAX_TERMS] = zeroed
+    key_count: mutable usize = 0
+    current: mutable i64 = seed
+    transitions: mutable i64 = 0
+    positive_count: mutable i64 = 0
+    while true:
+        if current == 0:
+            words[0] <- 0
+            words[1] <- positive_count
+            words[2] <- 0
+            break
+        low: mutable usize = 0
+        high: mutable usize = key_count
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if keys[middle] < current: low <- middle + 1
+            else: high <- middle
+        if low < key_count and keys[low] == current:
+            words[0] <- 1
+            words[1] <- first_indices[low]
+            words[2] <- transitions - first_indices[low]
+            break
+        cursor: mutable usize = key_count
+        while cursor > low:
+            keys[cursor] <- keys[cursor - 1]
+            first_indices[cursor] <- first_indices[cursor - 1]
+            cursor <- cursor - 1
+        keys[low] <- current
+        first_indices[low] <- transitions
+        key_count <- key_count + 1
+        positive_count <- positive_count + 1
+        if transitions >= max_transitions:
+            words[0] <- -3
+            words[1] <- transitions
+            words[2] <- current
+            break
+        next_value: i64 = aliquot_orbit_sum(current)
+        transitions <- transitions + 1
+        if next_value > MAX_VALUE:
+            words[0] <- -2
+            words[1] <- transitions
+            words[2] <- next_value
+            break
+        current <- next_value
+
+    24
+
+export fn aliquot_orbit_decomposition(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
+    words: mutable i64[3] = zeroed
+    result: i64 = aliquot_orbit_impl(input[0:length], words[0:3])
+    if result < 0: return result
+    if output.is_null() or capacity < 24: return -2
+    result_view: mutable view[u8] = output[0:24]
+    word: usize = 0
+    while word < 3:
+        aliquot_orbit_store_i64(result_view, word * 8, words[word])
+        word <- word + 1
+    24

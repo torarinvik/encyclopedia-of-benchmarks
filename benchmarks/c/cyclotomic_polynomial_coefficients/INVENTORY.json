@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "algorithm": "cyclotomic_polynomial_coefficients",
+  "function_symbol": "cyclotomic_polynomial_coefficients",
+  "abi": "i64_array_bytes_output",
+  "status": "package and shared runner/catalog integration complete",
+  "sources": [
+    {
+      "title": "Cyclotomic polynomials",
+      "url": "https://encyclopediaofmath.org/wiki/Cyclotomic_polynomials",
+      "role": "recursive definition and Möbius product identity"
+    },
+    {
+      "title": "Calculating Cyclotomic Polynomials",
+      "authors": ["Andrew Arnold", "Michael Monagan"],
+      "doi": "10.1090/S0025-5718-2011-02467-1",
+      "url": "https://doi.org/10.1090/S0025-5718-2011-02467-1",
+      "role": "recursive polynomial-division algorithm and alternative constructions"
+    },
+    {
+      "title": "RosettaCodeData popular task index at pinned revision",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+      "role": "title discovery only"
+    }
+  ],
+  "input": {
+    "encoding": "[n]",
+    "n_range": [1, 32],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2
+  },
+  "output": {
+    "encoding": "ascending-degree coefficients of Phi_n as little-endian signed-i64 words",
+    "maximum_bytes": 248,
+    "success_result": "8*(phi(n)+1)",
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Fixed polynomial cache, degree table, divisor/product/remainder scratch, Elisa staging, and scalar state; caller buffers excluded."
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/c/cyclotomic_polynomial_coefficients.c",
+    "c3/c/cyclotomic_polynomial_coefficients.c3",
+    "cpp/c/cyclotomic_polynomial_coefficients.cpp",
+    "elisa/c/cyclotomic_polynomial_coefficients.elisa",
+    "mojo/c/cyclotomic_polynomial_coefficients.mojo",
+    "nim/c/cyclotomic_polynomial_coefficients.nim",
+    "odin/c/cyclotomic_polynomial_coefficients.odin",
+    "rust/c/cyclotomic_polynomial_coefficients.rs",
+    "v/c/cyclotomic_polynomial_coefficients.v",
+    "zig/c/cyclotomic_polynomial_coefficients.zig"
+  ]
+}

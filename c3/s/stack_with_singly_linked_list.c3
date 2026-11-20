@@ -22,8 +22,8 @@ fn long stack_with_singly_linked_list(long* input, usz length, char* output, usz
     long count_value = input[0];
     if (count_value < 0 || count_value > 64) return -1;
     usz count = (usz)count_value;
-    long opcodes[64] = {0};
-    long arguments[64] = {0};
+    long[64] opcodes = {0};
+    long[64] arguments = {0};
     usz cursor = 1;
     for (usz i = 0; i < count; i++) {
         if (cursor >= length) return -1;
@@ -40,10 +40,10 @@ fn long stack_with_singly_linked_list(long* input, usz length, char* output, usz
     }
     if (cursor != length) return -1;
 
-    long node_values[65] = {0};
-    usz next_ids[65] = {0};
+    long[65] node_values = {0};
+    usz[65] next_ids = {0};
     usz node_count = 0, head = 0, written = 0;
-    char buffer[1536] = {0};
+    char[1536] buffer = {0};
     for (usz i = 0; i < count; i++) {
         long opcode = opcodes[i];
         long tag = 2, value = 0;
@@ -54,7 +54,7 @@ fn long stack_with_singly_linked_list(long* input, usz length, char* output, usz
             head = node_id;
         } else if (opcode == 2 || opcode == 3) {
             if (head == 0) {
-                write_record(buffer, written, opcode, 4, 2);
+                write_record(&buffer[0], written, opcode, 4, 2);
                 written += 24;
                 break;
             }
@@ -67,7 +67,7 @@ fn long stack_with_singly_linked_list(long* input, usz length, char* output, usz
             tag = 0;
             for (usz node = head; node != 0; node = next_ids[node]) value++;
         }
-        write_record(buffer, written, opcode, tag, value);
+        write_record(&buffer[0], written, opcode, tag, value);
         written += 24;
     }
     if (output == null || capacity < written) return -2;

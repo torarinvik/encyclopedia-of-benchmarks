@@ -1,0 +1,33 @@
+{
+  "algorithm": "all_pairs_directed_random_walk_hitting_times",
+  "abi": "i64_array_bytes_output",
+  "sources": [
+    "c/a/all_pairs_directed_random_walk_hitting_times.c",
+    "c3/a/all_pairs_directed_random_walk_hitting_times.c3",
+    "cpp/a/all_pairs_directed_random_walk_hitting_times.cpp",
+    "elisa/a/all_pairs_directed_random_walk_hitting_times.elisa",
+    "mojo/a/all_pairs_directed_random_walk_hitting_times.mojo",
+    "nim/a/all_pairs_directed_random_walk_hitting_times.nim",
+    "odin/a/all_pairs_directed_random_walk_hitting_times.odin",
+    "rust/a/all_pairs_directed_random_walk_hitting_times.rs",
+    "v/a/all_pairs_directed_random_walk_hitting_times.v",
+    "zig/a/all_pairs_directed_random_walk_hitting_times.zig"
+  ],
+  "artifacts": [
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/README.md",
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/RIGHTS.md",
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/INVENTORY.md",
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/INVENTORY.json",
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/workload.json",
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/primary_oracle.py",
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/independent_oracle.py",
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/check_inventory.py",
+    "benchmarks/a/all_pairs_directed_random_walk_hitting_times/verify_workload.py"
+  ],
+  "bounds": {
+    "maximum_valid_input_words": 114,
+    "maximum_parseable_input_words": 115,
+    "maximum_output_bytes": 512,
+    "workspace_bytes": 8192
+  }
+}

@@ -5,7 +5,7 @@ const usz[26] MORSE_LENGTH = {2,4,4,3,1,4,3,4,2,4,3,4,2,2,3,4,4,3,3,1,3,4,3,4,4,
 const char[3] MORSE_SYMBOLS = {'.','-','x'};
 
 fn void make_keyed_alphabet(long* input, usz key_start, usz key_length, char* keyed) {
-	bool seen[26] = {0};
+	bool[26] seen = {};
 	usz count = 0;
 	for (usz i = 0; i < key_length; i++) {
 		long value = input[key_start + i];
@@ -44,12 +44,12 @@ fn long fractionated_morse_cipher(long* input, usz length, char* output, usz out
 			if (value != ' ' && !((value >= 'A' && value <= 'Z') || (value >= 'a' && value <= 'z'))) return -1;
 		} else if (value < 'A' || value > 'Z') return -1;
 	}
-	char keyed[26];
-	make_keyed_alphabet(input, key_start, key_length, keyed);
-	char result[800] = {0};
+	char[26] keyed;
+	make_keyed_alphabet(input, key_start, key_length, &keyed[0]);
+	char[800] result = {};
 	usz result_length = 0;
 	if (mode == 0) {
-		char morse[1300] = {0};
+		char[1300] morse = {};
 		usz morse_length = 0;
 		for (usz i = 0; i < text_length; i++) {
 			if (i != 0) morse[morse_length++] = 'x';
@@ -73,7 +73,7 @@ fn long fractionated_morse_cipher(long* input, usz length, char* output, usz out
 			if (trigram < 26) result[result_length++] = keyed[trigram];
 		}
 	} else {
-		char morse[1300] = {0};
+		char[1300] morse = {};
 		usz morse_length = 0;
 		for (usz i = 0; i < text_length; i++) {
 			usz trigram = 0;
@@ -89,7 +89,7 @@ fn long fractionated_morse_cipher(long* input, usz length, char* output, usz out
 			usz segment_length = i - segment_start;
 			if (segment_length == 0) result[result_length++] = ' ';
 			else {
-				long letter = morse_letter(morse, segment_start, segment_length);
+				long letter = morse_letter(&morse[0], segment_start, segment_length);
 				if (letter < 0) return -1;
 				result[result_length++] = (char)('A' + letter);
 			}

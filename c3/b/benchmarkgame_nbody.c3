@@ -1,6 +1,6 @@
 module benchmarkgame_nbody;
 extern fn double sqrt(double x);
-fn void put_f64(char* out, usz off, double value) { ulong bits=@bitcast(ulong,value); for(usz k=0;k<8;k++){out[off+k]=(char)(bits&255);bits>>=8;} }
+fn void put_f64(char* out, usz off, double value) { ulong bits=bitcast(value,ulong); for(usz k=0;k<8;k++){out[off+k]=(char)(bits&255);bits>>=8;} }
 struct Body { double x,y,z,vx,vy,vz,mass; }
 fn double energy(Body* b) {
     double e=0.0;

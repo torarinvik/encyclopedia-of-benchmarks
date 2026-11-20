@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "forest-fire-synchronous-moore-v1",
+  "algorithm": "forest_fire_synchronous_stochastic_ca",
+  "function_symbol": "forest_fire_synchronous_stochastic_ca",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded synchronous three-state forest-fire automaton with explicit growth and lightning draw tapes.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[rows,cols,steps,10000,growth_threshold,lightning_threshold,board[row-major],growth_draws[step-major,row-major],lightning_draws[step-major,row-major]]",
+    "exact_length": "6 + rows*cols + 2*steps*rows*cols",
+    "maximum_input_length": 1095,
+    "rows_range": [1, 8], "cols_range": [1, 8], "steps_range": [0, 8],
+    "draw_denominator": 10000,
+    "threshold_range": [0, 10000], "draw_range": [0, 9999],
+    "board_states": {"empty": 0, "tree": 1, "burning": 2},
+    "boundary_rule": "Outermost row and column are always empty; they must be empty in the initial board and remain empty.",
+    "invalid_input_result": -1, "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_word_sequence",
+    "encoding": "[steps,(empty_count,tree_count,burning_count)*steps,final_board[row-major]]",
+    "result": "number of output bytes",
+    "null_output_result": -2, "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "maximum_output_words": 89, "maximum_output_bytes": 712
+  },
+  "contract": {
+    "input_length_formula": "6 + cells + 2*steps*cells where cells=rows*cols",
+    "maximum_valid_input_length": 1094, "maximum_parseable_input_length": 1095,
+    "maximum_output_bytes": 712, "maximum_output_words": 89,
+    "workspace_bytes": 192,
+    "workspace_meaning": "Two fixed 64-byte state buffers and a three-entry i64 count buffer; caller-owned input and output are excluded.",
+    "update": "All cells in a generation read only the preceding generation.",
+    "neighborhood": "Eight surrounding Moore neighbors; coordinates outside the rectangle are empty and are not wrapped.",
+    "boundary": "The outermost row and column are required to be empty initially and are forced empty after every generation. A one-row or one-column board therefore consists entirely of fixed empty cells.",
+    "rules": [
+      "Outermost boundary sites remain empty.",
+      "Burning interior sites become empty.",
+      "An interior tree with at least one burning Moore neighbor becomes burning.",
+      "Otherwise an interior tree becomes burning exactly when its lightning draw is less than the lightning threshold.",
+      "An interior empty site becomes a tree exactly when its growth draw is less than the growth threshold."
+    ],
+    "draw_order": "Every step supplies one growth and one lightning value for each row-major cell; each tape is step-major. Values are supplied even where the cell state does not use that draw, including boundary cells.",
+    "count_order": ["empty", "tree", "burning"],
+    "output_encoding": "Little-endian signed-i64 words: step count, three state counts after each step, then the final row-major board.",
+    "invalid_input_result": -1, "null_or_insufficient_output_result": -2,
+    "validation_precedes_output_capacity": true, "errors_write_no_output": true
+  },
+  "workspace": {"bytes": 192, "meaning": "Two 64-cell byte buffers plus one three-entry i64 state-count buffer (152 bytes total, rounded up for scalar and alignment scratch); caller-owned buffers are excluded."},
+  "expected_output_provider": {
+    "module": "primary_oracle.py", "function": "expected_output",
+    "cross_check_module": "independent_oracle.py", "cross_check_function": "expected_output",
+    "evaluation": "compare both references with pinned result and bytes for each case"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "kernel_boundary": "validate the frame, advance synchronous generations from explicit draw tapes, count each generation, and serialize the final board; no RNG or rendering",
+    "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 4
+  },
+  "cases": [
+    {"id": "zero-steps-empty", "input_values": [1,1,0,10000,0,0,0], "input_length": 7, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "00000000000000000000000000000000"},
+    {"id": "single-cell-fixed-empty", "input_values": [1,1,1,10000,10000,10000,0,0,0], "input_length": 9, "output_capacity": 40, "expected_result": 40, "expected_output_hex": "01000000000000000100000000000000000000000000000000000000000000000000000000000000"},
+    {
+      "id": "burning-clears-interior",
+      "input_values": [3,3,1,10000,0,0, 0,0,0,0,2,0,0,0,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0],
+      "input_length": 33, "output_capacity": 104, "expected_result": 104,
+      "expected_output_hex": "0100000000000000090000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "growth-threshold-interior",
+      "input_values": [3,3,1,10000,10000,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,9999,0,0,0,0, 0,0,0,0,0,0,0,0,0],
+      "input_length": 33, "output_capacity": 104, "expected_result": 104,
+      "expected_output_hex": "0100000000000000080000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "lightning-threshold-interior",
+      "input_values": [3,3,1,10000,0,10000, 0,0,0,0,1,0,0,0,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,9999,0,0,0,0],
+      "input_length": 33, "output_capacity": 104, "expected_result": 104,
+      "expected_output_hex": "0100000000000000080000000000000000000000000000000100000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "moore-diagonal-propagation",
+      "input_values": [
+        4,4,1,10000,0,0,
+        0,0,0,0, 0,1,0,0, 0,0,2,0, 0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+      ],
+      "input_length": 54, "output_capacity": 160, "expected_result": 160,
+      "expected_output_hex": "01000000000000000f0000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {"id": "nonempty-boundary", "input_values": [3,3,0,10000,0,0,1,0,0,0,0,0,0,0,0], "input_length": 15, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1,1,0,10000,0,0,0], "input_length": 7, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [1,1,0,10000,0,0,0], "input_length": 7, "output_capacity": 15, "expected_result": -2, "expected_output_hex": "", "capacity_error_result": -2},
+    {"id": "truncated-draw-tapes", "input_values": [3,3,1,10000,0,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0], "input_length": 32, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-state", "input_values": [3,3,0,10000,0,0,0,0,0,0,3,0,0,0,0], "input_length": 15, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "draw-outside-range", "input_values": [3,3,1,10000,0,0, 0,0,0,0,0,0,0,0,0, 10000,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0], "input_length": 33, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing-word", "input_values": [1,1,0,10000,0,0,0,7], "input_length": 8, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

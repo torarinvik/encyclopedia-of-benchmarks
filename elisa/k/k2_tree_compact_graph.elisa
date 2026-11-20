@@ -1,0 +1,191 @@
+const K2_MAX_N: usize = 32
+const K2_MAX_Q: usize = 128
+const K2_MAX_INPUT: usize = 419
+const K2_T_BYTES: usize = 43
+const K2_L_BYTES: usize = 128
+const K2_T_MAX_BITS: usize = 340
+const K2_NODE_CAP: usize = 256
+
+def k2_bit_get(bits: view[u8], index: usize) -> u8:
+    (bits[index / 8] >> (index % 8)) & 1.u8()
+
+def k2_bit_set(bits: mutable view[u8], index: usize) -> void:
+    bits[index / 8] <- bits[index / 8] | (1.u8() << (index % 8))
+
+def k2_block_nonempty(rows: view[i64], n: usize, row_start: usize,
+                      col_start: usize, side: usize) -> bool:
+    mask: u64 = ((1.u64() << side) - 1.u64()) << col_start
+    row: mutable usize = row_start
+    while row < row_start + side:
+        if row < n and (rows[row + 1].u64() & mask) != 0.u64(): return true
+        row <- row + 1
+    false
+
+def k2_build_tree(rows: view[i64], n: usize, t_bits: mutable view[u8],
+        l_bits: mutable view[u8], rank_prefix: mutable view[u16],
+        current_rows: mutable view[u8], current_cols: mutable view[u8],
+        next_rows: mutable view[u8], next_cols: mutable view[u8],
+        t_length: mutable usize&, l_length: mutable usize&, height_out: mutable usize&) -> void:
+    side: mutable usize = 2
+    height: mutable usize = 1
+    while side < n:
+        side <- side * 2
+        height <- height + 1
+    current_count: mutable usize = 1
+    current_side: mutable usize = side
+    t_length <- 0
+    l_length <- 0
+    current_rows[0] <- 0.u8()
+    current_cols[0] <- 0.u8()
+    level: mutable usize = 1
+    while level <= height:
+        child_side: usize = current_side / 2
+        next_count: mutable usize = 0
+        parent: mutable usize = 0
+        while parent < current_count:
+            parent_row: usize = current_rows[parent].usize()
+            parent_col: usize = current_cols[parent].usize()
+            quadrant: mutable usize = 0
+            while quadrant < 4:
+                child_row: usize = parent_row + (quadrant / 2) * child_side
+                child_col: usize = parent_col + (quadrant % 2) * child_side
+                occupied: bool = k2_block_nonempty(rows, n, child_row, child_col, child_side)
+                if level < height:
+                    if occupied:
+                        k2_bit_set(t_bits, t_length)
+                        next_rows[next_count] <- child_row.u8()
+                        next_cols[next_count] <- child_col.u8()
+                        next_count <- next_count + 1
+                    t_length <- t_length + 1
+                else:
+                    if occupied: k2_bit_set(l_bits, l_length)
+                    l_length <- l_length + 1
+                quadrant <- quadrant + 1
+            parent <- parent + 1
+        if level < height:
+            index: mutable usize = 0
+            while index < next_count:
+                current_rows[index] <- next_rows[index]
+                current_cols[index] <- next_cols[index]
+                index <- index + 1
+            current_count <- next_count
+            current_side <- child_side
+        level <- level + 1
+    rank_prefix[0] <- 0.u16()
+    index: mutable usize = 0
+    while index < t_length:
+        rank_prefix[index + 1] <- rank_prefix[index] + k2_bit_get(t_bits, index).u16()
+        index <- index + 1
+    height_out <- height
+
+def k2_edge_query(t_bits: view[u8], l_bits: view[u8], t_length: usize,
+        rank_prefix: view[u16], height: usize, u: usize, v: usize) -> bool:
+    parent: mutable i64 = -1
+    row_start: mutable usize = 0
+    col_start: mutable usize = 0
+    side: mutable usize = 1 << height
+    depth: mutable usize = 0
+    while depth < height:
+        child_side: usize = side / 2
+        row_bit: usize = if u >= row_start + child_side: 1 else: 0
+        col_bit: usize = if v >= col_start + child_side: 1 else: 0
+        quadrant: usize = 2 * row_bit + col_bit
+        child_base: usize = if parent < 0: 0 else: 4 * rank_prefix[parent.usize() + 1].usize()
+        child: usize = child_base + quadrant
+        if row_bit != 0: row_start <- row_start + child_side
+        if col_bit != 0: col_start <- col_start + child_side
+        if child < t_length:
+            if k2_bit_get(t_bits, child) == 0.u8(): return false
+            parent <- child.i64()
+        else:
+            return k2_bit_get(l_bits, child - t_length) != 0.u8()
+        side <- child_side
+        depth <- depth + 1
+    false
+
+def k2_put_i64_le(output: mutable view[u8], offset: usize, value: u64) -> void:
+    bits: mutable u64 = value
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def k2_tree_compact_graph_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > K2_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    if n64 < 1 or n64 > K2_MAX_N.i64() or length < n64.usize() + 2: return -1
+    n: usize = n64.usize()
+    row_limit: u64 = (1.u64() << n) - 1.u64()
+    row: mutable usize = 0
+    while row < n:
+        value: i64 = input[1 + row]
+        if value < 0 or value.u64() > row_limit: return -1
+        row <- row + 1
+    q_index: usize = n + 1
+    q64: i64 = input[q_index]
+    if q64 < 0 or q64 > K2_MAX_Q.i64(): return -1
+    q: usize = q64.usize()
+    if length != n + 2 + 3 * q: return -1
+    query_start: usize = n + 2
+    query: mutable usize = 0
+    while query < q:
+        op: i64 = input[query_start + 3 * query]
+        u: i64 = input[query_start + 3 * query + 1]
+        v: i64 = input[query_start + 3 * query + 2]
+        if u < 0 or u >= n64: return -1
+        if op == 0:
+            if v < 0 or v >= n64: return -1
+        else if op == 1:
+            if v != 0: return -1
+        else:
+            return -1
+        query <- query + 1
+    output_bytes: usize = 8 * (q + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+
+    t_bits_storage: mutable u8[K2_T_BYTES] = zeroed
+    l_bits_storage: mutable u8[K2_L_BYTES] = zeroed
+    rank_storage: mutable u16[K2_T_MAX_BITS + 1] = zeroed
+    current_rows_storage: mutable u8[K2_NODE_CAP] = zeroed
+    current_cols_storage: mutable u8[K2_NODE_CAP] = zeroed
+    next_rows_storage: mutable u8[K2_NODE_CAP] = zeroed
+    next_cols_storage: mutable u8[K2_NODE_CAP] = zeroed
+    t_bits: mutable view[u8] = t_bits_storage[0:K2_T_BYTES]
+    l_bits: mutable view[u8] = l_bits_storage[0:K2_L_BYTES]
+    rank_prefix: mutable view[u16] = rank_storage[0:K2_T_MAX_BITS + 1]
+    current_rows: mutable view[u8] = current_rows_storage[0:K2_NODE_CAP]
+    current_cols: mutable view[u8] = current_cols_storage[0:K2_NODE_CAP]
+    next_rows: mutable view[u8] = next_rows_storage[0:K2_NODE_CAP]
+    next_cols: mutable view[u8] = next_cols_storage[0:K2_NODE_CAP]
+    t_length: mutable usize = 0
+    l_length: mutable usize = 0
+    height: mutable usize = 0
+    k2_build_tree(input, n, t_bits, l_bits, rank_prefix, current_rows,
+        current_cols, next_rows, next_cols, t_length&, l_length&, height&)
+
+    output_view: mutable view[u8] = output[0:capacity]
+    k2_put_i64_le(output_view, 0, q.u64())
+    query <- 0
+    while query < q:
+        op: i64 = input[query_start + 3 * query]
+        u: usize = input[query_start + 3 * query + 1].usize()
+        v: usize = input[query_start + 3 * query + 2].usize()
+        result: mutable u64 = 0
+        if op == 0:
+            if k2_edge_query(t_bits, l_bits, t_length, rank_prefix, height, u, v): result <- 1
+        else:
+            successor: mutable usize = 0
+            while successor < n:
+                if k2_edge_query(t_bits, l_bits, t_length, rank_prefix, height, u, successor):
+                    result <- result | (1.u64() << successor)
+                successor <- successor + 1
+        k2_put_i64_le(output_view, 8 * (query + 1), result)
+        query <- query + 1
+    output_bytes.i64()
+
+export fn k2_tree_compact_graph(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > K2_MAX_INPUT: return -1
+    k2_tree_compact_graph_impl(input[0:length], output, capacity)

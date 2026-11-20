@@ -1,9 +1,9 @@
 module median_of_running_array_byte;
 
-void push_max(int* heap, usz* count, int value) { usz i = count[0]++; while (i > 0 && heap[(i-1)/2] < value) { heap[i] = heap[(i-1)/2]; i = (i-1)/2; } heap[i] = value; }
-int pop_max(int* heap, usz* count) { int result = heap[0], value = heap[--count[0]]; if (count[0] == 0) return result; usz i = 0; while (2*i+1 < count[0]) { usz child = 2*i+1; if (child+1 < count[0] && heap[child+1] > heap[child]) child++; if (heap[child] <= value) break; heap[i] = heap[child]; i = child; } heap[i] = value; return result; }
-void push_min(int* heap, usz* count, int value) { usz i = count[0]++; while (i > 0 && heap[(i-1)/2] > value) { heap[i] = heap[(i-1)/2]; i = (i-1)/2; } heap[i] = value; }
-int pop_min(int* heap, usz* count) { int result = heap[0], value = heap[--count[0]]; if (count[0] == 0) return result; usz i = 0; while (2*i+1 < count[0]) { usz child = 2*i+1; if (child+1 < count[0] && heap[child+1] < heap[child]) child++; if (heap[child] >= value) break; heap[i] = heap[child]; i = child; } heap[i] = value; return result; }
+fn void push_max(int* heap, usz* count, int value) { usz i = count[0]++; while (i > 0 && heap[(i-1)/2] < value) { heap[i] = heap[(i-1)/2]; i = (i-1)/2; } heap[i] = value; }
+fn int pop_max(int* heap, usz* count) { int result = heap[0], value = heap[--count[0]]; if (count[0] == 0) return result; usz i = 0; while (2*i+1 < count[0]) { usz child = 2*i+1; if (child+1 < count[0] && heap[child+1] > heap[child]) child++; if (heap[child] <= value) break; heap[i] = heap[child]; i = child; } heap[i] = value; return result; }
+fn void push_min(int* heap, usz* count, int value) { usz i = count[0]++; while (i > 0 && heap[(i-1)/2] > value) { heap[i] = heap[(i-1)/2]; i = (i-1)/2; } heap[i] = value; }
+fn int pop_min(int* heap, usz* count) { int result = heap[0], value = heap[--count[0]]; if (count[0] == 0) return result; usz i = 0; while (2*i+1 < count[0]) { usz child = 2*i+1; if (child+1 < count[0] && heap[child+1] < heap[child]) child++; if (heap[child] >= value) break; heap[i] = heap[child]; i = child; } heap[i] = value; return result; }
 
 fn long median_of_running_array_byte(int* input, usz length, char* output, usz capacity)
     @export("median_of_running_array_byte") {

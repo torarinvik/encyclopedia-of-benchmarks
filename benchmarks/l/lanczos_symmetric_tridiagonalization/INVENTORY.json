@@ -1,0 +1,53 @@
+{
+  "algorithm": "lanczos_symmetric_tridiagonalization",
+  "function_symbol": "lanczos_symmetric_tridiagonalization",
+  "abi": "float64_slice_io",
+  "sources": {
+    "primary": "NIST DLMF §3.2(vi), Eqs. 3.2.21–3.2.22",
+    "url": "https://dlmf.nist.gov/3.2.vi",
+    "role": "Mathematical procedure only"
+  },
+  "native_paths": [
+    "c/l/lanczos_symmetric_tridiagonalization.c",
+    "c3/l/lanczos_symmetric_tridiagonalization.c3",
+    "cpp/l/lanczos_symmetric_tridiagonalization.cpp",
+    "elisa/l/lanczos_symmetric_tridiagonalization.elisa",
+    "mojo/l/lanczos_symmetric_tridiagonalization.mojo",
+    "nim/l/lanczos_symmetric_tridiagonalization.nim",
+    "odin/l/lanczos_symmetric_tridiagonalization.odin",
+    "rust/l/lanczos_symmetric_tridiagonalization.rs",
+    "v/l/lanczos_symmetric_tridiagonalization.v",
+    "zig/l/lanczos_symmetric_tridiagonalization.zig"
+  ],
+  "contract": {
+    "input_encoding": "[n,k,A_row_major]",
+    "initial_vector": "e_1, the normalized first coordinate vector",
+    "matrix_order_range": [1, 4],
+    "steps_range": "1<=k<=n",
+    "matrix_entry_domain": "exact integer-valued binary64 entries in [-4,4]",
+    "symmetry": "exact",
+    "maximum_valid_input_length": 18,
+    "maximum_parseable_input_length": 19,
+    "output_encoding": "[k,alpha_1..alpha_k,beta_2..beta_k]",
+    "maximum_output_elements": 8,
+    "workspace_output_elements": 8,
+    "workspace_bytes": 64,
+    "primary_scratch_cap_bytes": 256,
+    "malformed_result": -1,
+    "output_error_result": -2,
+    "breakdown_result": -3,
+    "breakdown_threshold": "2^-40",
+    "exact_nonzero_beta_lower_bound": "1/256",
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "references": {
+    "primary": "DLMF three-term recurrence",
+    "independent": "Krylov powers, two-pass modified Gram-Schmidt, and Q^T A Q projection"
+  },
+  "artifacts": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py", "__init__.py"
+  ]
+}

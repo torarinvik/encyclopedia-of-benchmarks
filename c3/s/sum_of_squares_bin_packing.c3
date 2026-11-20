@@ -1,11 +1,11 @@
 module sum_of_squares_bin_packing;
 
-fn void put_i64(uint8* output, usz word, long value) {
+fn void put_i64(char* output, usz word, long value) {
     ulong bits = (ulong)value;
-    for (usz b = 0; b < 8; b++) output[word * 8 + b] = (uint8)(bits >> (8 * b));
+    for (usz b = 0; b < 8; b++) output[word * 8 + b] = (char)(bits >> (8 * b));
 }
 
-fn long sum_of_squares_bin_packing(long* input, usz length, uint8* output, usz output_capacity)
+fn long sum_of_squares_bin_packing(long* input, usz length, char* output, usz output_capacity)
     @export("sum_of_squares_bin_packing") {
     if (input == null || length < 2 || length > 66) return -1;
     long capacity0 = input[0], n0 = input[1];

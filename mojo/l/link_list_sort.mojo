@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn sort_merge(mut a:InlineArray[Int32,128],mut tmp:InlineArray[Int32,128],start:Int,end:Int):

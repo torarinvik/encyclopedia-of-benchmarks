@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import MutAnyOrigin,UnsafePointer
 fn rpq_next(mut state:UInt64)->UInt64:

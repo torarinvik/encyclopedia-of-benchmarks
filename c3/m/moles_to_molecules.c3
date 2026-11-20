@@ -8,7 +8,7 @@ fn double parse_scientific_four(double value) {
     int decimal_exponent = 0;
     while (normalized >= 10.0) { normalized /= 10.0; decimal_exponent++; }
     while (normalized < 1.0) { normalized *= 10.0; decimal_exponent--; }
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     ulong fraction = bits & ((1ul << 52) - 1);
     int exponent_bits = (int)((bits >> 52) & 0x7ff);
     ulong significand = (1ul << 52) | fraction;

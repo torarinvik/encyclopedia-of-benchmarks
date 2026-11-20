@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 # The 100 fixed 50-digit values from the pinned Project Euler dataset.
 comptime NUMBER_DIGITS: InlineArray[Int64, 5000] = [
     3, 7, 1, 0, 7, 2, 8, 7, 5, 3, 3, 9, 0, 2, 1, 0, 2, 7, 9, 8,

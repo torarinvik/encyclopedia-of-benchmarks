@@ -1,0 +1,226 @@
+const MAX_QUEUES: usize = 8
+const MAX_OPERATIONS: usize = 64
+const MAX_PARSEABLE_WORDS: usize = 259
+const NIL: i64 = -1
+
+def pagoda_branch_stack(root: i64, right_branch: bool, node_count: usize,
+        leftmost: view[i64], rightmost: view[i64], stack: mutable view[i64]) -> i64:
+    node: mutable i64 = leftmost[root.usize()]
+    if right_branch:
+        node <- rightmost[root.usize()]
+    if node < 0 or node >= node_count.i64():
+        return -1
+    count: mutable usize = 0
+    while count < node_count:
+        stack[count] <- node
+        count <- count + 1
+        if node == root:
+            return count.i64()
+        if right_branch:
+            node <- rightmost[node.usize()]
+        else:
+            node <- leftmost[node.usize()]
+        if node < 0 or node >= node_count.i64():
+            return -1
+    -1
+
+def pagoda_meld(g_root: i64, d_root: i64, node_count: usize, keys: view[i64],
+        leftmost: mutable view[i64], rightmost: mutable view[i64]) -> i64:
+    if g_root < 0:
+        return d_root
+    if d_root < 0:
+        return g_root
+
+    g_branch: mutable i64[MAX_OPERATIONS] = zeroed
+    d_branch: mutable i64[MAX_OPERATIONS] = zeroed
+    g_count: i64 = pagoda_branch_stack(g_root, true, node_count,
+        leftmost, rightmost, g_branch[0:MAX_OPERATIONS])
+    d_count: i64 = pagoda_branch_stack(d_root, false, node_count,
+        leftmost, rightmost, d_branch[0:MAX_OPERATIONS])
+    if g_count < 1 or d_count < 1:
+        return -2
+
+    gi: mutable usize = 0
+    di: mutable usize = 0
+    central: mutable i64 = NIL
+    central_left: mutable i64 = NIL
+    central_right: mutable i64 = NIL
+    while gi < g_count.usize() or di < d_count.usize():
+        take_g: bool = di >= d_count.usize() or
+            (gi < g_count.usize() and keys[g_branch[gi].usize()] > keys[d_branch[di].usize()])
+        node: mutable i64 = NIL
+        kept: mutable i64 = NIL
+        if take_g:
+            node <- g_branch[gi]
+            gi <- gi + 1
+            kept <- leftmost[node.usize()]
+        else:
+            node <- d_branch[di]
+            di <- di + 1
+            kept <- rightmost[node.usize()]
+
+        if central >= 0:
+            if take_g:
+                rightmost[central.usize()] <- node
+                if central_left == central:
+                    leftmost[central.usize()] <- NIL
+                else:
+                    leftmost[central.usize()] <- central_left
+            else:
+                leftmost[central.usize()] <- node
+                if central_right == central:
+                    rightmost[central.usize()] <- NIL
+                else:
+                    rightmost[central.usize()] <- central_right
+
+        new_left: mutable i64 = NIL
+        new_right: mutable i64 = NIL
+        if take_g:
+            if kept < 0:
+                new_left <- node
+            else:
+                new_left <- kept
+            if central >= 0:
+                new_right <- central_right
+            else:
+                new_right <- node
+        else:
+            if central >= 0:
+                new_left <- central_left
+            else:
+                new_left <- node
+            if kept < 0:
+                new_right <- node
+            else:
+                new_right <- kept
+        leftmost[node.usize()] <- new_left
+        rightmost[node.usize()] <- new_right
+        central <- node
+        central_left <- new_left
+        central_right <- new_right
+    central
+
+def pagoda_extract_min(root: i64, node_count: usize, keys: view[i64],
+        leftmost: mutable view[i64], rightmost: mutable view[i64]) -> i64:
+    old_left: i64 = leftmost[root.usize()]
+    old_right: i64 = rightmost[root.usize()]
+    left_child: mutable i64 = NIL
+    right_child: mutable i64 = NIL
+    if old_left != root:
+        node: mutable i64 = old_left
+        steps: mutable usize = 0
+        while node >= 0 and node < node_count.i64() and
+                leftmost[node.usize()] != root and steps < node_count:
+            node <- leftmost[node.usize()]
+            steps <- steps + 1
+        if node < 0 or node >= node_count.i64() or leftmost[node.usize()] != root:
+            return -2
+        left_child <- node
+    if old_right != root:
+        node: mutable i64 = old_right
+        steps: mutable usize = 0
+        while node >= 0 and node < node_count.i64() and
+                rightmost[node.usize()] != root and steps < node_count:
+            node <- rightmost[node.usize()]
+            steps <- steps + 1
+        if node < 0 or node >= node_count.i64() or rightmost[node.usize()] != root:
+            return -2
+        right_child <- node
+
+    if left_child >= 0:
+        leftmost[left_child.usize()] <- old_left
+        if rightmost[left_child.usize()] < 0:
+            rightmost[left_child.usize()] <- left_child
+    if right_child >= 0:
+        rightmost[right_child.usize()] <- old_right
+        if leftmost[right_child.usize()] < 0:
+            leftmost[right_child.usize()] <- right_child
+    new_root: i64 = pagoda_meld(right_child, left_child, node_count, keys, leftmost, rightmost)
+    leftmost[root.usize()] <- NIL
+    rightmost[root.usize()] <- NIL
+    new_root
+
+def pagoda_meldable_priority_queue_impl(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > MAX_PARSEABLE_WORDS:
+        return -1
+    queue_value: i64 = values[0]
+    operation_value: i64 = values[1]
+    if queue_value < 1 or queue_value > MAX_QUEUES.i64() or
+            operation_value < 0 or operation_value > MAX_OPERATIONS.i64() or
+            values.len() != 2 + 4 * operation_value.usize() or values.len() > 258:
+        return -1
+    queue_count: usize = queue_value.usize()
+    operation_count: usize = operation_value.usize()
+
+    keys: mutable i64[MAX_OPERATIONS] = zeroed
+    leftmost: mutable i64[MAX_OPERATIONS] = zeroed
+    rightmost: mutable i64[MAX_OPERATIONS] = zeroed
+    roots: mutable i64[MAX_QUEUES] = zeroed
+    index: mutable usize = 0
+    while index < MAX_OPERATIONS:
+        leftmost[index] <- NIL
+        rightmost[index] <- NIL
+        index <- index + 1
+    index <- 0
+    while index < MAX_QUEUES:
+        roots[index] <- NIL
+        index <- index + 1
+
+    node_count: mutable usize = 0
+    result: mutable i64 = 0
+    operation_index: mutable usize = 0
+    while operation_index < operation_count:
+        offset: usize = 2 + 4 * operation_index
+        opcode: i64 = values[offset]
+        first: i64 = values[offset + 1]
+        second: i64 = values[offset + 2]
+        priority: i64 = values[offset + 3]
+        if opcode == 1:
+            if first < 0 or first >= queue_count.i64() or second != 0 or
+                    priority < -1000 or priority > 1000 or node_count >= MAX_OPERATIONS:
+                return -1
+            index <- 0
+            while index < node_count:
+                if keys[index] == priority:
+                    return -1
+                index <- index + 1
+            node: i64 = node_count.i64()
+            node_count <- node_count + 1
+            keys[node.usize()] <- priority
+            leftmost[node.usize()] <- node
+            rightmost[node.usize()] <- node
+            merged: i64 = pagoda_meld(roots[first.usize()], node, node_count,
+                keys[0:MAX_OPERATIONS], leftmost[0:MAX_OPERATIONS], rightmost[0:MAX_OPERATIONS])
+            if merged < 0:
+                return -1
+            roots[first.usize()] <- merged
+        elif opcode == 2:
+            if first < 0 or first >= queue_count.i64() or second < 0 or second >= queue_count.i64() or
+                    first == second or priority != 0:
+                return -1
+            merged: i64 = pagoda_meld(roots[first.usize()], roots[second.usize()], node_count,
+                keys[0:MAX_OPERATIONS], leftmost[0:MAX_OPERATIONS], rightmost[0:MAX_OPERATIONS])
+            if merged == -2:
+                return -1
+            roots[first.usize()] <- merged
+            roots[second.usize()] <- NIL
+        elif opcode == 3 or opcode == 4:
+            if first < 0 or first >= queue_count.i64() or second != 0 or priority != 0 or roots[first.usize()] < 0:
+                return -1
+            root: i64 = roots[first.usize()]
+            result <- result + (operation_index.i64() + 1) * (keys[root.usize()] + 1001)
+            if opcode == 4:
+                new_root: i64 = pagoda_extract_min(root, node_count, keys[0:MAX_OPERATIONS],
+                    leftmost[0:MAX_OPERATIONS], rightmost[0:MAX_OPERATIONS])
+                if new_root == -2:
+                    return -1
+                roots[first.usize()] <- new_root
+        else:
+            return -1
+        operation_index <- operation_index + 1
+    result
+
+export fn pagoda_meldable_priority_queue(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_WORDS:
+        return -1
+    pagoda_meldable_priority_queue_impl(input[0:length])

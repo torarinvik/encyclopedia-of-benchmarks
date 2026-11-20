@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn mu_orth(g:InlineArray[Float64,16],rows:Int,cols:Int,steps:Int)->InlineArray[Float64,16]:

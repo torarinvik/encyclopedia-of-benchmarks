@@ -1,0 +1,24 @@
+{
+  "algorithm": "blr_linearity_test",
+  "abi": "i64_array_bytes_output",
+  "primary_reference": "primary_oracle.py",
+  "independent_reference": "independent_oracle.py",
+  "workload": "workload.json",
+  "rights": "RIGHTS.md",
+  "checker": "check_inventory.py",
+  "ports": [
+    "c/b/blr_linearity_test.c",
+    "c3/b/blr_linearity_test.c3",
+    "cpp/b/blr_linearity_test.cpp",
+    "elisa/b/blr_linearity_test.elisa",
+    "mojo/b/blr_linearity_test.mojo",
+    "nim/b/blr_linearity_test.nim",
+    "odin/b/blr_linearity_test.odin",
+    "rust/b/blr_linearity_test.rs",
+    "v/b/blr_linearity_test.v",
+    "zig/b/blr_linearity_test.zig"
+  ],
+  "workspace_bytes": 1024,
+  "maximum_input_words": 130,
+  "maximum_output_bytes": 24
+}

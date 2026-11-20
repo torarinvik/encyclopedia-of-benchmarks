@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "algorithm": "chess960_scharnagl_position_unrank",
+  "function_symbol": "chess960_scharnagl_position_unrank",
+  "abi": "i64_array_bytes_output",
+  "native_paths": [
+    "c/c/chess960_scharnagl_position_unrank.c",
+    "c3/c/chess960_scharnagl_position_unrank.c3",
+    "cpp/c/chess960_scharnagl_position_unrank.cpp",
+    "elisa/c/chess960_scharnagl_position_unrank.elisa",
+    "mojo/c/chess960_scharnagl_position_unrank.mojo",
+    "nim/c/chess960_scharnagl_position_unrank.nim",
+    "odin/c/chess960_scharnagl_position_unrank.odin",
+    "rust/c/chess960_scharnagl_position_unrank.rs",
+    "v/c/chess960_scharnagl_position_unrank.v",
+    "zig/c/chess960_scharnagl_position_unrank.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "bounds": {
+    "position_ids": [0, 959],
+    "maximum_batch_size": 960,
+    "maximum_valid_input_length": 961,
+    "maximum_parseable_input_length": 962,
+    "bytes_per_position": 8,
+    "maximum_output_bytes": 7680,
+    "workspace_bytes": 192
+  }
+}

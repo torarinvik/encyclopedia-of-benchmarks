@@ -59,8 +59,8 @@ fn void interpolate_grid(double* coarse, int half, double* fine) {
 fn void vcycle(double* rhs, int side, double* solution) {
     if (side == 2) { stencil(rhs, solution, side, -3.0/8.0, 1.0/32.0, -1.0/64.0, 0.0); return; }
     int half=side/2;
-    double coarse_rhs[CELLS]={0.0}, coarse_solution[CELLS]={0.0};
-    double prolonged[CELLS]={0.0}, applied[CELLS]={0.0}, remaining[CELLS]={0.0}, post[CELLS]={0.0};
+    double[CELLS] coarse_rhs={0.0}, coarse_solution={0.0};
+    double[CELLS] prolonged={0.0}, applied={0.0}, remaining={0.0}, post={0.0};
     restrict_grid(rhs,side,&coarse_rhs[0]);
     vcycle(&coarse_rhs[0],half,&coarse_solution[0]);
     interpolate_grid(&coarse_solution[0],half,&prolonged[0]);
@@ -77,7 +77,7 @@ fn long npb_mg_vcycle(double* input, usz length, double* output, usz capacity) @
     if (itv != itv || trunc(itv) != itv || itv < 1 || itv > 4 || countv != countv || trunc(countv) != countv || countv < 0 || countv > MAX_SOURCES) return -1;
     int iterations=(int)itv, sources=(int)countv;
     if (length != (usz)(2+4*sources)) return -1;
-    double rhs[CELLS]={0.0}; bool seen[CELLS]={false};
+    double[CELLS] rhs={0.0}; bool[CELLS] seen={false};
     for(int s=0;s<sources;s++) {
         usz base=(usz)(2+4*s); double xv=input[base], yv=input[base+1], zv=input[base+2], value=input[base+3];
         if (xv != xv || yv != yv || zv != zv || value != value || trunc(xv)!=xv || trunc(yv)!=yv || trunc(zv)!=zv || xv<0 || xv>=SIDE || yv<0 || yv>=SIDE || zv<0 || zv>=SIDE || value < -4 || value > 4) return -1;
@@ -86,7 +86,7 @@ fn long npb_mg_vcycle(double* input, usz length, double* output, usz capacity) @
         seen[q]=true; rhs[q]=value;
     }
     if (output == null || capacity < 1) return -2;
-    double solution[CELLS]={0.0}, applied[CELLS]={0.0}, residual[CELLS]={0.0}, correction[CELLS]={0.0};
+    double[CELLS] solution={0.0}, applied={0.0}, residual={0.0}, correction={0.0};
     for(int iteration=0;iteration<iterations;iteration++) {
         stencil(&solution[0],&applied[0],SIDE,-8.0/3.0,0.0,1.0/6.0,1.0/12.0);
         for(usz q=0;q<CELLS;q++) residual[q]=rhs[q]-applied[q];

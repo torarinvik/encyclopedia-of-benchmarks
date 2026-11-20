@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("weird_number")
 fn weird_number(n:Int64) abi("C")->Int64:
     if n<0 or n>512:return -1
@@ -6,7 +8,7 @@ fn weird_number(n:Int64) abi("C")->Int64:
     for d in range(1,Int(n)):
         if n%Int64(d)==0:divs[count]=Int64(d);count+=1;sum+=Int64(d)
     if sum<=n:return 0
-    var reachable=InlineArray[Bool,513]();reachable[0]=True
+    var reachable=InlineArray[Bool,513](fill=False);reachable[0]=True
     for i in range(count):
         let d=Int(divs[i])
         for s in range(Int(n),d-1,-1):if reachable[s-d]:reachable[s]=True

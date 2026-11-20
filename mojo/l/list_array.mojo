@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn list_put64(out:UnsafePointer[UInt8,MutAnyOrigin],slot:Int,x:Int64):

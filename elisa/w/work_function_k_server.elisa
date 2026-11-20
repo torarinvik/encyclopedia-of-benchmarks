@@ -57,8 +57,9 @@ def wf_config_distance(a: view[i64], b: view[i64], metric: view[i64], p: usize, 
         q <- q + 1
     best
 
-def work_function_k_server(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("work_function_k_server"):
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+def work_function_k_server_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > MAX_INPUT: return -1
     p64: i64 = input[0]
     k64: i64 = input[1]
     n64: i64 = input[2]
@@ -109,6 +110,7 @@ def work_function_k_server(input: i64&, length: usize, output: mutable u8&, capa
         i <- i + 1
     output_bytes: usize = 8 * (2 + n * k)
     if output.is_null() or capacity < output_bytes: return -2
+    result: mutable view[u8] = output[0:output_bytes]
 
     configs: mutable i64[MAX_CONFIGS * MAX_K] = zeroed
     config_count: mutable usize = 0
@@ -206,6 +208,10 @@ def work_function_k_server(input: i64&, length: usize, output: mutable u8&, capa
         t <- t + 1
     i <- 0
     while i < 2 + n * k:
-        wf_store_i64_le(staged[i], output[0:capacity], 8 * i)
+        wf_store_i64_le(staged[i], result, 8 * i)
         i <- i + 1
     output_bytes.i64()
+
+export fn work_function_k_server(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    work_function_k_server_impl(input[0:length], output, capacity)

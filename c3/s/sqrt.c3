@@ -15,9 +15,9 @@ fn double go_sqrt_f32(double value) @export("go_sqrt_f32") {
     if (value != value || value < MIN_VALUE || value > MAX_VALUE) return -1.0;
     float number = (float)value;
     float x2 = number * 0.5f;
-    uint bits = @bitcast(uint, number);
+    uint bits = bitcast(number, uint);
     bits = 0x5f3759df - (bits >> 1);
-    float inverse_root = @bitcast(float, bits);
+    float inverse_root = bitcast(bits, float);
     inverse_root = newton_step(x2, inverse_root);
     inverse_root = newton_step(x2, inverse_root);
     float root = 1.0f / inverse_root;

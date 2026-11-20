@@ -24,6 +24,7 @@ This package captures the exact matrix method in Nim's `fibonacci_numbers.nim`. 
 | C3 | [`c3/f/fibonacci_matrix.c3`](../../../c3/f/fibonacci_matrix.c3) |
 | C++ | [`cpp/f/fibonacci_matrix.cpp`](../../../cpp/f/fibonacci_matrix.cpp) |
 | Elisa | [`elisa/f/fibonacci_matrix.elisa`](../../../elisa/f/fibonacci_matrix.elisa) |
+| Mojo | [`mojo/f/fibonacci_matrix.mojo`](../../../mojo/f/fibonacci_matrix.mojo) |
 | Nim | [`nim/f/fibonacci_matrix.nim`](../../../nim/f/fibonacci_matrix.nim) |
 | Odin | [`odin/f/fibonacci_matrix.odin`](../../../odin/f/fibonacci_matrix.odin) |
 | Rust | [`rust/f/fibonacci_matrix.rs`](../../../rust/f/fibonacci_matrix.rs) |
@@ -33,3 +34,6 @@ This package captures the exact matrix method in Nim's `fibonacci_numbers.nim`. 
 ## TheAlgorithms source
 
 - Nim [`fibonacciMatrix` in `dynamic_programming/fibonacci_numbers.nim`](https://github.com/TheAlgorithms/Nim/blob/63eec16614b46c91078653e8d3c049fe99ad36b3/dynamic_programming/fibonacci_numbers.nim)
+
+Scalar verifier registration and an independent fast-doubling reference are
+drafted and have not been executed.

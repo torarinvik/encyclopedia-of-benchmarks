@@ -1,0 +1,64 @@
+const PRATT_INVALID_RESULT: i64 = -9223372036854775807 - 1
+const PRATT_MAX_TOKENS: usize = 15
+
+def pratt_parse(input: view[i64], count: usize, position: mutable usize&,
+                invalid: mutable bool&, minimum_binding_power: i64) -> i64:
+    if position >= count:
+        invalid <- true
+        return 0
+    offset: usize = 1 + 2 * position
+    position <- position + 1
+    kind: i64 = input[offset]
+    left: mutable i64 = 0
+    if kind == 1:
+        left <- input[offset + 1]
+    elif kind == 3:
+        left <- -pratt_parse(input, count, position&, invalid&, 25)
+    elif kind == 5:
+        left <- pratt_parse(input, count, position&, invalid&, 0)
+        if invalid or position >= count or input[1 + 2 * position] != 6:
+            invalid <- true
+            return 0
+        position <- position + 1
+    else:
+        invalid <- true
+        return 0
+    if invalid: return 0
+
+    while position < count:
+        operator: i64 = input[1 + 2 * position]
+        binding_power: i64 = -1
+        if operator == 2 or operator == 3: binding_power <- 10
+        elif operator == 4: binding_power <- 20
+        if binding_power < minimum_binding_power: break
+        position <- position + 1
+        right: i64 = pratt_parse(input, count, position&, invalid&, binding_power + 1)
+        if invalid: return 0
+        if operator == 2: left <- left + right
+        elif operator == 3: left <- left - right
+        else: left <- left * right
+    left
+
+def pratt_expression_evaluation_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 32: return PRATT_INVALID_RESULT
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > PRATT_MAX_TOKENS.i64(): return PRATT_INVALID_RESULT
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count: return PRATT_INVALID_RESULT
+    values: view[i64] = input[0:length]
+    for token in 0..<count:
+        kind: i64 = values[1 + 2 * token]
+        payload: i64 = values[2 + 2 * token]
+        if kind == 1:
+            if payload < 0 or payload > 9: return PRATT_INVALID_RESULT
+        elif kind >= 2 and kind <= 6:
+            if payload != 0: return PRATT_INVALID_RESULT
+        else:
+            return PRATT_INVALID_RESULT
+    position: mutable usize = 0
+    invalid: mutable bool = false
+    result: i64 = pratt_parse(values, count, position&, invalid&, 0)
+    if invalid or position != count: return PRATT_INVALID_RESULT
+    result
+
+export fn pratt_expression_evaluation(input: i64&, length: usize) -> i64 = pratt_expression_evaluation_impl

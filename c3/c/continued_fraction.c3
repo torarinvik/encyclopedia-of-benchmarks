@@ -30,7 +30,7 @@ fn long continued_fraction(long* input, usz length, char* output, usz capacity)
     usz bytes = count * 8;
     if (bytes > capacity || output == null) return -2;
     for (usz i = 0; i < count; i++) {
-        ulong bits = @bitcast(ulong, coefficients[i]);
+        ulong bits = bitcast(coefficients[i], ulong);
         for (usz byte = 0; byte < 8; byte++) output[i * 8 + byte] = (char)((bits >> (byte * 8)) & 255);
     }
     return (long)bytes;

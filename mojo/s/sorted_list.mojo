@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn sorted_list_pos(a:InlineArray[Int64,256],count:Int,target:Int64)->(Int,Bool):

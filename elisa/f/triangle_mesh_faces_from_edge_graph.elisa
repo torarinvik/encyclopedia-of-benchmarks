@@ -1,0 +1,184 @@
+const FACE_MAX_VERTICES: usize = 8
+const FACE_MAX_EDGES: usize = 28
+const FACE_MAX_TRIANGLES: usize = 56
+const FACE_MAX_INPUT_WORDS: usize = 59
+const FACE_MAX_OUTPUT_WORDS: usize = 170
+
+struct FaceTriangle:
+    a: usize
+    b: usize
+    c: usize
+    e0: usize
+    e1: usize
+    e2: usize
+    active: bool
+
+def face_select(chosen: usize, triangles: mutable view[FaceTriangle], triangle_count: usize,
+        incidence: mutable view[usize], used: mutable view[usize],
+        staged: mutable view[i64], face_count: mutable usize&) -> void:
+    triangle: FaceTriangle = triangles[chosen]
+    triangles[chosen].active <- false
+    staged[2 + 3 * face_count] <- triangle.a.i64()
+    staged[3 + 3 * face_count] <- triangle.b.i64()
+    staged[4 + 3 * face_count] <- triangle.c.i64()
+    face_count <- face_count + 1
+    saturated: mutable bool[FACE_MAX_EDGES] = zeroed
+    for edge_slot in 0 .. 3:
+        edge: usize = triangle.e0
+        if edge_slot == 1: edge <- triangle.e1
+        else if edge_slot == 2: edge <- triangle.e2
+        incidence[edge] <- incidence[edge] - 1
+        used[edge] <- used[edge] + 1
+        if used[edge] == 2: saturated[edge] <- true
+    for other in 0 .. triangle_count:
+        if not triangles[other].active: continue
+        candidate: FaceTriangle = triangles[other]
+        if saturated[candidate.e0] or saturated[candidate.e1] or saturated[candidate.e2]:
+            triangles[other].active <- false
+            incidence[candidate.e0] <- incidence[candidate.e0] - 1
+            incidence[candidate.e1] <- incidence[candidate.e1] - 1
+            incidence[candidate.e2] <- incidence[candidate.e2] - 1
+
+def face_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0 .. 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def triangle_mesh_faces_from_edge_graph_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > FACE_MAX_INPUT_WORDS: return -1
+    input_view: view[i64] = input[0:length]
+    vertex_word: i64 = input_view[0]
+    edge_word: i64 = input_view[1]
+    if vertex_word < 3 or vertex_word > FACE_MAX_VERTICES.i64() or edge_word < 0 or edge_word > FACE_MAX_EDGES.i64(): return -1
+    vertices: usize = vertex_word.usize()
+    edge_count: usize = edge_word.usize()
+    if edge_count > vertices * (vertices - 1) / 2 or length != 2 + 2 * edge_count: return -1
+
+    edge_index: mutable i64[FACE_MAX_VERTICES * FACE_MAX_VERTICES] = zeroed
+    for slot in 0 .. FACE_MAX_VERTICES * FACE_MAX_VERTICES: edge_index[slot] <- -1
+    vertex_degree: mutable usize[FACE_MAX_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        left_word: i64 = input_view[2 + 2 * edge]
+        right_word: i64 = input_view[3 + 2 * edge]
+        if left_word < 0 or left_word >= vertex_word or right_word < 0 or right_word >= vertex_word or left_word == right_word: return -1
+        left: mutable usize = left_word.usize()
+        right: mutable usize = right_word.usize()
+        if left > right:
+            swap: usize = left
+            left <- right
+            right <- swap
+        matrix_slot: usize = left * FACE_MAX_VERTICES + right
+        if edge_index[matrix_slot] >= 0: return -1
+        edge_index[matrix_slot] <- edge.i64()
+        edge_index[right * FACE_MAX_VERTICES + left] <- edge.i64()
+        vertex_degree[left] <- vertex_degree[left] + 1
+        vertex_degree[right] <- vertex_degree[right] + 1
+        edge <- edge + 1
+
+    triangles: mutable FaceTriangle[FACE_MAX_TRIANGLES] = zeroed
+    triangle_count: mutable usize = 0
+    incidence: mutable usize[FACE_MAX_EDGES] = zeroed
+    a: mutable usize = 0
+    while a < vertices:
+        b: mutable usize = a + 1
+        while b < vertices:
+            c: mutable usize = b + 1
+            while c < vertices:
+                e0_word: i64 = edge_index[a * FACE_MAX_VERTICES + b]
+                e1_word: i64 = edge_index[a * FACE_MAX_VERTICES + c]
+                e2_word: i64 = edge_index[b * FACE_MAX_VERTICES + c]
+                if e0_word >= 0 and e1_word >= 0 and e2_word >= 0:
+                    e0: usize = e0_word.usize()
+                    e1: usize = e1_word.usize()
+                    e2: usize = e2_word.usize()
+                    triangles[triangle_count] <- FaceTriangle(a, b, c, e0, e1, e2, true)
+                    triangle_count <- triangle_count + 1
+                    incidence[e0] <- incidence[e0] + 1
+                    incidence[e1] <- incidence[e1] + 1
+                    incidence[e2] <- incidence[e2] + 1
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+
+    used: mutable usize[FACE_MAX_EDGES] = zeroed
+    staged: mutable i64[FACE_MAX_OUTPUT_WORDS] = zeroed
+    face_count: mutable usize = 0
+    fallback_used: mutable bool = false
+    while true:
+        chosen: mutable usize = triangle_count
+        index: mutable usize = 0
+        while index < triangle_count:
+            triangle: FaceTriangle = triangles[index]
+            if triangle.active and (vertex_degree[triangle.a] == 3 or vertex_degree[triangle.b] == 3 or vertex_degree[triangle.c] == 3):
+                chosen <- index
+                break
+            index <- index + 1
+        if chosen < triangle_count:
+            triangle_view: mutable view[FaceTriangle] = triangles[0:triangle_count]
+            incidence_view: mutable view[usize] = incidence[0:FACE_MAX_EDGES]
+            used_view: mutable view[usize] = used[0:FACE_MAX_EDGES]
+            staged_view: mutable view[i64] = staged[0:FACE_MAX_OUTPUT_WORDS]
+            face_select(chosen, triangle_view, triangle_count, incidence_view, used_view, staged_view, face_count)
+            continue
+
+        forced: mutable bool[FACE_MAX_EDGES] = zeroed
+        edge <- 0
+        while edge < edge_count:
+            forced[edge] <- incidence[edge] > 0 and incidence[edge] == 2 - used[edge]
+            edge <- edge + 1
+        chosen <- triangle_count
+        index <- 0
+        while index < triangle_count:
+            triangle <- triangles[index]
+            if triangle.active and (forced[triangle.e0] or forced[triangle.e1] or forced[triangle.e2]):
+                chosen <- index
+                break
+            index <- index + 1
+        if chosen < triangle_count:
+            triangle_view = triangles[0:triangle_count]
+            incidence_view = incidence[0:FACE_MAX_EDGES]
+            used_view = used[0:FACE_MAX_EDGES]
+            staged_view = staged[0:FACE_MAX_OUTPUT_WORDS]
+            face_select(chosen, triangle_view, triangle_count, incidence_view, used_view, staged_view, face_count)
+            continue
+
+        best_score: mutable usize = 3 * FACE_MAX_TRIANGLES + 1
+        chosen <- triangle_count
+        index <- 0
+        while index < triangle_count:
+            triangle <- triangles[index]
+            if triangle.active:
+                score: usize = incidence[triangle.e0] + incidence[triangle.e1] + incidence[triangle.e2]
+                if score < best_score:
+                    best_score <- score
+                    chosen <- index
+            index <- index + 1
+        if chosen == triangle_count: break
+        fallback_used <- true
+        triangle_view = triangles[0:triangle_count]
+        incidence_view = incidence[0:FACE_MAX_EDGES]
+        used_view = used[0:FACE_MAX_EDGES]
+        staged_view = staged[0:FACE_MAX_OUTPUT_WORDS]
+        face_select(chosen, triangle_view, triangle_count, incidence_view, used_view, staged_view, face_count)
+
+    complete: mutable bool = edge_count > 0
+    edge <- 0
+    while edge < edge_count:
+        if used[edge] != 2: complete <- false
+        edge <- edge + 1
+    staged[0] <- (if complete: 0 else: 2) + (if fallback_used: 1 else: 0)
+    staged[1] <- face_count.i64()
+    output_bytes: usize = (2 + 3 * face_count) * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:capacity]
+    word: mutable usize = 0
+    while word < 2 + 3 * face_count:
+        face_store_i64_le(staged[word], output_view, word * 8)
+        word <- word + 1
+    output_bytes.i64()
+
+export fn triangle_mesh_faces_from_edge_graph(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = triangle_mesh_faces_from_edge_graph_impl

@@ -1,0 +1,68 @@
+def reservoir_x_falling(top: i64, count: usize) -> i64:
+    product: mutable i64 = 1
+    for i in 0..<count: product <- product*(top-i.i64())
+    product
+
+def reservoir_x_gcd(a_value: i64, b_value: i64) -> i64:
+    a: mutable i64 = a_value
+    b: mutable i64 = b_value
+    while b != 0:
+        remainder: mutable i64 = a%b
+        a <- b
+        b <- remainder
+    a
+
+def reservoir_x_solve(input: view[i64], output: mutable view[u8], n: usize, k: usize) -> i64:
+    sample: mutable i64[8] = zeroed
+    for i in 0..<k: sample[i] <- input[2+i]
+    processed: mutable usize = k
+    attempt: mutable usize = 0
+    while processed < n:
+        draw: i64 = input[2+n+2*attempt]
+        slot_draw: i64 = input[2+n+2*attempt+1]
+        attempt <- attempt+1
+        numerator: mutable i64 = reservoir_x_falling(processed.i64(), k)
+        denominator: mutable i64 = reservoir_x_falling(processed.i64()+1, k)
+        divisor: i64 = reservoir_x_gcd(numerator, denominator)
+        numerator <- numerator/divisor
+        denominator <- denominator/divisor
+        max_skip: usize = n-processed-1
+        selected: mutable usize = 0
+        found: mutable bool = false
+        for skip in 0..<(max_skip+1):
+            if numerator*4294967297 <= (draw+1)*denominator:
+                selected <- skip
+                found <- true
+                break
+            if skip < max_skip:
+                top: i64 = (processed+skip+1).i64()
+                numerator <- numerator*(top+1-k.i64())
+                denominator <- denominator*(top+1)
+                divisor <- reservoir_x_gcd(numerator, denominator)
+                numerator <- numerator/divisor
+                denominator <- denominator/divisor
+        if not found: break
+        slot: usize = (slot_draw%k.i64()).usize()
+        sample[slot] <- input[2+processed+selected]
+        processed <- processed+selected+1
+    for i in 0..<k:
+        bits: mutable u64 = sample[i].u64()
+        for j in 0..<8:
+            output[8*i+j] <- (bits&255).u8()
+            bits <- bits>>8
+    (8*k).i64()
+
+export fn reservoir_sampling_algorithm_x(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 49: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 16 or values[1] < 1 or values[1] > 8: return -1
+    n: usize = values[0].usize()
+    k: usize = values[1].usize()
+    if (k&(k-1)) != 0 or k > n or length != 2+n+2*(n-k): return -1
+    for i in 0..<n:
+        if values[2+i] < -1000000 or values[2+i] > 1000000: return -1
+    for i in 2+n..<length:
+        if values[i] < 0 or values[i] > 4294967295: return -1
+    if output.is_null() or capacity < 8*k: return -2
+    output_view: mutable view[u8] = output[0:8*k]
+    reservoir_x_solve(values, output_view, n, k)

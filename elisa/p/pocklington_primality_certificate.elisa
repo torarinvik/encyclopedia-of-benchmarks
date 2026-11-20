@@ -1,0 +1,78 @@
+const POCKLINGTON_MAX_N: i64 = 65535
+const POCKLINGTON_MAX_FACTORS: i64 = 6
+const POCKLINGTON_MAX_EXPONENT: i64 = 16
+const POCKLINGTON_MAX_LENGTH: usize = 22
+
+def gcd_i64(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def is_prime(value: i64) -> bool:
+    if value < 2: return false
+    divisor: mutable i64 = 2
+    while divisor * divisor <= value:
+        if value % divisor == 0: return false
+        if divisor == 2: divisor <- 3
+        else: divisor <- divisor + 2
+    true
+
+def pow_mod(base: i64, exponent_value: i64, modulus: i64) -> i64:
+    result: mutable i64 = 1
+    factor: mutable i64 = base % modulus
+    exponent: mutable i64 = exponent_value
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * factor) % modulus
+        factor <- (factor * factor) % modulus
+        exponent <- exponent / 2
+    result
+
+def verify_certificate(input: view[i64]) -> i64:
+    let length: usize = input.len()
+    if length < 2 or length > POCKLINGTON_MAX_LENGTH: return -1
+    let n: i64 = input[0]
+    let count_value: i64 = input[1]
+    if n < 3 or n > POCKLINGTON_MAX_N or count_value < 1 or count_value > POCKLINGTON_MAX_FACTORS: return -1
+    let count: usize = count_value.usize()
+    if length != 3 + 3 * count: return -1
+
+    factored_part: mutable i64 = 1
+    previous_prime: mutable i64 = 1
+    index: mutable usize = 0
+    while index < count:
+        offset: usize = 2 + 3 * index
+        prime: i64 = input[offset]
+        exponent: i64 = input[offset + 1]
+        witness: i64 = input[offset + 2]
+        if prime <= previous_prime or prime < 2 or exponent < 1 or exponent > POCKLINGTON_MAX_EXPONENT or witness < 1 or witness >= n or not is_prime(prime): return -1
+        previous_prime <- prime
+        power_index: mutable i64 = 0
+        while power_index < exponent:
+            if factored_part > (n - 1) / prime: return -1
+            factored_part <- factored_part * prime
+            power_index <- power_index + 1
+        index <- index + 1
+
+    cofactor: i64 = input[2 + 3 * count]
+    if cofactor < 1 or cofactor >= n or factored_part * cofactor != n - 1: return -1
+    if factored_part * factored_part <= n: return 0
+
+    index <- 0
+    while index < count:
+        offset: usize = 2 + 3 * index
+        prime: i64 = input[offset]
+        witness: i64 = input[offset + 2]
+        if pow_mod(witness, n - 1, n) != 1: return 0
+        reduced: i64 = pow_mod(witness, (n - 1) / prime, n)
+        difference: i64 = (reduced + n - 1) % n
+        if gcd_i64(difference, n) != 1: return 0
+        index <- index + 1
+    1
+
+export fn pocklington_primality_certificate(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > POCKLINGTON_MAX_LENGTH: return -1
+    verify_certificate(input[0:length])

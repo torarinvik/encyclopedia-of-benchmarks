@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "algorithm": "minimum_cost_bipartite_edge_cover_subset_dp",
+  "function_symbol": "minimum_cost_bipartite_edge_cover_subset_dp",
+  "abi": "i64_array_scalar",
+  "languages": {
+    "c": "c/m/minimum_cost_bipartite_edge_cover_subset_dp.c",
+    "c3": "c3/m/minimum_cost_bipartite_edge_cover_subset_dp.c3",
+    "cpp": "cpp/m/minimum_cost_bipartite_edge_cover_subset_dp.cpp",
+    "elisa": "elisa/m/minimum_cost_bipartite_edge_cover_subset_dp.elisa",
+    "mojo": "mojo/m/minimum_cost_bipartite_edge_cover_subset_dp.mojo",
+    "nim": "nim/m/minimum_cost_bipartite_edge_cover_subset_dp.nim",
+    "odin": "odin/m/minimum_cost_bipartite_edge_cover_subset_dp.odin",
+    "rust": "rust/m/minimum_cost_bipartite_edge_cover_subset_dp.rs",
+    "v": "v/m/minimum_cost_bipartite_edge_cover_subset_dp.v",
+    "zig": "zig/m/minimum_cost_bipartite_edge_cover_subset_dp.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "INVENTORY.json", "check_inventory.py"],
+  "static_checker": "check_inventory.py",
+  "contract": {
+    "maximum_valid_input_values": 66,
+    "maximum_parseable_input_values": 67,
+    "maximum_output_bytes": 0,
+    "workspace_bytes": 8192,
+    "maximum_left_vertices": 8,
+    "maximum_right_vertices": 8,
+    "maximum_edge_cost": 1000,
+    "maximum_result": 8000
+  },
+  "source": {
+    "discovery_url": "https://leetcode.com/problems/minimum-cost-to-connect-two-groups-of-points/",
+    "formal_definition_url": "https://www.maths.tcd.ie/EMIS/journals/EJP-ECP/article/view/846.html",
+    "matching_reduction_doi": "10.4230/LIPIcs.SEA.2024.12"
+  }
+}

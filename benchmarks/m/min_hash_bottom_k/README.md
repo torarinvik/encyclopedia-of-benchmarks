@@ -15,8 +15,10 @@ Input is `[n,k,(item_id,rank)[n]]`, with `1<=n<=16`, `1<=k<=8`, unique IDs in
 integers. The valid input maximum is 34 words (35 parseable); output maximum
 is 136 bytes. Invalid input returns `-1`; null output or insufficient capacity
 returns `-2` without writes.
-The bounded sorted-array update takes O(nk) time and O(k) sketch space,
-plus the fixed-size ID-presence mask.
+The bounded sorted-array update takes O(nk) time and O(k) sketch space.
+The C, C3, C++, and Mojo drafts check uniqueness with fixed-size presence
+storage; the other drafts scan earlier input records, adding O(n²) validation
+time without additional variable-size storage.
 
 This is an explicit-rank profile of the bottom-k order statistic and threshold
 update behavior. It omits hash generation, coordinated random-rank guarantees,

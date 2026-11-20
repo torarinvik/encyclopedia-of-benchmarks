@@ -33,4 +33,6 @@ authored workload covers zero-length walks, negative cycles, unreachable parity,
 maximum length, a four-vertex cycle at the maximum length, and malformed input.
 A source inventory checker and draft scalar runner and verifier integration
 includes independent short-walk comparisons, closed-form full-size dense
-graphs, and boundary cases; it is unexecuted.
+graphs, and boundary cases; it is unexecuted. Read-only review found all ten
+ports consistent on min-plus selected-power vector updates, matrix squaring,
+exact edge counts including zero and unreachable cases, and sentinel bounds.

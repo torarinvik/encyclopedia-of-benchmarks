@@ -6,7 +6,7 @@ const double GRAVITY = 9.80665;
 const long OUTPUT_BYTES = 24;
 
 fn long round_cents(double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     long exponent = ((bits >> 52) & 2047).long();
     if (exponent == 0) return 0;
     ulong mantissa = (1ul << 52) | (bits & 4503599627370495ul);
@@ -23,7 +23,7 @@ fn long round_cents(double value) {
 }
 
 fn void store_f64_le(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (char)(bits & 255ul);
         bits >>= 8;

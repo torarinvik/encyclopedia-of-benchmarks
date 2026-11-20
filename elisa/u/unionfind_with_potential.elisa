@@ -26,8 +26,9 @@ def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
 def unionfind_with_potential_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 6 or length > 2 + 4 * MAX_Q: return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
@@ -36,10 +37,10 @@ def unionfind_with_potential_impl(input: i64&, length: usize,
     operation: mutable usize = 0
     while operation < q:
         position: usize = 2 + 4 * operation
-        kind: i64 = input[position]
-        u: i64 = input[position + 1]
-        v: i64 = input[position + 2]
-        x: i64 = input[position + 3]
+        kind: i64 = frame[position]
+        u: i64 = frame[position + 1]
+        v: i64 = frame[position + 2]
+        x: i64 = frame[position + 3]
         if u < 0 or u >= n_value or v < 0 or v >= n_value: return -1
         if kind == 0:
             if x < 0 or x >= MODULUS: return -1
@@ -50,6 +51,7 @@ def unionfind_with_potential_impl(input: i64&, length: usize,
         operation <- operation + 1
     required: usize = 8 * q
     if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
 
     parent: mutable usize[MAX_N] = zeroed
     set_size: mutable usize[MAX_N] = zeroed
@@ -60,10 +62,10 @@ def unionfind_with_potential_impl(input: i64&, length: usize,
     operation <- 0
     while operation < q:
         position: usize = 2 + 4 * operation
-        kind: i64 = input[position]
-        u: usize = input[position + 1].usize()
-        v: usize = input[position + 2].usize()
-        x: i64 = input[position + 3]
+        kind: i64 = frame[position]
+        u: usize = frame[position + 1].usize()
+        v: usize = frame[position + 2].usize()
+        x: i64 = frame[position + 3]
         root_u: usize = find_root(parent[0:MAX_N], difference[0:MAX_N], u)
         root_v: usize = find_root(parent[0:MAX_N], difference[0:MAX_N], v)
         answer: mutable i64 = 0
@@ -82,7 +84,7 @@ def unionfind_with_potential_impl(input: i64&, length: usize,
             difference[root_v] <- normalize(difference[u] - difference[v] - x)
             set_size[root_u] <- set_size[root_u] + set_size[root_v]
             answer <- 1
-        put_i64_le(output[0:capacity], 8 * operation, answer)
+        put_i64_le(output_view, 8 * operation, answer)
         operation <- operation + 1
     required.i64()
 

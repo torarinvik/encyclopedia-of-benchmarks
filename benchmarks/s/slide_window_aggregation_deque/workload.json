@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "nyaan-slide-window-aggregation-deque-i64-array-scalar-v1",
+  "algorithm": "slide_window_aggregation_deque",
+  "function_symbol": "slide_window_aggregation_deque",
+  "abi": "i64_array_scalar",
+  "description": "Two-stack deque aggregation with midpoint rebuilding for noncommutative 2x2 matrix multiplication modulo 97.",
+  "source": {
+    "title": "NyaanNyaan/library slide-window-aggregation-deque.hpp",
+    "authors": ["NyaanNyaan library contributors"],
+    "url": "https://nyaannyaan.github.io/library/data-structure/slide-window-aggregation-deque.hpp.html",
+    "github_url": "https://github.com/NyaanNyaan/library/blob/master/data-structure/slide-window-aggregation-deque.hpp",
+    "license_url": "https://github.com/NyaanNyaan/library/blob/master/LICENSE",
+    "license": "CC0 1.0 Universal; algorithm behavior only, clean-room ports",
+    "algorithm_attribution": "End-oriented partial aggregates with midpoint rebalance when a requested side is empty",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "contract": {
+    "input_encoding": "[q, variable_width_operations...]",
+    "operation_count_range": [0, 32],
+    "operations": {
+      "push_front": "[0,a,b,c,d]",
+      "push_back": "[1,a,b,c,d]",
+      "pop_front": "[2]",
+      "pop_back": "[3]",
+      "query_fold": "[4]"
+    },
+    "matrix_encoding": "row-major 2x2 matrix [[a,b],[c,d]] over Z/97Z",
+    "matrix_entry_range": [0, 96],
+    "fold_order": "front-to-back matrix product",
+    "empty_fold": "2x2 identity matrix",
+    "empty_pop_result": -1,
+    "query_pack": "m00 + 97*m01 + 97^2*m10 + 97^3*m11",
+    "checksum": "sum(query_ordinal*(packed_matrix+1)) for one-based query ordinal",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[q, variable_width_operations...]",
+    "operation_count_range": [0, 32],
+    "maximum_valid_length": 161,
+    "maximum_parseable_length": 162,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "one-based weighted sum of packed query matrices plus one",
+    "result_range": [0, 46743460368],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 5120,
+    "meaning": "Maximum fixed workspace: four 32-element four-word matrix arrays for endpoint items and aggregates plus one 32-element four-word temporary array; Mojo uses packed one-word matrices and 1,280 bytes for these arrays."
+  },
+  "complexity": {
+    "endpoint_push": "O(1) worst case",
+    "endpoint_pop": "O(1) amortized; O(n) when midpoint rebuilding is needed",
+    "aggregate_query": "O(1)",
+    "auxiliary_space": "O(n)",
+    "independent_oracle_time": "O(q*n) direct matrix folds",
+    "independent_oracle_space": "O(n)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/s/slide_window_aggregation_deque/primary_oracle.py",
+  "independent_oracle": "benchmarks/s/slide_window_aggregation_deque/independent_oracle.py",
+  "cases": [
+    {
+      "id": "noncommutative-order-and-both-end-pops",
+      "input_values": [7, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 4, 2, 4, 3, 4],
+      "input_length": 16,
+      "expected_result": 5504375
+    },
+    {
+      "id": "rebalance-empty-front-side",
+      "input_values": [7, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 2, 0, 0, 1, 2, 4, 3, 4],
+      "input_length": 20,
+      "expected_result": 2775662
+    },
+    {
+      "id": "rebalance-empty-back-side",
+      "input_values": [7, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 2, 0, 0, 1, 3, 4, 2, 4],
+      "input_length": 20,
+      "expected_result": 2766253
+    },
+    {
+      "id": "zero-operation-empty-frame",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "empty-deque-identity-query",
+      "input_values": [1, 4],
+      "input_length": 2,
+      "expected_result": 912675
+    },
+    {
+      "id": "maximum-valid-operation-frame",
+      "input_values": [32,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1],
+      "input_length": 161,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum-parseable-trailing-value",
+      "input_values": [32,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+        7],
+      "input_length": 162,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-empty-pop",
+      "input_values": [1, 2],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "matrix-entry-out-of-range",
+      "input_values": [1, 1, 97, 0, 0, 1],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-push-row",
+      "input_values": [1, 0, 1, 0, 1],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "unknown-operation",
+      "input_values": [1, 9],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing-input-word",
+      "input_values": [0, 7],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "operation-count-too-large",
+      "input_values": [33],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

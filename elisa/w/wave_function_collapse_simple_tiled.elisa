@@ -1,0 +1,172 @@
+const MAX_CELLS: usize = 16
+const MAX_TILES: usize = 4
+const MAX_COMPATIBILITY: usize = 16
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 56
+
+def wfc_popcount_small(mask: i64) -> usize:
+    bits: mutable i64 = mask
+    count: mutable usize = 0
+    while bits != 0 |bits, count|:
+        bits <- bits & (bits - 1)
+        count <- count + 1
+    count
+
+def wfc_propagate(domains: mutable view[i64], compatibility: view[i64],
+        width: usize, height: usize, tile_count: usize, start_cell: usize,
+        seed_all: bool) -> bool:
+    cell_count: usize = width * height
+    queue: mutable usize[MAX_CELLS] = zeroed
+    in_queue: mutable bool[MAX_CELLS] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    queued: mutable usize = 0
+    if seed_all:
+        for cell in 0..<cell_count |cell, queue, tail, queued, in_queue|:
+            queue[tail] <- cell
+            tail <- (tail + 1) % cell_count
+            queued <- queued + 1
+            in_queue[cell] <- true
+    else:
+        queue[tail] <- start_cell
+        tail <- (tail + 1) % cell_count
+        queued <- queued + 1
+        in_queue[start_cell] <- true
+
+    while queued != 0 |queue, in_queue, head, tail, queued, cell_count, width, height, tile_count, domains, compatibility|:
+        source: usize = queue[head]
+        head <- (head + 1) % cell_count
+        queued <- queued - 1
+        in_queue[source] <- false
+        row: usize = source / width
+        column: usize = source % width
+        for direction in 0..<4 |direction, row, column, source, width, height, tile_count, domains, compatibility, queue, in_queue, tail, queued, cell_count|:
+            neighbor: mutable usize = 0
+            has_neighbor: mutable bool = false
+            if direction == 0 and row != 0:
+                neighbor <- source - width
+                has_neighbor <- true
+            elif direction == 1 and column + 1 < width:
+                neighbor <- source + 1
+                has_neighbor <- true
+            elif direction == 2 and row + 1 < height:
+                neighbor <- source + width
+                has_neighbor <- true
+            elif direction == 3 and column != 0:
+                neighbor <- source - 1
+                has_neighbor <- true
+            if not has_neighbor:
+                continue
+            supported: mutable i64 = 0
+            for tile in 0..<tile_count |tile, source, domains, compatibility, direction, tile_count, supported|:
+                if (domains[source] & (1.i64() << tile)) != 0:
+                    supported <- supported | compatibility[direction * tile_count + tile]
+            reduced: i64 = domains[neighbor] & supported
+            if reduced == domains[neighbor]:
+                continue
+            domains[neighbor] <- reduced
+            if reduced == 0:
+                return false
+            if not in_queue[neighbor]:
+                queue[tail] <- neighbor
+                tail <- (tail + 1) % cell_count
+                queued <- queued + 1
+                in_queue[neighbor] <- true
+    true
+
+def wave_function_collapse_simple_tiled_impl(values: view[i64]) -> i64:
+    input_length: usize = values.len()
+    if input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    if values[0] < 1 or values[0] > 4 or values[1] < 1 or values[1] > 4 or values[2] < 1 or values[2] > 4:
+        return -1
+    width: usize = values[0].usize()
+    height: usize = values[1].usize()
+    tile_count: usize = values[2].usize()
+    cell_count: usize = width * height
+    if input_length != 3 + 2 * cell_count + 5 * tile_count:
+        return -1
+    full_mask: i64 = (1.i64() << tile_count) - 1
+    domains: mutable i64[MAX_CELLS] = zeroed
+    weights: mutable i64[MAX_TILES] = zeroed
+    compatibility: mutable i64[MAX_COMPATIBILITY] = zeroed
+    draws: mutable i64[MAX_CELLS] = zeroed
+    position: mutable usize = 3
+    for cell in 0..<cell_count |cell, values, position, full_mask, domains|:
+        value: i64 = values[position]
+        if value < 1 or value > full_mask:
+            return -1
+        domains[cell] <- value
+        position <- position + 1
+    for tile in 0..<tile_count |tile, values, position, weights|:
+        value: i64 = values[position]
+        if value < 1 or value > 4:
+            return -1
+        weights[tile] <- value
+        position <- position + 1
+    for direction in 0..<4 |direction, tile_count, values, position, full_mask, compatibility|:
+        for tile in 0..<tile_count |tile, direction, tile_count, values, position, full_mask, compatibility|:
+            value: i64 = values[position]
+            if value < 0 or value > full_mask:
+                return -1
+            compatibility[direction * tile_count + tile] <- value
+            position <- position + 1
+    for cell in 0..<cell_count |cell, values, position, draws|:
+        value: i64 = values[position]
+        if value < 0 or value > 65535:
+            return -1
+        draws[cell] <- value
+        position <- position + 1
+
+    for first in 0..<tile_count |first, tile_count, compatibility|:
+        for second in 0..<tile_count |first, second, tile_count, compatibility|:
+            north: bool = (compatibility[first] & (1.i64() << second)) != 0
+            south_reverse: bool = (compatibility[2 * tile_count + second] & (1.i64() << first)) != 0
+            east: bool = (compatibility[tile_count + first] & (1.i64() << second)) != 0
+            west_reverse: bool = (compatibility[3 * tile_count + second] & (1.i64() << first)) != 0
+            if north != south_reverse or east != west_reverse:
+                return -1
+
+    if not wfc_propagate(domains[0:cell_count], compatibility[0:4 * tile_count], width, height, tile_count, 0, true):
+        return -2
+    while true |cell_count, domains, tile_count, weights, draws, compatibility, width, height|:
+        best_cell: mutable usize = cell_count
+        best_count: mutable usize = MAX_TILES + 1
+        for cell in 0..<cell_count |cell, domains, best_cell, best_count|:
+            count: usize = wfc_popcount_small(domains[cell])
+            if count > 1 and count < best_count:
+                best_cell <- cell
+                best_count <- count
+        if best_cell == cell_count:
+            break
+        total_weight: mutable i64 = 0
+        for tile in 0..<tile_count |tile, domains, best_cell, weights, total_weight|:
+            if (domains[best_cell] & (1.i64() << tile)) != 0:
+                total_weight <- total_weight + weights[tile]
+        rank: mutable i64 = draws[best_cell] * total_weight / 65536
+        selected: mutable usize = tile_count
+        for tile in 0..<tile_count |tile, domains, best_cell, weights, rank, selected|:
+            if (domains[best_cell] & (1.i64() << tile)) == 0:
+                continue
+            if rank < weights[tile]:
+                selected <- tile
+                break
+            rank <- rank - weights[tile]
+        if selected == tile_count:
+            return -2
+        domains[best_cell] <- 1.i64() << selected
+        if not wfc_propagate(domains[0:cell_count], compatibility[0:4 * tile_count], width, height, tile_count, best_cell, false):
+            return -2
+
+    result: mutable i64 = 1.i64() << 32
+    for cell in 0..<cell_count |cell, domains, result|:
+        tile: mutable usize = 0
+        while (domains[cell] & (1.i64() << tile)) == 0 |domains, cell, tile|:
+            tile <- tile + 1
+        result <- result | (tile.i64() << (2 * cell))
+    result
+
+export fn wave_function_collapse_simple_tiled(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    let values: view[i64] = input[0:input_length]
+    wave_function_collapse_simple_tiled_impl(values)

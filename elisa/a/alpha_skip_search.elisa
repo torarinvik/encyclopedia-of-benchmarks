@@ -1,0 +1,105 @@
+const ALPHA_SKIP_MAX_TEXT: usize = 4096
+const ALPHA_SKIP_MAX_PATTERN: usize = 128
+const ALPHA_SKIP_MAX_INPUT_LENGTH: usize = 4227
+const ALPHA_SKIP_MAX_BUCKETS: usize = 64
+
+def alpha_skip_search_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > ALPHA_SKIP_MAX_INPUT_LENGTH:
+        return -1
+    raw_text_length: i64 = input[0]
+    raw_pattern_length: i64 = input[1]
+    if raw_text_length < 0 or raw_text_length > ALPHA_SKIP_MAX_TEXT.i64() or raw_pattern_length < 1 or raw_pattern_length > ALPHA_SKIP_MAX_PATTERN.i64():
+        return -1
+    text_length: usize = raw_text_length.usize()
+    pattern_length: usize = raw_pattern_length.usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+
+    text: mutable u8[ALPHA_SKIP_MAX_TEXT] = zeroed
+    pattern: mutable u8[ALPHA_SKIP_MAX_PATTERN] = zeroed
+    i: mutable usize = 0
+    while i < text_length:
+        symbol: i64 = input[2 + i]
+        if symbol < 0 or symbol > 3:
+            return -1
+        text[i] <- symbol.u8()
+        i <- i + 1
+    i <- 0
+    while i < pattern_length:
+        symbol: i64 = input[2 + text_length + i]
+        if symbol < 0 or symbol > 3:
+            return -1
+        pattern[i] <- symbol.u8()
+        i <- i + 1
+    if text_length < pattern_length:
+        return 0
+
+    factor_length: mutable usize = 1
+    bucket_count: mutable usize = 4
+    while bucket_count * 4 <= pattern_length:
+        factor_length <- factor_length + 1
+        bucket_count <- bucket_count * 4
+    shift: usize = pattern_length - factor_length + 1
+    power: mutable i64 = 1
+    i <- 1
+    while i < factor_length:
+        power <- power * 4
+        i <- i + 1
+
+    heads: mutable i64[ALPHA_SKIP_MAX_BUCKETS] = zeroed
+    next_factor: mutable i64[ALPHA_SKIP_MAX_PATTERN] = zeroed
+    i <- 0
+    while i < bucket_count:
+        heads[i] <- -1
+        i <- i + 1
+    factor_code: mutable i64 = 0
+    i <- 0
+    while i < factor_length:
+        factor_code <- factor_code * 4 + pattern[i].i64()
+        i <- i + 1
+    pattern_position: mutable usize = 0
+    while pattern_position + factor_length <= pattern_length:
+        next_factor[pattern_position] <- heads[factor_code.usize()]
+        heads[factor_code.usize()] <- pattern_position.i64()
+        if pattern_position + factor_length < pattern_length:
+            factor_code <- (factor_code - pattern[pattern_position].i64() * power) * 4 + pattern[pattern_position + factor_length].i64()
+        pattern_position <- pattern_position + 1
+
+    match_count: mutable i64 = 0
+    offset_sum: mutable i64 = 0
+    offset_xor: mutable i64 = 0
+    text_factor_code: mutable i64 = 0
+    i <- 0
+    while i < factor_length:
+        text_factor_code <- text_factor_code * 4 + text[i].i64()
+        i <- i + 1
+    last_factor_start: usize = text_length - factor_length
+    sample_start: mutable usize = 0
+    while sample_start <= last_factor_start:
+        if sample_start % shift == 0:
+            candidate_factor: mutable i64 = heads[text_factor_code.usize()]
+            while candidate_factor >= 0:
+                candidate_start: i64 = sample_start.i64() - candidate_factor
+                if candidate_start >= 0 and candidate_start + raw_pattern_length <= raw_text_length:
+                    compared: mutable usize = 0
+                    matches: mutable bool = true
+                    while compared < pattern_length and matches:
+                        if text[candidate_start.usize() + compared] != pattern[compared]:
+                            matches <- false
+                        compared <- compared + 1
+                    if matches:
+                        match_count <- match_count + 1
+                        offset_sum <- offset_sum + candidate_start
+                        offset_xor <- offset_xor ^ candidate_start
+                candidate_factor <- next_factor[candidate_factor.usize()]
+        if sample_start < last_factor_start:
+            text_factor_code <- (text_factor_code - text[sample_start].i64() * power) * 4 + text[sample_start + factor_length].i64()
+        sample_start <- sample_start + 1
+
+    (match_count << 36) | (offset_sum << 12) | offset_xor
+
+export fn alpha_skip_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > ALPHA_SKIP_MAX_INPUT_LENGTH:
+        return -1
+    input_view: view[i64] = input[0:length]
+    alpha_skip_search_impl(input_view, length)

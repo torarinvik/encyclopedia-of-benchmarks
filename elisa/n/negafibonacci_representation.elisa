@@ -1,0 +1,73 @@
+from std.collections import InlineArray
+
+def nf_encode(value: i64, output: mutable view[u8]) -> usize:
+    fib: mutable InlineArray[i64, 18] = InlineArray[i64, 18](fill=0)
+    weight: mutable InlineArray[i64, 18] = InlineArray[i64, 18](fill=0)
+    low: mutable InlineArray[i64, 18] = InlineArray[i64, 18](fill=0)
+    high: mutable InlineArray[i64, 18] = InlineArray[i64, 18](fill=0)
+    digit: mutable InlineArray[bool, 18] = InlineArray[bool, 18](fill=false)
+    fib[1] <- 1
+    fib[2] <- 1
+    k: mutable usize = 3
+    while k <= 17:
+        fib[k] <- fib[k - 1] + fib[k - 2]
+        k <- k + 1
+    k <- 1
+    while k <= 17:
+        weight[k] <- fib[k]
+        if k % 2 == 0: weight[k] <- -fib[k]
+        k <- k + 1
+    k <- 1
+    while k <= 17:
+        suffix_low: i64 = if k == 1: 0 else: low[k - 2]
+        suffix_high: i64 = if k == 1: 0 else: high[k - 2]
+        with_low: i64 = weight[k] + suffix_low
+        with_high: i64 = weight[k] + suffix_high
+        low[k] <- if low[k - 1] < with_low: low[k - 1] else: with_low
+        high[k] <- if high[k - 1] > with_high: high[k - 1] else: with_high
+        k <- k + 1
+    remaining: mutable i64 = value
+    selected_above: mutable bool = false
+    k <- 17
+    while k > 0:
+        choose: mutable bool = false
+        if not selected_above:
+            suffix_low: i64 = if k == 1: 0 else: low[k - 2]
+            suffix_high: i64 = if k == 1: 0 else: high[k - 2]
+            candidate: i64 = remaining - weight[k]
+            choose <- suffix_low <= candidate and candidate <= suffix_high
+        if choose:
+            digit[k] <- true
+            remaining <- remaining - weight[k]
+        selected_above <- choose
+        k <- k - 1
+    highest: mutable usize = 17
+    while highest > 1 and not digit[highest]: highest <- highest - 1
+    written: mutable usize = 0
+    k <- highest
+    while k > 0:
+        output[written] <- if digit[k]: 49.u8() else: 48.u8()
+        written <- written + 1
+        k <- k - 1
+    written
+
+def nf_solve(input: view[i64], output: mutable view[u8]) -> i64:
+    if input.length != 1 or input[0] < -1000 or input[0] > 1000: return -1
+    nf_encode(input[0], output).i64()
+
+def negafibonacci_representation_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    staged: mutable InlineArray[u8, 17] = InlineArray[u8, 17](fill=0)
+    let required = nf_solve(input, staged[0:17])
+    if required < 0: return required
+    if output.is_null() or capacity < required.usize(): return -2
+    destination: mutable view[u8] = output[0:required.usize()]
+    index: mutable usize = 0
+    while index < required.usize():
+        destination[index] <- staged[index]
+        index <- index + 1
+    required
+
+export fn negafibonacci_representation(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    negafibonacci_representation_impl(input[0:length], output, output_capacity)

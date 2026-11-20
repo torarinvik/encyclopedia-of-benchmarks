@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "glushkov-bit-parallel-regex-search-bounded-v1",
+  "algorithm": "glushkov_bit_parallel_regex_search",
+  "function_symbol": "glushkov_bit_parallel_regex_search",
+  "abi": "i64_array_bytes_output",
+  "description": "Search text endings with an epsilon-free Glushkov position automaton and bit-parallel subset transitions.",
+  "source": {
+    "title": "Regular Expression Matching",
+    "chapter": 340,
+    "chapter_doi": "10.1007/978-1-4939-2864-4_340",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_340",
+    "primary_reference": "Navarro and Raffinot, New Techniques for Regular Expression Searching, Algorithmica 41 (2005), 89-116, doi:10.1007/s00453-004-1123-2",
+    "algorithm_section": "Glushkov position automata and bit-parallel regular-expression searching",
+    "source_license": "Copyright Springer; consulted for algorithm identification and mathematical description only. No prose, examples, figures, or code are reproduced.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, pattern_length, text_bytes..., pattern_bytes...]",
+    "text_length_range": [0, 24],
+    "pattern_length_range": [1, 32],
+    "byte_range": [1, 127],
+    "maximum_symbol_positions": 8,
+    "grammar": "regex := concat ('|' concat)*; concat := repeat+; repeat := atom '*'?; atom := 'a' | 'b' | 'c' | '.' | '(' regex ')'",
+    "semantics": "Dot matches any input byte; star repeats its atom zero or more times; only nonempty matching substrings are reported.",
+    "maximum_valid_length": 58,
+    "maximum_parseable_length": 58,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "One byte per text ending position: 1 if some nonempty matching substring ends there, otherwise 0.",
+    "maximum_bytes": 24,
+    "success_result": "number of bytes written (text length)",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "null_output_requires_nonempty_text": true,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "null_output_allowed_when_output_length_is_zero": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "A 512-entry u16 transition table, 128 byte masks, at most 64 syntax nodes with First/Last/Follow summaries, and bounded parser/output state including recursive parser frames."
+  },
+  "contract": {
+    "operation": "Report whether each text prefix ends with a nonempty substring recognized by the pattern.",
+    "algorithm": "Build the syntax tree, compute nullable/First/Last/Follow sets, construct subset transitions T[S] from Follow sets, and update state as T[state] AND B[current_byte].",
+    "complexity": "O(pattern_length + 2^m + 128m + text_length) time and O(2^m + 128 + m + pattern_length) workspace, for at most m=9 automaton states.",
+    "error_precedence": "Validate the input pointer, exact input length, bounds, byte domain, and complete pattern syntax before validating output pointer/capacity.",
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "alternation-and-star", "input_values": [5, 4, 97, 98, 99, 97, 98, 97, 124, 98, 99], "output_bytes": 5},
+      {"id": "wildcard-over-short-text", "input_values": [3, 1, 97, 98, 99, 46], "output_bytes": 3}
+    ]
+  },
+  "cases": [
+    {"id": "literal-at-several-endings", "input_values": [4, 1, 97, 98, 97, 99, 97], "input_length": 7, "output_capacity": 4, "expected_result": 4, "expected_output_hex": "01000100"},
+    {"id": "alternation-multiple-matches", "input_values": [5, 4, 97, 98, 99, 97, 98, 97, 124, 98, 99], "input_length": 11, "output_capacity": 5, "expected_result": 5, "expected_output_hex": "0100010100"},
+    {"id": "starred-prefix", "input_values": [5, 3, 97, 97, 97, 98, 120, 97, 42, 98], "input_length": 10, "output_capacity": 5, "expected_result": 5, "expected_output_hex": "0000000100"},
+    {"id": "grouped-repetition", "input_values": [5, 7, 97, 98, 99, 99, 120, 40, 97, 98, 124, 99, 41, 42], "input_length": 14, "output_capacity": 5, "expected_result": 5, "expected_output_hex": "0001010100"},
+    {"id": "wildcard-each-byte", "input_values": [3, 1, 97, 98, 99, 46], "input_length": 6, "output_capacity": 3, "expected_result": 3, "expected_output_hex": "010101"},
+    {"id": "empty-match-not-reported", "input_values": [3, 2, 98, 98, 98, 97, 42], "input_length": 7, "output_capacity": 3, "expected_result": 3, "expected_output_hex": "000000"},
+    {"id": "empty-text-null-output", "input_values": [0, 1, 97], "input_length": 3, "output_is_null": true, "output_capacity": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "invalid-empty-alternative", "input_values": [1, 2, 97, 97, 124], "input_length": 5, "output_capacity": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-unmatched-group", "input_values": [1, 2, 97, 40, 97], "input_length": 5, "output_capacity": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-too-many-positions", "input_values": [0, 9, 97, 97, 97, 97, 97, 97, 97, 97, 97], "input_length": 11, "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-byte-domain", "input_values": [1, 1, 0, 97], "input_length": 4, "output_capacity": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "wrong-packed-length", "input_values": [2, 1, 97, 97], "input_length": 4, "output_capacity": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [1, 1, 97, 97], "input_length": 4, "input_is_null": true, "output_capacity": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 1, 97, 97], "input_length": 4, "output_is_null": true, "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [2, 1, 97, 97, 97], "input_length": 5, "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

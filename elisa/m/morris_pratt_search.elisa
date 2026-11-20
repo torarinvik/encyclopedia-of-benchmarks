@@ -1,0 +1,55 @@
+const MAX_TEXT = 4096
+const MAX_PATTERN = 128
+const MAX_INPUT_LENGTH = 4227
+
+def morris_pratt_search_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let raw_n: i64 = input[0]
+    let raw_m: i64 = input[1]
+    if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64():
+        return -1
+    let n: usize = raw_n.usize()
+    let m: usize = raw_m.usize()
+    if length != 2 + n + m:
+        return -1
+    let pattern_start: usize = 2 + n
+    q: mutable usize = 0
+    while q < n + m:
+        if input[2 + q] < 0 or input[2 + q] > 3:
+            return -1
+        q <- q + 1
+
+    mp_next: mutable i64[129] = zeroed
+    mp_next[0] <- -1
+    index: mutable usize = 0
+    while index < m:
+        border: mutable i64 = mp_next[index]
+        while border >= 0 and input[pattern_start + index] != input[pattern_start + border.usize()]:
+            border <- mp_next[border.usize()]
+        mp_next[index + 1] <- border + 1
+        index <- index + 1
+
+    matched: mutable i64 = 0
+    count: mutable i64 = 0
+    offset_sum: mutable i64 = 0
+    offset_xor: mutable i64 = 0
+    text_index: mutable usize = 0
+    while text_index < n:
+        while matched >= 0 and input[pattern_start + matched.usize()] != input[2 + text_index]:
+            matched <- mp_next[matched.usize()]
+        matched <- matched + 1
+        if matched == m.i64():
+            start: i64 = (text_index + 1).i64() - matched
+            count <- count + 1
+            offset_sum <- offset_sum + start
+            offset_xor <- offset_xor ^ start
+            matched <- mp_next[m]
+        text_index <- text_index + 1
+    (count << 36) | (offset_sum << 12) | offset_xor
+
+export fn morris_pratt_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let input_view: view[i64] = input[0:length]
+    morris_pratt_search_impl(input_view, length)

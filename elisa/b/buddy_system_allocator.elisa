@@ -1,0 +1,116 @@
+from std.collections import List
+
+const ARENA: usize = 256
+const MAX_ORDER: usize = 8
+const MAX_OPS: usize = 64
+const MAX_IDS: usize = 32
+const MAX_INPUT_WORDS: usize = 194
+const MAX_OUTPUT_WORDS: usize = 3 * MAX_OPS + 1 + 2 * ARENA
+
+export fn buddy_system_allocator(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_WORDS: return -1
+    values: view[i64] = input[0:length]
+    let raw_count = values[0]
+    if raw_count < 0 or raw_count > 64 or length != 1 + 3 * raw_count.usize(): return -1
+    let count = raw_count.usize()
+
+    var free_blocks = List[Bool](capacity=(MAX_ORDER + 1) * ARENA)
+    var active = List[Bool](capacity=MAX_IDS)
+    var allocation_base = List[usize](capacity=MAX_IDS)
+    var allocation_order = List[usize](capacity=MAX_IDS)
+    var staged = List[Int64](capacity=MAX_OUTPUT_WORDS)
+    var index: usize = 0
+    while index < (MAX_ORDER + 1) * ARENA:
+        free_blocks.append(false)
+        index <- index + 1
+    index <- 0
+    while index < MAX_IDS:
+        active.append(false); allocation_base.append(0); allocation_order.append(0)
+        index <- index + 1
+    free_blocks[MAX_ORDER * ARENA] <- true
+
+    index <- 0
+    while index < count:
+        opcode: i64 = values[1 + 3 * index]
+        raw_id: i64 = values[2 + 3 * index]
+        argument: i64 = values[3 + 3 * index]
+        if raw_id < 0 or raw_id >= 32: return -1
+        id: usize = raw_id.usize()
+        if opcode == 0:
+            if argument < 1 or argument > 256 or active[id]: return -1
+            target: mutable usize = 0
+            rounded: mutable usize = 1
+            while rounded < argument.usize():
+                rounded <- rounded * 2
+                target <- target + 1
+            found_order: mutable usize = MAX_ORDER + 1
+            found_base: mutable usize = ARENA
+            order: mutable usize = target
+            while order <= MAX_ORDER:
+                size: usize = 1.usize() << order
+                base: mutable usize = 0
+                while base + size <= ARENA:
+                    if free_blocks[order * ARENA + base]:
+                        found_order <- order; found_base <- base; break
+                    base <- base + size
+                if found_order <= MAX_ORDER: break
+                order <- order + 1
+            if found_order > MAX_ORDER:
+                staged.append(0); staged.append(-1); staged.append(0)
+                index <- index + 1
+                continue
+            free_blocks[found_order * ARENA + found_base] <- false
+            while found_order > target:
+                found_order <- found_order - 1
+                half: usize = 1.usize() << found_order
+                free_blocks[found_order * ARENA + found_base + half] <- true
+            active[id] <- true
+            allocation_base[id] <- found_base
+            allocation_order[id] <- target
+            staged.append(1); staged.append(found_base.i64()); staged.append((1.usize() << target).i64())
+        elif opcode == 1:
+            if argument != 0 or not active[id]: return -1
+            original_base: usize = allocation_base[id]
+            original_order: usize = allocation_order[id]
+            original_size: usize = 1.usize() << original_order
+            active[id] <- false
+            base: mutable usize = original_base
+            order: mutable usize = original_order
+            while order < MAX_ORDER:
+                buddy: usize = base ^ (1.usize() << order)
+                if not free_blocks[order * ARENA + buddy]: break
+                free_blocks[order * ARENA + buddy] <- false
+                if buddy < base: base <- buddy
+                order <- order + 1
+            free_blocks[order * ARENA + base] <- true
+            staged.append(1); staged.append(original_base.i64()); staged.append(original_size.i64())
+        else: return -1
+        index <- index + 1
+
+    count_index: usize = staged.len()
+    staged.append(0)
+    free_count: mutable usize = 0
+    base: mutable usize = 0
+    while base < ARENA:
+        order: mutable usize = MAX_ORDER + 1
+        while order > 0:
+            order <- order - 1
+            if free_blocks[order * ARENA + base]:
+                free_count <- free_count + 1
+                staged.append(base.i64()); staged.append((1.usize() << order).i64())
+                break
+        base <- base + 1
+    staged[count_index] <- free_count.i64()
+    required: usize = staged.len() * 8
+    if output.is_null() or capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+    index <- 0
+    while index < staged.len():
+        bits: u64 = staged[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            result[8 * index + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    required.i64()

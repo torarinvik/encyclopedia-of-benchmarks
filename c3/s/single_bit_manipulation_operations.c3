@@ -14,7 +14,7 @@ fn long single_bit_manipulation_operations(long* input, usz length) @export("sin
         case 0: return number | mask;
         case 1: return number & ~mask;
         case 2: return number ^ mask;
-        case 3: return (long)((@bitcast(ulong, number) >> (usz)position) & 1);
+        case 3: return (long)((bitcast(number, ulong) >> (usz)position) & 1);
         case 4: return (number & mask) != 0 ? 1 : 0;
         default: return -1;
     }

@@ -1,0 +1,74 @@
+from std.collections import InlineArray
+from std.ffi import c_size_t
+
+const MAX_POSITIONS: usize = 960
+const MAX_INPUT_WORDS: usize = 962
+const KNIGHT_FIRST: [usize;10] = [0,0,0,0,1,1,1,2,2,3]
+const KNIGHT_SECOND: [usize;10] = [1,2,3,4,2,3,4,3,4,4]
+
+def chess960_scharnagl_position_unrank_impl(
+    input: view[i64], output: mutable u8&, capacity: usize,
+) -> i64:
+    let length: usize = input.len()
+    if length < 1 or length > MAX_INPUT_WORDS: return -1
+    let count_word: i64 = input[0]
+    if count_word < 0 or count_word > MAX_POSITIONS.i64() or length != count_word.usize() + 1: return -1
+    let count: usize = count_word.usize()
+    var item: mutable usize = 0
+    while item < count:
+        if input[item + 1] < 0 or input[item + 1] >= MAX_POSITIONS.i64(): return -1
+        item <- item + 1
+    let bytes: usize = count * 8
+    if count == 0: return 0
+    if output.is_null() or capacity < bytes: return -2
+    let out: mutable view[u8] = output[0:bytes]
+    item <- 0
+    while item < count:
+        var remainder: u64 = input[item + 1].u64()
+        let odd_bishop: usize = (remainder % 4).usize() * 2 + 1
+        remainder <- remainder / 4
+        let even_bishop: usize = (remainder % 4).usize() * 2
+        remainder <- remainder / 4
+        let queen_ordinal: usize = (remainder % 6).usize()
+        let knight_ordinal: usize = (remainder / 6).usize()
+        var board = InlineArray[UInt8, 8](fill=0)
+        board[odd_bishop] <- UInt8(ord('B'))
+        board[even_bishop] <- UInt8(ord('B'))
+        var open_files = InlineArray[usize, 8](fill=0)
+        var open_count: mutable usize = 0
+        var file: mutable usize = 0
+        while file < 8:
+            if board[file] == 0:
+                open_files[open_count] <- file
+                open_count <- open_count + 1
+            file <- file + 1
+        board[open_files[queen_ordinal]] <- UInt8(ord('Q'))
+        open_count <- 0
+        file <- 0
+        while file < 8:
+            if board[file] == 0:
+                open_files[open_count] <- file
+                open_count <- open_count + 1
+            file <- file + 1
+        board[open_files[KNIGHT_FIRST[knight_ordinal]]] <- UInt8(ord('N'))
+        board[open_files[KNIGHT_SECOND[knight_ordinal]]] <- UInt8(ord('N'))
+        let final_pieces: [UInt8;3] = [UInt8(ord('R')), UInt8(ord('K')), UInt8(ord('R'))]
+        var next_piece: mutable usize = 0
+        file <- 0
+        while file < 8:
+            if board[file] == 0:
+                board[file] <- final_pieces[next_piece]
+                next_piece <- next_piece + 1
+            file <- file + 1
+        file <- 0
+        while file < 8:
+            out[item * 8 + file] <- board[file]
+            file <- file + 1
+        item <- item + 1
+    bytes.i64()
+
+export fn chess960_scharnagl_position_unrank(
+    input: i64&, length: c_size_t, output: mutable u8&, capacity: usize,
+) abi("C") -> Int64:
+    if input.is_null() or length < 1 or length > c_size_t(MAX_INPUT_WORDS): return -1
+    chess960_scharnagl_position_unrank_impl(input[0:length], output, capacity)

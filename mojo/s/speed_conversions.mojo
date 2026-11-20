@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.math import floor, fma
 fn round_even3(x:Float64)->Float64:
     let scaled=x*1000.0;let low=floor(scaled);let mid=low+0.5;let side=fma(x,1000.0,-mid);var rounded=Int64(low)

@@ -7,7 +7,7 @@ fn ulong hash_word(ulong hash, ulong word) {
     for (uint shift = 0; shift < 64; shift += 8) { hash ^= (word >> shift) & 255; hash *= 1099511628211u64; }
     return hash;
 }
-long time_simulation(long* values, usz length) @export("time_simulation") {
+fn long time_simulation(long* values, usz length) @export("time_simulation") {
     if (values == null || length < 1 || length > 8194) return -1;
     long count = values[0];
     if (count < 0 || count > 4096 || length != (usz)(1 + 2 * count)) return -1;

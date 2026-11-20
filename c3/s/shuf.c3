@@ -11,7 +11,7 @@ fn void write_i32_le(char* output, usz index, int value) {
     }
 }
 
-long shuf(long* input, usz length, char* output, usz capacity) @export("shuf") {
+fn long shuf(long* input, usz length, char* output, usz capacity) @export("shuf") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     long count_raw = input[0], sample_size_raw = input[1];
     if (count_raw < 0 || count_raw > 32 || sample_size_raw < 1 || sample_size_raw > 32) return -1;

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "posit8_rational_encoder",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "posit8_rational_encoder",
+  "suite_status": "registered_i64_array_bytes_output",
+  "native_ports": {
+    "C": "c/p/posit8_rational_encoder.c",
+    "C3": "c3/p/posit8_rational_encoder.c3",
+    "C++": "cpp/p/posit8_rational_encoder.cpp",
+    "Elisa": "elisa/p/posit8_rational_encoder.elisa",
+    "Mojo": "mojo/p/posit8_rational_encoder.mojo",
+    "Nim": "nim/p/posit8_rational_encoder.nim",
+    "Odin": "odin/p/posit8_rational_encoder.odin",
+    "Rust": "rust/p/posit8_rational_encoder.rs",
+    "V": "v/p/posit8_rational_encoder.v",
+    "Zig": "zig/p/posit8_rational_encoder.zig"
+  },
+  "primary_oracle": "benchmarks/p/posit8_rational_encoder/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/posit8_rational_encoder/independent_oracle.py",
+  "workload": "benchmarks/p/posit8_rational_encoder/workload.json",
+  "rights": "benchmarks/p/posit8_rational_encoder/RIGHTS.md",
+  "inventory_doc": "benchmarks/p/posit8_rational_encoder/INVENTORY.md",
+  "static_inventory_helper": "benchmarks/p/posit8_rational_encoder/check_inventory.py",
+  "workload_reference_helper": "benchmarks/p/posit8_rational_encoder/verify_workload.py",
+  "limits": {
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "maximum_output_bytes": 32,
+    "workspace_bytes": 128,
+    "maximum_count": 32,
+    "maximum_absolute_numerator": 2147483648,
+    "maximum_denominator": 2147483648
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "algorithm": "ruth_aaron_number_predicate",
+  "abi": "i64_array_scalar",
+  "function_symbol": "ruth_aaron_number_predicate",
+  "status": "implemented; i64_array_scalar runner and verifier integrated; statically reviewed; not executed",
+  "input": {
+    "encoding": "[n]",
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "n_range": [1, 100000]
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 iff n and n+1 have equal prime-factor sums counting multiplicity; else 0",
+    "range": [0, 1],
+    "invalid": -1
+  },
+  "workspace": {"bytes": 1048576},
+  "bounds": {
+    "maximum_factor_argument": 100001,
+    "maximum_factor_sum": 100001,
+    "independent_lpf_entries": 100002,
+    "independent_lpf_i64_bytes": 800016,
+    "signed_i64_safe": true
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/r/ruth_aaron_number_predicate.c",
+    "c3/r/ruth_aaron_number_predicate.c3",
+    "cpp/r/ruth_aaron_number_predicate.cpp",
+    "elisa/r/ruth_aaron_number_predicate.elisa",
+    "mojo/r/ruth_aaron_number_predicate.mojo",
+    "nim/r/ruth_aaron_number_predicate.nim",
+    "odin/r/ruth_aaron_number_predicate.odin",
+    "rust/r/ruth_aaron_number_predicate.rs",
+    "v/r/ruth_aaron_number_predicate.v",
+    "zig/r/ruth_aaron_number_predicate.zig"
+  ],
+  "sources": [
+    "https://mathworld.wolfram.com/Ruth-AaronPair.html",
+    "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  ],
+  "discovery_band": "RosettaCodeData score-24 popular-title index"
+}

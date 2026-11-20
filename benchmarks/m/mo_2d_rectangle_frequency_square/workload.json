@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-mo-2d-rectangle-frequency-square-i64-array-scalar-v1",
+  "algorithm": "mo_2d_rectangle_frequency_square",
+  "function_symbol": "mo_2d_rectangle_frequency_square",
+  "abi": "i64_array_scalar",
+  "description": "Two-dimensional Mo ordering for static rectangle frequency-square queries.",
+  "source": {
+    "title": "Mo's Algorithm on Two Dimensions",
+    "publisher": "OI Wiki",
+    "url": "https://oi-wiki.org/misc/mo-algo-2dimen/",
+    "license": "CC BY-SA 4.0; the source page also carries its stated SATA notice.",
+    "reuse": "Algorithmic ordering idea only; benchmark contract and implementations are independently authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,matrix row-major N*N,(top,left,bottom,right)*Q]",
+    "matrix_size_range": [1, 8],
+    "query_count_range": [0, 32],
+    "matrix_value_range": [0, 7],
+    "rectangle_coordinates": "zero-based inclusive; 0<=top<=bottom<N and 0<=left<=right<N",
+    "exact_length": "2+N*N+4*Q",
+    "maximum_valid_length": 194,
+    "maximum_parseable_length": 195,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "sum((original one-based query index)*sum_value(frequency(value)^2))",
+    "invalid_input_result": -1,
+    "maximum_result": 2162688
+  },
+  "algorithm_details": {
+    "block_size": "greatest B in [1,N] satisfying Q*B^4<=N^4, or B=1 if none; no ordering work for Q=0",
+    "sort_key": "(top/B,left/B,bottom/B,right/B,top,left,bottom,right,original_index)",
+    "primary": "Sort all rectangle queries, initialize the active rectangle to the first query, then expand and shrink each boundary to visit each target while maintaining eight value frequencies and their squared-frequency sum.",
+    "independent_oracle": "Scan each requested rectangle directly and count its eight values.",
+    "primary_complexity": "O(N^2+Q^2+Q*N^2) time and O(N^2+Q) space; query ordering uses insertion sort in the language ports.",
+    "independent_complexity": "O(Q*N^2) time and O(N^2) space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"four-boundary-movement","input_values":[2,3,1,1,2,2,0,0,1,1,0,0,0,1,0,0,1,0],"input_length":18,"expected_result":22},
+    {"id":"repeated-single-cell-query","input_values":[1,3,5,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":15,"expected_result":6},
+    {"id":"no-queries","input_values":[2,0,0,1,2,3],"input_length":6,"expected_result":0},
+    {"id":"all-distinct-cells","input_values":[2,1,0,1,2,3,0,0,1,1],"input_length":10,"expected_result":4},
+    {"id":"invalid-matrix-value","input_values":[1,0,8],"input_length":3,"expected_result":-1},
+    {"id":"reversed-rows","input_values":[2,1,0,1,2,3,1,0,0,1],"input_length":10,"expected_result":-1},
+    {"id":"coordinate-out-of-range","input_values":[2,1,0,1,2,3,0,0,1,2],"input_length":10,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,0,0,0],"input_length":4,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("nth_ugly_number")
 fn nth_ugly_number(n:Int64) abi("C")->Int64:
     if n<0 or n>12690:return -1

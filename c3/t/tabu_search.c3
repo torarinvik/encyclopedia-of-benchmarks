@@ -14,12 +14,12 @@ fn bool same_route(int* a,int* b,usz length) {
     for(usz i=0;i<length;i++) if(a[i]!=b[i]) return false;
     return true;
 }
-fn void write_i32(uint8* out,usz* offset,int value) {
+fn void write_i32(char* out,usz* offset,int value) {
     uint bits=(uint)value;
-    for(usz shift=0;shift<32;shift+=8) out[(*offset)++]=(uint8)(bits>>shift);
+    for(usz shift=0;shift<32;shift+=8) out[(*offset)++]=(char)(bits>>shift);
 }
 
-fn long tabu_search(long* input,usz input_length,uint8* output,usz capacity) @export("tabu_search") {
+fn long tabu_search(long* input,usz input_length,char* output,usz capacity) @export("tabu_search") {
     if(input==null || input_length<3 || input_length>19) return -1L;
     long city_value=input[0], iteration_value=input[1], tabu_value=input[2];
     if(city_value<4 || city_value>6 || iteration_value<0 || iteration_value>8 || tabu_value<1 || tabu_value>3) return -1L;
@@ -100,7 +100,7 @@ fn long tabu_search(long* input,usz input_length,uint8* output,usz capacity) @ex
             tabu_count--;
         }
     }
-    uint8[MAX_OUTPUT] staged=zeroed; usz written=0;
+    char[MAX_OUTPUT] staged=zeroed; usz written=0;
     write_i32(&staged[0],&written,(int)route_len);
     for(usz i=0;i<route_len;i++) write_i32(&staged[0],&written,best_solution[i]);
     write_i32(&staged[0],&written,(int)best_cost);

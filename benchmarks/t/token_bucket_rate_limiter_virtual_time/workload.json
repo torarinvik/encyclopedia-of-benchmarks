@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "token-bucket-rate-limiter-virtual-time-i64-array-scalar-v1",
+  "algorithm": "token_bucket_rate_limiter_virtual_time",
+  "function_symbol": "token_bucket_rate_limiter_virtual_time",
+  "abi": "i64_array_scalar",
+  "description": "Token bucket request admission with caller-supplied integer elapsed ticks.",
+  "source": {
+    "repository": "TheAlgorithms/Java",
+    "path": "src/main/java/com/thealgorithms/datastructures/queues/TokenBucket.java",
+    "url": "https://github.com/TheAlgorithms/Java/blob/master/src/main/java/com/thealgorithms/datastructures/queues/TokenBucket.java",
+    "license": "MIT",
+    "reuse": "Algorithm semantics only; all benchmark code and fixtures are independently authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[capacity,refill_rate,request_count,elapsed_ticks[request_count]]",
+    "capacity_range": [0, 64],
+    "refill_rate_range": [0, 32],
+    "request_count_range": [0, 63],
+    "elapsed_ticks_range": [0, 256],
+    "exact_length": "3+request_count",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "bit i is one when request i is allowed",
+    "maximum_result": 9223372036854775807,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "initial_tokens": "capacity",
+    "time_model": "each request record supplies nonnegative whole ticks elapsed since the previous request; the initial interval is measured from bucket creation",
+    "refill": "before each request, add elapsed_ticks*refill_rate tokens and cap at capacity",
+    "admission": "allow and consume one token iff the refilled balance is positive",
+    "clock": "no wall-clock reads, sleeps, or concurrency",
+    "null_input_result": -1
+  },
+  "complexity": {
+    "primary": "O(request_count) arithmetic operations",
+    "independent_reference": "O(sum(elapsed_ticks)) token-step operations",
+    "space": "O(request_count) input and result state"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-trace", "input_values":[3,2,0], "input_length":3, "expected_result":0},
+    {"id":"capacity-without-refill", "input_values":[3,0,5,0,0,0,0,0], "input_length":8, "expected_result":7},
+    {"id":"refill-after-empty", "input_values":[2,1,6,0,0,0,1,0,1], "input_length":9, "expected_result":43},
+    {"id":"refill-saturates-at-capacity", "input_values":[2,5,4,0,0,0,100], "input_length":7, "expected_result":11},
+    {"id":"zero-capacity", "input_values":[0,5,4,0,10,256,1], "input_length":7, "expected_result":0},
+    {"id":"maximum-elapsed-ticks", "input_values":[1,1,2,0,256], "input_length":5, "expected_result":3},
+    {"id":"maximum-request-count-and-result-mask", "input_values":[
+      63,0,63,
+      0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0
+    ], "input_length":66, "expected_result":9223372036854775807},
+    {"id":"capacity-out-of-range", "input_values":[65,1,0], "input_length":3, "expected_result":-1},
+    {"id":"negative-refill-rate", "input_values":[1,-1,0], "input_length":3, "expected_result":-1},
+    {"id":"request-count-above-bound", "input_values":[1,1,64], "input_length":3, "expected_result":-1},
+    {"id":"negative-elapsed-ticks", "input_values":[1,1,1,-1], "input_length":4, "expected_result":-1},
+    {"id":"elapsed-ticks-above-bound", "input_values":[1,1,1,257], "input_length":4, "expected_result":-1},
+    {"id":"trailing-input", "input_values":[1,1,0,99], "input_length":4, "expected_result":-1},
+    {"id":"truncated-header", "input_values":[1,1], "input_length":2, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

@@ -1,0 +1,60 @@
+const MAX_INPUT: i64 = 9999999999999999
+
+def next_palindromic_number_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    values: view[i64] = input[0:length]
+    number: i64 = values[0]
+    if number < 0 or number > MAX_INPUT: return -1
+
+    digits: mutable u8[17] = zeroed
+    remaining: mutable i64 = number
+    count: mutable usize = 0
+    while true:
+        digits[count] <- (remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+        if remaining == 0: break
+    left: mutable usize = 0
+    while left < count / 2:
+        right: usize = count - 1 - left
+        swap: u8 = digits[left]
+        digits[left] <- digits[right]
+        digits[right] <- swap
+        left <- left + 1
+
+    left <- 0
+    while left < count / 2:
+        digits[count - 1 - left] <- digits[left]
+        left <- left + 1
+    candidate: mutable i64 = 0
+    i: mutable usize = 0
+    while i < count:
+        candidate <- candidate * 10 + digits[i].i64()
+        i <- i + 1
+    if candidate > number: return candidate
+
+    prefix_length: usize = (count + 1) / 2
+    position: mutable usize = prefix_length
+    while position > 0 and digits[position - 1] == 9.u8():
+        digits[position - 1] <- 0.u8()
+        position <- position - 1
+    if position == 0:
+        power: mutable i64 = 1
+        i <- 0
+        while i < count:
+            power <- power * 10
+            i <- i + 1
+        return power + 1
+    digits[position - 1] <- digits[position - 1] + 1.u8()
+    left <- 0
+    while left < count / 2:
+        digits[count - 1 - left] <- digits[left]
+        left <- left + 1
+    candidate <- 0
+    i <- 0
+    while i < count:
+        candidate <- candidate * 10 + digits[i].i64()
+        i <- i + 1
+    candidate
+
+export fn next_palindromic_number(input: i64&, length: usize) -> i64 = next_palindromic_number_impl

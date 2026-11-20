@@ -23,8 +23,8 @@ fn rabin_content_defined_chunking(input: UnsafePointer[Int64, ImmutAnyOrigin], l
     var boundaries = InlineArray[UInt8, 64](fill=0)
     var count = 0
     for i in range(n):
-        fingerprint = cdc_reduce((UInt32(fingerprint) << 8) | UInt32(input[i + 1]))
         if i >= 4: fingerprint ^= outgoing[Int(input[i - 3])]
+        fingerprint = cdc_reduce((UInt32(fingerprint) << 8) | UInt32(input[i + 1]))
         if fingerprint & 7 == 0:
             boundaries[count] = UInt8(i + 1)
             count += 1

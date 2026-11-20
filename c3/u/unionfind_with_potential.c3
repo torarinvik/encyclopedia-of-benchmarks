@@ -47,7 +47,9 @@ fn long unionfind_with_potential(long* input, usz length, char* output,
     usz required = 8 * q;
     if (output == null || capacity < required) return -2;
 
-    long parent[MAX_N], set_size[MAX_N], difference[MAX_N];
+    long[MAX_N] parent;
+    long[MAX_N] set_size;
+    long[MAX_N] difference;
     for (usz item = 0; item < n; item += 1) {
         parent[item] = (long)item;
         set_size[item] = 1;
@@ -58,8 +60,8 @@ fn long unionfind_with_potential(long* input, usz length, char* output,
         long kind = input[position];
         usz u = (usz)input[position + 1], v = (usz)input[position + 2];
         long x = input[position + 3], answer;
-        usz root_u = find_root(parent, difference, u);
-        usz root_v = find_root(parent, difference, v);
+        usz root_u = find_root(&parent[0], &difference[0], u);
+        usz root_v = find_root(&parent[0], &difference[0], v);
         if (kind == 1) {
             answer = root_u == root_v ? normalize(difference[u] - difference[v]) : -1;
         } else if (root_u == root_v) {

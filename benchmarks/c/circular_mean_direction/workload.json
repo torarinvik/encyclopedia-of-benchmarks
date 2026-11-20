@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "circular-mean-direction-radians-v1",
+  "algorithm": "circular_mean_direction",
+  "function_symbol": "circular_mean_direction",
+  "abi": "float64_slice_io",
+  "description": "Return the conventional circular mean direction from the resultant of bounded unit vectors.",
+  "oracle": "benchmarks/circular_mean_direction_oracle.py",
+  "oracle_entry_point": "expected_output(values, output_capacity=None, output_is_null=False, input_is_null=False, input_length=None)",
+  "independent_oracle": "benchmarks/circular_mean_direction_independent_oracle.py",
+  "independent_oracle_entry_point": "expected_output(values, output_capacity=None, output_is_null=False, input_is_null=False, input_length=None)",
+  "sources": {
+    "title_index": "https://rosettagit.org/tasks/",
+    "title": "Averages/Mean angle",
+    "primary_algorithm_reference": "https://cdm.sites.uu.nl/wp-content/uploads/sites/31/2018/06/Tutorial2-descriptives.pdf",
+    "independent_algorithm_reference": "https://www.scp.byu.edu/mers/circularmean.html",
+    "source_use": "RosettaGit title index used for discovery only; mathematical descriptions used from independent sources; no task text, examples, tests, submissions, or code reused."
+  },
+  "input": {
+    "kind": "finite_binary64_array",
+    "encoding": "[N, theta_0, ..., theta_(N-1)]",
+    "angle_unit": "radians",
+    "count_range": [1, 64],
+    "angle_range": [-25.132741228718345, 25.132741228718345],
+    "normalization_interval": "[-pi, pi)",
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "method": "Conventional circular mean direction: atan2(sum(sin(theta_i)), sum(cos(theta_i))). This is the direction of the resultant vector and does not minimize L1 angular distance.",
+    "input_normalization": "Use shared IEEE-754 binary64 pi and 2*pi constants in theta - floor((theta + pi)/(2*pi))*2*pi, followed by a boundary correction into [-pi, pi); the binary64 +pi constant maps to -pi.",
+    "summation": "Kahan compensated sums for cosine and sine components in input order.",
+    "undefined_resultant": "Return -1 without output when hypot(sum_cos,sum_sin) <= N*2^-28.",
+    "output_normalization": "Normalize atan2(sum_sin,sum_cos) to [-pi,pi), mapping +pi to -pi.",
+    "error_precedence": "Validate the entire frame and resultant before checking output pointer or capacity.",
+    "complexity": "O(N) time and O(1) auxiliary space."
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[mean_direction_radians]",
+    "maximum_elements": 1,
+    "success_result": 1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "elements": 1,
+    "meaning": "One resultant direction."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id":"single-radian-angle","input_values":[1,0.5],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output":[0.5]},
+    {"id":"average-across-wrap-boundary","input_values":[2,3.0,-3.0],"input_length":3,"output_capacity":1,"expected_result":1,"expected_output":[-3.141592653589793]},
+    {"id":"single-positive-pi-normalizes-negative","input_values":[1,3.141592653589793],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output":[-3.141592653589793]},
+    {"id":"multi-turn-angle","input_values":[1,6.283185307179586],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output":[0.0]},
+    {"id":"near-zero-resultant-below-cutoff","input_values":[2,0.0,3.1415926533569624],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"near-zero-resultant-above-cutoff","input_values":[2,0.0,3.1415926237874706],"input_length":3,"output_capacity":1,"expected_result":1,"expected_output":[1.5707963118937354]},
+    {"id":"uniform-cardinal-directions-undefined","input_values":[4,0.0,1.5707963267948966,3.141592653589793,-1.5707963267948966],"input_length":5,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"empty-input-frame","input_values":[],"input_length":0,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"zero-count","input_values":[0],"input_length":1,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional-count","input_values":[1.5,0.0],"input_length":2,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"count-length-mismatch","input_values":[2,0.0],"input_length":2,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"trailing-value","input_values":[1,0.0,0.25],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"angle-outside-bound","input_values":[1,26.0],"input_length":2,"output_capacity":1,"expected_result":-1,"expected_output":[]}
+  ],
+  "abi_cases": [
+    {"id":"null-input-pointer","input_values":[1,0.0],"input_length":2,"input_is_null":true,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"valid-input-null-output","input_values":[1,0.5],"input_length":2,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"valid-input-zero-capacity","input_values":[1,0.5],"input_length":2,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid-input-precedes-output-error","input_values":[0],"input_length":1,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]}
+  ]
+}

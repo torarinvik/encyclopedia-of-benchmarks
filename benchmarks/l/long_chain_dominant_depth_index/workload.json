@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "long-chain-dominant-depth-index-i64-array-bytes-output-v1",
+  "algorithm": "long_chain_dominant_depth_index",
+  "function_symbol": "long_chain_dominant_depth_index",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Heavy-light decomposition and long-chain decomposition",
+    "url": "https://oi-wiki.org/graph/hld/",
+    "discovery": "OI Wiki long-chain dominant-index section",
+    "primary_algorithm_description": "For each vertex, select a child with maximum subtree height, inherit its depth-count state shifted by one, then merge every light-child depth vector.",
+    "independent_method": "For each vertex, traverse its rooted subtree, count vertices at each distance, and choose the first distance with maximum count.",
+    "reuse": "Mathematical algorithm only; clean-room ports and original fixtures."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n,parent[1],...,parent[n-1]]; vertices are numbered in parent-before-child order and vertex 0 is the root",
+    "n_range": [1, 64],
+    "parent_rule": "For each vertex v with 1 <= v < n, 0 <= parent[v] < v.",
+    "maximum_valid_input_length": 64,
+    "maximum_parseable_input_length": 65,
+    "invalid_result": -1
+  },
+  "profile": {
+    "dominant_depth": "The smallest nonnegative distance d maximizing the number of descendants at exactly distance d, including the vertex itself at d=0.",
+    "heavy_child": "Child with greatest height, ties resolved by smaller vertex ID.",
+    "arithmetic": "Exact integer counts; all counts are at most 64.",
+    "complexity": "O(n) time and O(n) state for the primary long-chain DP; O(n^2) time and O(n) state for the independent traversal reference."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "One signed i64 dominant depth per vertex, in vertex-ID order.",
+    "maximum_bytes": 512,
+    "maximum_output_bytes": 512,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Eight fixed arrays of 64 signed 64-bit words account for 4,096 bytes in the widest ports; the remaining 4,096 bytes cover local scalar state, alignment, and ABI bookkeeping. The DP uses at most n active count slots in its 64-word fixed pool; output is caller-owned."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"single_vertex","input_values":[1],"input_length":1,"output_capacity":512,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"three_vertex_path","input_values":[3,0,1],"input_length":3,"output_capacity":512,"expected_result":24,"expected_output_hex":"0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"four_vertex_star","input_values":[4,0,0,0],"input_length":4,"output_capacity":512,"expected_result":32,"expected_output_hex":"0100000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"balanced_binary_tree","input_values":[7,0,0,1,1,2,2],"input_length":7,"output_capacity":512,"expected_result":56,"expected_output_hex":"0200000000000000 0100000000000000 0100000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"shallowest_depth_wins_tie","input_values":[5,0,0,1,1],"input_length":5,"output_capacity":512,"expected_result":40,"expected_output_hex":"0100000000000000 0100000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"invalid_parent_not_earlier","input_values":[3,0,2],"input_length":3,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_zero_vertices","input_values":[0],"input_length":1,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_value_invalid","input_values":[3,0,1,99],"input_length":4,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"missing_parent_invalid","input_values":[3,0],"input_length":2,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"over_bound_n_invalid","input_values":[65],"input_length":1,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[1],"input_length":1,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_output","input_values":[1],"input_length":1,"output_capacity":512,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

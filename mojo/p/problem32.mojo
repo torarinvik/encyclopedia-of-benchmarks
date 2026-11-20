@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p32_next(inout d:InlineArray[Int32,9])->Bool:
     var pivot=7
     while pivot>=0 and d[pivot]>=d[pivot+1]:pivot-=1

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "jacobson-matthews-latin-square-chain-tape-v1",
+  "algorithm": "jacobson_matthews_latin_square_chain",
+  "function_symbol": "jacobson_matthews_latin_square_chain",
+  "abi": "i64_array_bytes_output",
+  "description": "Run bounded deterministic trajectories of the proper/improper Jacobson–Matthews 3-cycle Markov chain.",
+  "source": {
+    "title": "Generating uniformly distributed random latin squares",
+    "authors": ["Mark T. Jacobson", "Peter Matthews"],
+    "publication": "Journal of Combinatorial Designs 4(6), 405–437 (1996)",
+    "doi": "10.1002/(SICI)1520-6610(1996)4:6<405::AID-JCD3>3.0.CO;2-J",
+    "url": "https://doi.org/10.1002/%28SICI%291520-6610%281996%294%3A6%3C405%3A%3AAID-JCD3%3E3.0.CO%3B2-J",
+    "cross_reference": "ETH Zürich Random Algorithms II, FS 2015, Section 2.9.2, Matthew and Jacobson’s Markov chain",
+    "cross_reference_url": "https://cadmo.ethz.ch/education/lectures/FS15/rand_alg_2/ETHSkript.pdf",
+    "discovery_only": "RosettaGit title index; no implementation or prose used",
+    "source_license": "Copyright belongs to cited authors and publishers. Consulted for algorithm identification and mathematical transition description only; implementation and bounded profile are clean-room."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, step_count, choice_0, ..., choice_(step_count-1)]",
+    "order_range": [2, 4],
+    "step_count_range": [0, 12],
+    "exact_length": "2 + step_count",
+    "initial_state": "A[i,j,k]=1 iff k=(i+j) mod n, otherwise 0",
+    "choice_order": "Proper state: zero cells in lexicographic (i,j,k) order. Improper state: legal (i_prime,j_prime,k_prime) triples in lexicographic order at the unique -1 pivot.",
+    "choice_range": "Each choice must be less than the number of legal moves in the current state; at most 48.",
+    "maximum_valid_length": 14,
+    "maximum_parseable_length": 14,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[n, steps_applied, flattened_tensor_in_i_j_k_order]",
+    "maximum_bytes": 528,
+    "success_result": "8*(2+n^3) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed 64-cell tensor, at most 48 move descriptors, and bounded output staging."
+  },
+  "contract": {
+    "proper_move_selection": "Choose a zero cell (i,j,k). Find the unique line mates i_prime,j_prime,k_prime whose respective parallel cells contain one.",
+    "improper_move_selection": "Use the unique -1 cell (i,j,k). Enumerate the eight triples satisfying A[i,j,k_prime]=A[i,j_prime,k]=A[i_prime,j,k]=1.",
+    "update": "Add one at (i,j,k),(i_prime,j_prime,k),(i_prime,j,k_prime),(i,j_prime,k_prime); subtract one at (i_prime,j,k),(i,j_prime,k),(i,j,k_prime),(i_prime,j_prime,k_prime).",
+    "trajectory_model": "Every Markov choice is supplied explicitly by the input tape. This package profiles the transition algorithm and does not claim to sample from its stationary distribution.",
+    "error_precedence": "Validate input pointer, length, dimensions, and every tape choice by replaying the trajectory before checking output pointer and capacity.",
+    "no_write_on_error": true,
+    "complexity": "O(step_count*n^3) time and O(n^3) fixed-state storage for n<=4."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "proper-to-improper-and-back-to-proper", "input_values": [3, 2, 0, 5], "output_bytes": 232}
+    ]
+  },
+  "cases": [
+    {
+      "id": "proper-improper-proper-trajectory",
+      "input_values": [3, 2, 0, 5],
+      "input_length": 4,
+      "output_capacity": 232,
+      "expected_result": 232,
+      "expected_output_hex": "030000000000000002000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000000000000000000010000000000000001000000000000000000000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000000"
+    },
+    {
+      "id": "n2-zero-transition-cyclic-square",
+      "input_values": [2, 0],
+      "input_length": 2,
+      "output_capacity": 80,
+      "expected_result": 80,
+      "expected_output_hex": "020000000000000000000000000000000100000000000000000000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000"
+    },
+    {"id": "improper-choice-out-of-range", "input_values": [3, 2, 0, 8], "input_length": 4, "output_capacity": 528, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "wrong-tape-length", "input_values": [3, 2, 0], "input_length": 3, "output_capacity": 528, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-order", "input_values": [5, 0], "input_length": 2, "output_capacity": 528, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [2, 0], "input_length": 2, "input_is_null": true, "output_capacity": 528, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [2, 0], "input_length": 2, "output_is_null": true, "output_capacity": 80, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [2, 0], "input_length": 2, "output_capacity": 79, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

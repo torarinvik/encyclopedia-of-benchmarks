@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "cornacchia-x2-plus-2y2-i64-array-scalar-v1",
+  "algorithm": "cornacchia_x2_plus_2y2",
+  "function_symbol": "cornacchia_x2_plus_2y2",
+  "abi": "i64_array_scalar",
+  "description": "Use Cornacchia's Euclidean remainder descent to find the positive representation p=x^2+2y^2 from a supplied square root of -2 modulo prime p.",
+  "source": {
+    "title": "Remarks on the Algorithms of Cornacchia and Hermite-Serret; Quattro Formaggi, section 4.2.3",
+    "author": "Jesse Ira Deutsch; Alexander Munch-Hansen",
+    "reference": "Deutsch, JP Journal of Algebra, Number Theory and Applications 53(2), 2022, Theorem 1; Munch-Hansen, Quattro Formaggi, section 4.2.3.",
+    "doi": "10.17654/0972555522008",
+    "url": "https://pphmjopenaccess.com/jpjana/article/download/355/318/529",
+    "supporting_url": "https://cs.au.dk/fileadmin/ingen_mappe_valgt/phd_thesis/Alexander_Munch-Hansen.pdf",
+    "implementation_status": "Clean-room fixed-d=2 Cornacchia profile; source descriptions only."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[prime,root_of_minus_two]",
+    "prime_range": [3, 1000000],
+    "prime_requirement": "odd prime",
+    "root_range": "1 <= root_of_minus_two <= floor(prime/2)",
+    "root_requirement": "root_of_minus_two^2 == -2 mod prime",
+    "exact_length": 2,
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "1024*x+y for the positive solution p=x^2+2*y^2",
+    "decode": "x=result/1024, y=result%1024",
+    "coordinate_bounds": "1 <= x <= 999 and 1 <= y <= 707",
+    "maximum_result": 1023683,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "descent": "Initialize previous=prime and current=root. Apply Euclidean remainders until current <= floor(sqrt(prime)); the final current is x.",
+    "recovery": "Compute y^2=(prime-x^2)/2. Return the packed pair only if this is a positive exact square and x^2+2*y^2=prime.",
+    "deterministic_root": "The unique square root of -2 in [1,prime/2] is supplied in the frame; the implementation validates it and never computes a modular square root.",
+    "square_root_arithmetic": "All square-root bounds use integer binary search; no floating-point arithmetic is used.",
+    "prime_validation": "Trial division checks odd primality through divisor <= prime/divisor; it avoids a squared-divisor overflow.",
+    "packing": "Since x<=999 and y<=707, y is below base 1024 and the packed scalar decodes without collisions.",
+    "invalid_cases": "Null, malformed, composite/even/out-of-range p, noncanonical root, or a root not congruent to -2 modulo p returns -1.",
+    "null_input_result": -1
+  },
+  "complexity": {
+    "time": "O(sqrt(p) + log(p)^2) integer operations including bounded trial primality validation; Cornacchia's Euclidean descent itself takes O(log p) divisions.",
+    "space": "O(1)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"smallest-valid-prime", "input_values":[3,1], "input_length":2, "expected_result":1025},
+    {"id":"no-descent-at-boundary", "input_values":[11,3], "input_length":2, "expected_result":3073},
+    {"id":"one-euclidean-step", "input_values":[17,7], "input_length":2, "expected_result":3074},
+    {"id":"unit-x-coordinate", "input_values":[19,6], "input_length":2, "expected_result":1027},
+    {"id":"two-euclidean-steps", "input_values":[41,11], "input_length":2, "expected_result":3076},
+    {"id":"small-x-and-large-y", "input_values":[73,12], "input_length":2, "expected_result":1030},
+    {"id":"wrong-root-nonresidue-case", "input_values":[7,2], "input_length":2, "expected_result":-1},
+    {"id":"composite-with-root", "input_values":[9,4], "input_length":2, "expected_result":-1},
+    {"id":"noncanonical-opposite-root", "input_values":[17,10], "input_length":2, "expected_result":-1},
+    {"id":"zero-root", "input_values":[17,0], "input_length":2, "expected_result":-1},
+    {"id":"prime-over-bound", "input_values":[1000003,1], "input_length":2, "expected_result":-1},
+    {"id":"even-modulus", "input_values":[14,3], "input_length":2, "expected_result":-1},
+    {"id":"trailing-value", "input_values":[17,7,0], "input_length":3, "expected_result":-1},
+    {"id":"short-frame", "input_values":[17], "input_length":1, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

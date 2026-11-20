@@ -66,7 +66,7 @@ fn bool insert_key(long* slots, usz* capacity, usz* size, long key) {
 }
 
 fn void write_i64_le(uint8* output, usz* offset, long value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[offset[0]] = (uint8)(bits & 255);
         bits >>= 8;

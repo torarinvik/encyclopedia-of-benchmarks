@@ -1,0 +1,94 @@
+const MAX_VERTICES: usize = 16
+const MAX_PARSEABLE_LENGTH: usize = 34
+const OUTPUT_SCALE: i64 = 1000000
+
+def polygon_area_centroid_round(numerator_input: i64, denominator_input: i64) -> i64:
+    numerator: mutable i64 = numerator_input
+    denominator: mutable i64 = denominator_input
+    if denominator < 0:
+        numerator <- -numerator
+        denominator <- -denominator
+    sign: i64 = if numerator < 0 then -1 else 1
+    magnitude: i64 = if numerator < 0 then -numerator else numerator
+    scaled: i64 = magnitude * OUTPUT_SCALE
+    quotient: mutable i64 = scaled / denominator
+    remainder: i64 = scaled % denominator
+    if 2 * remainder >= denominator: quotient <- quotient + 1
+    sign * quotient
+
+def polygon_area_centroid_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def polygon_area_centroid_emit(result: view[i64], output: mutable view[u8]) -> void:
+    polygon_area_centroid_store(result[0], output, 0)
+    polygon_area_centroid_store(result[1], output, 8)
+
+def polygon_area_centroid_impl(input: view[i64], result: mutable view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 7 or length > MAX_PARSEABLE_LENGTH: return -1
+    count_value: i64 = input[0]
+    if count_value < 3 or count_value > MAX_VERTICES.i64(): return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count: return -1
+
+    xs: mutable i64[16] = zeroed
+    ys: mutable i64[16] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        x: i64 = input[1 + 2 * index]
+        y: i64 = input[2 + 2 * index]
+        if x < -50 or x > 50 or y < -50 or y > 50: return -1
+        prior: mutable usize = 0
+        while prior < index:
+            if xs[prior] == x and ys[prior] == y: return -1
+            prior <- prior + 1
+        xs[index] <- x
+        ys[index] <- y
+        index <- index + 1
+
+    twice_area: mutable i64 = 0
+    index <- 0
+    while index < count:
+        next: usize = (index + 1) % count
+        twice_area <- twice_area + xs[index] * ys[next] - xs[next] * ys[index]
+        index <- index + 1
+    if twice_area == 0: return -1
+    orientation: i64 = if twice_area > 0 then 1 else -1
+    index <- 0
+    while index < count:
+        next: usize = (index + 1) % count
+        candidate: mutable usize = 0
+        while candidate < count:
+            if candidate != index and candidate != next:
+                side: i64 = (xs[next] - xs[index]) * (ys[candidate] - ys[index]) -
+                    (ys[next] - ys[index]) * (xs[candidate] - xs[index])
+                if side * orientation <= 0: return -1
+            candidate <- candidate + 1
+        index <- index + 1
+
+    numerator_x: mutable i64 = 0
+    numerator_y: mutable i64 = 0
+    index <- 0
+    while index < count:
+        next: usize = (index + 1) % count
+        cross: i64 = xs[index] * ys[next] - xs[next] * ys[index]
+        numerator_x <- numerator_x + (xs[index] + xs[next]) * cross
+        numerator_y <- numerator_y + (ys[index] + ys[next]) * cross
+        index <- index + 1
+    result[0] <- polygon_area_centroid_round(numerator_x, 3 * twice_area)
+    result[1] <- polygon_area_centroid_round(numerator_y, 3 * twice_area)
+    16
+
+export fn polygon_area_centroid(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    mutable result: i64[2] = zeroed
+    code: i64 = polygon_area_centroid_impl(input[0:length], result[0:2])
+    if code < 0: return code
+    if output == null or capacity < 16: return -2
+    polygon_area_centroid_emit(result[0:2], output[0:16])
+    16

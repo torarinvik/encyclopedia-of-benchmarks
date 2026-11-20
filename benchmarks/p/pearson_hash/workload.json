@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "pearson-byte-string-hash-v1",
+  "algorithm": "pearson_hash",
+  "function_symbol": "pearson_hash",
+  "input": {
+    "kind": "i64_array_scalar_pearson_frame",
+    "frame": "[text_length, table[256], text[text_length]]",
+    "table_domain": "a permutation of every byte 0..255",
+    "text_byte_minimum": 0,
+    "text_byte_maximum": 255,
+    "maximum_text_length": 64,
+    "maximum_valid_length": 321,
+    "maximum_parseable_length": 322,
+    "invalid_input_result": -1,
+    "workload_table": {
+      "rule": "8-bit nibble reversal",
+      "definition": "table[x] = ((x & 15) << 4) | (x >> 4)",
+      "is_permutation": true
+    }
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 255,
+    "definition": "start at 0; for each byte c, replace h with table[h XOR c]"
+  },
+  "workspace": {
+    "bytes": 1024,
+    "accounting": "256-byte permutation plus 256-byte validation bitmap and scalar temporaries"
+  },
+  "cases": [
+    {"id":"empty_text","text_values":[],"expected_result":0},
+    {"id":"one_ascii_byte","text_values":[65],"expected_result":20},
+    {"id":"repeated_ascii_byte","text_values":[65,65],"expected_result":85},
+    {"id":"maximum_byte","text_values":[255],"expected_result":255},
+    {"id":"high_bytes","text_values":[128,255],"expected_result":127},
+    {"id":"negative_text_byte_rejected","text_values":[-1],"expected_result":-1},
+    {"id":"text_byte_above_byte_domain_rejected","text_values":[256],"expected_result":-1},
+    {"id":"overlength_text_rejected","text_length":65,"text_fill":0,"expected_result":-1},
+    {"id":"duplicate_table_entry_rejected","text_values":[65],"table_mutation":{"index":1,"value":0},"expected_result":-1},
+    {"id":"short_frame_rejected","text_values":[65],"frame_mutation":"remove_last_word","expected_result":-1},
+    {"id":"trailing_word_rejected","text_values":[],"frame_mutation":"append_zero","expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  }
+}

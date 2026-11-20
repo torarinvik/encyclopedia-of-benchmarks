@@ -28,7 +28,7 @@ fn usz append_i64(char* buffer, usz position, long value) {
 
 fn usz append_coefficient(char* buffer, usz position, double value) {
     if (value == 0.0) {
-        if ((@bitcast(ulong, value) >> 63) != 0) buffer[position++] = '-';
+        if ((bitcast(value, ulong) >> 63) != 0) buffer[position++] = '-';
         return append_text(buffer, position, "0.0");
     }
     position = append_i64(buffer, position, (long)value);

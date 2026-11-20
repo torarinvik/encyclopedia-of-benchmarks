@@ -1,0 +1,106 @@
+const MAX_STRINGS: usize = 8
+const MAX_TOTAL_BYTES: usize = 24
+const MAX_TRIE_NODES: usize = 25
+const MAX_STATES: usize = 2 * MAX_TRIE_NODES - 1
+const ALPHABET: usize = 4
+const MAX_INPUT_LENGTH: usize = 34
+
+def generalized_suffix_automaton_union_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 2 or input[0] > MAX_STRINGS.i64(): return -1
+    string_count: usize = input[0].usize()
+
+    state_length: mutable i64[MAX_STATES] = zeroed
+    state_link: mutable i64[MAX_STATES]
+    transitions: mutable i64[MAX_STATES][ALPHABET] = zeroed
+    trie_next: mutable i64[MAX_TRIE_NODES][ALPHABET] = zeroed
+    trie_parent: mutable i64[MAX_TRIE_NODES] = zeroed
+    trie_symbol: mutable i64[MAX_TRIE_NODES] = zeroed
+    for state in 0..<MAX_STATES:
+        state_link[state] <- -1
+
+    trie_node_count: mutable usize = 1
+    total_bytes: mutable usize = 0
+    cursor: mutable usize = 1
+    for string_index in 0..<string_count:
+        if cursor >= length: return -1
+        string_length_value: i64 = input[cursor]
+        cursor <- cursor + 1
+        if string_length_value < 0 or string_length_value > 8: return -1
+        string_length: usize = string_length_value.usize()
+        if total_bytes + string_length > MAX_TOTAL_BYTES or string_length > length - cursor: return -1
+        total_bytes <- total_bytes + string_length
+
+        node: mutable usize = 0
+        for offset in 0..<string_length:
+            symbol_value: i64 = input[cursor + offset]
+            if symbol_value < 0 or symbol_value >= ALPHABET.i64(): return -1
+            symbol: usize = symbol_value.usize()
+            child: mutable usize = trie_next[node][symbol].usize()
+            if child == 0:
+                child <- trie_node_count
+                trie_node_count <- trie_node_count + 1
+                trie_next[node][symbol] <- child.i64()
+                transitions[node][symbol] <- child.i64()
+                trie_parent[child] <- node.i64()
+                trie_symbol[child] <- symbol.i64()
+            node <- child
+        cursor <- cursor + string_length
+    if cursor != length: return -1
+
+    state_count: mutable usize = trie_node_count
+    queue: mutable i64[MAX_TRIE_NODES] = zeroed
+    queue_head: mutable usize = 0
+    queue_tail: mutable usize = 0
+    for symbol in 0..<ALPHABET:
+        child: usize = trie_next[0][symbol].usize()
+        if child != 0:
+            queue[queue_tail] <- child.i64()
+            queue_tail <- queue_tail + 1
+
+    while queue_head < queue_tail:
+        current: usize = queue[queue_head].usize()
+        queue_head <- queue_head + 1
+        parent: usize = trie_parent[current].usize()
+        symbol: usize = trie_symbol[current].usize()
+        state_length[current] <- state_length[parent] + 1
+
+        previous: mutable i64 = state_link[parent]
+        while previous != -1 and transitions[previous.usize()][symbol] == 0:
+            transitions[previous.usize()][symbol] <- current.i64()
+            previous <- state_link[previous.usize()]
+        if previous == -1:
+            state_link[current] <- 0
+        else:
+            next_state: usize = transitions[previous.usize()][symbol].usize()
+            if state_length[previous.usize()] + 1 == state_length[next_state]:
+                state_link[current] <- next_state.i64()
+            else:
+                if state_count >= MAX_STATES: return -1
+                clone: usize = state_count
+                state_count <- state_count + 1
+                state_length[clone] <- state_length[previous.usize()] + 1
+                state_link[clone] <- state_link[next_state]
+                for character in 0..<ALPHABET:
+                    destination: usize = transitions[next_state][character].usize()
+                    if destination != 0 and state_length[destination] > 0:
+                        transitions[clone][character] <- destination.i64()
+                while previous != -1 and transitions[previous.usize()][symbol] == next_state.i64():
+                    transitions[previous.usize()][symbol] <- clone.i64()
+                    previous <- state_link[previous.usize()]
+                state_link[current] <- clone.i64()
+                state_link[next_state] <- clone.i64()
+
+        for character in 0..<ALPHABET:
+            child: usize = trie_next[current][character].usize()
+            if child != 0:
+                queue[queue_tail] <- child.i64()
+                queue_tail <- queue_tail + 1
+
+    distinct_count: mutable i64 = 0
+    for state in 1..<state_count:
+        link: usize = state_link[state].usize()
+        distinct_count <- distinct_count + state_length[state] - state_length[link]
+    distinct_count
+
+export fn generalized_suffix_automaton_union(input: i64&, length: usize) -> i64 = generalized_suffix_automaton_union_impl

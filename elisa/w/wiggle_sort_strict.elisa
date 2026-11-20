@@ -34,7 +34,8 @@ def store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
     output[position + 2] <- ((bits >> 16) & 255).u8()
     output[position + 3] <- ((bits >> 24) & 255).u8()
 
-def wiggle_sort_strict_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+def wiggle_sort_strict_impl(input: view[i64], output: mutable u8&, output_capacity: usize) -> i64:
+    length: usize = input.len()
     if length > MAX_ARRAY_LENGTH:
         return -1
     values: mutable i64[MAX_ARRAY_LENGTH] = zeroed
@@ -46,7 +47,7 @@ def wiggle_sort_strict_impl(input: i64&, length: usize, output: mutable u8&, out
         values[index] <- input[index]
         index <- index + 1
     byte_count: usize = length * 4
-    if output_capacity < byte_count:
+    if output_capacity < byte_count or (byte_count > 0 and output == null):
         return -2
     if length == 0:
         return 0
@@ -87,9 +88,14 @@ def wiggle_sort_strict_impl(input: i64&, length: usize, output: mutable u8&, out
         else:
             j <- j + 1
     index <- 0
+    result: mutable view[u8] = output[0:byte_count]
     while index < length:
-        store_i32_le(values[index], output[0:output_capacity], index * 4)
+        store_i32_le(values[index], result, index * 4)
         index <- index + 1
     length.i64()
 
-export fn wiggle_sort_strict(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = wiggle_sort_strict_impl
+export fn wiggle_sort_strict(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_ARRAY_LENGTH: return -1
+    if length == 0: return 0
+    if input == null: return -1
+    wiggle_sort_strict_impl(input[0:length], output, output_capacity)

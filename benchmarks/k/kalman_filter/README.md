@@ -46,6 +46,7 @@ traces, state boundaries, malformed inputs, and output-buffer probes.
 | C3 | [`c3/k/kalman_filter.c3`](../../../c3/k/kalman_filter.c3) |
 | C++ | [`cpp/k/kalman_filter.cpp`](../../../cpp/k/kalman_filter.cpp) |
 | Elisa | [`elisa/k/kalman_filter.elisa`](../../../elisa/k/kalman_filter.elisa) |
+| Mojo | [`mojo/k/kalman_filter.mojo`](../../../mojo/k/kalman_filter.mojo) |
 | Nim | [`nim/k/kalman_filter.nim`](../../../nim/k/kalman_filter.nim) |
 | Odin | [`odin/k/kalman_filter.odin`](../../../odin/k/kalman_filter.odin) |
 | Rust | [`rust/k/kalman_filter.rs`](../../../rust/k/kalman_filter.rs) |

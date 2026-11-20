@@ -16,7 +16,7 @@ fn long tsvc_s222_interleaved_square_recurrence(double* input, usz length, doubl
         if (input[i] != input[i] || !seed_ok(input[i])) return -1;
     usz required=2*n;
     if (output == null || capacity < required) return -2;
-    double a[64]; double e[64];
+    double[64] a; double[64] e;
     for (usz i=0; i<n; i++) { a[i]=input[1+i]; e[i]=input[1+3*n+i]; }
     for (usz i=1; i<n; i++) {
         double product=input[1+n+i]*input[1+2*n+i];

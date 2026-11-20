@@ -1,4 +1,5 @@
 # PolyBench MVT bounded profile; see benchmarks/m/mvt/LICENSE.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 

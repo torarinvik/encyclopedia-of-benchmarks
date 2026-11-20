@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "penney-game-pattern-first-hit-probability-i64-array-scalar-v1",
+  "algorithm": "penney_game_pattern_probability",
+  "function_symbol": "penney_game_pattern_probability",
+  "abi": "i64_array_scalar",
+  "source": {
+    "discovery_title": "Penneys-game",
+    "discovery_score": 49,
+    "discovery_note": "Public title and popularity score only; no task statement, code, or examples used.",
+    "discovery_index": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "method_source": "Brofos, A Markov Chain Analysis of a Pattern Matching Coin Game, arXiv:1406.2212",
+    "method_urls": [
+      "https://arxiv.org/abs/1406.2212"
+    ],
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[L, A_mask, B_mask]; each mask denotes its L-bit word in most-significant-bit-first order",
+    "word_length_range": [1, 4],
+    "mask_range": "0 <= mask < 2^L",
+    "exact_length": 3,
+    "patterns_must_differ": true,
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 4,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Exact probability that pattern A appears before pattern B in an independent fair-coin stream, reduced modulo 998244353",
+    "modulus": 998244353,
+    "valid_result_range": [0, 998244352],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "primary_states_maximum": 7,
+    "independent_states_maximum": 15,
+    "meaning": "The primary automaton contains the empty state and proper prefixes of A and B. The independent reference uses all binary suffix words shorter than L."
+  },
+  "method": {
+    "operation": "Solve exact absorption equations over the finite field: each transient state satisfies 2*p[state] - sum(p[next_state]) = number_of A-winning transitions. A and B transitions are absorbing outcomes.",
+    "distinct_from": "This computes the first-arrival probability for overlapping fixed-length binary patterns, rather than simulating a fixed number of coin tosses or searching one supplied finite string."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "length-one-fair-odds", "input_values": [1, 0, 1], "input_length": 3, "expected_result": 499122177},
+    {"id": "00-before-10", "input_values": [2, 0, 2], "input_length": 3, "expected_result": 249561089},
+    {"id": "10-before-00", "input_values": [2, 2, 0], "input_length": 3, "expected_result": 748683265},
+    {"id": "complementary-length-four", "input_values": [4, 5, 10], "input_length": 3, "expected_result": 499122177},
+    {"id": "minimum-length-complementary", "input_values": [1, 1, 0], "input_length": 3, "expected_result": 499122177},
+    {"id": "maximum-length-asymmetric", "input_values": [4, 0, 1], "input_length": 3, "expected_result": 499122177},
+    {"id": "equal-patterns-invalid", "input_values": [3, 5, 5], "input_length": 3, "expected_result": -1},
+    {"id": "length-zero-invalid", "input_values": [0, 0, 1], "input_length": 3, "expected_result": -1},
+    {"id": "length-above-bound", "input_values": [5, 0, 1], "input_length": 3, "expected_result": -1},
+    {"id": "mask-out-of-range", "input_values": [3, 8, 1], "input_length": 3, "expected_result": -1},
+    {"id": "negative-mask", "input_values": [2, -1, 0], "input_length": 3, "expected_result": -1},
+    {"id": "missing-mask", "input_values": [2, 0], "input_length": 2, "expected_result": -1},
+    {"id": "trailing-value", "input_values": [2, 0, 2, 1], "input_length": 4, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

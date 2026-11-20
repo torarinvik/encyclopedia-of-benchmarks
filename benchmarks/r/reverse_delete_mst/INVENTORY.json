@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "algorithm": "reverse_delete_mst",
+  "abi": "i64_array_bytes_output",
+  "language_sources": {
+    "c": "c/r/reverse_delete_mst.c",
+    "c3": "c3/r/reverse_delete_mst.c3",
+    "cpp": "cpp/r/reverse_delete_mst.cpp",
+    "elisa": "elisa/r/reverse_delete_mst.elisa",
+    "mojo": "mojo/r/reverse_delete_mst.mojo",
+    "nim": "nim/r/reverse_delete_mst.nim",
+    "odin": "odin/r/reverse_delete_mst.odin",
+    "rust": "rust/r/reverse_delete_mst.rs",
+    "v": "v/r/reverse_delete_mst.v",
+    "zig": "zig/r/reverse_delete_mst.zig"
+  },
+  "package_files": [
+    "__init__.py", "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "check_inventory.py", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "workload.json"
+  ]
+}

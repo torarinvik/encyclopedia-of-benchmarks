@@ -107,7 +107,7 @@ fn bool correct_one(int* codeword, int expected_position, int* alpha, int* index
     return true;
 }
 
-long misc_reed_solomon(long* values, usz length, char* output, usz output_capacity)
+fn long misc_reed_solomon(long* values, usz length, char* output, usz output_capacity)
     @export("misc_reed_solomon") {
     if (values == null || (length != 189 && length != 191)) return -1;
     for (usz index = 0; index < MESSAGE_BYTES; index++)

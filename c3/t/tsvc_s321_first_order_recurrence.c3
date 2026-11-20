@@ -25,7 +25,7 @@ fn long tsvc_s321_first_order_recurrence(long* input, usz length, char* output,
     }
     if (output == null || output_capacity < 8 * n) return -2;
 
-    long a[MAX_N];
+    long[MAX_N] a;
     for (usz i = 0; i < n; i += 1) a[i] = input[a_start + i];
     for (usz i = 1; i < n; i += 1) a[i] += a[i - 1] * input[b_start + i];
     for (usz i = 0; i < n; i += 1) store_i64_le(output, 8 * i, a[i]);

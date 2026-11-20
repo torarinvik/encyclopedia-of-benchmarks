@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "id": "pratt-expression-evaluation-i64-token-pairs-v1",
+  "algorithm": "pratt_expression_evaluation",
+  "function_symbol": "pratt_expression_evaluation",
+  "abi": "i64_array_scalar",
+  "description": "Evaluate a bounded pretokenized integer expression with Pratt binding powers.",
+  "source": {
+    "title": "Top Down Operator Precedence",
+    "author": "Vaughan R. Pratt",
+    "url": "https://doi.org/10.1145/512927.512931",
+    "license": "Algorithm description cited; clean-room implementations",
+    "implementation_status": "Original bounded grammar, fixtures, and implementations"
+  },
+  "input": {
+    "kind": "counted_kind_payload_token_pairs",
+    "encoding": "[token_count, kind, payload, ...]",
+    "maximum_tokens": 15,
+    "maximum_valid_length": 31,
+    "maximum_parseable_length": 32,
+    "token_kinds": {
+      "1": "digit literal, payload 0 through 9",
+      "2": "addition, payload zero",
+      "3": "subtraction or prefix negation, payload zero",
+      "4": "multiplication, payload zero",
+      "5": "opening parenthesis, payload zero",
+      "6": "closing parenthesis, payload zero"
+    },
+    "invalid_result": -9223372036854775808,
+    "invalid_cases": "invalid framing, payloads, token order, or unmatched parentheses"
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "The exact integer value of the parsed expression.",
+    "valid_result_range": [-11019960576, 11019960576],
+    "invalid_result": -9223372036854775808
+  },
+  "contract": {
+    "primary": "Parse prefixes and groups recursively, then consume infix operators by minimum binding power.",
+    "independent_reference": "Convert to postfix with shunting-yard stacks, then evaluate the postfix stream.",
+    "bound": "At most eight digit leaves; magnitude at each expression subtree is bounded by 18 raised to its leaf count.",
+    "complexity": "O(token_count) time and O(recursion_depth) primary stack space."
+  },
+  "primary_oracle": "benchmarks/p/pratt_expression_evaluation/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/pratt_expression_evaluation/independent_oracle.py",
+  "workspace": {"bytes": 0},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single_digit",
+      "input_values": [1, 1, 7],
+      "input_length": 3,
+      "expected_result": 7
+    },
+    {
+      "id": "multiplication_precedes_addition",
+      "input_values": [5, 1, 2, 2, 0, 1, 3, 4, 0, 1, 4],
+      "input_length": 11,
+      "expected_result": 14
+    },
+    {
+      "id": "left_associative_subtraction",
+      "input_values": [5, 1, 9, 3, 0, 1, 4, 3, 0, 1, 2],
+      "input_length": 11,
+      "expected_result": 3
+    },
+    {
+      "id": "grouping_changes_precedence",
+      "input_values": [7, 5, 0, 1, 2, 2, 0, 1, 3, 6, 0, 4, 0, 1, 4],
+      "input_length": 15,
+      "expected_result": 20
+    },
+    {
+      "id": "prefix_negation_binds_tighter_than_product",
+      "input_values": [6, 3, 0, 1, 3, 4, 0, 1, 4, 2, 0, 1, 2],
+      "input_length": 13,
+      "expected_result": -10
+    },
+    {
+      "id": "negated_group_with_nested_precedence",
+      "input_values": [8, 3, 0, 5, 0, 1, 2, 2, 0, 1, 3, 4, 0, 1, 4, 6, 0],
+      "input_length": 17,
+      "expected_result": -14
+    },
+    {
+      "id": "maximum_token_count",
+      "input_values": [15, 1, 1, 2, 0, 1, 2, 4, 0, 1, 3, 2, 0, 1, 4, 4, 0, 1, 5, 2, 0, 1, 6, 4, 0, 1, 7, 2, 0, 1, 8],
+      "input_length": 31,
+      "expected_result": 77
+    },
+    {
+      "id": "maximum_literal_leaf_count_product",
+      "input_values": [15, 1, 9, 4, 0, 1, 9, 4, 0, 1, 9, 4, 0, 1, 9, 4, 0, 1, 9, 4, 0, 1, 9, 4, 0, 1, 9, 4, 0, 1, 9],
+      "input_length": 31,
+      "expected_result": 43046721
+    },
+    {
+      "id": "maximum_parenthesis_nesting",
+      "input_values": [15, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 1, 9, 6, 0, 6, 0, 6, 0, 6, 0, 6, 0, 6, 0, 6, 0],
+      "input_length": 31,
+      "expected_result": 9
+    },
+    {
+      "id": "leading_binary_operator",
+      "input_values": [2, 2, 0, 1, 3],
+      "input_length": 5,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "unsupported_prefix_unary_plus",
+      "input_values": [2, 2, 0, 1, 1],
+      "input_length": 5,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "empty_parenthesized_expression",
+      "input_values": [2, 5, 0, 6, 0],
+      "input_length": 5,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "malformed_operator_payload",
+      "input_values": [3, 1, 2, 2, 1, 1, 3],
+      "input_length": 7,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "missing_group_close",
+      "input_values": [2, 5, 0, 1, 3],
+      "input_length": 5,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "adjacent_operands",
+      "input_values": [2, 1, 4, 1, 2],
+      "input_length": 5,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -9223372036854775808
+    }
+  ]
+}

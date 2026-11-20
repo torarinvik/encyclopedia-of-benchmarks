@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "algorithm": "jury_discrete_time_stability_predicate",
+  "function_symbol": "jury_discrete_time_stability_predicate",
+  "abi": "i64_array_scalar",
+  "status": "integrated",
+  "suite_status": "integrated",
+  "native_paths": [
+    "c/j/jury_discrete_time_stability_predicate.c",
+    "c3/j/jury_discrete_time_stability_predicate.c3",
+    "cpp/j/jury_discrete_time_stability_predicate.cpp",
+    "elisa/j/jury_discrete_time_stability_predicate.elisa",
+    "mojo/j/jury_discrete_time_stability_predicate.mojo",
+    "nim/j/jury_discrete_time_stability_predicate.nim",
+    "odin/j/jury_discrete_time_stability_predicate.odin",
+    "rust/j/jury_discrete_time_stability_predicate.rs",
+    "v/jury_discrete_time_stability_predicate.v",
+    "zig/j/jury_discrete_time_stability_predicate.zig"
+  ],
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "minimum_degree": 1,
+    "maximum_degree": 4,
+    "coefficient_absolute_value": 9,
+    "maximum_valid_input_length": 6,
+    "maximum_parseable_input_length": 7,
+    "maximum_primary_row_entry": 5509980288,
+    "maximum_schur_cohn_matrix_entry_absolute_value": 648,
+    "schur_cohn_determinant_order": 4,
+    "workspace_bytes": 1024
+  },
+  "references": [
+    {
+      "role": "primary",
+      "method": "Division-free 1961 Jury table with strict endpoint inequalities and exact coefficient reflection rows."
+    },
+    {
+      "role": "independent",
+      "method": "Schur-Cohn positive-definite matrix from coefficient Toeplitz arrays; test leading principal minors by cofactor expansion."
+    }
+  ],
+  "sources": [
+    {
+      "role": "jury_blanchard_1961",
+      "title": "A Stability Test for Linear Discrete Systems in Table Form",
+      "url": "https://www.worldradiohistory.com/Archive-IRE/60s/IRE-Proceedings-1961-12-R.pdf"
+    },
+    {
+      "role": "jury_1962",
+      "title": "A Simplified Stability Criterion for Linear Discrete Systems",
+      "url": "https://doi.org/10.1109/JRPROC.1962.288193"
+    },
+    {
+      "role": "proof",
+      "title": "An elementary proof of the Jury test for real polynomials",
+      "url": "https://doi.org/10.1016/j.automatica.2010.10.040"
+    },
+    {
+      "role": "independent_criterion",
+      "title": "A Schur-Cohn theorem for matrix polynomials",
+      "url": "https://doi.org/10.1017/S0013091500004806"
+    },
+    {
+      "role": "title_discovery_only",
+      "title": "RosettaCodeData popular-tasks at pinned revision",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+    }
+  ]
+}

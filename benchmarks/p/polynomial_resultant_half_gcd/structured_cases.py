@@ -81,6 +81,19 @@ def cases():
     b = sparse(49998, 0, 3)
     yield "maximum_degree_sum", frame(a, b), pow(3, 50000, P)
 
+    # Equal odd degrees at the same maximum sum force an ordinary first
+    # division and exercise the sign after swapping. At each root of
+    # x^49999+1, the polynomial x^49999+2 evaluates to 1.
+    equal_a = sparse(49999, 1, 1)
+    equal_b = sparse(49999, 2, 1)
+    yield "maximum_equal_odd_degree", frame(equal_a, equal_b), 1
+    yield "maximum_equal_odd_degree_swapped", frame(equal_b, equal_a), P - 1
+
+    # These maximum-sum polynomials share x as a factor and must return zero.
+    shared_a = sparse(50000, 0, 1)
+    shared_b = sparse(49998, 0, 3)
+    yield "maximum_degree_sum_shared_factor", frame(shared_a, shared_b), 0
+
     # An extra word is rejected while staying within the harness limit.
     almost_maximum = frame(sparse(49999, 1, 1), sparse(49998, 0, 3))
     yield "maximum_parseable_extra_word", [*almost_maximum, 0], -1

@@ -40,7 +40,7 @@ fn void put_u32(char* output, usz offset, uint value) {
 }
 
 fn void put_f64(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz i = 0; i < 8; i++) { output[offset + i] = (char)(bits & 255); bits >>= 8; }
 }
 

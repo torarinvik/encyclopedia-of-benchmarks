@@ -43,16 +43,16 @@ fn long fps_mod_sqrt(long value) {
     return root < MODULUS - root ? root : MODULUS - root;
 }
 
-fn void fps_store_le(uint8* output, usz offset, long value) {
+fn void fps_store_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte++) {
-        output[offset + byte] = (uint8)(bits & 255ul);
+        output[offset + byte] = (char)(bits & 255ul);
         bits >>= 8;
     }
 }
 
 fn long sqrt_of_formal_power_series(long* input, usz length,
-                                    uint8* output, usz capacity)
+                                    char* output, usz capacity)
     @export("sqrt_of_formal_power_series") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     if (input[0] < 1 || input[0] > (long)MAX_N) return -1;

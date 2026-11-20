@@ -101,7 +101,7 @@ fn bool parse_maze(long* values, usz length, Maze* maze) {
 }
 
 fn void write_i64_le(uint8* output, usz offset, long value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (uint8)(bits & 255);
         bits >>= 8;

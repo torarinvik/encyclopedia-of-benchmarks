@@ -9,14 +9,14 @@ const double EPSILON_DEFAULT = 8.8541878128e-12;
 const double MU_DEFAULT = 4.0 * 3.14159265358979323846264338327950288 * 1e-7;
 const double INVALID_RESULT = -1e300;
 
-bool in_range(long value, long limit) { return value >= -limit && value <= limit; }
-bool decode_constant(long raw, double fallback, double* value) {
+fn bool in_range(long value, long limit) { return value >= -limit && value <= limit; }
+fn bool decode_constant(long raw, double fallback, double* value) {
     if (raw == 0) { *value = fallback; return true; }
     if (raw < MIN_CONSTANT || raw > MAX_CONSTANT) return false;
     *value = (double)raw / 1e18;
     return true;
 }
-double law_result(double actual, double expected) {
+fn double law_result(double actual, double expected) {
     double difference = actual - expected;
     if (difference < 0.0) difference = -difference;
     double tolerance = expected != 0.0 ? 0.01 * (expected < 0.0 ? -expected : expected) : 1e-10;

@@ -1,0 +1,310 @@
+const AH_ALPHABET: usize = 16
+const AH_MAX_NODES: usize = 31
+const AH_MAX_INPUT: usize = 66
+const AH_MAX_PACKED: usize = 152
+const AH_NYT: i64 = 0
+const AH_LEAF: i64 = 1
+const AH_INTERNAL: i64 = 2
+
+struct AhNode:
+    parent: i64
+    left: i64
+    right: i64
+    symbol: i64
+    kind: i64
+    weight: i64
+
+struct AhOrdered:
+    id: usize
+    depth: usize
+    path: usize
+
+def ah_put_bit(bits: mutable view[u8], bit_count: mutable usize&, value: usize) -> void:
+    if value != 0:
+        bits[bit_count / 8] <- bits[bit_count / 8] | (1u8 << (7 - bit_count % 8))
+    bit_count <- bit_count + 1
+
+def ah_put_value(bits: mutable view[u8], bit_count: mutable usize&, value: usize, width: usize) -> void:
+    shift: mutable usize = width
+    while shift > 0:
+        shift <- shift - 1
+        ah_put_bit(bits, bit_count, (value >> shift) & 1)
+
+def ah_encode_path(nodes: view[AhNode], root: usize, bits: mutable view[u8],
+        bit_count: mutable usize&, start: usize) -> void:
+    reverse: mutable usize[AH_MAX_NODES] = zeroed
+    depth: mutable usize = 0
+    node: mutable usize = start
+    while node != root:
+        parent: usize = nodes[node].parent.usize()
+        reverse[depth] <- if nodes[parent].right == node.i64(): 1 else: 0
+        depth <- depth + 1
+        node <- parent
+    while depth > 0:
+        depth <- depth - 1
+        ah_put_bit(bits, bit_count, reverse[depth])
+
+def ah_is_ancestor(nodes: view[AhNode], ancestor: usize, node: usize) -> bool:
+    parent: i64 = nodes[node].parent
+    while parent >= 0:
+        if parent.usize() == ancestor: return true
+        parent <- nodes[parent.usize()].parent
+    false
+
+def ah_replace_child(nodes: mutable view[AhNode], parent: usize, old_child: usize, new_child: usize) -> void:
+    if nodes[parent].left == old_child.i64(): nodes[parent].left <- new_child.i64()
+    else:
+        if nodes[parent].right == old_child.i64(): nodes[parent].right <- new_child.i64()
+
+def ah_swap(nodes: mutable view[AhNode], root: mutable usize&, order: mutable view[usize],
+        order_count: usize, a: usize, b: usize, update_order: bool) -> void:
+    if a == b or nodes[a].parent == b.i64() or nodes[b].parent == a.i64() or ah_is_ancestor(nodes, a, b) or ah_is_ancestor(nodes, b, a): return
+    pa: i64 = nodes[a].parent
+    pb: i64 = nodes[b].parent
+    if pa == pb:
+        if pa >= 0:
+            parent: usize = pa.usize()
+            temporary: i64 = nodes[parent].left
+            nodes[parent].left <- nodes[parent].right
+            nodes[parent].right <- temporary
+    else:
+        if pa >= 0: ah_replace_child(nodes, pa.usize(), a, b)
+        if pb >= 0: ah_replace_child(nodes, pb.usize(), b, a)
+        nodes[a].parent <- pb
+        nodes[b].parent <- pa
+    if root == a: root <- b
+    else:
+        if root == b: root <- a
+    if update_order:
+        first: mutable i64 = -1
+        second: mutable i64 = -1
+        index: mutable usize = 0
+        while index < order_count:
+            if order[index] == a: first <- index.i64()
+            if order[index] == b: second <- index.i64()
+            index <- index + 1
+        if first >= 0 and second >= 0:
+            order[first.usize()] <- b
+            order[second.usize()] <- a
+
+def ah_add_node(nodes: mutable view[AhNode], node_count: mutable usize&,
+        parent: usize, kind: i64, symbol: i64) -> usize:
+    id: usize = node_count
+    node_count <- node_count + 1
+    nodes[id] <- AhNode{parent: parent.i64(), left: -1, right: -1,
+                        symbol: symbol, kind: kind, weight: 0}
+    id
+
+def ah_split(nodes: mutable view[AhNode], node_count: mutable usize&,
+        leaf: mutable view[i64], order: mutable view[usize], order_count: mutable usize&,
+        nyt: mutable i64&, symbol: usize, remaining: bool, fgk: bool) -> usize:
+    old: usize = nyt.usize()
+    if not remaining:
+        nodes[old].kind <- AH_LEAF
+        nodes[old].symbol <- symbol.i64()
+        leaf[symbol] <- old.i64()
+        nyt <- -1
+        return old
+    left: usize = ah_add_node(nodes, node_count, old, AH_NYT, -1)
+    right: usize = ah_add_node(nodes, node_count, old, AH_LEAF, symbol.i64())
+    nodes[old].kind <- AH_INTERNAL
+    nodes[old].left <- left.i64()
+    nodes[old].right <- right.i64()
+    leaf[symbol] <- right.i64()
+    nyt <- left.i64()
+    if fgk:
+        position: mutable usize = 0
+        while order[position] != old: position <- position + 1
+        index: mutable usize = order_count + 1
+        while index > position + 2:
+            order[index] <- order[index - 2]
+            index <- index - 1
+        order[position] <- left
+        order[position + 1] <- right
+        order[position + 2] <- old
+        order_count <- order_count + 2
+    right
+
+def ah_fgk_leader(nodes: view[AhNode], order: view[usize], order_count: usize,
+        node: usize, leaves_only: bool) -> usize:
+    index: mutable usize = order_count
+    while index > 0:
+        index <- index - 1
+        candidate: usize = order[index]
+        if candidate.i64() == nodes[node].parent or nodes[candidate].weight != nodes[node].weight: continue
+        if leaves_only and nodes[candidate].kind == AH_INTERNAL: continue
+        if ah_is_ancestor(nodes, candidate, node) or ah_is_ancestor(nodes, node, candidate): continue
+        return candidate
+    node
+
+def ah_update_fgk(nodes: mutable view[AhNode], root: mutable usize&,
+        nyt: i64, order: mutable view[usize], order_count: usize, start: usize) -> void:
+    node: mutable usize = start
+    parent: i64 = nodes[node].parent
+    if nyt >= 0 and parent >= 0 and nodes[nyt.usize()].parent == parent:
+        leader: usize = ah_fgk_leader(nodes, order, order_count, node, true)
+        ah_swap(nodes, root, order, order_count, node, leader, true)
+        nodes[node].weight <- nodes[node].weight + 1
+        node <- nodes[node].parent.usize()
+    while node != root:
+        leader: usize = ah_fgk_leader(nodes, order, order_count, node, false)
+        ah_swap(nodes, root, order, order_count, node, leader, true)
+        nodes[node].weight <- nodes[node].weight + 1
+        node <- nodes[node].parent.usize()
+    nodes[root].weight <- nodes[root].weight + 1
+
+def ah_implicit_order(nodes: view[AhNode], root: usize, node_count: usize,
+        order: mutable view[AhOrdered]) -> usize:
+    id: mutable usize = 0
+    while id < node_count:
+        reverse: mutable usize[AH_MAX_NODES] = zeroed
+        depth: mutable usize = 0
+        at: mutable usize = id
+        path: mutable usize = 0
+        while at != root:
+            parent: usize = nodes[at].parent.usize()
+            reverse[depth] <- if nodes[parent].right == at.i64(): 1 else: 0
+            depth <- depth + 1
+            at <- parent
+        index: mutable usize = depth
+        while index > 0:
+            index <- index - 1
+            path <- path * 2 + reverse[index]
+        order[id] <- AhOrdered{id: id, depth: depth, path: path}
+        id <- id + 1
+    id <- 1
+    while id < node_count:
+        value: AhOrdered = order[id]
+        index: mutable usize = id
+        while index > 0 and (order[index - 1].depth < value.depth or (order[index - 1].depth == value.depth and order[index - 1].path > value.path)):
+            order[index] <- order[index - 1]
+            index <- index - 1
+        order[index] <- value
+        id <- id + 1
+    node_count
+
+def ah_vitter_leader(nodes: view[AhNode], root: usize, node_count: usize,
+        order: mutable view[AhOrdered], node: usize) -> usize:
+    count: usize = ah_implicit_order(nodes, root, node_count, order)
+    index: mutable usize = count
+    while index > 0:
+        index <- index - 1
+        candidate: usize = order[index].id
+        if nodes[candidate].weight == nodes[node].weight and nodes[candidate].kind == nodes[node].kind: return candidate
+    node
+
+def ah_slide_increment(nodes: mutable view[AhNode], root: mutable usize&,
+        order_ids: mutable view[usize], order_count: usize, node_count: usize,
+        order: mutable view[AhOrdered], node: usize) -> usize:
+    old_parent: i64 = nodes[node].parent
+    target_kind: i64 = if nodes[node].kind == AH_LEAF: AH_INTERNAL else: AH_LEAF
+    target_weight: i64 = nodes[node].weight + if nodes[node].kind == AH_LEAF: 0 else: 1
+    count: usize = ah_implicit_order(nodes, root, node_count, order)
+    block: mutable usize[AH_MAX_NODES] = zeroed
+    used: mutable usize = 0
+    index: mutable usize = 0
+    while index < count:
+        candidate: usize = order[index].id
+        if nodes[candidate].kind == target_kind and nodes[candidate].weight == target_weight:
+            block[used] <- candidate
+            used <- used + 1
+        index <- index + 1
+    index <- 0
+    while index < used:
+        if block[index] != node: ah_swap(nodes, root, order_ids, order_count, node, block[index], false)
+        index <- index + 1
+    nodes[node].weight <- nodes[node].weight + 1
+    if nodes[node].kind == AH_LEAF: return nodes[node].parent.usize()
+    old_parent.usize()
+
+def ah_update_vitter(nodes: mutable view[AhNode], root: mutable usize&,
+        nyt: i64, node_count: usize, order_ids: mutable view[usize], order_count: usize,
+        start: usize, just_split: bool) -> void:
+    ordered: mutable AhOrdered[AH_MAX_NODES] = zeroed
+    ordered_view: mutable view[AhOrdered] = ordered[0:AH_MAX_NODES]
+    node: mutable usize = start
+    leaf_to_increment: mutable i64 = -1
+    if just_split:
+        leaf_to_increment <- node.i64()
+        node <- nodes[node].parent.usize()
+    else:
+        leader: usize = ah_vitter_leader(nodes, root, node_count, ordered_view, node)
+        ah_swap(nodes, root, order_ids, order_count, node, leader, false)
+        parent: i64 = nodes[node].parent
+        if nyt >= 0 and parent >= 0 and nodes[nyt.usize()].parent == parent:
+            leaf_to_increment <- node.i64()
+            node <- parent.usize()
+    while node != root:
+        node <- ah_slide_increment(nodes, root, order_ids, order_count, node_count, ordered_view, node)
+    if leaf_to_increment >= 0:
+        next_node: usize = ah_slide_increment(nodes, root, order_ids, order_count, node_count, ordered_view, leaf_to_increment.usize())
+        if next_node >= node_count: return
+    nodes[root].weight <- nodes[root].weight + 1
+
+def ah_run(input: view[i64], output: mutable u8&, capacity: usize, use_vitter: bool) -> i64:
+    if input.len() < 1 or input.len() > AH_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 64 or input.len() != 1 + n_value.usize(): return -1
+    n: usize = n_value.usize()
+    index: mutable usize = 0
+    while index < n:
+        if input[index + 1] < 0 or input[index + 1] >= AH_ALPHABET.i64(): return -1
+        index <- index + 1
+    node_storage: mutable AhNode[AH_MAX_NODES] = zeroed
+    nodes: mutable view[AhNode] = node_storage[0:AH_MAX_NODES]
+    order_storage: mutable usize[AH_MAX_NODES] = zeroed
+    order: mutable view[usize] = order_storage[0:AH_MAX_NODES]
+    leaf_storage: mutable i64[AH_ALPHABET] = zeroed
+    leaf: mutable view[i64] = leaf_storage[0:AH_ALPHABET]
+    bits_storage: mutable u8[AH_MAX_PACKED] = zeroed
+    bits: mutable view[u8] = bits_storage[0:AH_MAX_PACKED]
+    node_count: mutable usize = 1
+    root: mutable usize = 0
+    nyt: mutable i64 = 0
+    order_count: mutable usize = 1
+    bit_count: mutable usize = 0
+    nodes[0] <- AhNode{parent: -1, left: -1, right: -1, symbol: -1, kind: AH_NYT, weight: 0}
+    order[0] <- 0
+    index <- 0
+    while index < AH_ALPHABET:
+        leaf[index] <- -1
+        index <- index + 1
+    seen: mutable usize = 0
+    index <- 0
+    while index < n:
+        symbol: usize = input[index + 1].usize()
+        is_new: bool = leaf[symbol] < 0
+        current: mutable usize = if is_new: nyt.usize() else: leaf[symbol].usize()
+        ah_encode_path(nodes, root, bits, bit_count, current)
+        if is_new: ah_put_value(bits, bit_count, symbol, 4)
+        if is_new:
+            seen <- seen + 1
+            just_split: bool = seen < AH_ALPHABET
+            current <- ah_split(nodes, node_count, leaf, order, order_count, nyt, symbol, just_split, !use_vitter)
+            if use_vitter: ah_update_vitter(nodes, root, nyt, node_count, order, order_count, current, just_split)
+            else: ah_update_fgk(nodes, root, nyt, order, order_count, current)
+        else:
+            if use_vitter: ah_update_vitter(nodes, root, nyt, node_count, order, order_count, current, false)
+            else: ah_update_fgk(nodes, root, nyt, order, order_count, current)
+        index <- index + 1
+    packed: usize = (bit_count + 7) / 8
+    required: usize = 8 + packed
+    if output.is_null() or capacity < required: return -2
+    count_bits: u64 = bit_count.u64()
+    index <- 0
+    while index < 8:
+        output[index] <- ((count_bits >> (8 * index)) & 255u64).u8()
+        index <- index + 1
+    index <- 0
+    while index < packed:
+        output[8 + index] <- bits[index]
+        index <- index + 1
+    required.i64()
+
+export fn fgk_adaptive_huffman(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > AH_MAX_INPUT: return -1
+    ah_run(input[0:length], output, capacity, false)
+
+export fn vitter_adaptive_huffman(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > AH_MAX_INPUT: return -1
+    ah_run(input[0:length], output, capacity, true)

@@ -1,0 +1,81 @@
+const NI_MAX_N: usize = 8
+const NI_MAX_M: usize = 28
+const NI_MAX_INPUT: usize = 60
+
+def ni_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def nagamochi_ibaraki_sparse_k_connectivity_certificate(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("nagamochi_ibaraki_sparse_k_connectivity_certificate"):
+    if input.is_null() or length < 3 or length > NI_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n64: i64 = input_view[0]
+    m64: i64 = input_view[1]
+    k64: i64 = input_view[2]
+    if n64 < 3 or n64 > 8 or m64 < 0 or m64 > 28 or k64 < 1 or k64 > 3: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    k: usize = k64.usize()
+    if length != 3 + 2 * m: return -1
+
+    u: mutable usize[28] = zeroed
+    v: mutable usize[28] = zeroed
+    incident: mutable usize[64] = zeroed
+    degree: mutable usize[8] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        a: i64 = input_view[3 + 2 * edge]
+        b: i64 = input_view[4 + 2 * edge]
+        if a < 0 or a >= b or b >= n64: return -1
+        u[edge] <- a.usize()
+        v[edge] <- b.usize()
+        prior: mutable usize = 0
+        while prior < edge:
+            if u[prior] == u[edge] and v[prior] == v[edge]: return -1
+            prior <- prior + 1
+        incident[u[edge] * NI_MAX_N + degree[u[edge]]] <- edge
+        degree[u[edge]] <- degree[u[edge]] + 1
+        incident[v[edge] * NI_MAX_N + degree[v[edge]]] <- edge
+        degree[v[edge]] <- degree[v[edge]] + 1
+        edge <- edge + 1
+
+    bytes: usize = 8 * (m + 1)
+    if output.is_null() or capacity < bytes: return -2
+    rank: mutable usize[8] = zeroed
+    layer: mutable usize[28] = zeroed
+    scanned_vertex: mutable bool[8] = zeroed
+    scanned_edge: mutable bool[28] = zeroed
+    step: mutable usize = 0
+    while step < n:
+        x: mutable usize = n
+        vertex: mutable usize = 0
+        while vertex < n:
+            if not scanned_vertex[vertex] and (x == n or rank[vertex] > rank[x]): x <- vertex
+            vertex <- vertex + 1
+        slot: mutable usize = 0
+        while slot < degree[x]:
+            current_edge: usize = incident[x * NI_MAX_N + slot]
+            if not scanned_edge[current_edge]:
+                y: usize = u[current_edge]
+                if y == x: y <- v[current_edge]
+                layer[current_edge] <- rank[y] + 1
+                if rank[x] == rank[y]: rank[x] <- rank[x] + 1
+                rank[y] <- rank[y] + 1
+                scanned_edge[current_edge] <- true
+            slot <- slot + 1
+        scanned_vertex[x] <- true
+        step <- step + 1
+
+    result: mutable view[u8] = output[0:bytes]
+    ni_put_i64(m.i64(), result, 0)
+    edge <- 0
+    while edge < m:
+        label: usize = layer[edge]
+        if label > k: label <- 0
+        ni_put_i64(label.i64(), result, 8 * (edge + 1))
+        edge <- edge + 1
+    bytes.i64()

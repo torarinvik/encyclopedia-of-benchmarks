@@ -41,8 +41,12 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/f/find_previous_p
 | C3 | [`c3/f/find_previous_power_of_two.c3`](../../../c3/f/find_previous_power_of_two.c3) |
 | C++ | [`cpp/f/find_previous_power_of_two.cpp`](../../../cpp/f/find_previous_power_of_two.cpp) |
 | Elisa | [`elisa/f/find_previous_power_of_two.elisa`](../../../elisa/f/find_previous_power_of_two.elisa) |
+| Mojo | [`mojo/f/find_previous_power_of_two.mojo`](../../../mojo/f/find_previous_power_of_two.mojo) |
 | Nim | [`nim/f/find_previous_power_of_two.nim`](../../../nim/f/find_previous_power_of_two.nim) |
 | Odin | [`odin/f/find_previous_power_of_two.odin`](../../../odin/f/find_previous_power_of_two.odin) |
 | Rust | [`rust/f/find_previous_power_of_two.rs`](../../../rust/f/find_previous_power_of_two.rs) |
 | V | [`v/f/find_previous_power_of_two.v`](../../../v/f/find_previous_power_of_two.v) |
 | Zig | [`zig/f/find_previous_power_of_two.zig`](../../../zig/f/find_previous_power_of_two.zig) |
+
+Scalar verifier registration and a bit-length reference are drafted and
+have not been executed.

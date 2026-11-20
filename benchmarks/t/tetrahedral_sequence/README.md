@@ -26,6 +26,7 @@ The pinned C# generator starts at index 0 and yields `index * (index + 1) * (ind
 | C3 | [`c3/t/tetrahedral_sequence.c3`](../../../c3/t/tetrahedral_sequence.c3) |
 | C++ | [`cpp/t/tetrahedral_sequence.cpp`](../../../cpp/t/tetrahedral_sequence.cpp) |
 | Elisa | [`elisa/t/tetrahedral_sequence.elisa`](../../../elisa/t/tetrahedral_sequence.elisa) |
+| Mojo | [`mojo/t/tetrahedral_sequence.mojo`](../../../mojo/t/tetrahedral_sequence.mojo) |
 | Nim | [`nim/t/tetrahedral_sequence.nim`](../../../nim/t/tetrahedral_sequence.nim) |
 | Odin | [`odin/t/tetrahedral_sequence.odin`](../../../odin/t/tetrahedral_sequence.odin) |
 | Rust | [`rust/t/tetrahedral_sequence.rs`](../../../rust/t/tetrahedral_sequence.rs) |
@@ -35,3 +36,6 @@ The pinned C# generator starts at index 0 and yields `index * (index + 1) * (ind
 ## TheAlgorithms reference
 
 - [C# `TetrahedralSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/TetrahedralSequence.cs)
+
+Scalar verifier registration and a combination-based reference are drafted
+and have not been executed.

@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "van-leeuwen-wood-interval-heap-i32-trace-v1",
+  "algorithm": "interval_heap_double_ended",
+  "function_symbol": "interval_heap_double_ended",
+  "input": {
+    "kind": "signed_i64_array_with_i32_interval_heap_trace",
+    "layout": "[initial_count, initial_values..., operation_count, (opcode, argument)...]",
+    "initial_count_range": [0, 64],
+    "initial_value_range": [-2147483648, 2147483647],
+    "operation_count_range": [0, 128],
+    "operation_pair_layout": "Each operation is exactly two signed i64 values; arguments for opcodes 1 through 5 must be zero.",
+    "opcodes": {
+      "0": "Insert(argument); no event result",
+      "1": "FindMin(); emits the minimum key",
+      "2": "FindMax(); emits the maximum key",
+      "3": "ExtractMin(); emits and removes the minimum key",
+      "4": "ExtractMax(); emits and removes the maximum key",
+      "5": "Count; emits the current key count, including zero"
+    },
+    "insert_value_range": [-2147483648, 2147483647],
+    "empty_find_or_extract": "invalid",
+    "duplicates": "Retained as separate keys; identity/order among equal keys is not observable.",
+    "exact_length": "initial_count + 2 + 2 * operation_count",
+    "maximum_valid_length": 322,
+    "maximum_parseable_length": 322,
+    "maximum_live_values": 192,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[event_count, event_results..., final_count, final_values_sorted_ascending...]",
+    "event_results": "Find, extract, and count results in operation order; insert emits no result.",
+    "final_values": "Final interval-heap multiset sorted ascending, retaining duplicates.",
+    "return_value": "number of bytes written",
+    "maximum_bytes": 1552,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "write_on_error": false
+  },
+  "workspace": {
+    "bytes": 8192,
+    "accounting": "At most 192 i32 keys (768 bytes), 128 i64 event values (1024 bytes), a 192-key i32 sort copy (768 bytes), and bounded control state; 8192 bytes covers all ports conservatively."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "empty-heap-empty-trace",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "insert-duplicate-keys-and-query-both-ends",
+      "input_values": [0, 5, 0, 5, 0, 5, 1, 0, 2, 0, 5, 0],
+      "input_length": 12,
+      "expected_result": 56,
+      "expected_output_hex": "0300000000000000050000000000000005000000000000000200000000000000020000000000000005000000000000000500000000000000"
+    },
+    {
+      "id": "mixed-endpoint-extractions-and-reuse",
+      "input_values": [4, -4, 9, 9, 0, 8, 1, 0, 2, 0, 3, 0, 5, 0, 4, 0, 0, -8, 1, 0, 4, 0],
+      "input_length": 22,
+      "expected_result": 88,
+      "expected_output_hex": "0700000000000000fcffffffffffffff0900000000000000fcffffffffffffff03000000000000000900000000000000f8ffffffffffffff09000000000000000200000000000000f8ffffffffffffff00000000000000"
+    },
+    {
+      "id": "singleton-pairing-and-drain",
+      "input_values": [1, 42, 6, 0, -7, 1, 0, 2, 0, 4, 0, 3, 0, 5, 0],
+      "input_length": 15,
+      "expected_result": 56,
+      "expected_output_hex": "0500000000000000f9ffffffffffffff2a000000000000002a00000000000000f9ffffffffffffff00000000000000000000000000000000"
+    },
+    {
+      "id": "signed-i32-boundaries-at-both-ends",
+      "input_values": [2, -2147483648, 2147483647, 4, 1, 0, 2, 0, 3, 0, 4, 0],
+      "input_length": 12,
+      "expected_result": 48,
+      "expected_output_hex": "040000000000000000000080ffffffffffffff7f0000000000000080ffffffffffffff7f00000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-valid-frame-one-byte-short-output",
+      "input_values": [
+        64,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        128,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 322,
+      "output_capacity": 1551,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count-on-empty",
+      "input_values": [0, 1, 5, 0],
+      "input_length": 4,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "reject-empty-find-min",
+      "input_values": [0, 1, 1, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-empty-extract-max",
+      "input_values": [0, 1, 4, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-unknown-opcode",
+      "input_values": [0, 1, 6, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-nonzero-query-argument",
+      "input_values": [1, 8, 1, 1, 1],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-insert-above-i32",
+      "input_values": [0, 1, 0, 2147483648],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-trailing-word",
+      "input_values": [0, 0, 99],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-one-byte-short-output",
+      "input_values": [1, 42, 0],
+      "input_length": 3,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reject-null-output",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_is_null": true,
+      "output_capacity": 16,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

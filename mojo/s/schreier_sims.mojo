@@ -145,7 +145,7 @@ fn sch_is_member(state: InlineArray[Int64, SCH_STATE_SIZE], value_input: Int64, 
     return residue == id
 
 fn sch_read_permutation(input: UnsafePointer[Int64, ImmutAnyOrigin], offset: Int, n: Int) -> Int64:
-    var used = InlineArray[Bool, SCH_MAX_N]()
+    var used = InlineArray[Bool, SCH_MAX_N](fill=False)
     var images = InlineArray[Int, SCH_MAX_N]()
     for point in range(n):
         let image = input[offset + point]

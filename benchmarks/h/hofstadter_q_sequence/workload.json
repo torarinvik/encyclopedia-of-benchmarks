@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "hofstadter-q-sequence-i64-index-v1",
+  "algorithm": "hofstadter_q_sequence",
+  "function_symbol": "hofstadter_q_sequence",
+  "abi": "i64_array_scalar",
+  "description": "Return a bounded one-based term of Hofstadter's Q sequence.",
+  "source": {
+    "title": "A005185: Hofstadter Q-sequence",
+    "author": "OEIS Foundation Inc.; sequence introduced by Douglas R. Hofstadter",
+    "publication": "OEIS A005185; Hofstadter, Gödel, Escher, Bach, p. 138",
+    "url": "https://oeis.org/A005185",
+    "independent_method_source": "Nathan Fox, A New Approach to the Hofstadter Q-Recurrence, Journal of Integer Sequences 20 (2017), Article 17.7.3",
+    "independent_method_url": "https://cs.uwaterloo.ca/journals/JIS/VOL20/Fox/fox2.pdf",
+    "discovery_source": "RosettaGit public title index only",
+    "discovery_url": "https://rosettagit.org/tasks/",
+    "source_license": "References consulted for the mathematical recurrence and published values only; all implementations are clean-room."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[one_based_index]",
+    "index_range": [1, 128],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Q(index)",
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Bounded 129-element signed integer recurrence table with alignment margin."
+  },
+  "contract": {
+    "seeds": "Q(1)=Q(2)=1.",
+    "recurrence": "For i>2, Q(i)=Q(i-Q(i-1))+Q(i-Q(i-2)).",
+    "indexing": "one-based; the input index n selects Q(n).",
+    "definedness": "Only the published finite prefix through index 128 is claimed. If an evaluated dependency is outside 1..i-1, return -1; no statement is made about all positive indices.",
+    "primary_method": "Fill Q values in increasing index order.",
+    "independent_method": "Evaluate the recurrence through memoized recursion with dependency guards.",
+    "complexity": "O(n) time and O(n) words for the primary; O(n) memo entries for the recursive reference.",
+    "error_precedence": "Validate non-null input, parseable length 1..2, exact length 1, signed integer, and index range before recurrence evaluation.",
+    "null_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "profiles": [
+      {"id": "small-prefix", "input_values": [16]},
+      {"id": "maximum-index", "input_values": [128]}
+    ]
+  },
+  "cases": [
+    {"id":"q1-seed","input_values":[1],"expected_result":1},
+    {"id":"q2-seed","input_values":[2],"expected_result":1},
+    {"id":"first-recurrence","input_values":[3],"expected_result":2},
+    {"id":"first-repeated-value","input_values":[5],"expected_result":3},
+    {"id":"index-16","input_values":[16],"expected_result":9},
+    {"id":"index-32","input_values":[32],"expected_result":17},
+    {"id":"index-48","input_values":[48],"expected_result":32},
+    {"id":"index-64","input_values":[64],"expected_result":33},
+    {"id":"index-96","input_values":[96],"expected_result":64},
+    {"id":"maximum-supported-index","input_values":[128],"expected_result":64},
+    {"id":"zero-index","input_values":[0],"expected_result":-1},
+    {"id":"negative-index","input_values":[-1],"expected_result":-1},
+    {"id":"first-index-over-bound","input_values":[129],"expected_result":-1},
+    {"id":"extra-word","input_values":[16,0],"input_length":2,"expected_result":-1},
+    {"id":"missing-word","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"null-input","input_values":[16],"input_is_null":true,"input_length":0,"expected_result":-1},
+    {"id":"signed-64-min","input_values":[-9223372036854775808],"expected_result":-1},
+    {"id":"signed-64-max","input_values":[9223372036854775807],"expected_result":-1}
+  ]
+}

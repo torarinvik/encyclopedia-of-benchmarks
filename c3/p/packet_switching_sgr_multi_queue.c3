@@ -13,7 +13,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long packet_switching_sgr_multi_queue(long* input, usz length, char* output,
+fn long packet_switching_sgr_multi_queue(long* input, usz length, char* output,
         usz capacity) @export("packet_switching_sgr_multi_queue") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long queue_value = input[0], buffer = input[1], slot_value = input[2];

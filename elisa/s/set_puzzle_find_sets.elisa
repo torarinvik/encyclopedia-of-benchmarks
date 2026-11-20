@@ -1,0 +1,78 @@
+const MAX_CARDS: usize = 12
+const MAX_INPUT_WORDS: usize = 14
+const DECK_SIZE: usize = 81
+const MAX_OUTPUT_BYTES: usize = 536
+
+def set_puzzle_complement_code(a_raw: i8, b_raw: i8) -> usize:
+    a: usize = a_raw.usize()
+    b: usize = b_raw.usize()
+    place: mutable usize = 1
+    result: mutable usize = 0
+    for _ in 0..<4:
+        digit_sum: usize = (a / place) % 3 + (b / place) % 3
+        result <- result + ((3 - digit_sum % 3) % 3) * place
+        place <- place * 3
+    result
+
+def set_puzzle_put_i64_le(output: mutable view[u8], word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def set_puzzle_find_sets_impl(input: view[i64], output: mutable view[u8],
+        output_capacity: usize) -> i64:
+    raw_count: i64 = input[0]
+    count: usize = raw_count.usize()
+    index_by_code: mutable i8[DECK_SIZE] = zeroed
+    code_by_index: mutable i8[MAX_CARDS] = zeroed
+    for code in 0..<DECK_SIZE:
+        index_by_code[code] <- -1
+    for i in 0..<count:
+        code: usize = input[i + 1].usize()
+        index_by_code[code] <- i.i8()
+        code_by_index[i] <- code.i8()
+
+    set_count: mutable usize = 0
+    for i in 0..<count:
+        for j in (i + 1)..<count:
+            k: i8 = index_by_code[set_puzzle_complement_code(code_by_index[i], code_by_index[j])]
+            if k > j.i8():
+                set_count <- set_count + 1
+    output_bytes: usize = (1 + 3 * set_count) * 8
+    if output_capacity < output_bytes:
+        return -2
+
+    set_puzzle_put_i64_le(output, 0, set_count.i64())
+    word: mutable usize = 1
+    for i in 0..<count:
+        for j in (i + 1)..<count:
+            k: i8 = index_by_code[set_puzzle_complement_code(code_by_index[i], code_by_index[j])]
+            if k > j.i8():
+                set_puzzle_put_i64_le(output, word, i.i64())
+                set_puzzle_put_i64_le(output, word + 1, j.i64())
+                set_puzzle_put_i64_le(output, word + 2, k.i64())
+                word <- word + 3
+    output_bytes.i64()
+
+export fn set_puzzle_find_sets(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_WORDS:
+        return -1
+    raw_count: i64 = input[0]
+    if raw_count < 0 or raw_count > MAX_CARDS.i64() or
+            length != raw_count.usize() + 1:
+        return -1
+    count: usize = raw_count.usize()
+    for index in 0..<count:
+        code: i64 = input[index + 1]
+        if code < 0 or code >= DECK_SIZE.i64():
+            return -1
+        for prior in 0..<index:
+            if input[prior + 1] == code:
+                return -1
+    if output.is_null():
+        return -2
+    writable_length: mutable usize = output_capacity
+    if writable_length > MAX_OUTPUT_BYTES:
+        writable_length <- MAX_OUTPUT_BYTES
+    set_puzzle_find_sets_impl(input[0:length], output[0:writable_length], output_capacity)

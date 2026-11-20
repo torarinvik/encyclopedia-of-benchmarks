@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "euclid-mullin-sequence-i64-array-scalar-v1",
+  "algorithm": "euclid_mullin_sequence",
+  "function_symbol": "euclid_mullin_sequence",
+  "abi": "i64_array_scalar",
+  "description": "Return a bounded one-based term of the Euclid–Mullin sequence, where each new prime is the least prime factor of one plus the prior-term product.",
+  "source": {
+    "title": "The Euclid–Mullin Graph",
+    "authors": ["Andrew R. Booker", "Sean A. Irvine"],
+    "publisher": "Journal of Number Theory",
+    "volume": 165,
+    "year": 2016,
+    "pages": "30–57",
+    "reference_url": "https://research-information.bris.ac.uk/files/65358793/emgraph.pdf",
+    "historical_reference_url": "https://doi.org/10.1090/S0002-9904-1963-11017-4",
+    "sequence_reference_url": "https://oeis.org/A000945",
+    "discovery_url": "https://raw.githubusercontent.com/acmeism/RosettaCodeData/main/popular-tasks",
+    "license": "Mathematical algorithm descriptions cited; clean-room implementation",
+    "implementation_status": "bounded clean-room exact sequence profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n]",
+    "indexing": "1-based",
+    "n_range": [1, 8],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "a(1)=2; a(n+1) is the least prime factor of 1+product(a(1)..a(n))",
+    "valid_result_range": [2, 6221671],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "definition": "Start with product P=1. For each one-based index i, set a(i) to the least prime factor of P+1, then update P to P*a(i).",
+    "primary_method": "Maintain the prefix product. For each term, trial-divide P+1 by ascending integer candidates starting at 2; the first divisor is prime and is the least prime factor, while exhausting candidates through floor(sqrt(P+1)) proves P+1 prime.",
+    "independent_method": "Sieve prime candidates through floor(sqrt(6221671)), then test only those primes in ascending order against each prefix product plus one.",
+    "invalid_cases": "Null, empty or trailing-word frame, n<1, or n>8 returns -1.",
+    "distinctness": "The local primorial profile returns products of an initial prime prefix, and the Sylvester profile returns the entire product-plus-one value. This sequence returns the least prime factor of each product-plus-one value, which can be a proper factor and need not exceed the prior term.",
+    "maximum_candidate_evidence": "The published first eight terms are 2, 3, 7, 43, 13, 53, 5, and 6221671. Before generating term eight, the prefix product is 6221670, so the largest factorization input is 6221671.",
+    "overflow_proof": "The largest candidate is 6221671. The prefix product through term eight is 38709183810570, one less than the published ninth candidate 38709183810571; both it and every intermediate product fit signed 64-bit. Trial-division products are avoided by comparing divisor <= value/divisor.",
+    "source_note": "RosettaCodeData is used only for title discovery. The recurrence and published initial values follow Booker and Irvine and OEIS A000945; no task text, source code, examples, or fixtures are copied."
+  },
+  "complexity": {
+    "primary_time": "O(n*sqrt(B)) integer divisions for B=6221671 and n<=8; the largest candidate requires divisors only through 2494.",
+    "primary_space": "O(1) scalar state; 64-byte workspace cap.",
+    "independent_time": "O(S log log S) sieve setup plus at most n*pi(S) remainder checks, S=2494.",
+    "independent_space": "2495 sieve flags plus a bounded list of primes through 2494."
+  },
+  "workspace": {"bytes": 64},
+  "primary_oracle": "benchmarks/e/euclid_mullin_sequence/primary_oracle.py",
+  "independent_oracle": "benchmarks/e/euclid_mullin_sequence/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"first-term", "input_values":[1], "input_length":1, "expected_result":2},
+    {"id":"second-term", "input_values":[2], "input_length":1, "expected_result":3},
+    {"id":"fourth-term", "input_values":[4], "input_length":1, "expected_result":43},
+    {"id":"nonmonotone-term", "input_values":[5], "input_length":1, "expected_result":13},
+    {"id":"least-factor-not-euclid-number", "input_values":[7], "input_length":1, "expected_result":5},
+    {"id":"maximum-supported-index", "input_values":[8], "input_length":1, "expected_result":6221671},
+    {"id":"zero-index-invalid", "input_values":[0], "input_length":1, "expected_result":-1},
+    {"id":"negative-index-invalid", "input_values":[-1], "input_length":1, "expected_result":-1},
+    {"id":"index-above-bound-invalid", "input_values":[9], "input_length":1, "expected_result":-1},
+    {"id":"wrong-arity-empty", "input_values":[], "input_length":0, "expected_result":-1},
+    {"id":"wrong-arity-extra-word", "input_values":[1,0], "input_length":2, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1},
+    {"id":"i64-min-invalid", "input_values":[-9223372036854775808], "input_length":1, "expected_result":-1},
+    {"id":"i64-max-invalid", "input_values":[9223372036854775807], "input_length":1, "expected_result":-1}
+  ]
+}

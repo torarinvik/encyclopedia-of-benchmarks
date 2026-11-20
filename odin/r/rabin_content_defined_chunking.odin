@@ -25,8 +25,8 @@ rabin_content_defined_chunking :: proc "c" (input: [^]i64, length: c.size_t,
     boundaries: [64]u8
     count := 0
     for i := 0; i < n; i += 1 {
-        fingerprint = cdc_reduce((u32(fingerprint) << 8) | u32(input[i+1]))
         if i >= 4 do fingerprint ~= outgoing[int(input[i-3])]
+        fingerprint = cdc_reduce((u32(fingerprint) << 8) | u32(input[i+1]))
         if fingerprint & 7 == 0 { boundaries[count] = u8(i+1); count += 1 }
     }
     if n > 0 && (count == 0 || int(boundaries[count-1]) != n) {

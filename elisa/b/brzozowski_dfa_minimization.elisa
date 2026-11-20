@@ -1,0 +1,70 @@
+# Bounded reverse/subset/reverse/subset DFA minimization.
+export fn brzozowski_dfa_minimization(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > 10: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    start64: i64 = values[1]
+    accepting64: i64 = values[2]
+    if n64 < 1 or n64 > 3 or start64 < 0 or start64 >= n64: return -1
+    if accepting64 < 0 or accepting64 >= (1.i64() << n64.usize()): return -1
+    n: usize = n64.usize()
+    if length != 3 + 2 * n: return -1
+    start: usize = start64.usize()
+
+    transition: mutable i64[3][2] = zeroed
+    # Keep the FFI pointer at this boundary; all data below uses bounded arrays.
+    for state in 0..<n:
+        for symbol in 0..<2:
+            target: i64 = values[3 + 2 * state + symbol]
+            if target < 0 or target >= n64: return -1
+            transition[state][symbol] <- target
+
+    first_masks: mutable i64[8] = zeroed
+    first_delta: mutable usize[8][2] = zeroed
+    first_final: mutable bool[8] = zeroed
+    first_id: mutable i64[8] = zeroed
+    for i in 0..<8: first_id[i] <- -1
+    first_count: mutable usize = 1
+    first_masks[0] <- accepting64
+    first_id[accepting64.usize()] <- 0
+    cursor: mutable usize = 0
+    while cursor < first_count:
+        subset: i64 = first_masks[cursor]
+        first_final[cursor] <- ((subset >> start) & 1) != 0
+        for symbol in 0..<2:
+            predecessor: mutable i64 = 0
+            for state in 0..<n:
+                if (subset & (1.i64() << transition[state][symbol].usize())) != 0:
+                    predecessor <- predecessor | (1.i64() << state)
+            mask_index: usize = predecessor.usize()
+            if first_id[mask_index] < 0:
+                first_id[mask_index] <- first_count.i64()
+                first_masks[first_count] <- predecessor
+                first_count <- first_count + 1
+            first_delta[cursor][symbol] <- first_id[mask_index].usize()
+        cursor <- cursor + 1
+
+    first_accepting: mutable i64 = 0
+    for state in 0..<first_count:
+        if first_final[state]: first_accepting <- first_accepting | (1.i64() << state)
+
+    second_queue: mutable i64[256] = zeroed
+    second_seen: mutable bool[256] = zeroed
+    second_count: mutable usize = 1
+    second_queue[0] <- first_accepting
+    second_seen[first_accepting.usize()] <- true
+    cursor <- 0
+    while cursor < second_count:
+        subset: i64 = second_queue[cursor]
+        for symbol in 0..<2:
+            predecessor: mutable i64 = 0
+            for state in 0..<first_count:
+                if (subset & (1.i64() << first_delta[state][symbol])) != 0:
+                    predecessor <- predecessor | (1.i64() << state)
+            mask_index: usize = predecessor.usize()
+            if not second_seen[mask_index]:
+                second_seen[mask_index] <- true
+                second_queue[second_count] <- predecessor
+                second_count <- second_count + 1
+        cursor <- cursor + 1
+    second_count.i64()

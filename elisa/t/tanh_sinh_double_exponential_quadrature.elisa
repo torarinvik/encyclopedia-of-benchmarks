@@ -1,0 +1,55 @@
+extern exp(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 3
+const PI_PINNED: f64 = 3.14159265358979323846264338327950288
+
+def exact_integer(value: f64, low: i64, high: i64) -> bool:
+    if value != value or value > 1.0e308 or value < -1.0e308: return false
+    if value < low.f64() or value > high.f64(): return false
+    value.i64().f64() == value
+
+def integrate(function_id: i64, p: i64) -> f64:
+    h: f64 = 1.0 / (1 << p).f64()
+    half_pi: f64 = PI_PINNED / 2.0
+    limit: i64 = 3 * (1 << p)
+    mut total: f64 = 0.0
+    mut j: i64 = -limit
+    while j <= limit:
+        t: f64 = j.f64() * h
+        exp_t: f64 = exp(t)
+        exp_minus_t: f64 = exp(-t)
+        sinh_t: f64 = (exp_t - exp_minus_t) * 0.5
+        cosh_t: f64 = (exp_t + exp_minus_t) * 0.5
+        u: f64 = half_pi * sinh_t
+        abs_u: f64 = if u < 0.0: -u else: u
+        q: f64 = exp(-2.0 * abs_u)
+        one_plus_q: f64 = 1.0 + q
+        sech_squared: f64 = (4.0 * q) / (one_plus_q * one_plus_q)
+        magnitude_x: f64 = (1.0 - q) / one_plus_q
+        x: f64 = if u >= 0.0: magnitude_x else: -magnitude_x
+        jacobian: f64 = (half_pi * cosh_t) * sech_squared
+        mut sample: f64 = 0.0
+        if function_id == 0: sample <- 1.0
+        elif function_id == 1: sample <- x * x
+        elif function_id == 2: sample <- 1.0 / sqrt(sech_squared)
+        elif u >= 0.0: sample <- 1.0 / sqrt((2.0 * q) / one_plus_q)
+        else: sample <- 1.0 / sqrt(2.0 / one_plus_q)
+        transformed: f64 = sample * jacobian
+        total <- total + h * transformed
+        j <- j + 1
+    total
+
+export fn tanh_sinh_double_exponential_quadrature(
+    input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize
+) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    input_view: view[f64] = input[0:input_length]
+    if input_length != 2 or not exact_integer(input_view[0], 0, 3)
+        or not exact_integer(input_view[1], 2, 4): return -1
+    if output.is_null() or output_capacity < 1: return -2
+    value: f64 = integrate(input_view[0].i64(), input_view[1].i64())
+    if value != value or value > 1.0e308 or value < -1.0e308: return -1
+    output_view: mutable view[f64] = output[0:1]
+    output_view[0] <- value
+    1

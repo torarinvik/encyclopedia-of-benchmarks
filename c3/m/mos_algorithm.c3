@@ -16,7 +16,7 @@ fn bool query_before(usz a, usz b, int32* lefts, int32* rights, usz block_size) 
     return rights[a] > rights[b];
 }
 
-long mos_algorithm(long* input, usz length) @export("mos_algorithm") {
+fn long mos_algorithm(long* input, usz length) @export("mos_algorithm") {
     if (input == null || length < 4 || length > MAX_INPUT_LENGTH) return -1;
     long operation = input[0];
     long n64 = input[1];

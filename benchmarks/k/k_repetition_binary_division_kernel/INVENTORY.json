@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "k_repetition_binary_division_kernel",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "k_repetition_binary_division_kernel",
+  "maximum_valid_input_words": 34,
+  "maximum_parseable_input_words": 35,
+  "maximum_output_bytes": 91400,
+  "workspace_bytes": 8192,
+  "sources": [
+    "c/k/k_repetition_binary_division_kernel.c",
+    "c3/k/k_repetition_binary_division_kernel.c3",
+    "cpp/k/k_repetition_binary_division_kernel.cpp",
+    "elisa/k/k_repetition_binary_division_kernel.elisa",
+    "mojo/k/k_repetition_binary_division_kernel.mojo",
+    "nim/k/k_repetition_binary_division_kernel.nim",
+    "odin/k/k_repetition_binary_division_kernel.odin",
+    "rust/k/k_repetition_binary_division_kernel.rs",
+    "v/k/k_repetition_binary_division_kernel.v",
+    "zig/k/k_repetition_binary_division_kernel.zig"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "check_inventory.py",
+    "verify_workload.py"
+  ]
+}

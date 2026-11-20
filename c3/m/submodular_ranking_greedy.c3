@@ -10,14 +10,14 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz b = 0; b < 8; b += 1) { output[offset + b] = (char)(bits & 255); bits >>= 8; }
 }
 
-long submodular_ranking_greedy(long* input, usz length, char* output, usz capacity)
+fn long submodular_ranking_greedy(long* input, usz length, char* output, usz capacity)
         @export("submodular_ranking_greedy") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];
     if (n64 < 1 || n64 > 5 || m64 < 1 || m64 > 4) return -1;
     usz n = n64.usz(), m = m64.usz(), size = 1 << n;
     if (length != 2 + m * size) return -1;
-    long[MAX_M][MAX_SUBSETS] f = zeroed;
+    long[MAX_SUBSETS][MAX_M] f = zeroed;
     for (usz i = 0; i < m; i += 1) {
         for (usz a = 0; a < size; a += 1) {
             long v = input[2 + i * size + a];

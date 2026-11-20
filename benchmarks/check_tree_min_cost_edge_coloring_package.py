@@ -58,7 +58,8 @@ def static_issues(workload):
             if k ** (n-1) <= 100000 and brute_small(values) != result:
                 issues.append(f"brute-force disagreement: {case_id}")
     required = {"single_vertex", "single_edge", "two_edge_path", "saturated_star", "branching_tree",
-                "equal_prices_star", "extra_unsorted_colors", "star_infeasible", "invalid_before_infeasible",
+                "equal_prices_star", "extra_unsorted_colors", "longer_alternating_path", "sixteen_color_star",
+                "star_infeasible", "invalid_before_infeasible",
                 "invalid_parent", "trailing_word", "null_input"}
     if not required <= seen:
         issues.append("missing cases: " + ", ".join(sorted(required - seen)))

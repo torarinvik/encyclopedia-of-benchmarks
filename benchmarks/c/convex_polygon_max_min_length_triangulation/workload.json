@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "convex-polygon-max-min-length-triangulation-i64-array-scalar-v1",
+  "algorithm": "convex_polygon_max_min_length_triangulation",
+  "function_symbol": "convex_polygon_max_min_length_triangulation",
+  "abi": "i64_array_scalar",
+  "description": "Construct a max-min Euclidean edge-length triangulation of a strictly convex polygon.",
+  "source": {
+    "title": "A linear time algorithm for max-min length triangulation of a convex polygon",
+    "authors": ["Shiyan Hu"],
+    "reference": "Information Processing Letters 101(5), 203-208 (2007).",
+    "url": "https://doi.org/10.1016/j.ipl.2006.09.014",
+    "open_paper_url": "https://par.cse.nsysu.edu.tw/resource/paper/2008/080312/A%20linear%20time%20algorithm%20for%20max-min%20length%20triangulation%20of%20a%20convex%20polygon.pdf",
+    "encyclopedia_context": "Tiow-Seng Tan, Optimal Triangulation, Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_715.",
+    "encyclopedia_url": "https://doi.org/10.1007/978-1-4939-2864-4_715",
+    "algorithm_attribution": "Hu's linear-time 60-degree corner-cutting algorithm for convex polygons.",
+    "implementation_status": "Clean-room bounded ports from the published algorithm description; no source code copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,x0,y0,...,x(n-1),y(n-1)]",
+    "vertex_count_range": [3, 6],
+    "coordinate_range": [-8, 8],
+    "polygon_requirements": [
+      "distinct integer vertices",
+      "vertices listed in strict counterclockwise boundary order",
+      "strictly convex polygon",
+      "no three vertices collinear"
+    ],
+    "exact_length": "1 + 2*n",
+    "maximum_valid_length": 13,
+    "maximum_parseable_length": 14,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "objective_squared_length*512 + diagonal_mask",
+    "objective_squared_length_range": [1, 512],
+    "diagonal_mask_range": [0, 511],
+    "maximum_result": 262655,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "objective": "maximize the minimum Euclidean length among every hull and inserted diagonal edge of the triangulation; compare squared lengths, which preserves ordering exactly.",
+    "signature": "The low 9 bits encode the diagonals in the deterministic Hu triangulation. Enumerate all unordered vertex pairs (i,j) in lexicographic order and assign successive bit positions only to diagonals, excluding hull edges. The output is objective_squared_length*512 + this mask.",
+    "empty_diagonal_set": "For n=3 there are no diagonals and the signature mask is zero; the output still contains the shortest-side squared objective, not a sentinel.",
+    "angle_test": "At the current corner q with active neighbors p,r, cut q when angle(p,q,r) >= 60 degrees. For dot<=0 cut; otherwise cut exactly when 4*dot*dot <= norm_u_squared*norm_v_squared.",
+    "angle_equality": "A 60-degree equality is treated as cut. The exact integer predicate avoids floating-point trigonometry.",
+    "tie_order": "Start at vertex zero, follow the supplied counterclockwise order, and cut at the first active corner meeting the threshold. The branch and result are deterministic.",
+    "initial_edge_set": "All polygon boundary edges are included; every cut adds the chord from p to r; stop when three active vertices remain.",
+    "maximum_greedy_steps": 24,
+    "greedy_step_bound_reason": "For n<=6, Hu's convex-angle lemma gives at most two angles below 60 degrees in every active convex polygon, so a cut is reached within at most three checks; there are n-3 cuts.",
+    "null_input_result": -1
+  },
+  "complexity": {
+    "time": "O(n) angle checks and corner removals, with n<=6.",
+    "auxiliary_space": "O(n) successor links, with n<=6."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"triangle-shortest-side-empty-mask", "input_values":[3,0,0,4,0,0,3], "input_length":7, "expected_result":4608},
+    {"id":"square-cut-right-angle", "input_values":[4,0,0,4,0,4,4,0,4], "input_length":9, "expected_result":8193},
+    {"id":"pentagon-keeps-acute-corner", "input_values":[5,0,0,4,0,1,2,-4,4,-4,1], "input_length":11, "expected_result":4620},
+    {"id":"maximum-valid-hexagon-tied-hull-minima", "input_values":[6,0,-4,4,-2,4,2,0,4,-4,2,-4,-2], "input_length":13, "expected_result":8199},
+    {"id":"maximum-parseable-trailing-value", "input_values":[6,0,-4,4,-2,4,2,0,4,-4,2,-4,-2,77], "input_length":14, "expected_result":-1},
+    {"id":"vertex-count-below-bound", "input_values":[2,0,0,1,0], "input_length":5, "expected_result":-1},
+    {"id":"vertex-count-above-bound", "input_values":[7], "input_length":1, "expected_result":-1},
+    {"id":"truncated-coordinate-row", "input_values":[3,0,0,4,0,0], "input_length":6, "expected_result":-1},
+    {"id":"duplicate-vertex", "input_values":[3,0,0,4,0,0,0], "input_length":7, "expected_result":-1},
+    {"id":"clockwise-order", "input_values":[3,0,0,0,3,4,0], "input_length":7, "expected_result":-1},
+    {"id":"collinear-triple", "input_values":[4,0,0,2,0,4,0,0,4], "input_length":9, "expected_result":-1},
+    {"id":"nonconvex-boundary-order", "input_values":[5,0,0,4,0,2,1,4,4,0,4], "input_length":11, "expected_result":-1},
+    {"id":"coordinate-out-of-range", "input_values":[3,0,0,9,0,0,3], "input_length":7, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

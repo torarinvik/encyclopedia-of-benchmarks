@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "magic-square-singly-even-strachey-v1",
+  "algorithm": "magic_square_singly_even_strachey",
+  "function_symbol": "magic_square_singly_even_strachey",
+  "abi": "scalar_call",
+  "input": {
+    "kind": "signed_i64_scalar",
+    "meaning": "normal magic-square order",
+    "minimum_order": 6,
+    "maximum_order": 30,
+    "valid_orders": "n % 4 == 2",
+    "invalid_input_result": -1
+  },
+  "result": {
+    "kind": "signed_i64_scalar_fnv1a64",
+    "encoding": "low 63 bits of FNV-1a-64 over order as u8 then row-major signed-i32 little-endian square entries",
+    "fnv1a_offset_basis": 14695981039346656037,
+    "fnv1a_prime": 1099511628211
+  },
+  "expected_result_provider": {
+    "module": "primary_oracle.py",
+    "function": "expected_result",
+    "cross_check_module": "independent_oracle.py",
+    "cross_check_function": "expected_result",
+    "evaluation": "compute expected scalar from each case input during verification"
+  },
+  "cases": [
+    {"id": "minimum_order", "input_value": 6},
+    {"id": "order_ten", "input_value": 10},
+    {"id": "order_fourteen", "input_value": 14},
+    {"id": "maximum_order", "input_value": 30},
+    {"id": "below_minimum", "input_value": 2},
+    {"id": "doubly_even_order", "input_value": 8},
+    {"id": "odd_order", "input_value": 7},
+    {"id": "above_maximum", "input_value": 34},
+    {"id": "i64_minimum", "input_value": -9223372036854775808},
+    {"id": "i64_maximum", "input_value": 9223372036854775807}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 16,
+    "warmup_rounds": 1,
+    "sample_count": 5
+  }
+}

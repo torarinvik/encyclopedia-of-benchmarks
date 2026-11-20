@@ -20,8 +20,8 @@ pub unsafe extern "C" fn rabin_content_defined_chunking(
     let mut boundaries = [0u8; 64];
     let mut count = 0;
     for i in 0..n {
-        fingerprint = reduce(((fingerprint as u32) << 8) | values[i + 1] as u32);
         if i >= 4 { fingerprint ^= outgoing[values[i - 3] as usize]; }
+        fingerprint = reduce(((fingerprint as u32) << 8) | values[i + 1] as u32);
         if fingerprint & 7 == 0 { boundaries[count] = (i + 1) as u8; count += 1; }
     }
     if n > 0 && (count == 0 || boundaries[count - 1] as usize != n) {

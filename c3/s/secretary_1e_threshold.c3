@@ -3,7 +3,7 @@ const usz MAX_N=16; const usz MAX_INPUT=17;
 const usz[17] SAMPLE={0,0,0,1,1,1,2,2,2,3,3,4,4,4,5,5,5};
 fn void put64(char*out,usz at,long value){ulong bits=(ulong)value;for(usz j=0;j<8;j+=1){out[at+j]=(char)(bits&255);bits>>=8;}}
 
-long secretary_1e_threshold(long*in,usz len,char*out,usz cap) @export("secretary_1e_threshold") {
+fn long secretary_1e_threshold(long*in,usz len,char*out,usz cap) @export("secretary_1e_threshold") {
     if(in==null||len<4||len>MAX_INPUT)return -1;
     long n64=in[0];if(n64<3||n64>(long)MAX_N||len!=(usz)(n64+1))return -1;usz n=(usz)n64;
     char[MAX_N+1] seen=zeroed;

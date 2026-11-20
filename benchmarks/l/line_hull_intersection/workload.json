@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "line-hull-intersection-i64-array-bytes-output-v1",
+  "algorithm": "line_hull_intersection",
+  "function_symbol": "line_hull_intersection",
+  "abi": "i64_array_bytes_output",
+  "description": "Returns the ordered polygon boundary edges intersected by a directed infinite line.",
+  "source": {
+    "title": "Intersection of Convex Objects in Two and Three Dimensions",
+    "url": "https://www.cs.princeton.edu/~chazelle/pubs/IntersectConvexObjects2-3Dim.pdf",
+    "secondary_title": "Convex Polygons",
+    "secondary_url": "https://people.mpi-inf.mpg.de/~mehlhorn/ftp/EATCSmonograph/chapter8.pdf",
+    "discovery_title": "LineHullIntersection.h",
+    "discovery_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/geometry/chapter.tex",
+    "algorithm_description_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/geometry/LineHullIntersection.h",
+    "discovery_scope": "The KACTL title and public result description were used for discovery and contract cross-check only; no code, tests, examples, or prose were copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,x1,y1,x2,y2,x0,y0,...,x(n-1),y(n-1)]",
+    "directed_line": "The distinct points (x1,y1) then (x2,y2) define the direction used to order hits.",
+    "vertex_count_range": [3, 16],
+    "coordinate_range": [-50, 50],
+    "vertex_rule": "Distinct strictly convex vertices in counterclockwise cyclic order; any cyclic start is accepted.",
+    "exact_length": "5+2*n",
+    "maximum_valid_length": 37,
+    "maximum_parseable_length": 38,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "two signed 64-bit little-endian edge indices in directed-line hit order",
+    "pair_semantics": "[-1,-1] no hit; [i,-1] corner touch at vertex i; [i,i] overlap with side (i,i+1); [i,j] two hits on edges (i,i+1) and (j,j+1). Vertex hits use their outgoing edge index.",
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "External output capacity; all polygon and search state uses bounded fixed storage."
+  },
+  "algorithm_details": {
+    "primary": "Use cyclic polar ordering of CCW edge vectors, binary-search its rotation and the support edges for both line normals, then binary-search each monotone boundary chain for its line hit.",
+    "independent_oracle": "Scan every edge, collect exact vertex or rational edge-interior intersections, and sort by the exact dot-product parameter along the directed line.",
+    "validation": "O(n^2) exact checks require positive CCW area and every non-edge vertex strictly left of each directed edge.",
+    "query_complexity": "O(log n) after validation; independent edge scan is O(n)."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"horizontal-two-edge-crossing","input_values":[4,-1,2,5,2,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000000100000000000000"},
+    {"id":"reverse-line-orders-same-boundary-points","input_values":[4,5,2,-1,2,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000300000000000000"},
+    {"id":"line-through-opposite-corners","input_values":[4,-1,-1,5,5,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"corner-and-edge-crossing","input_values":[4,0,0,4,2,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000100000000000000"},
+    {"id":"corner-tangent","input_values":[4,-1,1,1,-1,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"0000000000000000ffffffffffffffff"},
+    {"id":"collinear-side-overlap","input_values":[4,-1,0,5,0,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"outside-line-no-hit","input_values":[4,-1,5,5,5,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"ffffffffffffffffffffffffffffffff"},
+    {"id":"arbitrary-cyclic-start","input_values":[4,-1,2,5,2,4,4,0,4,0,0,4,0],"input_length":13,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000300000000000000"},
+    {"id":"clockwise-polygon","input_values":[4,-1,2,5,2,0,0,0,4,4,4,4,0],"input_length":13,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"repeated-vertex","input_values":[4,-1,2,5,2,0,0,4,0,4,4,0,0],"input_length":13,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-direction-line","input_values":[4,2,2,2,2,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[3,-1,1,5,1,0,0,4,0,0,4,99],"input_length":12,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output-valid-input","input_values":[4,-1,2,5,2,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[4,-1,2,5,2,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-precedes-null-output","input_values":[4,2,2,2,2,0,0,4,0,4,4,0,4],"input_length":13,"output_capacity":16,"output_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

@@ -23,8 +23,8 @@ export fn rabin_content_defined_chunking(input_opt: ?[*]const i64, length: usize
     var boundaries: [64]u8 = undefined;
     var count: usize = 0;
     for (0..n) |i| {
-        fingerprint = reduce((@as(u32, fingerprint) << 8) | @as(u32, @intCast(input[i+1])));
         if (i >= 4) fingerprint ^= outgoing[@intCast(input[i-3])];
+        fingerprint = reduce((@as(u32, fingerprint) << 8) | @as(u32, @intCast(input[i+1])));
         if (fingerprint & 7 == 0) { boundaries[count] = @intCast(i+1); count += 1; }
     }
     if (n > 0 and (count == 0 or boundaries[count-1] != n)) {

@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "interval-container-i64-array-scalar-v1",
+  "algorithm": "interval_container",
+  "function_symbol": "interval_container",
+  "abi": "i64_array_scalar",
+  "description": "Online add/remove updates for a union of half-open intervals.",
+  "source": {
+    "title": "KACTL IntervalContainer.h",
+    "author": "Simon Lindholm",
+    "url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/various/IntervalContainer.h",
+    "repository": "https://github.com/kth-competitive-programming/kactl",
+    "repository_license": "CC0",
+    "algorithm_attribution": "Canonical disjoint interval set with range addition and subtraction",
+    "implementation_status": "clean-room bounded operation-trace profile"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[operation_count, then operation_count triples [opcode, left, right]]",
+    "operation_width": 3,
+    "operation_count_range": [0, 24],
+    "domain": "32 integer unit cells [0,1), [1,2), ..., [31,32)",
+    "endpoint_range": [0, 32],
+    "interval_rule": "half-open [left,right); endpoints must satisfy 0 <= left <= right <= 32",
+    "empty_interval_is_valid_no_op": true,
+    "exact_length": "1 + 3*operation_count",
+    "maximum_valid_input_length": 73,
+    "maximum_parseable_input_length": 74,
+    "invalid_input_result": -1,
+    "operations": {
+      "0": "add interval; merge overlapping or adjacent intervals",
+      "1": "remove interval from the union; preserve any uncovered left/right pieces"
+    }
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "sum of one-based operation index times covered-cell count after that operation",
+    "invalid_input_result": -1,
+    "maximum_valid_result": 9600
+  },
+  "contract": {
+    "initial_union_is_empty": true,
+    "intervals_are_canonical_sorted_disjoint_ranges": true,
+    "adjacent_ranges_are_merged_on_add": true,
+    "remove_only_subtracts_requested_half_open_cells": true,
+    "covered_measure": "sum of interval lengths, equal to the count of covered domain cells"
+  },
+  "complexity": {
+    "single_update": "O(operation_count)",
+    "complete_trace": "O(operation_count^2)",
+    "auxiliary_space": "O(operation_count)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty-trace",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "overlap-adjacency-split-and-rejoin",
+      "input_values": [6, 0, 2, 6, 0, 6, 9, 0, 4, 7, 1, 5, 8, 0, 5, 8, 1, 3, 7],
+      "input_length": 19,
+      "expected_result": 108
+    },
+    {
+      "id": "whole-domain-cut-and-readd",
+      "input_values": [6, 0, 0, 32, 1, 8, 24, 0, 12, 20, 1, 0, 32, 0, 31, 32, 1, 31, 32],
+      "input_length": 19,
+      "expected_result": 141
+    },
+    {
+      "id": "empty-ranges-and-absent-removals",
+      "input_values": [6, 1, 5, 9, 0, 4, 4, 0, 4, 8, 1, 0, 4, 1, 8, 10, 1, 5, 6],
+      "input_length": 19,
+      "expected_result": 66
+    },
+    {
+      "id": "maximum-valid-frame-and-checksum",
+      "input_values": [
+        24,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32
+      ],
+      "input_length": 73,
+      "expected_result": 9600
+    },
+    {
+      "id": "maximum-parseable-frame-with-trailing-value",
+      "input_values": [
+        24,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        0, 0, 32, 0, 0, 32, 0, 0, 32, 0, 0, 32,
+        99
+      ],
+      "input_length": 74,
+      "expected_result": -1
+    },
+    {
+      "id": "reversed-interval",
+      "input_values": [1, 0, 8, 7],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "endpoint-outside-domain",
+      "input_values": [1, 1, 0, 33],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "unknown-operation",
+      "input_values": [1, 2, 0, 1],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-operation",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing-value",
+      "input_values": [0, 99],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

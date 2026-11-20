@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p101_u(n:Int64)->Int64:
     var term=Int64(1);var total=Int64(0)
     for e in range(11):

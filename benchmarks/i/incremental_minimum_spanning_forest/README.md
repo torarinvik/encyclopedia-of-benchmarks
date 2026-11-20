@@ -14,6 +14,11 @@ an i64: `-1` for a component-joining edge, the new edge's own index for a
 rejected edge (including a self-loop), or the replaced forest edge's index.
 All endpoints and weights will be validated before output is written.
 
+The byte-output ABI accepts exactly `2 + 3m` input words, at most 98, and
+writes `m` signed i64 values in little-endian order, at most 256 bytes.
+Malformed or null input returns `-1`; null output or capacity below `8m`
+returns `-2` after input validation. Neither error writes to the output.
+
 The primary model is [`primary_oracle.py`](primary_oracle.py); the independent
 [`independent_oracle.py`](independent_oracle.py) recomputes each prefix forest
 using Kruskal's algorithm. [`workload.json`](workload.json) includes joins,

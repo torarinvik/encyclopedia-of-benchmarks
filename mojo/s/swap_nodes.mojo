@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn swap_nodes_put(out:UnsafePointer[UInt8,MutAnyOrigin],pos:Int,value:Int64):

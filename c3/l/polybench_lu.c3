@@ -6,7 +6,7 @@ fn long polybench_lu(double* input,usz length,double* output,usz capacity) @expo
     if(input==null||length!=1)return -1;double nv=input[0];
     if(nv!=nv||trunc(nv)!=nv||nv<1||nv>MAX_N)return -1;
     usz n=(usz)nv,cells=n*n;if(output==null||capacity<cells)return -2;
-    double a[36]={0.0},base[36]={0.0},staged[36]={0.0};
+    double[36] a={0.0},base={0.0},staged={0.0};
     for(usz i=0;i<n;i++){for(usz j=0;j<=i;j++)base[i*n+j]=1.0-(double)j/(double)n;base[i*n+i]=1.0;}
     for(usz t=0;t<n;t++)for(usz r=0;r<n;r++)for(usz s=0;s<n;s++)a[r*n+s]+=base[r*n+t]*base[s*n+t];
     for(usz i=0;i<n;i++){

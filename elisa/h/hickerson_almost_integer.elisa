@@ -1,0 +1,18 @@
+extern log(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+fn hickerson_impl(values: view[i64]) -> f64:
+    if values.len() != 1 or values[0] < 1 or values[0] > 17: return INVALID_RESULT
+    let log_two: f64 = log(2.0)
+    var value: f64 = 1.0 / (2.0 * log_two * log_two)
+    var n: i64 = 2
+    while n <= values[0]:
+        value <- (n.f64() / log_two) * value
+        n <- n + 1
+    value
+
+@export("hickerson_almost_integer")
+fn hickerson_almost_integer(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 1: return INVALID_RESULT
+    hickerson_impl(values[0:length])

@@ -25,7 +25,7 @@ fn long simultaneous_linear_equation_solver(long* input, usz length, char* outpu
     if (n_value < 1 || n_value > 5) return INVALID_RESULT;
     usz n = (usz)n_value;
     if (length != 1 + n * (n + 1)) return INVALID_RESULT;
-    double matrix[5][6] = {{0}};
+    double[6][5] matrix = {};
     bool has_zero = false;
     for (usz row = 0; row < n; row++) {
         for (usz col = 0; col <= n; col++) {
@@ -48,7 +48,7 @@ fn long simultaneous_linear_equation_solver(long* input, usz length, char* outpu
             }
             if (full_row == n) return INVALID_RESULT;
             if (full_row != 0) {
-                double saved[6] = {0};
+                double[6] saved = {};
                 for (usz col = 0; col <= n; col++) saved[col] = matrix[full_row][col];
                 for (usz row = full_row; row > 0; row--)
                     for (usz col = 0; col <= n; col++) matrix[row][col] = matrix[row - 1][col];
@@ -62,7 +62,7 @@ fn long simultaneous_linear_equation_solver(long* input, usz length, char* outpu
                 if (magnitude != 0.0)
                     for (usz col = level; col <= n; col++) matrix[row][col] /= magnitude;
             }
-            double first_row[6] = {0};
+            double[6] first_row = {};
             for (usz col = level; col <= n; col++) first_row[col] = matrix[level][col];
             for (usz row = level + 1; row < n; row++) {
                 if (matrix[row][level] != 0.0)
@@ -75,7 +75,7 @@ fn long simultaneous_linear_equation_solver(long* input, usz length, char* outpu
         }
     }
 
-    double solutions[5] = {0};
+    double[5] solutions = {};
     for (long row = (long)n - 1; row >= 0; row--) {
         if (matrix[row][row] == 0.0) return INVALID_RESULT;
         double value = matrix[row][n];
@@ -86,8 +86,8 @@ fn long simultaneous_linear_equation_solver(long* input, usz length, char* outpu
     }
 
     usz needed = 8 + 8 * n;
-    char buffer[48] = {0};
-    write_i64_le(buffer, 0, n_value);
+    char[48] buffer = {};
+    write_i64_le(&buffer[0], 0, n_value);
     for (usz index = 0; index < n; index++) {
         double scaled = solutions[index] * INVALID_SCALE;
         if (!finite_value(scaled) || scaled <= -HALF_STEP_LIMIT || scaled >= HALF_STEP_LIMIT)
@@ -110,7 +110,7 @@ fn long simultaneous_linear_equation_solver(long* input, usz length, char* outpu
             (projected == projected_midpoint && ticks % 2 != 0)) ticks++;
         if (ticks < -MAX_TICK_MAGNITUDE || ticks > MAX_TICK_MAGNITUDE)
             return INVALID_RESULT;
-        write_i64_le(buffer, 8 + 8 * index, ticks);
+        write_i64_le(&buffer[0], 8 + 8 * index, ticks);
     }
     if (output == null || capacity < needed) return CAPACITY_ERROR;
     for (usz index = 0; index < needed; index++) output[index] = buffer[index];

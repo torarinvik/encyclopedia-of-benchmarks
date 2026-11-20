@@ -1,0 +1,102 @@
+const DC_MAX_OUTPUT_BYTES: usize = 768
+
+def dc_phase_hue(real_part: i64, imaginary_part: i64) -> i64:
+    if real_part == 0 and imaginary_part == 0: return 0
+    abs_real: i64 = if real_part < 0: -real_part else: real_part
+    abs_imaginary: i64 = if imaginary_part < 0: -imaginary_part else: imaginary_part
+    high: i64 = if abs_real > abs_imaginary: abs_real else: abs_imaginary
+    low: i64 = if abs_real < abs_imaginary: abs_real else: abs_imaginary
+    step: i64 = 192 * low / high
+    hue: mutable i64 = 0
+    if imaginary_part >= 0:
+        if real_part >= 0:
+            if abs_real >= abs_imaginary: hue <- step
+            else: hue <- 384 - step
+        else:
+            if abs_real < abs_imaginary: hue <- 384 + step
+            else: hue <- 768 - step
+    elif real_part < 0:
+        if abs_real >= abs_imaginary: hue <- 768 + step
+        else: hue <- 1152 - step
+    else:
+        if abs_real < abs_imaginary: hue <- 1152 + step
+        else: hue <- 1536 - step
+    if hue == 1536: return 0
+    hue
+
+def dc_store_pixel(pixels: mutable view[u8], offset: usize,
+        hue: i64, magnitude_16: i64) -> void:
+    value: i64 = 128 + 8 * (magnitude_16 % 16)
+    sector: i64 = hue / 256
+    fraction: i64 = hue % 256
+    rising: u8 = (value * fraction / 255).u8()
+    falling: u8 = (value * (255 - fraction) / 255).u8()
+    bright: u8 = value.u8()
+    red: mutable u8 = 0
+    green: mutable u8 = 0
+    blue: mutable u8 = 0
+    if sector == 0:
+        red <- bright
+        green <- rising
+    elif sector == 1:
+        red <- falling
+        green <- bright
+    elif sector == 2:
+        green <- bright
+        blue <- rising
+    elif sector == 3:
+        green <- falling
+        blue <- bright
+    elif sector == 4:
+        red <- rising
+        blue <- bright
+    else:
+        red <- bright
+        blue <- falling
+    pixels[offset] <- red
+    pixels[offset + 1] <- green
+    pixels[offset + 2] <- blue
+
+def domain_coloring_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 6: return -1
+    width_value: i64 = input[0]
+    height_value: i64 = input[1]
+    x_start: i64 = input[2]
+    y_start: i64 = input[3]
+    x_step: i64 = input[4]
+    y_step: i64 = input[5]
+    if width_value < 1 or width_value > 16 or height_value < 1 or height_value > 16 or
+            x_start < -32 or x_start > 32 or y_start < -32 or y_start > 32 or
+            x_step < -8 or x_step > 8 or y_step < -8 or y_step > 8: return -1
+    x_end: i64 = x_start + (width_value - 1) * x_step
+    y_end: i64 = y_start + (height_value - 1) * y_step
+    if x_end < -32 or x_end > 32 or y_end < -32 or y_end > 32: return -1
+
+    width: usize = width_value.usize()
+    height: usize = height_value.usize()
+    byte_count: usize = 3 * width * height
+    rendered: mutable u8[DC_MAX_OUTPUT_BYTES] = zeroed
+    rendered_view: mutable view[u8] = rendered[0:DC_MAX_OUTPUT_BYTES]
+    offset: mutable usize = 0
+    row: mutable usize = 0
+    while row < height:
+        y_q: i64 = y_start + row.i64() * y_step
+        column: mutable usize = 0
+        while column < width:
+            x_q: i64 = x_start + column.i64() * x_step
+            x_squared: i64 = x_q * x_q
+            y_squared: i64 = y_q * y_q
+            dc_store_pixel(rendered_view, offset,
+                dc_phase_hue(x_squared - y_squared, 2 * x_q * y_q),
+                x_squared + y_squared)
+            offset <- offset + 3
+            column <- column + 1
+        row <- row + 1
+
+    if output.is_null() or capacity < byte_count: return -2
+    for byte in 0..<byte_count: output[byte] <- rendered[byte]
+    byte_count.i64()
+
+export fn domain_coloring(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = domain_coloring_impl

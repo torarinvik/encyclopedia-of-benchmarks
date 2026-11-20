@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "maximum-sum-contiguous-submatrix-row-band-kadane-v1",
+  "algorithm": "maximum_sum_contiguous_submatrix",
+  "function_symbol": "maximum_sum_contiguous_submatrix",
+  "abi": "i64_array_bytes_output",
+  "description": "Find the maximum sum over all nonempty contiguous rectangles in a bounded integer matrix.",
+  "source": {
+    "title": "VerifyThis 2017 Challenge 2, Two-dimensional maximum-sum submatrix",
+    "url": "https://ethz.ch/content/dam/ethz/special-interest/infk/chair-program-method/pm/documents/Verify%20This/challenge2.pdf",
+    "discovery_title_index": "https://www.codewars.com/collections/classic-algorithm-exercises",
+    "source_license": "The public title index was used for discovery only. The row-compression and Kadane method was independently implemented from an algorithm description. No task text, examples, tests, or source code were reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rows, columns, row-major cell values...]",
+    "rows_range": [1, 8],
+    "columns_range": [1, 8],
+    "cell_value_range": [-1000, 1000],
+    "exact_length": "2 + rows*columns",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[maximum nonempty contiguous rectangle sum]",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Fixed eight-element column-band sums, scalar recurrence state, and ABI alignment margin."
+  },
+  "contract": {
+    "objective": "Maximize the sum over all nonempty axis-aligned submatrices whose rows and columns are both contiguous.",
+    "algorithm": "For each top row, extend the bottom row while accumulating each column's band sum; run nonempty Kadane across the compressed columns and keep the greatest value.",
+    "negative_matrices": "All-negative matrices are valid; the result is their greatest single-cell value or a less-negative rectangle.",
+    "tie_handling": "Only the maximum sum is returned, so rectangle-coordinate ties do not affect the result.",
+    "error_precedence": "Validate the input pointer, frame, dimensions, and every cell before checking output pointer and capacity.",
+    "no_write_on_error": true,
+    "complexity": "O(rows^2*columns) time and O(columns) auxiliary storage.",
+    "maximum_absolute_sum": 64000,
+    "distinction": "This is the two-dimensional contiguous-rectangle maximum-subarray problem, distinct from one-dimensional maximum_subarray and from copying a selected submatrix."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "positive-rectangle", "input_values": [2, 3, 1, 2, -5, 3, 4, -6], "output_bytes": 8},
+      {"id": "maximum-dimensions", "input_values": [8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "output_bytes": 8}
+    ]
+  },
+  "cases": [
+    {"id": "positive-optimal-rectangle", "input_values": [2, 3, 1, 2, -5, 3, 4, -6], "input_length": 8, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0a00000000000000"},
+    {"id": "all-negative-picks-largest-cell", "input_values": [2, 2, -8, -3, -6, -5], "input_length": 6, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "fdffffffffffffff"},
+    {"id": "single-negative-cell", "input_values": [1, 1, -7], "input_length": 3, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "f9ffffffffffffff"},
+    {"id": "wide-best-suffix", "input_values": [1, 4, -20, -3, 5, 6], "input_length": 6, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0b00000000000000"},
+    {"id": "maximum-dimensions-zero-matrix", "input_values": [8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 66, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "zero-values", "input_values": [2, 3, 0, 0, 0, 0, 0, 0], "input_length": 8, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "invalid-row-count", "input_values": [0, 1], "input_length": 2, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-cell-bound", "input_values": [1, 1, 1001], "input_length": 3, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "extra-input-word", "input_values": [1, 1, 7, 0], "input_length": 4, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [1, 1, 7], "input_length": 3, "input_is_null": true, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 1, 7], "input_length": 3, "output_capacity": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [1, 1, 7], "input_length": 3, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "input-error-before-output-error", "input_values": [1, 1, 1001], "input_length": 3, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

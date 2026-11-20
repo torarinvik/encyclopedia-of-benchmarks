@@ -6,7 +6,7 @@ MAX_N :: 1024
 
 @(export)
 golomb_sequence_validator :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
-	if length < 1 || length > MAX_N do return -1
+	if input == nil || length < 1 || length > MAX_N do return -1
 	if input[0] < 1 || input[0] > MAX_N do return -1
 	n := int(input[0])
 	if length != c.size_t(n) do return -1

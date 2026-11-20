@@ -23,7 +23,7 @@ fn double dynamic_time_warping(long* values, usz length) @export("dynamic_time_w
         if (values[3 + index] < -MAX_SAMPLE_VALUE || values[3 + index] > MAX_SAMPLE_VALUE) return INVALID_RESULT;
     }
 
-    double[2][17] rows;
+    double[17][2] rows;
     for (usz j = 0; j <= second_length; j++) rows[0][j] = UNREACHABLE;
     rows[0][0] = 0.0;
     for (usz i = 1; i <= first_length; i++) {

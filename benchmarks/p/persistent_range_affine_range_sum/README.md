@@ -21,8 +21,18 @@ Each query emits one little-endian signed 64-bit sum. Output is at most 128
 bytes. Invalid input returns `-1`; null output or insufficient capacity returns
 `-2`. The complete input is validated before output checks and no error writes
 output. The ABI workspace field is the 128-byte output staging buffer. Internal
-tree storage is separately bounded at 4096 nodes (131072 bytes). The small
-bounds keep all modular products within signed 64-bit range.
+tree storage is separately bounded at 4096 nodes; its byte size depends on the
+port's node representation. The small bounds keep all modular products within
+signed 64-bit range.
+
+The Elisa path-copying draft uses bounded views for the node pool, allocation
+counter, input, and output. Its syntax and behavior remain uncompiled and
+unverified. Its five i64 fields use 163840 bytes for the node pool before
+any compiler-specific padding. The initial tree has at most 31 nodes. A loose
+upper bound for one operation is five allocations per node in that tree:
+one destination clone, two clones when pushing a tag, and two logical source
+child clones. Even at 16 operations this gives at most 31 + 16*5*31 = 2511
+nodes, below the 4096-node pool limit.
 
 ## Source and rights
 

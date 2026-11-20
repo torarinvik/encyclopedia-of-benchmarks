@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "lower-bound-circulation-feasibility-i64-array-scalar-v1",
+  "algorithm": "lower_bound_circulation_feasibility",
+  "function_symbol": "lower_bound_circulation_feasibility",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Flow with demands",
+    "authors": ["CP-Algorithms contributors"],
+    "url": "https://cp-algorithms.com/graph/flow_with_demands.html",
+    "license": "CC BY-SA 4.0; algorithm idea only, no copied code or prose"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,(u,v,lower,upper)*m]",
+    "vertex_count_range": [1, 6],
+    "edge_count_range": [0, 8],
+    "endpoint_range": "0 <= endpoint < n",
+    "bound_range": "0 <= lower <= upper <= 2",
+    "parallel_arcs_allowed": true,
+    "self_loops_allowed": true,
+    "exact_length": "2+4*m",
+    "maximum_valid_input_length": 34,
+    "maximum_parseable_input_length": 35,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "1 if a feasible integral circulation exists, otherwise 0",
+    "result_range": "0..1",
+    "invalid_result": -1
+  },
+  "workspace": {"bytes": 1024},
+  "complexity": {
+    "primary_algorithm": "lower-bound balance transformation plus Edmonds-Karp max flow",
+    "primary_time": "O(V^3*E) with matrix BFS, V<=8, E<=14 forward network arcs, and at most 64 matrix cells scanned per BFS",
+    "independent_oracle": "enumerate at most 3^8 edge-flow assignments"
+  },
+  "oracle_method": "The primary applies the lower-bound balance transformation and tests whether maximum flow saturates all super-source arcs. The independent reference enumerates every integral flow value within each edge interval and checks that every vertex has equal inflow and outflow.",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"empty-one-vertex","input_values":[1,0],"input_length":2,"workspace_bytes":0,"expected_result":1},
+    {"id":"zero-lower-bounds","input_values":[3,2,0,1,0,2,1,2,0,2],"input_length":10,"workspace_bytes":0,"expected_result":1},
+    {"id":"positive-self-loop","input_values":[1,1,0,0,1,1],"input_length":6,"workspace_bytes":0,"expected_result":1},
+    {"id":"unbalanced-single-lower-bound","input_values":[2,1,0,1,1,1],"input_length":6,"workspace_bytes":0,"expected_result":0},
+    {"id":"balanced-two-cycle","input_values":[2,2,0,1,1,1,1,0,1,1],"input_length":10,"workspace_bytes":0,"expected_result":1},
+    {"id":"residual-return-capacity","input_values":[2,2,0,1,1,2,1,0,0,2],"input_length":10,"workspace_bytes":0,"expected_result":1},
+    {"id":"missing-return-capacity","input_values":[2,1,0,1,1,2],"input_length":6,"workspace_bytes":0,"expected_result":0},
+    {"id":"parallel-arcs","input_values":[2,3,0,1,1,2,0,1,0,1,1,0,1,2],"input_length":14,"workspace_bytes":0,"expected_result":1},
+    {"id":"disconnected-cycles","input_values":[4,4,0,1,1,1,1,0,1,1,2,3,1,1,3,2,1,1],"input_length":18,"workspace_bytes":0,"expected_result":1},
+    {"id":"maximum-size-feasible","input_values":[6,8,0,1,1,1,1,0,1,1,2,3,0,2,3,2,1,2,4,5,2,2,5,4,2,2,0,0,2,2,1,1,0,0],"input_length":34,"workspace_bytes":0,"expected_result":1},
+    {"id":"maximum-size-infeasible","input_values":[6,8,0,1,1,2,0,1,1,2,0,1,1,2,0,1,1,2,0,1,1,2,0,1,1,2,0,1,1,2,0,1,1,2],"input_length":34,"workspace_bytes":0,"expected_result":0},
+    {"id":"invalid-empty-input","input_values":[],"input_length":0,"workspace_bytes":0,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-zero-vertices","input_values":[0,0],"input_length":2,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-too-many-vertices","input_values":[7,0],"input_length":2,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-too-many-edges","input_values":[1,9],"input_length":2,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-endpoint","input_values":[2,1,0,2,0,1],"input_length":6,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-negative-lower","input_values":[1,1,0,0,-1,1],"input_length":6,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-upper-bound","input_values":[1,1,0,0,0,3],"input_length":6,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-reversed-bounds","input_values":[1,1,0,0,2,1],"input_length":6,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-truncated-edge","input_values":[2,1,0,1,0],"input_length":5,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-trailing-word","input_values":[1,0,0],"input_length":3,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-maximum-trailing-word","input_values":[6,8,0,1,1,1,1,0,1,1,2,3,0,2,3,2,1,2,4,5,2,2,5,4,2,2,0,0,2,2,1,1,0,0,0],"input_length":35,"workspace_bytes":0,"expected_result":-1}
+  ]
+}

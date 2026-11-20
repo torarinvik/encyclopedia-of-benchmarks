@@ -1,4 +1,5 @@
 # Independent bounded seam-carving profile; see package LICENSE.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.math import sqrt
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer

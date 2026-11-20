@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn sha2_r32(x:UInt32,n:Int)->UInt32:return (x>>UInt(n))|(x<<UInt(32-n))

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 from std.math import log2
 @export("problem800")
 fn problem800(base:Int64,degree:Int64) abi("C")->Int64:

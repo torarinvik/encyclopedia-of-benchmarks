@@ -14,7 +14,7 @@ fn long integer_sqrt(long value) {
     return low;
 }
 
-fn void write_u32(char* output, usz offset, u32 value) {
+fn void write_u32(char* output, usz offset, uint value) {
     output[offset] = (char)(value & 255);
     output[offset + 1] = (char)((value >> 8) & 255);
     output[offset + 2] = (char)((value >> 16) & 255);
@@ -48,15 +48,15 @@ fn long two_square_sum(long* input, usz length, char* output, usz capacity)
     if (output == null || capacity < required) return -2;
     usz offset = 0;
     for (usz query = 0; query < q; query += 1) {
-        write_u32(output, offset, (u32)counts[query]);
+        write_u32(output, offset, (uint)counts[query]);
         offset += 4;
         long n = numbers[query];
         for (long a = 0; a * a <= n; a += 1) {
             long remainder = n - a * a;
             long b = integer_sqrt(remainder);
             if (b * b != remainder) continue;
-            write_u32(output, offset, (u32)a);
-            write_u32(output, offset + 4, (u32)b);
+            write_u32(output, offset, (uint)a);
+            write_u32(output, offset + 4, (uint)b);
             offset += 8;
         }
     }

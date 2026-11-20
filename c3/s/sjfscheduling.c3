@@ -12,7 +12,7 @@ fn void write_i32_le(char* output, usz offset, int value) {
     }
 }
 
-long sjfscheduling(int* input, usz length, char* output,
+fn long sjfscheduling(int* input, usz length, char* output,
                    usz output_capacity) @export("sjfscheduling") {
     if (input == null || length < 1 || length > MAX_INPUT_LENGTH) return -1;
     int process_count_value = input[0];

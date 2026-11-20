@@ -14,6 +14,10 @@ There are 0 through 128 operations. Operation `0` inserts a signed-i64 key; oper
 
 Insertion ignores duplicate keys. Removal reports 1 if the key existed and was removed, or 0 if it was absent. The final traversal emits each remaining key once in ascending order. The pinned source uses pre-split insertion and pre-merge removal; those choices preserve the public behaviors above.
 
+For a tree containing `k` keys, insertion and removal take `O(log(k+1))`
+time, and the final traversal takes `O(k)` time. Tree storage is `O(k)`;
+the bounded implementations may reserve fixed-capacity storage for the trace.
+
 Output is little-endian signed-i64 words `[remove_count, remove_result_0, ..., final_item_count, sorted_item_0, ...]`. Remove results retain operation order. The maximum is 130 words or 1040 bytes: each remove record consumes one operation and each final key requires at least one insertion operation, so their combined count cannot exceed the 128-operation limit. With zero operations the output is `[0, 0]` (16 bytes). Success returns the output byte count.
 
 Null input, malformed framing, or an unknown operation returns `-1` before output checks. Null output or insufficient byte capacity returns `-2`, including for zero operations. Errors write no bytes.
@@ -43,3 +47,4 @@ The two pinned sources have the same public insert, remove, and traverse behavio
 | Rust | [`rust/t/tree_234.rs`](../../../rust/t/tree_234.rs) |
 | V | [`v/t/tree_234.v`](../../../v/t/tree_234.v) |
 | Zig | [`zig/t/tree_234.zig`](../../../zig/t/tree_234.zig) |
+| Mojo | [`mojo/t/tree_234.mojo`](../../../mojo/t/tree_234.mojo) (draft; unverified) |

@@ -6,7 +6,7 @@ const usz MAX_D = 4;
 const usz MAX_PARSEABLE_INPUT_LENGTH = 84;
 const double PIVOT_FLOOR = 0.000003814697265625;
 
-bool bounded_integer(double value, long minimum, long maximum, long* result) {
+fn bool bounded_integer(double value, long minimum, long maximum, long* result) {
     if (value != value || value < (double)minimum || value > (double)maximum) return false;
     long integer = (long)value;
     if ((double)integer != value) return false;
@@ -14,13 +14,13 @@ bool bounded_integer(double value, long minimum, long maximum, long* result) {
     return true;
 }
 
-bool grid_value(double value, double minimum, double maximum) {
+fn bool grid_value(double value, double minimum, double maximum) {
     if (value != value || value < minimum || value > maximum) return false;
     double scaled = value * 16.0;
     return scaled == (double)(long)scaled;
 }
 
-bool finite_value(double value) {
+fn bool finite_value(double value) {
     return value == value && value > -1.0e300 && value < 1.0e300;
 }
 
@@ -38,7 +38,7 @@ fn long local_weighted_learning(double* input, usz input_length, double* output,
     usz expected_length = 3 + n * d + n;
     if (input_length != expected_length) return -1L;
 
-    double[MAX_N][MAX_D] x_train = zeroed;
+    double[MAX_D][MAX_N] x_train = zeroed;
     double[MAX_N] y_train = zeroed;
     usz cursor = 3;
     for (usz row = 0; row < n; row++) {

@@ -1,5 +1,8 @@
 # Static range inversions query
 
+The Elisa draft uses bounded views after validating its ABI input and output
+references. This source change has not been compiled or executed.
+
 This package answers strict inversion-count queries over half-open ranges in a
 static integer array. Duplicates are allowed and equal values do not form an
 inversion.

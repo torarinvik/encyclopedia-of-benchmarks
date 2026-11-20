@@ -1,0 +1,53 @@
+const SLOTS: usize = 16
+const FEATURES: usize = 3
+const MAX_OPERATIONS: usize = 64
+const BASE_WORDS: usize = 1 + SLOTS * FEATURES + SLOTS
+const MAX_VALID_WORDS: usize = BASE_WORDS + 2 * MAX_OPERATIONS
+
+def store_hash(output: mutable u8&, offset: usize, value: i64) -> unit:
+    for byte in 0..<8:
+        output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
+
+def zobrist_position_hash_trace_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < BASE_WORDS or length > MAX_VALID_WORDS + 1: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > 64: return -1
+    count: usize = count_value.usize()
+    if length != BASE_WORDS + 2 * count: return -1
+
+    for index in 0..<SLOTS * FEATURES:
+        if input[1 + index] < 0: return -1
+    state_start: usize = 1 + SLOTS * FEATURES
+    for slot in 0..<SLOTS:
+        feature: i64 = input[state_start + slot]
+        if feature < 0 or feature > 3: return -1
+    edits_start: usize = state_start + SLOTS
+    for edit in 0..<count:
+        slot: i64 = input[edits_start + 2 * edit]
+        feature: i64 = input[edits_start + 2 * edit + 1]
+        if slot < 0 or slot > 15 or feature < 0 or feature > 3: return -1
+
+    required: usize = 8 * (count + 1)
+    if output.is_null() or capacity < required: return -2
+
+    board: mutable [u8; 16] = [0; 16]
+    hash: mutable i64 = 0
+    for slot in 0..<SLOTS:
+        feature: u8 = input[state_start + slot].u8()
+        board[slot] <- feature
+        if feature != 0:
+            hash <- hash ^ input[1 + slot * FEATURES + feature.usize() - 1]
+    store_hash(output, 0, hash)
+    for edit in 0..<count:
+        slot: usize = input[edits_start + 2 * edit].usize()
+        next: u8 = input[edits_start + 2 * edit + 1].u8()
+        previous: u8 = board[slot]
+        if previous != 0:
+            hash <- hash ^ input[1 + slot * FEATURES + previous.usize() - 1]
+        if next != 0:
+            hash <- hash ^ input[1 + slot * FEATURES + next.usize() - 1]
+        board[slot] <- next
+        store_hash(output, 8 * (edit + 1), hash)
+    required.i64()
+
+export fn zobrist_position_hash_trace(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = zobrist_position_hash_trace_impl

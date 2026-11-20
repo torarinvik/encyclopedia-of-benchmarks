@@ -1,0 +1,31 @@
+const MAX_N: i64 = 10
+const SEARCH_MAX: i64 = 64
+
+def fortunate_is_prime(value: i64) -> bool:
+    if value < 2: return false
+    divisor: mutable i64 = 2
+    while divisor <= value / divisor:
+        if value % divisor == 0: return false
+        divisor <- divisor + 1
+    true
+
+def fortunate_compute(n: i64) -> i64:
+    primorial: mutable i64 = 1
+    primes_found: mutable i64 = 0
+    candidate: mutable i64 = 2
+    while primes_found < n:
+        if fortunate_is_prime(candidate):
+            primorial <- primorial * candidate
+            primes_found <- primes_found + 1
+        candidate <- candidate + 1
+    offset: mutable i64 = 2
+    while offset <= SEARCH_MAX:
+        if fortunate_is_prime(primorial + offset): return offset
+        offset <- offset + 1
+    -2
+
+export fn fortunate_numbers(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length != 1: return -1
+    n: i64 = input[0]
+    if n < 1 or n > MAX_N: return -1
+    fortunate_compute(n)

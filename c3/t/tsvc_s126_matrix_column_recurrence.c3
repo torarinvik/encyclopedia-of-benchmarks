@@ -13,7 +13,7 @@ fn void store_i64_le(uchar* output, usz offset, long value) {
     }
 }
 
-long tsvc_s126_matrix_column_recurrence(long* input, usz length, uchar* output, usz capacity) @export("tsvc_s126_matrix_column_recurrence") {
+fn long tsvc_s126_matrix_column_recurrence(long* input, usz length, uchar* output, usz capacity) @export("tsvc_s126_matrix_column_recurrence") {
     if (input == null || length < 13 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 2 || input[0] > (long)MAX_N) return -1;
     usz n = (usz)input[0];

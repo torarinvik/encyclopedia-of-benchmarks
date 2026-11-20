@@ -1,5 +1,6 @@
 # Map ASCII bytes to first-seen indices, after ASCII uppercase normalization.
-def word_patterns_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+def word_patterns_impl(input: view[i64], output: mutable u8&, output_capacity: usize) -> i64:
+    length: usize = input.len()
     if length < 1 or input[0] < 0 or input[0] > 256:
         return -1
     byte_length: usize = input[0].usize()
@@ -23,14 +24,16 @@ def word_patterns_impl(input: i64&, length: usize, output: mutable u8&, output_c
             first[character] <- next
             next <- next + 1
         index <- index + 1
-    if output_capacity < 4 * byte_length + 1: return -2
+    needed_capacity: usize = 4 * byte_length + 1
+    if output == null or output_capacity < needed_capacity: return -2
+    result: mutable view[u8] = output[0:needed_capacity]
     index <- 0
     while index < byte_length:
         value: i64 = input[index + 1]
         if value >= 97 and value <= 122: value <- value - 32
         character: usize = value.usize()
         if index > 0:
-            output[position] <- 46u8
+            result[position] <- 46u8
             position <- position + 1
         number: mutable i32 = first[character]
         digits: mutable u8[3] = zeroed
@@ -42,10 +45,12 @@ def word_patterns_impl(input: i64&, length: usize, output: mutable u8&, output_c
             if number == 0: break
         while count > 0:
             count <- count - 1
-            output[position] <- digits[count]
+            result[position] <- digits[count]
             position <- position + 1
         index <- index + 1
-    output[position] <- 0u8
+    result[position] <- 0u8
     position.i64()
 
-export fn word_patterns(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_patterns_impl
+export fn word_patterns(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 1 or length > 257: return -1
+    word_patterns_impl(input[0:length], output, output_capacity)

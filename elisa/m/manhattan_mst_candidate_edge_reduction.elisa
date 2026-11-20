@@ -1,0 +1,260 @@
+const MM_MAX_N: usize = 31
+const MM_MAX_CANDIDATES: usize = 124
+const MM_MAX_INPUT: usize = 64
+
+def mm_fenwick_add(tree: mutable view[i64], n: usize, index_input: usize,
+    delta: i64) -> void:
+    index: mutable i64 = index_input.i64() + 1
+    while index <= n.i64():
+        tree[index.usize()] <- tree[index.usize()] + delta
+        index <- index + (index & -index)
+
+def mm_fenwick_sum(tree: view[i64], count_input: usize) -> i64:
+    index: mutable i64 = count_input.i64()
+    total: mutable i64 = 0
+    while index > 0:
+        total <- total + tree[index.usize()]
+        index <- index - (index & -index)
+    total
+
+def mm_fenwick_select(tree: view[i64], n: usize, kth_input: i64) -> usize:
+    index: mutable i64 = 0
+    bit: mutable i64 = 1
+    while bit * 2 <= n.i64():
+        bit <- bit * 2
+    kth: mutable i64 = kth_input
+    while bit > 0:
+        next: i64 = index + bit
+        if next <= n.i64() and tree[next.usize()] < kth:
+            kth <- kth - tree[next.usize()]
+            index <- next
+        bit <- bit / 2
+    index.usize()
+
+def mm_find(parent: mutable view[usize], node: usize) -> usize:
+    root: mutable usize = node
+    while parent[root] != root:
+        root <- parent[root]
+    current: mutable usize = node
+    while parent[current] != current:
+        next: usize = parent[current]
+        parent[current] <- root
+        current <- next
+    root
+
+def mm_union(parent: mutable view[usize], sizes: mutable view[usize],
+    left: usize, right: usize) -> bool:
+    root_left: usize = mm_find(parent, left)
+    root_right: usize = mm_find(parent, right)
+    if root_left == root_right: return false
+    if sizes[root_left] < sizes[root_right]:
+        parent[root_left] <- root_right
+        sizes[root_right] <- sizes[root_right] + sizes[root_left]
+    else:
+        parent[root_right] <- root_left
+        sizes[root_left] <- sizes[root_left] + sizes[root_right]
+    true
+
+def mm_sift_points(order: mutable view[usize], keys: view[i64], size: usize,
+    root_input: usize) -> void:
+    root: mutable usize = root_input
+    while root * 2 + 1 < size:
+        left: usize = root * 2 + 1
+        largest: mutable usize = root
+        left_point: usize = order[left]
+        largest_point: usize = order[largest]
+        if keys[left_point] > keys[largest_point] or
+           (keys[left_point] == keys[largest_point] and left_point > largest_point):
+            largest <- left
+        right: usize = left + 1
+        if right < size:
+            right_point: usize = order[right]
+            largest_point = order[largest]
+            if keys[right_point] > keys[largest_point] or
+               (keys[right_point] == keys[largest_point] and right_point > largest_point):
+                largest <- right
+        if largest == root: break
+        temporary: usize = order[root]
+        order[root] <- order[largest]
+        order[largest] <- temporary
+        root <- largest
+
+def mm_sort_points(order: mutable view[usize], keys: view[i64], size: usize) -> void:
+    if size < 2: return
+    start: mutable usize = size / 2
+    while start > 0:
+        start <- start - 1
+        mm_sift_points(order, keys, size, start)
+    finish: mutable usize = size
+    while finish > 1:
+        finish <- finish - 1
+        temporary: usize = order[0]
+        order[0] <- order[finish]
+        order[finish] <- temporary
+        mm_sift_points(order, keys, finish, 0)
+
+def mm_sift_edges(edge_u: mutable view[usize], edge_v: mutable view[usize],
+    edge_weight: mutable view[i64], size: usize, root_input: usize) -> void:
+    root: mutable usize = root_input
+    while root * 2 + 1 < size:
+        left: usize = root * 2 + 1
+        largest: mutable usize = root
+        if edge_weight[largest] < edge_weight[left] or
+           (edge_weight[largest] == edge_weight[left] and edge_u[largest] < edge_u[left]) or
+           (edge_weight[largest] == edge_weight[left] and edge_u[largest] == edge_u[left] and edge_v[largest] < edge_v[left]):
+            largest <- left
+        right: usize = left + 1
+        if right < size:
+            if edge_weight[largest] < edge_weight[right] or
+               (edge_weight[largest] == edge_weight[right] and edge_u[largest] < edge_u[right]) or
+               (edge_weight[largest] == edge_weight[right] and edge_u[largest] == edge_u[right] and edge_v[largest] < edge_v[right]):
+                largest <- right
+        if largest == root: break
+        temporary_u: usize = edge_u[root]
+        temporary_v: usize = edge_v[root]
+        temporary_weight: i64 = edge_weight[root]
+        edge_u[root] <- edge_u[largest]
+        edge_v[root] <- edge_v[largest]
+        edge_weight[root] <- edge_weight[largest]
+        edge_u[largest] <- temporary_u
+        edge_v[largest] <- temporary_v
+        edge_weight[largest] <- temporary_weight
+        root <- largest
+
+def mm_sort_edges(edge_u: mutable view[usize], edge_v: mutable view[usize],
+    edge_weight: mutable view[i64], size: usize) -> void:
+    if size < 2: return
+    start: mutable usize = size / 2
+    while start > 0:
+        start <- start - 1
+        mm_sift_edges(edge_u, edge_v, edge_weight, size, start)
+    finish: mutable usize = size
+    while finish > 1:
+        finish <- finish - 1
+        temporary_u: usize = edge_u[0]
+        temporary_v: usize = edge_v[0]
+        temporary_weight: i64 = edge_weight[0]
+        edge_u[0] <- edge_u[finish]
+        edge_v[0] <- edge_v[finish]
+        edge_weight[0] <- edge_weight[finish]
+        edge_u[finish] <- temporary_u
+        edge_v[finish] <- temporary_v
+        edge_weight[finish] <- temporary_weight
+        mm_sift_edges(edge_u, edge_v, edge_weight, finish, 0)
+
+def manhattan_mst_candidate_edge_reduction_impl(input: view[i64], length: usize) -> i64:
+    if length < 1 or length > MM_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > MM_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + 2 * n: return -1
+
+    x: mutable i64[MM_MAX_N] = zeroed
+    y: mutable i64[MM_MAX_N] = zeroed
+    for point in 0..<n:
+        x_value: i64 = input[1 + 2 * point]
+        y_value: i64 = input[2 + 2 * point]
+        if x_value < -1000 or x_value > 1000 or y_value < -1000 or y_value > 1000: return -1
+        x[point] <- x_value
+        y[point] <- y_value
+    if n < 2: return 0
+
+    point_x: mutable view[i64] = x[0:MM_MAX_N]
+    point_y: mutable view[i64] = y[0:MM_MAX_N]
+    order: mutable usize[MM_MAX_N] = zeroed
+    by_x: mutable usize[MM_MAX_N] = zeroed
+    sort_key: mutable i64[MM_MAX_N] = zeroed
+    rank_of: mutable usize[MM_MAX_N] = zeroed
+    id_at_rank: mutable usize[MM_MAX_N] = zeroed
+    fenwick: mutable i64[MM_MAX_N + 1] = zeroed
+    edge_u: mutable usize[MM_MAX_CANDIDATES] = zeroed
+    edge_v: mutable usize[MM_MAX_CANDIDATES] = zeroed
+    edge_weight: mutable i64[MM_MAX_CANDIDATES] = zeroed
+    edge_count: mutable usize = 0
+
+    for point in 0..<n:
+        order[point] <- point
+        sort_key[point] <- point_x[point]
+    mm_sort_points(order[0:n], sort_key[0:MM_MAX_N], n)
+    for index in 1..<n:
+        if point_x[order[index - 1]] == point_x[order[index]]: return -1
+    for point in 0..<n:
+        sort_key[point] <- point_y[point]
+    mm_sort_points(order[0:n], sort_key[0:MM_MAX_N], n)
+    for index in 1..<n:
+        if point_y[order[index - 1]] == point_y[order[index]]: return -1
+
+    for direction in 0..<4:
+        for point in 0..<n:
+            order[point] <- point
+            by_x[point] <- point
+        for point in 0..<n:
+            sort_key[point] <- point_x[point] + point_y[point]
+        mm_sort_points(order[0:n], sort_key[0:MM_MAX_N], n)
+        for point in 0..<n:
+            sort_key[point] <- point_x[point]
+        mm_sort_points(by_x[0:n], sort_key[0:MM_MAX_N], n)
+        for rank in 0..<n:
+            point: usize = by_x[rank]
+            rank_of[point] <- rank
+            id_at_rank[rank] <- point
+        for index in 0..<(MM_MAX_N + 1):
+            fenwick[index] <- 0
+
+        for position in 0..<n:
+            current: usize = order[position]
+            current_rank: usize = rank_of[current]
+            active_count: i64 = mm_fenwick_sum(fenwick[0:MM_MAX_N + 1], current_rank + 1)
+            while active_count > 0:
+                candidate_rank: usize = mm_fenwick_select(fenwick[0:MM_MAX_N + 1], n, active_count)
+                candidate: usize = id_at_rank[candidate_rank]
+                if point_x[current] - point_y[current] > point_x[candidate] - point_y[candidate]: break
+                left_id: usize = current
+                right_id: usize = candidate
+                if left_id > right_id:
+                    temporary: usize = left_id
+                    left_id <- right_id
+                    right_id <- temporary
+                dx: i64 = point_x[current] - point_x[candidate]
+                dy: i64 = point_y[current] - point_y[candidate]
+                if dx < 0: dx <- -dx
+                if dy < 0: dy <- -dy
+                edge_u[edge_count] <- left_id
+                edge_v[edge_count] <- right_id
+                edge_weight[edge_count] <- dx + dy
+                edge_count <- edge_count + 1
+                mm_fenwick_add(fenwick[0:MM_MAX_N + 1], n, candidate_rank, -1)
+                active_count <- mm_fenwick_sum(fenwick[0:MM_MAX_N + 1], current_rank + 1)
+            mm_fenwick_add(fenwick[0:MM_MAX_N + 1], n, current_rank, 1)
+
+        if direction % 2 == 0:
+            for point in 0..<n:
+                temporary: i64 = point_x[point]
+                point_x[point] <- point_y[point]
+                point_y[point] <- temporary
+        else:
+            for point in 0..<n:
+                point_x[point] <- -point_x[point]
+
+    mm_sort_edges(edge_u[0:edge_count], edge_v[0:edge_count],
+        edge_weight[0:edge_count], edge_count)
+
+    parent: mutable usize[MM_MAX_N] = zeroed
+    component_size: mutable usize[MM_MAX_N] = zeroed
+    for point in 0..<n:
+        parent[point] <- point
+        component_size[point] <- 1
+    components: mutable usize = n
+    total: mutable i64 = 0
+    for edge in 0..<edge_count:
+        if mm_union(parent[0:MM_MAX_N], component_size[0:MM_MAX_N], edge_u[edge], edge_v[edge]):
+            total <- total + edge_weight[edge]
+            components <- components - 1
+            if components == 1: break
+    if components != 1: return -1
+    total
+
+export fn manhattan_mst_candidate_edge_reduction(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MM_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    manhattan_mst_candidate_edge_reduction_impl(input_view, length)

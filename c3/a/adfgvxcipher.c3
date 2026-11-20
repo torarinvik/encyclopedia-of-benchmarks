@@ -68,7 +68,7 @@ fn long adfgvxcipher(long* input, usz length, char* output, usz output_capacity)
             fractionated[fractionated_length++] = LABELS[cell % 6];
         }
         usz rows = (fractionated_length + key_length - 1) / key_length;
-        char[MAX_ROWS][MAX_KEY] table;
+        char[MAX_KEY][MAX_ROWS] table;
         for (usz row = 0; row < rows; row++)
             for (usz column = 0; column < key_length; column++) table[row][column] = '_';
         for (usz i = 0; i < fractionated_length; i++) table[i / key_length][i % key_length] = fractionated[i];
@@ -79,7 +79,7 @@ fn long adfgvxcipher(long* input, usz length, char* output, usz output_capacity)
         }
     } else {
         usz rows = (text_length + key_length - 1) / key_length;
-        char[MAX_ROWS][MAX_KEY] table;
+        char[MAX_KEY][MAX_ROWS] table;
         usz source_index = 0;
         for (usz position = 0; position < key_length; position++) {
             usz column = order[position];

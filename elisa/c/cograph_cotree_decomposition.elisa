@@ -1,0 +1,110 @@
+const CT_N: usize = 12
+const CT_M: usize = 66
+const CT_PARSEABLE: usize = 135
+const CT_OUTPUT: usize = 47
+
+def ct_components(mask: usize, adjacency: view[usize], complement: bool,
+                  parts: mutable view[usize]) -> usize:
+    remaining: mutable usize = mask
+    count: mutable usize = 0
+    root: usize = 0
+    while root < CT_N:
+        root_bit: usize = 1 << root
+        if (remaining & root_bit) == 0:
+            root = root + 1
+            continue
+        reached: mutable usize = root_bit
+        queue: mutable usize[CT_N] = zeroed
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        queue[0] <- root
+        while head < tail:
+            vertex: usize = queue[head]
+            head <- head + 1
+            neighbors: mutable usize = adjacency[vertex] & mask
+            if complement:
+                neighbors <- mask & ~adjacency[vertex] & ~(1 << vertex)
+            fresh: mutable usize = neighbors & ~reached
+            next_vertex: usize = 0
+            while next_vertex < CT_N:
+                bit: usize = 1 << next_vertex
+                if (fresh & bit) != 0:
+                    fresh <- fresh & ~bit
+                    reached <- reached | bit
+                    queue[tail] <- next_vertex
+                    tail <- tail + 1
+                next_vertex <- next_vertex + 1
+        parts[count] <- reached
+        count <- count + 1
+        remaining <- remaining & ~reached
+        root <- root + 1
+    count
+
+def ct_emit(mask: usize, adjacency: view[usize], output: mutable view[u8],
+            position: usize) -> (i64, bool):
+    if (mask & (mask - 1)) == 0:
+        vertex: usize = 0
+        while (mask & (1 << vertex)) == 0: vertex <- vertex + 1
+        output[position] <- 0.u8()
+        output[position + 1] <- vertex.u8()
+        return ((position + 2).i64(), true)
+    parts_data: mutable usize[CT_N] = zeroed
+    parts: mutable view[usize] = parts_data[0:CT_N]
+    count: usize = ct_components(mask, adjacency, false, parts)
+    kind: u8 = 1.u8()
+    if count == 1:
+        count <- ct_components(mask, adjacency, true, parts)
+        kind <- 2.u8()
+        if count <= 1: return (-1, false)
+    output[position] <- kind
+    output[position + 1] <- count.u8()
+    next_position: mutable i64 = (position + 2).i64()
+    child_index: usize = 0
+    while child_index < count:
+        child_result: (i64, bool) = ct_emit(parts[child_index], adjacency, output, next_position.usize())
+        if not child_result.1: return (-1, false)
+        next_position <- child_result.0
+        child_index <- child_index + 1
+    (next_position, true)
+
+export fn cograph_cotree_decomposition(input: i64&, length: usize,
+                                      output: u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > CT_PARSEABLE: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
+    if n64 < 1 or n64 > 12 or m64 < 0 or m64 > 66 or m64 > n64 * (n64 - 1) / 2: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 2 * m: return -1
+    adjacency_data: mutable usize[CT_N] = zeroed
+    adjacency: mutable view[usize] = adjacency_data[0:CT_N]
+    edge: usize = 0
+    while edge < m:
+        u64: i64 = values[2 + 2 * edge]
+        v64: i64 = values[3 + 2 * edge]
+        if u64 < 0 or u64 >= n64 or v64 < 0 or v64 >= n64 or u64 == v64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        ub: usize = 1 << u
+        vb: usize = 1 << v
+        if (adjacency[u] & vb) != 0: return -1
+        adjacency[u] <- adjacency[u] | vb
+        adjacency[v] <- adjacency[v] | ub
+        edge <- edge + 1
+    staged_data: mutable u8[CT_OUTPUT] = zeroed
+    staged: mutable view[u8] = staged_data[0:CT_OUTPUT]
+    emit_result: (i64, bool) = ct_emit((1 << n) - 1, adjacency, staged, 1)
+    output_length: usize = 1
+    if emit_result.1:
+        staged[0] <- 1.u8()
+        output_length <- emit_result.0.usize()
+    else:
+        staged[0] <- 0.u8()
+    if output.is_null() or capacity < output_length: return -2
+    destination: mutable view[u8] = output[0:capacity]
+    position: usize = 0
+    while position < output_length:
+        destination[position] <- staged[position]
+        position <- position + 1
+    output_length.i64()

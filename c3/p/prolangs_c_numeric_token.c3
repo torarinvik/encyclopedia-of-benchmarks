@@ -1,7 +1,7 @@
 module prolangs_c_numeric_token;
 
 fn void put_i32(char* out, usz at, int value) {
-    uint bits = @bitcast(uint, value);
+    uint bits = bitcast(value, uint);
     for (usz b = 0; b < 4; b++) out[at + b] = (char)(bits >> (b * 8));
 }
 
@@ -54,6 +54,6 @@ fn long prolangs_c_numeric_token(long* input, usz length, char* output, usz capa
     }
     if (i != length || (!has_dot && !has_exp) || (!had_integer && !has_dot)) return -1;
     if (capacity < 12 || output == null) return -2;
-    put_i32(output, 0, 2001); put_i32(output, 4, (int)integer); put_i32(output, 8, @bitcast(int, value));
+    put_i32(output, 0, 2001); put_i32(output, 4, (int)integer); put_i32(output, 8, bitcast(value, int));
     return 12;
 }

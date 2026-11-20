@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-capacitated-facility-location-t-hunt-outer-loop-i64-array-bytes-output-v1",
+  "algorithm": "capacitated_facility_location_t_hunt_local_search",
+  "function_symbol": "capacitated_facility_location_t_hunt_local_search",
+  "abi": "i64_array_bytes_output",
+  "description": "Deterministic bounded outer local-search profile using single-copy additions and T-Hunt drop/add moves.",
+  "source": {
+    "chapter_title": "Local Search for K-medians and Facility Location",
+    "chapter_author": "Kamesh Munagala",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_212",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_212",
+    "paper_title": "Local Search Heuristics for k-Median and Facility Location Problems",
+    "paper_authors": ["Vijay Arya", "Naveen Garg", "Rohit Khandekar", "Adam Meyerson", "Kamesh Munagala", "Vinayaka Pandit"],
+    "paper_doi": "10.1137/S0097539702416402",
+    "paper_url": "https://doi.org/10.1137/S0097539702416402",
+    "sections": ["§2 Figure 1", "§5.1 equation (9)", "§5.1 Figure 13"],
+    "implementation_status": "clean-room deterministic profile from the published algorithm description"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,F,Q,D[(n+F)^2 row-major],opening_fee[F],capacity[F],copy_type[Q]]",
+    "client_count_range": [1, 4],
+    "facility_type_count_range": [1, 3],
+    "initial_copy_count_range": [1, 4],
+    "metric_distance_range": [0, 20],
+    "opening_fee_range": [0, 20],
+    "capacity_range": "1 <= capacity[i] <= n",
+    "validity": "symmetric integer metric; initial copies have total capacity at least n",
+    "maximum_valid_length": 62,
+    "maximum_parseable_length": 63,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[final_cost,accepted_steps,copy_count,copy_type[copy_count],assignment[n]]",
+    "maximum_accepted_steps": 160,
+    "maximum_final_copies": 644,
+    "maximum_bytes": 5208,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "algorithm_profile": {
+    "starting_state": "The initial multiset is sorted by facility type; a minimum-cost feasible assignment is computed, with type-vector lexicographic ties and ascending-client copy packing.",
+    "target_scan": "Scan target facility types in ascending ID. For each, test a single-copy add first, then T-Hunt.",
+    "t_hunt": "For l=1..n in ascending order, maximize copy profit subject to assigned-client weight <= l*capacity[target]; accept the first l with profit > l*opening_fee[target].",
+    "outer_loop": "Apply the first strictly improving move, recompute the minimum-cost assignment, and restart the target scan; terminate after a full pass finds no move.",
+    "knapsack_ties": "On an equal exact-weight profit, retain the state excluding the latest copy; among equal final profits choose the smallest used weight.",
+    "assignment_ties": "Choose the lexicographically smallest facility-type assignment vector, then assign clients in ascending ID to earliest available copy IDs of that type.",
+    "termination_note": "No move found by the deterministic add/T-Hunt scan; T-Hunt is not a complete oracle for every improving neighbor in the full mathematical neighborhood.",
+    "cost_bound": "Initial cost <= 160; every accepted move strictly lowers the integer objective, so accepted steps <= 160 and final copies <= 4 + 4*160 = 644."
+  },
+  "memory": {
+    "internal_scratch_bytes": 65536,
+    "meaning": "Fixed metric, assignment, copy, knapsack, and output storage for the declared maxima."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-copy-add-improves",
+      "input_values": [2,2,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,2,3,2,2,0],
+      "input_length": 24,
+      "output_capacity": 5208,
+      "expected_result": 56,
+      "expected_output_hex": "0900000000000000010000000000000002000000000000000000000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "t-hunt-drops-two-copies-adds-one",
+      "input_values": [2,2,2,0,2,1,3,2,0,3,1,1,3,0,4,5,4,1,2,0,0],
+      "input_length": 21,
+      "output_capacity": 5208,
+      "expected_result": 48,
+      "expected_output_hex": "080000000000000001000000000000000100000000000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-valid-frame-no-improvement",
+      "input_values": [
+        4,3,4,
+        0,1,1,1,1,1,1,
+        1,0,1,1,1,1,1,
+        1,1,0,1,1,1,1,
+        1,1,1,0,1,1,1,
+        1,1,1,1,0,1,1,
+        1,1,1,1,1,0,1,
+        1,1,1,1,1,1,0,
+        0,0,0,
+        4,4,4,
+        0,1,2,0
+      ],
+      "input_length": 62,
+      "output_capacity": 5208,
+      "expected_result": 88,
+      "expected_output_hex": "040000000000000000000000000000000400000000000000000000000000000000000000000000000100000000000000020000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "initial-capacity-insufficient",
+      "input_values": [2,1,1,0,1,1,1,1,0,1,1,1,1,0,1],
+      "input_length": 15,
+      "output_capacity": 5208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-valid-frame-plus-one-word",
+      "input_values": [
+        4,3,4,
+        0,1,1,1,1,1,1,
+        1,0,1,1,1,1,1,
+        1,1,0,1,1,1,1,
+        1,1,1,0,1,1,1,
+        1,1,1,1,0,1,1,
+        1,1,1,1,1,0,1,
+        1,1,1,1,1,1,0,
+        0,0,0,
+        4,4,4,
+        0,1,2,0,0
+      ],
+      "input_length": 63,
+      "output_capacity": 5208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2,2,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,2,3,2,2,0],
+      "input_length": 24,
+      "output_capacity": 55,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2,2,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,2,3,2,2,0],
+      "input_length": 24,
+      "output_capacity": 5208,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-empty",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 5208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-at-parser-limit",
+      "input_values": [],
+      "input_length": 63,
+      "input_is_null": true,
+      "output_capacity": 5208,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

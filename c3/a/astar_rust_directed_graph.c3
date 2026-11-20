@@ -19,7 +19,7 @@ fn long astar_rust_directed_graph(long* input, usz length, char* output, usz cap
         long from = input[edge_base+3*e], to = input[edge_base+3*e+1], weight = input[edge_base+3*e+2];
         if (from < 0 || from >= vertices || to < 0 || to >= vertices || weight < 0 || weight > 1000000 || input[4+from] > weight + input[4+to]) return -1;
     }
-    long distance[32], parent[32]; bool closed[32] = zeroed;
+    long[32] distance; long[32] parent; bool[32] closed = {};
     for (long v = 0; v < vertices; v++) { distance[v] = 0x7fffffffffffffff; parent[v] = -1; closed[v] = false; }
     distance[start] = 0;
     for (long step = 0; step < vertices; step++) {
@@ -37,7 +37,7 @@ fn long astar_rust_directed_graph(long* input, usz length, char* output, usz cap
         }
     }
     if (distance[goal] == 0x7fffffffffffffff) return 0;
-    long reversed[32], path_length = 0, current = goal;
+    long[32] reversed; long path_length = 0, current = goal;
     while (path_length < vertices) {
         reversed[path_length++] = current;
         if (current == start) break;

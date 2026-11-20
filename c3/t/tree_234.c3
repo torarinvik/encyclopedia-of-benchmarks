@@ -217,7 +217,7 @@ fn void traverse(Tree* tree, int node_index) {
     if (!leaf) traverse(tree, tree.nodes[node_index].children[count]);
 }
 
-fn long tree_234(long* input, usz input_length, uint8* output, usz capacity) @export("tree_234") {
+fn long tree_234(long* input, usz input_length, char* output, usz capacity) @export("tree_234") {
     if (input == null || input_length < 1 || input_length > MAX_PARSEABLE_INPUT_LENGTH) return -1;
     if (input[0] < 0 || input[0] > (long)MAX_OPERATIONS) return -1;
     usz operation_count = (usz)input[0];
@@ -248,7 +248,7 @@ fn long tree_234(long* input, usz input_length, uint8* output, usz capacity) @ex
     if (output == null || capacity < output_bytes) return -2;
     for (usz index = 0; index < word_count; index++) {
         ulong bits = (ulong)words[index];
-        for (usz byte = 0; byte < 8; byte++) { output[index * 8 + byte] = (uint8)(bits & 255); bits >>= 8; }
+        for (usz byte = 0; byte < 8; byte++) { output[index * 8 + byte] = (char)(bits & 255); bits >>= 8; }
     }
     return (long)output_bytes;
 }

@@ -1,0 +1,48 @@
+{
+  "algorithm": "straddling_checkerboard_transducer",
+  "function_symbol": "straddling_checkerboard_transducer",
+  "abi": "i64_array_bytes_output",
+  "references": [
+    "benchmarks/s/straddling_checkerboard_transducer/primary_oracle.py",
+    "benchmarks/s/straddling_checkerboard_transducer/independent_oracle.py"
+  ],
+  "workload": "benchmarks/s/straddling_checkerboard_transducer/workload.json",
+  "metadata": [
+    "benchmarks/s/straddling_checkerboard_transducer/README.md",
+    "benchmarks/s/straddling_checkerboard_transducer/RIGHTS.md",
+    "benchmarks/s/straddling_checkerboard_transducer/INVENTORY.md"
+  ],
+  "helpers": [
+    "benchmarks/s/straddling_checkerboard_transducer/check_inventory.py",
+    "benchmarks/s/straddling_checkerboard_transducer/verify_workload.py"
+  ],
+  "languages": ["c", "c3", "cpp", "elisa", "mojo", "nim", "odin", "rust", "v", "zig"],
+  "native_paths": [
+    "c/s/straddling_checkerboard_transducer.c",
+    "c3/s/straddling_checkerboard_transducer.c3",
+    "cpp/s/straddling_checkerboard_transducer.cpp",
+    "elisa/s/straddling_checkerboard_transducer.elisa",
+    "mojo/s/straddling_checkerboard_transducer.mojo",
+    "nim/s/straddling_checkerboard_transducer.nim",
+    "odin/s/straddling_checkerboard_transducer.odin",
+    "rust/s/straddling_checkerboard_transducer.rs",
+    "v/s/straddling_checkerboard_transducer.v",
+    "zig/s/straddling_checkerboard_transducer.zig"
+  ],
+  "bounds": {
+    "maximum_valid_input_length": 96,
+    "maximum_parseable_input_length": 97,
+    "maximum_text_length": 64,
+    "maximum_output_bytes": 128,
+    "workspace_bytes": 256
+  },
+  "complexity": {
+    "time": "O(text_length) for the fixed-size board, plus O(28^2) duplicate-symbol validation",
+    "space": "O(1) fixed scratch, plus at most 128 staged output bytes"
+  },
+  "coverage_fixtures": {
+    "nul_hole_is_not_symbol": "invalid-nul-encode-hole-is-not-a-symbol",
+    "maximum_output": "maximum-128-byte-lower-row-encoding",
+    "maximum_output_short_capacity": "maximum-output-capacity-127-fails"
+  }
+}

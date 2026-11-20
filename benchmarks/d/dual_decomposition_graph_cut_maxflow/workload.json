@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "strandmark-kahl-dual-decomposition-graph-cut-i64-array-scalar-v1",
+  "algorithm": "dual_decomposition_graph_cut_maxflow",
+  "function_symbol": "dual_decomposition_graph_cut_maxflow",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,O,T,owner[N],source_caps[N],sink_caps[N],(u,v,cap_uv,cap_vu)*M]",
+    "vertices_range": [3, 6],
+    "directed_edge_record_count_range": [0, 10],
+    "overlap_vertex_count_range": [1, 3],
+    "iteration_limit_range": [1, 8],
+    "owner_codes": {"0": "M-only", "1": "N-only", "2": "shared overlap"},
+    "capacity_range": [0, 6],
+    "capacity_parity": "all_terminal_and_directed_arc_capacities_must_be_even",
+    "partition_rule": "every vertex belongs to M-only, N-only, or overlap; each side has at least one exclusive vertex; edges between M-only and N-only vertices are invalid",
+    "overlap_rule": "shared terminal and shared-to-shared directed capacities are split equally between subproblems",
+    "parallel_arcs": "allowed_and_summed",
+    "self_loops": "invalid",
+    "maximum_valid_input_length": 62,
+    "maximum_parseable_input_length": 63,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "packed scaled dual lower bound and overlap-consensus flag",
+    "encoding": "2*(dual_numerator_scaled+7000)+agreement; denominator is lcm(2,1,...,T); low bit is 1 only when overlap labels agree",
+    "agreement_flag": {"0": "decoded value is a dual lower bound only", "1": "decoded value is the exact global min-cut / max-flow value"},
+    "invalid_input_result": -1,
+    "maximum_result": 74481
+  },
+  "algorithm_profile": {
+    "method": "Two-way overlap-label Lagrangian dual decomposition for an exact graph cut, following the paper's Section 3 supergradient method.",
+    "subproblems": "M and N each contain both terminals, their exclusive vertices, and all overlap vertices; edges between exclusive sides are forbidden.",
+    "overlap_energy": "Every original capacity incident only to overlap vertices, including terminal arcs at an overlap vertex, appears in both subproblems at half capacity.",
+    "multipliers": "One signed integer fixed-point multiplier per overlap vertex, initialized to zero; M adds lambda*x and N adds -lambda*y for sink-side label bits x,y.",
+    "step_schedule": "At 1-based round k, update lambda by (x-y)/k after solving both subproblems unless the overlap agrees or this is the final requested round.",
+    "exact_arithmetic": "Use scale D=lcm(2,1,...,T), scale all base capacities by D, and store D*lambda; T=1 uses D=2 so shared half-costs remain integral; all divisions D/k are exact.",
+    "tie_rule": "Each subproblem chooses its maximal sink-side minimum cut: label 1 wherever possible, matching the paper's stated tie convention.",
+    "termination": "Run at most T subproblem evaluations and stop early only when every overlap label agrees.",
+    "interpretation": "Agreement certifies a global optimum by strong duality. A finite-round disagreement reports only the dual lower bound; it is never labeled an exact cut.",
+    "packing_bound": "At most seven updates occur, so each scaled multiplier has absolute value at most 840*H_7=2178 and the three overlap multipliers give g_scaled>=-6534; base subproblem energies are nonnegative. The 7000 offset therefore keeps the packed scalar nonnegative. The all-sink feasible labeling cancels dual terms and costs at most sum(source_caps)<=36, so weak duality gives g_scaled<=36*840=30240; packed result<=2*(30240+7000)+1=74481."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "paper": "https://lucris.lub.lu.se/ws/portalfiles/portal/3989365/1580403.pdf",
+    "doi": "https://doi.org/10.1109/CVPR.2010.5539886",
+    "reuse": "Algorithm descriptions only. The paper remains under its stated copyright; no source code, figures, or benchmark instances are copied."
+  },
+  "cases": [
+    {"id":"zero-cost-consensus","input_values":[3,0,1,3,0,1,2,0,0,0,0,0,0],"input_length":13,"expected_result":14001},
+    {"id":"shared-terminal-half-cost","input_values":[3,0,1,1,0,1,2,0,0,2,0,0,0],"input_length":13,"expected_result":14001},
+    {"id":"finite-round-disagreement","input_values":[3,2,1,2,0,1,2,4,0,0,0,4,0,0,2,2,2,1,2,2,2],"input_length":21,"expected_result":14004},
+    {"id":"fractional-fixed-point-lower-bound","input_values":[3,2,1,3,0,1,2,4,0,0,0,4,0,0,2,2,2,1,2,2,2],"input_length":21,"expected_result":14018},
+    {"id":"agreement-certifies-optimum","input_values":[3,1,1,2,0,1,2,0,0,2,0,4,0,1,2,2,2],"input_length":17,"expected_result":14009},
+    {
+      "id": "maximum-frame-and-packed-result",
+      "input_values": [
+        6,10,2,8,
+        0,1,2,0,1,2,
+        6,6,6,6,6,6,
+        6,6,6,6,6,6,
+        0,2,0,0, 1,2,0,0, 3,5,0,0, 4,5,0,0, 2,5,0,0,
+        0,2,0,0, 1,2,0,0, 3,5,0,0, 4,5,0,0, 2,5,0,0
+      ],
+      "input_length": 62,
+      "expected_result": 74481
+    },
+    {"id":"invalid-odd-capacity","input_values":[3,0,1,1,0,1,2,0,0,3,0,0,0],"input_length":13,"expected_result":-1},
+    {"id":"invalid-cross-exclusive-edge","input_values":[3,1,1,1,0,1,2,0,0,0,0,0,0,0,1,2,2],"input_length":17,"expected_result":-1},
+    {"id":"invalid-missing-subproblem-side","input_values":[3,0,1,1,0,0,2,0,0,0,0,0,0],"input_length":13,"expected_result":-1},
+    {"id":"invalid-round-limit","input_values":[3,0,1,9,0,1,2,0,0,0,0,0,0],"input_length":13,"expected_result":-1},
+    {"id":"trailing-word","input_values":[3,0,1,1,0,1,2,0,0,0,0,0,0,5],"input_length":14,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"null-at-parser-limit","input_values":[],"input_length":63,"input_is_null":true,"expected_result":-1}
+  ]
+}

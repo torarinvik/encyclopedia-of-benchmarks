@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "olver-backward-recurrence-boundary-value-float64-slice-io-v1",
+  "algorithm": "olver_backward_recurrence_boundary_value",
+  "function_symbol": "olver_backward_recurrence_boundary_value",
+  "abi": "float64_slice_io",
+  "source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.6(v), Olver's Algorithm",
+    "equations": "3.6.8–3.6.10",
+    "url": "https://dlmf.nist.gov/3.6.v",
+    "role": "Mathematical algorithm description only"
+  },
+  "contract": {
+    "operation": "Select the first finite Olver truncation endpoint satisfying the relative criterion, then back-substitute the inhomogeneous recurrence to return the requested prefix.",
+    "input_encoding": "[M,Nmax,epsilon,w0,a1..aNmax,b1..bNmax,c1..cNmax,d1..dNmax]",
+    "M_range": "1<=M<=8",
+    "Nmax_range": "M<=Nmax<=12",
+    "coefficient_blocks": "Four consecutive length-Nmax blocks in a,b,c,d order, indexed from recurrence n=1.",
+    "normalization": "p0=0,p1=1,e0=w0; a_n*p_(n+1)-b_n*p_n+c_n*p_(n-1)=0; a_n*e_n=c_n*e_(n-1)-d_n*p_n.",
+    "cutoff": "r_n=abs(e_n/(p_n*p_(n+1))); choose smallest N in [M,Nmax] with r_N<=epsilon*min(r_1..r_M).",
+    "back_substitution": "w_N=0; for n=N-1 down to 0, w_n=(p_n*w_(n+1)+e_n)/p_(n+1).",
+    "output_encoding": "[N,w0,...,wM]",
+    "sample_domain": "Finite binary64 inputs; epsilon in [2^-40,0.5], abs(w0)<=16, 1/16<=abs(a_n)<=16, and abs(b_n),abs(c_n),abs(d_n)<=16.",
+    "operation_order": "Use the displayed scalar recurrence and cutoff expressions in binary64 without fast-math reassociation.",
+    "malformed_result": -1,
+    "output_error_result": -2,
+    "bounded_recurrence_error_result": -3,
+    "error_precedence": "Malformed or null input returns -1 before output validation; valid input with null or short output returns -2 before recurrence work; otherwise a required zero/nonfinite p product, nonfinite state/output, or no accepted cutoff through Nmax returns -3.",
+    "no_write_on_error": true,
+    "native_internal_scratch_bytes": 320
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[M,Nmax,epsilon,w0,a1..aNmax,b1..bNmax,c1..cNmax,d1..dNmax]",
+    "M_range": [1,8],
+    "Nmax_range": [1,12],
+    "frame_length_formula": "4+4*Nmax",
+    "epsilon_range": [9.094947017729282e-13,0.5],
+    "w0_absolute_bound": 16,
+    "a_absolute_range": [0.0625,16],
+    "bcd_absolute_bound": 16,
+    "maximum_valid_input_length": 52,
+    "maximum_parseable_input_length": 53,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[N,w0,...,wM]",
+    "element_count_formula": "M+2",
+    "maximum_elements": 10,
+    "maximum_bytes": 80,
+    "success_result": "M+2",
+    "invalid_input_result": -1,
+    "short_or_null_output_result": -2,
+    "bounded_recurrence_error_result": -3,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 10,
+    "bytes": 80,
+    "meaning": "Maximum caller-provided output buffer. Native p/e/w arrays use 320 bytes of fixed internal scratch, included separately in the contract."
+  },
+  "complexity": {
+    "primary_time": "O(Nmax+N), with N<=Nmax",
+    "primary_internal_space": "O(Nmax) fixed arrays, 320 bytes at Nmax=12",
+    "independent_time": "O(Nmax+N^3), where the selected endpoint boundary solve uses at most N-1 unknowns",
+    "independent_internal_space": "O(N^2), at most a 11x12 augmented binary64 matrix"
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "primary_oracle": "primary_oracle.py: forward p/e recurrences, DLMF cutoff, backward scalar reconstruction",
+  "independent_oracle": "independent_oracle.py: same cutoff definition followed by a pivoted dense boundary-system solve",
+  "cases": [
+    {"id":"inhomogeneous_cutoff_at_max","input_values":[2,4,0.5,1,1,1,1,1,2,2,2,2,1,1,1,1,-1,-0.5,-0.3333333333333333,-0.25],"input_length":20,"output_capacity":4,"expected_result":4,"expected_output":[4.0,1.0,1.8333333333333335,1.6666666666666667]},
+    {"id":"zero_minimum_selects_first_endpoint","input_values":[1,2,0.5,1,1,1,2,2,1,1,1,0],"input_length":12,"output_capacity":3,"expected_result":3,"expected_output":[1.0,1.0,0.0]},
+    {"id":"maximum_frame_and_output","input_values":[
+      8,12,0.5,1,
+      1,1,1,1,1,1, 1,1,1,1,1,1,
+      2,2,2,2,2,2, 2,2,2,2,2,2,
+      1,1,1,1,1,1, 1,1,1,1,1,1,
+      1,0,0,0,0,0, 0,0,0,0,0,0
+    ],"input_length":52,"output_capacity":10,"expected_result":10,"expected_output":[8.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]},
+    {"id":"no_cutoff_by_bounded_limit","input_values":[1,4,9.094947017729282e-13,1,1,1,1,1,2,2,2,2,1,1,1,1,-1,-0.5,-0.3333333333333333,-0.25],"input_length":20,"output_capacity":3,"expected_result":-3,"expected_output":[]},
+    {"id":"zero_homogeneous_product","input_values":[1,2,0.5,1,1,1,0,2,0,1,1,0],"input_length":12,"output_capacity":3,"expected_result":-3,"expected_output":[]},
+    {"id":"one_element_short_output","input_values":[2,4,0.5,1,1,1,1,1,2,2,2,2,1,1,1,1,-1,-0.5,-0.3333333333333333,-0.25],"input_length":20,"output_capacity":3,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid_m_before_output_error","input_values":[0,2,0.5,1,1,1,2,2,1,1,1,0],"input_length":12,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_zero_tolerance","input_values":[1,2,0,1,1,1,2,2,1,1,1,0],"input_length":12,"output_capacity":3,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_coefficient_bound","input_values":[1,1,0.5,1,17,2,1,0],"input_length":8,"output_capacity":3,"expected_result":-1,"expected_output":[]},
+    {"id":"maximum_parseable_trailing_value","input_values":[
+      8,12,0.5,1,
+      1,1,1,1,1,1, 1,1,1,1,1,1,
+      2,2,2,2,2,2, 2,2,2,2,2,2,
+      1,1,1,1,1,1, 1,1,1,1,1,1,
+      1,0,0,0,0,0, 0,0,0,0,0,0,
+      7
+    ],"input_length":53,"output_capacity":10,"expected_result":-1,"expected_output":[]}
+  ],
+  "abi_cases": [
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":10,"expected_result":-1,"expected_output":[]},
+    {"id":"valid_null_output","input_values":[1,2,0.5,1,1,1,2,2,1,1,1,0],"input_length":12,"output_capacity":3,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"valid_zero_output_capacity","input_values":[1,2,0.5,1,1,1,2,2,1,1,1,0],"input_length":12,"output_capacity":0,"expected_result":-2,"expected_output":[]}
+  ]
+}

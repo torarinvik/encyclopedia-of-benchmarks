@@ -1,0 +1,37 @@
+{
+  "algorithm": "steiner_tree_mehlhorn_voronoi_mst",
+  "abi": "i64_array_bytes_output",
+  "symbol": "steiner_tree_mehlhorn_voronoi_mst",
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "metadata": ["README.md", "RIGHTS.md", "INVENTORY.md"],
+  "helpers": ["check_inventory.py", "verify_workload.py"],
+  "suite_status": "integrated in the i64_array_bytes_output runner, verifier, catalog, and root README",
+  "source_review": "static reconciliation of all ten ports; no programs, helpers, checks, compilers, or benchmarks run",
+  "languages": ["c", "c3", "cpp", "elisa", "mojo", "nim", "odin", "rust", "v", "zig"],
+  "source_paths": [
+    "c/s/steiner_tree_mehlhorn_voronoi_mst.c",
+    "c3/s/steiner_tree_mehlhorn_voronoi_mst.c3",
+    "cpp/s/steiner_tree_mehlhorn_voronoi_mst.cpp",
+    "elisa/s/steiner_tree_mehlhorn_voronoi_mst.elisa",
+    "mojo/s/steiner_tree_mehlhorn_voronoi_mst.mojo",
+    "nim/s/steiner_tree_mehlhorn_voronoi_mst.nim",
+    "odin/s/steiner_tree_mehlhorn_voronoi_mst.odin",
+    "rust/s/steiner_tree_mehlhorn_voronoi_mst.rs",
+    "v/s/steiner_tree_mehlhorn_voronoi_mst.v",
+    "zig/s/steiner_tree_mehlhorn_voronoi_mst.zig"
+  ],
+  "language_ports": {
+    "c": "c/s/steiner_tree_mehlhorn_voronoi_mst.c",
+    "c3": "c3/s/steiner_tree_mehlhorn_voronoi_mst.c3",
+    "cpp": "cpp/s/steiner_tree_mehlhorn_voronoi_mst.cpp",
+    "elisa": "elisa/s/steiner_tree_mehlhorn_voronoi_mst.elisa",
+    "mojo": "mojo/s/steiner_tree_mehlhorn_voronoi_mst.mojo",
+    "nim": "nim/s/steiner_tree_mehlhorn_voronoi_mst.nim",
+    "odin": "odin/s/steiner_tree_mehlhorn_voronoi_mst.odin",
+    "rust": "rust/s/steiner_tree_mehlhorn_voronoi_mst.rs",
+    "v": "v/s/steiner_tree_mehlhorn_voronoi_mst.v",
+    "zig": "zig/s/steiner_tree_mehlhorn_voronoi_mst.zig"
+  },
+  "source_review": "static only; no programs or checks run"
+}

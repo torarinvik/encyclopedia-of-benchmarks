@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "distinct-substring-count-hashing-v1",
+  "algorithm": "distinct_substring_count_hashing",
+  "function_symbol": "distinct_substring_count_hashing",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "String Hashing: Determine the number of different substrings in a string",
+    "url": "https://cp-algorithms.com/string/string-hashing.html#determine-the-number-of-different-substrings-in-a-string",
+    "license": "CC BY-SA 4.0",
+    "reuse": "algorithm description only; independent contract, implementations, and fixtures"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, byte_0, ..., byte_(n-1)]",
+    "text_length_range": [0, 64],
+    "symbol_range": [0, 255],
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "exact number of distinct nonempty contiguous substrings",
+    "result_range": "0..2080",
+    "invalid_result": -1
+  },
+  "method": {
+    "hash": "H(s)=H(prefix)*257+(byte+1) modulo 1000000007",
+    "collision_policy": "same-length equal hashes are byte-compared; colliding but unequal substrings remain separate",
+    "time": "O(n^4) worst case from exact collision-bucket comparisons; O(n^2) expected under the fixed hash",
+    "auxiliary_space": "O(n)"
+  },
+  "workspace": {"bytes": 4096},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty","input_values":[0],"expected_result":0},
+    {"id":"singleton","input_values":[1,65],"expected_result":1},
+    {"id":"repeated-symbols","input_values":[8,0,0,0,0,0,0,0,0],"expected_result":8},
+    {"id":"overlapping-periodic","input_values":[5,97,98,97,98,97],"expected_result":9},
+    {"id":"hash-collision-remains-distinct","input_values":[8,0,0,0,0,58,234,70,157],"expected_result":30},
+    {"id":"full-byte-range","input_values":[4,0,255,0,255],"expected_result":7},
+    {"id":"all-distinct-maximum-length","input_values":[64,
+      0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
+      16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
+      32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,
+      48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63],"expected_result":2080},
+    {"id":"maximum-length-repeated","input_values":[64,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"expected_result":64},
+    {"id":"length-above-bound","input_values":[65],"expected_result":-1},
+    {"id":"invalid-negative-symbol","input_values":[1,-1],"expected_result":-1},
+    {"id":"invalid-symbol-above-byte","input_values":[1,256],"expected_result":-1},
+    {"id":"trailing-value","input_values":[1,65,0],"expected_result":-1},
+    {"id":"missing-symbol","input_values":[2,65],"expected_result":-1},
+    {"id":"missing-length","input_values":[],"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_is_null":true,"input_length":0,"expected_result":-1}
+  ]
+}

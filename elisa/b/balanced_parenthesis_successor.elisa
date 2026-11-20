@@ -1,0 +1,67 @@
+# Clean-room bounded lexicographic successor for a one-type Dyck word.
+const BP_SUCCESSOR_MAX_PAIRS: usize = 10
+const BP_SUCCESSOR_MAX_INPUT: usize = 21
+const BP_SUCCESSOR_MAX_OUTPUT: usize = 20
+
+def balanced_parenthesis_successor_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values.len()
+    if length < 1 or length > BP_SUCCESSOR_MAX_INPUT: return -1
+    pair_value: i64 = values[0]
+    if pair_value < 1 or pair_value > 10: return -1
+    pairs: usize = pair_value.usize()
+    sequence_length: usize = 2 * pairs
+    if length != 1 + sequence_length: return -1
+    symbols: mutable usize[20] = zeroed
+    balance: mutable i64 = 0
+    i: mutable usize = 0
+    while i < sequence_length:
+        symbol: i64 = values[1 + i]
+        if symbol != 0 and symbol != 1: return -1
+        symbols[i] <- symbol.usize()
+        if symbol == 0: balance <- balance + 1
+        else: balance <- balance - 1
+        if balance < 0: return -1
+        i <- i + 1
+    if balance != 0: return -1
+    if output.is_null() or capacity < sequence_length: return -2
+
+    staged: mutable u8[20] = zeroed
+    reverse_depth: mutable i64 = 0
+    cursor: mutable usize = sequence_length
+    while cursor > 0:
+        cursor <- cursor - 1
+        if symbols[cursor] == 0: reverse_depth <- reverse_depth - 1
+        else: reverse_depth <- reverse_depth + 1
+        if symbols[cursor] == 0 and reverse_depth > 0:
+            reverse_depth <- reverse_depth - 1
+            suffix_length: usize = sequence_length - cursor - 1
+            opening_count: usize = ((suffix_length.i64() - reverse_depth) / 2).usize()
+            closing_count: usize = suffix_length - opening_count
+            j: mutable usize = 0
+            while j < cursor:
+                staged[j] <- if symbols[j] == 0: 40.u8() else: 41.u8()
+                j <- j + 1
+            staged[cursor] <- 41.u8()
+            position: mutable usize = cursor + 1
+            j <- 0
+            while j < opening_count:
+                staged[position] <- 40.u8()
+                position <- position + 1
+                j <- j + 1
+            j <- 0
+            while j < closing_count:
+                staged[position] <- 41.u8()
+                position <- position + 1
+                j <- j + 1
+            result: mutable view[u8] = output[0:sequence_length]
+            j <- 0
+            while j < sequence_length:
+                result[j] <- staged[j]
+                j <- j + 1
+            return sequence_length.i64()
+    -3
+
+export fn balanced_parenthesis_successor(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > BP_SUCCESSOR_MAX_INPUT: return -1
+    balanced_parenthesis_successor_impl(input[0:length], output, capacity)

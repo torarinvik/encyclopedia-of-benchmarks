@@ -57,21 +57,13 @@ fn group_hull(points []Point, begin int, end int) []int {
 fn tangent(points []Point, hull []int, query int) int {
     n := hull.len
     if n == 1 { return hull[0] }
-    if n == 2 { return if turn(points, query, hull[0], hull[1]) > 0 { hull[0] } else { hull[1] } }
-    initial_up := turn(points, query, hull[0], hull[1]) > 0
     mut lo := 0
-    mut hi := n
+    mut hi := n-1
     for lo < hi {
         mid := lo + (hi-lo)/2
-        before := turn(points, query, hull[mid], hull[(mid+n-1)%n]) > 0
-        after := turn(points, query, hull[mid], hull[(mid+1)%n]) > 0
-        if before && after { return hull[mid] }
-        below := mid != 0 && turn(points, query, hull[mid], hull[0]) > 0
-        above := mid != 0 && turn(points, query, hull[0], hull[mid]) > 0
-        search_left := if initial_up { after && below } else { after || above }
-        if search_left { hi = mid } else { lo = mid+1 }
+        if turn(points, query, hull[mid], hull[hi]) > 0 { hi = mid } else { lo = mid+1 }
     }
-    return -1
+    return hull[lo]
 }
 
 @[export: 'chan_output_sensitive_hull']

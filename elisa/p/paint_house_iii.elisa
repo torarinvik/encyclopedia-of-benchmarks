@@ -1,0 +1,99 @@
+const MAX_INPUT: usize = 44
+const INF: i64 = 801
+
+def state_index(color: usize, groups: usize) -> usize:
+    color * 9 + groups
+
+def paint_house_iii_impl(input_values: view[i64], length: usize) -> i64:
+    if length < 3 or length > MAX_INPUT:
+        return -1
+    let m_value: i64 = input_values[0]
+    let n_value: i64 = input_values[1]
+    let target_value: i64 = input_values[2]
+    if m_value < 1 or m_value > 8 or n_value < 1 or n_value > 4:
+        return -1
+    if target_value < 1 or target_value > m_value:
+        return -1
+    let m: usize = m_value.usize()
+    let n: usize = n_value.usize()
+    let target: usize = target_value.usize()
+    if length != 3 + m + m * n:
+        return -1
+
+    houses: mutable i64[8] = zeroed
+    costs: mutable i64[32] = zeroed
+    index: mutable usize = 0
+    while index < m:
+        let house: i64 = input_values[3 + index]
+        if house < 0 or house > n_value:
+            return -1
+        houses[index] <- house
+        index <- index + 1
+    index <- 0
+    while index < m * n:
+        let cost: i64 = input_values[3 + m + index]
+        if cost < 0 or cost > 100:
+            return -1
+        costs[index] <- cost
+        index <- index + 1
+
+    previous: mutable i64[45] = zeroed
+    current: mutable i64[45] = zeroed
+    index <- 0
+    while index < 45:
+        previous[index] <- INF
+        index <- index + 1
+    color: mutable usize = 1
+    while color <= n:
+        if houses[0] == 0 or houses[0] == color.i64():
+            previous[state_index(color, 1)] <- if houses[0] == 0: costs[color - 1] else: 0
+        color <- color + 1
+
+    house_index: mutable usize = 1
+    while house_index < m:
+        index <- 0
+        while index < 45:
+            current[index] <- INF
+            index <- index + 1
+        color <- 1
+        while color <= n:
+            if houses[house_index] == 0 or houses[house_index] == color.i64():
+                let paint_cost: i64 = if houses[house_index] == 0:
+                    costs[house_index * n + color - 1]
+                else:
+                    0
+                groups: mutable usize = 1
+                while groups <= target:
+                    best: mutable i64 = INF
+                    old_color: mutable usize = 1
+                    while old_color <= n:
+                        let decrement: usize = if old_color == color: 0 else: 1
+                        let old_groups: usize = groups - decrement
+                        if old_groups >= 1 and previous[state_index(old_color, old_groups)] < best:
+                            best <- previous[state_index(old_color, old_groups)]
+                        old_color <- old_color + 1
+                    if best < INF:
+                        current[state_index(color, groups)] <- best + paint_cost
+                    groups <- groups + 1
+            color <- color + 1
+        index <- 0
+        while index < 45:
+            previous[index] <- current[index]
+            index <- index + 1
+        house_index <- house_index + 1
+
+    answer: mutable i64 = INF
+    color <- 1
+    while color <= n:
+        if previous[state_index(color, target)] < answer:
+            answer <- previous[state_index(color, target)]
+        color <- color + 1
+    if answer >= INF:
+        return -1
+    answer
+
+export fn paint_house_iii(input_values: i64&, length: usize) -> i64:
+    if input_values.is_null() or length < 3 or length > MAX_INPUT:
+        return -1
+    let input_view: view[i64] = input_values[0:length]
+    paint_house_iii_impl(input_view, length)

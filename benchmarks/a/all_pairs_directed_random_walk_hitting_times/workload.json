@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "all-pairs-directed-random-walk-hitting-times-mod-prime-v1",
+  "algorithm": "all_pairs_directed_random_walk_hitting_times",
+  "function_symbol": "all_pairs_directed_random_walk_hitting_times",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "method_reference": "https://oi-wiki.org/graph/graph-random-walk/",
+    "independent_reference": "https://rusunoi.github.io/books/National-Team-Thesis/2019.pdf",
+    "reuse_scope": "Mathematical descriptions only; contract, fixtures, references, and ports are clean-room."
+  },
+  "contract": {
+    "profile": "All ordered-pair first-hit expectations for a strongly connected simple directed graph, modulo 1000000007.",
+    "input_layout": "[n,m,(u,v)*m]",
+    "vertex_count_range": [3, 8],
+    "arc_count_range": "0 <= m <= n*(n-1)",
+    "vertex_ids": "Zero-based integers in [0,n).",
+    "arc_rule": "Directed arcs; self-loops and repeated ordered pairs are invalid.",
+    "connectivity_rule": "The directed graph must be strongly connected.",
+    "walk_rule": "At each vertex, choose one outgoing arc uniformly; one traversed arc costs one step.",
+    "output_layout": "Row-major n*n matrix H; H[s,t] is the expected first-hit time from s to t modulo 1000000007, with H[t,t]=0; each value is a little-endian signed-i64 residue.",
+    "primary_method": "Solve pi*P=pi with sum(pi)=1; let g_i=1/pi_i; solve (I-P)Y=J-diag(g) with the last coordinate fixed to zero; return H[i,j]=Y[i,j]-Y[j,j].",
+    "independent_method": "For each target t, solve the absorbing first-step system d_i*h_i-sum(h_j for arcs i->j,j!=t)=d_i over all i!=t.",
+    "invalid_precedence": "Malformed or null input returns -1 before output checks; valid input with null or short output returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 114,
+    "maximum_parseable_length": 115,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "maximum_bytes": 512,
+    "size_formula": "8*n*n for every valid graph",
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Conservative cap for the fixed adjacency, stationary system, reduced hitting-time system, result matrix, and parser state; caller-owned output is excluded."
+  },
+  "complexity": {
+    "primary_time": "O(n^3+m)",
+    "primary_space": "O(n^2)",
+    "independent_time": "O(n^4+m)",
+    "independent_space": "O(n^2)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "directed-three-cycle",
+      "input_values": [3, 3, 0, 1, 1, 2, 2, 0],
+      "input_length": 8,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "000000000000000001000000000000000200000000000000020000000000000000000000000000000100000000000000010000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "complete-directed-three-vertex-graph",
+      "input_values": [3, 6, 0, 1, 0, 2, 1, 0, 1, 2, 2, 0, 2, 1],
+      "input_length": 14,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "000000000000000002000000000000000200000000000000020000000000000000000000000000000200000000000000020000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "asymmetric-chord-with-fractional-hitting-time",
+      "input_values": [3, 4, 0, 1, 1, 2, 2, 0, 0, 2],
+      "input_length": 10,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "000000000000000003000000000000000565cd1d000000000200000000000000000000000000000000100000000000000010000000000000004000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-frame-complete-digraph",
+      "input_values": [8, 56, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 1, 0, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 2, 0, 2, 1, 2, 3, 2, 4, 2, 5, 2, 6, 2, 7, 3, 0, 3, 1, 3, 2, 3, 4, 3, 5, 3, 6, 3, 7, 4, 0, 4, 1, 4, 2, 4, 3, 4, 5, 4, 6, 4, 7, 5, 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 6, 5, 7, 6, 0, 6, 1, 6, 2, 6, 3, 6, 4, 6, 5, 6, 7, 7, 0, 7, 1, 7, 2, 7, 3, 7, 4, 7, 5, 7, 6],
+      "input_length": 114,
+      "output_capacity": 512,
+      "expected_result": 512,
+      "expected_output_hex": "0000000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000000000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000000000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000000000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000000000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000000000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000000000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [8, 56, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 1, 0, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 2, 0, 2, 1, 2, 3, 2, 4, 2, 5, 2, 6, 2, 7, 3, 0, 3, 1, 3, 2, 3, 4, 3, 5, 3, 6, 3, 7, 4, 0, 4, 1, 4, 2, 4, 3, 4, 5, 4, 6, 4, 7, 5, 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 6, 5, 7, 6, 0, 6, 1, 6, 2, 6, 3, 6, 4, 6, 5, 6, 7, 7, 0, 7, 1, 7, 2, 7, 3, 7, 4, 7, 5, 7, 6, 99],
+      "input_length": 115,
+      "output_capacity": 512,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-frame-one-byte-short",
+      "input_values": [8, 56, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 1, 0, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 2, 0, 2, 1, 2, 3, 2, 4, 2, 5, 2, 6, 2, 7, 3, 0, 3, 1, 3, 2, 3, 4, 3, 5, 3, 6, 3, 7, 4, 0, 4, 1, 4, 2, 4, 3, 4, 5, 4, 6, 4, 7, 5, 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 6, 5, 7, 6, 0, 6, 1, 6, 2, 6, 3, 6, 4, 6, 5, 6, 7, 7, 0, 7, 1, 7, 2, 7, 3, 7, 4, 7, 5, 7, 6],
+      "input_length": 114,
+      "output_capacity": 511,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-output-short-by-one",
+      "input_values": [8, 8, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 0],
+      "input_length": 18,
+      "output_capacity": 511,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "not-strongly-connected",
+      "input_values": [3, 3, 0, 1, 1, 0, 2, 0],
+      "input_length": 8,
+      "output_capacity": 512,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-directed-arc",
+      "input_values": [3, 3, 0, 1, 0, 1, 1, 2],
+      "input_length": 8,
+      "output_capacity": 72,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self-loop",
+      "input_values": [3, 3, 0, 0, 1, 2, 2, 1],
+      "input_length": 8,
+      "output_capacity": 72,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-frame",
+      "input_values": [3, 3, 0, 1, 1, 2, 2, 0, 9],
+      "input_length": 9,
+      "output_capacity": 72,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-before-output-capacity",
+      "input_values": [3, 3, 0, 0, 1, 2, 2, 1],
+      "input_length": 8,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3, 3, 0, 1, 1, 2, 2, 0],
+      "input_length": 8,
+      "output_capacity": 71,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [3, 3, 0, 1, 1, 2, 2, 0],
+      "input_length": 8,
+      "output_capacity": 72,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 512,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "generated_profile": {
+    "maximum_n": 8,
+    "maximum_valid_input_length": 114,
+    "maximum_parseable_input_length": 115,
+    "maximum_output_bytes": 512,
+    "description": "An 8-vertex complete simple digraph reaches the 114-word valid-frame bound and 512-byte output bound; its trailing-word variant reaches the 115-word parseable bound and is rejected."
+  }
+}

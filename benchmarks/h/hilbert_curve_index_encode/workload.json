@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "butz-hilbert-coordinate-index-i64-array-bytes-output-v1",
+  "algorithm": "hilbert_curve_index_encode",
+  "function_symbol": "hilbert_curve_index_encode",
+  "abi": "i64_array_bytes_output",
+  "description": "Map one bounded 2D integer coordinate to its Butz Hilbert path index.",
+  "source": {
+    "title": "A. R. Butz, Alternative Algorithm for Hilbert's Space-Filling Curve",
+    "authors": ["Arthur R. Butz"],
+    "url": "https://doi.org/10.1109/T-C.1971.223258",
+    "license": "Algorithmic description only; no copied text or code",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "contract": {
+    "operation": "Return the Hilbert distance of one point in a 2^order by 2^order grid.",
+    "orientation": "At order one the traversal is (0,0),(0,1),(1,1),(1,0).",
+    "primary_method": "Iterate from high coordinate bits to low bits, accumulating quadrant digits and applying the corresponding lower-bit orientation transform.",
+    "independent_method": "Recursively select one quadrant and transform the child coordinates before adding that quadrant's index block.",
+    "duplicate_comparison": "hilbert_curve materializes an entire rotated recursive point sequence; morton_sort ranks point sets by interleaved Z-order bits.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[order,x,y]",
+    "order_range": [1, 8],
+    "coordinate_range": "0<=x,y<2^order",
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 4,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array_bytes",
+    "encoding": "[HilbertIndex]",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 0,
+    "meaning": "Native primary uses scalar coordinate, orientation, and index state only."
+  },
+  "complexity": {
+    "native_primary_time": "O(order)",
+    "native_primary_auxiliary_space": "O(1)",
+    "independent_reference_time": "O(order)",
+    "independent_reference_auxiliary_space": "O(order) recursion frames"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/h/hilbert_curve_index_encode/primary_oracle.py",
+  "independent_oracle": "benchmarks/h/hilbert_curve_index_encode/independent_oracle.py",
+  "cases": [
+    {"id":"order-one-origin","input_values":[1,0,0],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"order-one-second-point","input_values":[1,0,1],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"order-one-third-point","input_values":[1,1,1],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0200000000000000"},
+    {"id":"order-one-last-point","input_values":[1,1,0],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0300000000000000"},
+    {"id":"order-two-first-quadrant","input_values":[2,0,0],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"order-two-upper-left","input_values":[2,0,2],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0400000000000000"},
+    {"id":"order-two-upper-left-end","input_values":[2,0,3],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0500000000000000"},
+    {"id":"order-two-upper-right","input_values":[2,2,2],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0800000000000000"},
+    {"id":"order-two-last-point","input_values":[2,3,0],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0f00000000000000"},
+    {"id":"maximum-order-repeated-upper-left","input_values":[8,0,255],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"5555000000000000"},
+    {"id":"maximum-order-repeated-upper-right","input_values":[8,255,255],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"aaaa000000000000"},
+    {"id":"maximum-order-last-point","input_values":[8,255,0],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"ffff000000000000"},
+    {"id":"maximum-output-one-byte-short","input_values":[8,255,0],"input_length":3,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0,0],"input_length":3,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"zero-order","input_values":[0,0,0],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"order-above-bound","input_values":[9,0,0],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"coordinate-equals-side","input_values":[3,8,0],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-coordinate","input_values":[2,-1,0],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[1,0,0,0],"input_length":4,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

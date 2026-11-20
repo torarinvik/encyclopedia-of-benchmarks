@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "motzkin-number-i64-array-scalar-v1",
+  "algorithm": "motzkin_number",
+  "function_symbol": "motzkin_number",
+  "abi": "i64_array_scalar",
+  "description": "Return the exact Motzkin number M_n for a bounded sequence index.",
+  "source": {
+    "title": "Motzkin Numbers",
+    "authors": ["Robert Donaghey", "Louis W. Shapiro"],
+    "publisher": "Journal of Combinatorial Theory, Series A",
+    "volume": 23,
+    "issue": 3,
+    "year": 1977,
+    "pages": "291–301",
+    "reference_url": "https://doi.org/10.1016/0097-3165(77)90020-6",
+    "sequence_url": "https://oeis.org/A001006",
+    "discovery_url": "https://raw.githubusercontent.com/acmeism/RosettaCodeData/main/popular-tasks",
+    "implementation_status": "bounded clean-room exact-sequence profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n]",
+    "n_range": [0, 30],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "M_n, where M_0=M_1=1 and M_n=M_(n-1)+sum(M_i*M_(n-2-i), i=0..n-2)",
+    "valid_result_range": [1, 1697385471211],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "definition": "M_n counts Motzkin excursions of length n: paths from height zero to height zero using up, level, and down steps and never going below zero.",
+    "primary_method": "Bottom-up convolution recurrence M_0=M_1=1; M_n=M_(n-1)+sum(M_i*M_(n-2-i), i=0..n-2).",
+    "independent_method": "Binomial-Catalan sum M_n=sum(binomial(n,2k)*Catalan(k), k=0..floor(n/2)); binomial values use multiplicative exact division and Catalan(k)=binomial(2k,k)/(k+1).",
+    "invalid_cases": "Null input, empty frame, trailing word, negative n, or n>30 returns -1.",
+    "overflow_proof": "All primary convolution terms are nonnegative and their sum is at most M_30=1,697,385,471,211. In the independent sum, each term is bounded by binomial(30,15)*Catalan(15)<1.51e15; at most 16 terms total less than 2.5e16, below signed-i64 maximum."
+  },
+  "complexity": {
+    "primary_time": "O(n^2), at most 435 convolution products for n<=30",
+    "primary_space": "31 signed 64-bit table entries, 248 bytes",
+    "independent_time": "O(n^2) operations from O(n) summands with multiplicative coefficient calculations",
+    "independent_space": "O(1) scalar state"
+  },
+  "workspace": {"bytes": 512},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"index-zero","input_values":[0],"input_length":1,"expected_result":1},
+    {"id":"index-one","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"first-growth","input_values":[2],"input_length":1,"expected_result":2},
+    {"id":"small-value","input_values":[4],"input_length":1,"expected_result":9},
+    {"id":"recurrence-convolution","input_values":[10],"input_length":1,"expected_result":2188},
+    {"id":"midrange","input_values":[20],"input_length":1,"expected_result":50852019},
+    {"id":"maximum-index","input_values":[30],"input_length":1,"expected_result":1697385471211},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"above-domain-invalid","input_values":[31],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[10,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

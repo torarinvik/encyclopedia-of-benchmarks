@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.memory import MutAnyOrigin, UnsafePointer
 fn pf_append(x:Int64,out:UnsafePointer[UInt8,MutAnyOrigin],at:Int)->Int:
     var ds=InlineArray[UInt8,12](fill=0);var k=0;var v=x

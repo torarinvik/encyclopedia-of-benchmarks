@@ -9,10 +9,10 @@ fn long maximum_frequency_stack(long *input, usz length, char *output, usz capac
     if (input == null || length < 1 || length > 130) return -1;
     long count = input[0];
     if (count < 0 || count > 64 || length != 1 + 2 * (usz)count) return -1;
-    int frequency[17]; int bucket_top[65];
+    int[17] frequency; int[65] bucket_top;
     for (usz i = 0; i < 17; i++) frequency[i] = 0;
     for (usz i = 0; i < 65; i++) bucket_top[i] = -1;
-    int node_value[64]; int node_next[64]; long popped[64];
+    int[64] node_value; int[64] node_next; long[64] popped;
     usz nodes = 0, pop_count = 0, position = 1; int maximum_frequency = 0;
     for (long operation = 0; operation < count; operation++) {
         long opcode = input[position++], argument = input[position++];

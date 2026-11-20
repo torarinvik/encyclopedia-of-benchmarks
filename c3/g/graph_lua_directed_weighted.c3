@@ -1,5 +1,5 @@
 module graph_lua_directed_weighted;
-fn void put_i64(long value,char* output,usz word){ulong bits=@bitcast(ulong,value);for(usz b=0;b<8;b++){output[word*8+b]=(char)(bits&255);bits>>=8;}}
+fn void put_i64(long value,char* output,usz word){ulong bits=bitcast(value,ulong);for(usz b=0;b<8;b++){output[word*8+b]=(char)(bits&255);bits>>=8;}}
 fn long graph_lua_directed_weighted(long* input,usz length,char* output,usz capacity) @export("graph_lua_directed_weighted") {
  if(input==null||length<2)return -1;long nv=input[0],ov=input[1];if(nv<1||nv>16||ov<0||ov>63||length!=(usz)(2+4*ov))return -1;usz n=(usz)nv,ops=(usz)ov;long[256] kind,weight;long[63] rtype,rvalue;
  for(usz i=0;i<ops;i++){long op=input[2+4*i],a=input[3+4*i],b=input[4+4*i],v=input[5+4*i];if(op<0||op>5||a<0||a>=nv||b<0||b>=nv)return -1;usz p=(usz)a*16+(usz)b;if(op==0){if(v< -1000||v>1000)return -1;kind[p]=2;weight[p]=v;rtype[i]=-1;rvalue[i]=0;}else if(op==1){if(v!=0)return -1;kind[p]=1;weight[p]=0;rtype[i]=-1;rvalue[i]=0;}else if(op==2){if(v!=0)return -1;kind[p]=0;weight[p]=0;rtype[i]=-1;rvalue[i]=0;}else if(op==3){if(v!=0||kind[p]!=0)return -1;kind[p]=1;weight[p]=0;rtype[i]=-1;rvalue[i]=0;}else if(op==4){if(v!=0)return -1;rtype[i]=kind[p];if(kind[p]==2)rvalue[i]=weight[p];else rvalue[i]=0;}else{if(v!=0)return -1;if(kind[p]!=0)rtype[i]=1;else rtype[i]=0;rvalue[i]=0;}}

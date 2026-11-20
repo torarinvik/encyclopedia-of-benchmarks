@@ -12,7 +12,7 @@ fn long color_coding_random_k_path(long*input,usz length,char*output,usz capacit
  int full=(1<<k)-1;
  for(int trial=0;trial<trials;trial++){
   int[MAX_N] colors=zeroed;for(int v=0;v<n;v++)colors[v]=(int)input[color_start+(usz)(trial*n+v)];
-  bool[1<<MAX_K][MAX_N] reachable=zeroed;int[1<<MAX_K][MAX_N][MAX_K] paths=zeroed;
+  bool[MAX_N][1<<MAX_K] reachable=zeroed;int[MAX_K][MAX_N][1<<MAX_K] paths=zeroed;
   for(int mask=0;mask<=full;mask++)for(int v=0;v<n;v++)for(int j=0;j<k;j++)paths[mask][v][j]=-1;
   for(int v=0;v<n;v++){int mask=1<<colors[v];reachable[mask][v]=true;paths[mask][v][0]=v;}
   for(int mask=1;mask<=full;mask++){int plen=0;for(int x=mask;x!=0;x&=x-1)plen++;for(int v=0;v<n;v++)if(reachable[mask][v]&&mask!=full)for(int u=0;u<n;u++){int cb=1<<colors[u];if((adj[v]&(1ul<<(ulong)u))==0||(mask&cb)!=0)continue;int next=mask|cb;int[MAX_K] candidate=zeroed;for(int j=0;j<plen;j++)candidate[j]=paths[mask][v][j];candidate[plen]=u;if(!reachable[next][u]||path_less(&candidate[0],&paths[next][u][0],plen+1)){reachable[next][u]=true;for(int j=0;j<=plen;j++)paths[next][u][j]=candidate[j];}}}

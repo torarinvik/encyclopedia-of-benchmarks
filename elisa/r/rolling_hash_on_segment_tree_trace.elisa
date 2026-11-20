@@ -1,0 +1,114 @@
+const RHT_MAX_N: usize = 20
+const RHT_MAX_Q: usize = 20
+const RHT_MAX_INPUT: usize = 123
+const RHT_TREE_BASE: usize = 32
+const RHT_TREE_SIZE: usize = 64
+const RHT_MODULUS: i64 = 1000000007
+const RHT_BASE: i64 = 911382323
+
+def rht_concat(left_hash: i64, right_hash: i64, right_length: usize,
+    powers: view[i64]) -> i64:
+    (left_hash * powers[right_length] + right_hash) % RHT_MODULUS
+
+def rht_pull(tree_hash: mutable view[i64], tree_length: mutable view[usize],
+    node: usize, powers: view[i64]) -> void:
+    left: usize = 2 * node
+    right: usize = left + 1
+    tree_hash[node] <- rht_concat(tree_hash[left], tree_hash[right], tree_length[right], powers)
+    tree_length[node] <- tree_length[left] + tree_length[right]
+
+def rht_hash_range(tree_hash: view[i64], tree_length: view[usize],
+    start_input: usize, end_input: usize, powers: view[i64]) -> i64:
+    left: mutable usize = start_input
+    right: mutable usize = end_input
+    left_hash: mutable i64 = 0
+    right_hash: mutable i64 = 0
+    right_length: mutable usize = 0
+    while left < right:
+        if left % 2 == 1:
+            left_hash <- rht_concat(left_hash, tree_hash[left], tree_length[left], powers)
+            left <- left + 1
+        if right % 2 == 1:
+            right <- right - 1
+            right_hash <- rht_concat(tree_hash[right], right_hash, right_length, powers)
+            right_length <- right_length + tree_length[right]
+        left <- left / 2
+        right <- right / 2
+    rht_concat(left_hash, right_hash, right_length, powers)
+
+def rolling_hash_on_segment_tree_trace_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > RHT_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 0 or n_value > RHT_MAX_N.i64() or q_value < 0 or q_value > RHT_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + n + 5 * q: return -1
+
+    powers: mutable i64[RHT_MAX_N + 1] = zeroed
+    powers[0] <- 1
+    for exponent in 0..<RHT_MAX_N:
+        powers[exponent + 1] <- (powers[exponent] * RHT_BASE) % RHT_MODULUS
+    tree_hash: mutable i64[RHT_TREE_SIZE] = zeroed
+    tree_length: mutable usize[RHT_TREE_SIZE] = zeroed
+    tree_hash_view: mutable view[i64] = tree_hash[0:RHT_TREE_SIZE]
+    tree_length_view: mutable view[usize] = tree_length[0:RHT_TREE_SIZE]
+    powers_view: view[i64] = powers[0:RHT_MAX_N + 1]
+
+    for index in 0..<n:
+        symbol: i64 = input[2 + index]
+        if symbol < 0 or symbol > 25: return -1
+        leaf: usize = RHT_TREE_BASE + index
+        tree_hash_view[leaf] <- symbol
+        tree_length_view[leaf] <- 1
+    node: mutable usize = RHT_TREE_BASE - 1
+    while node > 0:
+        rht_pull(tree_hash_view, tree_length_view, node, powers_view)
+        node <- node - 1
+
+    score: mutable i64 = 0
+    operation: mutable usize = 0
+    while operation < q:
+        record: usize = 2 + n + 5 * operation
+        opcode: i64 = input[record]
+        a_value: i64 = input[record + 1]
+        b_value: i64 = input[record + 2]
+        c_value: i64 = input[record + 3]
+        d_value: i64 = input[record + 4]
+        response: mutable i64 = 0
+
+        if opcode == 0:
+            if a_value < 0 or a_value >= n_value or b_value < 0 or b_value > 25 or c_value != 0 or d_value != 0:
+                return -1
+            index: usize = a_value.usize()
+            leaf: mutable usize = RHT_TREE_BASE + index
+            tree_hash_view[leaf] <- b_value
+            tree_length_view[leaf] <- 1
+            while leaf > 1:
+                leaf <- leaf / 2
+                rht_pull(tree_hash_view, tree_length_view, leaf, powers_view)
+        elif opcode == 1:
+            if a_value < 0 or a_value > n_value or b_value < 0 or b_value > n_value or
+               c_value < 0 or c_value > n_value or d_value < 0 or d_value > n_value or
+               a_value > b_value or c_value > d_value:
+                return -1
+            if b_value - a_value == d_value - c_value:
+                first_hash: i64 = rht_hash_range(tree_hash_view, tree_length_view,
+                    RHT_TREE_BASE + a_value.usize(), RHT_TREE_BASE + b_value.usize(), powers_view)
+                second_hash: i64 = rht_hash_range(tree_hash_view, tree_length_view,
+                    RHT_TREE_BASE + c_value.usize(), RHT_TREE_BASE + d_value.usize(), powers_view)
+                response <- if first_hash == second_hash then 1 else 0
+            else:
+                response <- 0
+        else:
+            return -1
+
+        token: i64 = opcode * 2 + response + 1
+        score <- score + (operation + 1).i64() * token
+        operation <- operation + 1
+    score
+
+export fn rolling_hash_on_segment_tree_trace(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > RHT_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    rolling_hash_on_segment_tree_trace_impl(input_view, length)

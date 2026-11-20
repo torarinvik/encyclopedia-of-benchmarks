@@ -1,0 +1,302 @@
+const GPSR_MAX_N: usize = 8
+const GPSR_MAX_M: usize = 18
+const GPSR_MAX_INPUT: usize = 57
+const GPSR_MAX_OUTPUT: usize = 896
+const GPSR_MAX_PATH: usize = 37
+
+def gpsr_cross(ax: i64, ay: i64, bx: i64, by: i64) -> i64:
+    ax * by - ay * bx
+
+def gpsr_orient(x: view[i64], y: view[i64], a: usize, b: usize, c: usize) -> i64:
+    gpsr_cross(x[b] - x[a], y[b] - y[a], x[c] - x[a], y[c] - y[a])
+
+def gpsr_half(dx: i64, dy: i64) -> usize:
+    if dy > 0 or (dy == 0 and dx >= 0): return 0
+    1
+
+def gpsr_angle_less(ax: i64, ay: i64, ai: usize, bx: i64, by: i64, bi: usize) -> bool:
+    ha: usize = gpsr_half(ax, ay)
+    hb: usize = gpsr_half(bx, by)
+    if ha != hb: return ha < hb
+    turn: i64 = gpsr_cross(ax, ay, bx, by)
+    if turn != 0: return turn > 0
+    ai < bi
+
+def gpsr_gcd(a_value: i64, b_value: i64) -> i64:
+    a: mutable i64 = a_value
+    b: mutable i64 = b_value
+    if a < 0: a <- -a
+    if b < 0: b <- -b
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def gpsr_proper_crossing(x: view[i64], y: view[i64], lp: usize, target: usize,
+                         u: usize, v: usize) -> (bool, i64, i64):
+    rx: i64 = x[target] - x[lp]
+    ry: i64 = y[target] - y[lp]
+    sx: i64 = x[v] - x[u]
+    sy: i64 = y[v] - y[u]
+    denominator: mutable i64 = gpsr_cross(rx, ry, sx, sy)
+    if denominator == 0: return (False, 0, 1)
+    ax: i64 = x[u] - x[lp]
+    ay: i64 = y[u] - y[lp]
+    numerator: mutable i64 = gpsr_cross(ax, ay, sx, sy)
+    edge_numerator: mutable i64 = gpsr_cross(ax, ay, rx, ry)
+    if denominator < 0:
+        denominator <- -denominator
+        numerator <- -numerator
+        edge_numerator <- -edge_numerator
+    if numerator <= 0 or numerator >= denominator or edge_numerator <= 0 or edge_numerator >= denominator:
+        return (False, 0, 1)
+    divisor: i64 = gpsr_gcd(numerator, denominator)
+    (True, numerator / divisor, denominator / divisor)
+
+def gpsr_edges_cross(x: view[i64], y: view[i64], a: usize, b: usize, c: usize, d: usize) -> bool:
+    gpsr_orient(x, y, a, b, c) * gpsr_orient(x, y, a, b, d) < 0 and
+    gpsr_orient(x, y, c, d, a) * gpsr_orient(x, y, c, d, b) < 0
+
+def gpsr_next_ccw(node: usize, incoming: usize, degree: view[usize], rotation: view[usize]) -> usize:
+    row: usize = node * GPSR_MAX_N
+    i: mutable usize = 0
+    while i < degree[node]:
+        if rotation[row + i] == incoming: return rotation[row + ((i + 1) % degree[node])]
+        i <- i + 1
+    GPSR_MAX_N
+
+def gpsr_edge_id(u_value: usize, v_value: usize, m: usize,
+                 edge_u: view[usize], edge_v: view[usize]) -> usize:
+    u: usize = u_value
+    v: usize = v_value
+    if u > v:
+        u <- v_value
+        v <- u_value
+    i: mutable usize = 0
+    while i < m:
+        if edge_u[i] == u and edge_v[i] == v: return i
+        i <- i + 1
+    GPSR_MAX_M
+
+def gpsr_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def gpsr_perimeter_recovery_impl(input: view[i64], output: mutable view[u8],
+                                 output_is_null: bool, capacity: usize) -> i64:
+    if input.len() < 4 or input.len() > GPSR_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    source64: i64 = input[2]
+    target64: i64 = input[3]
+    if n64 < 3 or n64 > GPSR_MAX_N.i64() or m64 < n64 - 1 or m64 > 3 * n64 - 6 or
+       m64 > GPSR_MAX_M.i64() or source64 < 0 or target64 < 0 or source64 >= n64 or
+       target64 >= n64 or source64 == target64: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    source: usize = source64.usize()
+    target: usize = target64.usize()
+    if input.len() != 4 + 2 * n + 2 * m: return -1
+
+    var xs_store = InlineArray[i64, GPSR_MAX_N](fill=0)
+    var ys_store = InlineArray[i64, GPSR_MAX_N](fill=0)
+    var xs: mutable view[i64] = xs_store[0:GPSR_MAX_N]
+    var ys: mutable view[i64] = ys_store[0:GPSR_MAX_N]
+    for i in 0..<n:
+        xs[i] <- input[4 + i]
+        ys[i] <- input[4 + n + i]
+        if xs[i] < -16 or xs[i] > 16 or ys[i] < -16 or ys[i] > 16: return -1
+        for j in 0..<i:
+            if xs[i] == xs[j] and ys[i] == ys[j]: return -1
+    for i in 0..<n:
+        for j in i + 1..<n:
+            for k in j + 1..<n:
+                if gpsr_orient(xs, ys, i, j, k) == 0: return -1
+
+    var edge_u_store = InlineArray[usize, GPSR_MAX_M](fill=0)
+    var edge_v_store = InlineArray[usize, GPSR_MAX_M](fill=0)
+    var edge_u: mutable view[usize] = edge_u_store[0:GPSR_MAX_M]
+    var edge_v: mutable view[usize] = edge_v_store[0:GPSR_MAX_M]
+    var adjacency_store = InlineArray[usize, GPSR_MAX_N * GPSR_MAX_N](fill=0)
+    var rotation_store = InlineArray[usize, GPSR_MAX_N * GPSR_MAX_N](fill=0)
+    var degree_store = InlineArray[usize, GPSR_MAX_N](fill=0)
+    var adjacency: mutable view[usize] = adjacency_store[0:GPSR_MAX_N * GPSR_MAX_N]
+    var rotation: mutable view[usize] = rotation_store[0:GPSR_MAX_N * GPSR_MAX_N]
+    var degree: mutable view[usize] = degree_store[0:GPSR_MAX_N]
+    edge_offset: usize = 4 + 2 * n
+    for e in 0..<m:
+        u64: i64 = input[edge_offset + 2 * e]
+        v64: i64 = input[edge_offset + 2 * e + 1]
+        if u64 < 0 or v64 >= n64 or u64 >= v64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if e > 0 and (edge_u[e - 1] > u or (edge_u[e - 1] == u and edge_v[e - 1] >= v)): return -1
+        edge_u[e] <- u
+        edge_v[e] <- v
+        adjacency[u * GPSR_MAX_N + degree[u]] <- v
+        degree[u] <- degree[u] + 1
+        adjacency[v * GPSR_MAX_N + degree[v]] <- u
+        degree[v] <- degree[v] + 1
+
+    var seen_store = InlineArray[Bool, GPSR_MAX_N](fill=False)
+    var queue_store = InlineArray[usize, GPSR_MAX_N](fill=0)
+    var seen: mutable view[Bool] = seen_store[0:GPSR_MAX_N]
+    var queue: mutable view[usize] = queue_store[0:GPSR_MAX_N]
+    seen[source] <- True
+    queue[0] <- source
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for j in 0..<degree[u]:
+            v: usize = adjacency[u * GPSR_MAX_N + j]
+            if not seen[v]:
+                seen[v] <- True
+                queue[tail] <- v
+                tail <- tail + 1
+    if tail != n: return -1
+    for i in 0..<m:
+        for j in i + 1..<m:
+            a: usize = edge_u[i]
+            b: usize = edge_v[i]
+            c: usize = edge_u[j]
+            d: usize = edge_v[j]
+            if a != c and a != d and b != c and b != d and gpsr_edges_cross(xs, ys, a, b, c, d): return -1
+
+    source_dx: i64 = xs[source] - xs[target]
+    source_dy: i64 = ys[source] - ys[target]
+    start_distance: i64 = source_dx * source_dx + source_dy * source_dy
+    for i in 0..<degree[source]:
+        v: usize = adjacency[source * GPSR_MAX_N + i]
+        dx: i64 = xs[v] - xs[target]
+        dy: i64 = ys[v] - ys[target]
+        if dx * dx + dy * dy < start_distance: return -1
+
+    for u in 0..<n:
+        for i in 0..<degree[u]: rotation[u * GPSR_MAX_N + i] <- adjacency[u * GPSR_MAX_N + i]
+        i: mutable usize = 1
+        while i < degree[u]:
+            v: usize = rotation[u * GPSR_MAX_N + i]
+            j: mutable usize = i
+            while j > 0:
+                w: usize = rotation[u * GPSR_MAX_N + j - 1]
+                if not gpsr_angle_less(xs[v] - xs[u], ys[v] - ys[u], v,
+                                       xs[w] - xs[u], ys[w] - ys[u], w): break
+                rotation[u * GPSR_MAX_N + j] <- w
+                j <- j - 1
+            rotation[u * GPSR_MAX_N + j] <- v
+            i <- i + 1
+
+    if output_is_null or output.len() < GPSR_MAX_OUTPUT or capacity < GPSR_MAX_OUTPUT: return -2
+    var path_store = InlineArray[usize, GPSR_MAX_PATH](fill=0)
+    var events_store = InlineArray[i64, GPSR_MAX_M * 4](fill=0)
+    var path: mutable view[usize] = path_store[0:GPSR_MAX_PATH]
+    var events: mutable view[i64] = events_store[0:GPSR_MAX_M * 4]
+    path[0] <- source
+    path_count: mutable usize = 1
+    event_count: mutable usize = 0
+    current: mutable usize = source
+    previous: mutable i64 = -1
+    e0u: mutable i64 = -1
+    e0v: mutable i64 = -1
+    lf_num: mutable i64 = 0
+    lf_den: mutable i64 = 1
+    status: mutable i64 = 0
+    while True:
+        if current == target:
+            status <- 2
+            break
+        dx: i64 = xs[current] - xs[target]
+        dy: i64 = ys[current] - ys[target]
+        if dx * dx + dy * dy < start_distance:
+            status <- 1
+            break
+        if path_count - 1 >= 2 * m:
+            status <- 0
+            break
+        candidate: mutable usize = GPSR_MAX_N
+        if previous < 0:
+            rx: i64 = xs[target] - xs[current]
+            ry: i64 = ys[target] - ys[current]
+            best_x: mutable i64 = 0
+            best_y: mutable i64 = 0
+            for j in 0..<degree[current]:
+                v: usize = adjacency[current * GPSR_MAX_N + j]
+                vx: i64 = xs[v] - xs[current]
+                vy: i64 = ys[v] - ys[current]
+                ax: i64 = rx * vx + ry * vy
+                ay: i64 = gpsr_cross(rx, ry, vx, vy)
+                if candidate == GPSR_MAX_N or gpsr_angle_less(ax, ay, v, best_x, best_y, candidate):
+                    candidate <- v
+                    best_x <- ax
+                    best_y <- ay
+        else:
+            candidate <- gpsr_next_ccw(current, previous.usize(), degree, rotation)
+        if candidate == GPSR_MAX_N:
+            status <- 0
+            break
+        changed: mutable bool = False
+        bad_transition: mutable bool = False
+        while True:
+            proper, t_num, t_den = gpsr_proper_crossing(xs, ys, source, target, current, candidate)
+            if not proper or t_num * lf_den <= lf_num * t_den: break
+            id: usize = gpsr_edge_id(current, candidate, m, edge_u, edge_v)
+            if id >= GPSR_MAX_M or event_count >= GPSR_MAX_M:
+                bad_transition <- True
+                break
+            events[4 * event_count] <- (path_count - 1).i64()
+            events[4 * event_count + 1] <- id.i64()
+            events[4 * event_count + 2] <- t_num
+            events[4 * event_count + 3] <- t_den
+            event_count <- event_count + 1
+            lf_num <- t_num
+            lf_den <- t_den
+            changed <- True
+            candidate <- gpsr_next_ccw(current, candidate, degree, rotation)
+            if candidate == GPSR_MAX_N:
+                bad_transition <- True
+                break
+        if bad_transition: break
+        if changed or e0u < 0:
+            e0u <- current.i64()
+            e0v <- candidate.i64()
+        elif e0u == current.i64() and e0v == candidate.i64():
+            status <- 0
+            break
+        previous <- current.i64()
+        current <- candidate
+        path[path_count] <- current
+        path_count <- path_count + 1
+
+    output_view: mutable view[u8] = output[0:GPSR_MAX_OUTPUT]
+    word: mutable usize = 0
+    gpsr_store_i64(output_view, word * 8, status)
+    word <- word + 1
+    gpsr_store_i64(output_view, word * 8, (path_count - 1).i64())
+    word <- word + 1
+    for i in 0..<path_count:
+        gpsr_store_i64(output_view, word * 8, path[i].i64())
+        word <- word + 1
+    gpsr_store_i64(output_view, word * 8, event_count.i64())
+    word <- word + 1
+    for i in 0..<event_count * 4:
+        gpsr_store_i64(output_view, word * 8, events[i])
+        word <- word + 1
+    (word * 8).i64()
+
+export fn gpsr_perimeter_recovery_trace(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 4 or input_length > GPSR_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:input_length]
+    if output.is_null() or capacity < GPSR_MAX_OUTPUT:
+        var empty_storage = InlineArray[u8, GPSR_MAX_OUTPUT](fill=0)
+        var empty_view: mutable view[u8] = empty_storage[0:GPSR_MAX_OUTPUT]
+        return gpsr_perimeter_recovery_impl(input_view, empty_view, True, capacity)
+    output_view: mutable view[u8] = output[0:GPSR_MAX_OUTPUT]
+    gpsr_perimeter_recovery_impl(input_view, output_view, False, capacity)

@@ -1,0 +1,98 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 20
+const MAX_INPUT: usize = 63
+
+fn rd_connected(n: usize, m: usize, left: view[i64], right: view[i64], active: u64) -> bool:
+    seen: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    seen[0] <- true
+    queue[0] <- 0
+    while head < tail |head, tail, queue, seen, left, right|:
+        vertex: usize = queue[head]
+        head <- head + 1
+        edge: mutable usize = 0
+        while edge < m |edge, tail, queue, seen, left, right|:
+            if ((active >> edge) & 1) != 0:
+                neighbor: mutable i64 = -1
+                if left[edge] == vertex.i64(): neighbor <- right[edge]
+                elif right[edge] == vertex.i64(): neighbor <- left[edge]
+                if neighbor >= 0 and not seen[neighbor.usize()]:
+                    seen[neighbor.usize()] <- true
+                    queue[tail] <- neighbor.usize()
+                    tail <- tail + 1
+            edge <- edge + 1
+    vertex: mutable usize = 0
+    while vertex < n |vertex, seen|:
+        if not seen[vertex]: return false
+        vertex <- vertex + 1
+    return true
+
+fn rd_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8 |byte, output, bits|:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+fn reverse_delete_mst_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 2 or values[0] > MAX_N.i64() or values[1] < values[0] - 1 or values[1] > MAX_M.i64(): return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if length != 2 + 3 * m: return -1
+
+    left: mutable i64[20] = zeroed
+    right: mutable i64[20] = zeroed
+    weights: mutable i64[20] = zeroed
+    order: mutable usize[20] = zeroed
+    id: mutable usize = 0
+    while id < m |id, values, left, right, weights, order|:
+        u: i64 = values[2 + 3 * id]
+        v: i64 = values[3 + 3 * id]
+        w: i64 = values[4 + 3 * id]
+        if u < 0 or u >= n.i64() or v < 0 or v >= n.i64() or u == v or w < 0 or w > 1000: return -1
+        left[id] <- u
+        right[id] <- v
+        weights[id] <- w
+        order[id] <- id
+        prior: mutable usize = 0
+        while prior < id |prior, left, right|:
+            prior_u: i64 = left[prior]
+            prior_v: i64 = right[prior]
+            if (u == prior_u and v == prior_v) or (u == prior_v and v == prior_u): return -1
+            prior <- prior + 1
+        id <- id + 1
+
+    i: mutable usize = 1
+    while i < m |i, order, weights|:
+        item: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and (weights[order[j - 1]] < weights[item] or
+                (weights[order[j - 1]] == weights[item] and order[j - 1] < item)) |j, order, weights|:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- item
+        i <- i + 1
+
+    active: mutable u64 = (1u64 << m) - 1
+    if not rd_connected(n, m, left[0:m], right[0:m], active): return -1
+    position: mutable usize = 0
+    while position < m |position, order, active, left, right|:
+        candidate: u64 = active & ~(1u64 << order[position])
+        if rd_connected(n, m, left[0:m], right[0:m], candidate): active <- candidate
+        position <- position + 1
+    total_weight: mutable i64 = 0
+    id <- 0
+    while id < m |id, active, weights, total_weight|:
+        if ((active >> id) & 1) != 0: total_weight <- total_weight + weights[id]
+        id <- id + 1
+    if output.is_null() or capacity < 16: return -2
+    output_view: mutable view[u8] = output[0:16]
+    rd_store_i64_le(output_view, 0, active.i64())
+    rd_store_i64_le(output_view, 8, total_weight)
+    return 16
+
+export fn reverse_delete_mst(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = reverse_delete_mst_impl

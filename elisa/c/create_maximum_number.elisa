@@ -6,9 +6,9 @@ def cmn_subsequence(source: view[i64], requested: usize,
                     selected: mutable view[u8]) -> usize:
     stack: mutable u8[CMN_MAX_SOURCE] = zeroed
     stack_length: mutable usize = 0
-    deletions: mutable usize = source.length() - requested
+    deletions: mutable usize = source.len() - requested
     i: mutable usize = 0
-    while i < source.length():
+    while i < source.len():
         digit: u8 = source[i].u8()
         while deletions > 0 and stack_length > 0 and stack[stack_length - 1] < digit:
             stack_length <- stack_length - 1
@@ -27,14 +27,14 @@ def cmn_compare_suffix(first: view[u8], first_at: usize,
                        second: view[u8], second_at: usize) -> i64:
     i: mutable usize = first_at
     j: mutable usize = second_at
-    while i < first.length() and j < second.length():
+    while i < first.len() and j < second.len():
         if first[i] != second[j]:
             if first[i] > second[j]: return 1
             return -1
         i <- i + 1
         j <- j + 1
-    if i == first.length() and j == second.length(): return 0
-    if i == first.length(): return -1
+    if i == first.len() and j == second.len(): return 0
+    if i == first.len(): return -1
     1
 
 def cmn_merge(first: view[u8], first_length: usize,
@@ -60,7 +60,7 @@ def cmn_greater(candidate: view[u8], best: view[u8], length: usize) -> bool:
     while i < length:
         if candidate[i] != best[i]: return candidate[i] > best[i]
         i <- i + 1
-    False
+    false
 
 def cmn_impl(input: view[i64], length: usize,
              staged: mutable view[u8]) -> i64:
@@ -86,7 +86,7 @@ def cmn_impl(input: view[i64], length: usize,
     candidate: mutable u8[CMN_MAX_OUTPUT] = zeroed
     selected_a: mutable u8[CMN_MAX_SOURCE] = zeroed
     selected_b: mutable u8[CMN_MAX_SOURCE] = zeroed
-    have_best: mutable bool = False
+    have_best: mutable bool = false
     take_first: mutable usize = minimum_first
     while take_first <= maximum_first:
         first_length_selected: usize = cmn_subsequence(
@@ -103,7 +103,7 @@ def cmn_impl(input: view[i64], length: usize,
             while i < candidate_length:
                 best[i] <- candidate[i]
                 i <- i + 1
-            have_best <- True
+            have_best <- true
         take_first <- take_first + 1
     i <- 0
     while i < requested:

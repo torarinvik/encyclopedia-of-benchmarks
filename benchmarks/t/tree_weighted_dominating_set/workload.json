@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "tree-weighted-dominating-set-i64-array-scalar-v1",
+  "algorithm": "tree_weighted_dominating_set",
+  "function_symbol": "tree_weighted_dominating_set",
+  "abi": "i64_array_scalar",
+  "input": {"layout": "[n,parent[1..n-1],weights]", "maximum_valid_values": 128, "maximum_parseable_values": 129, "invalid_result": -1},
+  "output": {"encoding": "minimum total dominating-set weight", "invalid_result": -1},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "source": {"url": "https://www-sop.inria.fr/members/Nicolas.Nisse/finalExam2024.pdf", "reuse": "Mathematical idea only; independently authored code and fixtures."},
+  "cases": [
+    {"id":"single_vertex", "input_values":[1,19], "input_length":2, "expected_result":19},
+    {"id":"single_edge", "input_values":[2,0,3,8], "input_length":4, "expected_result":3},
+    {"id":"star_choose_center", "input_values":[4,0,0,0,7,2,3,4], "input_length":8, "expected_result":7},
+    {"id":"star_choose_leaves", "input_values":[4,0,0,0,20,2,3,4], "input_length":8, "expected_result":9},
+    {"id":"disconnected_selected_chain", "input_values":[5,0,1,2,3,100,1,100,1,100], "input_length":10, "expected_result":2},
+    {"id":"two_selected_branches", "input_values":[5,0,0,1,2,100,1,1,100,100], "input_length":10, "expected_result":2},
+    {"id":"selected_parent_and_grandchild", "input_values":[4,0,0,1,1,100,100,100], "input_length":8, "expected_result":101},
+    {"id":"uniform_chain", "input_values":[5,0,1,2,3,1,1,1,1,1], "input_length":10, "expected_result":2},
+    {"id":"zero_weights", "input_values":[3,0,1,0,0,0], "input_length":6, "expected_result":0},
+    {"id":"negative_weight", "input_values":[2,0,0,-1], "input_length":4, "expected_result":-1},
+    {"id":"invalid_parent", "input_values":[2,1,1,1], "input_length":4, "expected_result":-1},
+    {"id":"trailing_word", "input_values":[1,1,0], "input_length":3, "expected_result":-1},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

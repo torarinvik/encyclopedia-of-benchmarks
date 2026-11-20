@@ -1,0 +1,51 @@
+{
+  "algorithm": "tutte_matrix_randomized_perfect_matching",
+  "function_symbol": "tutte_matrix_randomized_perfect_matching",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "chapter": "Encyclopedia of Algorithms, Chapter 225",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_225",
+    "operational_reference": "Mucha and Sankowski, Maximum Matchings via Gaussian Elimination, section 3, Algorithm 2",
+    "operational_doi": "10.1109/FOCS.2004.40"
+  },
+  "bounds": {
+    "vertices": [2, 8],
+    "vertices_even_only": true,
+    "maximum_edges": 28,
+    "field_prime": 65521,
+    "edge_substitution_range": [1, 65520],
+    "maximum_valid_input_words": 86,
+    "maximum_parseable_input_words": 87,
+    "maximum_output_bytes": 80,
+    "workspace_bytes": 8192
+  },
+  "native_paths": {
+    "c": "c/t/tutte_matrix_randomized_perfect_matching.c",
+    "c3": "c3/t/tutte_matrix_randomized_perfect_matching.c3",
+    "cpp": "cpp/t/tutte_matrix_randomized_perfect_matching.cpp",
+    "elisa": "elisa/t/tutte_matrix_randomized_perfect_matching.elisa",
+    "mojo": "mojo/t/tutte_matrix_randomized_perfect_matching.mojo",
+    "nim": "nim/t/tutte_matrix_randomized_perfect_matching.nim",
+    "odin": "odin/t/tutte_matrix_randomized_perfect_matching.odin",
+    "rust": "rust/t/tutte_matrix_randomized_perfect_matching.rs",
+    "v": "v/t/tutte_matrix_randomized_perfect_matching.v",
+    "zig": "zig/t/tutte_matrix_randomized_perfect_matching.zig"
+  },
+  "package_files": [
+    "__init__.py", "README.md", "RIGHTS.md", "INVENTORY.md", "inventory.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "root_references": [
+    "benchmarks/tutte_matrix_randomized_perfect_matching_oracle.py",
+    "benchmarks/tutte_matrix_randomized_perfect_matching_verifier_oracle.py"
+  ],
+  "workload_cases": [
+    "unique-path-perfect-matching", "cycle-with-two-matchings",
+    "no-perfect-matching", "singular-sample-on-positive-instance",
+    "maximum-graph-frame-and-output", "maximum-output-one-byte-short",
+    "odd-vertex-count", "duplicate-edge", "unsorted-edge-list",
+    "zero-edge-substitution", "substitution-at-prime", "trailing-word",
+    "short-output-capacity", "null-input", "null-output"
+  ]
+}

@@ -5,7 +5,7 @@ fn void store_i32_le(char* output, usz offset, int value) {
     for (usz b = 0; b < 4; b++) { output[offset + b] = (char)(bits & 255); bits >>= 8; }
 }
 
-long hungarian_algorithm(int* input, usz length, char* output, usz capacity) @export("hungarian_algorithm") {
+fn long hungarian_algorithm(int* input, usz length, char* output, usz capacity) @export("hungarian_algorithm") {
     if (input == null || length < 2 || length > 67) return -1;
     int rows = input[0], cols = input[1];
     if (rows < 1 || rows > 8 || cols < 1 || cols > 8 || length != (usz)(2 + rows * cols)) return -1;

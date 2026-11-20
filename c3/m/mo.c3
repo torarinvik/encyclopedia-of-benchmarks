@@ -25,7 +25,7 @@ fn void put_i32_le(char* output, usz offset, int value) {
     for (usz byte = 0; byte < 4; byte++) { output[offset+byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long mo(int* input, usz length, char* output, usz capacity) @export("mo") {
+fn long mo(int* input, usz length, char* output, usz capacity) @export("mo") {
     if (input == null || length < 2 || length > MAX_PARSEABLE_INPUT_WORDS) return -1;
     int n_raw = input[0];
     if (n_raw < 1 || n_raw > (int)MAX_N) return -1;

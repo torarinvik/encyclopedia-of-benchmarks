@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn sg_size(l:UnsafePointer[Int32,MutAnyOrigin],r:UnsafePointer[Int32,MutAnyOrigin],root:Int)->Int:
@@ -31,7 +32,7 @@ fn scapegoat_tree(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePoint
         elif op==2:
             for j in range(dn):if distinct[j]==key:for k in range(j,dn-1):distinct[k]=distinct[k+1];dn-=1;break
         elif op==6:dn=0
-    var keys=InlineArray[Int64,32]();var left=InlineArray[Int32,32]();var right=InlineArray[Int32,32]();var active=InlineArray[Bool,32]()
+    var keys=InlineArray[Int64,32]();var left=InlineArray[Int32,32]();var right=InlineArray[Int32,32]();var active=InlineArray[Bool,32](fill=False)
     for i in range(32):left[i]= -1;right[i]= -1
     var root= -1;var size=0;var maxsize=0;var results=InlineArray[Int64,64]()
     for opi in range(Int(count)):

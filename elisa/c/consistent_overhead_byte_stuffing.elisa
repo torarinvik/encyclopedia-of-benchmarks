@@ -1,0 +1,63 @@
+const COBS_MAX_WORDS: usize = 257
+const COBS_MAX_PAYLOAD: i64 = 255
+const COBS_MAX_OUTPUT: usize = 257
+
+def cobs_encode_into(input: view[i64], payload_length: usize,
+        staged: mutable view[u8]) -> usize:
+    written: mutable usize = 1
+    code_position: mutable usize = 0
+    code: mutable u16 = 1
+    omitted_terminal_code: mutable bool = false
+    index: mutable usize = 0
+    while index < payload_length:
+        byte: u8 = input[index + 1].u8()
+        if byte == 0:
+            staged[code_position] <- code.u8()
+            code_position <- written
+            written <- written + 1
+            code <- 1
+        else:
+            staged[written] <- byte
+            written <- written + 1
+            code <- code + 1
+            if code == 255:
+                staged[code_position] <- 255
+                if index + 1 == payload_length:
+                    omitted_terminal_code <- true
+                    break
+                code_position <- written
+                written <- written + 1
+                code <- 1
+        index <- index + 1
+    if not omitted_terminal_code:
+        staged[code_position] <- code.u8()
+    written
+
+def cobs_impl(input: view[i64], length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if length < 1 or length > COBS_MAX_WORDS: return -1
+    payload_value: i64 = input[0]
+    if payload_value < 0 or payload_value > COBS_MAX_PAYLOAD: return -1
+    payload_length: usize = payload_value.usize()
+    if length != payload_length + 1: return -1
+    index: mutable usize = 0
+    while index < payload_length:
+        byte: i64 = input[index + 1]
+        if byte < 0 or byte > 255: return -1
+        index <- index + 1
+
+    staged: mutable u8[COBS_MAX_OUTPUT] = zeroed
+    encoded_length: usize = cobs_encode_into(input, payload_length, staged[0:COBS_MAX_OUTPUT])
+    if output.is_null() or capacity < encoded_length: return -2
+    output_view: mutable view[u8] = output[0:encoded_length]
+    index <- 0
+    while index < encoded_length:
+        output_view[index] <- staged[index]
+        index <- index + 1
+    encoded_length.i64()
+
+export fn consistent_overhead_byte_stuffing(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > COBS_MAX_WORDS: return -1
+    input_view: view[i64] = input[0:length]
+    cobs_impl(input_view, length, output, capacity)

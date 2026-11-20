@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem109")
 fn problem109(limit:Int64) abi("C")->Int64:
     var values=InlineArray[Int64,63](fill=0);var doubles=InlineArray[Int64,21](fill=0);var vc=0;var dc=0

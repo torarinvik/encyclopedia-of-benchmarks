@@ -56,7 +56,7 @@ def verify_workload() -> int:
     expected_ids = {
         "singleton-empty-path", "two-vertex-root-direction",
         "three-vertex-noncommuting-chain", "three-vertex-asymmetric-star",
-        "identity-transforms", "invalid-zero-multiplier",
+        "identity-transforms", "unit-edge-path-distance-sums", "invalid-zero-multiplier",
         "invalid-cycle-and-disconnection", "trailing-word", "short-output", "null-output",
     }
     if (not isinstance(cases, list) or len(cases) != len(expected_ids)

@@ -62,4 +62,5 @@ work. See [`RIGHTS.md`](RIGHTS.md).
 | V | [`v/c/count_points_in_triangle.v`](../../../v/c/count_points_in_triangle.v) |
 | Zig | [`zig/c/count_points_in_triangle.zig`](../../../zig/c/count_points_in_triangle.zig) |
 
-Root owns shared suite registration and benchmark-corpus wiring.
+The package is registered in the shared `i64_array_bytes_output` runner and
+independent verifier.

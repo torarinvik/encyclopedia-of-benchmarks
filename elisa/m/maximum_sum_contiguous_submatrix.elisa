@@ -1,0 +1,61 @@
+from std.collections import InlineArray
+
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 67
+const OUTPUT_BYTES: usize = 8
+
+fn store_i64_le(output: mutable view[u8], value: Int64) -> Void:
+    let bits = bitcast[UInt64](value)
+    for byte in range(8):
+        output[byte] <- UInt8((bits >> (byte * 8)) & UInt64(255))
+
+fn maximum_sum_contiguous_submatrix_compute(input_view: view[Int64]) -> i64:
+    let length: usize = input_view.len()
+    if length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH: return -64001
+    let rows_value = input_view[0]
+    let columns_value = input_view[1]
+    if rows_value < 1 or rows_value > 8 or columns_value < 1 or columns_value > 8:
+        return -64001
+    let rows = rows_value.usize()
+    let columns = columns_value.usize()
+    let cells = rows * columns
+    if length != 2 + cells:
+        return -64001
+    for index in range(cells):
+        if input_view[index + 2] < -1000 or input_view[index + 2] > 1000:
+            return -64001
+
+    var best: Int64 = -64001
+    var column_sums = InlineArray[Int64, 8](fill=0)
+    for top in range(rows):
+        for column in range(columns):
+            column_sums[column] <- 0
+        for bottom in range(top, rows):
+            let row_offset = 2 + bottom * columns
+            for column in range(columns):
+                column_sums[column] <- column_sums[column] + input_view[row_offset + column]
+            var current = column_sums[0]
+            if current > best:
+                best <- current
+            for column in range(1, columns):
+                if current < 0:
+                    current <- column_sums[column]
+                else:
+                    current <- current + column_sums[column]
+                if current > best:
+                    best <- current
+    best
+
+@export("maximum_sum_contiguous_submatrix")
+fn maximum_sum_contiguous_submatrix(
+        input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize)
+        abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    let input_view: view[Int64] = input[0:length]
+    let best = maximum_sum_contiguous_submatrix_compute(input_view)
+    if best == -64001: return -1
+    if output.is_null() or output_capacity < OUTPUT_BYTES: return -2
+    var output_view: mutable view[u8] = output[0:OUTPUT_BYTES]
+    store_i64_le(output_view&, best)
+    OUTPUT_BYTES.i64()

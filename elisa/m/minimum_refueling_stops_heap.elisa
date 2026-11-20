@@ -1,0 +1,68 @@
+def minimum_refueling_stops_heap_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > 20:
+        return -2
+    target: i64 = input[0]
+    start_fuel: i64 = input[1]
+    count_value: i64 = input[2]
+    if target < 1 or target > 2000 or start_fuel < 0 or start_fuel > 2000 or count_value < 0 or count_value > 8:
+        return -2
+    count: usize = count_value.usize()
+    if length != 3 + 2 * count:
+        return -2
+    previous: mutable i64 = 0
+    for i in 0..<count:
+        position: i64 = input[3 + 2 * i]
+        fuel: i64 = input[4 + 2 * i]
+        if position <= previous or position >= target or fuel < 1 or fuel > 2000:
+            return -2
+        previous <- position
+
+    heap: mutable i64[8] = zeroed
+    heap_length: mutable usize = 0
+    next_station: mutable usize = 0
+    reach: mutable i64 = start_fuel
+    stops: mutable i64 = 0
+    while reach < target:
+        while next_station < count and input[3 + 2 * next_station] <= reach:
+            child: mutable usize = heap_length
+            heap_length <- heap_length + 1
+            heap[child] <- input[4 + 2 * next_station]
+            while child > 0:
+                parent: usize = (child - 1) / 2
+                if heap[parent] >= heap[child]:
+                    break
+                temporary: i64 = heap[parent]
+                heap[parent] <- heap[child]
+                heap[child] <- temporary
+                child <- parent
+            next_station <- next_station + 1
+        if heap_length == 0:
+            return -1
+        maximum: i64 = heap[0]
+        heap_length <- heap_length - 1
+        if heap_length > 0:
+            heap[0] <- heap[heap_length]
+            parent: mutable usize = 0
+            while true:
+                left: usize = 2 * parent + 1
+                right: usize = left + 1
+                if left >= heap_length:
+                    break
+                child: mutable usize = left
+                if right < heap_length and heap[right] > heap[left]:
+                    child <- right
+                if heap[parent] >= heap[child]:
+                    break
+                temporary: i64 = heap[parent]
+                heap[parent] <- heap[child]
+                heap[child] <- temporary
+                parent <- child
+        reach <- reach + maximum
+        stops <- stops + 1
+    stops
+
+export fn minimum_refueling_stops_heap(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 20:
+        return -2
+    minimum_refueling_stops_heap_impl(input[0:length])

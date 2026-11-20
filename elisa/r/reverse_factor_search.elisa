@@ -1,0 +1,117 @@
+const MAX_TEXT: usize = 4096
+const MAX_PATTERN: usize = 128
+const MAX_INPUT_LENGTH: usize = 4227
+const MAX_STATES: usize = 2 * MAX_PATTERN + 1
+
+def reverse_factor_search_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_n: i64 = input[0]
+    raw_m: i64 = input[1]
+    if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64():
+        return -1
+    let n: usize = raw_n.usize()
+    let m: usize = raw_m.usize()
+    if length != 2 + n + m:
+        return -1
+    text: mutable u8[MAX_TEXT] = zeroed
+    pattern: mutable u8[MAX_PATTERN] = zeroed
+    q: mutable usize = 0
+    while q < n:
+        let value: i64 = input[2 + q]
+        if value < 0 or value > 3:
+            return -1
+        text[q] <- value.u8()
+        q <- q + 1
+    q <- 0
+    while q < m:
+        let value: i64 = input[2 + n + q]
+        if value < 0 or value > 3:
+            return -1
+        pattern[q] <- value.u8()
+        q <- q + 1
+    if n < m:
+        return 0
+
+    transitions: mutable i64[MAX_STATES][4] = zeroed
+    suffix_link: mutable i64[MAX_STATES] = zeroed
+    max_length: mutable i64[MAX_STATES] = zeroed
+    terminal: mutable bool[MAX_STATES] = zeroed
+    init_state: mutable usize = 0
+    while init_state < MAX_STATES:
+        suffix_link[init_state] <- -1
+        q <- 0
+        while q < 4:
+            transitions[init_state][q] <- -1
+            q <- q + 1
+        init_state <- init_state + 1
+
+    state_count: mutable usize = 1
+    last: mutable usize = 0
+    q <- 0
+    while q < m:
+        let symbol: usize = pattern[m - 1 - q].usize()
+        let current: usize = state_count
+        state_count <- state_count + 1
+        max_length[current] <- max_length[last] + 1
+        predecessor: mutable i64 = last.i64()
+        while predecessor >= 0 and transitions[predecessor.usize()][symbol] < 0:
+            transitions[predecessor.usize()][symbol] <- current.i64()
+            predecessor <- suffix_link[predecessor.usize()]
+        if predecessor < 0:
+            suffix_link[current] <- 0
+        else:
+            let target: usize = transitions[predecessor.usize()][symbol].usize()
+            if max_length[predecessor.usize()] + 1 == max_length[target]:
+                suffix_link[current] <- target.i64()
+            else:
+                let clone: usize = state_count
+                state_count <- state_count + 1
+                for symbol_index in 0..<4:
+                    transitions[clone][symbol_index] <- transitions[target][symbol_index]
+                max_length[clone] <- max_length[predecessor.usize()] + 1
+                suffix_link[clone] <- suffix_link[target]
+                while predecessor >= 0 and transitions[predecessor.usize()][symbol] == target.i64():
+                    transitions[predecessor.usize()][symbol] <- clone.i64()
+                    predecessor <- suffix_link[predecessor.usize()]
+                suffix_link[target] <- clone.i64()
+                suffix_link[current] <- clone.i64()
+        last <- current
+        q <- q + 1
+
+    terminal_state: mutable i64 = last.i64()
+    while terminal_state >= 0:
+        terminal[terminal_state.usize()] <- true
+        terminal_state <- suffix_link[terminal_state.usize()]
+
+    count: mutable i64 = 0
+    offset_sum: mutable i64 = 0
+    offset_xor: mutable i64 = 0
+    period: mutable i64 = raw_m
+    start: mutable i64 = 0
+    while start <= raw_n - raw_m:
+        index: mutable i64 = raw_m - 1
+        current_state: mutable usize = 0
+        shift: mutable i64 = raw_m
+        while start + index >= 0:
+            let target: i64 = transitions[current_state][text[(start + index).usize()].usize()]
+            if target < 0:
+                break
+            current_state <- target.usize()
+            if terminal[current_state]:
+                period <- shift
+                shift <- index
+            index <- index - 1
+        if index < 0:
+            count <- count + 1
+            offset_sum <- offset_sum + start
+            offset_xor <- offset_xor ^ start
+            shift <- period
+        start <- start + shift
+    (count << 36) | (offset_sum << 12) | offset_xor
+
+export fn reverse_factor_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let input_view: view[i64] = input[0:length]
+    reverse_factor_search_impl(input_view, length)

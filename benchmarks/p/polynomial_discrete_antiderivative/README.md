@@ -19,6 +19,9 @@ from highest degree downward, with modular binomial coefficients and inverses.
 It uses O(n²) time and O(n²) space. The independent reference evaluates prefix
 sums at consecutive points and converts a Newton forward-difference expansion
 to the monomial basis.
+The bound `n <= 32` is below the field characteristic, so every divisor
+`1, ..., n` used by the triangular solve has an inverse. With `g(0)=0`,
+these nonzero diagonal factors also make the bounded solution unique.
 
 The [Library Checker catalog item](https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/polynomial/prefix_sum_of_polynomial/task.md)
 provides the operation idea; its repository is Apache-2.0. The bounded contract,

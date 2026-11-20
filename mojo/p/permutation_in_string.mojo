@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn perm_adjust(mut diff:InlineArray[Int64,26],mut nonzero:Int,letter:Int,amount:Int64):

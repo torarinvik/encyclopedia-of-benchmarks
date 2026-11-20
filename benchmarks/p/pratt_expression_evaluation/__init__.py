@@ -1,0 +1,9 @@
+"""Pratt top-down operator-precedence expression benchmark package."""
+
+MAX_TOKENS = 15
+MAX_LITERAL_LEAVES = 8
+MAX_ABS_RESULT = 18**8
+INVALID_RESULT = -(1 << 63)
+MAX_VALID_INPUT_LENGTH = 31
+MAX_PARSEABLE_INPUT_LENGTH = 32
+MAX_RECURSION_DEPTH = 16

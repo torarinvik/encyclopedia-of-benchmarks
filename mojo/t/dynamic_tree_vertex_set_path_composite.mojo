@@ -188,7 +188,7 @@ fn dtvpc_find_dsu(inout parent: InlineArray[Int, DTVPC_MAX_N], item: Int) -> Int
     return node
 
 fn dtvpc_connected(adjacency: InlineArray[Bool, 64], n: Int, start: Int, target: Int) -> Bool:
-    var seen = InlineArray[Bool, DTVPC_MAX_N]()
+    var seen = InlineArray[Bool, DTVPC_MAX_N](fill=False)
     var stack = InlineArray[Int, DTVPC_MAX_N]()
     var top = 1
     seen[start] = True
@@ -235,7 +235,7 @@ fn dynamic_tree_vertex_set_path_composite(
         values[2 * vertex] = multiplier
         values[2 * vertex + 1] = addend
 
-    var adjacency = InlineArray[Bool, 64]()
+    var adjacency = InlineArray[Bool, 64](fill=False)
     var dsu = InlineArray[Int, DTVPC_MAX_N]()
     var edge_u = InlineArray[Int, DTVPC_MAX_N]()
     var edge_v = InlineArray[Int, DTVPC_MAX_N]()

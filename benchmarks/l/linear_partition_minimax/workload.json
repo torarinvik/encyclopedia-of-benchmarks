@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "linear-partition-minimax-i64-array-scalar-v1",
+  "algorithm": "linear_partition_minimax",
+  "function_symbol": "linear_partition_minimax",
+  "abi": "i64_array_scalar",
+  "description": "Partition a nonnegative sequence into exactly m nonempty contiguous groups while minimizing the largest group sum.",
+  "source": {
+    "title": "The Linear Partition Problem",
+    "authors": ["Steven S. Skiena"],
+    "url": "https://www3.cs.stonybrook.edu/~skiena/373/current-lectures/lecture18.pdf",
+    "license": "Mathematical problem and recurrence cited; clean-room implementation",
+    "algorithm_attribution": "The input order is preserved and the objective is the maximum group sum; the dynamic-programming reference considers every final cut.",
+    "implementation_status": "Bounded clean-room minimax partition profile",
+    "independent_reference_sources": [
+      {
+        "title": "The Algorithm Design Manual, section 10.7: The Ordered Partition Problem",
+        "url": "https://users.math.uoc.gr/~plex/mem291-Fall2023/ark/Skiena-The_Algorithm_Design_Manual.pdf"
+      }
+    ],
+    "discovery_source": {
+      "title": "LeetCode public dynamic-programming title/topic index",
+      "url": "https://leetcode.com/problem-list/dynamic-programming/",
+      "use": "Discovery only; no task text or code reused"
+    }
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,value_0,...,value_(n-1)]",
+    "n_range": [1, 32],
+    "groups_range": [1, 32],
+    "value_range": [0, 1000],
+    "exact_framing": true,
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "Minimum possible largest sum among exactly m nonempty contiguous groups in input order.",
+    "result_range": [0, 32000],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "primary": "Binary-search a group-sum limit from max(values) through sum(values); greedily form the fewest contiguous groups under the limit and accept when the count is at most m.",
+    "exact_group_argument": "All values are nonnegative and n>=m, so any feasible partition with fewer than m groups can be split into exactly m nonempty contiguous groups without increasing the largest sum.",
+    "independent_reference": "Dynamic programming considers each cut before the final group and minimizes max(best cost for the preceding groups, sum of the final suffix).",
+    "complexity": "Primary O(n log(sum(values)+1)) time and O(1) extra space; independent reference O(m*n^2) time and O(n) rolling-row space."
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Bounded scratch allowance for the scalar profile; the primary ports use constant additional state."
+  },
+  "primary_oracle": "benchmarks/l/linear_partition_minimax/primary_oracle.py",
+  "independent_oracle": "benchmarks/l/linear_partition_minimax/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-item-single-group","input_values":[1,1,7],"input_length":3,"expected_result":7},
+    {"id":"single-group-total-sum","input_values":[4,1,4,1,9,2],"input_length":6,"expected_result":16},
+    {"id":"one-group-per-item","input_values":[4,4,3,0,3,2],"input_length":6,"expected_result":3},
+    {"id":"two-groups-nontrivial-cut","input_values":[5,2,7,2,5,10],"input_length":7,"expected_result":14},
+    {"id":"three-groups-optimum","input_values":[6,3,10,1,1,1,10,1],"input_length":8,"expected_result":12},
+    {"id":"exact-groups-with-zeros","input_values":[5,4,0,0,5,0,0],"input_length":7,"expected_result":5},
+    {"id":"all-zero-groups","input_values":[6,3,0,0,0,0,0,0],"input_length":8,"expected_result":0},
+    {"id":"one-group-each-value","input_values":[3,3,1,0,8],"input_length":5,"expected_result":8},
+    {"id":"max-dimension-balanced","input_values":[32,17,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000],"input_length":34,"expected_result":2000},
+    {"id":"max-total-single-group","input_values":[32,1,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000],"input_length":34,"expected_result":32000},
+    {"id":"n-zero-invalid","input_values":[0,1],"input_length":2,"expected_result":-1},
+    {"id":"n-above-bound","input_values":[33,1],"input_length":2,"expected_result":-1},
+    {"id":"zero-groups-invalid","input_values":[2,0,3,4],"input_length":4,"expected_result":-1},
+    {"id":"more-groups-than-items","input_values":[2,3,3,4],"input_length":4,"expected_result":-1},
+    {"id":"negative-value-invalid","input_values":[1,1,-1],"input_length":3,"expected_result":-1},
+    {"id":"value-above-bound","input_values":[1,1,1001],"input_length":3,"expected_result":-1},
+    {"id":"truncated-values","input_values":[3,2,1,2],"input_length":4,"expected_result":-1},
+    {"id":"one-trailing-word","input_values":[1,1,7,0],"input_length":4,"expected_result":-1},
+    {"id":"maximum-parseable-trailing-word","input_values":[32,1,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,1000,0],"input_length":35,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

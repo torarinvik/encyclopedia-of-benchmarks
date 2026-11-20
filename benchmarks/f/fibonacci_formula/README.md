@@ -45,11 +45,15 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/f/fibonacci_formu
 | C3 | [`c3/f/fibonacci_formula.c3`](../../../c3/f/fibonacci_formula.c3) |
 | C++ | [`cpp/f/fibonacci_formula.cpp`](../../../cpp/f/fibonacci_formula.cpp) |
 | Elisa | [`elisa/f/fibonacci_formula.elisa`](../../../elisa/f/fibonacci_formula.elisa) |
+| Mojo | [`mojo/f/fibonacci_formula.mojo`](../../../mojo/f/fibonacci_formula.mojo) |
 | Nim | [`nim/f/fibonacci_formula.nim`](../../../nim/f/fibonacci_formula.nim) |
 | Odin | [`odin/f/fibonacci_formula.odin`](../../../odin/f/fibonacci_formula.odin) |
 | Rust | [`rust/f/fibonacci_formula.rs`](../../../rust/f/fibonacci_formula.rs) |
 | V | [`v/f/fibonacci_formula.v`](../../../v/f/fibonacci_formula.v) |
 | Zig | [`zig/f/fibonacci_formula.zig`](../../../zig/f/fibonacci_formula.zig) |
+
+Scalar verifier registration and an exact fast-doubling reference for the
+bounded domain are drafted and have not been executed.
 
 ## Pinned source
 

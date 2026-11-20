@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "goldberg-tarjan-cost-scaled-circulation-i64-array-scalar-v1",
+  "algorithm": "minimum_cost_circulation_cost_scaling",
+  "function_symbol": "minimum_cost_circulation_cost_scaling",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Finding Minimum-Cost Circulations by Successive Approximation",
+    "authors": ["Andrew V. Goldberg", "Robert E. Tarjan"],
+    "year": 1990,
+    "url": "https://doi.org/10.1287/moor.15.3.430",
+    "license": "algorithm idea only; no paper text or implementation copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,(u,v,capacity,cost)*m]",
+    "vertex_count_range": [1, 8],
+    "edge_count_range": [0, 10],
+    "endpoint_range": "0 <= endpoint < n",
+    "capacity_range": [0, 2],
+    "cost_range": [-4, 4],
+    "parallel_arcs_allowed": true,
+    "self_loops_allowed": true,
+    "zero_flow_is_feasible": true,
+    "exact_length": "2+4*m",
+    "maximum_valid_input_length": 42,
+    "maximum_parseable_input_length": 43,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "minimum integral circulation cost + 81",
+    "result_range": "1..161",
+    "minimum_cost_range": [-80, 80],
+    "invalid_result": -1
+  },
+  "workspace": {"bytes": 32768},
+  "complexity": {
+    "primary_algorithm": "epsilon cost scaling with generic push-relabel refinement",
+    "primary_time": "O(n^3 log(n*C)) for the simple generic method",
+    "independent_oracle": "enumerate at most 3^10 edge-flow assignments"
+  },
+  "oracle_method": "Primary scales costs by n+1 and repeatedly refines an epsilon-optimal pseudoflow using negative-reduced-cost saturation, admissible pushes, and price relabels. The independent oracle enumerates all edge flows in 0..capacity, retains assignments with zero net excess at every vertex, and minimizes their original cost.",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"empty-circulation","input_values":[1,0],"input_length":2,"workspace_bytes":0,"expected_result":81},
+    {"id":"negative-self-loop-saturates","input_values":[1,1,0,0,2,-4],"input_length":6,"workspace_bytes":0,"expected_result":73},
+    {"id":"positive-self-loop-remains-empty","input_values":[1,1,0,0,2,4],"input_length":6,"workspace_bytes":0,"expected_result":81},
+    {"id":"negative-two-cycle","input_values":[2,2,0,1,2,-4,1,0,2,1],"input_length":10,"workspace_bytes":0,"expected_result":75},
+    {"id":"negative-three-cycle","input_values":[3,3,0,1,2,-2,1,2,2,1,2,0,2,0],"input_length":14,"workspace_bytes":0,"expected_result":79},
+    {"id":"negative-arc-with-no-return-cycle","input_values":[3,2,0,1,2,-4,1,2,2,0],"input_length":10,"workspace_bytes":0,"expected_result":81},
+    {"id":"maximum-input-zero-cost-self-loops","input_values":[8,10,0,0,2,0,1,1,2,0,2,2,2,0,3,3,2,0,4,4,2,0,5,5,2,0,6,6,2,0,7,7,2,0,0,0,2,0,1,1,2,0],"input_length":42,"workspace_bytes":0,"expected_result":81},
+    {"id":"invalid-empty-input","input_values":[],"input_length":0,"workspace_bytes":0,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-zero-vertices","input_values":[0,0],"input_length":2,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-capacity","input_values":[1,1,0,0,3,-1],"input_length":6,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-cost","input_values":[1,1,0,0,1,5],"input_length":6,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-endpoint","input_values":[2,1,0,2,1,-1],"input_length":6,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-truncated-edge","input_values":[2,1,0,1,2],"input_length":5,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-trailing-word","input_values":[1,0,9],"input_length":3,"workspace_bytes":0,"expected_result":-1}
+  ]
+}

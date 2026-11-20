@@ -27,4 +27,8 @@ verifier wiring includes all directed graphs through four vertices and
 independent-reference comparisons, plus arc reversal, vertex relabeling, and
 parallel-arc duplication checks for valid fixtures. The workload includes a
 16-vertex cycle, a maximum-edge-count graph, and null input at the parser limit.
-Static review remains outstanding; nothing has run.
+Static review of all ten drafts found that header bounds precede narrowing,
+all endpoints are validated before BFS, and each queue admits a vertex at most
+once. A maximum-edge acyclic graph and invalid edge following a self-loop are
+also specified in the workload. Compilation and runtime validation remain
+outstanding; nothing has run.

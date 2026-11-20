@@ -1,0 +1,119 @@
+const PP3_MAX_INPUT: usize = 67
+const PP3_MAX_LITERALS: usize = 48
+
+def pp3_add_clause(graph: mutable u64[48]&, reverse: mutable u64[48]&, left: usize, right: usize) -> void:
+    let from_left: usize = left ^ 1
+    let from_right: usize = right ^ 1
+    graph[from_left] <- graph[from_left] | (1.u64() << right)
+    reverse[right] <- reverse[right] | (1.u64() << from_left)
+    graph[from_right] <- graph[from_right] | (1.u64() << left)
+    reverse[left] <- reverse[left] | (1.u64() << from_right)
+
+def pp3_solve(values: view[i64]) -> i64:
+    let length: usize = values.len()
+    if length < 2 or length > PP3_MAX_INPUT:
+        return -1
+    let taxa_raw: i64 = values[0]
+    let characters_raw: i64 = values[1]
+    if taxa_raw < 1 or taxa_raw > 8 or characters_raw < 0 or characters_raw > 8:
+        return -1
+    let taxa: usize = taxa_raw.usize()
+    let characters: usize = characters_raw.usize()
+    if length != 2 + taxa * characters:
+        return -1
+
+    masks: mutable u16[24] = zeroed
+    for taxon in 0..<taxa:
+        for character in 0..<characters:
+            let state: i64 = values[2 + taxon * characters + character]
+            if state < 0 or state > 2:
+                return -1
+            let at: usize = 3 * character + state.usize()
+            masks[at] <- masks[at] | (1.u16() << taxon)
+
+    graph: mutable u64[48] = zeroed
+    reverse: mutable u64[48] = zeroed
+    for character in 0..<characters:
+        let v0: usize = 3 * character
+        pp3_add_clause(graph, reverse, 2 * v0, 2 * (v0 + 1))
+        pp3_add_clause(graph, reverse, 2 * v0, 2 * (v0 + 2))
+        pp3_add_clause(graph, reverse, 2 * (v0 + 1), 2 * (v0 + 2))
+        present: mutable usize = 0
+        missing: mutable usize = 0
+        for state in 0..<3:
+            if masks[3 * character + state] == 0:
+                missing <- state
+            else:
+                present <- present + 1
+        if present == 2:
+            let absent_literal: usize = 2 * (3 * character + missing) + 1
+            pp3_add_clause(graph, reverse, absent_literal, absent_literal)
+    let universe: u16 = (1.u16() << taxa) - 1
+    for left_character in 0..<characters:
+        for right_character in (left_character + 1)..<characters:
+            for left_state in 0..<3:
+                let left: u16 = masks[3 * left_character + left_state]
+                for right_state in 0..<3:
+                    let right: u16 = masks[3 * right_character + right_state]
+                    if (left & right) != 0 and (left & universe & ~right) != 0 and (right & universe & ~left) != 0 and (universe & ~(left | right)) != 0:
+                        let left_variable: usize = 3 * left_character + left_state
+                        let right_variable: usize = 3 * right_character + right_state
+                        pp3_add_clause(graph, reverse, 2 * left_variable + 1, 2 * right_variable + 1)
+
+    let literal_count: usize = 6 * characters
+    seen: mutable bool[48] = zeroed
+    order: mutable usize[48] = zeroed
+    stack: mutable usize[48] = zeroed
+    next_index: mutable usize[48] = zeroed
+    order_count: mutable usize = 0
+    for start in 0..<literal_count:
+        if seen[start]:
+            continue
+        top: mutable usize = 1
+        stack[0] <- start
+        seen[start] <- true
+        while top > 0:
+            let vertex: usize = stack[top - 1]
+            next: mutable usize = next_index[vertex]
+            while next < literal_count and (((graph[vertex] >> next) & 1) == 0 or seen[next]):
+                next <- next + 1
+            if next < literal_count:
+                next_index[vertex] <- next + 1
+                seen[next] <- true
+                stack[top] <- next
+                top <- top + 1
+            else:
+                order[order_count] <- vertex
+                order_count <- order_count + 1
+                top <- top - 1
+
+    component: mutable i16[48] = zeroed
+    for i in 0..<literal_count:
+        component[i] <- -1
+    label: mutable i16 = 0
+    while order_count > 0:
+        order_count <- order_count - 1
+        let start: usize = order[order_count]
+        if component[start] >= 0:
+            continue
+        top: mutable usize = 1
+        stack[0] <- start
+        component[start] <- label
+        while top > 0:
+            top <- top - 1
+            let vertex: usize = stack[top]
+            for next in 0..<literal_count:
+                if ((reverse[vertex] >> next) & 1) != 0 and component[next] < 0:
+                    component[next] <- label
+                    stack[top] <- next
+                    top <- top + 1
+        label <- label + 1
+    for variable in 0..<(3 * characters):
+        if component[2 * variable] == component[2 * variable + 1]:
+            return 0
+    1
+
+export fn perfect_phylogeny_three_state_2sat(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > PP3_MAX_INPUT:
+        return -1
+    pp3_solve(input[0:length])

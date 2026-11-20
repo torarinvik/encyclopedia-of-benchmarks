@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn pnb_scan(s:InlineArray[UInt8,128],lo:Int,hi:Int,mut h:UInt64):

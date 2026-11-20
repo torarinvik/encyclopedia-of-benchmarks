@@ -75,15 +75,16 @@ def sxm_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
 
 def set_xor_min_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
-    q_value: i64 = input[0]
+    frame: view[i64] = input[0:length]
+    q_value: i64 = frame[0]
     if q_value < 1 or q_value > MAX_Q.i64(): return -1
     q: usize = q_value.usize()
     if length != 1 + 2 * q: return -1
     operation: mutable usize = 0
     while operation < q:
         offset: usize = 1 + 2 * operation
-        if input[offset] < 0 or input[offset] > 2 or input[offset + 1] < 0 or
-            input[offset + 1] >= 1073741824: return -1
+        if frame[offset] < 0 or frame[offset] > 2 or frame[offset + 1] < 0 or
+            frame[offset + 1] >= 1073741824: return -1
         operation <- operation + 1
 
     children_zero: mutable i64[MAX_NODES] = zeroed
@@ -100,8 +101,8 @@ def set_xor_min_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
     operation <- 0
     while operation < q:
         offset: usize = 1 + 2 * operation
-        kind: i64 = input[offset]
-        value: u64 = input[offset + 1].u64()
+        kind: i64 = frame[offset]
+        value: u64 = frame[offset + 1].u64()
         if kind == 0:
             sxm_insert(children_zero[0:MAX_NODES], children_one[0:MAX_NODES],
                 count[0:MAX_NODES], node_count, value)

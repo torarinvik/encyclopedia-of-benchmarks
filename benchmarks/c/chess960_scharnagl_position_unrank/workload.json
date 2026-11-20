@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "chess960-scharnagl-position-unrank-i64-array-bytes-output-v1",
+  "algorithm": "chess960_scharnagl_position_unrank",
+  "function_symbol": "chess960_scharnagl_position_unrank",
+  "abi": "i64_array_bytes_output",
+  "description": "Decode a batch of Scharnagl identifiers into their canonical Chess960 first-rank piece sequences.",
+  "source": {
+    "title": "Generate Chess960 starting position",
+    "discovery_page": "https://rosettagit.org/tasks/generate-chess960-starting-position/",
+    "numbering_reference": "https://de.chessbase.com/portals/3/files/2006/scharnagl/chess960_regeln.pdf",
+    "rules_reference": "https://www.fide.com/docs/regulations/ARB%20Manual%202020.pdf",
+    "pinned_behavior": "For each zero-based identifier 0..959, decode the odd-file bishop digit, even-file bishop digit, queen slot, and one of ten lexicographically ordered knight-slot pairs. Fill the three remaining files R-K-R from left to right."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[count, identifier_0, ..., identifier_(count-1)]",
+    "count_domain": [0, 960],
+    "identifier_domain": [0, 959],
+    "frame_rule": "exactly count+1 words; duplicate identifiers are allowed and preserve input order",
+    "maximum_valid_input_length": 961,
+    "maximum_parseable_input_length": 962,
+    "invalid_input_result": -1,
+    "validation_order": "Reject null input, lengths outside 1..962, count/frame errors, and any identifier outside 0..959. After validating the entire identifier batch, reject a null output for nonempty output or insufficient capacity before writing."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "eight ASCII bytes per identifier in file order a through h, using only B, N, R, Q, K; batches retain caller order",
+    "maximum_output_bytes": 7680,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "zero_length_output_allows_null_pointer": true
+  },
+  "workspace": {
+    "bytes": 192,
+    "accounting": "Per-position scratch is one eight-byte board plus an eight-entry i64-equivalent list of available files and scalar/index state. The 192-byte cap includes alignment and temporary values; caller input and output are excluded. The ten-pair lookup is immutable package data."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "single_interior_scharnagl_id",
+      "input_values": [1, 37],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "4e4e424251524b52"
+    },
+    {
+      "id": "three_scattered_ids_in_input_order",
+      "input_values": [3, 37, 487, 774],
+      "input_length": 4,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "4e4e424251524b525152424e4b4e52425152424b4e42524e"
+    },
+    {
+      "id": "near_upper_identifier",
+      "input_values": [1, 958],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "524b524e4e424251"
+    },
+    {
+      "id": "duplicate_identifier_is_emitted_twice",
+      "input_values": [2, 37, 37],
+      "input_length": 3,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "4e4e424251524b524e4e424251524b52"
+    },
+    {
+      "id": "empty_batch_accepts_null_output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_identifier",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "identifier_equal_to_position_count",
+      "input_values": [1, 960],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_frame_too_short",
+      "input_values": [2, 37],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_identifier",
+      "input_values": [1, 37, 487],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_batch_short_capacity",
+      "input_values": [3, 37, 487, 774],
+      "input_length": 4,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_nonempty_batch_null_output",
+      "input_values": [1, 37],
+      "input_length": 2,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_identifier_precedes_output_error",
+      "input_values": [1, 960],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

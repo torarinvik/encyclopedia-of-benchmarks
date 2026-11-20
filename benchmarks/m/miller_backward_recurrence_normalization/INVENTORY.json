@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "algorithm": "miller_backward_recurrence_normalization",
+  "function_symbol": "miller_backward_recurrence_normalization",
+  "abi": "i64_array_bytes_output",
+  "status": "ten ports and package artifacts integrated into the byte-output suite and catalog",
+  "input": {
+    "minimum_valid_length": 6,
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "level_range": [1, 8],
+    "coefficient_residue_range": [0, 998244352],
+    "recurrence_c_nonzero": true
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_word_bytes",
+    "encoding": "[N,normalized_w0,...,normalized_wN]",
+    "maximum_bytes": 80
+  },
+  "workspace": {"bytes": 192},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/m/miller_backward_recurrence_normalization.c",
+    "c3/m/miller_backward_recurrence_normalization.c3",
+    "cpp/m/miller_backward_recurrence_normalization.cpp",
+    "elisa/m/miller_backward_recurrence_normalization.elisa",
+    "mojo/m/miller_backward_recurrence_normalization.mojo",
+    "nim/m/miller_backward_recurrence_normalization.nim",
+    "odin/m/miller_backward_recurrence_normalization.odin",
+    "rust/m/miller_backward_recurrence_normalization.rs",
+    "v/m/miller_backward_recurrence_normalization.v",
+    "zig/m/miller_backward_recurrence_normalization.zig"
+  ],
+  "source": "https://dlmf.nist.gov/3.6.iii",
+  "normalization_source": "https://dlmf.nist.gov/3.6#E5"
+}

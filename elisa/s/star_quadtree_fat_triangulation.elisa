@@ -1,0 +1,220 @@
+const STAR_MAX_DEPTH: usize = 2
+const STAR_MAX_INPUT: usize = 25
+const STAR_MAX_VERTICES: usize = 5
+const STAR_MAX_TRIANGLES: usize = 4
+const STAR_MAX_EDGES: usize = 8
+const STAR_MAX_PAIRS: usize = 64
+const STAR_MAX_OUTPUT_BYTES: usize = 1032
+
+def star_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+
+def star_between(a: i64, b: i64, p: i64) -> bool:
+    (a <= p and p <= b) or (b <= p and p <= a)
+
+def star_on_segment(ax: i64, ay: i64, bx: i64, by: i64, px: i64, py: i64) -> bool:
+    star_between(ax,bx,px) and star_between(ay,by,py)
+
+def star_segments_intersect(ax: i64, ay: i64, bx: i64, by: i64,
+                            cx: i64, cy: i64, dx: i64, dy: i64) -> bool:
+    o1: i64 = star_orient(ax,ay,bx,by,cx,cy)
+    o2: i64 = star_orient(ax,ay,bx,by,dx,dy)
+    o3: i64 = star_orient(cx,cy,dx,dy,ax,ay)
+    o4: i64 = star_orient(cx,cy,dx,dy,bx,by)
+    if ((o1 < 0 and o2 > 0) or (o1 > 0 and o2 < 0)) and
+       ((o3 < 0 and o4 > 0) or (o3 > 0 and o4 < 0)): return true
+    (o1 == 0 and star_on_segment(ax,ay,bx,by,cx,cy)) or
+    (o2 == 0 and star_on_segment(ax,ay,bx,by,dx,dy)) or
+    (o3 == 0 and star_on_segment(cx,cy,dx,dy,ax,ay)) or
+    (o4 == 0 and star_on_segment(cx,cy,dx,dy,bx,by))
+
+def star_edge_hits_box(vertices: view[i64], edges: view[i64], edge_id: usize,
+                      xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
+    a: usize = edges[2 * edge_id].usize()
+    b: usize = edges[2 * edge_id + 1].usize()
+    ax: i64 = vertices[2 * a]; ay: i64 = vertices[2 * a + 1]
+    bx: i64 = vertices[2 * b]; by: i64 = vertices[2 * b + 1]
+    if (xmin <= ax and ax <= xmax and ymin <= ay and ay <= ymax) or
+       (xmin <= bx and bx <= xmax and ymin <= by and by <= ymax): return true
+    star_segments_intersect(ax,ay,bx,by,xmin,ymin,xmax,ymin) or
+    star_segments_intersect(ax,ay,bx,by,xmax,ymin,xmax,ymax) or
+    star_segments_intersect(ax,ay,bx,by,xmax,ymax,xmin,ymax) or
+    star_segments_intersect(ax,ay,bx,by,xmin,ymax,xmin,ymin)
+
+def star_stops(vertices: view[i64], edges: view[i64], edge_count: usize,
+               vertex_count: usize, xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
+    touched: mutable bool[STAR_MAX_EDGES] = zeroed
+    count: mutable usize = 0
+    e: mutable usize = 0
+    while e < edge_count:
+        touched[e] <- star_edge_hits_box(vertices,edges,e,xmin,ymin,xmax,ymax)
+        if touched[e]: count <- count + 1
+        e <- e + 1
+    if count == 0: return true
+    v: mutable usize = 0
+    while v < vertex_count:
+        common: mutable bool = true
+        e <- 0
+        while e < edge_count:
+            if touched[e] and edges[2*e] != v.i64() and edges[2*e+1] != v.i64(): common <- false
+            e <- e + 1
+        if common: return true
+        v <- v + 1
+    false
+
+def star_point_in_triangle(px: i64, py: i64, vertices: view[i64],
+                           a: usize, b: usize, c: usize) -> bool:
+    star_orient(vertices[2*a],vertices[2*a+1],vertices[2*b],vertices[2*b+1],px,py) >= 0 and
+    star_orient(vertices[2*b],vertices[2*b+1],vertices[2*c],vertices[2*c+1],px,py) >= 0 and
+    star_orient(vertices[2*c],vertices[2*c+1],vertices[2*a],vertices[2*a+1],px,py) >= 0
+
+def star_triangle_hits_box(vertices: view[i64], triangles: view[i64], tid: usize,
+                          xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
+    a: usize = triangles[3*tid].usize(); b: usize = triangles[3*tid+1].usize(); c: usize = triangles[3*tid+2].usize()
+    v: mutable usize = 0
+    while v < 3:
+        id: usize = triangles[3*tid+v].usize()
+        x: i64 = vertices[2*id]; y: i64 = vertices[2*id+1]
+        if xmin <= x and x <= xmax and ymin <= y and y <= ymax: return true
+        v <- v + 1
+    if star_point_in_triangle(xmin,ymin,vertices,a,b,c) or
+       star_point_in_triangle(xmax,ymin,vertices,a,b,c) or
+       star_point_in_triangle(xmax,ymax,vertices,a,b,c) or
+       star_point_in_triangle(xmin,ymax,vertices,a,b,c): return true
+    v <- 0
+    while v < 3:
+        id0: usize = triangles[3*tid+v].usize()
+        id1: usize = triangles[3*tid+(v+1)%3].usize()
+        ax: i64 = vertices[2*id0]; ay: i64 = vertices[2*id0+1]
+        bx: i64 = vertices[2*id1]; by: i64 = vertices[2*id1+1]
+        if star_segments_intersect(ax,ay,bx,by,xmin,ymin,xmax,ymin) or
+           star_segments_intersect(ax,ay,bx,by,xmax,ymin,xmax,ymax) or
+           star_segments_intersect(ax,ay,bx,by,xmax,ymax,xmin,ymax) or
+           star_segments_intersect(ax,ay,bx,by,xmin,ymax,xmin,ymin): return true
+        v <- v + 1
+    false
+
+def star_add_pair(pairs: mutable view[i64], pair_count: mutable usize&, key: usize, tid: usize) -> bool:
+    if pair_count >= STAR_MAX_PAIRS: return false
+    pairs[2*pair_count] <- key.i64(); pairs[2*pair_count+1] <- tid.i64()
+    pair_count <- pair_count + 1
+    true
+
+def star_visit(vertices: view[i64], triangles: view[i64], edges: view[i64],
+               vertex_count: usize, triangle_count: usize, edge_count: usize,
+               pairs: mutable view[i64], pair_count: mutable usize&, failed: mutable bool&,
+               depth: usize, ix: usize, iy: usize, path: usize) -> void:
+    if failed: return
+    size: usize = 8 >> depth
+    xmin: i64 = (ix * size).i64(); xmax: i64 = xmin + size.i64()
+    ymax: i64 = 8 - (iy * size).i64(); ymin: i64 = ymax - size.i64()
+    if not star_stops(vertices,edges,edge_count,vertex_count,xmin,ymin,xmax,ymax):
+        if depth >= STAR_MAX_DEPTH: failed <- true; return
+        q: mutable usize = 0
+        while q < 4:
+            star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
+                pairs,pair_count,failed,depth+1,2*ix+(q%2),2*iy+(q/2),4*path+q)
+            q <- q + 1
+        return
+    key: usize = path << (2 * (STAR_MAX_DEPTH-depth))
+    tid: mutable usize = 0
+    while tid < triangle_count:
+        if star_triangle_hits_box(vertices,triangles,tid,xmin,ymin,xmax,ymax) and
+           not star_add_pair(pairs,pair_count,key,tid): failed <- true
+        tid <- tid + 1
+
+def star_store_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset+byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def star_quadtree_fat_triangulation_impl(input: view[i64], output: mutable view[u8]) -> i64:
+    if input.len() < 2 or input.len() > STAR_MAX_INPUT: return -1
+    vertex_count_raw: i64 = input[0]; triangle_count_raw: i64 = input[1]
+    if not ((vertex_count_raw == 4 and triangle_count_raw == 2) or
+            (vertex_count_raw == 5 and triangle_count_raw == 4)): return -1
+    vertex_count: usize = vertex_count_raw.usize(); triangle_count: usize = triangle_count_raw.usize()
+    if input.len() != 2 + 2*vertex_count + 3*triangle_count: return -1
+    corners: i64[8] = [0,0,8,0,8,8,0,8]
+    vertices_data: mutable i64[10] = zeroed
+    vertices: mutable view[i64] = vertices_data[0:10]
+    i: mutable usize = 0
+    while i < 8:
+        if input[2+i] != corners[i]: return -1
+        vertices[i] <- corners[i]
+        i <- i + 1
+    if vertex_count == 5:
+        if input[10] != 4 or input[11] != 4: return -1
+        vertices[8] <- 4; vertices[9] <- 4
+    triangles_data: mutable i64[12] = zeroed
+    triangles: mutable view[i64] = triangles_data[0:12]
+    start: usize = 2 + 2*vertex_count
+    i <- 0
+    while i < 3*triangle_count:
+        id: i64 = input[start+i]
+        if id < 0 or id >= vertex_count_raw: return -1
+        triangles[i] <- id
+        i <- i + 1
+    diag02: bool = vertex_count == 4 and triangles[0] == 0 and triangles[1] == 1 and triangles[2] == 2 and
+        triangles[3] == 0 and triangles[4] == 2 and triangles[5] == 3
+    diag13: bool = vertex_count == 4 and triangles[0] == 0 and triangles[1] == 1 and triangles[2] == 3 and
+        triangles[3] == 1 and triangles[4] == 2 and triangles[5] == 3
+    fan: i64[12] = [0,1,4,1,2,4,2,3,4,3,0,4]
+    fan_ok: mutable bool = vertex_count == 5
+    i <- 0
+    while i < 12:
+        if triangles[i] != fan[i]: fan_ok <- false
+        i <- i + 1
+    if not diag02 and not diag13 and not fan_ok: return -1
+    edges_data: mutable i64[16] = zeroed
+    edges: mutable view[i64] = edges_data[0:16]
+    edge_count: mutable usize = 0
+    tid: mutable usize = 0
+    while tid < triangle_count:
+        k: mutable usize = 0
+        while k < 3:
+            a: usize = triangles[3*tid+k].usize()
+            b: usize = triangles[3*tid+(k+1)%3].usize()
+            low: usize = if a < b: a else: b
+            high: usize = if a < b: b else: a
+            found: mutable bool = false
+            j: mutable usize = 0
+            while j < edge_count:
+                if edges[2*j] == low.i64() and edges[2*j+1] == high.i64(): found <- true
+                j <- j + 1
+            if not found:
+                edges[2*edge_count] <- low.i64(); edges[2*edge_count+1] <- high.i64()
+                edge_count <- edge_count + 1
+            k <- k + 1
+        tid <- tid + 1
+    pairs_data: mutable i64[128] = zeroed
+    pairs: mutable view[i64] = pairs_data[0:128]
+    pair_count: mutable usize = 0
+    failed: mutable bool = false
+    star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
+        pairs,pair_count,failed,0,0,0,0)
+    if failed: return -1
+    required: usize = (1 + 2*pair_count)*8
+    if output.len() < required: return -2
+    result: mutable view[u8] = output[0:required]
+    star_store_le(result,0,pair_count.i64())
+    i <- 0
+    while i < pair_count:
+        star_store_le(result,8+16*i,pairs[2*i])
+        star_store_le(result,16+16*i,pairs[2*i+1])
+        i <- i + 1
+    required.i64()
+
+export fn star_quadtree_fat_triangulation(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > STAR_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    if output.is_null():
+        empty_storage: mutable u8[1] = zeroed
+        empty_output: mutable view[u8] = empty_storage[0:0]
+        return star_quadtree_fat_triangulation_impl(values, empty_output)
+    output_view: mutable view[u8] = output[0:capacity]
+    star_quadtree_fat_triangulation_impl(values, output_view)

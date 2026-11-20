@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn msds_bucket(data:InlineArray[Int32,8192], lens:InlineArray[Int32,256], idx:Int, digit:Int)->Int:

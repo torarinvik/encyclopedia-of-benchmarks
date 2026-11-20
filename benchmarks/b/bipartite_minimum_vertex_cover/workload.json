@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-bipartite-minimum-vertex-cover-i64-array-scalar-v1",
+  "algorithm": "bipartite_minimum_vertex_cover",
+  "function_symbol": "bipartite_minimum_vertex_cover",
+  "abi": "i64_array_scalar",
+  "description": "Construct a canonical minimum vertex-cover certificate in a bounded bipartite graph using augmenting-path matching and alternating reachability.",
+  "source": {
+    "title": "MinimumVertexCover.h and DFSMatching.h",
+    "authors": ["Johan Sannemo", "Simon Lindholm", "Lukas Polacek"],
+    "reference": "KACTL graph algorithms, CC0 algorithm descriptions",
+    "url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/graph/MinimumVertexCover.h",
+    "matching_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/graph/DFSMatching.h",
+    "theorem_reference": "Kőnig's theorem: in bipartite graphs, minimum vertex-cover size equals maximum-matching size",
+    "algorithm_attribution": "Clean-room bounded Kuhn matching, alternating-cover construction, and lexicographic certificate refinement; algorithm descriptions only.",
+    "implementation_status": "clean-room bounded canonical-certificate profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[left_count, right_count, left_adjacency_mask_0, ..., left_adjacency_mask_(left_count-1)]",
+    "left_count_range": [0, 8],
+    "right_count_range": [0, 8],
+    "adjacency_mask_range": "nonnegative masks with bits only in [0,right_count)",
+    "graph": "simple bipartite graph; each left row is a set of adjacent right vertices",
+    "vertex_id_order": "left vertices 0..left_count-1, then right vertices 0..right_count-1",
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 11,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "minimum-cover vertex mask; bit i selects left vertex i, bit left_count+j selects right vertex j",
+    "canonical_tie_rule": "Among all minimum covers, choose the lexicographically smallest membership vector in vertex_id_order, with 0 before 1.",
+    "result_range": [0, 65535],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed adjacency rows, right-to-left matching, alternating-reachability state, forced membership states, bounded Kuhn recursion, and call-frame allowance."
+  },
+  "contract": {
+    "matching": "Process left vertices and right neighbors in ascending ID order. Each left vertex starts a DFS augmenting-path search with a fresh right-visited set.",
+    "cover_construction": "Begin from unmatched left vertices and follow alternating reachability. The initial certificate is (left vertices not reached) union (reached right vertices); its size equals the maximum matching size.",
+    "canonical_refinement": "Process vertices in vertex_id_order. Tentatively exclude each vertex; keep it excluded exactly when a minimum cover of the matching-derived size remains feasible. Otherwise include it. This pins the smallest membership vector across ports.",
+    "validation": "Reject null, truncated, or trailing frames; out-of-range partition sizes; negative row masks; and row bits outside the right partition.",
+    "maximum_input_length": 10,
+    "maximum_parseable_input_length": 11
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "oracle_method": "The primary uses ordered augmenting-path matching, alternating reachability, and matching-feasibility refinement. The independent reference enumerates every vertex subset, checks edge coverage, then selects the minimum-cardinality cover with the specified lexicographic membership tie rule.",
+  "cases": [
+    {"id":"empty-graph","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"empty-right-partition","input_values":[2,0,0,0],"input_length":4,"expected_result":0},
+    {"id":"empty-left-partition","input_values":[0,3],"input_length":2,"expected_result":0},
+    {"id":"single-edge-canonical-right","input_values":[1,1,1],"input_length":3,"expected_result":2},
+    {"id":"left-star-cover","input_values":[1,3,3],"input_length":3,"expected_result":1},
+    {"id":"right-star-cover","input_values":[3,1,1,1],"input_length":4,"expected_result":8},
+    {"id":"two-disjoint-edges-canonical-right","input_values":[2,2,1,2],"input_length":4,"expected_result":12},
+    {"id":"complete-two-by-two","input_values":[2,2,3,3],"input_length":4,"expected_result":12},
+    {"id":"alternating-path-three-by-three","input_values":[3,3,3,6,4],"input_length":5,"expected_result":56},
+    {"id":"canonical-mixed-cover","input_values":[2,3,7,4],"input_length":4,"expected_result":17},
+    {"id":"maximum-complete-eight-by-eight","input_values":[8,8,255,255,255,255,255,255,255,255],"input_length":10,"expected_result":65280},
+    {"id":"negative-row-mask","input_values":[1,1,-1],"input_length":3,"expected_result":-1},
+    {"id":"out-of-domain-right-bit","input_values":[1,1,2],"input_length":3,"expected_result":-1},
+    {"id":"nonzero-mask-with-empty-right-side","input_values":[1,0,1],"input_length":3,"expected_result":-1},
+    {"id":"truncated-left-rows","input_values":[2,2,1],"input_length":3,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,1,1,0],"input_length":4,"expected_result":-1},
+    {"id":"invalid-left-count","input_values":[9,0],"input_length":2,"expected_result":-1},
+    {"id":"invalid-right-count","input_values":[0,9],"input_length":2,"expected_result":-1},
+    {"id":"maximum-parseable-trailing-word","input_values":[8,8,0,0,0,0,0,0,0,0,0],"input_length":11,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

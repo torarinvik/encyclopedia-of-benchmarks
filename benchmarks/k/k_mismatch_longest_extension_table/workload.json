@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "k-mismatch-longest-extension-table-i64-array-bytes-output-v1",
+  "algorithm": "k_mismatch_longest_extension_table",
+  "function_symbol": "k_mismatch_longest_extension_table",
+  "abi": "i64_array_bytes_output",
+  "description": "Build the bounded LP_k(p) longest-extension table for every suffix start.",
+  "source": {
+    "title": "Approximate Tandem Repeats",
+    "encyclopedia_chapter": 24,
+    "encyclopedia_doi": "10.1007/978-1-4939-2864-4_24",
+    "paper": "Finding Approximate Repetitions under Hamming Distance",
+    "paper_doi": "10.1016/S0304-3975(02)00448-6",
+    "reuse": "Algorithm ideas and mathematical definitions only. The bounded input contract, fixtures, and implementations are clean-room."
+  },
+  "contract": {
+    "input_layout": "[n,K,w0,...,w(n-1)]",
+    "suffix_position": "p is one-based and ranges from 1 through n; the suffix starts at zero-based index p-1.",
+    "table_definition": "LP_k(p) is the greatest j in [0,n-p+1] whose two length-j prefixes, starting at text index 0 and p-1, differ in at most k positions.",
+    "row_order": "p=1..n ascending; within each row k=0..K ascending",
+    "alphabet": "Each symbol is an integer in 0..25.",
+    "max_k": 4,
+    "boundary_rule": "Every extension is clipped to n-p+1; when a prior row value reaches that boundary, larger mismatch budgets keep the same value.",
+    "primary_method": "Build a suffix array by prefix doubling, Kasai adjacent LCP values, and a sparse-table range-minimum index. Compute each row by exact LCE jumps, skipping one mismatch between jumps.",
+    "independent_method": "For every (p,k), scan the two compared prefixes directly and stop before the (k+1)th mismatch or the suffix boundary.",
+    "output_encoding": "One unsigned byte per LP value in row-major order; no header. Values fit in 0..64.",
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "validation_order": "Validate the complete frame before checking output nullness/capacity; no output bytes are written on error."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,K,w0,...,w(n-1)]",
+    "n_range": [1, 64],
+    "K_range": [0, 4],
+    "symbol_range": [0, 25],
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_unsigned_byte_array",
+    "encoding": "LP_0(1),...,LP_K(1), LP_0(2),...,LP_K(n)",
+    "maximum_output_bytes": 320,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "accounting": "Fixed text/order/rank/LCP/RMQ arrays and a staged 320-byte result; the 64-symbol sparse table uses at most 7x64 entries. Excludes caller input/output buffers."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "single-symbol-all-budgets",
+      "input_values": [1, 4, 7],
+      "input_length": 3,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "0101010101"
+    },
+    {
+      "id": "first-mismatch-and-zero-lce",
+      "input_values": [6, 2, 0, 0, 1, 0, 0, 2],
+      "input_length": 8,
+      "output_capacity": 18,
+      "expected_result": 18,
+      "expected_output_hex": "060606010304000203020303010202000101"
+    },
+    {
+      "id": "zero-budget-only",
+      "input_values": [3, 0, 0, 1, 0],
+      "input_length": 5,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output_hex": "030001"
+    },
+    {
+      "id": "suffix-boundary-and-repeated-symbols",
+      "input_values": [4, 4, 2, 2, 2, 2],
+      "input_length": 6,
+      "output_capacity": 20,
+      "expected_result": 20,
+      "expected_output_hex": "0404040404030303030302020202020101010101"
+    },
+    {
+      "id": "distinct-symbol-boundary-clipping",
+      "input_values": [4, 2, 0, 1, 2, 3],
+      "input_length": 6,
+      "output_capacity": 12,
+      "expected_result": 12,
+      "expected_output_hex": "040404000203000202000101"
+    },
+    {
+      "id": "invalid-budget",
+      "input_values": [1, 5, 0],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-negative-symbol",
+      "input_values": [1, 0, -1],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-symbol-above-alphabet",
+      "input_values": [1, 0, 26],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-trailing-word",
+      "input_values": [1, 0, 0, 99],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-before-short-output",
+      "input_values": [1, 0, 26],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 320,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

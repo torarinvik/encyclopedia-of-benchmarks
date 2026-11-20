@@ -1,4 +1,5 @@
 # Independent bounded IMDCT profile; see the package LICENSE.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.math import cos, isfinite
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer

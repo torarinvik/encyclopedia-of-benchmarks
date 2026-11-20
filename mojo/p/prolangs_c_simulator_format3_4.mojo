@@ -1,4 +1,5 @@
 # (c) William Landi 1991. See package LICENSE.txt for the permission notice.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 

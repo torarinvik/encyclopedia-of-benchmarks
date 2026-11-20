@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "recursive-backtracker-maze-generation-i64-array-bytes-output-v1",
+  "algorithm": "recursive_backtracker_maze_generation",
+  "function_symbol": "recursive_backtracker_maze_generation",
+  "abi": "i64_array_bytes_output",
+  "description": "Generate a bounded rectangular perfect maze by replaying deterministic neighbor choices through depth-first backtracking.",
+  "source": {
+    "title": "Maze generation",
+    "discovery_page": "https://rosettagit.org/tasks/maze-generation/",
+    "algorithm_reference": "https://ipsitransactions.org/journals/papers/tir/2019jan/p5.pdf",
+    "algorithm_reference_title": "Analysis of Maze Generating Algorithms",
+    "author": "Matej Gabrovsek",
+    "publication_year": 2019,
+    "pinned_behavior": "Visit from the supplied start cell. At each stack top, form the unvisited in-bounds neighbors in north, east, south, west order, consume one supplied ordinal when this list is nonempty, carve the selected passage, and push that cell. Pop when no unvisited neighbor remains."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rows,columns,start_cell,draw_count,neighbor_ordinals[draw_count]]",
+    "rows_domain": [1, 64],
+    "columns_domain": [1, 64],
+    "cell_count_domain": [1, 64],
+    "start_cell_domain": "0 through rows*columns-1",
+    "draw_count_rule": "exactly rows*columns-1",
+    "draw_domain": "integers 0..3; every consumed ordinal must be less than the current cell's number of unvisited neighbors",
+    "neighbor_order": ["north", "east", "south", "west"],
+    "maximum_valid_input_length": 67,
+    "maximum_parseable_input_length": 68,
+    "invalid_input_result": -1,
+    "validation_order": "Reject null input, lengths outside 4..68, dimensions/product/start/frame errors, and draw values outside 0..3; replay choices and reject an ordinal outside the dynamically available neighbor count; then validate output pointer and capacity before writing any bytes."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "one byte per row-major cell; bits 0..3 indicate north, east, south, west walls, respectively; a passage clears the matching bit on both cells",
+    "outer_boundary": "walls remain present where no adjacent cell exists",
+    "maximum_output_bytes": 64,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "zero_length_output_allows_null_pointer": false
+  },
+  "workspace": {
+    "bytes": 1024,
+    "accounting": "The fixed arrays use 704 bytes on a 64-bit target: 64 visited bytes, 64 wall-mask bytes, a 64-entry 8-byte DFS stack, and two four-entry 8-byte candidate arrays. The remaining 320 bytes conservatively cover live scalar/index state, alignment, and equivalent fixed-array layout; caller input and output are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "single_cell_all_walls",
+      "input_values": [1, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "0f"
+    },
+    {
+      "id": "one_row_single_east_passage",
+      "input_values": [1, 2, 0, 1, 0],
+      "input_length": 5,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "0d07"
+    },
+    {
+      "id": "two_by_two_east_then_south_walk",
+      "input_values": [2, 2, 0, 3, 0, 0, 0],
+      "input_length": 7,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "0d030d06"
+    },
+    {
+      "id": "two_by_two_south_then_east_walk",
+      "input_values": [2, 2, 0, 3, 1, 0, 0],
+      "input_length": 7,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "0b0b0c06"
+    },
+    {
+      "id": "maximum_cell_count_short_output",
+      "input_values": [
+        1, 64, 0, 63,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 67,
+      "output_capacity": 63,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_dynamic_neighbor_ordinal",
+      "input_values": [1, 2, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "draw_outside_global_tape_domain",
+      "input_values": [1, 2, 0, 1, 4],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "draw_count_mismatch",
+      "input_values": [1, 2, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension_exceeds_bound",
+      "input_values": [65, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "start_outside_grid",
+      "input_values": [1, 1, 1, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_word",
+      "input_values": [1, 2, 0, 1, 0, 0],
+      "input_length": 6,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_short_output_capacity",
+      "input_values": [1, 2, 0, 1, 0],
+      "input_length": 5,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_null_output",
+      "input_values": [1, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_output_error",
+      "input_values": [1, 2, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

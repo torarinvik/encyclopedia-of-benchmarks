@@ -58,4 +58,14 @@ are present.
 The workload specifies empty and small streams, uncorrected intermediate
 estimates, large-range correction, saturation, and ABI error precedence. The
 byte-output runner and verifier are wired with the stated tolerance and `-3`
-saturation result; static review remains in progress. Nothing has been executed.
+saturation result. Read-only review found all ten drafts consistent on rank
+construction, correction thresholds, saturation/error precedence, and
+little-endian output. Nothing has been executed.
+
+Static comparison of the C, Elisa, and Mojo drafts checked the high-bit bucket
+selection, rank for an all-zero 28-bit suffix, integer-scaled register sum,
+branch ordering, and saturation-before-output-error precedence. In the
+boundary workloads, scaled sums 22 and 21 lie on opposite sides of the
+nonfinite threshold 21.536. A subsequent static pass covered the corresponding
+calculation and error ordering in the other seven drafts and corrected the C3
+entry-point declaration. Compilation and runtime behavior remain unverified.

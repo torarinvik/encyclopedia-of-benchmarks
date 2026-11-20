@@ -1,0 +1,39 @@
+const SP_MAX_LENGTH: usize = 8
+const SP_TABLE_SIDE: usize = 9
+
+def strange_printer_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > 10: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 8 or length != n_value.usize() + 1: return -1
+    n: usize = n_value.usize()
+    position: mutable usize = 0
+    while position < n:
+        if input[position + 1] < 0 or input[position + 1] > 2: return -1
+        position <- position + 1
+    if n == 0: return 0
+
+    dp: mutable i64[81] = zeroed
+    left: mutable usize = n
+    while left > 0:
+        left <- left - 1
+        dp[left * SP_TABLE_SIDE + left] <- 1
+        right: mutable usize = left + 1
+        while right < n:
+            best: mutable i64 = dp[(left + 1) * SP_TABLE_SIDE + right] + 1
+            merge: mutable usize = left + 1
+            while merge <= right:
+                if input[left + 1] == input[merge + 1]:
+                    middle: i64 = 0
+                    if merge > left + 1: middle = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
+                    candidate: i64 = middle + dp[merge * SP_TABLE_SIDE + right]
+                    if candidate < best: best <- candidate
+                merge <- merge + 1
+            dp[left * SP_TABLE_SIDE + right] <- best
+            right <- right + 1
+    return dp[n - 1]
+
+export fn strange_printer(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 10: return -1
+    input_view: view[i64] = input[0:length]
+    strange_printer_impl(input_view)

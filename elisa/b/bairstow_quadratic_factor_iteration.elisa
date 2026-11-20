@@ -1,0 +1,96 @@
+const BAIRSTOW_MODULUS: i64 = 998_244_353
+const BAIRSTOW_MAX_DEGREE: usize = 8
+const BAIRSTOW_MAX_ITERATIONS: usize = 4
+const BAIRSTOW_MAX_INPUT: usize = 14
+const BAIRSTOW_MAX_OUTPUT: usize = 88
+
+def bairstow_normalize(input_value: i64) -> i64:
+    value: mutable i64 = input_value % BAIRSTOW_MODULUS
+    if value < 0: value <- value + BAIRSTOW_MODULUS
+    value
+
+def bairstow_power(base_input: i64, exponent_input: i64) -> i64:
+    base: mutable i64 = bairstow_normalize(base_input)
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * base % BAIRSTOW_MODULUS
+        base <- base * base % BAIRSTOW_MODULUS
+        exponent <- exponent >> 1
+    result
+
+def bairstow_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bairstow_impl(input: view[i64], length: usize, output: mutable view[u8],
+    capacity: usize, output_is_null: bool) -> i64:
+    if length < 1 or length > BAIRSTOW_MAX_INPUT: return -1
+    degree_value: i64 = input[0]
+    if degree_value < 3 or degree_value > BAIRSTOW_MAX_DEGREE.i64(): return -1
+    degree: usize = degree_value.usize()
+    if length != degree + 5: return -1
+    for i in 0..=degree:
+        coefficient: i64 = input[1 + i]
+        if coefficient < 0 or coefficient >= BAIRSTOW_MODULUS: return -1
+    if input[1 + degree] == 0: return -1
+    s_value: mutable i64 = input[degree + 2]
+    t_value: mutable i64 = input[degree + 3]
+    iterations_value: i64 = input[degree + 4]
+    if s_value < 0 or s_value >= BAIRSTOW_MODULUS or t_value < 0
+            or t_value >= BAIRSTOW_MODULUS or iterations_value < 1
+            or iterations_value > BAIRSTOW_MAX_ITERATIONS.i64(): return -1
+    iterations: usize = iterations_value.usize()
+
+    s_trace: mutable i64[BAIRSTOW_MAX_ITERATIONS + 1] = zeroed
+    t_trace: mutable i64[BAIRSTOW_MAX_ITERATIONS + 1] = zeroed
+    s_trace[0] <- s_value
+    t_trace[0] <- t_value
+    for step in 0..<iterations:
+        q: mutable i64[BAIRSTOW_MAX_DEGREE + 2] = zeroed
+        r: mutable i64[BAIRSTOW_MAX_DEGREE + 2] = zeroed
+        q[degree] <- input[1 + degree]
+        r[degree] <- input[1 + degree]
+        cursor: mutable usize = degree
+        while cursor > 0:
+            cursor <- cursor - 1
+            q[cursor] <- bairstow_normalize(input[1 + cursor]
+                + s_value * q[cursor + 1] + t_value * q[cursor + 2])
+            r[cursor] <- bairstow_normalize(q[cursor]
+                + s_value * r[cursor + 1] + t_value * r[cursor + 2])
+        r2: i64 = r[2]
+        r3: i64 = r[3]
+        q0: i64 = q[0]
+        q1: i64 = q[1]
+        ell: i64 = bairstow_normalize(s_value * r2 + t_value * r3)
+        denominator: i64 = bairstow_normalize(r2 * r2 - ell * r3)
+        if denominator == 0: return -1
+        inverse: i64 = bairstow_power(denominator, BAIRSTOW_MODULUS - 2)
+        delta_s: i64 = bairstow_normalize(r3 * q0 - r2 * q1) * inverse % BAIRSTOW_MODULUS
+        delta_t: i64 = bairstow_normalize(ell * q1 - r2 * q0) * inverse % BAIRSTOW_MODULUS
+        s_value <- bairstow_normalize(s_value + delta_s)
+        t_value <- bairstow_normalize(t_value + delta_t)
+        s_trace[step + 1] <- s_value
+        t_trace[step + 1] <- t_value
+
+    output_bytes: usize = 8 * (2 * iterations + 3)
+    if output_is_null or capacity < output_bytes: return -2
+    bairstow_store_le((iterations + 1).i64(), output, 0)
+    for i in 0..=iterations:
+        bairstow_store_le(s_trace[i], output, 8 * (1 + 2 * i))
+        bairstow_store_le(t_trace[i], output, 8 * (2 + 2 * i))
+    output_bytes.i64()
+
+export fn bairstow_quadratic_factor_iteration(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > BAIRSTOW_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return bairstow_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > BAIRSTOW_MAX_OUTPUT: safe_capacity <- BAIRSTOW_MAX_OUTPUT
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    bairstow_impl(input_view, length, output_view, capacity, false)

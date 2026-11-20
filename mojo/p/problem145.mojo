@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p145_count(remaining:Int,carry:Int,inout digits:InlineArray[Int32,9],length:Int)->Int64:
     if remaining==0:
         if digits[0]==0 or digits[length-1]==0:return 0

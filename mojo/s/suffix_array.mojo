@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn suffix_pair_less(a:Int,b:Int,r:UnsafePointer[Int64,MutAnyOrigin],n:Int,step:Int)->Bool:

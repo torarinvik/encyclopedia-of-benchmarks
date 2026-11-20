@@ -1,3 +1,7 @@
+from std.collections import InlineArray
+from std.ffi import c_size_t
+from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
+
 comptime MAX_N = 6
 comptime MAX_INPUT = 32
 comptime MAX_OUTPUT_VALUES = 8

@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "id": "bentley-subtractive-generator-sequence-v1",
+  "algorithm": "subtractive_prng_bentley_seeded_sequence",
+  "function_symbol": "subtractive_prng_bentley_seeded_sequence",
+  "abi": "i64_array_bytes_output",
+  "description": "Generate a deterministic output prefix from Bentley's lag-55/lag-24 subtractive generator.",
+  "source": {
+    "title": "Subtractive generator",
+    "discovery_index_commit": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "specification": "RosettaGit task description of Bentley's seeding, permutation, and warmup",
+    "url": "https://rosettagit.org/tasks/subtractive-generator/",
+    "license": "Algorithm description only; all bounded input/output framing, source, and workload material are original"
+  },
+  "contract": {
+    "input_encoding": "[seed,count]",
+    "seed_range": [0, 999999999],
+    "count_range": [0, 64],
+    "modulus": 1000000000,
+    "initial_state": "s[0]=seed, s[1]=1, s[n]=(s[n-2]-s[n-1]) mod 1000000000 for 2<=n<55",
+    "state_permutation": "r[i]=s[(34*(i+1)) mod 55] for 0<=i<55",
+    "recurrence": "r[n]=(r[n-55]-r[n-24]) mod 1000000000",
+    "discarded_values": "r[55] through r[219]",
+    "first_output_index": 220,
+    "zero_count_behavior": "Return zero bytes before constructing the state.",
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "output_encoding": "count consecutive values starting at r[220] as little-endian signed i64 words, without a count prefix",
+    "maximum_output_bytes": 512,
+    "invalid_input_result": -1,
+    "null_or_insufficient_required_output_result": -2,
+    "errors_write_no_output": true
+  },
+  "workspace": {
+    "bytes": 440,
+    "meaning": "Two fixed 55-element i32 buffers hold the seed sequence and circular recurrence state. Caller input and output are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "kernel_boundary": "For positive count, seed initialization, permutation, fixed warmup, and deterministic prefix generation from a supplied seed; zero count returns before state construction.",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/s/subtractive_prng_bentley_seeded_sequence/primary_oracle.py",
+  "independent_oracle": "benchmarks/s/subtractive_prng_bentley_seeded_sequence/independent_oracle.py",
+  "cases": [
+    {
+      "id": "fresh-seed-short-stream",
+      "input_values": [731993117, 3],
+      "input_length": 2,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "oracle_derived_output": true
+    },
+    {
+      "id": "zero-length-stream",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-output-bound",
+      "input_values": [883741, 64],
+      "input_length": 2,
+      "output_capacity": 512,
+      "expected_result": 512,
+      "oracle_derived_output": true
+    },
+    {
+      "id": "seed-at-modulus-is-invalid",
+      "input_values": [1000000000, 1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-seed-is-invalid",
+      "input_values": [-1, 1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count-above-bound-is-invalid",
+      "input_values": [1, 65],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-frame",
+      "input_values": [1],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [1, 1, 99],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-with-required-bytes",
+      "input_values": [731993117, 1],
+      "input_length": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [731993117, 3],
+      "input_length": 2,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    }
+  ]
+}

@@ -13,4 +13,12 @@ The workload includes the initial values, a larger position, the largest support
 
 The source is the pinned [TheAlgorithms/Python `triangular_numbers.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/special_numbers/triangular_numbers.py), whose public function is `triangular_number(position)`.
 
+The [C# central-polygonal sequence](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/CentralPolygonalNumbersSequence.cs)
+uses the same computation followed by adding one. Its catalog entry maps here
+with that explicit output adjustment for valid inputs; the benchmark itself
+returns triangular numbers. The existing Mojo port is
+[`mojo/t/triangular_number.mojo`](../../../mojo/t/triangular_number.mojo).
+Scalar verifier registration and a combinatorial oracle are drafted and have
+not been executed.
+
 Build one port with `python3 benchmarks/build_scalar.py --algorithm triangular_number --language LANGUAGE`. The build manifest is written to `build/scalar/t/triangular_number/LANGUAGE/build.json`; the workload uses the standard scalar runner interface in [`benchmarks/run_scalar.py`](../../run_scalar.py).

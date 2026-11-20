@@ -1,0 +1,65 @@
+const EDGE_COVER_MAX_LEFT: usize = 8
+const EDGE_COVER_MAX_RIGHT: usize = 8
+const EDGE_COVER_MAX_INPUT: usize = 67
+const EDGE_COVER_MAX_STATES: usize = 256
+const EDGE_COVER_INF: i64 = 1152921504606846976
+
+def minimum_cost_bipartite_edge_cover_subset_dp_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > EDGE_COVER_MAX_INPUT: return -1
+    left_value: i64 = input[0]
+    right_value: i64 = input[1]
+    if left_value < 1 or left_value > EDGE_COVER_MAX_LEFT.i64() or right_value < 1 or right_value > EDGE_COVER_MAX_RIGHT.i64():
+        return -1
+    left_count: usize = left_value.usize()
+    right_count: usize = right_value.usize()
+    if length != 2 + left_count * right_count: return -1
+    edge: mutable usize = 0
+    while edge < left_count * right_count:
+        cost: i64 = input[2 + edge]
+        if cost < 0 or cost > 1000: return -1
+        edge <- edge + 1
+
+    states: usize = 1 << right_count
+    current: mutable i64[EDGE_COVER_MAX_STATES] = zeroed
+    following: mutable i64[EDGE_COVER_MAX_STATES] = zeroed
+    subset_cost: mutable i64[EDGE_COVER_MAX_STATES] = zeroed
+    mask: mutable usize = 0
+    while mask < states:
+        current[mask] <- EDGE_COVER_INF
+        mask <- mask + 1
+    current[0] <- 0
+
+    left: mutable usize = 0
+    while left < left_count:
+        subset_cost[0] <- 0
+        subset: mutable usize = 1
+        while subset < states:
+            bit: usize = subset & (~subset + 1)
+            right: mutable usize = 0
+            while ((bit >> right) & 1) == 0: right <- right + 1
+            subset_cost[subset] <- subset_cost[subset ^ bit] + input[2 + left * right_count + right]
+            subset <- subset + 1
+        mask <- 0
+        while mask < states:
+            following[mask] <- EDGE_COVER_INF
+            mask <- mask + 1
+        covered: mutable usize = 0
+        while covered < states:
+            if current[covered] != EDGE_COVER_INF:
+                subset <- 1
+                while subset < states:
+                    combined: usize = covered | subset
+                    candidate: i64 = current[covered] + subset_cost[subset]
+                    if candidate < following[combined]: following[combined] <- candidate
+                    subset <- subset + 1
+            covered <- covered + 1
+        mask <- 0
+        while mask < states:
+            current[mask] <- following[mask]
+            mask <- mask + 1
+        left <- left + 1
+    current[states - 1]
+
+@export("minimum_cost_bipartite_edge_cover_subset_dp")
+def minimum_cost_bipartite_edge_cover_subset_dp(input: i64&, length: usize) -> i64:
+    minimum_cost_bipartite_edge_cover_subset_dp_impl(input, length)

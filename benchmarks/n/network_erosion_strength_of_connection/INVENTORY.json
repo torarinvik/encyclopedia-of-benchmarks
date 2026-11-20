@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "algorithm": "network_erosion_strength_of_connection",
+  "function_symbol": "network_erosion_strength_of_connection",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/n/network_erosion_strength_of_connection.c",
+    "c3": "c3/n/network_erosion_strength_of_connection.c3",
+    "cpp": "cpp/n/network_erosion_strength_of_connection.cpp",
+    "elisa": "elisa/n/network_erosion_strength_of_connection.elisa",
+    "mojo": "mojo/n/network_erosion_strength_of_connection.mojo",
+    "nim": "nim/n/network_erosion_strength_of_connection.nim",
+    "odin": "odin/n/network_erosion_strength_of_connection.odin",
+    "rust": "rust/n/network_erosion_strength_of_connection.rs",
+    "v": "v/n/network_erosion_strength_of_connection.v",
+    "zig": "zig/n/network_erosion_strength_of_connection.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py",
+    "verify_workload.py"
+  ]
+}

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn twos_hash(k:Int64,cap:Int)->Int:
@@ -9,7 +10,7 @@ fn two_sum(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<1 or n>257:return -2
     let target=a[0];let count=Int(n-1)
     if target< -2147483648 or target>2147483647:return -2
-    var keys=InlineArray[Int64,512]();var first=InlineArray[Int32,512]();var used=InlineArray[Bool,512]();var cap=1
+    var keys=InlineArray[Int64,512]();var first=InlineArray[Int32,512]();var used=InlineArray[Bool,512](fill=False);var cap=1
     while cap<count*2:cap*=2
     for i in range(count):
         let current=a[i+1]

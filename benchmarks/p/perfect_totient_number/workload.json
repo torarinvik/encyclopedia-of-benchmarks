@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "perfect-totient-number-iterated-phi-predicate-i64-scalar-v1",
+  "algorithm": "perfect_totient_number",
+  "function_symbol": "perfect_totient_number",
+  "abi": "scalar_call",
+  "input": {
+    "kind": "bounded_integer",
+    "minimum": 3,
+    "maximum": 65535,
+    "result": "1 iff phi(n)+phi(phi(n))+...+1 equals n; otherwise 0",
+    "invalid_result": -1,
+    "chain_rule": "sum each successive totient through the terminal value 1 exactly once"
+  },
+  "source": {
+    "title": "On Perfect Totient Numbers",
+    "authors": ["Douglas E. Iannucci", "Deng Moujie", "Graeme L. Cohen"],
+    "publisher": "Journal of Integer Sequences",
+    "volume": 6,
+    "article": "03.4.5",
+    "year": 2003,
+    "reference_url": "https://cs.uwaterloo.ca/journals/JIS/VOL6/Cohen2/cohen50.pdf",
+    "independent_reference_url": "https://oeis.org/A082897",
+    "discovery_reference_url": "https://rosettagit.org/tasks/"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "profiles": [
+      {"id": "mid-range-composite", "input_value": 32768},
+      {"id": "maximum-perfect-totient", "input_value": 65535}
+    ]
+  },
+  "cases": [
+    {"id":"first-perfect-totient", "input_value":3,"expected_result":1},
+    {"id":"small-prime", "input_value":5,"expected_result":0},
+    {"id":"prime-power-perfect-totient", "input_value":9,"expected_result":1},
+    {"id":"composite-perfect-totient", "input_value":15,"expected_result":1},
+    {"id":"non-perfect-totient", "input_value":21,"expected_result":0},
+    {"id":"larger-perfect-totient", "input_value":39,"expected_result":1},
+    {"id":"totient-chain-terminal-once", "input_value":81,"expected_result":1},
+    {"id":"non-perfect-square", "input_value":100,"expected_result":0},
+    {"id":"power-of-two-chain", "input_value":32768,"expected_result":0},
+    {"id":"maximum-perfect-totient", "input_value":65535,"expected_result":1},
+    {"id":"below-conventional-domain-one", "input_value":1,"expected_result":-1},
+    {"id":"below-conventional-domain-two", "input_value":2,"expected_result":-1},
+    {"id":"first-above-maximum", "input_value":65536,"expected_result":-1},
+    {"id":"signed-64-minimum", "input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed-64-maximum", "input_value":9223372036854775807,"expected_result":-1}
+  ]
+}

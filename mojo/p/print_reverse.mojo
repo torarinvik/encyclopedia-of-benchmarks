@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn pr_append(inout b:InlineArray[UInt8,3836],inout p:Int,x:Int64):

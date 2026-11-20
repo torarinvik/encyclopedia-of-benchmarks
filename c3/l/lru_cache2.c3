@@ -8,12 +8,12 @@ const long PUT_SENTINEL = -9223372036854775807L - 1L;
 struct CacheNode { int key; int value; int previous; int next; }
 struct MapEntry { int key; int node; int state; }
 
-usz hash_key(int key) {
-    uint bits = @bitcast(uint, key);
+fn usz hash_key(int key) {
+    uint bits = bitcast(key, uint);
     return (usz)((bits * 2654435761u) & 1023u);
 }
 
-int map_find(MapEntry* map, int key) {
+fn int map_find(MapEntry* map, int key) {
     usz slot = hash_key(key);
     for (usz probe = 0; probe < MAP_SIZE; probe++) {
         usz index = (slot + probe) & 1023;
@@ -23,7 +23,7 @@ int map_find(MapEntry* map, int key) {
     return -1;
 }
 
-bool map_insert(MapEntry* map, int key, int node) {
+fn bool map_insert(MapEntry* map, int key, int node) {
     usz slot = hash_key(key), tombstone = MAP_SIZE;
     for (usz probe = 0; probe < MAP_SIZE; probe++) {
         if (map[slot].state == 1 && map[slot].key == key) return false;
@@ -39,7 +39,7 @@ bool map_insert(MapEntry* map, int key, int node) {
     return false;
 }
 
-void map_remove(MapEntry* map, int key) {
+fn void map_remove(MapEntry* map, int key) {
     usz slot = hash_key(key);
     for (usz probe = 0; probe < MAP_SIZE; probe++) {
         if (map[slot].state == 0) return;
@@ -48,26 +48,26 @@ void map_remove(MapEntry* map, int key) {
     }
 }
 
-void unlink_node(CacheNode* nodes, int* head, int* tail, int node) {
+fn void unlink_node(CacheNode* nodes, int* head, int* tail, int node) {
     int previous = nodes[node].previous, next = nodes[node].next;
     if (previous == -1) *head = next; else nodes[previous].next = next;
     if (next == -1) *tail = previous; else nodes[next].previous = previous;
 }
 
-void link_at_head(CacheNode* nodes, int* head, int* tail, int node) {
+fn void link_at_head(CacheNode* nodes, int* head, int* tail, int node) {
     nodes[node].previous = -1;
     nodes[node].next = *head;
     if (*head == -1) *tail = node; else nodes[*head].previous = node;
     *head = node;
 }
 
-void promote_node(CacheNode* nodes, int* head, int* tail, int node) {
+fn void promote_node(CacheNode* nodes, int* head, int* tail, int node) {
     if (*head == node) return;
     unlink_node(nodes, head, tail, node);
     link_at_head(nodes, head, tail, node);
 }
 
-void store_i64(char* output, usz offset, long value) {
+fn void store_i64(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }

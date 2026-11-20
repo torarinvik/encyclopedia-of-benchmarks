@@ -1,0 +1,263 @@
+# Dynamic tree maximum-weight independent set with HLD/max-plus products.
+const DMW_MAX_N: usize = 64
+const DMW_MAX_Q: usize = 64
+const DMW_MAX_INPUT: usize = 320
+const DMW_MAX_WEIGHT: i64 = 1000000
+const DMW_NEG: i64 = -1152921504606846976
+
+struct DmwMatrix:
+    values: i64[4]
+
+def dmw_max(a: i64, b: i64) -> i64:
+    if a > b: a else: b
+
+def dmw_identity() -> DmwMatrix:
+    matrix: mutable DmwMatrix = zeroed
+    matrix.values[0] <- 0
+    matrix.values[1] <- DMW_NEG
+    matrix.values[2] <- DMW_NEG
+    matrix.values[3] <- 0
+    matrix
+
+def dmw_multiply(left: DmwMatrix, right: DmwMatrix) -> DmwMatrix:
+    result: mutable DmwMatrix = zeroed
+    i: mutable usize = 0
+    while i < 2:
+        j: mutable usize = 0
+        while j < 2:
+            first: i64 = left.values[2 * i] + right.values[j]
+            second: i64 = left.values[2 * i + 1] + right.values[2 + j]
+            result.values[2 * i + j] <- dmw_max(first, second)
+            j <- j + 1
+        i <- i + 1
+    result
+
+def dmw_find(parent: mutable view[usize], start: usize) -> usize:
+    vertex: mutable usize = start
+    while parent[vertex] != vertex:
+        parent[vertex] <- parent[parent[vertex]]
+        vertex <- parent[vertex]
+    vertex
+
+def dmw_set(tree: mutable view[DmwMatrix], position: usize, value: DmwMatrix) -> void:
+    node: mutable usize = DMW_MAX_N + position
+    tree[node] <- value
+    node <- node / 2
+    while node > 0:
+        tree[node] <- dmw_multiply(tree[2 * node], tree[2 * node + 1])
+        node <- node / 2
+
+def dmw_query(tree: view[DmwMatrix], left: usize, right: usize) -> DmwMatrix:
+    l: mutable usize = DMW_MAX_N + left
+    r: mutable usize = DMW_MAX_N + right
+    before: mutable DmwMatrix = dmw_identity()
+    after: mutable DmwMatrix = dmw_identity()
+    while l < r:
+        if l % 2 == 1:
+            before <- dmw_multiply(before, tree[l])
+            l <- l + 1
+        if r % 2 == 1:
+            r <- r - 1
+            after <- dmw_multiply(tree[r], after)
+        l <- l / 2
+        r <- r / 2
+    dmw_multiply(before, after)
+
+def dmw_summary(tree: view[DmwMatrix], position: view[usize], tail: view[usize],
+                chain_head: usize, result: mutable view[i64]) -> void:
+    product: DmwMatrix = dmw_query(tree, position[chain_head], position[tail[chain_head]] + 1)
+    result[0] <- dmw_max(product.values[0], product.values[1])
+    result[1] <- dmw_max(product.values[2], product.values[3])
+
+def dmw_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def dmw_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > DMW_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > DMW_MAX_N.i64() or q64 < 0 or q64 > DMW_MAX_Q.i64(): return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    edge_end: usize = 2 + n + 2 * (n - 1)
+    if length != edge_end + 2 * q: return -1
+
+    weights: mutable i64[DMW_MAX_N] = zeroed
+    parent_set: mutable usize[DMW_MAX_N] = zeroed
+    adjacency: mutable bool[DMW_MAX_N * DMW_MAX_N] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        weights[u] <- input[2 + u]
+        if weights[u] < 0 or weights[u] > DMW_MAX_WEIGHT: return -1
+        parent_set[u] <- u
+        u <- u + 1
+    edge: mutable usize = 0
+    while edge < n - 1:
+        offset: usize = 2 + n + 2 * edge
+        uu: i64 = input[offset]
+        vv: i64 = input[offset + 1]
+        if uu < 0 or uu >= n64 or vv < 0 or vv >= n64 or uu == vv: return -1
+        first_root: usize = dmw_find(parent_set[0:n], uu.usize())
+        second_root: usize = dmw_find(parent_set[0:n], vv.usize())
+        if first_root == second_root: return -1
+        parent_set[first_root] <- second_root
+        adjacency[uu.usize() * DMW_MAX_N + vv.usize()] <- true
+        adjacency[vv.usize() * DMW_MAX_N + uu.usize()] <- true
+        edge <- edge + 1
+    root_set: usize = dmw_find(parent_set[0:n], 0)
+    u <- 1
+    while u < n:
+        if dmw_find(parent_set[0:n], u) != root_set: return -1
+        u <- u + 1
+
+    update_vertex: mutable usize[DMW_MAX_Q] = zeroed
+    update_weight: mutable i64[DMW_MAX_Q] = zeroed
+    i: mutable usize = 0
+    while i < q:
+        offset: usize = edge_end + 2 * i
+        vertex: i64 = input[offset]
+        weight: i64 = input[offset + 1]
+        if vertex < 0 or vertex >= n64 or weight < 0 or weight > DMW_MAX_WEIGHT: return -1
+        update_vertex[i] <- vertex.usize()
+        update_weight[i] <- weight
+        i <- i + 1
+    output_bytes: usize = 8 * q
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes): return -2
+    if q == 0: return 0
+
+    parent: mutable i64[DMW_MAX_N] = zeroed
+    order: mutable usize[DMW_MAX_N] = zeroed
+    u <- 0
+    while u < n: parent[u] <- -2; u <- u + 1
+    parent[0] <- -1
+    order[0] <- 0
+    order_count: mutable usize = 1
+    cursor: mutable usize = 0
+    while cursor < order_count:
+        current: usize = order[cursor]
+        cursor <- cursor + 1
+        vertex: mutable usize = 0
+        while vertex < n:
+            if adjacency[current * DMW_MAX_N + vertex] and parent[vertex] == -2:
+                parent[vertex] <- current.i64()
+                order[order_count] <- vertex
+                order_count <- order_count + 1
+            vertex <- vertex + 1
+
+    subtree: mutable usize[DMW_MAX_N] = zeroed
+    heavy: mutable i64[DMW_MAX_N] = zeroed
+    skip: mutable i64[DMW_MAX_N] = zeroed
+    take: mutable i64[DMW_MAX_N] = zeroed
+    u <- 0
+    while u < n: subtree[u] <- 1; heavy[u] <- -1; take[u] <- weights[u]; u <- u + 1
+    cursor <- n
+    while cursor > 1:
+        cursor <- cursor - 1
+        current <- order[cursor]
+        p: usize = parent[current].usize()
+        subtree[p] <- subtree[p] + subtree[current]
+        if heavy[p] < 0 or subtree[current] > subtree[heavy[p].usize()]: heavy[p] <- current.i64()
+        skip[p] <- skip[p] + dmw_max(skip[current], take[current])
+        take[p] <- take[p] + skip[current]
+
+    head: mutable usize[DMW_MAX_N] = zeroed
+    position: mutable usize[DMW_MAX_N] = zeroed
+    tail: mutable usize[DMW_MAX_N] = zeroed
+    chain_stack: mutable usize[DMW_MAX_N] = zeroed
+    chain_stack[0] <- 0
+    chain_count: mutable usize = 1
+    clock: mutable usize = 0
+    while chain_count > 0:
+        chain_count <- chain_count - 1
+        chain_head: usize = chain_stack[chain_count]
+        current: mutable i64 = chain_head.i64()
+        while current >= 0:
+            vertex: usize = current.usize()
+            head[vertex] <- chain_head
+            position[vertex] <- clock
+            clock <- clock + 1
+            tail[chain_head] <- vertex
+            child: mutable usize = 1
+            while child < n:
+                if parent[child] == current and child.i64() != heavy[vertex]:
+                    chain_stack[chain_count] <- child
+                    chain_count <- chain_count + 1
+                child <- child + 1
+            current <- heavy[vertex]
+
+    matrices: mutable DmwMatrix[DMW_MAX_N] = zeroed
+    segment: mutable DmwMatrix[2 * DMW_MAX_N] = zeroed
+    i <- 0
+    while i < 2 * DMW_MAX_N:
+        segment[i] <- dmw_identity()
+        i <- i + 1
+    u <- 0
+    while u < n:
+        light0: mutable i64 = 0
+        light1: mutable i64 = weights[u]
+        child <- 1
+        while child < n:
+            if parent[child] == u.i64() and child.i64() != heavy[u]:
+                light0 <- light0 + dmw_max(skip[child], take[child])
+                light1 <- light1 + skip[child]
+            child <- child + 1
+        matrices[u].values[0] <- light0
+        matrices[u].values[1] <- light0
+        matrices[u].values[2] <- light1
+        matrices[u].values[3] <- DMW_NEG
+        segment[DMW_MAX_N + position[u]] <- matrices[u]
+        u <- u + 1
+    i <- DMW_MAX_N
+    while i > 1:
+        i <- i - 1
+        segment[i] <- dmw_multiply(segment[2 * i], segment[2 * i + 1])
+
+    staged: mutable i64[DMW_MAX_Q] = zeroed
+    i <- 0
+    while i < q:
+        vertex: usize = update_vertex[i]
+        chain_head: mutable usize = head[vertex]
+        old_state: mutable i64[2] = zeroed
+        new_state: mutable i64[2] = zeroed
+        dmw_summary(segment[0:2 * DMW_MAX_N], position[0:n], tail[0:n], chain_head, old_state[0:2])
+        delta: i64 = update_weight[i] - weights[vertex]
+        weights[vertex] <- update_weight[i]
+        matrices[vertex].values[2] <- matrices[vertex].values[2] + delta
+        dmw_set(segment[0:2 * DMW_MAX_N], position[vertex], matrices[vertex])
+        dmw_summary(segment[0:2 * DMW_MAX_N], position[0:n], tail[0:n], chain_head, new_state[0:2])
+        while parent[chain_head] != -1:
+            p: usize = parent[chain_head].usize()
+            parent_head: usize = head[p]
+            before: mutable i64[2] = zeroed
+            dmw_summary(segment[0:2 * DMW_MAX_N], position[0:n], tail[0:n], parent_head, before[0:2])
+            delta0: i64 = dmw_max(new_state[0], new_state[1]) - dmw_max(old_state[0], old_state[1])
+            delta1: i64 = new_state[0] - old_state[0]
+            matrices[p].values[0] <- matrices[p].values[0] + delta0
+            matrices[p].values[1] <- matrices[p].values[1] + delta0
+            matrices[p].values[2] <- matrices[p].values[2] + delta1
+            dmw_set(segment[0:2 * DMW_MAX_N], position[p], matrices[p])
+            old_state[0] <- before[0]
+            old_state[1] <- before[1]
+            dmw_summary(segment[0:2 * DMW_MAX_N], position[0:n], tail[0:n], parent_head, new_state[0:2])
+            chain_head <- parent_head
+        answer: mutable i64[2] = zeroed
+        dmw_summary(segment[0:2 * DMW_MAX_N], position[0:n], tail[0:n], 0, answer[0:2])
+        staged[i] <- dmw_max(answer[0], answer[1])
+        i <- i + 1
+    output_view: mutable view[u8] = output[0:output_bytes]
+    i <- 0
+    while i < q:
+        dmw_store(staged[i], output_view, 8 * i)
+        i <- i + 1
+    output_bytes.i64()
+
+export fn dynamic_tree_maximum_weight_independent_set(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 @export("dynamic_tree_maximum_weight_independent_set"):
+    if input.is_null() or length > DMW_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    dmw_impl(input_view, output, capacity)

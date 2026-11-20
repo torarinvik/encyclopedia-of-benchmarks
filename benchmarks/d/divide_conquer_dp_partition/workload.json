@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-divide-conquer-dp-partition-i64-scalar-v1",
+  "algorithm": "divide_conquer_dp_partition",
+  "function_symbol": "divide_conquer_dp_partition",
+  "abi": "i64_array_scalar",
+  "description": "Layered contiguous partition DP with monotone-argmin divide-and-conquer optimization.",
+  "source": {
+    "repository": "OI-wiki/OI-wiki",
+    "title": "Quadrangle Inequality Optimization",
+    "url": "https://en.oi-wiki.org/dp/opt/quadrangle/",
+    "license": "CC BY-SA 4.0 with SATA",
+    "reuse_scope": "High-level algorithm description only; clean-room recurrence instance, contract, fixtures, references, and ports."
+  },
+  "input": {
+    "kind": "nonnegative_sequence_and_group_count",
+    "encoding": "[n,k,value_0,...,value_(n-1)]",
+    "n_range": [1, 64],
+    "group_count_range": [1, 8],
+    "group_count_must_not_exceed_n": true,
+    "value_range": [0, 1000],
+    "exact_length": "n+2",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "minimum_sum_of_squared_contiguous_group_sums",
+    "valid_result_range": [0, 4096000000],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "operation": "Split the sequence into exactly k nonempty contiguous groups and minimize the sum of each group's total squared.",
+    "recurrence": "dp[g][i] = min_{g-1<=j<i}(dp[g-1][j] + (prefix[i]-prefix[j])^2)",
+    "algorithm": "For each group layer, evaluate midpoint states by divide and conquer over the inherited interval of optimal split indices.",
+    "monotonicity_basis": "For nonnegative values, squared segment-sum cost satisfies the quadrangle inequality; adding a previous DP row preserves Monge ordering.",
+    "tie_rule": "Choose the smallest split index attaining the minimum by updating only on strict cost improvement.",
+    "complexity": "O(k*n*log(n)) candidate evaluations and O(n) working storage.",
+    "primary_reference": "The divide-and-conquer optimized layered recurrence.",
+    "independent_reference": "The full O(k*n^2) transition scan."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "single-item", "input_values": [1, 1, 5], "input_length": 3, "expected_result": 25},
+    {"id": "one-group", "input_values": [3, 1, 1, 2, 3], "input_length": 5, "expected_result": 36},
+    {"id": "one-group-per-item", "input_values": [3, 3, 1, 2, 3], "input_length": 5, "expected_result": 14},
+    {"id": "two-groups-three-values", "input_values": [3, 2, 1, 2, 3], "input_length": 5, "expected_result": 18},
+    {"id": "equal-values-leftmost-tie", "input_values": [4, 2, 1, 1, 1, 1], "input_length": 6, "expected_result": 8},
+    {"id": "zero-values-tied-splits", "input_values": [4, 3, 0, 0, 0, 0], "input_length": 6, "expected_result": 0},
+    {"id": "interspersed-zero-values", "input_values": [5, 3, 0, 2, 0, 2, 0], "input_length": 7, "expected_result": 8},
+    {"id": "maximum-size-equal-values", "input_values": [64, 8, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000], "input_length": 66, "expected_result": 512000000},
+    {"id": "zero-items-invalid", "input_values": [0, 1], "input_length": 2, "expected_result": -1},
+    {"id": "groups-exceed-items", "input_values": [2, 3, 1, 1], "input_length": 4, "expected_result": -1},
+    {"id": "groups-exceed-bound", "input_values": [9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1], "input_length": 11, "expected_result": -1},
+    {"id": "truncated-values", "input_values": [3, 2, 1, 2], "input_length": 4, "expected_result": -1},
+    {"id": "trailing-value", "input_values": [1, 1, 1, 0], "input_length": 4, "expected_result": -1},
+    {"id": "negative-value", "input_values": [1, 1, -1], "input_length": 3, "expected_result": -1},
+    {"id": "value-above-bound", "input_values": [1, 1, 1001], "input_length": 3, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

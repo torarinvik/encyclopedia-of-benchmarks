@@ -1,0 +1,49 @@
+def cr_count(n: usize, r: usize) -> usize:
+    if r == 0: return 1
+    if n == 0: return 0
+    top: usize = n + r - 1
+    result: mutable usize = 1
+    index: mutable usize = 1
+    while index <= r:
+        result <- result * (top - r + index) / index
+        index <- index + 1
+    result
+
+def combinations_with_repetition_lexicographic_impl(input: i64&, length: usize,
+                                                      output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    input_view: view[i64] = input[0:length]
+    n_word: i64 = input_view[0]
+    r_word: i64 = input_view[1]
+    if n_word < 0 or n_word > 4 or r_word < 0 or r_word > 4: return -1
+    n: usize = n_word.usize()
+    r: usize = r_word.usize()
+    count: usize = cr_count(n, r)
+    byte_count: usize = 2 + count * r
+    if output.is_null() or capacity < byte_count: return -2
+    output_view: mutable view[u8] = output[0:capacity]
+    output_view[0] <- (count & 255).u8()
+    output_view[1] <- ((count >> 8) & 255).u8()
+
+    current: mutable u8[4] = zeroed
+    ordinal: mutable usize = 0
+    while ordinal < count:
+        position: mutable usize = 0
+        while position < r:
+            output_view[2 + ordinal * r + position] <- current[position]
+            position <- position + 1
+        if ordinal + 1 < count and r > 0:
+            position <- r
+            while current[position - 1].usize() == n - 1:
+                position <- position - 1
+            position <- position - 1
+            current[position] <- (current[position].usize() + 1).u8()
+            suffix: mutable usize = position + 1
+            while suffix < r:
+                current[suffix] <- current[position]
+                suffix <- suffix + 1
+        ordinal <- ordinal + 1
+    byte_count.i64()
+
+export fn combinations_with_repetition_lexicographic(input: i64&, length: usize,
+                                                       output: mutable u8&, capacity: usize) -> i64 = combinations_with_repetition_lexicographic_impl

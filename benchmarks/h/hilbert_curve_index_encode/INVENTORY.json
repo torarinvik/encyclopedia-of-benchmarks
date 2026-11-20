@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "algorithm": "hilbert_curve_index_encode",
+  "function_symbol": "hilbert_curve_index_encode",
+  "abi": "i64_array_bytes_output",
+  "status": "integrated in shared byte-output suite and catalog; execution deferred",
+  "input": {
+    "minimum_valid_length": 3,
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 4,
+    "order_range": [1, 8],
+    "coordinate_range": "0<=x,y<2^order"
+  },
+  "output": {"kind": "little_endian_signed_i64_word_bytes", "encoding": "[HilbertIndex]", "maximum_bytes": 8},
+  "workspace": {"bytes": 0},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/h/hilbert_curve_index_encode.c",
+    "c3/h/hilbert_curve_index_encode.c3",
+    "cpp/h/hilbert_curve_index_encode.cpp",
+    "elisa/h/hilbert_curve_index_encode.elisa",
+    "mojo/h/hilbert_curve_index_encode.mojo",
+    "nim/h/hilbert_curve_index_encode.nim",
+    "odin/h/hilbert_curve_index_encode.odin",
+    "rust/h/hilbert_curve_index_encode.rs",
+    "v/h/hilbert_curve_index_encode.v",
+    "zig/h/hilbert_curve_index_encode.zig"
+  ],
+  "source": "https://doi.org/10.1109/T-C.1971.223258"
+}

@@ -1,0 +1,22 @@
+extern floor(value: f64) -> f64
+
+def halley_root_finding_impl(initial_input: f64, iteration_count: f64) -> f64:
+    if initial_input != initial_input or iteration_count != iteration_count or
+            initial_input < 0.5 or initial_input > 2.0 or
+            iteration_count < 0.0 or iteration_count > 8.0 or
+            floor(iteration_count) != iteration_count:
+        return -1.0
+
+    x: mutable f64 = initial_input
+    count: usize = iteration_count.usize()
+    for i in 0..<count:
+        value: f64 = x * x * x - 2.0
+        first: f64 = 3.0 * x * x
+        second: f64 = 6.0 * x
+        denominator: f64 = 2.0 * first * first - value * second
+        if denominator == 0.0 or denominator != denominator: return -1.0
+        x <- x - (2.0 * value * first) / denominator
+        if x != x or x < 0.5 or x > 2.0: return -1.0
+    x
+
+export fn halley_root_finding(initial_x: f64, iteration_count: f64) -> f64 = halley_root_finding_impl

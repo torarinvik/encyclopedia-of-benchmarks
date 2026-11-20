@@ -61,7 +61,7 @@ fn void merge_sort(char* buffer, usz start, usz end, int max_element) {
     merge(buffer, start, middle, end, max_element);
 }
 
-long merge_sort_no_extra_space(int* values, usz length, char* output, usz output_capacity) @export("merge_sort_no_extra_space") {
+fn long merge_sort_no_extra_space(int* values, usz length, char* output, usz output_capacity) @export("merge_sort_no_extra_space") {
     if (values == null || length > MAX_LENGTH) return -1;
     int max_value = 0;
     for (usz index = 0; index < length; index += 1) {

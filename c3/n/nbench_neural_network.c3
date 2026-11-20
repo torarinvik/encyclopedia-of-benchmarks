@@ -12,8 +12,8 @@ fn long nbench_neural_network(long* input, usz length, char* output, usz capacit
     if (output==null || capacity<88) return -2;
     double[35] pattern={0,1,1,1,0,1,0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,0,1,1,1,0};
     double[8] target={0,1,0,0,1,1,1,1};
-    double[8][35] mw={}; double[8][8] ow={};
-    double[8][35] mc={}; double[8][8] oc={}; double[8][35] mm={}; double[8][8] om={};
+    double[35][8] mw={}; double[8][8] ow={};
+    double[35][8] mc={}; double[8][8] oc={}; double[35][8] mm={}; double[8][8] om={};
     double[8] mout={}; double[8] oout={};
     for (usz n=0;n<8;n++) for (usz w=0;w<35;w++) mw[n][w]=((double)((n*17+w*7)%101)-50.0)/1000.0;
     for (usz n=0;n<8;n++) for (usz w=0;w<8;w++) ow[n][w]=((double)((n*13+w*5)%71)-35.0)/1000.0;

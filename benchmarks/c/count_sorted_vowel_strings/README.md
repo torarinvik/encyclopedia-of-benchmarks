@@ -25,4 +25,8 @@ python3 benchmarks/build_abi.py --family scalar --algorithm count_sorted_vowel_s
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/c/count_sorted_vowel_strings/rust/build.json
 ```
 
-The nine implementations are in `c/c/count_sorted_vowel_strings.c`, `c3/c/count_sorted_vowel_strings.c3`, `cpp/c/count_sorted_vowel_strings.cpp`, `elisa/c/count_sorted_vowel_strings.elisa`, `nim/c/count_sorted_vowel_strings.nim`, `odin/c/count_sorted_vowel_strings.odin`, `rust/c/count_sorted_vowel_strings.rs`, `v/c/count_sorted_vowel_strings.v`, and `zig/c/count_sorted_vowel_strings.zig`.
+The ten implementations are in `c/c/count_sorted_vowel_strings.c`, `c3/c/count_sorted_vowel_strings.c3`, `cpp/c/count_sorted_vowel_strings.cpp`, `elisa/c/count_sorted_vowel_strings.elisa`, `mojo/c/count_sorted_vowel_strings.mojo`, `nim/c/count_sorted_vowel_strings.nim`, `odin/c/count_sorted_vowel_strings.odin`, `rust/c/count_sorted_vowel_strings.rs`, `v/c/count_sorted_vowel_strings.v`, and `zig/c/count_sorted_vowel_strings.zig`.
+
+Scalar verifier registration and an independent combination-based oracle are
+drafted and have not been executed. The fixed closed-form computation differs
+from the general iterative Pascal-row binomial-coefficient benchmark.

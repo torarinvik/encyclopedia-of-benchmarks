@@ -1,0 +1,192 @@
+const EPT_MAX_VERTICES: usize = 32
+const EPT_MAX_QUERIES: usize = 16
+const EPT_MAX_INPUT: usize = 99
+const EPT_MAX_COORDINATE: i64 = 1000
+
+struct EptPoint:
+    x: i64
+    y: i64
+
+def ept_sub(a: EptPoint, b: EptPoint) -> EptPoint:
+    EptPoint(x: a.x - b.x, y: a.y - b.y)
+
+def ept_cross(a: EptPoint, b: EptPoint) -> i64:
+    a.x * b.y - a.y * b.x
+
+def ept_valid_polygon(points: view[EptPoint]) -> bool:
+    n: usize = points.len()
+    for i in 0..<n:
+        next: usize = (i + 1) % n
+        if points[i].x == points[next].x and points[i].y == points[next].y: return false
+        edge: EptPoint = ept_sub(points[next], points[i])
+        for j in 0..<n:
+            if j != i and j != next and ept_cross(edge, ept_sub(points[j], points[i])) <= 0: return false
+    true
+
+def ept_valid_query(points: view[EptPoint], q: EptPoint) -> bool:
+    n: usize = points.len()
+    outside: mutable bool = false
+    for i in 0..<n:
+        edge: EptPoint = ept_sub(points[(i + 1) % n], points[i])
+        side: i64 = ept_cross(edge, ept_sub(q, points[i]))
+        if side == 0: return false
+        if side < 0: outside <- true
+    outside
+
+def ept_build_chain(points: view[EptPoint], chain: mutable view[usize], start: usize, stop: usize) -> usize:
+    n: usize = points.len()
+    length: mutable usize = 0
+    at: mutable usize = start
+    while true:
+        if length >= n: return 0
+        chain[length] <- at
+        length <- length + 1
+        if at == stop: return length
+        at <- (at + 1) % n
+
+def ept_build_layers(points: view[EptPoint], lower: mutable view[usize],
+        upper: mutable view[usize]) -> (usize, usize):
+    n: usize = points.len()
+    min_x: mutable usize = 0
+    max_x: mutable usize = 0
+    for i in 1..<n:
+        if points[i].x < points[min_x].x: min_x <- i
+        if points[i].x > points[max_x].x: max_x <- i
+    left_bottom: mutable usize = min_x
+    left_top: mutable usize = min_x
+    right_bottom: mutable usize = max_x
+    right_top: mutable usize = max_x
+    for i in 0..<n:
+        if points[i].x == points[min_x].x:
+            if points[i].y < points[left_bottom].y: left_bottom <- i
+            if points[i].y > points[left_top].y: left_top <- i
+        if points[i].x == points[max_x].x:
+            if points[i].y < points[right_bottom].y: right_bottom <- i
+            if points[i].y > points[right_top].y: right_top <- i
+    lower_len: usize = ept_build_chain(points, lower, left_bottom, right_bottom)
+    upper_len: usize = ept_build_chain(points, upper, right_top, left_top)
+    (lower_len, upper_len)
+
+def ept_split_ascending(points: view[EptPoint], chain: view[usize], qx: i64) -> usize:
+    lo: mutable usize = 0
+    hi: mutable usize = chain.len()
+    while lo < hi:
+        mid: usize = lo + (hi - lo) / 2
+        if points[chain[mid]].x < qx: lo <- mid + 1 else: hi <- mid
+    if lo == 0: 0 else: lo - 1
+
+def ept_split_descending(points: view[EptPoint], chain: view[usize], qx: i64) -> usize:
+    lo: mutable usize = 0
+    hi: mutable usize = chain.len()
+    while lo < hi:
+        mid: usize = lo + (hi - lo) / 2
+        if points[chain[mid]].x > qx: lo <- mid + 1 else: hi <- mid
+    if lo == 0: 0 else: lo - 1
+
+def ept_tangent_search(points: view[EptPoint], chain: view[usize], first: usize, last: usize,
+        q: EptPoint, sign: i64) -> usize:
+    lo: mutable i64 = first.i64()
+    hi: mutable i64 = last.i64()
+    result: mutable i64 = lo
+    n: usize = points.len()
+    while lo <= hi:
+        mid: i64 = lo + (hi - lo) / 2
+        index: usize = chain[mid.usize()]
+        here: EptPoint = ept_sub(points[index], q)
+        to_next: i64 = sign * ept_cross(here, ept_sub(points[(index + 1) % n], q))
+        to_prev: i64 = sign * ept_cross(here, ept_sub(points[(index + n - 1) % n], q))
+        if to_next >= 0 and to_prev >= 0: return mid.usize()
+        if to_next >= 0:
+            result <- mid
+            hi <- mid - 1
+        else:
+            lo <- mid + 1
+    result.usize()
+
+def ept_supports(points: view[EptPoint], index: usize, q: EptPoint, sign: i64) -> bool:
+    n: usize = points.len()
+    here: EptPoint = ept_sub(points[index], q)
+    prev: EptPoint = ept_sub(points[(index + n - 1) % n], q)
+    next: EptPoint = ept_sub(points[(index + 1) % n], q)
+    sign * ept_cross(here, prev) > 0 and sign * ept_cross(here, next) > 0
+
+def ept_find_tangents(points: view[EptPoint], lower_view: view[usize], upper_view: view[usize],
+        q: EptPoint, output: mutable view[i64]) -> bool:
+    n: usize = points.len()
+    lower_len: usize = lower_view.len()
+    upper_len: usize = upper_view.len()
+    lower_split: usize = ept_split_ascending(points, lower_view, q.x)
+    upper_split: usize = ept_split_descending(points, upper_view, q.x)
+    left_a: usize = lower_view[ept_tangent_search(points, lower_view, 0, lower_split, q, -1)]
+    left_b: usize = upper_view[ept_tangent_search(points, upper_view, 0, upper_split, q, -1)]
+    right_a: usize = lower_view[ept_tangent_search(points, lower_view, lower_split, lower_len - 1, q, 1)]
+    right_b: usize = upper_view[ept_tangent_search(points, upper_view, upper_split, upper_len - 1, q, 1)]
+    left: mutable i64 = -1
+    right: mutable i64 = -1
+    if ept_supports(points, left_a, q, -1): left <- left_a.i64()
+    else if ept_supports(points, left_b, q, -1): left <- left_b.i64()
+    if ept_supports(points, right_a, q, 1): right <- right_a.i64()
+    else if ept_supports(points, right_b, q, 1): right <- right_b.i64()
+    if left < 0 or right < 0 or left == right: return false
+    if left < right:
+        output[0] <- left
+        output[1] <- right
+    else:
+        output[0] <- right
+        output[1] <- left
+    true
+
+def ept_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for b in 0..<8:
+        output[offset + b] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def external_point_tangents_convex_polygon_impl(input: view[i64], output: mutable view[u8],
+        capacity: usize, output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > EPT_MAX_INPUT: return -1
+    if input[0] < 3 or input[0] > EPT_MAX_VERTICES.i64() or
+       input[1] < 0 or input[1] > EPT_MAX_QUERIES.i64(): return -1
+    n: usize = input[0].usize()
+    queries: usize = input[1].usize()
+    if length != 2 + 2 * n + 2 * queries: return -1
+    polygon: mutable EptPoint[EPT_MAX_VERTICES] = zeroed
+    query_points: mutable EptPoint[EPT_MAX_QUERIES] = zeroed
+    answers: mutable i64[2 * EPT_MAX_QUERIES] = zeroed
+    at: mutable usize = 2
+    for i in 0..<n:
+        polygon[i] <- EptPoint(x: input[at], y: input[at + 1])
+        at <- at + 2
+        if polygon[i].x < -EPT_MAX_COORDINATE or polygon[i].x > EPT_MAX_COORDINATE or
+           polygon[i].y < -EPT_MAX_COORDINATE or polygon[i].y > EPT_MAX_COORDINATE: return -1
+    polygon_view: view[EptPoint] = polygon[0:n]
+    if not ept_valid_polygon(polygon_view): return -1
+    lower: mutable usize[EPT_MAX_VERTICES] = zeroed
+    upper: mutable usize[EPT_MAX_VERTICES] = zeroed
+    lower_len: usize
+    upper_len: usize
+    lower_len, upper_len = ept_build_layers(polygon_view, lower[0:n], upper[0:n])
+    if lower_len == 0 or upper_len == 0: return -1
+    lower_view: view[usize] = lower[0:lower_len]
+    upper_view: view[usize] = upper[0:upper_len]
+    for i in 0..<queries:
+        query_points[i] <- EptPoint(x: input[at], y: input[at + 1])
+        at <- at + 2
+        if query_points[i].x < -EPT_MAX_COORDINATE or query_points[i].x > EPT_MAX_COORDINATE or
+           query_points[i].y < -EPT_MAX_COORDINATE or query_points[i].y > EPT_MAX_COORDINATE or
+           not ept_valid_query(polygon_view, query_points[i]): return -1
+        if not ept_find_tangents(polygon_view, lower_view, upper_view, query_points[i],
+                answers[2 * i:2 * i + 2]): return -1
+    needed: usize = 16 * queries
+    if needed > capacity or output_is_null: return -2
+    for i in 0..<2 * queries: ept_put_i64(output, 8 * i, answers[i])
+    needed.i64()
+
+export fn external_point_tangents_convex_polygon(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length > EPT_MAX_INPUT: return -1
+    if output.is_null():
+        staged: mutable u8[1] = zeroed
+        return external_point_tangents_convex_polygon_impl(input[0:length], staged[0:1], capacity, true)
+    external_point_tangents_convex_polygon_impl(input[0:length], output[0:capacity], capacity, false)

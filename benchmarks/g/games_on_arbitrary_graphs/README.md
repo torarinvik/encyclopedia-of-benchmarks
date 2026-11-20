@@ -24,3 +24,6 @@ The algorithm is independently implemented from the high-level description in [C
 - [Zig](../../../zig/g/games_on_arbitrary_graphs.zig)
 
 The package-local workload and static inventory checker are [`workload.json`](workload.json) and [`verify_games_on_arbitrary_graphs_package.py`](verify_games_on_arbitrary_graphs_package.py).
+
+The Elisa draft uses typed local declarations and bounded views at its ABI
+boundary. This source revision remains uncompiled and unexecuted.

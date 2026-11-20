@@ -1,0 +1,339 @@
+# Exact bounded polygon intersection by interleaved boundary traversal.
+const WA_MAX_VERTICES: usize = 6
+const WA_MAX_CROSSINGS: usize = 36
+const WA_MAX_NODES: usize = 42
+const WA_MAX_WORDS: usize = 210
+
+struct WaRat:
+    n: i64
+    d: i64
+
+struct WaPoint:
+    xn: i64
+    xd: i64
+    yn: i64
+    yd: i64
+
+struct WaCrossing:
+    point: WaPoint
+    ta: WaRat
+    tb: WaRat
+    a_entry: bool
+    a_exit: bool
+    b_entry: bool
+    b_exit: bool
+
+struct WaNode:
+    point: WaPoint
+    crossing: i64
+
+struct WaRing:
+    points: WaPoint[48]
+    count: usize
+
+def wa_abs(value: i64) -> i64:
+    if value < 0: -value else: value
+
+def wa_gcd(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = wa_abs(left_value)
+    right: mutable i64 = wa_abs(right_value)
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    if left == 0: 1 else: left
+
+def wa_rat(numerator_input: i64, denominator_input: i64) -> WaRat:
+    numerator: mutable i64 = numerator_input
+    denominator: mutable i64 = denominator_input
+    if denominator < 0:
+        numerator <- -numerator
+        denominator <- -denominator
+    divisor: i64 = wa_gcd(numerator, denominator)
+    WaRat(numerator / divisor, denominator / divisor)
+
+def wa_rat_less(left: WaRat, right: WaRat) -> bool:
+    left.n * right.d < right.n * left.d
+
+def wa_point_less(left: WaPoint, right: WaPoint) -> bool:
+    x_left: i64 = left.xn * right.xd
+    x_right: i64 = right.xn * left.xd
+    if x_left != x_right: return x_left < x_right
+    left.yn * right.yd < right.yn * left.yd
+
+def wa_point_equal(left: WaPoint, right: WaPoint) -> bool:
+    left.xn == right.xn and left.xd == right.xd and left.yn == right.yn and left.yd == right.yd
+
+def wa_int_point(x: i64, y: i64) -> WaPoint:
+    WaPoint(x, 1, y, 1)
+
+def wa_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+
+def wa_on_segment(ax: i64, ay: i64, bx: i64, by: i64, px: i64, py: i64) -> bool:
+    wa_orient(ax, ay, bx, by, px, py) == 0 and px >= min(ax, bx) and px <= max(ax, bx) and py >= min(ay, by) and py <= max(ay, by)
+
+def wa_relation(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64, dx: i64, dy: i64) -> i64:
+    o1: i64 = wa_orient(ax, ay, bx, by, cx, cy)
+    o2: i64 = wa_orient(ax, ay, bx, by, dx, dy)
+    o3: i64 = wa_orient(cx, cy, dx, dy, ax, ay)
+    o4: i64 = wa_orient(cx, cy, dx, dy, bx, by)
+    if ((o1 > 0 and o2 < 0) or (o1 < 0 and o2 > 0)) and ((o3 > 0 and o4 < 0) or (o3 < 0 and o4 > 0)): return 1
+    if (o1 == 0 and wa_on_segment(ax, ay, bx, by, cx, cy)) or (o2 == 0 and wa_on_segment(ax, ay, bx, by, dx, dy)) or (o3 == 0 and wa_on_segment(cx, cy, dx, dy, ax, ay)) or (o4 == 0 and wa_on_segment(cx, cy, dx, dy, bx, by)): return 2
+    0
+
+def wa_polygon_valid(poly: view[i64], count: usize) -> bool:
+    twice_area: mutable i64 = 0
+    index: mutable usize = 0
+    while index < count:
+        previous: usize = (index + count - 1) % count
+        following: usize = (index + 1) % count
+        x: i64 = poly[2 * index]
+        y: i64 = poly[2 * index + 1]
+        nx: i64 = poly[2 * following]
+        ny: i64 = poly[2 * following + 1]
+        twice_area <- twice_area + x * ny - y * nx
+        if wa_orient(poly[2 * previous], poly[2 * previous + 1], x, y, nx, ny) == 0: return False
+        prior: mutable usize = 0
+        while prior < index:
+            if x == poly[2 * prior] and y == poly[2 * prior + 1]: return False
+            prior <- prior + 1
+        index <- index + 1
+    if twice_area <= 0: return False
+    index <- 0
+    while index < count:
+        other: mutable usize = index + 1
+        while other < count:
+            if other == index + 1 or (index == 0 and other == count - 1):
+                other <- other + 1
+                continue
+            next_index: usize = (index + 1) % count
+            other_next: usize = (other + 1) % count
+            if wa_relation(poly[2 * index], poly[2 * index + 1], poly[2 * next_index], poly[2 * next_index + 1], poly[2 * other], poly[2 * other + 1], poly[2 * other_next], poly[2 * other_next + 1]) != 0: return False
+            other <- other + 1
+        index <- index + 1
+    True
+
+def wa_inside_integer(x: i64, y: i64, poly: view[i64], count: usize) -> bool:
+    winding: mutable i64 = 0
+    for edge in 0 .. count:
+        next: usize = (edge + 1) % count
+        side: i64 = wa_orient(poly[2 * edge], poly[2 * edge + 1], poly[2 * next], poly[2 * next + 1], x, y)
+        if poly[2 * edge + 1] <= y and y < poly[2 * next + 1] and side > 0: winding <- winding + 1
+        else if poly[2 * next + 1] <= y and y < poly[2 * edge + 1] and side < 0: winding <- winding - 1
+    winding != 0
+
+def wa_crossing_point(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64, dx: i64, dy: i64,
+        ta: mutable WaRat&, tb: mutable WaRat&) -> WaPoint:
+    rx: i64 = bx - ax
+    ry: i64 = by - ay
+    sx: i64 = dx - cx
+    sy: i64 = dy - cy
+    denominator: mutable i64 = rx * sy - ry * sx
+    t_numerator: mutable i64 = (cx - ax) * sy - (cy - ay) * sx
+    u_numerator: mutable i64 = (cx - ax) * ry - (cy - ay) * rx
+    if denominator < 0:
+        denominator <- -denominator
+        t_numerator <- -t_numerator
+        u_numerator <- -u_numerator
+    ta <- wa_rat(t_numerator, denominator)
+    tb <- wa_rat(u_numerator, denominator)
+    x: WaRat = wa_rat(ax * denominator + rx * t_numerator, denominator)
+    y: WaRat = wa_rat(ay * denominator + ry * t_numerator, denominator)
+    WaPoint(x.n, x.d, y.n, y.d)
+
+def wa_store_word(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0 .. 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def wa_canonicalize(rings: mutable view[WaRing], count: usize) -> void:
+    for r in 0 .. count:
+        pivot: mutable usize = 0
+        for i in 1 .. rings[r].count:
+            if wa_point_less(rings[r].points[i], rings[r].points[pivot]): pivot <- i
+        if pivot > 0:
+            temporary: mutable WaPoint[48] = zeroed
+            for i in 0 .. rings[r].count: temporary[i] <- rings[r].points[(pivot + i) % rings[r].count]
+            for i in 0 .. rings[r].count: rings[r].points[i] <- temporary[i]
+    for i in 1 .. count:
+        key: WaRing = rings[i]
+        j: mutable usize = i
+        while j > 0 and wa_point_less(key.points[0], rings[j - 1].points[0]):
+            rings[j] <- rings[j - 1]
+            j <- j - 1
+        rings[j] <- key
+
+def wa_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > 27: return -1
+    na_word: i64 = values[0]
+    nb_word: i64 = values[1]
+    if na_word < 3 or na_word > 6 or nb_word < 3 or nb_word > 6: return -1
+    na: usize = na_word.usize()
+    nb: usize = nb_word.usize()
+    if length != 2 + 2 * na + 2 * nb: return -1
+    var a: mutable i64[12] = zeroed
+    var b: mutable i64[12] = zeroed
+    cursor: mutable usize = 2
+    for i in 0 .. 2 * na:
+        value: i64 = values[cursor]
+        cursor <- cursor + 1
+        if value < -16 or value > 16: return -1
+        a[i] <- value
+    for i in 0 .. 2 * nb:
+        value: i64 = values[cursor]
+        cursor <- cursor + 1
+        if value < -16 or value > 16: return -1
+        b[i] <- value
+    if not wa_polygon_valid(a[0:2 * na], na) or not wa_polygon_valid(b[0:2 * nb], nb): return -1
+
+    var crossings: mutable WaCrossing[WA_MAX_CROSSINGS] = zeroed
+    var events_a: mutable usize[WA_MAX_VERTICES * WA_MAX_VERTICES] = zeroed
+    var events_b: mutable usize[WA_MAX_VERTICES * WA_MAX_VERTICES] = zeroed
+    var count_a: mutable usize[WA_MAX_VERTICES] = zeroed
+    var count_b: mutable usize[WA_MAX_VERTICES] = zeroed
+    crossing_count: mutable usize = 0
+    for i in 0 .. na:
+        for j in 0 .. nb:
+            ai: usize = (i + 1) % na
+            bj: usize = (j + 1) % nb
+            relation: i64 = wa_relation(a[2 * i], a[2 * i + 1], a[2 * ai], a[2 * ai + 1], b[2 * j], b[2 * j + 1], b[2 * bj], b[2 * bj + 1])
+            if relation == 2: return -1
+            if relation == 1:
+                crossing: mutable WaCrossing = zeroed
+                crossing.point <- wa_crossing_point(a[2 * i], a[2 * i + 1], a[2 * ai], a[2 * ai + 1], b[2 * j], b[2 * j + 1], b[2 * bj], b[2 * bj + 1], crossing.ta, crossing.tb)
+                a_before: i64 = wa_orient(b[2 * j], b[2 * j + 1], b[2 * bj], b[2 * bj + 1], a[2 * i], a[2 * i + 1])
+                a_after: i64 = wa_orient(b[2 * j], b[2 * j + 1], b[2 * bj], b[2 * bj + 1], a[2 * ai], a[2 * ai + 1])
+                b_before: i64 = wa_orient(a[2 * i], a[2 * i + 1], a[2 * ai], a[2 * ai + 1], b[2 * j], b[2 * j + 1])
+                b_after: i64 = wa_orient(a[2 * i], a[2 * i + 1], a[2 * ai], a[2 * ai + 1], b[2 * bj], b[2 * bj + 1])
+                crossing.a_entry <- a_before < 0 and a_after > 0
+                crossing.a_exit <- a_before > 0 and a_after < 0
+                crossing.b_entry <- b_before < 0 and b_after > 0
+                crossing.b_exit <- b_before > 0 and b_after < 0
+                if (not crossing.a_entry and not crossing.a_exit) or (not crossing.b_entry and not crossing.b_exit) or crossing.a_entry == crossing.b_entry: return -1
+                crossings[crossing_count] <- crossing
+                events_a[i * WA_MAX_VERTICES + count_a[i]] <- crossing_count
+                events_b[j * WA_MAX_VERTICES + count_b[j]] <- crossing_count
+                count_a[i] <- count_a[i] + 1
+                count_b[j] <- count_b[j] + 1
+                crossing_count <- crossing_count + 1
+
+    var rings: mutable WaRing[16] = zeroed
+    ring_count: mutable usize = 0
+    if crossing_count == 0:
+        if wa_inside_integer(a[0], a[1], b[0:2 * nb], nb):
+            rings[0].count <- na
+            for i in 0 .. na: rings[0].points[i] <- wa_int_point(a[2 * i], a[2 * i + 1])
+            ring_count <- 1
+        else if wa_inside_integer(b[0], b[1], a[0:2 * na], na):
+            rings[0].count <- nb
+            for i in 0 .. nb: rings[0].points[i] <- wa_int_point(b[2 * i], b[2 * i + 1])
+            ring_count <- 1
+    else:
+        var nodes_a: mutable WaNode[WA_MAX_NODES] = zeroed
+        var nodes_b: mutable WaNode[WA_MAX_NODES] = zeroed
+        var pos_a: mutable usize[WA_MAX_CROSSINGS] = zeroed
+        var pos_b: mutable usize[WA_MAX_CROSSINGS] = zeroed
+        ca: mutable usize = 0
+        cb: mutable usize = 0
+        for edge in 0 .. na:
+            nodes_a[ca] <- WaNode(wa_int_point(a[2 * edge], a[2 * edge + 1]), -1)
+            ca <- ca + 1
+            for z in 1 .. count_a[edge]:
+                id: usize = events_a[edge * WA_MAX_VERTICES + z]
+                k: mutable usize = z
+                while k > 0:
+                    prior: usize = events_a[edge * WA_MAX_VERTICES + k - 1]
+                    if not wa_rat_less(crossings[id].ta, crossings[prior].ta): break
+                    events_a[edge * WA_MAX_VERTICES + k] <- prior
+                    k <- k - 1
+                events_a[edge * WA_MAX_VERTICES + k] <- id
+            for z in 0 .. count_a[edge]:
+                id: usize = events_a[edge * WA_MAX_VERTICES + z]
+                nodes_a[ca] <- WaNode(crossings[id].point, id.i64())
+                pos_a[id] <- ca
+                ca <- ca + 1
+        for edge in 0 .. nb:
+            nodes_b[cb] <- WaNode(wa_int_point(b[2 * edge], b[2 * edge + 1]), -1)
+            cb <- cb + 1
+            for z in 1 .. count_b[edge]:
+                id: usize = events_b[edge * WA_MAX_VERTICES + z]
+                k: mutable usize = z
+                while k > 0:
+                    prior: usize = events_b[edge * WA_MAX_VERTICES + k - 1]
+                    if not wa_rat_less(crossings[id].tb, crossings[prior].tb): break
+                    events_b[edge * WA_MAX_VERTICES + k] <- prior
+                    k <- k - 1
+                events_b[edge * WA_MAX_VERTICES + k] <- id
+            for z in 0 .. count_b[edge]:
+                id: usize = events_b[edge * WA_MAX_VERTICES + z]
+                nodes_b[cb] <- WaNode(crossings[id].point, id.i64())
+                pos_b[id] <- cb
+                cb <- cb + 1
+        var visited: mutable bool[WA_MAX_CROSSINGS] = zeroed
+        for start in 0 .. ca:
+            start_id_word: i64 = nodes_a[start].crossing
+            if start_id_word < 0: continue
+            start_id: usize = start_id_word.usize()
+            if not crossings[start_id].a_entry or visited[start_id]: continue
+            if ring_count >= 16: return -1
+            var ring: mutable WaRing = zeroed
+            ring.points[0] <- nodes_a[start].point
+            ring.count <- 1
+            visited[start_id] <- True
+            active_a: mutable bool = True
+            index: mutable usize = start
+            guard: mutable usize = 0
+            while True:
+                guard <- guard + 1
+                if guard > 2 * crossing_count + na + nb + 1: return -1
+                node_count: usize = if active_a: ca else: cb
+                next: usize = (index + 1) % node_count
+                node: WaNode = if active_a: nodes_a[next] else: nodes_b[next]
+                if node.crossing >= 0:
+                    id: usize = node.crossing.usize()
+                    visited[id] <- True
+                    if active_a and id == start_id: break
+                    exits: bool = if active_a: crossings[id].a_exit else: crossings[id].b_exit
+                    if exits:
+                        if id == start_id: break
+                        active_a <- not active_a
+                        index <- if active_a: pos_a[id] else: pos_b[id]
+                        continue
+                if ring.count >= 48: return -1
+                ring.points[ring.count] <- node.point
+                ring.count <- ring.count + 1
+                index <- next
+            if ring.count < 3: return -1
+            rings[ring_count] <- ring
+            ring_count <- ring_count + 1
+        for id in 0 .. crossing_count: if not visited[id]: return -1
+
+    wa_canonicalize(rings[0:ring_count], ring_count)
+    words: mutable i64[WA_MAX_WORDS] = zeroed
+    word_count: mutable usize = 0
+    words[word_count] <- ring_count.i64()
+    word_count <- word_count + 1
+    for r in 0 .. ring_count:
+        words[word_count] <- rings[r].count.i64()
+        word_count <- word_count + 1
+        for i in 0 .. rings[r].count:
+            point: WaPoint = rings[r].points[i]
+            words[word_count] <- point.xn
+            words[word_count + 1] <- point.xd
+            words[word_count + 2] <- point.yn
+            words[word_count + 3] <- point.yd
+            word_count <- word_count + 4
+    output_bytes: usize = word_count * 8
+    if output_bytes > 1680: return -1
+    if output.is_null() or capacity < output_bytes: return -2
+    result: mutable view[u8] = output[0:output_bytes]
+    for word in 0 .. word_count: wa_store_word(words[word], result, word * 8)
+    output_bytes.i64()
+
+export fn weiler_atherton_polygon_intersection(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 27: return -1
+    wa_impl(input[0:length], output, capacity)

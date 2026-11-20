@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "kmeans-plus-plus-d2-seeding-deterministic-i64-bytes-v1",
+  "algorithm": "kmeans_plus_plus_seeding",
+  "function_symbol": "kmeans_plus_plus_seeding",
+  "abi": "i64_array_bytes_output",
+  "description": "Choose deterministic k-means++ centers using exact D² integer weights and a bounded draw tape.",
+  "source": {
+    "title": "k-means++: The Advantages of Careful Seeding",
+    "authors": ["David Arthur", "Sergei Vassilvitskii"],
+    "publisher": "Proceedings of the Eighteenth Annual ACM-SIAM Symposium on Discrete Algorithms",
+    "year": 2007,
+    "pages": "1027–1035",
+    "reference_url": "https://theory.stanford.edu/~sergei/papers/kMeansPP-soda.pdf",
+    "bibliographic_url": "https://research.google/pubs/k-means-the-advantages-of-careful-seeding/",
+    "discovery_url": "https://rosettagit.org/tasks/",
+    "source_license": "RosettaGit title index used only for discovery; no task prose, examples, tests, submissions, or code used.",
+    "implementation_status": "bounded clean-room deterministic D²-seeding profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[point_count, dimension, k, first_row, row_major_coordinates..., draw_tape...]",
+    "point_count_range": [1, 32],
+    "dimension_range": [1, 4],
+    "k_range": [1, 8],
+    "k_rule": "k must not exceed point_count.",
+    "first_row_range": "0 through point_count-1",
+    "coordinate_range": [-16, 16],
+    "draw_count": "k-1",
+    "draw_rule": "At each nonzero-total step, draw is in [0,total_D_squared); at a zero-total step, draw is exactly 0.",
+    "maximum_valid_length": 139,
+    "maximum_parseable_length": 140,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Selected zero-based point-row indices in selection order as little-endian signed 64-bit integers.",
+    "maximum_bytes": 64,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Fixed staged center-index list for at most eight selected rows."
+  },
+  "contract": {
+    "first_center": "The first center is the explicitly supplied zero-based row first_row; no first-center PRNG call is included.",
+    "distance": "For each row, D² is the minimum sum of squared coordinate differences to any selected center.",
+    "weighted_choice": "Read one tape value for each later center. Scan row weights in ascending row order and choose the first cumulative sum strictly greater than the draw. Duplicate rows are separate weighted candidates; selected rows and rows identical to a selected center have weight zero.",
+    "zero_total_distance": "Require tape value zero and choose the lowest-index row not already selected. This deterministic completion rule also covers data sets with fewer unique points than k.",
+    "arithmetic": "All coordinates, distances, weights, cumulative sums, and draw values are exact signed 64-bit integers. Maximum per-point D² is 4096 and maximum total weight is 131072.",
+    "error_precedence": "Validate frame shape, bounds, coordinates, and all data-dependent tape draws before checking output pointer and capacity.",
+    "no_write_on_error": true,
+    "distinction": "This package measures D² center seeding only; the local Lloyd-update packages do not implement this initialization rule."
+  },
+  "complexity": {
+    "primary_time": "O(point_count * dimension * k) using incremental nearest-center distances.",
+    "primary_space": "O(point_count * dimension + point_count + k).",
+    "independent_time": "O(point_count * dimension * k^2) by recomputing every point's distance to all prior centers at every step.",
+    "independent_space": "O(point_count * dimension + point_count + k)."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "three-center-linear-seed", "input_values": [3, 1, 3, 0, 0, 2, 10, 4, 3], "output_bytes": 24},
+      {"id": "duplicate-row-multiplicity", "input_values": [4, 1, 3, 0, 0, 2, 2, 10, 4, 0], "output_bytes": 24},
+      {"id": "maximum-center-count-zero-total", "input_values": [8, 1, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "output_bytes": 64}
+    ]
+  },
+  "cases": [
+    {"id": "single-explicit-first-row", "input_values": [3, 1, 1, 2, 0, 2, 10], "input_length": 7, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "0200000000000000"},
+    {"id": "draw-zero-selects-first-positive-weight", "input_values": [3, 1, 2, 0, 0, 2, 10, 0], "input_length": 8, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "00000000000000000100000000000000"},
+    {"id": "draw-at-first-weight-boundary", "input_values": [3, 1, 2, 0, 0, 2, 10, 4], "input_length": 8, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "00000000000000000200000000000000"},
+    {"id": "three-centers-update-nearest-distance", "input_values": [3, 1, 3, 0, 0, 2, 10, 4, 3], "input_length": 9, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "000000000000000002000000000000000100000000000000"},
+    {"id": "two-dimensional-explicit-first-row-and-boundary", "input_values": [3, 2, 2, 1, 0, 0, 3, 4, 6, 8, 25], "input_length": 11, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "01000000000000000200000000000000"},
+    {"id": "duplicate-rows-retain-weight-multiplicity", "input_values": [4, 1, 3, 0, 0, 2, 2, 10, 4, 0], "input_length": 10, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "000000000000000002000000000000000300000000000000"},
+    {"id": "zero-total-fallback-selects-lowest-unselected", "input_values": [3, 1, 3, 0, 0, 0, 0, 0, 0], "input_length": 9, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "000000000000000001000000000000000200000000000000"},
+    {"id": "zero-total-fallback-from-nonzero-first-row", "input_values": [3, 1, 3, 2, 7, 7, 7, 0, 0], "input_length": 9, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "020000000000000000000000000000000100000000000000"},
+    {"id": "maximum-center-count-zero-total", "input_values": [8, 1, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 19, "output_capacity": 64, "expected_result": 64, "expected_output_hex": "00000000000000000100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000"},
+    {"id": "draw-equal-to-total-invalid", "input_values": [3, 1, 2, 0, 0, 2, 10, 104], "input_length": 8, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "negative-draw-invalid", "input_values": [3, 1, 2, 0, 0, 2, 10, -1], "input_length": 8, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "nonzero-draw-with-zero-total-invalid", "input_values": [2, 1, 2, 0, 3, 3, 1], "input_length": 7, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "coordinate-above-contract", "input_values": [1, 1, 1, 0, 17], "input_length": 5, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "k-exceeds-point-count", "input_values": [2, 1, 3, 0, 0, 1, 0, 0], "input_length": 8, "output_capacity": 24, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "wrong-frame-length", "input_values": [3, 1, 2, 0, 0, 2, 10], "input_length": 7, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing-word", "input_values": [3, 1, 2, 0, 0, 2, 10, 0, 9], "input_length": 9, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-tape-before-output-error", "input_values": [3, 1, 2, 0, 0, 2, 10, 104], "input_length": 8, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [3, 1, 2, 0, 0, 2, 10, 0], "input_length": 8, "output_capacity": 16, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [3, 1, 2, 0, 0, 2, 10, 0], "input_length": 8, "output_capacity": 15, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [3, 1, 2, 0, 0, 2, 10, 0], "input_length": 8, "input_is_null": true, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

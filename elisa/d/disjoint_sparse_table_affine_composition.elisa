@@ -67,8 +67,8 @@ def dst_impl(input: view[i64], output: mutable view[u8], capacity: usize,
         width: usize = half * 2
         start: mutable usize = 0
         while start < n:
-            middle: usize = start + half
-            ending: usize = start + width
+            middle: mutable usize = start + half
+            ending: mutable usize = start + width
             if middle > n: middle <- n
             if ending > n: ending <- n
             if middle > start:
@@ -93,7 +93,7 @@ def dst_impl(input: view[i64], output: mutable view[u8], capacity: usize,
         level <- level + 1
 
     for query in 0..<q:
-        answer: AffineMap
+        answer: mutable AffineMap
         if left[query] == right[query]:
             answer <- maps[left[query]]
         else:
@@ -109,8 +109,10 @@ def dst_impl(input: view[i64], output: mutable view[u8], capacity: usize,
 
 def disjoint_sparse_table_affine_composition(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64 @export("disjoint_sparse_table_affine_composition"):
-    if input == null or length < 2 or length > MAX_INPUT: return -1
-    if output == null:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    if output.is_null():
         scratch: mutable u8[1] = zeroed
-        return dst_impl(input[0:length], scratch[0:1], capacity, True)
-    dst_impl(input[0:length], output[0:capacity], capacity, False)
+        return dst_impl(input[0:length], scratch[0:1], capacity, true)
+    output_length: mutable usize = capacity
+    if output_length > 16 * MAX_Q: output_length <- 16 * MAX_Q
+    dst_impl(input[0:length], output[0:output_length], capacity, false)

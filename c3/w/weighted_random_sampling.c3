@@ -8,7 +8,7 @@ fn long pow_small(long base, long exponent) {
 }
 fn void put64(char*o,usz p,long x){ulong b=(ulong)x;for(usz j=0;j<8;j+=1){o[p+j]=(char)(b&255);b>>=8;}}
 
-long weighted_random_sampling(long*in,usz len,char*out,usz cap) @export("weighted_random_sampling") {
+fn long weighted_random_sampling(long*in,usz len,char*out,usz cap) @export("weighted_random_sampling") {
     if(in==null||len<5||len>MAX_INPUT)return -1;
     long n64=in[0],count64=in[1];
     if(n64<1||n64>(long)MAX_N||count64<1||count64>n64||len!=2+3*(usz)n64)return -1;

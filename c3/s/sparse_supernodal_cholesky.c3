@@ -63,7 +63,7 @@ fn long sparse_supernodal_cholesky(long* input, usz length, char* output, usz ca
         usz start = boundary[block], end = boundary[block + 1];
         for (usz col = start; col < end; col++) {
             double pivot = sparse[slots[col * 8 + col]];
-            ulong exponent = @bitcast(ulong, pivot) & 0x7ff0000000000000;
+            ulong exponent = bitcast(pivot, ulong) & 0x7ff0000000000000;
             if (exponent == 0x7ff0000000000000 || pivot <= 0.0) return -1;
             sparse[slots[col * 8 + col]] = sqrt(pivot);
             for (usz row = col + 1; row < end; row++)
@@ -97,7 +97,7 @@ fn long sparse_supernodal_cholesky(long* input, usz length, char* output, usz ca
         for (usz col = 0; col <= row; col++) {
             usz slot = slots[row * 8 + col];
             double value = slot == 36 ? 0.0 : sparse[slot];
-            ulong bits = @bitcast(ulong, value);
+            ulong bits = bitcast(value, ulong);
             for (usz byte = 0; byte < 8; byte++) {
                 output[offset++] = (char)(bits & 255);
                 bits >>= 8;

@@ -1,0 +1,40 @@
+# Find the least digit sum using a 0-1 deque over residues modulo n.
+def small_multiple_cost(n: i64) -> i64:
+    distance: mutable [16]i64 = [1000; 16]
+    deque: mutable [512]usize = [0; 512]
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    queued: mutable usize = 0
+    start: usize = (1 % n).usize()
+    distance[start] <- 1
+    deque[tail] <- start
+    tail <- (tail + 1) % 512
+    queued <- queued + 1
+    while queued > 0:
+        residue: usize = deque[head]
+        head <- (head + 1) % 512
+        queued <- queued - 1
+        base: i64 = (residue.i64() * 10) % n
+        zero_next: usize = base.usize()
+        if distance[zero_next] > distance[residue]:
+            distance[zero_next] <- distance[residue]
+            head <- (head + 511) % 512
+            deque[head] <- zero_next
+            queued <- queued + 1
+        one_next: usize = ((base + 1) % n).usize()
+        if distance[one_next] > distance[residue] + 1:
+            distance[one_next] <- distance[residue] + 1
+            deque[tail] <- one_next
+            tail <- (tail + 1) % 512
+            queued <- queued + 1
+    distance[0]
+
+def shortest_path_modulo_small_multiple_impl(input: view[i64]) -> i64:
+    if input.length != 1: return -1
+    n: i64 = input[0]
+    if n < 1 or n > 16: return -1
+    small_multiple_cost(n)
+
+export fn shortest_path_modulo_small_multiple(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    shortest_path_modulo_small_multiple_impl(input[0:length])

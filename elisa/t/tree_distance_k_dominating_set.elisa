@@ -1,0 +1,63 @@
+# Uncompiled bounded distance-k tree domination draft.
+def tdk_solve(values:view[i64]) -> i64:
+    if values.len() < 2 or values.len() > 66: return -1
+    nv:i64 = values[0]
+    radius:i64 = values[1]
+    if nv < 1 or nv > 64 or radius < 0 or radius > 63: return -1
+    n:usize = nv.usize()
+    if values.len() != n+1: return -1
+    parents:mutable usize[64] = zeroed
+    depth:mutable usize[64] = zeroed
+    first:mutable i64[64] = zeroed
+    next:mutable i64[64] = zeroed
+    covered:mutable bool[64] = zeroed
+    for v in 0..<n: first[v] <- -1
+    for v in 1..<n:
+        raw:i64 = values[1+v]
+        if raw < 0 or raw >= v.i64(): return -1
+        p:usize = raw.usize()
+        parents[v] <- p
+        depth[v] <- depth[p]+1
+        next[v] <- first[p]
+        first[p] <- v.i64()
+    answer:mutable i64 = 0
+    while true:
+        deepest:mutable usize = n
+        for v in 0..<n:
+            if not covered[v] and (deepest == n or depth[v] > depth[deepest]): deepest <- v
+        if deepest == n: return answer
+        center:mutable usize = deepest
+        step:mutable i64 = 0
+        while step < radius and center != 0:
+            center <- parents[center]
+            step <- step+1
+        queue:mutable usize[64] = zeroed
+        distance:mutable i64[64] = zeroed
+        for v in 0..<n: distance[v] <- -1
+        head:mutable usize = 0
+        tail:mutable usize = 1
+        queue[0] <- center
+        distance[center] <- 0
+        while head < tail:
+            v:usize = queue[head]
+            head <- head+1
+            covered[v] <- true
+            if distance[v] == radius: continue
+            if v != 0 and distance[parents[v]] < 0:
+                u:usize = parents[v]
+                distance[u] <- distance[v]+1
+                queue[tail] <- u
+                tail <- tail+1
+            raw_child:mutable i64 = first[v]
+            while raw_child >= 0:
+                u:usize = raw_child.usize()
+                if distance[u] < 0:
+                    distance[u] <- distance[v]+1
+                    queue[tail] <- u
+                    tail <- tail+1
+                raw_child <- next[u]
+        answer <- answer+1
+
+export fn tree_distance_k_dominating_set(input:i64&,length:usize) -> i64:
+    if input == null or length < 2 or length > 66: return -1
+    tdk_solve(input[0:length])

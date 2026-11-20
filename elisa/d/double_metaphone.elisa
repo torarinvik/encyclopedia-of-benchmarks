@@ -1,0 +1,284 @@
+# Philips's 2000 Double Metaphone variant, bounded to 32 single-byte characters.
+const DM_TEXT_LIMIT: usize = 32
+const DM_KEY_LIMIT: usize = 4
+
+struct DoubleMetaphoneState:
+    text: u8[37]
+    primary: u8[4]
+    secondary: u8[4]
+    length: usize
+    primary_length: usize
+    secondary_length: usize
+    alternate_seen: bool
+
+def dm_at(state: DoubleMetaphoneState&, index: i64) -> u8:
+    if index < 0 or index >= 37: return 32u8
+    state.text[index.usize()]
+
+def dm_has(state: DoubleMetaphoneState&, index: i64, pattern: &str) -> bool:
+    if index < 0 or index.usize() + pattern.len() > 37: return false
+    offset: usize = 0
+    while offset < pattern.len():
+        if state.text[index.usize() + offset] != pattern.byte(offset): return false
+        offset <- offset + 1
+    true
+
+def dm_vowel(state: DoubleMetaphoneState&, index: i64) -> bool:
+    if index < 0 or index.usize() >= state.length: return false
+    value: u8 = dm_at(state, index)
+    value == 65u8 or value == 69u8 or value == 73u8 or value == 79u8 or value == 85u8 or value == 89u8
+
+def dm_append(target: mutable view[u8], size: mutable usize&, fragment: &str) -> void:
+    offset: usize = 0
+    while offset < fragment.len() and size < DM_KEY_LIMIT:
+        target[size] <- fragment.byte(offset)
+        size <- size + 1
+        offset <- offset + 1
+
+def dm_same(state: mutable DoubleMetaphoneState&, value: &str) -> void:
+    dm_append(state.primary[0:DM_KEY_LIMIT], state.primary_length, value)
+    dm_append(state.secondary[0:DM_KEY_LIMIT], state.secondary_length, value)
+
+def dm_choice(state: mutable DoubleMetaphoneState&, main: &str, alternate: &str) -> void:
+    dm_append(state.primary[0:DM_KEY_LIMIT], state.primary_length, main)
+    if alternate.len() > 0:
+        state.alternate_seen <- true
+        if alternate.byte(0) != 32u8:
+            dm_append(state.secondary[0:DM_KEY_LIMIT], state.secondary_length, alternate)
+    else if main.len() > 0 and main.byte(0) != 32u8:
+        dm_append(state.secondary[0:DM_KEY_LIMIT], state.secondary_length, main)
+
+def dm_slavo(state: DoubleMetaphoneState&) -> bool:
+    index: mutable usize = 0
+    while index < state.length:
+        value: u8 = dm_at(state, index.i64())
+        if value == 87u8 or value == 75u8 or dm_has(state, index.i64(), "CZ") or dm_has(state, index.i64(), "WITZ"):
+            return true
+        index <- index + 1
+    false
+
+def dm_c(state: mutable DoubleMetaphoneState&, index: i64) -> i64:
+    if index > 1 and not dm_vowel(state, index - 2) and dm_has(state, index - 1, "ACH") and dm_at(state, index + 2) != 73u8 and
+        (dm_at(state, index + 2) != 69u8 or dm_has(state, index - 2, "BACHER") or dm_has(state, index - 2, "MACHER")):
+        dm_same(state, "K"); return index + 2
+    if index == 0 and dm_has(state, index, "CAESAR"): dm_same(state, "S"); return index + 2
+    if dm_has(state, index, "CHIA"): dm_same(state, "K"); return index + 2
+    if dm_has(state, index, "CH"):
+        if index > 0 and dm_has(state, index, "CHAE"): dm_choice(state, "K", "X"); return index + 2
+        if index == 0 and (dm_has(state, index + 1, "HARAC") or dm_has(state, index + 1, "HARIS") or dm_has(state, index + 1, "HOR") or dm_has(state, index + 1, "HYM") or dm_has(state, index + 1, "HIA") or dm_has(state, index + 1, "HEM")) and not dm_has(state, 0, "CHORE"):
+            dm_same(state, "K"); return index + 2
+        hard: bool = dm_has(state, 0, "VAN ") or dm_has(state, 0, "VON ") or dm_has(state, 0, "SCH") or dm_has(state, index - 2, "ORCHES") or dm_has(state, index - 2, "ARCHIT") or dm_has(state, index - 2, "ORCHID") or dm_at(state, index + 2) == 84u8 or dm_at(state, index + 2) == 83u8 or
+            ((dm_at(state, index - 1) == 65u8 or dm_at(state, index - 1) == 79u8 or dm_at(state, index - 1) == 85u8 or dm_at(state, index - 1) == 69u8 or index == 0) and
+            (dm_at(state, index + 2) == 76u8 or dm_at(state, index + 2) == 82u8 or dm_at(state, index + 2) == 78u8 or dm_at(state, index + 2) == 77u8 or dm_at(state, index + 2) == 66u8 or dm_at(state, index + 2) == 72u8 or dm_at(state, index + 2) == 70u8 or dm_at(state, index + 2) == 86u8 or dm_at(state, index + 2) == 87u8 or dm_at(state, index + 2) == 32u8))
+        if hard: dm_same(state, "K")
+        else if index > 0:
+            if dm_has(state, 0, "MC"): dm_same(state, "K") else: dm_choice(state, "X", "K")
+        else: dm_same(state, "X")
+        return index + 2
+    if dm_has(state, index, "CZ") and not dm_has(state, index - 2, "WICZ"): dm_choice(state, "S", "X"); return index + 2
+    if dm_has(state, index + 1, "CIA"): dm_same(state, "X"); return index + 3
+    if dm_has(state, index, "CC") and not (index == 1 and dm_at(state, 0) == 77u8):
+        if (dm_at(state, index + 2) == 73u8 or dm_at(state, index + 2) == 69u8 or dm_at(state, index + 2) == 72u8) and not dm_has(state, index + 2, "HU"):
+            if (index == 1 and dm_at(state, index - 1) == 65u8) or dm_has(state, index - 1, "UCCEE") or dm_has(state, index - 1, "UCCES"): dm_same(state, "KS")
+            else: dm_same(state, "X")
+            return index + 3
+        dm_same(state, "K"); return index + 2
+    if dm_has(state, index, "CK") or dm_has(state, index, "CG") or dm_has(state, index, "CQ"): dm_same(state, "K"); return index + 2
+    if dm_has(state, index, "CI") or dm_has(state, index, "CE") or dm_has(state, index, "CY"):
+        if dm_has(state, index, "CIO") or dm_has(state, index, "CIE") or dm_has(state, index, "CIA"): dm_choice(state, "S", "X")
+        else: dm_same(state, "S")
+        return index + 2
+    dm_same(state, "K")
+    if dm_has(state, index + 1, " C") or dm_has(state, index + 1, " Q") or dm_has(state, index + 1, " G"): return index + 3
+    if (dm_at(state, index + 1) == 67u8 or dm_at(state, index + 1) == 75u8 or dm_at(state, index + 1) == 81u8) and not dm_has(state, index + 1, "CE") and not dm_has(state, index + 1, "CI"): return index + 2
+    index + 1
+
+def dm_g(state: mutable DoubleMetaphoneState&, index: i64, slavo: bool) -> i64:
+    if dm_at(state, index + 1) == 72u8:
+        if index > 0 and not dm_vowel(state, index - 1): dm_same(state, "K"); return index + 2
+        if index == 0:
+            if dm_at(state, index + 2) == 73u8: dm_same(state, "J") else: dm_same(state, "K")
+            return index + 2
+        if (index > 1 and (dm_at(state, index - 2) == 66u8 or dm_at(state, index - 2) == 72u8 or dm_at(state, index - 2) == 68u8)) or (index > 2 and (dm_at(state, index - 3) == 66u8 or dm_at(state, index - 3) == 72u8 or dm_at(state, index - 3) == 68u8)) or (index > 3 and (dm_at(state, index - 4) == 66u8 or dm_at(state, index - 4) == 72u8)): return index + 2
+        if index > 2 and dm_at(state, index - 1) == 85u8 and (dm_at(state, index - 3) == 67u8 or dm_at(state, index - 3) == 71u8 or dm_at(state, index - 3) == 76u8 or dm_at(state, index - 3) == 82u8 or dm_at(state, index - 3) == 84u8): dm_same(state, "F")
+        else if index > 0 and dm_at(state, index - 1) != 73u8: dm_same(state, "K")
+        return index + 2
+    if dm_at(state, index + 1) == 78u8:
+        if index == 1 and dm_vowel(state, 0) and not slavo: dm_choice(state, "KN", "N")
+        else if not dm_has(state, index + 2, "EY") and dm_at(state, index + 1) != 89u8 and not slavo: dm_choice(state, "N", "KN")
+        else: dm_same(state, "KN")
+        return index + 2
+    if dm_has(state, index + 1, "LI") and not slavo: dm_choice(state, "KL", "L"); return index + 2
+    if index == 0 and (dm_at(state, index + 1) == 89u8 or dm_has(state, index + 1, "ES") or dm_has(state, index + 1, "EP") or dm_has(state, index + 1, "EB") or dm_has(state, index + 1, "EL") or dm_has(state, index + 1, "EY") or dm_has(state, index + 1, "IB") or dm_has(state, index + 1, "IL") or dm_has(state, index + 1, "IN") or dm_has(state, index + 1, "IE") or dm_has(state, index + 1, "EI") or dm_has(state, index + 1, "ER")): dm_choice(state, "K", "J"); return index + 2
+    if (dm_has(state, index + 1, "ER") or dm_at(state, index + 1) == 89u8) and not dm_has(state, 0, "DANGER") and not dm_has(state, 0, "RANGER") and not dm_has(state, 0, "MANGER") and dm_at(state, index - 1) != 69u8 and dm_at(state, index - 1) != 73u8 and not dm_has(state, index - 1, "RGY") and not dm_has(state, index - 1, "OGY"): dm_choice(state, "K", "J"); return index + 2
+    if dm_at(state, index + 1) == 69u8 or dm_at(state, index + 1) == 73u8 or dm_at(state, index + 1) == 89u8 or dm_has(state, index - 1, "AGGI") or dm_has(state, index - 1, "OGGI"):
+        if dm_has(state, 0, "VAN ") or dm_has(state, 0, "VON ") or dm_has(state, 0, "SCH") or dm_has(state, index + 1, "ET"): dm_same(state, "K")
+        else if dm_has(state, index + 1, "IER "): dm_same(state, "J")
+        else: dm_choice(state, "J", "K")
+        return index + 2
+    dm_same(state, "K")
+    index + (if dm_at(state, index + 1) == 71u8: 2 else: 1)
+
+def dm_j(state: mutable DoubleMetaphoneState&, index: i64, slavo: bool) -> i64:
+    if dm_has(state, index, "JOSE") or dm_has(state, 0, "SAN "):
+        if (index == 0 and dm_at(state, index + 4) == 32u8) or dm_has(state, 0, "SAN "): dm_same(state, "H")
+        else: dm_choice(state, "J", "H")
+        return index + 1
+    if index == 0: dm_choice(state, "J", "A")
+    else if dm_vowel(state, index - 1) and not slavo and (dm_at(state, index + 1) == 65u8 or dm_at(state, index + 1) == 79u8): dm_choice(state, "J", "H")
+    else if index == state.length.i64() - 1: dm_choice(state, "J", " ")
+    else if not (dm_at(state, index + 1) == 76u8 or dm_at(state, index + 1) == 84u8 or dm_at(state, index + 1) == 75u8 or dm_at(state, index + 1) == 83u8 or dm_at(state, index + 1) == 78u8 or dm_at(state, index + 1) == 77u8 or dm_at(state, index + 1) == 66u8 or dm_at(state, index + 1) == 90u8) and dm_at(state, index - 1) != 83u8 and dm_at(state, index - 1) != 75u8 and dm_at(state, index - 1) != 76u8: dm_same(state, "J")
+    index + (if dm_at(state, index + 1) == 74u8: 2 else: 1)
+
+def dm_l(state: mutable DoubleMetaphoneState&, index: i64) -> i64:
+    if dm_at(state, index + 1) != 76u8: dm_same(state, "L"); return index + 1
+    n: i64 = state.length.i64()
+    spanish: bool = (index == n - 3 and (dm_has(state, index - 1, "ILLO") or dm_has(state, index - 1, "ILLA") or dm_has(state, index - 1, "ALLE"))) or ((dm_has(state, n - 3, "AS") or dm_has(state, n - 3, "OS") or dm_at(state, n - 1) == 65u8 or dm_at(state, n - 1) == 79u8) and dm_has(state, index - 1, "ALLE"))
+    if spanish: dm_choice(state, "L", " ") else: dm_same(state, "L")
+    index + 2
+
+def dm_s(state: mutable DoubleMetaphoneState&, index: i64, slavo: bool) -> i64:
+    if dm_has(state, index - 1, "ISL") or dm_has(state, index - 1, "YSL"): return index + 1
+    if index == 0 and dm_has(state, index, "SUGAR"): dm_choice(state, "X", "S"); return index + 1
+    if dm_has(state, index, "SH"):
+        if dm_has(state, index + 1, "HEIM") or dm_has(state, index + 1, "HOEK") or dm_has(state, index + 1, "HOLM") or dm_has(state, index + 1, "HOLZ"): dm_same(state, "S")
+        else: dm_same(state, "X")
+        return index + 2
+    if dm_has(state, index, "SIO") or dm_has(state, index, "SIA") or dm_has(state, index, "SIAN"):
+        if not slavo: dm_choice(state, "S", "X") else: dm_same(state, "S")
+        return index + 3
+    if (index == 0 and (dm_at(state, index + 1) == 77u8 or dm_at(state, index + 1) == 78u8 or dm_at(state, index + 1) == 76u8 or dm_at(state, index + 1) == 87u8)) or dm_at(state, index + 1) == 90u8:
+        dm_choice(state, "S", "X"); return index + (if dm_at(state, index + 1) == 90u8: 2 else: 1)
+    if dm_has(state, index, "SC"):
+        if dm_at(state, index + 2) == 72u8:
+            if dm_has(state, index + 3, "OO") or dm_has(state, index + 3, "ER") or dm_has(state, index + 3, "EN") or dm_has(state, index + 3, "UY") or dm_has(state, index + 3, "ED") or dm_has(state, index + 3, "EM"):
+                if dm_has(state, index + 3, "ER") or dm_has(state, index + 3, "EN"): dm_choice(state, "X", "SK") else: dm_same(state, "SK")
+            else if index == 0 and not dm_vowel(state, 3) and dm_at(state, 3) != 87u8: dm_choice(state, "X", "S")
+            else: dm_same(state, "X")
+            return index + 3
+        if dm_at(state, index + 2) == 73u8 or dm_at(state, index + 2) == 69u8 or dm_at(state, index + 2) == 89u8: dm_same(state, "S") else: dm_same(state, "SK")
+        return index + 3
+    if index == state.length.i64() - 1 and (dm_has(state, index - 2, "AI") or dm_has(state, index - 2, "OI")): dm_choice(state, "", "S")
+    else: dm_same(state, "S")
+    index + (if dm_at(state, index + 1) == 83u8 or dm_at(state, index + 1) == 90u8: 2 else: 1)
+
+def dm_t(state: mutable DoubleMetaphoneState&, index: i64) -> i64:
+    if dm_has(state, index, "TION"): dm_same(state, "X"); return index + 3
+    if dm_has(state, index, "TIA") or dm_has(state, index, "TCH"): dm_same(state, "X"); return index + 3
+    if dm_has(state, index, "TH") or dm_has(state, index, "TTH"):
+        if dm_has(state, index + 2, "OM") or dm_has(state, index + 2, "AM") or dm_has(state, 0, "VAN ") or dm_has(state, 0, "VON ") or dm_has(state, 0, "SCH"): dm_same(state, "T")
+        else: dm_choice(state, "0", "T")
+        return index + 2
+    dm_same(state, "T")
+    index + (if dm_at(state, index + 1) == 84u8 or dm_at(state, index + 1) == 68u8: 2 else: 1)
+
+def dm_w(state: mutable DoubleMetaphoneState&, index: i64) -> i64:
+    if dm_has(state, index, "WR"): dm_same(state, "R"); return index + 2
+    if index == 0 and (dm_vowel(state, index + 1) or dm_has(state, index, "WH")):
+        if dm_vowel(state, index + 1): dm_choice(state, "A", "F") else: dm_same(state, "A")
+    if (index == state.length.i64() - 1 and dm_vowel(state, index - 1)) or dm_has(state, index - 1, "EWSKI") or dm_has(state, index - 1, "EWSKY") or dm_has(state, index - 1, "OWSKI") or dm_has(state, index - 1, "OWSKY") or dm_has(state, 0, "SCH"):
+        dm_choice(state, "", "F"); return index + 1
+    if dm_has(state, index, "WICZ") or dm_has(state, index, "WITZ"): dm_choice(state, "TS", "FX"); return index + 4
+    index + 1
+
+def dm_upper(value: i64) -> u8:
+    if value >= 97 and value <= 122: return (value - 32).u8()
+    if value == 0xE7: return 0xC7u8
+    if value == 0xF1: return 0xD1u8
+    value.u8()
+
+def double_metaphone_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 34 or input == null: return -1
+    if input[0] < 0 or input[0] > 32: return -1
+    count: usize = input[0].usize()
+    if length != count + 1: return -1
+    state: mutable DoubleMetaphoneState = zeroed
+    state.length <- count
+    index: mutable usize = 0
+    while index < 37:
+        state.text[index] <- 32u8
+        index <- index + 1
+    index <- 0
+    while index < count:
+        raw: i64 = input[index + 1]
+        if not ((raw >= 65 and raw <= 90) or (raw >= 97 and raw <= 122) or raw == 32 or raw == 0xC7 or raw == 0xE7 or raw == 0xD1 or raw == 0xF1): return -1
+        state.text[index] <- dm_upper(raw)
+        index <- index + 1
+    germanic: bool = dm_slavo(state)
+    position: mutable i64 = 0
+    if dm_has(state, 0, "GN") or dm_has(state, 0, "KN") or dm_has(state, 0, "PN") or dm_has(state, 0, "WR") or dm_has(state, 0, "PS"): position <- 1
+    if dm_at(state, 0) == 88u8: dm_same(state, "S"); position <- 1
+    while position < state.length.i64() and (state.primary_length < DM_KEY_LIMIT or state.secondary_length < DM_KEY_LIMIT):
+        value: u8 = dm_at(state, position)
+        if value == 65u8 or value == 69u8 or value == 73u8 or value == 79u8 or value == 85u8 or value == 89u8:
+            if position == 0: dm_same(state, "A")
+            position <- position + 1
+        else if value == 66u8: dm_same(state, "P"); position <- position + (if dm_at(state, position + 1) == 66u8: 2 else: 1)
+        else if value == 0xC7u8: dm_same(state, "S"); position <- position + 1
+        else if value == 67u8: position <- dm_c(state, position)
+        else if value == 68u8:
+            if dm_has(state, position, "DG"):
+                if dm_at(state, position + 2) == 73u8 or dm_at(state, position + 2) == 69u8 or dm_at(state, position + 2) == 89u8: dm_same(state, "J"); position <- position + 3
+                else: dm_same(state, "TK"); position <- position + 2
+            else if dm_has(state, position, "DT") or dm_has(state, position, "DD"): dm_same(state, "T"); position <- position + 2
+            else: dm_same(state, "T"); position <- position + 1
+        else if value == 70u8: dm_same(state, "F"); position <- position + (if dm_at(state, position + 1) == 70u8: 2 else: 1)
+        else if value == 71u8: position <- dm_g(state, position, germanic)
+        else if value == 72u8:
+            if (position == 0 or dm_vowel(state, position - 1)) and dm_vowel(state, position + 1): dm_same(state, "H"); position <- position + 2
+            else: position <- position + 1
+        else if value == 74u8: position <- dm_j(state, position, germanic)
+        else if value == 75u8: dm_same(state, "K"); position <- position + (if dm_at(state, position + 1) == 75u8: 2 else: 1)
+        else if value == 76u8: position <- dm_l(state, position)
+        else if value == 77u8:
+            if (dm_has(state, position - 1, "UMB") and (position + 1 == state.length.i64() - 1 or dm_has(state, position + 2, "ER"))) or dm_at(state, position + 1) == 77u8: position <- position + 2
+            else: position <- position + 1
+            dm_same(state, "M")
+        else if value == 78u8: dm_same(state, "N"); position <- position + (if dm_at(state, position + 1) == 78u8: 2 else: 1)
+        else if value == 0xD1u8: dm_same(state, "N"); position <- position + 1
+        else if value == 80u8:
+            if dm_at(state, position + 1) == 72u8: dm_same(state, "F"); position <- position + 2
+            else: dm_same(state, "P"); position <- position + (if dm_at(state, position + 1) == 80u8 or dm_at(state, position + 1) == 66u8: 2 else: 1)
+        else if value == 81u8: dm_same(state, "K"); position <- position + (if dm_at(state, position + 1) == 81u8: 2 else: 1)
+        else if value == 82u8:
+            if position == state.length.i64() - 1 and not germanic and dm_has(state, position - 2, "IE") and not dm_has(state, position - 4, "ME") and not dm_has(state, position - 4, "MA"): dm_choice(state, "", "R")
+            else: dm_same(state, "R")
+            position <- position + (if dm_at(state, position + 1) == 82u8: 2 else: 1)
+        else if value == 83u8: position <- dm_s(state, position, germanic)
+        else if value == 84u8: position <- dm_t(state, position)
+        else if value == 86u8: dm_same(state, "F"); position <- position + (if dm_at(state, position + 1) == 86u8: 2 else: 1)
+        else if value == 87u8: position <- dm_w(state, position)
+        else if value == 88u8:
+            french: bool = position == state.length.i64() - 1 and (dm_has(state, position - 3, "IAU") or dm_has(state, position - 3, "EAU") or dm_has(state, position - 2, "AU") or dm_has(state, position - 2, "OU"))
+            if not french: dm_same(state, "KS")
+            position <- position + (if dm_at(state, position + 1) == 67u8 or dm_at(state, position + 1) == 88u8: 2 else: 1)
+        else if value == 90u8:
+            if dm_at(state, position + 1) == 72u8: dm_same(state, "J"); position <- position + 2
+            else:
+                if dm_has(state, position + 1, "ZO") or dm_has(state, position + 1, "ZI") or dm_has(state, position + 1, "ZA") or (germanic and position > 0 and dm_at(state, position - 1) != 84u8): dm_choice(state, "S", "TS")
+                else: dm_same(state, "S")
+                position <- position + (if dm_at(state, position + 1) == 90u8: 2 else: 1)
+        else: position <- position + 1
+    second_length: mutable usize = if state.alternate_seen: state.secondary_length else: 0
+    if second_length == state.primary_length and second_length == state.secondary_length:
+        identical: mutable bool = true
+        index <- 0
+        while index < state.primary_length:
+            if state.primary[index] != state.secondary[index]: identical <- false
+            index <- index + 1
+        if identical: second_length <- 0
+    required: usize = 2 + state.primary_length + second_length
+    if output == null or output_capacity < required: return -2
+    output[0] <- state.primary_length.u8()
+    output[1] <- second_length.u8()
+    index <- 0
+    while index < state.primary_length:
+        output[index + 2] <- state.primary[index]
+        index <- index + 1
+    index <- 0
+    while index < second_length:
+        output[index + 2 + state.primary_length] <- state.secondary[index]
+        index <- index + 1
+    required.i64()
+
+export fn double_metaphone(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = double_metaphone_impl

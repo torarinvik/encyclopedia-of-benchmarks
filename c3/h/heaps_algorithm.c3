@@ -23,7 +23,7 @@ fn void generate(long* values, usz n, usz k, char* output, usz* rows) {
     }
     generate(values, n, k - 1, output, rows);
     for (usz index = 0; index < k - 1; index += 1) {
-        usz swap_index = if k % 2 == 0 then index else 0;
+        usz swap_index = k % 2 == 0 ? index : 0;
         long temporary = values[swap_index];
         values[swap_index] = values[k - 1];
         values[k - 1] = temporary;
@@ -38,7 +38,7 @@ fn long heaps_algorithm(long* values, usz length, char* output, usz capacity)
     for (usz factor = 2; factor <= length; factor += 1) row_count *= factor;
     usz required = row_count * length * BYTES_PER_VALUE;
     if (output == null || capacity < required) return -2;
-    long items[MAX_VALUES];
+    long[MAX_VALUES] items;
     for (usz index = 0; index < length; index += 1) items[index] = values[index];
     usz rows = 0;
     generate(&items[0], length, length, output, &rows);

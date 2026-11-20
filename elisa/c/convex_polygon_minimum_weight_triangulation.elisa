@@ -1,0 +1,55 @@
+const CPMWT_MIN_N: usize = 3
+const CPMWT_MAX_N: usize = 10
+const CPMWT_MAX_LENGTH: usize = 37
+
+def cpmwt_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > CPMWT_MAX_LENGTH: return -1
+    if input[0] < 3 or input[0] > 10: return -1
+    n: usize = input[0].usize()
+
+    diagonal_count: mutable usize = 0
+    i: mutable usize = 0
+    while i < n:
+        j: mutable usize = i + 2
+        while j < n:
+            if not (i == 0 and j == n - 1): diagonal_count <- diagonal_count + 1
+            j <- j + 1
+        i <- i + 1
+    if length != 1 + diagonal_count: return -1
+
+    weight: mutable i64[10][10] = zeroed
+    at: mutable usize = 1
+    i <- 0
+    while i < n:
+        j <- i + 2
+        while j < n:
+            if not (i == 0 and j == n - 1):
+                if input[at] < 0 or input[at] > 1000: return -1
+                weight[i][j] <- input[at]
+                at <- at + 1
+            j <- j + 1
+        i <- i + 1
+
+    dp: mutable i64[10][10] = zeroed
+    span: mutable usize = 2
+    while span < n:
+        i <- 0
+        while i + span < n:
+            right: usize = i + span
+            best: mutable i64 = 7001
+            split: mutable usize = i + 1
+            while split < right:
+                left_edge: i64 = if split - i == 1: 0 else: weight[i][split]
+                right_edge: i64 = if right - split == 1: 0 else: weight[split][right]
+                candidate: i64 = dp[i][split] + dp[split][right] + left_edge + right_edge
+                if candidate < best: best <- candidate
+                split <- split + 1
+            dp[i][right] <- best
+            i <- i + 1
+        span <- span + 1
+    dp[0][n - 1]
+
+export fn convex_polygon_minimum_weight_triangulation(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > CPMWT_MAX_LENGTH: return -1
+    cpmwt_impl(input[0:length])

@@ -1,6 +1,6 @@
 # Functional graph cycle parameters by Brent's method
 
-This in-progress benchmark computes the tail length `mu` and eventual cycle
+This bounded benchmark computes the tail length `mu` and eventual cycle
 length `lambda` of a supplied successor map. Brent's method advances one moving
 node, resetting a checkpoint after blocks of doubling length. After finding
 `lambda`, two nodes separated by that many steps advance together to find `mu`.
@@ -22,8 +22,11 @@ Drafts in all ten languages, two independently organized references, a workload,
 and scalar runner and verifier registration are present. The verifier source
 includes every successor map through four nodes and every possible tail/cycle
 length pair up to 64 nodes. Small maps also compare with the existing Floyd
-reference and exercise a bijective vertex relabeling. Static review remains
-outstanding; nothing has been executed.
+reference and exercise a bijective vertex relabeling. Static inspection of all
+ten ports confirmed whole-map validation, Brent checkpoint doubling, period
+measurement, and the offset cycle-entry pass. The references and workload
+fixtures agree on the stated encoding by hand review. No programs or checks
+have been executed.
 
 The workload also includes a nonzero start with a nonempty tail and an invalid
 successor in a component unreachable from the start. The latter checks the

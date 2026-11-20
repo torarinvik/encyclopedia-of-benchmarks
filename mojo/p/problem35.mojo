@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem35")
 fn problem35(ignored:Int64) abi("C")->Int64:
     if ignored!=0:return -1

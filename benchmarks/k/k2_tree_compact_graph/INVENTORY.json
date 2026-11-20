@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "algorithm": "k2_tree_compact_graph",
+  "abi": "i64_array_bytes_output",
+  "workload": "benchmarks/k/k2_tree_compact_graph/workload.json",
+  "primary_reference": "benchmarks/k/k2_tree_compact_graph/primary_oracle.py",
+  "independent_reference": "benchmarks/k/k2_tree_compact_graph/independent_oracle.py",
+  "workload_reconciliation": "benchmarks/k/k2_tree_compact_graph/verify_workload.py",
+  "static_inventory": "benchmarks/k/k2_tree_compact_graph/check_inventory.py",
+  "languages": {
+    "c": "c/k/k2_tree_compact_graph.c",
+    "c3": "c3/k/k2_tree_compact_graph.c3",
+    "cpp": "cpp/k/k2_tree_compact_graph.cpp",
+    "elisa": "elisa/k/k2_tree_compact_graph.elisa",
+    "mojo": "mojo/k/k2_tree_compact_graph.mojo",
+    "nim": "nim/k/k2_tree_compact_graph.nim",
+    "odin": "odin/k/k2_tree_compact_graph.odin",
+    "rust": "rust/k/k2_tree_compact_graph.rs",
+    "v": "v/k/k2_tree_compact_graph.v",
+    "zig": "zig/k/k2_tree_compact_graph.zig"
+  },
+  "input": {
+    "layout": "[N,row_mask[0..N),Q,(opcode,u,v)*]",
+    "maximum_n": 32,
+    "maximum_q": 128,
+    "maximum_valid_words": 418,
+    "maximum_parseable_words": 419,
+    "exact_frame": true
+  },
+  "output": {
+    "encoding": "little-endian signed i64 vector [Q,query results...]",
+    "maximum_bytes": 1032
+  },
+  "representation": {
+    "branching_factor": 2,
+    "quadrant_order": "top-left, top-right, bottom-left, bottom-right",
+    "T_max_bits": 340,
+    "L_max_bits": 1024,
+    "rank_prefix_entries": 341,
+    "rank_prefix_type": "u16",
+    "bit_order": "least-significant bit first within each byte"
+  },
+  "workspace_accounting": "T=43 bytes, L=128 bytes, rank-prefix=682 bytes, four coordinate arrays=1024 bytes, total=1877 fixed bytes within the 4096-byte cap.",
+  "workspace_bytes": 4096,
+  "sources": [
+    "https://xlinux.nist.gov/dads/HTML/k2tree.html",
+    "https://lbd.udc.es/Repository/Publications/Drafts/K2treforCom.pdf"
+  ]
+}

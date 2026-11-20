@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "tanh-sinh-double-exponential-float64-slice-io-v1",
+  "algorithm": "tanh_sinh_double_exponential_quadrature",
+  "function_symbol": "tanh_sinh_double_exponential_quadrature",
+  "abi": "float64_slice_io",
+  "pinned_source": {
+    "repository": "Takahasi and Mori, Double Exponential Formulas for Numerical Integration",
+    "path": "Publications of the Research Institute for Mathematical Sciences 9(3), 1974, pp. 721–741",
+    "doi": "10.2977/prims/1195192451",
+    "url": "https://doi.org/10.2977/prims/1195192451",
+    "role": "tanh-sinh transformation and transformed trapezoidal rule"
+  },
+  "independent_source": {
+    "repository": "Closed-form elementary integrals",
+    "path": "Analytic antiderivatives / standard definite integrals",
+    "role": "exact values for the four fixed callback functions"
+  },
+  "contract": {
+    "operation": "Approximate the integral on [-1,1] using the finite Takahasi–Mori tanh-sinh transformed trapezoidal sum.",
+    "input_encoding": "[function_id,p]",
+    "function_table": {
+      "0": "f(x)=1; exact integral 2",
+      "1": "f(x)=x^2; exact integral 2/3",
+      "2": "f(x)=1/sqrt(1-x^2); exact integral pi",
+      "3": "f(x)=1/sqrt(1-x); exact integral 2*sqrt(2)"
+    },
+    "p_range": "integer p in 2..=4",
+    "step_and_cutoff": "h=2^-p, K=3*2^p; sum j=-K..K, so |t|<=3",
+    "transformation": "t=j*h; u=(pi/2)*sinh(t); x=tanh(u); phi'(t)=(pi/2)*cosh(t)/cosh(u)^2",
+    "stable_evaluation": "q=exp(-2*abs(u)); x=sign(u)*(1-q)/(1+q); sech(u)^2=4*q/(1+q)^2. For callback 2 use 1/sqrt(sech(u)^2); for callback 3 use 1/sqrt(2*q/(1+q)) when u>=0 and 1/sqrt(2/(1+q)) otherwise.",
+    "operation_order": "Visit j in ascending order. Evaluate exp(t), exp(-t), sinh(t)=(exp(t)-exp(-t))*0.5, cosh(t)=(exp(t)+exp(-t))*0.5, u, q, 1+q, sech squared, x, Jacobian, callback value, callback*Jacobian, h*term, then add left-to-right. Do not reassociate or use fast-math.",
+    "bounded_arithmetic": "|t|<=3, |u|<16, exp arguments are bounded, q is positive and representable, transformed callback terms are finite; no non-finite fallback is part of the valid domain.",
+    "output_encoding": "One float64 finite quadrature estimate",
+    "error_precedence": "Malformed or null input returns -1 before output validation; valid input with null output or capacity below one returns -2 without writes.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[function_id,p]",
+    "function_id_range": [0, 3],
+    "p_range": [2, 4],
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[integral_estimate]",
+    "maximum_elements": 1,
+    "maximum_bytes": 8,
+    "success_result": 1,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-5,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 1,
+    "bytes": 8,
+    "meaning": "Caller-provided output buffer; the primary implementation uses O(1) internal scratch."
+  },
+  "complexity": {
+    "primary_time": "O(K)=O(3*2^p) transformed samples",
+    "primary_space": "O(1) internal scratch",
+    "independent_time": "O(1) exact closed-form lookup",
+    "independent_space": "O(1)"
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-5,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Primary: finite transformed trapezoidal sum using the Takahasi–Mori double-exponential map. Independent: exact elementary integral for the selected fixed function.",
+  "cases": [
+    {"id":"constant_coarsest","input_values":[0,2],"input_length":2,"expected_result":1,"expected_output":[2.0]},
+    {"id":"polynomial_x_squared","input_values":[1,3],"input_length":2,"expected_result":1,"expected_output":[0.6666666666666666]},
+    {"id":"two_endpoint_singularities","input_values":[2,3],"input_length":2,"expected_result":1,"expected_output":[3.141592653589793]},
+    {"id":"right_endpoint_singularity","input_values":[3,3],"input_length":2,"expected_result":1,"expected_output":[2.8284271247461903]},
+    {"id":"maximum_grid","input_values":[2,4],"input_length":2,"expected_result":1,"expected_output":[3.141592653589793]},
+    {"id":"invalid_function_id","input_values":[4,3],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_low_p","input_values":[0,1],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_high_p","input_values":[0,5],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_fractional_p","input_values":[0,2.5],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_short_frame","input_values":[0],"input_length":1,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_max_trailing_word","input_values":[0,4,99],"input_length":3,"expected_result":-1,"expected_output":[]}
+  ],
+  "abi_cases": [
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"valid_input_null_output","input_values":[0,3],"input_length":2,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"valid_input_zero_capacity","input_values":[0,3],"input_length":2,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid_input_precedes_output_error","input_values":[0,1],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]}
+  ]
+}

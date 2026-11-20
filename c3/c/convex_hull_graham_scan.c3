@@ -4,23 +4,23 @@ const usz MAX_POINTS = 1024;
 
 struct Point { long x; long y; usz id; }
 
-long cross(Point* a, Point* b, Point* c) {
+fn long cross(Point* a, Point* b, Point* c) {
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
-long radius_squared(Point* pivot, Point* point) {
+fn long radius_squared(Point* pivot, Point* point) {
     long dx = point.x - pivot.x;
     long dy = point.y - pivot.y;
     return dx * dx + dy * dy;
 }
 
-bool before_xy(usz left, usz right, Point* points) {
+fn bool before_xy(usz left, usz right, Point* points) {
     if (points[left].x != points[right].x) return points[left].x < points[right].x;
     if (points[left].y != points[right].y) return points[left].y < points[right].y;
     return points[left].id < points[right].id;
 }
 
-bool before_angle(usz left, usz right, Point* points, usz pivot_index) {
+fn bool before_angle(usz left, usz right, Point* points, usz pivot_index) {
     Point* pivot = &points[pivot_index];
     long turn = cross(pivot, &points[left], &points[right]);
     if (turn != 0) return turn > 0;
@@ -30,7 +30,7 @@ bool before_angle(usz left, usz right, Point* points, usz pivot_index) {
     return points[left].id < points[right].id;
 }
 
-void merge_sort(usz* items, usz* scratch, usz begin, usz end, Point* points,
+fn void merge_sort(usz* items, usz* scratch, usz begin, usz end, Point* points,
                 usz pivot_index, bool by_angle) {
     if (end - begin < 2) return;
     usz middle = begin + (end - begin) / 2;
@@ -48,7 +48,7 @@ void merge_sort(usz* items, usz* scratch, usz begin, usz end, Point* points,
     for (usz i = begin; i < end; i++) items[i] = scratch[i];
 }
 
-void write_index(char* output, usz position, usz id) {
+fn void write_index(char* output, usz position, usz id) {
     u32 value = (u32)id;
     for (usz byte = 0; byte < 4; byte++) output[4 * position + byte] = (char)(value >> (8 * byte));
 }
@@ -57,9 +57,11 @@ fn long convex_hull_graham_scan(long* values, usz length, char* output, usz outp
     @export("convex_hull_graham_scan") {
     if (length > 2 * MAX_POINTS || length % 2 != 0 || (length != 0 && values == null)) return -1;
     usz point_count = length / 2;
-    Point input_points[MAX_POINTS];
-    Point points[MAX_POINTS];
-    usz order[MAX_POINTS], scratch[MAX_POINTS], hull[MAX_POINTS];
+    Point[MAX_POINTS] input_points;
+    Point[MAX_POINTS] points;
+    usz[MAX_POINTS] order;
+    usz[MAX_POINTS] scratch;
+    usz[MAX_POINTS] hull;
     for (usz i = 0; i < point_count; i++) {
         long x = values[2 * i], y = values[2 * i + 1];
         if (x < -1000000000 || x > 1000000000 || y < -1000000000 || y > 1000000000) return -1;

@@ -33,7 +33,7 @@ fn bool try_dogleg(long* v, usz plane, usz vcv, usz columns, usz tracks,
         free_vertical(v, plane, columns, neighbor, jog, bottom) && v[vcv + neighbor - 1] == 0;
 }
 
-long ptrdist_yacr2_maze1_dogleg(long* input, usz length) @export("ptrdist_yacr2_maze1_dogleg") {
+fn long ptrdist_yacr2_maze1_dogleg(long* input, usz length) @export("ptrdist_yacr2_maze1_dogleg") {
     if (input == null || length < 5) return -1;
     if (input[0] < 2 || input[0] > (long)MAX_COLUMNS || input[1] < 2 || input[1] > (long)MAX_TRACKS) return -1;
     usz columns = (usz)input[0], tracks = (usz)input[1];

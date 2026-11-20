@@ -23,6 +23,12 @@ ordered sentinel values outside it. This gives O(n) comparisons and O(n)
 working storage, including local turn checks. The exact arithmetic fits i64
 under the coordinate bound. A direct all-pairs scan is used for the independent
 reference, and makes no unimodality assumption about distances around a polygon.
+Some fixed-capacity drafts reserve maximum-sized local arrays at every recursive
+level; their actual reserved stack space can be `O(n log n)` instead of the
+linear space of an implementation sized to each reduced subproblem.
+Each coordinate difference has magnitude at most 2,000,000, so a squared
+distance and a consecutive-turn determinant each have magnitude at most
+8,000,000,000,000. Both bounds fit in signed i64.
 
 Source: Aggarwal, Klawe, Moran, Shor, and Wilber, [Geometric Applications of a
 Matrix-Searching Algorithm](https://doi.org/10.1007/BF01840359), 1987. Only

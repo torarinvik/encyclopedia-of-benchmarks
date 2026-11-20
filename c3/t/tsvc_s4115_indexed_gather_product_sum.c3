@@ -4,7 +4,7 @@ module tsvc_s4115_indexed_gather_product_sum;
 const usz MAX_N = 64;
 const long MAX_VALUE = 1000000L;
 
-long tsvc_s4115_indexed_gather_product_sum(long* input, usz length)
+fn long tsvc_s4115_indexed_gather_product_sum(long* input, usz length)
         @export("tsvc_s4115_indexed_gather_product_sum") {
     if (input == null || length < 4 || length > 193) return -1;
     long n_raw = input[0];

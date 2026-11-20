@@ -1,0 +1,124 @@
+const IM_MAX_N: usize = 8
+const IM_MAX_M: usize = 24
+const IM_MAX_WORLDS: usize = 8
+const IM_MAX_INPUT: usize = 77
+const IM_MAX_OUTPUT: usize = 136
+
+def im_reachable_count(n: usize, m: usize, world: usize, seeds: u64,
+                       edge_u: view[usize], edge_v: view[usize],
+                       live_masks: view[u8]) -> i64:
+    reached: mutable u64 = seeds
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        if (seeds & (1.u64() << vertex)) != 0:
+            queue[tail] <- vertex
+            tail <- tail + 1
+        vertex <- vertex + 1
+    while head < tail:
+        source: usize = queue[head]
+        head <- head + 1
+        edge: mutable usize = 0
+        while edge < m:
+            target: usize = edge_v[edge]
+            bit: u64 = 1.u64() << target
+            if edge_u[edge] == source and (live_masks[edge] & (1.u8() << world.u8())) != 0
+                    and (reached & bit) == 0:
+                reached <- reached | bit
+                queue[tail] <- target
+                tail <- tail + 1
+            edge <- edge + 1
+    count: mutable i64 = 0
+    vertex <- 0
+    while vertex < n:
+        if (reached & (1.u64() << vertex)) != 0: count <- count + 1
+        vertex <- vertex + 1
+    count
+
+def im_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def influence_maximization_greedy_live_edge(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64
+        @export("influence_maximization_greedy_live_edge"):
+    if input.is_null() or length < 4 or length > IM_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
+    k64: i64 = values[2]
+    worlds64: i64 = values[3]
+    if n64 < 1 or n64 > IM_MAX_N.i64() or m64 < 0 or m64 > IM_MAX_M.i64()
+            or k64 < 0 or k64 > n64 or worlds64 < 1 or worlds64 > IM_MAX_WORLDS.i64():
+        return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    k: usize = k64.usize()
+    worlds: usize = worlds64.usize()
+    if length != 4 + 3 * m: return -1
+    edge_u: mutable usize[24] = zeroed
+    edge_v: mutable usize[24] = zeroed
+    live_masks: mutable u8[24] = zeroed
+    allowed: i64 = (1.i64() << worlds) - 1
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = values[4 + 3 * edge]
+        v: i64 = values[5 + 3 * edge]
+        mask: i64 = values[6 + 3 * edge]
+        if u < 0 or u >= n64 or v < 0 or v >= n64 or u == v or mask < 0 or mask > allowed:
+            return -1
+        earlier: mutable usize = 0
+        while earlier < edge:
+            if edge_u[earlier] == u.usize() and edge_v[earlier] == v.usize(): return -1
+            earlier <- earlier + 1
+        edge_u[edge] <- u.usize()
+        edge_v[edge] <- v.usize()
+        live_masks[edge] <- mask.u8()
+        edge <- edge + 1
+    selected: mutable u64 = 0
+    chosen: mutable i64[8] = zeroed
+    scores: mutable i64[8] = zeroed
+    round: mutable usize = 0
+    while round < k:
+        current: mutable i64[8] = zeroed
+        world: mutable usize = 0
+        while world < worlds:
+            current[world] <- im_reachable_count(n, m, world, selected,
+                edge_u[0:m], edge_v[0:m], live_masks[0:m])
+            world <- world + 1
+        best_node: mutable i64 = -1
+        best_score: mutable i64 = -1
+        candidate: mutable usize = 0
+        while candidate < n:
+            bit: u64 = 1.u64() << candidate
+            if (selected & bit) == 0:
+                score: mutable i64 = 0
+                world <- 0
+                while world < worlds:
+                    score <- score + im_reachable_count(n, m, world, selected | bit,
+                        edge_u[0:m], edge_v[0:m], live_masks[0:m]) - current[world]
+                    world <- world + 1
+                if score > best_score:
+                    best_node <- candidate.i64()
+                    best_score <- score
+            candidate <- candidate + 1
+        if best_node < 0: return -1
+        selected <- selected | (1.u64() << best_node.usize())
+        chosen[round] <- best_node
+        scores[round] <- best_score
+        round <- round + 1
+    output_bytes: usize = 8 * (1 + 2 * k)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    im_put_i64(k.i64(), output_view, 0)
+    round <- 0
+    while round < k:
+        im_put_i64(chosen[round], output_view, 8 * (1 + 2 * round))
+        im_put_i64(scores[round], output_view, 8 * (2 + 2 * round))
+        round <- round + 1
+    output_bytes.i64()

@@ -9,12 +9,12 @@ const ulong JAVA_MASK = 0xFFFFFFFFFFFF;
 
 struct JavaRandom { ulong state; }
 
-uint java_next_bits(JavaRandom* random, uint bits) {
+fn uint java_next_bits(JavaRandom* random, uint bits) {
     random.state = (random.state * JAVA_MULTIPLIER + JAVA_ADDEND) & JAVA_MASK;
     return (uint)(random.state >> (48 - bits));
 }
 
-uint java_next_int(JavaRandom* random, uint bound) {
+fn uint java_next_int(JavaRandom* random, uint bound) {
     if ((bound & (bound - 1)) == 0) return (uint)(((ulong)bound * java_next_bits(random, 31)) >> 31);
     while (true) {
         uint bits = java_next_bits(random, 31);
@@ -23,7 +23,7 @@ uint java_next_int(JavaRandom* random, uint bound) {
     }
 }
 
-void put_i64_le(char* output, usz offset, long value) {
+fn void put_i64_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte += 1) {
         output[offset + byte] = (char)(bits & 255);
@@ -31,7 +31,7 @@ void put_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long random_scheduling(long* input, usz input_length, char* output, usz capacity)
+fn long random_scheduling(long* input, usz input_length, char* output, usz capacity)
         @export("random_scheduling") {
     if (input == null || input_length < 2 || input_length > MAX_INPUT_LENGTH) return -1;
     long raw_count = input[1];

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("pascal_triangle_ii")
 fn pascal_triangle_ii(row:Int64) abi("C")->Int64:
     if row<0 or row>30:return -9223372036854775808

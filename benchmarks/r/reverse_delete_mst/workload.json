@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "reverse-delete-mst-i64-array-bytes-output-v1",
+  "algorithm": "reverse_delete_mst",
+  "function_symbol": "reverse_delete_mst",
+  "abi": "i64_array_bytes_output",
+  "description": "Replay Kruskal's reverse-delete construction on a small connected simple graph.",
+  "source": {
+    "title": "On the Shortest Spanning Subtree of a Graph and the Traveling Salesman Problem",
+    "author": "Joseph B. Kruskal, Jr.",
+    "year": 1956,
+    "construction": "A'",
+    "url": "https://www.cs.yale.edu/homes/lans/readings/routing/kruskal-1956.pdf",
+    "index_source": "NIST DADS minimum spanning tree entry",
+    "index_url": "https://xlinux.nist.gov/dads/HTML/minimumSpanningTree.html",
+    "discovery_title": "Codewars Make a spanning tree",
+    "discovery_url": "https://www.codewars.com/kata/5ae8e14c1839f14b2c00007a",
+    "discovery_scope": "Public title metadata only; no task wording, examples, tests, submissions, or code used.",
+    "independent_description": "Kleinberg and Tardos, Algorithm Design, §4.5",
+    "independent_url": "https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/04GreedyAlgorithmsII.pdf"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,(u,v,w)*m]",
+    "vertices": [2, 8],
+    "edges": "n-1 through 20",
+    "endpoints": "0 <= u,v < n and u != v; orientation unrestricted",
+    "simple_graph": true,
+    "weights": [0, 1000],
+    "connected_graph_required": true,
+    "maximum_valid_length": 62,
+    "maximum_parseable_length": 63,
+    "invalid_input_result": -1,
+    "validation_order": "Validate the full frame and simple connected graph before output pointer/capacity checks."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "two little-endian signed-i64 words: retained edge mask in input-ID bits, then total weight",
+    "maximum_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "accounting": "Fixed arrays for at most 20 edges, 8 vertices, edge order, BFS queue/visited state, mask, and output staging; caller input/output excluded."
+  },
+  "contract": {
+    "primary_method": "Start with all edges. Sort by descending (weight,input_edge_id). For each edge, clear its active bit only if BFS after deletion reaches all vertices from vertex 0.",
+    "tie_rule": "Equal-weight edges are considered by descending input ID. Among equal-weight spanning trees, the retained-bit vector in descending processing order is lexicographically minimized with 0 preferred.",
+    "independent_method": "Enumerate all n-1 edge subsets, keep spanning trees, minimize (total weight, retained-bit vector in descending processing order) without replaying connectivity deletion.",
+    "complexity": "Primary O(n*m^2 + m^2) time because each of m connectivity traversals scans all m edges per visited vertex, plus O(m^2) ordering; O(n+m) workspace. Independent O(binomial(m,n-1)*(n+m)) time and O(n+m) working space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"equal-weight-triangle-tie-rule","input_values":[3,3,0,1,1,1,2,1,0,2,1],"input_length":11,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000000200000000000000"},
+    {"id":"heavier-chords-are-deleted","input_values":[4,5,0,1,1,1,2,2,2,3,3,0,3,10,0,2,4],"input_length":17,"output_capacity":16,"expected_result":16,"expected_output_hex":"07000000000000000600000000000000"},
+    {"id":"equal-square-cycle-tie-order","input_values":[4,4,0,1,2,1,2,2,2,3,2,0,3,2],"input_length":14,"output_capacity":16,"expected_result":16,"expected_output_hex":"07000000000000000600000000000000"},
+    {"id":"maximum-valid-frame-and-edge-count","input_values":[8,20,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,0,2,100,0,3,100,0,4,100,0,5,100,0,6,100,0,7,100,1,3,100,1,4,100,1,5,100,1,6,100,1,7,100,2,4,100,2,5,100],"input_length":62,"output_capacity":16,"expected_result":16,"expected_output_hex":"7f000000000000001c00000000000000"},
+    {"id":"maximum-parseable-extra-word-rejected","input_values":[8,20,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,0,2,100,0,3,100,0,4,100,0,5,100,0,6,100,0,7,100,1,3,100,1,4,100,1,5,100,1,6,100,1,7,100,2,4,100,2,5,100,0],"input_length":63,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"disconnected-nontarget-component-is-invalid","input_values":[5,4,0,4,1,1,2,1,2,3,1,1,3,1],"input_length":14,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"deletion-that-isolates-nontarget-vertex-keeps-edge","input_values":[5,4,0,1,1,1,4,1,0,2,10,0,3,1],"input_length":14,"output_capacity":16,"expected_result":16,"expected_output_hex":"0f000000000000000d00000000000000"},
+    {"id":"disconnected-components-rejected","input_values":[4,3,0,1,1,1,2,1,0,2,1],"input_length":11,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"reversed-duplicate-undirected-pair-rejected","input_values":[3,3,0,1,1,1,2,1,1,0,2],"input_length":11,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"self-loop-rejected","input_values":[2,1,0,0,1],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"weight-outside-domain-rejected","input_values":[2,1,0,1,1001],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"edge-count-outside-domain-rejected","input_values":[2,21],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word-rejected","input_values":[2,1,0,1,4,99],"input_length":6,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"one-byte-short-output-capacity","input_values":[3,3,0,1,1,1,2,1,0,2,1],"input_length":11,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[3,3,0,1,1,1,2,1,0,2,1],"input_length":11,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"malformed-input-before-output-capacity","input_values":[3,3,0,1,1,1,2,1,1,0,2],"input_length":11,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

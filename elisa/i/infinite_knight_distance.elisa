@@ -1,0 +1,29 @@
+const IKD_MAX_COORDINATE: i64 = 1000000000
+
+def infinite_knight_distance_impl(input: view[i64]) -> i64:
+    if input.len() != 2: return -1
+    dx: i64 = input[0]
+    dy: i64 = input[1]
+    if dx < -IKD_MAX_COORDINATE or dx > IKD_MAX_COORDINATE: return -1
+    if dy < -IKD_MAX_COORDINATE or dy > IKD_MAX_COORDINATE: return -1
+    abs_x: mutable i64 = dx
+    abs_y: mutable i64 = dy
+    if dx < 0: abs_x <- -dx
+    if dy < 0: abs_y <- -dy
+    large: mutable i64 = abs_x
+    small: mutable i64 = abs_y
+    if abs_y > abs_x:
+        large <- abs_y
+        small <- abs_x
+    if large == 1 and small == 0: return 3
+    if large == 2 and small == 2: return 4
+    distance: mutable i64 = (large + 1) / 2
+    diagonal_bound: i64 = (large + small + 2) / 3
+    if diagonal_bound > distance: distance <- diagonal_bound
+    if (large + small - distance) % 2 != 0: distance <- distance + 1
+    return distance
+
+export fn infinite_knight_distance(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    input_view: view[i64] = input[0:length]
+    infinite_knight_distance_impl(input_view)

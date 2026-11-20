@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "id": "farey-sequence-ordered-enumeration-v1",
+  "algorithm": "farey_sequence_ordered_enumeration",
+  "function_symbol": "farey_sequence_ordered_enumeration",
+  "abi": "i64_array_bytes_output",
+  "description": "Enumerate a bounded Farey sequence in increasing rational order.",
+  "source": {
+    "title": "Farey sequence",
+    "discovery_index": "RosettaCodeData popular-tasks",
+    "discovery_index_commit": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "url": "https://rosettagit.org/tasks/farey-sequence/",
+    "algorithm_description_url": "https://mathworld.wolfram.com/FareySequence.html",
+    "independent_method_url": "https://people.csail.mit.edu/mip/papers/farey/farey.pdf",
+    "cardinality_reference_url": "https://oeis.org/A005728",
+    "license": "Algorithm descriptions only; all code and workload material are original"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[order]",
+    "order_range": [1, 32],
+    "maximum_input_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_words_little_endian",
+    "encoding": "[count,numerator_0,denominator_0,...,numerator_(count-1),denominator_(count-1)]",
+    "order": "strictly increasing reduced fractions from 0/1 through 1/1, with every denominator at most order",
+    "maximum_output_words": 651,
+    "maximum_output_bytes": 5208,
+    "maximum_workspace_capacity_bytes": 5208,
+    "invalid_input_result": -1,
+    "null_or_insufficient_output_result": -2,
+    "errors_write_no_output": true
+  },
+  "workspace": {
+    "bytes": 0,
+    "meaning": "The two successor passes use scalar state only. Caller-owned input and serialized output are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "kernel_boundary": "A constant-space successor pass counts the terms for exact capacity validation, then a second successor pass enumerates and serializes the complete sequence.",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 50
+  },
+  "primary_oracle": "benchmarks/f/farey_sequence_ordered_enumeration/primary_oracle.py",
+  "independent_oracle": "benchmarks/f/farey_sequence_ordered_enumeration/independent_oracle.py",
+  "cases": [
+    {
+      "id": "independent-order-12",
+      "input_values": [12],
+      "input_length": 1,
+      "output_capacity": 760,
+      "expected_result": 760,
+      "oracle_derived_output": true
+    },
+    {
+      "id": "maximum-order-32",
+      "input_values": [32],
+      "input_length": 1,
+      "output_capacity": 5208,
+      "expected_result": 5208,
+      "oracle_derived_output": true
+    },
+    {
+      "id": "maximum-order-short-output",
+      "input_values": [32],
+      "input_length": 1,
+      "output_capacity": 5207,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [12],
+      "input_length": 1,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "order-zero",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "order-above-bound",
+      "input_values": [33],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-order",
+      "input_values": [-1],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty-frame",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [12, 7],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

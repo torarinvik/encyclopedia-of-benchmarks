@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 comptime TR_MAX=1026
@@ -5,7 +6,7 @@ comptime TR_MOD=1000000007
 @export("trie_benchmark")
 fn trie_benchmark(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
     if n>1024 or (n>0 and a==UnsafePointer[Int64,ImmutAnyOrigin]()):return -1
-    var child=InlineArray[Int32,TR_MAX*26]();var terminal=InlineArray[Bool,TR_MAX]();var subtree=InlineArray[Int32,TR_MAX]();var hashes=InlineArray[Int64,TR_MAX]()
+    var child=InlineArray[Int32,TR_MAX*26](fill=0);var terminal=InlineArray[Bool,TR_MAX+1](fill=False);var subtree=InlineArray[Int32,TR_MAX+1](fill=0);var hashes=InlineArray[Int64,TR_MAX+1](fill=0)
     var used=1;var pos=0;var ops=0;var checksum:Int64=0;var hash_sum:Int64=0
     while pos<Int(n):
         if pos+1>=Int(n) or ops>=512:return -1

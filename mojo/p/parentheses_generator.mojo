@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn pg_gen(n:Int,open:Int,close:Int,mut path:InlineArray[UInt8,12],o:UnsafePointer[UInt8,MutAnyOrigin],mut index:Int):

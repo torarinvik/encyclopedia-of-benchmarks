@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "algorithm": "fornberg_finite_difference_weights",
+  "function_symbol": "fornberg_finite_difference_weights",
+  "abi": "i64_array_bytes_output",
+  "status": "ten clean-room ports and package artifacts; shared byte-output suite/catalog integration registered",
+  "source": "https://doi.org/10.1090/S0025-5718-1988-0935077-0",
+  "context_source": "https://dlmf.nist.gov/3.4",
+  "input": {
+    "encoding": "[n,m,xbar,x0,...,x(n-1)]",
+    "node_count_range": [1, 8],
+    "derivative_order_rule": "0<=m<=min(3,n-1)",
+    "field": "F_998244353",
+    "canonical_residues": true,
+    "pairwise_distinct_nodes": true,
+    "evaluation_point_may_equal_node": true,
+    "maximum_valid_length": 11,
+    "maximum_parseable_length": 12
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_word_bytes",
+    "encoding": "[n,c0,...,c(n-1)]",
+    "maximum_bytes": 72,
+    "success_result": "8*(n+1)",
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "8x4 coefficient table (256 bytes), saved derivative row (32 bytes), up to 72 bytes of Elisa result staging, recurrence scalars and temporary values, plus conservative alignment margin; input is read in place and output is serialized after capacity validation."
+  },
+  "complexity": {
+    "primary_time": "O(n^2*m + n^2 log p) modular operations",
+    "primary_auxiliary_space": "O(n*Dmax) with Dmax=3, fixed 512-byte cap",
+    "independent_time": "O(n^3 + n log p) modular operations",
+    "independent_auxiliary_space": "O(n^2), at most 1024 bytes"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/f/fornberg_finite_difference_weights.c",
+    "c3/f/fornberg_finite_difference_weights.c3",
+    "cpp/f/fornberg_finite_difference_weights.cpp",
+    "elisa/f/fornberg_finite_difference_weights.elisa",
+    "mojo/f/fornberg_finite_difference_weights.mojo",
+    "nim/f/fornberg_finite_difference_weights.nim",
+    "odin/f/fornberg_finite_difference_weights.odin",
+    "rust/f/fornberg_finite_difference_weights.rs",
+    "v/f/fornberg_finite_difference_weights.v",
+    "zig/f/fornberg_finite_difference_weights.zig"
+  ]
+}

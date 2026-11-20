@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-two-dimensional-optimal-expected-matching-i64-array-bytes-output-v1",
+  "algorithm": "two_dimensional_optimal_expected_matching",
+  "function_symbol": "two_dimensional_optimal_expected_matching",
+  "abi": "i64_array_bytes_output",
+  "description": "Find exact two-dimensional pattern occurrences with the static-grid optimal-expected template filter and full verification.",
+  "source": {
+    "title": "Multidimensional String Matching",
+    "authors": ["Juha Kärkkäinen", "Esko Ukkonen"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, 2nd edition, DOI 10.1007/978-1-4939-2864-4_247",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_247",
+    "algorithm_attribution": "Kärkkäinen–Ukkonen static-grid test points with overlapping linear templates and candidate verification",
+    "paper": "Two- and Higher-Dimensional Pattern Matching in Optimal Expected Time, DOI 10.1137/S0097539794275872",
+    "paper_url": "https://doi.org/10.1137/S0097539794275872",
+    "implementation_status": "bounded clean-room exact 2D profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_side,pattern_side,text_matrix_row_major,pattern_matrix_row_major]",
+    "text_and_pattern_side_range": [1, 12],
+    "pattern_not_larger_than_text": true,
+    "alphabet_range": [0, 3],
+    "maximum_valid_length": 290,
+    "maximum_parseable_length": 291,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[match_count,(zero_based_row,zero_based_column)...] in lexicographic row-major coordinate order",
+    "maximum_matches": 144,
+    "maximum_bytes": 2312,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded template-address lists, candidate marks, and match flags."
+  },
+  "contract": {
+    "sample_length": "ceil(log_4(pattern_side^2))",
+    "template_spacing": "floor(pattern_side / sample_length)",
+    "candidate_verification": "Every distinct candidate is checked against all pattern cells.",
+    "coordinate_order": "Increasing row, then increasing column.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"exact_full_matrix_match","input_values":[2,2,0,1,2,3,0,1,2,3],"input_length":10,"output_capacity":2312,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000000000000000000"},
+    {"id":"single_match_at_bottom_right","input_values":[3,2,0,0,0,0,0,1,0,2,3,0,1,2,3],"input_length":15,"output_capacity":2312,"expected_result":24,"expected_output_hex":"010000000000000001000000000000000100000000000000"},
+    {"id":"overlapping_single_cell_matches","input_values":[2,1,0,0,0,0,0],"input_length":7,"output_capacity":2312,"expected_result":72,"expected_output_hex":"040000000000000000000000000000000000000000000000000000000000000001000000000000000100000000000000000000000000000001000000000000000100000000000000"},
+    {"id":"valid_pattern_with_no_matches","input_values":[2,1,0,0,0,0,1],"input_length":7,"output_capacity":2312,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"pattern_larger_than_text","input_values":[1,2,0,0,0,0,0],"input_length":7,"output_capacity":2312,"expected_result":-1,"expected_output_hex":""},
+    {"id":"symbol_outside_alphabet","input_values":[1,1,4,0],"input_length":4,"output_capacity":2312,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input_word","input_values":[1,1,0,0,99],"input_length":5,"output_capacity":2312,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":2312,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[2,2,0,1,2,3,0,1,2,3],"input_length":10,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"insufficient_output_capacity","input_values":[2,2,0,1,2,3,0,1,2,3],"input_length":10,"output_capacity":23,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

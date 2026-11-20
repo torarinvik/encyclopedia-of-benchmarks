@@ -19,3 +19,8 @@ The contract follows `additive_persistence` in the pinned Python `maths/persiste
 ## Workload
 
 [`workload.json`](workload.json) covers zero and one-digit values, one and multiple reductions, repeated nines, the signed-64-bit upper bound, and invalid negative input.
+
+The repository contains ten language sources, including
+[`mojo/a/additive_persistence.mojo`](../../../mojo/a/additive_persistence.mojo).
+Scalar-suite registration and a decimal-string reference are drafted and have
+not been executed.

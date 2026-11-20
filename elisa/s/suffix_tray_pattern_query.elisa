@@ -1,0 +1,394 @@
+const ST_MAX_TEXT: usize = 12
+const ST_MAX_PATTERN: usize = 8
+const ST_MAX_SIGMA: usize = 4
+const ST_MAX_SUFFIXES: usize = ST_MAX_TEXT + 1
+const ST_MAX_NODES: usize = 2 * ST_MAX_SUFFIXES - 1
+const ST_MAX_INPUT: usize = 24
+const ST_MAX_OUTPUT: usize = 16
+
+struct SuffixTrayNode:
+    edge_start: usize
+    edge_length: usize
+    depth: usize
+    leaf_start: i64
+    child: i64[5]
+    leaf_count: usize
+    sa_left: usize
+    sa_right: usize
+    sigma: bool
+    kind: usize
+    sigma_child_count: usize
+    sigma_child: i64[5]
+    child_by_symbol: i64[4]
+    group_by_symbol: i64[4]
+    gap_count: usize
+    gap_left: i64[5]
+    gap_right: i64[5]
+    separator: i64
+    only_sigma_child: i64
+    left_valid: bool
+    left_interval: i64[2]
+    right_valid: bool
+    right_interval: i64[2]
+
+def st_slot(symbol: i64) -> usize:
+    (symbol + 1).usize()
+
+def st_init_node(nodes: mutable view[SuffixTrayNode], node_id: usize,
+                 start: usize, edge_length: usize, depth: usize, leaf: i64) -> void:
+    nodes[node_id] <- zeroed
+    nodes[node_id].edge_start <- start
+    nodes[node_id].edge_length <- edge_length
+    nodes[node_id].depth <- depth
+    nodes[node_id].leaf_start <- leaf
+    for i in 0..<5:
+        nodes[node_id].child[i] <- -1
+        nodes[node_id].sigma_child[i] <- -1
+        nodes[node_id].gap_left[i] <- -1
+        nodes[node_id].gap_right[i] <- -1
+    for i in 0..<ST_MAX_SIGMA:
+        nodes[node_id].child_by_symbol[i] <- -1
+        nodes[node_id].group_by_symbol[i] <- -1
+    nodes[node_id].sa_left <- 0
+    nodes[node_id].sa_right <- -1
+    nodes[node_id].separator <- -1
+    nodes[node_id].only_sigma_child <- -1
+    nodes[node_id].left_interval[0] <- -1
+    nodes[node_id].left_interval[1] <- -1
+    nodes[node_id].right_interval[0] <- -1
+    nodes[node_id].right_interval[1] <- -1
+
+def st_suffix_less(text: view[i64], a: usize, b: usize, total: usize) -> bool:
+    offset: mutable usize = 0
+    while a + offset < total and b + offset < total:
+        left: i64 = text[a + offset]
+        right: i64 = text[b + offset]
+        if left != right: return left < right
+        offset <- offset + 1
+    a + offset == total and b + offset != total
+
+def st_build_suffix_array(text: view[i64], total: usize,
+                          suffixes: mutable view[usize], rank: mutable view[usize]) -> void:
+    for i in 0..<total: suffixes[i] <- i
+    i: mutable usize = 1
+    while i < total:
+        item: usize = suffixes[i]
+        j: mutable usize = i
+        while j > 0 and st_suffix_less(text, item, suffixes[j - 1], total):
+            suffixes[j] <- suffixes[j - 1]
+            j <- j - 1
+        suffixes[j] <- item
+        i <- i + 1
+    for i in 0..<total: rank[suffixes[i]] <- i
+
+def st_insert_suffix(nodes: mutable view[SuffixTrayNode], node_count: mutable usize&,
+                     text: view[i64], total: usize, start: usize) -> void:
+    current: mutable usize = 0
+    position: mutable usize = start
+    while position < total:
+        symbol: i64 = text[position]
+        child_id: i64 = nodes[current].child[st_slot(symbol)]
+        if child_id < 0:
+            child: usize = node_count
+            node_count <- node_count + 1
+            edge_length: usize = total - position
+            st_init_node(nodes, child, position, edge_length, nodes[current].depth + edge_length, start.i64())
+            nodes[current].child[st_slot(symbol)] <- child.i64()
+            return
+        child: usize = child_id.usize()
+        common: mutable usize = 0
+        while common < nodes[child].edge_length and position + common < total and
+            text[position + common] == text[nodes[child].edge_start + common]:
+            common <- common + 1
+        if common == nodes[child].edge_length:
+            position <- position + common
+            current <- child
+        else:
+            split: usize = node_count
+            node_count <- node_count + 1
+            old_start: usize = nodes[child].edge_start
+            st_init_node(nodes, split, old_start, common, nodes[current].depth + common, -1)
+            nodes[current].child[st_slot(symbol)] <- split.i64()
+            nodes[child].edge_start <- nodes[child].edge_start + common
+            nodes[child].edge_length <- nodes[child].edge_length - common
+            nodes[split].child[st_slot(text[nodes[child].edge_start])] <- child.i64()
+            new_start: usize = position + common
+            new_child: usize = node_count
+            node_count <- node_count + 1
+            new_length: usize = total - new_start
+            st_init_node(nodes, new_child, new_start, new_length, nodes[split].depth + new_length, start.i64())
+            nodes[split].child[st_slot(text[new_start])] <- new_child.i64()
+            return
+
+def st_summarize(nodes: mutable view[SuffixTrayNode], node_id: usize,
+                 rank: view[usize], sigma: usize) -> void:
+    if nodes[node_id].leaf_start >= 0:
+        start: usize = nodes[node_id].leaf_start.usize()
+        nodes[node_id].leaf_count <- 1
+        nodes[node_id].sa_left <- rank[start]
+        nodes[node_id].sa_right <- rank[start]
+        return
+    children: mutable usize[5] = zeroed
+    count: mutable usize = 0
+    symbol: mutable i64 = -1
+    while symbol < sigma.i64():
+        child: i64 = nodes[node_id].child[st_slot(symbol)]
+        if child >= 0:
+            children[count] <- child.usize()
+            count <- count + 1
+        symbol <- symbol + 1
+    nodes[node_id].leaf_count <- 0
+    nodes[node_id].sa_left <- ST_MAX_SUFFIXES
+    nodes[node_id].sa_right <- 0
+    nodes[node_id].sa_right <- -1
+    i: mutable usize = 0
+    while i < count:
+        child: usize = children[i]
+        st_summarize(nodes, child, rank, sigma)
+        nodes[node_id].leaf_count <- nodes[node_id].leaf_count + nodes[child].leaf_count
+        if nodes[child].sa_left < nodes[node_id].sa_left: nodes[node_id].sa_left <- nodes[child].sa_left
+        if nodes[child].sa_right > nodes[node_id].sa_right: nodes[node_id].sa_right <- nodes[child].sa_right
+        i <- i + 1
+
+def st_build_tray(nodes: mutable view[SuffixTrayNode], node_count: usize,
+                  sigma: usize, text: view[i64]) -> void:
+    for id in 0..<node_count: nodes[id].sigma <- nodes[id].leaf_count >= sigma
+    for id in 0..<node_count:
+        if not nodes[id].sigma: continue
+        children: mutable usize[5] = zeroed
+        child_count: mutable usize = 0
+        symbol: mutable i64 = -1
+        while symbol < sigma.i64():
+            child: i64 = nodes[id].child[st_slot(symbol)]
+            if child >= 0:
+                children[child_count] <- child.usize()
+                child_count <- child_count + 1
+            symbol <- symbol + 1
+        sigma_children: mutable usize[5] = zeroed
+        sig_count: mutable usize = 0
+        i: mutable usize = 0
+        while i < child_count:
+            child: usize = children[i]
+            if nodes[child].sigma:
+                sigma_children[sig_count] <- child
+                sig_count <- sig_count + 1
+            i <- i + 1
+        nodes[id].sigma_child_count <- sig_count
+        for i in 0..<sig_count: nodes[id].sigma_child[i] <- sigma_children[i].i64()
+        if sig_count == 0:
+            nodes[id].kind <- 3
+            continue
+        if sig_count == 1:
+            nodes[id].kind <- 2
+            child: usize = sigma_children[0]
+            nodes[id].only_sigma_child <- child.i64()
+            nodes[id].separator <- text[nodes[child].edge_start]
+            left: mutable usize[5] = zeroed
+            right: mutable usize[5] = zeroed
+            left_count: mutable usize = 0
+            right_count: mutable usize = 0
+            after: mutable bool = false
+            for i in 0..<child_count:
+                item: usize = children[i]
+                if item == child:
+                    after <- true
+                    continue
+                if not nodes[item].sigma:
+                    if after:
+                        right[right_count] <- item
+                        right_count <- right_count + 1
+                    else:
+                        left[left_count] <- item
+                        left_count <- left_count + 1
+            if left_count == 0:
+                nodes[id].left_valid <- false
+                nodes[id].left_interval[0] <- -1
+                nodes[id].left_interval[1] <- -1
+            else:
+                nodes[id].left_valid <- true
+                nodes[id].left_interval[0] <- nodes[left[0]].sa_left.i64()
+                nodes[id].left_interval[1] <- nodes[left[left_count - 1]].sa_right.i64()
+            if right_count == 0:
+                nodes[id].right_valid <- false
+                nodes[id].right_interval[0] <- -1
+                nodes[id].right_interval[1] <- -1
+            else:
+                nodes[id].right_valid <- true
+                nodes[id].right_interval[0] <- nodes[right[0]].sa_left.i64()
+                nodes[id].right_interval[1] <- nodes[right[right_count - 1]].sa_right.i64()
+            continue
+        nodes[id].kind <- 1
+        gaps: mutable usize[6][5] = zeroed
+        gap_counts: mutable usize[6] = zeroed
+        gap: mutable usize = 0
+        for i in 0..<child_count:
+            item: usize = children[i]
+            if nodes[item].sigma:
+                gap <- gap + 1
+            else:
+                gaps[gap][gap_counts[gap]] <- item
+                gap_counts[gap] <- gap_counts[gap] + 1
+        nodes[id].gap_count <- sig_count + 1
+        for g in 0..<(sig_count + 1):
+            if gap_counts[g] > 0:
+                nodes[id].gap_left[g] <- nodes[gaps[g][0]].sa_left.i64()
+                nodes[id].gap_right[g] <- nodes[gaps[g][gap_counts[g] - 1]].sa_right.i64()
+        for sym in 0..<sigma:
+            found: mutable i64 = -1
+            preceding: mutable usize = 0
+            for i in 0..<sig_count:
+                first: i64 = text[nodes[sigma_children[i]].edge_start]
+                if first == sym.i64():
+                    found <- sigma_children[i].i64()
+                    break
+                if first < sym.i64(): preceding <- preceding + 1
+            if found >= 0:
+                nodes[id].child_by_symbol[sym] <- found
+            elif gap_counts[preceding] > 0:
+                nodes[id].group_by_symbol[sym] <- preceding.i64()
+
+def st_compare_pattern(text: view[i64], total: usize, suffix: usize,
+                       pattern: view[i64], q: usize, start_at: usize,
+                       lcp: mutable usize&) -> i64:
+    i: mutable usize = start_at
+    while i < q and suffix + i < total:
+        if text[suffix + i] != pattern[i]:
+            lcp <- i
+            return if text[suffix + i] < pattern[i]: -1 else: 1
+        i <- i + 1
+    lcp <- i
+    if i == q: return 1
+    -1
+
+def st_interval_search(text: view[i64], total: usize, pattern: view[i64], q: usize,
+                       suffixes: view[usize], lo: usize, hi: usize, known: usize) -> i64:
+    low: mutable i64 = lo.i64() - 1
+    high: mutable i64 = hi.i64() + 1
+    low_lcp: mutable usize = known
+    high_lcp: mutable usize = known
+    while high - low > 1:
+        middle: usize = ((low + high) / 2).usize()
+        lcp: mutable usize = known
+        start_at: usize = if low_lcp < high_lcp: low_lcp else: high_lcp
+        comparison: i64 = st_compare_pattern(text, total, suffixes[middle], pattern, q, start_at, &lcp)
+        if comparison < 0:
+            low <- middle.i64()
+            low_lcp <- lcp
+        else:
+            high <- middle.i64()
+            high_lcp <- lcp
+    if high > hi.i64(): return -1
+    start: usize = suffixes[high.usize()]
+    if start + q > total: return -1
+    for i in 0..<q:
+        if text[start + i] != pattern[i]: return -1
+    start.i64()
+
+def st_query(text: view[i64], total: usize, pattern: view[i64], q: usize,
+             sigma: usize, suffixes: view[usize], nodes: view[SuffixTrayNode]) -> i64:
+    current: mutable usize = 0
+    matched: mutable usize = 0
+    while true:
+        if matched == q: return suffixes[nodes[current].sa_left].i64()
+        symbol: i64 = pattern[matched]
+        if not nodes[current].sigma or nodes[current].kind == 3:
+            return st_interval_search(text, total, pattern, q, suffixes,
+                                      nodes[current].sa_left, nodes[current].sa_right, matched)
+        next: mutable i64 = -1
+        interval_left: mutable i64 = -1
+        interval_right: mutable i64 = -1
+        if nodes[current].kind == 1:
+            if symbol < 0 or symbol >= sigma.i64(): return -1
+            next <- nodes[current].child_by_symbol[symbol.usize()]
+            if next < 0:
+                group: i64 = nodes[current].group_by_symbol[symbol.usize()]
+                if group < 0 or nodes[current].gap_left[group.usize()] < 0: return -1
+                interval_left <- nodes[current].gap_left[group.usize()]
+                interval_right <- nodes[current].gap_right[group.usize()]
+        else:
+            next <- nodes[current].only_sigma_child
+            if symbol != nodes[current].separator:
+                if symbol < nodes[current].separator:
+                    if not nodes[current].left_valid: return -1
+                    interval_left <- nodes[current].left_interval[0]
+                    interval_right <- nodes[current].left_interval[1]
+                else:
+                    if not nodes[current].right_valid: return -1
+                    interval_left <- nodes[current].right_interval[0]
+                    interval_right <- nodes[current].right_interval[1]
+        if interval_left >= 0:
+            return st_interval_search(text, total, pattern, q, suffixes,
+                                      interval_left.usize(), interval_right.usize(), matched)
+        if next < 0: return -1
+        child: usize = next.usize()
+        representative: usize = suffixes[nodes[child].sa_left]
+        edge_position: mutable usize = nodes[current].depth
+        while matched < q and edge_position < nodes[child].depth:
+            if text[representative + edge_position] != pattern[matched]: return -1
+            matched <- matched + 1
+            edge_position <- edge_position + 1
+        if matched == q: return suffixes[nodes[child].sa_left].i64()
+        if edge_position != nodes[child].depth: return -1
+        current <- child
+    -1
+
+def st_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.bitcast[u64]()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def suffix_tray_pattern_query_impl(input: view[i64], output: mutable view[u8]) -> i64:
+    if input.len() < 3 or input.len() > ST_MAX_INPUT: return -1
+    sigma_raw: i64 = input[0]
+    n_raw: i64 = input[1]
+    q_raw: i64 = input[2]
+    if sigma_raw < 2 or sigma_raw > ST_MAX_SIGMA.i64() or n_raw < 1 or n_raw > ST_MAX_TEXT.i64() or
+        q_raw < 1 or q_raw > ST_MAX_PATTERN.i64(): return -1
+    sigma: usize = sigma_raw.usize()
+    n: usize = n_raw.usize()
+    q: usize = q_raw.usize()
+    if input.len() != 3 + n + q: return -1
+    text: mutable i64[ST_MAX_SUFFIXES] = zeroed
+    pattern: mutable i64[ST_MAX_PATTERN] = zeroed
+    for i in 0..<n:
+        if input[3 + i] < 0 or input[3 + i] >= sigma_raw: return -1
+        text[i] <- input[3 + i]
+    text[n] <- -1
+    for i in 0..<q:
+        if input[3 + n + i] < 0 or input[3 + n + i] >= sigma_raw: return -1
+        pattern[i] <- input[3 + n + i]
+    suffixes: mutable usize[ST_MAX_SUFFIXES] = zeroed
+    rank: mutable usize[ST_MAX_SUFFIXES] = zeroed
+    text_view: view[i64] = text[0:n + 1]
+    st_build_suffix_array(text_view, n + 1, suffixes[0:n + 1], rank[0:n + 1])
+    nodes: mutable SuffixTrayNode[ST_MAX_NODES] = zeroed
+    node_view: mutable view[SuffixTrayNode] = nodes[0:ST_MAX_NODES]
+    for i in 0..<ST_MAX_NODES: st_init_node(node_view, i, 0, 0, 0, -1)
+    node_count: mutable usize = 1
+    start: mutable usize = 0
+    while start <= n:
+        st_insert_suffix(node_view, node_count, text_view, n + 1, start)
+        start <- start + 1
+    st_summarize(node_view, 0, rank[0:n + 1], sigma)
+    st_build_tray(node_view, node_count, sigma, text_view)
+    pattern_view: view[i64] = pattern[0:q]
+    found: i64 = st_query(text_view, n + 1, pattern_view, q, sigma,
+                          suffixes[0:n + 1], node_view[0:node_count])
+    st_put_i64(if found < 0: 0 else: 1, output, 0)
+    st_put_i64(found, output, 8)
+    ST_MAX_OUTPUT.i64()
+
+def suffix_tray_pattern_query_entry(input: i64&, length: usize,
+                                    output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > ST_MAX_INPUT: return -1
+    let input_view: view[i64] = input[0:length]
+    let staged: mutable u8[ST_MAX_OUTPUT] = zeroed
+    let result = suffix_tray_pattern_query_impl(input_view, staged[0:ST_MAX_OUTPUT])
+    if result < 0: return result
+    if output.is_null() or output_capacity < ST_MAX_OUTPUT: return -2
+    let destination: mutable view[u8] = output[0:output_capacity]
+    for i in 0..<ST_MAX_OUTPUT: destination[i] <- staged[i]
+    result
+
+export fn suffix_tray_pattern_query(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = suffix_tray_pattern_query_entry

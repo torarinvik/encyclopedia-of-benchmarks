@@ -23,7 +23,7 @@ fn long count_min_sketch_affine(long* input, usz length, char* output, usz capac
         else if (kind==1) { if (weight!=0) return -1; queries++; }
         else return -1;
     }
-    long[4][8] table={0}; long[16] staged={0}; usz count=0;
+    long[8][4] table={0}; long[16] staged={0}; usz count=0;
     for (usz op=0;op<ops;op++) {
         long kind=input[start+3*op], key=input[start+3*op+1], weight=input[start+3*op+2];
         usz[4] slot={0};

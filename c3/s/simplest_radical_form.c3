@@ -1,7 +1,7 @@
 module simplest_radical_form;
 
 fn void put64(char* output, usz offset, long value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (char)(bits & 255);
         bits >>= 8;

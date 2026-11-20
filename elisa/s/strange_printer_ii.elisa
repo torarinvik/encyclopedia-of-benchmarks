@@ -1,0 +1,92 @@
+const SPII_MAX_ROWS: usize = 6
+const SPII_MAX_COLUMNS: usize = 6
+const SPII_MAX_COLORS: usize = 6
+const SPII_COLOR_SIDE: usize = 7
+
+def strange_printer_ii_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > 39: return -1
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if rows_value < 1 or rows_value > 6 or columns_value < 1 or columns_value > 6: return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    if length != 2 + rows * columns: return -1
+    cell: mutable usize = 0
+    while cell < rows * columns:
+        if input[cell + 2] < 1 or input[cell + 2] > 6: return -1
+        cell <- cell + 1
+
+    first_row: mutable i64[7] = zeroed
+    last_row: mutable i64[7] = zeroed
+    first_column: mutable i64[7] = zeroed
+    last_column: mutable i64[7] = zeroed
+    outgoing: mutable i64[7] = zeroed
+    indegree: mutable i64[7] = zeroed
+    queue: mutable i64[7] = zeroed
+    color: mutable usize = 0
+    while color < SPII_COLOR_SIDE:
+        first_row[color] <- rows_value
+        last_row[color] <- -1
+        first_column[color] <- columns_value
+        last_column[color] <- -1
+        color <- color + 1
+    row: mutable usize = 0
+    while row < rows:
+        column: mutable usize = 0
+        while column < columns:
+            color_value: i64 = input[2 + row * columns + column]
+            color_index: usize = color_value.usize()
+            if row.i64() < first_row[color_index]: first_row[color_index] <- row.i64()
+            if row.i64() > last_row[color_index]: last_row[color_index] <- row.i64()
+            if column.i64() < first_column[color_index]: first_column[color_index] <- column.i64()
+            if column.i64() > last_column[color_index]: last_column[color_index] <- column.i64()
+            column <- column + 1
+        row <- row + 1
+
+    present_count: mutable i64 = 0
+    color <- 1
+    while color <= SPII_MAX_COLORS:
+        if last_row[color] >= 0:
+            present_count <- present_count + 1
+            scan_row: mutable i64 = first_row[color]
+            while scan_row <= last_row[color]:
+                scan_column: mutable i64 = first_column[color]
+                while scan_column <= last_column[color]:
+                    covered: usize = input[2 + scan_row.usize() * columns + scan_column.usize()].usize()
+                    bit: i64 = 1.i64() << covered
+                    if covered != color and (outgoing[color] & bit) == 0:
+                        outgoing[color] <- outgoing[color] | bit
+                        indegree[covered] <- indegree[covered] + 1
+                    scan_column <- scan_column + 1
+                scan_row <- scan_row + 1
+        color <- color + 1
+
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    color <- 1
+    while color <= SPII_MAX_COLORS:
+        if last_row[color] >= 0 and indegree[color] == 0:
+            queue[tail] <- color.i64()
+            tail <- tail + 1
+        color <- color + 1
+    processed: mutable i64 = 0
+    while head < tail:
+        current: usize = queue[head].usize()
+        head <- head + 1
+        processed <- processed + 1
+        later: mutable usize = 1
+        while later <= SPII_MAX_COLORS:
+            if (outgoing[current] & (1.i64() << later)) != 0:
+                indegree[later] <- indegree[later] - 1
+                if indegree[later] == 0:
+                    queue[tail] <- later.i64()
+                    tail <- tail + 1
+            later <- later + 1
+    if processed == present_count: return 1
+    return 0
+
+export fn strange_printer_ii(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 39: return -1
+    input_view: view[i64] = input[0:length]
+    strange_printer_ii_impl(input_view)

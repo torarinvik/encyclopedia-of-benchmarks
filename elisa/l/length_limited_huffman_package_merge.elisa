@@ -1,0 +1,120 @@
+const MIN_SYMBOLS: i64 = 2
+const MAX_SYMBOLS: usize = 12
+const MAX_LIMIT: usize = 6
+const MAX_LEVELS: usize = 16
+const MAX_ITEMS: usize = 32
+const MAX_INPUT_LENGTH: usize = 15
+const MAX_WEIGHT: i64 = 1000000
+
+def length_limited_huffman_package_merge_impl(values: view[i64]) -> i64:
+    if values.len() < 4 or values.len() > MAX_INPUT_LENGTH:
+        return -1
+    symbol_value: i64 = values[0]
+    limit_value: i64 = values[1]
+    if symbol_value < MIN_SYMBOLS or symbol_value > MAX_SYMBOLS.i64() or limit_value < 1 or limit_value > MAX_LIMIT.i64():
+        return -1
+    symbol_count: usize = symbol_value.usize()
+    limit: usize = limit_value.usize()
+    if symbol_count > (1 << limit) or values.len() != symbol_count + 2:
+        return -1
+
+    weights: mutable i64[MAX_SYMBOLS] = zeroed
+    for index in 0..<symbol_count:
+        weight: i64 = values[index + 2]
+        if weight < 0 or weight > MAX_WEIGHT:
+            return -1
+        weights[index] <- weight
+
+    index: mutable usize = 1
+    while index < symbol_count:
+        key: i64 = weights[index]
+        position: mutable usize = index
+        while position > 0 and weights[position - 1] > key:
+            weights[position] <- weights[position - 1]
+            position <- position - 1
+        weights[position] <- key
+        index <- index + 1
+
+    levels: mutable i64[MAX_LEVELS * MAX_ITEMS] = zeroed
+    counts: mutable usize[MAX_LEVELS] = zeroed
+    level: mutable usize = 0
+    while level < limit:
+        index <- 0
+        while index < symbol_count:
+            levels[level * MAX_ITEMS + index] <- weights[index]
+            index <- index + 1
+        counts[level] <- symbol_count
+        level <- level + 1
+
+    remaining: mutable i64 = (symbol_count.i64() - 1) << limit
+    total: mutable i64 = 0
+    level <- 0
+    while remaining > 0:
+        while level < MAX_LEVELS and counts[level] == 0:
+            level <- level + 1
+        if level >= MAX_LEVELS:
+            return -1
+        width: i64 = 1.i64() << level
+        smallest_needed: i64 = remaining & -remaining
+        if width > smallest_needed:
+            return -1
+
+        base: usize = level * MAX_ITEMS
+        current_count: mutable usize = counts[level]
+        if width == smallest_needed:
+            total <- total + levels[base]
+            index <- 1
+            while index < current_count:
+                levels[base + index - 1] <- levels[base + index]
+                index <- index + 1
+            current_count <- current_count - 1
+            counts[level] <- current_count
+            remaining <- remaining - width
+            if remaining == 0:
+                break
+
+        packages: mutable i64[MAX_ITEMS] = zeroed
+        package_count: mutable usize = 0
+        index <- 0
+        while index + 1 < current_count:
+            packages[package_count] <- levels[base + index] + levels[base + index + 1]
+            package_count <- package_count + 1
+            index <- index + 2
+        counts[level] <- 0
+
+        next_level: usize = level + 1
+        if next_level >= MAX_LEVELS:
+            return -1
+        existing_count: usize = counts[next_level]
+        merged: mutable i64[MAX_ITEMS] = zeroed
+        package_index: mutable usize = 0
+        existing_index: mutable usize = 0
+        merged_count: mutable usize = 0
+        while package_index < package_count and existing_index < existing_count:
+            if packages[package_index] <= levels[next_level * MAX_ITEMS + existing_index]:
+                merged[merged_count] <- packages[package_index]
+                package_index <- package_index + 1
+            else:
+                merged[merged_count] <- levels[next_level * MAX_ITEMS + existing_index]
+                existing_index <- existing_index + 1
+            merged_count <- merged_count + 1
+        while package_index < package_count:
+            merged[merged_count] <- packages[package_index]
+            package_index <- package_index + 1
+            merged_count <- merged_count + 1
+        while existing_index < existing_count:
+            merged[merged_count] <- levels[next_level * MAX_ITEMS + existing_index]
+            existing_index <- existing_index + 1
+            merged_count <- merged_count + 1
+        index <- 0
+        while index < merged_count:
+            levels[next_level * MAX_ITEMS + index] <- merged[index]
+            index <- index + 1
+        counts[next_level] <- merged_count
+        level <- next_level
+    total
+
+export fn length_limited_huffman_package_merge(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+        return -1
+    length_limited_huffman_package_merge_impl(input[0:length])

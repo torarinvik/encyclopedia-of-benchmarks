@@ -3,7 +3,7 @@ const usz MAX_EVENTS = 64;
 const long MAX_EPOCH = 15;
 const long MAX_ADDRESS = 255;
 
-long analyzer(long* input, usz length) @export("analyzer") {
+fn long analyzer(long* input, usz length) @export("analyzer") {
     if (input == null || length < 1 || length > 194) return -1;
     long count_value = input[0];
     if (count_value < 0 || count_value > MAX_EVENTS.long()) return -1;

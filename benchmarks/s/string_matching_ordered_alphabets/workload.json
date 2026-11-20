@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "string-matching-ordered-alphabets-v1",
+  "algorithm": "string_matching_ordered_alphabets",
+  "function_symbol": "string_matching_ordered_alphabets",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "String Matching on Ordered Alphabets",
+    "url": "https://igm.univ-mlv.fr/~lecroq/string/node27.html",
+    "paper": "Crochemore M., String-matching on ordered alphabets, Theoretical Computer Science 92(1):33-47 (1992), DOI 10.1016/0304-3975(92)90134-2",
+    "reuse": "algorithm description only; independent implementation, contract, and fixtures"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,text[0..n),pattern[0..m)]",
+    "text_length_range": [0, 4096],
+    "pattern_length_range": [1, 128],
+    "alphabet_range": [0, 3],
+    "alphabet_order": "natural numeric order",
+    "maximum_valid_input_length": 4226,
+    "maximum_parseable_input_length": 4227,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "(match_count << 36) | (sum_of_offsets << 12) | xor_of_offsets",
+    "result_range": "0..562949953421311",
+    "invalid_result": -1
+  },
+  "complexity": {
+    "preprocessing_time": "none",
+    "search_time": "O(n), at most 6n+5 text-character comparisons",
+    "auxiliary_space": "O(1)"
+  },
+  "workspace": {"bytes": 65536},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"periodic-overlap","input_values":[7,3,0,1,0,1,0,1,0,0,1,0],"expected_result":206158454790},
+    {"id":"ordered-symbol-mismatch","input_values":[6,2,0,0,1,0,1,0,1,0],"expected_result":137438978054},
+    {"id":"terminal-full-match","input_values":[4,4,0,1,2,3,0,1,2,3],"expected_result":68719476736},
+    {"id":"single-symbol-pattern","input_values":[4,1,1,2,1,1,1],"expected_result":206158450689},
+    {"id":"no-match","input_values":[5,2,0,0,0,0,0,3,3],"expected_result":0},
+    {"id":"pattern-longer-than-text","input_values":[2,3,0,1,0,1,2],"expected_result":0},
+    {"id":"empty-text","input_values":[0,1,2],"expected_result":0},
+    {"id":"text-symbol-outside-alphabet","input_values":[1,1,4,1],"expected_result":-1},
+    {"id":"pattern-symbol-outside-alphabet","input_values":[1,1,0,4],"expected_result":-1},
+    {"id":"trailing-word","input_values":[0,1,0,0],"expected_result":-1},
+    {"id":"missing-header","input_values":[0],"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_is_null":true,"input_length":0,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,163 @@
+# Clean-room bounded implementation of Mestre's strict weighted profile.
+from std.collections import List
+
+fn ms_lambda_min(a: Int, target: Int, row: List[Int], row_length: List[Int],
+                 f_category: List[Int], label: List[Int64]) -> Int64:
+    var best: Int64 = 1_000_000_000
+    for i in range(row_length[a]):
+        let job = row[a * 9 + i]
+        if job == target: break
+        if f_category[job] >= 0 and label[job] < best: best = label[job]
+    best
+
+fn ms_augment(a: Int, edges: List[Int], edge_count: List[Int],
+              mut owner: List[Int], mut seen: List[Bool]) -> Bool:
+    for i in range(edge_count[a]):
+        let job = edges[a * 2 + i]
+        if seen[job]: continue
+        seen[job] = True
+        let previous = owner[job]
+        if previous < 0 or ms_augment(previous, edges, edge_count, owner, seen):
+            owner[job] = a
+            return True
+    False
+
+fn ms_solve(applicants: Int, jobs: Int, weights: List[Int64], lengths: List[Int],
+            listed: List[Int]) -> Int64:
+    var row = List[Int](length=36, fill=0)
+    var row_length = List[Int](length=4, fill=0)
+    for a in range(applicants):
+        for i in range(lengths[a]):
+            row[a * 9 + row_length[a]] = listed[a * 5 + i]
+            row_length[a] += 1
+        row[a * 9 + row_length[a]] = jobs + a
+        row_length[a] += 1
+
+    var category_weight = List[Int64](length=4, fill=0)
+    var category_count = 0
+    for a in range(applicants):
+        var found = False
+        for c in range(category_count):
+            if category_weight[c] == weights[a]: found = True
+        if not found:
+            category_weight[category_count] = weights[a]
+            category_count += 1
+    for i in range(category_count):
+        for j in range(i + 1, category_count):
+            if category_weight[j] > category_weight[i]:
+                let temp = category_weight[i]
+                category_weight[i] = category_weight[j]
+                category_weight[j] = temp
+    var category = List[Int](length=4, fill=0)
+    for a in range(applicants):
+        while category_weight[category[a]] != weights[a]: category[a] += 1
+
+    var first = List[Int](length=4, fill=0)
+    var second = List[Int](length=4, fill=-1)
+    var f_category = List[Int](length=9, fill=-1)
+    var higher = List[Bool](length=9, fill=False)
+    var label = List[Int64](length=9, fill=1_000_000_000)
+    for c in range(category_count):
+        for a in range(applicants):
+            if category[a] == c:
+                for i in range(row_length[a]):
+                    let p = row[a * 9 + i]
+                    if not higher[p]:
+                        first[a] = p
+                        break
+        for a in range(applicants):
+            if category[a] == c:
+                f_category[first[a]] = c
+                higher[first[a]] = True
+    for a in range(applicants):
+        for i in range(row_length[a]):
+            let p = row[a * 9 + i]
+            if f_category[p] < 0 or f_category[p] > category[a]:
+                second[a] = p
+                break
+
+    var keep_first = List[Bool](length=4, fill=True)
+    var keep_second = List[Bool](length=4, fill=False)
+    for a in range(applicants): keep_second[a] = second[a] >= 0
+    for c in range(category_count):
+        let weight = category_weight[c]
+        if c == 0:
+            for a in range(applicants):
+                if category[a] == c: label[first[a]] = weight
+            continue
+        for a in range(applicants):
+            if category[a] == c and ms_lambda_min(a, first[a], row, row_length, f_category, label) < weight: return 0
+        for p in range(9):
+            if f_category[p] == c:
+                var group = List[Int]()
+                for a in range(applicants):
+                    if category[a] == c and first[a] == p: group.append(a)
+                if group.len() == 1:
+                    let earlier = ms_lambda_min(group[0], p, row, row_length, f_category, label)
+                    label[p] = if earlier >= 1_000_000_000 then weight else min(weight, earlier - weight)
+                else:
+                    label[p] = weight
+                    for a in group:
+                        if ms_lambda_min(a, p, row, row_length, f_category, label) < 2 * weight: keep_first[a] = False
+        for a in range(applicants):
+            if category[a] == c and second[a] >= 0 and ms_lambda_min(a, second[a], row, row_length, f_category, label) < weight:
+                keep_second[a] = False
+
+    var is_first = List[Bool](length=9, fill=False)
+    for a in range(applicants): is_first[first[a]] = True
+    for p in range(9):
+        if is_first[p]:
+            var eligible = False
+            for a in range(applicants):
+                if first[a] == p and keep_first[a]: eligible = True
+            if not eligible: return 0
+    var edges = List[Int](length=8, fill=0)
+    var edge_count = List[Int](length=4, fill=0)
+    for a in range(applicants):
+        if keep_first[a]:
+            edges[a * 2 + edge_count[a]] = first[a]
+            edge_count[a] += 1
+        if keep_second[a] and second[a] >= 0 and not is_first[second[a]]:
+            edges[a * 2 + edge_count[a]] = second[a]
+            edge_count[a] += 1
+        if edge_count[a] == 0: return 0
+    var owner = List[Int](length=9, fill=-1)
+    for a in range(applicants):
+        var seen = List[Bool](length=9, fill=False)
+        if not ms_augment(a, edges, edge_count, owner, seen): return 0
+    Int64(1)
+
+@export("mestre_strict_weighted_popular_matching")
+fn mestre_strict_weighted_popular_matching(
+    input: i64&, length: usize,
+) abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > 31: return -1
+    let values: view[Int64] = input[0:length]
+    let applicants64 = values[0]
+    let jobs64 = values[1]
+    if applicants64 < 1 or applicants64 > 4 or jobs64 < 1 or jobs64 > 5: return -1
+    let applicants = Int(applicants64)
+    let jobs = Int(jobs64)
+    if length < (2 + 2 * applicants).usize(): return -1
+    var weights = List[Int64](length=4, fill=0)
+    var lengths = List[Int](length=4, fill=0)
+    var total = 0
+    for a in range(applicants):
+        weights[a] = values[2 + a]
+        let size = values[2 + applicants + a]
+        if weights[a] < 1 or weights[a] > 1000 or size < 1 or size > jobs64: return -1
+        lengths[a] = Int(size)
+        total += Int(size)
+    if length != (2 + 2 * applicants + total).usize(): return -1
+    var listed = List[Int](length=20, fill=0)
+    var cursor = 2 + 2 * applicants
+    for a in range(applicants):
+        for i in range(lengths[a]):
+            let value = values[cursor]
+            cursor += 1
+            if value < 0 or value >= jobs64: return -1
+            let job = Int(value)
+            for k in range(i):
+                if listed[a * 5 + k] == job: return -1
+            listed[a * 5 + i] = job
+    return ms_solve(applicants, jobs, weights, lengths, listed)

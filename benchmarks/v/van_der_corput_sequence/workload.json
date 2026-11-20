@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "van-der-corput-exact-rational-i64-array-bytes-v1",
+  "algorithm": "van_der_corput_sequence",
+  "function_symbol": "van_der_corput_sequence",
+  "abi": "i64_array_bytes_output",
+  "description": "Return a bounded window of Van der Corput radical-inverse terms as exact unreduced rational pairs.",
+  "source": {
+    "title": "Van der Corput sequence",
+    "definition_url": "https://people.math.sc.edu/Burkardt/f_src/van_der_corput/van_der_corput.html",
+    "discovery_url": "https://rosettagit.org/tasks/",
+    "source_license": "The RosettaGit title index is used only for algorithm-title discovery; its content is GFDL-1.3-or-later. No task text, examples, tests, submissions, or code are used.",
+    "implementation_status": "bounded clean-room exact-rational profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[base, first_index, count]",
+    "base_range": [2, 16],
+    "first_index_range": [1, 4096],
+    "count_range": [0, 128],
+    "window_rule": "For count > 0, first_index + count - 1 must be at most 4096.",
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 4,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "For each one-based index, [reversed_base_digits_numerator, base_to_digit_count_denominator] as little-endian signed 64-bit pairs; fractions are not reduced.",
+    "maximum_bytes": 2048,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "nonnull_output_required_for_empty_result": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Caller output buffer for at most 128 pairs of signed 64-bit rational components."
+  },
+  "contract": {
+    "term": "If n has base-b digits d_(L-1)...d_1 d_0, return numerator digits d_0 d_1 ... d_(L-1) over denominator b^L.",
+    "sequence": "The one-based index starts at n=1; zero is not a term in this profile.",
+    "precision": "All arithmetic and output components are exact integers; no floating-point operation or fraction reduction is used.",
+    "bounds": "For 2<=base<=16 and 1<=n<=4096, numerator and denominator are positive integers at most 65536.",
+    "error_precedence": "Validate the input pointer, exact frame, base, start, count, and window end before validating output pointer and capacity.",
+    "no_write_on_error": true,
+    "distinction": "This positional digit-reflection sequence differs from van_ecks_sequence, whose integer terms use distances between previous occurrences."
+  },
+  "complexity": {
+    "time": "O(count * log_base(4096)) digit steps, at most 13 digit steps per term.",
+    "space": "O(1) auxiliary state beyond the caller output buffer."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "binary-short-prefix", "input_values": [2, 1, 16], "output_bytes": 256},
+      {"id": "mixed-base-window", "input_values": [10, 1001, 64], "output_bytes": 1024},
+      {"id": "maximum-window-and-index", "input_values": [16, 3969, 128], "output_bytes": 2048}
+    ]
+  },
+  "cases": [
+    {"id": "binary-first-four", "input_values": [2, 1, 4], "input_length": 3, "output_capacity": 64, "expected_result": 64, "expected_output_hex": "01000000000000000200000000000000010000000000000004000000000000000300000000000000040000000000000001000000000000000800000000000000"},
+    {"id": "ternary-indices-two-through-four", "input_values": [3, 2, 3], "input_length": 3, "output_capacity": 48, "expected_result": 48, "expected_output_hex": "020000000000000003000000000000000100000000000000090000000000000004000000000000000900000000000000"},
+    {"id": "decimal-index-thirteen", "input_values": [10, 13, 1], "input_length": 3, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "1f000000000000006400000000000000"},
+    {"id": "hexadecimal-maximum-index", "input_values": [16, 4096, 1], "input_length": 3, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "01000000000000000000010000000000"},
+    {"id": "binary-maximum-index", "input_values": [2, 4096, 1], "input_length": 3, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "01000000000000000020000000000000"},
+    {"id": "hexadecimal-two-digit-reversal", "input_values": [16, 18, 1], "input_length": 3, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "21000000000000000001000000000000"},
+    {"id": "empty-window", "input_values": [16, 4096, 0], "input_length": 3, "output_capacity": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "empty-window-null-output", "input_values": [16, 4096, 0], "input_length": 3, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [2, 1, 1], "input_length": 3, "output_capacity": 16, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [3, 2, 1], "input_length": 3, "output_capacity": 15, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "invalid-input-before-output-error", "input_values": [1, 1, 1], "input_length": 3, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "base-below-range", "input_values": [1, 1, 1], "input_length": 3, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "base-above-range", "input_values": [17, 1, 1], "input_length": 3, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "index-zero", "input_values": [2, 0, 1], "input_length": 3, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "count-above-range", "input_values": [2, 1, 129], "input_length": 3, "output_capacity": 2048, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "window-past-maximum-index", "input_values": [2, 4096, 2], "input_length": 3, "output_capacity": 32, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "wrong-input-length", "input_values": [2, 1], "input_length": 2, "output_capacity": 2048, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing-word", "input_values": [2, 1, 1, 0], "input_length": 4, "output_capacity": 2048, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [2, 1, 1], "input_length": 3, "input_is_null": true, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

@@ -1,0 +1,88 @@
+const ACS_MAX_TEXT_LENGTH: usize = 4096
+const ACS_MAX_PATTERN_LENGTH: usize = 128
+const ACS_MAX_PARSEABLE_LENGTH: usize = 4227
+const ACS_PATTERN_STORAGE: usize = ACS_MAX_PATTERN_LENGTH + 1
+
+def acs_preprocess(pattern: view[i64], pattern_length: usize,
+        kmp_next: mutable view[i64]) -> void:
+    i: mutable i64 = 0
+    j: mutable i64 = -1
+    kmp_next[0] <- -1
+    while i.usize() < pattern_length:
+        while j > -1 and pattern[i.usize()] != pattern[j.usize()]:
+            j <- kmp_next[j.usize()]
+        i <- i + 1
+        j <- j + 1
+        if pattern[i.usize()] == pattern[j.usize()]:
+            kmp_next[i.usize()] <- kmp_next[j.usize()]
+        else:
+            kmp_next[i.usize()] <- j
+
+def apostolico_crochemore_search_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > ACS_MAX_PARSEABLE_LENGTH:
+        return -1
+
+    text_length_value: i64 = input[0]
+    pattern_length_value: i64 = input[1]
+    if text_length_value < 0 or text_length_value > ACS_MAX_TEXT_LENGTH.i64() or
+            pattern_length_value < 1 or pattern_length_value > ACS_MAX_PATTERN_LENGTH.i64():
+        return -1
+    text_length: usize = text_length_value.usize()
+    pattern_length: usize = pattern_length_value.usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+
+    pattern_start: usize = 2 + text_length
+    pattern: mutable i64[ACS_PATTERN_STORAGE] = zeroed
+    for index in 0..<text_length:
+        if input[2 + index] < 0 or input[2 + index] > 3:
+            return -1
+    for index in 0..<pattern_length:
+        byte: i64 = input[pattern_start + index]
+        if byte < 0 or byte > 3:
+            return -1
+        pattern[index] <- byte
+    pattern[pattern_length] <- 4
+
+    kmp_next: mutable i64[ACS_PATTERN_STORAGE] = zeroed
+    acs_preprocess(pattern[0:ACS_PATTERN_STORAGE], pattern_length,
+        kmp_next[0:ACS_PATTERN_STORAGE])
+
+    ell: mutable usize = 1
+    while ell < pattern_length and pattern[ell - 1] == pattern[ell]:
+        ell <- ell + 1
+    if ell == pattern_length:
+        ell <- 0
+
+    match_count: mutable i64 = 0
+    sum_offsets: mutable i64 = 0
+    xor_offsets: mutable i64 = 0
+    if text_length >= pattern_length:
+        i: mutable usize = ell
+        j: mutable usize = 0
+        k: mutable usize = 0
+        while j <= text_length - pattern_length:
+            while i < pattern_length and pattern[i] == input[2 + j + i]:
+                i <- i + 1
+            if i >= pattern_length:
+                while k < ell and pattern[k] == input[2 + j + k]:
+                    k <- k + 1
+                if k >= ell:
+                    match_count <- match_count + 1
+                    sum_offsets <- sum_offsets + j.i64()
+                    xor_offsets <- xor_offsets ^ j.i64()
+
+            j <- j + (i.i64() - kmp_next[i]).usize()
+            if i == ell:
+                if k > 0:
+                    k <- k - 1
+            elif kmp_next[i] <= ell.i64():
+                k <- if kmp_next[i] > 0: kmp_next[i].usize() else: 0
+                i <- ell
+            else:
+                k <- ell
+                i <- kmp_next[i].usize()
+
+    (match_count << 36) | (sum_offsets << 12) | xor_offsets
+
+export fn apostolico_crochemore_search(input: i64&, length: usize) -> i64 = apostolico_crochemore_search_impl

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "algorithm": "bp_ordered_tree_navigation",
+  "function_symbol": "bp_ordered_tree_navigation",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/b/bp_ordered_tree_navigation.c",
+    "c3": "c3/b/bp_ordered_tree_navigation.c3",
+    "cpp": "cpp/b/bp_ordered_tree_navigation.cpp",
+    "elisa": "elisa/b/bp_ordered_tree_navigation.elisa",
+    "mojo": "mojo/b/bp_ordered_tree_navigation.mojo",
+    "nim": "nim/b/bp_ordered_tree_navigation.nim",
+    "odin": "odin/b/bp_ordered_tree_navigation.odin",
+    "rust": "rust/b/bp_ordered_tree_navigation.rs",
+    "v": "v/b/bp_ordered_tree_navigation.v",
+    "zig": "zig/b/bp_ordered_tree_navigation.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Compressed Tree Representations",
+    "doi": "10.1007/978-1-4939-2864-4_641",
+    "sections": ["BP Representation", "Fully Functional BP Representation"]
+  },
+  "contract": {
+    "input_layout": "[n,q,parent[1..n-1],(opcode,first,second)*q]",
+    "maximum_valid_input_words": 128,
+    "maximum_parseable_input_words": 129,
+    "maximum_output_bytes": 288,
+    "workspace_bytes": 4096,
+    "query_positions": "0-based bit positions for RMQi and matching/enclosing operations; excess-prefix indices 0..2n for forward/backward searches.",
+    "range_minimum_tie": "Leftmost position attaining the minimum excess value."
+  }
+}

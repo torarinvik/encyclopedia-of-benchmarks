@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "algorithm": "direct_discrete_fourier_transform",
+  "function_symbol": "direct_discrete_fourier_transform",
+  "abi": "float64_slice_io",
+  "languages": {
+    "c": "c/d/direct_discrete_fourier_transform.c",
+    "c3": "c3/d/direct_discrete_fourier_transform.c3",
+    "cpp": "cpp/d/direct_discrete_fourier_transform.cpp",
+    "elisa": "elisa/d/direct_discrete_fourier_transform.elisa",
+    "mojo": "mojo/d/direct_discrete_fourier_transform.mojo",
+    "nim": "nim/d/direct_discrete_fourier_transform.nim",
+    "odin": "odin/d/direct_discrete_fourier_transform.odin",
+    "rust": "rust/d/direct_discrete_fourier_transform.rs",
+    "v": "v/d/direct_discrete_fourier_transform.v",
+    "zig": "zig/d/direct_discrete_fourier_transform.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "source": {
+    "title": "FFT / Cooley–Tukey",
+    "url": "https://www.algorithm-archive.org/contents/cooley_tukey/cooley_tukey.html",
+    "role": "direct DFT and nested-loop method; clean-room reconstruction"
+  },
+  "contract": {
+    "input_layout": "[N,re0,im0,...,re(N-1),im(N-1)]",
+    "n_range": [
+      1,
+      64
+    ],
+    "sample_component_range": [
+      -8,
+      8
+    ],
+    "maximum_valid_input_values": 129,
+    "maximum_parseable_input_values": 130,
+    "maximum_output_elements": 128,
+    "workspace_elements": 0,
+    "forward_sign": "exp(-2*pi*i*j*k/N)",
+    "output_order": "natural frequency order, interleaved real/imaginary",
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  }
+}
+

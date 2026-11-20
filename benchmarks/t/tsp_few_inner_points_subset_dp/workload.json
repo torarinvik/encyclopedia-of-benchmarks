@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-tsp-few-inner-points-subset-dp-i64-array-bytes-output-v1",
+  "algorithm": "tsp_few_inner_points_subset_dp",
+  "function_symbol": "tsp_few_inner_points_subset_dp",
+  "abi": "i64_array_bytes_output",
+  "description": "Subset-based F2 dynamic program with first-hull-gap recurrence completion for a bounded fixed-point hull-order TSP profile.",
+  "source": {
+    "title": "The Traveling Salesman Problem with Few Inner Points",
+    "authors": ["Vladimir G. Deıneko", "Michael Hoffmann", "Yoshio Okamoto", "Gerhard J. Woeginger"],
+    "year": 2006,
+    "reference": "Section 4; Encyclopedia of Algorithms, Chapter 426, DOI 10.1007/978-1-4939-2864-4_426",
+    "paper_url": "https://dopal.cs.uec.ac.jp/okamotoy/PDF/2006/FINALfewTSP.pdf",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_426",
+    "algorithm_attribution": "second fixed-parameter algorithm: subset recurrence F2[i,S,r] over the outer prefix and interior subsets, with the i=1 inner transition completed to include the first hull gap",
+    "implementation_status": "bounded clean-room algorithm implementation; no source code, prose, figures, or test data copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,k,outer IDs in supplied cyclic hull order,inner IDs,x0,y0,...,x(n-1),y(n-1)]",
+    "n_range": [3, 16],
+    "interior_point_count_range": [0, 6],
+    "additional_interior_point_constraint": "k <= n-3",
+    "coordinate_range": [-1000, 1000],
+    "point_constraint": "All coordinates are distinct; outer IDs are the strict convex hull in cyclic order and inner IDs are strictly interior. The geometric classification is supplied, as assumed by the source algorithm.",
+    "exact_length": "2 + 3*n",
+    "maximum_valid_length": 50,
+    "maximum_parseable_length": 51,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer",
+    "definition": "Minimum fixed-point cost among closed tours respecting the supplied cyclic hull order, with each Euclidean edge rounded to the nearest thousandth (halfway cases downward); this bounded rounded-metric hull-order profile does not claim the unrestricted exact-Euclidean optimum",
+    "scale": 1000,
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Two rolling subset-DP rows, bounded point coordinates, and fixed-point distance scratch."
+  },
+  "contract": {
+    "outer_order": "Use the supplied hull cycle exactly; either orientation and any starting hull vertex are accepted.",
+    "subset_state": "F2[i,S,r] is the minimum path cost on the first i outer vertices and interior subset S, ending at r in S or at the current outer vertex.",
+    "subset_order": "Interior subset states are processed by increasing bitmask; each transition adds one missing interior-point bit.",
+    "first_gap_completion": "Seed the first outer vertex with the empty subset and apply the inner-point transition before advancing to the second outer vertex, allowing interior points in the first hull gap.",
+    "distance_rounding": "For squared integer distance s, compute the nearest integer to sqrt(s*1000^2), rounding an exact tie downward, using integer arithmetic.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {"id":"three-four-five-convex-triangle","input_values":[3,0,0,1,2,0,0,3,0,0,4],"input_length":11,"output_capacity":8,"expected_result":8,"expected_output_hex":"e02e000000000000"},
+    {"id":"square-with-no-inner-points","input_values":[4,0,0,1,2,3,0,0,10,0,10,10,0,10],"input_length":14,"output_capacity":8,"expected_result":8,"expected_output_hex":"409c000000000000"},
+    {"id":"triangle-with-one-interior-point","input_values":[4,1,0,1,2,3,0,0,10,0,0,10,2,2],"input_length":14,"output_capacity":8,"expected_result":8,"expected_output_hex":"9089000000000000"},
+    {"id":"square-with-one-center-point","input_values":[5,1,0,1,2,3,4,0,0,10,0,10,10,0,10,5,5],"input_length":17,"output_capacity":8,"expected_result":8,"expected_output_hex":"6eac000000000000"},
+    {"id":"triangle-with-two-interior-points","input_values":[5,2,0,1,2,3,4,0,0,10,0,0,10,3,1,6,1],"input_length":17,"output_capacity":8,"expected_result":8,"expected_output_hex":"7b86000000000000"},
+    {"id":"square-with-inner-point-in-first-hull-gap","input_values":[5,1,0,1,2,3,4,0,0,10,0,10,10,0,10,5,1],"input_length":17,"output_capacity":8,"expected_result":8,"expected_output_hex":"069d000000000000"},
+    {"id":"too-few-hull-points","input_values":[2,0,0,1,0,0,1,0],"input_length":8,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[3,0,0,1,2,0,0,3,0,0,4,99],"input_length":12,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-output-capacity","input_values":[3,0,0,1,2,0,0,3,0,0,4],"input_length":11,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,0,0,1,2,0,0,3,0,0,4],"input_length":11,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":1,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

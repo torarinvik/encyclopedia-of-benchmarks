@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "k-ary-huffman-weighted-path-cost-i64-array-scalar-v1",
+  "algorithm": "k_ary_huffman_weighted_path_cost",
+  "function_symbol": "k_ary_huffman_weighted_path_cost",
+  "abi": "i64_array_scalar",
+  "description": "Construct a full ternary or quaternary Huffman tree and return its weighted external path length.",
+  "source": {
+    "title": "k-ary Huffman coding",
+    "authors": ["Paul E. Black"],
+    "reference": "NIST Dictionary of Algorithms and Data Structures, entry definition",
+    "url": "https://xlinux.nist.gov/dads/HTML/karyHuffman.html",
+    "discovery_url": "https://xlinux.nist.gov/dads/termsType.html",
+    "pinned_behavior": "Repeatedly join k least-weight trees into a k-ary tree; each level contributes one k-ary code symbol.",
+    "scope_note": "This profile accepts only leaf counts that form a full k-ary tree and inserts no padding leaves."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[k,n,w0,...,w(n-1)]",
+    "arity_values": [3, 4],
+    "symbol_count_range": [1, 10],
+    "weight_range": [0, 1000],
+    "full_tree_rule": "n=1 or (n-1) mod (k-1)=0",
+    "maximum_valid_length": 12,
+    "maximum_parseable_length": 13,
+    "invalid_input_result": -1,
+    "validation_order": "Validate non-null framing, exact length, arity, count, full-tree congruence, and weight bounds before returning the weighted cost."
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Minimum sum of each input weight times its leaf depth in k-ary digits.",
+    "valid_result_range": [0, 90000],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 1024,
+    "accounting": "At most 13 tree roots/nodes, their i64 weights and stable IDs, plus scan and merge scalars; input is caller-owned."
+  },
+  "complexity": {
+    "primary_time": "O(n^2) by repeated scans for the k smallest active roots",
+    "primary_auxiliary_space": "O(n)",
+    "independent_time": "O(S*n), where S is the number of full ordered k-ary shapes (at most 55 for k=3,n<=10 and 22 for k=4,n<=10)",
+    "independent_auxiliary_space": "O(n) per recursive shape generation path, plus the bounded shape list"
+  },
+  "oracle_method": "The primary sums each newly-created parent weight during stable k-way Huffman merging. The independent reference enumerates full ordered k-ary tree shapes, assigns the largest weights to the shallowest leaves, and minimizes the resulting cost.",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-symbol-ternary","input_values":[3,1,37],"input_length":3,"expected_result":0},
+    {"id":"one-symbol-quaternary","input_values":[4,1,0],"input_length":3,"expected_result":0},
+    {"id":"ternary-three-leaves","input_values":[3,3,1,2,7],"input_length":5,"expected_result":10},
+    {"id":"ternary-five-unequal","input_values":[3,5,1,1,1,1,9],"input_length":7,"expected_result":16},
+    {"id":"ternary-five-equal-tie","input_values":[3,5,1,1,1,1,1],"input_length":7,"expected_result":8},
+    {"id":"ternary-seven-equal","input_values":[3,7,1,1,1,1,1,1,1],"input_length":9,"expected_result":13},
+    {"id":"quaternary-four-leaves","input_values":[4,4,1,2,3,4],"input_length":6,"expected_result":10},
+    {"id":"quaternary-seven-increasing","input_values":[4,7,1,2,3,4,5,6,7],"input_length":9,"expected_result":38},
+    {"id":"quaternary-seven-equal-tie","input_values":[4,7,1,1,1,1,1,1,1],"input_length":9,"expected_result":11},
+    {"id":"maximum-valid-frame","input_values":[4,10,1,2,3,4,5,6,7,8,9,10],"input_length":12,"expected_result":91},
+    {"id":"invalid-ternary-count-two","input_values":[3,2,5,9],"input_length":4,"expected_result":-1},
+    {"id":"invalid-quaternary-count-three","input_values":[4,3,1,2,3],"input_length":5,"expected_result":-1},
+    {"id":"invalid-binary-arity","input_values":[2,3,1,2,3],"input_length":5,"expected_result":-1},
+    {"id":"invalid-negative-weight","input_values":[3,3,1,-1,4],"input_length":5,"expected_result":-1},
+    {"id":"invalid-weight-above-bound","input_values":[4,4,0,1,2,1001],"input_length":6,"expected_result":-1},
+    {"id":"trailing-word-at-parseable-bound","input_values":[4,10,1,2,3,4,5,6,7,8,9,10,0],"input_length":13,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

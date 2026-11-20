@@ -14,7 +14,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
 }
 
 // Clean-room bounded GBBS widest-path profile; see package LICENSE.txt.
-long gbbs_ss_widest_path(long* input, usz length, char* output, usz capacity)
+fn long gbbs_ss_widest_path(long* input, usz length, char* output, usz capacity)
         @export("gbbs_ss_widest_path") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1], source64 = input[2];

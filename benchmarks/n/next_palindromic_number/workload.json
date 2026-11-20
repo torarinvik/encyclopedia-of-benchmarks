@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "next-palindromic-number-decimal-i64-scalar-v1",
+  "algorithm": "next_palindromic_number",
+  "function_symbol": "next_palindromic_number",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n]",
+    "domain": "0 <= n <= 9999999999999999; n is interpreted in ordinary base-10 notation without leading zeroes",
+    "maximum_valid_input_words": 1,
+    "maximum_parseable_input_words": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "least decimal palindromic integer strictly greater than n",
+    "maximum_result": 10000000000000001,
+    "invalid_result": -1
+  },
+  "pinned_sources": [
+    {
+      "title": "Next Palindromic Number.",
+      "repository": "Codewars public kata index",
+      "url": "https://www.codewars.com/kata?tags=Algorithms%2CStrings%2CData+Structures",
+      "role": "title discovery only"
+    },
+    {
+      "title": "Generating palindromic numbers",
+      "repository": "Rhyscitlema algorithms notes",
+      "url": "https://rhyscitlema.estenligne.com/algorithms/generating-palindromic-numbers/",
+      "role": "independent description of numeric palindromes and increasing-generation structure"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "zero", "input_values": [0], "input_length": 1, "expected_result": 1},
+    {"id": "single-digit-middle", "input_values": [8], "input_length": 1, "expected_result": 9},
+    {"id": "single-digit-carry", "input_values": [9], "input_length": 1, "expected_result": 11},
+    {"id": "two-digit-leading-boundary", "input_values": [10], "input_length": 1, "expected_result": 11},
+    {"id": "already-palindromic", "input_values": [1221], "input_length": 1, "expected_result": 1331},
+    {"id": "same-length-prefix-carry", "input_values": [12932], "input_length": 1, "expected_result": 13031},
+    {"id": "all-nines-four-digits", "input_values": [9999], "input_length": 1, "expected_result": 10001},
+    {"id": "maximum-input", "input_values": [9999999999999999], "input_length": 1, "expected_result": 10000000000000001},
+    {"id": "negative-input", "input_values": [-1], "input_length": 1, "expected_result": -1},
+    {"id": "above-bound", "input_values": [10000000000000000], "input_length": 1, "expected_result": -1},
+    {"id": "empty-frame", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "null-pointer", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1},
+    {"id": "trailing-word", "input_values": [7, 0], "input_length": 2, "expected_result": -1}
+  ]
+}

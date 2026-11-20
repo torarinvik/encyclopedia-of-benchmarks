@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("recamans_sequence")
 fn recamans_sequence(index:Int64) abi("C")->Int64:
     if index<0 or index>32:return -1

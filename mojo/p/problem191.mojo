@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem191")
 fn problem191(days:Int64) abi("C")->Int64:
     if days<0 or days>65:return -1

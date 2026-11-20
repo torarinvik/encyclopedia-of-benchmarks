@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn tea_enc(block:UInt64,k0:UInt64,k1:UInt64)->UInt64:

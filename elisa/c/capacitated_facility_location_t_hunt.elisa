@@ -1,0 +1,198 @@
+const T_N: usize = 4
+const T_F: usize = 3
+const T_Q: usize = 4
+const T_P: usize = 7
+const T_NEG: i64 = -2305843009213693952
+
+def t_validate(input: view[i64]) -> bool:
+    if input.length < 4 or input.length > 68: return false
+    n64: i64 = input[0]
+    f64: i64 = input[1]
+    q64: i64 = input[2]
+    target64: i64 = input[3]
+    if n64 < 1 or n64 > 4 or f64 < 1 or f64 > 3 or q64 < 1 or q64 > 4 or target64 < 0 or target64 >= f64: return false
+    n: usize = n64.usize()
+    f: usize = f64.usize()
+    q: usize = q64.usize()
+    points: usize = n + f
+    if input.length != 4 + points * points + 2 * f + q + n: return false
+    i: mutable usize = 0
+    while i < points:
+        j: mutable usize = 0
+        while j < points:
+            value: i64 = input[4 + i * points + j]
+            if value < 0 or value > 1000: return false
+            if i == j and value != 0: return false
+            if i != j and value == 0: return false
+            if value != input[4 + j * points + i]: return false
+            k: mutable usize = 0
+            while k < points:
+                if value > input[4 + i * points + k] + input[4 + k * points + j]: return false
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+    at: mutable usize = 4 + points * points
+    i <- 0
+    while i < f:
+        value: i64 = input[at]
+        if value < 0 or value > 1000: return false
+        at <- at + 1
+        i <- i + 1
+    i <- 0
+    while i < f:
+        value: i64 = input[at]
+        if value < 1 or value > n64: return false
+        at <- at + 1
+        i <- i + 1
+    kinds: mutable i64[T_Q] = zeroed
+    i <- 0
+    while i < q:
+        kinds[i] <- input[at]
+        if kinds[i] < 0 or kinds[i] >= f64: return false
+        at <- at + 1
+        i <- i + 1
+    loads: mutable usize[T_Q] = zeroed
+    i <- 0
+    while i < n:
+        copy: i64 = input[at]
+        if copy < 0 or copy >= q64: return false
+        loads[copy.usize()] <- loads[copy.usize()] + 1
+        at <- at + 1
+        i <- i + 1
+    i <- 0
+    while i < q:
+        copy_capacity: i64 = input[4 + points * points + f + kinds[i].usize()]
+        if loads[i] > copy_capacity.usize(): return false
+        i <- i + 1
+    return true
+
+def t_compute(input: view[i64], output: mutable view[u8]) -> void:
+    n: usize = input[0].usize()
+    f: usize = input[1].usize()
+    q: usize = input[2].usize()
+    target: usize = input[3].usize()
+    points: usize = n + f
+    d: mutable i64[T_P * T_P] = zeroed
+    at: mutable usize = 4
+    i: mutable usize = 0
+    while i < points * points:
+        d[i] <- input[at]
+        at <- at + 1
+        i <- i + 1
+    fee: mutable i64[T_F] = zeroed
+    i <- 0
+    while i < f:
+        fee[i] <- input[at]
+        at <- at + 1
+        i <- i + 1
+    caps: mutable i64[T_F] = zeroed
+    i <- 0
+    while i < f:
+        caps[i] <- input[at]
+        at <- at + 1
+        i <- i + 1
+    kinds: mutable usize[T_Q] = zeroed
+    i <- 0
+    while i < q:
+        kinds[i] <- input[at].usize()
+        at <- at + 1
+        i <- i + 1
+    assignments: mutable usize[T_N] = zeroed
+    i <- 0
+    while i < n:
+        assignments[i] <- input[at].usize()
+        at <- at + 1
+        i <- i + 1
+    weights: mutable usize[T_Q] = zeroed
+    profits: mutable i64[T_Q] = zeroed
+    old: mutable i64 = 0
+    i <- 0
+    while i < q:
+        profits[i] <- fee[kinds[i]]
+        old <- old + fee[kinds[i]]
+        i <- i + 1
+    i <- 0
+    while i < n:
+        copy: usize = assignments[i]
+        source: usize = kinds[copy]
+        weights[copy] <- weights[copy] + 1
+        before: i64 = d[i * points + n + source]
+        after: i64 = d[i * points + n + target]
+        old <- old + before
+        profits[copy] <- profits[copy] - (after - before)
+        i <- i + 1
+    result: mutable i64[5] = zeroed
+    result[3] <- old
+    result[4] <- old
+    copies: mutable usize = 1
+    while copies <= n:
+        limit: mutable usize = copies * caps[target].usize()
+        if limit > n: limit <- n
+        dp: mutable i64[T_N + 1]
+        masks: mutable u32[T_N + 1]
+        w: mutable usize = 0
+        while w <= limit:
+            dp[w] <- T_NEG
+            masks[w] <- 0
+            w <- w + 1
+        dp[0] <- 0
+        item: mutable usize = 0
+        while item < q:
+            next_dp: mutable i64[T_N + 1]
+            next_masks: mutable u32[T_N + 1]
+            w <- 0
+            while w <= limit:
+                next_dp[w] <- dp[w]
+                next_masks[w] <- masks[w]
+                w <- w + 1
+            iw: usize = weights[item]
+            w <- 0
+            while w + iw <= limit:
+                if dp[w] != T_NEG:
+                    nw: usize = w + iw
+                    value: i64 = dp[w] + profits[item]
+                    mask: u32 = masks[w] | (1u32 << item)
+                    if value > next_dp[nw] or (value == next_dp[nw] and mask < next_masks[nw]):
+                        next_dp[nw] <- value
+                        next_masks[nw] <- mask
+                w <- w + 1
+            w <- 0
+            while w <= limit:
+                dp[w] <- next_dp[w]
+                masks[w] <- next_masks[w]
+                w <- w + 1
+            item <- item + 1
+        best: mutable i64 = T_NEG
+        best_mask: mutable u32 = 0
+        w <- 0
+        while w <= limit:
+            if dp[w] > best or (dp[w] == best and masks[w] < best_mask):
+                best <- dp[w]
+                best_mask <- masks[w]
+            w <- w + 1
+        if best > copies.i64() * fee[target]:
+            result[0] <- 1
+            result[1] <- copies.i64()
+            result[2] <- best_mask.i64()
+            result[4] <- old + copies.i64() * fee[target] - best
+            break
+        copies <- copies + 1
+    t_write(result[0:5], output)
+
+def t_write(words: view[i64], output: mutable view[u8]) -> void:
+    i: mutable usize = 0
+    while i < 5:
+        bits: u64 = words[i].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[i * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        i <- i + 1
+
+def capacitated_facility_location_t_hunt(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("capacitated_facility_location_t_hunt"):
+    if input.is_null() or length < 4 or length > 68: return -1
+    if not t_validate(input[0:length]): return -1
+    if output.is_null() or capacity < 40: return -2
+    t_compute(input[0:length], output[0:40])
+    return 40

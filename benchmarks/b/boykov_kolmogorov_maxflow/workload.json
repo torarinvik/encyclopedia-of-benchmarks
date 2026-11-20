@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "boykov-kolmogorov-maxflow-i64-array-scalar-v1",
+  "algorithm": "boykov_kolmogorov_maxflow",
+  "function_symbol": "boykov_kolmogorov_maxflow",
+  "abi": "i64_array_scalar",
+  "source": {
+    "url": "https://doi.org/10.1109/TPAMI.2004.60",
+    "implementation_notes_url": "https://www.boost.org/doc/libs/develop/libs/graph/doc/html/graph/algorithms/network_flow/boykov_kolmogorov_max_flow.html"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,s,t,(u_0,v_0,c_0),...,(u_(m-1),v_(m-1),c_(m-1))]",
+    "vertex_count_range": [2, 8],
+    "edge_count_range": [0, 16],
+    "terminal_rule": "0<=s,t<n and s!=t",
+    "endpoint_rule": "0<=u,v<n and u!=v; parallel and antiparallel arcs allowed",
+    "capacity_range": [0, 15],
+    "maximum_valid_input_length": 52,
+    "maximum_parseable_input_length": 53,
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "residual_graph": "Aggregate parallel input capacities in a directed n-by-n residual matrix; initialize R[u][v] to the sum of capacities for each directed input arc u->v.",
+    "tree_growth": "Initialize active FIFO queue [s,t]. Pop vertices FIFO and scan neighbors by ascending ID. Source-tree u grows over R[u][v]>0; sink-tree u grows backward over R[v][u]>0. Add a free neighbor to the active tree. On first opposite-tree encounter, record the oriented source-to-sink bridge and end growth.",
+    "bridge_resumption": "After finding a bridge, requeue its active endpoint at the queue tail before augmentation, so unscanned neighbors remain eligible after tree adoption.",
+    "augmentation": "Join the source parent chain, bridge, and sink parent chain; subtract the path bottleneck from each forward residual and add it to the reverse residual. Queue saturated tree children as orphans in source-to-sink path order.",
+    "orphan_adoption": "Process orphans FIFO. Choose the lowest-ID same-tree parent with a positive parent-to-orphan residual edge and a positive-residual parent chain to its tree root. If none exists, free the orphan, activate same-tree neighbors with a positive parent-to-orphan edge in ascending ID order, and enqueue former children as orphans in ascending ID order.",
+    "complexity": "Let C be the sum of input capacities leaving s; C<=240 and at most C augmentations occur. The bounded profile uses O((C+1)*n^4) worst-case time and O(n^2+m) auxiliary space for n<=8.",
+    "tie_breaking": "Active and orphan queues are FIFO; all vertex scans use ascending vertex ID; replacement-parent adoption chooses the lowest eligible vertex ID."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Maximum s-to-t flow value; -1 for invalid input.",
+    "valid_result_range": [0, 240],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"disconnected-terminals","input_values":[2,0,0,1],"input_length":4,"expected_result":0},
+    {"id":"single-directed-edge","input_values":[2,1,0,1,0,1,7],"input_length":7,"expected_result":7},
+    {"id":"parallel-arcs","input_values":[3,3,0,2,0,1,3,0,1,2,1,2,4],"input_length":13,"expected_result":4},
+    {"id":"two-disjoint-capacity-limited-paths","input_values":[4,4,0,3,0,1,3,1,3,2,0,2,4,2,3,3],"input_length":16,"expected_result":5},
+    {"id":"orphan-reparent-and-free","input_values":[6,7,0,5,0,1,1,0,2,1,1,3,1,2,1,1,2,4,1,3,5,1,4,5,1],"input_length":25,"expected_result":2},
+    {"id":"antiparallel-arcs","input_values":[3,3,0,2,0,1,2,1,0,3,1,2,2],"input_length":13,"expected_result":2},
+    {"id":"zero-capacity-edge","input_values":[2,1,0,1,0,1,0],"input_length":7,"expected_result":0},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"same-terminals","input_values":[2,0,1,1],"input_length":4,"expected_result":-1},
+    {"id":"edge-count-above-bound","input_values":[2,17,0,1],"input_length":4,"expected_result":-1},
+    {"id":"endpoint-out-of-range","input_values":[2,1,0,1,0,2,4],"input_length":7,"expected_result":-1},
+    {"id":"self-loop","input_values":[2,1,0,1,1,1,4],"input_length":7,"expected_result":-1},
+    {"id":"capacity-above-bound","input_values":[2,1,0,1,0,1,16],"input_length":7,"expected_result":-1},
+    {"id":"truncated-arc","input_values":[2,1,0,1,0,1],"input_length":6,"expected_result":-1},
+    {"id":"trailing-word","input_values":[2,0,0,1,0],"input_length":5,"expected_result":-1}
+  ]
+}

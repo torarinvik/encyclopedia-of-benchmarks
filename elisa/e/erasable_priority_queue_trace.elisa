@@ -1,0 +1,119 @@
+const EPQ_MAX_Q: usize = 63
+const EPQ_MAX_INPUT: usize = 128
+const EPQ_VALUE_OFFSET: usize = 100
+const EPQ_VALUE_COUNT: usize = 201
+
+def epq_less(left: usize, right: usize, values: view[i64]) -> bool:
+    if values[left] < values[right]: return true
+    if values[left] > values[right]: return false
+    left < right
+
+def epq_heap_push(heap: mutable view[usize], heap_size: mutable usize&,
+    item: usize, values: view[i64]) -> void:
+    index: mutable usize = heap_size
+    heap_size <- heap_size + 1
+    while index > 0:
+        parent: usize = (index - 1) / 2
+        if not epq_less(item, heap[parent], values): break
+        heap[index] <- heap[parent]
+        index <- parent
+    heap[index] <- item
+
+def epq_heap_pop(heap: mutable view[usize], heap_size: mutable usize&,
+    values: view[i64]) -> usize:
+    result: usize = heap[0]
+    heap_size <- heap_size - 1
+    if heap_size == 0: return result
+    last: usize = heap[heap_size]
+    index: mutable usize = 0
+    while true:
+        left: usize = 2 * index + 1
+        if left >= heap_size: break
+        right: usize = left + 1
+        child: mutable usize = left
+        if right < heap_size and epq_less(heap[right], heap[left], values):
+            child <- right
+        if not epq_less(heap[child], last, values): break
+        heap[index] <- heap[child]
+        index <- child
+    heap[index] <- last
+    result
+
+def epq_normalize(live: mutable view[usize], live_size: mutable usize&,
+    deleted: mutable view[usize], deleted_size: mutable usize&,
+    values: view[i64]) -> void:
+    while live_size > 0 and deleted_size > 0 and live[0] == deleted[0]:
+        removed_live: usize = epq_heap_pop(live, live_size, values)
+        removed_deleted: usize = epq_heap_pop(deleted, deleted_size, values)
+        if removed_live != removed_deleted: return
+
+def erasable_priority_queue_trace_impl(input: view[i64], length: usize) -> i64:
+    if length < 1 or length > EPQ_MAX_INPUT: return -1
+    q_value: i64 = input[0]
+    if q_value < 0 or q_value > EPQ_MAX_Q.i64(): return -1
+    q: usize = q_value.usize()
+    if length != 1 + 2 * q: return -1
+
+    values: mutable i64[EPQ_MAX_Q] = zeroed
+    counts: mutable usize[EPQ_VALUE_COUNT] = zeroed
+    active: mutable bool[EPQ_MAX_Q] = zeroed
+    live: mutable usize[EPQ_MAX_Q] = zeroed
+    deleted: mutable usize[EPQ_MAX_Q] = zeroed
+    value_view: mutable view[i64] = values[0:EPQ_MAX_Q]
+    live_view: mutable view[usize] = live[0:EPQ_MAX_Q]
+    deleted_view: mutable view[usize] = deleted[0:EPQ_MAX_Q]
+
+    live_size: mutable usize = 0
+    deleted_size: mutable usize = 0
+    inserted: mutable usize = 0
+    score: mutable i64 = 0
+    for operation in 0..<q:
+        opcode: i64 = input[1 + 2 * operation]
+        operand: i64 = input[2 + 2 * operation]
+        if opcode < 0 or opcode > 3 or operand < -100 or operand > 100: return -1
+        epq_normalize(live_view, live_size, deleted_view, deleted_size, value_view)
+
+        response: mutable i64 = 0
+        if opcode == 0:
+            id: usize = inserted
+            value_view[id] <- operand
+            active[id] <- true
+            key: usize = (operand + EPQ_VALUE_OFFSET.i64()).usize()
+            counts[key] <- counts[key] + 1
+            epq_heap_push(live_view, live_size, id, value_view)
+            inserted <- inserted + 1
+            epq_normalize(live_view, live_size, deleted_view, deleted_size, value_view)
+        elif opcode == 1:
+            key: usize = (operand + EPQ_VALUE_OFFSET.i64()).usize()
+            if counts[key] == 0: return -1
+            found: mutable usize = inserted
+            for candidate in 0..<inserted:
+                if active[candidate] and value_view[candidate] == operand:
+                    found <- candidate
+                    break
+            if found == inserted: return -1
+            active[found] <- false
+            counts[key] <- counts[key] - 1
+            epq_heap_push(deleted_view, deleted_size, found, value_view)
+            response <- 1
+            epq_normalize(live_view, live_size, deleted_view, deleted_size, value_view)
+        elif opcode == 2:
+            if operand != 0: return -1
+            if live_size == 0: response <- -101
+            else: response <- value_view[live_view[0]]
+        else:
+            if operand != 0 or live_size == 0: return -1
+            id: usize = epq_heap_pop(live_view, live_size, value_view)
+            active[id] <- false
+            key: usize = (value_view[id] + EPQ_VALUE_OFFSET.i64()).usize()
+            counts[key] <- counts[key] - 1
+            response <- value_view[id]
+
+        token: i64 = opcode * 202 + response + 101
+        score <- score + (operation + 1).i64() * token
+    score
+
+export fn erasable_priority_queue_trace(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > EPQ_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    erasable_priority_queue_trace_impl(input_view, length)

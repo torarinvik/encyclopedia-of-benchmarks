@@ -1,5 +1,5 @@
 module galloping_strategy;
-fn long bound_shift(long x){long s=@bitcast(long,@bitcast(ulong,x)<<1);return s<0?s+1:2147483647;}
+fn long bound_shift(long x){ulong bits=bitcast(x,ulong);bits<<=1;long s=bitcast(bits,long);return s<0?s+1:2147483647;}
 fn void left_run(long *a,long key,long base,long hint,long *offset,long *last){long max=hint+1,x=1,tmp=0;while(x<max&&key<a[base+hint-x]){tmp=x;x=bound_shift(x);}if(x>max)x=max;*last=hint-x;*offset=hint-tmp;}
 fn void right_run(long *a,long key,long base,long length,long hint,long *offset,long *last){long x=1,last0=0,max=length-hint;while(x<max&&key>a[base+hint+x]){last0=x;x=bound_shift(x);}if(x>max)x=max;*offset=x+hint;*last=last0+hint;}
 fn long final_offset(long *a,long key,long base,long offset,long last,int lt){last++;while(last<offset){long mid=last+(long)((ulong)(offset-last)>>1);int cmp=key>a[base+mid]?1:key<a[base+mid]?-1:0;if(cmp<lt)offset=mid;else last=mid+1;}return offset;}

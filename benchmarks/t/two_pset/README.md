@@ -13,7 +13,7 @@ This benchmark models the pinned Java TwoPSet with two initially empty replicas 
 
 ## Workload and implementation
 
-[`workload.json`](workload.json) covers absent removal followed by add, add after tombstoning, directional comparison, merge with tombstones, source preservation, self-operations, element boundaries, and malformed records. All nine ports use the i64_array_scalar ABI family.
+[`workload.json`](workload.json) covers absent removal followed by add, add after tombstoning, directional comparison, merge with tombstones, source preservation, self-operations, element boundaries, and malformed records. All ten ports use the i64_array_scalar ABI family.
 
 ## Upstream source
 
@@ -29,6 +29,7 @@ Build with `python3 benchmarks/build_abi.py --family i64_array_scalar --algorith
 | C3 | [`c3/t/two_pset.c3`](../../../c3/t/two_pset.c3) |
 | C++ | [`cpp/t/two_pset.cpp`](../../../cpp/t/two_pset.cpp) |
 | Elisa | [`elisa/t/two_pset.elisa`](../../../elisa/t/two_pset.elisa) |
+| Mojo | [`mojo/t/two_pset.mojo`](../../../mojo/t/two_pset.mojo) |
 | Nim | [`nim/t/two_pset.nim`](../../../nim/t/two_pset.nim) |
 | Odin | [`odin/t/two_pset.odin`](../../../odin/t/two_pset.odin) |
 | Rust | [`rust/t/two_pset.rs`](../../../rust/t/two_pset.rs) |

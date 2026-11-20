@@ -16,7 +16,7 @@ fn long goldbach_conjecture(long number, char* output, usz output_capacity)
     for (long first = 0; first <= number / 2; first++) {
         long second = number - first;
         if (is_prime(first) && is_prime(second)) {
-            ulong pair[2] = {(ulong)first, (ulong)second};
+            ulong[2] pair = {(ulong)first, (ulong)second};
             for (usz j = 0; j < 2; j++)
                 for (usz b = 0; b < 4; b++)
                     output[4 * j + b] = (char)((pair[j] >> (8 * b)) & 0xff);

@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-radio-network-bgi-broadcast-i64-array-bytes-output-v1",
+  "abi": "i64_array_bytes_output",
+  "algorithm": "radio_network_bgi_broadcast",
+  "function_symbol": "radio_network_bgi_broadcast",
+  "pinned_source": {
+    "title": "Randomized Broadcasting in Radio Networks",
+    "authors": ["Reuven Bar-Yehuda", "Oded Goldreich", "Alon Itai"],
+    "chapter": 322,
+    "doi": "10.1007/978-1-4939-2864-4_322",
+    "paper_doi": "10.1016/0022-0000(92)90042-H",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_322",
+    "license": "No source-code license asserted; clean-room algorithm implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,source,Delta,adjacency_mask[n],coin_bits[n*t*k]]; N=n, epsilon=1/2, k=2*ceil(log2(Delta)), t=ceil(log2(N/epsilon)); tape order is node, local call, slot",
+    "vertex_count_range": [2, 8],
+    "degree_bound_range": [2, 8],
+    "derived_k_range": [2, 6],
+    "derived_t_range": [2, 4],
+    "maximum_valid_length": 203,
+    "graph": "undirected simple graph encoded by symmetric loop-free vertex adjacency masks; maximum degree must not exceed Delta",
+    "coin_bits": "exactly n*t*k supplied binary values, consumed after the corresponding transmission",
+    "invalid_result": -1
+  },
+  "contract": {
+    "source_timing": "The source's initial message is its first Decay send in global slot 0 and consumes the source's local-call-0/slot-0 tape bit after sending.",
+    "schedule": "Each informed processor makes t Decay calls. A call sends at least once, continues after a coin bit of 1, stops after a bit of 0, and always stops after k sends. The coin after the kth send is ignored for control flow, though the corresponding supplied bit remains required and is validated. Each next call begins at the next slot whose global index is divisible by k.",
+    "activation": "A processor first informed in slot s never transmits in slot s. Its first eligible send is the smallest slot u>s with u mod k=0. Processors informed during a k-slot interval join at the following interval boundary.",
+    "reception": "A receiver gets the message iff exactly one neighbor transmits in that slot. Collisions are not detected and deliver no message in this bounded model.",
+    "randomness": "Coin bits are supplied and replayed deterministically. No random generator or success-probability claim is included.",
+    "output": "[n,completed_decay_phases,total_transmissions,first_informed_slot[0..n-1]]; source slot is 0, unreachable vertices use -1.",
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[n,completed_decay_phases,total_transmissions,first_informed_slot[0..n-1]]",
+    "maximum_bytes": 88,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed adjacency, activity, call-count, first-receipt, and staged-output state for at most eight vertices."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "isolated-source-runs-bounded-calls",
+      "input_values": [2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 13,
+      "output_capacity": 88,
+      "expected_result": 40,
+      "expected_output_hex": "0200000000000000 0200000000000000 0200000000000000 0000000000000000 ffffffffffffffff"
+    },
+    {
+      "id": "source-first-send-is-initial-message",
+      "input_values": [2, 0, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 13,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "0200000000000000 0300000000000000 0400000000000000 0000000000000000 0000000000000000"
+    },
+    {
+      "id": "kth-send-coin-one-still-forces-stop",
+      "input_values": [2, 0, 2, 2, 1, 1, 1, 0, 0, 1, 1, 0, 0],
+      "input_length": 13,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "0200000000000000 0300000000000000 0600000000000000 0000000000000000 0000000000000000"
+    },
+    {
+      "id": "path-relay-starts-at-next-aligned-boundary",
+      "input_values": [3, 0, 2, 2, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 24,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "0300000000000000 0500000000000000 0900000000000000 0000000000000000 0000000000000000 0200000000000000"
+    },
+    {
+      "id": "two-relays-collide-at-final-vertex",
+      "input_values": [4, 0, 2, 6, 9, 9, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 31,
+      "output_capacity": 56,
+      "expected_result": 56,
+      "expected_output_hex": "0400000000000000 0400000000000000 0900000000000000 0000000000000000 0000000000000000 0000000000000000 ffffffffffffffff"
+    },
+    {
+      "id": "eight-vertices-fill-output-cap",
+      "input_values": [
+        8, 0, 2,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 75,
+      "output_capacity": 88,
+      "expected_result": 88,
+      "expected_output_hex": "0800000000000000 0400000000000000 0400000000000000 0000000000000000 ffffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffff"
+    },
+    {
+      "id": "asymmetric-adjacency-is-invalid",
+      "input_values": [2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 13,
+      "output_capacity": 88,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid-output-buffer-too-small",
+      "input_values": [2, 0, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 13,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 0, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 13,
+      "output_capacity": 40,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 88,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

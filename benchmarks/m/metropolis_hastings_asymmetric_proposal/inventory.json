@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "metropolis_hastings_asymmetric_proposal",
+  "abi": "i64_array_bytes_output",
+  "maximum_input_length": 267,
+  "maximum_parseable_input_length": 268,
+  "maximum_output_bytes": 65,
+  "workspace_bytes": 65,
+  "workload_path": "benchmarks/m/metropolis_hastings_asymmetric_proposal/workload.json",
+  "cases": [
+    {"id":"asymmetric-correction-accepts","input_values":[2,4,0,1,3,512,512,768,256,1,0,1,1,3,4,1,5,1,2,1,2],"input_length":21,"output_capacity":65,"expected_result":5,"expected_output_hex":"0001000101"},
+    {"id":"reverse-correction-and-equality-reject","input_values":[2,3,1,1,3,512,512,768,256,0,0,1,1,2,2,9,0,1],"input_length":18,"output_capacity":65,"expected_result":4,"expected_output_hex":"01010101"},
+    {"id":"zero-reverse-probability-rejects","input_values":[2,1,0,1,3,0,1024,0,1024,1,0,1],"input_length":12,"output_capacity":65,"expected_result":2,"expected_output_hex":"0000"},
+    {"id":"maximum-state-count-zero-step","input_values":[8,0,7,1,1,1,1,1,1,1,1,1024,0,0,0,0,0,0,0,0,1024,0,0,0,0,0,0,0,0,1024,0,0,0,0,0,0,0,0,1024,0,0,0,0,0,0,0,0,1024,0,0,0,0,0,0,0,0,1024,0,0,0,0,0,0,0,0,1024],"input_length":75,"output_capacity":65,"expected_result":1,"expected_output_hex":"07"},
+    {"id":"row-does-not-sum-to-1024","input_values":[2,0,0,1,1,512,511,512,512],"input_length":9,"output_capacity":65,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-word","input_values":[2,0,0,1,3,512,512,768,256,99],"input_length":10,"output_capacity":65,"expected_result":-1,"expected_output_hex":""},
+    {"id":"proposal-has-zero-forward-probability","input_values":[2,1,0,1,1,1024,0,0,1024,1,0,1],"input_length":12,"output_capacity":65,"expected_result":-1,"expected_output_hex":""},
+    {"id":"draw-equals-one-is-invalid","input_values":[2,1,0,1,1,512,512,512,512,1,1,1],"input_length":12,"output_capacity":65,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-buffer","input_values":[2,0,0,1,3,512,512,768,256],"input_length":9,"output_capacity":0,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-buffer","input_values":[2,0,0,1,3,512,512,768,256],"input_length":9,"output_capacity":65,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input-buffer","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":65,"expected_result":-1,"expected_output_hex":""}
+  ],
+  "languages": [
+    {"name":"C","path":"c/m/metropolis_hastings_asymmetric_proposal.c","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"C3","path":"c3/m/metropolis_hastings_asymmetric_proposal.c3","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"C++","path":"cpp/m/metropolis_hastings_asymmetric_proposal.cpp","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"Elisa","path":"elisa/m/metropolis_hastings_asymmetric_proposal.elisa","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"Mojo","path":"mojo/m/metropolis_hastings_asymmetric_proposal.mojo","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"Nim","path":"nim/m/metropolis_hastings_asymmetric_proposal.nim","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"Odin","path":"odin/m/metropolis_hastings_asymmetric_proposal.odin","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"Rust","path":"rust/m/metropolis_hastings_asymmetric_proposal.rs","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"V","path":"v/m/metropolis_hastings_asymmetric_proposal.v","symbol":"metropolis_hastings_asymmetric_proposal"},
+    {"name":"Zig","path":"zig/m/metropolis_hastings_asymmetric_proposal.zig","symbol":"metropolis_hastings_asymmetric_proposal"}
+  ]
+}

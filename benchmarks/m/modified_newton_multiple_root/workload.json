@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "id": "nist-dlmf-multiple-root-modified-newton-f64-pair-v1",
+  "algorithm": "modified_newton_multiple_root",
+  "function_symbol": "modified_newton_multiple_root",
+  "description": "Apply a bounded number of multiplicity-corrected Newton updates to f(x)=(x-1)^2*(x+2).",
+  "pinned_source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.8(ii), Newton's rule and known-multiplicity correction",
+    "url": "https://dlmf.nist.gov/3.8#E4",
+    "role": "algorithm description only; the fixed polynomial profile is local"
+  },
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["initial_x", "iteration_count"],
+    "initial_x_range": [1.0, 2.0],
+    "iteration_count_range": [0.0, 8.0],
+    "iteration_count_integral": true,
+    "equation": "f(x)=(x-1)^2*(x+2); known root multiplicity=2",
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "The iterate after the requested multiplicity-corrected Newton updates; the exact root remains fixed.",
+    "invalid_input_result": -1.0
+  },
+  "references": {
+    "primary": "benchmarks/m/modified_newton_multiple_root/primary_oracle.py",
+    "independent": "benchmarks/m/modified_newton_multiple_root/independent_oracle.py"
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "zero-updates", "input_values": [2.0, 0.0], "expected_result": 2.0},
+    {"id": "one-update-from-upper-bound", "input_values": [2.0, 1.0], "expected_result": 1.1111111111111112},
+    {"id": "two-updates-from-upper-bound", "input_values": [2.0, 2.0], "expected_result": 1.0019493177387914},
+    {"id": "one-update-from-interior", "input_values": [1.5, 1.0], "expected_result": 1.0333333333333334},
+    {"id": "two-updates-from-interior", "input_values": [1.5, 2.0], "expected_result": 1.0001821493624772},
+    {"id": "eight-updates-reach-rounded-root", "input_values": [2.0, 8.0], "expected_result": 1.0},
+    {"id": "exact-multiple-root", "input_values": [1.0, 8.0], "expected_result": 1.0},
+    {"id": "fractional-iteration-count", "input_values": [1.5, 1.5], "expected_result": -1.0},
+    {"id": "negative-iteration-count", "input_values": [1.5, -1.0], "expected_result": -1.0},
+    {"id": "iteration-count-above-bound", "input_values": [1.5, 9.0], "expected_result": -1.0},
+    {"id": "initial-value-below-bound", "input_values": [0.99, 1.0], "expected_result": -1.0},
+    {"id": "initial-value-above-bound", "input_values": [2.01, 1.0], "expected_result": -1.0}
+  ]
+}

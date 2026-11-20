@@ -7,8 +7,9 @@ fn usz hash_index(long key, usz capacity) {
 }
 
 fn void resize_map(long* keys, long* values, bool* occupied, usz* capacity, usz new_capacity) {
-    long old_keys[128], old_values[128];
-    bool old_occupied[128];
+    long[128] old_keys;
+    long[128] old_values;
+    bool[128] old_occupied;
     usz old_capacity = *capacity;
     for (usz i = 0; i < old_capacity; i++) {
         old_occupied[i] = occupied[i];
@@ -62,14 +63,16 @@ fn bool delete_key(long* keys, long* values, bool* occupied, usz* capacity, usz*
 
 fn void append(long* words, usz* count, long value) { words[*count] = value; *count += 1; }
 
-long linear_probing_hash_map(long* input, usz length, char* output, usz output_capacity)
+fn long linear_probing_hash_map(long* input, usz length, char* output, usz output_capacity)
         @export("linear_probing_hash_map") {
     if (input == null || length < 2 || length > 98 || input[0] < 4 || input[0] > 16 ||
         input[1] < 0 || input[1] > (long)MAX_OPS) return -1;
     usz operation_count = (usz)input[1];
     if (length > 2 + 3 * operation_count) return -1;
-    long keys[128], values[128], words[320];
-    bool occupied[128];
+    long[128] keys;
+    long[128] values;
+    long[320] words;
+    bool[128] occupied;
     usz capacity = (usz)input[0], size = 0, word_count = 0, position = 2;
     for (usz i = 0; i < 64; i++) occupied[i] = false;
     for (usz opi = 0; opi < operation_count; opi++) {
@@ -79,34 +82,34 @@ long linear_probing_hash_map(long* input, usz length, char* output, usz output_c
             if (position + 1 >= length) return -1;
             long key = input[position], value = input[position + 1]; position += 2;
             if (key < -2147483648L || key > 2147483647L || value < -2147483648L || value > 2147483647L) return -1;
-            put(keys, values, occupied, &capacity, &size, key, value);
-            append(words, &word_count, 0); append(words, &word_count, 1);
+            put(&keys[0], &values[0], &occupied[0], &capacity, &size, key, value);
+            append(&words[0], &word_count, 0); append(&words[0], &word_count, 1);
         } else if (opcode >= 1 && opcode <= 3) {
             if (position >= length) return -1;
             long key = input[position++];
             if (key < -2147483648L || key > 2147483647L) return -1;
-            usz index = find_slot(keys, occupied, capacity, key);
+            usz index = find_slot(&keys[0], &occupied[0], capacity, key);
             if (opcode == 1) {
-                append(words, &word_count, 1);
-                if (index == capacity) { append(words, &word_count, 1); append(words, &word_count, 0); }
-                else { append(words, &word_count, 0); append(words, &word_count, values[index]); }
+                append(&words[0], &word_count, 1);
+                if (index == capacity) { append(&words[0], &word_count, 1); append(&words[0], &word_count, 0); }
+                else { append(&words[0], &word_count, 0); append(&words[0], &word_count, values[index]); }
             } else if (opcode == 2) {
-                append(words, &word_count, 2); append(words, &word_count, delete_key(keys, values, occupied, &capacity, &size, key) ? 1 : 0);
+                append(&words[0], &word_count, 2); append(&words[0], &word_count, delete_key(&keys[0], &values[0], &occupied[0], &capacity, &size, key) ? 1 : 0);
             } else {
-                append(words, &word_count, 3); append(words, &word_count, index != capacity ? 1 : 0);
+                append(&words[0], &word_count, 3); append(&words[0], &word_count, index != capacity ? 1 : 0);
             }
         } else if (opcode == 4) {
-            append(words, &word_count, 4); append(words, &word_count, (long)size);
+            append(&words[0], &word_count, 4); append(&words[0], &word_count, (long)size);
         } else if (opcode == 5) {
-            long sorted[32]; usz count = 0;
+            long[32] sorted; usz count = 0;
             for (usz i = 0; i < capacity; i++) if (occupied[i]) sorted[count++] = keys[i];
             for (usz i = 1; i < count; i++) {
                 long value = sorted[i]; usz j = i;
                 while (j > 0 && sorted[j - 1] > value) { sorted[j] = sorted[j - 1]; j--; }
                 sorted[j] = value;
             }
-            append(words, &word_count, 5); append(words, &word_count, (long)count);
-            for (usz i = 0; i < count; i++) append(words, &word_count, sorted[i]);
+            append(&words[0], &word_count, 5); append(&words[0], &word_count, (long)count);
+            for (usz i = 0; i < count; i++) append(&words[0], &word_count, sorted[i]);
         } else return -1;
     }
     if (position != length || word_count > MAX_OUTPUT_WORDS) return -1;

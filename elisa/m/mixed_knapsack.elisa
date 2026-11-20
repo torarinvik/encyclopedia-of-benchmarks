@@ -1,0 +1,70 @@
+# Mixed knapsack: safe input view, fixed capacity table, and mode dispatch.
+const MK_MAX_TYPES: usize = 16
+const MK_MAX_CAPACITY: usize = 64
+const MK_MAX_INPUT: usize = 67
+
+def mixed_knapsack_impl(values: view[i64], length: usize) -> i64:
+    if length < 2 or length > MK_MAX_INPUT or values.len() != length: return -1
+    n_value: i64 = values[0]
+    capacity_value: i64 = values[1]
+    if n_value < 0 or n_value > MK_MAX_TYPES.i64() or
+       capacity_value < 0 or capacity_value > MK_MAX_CAPACITY.i64(): return -1
+    n: usize = n_value.usize()
+    capacity: usize = capacity_value.usize()
+    if length != 2 + 4 * n: return -1
+    item: mutable usize = 0
+    while item < n:
+        mode: i64 = values[2 + 4 * item]
+        weight: i64 = values[3 + 4 * item]
+        value: i64 = values[4 + 4 * item]
+        limit: i64 = values[5 + 4 * item]
+        if mode < 0 or mode > 2 or weight < 1 or weight > 16 or value < 0 or value > 100:
+            return -1
+        if (mode == 0 and limit != 1) or (mode == 1 and limit != 0) or
+           (mode == 2 and (limit < 0 or limit > 16)): return -1
+        item <- item + 1
+
+    best_storage: mutable i64[65] = zeroed
+    best: mutable view[i64] = best_storage[0:65]
+    item <- 0
+    while item < n:
+        mode: i64 = values[2 + 4 * item]
+        weight: usize = values[3 + 4 * item].usize()
+        value: i64 = values[4 + 4 * item]
+        if mode == 0:
+            cap: mutable usize = capacity
+            while cap >= weight:
+                candidate: i64 = best[cap - weight] + value
+                if candidate > best[cap]: best[cap] <- candidate
+                if cap == weight: break
+                cap <- cap - 1
+        elif mode == 1:
+            cap: mutable usize = weight
+            while cap <= capacity:
+                candidate: i64 = best[cap - weight] + value
+                if candidate > best[cap]: best[cap] <- candidate
+                cap <- cap + 1
+        else:
+            remaining: mutable usize = values[5 + 4 * item].usize()
+            bundle_size: mutable usize = 1
+            while remaining > 0:
+                copies: usize = bundle_size
+                if copies > remaining: copies <- remaining
+                bundle_weight: usize = copies * weight
+                bundle_value: i64 = copies.i64() * value
+                if bundle_weight <= capacity:
+                    cap: mutable usize = capacity
+                    while cap >= bundle_weight:
+                        candidate: i64 = best[cap - bundle_weight] + bundle_value
+                        if candidate > best[cap]: best[cap] <- candidate
+                        if cap == bundle_weight: break
+                        cap <- cap - 1
+                remaining <- remaining - copies
+                bundle_size <- bundle_size * 2
+        item <- item + 1
+    best[capacity]
+
+export fn mixed_knapsack(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MK_MAX_INPUT: return -1
+    let values: view[i64] = input[0:length]
+    mixed_knapsack_impl(values, length)

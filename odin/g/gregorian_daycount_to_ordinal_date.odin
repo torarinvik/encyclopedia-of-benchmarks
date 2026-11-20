@@ -1,0 +1,46 @@
+package gregorian_daycount_to_ordinal_date
+
+import "core:c"
+
+is_leap_year :: proc(year: i64) -> bool {
+	return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
+}
+
+decode_offset :: proc(offset: i64) -> (i64, i64) {
+	shifted := offset + 719468
+	era := shifted / 146097
+	day_of_era := shifted - era * 146097
+	year_of_era := (day_of_era - day_of_era / 1460 + day_of_era / 36524
+		- day_of_era / 146096) / 365
+	year := year_of_era + era * 400
+	day_of_year_march := day_of_era - (365 * year_of_era + year_of_era / 4 - year_of_era / 100)
+	month_march := (5 * day_of_year_march + 2) / 153
+	day := day_of_year_march - (153 * month_march + 2) / 5 + 1
+	month := month_march + (if month_march < 10 then 3 else -9)
+	if month <= 2 do year += 1
+	days_before_month := [12]i64{0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
+	leap_adjustment := i64(0)
+	if month > 2 && is_leap_year(year) do leap_adjustment = 1
+	return year, days_before_month[int(month - 1)] + leap_adjustment + day
+}
+
+store_i64_le :: proc(output: [^]u8, offset: int, value: i64) {
+	bits := u64(value)
+	for byte := 0; byte < 8; byte += 1 {
+		output[offset + byte] = u8(bits & 255)
+		bits >>= 8
+	}
+}
+
+@(export)
+gregorian_daycount_to_ordinal_date :: proc "c" (input: [^]i64, length: c.size_t,
+		output: [^]u8, capacity: c.size_t) -> i64 {
+	if input == nil || length < 1 || length > 2 || length != 1 do return -1
+	offset := input[0]
+	if offset < -146097 || offset > 146097 do return -1
+	if output == nil || capacity < 16 do return -2
+	year, ordinal := decode_offset(offset)
+	store_i64_le(output, 0, year)
+	store_i64_le(output, 8, ordinal)
+	return 16
+}

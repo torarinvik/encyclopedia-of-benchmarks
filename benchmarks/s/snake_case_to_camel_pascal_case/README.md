@@ -25,10 +25,11 @@ The source is the pinned Python [`snake_case_to_camel_pascal_case.py`](https://g
 | C3 | [`c3/s/snake_case_to_camel_pascal_case.c3`](../../../c3/s/snake_case_to_camel_pascal_case.c3) |
 | C++ | [`cpp/s/snake_case_to_camel_pascal_case.cpp`](../../../cpp/s/snake_case_to_camel_pascal_case.cpp) |
 | Elisa | [`elisa/s/snake_case_to_camel_pascal_case.elisa`](../../../elisa/s/snake_case_to_camel_pascal_case.elisa) |
+| Mojo | [`mojo/s/snake_case_to_camel_pascal_case.mojo`](../../../mojo/s/snake_case_to_camel_pascal_case.mojo) |
 | Nim | [`nim/s/snake_case_to_camel_pascal_case.nim`](../../../nim/s/snake_case_to_camel_pascal_case.nim) |
 | Odin | [`odin/s/snake_case_to_camel_pascal_case.odin`](../../../odin/s/snake_case_to_camel_pascal_case.odin) |
 | Rust | [`rust/s/snake_case_to_camel_pascal_case.rs`](../../../rust/s/snake_case_to_camel_pascal_case.rs) |
 | V | [`v/s/snake_case_to_camel_pascal_case.v`](../../../v/s/snake_case_to_camel_pascal_case.v) |
 | Zig | [`zig/s/snake_case_to_camel_pascal_case.zig`](../../../zig/s/snake_case_to_camel_pascal_case.zig) |
 
-The source-backed byte-output oracle branch is pending integration in [`benchmarks/run_i64_array_bytes_output.py`](../../run_i64_array_bytes_output.py).
+The source-shaped primary reference and split/join independent reference are registered with the byte-output runner and verifier. Their bounds, ten native paths, and workload metadata are recorded in the package inventory.

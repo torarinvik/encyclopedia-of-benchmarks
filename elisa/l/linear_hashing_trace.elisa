@@ -1,0 +1,81 @@
+fn linear_hashing_solve(values: view[i64]) -> i64:
+    if values.length < 1 or values.length > 128: return -1
+    operation_count: i64 = values[0]
+    if operation_count < 0 or operation_count > 63: return -1
+    if values.length != 1 + 2 * operation_count: return -1
+
+    heads: mutable i64[32] = zeroed
+    keys: mutable i64[63] = zeroed
+    links: mutable i64[63] = zeroed
+    for bucket in 0..<32: heads[bucket] <- -1
+
+    level: mutable i64 = 1
+    split: mutable i64 = 0
+    live_count: mutable i64 = 0
+    allocated: mutable i64 = 0
+    result: mutable i64 = 0
+
+    for operation in 0..<operation_count:
+        opcode: i64 = values[1 + 2 * operation]
+        key: i64 = values[2 + 2 * operation]
+        if opcode < 0 or opcode > 2 or key < -1024 or key > 1023: return -1
+        base: i64 = 1 << level
+        remainder: mutable i64 = key % base
+        if remainder < 0: remainder <- remainder + base
+        bucket: mutable i64 = remainder
+        if bucket < split:
+            remainder <- key % (base * 2)
+            if remainder < 0: remainder <- remainder + base * 2
+            bucket <- remainder
+
+        previous: mutable i64 = -1
+        node: mutable i64 = heads[bucket]
+        while node != -1 and keys[node] != key:
+            previous <- node
+            node <- links[node]
+        found: bool = node != -1
+        succeeded: mutable i64 = 0
+
+        if opcode == 0 and not found:
+            node <- allocated
+            allocated <- allocated + 1
+            keys[node] <- key
+            links[node] <- heads[bucket]
+            heads[bucket] <- node
+            live_count <- live_count + 1
+            succeeded <- 1
+            bucket_count: i64 = base + split
+            if bucket_count < 32 and live_count > 2 * bucket_count:
+                old_bucket: i64 = split
+                new_bucket: i64 = base + split
+                current: mutable i64 = heads[old_bucket]
+                heads[old_bucket] <- -1
+                while current != -1:
+                    following: i64 = links[current]
+                    remainder <- keys[current] % (base * 2)
+                    if remainder < 0: remainder <- remainder + base * 2
+                    if remainder == new_bucket:
+                        links[current] <- heads[new_bucket]
+                        heads[new_bucket] <- current
+                    else:
+                        links[current] <- heads[old_bucket]
+                        heads[old_bucket] <- current
+                    current <- following
+                split <- split + 1
+                if split == base:
+                    level <- level + 1
+                    split <- 0
+        elif opcode == 1 and found:
+            if previous == -1: heads[bucket] <- links[node]
+            else: links[previous] <- links[node]
+            live_count <- live_count - 1
+            succeeded <- 1
+        elif opcode == 2 and found:
+            succeeded <- 1
+        result <- (result << 1) | succeeded
+    result
+
+export fn linear_hashing_trace(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 128: return -1
+    values: view[i64] = input[0:length]
+    linear_hashing_solve(values)

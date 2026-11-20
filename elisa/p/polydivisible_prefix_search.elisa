@@ -1,0 +1,24 @@
+# Recursively count valid extensions; the recursion depth is at most six.
+def polydivisible_extend(prefix: i64, digits: i64, base: i64, max_digits: i64) -> i64:
+    count: mutable i64 = 1
+    if digits == max_digits: return count
+    next_length: i64 = digits + 1
+    for digit in 0..base:
+        candidate: i64 = prefix * base + digit
+        if candidate % next_length == 0:
+            count <- count + polydivisible_extend(candidate, next_length, base, max_digits)
+    count
+
+def polydivisible_prefix_search_impl(input: view[i64]) -> i64:
+    if input.length != 2: return -1
+    base: i64 = input[0]
+    max_digits: i64 = input[1]
+    if base < 2 or base > 10 or max_digits < 1 or max_digits > 6: return -1
+    total: mutable i64 = 0
+    for first_digit in 1..base:
+        total <- total + polydivisible_extend(first_digit, 1, base, max_digits)
+    total
+
+export fn polydivisible_prefix_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    polydivisible_prefix_search_impl(input[0:length])

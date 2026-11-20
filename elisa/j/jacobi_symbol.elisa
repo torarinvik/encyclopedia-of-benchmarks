@@ -1,0 +1,30 @@
+const JACOBI_MAX_MODULUS: i64 = 1000000000
+const JACOBI_MAX_LENGTH: usize = 3
+
+def jacobi_reciprocity(numerator: i64, denominator: i64) -> i64:
+    a: mutable i64 = numerator
+    n: mutable i64 = denominator
+    sign: mutable i64 = 1
+    while a != 0:
+        while (a & 1) == 0:
+            a <- a/2
+            if n % 8 == 3 or n % 8 == 5: sign <- -sign
+        if a % 4 == 3 and n % 4 == 3: sign <- -sign
+        old_a: i64 = a
+        a <- n
+        n <- old_a
+        a <- a % n
+    if n == 1: sign
+    else: 0
+
+def jacobi_symbol_impl(input: view[i64]) -> i64:
+    let length: usize = input.len()
+    if length < 2 or length > JACOBI_MAX_LENGTH or length != 2: return -1
+    let numerator: i64 = input[0]
+    let denominator: i64 = input[1]
+    if denominator < 1 or denominator > JACOBI_MAX_MODULUS or (denominator & 1) == 0 or numerator < 0 or numerator >= denominator: return -1
+    jacobi_reciprocity(numerator, denominator)+1
+
+export fn jacobi_symbol(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > JACOBI_MAX_LENGTH: return -1
+    jacobi_symbol_impl(input[0:length])

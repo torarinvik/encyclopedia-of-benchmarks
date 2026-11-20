@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "mian-chowla-sequence-i64-array-scalar-v1",
+  "algorithm": "mian_chowla_sequence",
+  "function_symbol": "mian_chowla_sequence",
+  "abi": "i64_array_scalar",
+  "description": "Return the nth term of the greedy Mian–Chowla B2 sequence.",
+  "source": {
+    "title": "On the B2 sequences of Sidon",
+    "authors": ["Abdul Majid Mian", "S. Chowla"],
+    "publisher": "Proceedings of the National Institute of Sciences of India, Section A",
+    "volume": 14,
+    "year": 1944,
+    "pages": "3–4",
+    "reference_url": "https://journals.us.edu.pl/index.php/AMSIL/article/download/14110/10834/40240",
+    "definition_url": "https://oeis.org/A005282",
+    "discovery_url": "https://rosettagit.org/tasks/mian-chowla-sequence/",
+    "implementation_status": "bounded clean-room greedy sequence profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n]",
+    "n_range": [1, 30],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "one-based nth term of the Mian–Chowla sequence beginning 1, 2, 4, ...",
+    "valid_result_range": [1, 1312],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "recurrence": "a(1)=1; for k>1, a(k) is the least integer greater than a(k-1) such that all unordered sums a(i)+a(j), 1<=i<=j<=k, are distinct",
+    "algorithm": "The primary retains the set of previously used pair sums and tests each candidate by checking its sums with all old terms and its doubled value. Distinct old terms imply the newly formed sums are pairwise distinct; each candidate is rejected iff one of its new sums was used earlier.",
+    "independent_method": "The reference tests each candidate by recomputing every unordered pair sum, including diagonal pairs, over the whole tentative prefix.",
+    "termination_and_bounds": "For n<=30 the largest supported term is a(30)=1312; the maximum output and pair-sum domain are therefore explicitly bounded.",
+    "invalid_cases": "Null input, empty or non-exact frame, a trailing word, or n outside 1..30 returns -1.",
+    "distinction": "This is the greedy B2/Sidon sequence recurrence, not a generic integer-sequence recurrence or a search for an optimal Sidon set."
+  },
+  "complexity": {
+    "primary_time": "At most 1312 candidate values are considered for n<=30; each candidate checks at most n old-term sums against at most n(n+1)/2 stored sums, giving a fixed upper bound of O(1312*n^3) comparisons.",
+    "primary_space": "O(n^2) stored pair sums.",
+    "independent_time": "For each candidate, recompute O(n^2) pair sums; across at most 1312 candidates and n<=30 this is O(1312*n^2) pair checks.",
+    "independent_space": "O(n^2) pair sums for the tentative prefix."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"first-term","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"second-term","input_values":[2],"input_length":1,"expected_result":2},
+    {"id":"third-term-rejects-three","input_values":[3],"input_length":1,"expected_result":4},
+    {"id":"eighth-term","input_values":[8],"input_length":1,"expected_result":45},
+    {"id":"fifteenth-term","input_values":[15],"input_length":1,"expected_result":204},
+    {"id":"twentieth-term","input_values":[20],"input_length":1,"expected_result":475},
+    {"id":"maximum-term","input_values":[30],"input_length":1,"expected_result":1312},
+    {"id":"zero-invalid","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"above-maximum-invalid","input_values":[31],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[8,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

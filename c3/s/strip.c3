@@ -10,7 +10,7 @@ fn bool strip_contains(long value, long* input, usz set_start, long set_length) 
     return false;
 }
 
-fn long strip(long* input, usz length, uint8* output, usz output_capacity) @export("strip") {
+fn long strip(long* input, usz length, char* output, usz output_capacity) @export("strip") {
     if (input == null || length < 2 || length > 386) return -1;
     if (input[0] < 0 || input[0] > (long)MAX_TEXT_LENGTH) return -1;
     usz text_length = (usz)input[0];
@@ -36,6 +36,6 @@ fn long strip(long* input, usz length, uint8* output, usz output_capacity) @expo
     while (end > start && strip_contains(input[end], input, set_index + 1, set_length)) end--;
     usz output_length = end - start;
     if (output_capacity < output_length || (output_length > 0 && output == null)) return -2;
-    for (usz i = 0; i < output_length; i++) output[i] = (uint8)input[1 + start + i];
+    for (usz i = 0; i < output_length; i++) output[i] = (char)input[1 + start + i];
     return (long)output_length;
 }

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "algorithm": "squfof_semiprime_factor",
+  "function_symbol": "squfof_semiprime_factor",
+  "abi": "i64_array_scalar",
+  "status": "complete source package; shared scalar-suite and catalog integration registered",
+  "native_paths": [
+    "c/s/squfof_semiprime_factor.c",
+    "c3/s/squfof_semiprime_factor.c3",
+    "cpp/s/squfof_semiprime_factor.cpp",
+    "elisa/s/squfof_semiprime_factor.elisa",
+    "mojo/s/squfof_semiprime_factor.mojo",
+    "nim/s/squfof_semiprime_factor.nim",
+    "odin/s/squfof_semiprime_factor.odin",
+    "rust/s/squfof_semiprime_factor.rs",
+    "v/s/squfof_semiprime_factor.v",
+    "zig/s/squfof_semiprime_factor.zig"
+  ],
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_number": 1000000000000,
+    "forward_cap": [0, 256],
+    "reverse_cap": [0, 256],
+    "maximum_valid_input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "workspace_bytes": 512
+  },
+  "references": [
+    {
+      "role": "primary",
+      "method": "Streaming P/Q continued-fraction recurrence and reverse inverse-square-root walk."
+    },
+    {
+      "role": "independent",
+      "method": "Table-driven (m,d,a_n) complete quotients, with forward and reverse denominators reconstructed from discriminant invariants."
+    }
+  ],
+  "sources": [
+    {
+      "role": "primary_algorithm",
+      "title": "Square Form Factorization",
+      "authors": ["Jason E. Gower", "Samuel S. Wagstaff, Jr."],
+      "url": "https://homes.cerias.purdue.edu/~ssw/squfof.pdf",
+      "sections": "3.1–3.3"
+    },
+    {
+      "role": "historical_algorithm_description",
+      "title": "SQUFOF (an unfinished manuscript)",
+      "author": "Daniel Shanks",
+      "url": "https://homes.cerias.purdue.edu/~ssw/shanks.pdf"
+    },
+    {
+      "role": "title_discovery_only",
+      "title": "RosettaCodeData popular-tasks, pinned revision",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+    }
+  ]
+}

@@ -35,7 +35,7 @@ fn long npb_ep(double* input, usz length, double* output, usz capacity)
     if (output == null || capacity < 12) return -2;
 
     long state = (long)input[1];
-    long histogram[10] = {0};
+    long[10] histogram = {0};
     double sum_x = 0.0, sum_y = 0.0;
     for (usz pair = 0; pair < pair_count; pair += 1) {
         state = advance_state(state);

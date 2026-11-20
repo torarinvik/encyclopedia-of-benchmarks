@@ -21,6 +21,7 @@
     "p_must_be_prime": true,
     "n_range": [0, 1000000000000000000],
     "k_range": [0, 8],
+    "k_must_not_exceed_n": true,
     "maximum_valid_length": 18,
     "maximum_parseable_input_length": 18,
     "invalid_input_result": -1
@@ -86,6 +87,12 @@
     {
       "id": "composite-modulus",
       "input_values": [1, 15, 20, 3],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "k-greater-than-n",
+      "input_values": [1, 11, 2, 3],
       "input_length": 4,
       "expected_result": -1
     },

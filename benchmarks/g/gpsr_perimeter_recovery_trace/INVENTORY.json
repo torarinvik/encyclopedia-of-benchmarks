@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "algorithm": "gpsr_perimeter_recovery_trace",
+  "function_symbol": "gpsr_perimeter_recovery_trace",
+  "abi": "i64_array_bytes_output",
+  "status": "registered_i64_array_bytes_output",
+  "native_paths": [
+    "c/g/gpsr_perimeter_recovery_trace.c",
+    "c3/g/gpsr_perimeter_recovery_trace.c3",
+    "cpp/g/gpsr_perimeter_recovery_trace.cpp",
+    "elisa/g/gpsr_perimeter_recovery_trace.elisa",
+    "mojo/g/gpsr_perimeter_recovery_trace.mojo",
+    "nim/g/gpsr_perimeter_recovery_trace.nim",
+    "odin/g/gpsr_perimeter_recovery_trace.odin",
+    "rust/g/gpsr_perimeter_recovery_trace.rs",
+    "v/g/gpsr_perimeter_recovery_trace.v",
+    "zig/g/gpsr_perimeter_recovery_trace.zig"
+  ],
+  "package_files": [
+    "__init__.py", "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_vertices": 8,
+    "maximum_edges": 18,
+    "maximum_valid_input_length": 56,
+    "maximum_parseable_input_length": 57,
+    "maximum_route_vertices": 37,
+    "maximum_crossing_events": 18,
+    "maximum_output_words": 112,
+    "maximum_output_bytes": 896,
+    "fixed_payload_accounting_bytes": 3344,
+    "workspace_bytes": 8192
+  },
+  "sources": [
+    {
+      "role": "operational_algorithm",
+      "title": "GPSR: Greedy Perimeter Stateless Routing for Wireless Networks",
+      "authors": ["Brad Karp", "H. T. Kung"],
+      "year": 2000,
+      "section": "§§2.2 and 2.4",
+      "doi": "10.1145/345910.345953",
+      "url": "https://doi.org/10.1145/345910.345953"
+    },
+    {
+      "role": "encyclopedia_crosswalk",
+      "title": "Geographic Routing",
+      "chapter": 352,
+      "doi": "10.1007/978-1-4939-2864-4_352",
+      "url": "https://doi.org/10.1007/978-1-4939-2864-4_352"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-fractional-programming-ratio-knapsack-binary-search-i64-array-scalar-v1",
+  "algorithm": "fractional_programming_ratio_knapsack_binary_search",
+  "function_symbol": "fractional_programming_ratio_knapsack_binary_search",
+  "abi": "i64_array_scalar",
+  "description": "Maximize a selected-item numerator/denominator ratio subject to a minimum total denominator, using ratio bisection and a transformed 0/1 knapsack check.",
+  "source": {
+    "discovery_title": "Fractional Programming",
+    "discovery_note": "OI Wiki article method description only; no text, examples, code, or tests reused.",
+    "discovery_url": "https://oi-wiki.org/misc/frac-programming/",
+    "index_url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/mkdocs.yml",
+    "method_reference": "OI Wiki fractional-programming article: ratio bisection with transformed additive objective and denominator-constrained 0/1 knapsack feasibility.",
+    "license_note": "OI Wiki states CC BY-SA 4.0 and SATA; only the algorithm idea is used."
+  },
+  "input": {
+    "kind": "signed_64_bit_array",
+    "encoding": "[n,W,(a_i,b_i)*n]",
+    "n_range": [1, 12],
+    "required_denominator_range": [1, 32],
+    "numerator_range": [0, 1000],
+    "denominator_range": [1, 8],
+    "required_denominator_condition": "W <= sum(b_i)",
+    "maximum_valid_length": 26,
+    "maximum_parseable_length": 27,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "floor(1000000 * maximum sum(a_i)/sum(b_i) among subsets with sum(b_i)>=W)",
+    "scale": 1000000,
+    "valid_result_range": [0, 1000000000],
+    "invalid_result": -1
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Two 33-entry i64 knapsack rows, bounded input item arrays, and fixed scalar bookkeeping."
+  },
+  "contract": {
+    "primary_method": "Binary-search integer q in [0,1000000000] for the largest feasible threshold. Feasibility maximizes sum(1000000*a_i-q*b_i) over subsets with denominator sum at least W using two-row 0/1 knapsack DP over denominator sums capped at W; it is feasible iff the maximum is nonnegative.",
+    "independent_method": "Enumerate every nonempty subset, retain those whose denominator sum is at least W, compare exact ratios by integer cross-products, then floor the winning ratio multiplied by 1000000.",
+    "complexity": "Primary O(n*W*log(1000000001)) time and O(W) auxiliary space; independent O(2^n*n) time.",
+    "invalid_cases": "Null input, malformed length, out-of-bound n/W/a_i/b_i, or W greater than the total denominator returns -1.",
+    "distinct_from": "dinkelbach_fixed_cardinality_ratio selects exactly K items and iterates Dinkelbach updates using a top-K residual selector; this profile uses a minimum-denominator knapsack feasibility DP and ratio bisection."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"truncated-frame","input_values":[1],"input_length":1,"expected_result":-1},
+    {"id":"missing-items","input_values":[1,1],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"single-item-three-halves","input_values":[1,1,3,2],"input_length":4,"expected_result":1500000},
+    {"id":"single-item-one-third","input_values":[1,1,1,3],"input_length":4,"expected_result":333333},
+    {"id":"single-item-sixth","input_values":[1,1,1,6],"input_length":4,"expected_result":166666},
+    {"id":"single-item-maximum-ratio","input_values":[1,1,1000,1],"input_length":4,"expected_result":1000000000},
+    {"id":"best-single-item","input_values":[2,1,5,2,9,3],"input_length":6,"expected_result":3000000},
+    {"id":"both-items-required","input_values":[2,4,5,2,9,3],"input_length":6,"expected_result":2800000},
+    {"id":"all-items-required","input_values":[2,5,5,2,9,3],"input_length":6,"expected_result":2800000},
+    {"id":"denominator-threshold-selects-pair","input_values":[3,10,10,8,9,4,4,4],"input_length":8,"expected_result":1583333},
+    {"id":"threshold-prefers-one-third","input_values":[2,3,1,3,2,7],"input_length":6,"expected_result":333333},
+    {"id":"zero-numerators","input_values":[2,4,0,4,0,7],"input_length":6,"expected_result":0},
+    {"id":"maximum-frame-and-total-weight","input_values":[12,12,1000,1,1000,1,1000,1,1000,1,1000,1,1000,1,1000,1,1000,1,1000,1,1000,1,1000,1,1000,1],"input_length":26,"expected_result":1000000000},
+    {"id":"extra-word","input_values":[1,1,1,1,0],"input_length":5,"expected_result":-1},
+    {"id":"negative-n","input_values":[-1,1],"input_length":2,"expected_result":-1},
+    {"id":"n-over-bound","input_values":[13,1],"input_length":2,"expected_result":-1},
+    {"id":"zero-required-denominator","input_values":[1,0,1,1],"input_length":4,"expected_result":-1},
+    {"id":"total-denominator-too-small","input_values":[2,6,100,2,100,3],"input_length":6,"expected_result":-1},
+    {"id":"numerator-over-bound","input_values":[1,1,1001,1],"input_length":4,"expected_result":-1},
+    {"id":"zero-item-denominator","input_values":[1,1,1,0],"input_length":4,"expected_result":-1},
+    {"id":"i64-min-n","input_values":[-9223372036854775808,1],"input_length":2,"expected_result":-1},
+    {"id":"i64-max-denominator","input_values":[1,1,1,9223372036854775807],"input_length":4,"expected_result":-1}
+  ],
+  "generated_profile": {
+    "maximum_n": 12,
+    "maximum_required_denominator": 32,
+    "maximum_scaled_result": 1000000000,
+    "description": "Each feasible ratio is a denominator-weighted average of item ratios a_i/b_i<=1000, so the scaled result is at most 1000000000."
+  }
+}

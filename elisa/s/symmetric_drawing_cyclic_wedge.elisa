@@ -1,0 +1,352 @@
+const SW_N: usize = 8
+const SW_M: usize = 18
+const SW_F: usize = 12
+const SW_INPUT_MAX: usize = 55
+const SW_OUTPUT_MAX: usize = 128
+
+def sw_connected(adj: view[i64], n: usize, removed_a: i64, removed_b: i64) -> bool:
+    start: mutable i64 = -1
+    expected: mutable usize = 0
+    for v in 0..<n:
+        if v.i64() != removed_a and v.i64() != removed_b:
+            if start < 0: start <- v.i64()
+            expected <- expected + 1
+    if expected <= 1: return true
+    seen: mutable bool[8] = zeroed
+    stack: mutable usize[8] = zeroed
+    top: mutable usize = 1
+    count: mutable usize = 0
+    seen[start.usize()] <- true
+    stack[0] <- start.usize()
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        count <- count + 1
+        for v in 0..<n:
+            if v.i64() != removed_a and v.i64() != removed_b and adj[u * 8 + v] != 0 and not seen[v]:
+                seen[v] <- true
+                stack[top] <- v
+                top <- top + 1
+    count == expected
+
+def sw_face_walk(rotation: view[i64], degree: view[i64], adj: view[i64], n: usize,
+                 m: usize, first: usize, second: usize,
+                 cycle: mutable view[i64]) -> i64:
+    seen: mutable bool[64] = zeroed
+    u: mutable usize = first
+    v: mutable usize = second
+    length: mutable usize = 0
+    for step in 0..<(2 * m):
+        if adj[u * 8 + v] == 0 or seen[u * 8 + v]: return -1
+        seen[u * 8 + v] <- true
+        cycle[length] <- u.i64()
+        length <- length + 1
+        at: mutable i64 = -1
+        for i in 0..<degree[v].usize():
+            if rotation[v * 8 + i] == u.i64(): at <- i.i64()
+        if at < 0: return -1
+        next: usize = rotation[v * 8 + ((at.usize() + 1) % degree[v].usize())].usize()
+        u <- v
+        v <- next
+        if u == first and v == second: return length.i64()
+    -1
+
+def sw_same_cyclic(a: view[i64], a_length: usize, b: view[i64], b_length: usize) -> bool:
+    if a_length != b_length: return false
+    for shift in 0..<b_length:
+        equal: mutable bool = true
+        for i in 0..<a_length:
+            if a[i] != b[(i + shift) % b_length]: equal <- false
+        if equal: return true
+    false
+
+def sw_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits >> (8 * byte)).u8()
+
+def sw_compute(input: view[i64], output: mutable view[u8], capacity: usize,
+               output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > SW_INPUT_MAX: return -1
+    n0: i64 = input[0]
+    k0: i64 = input[1]
+    b0: i64 = input[2]
+    if n0 < 4 or n0 > 8 or k0 < 3 or k0 > 8 or (n0 - 1) % k0 != 0 or
+        b0 < k0 or b0 > n0 or b0 % k0 != 0: return -1
+    n: usize = n0.usize()
+    k: usize = k0.usize()
+    b: usize = b0.usize()
+    offset: mutable usize = 3
+    if offset + b > length: return -1
+
+    outer: mutable i64[8] = zeroed
+    outer_seen: mutable bool[8] = zeroed
+    for i in 0..<b:
+        raw: i64 = input[offset]
+        offset <- offset + 1
+        if raw < 0 or raw >= n0 or outer_seen[raw.usize()]: return -1
+        outer[i] <- raw
+        outer_seen[raw.usize()] <- true
+
+    degree: mutable i64[8] = zeroed
+    rotation: mutable i64[64] = zeroed
+    adjacent: mutable i64[64] = zeroed
+    degree_sum: mutable usize = 0
+    for u in 0..<n:
+        if offset >= length: return -1
+        raw_degree: i64 = input[offset]
+        offset <- offset + 1
+        if raw_degree < 3 or raw_degree >= n0 or offset + raw_degree.usize() > length: return -1
+        d: usize = raw_degree.usize()
+        degree[u] <- raw_degree
+        degree_sum <- degree_sum + d
+        row_seen: mutable bool[8] = zeroed
+        for i in 0..<d:
+            raw: i64 = input[offset]
+            offset <- offset + 1
+            if raw < 0 or raw >= n0 or raw == u.i64() or row_seen[raw.usize()]: return -1
+            row_seen[raw.usize()] <- true
+            rotation[u * 8 + i] <- raw
+            adjacent[u * 8 + raw.usize()] <- 1
+    if offset + n != length or degree_sum % 2 != 0: return -1
+
+    permutation: mutable i64[8] = zeroed
+    permutation_seen: mutable bool[8] = zeroed
+    for u in 0..<n:
+        raw: i64 = input[offset + u]
+        if raw < 0 or raw >= n0 or permutation_seen[raw.usize()]: return -1
+        permutation[u] <- raw
+        permutation_seen[raw.usize()] <- true
+    m: usize = degree_sum / 2
+    if m < n or m > 3 * n - 6 or m > SW_M: return -1
+    edges_u: mutable i64[18] = zeroed
+    edges_v: mutable i64[18] = zeroed
+    edge_count: mutable usize = 0
+    for u in 0..<n:
+        for v in 0..<n:
+            if adjacent[u * 8 + v] != adjacent[v * 8 + u]: return -1
+            if u < v and adjacent[u * 8 + v] != 0:
+                edges_u[edge_count] <- u.i64()
+                edges_v[edge_count] <- v.i64()
+                edge_count <- edge_count + 1
+    if edge_count != m or not sw_connected(adjacent[0:64], n, -1, -1): return -1
+    for u in 0..<n:
+        if not sw_connected(adjacent[0:64], n, u.i64(), -1): return -1
+        for v in (u + 1)..<n:
+            if not sw_connected(adjacent[0:64], n, u.i64(), v.i64()): return -1
+
+    dart_face: mutable i64[64] = zeroed
+    for i in 0..<64: dart_face[i] <- -1
+    face_length: mutable i64[12] = zeroed
+    faces: mutable i64[96] = zeroed
+    face_count: mutable usize = 0
+    walk: mutable i64[36] = zeroed
+    for e in 0..<m:
+        a: usize = edges_u[e].usize()
+        c: usize = edges_v[e].usize()
+        for direction in 0..<2:
+            u: usize = if direction == 0: a else: c
+            v: usize = if direction == 0: c else: a
+            if dart_face[u * 8 + v] >= 0: continue
+            if face_count >= SW_F: return -1
+            walk_length0: i64 = sw_face_walk(rotation[0:64], degree[0:8], adjacent[0:64], n, m, u, v, walk[0:36])
+            if walk_length0 < 3 or walk_length0 > n0: return -1
+            walk_length: usize = walk_length0.usize()
+            face_seen: mutable bool[8] = zeroed
+            for i in 0..<walk_length:
+                x: usize = walk[i].usize()
+                y: usize = walk[(i + 1) % walk_length].usize()
+                if face_seen[x] or dart_face[x * 8 + y] >= 0: return -1
+                face_seen[x] <- true
+            face_length[face_count] <- walk_length0
+            for i in 0..<walk_length:
+                x: usize = walk[i].usize()
+                y: usize = walk[(i + 1) % walk_length].usize()
+                faces[face_count * 8 + i] <- x.i64()
+                dart_face[x * 8 + y] <- face_count.i64()
+            face_count <- face_count + 1
+    if face_count != m - n + 2: return -1
+    outer_id: mutable i64 = -1
+    for f in 0..<face_count:
+        if face_length[f].usize() == b and sw_same_cyclic(outer[0:8], b, faces[f * 8:(f * 8) + 8], b):
+            outer_id <- f.i64()
+    if outer_id < 0: return -1
+
+    center: mutable i64 = -1
+    fixed_count: mutable usize = 0
+    for v in 0..<n:
+        if permutation[v] == v.i64(): center <- v.i64(); fixed_count <- fixed_count + 1
+    if fixed_count != 1: return -1
+    if outer_seen[center.usize()]: return -1
+    for v in 0..<n:
+        if v.i64() != center:
+            current: mutable usize = permutation[v].usize()
+            orbit_length: mutable usize = 1
+            while current != v and orbit_length <= k:
+                current <- permutation[current].usize()
+                orbit_length <- orbit_length + 1
+            if current != v or orbit_length != k: return -1
+    for v in 0..<n:
+        image: usize = permutation[v].usize()
+        for w in 0..<n:
+            if adjacent[v * 8 + w] != adjacent[image * 8 + permutation[w].usize()]: return -1
+        row_ok: mutable bool = false
+        for shift in 0..<degree[image].usize():
+            equal: mutable bool = true
+            for i in 0..<degree[v].usize():
+                if permutation[rotation[v * 8 + i].usize()] != rotation[image * 8 + ((i + shift) % degree[image].usize())]: equal <- false
+            if equal: row_ok <- true
+        if not row_ok: return -1
+    shift: usize = b / k
+    for i in 0..<b:
+        if permutation[outer[i].usize()] != outer[(i + shift) % b]: return -1
+
+    distance: mutable i64[8] = zeroed
+    for v in 0..<n: distance[v] <- -1
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    distance[center.usize()] <- 0
+    queue[0] <- center.usize()
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n:
+            if adjacent[u * 8 + v] != 0 and distance[v] < 0:
+                distance[v] <- distance[u] + 1
+                queue[tail] <- v
+                tail <- tail + 1
+    endpoint: mutable i64 = -1
+    for i in 0..<b:
+        v: usize = outer[i].usize()
+        if endpoint < 0 or distance[v] < distance[endpoint.usize()] or (distance[v] == distance[endpoint.usize()] and v.i64() < endpoint): endpoint <- v.i64()
+    if endpoint < 0 or distance[endpoint.usize()] <= 0: return -1
+    to_endpoint: mutable i64[8] = zeroed
+    for v in 0..<n: to_endpoint[v] <- -1
+    head <- 0; tail <- 1
+    to_endpoint[endpoint.usize()] <- 0
+    queue[0] <- endpoint.usize()
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n:
+            if adjacent[u * 8 + v] != 0 and to_endpoint[v] < 0:
+                to_endpoint[v] <- to_endpoint[u] + 1
+                queue[tail] <- v
+                tail <- tail + 1
+    p1: mutable i64[8] = zeroed
+    p2: mutable i64[8] = zeroed
+    p0: mutable i64[8] = zeroed
+    p1_len: mutable usize = 1
+    p1[0] <- center
+    while p1[p1_len - 1] != endpoint and p1_len < SW_N:
+        u: usize = p1[p1_len - 1].usize()
+        choice: mutable i64 = -1
+        for v in 0..<n:
+            if adjacent[u * 8 + v] != 0 and to_endpoint[v] == to_endpoint[u] - 1 and (choice < 0 or v.i64() < choice): choice <- v.i64()
+        if choice < 0: return -1
+        p1[p1_len] <- choice
+        p1_len <- p1_len + 1
+    if p1[p1_len - 1] != endpoint or p1_len - 1 != distance[endpoint.usize()].usize(): return -1
+    p2_len: usize = p1_len
+    for i in 0..<p1_len: p2[i] <- permutation[p1[i].usize()]
+    endpoint2: i64 = p2[p2_len - 1]
+    if endpoint2 == endpoint: return -1
+    for i in 1..<(p1_len - 1):
+        for j in 1..<p2_len:
+            if p1[i] == p2[j]: return -1
+    for i in 1..<(p1_len - 1):
+        for j in 0..<b:
+            if p1[i] == outer[j]: return -1
+    for i in 1..<(p2_len - 1):
+        for j in 0..<b:
+            if p2[i] == outer[j]: return -1
+    start: mutable i64 = -1
+    for i in 0..<b:
+        if outer[i] == endpoint: start <- i.i64()
+    if start < 0: return -1
+    p0_len: usize = b / k + 1
+    for i in 0..<p0_len: p0[i] <- outer[(start.usize() + i) % b]
+    if p0[p0_len - 1] != endpoint2: return -1
+    cycle: mutable i64[24] = zeroed
+    cycle_len: mutable usize = 0
+    for i in 0..<p1_len: cycle[cycle_len] <- p1[i]; cycle_len <- cycle_len + 1
+    for i in 1..<p0_len: cycle[cycle_len] <- p0[i]; cycle_len <- cycle_len + 1
+    i: mutable usize = p2_len - 1
+    while i > 0:
+        i <- i - 1
+        cycle[cycle_len] <- p2[i]
+        cycle_len <- cycle_len + 1
+    if cycle[0] != center or cycle[cycle_len - 1] != center: return -1
+    cycle_vertex: mutable bool[8] = zeroed
+    cycle_edge: mutable bool[64] = zeroed
+    for j in 0..<(cycle_len - 1):
+        u: usize = cycle[j].usize()
+        v: usize = cycle[j + 1].usize()
+        if adjacent[u * 8 + v] == 0 or cycle_vertex[u]: return -1
+        cycle_vertex[u] <- true
+        cycle_edge[u * 8 + v] <- true
+        cycle_edge[v * 8 + u] <- true
+    seed: i64 = dart_face[p0[1].usize() * 8 + p0[0].usize()]
+    if seed < 0 or seed == outer_id: return -1
+    dual: mutable bool[144] = zeroed
+    in_face: mutable bool[12] = zeroed
+    face_queue: mutable usize[12] = zeroed
+    for e in 0..<m:
+        u: usize = edges_u[e].usize()
+        v: usize = edges_v[e].usize()
+        if not cycle_edge[u * 8 + v]:
+            a: usize = dart_face[u * 8 + v].usize()
+            c: usize = dart_face[v * 8 + u].usize()
+            dual[a * 12 + c] <- true
+            dual[c * 12 + a] <- true
+    head <- 0; tail <- 1
+    face_queue[0] <- seed.usize()
+    in_face[seed.usize()] <- true
+    while head < tail:
+        f: usize = face_queue[head]
+        head <- head + 1
+        for other in 0..<face_count:
+            if dual[f * 12 + other] and not in_face[other]:
+                in_face[other] <- true
+                face_queue[tail] <- other
+                tail <- tail + 1
+    if in_face[outer_id.usize()]: return -1
+    wedge_vertex: mutable bool[8] = zeroed
+    for v in 0..<n: wedge_vertex[v] <- cycle_vertex[v]
+    for f in 0..<face_count:
+        if in_face[f]:
+            for j in 0..<face_length[f].usize(): wedge_vertex[faces[f * 8 + j].usize()] <- true
+    vertex_mask: mutable i64 = 0
+    edge_mask: mutable i64 = 0
+    for v in 0..<n:
+        if wedge_vertex[v]: vertex_mask <- vertex_mask | (1 << v)
+    for e in 0..<m:
+        if wedge_vertex[edges_u[e].usize()] and wedge_vertex[edges_v[e].usize()]: edge_mask <- edge_mask | (1 << e)
+    words: mutable i64[16] = zeroed
+    at: mutable usize = 0
+    words[at] <- p1_len.i64(); at <- at + 1
+    for j in 0..<p1_len: words[at] <- p1[j]; at <- at + 1
+    words[at] <- p2_len.i64(); at <- at + 1
+    for j in 0..<p2_len: words[at] <- p2[j]; at <- at + 1
+    words[at] <- p0_len.i64(); at <- at + 1
+    for j in 0..<p0_len: words[at] <- p0[j]; at <- at + 1
+    words[at] <- vertex_mask; at <- at + 1
+    words[at] <- edge_mask; at <- at + 1
+    bytes: usize = at * 8
+    if bytes > SW_OUTPUT_MAX: return -1
+    if output_is_null or capacity < bytes: return -2
+    for j in 0..<at: sw_store_i64(output, j * 8, words[j])
+    bytes.i64()
+
+export fn symmetric_drawing_cyclic_wedge(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > SW_INPUT_MAX: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return sw_compute(input_view, scratch[0:1], output_capacity, true)
+    safe_capacity: usize = if output_capacity > SW_OUTPUT_MAX: SW_OUTPUT_MAX else: output_capacity
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    sw_compute(input_view, output_view, output_capacity, false)

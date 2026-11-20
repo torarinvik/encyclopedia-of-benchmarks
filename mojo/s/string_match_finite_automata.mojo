@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn finite_next(p:UnsafePointer[Int64,ImmutAnyOrigin],plen:Int,state:Int,sym:Int64)->Int:

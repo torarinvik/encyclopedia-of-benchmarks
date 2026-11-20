@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "same-fringe-leaf-iterator-i64-array-scalar-v1",
+  "algorithm": "same_fringe_leaf_iterator",
+  "function_symbol": "same_fringe_leaf_iterator",
+  "abi": "i64_array_scalar",
+  "description": "Compare two full binary trees' left-to-right leaf-label sequences with lockstep explicit-stack iterators.",
+  "source": {
+    "title": "On the static and dynamic extents of delimited continuations",
+    "authors": ["Dariusz Biernacki", "Olivier Danvy", "Chung-chieh Shan"],
+    "publisher": "Science of Computer Programming",
+    "volume": 60,
+    "year": 2006,
+    "pages": "274-297",
+    "reference_url": "https://doi.org/10.1016/j.scico.2006.01.002",
+    "accessible_copy": "https://www.cs.tufts.edu/comp/150FP/archive/olivier-danvy/sdarticle.pdf",
+    "discovery_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_title": "Same-fringe",
+    "implementation_status": "bounded clean-room stack-iterator profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[nA,nB, recordsA..., recordsB...], each local node record is [value,left_child,right_child], roots are local node 0, and child -1 means absent",
+    "node_count_range_per_tree": [1, 15],
+    "maximum_total_nodes": 30,
+    "node_record_words": 3,
+    "exact_length_formula": "2 + 3*(nA+nB)",
+    "maximum_valid_length": 92,
+    "maximum_parseable_length": 93,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "1 if leaf labels match in left-to-right order, 0 if they differ, -1 for malformed framing or a malformed tree",
+    "valid_result_range": [0, 1],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "tree_shape": "Each tree is a full binary tree: a leaf has both children equal to -1; an internal node has two distinct child indices in 0..n-1. Unary nodes are invalid. Internal-node values are ignored; leaf values are signed i64 labels.",
+    "structure_validation": "The root is node 0. Every node must be reachable exactly once, root 0 must have no parent, every other node exactly one parent, and cycles/shared children are invalid. The two node tables are disjoint and child indices are local to each table.",
+    "algorithm": "Validate both node tables. Initialize one stack with each root. Each iterator pops a node, yields a leaf label when at a leaf, or pushes right then left child. Compare yielded labels one pair at a time and stop at the first mismatch; equal output requires both iterators to exhaust together.",
+    "independent_method": "The independent reference recursively validates each tree and fully collects its left-to-right leaf list, then compares the two lists.",
+    "invalid_cases": "Null input, fewer than two header words, more than 93 parseable words, invalid node counts, non-exact frame length, invalid child markers/indices, unary nodes, duplicate child edges, cycles, shared children, unreachable records, or invalid root parent counts return -1.",
+    "distinction": "flatten_nested_list flattens a nested-list input and returns a leaf-sequence hash. This profile compares two independent binary trees' leaf streams lockstep, returns only whether they are equal, and stops leaf comparisons at the first mismatch.",
+    "validation_note": "Structural validation visits every node before comparison; after validation, the lockstep iterator avoids building either complete leaf list and stops leaf-value comparisons at the first mismatch."
+  },
+  "complexity": {
+    "primary_time": "O(nA+nB) for full structural validation and at most O(nA+nB) iterator work; mismatching leaf streams stop value comparisons at their first differing leaf.",
+    "primary_space": "One reused 15-entry validation stack, visited flags, and parent counts, plus two 15-entry iterator stacks and scalar state; capped at 1024 bytes.",
+    "independent_time": "O(nA+nB) recursive validation and complete leaf collection.",
+    "independent_space": "At most 15 visited-node markers and 15 parent counts per tree, eight leaf labels per tree, and recursion state; Python runtime object overhead is reference-only and outside the native workspace cap."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "workspace": {"bytes": 1024},
+  "cases": [
+    {"id":"single-equal-leaves","input_values":[1,1,5,-1,-1,5,-1,-1],"input_length":8,"expected_result":1},
+    {"id":"single-unequal-leaves","input_values":[1,1,-7,-1,-1,7,-1,-1],"input_length":8,"expected_result":0},
+    {"id":"equal-fringes-different-shapes","input_values":[5,5,99,1,4,88,2,3,1,-1,-1,2,-1,-1,3,-1,-1,77,1,2,1,-1,-1,66,3,4,2,-1,-1,3,-1,-1],"input_length":32,"expected_result":1},
+    {"id":"first-leaf-mismatch","input_values":[5,5,99,1,4,88,2,3,1,-1,-1,2,-1,-1,3,-1,-1,77,1,2,8,-1,-1,66,3,4,2,-1,-1,3,-1,-1],"input_length":32,"expected_result":0},
+    {"id":"middle-leaf-mismatch","input_values":[5,5,99,1,4,88,2,3,1,-1,-1,2,-1,-1,3,-1,-1,77,1,2,1,-1,-1,66,3,4,9,-1,-1,3,-1,-1],"input_length":32,"expected_result":0},
+    {"id":"last-leaf-mismatch","input_values":[5,5,99,1,4,88,2,3,1,-1,-1,2,-1,-1,3,-1,-1,77,1,2,1,-1,-1,66,3,4,2,-1,-1,9,-1,-1],"input_length":32,"expected_result":0},
+    {"id":"same-prefix-different-leaf-count","input_values":[5,3,99,1,4,88,2,3,1,-1,-1,2,-1,-1,3,-1,-1,77,1,2,1,-1,-1,2,-1,-1],"input_length":26,"expected_result":0},
+    {"id":"maximum-node-tables-equal-fringes","input_values":[15,15,900,1,2,901,3,4,8,-1,-1,902,5,6,7,-1,-1,903,7,8,6,-1,-1,904,9,10,5,-1,-1,905,11,12,4,-1,-1,906,13,14,3,-1,-1,1,-1,-1,2,-1,-1,8,1,2,7,3,4,6,5,6,5,7,8,4,9,10,3,11,12,2,13,14,1,-1,-1,2,-1,-1,3,-1,-1,4,-1,-1,5,-1,-1,6,-1,-1,7,-1,-1,8,-1,-1],"input_length":92,"expected_result":1},
+    {"id":"signed-i64-leaf-labels","input_values":[1,1,-9223372036854775808,-1,-1,-9223372036854775808,-1,-1],"input_length":8,"expected_result":1},
+    {"id":"empty-null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"short-header","input_values":[1],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,1,5,-1,-1,5,-1,-1,0],"input_length":9,"expected_result":-1},
+    {"id":"invalid-node-count","input_values":[16,1],"input_length":2,"expected_result":-1},
+    {"id":"unary-node-invalid","input_values":[2,1,5,1,-1,9,-1,-1,9,-1,-1],"input_length":11,"expected_result":-1},
+    {"id":"duplicate-child-invalid","input_values":[3,1,0,1,1,1,-1,-1,2,-1,-1,9,-1,-1],"input_length":14,"expected_result":-1},
+    {"id":"unreachable-record-invalid","input_values":[3,1,5,-1,-1,1,-1,-1,2,-1,-1,5,-1,-1],"input_length":14,"expected_result":-1},
+    {"id":"cycle-invalid","input_values":[3,1,0,1,2,0,0,2,2,-1,-1,9,-1,-1],"input_length":14,"expected_result":-1},
+    {"id":"out-of-range-child-invalid","input_values":[1,1,5,0,1,7,-1,-1],"input_length":8,"expected_result":-1}
+  ]
+}

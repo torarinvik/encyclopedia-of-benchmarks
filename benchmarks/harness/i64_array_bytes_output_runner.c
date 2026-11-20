@@ -116,17 +116,43 @@ static int finite_f64(double value)
     return value == value && value <= DBL_MAX && value >= -DBL_MAX;
 }
 
+enum { COMPARISON_BYTES, COMPARISON_FLOAT64_VECTOR, COMPARISON_FLOAT64_CSC };
+
+static int float64_csc_structural_bytes(const uint8_t *expected,
+                                        size_t expected_length,
+                                        size_t *structural_bytes)
+{
+    if (expected_length % 8 != 0 || expected_length < 16) return 0;
+    const double dimension_value = decode_little_endian_f64(expected);
+    const double nonzero_value = decode_little_endian_f64(expected + 8);
+    if (!finite_f64(dimension_value) || dimension_value < 2.0 || dimension_value > 16.0 ||
+        dimension_value != (double)(uint64_t)dimension_value ||
+        !finite_f64(nonzero_value) || nonzero_value < 0.0 || nonzero_value > 256.0 ||
+        nonzero_value != (double)(uint64_t)nonzero_value) return 0;
+    const size_t dimension = (size_t)dimension_value;
+    const size_t nonzeros = (size_t)nonzero_value;
+    const size_t structural_words = 2 + dimension + 1 + nonzeros;
+    if (structural_words + nonzeros != expected_length / 8) return 0;
+    *structural_bytes = structural_words * 8;
+    return 1;
+}
+
 static int buffer_matches(int64_t observed_count, uint8_t *output,
                           int64_t expected_count, const uint8_t *expected, size_t expected_length,
-                          int float64_vector, double absolute_tolerance, double relative_tolerance)
+                          int comparison_kind, double absolute_tolerance, double relative_tolerance)
 {
     if (observed_count != expected_count) return 0;
-    if (!float64_vector)
+    if (comparison_kind == COMPARISON_BYTES)
         return expected_length == 0 || memcmp(output, expected, expected_length) == 0;
+    if (expected_length == 0) return 1;
     if (expected_length % 8 != 0 ||
         (expected_count >= 0 && expected_count != (int64_t)(expected_length / 8) &&
          expected_count != (int64_t)expected_length)) return 0;
-    for (size_t offset = 0; offset < expected_length; offset += 8) {
+    size_t first_tolerant_byte = 0;
+    if (comparison_kind == COMPARISON_FLOAT64_CSC &&
+        (!float64_csc_structural_bytes(expected, expected_length, &first_tolerant_byte) ||
+         memcmp(output, expected, first_tolerant_byte) != 0)) return 0;
+    for (size_t offset = first_tolerant_byte; offset < expected_length; offset += 8) {
         const double actual = decode_little_endian_f64(output + offset);
         const double reference = decode_little_endian_f64(expected + offset);
         const double difference = actual >= reference ? actual - reference : reference - actual;
@@ -141,30 +167,31 @@ static int buffer_matches(int64_t observed_count, uint8_t *output,
 static int output_matches(const int64_t *values, size_t length, uint8_t *output, size_t capacity,
                           int output_is_null,
                           int64_t expected_count, const uint8_t *expected, size_t expected_length,
-                          int float64_vector, double absolute_tolerance, double relative_tolerance)
+                          int comparison_kind, double absolute_tolerance, double relative_tolerance)
 {
     const int64_t observed_count = run_algorithm(values, length,
                                                   output_is_null ? NULL : output, capacity);
     return buffer_matches(observed_count, output, expected_count, expected, expected_length,
-                          float64_vector, absolute_tolerance, relative_tolerance);
+                          comparison_kind, absolute_tolerance, relative_tolerance);
 }
 
 static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
                          const uint8_t *expected, size_t expected_length, size_t output_capacity,
                          int output_is_null,
                          uint64_t samples_arg, uint64_t warmups_arg, uint64_t repetitions_arg,
-                         int float64_vector, double absolute_tolerance, double relative_tolerance)
+                         int comparison_kind, double absolute_tolerance, double relative_tolerance)
 {
     if (expected_count < -10 || expected_count > MAX_OUTPUT_BYTES ||
         samples_arg == 0 || samples_arg > 10000 || warmups_arg > 100000 ||
         repetitions_arg == 0 || repetitions_arg > 1000000000 ||
         expected_length > output_capacity || output_capacity > MAX_OUTPUT_BYTES ||
         (output_is_null && expected_length != 0) ||
-        (float64_vector && (expected_length % 8 != 0 ||
+        (comparison_kind != COMPARISON_BYTES && (expected_length % 8 != 0 ||
          (expected_count >= 0 && expected_count != (int64_t)(expected_length / 8) &&
           expected_count != (int64_t)expected_length) ||
          !finite_f64(absolute_tolerance) || absolute_tolerance < 0.0 ||
-         !finite_f64(relative_tolerance) || relative_tolerance < 0.0))) {
+         !finite_f64(relative_tolerance) || relative_tolerance < 0.0)) ||
+        comparison_kind < COMPARISON_BYTES || comparison_kind > COMPARISON_FLOAT64_CSC) {
         fprintf(stderr, "invalid expected result, output, or timing settings\n"); free(values); return 2;
     }
     uint8_t *output = malloc(output_capacity == 0 ? 1 : output_capacity);
@@ -181,7 +208,7 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
     }
     if (!output_matches(values, length, output, output_capacity, output_is_null,
                         expected_count, expected,
-                        expected_length, float64_vector, absolute_tolerance, relative_tolerance)) {
+                        expected_length, comparison_kind, absolute_tolerance, relative_tolerance)) {
         fprintf(stderr, "correctness mismatch for input array\n");
         free(values); free(output); free(sample_ns); return 3;
     }
@@ -192,7 +219,7 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
             observed_count = run_algorithm(values, length,
                                            output_is_null ? NULL : output, output_capacity);
         if (!buffer_matches(observed_count, output, expected_count, expected, expected_length,
-                            float64_vector, absolute_tolerance, relative_tolerance)) {
+                            comparison_kind, absolute_tolerance, relative_tolerance)) {
             fprintf(stderr, "output changed during warmup\n");
             free(values); free(output); free(sample_ns); return 3;
         }
@@ -212,7 +239,7 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
         const clock_t after = clock();
         if (after == (clock_t)-1 || after < before ||
             !buffer_matches(observed_count, output, expected_count, expected, expected_length,
-                            float64_vector, absolute_tolerance, relative_tolerance)) {
+                            comparison_kind, absolute_tolerance, relative_tolerance)) {
             fprintf(stderr, "clock() or output check failed during a sample\n");
             free(values); free(output); free(sample_ns); return 4;
         }
@@ -260,7 +287,7 @@ int main(int argc, char **argv)
         if (!read_expected_from_stdin(expected, expected_length)) {
             fprintf(stderr, "invalid streaming expected output encoding\n"); free(values); free(expected); return 2;
         }
-        int float64_vector = 0, output_is_null = 0;
+        int comparison_kind = COMPARISON_BYTES, output_is_null = 0;
         double absolute_tolerance = 0.0, relative_tolerance = 0.0;
         char comparison_mode[32], extra[2];
         int mode_result = scanf("%31s", comparison_mode);
@@ -274,13 +301,15 @@ int main(int argc, char **argv)
             mode_result = scanf("%31s", comparison_mode);
         }
         if (mode_result == 1) {
-            if (strcmp(comparison_mode, "float64_vector") != 0 ||
+            if ((strcmp(comparison_mode, "float64_vector") != 0 &&
+                 strcmp(comparison_mode, "float64_csc") != 0) ||
                 scanf("%lf %lf", &absolute_tolerance, &relative_tolerance) != 2 ||
                 scanf("%1s", extra) == 1) {
                 fprintf(stderr, "invalid streaming comparison mode\n");
                 free(values); free(expected); return 2;
             }
-            float64_vector = 1;
+            comparison_kind = strcmp(comparison_mode, "float64_csc") == 0
+                                  ? COMPARISON_FLOAT64_CSC : COMPARISON_FLOAT64_VECTOR;
         } else if (mode_result != EOF) {
             fprintf(stderr, "invalid streaming comparison mode\n");
             free(values); free(expected); return 2;
@@ -288,7 +317,7 @@ int main(int argc, char **argv)
         const int status = run_benchmark(values, length, expected_count, expected,
                                          expected_length, output_capacity,
                                          output_is_null, samples_arg, warmups_arg, repetitions_arg,
-                                         float64_vector, absolute_tolerance, relative_tolerance);
+                                         comparison_kind, absolute_tolerance, relative_tolerance);
         free(expected);
         return status;
     }

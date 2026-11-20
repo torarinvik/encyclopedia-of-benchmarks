@@ -1,0 +1,92 @@
+# Canonical growth of free polyomino coordinate signatures, bounded at n=8.
+def fp_canonical(xs: view[i64], ys: view[i64], size: usize,
+                 result: mutable view[i64]) -> void:
+    best: mutable i64[8] = zeroed
+    have_best: mutable bool = false
+    for mode in 0..<8:
+        tx: mutable i64[8] = zeroed
+        ty: mutable i64[8] = zeroed
+        codes: mutable i64[8] = zeroed
+        min_x: mutable i64 = 1000
+        min_y: mutable i64 = 1000
+        for i in 0..<size:
+            a: mutable i64 = if mode >= 4 then ys[i] else xs[i]
+            b: mutable i64 = if mode >= 4 then xs[i] else ys[i]
+            if (mode & 1) != 0: a <- -a
+            if (mode & 2) != 0: b <- -b
+            tx[i] <- a
+            ty[i] <- b
+            if a < min_x: min_x <- a
+            if b < min_y: min_y <- b
+        for i in 0..<size:
+            codes[i] <- (tx[i] - min_x) * 8 + ty[i] - min_y
+            j: mutable usize = i
+            while j > 0 and codes[j] < codes[j - 1]:
+                temporary: i64 = codes[j]
+                codes[j] <- codes[j - 1]
+                codes[j - 1] <- temporary
+                j <- j - 1
+        less: mutable bool = not have_best
+        if have_best:
+            for i in 0..<size:
+                if codes[i] != best[i]:
+                    less <- codes[i] < best[i]
+                    break
+        if less:
+            for i in 0..<size: best[i] <- codes[i]
+            have_best <- true
+    for i in 0..<size: result[i] <- best[i]
+
+def fp_solve(values: view[i64]) -> i64:
+    if values.len() != 1 or values[0] < 1 or values[0] > 8: return -1
+    n: usize = values[0].usize()
+    shapes: mutable i64[8192] = zeroed
+    current: mutable usize = 0
+    shape_count: mutable usize = 1
+    dx: i64[4] = [1, -1, 0, 0]
+    dy: i64[4] = [0, 0, 1, -1]
+    for size in 1..<n:
+        next: usize = 1 - current
+        next_count: mutable usize = 0
+        for s in 0..<shape_count:
+            for cell in 0..<size:
+                code: i64 = shapes[current * 4096 + s * 8 + cell]
+                x: i64 = code / 8
+                y: i64 = code % 8
+                for direction in 0..<4:
+                    nx: i64 = x + dx[direction]
+                    ny: i64 = y + dy[direction]
+                    occupied: mutable bool = false
+                    if nx >= 0 and nx < 8 and ny >= 0 and ny < 8:
+                        neighbor: i64 = nx * 8 + ny
+                        for i in 0..<size:
+                            if shapes[current * 4096 + s * 8 + i] == neighbor: occupied <- true
+                    if occupied: continue
+                    xs: mutable i64[8] = zeroed
+                    ys: mutable i64[8] = zeroed
+                    candidate: mutable i64[8] = zeroed
+                    for i in 0..<size:
+                        previous: i64 = shapes[current * 4096 + s * 8 + i]
+                        xs[i] <- previous / 8
+                        ys[i] <- previous % 8
+                    xs[size] <- nx
+                    ys[size] <- ny
+                    fp_canonical(xs[0:size + 1], ys[0:size + 1], size + 1, candidate[0:size + 1])
+                    duplicate: mutable bool = false
+                    for old in 0..<next_count:
+                        if not duplicate:
+                            same: mutable bool = true
+                            for i in 0..<size + 1:
+                                if shapes[next * 4096 + old * 8 + i] != candidate[i]: same <- false
+                            if same: duplicate <- true
+                    if not duplicate:
+                        if next_count >= 512: return -1
+                        for i in 0..<size + 1: shapes[next * 4096 + next_count * 8 + i] <- candidate[i]
+                        next_count <- next_count + 1
+        current <- next
+        shape_count <- next_count
+    shape_count.i64()
+
+export fn free_polyomino_enumeration(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    fp_solve(input[0:length])

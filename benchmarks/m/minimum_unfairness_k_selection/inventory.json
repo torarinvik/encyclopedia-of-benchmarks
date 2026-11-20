@@ -1,0 +1,28 @@
+{
+  "algorithm": "minimum_unfairness_k_selection",
+  "abi": "i64_array_scalar",
+  "function_symbol": "minimum_unfairness_k_selection",
+  "implementations": {
+    "c": "c/m/minimum_unfairness_k_selection.c",
+    "c3": "c3/m/minimum_unfairness_k_selection.c3",
+    "cpp": "cpp/m/minimum_unfairness_k_selection.cpp",
+    "elisa": "elisa/m/minimum_unfairness_k_selection.elisa",
+    "mojo": "mojo/m/minimum_unfairness_k_selection.mojo",
+    "nim": "nim/m/minimum_unfairness_k_selection.nim",
+    "odin": "odin/m/minimum_unfairness_k_selection.odin",
+    "rust": "rust/m/minimum_unfairness_k_selection.rs",
+    "v": "v/m/minimum_unfairness_k_selection.v",
+    "zig": "zig/m/minimum_unfairness_k_selection.zig"
+  },
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "INVENTORY.md",
+    "check_inventory.py"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-ch650-canonical-order-schnyder-realizer-v1",
+  "algorithm": "canonical_order_schnyder_realizer",
+  "function_symbol": "canonical_order_schnyder_realizer",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Canonical Orders and Schnyder Realizers",
+    "book_chapter_doi": "10.1007/978-1-4939-2864-4_650",
+    "subsection": "Schnyder Realizer; Equivalency of Canonical Orders and Schnyder Realizers; Lemma 3",
+    "reuse": "algorithm description and structural lemma only; clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,u,v,w,(degree[x],clockwise_neighbors[x]...)*n,order[0..n)]",
+    "vertex_count_range": [3, 8],
+    "maximum_valid_length": 56,
+    "maximum_parseable_length": 57,
+    "rotation_system": "Simple connected maximal plane triangulation; distinct neighbors per row in the canonical-order package's face-walk successor orientation; all directed face walks are triangular. For the Chapter 650 local clockwise rule, traverse each stored row in reverse because the selected outer cycle u,v,w is counterclockwise.",
+    "outer_face": "The directed face walk u->v->w->u is the selected outer face; roots are u,v,w in the chapter's order.",
+    "canonical_order": "A permutation beginning u,v and ending w, validated through reverse shelling and the chapter's chord rule.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[n,(interior_vertex,parent_T1,parent_T2,parent_T3)* in increasing canonical-order position]",
+    "records": "Exactly n-3 interior records; outer roots omitted.",
+    "maximum_bytes": 168,
+    "output_untouched_on_error": true,
+    "null_or_short_output_result": -2
+  },
+  "contract": {
+    "parents": "T1 is the leftmost earlier neighbor on the u-to-v boundary and is rooted at u; T2 is the rightmost earlier neighbor and is rooted at v; T3 is the highest-labeled later neighbor and is rooted at w.",
+    "realizer_conditions": "Three parent trees each reach their named outer root; every non-outer edge occurs once across the three trees; each interior vertex obeys the chapter's clockwise run order out T1, in T2, out T3, in T1, out T2, in T3, allowing empty incoming runs after reversing the stored face-walk row.",
+    "complexity": "O(n^5) repeated bounded face, boundary, and parent scans for n<=8; fixed workspace 4096 bytes.",
+    "profile_scope": "Consumes an existing rotation system and a supplied canonical order; it outputs parent assignments only, not coordinates or an embedding."
+  },
+  "workspace": {"bytes": 4096},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call"},
+  "cases": [
+    {"id":"triangle-no-interior-roots", "input_values":[3,0,1,2,2,1,2,2,0,2,2,0,1,0,1,2], "input_length":16, "expected_result":8},
+    {"id":"four-vertex-single-parent-triple", "input_values":[4,0,1,2,3,2,1,3,3,0,2,3,3,1,0,3,3,0,1,2,0,1,3,2], "input_length":24, "expected_result":40},
+    {"id":"maximum-eight-vertex-bipyramid", "input_values":[8,0,2,3,6,2,7,6,5,4,3,6,2,3,4,5,6,7,4,0,3,1,7,4,2,0,4,1,4,3,0,5,1,4,4,0,6,1,4,5,0,7,1,4,6,0,2,1,0,2,7,6,5,4,1,3], "input_length":56, "expected_result":168},
+    {"id":"invalid-noncanonical-prefix-order", "input_values":[8,0,2,3,6,2,7,6,5,4,3,6,2,3,4,5,6,7,4,0,3,1,7,4,2,0,4,1,4,3,0,5,1,4,4,0,6,1,4,5,0,7,1,4,6,0,2,1,0,2,6,7,5,4,1,3], "input_length":56, "expected_result":-1},
+    {"id":"maximum-parseable-trailing-word", "input_values":[8,0,2,3,6,2,7,6,5,4,3,6,2,3,4,5,6,7,4,0,3,1,7,4,2,0,4,1,4,3,0,5,1,4,4,0,6,1,4,5,0,7,1,4,6,0,2,1,0,2,7,6,5,4,1,3,99], "input_length":57, "expected_result":-1},
+    {"id":"invalid-duplicate-order-vertex", "input_values":[4,0,1,2,3,2,1,3,3,0,2,3,3,1,0,3,3,0,1,2,0,1,3,3], "input_length":24, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1},
+    {"id":"null-output", "input_values":[4,0,1,2,3,2,1,3,3,0,2,3,3,1,0,3,3,0,1,2,0,1,3,2], "input_length":24, "output_is_null":true, "expected_result":-2},
+    {"id":"short-output", "input_values":[4,0,1,2,3,2,1,3,3,0,2,3,3,1,0,3,3,0,1,2,0,1,3,2], "input_length":24, "output_capacity":39, "expected_result":-2}
+  ]
+}

@@ -1,0 +1,189 @@
+const ARD_NMAX: usize = 8
+const ARD_MMAX: usize = 12
+const ARD_KMAX: usize = 4
+const ARD_INPUT_MAX: usize = 50
+
+def ard_reaches(n: usize, allowed: view[bool], residual: view[i64],
+                start: usize, target: view[bool]) -> bool:
+    if target[start]: return true
+    seen: mutable bool[ARD_NMAX] = zeroed
+    queue: mutable usize[ARD_NMAX] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    seen[start] <- true
+    queue[0] <- start
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n:
+            if not seen[v] and allowed[u * ARD_NMAX + v] and residual[u * ARD_NMAX + v] > 0:
+                if target[v]: return true
+                seen[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+    false
+
+def ard_find_path(n: usize, in_region: view[bool], allowed: view[bool],
+                  residual: view[i64], target: view[bool], excess: view[i64],
+                  parent: mutable view[i64]) -> i64:
+    for v in 0..<ARD_NMAX: parent[v] <- -1
+    queue: mutable usize[ARD_NMAX] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    for v in 0..<n:
+        if in_region[v] and excess[v] > 0:
+            parent[v] <- v.i64()
+            queue[tail] <- v
+            tail <- tail + 1
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n:
+            if parent[v] >= 0 or not allowed[u * ARD_NMAX + v] or residual[u * ARD_NMAX + v] <= 0: continue
+            parent[v] <- u.i64()
+            if target[v]: return v.i64()
+            queue[tail] <- v
+            tail <- tail + 1
+    -1
+
+def ard_discharge(n: usize, region_id: usize, source: usize, sink: usize,
+                  boundary_count: usize, regions: view[i64],
+                  boundary_by_region: view[bool], residual: mutable view[i64],
+                  excess: mutable view[i64], labels: mutable view[usize],
+                  flow_value: i64) -> i64:
+    in_region: mutable bool[ARD_NMAX] = zeroed
+    external: mutable bool[ARD_NMAX] = zeroed
+    inside_terminal: mutable bool[ARD_NMAX] = zeroed
+    allowed: mutable bool[ARD_NMAX * ARD_NMAX] = zeroed
+    local: mutable i64[ARD_NMAX * ARD_NMAX] = zeroed
+    for v in 0..<n:
+        in_region[v] <- v != source and v != sink and regions[v] == region_id.i64()
+        external[v] <- boundary_by_region[region_id * ARD_NMAX + v]
+        inside_terminal[v] <- in_region[v] or v == source or v == sink
+    for u in 0..<n:
+        for v in 0..<n:
+            allowed[u * ARD_NMAX + v] <- (inside_terminal[u] and inside_terminal[v]) or
+                (in_region[u] and external[v]) or (external[u] and in_region[v])
+            if allowed[u * ARD_NMAX + v] and not (external[u] and in_region[v]):
+                local[u * ARD_NMAX + v] <- residual[u * ARD_NMAX + v]
+    flow: mutable i64 = flow_value
+    for stage in 0..=boundary_count:
+        target: mutable bool[ARD_NMAX] = zeroed
+        target[sink] <- true
+        for v in 0..<n:
+            if external[v] and labels[v] < stage: target[v] <- true
+        while true:
+            parent: mutable i64[ARD_NMAX] = zeroed
+            finish_raw := ard_find_path(n, in_region[0:n], allowed[0:ARD_NMAX * ARD_NMAX],
+                                        local[0:ARD_NMAX * ARD_NMAX], target[0:ARD_NMAX],
+                                        excess[0:ARD_NMAX], parent[0:ARD_NMAX])
+            if finish_raw < 0: break
+            finish: usize = finish_raw.usize()
+            path: mutable usize[ARD_NMAX] = zeroed
+            path_len: mutable usize = 0
+            vertex: mutable usize = finish
+            while true:
+                path[path_len] <- vertex
+                path_len <- path_len + 1
+                if parent[vertex] == vertex.i64(): break
+                vertex <- parent[vertex].usize()
+            start: usize = path[path_len - 1]
+            amount: mutable i64 = excess[start]
+            i: mutable usize = path_len - 1
+            while i > 0:
+                u, v := path[i], path[i - 1]
+                if local[u * ARD_NMAX + v] < amount: amount <- local[u * ARD_NMAX + v]
+                i <- i - 1
+            i <- path_len - 1
+            while i > 0:
+                u, v := path[i], path[i - 1]
+                local[u * ARD_NMAX + v] <- local[u * ARD_NMAX + v] - amount
+                local[v * ARD_NMAX + u] <- local[v * ARD_NMAX + u] + amount
+                residual[u * ARD_NMAX + v] <- residual[u * ARD_NMAX + v] - amount
+                residual[v * ARD_NMAX + u] <- residual[v * ARD_NMAX + u] + amount
+                i <- i - 1
+            excess[start] <- excess[start] - amount
+            if finish == sink: flow <- flow + amount
+            else: excess[finish] <- excess[finish] + amount
+    for u in 0..<n:
+        if in_region[u]:
+            next_label: mutable usize = boundary_count
+            for stage in 0..=boundary_count:
+                target: mutable bool[ARD_NMAX] = zeroed
+                target[sink] <- true
+                for v in 0..<n:
+                    if external[v] and labels[v] < stage: target[v] <- true
+                if ard_reaches(n, allowed[0:ARD_NMAX * ARD_NMAX], local[0:ARD_NMAX * ARD_NMAX],
+                               u, target[0:ARD_NMAX]):
+                    next_label <- stage
+                    break
+            if next_label > labels[u]: labels[u] <- next_label
+    flow
+
+def ard_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 5 or length > ARD_INPUT_MAX: return -1
+    raw_n, raw_m, raw_k, raw_source, raw_sink := input[0], input[1], input[2], input[3], input[4]
+    if raw_n < 4 or raw_n > ARD_NMAX.i64() or raw_m < 1 or raw_m > ARD_MMAX.i64() or
+        raw_k < 2 or raw_k > ARD_KMAX.i64() or raw_k > raw_n - 2 or raw_source < 0 or
+        raw_source >= raw_n or raw_sink < 0 or raw_sink >= raw_n or raw_source == raw_sink:
+        return -1
+    n, m, k := raw_n.usize(), raw_m.usize(), raw_k.usize()
+    source, sink := raw_source.usize(), raw_sink.usize()
+    if length != 5 + n + 3 * m: return -1
+    regions: mutable i64[ARD_NMAX] = zeroed
+    seen: mutable bool[ARD_KMAX] = zeroed
+    capacity: mutable i64[ARD_NMAX * ARD_NMAX] = zeroed
+    residual: mutable i64[ARD_NMAX * ARD_NMAX] = zeroed
+    boundary_by_region: mutable bool[ARD_KMAX * ARD_NMAX] = zeroed
+    boundary: mutable bool[ARD_NMAX] = zeroed
+    excess: mutable i64[ARD_NMAX] = zeroed
+    labels: mutable usize[ARD_NMAX] = zeroed
+    for v in 0..<n:
+        raw := input[5 + v]
+        if v == source or v == sink:
+            if raw != -1: return -1
+            regions[v] <- -1
+        else:
+            if raw < 0 or raw >= raw_k: return -1
+            regions[v] <- raw
+            seen[raw.usize()] <- true
+    for b in 0..<k: if not seen[b]: return -1
+    for e in 0..<m:
+        p := 5 + n + 3 * e
+        ru, rv, cap := input[p], input[p + 1], input[p + 2]
+        if ru < 0 or ru >= raw_n or rv < 0 or rv >= raw_n or ru == rv or rv == raw_source or ru == raw_sink or cap < 0 or cap > 7: return -1
+        u, v := ru.usize(), rv.usize()
+        capacity[u * ARD_NMAX + v] <- capacity[u * ARD_NMAX + v] + cap
+        if cap > 0 and regions[u] >= 0 and regions[v] >= 0 and regions[u] != regions[v]:
+            boundary[u] <- true
+            boundary[v] <- true
+            boundary_by_region[regions[u].usize() * ARD_NMAX + v] <- true
+            boundary_by_region[regions[v].usize() * ARD_NMAX + u] <- true
+    boundary_count: mutable usize = 0
+    for v in 0..<n: if boundary[v]: boundary_count <- boundary_count + 1
+    if boundary_count < 2: return -1
+    for i in 0..<ARD_NMAX * ARD_NMAX: residual[i] <- capacity[i]
+    flow: mutable i64 = 0
+    for v in 0..<n:
+        amount := residual[source * ARD_NMAX + v]
+        if amount > 0:
+            residual[source * ARD_NMAX + v] <- 0
+            residual[v * ARD_NMAX + source] <- residual[v * ARD_NMAX + source] + amount
+            if v == sink: flow <- flow + amount
+            else: excess[v] <- excess[v] + amount
+    labels[source] <- boundary_count
+    for _ in 0..<(2 * boundary_count * boundary_count + 1):
+        for b in 0..<k:
+            flow <- ard_discharge(n, b, source, sink, boundary_count,
+                                  regions[0:n], boundary_by_region[0:ARD_KMAX * ARD_NMAX],
+                                  residual[0:ARD_NMAX * ARD_NMAX], excess[0:ARD_NMAX], labels[0:ARD_NMAX], flow)
+        active: mutable bool = false
+        for v in 0..<n:
+            if v != source and v != sink and excess[v] > 0 and labels[v] < boundary_count: active <- true
+        if not active: return flow
+    -1
+
+export fn region_discharge_path_push_relabel_maxflow(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 5 or length > ARD_INPUT_MAX: return -1
+    ard_impl(input[0:length])

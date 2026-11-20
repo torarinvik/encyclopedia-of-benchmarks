@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn stf_triangular_mod(n:Int64)->Int64:
     var left=n;var right=n+1
     if left%2==0:left//=2
@@ -41,5 +43,5 @@ fn sum_of_totient_function(n:Int64) abi("C")->Int64:
         prefix[value]=running
     if n<=100000:return prefix[Int(n)]
     var memo=InlineArray[Int64,10002]()
-    var visited=InlineArray[Bool,10002]()
+    var visited=InlineArray[Bool,10002](fill=False)
     return stf_summatory_phi(n,n,prefix,memo,visited)

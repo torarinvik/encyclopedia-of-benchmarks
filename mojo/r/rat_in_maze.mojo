@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn rim_search(cells:InlineArray[Int64,64],rows:Int,cols:Int,variant:Int,startrow:Int,startcol:Int,destrow:Int,destcol:Int,mut path:InlineArray[Int64,64])->Bool:

@@ -11,7 +11,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long rank_select_bitstring(long* input, usz length, char* output, usz capacity) @export("rank_select_bitstring") {
+fn long rank_select_bitstring(long* input, usz length, char* output, usz capacity) @export("rank_select_bitstring") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long n_value = input[0], packed_value = input[1], query_value = input[2];
     if (n_value < 1 || n_value > (long)MAX_BITS || packed_value < 0 || query_value < 0 || query_value > (long)MAX_QUERIES) return -1;

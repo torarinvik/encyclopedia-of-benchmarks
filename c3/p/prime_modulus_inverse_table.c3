@@ -15,7 +15,7 @@ fn long prime_modulus_inverse_table(long* input, usz length, char* output, usz c
     if (count == 0) return 0;
     usz bytes = 4 * count;
     if (output == null || capacity < bytes) return -2;
-    long inverse[257];
+    long[257] inverse;
     inverse[0] = 0; inverse[1] = 1;
     for (usz i = 2; i <= maximum; i++) {
         long value = (long)i;

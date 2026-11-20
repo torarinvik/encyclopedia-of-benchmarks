@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "super-stable-matching-ties-incomplete-i64-array-scalar-v1",
+  "algorithm": "super_stable_matching_ties_incomplete",
+  "function_symbol": "super_stable_matching_ties_incomplete",
+  "abi": "i64_array_scalar",
+  "description": "Find the deterministic output of the bounded SUPER2 algorithm for super-stable marriage with ties and incomplete mutual lists.",
+  "source": {
+    "title": "Stable Marriage with Ties and Unacceptable Partners",
+    "authors": ["David F. Manlove"],
+    "publisher": "University of Glasgow Technical Report TR-1999-29",
+    "year": 1999,
+    "url": "https://www.dcs.gla.ac.uk/~davidm/pubs/6497.pdf",
+    "encyclopedia_title": "Stable Marriage with Ties and Incomplete Lists",
+    "encyclopedia_doi": "10.1007/978-1-4939-2864-4_805",
+    "encyclopedia_url": "https://doi.org/10.1007/978-1-4939-2864-4_805",
+    "algorithm_location": "Algorithm SUPER2, Figure 2, Section 4",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, men_rank[n*n], women_rank[n*n]] with row-major matrices",
+    "n_range": [1, 4],
+    "rank_encoding": "0 means unacceptable; positive ranks 1..n encode strict levels, equal values encode ties",
+    "acceptability": "A pair is acceptable only when both matrices give it a positive rank; the positive/zero pattern must be symmetric",
+    "rank_levels": "For each person, present positive rank levels must be exactly 1..k for some k; gaps are invalid",
+    "exact_length": "1 + 2*n*n",
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "Base-(n+1) assignment code; the most-significant digit is man 0, then man 1, etc. Digit w in 0..n-1 means matched to woman w; digit n means unmatched. Among maximum matchings of the terminal engagement graph, choose the lexicographically least assignment vector.",
+    "valid_result_range": [-2, 624],
+    "no_super_stable_matching_result": -2,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "primary_algorithm": "SUPER2: repeatedly select the lowest-ID free man with a nonempty reduced list; he proposes to every woman tied at the head of that list, including an earlier proposal if its pair survived reductions. Each woman deletes every strict successor of that man from her list, breaking an engagement when present. A multiply engaged woman breaks all current engagements and deletes every man in the tail tie of her current reduced list. Repeat until every man is engaged or has an empty reduced list.",
+    "state_separation": "The alive reduced preference graph, current engagement relation, and per-woman proposed marker are separate. The marker records whether a woman ever received a proposal for the final rejection test; it does not suppress a repeated proposal on an alive pair. Deleted pairs remain deleted.",
+    "terminal_rule": "Choose a maximum matching in the terminal engagement graph. If any woman who received a proposal is unmatched in that matching, return -2; otherwise encode the matching.",
+    "super_stability": "A mutually acceptable unmatched pair blocks if each endpoint is unmatched or weakly prefers the other to its assigned partner (strictly prefers or is tied).",
+    "determinism": "Men are selected by increasing ID; tied head women and all deletion scans use increasing IDs; the final maximum matching is lexicographically least by man-ordered assignment vector with unmatched digit n.",
+    "independent_method": "Enumerate all assignments directly, discard nonmatchings, reject any assignment with a super-stability blocking pair, then choose maximum cardinality and lexicographically least assignment.",
+    "distinction": "This solves super-stability, where ties count as weak preference for blocking, rather than the local weak-stability profile, where both endpoints must strictly prefer a blocking partner."
+  },
+  "complexity": {
+    "primary_time": "O(n^4 + n*(n+1)^n) under the bounded exhaustive maximum-matching subroutine",
+    "primary_space": "O(n^2)",
+    "independent_time": "O((n+1)^n*n^2)",
+    "independent_space": "O(n^2+n)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-mutual-pair","input_values":[1,1,1],"input_length":3,"expected_result":0},
+    {"id":"incomplete-single-pair","input_values":[2,1,0,0,0,1,0,0,0],"input_length":9,"expected_result":2},
+    {"id":"empty-lists-no-proposals","input_values":[2,0,0,0,0,0,0,0,0],"input_length":9,"expected_result":8},
+    {"id":"strict-successor-deletion","input_values":[2,1,2,1,2,1,2,2,1],"input_length":9,"expected_result":1},
+    {"id":"one-sided-tie-super-stable","input_values":[2,1,1,1,2,2,1,1,2],"input_length":9,"expected_result":3},
+    {"id":"strict-successor-unengaged-tail-pruning","input_values":[3,1,0,0,1,0,0,1,2,0,1,1,2,0,0,1,0,0,0],"input_length":19,"expected_result":-2},
+    {"id":"all-ties-no-super-stable-matching","input_values":[2,1,1,1,1,1,1,1,1],"input_length":9,"expected_result":-2},
+    {"id":"maximum-n-empty-instance","input_values":[4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":33,"expected_result":624},
+    {"id":"maximum-dense-frame-all-tied","input_values":[4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"input_length":33,"expected_result":-2},
+    {"id":"invalid-n-zero","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"invalid-asymmetric-acceptability","input_values":[1,1,0],"input_length":3,"expected_result":-1},
+    {"id":"invalid-rank-gap","input_values":[2,2,0,0,0,2,0,0,0],"input_length":9,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,1,1,0],"input_length":4,"expected_result":-1},
+    {"id":"null-input-zero-length","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"null-input-maximum-parseable-length","input_values":[],"input_length":34,"input_is_null":true,"expected_result":-1}
+  ]
+}

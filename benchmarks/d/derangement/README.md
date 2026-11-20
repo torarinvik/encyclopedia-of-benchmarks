@@ -24,6 +24,7 @@ The zero-object result intentionally follows the pinned function's behavior (`0`
 | C3 | [`c3/d/derangement.c3`](../../../c3/d/derangement.c3) |
 | C++ | [`cpp/d/derangement.cpp`](../../../cpp/d/derangement.cpp) |
 | Elisa | [`elisa/d/derangement.elisa`](../../../elisa/d/derangement.elisa) |
+| Mojo | [`mojo/d/derangement.mojo`](../../../mojo/d/derangement.mojo) |
 | Nim | [`nim/d/derangement.nim`](../../../nim/d/derangement.nim) |
 | Odin | [`odin/d/derangement.odin`](../../../odin/d/derangement.odin) |
 | Rust | [`rust/d/derangement.rs`](../../../rust/d/derangement.rs) |
@@ -35,3 +36,7 @@ The zero-object result intentionally follows the pinned function's behavior (`0`
 - [Python `derangement.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/derangement.py)
 
 The source accepts nonnegative integers below 1560 and uses dynamic programming. This benchmark bounds the input to 20 so its exact result fits the shared signed 64-bit return type.
+
+The Mojo port and scalar-suite registration are drafted but uncompiled and
+unexecuted. The verifier can select Mojo explicitly; its default language set
+remains unchanged. The independent suite oracle uses inclusion-exclusion.

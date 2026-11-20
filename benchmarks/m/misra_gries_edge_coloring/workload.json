@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "misra-gries-vizing-edge-coloring-i64-array-scalar-v1",
+  "algorithm": "misra_gries_edge_coloring",
+  "function_symbol": "misra_gries_edge_coloring",
+  "abi": "i64_array_scalar",
+  "description": "Construct a deterministic Delta+1 proper edge coloring of a small simple undirected graph using Vizing fans and alternating-path inversions.",
+  "source": {
+    "title": "A Constructive Proof of Vizing's Theorem",
+    "authors": ["Jayadev Misra", "David Gries"],
+    "journal": "Information Processing Letters",
+    "volume": 41,
+    "issue": 3,
+    "year": 1992,
+    "pages": "131-133",
+    "reference_url": "https://doi.org/10.1016/0020-0190(92)90041-S",
+    "author_pdf_url": "https://www.cs.utexas.edu/~misra/psp.dir/vizing.pdf",
+    "catalog_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/graph/EdgeColoring.h",
+    "implementation_status": "bounded deterministic clean-room Misra-Gries fan profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,(u,v)*M]",
+    "vertices_range": [1, 6],
+    "edges_range": [0, 6],
+    "graph_kind": "simple undirected; self-loops and duplicate unordered edges are invalid",
+    "vertex_range": "0..N-1",
+    "edge_order": "input order controls extension order and output color field order",
+    "exact_length": "2+2*M",
+    "maximum_valid_length": 14,
+    "maximum_parseable_length": 15,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "palette_size*8^6 plus six fixed 3-bit color fields in input edge order; palette_size is Delta+1 for nonempty graphs and zero for the empty-edge graph",
+    "color_range": "0..Delta",
+    "valid_result_range": [0, 1760109],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "primary_steps": "Color input edges in order. For each uncolored edge X-Y, initialize a fan with Y and repeatedly append the lowest-ID neighbor v of X not already in the fan whose colored edge X-v has a color free at the current fan tail. Choose the smallest color c free at X and smallest color d free at the last fan vertex; invert the maximal alternating c/d path starting at X; choose the smallest fan-prefix endpoint where d is free; rotate the prefix and color its newly uncolored fan edge d.",
+    "tie_profile": "Normalize each undirected endpoint pair to (min,max), use the lower endpoint as X, scan fan neighbors and free colors in increasing ID, and take the first usable fan-prefix endpoint. These deterministic choices specialize the source's nondeterministic choices.",
+    "palette": "Use colors 0 through Delta inclusive, where Delta is maximum degree. Vizing's constructive procedure guarantees a proper coloring with Delta+1 colors; this profile does not claim minimum color count.",
+    "independent_reference": "A separate certificate checker decodes the scalar, verifies the declared palette size, confirms each edge color lies in range, and checks that no vertex sees a repeated color. It does not reconstruct fans or alternating paths.",
+    "invalid_cases": "Null, malformed or trailing frames, invalid dimensions/endpoints, self-loops, and duplicate unordered edges return -1.",
+    "distinction": "General simple graphs and the Delta+1 Misra-Gries/Vizing fan algorithm differ from minimum-Delta edge coloring of bipartite multigraphs and costed proper coloring restricted to trees."
+  },
+  "complexity": {
+    "primary_time": "O(M*N^3) with direct bounded scans for fan extension, free-color tests, alternating paths, and rotations.",
+    "primary_space": "O(N^2+M) for the adjacency edge map, incidence lists, and colors.",
+    "independent_time": "O(N+M) to validate a returned coloring certificate.",
+    "independent_space": "O(N+M) for degrees and incident-color sets."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-graph","input_values":[1,0],"input_length":2,"expected_result":0},
+    {"id":"single-edge","input_values":[2,1,0,1],"input_length":4,"expected_result":524288},
+    {"id":"two-edge-path","input_values":[3,2,0,1,1,2],"input_length":6,"expected_result":786440},
+    {"id":"triangle-three-colors","input_values":[3,3,0,1,0,2,1,2],"input_length":8,"expected_result":786568},
+    {"id":"fan-kempe-inversion","input_values":[5,5,0,1,0,2,1,2,3,4,0,3],"input_length":12,"expected_result":1052752},
+    {"id":"maximum-valid-k4-frame","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"expected_result":1089555},
+    {"id":"maximum-degree-star","input_values":[6,5,0,1,0,2,0,3,0,4,0,5],"input_length":12,"expected_result":1573658},
+    {"id":"self-loop-invalid","input_values":[2,1,0,0],"input_length":4,"expected_result":-1},
+    {"id":"duplicate-edge-invalid","input_values":[3,2,0,1,1,0],"input_length":6,"expected_result":-1},
+    {"id":"endpoint-out-of-range-invalid","input_values":[2,1,0,2],"input_length":4,"expected_result":-1},
+    {"id":"truncated-frame-invalid","input_values":[3,2,0,1,1],"input_length":5,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[2,1,0,1,0],"input_length":5,"expected_result":-1},
+    {"id":"maximum-parseable-trailing-invalid","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3,0],"input_length":15,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

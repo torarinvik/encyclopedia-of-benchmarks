@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "binary-divisibility-by-three-streaming-dfa-i64-array-bytes-v1",
+  "algorithm": "binary_divisibility_by_three_dfa",
+  "function_symbol": "binary_divisibility_by_three_dfa",
+  "abi": "i64_array_bytes_output",
+  "description": "Emit a one-byte divisibility flag for an MSB-first binary stream using fixed remainder state.",
+  "source": {
+    "discovery_title": "Binary multiple of 3",
+    "discovery_note": "Codewars public title/tag catalog only; discovery only, with no task content used.",
+    "discovery_url": "https://www.codewars.com/kata?tags=Algorithms%2CNumber+Theory",
+    "method_source": "Dexter Kozen, Cornell CS 4810 lecture notes, DFA for binary numbers divisible by 3",
+    "method_url": "https://www.cs.cornell.edu/kozen/Papers/481.pdf",
+    "reuse_scope": "Algorithmic method context only; this package defines a clean-room bounded ABI profile."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[L, bit_0, ..., bit_(L-1)] with MSB-first bits",
+    "bit_count_range": [1, 4096],
+    "bit_value_range": [0, 1],
+    "leading_zeroes": "accepted and included in L",
+    "maximum_valid_length": 4097,
+    "maximum_parseable_length": 4098,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "one_byte_boolean",
+    "encoding": "raw byte 1 when divisible by three, otherwise raw byte 0",
+    "maximum_bytes": 1,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Maximum local bookkeeping for the bit count, scan index, and DFA remainder; input and output buffers are excluded."
+  },
+  "contract": {
+    "primary_method": "Start in remainder state 0 and update r=(2*r+bit) mod 3 for each bit; accept exactly when the final state is 0.",
+    "independent_method": "Evaluate the alternating-sign sum of the bits, since 2 is congruent to -1 modulo 3; the represented value is divisible exactly when that sum is 0 modulo 3.",
+    "complexity": "O(L) time and O(1) auxiliary state.",
+    "invalid_cases": "Null input, L outside 1..4096, non-exact framing, or a bit outside {0,1} returns -1 before output checks.",
+    "distinct_from": "binary_to_decimal materializes a signed-i64 value and is capped at 63 bits; this profile accepts up to 4096 bits and keeps only one of three remainder states. is_divisible checks numeric scalar operands with remainder and does not scan a binary stream."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"single-zero","input_values":[1,0],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"single-one","input_values":[1,1],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"binary-three","input_values":[2,1,1],"input_length":3,"output_capacity":1,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"binary-two","input_values":[2,1,0],"input_length":3,"output_capacity":1,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"binary-six","input_values":[3,1,1,0],"input_length":4,"output_capacity":1,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"leading-zeroes-represent-nine","input_values":[6,0,0,1,0,0,1],"input_length":7,"output_capacity":1,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"binary-seven","input_values":[3,1,1,1],"input_length":4,"output_capacity":1,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"sixty-four-one-bits","input_values":[64,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1],"input_length":65,"output_capacity":1,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"empty-input","input_values":[],"input_length":0,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-bit-count","input_values":[0],"input_length":1,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-bit-count","input_values":[-1],"input_length":1,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"bit-count-over-bound","input_values":[4097],"input_length":1,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-bit-stream","input_values":[2,1],"input_length":2,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra-trailing-word","input_values":[1,1,0],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-bit","input_values":[2,1,2],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-bit","input_values":[1,-1],"input_length":2,"output_capacity":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"malformed-before-output-capacity","input_values":[1,2],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,0],"input_length":2,"output_capacity":0,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,0],"input_length":2,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ],
+  "generated_profile": {
+    "maximum_bit_count": 4096,
+    "maximum_input_length": 4097,
+    "maximum_output_bytes": 1,
+    "description": "A generated 4096-zero bit stream exercises the maximum accepted length and emits one divisible byte."
+  }
+}

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -77,7 +78,7 @@ fn connected_components_of_complement_graph(input: UnsafePointer[Int64, ImmutAny
     var used = 0
     staged[used] = Int64(component_count)
     used += 1
-    var emitted = InlineArray[Bool, MAX_N]()
+    var emitted = InlineArray[Bool, MAX_N](fill=False)
     for first in range(n):
         let component = label[first]
         if emitted[component]:

@@ -1,0 +1,92 @@
+const MDS_MAX_N: usize = 12
+const MDS_MAX_INPUT: usize = 135
+
+def mds_popcount(bits_input: u64) -> usize:
+    bits: mutable u64 = bits_input
+    count: mutable usize = 0
+    while bits != 0:
+        bits <- bits & (bits - u64(1))
+        count <- count + 1
+    count
+
+def mds_search(closed: view[u64], n: usize, full: u64, covered: u64,
+    chosen: usize, best_input: usize) -> usize:
+    if chosen >= best_input: return best_input
+    if covered == full: return chosen
+    uncovered: u64 = full & ~covered
+    uncovered_count: usize = mds_popcount(uncovered)
+    maximum_gain: mutable usize = 0
+    for v in 0..<n:
+        gain: usize = mds_popcount(closed[v] & uncovered)
+        if gain > maximum_gain: maximum_gain <- gain
+    lower_bound: usize = (uncovered_count + maximum_gain - 1) / maximum_gain
+    if chosen + lower_bound >= best_input: return best_input
+
+    branch: mutable usize = 0
+    branch_degree: mutable usize = MDS_MAX_N + 1
+    for v in 0..<n:
+        if (uncovered & (u64(1) << v)) != 0:
+            degree: usize = mds_popcount(closed[v])
+            if degree < branch_degree:
+                branch <- v
+                branch_degree <- degree
+    candidates: mutable usize[MDS_MAX_N] = zeroed
+    gains: mutable usize[MDS_MAX_N] = zeroed
+    count: mutable usize = 0
+    for v in 0..<n:
+        if (closed[branch] & (u64(1) << v)) == 0: continue
+        gain: usize = mds_popcount(closed[v] & uncovered)
+        pos: mutable usize = count
+        while pos > 0 and (gain > gains[pos - 1] or (gain == gains[pos - 1] and v < candidates[pos - 1])):
+            gains[pos] <- gains[pos - 1]
+            candidates[pos] <- candidates[pos - 1]
+            pos <- pos - 1
+        gains[pos] <- gain
+        candidates[pos] <- v
+        count <- count + 1
+    best: mutable usize = best_input
+    for i in 0..<count:
+        v: usize = candidates[i]
+        best <- mds_search(closed, n, full, covered | closed[v], chosen + 1, best)
+    best
+
+def mds_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MDS_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > MDS_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    max_edges: i64 = n_value * (n_value - 1) / 2
+    if m_value < 0 or m_value > max_edges or length != 2 + 2 * m_value.usize(): return -1
+    m: usize = m_value.usize()
+    adjacency: mutable u64[MDS_MAX_N] = zeroed
+    for e in 0..<m:
+        u_value: i64 = input[2 + 2 * e]
+        v_value: i64 = input[3 + 2 * e]
+        if u_value < 0 or v_value < 0 or u_value >= n_value or v_value >= n_value or u_value == v_value: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        bit: u64 = u64(1) << v
+        if (adjacency[u] & bit) != 0: return -1
+        adjacency[u] <- adjacency[u] | bit
+        adjacency[v] <- adjacency[v] | (u64(1) << u)
+    closed: mutable u64[MDS_MAX_N] = zeroed
+    for v in 0..<n: closed[v] <- adjacency[v] | (u64(1) << v)
+    full: u64 = (u64(1) << n) - u64(1)
+    covered: mutable u64 = 0
+    greedy: mutable usize = 0
+    while covered != full:
+        vertex: mutable usize = 0
+        best_gain: mutable usize = 0
+        for v in 0..<n:
+            gain: usize = mds_popcount(closed[v] & ~covered)
+            if gain > best_gain:
+                vertex <- v
+                best_gain <- gain
+        covered <- covered | closed[vertex]
+        greedy <- greedy + 1
+    mds_search(closed[0:MDS_MAX_N], n, full, 0, 0, greedy).i64()
+
+export fn minimum_dominating_set_branch_bound(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > MDS_MAX_INPUT: return -1
+    mds_impl(input[0:length], length)

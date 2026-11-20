@@ -1,6 +1,6 @@
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
-from std.collections import List
+from std.collections import InlineArray
 
 @export("edmonds")
 fn edmonds(input:UnsafePointer[Int64,ImmutAnyOrigin],length:c_size_t) abi("C")->Int64:

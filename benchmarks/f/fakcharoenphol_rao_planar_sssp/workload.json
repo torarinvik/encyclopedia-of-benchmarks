@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "fakcharoenphol-rao-planar-sssp-bounded-ddg-monge-i64le-v1",
+  "algorithm": "fakcharoenphol_rao_planar_sssp",
+  "function_symbol": "fakcharoenphol_rao_planar_sssp",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, M, source, piece_count, (u,v,w)*M, then piece records [left_child,right_child,leaf_arc_mask,boundary_count,boundary_order...]]",
+    "vertex_range": [2, 12],
+    "directed_arc_range": [1, 60],
+    "simple_planar_underlying_edge_bound": "The number of distinct unordered endpoint pairs is at most 1 for N=2 and 3N-6 otherwise; each pair has at most one arc in each direction.",
+    "arc_model": "Each record is one directed arc. Opposite arcs are optional and have independent signed weights.",
+    "edge_weight_range": [-100, 100],
+    "maximum_base_piece_arcs": 3,
+    "maximum_boundary_vertices": 12,
+    "maximum_pieces": 119,
+    "maximum_valid_length": 2088,
+    "maximum_parseable_length": 2088,
+    "embedding": "Each piece supplies its boundary vertices in cyclic embedding order. The underlying graph is a connected planar embedding, all piece boundaries are cofacial in their listed order, and the induced directed distance blocks satisfy the Monge inequalities required by the profile.",
+    "hierarchy": "Pieces are listed postorder. A leaf has left_child=right_child=-1 and a nonempty arc bitmask. An internal piece has two earlier child indices and leaf_arc_mask=-1. Leaf masks partition all M directed arcs. Each parent is the union of its children, children overlap on a nonempty separator, each child has at most ceil(2*parent_vertex_count/3) vertices, and every piece is connected.",
+    "boundary_definition": "A piece boundary is the set of its vertices incident to an arc outside the piece, plus the source when the source belongs to the piece. The listed order is a permutation of exactly this set. The root boundary is the source alone.",
+    "negative_cycle_policy": "Inputs must have no negative directed cycle. The bounded implementation checks the complete original directed graph before constructing DDGs and returns -1 if a negative cycle exists.",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "algorithm_profile": {
+    "ddg": "A piece DDG stores exact shortest-path distances between its ordered boundary vertices, using only arcs in the piece; unreachable pairs have infinite distance.",
+    "negative_edges": "At each internal piece, one all-zero-source Bellman-Ford pass over the union of its two child DDGs finds feasible Johnson potentials. Every finite directed DDG arc is reweighted by w+h[u]-h[v].",
+    "monge_blocks": "For each child boundary cycle, recursively split each interval into consecutive halves and add both directed cross-half matrices. Each ordered non-diagonal pair occurs in exactly one block. Before use, every block is checked against the Monge inequality.",
+    "online_dijkstra": "Each directed block maintains activated left rows, the best (label+edge_distance, target_id, row_id) for each unsettled right column, and its settled-column set. Dijkstra repeatedly chooses the global minimum among tentative seed labels and block candidates, settles the target across blocks, and activates its outgoing rows.",
+    "bounded_data_structure": "Boundary sizes are capped at 12. ActivateLeft, FindNextMinNode, and AddCurrentMinNodeToS preserve the FR online state machine but use bounded direct scans; the paper's amortized interval-tree/heap implementation is not included.",
+    "distance_expansion": "Starting from the root source label, run the same reweighted block-Dijkstra once per internal piece to propagate exact labels to child boundaries. At a leaf, relax its at-most-three directed arcs to produce distances for all its vertices.",
+    "output": "N signed 64-bit shortest distances in vertex-ID order, encoded as little-endian bytes without a count prefix. Unreachable vertices use INT64_MAX. Return the number of bytes written.",
+    "maximum_output_bytes": 96,
+    "workspace_bytes": 262144
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "square-with-negative-arcs-and-two-level-ddgs",
+      "input_values": [
+        4, 8, 0, 7,
+        0, 1, -1,
+        1, 0, 3,
+        1, 2, 4,
+        2, 1, -2,
+        2, 3, -3,
+        3, 2, 5,
+        3, 0, 4,
+        0, 3, -2,
+        -1, -1, 3, 2, 0, 1,
+        -1, -1, 12, 2, 1, 2,
+        0, 1, -1, 2, 0, 2,
+        -1, -1, 48, 2, 2, 3,
+        -1, -1, 192, 2, 0, 3,
+        3, 4, -1, 2, 0, 2,
+        2, 5, -1, 1, 0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000ffffffffffffffff0300000000000000feffffffffffffff"
+    },
+    {
+      "id": "single-directed-edge-negative-shortest-distance",
+      "input_values": [
+        2, 1, 0, 1,
+        0, 1, -1,
+        -1, -1, 1, 1, 0
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "0000000000000000ffffffffffffffff"
+    },
+    {
+      "id": "single-directed-edge-unreachable-source-output",
+      "input_values": [
+        2, 1, 1, 1,
+        0, 1, -1,
+        -1, -1, 1, 1, 1
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "ffffffffffffff7f0000000000000000"
+    },
+    {
+      "id": "negative-two-cycle-rejected",
+      "input_values": [
+        2, 2, 0, 1,
+        0, 1, -2,
+        1, 0, 1,
+        -1, -1, 3, 1, 0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "root-boundary-does-not-match-source",
+      "input_values": [
+        2, 1, 0, 1,
+        0, 1, -1,
+        -1, -1, 1, 1, 1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [
+        2, 1, 0, 1,
+        0, 1, -1,
+        -1, -1, 1, 1, 0
+      ],
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [
+        2, 1, 0, 1,
+        0, 1, -1,
+        -1, -1, 1, 1, 0
+      ],
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

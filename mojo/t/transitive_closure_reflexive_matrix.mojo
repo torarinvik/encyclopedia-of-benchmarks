@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 @export("transitive_closure_reflexive_matrix")
@@ -5,7 +6,7 @@ fn transitive_closure_reflexive_matrix(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or n>1986:return -1
     let nv=a[0];let ne=a[1]
     if nv<1 or nv>32 or ne<0 or ne>nv*(nv-1) or n!=c_size_t(2+2*ne):return -1
-    let count=Int(nv);var reach=InlineArray[Bool,1024]()
+    let count=Int(nv);var reach=InlineArray[Bool,1024](fill=False)
     for i in range(count):reach[i*count+i]=True
     for e in range(Int(ne)):
         let u=a[2+2*e];let v=a[3+2*e]

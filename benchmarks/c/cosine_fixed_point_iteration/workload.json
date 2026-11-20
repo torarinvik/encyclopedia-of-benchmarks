@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "id": "thealgorithms-cpp-cosine-fixed-point-iteration-v1",
+  "algorithm": "cosine_fixed_point_iteration",
+  "function_symbol": "cosine_fixed_point_iteration",
+  "description": "Replay the bounded fixed-point map x <- (cos(x)+2)/2 with an explicit initial value and source-style update count.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["initial_x", "source_n"],
+    "initial_x_range": [0.0, 2.0],
+    "source_n_range": [0.0, 64.0],
+    "source_n_integral": true,
+    "updates_per_call": "source_n + 1, matching the upstream inclusive i <= n loop",
+    "map": "g(x) = (cos(x) + 2) / 2",
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "The iterate after source_n + 1 applications of g, with no early stopping rule.",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-7,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "references": {
+    "primary": "benchmarks/c/cosine_fixed_point_iteration/primary_oracle.py",
+    "independent": "benchmarks/c/cosine_fixed_point_iteration/independent_oracle.py"
+  },
+  "cases": [
+    {"id": "zero_start_one_update", "input_values": [0.0, 0.0], "expected_result": 1.5},
+    {"id": "unit_start_one_update", "input_values": [1.0, 0.0], "expected_result": 1.2701511529340699},
+    {"id": "upper_endpoint_one_update", "input_values": [2.0, 0.0], "expected_result": 0.7919265817264288},
+    {"id": "zero_start_two_updates", "input_values": [0.0, 1.0], "expected_result": 1.0353686008338515},
+    {"id": "maximum_source_iteration_count", "input_values": [0.0, 64.0], "expected_result": 1.187154},
+    {"id": "fractional_iteration_count", "input_values": [1.0, 0.5], "expected_result": -1.0},
+    {"id": "initial_value_below_interval", "input_values": [-0.01, 2.0], "expected_result": -1.0},
+    {"id": "iteration_count_above_bound", "input_values": [1.0, 65.0], "expected_result": -1.0}
+  ]
+}

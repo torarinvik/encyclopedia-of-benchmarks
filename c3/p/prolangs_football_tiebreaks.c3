@@ -49,7 +49,9 @@ fn Fraction score_for(long* v, int n, int* ids, int lo, int hi, int team, int st
 fn int compare_score(Fraction a, Fraction b) {
     long left = a.numerator * b.denominator;
     long right = b.numerator * a.denominator;
-    return (left > right) - (left < right);
+    if (left > right) return 1;
+    if (left < right) return -1;
+    return 0;
 }
 
 fn void refine(long* v, int n, int* ids, int lo, int hi, int stage, bool same_div,
@@ -105,7 +107,7 @@ fn long prolangs_football_tiebreaks(long* values, usz length) @export("prolangs_
     if (values == null || length < 1 || values[0] < 2 || values[0] > MAX_TEAMS) return -2;
     int n = (int)values[0], cells = (int)values[0] * (int)values[0];
     if (length != 1 + 12 * n + 2 * cells) return -2;
-    int ids[MAX_TEAMS];
+    int[MAX_TEAMS] ids;
     for (int i = 0; i < n; i++) {
         int base = 1 + 12 * i;
         if (values[base] < 0 || values[base] > 31 || values[base + 1] < 0 || values[base + 1] > 1 ||
@@ -130,7 +132,7 @@ fn long prolangs_football_tiebreaks(long* values, usz length) @export("prolangs_
                (values[1 + 12 * ids[j - 1] + 1] == values[1 + 12 * item + 1] && values[1 + 12 * ids[j - 1]] > values[1 + 12 * item]))) { ids[j] = ids[j - 1]; j--; }
         ids[j] = item;
     }
-    Group groups[MAX_TEAMS], next[MAX_TEAMS]; int group_count = 1;
+    Group[MAX_TEAMS] groups, next; int group_count = 1;
     groups[0] = {0, n, 0};
     while (true) {
         int next_count = 0; bool active = false;
@@ -138,12 +140,12 @@ fn long prolangs_football_tiebreaks(long* values, usz length) @export("prolangs_
             int lo = groups[g].lo, hi = groups[g].hi, stage = groups[g].stage;
             if (hi - lo <= 1 || stage >= 6) { next[next_count++] = {lo, hi, 6}; continue; }
             active = true;
-            bool same_div = same_division(values, ids, lo, hi);
+            bool same_div = same_division(values, &ids[0], lo, hi);
             if (stage == 0) {
                 if (same_div || hi - lo == 2) {
-                    refine(values, n, ids, lo, hi, 0, same_div, next, &next_count);
+                    refine(values, n, &ids[0], lo, hi, 0, same_div, &next[0], &next_count);
                 } else {
-                    int sweep = sweep_result(values, n, ids, lo, hi);
+                    int sweep = sweep_result(values, n, &ids[0], lo, hi);
                     if (sweep > 0) {
                         int p = lo + sweep - 1, tmp = ids[lo]; ids[lo] = ids[p]; ids[p] = tmp;
                         next[next_count++] = {lo, lo + 1, 0}; next[next_count++] = {lo + 1, hi, 0};
@@ -157,8 +159,8 @@ fn long prolangs_football_tiebreaks(long* values, usz length) @export("prolangs_
                 bool skip_common = false;
                 for (int p = lo; p < hi; p++) if (values[1 + 12 * ids[p] + 8] < 4) skip_common = true;
                 if (skip_common) next[next_count++] = {lo, hi, 4};
-                else refine(values, n, ids, lo, hi, stage, same_div, next, &next_count);
-            } else refine(values, n, ids, lo, hi, stage, same_div, next, &next_count);
+                else refine(values, n, &ids[0], lo, hi, stage, same_div, &next[0], &next_count);
+            } else refine(values, n, &ids[0], lo, hi, stage, same_div, &next[0], &next_count);
         }
         for (int i = 0; i < next_count; i++) groups[i] = next[i];
         group_count = next_count;

@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "k-repetition-block-head-pair-pass-i64-array-bytes-output-v1",
+  "algorithm": "k_repetition_block_head_pair_pass",
+  "function_symbol": "k_repetition_block_head_pair_pass",
+  "abi": "i64_array_bytes_output",
+  "description": "Run the paired-block head stage of the bounded K-mismatch LZ repetition search.",
+  "source": {
+    "title": "Approximate Tandem Repeats",
+    "encyclopedia_chapter": 24,
+    "encyclopedia_doi": "10.1007/978-1-4939-2864-4_24",
+    "paper": "Finding Approximate Repetitions under Hamming Distance",
+    "paper_doi": "10.1016/S0304-3975(02)00448-6",
+    "technical_report": "INRIA RR-4163 (2001), section 3, first block-head stage and Algorithm 1",
+    "reuse": "Algorithm definitions and ideas only; package implementation and fixtures are clean-room."
+  },
+  "contract": {
+    "input_layout": "[n,K,w0,...,w(n-1)]",
+    "text_length": [1, 24],
+    "mismatch_budget": [0, 3],
+    "symbol_range": [0, 4],
+    "terminal_precondition": "The final symbol occurs nowhere earlier in the text.",
+    "factorization": "Copy-overlap Lempel-Ziv factors: each factor is the shortest prefix of the unparsed suffix with no earlier occurrence; the earlier occurrence may overlap the current factor.",
+    "block_rule": "Partition the factor sequence into consecutive blocks of at most K+2 factors. Process each ordered adjacent pair (B_i,B_(i+1)); an unpaired final block is omitted.",
+    "context_rule": "For a pair spanning [a,b), let s=b-a. Use context text[max(0,a-s):b], i.e. the pair preceded by the available suffix of length s.",
+    "stage_rule": "Run the report's Algorithm 1 in that context at the last character of B_i. Keep repetitions containing that character or either adjacent character, then discard repetitions touching the last character of B_(i+1). Union duplicate records across contexts.",
+    "touch_rule": "A repetition [start,end] touches position h iff start<=h+1 and end>=h-1.",
+    "maximality": "Algorithm 1 emits repetitions maximal within the selected context under one-character left/right extension and at most K mismatches between period-shifted symbols.",
+    "output_scope": "The paired block-head stage only; the later binary-division and within-factor stages are separate benchmark profiles.",
+    "output_encoding": "Little-endian signed-64 words [record_count,(start,length,period,mismatches)*record_count], sorted by start, length, period, then mismatches.",
+    "position_base": 0,
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "validation_order": "Validate the entire input frame before checking output nullness/capacity; errors write no bytes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,K,w0,...,w(n-1)]",
+    "n_range": [1, 24],
+    "K_range": [0, 3],
+    "symbol_range": [0, 4],
+    "maximum_valid_length": 26,
+    "maximum_parseable_length": 27,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "little-endian signed-64 count followed by four signed-64 fields per record",
+    "record_order": ["start", "length", "period", "mismatches"],
+    "maximum_records": 1222,
+    "maximum_output_bytes": 39112,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "accounting": "Fixed text/factor/context arrays, a 7,488-bit candidate set (936 bytes), reversed-context scratch, and bounded traversal locals fit below 8,192 bytes; caller buffers are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "complexity": {
+    "primary": "O((K+1)n^3) for factorization and extension scans, plus O(n^4) serialization from per-record mismatch recounts; O(n^3) candidate bits and O(n) bounded scratch.",
+    "independent_reference": "O(n^3) interval/period candidates per context, each with O(n) direct mismatch recounting, across up to O(n) contexts: O(n^5) worst-case time."
+  },
+  "cases": [
+    {
+      "id": "paired-head-one-maximal-repeat",
+      "input_values": [6, 0, 0, 0, 1, 2, 3, 4],
+      "input_length": 8,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "01000000000000000000000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "single-factor-no-pair",
+      "input_values": [1, 0, 4],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "single-block-no-pair",
+      "input_values": [3, 1, 0, 1, 4],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "invalid-budget",
+      "input_values": [1, 4, 4],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-terminal-not-unique",
+      "input_values": [3, 0, 0, 4, 4],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-symbol-range",
+      "input_values": [1, 0, 5],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-i64-min-symbol",
+      "input_values": [1, 0, -9223372036854775808],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-extra-word",
+      "input_values": [1, 0, 4, 99],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [6, 0, 0, 0, 1, 2, 3, 4],
+      "input_length": 8,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [6, 0, 0, 0, 1, 2, 3, 4],
+      "input_length": 8,
+      "output_capacity": 40,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 39112,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

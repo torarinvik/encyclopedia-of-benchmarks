@@ -46,7 +46,7 @@ const ulong[8] H512_256 = {0x22312194fc2bf72c,0x9f555fa3c84c64c2,0x2393b86b6f53b
 fn uint rotr32(uint value, uint amount) { return (value >> amount) | (value << (32 - amount)); }
 fn ulong rotr64(ulong value, uint amount) { return (value >> amount) | (value << (64 - amount)); }
 
-fn void compress32(uint* state, uint8* block) {
+fn void compress32(uint* state, char* block) {
     uint[64] words;
     for (usz index = 0; index < 16; index++) {
         usz offset = index * 4;
@@ -67,7 +67,7 @@ fn void compress32(uint* state, uint8* block) {
     state[0]+=a;state[1]+=b;state[2]+=c;state[3]+=d;state[4]+=e;state[5]+=f;state[6]+=g;state[7]+=h;
 }
 
-fn void compress64(ulong* state, uint8* block) {
+fn void compress64(ulong* state, char* block) {
     ulong[80] words;
     for (usz index = 0; index < 16; index++) {
         ulong value = 0;
@@ -89,7 +89,7 @@ fn void compress64(ulong* state, uint8* block) {
     state[0]+=a;state[1]+=b;state[2]+=c;state[3]+=d;state[4]+=e;state[5]+=f;state[6]+=g;state[7]+=h;
 }
 
-fn long sha2(long* values, usz length, uint8* output, usz output_capacity) @export("sha2") {
+fn long sha2(long* values, usz length, char* output, usz output_capacity) @export("sha2") {
     if (values == null || length < 2 || length > MAX_PARSEABLE_INPUT_LENGTH) return -1L;
     if (values[0] < 0 || values[0] > 5 || values[1] < 0 || values[1] > (long)MAX_MESSAGE_BYTES) return -1L;
     usz variant=(usz)values[0], message_length=(usz)values[1];
@@ -100,27 +100,27 @@ fn long sha2(long* values, usz length, uint8* output, usz output_capacity) @expo
     if (digest_length > MAX_OUTPUT_BYTES) return -1L;
     if (output == null || output_capacity < digest_length) return -2L;
 
-    uint8[MAX_PADDED_BYTES] padded = zeroed;
-    for (usz index=0; index<message_length; index++) padded[index]=(uint8)values[2+index];
+    char[MAX_PADDED_BYTES] padded = zeroed;
+    for (usz index=0; index<message_length; index++) padded[index]=(char)values[2+index];
     padded[message_length]=0x80;
     if (variant < 2) {
         usz padded_length=message_length+1;
         while (padded_length%64 != 56) padded_length++;
         padded_length+=8;
         ulong bit_length=(ulong)message_length*8;
-        for (usz byte=0;byte<8;byte++) padded[padded_length-1-byte]=(uint8)(bit_length>>(8*byte));
+        for (usz byte=0;byte<8;byte++) padded[padded_length-1-byte]=(char)(bit_length>>(8*byte));
         uint[8] state;
         for (usz index=0;index<8;index++) state[index]=variant==0 ? H224[index] : H256[index];
         for (usz offset=0;offset<padded_length;offset+=64) compress32(&state[0],&padded[offset]);
         usz out_index=0;
         for (usz word=0;word<8 && out_index<digest_length;word++)
-            for (usz byte=0;byte<4 && out_index<digest_length;byte++) { output[out_index]=(uint8)(state[word]>>(24-8*byte)); out_index++; }
+            for (usz byte=0;byte<4 && out_index<digest_length;byte++) { output[out_index]=(char)(state[word]>>(24-8*byte)); out_index++; }
     } else {
         usz padded_length=message_length+1;
         while (padded_length%128 != 112) padded_length++;
         padded_length+=16;
         ulong bit_length=(ulong)message_length*8;
-        for (usz byte=0;byte<8;byte++) padded[padded_length-1-byte]=(uint8)(bit_length>>(8*byte));
+        for (usz byte=0;byte<8;byte++) padded[padded_length-1-byte]=(char)(bit_length>>(8*byte));
         ulong[8] state;
         for (usz index=0;index<8;index++) {
             if (variant==2) state[index]=H384[index];
@@ -131,7 +131,7 @@ fn long sha2(long* values, usz length, uint8* output, usz output_capacity) @expo
         for (usz offset=0;offset<padded_length;offset+=128) compress64(&state[0],&padded[offset]);
         usz out_index=0;
         for (usz word=0;word<8 && out_index<digest_length;word++)
-            for (usz byte=0;byte<8 && out_index<digest_length;byte++) { output[out_index]=(uint8)(state[word]>>(56-8*byte)); out_index++; }
+            for (usz byte=0;byte<8 && out_index<digest_length;byte++) { output[out_index]=(char)(state[word]>>(56-8*byte)); out_index++; }
     }
     return (long)digest_length;
 }

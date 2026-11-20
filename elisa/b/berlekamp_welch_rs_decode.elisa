@@ -1,0 +1,210 @@
+const BW_MAX_N: usize = 7
+const BW_MAX_K: usize = 3
+const BW_MAX_T: usize = 2
+const BW_MAX_VARS: usize = 8
+const BW_MAX_POLY: usize = 5
+
+def bw_mod7(value: i64) -> i64:
+    remainder: i64 = value % 7
+    if remainder < 0: remainder <- remainder + 7
+    remainder
+
+def bw_inverse7(value: i64) -> i64:
+    if value == 1: return 1
+    if value == 2: return 4
+    if value == 3: return 5
+    if value == 4: return 2
+    if value == 5: return 3
+    if value == 6: return 6
+    0
+
+def bw_decode(n: usize, k: usize, errors: usize,
+    received: view[i64]) -> i64:
+    q_count: usize = k + errors
+    e_count: usize = errors + 1
+    variable_count: usize = q_count + e_count
+    matrix: mutable i64[BW_MAX_N * BW_MAX_VARS] = zeroed
+
+    row: mutable usize = 0
+    while row < n:
+        powers: mutable i64[BW_MAX_POLY] = zeroed
+        powers[0] <- 1
+        degree: mutable usize = 1
+        while degree < BW_MAX_POLY:
+            powers[degree] <- powers[degree - 1] * row.i64() % 7
+            degree <- degree + 1
+        degree <- 0
+        while degree < q_count:
+            matrix[row * BW_MAX_VARS + degree] <- powers[degree]
+            degree <- degree + 1
+        degree <- 0
+        while degree < e_count:
+            matrix[row * BW_MAX_VARS + q_count + degree] <- bw_mod7(
+                -received[row] * powers[degree])
+            degree <- degree + 1
+        row <- row + 1
+
+    pivot_columns: mutable usize[BW_MAX_VARS] = zeroed
+    is_pivot: mutable bool[BW_MAX_VARS] = zeroed
+    pivot_row: mutable usize = 0
+    column: mutable usize = 0
+    while column < variable_count and pivot_row < n:
+        found: mutable usize = pivot_row
+        while found < n and matrix[found * BW_MAX_VARS + column] == 0:
+            found <- found + 1
+        if found < n:
+            c: mutable usize = 0
+            while c < variable_count:
+                temporary: i64 = matrix[pivot_row * BW_MAX_VARS + c]
+                matrix[pivot_row * BW_MAX_VARS + c] <- matrix[found * BW_MAX_VARS + c]
+                matrix[found * BW_MAX_VARS + c] <- temporary
+                c <- c + 1
+            inverse: i64 = bw_inverse7(matrix[pivot_row * BW_MAX_VARS + column])
+            c <- 0
+            while c < variable_count:
+                matrix[pivot_row * BW_MAX_VARS + c] <-
+                    matrix[pivot_row * BW_MAX_VARS + c] * inverse % 7
+                c <- c + 1
+            row <- 0
+            while row < n:
+                if row != pivot_row:
+                    factor: i64 = matrix[row * BW_MAX_VARS + column]
+                    if factor != 0:
+                        c <- 0
+                        while c < variable_count:
+                            matrix[row * BW_MAX_VARS + c] <- bw_mod7(
+                                matrix[row * BW_MAX_VARS + c]
+                                - factor * matrix[pivot_row * BW_MAX_VARS + c])
+                            c <- c + 1
+                row <- row + 1
+            pivot_columns[pivot_row] <- column
+            is_pivot[column] <- true
+            pivot_row <- pivot_row + 1
+        column <- column + 1
+
+    free_column: mutable usize = variable_count
+    column <- 0
+    while column < variable_count:
+        if not is_pivot[column]:
+            free_column <- column
+            break
+        column <- column + 1
+    if free_column == variable_count: return 0
+
+    solution: mutable i64[BW_MAX_VARS] = zeroed
+    solution[free_column] <- 1
+    row <- 0
+    while row < pivot_row:
+        solution[pivot_columns[row]] <- bw_mod7(-matrix[row * BW_MAX_VARS + free_column])
+        row <- row + 1
+
+    numerator: mutable i64[BW_MAX_POLY] = zeroed
+    locator: mutable i64[BW_MAX_POLY] = zeroed
+    degree <- 0
+    while degree < q_count:
+        numerator[degree] <- solution[degree]
+        degree <- degree + 1
+    degree <- 0
+    locator_zero: mutable bool = true
+    while degree < e_count:
+        locator[degree] <- solution[q_count + degree]
+        if locator[degree] != 0: locator_zero <- false
+        degree <- degree + 1
+    if locator_zero: return 0
+
+    locator_degree: mutable usize = e_count - 1
+    while locator_degree > 0 and locator[locator_degree] == 0:
+        locator_degree <- locator_degree - 1
+    remainder: mutable i64[BW_MAX_POLY] = zeroed
+    degree <- 0
+    while degree < q_count:
+        remainder[degree] <- numerator[degree]
+        degree <- degree + 1
+    remainder_degree: mutable usize = q_count - 1
+    while remainder_degree > 0 and remainder[remainder_degree] == 0:
+        remainder_degree <- remainder_degree - 1
+    numerator_zero: mutable bool = true
+    degree <- 0
+    while degree < q_count:
+        if remainder[degree] != 0: numerator_zero <- false
+        degree <- degree + 1
+
+    quotient: mutable i64[BW_MAX_POLY] = zeroed
+    quotient_count: mutable usize = 1
+    if not numerator_zero and remainder_degree >= locator_degree:
+        quotient_count <- remainder_degree - locator_degree + 1
+    inverse_lead: i64 = bw_inverse7(locator[locator_degree])
+    while not numerator_zero and remainder_degree >= locator_degree:
+        shift: usize = remainder_degree - locator_degree
+        factor: i64 = remainder[remainder_degree] * inverse_lead % 7
+        quotient[shift] <- factor
+        degree <- 0
+        while degree <= locator_degree:
+            remainder[shift + degree] <- bw_mod7(
+                remainder[shift + degree] - factor * locator[degree])
+            degree <- degree + 1
+        while remainder_degree > 0 and remainder[remainder_degree] == 0:
+            remainder_degree <- remainder_degree - 1
+        numerator_zero <- true
+        degree <- 0
+        while degree < q_count:
+            if remainder[degree] != 0: numerator_zero <- false
+            degree <- degree + 1
+    degree <- 0
+    while degree < q_count:
+        if remainder[degree] != 0: return 0
+        degree <- degree + 1
+    if quotient_count > k: return 0
+
+    coefficients: mutable i64[BW_MAX_K] = zeroed
+    degree <- 0
+    while degree < quotient_count:
+        coefficients[degree] <- quotient[degree]
+        degree <- degree + 1
+    mismatches: mutable usize = 0
+    x: mutable usize = 0
+    while x < n:
+        value: mutable i64 = 0
+        degree <- k
+        while degree > 0:
+            degree <- degree - 1
+            value <- (value * x.i64() + coefficients[degree]) % 7
+        if value != received[x]: mismatches <- mismatches + 1
+        x <- x + 1
+    if mismatches > errors: return 0
+
+    result: mutable i64 = 1
+    place: mutable i64 = 1
+    degree <- 0
+    while degree < k:
+        result <- result + coefficients[degree] * place
+        place <- place * 7
+        degree <- degree + 1
+    result
+
+def bw_impl(input: view[i64], length: usize) -> i64:
+    if length < 3 or length > 11: return -1
+    n_value: i64 = input[0]
+    k_value: i64 = input[1]
+    t_value: i64 = input[2]
+    if n_value < 2 or n_value > BW_MAX_N.i64() or k_value < 1
+        or k_value > BW_MAX_K.i64() or k_value > n_value or t_value < 0
+        or t_value > BW_MAX_T.i64() or 2 * t_value > n_value - k_value:
+        return -1
+    n: usize = n_value.usize()
+    k: usize = k_value.usize()
+    errors: usize = t_value.usize()
+    if length != 3 + n: return -1
+    received: mutable i64[BW_MAX_N] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        symbol: i64 = input[3 + index]
+        if symbol < 0 or symbol >= 7: return -1
+        received[index] <- symbol
+        index <- index + 1
+    bw_decode(n, k, errors, received[0:n])
+
+export fn berlekamp_welch_rs_decode(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 11: return -1
+    input_view: view[i64] = input[0:length]
+    bw_impl(input_view, length)

@@ -12,7 +12,7 @@ fn delete_node(mut t []Node, mut root int, z int) {mut y:=z;mut x:=0;mut was_red
 fn put_i64(out &u8, offset int, value i64) {bits:=u64(value);for i in 0..8 {unsafe {out[offset+i]=u8(bits>>(i*8))}}}
 [export: 'red_black_tree_unique_key_ops']
 pub fn red_black_tree_unique_key_ops(input &i64, length usize, output &u8, capacity usize) i64 {
- if isnil(input)||length<1 {return -1};n64:=unsafe{input};if n64<0||n64>max_ops||length!=usize(1+2*n64) {return -1};n:=int(n64);mut active:=[]i64{len: max_ops};mut ac:=0;mut sc:=0
+ if isnil(input)||length<1 {return -1};n64:=unsafe{input[0]};if n64<0||n64>max_ops||length!=usize(1+2*n64) {return -1};n:=int(n64);mut active:=[]i64{len: max_ops};mut ac:=0;mut sc:=0
  for i in 0..n {op:=unsafe{input[1+2*i]};key:=unsafe{input[2+2*i]};if op<0||op>2||key<i32(min)||key>i32(max) {return -1};mut found:=ac;for j in 0..ac {if active[j]==key {found=j;break}};if op==0 {if found!=ac||ac>=max_ops {return -1};active[ac]=key;ac++} else if op==1 {sc++} else {if found==ac {return -1};for j in found+1..ac {active[j-1]=active[j]};ac--}}
  mut t:=[]Node{len:max_ops+1};mut root:=0;mut next:=1;mut results:=[]i64{len:max_ops};mut rc:=0
  for i in 0..n {op:=unsafe{input[1+2*i]};key:=unsafe{input[2+2*i]};if op==0 {t[next].key=key;insert_node(mut t,mut root,next);next++} else if op==1 {results[rc]=if find_node(t,root,key)!=0 {1} else {0};rc++} else {delete_node(mut t,mut root,find_node(t,root,key))}}

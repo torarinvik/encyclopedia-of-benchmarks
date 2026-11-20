@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn ria_collect(cells:InlineArray[Int64,16],size:Int,variant:Int,row:Int,col:Int,mut visited:InlineArray[Int64,16],mut current:InlineArray[Int64,15],plen:Int,mut paths:InlineArray[Int64,2760],mut lens:InlineArray[Int64,184],mut count:Int)->Bool:

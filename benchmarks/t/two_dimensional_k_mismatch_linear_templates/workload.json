@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-two-dimensional-k-mismatch-linear-templates-i64-array-bytes-output-v1",
+  "algorithm": "two_dimensional_k_mismatch_linear_templates",
+  "function_symbol": "two_dimensional_k_mismatch_linear_templates",
+  "abi": "i64_array_bytes_output",
+  "description": "Find square pattern windows with at most one Hamming mismatch using two disjoint linear-template witnesses and exact bounded verification.",
+  "source": {
+    "title": "Multidimensional String Matching",
+    "authors": ["Juha Kärkkäinen", "Esko Ukkonen"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, 2nd edition, DOI 10.1007/978-1-4939-2864-4_247",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_247",
+    "algorithm_attribution": "Kärkkäinen–Ukkonen static-grid linear-template extension for k mismatches; Sections 4 and 6.2, Lemma 6.1",
+    "paper": "Two- and Higher-Dimensional Pattern Matching in Optimal Expected Time, DOI 10.1137/S0097539794275872",
+    "paper_url": "https://doi.org/10.1137/S0097539794275872",
+    "implementation_status": "bounded clean-room k=1, p=1 profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_side,pattern_side,text_matrix_row_major,pattern_matrix_row_major]",
+    "text_and_pattern_side_range": [3, 12],
+    "pattern_not_larger_than_text": true,
+    "alphabet_range": [0, 3],
+    "maximum_valid_length": 290,
+    "maximum_parseable_length": 291,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[match_count,(zero_based_row,zero_based_column)...] in lexicographic row-major coordinate order; each reported window has Hamming distance at most one",
+    "maximum_matches": 100,
+    "maximum_bytes": 1608,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded pattern-sample address lists, candidate flags, and output flags."
+  },
+  "contract": {
+    "mismatch_limit_k": 1,
+    "positive_witness_threshold_p": 1,
+    "witness_count": 2,
+    "sample_length": "ceil(log_4(pattern_side^2))",
+    "template_spacing": "floor(pattern_side / sample_length)",
+    "test_rows": "Rows whose zero-based row modulo pattern_side is pattern_side-2 or pattern_side-1; each candidate contains exactly two such rows.",
+    "test_columns": "Every zero-based multiple of template_spacing whose complete sample fits in the text row.",
+    "pattern_samples": "For every pattern row and each residue a in [0,template_spacing), sample q symbols at columns a+t*template_spacing.",
+    "candidate_filter": "A matching sample is a positive witness; with p=1, any candidate with one positive witness is verified.",
+    "candidate_verification": "Compare row-major cells and stop after the second mismatch; accept at most one mismatch.",
+    "coordinate_order": "Increasing row, then increasing column.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"exact_single_window","input_values":[3,3,0,1,2,1,2,3,2,3,0,0,1,2,1,2,3,2,3,0],"input_length":20,"output_capacity":1608,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000000000000000000"},
+    {"id":"one_mismatch_on_first_witness","input_values":[3,3,0,1,2,1,2,3,2,3,0,0,1,2,0,2,3,2,3,0],"input_length":20,"output_capacity":1608,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000000000000000000"},
+    {"id":"two_mismatches_eliminated","input_values":[3,3,0,1,2,1,2,3,2,3,0,0,1,2,0,2,3,3,3,0],"input_length":20,"output_capacity":1608,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"four_overlapping_approximate_windows","input_values":[4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":27,"output_capacity":1608,"expected_result":72,"expected_output_hex":"040000000000000000000000000000000000000000000000000000000000000001000000000000000100000000000000000000000000000001000000000000000100000000000000"},
+    {"id":"pattern_below_supported_minimum","input_values":[2,2,0,0,0,0,0,0,0,0],"input_length":10,"output_capacity":1608,"expected_result":-1,"expected_output_hex":""},
+    {"id":"symbol_outside_alphabet","input_values":[3,3,4,1,2,1,2,3,2,3,0,0,1,2,1,2,3,2,3,0],"input_length":20,"output_capacity":1608,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input_word","input_values":[3,3,0,1,2,1,2,3,2,3,0,0,1,2,1,2,3,2,3,0,99],"input_length":21,"output_capacity":1608,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":1608,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[3,3,0,1,2,1,2,3,2,3,0,0,1,2,1,2,3,2,3,0],"input_length":20,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"insufficient_output_capacity","input_values":[3,3,0,1,2,1,2,3,2,3,0,0,1,2,1,2,3,2,3,0],"input_length":20,"output_capacity":23,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

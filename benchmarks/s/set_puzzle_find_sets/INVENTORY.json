@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "algorithm": "set_puzzle_find_sets",
+  "abi": "i64_array_bytes_output",
+  "status": "integrated",
+  "native_paths": [
+    "c/s/set_puzzle_find_sets.c",
+    "c3/s/set_puzzle_find_sets.c3",
+    "cpp/s/set_puzzle_find_sets.cpp",
+    "elisa/s/set_puzzle_find_sets.elisa",
+    "mojo/s/set_puzzle_find_sets.mojo",
+    "nim/s/set_puzzle_find_sets.nim",
+    "odin/s/set_puzzle_find_sets.odin",
+    "rust/s/set_puzzle_find_sets.rs",
+    "v/s/set_puzzle_find_sets.v",
+    "zig/s/set_puzzle_find_sets.zig"
+  ],
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ],
+  "bounds": {
+    "minimum_cards": 0,
+    "maximum_cards": 12,
+    "card_code_min": 0,
+    "card_code_max": 80,
+    "feature_count": 4,
+    "feature_values": 3,
+    "maximum_valid_input_words": 13,
+    "maximum_parseable_input_words": 14,
+    "maximum_valid_sets": 22,
+    "maximum_output_words": 67,
+    "maximum_output_bytes": 536,
+    "workspace_bytes": 93
+  }
+}

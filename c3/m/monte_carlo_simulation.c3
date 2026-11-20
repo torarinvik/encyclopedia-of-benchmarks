@@ -40,7 +40,7 @@ fn long monte_carlo_simulation(double* values, usz length, double* output, usz o
     double sqrt_dt = math.sqrt(dt);
     double drift_rate = rate - 0.5 * (volatility * volatility);
     double drift = drift_rate * maturity;
-    double payoffs[MAX_SIMULATIONS] = {0.0};
+    double[MAX_SIMULATIONS] payoffs = {};
     for (usz simulation = 0; simulation < simulations; simulation++) {
         double brownian = 0.0;
         usz offset = 7 + simulation * steps;

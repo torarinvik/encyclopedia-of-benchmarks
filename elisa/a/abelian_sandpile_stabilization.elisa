@@ -1,0 +1,96 @@
+def abelian_sandpile_stabilization_impl(input: view[i64]) -> i64:
+    if input.length < 2 or input.length > 19: return -1
+    rows_word: i64 = input[0]
+    cols_word: i64 = input[1]
+    if rows_word < 1 or rows_word > 4 or cols_word < 1 or cols_word > 4: return -1
+    rows: usize = rows_word.usize()
+    cols: usize = cols_word.usize()
+    cells: usize = rows * cols
+    if input.length != 2 + cells: return -1
+
+    board: mutable i64[16] = zeroed
+    site: mutable usize = 0
+    while site < cells:
+        height: i64 = input[2 + site]
+        if height < 0 or height > 31: return -1
+        board[site] <- height
+        site <- site + 1
+
+    queue: mutable usize[16] = zeroed
+    queued: mutable bool[16] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    queue_count: mutable usize = 0
+    site <- 0
+    while site < cells:
+        if board[site] >= 4:
+            queue[tail] <- site
+            tail <- (tail + 1) % cells
+            queue_count <- queue_count + 1
+            queued[site] <- true
+        site <- site + 1
+
+    topples: mutable usize = 0
+    while queue_count > 0:
+        current: usize = queue[head]
+        head <- (head + 1) % cells
+        queue_count <- queue_count - 1
+        queued[current] <- false
+        if board[current] < 4: continue
+        row: usize = current / cols
+        col: usize = current % cols
+        board[current] <- board[current] - 4
+        topples <- topples + 1
+        if topples > 1488: return -1
+
+        if row > 0:
+            next: usize = current - cols
+            board[next] <- board[next] + 1
+            if board[next] >= 4 and not queued[next]:
+                queue[tail] <- next
+                tail <- (tail + 1) % cells
+                queue_count <- queue_count + 1
+                queued[next] <- true
+        if col + 1 < cols:
+            next: usize = current + 1
+            board[next] <- board[next] + 1
+            if board[next] >= 4 and not queued[next]:
+                queue[tail] <- next
+                tail <- (tail + 1) % cells
+                queue_count <- queue_count + 1
+                queued[next] <- true
+        if row + 1 < rows:
+            next: usize = current + cols
+            board[next] <- board[next] + 1
+            if board[next] >= 4 and not queued[next]:
+                queue[tail] <- next
+                tail <- (tail + 1) % cells
+                queue_count <- queue_count + 1
+                queued[next] <- true
+        if col > 0:
+            next: usize = current - 1
+            board[next] <- board[next] + 1
+            if board[next] >= 4 and not queued[next]:
+                queue[tail] <- next
+                tail <- (tail + 1) % cells
+                queue_count <- queue_count + 1
+                queued[next] <- true
+        if board[current] >= 4 and not queued[current]:
+            queue[tail] <- current
+            tail <- (tail + 1) % cells
+            queue_count <- queue_count + 1
+            queued[current] <- true
+
+    result: mutable i64 = 0
+    place: mutable i64 = 1
+    site <- 0
+    while site < cells:
+        result <- result + board[site] * place
+        place <- place * 4
+        site <- site + 1
+    result
+
+export fn abelian_sandpile_stabilization(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 19: return -1
+    input_view: view[i64] = input[0:length]
+    abelian_sandpile_stabilization_impl(input_view)

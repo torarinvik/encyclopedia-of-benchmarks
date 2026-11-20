@@ -10,11 +10,11 @@ fn long binary_lifting_kth_ancestor(long* input, usz length, char* output, usz c
  bool[MAX_NODES][MAX_NODES] adj;
  for (usz e = 0; e < m; e++) { long a = input[4 + 2 * e], b = input[5 + 2 * e]; if (a < 0 || b < 0 || (usz)a >= n || (usz)b >= n || a == b) return -1; adj[(usz)a][(usz)b] = true; adj[(usz)b][(usz)a] = true; }
  for (usz i = 0; i < q; i++) { long v = input[query_offset + 2 * i], k = input[query_offset + 2 * i + 1]; if (v < 0 || (usz)v >= n || k < 0) return -1; }
- usz[MAX_NODES] stack; long[MAX_NODES] parent; usz[LEVELS][MAX_NODES] up; for (usz i = 0; i < n; i++) parent[i] = -1; parent[root] = (long)root; up[0][root] = root; usz top = 0, reached = 0; stack[top] = root; top++;
+ usz[MAX_NODES] stack; long[MAX_NODES] parent; usz[MAX_NODES][LEVELS] up; for (usz i = 0; i < n; i++) parent[i] = -1; parent[root] = (long)root; up[0][root] = root; usz top = 0, reached = 0; stack[top] = root; top++;
  while (top > 0) { top--; usz u = stack[top]; reached++; for (usz v = 0; v < n; v++) if (adj[u][v]) { if ((long)v == parent[u]) continue; if (parent[v] != -1) return -1; parent[v] = (long)u; up[0][v] = u; stack[top] = v; top++; } }
  if (reached != n) return -1;
  for (usz level = 1; level < LEVELS; level++) for (usz v = 0; v < n; v++) up[level][v] = up[level - 1][up[level - 1][v]];
  usz bytes = (1 + q) * 8; if (output == null || capacity < bytes) return -2; put_i64(output, 0, (long)q);
- for (usz i = 0; i < q; i++) { usz v = (usz)input[query_offset + 2 * i]; ulong k = (ulong)input[query_offset + 2 * i + 1]; if (k >= n) v = root; else for (usz bit = 0; bit < LEVELS; bit++) if (k & ((ulong)1 << bit)) v = up[bit][v]; put_i64(output, 1 + i, (long)v); }
+ for (usz i = 0; i < q; i++) { usz v = (usz)input[query_offset + 2 * i]; ulong k = (ulong)input[query_offset + 2 * i + 1]; if (k >= n) v = root; else for (usz bit = 0; bit < LEVELS; bit++) if ((k & ((ulong)1 << bit)) != 0) v = up[bit][v]; put_i64(output, 1 + i, (long)v); }
  return (long)bytes;
 }

@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "eoa-chapter-628-inverted-list-svs-i64-array-bytes-output-v1",
+  "algorithm": "inverted_list_svs_binary_search",
+  "function_symbol": "inverted_list_svs_binary_search",
+  "abi": "i64_array_bytes_output",
+  "description": "Full intersection of bounded sorted lists using shortest-list-first candidates and monotone binary search.",
+  "source": {
+    "chapter": "Intersections of Inverted Lists",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_628",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_628",
+    "paper_title": "Experiments on Adaptive Set Intersections for Text Retrieval Systems",
+    "authors": ["Erik D. Demaine", "Alejandro López-Ortiz", "J. Ian Munro"],
+    "year": 2001,
+    "section": "Section 3, Algorithm SvS",
+    "paper_url": "https://cs.uwaterloo.ca/~alopez-o/files/EoASIfTRS_2001.pdf",
+    "paper_doi": "10.1007/3-540-44808-X_7"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[k,(n_i,strictly_increasing_i32_values...)*k]",
+    "list_count_range": [2, 8],
+    "each_list_length_range": [0, 32],
+    "value_range": [-2147483648, 2147483647],
+    "maximum_valid_length": 265,
+    "maximum_parseable_length": 266,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_array",
+    "encoding": "Unique common values in ascending order, without a count prefix.",
+    "success_result": "number of values written; empty result returns zero",
+    "maximum_values": 32,
+    "maximum_bytes": 128,
+    "capacity_requirement": "At least four times the shortest input-list length.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed list metadata and shortest-list candidate array; validation and capacity checks finish before direct output writes."
+  },
+  "contract": {
+    "algorithm": "SvS: stable sort list IDs by length; initialize candidates from the shortest list; for each remaining list in ascending length order, binary-search each surviving candidate from the prior lower-bound cursor and retain matches.",
+    "length_tie_rule": "Original list ID order.",
+    "lower_bound_cursor": "Start each later list at index zero. After a match, continue from the matched index plus one; after a miss, continue from its insertion index.",
+    "empty_list": "A valid empty list yields the empty intersection.",
+    "output_order": "Strictly ascending unique signed 32-bit values."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "both-lists-empty-minimum-frame",
+      "input_values": [2, 0, 0],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "two-list-intersection",
+      "input_values": [2, 4, 1, 3, 5, 9, 4, 0, 3, 5, 7],
+      "input_length": 11,
+      "output_capacity": 128,
+      "expected_result": 2,
+      "expected_output_hex": "0300000005000000"
+    },
+    {
+      "id": "stable-size-order-and-three-list-filtering",
+      "input_values": [3, 4, 2, 7, 10, 20, 4, 1, 7, 10, 17, 3, 7, 10, 15],
+      "input_length": 15,
+      "output_capacity": 128,
+      "expected_result": 2,
+      "expected_output_hex": "070000000a000000"
+    },
+    {
+      "id": "empty-shortest-list",
+      "input_values": [3, 0, 3, 1, 2, 3, 3, 2, 3, 4],
+      "input_length": 10,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-and-i32-boundaries",
+      "input_values": [2, 4, -2147483648, -1, 0, 2147483647, 3, -2147483648, 0, 2147483647],
+      "input_length": 10,
+      "output_capacity": 12,
+      "expected_result": 3,
+      "expected_output_hex": "0000008000000000ffffff7f"
+    },
+    {
+      "id": "monotone-search-cursor-skips-gaps",
+      "input_values": [2, 4, 1, 4, 7, 10, 9, 0, 2, 3, 4, 5, 6, 8, 9, 10],
+      "input_length": 16,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "040000000a000000"
+    },
+    {
+      "id": "maximum-frame-and-output",
+      "input_values": [
+        8,
+        32, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        32, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        32, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        32, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        32, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        32, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        32, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        32, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+      ],
+      "input_length": 265,
+      "output_capacity": 128,
+      "expected_result": 32,
+      "expected_output_hex": "000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b0000001c0000001d0000001e0000001f000000"
+    },
+    {
+      "id": "non-increasing-list-rejected",
+      "input_values": [2, 3, 3, 1, 1, 2, 1, 2],
+      "input_length": 8,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-i32-value-rejected",
+      "input_values": [2, 1, 2147483648, 1, 0],
+      "input_length": 5,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-rejected",
+      "input_values": [2, 1, 5, 1, 5, 99],
+      "input_length": 6,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-with-nonempty-bound",
+      "input_values": [2, 2, 4, 8, 2, 4, 9],
+      "input_length": 7,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 2, 1, 2, 2, 1, 2],
+      "input_length": 7,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

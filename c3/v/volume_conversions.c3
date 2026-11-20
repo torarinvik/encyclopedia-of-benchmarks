@@ -5,7 +5,7 @@ fn double unit_factor_to_cubic_meters(long unit) {
 }
 
 fn void put_f64_le(double value, char* output) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[byte] = (char)(bits & 255);
         bits >>= 8;

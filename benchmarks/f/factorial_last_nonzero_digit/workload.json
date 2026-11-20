@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "factorial-last-nonzero-digit-i64-array-scalar-v1",
+  "algorithm": "factorial_last_nonzero_digit",
+  "function_symbol": "factorial_last_nonzero_digit",
+  "abi": "i64_array_scalar",
+  "description": "Return the final nonzero decimal digit of n!.",
+  "source": {
+    "discovery_title": "Calculate Last Non-Zero Digit of Factorial [EX]",
+    "discovery_index": "https://www.codewars.com/kata?tags=Algorithms%2CNumber+Theory",
+    "discovery_note": "The public Codewars title was used only as a discovery lead; no kata content was consulted or reused.",
+    "title": "Three Transcendental Numbers From the Last Non-Zero Digits of n^n, F_n, and n!",
+    "authors": ["Gregory P. Dresden"],
+    "url": "https://dresden.academic.wlu.edu/files/2017/08/lnzd2.pdf",
+    "license": "Mathematical method cited; clean-room implementation",
+    "method_urls": [
+      "https://dresden.academic.wlu.edu/files/2017/08/lnzd2.pdf",
+      "https://oeis.org/A008904"
+    ],
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n]",
+    "n_range": [0, 9223372036854775807],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "The last nonzero decimal digit of n!, with 0! defined as 1.",
+    "result_range": [0, 9],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "primary": "D(0..4)=(1,1,2,6,4); for n>=5, D(n)=D(floor(n/5))*D(n mod 5)*2^floor(n/5) mod 10. The ports evaluate this recurrence iteratively by reducing n by five.",
+    "independent_reference": "For n<2 return 1. Otherwise write n=sum_i a_i*5^i and return 6*product_i(a_i!*2^(i*a_i)) mod 10, reducing all factors modulo 10.",
+    "primary_time": "O(log_5(n+1))",
+    "primary_space": "O(1)",
+    "independent_time": "O(log_5(n+1))",
+    "independent_space": "O(log_5(n+1))"
+  },
+  "primary_oracle": "benchmarks/f/factorial_last_nonzero_digit/primary_oracle.py",
+  "independent_oracle": "benchmarks/f/factorial_last_nonzero_digit/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"zero-factorial","input_values":[0],"input_length":1,"expected_result":1},
+    {"id":"one-factorial","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"small-base-digit-two","input_values":[2],"input_length":1,"expected_result":2},
+    {"id":"small-base-digit-three","input_values":[3],"input_length":1,"expected_result":6},
+    {"id":"small-base-digit-four","input_values":[4],"input_length":1,"expected_result":4},
+    {"id":"first-divide-by-five-boundary","input_values":[5],"input_length":1,"expected_result":2},
+    {"id":"ten","input_values":[10],"input_length":1,"expected_result":8},
+    {"id":"twenty-five","input_values":[25],"input_length":1,"expected_result":4},
+    {"id":"one-hundred","input_values":[100],"input_length":1,"expected_result":4},
+    {"id":"one-thousand","input_values":[1000],"input_length":1,"expected_result":2},
+    {"id":"power-five-twenty-seven","input_values":[7450580596923828125],"input_length":1,"expected_result":8},
+    {"id":"signed-64-maximum","input_values":[9223372036854775807],"input_length":1,"expected_result":4},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"signed-64-minimum-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"empty-frame-invalid","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[10,0],"input_length":2,"expected_result":-1},
+    {"id":"too-many-words-invalid","input_values":[10,0,0],"input_length":3,"expected_result":-1},
+    {"id":"null-input-invalid","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

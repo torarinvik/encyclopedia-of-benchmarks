@@ -14,6 +14,29 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from b.de_boor_bspline_curve_evaluation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DE_BOOR_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as DE_BOOR_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as DE_BOOR_WORKSPACE_BYTES,
+    expected_output as de_boor_bspline_curve_evaluation_oracle,
+)
+from b.de_boor_bspline_curve_evaluation.check_inventory import (
+    static_issues as de_boor_bspline_curve_evaluation_static_issues,
+)
+from b.de_boor_bspline_curve_evaluation.verify_workload import (
+    workload_issues as de_boor_bspline_curve_evaluation_workload_issues,
+)
+from laguerre_complex_polynomial_root_oracle import (
+    ABSOLUTE_TOLERANCE as LAGUERRE_ROOT_ABSOLUTE_TOLERANCE,
+    MAX_OUTPUT_ELEMENTS as LAGUERRE_ROOT_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as LAGUERRE_ROOT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LAGUERRE_ROOT_MAX_VALID_INPUT_LENGTH,
+    RELATIVE_TOLERANCE as LAGUERRE_ROOT_RELATIVE_TOLERANCE,
+    expected_output as laguerre_complex_polynomial_root_oracle,
+)
+from l.laguerre_complex_polynomial_root.verify_workload import (
+    verify as verify_laguerre_complex_polynomial_root_package,
+)
 from check_dormand_prince_54_adaptive_ode_package import static_issues as dormand_prince_54_package_issues
 from check_adaptive_simpson_quadrature_package import static_issues as adaptive_simpson_package_issues
 from check_romberg_integration_package import static_issues as romberg_integration_package_issues
@@ -22,6 +45,9 @@ from check_adaptive_gauss_kronrod_15_quadrature_package import (
     static_issues as adaptive_gauss_kronrod_15_package_issues,
 )
 from check_smo_dual_pair_update_package import static_issues as smo_dual_pair_update_package_issues
+from s.smo_deterministic_training.check_inventory import (
+    static_issues as smo_deterministic_training_package_issues,
+)
 from check_kahan_summation_package import (
     static_issues as kahan_summation_package_issues,
 )
@@ -369,6 +395,43 @@ from npb_mg_vcycle_oracle import (
 )
 from n.npb_mg_vcycle.verify_workload import (
     verify_workload as verify_npb_mg_vcycle_package,
+)
+from b.baum_welch_reestimation.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as BAUM_WELCH_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as BAUM_WELCH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as BAUM_WELCH_MAX_OUTPUT_ELEMENTS,
+    OUTPUT_ABSOLUTE_TOLERANCE as BAUM_WELCH_OUTPUT_ABSOLUTE_TOLERANCE,
+    OUTPUT_RELATIVE_TOLERANCE as BAUM_WELCH_OUTPUT_RELATIVE_TOLERANCE,
+    expected_output as baum_welch_reestimation_oracle,
+)
+from b.baum_welch_reestimation.check_inventory import (
+    static_issues as baum_welch_reestimation_static_issues,
+)
+from b.baum_welch_reestimation.verify_workload import (
+    verify_workload as verify_baum_welch_reestimation_package,
+)
+from t.thiele_rational_interpolation.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as THIELE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as THIELE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as THIELE_MAX_OUTPUT_ELEMENTS,
+    expected_output as thiele_rational_interpolation_oracle,
+)
+from t.thiele_rational_interpolation.check_inventory import (
+    static_issues as thiele_rational_interpolation_static_issues,
+)
+from t.thiele_rational_interpolation.verify_workload import (
+    workload_issues as thiele_rational_interpolation_workload_issues,
+)
+from c.circular_mean_direction.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CIRCULAR_MEAN_DIRECTION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as CIRCULAR_MEAN_DIRECTION_MAX_OUTPUT_ELEMENTS,
+    expected_output as circular_mean_direction_oracle,
+)
+from c.circular_mean_direction.check_inventory import (
+    static_issues as circular_mean_direction_static_issues,
+)
+from c.circular_mean_direction.verify_workload import (
+    workload_issues as circular_mean_direction_workload_issues,
 )
 from npb_sp_pentadiagonal_oracle import (
     MAX_INPUT_LENGTH as NPB_SP_PENTADIAGONAL_MAX_INPUT_LENGTH,
@@ -835,6 +898,65 @@ from splash2_fft_six_step_oracle import (
 from f.splash2_fft_six_step.verify_workload import (
     verify_workload as verify_splash2_fft_six_step_package,
 )
+from s.stockham_autosort_radix2_fft.primary_oracle import (
+    MAX_INPUT_LENGTH as STOCKHAM_AUTOSORT_RADIX2_FFT_MAX_INPUT_LENGTH,
+    expected_output as stockham_autosort_radix2_fft_oracle,
+)
+from s.stockham_autosort_radix2_fft.verify_workload import (
+    verify_workload as verify_stockham_autosort_radix2_fft_package,
+)
+from d.direct_discrete_fourier_transform.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DIRECT_DFT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as direct_discrete_fourier_transform_oracle,
+)
+from d.direct_discrete_fourier_transform.check_inventory import (
+    static_issues as direct_discrete_fourier_transform_static_issues,
+)
+from d.direct_discrete_fourier_transform.verify_workload import (
+    verify_workload as verify_direct_discrete_fourier_transform_package,
+)
+from w.wynn_epsilon_sequence_algorithm.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as WYNN_EPSILON_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as wynn_epsilon_sequence_algorithm_oracle,
+)
+from w.wynn_epsilon_sequence_algorithm.check_inventory import (
+    static_issues as wynn_epsilon_sequence_algorithm_static_issues,
+)
+from w.wynn_epsilon_sequence_algorithm.verify_workload import (
+    verify_workload as verify_wynn_epsilon_sequence_algorithm_package,
+)
+from c.clenshaw_curtis_quadrature.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CLENSHAW_CURTIS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as clenshaw_curtis_quadrature_oracle,
+)
+from c.clenshaw_curtis_quadrature.check_inventory import (
+    static_issues as clenshaw_curtis_quadrature_static_issues,
+)
+from c.clenshaw_curtis_quadrature.verify_workload import (
+    verify_workload as verify_clenshaw_curtis_quadrature_package,
+)
+from o.olver_backward_recurrence_boundary_value.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as OLVER_BACKWARD_RECURRENCE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as olver_backward_recurrence_boundary_value_oracle,
+)
+from o.olver_backward_recurrence_boundary_value.check_inventory import (
+    static_issues as olver_backward_recurrence_boundary_value_static_issues,
+)
+from o.olver_backward_recurrence_boundary_value.verify_workload import (
+    workload_issues as olver_backward_recurrence_boundary_value_workload_issues,
+)
+from l.lanczos_symmetric_tridiagonalization.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LANCZOS_SYMMETRIC_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as LANCZOS_SYMMETRIC_MAX_OUTPUT_ELEMENTS,
+    WORKSPACE_ELEMENTS as LANCZOS_SYMMETRIC_WORKSPACE_ELEMENTS,
+    expected_output as lanczos_symmetric_tridiagonalization_oracle,
+)
+from l.lanczos_symmetric_tridiagonalization.check_inventory import (
+    static_issues as lanczos_symmetric_tridiagonalization_static_issues,
+)
+from l.lanczos_symmetric_tridiagonalization.verify_workload import (
+    workload_issues as lanczos_symmetric_tridiagonalization_workload_issues,
+)
 from splash2_ocean_rbgs_oracle import (
     MAX_INPUT_LENGTH as SPLASH2_OCEAN_RBGS_MAX_INPUT_LENGTH,
     expected_output as splash2_ocean_rbgs_oracle,
@@ -939,6 +1061,30 @@ from quaternions_oracle import OUTPUT_ERROR as QUATERNIONS_OUTPUT_ERROR
 from quaternions_oracle import RELATIVE_TOLERANCE as QUATERNIONS_RELATIVE_TOLERANCE
 from quaternions_oracle import expected_abi_result as quaternions_expected_abi_result
 from quaternions_oracle import expected_output as quaternions_oracle
+from r.rodrigues_arbitrary_axis_rotation.primary_oracle import (
+    ABSOLUTE_TOLERANCE as RODRIGUES_ROTATION_ABSOLUTE_TOLERANCE,
+    MAX_INPUT_LENGTH as RODRIGUES_ROTATION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as RODRIGUES_ROTATION_MAX_OUTPUT_ELEMENTS,
+    MAX_VALID_INPUT_LENGTH as RODRIGUES_ROTATION_MAX_VALID_INPUT_LENGTH,
+    RELATIVE_TOLERANCE as RODRIGUES_ROTATION_RELATIVE_TOLERANCE,
+    WORKSPACE_BYTES as RODRIGUES_ROTATION_WORKSPACE_BYTES,
+    expected_output as rodrigues_arbitrary_axis_rotation_oracle,
+)
+from t.tanh_sinh_double_exponential_quadrature.primary_oracle import (
+    ABSOLUTE_TOLERANCE as TANH_SINH_ABSOLUTE_TOLERANCE,
+    MAX_PARSEABLE_INPUT_LENGTH as TANH_SINH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as TANH_SINH_MAX_VALID_INPUT_LENGTH,
+    RELATIVE_TOLERANCE as TANH_SINH_RELATIVE_TOLERANCE,
+    WORKSPACE_BYTES as TANH_SINH_WORKSPACE_BYTES,
+    WORKSPACE_ELEMENTS as TANH_SINH_WORKSPACE_ELEMENTS,
+    expected_output as tanh_sinh_double_exponential_quadrature_oracle,
+)
+from t.tanh_sinh_double_exponential_quadrature.check_inventory import (
+    static_issues as tanh_sinh_double_exponential_quadrature_static_issues,
+)
+from t.tanh_sinh_double_exponential_quadrature.verify_workload import (
+    workload_issues as tanh_sinh_double_exponential_quadrature_workload_issues,
+)
 from rhumb_distance_oracle import EARTH_RADIUS as RHUMB_DISTANCE_EARTH_RADIUS
 from rhumb_distance_oracle import INVALID_RESULT as RHUMB_DISTANCE_INVALID_RESULT
 from rhumb_distance_oracle import MAX_INPUT_LENGTH as RHUMB_DISTANCE_MAX_INPUT_LENGTH
@@ -1045,6 +1191,22 @@ from blocked_lu_factorization_oracle import (
     WORKSPACE_BYTES as BLOCKED_LU_WORKSPACE_BYTES,
     expected_output as blocked_lu_factorization_oracle,
 )
+from h.hpl_blocked_partial_pivot_lu.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HPL_BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as hpl_blocked_partial_pivot_lu_oracle,
+)
+from h.hpl_blocked_partial_pivot_lu.check_inventory import (
+    static_issues as hpl_blocked_partial_pivot_lu_static_issues,
+)
+from c.catmull_clark_subdivision.primary_oracle import (
+    MAX_INPUT_LENGTH as CATMULL_CLARK_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_LENGTH as CATMULL_CLARK_MAX_OUTPUT_LENGTH,
+    WORKSPACE_BYTES as CATMULL_CLARK_WORKSPACE_BYTES,
+    expected_output as catmull_clark_subdivision_oracle,
+)
+from c.catmull_clark_subdivision.check_inventory import (
+    static_issues as catmull_clark_subdivision_static_issues,
+)
 from adaptive_simpson_quadrature_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH,
     expected_output as adaptive_simpson_quadrature_oracle,
@@ -1069,6 +1231,13 @@ from smo_dual_pair_update_oracle import (
     MAX_OUTPUT_ELEMENTS as SMO_DUAL_PAIR_UPDATE_MAX_OUTPUT_ELEMENTS,
     MAX_PARSEABLE_INPUT_LENGTH as SMO_DUAL_PAIR_UPDATE_MAX_PARSEABLE_INPUT_LENGTH,
     expected_output as smo_dual_pair_update_oracle,
+)
+from smo_deterministic_training_oracle import (
+    MAX_OUTPUT_ELEMENTS as SMO_DETERMINISTIC_TRAINING_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as SMO_DETERMINISTIC_TRAINING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SMO_DETERMINISTIC_TRAINING_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as SMO_DETERMINISTIC_TRAINING_WORKSPACE_BYTES,
+    expected_output as smo_deterministic_training_oracle,
 )
 from lu_decompose_oracle import (
     ABSOLUTE_TOLERANCE as LU_DECOMPOSE_ABSOLUTE_TOLERANCE,
@@ -1348,22 +1517,8 @@ from perceptron_rust_oracle import (
     OUTPUT_ERROR as PERCEPTRON_RUST_OUTPUT_ERROR,
     expected_output as perceptron_rust_abi_oracle,
 )
-from travelling_salesman_python_bruteforce_oracle import (
-    COORDINATE_BOUND as TSP_BRUTEFORCE_COORDINATE_BOUND,
-    MAX_CITIES as TSP_BRUTEFORCE_MAX_CITIES,
-    MAX_INPUT_LENGTH as TSP_BRUTEFORCE_MAX_INPUT_LENGTH,
-    MAX_OUTPUT_ELEMENTS as TSP_BRUTEFORCE_MAX_OUTPUT_ELEMENTS,
-    expected_output as travelling_salesman_python_bruteforce_abi_oracle,
-)
 from travelling_salesman_python_genetic_oracle import (
     expected_output as travelling_salesman_python_genetic_abi_oracle,
-)
-from travelling_salesman_python_held_karp_oracle import (
-    COORDINATE_BOUND as TSP_HELD_KARP_COORDINATE_BOUND,
-    MAX_CITIES as TSP_HELD_KARP_MAX_CITIES,
-    MAX_INPUT_LENGTH as TSP_HELD_KARP_MAX_INPUT_LENGTH,
-    MAX_OUTPUT_ELEMENTS as TSP_HELD_KARP_MAX_OUTPUT_ELEMENTS,
-    expected_output as travelling_salesman_python_held_karp_abi_oracle,
 )
 
 
@@ -1845,6 +2000,8 @@ def olden_em3d_abi_oracle(values, output_capacity=None, output_is_null=False,
 
 
 ORACLES = {
+    "de_boor_bspline_curve_evaluation": de_boor_bspline_curve_evaluation_oracle,
+    "laguerre_complex_polynomial_root": laguerre_complex_polynomial_root_oracle,
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
     "tsvc_s313_dot_product_reduction": tsvc_s313_dot_product_reduction_oracle,
@@ -1903,11 +2060,20 @@ ORACLES = {
     "npb_ep": npb_ep_oracle,
     "npb_ft_3d_spectral_step": npb_ft_3d_spectral_step_oracle,
     "npb_mg_vcycle": npb_mg_vcycle_oracle,
+    "baum_welch_reestimation": baum_welch_reestimation_oracle,
+    "thiele_rational_interpolation": thiele_rational_interpolation_oracle,
+    "circular_mean_direction": circular_mean_direction_oracle,
     "npb_sp_pentadiagonal_line_solve": npb_sp_pentadiagonal_oracle,
     "mafft_falign_fft_lag_correlation": mafft_falign_fft_lag_correlation_abi_oracle,
     "hjm_forward_path": hjm_forward_path_abi_oracle,
     "splash2_fmm": splash2_fmm_abi_oracle,
     "splash2_fft_six_step": splash2_fft_six_step_oracle,
+    "stockham_autosort_radix2_fft": stockham_autosort_radix2_fft_oracle,
+    "direct_discrete_fourier_transform": direct_discrete_fourier_transform_oracle,
+    "wynn_epsilon_sequence_algorithm": wynn_epsilon_sequence_algorithm_oracle,
+    "clenshaw_curtis_quadrature": clenshaw_curtis_quadrature_oracle,
+    "olver_backward_recurrence_boundary_value": olver_backward_recurrence_boundary_value_oracle,
+    "lanczos_symmetric_tridiagonalization": lanczos_symmetric_tridiagonalization_oracle,
     "splash2_ocean_rbgs": splash2_ocean_rbgs_oracle,
     "splash2_radiosity_refine": splash2_radiosity_refine_oracle,
     "himenobmtxpa": himenobmtxpa_oracle,
@@ -1960,6 +2126,8 @@ ORACLES = {
     "mutate": mutate_oracle,
     "single_point_crossover": single_point_crossover_oracle,
     "quaternions": quaternions_oracle,
+    "rodrigues_arbitrary_axis_rotation": rodrigues_arbitrary_axis_rotation_oracle,
+    "tanh_sinh_double_exponential_quadrature": tanh_sinh_double_exponential_quadrature_oracle,
     "rhumb_distance": rhumb_distance_oracle,
     "rhumb_bearing": rhumb_bearing_oracle,
     "rhumb_destination": rhumb_destination_oracle,
@@ -1977,7 +2145,10 @@ ORACLES = {
     "ridders_root_finding": ridders_root_finding_oracle,
     "romberg_integration": romberg_integration_oracle,
     "smo_dual_pair_update": smo_dual_pair_update_oracle,
+    "smo_deterministic_training": smo_deterministic_training_oracle,
     "blocked_lu_factorization": blocked_lu_factorization_oracle,
+    "hpl_blocked_partial_pivot_lu": hpl_blocked_partial_pivot_lu_oracle,
+    "catmull_clark_subdivision": catmull_clark_subdivision_oracle,
     "lu_decompose": lu_decompose_oracle,
     "lu_elimination": lu_elimination_oracle,
     "lu_pivot_decomposition": lu_pivot_decomposition_oracle,
@@ -2002,9 +2173,7 @@ ORACLES = {
     "perceptron_python": perceptron_python_oracle,
     "perceptron_r": perceptron_r_oracle,
     "perceptron_rust": perceptron_rust_oracle,
-    "travelling_salesman_python_bruteforce": travelling_salesman_python_bruteforce_abi_oracle,
     "travelling_salesman_python_genetic": travelling_salesman_python_genetic_abi_oracle,
-    "travelling_salesman_python_held_karp": travelling_salesman_python_held_karp_abi_oracle,
     "rader_fft": rader_fft_oracle,
     "smallest_enclosing_ball_3d": smallest_enclosing_ball_3d_oracle,
     "euclidean_t_spanner": euclidean_t_spanner_oracle,
@@ -2243,9 +2412,7 @@ def validate_euclidean_t_spanner_workload(workload: dict) -> None:
 TDIGEST_WORKSPACE_ELEMENTS = 10
 MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH = 1 + 16 * 16 + 16
 TRAVELLING_SALESMAN_PYTHON_ALGORITHMS = frozenset({
-    "travelling_salesman_python_bruteforce",
     "travelling_salesman_python_genetic",
-    "travelling_salesman_python_held_karp",
 })
 
 LINEAR_REGRESSION_CASE_IDS = frozenset({
@@ -3933,6 +4100,126 @@ def validate_rotation_matrix_workload(workload: dict) -> None:
             raise ValueError(f"rotation_matrix workload mismatch: {case.get('id')}")
 
 
+RODRIGUES_ARBITRARY_AXIS_ROTATION_CASE_IDS = {
+    "scaled-z-quarter-turn", "arbitrary-axis-positive-third-turn",
+    "arbitrary-axis-negative-third-turn", "axis-parallel-vector",
+    "subnormal-scale-axis", "zero-angle-identity", "max-vector-components",
+    "negative-axis-direction", "zero-axis", "component-over-bound",
+    "angle-over-bound", "short-input-frame", "trailing-input-value",
+    "null-input", "null-output", "short-output-capacity",
+    "invalid-input-precedes-short-output",
+}
+
+
+def validate_rodrigues_arbitrary_axis_rotation_workload(workload: dict) -> None:
+    """Pin the bounded arbitrary-axis finite vector rotation package."""
+    cases = workload.get("cases")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "arbitrary-axis-finite-vector-rotation-float64-v1"
+            or workload.get("algorithm") != "rodrigues_arbitrary_axis_rotation"
+            or workload.get("function_symbol") != "rodrigues_arbitrary_axis_rotation"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("source", {}).get("url")
+                != "https://iel.ucdavis.edu/publication/1989/j_ASMEAM.pdf"
+            or workload.get("source", {}).get("secondary_url")
+                != "https://mathworld.wolfram.com/RodriguesRotationFormula.html"
+            or workload.get("contract", {}).get("input_encoding")
+                != "[axis_x,axis_y,axis_z,vector_x,vector_y,vector_z,angle_radians]"
+            or workload.get("contract", {}).get("angle_unit") != "radians"
+            or workload.get("input", {}).get("encoding")
+                != "[axis_x,axis_y,axis_z,vector_x,vector_y,vector_z,angle_radians]"
+            or workload.get("input", {}).get("kind") != "finite_float64_array"
+            or workload.get("input", {}).get("exact_valid_length")
+                != RODRIGUES_ROTATION_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_valid_length")
+                != RODRIGUES_ROTATION_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+                != RODRIGUES_ROTATION_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("component_abs_limit") != 1_000_000.0
+            or workload.get("input", {}).get("angle_abs_limit") != 6.283185307179586
+            or workload.get("output", {}).get("kind") != "float64_array"
+            or workload.get("output", {}).get("encoding") != "[rotated_x,rotated_y,rotated_z]"
+            or workload.get("output", {}).get("maximum_elements")
+                != RODRIGUES_ROTATION_MAX_OUTPUT_ELEMENTS
+            or workload.get("output", {}).get("maximum_abs_value") != 2_000_000.0
+            or workload.get("output", {}).get("success_result") != 3
+            or workload.get("output", {}).get("invalid_input_result") != -1
+            or workload.get("output", {}).get("null_or_short_output_result") != -2
+            or workload.get("output", {}).get("absolute_tolerance")
+                != RODRIGUES_ROTATION_ABSOLUTE_TOLERANCE
+            or workload.get("output", {}).get("relative_tolerance")
+                != RODRIGUES_ROTATION_RELATIVE_TOLERANCE
+            or workload.get("workspace", {}).get("bytes") != RODRIGUES_ROTATION_WORKSPACE_BYTES
+            or workload.get("workspace", {}).get("elements")
+                != RODRIGUES_ROTATION_MAX_OUTPUT_ELEMENTS
+            or workload.get("measurement", {}).get("comparison_model")
+                != "float64_slice_io_call"
+            or workload.get("measurement", {}).get("absolute_tolerance")
+                != RODRIGUES_ROTATION_ABSOLUTE_TOLERANCE
+            or workload.get("measurement", {}).get("relative_tolerance")
+                != RODRIGUES_ROTATION_RELATIVE_TOLERANCE
+            or not isinstance(cases, list)
+            or len(cases) != len(RODRIGUES_ARBITRARY_AXIS_ROTATION_CASE_IDS)
+            or {case.get("id") for case in cases if isinstance(case, dict)}
+                != RODRIGUES_ARBITRARY_AXIS_ROTATION_CASE_IDS):
+        raise ValueError("Rodrigues rotation workload differs from its bounded contract")
+
+    package = ROOT / "benchmarks" / "r" / "rodrigues_arbitrary_axis_rotation"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "RIGHTS.md").read_text(encoding="utf-8")
+    source_url = "https://iel.ucdavis.edu/publication/1989/j_ASMEAM.pdf"
+    if (source_url not in readme or "mathworld.wolfram.com/RodriguesRotationFormula.html" not in readme
+            or "clean-room" not in readme.lower()
+            or "attributes the finite-rotation formula historically to Euler" not in rights):
+        raise ValueError("Rodrigues rotation source attribution or rights note is incomplete")
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                  "mojo": "mojo", "nim": "nim", "odin": "odin",
+                  "rust": "rs", "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        port = ROOT / language / "r" / f"rodrigues_arbitrary_axis_rotation.{extension}"
+        if not port.is_file():
+            raise ValueError(f"Rodrigues rotation port is missing: {port}")
+
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or type(case.get("input_length")) is not int
+                or not isinstance(case.get("input_values"), list)
+                or case["input_length"] != len(case["input_values"])
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"Rodrigues rotation fixture framing is invalid: {case_id}")
+        encode_case(case, "rodrigues_arbitrary_axis_rotation",
+                    RODRIGUES_ROTATION_ABSOLUTE_TOLERANCE,
+                    RODRIGUES_ROTATION_RELATIVE_TOLERANCE)
+
+
+def validate_tanh_sinh_double_exponential_quadrature_workload(workload: dict) -> None:
+    """Pin the finite tanh–sinh quadrature package and independent references."""
+    package_workload = ROOT / "benchmarks/t/tanh_sinh_double_exponential_quadrature/workload.json"
+    if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("input", {}).get("maximum_valid_input_length")
+                != TANH_SINH_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+                != TANH_SINH_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements")
+                != TANH_SINH_WORKSPACE_ELEMENTS
+            or workload.get("output", {}).get("absolute_tolerance")
+                != TANH_SINH_ABSOLUTE_TOLERANCE
+            or workload.get("output", {}).get("relative_tolerance")
+                != TANH_SINH_RELATIVE_TOLERANCE
+            or workload.get("workspace", {}).get("elements") != TANH_SINH_WORKSPACE_ELEMENTS
+            or workload.get("workspace", {}).get("bytes") != TANH_SINH_WORKSPACE_BYTES):
+        raise ValueError("tanh-sinh workload differs from its bounded contract")
+    issues = (tanh_sinh_double_exponential_quadrature_static_issues()
+              + tanh_sinh_double_exponential_quadrature_workload_issues())
+    if issues:
+        raise ValueError("tanh-sinh package is incomplete: " + "; ".join(issues))
+    for case in workload.get("cases", []):
+        encode_case(case, "tanh_sinh_double_exponential_quadrature",
+                    TANH_SINH_ABSOLUTE_TOLERANCE, TANH_SINH_RELATIVE_TOLERANCE)
+
+
 KOCH_SNOWFLAKE_CASE_IDS = {
     "zero_steps_preserves_order", "pinned_single_segment_one_step", "two_segments_one_step",
     "negative_diagonal_segment", "reversed_segment_orientation", "repeated_adjacent_point",
@@ -4703,6 +4990,16 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "splash2_fmm" else
                         SPLASH2_FFT_SIX_STEP_MAX_INPUT_LENGTH
                         if algorithm == "splash2_fft_six_step" else
+                        STOCKHAM_AUTOSORT_RADIX2_FFT_MAX_INPUT_LENGTH
+                        if algorithm == "stockham_autosort_radix2_fft" else
+                        DIRECT_DFT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "direct_discrete_fourier_transform" else
+                        CLENSHAW_CURTIS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "clenshaw_curtis_quadrature" else
+                        OLVER_BACKWARD_RECURRENCE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "olver_backward_recurrence_boundary_value" else
+                        WYNN_EPSILON_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "wynn_epsilon_sequence_algorithm" else
                         SPLASH2_OCEAN_RBGS_MAX_INPUT_LENGTH
                         if algorithm == "splash2_ocean_rbgs" else
                         SPLASH2_RADIOSITY_MAX_INPUT_LENGTH
@@ -4759,6 +5056,10 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "koch_snowflake" else
                         MAX_JOINT_PROBABILITY_DISTRIBUTION_PARSEABLE_INPUT_LENGTH
                         if algorithm == "joint_probability_distribution" else
+                        RODRIGUES_ROTATION_MAX_INPUT_LENGTH
+                        if algorithm == "rodrigues_arbitrary_axis_rotation" else
+                        TANH_SINH_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "tanh_sinh_double_exponential_quadrature" else
                         ROTATION_MATRIX_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "rotation_matrix" else
                         LINEAR_REGRESSION_MAX_PARSEABLE_INPUT_LENGTH
@@ -4783,27 +5084,37 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "pseudo_inverse" else
                         TDIGEST_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "tdigest" else
-                        TSP_BRUTEFORCE_MAX_INPUT_LENGTH
-                        if algorithm == "travelling_salesman_python_bruteforce" else
                         8 if algorithm == "travelling_salesman_python_genetic" else
-                        TSP_HELD_KARP_MAX_INPUT_LENGTH
-                        if algorithm == "travelling_salesman_python_held_karp" else
                         RMSPROP_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "rmsprop" else 64)
+    if algorithm == "de_boor_bspline_curve_evaluation":
+        max_input_length = DE_BOOR_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "adaptive_simpson_quadrature":
         max_input_length = ADAPTIVE_SIMPSON_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "laguerre_complex_polynomial_root":
+        max_input_length = LAGUERRE_ROOT_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "adaptive_gauss_kronrod_15_quadrature":
         max_input_length = ADAPTIVE_GK15_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "dormand_prince_54_adaptive_ode":
         max_input_length = DORMAND_PRINCE_54_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "ridders_root_finding":
         max_input_length = RIDDERS_ROOT_FINDING_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "thiele_rational_interpolation":
+        max_input_length = THIELE_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "circular_mean_direction":
+        max_input_length = CIRCULAR_MEAN_DIRECTION_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "romberg_integration":
         max_input_length = ROMBERG_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "smo_dual_pair_update":
         max_input_length = SMO_DUAL_PAIR_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "smo_deterministic_training":
+        max_input_length = SMO_DETERMINISTIC_TRAINING_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "blocked_lu_factorization":
         max_input_length = BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "hpl_blocked_partial_pivot_lu":
+        max_input_length = HPL_BLOCKED_LU_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "catmull_clark_subdivision":
+        max_input_length = CATMULL_CLARK_MAX_INPUT_LENGTH
     if algorithm == "kalman_filter":
         max_input_length = KALMAN_FILTER_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "rader_fft":
@@ -4916,6 +5227,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         max_input_length = TSVC_S242_MAX_INPUT_LENGTH
     if algorithm == "tsvc_s351_direct_unrolled_saxpy":
         max_input_length = TSVC_S351_MAX_INPUT_LENGTH
+    if algorithm == "baum_welch_reestimation":
+        max_input_length = BAUM_WELCH_MAX_PARSEABLE_INPUT_LENGTH
     if (not isinstance(raw_values, list) or case.get("input_length") != len(raw_values)
             or (not raw_values and algorithm not in {"md2_digest", "kalman_filter_r_two_state_simulation",
                                                       "kahan_summation",
@@ -4940,12 +5253,20 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                       "cbench_lame_mid_side",
                                                       "cbench_rsynth_natural_glottal_sample",
                                                       "cbench_rsynth_impulsive_glottal_sample",
+                                                      "de_boor_bspline_curve_evaluation",
+                                                      "laguerre_complex_polynomial_root",
                                                       "euclidean_t_spanner",
+                                                      "baum_welch_reestimation",
+                                                      "circular_mean_direction",
                                                       "adaptive_simpson_quadrature",
                                                       "smo_dual_pair_update",
+                                                      "smo_deterministic_training",
                                                       "blocked_lu_factorization",
+                                                      "hpl_blocked_partial_pivot_lu",
+                                                      "catmull_clark_subdivision",
                                                       "tsvc_s222_interleaved_square_recurrence",
-                                                      "metropolis_mcmc"}
+                                                      "metropolis_mcmc",
+                                                      "rodrigues_arbitrary_axis_rotation"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
             or len(raw_values) > max_input_length
@@ -4954,7 +5275,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syrk", "syr2k", "trmm", "fdtd_2d", "heat_3d", "parboil_stencil_laplacian", "graphai_gcn_aggregation", "graphai_ggnn_message_update", "graphai_sage_aggregation", "graphai_gat_aggregation", "graphai_frontier_sampler", "graphai_cf_sgd_sweep", "kahan_summation", "asci_purple_smg2000_residual", "marsaglia_polar_normal", "metropolis_mcmc", "box_muller_cartesian_normal", "npb_ep", "npb_ft_3d_spectral_step", "npb_mg_vcycle", "npb_sp_pentadiagonal_line_solve", "mafft_falign_fft_lag_correlation", "himenobmtxpa", "polybench_gramschmidt", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_consumer_lame_mdct_short", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix", "tsvc_s313_dot_product_reduction", "tsvc_s275_column_conditional_axpy_recurrence", "tsvc_s111_odd_index_neighbor_update",
+    if algorithm in {"thiele_rational_interpolation", "circular_mean_direction", "versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syrk", "syr2k", "trmm", "fdtd_2d", "heat_3d", "parboil_stencil_laplacian", "graphai_gcn_aggregation", "graphai_ggnn_message_update", "graphai_sage_aggregation", "graphai_gat_aggregation", "graphai_frontier_sampler", "graphai_cf_sgd_sweep", "kahan_summation", "asci_purple_smg2000_residual", "marsaglia_polar_normal", "metropolis_mcmc", "box_muller_cartesian_normal", "npb_ep", "npb_ft_3d_spectral_step", "npb_mg_vcycle", "npb_sp_pentadiagonal_line_solve", "mafft_falign_fft_lag_correlation", "himenobmtxpa", "polybench_gramschmidt", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_consumer_lame_mdct_short", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix", "tsvc_s313_dot_product_reduction", "tsvc_s275_column_conditional_axpy_recurrence", "tsvc_s111_odd_index_neighbor_update",
                      "tsvc_vtvtv_triple_product_map", "tsvc_s451_sincos_vector_map",
                      "tsvc_s221_partial_recursive_fused_update",
                      "hjm_forward_path", "splash2_fmm", "splash2_fft_six_step",
@@ -4969,9 +5290,10 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                      "tsvc_s482_break_after_update",
                      "tsvc_s441_s443_d_sign_branch_updates",
                      "tsvc_s242_fused_prefix_update", "tsvc_s351_direct_unrolled_saxpy",
+                     "baum_welch_reestimation",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
-                     "mean_shift", "k_means_clust", "blocked_lu_factorization", "lu_decompose", "lu_elimination",
+                     "mean_shift", "k_means_clust", "blocked_lu_factorization", "hpl_blocked_partial_pivot_lu", "catmull_clark_subdivision", "lu_decompose", "lu_elimination",
                      "lu_pivot_decomposition",
                      "kohonen_som_trace",
                      "kohonen_som_topology",
@@ -4982,6 +5304,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                      "polynomial_regression", "sherman_morrison",
                      "linearregressionrawr", "q_learning",
                      "single_indeterminate_operations", "montecarlopi",
+                     "rodrigues_arbitrary_axis_rotation",
                      "local_weighted_learning", "muon_optimizer", "pseudo_inverse", "tdigest",
                      *RISK_METRICS_ALGORITHM_NAMES, *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}:
         if algorithm == "tsvc_s111_odd_index_neighbor_update":
@@ -5106,6 +5429,20 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         elif algorithm == "tsvc_s313_dot_product_reduction":
             expected_result, oracle_values = tsvc_s313_dot_product_reduction_oracle(
                 values, capacity=case.get("output_capacity", 1),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "de_boor_bspline_curve_evaluation":
+            expected_result, oracle_values = de_boor_bspline_curve_evaluation_oracle(
+                values, output_capacity=case.get("output_capacity", 1),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "laguerre_complex_polynomial_root":
+            expected_result, oracle_values = laguerre_complex_polynomial_root_oracle(
+                values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
@@ -5328,6 +5665,27 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
             oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "baum_welch_reestimation":
+            expected_result, oracle_values = baum_welch_reestimation_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "thiele_rational_interpolation":
+            expected_result, oracle_values = thiele_rational_interpolation_oracle(
+                values, capacity=case.get("output_capacity", THIELE_MAX_OUTPUT_ELEMENTS),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "circular_mean_direction":
+            expected_result, oracle_values = circular_mean_direction_oracle(
+                values, output_capacity=case.get("output_capacity", CIRCULAR_MEAN_DIRECTION_MAX_OUTPUT_ELEMENTS),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "npb_sp_pentadiagonal_line_solve":
             expected_result, oracle_values = npb_sp_pentadiagonal_oracle(
                 values, output_capacity=case.get("output_capacity"),
@@ -5362,6 +5720,34 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 output_is_null=case.get("output_is_null", False),
                 input_length=case.get("input_length"),
                 input_is_null=case.get("input_is_null", False))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "stockham_autosort_radix2_fft":
+            expected_result, oracle_values = stockham_autosort_radix2_fft_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_length=case.get("input_length"),
+                input_is_null=case.get("input_is_null", False))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "direct_discrete_fourier_transform":
+            expected_result, oracle_values = direct_discrete_fourier_transform_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "clenshaw_curtis_quadrature":
+            expected_result, oracle_values = clenshaw_curtis_quadrature_oracle(
+                values, capacity=case.get("output_capacity", 1),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "olver_backward_recurrence_boundary_value":
+            expected_result, oracle_values = olver_backward_recurrence_boundary_value_oracle(
+                values, capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
             oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "splash2_ocean_rbgs":
             expected_result, oracle_values = splash2_ocean_rbgs_oracle(
@@ -5475,9 +5861,37 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
             oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "hpl_blocked_partial_pivot_lu":
+            expected_result, oracle_values = hpl_blocked_partial_pivot_lu_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "catmull_clark_subdivision":
+            expected_result, oracle_values = catmull_clark_subdivision_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "pseudo_inverse":
             expected_result, oracle_values = pseudo_inverse_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "rodrigues_arbitrary_axis_rotation":
+            expected_result, oracle_values = oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "tanh_sinh_double_exponential_quadrature":
+            expected_result, oracle_values = oracle(
+                values, capacity=case.get("output_capacity", TANH_SINH_WORKSPACE_ELEMENTS),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
@@ -11312,6 +11726,31 @@ def validate_blocked_lu_factorization_workload(workload: dict) -> None:
             raise ValueError(f"blocked_lu_factorization ABI fixture mismatch: {case.get('id')}")
 
 
+def validate_hpl_blocked_partial_pivot_lu_workload(workload: dict) -> None:
+    """Validate HPL's bounded panel-LU package without invoking native ports."""
+    package_workload = ROOT / "benchmarks/h/hpl_blocked_partial_pivot_lu/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("hpl_blocked_partial_pivot_lu workload differs from its package file")
+    issues = hpl_blocked_partial_pivot_lu_static_issues()
+    if issues:
+        raise ValueError("HPL blocked-LU package is incomplete: " + "; ".join(issues))
+
+
+def validate_catmull_clark_subdivision_workload(workload: dict) -> None:
+    """Pin the Catmull–Clark workload and confirm its static ten-port inventory."""
+    package = ROOT / "benchmarks" / "c" / "catmull_clark_subdivision"
+    if workload != json.loads((package / "workload.json").read_text(encoding="utf-8")):
+        raise ValueError("catmull_clark_subdivision workload differs from its package file")
+    if (workload.get("output", {}).get("maximum_elements") != CATMULL_CLARK_MAX_OUTPUT_LENGTH
+            or workload.get("workspace", {}).get("elements") != CATMULL_CLARK_MAX_OUTPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != CATMULL_CLARK_WORKSPACE_BYTES
+            or tolerances(workload) != (1e-12, 1e-12)):
+        raise ValueError("Catmull–Clark bounds or numeric tolerances differ from the reviewed profile")
+    issues = catmull_clark_subdivision_static_issues()
+    if issues:
+        raise ValueError("Catmull–Clark package is incomplete: " + "; ".join(issues))
+
+
 def validate_adaptive_simpson_quadrature_workload(workload: dict) -> None:
     """Pin the bounded adaptive-Simpson workload and inventory its source ports."""
     package = ROOT / "benchmarks" / "a" / "adaptive_simpson_quadrature"
@@ -11461,6 +11900,78 @@ def validate_smo_dual_pair_update_workload(workload: dict) -> None:
         encode_case(case, "smo_dual_pair_update", absolute_tolerance, relative_tolerance)
 
 
+def validate_smo_deterministic_training_workload(workload: dict) -> None:
+    """Pin the complete deterministic SMO training profile and port inventory."""
+    package = ROOT / "benchmarks" / "s" / "smo_deterministic_training"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("smo_deterministic_training workload differs from its package file")
+    if (workload.get("algorithm") != "smo_deterministic_training"
+            or workload.get("function_symbol") != "smo_deterministic_training"
+            or workload.get("abi") != "float64_slice_io"
+            or workload.get("input", {}).get("maximum_valid_input_length")
+            != SMO_DETERMINISTIC_TRAINING_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != SMO_DETERMINISTIC_TRAINING_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements")
+            != SMO_DETERMINISTIC_TRAINING_MAX_OUTPUT_ELEMENTS
+            or workload.get("output", {}).get("maximum_bytes") != 96
+            or workload.get("workspace", {}).get("elements") != 512
+            or workload.get("workspace", {}).get("bytes")
+            != SMO_DETERMINISTIC_TRAINING_WORKSPACE_BYTES
+            or tolerances(workload) != (1e-12, 1e-12)):
+        raise ValueError("smo_deterministic_training bounds differ from its reviewed profile")
+    issues = smo_deterministic_training_package_issues()
+    if issues:
+        raise ValueError("smo_deterministic_training package is incomplete: " + "; ".join(issues))
+    expected_case_ids = {
+        "separable_pair_converged", "zero_curvature_duplicate_vectors",
+        "pass_cap_reports_incomplete_trace", "maximum_zero_feature_plateau",
+        "invalid_fractional_parameter", "invalid_single_class", "invalid_extra_input_value",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_case_ids:
+        raise ValueError("smo_deterministic_training fixtures differ from the reviewed corpus")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "smo_deterministic_training", absolute_tolerance, relative_tolerance)
+
+    expected_abi_ids = {
+        "null_input", "valid_input_null_output", "valid_input_short_output_capacity",
+        "invalid_input_precedes_output_error",
+    }
+    abi_cases = workload.get("abi_cases")
+    if not isinstance(abi_cases, list) or {case.get("id") for case in abi_cases} != expected_abi_ids:
+        raise ValueError("smo_deterministic_training ABI fixtures differ from the reviewed corpus")
+    for case in abi_cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        capacity = case.get("output_capacity")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        if (not isinstance(values, list)
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= SMO_DETERMINISTIC_TRAINING_MAX_PARSEABLE_INPUT_LENGTH
+                or type(capacity) is not int
+                or not 0 <= capacity <= SMO_DETERMINISTIC_TRAINING_MAX_OUTPUT_ELEMENTS
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and values
+                or not input_is_null and input_length != len(values)):
+            raise ValueError(f"invalid SMO training ABI framing: {case.get('id')}")
+        result, output = smo_deterministic_training_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        expected_output = case.get("expected_output")
+        if (case.get("expected_result") != result
+                or not isinstance(expected_output, list) or len(expected_output) != len(output)
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       or abs(float(value) - reference)
+                       > absolute_tolerance + relative_tolerance * abs(reference)
+                       for value, reference in zip(expected_output, output))):
+            raise ValueError(f"SMO training ABI fixture mismatch: {case.get('id')}")
+
+
 def validate_ridders_root_finding_workload(workload: dict) -> None:
     """Pin the bounded Ridders fixtures and check the source inventory statically."""
     package = ROOT / "benchmarks" / "r" / "ridders_root_finding"
@@ -11496,6 +12007,114 @@ def validate_ridders_root_finding_workload(workload: dict) -> None:
     absolute_tolerance, relative_tolerance = tolerances(workload)
     for case in cases:
         encode_case(case, "ridders_root_finding", absolute_tolerance, relative_tolerance)
+
+
+def validate_circular_mean_direction_workload(workload: dict) -> None:
+    """Pin the bounded circular mean profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "c" / "circular_mean_direction"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("circular_mean_direction workload differs from its package file")
+    if (workload.get("algorithm") != "circular_mean_direction"
+            or workload.get("function_symbol") != "circular_mean_direction"
+            or workload.get("abi") != "float64_slice_io"
+            or CIRCULAR_MEAN_DIRECTION_MAX_PARSEABLE_INPUT_LENGTH != 66
+            or CIRCULAR_MEAN_DIRECTION_MAX_OUTPUT_ELEMENTS != 1
+            or workload.get("input", {}).get("maximum_valid_input_length") != 65
+            or workload.get("input", {}).get("maximum_parseable_input_length") != 66
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("workspace", {}).get("elements") != 1
+            or tolerances(workload) != (1e-12, 1e-12)):
+        raise ValueError("circular_mean_direction bounds differ from the reviewed profile")
+    issues = circular_mean_direction_static_issues()
+    if issues:
+        raise ValueError("circular_mean_direction package is incomplete: " + "; ".join(issues))
+    issues = circular_mean_direction_workload_issues()
+    if issues:
+        raise ValueError("circular_mean_direction fixtures differ from its references: "
+                         + "; ".join(issues))
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "c" / f"circular_mean_direction.{extension}"
+        if not source.is_file():
+            raise ValueError(f"circular_mean_direction {language} port is missing")
+    expected_cases = {
+        "single-radian-angle", "average-across-wrap-boundary",
+        "single-positive-pi-normalizes-negative", "multi-turn-angle",
+        "near-zero-resultant-below-cutoff", "near-zero-resultant-above-cutoff",
+        "uniform-cardinal-directions-undefined", "empty-input-frame", "zero-count",
+        "fractional-count", "count-length-mismatch", "trailing-value",
+        "angle-outside-bound",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_cases:
+        raise ValueError("circular_mean_direction fixtures differ from the reviewed corpus")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "circular_mean_direction", absolute_tolerance, relative_tolerance)
+    expected_abi_cases = {
+        "null-input-pointer", "valid-input-null-output", "valid-input-zero-capacity",
+        "invalid-input-precedes-output-error",
+    }
+    abi_cases = workload.get("abi_cases")
+    if (not isinstance(abi_cases, list)
+            or {case.get("id") for case in abi_cases} != expected_abi_cases):
+        raise ValueError("circular_mean_direction ABI fixtures differ from the reviewed corpus")
+    for case in abi_cases:
+        encode_case(case, "circular_mean_direction", absolute_tolerance, relative_tolerance)
+
+
+def validate_thiele_rational_interpolation_workload(workload: dict) -> None:
+    """Pin the dyadic Thiele profile, package files, and port inventory."""
+    package = ROOT / "benchmarks" / "t" / "thiele_rational_interpolation"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("thiele_rational_interpolation workload differs from its package file")
+    if (workload.get("algorithm") != "thiele_rational_interpolation"
+            or workload.get("function_symbol") != "thiele_rational_interpolation"
+            or workload.get("abi") != "float64_slice_io"
+            or THIELE_MAX_VALID_INPUT_LENGTH != 14
+            or THIELE_MAX_PARSEABLE_INPUT_LENGTH != 15
+            or THIELE_MAX_OUTPUT_ELEMENTS != 1
+            or workload.get("input", {}).get("maximum_valid_length") != 14
+            or workload.get("input", {}).get("maximum_parseable_length") != 15
+            or workload.get("input", {}).get("grid_denominator") != 18_014_398_509_481_984
+            or workload.get("input", {}).get("minimum_node_separation") != 0.0625
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("output", {}).get("maximum_bytes") != 8
+            or workload.get("workspace", {}).get("elements") != 1
+            or tolerances(workload) != (1e-5, 1e-6)):
+        raise ValueError("thiele_rational_interpolation bounds differ from its dyadic rational profile")
+    issues = thiele_rational_interpolation_static_issues()
+    if issues:
+        raise ValueError("thiele_rational_interpolation package is incomplete: " + "; ".join(issues))
+    issues = thiele_rational_interpolation_workload_issues()
+    if issues:
+        raise ValueError("thiele_rational_interpolation fixtures differ from its references: "
+                         + "; ".join(issues))
+    for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+        source = ROOT / language / "t" / f"thiele_rational_interpolation.{extension}"
+        if not source.is_file():
+            raise ValueError(f"thiele_rational_interpolation {language} port is missing")
+    expected_cases = {
+        "single-sample-constant", "two-sample-linear", "constant-two-point-thiele-degeneracy",
+        "three-sample-rational",
+        "query-exactly-at-sample-node", "four-sample-rational-type-2-1",
+        "five-sample-rational-type-2-2", "six-sample-rational-type-3-2",
+        "repeated-node", "unattainable-linear-data", "query-at-rational-pole",
+        "inverse-difference-at-lower-guard-boundary", "near-pole-tail-at-lower-boundary",
+        "invalid-fractional-sample-count", "invalid-out-of-range-field",
+        "invalid-short-frame", "invalid-extra-frame-value",
+    }
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or {case.get("id") for case in cases} != expected_cases:
+        raise ValueError("thiele_rational_interpolation fixtures differ from the reviewed corpus")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "thiele_rational_interpolation", absolute_tolerance, relative_tolerance)
 
 
 def validate_romberg_integration_workload(workload: dict) -> None:
@@ -16958,43 +17577,8 @@ def validate_perceptron_workload(workload: dict, algorithm: str) -> None:
 
 
 def validate_travelling_salesman_python_workload(workload: dict, algorithm: str) -> None:
-    """Pin the three Python TSP workloads and replay their ABI fixtures."""
-    coordinate_input = {
-        "kind": "finite_float64_array",
-        "encoding": "[city_count, x0, y0, ..., x(n-1), y(n-1)]",
-        "city_count_range": [2, 8],
-        "coordinate_range": [-16, 16],
-        "coordinate_domain": "integer-valued finite binary64 coordinates",
-        "node_order": "Input order corresponds to insertion order of the source graph dictionary; path output uses those zero-based positions.",
-        "maximum_input_values": 17,
-        "invalid_input_result": -1,
-    }
-    coordinate_contract = {
-        "method": "Enumerate itertools.permutations of all non-start nodes in insertion order.",
-        "tie_behavior": "Retain the first route whose distance is a strict new minimum.",
-        "distance": "Use Euclidean distance sqrt((x2-x1)^2+(y2-y1)^2), accumulating route edges from left to right.",
-    }
-    held_karp_contract = {
-        "method": "Fill the source subset-mask Held–Karp table, choose the first minimum final node, and reconstruct via ascending predecessor scan using exact source floating-point equality.",
-        "tie_behavior": "Retain source iteration order for equal DP costs and exact-equality predecessor reconstruction.",
-        "distance": "Use Euclidean distance sqrt((x2-x1)^2+(y2-y1)^2), accumulating route edges from left to right.",
-    }
+    """Pin the remaining Python genetic TSP profile and replay its ABI fixtures."""
     specs = {
-        "travelling_salesman_python_bruteforce": {
-            "id": "thealgorithms-python-bruteforce-coordinates-float64-slice-io-v1",
-            "function_symbol": "travelling_salesman_brute_force",
-            "description": "Tour and distance from the pinned Python coordinate-based TSP method.",
-            "input": coordinate_input,
-            "contract": coordinate_contract,
-            "output_encoding": "[path_length, city indices..., total Euclidean distance]",
-            "maximum_output": TSP_BRUTEFORCE_MAX_OUTPUT_ELEMENTS,
-            "source_path": "graphs/travelling_salesman_problem.py",
-            "symbols": ["euclidean_distance", "validate_graph", "travelling_salesman_brute_force"],
-            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/travelling_salesman_problem.py",
-            "valid_ids": {"two_cities", "three_city_equal_route_tie", "four_city_square_tie"},
-            "invalid_ids": {"invalid_single_city", "invalid_fractional_coordinate", "invalid_coordinate_bound"},
-            "readme_terms": ("enumerates permutations", "strict new minimum", "Held–Karp method has a separate contract"),
-        },
         "travelling_salesman_python_genetic": {
             "id": "thealgorithms-python-genetic-tsp-two-city-rng-invariant-float64-slice-io-v1",
             "function_symbol": "genetic_algorithm.main",
@@ -17026,21 +17610,6 @@ def validate_travelling_salesman_python_workload(workload: dict, algorithm: str)
             "valid_ids": {"zero_generations", "selection_crossover_and_mutation_loops", "larger_bounded_population"},
             "invalid_ids": {"invalid_odd_population", "invalid_coincident_cities", "invalid_probability"},
             "readme_terms": ("No random seed or replacement RNG", "every possible global-RNG draw", "Coincident coordinates are excluded"),
-        },
-        "travelling_salesman_python_held_karp": {
-            "id": "thealgorithms-python-held-karp-coordinates-float64-slice-io-v1",
-            "function_symbol": "travelling_salesman_dynamic_programming",
-            "description": "Tour and distance from the pinned Python coordinate-based TSP method.",
-            "input": coordinate_input,
-            "contract": held_karp_contract,
-            "output_encoding": "[path_length, city indices..., total Euclidean distance]",
-            "maximum_output": TSP_HELD_KARP_MAX_OUTPUT_ELEMENTS,
-            "source_path": "graphs/travelling_salesman_problem.py",
-            "symbols": ["euclidean_distance", "validate_graph", "travelling_salesman_dynamic_programming"],
-            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/travelling_salesman_problem.py",
-            "valid_ids": {"two_cities", "three_city_equal_route_tie", "four_city_square_tie"},
-            "invalid_ids": {"invalid_single_city", "invalid_fractional_coordinate", "invalid_coordinate_bound"},
-            "readme_terms": ("subset-mask Held–Karp table", "exact floating-point equality", "tie-breaking path reconstruction differ"),
         },
     }
     if algorithm not in specs:
@@ -17127,6 +17696,47 @@ def validate_travelling_salesman_python_workload(workload: dict, algorithm: str)
             raise ValueError(f"{algorithm} fixture differs from its independent oracle: {case_id}")
 
 
+def validate_laguerre_complex_polynomial_root_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/l/laguerre_complex_polynomial_root/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("laguerre_complex_polynomial_root workload differs from its package file")
+    if (LAGUERRE_ROOT_MAX_VALID_INPUT_LENGTH != 12
+            or LAGUERRE_ROOT_MAX_PARSEABLE_INPUT_LENGTH != 13
+            or LAGUERRE_ROOT_MAX_OUTPUT_ELEMENTS != 2
+            or workload.get("measurement", {}).get("absolute_tolerance")
+            != LAGUERRE_ROOT_ABSOLUTE_TOLERANCE
+            or workload.get("measurement", {}).get("relative_tolerance")
+            != LAGUERRE_ROOT_RELATIVE_TOLERANCE):
+        raise ValueError("laguerre_complex_polynomial_root bounds or tolerances differ from its seed profile")
+    verify_laguerre_complex_polynomial_root_package()
+
+
+def validate_de_boor_bspline_curve_evaluation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/de_boor_bspline_curve_evaluation/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("de Boor B-spline workload differs from its package file")
+    if (DE_BOOR_MAX_VALID_INPUT_LENGTH != 23
+            or DE_BOOR_MAX_PARSEABLE_INPUT_LENGTH != 24
+            or workload.get("input", {}).get("maximum_valid_input_length")
+            != DE_BOOR_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != DE_BOOR_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements") != 1
+            or workload.get("output", {}).get("maximum_bytes") != 8
+            or workload.get("workspace", {}).get("elements") != 1
+            or workload.get("workspace", {}).get("bytes") != DE_BOOR_WORKSPACE_BYTES
+            or workload.get("output", {}).get("absolute_tolerance") != 1e-12
+            or workload.get("output", {}).get("relative_tolerance") != 1e-12
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-12
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-12
+            or DE_BOOR_WORKSPACE_BYTES != 128):
+        raise ValueError("de Boor B-spline bounds or workspace differ from its contract")
+    issues = (de_boor_bspline_curve_evaluation_static_issues()
+              + de_boor_bspline_curve_evaluation_workload_issues())
+    if issues:
+        raise ValueError("de Boor B-spline package is incomplete: " + "; ".join(issues))
+
+
 def validate_npb_ep_workload(workload: dict) -> None:
     cases = workload.get("cases")
     expected_ids = {
@@ -17201,6 +17811,34 @@ def validate_npb_mg_vcycle_workload(workload: dict) -> None:
             or workload.get("workspace", {}).get("elements") != 768):
         raise ValueError("npb_mg_vcycle bounds differ from its 4^3 periodic V-cycle contract")
     verify_npb_mg_vcycle_package()
+
+
+def validate_baum_welch_reestimation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/baum_welch_reestimation/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Baum–Welch workload differs from its package file")
+    if (BAUM_WELCH_MAX_VALID_INPUT_LENGTH != 47
+            or BAUM_WELCH_MAX_PARSEABLE_INPUT_LENGTH != 48
+            or BAUM_WELCH_MAX_OUTPUT_ELEMENTS != 36
+            or workload.get("input", {}).get("maximum_valid_length")
+                != BAUM_WELCH_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+                != BAUM_WELCH_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_elements")
+                != BAUM_WELCH_MAX_OUTPUT_ELEMENTS
+            or workload.get("workspace", {}).get("elements") != 256
+            or workload.get("output", {}).get("absolute_tolerance")
+                != BAUM_WELCH_OUTPUT_ABSOLUTE_TOLERANCE
+            or workload.get("output", {}).get("relative_tolerance")
+                != BAUM_WELCH_OUTPUT_RELATIVE_TOLERANCE):
+        raise ValueError("Baum–Welch bounds differ from its one-iteration profile")
+    issues = baum_welch_reestimation_static_issues()
+    if issues:
+        raise ValueError("Baum–Welch package is incomplete: " + "; ".join(issues))
+    issues = verify_baum_welch_reestimation_package()
+    if issues:
+        raise ValueError("Baum–Welch workload fixtures differ from its references: "
+                         + "; ".join(issues))
 
 
 def validate_npb_sp_pentadiagonal_workload(workload: dict) -> None:
@@ -17543,6 +18181,7 @@ def main() -> int:
     letter = {"hjm_forward_path": "m", "splash2_fmm": "f", "versabench_beamformer": "b",
               "npb_ft_3d_spectral_step": "f",
               "splash2_fft_six_step": "f",
+              "stockham_autosort_radix2_fft": "s",
               "splash2_ocean_rbgs": "o",
               "splash2_radiosity_refine": "f",
               "polybench_lu": "l", "polybench_gramschmidt": "p", "polybench_correlation": "c",
@@ -17572,6 +18211,10 @@ def main() -> int:
         validate_smallest_enclosing_ball_3d_workload(workload)
     elif algorithm == "euclidean_t_spanner":
         validate_euclidean_t_spanner_workload(workload)
+    elif algorithm == "de_boor_bspline_curve_evaluation":
+        validate_de_boor_bspline_curve_evaluation_workload(workload)
+    elif algorithm == "laguerre_complex_polynomial_root":
+        validate_laguerre_complex_polynomial_root_workload(workload)
     elif algorithm == "matmul_f64_4x4":
         validate_matmul_f64_4x4_workload(workload)
     elif algorithm == "misc_fp_convert":
@@ -17628,6 +18271,8 @@ def main() -> int:
         validate_npb_ft_3d_spectral_step_workload(workload)
     elif algorithm == "npb_mg_vcycle":
         validate_npb_mg_vcycle_workload(workload)
+    elif algorithm == "baum_welch_reestimation":
+        validate_baum_welch_reestimation_workload(workload)
     elif algorithm == "npb_sp_pentadiagonal_line_solve":
         validate_npb_sp_pentadiagonal_workload(workload)
     elif algorithm == "mafft_falign_fft_lag_correlation":
@@ -17640,6 +18285,58 @@ def main() -> int:
             raise ValueError("splash2_fmm package is incomplete: " + "; ".join(errors))
     elif algorithm == "splash2_fft_six_step":
         verify_splash2_fft_six_step_package()
+    elif algorithm == "stockham_autosort_radix2_fft":
+        verify_stockham_autosort_radix2_fft_package()
+    elif algorithm == "direct_discrete_fourier_transform":
+        inventory_issues = direct_discrete_fourier_transform_static_issues()
+        if inventory_issues:
+            raise ValueError("direct_discrete_fourier_transform inventory is incomplete: "
+                             + "; ".join(inventory_issues))
+        verify_direct_discrete_fourier_transform_package()
+    elif algorithm == "wynn_epsilon_sequence_algorithm":
+        package_workload = ROOT / "benchmarks/w/wynn_epsilon_sequence_algorithm/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Wynn epsilon workload differs from its package file")
+        inventory_issues = wynn_epsilon_sequence_algorithm_static_issues()
+        if inventory_issues:
+            raise ValueError("Wynn epsilon inventory is incomplete: "
+                             + "; ".join(inventory_issues))
+        verify_wynn_epsilon_sequence_algorithm_package()
+    elif algorithm == "clenshaw_curtis_quadrature":
+        package_workload = ROOT / "benchmarks/c/clenshaw_curtis_quadrature/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Clenshaw–Curtis workload differs from its package file")
+        inventory_issues = clenshaw_curtis_quadrature_static_issues()
+        if inventory_issues:
+            raise ValueError("Clenshaw–Curtis inventory is incomplete: "
+                             + "; ".join(inventory_issues))
+        verify_clenshaw_curtis_quadrature_package()
+    elif algorithm == "olver_backward_recurrence_boundary_value":
+        package_workload = ROOT / "benchmarks/o/olver_backward_recurrence_boundary_value/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Olver recurrence workload differs from its package file")
+        inventory_issues = olver_backward_recurrence_boundary_value_static_issues()
+        if inventory_issues:
+            raise ValueError("Olver recurrence inventory is incomplete: "
+                             + "; ".join(inventory_issues))
+        workload_issues = olver_backward_recurrence_boundary_value_workload_issues()
+        if workload_issues:
+            raise ValueError("Olver recurrence workload is invalid: "
+                             + "; ".join(workload_issues))
+    elif algorithm == "lanczos_symmetric_tridiagonalization":
+        package_workload = ROOT / "benchmarks/l/lanczos_symmetric_tridiagonalization/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Lanczos workload differs from its package file")
+        if (LANCZOS_SYMMETRIC_MAX_PARSEABLE_INPUT_LENGTH != 19
+                or LANCZOS_SYMMETRIC_MAX_OUTPUT_ELEMENTS != 8
+                or LANCZOS_SYMMETRIC_WORKSPACE_ELEMENTS != 8):
+            raise ValueError("Lanczos bounds differ from its float64 profile")
+        inventory_issues = lanczos_symmetric_tridiagonalization_static_issues()
+        if inventory_issues:
+            raise ValueError("Lanczos inventory is incomplete: " + "; ".join(inventory_issues))
+        workload_issues = lanczos_symmetric_tridiagonalization_workload_issues()
+        if workload_issues:
+            raise ValueError("Lanczos workload is invalid: " + "; ".join(workload_issues))
     elif algorithm == "splash2_ocean_rbgs":
         verify_splash2_ocean_rbgs_package()
     elif algorithm == "splash2_radiosity_refine":
@@ -17746,6 +18443,10 @@ def main() -> int:
         validate_single_point_crossover_workload(workload)
     elif algorithm == "quaternions":
         validate_quaternions_workload(workload)
+    elif algorithm == "rodrigues_arbitrary_axis_rotation":
+        validate_rodrigues_arbitrary_axis_rotation_workload(workload)
+    elif algorithm == "tanh_sinh_double_exponential_quadrature":
+        validate_tanh_sinh_double_exponential_quadrature_workload(workload)
     elif algorithm == "rhumb_distance":
         validate_rhumb_distance_workload(workload)
     elif algorithm == "rhumb_bearing":
@@ -17792,14 +18493,24 @@ def main() -> int:
         validate_adaptive_gauss_kronrod_15_quadrature_workload(workload)
     elif algorithm == "ridders_root_finding":
         validate_ridders_root_finding_workload(workload)
+    elif algorithm == "thiele_rational_interpolation":
+        validate_thiele_rational_interpolation_workload(workload)
+    elif algorithm == "circular_mean_direction":
+        validate_circular_mean_direction_workload(workload)
     elif algorithm == "romberg_integration":
         validate_romberg_integration_workload(workload)
     elif algorithm == "dormand_prince_54_adaptive_ode":
         validate_dormand_prince_54_adaptive_ode_workload(workload)
     elif algorithm == "smo_dual_pair_update":
         validate_smo_dual_pair_update_workload(workload)
+    elif algorithm == "smo_deterministic_training":
+        validate_smo_deterministic_training_workload(workload)
     elif algorithm == "blocked_lu_factorization":
         validate_blocked_lu_factorization_workload(workload)
+    elif algorithm == "hpl_blocked_partial_pivot_lu":
+        validate_hpl_blocked_partial_pivot_lu_workload(workload)
+    elif algorithm == "catmull_clark_subdivision":
+        validate_catmull_clark_subdivision_workload(workload)
     elif algorithm == "lu_decompose":
         validate_lu_decompose_workload(workload)
     elif algorithm == "lu_elimination":

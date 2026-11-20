@@ -16,7 +16,7 @@ fn bool lex_less(ulong left,ulong right,usz count) {
 fn long loop_cost(long *input,usz n,int kind,int unpaired,int children){return input[1+n+(usz)kind*39+(usz)unpaired*3+(usz)children];}
 fn void put64(char *out,usz pos,long value){ulong bits=(ulong)value;for(usz b=0;b<8;b+=1){out[pos+b]=(char)(bits&255);bits>>=8;}}
 
-long rna_mfe_loop_energy_dp(long *input,usz length,char *output,usz capacity) @export("rna_mfe_loop_energy_dp") {
+fn long rna_mfe_loop_energy_dp(long *input,usz length,char *output,usz capacity) @export("rna_mfe_loop_energy_dp") {
     if(input==null||length<239||length>MAX_INPUT)return -1;
     long n64=input[0];if(n64<4||n64>12||length!=1+(usz)n64+TABLE_VALUES)return -1;usz n=(usz)n64;
     long[MAX_N] bases=zeroed;for(usz i=0;i<n;i+=1){bases[i]=input[1+i];if(bases[i]<0||bases[i]>3)return -1;}

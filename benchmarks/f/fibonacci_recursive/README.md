@@ -20,11 +20,15 @@ This benchmark preserves the naive recursive execution strategy used by the pinn
 | C3 | [`c3/f/fibonacci_recursive.c3`](../../../c3/f/fibonacci_recursive.c3) |
 | C++ | [`cpp/f/fibonacci_recursive.cpp`](../../../cpp/f/fibonacci_recursive.cpp) |
 | Elisa | [`elisa/f/fibonacci_recursive.elisa`](../../../elisa/f/fibonacci_recursive.elisa) |
+| Mojo | [`mojo/f/fibonacci_recursive.mojo`](../../../mojo/f/fibonacci_recursive.mojo) |
 | Nim | [`nim/f/fibonacci_recursive.nim`](../../../nim/f/fibonacci_recursive.nim) |
 | Odin | [`odin/f/fibonacci_recursive.odin`](../../../odin/f/fibonacci_recursive.odin) |
 | Rust | [`rust/f/fibonacci_recursive.rs`](../../../rust/f/fibonacci_recursive.rs) |
 | V | [`v/f/fibonacci_recursive.v`](../../../v/f/fibonacci_recursive.v) |
 | Zig | [`zig/f/fibonacci_recursive.zig`](../../../zig/f/fibonacci_recursive.zig) |
+
+Scalar verifier registration and an independent fast-doubling reference are
+drafted and have not been executed.
 
 ## Pinned recursive sources
 

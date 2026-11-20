@@ -6,15 +6,15 @@ const usz MAX_OUTPUT_BYTES = 520;
 const long I32_MIN = -2147483648;
 const long I32_MAX = 2147483647;
 
-fn void store_i64_le(uint8* output, usz offset, long value) {
+fn void store_i64_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte++) {
-        output[offset + byte] = (uint8)(bits & 255);
+        output[offset + byte] = (char)(bits & 255);
         bits >>= 8;
     }
 }
 
-fn long shuffle_array(long* input, usz input_length, uint8* output, usz output_capacity)
+fn long shuffle_array(long* input, usz input_length, char* output, usz output_capacity)
     @export("shuffle_array") {
     if (input == null || input_length < 2 || input_length > MAX_PARSEABLE_INPUT_LENGTH) return -1L;
     long variant = input[0];

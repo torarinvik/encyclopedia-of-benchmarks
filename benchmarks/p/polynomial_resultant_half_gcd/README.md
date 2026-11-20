@@ -81,6 +81,8 @@ a long reduction chain, including nonmonic divisors. These exercise leading
 coefficient handling and the lifetime transition between batches.
 The verifier includes them without sending them to the small determinant
 validator, which is intentionally limited to degree sum 32.
+Maximum-sum structured cases also cover equal odd degrees in both argument
+orders and a shared factor at the input limit. These additions are unexecuted.
 The verifier also drafts small dense comparisons between the two references
 and dense cases crossing the recursive cutoff. Its unrun matrix checks compare
 the recursive reduction to elementary Euclidean steps with a small cutoff.

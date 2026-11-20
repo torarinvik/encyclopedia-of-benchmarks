@@ -1,0 +1,121 @@
+const MI_MAX_VERTICES: usize = 10
+const MI_MAX_EDGES: usize = 20
+const MI_MAX_COLORS: usize = 8
+
+def mi_is_forest(input: view[i64], vertices: usize, edge_count: usize,
+                 edge_start: usize, chosen: view[bool], removed: usize,
+                 added: usize) -> bool:
+    parent: mutable usize[MI_MAX_VERTICES] = zeroed
+    v: mutable usize = 0
+    while v < vertices:
+        parent[v] <- v
+        v <- v + 1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        if edge == added or (chosen[edge] and edge != removed):
+            a: mutable usize = input[edge_start + 3 * edge].usize()
+            b: mutable usize = input[edge_start + 3 * edge + 1].usize()
+            while parent[a] != a: a <- parent[a]
+            while parent[b] != b: b <- parent[b]
+            if a == b: return false
+            parent[b] <- a
+        edge <- edge + 1
+    return true
+
+def mi_within_quotas(input: view[i64], color_count: usize,
+                     edge_count: usize, edge_start: usize,
+                     chosen: view[bool], removed: usize,
+                     added: usize) -> bool:
+    counts: mutable usize[MI_MAX_COLORS] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        if edge == added or (chosen[edge] and edge != removed):
+            color: usize = input[edge_start + 3 * edge + 2].usize()
+            counts[color] <- counts[color] + 1
+            if counts[color] > input[3 + color].usize(): return false
+        edge <- edge + 1
+    return true
+
+def matroid_intersection_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 4 or length > 72: return -1
+    vertices_value: i64 = input[0]
+    edge_value: i64 = input[1]
+    color_count_value: i64 = input[2]
+    if vertices_value < 1 or vertices_value > 10 or edge_value < 0 or edge_value > 20 or color_count_value < 1 or color_count_value > 8: return -1
+    vertices: usize = vertices_value.usize()
+    edge_count: usize = edge_value.usize()
+    color_count: usize = color_count_value.usize()
+    if length != 3 + color_count + 3 * edge_count: return -1
+    color: mutable usize = 0
+    while color < color_count:
+        capacity: i64 = input[3 + color]
+        if capacity < 0 or capacity > 20: return -1
+        color <- color + 1
+    edge_start: usize = 3 + color_count
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u: i64 = input[edge_start + 3 * edge]
+        v: i64 = input[edge_start + 3 * edge + 1]
+        edge_color: i64 = input[edge_start + 3 * edge + 2]
+        if u < 0 or u >= vertices_value or v < 0 or v >= vertices_value or edge_color < 0 or edge_color >= color_count_value: return -1
+        edge <- edge + 1
+
+    chosen: mutable bool[MI_MAX_EDGES] = zeroed
+    loop:
+        predecessor: mutable i64[MI_MAX_EDGES] = zeroed
+        queue: mutable usize[MI_MAX_EDGES] = zeroed
+        edge <- 0
+        while edge < edge_count:
+            predecessor[edge] <- -2
+            edge <- edge + 1
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        edge <- 0
+        while edge < edge_count:
+            chosen_view: view[bool] = chosen[0:edge_count]
+            if not chosen[edge] and mi_is_forest(input, vertices, edge_count, edge_start, chosen_view, edge_count, edge):
+                predecessor[edge] <- -1
+                queue[tail] <- edge
+                tail <- tail + 1
+            edge <- edge + 1
+        terminal: mutable usize = edge_count
+        while head < tail and terminal == edge_count:
+            current: usize = queue[head]
+            head <- head + 1
+            chosen_view: view[bool] = chosen[0:edge_count]
+            if not chosen[current]:
+                if mi_within_quotas(input, color_count, edge_count, edge_start, chosen_view, edge_count, current):
+                    terminal <- current
+                else:
+                    edge <- 0
+                    while edge < edge_count:
+                        if chosen[edge] and predecessor[edge] == -2 and mi_within_quotas(input, color_count, edge_count, edge_start, chosen_view, edge, current):
+                            predecessor[edge] <- current.i64()
+                            queue[tail] <- edge
+                            tail <- tail + 1
+                        edge <- edge + 1
+            else:
+                edge <- 0
+                while edge < edge_count:
+                    if not chosen[edge] and predecessor[edge] == -2 and mi_is_forest(input, vertices, edge_count, edge_start, chosen_view, current, edge):
+                        predecessor[edge] <- current.i64()
+                        queue[tail] <- edge
+                        tail <- tail + 1
+                    edge <- edge + 1
+        if terminal == edge_count: break
+        node: mutable i64 = terminal.i64()
+        while node >= 0:
+            chosen[node.usize()] <- not chosen[node.usize()]
+            node <- predecessor[node.usize()]
+    answer: mutable i64 = 0
+    edge <- 0
+    while edge < edge_count:
+        if chosen[edge]: answer <- answer + 1
+        edge <- edge + 1
+    return answer
+
+export fn matroid_intersection(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 72: return -1
+    input_view: view[i64] = input[0:length]
+    matroid_intersection_impl(input_view)

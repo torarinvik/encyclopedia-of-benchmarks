@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "algorithm": "influence_maximization_greedy_linear_threshold",
+  "function_symbol": "influence_maximization_greedy_linear_threshold",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/i/influence_maximization_greedy_linear_threshold.c",
+    "c3": "c3/i/influence_maximization_greedy_linear_threshold.c3",
+    "cpp": "cpp/i/influence_maximization_greedy_linear_threshold.cpp",
+    "elisa": "elisa/i/influence_maximization_greedy_linear_threshold.elisa",
+    "mojo": "mojo/i/influence_maximization_greedy_linear_threshold.mojo",
+    "nim": "nim/i/influence_maximization_greedy_linear_threshold.nim",
+    "odin": "odin/i/influence_maximization_greedy_linear_threshold.odin",
+    "rust": "rust/i/influence_maximization_greedy_linear_threshold.rs",
+    "v": "v/i/influence_maximization_greedy_linear_threshold.v",
+    "zig": "zig/i/influence_maximization_greedy_linear_threshold.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Influence Maximization",
+    "doi": "10.1007/978-1-4939-2864-4_710",
+    "section": "Influence Diffusion; Activation Models; Key Results, Greedy Algorithm (Fig. 1)",
+    "triggering_doi": "10.4086/toc.2015.v011a004",
+    "triggering_section": "Section 4.3, Theorem 4.6"
+  },
+  "contract": {
+    "input_layout": "[n,m,k,world_count,(u,v,weight)*m,draw[world_count*n]]",
+    "maximum_valid_input_words": 140,
+    "maximum_parseable_input_words": 141,
+    "maximum_output_bytes": 136,
+    "workspace_bytes": 4096,
+    "weight_scale": 256,
+    "tie_rule": "Equal marginal sums choose the smallest vertex ID."
+  }
+}

@@ -1,0 +1,305 @@
+const TVC_MAX_N: usize = 8
+const TVC_MAX_M: usize = 28
+const TVC_MAX_INPUT: usize = 67
+const TVC_MAX_PIECES: usize = 56
+const TVC_MAX_SPLITS: usize = 28
+const TVC_MODULUS: i64 = 998244353
+const TVC_KIND_S: i64 = 1
+const TVC_KIND_P: i64 = 2
+
+struct TvcEdge:
+    u: usize
+    v: usize
+    pair_id: i64
+    real: bool
+
+struct TvcPiece:
+    edge_count: usize
+    edges: TvcEdge[TVC_MAX_M]
+
+def tvc_connected_without(adjacency: view[bool], n: usize, removed: i64) -> bool:
+    start: mutable usize = 0
+    while start.i64() == removed: start <- start + 1
+    seen: mutable bool[TVC_MAX_N] = zeroed
+    queue: mutable usize[TVC_MAX_N] = zeroed
+    seen[start] <- true
+    queue[0] <- start
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n:
+            if v.i64() != removed and adjacency[u * TVC_MAX_N + v] and not seen[v]:
+                seen[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+    reached: mutable usize = 0
+    for v in 0..<n:
+        if v.i64() != removed and seen[v]: reached <- reached + 1
+    reached == n - (if removed >= 0: 1 else: 0)
+
+def tvc_components_after_pair(piece: view[TvcEdge], edge_count: usize, n: usize, a: usize, b: usize,
+                              component: mutable view[i64], component_count: mutable usize&) -> void:
+    for v in 0..<n: component[v] <- -1
+    component_count <- 0
+    queue: mutable usize[TVC_MAX_N] = zeroed
+    for start in 0..<n:
+        if start == a or start == b or component[start] >= 0: continue
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        component[start] <- component_count.i64()
+        queue[0] <- start
+        while head < tail:
+            u: usize = queue[head]
+            head <- head + 1
+            for edge_id in 0..<edge_count:
+                edge: TvcEdge = piece[edge_id]
+                if edge.u == a or edge.u == b or edge.v == a or edge.v == b: continue
+                other: mutable i64 = -1
+                if edge.u == u: other <- edge.v.i64()
+                elif edge.v == u: other <- edge.u.i64()
+                if other >= 0 and component[other.usize()] < 0:
+                    component[other.usize()] <- component_count.i64()
+                    queue[tail] <- other.usize()
+                    tail <- tail + 1
+        component_count <- component_count + 1
+
+def tvc_find_split(pieces: mutable view[TvcPiece], piece_index: usize, n: usize,
+                   chosen_u: mutable usize&, chosen_v: mutable usize&,
+                   left_edge: mutable view[bool]) -> bool:
+    edge_count: usize = pieces[piece_index].edge_count
+    for u in 0..<n:
+        for v in u + 1..<n:
+            component: mutable i64[TVC_MAX_N] = zeroed
+            component_count: mutable usize = 0
+            tvc_components_after_pair(pieces[piece_index].edges[0:TVC_MAX_M], edge_count, n, u, v,
+                                      component[0:TVC_MAX_N], component_count)
+            edge_class: mutable usize[TVC_MAX_M] = zeroed
+            sizes: mutable usize[TVC_MAX_M] = zeroed
+            direct_count: mutable usize = 0
+            for edge_id in 0..<edge_count:
+                edge: TvcEdge = pieces[piece_index].edges[edge_id]
+                if (edge.u == u and edge.v == v) or (edge.u == v and edge.v == u):
+                    edge_class[edge_id] <- component_count + direct_count
+                    direct_count <- direct_count + 1
+                else:
+                    endpoint: usize = if edge.u != u and edge.u != v: edge.u else: edge.v
+                    if component[endpoint] < 0: return false
+                    edge_class[edge_id] <- component[endpoint].usize()
+                if edge_class[edge_id] >= TVC_MAX_M: return false
+                sizes[edge_class[edge_id]] <- sizes[edge_class[edge_id]] + 1
+            class_count: usize = component_count + direct_count
+            selected: mutable i64 = -1
+            for c in 0..<class_count:
+                if sizes[c] >= 2 and sizes[c] <= edge_count - 2: selected <- c.i64(); break
+            use_first_two: mutable bool = selected < 0 and class_count >= 4 and class_count == edge_count
+            if use_first_two:
+                for c in 0..<class_count:
+                    if sizes[c] != 1: use_first_two <- false
+            if selected < 0 and not use_first_two: continue
+            for edge_id in 0..<edge_count:
+                left_edge[edge_id] <- if selected >= 0: edge_class[edge_id] == selected.usize() else: edge_class[edge_id] < 2
+            chosen_u <- u
+            chosen_v <- v
+            return true
+    false
+
+def tvc_piece_kind(piece: view[TvcEdge], edge_count: usize) -> i64:
+    present: mutable bool[TVC_MAX_N] = zeroed
+    vertex_count: mutable usize = 0
+    for edge_id in 0..<edge_count:
+        for endpoint in [piece[edge_id].u, piece[edge_id].v]:
+            if not present[endpoint]:
+                present[endpoint] <- true
+                vertex_count <- vertex_count + 1
+    if vertex_count == 2 and edge_count >= 3: return TVC_KIND_P
+    if vertex_count == 3 and edge_count == 3:
+        pair: mutable bool[TVC_MAX_N * TVC_MAX_N] = zeroed
+        for edge_id in 0..<3:
+            edge: TvcEdge = piece[edge_id]
+            pair[edge.u * TVC_MAX_N + edge.v] <- true
+            pair[edge.v * TVC_MAX_N + edge.u] <- true
+        count: mutable usize = 0
+        for u in 0..<TVC_MAX_N:
+            for v in u + 1..<TVC_MAX_N:
+                if pair[u * TVC_MAX_N + v]: count <- count + 1
+        if count == 3: return TVC_KIND_S
+    3
+
+def tvc_find_root(parent: mutable view[usize], item: usize) -> usize:
+    current: mutable usize = item
+    while parent[current] != current:
+        parent[current] <- parent[parent[current]]
+        current <- parent[current]
+    current
+
+def tvc_unite(parent: mutable view[usize], left: usize, right: usize) -> void:
+    a: usize = tvc_find_root(parent, left)
+    b: usize = tvc_find_root(parent, right)
+    if a != b: parent[b] <- a
+
+def tvc_pair_components(adjacency: view[bool], n: usize, a: usize, b: usize) -> usize:
+    seen: mutable bool[TVC_MAX_N] = zeroed
+    queue: mutable usize[TVC_MAX_N] = zeroed
+    count: mutable usize = 0
+    for start in 0..<n:
+        if start == a or start == b or seen[start]: continue
+        count <- count + 1
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        seen[start] <- true
+        queue[0] <- start
+        while head < tail:
+            u: usize = queue[head]
+            head <- head + 1
+            for v in 0..<n:
+                if v != a and v != b and adjacency[u * TVC_MAX_N + v] and not seen[v]:
+                    seen[v] <- true
+                    queue[tail] <- v
+                    tail <- tail + 1
+    count
+
+def tvc_solve_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > TVC_MAX_INPUT: return -1
+    if input[0] < 3 or input[0] > TVC_MAX_N.i64() or input[1] < 3 or input[1] > TVC_MAX_M.i64(): return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + n + 2 * m: return -1
+    weights: mutable i64[TVC_MAX_N] = zeroed
+    for v in 0..<n:
+        weights[v] <- input[2 + v]
+        if weights[v] < 0 or weights[v] > 1000000: return -1
+    adjacency: mutable bool[TVC_MAX_N * TVC_MAX_N] = zeroed
+    pieces: mutable TvcPiece[TVC_MAX_PIECES] = zeroed
+    pieces[0].edge_count <- m
+    offset: usize = 2 + n
+    for edge_id in 0..<m:
+        left: i64 = input[offset + 2 * edge_id]
+        right: i64 = input[offset + 2 * edge_id + 1]
+        if left < 0 or left >= n.i64() or right < 0 or right >= n.i64() or left == right: return -1
+        u: usize = left.usize()
+        v: usize = right.usize()
+        if adjacency[u * TVC_MAX_N + v]: return -1
+        adjacency[u * TVC_MAX_N + v] <- true
+        adjacency[v * TVC_MAX_N + u] <- true
+        pieces[0].edges[edge_id].u <- u
+        pieces[0].edges[edge_id].v <- v
+        pieces[0].edges[edge_id].pair_id <- -1
+        pieces[0].edges[edge_id].real <- true
+    for removed in -1..<n.i64():
+        if not tvc_connected_without(adjacency[0:TVC_MAX_N * TVC_MAX_N], n, removed): return -1
+
+    piece_count: mutable usize = 1
+    split_count: mutable usize = 0
+    pair_u: mutable usize[TVC_MAX_SPLITS] = zeroed
+    pair_v: mutable usize[TVC_MAX_SPLITS] = zeroed
+    is_leaf: mutable bool[TVC_MAX_PIECES] = zeroed
+    index: mutable usize = 0
+    while index < piece_count:
+        left_edge: mutable bool[TVC_MAX_M] = zeroed
+        u: mutable usize = 0
+        v: mutable usize = 0
+        if not tvc_find_split(pieces[0:TVC_MAX_PIECES], index, n, u, v, left_edge[0:TVC_MAX_M]):
+            is_leaf[index] <- true
+            index <- index + 1
+            continue
+        if split_count >= TVC_MAX_SPLITS or piece_count + 2 > TVC_MAX_PIECES: return -1
+        left_index: usize = piece_count
+        right_index: usize = piece_count + 1
+        piece_count <- piece_count + 2
+        for edge_id in 0..<pieces[index].edge_count:
+            target: mutable usize = if left_edge[edge_id]: left_index else: right_index
+            slot: usize = pieces[target].edge_count
+            pieces[target].edges[slot] <- pieces[index].edges[edge_id]
+            pieces[target].edge_count <- slot + 1
+        pair_id: usize = split_count
+        pair_u[pair_id] <- u
+        pair_v[pair_id] <- v
+        split_count <- split_count + 1
+        for target in [left_index, right_index]:
+            slot: usize = pieces[target].edge_count
+            pieces[target].edges[slot].u <- u
+            pieces[target].edges[slot].v <- v
+            pieces[target].edges[slot].pair_id <- pair_id.i64()
+            pieces[target].edges[slot].real <- false
+            pieces[target].edge_count <- slot + 1
+        if pieces[left_index].edge_count < 3 or pieces[right_index].edge_count < 3: return -1
+        index <- index + 1
+
+    kind: mutable i64[TVC_MAX_PIECES] = zeroed
+    first_leaf: mutable i64[TVC_MAX_SPLITS] = zeroed
+    second_leaf: mutable i64[TVC_MAX_SPLITS] = zeroed
+    occurrences: mutable usize[TVC_MAX_SPLITS] = zeroed
+    parent: mutable usize[TVC_MAX_PIECES] = zeroed
+    for id in 0..<TVC_MAX_SPLITS: first_leaf[id] <- -1; second_leaf[id] <- -1
+    for p in 0..<piece_count:
+        parent[p] <- p
+        if is_leaf[p]: kind[p] <- tvc_piece_kind(pieces[p].edges[0:TVC_MAX_M], pieces[p].edge_count)
+    for p in 0..<piece_count:
+        if not is_leaf[p]: continue
+        for edge_id in 0..<pieces[p].edge_count:
+            edge: TvcEdge = pieces[p].edges[edge_id]
+            if edge.real: continue
+            if edge.pair_id < 0 or edge.pair_id >= split_count.i64(): return -1
+            id: usize = edge.pair_id.usize()
+            occurrences[id] <- occurrences[id] + 1
+            if occurrences[id] == 1: first_leaf[id] <- p.i64()
+            elif occurrences[id] == 2: second_leaf[id] <- p.i64()
+            else: return -1
+    for id in 0..<split_count:
+        if occurrences[id] != 2 or first_leaf[id] == second_leaf[id]: return -1
+        a: usize = first_leaf[id].usize()
+        b: usize = second_leaf[id].usize()
+        if kind[a] == kind[b] and (kind[a] == TVC_KIND_S or kind[a] == TVC_KIND_P): tvc_unite(parent[0:TVC_MAX_PIECES], a, b)
+
+    candidate: mutable bool[TVC_MAX_N * TVC_MAX_N] = zeroed
+    for id in 0..<split_count: candidate[pair_u[id] * TVC_MAX_N + pair_v[id]] <- true
+    for leaf in 0..<piece_count:
+        if not is_leaf[leaf] or tvc_find_root(parent[0:TVC_MAX_PIECES], leaf) != leaf: continue
+        if kind[leaf] == TVC_KIND_S:
+            in_group: mutable bool[TVC_MAX_N] = zeroed
+            skeleton: mutable bool[TVC_MAX_N * TVC_MAX_N] = zeroed
+            for member in 0..<piece_count:
+                if not is_leaf[member] or tvc_find_root(parent[0:TVC_MAX_PIECES], member) != leaf: continue
+                for edge_id in 0..<pieces[member].edge_count:
+                    edge: TvcEdge = pieces[member].edges[edge_id]
+                    if not edge.real:
+                        id: usize = edge.pair_id.usize()
+                        if tvc_find_root(parent[0:TVC_MAX_PIECES], first_leaf[id].usize()) == leaf and tvc_find_root(parent[0:TVC_MAX_PIECES], second_leaf[id].usize()) == leaf: continue
+                    in_group[edge.u] <- true
+                    in_group[edge.v] <- true
+                    skeleton[edge.u * TVC_MAX_N + edge.v] <- true
+                    skeleton[edge.v * TVC_MAX_N + edge.u] <- true
+            for u in 0..<n:
+                for v in u + 1..<n:
+                    if in_group[u] and in_group[v] and not skeleton[u * TVC_MAX_N + v]: candidate[u * TVC_MAX_N + v] <- true
+        elif kind[leaf] == TVC_KIND_P:
+            first: mutable i64 = -1
+            second: mutable i64 = -1
+            for member in 0..<piece_count:
+                if not is_leaf[member] or tvc_find_root(parent[0:TVC_MAX_PIECES], member) != leaf: continue
+                for edge_id in 0..<pieces[member].edge_count:
+                    for endpoint in [pieces[member].edges[edge_id].u, pieces[member].edges[edge_id].v]:
+                        if first < 0: first <- endpoint.i64()
+                        elif endpoint.i64() != first and second < 0: second <- endpoint.i64()
+                        elif endpoint.i64() != first and endpoint.i64() != second: return -1
+            if first < 0 or second < 0: return -1
+            u: usize = if first < second: first.usize() else: second.usize()
+            v: usize = if first < second: second.usize() else: first.usize()
+            candidate[u * TVC_MAX_N + v] <- true
+
+    total: mutable i64 = 0
+    for u in 0..<n:
+        for v in u + 1..<n:
+            if candidate[u * TVC_MAX_N + v]:
+                components: usize = tvc_pair_components(adjacency[0:TVC_MAX_N * TVC_MAX_N], n, u, v)
+                if components > 1:
+                    term: i64 = (weights[u] % TVC_MODULUS) * (weights[v] % TVC_MODULUS) % TVC_MODULUS
+                    total <- (total + term * (components - 1).i64()) % TVC_MODULUS
+    total
+
+export fn two_vertex_cuts_spqr(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > TVC_MAX_INPUT:
+        return -1
+    tvc_solve_impl(input[0:length], length)

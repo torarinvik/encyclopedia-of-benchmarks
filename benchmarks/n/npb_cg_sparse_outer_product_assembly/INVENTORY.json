@@ -1,0 +1,34 @@
+{
+  "algorithm": "npb_cg_sparse_outer_product_assembly",
+  "abi": "i64_array_bytes_output",
+  "output_kind": "float64_vector",
+  "sources": [
+    "c/n/npb_cg_sparse_outer_product_assembly.c",
+    "c3/n/npb_cg_sparse_outer_product_assembly.c3",
+    "cpp/n/npb_cg_sparse_outer_product_assembly.cpp",
+    "elisa/n/npb_cg_sparse_outer_product_assembly.elisa",
+    "mojo/n/npb_cg_sparse_outer_product_assembly.mojo",
+    "nim/n/npb_cg_sparse_outer_product_assembly.nim",
+    "odin/n/npb_cg_sparse_outer_product_assembly.odin",
+    "rust/n/npb_cg_sparse_outer_product_assembly.rs",
+    "v/n/npb_cg_sparse_outer_product_assembly.v",
+    "zig/n/npb_cg_sparse_outer_product_assembly.zig"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "verify_workload.py"
+  ],
+  "maximum_valid_input_words": 131,
+  "maximum_parseable_input_words": 131,
+  "maximum_output_bytes": 4248,
+  "workspace_bytes": 8192,
+  "static_checker": "benchmarks/n/npb_cg_sparse_outer_product_assembly/verify_workload.py",
+  "suite_integration": "i64_array_bytes_output runner and verifier"
+}

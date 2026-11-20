@@ -1,0 +1,37 @@
+const MAX_N: usize = 64
+const MAX_VALUE: i64 = 255
+const ABSENT_CODE: i64 = 64
+const PACK_BASE: i64 = 65
+
+def bond_sequential_search_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > 68: return -1
+    count_value: i64 = input[0]
+    key_a: i64 = input[1]
+    key_b: i64 = input[2]
+    if count_value < 0 or count_value > MAX_N.i64() or length != count_value.usize() + 3: return -1
+    if key_a < 0 or key_a > MAX_VALUE or key_b < 0 or key_b > MAX_VALUE or key_a == key_b: return -1
+
+    count: usize = count_value.usize()
+    i: mutable usize = 0
+    while i < count:
+        value: i64 = input[i + 3]
+        if value < 0 or value > MAX_VALUE: return -1
+        i <- i + 1
+
+    index_a: mutable i64 = ABSENT_CODE
+    index_b: mutable i64 = ABSENT_CODE
+    composite: i64 = key_a | key_b
+    i <- 0
+    while i < count and (index_a == ABSENT_CODE or index_b == ABSENT_CODE):
+        value: i64 = input[i + 3]
+        if (value & composite) == value:
+            if index_a == ABSENT_CODE and value == key_a: index_a <- i.i64()
+            if index_b == ABSENT_CODE and value == key_b: index_b <- i.i64()
+        i <- i + 1
+    return index_a * PACK_BASE + index_b
+
+export fn bond_sequential_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 68: return -1
+    input_view: view[i64] = input[0:length]
+    bond_sequential_search_impl(input_view)

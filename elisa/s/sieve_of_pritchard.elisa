@@ -1,0 +1,71 @@
+const SIEVE_PRITCHARD_MAX_LIMIT: usize = 1024
+const SIEVE_PRITCHARD_MAX_PARSEABLE: usize = 2
+
+def sieve_of_pritchard_impl(input: view[i64]) -> i64:
+    if input.len() != 1: return -1
+    if input[0] < 2 or input[0] > SIEVE_PRITCHARD_MAX_LIMIT.i64(): return -1
+
+    limit: i32 = input[0].i32()
+    sentinel: i32 = limit + 1
+    next_node: mutable i32[1026] = zeroed
+    previous: mutable i32[1026] = zeroed
+    next_node[1] <- sentinel
+    next_node[sentinel.usize()] <- sentinel
+    previous[sentinel.usize()] <- 1
+    wheel_length: mutable i32 = 2
+    prime: mutable i32 = 3
+    prime_count: mutable i64 = 1
+
+    while prime * prime <= limit:
+        if wheel_length < limit:
+            product: i32 = prime * wheel_length
+            target: i32 = product
+            if target > limit: target <- limit
+            wheel_value: mutable i32 = 1
+            candidate: mutable i32 = wheel_length + 1
+            while candidate <= target:
+                tail: i32 = previous[sentinel.usize()]
+                next_node[tail.usize()] <- candidate
+                previous[candidate.usize()] <- tail
+                next_node[candidate.usize()] <- sentinel
+                previous[sentinel.usize()] <- candidate
+                wheel_value <- next_node[wheel_value.usize()]
+                candidate <- wheel_length + wheel_value
+            wheel_length <- target
+
+        wheel_value: mutable i32 = prime
+        while prime * wheel_value <= wheel_length:
+            wheel_value <- next_node[wheel_value.usize()]
+        while wheel_value > 1:
+            wheel_value <- previous[wheel_value.usize()]
+            removed: i32 = prime * wheel_value
+            left: i32 = previous[removed.usize()]
+            right: i32 = next_node[removed.usize()]
+            next_node[left.usize()] <- right
+            previous[right.usize()] <- left
+        prime_count <- prime_count + 1
+        prime <- next_node[1]
+
+    if wheel_length < limit:
+        wheel_value: mutable i32 = 1
+        candidate: mutable i32 = wheel_length + 1
+        while candidate <= limit:
+            tail: i32 = previous[sentinel.usize()]
+            next_node[tail.usize()] <- candidate
+            previous[candidate.usize()] <- tail
+            next_node[candidate.usize()] <- sentinel
+            previous[sentinel.usize()] <- candidate
+            wheel_value <- next_node[wheel_value.usize()]
+            candidate <- wheel_length + wheel_value
+        wheel_length <- limit
+
+    remaining: mutable i64 = 0
+    value: mutable i32 = next_node[1]
+    while value != sentinel:
+        remaining <- remaining + 1
+        value <- next_node[value.usize()]
+    prime_count + remaining
+
+export fn sieve_of_pritchard(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > SIEVE_PRITCHARD_MAX_PARSEABLE: return -1
+    sieve_of_pritchard_impl(input[0:length])

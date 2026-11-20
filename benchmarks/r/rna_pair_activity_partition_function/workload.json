@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "rna-pair-activity-partition-function-i64-array-scalar-v1",
+  "algorithm": "rna_pair_activity_partition_function",
+  "function_symbol": "rna_pair_activity_partition_function",
+  "abi": "i64_array_scalar",
+  "description": "Sum the integer activities of all noncrossing partial pairings over a bounded ordered sequence.",
+  "source": {
+    "mccaskill_1990": "https://doi.org/10.1002/bip.360290621",
+    "encyclopedia_of_algorithms_chapter_345": "https://doi.org/10.1007/978-1-4939-2864-4_345"
+  },
+  "contract": {
+    "input_encoding": "[n, upper_triangle_pair_activities_in_row_major_order]",
+    "pairing_rule": "Each position occurs in at most one selected pair; selected pairs may be nested or disjoint but may not cross.",
+    "structure_weight": "The product of the selected pair activities; the empty structure has weight one.",
+    "result": "The sum of structure weights over all noncrossing partial pairings.",
+    "maximum_sequence_length": 16,
+    "activity_range": [0, 3],
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, w(0,1), w(0,2), ..., w(n-2,n-1)]",
+    "maximum_sequence_length": 16,
+    "activity_range": [0, 3],
+    "maximum_valid_input_length": 121,
+    "maximum_parseable_input_length": 122,
+    "null_input_result": -1,
+    "invalid_input_result": -1,
+    "validation_order": "Reject null input, lengths outside 1..122, sequence lengths outside 0..16, a length unequal to 1+n(n-1)/2, or activities outside 0..3."
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Exact nonnegative integer partition sum, or -1 for invalid input."
+  },
+  "workspace": {
+    "bytes": 2048,
+    "accounting": "A fixed 16 by 16 signed-i64 interval table; caller-owned input and ABI metadata are excluded."
+  },
+  "complexity": {
+    "primary_time": "O(n^3)",
+    "primary_space": "O(n^2)",
+    "independent_time": "O(n^3) memoized interval recurrence",
+    "independent_space": "O(n^2) memoized subintervals"
+  },
+  "arithmetic_bound": {
+    "maximum_pairs_in_one_structure": 8,
+    "all_partial_matchings_on_16_positions": 46206736,
+    "maximum_pair_activity": 3,
+    "conservative_maximum_result": 303162394896,
+    "fits_signed_i64": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-sequence","input_values":[0],"input_length":1,"expected_result":1},
+    {"id":"single-unpaired-base","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"one-pair-activity-three","input_values":[2,3],"input_length":2,"expected_result":4},
+    {"id":"three-base-weighted-choices","input_values":[3,1,0,2],"input_length":4,"expected_result":4},
+    {"id":"all-unit-activities-four-bases","input_values":[4,1,1,1,1,1,1],"input_length":7,"expected_result":9},
+    {"id":"nonuniform-activities-four-bases","input_values":[4,1,2,3,4,5,6],"input_length":7,"expected_result":40},
+    {"id":"all-unit-activities-six-bases","input_values":[6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"input_length":16,"expected_result":51},
+    {"id":"all-triple-activities-eight-bases","input_values":[8,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"input_length":37,"expected_result":6259},
+    {"id":"maximum-valid-length-with-disabled-pairs","input_values":[16,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0],"input_length":121,"expected_result":1},
+    {"id":"negative-length","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"length-over-profile","input_values":[17],"input_length":1,"expected_result":-1},
+    {"id":"truncated-pair-list","input_values":[4,1,2,3],"input_length":4,"expected_result":-1},
+    {"id":"trailing-value","input_values":[2,3,0],"input_length":3,"expected_result":-1},
+    {"id":"negative-activity","input_values":[2,-1],"input_length":2,"expected_result":-1},
+    {"id":"activity-over-profile","input_values":[2,4],"input_length":2,"expected_result":-1},
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

@@ -16,10 +16,10 @@ fn long binary_shifts(long* values, usz length, char* output, usz output_capacit
     if (operation < 0 || operation > 2 || number < -2147483647 || number > 2147483647 ||
         shift < 0 || shift > 31 || (operation < 2 && number < 0)) return -1;
 
-    char bits[80], result[82];
+    char[80] bits; char[82] result;
     usz bits_length = 0, result_length = 0;
     if (operation == 0 || operation == 1) {
-        bits_length = unsigned_bits((ulong)number, bits);
+        bits_length = unsigned_bits((ulong)number, &bits[0]);
         result[0] = '0'; result[1] = 'b'; result_length = 2;
         if (operation == 0) {
             for (usz i = 0; i < bits_length; i++) result[result_length++] = bits[i];
@@ -28,13 +28,13 @@ fn long binary_shifts(long* values, usz length, char* output, usz output_capacit
         else for (usz i = 0; i < bits_length - (usz)shift; i++) result[result_length++] = bits[i];
     } else {
         if (number >= 0) {
-            bits[0] = '0'; bits_length = 1 + unsigned_bits((ulong)number, bits + 1);
+            bits[0] = '0'; bits_length = 1 + unsigned_bits((ulong)number, &bits[1]);
         } else {
             ulong magnitude = (ulong)(-number);
-            usz magnitude_length = unsigned_bits(magnitude, bits);
+            usz magnitude_length = unsigned_bits(magnitude, &bits[0]);
             ulong complement = (1ul << magnitude_length) - magnitude;
-            char complement_bits[40];
-            usz complement_length = unsigned_bits(complement, complement_bits);
+            char[40] complement_bits;
+            usz complement_length = unsigned_bits(complement, &complement_bits[0]);
             bits[0] = '1'; usz position = 1;
             for (usz i = complement_length; i < magnitude_length; i++) bits[position++] = '0';
             for (usz i = 0; i < complement_length; i++) bits[position++] = complement_bits[i];

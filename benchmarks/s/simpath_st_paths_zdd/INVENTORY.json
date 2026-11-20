@@ -1,0 +1,27 @@
+{
+  "algorithm": "simpath_st_paths_zdd",
+  "symbol": "simpath_st_paths_zdd",
+  "abi": "i64_array_scalar",
+  "primary_reference": "benchmarks/s/simpath_st_paths_zdd/primary_oracle.py",
+  "independent_reference": "benchmarks/s/simpath_st_paths_zdd/independent_oracle.py",
+  "workload": "benchmarks/s/simpath_st_paths_zdd/workload.json",
+  "static_checker": "benchmarks/s/simpath_st_paths_zdd/check_inventory.py",
+  "source_url": "https://doi.org/10.1007/978-1-4939-2864-4_734",
+  "max_valid_input_length": 22,
+  "max_parseable_input_length": 23,
+  "max_frontier_states": 1023,
+  "max_zdd_nodes": 511,
+  "workspace_bytes": 65536,
+  "ports": [
+    "c/s/simpath_st_paths_zdd.c",
+    "c3/s/simpath_st_paths_zdd.c3",
+    "cpp/s/simpath_st_paths_zdd.cpp",
+    "elisa/s/simpath_st_paths_zdd.elisa",
+    "mojo/s/simpath_st_paths_zdd.mojo",
+    "nim/s/simpath_st_paths_zdd.nim",
+    "odin/s/simpath_st_paths_zdd.odin",
+    "rust/s/simpath_st_paths_zdd.rs",
+    "v/s/simpath_st_paths_zdd.v",
+    "zig/s/simpath_st_paths_zdd.zig"
+  ]
+}

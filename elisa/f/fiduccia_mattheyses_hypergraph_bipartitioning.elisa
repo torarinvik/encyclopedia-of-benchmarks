@@ -1,0 +1,176 @@
+const FM_MAX_N: usize = 8
+const FM_MAX_M: usize = 12
+const FM_MAX_INPUT: usize = 111
+const FM_MAX_PARSEABLE: usize = 112
+const FM_BUCKET_COUNT: usize = 25
+
+def fm_cut(mask: i64, edge_count: usize, degrees: view[usize], vertices: view[usize]) -> usize:
+    cut: mutable usize = 0
+    edge: mutable usize = 0
+    while edge < edge_count:
+        in_a: mutable bool = false
+        in_b: mutable bool = false
+        slot: mutable usize = 0
+        while slot < degrees[edge]:
+            vertex: usize = vertices[edge * FM_MAX_N + slot]
+            if ((mask >> vertex.i64()) & 1) != 0: in_a <- true
+            else: in_b <- true
+            slot <- slot + 1
+        if in_a and in_b: cut <- cut + 1
+        edge <- edge + 1
+    cut
+
+def fm_gain(mask: i64, vertex: usize, edge_count: usize,
+            degrees: view[usize], vertices: view[usize]) -> i64:
+    gain: mutable i64 = 0
+    vertex_bit: i64 = 1.i64() << vertex.i64()
+    in_a_now: bool = (mask & vertex_bit) != 0
+    edge: mutable usize = 0
+    while edge < edge_count:
+        contains_vertex: mutable bool = false
+        other_a: mutable bool = false
+        other_b: mutable bool = false
+        slot: mutable usize = 0
+        while slot < degrees[edge]:
+            member: usize = vertices[edge * FM_MAX_N + slot]
+            if member == vertex: contains_vertex <- true
+            elif ((mask >> member.i64()) & 1) != 0: other_a <- true
+            else: other_b <- true
+            slot <- slot + 1
+        if contains_vertex:
+            before_cut: bool = (other_a or in_a_now) and (other_b or not in_a_now)
+            after_cut: bool = if in_a_now: other_a else: other_b
+            if before_cut: gain <- gain + 1
+            if after_cut: gain <- gain - 1
+        edge <- edge + 1
+    gain
+
+def fm_abs(value: i64) -> usize:
+    if value < 0: return (-value).usize()
+    value.usize()
+
+def fiduccia_mattheyses_hypergraph_bipartitioning_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 3 or length > FM_MAX_PARSEABLE: return -1
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    mask: i64 = values[2]
+    if n_value < 4 or n_value > FM_MAX_N.i64() or (n_value & 1) != 0: return -1
+    if m_value < 0 or m_value > FM_MAX_M.i64(): return -1
+    n: usize = n_value.usize()
+    edge_count: usize = m_value.usize()
+    if mask < 0 or mask >= (1.i64() << n.i64()): return -1
+    a_size: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        if ((mask >> vertex.i64()) & 1) != 0: a_size <- a_size + 1
+        vertex <- vertex + 1
+    if a_size != n / 2: return -1
+
+    edge_degree: mutable usize[FM_MAX_M] = zeroed
+    edge_vertices: mutable usize[FM_MAX_M * FM_MAX_N] = zeroed
+    position: mutable usize = 3
+    edge: mutable usize = 0
+    while edge < edge_count:
+        if position >= length: return -1
+        degree_value: i64 = values[position]
+        if degree_value < 2 or degree_value > n.i64(): return -1
+        degree: usize = degree_value.usize()
+        if position + 1 + degree > length: return -1
+        previous_vertex: mutable i64 = -1
+        slot: mutable usize = 0
+        while slot < degree:
+            vertex_value: i64 = values[position + 1 + slot]
+            if vertex_value < 0 or vertex_value >= n.i64() or vertex_value <= previous_vertex: return -1
+            edge_vertices[edge * FM_MAX_N + slot] <- vertex_value.usize()
+            previous_vertex <- vertex_value
+            slot <- slot + 1
+        edge_degree[edge] <- degree
+        position <- position + 1 + degree
+        edge <- edge + 1
+    if position != length or length > FM_MAX_INPUT: return -1
+
+    current_cut: mutable usize = fm_cut(mask, edge_count, edge_degree[0:edge_count], edge_vertices[0:edge_count * FM_MAX_N])
+    pass_count: mutable usize = 0
+    while pass_count <= edge_count:
+        pass_start_mask: i64 = mask
+        pass_start_cut: usize = current_cut
+        best_prefix_mask: i64 = mask
+        best_prefix_cut: usize = current_cut
+        working_a_size: mutable usize = a_size
+        locked: mutable u8[FM_MAX_N] = zeroed
+        moves: mutable usize = 0
+        while moves < n:
+            bucket_best: mutable i64[FM_BUCKET_COUNT] = zeroed
+            bucket_balance: mutable usize[FM_BUCKET_COUNT] = zeroed
+            bucket: mutable usize = 0
+            while bucket < FM_BUCKET_COUNT:
+                bucket_best[bucket] <- -1
+                bucket <- bucket + 1
+
+            vertex <- 0
+            while vertex < n:
+                if locked[vertex] == 0:
+                    bit: i64 = 1.i64() << vertex.i64()
+                    in_a: bool = (mask & bit) != 0
+                    resulting_a: usize = working_a_size
+                    if in_a: resulting_a <- resulting_a - 1
+                    else: resulting_a <- resulting_a + 1
+                    lower_bound: usize = n / 2 - 1
+                    upper_bound: usize = n / 2 + 1
+                    if resulting_a >= lower_bound and resulting_a <= upper_bound:
+                        gain: i64 = fm_gain(mask, vertex, edge_count,
+                            edge_degree[0:edge_count], edge_vertices[0:edge_count * FM_MAX_N])
+                        bucket_index: usize = (gain + FM_MAX_M.i64()).usize()
+                        balance: usize = fm_abs((2 * resulting_a.i64()) - n.i64())
+                        if bucket_best[bucket_index] < 0 or balance < bucket_balance[bucket_index] or
+                           (balance == bucket_balance[bucket_index] and vertex.i64() < bucket_best[bucket_index]):
+                            bucket_best[bucket_index] <- vertex.i64()
+                            bucket_balance[bucket_index] <- balance
+                vertex <- vertex + 1
+
+            selected: mutable usize = n
+            selected_gain: mutable i64 = 0
+            bucket <- FM_BUCKET_COUNT
+            while bucket > 0:
+                bucket <- bucket - 1
+                if bucket_best[bucket] >= 0:
+                    selected <- bucket_best[bucket].usize()
+                    selected_gain <- bucket.i64() - FM_MAX_M.i64()
+                    break
+            if selected == n: break
+
+            bit: i64 = 1.i64() << selected.i64()
+            in_a: bool = (mask & bit) != 0
+            if in_a:
+                mask <- mask - bit
+                working_a_size <- working_a_size - 1
+            else:
+                mask <- mask + bit
+                working_a_size <- working_a_size + 1
+            locked[selected] <- 1
+            current_cut <- current_cut.i64() - selected_gain
+            current_cut <- current_cut.usize()
+            moves <- moves + 1
+            if current_cut < best_prefix_cut:
+                best_prefix_cut <- current_cut
+                best_prefix_mask <- mask
+
+        if best_prefix_cut < pass_start_cut:
+            mask <- best_prefix_mask
+            current_cut <- best_prefix_cut
+            a_size <- 0
+            vertex <- 0
+            while vertex < n:
+                if ((mask >> vertex.i64()) & 1) != 0: a_size <- a_size + 1
+                vertex <- vertex + 1
+            pass_count <- pass_count + 1
+        else:
+            mask <- pass_start_mask
+            current_cut <- pass_start_cut
+            break
+    current_cut.i64() * 256 + mask
+
+export fn fiduccia_mattheyses_hypergraph_bipartitioning(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > FM_MAX_PARSEABLE: return -1
+    fiduccia_mattheyses_hypergraph_bipartitioning_impl(input[0:length])

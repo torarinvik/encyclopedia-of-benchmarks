@@ -109,8 +109,9 @@ def range_set_range_composite_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 2 or length > MAX_INPUT:
         return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64():
         return -1
     n: usize = n_value.usize()
@@ -121,8 +122,8 @@ def range_set_range_composite_impl(input: i64&, length: usize,
     initial_b: mutable i64[MAX_N] = zeroed
     offset: mutable usize = 2
     for i in 0..<n:
-        initial_a[i] <- input[offset]
-        initial_b[i] <- input[offset + 1]
+        initial_a[i] <- frame[offset]
+        initial_b[i] <- frame[offset + 1]
         offset <- offset + 2
         if initial_a[i] < 1 or initial_a[i] >= MODULUS or initial_b[i] < 0 or initial_b[i] >= MODULUS:
             return -1
@@ -131,15 +132,15 @@ def range_set_range_composite_impl(input: i64&, length: usize,
     for k in 0..<q:
         if offset >= length:
             return -1
-        kind: i64 = input[offset]
+        kind: i64 = frame[offset]
         offset <- offset + 1
         if kind == 0:
             if offset + 4 > length:
                 return -1
-            l: i64 = input[offset]
-            r: i64 = input[offset + 1]
-            a: i64 = input[offset + 2]
-            b: i64 = input[offset + 3]
+            l: i64 = frame[offset]
+            r: i64 = frame[offset + 1]
+            a: i64 = frame[offset + 2]
+            b: i64 = frame[offset + 3]
             offset <- offset + 4
             if l < 0 or l >= r or r > n_value or a < 1 or a >= MODULUS or b < 0 or b >= MODULUS:
                 return -1
@@ -151,9 +152,9 @@ def range_set_range_composite_impl(input: i64&, length: usize,
         else if kind == 1:
             if offset + 3 > length:
                 return -1
-            l: i64 = input[offset]
-            r: i64 = input[offset + 1]
-            x: i64 = input[offset + 2]
+            l: i64 = frame[offset]
+            r: i64 = frame[offset + 1]
+            x: i64 = frame[offset + 2]
             offset <- offset + 3
             if l < 0 or l >= r or r > n_value or x < 0 or x >= MODULUS:
                 return -1

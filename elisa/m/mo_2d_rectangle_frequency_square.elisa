@@ -1,0 +1,179 @@
+const MO2D_MAX_N: usize = 8
+const MO2D_MAX_Q: usize = 32
+const MO2D_MAX_CELLS: usize = 64
+const MO2D_MAX_INPUT: usize = 194
+const MO2D_MAX_PARSEABLE: usize = 195
+
+def mo2d_query_before(a: usize, b: usize, tops: view[usize], lefts: view[usize],
+        bottoms: view[usize], rights: view[usize], block_size: usize) -> bool:
+    a_key: usize = tops[a] / block_size
+    b_key: usize = tops[b] / block_size
+    if a_key != b_key: return a_key < b_key
+    a_key <- lefts[a] / block_size
+    b_key <- lefts[b] / block_size
+    if a_key != b_key: return a_key < b_key
+    a_key <- bottoms[a] / block_size
+    b_key <- bottoms[b] / block_size
+    if a_key != b_key: return a_key < b_key
+    a_key <- rights[a] / block_size
+    b_key <- rights[b] / block_size
+    if a_key != b_key: return a_key < b_key
+    if tops[a] != tops[b]: return tops[a] < tops[b]
+    if lefts[a] != lefts[b]: return lefts[a] < lefts[b]
+    if bottoms[a] != bottoms[b]: return bottoms[a] < bottoms[b]
+    if rights[a] != rights[b]: return rights[a] < rights[b]
+    a < b
+
+def mo2d_add_value(value: usize, frequencies: mutable view[i64], square_sum: mutable view[i64]) -> void:
+    old_frequency: i64 = frequencies[value]
+    square_sum[0] <- square_sum[0] + 2 * old_frequency + 1
+    frequencies[value] <- old_frequency + 1
+
+def mo2d_remove_value(value: usize, frequencies: mutable view[i64], square_sum: mutable view[i64]) -> void:
+    old_frequency: i64 = frequencies[value]
+    square_sum[0] <- square_sum[0] + 1 - 2 * old_frequency
+    frequencies[value] <- old_frequency - 1
+
+export fn mo_2d_rectangle_frequency_square(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MO2D_MAX_PARSEABLE: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    q_value: i64 = input_view[1]
+    if n_value < 1 or n_value > MO2D_MAX_N.i64() or q_value < 0 or q_value > MO2D_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + n * n + 4 * q or length > MO2D_MAX_INPUT: return -1
+
+    matrix: mutable i64[MO2D_MAX_CELLS] = zeroed
+    cell: mutable usize = 0
+    while cell < n * n:
+        value: i64 = input_view[2 + cell]
+        if value < 0 or value > 7: return -1
+        matrix[cell] <- value
+        cell <- cell + 1
+
+    tops: mutable usize[MO2D_MAX_Q] = zeroed
+    lefts: mutable usize[MO2D_MAX_Q] = zeroed
+    bottoms: mutable usize[MO2D_MAX_Q] = zeroed
+    rights: mutable usize[MO2D_MAX_Q] = zeroed
+    order: mutable usize[MO2D_MAX_Q] = zeroed
+    query: mutable usize = 0
+    cursor: usize = 2 + n * n
+    while query < q:
+        top_value: i64 = input_view[cursor]
+        left_value: i64 = input_view[cursor + 1]
+        bottom_value: i64 = input_view[cursor + 2]
+        right_value: i64 = input_view[cursor + 3]
+        if top_value < 0 or top_value >= n_value or bottom_value < top_value or bottom_value >= n_value:
+            return -1
+        if left_value < 0 or left_value >= n_value or right_value < left_value or right_value >= n_value:
+            return -1
+        tops[query] <- top_value.usize()
+        lefts[query] <- left_value.usize()
+        bottoms[query] <- bottom_value.usize()
+        rights[query] <- right_value.usize()
+        order[query] <- query
+        cursor <- cursor + 4
+        query <- query + 1
+
+    if q == 0: return 0
+    block_size: mutable usize = 1
+    n_fourth: usize = n * n * n * n
+    while block_size < n:
+        candidate: usize = block_size + 1
+        if q * candidate * candidate * candidate * candidate <= n_fourth:
+            block_size <- candidate
+        else:
+            break
+    query <- 1
+    while query < q:
+        item: usize = order[query]
+        position: mutable usize = query
+        while position > 0 and mo2d_query_before(item, order[position - 1], tops[0:MO2D_MAX_Q],
+                lefts[0:MO2D_MAX_Q], bottoms[0:MO2D_MAX_Q], rights[0:MO2D_MAX_Q], block_size):
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- item
+        query <- query + 1
+
+    answers: mutable i64[MO2D_MAX_Q] = zeroed
+    frequencies: mutable i64[8] = zeroed
+    square_sum: mutable i64[1] = zeroed
+    first_query: usize = order[0]
+    current_top: mutable usize = tops[first_query]
+    current_bottom: mutable usize = bottoms[first_query]
+    current_left: mutable usize = lefts[first_query]
+    current_right: mutable usize = rights[first_query]
+    row: mutable usize = current_top
+    while row <= current_bottom:
+        cell_column: mutable usize = current_left
+        while cell_column <= current_right:
+            mo2d_add_value(matrix[row * n + cell_column].usize(), frequencies[0:8], square_sum[0:1])
+            cell_column <- cell_column + 1
+        row <- row + 1
+    answers[first_query] <- square_sum[0]
+
+    sorted_position: mutable usize = 1
+    while sorted_position < q:
+        query <- order[sorted_position]
+        target_top: usize = tops[query]
+        target_bottom: usize = bottoms[query]
+        target_left: usize = lefts[query]
+        target_right: usize = rights[query]
+        while current_top > target_top:
+            current_top <- current_top - 1
+            cell_column <- current_left
+            while cell_column <= current_right:
+                mo2d_add_value(matrix[current_top * n + cell_column].usize(), frequencies[0:8], square_sum[0:1])
+                cell_column <- cell_column + 1
+        while current_bottom < target_bottom:
+            current_bottom <- current_bottom + 1
+            cell_column <- current_left
+            while cell_column <= current_right:
+                mo2d_add_value(matrix[current_bottom * n + cell_column].usize(), frequencies[0:8], square_sum[0:1])
+                cell_column <- cell_column + 1
+        while current_left > target_left:
+            current_left <- current_left - 1
+            row <- current_top
+            while row <= current_bottom:
+                mo2d_add_value(matrix[row * n + current_left].usize(), frequencies[0:8], square_sum[0:1])
+                row <- row + 1
+        while current_right < target_right:
+            current_right <- current_right + 1
+            row <- current_top
+            while row <= current_bottom:
+                mo2d_add_value(matrix[row * n + current_right].usize(), frequencies[0:8], square_sum[0:1])
+                row <- row + 1
+        while current_top < target_top:
+            cell_column <- current_left
+            while cell_column <= current_right:
+                mo2d_remove_value(matrix[current_top * n + cell_column].usize(), frequencies[0:8], square_sum[0:1])
+                cell_column <- cell_column + 1
+            current_top <- current_top + 1
+        while current_bottom > target_bottom:
+            cell_column <- current_left
+            while cell_column <= current_right:
+                mo2d_remove_value(matrix[current_bottom * n + cell_column].usize(), frequencies[0:8], square_sum[0:1])
+                cell_column <- cell_column + 1
+            current_bottom <- current_bottom - 1
+        while current_left < target_left:
+            row <- current_top
+            while row <= current_bottom:
+                mo2d_remove_value(matrix[row * n + current_left].usize(), frequencies[0:8], square_sum[0:1])
+                row <- row + 1
+            current_left <- current_left + 1
+        while current_right > target_right:
+            row <- current_top
+            while row <= current_bottom:
+                mo2d_remove_value(matrix[row * n + current_right].usize(), frequencies[0:8], square_sum[0:1])
+                row <- row + 1
+            current_right <- current_right - 1
+        answers[query] <- square_sum[0]
+        sorted_position <- sorted_position + 1
+
+    checksum: mutable i64 = 0
+    query <- 0
+    while query < q:
+        checksum <- checksum + (query.i64() + 1) * answers[query]
+        query <- query + 1
+    checksum

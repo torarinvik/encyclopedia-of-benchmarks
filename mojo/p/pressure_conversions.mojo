@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 from std.math import isfinite
 @export("pressure_conversions")
 fn pressure_conversions(value:Float64,from:Float64,to:Float64) abi("C")->Float64:

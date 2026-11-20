@@ -1,0 +1,84 @@
+const MAX_ORDER: usize = 2
+const MAX_PARSEABLE_INPUT: usize = 2
+const MAX_STACK: usize = 64
+
+def sierpinski_curve_push(stack: mutable view[u8], top: mutable usize&,
+                          symbol: u8, level: u8) -> void:
+    stack[top * 2] <- symbol
+    stack[top * 2 + 1] <- level
+    top <- top + 1
+
+def sierpinski_curve_emit(order: u8, output: mutable view[u8]) -> usize:
+    storage: mutable u8[128] = zeroed
+    stack: mutable view[u8] = storage[0:128]
+    top: mutable usize = 0
+    written: mutable usize = 0
+    sierpinski_curve_push(stack, top, 5, 0)
+    sierpinski_curve_push(stack, top, 3, order)
+    sierpinski_curve_push(stack, top, 7, 0)
+    sierpinski_curve_push(stack, top, 2, order)
+    sierpinski_curve_push(stack, top, 9, 0)
+    sierpinski_curve_push(stack, top, 1, order)
+    sierpinski_curve_push(stack, top, 11, 0)
+    sierpinski_curve_push(stack, top, 0, order)
+    while top > 0:
+        top <- top - 1
+        symbol: u8 = stack[top * 2]
+        level: u8 = stack[top * 2 + 1]
+        if symbol >= 4:
+            output[written] <- symbol - 4
+            written <- written + 1
+        elif level > 0:
+            child: u8 = level - 1
+            if symbol == 0:
+                sierpinski_curve_push(stack, top, 0, child)
+                sierpinski_curve_push(stack, top, 5, 0)
+                sierpinski_curve_push(stack, top, 3, child)
+                sierpinski_curve_push(stack, top, 12, 0)
+                sierpinski_curve_push(stack, top, 1, child)
+                sierpinski_curve_push(stack, top, 11, 0)
+                sierpinski_curve_push(stack, top, 0, child)
+            elif symbol == 1:
+                sierpinski_curve_push(stack, top, 1, child)
+                sierpinski_curve_push(stack, top, 11, 0)
+                sierpinski_curve_push(stack, top, 0, child)
+                sierpinski_curve_push(stack, top, 18, 0)
+                sierpinski_curve_push(stack, top, 2, child)
+                sierpinski_curve_push(stack, top, 9, 0)
+                sierpinski_curve_push(stack, top, 1, child)
+            elif symbol == 2:
+                sierpinski_curve_push(stack, top, 2, child)
+                sierpinski_curve_push(stack, top, 9, 0)
+                sierpinski_curve_push(stack, top, 1, child)
+                sierpinski_curve_push(stack, top, 16, 0)
+                sierpinski_curve_push(stack, top, 3, child)
+                sierpinski_curve_push(stack, top, 7, 0)
+                sierpinski_curve_push(stack, top, 2, child)
+            else:
+                sierpinski_curve_push(stack, top, 3, child)
+                sierpinski_curve_push(stack, top, 7, 0)
+                sierpinski_curve_push(stack, top, 2, child)
+                sierpinski_curve_push(stack, top, 14, 0)
+                sierpinski_curve_push(stack, top, 0, child)
+                sierpinski_curve_push(stack, top, 5, 0)
+                sierpinski_curve_push(stack, top, 3, child)
+    return written
+
+def sierpinski_curve_trace_impl(input: i64&, length: usize,
+                                output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT: return -1
+    if length != 1: return -1
+    order_word: i64 = input[0]
+    if order_word < 0 or order_word > MAX_ORDER.i64(): return -1
+    order: usize = order_word.usize()
+    required: mutable usize = 4
+    step: mutable usize = 0
+    while step < order:
+        required <- required * 4
+        step <- step + 1
+    if output.is_null() or capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+    sierpinski_curve_emit(order.u8(), result).i64()
+
+export fn sierpinski_curve_trace(input: i64&, length: usize,
+                                 output: mutable u8&, capacity: usize) -> i64 = sierpinski_curve_trace_impl

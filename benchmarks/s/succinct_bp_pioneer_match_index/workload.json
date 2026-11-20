@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-ch410-succinct-bp-pioneer-match-index-i64-array-bytes-output-v1",
+  "algorithm": "succinct_bp_pioneer_match_index",
+  "function_symbol": "succinct_bp_pioneer_match_index",
+  "description": "Construct a bounded recursive pioneer-family index and return the matching position for every balanced-parenthesis symbol.",
+  "pinned_sources": [
+    {"title": "Succinct Data Structures for Parentheses Matching", "doi": "10.1007/978-1-4939-2864-4_410", "role": "chapter crosswalk"},
+    {"title": "A Simple Optimal Representation for Balanced Parentheses", "doi": "10.1016/j.tcs.2006.09.014", "sections": "2.1-2.3", "role": "operational pioneer-family method"}
+  ],
+  "contract": {
+    "input_layout": "[n,bit[0..2n-1]]",
+    "bit_convention": "1=open, 0=close",
+    "valid_input": "1<=n<=32; exactly 2n bits; all symbols are 0 or 1; every prefix has nonnegative excess and total excess is zero.",
+    "index_profile": "B=8; recursive sequences of length<=16 use direct local matches. Larger sequences mark far parentheses, select opening/closing pioneers, form the sorted deduplicated pioneer family including each pioneer and its mate, and recurse on that balanced subsequence.",
+    "query": "For a far opening, follow the last opening pioneer in its source block to the child index; for a far closing, follow the first closing pioneer at or after it. Map the recursive child match back through the family to recover the anchor position and target block. Select the ordered-position summary by source block, recursively recovered target block, and boundary excess (depth[p] for an opening, depth[p+1] for a closing); use the queried position's rank to select the same-rank position in the reverse-direction summary. No far mate or per-position destination is retained in the query index.",
+    "construction_storage": "A temporary per-position target-block array may be derived from the stack match pass to choose pioneers and populate ordered summaries keyed by source block, target block, and boundary excess. Discard that array and the temporary full match map before queries; retained group keys and ordered position members do not provide a direct per-position destination shortcut.",
+    "output_encoding": "little-endian signed i64 words [2n,mate[0..2n-1]]",
+    "position_order": "zero-based original bit order",
+    "bounds": {"pairs": [1, 32], "block_bits": 8, "base_bits": 16},
+    "complexity": "O(n^2) total worst-case work for the fixed bounded profile; O(n) stack matching/index construction plus O(n) bounded block-table work per output position.",
+    "invalid_input_result": -1,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing and balancedness are validated before output-null/capacity handling."
+  },
+  "input": {"kind": "signed_i64_array", "maximum_valid_input_length": 65, "maximum_parseable_input_length": 66, "invalid_result": -1},
+  "output": {"kind": "little_endian_signed_i64_array", "encoding": "[2n,mate[0..2n-1]]", "maximum_bytes": 520, "null_output_result": -2, "insufficient_output_capacity_result": -2, "output_untouched_on_error": true},
+  "workspace": {"bytes": 8192, "meaning": "Conservative cap for three recursive level records, each with 64-symbol bit/local-mate/depth arrays, family maps, and flattened far-position group summaries, plus one temporary 64-entry stack match/destination pass, staged output, and parser temporaries. Temporary far matches are discarded before queries."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call"},
+  "cases": [
+    {"id":"decomposable-two-pairs", "input_values":[2,1,0,1,0], "input_length":5, "output_capacity":520, "expected_result":40, "expected_output_hex":"04000000000000000100000000000000000000000000000003000000000000000200000000000000"},
+    {"id":"nested-two-pairs", "input_values":[2,1,1,0,0], "input_length":5, "output_capacity":520, "expected_result":40, "expected_output_hex":"04000000000000000300000000000000020000000000000001000000000000000000000000000000"},
+    {"id":"recursive-nested-nine-pairs", "input_values":[9,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0], "input_length":19, "output_capacity":520, "expected_result":152, "expected_output_hex":"1200000000000000110000000000000010000000000000000f000000000000000e000000000000000d000000000000000c000000000000000b000000000000000a000000000000000900000000000000080000000000000007000000000000000600000000000000050000000000000004000000000000000300000000000000020000000000000001000000000000000000000000000000"},
+    {"id":"maximum-valid-short-output", "input_values":[32,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":65, "output_capacity":0, "expected_result":-2, "expected_output_hex":""},
+    {"id":"unbalanced-underflow", "input_values":[2,0,1,1,0], "input_length":5, "expected_result":-1, "expected_output_hex":""},
+    {"id":"unbalanced-positive-final-depth", "input_values":[2,1,1,0,1], "input_length":5, "expected_result":-1, "expected_output_hex":""},
+    {"id":"nonbinary-symbol", "input_values":[2,1,2,0,0], "input_length":5, "expected_result":-1, "expected_output_hex":""},
+    {"id":"trailing-word", "input_values":[1,1,0,9], "input_length":4, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[1,1,0], "input_length":3, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"short-output", "input_values":[1,1,0], "input_length":3, "output_capacity":23, "expected_result":-2, "expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "gpsr-perimeter-recovery-trace-i64-array-bytes-output-v1",
+  "algorithm": "gpsr_perimeter_recovery_trace",
+  "function_symbol": "gpsr_perimeter_recovery_trace",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded exact GPSR perimeter face traversal with explicit Lf crossing events on a supplied planar embedding.",
+  "source": {
+    "title": "GPSR: Greedy Perimeter Stateless Routing for Wireless Networks",
+    "authors": ["Brad Karp", "H. T. Kung"],
+    "year": 2000,
+    "reference": "MobiCom 2000, §§2.2, 2.4, DOI 10.1145/345910.345953; Encyclopedia of Algorithms Chapter 352, DOI 10.1007/978-1-4939-2864-4_352",
+    "url": "https://doi.org/10.1145/345910.345953",
+    "algorithm_attribution": "Right-hand perimeter traversal, face-change progress using Lf, and Lp recovery test",
+    "implementation_status": "clean-room bounded profile; supplied embedding; no source code or source fixtures copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,source,target,x[n],y[n],(u,v)[m]]; edge IDs are their lexicographic positions",
+    "vertex_count_range": [3, 8],
+    "edge_count_rule": "n-1 <= m <= min(18,3*n-6)",
+    "coordinate_range": [-16, 16],
+    "geometry_rule": "Distinct coordinates; no three vertices collinear; nonincident straight edges do not intersect.",
+    "graph_rule": "Simple connected undirected graph; each edge is u<v; edge pairs are strictly lexicographically ordered.",
+    "source_rule": "source != target and no source neighbor is strictly closer to target in squared Euclidean distance.",
+    "maximum_valid_length": 56,
+    "maximum_parseable_length": 57,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[status,hop_count,vertex_ids[hop_count+1],crossing_count,(path_index,edge_id,t_num,t_den)*crossing_count]",
+    "status_values": {"0": "the first directed edge of a face was selected again", "1": "first vertex strictly closer to target than Lp", "2": "target reached"},
+    "crossing_rule": "Each crossing is a proper intersection of a candidate edge with Lp-to-target whose reduced parameter is strictly greater than Lf; the event is recorded before advancing one CCW edge at the current vertex.",
+    "maximum_route_vertices": 37,
+    "maximum_crossing_events": 18,
+    "maximum_words": 112,
+    "maximum_bytes": 896,
+    "success_result": "actual serialized byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "fixed_payload_accounting_bytes": 3344,
+    "meaning": "Fixed payload includes coordinates, edges, adjacency/rotations, degrees, queue/visited state, route/event records and staged output; the cap adds locals and vector capacity rounding."
+  },
+  "contract": {
+    "initial_edge": "Choose the first incident edge strictly counterclockwise from the ray source-to-target.",
+    "right_hand_rule": "After arrival from a vertex, choose the next incident edge counterclockwise from the outgoing reverse dart.",
+    "face_change": "At the current vertex, while the selected candidate edge intersects Lp-to-target at t>Lf, set Lf=t, record the event, then advance to the next CCW edge at the same vertex. Reset e0 to the selected directed edge after a face change.",
+    "recovery": "Stop at the first current vertex with squared target distance strictly below the source/Lp target distance; this records return to greedy mode and does not execute greedy forwarding.",
+    "drop": "Stop when the selected directed e0 edge is encountered again without a face change.",
+    "bounds": "At most 2m directed hops and m strict-progress crossings; n<=8 and m<=18.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "strict-crossing-advances-lf-and-switches-face",
+      "input_values": [4, 4, 0, 3, 0, -1, 4, 5, 0, 2, -6, 0, 0, 1, 0, 2, 1, 2, 2, 3],
+      "input_length": 20,
+      "output_capacity": 896,
+      "expected_result": 96,
+      "expected_output_hex": "020000000000000004000000000000000000000000000000010000000000000000000000000000000200000000000000030000000000000001000000000000000100000000000000020000000000000001000000000000001400000000000000"
+    },
+    {
+      "id": "no-crossing-tree-recovers-at-first-closer-vertex",
+      "input_values": [4, 3, 0, 3, 0, -1, 2, 4, 0, 2, 3, 0, 0, 1, 1, 2, 2, 3],
+      "input_length": 18,
+      "output_capacity": 896,
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000002000000000000000000000000000000010000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "crossing-nonincident-edges-invalid",
+      "input_values": [4, 5, 0, 3, 0, 4, 0, 4, 0, 4, 4, 0, 0, 1, 0, 2, 1, 2, 1, 3, 2, 3],
+      "input_length": 22,
+      "output_capacity": 896,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-trailing-word-invalid",
+      "input_values": [4, 3, 0, 3, 0, -1, 2, 4, 0, 2, 3, 0, 0, 1, 1, 2, 2, 3, 0],
+      "input_length": 19,
+      "output_capacity": 896,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 896,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [4, 3, 0, 3, 0, -1, 2, 4, 0, 2, 3, 0, 0, 1, 1, 2, 2, 3],
+      "input_length": 18,
+      "output_capacity": 896,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "undersized-output",
+      "input_values": [4, 3, 0, 3, 0, -1, 2, 4, 0, 2, 3, 0, 0, 1, 1, 2, 2, 3],
+      "input_length": 18,
+      "output_capacity": 895,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

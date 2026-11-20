@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "algorithm": "crust_opposite_pole_selection",
+  "function_symbol": "crust_opposite_pole_selection",
+  "abi": "i64_array_bytes_output",
+  "workspace_bytes": 1024,
+  "maximum_input_words": 225,
+  "maximum_parseable_words": 226,
+  "maximum_output_bytes": 136,
+  "primary_reference": "primary_oracle.py",
+  "independent_reference": "independent_oracle.py",
+  "workload": "workload.json",
+  "languages": {
+    "c": "c/crust_opposite_pole_selection.c",
+    "c3": "c3/crust_opposite_pole_selection.c3",
+    "cpp": "cpp/crust_opposite_pole_selection.cpp",
+    "elisa": "elisa/crust_opposite_pole_selection.elisa",
+    "mojo": "mojo/crust_opposite_pole_selection.mojo",
+    "nim": "nim/crust_opposite_pole_selection.nim",
+    "odin": "odin/crust_opposite_pole_selection.odin",
+    "rust": "rust/crust_opposite_pole_selection.rs",
+    "v": "v/crust_opposite_pole_selection.v",
+    "zig": "zig/crust_opposite_pole_selection.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py",
+    "verify_workload.py"
+  ],
+  "suite_integration": "registered in i64_array_bytes_output runner and verifier"
+}

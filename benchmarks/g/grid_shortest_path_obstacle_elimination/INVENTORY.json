@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "algorithm": "grid_shortest_path_obstacle_elimination",
+  "function_symbol": "grid_shortest_path_obstacle_elimination",
+  "abi": "i64_array_scalar",
+  "native_paths": [
+    "c/g/grid_shortest_path_obstacle_elimination.c",
+    "c3/g/grid_shortest_path_obstacle_elimination.c3",
+    "cpp/g/grid_shortest_path_obstacle_elimination.cpp",
+    "elisa/g/grid_shortest_path_obstacle_elimination.elisa",
+    "mojo/g/grid_shortest_path_obstacle_elimination.mojo",
+    "nim/g/grid_shortest_path_obstacle_elimination.nim",
+    "odin/g/grid_shortest_path_obstacle_elimination.odin",
+    "rust/g/grid_shortest_path_obstacle_elimination.rs",
+    "v/g/grid_shortest_path_obstacle_elimination.v",
+    "zig/g/grid_shortest_path_obstacle_elimination.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "bounds": {
+    "rows": [1, 6],
+    "columns": [1, 6],
+    "budget": [0, 6],
+    "maximum_valid_input_length": 39,
+    "maximum_parseable_input_length": 40,
+    "maximum_states": 252,
+    "workspace_bytes": 8192
+  }
+}

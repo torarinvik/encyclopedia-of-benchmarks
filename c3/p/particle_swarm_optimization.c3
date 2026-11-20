@@ -24,7 +24,7 @@ fn double sphere(double* point) {
 }
 
 fn void write_f64_le(double value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++)
         output[offset + byte] = (char)((bits >> (8 * byte)) & 255);
 }
@@ -36,9 +36,9 @@ fn long particle_swarm_optimization(long* input, usz length, char* output,
     if (output == null || output_capacity < OUTPUT_BYTES) return -2;
 
     ulong random_state = (ulong)input[0];
-    double[PARTICLE_COUNT][DIMENSION_COUNT] position;
-    double[PARTICLE_COUNT][DIMENSION_COUNT] velocity;
-    double[PARTICLE_COUNT][DIMENSION_COUNT] personal_position;
+    double[DIMENSION_COUNT][PARTICLE_COUNT] position;
+    double[DIMENSION_COUNT][PARTICLE_COUNT] velocity;
+    double[DIMENSION_COUNT][PARTICLE_COUNT] personal_position;
     double[PARTICLE_COUNT] personal_cost;
     double[DIMENSION_COUNT] global_position;
     double[ITERATION_COUNT] history;

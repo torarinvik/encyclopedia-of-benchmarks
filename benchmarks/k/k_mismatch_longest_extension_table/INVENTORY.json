@@ -1,0 +1,22 @@
+{
+  "algorithm": "k_mismatch_longest_extension_table",
+  "abi": "i64_array_bytes_output",
+  "maximum_valid_input_words": 66,
+  "maximum_parseable_input_words": 67,
+  "maximum_output_bytes": 320,
+  "workspace_bytes": 8192,
+  "sources": [
+    "c/k/k_mismatch_longest_extension_table.c",
+    "c3/k/k_mismatch_longest_extension_table.c3",
+    "cpp/k/k_mismatch_longest_extension_table.cpp",
+    "elisa/k/k_mismatch_longest_extension_table.elisa",
+    "mojo/k/k_mismatch_longest_extension_table.mojo",
+    "nim/k/k_mismatch_longest_extension_table.nim",
+    "odin/k/k_mismatch_longest_extension_table.odin",
+    "rust/k/k_mismatch_longest_extension_table.rs",
+    "v/k/k_mismatch_longest_extension_table.v",
+    "zig/k/k_mismatch_longest_extension_table.zig"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "artifacts": ["README.md", "RIGHTS.md", "INVENTORY.md", "workload.json", "verify_workload.py", "check_inventory.py"]
+}

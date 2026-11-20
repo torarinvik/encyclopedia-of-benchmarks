@@ -1,0 +1,111 @@
+# 64-ary hierarchical bitmap predecessor set.
+def wary_low_bit(bits: u64) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = 64
+    while high - low > 1:
+        middle: usize = (low + high) / 2
+        mask: u64 = (1.u64() << middle) - 1
+        if (bits & mask) != 0: high <- middle
+        else: low <- middle
+    low
+
+def wary_high_bit(bits: u64) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = 64
+    while high - low > 1:
+        middle: usize = (low + high) / 2
+        if (bits >> middle) != 0: low <- middle
+        else: high <- middle
+    low
+
+def wary_insert(leaf: mutable view[u64], group: mutable view[u64], top: mutable u64&, key: usize) -> i64:
+    word: usize = key >> 6
+    bit_index: usize = key & 63
+    bit: u64 = 1.u64() << bit_index
+    old: u64 = leaf[word]
+    if (old & bit) != 0: return 0
+    if old == 0:
+        group_index: usize = word >> 6
+        slot: usize = word & 63
+        if group[group_index] == 0: top <- top | (1.u64() << group_index)
+        group[group_index] <- group[group_index] | (1.u64() << slot)
+    leaf[word] <- old | bit
+    1
+
+def wary_erase(leaf: mutable view[u64], group: mutable view[u64], top: mutable u64&, key: usize) -> i64:
+    word: usize = key >> 6
+    bit_index: usize = key & 63
+    bit: u64 = 1.u64() << bit_index
+    old: u64 = leaf[word]
+    if (old & bit) == 0: return 0
+    leaf[word] <- old & ~bit
+    if leaf[word] == 0:
+        group_index: usize = word >> 6
+        slot: usize = word & 63
+        group[group_index] <- group[group_index] & ~(1.u64() << slot)
+        if group[group_index] == 0: top <- top & ~(1.u64() << group_index)
+    1
+
+def wary_successor(leaf: view[u64], group: view[u64], top: u64, key: usize) -> i64:
+    word: usize = key >> 6
+    bit_index: usize = key & 63
+    candidates: u64 = leaf[word] >> bit_index
+    if candidates != 0: return (word * 64 + bit_index + wary_low_bit(candidates) + 1).i64()
+    group_index: usize = word >> 6
+    slot: usize = word & 63
+    later: mutable u64 = 0
+    if slot < 63: later <- group[group_index] >> (slot + 1)
+    next_word: mutable usize = 0
+    if later != 0:
+        next_word <- group_index * 64 + slot + 1 + wary_low_bit(later)
+    else:
+        later <- if group_index < 63: top >> (group_index + 1) else: 0
+        if later == 0: return 0
+        next_group: usize = group_index + 1 + wary_low_bit(later)
+        next_word <- next_group * 64 + wary_low_bit(group[next_group])
+    (next_word * 64 + wary_low_bit(leaf[next_word]) + 1).i64()
+
+def wary_predecessor(leaf: view[u64], group: view[u64], top: u64, key: usize) -> i64:
+    word: usize = key >> 6
+    bit_index: usize = key & 63
+    candidates: u64 = leaf[word] & ((1.u64() << bit_index) - 1)
+    if candidates != 0: return (word * 64 + wary_high_bit(candidates) + 1).i64()
+    group_index: usize = word >> 6
+    slot: usize = word & 63
+    earlier: mutable u64 = group[group_index] & ((1.u64() << slot) - 1)
+    previous_word: mutable usize = 0
+    if earlier != 0:
+        previous_word <- group_index * 64 + wary_high_bit(earlier)
+    else:
+        earlier <- top & ((1.u64() << group_index) - 1)
+        if earlier == 0: return 0
+        previous_group: usize = wary_high_bit(earlier)
+        previous_word <- previous_group * 64 + wary_high_bit(group[previous_group])
+    (previous_word * 64 + wary_high_bit(leaf[previous_word]) + 1).i64()
+
+def wary_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > 66 or input[0] < 0 or input[0] > 32: return -1
+    q: usize = input[0].usize()
+    if length != 1 + 2 * q: return -1
+    leaf: mutable u64[4096] = zeroed
+    group: mutable u64[64] = zeroed
+    top: mutable u64 = 0
+    result: mutable i64 = 0
+    for index in 0..<q:
+        opcode: i64 = input[1 + 2 * index]
+        raw_key: i64 = input[2 + 2 * index]
+        if opcode < 0 or opcode > 4 or raw_key < 0 or raw_key >= 262144: return -1
+        key: usize = raw_key.usize()
+        answer: mutable i64 = 0
+        if opcode == 0: answer <- wary_insert(leaf[0:4096], group[0:64], top, key)
+        elif opcode == 1: answer <- wary_erase(leaf[0:4096], group[0:64], top, key)
+        elif opcode == 2: answer <- if (leaf[key >> 6] & (1.u64() << (key & 63))) != 0: 1 else: 0
+        elif opcode == 3: answer <- wary_successor(leaf[0:4096], group[0:64], top, key)
+        else: answer <- wary_predecessor(leaf[0:4096], group[0:64], top, key)
+        result <- result + (index.i64() + 1) * answer
+    result
+
+export fn w_ary_predecessor_set(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 66: return -1
+    wary_impl(input[0:length])

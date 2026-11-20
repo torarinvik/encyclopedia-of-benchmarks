@@ -1,0 +1,16 @@
+extern cos(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+def cosine_fixed_point_iteration_impl(initial_input: f64, source_n: f64) -> f64:
+    if initial_input != initial_input or source_n != source_n or
+            initial_input < 0.0 or initial_input > 2.0 or
+            source_n < 0.0 or source_n > 64.0 or floor(source_n) != source_n:
+        return -1.0
+
+    initial: mutable f64 = initial_input
+    updates: usize = source_n.usize() + 1
+    for iteration in 0..<updates:
+        initial <- 0.5 * (cos(initial) + 2.0)
+    initial
+
+export fn cosine_fixed_point_iteration(initial: f64, source_n: f64) -> f64 = cosine_fixed_point_iteration_impl

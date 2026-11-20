@@ -1,0 +1,213 @@
+const MAX_TEXT_LENGTH: usize = 32
+const MAX_INPUT_LENGTH: usize = 34
+const MAX_NODES: usize = 64
+
+def symbol_at(input: view[i64], n: usize, start: usize, depth: usize) -> i32:
+    position: usize = start + depth
+    if position >= n: return 0
+    (input[position + 1] + 1).i32()
+
+def common_prefix(input: view[i64], n: usize, left: usize, right: usize) -> usize:
+    depth: mutable usize = 0
+    while symbol_at(input, n, left, depth) == symbol_at(input, n, right, depth):
+        depth <- depth + 1
+    depth
+
+def new_node(is_leaf: mutable view[i32], split_pos: mutable view[i32],
+             leaf_start: mutable view[i32], first_child: mutable view[i32],
+             next_sibling: mutable view[i32], node_count: mutable usize&,
+             leaf: bool, value: usize) -> i32:
+    index: usize = node_count
+    node_count <- node_count + 1
+    if leaf:
+        is_leaf[index] <- 1
+        split_pos[index] <- 0
+        leaf_start[index] <- value.i32()
+    else:
+        is_leaf[index] <- 0
+        split_pos[index] <- value.i32()
+        leaf_start[index] <- -1
+    first_child[index] <- -1
+    next_sibling[index] <- -1
+    index.i32()
+
+def find_child(is_leaf: view[i32], edge_symbol: view[i32],
+               first_child: view[i32], next_sibling: view[i32],
+               parent: i32, symbol: i32) -> i32:
+    child: mutable i32 = first_child[parent.usize()]
+    while child >= 0:
+        if edge_symbol[child.usize()] == symbol: return child
+        if edge_symbol[child.usize()] > symbol: return -1
+        child <- next_sibling[child.usize()]
+    -1
+
+def link_child(edge_symbol: view[i32], first_child: mutable view[i32],
+               next_sibling: mutable view[i32], parent: i32, child: i32) -> void:
+    symbol: i32 = edge_symbol[child.usize()]
+    previous: mutable i32 = -1
+    cursor: mutable i32 = first_child[parent.usize()]
+    while cursor >= 0 and edge_symbol[cursor.usize()] < symbol:
+        previous <- cursor
+        cursor <- next_sibling[cursor.usize()]
+    next_sibling[child.usize()] <- cursor
+    if previous < 0:
+        first_child[parent.usize()] <- child
+    else:
+        next_sibling[previous.usize()] <- child
+
+def replace_child(edge_symbol: mutable view[i32], first_child: mutable view[i32],
+                  next_sibling: mutable view[i32], parent: i32,
+                  old_child: i32, new_child: i32) -> void:
+    previous: mutable i32 = -1
+    cursor: mutable i32 = first_child[parent.usize()]
+    while cursor != old_child:
+        previous <- cursor
+        cursor <- next_sibling[cursor.usize()]
+    edge_symbol[new_child.usize()] <- edge_symbol[old_child.usize()]
+    next_sibling[new_child.usize()] <- next_sibling[old_child.usize()]
+    if previous < 0:
+        first_child[parent.usize()] <- new_child
+    else:
+        next_sibling[previous.usize()] <- new_child
+
+def insert_suffix(input: view[i64], n: usize, start: usize,
+                  is_leaf: mutable view[i32], split_pos: mutable view[i32],
+                  leaf_start: mutable view[i32], edge_symbol: mutable view[i32],
+                  first_child: mutable view[i32], next_sibling: mutable view[i32],
+                  node_count: mutable usize&, root: mutable i32&) -> void:
+    fresh: i32 = new_node(is_leaf, split_pos, leaf_start, first_child,
+                          next_sibling, node_count, true, start)
+    if is_leaf[root.usize()] != 0:
+        old: i32 = root
+        depth: usize = common_prefix(input, n, leaf_start[old.usize()].usize(), start)
+        middle: i32 = new_node(is_leaf, split_pos, leaf_start, first_child,
+                               next_sibling, node_count, false, depth)
+        edge_symbol[old.usize()] <- symbol_at(input, n, leaf_start[old.usize()].usize(), depth)
+        edge_symbol[fresh.usize()] <- symbol_at(input, n, start, depth)
+        link_child(edge_symbol, first_child, next_sibling, middle, old)
+        link_child(edge_symbol, first_child, next_sibling, middle, fresh)
+        root <- middle
+        return
+
+    leaf: mutable i32 = root
+    while is_leaf[leaf.usize()] == 0:
+        symbol: i32 = symbol_at(input, n, start, split_pos[leaf.usize()].usize())
+        child: mutable i32 = find_child(is_leaf, edge_symbol, first_child,
+                                        next_sibling, leaf, symbol)
+        if child < 0: child <- first_child[leaf.usize()]
+        leaf <- child
+    old_start: usize = leaf_start[leaf.usize()].usize()
+    depth <- common_prefix(input, n, start, old_start)
+    parent: mutable i32 = -1
+    current: mutable i32 = root
+    while is_leaf[current.usize()] == 0 and split_pos[current.usize()].usize() < depth:
+        symbol <- symbol_at(input, n, start, split_pos[current.usize()].usize())
+        child <- find_child(is_leaf, edge_symbol, first_child, next_sibling,
+                            current, symbol)
+        if child < 0: child <- first_child[current.usize()]
+        parent <- current
+        current <- child
+    if is_leaf[current.usize()] == 0 and split_pos[current.usize()].usize() == depth:
+        edge_symbol[fresh.usize()] <- symbol_at(input, n, start, depth)
+        link_child(edge_symbol, first_child, next_sibling, current, fresh)
+        return
+
+    middle <- new_node(is_leaf, split_pos, leaf_start, first_child,
+                       next_sibling, node_count, false, depth)
+    if parent < 0:
+        root <- middle
+    else:
+        replace_child(edge_symbol, first_child, next_sibling,
+                      parent, current, middle)
+    edge_symbol[current.usize()] <- symbol_at(input, n, old_start, depth)
+    edge_symbol[fresh.usize()] <- symbol_at(input, n, start, depth)
+    link_child(edge_symbol, first_child, next_sibling, middle, current)
+    link_child(edge_symbol, first_child, next_sibling, middle, fresh)
+
+def ordered_leaves(is_leaf: view[i32], leaf_start: view[i32],
+                   first_child: view[i32], next_sibling: view[i32],
+                   root: i32, output: mutable view[i32]) -> usize:
+    stack: mutable i32[MAX_NODES] = zeroed
+    children: mutable i32[MAX_TEXT_LENGTH] = zeroed
+    top: mutable usize = 1
+    count: mutable usize = 0
+    stack[0] <- root
+    while top > 0:
+        top <- top - 1
+        node: i32 = stack[top]
+        if is_leaf[node.usize()] != 0:
+            output[count] <- leaf_start[node.usize()]
+            count <- count + 1
+        else:
+            child_count: mutable usize = 0
+            child: mutable i32 = first_child[node.usize()]
+            while child >= 0:
+                children[child_count] <- child
+                child_count <- child_count + 1
+                child <- next_sibling[child.usize()]
+            while child_count > 0:
+                child_count <- child_count - 1
+                stack[top] <- children[child_count]
+                top <- top + 1
+    count
+
+def store_i64_le(output: mutable view[u8], offset: usize, value: i32) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+export fn suffix_array_blind_trie(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    count_value: i64 = input_view[0]
+    if count_value < 0 or count_value > MAX_TEXT_LENGTH.i64(): return -1
+    count: usize = count_value.usize()
+    if length != count + 1: return -1
+    index: mutable usize = 0
+    while index < count:
+        if input_view[index + 1] < 0 or input_view[index + 1] > 255: return -1
+        index <- index + 1
+    output_bytes: usize = count * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    if count == 0: return 0
+
+    is_leaf_array: mutable i32[MAX_NODES] = zeroed
+    split_array: mutable i32[MAX_NODES] = zeroed
+    start_array: mutable i32[MAX_NODES] = zeroed
+    edge_array: mutable i32[MAX_NODES] = zeroed
+    child_array: mutable i32[MAX_NODES] = zeroed
+    sibling_array: mutable i32[MAX_NODES] = zeroed
+    order_array: mutable i32[MAX_TEXT_LENGTH] = zeroed
+    is_leaf: mutable view[i32] = is_leaf_array[0:MAX_NODES]
+    split_pos: mutable view[i32] = split_array[0:MAX_NODES]
+    leaf_start: mutable view[i32] = start_array[0:MAX_NODES]
+    edge_symbol: mutable view[i32] = edge_array[0:MAX_NODES]
+    first_child: mutable view[i32] = child_array[0:MAX_NODES]
+    next_sibling: mutable view[i32] = sibling_array[0:MAX_NODES]
+    order: mutable view[i32] = order_array[0:MAX_TEXT_LENGTH]
+    index <- 0
+    while index < MAX_NODES:
+        first_child[index] <- -1
+        next_sibling[index] <- -1
+        index <- index + 1
+    node_count: mutable usize = 0
+    root: mutable i32 = new_node(is_leaf, split_pos, leaf_start, first_child,
+                                 next_sibling, node_count, true, 0)
+    edge_symbol[root.usize()] <- symbol_at(input_view, count, 0, 0)
+    index <- 1
+    while index < count:
+        insert_suffix(input_view, count, index, is_leaf, split_pos, leaf_start,
+                      edge_symbol, first_child, next_sibling, node_count, root)
+        index <- index + 1
+    ordered_count: usize = ordered_leaves(is_leaf, leaf_start, first_child,
+                                          next_sibling, root, order)
+    output_view: mutable view[u8] = output[0:output_bytes]
+    index <- 0
+    while index < ordered_count:
+        store_i64_le(output_view, index * 8, order[index])
+        index <- index + 1
+    output_bytes.i64()

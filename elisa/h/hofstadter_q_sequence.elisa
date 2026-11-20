@@ -1,0 +1,25 @@
+from std.collections import InlineArray
+
+const HOFSTADTER_Q_MAX_INDEX = 128
+const HOFSTADTER_Q_MAX_INPUT_LENGTH = 2
+
+def hofstadter_q_impl(input: view[i64]) -> i64:
+    if input.len() != 1: return -1
+    index_value: i64 = input[0]
+    if index_value < 1 or index_value > HOFSTADTER_Q_MAX_INDEX: return -1
+    target: Int = Int(index_value)
+    var q = InlineArray[Int64, 129](fill=0)
+    q[1] <- 1
+    if target >= 2: q[2] <- 1
+    for n in range(3, target + 1):
+        left: i64 = i64(n) - q[n - 1]
+        right: i64 = i64(n) - q[n - 2]
+        if left < 1 or right < 1 or left >= i64(n) or right >= i64(n): return -1
+        q[n] <- q[Int(left)] + q[Int(right)]
+    q[target]
+
+@export("hofstadter_q_sequence")
+fn hofstadter_q_sequence(input: i64&, length: usize) abi("C") -> i64:
+    if input.is_null() or length < 1 or length > HOFSTADTER_Q_MAX_INPUT_LENGTH: return -1
+    let input_view: view[i64] = input[0:Int(length)]
+    hofstadter_q_impl(input_view)

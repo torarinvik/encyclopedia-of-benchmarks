@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "tree-weighted-edge-dominating-set-i64-array-scalar-v1",
+  "algorithm": "tree_weighted_edge_dominating_set",
+  "function_symbol": "tree_weighted_edge_dominating_set",
+  "abi": "i64_array_scalar",
+  "input": {"layout": "[n,parent[1..n-1],weight[1..n-1]]", "maximum_valid_values": 127, "maximum_parseable_values": 128, "invalid_result": -1},
+  "output": {"encoding": "minimum total edge-domination weight", "invalid_result": -1},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "source": {"url": "https://doi.org/10.1007/11534273_21", "reuse": "Mathematical idea only; independently authored code and fixtures."},
+  "cases": [
+    {"id":"empty_tree_edges", "input_values":[1], "input_length":1, "expected_result":0},
+    {"id":"single_edge", "input_values":[2,0,7], "input_length":3, "expected_result":7},
+    {"id":"star_cheapest_edge", "input_values":[5,0,0,0,0,9,3,4,8], "input_length":9, "expected_result":3},
+    {"id":"weighted_path", "input_values":[5,0,1,2,3,5,1,5,1], "input_length":9, "expected_result":2},
+    {"id":"adjacent_chosen_edges", "input_values":[5,0,1,2,3,10,1,1,10], "input_length":9, "expected_result":2},
+    {"id":"two_separate_branches", "input_values":[5,0,1,0,3,10,2,10,3], "input_length":9, "expected_result":5},
+    {"id":"zero_weights", "input_values":[3,0,1,0,0], "input_length":5, "expected_result":0},
+    {"id":"full_weighted_path","input_values":[64,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000],"input_length":127,"expected_result":21000000},
+    {"id":"full_weighted_star","input_values":[64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000],"input_length":127,"expected_result":1000000},
+    {"id":"negative_weight", "input_values":[2,0,-1], "input_length":3, "expected_result":-1},
+    {"id":"weight_above_limit", "input_values":[2,0,1000001], "input_length":3, "expected_result":-1},
+    {"id":"zero_vertices", "input_values":[0], "input_length":1, "expected_result":-1},
+    {"id":"too_many_vertices", "input_values":[65], "input_length":1, "expected_result":-1},
+    {"id":"invalid_parent", "input_values":[2,1,1], "input_length":3, "expected_result":-1},
+    {"id":"trailing_word", "input_values":[1,0], "input_length":2, "expected_result":-1},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

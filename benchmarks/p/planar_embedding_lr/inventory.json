@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "algorithm": "planar_embedding_lr",
+  "abi": "i64_array_bytes_output",
+  "fixed_workspace_bytes_upper_bound": 50208,
+  "workload": {
+    "path": "benchmarks/p/planar_embedding_lr/workload.json",
+    "valid_cases": [
+      {"id":"isolated-vertex","input_values":[1,0],"output_capacity":193,"expected_status":1,"expected_result":1},
+      {"id":"single-edge","input_values":[2,1,0,1],"output_capacity":193,"expected_status":1,"expected_result":3},
+      {"id":"path-with-isolates","input_values":[5,2,1,2,2,3],"output_capacity":193,"expected_status":1,"expected_result":5},
+      {"id":"triangle","input_values":[3,3,0,1,1,2,0,2],"output_capacity":193,"expected_status":1,"expected_result":7},
+      {"id":"disconnected-triangle-and-isolate","input_values":[4,3,0,1,1,2,0,2],"output_capacity":193,"expected_status":1,"expected_result":7},
+      {"id":"complete-four","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"output_capacity":193,"expected_status":1,"expected_result":13},
+      {"id":"complete-five","input_values":[5,10,0,1,0,2,0,3,0,4,1,2,1,3,1,4,2,3,2,4,3,4],"output_capacity":193,"expected_status":0,"expected_result":1},
+      {"id":"utility-graph-k33","input_values":[6,9,0,3,0,4,0,5,1,3,1,4,1,5,2,3,2,4,2,5],"output_capacity":193,"expected_status":0,"expected_result":1},
+      {"id":"disconnected-k4-edge-isolate","input_values":[7,7,0,1,0,2,0,3,1,2,1,3,2,3,4,5],"output_capacity":193,"expected_status":1,"expected_result":15},
+      {"id":"three-by-three-grid","input_values":[9,12,0,1,1,2,3,4,4,5,6,7,7,8,0,3,1,4,2,5,3,6,4,7,5,8],"output_capacity":193,"expected_status":1,"expected_result":25}
+    ],
+    "invalid_case_ids": ["reversed-edge", "duplicate-edge", "self-loop", "trailing-word"]
+  },
+  "languages": [
+    {"name":"C","path":"c/p/planar_embedding_lr.c","symbol":"planar_embedding_lr"},
+    {"name":"C3","path":"c3/p/planar_embedding_lr.c3","symbol":"planar_embedding_lr"},
+    {"name":"C++","path":"cpp/p/planar_embedding_lr.cpp","symbol":"planar_embedding_lr"},
+    {"name":"Elisa","path":"elisa/p/planar_embedding_lr.elisa","symbol":"planar_embedding_lr"},
+    {"name":"Mojo","path":"mojo/p/planar_embedding_lr.mojo","symbol":"planar_embedding_lr"},
+    {"name":"Nim","path":"nim/p/planar_embedding_lr.nim","symbol":"planar_embedding_lr"},
+    {"name":"Odin","path":"odin/p/planar_embedding_lr.odin","symbol":"planar_embedding_lr"},
+    {"name":"Rust","path":"rust/p/planar_embedding_lr.rs","symbol":"planar_embedding_lr"},
+    {"name":"V","path":"v/p/planar_embedding_lr.v","symbol":"planar_embedding_lr"},
+    {"name":"Zig","path":"zig/p/planar_embedding_lr.zig","symbol":"planar_embedding_lr"}
+  ]
+}

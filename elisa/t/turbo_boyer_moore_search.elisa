@@ -1,0 +1,90 @@
+# Turbo Boyer–Moore all-occurrences search; borrowed ABI buffers are bounded to views.
+def turbo_good_suffix(pattern: view[i64], shifts: mutable view[usize], length: usize) -> void:
+    suffix: mutable usize[64] = zeroed
+    suffix[length - 1] <- length
+    g: mutable i64 = length.i64() - 1.i64()
+    f: mutable i64 = 0.i64()
+    index: mutable i64 = length.i64() - 2.i64()
+    while index >= 0.i64():
+        if index > g and suffix[(index + length.i64() - 1.i64() - f).usize()] < (index - g).usize():
+            suffix[index.usize()] <- suffix[(index + length.i64() - 1.i64() - f).usize()]
+        else:
+            if index < g: g <- index
+            f <- index
+            while g >= 0.i64() and pattern[g.usize()] == pattern[(g + length.i64() - 1.i64() - f).usize()]:
+                g <- g - 1.i64()
+            suffix[index.usize()] <- (f - g).usize()
+        index <- index - 1.i64()
+    for i in 0..<length: shifts[i] <- length
+    border: mutable usize = 0
+    index <- length.i64() - 1.i64()
+    while index >= 0.i64():
+        if suffix[index.usize()] == index.usize() + 1:
+            while border < length - 1 - index.usize():
+                if shifts[border] == length: shifts[border] <- length - 1 - index.usize()
+                border <- border + 1
+        index <- index - 1.i64()
+    for i in 0..<(length - 1): shifts[length - 1 - suffix[i]] <- length - 1 - i
+
+def turbo_boyer_moore_search_compute(values: view[i64], positions: mutable view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > 322 or values[0] < 0.i64() or values[0] > 255.i64() or values[1] < 1.i64() or values[1] > 64.i64():
+        return -1.i64()
+    text_length: usize = values[0].usize()
+    pattern_length: usize = values[1].usize()
+    if length != 2 + text_length + pattern_length: return -1.i64()
+    for index in 0..<(text_length + pattern_length):
+        if values[2 + index] < 0.i64() or values[2 + index] > 127.i64(): return -1.i64()
+    match_count: mutable usize = 0
+    if pattern_length <= text_length:
+        bad: mutable usize[128] = zeroed
+        good: mutable usize[64] = zeroed
+        for byte in 0..<128: bad[byte] <- pattern_length
+        for i in 0..<(pattern_length - 1): bad[values[2 + text_length + i].usize()] <- pattern_length - i - 1
+        pattern: view[i64] = values[(2 + text_length)..(2 + text_length + pattern_length)]
+        turbo_good_suffix(pattern, good[0:pattern_length], pattern_length)
+        alignment: mutable usize = 0
+        remembered: mutable usize = 0
+        shift: mutable usize = pattern_length
+        while alignment <= text_length - pattern_length:
+            index: mutable i64 = pattern_length.i64() - 1.i64()
+            while index >= 0.i64() and values[2 + text_length + index.usize()] == values[2 + alignment + index.usize()]:
+                index <- index - 1.i64()
+                if remembered != 0 and index == pattern_length.i64() - 1.i64() - shift.i64():
+                    index <- index - remembered.i64()
+            if index < 0.i64():
+                positions[match_count] <- alignment.i64()
+                match_count <- match_count + 1
+                shift <- good[0]
+                remembered <- pattern_length - shift
+            else:
+                matched: usize = pattern_length - 1 - index.usize()
+                turbo: i64 = remembered.i64() - matched.i64()
+                bad_shift: i64 = bad[values[2 + alignment + index.usize()].usize()].i64() - pattern_length.i64() + 1.i64() + index
+                gs: usize = good[index.usize()]
+                chosen: mutable i64 = turbo
+                if bad_shift > chosen: chosen <- bad_shift
+                if gs.i64() > chosen: chosen <- gs.i64()
+                shift <- chosen.usize()
+                if shift == gs:
+                    remembered <- if pattern_length - shift < matched then pattern_length - shift else matched
+                else:
+                    if turbo < bad_shift and shift < remembered + 1: shift <- remembered + 1
+                    remembered <- 0
+            alignment <- alignment + shift
+    match_count.i64()
+
+export fn turbo_boyer_moore_search(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 322: return -1.i64()
+    positions: mutable i64[255] = zeroed
+    match_count: i64 = turbo_boyer_moore_search_compute(input[0:length], positions[0:255])
+    if match_count < 0.i64(): return -1.i64()
+    output_bytes: usize = match_count.usize() * 8
+    if output.is_null() or output_capacity < output_bytes: return -2.i64()
+    bytes: mutable view[u8] = output[0:output_bytes]
+    for i in 0..<match_count.usize():
+        bits: mutable u64 = positions[i].u64()
+        for byte in 0..<8:
+            bytes[i * 8 + byte] <- (bits % 256.u64()).u8()
+            bits <- bits / 256.u64()
+    output_bytes.i64()

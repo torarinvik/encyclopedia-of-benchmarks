@@ -1,0 +1,37 @@
+{
+  "algorithm": "undirected_four_cycle_count_degree_order",
+  "function_symbol": "undirected_four_cycle_count_degree_order",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "OI Wiki ring counting: four-cycle counting",
+    "url": "https://oi-wiki.org/graph/rings-count/",
+    "license_note": "OI Wiki CC BY-SA 4.0 with SATA attribution; method context only."
+  },
+  "contract": {
+    "maximum_valid_input_words": 130,
+    "maximum_parseable_input_words": 131,
+    "maximum_result_upper_bound": 5460,
+    "workspace_bytes": 8192,
+    "simple_graph": true,
+    "canonical_edges": true,
+    "chords_allowed": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "languages": {
+    "c": "c/c/undirected_four_cycle_count_degree_order.c",
+    "c3": "c3/c/undirected_four_cycle_count_degree_order.c3",
+    "cpp": "cpp/c/undirected_four_cycle_count_degree_order.cpp",
+    "elisa": "elisa/c/undirected_four_cycle_count_degree_order.elisa",
+    "mojo": "mojo/c/undirected_four_cycle_count_degree_order.mojo",
+    "nim": "nim/c/undirected_four_cycle_count_degree_order.nim",
+    "odin": "odin/c/undirected_four_cycle_count_degree_order.odin",
+    "rust": "rust/c/undirected_four_cycle_count_degree_order.rs",
+    "v": "v/c/undirected_four_cycle_count_degree_order.v",
+    "zig": "zig/c/undirected_four_cycle_count_degree_order.zig"
+  }
+}

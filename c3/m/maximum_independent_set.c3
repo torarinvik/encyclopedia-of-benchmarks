@@ -49,7 +49,7 @@ fn void search_mis(ulong* adjacency, ulong remaining, long chosen, long* best) {
     search_mis(adjacency, remaining & ~bit, chosen, best);
 }
 
-long maximum_independent_set(long* packed, usz length) @export("maximum_independent_set") {
+fn long maximum_independent_set(long* packed, usz length) @export("maximum_independent_set") {
     if (packed == null || length < 2 || length > MAX_INPUT) return -1;
     long n_value = packed[0], m_value = packed[1];
     if (n_value < 0 || n_value > (long)MAX_N) return -1;

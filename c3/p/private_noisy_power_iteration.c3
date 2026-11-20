@@ -5,7 +5,7 @@ fn long trunc_div(long numerator,long denominator){if(numerator<0)return -((-num
 fn long floor_sqrt(long value){long low=0,high=13000001;while(low+1<high){long middle=(low+high)/2;if(middle<=value/middle)low=middle;else high=middle;}return low;}
 fn void put64(char*out,usz pos,long value){ulong bits=(ulong)value;for(usz j=0;j<8;j+=1){out[pos+j]=(char)(bits&255);bits>>=8;}}
 
-long private_noisy_power_iteration(long*in,usz len,char*out,usz cap) @export("private_noisy_power_iteration") {
+fn long private_noisy_power_iteration(long*in,usz len,char*out,usz cap) @export("private_noisy_power_iteration") {
     if(in==null||len<11||len>MAX_INPUT)return -1;
     long n64=in[0],l64=in[1],sigma=in[2];
     if(n64<2||n64>(long)MAX_N||l64<1||l64>(long)MAX_L||sigma<0||sigma>SCALE||len!=3+(usz)n64*(usz)n64+(usz)n64+(usz)l64*(usz)n64)return -1;

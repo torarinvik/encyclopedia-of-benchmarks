@@ -24,5 +24,5 @@ fn long ansibench_dhrystone(long* input,usz length,char* output,usz capacity) @e
  char[31] str1={};char[31] str2={};cp(&str1[0],"DHRYSTONE PROGRAM, 1'ST STRING");s.a2[8][7]=10;
  int a=0,b=0,c=0,e=0,f2false=0;
  for(int run=1;run<=input[0];run++){p5(&s);p4(&s);a=2;b=3;cp(&str2[0],"DHRYSTONE PROGRAM, 2'ND STRING");e=I2;f2false=f2(&s,&str1[0],&str2[0])?0:1;while(a<b){c=5*a-b;p7(a,b,&c);a++;}p8(&s,a,c);p1(&s);for(int ch='A';ch<=s.ch2;ch++)if(e==f1(&s,ch,'C')){p6(&s,I1,&e);cp(&str2[0],"DHRYSTONE PROGRAM, 3'RD STRING");b=run;s.int_glob=run;}b=b*a;a=b/c;b=7*(b-c)-a;p2(&s,&a);}
- if(output==null||capacity<19)return -2;char[19] staged={};int values[19]={s.int_glob,s.bool_glob,s.ch1,s.ch2,s.a1[8],s.a2[8][7],s.rec[0].discr,s.rec[0].enum_comp,s.rec[0].int_comp,s.rec[0].ptr,s.rec[1].discr,s.rec[1].enum_comp,s.rec[1].int_comp,s.rec[1].ptr,a,b,c,e,f2false};for(usz i=0;i<19;i++)staged[i]=(char)values[i];for(usz i=0;i<19;i++)output[i]=staged[i];return 19;
+ if(output==null||capacity<19)return -2;char[19] staged={};int[19] values={s.int_glob,s.bool_glob,s.ch1,s.ch2,s.a1[8],s.a2[8][7],s.rec[0].discr,s.rec[0].enum_comp,s.rec[0].int_comp,s.rec[0].ptr,s.rec[1].discr,s.rec[1].enum_comp,s.rec[1].int_comp,s.rec[1].ptr,a,b,c,e,f2false};for(usz i=0;i<19;i++)staged[i]=(char)values[i];for(usz i=0;i<19;i++)output[i]=staged[i];return 19;
 }

@@ -1,4 +1,5 @@
 # Bounded PolyBench triangular solve; see package LICENSE.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.math import isfinite
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer

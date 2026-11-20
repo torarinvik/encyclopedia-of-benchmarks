@@ -5,7 +5,7 @@ fn bool finite_f32(float value) {
 }
 
 fn void put_f32(float value, char* output, usz offset) {
-    uint bits = @bitcast(uint, value);
+    uint bits = bitcast(value, uint);
     for (usz byte = 0; byte < 4; ++byte)
         output[offset + byte] = (char)(bits >> (8 * byte));
 }

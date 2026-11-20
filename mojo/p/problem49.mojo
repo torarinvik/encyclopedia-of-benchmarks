@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p49_prime(n:Int)->Bool:
     if n<2:return False
     if n%2==0:return n==2

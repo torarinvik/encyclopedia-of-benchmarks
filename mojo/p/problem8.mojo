@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem8")
 fn problem8(window:Int64) abi("C")->Int64:
     if window<1 or window>13:return -1

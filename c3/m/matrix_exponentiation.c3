@@ -22,7 +22,7 @@ fn Matrix power(Matrix matrix, long exponent, int order) {
     return multiply(half, half, order);
 }
 
-long matrix_exponentiation(long* input, usz length) @export("matrix_exponentiation") {
+fn long matrix_exponentiation(long* input, usz length) @export("matrix_exponentiation") {
     if (input == null || length < 1 || length > MAX_INPUT_WORDS) return -1;
     long order_value = input[0];
     if (order_value < 1 || order_value > 8 || length != (usz)(2*order_value+2)) return -1;

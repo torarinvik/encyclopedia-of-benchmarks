@@ -6,11 +6,11 @@ const usz MAX_PARSEABLE_INPUT_WORDS = MAX_INPUT_WORDS + 1;
 const usz MAX_OUTPUT_BYTES = 8 * MAX_N * MAX_N;
 
 fn void put_f64_le(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte += 1) { output[offset+byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long max_pooling(int* input, usz length, char* output, usz capacity) @export("max_pooling") {
+fn long max_pooling(int* input, usz length, char* output, usz capacity) @export("max_pooling") {
     if (input == null || length < 3 || length > MAX_PARSEABLE_INPUT_WORDS) return -1;
     int n = input[0], size = input[1], stride = input[2];
     if (n < 1 || n > 16 || size < 1 || size > n || stride < 1 || stride > 16 || length != (usz)(3+n*n)) return -1;

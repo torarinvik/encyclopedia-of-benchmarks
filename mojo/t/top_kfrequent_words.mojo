@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn topk_sift(inout heap:InlineArray[Int,64],counts:InlineArray[Int,64],size:Int,root0:Int):

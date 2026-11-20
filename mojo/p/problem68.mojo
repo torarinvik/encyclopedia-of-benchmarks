@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p68_next(inout indices:InlineArray[Int32,10],length:Int)->Bool:
     var pivot=length-2
     while pivot>=0 and indices[pivot]>=indices[pivot+1]:pivot-=1

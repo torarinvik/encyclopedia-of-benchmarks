@@ -1,0 +1,3 @@
+# Rights and provenance
+
+The RosettaCodeData [popular-task index at pinned commit `1d475861d7141ef2fafff293d9339f56e4b0f5db`](https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks) was used to discover the title. The RosettaGit [Subtractive generator description](https://rosettagit.org/tasks/subtractive-generator/) was consulted for the high-level recurrence and attribution to Knuth, *The Art of Computer Programming*, Volume 2, §3.2.2, Algorithm A, with Bentley's seed setup. This package's bounded contract, source, workload, references, ports, and prose are independently authored. No task statement, code, examples, or tests are copied.

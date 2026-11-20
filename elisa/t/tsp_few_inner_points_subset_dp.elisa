@@ -1,0 +1,127 @@
+const TSP_FEW_INF: i64 = 2305843009213693951
+
+def tsp_few_dist(points: view[i64], ia: usize, ib: usize) -> i64:
+    dx: i64=points[2*ia]-points[2*ib];dy: i64=points[2*ia+1]-points[2*ib+1]
+    square: i64=(dx*dx+dy*dy)*1000000
+    low: mutable i64=0;high: mutable i64=3000000
+    while low<high:
+        middle: i64=low+(high-low+1)/2
+        if middle*middle<=square:low<-middle
+        else:high<-middle-1
+    upper: i64=low+1
+    if upper*upper-square<square-low*low:return upper
+    low
+
+def tsp_few_add(a:i64,b:i64)->i64:
+    if a>=TSP_FEW_INF:return TSP_FEW_INF
+    a+b
+
+def tsp_few_subset(outer: view[usize], outer_n: usize, inner: view[usize], k: usize,
+                   points: view[i64]) -> i64:
+    states:usize=1<<k
+    sentinel:usize=k
+    previous:mutable i64[448]=zeroed
+    current:mutable i64[448]=zeroed
+    cell:mutable usize=0
+    while cell<states*7:previous[cell]<-TSP_FEW_INF;cell<-cell+1
+    previous[sentinel]<-0
+    mask:mutable usize=0
+    while mask<states:
+        last:mutable usize=0
+        while last<=k:
+            if last==sentinel or (mask&(1<<last))!=0:
+                prefix:i64=previous[mask*7+last]
+                if prefix<TSP_FEW_INF:
+                    vertex:usize=outer[0]
+                    if last!=sentinel:vertex<-inner[last]
+                    next:mutable usize=0
+                    while next<k:
+                        bit:usize=1<<next
+                        if (mask&bit)==0:
+                            next_mask:usize=mask|bit
+                            candidate:i64=tsp_few_add(prefix,tsp_few_dist(points,vertex,inner[next]))
+                            if candidate<previous[next_mask*7+next]:previous[next_mask*7+next]<-candidate
+                        next<-next+1
+            last<-last+1
+        mask<-mask+1
+    i:mutable usize=1
+    while i<outer_n:
+        cell<-0
+        while cell<states*7:current[cell]<-TSP_FEW_INF;cell<-cell+1
+        mask:mutable usize=0
+        while mask<states:
+            last:mutable usize=0
+            while last<=k:
+                if last==sentinel or (mask&(1<<last))!=0:
+                    prefix:i64=previous[mask*7+last]
+                    if prefix<TSP_FEW_INF:
+                        vertex:usize=outer[i-1]
+                        if last!=sentinel:vertex<-inner[last]
+                        candidate:i64=tsp_few_add(prefix,tsp_few_dist(points,vertex,outer[i]))
+                        if candidate<current[mask*7+sentinel]:current[mask*7+sentinel]<-candidate
+                last<-last+1
+            mask<-mask+1
+        mask<-0
+        while mask<states:
+            last<-0
+            while last<=k:
+                if last==sentinel or (mask&(1<<last))!=0:
+                    prefix:i64=current[mask*7+last]
+                    if prefix<TSP_FEW_INF:
+                        vertex:usize=outer[i]
+                        if last!=sentinel:vertex<-inner[last]
+                        next:mutable usize=0
+                        while next<k:
+                            bit:usize=1<<next
+                            if (mask&bit)==0:
+                                next_mask:usize=mask|bit
+                                candidate:i64=tsp_few_add(prefix,tsp_few_dist(points,vertex,inner[next]))
+                                if candidate<current[next_mask*7+next]:current[next_mask*7+next]<-candidate
+                            next<-next+1
+                last<-last+1
+            mask<-mask+1
+        cell<-0
+        while cell<states*7:previous[cell]<-current[cell];cell<-cell+1
+        i<-i+1
+    full:usize=states-1
+    best:mutable i64=TSP_FEW_INF
+    last:mutable usize=0
+    while last<=k:
+        if last==sentinel or (full&(1<<last))!=0:
+            vertex:usize=outer[outer_n-1]
+            if last!=sentinel:vertex<-inner[last]
+            candidate:i64=tsp_few_add(previous[full*7+last],tsp_few_dist(points,vertex,outer[0]))
+            if candidate<best:best<-candidate
+        last<-last+1
+    best
+
+def tsp_few_put(output: mutable view[u8], value:i64)->void:
+    bits:u64=value.u64()
+    for b in 0..<8:output[b]<-(bits>>(8*b)).u8()
+
+def tsp_few_inner_points_subset_dp_impl(input:i64&, length:usize, output:mutable u8&, capacity:usize)->i64:
+    if input==null or length<2 or length>51:return -1
+    n0:i64=input[0];k0:i64=input[1]
+    if n0<3 or n0>16 or k0<0 or k0>6 or k0>n0-3 or length!=(2+3*n0).usize():return -1
+    n:usize=n0.usize();k:usize=k0.usize();outer_n:usize=n-k
+    outer:mutable usize[16]=zeroed;inner:mutable usize[6]=zeroed;seen:mutable bool[16]=zeroed
+    for i in 0..<outer_n:
+        id:i64=input[2+i]
+        if id<0 or id>=n0 or seen[id.usize()]:return -1
+        outer[i]<-id.usize();seen[id.usize()]<-true
+    for i in 0..<k:
+        id:i64=input[2+outer_n+i]
+        if id<0 or id>=n0 or seen[id.usize()]:return -1
+        inner[i]<-id.usize();seen[id.usize()]<-true
+    for i in 0..<n:if not seen[i]:return -1
+    points:mutable i64[32]=zeroed;offset:usize=2+n
+    for i in 0..<n:
+        x:i64=input[offset+2*i];y:i64=input[offset+2*i+1]
+        if x< -1000 or x>1000 or y< -1000 or y>1000:return -1
+        for j in 0..<i:if points[2*j]==x and points[2*j+1]==y:return -1
+        points[2*i]<-x;points[2*i+1]<-y
+    best:i64=tsp_few_subset(outer[0:outer_n],outer_n,inner[0:k],k,points[0:2*n])
+    if output==null or capacity<8:return -2
+    tsp_few_put(output[0:8],best);8
+
+export fn tsp_few_inner_points_subset_dp(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 = tsp_few_inner_points_subset_dp_impl

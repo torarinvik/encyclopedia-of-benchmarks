@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn stu_query(t:UnsafePointer[Int32,MutAnyOrigin],node:Int,sl:Int,sr:Int,ql:Int,qr:Int)->Int32:

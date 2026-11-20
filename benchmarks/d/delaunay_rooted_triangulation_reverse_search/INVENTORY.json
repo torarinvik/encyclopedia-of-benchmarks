@@ -1,0 +1,25 @@
+{
+  "algorithm": "delaunay_rooted_triangulation_reverse_search",
+  "symbol": "delaunay_rooted_triangulation_reverse_search",
+  "abi": "i64_array_scalar",
+  "primary_reference": "benchmarks/d/delaunay_rooted_triangulation_reverse_search/primary_oracle.py",
+  "independent_reference": "benchmarks/d/delaunay_rooted_triangulation_reverse_search/independent_oracle.py",
+  "workload": "benchmarks/d/delaunay_rooted_triangulation_reverse_search/workload.json",
+  "static_checker": "benchmarks/d/delaunay_rooted_triangulation_reverse_search/check_inventory.py",
+  "source_url": "https://doi.org/10.1007/978-1-4939-2864-4_729",
+  "max_valid_input_length": 28,
+  "max_parseable_input_length": 29,
+  "workspace_bytes": 4096,
+  "ports": [
+    "c/d/delaunay_rooted_triangulation_reverse_search.c",
+    "c3/d/delaunay_rooted_triangulation_reverse_search.c3",
+    "cpp/d/delaunay_rooted_triangulation_reverse_search.cpp",
+    "elisa/d/delaunay_rooted_triangulation_reverse_search.elisa",
+    "mojo/d/delaunay_rooted_triangulation_reverse_search.mojo",
+    "nim/d/delaunay_rooted_triangulation_reverse_search.nim",
+    "odin/d/delaunay_rooted_triangulation_reverse_search.odin",
+    "rust/d/delaunay_rooted_triangulation_reverse_search.rs",
+    "v/d/delaunay_rooted_triangulation_reverse_search.v",
+    "zig/d/delaunay_rooted_triangulation_reverse_search.zig"
+  ]
+}

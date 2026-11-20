@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "algorithm": "race_car_minimum_instruction_count",
+  "abi": "i64_array_scalar",
+  "native_paths": [
+    "c/r/race_car_minimum_instruction_count.c",
+    "c3/r/race_car_minimum_instruction_count.c3",
+    "cpp/r/race_car_minimum_instruction_count.cpp",
+    "elisa/r/race_car_minimum_instruction_count.elisa",
+    "mojo/r/race_car_minimum_instruction_count.mojo",
+    "nim/r/race_car_minimum_instruction_count.nim",
+    "odin/r/race_car_minimum_instruction_count.odin",
+    "rust/r/race_car_minimum_instruction_count.rs",
+    "v/r/race_car_minimum_instruction_count.v",
+    "zig/r/race_car_minimum_instruction_count.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py", "__init__.py"
+  ],
+  "bounds": {
+    "maximum_target": 127,
+    "result_upper_bound": 379,
+    "maximum_valid_input_words": 1,
+    "maximum_parseable_input_words": 2,
+    "workspace_bytes": 512
+  }
+}

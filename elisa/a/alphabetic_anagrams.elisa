@@ -1,0 +1,54 @@
+const AA_MAX_LENGTH: usize = 8
+const AA_ALPHABET_SIZE: usize = 26
+
+def alphabetic_anagrams_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > 10: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 8 or length != n_value.usize() + 1: return -1
+    n: usize = n_value.usize()
+    frequency: mutable i64[26] = zeroed
+    position: mutable usize = 0
+    while position < n:
+        symbol: i64 = input[position + 1]
+        if symbol < 0 or symbol > 25: return -1
+        frequency[symbol.usize()] <- frequency[symbol.usize()] + 1
+        position <- position + 1
+
+    total: mutable i64 = 1
+    factor: mutable i64 = 2
+    while factor <= n.i64():
+        total <- total * factor
+        factor <- factor + 1
+    denominator: mutable i64 = 1
+    symbol_index: mutable usize = 0
+    while symbol_index < AA_ALPHABET_SIZE:
+        count: i64 = frequency[symbol_index]
+        factorial: mutable i64 = 1
+        factor <- 2
+        while factor <= count:
+            factorial <- factorial * factor
+            factor <- factor + 1
+        denominator <- denominator * factorial
+        symbol_index <- symbol_index + 1
+    ways: mutable i64 = total / denominator
+    rank: mutable i64 = 1
+    remaining: mutable i64 = n.i64()
+    position <- 0
+    while position < n:
+        actual: usize = input[position + 1].usize()
+        smaller: mutable usize = 0
+        while smaller < actual:
+            if frequency[smaller] > 0:
+                rank <- rank + ways * frequency[smaller] / remaining
+            smaller <- smaller + 1
+        ways <- ways * frequency[actual] / remaining
+        frequency[actual] <- frequency[actual] - 1
+        remaining <- remaining - 1
+        position <- position + 1
+    return rank
+
+export fn alphabetic_anagrams(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 10: return -1
+    input_view: view[i64] = input[0:length]
+    alphabetic_anagrams_impl(input_view)

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem16")
 fn problem16(exponent:Int64) abi("C")->Int64:
     if exponent<0 or exponent>1000:return -1

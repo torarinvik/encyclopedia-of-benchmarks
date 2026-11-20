@@ -1,0 +1,196 @@
+const MAX_ISLANDS: usize = 6
+const MAX_EDGE_SLOTS: usize = 12
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 20
+
+def hashi_edges_cross(x: view[i64], y: view[i64], edge_u: view[usize],
+        edge_v: view[usize], first: usize, second: usize) -> bool:
+    a: usize = edge_u[first]
+    b: usize = edge_v[first]
+    c: usize = edge_u[second]
+    d: usize = edge_v[second]
+    first_horizontal: bool = y[a] == y[b]
+    second_horizontal: bool = y[c] == y[d]
+    if first_horizontal == second_horizontal:
+        return false
+    h0: usize = a
+    h1: usize = b
+    v0: usize = c
+    v1: usize = d
+    if not first_horizontal:
+        h0 <- c
+        h1 <- d
+        v0 <- a
+        v1 <- b
+    hx: i64 = x[v0]
+    hy: i64 = y[h0]
+    hmin: i64 = x[h0]
+    hmax: i64 = x[h1]
+    if hmin > hmax:
+        swap: i64 = hmin
+        hmin <- hmax
+        hmax <- swap
+    vmin: i64 = y[v0]
+    vmax: i64 = y[v1]
+    if vmin > vmax:
+        swap: i64 = vmin
+        vmin <- vmax
+        vmax <- swap
+    hmin < hx and hx < hmax and vmin < hy and hy < vmax
+
+def hashi_possible_connected(x: view[i64], y: view[i64], edge_u: view[usize],
+        edge_v: view[usize], multiplicity: view[i64], edge_count: usize,
+        island_count: usize, assigned_through: usize) -> bool:
+    reached: mutable bool[MAX_ISLANDS] = zeroed
+    stack: mutable usize[MAX_ISLANDS] = zeroed
+    top: mutable usize = 1
+    reached[0] <- true
+    stack[0] <- 0
+    while top != 0 |reached, stack, top, edge_count, island_count, assigned_through, x, y, edge_u, edge_v, multiplicity|:
+        top <- top - 1
+        island: usize = stack[top]
+        for edge in 0..<edge_count |edge, edge_count, island, assigned_through, multiplicity, x, y, edge_u, edge_v, reached, stack, top|:
+            usable: mutable bool = edge <= assigned_through and multiplicity[edge] != 0
+            if edge > assigned_through:
+                usable <- true
+                for fixed in 0..<(assigned_through + 1) |fixed, assigned_through, multiplicity, x, y, edge_u, edge_v, edge, usable|:
+                    if multiplicity[fixed] != 0 and hashi_edges_cross(x, y, edge_u, edge_v, fixed, edge):
+                        usable <- false
+                        break
+            if not usable:
+                continue
+            neighbor: mutable usize = island_count
+            if edge_u[edge] == island:
+                neighbor <- edge_v[edge]
+            elif edge_v[edge] == island:
+                neighbor <- edge_u[edge]
+            if neighbor < island_count and not reached[neighbor]:
+                reached[neighbor] <- true
+                stack[top] <- neighbor
+                top <- top + 1
+    for island in 0..<island_count |island, reached|:
+        if not reached[island]:
+            return false
+    true
+
+def hashi_residuals_feasible(residual: view[i64], remaining: view[usize],
+        island_count: usize) -> bool:
+    for island in 0..<island_count |island, residual, remaining|:
+        if residual[island] < 0 or residual[island] > (2 * remaining[island]).i64():
+            return false
+    true
+
+def hashi_search(x: view[i64], y: view[i64], residual: mutable view[i64],
+        remaining: mutable view[usize], edge_u: view[usize], edge_v: view[usize],
+        multiplicity: mutable view[i64], solution: mutable view[i64],
+        island_count: usize, edge_count: usize, depth: usize) -> bool:
+    if depth == edge_count:
+        for island in 0..<island_count |island, residual|:
+            if residual[island] != 0:
+                return false
+        if not hashi_possible_connected(x, y, edge_u, edge_v,
+                multiplicity[0:edge_count], edge_count, island_count, edge_count - 1):
+            return false
+        for edge in 0..<edge_count |edge, multiplicity, solution|:
+            solution[edge] <- multiplicity[edge]
+        return true
+
+    u: usize = edge_u[depth]
+    v: usize = edge_v[depth]
+    remaining[u] <- remaining[u] - 1
+    remaining[v] <- remaining[v] - 1
+    for amount in 0..<3 |amount, residual, multiplicity, depth, edge_u, edge_v, x, y|:
+        if amount.i64() > residual[u] or amount.i64() > residual[v]:
+            continue
+        conflict: mutable bool = false
+        if amount != 0:
+            for prior in 0..<depth |prior, multiplicity, x, y, edge_u, edge_v, depth, conflict|:
+                if multiplicity[prior] != 0 and hashi_edges_cross(x, y, edge_u, edge_v, prior, depth):
+                    conflict <- true
+                    break
+        if conflict:
+            continue
+        multiplicity[depth] <- amount.i64()
+        residual[u] <- residual[u] - amount.i64()
+        residual[v] <- residual[v] - amount.i64()
+        if hashi_residuals_feasible(residual[0:island_count], remaining[0:island_count], island_count) and
+            hashi_possible_connected(x, y, edge_u, edge_v, multiplicity[0:edge_count], edge_count, island_count, depth) and
+            hashi_search(x, y, residual[0:island_count], remaining[0:island_count], edge_u[0:edge_count], edge_v[0:edge_count], multiplicity[0:edge_count], solution[0:edge_count], island_count, edge_count, depth + 1):
+            residual[u] <- residual[u] + amount.i64()
+            residual[v] <- residual[v] + amount.i64()
+            remaining[u] <- remaining[u] + 1
+            remaining[v] <- remaining[v] + 1
+            return true
+        residual[u] <- residual[u] + amount.i64()
+        residual[v] <- residual[v] + amount.i64()
+        multiplicity[depth] <- 0
+    remaining[u] <- remaining[u] + 1
+    remaining[v] <- remaining[v] + 1
+    false
+
+def hashiwokakero_small_solver_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    if values[0] < 2 or values[0] > MAX_ISLANDS.i64():
+        return -1
+    island_count: usize = values[0].usize()
+    if length != 1 + 3 * island_count:
+        return -1
+
+    x: mutable i64[MAX_ISLANDS] = zeroed
+    y: mutable i64[MAX_ISLANDS] = zeroed
+    residual: mutable i64[MAX_ISLANDS] = zeroed
+    remaining: mutable usize[MAX_ISLANDS] = zeroed
+    edge_u: mutable usize[MAX_EDGE_SLOTS] = zeroed
+    edge_v: mutable usize[MAX_EDGE_SLOTS] = zeroed
+    multiplicity: mutable i64[MAX_EDGE_SLOTS] = zeroed
+    solution: mutable i64[MAX_EDGE_SLOTS] = zeroed
+    for island in 0..<island_count |island, values, x, y, residual|:
+        px: i64 = values[1 + 3 * island]
+        py: i64 = values[2 + 3 * island]
+        demand: i64 = values[3 + 3 * island]
+        if px < 0 or px > 7 or py < 0 or py > 7 or demand < 1 or demand > 8:
+            return -1
+        for prior in 0..<island |prior, x, y, px, py|:
+            if x[prior] == px and y[prior] == py:
+                return -1
+        x[island] <- px
+        y[island] <- py
+        residual[island] <- demand
+
+    edge_count: mutable usize = 0
+    for first in 0..<island_count |first, island_count, x, y, edge_count, edge_u, edge_v, remaining|:
+        for second in first + 1..<island_count |second, first, island_count, x, y, edge_count, edge_u, edge_v, remaining|:
+            if x[first] != x[second] and y[first] != y[second]:
+                continue
+            blocked: mutable bool = false
+            for middle in 0..<island_count |middle, first, second, island_count, x, y, blocked|:
+                if middle == first or middle == second:
+                    continue
+                if y[first] == y[second] and y[middle] == y[first] and
+                    ((x[first] < x[middle] and x[middle] < x[second]) or (x[second] < x[middle] and x[middle] < x[first])):
+                    blocked <- true
+                if x[first] == x[second] and x[middle] == x[first] and
+                    ((y[first] < y[middle] and y[middle] < y[second]) or (y[second] < y[middle] and y[middle] < y[first])):
+                    blocked <- true
+            if not blocked:
+                if edge_count == MAX_EDGE_SLOTS:
+                    return -1
+                edge_u[edge_count] <- first
+                edge_v[edge_count] <- second
+                edge_count <- edge_count + 1
+                remaining[first] <- remaining[first] + 1
+                remaining[second] <- remaining[second] + 1
+
+    if not hashi_search(x[0:island_count], y[0:island_count], residual[0:island_count], remaining[0:island_count], edge_u[0:edge_count], edge_v[0:edge_count], multiplicity[0:edge_count], solution[0:edge_count], island_count, edge_count, 0):
+        return -2
+    result: mutable i64 = 1.i64() << 32
+    for edge in 0..<edge_count |edge, solution, result|:
+        result <- result | (solution[edge] << (2 * edge))
+    result
+
+export fn hashiwokakero_small_solver(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    let values: view[i64] = input[0:input_length]
+    hashiwokakero_small_solver_impl(values)

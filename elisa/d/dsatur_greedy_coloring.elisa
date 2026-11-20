@@ -1,0 +1,102 @@
+const MAX_VERTICES: usize = 12
+const MAX_EDGES: usize = 66
+const MAX_INPUT_VALUES: usize = 134
+const MAX_PARSEABLE_VALUES: usize = 135
+
+def dsatur_popcount(value_input: u64) -> usize:
+    value: mutable u64 = value_input
+    count: mutable usize = 0
+    while value != 0:
+        value <- value & (value - 1.u64())
+        count <- count + 1
+    count
+
+def dsatur_greedy_coloring_impl(values: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_PARSEABLE_VALUES:
+        return -1
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    if n_value < 1 or n_value > MAX_VERTICES.i64() or m_value < 0 or m_value > MAX_EDGES.i64():
+        return -1
+    max_edges: i64 = n_value * (n_value - 1) / 2
+    if m_value > max_edges:
+        return -1
+    edge_count: usize = m_value.usize()
+    if length != 2 + 2 * edge_count or length > MAX_INPUT_VALUES:
+        return -1
+    n: usize = n_value.usize()
+
+    adjacency: mutable u64[MAX_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u_value: i64 = values[2 + 2 * edge]
+        v_value: i64 = values[3 + 2 * edge]
+        if u_value < 0 or v_value < 0 or u_value >= v_value or v_value >= n_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        v_bit: u64 = 1.u64() << v
+        if (adjacency[u] & v_bit) != 0:
+            return -1
+        adjacency[u] <- adjacency[u] | v_bit
+        adjacency[v] <- adjacency[v] | (1.u64() << u)
+        edge <- edge + 1
+
+    colors: mutable i64[MAX_VERTICES] = zeroed
+    saturation: mutable u64[MAX_VERTICES] = zeroed
+    residual_degree: mutable i64[MAX_VERTICES] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        colors[vertex] <- -1
+        residual_degree[vertex] <- dsatur_popcount(adjacency[vertex])
+        vertex <- vertex + 1
+
+    colored_count: mutable usize = 0
+    color_count: mutable usize = 0
+    while colored_count < n:
+        selected: mutable i64 = -1
+        selected_saturation: mutable usize = 0
+        selected_degree: mutable i64 = -1
+        vertex <- 0
+        while vertex < n:
+            if colors[vertex] < 0:
+                sat_count: usize = dsatur_popcount(saturation[vertex])
+                degree: i64 = residual_degree[vertex]
+                if selected < 0:
+                    selected <- vertex.i64()
+                    selected_saturation <- sat_count
+                    selected_degree <- degree
+                else if sat_count > selected_saturation or (sat_count == selected_saturation and (degree > selected_degree or (degree == selected_degree and vertex < selected.usize()))):
+                    selected <- vertex.i64()
+                    selected_saturation <- sat_count
+                    selected_degree <- degree
+            vertex <- vertex + 1
+
+        chosen: usize = selected.usize()
+        used_colors: u64 = saturation[chosen]
+        color: mutable usize = 0
+        while (used_colors & (1.u64() << color)) != 0:
+            color <- color + 1
+        colors[chosen] <- color.i64()
+        if color + 1 > color_count:
+            color_count <- color + 1
+        color_bit: u64 = 1.u64() << color
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            if colors[neighbor] < 0 and (adjacency[chosen] & (1.u64() << neighbor)) != 0:
+                residual_degree[neighbor] <- residual_degree[neighbor] - 1
+                saturation[neighbor] <- saturation[neighbor] | color_bit
+            neighbor <- neighbor + 1
+        colored_count <- colored_count + 1
+
+    packed: mutable u64 = color_count.u64() << 48
+    vertex <- 0
+    while vertex < n:
+        packed <- packed | (colors[vertex].u64() << (4 * vertex))
+        vertex <- vertex + 1
+    packed.i64()
+
+export fn dsatur_greedy_coloring(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_VALUES:
+        return -1
+    dsatur_greedy_coloring_impl(input[0:length], length)

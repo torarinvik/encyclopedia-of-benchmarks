@@ -163,8 +163,9 @@ def dpas_put64(output: mutable view[u8], offset: usize, value: i64) -> void:
 def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
@@ -178,22 +179,22 @@ def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: u
     query_count: mutable usize = 0
     i: mutable usize = 0
     while i < n:
-        xs[i] <- input[2 + 3 * i]
-        ys[i] <- input[3 + 3 * i]
-        weights[i] <- input[4 + 3 * i]
+        xs[i] <- frame[2 + 3 * i]
+        ys[i] <- frame[3 + 3 * i]
+        weights[i] <- frame[4 + 3 * i]
         if xs[i] < 0 or xs[i] > MAX_COORD or ys[i] < 0 or ys[i] > MAX_COORD or weights[i] < 0 or weights[i] >= MODULUS: return -1
         i <- i + 1
     cursor: mutable usize = 2 + 3 * n
     oi: mutable usize = 0
     while oi < q:
         if cursor >= length: return -1
-        kind: i64 = input[cursor]
+        kind: i64 = frame[cursor]
         cursor <- cursor + 1
         if kind == 0:
             if cursor + 3 > length or point_count >= MAX_POINTS: return -1
-            x: i64 = input[cursor]
-            y: i64 = input[cursor + 1]
-            weight: i64 = input[cursor + 2]
+            x: i64 = frame[cursor]
+            y: i64 = frame[cursor + 1]
+            weight: i64 = frame[cursor + 2]
             cursor <- cursor + 3
             if x < 0 or x > MAX_COORD or y < 0 or y > MAX_COORD or weight < 0 or weight >= MODULUS: return -1
             xs[point_count] <- x
@@ -205,8 +206,8 @@ def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: u
             active_count <- active_count + 1
         elif kind == 1:
             if cursor + 2 > length: return -1
-            point: i64 = input[cursor]
-            weight: i64 = input[cursor + 1]
+            point: i64 = frame[cursor]
+            weight: i64 = frame[cursor + 1]
             cursor <- cursor + 2
             if point < 0 or point >= active_count.i64() or weight < 0 or weight >= MODULUS: return -1
             operations[oi].kind <- kind
@@ -216,10 +217,10 @@ def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: u
             fields: usize = 4
             if kind == 3: fields <- 6
             if cursor + fields > length: return -1
-            left: i64 = input[cursor]
-            down: i64 = input[cursor + 1]
-            right: i64 = input[cursor + 2]
-            up: i64 = input[cursor + 3]
+            left: i64 = frame[cursor]
+            down: i64 = frame[cursor + 1]
+            right: i64 = frame[cursor + 2]
+            up: i64 = frame[cursor + 3]
             if left < 0 or left >= right or right > MAX_COORD or down < 0 or down >= up or up > MAX_COORD: return -1
             operations[oi].kind <- kind
             operations[oi].a <- left
@@ -230,8 +231,8 @@ def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: u
                 cursor <- cursor + 4
                 query_count <- query_count + 1
             else:
-                a: i64 = input[cursor + 4]
-                b: i64 = input[cursor + 5]
+                a: i64 = frame[cursor + 4]
+                b: i64 = frame[cursor + 5]
                 cursor <- cursor + 6
                 if a < 0 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
                 operations[oi].e <- a

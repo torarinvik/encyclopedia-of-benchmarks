@@ -1,0 +1,37 @@
+{
+  "algorithm": "minimum_weight_cycle_floyd",
+  "function_symbol": "minimum_weight_cycle_floyd",
+  "abi": "i64_array_bytes_output",
+  "sources": [
+    "c/m/minimum_weight_cycle_floyd.c",
+    "c3/m/minimum_weight_cycle_floyd.c3",
+    "cpp/m/minimum_weight_cycle_floyd.cpp",
+    "elisa/m/minimum_weight_cycle_floyd.elisa",
+    "mojo/m/minimum_weight_cycle_floyd.mojo",
+    "nim/m/minimum_weight_cycle_floyd.nim",
+    "odin/m/minimum_weight_cycle_floyd.odin",
+    "rust/m/minimum_weight_cycle_floyd.rs",
+    "v/m/minimum_weight_cycle_floyd.v",
+    "zig/m/minimum_weight_cycle_floyd.zig"
+  ],
+  "artifacts": [
+    "benchmarks/m/minimum_weight_cycle_floyd/primary_oracle.py",
+    "benchmarks/m/minimum_weight_cycle_floyd/independent_oracle.py",
+    "benchmarks/m/minimum_weight_cycle_floyd/workload.json",
+    "benchmarks/m/minimum_weight_cycle_floyd/verify_workload.py",
+    "benchmarks/m/minimum_weight_cycle_floyd/check_inventory.py",
+    "benchmarks/m/minimum_weight_cycle_floyd/README.md",
+    "benchmarks/m/minimum_weight_cycle_floyd/RIGHTS.md",
+    "benchmarks/m/minimum_weight_cycle_floyd/INVENTORY.md",
+    "benchmarks/m/minimum_weight_cycle_floyd/INVENTORY.json"
+  ],
+  "bounds": {
+    "max_vertices": 9,
+    "max_edges": 36,
+    "max_valid_input_words": 110,
+    "max_parseable_input_words": 111,
+    "max_output_bytes": 8,
+    "workspace_bytes": 4096
+  },
+  "status": "complete; ten ports and package artifacts are statically reviewed and suite-integrated"
+}

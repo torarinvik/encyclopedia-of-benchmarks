@@ -50,9 +50,9 @@ fn void inorder(Node* nodes, int root, long* keys, usz* count) {
     keys[(*count)++] = (long)nodes[root].key;
     inorder(nodes, nodes[root].right, keys, count);
 }
-fn void write_word(uint8* output, usz* offset, long word) {
+fn void write_word(char* output, usz* offset, long word) {
     ulong bits = (ulong)word;
-    for (usz shift = 0; shift < 64; shift += 8) output[(*offset)++] = (uint8)(bits >> shift);
+    for (usz shift = 0; shift < 64; shift += 8) output[(*offset)++] = (char)(bits >> shift);
 }
 
 fn long splay_tree(long* input, usz input_length, char* output, usz capacity)
@@ -109,7 +109,7 @@ fn long splay_tree(long* input, usz input_length, char* output, usz capacity)
     long[MAX_KEYS] final_keys = zeroed;
     usz final_count = 0;
     inorder(&nodes[0], root, &final_keys[0], &final_count);
-    uint8[MAX_OUTPUT] staged = zeroed;
+    char[MAX_OUTPUT] staged = zeroed;
     usz written = 0;
     write_word(&staged[0], &written, (long)op_count);
     for (usz i = 0; i < op_count; i++) write_word(&staged[0], &written, tags[i]);

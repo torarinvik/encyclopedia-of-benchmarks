@@ -1,0 +1,134 @@
+# Minimum palindrome partition using eertree series links.
+const MAX_TEXT: usize = 64
+const MAX_NODES: usize = MAX_TEXT + 2
+const ALPHABET: usize = 4
+const MAX_WORDS: usize = MAX_TEXT + 1
+const MAX_OUTPUT_BYTES: usize = MAX_WORDS * 8
+
+def find_extendable(lengths: view[i64], links: view[i64], text: view[i64],
+                    position: usize, start: usize) -> usize:
+    node: mutable usize = start
+    while true:
+        preceding: i64 = position.i64() - 1 - lengths[node]
+        if preceding >= 0 and text[preceding.usize()] == text[position]: return node
+        node <- links[node].usize()
+    0
+
+def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def palindromic_partition_series_links_impl(input: view[i64], output: mutable view[u8],
+                                             capacity: usize, output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > MAX_TEXT + 2: return -1
+    if input[0] < 0 or input[0] > MAX_TEXT.i64(): return -1
+    n: usize = input[0].usize()
+    if length != n + 1: return -1
+    text: mutable i64[MAX_TEXT] = zeroed
+    for position in 0..<n:
+        value: i64 = input[position + 1]
+        if value < 0 or value >= ALPHABET.i64(): return -1
+        text[position] <- value
+
+    node_length: mutable i64[MAX_NODES] = zeroed
+    suffix_link: mutable usize[MAX_NODES] = zeroed
+    difference: mutable i64[MAX_NODES] = zeroed
+    series_link: mutable usize[MAX_NODES] = zeroed
+    series_best: mutable i64[MAX_NODES] = zeroed
+    series_start: mutable usize[MAX_NODES] = zeroed
+    transition: mutable usize[MAX_NODES * ALPHABET] = zeroed
+    node_length[0] <- 0
+    node_length[1] <- -1
+    suffix_link[0] <- 1
+    suffix_link[1] <- 1
+    series_link[0] <- 1
+    series_link[1] <- 1
+    node_count: mutable usize = 2
+    last: mutable usize = 0
+    dp: mutable i64[MAX_TEXT + 1] = zeroed
+    predecessor: mutable usize[MAX_TEXT + 1] = zeroed
+    for i in 0..<MAX_TEXT + 1: dp[i] <- (MAX_TEXT + 1).i64()
+    dp[0] <- 0
+
+    for position in 0..<n:
+        end: usize = position + 1
+        symbol: usize = text[position].usize()
+        parent: usize = find_extendable(node_length[0:MAX_NODES], suffix_link[0:MAX_NODES],
+                                          text[0:MAX_TEXT], position, last)
+        next_slot: usize = parent * ALPHABET + symbol
+        next: mutable usize = transition[next_slot]
+        if next == 0:
+            next <- node_count
+            node_count <- node_count + 1
+            node_length[next] <- node_length[parent] + 2
+            transition[next_slot] <- next
+            if node_length[next] == 1:
+                suffix_link[next] <- 0
+            else:
+                suffix_parent: usize = find_extendable(node_length[0:MAX_NODES],
+                    suffix_link[0:MAX_NODES], text[0:MAX_TEXT], position, suffix_link[parent])
+                suffix_link[next] <- transition[suffix_parent * ALPHABET + symbol]
+            fail: usize = suffix_link[next]
+            difference[next] <- node_length[next] - node_length[fail]
+            if difference[next] == difference[fail]:
+                series_link[next] <- series_link[fail]
+            else:
+                series_link[next] <- fail
+        last <- next
+
+        best_value: mutable i64 = (MAX_TEXT + 1).i64()
+        best_start: mutable usize = end
+        node: mutable usize = last
+        while node_length[node] > 0:
+            start: usize = end - node_length[series_link[node]].usize() - difference[node].usize()
+            series_best[node] <- dp[start]
+            series_start[node] <- start
+            fail: usize = suffix_link[node]
+            if difference[node] == difference[fail] and
+               (series_best[fail] < series_best[node] or
+                (series_best[fail] == series_best[node] and series_start[fail] < series_start[node])):
+                series_best[node] <- series_best[fail]
+                series_start[node] <- series_start[fail]
+            candidate: i64 = series_best[node] + 1
+            if candidate < best_value or (candidate == best_value and series_start[node] < best_start):
+                best_value <- candidate
+                best_start <- series_start[node]
+            node <- series_link[node]
+        dp[end] <- best_value
+        predecessor[end] <- best_start
+
+    reverse_pieces: mutable usize[MAX_TEXT] = zeroed
+    piece_count: mutable usize = 0
+    end: mutable usize = n
+    while end > 0:
+        reverse_pieces[piece_count] <- end - predecessor[end]
+        piece_count <- piece_count + 1
+        end <- predecessor[end]
+    words: mutable i64[MAX_WORDS] = zeroed
+    word_count: mutable usize = 0
+    words[word_count] <- piece_count.i64()
+    word_count <- word_count + 1
+    i: mutable i64 = piece_count.i64() - 1
+    while i >= 0:
+        words[word_count] <- reverse_pieces[i.usize()].i64()
+        word_count <- word_count + 1
+        i <- i - 1
+    byte_count: usize = word_count * 8
+    if output_is_null or capacity < byte_count: return -2
+    for word in 0..<word_count: put_i64(output, word * 8, words[word])
+    byte_count.i64()
+
+export fn palindromic_partition_series_links(input: i64&, length: usize,
+                                               output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_TEXT + 2: return -1
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return palindromic_partition_series_links_impl(input[0:length], scratch[0:1], capacity, true)
+    output_length: mutable usize = capacity
+    if output_length > MAX_OUTPUT_BYTES: output_length <- MAX_OUTPUT_BYTES
+    palindromic_partition_series_links_impl(input[0:length], output[0:output_length], capacity, false)

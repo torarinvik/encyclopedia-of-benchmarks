@@ -1,0 +1,44 @@
+const MAX_INDEX: i64 = 4096
+const MAX_COUNT: i64 = 128
+
+def write_u64_le(output: mutable view[u8], offset: usize, value: u64) -> void:
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((value >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def van_der_corput_sequence_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length != 3:
+        return -1
+    base: i64 = input[0]
+    first_index: i64 = input[1]
+    count: i64 = input[2]
+    if base < 2 or base > 16 or first_index < 1 or first_index > MAX_INDEX:
+        return -1
+    if count < 0 or count > MAX_COUNT:
+        return -1
+    if count > 0 and first_index + count - 1 > MAX_INDEX:
+        return -1
+
+    output_bytes: usize = count.usize() * 16
+    if output.is_null() or output_capacity < output_bytes:
+        return -2
+    bytes: mutable view[u8] = output[0:output_bytes]
+    offset: mutable i64 = 0
+    while offset < count:
+        index: mutable i64 = first_index + offset
+        numerator: mutable u64 = 0
+        denominator: mutable u64 = 1
+        while index > 0:
+            numerator <- numerator * base.u64() + (index % base).u64()
+            denominator <- denominator * base.u64()
+            index <- index / base
+        position: usize = offset.usize() * 16
+        write_u64_le(bytes, position, numerator)
+        write_u64_le(bytes, position + 8, denominator)
+        offset <- offset + 1
+    output_bytes.i64()
+
+export fn van_der_corput_sequence(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = van_der_corput_sequence_impl

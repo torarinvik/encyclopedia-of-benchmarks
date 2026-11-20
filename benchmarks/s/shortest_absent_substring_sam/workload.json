@@ -13,6 +13,7 @@
     {"id": "empty_text", "input_values": [2,0], "input_length": 2, "output_capacity": 1, "expected_result": 1, "expected_output_hex": "00"},
     {"id": "both_symbols_present", "input_values": [2,2,0,1], "input_length": 4, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0000"},
     {"id": "first_missing_pair_not_zero", "input_values": [2,4,0,0,1,1], "input_length": 6, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0100"},
+    {"id": "four_symbol_almost_complete_pairs", "input_values": [4,16,0,0,1,0,2,0,3,1,1,2,1,3,2,2,3,3], "input_length": 18, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0300"},
     {"id": "short_output", "input_values": [2,2,0,1], "input_length": 4, "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""},
     {"id": "invalid_symbol", "input_values": [2,1,2], "input_length": 3, "output_capacity": 6, "expected_result": -1, "expected_output_hex": ""},
     {"id": "invalid_before_null_output", "input_values": [2,1,2], "input_length": 3, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},

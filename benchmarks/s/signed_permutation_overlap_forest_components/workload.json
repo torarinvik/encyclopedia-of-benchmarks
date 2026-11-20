@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-signed-permutation-overlap-forest-i64-array-bytes-output-v1",
+  "algorithm": "signed_permutation_overlap_forest_components",
+  "function_symbol": "signed_permutation_overlap_forest_components",
+  "abi": "i64_array_bytes_output",
+  "description": "Bader–Moret–Yan two-scan stack construction of overlap-forest components.",
+  "source": {
+    "chapter": "Encyclopedia of Algorithms, Chapter 383",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_383",
+    "operational_reference": "Bader, Moret, and Yan, sections 4–5 and Figure 2",
+    "operational_doi": "10.1089/106652701753216503"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,signed_gene_0,...,signed_gene_(n-1)]",
+    "size_range": [1, 8],
+    "gene_rule": "nonzero signed values whose absolute values are exactly 1 through n",
+    "maximum_valid_length": 9,
+    "maximum_parseable_length": 10,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[cycle_count,(cycle_begin,cycle_end,component_root)*cycle_count]",
+    "cycle_order": "increasing cycle_begin",
+    "two_cycles": "included as isolated singleton components",
+    "maximum_cycles": 9,
+    "maximum_bytes": 224,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded signed permutation expansion, alternating-cycle labels and extents, stack, component labels, and staged output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 1,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "identity-single-gene",
+      "input_values": [1, 1],
+      "input_length": 2,
+      "output_capacity": 224,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000 0000000000000000 0100000000000000 0000000000000000 0200000000000000 0300000000000000 0200000000000000"
+    },
+    {
+      "id": "negative-single-gene",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "output_capacity": 224,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000 0000000000000000 0300000000000000 0000000000000000"
+    },
+    {
+      "id": "overlapping-cycle-extents-merge",
+      "input_values": [3, 3, 2, 1],
+      "input_length": 4,
+      "output_capacity": 224,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000 0000000000000000 0500000000000000 0000000000000000 0200000000000000 0700000000000000 0000000000000000"
+    },
+    {
+      "id": "maximum-identity-cycle-output",
+      "input_values": [8, 1, 2, 3, 4, 5, 6, 7, 8],
+      "input_length": 9,
+      "output_capacity": 224,
+      "expected_result": 224,
+      "expected_output_hex": "0900000000000000 0000000000000000 0100000000000000 0000000000000000 0200000000000000 0300000000000000 0200000000000000 0400000000000000 0500000000000000 0400000000000000 0600000000000000 0700000000000000 0600000000000000 0800000000000000 0900000000000000 0800000000000000 0a00000000000000 0b00000000000000 0a00000000000000 0c00000000000000 0d00000000000000 0c00000000000000 0e00000000000000 0f00000000000000 0e00000000000000 1000000000000000 1100000000000000 1000000000000000"
+    },
+    {
+      "id": "duplicate-absolute-gene",
+      "input_values": [3, 1, 1, 3],
+      "input_length": 4,
+      "output_capacity": 224,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-gene",
+      "input_values": [2, 0, 1],
+      "input_length": 3,
+      "output_capacity": 224,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-gene",
+      "input_values": [2, 3, 1],
+      "input_length": 3,
+      "output_capacity": 224,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-word",
+      "input_values": [1, 1, 99],
+      "input_length": 3,
+      "output_capacity": 224,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed-int64-minimum-is-invalid",
+      "input_values": [1, -9223372036854775808],
+      "input_length": 2,
+      "output_capacity": 224,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 224,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "output_capacity": 32,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

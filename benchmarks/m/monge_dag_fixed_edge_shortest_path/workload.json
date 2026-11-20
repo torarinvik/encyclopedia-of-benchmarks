@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "monge-dag-fixed-edge-shortest-path-i64-array-scalar-v1",
+  "algorithm": "monge_dag_fixed_edge_shortest_path",
+  "function_symbol": "monge_dag_fixed_edge_shortest_path",
+  "abi": "i64_array_scalar",
+  "description": "Minimum cost of a path using exactly D edges in an implicit complete Monge DAG.",
+  "source": {
+    "title": "d-Edge Shortest-Path Problem for a Monge Graph",
+    "authors": ["Wolfgang W. Bein", "Lawrence L. Larmore", "James K. Park"],
+    "year": 1992,
+    "reference": "Sandia report SAND-92-1724CDE93, extended abstract",
+    "url": "https://www.osti.gov/servlets/purl/10146169",
+    "implementation_reference": "Nyaan's Library dp/monge-d-edge-shortest-path-enumerate.hpp",
+    "implementation_reference_url": "https://nyaannyaan.github.io/library/dp/monge-d-edge-shortest-path-enumerate.hpp.html",
+    "algorithm_attribution": "exact-edge DP layers with monotone minima over a triangular Monge transition matrix",
+    "implementation_status": "clean-room bounded fixed-D profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,D, c(0,1),c(0,2),...,c(0,N), c(1,2),...,c(N-1,N)]",
+    "vertex_ids": "0 through N; implicit directed edge i->j exists exactly when i<j",
+    "N_range": [1, 32],
+    "D_range": "1 <= D <= N",
+    "edge_weight_range": [0, 1000000],
+    "edge_weight_order": "Upper-triangle row-major order by increasing source, then increasing destination.",
+    "monge_promise": "For every fully valid adjacent quadrangle with i+1<j, c(i,j)+c(i+1,j+1) <= c(i,j+1)+c(i+1,j); ports validate this local form.",
+    "exact_length": "2 + N*(N+1)/2",
+    "maximum_valid_length": 530,
+    "maximum_parseable_length": 531,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Minimum sum of edge weights on a path from vertex 0 to vertex N that uses exactly D edges.",
+    "valid_result_range": [0, 32000000],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Triangular edge-cost matrix, two exact-edge DP rows, monotone-minima recursion stack, and predecessor minima."
+  },
+  "contract": {
+    "path_domain": "The graph is the complete forward DAG over vertices 0..N; every edge increases the vertex ID.",
+    "objective": "Find the cheapest 0-to-N path containing exactly D edges.",
+    "transition": "dp_d[j]=min(dp_(d-1)[i]+c(i,j)) over i<j.",
+    "optimization": "For each edge-count layer, argmin predecessors are nondecreasing by the Monge property; monotone divide-and-conquer row minima compute the layer without enumerating all transitions.",
+    "invalid_input_result": -1,
+    "distinction": "This is an implicit complete Monge-DAG exact-edge path DP, not explicit-graph shortest paths or a min-plus matrix-power walk query."
+  },
+  "complexity": {
+    "primary_time": "O(D*N*log(N)) monotone divide-and-conquer minima after O(N^2) input validation",
+    "primary_auxiliary_space": "O(N^2)",
+    "independent_time": "O(D*N^2) direct predecessor scan"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-edge-single-segment","input_values":[1,1,7],"input_length":3,"expected_result":7},
+    {"id":"squared-gaps-one-edge","input_values":[4,1,1,4,9,16,1,4,9,1,4,1],"input_length":12,"expected_result":16},
+    {"id":"squared-gaps-two-balanced-edges","input_values":[4,2,1,4,9,16,1,4,9,1,4,1],"input_length":12,"expected_result":8},
+    {"id":"squared-gaps-three-edges","input_values":[4,3,1,4,9,16,1,4,9,1,4,1],"input_length":12,"expected_result":6},
+    {"id":"squared-gaps-four-edges","input_values":[4,4,1,4,9,16,1,4,9,1,4,1],"input_length":12,"expected_result":4},
+    {"id":"two-equal-optimal-paths","input_values":[3,2,4,8,15,2,7,3],"input_length":8,"expected_result":11},
+    {"id":"all-zero-cost-ties","input_values":[3,2,0,0,0,0,0,0],"input_length":8,"expected_result":0},
+    {"id":"non-monge-costs-are-rejected","input_values":[3,2,1,10,0,0,10,1],"input_length":8,"expected_result":-1},
+    {"id":"vertex-bound-is-enforced","input_values":[33,1],"input_length":2,"expected_result":-1},
+    {"id":"edge-count-bound-is-enforced","input_values":[3,4],"input_length":2,"expected_result":-1},
+    {"id":"negative-cost-is-invalid","input_values":[1,1,-1],"input_length":3,"expected_result":-1},
+    {"id":"cost-bound-is-enforced","input_values":[1,1,1000001],"input_length":3,"expected_result":-1},
+    {"id":"truncated-upper-triangle","input_values":[2,1,1,3],"input_length":4,"expected_result":-1},
+    {"id":"trailing-word-is-invalid","input_values":[1,1,7,8],"input_length":4,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

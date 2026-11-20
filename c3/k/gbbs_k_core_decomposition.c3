@@ -13,7 +13,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
 }
 
 // Clean-room bounded GBBS k-core profile; see package LICENSE.txt.
-long gbbs_k_core_decomposition(long* input, usz length, char* output, usz capacity)
+fn long gbbs_k_core_decomposition(long* input, usz length, char* output, usz capacity)
         @export("gbbs_k_core_decomposition") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-elkin-peleg-sparse-spanner-i64-array-bytes-output-v1",
+  "algorithm": "elkin_peleg_sparse_spanner",
+  "function_symbol": "elkin_peleg_sparse_spanner",
+  "abi": "i64_array_bytes_output",
+  "description": "Deterministic bounded profile of the Elkin–Peleg Sp Cons sparse partition and superclustering construction.",
+  "source": {
+    "book_title": "Encyclopedia of Algorithms",
+    "book_chapter": "Sparse Graph Spanners",
+    "book_chapter_doi": "10.1007/978-1-4939-2864-4_387",
+    "title": "(1 + ε, β)-Spanner Constructions for General Graphs",
+    "authors": ["Michael Elkin", "David Peleg"],
+    "year": 2004,
+    "reference": "SIAM Journal on Computing 33(3), 608–631",
+    "paper_doi": "10.1137/S0097539701393384",
+    "paper_url": "https://www.cs.bgu.ac.il/~elkinm/ep.sicomp04.pdf",
+    "algorithm_attribution": "Sp Cons, Sections 2.1–2.3; canonical tie rules and exact integer comparisons are bounded-profile choices",
+    "implementation_status": "bounded clean-room implementation; algorithm ideas only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,(u,v)*m]",
+    "vertex_count_range": [1, 20],
+    "edge_count_range": [0, 190],
+    "maximum_valid_length": 382,
+    "maximum_parseable_length": 383,
+    "simple_graph": true,
+    "normalized_endpoints": true,
+    "weighted": false,
+    "undirected": true,
+    "disconnected_graphs": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "one_byte_per_input_edge",
+    "encoding": "input-edge-order retention bytes; 1 means included in H, 0 means omitted",
+    "edge_order": "original input record order",
+    "maximum_bytes": 190,
+    "success_result": "number of bytes written, equal to m",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 65536,
+    "meaning": "bounded adjacency and distance state, ground/current partitions, per-cluster member/tree edge sets, path reconstruction, and staged edge flags"
+  },
+  "contract": {
+    "parameters": {
+      "kappa": 4,
+      "epsilon": "1/2",
+      "J": 2,
+      "upsilon": 64,
+      "t_1": "3/8",
+      "t_2": "1/8",
+      "delta_1": 8,
+      "delta_2": 64,
+      "sigma_1": "ceil(n^(1/4)); exactly equivalent to integer count >= n^(1/4)"
+    },
+    "down_part": "Choose the smallest uncovered vertex as center. Grow S while |S union (Gamma(S) intersect U)| >= n^(1/4)*|S|, using the exact integer comparison |shell|^4 >= n*|S|^4. The final shell is S union (Gamma(S) intersect U). Add its BFS tree rooted at the center to H; retain a BFS tree of S and its radius in the ground partition; remove S from U.",
+    "non_growth_guard": "Stop shell growth when the next shell equals S; this terminates the n=1 singleton case while leaving all expanding steps governed by the exact multiplicative threshold.",
+    "superclustering": "For the radius-1 ground clusters, run SC with sigma_1=ceil(n^(1/4)) and distance threshold 2*delta_1=16. A cluster's neighborhood includes itself and all currently active clusters at graph distance <=16. Repeatedly select the eligible center by (center id, sorted member tuple), merge its full neighborhood, and add the center tree, neighboring cluster trees, and canonical shortest connector paths. For remaining pairs within threshold 16, add their canonical shortest connector path.",
+    "level_schedule": "With t_1=3/8,t_2=1/8, tau_1=[kappa*t_2,kappa*t_1) contains integer radius 1; tau_2=[kappa*t_1,kappa) contains integer radii 2 and 3. Run the single intermediate SC level, then connect every final pair in C-prime plus ground radii 2 or 3 whose graph distance is <=2*delta_2=128.",
+    "ties": "Smallest uncovered vertex; sorted ascending neighbors in BFS; minimum eligible cluster key (center id, sorted member tuple); for equal-length connector paths choose the lexicographically smallest vertex sequence, oriented from the lower cluster key to the higher key in pair passes.",
+    "output_rule": "Emit one byte for every input edge in original record order; 1 exactly when the edge belongs to the union H of Down Part shell trees, supercluster trees/connectors, and close-pair connectors.",
+    "theorem_profile": "The paper's parameter theorem with kappa=4, epsilon=1/2 and upsilon=64 targets a (3/2,64)-spanner with O(64*n^(5/4)) edges; its asymptotic size bound is not asserted as a measured bounded-profile result."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty_singleton","input_values":[1,0],"input_length":2,"output_capacity":190,"expected_result":0,"expected_output_hex":""},
+    {"id":"single_edge","input_values":[2,1,0,1],"input_length":4,"output_capacity":190,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"triangle_reordered_edges","input_values":[3,3,1,2,0,2,0,1],"input_length":8,"output_capacity":190,"expected_result":3,"expected_output_hex":"000101"},
+    {"id":"complete_five_star_tree","input_values":[5,10,0,1,0,2,0,3,0,4,1,2,1,3,1,4,2,3,2,4,3,4],"input_length":22,"output_capacity":190,"expected_result":10,"expected_output_hex":"01010101000000000000"},
+    {"id":"radius_two_layered_cluster","input_values":[8,12,0,1,0,2,1,3,1,4,1,5,1,6,1,7,2,3,2,4,2,5,2,6,2,7],"input_length":26,"output_capacity":190,"expected_result":12,"expected_output_hex":"010101010101010000000000"},
+    {"id":"six_triangle_chain_supercluster","input_values":[18,23,0,1,0,2,1,2,2,3,3,4,3,5,4,5,5,6,6,7,6,8,7,8,8,9,9,10,9,11,10,11,11,12,12,13,12,14,13,14,14,15,15,16,15,17,16,17],"input_length":48,"output_capacity":190,"expected_result":23,"expected_output_hex":"0101000101010001010100010101000101010001010100"},
+    {"id":"disconnected_edges","input_values":[4,2,0,1,2,3],"input_length":6,"output_capacity":190,"expected_result":2,"expected_output_hex":"0101"},
+    {"id":"duplicate_edge","input_values":[3,2,0,1,0,1],"input_length":6,"output_capacity":190,"expected_result":-1,"expected_output_hex":""},
+    {"id":"self_loop","input_values":[3,1,1,1],"input_length":4,"output_capacity":190,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_word","input_values":[2,1,0,1,9],"input_length":5,"output_capacity":190,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":190,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[2,1,0,1],"input_length":4,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[3,3,0,1,0,2,1,2],"input_length":8,"output_capacity":2,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

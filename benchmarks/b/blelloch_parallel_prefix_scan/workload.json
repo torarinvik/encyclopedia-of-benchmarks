@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "blelloch-exclusive-prefix-scan-i64-array-bytes-output-v1",
+  "algorithm": "blelloch_parallel_prefix_scan",
+  "function_symbol": "blelloch_parallel_prefix_scan",
+  "abi": "i64_array_bytes_output",
+  "description": "Run a padded, level-synchronous Blelloch upsweep/downsweep exclusive integer scan.",
+  "source": {
+    "title": "Prefix Sums and Their Applications",
+    "authors": ["Guy E. Blelloch"],
+    "year": 1990,
+    "report": "CMU-CS-90-190, Section 1.2",
+    "url": "https://www.cs.cmu.edu/afs/cs.cmu.edu/project/scandal/public/papers/CMU-CS-90-190.html",
+    "report_text_url": "https://www.cs.cmu.edu/~guyb/papers/Ble93.pdf",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,a0,...,a(N-1)]",
+    "item_count_range": [1, 64],
+    "value_range": [-1000000, 1000000],
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_vector",
+    "encoding": "N exclusive prefix sums; out[0]=0 and out[i]=sum(a[0..i))",
+    "success_result": "number of output bytes written",
+    "maximum_output_bytes": 512,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "At most 64 signed 64-bit padded tree entries (512 bytes), scalar loop state, and bounded language-container overhead; the caller's output buffer is accounted separately."
+  },
+  "contract": {
+    "padding": "P is the least power of two >= N; entries N through P-1 are initialized to additive identity 0.",
+    "upsweep": "For stride 2,4,...,P and half=stride/2, update disjoint right endpoints r=stride-1,stride-1+stride,... with tree[r]+=tree[r-half]. Each level reads the previous complete level.",
+    "root": "Set tree[P-1]=0 after the upsweep.",
+    "downsweep": "For stride P,P/2,...,2 and half=stride/2, for each right endpoint r save t=tree[r-half], set tree[r-half]=tree[r], then tree[r]+=t. Each level reads the previous complete level.",
+    "result": "Return tree[0..N] as exclusive prefix sums; the reduction total is not emitted.",
+    "parallel_model": "The native loops simulate a barrier between each tree level; updates within a level target disjoint endpoints.",
+    "overflow_bound": "Every partial sum covers a subset of at most 64 values in [-1000000,1000000], so all intermediates fit signed 64-bit and have magnitude at most 64000000.",
+    "work_and_span": "For padded size P, the tree performs 2(P-1) additions over 2*log2(P) barrier levels; P=1 performs no tree updates.",
+    "error_precedence": "Validate the full input frame before checking output nullness or capacity; malformed input returns -1, otherwise null or undersized output returns -2 without writes."
+  },
+  "references": {
+    "primary": "primary_oracle.py: execute the upsweep, root reset, and downsweep by complete levels over a padded power-of-two tree.",
+    "independent": "independent_oracle.py: calculate each exclusive result with a left-to-right running sum."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single_element","input_values":[1,7],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"power_of_two_eight","input_values":[8,3,1,7,0,4,1,6,3],"input_length":9,"output_capacity":64,"expected_result":64,"expected_output_hex":"0000000000000000030000000000000004000000000000000b000000000000000b000000000000000f0000000000000010000000000000001600000000000000"},
+    {"id":"non_power_of_two_negative_values","input_values":[5,-2,5,-1,4,3],"input_length":6,"output_capacity":40,"expected_result":40,"expected_output_hex":"0000000000000000feffffffffffffff030000000000000002000000000000000600000000000000"},
+    {"id":"all_zero_non_power_of_two","input_values":[3,0,0,0],"input_length":4,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000000000000000000000000000000000000"},
+    {"id":"alternating_bound_values","input_values":[6,1000000,-1000000,1000000,-1000000,1000000,-1000000],"input_length":7,"output_capacity":48,"expected_result":48,"expected_output_hex":"000000000000000040420f0000000000000000000000000040420f0000000000000000000000000040420f0000000000000000"},
+    {"id":"invalid_zero_items","input_values":[0,0],"input_length":2,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_item_count","input_values":[65,0],"input_length":2,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"value_out_of_range","input_values":[1,1000001],"input_length":2,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,4,99],"input_length":3,"output_capacity":512,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[5,-2,5,-1,4,3],"input_length":6,"output_capacity":39,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_output","input_values":[1,7],"input_length":2,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":512,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

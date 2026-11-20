@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "id": "markov-normal-string-rewriting-i64-array-bytes-output-v1",
+  "algorithm": "markov_normal_string_rewriting",
+  "function_symbol": "markov_normal_string_rewriting",
+  "abi": "i64_array_bytes_output",
+  "description": "Interpret a bounded ordered Markov normal algorithm with ordinary/final rules and an explicit rewrite cap.",
+  "source": {
+    "title": "Execute a Markov algorithm",
+    "discovery_url": "https://rosettagit.org/tasks/execute-a-markov-algorithm/",
+    "primary_reference": "A. A. Markov, Theory of algorithms",
+    "primary_reference_url": "https://www.mathnet.ru/eng/im2534",
+    "definition_reference_url": "https://encyclopediaofmath.org/wiki/Normal_algorithm",
+    "reuse": "RosettaGit supplied title discovery only; algorithm definitions were independently consulted and all code and fixtures are clean-room."
+  },
+  "contract": {
+    "input_layout": "[rule_count,step_limit,word_length,word..., (kind,lhs_length,rhs_length,lhs...,rhs...)*rule_count]",
+    "rule_priority": "Choose the lowest-index rule with a match; within that rule choose its leftmost occurrence.",
+    "restart_priority_after_rewrite": true,
+    "kind_values": {"0": "ordinary rewrite", "1": "final rewrite"},
+    "final_rule_behavior": "Apply the selected final rule, then halt immediately.",
+    "step_limit_behavior": "After step_limit rewrites, report cap only if some rule remains enabled; otherwise report normal halt.",
+    "intermediate_word_limit": 64,
+    "intermediate_overflow_result": -3,
+    "output_encoding": "Raw bytes [halt_code,rewrite_count,final_word_length,final_word_symbols...].",
+    "halt_codes": {"0": "no rule applies", "1": "final rule applied", "2": "step cap reached with an enabled rule"},
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "validation_order": "Validate the complete input frame before output-capacity handling; failures write no output bytes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rule_count,step_limit,word_length,word...,rule records...]",
+    "rule_count_range": [0, 8],
+    "step_limit_range": [0, 32],
+    "initial_word_length_range": [0, 48],
+    "rule_side_length_range": {"lhs": [1, 8], "rhs": [0, 8]},
+    "symbol_range": [0, 25],
+    "maximum_valid_length": 203,
+    "maximum_parseable_length": 204,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "halt code, rewrite count, final length, then symbols as bytes",
+    "maximum_bytes": 67,
+    "maximum_word_symbols": 64,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "intermediate_word_overflow_result": -3,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "accounting": "Fixed current/next word buffers, bounded rule storage, and scalar scan state; caller-owned input and output buffers are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty-word-no-rules",
+      "input_values": [0, 4, 0],
+      "input_length": 3,
+      "output_capacity": 67,
+      "expected_result": 3,
+      "expected_output_hex": "000000"
+    },
+    {
+      "id": "priority-before-longer-later-rule",
+      "input_values": [2, 2, 2, 0, 0, 0, 1, 1, 0, 2, 0, 2, 1, 0, 0, 3],
+      "input_length": 16,
+      "output_capacity": 67,
+      "expected_result": 5,
+      "expected_output_hex": "0002020202"
+    },
+    {
+      "id": "leftmost-occurrence-of-selected-rule",
+      "input_values": [1, 1, 3, 0, 0, 0, 0, 2, 1, 0, 0, 1],
+      "input_length": 12,
+      "output_capacity": 67,
+      "expected_result": 5,
+      "expected_output_hex": "0001020100"
+    },
+    {
+      "id": "final-rule-stops-after-replacement",
+      "input_values": [1, 2, 2, 0, 0, 1, 1, 1, 0, 1],
+      "input_length": 10,
+      "output_capacity": 67,
+      "expected_result": 5,
+      "expected_output_hex": "0101020100"
+    },
+    {
+      "id": "rewrite-cap-with-enabled-rule",
+      "input_values": [1, 2, 1, 0, 0, 1, 1, 0, 0],
+      "input_length": 9,
+      "output_capacity": 67,
+      "expected_result": 4,
+      "expected_output_hex": "02020100"
+    },
+    {
+      "id": "zero-step-cap-with-enabled-rule",
+      "input_values": [1, 0, 1, 0, 0, 1, 1, 0, 1],
+      "input_length": 9,
+      "output_capacity": 67,
+      "expected_result": 4,
+      "expected_output_hex": "02000100"
+    },
+    {
+      "id": "intermediate-word-overflow",
+      "input_values": [1, 7, 1, 0, 0, 1, 2, 0, 0],
+      "input_length": 9,
+      "output_capacity": 67,
+      "expected_result": -3,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-frame-before-short-output",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [0, 4, 0],
+      "input_length": 3,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0, 4, 0],
+      "input_length": 3,
+      "output_capacity": 67,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [0, 0, 0, 99],
+      "input_length": 4,
+      "output_capacity": 67,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 67,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

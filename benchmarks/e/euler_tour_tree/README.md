@@ -62,4 +62,5 @@ article prose was copied. See [`RIGHTS.md`](RIGHTS.md).
 | V | [`v/e/euler_tour_tree.v`](../../../v/e/euler_tour_tree.v) |
 | Zig | [`zig/e/euler_tour_tree.zig`](../../../zig/e/euler_tour_tree.zig) |
 
-Root owns shared suite registration and benchmark-corpus wiring.
+The package is registered in the shared `i64_array_bytes_output` runner and
+independent verifier.

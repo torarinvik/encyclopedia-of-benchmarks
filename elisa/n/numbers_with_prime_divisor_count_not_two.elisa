@@ -1,0 +1,57 @@
+const MAX_INPUT_LENGTH = 2
+const MAX_LIMIT = 1000
+
+def prime_divisor_count_is_prime(value: u16) -> bool:
+    if value < 2: return false
+    divisor: mutable u16 = 2
+    while divisor <= value / divisor:
+        if value % divisor == 0: return false
+        divisor <- divisor + 1
+    true
+
+def prime_divisor_count_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.bitcast[u64]()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def prime_divisor_count_impl(limit: usize, output: mutable view[u8]) -> i64:
+    divisor_counts: mutable u16[MAX_LIMIT] = zeroed
+    divisor: mutable usize = 1
+    while divisor < limit:
+        multiple: mutable usize = divisor
+        while multiple < limit:
+            divisor_counts[multiple] <- divisor_counts[multiple] + 1
+            multiple <- multiple + divisor
+        divisor <- divisor + 1
+
+    selected_count: mutable usize = 0
+    n: mutable usize = 1
+    while n < limit:
+        count: u16 = divisor_counts[n]
+        if count != 2 and prime_divisor_count_is_prime(count):
+            selected_count <- selected_count + 1
+        n <- n + 1
+    output_bytes: usize = selected_count * 8
+    if output.len() < output_bytes: return -2
+
+    output_index: mutable usize = 0
+    n <- 1
+    while n < limit:
+        count: u16 = divisor_counts[n]
+        if count != 2 and prime_divisor_count_is_prime(count):
+            prime_divisor_count_store_i64(output, output_index * 8, n.i64())
+            output_index <- output_index + 1
+        n <- n + 1
+    output_bytes.i64()
+
+export fn numbers_with_prime_divisor_count_not_two(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    input_values: view[i64] = input[0:length]
+    if length != 1 or input_values[0] < 1 or input_values[0] > MAX_LIMIT: return -1
+    if output.is_null(): return -2
+    limit: usize = input_values[0].usize()
+    output_view: mutable view[u8] = output[0:capacity]
+    prime_divisor_count_impl(limit, output_view)

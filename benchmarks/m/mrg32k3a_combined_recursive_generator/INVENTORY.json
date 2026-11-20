@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "algorithm": "mrg32k3a_combined_recursive_generator",
+  "abi": "i64_array_bytes_output",
+  "language_sources": {
+    "c": "c/m/mrg32k3a_combined_recursive_generator.c",
+    "c3": "c3/m/mrg32k3a_combined_recursive_generator.c3",
+    "cpp": "cpp/m/mrg32k3a_combined_recursive_generator.cpp",
+    "elisa": "elisa/m/mrg32k3a_combined_recursive_generator.elisa",
+    "mojo": "mojo/m/mrg32k3a_combined_recursive_generator.mojo",
+    "nim": "nim/m/mrg32k3a_combined_recursive_generator.nim",
+    "odin": "odin/m/mrg32k3a_combined_recursive_generator.odin",
+    "rust": "rust/m/mrg32k3a_combined_recursive_generator.rs",
+    "v": "v/m/mrg32k3a_combined_recursive_generator.v",
+    "zig": "zig/m/mrg32k3a_combined_recursive_generator.zig"
+  },
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ],
+  "bounds": {
+    "maximum_valid_input_words": 7,
+    "maximum_parseable_input_words": 8,
+    "maximum_count": 64,
+    "component_1_modulus": 4294967087,
+    "component_2_modulus": 4294944443,
+    "maximum_output_words": 64,
+    "maximum_output_bytes": 512,
+    "workspace_bytes": 128
+  },
+  "suite_integration": "benchmarks/run_i64_array_bytes_output.py and benchmarks/verify_i64_array_bytes_output.py registered"
+}

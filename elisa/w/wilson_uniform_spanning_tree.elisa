@@ -1,0 +1,124 @@
+from std.collections import InlineArray
+
+const MAX_N: usize = 8
+const MAX_EDGES: usize = 28
+const WALK_LIMIT: usize = 64
+const MAX_INPUT_WORDS: usize = 4 + 2 * MAX_EDGES + WALK_LIMIT * (MAX_N - 1)
+
+def write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def wilson_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values.len()
+    if length < 4 or length > MAX_INPUT_WORDS + 1: return -1
+    n0: i64 = values[0]
+    m0: i64 = values[1]
+    root0: i64 = values[2]
+    if n0 < 1 or n0 > MAX_N.i64() or m0 < 0 or m0 > MAX_EDGES.i64(): return -1
+    n: usize = n0.usize()
+    m: usize = m0.usize()
+    if root0 < 0 or root0 >= n0: return -1
+    root: usize = root0.usize()
+    q_at: usize = 3 + 2 * m
+    if length <= q_at: return -1
+    q0: i64 = values[q_at]
+    if q0 < 0 or q0 > (WALK_LIMIT * (n - 1)).i64(): return -1
+    q: usize = q0.usize()
+    if length != q_at + 1 + q: return -1
+
+    var neighbors = InlineArray[usize, 56](fill=0)
+    var degree = InlineArray[usize, 8](fill=0)
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < m:
+        u0: i64 = values[3 + 2 * edge]
+        v0: i64 = values[4 + 2 * edge]
+        if u0 < 0 or u0 >= v0 or v0 >= n0: return -1
+        if edge > 0 and (u0 < previous_u or (u0 == previous_u and v0 <= previous_v)): return -1
+        previous_u <- u0
+        previous_v <- v0
+        u: usize = u0.usize()
+        v: usize = v0.usize()
+        neighbors[u * 7 + degree[u]] <- v
+        degree[u] <- degree[u] + 1
+        neighbors[v * 7 + degree[v]] <- u
+        degree[v] <- degree[v] + 1
+        edge <- edge + 1
+    draw: mutable usize = 0
+    while draw < q:
+        value: i64 = values[q_at + 1 + draw]
+        if value < 0 or value > (MAX_N - 2).i64(): return -1
+        draw <- draw + 1
+
+    var seen = InlineArray[Bool, 8](fill=False)
+    var queue = InlineArray[usize, 8](fill=0)
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    seen[root] <- True
+    queue[tail] <- root
+    tail <- tail + 1
+    while head < tail:
+        at: usize = queue[head]
+        head <- head + 1
+        k: mutable usize = 0
+        while k < degree[at]:
+            to: usize = neighbors[at * 7 + k]
+            if not seen[to]:
+                seen[to] <- True
+                queue[tail] <- to
+                tail <- tail + 1
+            k <- k + 1
+    vertex: mutable usize = 0
+    while vertex < n:
+        if not seen[vertex]: return -1
+        vertex <- vertex + 1
+
+    var in_tree = InlineArray[Bool, 8](fill=False)
+    var successor = InlineArray[i64, 8](fill=-1)
+    in_tree[root] <- True
+    cursor: mutable usize = 0
+    start: mutable usize = 0
+    while start < n:
+        if not in_tree[start]:
+            current: mutable usize = start
+            steps: mutable usize = 0
+            while not in_tree[current]:
+                if steps >= WALK_LIMIT or cursor >= q: return -1
+                choice: usize = values[q_at + 1 + cursor].usize()
+                if choice >= degree[current]: return -1
+                successor[current] <- neighbors[current * 7 + choice].i64()
+                current <- successor[current].usize()
+                cursor <- cursor + 1
+                steps <- steps + 1
+            current <- start
+            while not in_tree[current]:
+                in_tree[current] <- True
+                current <- successor[current].usize()
+        start <- start + 1
+    if cursor != q: return -1
+
+    required: usize = 16 * (n - 1)
+    if (required > 0 and output.is_null()) or capacity < required: return -2
+    if required == 0: return 0
+    result: mutable view[u8] = output[0:required]
+    offset: mutable usize = 0
+    child: mutable usize = 0
+    while child < n:
+        if child != root:
+            write_i64_le(result, offset, child.i64())
+            offset <- offset + 8
+            write_i64_le(result, offset, successor[child])
+            offset <- offset + 8
+        child <- child + 1
+    required.i64()
+
+@export("wilson_uniform_spanning_tree")
+def wilson_uniform_spanning_tree(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_WORDS + 1: return -1
+    wilson_impl(input[0:length], output, capacity)

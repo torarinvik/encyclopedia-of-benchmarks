@@ -1,0 +1,105 @@
+const MAX_TREE_NODES: usize = 15
+const MAX_TOTAL_NODES: usize = 30
+const MAX_PARSEABLE_LENGTH: usize = 93
+
+def valid_tree(input: view[i64], offset: usize, node_count: usize) -> bool:
+    visited: mutable i64[15] = zeroed
+    parents: mutable i64[15] = zeroed
+    stack: mutable usize[15] = zeroed
+    visited_view: mutable view[i64] = visited[0:15]
+    parents_view: mutable view[i64] = parents[0:15]
+    stack_view: mutable view[usize] = stack[0:15]
+    top: mutable usize = 1
+    reached: mutable usize = 0
+
+    while top > 0:
+        top <- top - 1
+        node: usize = stack_view[top]
+        if node >= node_count or visited_view[node] != 0: return false
+        visited_view[node] <- 1
+        reached <- reached + 1
+        base: usize = offset + 3 * node
+        left: i64 = input[base + 1]
+        right: i64 = input[base + 2]
+        if left == -1 and right == -1: continue
+        if left < 0 or right < 0 or left >= node_count.i64() or right >= node_count.i64() or
+            left == right or left == 0 or right == 0: return false
+        left_index: usize = left.usize()
+        right_index: usize = right.usize()
+        parents_view[left_index] <- parents_view[left_index] + 1
+        parents_view[right_index] <- parents_view[right_index] + 1
+        if parents_view[left_index] != 1 or parents_view[right_index] != 1: return false
+        stack_view[top] <- right_index
+        top <- top + 1
+        stack_view[top] <- left_index
+        top <- top + 1
+
+    if reached != node_count or parents_view[0] != 0: return false
+    node: mutable usize = 1
+    while node < node_count:
+        if parents_view[node] != 1: return false
+        node <- node + 1
+    true
+
+def same_fringe_leaf_iterator_impl(input: view[i64]) -> i64:
+    if input.length < 2 or input.length > MAX_PARSEABLE_LENGTH: return -1
+    n_a_word: i64 = input[0]
+    n_b_word: i64 = input[1]
+    if n_a_word < 1 or n_a_word > MAX_TREE_NODES.i64() or
+        n_b_word < 1 or n_b_word > MAX_TREE_NODES.i64(): return -1
+    n_a: usize = n_a_word.usize()
+    n_b: usize = n_b_word.usize()
+    if n_a + n_b > MAX_TOTAL_NODES or input.length != 2 + 3 * (n_a + n_b): return -1
+    offset_a: usize = 2
+    offset_b: usize = 2 + 3 * n_a
+    if not valid_tree(input, offset_a, n_a) or not valid_tree(input, offset_b, n_b): return -1
+
+    stack_a: mutable usize[15] = zeroed
+    stack_b: mutable usize[15] = zeroed
+    stack_a_view: mutable view[usize] = stack_a[0:15]
+    stack_b_view: mutable view[usize] = stack_b[0:15]
+    top_a: mutable usize = 1
+    top_b: mutable usize = 1
+    while true:
+        have_a: mutable bool = false
+        have_b: mutable bool = false
+        leaf_a: mutable i64 = 0
+        leaf_b: mutable i64 = 0
+        while top_a > 0 and not have_a:
+            top_a <- top_a - 1
+            node: usize = stack_a_view[top_a]
+            base: usize = offset_a + 3 * node
+            left: i64 = input[base + 1]
+            right: i64 = input[base + 2]
+            if left == -1:
+                leaf_a <- input[base]
+                have_a <- true
+            else:
+                stack_a_view[top_a] <- right.usize()
+                top_a <- top_a + 1
+                stack_a_view[top_a] <- left.usize()
+                top_a <- top_a + 1
+        while top_b > 0 and not have_b:
+            top_b <- top_b - 1
+            node: usize = stack_b_view[top_b]
+            base: usize = offset_b + 3 * node
+            left: i64 = input[base + 1]
+            right: i64 = input[base + 2]
+            if left == -1:
+                leaf_b <- input[base]
+                have_b <- true
+            else:
+                stack_b_view[top_b] <- right.usize()
+                top_b <- top_b + 1
+                stack_b_view[top_b] <- left.usize()
+                top_b <- top_b + 1
+        if not have_a or not have_b:
+            if have_a == have_b: return 1
+            return 0
+        if leaf_a != leaf_b: return 0
+    -1
+
+export fn same_fringe_leaf_iterator(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    same_fringe_leaf_iterator_impl(input_view)

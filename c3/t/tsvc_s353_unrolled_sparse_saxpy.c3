@@ -12,7 +12,7 @@ fn void store_i64_le(uchar* output, usz offset, long value) {
     }
 }
 
-long tsvc_s353_unrolled_sparse_saxpy(long* input, usz length, uchar* output, usz capacity) @export("tsvc_s353_unrolled_sparse_saxpy") {
+fn long tsvc_s353_unrolled_sparse_saxpy(long* input, usz length, uchar* output, usz capacity) @export("tsvc_s353_unrolled_sparse_saxpy") {
     if (input == null || length < 17 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 5 || input[0] > (long)MAX_N || input[0] % 5 != 0) return -1;
     usz n = (usz)input[0];

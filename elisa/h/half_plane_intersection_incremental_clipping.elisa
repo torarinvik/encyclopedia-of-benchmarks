@@ -1,0 +1,130 @@
+# Independently authored draft; not compiled or run.
+def fn clip_abs(x: i64) -> i64:
+    if x < 0: -x else: x
+
+def fn clip_gcd(x: i64, y: i64) -> i64:
+    a: mutable i64 = clip_abs(x)
+    b: mutable i64 = clip_abs(y)
+    while b != 0:
+        r: i64 = a % b
+        a <- b
+        b <- r
+    a
+
+def fn clip_same(a: view[i64], b: view[i64]) -> bool:
+    a[0] * b[2] == b[0] * a[2] and a[1] * b[2] == b[1] * a[2]
+
+def fn clip_turn(a: view[i64], b: view[i64], c: view[i64]) -> i64:
+    dx1: i64 = b[0] * a[2] - a[0] * b[2]
+    dy1: i64 = b[1] * a[2] - a[1] * b[2]
+    dx2: i64 = c[0] * b[2] - b[0] * c[2]
+    dy2: i64 = c[1] * b[2] - b[1] * c[2]
+    dx1 * dy2 - dy1 * dx2
+
+def fn clip_side(line: view[i64], p: view[i64]) -> i64:
+    line[0] * p[0] + line[1] * p[1] - line[2] * p[2]
+
+def fn clip_intersect(a: view[i64], b: view[i64], p: mutable view[i64]) -> bool:
+    d: mutable i64 = a[0] * b[1] - b[0] * a[1]
+    if d == 0: return false
+    x: mutable i64 = a[2] * b[1] - a[1] * b[2]
+    y: mutable i64 = a[0] * b[2] - a[2] * b[0]
+    if d < 0:
+        d <- -d; x <- -x; y <- -y
+    g: i64 = clip_gcd(clip_gcd(x, y), d)
+    p[0] <- x / g; p[1] <- y / g; p[2] <- d / g
+    true
+
+def fn clip_put(out: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        out[offset + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def fn clip_impl(input: view[i64], output: mutable view[u8], output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > 38: return -1
+    if input[0] < 0 or input[0] > 12: return -1
+    n: usize = input[0].usize()
+    if length != 1 + 3 * n: return -1
+    lines: mutable i64[48] = zeroed
+    lines[0] <- -1; lines[2] <- 256
+    lines[4] <- -1; lines[5] <- 256
+    lines[6] <- 1; lines[8] <- 256
+    lines[10] <- 1; lines[11] <- 256
+    for i in 0..<n:
+        a: i64 = input[1 + 3 * i]; b: i64 = input[2 + 3 * i]; c: i64 = input[3 + 3 * i]
+        if a < -16 or a > 16 or b < -16 or b > 16 or c < -128 or c > 128: return -1
+        if (a == 0 and b == 0) or clip_gcd(a, b) != 1: return -1
+        lines[12 + 3 * i] <- a; lines[13 + 3 * i] <- b; lines[14 + 3 * i] <- c
+    poly: mutable i64[128] = zeroed
+    poly[0] <- -256; poly[1] <- -256; poly[2] <- 1; poly[3] <- 0
+    poly[4] <- 256; poly[5] <- -256; poly[6] <- 1; poly[7] <- 1
+    poly[8] <- 256; poly[9] <- 256; poly[10] <- 1; poly[11] <- 2
+    poly[12] <- -256; poly[13] <- 256; poly[14] <- 1; poly[15] <- 3
+    count: mutable usize = 4
+    for line in 4..<4 + n:
+        if count < 3: break
+        next: mutable i64[128] = zeroed
+        used: mutable usize = 0
+        for i in 0..<count:
+            s: usize = 4 * ((i + count - 1) % count)
+            e: usize = 4 * i
+            s_in: bool = clip_side(lines[3 * line:3 * line + 3], poly[s:s + 4]) <= 0
+            e_in: bool = clip_side(lines[3 * line:3 * line + 3], poly[e:e + 4]) <= 0
+            if s_in != e_in:
+                point: mutable i64[4] = zeroed
+                edge: usize = poly[e + 3].usize()
+                if not clip_intersect(lines[3 * edge:3 * edge + 3], lines[3 * line:3 * line + 3], point[0:4]): return -1
+                point[3] <- if s_in: edge.i64() else: line.i64()
+                if used == 0 or not clip_same(next[4 * (used - 1):4 * used], point[0:4]):
+                    for k in 0..<4: next[4 * used + k] <- point[k]
+                    used <- used + 1
+            if e_in and (used == 0 or not clip_same(next[4 * (used - 1):4 * used], poly[e:e + 4])):
+                for k in 0..<4: next[4 * used + k] <- poly[e + k]
+                used <- used + 1
+        if used > 1 and clip_same(next[0:4], next[4 * (used - 1):4 * used]):
+            next[3] <- next[4 * (used - 1) + 3]
+            used <- used - 1
+        count <- used
+        for i in 0..<4 * count: poly[i] <- next[i]
+        noncollinear: mutable bool = false
+        if count >= 3:
+            for i in 0..<count:
+                a: usize = 4 * i; b: usize = 4 * ((i + 1) % count); c: usize = 4 * ((i + 2) % count)
+                if clip_turn(poly[a:a + 4], poly[b:b + 4], poly[c:c + 4]) != 0: noncollinear <- true
+        if not noncollinear: count <- 0
+    changed: mutable bool = true
+    while changed and count >= 3:
+        changed <- false
+        for i in 0..<count:
+            a: usize = 4 * ((i + count - 1) % count); b: usize = 4 * i; c: usize = 4 * ((i + 1) % count)
+            if clip_turn(poly[a:a + 4], poly[b:b + 4], poly[c:c + 4]) == 0:
+                for j in i..<count - 1:
+                    for k in 0..<4: poly[4 * j + k] <- poly[4 * (j + 1) + k]
+                count <- count - 1; changed <- true; break
+    if count < 3: count <- 0
+    first: mutable usize = 0
+    if count > 0:
+        for i in 1..<count:
+            yi: i64 = poly[4 * i + 1] * poly[4 * first + 2]
+            yf: i64 = poly[4 * first + 1] * poly[4 * i + 2]
+            if yi < yf or (yi == yf and poly[4 * i] * poly[4 * first + 2] < poly[4 * first] * poly[4 * i + 2]): first <- i
+    needed: usize = (1 + 4 * count) * 8
+    if output_is_null or output.len() < needed: return -2
+    clip_put(output, 0, count.i64())
+    for i in 0..<count:
+        p: usize = 4 * ((first + i) % count)
+        gx: i64 = clip_gcd(poly[p], poly[p + 2]); gy: i64 = clip_gcd(poly[p + 1], poly[p + 2])
+        base: usize = 8 + 32 * i
+        clip_put(output, base, poly[p] / gx); clip_put(output, base + 8, poly[p + 2] / gx)
+        clip_put(output, base + 16, poly[p + 1] / gy); clip_put(output, base + 24, poly[p + 2] / gy)
+    needed.i64()
+
+export fn half_plane_intersection_incremental_clipping(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length > 38: return -1
+    if output.is_null():
+        staged: mutable u8[1] = zeroed
+        return clip_impl(values[0:length], staged[0:1], true)
+    clip_impl(values[0:length], output[0:capacity], false)

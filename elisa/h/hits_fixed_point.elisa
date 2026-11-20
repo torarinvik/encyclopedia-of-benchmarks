@@ -1,0 +1,84 @@
+const HITS_MAX_N: usize = 16
+const HITS_MAX_M: usize = 64
+const HITS_MAX_INPUT: usize = 131
+const HITS_MAX_PARSEABLE: usize = 132
+const HITS_SCALE: i64 = 1000000
+
+export fn hits_fixed_point(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > HITS_MAX_PARSEABLE: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    m_value: i64 = input_view[1]
+    k_value: i64 = input_view[2]
+    if n_value < 1 or n_value > HITS_MAX_N.i64(): return -1
+    if m_value < 0 or m_value > HITS_MAX_M.i64(): return -1
+    if k_value < 0 or k_value > 32: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    k: usize = k_value.usize()
+    if length != 3 + 2 * m or length > HITS_MAX_INPUT: return -1
+
+    from: mutable usize[HITS_MAX_M] = zeroed
+    to: mutable usize[HITS_MAX_M] = zeroed
+    arc: mutable usize = 0
+    while arc < m:
+        u_value: i64 = input_view[3 + 2 * arc]
+        v_value: i64 = input_view[4 + 2 * arc]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value:
+            return -1
+        from[arc] <- u_value.usize()
+        to[arc] <- v_value.usize()
+        previous: mutable usize = 0
+        while previous < arc:
+            if from[previous] == from[arc] and to[previous] == to[arc]: return -1
+            previous <- previous + 1
+        arc <- arc + 1
+
+    authority: mutable i64[HITS_MAX_N] = zeroed
+    hub: mutable i64[HITS_MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        hub[vertex] <- HITS_SCALE
+        vertex <- vertex + 1
+
+    iteration: mutable usize = 0
+    while iteration < k:
+        raw: mutable i64[HITS_MAX_N] = zeroed
+        arc <- 0
+        while arc < m:
+            raw[to[arc]] <- raw[to[arc]] + hub[from[arc]]
+            arc <- arc + 1
+        authority_total: mutable i64 = 0
+        vertex <- 0
+        while vertex < n:
+            authority_total <- authority_total + raw[vertex]
+            vertex <- vertex + 1
+        vertex <- 0
+        while vertex < n:
+            if authority_total == 0: authority[vertex] <- 0
+            else: authority[vertex] <- raw[vertex] * HITS_SCALE / authority_total
+            raw[vertex] <- 0
+            vertex <- vertex + 1
+
+        arc <- 0
+        while arc < m:
+            raw[from[arc]] <- raw[from[arc]] + authority[to[arc]]
+            arc <- arc + 1
+        hub_total: mutable i64 = 0
+        vertex <- 0
+        while vertex < n:
+            hub_total <- hub_total + raw[vertex]
+            vertex <- vertex + 1
+        vertex <- 0
+        while vertex < n:
+            if hub_total == 0: hub[vertex] <- 0
+            else: hub[vertex] <- raw[vertex] * HITS_SCALE / hub_total
+            vertex <- vertex + 1
+        iteration <- iteration + 1
+
+    checksum: mutable i64 = 0
+    vertex <- 0
+    while vertex < n:
+        checksum <- checksum + (vertex.i64() + 1) * (authority[vertex] + 65537 * hub[vertex])
+        vertex <- vertex + 1
+    checksum

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "lcfs-hashing-i64-array-scalar-v1",
+  "algorithm": "lcfs_hashing",
+  "function_symbol": "lcfs_hashing",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "LCFS hashing",
+    "repository": "NIST Dictionary of Algorithms and Data Structures",
+    "url": "https://xlinux.nist.gov/dads/HTML/lcfsHashing.html",
+    "accessed": "2026-11-16",
+    "license": "Algorithm description only; no source code or prose copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[capacity, n, keys[n]]",
+    "length_formula": "n+2",
+    "capacity_range": [1, 32],
+    "N_range": [0, 32],
+    "key_range": [0, 1000000],
+    "keys_must_be_unique": true,
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "definition": "The total number of occupied slots whose resident is displaced while inserting all keys, or -1 for malformed input.",
+    "valid_result_range": [0, 496],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 256,
+    "description": "A fixed table of 32 signed 64-bit keys, including empty-slot sentinels."
+  },
+  "method": {
+    "operation": "Each arriving key takes its home slot; if occupied, it replaces that resident, which continues into the next slot and repeats the rule until an empty slot is reached.",
+    "distinct_from": "Ordinary linear probing advances the arriving key past existing residents. Robin Hood hashing swaps according to probe distance. LCFS makes the arriving key resident at each occupied slot and forwards the resident."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty_table", "input_values":[4,0], "input_length":2, "expected_result":0},
+    {"id":"no_collisions", "input_values":[8,4,0,1,2,3], "input_length":6, "expected_result":0},
+    {"id":"one_resident_displacement", "input_values":[4,2,0,4], "input_length":4, "expected_result":1},
+    {"id":"resident_chain", "input_values":[5,3,0,5,10], "input_length":5, "expected_result":3},
+    {"id":"wraparound_chain", "input_values":[5,3,4,9,14], "input_length":5, "expected_result":3},
+    {"id":"different_home_chain", "input_values":[5,3,0,5,1], "input_length":5, "expected_result":2},
+    {"id":"full_table_mixed", "input_values":[4,4,0,4,1,5], "input_length":6, "expected_result":4},
+    {"id":"single_slot", "input_values":[1,1,23], "input_length":3, "expected_result":0},
+    {"id":"max_capacity_cluster", "input_values":[32,8,0,32,64,96,128,160,192,224], "input_length":10, "expected_result":28},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1},
+    {"id":"missing_header", "input_values":[], "input_length":0, "expected_result":-1},
+    {"id":"zero_capacity", "input_values":[0,0], "input_length":2, "expected_result":-1},
+    {"id":"count_exceeds_capacity", "input_values":[3,4,0,1,2,3], "input_length":6, "expected_result":-1},
+    {"id":"truncated_keys", "input_values":[4,2,0], "input_length":3, "expected_result":-1},
+    {"id":"trailing_key", "input_values":[4,1,0,1], "input_length":4, "expected_result":-1},
+    {"id":"duplicate_keys", "input_values":[4,3,0,4,0], "input_length":5, "expected_result":-1},
+    {"id":"negative_key", "input_values":[4,1,-1], "input_length":3, "expected_result":-1},
+    {"id":"key_above_domain", "input_values":[4,1,1000001], "input_length":3, "expected_result":-1},
+    {"id":"maximum_valid_length", "input_values":[32,32,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], "input_length":34, "expected_result":0}
+  ]
+}

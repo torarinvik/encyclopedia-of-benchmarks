@@ -1,0 +1,167 @@
+const RS_MAX_ROWS: usize = 6
+const RS_MAX_COLUMNS: usize = 8
+const RS_MAX_INPUT: usize = 17
+const RS_MAX_STACK: usize = 32
+
+def rs_store_i64_le(value: i64, output: mutable view[u8]) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def rs_interval_cover(left: view[i64], right: view[i64], count: usize,
+                      weights: view[i64], columns: usize,
+                      out_cost: mutable i64&, out_mask: mutable i64&) -> bool:
+    if count == 0:
+        out_cost <- 0
+        out_mask <- 0
+        return true
+    minimum_right: mutable i64 = right[0]
+    maximum_left: mutable i64 = left[0]
+    for i in 1..<count:
+        if right[i] < minimum_right: minimum_right <- right[i]
+        if left[i] > maximum_left: maximum_left <- left[i]
+    costs: mutable i64[RS_MAX_COLUMNS] = zeroed
+    masks: mutable i64[RS_MAX_COLUMNS] = zeroed
+    for point in 0..<columns: costs[point] <- 1000000
+    for point in 0..<columns:
+        if point.i64() <= minimum_right:
+            costs[point] <- weights[point]
+            masks[point] <- 1.i64() << point
+        for previous in 0..<point:
+            if costs[previous] == 1000000: continue
+            blocked: mutable bool = false
+            for i in 0..<count:
+                if previous.i64() < left[i] and right[i] < point.i64():
+                    blocked <- true
+                    break
+            if blocked: continue
+            candidate_cost: i64 = costs[previous] + weights[point]
+            candidate_mask: i64 = masks[previous] | (1.i64() << point)
+            if candidate_cost < costs[point] or
+               (candidate_cost == costs[point] and candidate_mask < masks[point]):
+                costs[point] <- candidate_cost
+                masks[point] <- candidate_mask
+    best_cost: mutable i64 = 1000000
+    best_mask: mutable i64 = 0
+    for point in 0..<columns:
+        if point.i64() < maximum_left: continue
+        if costs[point] < best_cost or
+           (costs[point] == best_cost and costs[point] != 1000000 and masks[point] < best_mask):
+            best_cost <- costs[point]
+            best_mask <- masks[point]
+    if best_cost == 1000000: return false
+    out_cost <- best_cost
+    out_mask <- best_mask
+    true
+
+export fn ruf_schobel_set_cover(input: i64&, length: usize,
+                                output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > RS_MAX_INPUT: return -1
+    rows_raw: i64 = input[0]
+    columns_raw: i64 = input[1]
+    if rows_raw < 1 or rows_raw > RS_MAX_ROWS.i64() or
+       columns_raw < 1 or columns_raw > RS_MAX_COLUMNS.i64(): return -1
+    rows: usize = rows_raw.usize()
+    columns: usize = columns_raw.usize()
+    if length != 2 + rows + columns: return -1
+    weights: mutable i64[RS_MAX_COLUMNS] = zeroed
+    for column in 0..<columns:
+        weight: i64 = input[2 + column]
+        if weight < 1 or weight > 20: return -1
+        weights[column] <- weight
+    allowed: u64 = (1.u64() << columns) - 1
+    row_masks: mutable u64[RS_MAX_ROWS] = zeroed
+    block_left: mutable i64[RS_MAX_ROWS][RS_MAX_COLUMNS] = zeroed
+    block_right: mutable i64[RS_MAX_ROWS][RS_MAX_COLUMNS] = zeroed
+    block_count: mutable usize[RS_MAX_ROWS] = zeroed
+    for row in 0..<rows:
+        raw: i64 = input[2 + columns + row]
+        if raw < 0 or (raw.u64() & ~allowed) != 0: return -1
+        row_masks[row] <- raw.u64()
+        column: mutable usize = 0
+        while column < columns:
+            if (row_masks[row] & (1.u64() << column)) == 0:
+                column <- column + 1
+                continue
+            block: usize = block_count[row]
+            block_left[row][block] <- column.i64()
+            while column + 1 < columns and (row_masks[row] & (1.u64() << (column + 1))) != 0:
+                column <- column + 1
+            block_right[row][block] <- column.i64()
+            block_count[row] <- block_count[row] + 1
+            column <- column + 1
+
+    for row in 0..<rows:
+        if row_masks[row] == 0:
+            if output.is_null() or capacity < 8: return -2
+            rs_store_i64_le(-1, output[0:8])
+            return 8
+
+    best_cost: mutable i64 = 1000000
+    stack: mutable i64[RS_MAX_STACK][RS_MAX_ROWS] = zeroed
+    stack_size: mutable usize = 1
+    for row in 0..<rows: stack[0][row] <- -1
+    while stack_size > 0:
+        stack_size <- stack_size - 1
+        fixed: mutable i64[RS_MAX_ROWS] = zeroed
+        for row in 0..<rows: fixed[row] <- stack[stack_size][row]
+        left: mutable i64[RS_MAX_ROWS] = zeroed
+        right: mutable i64[RS_MAX_ROWS] = zeroed
+        count: mutable usize = 0
+        for row in 0..<rows:
+            if block_count[row] == 1 or fixed[row] >= 0:
+                block: usize = 0
+                if block_count[row] != 1: block <- fixed[row].usize()
+                left[count] <- block_left[row][block]
+                right[count] <- block_right[row][block]
+                count <- count + 1
+        lower_cost: mutable i64 = 0
+        lower_mask: mutable i64 = 0
+        if not rs_interval_cover(left[0:count], right[0:count], count,
+                                 weights[0:columns], columns, lower_cost, lower_mask): continue
+        extra_left: mutable i64[RS_MAX_ROWS] = zeroed
+        extra_right: mutable i64[RS_MAX_ROWS] = zeroed
+        extra_count: mutable usize = 0
+        for row in 0..<rows:
+            if (row_masks[row] & lower_mask.u64()) != 0: continue
+            chosen: mutable usize = 0
+            chosen_cost: mutable i64 = 1000000
+            for block in 0..<block_count[row]:
+                cheapest: mutable i64 = 1000000
+                for column in block_left[row][block].usize()..<(block_right[row][block].usize() + 1):
+                    if weights[column] < cheapest: cheapest <- weights[column]
+                if cheapest < chosen_cost:
+                    chosen_cost <- cheapest
+                    chosen <- block
+            extra_left[extra_count] <- block_left[row][chosen]
+            extra_right[extra_count] <- block_right[row][chosen]
+            extra_count <- extra_count + 1
+        extra_cost: mutable i64 = 0
+        extra_mask: mutable i64 = 0
+        if not rs_interval_cover(extra_left[0:extra_count], extra_right[0:extra_count],
+                                 extra_count, weights[0:columns], columns,
+                                 extra_cost, extra_mask): continue
+        candidate_mask: i64 = lower_mask | extra_mask
+        candidate_cost: mutable i64 = 0
+        for column in 0..<columns:
+            if (candidate_mask & (1.i64() << column)) != 0:
+                candidate_cost <- candidate_cost + weights[column]
+        if candidate_cost < best_cost: best_cost <- candidate_cost
+        if best_cost <= lower_cost: continue
+        branch: mutable i64 = -1
+        for row in 0..<rows:
+            if block_count[row] > 1 and fixed[row] < 0:
+                branch <- row.i64()
+                break
+        if branch < 0: continue
+        block: mutable i64 = block_count[branch.usize()].i64() - 1
+        while block >= 0:
+            for row in 0..<rows: stack[stack_size][row] <- fixed[row]
+            stack[stack_size][branch.usize()] <- block
+            stack_size <- stack_size + 1
+            block <- block - 1
+    result: i64 = best_cost
+    if best_cost == 1000000: result <- -1
+    if output.is_null() or capacity < 8: return -2
+    rs_store_i64_le(result, output[0:8])
+    8

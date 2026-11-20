@@ -1,0 +1,279 @@
+struct EpCluster:
+    center: usize
+    radius: usize
+    members: bool[20]
+    tree: bool[190]
+
+struct EpContext:
+    n: usize
+    m: usize
+    adjacent: bool[400]
+    edge_index: i64[400]
+    distance: i64[400]
+
+def ep_edge_id(context: EpContext&, a: usize, b: usize) -> usize:
+    left: usize = if a < b: a else: b
+    right: usize = if a < b: b else: a
+    context.edge_index[left * 20 + right].usize()
+
+def ep_bfs(context: EpContext&, source: usize, allowed: view[bool], restrict: bool,
+        parent: mutable view[i64], distance: mutable view[i64]) -> usize:
+    queue: mutable usize[20] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    for vertex in 0..<context.n:
+        parent[vertex] <- -1
+        distance[vertex] <- 1000
+    queue[0] <- source
+    distance[source] <- 0
+    while head < tail:
+        vertex: usize = queue[head]
+        head <- head + 1
+        for neighbor in 0..<context.n:
+            if context.adjacent[vertex * 20 + neighbor] and
+               (not restrict or allowed[neighbor]) and distance[neighbor] == 1000:
+                distance[neighbor] <- distance[vertex] + 1
+                parent[neighbor] <- vertex.i64()
+                queue[tail] <- neighbor
+                tail <- tail + 1
+    radius: mutable usize = 0
+    for vertex in 0..<context.n:
+        if (not restrict or allowed[vertex]) and distance[vertex].usize() > radius:
+            radius <- distance[vertex].usize()
+    radius
+
+def ep_tree(context: EpContext&, allowed: view[bool], root: usize,
+        result: mutable view[bool]) -> usize:
+    parent: mutable i64[20] = zeroed
+    distance: mutable i64[20] = zeroed
+    radius: usize = ep_bfs(context&, root, allowed, true, parent[0:context.n], distance[0:context.n])
+    for vertex in 0..<context.n:
+        if allowed[vertex] and vertex != root:
+            edge: usize = ep_edge_id(context&, vertex, parent[vertex].usize())
+            if context.edge_index[vertex * 20 + parent[vertex].usize()] >= 0:
+                result[edge] <- true
+    radius
+
+def ep_set_distance(context: EpContext&, left: view[bool], right: view[bool]) -> usize:
+    best: mutable usize = 1000
+    for u in 0..<context.n:
+        if left[u]:
+            for v in 0..<context.n:
+                d: usize = context.distance[u * 20 + v].usize()
+                if right[v] and d < best: best <- d
+    best
+
+def ep_cluster_before(left: EpCluster, right: EpCluster, n: usize) -> bool:
+    if left.center != right.center: return left.center < right.center
+    for vertex in 0..<n:
+        if left.members[vertex] != right.members[vertex]: return left.members[vertex]
+    false
+
+def ep_connector(context: EpContext&, left: view[bool], right: view[bool],
+        result: mutable view[bool]) -> void:
+    best_distance: mutable usize = 1000
+    best_length: mutable usize = 0
+    best_path: mutable usize[20] = zeroed
+    have_best: mutable bool = false
+    unrestricted: bool[1] = zeroed
+    for source in 0..<context.n:
+        if not left[source]: continue
+        parent: mutable i64[20] = zeroed
+        distance: mutable i64[20] = zeroed
+        _ = ep_bfs(context&, source, unrestricted[0:1], false, parent[0:context.n], distance[0:context.n])
+        for target in 0..<context.n:
+            d: usize = distance[target].usize()
+            if not right[target] or d == 1000 or d > best_distance: continue
+            reversed: mutable usize[20] = zeroed
+            length: mutable usize = 0
+            vertex: mutable i64 = target.i64()
+            while vertex >= 0 and length < context.n:
+                reversed[length] <- vertex.usize()
+                length <- length + 1
+                if vertex.usize() == source: break
+                vertex <- parent[vertex.usize()]
+            if length == 0 or reversed[length - 1] != source: continue
+            earlier: mutable bool = not have_best or d < best_distance
+            if not earlier and d == best_distance:
+                for i in 0..<length:
+                    candidate: usize = reversed[length - 1 - i]
+                    if candidate != best_path[i]:
+                        earlier <- candidate < best_path[i]
+                        break
+            if earlier:
+                have_best <- true
+                best_distance <- d
+                best_length <- length
+                for i in 0..<length: best_path[i] <- reversed[length - 1 - i]
+    for i in 1..<best_length:
+        edge: usize = ep_edge_id(context&, best_path[i - 1], best_path[i])
+        result[edge] <- true
+
+def ep_sigma(n: usize) -> usize:
+    value: mutable usize = 1
+    while value * value * value * value < n: value <- value + 1
+    value
+
+def ep_supercluster(context: EpContext&, input: view[EpCluster], input_count: usize,
+        threshold: usize, delta: usize, output: mutable view[EpCluster],
+        output_count: mutable usize&, chosen: mutable view[bool]) -> void:
+    active: mutable bool[20] = zeroed
+    for i in 0..<input_count: active[i] <- true
+    output_count <- 0
+    while true:
+        center: mutable i64 = -1
+        neighborhoods: mutable bool[400] = zeroed
+        for candidate in 0..<input_count:
+            if not active[candidate]: continue
+            count: mutable usize = 0
+            for other in 0..<input_count:
+                if active[other] and ep_set_distance(context&, input[candidate].members[0:context.n],
+                        input[other].members[0:context.n]) <= delta:
+                    neighborhoods[candidate * 20 + other] <- true
+                    count <- count + 1
+            if count >= threshold and (center < 0 or ep_cluster_before(input[candidate], input[center.usize()], context.n)):
+                center <- candidate.i64()
+        if center < 0: break
+        merged: mutable EpCluster = zeroed
+        merged.center <- input[center.usize()].center
+        for other in 0..<input_count:
+            if not neighborhoods[center.usize() * 20 + other]: continue
+            active[other] <- false
+            for vertex in 0..<context.n:
+                merged.members[vertex] <- merged.members[vertex] or input[other].members[vertex]
+            for edge in 0..<context.m:
+                merged.tree[edge] <- merged.tree[edge] or input[other].tree[edge]
+                chosen[edge] <- chosen[edge] or input[other].tree[edge]
+            if other != center.usize():
+                connector_edges: mutable bool[190] = zeroed
+                ep_connector(context&, input[center.usize()].members[0:context.n],
+                    input[other].members[0:context.n], connector_edges[0:context.m])
+                for edge in 0..<context.m:
+                    merged.tree[edge] <- merged.tree[edge] or connector_edges[edge]
+                    chosen[edge] <- chosen[edge] or connector_edges[edge]
+        output[output_count] <- merged
+        output_count <- output_count + 1
+    remaining: mutable usize[20] = zeroed
+    remaining_count: mutable usize = 0
+    for i in 0..<input_count:
+        if active[i]: remaining[remaining_count] <- i; remaining_count <- remaining_count + 1
+    for i in 1..<remaining_count:
+        key: usize = remaining[i]
+        position: mutable usize = i
+        while position > 0 and ep_cluster_before(input[key], input[remaining[position - 1]], context.n):
+            remaining[position] <- remaining[position - 1]
+            position <- position - 1
+        remaining[position] <- key
+    for i in 0..<remaining_count:
+        for j in i + 1..<remaining_count:
+            left: EpCluster = input[remaining[i]]
+            right: EpCluster = input[remaining[j]]
+            if ep_set_distance(context&, left.members[0:context.n], right.members[0:context.n]) <= delta:
+                ep_connector(context&, left.members[0:context.n], right.members[0:context.n], chosen)
+
+def ep_construct(context: mutable EpContext&) -> bool[190]:
+    unrestricted: bool[1] = zeroed
+    for source in 0..<context.n:
+        parent: mutable i64[20] = zeroed
+        distance: mutable i64[20] = zeroed
+        _ = ep_bfs(context&, source, unrestricted[0:1], false, parent[0:context.n], distance[0:context.n])
+        for vertex in 0..<context.n: context.distance[source * 20 + vertex] <- distance[vertex]
+    chosen: mutable bool[190] = zeroed
+    uncovered: mutable bool[20] = zeroed
+    for vertex in 0..<context.n: uncovered[vertex] <- true
+    ground: mutable EpCluster[20] = zeroed
+    ground_count: mutable usize = 0
+    while true:
+        root: mutable i64 = -1
+        for vertex in 0..<context.n:
+            if uncovered[vertex]: root <- vertex.i64(); break
+        if root < 0: break
+        members: mutable bool[20] = zeroed
+        members[root.usize()] <- true
+        size: mutable usize = 1
+        while true:
+            shell: mutable bool[20] = zeroed
+            shell_size: mutable usize = 0
+            for vertex in 0..<context.n:
+                shell[vertex] <- members[vertex]
+                if not shell[vertex] and uncovered[vertex]:
+                    for u in 0..<context.n:
+                        if members[u] and context.adjacent[u * 20 + vertex]: shell[vertex] <- true; break
+                if shell[vertex]: shell_size <- shell_size + 1
+            if shell_size == size or shell_size * shell_size * shell_size * shell_size < context.n * size * size * size * size: break
+            for vertex in 0..<context.n:
+                if shell[vertex] and not members[vertex]: members[vertex] <- true; size <- size + 1
+        shell: mutable bool[20] = zeroed
+        for vertex in 0..<context.n:
+            shell[vertex] <- members[vertex]
+            if not shell[vertex] and uncovered[vertex]:
+                for u in 0..<context.n:
+                    if members[u] and context.adjacent[u * 20 + vertex]: shell[vertex] <- true; break
+        cluster: mutable EpCluster = zeroed
+        cluster.center <- root.usize()
+        for vertex in 0..<context.n: cluster.members[vertex] <- members[vertex]
+        cluster.radius <- ep_tree(context&, members[0:context.n], root.usize(), cluster.tree[0:context.m])
+        shell_tree: mutable bool[190] = zeroed
+        _ = ep_tree(context&, shell[0:context.n], root.usize(), shell_tree[0:context.m])
+        for edge in 0..<context.m: chosen[edge] <- chosen[edge] or shell_tree[edge]
+        ground[ground_count] <- cluster
+        ground_count <- ground_count + 1
+        for vertex in 0..<context.n:
+            if members[vertex]: uncovered[vertex] <- false
+    level: mutable EpCluster[20] = zeroed
+    level_count: mutable usize = 0
+    for i in 0..<ground_count:
+        if ground[i].radius == 1: level[level_count] <- ground[i]; level_count <- level_count + 1
+    supers: mutable EpCluster[20] = zeroed
+    super_count: mutable usize = 0
+    ep_supercluster(context&, level[0:level_count], level_count, ep_sigma(context.n), 16,
+        supers[0:20], super_count, chosen[0:context.m])
+    final_clusters: mutable EpCluster[20] = zeroed
+    final_count: mutable usize = 0
+    for i in 0..<super_count: final_clusters[final_count] <- supers[i]; final_count <- final_count + 1
+    for i in 0..<ground_count:
+        if ground[i].radius == 2 or ground[i].radius == 3:
+            final_clusters[final_count] <- ground[i]; final_count <- final_count + 1
+    for i in 1..<final_count:
+        key: EpCluster = final_clusters[i]
+        position: mutable usize = i
+        while position > 0 and ep_cluster_before(key, final_clusters[position - 1], context.n):
+            final_clusters[position] <- final_clusters[position - 1]
+            position <- position - 1
+        final_clusters[position] <- key
+    for i in 0..<final_count:
+        for j in i + 1..<final_count:
+            if ep_set_distance(context&, final_clusters[i].members[0:context.n],
+                    final_clusters[j].members[0:context.n]) <= 128:
+                ep_connector(context&, final_clusters[i].members[0:context.n],
+                    final_clusters[j].members[0:context.n], chosen[0:context.m])
+    chosen
+
+export fn elkin_peleg_sparse_spanner(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 383: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 20 or values[1] < 0 or values[1] > 190 or
+       length != 2 + 2 * values[1].usize(): return -1
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    context: mutable EpContext = zeroed
+    context.n <- n
+    context.m <- m
+    for i in 0..<400: context.edge_index[i] <- -1
+    for edge in 0..<m:
+        u64: i64 = values[2 + 2 * edge]
+        v64: i64 = values[3 + 2 * edge]
+        if u64 < 0 or v64 <= u64 or v64 >= values[0]: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if context.edge_index[u * 20 + v] >= 0: return -1
+        context.edge_index[u * 20 + v] <- edge.i64()
+        context.edge_index[v * 20 + u] <- edge.i64()
+        context.adjacent[u * 20 + v] <- true
+        context.adjacent[v * 20 + u] <- true
+    if output.is_null() or capacity < m: return -2
+    chosen: bool[190] = ep_construct(context&)
+    out: mutable view[u8] = output[0:m]
+    for edge in 0..<m: out[edge] <- if chosen[edge]: 1.u8() else: 0.u8()
+    m.i64()

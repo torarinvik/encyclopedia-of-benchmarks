@@ -1,0 +1,57 @@
+def zpg_attractor(active:i64,player:i64,target:i64,owners:view[i64],adjacency:view[i64],n:usize)->i64:
+    attracted:mutable i64=target
+    while true:
+        additions:mutable i64=0
+        for vertex in 0..<n:
+            bit:i64=i64(1)<<vertex
+            if active&bit==0 or attracted&bit!=0:continue
+            successors:i64=adjacency[vertex]&active
+            if owners[vertex]==player:
+                if successors&attracted!=0:additions <- additions|bit
+            elif successors!=0 and successors&(~attracted)==0:additions <- additions|bit
+        if additions==0:return attracted
+        attracted <- attracted|additions
+
+def zpg_solve(active:i64,owners:view[i64],priorities:view[i64],adjacency:view[i64],n:usize)->i64:
+    if active==0:return 0
+    lowest:mutable i64=6
+    for vertex in 0..<n:
+        if active&(i64(1)<<vertex)!=0 and priorities[vertex]<lowest:lowest=priorities[vertex]
+    player:i64=lowest&1
+    target:mutable i64=0
+    for vertex in 0..<n:
+        if active&(i64(1)<<vertex)!=0 and priorities[vertex]==lowest:target <- target|(i64(1)<<vertex)
+    first:i64=zpg_attractor(active,player,target,owners,adjacency,n)
+    remainder:i64=active&(~first)
+    even_first:i64=zpg_solve(remainder,owners,priorities,adjacency,n)
+    odd_first:i64=remainder&(~even_first)
+    opponent_region:i64=if player==1:even_first else:odd_first
+    if opponent_region==0:return even_first|(if player==0:first else:0)
+    second:i64=zpg_attractor(active,1-player,opponent_region,owners,adjacency,n)
+    even_second:i64=zpg_solve(active&(~second),owners,priorities,adjacency,n)
+    even_second|(if player==1:second else:0)
+
+def zpg_impl(input:view[i64])->i64:
+    if input.len()<6 or input.len()>59:return -1
+    vertex_raw:i64=input[0];edge_raw:i64=input[1]
+    if vertex_raw<1 or vertex_raw>8 or edge_raw<vertex_raw or edge_raw>20:return -1
+    n:usize=vertex_raw.usize();edge_count:usize=edge_raw.usize()
+    if input.len()!=2+2*n+2*edge_count:return -1
+    owners:mutable i64[8]=zeroed;priorities:mutable i64[8]=zeroed;adjacency:mutable i64[8]=zeroed;outdegree:mutable i64[8]=zeroed
+    cursor:mutable usize=2
+    for vertex in 0..<n:
+        owner:i64=input[cursor];priority:i64=input[cursor+1];cursor <- cursor+2
+        if owner<0 or owner>1 or priority<0 or priority>5:return -1
+        owners[vertex]=owner;priorities[vertex]=priority
+    for _ in 0..<edge_count:
+        source_raw:i64=input[cursor];destination_raw:i64=input[cursor+1];cursor <- cursor+2
+        if source_raw<0 or source_raw>=vertex_raw or destination_raw<0 or destination_raw>=vertex_raw:return -1
+        source:usize=source_raw.usize();destination:usize=destination_raw.usize();bit:i64=i64(1)<<destination
+        if adjacency[source]&bit!=0:return -1
+        adjacency[source] <- adjacency[source]|bit;outdegree[source] <- outdegree[source]+1
+    for vertex in 0..<n:if outdegree[vertex]==0:return -1
+    zpg_solve((i64(1)<<n)-1,owners[0:n],priorities[0:n],adjacency[0:n],n)
+
+export fn zielonka_parity_game_solver(input:i64&,length:usize)->i64:
+    if input.is_null() or length<6 or length>59:return -1
+    zpg_impl(input[0:length])

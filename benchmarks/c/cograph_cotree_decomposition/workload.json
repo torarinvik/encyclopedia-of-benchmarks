@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "cograph-cotree-decomposition-i64-array-bytes-output-v1",
+  "algorithm": "cograph_cotree_decomposition",
+  "function_symbol": "cograph_cotree_decomposition",
+  "abi": "i64_array_bytes_output",
+  "description": "Recognize a bounded cograph and serialize its reduced union/join cotree.",
+  "source": {
+    "title": "Complement Reducible Graphs; A Linear Recognition Algorithm for Cographs",
+    "authors": ["D. G. Corneil", "H. Lerchs", "L. Stewart Burlingham", "Y. Perl"],
+    "urls": [
+      "https://doi.org/10.1016/0166-218X(81)90013-5",
+      "https://doi.org/10.1137/0214065"
+    ],
+    "reuse": "Algorithmic characterization only; contract, fixtures, references, and ports are clean-room."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,(u,v)*M]",
+    "vertex_count_range": [1, 12],
+    "edge_count_range": [0, 66],
+    "graph": "Undirected simple graph; 0<=M<=N*(N-1)/2, unordered distinct endpoint pairs, zero-based IDs; either endpoint order accepted; duplicate unordered edges rejected.",
+    "exact_length": "2+2*M",
+    "maximum_valid_input_length": 134,
+    "maximum_parseable_input_length": 135,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "00 for a valid non-cograph; 01 followed by preorder two-byte cotree records for a cograph. Record (00,v) is leaf v, (01,k) is disjoint union with k children, and (02,k) is complete join with k children.",
+    "child_order": "Ascending minimum vertex ID in each child's leaf set.",
+    "maximum_output_bytes": 47,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "input_validation_precedes_output_errors": true,
+    "output_untouched_on_error": true
+  },
+  "algorithm_profile": {
+    "primary": "Recursively split each induced graph into connected components for union nodes; if connected, split its complement into components for join nodes; if both are connected, reject as not a cograph.",
+    "independent": "First check the induced-P4 characterization directly; enumerate all nonempty subsets as graph modules, retain strong modules, build their inclusion tree, and require every internal quotient to be a complete join or disjoint union.",
+    "tie_policy": "Connected components and cotree children are ordered by increasing minimum vertex ID. The reduced cotree has alternating internal labels and at least two children per internal node.",
+    "non_cograph_result": "A valid graph that is not a cograph writes byte 00 and returns 1."
+  },
+  "complexity": {
+    "primary_time": "O(N^2) bounded adjacency-mask work across recursively partitioned induced graphs; N<=12",
+    "primary_auxiliary_space": "O(N) recursion and component state, plus at most 47 staged output bytes",
+    "independent_time": "O(4^N+N^2*2^N) worst-case module and overlap enumeration; N<=12",
+    "independent_auxiliary_space": "O(2^N+N)"
+  },
+  "workspace": {
+    "bytes": 47,
+    "meaning": "Maximum caller-owned output capacity, equal to the declared maximum serialized cotree length."
+  },
+  "memory": {
+    "internal_scratch_bytes": 2048,
+    "meaning": "Fixed adjacency masks, recursive component masks, traversal queues, and staged cotree tokens."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/c/cograph_cotree_decomposition/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/cograph_cotree_decomposition/independent_oracle.py",
+  "cases": [
+    {"id":"singleton","input_values":[1,0],"input_length":2,"output_capacity":47,"expected_result":3,"expected_output_hex":"010000"},
+    {"id":"empty_three_vertex_graph","input_values":[3,0],"input_length":2,"output_capacity":47,"expected_result":9,"expected_output_hex":"010103000000010002"},
+    {"id":"single_edge","input_values":[2,1,0,1],"input_length":4,"output_capacity":47,"expected_result":7,"expected_output_hex":"01020200000001"},
+    {"id":"three_vertex_path","input_values":[3,2,0,1,1,2],"input_length":6,"output_capacity":47,"expected_result":11,"expected_output_hex":"0102020102000000020001"},
+    {"id":"four_cycle_two_level_cotree","input_values":[4,4,0,1,1,2,2,3,0,3],"input_length":10,"output_capacity":47,"expected_result":15,"expected_output_hex":"01020201020000000201020003"},
+    {"id":"path_three_plus_isolate","input_values":[4,2,0,1,1,2],"input_length":6,"output_capacity":47,"expected_result":15,"expected_output_hex":"010102020201020000000200010003"},
+    {"id":"induced_p4_non_cograph","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"output_capacity":47,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"complete_graph_maximum_input","input_values":[12,66,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1,11,2,3,2,4,2,5,2,6,2,7,2,8,2,9,2,10,2,11,3,4,3,5,3,6,3,7,3,8,3,9,3,10,3,11,4,5,4,6,4,7,4,8,4,9,4,10,4,11,5,6,5,7,5,8,5,9,5,10,5,11,6,7,6,8,6,9,6,10,6,11,7,8,7,9,7,10,7,11,8,9,8,10,8,11,9,10,9,11,10,11],"input_length":134,"output_capacity":47,"expected_result":27,"expected_output_hex":"01020c0000000100020003000400050006000700080009000a000b"},
+    {"id":"maximum_cotree_output","input_values":[12,30,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1,11,3,4,3,5,3,6,3,7,3,8,3,9,3,10,3,11,5,6,5,7,5,8,5,9,5,10,5,11,7,8,7,9,7,10,7,11,9,10,9,11],"input_length":62,"output_capacity":47,"expected_result":47,"expected_output_hex":"01010200000202000101020002020200030102000402020005010200060202000701020008020200090102000a000b"},
+    {"id":"duplicate_unordered_edge","input_values":[3,2,0,1,1,0],"input_length":6,"output_capacity":47,"expected_result":-1,"expected_output_hex":""},
+    {"id":"self_loop","input_values":[2,1,1,1],"input_length":4,"output_capacity":47,"expected_result":-1,"expected_output_hex":""},
+    {"id":"endpoint_out_of_range","input_values":[2,1,0,2],"input_length":4,"output_capacity":47,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated_edge","input_values":[4,2,0,1,1],"input_length":5,"output_capacity":47,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_word_at_parseable_bound","input_values":[12,66,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,1,2,1,3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1,11,2,3,2,4,2,5,2,6,2,7,2,8,2,9,2,10,2,11,3,4,3,5,3,6,3,7,3,8,3,9,3,10,3,11,4,5,4,6,4,7,4,8,4,9,4,10,4,11,5,6,5,7,5,8,5,9,5,10,5,11,6,7,6,8,6,9,6,10,6,11,7,8,7,9,7,10,7,11,8,9,8,10,8,11,9,10,9,11,10,11,99],"input_length":135,"output_capacity":47,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input_at_parseable_bound","input_values":[],"input_length":135,"input_is_null":true,"output_capacity":47,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[1,0],"input_length":2,"output_capacity":2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_output","input_values":[1,0],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid_input_precedes_null_output","input_values":[2,1,0,0],"input_length":4,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

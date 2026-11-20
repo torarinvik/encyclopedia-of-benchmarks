@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "algorithm": "rodrigues_arbitrary_axis_rotation",
+  "abi": "float64_slice_io",
+  "function_symbol": "rodrigues_arbitrary_axis_rotation",
+  "status": "complete; float64 slice runner and verifier registered",
+  "suite_integration": "benchmarks/run_float64_slice_io.py and benchmarks/verify_float64_slice_io.py",
+  "input": {"exact_valid_length": 7, "maximum_valid_length": 7, "maximum_parseable_length": 8},
+  "output": {"maximum_elements": 3, "kind": "float64_array"},
+  "workspace": {"bytes": 256, "elements": 3},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/r/rodrigues_arbitrary_axis_rotation.c",
+    "c3/r/rodrigues_arbitrary_axis_rotation.c3",
+    "cpp/r/rodrigues_arbitrary_axis_rotation.cpp",
+    "elisa/r/rodrigues_arbitrary_axis_rotation.elisa",
+    "mojo/r/rodrigues_arbitrary_axis_rotation.mojo",
+    "nim/r/rodrigues_arbitrary_axis_rotation.nim",
+    "odin/r/rodrigues_arbitrary_axis_rotation.odin",
+    "rust/r/rodrigues_arbitrary_axis_rotation.rs",
+    "v/r/rodrigues_arbitrary_axis_rotation.v",
+    "zig/r/rodrigues_arbitrary_axis_rotation.zig"
+  ],
+  "source": "https://iel.ucdavis.edu/publication/1989/j_ASMEAM.pdf"
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "algorithm": "all_distances_sketch_k_mins",
+  "function_symbol": "all_distances_sketch_k_mins",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/a/all_distances_sketch_k_mins.c",
+    "c3": "c3/a/all_distances_sketch_k_mins.c3",
+    "cpp": "cpp/a/all_distances_sketch_k_mins.cpp",
+    "elisa": "elisa/a/all_distances_sketch_k_mins.elisa",
+    "mojo": "mojo/a/all_distances_sketch_k_mins.mojo",
+    "nim": "nim/a/all_distances_sketch_k_mins.nim",
+    "odin": "odin/a/all_distances_sketch_k_mins.odin",
+    "rust": "rust/a/all_distances_sketch_k_mins.rs",
+    "v": "v/a/all_distances_sketch_k_mins.v",
+    "zig": "zig/a/all_distances_sketch_k_mins.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "All-Distances Sketches",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_574",
+    "paper_title": "Summarizing Data using Bottom-k Sketches",
+    "paper_doi": "10.1145/1281100.1281133",
+    "section": "Section 4, all-distances k-mins sketches and MV/D lists"
+  },
+  "contract": {
+    "input_layout": "[n,assignment_count,distances[n],rank_rows[assignment_count*n]]",
+    "maximum_valid_input_words": 26,
+    "maximum_parseable_input_words": 27,
+    "maximum_output_bytes": 584,
+    "workspace_bytes": 1024,
+    "tie_rule": "Distances are strictly increasing and every rank row is a permutation, so prefix minima are unique."
+  },
+  "suite_integration": "i64_array_bytes_output runner and verifier"
+}

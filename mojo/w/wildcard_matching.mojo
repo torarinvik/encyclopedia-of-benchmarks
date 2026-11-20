@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 @export("wildcard_matching")
@@ -10,10 +11,10 @@ fn wildcard_matching(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")-
     for i in range(Int(pl)):
         let c=a[ps+i]
         if not ((c>=97 and c<=122) or c==42 or c==63):return -1
-    var dp=InlineArray[Bool,21]();dp[0]=True
+    var dp=InlineArray[Bool,21](fill=False);dp[0]=True
     for col in range(1,Int(pl)+1):if a[ps+col-1]==42:dp[col]=dp[col-1]
     for row in range(1,Int(tl)+1):
-        var next=InlineArray[Bool,21]()
+        var next=InlineArray[Bool,21](fill=False)
         for col in range(1,Int(pl)+1):
             let token=a[ps+col-1]
             if token==a[1+row] or token==63:next[col]=dp[col-1]

@@ -1,4 +1,5 @@
 # Bounded Rodinia LavaMD profile; see benchmarks/l/rodinia_lavamd/LICENSE.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.math import exp
 from std.memory import ImmutAnyOrigin, UnsafePointer

@@ -1,0 +1,51 @@
+const MAX_N: usize = 64
+const MIN_VALUE: i64 = -1000000
+const MAX_VALUE: i64 = 1000000
+
+def interpolation_sequential_search_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MAX_N + 3: return -1
+    count_value: i64 = input[0]
+    target: i64 = input[1]
+    if count_value < 0 or count_value > MAX_N.i64() or length != count_value.usize() + 2: return -1
+    if target < MIN_VALUE or target > MAX_VALUE: return -1
+    count: usize = count_value.usize()
+    i: mutable usize = 0
+    while i < count:
+        value: i64 = input[i + 2]
+        if value < MIN_VALUE or value > MAX_VALUE: return -1
+        if i > 0 and input[i + 1] >= value: return -1
+        i <- i + 1
+    if count == 0: return -1
+    first: i64 = input[2]
+    last: i64 = input[count + 1]
+    if target < first or target > last: return -1
+    if count == 1:
+        if first == target: return 0
+        return -1
+
+    position: usize = ((target - first) * (count.i64() - 1)).usize() / (last - first).usize()
+    estimated: i64 = input[position + 2]
+    if estimated == target: return position.i64()
+    if estimated < target:
+        i <- position + 1
+        while i < count:
+            value <- input[i + 2]
+            if value >= target:
+                if value == target: return i.i64()
+                return -1
+            i <- i + 1
+    else:
+        i <- position
+        while i > 0:
+            i <- i - 1
+            value <- input[i + 2]
+            if value <= target:
+                if value == target: return i.i64()
+                return -1
+    return -1
+
+export fn interpolation_sequential_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_N + 3: return -1
+    input_view: view[i64] = input[0:length]
+    interpolation_sequential_search_impl(input_view)

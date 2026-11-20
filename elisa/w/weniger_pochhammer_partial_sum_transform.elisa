@@ -1,0 +1,81 @@
+const MIN_WORDS: usize = 7
+const MAX_WORDS: usize = 17
+const OUTPUT_BYTES: usize = 16
+
+def weniger_gcd(a_input: i64, b_input: i64) -> i64:
+    a: mutable i64 = a_input
+    b: mutable i64 = b_input
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def weniger_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+@export("weniger_pochhammer_partial_sum_transform")
+def weniger_pochhammer_partial_sum_transform(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < MIN_WORDS or length > MAX_WORDS: return -1
+    values: view[i64] = input[0:length]
+    n0: i64 = values[0]
+    k0: i64 = values[1]
+    if n0 < 0 or n0 > 8 or k0 < 3 or k0 > 4: return -1
+    n: usize = n0.usize()
+    k: usize = k0.usize()
+    if length != n + k + 4: return -1
+    term_count: usize = n + k + 2
+    i: mutable usize = 0
+    while i < term_count:
+        value: i64 = values[i + 2]
+        if value == 0 or value < -3 or value > 3: return -1
+        i <- i + 1
+
+    product: mutable i64 = 1
+    r: mutable usize = 0
+    while r <= k:
+        product <- product * values[n + r + 3]
+        r <- r + 1
+    numerator: mutable i64 = 0
+    denominator: mutable i64 = 0
+    j: mutable usize = 0
+    while j <= k:
+        choose: mutable i64 = 1
+        r <- 1
+        while r <= j:
+            choose <- choose * (k - r + 1).i64() / r.i64()
+            r <- r + 1
+        rising: mutable i64 = 1
+        offset: mutable usize = 0
+        while offset < k - 1:
+            rising <- rising * (n + j + 1 + offset).i64()
+            offset <- offset + 1
+        term: i64 = values[n + j + 3]
+        weight: mutable i64 = choose * rising * (product / term)
+        if (j & 1) != 0: weight <- -weight
+        partial: mutable i64 = 0
+        index: mutable usize = 0
+        while index <= n + j:
+            partial <- partial + values[index + 2]
+            index <- index + 1
+        numerator <- numerator + weight * partial
+        denominator <- denominator + weight
+        j <- j + 1
+    if denominator == 0: return -1
+    if denominator < 0:
+        numerator <- -numerator
+        denominator <- -denominator
+    magnitude: i64 = if numerator < 0: -numerator else: numerator
+    divisor: i64 = weniger_gcd(magnitude, denominator)
+    numerator <- numerator / divisor
+    denominator <- denominator / divisor
+    if output.is_null() or capacity < OUTPUT_BYTES: return -2
+    result: mutable view[u8] = output[0:OUTPUT_BYTES]
+    weniger_store_i64(result, 0, numerator)
+    weniger_store_i64(result, 8, denominator)
+    OUTPUT_BYTES.i64()

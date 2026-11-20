@@ -1,0 +1,239 @@
+const MP_A: usize = 6
+const MP_P: usize = 6
+const MP_PARSEABLE: usize = 45
+
+def mp_augment(applicant: usize, posts: usize, first: view[usize], second: view[usize],
+               owner: mutable view[i64], assignment: mutable view[i64],
+               seen: mutable view[bool]) -> bool:
+    edge0: usize = first[applicant]
+    edge1: usize = MP_P
+    count: mutable usize = 1
+    if second[applicant] < posts:
+        edge1 <- second[applicant]
+        count <- 2
+    if count == 2 and edge1 < edge0:
+        temp: usize = edge0
+        edge0 <- edge1
+        edge1 <- temp
+    i: usize = 0
+    while i < count:
+        post: mutable usize = edge0
+        if i == 1: post <- edge1
+        if not seen[post]:
+            seen[post] <- true
+            previous: i64 = owner[post]
+            if previous < 0 or mp_augment(previous.usize(), posts, first, second, owner, assignment, seen):
+                owner[post] <- applicant.i64()
+                assignment[applicant] <- post.i64()
+                return true
+        i <- i + 1
+    false
+
+def mp_solve(applicants: usize, posts: usize, preferences: view[usize],
+             lengths: view[usize]) -> i64:
+    first_data: mutable usize[MP_A] = zeroed
+    second_data: mutable usize[MP_A] = zeroed
+    first_post_data: mutable bool[MP_P] = zeroed
+    first: mutable view[usize] = first_data[0:MP_A]
+    second: mutable view[usize] = second_data[0:MP_A]
+    first_post: mutable view[bool] = first_post_data[0:MP_P]
+    a: usize = 0
+    while a < applicants:
+        first[a] <- preferences[a * MP_P]
+        first_post[first[a]] <- true
+        a <- a + 1
+    a <- 0
+    while a < applicants:
+        second[a] <- posts + a
+        j: usize = 0
+        while j < lengths[a]:
+            candidate: usize = preferences[a * MP_P + j]
+            if not first_post[candidate]:
+                second[a] <- candidate
+                break
+            j <- j + 1
+        a <- a + 1
+
+    active_a_data: mutable bool[MP_A] = zeroed
+    active_p_data: mutable bool[MP_P] = zeroed
+    assignment_data: mutable i64[MP_A] = zeroed
+    active_a: mutable view[bool] = active_a_data[0:MP_A]
+    active_p: mutable view[bool] = active_p_data[0:MP_P]
+    assignment: mutable view[i64] = assignment_data[0:MP_A]
+    a = 0
+    while a < applicants:
+        active_a[a] <- second[a] < posts
+        assignment[a] <- -1
+        a <- a + 1
+    p: usize = 0
+    while p < posts:
+        active_p[p] <- true
+        p <- p + 1
+
+    while true:
+        degree_data: mutable usize[MP_P] = zeroed
+        sole_data: mutable i64[MP_P] = zeroed
+        degree: mutable view[usize] = degree_data[0:MP_P]
+        sole: mutable view[i64] = sole_data[0:MP_P]
+        p = 0
+        while p < MP_P:
+            sole[p] <- -1
+            p <- p + 1
+        a = 0
+        while a < applicants:
+            if active_a[a]:
+                k: usize = 0
+                while k < 2:
+                    edge: mutable usize = first[a]
+                    if k == 1: edge <- second[a]
+                    if active_p[edge]:
+                        degree[edge] <- degree[edge] + 1
+                        sole[edge] <- a.i64()
+                    k <- k + 1
+            a <- a + 1
+        forced: usize = MP_P
+        p = 0
+        while p < posts:
+            if active_p[p] and degree[p] == 1:
+                forced <- p
+                break
+            p <- p + 1
+        if forced == MP_P: break
+        a <- sole[forced].usize()
+        assignment[a] <- forced.i64()
+        active_a[a] <- false
+        active_p[forced] <- false
+
+    degree_data: mutable usize[MP_P] = zeroed
+    neighbors0_data: mutable i64[MP_P] = zeroed
+    neighbors1_data: mutable i64[MP_P] = zeroed
+    neighbor_count_data: mutable usize[MP_P] = zeroed
+    degree: mutable view[usize] = degree_data[0:MP_P]
+    neighbors0: mutable view[i64] = neighbors0_data[0:MP_P]
+    neighbors1: mutable view[i64] = neighbors1_data[0:MP_P]
+    neighbor_count: mutable view[usize] = neighbor_count_data[0:MP_P]
+    active_count: mutable usize = 0
+    a = 0
+    while a < applicants:
+        if active_a[a]:
+            active_count <- active_count + 1
+            k: usize = 0
+            while k < 2:
+                edge: mutable usize = first[a]
+                if k == 1: edge <- second[a]
+                if not active_p[edge]: return 0
+                if neighbor_count[edge] == 0: neighbors0[edge] <- a.i64()
+                else if neighbor_count[edge] == 1: neighbors1[edge] <- a.i64()
+                neighbor_count[edge] <- neighbor_count[edge] + 1
+                degree[edge] <- degree[edge] + 1
+                k <- k + 1
+        a <- a + 1
+    residual_posts: mutable usize = 0
+    p = 0
+    while p < posts:
+        if active_p[p] and degree[p] > 0:
+            residual_posts <- residual_posts + 1
+            if degree[p] != 2 or neighbor_count[p] != 2: return 0
+        p <- p + 1
+    if residual_posts < active_count or residual_posts != active_count: return 0
+
+    visited_data: mutable bool[MP_A] = zeroed
+    visited: mutable view[bool] = visited_data[0:MP_A]
+    a = 0
+    while a < applicants:
+        if active_a[a] and not visited[a]:
+            current_p: mutable usize = first[a]
+            if second[a] < current_p: current_p <- second[a]
+            assignment[a] <- current_p.i64()
+            visited[a] <- true
+            current_a: mutable usize = a
+            while true:
+                next_a: mutable usize = neighbors0[current_p].usize()
+                if neighbors0[current_p] == current_a.i64(): next_a <- neighbors1[current_p].usize()
+                if next_a == a: break
+                if visited[next_a]: return 0
+                next_p: mutable usize = first[next_a]
+                if first[next_a] == current_p: next_p <- second[next_a]
+                assignment[next_a] <- next_p.i64()
+                visited[next_a] <- true
+                current_a <- next_a
+                current_p <- next_p
+        a <- a + 1
+
+    owner_data: mutable i64[MP_P] = zeroed
+    owner: mutable view[i64] = owner_data[0:MP_P]
+    p = 0
+    while p < MP_P:
+        owner[p] <- -1
+        p <- p + 1
+    a = 0
+    while a < applicants:
+        if assignment[a] >= 0: owner[assignment[a].usize()] <- a.i64()
+        a <- a + 1
+    a = 0
+    while a < applicants:
+        if second[a] >= posts and assignment[a] < 0:
+            seen_data: mutable bool[MP_P] = zeroed
+            seen: mutable view[bool] = seen_data[0:MP_P]
+            mp_augment(a, posts, first, second, owner, assignment, seen)
+        a <- a + 1
+    a = 0
+    while a < applicants:
+        if assignment[a] < 0: assignment[a] <- (posts + a).i64()
+        a <- a + 1
+    p = 0
+    while p < posts:
+        if first_post[p] and owner[p] < 0:
+            a <- 0
+            while first[a] != p: a <- a + 1
+            old: i64 = assignment[a]
+            if old < posts.i64(): owner[old.usize()] <- -1
+            assignment[a] <- p.i64()
+            owner[p] <- a.i64()
+        p <- p + 1
+    result: mutable i64 = 0
+    a = 0
+    while a < applicants:
+        if assignment[a] < posts.i64(): result <- result + 1
+        a <- a + 1
+    result
+
+export fn maximum_cardinality_popular_matching(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MP_PARSEABLE: return -1
+    values: view[i64] = input[0:length]
+    applicants64: i64 = values[0]
+    posts64: i64 = values[1]
+    if applicants64 < 1 or applicants64 > MP_A.i64() or posts64 < 1 or posts64 > MP_P.i64(): return -1
+    applicants: usize = applicants64.usize()
+    posts: usize = posts64.usize()
+    if length < 2 + applicants: return -1
+    lengths_data: mutable usize[MP_A] = zeroed
+    lengths: mutable view[usize] = lengths_data[0:MP_A]
+    total: mutable usize = 0
+    a: usize = 0
+    while a < applicants:
+        size: i64 = values[2 + a]
+        if size < 1 or size > posts64: return -1
+        lengths[a] <- size.usize()
+        total <- total + lengths[a]
+        a <- a + 1
+    if length != 2 + applicants + total: return -1
+    preferences_data: mutable usize[36] = zeroed
+    preferences: mutable view[usize] = preferences_data[0:36]
+    cursor: mutable usize = 2 + applicants
+    a = 0
+    while a < applicants:
+        j: usize = 0
+        while j < lengths[a]:
+            value: i64 = values[cursor]
+            if value < 0 or value >= posts64: return -1
+            post: usize = value.usize()
+            k: usize = 0
+            while k < j:
+                if preferences[a * MP_P + k] == post: return -1
+                k <- k + 1
+            preferences[a * MP_P + j] <- post
+            cursor <- cursor + 1
+            j <- j + 1
+        a <- a + 1
+    mp_solve(applicants, posts, preferences, lengths)

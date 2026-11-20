@@ -1,0 +1,88 @@
+const EG_MAX_N: usize = 256
+const EG_MAX_PARSEABLE_LENGTH: usize = 258
+
+def eg_sift_down(values: mutable view[i64], root_start: usize, end: usize) -> void:
+    root: mutable usize = root_start
+    while root < end / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end and values[child] < values[child + 1]:
+            child <- child + 1
+        if values[root] >= values[child]:
+            break
+        temporary: i64 = values[root]
+        values[root] <- values[child]
+        values[child] <- temporary
+        root <- child
+
+def eg_sort_descending(values: mutable view[i64], length: usize) -> void:
+    start: mutable usize = length / 2
+    while start > 0:
+        start <- start - 1
+        eg_sift_down(values, start, length)
+    ending: mutable usize = length
+    while ending > 1:
+        ending <- ending - 1
+        temporary: i64 = values[0]
+        values[0] <- values[ending]
+        values[ending] <- temporary
+        eg_sift_down(values, 0, ending)
+
+    left: mutable usize = 0
+    right: mutable usize = length - 1
+    while left < right:
+        temporary: i64 = values[left]
+        values[left] <- values[right]
+        values[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+
+def erdos_gallai_graphical_sequence_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > EG_MAX_PARSEABLE_LENGTH:
+        return -1
+    n_word: i64 = input[0]
+    if n_word < 0 or n_word > EG_MAX_N.i64():
+        return -1
+    n: usize = n_word.usize()
+    if length != n + 1:
+        return -1
+
+    degrees: mutable i64[EG_MAX_N] = zeroed
+    sum: mutable i64 = 0
+    for index in 0..<n:
+        degree: i64 = input[index + 1]
+        if degree < 0 or degree >= n_word:
+            return -1
+        degrees[index] <- degree
+        sum <- sum + degree
+
+    if sum % 2 != 0:
+        return 0
+    if n == 0:
+        return 1
+
+    eg_sort_descending(degrees[0:n], n)
+    prefix: mutable i64[EG_MAX_N + 1] = zeroed
+    for index in 0..<n:
+        prefix[index + 1] <- prefix[index] + degrees[index]
+
+    k: mutable usize = 1
+    while k <= n:
+        low: mutable usize = k
+        high: mutable usize = n
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if degrees[middle] >= k.i64():
+                low <- middle + 1
+            else:
+                high <- middle
+        split: usize = low
+        k_i64: i64 = k.i64()
+        rhs: i64 = k_i64 * (k_i64 - 1) +
+                   (split - k).i64() * k_i64 +
+                   (prefix[n] - prefix[split])
+        if prefix[k] > rhs:
+            return 0
+        k <- k + 1
+    1
+
+export fn erdos_gallai_graphical_sequence(input: i64&, length: usize) -> i64 = erdos_gallai_graphical_sequence_impl

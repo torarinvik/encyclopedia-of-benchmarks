@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p41_prime(n:Int64)->Bool:
     if n<2:return False
     var d=Int64(2)

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "philips-double-metaphone-latin1-bounded-v1",
+  "algorithm": "double_metaphone",
+  "function_symbol": "double_metaphone",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_64_bit_length_and_byte_array",
+    "encoding": "[byte_length, byte_0, ..., byte_n]",
+    "byte_length_range": [0, 32],
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "accepted_bytes": "ASCII A-Z, a-z, space, and Latin-1 C7/E7/D1/F1 (Ç/ç/Ñ/ñ)",
+    "normalization": "ASCII and Latin-1 lowercase letters fold to uppercase; spaces are preserved",
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "length-prefixed dual byte string",
+    "encoding": "[primary_length, secondary_length, primary_bytes..., secondary_bytes...]",
+    "key_length_range": [0, 4],
+    "maximum_output_bytes": 10,
+    "return_value": "number of bytes written, including both length bytes",
+    "secondary_absent_encoding": "secondary_length is zero",
+    "empty_input_encoding": [0, 0],
+    "invalid_input_result": -1,
+    "insufficient_or_null_output_result": -2,
+    "error_precedence": "null or malformed input and byte validation return -1 before output pointer/capacity checks; valid input with null output or insufficient capacity returns -2 without writes"
+  },
+  "workspace": {
+    "bytes": 80,
+    "normalized_buffer_bytes": 37,
+    "lookahead_padding_bytes": 5,
+    "primary_key_bytes": 4,
+    "secondary_key_bytes": 4,
+    "dynamic_allocation": false,
+    "excludes": ["ABI input buffer", "ABI output buffer", "language runtime call frames"]
+  },
+  "algorithm_policy": {
+    "variant": "Lawrence Philips 1998/1999 Double Metaphone, as published in 2000",
+    "maximum_key_length": 4,
+    "initial_silent_prefixes": ["GN", "KN", "PN", "WR", "PS"],
+    "slavo_germanic_flag": "normalized input contains W, K, CZ, or WITZ",
+    "lookahead": "five spaces are appended for bounded context checks; vowel tests outside the input remain false",
+    "primary_reference": "per-letter consumers over a bounded scan state",
+    "independent_reference": "ordered rule actions with a separate output serializer",
+    "apache_cross_check": "Apache Commons Codec is a behavior comparison only; Philips's 1998/1999 variant is authoritative"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "primary_article": "https://jacobfilipp.com/DrDobbs/articles/CUJ/2000/0006/philips/philips.htm",
+    "original_source_mirror": "https://raw.githubusercontent.com/nickgammon/mushclient/master/Dmetaph.cpp",
+    "algorithm_index": "https://xlinux.nist.gov/dads/HTML/doubleMetaphone.html",
+    "behavior_cross_check": "https://commons.apache.org/proper/commons-codec/apidocs/src-html/org/apache/commons/codec/language/DoubleMetaphone.html",
+    "reuse": "Algorithm behavior only; no source text, comments, code structure, or fixtures reused"
+  },
+  "cases": [
+    {"id": "empty-input", "input_values": [0], "expected_result": 2, "expected_output_hex": "0000"},
+    {"id": "lowercase-initial-vowel-and-ordinary-letters", "input_values": [5, 97, 112, 114, 105, 108], "expected_result": 6, "expected_output_hex": "04004150524c"},
+    {"id": "silent-prefix", "input_values": [4, 112, 110, 111, 109], "expected_result": 4, "expected_output_hex": "02004e4d"},
+    {"id": "initial-x", "input_values": [4, 120, 97, 114, 111], "expected_result": 4, "expected_output_hex": "02005352"},
+    {"id": "soft-c-alternate", "input_values": [4, 99, 105, 97, 117], "expected_result": 4, "expected_output_hex": "01015358"},
+    {"id": "hard-c-default", "input_values": [5, 98, 97, 99, 114, 97], "expected_result": 5, "expected_output_hex": "0300504b52"},
+    {"id": "contextual-ch-pair", "input_values": [5, 98, 97, 99, 104, 97], "expected_result": 6, "expected_output_hex": "02025058504b"},
+    {"id": "prefix-space-context", "input_values": [8, 86, 65, 78, 32, 67, 72, 65, 66], "expected_result": 6, "expected_output_hex": "0400464e4b50"},
+    {"id": "lowercase-cedilla", "input_values": [1, 231], "expected_result": 3, "expected_output_hex": "010053"},
+    {"id": "lowercase-tilde-n", "input_values": [1, 241], "expected_result": 3, "expected_output_hex": "01004e"},
+    {"id": "slavo-germanic-z-alternate", "input_values": [4, 106, 107, 101, 122], "expected_result": 9, "expected_output_hex": "03044a4b53414b5453"},
+    {"id": "th-dual-symbol", "input_values": [5, 116, 104, 117, 109, 112], "expected_result": 8, "expected_output_hex": "0303304d50544d50"},
+    {"id": "initial-j-alternate", "input_values": [4, 106, 97, 114, 111], "expected_result": 6, "expected_output_hex": "02024a524152"},
+    {"id": "maximum-two-key-output", "input_values": [7, 74, 65, 67, 75, 83, 79, 78], "expected_result": 10, "expected_output_hex": "04044a4b534e414b534e"},
+    {"id": "final-r-alternate", "input_values": [4, 120, 105, 101, 114], "expected_result": 5, "expected_output_hex": "0102535352"},
+    {"id": "final-s-alternate", "input_values": [5, 116, 97, 111, 105, 115], "expected_result": 5, "expected_output_hex": "0102545453"},
+    {"id": "wicz-family-alternate", "input_values": [5, 97, 119, 105, 116, 122], "expected_result": 8, "expected_output_hex": "0303415453414658"},
+    {"id": "zh-context", "input_values": [4, 122, 104, 97, 108], "expected_result": 4, "expected_output_hex": "02004a4c"},
+    {"id": "double-l-spanish-alternate", "input_values": [6, 98, 97, 108, 108, 101, 111], "expected_result": 5, "expected_output_hex": "0201504c50"},
+    {"id": "soft-g-pair", "input_values": [4, 97, 103, 101, 97], "expected_result": 6, "expected_output_hex": "0202414a414b"},
+    {"id": "null-input", "input_values": [], "input_is_null": true, "input_length": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-punctuation", "input_values": [1, 33], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-trailing-word", "input_values": [0, 65], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-overlong-payload", "input_values": [33, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-byte-above-latin1", "input_values": [1, 256], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "valid-input-null-output", "input_values": [0], "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "valid-input-insufficient-capacity", "input_values": [0], "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "maximum-output-one-byte-short", "input_values": [7, 74, 65, 67, 75, 83, 79, 78], "output_capacity": 9, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "invalid-input-precedes-output-capacity", "input_values": [1, 33], "output_capacity": 0, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

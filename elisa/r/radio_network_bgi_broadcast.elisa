@@ -1,0 +1,121 @@
+const MAX_INPUT: usize=203
+const MAX_OUTPUT: usize=88
+
+def ceil_log2(value:usize)->usize:
+    exponent:mutable usize=0
+    power:mutable usize=1
+    while power<value:
+        power<-power*2
+        exponent<-exponent+1
+    exponent
+
+def put64(value:i64,output:mutable view[u8],pos:usize)->void:
+    bits:u64=value.u64()
+    byte:mutable usize=0
+    while byte<8:
+        output[pos+byte]<-((bits>>(8*byte))&255).u8()
+        byte<-byte+1
+
+def radio_network_bgi_broadcast(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("radio_network_bgi_broadcast"):
+    if input.is_null() or length<3 or length>MAX_INPUT:return -1
+    n64:i64=input[0]; source64:i64=input[1]; delta64:i64=input[2]
+    if n64<2 or n64>8 or source64<0 or source64>=n64 or delta64<2 or delta64>8:return -1
+    n:usize=n64.usize(); source:usize=source64.usize(); delta:usize=delta64.usize()
+    k:usize=2*ceil_log2(delta); t:usize=ceil_log2(2*n)
+    tape_at:usize=3+n; tape_count:usize=n*t*k
+    if length!=tape_at+tape_count:return -1
+    full:u64=(1.u64<<n)-1
+    adjacency:mutable u64[8]=zeroed
+    calls:mutable usize[8]=zeroed
+    first_slot:mutable i64[8]=zeroed
+    informed:mutable bool[8]=zeroed
+    active:mutable bool[8]=zeroed
+    newly:mutable bool[8]=zeroed
+    v:mutable usize=0
+    while v<n:
+        raw:i64=input[3+v]
+        if raw<0 or (raw.u64()&~full)!=0 or (raw.u64()&(1.u64<<v))!=0:return -1
+        adjacency[v]<-raw.u64()
+        degree:mutable usize=0
+        u:mutable usize=0
+        while u<n:
+            if ((adjacency[v]>>u)&1)!=0:degree<-degree+1
+            u<-u+1
+        if degree>delta:return -1
+        v<-v+1
+    u<-0
+    while u<n:
+        v<-0
+        while v<n:
+            if ((adjacency[u]>>v)&1)!=((adjacency[v]>>u)&1):return -1
+            v<-v+1
+        u<-u+1
+    i:mutable usize=0
+    while i<tape_count:
+        bit:i64=input[tape_at+i]
+        if bit!=0 and bit!=1:return -1
+        i<-i+1
+    output_bytes:usize=8*(n+3)
+    if output.is_null() or capacity<output_bytes:return -2
+    v<-0
+    while v<n:
+        first_slot[v]<- -1
+        v<-v+1
+    informed[source]<-true
+    first_slot[source]<-0
+    transmissions:mutable i64=0
+    phases:mutable i64=0
+    phase:mutable usize=0
+    while phase<n*t:
+        starters:mutable usize=0
+        v<-0
+        while v<n:
+            active[v]<-informed[v] and calls[v]<t
+            newly[v]<-false
+            if active[v]:starters<-starters+1
+            v<-v+1
+        if starters==0:break
+        slot:mutable usize=0
+        while slot<k:
+            u<-0
+            while u<n:
+                if active[u]:transmissions<-transmissions+1
+                u<-u+1
+            v<-0
+            while v<n:
+                if not informed[v] and not newly[v]:
+                    senders:mutable usize=0
+                    u<-0
+                    while u<n:
+                        if active[u] and ((adjacency[u]>>v)&1)!=0:senders<-senders+1
+                        u<-u+1
+                    if senders==1:
+                        newly[v]<-true
+                        first_slot[v]<-(phase*k+slot).i64()
+                v<-v+1
+            u<-0
+            while u<n:
+                if active[u]:
+                    at:usize=tape_at+(u*t+calls[u])*k+slot
+                    if slot+1==k or input[at]==0:active[u]<-false
+                u<-u+1
+            slot<-slot+1
+        v<-0
+        while v<n:
+            if informed[v] and calls[v]<t:calls[v]<-calls[v]+1
+            if newly[v]:
+                informed[v]<-true
+            v<-v+1
+        phases<-(phase+1).i64()
+        phase<-phase+1
+    staged:mutable u8[88]=zeroed
+    put64(n64,staged[0:88],0); put64(phases,staged[0:88],8); put64(transmissions,staged[0:88],16)
+    v<-0
+    while v<n:
+        put64(first_slot[v],staged[0:88],24+8*v)
+        v<-v+1
+    i<-0
+    while i<output_bytes:
+        output[i]<-staged[i]
+        i<-i+1
+    output_bytes.i64()

@@ -8,7 +8,7 @@ pub fn check_cycle(input &i64, length usize) i64 {
 		if input[0] < 0 || input[0] > 32 || input[1] < 0 || input[1] > 256 { return -1 }
 		vertices := int(input[0])
 		edges := int(input[1])
-		if int(length) != 2 + 2 * edges { return -1 }
+		if length != usize(2 + 2 * edges) { return -1 }
 		mut adjacency := [1024]bool{}
 		for edge in 0 .. edges {
 			origin := input[2 + 2 * edge]

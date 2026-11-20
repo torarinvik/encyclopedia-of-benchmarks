@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "berkowitz-characteristic-polynomial-i64-array-bytes-output-v1",
+  "algorithm": "berkowitz_characteristic_polynomial",
+  "function_symbol": "berkowitz_characteristic_polynomial",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute det(xI-A) coefficients using the division-free Samuelson–Berkowitz Toeplitz recursion over a caller-selected modular ring.",
+  "source": {
+    "title": "On computing the determinant in small parallel time using a small number of processors",
+    "author": "Stuart J. Berkowitz",
+    "journal": "Information Processing Letters 18(3), 147–150",
+    "year": 1984,
+    "doi": "10.1016/0020-0190(84)90018-8",
+    "publisher_url": "https://www.sciencedirect.com/science/article/pii/0020019084900188",
+    "paper_pdf_url": "https://cs.uwaterloo.ca/~r5olivei/courses/2021-winter-cs487/berkowitz-paper.pdf",
+    "implementation_status": "clean-room bounded division-free profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,modulus,row-major N-by-N matrix entries]",
+    "dimension_range": [1, 7],
+    "modulus_range": [2, 1000000000],
+    "entry_range": [-1000000, 1000000],
+    "maximum_valid_length": 51,
+    "maximum_parseable_length": 52,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_vector",
+    "encoding": "N+1 descending coefficients [1,c1,...,cN] of det(xI-A) modulo modulus, all residues in [0,modulus)",
+    "success_result": "number of output bytes written",
+    "maximum_output_bytes": 64,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "At most 49 normalized matrix entries and five 8-entry coefficient/vector arrays, plus scalar state and bounded language-container overhead; caller output is accounted separately."
+  },
+  "contract": {
+    "ring": "All arithmetic is reduced modulo the supplied integer modulus; modulus need not be prime. No modular inverse or division is used.",
+    "normalization": "Each signed matrix entry is mapped to its least nonnegative residue before the recursion.",
+    "partition": "For each trailing principal block A=[[a,R],[S,M]], transform the descending coefficient vector of det(xI-M) by the lower-triangular Toeplitz matrix whose first column is [1,-a,-R*S,-R*M*S,...].",
+    "coefficient_update": "If child coefficients are q[j] and Toeplitz first-column values are t[k], parent coefficient p[i]=sum(j=0..i, t[i-j]*q[j]) modulo modulus.",
+    "order": "Start with the empty trailing block polynomial [1], then add rows and columns from the bottom-right toward the top-left. Emit coefficients in descending powers of x, monic term first.",
+    "overflow_bound": "Each modular product is at most (999999999)^2 < 10^18; each accumulation is reduced after every product. Matrix-vector and coefficient sums therefore stay within signed 64-bit arithmetic.",
+    "complexity": "O(N^4) modular operations for the bounded sequential Toeplitz recursion and O(N^2) workspace.",
+    "error_precedence": "Validate the complete input frame before checking output nullness/capacity. Malformed input returns -1; otherwise null or undersized output returns -2 without writes."
+  },
+  "references": {
+    "primary": "primary_oracle.py: construct successive trailing-block coefficients with the Samuelson–Berkowitz lower-triangular Toeplitz recurrence.",
+    "independent": "independent_oracle.py: expand det(xI-A) over every permutation and accumulate each polynomial term."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single_entry_composite_modulus","input_values":[1,12,5],"input_length":3,"output_capacity":64,"expected_result":16,"expected_output_values":[1,7],"expected_output_hex":"01000000000000000700000000000000"},
+    {"id":"two_by_two_composite_modulus","input_values":[2,8,1,2,3,4],"input_length":6,"output_capacity":64,"expected_result":24,"expected_output_values":[1,3,6],"expected_output_hex":"010000000000000003000000000000000600000000000000"},
+    {"id":"two_by_two_swap_matrix","input_values":[2,8,0,1,1,0],"input_length":6,"output_capacity":64,"expected_result":24,"expected_output_values":[1,0,7],"expected_output_hex":"010000000000000000000000000000000700000000000000"},
+    {"id":"upper_triangular_three_by_three","input_values":[3,12,1,5,0,0,2,7,0,0,3],"input_length":11,"output_capacity":64,"expected_result":32,"expected_output_values":[1,6,11,6],"expected_output_hex":"010000000000000006000000000000000b000000000000000600000000000000"},
+    {"id":"zero_matrix","input_values":[3,10,0,0,0,0,0,0,0,0,0],"input_length":11,"output_capacity":64,"expected_result":32,"expected_output_values":[1,0,0,0],"expected_output_hex":"0100000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"seven_by_seven_identity_composite_modulus","input_values":[7,10,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],"input_length":51,"output_capacity":64,"expected_result":64,"expected_output_values":[1,3,1,5,5,9,7,9],"expected_output_hex":"01000000000000000300000000000000010000000000000005000000000000000500000000000000090000000000000007000000000000000900000000000000"},
+    {"id":"invalid_zero_dimension","input_values":[0,12],"input_length":2,"output_capacity":64,"expected_result":-1,"expected_output_values":[],"expected_output_hex":""},
+    {"id":"invalid_dimension_too_large","input_values":[8,12],"input_length":2,"output_capacity":64,"expected_result":-1,"expected_output_values":[],"expected_output_hex":""},
+    {"id":"invalid_modulus_one","input_values":[1,1,5],"input_length":3,"output_capacity":64,"expected_result":-1,"expected_output_values":[],"expected_output_hex":""},
+    {"id":"entry_out_of_range","input_values":[1,12,1000001],"input_length":3,"output_capacity":64,"expected_result":-1,"expected_output_values":[],"expected_output_hex":""},
+    {"id":"trailing_input","input_values":[1,12,5,6],"input_length":4,"output_capacity":64,"expected_result":-1,"expected_output_values":[],"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[1,12,5],"input_length":3,"output_capacity":15,"expected_result":-2,"expected_output_values":[],"expected_output_hex":""},
+    {"id":"null_output","input_values":[1,12,5],"input_length":3,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_values":[],"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":64,"expected_result":-1,"expected_output_values":[],"expected_output_hex":""}
+  ]
+}

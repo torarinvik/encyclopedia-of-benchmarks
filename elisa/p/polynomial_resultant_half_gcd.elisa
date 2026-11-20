@@ -250,7 +250,7 @@ def rp_matrix_copy(source: view[i64], source_lengths: view[usize], source_stride
 # Recursive matrix reduction draft. Each frame reserves 16*stride entries,
 # with stride = 2*an+2: three matrices followed by c, d, quotient, remainder.
 # Child frames use the remaining workspace; arithmetic scratch is shared only
-# between calls, never concurrently. False signals insufficient workspace.
+# between calls, never concurrently. false signals insufficient workspace.
 # Callers must separately ensure output and scratch views are sufficiently
 # large and disjoint. `degrees` and `leading` hold the quotient heads in order.
 def rp_half(a: view[i64], an: usize, b: view[i64], bn: usize,

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("linear_sieve")
 fn linear_sieve(limit:Int64) abi("C")->Int64:
     if limit<0 or limit>4096:return -1

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import MutAnyOrigin, UnsafePointer
 fn hc_reverse(inout p:InlineArray[Int64,8192],off:Int,count:Int):

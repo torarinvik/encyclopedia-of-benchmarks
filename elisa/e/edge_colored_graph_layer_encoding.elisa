@@ -1,0 +1,112 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 28
+const MAX_INPUT: usize = 97
+const MAX_VERTICES: usize = 24
+
+def put_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def edge_colored_graph_layer_encoding_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 5 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    d64: i64 = input[2]
+    q64: i64 = input[3]
+    if n64 < 1 or n64 > 8 or m64 < 0 or m64 > 28 or d64 < 1 or d64 > 3 or q64 < 1 or q64 > 3: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    layers: usize = d64.usize()
+    classes: usize = q64.usize()
+    edge_offset: usize = 4 + n
+    if length != edge_offset + 3 * m: return -1
+    source_colors: mutable i64[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        source_colors[vertex] <- input[4 + vertex]
+        if source_colors[vertex] < 0 or source_colors[vertex] >= q64: return -1
+        vertex <- vertex + 1
+    source_edges: mutable u8[MAX_N * MAX_N] = zeroed
+    offset: mutable usize = edge_offset
+    edge: mutable usize = 0
+    while edge < m:
+        left64: i64 = input[offset]
+        right64: i64 = input[offset + 1]
+        color64: i64 = input[offset + 2]
+        offset <- offset + 3
+        if left64 < 0 or left64 >= n64 or right64 < 0 or right64 >= n64 or left64 == right64 or color64 < 1 or color64 >= (1 << d64): return -1
+        u: usize = left64.usize()
+        v: usize = right64.usize()
+        if u > v:
+            temp: usize = u
+            u <- v
+            v <- temp
+        index: usize = u * MAX_N + v
+        if source_edges[index] != 0: return -1
+        source_edges[index] <- color64.u8()
+        edge <- edge + 1
+
+    nodes: usize = n * layers
+    adjacency: mutable bool[MAX_VERTICES * MAX_VERTICES] = zeroed
+    layer: mutable usize = 0
+    while layer < layers:
+        bit: u8 = (1 << layer).u8()
+        u: mutable usize = 0
+        while u < n:
+            v: mutable usize = u + 1
+            while v < n:
+                if (source_edges[u * MAX_N + v] & bit) != 0:
+                    adjacency[(layer * n + u) * MAX_VERTICES + layer * n + v] <- true
+                v <- v + 1
+            u <- u + 1
+        layer <- layer + 1
+    vertex <- 0
+    while vertex < n:
+        layer <- 0
+        while layer + 1 < layers:
+            adjacency[(layer * n + vertex) * MAX_VERTICES + (layer + 1) * n + vertex] <- true
+            layer <- layer + 1
+        vertex <- vertex + 1
+    edge_count: mutable usize = 0
+    u <- 0
+    while u < nodes:
+        v: mutable usize = u + 1
+        while v < nodes:
+            if adjacency[u * MAX_VERTICES + v]: edge_count <- edge_count + 1
+            v <- v + 1
+        u <- u + 1
+    output_bytes: usize = 8 * (2 + nodes + 2 * edge_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    put_le(nodes.i64(), output_view, 0)
+    put_le(edge_count.i64(), output_view, 8)
+    word: mutable usize = 2
+    layer <- 0
+    while layer < layers:
+        vertex <- 0
+        while vertex < n:
+            put_le((layer * classes + source_colors[vertex].usize()).i64(), output_view, 8 * word)
+            word <- word + 1
+            vertex <- vertex + 1
+        layer <- layer + 1
+    u <- 0
+    while u < nodes:
+        v <- u + 1
+        while v < nodes:
+            if adjacency[u * MAX_VERTICES + v]:
+                put_le(u.i64(), output_view, 8 * word)
+                word <- word + 1
+                put_le(v.i64(), output_view, 8 * word)
+                word <- word + 1
+            v <- v + 1
+        u <- u + 1
+    output_bytes.i64()
+
+export fn edge_colored_graph_layer_encoding(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
+    edge_colored_graph_layer_encoding_impl(input[0:length], output, capacity)

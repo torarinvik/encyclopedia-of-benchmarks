@@ -1,6 +1,6 @@
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
-from std.collections import List
+from std.collections import InlineArray, List
 from std.math import log2, floor
 
 fn entropy_round_even(value:Float64)->Int:

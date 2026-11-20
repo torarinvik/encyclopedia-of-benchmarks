@@ -16,7 +16,7 @@ fn double geometric_dist(long* values, usz length) @export("geometric_dist") {
     long operation = values[0];
     long p_code = values[1];
     if (p_code < 0 || p_code > 2) return INVALID_RESULT;
-    float probabilities[3] = {0.25f, 0.5f, 0.75f};
+    float[3] probabilities = {0.25f, 0.5f, 0.75f};
     float p = probabilities[(usz)p_code];
     if (operation >= 0 && operation <= 2) {
         if (length != 2) return INVALID_RESULT;
@@ -37,7 +37,7 @@ fn double geometric_dist(long* values, usz length) @export("geometric_dist") {
     }
     if (operation == 5) {
         if (length != 3 || values[2] < 0 || values[2] > 2) return INVALID_RESULT;
-        float cdf_values[3] = {0.25f, 0.5f, 0.75f};
+        float[3] cdf_values = {0.25f, 0.5f, 0.75f};
         float cdf = cdf_values[(usz)values[2]];
         float numerator = (float)log((double)(1.0f - cdf));
         float denominator = (float)log((double)(1.0f - p));

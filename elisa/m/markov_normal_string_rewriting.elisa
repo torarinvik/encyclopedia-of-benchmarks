@@ -1,0 +1,149 @@
+# Apply the first enabled production's leftmost occurrence and restart priority.
+def markov_normal_string_rewriting_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    if input.len() < 3 or input.len() > 204:
+        return -1
+    rule_word: i64 = input[0]
+    budget_word: i64 = input[1]
+    initial_word: i64 = input[2]
+    if rule_word < 0 or rule_word > 8 or budget_word < 0 or budget_word > 32 or
+       initial_word < 0 or initial_word > 48:
+        return -1
+    rule_count: usize = rule_word.usize()
+    budget: usize = budget_word.usize()
+    word_length: mutable usize = initial_word.usize()
+    if input.len() < 3 + word_length:
+        return -1
+
+    word: mutable i64[64] = zeroed
+    cursor: mutable usize = 3
+    index: mutable usize = 0
+    while index < word_length:
+        value: i64 = input[cursor]
+        if value < 0 or value > 25:
+            return -1
+        word[index] <- value
+        cursor <- cursor + 1
+        index <- index + 1
+
+    kinds: mutable i64[8] = zeroed
+    left_lengths: mutable usize[8] = zeroed
+    right_lengths: mutable usize[8] = zeroed
+    left_sides: mutable i64[64] = zeroed
+    right_sides: mutable i64[64] = zeroed
+    rule: mutable usize = 0
+    while rule < rule_count:
+        if cursor + 3 > input.len():
+            return -1
+        kind: i64 = input[cursor]
+        left_value: i64 = input[cursor + 1]
+        right_value: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if (kind != 0 and kind != 1) or left_value < 1 or left_value > 8 or
+           right_value < 0 or right_value > 8:
+            return -1
+        left_len: usize = left_value.usize()
+        right_len: usize = right_value.usize()
+        if cursor + left_len + right_len > input.len():
+            return -1
+        kinds[rule] <- kind
+        left_lengths[rule] <- left_len
+        right_lengths[rule] <- right_len
+        index <- 0
+        while index < left_len:
+            value: i64 = input[cursor]
+            if value < 0 or value > 25:
+                return -1
+            left_sides[rule * 8 + index] <- value
+            cursor <- cursor + 1
+            index <- index + 1
+        index <- 0
+        while index < right_len:
+            value: i64 = input[cursor]
+            if value < 0 or value > 25:
+                return -1
+            right_sides[rule * 8 + index] <- value
+            cursor <- cursor + 1
+            index <- index + 1
+        rule <- rule + 1
+    if cursor != input.len():
+        return -1
+
+    rewrites: mutable usize = 0
+    halt: mutable u8 = 0u8
+    while true:
+        chosen: mutable usize = rule_count
+        offset: mutable usize = 0
+        rule <- 0
+        while rule < rule_count and chosen == rule_count:
+            left_len: usize = left_lengths[rule]
+            if left_len <= word_length:
+                offset <- 0
+                while offset + left_len <= word_length:
+                    same: mutable bool = true
+                    index <- 0
+                    while index < left_len:
+                        if word[offset + index] != left_sides[rule * 8 + index]:
+                            same <- false
+                            break
+                        index <- index + 1
+                    if same:
+                        chosen <- rule
+                        break
+                    offset <- offset + 1
+            rule <- rule + 1
+        if chosen == rule_count:
+            halt <- 0u8
+            break
+        if rewrites == budget:
+            halt <- 2u8
+            break
+        left_len: usize = left_lengths[chosen]
+        right_len: usize = right_lengths[chosen]
+        new_length: usize = word_length - left_len + right_len
+        if new_length > 64:
+            return -3
+        next_word: mutable i64[64] = zeroed
+        out: mutable usize = 0
+        index <- 0
+        while index < offset:
+            next_word[out] <- word[index]
+            out <- out + 1
+            index <- index + 1
+        index <- 0
+        while index < right_len:
+            next_word[out] <- right_sides[chosen * 8 + index]
+            out <- out + 1
+            index <- index + 1
+        index <- offset + left_len
+        while index < word_length:
+            next_word[out] <- word[index]
+            out <- out + 1
+            index <- index + 1
+        index <- 0
+        while index < new_length:
+            word[index] <- next_word[index]
+            index <- index + 1
+        word_length <- new_length
+        rewrites <- rewrites + 1
+        if kinds[chosen] == 1:
+            halt <- 1u8
+            break
+
+    required: usize = 3 + word_length
+    if output.is_null() or capacity < required:
+        return -2
+    result: mutable view[u8] = output[0:required]
+    result[0] <- halt
+    result[1] <- rewrites.u8()
+    result[2] <- word_length.u8()
+    index <- 0
+    while index < word_length:
+        result[3 + index] <- word[index].u8()
+        index <- index + 1
+    required.i64()
+
+export fn markov_normal_string_rewriting(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 204:
+        return -1
+    markov_normal_string_rewriting_impl(input[0:length], output, capacity)

@@ -1,0 +1,39 @@
+from std.collections import InlineArray
+
+const MAX_TEXT: usize = 256
+const MAX_PATTERN: usize = 16
+const MAX_INPUT: usize = 274
+
+def berry_ravindran_search_impl(values: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT: return -2
+    let raw_n, raw_m = values[0], values[1]
+    if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64(): return -2
+    let n, m = raw_n.usize(), raw_m.usize()
+    if length != 2 + n + m: return -2
+    for i in 0..<(n + m):
+        if values[2 + i] < 0 or values[2 + i] > 15: return -2
+    if m > n: return -1
+    let p: usize = 2 + n
+    var shift = InlineArray[usize, 289](fill=m + 2)
+    for a in 0..<17:
+        shift[a * 17 + values[p].usize()] = m + 1
+    for i in 0..<(m - 1):
+        shift[values[p + i].usize() * 17 + values[p + i + 1].usize()] = m - i
+    for b in 0..<17:
+        shift[values[p + m - 1].usize() * 17 + b] = 1
+    var start: usize = 0
+    while start <= n - m:
+        var i: usize = 0
+        while i < m and values[2 + start + i] == values[p + i]:
+            i += 1
+        if i == m: return start.i64()
+        let k = start + m
+        if k >= n: break
+        let first = values[2 + k].usize()
+        let second: usize = if k + 1 < n: values[2 + k + 1].usize() else: 16
+        start += shift[first * 17 + second]
+    -1
+
+export fn berry_ravindran_search(values: i64&, length: usize) -> i64:
+    if values.is_null(): return -2
+    berry_ravindran_search_impl(values[0:length], length)

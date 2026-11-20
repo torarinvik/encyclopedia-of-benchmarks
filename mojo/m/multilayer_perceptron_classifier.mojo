@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn mlp_forward(row:InlineArray[Float64,3],w1:InlineArray[Float64,6],w2:InlineArray[Float64,6],mut z:InlineArray[Float64,2],mut hid:InlineArray[Float64,2],mut y:InlineArray[Float64,3]):

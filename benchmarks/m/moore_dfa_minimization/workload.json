@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "moore-dfa-minimization-v1",
+  "algorithm": "moore_dfa_minimization",
+  "function_symbol": "moore_dfa_minimization",
+  "input": {
+    "kind": "i64_array_scalar",
+    "maximum_states": 8,
+    "maximum_alphabet": 3,
+    "maximum_valid_length": 28,
+    "maximum_parseable_length": 29,
+    "invalid_result": -1,
+    "format": "[n, alphabet, start_state, accepting_mask, state-major transition destinations...]"
+  },
+  "output": {
+    "encoding": "positive i64: (class_count << 28) | (strict_refinement_rounds << 24) | 3-bit canonical class labels in ascending state order",
+    "maximum_result": 2264924159
+  },
+  "workspace": {"bytes": 4096},
+  "complexity": {
+    "primary_time": "O(n^3 * alphabet) worst case: at most n-2 strict rounds, with up to n prior signatures scanned for each state",
+    "independent_time": "O(n^3 * alphabet) for at most n-2 synchronous pair-marking waves",
+    "primary_workspace": "O(n * alphabet)",
+    "independent_workspace": "O(n^2)"
+  },
+  "contract": {
+    "all_states_participate": true,
+    "unreachable_states_removed": false,
+    "initial_partition": "accepting and rejecting states, with class IDs assigned by first state occurrence",
+    "refinement_signature": "(current class, destination class for each symbol in symbol order)",
+    "new_class_ids": "first state occurrence in ascending state order",
+    "round_count": "number of strict refinement passes; the final stable pass is not counted",
+    "maximum_rounds": 6,
+    "maximum_classes": 8,
+    "maximum_workspace_bytes": 4096
+  },
+  "cases": [
+    {"id":"one_rejecting_state","input_values":[1,1,0,0,0],"input_length":5,"expected_result":268435456},
+    {"id":"one_accepting_state","input_values":[1,1,0,1,0],"input_length":5,"expected_result":268435456},
+    {"id":"two_initial_classes","input_values":[2,1,0,2,0,0],"input_length":6,"expected_result":536870920},
+    {"id":"one_refinement_round","input_values":[3,1,0,4,0,2,2],"input_length":7,"expected_result":822083720},
+    {"id":"two_refinement_rounds","input_values":[5,1,0,16,0,0,4,2,3],"input_length":9,"expected_result":1375745088},
+    {"id":"unreachable_accepting_state_retained","input_values":[3,1,0,4,0,1,2],"input_length":7,"expected_result":536870976},
+    {"id":"maximum_input_frame","input_values":[8,3,0,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":28,"expected_result":268435456},
+    {"id":"maximum_overlong_frame","input_values":[8,3,0,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":29,"expected_result":-1},
+    {"id":"invalid_n","input_values":[0,1,0,0],"input_length":4,"expected_result":-1},
+    {"id":"invalid_start","input_values":[2,1,2,0,0,0],"input_length":6,"expected_result":-1},
+    {"id":"invalid_transition","input_values":[2,1,0,0,0,2],"input_length":6,"expected_result":-1},
+    {"id":"trailing_word","input_values":[1,1,0,0,0,9],"input_length":6,"expected_result":-1},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ],
+  "measurement": {"comparison_model":"i64_array_scalar_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":10}
+}

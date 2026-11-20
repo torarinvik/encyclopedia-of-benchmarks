@@ -51,7 +51,7 @@ fn void put_i32_le(char* output, usz offset, long value) {
     }
 }
 
-long merge_ksorted_linked_list(long* input, usz length, char* output, usz capacity)
+fn long merge_ksorted_linked_list(long* input, usz length, char* output, usz capacity)
         @export("merge_ksorted_linked_list") {
     if (input == null || length < 1 || length > MAX_INPUT_LENGTH) return -1;
     long raw_list_count = input[0];

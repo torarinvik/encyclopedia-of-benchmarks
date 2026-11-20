@@ -23,5 +23,9 @@ The workload includes repeated queries against a shared text so the transition
 table is used across the batch. It also covers advancing exactly to the end of
 the text and rejecting malformed lengths and symbols after an earlier miss.
 
-Reserved for root. Drafts in all ten languages, the workload, references, and
-scalar-suite registration are unverified. Nothing has been compiled or run.
+Static source review is complete; execution is deferred. All ten language
+ports agree on the next-occurrence sentinel, per-query cursor reset, full
+symbol validation even after an earlier miss, exact-frame rejection, and the
+weighted count of matching queries. The runner and verifier use the table
+reference and independent scan reference, respectively. Nothing has been
+compiled or run.

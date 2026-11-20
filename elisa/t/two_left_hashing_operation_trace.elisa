@@ -1,0 +1,112 @@
+const TLH_MAX_Q: usize = 40
+const TLH_BUCKETS: usize = 8
+const TLH_KEYS: usize = 32
+
+struct TlhState:
+    heads: i64[16]
+    lengths: usize[16]
+    keys: i64[32]
+    next: i64[32]
+    status: i64[40]
+    placement: i64[40]
+    live: usize
+
+def tlh_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def tlh_find(state: mutable TlhState&, bucket: usize, key: i64) -> i64:
+    node: mutable i64 = state.heads[bucket]
+    while node >= 0:
+        if state.keys[node.usize()] == key: return node
+        node <- state.next[node.usize()]
+    -1
+
+export fn two_left_hashing_operation_trace(
+    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
+) -> i64:
+    if input.is_null() or input_length < 5 or input_length > 162: return -1
+    q_value: i64 = input[0]
+    if q_value < 1 or q_value > TLH_MAX_Q.i64() or input_length != 1 + 4 * q_value.usize(): return -1
+    q: usize = q_value.usize()
+    for i in 0..q:
+        base: usize = 1 + 4 * i
+        op: i64 = input[base]
+        key: i64 = input[base + 1]
+        left: i64 = input[base + 2]
+        right: i64 = input[base + 3]
+        if op < 0 or op > 2 or key < 0 or key > 63 or left < 0 or left >= TLH_BUCKETS.i64() or right < 0 or right >= TLH_BUCKETS.i64(): return -1
+        for prior in 0..i:
+            prior_base: usize = 1 + 4 * prior
+            if input[prior_base + 1] == key and
+                (input[prior_base + 2] != left or input[prior_base + 3] != right): return -1
+    output_bytes: usize = 16 * q
+    if output.is_null() or output_capacity < output_bytes: return -2
+
+    state: mutable TlhState = zeroed
+    for bucket in 0..16: state.heads[bucket] <- -1
+    for slot in 0..TLH_KEYS:
+        state.keys[slot] <- -1
+        state.next[slot] <- -1
+    state.live <- 0
+
+    for i in 0..q:
+        base: usize = 1 + 4 * i
+        op: i64 = input[base]
+        key: i64 = input[base + 1]
+        left: usize = input[base + 2].usize()
+        right: usize = TLH_BUCKETS + input[base + 3].usize()
+        left_node: i64 = tlh_find(state&, left, key)
+        right_node: i64 = tlh_find(state&, right, key)
+        if op == 0:
+            if left_node >= 0 or right_node >= 0:
+                state.status[i] <- 0
+                state.placement[i] <- -1
+                continue
+            if state.live == TLH_KEYS: return -3
+            use_left: bool = state.lengths[left] <= state.lengths[right]
+            bucket: usize = right
+            if use_left: bucket <- left
+            free_slot: mutable usize = 0
+            while state.keys[free_slot] >= 0: free_slot <- free_slot + 1
+            state.keys[free_slot] <- key
+            state.next[free_slot] <- state.heads[bucket]
+            state.heads[bucket] <- free_slot.i64()
+            state.lengths[bucket] <- state.lengths[bucket] + 1
+            state.live <- state.live + 1
+            state.status[i] <- 1
+            state.placement[i] <- 1
+            if use_left: state.placement[i] <- 0
+        elif op == 1:
+            state.status[i] <- 0
+            if left_node >= 0 or right_node >= 0: state.status[i] <- 1
+            state.placement[i] <- -1
+        elif left_node < 0 and right_node < 0:
+            state.status[i] <- 0
+            state.placement[i] <- -1
+        else:
+            bucket: usize = right
+            target: i64 = right_node
+            if left_node >= 0:
+                bucket <- left
+                target <- left_node
+            previous: i64 = -1
+            node: i64 = state.heads[bucket]
+            while node != target:
+                previous <- node
+                node <- state.next[node.usize()]
+            if previous < 0: state.heads[bucket] <- state.next[node.usize()]
+            else: state.next[previous.usize()] <- state.next[node.usize()]
+            state.keys[node.usize()] <- -1
+            state.next[node.usize()] <- -1
+            state.lengths[bucket] <- state.lengths[bucket] - 1
+            state.live <- state.live - 1
+            state.status[i] <- 1
+            state.placement[i] <- -1
+
+    result: mutable view[u8] = output[0:output_bytes]
+    for i in 0..q:
+        tlh_store(result, 16 * i, state.status[i])
+        tlh_store(result, 16 * i + 8, state.placement[i])
+    output_bytes.i64()

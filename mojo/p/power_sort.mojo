@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn ps_less(a:Int64,b:Int64,rev:Bool)->Bool:return a>b if rev else a<b

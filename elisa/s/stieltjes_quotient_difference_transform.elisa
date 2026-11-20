@@ -1,0 +1,78 @@
+const MODULUS: i64 = 998244353
+const MAX_WORDS: usize = 11
+const TABLE_COLUMNS: usize = 9
+
+def stieltjes_mod(value_input: i64) -> i64:
+    reduced: mutable i64 = value_input % MODULUS
+    if reduced < 0: reduced <- reduced + MODULUS
+    reduced
+
+def stieltjes_mul(left: i64, right: i64) -> i64:
+    (left * right) % MODULUS
+
+def stieltjes_power(base_input: i64, exponent_input: i64) -> i64:
+    base: mutable i64 = base_input
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- stieltjes_mul(result, base)
+        base <- stieltjes_mul(base, base)
+        exponent <- exponent >> 1
+    result
+
+def stieltjes_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+@export("stieltjes_quotient_difference_transform")
+def stieltjes_quotient_difference_transform(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_WORDS: return -1
+    values: view[i64] = input[0:length]
+    n0: i64 = values[0]
+    if n0 < 2 or n0 > 9 or length != n0.usize() + 1: return -1
+    n: usize = n0.usize()
+    i: mutable usize = 0
+    while i < n:
+        if values[i + 1] <= 0 or values[i + 1] >= MODULUS: return -1
+        i <- i + 1
+
+    q: mutable [45]i64 = [0; 45]
+    e: mutable [45]i64 = [0; 45]
+    k: mutable usize = 0
+    while k + 1 < n:
+        q[TABLE_COLUMNS + k] <- stieltjes_mul(values[k + 2], stieltjes_power(values[k + 1], MODULUS - 2))
+        k <- k + 1
+    j: mutable usize = 1
+    while j <= 4:
+        last_e: i64 = n.i64() - 2 * j.i64() - 1
+        if last_e < 0: break
+        k <- 0
+        while k.i64() <= last_e:
+            e[j * TABLE_COLUMNS + k] <- stieltjes_mod(
+                e[(j - 1) * TABLE_COLUMNS + k + 1] + q[j * TABLE_COLUMNS + k + 1] - q[j * TABLE_COLUMNS + k])
+            k <- k + 1
+        last_q: i64 = n.i64() - 2 * j.i64() - 2
+        if last_q >= 0:
+            k <- 0
+            while k.i64() <= last_q:
+                pivot: i64 = e[j * TABLE_COLUMNS + k]
+                if pivot == 0: return -1
+                product: i64 = stieltjes_mul(q[j * TABLE_COLUMNS + k + 1], e[j * TABLE_COLUMNS + k + 1])
+                q[(j + 1) * TABLE_COLUMNS + k] <- stieltjes_mul(product, stieltjes_power(pivot, MODULUS - 2))
+                k <- k + 1
+        j <- j + 1
+
+    required: usize = 8 * (n + 1)
+    if output.is_null() or capacity < required: return -2
+    destination: mutable view[u8] = output[0:required]
+    stieltjes_store_i64(destination, 0, n0)
+    index: mutable usize = 1
+    while index < n:
+        value: i64 = if (index & 1) != 0: q[((index + 1) / 2) * TABLE_COLUMNS] else: e[(index / 2) * TABLE_COLUMNS]
+        stieltjes_store_i64(destination, 8 * index, value)
+        index <- index + 1
+    required.i64()

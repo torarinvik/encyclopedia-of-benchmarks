@@ -2,9 +2,9 @@ module steiner_tree_gain_greedy;
 
 struct Edge { long u; long v; long w; }
 
-fn void put_i64(uint8* out, usz word, long value) {
+fn void put_i64(char* out, usz word, long value) {
     ulong bits = (ulong)value;
-    for (usz b = 0; b < 8; b++) out[word*8+b] = (uint8)(bits >> (8*b));
+    for (usz b = 0; b < 8; b++) out[word*8+b] = (char)(bits >> (8*b));
 }
 fn long root(long* p, long x) {
     while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; }
@@ -52,7 +52,7 @@ fn long contracted_mst(long n,long mask,long* w,bool* h){
     return total;
 }
 
-fn long steiner_tree_gain_greedy(long* input,usz length,uint8* output,usz capacity) @export("steiner_tree_gain_greedy"){
+fn long steiner_tree_gain_greedy(long* input,usz length,char* output,usz capacity) @export("steiner_tree_gain_greedy"){
     if(input==null||length<4||length>37)return -1;
     long n0=input[0],mask=input[1],count0=input[2];if(n0<2||n0>4||mask<=0||(mask>>n0)!=0||count0<1||count0>4)return -1;
     long n=n0,count=count0,terms=0;for(long i=0;i<n;i++)if((mask&(1<<i))!=0)terms++;if(terms<2)return -1;

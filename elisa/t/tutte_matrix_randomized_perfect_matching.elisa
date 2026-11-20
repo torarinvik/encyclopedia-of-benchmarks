@@ -1,0 +1,200 @@
+const MAX_N: usize = 8
+const MAX_EDGES: usize = 28
+const MAX_INPUT: usize = 87
+const MAX_OUTPUT: usize = 80
+const FIELD_P: i64 = 65521
+
+def norm(value: i64) -> i64:
+    remainder: i64 = value % FIELD_P
+    if remainder < 0: return remainder + FIELD_P
+    remainder
+
+def mod_pow(base: i64, exponent_value: usize) -> i64:
+    exponent: mutable usize = exponent_value
+    result: mutable i64 = 1
+    factor: mutable i64 = norm(base)
+    while exponent != 0:
+        if (exponent & 1) != 0: result <- (result * factor) % FIELD_P
+        factor <- (factor * factor) % FIELD_P
+        exponent <- exponent >> 1
+    result
+
+def store_word(value: i64, output: mutable view[u8], word: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def eliminate(inverse: mutable view[i64], rows: mutable view[bool],
+        columns: mutable view[bool], n: usize, pivot_row: usize,
+        pivot_column: usize) -> bool:
+    old: mutable i64[MAX_N * MAX_N] = zeroed
+    index: mutable usize = 0
+    while index < MAX_N * MAX_N:
+        old[index] <- inverse[index]
+        index <- index + 1
+    pivot: i64 = old[pivot_row * MAX_N + pivot_column]
+    if pivot == 0: return false
+    inverse_pivot: i64 = mod_pow(pivot, (FIELD_P - 2).usize())
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            index <- row * MAX_N + column
+            if rows[row] and row != pivot_row and columns[column] and column != pivot_column:
+                correction: i64 = (old[row * MAX_N + pivot_column] * old[pivot_row * MAX_N + column]) % FIELD_P
+                inverse[index] <- norm(old[index] - correction * inverse_pivot)
+            else:
+                inverse[index] <- 0
+            column <- column + 1
+        row <- row + 1
+    rows[pivot_row] <- false
+    columns[pivot_column] <- false
+    true
+
+def tutte_matrix_randomized_perfect_matching_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
+    edge_count_value: i64 = values[1]
+    if n_value < 2 or n_value > MAX_N.i64() or (n_value & 1) != 0 or
+            edge_count_value < 0 or edge_count_value > MAX_EDGES.i64(): return -1
+    n: usize = n_value.usize()
+    edge_count: usize = edge_count_value.usize()
+    if edge_count > n * (n - 1) / 2 or length != 2 + 3 * edge_count: return -1
+
+    matrix: mutable i64[MAX_N * MAX_N] = zeroed
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u_value: i64 = values[2 + 3 * edge]
+        v_value: i64 = values[3 + 3 * edge]
+        substitution: i64 = values[4 + 3 * edge]
+        if u_value < 0 or v_value <= u_value or v_value >= n_value or
+                u_value < previous_u or (u_value == previous_u and v_value <= previous_v) or
+                substitution < 1 or substitution >= FIELD_P: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        matrix[u * MAX_N + v] <- substitution
+        matrix[v * MAX_N + u] <- FIELD_P - substitution
+        previous_u <- u_value
+        previous_v <- v_value
+        edge <- edge + 1
+
+    augmented: mutable i64[MAX_N * 2 * MAX_N] = zeroed
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            augmented[row * 2 * MAX_N + column] <- matrix[row * MAX_N + column]
+            column <- column + 1
+        augmented[row * 2 * MAX_N + n + row] <- 1
+        row <- row + 1
+    singular: mutable bool = false
+    column <- 0
+    while column < n:
+        pivot_row: mutable usize = column
+        while pivot_row < n and augmented[pivot_row * 2 * MAX_N + column] == 0:
+            pivot_row <- pivot_row + 1
+        if pivot_row == n:
+            singular <- true
+            break
+        if pivot_row != column:
+            j: mutable usize = 0
+            while j < 2 * n:
+                temp: i64 = augmented[column * 2 * MAX_N + j]
+                augmented[column * 2 * MAX_N + j] <- augmented[pivot_row * 2 * MAX_N + j]
+                augmented[pivot_row * 2 * MAX_N + j] <- temp
+                j <- j + 1
+        inverse_pivot: i64 = mod_pow(augmented[column * 2 * MAX_N + column], (FIELD_P - 2).usize())
+        j: mutable usize = 0
+        while j < 2 * n:
+            augmented[column * 2 * MAX_N + j] <-
+                (augmented[column * 2 * MAX_N + j] * inverse_pivot) % FIELD_P
+            j <- j + 1
+        row <- 0
+        while row < n:
+            if row != column:
+                factor: i64 = augmented[row * 2 * MAX_N + column]
+                if factor != 0:
+                    j <- 0
+                    while j < 2 * n:
+                        augmented[row * 2 * MAX_N + j] <- norm(
+                            augmented[row * 2 * MAX_N + j] - factor * augmented[column * 2 * MAX_N + j])
+                        j <- j + 1
+            row <- row + 1
+        column <- column + 1
+
+    result: mutable i64[2 + MAX_N] = zeroed
+    result_size: mutable usize = 2
+    if not singular:
+        inverse: mutable i64[MAX_N * MAX_N] = zeroed
+        row <- 0
+        while row < n:
+            column <- 0
+            while column < n:
+                inverse[row * MAX_N + column] <- augmented[row * 2 * MAX_N + n + column]
+                column <- column + 1
+            row <- row + 1
+        rows: mutable bool[MAX_N] = zeroed
+        columns: mutable bool[MAX_N] = zeroed
+        index: mutable usize = 0
+        index <- 0
+        while index < n:
+            rows[index] <- true
+            columns[index] <- true
+            index <- index + 1
+        failed: mutable bool = false
+        vertex: mutable usize = 0
+        while vertex < n:
+            if columns[vertex]:
+                partner: mutable usize = MAX_N
+                candidate: mutable usize = 0
+                while candidate < n:
+                    if rows[candidate] and candidate != vertex and
+                            matrix[vertex * MAX_N + candidate] != 0 and
+                            inverse[candidate * MAX_N + vertex] != 0:
+                        partner <- candidate
+                        break
+                    candidate <- candidate + 1
+                if partner == MAX_N or result_size + 2 > MAX_N + 2:
+                    failed <- true
+                    break
+                result[result_size] <- vertex.i64()
+                result[result_size + 1] <- partner.i64()
+                result_size <- result_size + 2
+                if not eliminate(inverse[0:MAX_N * MAX_N], rows[0:MAX_N],
+                        columns[0:MAX_N], n, partner, vertex) or
+                        not eliminate(inverse[0:MAX_N * MAX_N], rows[0:MAX_N],
+                        columns[0:MAX_N], n, vertex, partner):
+                    failed <- true
+                    break
+            vertex <- vertex + 1
+        if failed:
+            result_size <- 2
+        else:
+            result[0] <- 1
+            result[1] <- (n / 2).i64()
+
+    output_bytes: usize = result_size * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
+    store_word(result[0], staged_view, 0)
+    index <- 1
+    while index < result_size:
+        store_word(result[index], staged_view, index)
+        index <- index + 1
+    output_view: mutable view[u8] = output[0:output_bytes]
+    index <- 0
+    while index < output_bytes:
+        output_view[index] <- staged[index]
+        index <- index + 1
+    output_bytes.i64()
+
+export fn tutte_matrix_randomized_perfect_matching(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tutte_matrix_randomized_perfect_matching_impl

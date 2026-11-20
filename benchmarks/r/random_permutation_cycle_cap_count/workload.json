@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "random-permutation-cycle-cap-count-i64-array-scalar-v1",
+  "algorithm": "random_permutation_cycle_cap_count",
+  "function_symbol": "random_permutation_cycle_cap_count",
+  "abi": "i64_array_scalar",
+  "source": {
+    "discovery_title": "100-prisoners",
+    "discovery_score": 95,
+    "discovery_index": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_note": "Pinned RosettaCodeData index used for title and score discovery only; no task text, submissions, examples, tests, or code reused.",
+    "method_source": "Eugene Curtin and Max Warshauer, The Locker Puzzle, The Mathematical Intelligencer 28(1), 2006, DOI 10.1007/BF02986999",
+    "method_urls": [
+      "https://doi.org/10.1007/BF02986999",
+      "https://www.cl.cam.ac.uk/~gw104/Locker_Puzzle.pdf"
+    ],
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,k]",
+    "exact_length": 2,
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "n_range": [1, 20],
+    "k_constraint": "1 <= k <= n",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "number of permutations of n labels whose every cycle has length at most k",
+    "probability_relation": "returned_count / n! is the cycle-following strategy success probability",
+    "maximum_result": 2432902008176640000,
+    "maximum_result_definition": "20!",
+    "maximum_result_fits_signed_64_bit": true,
+    "invalid_input_result": -1
+  },
+  "complexity": {
+    "primary_time": "O(n * min(n,k))",
+    "primary_space": "O(n)",
+    "primary_recurrence": "C[0]=1; C[s]=sum for j=1..min(s,k) of (s-1)!/(s-j)! * C[s-j]"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"one_label","input_values":[1,1],"input_length":2,"expected_result":1},
+    {"id":"two_labels_singletons_only","input_values":[2,1],"input_length":2,"expected_result":1},
+    {"id":"two_labels_all_cycles_allowed","input_values":[2,2],"input_length":2,"expected_result":2},
+    {"id":"three_labels_cap_one","input_values":[3,1],"input_length":2,"expected_result":1},
+    {"id":"three_labels_cap_two","input_values":[3,2],"input_length":2,"expected_result":4},
+    {"id":"four_labels_involutions","input_values":[4,2],"input_length":2,"expected_result":10},
+    {"id":"four_labels_cap_three","input_values":[4,3],"input_length":2,"expected_result":18},
+    {"id":"four_labels_all_cycles_allowed","input_values":[4,4],"input_length":2,"expected_result":24},
+    {"id":"five_labels_involutions","input_values":[5,2],"input_length":2,"expected_result":26},
+    {"id":"five_labels_cap_three","input_values":[5,3],"input_length":2,"expected_result":66},
+    {"id":"six_labels_cap_three","input_values":[6,3],"input_length":2,"expected_result":276},
+    {"id":"twenty_labels_cap_one","input_values":[20,1],"input_length":2,"expected_result":1},
+    {"id":"maximum_exact_result_twenty_factorial","input_values":[20,20],"input_length":2,"expected_result":2432902008176640000},
+    {"id":"zero_n_invalid","input_values":[0,1],"input_length":2,"expected_result":-1},
+    {"id":"negative_n_invalid","input_values":[-1,1],"input_length":2,"expected_result":-1},
+    {"id":"zero_cycle_cap_invalid","input_values":[5,0],"input_length":2,"expected_result":-1},
+    {"id":"cycle_cap_above_n_invalid","input_values":[3,4],"input_length":2,"expected_result":-1},
+    {"id":"n_above_bound_invalid","input_values":[21,1],"input_length":2,"expected_result":-1},
+    {"id":"missing_cycle_cap_invalid","input_values":[5],"input_length":1,"expected_result":-1},
+    {"id":"empty_frame_invalid","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"trailing_value_invalid","input_values":[5,2,0],"input_length":3,"expected_result":-1},
+    {"id":"signed_minimum_invalid","input_values":[-9223372036854775808,1],"input_length":2,"expected_result":-1},
+    {"id":"signed_maximum_invalid","input_values":[9223372036854775807,1],"input_length":2,"expected_result":-1},
+    {"id":"null_input_invalid","input_values":[1,1],"input_length":2,"input_is_null":true,"expected_result":-1}
+  ]
+}

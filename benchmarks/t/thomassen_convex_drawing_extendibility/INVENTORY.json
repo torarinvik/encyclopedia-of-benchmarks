@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "algorithm": "thomassen_convex_drawing_extendibility",
+  "function_symbol": "thomassen_convex_drawing_extendibility",
+  "abi": "i64_array_scalar",
+  "languages": {
+    "c": "c/t/thomassen_convex_drawing_extendibility.c",
+    "c3": "c3/t/thomassen_convex_drawing_extendibility.c3",
+    "cpp": "cpp/t/thomassen_convex_drawing_extendibility.cpp",
+    "elisa": "elisa/t/thomassen_convex_drawing_extendibility.elisa",
+    "mojo": "mojo/t/thomassen_convex_drawing_extendibility.mojo",
+    "nim": "nim/t/thomassen_convex_drawing_extendibility.nim",
+    "odin": "odin/t/thomassen_convex_drawing_extendibility.odin",
+    "rust": "rust/t/thomassen_convex_drawing_extendibility.rs",
+    "v": "v/t/thomassen_convex_drawing_extendibility.v",
+    "zig": "zig/t/thomassen_convex_drawing_extendibility.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "check_inventory.py"],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Convex Graph Drawing",
+    "author": "Carsten Thomassen",
+    "doi": "10.1007/978-1-4939-2864-4_652",
+    "section": "Theorem 1"
+  },
+  "contract": {
+    "input_layout": "[n,m,f,outer_face,side_count,(u,v)*m,(face_length,face_vertices...)*f,apex_positions*side_count]",
+    "maximum_valid_input_words": 92,
+    "maximum_parseable_input_words": 93,
+    "return_type": "i64",
+    "workspace_bytes": 16384,
+    "measurement": {
+      "comparison_model": "i64_array_scalar_call",
+      "sample_count": 7,
+      "warmup_rounds": 2,
+      "repetitions_per_sample": 1000
+    },
+    "output_layout": "scalar i64: 1 extendible, 0 theorem condition fails, -1 invalid input",
+    "profile": "simple 2-connected sphere embedding with connected degree-two vertex links; n<=8; supplied outer-face side paths; Thomassen's three extendibility conditions"
+  }
+}

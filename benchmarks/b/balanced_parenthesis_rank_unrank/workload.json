@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "balanced-parenthesis-rank-unrank-scalar-v1",
+  "algorithm": "balanced_parenthesis_rank_unrank",
+  "function_symbol": "balanced_parenthesis_rank_unrank",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Balanced bracket sequences: sequence index and k-th sequence",
+    "url": "https://cp-algorithms.com/combinatorics/bracket_sequences.html#sequence-index",
+    "secondary_url": "https://cp-algorithms.com/combinatorics/bracket_sequences.html#finding-the-k-th-sequence",
+    "license": "CC BY-SA 4.0",
+    "reuse": "algorithm description only; clean-room bounded profile"
+  },
+  "input": {
+    "encoding": "mode 0: [0,pair_count,symbols...]; mode 1: [1,pair_count,rank]",
+    "pair_count_range": [1,10],
+    "symbol_encoding": "0 for '(' and 1 for ')'; pair count fixes unrank bit-code width",
+    "maximum_valid_length": 22,
+    "maximum_parseable_length": 23,
+    "invalid_result": -1
+  },
+  "output": {
+    "mode_0": "zero-based lexicographic rank with '(' before ')'",
+    "mode_1": "fixed-width 2*pair_count bit-code, left-shift and append symbols",
+    "result_range": "nonnegative signed 64-bit integer",
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "method": "The primary builds ways[remaining_length][current_balance] completion counts. Rank mode adds the count for each lexicographically earlier opening branch before consuming a close. Unrank mode compares the requested rank with the opening-branch count, then consumes the chosen branch. The independent reference enumerates fixed-cardinality opening-position sets and either locates the supplied word or selects the requested word.",
+    "complexity": "Primary O(n^2) time and O(n^2) table space for n<=10; independent O(binomial(2n,n)*n) worst-case work.",
+    "distinctness": "Catalan counting returns only the family size, recursive parentheses generation emits every word, and balanced_parenthesis_successor computes one next word. This profile provides rank and unrank through suffix-completion DP."
+  },
+  "workspace": {"bytes": 4096},
+  "measurement": {"comparison_model": "i64_array_scalar_call"},
+  "cases": [
+    {"id":"rank-three-pair-first","input_values":[0,3,0,0,0,1,1,1],"input_length":8,"expected_result":0},
+    {"id":"rank-three-pair-second","input_values":[0,3,0,0,1,0,1,1],"input_length":8,"expected_result":1},
+    {"id":"rank-three-pair-middle","input_values":[0,3,0,0,1,1,0,1],"input_length":8,"expected_result":2},
+    {"id":"rank-three-pair-fourth","input_values":[0,3,0,1,0,0,1,1],"input_length":8,"expected_result":3},
+    {"id":"rank-three-pair-last","input_values":[0,3,0,1,0,1,0,1],"input_length":8,"expected_result":4},
+    {"id":"unrank-three-pair-first","input_values":[1,3,0],"input_length":3,"expected_result":7},
+    {"id":"unrank-three-pair-middle","input_values":[1,3,2],"input_length":3,"expected_result":13},
+    {"id":"unrank-three-pair-last","input_values":[1,3,4],"input_length":3,"expected_result":21},
+    {"id":"unrank-one-pair","input_values":[1,1,0],"input_length":3,"expected_result":1},
+    {"id":"maximum-rank-mode","input_values":[0,10,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1],"input_length":22,"expected_result":0},
+    {"id":"maximum-unrank-first","input_values":[1,10,0],"input_length":3,"expected_result":1023},
+    {"id":"maximum-unrank-last","input_values":[1,10,16795],"input_length":3,"expected_result":349525},
+    {"id":"invalid-mode","input_values":[2,3],"input_length":2,"expected_result":-1},
+    {"id":"zero-pairs-out-of-profile","input_values":[0,0],"input_length":2,"expected_result":-1},
+    {"id":"too-many-pairs","input_values":[1,11,0],"input_length":3,"expected_result":-1},
+    {"id":"invalid-symbol","input_values":[0,2,0,2,1,1],"input_length":6,"expected_result":-1},
+    {"id":"negative-prefix-balance","input_values":[0,2,0,1,1,0],"input_length":6,"expected_result":-1},
+    {"id":"nonzero-final-balance","input_values":[0,2,0,0,1,0],"input_length":6,"expected_result":-1},
+    {"id":"missing-symbol","input_values":[0,3,0,0,1],"input_length":5,"expected_result":-1},
+    {"id":"trailing-unrank-value","input_values":[1,2,0,0],"input_length":4,"expected_result":-1},
+    {"id":"negative-rank","input_values":[1,2,-1],"input_length":3,"expected_result":-1},
+    {"id":"rank-equals-catalan-count","input_values":[1,2,2],"input_length":3,"expected_result":-1},
+    {"id":"rank-above-maximum","input_values":[1,10,16796],"input_length":3,"expected_result":-1},
+    {"id":"maximum-parseable-trailing-value","input_values":[0,10,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,99],"input_length":23,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,81 @@
+# Point updates and sum-monoid max_right boundary searches.
+def segment_tree_max_right_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > 55:
+        return -1
+    n_value: i64 = input[0]
+    operation_value: i64 = input[1]
+    if n_value < 0 or n_value > 16 or operation_value < 0 or operation_value > 12:
+        return -1
+    n: usize = n_value.usize()
+    operations: usize = operation_value.usize()
+    if length != 2 + n + 3 * operations:
+        return -1
+
+    tree: mutable i64[64] = zeroed
+    size: mutable usize = 1
+    while size < n:
+        size <- size * 2
+    for i in 0..<n:
+        value: i64 = input[2 + i]
+        if value < 0 or value > 1000:
+            return -1
+        tree[size + i] <- value
+    node: mutable usize = size
+    while node > 1:
+        node <- node - 1
+        tree[node] <- tree[2 * node] + tree[2 * node + 1]
+
+    query_index: mutable usize = 0
+    result: mutable i64 = 0
+    cursor: mutable usize = 2 + n
+    for operation in 0..<operations:
+        opcode: i64 = input[cursor]
+        first: i64 = input[cursor + 1]
+        second: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if opcode == 0:
+            if first < 0 or first >= n_value or second < 0 or second > 1000:
+                return -1
+            node <- size + first.usize()
+            tree[node] <- second
+            while node > 1:
+                node <- node / 2
+                tree[node] <- tree[2 * node] + tree[2 * node + 1]
+        elif opcode == 1:
+            if first < 0 or first > n_value or second < 0 or second > 16000:
+                return -1
+            left: usize = first.usize()
+            boundary: mutable usize = n
+            if left < n:
+                position: mutable usize = left + size
+                accumulated: mutable i64 = 0
+                done: mutable bool = false
+                while not done:
+                    while (position & 1) == 0:
+                        position <- position / 2
+                    if accumulated + tree[position] > second:
+                        while position < size:
+                            position <- position * 2
+                            if accumulated + tree[position] <= second:
+                                accumulated <- accumulated + tree[position]
+                                position <- position + 1
+                        boundary <- position - size
+                        if boundary > n:
+                            boundary <- n
+                        done <- true
+                    else:
+                        accumulated <- accumulated + tree[position]
+                        position <- position + 1
+                        if (position & (position - 1)) == 0:
+                            done <- true
+            result <- result | (boundary.i64() << (5 * query_index).usize())
+            query_index <- query_index + 1
+        else:
+            return -1
+    result
+
+export fn segment_tree_max_right(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 55:
+        return -1
+    segment_tree_max_right_impl(input[0:length])

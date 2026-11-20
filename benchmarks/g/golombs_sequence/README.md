@@ -24,6 +24,7 @@ This is distinct from the Kolakoski sequence, another self-describing sequence o
 | C3 | [`c3/g/golombs_sequence.c3`](../../../c3/g/golombs_sequence.c3) |
 | C++ | [`cpp/g/golombs_sequence.cpp`](../../../cpp/g/golombs_sequence.cpp) |
 | Elisa | [`elisa/g/golombs_sequence.elisa`](../../../elisa/g/golombs_sequence.elisa) |
+| Mojo | [`mojo/g/golombs_sequence.mojo`](../../../mojo/g/golombs_sequence.mojo) |
 | Nim | [`nim/g/golombs_sequence.nim`](../../../nim/g/golombs_sequence.nim) |
 | Odin | [`odin/g/golombs_sequence.odin`](../../../odin/g/golombs_sequence.odin) |
 | Rust | [`rust/g/golombs_sequence.rs`](../../../rust/g/golombs_sequence.rs) |
@@ -33,3 +34,7 @@ This is distinct from the Kolakoski sequence, another self-describing sequence o
 ## TheAlgorithms reference
 
 - [C# `GolombsSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/GolombsSequence.cs)
+
+Scalar verifier registration and an independent indexed-recurrence reference
+are drafted and have not been executed. The local Golomb validator instead
+builds and checks an input prefix, so it remains a separate workload.

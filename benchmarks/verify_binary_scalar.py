@@ -24,12 +24,26 @@ from exponentiation_oracle import expected_result as exponentiation_oracle
 from problem74_sol2_oracle import expected_result as problem74_sol2_oracle
 from run_binary_scalar import encode_values
 from ackermann_oracle import expected_result as ackermann_oracle
+from fibonacci_sum_oracle import expected_result as fibonacci_sum_oracle
+from largest_power_oracle import expected_result as largest_power_oracle
+from f.factorial_divisor_composite_k.primary_oracle import (
+    expected_result as factorial_divisor_composite_k_primary_oracle,
+)
+from f.factorial_divisor_composite_k.independent_oracle import (
+    expected_result as factorial_divisor_composite_k_independent_oracle,
+)
+from f.factorial_divisor_composite_k.check_inventory import (
+    static_issues as factorial_divisor_composite_k_static_issues,
+)
 
 U64_MAX = 2**64 - 1
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 I32_MIN, I32_MAX = -(2**31), 2**31 - 1
 ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version", "problem56", "problem63", "problem74", "problem74_sol2", "problem124", "problem174", "problem800", "uint53_xor", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation")
 ALGORITHMS += ("arithmetic_left_shift", "arithmetic_right_shift", "unique_paths")
+ALGORITHMS += ("fibonacci_sum",)
+ALGORITHMS += ("largest_power",)
+ALGORITHMS += ("factorial_divisor_composite_k",)
 ALGORITHMS += ("circular_left_shift", "bitwise_addition_recursive", "first_different_bit", "count_number_of_one_bits", "highest_common_factor", "binary_pow", "imply_gate", "max_value", "min_value", "xor_swap_two_integers", "recursive_digit_sum", "binary_multiplication")
 
 FERMAT_MAX_BASE = 1_000_000
@@ -314,6 +328,20 @@ def problem174_lamina_counts(t_limit: int, n_limit: int) -> int:
 
 
 def result(algorithm: str, left: int, right: int) -> int:
+    if algorithm == "factorial_divisor_composite_k":
+        primary = factorial_divisor_composite_k_primary_oracle(left, right)
+        independent = factorial_divisor_composite_k_independent_oracle(left, right)
+        if primary != independent:
+            raise ValueError("factorial_divisor_composite_k references disagree")
+        return independent
+    if algorithm == "largest_power":
+        return largest_power_oracle(left, right)
+    if algorithm == "largest_power":
+        pairs.update((n, p) for n in range(129) for p in range(0, 65))
+        pairs.update((n, p) for n in (0, 1, 2**32-1, 2**32, U64_MAX)
+                     for p in (0, 1, 2, 3, 65521, 65535, 65536, U64_MAX))
+    elif algorithm == "fibonacci_sum":
+        return fibonacci_sum_oracle(left, right)
     if algorithm == "binary_multiplication":
         if not 0 <= left <= 1_000_000_000 or not 0 <= right <= 1_000_000_000:
             raise ValueError("binary_multiplication oracle inputs must lie within the declared 0..1e9 domain")
@@ -423,7 +451,24 @@ def result(algorithm: str, left: int, right: int) -> int:
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
     pairs = {tuple(case["input_values"]) for case in workload["cases"]}
-    if algorithm == "modular_inverse_fermat_little_theorem":
+    if algorithm == "factorial_divisor_composite_k":
+        issues = factorial_divisor_composite_k_static_issues(workload)
+        if issues:
+            raise ValueError("factorial_divisor_composite_k package is incomplete: "
+                             + "; ".join(issues))
+        pairs.update((n, k) for n in range(65) for k in range(4, 33))
+        pairs.update({(0, 4), (1, 12), (1_000_000_000_000, 4),
+                      (1_000_000_000_000, 1_000_000),
+                      (1_000_000_000_001, 4), (100, 2),
+                      (100, 97), (-1, 4), (100, -1), (U64_MAX, 4),
+                      (100, U64_MAX)})
+        rng = random.Random(20261116)
+        pairs.update((rng.randrange(0, 1_000_001), rng.randrange(4, 1_000_001))
+                     for _ in range(128))
+    elif algorithm == "fibonacci_sum":
+        pairs.update((start, end) for start in range(91) for end in range(91))
+        pairs.update(((0, 91), (91, 90), (U64_MAX, 0), (0, U64_MAX), (U64_MAX, U64_MAX)))
+    elif algorithm == "modular_inverse_fermat_little_theorem":
         prime_moduli = (2, 3, 5, 7, 11, 13, 17, 19, 23, 31, 97, 101, 997, 999983)
         for modulus in prime_moduli:
             for base in (1, 2, modulus - 1, modulus, modulus + 1, FERMAT_MAX_BASE):

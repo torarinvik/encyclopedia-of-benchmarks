@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-random-3sat-hajiaghayi-sorkin-algorithm-a-i64-array-bytes-output-v1",
+  "algorithm": "random_3sat_hajiaghayi_sorkin_algorithm_a",
+  "function_symbol": "random_3sat_hajiaghayi_sorkin_algorithm_a",
+  "abi": "i64_array_bytes_output",
+  "description": "Hajiaghayi-Sorkin Algorithm A with deterministic ties and the paper's printed True iff positive_degree < negative_degree rule.",
+  "source": {
+    "title": "The Satisfiability Threshold of Random 3-SAT Is at Least 3.52",
+    "authors": ["MohammadTaghi Hajiaghayi", "Gregory B. Sorkin"],
+    "year": 2003,
+    "reference": "arXiv:math/0310193, Section 3, Algorithm A; DOI 10.48550/arXiv.math/0310193",
+    "url": "https://doi.org/10.48550/arXiv.math/0310193",
+    "chapter": "Thresholds of Random k-SAT, Encyclopedia of Algorithms, Chapter 423, DOI 10.1007/978-1-4939-2864-4_423",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_423",
+    "printed_assignment_rule": "set v True if positive_degree < negative_degree and False otherwise",
+    "implementation_status": "bounded clean-room deterministic tie specialization"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,3*m signed one-based literals grouped in formula order]",
+    "variable_count_range": [3, 12],
+    "clause_count_range": [0, 32],
+    "maximum_valid_length": 98,
+    "clause_rule": "Each input clause contains exactly three nonzero literals on distinct variables; duplicate clauses are permitted.",
+    "invalid_result": -1
+  },
+  "contract": {
+    "degrees": "For each unset variable, count positive i and negative j occurrences in the current residual formula.",
+    "selection": "Any pure variable (i=0 or j=0) takes priority; choose the lowest variable ID. Otherwise maximize (abs(i-j), i+j) lexicographically, then choose the lowest variable ID among variables with that score.",
+    "assignment": "Preserve Algorithm A: set the chosen variable True iff i<j, otherwise False. Positive literal v is satisfied by True; negative literal -v is satisfied by False.",
+    "unit_propagation": "After each free variable assignment, repeatedly set the first residual unit clause in original formula order true.",
+    "reduction": "Delete satisfied clauses and remove each assigned literal's negation from all other clauses. Stop immediately if any clause becomes empty. No backtracking.",
+    "completion": "Continue free choices until every variable is assigned. If no empty clause was generated, report success.",
+    "output": "[success_bit, assignment[0..n)] as little-endian signed-i64 words; values are 1, -1, or 0 (unset on failure).",
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[success_bit,assignment[0..n)]",
+    "maximum_bytes": 104,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed residual clauses, lengths, flags, degree counters, assignments, and staged output for n<=12 and m<=32."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "pure-variable-priority-over-larger-discrepancy",
+      "input_values": [3, 4, 1, 2, 3, 1, -2, 3, 1, -2, -3, 1, -2, -3],
+      "input_length": 14,
+      "output_capacity": 104,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000ffffffffffffffff01000000000000000100000000000000"
+    },
+    {
+      "id": "printed-true-when-positive-degree-is-smaller",
+      "input_values": [3, 4, 1, 2, 3, -1, -2, 3, -1, 2, -3, -1, -2, -3],
+      "input_length": 14,
+      "output_capacity": 104,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "equal-discrepancy-breaks-toward-greater-total-degree",
+      "input_values": [4, 6, 2, 1, 3, 2, 1, -4, 2, 1, 4, 2, -1, -3, -2, 3, -4, -2, -3, 4],
+      "input_length": 20,
+      "output_capacity": 104,
+      "expected_result": 40,
+      "expected_output_hex": "0000000000000000ffffffffffffffffffffffffffffffff0100000000000000ffffffffffffffff"
+    },
+    {
+      "id": "equal-degrees-use-false-branch",
+      "input_values": [3, 2, 1, 2, 3, -1, -2, -3],
+      "input_length": 8,
+      "output_capacity": 104,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000ffffffffffffffffffffffffffffffff0100000000000000"
+    },
+    {
+      "id": "zero-clause-formula-assigns-unseen-variables-false",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "output_capacity": 104,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "repeated-variable-in-clause-rejected",
+      "input_values": [3, 1, 1, -1, 2],
+      "input_length": 5,
+      "output_capacity": 104,
+      "expected_result": -1
+    },
+    {
+      "id": "out-of-range-literal-rejected",
+      "input_values": [3, 1, 1, 2, 4],
+      "input_length": 5,
+      "output_capacity": 104,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing-input-word-rejected",
+      "input_values": [3, 0, 99],
+      "input_length": 3,
+      "output_capacity": 104,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input-rejected",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 104,
+      "expected_result": -1
+    },
+    {
+      "id": "null-output",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "output_capacity": 32,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "output_capacity": 31,
+      "expected_result": -2
+    }
+  ]
+}

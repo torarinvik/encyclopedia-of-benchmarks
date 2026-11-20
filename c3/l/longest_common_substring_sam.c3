@@ -1,6 +1,6 @@
 module longest_common_substring_sam;
 
-long longest_common_substring_sam(long* input, usz length) @export("longest_common_substring_sam") {
+fn long longest_common_substring_sam(long* input, usz length) @export("longest_common_substring_sam") {
     if (input == null || length < 2 || length > 515 || input[0] < 0 || input[0] > 256) return -1;
     int n = (int)input[0];
     if (length < (usz)(n+2) || input[n+1] < 0 || input[n+1] > 256) return -1;

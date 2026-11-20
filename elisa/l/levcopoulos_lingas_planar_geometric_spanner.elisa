@@ -1,0 +1,528 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_N: usize = 8
+const MAX_E: usize = 18
+const MAX_F: usize = 16
+const MAX_D: usize = 14
+const MAX_STACK: usize = 64
+const MAX_INPUT: usize = 55
+const MAX_OUTPUT_BYTES: usize = 312
+
+struct LLPair:
+    u: usize
+    v: usize
+
+struct LLState:
+    n: usize
+    m: usize
+    face_count: usize
+    degree: usize[MAX_N]
+    tree_degree: usize[MAX_N]
+    contour_len: usize
+    stack_len: usize
+    x: i64[MAX_N]
+    y: i64[MAX_N]
+    eu: i64[MAX_E]
+    ev: i64[MAX_E]
+    face_a: i64[MAX_F]
+    face_b: i64[MAX_F]
+    face_c: i64[MAX_F]
+    rotation: i64[MAX_N * MAX_N]
+    tree_rotation: i64[MAX_N * MAX_N]
+    contour_u: i64[MAX_D]
+    contour_v: i64[MAX_D]
+    stack_u: i64[MAX_STACK]
+    stack_v: i64[MAX_STACK]
+    weight: f64[MAX_N * MAX_N]
+    hull: bool[MAX_N]
+    tree: bool[MAX_N * MAX_N]
+    kept: bool[MAX_N * MAX_N]
+
+def ll_index(a: usize, b: usize) -> usize:
+    a * MAX_N + b
+
+def ll_orient(state: LLState&, a: usize, b: usize, c: usize) -> i64:
+    (state.x[b] - state.x[a]) * (state.y[c] - state.y[a]) - (state.y[b] - state.y[a]) * (state.x[c] - state.x[a])
+
+def ll_incircle(state: LLState&, a: usize, b: usize, c: usize, p: usize) -> i64:
+    ax: i64 = state.x[a] - state.x[p]
+    ay: i64 = state.y[a] - state.y[p]
+    bx: i64 = state.x[b] - state.x[p]
+    by: i64 = state.y[b] - state.y[p]
+    cx: i64 = state.x[c] - state.x[p]
+    cy: i64 = state.y[c] - state.y[p]
+    (ax * ax + ay * ay) * (bx * cy - by * cx) - (bx * bx + by * by) * (ax * cy - ay * cx) + (cx * cx + cy * cy) * (ax * by - ay * bx)
+
+def ll_distance2(state: LLState&, a: usize, b: usize) -> i64:
+    dx: i64 = state.x[a] - state.x[b]
+    dy: i64 = state.y[a] - state.y[b]
+    dx * dx + dy * dy
+
+def ll_sort_three(a: mutable i64&, b: mutable i64&, c: mutable i64&) -> void:
+    if a > b:
+        temporary: i64 = a
+        a <- b
+        b <- temporary
+    if b > c:
+        temporary: i64 = b
+        b <- c
+        c <- temporary
+    if a > b:
+        temporary: i64 = a
+        a <- b
+        b <- temporary
+
+def ll_is_face(state: LLState&, a0: usize, b0: usize, c0: usize) -> bool:
+    a: mutable i64 = a0.i64()
+    b: mutable i64 = b0.i64()
+    c: mutable i64 = c0.i64()
+    ll_sort_three(a, b, c)
+    i: mutable usize = 0
+    while i < state.face_count:
+        if state.face_a[i] == a and state.face_b[i] == b and state.face_c[i] == c:
+            return true
+        i <- i + 1
+    false
+
+def ll_half(dx: i64, dy: i64) -> usize:
+    if dy > 0 or (dy == 0 and dx >= 0):
+        return 0
+    1
+
+def ll_angle_less(state: LLState&, origin: usize, a: usize, b: usize) -> bool:
+    ax: i64 = state.x[a] - state.x[origin]
+    ay: i64 = state.y[a] - state.y[origin]
+    bx: i64 = state.x[b] - state.x[origin]
+    by: i64 = state.y[b] - state.y[origin]
+    ah: usize = ll_half(ax, ay)
+    bh: usize = ll_half(bx, by)
+    if ah != bh:
+        return ah < bh
+    cross: i64 = ax * by - ay * bx
+    if cross != 0:
+        return cross > 0
+    a < b
+
+def ll_sort_rotations(state: mutable LLState&) -> void:
+    v: mutable usize = 0
+    while v < state.n:
+        i: mutable usize = 1
+        while i < state.degree[v]:
+            key: i64 = state.rotation[ll_index(v, i)]
+            pos: mutable usize = i
+            while pos > 0 and ll_angle_less(state&, v, key.usize(), state.rotation[ll_index(v, pos - 1)].usize()):
+                state.rotation[ll_index(v, pos)] <- state.rotation[ll_index(v, pos - 1)]
+                pos <- pos - 1
+            state.rotation[ll_index(v, pos)] <- key
+            i <- i + 1
+        v <- v + 1
+
+def ll_sort_tree_rotations(state: mutable LLState&) -> void:
+    v: mutable usize = 0
+    while v < state.n:
+        i: mutable usize = 1
+        while i < state.tree_degree[v]:
+            key: i64 = state.tree_rotation[ll_index(v, i)]
+            pos: mutable usize = i
+            while pos > 0 and ll_angle_less(state&, v, key.usize(), state.tree_rotation[ll_index(v, pos - 1)].usize()):
+                state.tree_rotation[ll_index(v, pos)] <- state.tree_rotation[ll_index(v, pos - 1)]
+                pos <- pos - 1
+            state.tree_rotation[ll_index(v, pos)] <- key
+            i <- i + 1
+        v <- v + 1
+
+def ll_cw_next(state: LLState&, u: usize, v: usize) -> LLPair:
+    i: mutable usize = 0
+    while i < state.degree[v]:
+        if state.rotation[ll_index(v, i)] == u.i64():
+            next_index: usize = (i + state.degree[v] - 1) % state.degree[v]
+            return LLPair{u: v, v: state.rotation[ll_index(v, next_index)].usize()}
+        i <- i + 1
+    LLPair{u: MAX_N, v: MAX_N}
+
+def ll_cw_tree_next(state: LLState&, u: usize, v: usize) -> LLPair:
+    i: mutable usize = 0
+    while i < state.tree_degree[v]:
+        if state.tree_rotation[ll_index(v, i)] == u.i64():
+            next_index: usize = (i + state.tree_degree[v] - 1) % state.tree_degree[v]
+            return LLPair{u: v, v: state.tree_rotation[ll_index(v, next_index)].usize()}
+        i <- i + 1
+    LLPair{u: MAX_N, v: MAX_N}
+
+def ll_contour_find(state: LLState&, u: usize, v: usize) -> i64:
+    i: mutable usize = 0
+    while i < state.contour_len:
+        if state.contour_u[i] == u.i64() and state.contour_v[i] == v.i64():
+            return i.i64()
+        i <- i + 1
+    -1
+
+def ll_canonicalize(state: mutable LLState&) -> void:
+    if state.contour_len == 0: return
+    first: mutable usize = 0
+    i: mutable usize = 1
+    while i < state.contour_len:
+        if state.contour_u[i] < state.contour_u[first] or (state.contour_u[i] == state.contour_u[first] and state.contour_v[i] < state.contour_v[first]):
+            first <- i
+        i <- i + 1
+    temp_u: mutable i64[MAX_D] = zeroed
+    temp_v: mutable i64[MAX_D] = zeroed
+    i <- 0
+    while i < state.contour_len:
+        at: usize = (first + i) % state.contour_len
+        temp_u[i] <- state.contour_u[at]
+        temp_v[i] <- state.contour_v[at]
+        i <- i + 1
+    i <- 0
+    while i < state.contour_len:
+        state.contour_u[i] <- temp_u[i]
+        state.contour_v[i] <- temp_v[i]
+        i <- i + 1
+
+def ll_eligible(state: LLState&, u: usize, v: usize) -> bool:
+    at_i64: i64 = ll_contour_find(state&, u, v)
+    if at_i64 < 0 or state.hull[v] or state.contour_len < 3: return false
+    at: usize = at_i64.usize()
+    next_at: usize = (at + 1) % state.contour_len
+    next: LLPair = ll_cw_next(state&, u, v)
+    state.contour_u[next_at] == next.u.i64() and state.contour_v[next_at] == next.v.i64() and ll_is_face(state&, u, v, next.v)
+
+def ll_push_if_eligible(state: mutable LLState&, u: usize, v: usize) -> bool:
+    if not ll_eligible(state&, u, v): return true
+    if state.stack_len >= MAX_STACK: return false
+    state.stack_u[state.stack_len] <- u.i64()
+    state.stack_v[state.stack_len] <- v.i64()
+    state.stack_len <- state.stack_len + 1
+    true
+
+def ll_parse(state: mutable LLState&, input: i64&, length: usize) -> bool:
+    if input.is_null() or length < 14 or length > MAX_INPUT: return false
+    n64: i64 = input[0]
+    if n64 < 3 or n64 > 8: return false
+    state.n <- n64.usize()
+    m_at: usize = 1 + 2 * state.n
+    if length <= m_at: return false
+    m64: i64 = input[m_at]
+    if m64 < 3 or m64 > MAX_E or length != m_at + 1 + 2 * m64.usize(): return false
+    state.m <- m64.usize()
+    i: mutable usize = 0
+    while i < state.n:
+        x: i64 = input[1 + 2 * i]
+        y: i64 = input[2 + 2 * i]
+        if x < -10 or x > 10 or y < -10 or y > 10: return false
+        j: mutable usize = 0
+        while j < i:
+            if state.x[j] == x and state.y[j] == y: return false
+            j <- j + 1
+        state.x[i] <- x
+        state.y[i] <- y
+        i <- i + 1
+    a: mutable usize = 0
+    while a < state.n:
+        b: mutable usize = a + 1
+        while b < state.n:
+            c: mutable usize = b + 1
+            while c < state.n:
+                if ll_orient(state&, a, b, c) == 0: return false
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+    a <- 0
+    while a < state.n:
+        b <- a + 1
+        while b < state.n:
+            c <- b + 1
+            while c < state.n:
+                d: mutable usize = c + 1
+                while d < state.n:
+                    if ll_incircle(state&, a, b, c, d) == 0: return false
+                    d <- d + 1
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+    supplied: mutable bool[MAX_N * MAX_N] = zeroed
+    expected: mutable bool[MAX_N * MAX_N] = zeroed
+    i <- 0
+    while i < state.m:
+        u: i64 = input[m_at + 1 + 2 * i]
+        v: i64 = input[m_at + 2 + 2 * i]
+        if u < 0 or v <= u or v >= n64: return false
+        if i > 0 and (u < state.eu[i - 1] or (u == state.eu[i - 1] and v <= state.ev[i - 1])): return false
+        state.eu[i] <- u
+        state.ev[i] <- v
+        supplied[ll_index(u.usize(), v.usize())] <- true
+        supplied[ll_index(v.usize(), u.usize())] <- true
+        i <- i + 1
+    a <- 0
+    while a < state.n:
+        b <- a + 1
+        while b < state.n:
+            c <- b + 1
+            while c < state.n:
+                aa: mutable usize = a
+                bb: mutable usize = b
+                cc: mutable usize = c
+                if ll_orient(state&, aa, bb, cc) < 0:
+                    temporary: usize = bb
+                    bb <- cc
+                    cc <- temporary
+                empty: mutable bool = true
+                p: mutable usize = 0
+                while p < state.n:
+                    if p != aa and p != bb and p != cc and ll_incircle(state&, aa, bb, cc, p) > 0: empty <- false
+                    p <- p + 1
+                if empty:
+                    if state.face_count >= MAX_F: return false
+                    fa: mutable i64 = aa.i64()
+                    fb: mutable i64 = bb.i64()
+                    fc: mutable i64 = cc.i64()
+                    ll_sort_three(fa, fb, fc)
+                    state.face_a[state.face_count] <- fa
+                    state.face_b[state.face_count] <- fb
+                    state.face_c[state.face_count] <- fc
+                    state.face_count <- state.face_count + 1
+                    expected[ll_index(aa, bb)] <- true
+                    expected[ll_index(bb, aa)] <- true
+                    expected[ll_index(aa, cc)] <- true
+                    expected[ll_index(cc, aa)] <- true
+                    expected[ll_index(bb, cc)] <- true
+                    expected[ll_index(cc, bb)] <- true
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+    a <- 0
+    while a < state.n:
+        b <- a + 1
+        while b < state.n:
+            if supplied[ll_index(a, b)] != expected[ll_index(a, b)]: return false
+            positive: mutable bool = false
+            negative: mutable bool = false
+            p: mutable usize = 0
+            while p < state.n:
+                if p != a and p != b:
+                    side: i64 = ll_orient(state&, a, b, p)
+                    positive <- positive or side > 0
+                    negative <- negative or side < 0
+                p <- p + 1
+            if not (positive and negative):
+                state.hull[a] <- true
+                state.hull[b] <- true
+            b <- b + 1
+        a <- a + 1
+    i <- 0
+    while i < state.m:
+        u: usize = state.eu[i].usize()
+        v: usize = state.ev[i].usize()
+        state.rotation[ll_index(u, state.degree[u])] <- v.i64()
+        state.degree[u] <- state.degree[u] + 1
+        state.rotation[ll_index(v, state.degree[v])] <- u.i64()
+        state.degree[v] <- state.degree[v] + 1
+        i <- i + 1
+    ll_sort_rotations(state&)
+    true
+
+def ll_build_tree(state: mutable LLState&) -> bool:
+    order: mutable usize[MAX_E] = zeroed
+    i: mutable usize = 0
+    while i < state.m:
+        order[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < state.m:
+        key: usize = order[i]
+        pos: mutable usize = i
+        while pos > 0:
+            prev: usize = order[pos - 1]
+            prev_d: i64 = ll_distance2(state&, state.eu[prev].usize(), state.ev[prev].usize())
+            key_d: i64 = ll_distance2(state&, state.eu[key].usize(), state.ev[key].usize())
+            if prev_d < key_d or (prev_d == key_d and (state.eu[prev] < state.eu[key] or (state.eu[prev] == state.eu[key] and state.ev[prev] <= state.ev[key]))): break
+            order[pos] <- prev
+            pos <- pos - 1
+        order[pos] <- key
+        i <- i + 1
+    parent: mutable usize[MAX_N] = zeroed
+    sizes: mutable usize[MAX_N] = zeroed
+    i <- 0
+    while i < state.n:
+        parent[i] <- i
+        sizes[i] <- 1
+        i <- i + 1
+    chosen: mutable usize = 0
+    rank: mutable usize = 0
+    while rank < state.m:
+        e: usize = order[rank]
+        u: usize = state.eu[e].usize()
+        v: usize = state.ev[e].usize()
+        a: mutable usize = u
+        b: mutable usize = v
+        while parent[a] != a:
+            parent[a] <- parent[parent[a]]
+            a <- parent[a]
+        while parent[b] != b:
+            parent[b] <- parent[parent[b]]
+            b <- parent[b]
+        if a != b:
+            if sizes[a] < sizes[b]:
+                temporary: usize = a
+                a <- b
+                b <- temporary
+            parent[b] <- a
+            sizes[a] <- sizes[a] + sizes[b]
+            state.tree[ll_index(u, v)] <- true
+            state.tree[ll_index(v, u)] <- true
+            state.kept[ll_index(u, v)] <- true
+            state.kept[ll_index(v, u)] <- true
+            state.tree_rotation[ll_index(u, state.tree_degree[u])] <- v.i64()
+            state.tree_degree[u] <- state.tree_degree[u] + 1
+            state.tree_rotation[ll_index(v, state.tree_degree[v])] <- u.i64()
+            state.tree_degree[v] <- state.tree_degree[v] + 1
+            chosen <- chosen + 1
+        rank <- rank + 1
+    if chosen != state.n - 1: return false
+    ll_sort_tree_rotations(state&)
+    i <- 0
+    while i < state.m:
+        u: usize = state.eu[i].usize()
+        v: usize = state.ev[i].usize()
+        length: f64 = sqrt(ll_distance2(state&, u, v).f64())
+        state.weight[ll_index(u, v)] <- length
+        state.weight[ll_index(v, u)] <- length
+        i <- i + 1
+    first_u: mutable usize = MAX_N
+    first_v: mutable usize = MAX_N
+    u <- 0
+    while u < state.n:
+        v <- 0
+        while v < state.n:
+            if state.tree[ll_index(u, v)] and (u < first_u or (u == first_u and v < first_v)):
+                first_u <- u
+                first_v <- v
+            v <- v + 1
+        u <- u + 1
+    if first_u == MAX_N: return false
+    state.contour_u[0] <- first_u.i64()
+    state.contour_v[0] <- first_v.i64()
+    state.contour_len <- 1
+    expected: usize = 2 * (state.n - 1)
+    while state.contour_len < expected:
+        last: usize = state.contour_len - 1
+        next: LLPair = ll_cw_tree_next(state&, state.contour_u[last].usize(), state.contour_v[last].usize())
+        if next.u == MAX_N: return false
+        if next.u == first_u and next.v == first_v: break
+        if ll_contour_find(state&, next.u, next.v) >= 0 or state.contour_len >= expected: return false
+        state.contour_u[state.contour_len] <- next.u.i64()
+        state.contour_v[state.contour_len] <- next.v.i64()
+        state.contour_len <- state.contour_len + 1
+    if state.contour_len != expected: return false
+    close: LLPair = ll_cw_tree_next(state&, state.contour_u[state.contour_len - 1].usize(), state.contour_v[state.contour_len - 1].usize())
+    close.u == first_u and close.v == first_v
+
+def ll_run(state: mutable LLState&, absorbed_out: mutable usize&, shortcuts_out: mutable usize&) -> bool:
+    i: mutable usize = 0
+    while i < state.contour_len:
+        if not ll_push_if_eligible(state&, state.contour_u[i].usize(), state.contour_v[i].usize()): return false
+        i <- i + 1
+    absorbed: mutable usize = 0
+    steps: mutable usize = 0
+    while state.stack_len > 0 and steps < 2 * MAX_E:
+        state.stack_len <- state.stack_len - 1
+        v: usize = state.stack_u[state.stack_len].usize()
+        w: usize = state.stack_v[state.stack_len].usize()
+        if not ll_eligible(state&, v, w): continue
+        at: usize = ll_contour_find(state&, v, w).usize()
+        next_at: usize = (at + 1) % state.contour_len
+        u: usize = state.contour_v[next_at].usize()
+        path: f64 = state.weight[ll_index(v, w)] + state.weight[ll_index(w, u)]
+        direct: f64 = sqrt(ll_distance2(state&, v, u).f64())
+        if path > 2.0 * direct:
+            state.kept[ll_index(v, u)] <- true
+            state.kept[ll_index(u, v)] <- true
+        else:
+            state.weight[ll_index(v, u)] <- path
+        if next_at == 0:
+            i <- 0
+            while i + 1 < state.contour_len:
+                state.contour_u[i] <- state.contour_u[i + 1]
+                state.contour_v[i] <- state.contour_v[i + 1]
+                i <- i + 1
+            state.contour_len <- state.contour_len - 1
+            state.contour_u[state.contour_len - 1] <- v.i64()
+            state.contour_v[state.contour_len - 1] <- u.i64()
+        else:
+            state.contour_u[at] <- v.i64()
+            state.contour_v[at] <- u.i64()
+            i <- next_at
+            while i + 1 < state.contour_len:
+                state.contour_u[i] <- state.contour_u[i + 1]
+                state.contour_v[i] <- state.contour_v[i + 1]
+                i <- i + 1
+            state.contour_len <- state.contour_len - 1
+        ll_canonicalize(state&)
+        absorbed <- absorbed + 1
+        steps <- steps + 1
+        chord_at_i64: i64 = ll_contour_find(state&, v, u)
+        if chord_at_i64 < 0: return false
+        chord_at: usize = chord_at_i64.usize()
+        if not ll_push_if_eligible(state&, v, u): return false
+        left_at: usize = (chord_at + state.contour_len - 1) % state.contour_len
+        if not ll_push_if_eligible(state&, state.contour_u[left_at].usize(), state.contour_v[left_at].usize()): return false
+    if steps >= 2 * MAX_E and state.stack_len > 0: return false
+    edge_count: mutable usize = 0
+    shortcut_count: mutable usize = 0
+    u: mutable usize = 0
+    while u < state.n:
+        v: mutable usize = u + 1
+        while v < state.n:
+            if state.kept[ll_index(u, v)]:
+                edge_count <- edge_count + 1
+                if not state.tree[ll_index(u, v)]: shortcut_count <- shortcut_count + 1
+            v <- v + 1
+        u <- u + 1
+    absorbed_out <- absorbed
+    shortcuts_out <- shortcut_count
+    true
+
+def ll_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def levcopoulos_lingas_planar_geometric_spanner_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 14 or length > MAX_INPUT: return -1
+    state: mutable LLState = zeroed
+    if not ll_parse(state&, input, length) or not ll_build_tree(state&): return -1
+    absorbed: mutable usize = 0
+    shortcuts: mutable usize = 0
+    if not ll_run(state&, absorbed, shortcuts): return -1
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    count: mutable usize = 3
+    ll_store_i64(staged[0:MAX_OUTPUT_BYTES], 0, absorbed.i64())
+    ll_store_i64(staged[0:MAX_OUTPUT_BYTES], 8, shortcuts.i64())
+    edge_count: mutable usize = 0
+    u: mutable usize = 0
+    while u < state.n:
+        v: mutable usize = u + 1
+        while v < state.n:
+            if state.kept[ll_index(u, v)]:
+                ll_store_i64(staged[0:MAX_OUTPUT_BYTES], count * 8, u.i64())
+                ll_store_i64(staged[0:MAX_OUTPUT_BYTES], (count + 1) * 8, v.i64())
+                count <- count + 2
+                edge_count <- edge_count + 1
+            v <- v + 1
+        u <- u + 1
+    ll_store_i64(staged[0:MAX_OUTPUT_BYTES], 16, edge_count.i64())
+    required: usize = count * 8
+    if output.is_null() or output_capacity < required: return -2
+    i: mutable usize = 0
+    while i < required:
+        output[i] <- staged[i]
+        i <- i + 1
+    required.i64()
+
+def levcopoulos_lingas_planar_geometric_spanner(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("levcopoulos_lingas_planar_geometric_spanner"):
+    levcopoulos_lingas_planar_geometric_spanner_impl(input, length, output, capacity)

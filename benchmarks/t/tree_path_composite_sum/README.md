@@ -6,7 +6,7 @@ The ports use rerooting dynamic programming. A directed component message stores
 
 The bounded workload uses `1 <= N <= 32`, values and affine coefficients modulo 998244353, and an `N-1` edge list validated as a simple tree. Input is `[N,A_0,...,A_(N-1),u_0,v_0,b_0,c_0,...]`. Output is one little-endian signed 64-bit residue for each root in vertex-index order. Invalid input returns `-1`; null or undersized output returns `-2` without writes. This local profile measures the rerooting algorithm and does not claim the official `N <= 200,000` scale.
 
-The primary oracle reconstructs each target path directly. The separate verifier composes affine maps while traversing from each root. Fixtures include direction-sensitive paths, asymmetric edge maps, identity maps, malformed trees, and output-capacity behavior.
+The primary oracle reconstructs each target path directly. The separate verifier composes affine maps while traversing from each root. Fixtures include direction-sensitive paths, asymmetric edge maps, identity maps, malformed trees, and output-capacity behavior. A full-size path with zero vertex values and edge maps `x+1` measures all-roots unit-distance sums; the expected values follow the closed-form sums on each side of a vertex. This fixture has not been executed.
 
 The official task is [Library Checker — Tree Path Composite Sum](https://github.com/yosupo06/library-checker-problems/blob/master/tree/tree_path_composite_sum/task.md); limits are [here](https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/tree/tree_path_composite_sum/info.toml). These ports are clean-room implementations from the task definition. The upstream problem repository declares Apache-2.0; no submission source or test material is reused.
 

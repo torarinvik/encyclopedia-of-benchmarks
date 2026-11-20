@@ -12,14 +12,14 @@ const int[9] KERNEL_X = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
 const int[9] KERNEL_Y = {1, 2, 1, 0, 0, 0, -1, -2, -1};
 
 fn void write_f64_le(double value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte += 1) {
         output[offset + byte] = (char)(bits & 255);
         bits >>= 8;
     }
 }
 
-long sobel_filter(long* input, usz input_length, char* output, usz capacity) @export("sobel_filter") {
+fn long sobel_filter(long* input, usz input_length, char* output, usz capacity) @export("sobel_filter") {
     if (input == null || input_length < 2 || input_length > MAX_PARSEABLE_INPUT_LENGTH) return -1;
     if (input[0] < (long)MIN_SIDE || input[0] > (long)MAX_SIDE) return -1;
     usz side = (usz)input[0];
@@ -74,7 +74,7 @@ long sobel_filter(long* input, usz input_length, char* output, usz capacity) @ex
     if (max_magnitude == 0.0) return -1;
     for (usz index = 0; index < pixel_count; index += 1) {
         double normalized = (magnitude[index] * 255.0) / max_magnitude;
-        magnitude[index] = (double)(uint8)normalized;
+        magnitude[index] = (double)(char)normalized;
         theta[index] = atan2(scaled_y[index], scaled_x[index]);
     }
 

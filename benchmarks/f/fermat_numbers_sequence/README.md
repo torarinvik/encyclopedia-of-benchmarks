@@ -28,6 +28,7 @@ The scalar ABI is `int64_t fermat_numbers_sequence(int64_t index)`. The pinned C
 | C3 | [`c3/f/fermat_numbers_sequence.c3`](../../../c3/f/fermat_numbers_sequence.c3) |
 | C++ | [`cpp/f/fermat_numbers_sequence.cpp`](../../../cpp/f/fermat_numbers_sequence.cpp) |
 | Elisa | [`elisa/f/fermat_numbers_sequence.elisa`](../../../elisa/f/fermat_numbers_sequence.elisa) |
+| Mojo | [`mojo/f/fermat_numbers_sequence.mojo`](../../../mojo/f/fermat_numbers_sequence.mojo) |
 | Nim | [`nim/f/fermat_numbers_sequence.nim`](../../../nim/f/fermat_numbers_sequence.nim) |
 | Odin | [`odin/f/fermat_numbers_sequence.odin`](../../../odin/f/fermat_numbers_sequence.odin) |
 | Rust | [`rust/f/fermat_numbers_sequence.rs`](../../../rust/f/fermat_numbers_sequence.rs) |
@@ -38,3 +39,6 @@ The scalar ABI is `int64_t fermat_numbers_sequence(int64_t index)`. The pinned C
 
 - [C# `FermatNumbersSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/FermatNumbersSequence.cs)
 - [C# `FermatPrimesSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/FermatPrimesSequence.cs)
+
+Scalar verifier registration and an independent power-based reference are
+drafted and have not been executed.

@@ -1,0 +1,171 @@
+# Clean-room bounded augmenting-path matching and canonical cover construction.
+const BVC_MAX_SIDE: usize = 8
+const BVC_MAX_VERTICES: usize = 16
+const BVC_MAX_INPUT: usize = 11
+
+def bvc_augment_left(left: usize, left_count: usize, right_count: usize,
+                     rows: view[u16], states: view[i64],
+                     match_right: mutable view[i64], seen: mutable view[bool]) -> bool:
+    right: mutable usize = 0
+    while right < right_count:
+        if (rows[left] & (1.u16() << right)) != 0.u16() and not seen[right] and states[left_count + right] == -1:
+            seen[right] <- true
+            owner: i64 = match_right[right]
+            if owner == -1 or bvc_augment_left(owner.usize(), left_count, right_count, rows, states, match_right, seen):
+                match_right[right] <- left.i64()
+                return true
+        right <- right + 1
+    false
+
+def bvc_maximum_matching(left_count: usize, right_count: usize, rows: view[u16],
+                         states: view[i64], match_right: mutable view[i64]) -> usize:
+    right: mutable usize = 0
+    while right < right_count:
+        match_right[right] <- -1
+        right <- right + 1
+    size: mutable usize = 0
+    left: mutable usize = 0
+    while left < left_count:
+        if states[left] == -1:
+            seen: mutable bool[8] = zeroed
+            if bvc_augment_left(left, left_count, right_count, rows, states, match_right, seen[0:right_count]):
+                size <- size + 1
+        left <- left + 1
+    size
+
+def bvc_alternating_cover(left_count: usize, right_count: usize, rows: view[u16],
+                          match_right: view[i64]) -> i64:
+    matched_left: mutable bool[8] = zeroed
+    reached_left: mutable bool[8] = zeroed
+    reached_right: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    right: mutable usize = 0
+    while right < right_count:
+        if match_right[right] >= 0: matched_left[match_right[right].usize()] <- true
+        right <- right + 1
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    left: mutable usize = 0
+    while left < left_count:
+        if not matched_left[left]:
+            reached_left[left] <- true
+            queue[tail] <- left
+            tail <- tail + 1
+        left <- left + 1
+    while head < tail:
+        left <- queue[head]
+        head <- head + 1
+        right <- 0
+        while right < right_count:
+            if (rows[left] & (1.u16() << right)) != 0.u16() and not reached_right[right] and match_right[right] >= 0:
+                reached_right[right] <- true
+                owner: usize = match_right[right].usize()
+                if not reached_left[owner]:
+                    reached_left[owner] <- true
+                    queue[tail] <- owner
+                    tail <- tail + 1
+            right <- right + 1
+    result: mutable i64 = 0
+    left <- 0
+    while left < left_count:
+        if not reached_left[left]: result <- result | (1.i64() << left)
+        left <- left + 1
+    right <- 0
+    while right < right_count:
+        if reached_right[right]: result <- result | (1.i64() << (left_count + right))
+        right <- right + 1
+    result
+
+def bvc_minimum_completion_size(left_count: usize, right_count: usize, rows: view[u16],
+                                input_states: view[i64]) -> i64:
+    total: usize = left_count + right_count
+    states: mutable i64[16] = zeroed
+    i: mutable usize = 0
+    while i < total:
+        states[i] <- input_states[i]
+        i <- i + 1
+    changed: mutable bool = true
+    while changed:
+        changed <- false
+        left: mutable usize = 0
+        while left < left_count:
+            right: mutable usize = 0
+            while right < right_count:
+                if (rows[left] & (1.u16() << right)) != 0.u16():
+                    right_vertex: usize = left_count + right
+                    if states[left] == 0 and states[right_vertex] == 0: return -1
+                    if states[left] == 0 and states[right_vertex] == -1:
+                        states[right_vertex] <- 1
+                        changed <- true
+                    elif states[right_vertex] == 0 and states[left] == -1:
+                        states[left] <- 1
+                        changed <- true
+                right <- right + 1
+            left <- left + 1
+    forced_in: mutable usize = 0
+    i <- 0
+    while i < total:
+        if states[i] == 1: forced_in <- forced_in + 1
+        i <- i + 1
+    residual_match: mutable i64[8] = zeroed
+    forced_in.i64() + bvc_maximum_matching(left_count, right_count, rows,
+                                           states[0:total], residual_match[0:right_count]).i64()
+
+def bvc_canonical_cover(left_count: usize, right_count: usize, rows: view[u16], optimum: i64) -> i64:
+    total: usize = left_count + right_count
+    states: mutable i64[16] = zeroed
+    vertex: mutable usize = 0
+    while vertex < total:
+        states[vertex] <- -1
+        vertex <- vertex + 1
+    vertex <- 0
+    while vertex < total:
+        states[vertex] <- 0
+        if bvc_minimum_completion_size(left_count, right_count, rows, states[0:total]) != optimum:
+            states[vertex] <- 1
+        vertex <- vertex + 1
+    result: mutable i64 = 0
+    vertex <- 0
+    while vertex < total:
+        if states[vertex] == 1: result <- result | (1.i64() << vertex)
+        vertex <- vertex + 1
+    result
+
+def bipartite_minimum_vertex_cover_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > BVC_MAX_INPUT: return -1
+    left_value: i64 = values[0]
+    right_value: i64 = values[1]
+    if left_value < 0 or left_value > 8 or right_value < 0 or right_value > 8: return -1
+    left_count: usize = left_value.usize()
+    right_count: usize = right_value.usize()
+    if length != left_count + 2: return -1
+    domain: i64 = (1.i64() << right_count) - 1
+    rows: mutable u16[8] = zeroed
+    left: mutable usize = 0
+    while left < left_count:
+        row: i64 = values[2 + left]
+        if row < 0 or (row & ~domain) != 0: return -1
+        rows[left] <- row.u16()
+        left <- left + 1
+    free_states: mutable i64[16] = zeroed
+    vertex: mutable usize = 0
+    while vertex < left_count + right_count:
+        free_states[vertex] <- -1
+        vertex <- vertex + 1
+    match_right: mutable i64[8] = zeroed
+    matching_size: usize = bvc_maximum_matching(left_count, right_count, rows[0:left_count],
+                                                free_states[0:left_count + right_count],
+                                                match_right[0:right_count])
+    seed: i64 = bvc_alternating_cover(left_count, right_count, rows[0:left_count], match_right[0:right_count])
+    optimum: mutable usize = 0
+    bits: mutable i64 = seed
+    while bits != 0:
+        optimum <- optimum + (bits & 1).usize()
+        bits <- bits >> 1
+    if optimum != matching_size: return -1
+    bvc_canonical_cover(left_count, right_count, rows[0:left_count], optimum.i64())
+
+export fn bipartite_minimum_vertex_cover(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > BVC_MAX_INPUT: return -1
+    bipartite_minimum_vertex_cover_impl(input[0:length])

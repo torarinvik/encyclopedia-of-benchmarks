@@ -10,5 +10,5 @@ fn double treynor_ratio(long* values, usz length) @export("treynor_ratio") {
     if (portfolio_return < -1000 || portfolio_return > 1000 ||
         risk_free_rate < -1000 || risk_free_rate > 1000 ||
         beta < -1000 || beta > 1000 || beta == 0) return INVALID_RESULT;
-    return (portfolio_return - risk_free_rate).f64() / beta.f64();
+    return (double)(portfolio_return - risk_free_rate) / (double)beta;
 }

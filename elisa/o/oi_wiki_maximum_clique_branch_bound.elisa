@@ -1,0 +1,63 @@
+const MAX_VERTICES: usize = 24
+const MAX_PARSEABLE_INPUT: usize = 26
+
+def clique_bit_count(bits_input: u64) -> usize:
+    bits: mutable u64 = bits_input
+    count: mutable usize = 0
+    while bits != 0:
+        bits <- bits & (bits - u64(1))
+        count <- count + 1
+    count
+
+def clique_search(adjacency: view[u64], suffix_best: view[usize],
+    candidates: u64, chosen: usize, best: mutable usize&) -> bool:
+    if candidates == 0:
+        if chosen > best:
+            best <- chosen
+            return true
+        return false
+    remaining: mutable u64 = candidates
+    while remaining != 0:
+        if chosen + clique_bit_count(remaining) <= best: return false
+        vertex: usize = 0
+        while (remaining & (u64(1) << vertex)) == 0:
+            vertex <- vertex + 1
+        bit: u64 = u64(1) << vertex
+        remaining <- remaining & ~bit
+        if chosen + suffix_best[vertex] <= best: return false
+        if clique_search(adjacency, suffix_best, remaining & adjacency[vertex], chosen + 1, best):
+            return true
+    false
+
+def oi_wiki_maximum_clique_branch_bound_solve(values: view[i64]) -> i64:
+    if values.len() < 1 or values.len() > MAX_PARSEABLE_INPUT: return -1
+    n_value: i64 = values[0]
+    if n_value < 0 or n_value > MAX_VERTICES.i64(): return -1
+    n: usize = n_value.usize()
+    if values.len() != 1 + n: return -1
+    domain: u64 = (u64(1) << n) - u64(1)
+    adjacency: mutable u64[MAX_VERTICES] = zeroed
+    for vertex in 0..<n:
+        row: i64 = values[1 + vertex]
+        if row < 0 or (row.u64() & ~domain) != 0: return -1
+        adjacency[vertex] <- row.u64()
+        if (adjacency[vertex] & (u64(1) << vertex)) != 0: return -1
+    for left in 0..<n:
+        for right in (left + 1)..<n:
+            forward: bool = (adjacency[left] & (u64(1) << right)) != 0
+            reverse: bool = (adjacency[right] & (u64(1) << left)) != 0
+            if forward != reverse: return -1
+    suffix_best: mutable usize[MAX_VERTICES] = zeroed
+    best: mutable usize = 0
+    root: mutable usize = n
+    while root > 0:
+        root <- root - 1
+        greater: u64 = domain & ~((u64(1) << (root + 1)) - u64(1))
+        clique_search(adjacency[0..<MAX_VERTICES], suffix_best[0..<MAX_VERTICES],
+            adjacency[root] & greater, 1, best)
+        suffix_best[root] <- best
+    best.i64()
+
+export fn oi_wiki_maximum_clique_branch_bound(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT: return -1
+    oi_wiki_maximum_clique_branch_bound_solve(input[0:length])

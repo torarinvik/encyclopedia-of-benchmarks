@@ -1,0 +1,64 @@
+const DTR_MAX_N: usize = 8
+const DTR_MAX_M: usize = 28
+const DTR_MAX_LENGTH: usize = 58
+
+def dag_transitive_reduction_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > DTR_MAX_LENGTH + 1: return -1
+    if input[0] < 1 or input[0] > DTR_MAX_N.i64(): return -1
+    if input[1] < 0 or input[1] > DTR_MAX_M.i64(): return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 2 * m: return -1
+
+    outgoing: mutable usize[DTR_MAX_N] = zeroed
+    edge: usize = 0
+    while edge < m:
+        tail_value: i64 = input[2 + 2 * edge]
+        head_value: i64 = input[3 + 2 * edge]
+        if tail_value < 0 or head_value < 0: return -1
+        if tail_value >= n.i64() or head_value >= n.i64() or tail_value == head_value: return -1
+        tail: usize = tail_value.usize()
+        head: usize = head_value.usize()
+        bit: usize = 1 << head
+        if (outgoing[tail] & bit) != 0: return -1
+        outgoing[tail] <- outgoing[tail] | bit
+        edge <- edge + 1
+
+    reach: mutable usize[DTR_MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        reach[vertex] <- outgoing[vertex]
+        vertex <- vertex + 1
+    middle: mutable usize = 0
+    while middle < n:
+        source: mutable usize = 0
+        while source < n:
+            if (reach[source] & (1 << middle)) != 0:
+                reach[source] <- reach[source] | reach[middle]
+            source <- source + 1
+        middle <- middle + 1
+    vertex <- 0
+    while vertex < n:
+        if (reach[vertex] & (1 << vertex)) != 0: return -1
+        vertex <- vertex + 1
+
+    retained: mutable i64 = 0
+    edge <- 0
+    while edge < m:
+        tail: usize = input[2 + 2 * edge].usize()
+        head: usize = input[3 + 2 * edge].usize()
+        redundant: mutable bool = false
+        middle <- 0
+        while middle < n:
+            if middle != tail and middle != head and
+                (outgoing[tail] & (1 << middle)) != 0 and (reach[middle] & (1 << head)) != 0:
+                redundant <- true
+            middle <- middle + 1
+        if not redundant: retained <- retained + 1
+        edge <- edge + 1
+    retained
+
+export fn dag_transitive_reduction(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > DTR_MAX_LENGTH + 1: return -1
+    dag_transitive_reduction_impl(input[0:length])

@@ -1,0 +1,144 @@
+def brace_range_expansion_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 65: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 64: return -1
+    n: usize = values[0].usize()
+    if length != n + 1: return -1
+    open: mutable usize = n
+    close: mutable usize = n
+    for i in 0..<n:
+        byte: i64 = values[1+i]
+        if byte < 32 or byte > 126: return -1
+        if byte == 123:
+            if open != n: return -1
+            open <- i
+        if byte == 125:
+            if close != n: return -1
+            close <- i
+    if open == n or close == n or close <= open or open + n - close - 1 > 32: return -1
+    sep1: mutable usize = n
+    sep2: mutable usize = n
+    i: mutable usize = open + 1
+    while i + 1 < close:
+        if values[1+i] == 46 and values[2+i] == 46:
+            if sep1 == n: sep1 <- i
+            else:
+                if sep2 != n: return -1
+                sep2 <- i
+            i <- i + 2
+        else: i <- i + 1
+    if sep1 == n: return -1
+
+    start: mutable i64 = 0
+    end_value: mutable i64 = 0
+    start_letter: mutable bool = false
+    end_letter: mutable bool = false
+    start_upper: mutable bool = false
+    end_upper: mutable bool = false
+    start_width: mutable usize = 0
+    end_width: mutable usize = 0
+    first_start: usize = open + 1
+    first_end: usize = sep1
+    token_len: usize = first_end - first_start
+    if token_len == 1 and ((values[1+first_start] >= 65 and values[1+first_start] <= 90) or
+                          (values[1+first_start] >= 97 and values[1+first_start] <= 122)):
+        start <- values[1+first_start]
+        start_letter <- true
+        start_upper <- start <= 90
+        start_width <- 1
+    else:
+        if token_len < 1 or token_len > 4: return -1
+        for j in first_start..<first_end:
+            if values[1+j] < 48 or values[1+j] > 57: return -1
+            start <- start*10 + values[1+j] - 48
+        start_width <- token_len
+
+    second_start: usize = sep1 + 2
+    second_end: usize = (if sep2 == n then close else sep2)
+    token_len = second_end - second_start
+    if token_len == 1 and ((values[1+second_start] >= 65 and values[1+second_start] <= 90) or
+                           (values[1+second_start] >= 97 and values[1+second_start] <= 122)):
+        end_value <- values[1+second_start]
+        end_letter <- true
+        end_upper <- end_value <= 90
+        end_width <- 1
+    else:
+        if token_len < 1 or token_len > 4: return -1
+        for j in second_start..<second_end:
+            if values[1+j] < 48 or values[1+j] > 57: return -1
+            end_value <- end_value*10 + values[1+j] - 48
+        end_width <- token_len
+    if start_letter != end_letter or (start_letter and start_upper != end_upper): return -1
+
+    step: mutable i64 = 1
+    if sep2 == n:
+        if start > end_value: step <- -1
+    else:
+        step_start: mutable usize = sep2 + 2
+        sign: mutable i64 = 1
+        if step_start < close and (values[1+step_start] == 43 or values[1+step_start] == 45):
+            if values[1+step_start] == 45: sign <- -1
+            step_start <- step_start + 1
+        if close - step_start < 1: return -1
+        step_value: mutable i64 = 0
+        for j in step_start..<close:
+            if values[1+j] < 48 or values[1+j] > 57: return -1
+            if step_value < 10000:
+                step_value <- step_value*10 + values[1+j] - 48
+                if step_value > 10000: step_value <- 10000
+        if step_value == 0: return -1
+        step <- sign*step_value
+    if (start < end_value and step < 0) or (start > end_value and step > 0): return -1
+    count: mutable i64 = 1
+    if start < end_value: count <- (end_value-start)/step + 1
+    if start > end_value: count <- (start-end_value)/(-step) + 1
+    if count > 16: return -1
+    pad: mutable usize = 0
+    if not start_letter and (values[1+first_start] == 48 or values[1+second_start] == 48):
+        if start_width > end_width: pad <- start_width
+        else: pad <- end_width
+
+    staged: mutable u8[591] = zeroed
+    out: mutable usize = 0
+    value: mutable i64 = start
+    suffix_start: usize = close + 1
+    for item in 0..<count.usize():
+        if item != 0:
+            staged[out] <- 0
+            out <- out + 1
+        for j in 0..<open:
+            staged[out] <- values[1+j].u8()
+            out <- out + 1
+        if start_letter:
+            staged[out] <- value.u8()
+            out <- out + 1
+        else:
+            digits: mutable i64[4] = zeroed
+            used: mutable usize = 0
+            remaining: mutable i64 = value
+            while true:
+                digits[used] <- remaining % 10
+                used <- used + 1
+                remaining <- remaining / 10
+                if remaining == 0: break
+            while used < pad:
+                staged[out] <- 48
+                out <- out + 1
+            while used > 0:
+                used <- used - 1
+                staged[out] <- (48 + digits[used]).u8()
+                out <- out + 1
+        j: mutable usize = suffix_start
+        while j < n:
+            staged[out] <- values[1+j].u8()
+            out <- out + 1
+            j <- j + 1
+        value <- value + step
+    if output.is_null() or capacity < out: return -2
+    out_view: mutable view[u8] = output[0:out]
+    for j in 0..<out: out_view[j] <- staged[j]
+    out.i64()
+
+export fn brace_range_expansion(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = brace_range_expansion_impl

@@ -1,0 +1,182 @@
+const KRT_MAX_N: usize = 8
+const KRT_MAX_M: usize = 16
+const KRT_MAX_Q: usize = 8
+const KRT_MAX_TREE: usize = 15
+const KRT_LEVELS: usize = 4
+const KRT_MAX_INPUT: usize = 67
+
+def krt_find(parent: mutable view[i64], vertex: usize) -> usize:
+    root: mutable usize = vertex
+    while parent[root] != root.i64():
+        root <- parent[root].usize()
+    while parent[vertex] != vertex.i64():
+        next: usize = parent[vertex].usize()
+        parent[vertex] <- root.i64()
+        vertex <- next
+    root
+
+def krt_lca(source_value: usize, destination_value: usize, depth: view[usize],
+    ancestor: view[usize]) -> usize:
+    source: mutable usize = source_value
+    destination: mutable usize = destination_value
+    if depth[source] < depth[destination]:
+        temporary: usize = source
+        source <- destination
+        destination <- temporary
+    difference: mutable usize = depth[source] - depth[destination]
+    bit: mutable usize = 0
+    while difference > 0:
+        if (difference & 1) != 0: source <- ancestor[bit * KRT_MAX_TREE + source]
+        difference <- difference >> 1
+        bit <- bit + 1
+    if source == destination: return source
+    level: mutable usize = KRT_LEVELS
+    while level > 0:
+        level <- level - 1
+        source_ancestor: usize = ancestor[level * KRT_MAX_TREE + source]
+        destination_ancestor: usize = ancestor[level * KRT_MAX_TREE + destination]
+        if source_ancestor != destination_ancestor:
+            source <- source_ancestor
+            destination <- destination_ancestor
+    ancestor[source]
+
+def krt_impl(input: view[i64], length: usize) -> i64:
+    if length < 3 or length > KRT_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    q_value: i64 = input[2]
+    if n_value < 1 or n_value > KRT_MAX_N.i64() or m_value < 0
+        or m_value > KRT_MAX_M.i64() or q_value < 1 or q_value > KRT_MAX_Q.i64():
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    q: usize = q_value.usize()
+    query_start: usize = 3 + 3 * m
+    if length != query_start + 2 * q: return -1
+
+    edge_u: mutable usize[KRT_MAX_M] = zeroed
+    edge_v: mutable usize[KRT_MAX_M] = zeroed
+    edge_weight: mutable i64[KRT_MAX_M] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = input[3 + 3 * edge]
+        v: i64 = input[4 + 3 * edge]
+        weight: i64 = input[5 + 3 * edge]
+        if u < 0 or u >= n_value or v < 0 or v >= n_value
+            or weight < 0 or weight > 1000000: return -1
+        edge_u[edge] <- u.usize()
+        edge_v[edge] <- v.usize()
+        edge_weight[edge] <- weight
+        edge <- edge + 1
+    query: mutable usize = 0
+    while query < q:
+        source: i64 = input[query_start + 2 * query]
+        destination: i64 = input[query_start + 2 * query + 1]
+        if source < 0 or source >= n_value or destination < 0 or destination >= n_value:
+            return -1
+        query <- query + 1
+
+    edge <- 1
+    while edge < m:
+        u: usize = edge_u[edge]
+        v: usize = edge_v[edge]
+        weight: i64 = edge_weight[edge]
+        position: mutable usize = edge
+        while position > 0 and edge_weight[position - 1] > weight:
+            edge_u[position] <- edge_u[position - 1]
+            edge_v[position] <- edge_v[position - 1]
+            edge_weight[position] <- edge_weight[position - 1]
+            position <- position - 1
+        edge_u[position] <- u
+        edge_v[position] <- v
+        edge_weight[position] <- weight
+        edge <- edge + 1
+
+    dsu_parent: mutable i64[KRT_MAX_N] = zeroed
+    dsu_size: mutable usize[KRT_MAX_N] = zeroed
+    component_tree: mutable i64[KRT_MAX_N] = zeroed
+    tree_parent: mutable i64[KRT_MAX_TREE] = zeroed
+    tree_left: mutable i64[KRT_MAX_TREE] = zeroed
+    tree_right: mutable i64[KRT_MAX_TREE] = zeroed
+    tree_weight: mutable i64[KRT_MAX_TREE] = zeroed
+    node: mutable usize = 0
+    while node < KRT_MAX_TREE:
+        tree_parent[node] <- -1
+        tree_left[node] <- -1
+        tree_right[node] <- -1
+        node <- node + 1
+    node <- 0
+    while node < n:
+        dsu_parent[node] <- node.i64()
+        dsu_size[node] <- 1
+        component_tree[node] <- node.i64()
+        node <- node + 1
+
+    next_tree_node: mutable usize = n
+    edge <- 0
+    while edge < m:
+        root_u: mutable usize = krt_find(dsu_parent[0:KRT_MAX_N], edge_u[edge])
+        root_v: mutable usize = krt_find(dsu_parent[0:KRT_MAX_N], edge_v[edge])
+        if root_u != root_v:
+            left: i64 = component_tree[root_u]
+            right: i64 = component_tree[root_v]
+            merge_node: usize = next_tree_node
+            next_tree_node <- next_tree_node + 1
+            tree_left[merge_node] <- left
+            tree_right[merge_node] <- right
+            tree_weight[merge_node] <- edge_weight[edge]
+            tree_parent[left.usize()] <- merge_node.i64()
+            tree_parent[right.usize()] <- merge_node.i64()
+            if dsu_size[root_u] < dsu_size[root_v]:
+                temporary: usize = root_u
+                root_u <- root_v
+                root_v <- temporary
+            dsu_parent[root_v] <- root_u.i64()
+            dsu_size[root_u] <- dsu_size[root_u] + dsu_size[root_v]
+            component_tree[root_u] <- merge_node.i64()
+        edge <- edge + 1
+
+    depth: mutable usize[KRT_MAX_TREE] = zeroed
+    ancestor: mutable usize[KRT_LEVELS * KRT_MAX_TREE] = zeroed
+    node <- next_tree_node
+    while node > 0:
+        node <- node - 1
+        if tree_parent[node] < 0:
+            ancestor[node] <- node
+        else:
+            parent: usize = tree_parent[node].usize()
+            ancestor[node] <- parent
+            depth[node] <- depth[parent] + 1
+    level: mutable usize = 1
+    while level < KRT_LEVELS:
+        node <- 0
+        while node < next_tree_node:
+            middle: usize = ancestor[(level - 1) * KRT_MAX_TREE + node]
+            ancestor[level * KRT_MAX_TREE + node] <-
+                ancestor[(level - 1) * KRT_MAX_TREE + middle]
+            node <- node + 1
+        level <- level + 1
+
+    checksum: mutable i64 = 0
+    query <- 0
+    while query < q:
+        source: usize = input[query_start + 2 * query].usize()
+        destination: usize = input[query_start + 2 * query + 1].usize()
+        answer: mutable i64 = 0
+        if source != destination:
+            root_u: usize = krt_find(dsu_parent[0:KRT_MAX_N], source)
+            root_v: usize = krt_find(dsu_parent[0:KRT_MAX_N], destination)
+            if root_u != root_v:
+                answer <- -1
+            else:
+                lca_node: usize = krt_lca(source, destination,
+                    depth[0:KRT_MAX_TREE], ancestor[0:KRT_LEVELS * KRT_MAX_TREE])
+                answer <- tree_weight[lca_node]
+        checksum <- checksum + (query + 1).i64() * (answer + 2)
+        query <- query + 1
+    checksum
+
+export fn kruskal_reconstruction_tree_bottleneck(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > KRT_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    krt_impl(input_view, length)

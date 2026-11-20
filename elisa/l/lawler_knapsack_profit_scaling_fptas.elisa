@@ -1,0 +1,204 @@
+const LAWLER_MAX_N: usize = 8
+const LAWLER_MAX_INPUT: usize = 19
+const LAWLER_MAX_Q: usize = 32
+
+def lawler_ratio_precedes(left: usize, right: usize, weight: view[i64], profit: view[i64]) -> bool:
+    left_product: i64 = profit[left] * weight[right]
+    right_product: i64 = profit[right] * weight[left]
+    if left_product != right_product: return left_product > right_product
+    left < right
+
+def lawler_knapsack_profit_scaling_fptas(input: i64&, length: usize) -> i64 @export("lawler_knapsack_profit_scaling_fptas"):
+    if input.is_null() or length < 2 or length > LAWLER_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    capacity: i64 = values[0]
+    n64: i64 = values[1]
+    if capacity < 1 or capacity > 30 or n64 < 4 or n64 > 8: return -1
+    n: usize = n64.usize()
+    if length != 2 + 2 * n: return -1
+
+    weight: mutable i64[8] = zeroed
+    profit: mutable i64[8] = zeroed
+    order: mutable usize[8] = zeroed
+    for i in 0..<n:
+        weight[i] <- values[2 + 2 * i]
+        profit[i] <- values[3 + 2 * i]
+        if weight[i] < 1 or weight[i] > capacity or profit[i] < 32 or profit[i] > 200: return -1
+        order[i] <- i
+
+    for i in 1..<n:
+        key: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and lawler_ratio_precedes(key, order[j - 1], weight[0:n], profit[0:n]):
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- key
+
+    prefix_profit: mutable i64 = 0
+    prefix_mask: mutable i64 = 0
+    room: mutable i64 = capacity
+    exact_prefix: mutable bool = true
+    for position in 0..<n:
+        item: usize = order[position]
+        if weight[item] > room:
+            exact_prefix <- false
+            break
+        prefix_profit <- prefix_profit + profit[item]
+        prefix_mask <- prefix_mask | (1 << item).i64()
+        room <- room - weight[item]
+        if room == 0: break
+    if exact_prefix: return (prefix_profit << 8) | prefix_mask
+
+    lower_bound: mutable i64 = prefix_profit
+    maximum_profit: mutable i64 = 0
+    for i in 0..<n:
+        if profit[i] > maximum_profit: maximum_profit <- profit[i]
+    if maximum_profit > lower_bound: lower_bound <- maximum_profit
+
+    small: mutable usize[8] = zeroed
+    small_count: mutable usize = 0
+    raw_groups: mutable usize[33 * 8] = zeroed
+    raw_group_count: mutable usize[33] = zeroed
+    for i in 0..<n:
+        if 4 * profit[i] <= lower_bound:
+            small[small_count] <- i
+            small_count <- small_count + 1
+            continue
+        scaled: mutable usize = 0
+        found_scale: mutable bool = false
+        for exponent in 0..<2:
+            scale: i64 = (1 << exponent).i64()
+            if scale * lower_bound < 4 * profit[i] and 4 * profit[i] <= 2 * scale * lower_bound:
+                scaled <- (scale * (16 * profit[i] / (scale * lower_bound))).usize()
+                found_scale <- true
+                break
+        if not found_scale or scaled < 1 or scaled > LAWLER_MAX_Q or raw_group_count[scaled] >= LAWLER_MAX_N: return -1
+        raw_groups[scaled * LAWLER_MAX_N + raw_group_count[scaled]] <- i
+        raw_group_count[scaled] <- raw_group_count[scaled] + 1
+
+    for i in 1..<small_count:
+        key: usize = small[i]
+        j: mutable usize = i
+        while j > 0 and lawler_ratio_precedes(key, small[j - 1], weight[0:n], profit[0:n]):
+            small[j] <- small[j - 1]
+            j <- j - 1
+        small[j] <- key
+
+    group_q: mutable usize[8] = zeroed
+    group_size: mutable usize[8] = zeroed
+    group_items: mutable usize[64] = zeroed
+    group_count: mutable usize = 0
+    q_scan: mutable usize = LAWLER_MAX_Q
+    while q_scan > 0:
+        q: usize = q_scan
+        q_scan <- q_scan - 1
+        count: usize = raw_group_count[q]
+        if count == 0: continue
+        i: mutable usize = 1
+        while i < count:
+            key: usize = raw_groups[q * LAWLER_MAX_N + i]
+            j: mutable usize = i
+            while j > 0:
+                previous: usize = raw_groups[q * LAWLER_MAX_N + j - 1]
+                if weight[key] < weight[previous] or (weight[key] == weight[previous] and key < previous):
+                    raw_groups[q * LAWLER_MAX_N + j] <- previous
+                    j <- j - 1
+                else: break
+            raw_groups[q * LAWLER_MAX_N + j] <- key
+            i <- i + 1
+        keep: mutable usize = 32 / q
+        if keep > count: keep <- count
+        group_q[group_count] <- q
+        group_size[group_count] <- keep
+        for i in 0..<keep:
+            group_items[group_count * LAWLER_MAX_N + i] <- raw_groups[q * LAWLER_MAX_N + i]
+        group_count <- group_count + 1
+
+    dp_weight: mutable i64[33] = zeroed
+    dp_profit: mutable i64[33] = zeroed
+    dp_mask: mutable i64[33] = zeroed
+    dp_valid: mutable bool[33] = zeroed
+    for q in 0..<(LAWLER_MAX_Q + 1): dp_weight[q] <- capacity + 1
+    dp_weight[0] <- 0
+    dp_valid[0] <- true
+
+    next_weight: mutable i64[33] = zeroed
+    next_profit: mutable i64[33] = zeroed
+    next_mask: mutable i64[33] = zeroed
+    next_valid: mutable bool[33] = zeroed
+    for group in 0..<group_count:
+        for q in 0..<(LAWLER_MAX_Q + 1):
+            next_weight[q] <- capacity + 1
+            next_profit[q] <- 0
+            next_mask[q] <- 0
+            next_valid[q] <- false
+        for old_q in 0..<(LAWLER_MAX_Q + 1):
+            if not dp_valid[old_q]: continue
+            added_weight: mutable i64 = 0
+            added_profit: mutable i64 = 0
+            added_mask: mutable i64 = 0
+            take: mutable usize = 0
+            while take <= group_size[group]:
+                new_q: usize = old_q + take * group_q[group]
+                candidate_weight: i64 = dp_weight[old_q] + added_weight
+                if new_q <= LAWLER_MAX_Q and candidate_weight <= capacity:
+                    candidate_profit: i64 = dp_profit[old_q] + added_profit
+                    candidate_mask: i64 = dp_mask[old_q] | added_mask
+                    if not next_valid[new_q] or candidate_weight < next_weight[new_q] or
+                       (candidate_weight == next_weight[new_q] and
+                        (candidate_profit > next_profit[new_q] or
+                         (candidate_profit == next_profit[new_q] and candidate_mask < next_mask[new_q]))):
+                        next_weight[new_q] <- candidate_weight
+                        next_profit[new_q] <- candidate_profit
+                        next_mask[new_q] <- candidate_mask
+                        next_valid[new_q] <- true
+                if take == group_size[group]: break
+                item: usize = group_items[group * LAWLER_MAX_N + take]
+                added_weight <- added_weight + weight[item]
+                if dp_weight[old_q] + added_weight > capacity: break
+                added_profit <- added_profit + profit[item]
+                added_mask <- added_mask | (1 << item).i64()
+                take <- take + 1
+        best_state_weight: mutable i64 = capacity + 1
+        descending: mutable usize = LAWLER_MAX_Q + 1
+        while descending > 0:
+            descending <- descending - 1
+            if not next_valid[descending]: continue
+            if next_weight[descending] < best_state_weight:
+                best_state_weight <- next_weight[descending]
+            else:
+                next_valid[descending] <- false
+        for q in 0..<(LAWLER_MAX_Q + 1):
+            dp_weight[q] <- next_weight[q]
+            dp_profit[q] <- next_profit[q]
+            dp_mask[q] <- next_mask[q]
+            dp_valid[q] <- next_valid[q]
+
+    best_score: mutable i64 = -1
+    best_profit: mutable i64 = -1
+    best_weight: mutable i64 = capacity + 1
+    best_mask: mutable i64 = 0
+    for q in 0..<(LAWLER_MAX_Q + 1):
+        if not dp_valid[q]: continue
+        remaining: mutable i64 = capacity - dp_weight[q]
+        small_profit: mutable i64 = 0
+        small_weight: mutable i64 = 0
+        mask: mutable i64 = dp_mask[q]
+        for i in 0..<small_count:
+            item: usize = small[i]
+            if weight[item] > remaining: break
+            remaining <- remaining - weight[item]
+            small_weight <- small_weight + weight[item]
+            small_profit <- small_profit + profit[item]
+            mask <- mask | (1 << item).i64()
+        total_profit: i64 = dp_profit[q] + small_profit
+        total_weight: i64 = dp_weight[q] + small_weight
+        score: i64 = lower_bound * q.i64() + 16 * small_profit
+        if score > best_score or (score == best_score and
+           (total_profit > best_profit or (total_profit == best_profit and
+            (total_weight < best_weight or (total_weight == best_weight and mask < best_mask))))):
+            best_score <- score
+            best_profit <- total_profit
+            best_weight <- total_weight
+            best_mask <- mask
+    (best_profit << 8) | best_mask

@@ -1,0 +1,96 @@
+extern floor(value: f64) -> f64
+
+const MAX_N: usize = 10
+const MAX_INPUT_LENGTH: usize = 13
+const MAX_ORDER: usize = 6
+
+def wynn_finite(value: f64) -> bool:
+    value == value and value <= 1.7976931348623157e308 and value >= -1.7976931348623157e308
+
+def wynn_impl(values: view[f64], result: mutable view[f64]) -> i64:
+    length: usize = values.len()
+    if length < 3 or length > MAX_INPUT_LENGTH: return -1
+    i: mutable usize = 0
+    while i < length:
+        if not wynn_finite(values[i]): return -1
+        i <- i + 1
+    n_value: f64 = values[0]
+    k_value: f64 = values[1]
+    if floor(n_value) != n_value or floor(k_value) != k_value or
+            n_value < 5.0 or n_value > 10.0 or k_value < 2.0 or k_value > 3.0:
+        return -1
+    n: usize = n_value.usize()
+    k: usize = k_value.usize()
+    if n < 2 * k + 1 or length != n + 2: return -1
+    i <- 0
+    while i < n:
+        sample: f64 = values[i + 2]
+        scaled: f64 = sample * 256.0
+        if sample < -2.0 or sample > 2.0 or floor(scaled) != scaled: return -1
+        i <- i + 1
+
+    rows: mutable f64[MAX_ORDER + 1][MAX_N] = zeroed
+    valid: mutable bool[MAX_ORDER + 1][MAX_N] = zeroed
+    i <- 0
+    while i < n:
+        rows[0][i] <- values[i + 2]
+        valid[0][i] <- true
+        i <- i + 1
+    order: mutable usize = 0
+    while order < 2 * k:
+        width: usize = n - order - 1
+        i <- 0
+        while i < width:
+            auxiliary_valid: mutable bool = true
+            if order != 0: auxiliary_valid <- valid[order - 1][i + 1]
+            if valid[order][i] and valid[order][i + 1] and auxiliary_valid:
+                denominator: f64 = rows[order][i + 1] - rows[order][i]
+                if denominator != 0.0 and wynn_finite(denominator):
+                    reciprocal: f64 = 1.0 / denominator
+                    auxiliary: f64 = 0.0
+                    if order != 0: auxiliary <- rows[order - 1][i + 1]
+                    value: f64 = auxiliary + reciprocal
+                    if wynn_finite(reciprocal) and wynn_finite(value):
+                        rows[order + 1][i] <- value
+                        valid[order + 1][i] <- true
+            i <- i + 1
+        order <- order + 1
+
+    needed: mutable usize = 0
+    order <- 2
+    while order <= 2 * k:
+        needed <- needed + 2 * (n - order)
+        order <- order + 2
+    if result.len() < needed: return -1
+    cursor: mutable usize = 0
+    order <- 2
+    while order <= 2 * k:
+        i <- 0
+        while i < n - order:
+            if valid[order][i]:
+                result[cursor] <- 0.0
+                result[cursor + 1] <- rows[order][i]
+            else:
+                result[cursor] <- 1.0
+                result[cursor + 1] <- 0.0
+            cursor <- cursor + 2
+            i <- i + 1
+        order <- order + 2
+    needed.i64()
+
+@export("wynn_epsilon_sequence_algorithm")
+def wynn_epsilon_sequence_algorithm(input: f64&, length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return -1
+    input_view: view[f64] = input[0:length]
+    staged: mutable f64[36] = zeroed
+    staged_view: mutable view[f64] = staged[0:36]
+    needed: i64 = wynn_impl(input_view, staged_view)
+    if needed < 0: return needed
+    if output.is_null() or capacity < needed.usize(): return -2
+    output_view: mutable view[f64] = output[0:needed.usize()]
+    i: mutable usize = 0
+    while i < needed.usize():
+        output_view[i] <- staged_view[i]
+        i <- i + 1
+    needed

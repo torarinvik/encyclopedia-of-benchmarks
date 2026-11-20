@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "cactus-graph-recognition-i64-array-scalar-v1",
+  "algorithm": "cactus_graph_recognition",
+  "function_symbol": "cactus_graph_recognition",
+  "abi": "i64_array_scalar",
+  "description": "Recognize edge and vertex cacti by assigning each DFS fundamental cycle exclusive ownership of its edges.",
+  "source": {
+    "title": "Cactus Graph",
+    "authors": ["Sabit Zahin"],
+    "year": 2026,
+    "reference": "Algovault code_library/graphs/cactus.cpp at bc24742a9b7fba123be5fafca5a93a76bb7f8840",
+    "url": "https://github.com/sgtlaugh/algovault/blob/bc24742a9b7fba123be5fafca5a93a76bb7f8840/code_library/graphs/cactus.cpp",
+    "algorithm_attribution": "Iterative DFS cycle ownership identifies edge cacti; cycle vertex counts distinguish vertex cacti.",
+    "implementation_status": "clean-room bounded scalar profile; algorithm description only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,(u,v)*M]",
+    "vertex_count_range": [1, 32],
+    "edge_count_range": [0, 128],
+    "vertex_labels": "0 through N-1",
+    "graph": "Simple, undirected, loopless; disconnected graphs are accepted.",
+    "maximum_valid_length": 258,
+    "maximum_parseable_length": 259,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "4*C + 2*V + E",
+    "fields": {
+      "E": "1 iff the graph is an edge cactus; otherwise 0.",
+      "V": "1 iff every vertex belongs to at most one simple cycle; otherwise 0.",
+      "C": "Number of simple cycles when E=1; zero when E=0."
+    },
+    "valid_result_range": [0, 171],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed adjacency, edge ownership, DFS state, and vertex cycle-count arrays."
+  },
+  "contract": {
+    "edge_cactus": "Every edge belongs to at most one simple cycle.",
+    "vertex_cactus": "Every vertex belongs to at most one simple cycle; a vertex cactus is also an edge cactus.",
+    "primary_method": "An iterative depth-first traversal finds each back-edge cycle through its parent-edge path. Reusing any tree edge rejects edge-cactus status; counting cycle vertices distinguishes vertex cacti.",
+    "invalid_frames": "Reject out-of-range endpoints, self-loops, duplicate undirected edges, malformed lengths, and counts outside the local bounds.",
+    "invalid_input_result": -1
+  },
+  "complexity": {
+    "primary_time": "O(N+M) for the bounded simple graph",
+    "primary_auxiliary_space": "O(N+M)",
+    "independent_time": "O(N+M) Tarjan biconnected-block decomposition",
+    "independent_auxiliary_space": "O(N+M)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary reference marks the fundamental cycles found by iterative DFS and rejects repeated tree-edge ownership. The independent reference computes vertex-biconnected edge blocks with Tarjan lowlinks; each non-bridge block must be one simple cycle for an edge cactus, and cycle-vertex overlap distinguishes vertex cacti.",
+  "cases": [
+    {"id":"single-isolated-vertex","input_values":[1,0],"input_length":2,"expected_result":3},
+    {"id":"edgeless-four-vertices","input_values":[4,0],"input_length":2,"expected_result":3},
+    {"id":"single-bridge","input_values":[2,1,0,1],"input_length":4,"expected_result":3},
+    {"id":"path-is-an-edge-and-vertex-cactus","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"expected_result":3},
+    {"id":"one-triangle","input_values":[3,3,0,1,1,2,2,0],"input_length":8,"expected_result":7},
+    {"id":"cycle-with-bridge-tail","input_values":[4,4,0,1,1,2,2,0,2,3],"input_length":10,"expected_result":7},
+    {"id":"disjoint-cycles-and-bridge","input_values":[7,8,0,1,1,2,2,0,2,3,3,4,4,5,5,6,6,3],"input_length":18,"expected_result":11},
+    {"id":"two-cycles-sharing-one-vertex","input_values":[5,6,0,1,1,2,2,0,0,3,3,4,4,0],"input_length":14,"expected_result":9},
+    {"id":"two-cycles-sharing-an-edge","input_values":[4,5,0,1,1,2,2,0,0,3,3,2],"input_length":12,"expected_result":0},
+    {"id":"square-with-diagonal-is-not-edge-cactus","input_values":[4,5,0,1,1,2,2,3,3,0,0,2],"input_length":12,"expected_result":0},
+    {"id":"disconnected-components-are-supported","input_values":[5,4,0,1,1,2,2,0,3,4],"input_length":10,"expected_result":7},
+    {"id":"maximum-vertex-bound","input_values":[32,0],"input_length":2,"expected_result":3},
+    {"id":"vertex-count-over-bound","input_values":[33,0],"input_length":2,"expected_result":-1},
+    {"id":"edge-count-over-bound","input_values":[1,129],"input_length":2,"expected_result":-1},
+    {"id":"duplicate-undirected-edge","input_values":[2,2,0,1,1,0],"input_length":6,"expected_result":-1},
+    {"id":"self-loop-is-invalid","input_values":[2,1,0,0],"input_length":4,"expected_result":-1},
+    {"id":"endpoint-out-of-range","input_values":[2,1,0,2],"input_length":4,"expected_result":-1},
+    {"id":"truncated-edge-list","input_values":[2,1,0],"input_length":3,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,0,9],"input_length":3,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

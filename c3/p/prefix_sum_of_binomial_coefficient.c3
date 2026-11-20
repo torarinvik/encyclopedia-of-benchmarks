@@ -12,7 +12,8 @@ fn long prefix_sum_of_binomial_coefficient(long* input, usz length,
     if (count_value < 1 || count_value > 16) return -1;
     usz count = (usz)count_value;
     if (length != 1 + 2 * count) return -1;
-    long ns[16], ks[16];
+    long[16] ns;
+    long[16] ks;
     for (usz query = 0; query < count; query++) {
         ns[query] = input[1 + 2 * query];
         ks[query] = input[2 + 2 * query];
@@ -21,7 +22,7 @@ fn long prefix_sum_of_binomial_coefficient(long* input, usz length,
     usz output_length = 4 * count;
     if (output == null || capacity < output_length) return -2;
 
-    long inverse[129];
+    long[129] inverse;
     for (usz i = 0; i < 129; i++) inverse[i] = 0;
     inverse[1] = 1;
     for (usz value = 2; value <= 128; value++)

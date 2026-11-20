@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "algorithm": "spatial_motif_different_type_contact_pmf",
+  "function_symbol": "spatial_motif_different_type_contact_pmf",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/s/spatial_motif_different_type_contact_pmf.c",
+    "c3": "c3/s/spatial_motif_different_type_contact_pmf.c3",
+    "cpp": "cpp/s/spatial_motif_different_type_contact_pmf.cpp",
+    "elisa": "elisa/s/spatial_motif_different_type_contact_pmf.elisa",
+    "mojo": "mojo/s/spatial_motif_different_type_contact_pmf.mojo",
+    "nim": "nim/s/spatial_motif_different_type_contact_pmf.nim",
+    "odin": "odin/s/spatial_motif_different_type_contact_pmf.odin",
+    "rust": "rust/s/spatial_motif_different_type_contact_pmf.rs",
+    "v": "v/s/spatial_motif_different_type_contact_pmf.v",
+    "zig": "zig/s/spatial_motif_different_type_contact_pmf.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py"
+  ],
+  "references": {
+    "primary": "primary_oracle.py",
+    "independent": "independent_oracle.py"
+  },
+  "contract": {
+    "input_layout": "[L,x1,y1,x2,y2]",
+    "length_range": [1, 10],
+    "maximum_valid_input_words": 5,
+    "maximum_parseable_input_words": 6,
+    "maximum_multiset_arrangements": 4200,
+    "composition": "x1>=0,y1>=0,x1+y1<=L; x2>=0,y2>=0,x2+y2<=L",
+    "output_layout": "[L,M(L,x2,y2),N0,...,NL,reduced_expectation_numerator,reduced_expectation_denominator]",
+    "maximum_output_bytes": 120,
+    "workspace_bytes": 1024,
+    "invalid_input_result": -1,
+    "insufficient_output_result": -2,
+    "zero_expectation_encoding": "0/1"
+  },
+  "source": {
+    "chapter_doi": "10.1007/978-1-4939-2864-4_601",
+    "primary_paper_doi": "10.1109/TCBB.2008.101",
+    "section": "II-B, Eq. (2) and the heterotypic contact-count marginal"
+  }
+}

@@ -63,7 +63,7 @@ fn long mccat_05_eks(long* input, usz length, uchar* output, usz capacity) @expo
     if(input==null||length<2||length>MAX_INPUT)return -1;
     n64:=input[0];bw64:=input[1];if(n64<MIN_N||n64>MAX_N||bw64<2||bw64>5||bw64>=n64)return -1;
     n:=int(n64);bw:=int(bw64);if(length!=usz(2+n*n))return -1;
-    double a[64]={0.0};
+    double[64] a={};
     for(int r=0;r<n;r++)for(int c=0;c<n;c++){
         value:=input[2+r*n+c];if(value< -1000000||value>1000000)return -1;
         if(r>c&&value!=input[2+c*n+r])return -1;
@@ -71,9 +71,9 @@ fn long mccat_05_eks(long* input, usz length, uchar* output, usz capacity) @expo
         a[r*n+c]=double(value)/INPUT_SCALE;
     }
     required:=usz(n*4);if(output==null||capacity<required)return -2;
-    reduce_band(a,n,bw);if(!qr_iterate(a,n))return -1;
-    double values[8]={0.0};for(int i=0;i<n;i++)values[i]=a[i*n+i];
+    reduce_band(&a[0],n,bw);if(!qr_iterate(&a[0],n))return -1;
+    double[8] values={};for(int i=0;i<n;i++)values[i]=a[i*n+i];
     for(int i=1;i<n;i++){value:=values[i];j:=i;while(j>0&&before(value,values[j-1])){values[j]=values[j-1];j--;}values[j]=value;}
-    uchar staged[32]={0};for(int i=0;i<n;i++)put_i32(project(values[i]),staged+4*i);
+    uchar[32] staged={};for(int i=0;i<n;i++)put_i32(project(values[i]),&staged[4*i]);
     for(usz i=0;i<required;i++)output[i]=staged[i];return long(required);
 }

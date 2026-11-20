@@ -27,6 +27,7 @@ The existing [`fibonacci_fast`](../fibonacci_fast/README.md) contract computes t
 | C3 | [`c3/f/fibonacci_matrix_exponentiation.c3`](../../../c3/f/fibonacci_matrix_exponentiation.c3) |
 | C++ | [`cpp/f/fibonacci_matrix_exponentiation.cpp`](../../../cpp/f/fibonacci_matrix_exponentiation.cpp) |
 | Elisa | [`elisa/f/fibonacci_matrix_exponentiation.elisa`](../../../elisa/f/fibonacci_matrix_exponentiation.elisa) |
+| Mojo | [`mojo/f/fibonacci_matrix_exponentiation.mojo`](../../../mojo/f/fibonacci_matrix_exponentiation.mojo) |
 | Nim | [`nim/f/fibonacci_matrix_exponentiation.nim`](../../../nim/f/fibonacci_matrix_exponentiation.nim) |
 | Odin | [`odin/f/fibonacci_matrix_exponentiation.odin`](../../../odin/f/fibonacci_matrix_exponentiation.odin) |
 | Rust | [`rust/f/fibonacci_matrix_exponentiation.rs`](../../../rust/f/fibonacci_matrix_exponentiation.rs) |
@@ -37,3 +38,9 @@ The existing [`fibonacci_fast`](../fibonacci_fast/README.md) contract computes t
 
 - [C++ `fibonacci_matrix_exponentiation.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/fibonacci_matrix_exponentiation.cpp)
 - [C++-1 `fibonacci_matrix_exponentiation.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/fibonacci_matrix_exponentiation.cpp)
+
+The pair runner now recognizes this benchmark and validates workload results
+against modular fast doubling. A dedicated ABI verifier is drafted, including
+large indices and invalid inputs. Neither wiring nor sources have been run.
+The verifier source also checks every workload case and records one sample per
+case; this verification flow remains unexecuted.

@@ -34,18 +34,18 @@ fn long kth_element_finder(long* input, usz length) @export("kth_element_finder"
     }
 
     bool min_heap = mode == 0;
-    long heap[256];
+    long[256] heap;
     for (usz i = 0; i < k; i++) heap[i] = input[i + 3];
     usz start = k / 2;
     while (start > 0) {
         start--;
-        sift_down(heap, k, start, min_heap);
+        sift_down(&heap[0], k, start, min_heap);
     }
     for (usz i = k; i < n; i++) {
         long value = input[i + 3];
         if ((min_heap && value > heap[0]) || (!min_heap && value < heap[0])) {
             heap[0] = value;
-            sift_down(heap, k, 0, min_heap);
+            sift_down(&heap[0], k, 0, min_heap);
         }
     }
     return heap[0];

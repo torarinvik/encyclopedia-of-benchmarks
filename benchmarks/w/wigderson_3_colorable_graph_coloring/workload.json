@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-wigderson-3-colorable-graph-coloring-i64-array-bytes-output-v1",
+  "algorithm": "wigderson_3_colorable_graph_coloring",
+  "function_symbol": "wigderson_3_colorable_graph_coloring",
+  "abi": "i64_array_bytes_output",
+  "description": "Wigderson Algorithm A for promised 3-colorable simple graphs, with deterministic ties and source-faithful color stride.",
+  "source": {
+    "title": "Improving the Performance Guarantee for Approximate Graph Coloring",
+    "authors": ["Avi Wigderson"],
+    "year": 1983,
+    "reference": "JACM 30(4), 729-735, Section 2, Algorithm A and Theorem 2.1",
+    "url": "https://doi.org/10.1145/2157.2158",
+    "chapter": "Encyclopedia of Algorithms, Chapter 170: Graph Coloring",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_170",
+    "rights": "Clean-room ports based on the mathematical method; no source code, examples, figures, or protected prose reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,u0,v0,...,u(m-1),v(m-1)]",
+    "vertex_count_range": [0, 32],
+    "edge_count_range": [0, 128],
+    "graph": "Simple undirected graph with vertices 0..n-1; each edge appears once as u<v. The source promise is 3-colorability.",
+    "maximum_valid_length": 258,
+    "maximum_parseable_length": 259,
+    "invalid_result": -1
+  },
+  "contract": {
+    "threshold": "floor(sqrt(original_n)); compare against the current maximum degree throughout",
+    "selection": "Maximum current degree, then smallest vertex ID",
+    "neighborhood_coloring": "Induced subgraph on current neighbors; BFS components rooted by ascending vertex ID, scan neighbors ascending, side labels i and i+1",
+    "center_color_and_stride": "Assign i+2 to the center, delete the closed neighborhood, then advance i by exactly two as printed in Algorithm A",
+    "residual_coloring": "Ascending vertex ID, sequential first-fit using the smallest available label at least i",
+    "output": "[highest_color_id,color_0,...,color_(n-1)] as one-byte unsigned values; labels are one-based",
+    "errors": "Malformed/out-of-promise selected neighborhood returns -1; null or insufficient output returns -2 with no bytes written"
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "One byte for the highest assigned color label, followed by one byte per vertex ID in ascending order; empty input emits [0].",
+    "maximum_bytes": 33,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed adjacency, active/color, component-side, queue, and first-fit tables; excludes the caller's input/output buffers and call-stack space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {"id":"empty-graph","input_values":[0,0],"input_length":2,"output_capacity":33,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"isolated-singleton","input_values":[1,0],"input_length":2,"output_capacity":33,"expected_result":2,"expected_output_hex":"0101"},
+    {"id":"single-edge","input_values":[2,1,0,1],"input_length":4,"output_capacity":33,"expected_result":3,"expected_output_hex":"030301"},
+    {"id":"star-neighborhood","input_values":[5,4,0,1,0,2,0,3,0,4],"input_length":10,"output_capacity":33,"expected_result":6,"expected_output_hex":"030301010101"},
+    {"id":"triangle-neighborhood-edge","input_values":[3,3,0,1,0,2,1,2],"input_length":8,"output_capacity":33,"expected_result":4,"expected_output_hex":"03030102"},
+    {"id":"maximum-degree-tie-path-five","input_values":[5,4,0,1,1,2,2,3,3,4],"input_length":10,"output_capacity":33,"expected_result":6,"expected_output_hex":"040103010304"},
+    {"id":"two-round-color-stride-reuse","input_values":[10,6,0,1,0,2,0,3,4,5,4,6,4,7],"input_length":14,"output_capacity":33,"expected_result":11,"expected_output_hex":"0503010101050303030505"},
+    {"id":"cycle-five-residual-first-fit","input_values":[5,5,0,1,1,2,2,3,3,4,0,4],"input_length":12,"output_capacity":33,"expected_result":6,"expected_output_hex":"040301030401"},
+    {"id":"all-isolates-maximum-output","input_values":[32,0],"input_length":2,"output_capacity":33,"expected_result":33,"expected_output_hex":"010101010101010101010101010101010101010101010101010101010101010101"}
+  ],
+  "invalid_cases": [
+    {"id":"reversed-edge","input_values":[2,1,1,0],"expected_result":-1},
+    {"id":"duplicate-edge","input_values":[3,2,0,1,0,1],"expected_result":-1},
+    {"id":"self-loop","input_values":[1,1,0,0],"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,0,99],"expected_result":-1},
+    {"id":"non-bipartite-selected-neighborhood-outside-promise","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ],
+  "capacity_cases": [
+    {"id":"null-output","input_values":[1,0],"input_length":2,"output_capacity":2,"output_is_null":true,"expected_result":-2},
+    {"id":"short-output","input_values":[1,0],"input_length":2,"output_capacity":1,"expected_result":-2}
+  ]
+}

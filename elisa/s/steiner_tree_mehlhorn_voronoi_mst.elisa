@@ -1,0 +1,366 @@
+const MT_N: usize = 8
+const MT_M: usize = 14
+const MT_MAX_INPUT: usize = 54
+const MT_MAX_OUTPUT: usize = 72
+const MT_INF: i64 = 4611686018427387903
+
+def fn mt_candidate_before(aw: i64, aa: usize, ab: usize, al: usize, ar: usize, ae: usize,
+                           bw: i64, ba: usize, bb: usize, bl: usize, br: usize, be: usize) -> bool:
+    if aw != bw: return aw < bw
+    if aa != ba: return aa < ba
+    if ab != bb: return ab < bb
+    if al != bl: return al < bl
+    if ar != br: return ar < br
+    ae < be
+
+def fn mt_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        output[offset+i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def fn mt_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > MT_MAX_INPUT: return -1
+    n0: i64 = input[0]
+    m0: i64 = input[1]
+    k0: i64 = input[2]
+    if n0 < 2 or n0 > MT_N.i64() or m0 < 1 or m0 > MT_M.i64() or k0 < 2 or k0 > n0: return -1
+    n: usize = n0.usize()
+    m: usize = m0.usize()
+    k: usize = k0.usize()
+    if length < 3+k+3*m: return -1
+    terminals: mutable usize[MT_N] = zeroed
+    is_terminal: mutable bool[MT_N] = zeroed
+    at: mutable usize = 3
+    for i in 0..<k:
+        raw: i64 = input[at]
+        at <- at+1
+        if raw < 0 or raw >= n0: return -1
+        t: usize = raw.usize()
+        if is_terminal[t]: return -1
+        terminals[i] <- t
+        is_terminal[t] <- true
+    eu: mutable usize[MT_M] = zeroed
+    ev: mutable usize[MT_M] = zeroed
+    weight: mutable i64[MT_M] = zeroed
+    pair_seen: mutable bool[MT_N*MT_N] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u0: i64 = input[at]
+        v0: i64 = input[at+1]
+        w: i64 = input[at+2]
+        at <- at+3
+        if u0 < 0 or u0 >= v0 or v0 >= n0 or w < 1 or w > 9: return -1
+        u: usize = u0.usize()
+        v: usize = v0.usize()
+        if pair_seen[u*MT_N+v]: return -1
+        pair_seen[u*MT_N+v] <- true
+        eu[edge] <- u
+        ev[edge] <- v
+        weight[edge] <- w
+        edge <- edge+1
+    if at != length: return -1
+
+    reached: mutable bool[MT_N] = zeroed
+    queue: mutable usize[MT_N] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    reached[0] <- true
+    queue[tail] <- 0
+    tail <- tail+1
+    while head < tail:
+        u: usize = queue[head]
+        head <- head+1
+        edge <- 0
+        while edge < m:
+            v: mutable usize = MT_N
+            if eu[edge] == u: v <- ev[edge]
+            else if ev[edge] == u: v <- eu[edge]
+            if v < MT_N and not reached[v]:
+                reached[v] <- true
+                queue[tail] <- v
+                tail <- tail+1
+            edge <- edge+1
+    vertex: mutable usize = 0
+    while vertex < n:
+        if not reached[vertex]: return -1
+        vertex <- vertex+1
+
+    dist: mutable i64[MT_N] = zeroed
+    owner: mutable usize[MT_N] = zeroed
+    pred: mutable i64[MT_N] = zeroed
+    pred_edge: mutable i64[MT_N] = zeroed
+    settled: mutable bool[MT_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        dist[vertex] <- MT_INF
+        owner[vertex] <- n
+        pred[vertex] <- -1
+        pred_edge[vertex] <- -1
+        vertex <- vertex+1
+    for i in 0..<k:
+        t: usize = terminals[i]
+        dist[t] <- 0
+        owner[t] <- t
+    step: mutable usize = 0
+    while step < n:
+        chosen_vertex: mutable usize = MT_N
+        vertex <- 0
+        while vertex < n:
+            if not settled[vertex] and (chosen_vertex == MT_N or dist[vertex] < dist[chosen_vertex] or
+                (dist[vertex] == dist[chosen_vertex] and (owner[vertex] < owner[chosen_vertex] or
+                (owner[vertex] == owner[chosen_vertex] and vertex < chosen_vertex)))):
+                chosen_vertex <- vertex
+            vertex <- vertex+1
+        if chosen_vertex == MT_N or dist[chosen_vertex] == MT_INF: break
+        settled[chosen_vertex] <- true
+        edge <- 0
+        while edge < m:
+            next_vertex: mutable usize = MT_N
+            if eu[edge] == chosen_vertex: next_vertex <- ev[edge]
+            else if ev[edge] == chosen_vertex: next_vertex <- eu[edge]
+            if next_vertex < MT_N:
+                nd: i64 = dist[chosen_vertex]+weight[edge]
+                if nd < dist[next_vertex] or (nd == dist[next_vertex] and owner[chosen_vertex] < owner[next_vertex]):
+                    dist[next_vertex] <- nd
+                    owner[next_vertex] <- owner[chosen_vertex]
+                    pred[next_vertex] <- chosen_vertex.i64()
+                    pred_edge[next_vertex] <- edge.i64()
+                else if nd == dist[next_vertex] and owner[chosen_vertex] == owner[next_vertex] and not settled[next_vertex] and
+                        (pred[next_vertex] < 0 or chosen_vertex.i64() < pred[next_vertex] or
+                        (chosen_vertex.i64() == pred[next_vertex] and edge.i64() < pred_edge[next_vertex])):
+                    pred[next_vertex] <- chosen_vertex.i64()
+                    pred_edge[next_vertex] <- edge.i64()
+            edge <- edge+1
+        step <- step+1
+    vertex <- 0
+    while vertex < n:
+        if dist[vertex] == MT_INF or owner[vertex] == n: return -1
+        vertex <- vertex+1
+
+    has: mutable bool[MT_N*MT_N] = zeroed
+    best_weight: mutable i64[MT_N*MT_N] = zeroed
+    best_left: mutable usize[MT_N*MT_N] = zeroed
+    best_right: mutable usize[MT_N*MT_N] = zeroed
+    best_edge: mutable usize[MT_N*MT_N] = zeroed
+    edge <- 0
+    while edge < m:
+        u: usize = eu[edge]
+        v: usize = ev[edge]
+        a: mutable usize = owner[u]
+        b: mutable usize = owner[v]
+        if a != b:
+            left: mutable usize = u
+            right: mutable usize = v
+            if a > b:
+                tmp: usize = a
+                a <- b
+                b <- tmp
+                left <- v
+                right <- u
+            ix: usize = a*MT_N+b
+            cw: i64 = dist[u]+weight[edge]+dist[v]
+            if not has[ix] or mt_candidate_before(cw,a,b,left,right,edge,best_weight[ix],a,b,best_left[ix],best_right[ix],best_edge[ix]):
+                has[ix] <- true
+                best_weight[ix] <- cw
+                best_left[ix] <- left
+                best_right[ix] <- right
+                best_edge[ix] <- edge
+        edge <- edge+1
+    cw_arr: mutable i64[MT_M] = zeroed
+    ca: mutable usize[MT_M] = zeroed
+    cb: mutable usize[MT_M] = zeroed
+    cl: mutable usize[MT_M] = zeroed
+    cr: mutable usize[MT_M] = zeroed
+    ce: mutable usize[MT_M] = zeroed
+    cn: mutable usize = 0
+    a: mutable usize = 0
+    while a < n:
+        b: mutable usize = a+1
+        while b < n:
+            pair_idx: usize = a*MT_N+b
+            if has[pair_idx]:
+                cw_arr[cn] <- best_weight[pair_idx]
+                ca[cn] <- a
+                cb[cn] <- b
+                cl[cn] <- best_left[pair_idx]
+                cr[cn] <- best_right[pair_idx]
+                ce[cn] <- best_edge[pair_idx]
+                cn <- cn+1
+            b <- b+1
+        a <- a+1
+    i: mutable usize = 1
+    j: mutable usize = 0
+    while i < cn:
+        w: i64 = cw_arr[i]
+        va: usize = ca[i]
+        vb: usize = cb[i]
+        vl: usize = cl[i]
+        vr: usize = cr[i]
+        ve: usize = ce[i]
+        j <- i
+        while j > 0 and mt_candidate_before(w,va,vb,vl,vr,ve,cw_arr[j-1],ca[j-1],cb[j-1],cl[j-1],cr[j-1],ce[j-1]):
+            cw_arr[j] <- cw_arr[j-1]
+            ca[j] <- ca[j-1]
+            cb[j] <- cb[j-1]
+            cl[j] <- cl[j-1]
+            cr[j] <- cr[j-1]
+            ce[j] <- ce[j-1]
+            j <- j-1
+        cw_arr[j] <- w
+        ca[j] <- va
+        cb[j] <- vb
+        cl[j] <- vl
+        cr[j] <- vr
+        ce[j] <- ve
+        i <- i+1
+    parent: mutable usize[MT_N] = zeroed
+    ranks: mutable usize[MT_N] = zeroed
+    ra: mutable usize = 0
+    rb: mutable usize = 0
+    temporary: mutable usize = 0
+    vertex <- 0
+    while vertex < n:
+        parent[vertex] <- vertex
+        vertex <- vertex+1
+    chosen: mutable usize[MT_N] = zeroed
+    ch: mutable usize = 0
+    i <- 0
+    while i < cn and ch < k-1:
+        ra <- ca[i]
+        rb <- cb[i]
+        while parent[ra] != ra:
+            parent[ra] <- parent[parent[ra]]
+            ra <- parent[ra]
+        while parent[rb] != rb:
+            parent[rb] <- parent[parent[rb]]
+            rb <- parent[rb]
+        if ra != rb:
+            if ranks[ra] < ranks[rb]:
+                temporary <- ra
+                ra <- rb
+                rb <- temporary
+            parent[rb] <- ra
+            if ranks[ra] == ranks[rb]: ranks[ra] <- ranks[ra]+1
+            chosen[ch] <- i
+            ch <- ch+1
+        i <- i+1
+    if ch != k-1: return -1
+    used: mutable bool[MT_M] = zeroed
+    ix: mutable usize = 0
+    i <- 0
+    while i < ch:
+        ix <- chosen[i]
+        used[ce[ix]] <- true
+        x: mutable usize = cl[ix]
+        while x != ca[ix]:
+            if pred_edge[x] < 0: return -1
+            used[pred_edge[x].usize()] <- true
+            x <- pred[x].usize()
+        x <- cr[ix]
+        while x != cb[ix]:
+            if pred_edge[x] < 0: return -1
+            used[pred_edge[x].usize()] <- true
+            x <- pred[x].usize()
+        i <- i+1
+    order: mutable usize[MT_M] = zeroed
+    on: mutable usize = 0
+    edge <- 0
+    while edge < m:
+        if used[edge]: order[on] <- edge; on <- on+1
+        edge <- edge+1
+    e: mutable usize = 0
+    i <- 1
+    while i < on:
+        e <- order[i]
+        j <- i
+        while j > 0 and (weight[e] < weight[order[j-1]] or (weight[e] == weight[order[j-1]] and e < order[j-1])):
+            order[j] <- order[j-1]
+            j <- j-1
+        order[j] <- e
+        i <- i+1
+    vertex <- 0
+    while vertex < n:
+        parent[vertex] <- vertex
+        ranks[vertex] <- 0
+        vertex <- vertex+1
+    tree: mutable bool[MT_M] = zeroed
+    i <- 0
+    while i < on:
+        e <- order[i]
+        ra <- eu[e]
+        rb <- ev[e]
+        while parent[ra] != ra: parent[ra] <- parent[parent[ra]]; ra <- parent[ra]
+        while parent[rb] != rb: parent[rb] <- parent[parent[rb]]; rb <- parent[rb]
+        if ra != rb:
+            if ranks[ra] < ranks[rb]: temporary <- ra; ra <- rb; rb <- temporary
+            parent[rb] <- ra
+            if ranks[ra] == ranks[rb]: ranks[ra] <- ranks[ra]+1
+            tree[e] <- true
+        i <- i+1
+    ra <- terminals[0]
+    while parent[ra] != ra: parent[ra] <- parent[parent[ra]]; ra <- parent[ra]
+    i <- 1
+    while i < k:
+        rb <- terminals[i]
+        while parent[rb] != rb: parent[rb] <- parent[parent[rb]]; rb <- parent[rb]
+        if rb != ra: return -1
+        i <- i+1
+    degree: mutable usize[MT_N] = zeroed
+    edge <- 0
+    while edge < m:
+        if tree[edge]: degree[eu[edge]] <- degree[eu[edge]]+1; degree[ev[edge]] <- degree[ev[edge]]+1
+        edge <- edge+1
+    leaves: mutable usize[MT_N] = zeroed
+    queued: mutable bool[MT_N] = zeroed
+    head <- 0
+    tail <- 0
+    vertex <- 0
+    while vertex < n:
+        if not is_terminal[vertex] and degree[vertex] <= 1:
+            leaves[tail] <- vertex
+            tail <- tail+1
+            queued[vertex] <- true
+        vertex <- vertex+1
+    while head < tail:
+        u: usize = leaves[head]
+        head <- head+1
+        if degree[u] > 1: continue
+        edge <- 0
+        while edge < m:
+            if tree[edge] and (eu[edge] == u or ev[edge] == u):
+                tree[edge] <- false
+                v: mutable usize = eu[edge]
+                if v == u: v <- ev[edge]
+                degree[u] <- degree[u]-1
+                degree[v] <- degree[v]-1
+                if not is_terminal[v] and degree[v] <= 1 and not queued[v]:
+                    leaves[tail] <- v
+                    tail <- tail+1
+                    queued[v] <- true
+            edge <- edge+1
+    result: mutable usize[MT_M] = zeroed
+    count: mutable usize = 0
+    cost: mutable i64 = 0
+    edge <- 0
+    while edge < m:
+        if tree[edge]: result[count] <- edge; count <- count+1; cost <- cost+weight[edge]
+        edge <- edge+1
+    if count == 0 or count > n-1: return -1
+    bytes: usize = (2+count)*8
+    if output.is_null() or capacity < bytes: return -2
+    out: mutable view[u8] = output[0:bytes]
+    mt_put_i64(out,0,cost)
+    mt_put_i64(out,8,count.i64())
+    i <- 0
+    while i < count:
+        mt_put_i64(out,16+i*8,result[i].i64())
+        i <- i+1
+    bytes.i64()
+
+export fn steiner_tree_mehlhorn_voronoi_mst(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length > MT_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    mt_impl(values, output, capacity)

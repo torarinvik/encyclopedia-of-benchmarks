@@ -49,6 +49,7 @@ def verify_workload():
             or workload.get("input", {}).get("p_range") != [MODULUS_MIN, MODULUS_MAX]
             or workload.get("input", {}).get("n_range") != [0, MAX_N]
             or workload.get("input", {}).get("k_range") != [0, MAX_K]
+            or workload.get("input", {}).get("k_must_not_exceed_n") is not True
             or workload.get("output", {}).get("formula") != "sum((i+1)^2*S(ni,ki)) mod p"):
         raise ValueError("workload identity, profile, or source attribution differs")
 

@@ -13,7 +13,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long pannotia_local_minimum_mis(long* input, usz length, char* output, usz capacity)
+fn long pannotia_local_minimum_mis(long* input, usz length, char* output, usz capacity)
         @export("pannotia_local_minimum_mis") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

@@ -1,4 +1,5 @@
 # Independent bounded TSVC vtv profile; see package rights note.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 

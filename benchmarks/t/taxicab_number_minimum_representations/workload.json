@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "taxicab-number-minimum-representations-i64-array-scalar-v1",
+  "algorithm": "taxicab_number_minimum_representations",
+  "function_symbol": "taxicab_number_minimum_representations",
+  "abi": "i64_array_scalar",
+  "description": "Find the least positive integer with the requested number of distinct unordered representations as a sum of two positive integer cubes.",
+  "source": {
+    "title": "New Upper Bounds for Taxicab and Cabtaxi Numbers",
+    "authors": ["Christian Boyer"],
+    "publisher": "Journal of Integer Sequences",
+    "volume": 11,
+    "year": 2008,
+    "article": "08.1.6",
+    "reference_url": "https://cs.uwaterloo.ca/journals/JIS/VOL11/Boyer/boyer.html",
+    "discovery_title": "Taxicab numbers",
+    "discovery_url": "https://raw.githubusercontent.com/acmeism/RosettaCodeData/main/popular-tasks",
+    "implementation_status": "bounded clean-room monotone-row heap merge"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[k]",
+    "k_range": [2, 3],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "least n with at least k distinct unordered pairs 1<=a<=b and a^3+b^3=n",
+    "valid_result_range": [1729, 87539319],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "definition": "Taxicab(k) is the least positive integer expressible in k distinct ways as a sum of two positive integer cubes; only k=2 and k=3 are accepted",
+    "pair_order": "Representations are unordered and normalized as 1<=a<=b; a=b is allowed but contributes one pair",
+    "primary_method": "Initialize one increasing row per a, with b from a through 444; repeatedly remove the global minimum pair-sum, group all equal sums, advance each removed row by one b, and return the first group with multiplicity at least k",
+    "independent_method": "Materialize every pair sum for 1<=a<=b<=444, sort all sums, and scan equal-value runs for the first multiplicity at least k",
+    "root_bound": "The largest requested least value is Taxicab(3)=87539319. Since 445^3=88121125 is greater than that value, each positive cube root in any representation at or below it is at most 444",
+    "invalid_cases": "Null input, empty or non-exact frame, trailing word, or k outside {2,3} returns -1",
+    "distinction": "The profile enumerates sums of positive cubes with distinct unordered representations; it does not enumerate signed-cube Cabtaxi values or merely test a supplied integer"
+  },
+  "complexity": {
+    "pair_count": 98790,
+    "primary_time": "At most 98,790 heap removals and row advances, O(P log 444) time for P unordered pairs",
+    "primary_space": "444 heap nodes, each three signed 32-bit fields (5,328 bytes), plus scalar state",
+    "independent_time": "O(P log P) sorting over all P=98,790 pair sums",
+    "independent_space": "O(P) Python integers; their packed signed-64 payload would be 790,320 bytes, before Python list and integer-object overhead"
+  },
+  "workspace": {"bytes": 8192},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "taxicab-two-ways", "input_values": [2], "input_length": 1, "expected_result": 1729},
+    {"id": "taxicab-three-ways", "input_values": [3], "input_length": 1, "expected_result": 87539319},
+    {"id": "one-way-out-of-domain", "input_values": [1], "input_length": 1, "expected_result": -1},
+    {"id": "four-ways-out-of-domain", "input_values": [4], "input_length": 1, "expected_result": -1},
+    {"id": "negative-out-of-domain", "input_values": [-2], "input_length": 1, "expected_result": -1},
+    {"id": "empty-invalid", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "trailing-word-invalid", "input_values": [2, 0], "input_length": 2, "expected_result": -1},
+    {"id": "large-trailing-frame-invalid", "input_values": [3, 1, 0], "input_length": 3, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

@@ -6,7 +6,7 @@ const usz MAX_DIMENSION = 4;
 const usz MAX_CLUSTER_COUNT = 4;
 const usz MAX_OUTPUT_ELEMENTS = 32;
 
-bool bounded_integer(double value, long minimum, long maximum, long* result) {
+fn bool bounded_integer(double value, long minimum, long maximum, long* result) {
     if (value != value || value < (double)minimum || value > (double)maximum) return false;
     long integer = (long)value;
     if ((double)integer != value) return false;

@@ -1,0 +1,204 @@
+# Bounded binary-division kernel; raw pointers are confined to the exported ABI.
+const KBR_N: usize = 32
+const KBR_K: usize = 3
+const KBR_INPUT: usize = 35
+const KBR_PERIODS: usize = 17
+const KBR_BITS: usize = 272
+const KBR_FACTORS: usize = 33
+const KBR_OUTPUT: usize = 91400
+
+def kbr_lp(w: view[i32], size: usize, center: usize, period: usize, allowed: usize) -> i32:
+    left: usize = center - period
+    limit: usize = if size - left < size - center then size - left else size - center
+    var errors: mutable usize = 0
+    var j: mutable usize = 0
+    while j < limit:
+        if w[left + j] != w[center + j]:
+            errors <- errors + 1
+            if errors > allowed: return j.i32()
+        j <- j + 1
+    limit.i32()
+
+def kbr_ls(w: view[i32], center: usize, period: usize, allowed: usize) -> i32:
+    a: usize = center - period
+    limit: usize = if a < center then a else center
+    var errors: mutable usize = 0
+    var j: mutable usize = 0
+    while j < limit:
+        if w[center - period - 1 - j] != w[center - 1 - j]:
+            errors <- errors + 1
+            if errors > allowed: return j.i32()
+        j <- j + 1
+    limit.i32()
+
+def kbr_mark(seen: mutable view[u64], n: usize, lo: usize, last_head: usize,
+             local_start: i32, local_end: i32, period: usize):
+    start_i: i32 = lo.i32() + local_start
+    end_i: i32 = lo.i32() + local_end
+    if start_i <= lo.i32() or end_i >= n.i32() or end_i - start_i + 1 < (period * 2).i32(): return
+    start: usize = start_i.usize()
+    end: usize = end_i.usize()
+    if start <= last_head + 1 and end + 1 >= last_head: return
+    index: usize = (start * KBR_N + end) * KBR_PERIODS + period
+    seen[index // 64] <- seen[index // 64] | (1 << (index % 64))
+
+def kbr_at_center(seen: mutable view[u64], text: view[i32], size: usize, budget: usize,
+                  center: usize, lo: usize, last_head: usize):
+    if center == 0 or center + 1 >= size: return
+    var period: mutable usize = 1
+    while period <= center:
+        var k: mutable usize = 0
+        while k <= budget:
+            forward: i32 = kbr_lp(text, size, center, period, k)
+            backward: i32 = kbr_ls(text, center, period, budget - k)
+            if forward <= period.i32() and forward + backward >= period.i32():
+                kbr_mark(seen, KBR_N, lo, last_head,
+                         (center - period).i32() - backward,
+                         center.i32() + forward - 1, period)
+            k <- k + 1
+        period <- period + 1
+
+    var reversed = InlineArray[i32, KBR_N](fill=0)
+    var reverse_view: mutable view[i32] = reversed[0:KBR_N]
+    var i: mutable usize = 0
+    while i < size:
+        reverse_view[i] <- text[size - 1 - i]
+        i <- i + 1
+    reverse_center: usize = size - 1 - center
+    period <- 1
+    while period <= reverse_center:
+        var k: mutable usize = 0
+        while k <= budget:
+            forward: i32 = kbr_lp(reverse_view, size, reverse_center, period, k)
+            backward: i32 = kbr_ls(reverse_view, reverse_center, period, budget - k)
+            if forward <= period.i32() and forward + backward >= period.i32():
+                reverse_start: i32 = reverse_center.i32() - period.i32() - backward
+                reverse_end: i32 = reverse_center.i32() + forward - 1
+                kbr_mark(seen, KBR_N, lo, last_head,
+                         (size - 1).i32() - reverse_end,
+                         (size - 1).i32() - reverse_start, period)
+            k <- k + 1
+        period <- period + 1
+
+def kbr_divide(text: view[i32], starts: view[usize], ends: view[usize], budget: usize,
+               seen: mutable view[u64], first: usize, last: usize):
+    if first >= last: return
+    middle: usize = first + (last - first) // 2
+    lo: usize = starts[first]
+    hi: usize = ends[last]
+    center: usize = ends[middle] - 1
+    last_head: usize = ends[last] - 1
+    kbr_at_center(seen, text[lo:hi], hi - lo, budget, center - lo, lo, last_head)
+    kbr_divide(text, starts, ends, budget, seen, first, middle)
+    kbr_divide(text, starts, ends, budget, seen, middle + 1, last)
+
+def kbr_encode(output: mutable view[u8], offset: usize, value: i64):
+    var byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((value >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def kbr_impl(input: view[i64], output: mutable view[u8], capacity: usize,
+             output_is_null: bool) -> i64:
+    if input.length < 3 or input.length > KBR_INPUT: return -1
+    n64: i64 = input[0]
+    k64: i64 = input[1]
+    if n64 < 1 or n64 > KBR_N.i64() or k64 < 0 or k64 > KBR_K.i64(): return -1
+    n: usize = n64.usize()
+    budget: usize = k64.usize()
+    if input.length != n + 2: return -1
+
+    var text = InlineArray[i32, KBR_N](fill=0)
+    var starts = InlineArray[usize, KBR_FACTORS](fill=0)
+    var ends = InlineArray[usize, KBR_FACTORS](fill=0)
+    var seen = InlineArray[u64, KBR_BITS](fill=0)
+    var text_view: mutable view[i32] = text[0:KBR_N]
+    var starts_view: mutable view[usize] = starts[0:KBR_FACTORS]
+    var ends_view: mutable view[usize] = ends[0:KBR_FACTORS]
+    var seen_view: mutable view[u64] = seen[0:KBR_BITS]
+    var i: mutable usize = 0
+    while i < n:
+        symbol: i64 = input[i + 2]
+        if symbol < 0 or symbol > 4: return -1
+        text_view[i] <- symbol.i32()
+        i <- i + 1
+    i <- 0
+    while i + 1 < n:
+        if text_view[i] == text_view[n - 1]: return -1
+        i <- i + 1
+
+    var factor_count: mutable usize = 0
+    var pos: mutable usize = 0
+    while pos < n:
+        var best: mutable usize = 0
+        var earlier: mutable usize = 0
+        while earlier < pos:
+            var matched: mutable usize = 0
+            while pos + matched < n and earlier + matched < n and text_view[earlier + matched] == text_view[pos + matched]:
+                matched <- matched + 1
+            if matched > best: best <- matched
+            earlier <- earlier + 1
+        end_pos: usize = pos + best + 1
+        if end_pos > n: end_pos <- n
+        starts_view[factor_count] <- pos
+        ends_view[factor_count] <- end_pos
+        factor_count <- factor_count + 1
+        pos <- end_pos
+
+    block: usize = budget + 2
+    var first: mutable usize = 0
+    while first < factor_count:
+        last_exclusive: usize = first + block
+        if last_exclusive > factor_count: last_exclusive <- factor_count
+        kbr_divide(text_view, starts_view, ends_view, budget, seen_view,
+                   first, last_exclusive - 1)
+        first <- first + block
+
+    var records: mutable usize = 0
+    var start: mutable usize = 0
+    while start < n:
+        var length_value: mutable usize = 2
+        while length_value <= n - start:
+            end_pos: usize = start + length_value - 1
+            var period: mutable usize = 1
+            while period <= length_value // 2:
+                index: usize = (start * KBR_N + end_pos) * KBR_PERIODS + period
+                if (seen_view[index // 64] & (1 << (index % 64))) != 0: records <- records + 1
+                period <- period + 1
+            length_value <- length_value + 1
+        start <- start + 1
+    written: usize = 8 + records * 32
+    if written > KBR_OUTPUT: return -1
+    if output_is_null or capacity < written: return -2
+    kbr_encode(output, 0, records.i64())
+    var offset: mutable usize = 8
+    start <- 0
+    while start < n:
+        length_value <- 2
+        while length_value <= n - start:
+            end_pos <- start + length_value - 1
+            period <- 1
+            while period <= length_value // 2:
+                index <- (start * KBR_N + end_pos) * KBR_PERIODS + period
+                if (seen_view[index // 64] & (1 << (index % 64))) != 0:
+                    var mismatches: mutable usize = 0
+                    var j: mutable usize = start
+                    while j + period <= end_pos:
+                        if text_view[j] != text_view[j + period]: mismatches <- mismatches + 1
+                        j <- j + 1
+                    kbr_encode(output, offset, start.i64()); offset <- offset + 8
+                    kbr_encode(output, offset, length_value.i64()); offset <- offset + 8
+                    kbr_encode(output, offset, period.i64()); offset <- offset + 8
+                    kbr_encode(output, offset, mismatches.i64()); offset <- offset + 8
+                period <- period + 1
+            length_value <- length_value + 1
+        start <- start + 1
+    written.i64()
+
+export fn k_repetition_binary_division_kernel(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > KBR_INPUT: return -1
+    if output.is_null():
+        var empty = InlineArray[u8, 1](fill=0)
+        return kbr_impl(input[0:length], empty[0:0], capacity, true)
+    kbr_impl(input[0:length], output[0:capacity], capacity, false)

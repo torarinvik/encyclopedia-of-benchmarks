@@ -33,20 +33,12 @@ fn external_tangent(points: &[Point], hull: &[usize], query_id: usize) -> Option
     let turn = |a: usize, b: usize| cross(query, points[hull[a]], points[hull[b]]);
     let size = hull.len();
     if size == 1 { return Some(hull[0]); }
-    if size == 2 { return Some(hull[if turn(0, 1) > 0 { 0 } else { 1 }]); }
-    let initial_up = turn(0, 1) > 0;
-    let (mut lo, mut hi) = (0, size);
+    let (mut lo, mut hi) = (0, size-1);
     while lo < hi {
         let mid = lo + (hi-lo)/2;
-        let less_previous = turn(mid, (mid+size-1)%size) > 0;
-        let less_next = turn(mid, (mid+1)%size) > 0;
-        if less_previous && less_next { return Some(hull[mid]); }
-        let before_anchor = mid != 0 && turn(mid, 0) > 0;
-        let after_anchor = mid != 0 && turn(0, mid) > 0;
-        let search_left = if initial_up { less_next && before_anchor } else { less_next || after_anchor };
-        if search_left { hi = mid; } else { lo = mid+1; }
+        if turn(mid, hi) > 0 { hi = mid; } else { lo = mid+1; }
     }
-    None
+    Some(hull[lo])
 }
 
 fn compute(values: &[i64]) -> Option<Vec<u8>> {

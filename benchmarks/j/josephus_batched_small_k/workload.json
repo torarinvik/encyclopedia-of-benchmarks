@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-josephus-batched-small-k-i64-array-scalar-v1",
+  "algorithm": "josephus_batched_small_k",
+  "function_symbol": "josephus_batched_small_k",
+  "abi": "i64_array_scalar",
+  "description": "Zero-based survivor via batched complete-sweep elimination for bounded small K.",
+  "source": {
+    "title": "Josephus problem",
+    "authors": ["OI Wiki contributors"],
+    "reference": "Small-k logarithmic recurrence section",
+    "url": "https://en.oi-wiki.org/misc/josephus/",
+    "algorithm_attribution": "Batched recurrence and inverse mapping for K <= N; one-size recurrence for K > N",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "two_element_signed_64_bit_array_[N,K]",
+    "N_range": [1, 1000000],
+    "K_range": [1, 32],
+    "survivor_numbering": "zero-based; counting begins at participant index zero",
+    "invalid_result": -1,
+    "maximum_input_length": 2,
+    "exact_valid_length": 2,
+    "maximum_parseable_length": 3
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "valid_result_range": "0 through N-1",
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Includes the primary's 1,024-entry i64 frame stack (8,192 bytes) and scalar locals; no heap allocation."
+  },
+  "complexity": {
+    "primary_time": "O(K log N) for the bounded small-K recurrence",
+    "reference_time": "O(N) direct one-size recurrence",
+    "primary_extra_space": "O(log N), bounded by 1,024 i64 frames"
+  },
+  "cases": [
+    {"id":"empty", "input_values":[], "input_length":0, "expected_result":-1},
+    {"id":"one_value", "input_values":[7], "input_length":1, "expected_result":-1},
+    {"id":"extra_value", "input_values":[7,3,1], "input_length":3, "expected_result":-1},
+    {"id":"single_participant", "input_values":[1,1], "input_length":2, "expected_result":0},
+    {"id":"single_participant_largest_k", "input_values":[1,32], "input_length":2, "expected_result":0},
+    {"id":"five_step_two", "input_values":[5,2], "input_length":2, "expected_result":2},
+    {"id":"seven_step_three", "input_values":[7,3], "input_length":2, "expected_result":3},
+    {"id":"ten_step_three", "input_values":[10,3], "input_length":2, "expected_result":3},
+    {"id":"step_exceeds_circle", "input_values":[5,8], "input_length":2, "expected_result":0},
+    {"id":"step_one", "input_values":[64,1], "input_length":2, "expected_result":63},
+    {"id":"maximum_n_step_two", "input_values":[1000000,2], "input_length":2, "expected_result":951424},
+    {"id":"k_equals_n", "input_values":[32,32], "input_length":2, "expected_result":26},
+    {"id":"zero_n", "input_values":[0,3], "input_length":2, "expected_result":-1},
+    {"id":"n_above_bound", "input_values":[1000001,2], "input_length":2, "expected_result":-1},
+    {"id":"zero_k", "input_values":[8,0], "input_length":2, "expected_result":-1},
+    {"id":"k_above_bound", "input_values":[8,33], "input_length":2, "expected_result":-1},
+    {"id":"negative_n", "input_values":[-1,2], "input_length":2, "expected_result":-1},
+    {"id":"negative_k", "input_values":[8,-2], "input_length":2, "expected_result":-1},
+    {"id":"i64_min_input", "input_values":[-9223372036854775808,2], "input_length":2, "expected_result":-1},
+    {"id":"i64_max_k", "input_values":[8,9223372036854775807], "input_length":2, "expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  }
+}

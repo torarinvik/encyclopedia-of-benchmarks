@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "ruth-aaron-number-predicate-bounded-i64-array-scalar-v1",
+  "algorithm": "ruth_aaron_number_predicate",
+  "function_symbol": "ruth_aaron_number_predicate",
+  "abi": "i64_array_scalar",
+  "description": "Test whether adjacent positive integers have equal prime-factor sums counting multiplicity.",
+  "source": {
+    "definition_url": "https://mathworld.wolfram.com/Ruth-AaronPair.html",
+    "discovery_title": "Ruth-Aaron numbers",
+    "discovery_band": "score-24",
+    "discovery_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "role": "MathWorld supplies definition/convention; pinned RosettaCodeData index supplies title discovery only"
+  },
+  "contract": {
+    "definition": "For 1<=n<=100000, return 1 iff S(n)=S(n+1), where S(x) is the sum of prime factors with multiplicity; return 0 otherwise.",
+    "input_encoding": "[n]",
+    "valid_n_range": [1, 100000],
+    "exact_input_length": 1,
+    "invalid_input_result": -1,
+    "multiplicity_rule": "Each occurrence of a prime factor contributes once; e.g. S(8)=2+2+2 and S(9)=3+3.",
+    "error_order": "Reject null, malformed, wrong-length, or out-of-range input before factorization."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n]",
+    "n_range": [1, 100000],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "1 iff n and n+1 have equal repeated-factor prime sums; otherwise 0",
+    "valid_result_range": [0, 1],
+    "invalid_input_result": -1
+  },
+  "bounds": {
+    "maximum_factor_argument": 100001,
+    "maximum_factor_sum": 100001,
+    "independent_lpf_entries": 100002,
+    "independent_lpf_i64_bytes": 800016,
+    "signed_i64_safe": true
+  },
+  "complexity": {
+    "primary_time": "O(sqrt(n)) trial-divisor iterations for each of n and n+1, with n<=100000",
+    "primary_space": "O(1) scalar scratch; declared cap 1048576 bytes",
+    "independent_time": "O(n log log n) least-prime-factor sieve plus O(log n) factor extraction",
+    "independent_space": "100002 i64 least-prime-factor entries (800016 bytes) at maximum n; Python object overhead is outside native workspace accounting"
+  },
+  "workspace": {"bytes": 1048576},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-is-not-a-pair","input_values":[1],"input_length":1,"expected_result":0},
+    {"id":"two-is-not-a-pair","input_values":[2],"input_length":1,"expected_result":0},
+    {"id":"four-is-not-a-pair","input_values":[4],"input_length":1,"expected_result":0},
+    {"id":"five-first-pair","input_values":[5],"input_length":1,"expected_result":1},
+    {"id":"eight-repeated-factors","input_values":[8],"input_length":1,"expected_result":1},
+    {"id":"fifteen-repeated-factors","input_values":[15],"input_length":1,"expected_result":1},
+    {"id":"twenty-four-distinct-only-variant","input_values":[24],"input_length":1,"expected_result":0},
+    {"id":"forty-nine-distinct-only-variant","input_values":[49],"input_length":1,"expected_result":0},
+    {"id":"seventy-seven-pair","input_values":[77],"input_length":1,"expected_result":1},
+    {"id":"one-hundred-twenty-five-pair","input_values":[125],"input_length":1,"expected_result":1},
+    {"id":"seven-hundred-fourteen-pair","input_values":[714],"input_length":1,"expected_result":1},
+    {"id":"nine-hundred-forty-eight-pair","input_values":[948],"input_length":1,"expected_result":1},
+    {"id":"maximum-bound-not-a-pair","input_values":[100000],"input_length":1,"expected_result":0},
+    {"id":"zero-invalid","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"above-bound-invalid","input_values":[100001],"input_length":1,"expected_result":-1},
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"trailing-word","input_values":[5,0],"input_length":2,"expected_result":-1},
+    {"id":"over-parseable-frame","input_values":[5,0,0],"input_length":3,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

@@ -1,8 +1,8 @@
 /// Check whether the packed values match the generated Golomb prefix.
 const MAX_N: usize = 1024;
 
-export fn golomb_sequence_validator(raw_input: [*]const i64, length: usize) i64 {
-    if (length < 1 or length > MAX_N) return -1;
+export fn golomb_sequence_validator(raw_input: [*c]const i64, length: usize) i64 {
+    if (raw_input == null or length < 1 or length > MAX_N) return -1;
     const input = raw_input[0..length];
     if (input[0] < 1 or input[0] > MAX_N) return -1;
     const n: usize = @intCast(input[0]);

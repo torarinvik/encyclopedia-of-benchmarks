@@ -79,7 +79,7 @@ fn long suffix_tree_from_sa_lcp(long* input, usz length, char* output, usz capac
         last_child[new_leaf] = -1; last_child[owner] = new_leaf;
     }
 
-    long[MAX_NODES][5] records = zeroed;
+    long[5][MAX_NODES] records = zeroed;
     for (int node = 0; node < node_count; node += 1) {
         if (node == 0) {
             records[node][0] = -1; records[node][1] = -1; records[node][2] = -1; records[node][3] = 0; records[node][4] = -1;

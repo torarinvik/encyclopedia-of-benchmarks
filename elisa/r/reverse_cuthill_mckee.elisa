@@ -1,0 +1,104 @@
+const RCM_MAX_VERTICES: usize = 8
+const RCM_MAX_EDGES: usize = 28
+const RCM_MAX_INPUT_LENGTH: usize = 59
+
+def rcm_neighbor_precedes(left: usize, right: usize, degree: view[usize]) -> bool:
+    if degree[left] != degree[right]: return degree[left] < degree[right]
+    left < right
+
+def reverse_cuthill_mckee(input: i64&, length: usize) -> i64 @export("reverse_cuthill_mckee"):
+    if input.is_null() or length < 2 or length > RCM_MAX_INPUT_LENGTH: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
+    if n64 < 1 or n64 > 8 or m64 < 0 or m64 > 28: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if m > n * (n - 1) / 2 or length != 2 + 2 * m: return -1
+
+    adjacent: mutable bool[64] = zeroed
+    degree: mutable usize[8] = zeroed
+    edge_u: mutable usize[28] = zeroed
+    edge_v: mutable usize[28] = zeroed
+    for edge in 0..<m:
+        left64: i64 = values[2 + 2 * edge]
+        right64: i64 = values[3 + 2 * edge]
+        if left64 < 0 or right64 < 0 or left64 >= n64 or right64 >= n64 or left64 == right64: return -1
+        left: usize = left64.usize()
+        right: usize = right64.usize()
+        if adjacent[left * RCM_MAX_VERTICES + right]: return -1
+        adjacent[left * RCM_MAX_VERTICES + right] <- true
+        adjacent[right * RCM_MAX_VERTICES + left] <- true
+        degree[left] <- degree[left] + 1
+        degree[right] <- degree[right] + 1
+        edge_u[edge] <- left
+        edge_v[edge] <- right
+
+    visited: mutable bool[8] = zeroed
+    order: mutable usize[8] = zeroed
+    order_count: mutable usize = 0
+    while order_count < n:
+        root: mutable usize = RCM_MAX_VERTICES
+        for vertex in 0..<n:
+            if visited[vertex]: continue
+            if root == RCM_MAX_VERTICES:
+                root <- vertex
+            else if degree[vertex] < degree[root] or
+                    (degree[vertex] == degree[root] and vertex < root):
+                root <- vertex
+        queue: mutable usize[8] = zeroed
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        visited[root] <- true
+        queue[tail] <- root
+        tail <- tail + 1
+        order[order_count] <- root
+        order_count <- order_count + 1
+        while head < tail:
+            vertex: usize = queue[head]
+            head <- head + 1
+            neighbors: mutable usize[8] = zeroed
+            neighbor_count: mutable usize = 0
+            for neighbor in 0..<n:
+                if adjacent[vertex * RCM_MAX_VERTICES + neighbor] and not visited[neighbor]:
+                    neighbors[neighbor_count] <- neighbor
+                    neighbor_count <- neighbor_count + 1
+            for i in 1..<neighbor_count:
+                key: usize = neighbors[i]
+                j: mutable usize = i
+                while j > 0 and rcm_neighbor_precedes(key, neighbors[j - 1], degree[0:n]):
+                    neighbors[j] <- neighbors[j - 1]
+                    j <- j - 1
+                neighbors[j] <- key
+            for i in 0..<neighbor_count:
+                neighbor: usize = neighbors[i]
+                if visited[neighbor]: continue
+                visited[neighbor] <- true
+                queue[tail] <- neighbor
+                tail <- tail + 1
+                order[order_count] <- neighbor
+                order_count <- order_count + 1
+
+    left: mutable usize = 0
+    right: mutable usize = n - 1
+    while left < right:
+        temporary: usize = order[left]
+        order[left] <- order[right]
+        order[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+
+    position: mutable usize[8] = zeroed
+    rank_word: mutable i64 = 0
+    for rank in 0..<n:
+        position[order[rank]] <- rank
+        rank_word <- rank_word | (order[rank].i64() << (3 * rank))
+    bandwidth: mutable usize = 0
+    for edge in 0..<m:
+        difference: usize = 0
+        if position[edge_u[edge]] > position[edge_v[edge]]:
+            difference <- position[edge_u[edge]] - position[edge_v[edge]]
+        else:
+            difference <- position[edge_v[edge]] - position[edge_u[edge]]
+        if difference > bandwidth: bandwidth <- difference
+    (bandwidth.i64() << 24) | rank_word

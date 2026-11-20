@@ -1,7 +1,7 @@
 module lz77_infinite_rightmost;
 const MAX_TEXT = 64, MAX_INPUT = 66, MAX_OUTPUT = 1536;
 fn void put64(char* o, usz at, long v){ulong b=(ulong)v;for(usz i=0;i<8;i++){o[at+i]=(char)(b&255);b>>=8;}}
-long lz77_infinite_rightmost(long* in,usz len,char* out,usz cap) @export("lz77_infinite_rightmost") {
+fn long lz77_infinite_rightmost(long* in,usz len,char* out,usz cap) @export("lz77_infinite_rightmost") {
     if(in==null||len<1||len>MAX_INPUT||in[0]<0||in[0]>MAX_TEXT)return -1;
     usz n=(usz)in[0];if(len!=n+1)return -1;
     for(usz i=0;i<n;i++)if(in[i+1]<32||in[i+1]>126)return -1;

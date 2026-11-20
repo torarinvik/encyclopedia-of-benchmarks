@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "cactus-stack-branch-trace-i64-array-bytes-output-v1",
+  "algorithm": "cactus_stack_branch_trace",
+  "function_symbol": "cactus_stack_branch_trace",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded branch/notch operation trace for a cactus stack.",
+  "source": {
+    "title": "Cactus stack",
+    "url": "https://xlinux.nist.gov/dads/HTML/cactusstack.html",
+    "primary_historical_source": "Hauck and Dent, Burroughs' B6500/B7500 Stack Mechanism, AFIPS Spring Joint Computer Conference, 1968",
+    "primary_historical_source_url": "https://people.eecs.berkeley.edu/~kubitron/cs252/handouts/papers/burroughs.pdf",
+    "scope": "Algorithm semantics and historical context only; no source code, task text, examples, or fixtures reused."
+  },
+  "input": {
+    "kind": "cactus_stack_i64_operation_trace",
+    "encoding": "[Q,(opcode,a,b)*Q]",
+    "handle_count": 8,
+    "maximum_operations": 48,
+    "value_range": [-1000, 1000],
+    "opcodes": {
+      "0": "push: a is handle, b is value",
+      "1": "pop: a is handle, b is zero",
+      "2": "top: a is handle, b is zero",
+      "3": "notch: a is handle, b is zero",
+      "4": "branch: a is owner handle, b is branch handle"
+    },
+    "profile_constraints": "At most one active branch per owner; no nested branches. Branch requires distinct handles, a nonempty unattached owner with no active branch, and an unattached branch handle with no active branch. An empty branch attaches and immediately detaches.",
+    "maximum_valid_length": 145,
+    "maximum_parseable_length": 146,
+    "malformed_result": -1,
+    "validation_order": "Validate framing and operation domains, simulate the complete semantic trace, then check output pointer/capacity."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "For each operation, two little-endian signed-i64 fields [status,value].",
+    "maximum_bytes": 768,
+    "maximum_success_result": 768,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "malformed_result": -1,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "accounting": "Fixed node arena for at most one value or branch node per operation, eight stack handles and branch metadata, and staged 48-record output. Caller input/output are excluded."
+  },
+  "complexity": {
+    "primary": "O(Q) time and O(Q+H) workspace for the bounded node-table traversal, where H=8 handles.",
+    "independent": "O(Q) amortized time and O(Q+H) workspace using copied handle vectors and branch-depth metadata."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty-trace",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 768,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "push-top-pop",
+      "input_values": [3, 0, 0, 7, 2, 0, 0, 1, 0, 0],
+      "input_length": 10,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "0100000000000000 0000000000000000 0100000000000000 0700000000000000 0100000000000000 0700000000000000"
+    },
+    {
+      "id": "branch-notch-block-and-auto-detach",
+      "input_values": [9, 0, 0, 10, 0, 1, 20, 4, 0, 1, 3, 0, 0, 2, 0, 0, 1, 0, 0, 1, 1, 0, 3, 0, 0, 1, 0, 0],
+      "input_length": 28,
+      "output_capacity": 144,
+      "expected_result": 144,
+      "expected_output_hex": "0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0a00000000000000 0000000000000000 0000000000000000 0100000000000000 1400000000000000 0100000000000000 0000000000000000 0100000000000000 0a00000000000000"
+    },
+    {
+      "id": "push-over-notch-pop-back-to-notch",
+      "input_values": [10, 0, 0, 10, 0, 1, 20, 4, 0, 1, 0, 0, 99, 2, 0, 0, 1, 0, 0, 3, 0, 0, 1, 0, 0, 1, 1, 0, 2, 0, 0],
+      "input_length": 31,
+      "output_capacity": 160,
+      "expected_result": 160,
+      "expected_output_hex": "0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000 0000000000000000 0100000000000000 6300000000000000 0100000000000000 6300000000000000 0100000000000000 0100000000000000 0000000000000000 0000000000000000 0100000000000000 1400000000000000 0100000000000000 0a00000000000000"
+    },
+    {
+      "id": "empty-branch-immediately-detaches",
+      "input_values": [4, 0, 0, 3, 4, 0, 1, 3, 0, 0, 2, 0, 0],
+      "input_length": 13,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0300000000000000"
+    },
+    {
+      "id": "empty-pop-is-nonmutating",
+      "input_values": [3, 1, 0, 0, 2, 0, 0, 3, 0, 0],
+      "input_length": 10,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "0000000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0000000000000000"
+    },
+    {
+      "id": "invalid-self-branch-before-capacity",
+      "input_values": [1, 4, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-empty-owner-branch",
+      "input_values": [1, 4, 0, 1],
+      "input_length": 4,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 768,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-valid-frame-and-output",
+      "input_values": [48, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0],
+      "input_length": 145,
+      "output_capacity": 768,
+      "expected_result": 768,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-output-one-byte-short",
+      "input_values": [48, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0],
+      "input_length": 145,
+      "output_capacity": 767,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [48, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 0],
+      "input_length": 146,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "declared-length-mismatch",
+      "input_values": [0],
+      "input_length": 0,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

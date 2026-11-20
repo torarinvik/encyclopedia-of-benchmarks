@@ -9,26 +9,13 @@ def chan_less(values: view[i64], a: usize, b: usize) -> bool:
 def chan_tangent(values: view[i64], hull: view[usize], query: usize) -> usize:
     size: usize = hull.len()
     if size == 1: return hull[0]
-    if size == 2:
-        if chan_turn(values, query, hull[0], hull[1]) > 0: return hull[0]
-        return hull[1]
-    initial_up: bool = chan_turn(values, query, hull[0], hull[1]) > 0
     lo: mutable usize = 0
-    hi: mutable usize = size
+    hi: mutable usize = size - 1
     while lo < hi:
         mid: usize = lo + (hi - lo) / 2
-        previous: usize = (mid + size - 1) % size
-        next: usize = (mid + 1) % size
-        less_previous: bool = chan_turn(values, query, hull[mid], hull[previous]) > 0
-        less_next: bool = chan_turn(values, query, hull[mid], hull[next]) > 0
-        if less_previous and less_next: return hull[mid]
-        before_anchor: bool = mid != 0 and chan_turn(values, query, hull[mid], hull[0]) > 0
-        after_anchor: bool = mid != 0 and chan_turn(values, query, hull[0], hull[mid]) > 0
-        search_left: mutable bool = less_next or after_anchor
-        if initial_up: search_left <- less_next and before_anchor
-        if search_left: hi <- mid
+        if chan_turn(values, query, hull[mid], hull[hi]) > 0: hi <- mid
         else: lo <- mid + 1
-    32
+    hull[lo]
 
 def chan_output_sensitive_hull_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 7 or length > 66: return -1

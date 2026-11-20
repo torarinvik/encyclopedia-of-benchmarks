@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn mpq_i32(out:UnsafePointer[UInt8,MutAnyOrigin],p:Int,x:Int32):

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "algorithm": "de_boor_bspline_curve_evaluation",
+  "function_symbol": "de_boor_bspline_curve_evaluation",
+  "abi": "float64_slice_io",
+  "status": "complete; ten ports and float64-slice runner/verifier registered",
+  "suite_integration": [
+    "benchmarks/run_float64_slice_io.py",
+    "benchmarks/verify_float64_slice_io.py"
+  ],
+  "catalog_integration": ["README.md", "CATALOG.md", "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md"],
+  "input": {
+    "encoding": "[degree,control_count,parameter,knots...,controls...]",
+    "minimum_valid_length": 9,
+    "maximum_valid_length": 23,
+    "maximum_parseable_length": 24,
+    "degree_range": [1,3],
+    "maximum_control_count": 8
+  },
+  "output": {"kind":"one float64", "maximum_elements":1, "maximum_bytes":8},
+  "workspace": {"elements":1, "bytes":128},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/b/de_boor_bspline_curve_evaluation.c",
+    "c3/b/de_boor_bspline_curve_evaluation.c3",
+    "cpp/b/de_boor_bspline_curve_evaluation.cpp",
+    "elisa/b/de_boor_bspline_curve_evaluation.elisa",
+    "mojo/b/de_boor_bspline_curve_evaluation.mojo",
+    "nim/b/de_boor_bspline_curve_evaluation.nim",
+    "odin/b/de_boor_bspline_curve_evaluation.odin",
+    "rust/b/de_boor_bspline_curve_evaluation.rs",
+    "v/b/de_boor_bspline_curve_evaluation.v",
+    "zig/b/de_boor_bspline_curve_evaluation.zig"
+  ],
+  "primary_source": "https://www.fim.uni-passau.de/fileadmin/dokumente/fakultaeten/fim/lehrstuhl/sauer/geyer/SplinesinIndustry.pdf",
+  "independent_source": "https://ocw.mit.edu/courses/2-158j-computational-geometry-spring-2003/e58d71723e462b96821a8351d8e729ba_lecnotes6.pdf",
+  "discovery_source": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+}

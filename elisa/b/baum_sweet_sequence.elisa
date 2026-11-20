@@ -1,0 +1,32 @@
+# Pack a prefix using a two-state parity automaton with implicit rejection.
+def baum_sweet_term(number: i64) -> i64:
+    if number == 0: return 0
+    mask: mutable i64 = 1
+    while mask <= number / 2:
+        mask <- mask * 2
+    odd_zero_run: mutable bool = false
+    while mask > 0:
+        if (number & mask) != 0:
+            if odd_zero_run: return 0
+            odd_zero_run <- false
+        else:
+            odd_zero_run <- !odd_zero_run
+        mask <- mask / 2
+    return if odd_zero_run then 0 else 1
+
+def baum_sweet_sequence_impl(input: view[i64]) -> i64:
+    if input.length != 1: return -1
+    count: i64 = input[0]
+    if count < 0 or count > 63: return -1
+    packed: mutable i64 = 0
+    bit: mutable i64 = 1
+    for index in 0..count:
+        if baum_sweet_term(index) != 0:
+            packed <- packed + bit
+        if index + 1 < count:
+            bit <- bit * 2
+    packed
+
+export fn baum_sweet_sequence(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > 2: return -1
+    baum_sweet_sequence_impl(input[0:length])

@@ -10,8 +10,8 @@ fn long sort_population(long* input, usz length, char* output, usz capacity)
     if (input == null || length < 3 || length > 129 || input[0] < 1 || input[0] > 64) return -1;
     usz count = (usz)input[0];
     if (length != 1 + 2 * count) return -1;
-    long costs[64], identifiers[64];
-    bool seen[64];
+    long[64] costs, identifiers;
+    bool[64] seen;
     for (usz index = 0; index < 64; index++) seen[index] = false;
     for (usz index = 0; index < count; index++) {
         long cost = input[1 + 2 * index], identifier = input[2 + 2 * index];

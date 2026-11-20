@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 comptime STRIDE=101
 fn parts_count(n:Int,k:Int,mut memo:InlineArray[Int64,10201])->Int64:
     if (n==0 and k==0) or (n>0 and k==1) or n==k:return 1

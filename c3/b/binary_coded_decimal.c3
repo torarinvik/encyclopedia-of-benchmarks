@@ -6,7 +6,7 @@ fn long binary_coded_decimal(long value, char* output, usz output_capacity)
     if (value < -2147483648 || value > 2147483647) return -1;
     if (value < 0) value = 0;
 
-    char digits[10];
+    char[10] digits;
     usz digit_count = 0;
     do {
         digits[digit_count] = (char)(value % 10);

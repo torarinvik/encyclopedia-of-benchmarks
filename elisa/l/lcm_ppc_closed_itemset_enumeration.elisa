@@ -1,0 +1,120 @@
+const LCM_PPC_MAX_ITEMS: usize = 8
+const LCM_PPC_MAX_ROWS: usize = 16
+const LCM_PPC_MAX_RECORDS: usize = 256
+const LCM_PPC_MAX_WORDS: usize = 513
+
+def lcm_ppc_support(rows: view[i64], mask: i64): usize:
+    count: mutable usize = 0
+    row: usize = 0
+    while row < rows.len():
+        if (rows[row] & mask) == mask: count <- count + 1
+        row <- row + 1
+    count
+
+def lcm_ppc_closure(rows: view[i64], item_count: usize, mask: i64): i64:
+    common: mutable i64 = (1.i64() << item_count) - 1
+    row: usize = 0
+    while row < rows.len():
+        if (rows[row] & mask) == mask: common <- common & rows[row]
+        row <- row + 1
+    common
+
+def lcm_ppc_core(rows: view[i64], item_count: usize, mask: i64,
+        pattern_support: usize): i64:
+    item: usize = 0
+    while item < item_count:
+        prefix_mask: i64 = (1.i64() << (item + 1)) - 1
+        if lcm_ppc_support(rows, mask & prefix_mask) == pattern_support: return item.i64()
+        item <- item + 1
+    (item_count - 1).i64()
+
+def lcm_ppc_put_i64(output: mutable view[u8], word: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def lcm_ppc_closed_itemset_enumeration_impl(values: view[i64],
+        output: mutable u8&, capacity: usize): i64:
+    length: usize = values.len()
+    if length < 4 or length > 3 + LCM_PPC_MAX_ROWS: return -1
+    item_value: i64 = values[0]
+    row_value: i64 = values[1]
+    minimum: i64 = values[2]
+    if item_value < 1 or item_value > LCM_PPC_MAX_ITEMS.i64() or
+            row_value < 1 or row_value > LCM_PPC_MAX_ROWS.i64() or
+            minimum < 1 or minimum > row_value or length != 3 + row_value.usize(): return -1
+    item_count: usize = item_value.usize()
+    row_count: usize = row_value.usize()
+    limit: i64 = 1.i64() << item_count
+    row: usize = 0
+    while row < row_count:
+        if values[3 + row] < 0 or values[3 + row] >= limit: return -1
+        row <- row + 1
+    rows: view[i64] = values[3:length]
+
+    staged: mutable i64[LCM_PPC_MAX_WORDS] = zeroed
+    staged_view: mutable view[i64] = staged[0:LCM_PPC_MAX_WORDS]
+    root: i64 = lcm_ppc_closure(rows, item_count, 0)
+    depth: mutable usize = 0
+    stack_mask: mutable i64[LCM_PPC_MAX_ITEMS + 1] = zeroed
+    stack_support: mutable usize[LCM_PPC_MAX_ITEMS + 1] = zeroed
+    stack_core: mutable i64[LCM_PPC_MAX_ITEMS + 1] = zeroed
+    next_item: mutable i64[LCM_PPC_MAX_ITEMS + 1] = zeroed
+    entered: mutable bool[LCM_PPC_MAX_ITEMS + 1] = zeroed
+    stack_mask[0] <- root
+    stack_support[0] <- row_count
+    stack_core[0] <- -1
+    record_count: mutable usize = 0
+
+    active: mutable bool = true
+    while active:
+        level: usize = depth
+        if not entered[level]:
+            staged_view[1 + 2 * record_count] <- stack_mask[level]
+            staged_view[2 + 2 * record_count] <- stack_support[level].i64()
+            record_count <- record_count + 1
+            entered[level] <- true
+            next_item[level] <- stack_core[level] + 1
+        if next_item[level] >= item_value:
+            entered[level] <- false
+            if level == 0: active <- false
+            else: depth <- depth - 1
+            continue
+
+        item: usize = next_item[level].usize()
+        next_item[level] <- next_item[level] + 1
+        bit: i64 = 1.i64() << item
+        parent_mask: i64 = stack_mask[level]
+        if (parent_mask & bit) != 0: continue
+        extended: i64 = parent_mask | bit
+        child_support: usize = lcm_ppc_support(rows, extended)
+        if child_support < minimum.usize(): continue
+        child: i64 = lcm_ppc_closure(rows, item_count, extended)
+        lower_prefix: i64 = bit - 1
+        if (parent_mask & lower_prefix) != (child & lower_prefix): continue
+        child_core: i64 = lcm_ppc_core(rows, item_count, child, child_support)
+        child_level: usize = level + 1
+        depth <- child_level
+        stack_mask[child_level] <- child
+        stack_support[child_level] <- child_support
+        stack_core[child_level] <- child_core
+        entered[child_level] <- false
+
+    staged_view[0] <- record_count.i64()
+    output_bytes: usize = 8 * (1 + 2 * record_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    word: usize = 0
+    while word < 1 + 2 * record_count:
+        lcm_ppc_put_i64(output_view, word, staged_view[word])
+        word <- word + 1
+    output_bytes.i64()
+
+export fn lcm_ppc_closed_itemset_enumeration(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 4 or length > 3 + LCM_PPC_MAX_ROWS: return -1
+    values: view[i64] = input[0:length]
+    lcm_ppc_closed_itemset_enumeration_impl(values, output, capacity)

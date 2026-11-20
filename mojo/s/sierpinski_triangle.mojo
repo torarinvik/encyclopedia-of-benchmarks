@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn tri_emit(o:UnsafePointer[UInt8,MutAnyOrigin],p:UnsafePointer[Int32,MutAnyOrigin],x0:Int64,y0:Int64,x1:Int64,y1:Int64):

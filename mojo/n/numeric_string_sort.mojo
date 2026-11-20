@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn nss_less(flat:InlineArray[UInt8,2048],starts:InlineArray[Int,64],lens:InlineArray[Int,64],norms:InlineArray[Int,64],i:Int,j:Int)->Bool:

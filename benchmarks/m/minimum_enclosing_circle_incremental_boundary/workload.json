@@ -1,0 +1,27 @@
+{
+  "schema_version":1,
+  "id":"minimum-enclosing-circle-incremental-boundary-i64-array-bytes-v1",
+  "algorithm":"minimum_enclosing_circle_incremental_boundary",
+  "function_symbol":"minimum_enclosing_circle_incremental_boundary",
+  "abi":"i64_array_bytes_output",
+  "input":{"kind":"signed_64_bit_integer_array", "encoding":"[n,(x,y)*n,permutation*n]", "maximum_valid_length":193, "maximum_parseable_length":194, "invalid_input_result":-1},
+  "output":{"encoding":"one boundary flag byte per original point", "maximum_bytes":64, "invalid_input_result":-1, "output_error_result":-2, "output_untouched_on_error":true},
+  "workspace":{"bytes":64, "meaning":"Maximum output buffer size."},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call", "sample_count":5, "warmup_rounds":1, "repetitions_per_sample":100},
+  "source":{"url":"https://cp-algorithms.com/geometry/enclosing-circle.html", "reuse":"Mathematical idea only; contract, code, and fixtures independently authored."},
+  "cases":[
+    {"id":"singleton", "input_values":[1,7,-4,0], "input_length":4, "output_capacity":1, "expected_result":1, "expected_output_hex":"01"},
+    {"id":"duplicates", "input_values":[3,2,3,2,3,2,3,2,0,1], "input_length":10, "output_capacity":3, "expected_result":3, "expected_output_hex":"010101"},
+    {"id":"collinear_with_duplicate", "input_values":[4,-3,0,1,0,4,0,-3,0,1,3,2,0], "input_length":13, "output_capacity":4, "expected_result":4, "expected_output_hex":"01000101"},
+    {"id":"acute_triangle_interior", "input_values":[4,0,0,4,0,2,3,2,1,0,1,2,3], "input_length":13, "output_capacity":4, "expected_result":4, "expected_output_hex":"01010100"},
+    {"id":"acute_reverse_order", "input_values":[4,0,0,4,0,2,3,2,1,3,2,1,0], "input_length":13, "output_capacity":4, "expected_result":4, "expected_output_hex":"01010100"},
+    {"id":"square_and_center", "input_values":[5,-2,-2,2,-2,2,2,-2,2,0,0,4,2,0,3,1], "input_length":16, "output_capacity":5, "expected_result":5, "expected_output_hex":"0101010100"},
+    {"id":"coordinate_limit", "input_values":[3,-100,0,100,0,0,0,1,2,0], "input_length":10, "output_capacity":3, "expected_result":3, "expected_output_hex":"010100"},
+    {"id":"bad_order_duplicate", "input_values":[2,0,0,1,0,0,0], "input_length":7, "output_capacity":0, "output_is_null":true, "expected_result":-1, "expected_output_hex":""},
+    {"id":"bad_coordinate", "input_values":[1,101,0,0], "input_length":4, "output_capacity":1, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short_output", "input_values":[2,0,0,2,0,0,1], "input_length":7, "output_capacity":1, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null_output", "input_values":[1,0,0,0], "input_length":4, "output_capacity":0, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"trailing", "input_values":[1,0,0,0,0], "input_length":5, "output_capacity":1, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "output_capacity":0, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

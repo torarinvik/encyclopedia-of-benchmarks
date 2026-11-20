@@ -2,8 +2,8 @@ module balanced_parentheses;
 
 // Check (), [], and {} nesting; ignore other character codes.
 fn long balanced_parentheses(long* values, usz length) @export("balanced_parentheses") {
-    if (length > 4096) return -1;
-    long stack[4096];
+    if (length > 4096 || (length != 0 && values == null)) return -1;
+    long[4096] stack;
     usz top = 0;
     for (usz index = 0; index < length; index++) {
         long value = values[index];

@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "id": "counting-bloom-filter-operation-trace-i64-array-bytes-output-v1",
+  "algorithm": "counting_bloom_filter_operation_trace",
+  "function_symbol": "counting_bloom_filter_operation_trace",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[Q,(opcode,key)*Q]",
+    "operation_count_range": [
+      0,
+      64
+    ],
+    "opcode_meaning": {
+      "0": "insert",
+      "1": "delete one live occurrence",
+      "2": "query membership"
+    },
+    "key_range": [
+      0,
+      65535
+    ],
+    "maximum_valid_length": 129,
+    "maximum_parseable_length": 130,
+    "counter_count": 67,
+    "hash_count": 4,
+    "null_or_invalid_result": -1
+  },
+  "operations": {
+    "insertion": "increment the four hashed counters",
+    "deletion": "decrement those counters; the input guarantees a live key occurrence",
+    "query": "return 1 iff all four counters are nonzero",
+    "duplicate_policy": "each insertion adds one occurrence and each valid deletion removes one",
+    "exact_membership_state_in_filter": false,
+    "false_positives_permitted": true,
+    "update_status": 1,
+    "query_status": "membership bit"
+  },
+  "hash_profile": {
+    "base": "(17*key+3) mod 67",
+    "stride": "1+((5*key+3) mod 66)",
+    "position_j": "(base+j*stride) mod 67 for j=0,1,2,3"
+  },
+  "output": {
+    "kind": "raw_status_bytes",
+    "layout": "one unsigned status byte per operation",
+    "maximum_bytes": 64,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "input_validation_precedes_capacity": true,
+    "errors_leave_output_untouched": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "accounting": "67 mutable byte counters, up to 64 staged status bytes, and scalar/parser locals; caller-owned input and ABI metadata are excluded"
+  },
+  "complexity": {
+    "primary_time": "O(Q*4)",
+    "primary_state": "O(67+Q) bytes",
+    "independent_reference_time": "O(Q^2*4)",
+    "independent_reference_state": "O(Q) signed insertion/deletion events"
+  },
+  "source": {
+    "title": "Summary Cache: A Scalable Wide-Area Web Cache Sharing Protocol",
+    "authors": [
+      "A. Fan",
+      "P. Cao",
+      "J. Almeida",
+      "A. Z. Broder"
+    ],
+    "url": "https://doi.org/10.1145/285243.285287",
+    "section": "4.3, Counting Bloom Filters",
+    "journal_url": "https://doi.org/10.1109/90.851975",
+    "discovery_url": "https://xlinux.nist.gov/dads/HTML/bloomFilter.html"
+  },
+  "cases": [
+    {
+      "id": "zero-operations",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-insert-delete-one-copy",
+      "input_values": [
+        7,
+        0,
+        7,
+        0,
+        7,
+        2,
+        7,
+        1,
+        7,
+        2,
+        7,
+        1,
+        7,
+        2,
+        7
+      ],
+      "input_length": 15,
+      "output_capacity": 7,
+      "expected_result": 7,
+      "expected_output_hex": "01010101010100"
+    },
+    {
+      "id": "collision-induced-false-positive",
+      "input_values": [
+        5,
+        0,
+        6,
+        0,
+        13,
+        0,
+        21,
+        0,
+        26,
+        2,
+        1
+      ],
+      "input_length": 11,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "0101010101"
+    },
+    {
+      "id": "empty-filter-absent-query",
+      "input_values": [
+        1,
+        2,
+        65535
+      ],
+      "input_length": 3,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "maximum-valid-frame-and-output",
+      "input_values": [
+        64,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "input_length": 129,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [
+        1,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-opcode-precedes-capacity",
+      "input_values": [
+        1,
+        3,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key-outside-domain",
+      "input_values": [
+        1,
+        2,
+        65536
+      ],
+      "input_length": 3,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "one-word-overlong-zero-operation-frame",
+      "input_values": [
+        0,
+        999
+      ],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-pointer",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-pointer",
+      "input_values": [
+        1,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

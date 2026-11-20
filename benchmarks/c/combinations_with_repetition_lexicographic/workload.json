@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "combinations-with-repetition-lexicographic-byte-output-v1",
+  "algorithm": "combinations_with_repetition_lexicographic",
+  "function_symbol": "combinations_with_repetition_lexicographic",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Combinations with repetitions",
+    "discovery_title_url": "https://rosettacode.org/wiki/Combinations_with_repetitions",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "algorithm_reference": "https://www-cs-faculty.stanford.edu/~knuth/taocp.html",
+    "neighboring_successor_reference": "https://cp-algorithms.com/combinatorics/generating_combinations.html",
+    "discovery_scope": "The pinned RosettaCodeData index supplies the task title only. Knuth supplies the combinations-with-repetition context; CP-Algorithms is cited only for the neighboring strictly-increasing successor method. This package fixes its own numeric alphabet, bounds, output order, and byte frame; no task wording, code, examples, or tests are reused."
+  },
+  "contract": {
+    "input_layout": "[n,r]",
+    "n_range": [0, 4],
+    "r_range": [0, 4],
+    "combination_definition": "A length-r multiset selection from the ordered values 0 through n-1, represented by a nondecreasing tuple. A value may occur multiple times.",
+    "output_order": "Lexicographic ascending order over tuple values.",
+    "output_encoding": "A little-endian u16 tuple count followed by each tuple as r unsigned bytes.",
+    "empty_tuple_rule": "For r=0 there is exactly one empty tuple, including when n=0.",
+    "empty_domain_rule": "For n=0 and r>0 there are no tuples.",
+    "maximum_tuple_count": 35,
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "validation_precedes_output_capacity": true,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "bytes",
+    "maximum_bytes": 142,
+    "success_bytes": "2 + r times the number of multiset combinations",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Includes a four-byte current tuple and bounded scalar/index state. Output is serialized directly only after exact size and capacity are validated; caller-owned ABI buffers are excluded."
+  },
+  "complexity": {
+    "primary_time": "O(r) successor work per emitted tuple, plus serialization.",
+    "primary_auxiliary_space": "O(r) current tuple; r is at most four.",
+    "independent_reference_time": "O(r) recursive work per emitted tuple.",
+    "independent_reference_auxiliary_space": "O(r) recursion and prefix storage; r is at most four."
+  },
+  "oracle": "benchmarks/c/combinations_with_repetition_lexicographic/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/combinations_with_repetition_lexicographic/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-domain-empty-tuple",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "0100"
+    },
+    {
+      "id": "empty-domain-positive-length",
+      "input_values": [0, 3],
+      "input_length": 2,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "0000"
+    },
+    {
+      "id": "single-symbol-repeated",
+      "input_values": [1, 4],
+      "input_length": 2,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output_hex": "010000000000"
+    },
+    {
+      "id": "zero-length-selection",
+      "input_values": [4, 0],
+      "input_length": 2,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "0100"
+    },
+    {
+      "id": "two-symbols-three-positions",
+      "input_values": [2, 3],
+      "input_length": 2,
+      "output_capacity": 14,
+      "expected_result": 14,
+      "expected_output_hex": "0400000000000001000101010101"
+    },
+    {
+      "id": "four-symbols-two-positions",
+      "input_values": [4, 2],
+      "input_length": 2,
+      "output_capacity": 22,
+      "expected_result": 22,
+      "expected_output_hex": "0a000000000100020003010101020103020202030303"
+    },
+    {
+      "id": "maximum-output-frame",
+      "input_values": [4, 4],
+      "input_length": 2,
+      "output_capacity": 142,
+      "expected_result": 142,
+      "expected_output_hex": "230000000000000000000001000000020000000300000101000001020000010300000202000002030000030300010101000101020001010300010202000102030001030300020202000202030002030300030303010101010101010201010103010102020101020301010303010202020102020301020303010303030202020202020203020203030203030303030303"
+    },
+    {
+      "id": "n-outside-profile",
+      "input_values": [5, 2],
+      "input_length": 2,
+      "output_capacity": 142,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-r",
+      "input_values": [2, -1],
+      "input_length": 2,
+      "output_capacity": 142,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-invalid",
+      "input_values": [2, 2, 9],
+      "input_length": 3,
+      "output_capacity": 142,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 142,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty-result-null-output",
+      "input_values": [0, 3],
+      "input_length": 2,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-frame-short-capacity",
+      "input_values": [4, 4],
+      "input_length": 2,
+      "output_capacity": 141,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ],
+  "description": "Enumerate bounded fixed-length multiset selections in lexicographic tuple order."
+}

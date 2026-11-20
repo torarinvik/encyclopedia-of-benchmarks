@@ -1,8 +1,8 @@
 module similarity_search;
 extern fn double sqrt(double value);
 fn void put_u64(ulong bits, char* output, usz offset) { for (usz b = 0; b < 8; b++) { output[offset+b] = (char)(bits & 255); bits >>= 8; } }
-fn void put_i64(long value, char* output, usz offset) { put_u64(@bitcast(ulong, value), output, offset); }
-fn void put_f64(double value, char* output, usz offset) { put_u64(@bitcast(ulong, value), output, offset); }
+fn void put_i64(long value, char* output, usz offset) { put_u64(bitcast(value, ulong), output, offset); }
+fn void put_f64(double value, char* output, usz offset) { put_u64(bitcast(value, ulong), output, offset); }
 
 fn long similarity_search(long* input, usz length, char* output, usz output_capacity) @export("similarity_search") {
     if (input == null || length < 3 || length > 643) return -1;

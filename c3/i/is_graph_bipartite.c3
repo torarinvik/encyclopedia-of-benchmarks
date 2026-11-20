@@ -15,11 +15,11 @@ fn long is_graph_bipartite(long* values, usz length) @export("is_graph_bipartite
     usz vertex_count = (usz)vertex_count_raw;
     usz edge_count = (usz)edge_count_raw;
 
-    int head[64];
-    int arc_to[512];
-    int arc_next[512];
-    int side[64];
-    int queue[64];
+    int[64] head;
+    int[512] arc_to;
+    int[512] arc_next;
+    int[64] side;
+    int[64] queue;
     for (usz vertex = 0; vertex < vertex_count; vertex++) {
         head[vertex] = -1;
         side[vertex] = -1;

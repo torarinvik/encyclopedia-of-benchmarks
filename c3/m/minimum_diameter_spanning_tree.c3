@@ -172,7 +172,7 @@ fn long minimum_diameter_spanning_tree(long* input, usz length, char* output, us
         }
     }
 
-    long center_distance[MAX_N], parent_edge[MAX_N];
+    long[MAX_N] center_distance; long[MAX_N] parent_edge;
     shortest_tree(n, m, &edge_u[0], &edge_v[0], &edge_weight[0], best_kind, best_root,
         best_x2, best_edge, &center_distance[0], &parent_edge[0]);
     usz[MAX_N] selected;
@@ -188,7 +188,7 @@ fn long minimum_diameter_spanning_tree(long* input, usz length, char* output, us
         for (usz j = i + 1; j < selected_count; j += 1)
             if (selected[j] < selected[i]) { usz temporary = selected[i]; selected[i] = selected[j]; selected[j] = temporary; }
 
-    long staged[MAX_N];
+    long[MAX_N] staged;
     staged[0] = selected_tree_diameter(n, &selected[0], &edge_u[0], &edge_v[0], &edge_weight[0]);
     for (usz index = 0; index < selected_count; index += 1) staged[index + 1] = (long)selected[index];
     usz required = 8 * n;

@@ -4,7 +4,7 @@ const usz MAX_JOBS = 8;
 const usz MAX_INPUT = 18;
 const usz MAX_OUTPUT = 112;
 
-long shortest_elapsed_time_first(long* input, usz length, char* output, usz capacity)
+fn long shortest_elapsed_time_first(long* input, usz length, char* output, usz capacity)
         @export("shortest_elapsed_time_first") {
     if (input == null || length < 1 || length > MAX_INPUT) return -1;
     long n64 = input[0];

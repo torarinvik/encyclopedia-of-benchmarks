@@ -1,6 +1,6 @@
 module directed_girth_bfs;
 
-long directed_girth_bfs(long* input, usz length) @export("directed_girth_bfs") {
+fn long directed_girth_bfs(long* input, usz length) @export("directed_girth_bfs") {
     if (input == null || length < 2 || length > 131) return -1;
     if (input[0] < 1 || input[0] > 16 || input[1] < 0 || input[1] > 64) return -1;
     usz n = input[0].usz(), m = input[1].usz();

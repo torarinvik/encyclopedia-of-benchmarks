@@ -21,7 +21,7 @@ fn int mpls_pop(int* heap, int size, int* distances, int n) {
     if (remaining > 0) heap[at] = last;
     return result;
 }
-long multiprobe_lsh_probe_sequence(long* input, usz length, char* output, usz capacity) @export("multiprobe_lsh_probe_sequence") {
+fn long multiprobe_lsh_probe_sequence(long* input, usz length, char* output, usz capacity) @export("multiprobe_lsh_probe_sequence") {
     if (input == null || length < 4 || length > 7 || input[0] < 1 || input[0] > 4 || input[1] < 1 || input[1] > 1000) return -1;
     int m = (int)input[0], width = (int)input[1], limit = 1;
     for (int i = 0; i < m; i += 1) limit *= 3;

@@ -12,7 +12,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
         output[offset + byte] = (char)((bits >> (byte * 8)) & 255);
 }
 
-long tsvc_s256_array_expansion(long* input, usz length,
+fn long tsvc_s256_array_expansion(long* input, usz length,
         char* output, usz output_capacity) @export("tsvc_s256_array_expansion") {
     if (input == null || length < 5 || length > MAX_INPUT_LENGTH) return -1;
     long n_raw = input[0], a0 = input[1];

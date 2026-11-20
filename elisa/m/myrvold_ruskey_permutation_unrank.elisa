@@ -1,0 +1,54 @@
+const MR_MAX_N: usize = 8
+const MR_MAX_INPUT_LENGTH: usize = 3
+
+def myrvold_ruskey_permutation_unrank_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MR_MAX_INPUT_LENGTH: return -1
+    if length != 2: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    rank_value: i64 = input_view[1]
+    if n_value < 0 or n_value > 8 or rank_value < 0: return -1
+    n: usize = n_value.usize()
+
+    factorial: mutable i64 = 1
+    factor: mutable usize = 2
+    while factor <= n:
+        factorial <- factorial * factor.i64()
+        factor <- factor + 1
+    if rank_value >= factorial: return -1
+
+    required: usize = 8 * n
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    permutation: mutable i64[MR_MAX_N] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        permutation[index] <- index.i64()
+        index <- index + 1
+
+    remainder: mutable i64 = rank_value
+    size: mutable usize = n
+    while size > 0:
+        choice: usize = (remainder % size.i64()).usize()
+        remainder <- remainder / size.i64()
+        last: usize = size - 1
+        held: i64 = permutation[last]
+        permutation[last] <- permutation[choice]
+        permutation[choice] <- held
+        size <- size - 1
+
+    index <- 0
+    while index < n:
+        value: u64 = permutation[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output_view[index * 8 + byte] <- ((value >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    required.i64()
+
+@export("myrvold_ruskey_permutation_unrank")
+def myrvold_ruskey_permutation_unrank(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 =
+    myrvold_ruskey_permutation_unrank_impl(input, length, output, capacity)

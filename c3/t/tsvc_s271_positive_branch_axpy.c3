@@ -11,7 +11,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
         output[offset + byte] = (char)((bits >> (byte * 8)) & 255);
 }
 
-long tsvc_s271_positive_branch_axpy(long* input, usz length,
+fn long tsvc_s271_positive_branch_axpy(long* input, usz length,
         char* output, usz output_capacity) @export("tsvc_s271_positive_branch_axpy") {
     if (input == null || length < 5 || length > MAX_INPUT_LENGTH) return -1;
     long n_raw = input[0], passes_raw = input[1];

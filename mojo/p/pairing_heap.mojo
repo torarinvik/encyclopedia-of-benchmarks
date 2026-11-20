@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn ph_meld(mut first:Int,mut second:Int,mut keys:InlineArray[Int32,128],mut child:InlineArray[Int64,128],mut sibling:InlineArray[Int64,128])->Int:

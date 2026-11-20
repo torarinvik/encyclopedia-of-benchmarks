@@ -9,7 +9,7 @@ fn long bidirectional_a_star(long* input, usz length, char* output, usz capacity
  if (input[2] < 0 || (usz)input[2] >= rows || input[3] < 0 || (usz)input[3] >= cols || input[4] < 0 || (usz)input[4] >= rows || input[5] < 0 || (usz)input[5] >= cols || length != 6 + cells) return -1;
  usz start = (usz)input[2] * cols + (usz)input[3], goal = (usz)input[4] * cols + (usz)input[5]; bool[MAX_CELLS] blocked;
  for (usz i = 0; i < cells; i++) { if (input[6 + i] != 0 && input[6 + i] != 1) return -1; blocked[i] = input[6 + i] == 1; } if (blocked[start] || blocked[goal]) return -1;
- long[2][MAX_CELLS] g, parent, order; bool[2][MAX_CELLS] opened, closed; long[2] seq;
+ long[MAX_CELLS][2] g, parent, order; bool[MAX_CELLS][2] opened, closed; long[2] seq;
  for (usz s = 0; s < 2; s++) for (usz i = 0; i < cells; i++) { g[s][i] = INF_COST; parent[s][i] = -1; }
  g[0][start] = 0; g[1][goal] = 0; opened[0][start] = true; opened[1][goal] = true; seq[0] = 1; seq[1] = 1;
  long[4] dr = {-1, 0, 1, 0}, dc = {0, -1, 0, 1}; long best = INF_COST, meet = -1;

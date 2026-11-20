@@ -3,7 +3,7 @@ module thomas_algorithm;
 const usz MAX_N = 32;
 
 fn void put_f64_le(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte += 1) {
         output[offset + byte] = (char)(bits & 255);
         bits >>= 8;

@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-tutte-matrix-randomized-perfect-matching-i64-array-bytes-output-v1",
+  "algorithm": "tutte_matrix_randomized_perfect_matching",
+  "function_symbol": "tutte_matrix_randomized_perfect_matching",
+  "abi": "i64_array_bytes_output",
+  "description": "Supplied-substitution replay of Mucha–Sankowski's Tutte-matrix perfect-matching extraction.",
+  "source": {
+    "chapter": "Encyclopedia of Algorithms, Chapter 225: Maximum Matching",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_225",
+    "operational_reference": "Mucha and Sankowski, Maximum Matchings via Gaussian Elimination, §3 Algorithm 2",
+    "operational_doi": "10.1109/FOCS.2004.40"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,(u,v,x)*m]",
+    "vertex_range": [2, 8],
+    "even_vertex_count_only": true,
+    "maximum_edges": 28,
+    "field": "F_65521",
+    "substitution_range": [1, 65520],
+    "edge_order": "strictly lexicographic by normalized endpoint pair u<v",
+    "maximum_valid_length": 86,
+    "maximum_parseable_length": 87,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[status,pair_count,u0,v0,...]",
+    "status_one": "sampled matrix nonsingular and matching pairs follow",
+    "status_zero": "sampled matrix singular; this is inconclusive for positive instances",
+    "maximum_bytes": 80,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded Tutte matrix, augmented inverse, active row and column sets, elimination scratch, and staged output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 1,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "unique-path-perfect-matching",
+      "input_values": [4, 3, 0, 1, 1, 1, 2, 1, 2, 3, 1],
+      "input_length": 11,
+      "output_capacity": 80,
+      "expected_result": 48,
+      "expected_output_hex": "0100000000000000 0200000000000000 0000000000000000 0100000000000000 0200000000000000 0300000000000000"
+    },
+    {
+      "id": "cycle-with-two-perfect-matchings",
+      "input_values": [4, 4, 0, 1, 1, 0, 3, 1, 1, 2, 1, 2, 3, 1],
+      "input_length": 14,
+      "output_capacity": 80,
+      "expected_result": 48,
+      "expected_output_hex": "0100000000000000 0200000000000000 0000000000000000 0100000000000000 0200000000000000 0300000000000000"
+    },
+    {
+      "id": "graph-with-no-perfect-matching",
+      "input_values": [4, 2, 0, 1, 1, 1, 2, 1],
+      "input_length": 8,
+      "output_capacity": 80,
+      "expected_result": 16,
+      "expected_output_hex": "0000000000000000 0000000000000000"
+    },
+    {
+      "id": "singular-substitution-on-positive-k4",
+      "input_values": [4, 6, 0, 1, 1, 0, 2, 2, 0, 3, 1, 1, 2, 1, 1, 1, 3, 1, 2, 3, 1],
+      "input_length": 20,
+      "output_capacity": 80,
+      "expected_result": 16,
+      "expected_output_hex": "0000000000000000 0000000000000000"
+    },
+    {
+      "id": "maximum-graph-frame-and-output",
+      "input_values": [8, 28, 0, 1, 1, 0, 2, 1, 0, 3, 1, 0, 4, 1, 0, 5, 1, 0, 6, 1, 0, 7, 1, 1, 2, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 1, 7, 1, 2, 3, 1, 2, 4, 1, 2, 5, 1, 2, 6, 1, 2, 7, 1, 3, 4, 1, 3, 5, 1, 3, 6, 1, 3, 7, 1, 4, 5, 1, 4, 6, 1, 4, 7, 1, 5, 6, 1, 5, 7, 1, 6, 7, 1],
+      "input_length": 86,
+      "output_capacity": 80,
+      "expected_result": 80,
+      "expected_output_hex": "0100000000000000 0400000000000000 0000000000000000 0100000000000000 0200000000000000 0300000000000000 0400000000000000 0500000000000000 0600000000000000 0700000000000000"
+    },
+    {
+      "id": "maximum-output-one-byte-short",
+      "input_values": [8, 28, 0, 1, 1, 0, 2, 1, 0, 3, 1, 0, 4, 1, 0, 5, 1, 0, 6, 1, 0, 7, 1, 1, 2, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 1, 7, 1, 2, 3, 1, 2, 4, 1, 2, 5, 1, 2, 6, 1, 2, 7, 1, 3, 4, 1, 3, 5, 1, 3, 6, 1, 3, 7, 1, 4, 5, 1, 4, 6, 1, 4, 7, 1, 5, 6, 1, 5, 7, 1, 6, 7, 1],
+      "input_length": 86,
+      "output_capacity": 79,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "odd-vertex-count-is-invalid",
+      "input_values": [3, 0],
+      "input_length": 2,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-edge-is-invalid",
+      "input_values": [4, 2, 0, 1, 1, 0, 1, 2],
+      "input_length": 8,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unsorted-edge-list-is-invalid",
+      "input_values": [4, 2, 1, 2, 1, 0, 1, 1],
+      "input_length": 8,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-substitution-is-invalid",
+      "input_values": [2, 1, 0, 1, 0],
+      "input_length": 5,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "field-prime-substitution-is-invalid",
+      "input_values": [2, 1, 0, 1, 65521],
+      "input_length": 5,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-is-invalid",
+      "input_values": [2, 1, 0, 1, 1, 99],
+      "input_length": 6,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4, 3, 0, 1, 1, 1, 2, 1, 2, 3, 1],
+      "input_length": 11,
+      "output_capacity": 47,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 1, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 80,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

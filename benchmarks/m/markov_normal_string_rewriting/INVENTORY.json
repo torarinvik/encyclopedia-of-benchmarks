@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "markov_normal_string_rewriting",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "markov_normal_string_rewriting",
+  "maximum_valid_input_words": 203,
+  "maximum_parseable_input_words": 204,
+  "maximum_output_bytes": 67,
+  "workspace_bytes": 4096,
+  "sources": [
+    "c/m/markov_normal_string_rewriting.c",
+    "c3/m/markov_normal_string_rewriting.c3",
+    "cpp/m/markov_normal_string_rewriting.cpp",
+    "elisa/m/markov_normal_string_rewriting.elisa",
+    "mojo/m/markov_normal_string_rewriting.mojo",
+    "nim/m/markov_normal_string_rewriting.nim",
+    "odin/m/markov_normal_string_rewriting.odin",
+    "rust/m/markov_normal_string_rewriting.rs",
+    "v/m/markov_normal_string_rewriting.v",
+    "zig/m/markov_normal_string_rewriting.zig"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "check_inventory.py",
+    "verify_workload.py"
+  ]
+}

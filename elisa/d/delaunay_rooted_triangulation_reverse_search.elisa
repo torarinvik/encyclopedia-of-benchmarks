@@ -1,0 +1,179 @@
+const EPT_MAX_N: usize = 8
+const EPT_MAX_D: usize = 20
+const EPT_MAX_STATES: usize = 132
+
+def ept_orient(points: i64[16], a: usize, b: usize, z: usize) -> i64:
+    (points[2*b] - points[2*a]) * (points[2*z + 1] - points[2*a + 1]) - (points[2*b + 1] - points[2*a + 1]) * (points[2*z] - points[2*a])
+
+def ept_incircle(points: i64[16], a: usize, b: usize, z: usize, d: usize) -> i64:
+    ax:i64=points[2*a]-points[2*d]; ay:i64=points[2*a+1]-points[2*d+1]
+    bx:i64=points[2*b]-points[2*d]; by:i64=points[2*b+1]-points[2*d+1]
+    cx:i64=points[2*z]-points[2*d]; cy:i64=points[2*z+1]-points[2*d+1]
+    al:i64=ax*ax+ay*ay; bl:i64=bx*bx+by*by; cl:i64=cx*cx+cy*cy
+    al*(bx*cy-by*cx)-bl*(ax*cy-ay*cx)+cl*(ax*by-ay*bx)
+
+def ept_boundary(n: usize, u: usize, v: usize) -> bool:
+    v == u + 1 or (u == 0 and v == n - 1)
+
+def ept_unpack(diags: i64[20], edge: usize) -> (usize, usize):
+    (diags[edge].usize() / 8, diags[edge].usize() % 8)
+
+def ept_edge_index(diags: i64[20], d: usize, u: usize, v: usize) -> i64:
+    for i in 0..<d:
+        pair: (usize, usize) = ept_unpack(diags, i)
+        if pair.0 == u and pair.1 == v: return i.i64()
+    -1
+
+def ept_crosses(first: i64, second: i64) -> bool:
+    a: usize = (first / 8).usize(); b: usize = (first % 8).usize()
+    c: usize = (second / 8).usize(); d: usize = (second % 8).usize()
+    (a < c and c < b and b < d) or (c < a and a < d and d < b)
+
+def ept_build_adjacency(diags: i64[20], n: usize, d: usize, mask: usize, rows: mutable view[usize]) -> void:
+    for i in 0..<n: rows[i] <- 0
+    for u in 0..<n:
+        v: usize = (u + 1) % n
+        rows[u] <- rows[u] | (1 << v)
+        rows[v] <- rows[v] | (1 << u)
+    for i in 0..<d:
+        if (mask & (1 << i)) != 0:
+            pair: (usize, usize) = ept_unpack(diags, i)
+            rows[pair.0] <- rows[pair.0] | (1 << pair.1)
+            rows[pair.1] <- rows[pair.1] | (1 << pair.0)
+
+def ept_triangle_count(diags: i64[20], n: usize, d: usize, mask: usize) -> usize:
+    rows: mutable usize[8] = zeroed
+    ept_build_adjacency(diags, n, d, mask, rows[0:n])
+    count: mutable usize = 0
+    for a in 0..<n:
+        for b in a + 1..<n:
+            for z in b + 1..<n:
+                if (rows[a] & (1 << b)) != 0 and (rows[b] & (1 << z)) != 0 and (rows[a] & (1 << z)) != 0:
+                    count <- count + 1
+    count
+
+def ept_common_opposites(diags: i64[20], n: usize, d: usize, mask: usize, edge: usize) -> i64:
+    rows: mutable usize[8] = zeroed
+    ept_build_adjacency(diags, n, d, mask, rows[0:n])
+    pair: (usize, usize) = ept_unpack(diags, edge)
+    common: usize = rows[pair.0] & rows[pair.1]
+    inside: mutable i64 = -1
+    outside: mutable i64 = -1
+    found: mutable usize = 0
+    for w in 0..<n:
+        if (common & (1 << w)) != 0:
+            if pair.0 < w and w < pair.1: inside <- w.i64()
+            else: outside <- w.i64()
+            found <- found + 1
+    if found != 2 or inside < 0 or outside < 0: return -1
+    inside * 8 + outside
+
+def ept_flip(points: i64[16], diags: i64[20], n: usize, d: usize, mask: usize, edge: usize, require_lawson: bool) -> i64:
+    pair: (usize, usize) = ept_unpack(diags, edge)
+    opposite: i64 = ept_common_opposites(diags, n, d, mask, edge)
+    if opposite < 0: return -1
+    inside: usize = (opposite / 8).usize()
+    outside: usize = (opposite % 8).usize()
+    if require_lawson and ept_incircle(points, pair.0, inside, pair.1, outside) <= 0: return -1
+    lo: usize = if inside < outside: inside else: outside
+    hi: usize = if inside < outside: outside else: inside
+    other: i64 = ept_edge_index(diags, d, lo, hi)
+    if other < 0: return -1
+    ((mask & ~(1 << edge)) | (1 << other.usize())).i64()
+
+def ept_parent(points: i64[16], diags: i64[20], n: usize, d: usize, mask: usize) -> i64:
+    for edge in 0..<d:
+        if (mask & (1 << edge)) != 0:
+            parent: i64 = ept_flip(points, diags, n, d, mask, edge, true)
+            if parent >= 0: return parent
+    -1
+
+def ept_valid_root(points: i64[16], diags: i64[20], n: usize, d: usize, mask: usize) -> bool:
+    if ept_triangle_count(diags, n, d, mask) != n - 2: return false
+    rows: mutable usize[8] = zeroed
+    ept_build_adjacency(diags, n, d, mask, rows[0:n])
+    for a in 0..<n:
+        for b in a + 1..<n:
+            for z in b + 1..<n:
+                if (rows[a] & (1 << b)) != 0 and (rows[b] & (1 << z)) != 0 and (rows[a] & (1 << z)) != 0:
+                    for q in 0..<n:
+                        if q != a and q != b and q != z and ept_incircle(points, a, b, z, q) > 0: return false
+    true
+
+def ept_reverse_search(points: i64[16], diags: i64[20], n: usize, d: usize, root: usize) -> i64:
+    states: mutable usize[132] = zeroed
+    cursor: mutable usize[132] = zeroed
+    top: mutable usize = 0
+    count: mutable usize = 1
+    states[0] <- root
+    while true:
+        if cursor[top] >= d:
+            if top == 0: break
+            top <- top - 1
+            continue
+        edge: usize = cursor[top]
+        cursor[top] <- cursor[top] + 1
+        if (states[top] & (1 << edge)) == 0: continue
+        child: i64 = ept_flip(points, diags, n, d, states[top], edge, false)
+        if child < 0 or ept_parent(points, diags, n, d, child.usize()) != states[top].i64(): continue
+        if count >= EPT_MAX_STATES: return -1
+        count <- count + 1
+        top <- top + 1
+        states[top] <- child.usize()
+        cursor[top] <- 0
+    count.i64()
+
+export def delaunay_rooted_triangulation_reverse_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 29: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    if n64 < 3 or n64 > 8 or length != (4 * n64 - 4).usize(): return -1
+    n: usize = n64.usize()
+    points: mutable i64[16] = zeroed
+    for i in 0..<n:
+        x: i64 = values[1 + 2 * i]
+        y: i64 = values[2 + 2 * i]
+        if x < -50 or x > 50 or y < -50 or y > 50: return -1
+        points[2 * i] <- x
+        points[2 * i + 1] <- y
+    for a in 0..<n:
+        for b in a + 1..<n:
+            for z in b + 1..<n:
+                if ept_orient(points, a, b, z) <= 0: return -1
+    for a in 0..<n:
+        for b in a + 1..<n:
+            for z in b + 1..<n:
+                for q in z + 1..<n:
+                    if ept_incircle(points, a, b, z, q) == 0: return -1
+    diags: mutable i64[20] = zeroed
+    d: mutable usize = 0
+    for u in 0..<n:
+        for v in u + 1..<n:
+            if not ept_boundary(n, u, v):
+                diags[d] <- (u * 8 + v).i64()
+                d <- d + 1
+    count_at: usize = 1 + 2 * n
+    if values[count_at] != (n - 3).i64(): return -1
+    root: mutable usize = 0
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    for i in 0..<n - 3:
+        u64: i64 = values[count_at + 1 + 2 * i]
+        v64: i64 = values[count_at + 2 + 2 * i]
+        if u64 < 0 or u64 >= v64 or v64 >= n64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if ept_boundary(n, u, v) or (i > 0 and (u64 < previous_u or (u64 == previous_u and v64 <= previous_v))): return -1
+        ix: i64 = ept_edge_index(diags, d, u, v)
+        if ix < 0: return -1
+        root <- root | (1 << ix.usize())
+        previous_u <- u64
+        previous_v <- v64
+    seen: mutable usize = 0
+    for i in 0..<d:
+        if (root & (1 << i)) != 0:
+            seen <- seen + 1
+            for j in i + 1..<d:
+                if (root & (1 << j)) != 0 and ept_crosses(diags[i], diags[j]): return -1
+    if seen != n - 3 or not ept_valid_root(points, diags, n, d, root): return -1
+    ept_reverse_search(points, diags, n, d, root)

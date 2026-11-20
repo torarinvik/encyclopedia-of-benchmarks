@@ -16,7 +16,7 @@ fn long breadth_first_search_shortest_path(long* input, usz length, char* output
     if (vertex_value < 1 || vertex_value > MAX_VERTICES || edge_value < 0 || edge_value > MAX_EDGES) return -1;
     int vertices = (int)vertex_value, edges = (int)edge_value;
     if (length != 4 + 2 * (usz)edges || start_value < 0 || start_value >= vertices || goal_value < 0 || goal_value >= vertices) return -1;
-    int adjacency[MAX_VERTICES * MAX_EDGES], degree[MAX_VERTICES] = {};
+    int[MAX_VERTICES * MAX_EDGES] adjacency; int[MAX_VERTICES] degree = {};
     for (int edge = 0; edge < edges; edge++) {
         long from = input[4 + 2 * edge], to = input[5 + 2 * edge];
         if (from < 0 || from >= vertices || to < 0 || to >= vertices) return -1;
@@ -24,9 +24,9 @@ fn long breadth_first_search_shortest_path(long* input, usz length, char* output
         adjacency[source * MAX_EDGES + degree[source]++] = (int)to;
     }
     int start = (int)start_value, goal = (int)goal_value;
-    long parent[MAX_VERTICES];
-    bool visited[MAX_VERTICES] = {};
-    int queue[MAX_VERTICES], head = 0, tail = 0;
+    long[MAX_VERTICES] parent;
+    bool[MAX_VERTICES] visited = {};
+    int[MAX_VERTICES] queue; int head = 0, tail = 0;
     for (int vertex = 0; vertex < vertices; vertex++) parent[vertex] = -1;
     visited[start] = true;
     queue[tail++] = start;
@@ -41,10 +41,10 @@ fn long breadth_first_search_shortest_path(long* input, usz length, char* output
             if (neighbor == goal) break;
         }
     }
-    long encoded[MAX_OUTPUT_VALUES];
+    long[MAX_OUTPUT_VALUES] encoded;
     usz path_count = 0;
     if (visited[goal]) {
-        int reverse_path[MAX_VERTICES];
+        int[MAX_VERTICES] reverse_path;
         int current = goal;
         while (current >= 0) {
             reverse_path[path_count++] = current;

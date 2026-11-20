@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "cipolla-modular-square-root-v1",
+  "algorithm": "cipolla_modular_square_root",
+  "function_symbol": "cipolla_modular_square_root",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Cipolla modular square-root algorithm",
+    "authors": ["Michele Cipolla", "University of Connecticut textbook authors"],
+    "url": "https://alozano.clas.uconn.edu/wp-content/uploads/sites/490/2022/12/amstext35.pdf",
+    "discovery_title_index": "https://rosettagit.org/tasks/",
+    "comparison_reference": "https://link.springer.com/article/10.1007/s10623-024-01374-1",
+    "license": "algorithm description only",
+    "license_note": "The Rosetta Code task index is used only to discover the title. The textbook and review identify the method. No code, examples, task text, or prose are reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[residue,prime]",
+    "residue_range": "0..prime-1",
+    "prime_range": [3, 1000003],
+    "prime_must_be_odd": true,
+    "prime_must_be_prime": true,
+    "primality_validation": "caller precondition; ports validate only the bounded odd modulus",
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "least nonnegative square root, or -1 if residue is not a square",
+    "invalid_result": -1
+  },
+  "workspace": {"bytes": 256},
+  "algorithm_details": {
+    "primary": "Find t with d=t^2-residue a quadratic nonresidue, exponentiate (t+sqrt(d))^((p+1)/2) in F_p[sqrt(d)] using pair multiplication, and choose the smaller root.",
+    "independent_oracle": "Scan candidates from 0 through p-1 and return the least root found.",
+    "complexity": "At most p Legendre-symbol trial checks, each O(log p), followed by O(log p) extension-field multiplications; constant scratch space."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {"id":"textbook-small-residue","input_values":[10,13],"expected_result":6},
+    {"id":"tonelli-full-path-overlap","input_values":[5,41],"expected_result":13},
+    {"id":"tonelli-fast-path-overlap","input_values":[2,7],"expected_result":3},
+    {"id":"zero-residue","input_values":[0,11],"expected_result":0},
+    {"id":"three-modulus","input_values":[1,3],"expected_result":1},
+    {"id":"nonresidue","input_values":[3,7],"expected_result":-1},
+    {"id":"large-prime-small-root","input_values":[4,1000003],"expected_result":2},
+    {"id":"negative-residue","input_values":[-1,7],"expected_result":-1},
+    {"id":"residue-equals-modulus","input_values":[7,7],"expected_result":-1},
+    {"id":"even-modulus","input_values":[1,4],"expected_result":-1},
+    {"id":"too-small-modulus","input_values":[0,2],"expected_result":-1},
+    {"id":"above-modulus-bound","input_values":[1,1000005],"expected_result":-1},
+    {"id":"trailing-input-word","input_values":[5,41,0],"expected_result":-1}
+  ]
+}

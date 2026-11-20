@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,UnsafePointer
 @export("longest_substring_without_repeating_characters")

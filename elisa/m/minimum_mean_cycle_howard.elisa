@@ -1,0 +1,207 @@
+def mmch_gcd(a_value: i64, b_value: i64) -> i64:
+    a: mutable i64 = a_value
+    b: mutable i64 = b_value
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def mmch_compare_ratio(a_num: i64, a_den: i64, b_num: i64, b_den: i64) -> i64:
+    left: i64 = a_num * b_den
+    right: i64 = b_num * a_den
+    if left < right:
+        return -1
+    if left > right:
+        return 1
+    0
+
+def mmch_reachable(n: usize, adjacency: view[bool], reverse: bool) -> bool:
+    seen: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    seen[0] <- true
+    queue[0] <- 0
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<n:
+            slot: usize = if reverse then v * 8 + u else u * 8 + v
+            if adjacency[slot] and not seen[v]:
+                seen[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+    for v in 0..<n:
+        if not seen[v]: return false
+    true
+
+def mmch_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+@export("minimum_mean_cycle_howard")
+def minimum_mean_cycle_howard(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize
+) -> i64:
+    if input.is_null() or length < 2 or length > 51:
+        return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    m_value: i64 = input_view[1]
+    if n_value < 1 or n_value > 8 or m_value < 1 or m_value > 16:
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if m > n * n or length != 2 + 3 * m:
+        return -1
+
+    edge_to: mutable usize[16] = zeroed
+    edge_weight: mutable i64[16] = zeroed
+    outgoing: mutable u8[128] = zeroed
+    degree: mutable usize[8] = zeroed
+    policy: mutable usize[8] = zeroed
+    adjacent: mutable bool[64] = zeroed
+    for edge in 0..<m:
+        u_value: i64 = input_view[2 + 3 * edge]
+        v_value: i64 = input_view[3 + 3 * edge]
+        weight: i64 = input_view[4 + 3 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or weight < -1000 or weight > 1000:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        slot: usize = u * 8 + v
+        if adjacent[slot]:
+            return -1
+        adjacent[slot] <- true
+        edge_to[edge] <- v
+        edge_weight[edge] <- weight
+        outgoing[u * 16 + degree[u]] <- edge.u8()
+        if degree[u] == 0:
+            policy[u] <- edge
+        degree[u] <- degree[u] + 1
+    if not mmch_reachable(n, adjacent[0:64], false) or not mmch_reachable(n, adjacent[0:64], true):
+        return -1
+    if output.is_null() or capacity < 16:
+        return -2
+
+    policy_limit: mutable usize = 1
+    for u in 0..<n:
+        policy_limit <- policy_limit * degree[u]
+    value_num: mutable i64[8] = zeroed
+    value_den: mutable i64[8] = zeroed
+    bias_num: mutable i64[8] = zeroed
+    for u in 0..<n:
+        value_den[u] <- 1
+    converged: mutable bool = false
+
+    for iteration in 0..<policy_limit:
+        assigned: mutable bool[8] = zeroed
+        for start in 0..<n:
+            if assigned[start]:
+                continue
+            local_position: mutable i64[8] = zeroed
+            for v in 0..<n:
+                local_position[v] <- -1
+            path: mutable usize[8] = zeroed
+            path_length: mutable usize = 0
+            vertex: mutable usize = start
+            while not assigned[vertex] and local_position[vertex] < 0:
+                local_position[vertex] <- path_length.i64()
+                path[path_length] <- vertex
+                path_length <- path_length + 1
+                vertex <- edge_to[policy[vertex]]
+
+            prefix_length: mutable usize = path_length
+            if not assigned[vertex]:
+                cycle_start: usize = local_position[vertex].usize()
+                cycle_length: usize = path_length - cycle_start
+                cycle_weight: mutable i64 = 0
+                head_position: mutable usize = cycle_start
+                for i in cycle_start..<path_length:
+                    u: usize = path[i]
+                    cycle_weight <- cycle_weight + edge_weight[policy[u]]
+                    if path[i] < path[head_position]:
+                        head_position <- i
+                absolute_weight: i64 = if cycle_weight < 0 then -cycle_weight else cycle_weight
+                divisor: i64 = mmch_gcd(absolute_weight, cycle_length.i64())
+                mean_num: i64 = cycle_weight / divisor
+                mean_den: i64 = cycle_length.i64() / divisor
+                head: usize = path[head_position]
+                for i in cycle_start..<path_length:
+                    u: usize = path[i]
+                    value_num[u] <- mean_num
+                    value_den[u] <- mean_den
+                    assigned[u] <- true
+                bias_num[head] <- 0
+                current_position: mutable usize = head_position
+                loop:
+                    previous_position: usize = if current_position == cycle_start then path_length - 1 else current_position - 1
+                    previous: usize = path[previous_position]
+                    if previous == head:
+                        break
+                    bias_num[previous] <- edge_weight[policy[previous]] * mean_den
+                        - mean_num + bias_num[path[current_position]]
+                    current_position <- previous_position
+                prefix_length <- cycle_start
+
+            i: mutable usize = prefix_length
+            while i > 0:
+                i <- i - 1
+                u: usize = path[i]
+                successor: usize = edge_to[policy[u]]
+                value_num[u] <- value_num[successor]
+                value_den[u] <- value_den[successor]
+                bias_num[u] <- edge_weight[policy[u]] * value_den[successor]
+                    - value_num[successor] + bias_num[successor]
+                assigned[u] <- true
+
+        improved: mutable usize[8] = zeroed
+        changed: mutable bool = false
+        for u in 0..<n:
+            best: mutable usize = policy[u]
+            for j in 0..<degree[u]:
+                candidate: usize = outgoing[u * 16 + j].usize()
+                candidate_to: usize = edge_to[candidate]
+                best_to: usize = edge_to[best]
+                comparison: i64 = mmch_compare_ratio(value_num[candidate_to], value_den[candidate_to],
+                    value_num[best_to], value_den[best_to])
+                if comparison == 0:
+                    candidate_bias: i64 = edge_weight[candidate] * value_den[candidate_to]
+                        - value_num[candidate_to] + bias_num[candidate_to]
+                    best_bias: i64 = edge_weight[best] * value_den[best_to]
+                        - value_num[best_to] + bias_num[best_to]
+                    comparison <- mmch_compare_ratio(candidate_bias, value_den[candidate_to],
+                        best_bias, value_den[best_to])
+                if comparison < 0:
+                    best <- candidate
+            improved[u] <- best
+            if best != policy[u]:
+                changed <- true
+        if not changed:
+            converged <- true
+            break
+        for u in 0..<n:
+            policy[u] <- improved[u]
+
+    if not converged:
+        return -1
+    best_vertex: mutable usize = 0
+    for v in 1..<n:
+        if mmch_compare_ratio(value_num[v], value_den[v], value_num[best_vertex], value_den[best_vertex]) < 0:
+            best_vertex <- v
+    answer_num: mutable i64 = value_num[best_vertex]
+    answer_den: mutable i64 = value_den[best_vertex]
+    absolute_num: i64 = if answer_num < 0 then -answer_num else answer_num
+    divisor: i64 = mmch_gcd(absolute_num, answer_den)
+    answer_num <- answer_num / divisor
+    answer_den <- answer_den / divisor
+    staged: mutable u8[16] = zeroed
+    staged_view: mutable view[u8] = staged[0:16]
+    mmch_store_i64_le(answer_num, staged_view, 0)
+    mmch_store_i64_le(answer_den, staged_view, 8)
+    output_view: mutable view[u8] = output[0:16]
+    for byte in 0..<16:
+        output_view[byte] <- staged_view[byte]
+    16

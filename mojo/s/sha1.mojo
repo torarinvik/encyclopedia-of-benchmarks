@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn sha1_add(a:UInt32,b:UInt32)->UInt32:return UInt32((UInt64(a)+UInt64(b))&0xffffffff)

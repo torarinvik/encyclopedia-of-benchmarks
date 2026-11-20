@@ -1,0 +1,67 @@
+const MAX_INPUT_LENGTH: usize = 3
+const MAX_STACK: usize = 128
+const MAX_PRIMES: usize = 5
+const MAX_DIVISOR_COUNT: i64 = 63
+const MAX_LIMIT: i64 = 1000000
+const PRIMES: i64[5] = [2, 3, 5, 7, 11]
+
+def smallest_number_with_n_divisors_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH or length != 2:
+        return -1
+    let divisor_count: i64 = input[0]
+    let limit: i64 = input[1]
+    if divisor_count < 1 or divisor_count > MAX_DIVISOR_COUNT or limit < 1 or limit > MAX_LIMIT:
+        return -1
+
+    remaining_stack: mutable i64[MAX_STACK] = zeroed
+    max_factor_stack: mutable i64[MAX_STACK] = zeroed
+    prime_index_stack: mutable i64[MAX_STACK] = zeroed
+    product_stack: mutable i64[MAX_STACK] = zeroed
+    top: mutable usize = 1
+    remaining_stack[0] <- divisor_count
+    max_factor_stack[0] <- divisor_count
+    product_stack[0] <- 1
+    best: mutable i64 = limit + 1
+
+    while top > 0:
+        top <- top - 1
+        let remaining: i64 = remaining_stack[top]
+        let max_factor: i64 = max_factor_stack[top]
+        let prime_index: i64 = prime_index_stack[top]
+        let product: i64 = product_stack[top]
+        if remaining == 1:
+            if product < best:
+                best <- product
+            continue
+        if prime_index >= MAX_PRIMES.i64():
+            continue
+        let prime: i64 = PRIMES[prime_index.usize()]
+        let factor_limit: i64 = if max_factor < remaining then max_factor else remaining
+        factor: mutable i64 = 2
+        while factor <= factor_limit:
+            if remaining % factor == 0:
+                candidate: mutable i64 = product
+                valid: mutable bool = true
+                step: mutable i64 = 1
+                while step < factor:
+                    if candidate > limit / prime:
+                        valid <- false
+                        break
+                    candidate <- candidate * prime
+                    step <- step + 1
+                if valid and candidate < best:
+                    if top >= MAX_STACK:
+                        return -1
+                    remaining_stack[top] <- remaining / factor
+                    max_factor_stack[top] <- factor
+                    prime_index_stack[top] <- prime_index + 1
+                    product_stack[top] <- candidate
+                    top <- top + 1
+            factor <- factor + 1
+    best if best <= limit else 0
+
+export fn smallest_number_with_n_divisors(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let input_view: view[i64] = input[0:length]
+    smallest_number_with_n_divisors_impl(input_view, length)

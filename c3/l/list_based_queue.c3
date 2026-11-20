@@ -1,10 +1,11 @@
 module list_based_queue;
 
-long list_based_queue(long* input, usz length, char* output, usz output_capacity)
+fn long list_based_queue(long* input, usz length, char* output, usz output_capacity)
         @export("list_based_queue") {
     if (input == null || length < 1 || length > 66 || input[0] < 0 || input[0] > 32) return -1;
     usz op_count = (usz)input[0];
-    long node_values[32], next_node[32], words[64];
+    long[32] node_values, next_node;
+    long[64] words;
     usz allocated = 0, word_count = 0, pos = 1, size = 0;
     long head = -1, tail = -1;
     for (usz i = 0; i < op_count; i++) {

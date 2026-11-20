@@ -20,7 +20,7 @@ fn void store_scaled_binary64(char* output, uint numerator) {
 }
 
 // Clean-room exact dyadic projection of GBBS CoSimRank; see package LICENSE.txt.
-long gbbs_cosimrank_pair_similarity(long* input, usz length, char* output, usz capacity)
+fn long gbbs_cosimrank_pair_similarity(long* input, usz length, char* output, usz capacity)
         @export("gbbs_cosimrank_pair_similarity") {
     if (input == null || length < 5 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1], u64 = input[2], v64 = input[3], iterations64 = input[4];

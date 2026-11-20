@@ -41,7 +41,7 @@ fn long query(usz vertex, usz* degree, usz* neighbors, ulong* priority,
     return 1;
 }
 
-long gbbs_yoshida_query_mis(long* input, usz length, char* output, usz capacity)
+fn long gbbs_yoshida_query_mis(long* input, usz length, char* output, usz capacity)
         @export("gbbs_yoshida_query_mis") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1], root64 = input[2], cutoff64 = input[3];

@@ -1,0 +1,136 @@
+# Count strict integer lattice points inside a bounded rational convex polygon.
+struct Point:
+    x: i64
+    y: i64
+
+def rpl_floor_div(a: i64, b: i64) -> i64:
+    q: i64 = a / b
+    r: i64 = a % b
+    q - if r < 0: 1 else: 0
+
+def rpl_ceil_div(a: i64, b: i64) -> i64:
+    -rpl_floor_div(-a, b)
+
+def rpl_floor_sum(n: i64, m: i64, a: i64, b: i64) -> i64:
+    aq: i64 = rpl_floor_div(a,m)
+    bq: i64 = rpl_floor_div(b,m)
+    answer: mutable i64 = aq*n*(n-1)/2+bq*n
+    aa: mutable i64 = a-aq*m
+    bb: mutable i64 = b-bq*m
+    nn: mutable i64 = n
+    mm: mutable i64 = m
+    while true:
+        if aa >= mm:
+            answer <- answer+(nn-1)*nn*(aa/mm)/2
+            aa <- aa%mm
+        if bb >= mm:
+            answer <- answer+nn*(bb/mm)
+            bb <- bb%mm
+        top: i64 = aa*nn+bb
+        if top < mm: return answer
+        nn <- top/mm
+        bb <- top%mm
+        old_m: i64 = mm
+        mm <- aa
+        aa <- old_m
+    return answer
+
+def rpl_edge_chunk(scale: i64, a: Point, dx: i64, dy: i64,
+                   start: i64, columns: i64) -> i64:
+    if columns <= 0: return 0
+    aa: mutable i64 = dy*scale
+    bb: mutable i64 = a.y*dx-dy*a.x
+    den: mutable i64 = scale*dx
+    if den<0:
+        aa <- -aa
+        bb <- -bb
+        den <- -den
+    base: i64 = aa*start+bb
+    if dx>0: return -rpl_floor_sum(columns,den,aa,base)
+    -rpl_floor_sum(columns,den,-aa,-base)-columns
+
+def rpl_inside(points: view[Point], n: usize, scale: i64, x: i64, y: i64) -> bool:
+    px: i64 = x*scale
+    py: i64 = y*scale
+    inside: mutable bool = false
+    for i in 0..<n:
+        a: Point = points[i]
+        b: Point = points[(i+1)%n]
+        cross: i64 = (b.x-a.x)*(py-a.y)-(b.y-a.y)*(px-a.x)
+        if cross==0 and px >= (if a.x<b.x: a.x else: b.x) and px <= (if a.x>b.x: a.x else: b.x) and py >= (if a.y<b.y: a.y else: b.y) and py <= (if a.y>b.y: a.y else: b.y): return false
+        if (a.y>py)!=(b.y>py):
+            dy: i64 = b.y-a.y
+            dx: i64 = b.x-a.x
+            left: i64 = a.x*dy+(py-a.y)*dx
+            right: i64 = px*dy
+            if (dy>0 and left>right) or (dy<0 and left<right): inside <- not inside
+    inside
+
+def rpl_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > 19: return -1
+    scale_raw,n_raw: i64 = input[0],input[1]
+    if scale_raw<2 or scale_raw>8 or n_raw<3 or n_raw>8: return -1
+    scale,n: usize = scale_raw.usize(),n_raw.usize()
+    if length != 2+2*n: return -1
+    points: mutable Point[8] = zeroed
+    fractional: mutable bool = false
+    for i in 0..<n:
+        points[i] <- Point(input[2+2*i],input[3+2*i])
+        if points[i].x < -32 or points[i].x > 32 or points[i].y < -32 or points[i].y > 32: return -1
+        if points[i].x < -4*scale_raw or points[i].x > 4*scale_raw or points[i].y < -4*scale_raw or points[i].y > 4*scale_raw: return -1
+        if points[i].x%scale_raw != 0 or points[i].y%scale_raw != 0: fractional <- true
+        for j in 0..<i:
+            if points[i].x==points[j].x and points[i].y==points[j].y: return -1
+    if not fractional: return -1
+    area2: mutable i64 = 0
+    for i in 0..<n:
+        a: Point = points[i]
+        b: Point = points[(i+1)%n]
+        area2 <- area2+a.x*b.y-a.y*b.x
+    if area2==0: return -1
+    orientation: i64 = if area2>0: 1 else: -1
+    for i in 0..<n:
+        a: Point = points[i]
+        b: Point = points[(i+1)%n]
+        for j in 0..<n:
+            if j==i or j==(i+1)%n: continue
+            c: Point = points[j]
+            cross: i64 = (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x)
+            if cross*orientation<=0: return -1
+    signed_count: mutable i64 = 0
+    for i in 0..<n:
+        a: Point = points[i]
+        b: Point = points[(i+1)%n]
+        dx: i64 = b.x-a.x
+        dy: i64 = b.y-a.y
+        if dx==0: continue
+        lo: i64 = if a.x<b.x: a.x else: b.x
+        hi: i64 = if a.x>b.x: a.x else: b.x
+        start: i64 = rpl_ceil_div(lo,scale_raw)
+        stop: i64 = rpl_ceil_div(hi,scale_raw)
+        cursor: mutable i64 = start
+        for col in start..<stop:
+            event: mutable bool = false
+            for k in 0..<n: if points[k].x==col*scale_raw: event <- true
+            if event:
+                signed_count <- signed_count+rpl_edge_chunk(scale_raw,a,dx,dy,cursor,col-cursor)
+                cursor <- col+1
+        signed_count <- signed_count+rpl_edge_chunk(scale_raw,a,dx,dy,cursor,stop-cursor)
+    for i in 0..<n:
+        if points[i].x%scale_raw!=0: continue
+        first: mutable bool = true
+        for j in 0..<i: if points[j].x==points[i].x: first <- false
+        if not first: continue
+        x: i64 = points[i].x/scale_raw
+        count: mutable i64 = 0
+        for y in -4..<5:
+            if rpl_inside(points[0:n],n,scale_raw,x,y): count <- count+1
+        signed_count <- signed_count+orientation*count
+    result: i64 = signed_count*orientation
+    if result<0: return -1
+    result
+
+export fn rational_polygon_lattice_points(input: i64&, length: usize) -> i64:
+    if input.is_null() or length<2 or length>19: return -1
+    rpl_impl(input[0:length])

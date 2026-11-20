@@ -1,0 +1,28 @@
+# Decide whether the iterated Euler-totient chain sums to n.
+def totient(value_input: i64) -> i64:
+    result: mutable i64 = value_input
+    remaining: mutable i64 = value_input
+    factor: mutable i64 = 2
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            while remaining % factor == 0:
+                remaining <- remaining / factor
+            result <- result - result / factor
+        factor <- factor + 1
+    if remaining > 1:
+        result <- result - result / remaining
+    result
+
+def perfect_totient_number_impl(n: i64) -> i64:
+    if n < 3 or n > 65535:
+        return -1
+    value: mutable i64 = n
+    total: mutable i64 = 0
+    while value > 1:
+        value <- totient(value)
+        total <- total + value
+    if total == n:
+        return 1
+    0
+
+export fn perfect_totient_number(n: i64) -> i64 = perfect_totient_number_impl

@@ -1,0 +1,92 @@
+# Independently authored draft; not compiled or run.
+def kth_substring_solve(input: view[i64], result: mutable view[u8]) -> i64:
+    n: usize = input[0].usize()
+    k: mutable i64 = input[1]
+    transitions: mutable i64[131072] = zeroed
+    links: mutable i64[512] = zeroed
+    lengths: mutable usize[512] = zeroed
+    paths: mutable i64[512] = zeroed
+    for i in 0..<131072: transitions[i] <- -1
+    for i in 0..<512: links[i] <- -1
+    count: mutable usize = 1
+    last: mutable usize = 0
+    for i in 0..<n:
+        symbol: usize = input[i+2].usize()
+        current: usize = count
+        count <- count + 1
+        lengths[current] <- lengths[last] + 1
+        p: mutable i64 = last.i64()
+        while p >= 0 and transitions[p.usize()*256+symbol] < 0:
+            transitions[p.usize()*256+symbol] <- current.i64()
+            p <- links[p.usize()]
+        if p < 0: links[current] <- 0
+        else:
+            q: usize = transitions[p.usize()*256+symbol].usize()
+            if lengths[p.usize()] + 1 == lengths[q]: links[current] <- q.i64()
+            else:
+                clone: usize = count
+                count <- count + 1
+                for c in 0..<256: transitions[clone*256+c] <- transitions[q*256+c]
+                links[clone] <- links[q]
+                lengths[clone] <- lengths[p.usize()] + 1
+                while p >= 0 and transitions[p.usize()*256+symbol] == q.i64():
+                    transitions[p.usize()*256+symbol] <- clone.i64()
+                    p <- links[p.usize()]
+                links[q] <- clone.i64()
+                links[current] <- clone.i64()
+        last <- current
+    buckets: mutable usize[257] = zeroed
+    order: mutable usize[512] = zeroed
+    for i in 0..<count: buckets[lengths[i]] <- buckets[lengths[i]] + 1
+    for i in 1..<(n+1): buckets[i] <- buckets[i] + buckets[i-1]
+    idx: mutable usize = count
+    while idx > 0:
+        idx <- idx - 1
+        l: usize = lengths[idx]
+        buckets[l] <- buckets[l] - 1
+        order[buckets[l]] <- idx
+    idx <- count
+    while idx > 0:
+        idx <- idx - 1
+        state: usize = order[idx]
+        for c in 0..<256:
+            next: i64 = transitions[state*256+c]
+            if next >= 0: paths[state] <- paths[state] + 1 + paths[next.usize()]
+    if k > paths[0]: return -1
+    used: mutable usize = 0
+    state: mutable usize = 0
+    done: mutable bool = false
+    while not done:
+        found: mutable bool = false
+        c: mutable usize = 0
+        while c < 256 and not found:
+            next: i64 = transitions[state*256+c]
+            if next >= 0:
+                group: i64 = 1 + paths[next.usize()]
+                if k > group: k <- k - group
+                else:
+                    result[used] <- c.u8()
+                    used <- used + 1
+                    state <- next.usize()
+                    found <- true
+            c <- c + 1
+        if not found: return -1
+        if k == 1: done <- true
+        else: k <- k - 1
+    used.i64()
+
+export fn suffix_automaton_kth_distinct_substring(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > 259: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > 256 or values[1] < 1: return -1
+    n: usize = values[0].usize()
+    if length != n + 2: return -1
+    for i in 2..<length:
+        if values[i] < 0 or values[i] > 255: return -1
+    result: mutable u8[256] = zeroed
+    used: i64 = kth_substring_solve(values, result[0:256])
+    if used < 0: return -1
+    if output == null or capacity < used.usize(): return -2
+    out: mutable view[u8] = output[0:used.usize()]
+    for i in 0..<used.usize(): out[i] <- result[i]
+    used

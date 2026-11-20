@@ -1,0 +1,39 @@
+{
+  "algorithm": "boids_flocking_simulation",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "boids_flocking_simulation",
+  "ports": [
+    "c/b/boids_flocking_simulation.c",
+    "c3/b/boids_flocking_simulation.c3",
+    "cpp/b/boids_flocking_simulation.cpp",
+    "elisa/b/boids_flocking_simulation.elisa",
+    "mojo/b/boids_flocking_simulation.mojo",
+    "nim/b/boids_flocking_simulation.nim",
+    "odin/b/boids_flocking_simulation.odin",
+    "rust/b/boids_flocking_simulation.rs",
+    "v/b/boids_flocking_simulation.v",
+    "zig/b/boids_flocking_simulation.zig"
+  ],
+  "references": [
+    "benchmarks/boids_flocking_simulation_oracle.py",
+    "benchmarks/b/boids_flocking_simulation/independent_reference.py"
+  ],
+  "static_inventory": "benchmarks/b/boids_flocking_simulation/check_inventory.py",
+  "workload_verifier": "benchmarks/b/boids_flocking_simulation/verify_workload.py",
+  "fixtures": [
+    "single-agent-no-neighbors",
+    "coincident-separation-id-tie",
+    "inclusive-radius-synchronous-three-rule-update",
+    "radius-zero-excludes-distinct-boids-and-integrates-twice",
+    "zero-steps-preserve-state",
+    "maximum-boids-steps-and-output-bound",
+    "initial-speed-over-limit-is-invalid",
+    "out-of-range-position-is-invalid",
+    "trailing-word-is-invalid-before-capacity-check",
+    "undersized-output-does-not-write",
+    "null-output-is-invalid-for-nonempty-flock",
+    "null-input"
+  ],
+  "workspace_bytes": 1280,
+  "maximum_output_bytes": 256
+}

@@ -14,11 +14,11 @@ fn void train8(int* t,int* w,int err){for(int i=0;i<8;i++){int value=w[i]+(((t[i
 fn void put16(char* o,usz p,int value){o[p]=(char)(value&255);o[p+1]=(char)((value>>8)&255);}
 
 fn long paq8p_context_mixer(long* input,usz length,char* output,usz capacity) @export("paq8p_context_mixer") {
-    if(input==null||length<12||length>177)return -1;long count=input[0];if(count<1||count>16||length!=1+count.usz()*11)return -1;
-    int[16][8] features;int[16] c0;int[16] c1;int[16] targets;usz p=1;
+    if(input==null||length<12||length>177)return -1;long count=input[0];if(count<1||count>16||length!=1+(usz)count*11)return -1;
+    int[8][16] features;int[16] c0;int[16] c1;int[16] targets;usz p=1;
     for(int s=0;s<count;s++){if(input[p]<0||input[p]>1||input[p+1]<0||input[p+1]>1||input[p+2]<0||input[p+2]>1)return -1;c0[s]=(int)input[p];c1[s]=(int)input[p+1];targets[s]=(int)input[p+2];p+=3;for(int j=0;j<8;j++){if(input[p]< -2047||input[p]>2047)return -1;features[s][j]=(int)input[p++];}}
-    usz needed=count.usz()*2;if(output==null||capacity<needed)return -2;
-    int[4096] stretch;make_stretch(&stretch[0]);int[4][8] outer;int[8] inner;for(int i=0;i<8;i++)inner[i]=32767;int[8] previous_inner;int previous_prediction=2048;int previous_target=0;
-    for(int s=0;s<count;s++){if(s>0)train8(&previous_inner[0],&inner[0],((previous_target<<12)-previous_prediction)*7);int[2] contexts={c0[s],2+c1[s]};int[2] model;for(int k=0;k<2;k++)model[k]=squash(dot8(&features[s][0],&outer[contexts[k]][0])>>5);int[8] x={stretch[model[0]],stretch[model[1]],0,0,0,0,0,0};int prediction=squash(dot8(&x[0],&inner[0])>>8);put16(output,s.usz()*2,prediction);for(int k=0;k<2;k++)train8(&features[s][0],&outer[contexts[k]][0],((targets[s]<<12)-model[k])*7);for(int i=0;i<8;i++)previous_inner[i]=x[i];previous_prediction=prediction;previous_target=targets[s];}
-    return needed.long();
+    usz needed=(usz)count*2;if(output==null||capacity<needed)return -2;
+    int[4096] stretch;make_stretch(&stretch[0]);int[8][4] outer=zeroed;int[8] inner;for(int i=0;i<8;i++)inner[i]=32767;int[8] previous_inner;int previous_prediction=2048;int previous_target=0;
+    for(int s=0;s<count;s++){if(s>0)train8(&previous_inner[0],&inner[0],((previous_target<<12)-previous_prediction)*7);int[2] contexts={c0[s],2+c1[s]};int[2] model;for(int k=0;k<2;k++)model[k]=squash(dot8(&features[s][0],&outer[contexts[k]][0])>>5);int[8] x={stretch[model[0]],stretch[model[1]],0,0,0,0,0,0};int prediction=squash(dot8(&x[0],&inner[0])>>8);put16(output,(usz)s*2,prediction);for(int k=0;k<2;k++)train8(&features[s][0],&outer[contexts[k]][0],((targets[s]<<12)-model[k])*7);for(int i=0;i<8;i++)previous_inner[i]=x[i];previous_prediction=prediction;previous_target=targets[s];}
+    return (long)needed;
 }

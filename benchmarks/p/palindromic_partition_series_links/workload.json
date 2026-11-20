@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-palindromic-partition-series-links-byte-output-v1",
+  "algorithm": "palindromic_partition_series_links",
+  "function_symbol": "palindromic_partition_series_links",
+  "abi": "i64_array_bytes_output",
+  "description": "Minimum palindrome partition with eertree series-link DP and deterministic partition reconstruction.",
+  "source": {
+    "title": "Palindromic Tree — Minimum Palindromic Partition",
+    "authors": ["OI Wiki contributors"],
+    "url": "https://www.timothywang.ca/OI-wiki/string/pam/",
+    "section": "Minimum Palindromic Partition; Optimization",
+    "license": "CC BY-SA 4.0 and SATA terms",
+    "algorithm_attribution": "Eertree suffix links are grouped by diff; series links aggregate prefix-DP candidates across each arithmetic progression of palindromic suffix lengths.",
+    "implementation_status": "Clean-room bounded algorithm ports; no article code, prose, examples, or test data copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, symbols[0..n)]",
+    "length_range": [0, 64],
+    "alphabet_range": [0, 3],
+    "exact_length": "n+1",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[piece_count, piece_lengths...]",
+    "partition_order": "Left-to-right lengths; among optimal partitions of each prefix, choose the smallest preceding prefix index, which prefers the longest final palindrome. Reconstruct repeatedly from the full prefix toward zero.",
+    "success_result": "8 times the number of output words",
+    "maximum_bytes": 520,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "algorithm_contract": {
+    "dp": "dp[i] is the minimum number of palindromic pieces covering the first i symbols.",
+    "series_recurrence": "For each palindromic suffix series representative v at prefix i, seed its aggregate with dp[i-len[slink[v]]-diff[v]], combine with the cached aggregate of fail[v] when diff[v]==diff[fail[v]], and minimize dp[i] with aggregate+1.",
+    "tie_rule": "For equal minimum piece counts at a prefix, choose the smaller predecessor prefix index.",
+    "empty_text": "The empty text has zero pieces and serializes as [0]."
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Fixed four-symbol eertree transitions, suffix/series-link state, prefix DP, predecessors, and staged output words."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {"id":"empty-text","input_values":[0],"input_length":1,"output_capacity":520,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"one-symbol","input_values":[1,0],"input_length":2,"output_capacity":520,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"two-distinct-symbols","input_values":[2,0,1],"input_length":3,"output_capacity":520,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000100000000000000"},
+    {"id":"whole-text-palindrome","input_values":[4,0,1,1,0],"input_length":5,"output_capacity":520,"expected_result":16,"expected_output_hex":"01000000000000000400000000000000"},
+    {"id":"tie-prefers-longest-final-palindrome","input_values":[4,0,1,0,1],"input_length":5,"output_capacity":520,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000300000000000000"},
+    {"id":"palindrome-prefix-then-singleton","input_values":[4,0,1,0,2],"input_length":5,"output_capacity":520,"expected_result":24,"expected_output_hex":"020000000000000003000000000000000100000000000000"},
+    {"id":"maximum-text-length","input_values":[64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":65,"output_capacity":520,"expected_result":16,"expected_output_hex":"01000000000000004000000000000000"},
+    {"id":"out-of-alphabet-symbol","input_values":[1,4],"input_length":2,"output_capacity":520,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[1,0,99],"input_length":3,"output_capacity":520,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,0],"input_length":2,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[0],"input_length":1,"output_capacity":520,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":1,"output_capacity":520,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

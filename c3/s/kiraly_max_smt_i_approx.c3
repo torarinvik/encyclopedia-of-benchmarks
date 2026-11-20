@@ -6,15 +6,15 @@ fn void put64(char* output, usz position, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[position + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long kiraly_max_smt_i_approx(long* input, usz length, char* output, usz capacity) @export("kiraly_max_smt_i_approx") {
+fn long kiraly_max_smt_i_approx(long* input, usz length, char* output, usz capacity) @export("kiraly_max_smt_i_approx") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     long m64 = input[0], w64 = input[1];
     if (m64 < 1 || m64 > (long)MAX_M || w64 < 1 || w64 > (long)MAX_W) return -1;
     usz m = (usz)m64, w = (usz)w64;
     if (length != 2 + 2 * m * w) return -1;
-    long[MAX_M][MAX_W] men_rank = zeroed;
-    long[MAX_W][MAX_M] women_rank = zeroed;
-    bool[MAX_M][MAX_W] live = zeroed;
+    long[MAX_W][MAX_M] men_rank = zeroed;
+    long[MAX_M][MAX_W] women_rank = zeroed;
+    bool[MAX_W][MAX_M] live = zeroed;
     long[MAX_M] assignment = zeroed;
     long[MAX_W] woman_partner = zeroed;
     long[MAX_M] status = zeroed; // 0 lad, 1 bachelor, 2 old bachelor

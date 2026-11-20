@@ -1,6 +1,6 @@
 module pkcs7_padding;
 
-long pkcs7_padding(long* input, usz length, uchar* output, usz output_capacity)
+fn long pkcs7_padding(long* input, usz length, uchar* output, usz output_capacity)
         @export("pkcs7_padding") {
     if (input == null || length < 5 || length > 69) return -1;
     long operation = input[0], block_arg = input[1], offset_arg = input[2], data_arg = input[3];

@@ -1,0 +1,197 @@
+const TT_LISTS: usize = 3
+const TT_MAX_LIST: usize = 32
+const TT_MAX_VALUES: usize = 48
+const TT_MAX_INPUT: usize = 3 + TT_LISTS * TT_MAX_LIST
+const TT_WHITE: i64 = 0
+const TT_GREEN: i64 = 1
+const TT_RED: i64 = 2
+
+def tt_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def t_threshold_three_sorted_lists_impl(input: view[i64],
+        output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 6 or length > TT_MAX_INPUT + 1: return -1
+    base: mutable usize[TT_LISTS] = zeroed
+    sizes: mutable usize[TT_LISTS] = zeroed
+    at: mutable usize = 0
+    list_id: mutable usize = 0
+    while list_id < TT_LISTS:
+        if at >= length or input[at] < 1 or input[at] > 32: return -1
+        sizes[list_id] <- input[at].usize()
+        at <- at + 1
+        if sizes[list_id] > length - at: return -1
+        base[list_id] <- at
+        item: mutable usize = 0
+        while item < sizes[list_id]:
+            value: i64 = input[at + item]
+            if value < -2147483648 or value > 2147483647 or
+                    (item > 0 and input[at + item - 1] >= value): return -1
+            item <- item + 1
+        at <- at + sizes[list_id]
+        list_id <- list_id + 1
+    if at != length: return -1
+
+    tails: mutable i64[TT_LISTS] = zeroed
+    firsts: mutable i64[TT_LISTS] = zeroed
+    list_id <- 0
+    while list_id < TT_LISTS:
+        tails[list_id] <- input[base[list_id] + sizes[list_id] - 1]
+        firsts[list_id] <- input[base[list_id]]
+        list_id <- list_id + 1
+    left: mutable usize = 0
+    while left < TT_LISTS:
+        right: mutable usize = left + 1
+        while right < TT_LISTS:
+            if tails[left] > tails[right]:
+                temp: i64 = tails[left]
+                tails[left] <- tails[right]
+                tails[right] <- temp
+            if firsts[left] > firsts[right]:
+                temp_first: i64 = firsts[left]
+                firsts[left] <- firsts[right]
+                firsts[right] <- temp_first
+            right <- right + 1
+        left <- left + 1
+    maximum_candidate: i64 = tails[1]
+    candidate: mutable i64 = firsts[1]
+
+    color: mutable i64[TT_LISTS] = zeroed
+    cursor: mutable usize[TT_LISTS] = zeroed
+    search_base: mutable usize[TT_LISTS] = zeroed
+    search_low: mutable usize[TT_LISTS] = zeroed
+    search_step: mutable usize[TT_LISTS] = zeroed
+    search_probe: mutable usize[TT_LISTS] = zeroed
+    representative: mutable usize[TT_LISTS] = zeroed
+    representative_present: mutable bool[TT_LISTS] = zeroed
+    list_id <- 0
+    while list_id < TT_LISTS:
+        cursor[list_id] <- 1
+        search_base[list_id] <- 1
+        search_low[list_id] <- 1
+        search_step[list_id] <- 1
+        search_probe[list_id] <- 1
+        if input[base[list_id]] == candidate:
+            color[list_id] <- TT_GREEN
+        elif input[base[list_id]] > candidate:
+            color[list_id] <- TT_RED
+            representative_present[list_id] <- true
+        list_id <- list_id + 1
+
+    result: mutable i64[TT_MAX_VALUES] = zeroed
+    result_count: mutable usize = 0
+    round_robin: mutable usize = 0
+    while candidate <= maximum_candidate:
+        green_count: mutable usize = 0
+        red_count: mutable usize = 0
+        white_count: mutable usize = 0
+        list_id <- 0
+        while list_id < TT_LISTS:
+            if color[list_id] == TT_GREEN: green_count <- green_count + 1
+            elif color[list_id] == TT_RED: red_count <- red_count + 1
+            else: white_count <- white_count + 1
+            list_id <- list_id + 1
+        if green_count >= 2 or red_count >= 2:
+            if green_count >= 2:
+                result[result_count] <- candidate
+                result_count <- result_count + 1
+            recolor_count: mutable usize = 0
+            if white_count == 0: recolor_count <- 1
+            list_id <- 0
+            while list_id < TT_LISTS and recolor_count > 0:
+                if color[list_id] == TT_GREEN:
+                    color[list_id] <- TT_WHITE
+                    search_base[list_id] <- cursor[list_id]
+                    search_low[list_id] <- cursor[list_id]
+                    search_step[list_id] <- 1
+                    search_probe[list_id] <- cursor[list_id]
+                    recolor_count <- recolor_count - 1
+                list_id <- list_id + 1
+            list_id <- 0
+            while list_id < TT_LISTS:
+                if color[list_id] == TT_GREEN:
+                    color[list_id] <- TT_RED
+                    representative[list_id] <- cursor[list_id]
+                    representative_present[list_id] <- cursor[list_id] < sizes[list_id]
+                list_id <- list_id + 1
+            found: mutable bool = false
+            next_candidate: mutable i64 = 9223372036854775807
+            list_id <- 0
+            while list_id < TT_LISTS:
+                if representative_present[list_id]:
+                    value: i64 = input[base[list_id] + representative[list_id]]
+                    if not found or value < next_candidate:
+                        found <- true
+                        next_candidate <- value
+                list_id <- list_id + 1
+            if not found: break
+            candidate <- next_candidate
+            list_id <- 0
+            while list_id < TT_LISTS:
+                if color[list_id] == TT_RED and representative_present[list_id] and
+                        input[base[list_id] + representative[list_id]] == candidate:
+                    color[list_id] <- TT_GREEN
+                    representative_present[list_id] <- false
+                    cursor[list_id] <- representative[list_id] + 1
+                    search_base[list_id] <- cursor[list_id]
+                    search_low[list_id] <- cursor[list_id]
+                    search_step[list_id] <- 1
+                    search_probe[list_id] <- cursor[list_id]
+                list_id <- list_id + 1
+            continue
+
+        list_id <- TT_LISTS
+        offset: mutable usize = 0
+        while offset < TT_LISTS:
+            possible: usize = (round_robin + offset) % TT_LISTS
+            if color[possible] == TT_WHITE:
+                list_id <- possible
+                break
+            offset <- offset + 1
+        if list_id == TT_LISTS: break
+        round_robin <- (list_id + 1) % TT_LISTS
+        probe: usize = min(search_probe[list_id], sizes[list_id] - 1)
+        if input[base[list_id] + probe] < candidate:
+            search_low[list_id] <- probe + 1
+            if probe + 1 == sizes[list_id]:
+                color[list_id] <- TT_RED
+                representative[list_id] <- sizes[list_id]
+                representative_present[list_id] <- false
+            else:
+                search_step[list_id] <- search_step[list_id] * 2
+                next_probe: usize = search_base[list_id] + search_step[list_id] - 1
+                search_probe[list_id] <- min(next_probe, sizes[list_id] - 1)
+            continue
+        low: mutable usize = search_low[list_id]
+        high: mutable usize = probe + 1
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if input[base[list_id] + middle] < candidate: low <- middle + 1
+            else: high <- middle
+        if low < sizes[list_id] and input[base[list_id] + low] == candidate:
+            color[list_id] <- TT_GREEN
+            cursor[list_id] <- low + 1
+        else:
+            color[list_id] <- TT_RED
+            representative[list_id] <- low
+            representative_present[list_id] <- low < sizes[list_id]
+
+    output_bytes: usize = 8 * (1 + result_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    tt_put_i64(result_count.i64(), output_view, 0)
+    list_id <- 0
+    while list_id < result_count:
+        tt_put_i64(result[list_id], output_view, 8 * (list_id + 1))
+        list_id <- list_id + 1
+    output_bytes.i64()
+
+export fn t_threshold_three_sorted_lists(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > TT_MAX_INPUT + 1: return -1
+    t_threshold_three_sorted_lists_impl(input[0:length], output, capacity)

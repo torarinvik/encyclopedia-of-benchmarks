@@ -81,7 +81,7 @@ fn void assign_preorder(usz n, usz* parent, usz* pn, usz* order, usz* size) {
     }
 }
 
-long gbbs_biconnectivity(long* input, usz length, char* output, usz capacity)
+fn long gbbs_biconnectivity(long* input, usz length, char* output, usz capacity)
         @export("gbbs_biconnectivity") {
     if (input == null || length < 2 || length > INPUT) return -1;
     long n64 = input[0], m64 = input[1];

@@ -14,7 +14,7 @@ fn void put_i32_le(char* output, usz offset, int value) {
     }
 }
 
-long merge_sorted_singly_linked_list(long* input, usz length, char* output, usz capacity)
+fn long merge_sorted_singly_linked_list(long* input, usz length, char* output, usz capacity)
         @export("merge_sorted_singly_linked_list") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 0 || input[0] > 128) return -1;

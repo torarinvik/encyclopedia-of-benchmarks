@@ -1,0 +1,135 @@
+const OM_MAX_SIDE: usize = 12
+const OM_MAX_CELLS: usize = OM_MAX_SIDE * OM_MAX_SIDE
+const OM_MAX_INPUT_LENGTH: usize = 2 + 2 * OM_MAX_CELLS
+const OM_MAX_PARSEABLE_INPUT_LENGTH: usize = OM_MAX_INPUT_LENGTH + 1
+
+def om_sample_code(input: view[i64], base: usize, side: usize, row: usize,
+        column: usize, count: usize, stride: usize) -> usize:
+    code: mutable usize = 0
+    offset: mutable usize = 0
+    while offset < count:
+        at: usize = base + row * side + column + offset * stride
+        code <- 4 * code + input[at].usize()
+        offset <- offset + 1
+    code
+
+def om_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def two_dimensional_optimal_expected_matching_impl(input: view[i64],
+        output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > OM_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 12 or m_value < 1 or m_value > n_value: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    text_size: usize = n * n
+    pattern_size: usize = m * m
+    if length != 2 + text_size + pattern_size: return -1
+    pattern_base: usize = 2 + text_size
+    index: mutable usize = 0
+    while index < text_size + pattern_size:
+        if input[2 + index] < 0 or input[2 + index] > 3: return -1
+        index <- index + 1
+
+    q: mutable usize = 1
+    code_capacity: mutable usize = 4
+    while code_capacity < pattern_size:
+        q <- q + 1
+        code_capacity <- code_capacity * 4
+    stride: usize = m / q
+    final_offset: usize = (q - 1) * stride
+    heads: mutable i64[256] = zeroed
+    next_address: mutable i64[OM_MAX_CELLS] = zeroed
+    address_row: mutable i64[OM_MAX_CELLS] = zeroed
+    address_column: mutable i64[OM_MAX_CELLS] = zeroed
+    index <- 0
+    while index < 256:
+        heads[index] <- -1
+        index <- index + 1
+    address_count: mutable usize = 0
+    row: mutable usize = 0
+    while row < m:
+        residue: mutable usize = 0
+        while residue < stride:
+            code: usize = om_sample_code(input, pattern_base, m, row, residue, q, stride)
+            address_row[address_count] <- row.i64()
+            address_column[address_count] <- residue.i64()
+            next_address[address_count] <- heads[code]
+            heads[code] <- address_count.i64()
+            address_count <- address_count + 1
+            residue <- residue + 1
+        row <- row + 1
+
+    tested: mutable bool[OM_MAX_CELLS] = zeroed
+    matched: mutable bool[OM_MAX_CELLS] = zeroed
+    row_starts: usize = n - m + 1
+    column_starts: usize = n - m + 1
+    text_row: mutable usize = 0
+    while text_row < n:
+        text_column: mutable usize = 0
+        while text_column + final_offset < n:
+            code: usize = om_sample_code(input, 2, n, text_row, text_column, q, stride)
+            address: mutable i64 = heads[code]
+            while address >= 0:
+                slot: usize = address.usize()
+                candidate_row: i64 = text_row.i64() - address_row[slot]
+                candidate_column: i64 = text_column.i64() - address_column[slot]
+                if candidate_row >= 0 and candidate_column >= 0 and
+                        candidate_row.usize() < row_starts and candidate_column.usize() < column_starts:
+                    candidate: usize = candidate_row.usize() * n + candidate_column.usize()
+                    if not tested[candidate]:
+                        tested[candidate] <- true
+                        equal: mutable bool = true
+                        verify_row: mutable usize = 0
+                        while verify_row < m and equal:
+                            verify_column: mutable usize = 0
+                            while verify_column < m:
+                                text_at: usize = 2 + (candidate_row.usize() + verify_row) * n + candidate_column.usize() + verify_column
+                                pattern_at: usize = pattern_base + verify_row * m + verify_column
+                                if input[text_at] != input[pattern_at]:
+                                    equal <- false
+                                    break
+                                verify_column <- verify_column + 1
+                            verify_row <- verify_row + 1
+                        matched[candidate] <- equal
+                address <- next_address[slot]
+            text_column <- text_column + stride
+        text_row <- text_row + m
+
+    match_count: mutable usize = 0
+    row <- 0
+    while row < row_starts:
+        residue: mutable usize = 0
+        while residue < column_starts:
+            if matched[row * n + residue]: match_count <- match_count + 1
+            residue <- residue + 1
+        row <- row + 1
+    output_bytes: usize = 8 * (1 + 2 * match_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    om_put_i64(match_count.i64(), output_view, 0)
+    output_word: mutable usize = 1
+    row <- 0
+    while row < row_starts:
+        residue: usize = 0
+        while residue < column_starts:
+            if matched[row * n + residue]:
+                om_put_i64(row.i64(), output_view, 8 * output_word)
+                output_word <- output_word + 1
+                om_put_i64(residue.i64(), output_view, 8 * output_word)
+                output_word <- output_word + 1
+            residue <- residue + 1
+        row <- row + 1
+    output_bytes.i64()
+
+export fn two_dimensional_optimal_expected_matching(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > OM_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    two_dimensional_optimal_expected_matching_impl(input[0:length], output, capacity)

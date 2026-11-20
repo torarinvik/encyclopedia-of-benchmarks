@@ -1,0 +1,49 @@
+const MAX_CAPACITY: usize = 32
+const MAX_KEY: i64 = 1000000
+
+def lcfs_hashing_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > 35: return -1
+    capacity_value: i64 = input[0]
+    count_value: i64 = input[1]
+    if capacity_value < 1 or capacity_value > MAX_CAPACITY.i64(): return -1
+    if count_value < 0 or count_value > capacity_value or length != count_value.usize() + 2: return -1
+    capacity: usize = capacity_value.usize()
+    count: usize = count_value.usize()
+    i: mutable usize = 0
+    while i < count:
+        key: i64 = input[i + 2]
+        if key < 0 or key > MAX_KEY: return -1
+        j: mutable usize = 0
+        while j < i:
+            if input[j + 2] == key: return -1
+            j <- j + 1
+        i <- i + 1
+
+    table: mutable i64[32] = zeroed
+    i <- 0
+    while i < capacity:
+        table[i] <- -1
+        i <- i + 1
+    displacements: mutable i64 = 0
+    i <- 0
+    while i < count:
+        incoming: mutable i64 = input[i + 2]
+        slot: mutable usize = (incoming % capacity_value).usize()
+        probes: mutable usize = 0
+        while table[slot] != -1:
+            if probes >= capacity: return -1
+            resident: i64 = table[slot]
+            table[slot] <- incoming
+            incoming <- resident
+            slot <- (slot + 1) % capacity
+            probes <- probes + 1
+            displacements <- displacements + 1
+        table[slot] <- incoming
+        i <- i + 1
+    displacements
+
+export fn lcfs_hashing(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 35: return -1
+    input_view: view[i64] = input[0:length]
+    lcfs_hashing_impl(input_view)

@@ -1,0 +1,52 @@
+{
+  "algorithm": "blelloch_parallel_prefix_scan",
+  "function_symbol": "blelloch_parallel_prefix_scan",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/b/blelloch_parallel_prefix_scan.c",
+    "c3": "c3/b/blelloch_parallel_prefix_scan.c3",
+    "cpp": "cpp/b/blelloch_parallel_prefix_scan.cpp",
+    "elisa": "elisa/b/blelloch_parallel_prefix_scan.elisa",
+    "mojo": "mojo/b/blelloch_parallel_prefix_scan.mojo",
+    "nim": "nim/b/blelloch_parallel_prefix_scan.nim",
+    "odin": "odin/b/blelloch_parallel_prefix_scan.odin",
+    "rust": "rust/b/blelloch_parallel_prefix_scan.rs",
+    "v": "v/b/blelloch_parallel_prefix_scan.v",
+    "zig": "zig/b/blelloch_parallel_prefix_scan.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "INVENTORY.md",
+    "check_inventory.py"
+  ],
+  "fixture_ids": [
+    "single_element",
+    "power_of_two_eight",
+    "non_power_of_two_negative_values",
+    "all_zero_non_power_of_two",
+    "alternating_bound_values",
+    "invalid_zero_items",
+    "invalid_item_count",
+    "value_out_of_range",
+    "trailing_input",
+    "short_output_capacity",
+    "null_output",
+    "null_input"
+  ],
+  "contract": {
+    "minimum_items": 1,
+    "maximum_items": 64,
+    "input_value_range": [-1000000, 1000000],
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "maximum_output_bytes": 512,
+    "tree_payload_bytes": 512,
+    "workspace_bytes": 2048
+  },
+  "static_review": "source drafts only; no executable validation"
+}

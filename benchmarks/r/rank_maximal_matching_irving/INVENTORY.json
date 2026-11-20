@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "rank_maximal_matching_irving",
+  "function_symbol": "rank_maximal_matching_irving",
+  "abi": "i64_array_bytes_output",
+  "workspace_bytes": 1024,
+  "maximum_input_words": 51,
+  "maximum_parseable_words": 52,
+  "maximum_output_bytes": 40,
+  "primary_reference": "primary_oracle.py",
+  "independent_reference": "independent_oracle.py",
+  "workload": "workload.json",
+  "languages": {
+    "c": "c/r/rank_maximal_matching_irving.c",
+    "c3": "c3/r/rank_maximal_matching_irving.c3",
+    "cpp": "cpp/r/rank_maximal_matching_irving.cpp",
+    "elisa": "elisa/r/rank_maximal_matching_irving.elisa",
+    "mojo": "mojo/r/rank_maximal_matching_irving.mojo",
+    "nim": "nim/r/rank_maximal_matching_irving.nim",
+    "odin": "odin/r/rank_maximal_matching_irving.odin",
+    "rust": "rust/r/rank_maximal_matching_irving.rs",
+    "v": "v/r/rank_maximal_matching_irving.v",
+    "zig": "zig/r/rank_maximal_matching_irving.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "suite_integration": "i64_array_bytes_output runner and verifier registered"
+}

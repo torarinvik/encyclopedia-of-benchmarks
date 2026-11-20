@@ -1,0 +1,143 @@
+const ROOTED_TREES_MAX_VERTICES: usize = 7
+const ROOTED_TREES_MAX_SHAPES: usize = 48
+const ROOTED_TREES_MAX_WIDTH: usize = 14
+const ROOTED_TREES_MAX_CANDIDATES: usize = 37
+const ROOTED_TREES_MAX_OUTPUT: usize = 674
+
+struct RootedTreeCandidate:
+    size: usize
+    text: u8[ROOTED_TREES_MAX_WIDTH]
+
+struct RootedTreeGenerator:
+    shapes: u8[(ROOTED_TREES_MAX_VERTICES + 1) * ROOTED_TREES_MAX_SHAPES * ROOTED_TREES_MAX_WIDTH]
+    counts: usize[ROOTED_TREES_MAX_VERTICES + 1]
+    target: usize
+
+def rooted_trees_candidate_less(left: view[u8], right: view[u8]) -> bool:
+    index: mutable usize = 0
+    while index < ROOTED_TREES_MAX_WIDTH:
+        if left[index] < right[index]: return true
+        if left[index] > right[index]: return false
+        index <- index + 1
+    false
+
+def rooted_trees_shape_less(left: view[u8], right: view[u8], width: usize) -> bool:
+    index: mutable usize = 0
+    while index < width:
+        if left[index] < right[index]: return true
+        if left[index] > right[index]: return false
+        index <- index + 1
+    false
+
+def rooted_trees_enumerate_multisets(generator: mutable RootedTreeGenerator&,
+                                     candidates: view[RootedTreeCandidate],
+                                     candidate_count: usize, start: usize,
+                                     remaining: usize, children: mutable view[u8],
+                                     child_length: usize) -> void:
+    if remaining == 0:
+        shape_index: usize = generator.counts[generator.target]
+        base: usize = (generator.target * ROOTED_TREES_MAX_SHAPES + shape_index) * ROOTED_TREES_MAX_WIDTH
+        generator.shapes[base] <- 40.u8()
+        for byte in 0..<child_length:
+            generator.shapes[base + 1 + byte] <- children[byte]
+        generator.shapes[base + child_length + 1] <- 41.u8()
+        generator.counts[generator.target] <- shape_index + 1
+        return
+
+    index: mutable usize = start
+    while index < candidate_count:
+        child_size: usize = candidates[index].size
+        if child_size <= remaining:
+            encoded_length: usize = 2 * child_size
+            for byte in 0..<encoded_length:
+                children[child_length + byte] <- candidates[index].text[byte]
+            rooted_trees_enumerate_multisets(generator, candidates, candidate_count,
+                index, remaining - child_size, children, child_length + encoded_length)
+        index <- index + 1
+
+def rooted_trees_build(generator: mutable RootedTreeGenerator&, maximum: usize) -> void:
+    generator.counts[1] <- 1
+    generator.shapes[ROOTED_TREES_MAX_SHAPES * ROOTED_TREES_MAX_WIDTH] <- 40.u8()
+    generator.shapes[ROOTED_TREES_MAX_SHAPES * ROOTED_TREES_MAX_WIDTH + 1] <- 41.u8()
+
+    target: mutable usize = 2
+    while target <= maximum:
+        generator.target <- target
+        candidates: mutable RootedTreeCandidate[ROOTED_TREES_MAX_CANDIDATES] = zeroed
+        candidate_count: mutable usize = 0
+        size: mutable usize = 1
+        while size < target:
+            shape_index: mutable usize = 0
+            while shape_index < generator.counts[size]:
+                candidates[candidate_count].size <- size
+                shape_base: usize = (size * ROOTED_TREES_MAX_SHAPES + shape_index) * ROOTED_TREES_MAX_WIDTH
+                for byte in 0..<ROOTED_TREES_MAX_WIDTH:
+                    candidates[candidate_count].text[byte] <- generator.shapes[shape_base + byte]
+                candidate_count <- candidate_count + 1
+                shape_index <- shape_index + 1
+            size <- size + 1
+
+        index: mutable usize = 1
+        while index < candidate_count:
+            saved: RootedTreeCandidate = candidates[index]
+            place: mutable usize = index
+            while place > 0 and rooted_trees_candidate_less(saved.text[0:ROOTED_TREES_MAX_WIDTH],
+                                                             candidates[place - 1].text[0:ROOTED_TREES_MAX_WIDTH]):
+                candidates[place] <- candidates[place - 1]
+                place <- place - 1
+            candidates[place] <- saved
+            index <- index + 1
+
+        children: mutable u8[ROOTED_TREES_MAX_WIDTH] = zeroed
+        rooted_trees_enumerate_multisets(generator, candidates[0:candidate_count],
+            candidate_count, 0, target - 1, children[0:ROOTED_TREES_MAX_WIDTH], 0)
+
+        width: usize = 2 * target
+        index <- 1
+        while index < generator.counts[target]:
+            saved_shape: mutable u8[ROOTED_TREES_MAX_WIDTH] = zeroed
+            base: usize = (target * ROOTED_TREES_MAX_SHAPES + index) * ROOTED_TREES_MAX_WIDTH
+            for byte in 0..<ROOTED_TREES_MAX_WIDTH:
+                saved_shape[byte] <- generator.shapes[base + byte]
+            place <- index
+            while place > 0:
+                prior_base: usize = (target * ROOTED_TREES_MAX_SHAPES + place - 1) * ROOTED_TREES_MAX_WIDTH
+                if not rooted_trees_shape_less(saved_shape[0:width], generator.shapes[prior_base:prior_base + width], width):
+                    break
+                for byte in 0..<ROOTED_TREES_MAX_WIDTH:
+                    generator.shapes[(target * ROOTED_TREES_MAX_SHAPES + place) * ROOTED_TREES_MAX_WIDTH + byte] <- generator.shapes[prior_base + byte]
+                place <- place - 1
+            sorted_base: usize = (target * ROOTED_TREES_MAX_SHAPES + place) * ROOTED_TREES_MAX_WIDTH
+            for byte in 0..<ROOTED_TREES_MAX_WIDTH:
+                generator.shapes[sorted_base + byte] <- saved_shape[byte]
+            index <- index + 1
+        target <- target + 1
+
+def list_rooted_trees_impl(input: i64&, input_length: usize,
+                           output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != 1: return -1
+    if input[0] < 1 or input[0] > ROOTED_TREES_MAX_VERTICES.i64(): return -1
+    vertices: usize = input[0].usize()
+
+    generator: mutable RootedTreeGenerator = zeroed
+    rooted_trees_build(generator, vertices)
+    count: usize = generator.counts[vertices]
+    width: usize = 2 * vertices
+    needed: usize = 2 + count * width
+    staged: mutable u8[ROOTED_TREES_MAX_OUTPUT] = zeroed
+    staged[0] <- (count & 255).u8()
+    staged[1] <- ((count >> 8) & 255).u8()
+    position: mutable usize = 2
+    for shape_index in 0..<count:
+        base: usize = (vertices * ROOTED_TREES_MAX_SHAPES + shape_index) * ROOTED_TREES_MAX_WIDTH
+        for byte in 0..<width:
+            staged[position] <- generator.shapes[base + byte]
+            position <- position + 1
+
+    if output.is_null() or output_capacity < needed: return -2
+    for byte in 0..<needed:
+        output[byte] <- staged[byte]
+    needed.i64()
+
+export fn list_rooted_trees(input: i64&, input_length: usize,
+                            output: mutable u8&, output_capacity: usize) -> i64 = list_rooted_trees_impl

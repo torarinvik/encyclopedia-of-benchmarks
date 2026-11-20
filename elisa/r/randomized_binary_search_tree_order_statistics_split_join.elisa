@@ -1,0 +1,197 @@
+const RBST_MAX_INPUT_LENGTH = 164
+const RBST_MAX_NODES = 64
+
+def rbst_size(sizes: view[usize], root: usize) -> usize:
+    if root == 0: return 0
+    sizes[root]
+
+def rbst_refresh(sizes: mutable view[usize], lefts: view[usize], rights: view[usize], root: usize) -> void:
+    sizes[root] <- 1 + rbst_size(sizes, lefts[root]) + rbst_size(sizes, rights[root])
+
+def rbst_randbelow(random_state: mutable u64&, bound: usize) -> usize:
+    threshold: u64 = 4294967296 % bound.u64()
+    while true:
+        random_state <- (random_state * 1664525 + 1013904223) & 4294967295
+        raw: u64 = random_state
+        if raw >= threshold: return raw.usize() % bound
+    0
+
+def rbst_make_node(keys: mutable view[i64], sizes: mutable view[usize], lefts: mutable view[usize], rights: mutable view[usize], used: mutable usize&, key: i64, left: usize, right: usize) -> usize:
+    used <- used + 1
+    node: usize = used
+    keys[node] <- key
+    lefts[node] <- left
+    rights[node] <- right
+    rbst_refresh(sizes, lefts, rights, node)
+    node
+
+def rbst_split(keys: view[i64], sizes: mutable view[usize], lefts: mutable view[usize], rights: mutable view[usize], root: usize, pivot: i64, low: mutable usize&, high: mutable usize&) -> void:
+    if root == 0:
+        low <- 0
+        high <- 0
+    elif keys[root] < pivot:
+        child_low: mutable usize = 0
+        child_high: mutable usize = 0
+        rbst_split(keys, sizes, lefts, rights, rights[root], pivot, child_low, child_high)
+        rights[root] <- child_low
+        rbst_refresh(sizes, lefts, rights, root)
+        low <- root
+        high <- child_high
+    else:
+        child_low: mutable usize = 0
+        child_high: mutable usize = 0
+        rbst_split(keys, sizes, lefts, rights, lefts[root], pivot, child_low, child_high)
+        lefts[root] <- child_high
+        rbst_refresh(sizes, lefts, rights, root)
+        low <- child_low
+        high <- root
+
+def rbst_join(keys: view[i64], sizes: mutable view[usize], lefts: mutable view[usize], rights: mutable view[usize], random_state: mutable u64&, left: usize, right: usize) -> usize:
+    if left == 0: return right
+    if right == 0: return left
+    left_size: usize = rbst_size(sizes, left)
+    total: usize = left_size + rbst_size(sizes, right)
+    if rbst_randbelow(random_state, total) < left_size:
+        rights[left] <- rbst_join(keys, sizes, lefts, rights, random_state, rights[left], right)
+        rbst_refresh(sizes, lefts, rights, left)
+        return left
+    lefts[right] <- rbst_join(keys, sizes, lefts, rights, random_state, left, lefts[right])
+    rbst_refresh(sizes, lefts, rights, right)
+    right
+
+def rbst_contains(keys: view[i64], lefts: view[usize], rights: view[usize], root_input: usize, key: i64) -> bool:
+    root: mutable usize = root_input
+    while root != 0:
+        if key == keys[root]: return true
+        if key < keys[root]: root <- lefts[root]
+        else: root <- rights[root]
+    false
+
+def rbst_insert_absent(keys: mutable view[i64], sizes: mutable view[usize], lefts: mutable view[usize], rights: mutable view[usize], used: mutable usize&, random_state: mutable u64&, root: usize, key: i64) -> usize:
+    if root == 0: return rbst_make_node(keys, sizes, lefts, rights, used, key, 0, 0)
+    if rbst_randbelow(random_state, rbst_size(sizes, root) + 1) == 0:
+        low: mutable usize = 0
+        high: mutable usize = 0
+        rbst_split(keys, sizes, lefts, rights, root, key, low, high)
+        return rbst_make_node(keys, sizes, lefts, rights, used, key, low, high)
+    if key < keys[root]:
+        lefts[root] <- rbst_insert_absent(keys, sizes, lefts, rights, used, random_state, lefts[root], key)
+    else:
+        rights[root] <- rbst_insert_absent(keys, sizes, lefts, rights, used, random_state, rights[root], key)
+    rbst_refresh(sizes, lefts, rights, root)
+    root
+
+def rbst_erase(keys: view[i64], sizes: mutable view[usize], lefts: mutable view[usize], rights: mutable view[usize], random_state: mutable u64&, root: usize, key: i64) -> usize:
+    if root == 0: return 0
+    if key == keys[root]: return rbst_join(keys, sizes, lefts, rights, random_state, lefts[root], rights[root])
+    if key < keys[root]: lefts[root] <- rbst_erase(keys, sizes, lefts, rights, random_state, lefts[root], key)
+    else: rights[root] <- rbst_erase(keys, sizes, lefts, rights, random_state, rights[root], key)
+    rbst_refresh(sizes, lefts, rights, root)
+    root
+
+def rbst_kth(keys: view[i64], sizes: view[usize], lefts: view[usize], rights: view[usize], root_input: usize, rank_input: usize) -> i64:
+    if rank_input > rbst_size(sizes, root_input): return -1
+    root: mutable usize = root_input
+    rank: mutable usize = rank_input
+    while root != 0:
+        left_size: usize = rbst_size(sizes, lefts[root])
+        if rank == left_size + 1: return keys[root]
+        if rank <= left_size: root <- lefts[root]
+        else:
+            rank <- rank - left_size - 1
+            root <- rights[root]
+    -1
+
+def rbst_minimum(keys: view[i64], lefts: view[usize], root_input: usize) -> i64:
+    if root_input == 0: return -1
+    root: mutable usize = root_input
+    while lefts[root] != 0: root <- lefts[root]
+    keys[root]
+
+def rbst_maximum(keys: view[i64], rights: view[usize], root_input: usize) -> i64:
+    if root_input == 0: return -1
+    root: mutable usize = root_input
+    while rights[root] != 0: root <- rights[root]
+    keys[root]
+
+def rbst_valid_op(input: view[i64], offset: usize) -> bool:
+    op: i64 = input[offset]
+    a: i64 = input[offset + 1]
+    b: i64 = input[offset + 2]
+    c: i64 = input[offset + 3]
+    if op == 0 or op == 1: return (a == 0 or a == 1) and b >= 0 and b <= 1000 and c == 0
+    if op == 2: return (a == 0 or a == 1) and b >= 1 and b <= 65 and c == 0
+    if op == 3: return (a == 0 or a == 1) and (b == 0 or b == 1) and a != b and c >= 0 and c <= 1001
+    if op == 4: return (a == 0 or a == 1) and (b == 0 or b == 1) and a != b and c == 0
+    false
+
+def randomized_binary_search_tree_order_statistics_split_join_impl(input: view[i64]) -> i64:
+    if input.len() < 3 or input.len() > RBST_MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    seed: i64 = input[2]
+    if n_value < 0 or n_value > 32 or q_value < 0 or q_value > 32 or seed < 0 or seed > 4294967295: return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if input.len() != 3 + n + 4 * q: return -1
+    i: mutable usize = 0
+    while i < n:
+        key: i64 = input[3 + i]
+        if key < 0 or key > 1000 or (i > 0 and input[2 + i] >= key): return -1
+        i <- i + 1
+    start: usize = 3 + n
+    i <- 0
+    while i < q:
+        if not rbst_valid_op(input, start + 4 * i): return -1
+        i <- i + 1
+
+    keys: mutable i64[65] = zeroed
+    sizes: mutable usize[65] = zeroed
+    lefts: mutable usize[65] = zeroed
+    rights: mutable usize[65] = zeroed
+    used: mutable usize = 0
+    random_state: mutable u64 = seed.u64()
+    roots: mutable usize[2] = zeroed
+    i <- 0
+    while i < n:
+        roots[0] <- rbst_insert_absent(keys[0:65], sizes[0:65], lefts[0:65], rights[0:65], used, random_state, roots[0], input[3 + i])
+        i <- i + 1
+    checksum: mutable i64 = 0
+    query_number: mutable i64 = 0
+    i <- 0
+    while i < q:
+        offset: usize = start + 4 * i
+        op: i64 = input[offset]
+        tree: usize = input[offset + 1].usize()
+        arg: i64 = input[offset + 2]
+        extra: i64 = input[offset + 3]
+        if op == 0:
+            if not rbst_contains(keys[0:65], lefts[0:65], rights[0:65], roots[tree], arg):
+                roots[tree] <- rbst_insert_absent(keys[0:65], sizes[0:65], lefts[0:65], rights[0:65], used, random_state, roots[tree], arg)
+        elif op == 1:
+            roots[tree] <- rbst_erase(keys[0:65], sizes[0:65], lefts[0:65], rights[0:65], random_state, roots[tree], arg)
+        elif op == 2:
+            query_number <- query_number + 1
+            answer: i64 = rbst_kth(keys[0:65], sizes[0:65], lefts[0:65], rights[0:65], roots[tree], arg.usize())
+            checksum <- checksum + query_number * (answer + 1)
+        elif op == 3:
+            destination: usize = arg.usize()
+            if roots[destination] != 0: return -1
+            low: mutable usize = 0
+            high: mutable usize = 0
+            rbst_split(keys[0:65], sizes[0:65], lefts[0:65], rights[0:65], roots[tree], extra, low, high)
+            roots[tree] <- low
+            roots[destination] <- high
+        else:
+            right_tree: usize = arg.usize()
+            left_max: i64 = rbst_maximum(keys[0:65], rights[0:65], roots[tree])
+            right_min: i64 = rbst_minimum(keys[0:65], lefts[0:65], roots[right_tree])
+            if left_max >= 0 and right_min >= 0 and left_max >= right_min: return -1
+            roots[tree] <- rbst_join(keys[0:65], sizes[0:65], lefts[0:65], rights[0:65], random_state, roots[tree], roots[right_tree])
+            roots[right_tree] <- 0
+        i <- i + 1
+    checksum
+
+export fn randomized_binary_search_tree_order_statistics_split_join(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > RBST_MAX_INPUT_LENGTH: return -1
+    randomized_binary_search_tree_order_statistics_split_join_impl(input[0:length])

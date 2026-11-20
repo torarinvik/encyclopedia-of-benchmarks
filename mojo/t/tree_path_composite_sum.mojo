@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -27,7 +28,7 @@ fn tree_path_composite_sum(
         vertex_value[vertex] = input[1 + vertex]
         if vertex_value[vertex] < 0 or vertex_value[vertex] >= TPC_MOD:
             return -1
-    var adjacent = InlineArray[Bool, 1024]()
+    var adjacent = InlineArray[Bool, 1024](fill=False)
     var multiplier = InlineArray[Int64, 1024]()
     var addend = InlineArray[Int64, 1024]()
     var dsu_parent = InlineArray[Int, 32]()

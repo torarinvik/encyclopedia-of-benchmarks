@@ -1,0 +1,28 @@
+{
+  "algorithm": "minimal_dominating_sets_permutation_graphs",
+  "function_symbol": "minimal_dominating_sets_permutation_graphs",
+  "abi": "i64_array_scalar",
+  "workspace_bytes": 1048576,
+  "languages": {
+    "c": "c/m/minimal_dominating_sets_permutation_graphs.c",
+    "c3": "c3/m/minimal_dominating_sets_permutation_graphs.c3",
+    "cpp": "cpp/m/minimal_dominating_sets_permutation_graphs.cpp",
+    "elisa": "elisa/m/minimal_dominating_sets_permutation_graphs.elisa",
+    "mojo": "mojo/m/minimal_dominating_sets_permutation_graphs.mojo",
+    "nim": "nim/m/minimal_dominating_sets_permutation_graphs.nim",
+    "odin": "odin/m/minimal_dominating_sets_permutation_graphs.odin",
+    "rust": "rust/m/minimal_dominating_sets_permutation_graphs.rs",
+    "v": "v/m/minimal_dominating_sets_permutation_graphs.v",
+    "zig": "zig/m/minimal_dominating_sets_permutation_graphs.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ]
+}

@@ -1,0 +1,39 @@
+const ES_MAX_PRIME: i64 = 100000
+const ES_MAX_PARSEABLE_LENGTH: usize = 3
+
+def es_is_prime(value: i64) -> bool:
+    if value < 2: return false
+    if value % 2 == 0: return value == 2
+    let divisor: mutable i64 = 3
+    while divisor <= value / divisor:
+        if value % divisor == 0: return false
+        divisor <- divisor + 2
+    true
+
+def es_class_for_prime(prime: i64, direction: i64) -> i64:
+    let remainder: mutable i64 = prime + direction
+    let best: mutable i64 = 1
+    let divisor: mutable i64 = 2
+    while divisor <= remainder / divisor:
+        if remainder % divisor == 0:
+            if divisor > 3:
+                let candidate: i64 = 1 + es_class_for_prime(divisor, direction)
+                if candidate > best: best <- candidate
+            while remainder % divisor == 0:
+                remainder <- remainder / divisor
+        divisor <- divisor + 1
+    if remainder > 3:
+        let candidate: i64 = 1 + es_class_for_prime(remainder, direction)
+        if candidate > best: best <- candidate
+    best
+
+export fn erdos_selfridge_prime_class(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > ES_MAX_PARSEABLE_LENGTH: return -1
+    let values: view[i64] = input[0:input_length]
+    if values.len() != 2: return -1
+    let prime: i64 = values[0]
+    let direction: i64 = values[1]
+    if prime < 2 or prime > ES_MAX_PRIME or (direction != -1 and direction != 1): return -1
+    if not es_is_prime(prime): return -1
+    es_class_for_prime(prime, direction)
+

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "algorithm": "schieber_vishkin_lca",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "schieber_vishkin_lca",
+  "suite_status": "integrated",
+  "language_sources": {
+    "c": "c/l/schieber_vishkin_lca.c",
+    "c3": "c3/l/schieber_vishkin_lca.c3",
+    "cpp": "cpp/l/schieber_vishkin_lca.cpp",
+    "elisa": "elisa/l/schieber_vishkin_lca.elisa",
+    "mojo": "mojo/l/schieber_vishkin_lca.mojo",
+    "nim": "nim/l/schieber_vishkin_lca.nim",
+    "odin": "odin/l/schieber_vishkin_lca.odin",
+    "rust": "rust/l/schieber_vishkin_lca.rs",
+    "v": "v/l/schieber_vishkin_lca.v",
+    "zig": "zig/l/schieber_vishkin_lca.zig"
+  },
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "reference_files": [
+    "benchmarks/schieber_vishkin_lca_oracle.py",
+    "benchmarks/schieber_vishkin_lca_independent_oracle.py"
+  ],
+  "source": {
+    "title": "Schieber–Vishkin algorithm",
+    "title_only_discovery_score": 21,
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "primary_reference_url": "https://doi.org/10.1137/0217079",
+    "operational_description_url": "https://www.bio.ifi.lmu.de/mitarbeiter/volker-heun/notes/as9.pdf"
+  },
+  "contract": {
+    "input_encoding": "[n,root,m,q,(u,v)*m,(x,y)*q]",
+    "node_count_range": [1, 256],
+    "edge_count_rule": "n-1 and connected acyclic undirected tree",
+    "query_count_range": [0, 1024],
+    "maximum_valid_input_words": 2562,
+    "maximum_trailing_frame_probe_words": 2563,
+    "maximum_output_bytes": 1024,
+    "workspace_bytes": 32768,
+    "invalid_input_result": -1,
+    "null_or_short_nonempty_output_result": -2,
+    "empty_query_null_output_valid": true,
+    "stage_answers_before_output": true
+  }
+}

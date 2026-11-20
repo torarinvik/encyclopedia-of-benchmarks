@@ -43,9 +43,9 @@ fn long monte_carlo_risk(double* input, usz input_length,
     usz expected_length = 5 + return_count + simulation_count;
     if (input_length != expected_length || input_length > MAX_VALID_INPUT_LENGTH) return -1;
 
-    double returns[MAX_RETURN_COUNT] = {0.0};
-    double draws[MAX_SIMULATION_COUNT] = {0.0};
-    double simulated[MAX_SIMULATION_COUNT] = {0.0};
+    double[MAX_RETURN_COUNT] returns = {};
+    double[MAX_SIMULATION_COUNT] draws = {};
+    double[MAX_SIMULATION_COUNT] simulated = {};
     double sum = 0.0;
     for (usz index = 0; index < return_count; index++) {
         double value = input[5 + index];

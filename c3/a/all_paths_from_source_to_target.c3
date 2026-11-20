@@ -12,7 +12,7 @@ fn void dfs(long* adj,long* degree,bool* visited,long* path,usz depth,long targe
 fn long all_paths_from_source_to_target(long* v,usz n,char* output,usz capacity) @export("all_paths_from_source_to_target") {
     if(v==null||n<4||n>52||v[0]<1||v[0]>MAX_V||v[1]<0||v[1]>MAX_E)return -1;
     long nv=v[0],ne=v[1];if(v[2]<0||v[2]>=nv||v[3]<0||v[3]>=nv||n!=4+2*(usz)ne)return -1;
-    long adj[MAX_V*MAX_E]={},degree[MAX_V]={};for(usz e=0;e<(usz)ne;e++){long a=v[4+2*e],b=v[5+2*e];if(a<0||a>=nv||b<0||b>=nv)return -1;adj[a*MAX_E+degree[a]++]=b;}
-    char temp[MAX_OUT]={};bool visited[MAX_V]={};long path[MAX_V]={};path[0]=v[2];long count=0;usz at=8;bool overflow=false;
-    dfs(adj,degree,visited,path,1,v[3],&count,temp,&at,&overflow);if(overflow)return -2;put_i64(temp,0,count);if(output==null||capacity<at)return -2;for(usz i=0;i<at;i++)output[i]=temp[i];return (long)at;
+    long[MAX_V*MAX_E] adj={};long[MAX_V] degree={};for(usz e=0;e<(usz)ne;e++){long a=v[4+2*e],b=v[5+2*e];if(a<0||a>=nv||b<0||b>=nv)return -1;adj[a*MAX_E+degree[a]++]=b;}
+    char[MAX_OUT] temp={};bool[MAX_V] visited={};long[MAX_V] path={};path[0]=v[2];long count=0;usz at=8;bool overflow=false;
+    dfs(&adj[0],&degree[0],&visited[0],&path[0],1,v[3],&count,&temp[0],&at,&overflow);if(overflow)return -2;put_i64(&temp[0],0,count);if(output==null||capacity<at)return -2;for(usz i=0;i<at;i++)output[i]=temp[i];return (long)at;
 }

@@ -1,0 +1,30 @@
+{
+  "algorithm": "brzozowski_dfa_minimization",
+  "function_symbol": "brzozowski_dfa_minimization",
+  "abi": "i64_array_scalar",
+  "languages": {
+    "c": "c/b/brzozowski_dfa_minimization.c",
+    "c3": "c3/b/brzozowski_dfa_minimization.c3",
+    "cpp": "cpp/b/brzozowski_dfa_minimization.cpp",
+    "elisa": "elisa/b/brzozowski_dfa_minimization.elisa",
+    "mojo": "mojo/b/brzozowski_dfa_minimization.mojo",
+    "nim": "nim/b/brzozowski_dfa_minimization.nim",
+    "odin": "odin/b/brzozowski_dfa_minimization.odin",
+    "rust": "rust/b/brzozowski_dfa_minimization.rs",
+    "v": "v/b/brzozowski_dfa_minimization.v",
+    "zig": "zig/b/brzozowski_dfa_minimization.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "INVENTORY.md", "check_inventory.py"],
+  "fixture_ids": ["one_rejecting_state", "one_accepting_state", "two_distinguishable_reachable_states", "three_residue_states", "unreachable_states_removed", "empty_language_collapses", "invalid_start", "accepting_mask_out_of_range", "invalid_transition", "trailing_word", "null_input"],
+  "contract": {
+    "maximum_states": 3,
+    "alphabet_size": 2,
+    "maximum_parseable_input_length": 10,
+    "maximum_result": 256,
+    "workspace_bytes": 8192,
+    "largest_fixed_table_payload_bytes": 2616,
+    "mojo_list_entry_count": 558,
+    "mojo_list_payload_bytes": 4464
+  },
+  "static_review": "source drafts only; no executable validation"
+}

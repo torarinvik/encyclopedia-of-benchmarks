@@ -1,0 +1,189 @@
+from std.collections import InlineArray
+from std.ffi import c_size_t
+from std.memory import ImmutAnyOrigin, UnsafePointer
+
+comptime MAX_TEXT = 4096
+comptime MAX_PATTERN = 128
+comptime MAX_INPUT = 4227
+comptime MAX_STATES = 2 * MAX_PATTERN + 2
+
+fn trf_init(transition: mutable view[Int64], displacement: mutable view[Int64],
+        suffix_link: mutable view[Int64], max_length: mutable view[Int64],
+        position: mutable view[Int64], terminal: mutable view[Int64]):
+    for state in range(MAX_STATES):
+        suffix_link[state] <- -1
+        max_length[state] <- 0
+        position[state] <- 0
+        terminal[state] <- 0
+        for symbol in range(4):
+            transition[state * 4 + symbol] <- -1
+            displacement[state * 4 + symbol] <- 0
+    suffix_link[0] <- 1
+
+fn trf_build(pattern: view[Int64], m: Int,
+        transition: mutable view[Int64], displacement: mutable view[Int64],
+        suffix_link: mutable view[Int64], max_length: mutable view[Int64],
+        position: mutable view[Int64], terminal: mutable view[Int64],
+        state_count: mutable Int&) -> Bool:
+    state_count <- 2
+    var last = 0
+    for offset in range(m):
+        let symbol = Int(pattern[m - 1 - offset])
+        if state_count >= MAX_STATES: return False
+        let current = state_count
+        state_count <- state_count + 1
+        max_length[current] <- max_length[last] + 1
+        position[current] <- position[last] + 1
+        var state = last
+        while state != 0 and transition[state * 4 + symbol] < 0:
+            transition[state * 4 + symbol] <- Int64(current)
+            displacement[state * 4 + symbol] <- position[current] - position[state] - 1
+            state <- Int(suffix_link[state])
+        let target = transition[state * 4 + symbol]
+        if target < 0:
+            transition[symbol] <- Int64(current)
+            displacement[symbol] <- position[current] - position[0] - 1
+            suffix_link[current] <- 0
+        elif max_length[state] + 1 == max_length[Int(target)]:
+            suffix_link[current] <- target
+        else:
+            if state_count >= MAX_STATES: return False
+            let clone = state_count
+            state_count <- state_count + 1
+            for c in range(4):
+                transition[clone * 4 + c] <- transition[Int(target) * 4 + c]
+                displacement[clone * 4 + c] <- displacement[Int(target) * 4 + c]
+            suffix_link[clone] <- suffix_link[Int(target)]
+            max_length[clone] <- max_length[state] + 1
+            position[clone] <- position[Int(target)]
+            terminal[clone] <- terminal[Int(target)]
+            suffix_link[Int(target)] <- Int64(clone)
+            suffix_link[current] <- Int64(clone)
+            while state != 1:
+                let old_target = transition[state * 4 + symbol]
+                if old_target < 0 or max_length[Int(old_target)] < max_length[clone]: break
+                displacement[state * 4 + symbol] <- position[Int(old_target)] - position[state] - 1
+                transition[state * 4 + symbol] <- Int64(clone)
+                state <- Int(suffix_link[state])
+        last <- current
+    terminal[last] <- 1
+    while last != 0:
+        last <- Int(suffix_link[last])
+        terminal[last] <- 1
+    True
+
+fn trf_mp_next(pattern: view[Int64], m: Int, next: mutable view[Int64]):
+    var i: Int64 = 0
+    var border: Int64 = -1
+    next[0] <- -1
+    while Int(i) < m:
+        while border >= 0 and pattern[Int(i)] != pattern[Int(border]):
+            border <- next[Int(border)]
+        i <- i + 1
+        border <- border + 1
+        next[Int(i)] <- border
+
+fn trf_search(transition: view[Int64], displacement: view[Int64],
+        terminal: view[Int64], mp: view[Int64], text: view[Int64],
+        n: Int, m: Int) -> Int64:
+    if n < m: return 0
+    let period = Int64(m) - mp[m]
+    var count: Int64 = 0
+    var offset_sum: Int64 = 0
+    var offset_xor: Int64 = 0
+    var start = 0
+    var preceding_shift = Int64(m)
+    while start <= n - m:
+        var index = Int64(m) - 1
+        var state = 0
+        var boundary = Int64(m) - 1 - preceding_shift
+        let prefix_length = Int64(m) - preceding_shift
+        let prefix_period = if preceding_shift != Int64(m):
+            prefix_length - mp[Int(prefix_length)]
+        else: 0
+        var shift = Int64(m)
+        var displacement_sum: Int64 = 0
+        while index > boundary:
+            let symbol = Int(text[start + Int(index)])
+            let target = transition[state * 4 + symbol]
+            if target < 0: break
+            displacement_sum <- displacement_sum + displacement[state * 4 + symbol]
+            state <- Int(target)
+            if terminal[state] != 0: shift <- index
+            index <- index - 1
+        if index <= boundary:
+            if displacement_sum == 0:
+                count <- count + 1
+                offset_sum <- offset_sum + Int64(start)
+                offset_xor <- offset_xor ^ Int64(start)
+                shift <- period
+            else:
+                let half = (boundary + 1) // 2
+                if prefix_period <= half:
+                    boundary <- boundary - prefix_period
+                    while index > boundary:
+                        let symbol = Int(text[start + Int(index)])
+                        let target = transition[state * 4 + symbol]
+                        if target < 0: break
+                        displacement_sum <- displacement_sum + displacement[state * 4 + symbol]
+                        state <- Int(target)
+                        if terminal[state] != 0: shift <- index
+                        index <- index - 1
+                    if index <= boundary: shift <- displacement_sum
+                else:
+                    boundary <- boundary - half - 1
+                    while index > boundary:
+                        let symbol = Int(text[start + Int(index)])
+                        let target = transition[state * 4 + symbol]
+                        if target < 0: break
+                        displacement_sum <- displacement_sum + displacement[state * 4 + symbol]
+                        state <- Int(target)
+                        if terminal[state] != 0: shift <- index
+                        index <- index - 1
+        if shift <= 0: return -1
+        start <- start + Int(shift)
+        preceding_shift <- shift
+    (count << 36) | (offset_sum << 12) | offset_xor
+
+@export("turbo_reverse_factor_search")
+fn turbo_reverse_factor_search(input: UnsafePointer[Int64, ImmutAnyOrigin],
+        length: c_size_t) abi("C") -> Int64:
+    if input == UnsafePointer[Int64, ImmutAnyOrigin]() or length < 2 or length > MAX_INPUT: return -1
+    let input_view: view[Int64] = input[0:Int(length)]
+    let n_value = input_view[0]
+    let m_value = input_view[1]
+    if n_value < 0 or n_value > MAX_TEXT.i64() or m_value < 1 or m_value > MAX_PATTERN.i64(): return -1
+    let n = Int(n_value)
+    let m = Int(m_value)
+    if Int(length) != 2 + n + m: return -1
+    for index in range(n + m):
+        if input_view[2 + index] < 0 or input_view[2 + index] > 3: return -1
+
+    var pattern = InlineArray[Int64, MAX_PATTERN](fill=0)
+    for index in range(m): pattern[index] <- input_view[2 + n + index]
+    var transition = InlineArray[Int64, MAX_STATES * 4](fill=-1)
+    var displacement = InlineArray[Int64, MAX_STATES * 4](fill=0)
+    var suffix_link = InlineArray[Int64, MAX_STATES](fill=-1)
+    var max_length = InlineArray[Int64, MAX_STATES](fill=0)
+    var position = InlineArray[Int64, MAX_STATES](fill=0)
+    var terminal = InlineArray[Int64, MAX_STATES](fill=0)
+    var mp = InlineArray[Int64, MAX_PATTERN + 1](fill=0)
+    var transition_view: mutable view[Int64] = transition[0:MAX_STATES * 4]
+    var displacement_view: mutable view[Int64] = displacement[0:MAX_STATES * 4]
+    var suffix_view: mutable view[Int64] = suffix_link[0:MAX_STATES]
+    var length_view: mutable view[Int64] = max_length[0:MAX_STATES]
+    var position_view: mutable view[Int64] = position[0:MAX_STATES]
+    var terminal_view: mutable view[Int64] = terminal[0:MAX_STATES]
+    var pattern_view: view[Int64] = pattern[0:MAX_PATTERN]
+    var mp_view: mutable view[Int64] = mp[0:MAX_PATTERN + 1]
+    trf_init(transition_view, displacement_view, suffix_view, length_view, position_view, terminal_view)
+    var state_count = 0
+    if not trf_build(pattern_view, m, transition_view, displacement_view, suffix_view,
+            length_view, position_view, terminal_view, state_count&): return -1
+    trf_mp_next(pattern_view, m, mp_view)
+    let read_transition: view[Int64] = transition[0:MAX_STATES * 4]
+    let read_displacement: view[Int64] = displacement[0:MAX_STATES * 4]
+    let read_terminal: view[Int64] = terminal[0:MAX_STATES]
+    let read_mp: view[Int64] = mp[0:MAX_PATTERN + 1]
+    let text_view: view[Int64] = input_view[2:2 + n]
+    trf_search(read_transition, read_displacement, read_terminal, read_mp, text_view, n, m)

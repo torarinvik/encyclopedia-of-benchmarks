@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p111_is_prime(value:Int64,sieve_limit:Int64)->Bool:
     if value<2:return False
     if value<=sieve_limit:return False

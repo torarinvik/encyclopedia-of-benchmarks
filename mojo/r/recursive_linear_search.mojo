@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,UnsafePointer
 fn rls_rec(v:InlineArray[Int64,64],left:Int,right:Int,target:Int64)->Int64:

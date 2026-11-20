@@ -8,9 +8,9 @@ fn double is_harmonic_series(long* values, usz length) @export("is_harmonic_seri
     long count = values[0];
     if (count < 1 || count > (long)MAX_VALUES || length != (usz)count + 1) return INVALID_RESULT;
 
-    double reciprocals[32];
+    double[32] reciprocals;
     for (usz i = 0; i < (usz)count; i++) {
-        double value = @bitcast(double, values[i + 1]);
+        double value = bitcast(values[i + 1], double);
         if (value == 0.0) return INVALID_RESULT;
         reciprocals[i] = 1.0 / value;
     }

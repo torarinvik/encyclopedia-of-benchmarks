@@ -1,0 +1,121 @@
+# Independently authored draft; not compiled or run.
+def fn ir_abs(x: i64) -> i64:
+    if x < 0: -x else: x
+
+def fn ir_gcd(x: i64, y: i64) -> i64:
+    a: mutable i64 = ir_abs(x); b: mutable i64 = ir_abs(y)
+    while b != 0:
+        r: i64 = a % b
+        a <- b; b <- r
+    a
+
+def fn ir_half(line: view[i64]) -> usize:
+    if line[1] > 0 or (line[1] == 0 and line[0] >= 0): 0 else: 1
+
+def fn ir_before(a: view[i64], b: view[i64]) -> bool:
+    ha: usize = ir_half(a); hb: usize = ir_half(b)
+    if ha != hb: return ha < hb
+    cross: i64 = a[0]*b[1]-a[1]*b[0]
+    if cross != 0: return cross > 0
+    a[2] < b[2]
+
+def fn ir_intersect(a: view[i64], b: view[i64], point: mutable view[i64]) -> bool:
+    den: mutable i64 = a[0]*b[1]-b[0]*a[1]
+    if den == 0: return false
+    x: mutable i64 = a[2]*b[1]-a[1]*b[2]
+    y: mutable i64 = a[0]*b[2]-a[2]*b[0]
+    if den < 0: den <- -den; x <- -x; y <- -y
+    point[0] <- x; point[1] <- y; point[2] <- den
+    true
+
+def fn ir_outside(line: view[i64], p: view[i64]) -> bool:
+    line[0]*p[0]+line[1]*p[1] > line[2]*p[2]
+
+def fn ir_feasible(lines: view[i64], count: usize, radius: i64) -> bool:
+    queue: mutable i64[64] = zeroed
+    head: mutable usize = 0; tail: mutable usize = 0
+    point: mutable i64[3] = zeroed
+    for i in 0..<count:
+        h: mutable i64[4] = zeroed
+        for k in 0..<4: h[k] <- lines[4*i+k]
+        h[2] <- h[2]*32768-(radius*32768-1)*h[3]
+        if tail > head and queue[4*(tail-1)] == h[0] and queue[4*(tail-1)+1] == h[1]:
+            if h[2] >= queue[4*(tail-1)+2]: continue
+            tail <- tail-1
+        while tail-head > 1:
+            a: usize = 4*(tail-2); b: usize = 4*(tail-1)
+            if not ir_intersect(queue[a:a+4],queue[b:b+4],point[0:3]): break
+            if not ir_outside(h[0:4],point[0:3]): break
+            tail <- tail-1
+        while tail-head > 1:
+            a: usize = 4*head; b: usize = 4*(head+1)
+            if not ir_intersect(queue[a:a+4],queue[b:b+4],point[0:3]): break
+            if not ir_outside(h[0:4],point[0:3]): break
+            head <- head+1
+        if tail > head and queue[4*(tail-1)]*h[1]-queue[4*(tail-1)+1]*h[0] == 0: return false
+        for k in 0..<4: queue[4*tail+k] <- h[k]
+        tail <- tail+1
+    while tail-head > 2:
+        a: usize = 4*(tail-2); b: usize = 4*(tail-1); c: usize = 4*head
+        if not ir_intersect(queue[a:a+4],queue[b:b+4],point[0:3]): break
+        if not ir_outside(queue[c:c+4],point[0:3]): break
+        tail <- tail-1
+    while tail-head > 2:
+        a: usize = 4*head; b: usize = 4*(head+1); c: usize = 4*(tail-1)
+        if not ir_intersect(queue[a:a+4],queue[b:b+4],point[0:3]): break
+        if not ir_outside(queue[c:c+4],point[0:3]): break
+        head <- head+1
+    if tail-head < 3: return false
+    for i in head..<tail:
+        j: usize = if i+1 == tail: head else: i+1
+        a: usize = 4*i; b: usize = 4*j
+        if not ir_intersect(queue[a:a+4],queue[b:b+4],point[0:3]): return false
+    true
+
+def fn ir_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 1 or length > 38 or values[0] < 0 or values[0] > 12: return -1
+    n: usize = values[0].usize()
+    if length != 1+3*n: return -1
+    lines: mutable i64[64] = zeroed
+    for i in 0..<n:
+        a: i64 = values[1+3*i]; b: i64 = values[2+3*i]; c: i64 = values[3+3*i]
+        if a < -15 or a > 15 or b < -15 or b > 15 or c < -128 or c > 128: return -1
+        squared: i64 = a*a+b*b
+        norm: mutable i64 = 0
+        while norm*norm < squared: norm <- norm+1
+        if norm == 0 or norm*norm != squared or ir_gcd(a,b) != 1: return -1
+        lines[4*i] <- a; lines[4*i+1] <- b; lines[4*i+2] <- c; lines[4*i+3] <- norm
+    lines[4*n] <- 1; lines[4*n+2] <- 256; lines[4*n+3] <- 1
+    lines[4*(n+1)+1] <- 1; lines[4*(n+1)+2] <- 256; lines[4*(n+1)+3] <- 1
+    lines[4*(n+2)] <- -1; lines[4*(n+2)+2] <- 256; lines[4*(n+2)+3] <- 1
+    lines[4*(n+3)+1] <- -1; lines[4*(n+3)+2] <- 256; lines[4*(n+3)+3] <- 1
+    count: usize = n+4
+    scratch: mutable i64[64] = zeroed
+    width: mutable usize = 1
+    while width < count:
+        start: mutable usize = 0
+        while start < count:
+            middle: usize = if start+width < count: start+width else: count
+            end: usize = if start+2*width < count: start+2*width else: count
+            i: mutable usize = start; j: mutable usize = middle; k: mutable usize = start
+            while i < middle or j < end:
+                choose_right: mutable bool = i == middle
+                if i < middle and j < end: choose_right <- ir_before(lines[4*j:4*j+4],lines[4*i:4*i+4])
+                source: usize = if choose_right: j else: i
+                for q in 0..<4: scratch[4*k+q] <- lines[4*source+q]
+                if choose_right: j <- j+1 else: i <- i+1
+                k <- k+1
+            start <- start+2*width
+        for i in 0..<4*count: lines[i] <- scratch[i]
+        width <- width*2
+    if not ir_feasible(lines[0:4*count],count,0): return -2
+    low: mutable i64 = 0; high: mutable i64 = 257
+    while high-low > 1:
+        mid: i64 = (low+high)/2
+        if ir_feasible(lines[0:4*count],count,mid): low <- mid else: high <- mid
+    low
+
+export fn convex_polygon_integer_inradius(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 38: return -1
+    ir_impl(input[0:length])

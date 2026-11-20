@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "bounded-squfof-factor-i64-array-scalar-v1",
+  "algorithm": "squfof_semiprime_factor",
+  "function_symbol": "squfof_semiprime_factor",
+  "abi": "i64_array_scalar",
+  "description": "Return the smaller factor exposed by a bounded SQUFOF continued-fraction and reverse-form walk.",
+  "source": {
+    "title": "Square Form Factorization",
+    "authors": ["Daniel Shanks", "Jason E. Gower", "Samuel S. Wagstaff, Jr."],
+    "url": "https://homes.cerias.purdue.edu/~ssw/squfof.pdf",
+    "secondary_url": "https://homes.cerias.purdue.edu/~ssw/shanks.pdf",
+    "license": "Algorithm descriptions only; clean-room implementation",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "contract": {
+    "operation": "Use the fixed multiplier-one SQUFOF profile, test even-index square remainders in a capped forward continued-fraction walk, and try a capped reverse walk from each square until a proper gcd split is found.",
+    "input_encoding": "[N,forward_cap,reverse_cap]",
+    "primary_method": "Streaming P/Q continued-fraction recurrence and inverse-square-root reverse recurrence.",
+    "independent_method": "Bounded (m,d,a_n) complete-quotient table with denominators reconstructed from the discriminant invariant, then reverse denominators reconstructed from the square-form invariant.",
+    "fixed_multiplier": 1,
+    "discriminant_normalization": "D=2N when N mod 4 is 1; otherwise D=N.",
+    "square_input_result": "floor_sqrt(N)",
+    "proper_factor_result": "min(g,N/g), where g=gcd(N,R) at a reverse-walk symmetry point and 1<g<N",
+    "bounded_miss_result": 0,
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,forward_cap,reverse_cap]",
+    "number_range": [3, 1000000000000],
+    "number_parity": "odd",
+    "forward_cap_range": [0, 256],
+    "reverse_cap_range": [0, 256],
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 4,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "smaller member of the first proper factor pair found, square root for square input, zero on bounded miss, or -1 for invalid input",
+    "value_range": [0, 1000000],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Fixed scalar continued-fraction and reverse-walk state; native implementations use no heap scratch."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/s/squfof_semiprime_factor/primary_oracle.py",
+  "independent_oracle": "benchmarks/s/squfof_semiprime_factor/independent_oracle.py",
+  "cases": [
+    {"id":"first-even-square-15","input_values":[15,1,1],"input_length":3,"expected_result":3},
+    {"id":"first-even-square-35","input_values":[35,1,1],"input_length":3,"expected_result":5},
+    {"id":"nontrivial-square-root-77","input_values":[77,1,1],"input_length":3,"expected_result":7},
+    {"id":"later-square-and-two-reverse-steps","input_values":[299,3,2],"input_length":3,"expected_result":13},
+    {"id":"prime-bounded-miss","input_values":[13,64,64],"input_length":3,"expected_result":0},
+    {"id":"square-input-shortcut","input_values":[49,0,0],"input_length":3,"expected_result":7},
+    {"id":"zero-forward-budget","input_values":[15,0,1],"input_length":3,"expected_result":0},
+    {"id":"zero-reverse-budget","input_values":[15,1,0],"input_length":3,"expected_result":0},
+    {"id":"maximum-cap-success","input_values":[15,256,256],"input_length":3,"expected_result":3},
+    {"id":"trailing-word","input_values":[15,1,1,0],"input_length":4,"expected_result":-1},
+    {"id":"number-below-range","input_values":[1,1,1],"input_length":3,"expected_result":-1},
+    {"id":"even-number","input_values":[14,1,1],"input_length":3,"expected_result":-1},
+    {"id":"number-above-range","input_values":[1000000000001,1,1],"input_length":3,"expected_result":-1},
+    {"id":"negative-forward-cap","input_values":[15,-1,1],"input_length":3,"expected_result":-1},
+    {"id":"forward-cap-too-large","input_values":[15,257,1],"input_length":3,"expected_result":-1},
+    {"id":"negative-reverse-cap","input_values":[15,1,-1],"input_length":3,"expected_result":-1},
+    {"id":"reverse-cap-too-large","input_values":[15,1,257],"input_length":3,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

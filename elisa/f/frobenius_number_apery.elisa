@@ -1,0 +1,74 @@
+const FNA_MAX_PARSEABLE_LENGTH: usize = 6
+const FNA_MAX_DENOMINATION: i64 = 16
+const FNA_DISTANCE_INF: i64 = 1000000
+
+def fna_gcd(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def fna_apery(coins: view[i64], count: usize, modulus: usize) -> i64:
+    distances: mutable i64[16] = zeroed
+    settled: mutable u8[16] = zeroed
+    residue: mutable usize = 0
+    while residue < modulus:
+        distances[residue] <- FNA_DISTANCE_INF
+        residue <- residue + 1
+    distances[0] <- 0
+    step: mutable usize = 0
+    while step < modulus:
+        source: mutable usize = modulus
+        best: mutable i64 = FNA_DISTANCE_INF
+        residue <- 0
+        while residue < modulus:
+            if settled[residue] == 0 and distances[residue] < best:
+                source <- residue
+                best <- distances[residue]
+            residue <- residue + 1
+        if source == modulus: return -1
+        settled[source] <- 1
+        index: mutable usize = 0
+        while index < count:
+            coin: i64 = coins[index]
+            target: usize = ((source.i64() + coin) % modulus.i64()).usize()
+            candidate: i64 = best + coin
+            if candidate < distances[target]: distances[target] <- candidate
+            index <- index + 1
+        step <- step + 1
+    maximum: mutable i64 = 0
+    residue <- 0
+    while residue < modulus:
+        if distances[residue] > maximum: maximum <- distances[residue]
+        residue <- residue + 1
+    maximum - modulus.i64()
+
+def frobenius_number_apery_impl(input: view[i64]) -> i64:
+    if input.length < 1 or input.length > FNA_MAX_PARSEABLE_LENGTH: return -1
+    count_value: i64 = input[0]
+    if count_value < 2 or count_value > 4 or input.length != (count_value + 1).usize(): return -1
+    count: usize = count_value.usize()
+    coins: view[i64] = input[1:input.length]
+    common: mutable i64 = 0
+    minimum: mutable i64 = FNA_MAX_DENOMINATION + 1
+    index: mutable usize = 0
+    while index < count:
+        coin: i64 = coins[index]
+        if coin < 2 or coin > FNA_MAX_DENOMINATION: return -1
+        previous: mutable usize = 0
+        while previous < index:
+            if coin == coins[previous]: return -1
+            previous <- previous + 1
+        common <- fna_gcd(common, coin)
+        if coin < minimum: minimum <- coin
+        index <- index + 1
+    if common != 1: return -1
+    fna_apery(coins, count, minimum.usize())
+
+export fn frobenius_number_apery(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > FNA_MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    frobenius_number_apery_impl(input_view)

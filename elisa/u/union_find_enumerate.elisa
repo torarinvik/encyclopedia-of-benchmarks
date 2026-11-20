@@ -1,0 +1,81 @@
+# Union-find with circular component-member enumeration.
+const UFE_MAX_ITEMS: usize = 16
+const UFE_MAX_OPERATIONS: usize = 32
+const UFE_MAX_INPUT_LENGTH: usize = 99
+
+def ufe_find(parent: mutable i64[16], item: usize) -> usize:
+    root: mutable usize = item
+    while parent[root] >= 0:
+        root <- parent[root].usize()
+    current: mutable usize = item
+    while current != root:
+        next_item: usize = parent[current].usize()
+        parent[current] <- root.i64()
+        current <- next_item
+    root
+
+def ufe_component_mask(successor: view[i64], start: usize) -> i64:
+    mask: mutable u64 = 0
+    item: mutable usize = start
+    while true:
+        mask <- mask | (1.u64() << item)
+        item <- successor[item].usize()
+        if item == start: break
+    mask.i64()
+
+def union_find_enumerate_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > UFE_MAX_INPUT_LENGTH: return -1
+    item_count_value: i64 = input[0]
+    operation_count_value: i64 = input[1]
+    if item_count_value < 1 or item_count_value > UFE_MAX_ITEMS.i64() or operation_count_value < 0 or operation_count_value > UFE_MAX_OPERATIONS.i64(): return -1
+    item_count: usize = item_count_value.usize()
+    operation_count: usize = operation_count_value.usize()
+    if length != 2 + 3 * operation_count: return -1
+
+    for operation in 0..<operation_count:
+        position: usize = 2 + 3 * operation
+        opcode: i64 = input[position]
+        first: i64 = input[position + 1]
+        second: i64 = input[position + 2]
+        if opcode == 0:
+            if first < 0 or first >= item_count_value or second < 0 or second >= item_count_value: return -1
+        elif opcode == 1:
+            if first < 0 or first >= item_count_value or second != 0: return -1
+        else:
+            return -1
+
+    parent: mutable i64[16] = zeroed
+    successor: mutable i64[16] = zeroed
+    for item in 0..<item_count:
+        parent[item] <- -1
+        successor[item] <- item.i64()
+
+    checksum: mutable i64 = 0
+    for operation in 0..<operation_count:
+        position: usize = 2 + 3 * operation
+        opcode: i64 = input[position]
+        first: usize = input[position + 1].usize()
+        observed: mutable i64 = 0
+        if opcode == 0:
+            left: mutable usize = ufe_find(parent, first)
+            right: mutable usize = ufe_find(parent, input[position + 2].usize())
+            if left != right:
+                if parent[left] > parent[right]:
+                    temporary: usize = left
+                    left <- right
+                    right <- temporary
+                parent[left] <- parent[left] + parent[right]
+                parent[right] <- left.i64()
+                temporary_next: i64 = successor[left]
+                successor[left] <- successor[right]
+                successor[right] <- temporary_next
+                observed <- 1
+        else:
+            observed <- ufe_component_mask(successor, first)
+        checksum <- checksum + (operation + 1).i64() * (observed + 1)
+    checksum
+
+export fn union_find_enumerate(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > UFE_MAX_INPUT_LENGTH: return -1
+    union_find_enumerate_impl(input[0:length])

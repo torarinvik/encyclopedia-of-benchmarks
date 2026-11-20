@@ -30,8 +30,12 @@ The upstream source returns an arbitrary precision `BigUint`; this benchmark use
 | C3 | [`c3/f/fast_factorial.c3`](../../../c3/f/fast_factorial.c3) |
 | C++ | [`cpp/f/fast_factorial.cpp`](../../../cpp/f/fast_factorial.cpp) |
 | Elisa | [`elisa/f/fast_factorial.elisa`](../../../elisa/f/fast_factorial.elisa) |
+| Mojo | [`mojo/f/fast_factorial.mojo`](../../../mojo/f/fast_factorial.mojo) |
 | Nim | [`nim/f/fast_factorial.nim`](../../../nim/f/fast_factorial.nim) |
 | Odin | [`odin/f/fast_factorial.odin`](../../../odin/f/fast_factorial.odin) |
 | Rust | [`rust/f/fast_factorial.rs`](../../../rust/f/fast_factorial.rs) |
 | V | [`v/f/fast_factorial.v`](../../../v/f/fast_factorial.v) |
 | Zig | [`zig/f/fast_factorial.zig`](../../../zig/f/fast_factorial.zig) |
+
+Scalar verifier registration and an exact factorial reference are drafted and
+have not been executed.

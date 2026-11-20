@@ -7,7 +7,12 @@ fn long polybench_correlation(double* input,usz length,double* output,usz capaci
     if(input==null||length!=2)return -1;double nv=input[0],mv=input[1];
     if(nv!=nv||mv!=mv||trunc(nv)!=nv||trunc(mv)!=mv||nv<1||nv>MAX_N||mv<1||mv>MAX_M)return -1;
     usz n=(usz)nv,m=(usz)mv,required=m*m;if(output==null||capacity<required)return -2;
-    double data[36]={0.0},corr[36]={0.0},mean[6]={0.0},stddev[6]={0.0},staged[36]={0.0},float_n=(double)n;
+    double[36] data={};
+    double[36] corr={};
+    double[6] mean={};
+    double[6] stddev={};
+    double[36] staged={};
+    double float_n=(double)n;
     for(usz i=0;i<n;i++)for(usz j=0;j<m;j++)data[i*m+j]=(double)(i*j)/(double)m+(double)i;
     for(usz j=0;j<m;j++){mean[j]=0.0;for(usz i=0;i<n;i++)mean[j]+=data[i*m+j];mean[j]/=float_n;}
     for(usz j=0;j<m;j++){stddev[j]=0.0;for(usz i=0;i<n;i++){double d=data[i*m+j]-mean[j];stddev[j]+=d*d;}stddev[j]/=float_n;stddev[j]=sqrt(stddev[j]);stddev[j]=stddev[j]<=0.1?1.0:stddev[j];}

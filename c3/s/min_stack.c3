@@ -19,8 +19,8 @@ fn long min_stack(long* input, usz length, char* output, usz capacity)
     if (count_value < 0 || count_value > MAX_OPERATIONS) return -1;
     usz count = (usz)count_value;
 
-    long opcodes[256] = {0};
-    long operands[256] = {0};
+    long[256] opcodes = {0};
+    long[256] operands = {0};
     usz position = 1;
     usz query_count = 0;
     for (usz index = 0; index < count; index++) {
@@ -46,10 +46,10 @@ fn long min_stack(long* input, usz length, char* output, usz capacity)
     usz needed = (1 + 3 * query_count) * 8;
     if (output == null || capacity < needed) return -2;
 
-    char buffer[6152] = {0};
-    write_i64_le(buffer, 0, (long)query_count);
-    long stack_values[256] = {0};
-    long stack_minima[256] = {0};
+    char[6152] buffer = {0};
+    write_i64_le(&buffer[0], 0, (long)query_count);
+    long[256] stack_values = {0};
+    long[256] stack_minima = {0};
     usz depth = 0;
     usz record = 1;
     for (usz index = 0; index < count; index++) {
@@ -72,9 +72,9 @@ fn long min_stack(long* input, usz length, char* output, usz capacity)
             } else {
                 value = stack_minima[depth - 1];
             }
-            write_i64_le(buffer, record * 8, opcode);
-            write_i64_le(buffer, (record + 1) * 8, exception_flag);
-            write_i64_le(buffer, (record + 2) * 8, value);
+            write_i64_le(&buffer[0], record * 8, opcode);
+            write_i64_le(&buffer[0], (record + 1) * 8, exception_flag);
+            write_i64_le(&buffer[0], (record + 2) * 8, value);
             record += 3;
         }
     }

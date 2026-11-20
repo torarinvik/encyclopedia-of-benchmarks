@@ -1,0 +1,59 @@
+const MAX_TEAMS: usize = 8
+const MAX_PARSEABLE_INPUT: usize = 2
+const MAX_CELLS: usize = 64
+
+fn round_robin_tournament_schedule_impl(
+    input: i64&,
+    length: usize,
+    output: mutable u8&,
+    capacity: usize,
+) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT: return -1
+    if length != 1: return -1
+    values: view[i64] = input[0:length]
+    n_word: i64 = values[0]
+    if n_word < 2 or n_word > MAX_TEAMS.i64(): return -1
+
+    n: usize = n_word.usize()
+    padded: usize = n + (n & 1)
+    ring_size: usize = padded - 1
+    rounds: usize = ring_size
+    fixed: usize = padded - 1
+    table: mutable u8[64] = zeroed
+    index: mutable usize = 0
+    while index < MAX_CELLS |index, table|:
+        table[index] <- 255
+        index <- index + 1
+
+    round_index: mutable usize = 0
+    while round_index < rounds |round_index, table|:
+        if fixed < n:
+            table[fixed * rounds + round_index] <- round_index.u8()
+            table[round_index * rounds + round_index] <- fixed.u8()
+        offset: mutable usize = 1
+        while offset < padded / 2 |offset, rounds, ring_size, round_index, n, table|:
+            left: usize = (round_index + offset) % ring_size
+            right: usize = (round_index + ring_size - offset) % ring_size
+            if left < n and right < n:
+                table[left * rounds + round_index] <- right.u8()
+                table[right * rounds + round_index] <- left.u8()
+            offset <- offset + 1
+        round_index <- round_index + 1
+
+    required: usize = 2 + n * rounds
+    if output.is_null() or capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+    result[0] <- n.u8()
+    result[1] <- rounds.u8()
+    index <- 0
+    while index < n * rounds |index, table, result, n, rounds|:
+        result[index + 2] <- table[index]
+        index <- index + 1
+    return required.i64()
+
+export fn round_robin_tournament_schedule(
+    input: i64&,
+    length: usize,
+    output: mutable u8&,
+    capacity: usize,
+) -> i64 = round_robin_tournament_schedule_impl

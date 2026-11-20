@@ -14,6 +14,7 @@
     {"id": "constant_function", "input_values": [4,1,2,4], "input_length": 4, "expected_result": 24, "expected_output_hex": "010000000000000000000000000000000000803b00000000"},
     {"id": "single_quotient", "input_values": [1,1], "input_length": 2, "expected_result": 8, "expected_output_hex": "0100000000000000"},
     {"id": "nonunit_first_coefficient", "input_values": [1,2], "input_length": 2, "expected_result": 8, "expected_output_hex": "0100c01d00000000"},
+    {"id": "negative_one_residue", "input_values": [1,998244352], "input_length": 2, "expected_result": 8, "expected_output_hex": "0000803b00000000"},
     {"id": "zero_first_invalid", "input_values": [1,0], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
     {"id": "residue_out_of_range", "input_values": [1,998244353], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
     {"id": "short_output", "input_values": [1,1], "input_length": 2, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},

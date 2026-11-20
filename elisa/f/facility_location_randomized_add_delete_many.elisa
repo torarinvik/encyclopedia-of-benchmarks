@@ -1,0 +1,139 @@
+const FLR_MAX_N: usize = 5
+const FLR_MAX_F: usize = 5
+const FLR_MAX_Q: usize = 8
+const FLR_MAX_P: usize = 10
+const FLR_MAX_PARSEABLE: usize = 128
+const FLR_MAX_OUTPUT: usize = 192
+
+def flr_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def flr_cost(n: usize, f: usize, p: usize, d: view[i64], demand: view[i64],
+             assignment: view[i64], fee: view[i64], mask: u64) -> i64:
+    total: mutable i64 = 0
+    for s in 0..<f:
+        if (mask & (1u64 << s)) != 0: total <- total + fee[s]
+    for j in 0..<n:
+        total <- total + demand[j] * d[j * p + n + assignment[j].usize()]
+    total
+
+def facility_location_randomized_add_delete_many_impl(input: view[i64], length: usize,
+    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    if length < 12 or length > FLR_MAX_PARSEABLE: return -1
+    n64: i64 = input[0]
+    f64: i64 = input[1]
+    q64: i64 = input[2]
+    raw_mask: i64 = input[3]
+    if n64 < 1 or n64 > 5 or f64 < 1 or f64 > 5 or q64 < 1 or q64 > 8 or raw_mask <= 0 or raw_mask.u64() >= (1u64 << f64.usize()): return -1
+    n: usize = n64.usize()
+    f: usize = f64.usize()
+    q: usize = q64.usize()
+    p: usize = n + f
+    if length != 4 + 2*n + p*p + f + q: return -1
+    var mask: mutable u64 = raw_mask.u64()
+    var assignment_values: mutable i64[5] = zeroed
+    var demand_values: mutable i64[5] = zeroed
+    var d_values: mutable i64[100] = zeroed
+    var fee_values: mutable i64[5] = zeroed
+    var tape: mutable i64[8] = zeroed
+    pos: mutable usize = 4
+    for j in 0..<n:
+        assignment_values[j] <- input[pos]
+        if assignment_values[j] < 0 or assignment_values[j] >= f64 or (mask & (1u64 << assignment_values[j].usize())) == 0: return -1
+        pos <- pos + 1
+    for j in 0..<n:
+        demand_values[j] <- input[pos]
+        if demand_values[j] < 1 or demand_values[j] > 10: return -1
+        pos <- pos + 1
+    for i in 0..<p:
+        for j in 0..<p:
+            value: i64 = input[pos]
+            if value < 0 or value > 1000: return -1
+            d_values[i*p+j] <- value
+            pos <- pos + 1
+    for i in 0..<p:
+        if d_values[i*p+i] != 0: return -1
+        for j in 0..<p:
+            if i != j and d_values[i*p+j] == 0: return -1
+            if d_values[i*p+j] != d_values[j*p+i]: return -1
+            for k in 0..<p:
+                if d_values[i*p+j] > d_values[i*p+k] + d_values[k*p+j]: return -1
+    for s in 0..<f:
+        fee_values[s] <- input[pos]
+        if fee_values[s] < 0 or fee_values[s] > 1000: return -1
+        pos <- pos + 1
+    for t in 0..<q:
+        tape[t] <- input[pos]
+        if tape[t] < 0 or tape[t] >= f64: return -1
+        pos <- pos + 1
+    assignment: view[i64] = assignment_values[0:n]
+    demand: view[i64] = demand_values[0:n]
+    d: view[i64] = d_values[0:p*p]
+    fee: view[i64] = fee_values[0:f]
+    trace_cost: mutable i64[8] = zeroed
+    trace_accept: mutable i64[8] = zeroed
+    current: mutable i64 = flr_cost(n, f, p, d, demand, assignment, fee, mask)
+    accepted_count: mutable i64 = 0
+    for step in 0..<q:
+        candidate: usize = tape[step].usize()
+        bit: u64 = 1u64 << candidate
+        did: mutable i64 = 0
+        if (mask & bit) == 0:
+            closer: mutable bool[5] = zeroed
+            gain: mutable i64 = -fee[candidate]
+            for j in 0..<n:
+                old: usize = assignment[j].usize()
+                if d[j*p+n+candidate] < d[j*p+n+old]:
+                    closer[j] <- true
+                    gain <- gain + demand[j] * (d[j*p+n+old] - d[j*p+n+candidate])
+            drop: mutable u64 = 0
+            for s in 0..<f:
+                if (mask & (1u64 << s)) != 0:
+                    center_gain: mutable i64 = fee[s]
+                    for j in 0..<n:
+                        if assignment[j].usize() == s and not closer[j]:
+                            center_gain <- center_gain + demand[j] * (d[j*p+n+s] - d[j*p+n+candidate])
+                    if center_gain > 0:
+                        drop <- drop | (1u64 << s)
+                        gain <- gain + center_gain
+            if gain > 0:
+                mask <- (mask | bit) & ~drop
+                for j in 0..<n:
+                    if closer[j] or (drop & (1u64 << assignment[j].usize())) != 0:
+                        assignment_values[j] <- candidate.i64()
+                current <- flr_cost(n, f, p, d, demand, assignment_values[0:n], fee, mask)
+                did <- 1
+                accepted_count <- accepted_count + 1
+        trace_cost[step] <- current
+        trace_accept[step] <- did
+    output_bytes: usize = 8 * (2*q + 3 + n)
+    if output_is_null or capacity < output_bytes: return -2
+    pos <- 0
+    for t in 0..<q:
+        flr_store(trace_cost[t], output, pos)
+        pos <- pos + 8
+    for t in 0..<q:
+        flr_store(trace_accept[t], output, pos)
+        pos <- pos + 8
+    flr_store(current, output, pos); pos <- pos + 8
+    flr_store(mask.i64(), output, pos); pos <- pos + 8
+    for j in 0..<n:
+        flr_store(assignment_values[j], output, pos)
+        pos <- pos + 8
+    flr_store(accepted_count, output, pos)
+    (pos + 8).i64()
+
+export fn facility_location_randomized_add_delete_many(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 12 or length > FLR_MAX_PARSEABLE: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[FLR_MAX_OUTPUT] = zeroed
+        return facility_location_randomized_add_delete_many_impl(input_view, length, scratch[0:FLR_MAX_OUTPUT], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > FLR_MAX_OUTPUT: safe_capacity <- FLR_MAX_OUTPUT
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    facility_location_randomized_add_delete_many_impl(input_view, length, output_view, capacity, false)

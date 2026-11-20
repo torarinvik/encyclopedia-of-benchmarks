@@ -6,7 +6,7 @@ fn ushort cdc_reduce(uint value) {
     return (ushort)value;
 }
 
-long rabin_content_defined_chunking(long* input, usz length, char* output, usz capacity)
+fn long rabin_content_defined_chunking(long* input, usz length, char* output, usz capacity)
         @export("rabin_content_defined_chunking") {
     if (input == null || length < 1 || length > 65 || input[0] < 0 || input[0] > 64) return -1;
     usz n = (usz)input[0];
@@ -18,8 +18,8 @@ long rabin_content_defined_chunking(long* input, usz length, char* output, usz c
     char[64] boundaries = zeroed;
     usz count = 0;
     for (usz i = 0; i < n; i += 1) {
-        fingerprint = cdc_reduce(((uint)fingerprint << 8) | (uint)input[i+1]);
         if (i >= 4) fingerprint ^= outgoing[(usz)input[i-3]];
+        fingerprint = cdc_reduce(((uint)fingerprint << 8) | (uint)input[i+1]);
         if ((fingerprint & 7) == 0) { boundaries[count] = (char)(i+1); count += 1; }
     }
     if (n > 0 && (count == 0 || (usz)boundaries[count-1] != n)) { boundaries[count] = (char)n; count += 1; }

@@ -62,7 +62,7 @@ fn usz encrypt_round(char* text, usz text_length, char* key, usz key_length, cha
 
 fn usz decrypt_round(char* text, usz text_length, char* key, usz key_length, char* output) {
     usz[MAX_KEY_LENGTH] order;
-    char[MAX_KEY_LENGTH][MAX_MESSAGE_LENGTH] columns = zeroed;
+    char[MAX_MESSAGE_LENGTH][MAX_KEY_LENGTH] columns = zeroed;
     usz[MAX_KEY_LENGTH] column_lengths = zeroed;
     column_order(key, key_length, &order[0]);
     usz short_length = text_length / key_length;
@@ -105,7 +105,7 @@ fn long transposition_rust(long* input, usz length) @export("transposition_rust"
     if ((mode != 0 && mode != 1) || key_count_value < 1 || key_count_value > MAX_KEYS) return -1;
     usz key_count = (usz)key_count_value;
 
-    char[MAX_KEYS][MAX_KEY_LENGTH] keys = zeroed;
+    char[MAX_KEY_LENGTH][MAX_KEYS] keys = zeroed;
     usz[MAX_KEYS] key_lengths = zeroed;
     usz longest_key = 0;
     usz cursor = 2;

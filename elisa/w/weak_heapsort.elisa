@@ -1,0 +1,82 @@
+const WEAK_HEAPSORT_MAX_VALUES: usize = 256
+const WEAK_HEAPSORT_MAX_INPUT_LENGTH: usize = 258
+
+def weak_heapsort_distinguished_ancestor(node_input: usize, reverse: view[bool]) -> usize:
+    node: mutable usize = node_input
+    while (node % 2 == 1) == reverse[node / 2]:
+        node <- node / 2
+    node / 2
+
+def weak_heapsort_join(values: mutable view[i64], reverse: mutable view[bool],
+                       ancestor: usize, node: usize) -> void:
+    if values[ancestor] < values[node]:
+        temporary: i64 = values[ancestor]
+        values[ancestor] <- values[node]
+        values[node] <- temporary
+        reverse[node] <- not reverse[node]
+
+def weak_heapsort_sift_down(values: mutable view[i64], reverse: mutable view[bool],
+                            active_size: usize) -> void:
+    node: mutable usize = 1
+    if reverse[0]:
+        node <- 0
+    if node >= active_size:
+        return
+    while true:
+        child: usize = 2 * node
+        if reverse[node]:
+            child <- child + 1
+        if child >= active_size:
+            break
+        node <- child
+    while node != 0:
+        weak_heapsort_join(values, reverse, 0, node)
+        node <- node / 2
+
+def weak_heapsort_impl(input: view[i64], length: usize) -> i64:
+    if length < 1 or length > WEAK_HEAPSORT_MAX_INPUT_LENGTH:
+        return -1
+    raw_count: i64 = input[0]
+    if raw_count < 0 or raw_count > WEAK_HEAPSORT_MAX_VALUES.i64():
+        return -1
+    count: usize = raw_count.usize()
+    if length != count + 1:
+        return -1
+
+    values: mutable i64[256] = zeroed
+    reverse: mutable bool[256] = zeroed
+    i: mutable usize = 0
+    while i < count:
+        value: i64 = input[i + 1]
+        if value < -1000 or value > 1000:
+            return -1
+        values[i] <- value
+        i <- i + 1
+
+    next: mutable usize = count
+    while next > 1:
+        next <- next - 1
+        node: usize = next
+        ancestor: usize = weak_heapsort_distinguished_ancestor(node, reverse[0:256])
+        weak_heapsort_join(values[0:256], reverse[0:256], ancestor, node)
+
+    end: mutable usize = count
+    while end > 1:
+        temporary: i64 = values[0]
+        values[0] <- values[end - 1]
+        values[end - 1] <- temporary
+        end <- end - 1
+        weak_heapsort_sift_down(values[0:256], reverse[0:256], end)
+
+    checksum: mutable i64 = 0
+    i <- 0
+    while i < count:
+        checksum <- checksum + (i.i64() + 1) * (values[i] + 1001)
+        i <- i + 1
+    checksum
+
+export fn weak_heapsort(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > WEAK_HEAPSORT_MAX_INPUT_LENGTH:
+        return -1
+    input_view: view[i64] = input[0:length]
+    weak_heapsort_impl(input_view, length)

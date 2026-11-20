@@ -45,7 +45,7 @@ fn rooted_tree_isomorphism_classification(
         if 2 * edge_count > Int(input_length) - position:
             return -1
 
-        var adjacency = InlineArray[UInt32, MAX_TREE_VERTICES]()
+        var adjacency = InlineArray[UInt32, MAX_TREE_VERTICES](fill=0)
         for _edge in range(edge_count):
             let left_value = input[position]
             let right_value = input[position + 1]
@@ -61,8 +61,8 @@ fn rooted_tree_isomorphism_classification(
             adjacency[left] |= left_bit
             adjacency[right] |= right_bit
 
-        var parent = InlineArray[Int, MAX_TREE_VERTICES](-1)
-        var visited = InlineArray[Bool, MAX_TREE_VERTICES]()
+        var parent = InlineArray[Int, MAX_TREE_VERTICES](fill=-1)
+        var visited = InlineArray[Bool, MAX_TREE_VERTICES](fill=False)
         var order = InlineArray[Int, MAX_TREE_VERTICES]()
         var stack = InlineArray[Int, MAX_TREE_VERTICES]()
         var node_types = InlineArray[Int, MAX_TREE_VERTICES]()

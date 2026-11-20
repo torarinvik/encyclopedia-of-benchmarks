@@ -1,0 +1,186 @@
+@export("clarke_wright_savings_cvrp")
+fn clarke_wright_savings_cvrp(
+    input: i64&, length: usize,
+    output: mutable u8&, capacity: usize,
+) abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > 74: return -1
+    let values: view[Int64] = input[0:length]
+    n64: Int64 = values[0]
+    cap64: Int64 = values[1]
+    if n64 < 0 or n64 > 7 or cap64 < 1 or cap64 > 100: return -1
+    n: usize = n64.usize()
+    width: usize = n + 1
+    if length != 2 + n + width * width: return -1
+
+    demand: mutable Int64[8] = zeroed
+    for customer in 1..<n + 1:
+        demand[customer] <- values[1 + customer]
+        if demand[customer] < 1 or demand[customer] > cap64: return -1
+    distances: mutable Int64[64] = zeroed
+    offset: usize = 2 + n
+    for i in 0..<width:
+        for j in 0..<width:
+            d: Int64 = values[offset + i * width + j]
+            if d < 0 or d > 1000 or (i == j and d != 0): return -1
+            distances[i * 8 + j] <- d
+    for i in 0..<width:
+        for j in i + 1..<width:
+            if distances[i * 8 + j] != distances[j * 8 + i]: return -1
+
+    routes: mutable usize[49] = zeroed
+    route_length: mutable usize[7] = zeroed
+    loads: mutable Int64[7] = zeroed
+    active: mutable Bool[7] = zeroed
+    for r in 0..<n:
+        routes[r * 7] <- r + 1
+        route_length[r] <- 1
+        loads[r] <- demand[r + 1]
+        active[r] <- true
+    savings: mutable Int64[21] = zeroed
+    pair_i: mutable usize[21] = zeroed
+    pair_j: mutable usize[21] = zeroed
+    pair_count: mutable usize = 0
+    for i in 1..<n + 1:
+        for j in i + 1..<n + 1:
+            savings[pair_count] <- distances[i] + distances[j] - distances[i * 8 + j]
+            pair_i[pair_count] <- i
+            pair_j[pair_count] <- j
+            pair_count <- pair_count + 1
+    i: mutable usize = 0
+    while i < pair_count:
+        j: mutable usize = i + 1
+        while j < pair_count:
+            should_swap: Bool = savings[j] > savings[i] or (
+                savings[j] == savings[i] and (pair_i[j] < pair_i[i] or
+                (pair_i[j] == pair_i[i] and pair_j[j] < pair_j[i])))
+            if should_swap:
+                sv: Int64 = savings[i]; savings[i] <- savings[j]; savings[j] <- sv
+                ai: usize = pair_i[i]; pair_i[i] <- pair_i[j]; pair_i[j] <- ai
+                aj: usize = pair_j[i]; pair_j[i] <- pair_j[j]; pair_j[j] <- aj
+            j <- j + 1
+        i <- i + 1
+
+    p: mutable usize = 0
+    while p < pair_count:
+        if savings[p] <= 0: break
+        ri: mutable i64 = -1
+        rj: mutable i64 = -1
+        pi: mutable usize = 0
+        pj: mutable usize = 0
+        r: mutable usize = 0
+        while r < n:
+            if active[r]:
+                at: mutable usize = 0
+                while at < route_length[r]:
+                    if routes[r * 7 + at] == pair_i[p]: ri <- r.i64(); pi <- at
+                    if routes[r * 7 + at] == pair_j[p]: rj <- r.i64(); pj <- at
+                    at <- at + 1
+            r <- r + 1
+        if ri == rj or ri < 0 or rj < 0:
+            p <- p + 1
+            continue
+        a: usize = ri.usize()
+        b: usize = rj.usize()
+        if ((pi != 0 and pi + 1 != route_length[a]) or
+            (pj != 0 and pj + 1 != route_length[b]) or loads[a] + loads[b] > cap64):
+            p <- p + 1
+            continue
+        if pi == 0:
+            left: mutable usize = 0
+            right: mutable usize = route_length[a] - 1
+            while left < right:
+                t: usize = routes[a * 7 + left]
+                routes[a * 7 + left] <- routes[a * 7 + right]
+                routes[a * 7 + right] <- t
+                left <- left + 1
+                right <- right - 1
+        if pj + 1 == route_length[b]:
+            left: mutable usize = 0
+            right: mutable usize = route_length[b] - 1
+            while left < right:
+                t: usize = routes[b * 7 + left]
+                routes[b * 7 + left] <- routes[b * 7 + right]
+                routes[b * 7 + right] <- t
+                left <- left + 1
+                right <- right - 1
+        old_length: usize = route_length[a]
+        at2: mutable usize = 0
+        while at2 < route_length[b]:
+            routes[a * 7 + old_length + at2] <- routes[b * 7 + at2]
+            at2 <- at2 + 1
+        route_length[a] <- route_length[a] + route_length[b]
+        loads[a] <- loads[a] + loads[b]
+        active[b] <- false
+        route_length[b] <- 0
+        loads[b] <- 0
+        p <- p + 1
+
+    final_routes: mutable usize[49] = zeroed
+    final_length: mutable usize[7] = zeroed
+    count: mutable usize = 0
+    for route_id in 0..<n:
+        if active[route_id]:
+            reverse_first: mutable Bool = false
+            for at in 0..<route_length[route_id]:
+                first: usize = routes[route_id * 7 + at]
+                last: usize = routes[route_id * 7 + route_length[route_id] - 1 - at]
+                if first != last:
+                    reverse_first <- first > last
+                    break
+            if reverse_first:
+                left: mutable usize = 0
+                right: mutable usize = route_length[route_id] - 1
+                while left < right:
+                    t: usize = routes[route_id * 7 + left]
+                    routes[route_id * 7 + left] <- routes[route_id * 7 + right]
+                    routes[route_id * 7 + right] <- t
+                    left <- left + 1
+                    right <- right - 1
+            for at in 0..<route_length[route_id]:
+                final_routes[count * 7 + at] <- routes[route_id * 7 + at]
+            final_length[count] <- route_length[route_id]
+            count <- count + 1
+    i <- 0
+    while i < count:
+        j: mutable usize = i + 1
+        while j < count:
+            comparison: mutable i64 = 0
+            shared: usize = if final_length[i] < final_length[j] { final_length[i] } else { final_length[j] }
+            at: mutable usize = 0
+            while at < shared:
+                x: usize = final_routes[i * 7 + at]
+                y: usize = final_routes[j * 7 + at]
+                if x != y:
+                    comparison <- if x < y { -1 } else { 1 }
+                    break
+                at <- at + 1
+            if comparison == 0:
+                comparison <- if final_length[i] < final_length[j] { -1 } else if final_length[i] > final_length[j] { 1 } else { 0 }
+            if comparison > 0:
+                for k in 0..<7:
+                    t: usize = final_routes[i * 7 + k]
+                    final_routes[i * 7 + k] <- final_routes[j * 7 + k]
+                    final_routes[j * 7 + k] <- t
+                tlen: usize = final_length[i]
+                final_length[i] <- final_length[j]
+                final_length[j] <- tlen
+            j <- j + 1
+        i <- i + 1
+
+    words: mutable Int64[15] = zeroed
+    word_count: mutable usize = 0
+    words[word_count] <- count.i64(); word_count <- word_count + 1
+    for route_id in 0..<count:
+        words[word_count] <- final_length[route_id].i64(); word_count <- word_count + 1
+        for at in 0..<final_length[route_id]:
+            words[word_count] <- final_routes[route_id * 7 + at].i64()
+            word_count <- word_count + 1
+    bytes: usize = word_count * 8
+    if output.is_null() or capacity < bytes: return -2
+    let output_view: mutable view[u8] = output[0:capacity]
+    for w in 0..<word_count:
+        bits: mutable UInt64 = words[w].u64()
+        for b in 0..<8:
+            output_view[w * 8 + b] <- (bits & 255).u8()
+            bits <- bits >> 8
+    (bytes.i64())

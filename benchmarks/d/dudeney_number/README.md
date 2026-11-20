@@ -22,4 +22,7 @@ python3 benchmarks/build_scalar.py --algorithm dudeney_number --language c
 python3 benchmarks/run_scalar.py --algorithm dudeney_number
 ```
 
-The nine implementations are in `c/d/dudeney_number.c`, `c3/d/dudeney_number.c3`, `cpp/d/dudeney_number.cpp`, `elisa/d/dudeney_number.elisa`, `nim/d/dudeney_number.nim`, `odin/d/dudeney_number.odin`, `rust/d/dudeney_number.rs`, `v/d/dudeney_number.v`, and `zig/d/dudeney_number.zig`.
+The ten implementations are in `c/d/dudeney_number.c`, `c3/d/dudeney_number.c3`, `cpp/d/dudeney_number.cpp`, `elisa/d/dudeney_number.elisa`, `mojo/d/dudeney_number.mojo`, `nim/d/dudeney_number.nim`, `odin/d/dudeney_number.odin`, `rust/d/dudeney_number.rs`, `v/d/dudeney_number.v`, and `zig/d/dudeney_number.zig`.
+
+Scalar-suite verifier registration and an independent digit-sum cube oracle
+are drafted; the new suite wiring has not been executed.

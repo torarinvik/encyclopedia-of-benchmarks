@@ -1,0 +1,84 @@
+const HLR_MAX_DEGREE: i64 = 4
+const HLR_MAX_PRIME: i64 = 43
+const HLR_MAX_EXPONENT: i64 = 6
+const HLR_MAX_MODULUS: i64 = 100000
+const HLR_MAX_LENGTH: usize = 10
+
+def hlr_mod(value: i64, modulus: i64) -> i64:
+    result: mutable i64 = value % modulus
+    if result < 0: result <- result + modulus
+    result
+
+def hlr_is_prime(value: i64) -> bool:
+    if value < 2: return false
+    divisor: mutable i64 = 2
+    while divisor*divisor <= value:
+        if value % divisor == 0: return false
+        divisor <- divisor+1
+    true
+
+def hlr_eval(input: view[i64], degree: usize, x: i64, modulus: i64) -> i64:
+    result: mutable i64 = 0
+    index: mutable i64 = degree.i64()
+    while index >= 0:
+        result <- hlr_mod(result*x+input[4+index.usize()], modulus)
+        index <- index-1
+    result
+
+def hlr_derivative(input: view[i64], degree: usize, x: i64, prime: i64) -> i64:
+    result: mutable i64 = 0
+    index: mutable i64 = degree.i64()
+    while index >= 1:
+        result <- hlr_mod(result*x+index*input[4+index.usize()], prime)
+        index <- index-1
+    result
+
+def hensel_lifting_polynomial_root_impl(input: view[i64]) -> i64:
+    let length: usize = input.len()
+    if length < 6 or length > HLR_MAX_LENGTH: return -1
+    let degree_value: i64 = input[0]
+    let prime: i64 = input[1]
+    let exponent: i64 = input[2]
+    let seed: i64 = input[3]
+    if degree_value < 1 or degree_value > HLR_MAX_DEGREE or prime < 2 or prime > HLR_MAX_PRIME or exponent < 1 or exponent > HLR_MAX_EXPONENT or seed < 0 or seed >= prime: return -1
+    if length != (degree_value+5).usize() or not hlr_is_prime(prime): return -1
+    let degree: usize = degree_value.usize()
+    let mut index: usize = 0
+    while index <= degree:
+        if input[4+index] < -1000 or input[4+index] > 1000: return -1
+        index <- index+1
+
+    let mut modulus: i64 = 1
+    let mut stage: i64 = 0
+    while stage < exponent:
+        if modulus > HLR_MAX_MODULUS/prime: return -1
+        modulus <- modulus*prime
+        stage <- stage+1
+    if hlr_eval(input, degree, seed, prime) != 0: return -1
+    let derivative: i64 = hlr_derivative(input, degree, seed, prime)
+    if derivative == 0: return -1
+    let mut inverse: i64 = 0
+    let mut candidate: i64 = 1
+    while candidate < prime:
+        if derivative*candidate % prime == 1:
+            inverse <- candidate
+            break
+        candidate <- candidate+1
+    if inverse == 0: return -1
+
+    let mut root: i64 = seed
+    let mut power: i64 = prime
+    stage <- 1
+    while stage < exponent:
+        let next_power: i64 = power*prime
+        let residue: i64 = hlr_eval(input, degree, root, next_power)
+        let quotient_digit: i64 = residue/power
+        let correction: i64 = hlr_mod(-quotient_digit*inverse, prime)
+        root <- root+correction*power
+        power <- next_power
+        stage <- stage+1
+    root
+
+export fn hensel_lifting_polynomial_root(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > HLR_MAX_LENGTH: return -1
+    hensel_lifting_polynomial_root_impl(input[0:length])

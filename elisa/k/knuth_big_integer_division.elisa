@@ -1,0 +1,203 @@
+const KBD_BASE: i64 = 1000000000
+const KBD_MAX_DIGITS: usize = 64
+const KBD_MAX_LIMBS: usize = 8
+const KBD_MAX_INPUT: usize = 130
+const KBD_MAX_OUTPUT: usize = 129
+
+def kbd_trim(values: view[i64], count_value: usize) -> usize:
+    count: mutable usize = count_value
+    while count > 0 and values[count - 1] == 0: count <- count - 1
+    count
+
+def kbd_parse(text: view[i64], length: usize, limbs: mutable view[i64]) -> usize:
+    count: mutable usize = 0
+    at: mutable usize = 0
+    while at < length:
+        carry: mutable i64 = text[at] - 48
+        index: mutable usize = 0
+        while index < count:
+            value: i64 = limbs[index] * 10 + carry
+            limbs[index] <- value % KBD_BASE
+            carry <- value / KBD_BASE
+            index <- index + 1
+        if carry != 0:
+            limbs[count] <- carry
+            count <- count + 1
+        if count == 0: count <- 1
+        at <- at + 1
+    kbd_trim(limbs, count)
+
+def kbd_compare(a: view[i64], na: usize, b: view[i64], nb: usize) -> i64:
+    if na > nb: return 1
+    if na < nb: return -1
+    index: mutable usize = na
+    while index > 0:
+        index <- index - 1
+        if a[index] > b[index]: return 1
+        if a[index] < b[index]: return -1
+    0
+
+def kbd_divide(a: view[i64], na: usize, b: view[i64], nb: usize,
+               q: mutable view[i64], r: mutable view[i64], nr: mutable usize&) -> usize:
+    nr <- 0
+    if na == 0: return 0
+    if kbd_compare(a, na, b, nb) < 0:
+        index: mutable usize = 0
+        while index < na:
+            r[index] <- a[index]
+            index <- index + 1
+        nr <- na
+        return 0
+    if nb == 1:
+        rem: mutable i64 = 0
+        index: mutable usize = na
+        while index > 0:
+            index <- index - 1
+            current: i64 = rem * KBD_BASE + a[index]
+            q[index] <- current / b[0]
+            rem <- current % b[0]
+        if rem != 0:
+            r[0] <- rem
+            nr <- 1
+        return kbd_trim(q, na)
+
+    v: mutable i64[KBD_MAX_LIMBS] = zeroed
+    u: mutable i64[KBD_MAX_LIMBS + 1] = zeroed
+    scale: i64 = KBD_BASE / (b[nb - 1] + 1)
+    carry: mutable i64 = 0
+    index: mutable usize = 0
+    while index < nb:
+        current: i64 = b[index] * scale + carry
+        v[index] <- current % KBD_BASE
+        carry <- current / KBD_BASE
+        index <- index + 1
+    carry <- 0
+    index <- 0
+    while index < na:
+        current: i64 = a[index] * scale + carry
+        u[index] <- current % KBD_BASE
+        carry <- current / KBD_BASE
+        index <- index + 1
+    u[na] <- carry
+    width: usize = na - nb + 1
+    step: mutable usize = width
+    while step > 0:
+        step <- step - 1
+        j: usize = step
+        numerator: i64 = u[j + nb] * KBD_BASE + u[j + nb - 1]
+        estimate: mutable i64 = numerator / v[nb - 1]
+        estimate_rem: mutable i64 = numerator % v[nb - 1]
+        if estimate >= KBD_BASE:
+            estimate <- KBD_BASE - 1
+            estimate_rem <- numerator - estimate * v[nb - 1]
+        while estimate_rem < KBD_BASE and estimate * v[nb - 2] > estimate_rem * KBD_BASE + u[j + nb - 2]:
+            estimate <- estimate - 1
+            estimate_rem <- estimate_rem + v[nb - 1]
+        borrow: mutable i64 = 0
+        index <- 0
+        while index < nb:
+            product: i64 = estimate * v[index] + borrow
+            low: i64 = product % KBD_BASE
+            borrow <- product / KBD_BASE
+            difference: mutable i64 = u[j + index] - low
+            if difference < 0:
+                difference <- difference + KBD_BASE
+                borrow <- borrow + 1
+            u[j + index] <- difference
+            index <- index + 1
+        top: i64 = u[j + nb] - borrow
+        if top < 0:
+            estimate <- estimate - 1
+            carry <- 0
+            index <- 0
+            while index < nb:
+                sum: mutable i64 = u[j + index] + v[index] + carry
+                if sum >= KBD_BASE:
+                    sum <- sum - KBD_BASE
+                    carry <- 1
+                else:
+                    carry <- 0
+                u[j + index] <- sum
+                index <- index + 1
+            u[j + nb] <- top + carry
+        else:
+            u[j + nb] <- top
+        q[j] <- estimate
+    carry <- 0
+    index <- nb
+    while index > 0:
+        index <- index - 1
+        current: i64 = carry * KBD_BASE + u[index]
+        r[index] <- current / scale
+        carry <- current % scale
+    nr <- kbd_trim(r, nb)
+    kbd_trim(q, width)
+
+def kbd_emit(limbs: view[i64], count_value: usize, output: mutable view[u8], at_value: usize) -> usize:
+    count: mutable usize = kbd_trim(limbs, count_value)
+    at: mutable usize = at_value
+    if count == 0:
+        output[at] <- 48.u8()
+        return at + 1
+    value: mutable i64 = limbs[count - 1]
+    power: mutable i64 = 1
+    while value / power >= 10: power <- power * 10
+    while power > 0:
+        output[at] <- (48 + value / power % 10).u8()
+        at <- at + 1
+        power <- power / 10
+    while count > 1:
+        count <- count - 1
+        value <- limbs[count - 1]
+        power <- KBD_BASE / 10
+        while power > 0:
+            output[at] <- (48 + value / power % 10).u8()
+            at <- at + 1
+            power <- power / 10
+    at
+
+def kbd_impl(input: view[i64], length: usize, output: mutable view[u8], capacity: usize,
+             output_is_null: bool) -> i64:
+    if length < 4 or length > KBD_MAX_INPUT: return -1
+    if input[0] < 1 or input[0] > 64 or input[1] < 1 or input[1] > 64: return -1
+    na_text: usize = input[0].usize()
+    nb_text: usize = input[1].usize()
+    if length != 2 + na_text + nb_text: return -1
+    a_text: view[i64] = input[2:2 + na_text]
+    b_text: view[i64] = input[2 + na_text:2 + na_text + nb_text]
+    for i in 0..<na_text:
+        if a_text[i] < 48 or a_text[i] > 57: return -1
+    for i in 0..<nb_text:
+        if b_text[i] < 48 or b_text[i] > 57: return -1
+    if (na_text > 1 and a_text[0] == 48) or (nb_text > 1 and b_text[0] == 48) or
+       (nb_text == 1 and b_text[0] == 48): return -1
+
+    a: mutable i64[KBD_MAX_LIMBS] = zeroed
+    b: mutable i64[KBD_MAX_LIMBS] = zeroed
+    q: mutable i64[KBD_MAX_LIMBS] = zeroed
+    r: mutable i64[KBD_MAX_LIMBS] = zeroed
+    na: usize = kbd_parse(a_text, na_text, a[0:KBD_MAX_LIMBS])
+    nb: usize = kbd_parse(b_text, nb_text, b[0:KBD_MAX_LIMBS])
+    nr: mutable usize = 0
+    nq: usize = kbd_divide(a[0:KBD_MAX_LIMBS], na, b[0:KBD_MAX_LIMBS], nb,
+                           q[0:KBD_MAX_LIMBS], r[0:KBD_MAX_LIMBS], nr)
+    result: mutable u8[KBD_MAX_OUTPUT] = zeroed
+    bytes: mutable usize = kbd_emit(q[0:KBD_MAX_LIMBS], nq, result[0:KBD_MAX_OUTPUT], 0)
+    result[bytes] <- 58.u8()
+    bytes <- bytes + 1
+    bytes <- kbd_emit(r[0:KBD_MAX_LIMBS], nr, result[0:KBD_MAX_OUTPUT], bytes)
+    if output_is_null or capacity < bytes: return -2
+    for i in 0..<bytes: output[i] <- result[i]
+    bytes.i64()
+
+export fn knuth_big_integer_division(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > KBD_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return kbd_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > KBD_MAX_OUTPUT: safe_capacity <- KBD_MAX_OUTPUT
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    kbd_impl(input_view, length, output_view, capacity, false)

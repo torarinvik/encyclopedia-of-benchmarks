@@ -1,0 +1,143 @@
+const MAX_TEXT: usize = 4096
+const MAX_PATTERN: usize = 128
+const MAX_INPUT_LENGTH: usize = 4227
+
+def kmp_skip_search_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_n: i64 = input[0]
+    raw_m: i64 = input[1]
+    if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64():
+        return -1
+    let n: usize = raw_n.usize()
+    let m: usize = raw_m.usize()
+    if length != 2 + n + m:
+        return -1
+
+    text: mutable u8[MAX_TEXT] = zeroed
+    pattern: mutable u8[MAX_PATTERN] = zeroed
+    q: mutable usize = 0
+    while q < n:
+        let symbol: i64 = input[2 + q]
+        if symbol < 0 or symbol > 3:
+            return -1
+        text[q] <- symbol.u8()
+        q <- q + 1
+    q <- 0
+    while q < m:
+        let symbol: i64 = input[2 + n + q]
+        if symbol < 0 or symbol > 3:
+            return -1
+        pattern[q] <- symbol.u8()
+        q <- q + 1
+    if n < m:
+        return 0
+
+    mp_next: mutable i64[MAX_PATTERN + 1] = zeroed
+    kmp_next: mutable i64[MAX_PATTERN + 1] = zeroed
+    q <- 0
+    border: mutable i64 = -1
+    mp_next[0] <- -1
+    while q < m:
+        while border >= 0 and pattern[q] != pattern[border.usize()]:
+            border <- mp_next[border.usize()]
+        q <- q + 1
+        border <- border + 1
+        mp_next[q] <- border
+    q <- 0
+    border <- -1
+    kmp_next[0] <- -1
+    while q < m:
+        while border >= 0 and pattern[q] != pattern[border.usize()]:
+            border <- kmp_next[border.usize()]
+        q <- q + 1
+        border <- border + 1
+        if q < m and pattern[q] == pattern[border.usize()]:
+            kmp_next[q] <- kmp_next[border.usize()]
+        else:
+            kmp_next[q] <- border
+
+    last: mutable i64[4] = zeroed
+    q <- 0
+    while q < 4:
+        last[q] <- -1
+        q <- q + 1
+    previous: mutable i64[MAX_PATTERN] = zeroed
+    q <- 0
+    while q < m:
+        let symbol: usize = pattern[q].usize()
+        previous[q] <- last[symbol]
+        last[symbol] <- q.i64()
+        q <- q + 1
+
+    sample: mutable i64 = -1
+    i: mutable i64 = -1
+    while true:
+        sample <- sample + raw_m
+        if sample >= raw_n:
+            return 0
+        i <- last[text[sample.usize()].usize()]
+        if i >= 0:
+            break
+    start: mutable i64 = sample - i
+    wall: mutable i64 = 0
+    let period: i64 = raw_m - kmp_next[m]
+    count: mutable i64 = 0
+    offset_sum: mutable i64 = 0
+    offset_xor: mutable i64 = 0
+    while start <= raw_n - raw_m:
+        if start > wall:
+            wall <- start
+        k: mutable i64 = wall - start
+        while k < raw_m and pattern[k.usize()] == text[(start + k).usize()]:
+            k <- k + 1
+        wall <- start + k
+        if k == raw_m:
+            count <- count + 1
+            offset_sum <- offset_sum + start
+            offset_xor <- offset_xor ^ start
+            i <- i - period
+        else:
+            i <- previous[i.usize()]
+        if i < 0:
+            found: mutable bool = false
+            while true:
+                sample <- sample + raw_m
+                if sample >= raw_n:
+                    break
+                i <- last[text[sample.usize()].usize()]
+                if i >= 0:
+                    found <- true
+                    break
+            if not found:
+                break
+
+        kmp_start: mutable i64 = start + k - kmp_next[k.usize()]
+        k <- kmp_next[k.usize()]
+        start <- sample - i
+        while start < kmp_start or (kmp_start < start and start < wall):
+            if start < kmp_start:
+                i <- previous[i.usize()]
+                if i < 0:
+                    found <- false
+                    while true:
+                        sample <- sample + raw_m
+                        if sample >= raw_n:
+                            break
+                        i <- last[text[sample.usize()].usize()]
+                        if i >= 0:
+                            found <- true
+                            break
+                    if not found:
+                        return (count << 36) | (offset_sum << 12) | offset_xor
+                start <- sample - i
+            else:
+                kmp_start <- kmp_start + k - mp_next[k.usize()]
+                k <- mp_next[k.usize()]
+    (count << 36) | (offset_sum << 12) | offset_xor
+
+export fn kmp_skip_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let input_view: view[i64] = input[0:length]
+    kmp_skip_search_impl(input_view, length)

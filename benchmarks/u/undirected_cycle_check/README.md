@@ -9,10 +9,15 @@ Determine whether a finite undirected graph contains a cycle. The pinned Rust so
 - Endpoints must be in `[0, vertex_count)`. Duplicate undirected edges are invalid; self-loops are valid and count as a cycle. Edge weights and vertex labels are not part of this unweighted graph contract.
 - Return `1` if a cycle exists, `0` otherwise, and `-1` for malformed input.
 - The iterative DFS stores the vertex and its parent for each active stack entry. An edge to a visited vertex other than the parent identifies a cycle. Storage is bounded by 32 vertices; the implementation uses portable scalar operations only.
+- The adjacency matrix uses `O(n²)` storage and scanning it takes `O(n²)` time after `O(m)` input validation; this is not the adjacency-list linear-time profile.
 
 ## Workload and verification
 
 [`workload.json`](workload.json) covers empty and singleton graphs, self-loops, trees, disconnected components, cycles, maximum-size inputs, and malformed packed input. The independent oracle uses disjoint-set union. The shared i64-array/scalar verifier exhausts all simple undirected graphs through five vertices.
+
+The Mojo port and recent Elisa, V, and Zig ABI corrections are drafts and remain
+uncompiled and unexecuted. The scalar verifier draft includes null-input probes
+at zero, header, and maximum declared lengths; those probes have not run.
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_scalar --algorithm undirected_cycle_check --language c
@@ -32,6 +37,7 @@ python3 benchmarks/verify_i64_array_scalar.py --algorithms undirected_cycle_chec
 | C3 | [`c3/u/undirected_cycle_check.c3`](../../../c3/u/undirected_cycle_check.c3) |
 | C++ | [`cpp/u/undirected_cycle_check.cpp`](../../../cpp/u/undirected_cycle_check.cpp) |
 | Elisa | [`elisa/u/undirected_cycle_check.elisa`](../../../elisa/u/undirected_cycle_check.elisa) |
+| Mojo | [`mojo/u/undirected_cycle_check.mojo`](../../../mojo/u/undirected_cycle_check.mojo) |
 | Nim | [`nim/u/undirected_cycle_check.nim`](../../../nim/u/undirected_cycle_check.nim) |
 | Odin | [`odin/u/undirected_cycle_check.odin`](../../../odin/u/undirected_cycle_check.odin) |
 | Rust | [`rust/u/undirected_cycle_check.rs`](../../../rust/u/undirected_cycle_check.rs) |

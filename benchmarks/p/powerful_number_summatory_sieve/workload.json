@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "powerful-number-summatory-sieve-i64-array-scalar-v1",
+  "algorithm": "powerful_number_summatory_sieve",
+  "function_symbol": "powerful_number_summatory_sieve",
+  "abi": "i64_array_scalar",
+  "source": {
+    "url": "https://oi-wiki.org/math/number-theory/powerful-number/",
+    "example_url": "https://atcoder.jp/contests/abc370/editorial/10882"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N]",
+    "n_range": [1, 1000000],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "target_function": "f(1)=1 and f is multiplicative with f(p^e)=p^(e-1), equivalently f(n)=n/rad(n).",
+    "convolution": "Let g(n)=1 and h=mu*f. Then f=g*h, h(1)=1, h(p)=0, and h(p^e)=(p-1)*p^(e-2) for e>=2. The support of h consists exactly of powerful numbers.",
+    "summatory_identity": "Return sum(h(d)*floor(N/d)) over powerful d<=N; the d=1 term is N.",
+    "enumeration": "Sieve primes through floor(sqrt(N)); recursively choose increasing primes, each with exponent at least two, and accumulate every resulting powerful number exactly once.",
+    "complexity": "Prime sieve O(sqrt(N)*log(log(N))) time and O(sqrt(N)) storage; powerful-number enumeration visits O(sqrt(N)) products and accumulates each term in O(1).",
+    "result_bound": "0<=F(N)<=N(N+1)/2<=500000500000, within signed 64-bit range."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Exact sum of n/rad(n) for 1<=n<=N; -1 for invalid input.",
+    "valid_result_range": [0, 500000500000],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"unit-prefix","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"first-prime-square","input_values":[4],"input_length":1,"expected_result":5},
+    {"id":"prime-powers-and-products","input_values":[10],"input_length":1,"expected_result":16},
+    {"id":"several-powerful-number-terms","input_values":[16],"input_length":1,"expected_result":30},
+    {"id":"mixed-prime-power-terms","input_values":[100],"input_length":1,"expected_result":311},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"zero-bound","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"above-bound","input_values":[1000001],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word","input_values":[10,0],"input_length":2,"expected_result":-1}
+  ]
+}

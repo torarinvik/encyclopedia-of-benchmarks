@@ -1,5 +1,5 @@
 module iir_filter;
-fn void put64(char *o,usz s,double x){ulong b=@bitcast(ulong,x);for(usz k=0;k<8;k++){o[s*8+k]=(char)(b&255);b>>=8;}}
+fn void put64(char *o,usz s,double x){ulong b=bitcast(x,ulong);for(usz k=0;k<8;k++){o[s*8+k]=(char)(b&255);b>>=8;}}
 fn long iir_filter(long *v,usz n,char *out,usz cap) @export("iir_filter"){
  if(v==null||n<7||n>26||v[0]<1||v[0]>3||v[1]<1||v[1]>16)return -1;usz order=(usz)v[0],samples=(usz)v[1];if(n!=4+2*order+samples)return -1;
  double[4] a;double[4] b;double[3] xh;double[3] yh;for(usz i=0;i<4;i++){a[i]=0.0;b[i]=0.0;}for(usz i=0;i<3;i++){xh[i]=0.0;yh[i]=0.0;}

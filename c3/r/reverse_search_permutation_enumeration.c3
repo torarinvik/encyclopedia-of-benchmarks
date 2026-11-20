@@ -36,7 +36,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long reverse_search_permutation_enumeration(long* input, usz length, char* output, usz capacity)
+fn long reverse_search_permutation_enumeration(long* input, usz length, char* output, usz capacity)
     @export("reverse_search_permutation_enumeration") {
     if (input == null || length < 1 || length > MAX_INPUT) return -1;
     if (length != 1 || input[0] < 1 || input[0] > (long)MAX_N) return -1;

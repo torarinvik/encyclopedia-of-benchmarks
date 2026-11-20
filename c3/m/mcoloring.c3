@@ -11,16 +11,16 @@ fn int find_root(int* parent, int vertex) {
     return vertex;
 }
 
-long mcoloring(long* input, usz length) @export("mcoloring") {
+fn long mcoloring(long* input, usz length) @export("mcoloring") {
     if (input == null || length < 2 || length > MAX_PARSEABLE_INPUT_LENGTH) return -1;
     long n_value = input[0], colors_value = input[1];
     if (n_value < 0 || n_value > MAX_VERTICES || colors_value < 1 || colors_value > MAX_VERTICES) return -1;
     int n = (int)n_value;
     if (length != (usz)n + 2) return -1;
 
-    uint masks[MAX_VERTICES] = {0};
+    uint[MAX_VERTICES] masks = {0};
     uint valid_mask = n == 0 ? 0u : (1u << n) - 1u;
-    int parent[MAX_VERTICES];
+    int[MAX_VERTICES] parent;
     for (int vertex = 0; vertex < n; vertex++) {
         long raw = input[vertex + 2];
         if (raw < 0 || (ulong)raw > (ulong)valid_mask) return -1;
@@ -40,8 +40,8 @@ long mcoloring(long* input, usz length) @export("mcoloring") {
         }
     }
 
-    int colors[MAX_VERTICES], queue[MAX_VERTICES];
-    bool visited[MAX_VERTICES] = {false};
+    int[MAX_VERTICES] colors, queue;
+    bool[MAX_VERTICES] visited = {false};
     for (int i = 0; i < n; i++) colors[i] = 1;
     int maximum_color = 1;
     for (int start = 0; start < n; start++) {

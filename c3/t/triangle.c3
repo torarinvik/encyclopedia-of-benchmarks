@@ -1,7 +1,7 @@
 module triangle;
 
 extern fn double sqrt(double value);
-fn void put_f64_le(double value, char* output, usz offset) { ulong bits = @bitcast(ulong, value); for (usz b=0;b<8;b++) { output[offset+b]=(char)(bits&255); bits>>=8; } }
+fn void put_f64_le(double value, char* output, usz offset) { ulong bits = bitcast(value, ulong); for (usz b=0;b<8;b++) { output[offset+b]=(char)(bits&255); bits>>=8; } }
 fn long triangle(long* input, usz length, char* output, usz capacity) @export("triangle") {
     if (input == null || length != 6) return -1;
     for (usz i=0;i<6;i++) if (input[i] < -100 || input[i] > 100) return -1;

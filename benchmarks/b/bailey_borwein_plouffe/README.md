@@ -27,6 +27,7 @@ The scalar ABI is `int64_t bailey_borwein_plouffe(int64_t digit_position)`.
 | C3 | [`c3/b/bailey_borwein_plouffe.c3`](../../../c3/b/bailey_borwein_plouffe.c3) |
 | C++ | [`cpp/b/bailey_borwein_plouffe.cpp`](../../../cpp/b/bailey_borwein_plouffe.cpp) |
 | Elisa | [`elisa/b/bailey_borwein_plouffe.elisa`](../../../elisa/b/bailey_borwein_plouffe.elisa) |
+| Mojo | [`mojo/b/bailey_borwein_plouffe.mojo`](../../../mojo/b/bailey_borwein_plouffe.mojo) |
 | Nim | [`nim/b/bailey_borwein_plouffe.nim`](../../../nim/b/bailey_borwein_plouffe.nim) |
 | Odin | [`odin/b/bailey_borwein_plouffe.odin`](../../../odin/b/bailey_borwein_plouffe.odin) |
 | Rust | [`rust/b/bailey_borwein_plouffe.rs`](../../../rust/b/bailey_borwein_plouffe.rs) |
@@ -36,3 +37,6 @@ The scalar ABI is `int64_t bailey_borwein_plouffe(int64_t digit_position)`.
 ## Upstream source
 
 - [TheAlgorithms/Python `bailey_borwein_plouffe.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/bailey_borwein_plouffe.py)
+
+Scalar-suite registration and a high-precision arithmetic-geometric-mean
+reference are drafted and have not been executed.

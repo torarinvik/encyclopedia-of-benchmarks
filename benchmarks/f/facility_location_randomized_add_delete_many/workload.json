@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-facility-location-randomized-add-delete-many-i64-array-bytes-output-v1",
+  "algorithm": "facility_location_randomized_add_delete_many",
+  "function_symbol": "facility_location_randomized_add_delete_many",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded replay of randomized uncapacitated add-one/delete-many facility-location updates.",
+  "source": {
+    "chapter_title": "Local Search for K-medians and Facility Location",
+    "chapter_author": "Kamesh Munagala",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_212",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_212",
+    "paper_title": "Improved Combinatorial Algorithms for Facility Location Problems",
+    "paper_authors": ["Moses Charikar", "Sudipto Guha"],
+    "paper_doi": "10.1137/S0097539701398594",
+    "paper_url": "https://doi.org/10.1137/S0097539701398594",
+    "section": "Chapter Facility Location section; paper §2",
+    "implementation_status": "clean-room algorithm-description implementation; no source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,F,Q,initial_mask,assignment[n],demand[n],D[(n+F)^2 row-major],fee[F],draw[Q]]",
+    "client_count_range": [1, 5],
+    "facility_count_range": [1, 5],
+    "draw_count_range": [1, 8],
+    "demand_range": [1, 10],
+    "metric_distance_range": [0, 1000],
+    "opening_fee_range": [0, 1000],
+    "maximum_valid_length": 127,
+    "maximum_parseable_length": 128,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[cost_after[Q],accepted[Q],final_cost,final_open_mask,final_assignment[n],accepted_count]",
+    "maximum_bytes": 192,
+    "success_result": "8*(2*Q+3+n)",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 192,
+    "meaning": "Maximum caller output buffer; internal metric and trace storage is separately bounded."
+  },
+  "memory": {
+    "internal_scratch_bytes": 32768,
+    "meaning": "Fixed metric matrix, assignment state, draw tape, and output trace."
+  },
+  "contract": {
+    "facility_model": "uncapacitated; candidate facilities have opening fees and clients have positive integer demands",
+    "initial_assignment": "every client names a currently open facility; it need not be a nearest-center assignment",
+    "random_choice_replay": "draw[Q] contains explicit facility IDs sampled from all F candidates; an already-open candidate is a no-op",
+    "closer_set": "clients whose weighted service distance to the sampled closed facility is strictly lower than their current assigned distance; demands are positive, so comparing distance is sufficient",
+    "delete_rule": "delete an open facility iff its opening fee plus current service cost for its assigned clients outside the closer set is strictly greater than reassigning those clients to the sampled facility",
+    "acceptance": "accept the add and every selected delete only if the combined total objective strictly decreases",
+    "assignment_update": "clients in the closer set and clients reassigned from deleted facilities move to the sampled facility; all other assignments remain unchanged",
+    "tie_rule": "equal distances do not join the closer set; zero-saving center deletions are omitted; equal total objective rejects the move",
+    "draw_tape_scope": "deterministic replay of random choices; no internal PRNG and no probabilistic approximation guarantee",
+    "metric_rule": "symmetric integer metric with zero diagonal, positive off-diagonal entries, and all entries in 0..1000",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-add-then-already-open-draw",
+      "input_values": [2,2,2,1,0,0,1,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,2,3,1,0],
+      "input_length": 28,
+      "output_capacity": 192,
+      "expected_result": 72,
+      "expected_output_hex": "090000000000000009000000000000000100000000000000000000000000000009000000000000000300000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "one-add-deletes-two-centers",
+      "input_values": [4,3,2,3,0,0,1,1,1,1,0,2,8,10,10,20,5,2,0,6,8,12,18,3,8,6,0,2,18,12,3,10,8,2,0,20,10,5,10,12,18,20,0,30,15,20,18,12,10,30,0,15,5,3,3,5,15,15,0,5,5,1,2,2],
+      "input_length": 66,
+      "output_capacity": 192,
+      "expected_result": 88,
+      "expected_output_hex": "11000000000000001100000000000000010000000000000000000000000000001100000000000000040000000000000002000000000000000200000000000000020000000000000002000000000000000100000000000000"
+    },
+    {
+      "id": "strict-zero-saving-center-is-kept",
+      "input_values": [2,2,1,1,0,0,1,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,6,5,1],
+      "input_length": 27,
+      "output_capacity": 192,
+      "expected_result": 56,
+      "expected_output_hex": "0f0000000000000001000000000000000f000000000000000300000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "opening-cost-blocks-move",
+      "input_values": [2,2,1,1,0,0,1,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,1,100,1],
+      "input_length": 27,
+      "output_capacity": 192,
+      "expected_result": 56,
+      "expected_output_hex": "0b0000000000000000000000000000000b00000000000000010000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "already-open-choice-is-noop",
+      "input_values": [2,2,1,1,0,0,1,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,2,3,0],
+      "input_length": 27,
+      "output_capacity": 192,
+      "expected_result": 56,
+      "expected_output_hex": "0c0000000000000000000000000000000c00000000000000010000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-valid-frame",
+      "input_values": [5,5,8,1,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,5,5,5,5,5,0,1,2,3,4,0,1,2],
+      "input_length": 127,
+      "output_capacity": 192,
+      "expected_result": 192,
+      "expected_output_hex": "0a000000000000000a000000000000000a000000000000000a000000000000000a000000000000000a000000000000000a000000000000000a000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-valid-frame-plus-one-word",
+      "input_values": [5,5,8,1,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,5,5,5,5,5,0,1,2,3,4,0,1,2,0],
+      "input_length": 128,
+      "output_capacity": 192,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "assignment-to-closed-facility",
+      "input_values": [2,2,2,1,0,1,1,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,2,3,1,0],
+      "input_length": 28,
+      "output_capacity": 192,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "draw-out-of-range",
+      "input_values": [2,2,2,1,0,0,1,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,2,3,1,2],
+      "input_length": 28,
+      "output_capacity": 192,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity-at-maximum",
+      "input_values": [5,5,8,1,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,5,5,5,5,5,0,1,2,3,4,0,1,2],
+      "input_length": 127,
+      "output_capacity": 191,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2,2,2,1,0,0,1,1,0,10,2,8,10,0,8,2,2,8,0,6,8,2,6,0,2,3,1,0],
+      "input_length": 28,
+      "output_capacity": 192,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-empty",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 192,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-at-parser-limit",
+      "input_values": [],
+      "input_length": 128,
+      "input_is_null": true,
+      "output_capacity": 192,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

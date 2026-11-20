@@ -6,7 +6,7 @@ fn void put64(char* out, usz at, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { out[at + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long routing_cost_constrained_cds_goc_mcds_c(long* input, usz length, char* output, usz capacity) @export("routing_cost_constrained_cds_goc_mcds_c") {
+fn long routing_cost_constrained_cds_goc_mcds_c(long* input, usz length, char* output, usz capacity) @export("routing_cost_constrained_cds_goc_mcds_c") {
     if (input == null || length < 3 || length > MAX_INPUT || input[0] < 1 || input[0] > (long)MAX_N) return -1;
     usz n = (usz)input[0]; if (length != 1 + 2 * n) return -1;
     ulong full = (1UL << n) - 1;

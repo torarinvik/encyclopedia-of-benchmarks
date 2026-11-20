@@ -1,0 +1,45 @@
+{
+  "algorithm": "self_number_count_sieve",
+  "abi": "i64_array_scalar",
+  "sources": {
+    "definition": "https://mathworld.wolfram.com/SelfNumber.html",
+    "task_definition_crosscheck": "https://www.cs.cmu.edu/~eugene/teach/acm03/prob/self.html",
+    "large_count_crosscheck": "https://www.primepuzzles.net/puzzles/puzz_373.htm",
+    "sequence": "https://oeis.org/A003052",
+    "count_sequence": "https://oeis.org/A282711",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "native_paths": [
+    "c/s/self_number_count_sieve.c",
+    "cpp/s/self_number_count_sieve.cpp",
+    "rust/s/self_number_count_sieve.rs",
+    "elisa/s/self_number_count_sieve.elisa",
+    "c3/s/self_number_count_sieve.c3",
+    "nim/s/self_number_count_sieve.nim",
+    "odin/s/self_number_count_sieve.odin",
+    "v/s/self_number_count_sieve.v",
+    "zig/s/self_number_count_sieve.zig",
+    "mojo/s/self_number_count_sieve.mojo"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "__init__.py", "workload.json", "primary_oracle.py",
+    "independent_oracle.py", "verify_workload.py", "check_inventory.py"
+  ],
+  "bounds": {
+    "limit_min": 1,
+    "limit_max": 100000,
+    "valid_input_length": 1,
+    "parseable_input_length": 2,
+    "bitmap_bits": 100001,
+    "bitmap_words": 1563,
+    "workspace_bytes": 16384,
+    "result_min": 1,
+    "result_max": 100000
+  },
+  "method_distinction": {
+    "primary": "Mark digit-addition generator targets in a packed bitmap, then count unmarked positive values.",
+    "independent": "For each candidate, inspect its complete bounded set of possible positive predecessors.",
+    "related_local_profiles": "Lucky-number sieving eliminates positions by changing step sizes; divisor-count sieves factor/count divisors. This profile marks x+decimal_digit_sum(x)."
+  }
+}

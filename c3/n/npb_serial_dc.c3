@@ -16,7 +16,7 @@ fn long npb_serial_dc(long* input, usz length) @export("npb_serial_dc") {
     if (input == null || length < 4 || input[0] < 1 || input[0] > MAX_DIMS || input[1] < 1 || input[1] > MAX_ROWS) return -1;
     usz dimensions = (usz)input[0], rows = (usz)input[1];
     if (length != 2 + rows * (dimensions + 1)) return -1;
-    long[MAX_ROWS][MAX_DIMS] attributes = zeroed;
+    long[MAX_DIMS][MAX_ROWS] attributes = zeroed;
     long[MAX_ROWS] measures = zeroed;
     usz offset = 2;
     for (usz row = 0; row < rows; row++) {
@@ -32,7 +32,7 @@ fn long npb_serial_dc(long* input, usz length) @export("npb_serial_dc") {
     long checksum = 0;
     int view_limit = 1 << (int)dimensions;
     for (int mask = 1; mask < view_limit; mask++) {
-        long[MAX_ROWS][MAX_DIMS] keys = zeroed;
+        long[MAX_DIMS][MAX_ROWS] keys = zeroed;
         long[MAX_ROWS] sums = zeroed;
         usz group_count = 0;
         for (usz row = 0; row < rows; row++) {

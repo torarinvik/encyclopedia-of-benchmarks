@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "rational-polygon-lattice-points-i64-array-scalar-v1",
+  "algorithm": "rational_polygon_lattice_points",
+  "function_symbol": "rational_polygon_lattice_points",
+  "abi": "i64_array_scalar",
+  "description": "Count strict integer lattice points in a bounded rational convex polygon using oriented Euclidean edge floor sums and exact vertex-column classification.",
+  "source": {
+    "title": "CP-Algorithms: Lattice points inside non-lattice polygon",
+    "authors": ["CP-Algorithms contributors"],
+    "urls": ["https://cp-algorithms.com/geometry/lattice-points.html"],
+    "license": "CC BY-SA 4.0",
+    "algorithm_attribution": "Oriented edge contributions evaluated by rational floor sums; integer vertex-x columns are classified directly with exact boundary and ray-crossing checks",
+    "implementation_status": "clean-room implementation from the published algorithm description"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[S,N,(x_num,y_num)*N], where each coordinate equals numerator/S",
+    "vertex_count_range": [3, 8],
+    "scale_range": [2, 8],
+    "coordinate_numerator_range": [-32, 32],
+    "coordinate_scale_rule": "abs(x_num) <= 4*S and abs(y_num) <= 4*S, so physical coordinates lie in [-4,4]",
+    "exact_length": "2 + 2*N",
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "number of strict interior integer lattice points",
+    "result_range": [0, 49]
+  },
+  "contract": {
+    "polygon": "vertices are distinct, listed in strict convex order, with no collinear triples; either winding is accepted",
+    "rationality": "at least one vertex coordinate is nonintegral",
+    "interior_rule": "points on any polygon edge or vertex are excluded",
+    "integer_vertex_columns": "excluded from half-open edge floor-sum spans and classified point-by-point at integer y-values from -4 through 4",
+    "invalid_geometry": "invalidates the whole frame and returns -1",
+    "independent_method": "enumerate integer points in the bounding box and use exact ray crossing"
+  },
+  "complexity": {
+    "validation": "O(N^3) exact orientation checks with N<=8",
+    "edge_count": "O(N^2 log C) Euclidean floor-sum iterations because each edge span may split at up to N integer vertex-x columns",
+    "integer_vertex_x_columns": "O(N^2) bounded exact point-in-polygon checks; at most N event columns and nine candidate integer y-values per event",
+    "total": "O(N^3 + N^2 log C)",
+    "auxiliary_space": "O(N)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "half-grid-square-interior",
+      "input_values": [2, 4, 1, 1, 5, 1, 5, 5, 1, 5],
+      "input_length": 10,
+      "expected_result": 4
+    },
+    {
+      "id": "rational-right-triangle-no-interior-points",
+      "input_values": [2, 3, 0, 0, 5, 0, 0, 1],
+      "input_length": 8,
+      "expected_result": 0
+    },
+    {
+      "id": "clockwise-half-grid-square",
+      "input_values": [2, 4, 1, 5, 5, 5, 5, 1, 1, 1],
+      "input_length": 10,
+      "expected_result": 4
+    },
+    {
+      "id": "integer-x-vertical-boundary",
+      "input_values": [2, 4, 0, 1, 4, 1, 4, 5, 0, 5],
+      "input_length": 10,
+      "expected_result": 2
+    },
+    {
+      "id": "integer-x-single-vertex-column",
+      "input_values": [2, 3, 0, 2, 4, 1, 4, 3],
+      "input_length": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum-valid-rational-octagon",
+      "input_values": [8, 8, 6, 4, 5, 6, 3, 6, 2, 5, 2, 3, 3, 2, 5, 2, 6, 3],
+      "input_length": 18,
+      "expected_result": 0
+    },
+    {
+      "id": "lattice-only-polygon-is-outside-profile",
+      "input_values": [2, 4, 0, 0, 4, 0, 4, 4, 0, 4],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "nonconvex-vertex-order",
+      "input_values": [2, 5, 0, 0, 8, 0, 5, 4, 8, 8, 0, 8],
+      "input_length": 12,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-frame",
+      "input_values": [2, 4, 1, 1],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [8, 8, 6, 4, 5, 6, 3, 6, 2, 5, 2, 3, 3, 2, 5, 2, 6, 3, 0],
+      "input_length": 19,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

@@ -60,7 +60,8 @@ def aggregate(front_aggregates: view[Affine], front_size: usize,
 
 def queue_operate_all_composite_impl(input: i64&, length: usize) -> i64:
     if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
-    operation_value: i64 = input[0]
+    frame: view[i64] = input[0:length]
+    operation_value: i64 = frame[0]
     if operation_value < 0 or operation_value > 64: return -1
     operation_count: usize = operation_value.usize()
 
@@ -74,12 +75,12 @@ def queue_operate_all_composite_impl(input: i64&, length: usize) -> i64:
     query_number: mutable i64 = 0
     for operation in 0..<operation_count:
         if position >= length: return -1
-        opcode: i64 = input[position]
+        opcode: i64 = frame[position]
         position <- position + 1
         if opcode == 0:
             if length - position < 2: return -1
-            a: i64 = input[position]
-            b: i64 = input[position + 1]
+            a: i64 = frame[position]
+            b: i64 = frame[position + 1]
             position <- position + 2
             if a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
             push_back(back_functions[0:64], back_aggregates[0:64], back_size, a, b)
@@ -88,7 +89,7 @@ def queue_operate_all_composite_impl(input: i64&, length: usize) -> i64:
                 return -1
         else if opcode == 2:
             if position >= length: return -1
-            x: i64 = input[position]
+            x: i64 = frame[position]
             position <- position + 1
             if x < 0 or x >= MODULUS: return -1
             function: Affine = aggregate(front_aggregates[0:64], front_size,

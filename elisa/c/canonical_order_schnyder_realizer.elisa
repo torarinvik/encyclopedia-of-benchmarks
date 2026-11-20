@@ -1,0 +1,378 @@
+const CO_MAX_N: usize = 8
+const CO_MAX_INPUT: usize = 49
+const CO_MAX_DARTS: usize = 48
+
+def co_next_active(degree: view[i64], rotation: view[i64], active: view[bool],
+                   source: usize, target: usize) -> i64:
+    source_position: mutable i64 = -1
+    remaining: mutable usize = 0
+    index: mutable usize = 0
+    while index < degree[target].usize():
+        neighbor: usize = rotation[target * CO_MAX_N + index].usize()
+        if active[neighbor]:
+            remaining <- remaining + 1
+            if neighbor == source: source_position <- index.i64()
+        index <- index + 1
+    if remaining < 2 or source_position < 0: return -1
+    step: mutable usize = 1
+    while step <= degree[target].usize():
+        position: usize = (source_position.usize() + step) % degree[target].usize()
+        neighbor: usize = rotation[target * CO_MAX_N + position].usize()
+        if active[neighbor]: return neighbor.i64()
+        step <- step + 1
+    -1
+
+def co_face_cycle(degree: view[i64], rotation: view[i64], adjacency: view[bool],
+                  active: view[bool], first: usize, second: usize,
+                  cycle: mutable view[i64]) -> i64:
+    seen: mutable bool[CO_MAX_N * CO_MAX_N] = zeroed
+    source: mutable usize = first
+    target: mutable usize = second
+    length: mutable usize = 0
+    step: mutable usize = 0
+    while step < CO_MAX_DARTS:
+        if source >= CO_MAX_N or target >= CO_MAX_N or not active[source] or not active[target] or
+           not adjacency[source * CO_MAX_N + target] or seen[source * CO_MAX_N + target]: return -1
+        seen[source * CO_MAX_N + target] <- true
+        cycle[length] <- source.i64()
+        length <- length + 1
+        following: i64 = co_next_active(degree, rotation, active, source, target)
+        if following < 0: return -1
+        source <- target
+        target <- following.usize()
+        if source == first and target == second: return length.i64()
+        step <- step + 1
+    -1
+
+def co_parse(input: view[i64], degree: mutable view[i64], rotation: mutable view[i64],
+             adjacency: mutable view[bool], roots: mutable view[i64]) -> bool:
+    length: usize = input.len()
+    if length < 4 or length > CO_MAX_INPUT: return false
+    n_value: i64 = input[0]
+    if n_value < 3 or n_value > CO_MAX_N.i64(): return false
+    n: usize = n_value.usize()
+    u: i64 = input[1]
+    v: i64 = input[2]
+    w: i64 = input[3]
+    if u < 0 or u >= n_value or v < 0 or v >= n_value or w < 0 or w >= n_value or
+       u == v or u == w or v == w: return false
+    roots[0] <- n_value
+    roots[1] <- u
+    roots[2] <- v
+    roots[3] <- w
+    offset: mutable usize = 4
+    degree_sum: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        if offset >= length: return false
+        degree_value: i64 = input[offset]
+        offset <- offset + 1
+        if degree_value < 2 or degree_value >= n_value or offset + degree_value.usize() > length: return false
+        degree[vertex] <- degree_value
+        degree_sum <- degree_sum + degree_value.usize()
+        row_seen: mutable bool[CO_MAX_N] = zeroed
+        rank: mutable usize = 0
+        while rank < degree_value.usize():
+            neighbor_value: i64 = input[offset]
+            offset <- offset + 1
+            if neighbor_value < 0 or neighbor_value >= n_value or neighbor_value == vertex.i64(): return false
+            neighbor: usize = neighbor_value.usize()
+            if row_seen[neighbor]: return false
+            row_seen[neighbor] <- true
+            rotation[vertex * CO_MAX_N + rank] <- neighbor_value
+            adjacency[vertex * CO_MAX_N + neighbor] <- true
+            rank <- rank + 1
+        vertex <- vertex + 1
+    if offset != length or degree_sum != 6 * n - 12: return false
+    edge_count: mutable usize = 0
+    vertex <- 0
+    while vertex < n:
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            if adjacency[vertex * CO_MAX_N + neighbor] != adjacency[neighbor * CO_MAX_N + vertex]: return false
+            if vertex < neighbor and adjacency[vertex * CO_MAX_N + neighbor]: edge_count <- edge_count + 1
+            neighbor <- neighbor + 1
+        vertex <- vertex + 1
+    if edge_count != 3 * n - 6: return false
+    reached: mutable bool[CO_MAX_N] = zeroed
+    stack: mutable usize[CO_MAX_N] = zeroed
+    stack_size: mutable usize = 1
+    reached_count: mutable usize = 0
+    reached[0] <- true
+    while stack_size > 0:
+        stack_size <- stack_size - 1
+        node: usize = stack[stack_size]
+        reached_count <- reached_count + 1
+        neighbor <- 0
+        while neighbor < n:
+            if adjacency[node * CO_MAX_N + neighbor] and not reached[neighbor]:
+                reached[neighbor] <- true
+                stack[stack_size] <- neighbor
+                stack_size <- stack_size + 1
+            neighbor <- neighbor + 1
+    if reached_count != n: return false
+    all_active: mutable bool[CO_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        all_active[vertex] <- true
+        vertex <- vertex + 1
+    seen_dart: mutable bool[CO_MAX_N * CO_MAX_N] = zeroed
+    face_count: mutable usize = 0
+    visited_darts: mutable usize = 0
+    vertex <- 0
+    while vertex < n:
+        neighbor <- 0
+        while neighbor < n:
+            if adjacency[vertex * CO_MAX_N + neighbor] and not seen_dart[vertex * CO_MAX_N + neighbor]:
+                cycle: mutable i64[CO_MAX_DARTS] = zeroed
+                face_length: i64 = co_face_cycle(degree, rotation, adjacency, all_active[0:CO_MAX_N],
+                                                  vertex, neighbor, cycle[0:CO_MAX_DARTS])
+                if face_length != 3: return false
+                face_count <- face_count + 1
+                index: mutable usize = 0
+                while index < 3:
+                    a: usize = cycle[index].usize()
+                    b: usize = cycle[(index + 1) % 3].usize()
+                    if seen_dart[a * CO_MAX_N + b]: return false
+                    seen_dart[a * CO_MAX_N + b] <- true
+                    visited_darts <- visited_darts + 1
+                    index <- index + 1
+            neighbor <- neighbor + 1
+        vertex <- vertex + 1
+    if face_count != 2 * n - 4 or visited_darts != 6 * n - 12: return false
+    outer: mutable i64[CO_MAX_DARTS] = zeroed
+    outer_length: i64 = co_face_cycle(degree, rotation, adjacency, all_active[0:CO_MAX_N],
+                                       u.usize(), v.usize(), outer[0:CO_MAX_DARTS])
+    outer_length == 3 and outer[0] == u and outer[1] == v and outer[2] == w
+
+def co_boundary(degree: view[i64], rotation: view[i64], adjacency: view[bool], active: view[bool],
+                u: usize, v: usize, path: mutable view[i64]) -> i64:
+    cycle: mutable i64[CO_MAX_DARTS] = zeroed
+    length: i64 = co_face_cycle(degree, rotation, adjacency, active, u, v, cycle[0:CO_MAX_DARTS])
+    if length < 3: return -1
+    count: mutable usize = 1
+    path[0] <- u.i64()
+    index: mutable usize = length.usize()
+    while index > 2:
+        index <- index - 1
+        path[count] <- cycle[index]
+        count <- count + 1
+    path[count] <- v.i64()
+    (count + 1).i64()
+
+def co_peel_choice(adjacency: view[bool], path: view[i64], length: usize, n: usize) -> i64:
+    chord: mutable bool[CO_MAX_N * CO_MAX_N] = zeroed
+    chord_count: mutable usize = 0
+    left: mutable usize = 0
+    while left < length:
+        right: mutable usize = left + 2
+        while right < length:
+            if not (left == 0 and right + 1 == length) and adjacency[path[left].usize() * CO_MAX_N + path[right].usize()]:
+                chord[left * CO_MAX_N + right] <- true
+                chord_count <- chord_count + 1
+            right <- right + 1
+        left <- left + 1
+    eligible: mutable bool[CO_MAX_N] = zeroed
+    if chord_count == 0:
+        index: mutable usize = 1
+        while index + 1 < length:
+            eligible[path[index].usize()] <- true
+            index <- index + 1
+    else:
+        left <- 0
+        while left < length:
+            right <- left + 2
+            while right < length:
+                if chord[left * CO_MAX_N + right]:
+                    minimal: mutable bool = true
+                    a: mutable usize = left
+                    while a < right and minimal:
+                        b: mutable usize = a + 2
+                        while b <= right:
+                            if chord[a * CO_MAX_N + b] and (a != left or b != right): minimal <- false
+                            b <- b + 1
+                        a <- a + 1
+                    if minimal:
+                        index <- left + 1
+                        while index < right:
+                            eligible[path[index].usize()] <- true
+                            index <- index + 1
+                right <- right + 1
+            left <- left + 1
+    choice: mutable i64 = -1
+    vertex: mutable usize = 0
+    while vertex < n:
+        if eligible[vertex] and (choice < 0 or vertex.i64() < choice): choice <- vertex.i64()
+        vertex <- vertex + 1
+    choice
+
+def co_write_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
+        byte <- byte + 1
+
+def co_peel_contains(adjacency: view[bool], path: view[i64], length: usize,
+                     candidate: usize) -> bool:
+    chord: mutable bool[CO_MAX_N * CO_MAX_N] = zeroed
+    chord_count: mutable usize = 0
+    left: mutable usize = 0
+    while left < length:
+        right: mutable usize = left + 2
+        while right < length:
+            if not (left == 0 and right + 1 == length) and
+               adjacency[path[left].usize() * CO_MAX_N + path[right].usize()]:
+                chord[left * CO_MAX_N + right] <- true
+                chord_count <- chord_count + 1
+            right <- right + 1
+        left <- left + 1
+    eligible: mutable bool[CO_MAX_N] = zeroed
+    if chord_count == 0:
+        index: mutable usize = 1
+        while index + 1 < length:
+            eligible[path[index].usize()] <- true
+            index <- index + 1
+    else:
+        left <- 0
+        while left < length:
+            right <- left + 2
+            while right < length:
+                if chord[left * CO_MAX_N + right]:
+                    minimal: mutable bool = true
+                    a: mutable usize = left
+                    while a < right and minimal:
+                        b: mutable usize = a + 2
+                        while b <= right:
+                            if chord[a * CO_MAX_N + b] and (a != left or b != right): minimal <- false
+                            b <- b + 1
+                        a <- a + 1
+                    if minimal:
+                        index: mutable usize = left + 1
+                        while index < right:
+                            eligible[path[index].usize()] <- true
+                            index <- index + 1
+                right <- right + 1
+            left <- left + 1
+    eligible[candidate]
+
+export fn canonical_order_schnyder_realizer(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > 57: return -1
+    input_view: view[i64] = input[0:length]
+    n_raw: i64 = input_view[0]
+    if n_raw < 3 or n_raw > CO_MAX_N.i64() or length < n_raw.usize() + 4: return -1
+    n: usize = n_raw.usize()
+    graph_length: usize = length - n
+    degree: mutable i64[CO_MAX_N] = zeroed
+    rotation: mutable i64[CO_MAX_N * CO_MAX_N] = zeroed
+    adjacency: mutable bool[CO_MAX_N * CO_MAX_N] = zeroed
+    roots: mutable i64[4] = zeroed
+    if not co_parse(input_view[0:graph_length], degree[0:CO_MAX_N], rotation[0:CO_MAX_N * CO_MAX_N],
+                    adjacency[0:CO_MAX_N * CO_MAX_N], roots[0:4]): return -1
+    if roots[0] != n.i64(): return -1
+    u: usize = roots[1].usize()
+    v: usize = roots[2].usize()
+    w: usize = roots[3].usize()
+    order: mutable i64[CO_MAX_N] = zeroed
+    order_seen: mutable bool[CO_MAX_N] = zeroed
+    order_view: view[i64] = input_view[graph_length:length]
+    index: mutable usize = 0
+    while index < n:
+        raw: i64 = order_view[index]
+        if raw < 0 or raw >= n.i64() or order_seen[raw.usize()]: return -1
+        order[index] <- raw
+        order_seen[raw.usize()] <- true
+        index <- index + 1
+    if order[0] != u.i64() or order[1] != v.i64() or order[n - 1] != w.i64(): return -1
+    active: mutable bool[CO_MAX_N] = zeroed
+    index <- 0
+    while index < n:
+        active[index] <- true
+        index <- index + 1
+    path: mutable i64[CO_MAX_N] = zeroed
+    if n > 3:
+        active[w] <- false
+        path_length: mutable i64 = co_boundary(degree[0:CO_MAX_N], rotation[0:CO_MAX_N * CO_MAX_N],
+                                               adjacency[0:CO_MAX_N * CO_MAX_N], active[0:CO_MAX_N], u, v,
+                                               path[0:CO_MAX_N])
+        if path_length < 3: return -1
+        reverse_index: mutable usize = n - 2
+        while reverse_index >= 3:
+            candidate: usize = order[reverse_index].usize()
+            if candidate == u or candidate == v or not active[candidate] or
+               not co_peel_contains(adjacency[0:CO_MAX_N * CO_MAX_N], path[0:CO_MAX_N],
+                                    path_length.usize(), candidate): return -1
+            active[candidate] <- false
+            path_length <- co_boundary(degree[0:CO_MAX_N], rotation[0:CO_MAX_N * CO_MAX_N],
+                                       adjacency[0:CO_MAX_N * CO_MAX_N], active[0:CO_MAX_N], u, v,
+                                       path[0:CO_MAX_N])
+            if path_length < 3: return -1
+            if reverse_index == 3: break
+            reverse_index <- reverse_index - 1
+        if path_length != 3 or path[0] != u.i64() or path[1] != order[2] or path[2] != v.i64(): return -1
+    elif order[2] != w.i64(): return -1
+    position: mutable usize[CO_MAX_N] = zeroed
+    index <- 0
+    while index < n:
+        position[order[index].usize()] <- index
+        index <- index + 1
+    words: mutable i64[1 + 4 * (CO_MAX_N - 3)] = zeroed
+    words[0] <- n.i64()
+    count: mutable usize = 1
+    rank: mutable usize = 2
+    while rank + 1 < n:
+        vertex: usize = order[rank].usize()
+        left: mutable i64 = -1
+        right: mutable i64 = -1
+        if rank == 2:
+            if not adjacency[vertex * CO_MAX_N + u] or not adjacency[vertex * CO_MAX_N + v]: return -1
+            left <- u.i64()
+            right <- v.i64()
+        else:
+            prefix: mutable bool[CO_MAX_N] = zeroed
+            index <- 0
+            while index < rank:
+                prefix[order[index].usize()] <- true
+                index <- index + 1
+            boundary_length: i64 = co_boundary(degree[0:CO_MAX_N], rotation[0:CO_MAX_N * CO_MAX_N],
+                adjacency[0:CO_MAX_N * CO_MAX_N], prefix[0:CO_MAX_N], u, v, path[0:CO_MAX_N])
+            if boundary_length < 3: return -1
+            boundary_count: mutable usize = 0
+            predecessor_count: mutable usize = 0
+            ended: mutable bool = false
+            index <- 0
+            while index < boundary_length.usize():
+                if adjacency[vertex * CO_MAX_N + path[index].usize()]:
+                    if ended: return -1
+                    if left < 0: left <- path[index]
+                    right <- path[index]
+                    boundary_count <- boundary_count + 1
+                else if left >= 0: ended <- true
+                index <- index + 1
+            index <- 0
+            while index < rank:
+                if adjacency[vertex * CO_MAX_N + order[index].usize()]: predecessor_count <- predecessor_count + 1
+                index <- index + 1
+            if boundary_count < 2 or boundary_count != predecessor_count: return -1
+        successor: mutable i64 = -1
+        other: mutable usize = 0
+        while other < n:
+            if position[other] > rank and adjacency[vertex * CO_MAX_N + other] and
+               (successor < 0 or position[other] > position[successor.usize()]): successor <- other.i64()
+            other <- other + 1
+        if successor < 0: return -1
+        words[count] <- vertex.i64()
+        words[count + 1] <- left
+        words[count + 2] <- right
+        words[count + 3] <- successor
+        count <- count + 4
+        rank <- rank + 1
+    required: usize = 8 * count
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index <- 0
+    while index < count:
+        co_write_i64(words[index], output_view, 8 * index)
+        index <- index + 1
+    required.i64()

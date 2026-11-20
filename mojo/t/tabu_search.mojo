@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn ts_cost(route:InlineArray[Int32,7],len:Int,edge:InlineArray[Int64,36])->Int64:

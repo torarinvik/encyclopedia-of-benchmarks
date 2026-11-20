@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "hochbaum-pseudoflow-maxflow-i64-array-scalar-v1",
+  "algorithm": "hochbaum_pseudoflow_maxflow",
+  "function_symbol": "hochbaum_pseudoflow_maxflow",
+  "abi": "i64_array_scalar",
+  "input": {
+    "layout": "[N,M,source,sink,(u,v,capacity)*M]",
+    "node_ids": "one-based",
+    "maximum_nodes": 8,
+    "maximum_arcs": 24,
+    "maximum_valid_length": 76,
+    "maximum_parseable_length": 77,
+    "capacities": "0..100",
+    "parallel_arcs": "supported as distinct input arcs",
+    "self_loops": "invalid",
+    "terminal_arc_policy": "source has outgoing arcs only; sink has incoming arcs only; direct source-to-sink arcs are supported; arcs into source or out of sink are invalid",
+    "invalid_result": -1
+  },
+  "algorithm_policy": {
+    "variant": "Hochbaum highest-label pseudoflow (hpf_hf-style branch policy)",
+    "active_component": "strong branch with greatest root label",
+    "equal_label_tie": "FIFO branch activation order, then root vertex order",
+    "merger": "lowest-label node in the selected branch to a residual head labeled l-1; head may be strong",
+    "arc_ties": "tail vertex, input arc index, forward before reverse residual direction, then head vertex",
+    "relabel": "if no merger exists, increment the first lowest-label node whose children all have labels at least l+1",
+    "normalization": "push the strong root's full excess along the normalized-tree path; split when a path residual capacity is strictly smaller than the remaining excess",
+    "maximum_outer_iterations": 512
+  },
+  "output": {
+    "encoding": "maximum integral flow value, obtained as the capacity of the terminal strong/weak cut",
+    "maximum_result": 2400,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "url": "https://doi.org/10.1287/opre.1080.0524",
+    "author_pdf": "https://hochbaum.ieor.berkeley.edu/html/pub/HPF.pdf",
+    "reuse": "Hochbaum's 2008 highest-label pseudoflow algorithm ideas only; all implementation text and code are independently authored."
+  },
+  "cases": [
+    {"id": "parallel-direct-terminal-arcs", "input_values": [2,3,1,2,1,2,7,1,2,0,1,2,8], "input_length": 13, "expected_result": 15},
+    {"id": "single-bottleneck-path", "input_values": [4,3,1,4,1,2,5,2,3,3,3,4,4], "input_length": 13, "expected_result": 3},
+    {"id": "parallel-arcs-at-both-terminals", "input_values": [3,4,1,3,1,2,4,1,2,5,2,3,6,2,3,1], "input_length": 16, "expected_result": 7},
+    {"id": "two-strong-branches-and-shared-bottleneck", "input_values": [6,8,1,6,1,2,4,1,3,5,2,6,2,3,6,3,2,4,3,3,4,2,4,5,4,5,6,3], "input_length": 28, "expected_result": 7},
+    {"id": "reverse-residual-and-zero-deficit-pivot", "input_values": [6,7,1,6,1,2,1,1,3,1,2,4,1,2,5,1,3,4,1,4,6,1,5,6,1], "input_length": 25, "expected_result": 2},
+    {"id": "zero-capacity-and-disconnected-sink", "input_values": [3,2,1,3,1,2,0,2,3,100], "input_length": 10, "expected_result": 0},
+    {"id": "maximum-parallel-direct-frame", "input_values": [2,24,1,2,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100], "input_length": 76, "expected_result": 2400},
+    {"id": "invalid-arc-into-source", "input_values": [3,1,1,3,2,1,5], "input_length": 7, "expected_result": -1},
+    {"id": "invalid-arc-out-of-sink", "input_values": [3,1,1,3,3,2,5], "input_length": 7, "expected_result": -1},
+    {"id": "invalid-self-loop", "input_values": [3,1,1,3,2,2,5], "input_length": 7, "expected_result": -1},
+    {"id": "invalid-capacity", "input_values": [2,1,1,2,1,2,101], "input_length": 7, "expected_result": -1},
+    {"id": "trailing-word", "input_values": [2,0,1,2,0], "input_length": 5, "expected_result": -1},
+    {"id": "maximum-parseable-trailing-value", "input_values": [2,24,1,2,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,1,2,100,999], "input_length": 77, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1},
+    {"id": "null-at-parser-limit", "input_values": [], "input_length": 77, "input_is_null": true, "expected_result": -1}
+  ]
+}

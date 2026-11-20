@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "algorithm": "next_palindromic_number",
+  "abi": "i64_array_scalar",
+  "language_sources": {
+    "c": "c/n/next_palindromic_number.c",
+    "c3": "c3/n/next_palindromic_number.c3",
+    "cpp": "cpp/n/next_palindromic_number.cpp",
+    "elisa": "elisa/n/next_palindromic_number.elisa",
+    "mojo": "mojo/n/next_palindromic_number.mojo",
+    "nim": "nim/n/next_palindromic_number.nim",
+    "odin": "odin/n/next_palindromic_number.odin",
+    "rust": "rust/n/next_palindromic_number.rs",
+    "v": "v/n/next_palindromic_number.v",
+    "zig": "zig/n/next_palindromic_number.zig"
+  },
+  "package_files": [
+    "__init__.py", "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "check_inventory.py", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "workload.json"
+  ]
+}

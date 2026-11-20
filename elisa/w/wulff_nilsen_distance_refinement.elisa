@@ -1,0 +1,148 @@
+const WN_SCALE: i64 = 86093442
+const WN_INF: i64 = 1152921504606846976
+const WN_MAX_N: usize = 8
+const WN_MAX_INPUT: usize = 93
+
+def wn_even_index(x: usize, threshold: i64, nearest: usize[32], distance: i64[64]) -> usize:
+    if distance[x * WN_MAX_N + nearest[2 * WN_MAX_N + x]] <= threshold: 2 else: 0
+
+def wn_refine_further(u: usize, v: usize, iu: usize, nearest: usize[32], bunch: bool[64]) -> bool:
+    if iu < 2: return false
+    bunch[v * WN_MAX_N + nearest[u]] or bunch[u * WN_MAX_N + nearest[WN_MAX_N + v]] or
+        bunch[v * WN_MAX_N + nearest[iu * WN_MAX_N + u]] or bunch[u * WN_MAX_N + nearest[(iu + 1) * WN_MAX_N + v]]
+
+def wn_impl(input: view[i64]) -> i64:
+    length: usize = input.length
+    if length < 8 or length > WN_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 2 or n_value > WN_MAX_N.i64() or m_value < 0 or m_value > 28: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 8 + 3 * m: return -1
+    full: i64 = (1.i64() << n) - 1
+    masks: mutable i64[3] = zeroed
+    i: mutable usize = 0
+    while i < 3:
+        masks[i] <- input[2 + i]
+        if masks[i] <= 0 or (masks[i] & ~full) != 0: return -1
+        i <- i + 1
+    if (masks[1] & ~masks[0]) != 0 or (masks[2] & ~masks[1]) != 0: return -1
+
+    distance: mutable i64[64] = zeroed
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = 0
+        while v < n:
+            distance[u * WN_MAX_N + v] <- if u == v: 0 else: WN_INF
+            v <- v + 1
+        u <- u + 1
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < m:
+        at: usize = 5 + 3 * edge
+        u_value: i64 = input[at]
+        v_value: i64 = input[at + 1]
+        weight: i64 = input[at + 2]
+        if u_value < 0 or u_value >= n_value or v_value <= u_value or v_value >= n_value or
+           weight < WN_SCALE or weight > 100 * WN_SCALE or weight % WN_SCALE != 0: return -1
+        if u_value < previous_u or (u_value == previous_u and v_value <= previous_v): return -1
+        previous_u <- u_value
+        previous_v <- v_value
+        u <- u_value.usize()
+        v <- v_value.usize()
+        distance[u * WN_MAX_N + v] <- weight
+        distance[v * WN_MAX_N + u] <- weight
+        edge <- edge + 1
+    query: usize = 5 + 3 * m
+    source_value: i64 = input[query]
+    target_value: i64 = input[query + 1]
+    estimate: i64 = input[query + 2]
+    if source_value < 0 or source_value >= n_value or target_value < 0 or target_value >= n_value or
+       source_value == target_value or estimate <= 0 or estimate % WN_SCALE != 0: return -1
+    source: usize = source_value.usize()
+    target: usize = target_value.usize()
+
+    mid: mutable usize = 0
+    while mid < n:
+        u <- 0
+        while u < n:
+            if distance[u * WN_MAX_N + mid] != WN_INF:
+                v <- 0
+                while v < n:
+                    candidate: i64 = distance[u * WN_MAX_N + mid] + distance[mid * WN_MAX_N + v]
+                    if candidate < distance[u * WN_MAX_N + v]: distance[u * WN_MAX_N + v] <- candidate
+                    v <- v + 1
+            u <- u + 1
+        mid <- mid + 1
+    u <- 0
+    while u < n:
+        v <- 0
+        while v < n:
+            if distance[u * WN_MAX_N + v] == WN_INF: return -1
+            v <- v + 1
+        u <- u + 1
+    if estimate < distance[source * WN_MAX_N + target] or estimate > 768 * distance[source * WN_MAX_N + target]: return -1
+
+    nearest: mutable usize[32] = zeroed
+    x: mutable usize = 0
+    while x < n:
+        nearest[x] <- x
+        level: mutable usize = 1
+        while level < 4:
+            best: mutable usize = WN_MAX_N
+            y: mutable usize = 0
+            while y < n:
+                if ((masks[level - 1] >> y) & 1) != 0 and
+                   (best == WN_MAX_N or distance[x * WN_MAX_N + y] < distance[x * WN_MAX_N + best] or
+                    (distance[x * WN_MAX_N + y] == distance[x * WN_MAX_N + best] and y < best)):
+                    best <- y
+                y <- y + 1
+            nearest[level * WN_MAX_N + x] <- best
+            level <- level + 1
+        x <- x + 1
+    layers: i64[5] = [full, masks[0], masks[1], masks[2], 0]
+    bunch: mutable bool[64] = zeroed
+    center: mutable usize = 0
+    while center < n:
+        level <- 0
+        while level < 4:
+            boundary: mutable i64 = WN_INF
+            y <- 0
+            while y < n:
+                if ((layers[level + 1] >> y) & 1) != 0 and distance[center * WN_MAX_N + y] < boundary:
+                    boundary <- distance[center * WN_MAX_N + y]
+                y <- y + 1
+            y <- 0
+            while y < n:
+                if ((layers[level] >> y) & 1) != 0 and ((layers[level + 1] >> y) & 1) == 0 and
+                   distance[center * WN_MAX_N + y] < boundary:
+                    bunch[center * WN_MAX_N + y] <- true
+                y <- y + 1
+            level <- level + 1
+        center <- center + 1
+
+    value: mutable i64 = estimate
+    iu: mutable usize = wn_even_index(source, value, nearest, distance)
+    if not wn_refine_further(source, target, iu, nearest, bunch): return value
+    iteration: mutable usize = 0
+    while wn_refine_further(source, target, iu, nearest, bunch) and iteration <= 15:
+        value <- (2 * value) / 3
+        iu <- wn_even_index(source, value, nearest, distance)
+        iteration <- iteration + 1
+    upper: usize = wn_even_index(source, (3 * value) / 2, nearest, distance)
+    if upper < 2: return -1
+    pivot: usize = nearest[source]
+    if bunch[target * WN_MAX_N + pivot]: return distance[source * WN_MAX_N + pivot] + distance[target * WN_MAX_N + pivot]
+    pivot <- nearest[WN_MAX_N + target]
+    if bunch[source * WN_MAX_N + pivot]: return distance[source * WN_MAX_N + pivot] + distance[target * WN_MAX_N + pivot]
+    pivot <- nearest[upper * WN_MAX_N + source]
+    if bunch[target * WN_MAX_N + pivot]: return distance[source * WN_MAX_N + pivot] + distance[target * WN_MAX_N + pivot]
+    pivot <- nearest[(upper + 1) * WN_MAX_N + target]
+    distance[source * WN_MAX_N + pivot] + distance[target * WN_MAX_N + pivot]
+
+export fn wulff_nilsen_distance_refinement(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 8 or length > WN_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    wn_impl(values)

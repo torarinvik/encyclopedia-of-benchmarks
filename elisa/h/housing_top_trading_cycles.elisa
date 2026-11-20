@@ -1,0 +1,98 @@
+const TTC_MAX_AGENTS: usize = 8
+const TTC_MAX_INPUT: usize = 66
+
+export fn housing_top_trading_cycles(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > TTC_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    if n_value < 1 or n_value > TTC_MAX_AGENTS.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + n * n: return -1
+
+    preference: mutable i64[TTC_MAX_AGENTS][TTC_MAX_AGENTS] = zeroed
+    agent: mutable usize = 0
+    while agent < n:
+        seen: mutable bool[TTC_MAX_AGENTS] = zeroed
+        rank: mutable usize = 0
+        while rank < n:
+            house: i64 = input_view[1 + agent * n + rank]
+            if house < 0 or house >= n_value or seen[house.usize()]: return -1
+            seen[house.usize()] <- true
+            preference[agent][rank] <- house
+            rank <- rank + 1
+        agent <- agent + 1
+
+    remaining: mutable bool[TTC_MAX_AGENTS] = zeroed
+    allocation: mutable i64[TTC_MAX_AGENTS] = zeroed
+    agent <- 0
+    while agent < n:
+        remaining[agent] <- true
+        agent <- agent + 1
+    remaining_count: mutable usize = n
+
+    while remaining_count > 0:
+        choice: mutable i64[TTC_MAX_AGENTS] = zeroed
+        successor: mutable usize[TTC_MAX_AGENTS] = zeroed
+        state: mutable usize[TTC_MAX_AGENTS] = zeroed
+        path_position: mutable usize[TTC_MAX_AGENTS] = zeroed
+        path: mutable usize[TTC_MAX_AGENTS] = zeroed
+        cycle_member: mutable bool[TTC_MAX_AGENTS] = zeroed
+
+        agent <- 0
+        while agent < n:
+            if remaining[agent]:
+                found: mutable bool = false
+                rank <- 0
+                while rank < n:
+                    house: i64 = preference[agent][rank]
+                    if remaining[house.usize()]:
+                        choice[agent] <- house
+                        successor[agent] <- house.usize()
+                        found <- true
+                        break
+                    rank <- rank + 1
+                if not found: return -1
+            agent <- agent + 1
+
+        start: mutable usize = 0
+        while start < n:
+            if not remaining[start] or state[start] != 0:
+                start <- start + 1
+                continue
+            path_length: mutable usize = 0
+            current: mutable usize = start
+            while state[current] == 0:
+                state[current] <- 1
+                path_position[current] <- path_length
+                path[path_length] <- current
+                path_length <- path_length + 1
+                current <- successor[current]
+            if state[current] == 1:
+                cycle_start: usize = path_position[current]
+                index: mutable usize = cycle_start
+                while index < path_length:
+                    cycle_member[path[index]] <- true
+                    index <- index + 1
+            index: mutable usize = 0
+            while index < path_length:
+                state[path[index]] <- 2
+                index <- index + 1
+            start <- start + 1
+
+        removed: mutable usize = 0
+        agent <- 0
+        while agent < n:
+            if remaining[agent] and cycle_member[agent]:
+                allocation[agent] <- choice[agent]
+                remaining[agent] <- false
+                remaining_count <- remaining_count - 1
+                removed <- removed + 1
+            agent <- agent + 1
+        if removed == 0: return -1
+
+    result: mutable i64 = 0
+    agent <- 0
+    while agent < n:
+        result <- result + (allocation[agent] << (3 * agent))
+        agent <- agent + 1
+    result + 1

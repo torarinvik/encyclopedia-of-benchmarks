@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-planar-embedding-lr-i64-array-bytes-output-v1",
+  "algorithm": "planar_embedding_lr",
+  "function_symbol": "planar_embedding_lr",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded simple-graph planarity by the left-right DFS test, returning a cyclic neighbor order as a planar embedding witness.",
+  "source": {
+    "task": "Library Checker proposal #1426, Planar Embedding",
+    "task_url": "https://github.com/yosupo06/library-checker-problems/pull/1426",
+    "algorithm": "Brandes, The Left-Right Planarity Test",
+    "algorithm_url": "https://www.uni-konstanz.de/algo/publications/b-lrpt-sub.pdf",
+    "secondary_algorithm_reference": "NetworkX 3.7 planarity implementation, used only to cross-check the algorithm stages",
+    "secondary_algorithm_url": "https://github.com/networkx/networkx/blob/networkx-3.7/networkx/algorithms/planarity.py",
+    "copyright": "Task metadata and published mathematical descriptions are used for discovery and algorithm study only; code and fixtures are clean-room authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, M, u0, v0, ..., u(M-1), v(M-1)]",
+    "vertex_count_range": [1, 32],
+    "edge_count_range": [0, 96],
+    "graph": "Simple undirected graph, vertices 0..N-1. Each edge is listed once with 0<=u<v<N. Edge-list order is accepted but normalized to ascending neighbors before DFS.",
+    "exact_length": "2 + 2*M",
+    "maximum_valid_length": 194,
+    "maximum_parseable_length": 195,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "One status byte followed, only when status is 1, by each vertex's cyclic neighbor order in ascending vertex order. Neighbor IDs are one unsigned byte each; per-vertex degree is recovered from the input. Status 0 means nonplanar; status 1 means planar with an embedding certificate.",
+    "planar_status_byte": 1,
+    "nonplanar_status_byte": 0,
+    "success_result": "Number of bytes written: 1 for nonplanar status, otherwise 1 + 2*M for the embedding witness.",
+    "maximum_output_length": 193,
+    "maximum_output_bytes": 193,
+    "invalid_input_result": -1,
+    "insufficient_or_null_output_result": -2
+  },
+  "workspace": {
+    "bytes": 193,
+    "meaning": "Maximum caller-owned byte output buffer; fixed internal tables use the separate algorithm_details accounting."
+  },
+  "algorithm_details": {
+    "primary": "Orient every undirected edge by a deterministic DFS forest. Compute the two lowest return levels and nesting depths; process outgoing edges in nesting order while merging and trimming conflict pairs on a stack. A conflict that cannot be placed on either side proves nonplanarity. Resolve relative edge sides, order each outgoing list by signed nesting depth, then insert tree and return half-edges around left/right references to construct a rotation system.",
+    "independent_reference": "For N<=6, independently enumerate cyclic neighbor orders for each connected component, fix one neighbor to remove rotational duplicates, trace face walks, and use Euler's V-E+F=2 criterion. For every planar output at N<=32, independently check that each adjacency appears exactly once and that face walks satisfy Euler's equation in every nontrivial connected component. Negative results above N=6 are not independently decidable by this bounded oracle and are excluded from the workload.",
+    "determinism": "Roots, adjacency rows, and all ties are ordered by vertex ID. Stable nesting-depth order is broken by destination vertex ID. The emitted cyclic order is oriented consistently by the left-right embedding phase.",
+    "complexity": "O(N^2+M+sum_v degree(v)^2) time, with O(N^2+M) workspace. Dense endpoint/adjacency/order tables add N^2 work and storage; the LR orientation, constraint, and embedding passes are linear, while deterministic insertion sorting adds sum_v degree(v)^2 work.",
+    "fixed_workspace_bytes_upper_bound": 50208,
+    "maximum_recursive_depth": 96,
+    "workspace_accounting": "The i64-sized State tables use 49,440 bytes and the separate 96-element signed-64-bit depth array uses 768 bytes, for 50,208 bytes maximum fixed table workspace in Elisa/Nim/Odin. Narrower native element layouts are smaller. This excludes the host call stack and caller-owned input/output buffers."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"isolated-vertex","input_values":[1,0],"input_length":2,"output_capacity":193,"expected_status":1,"expected_result":1},
+    {"id":"single-edge","input_values":[2,1,0,1],"input_length":4,"output_capacity":193,"expected_status":1,"expected_result":3},
+    {"id":"path-with-isolates","input_values":[5,2,1,2,2,3],"input_length":6,"output_capacity":193,"expected_status":1,"expected_result":5},
+    {"id":"triangle","input_values":[3,3,0,1,1,2,0,2],"input_length":8,"output_capacity":193,"expected_status":1,"expected_result":7},
+    {"id":"disconnected-triangle-and-isolate","input_values":[4,3,0,1,1,2,0,2],"input_length":8,"output_capacity":193,"expected_status":1,"expected_result":7},
+    {"id":"complete-four","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"output_capacity":193,"expected_status":1,"expected_result":13},
+    {"id":"complete-five","input_values":[5,10,0,1,0,2,0,3,0,4,1,2,1,3,1,4,2,3,2,4,3,4],"input_length":22,"output_capacity":193,"expected_status":0,"expected_result":1},
+    {"id":"utility-graph-k33","input_values":[6,9,0,3,0,4,0,5,1,3,1,4,1,5,2,3,2,4,2,5],"input_length":20,"output_capacity":193,"expected_status":0,"expected_result":1},
+    {"id":"disconnected-k4-edge-isolate","input_values":[7,7,0,1,0,2,0,3,1,2,1,3,2,3,4,5],"input_length":16,"output_capacity":193,"expected_status":1,"expected_result":15},
+    {"id":"three-by-three-grid","input_values":[9,12,0,1,1,2,3,4,4,5,6,7,7,8,0,3,1,4,2,5,3,6,4,7,5,8],"input_length":26,"output_capacity":193,"expected_status":1,"expected_result":25}
+  ],
+  "invalid_cases": [
+    {"id":"reversed-edge","input_values":[2,1,1,0]},
+    {"id":"duplicate-edge","input_values":[3,2,0,1,0,1]},
+    {"id":"self-loop","input_values":[1,1,0,0]},
+    {"id":"trailing-word","input_values":[1,0,7]}
+  ]
+}

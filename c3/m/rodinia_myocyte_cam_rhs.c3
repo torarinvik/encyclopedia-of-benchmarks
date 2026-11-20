@@ -8,7 +8,7 @@ fn float cam_sub(float a, float b) { return a - b; }
 fn float cam_mul(float a, float b) { return a * b; }
 fn float cam_div(float a, float b) { return a / b; }
 
-double rodinia_myocyte_cam_rhs(long* input, usz length) @export("rodinia_myocyte_cam_rhs") {
+fn double rodinia_myocyte_cam_rhs(long* input, usz length) @export("rodinia_myocyte_cam_rhs") {
     if (input == null || length != CAM_INPUT_LENGTH) return -1.0e300;
     if (input[0] < 0 || input[0] > 100000000 || input[1] < 100000000 || input[1] > 200000000 || input[2] < 500000 || input[2] > 5000000) return -1.0e300;
     for (usz i = 3; i < CAM_INPUT_LENGTH; i++) if (input[i] < 0 || input[i] > 10000000) return -1.0e300;
@@ -65,7 +65,7 @@ double rodinia_myocyte_cam_rhs(long* input, usz length) @export("rodinia_myocyte
     float rcnCKt2a=cam_sub(cam_mul(kt2a,Pt2),cam_mul(cam_mul(kat2,Ca2CaM),Pa));
     float rcnCKt2b2=cam_div(cam_mul(cam_mul(kpp1,PP1tot),Pt2),cam_add(Kmpp1,cam_mul(CaMKIItot,Pt2)));
     float rcnCKai=cam_div(cam_mul(cam_mul(kpp1,PP1tot),Pa),cam_add(Kmpp1,cam_mul(CaMKIItot,Pa)));
-    float d[16];
+    float[16] d;
     d[0]=(float)(1e-3*(double)cam_sub(cam_sub(-rcn02,rcn0B),rcn0CaN));
     float term=cam_add(cam_sub(cam_sub(cam_sub(rcn02,rcn24),rcn2B),rcn2CaN),cam_mul(CaMKIItot,cam_add(-rcnCKib2,rcnCKt2a)));
     d[1]=(float)(1e-3*(double)term);

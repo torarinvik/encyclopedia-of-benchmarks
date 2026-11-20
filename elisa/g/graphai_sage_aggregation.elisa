@@ -1,9 +1,10 @@
 extern trunc(value: f64) -> f64
 const MAX_INPUT: usize = 68
 
-def graphai_sage_aggregation_impl(input: f64&, length: usize,
+def graphai_sage_aggregation_impl(input: view[f64],
                                   output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    length: usize = input.len()
+    if length < 4 or length > MAX_INPUT: return -1
     n_value: f64 = input[0]
     m_value: f64 = input[1]
     d_value: f64 = input[2]
@@ -34,6 +35,7 @@ def graphai_sage_aggregation_impl(input: f64&, length: usize,
         if value != value or value < -8.0 or value > 8.0: return -1
     required: usize = n*d
     if output.is_null() or capacity < required: return -2
+    result: mutable view[f64] = output[0:required]
     staged: mutable f64[32] = zeroed
     for src in 0..<n:
         degree: usize = rowptr[src+1] - rowptr[src]
@@ -43,8 +45,10 @@ def graphai_sage_aggregation_impl(input: f64&, length: usize,
                 dst: usize = colind[e]
                 for k in 0..<d:
                     staged[src*d+k] <- staged[src*d+k] + scale * input[feature_at+dst*d+k]
-    for q in 0..<required: output[q] <- staged[q]
+    for q in 0..<required: result[q] <- staged[q]
     required.i64()
 
 export fn graphai_sage_aggregation(input: f64&, length: usize,
-                                   output: mutable f64&, capacity: usize) -> i64 = graphai_sage_aggregation_impl
+                                   output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    graphai_sage_aggregation_impl(input[0:length], output, capacity)

@@ -60,7 +60,7 @@ fn long olden_voronoi(long* input,usz length) @export("olden_voronoi") {
  if(n==3)left_child[1]=0;else{left_child[2]=1;right_child[2]=3;left_child[1]=0;}
  for(int a=0;a<n;a++)for(int b=a+1;b<n;b++)for(int c=b+1;c<n;c++)if(!ccw(a,b,c)&&!ccw(a,c,b))return -1;
  if(n==5)for(int a=0;a<n;a++)for(int b=a+1;b<n;b++)for(int c=b+1;c<n;c++)for(int d=c+1;d<n;d++)if(!incircle(a,b,c,d)&&!incircle(a,c,b,d))return -1;
- edge_count=0;(void)build_delaunay(n==3?1:2,n-1);int seen[16][3],faces=0,edges=0,dual=0,rays=0;long projection=0;
+ edge_count=0;(void)build_delaunay(n==3?1:2,n-1);int[3][16] seen;int faces=0,edges=0,dual=0,rays=0;long projection=0;
  for(int edge=0;edge<edge_count;edge++)if(alive[edge]){int e=4*edge;double x,y;bool left=face_center(e,&x,&y);if(left){int a=orig(e),b=dest(e),c=dest(lnext(e));bool duplicate=false;for(int f=0;f<faces;f++)if((seen[f][0]==a||seen[f][1]==a||seen[f][2]==a)&&(seen[f][0]==b||seen[f][1]==b||seen[f][2]==b)&&(seen[f][0]==c||seen[f][1]==c||seen[f][2]==c))duplicate=true;if(!duplicate){seen[faces][0]=a;seen[faces][1]=b;seen[faces][2]=c;faces++;projection+=quantize(x)+2*quantize(y);}}
  double rx,ry;bool right=face_center(sym(e),&rx,&ry);if(left||right){edges++;if(left&&right)dual++;else rays++;}}
  return projection+100*faces+10*dual+rays+edges;

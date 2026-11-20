@@ -1,0 +1,71 @@
+const LENTZ_MODULUS: i64 = 998_244_353
+const LENTZ_MAX_TERMS: usize = 8
+const LENTZ_MAX_INPUT: usize = 19
+const LENTZ_MAX_OUTPUT: usize = 80
+
+def lentz_normalize(input_value: i64) -> i64:
+    value: mutable i64 = input_value % LENTZ_MODULUS
+    if value < 0: value <- value + LENTZ_MODULUS
+    value
+
+def lentz_power(base_input: i64, exponent_input: i64) -> i64:
+    base: mutable i64 = lentz_normalize(base_input)
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * base % LENTZ_MODULUS
+        base <- base * base % LENTZ_MODULUS
+        exponent <- exponent >> 1
+    result
+
+def lentz_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def lentz_impl(input: view[i64], length: usize, output: mutable view[u8],
+    capacity: usize, output_is_null: bool) -> i64:
+    if length < 1 or length > LENTZ_MAX_INPUT: return -1
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > LENTZ_MAX_TERMS.i64(): return -1
+    count: usize = count_value.usize()
+    if length != 2 + 2 * count: return -1
+    for i in 1..<length:
+        if input[i] < 0 or input[i] >= LENTZ_MODULUS: return -1
+    value: mutable i64 = input[1]
+    if value == 0: return -1
+    c_ratio: mutable i64 = value
+    d_ratio: mutable i64 = 0
+    trace: mutable i64[LENTZ_MAX_TERMS + 2] = zeroed
+    trace[0] <- value
+    for index in 0..<count:
+        numerator: i64 = input[2 + 2 * index]
+        denominator: i64 = input[3 + 2 * index]
+        d_denominator: i64 = lentz_normalize(denominator + numerator * d_ratio)
+        if d_denominator == 0 or c_ratio == 0: return -1
+        c_value: i64 = lentz_normalize(denominator
+            + numerator * lentz_power(c_ratio, LENTZ_MODULUS - 2))
+        if c_value == 0: return -1
+        d_ratio <- lentz_power(d_denominator, LENTZ_MODULUS - 2)
+        value <- value * c_value % LENTZ_MODULUS * d_ratio % LENTZ_MODULUS
+        c_ratio <- c_value
+        trace[index + 1] <- value
+
+    output_bytes: usize = 8 * (count + 2)
+    if output_is_null or capacity < output_bytes: return -2
+    lentz_store_le((count + 1).i64(), output, 0)
+    for i in 0..=count: lentz_store_le(trace[i], output, 8 * (i + 1))
+    output_bytes.i64()
+
+export fn lentz_continued_fraction_convergents(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > LENTZ_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return lentz_impl(input_view, length, scratch[0:1], 0, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > LENTZ_MAX_OUTPUT: safe_capacity <- LENTZ_MAX_OUTPUT
+    output_view: mutable view[u8] = output[0:safe_capacity]
+    lentz_impl(input_view, length, output_view, capacity, false)

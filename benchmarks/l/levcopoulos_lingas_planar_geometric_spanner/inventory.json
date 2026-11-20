@@ -1,0 +1,32 @@
+{
+  "algorithm": "levcopoulos_lingas_planar_geometric_spanner",
+  "abi": "i64_array_bytes_output",
+  "fixed_workspace_bytes_upper_bound": 8192,
+  "languages": [
+    {"name":"C","path":"c/l/levcopoulos_lingas_planar_geometric_spanner.c","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"C3","path":"c3/l/levcopoulos_lingas_planar_geometric_spanner.c3","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"C++","path":"cpp/l/levcopoulos_lingas_planar_geometric_spanner.cpp","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"Elisa","path":"elisa/l/levcopoulos_lingas_planar_geometric_spanner.elisa","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"Mojo","path":"mojo/l/levcopoulos_lingas_planar_geometric_spanner.mojo","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"Nim","path":"nim/l/levcopoulos_lingas_planar_geometric_spanner.nim","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"Odin","path":"odin/l/levcopoulos_lingas_planar_geometric_spanner.odin","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"Rust","path":"rust/l/levcopoulos_lingas_planar_geometric_spanner.rs","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"V","path":"v/l/levcopoulos_lingas_planar_geometric_spanner.v","symbol":"levcopoulos_lingas_planar_geometric_spanner"},
+    {"name":"Zig","path":"zig/l/levcopoulos_lingas_planar_geometric_spanner.zig","symbol":"levcopoulos_lingas_planar_geometric_spanner"}
+  ],
+  "workload": {
+    "path": "benchmarks/l/levcopoulos_lingas_planar_geometric_spanner/workload.json",
+    "case_ids": [
+      "triangle_mst_no_interior_face",
+      "convex_quadrilateral_no_absorption",
+      "interior_point_absorbs_exposed_face",
+      "carried_path_triggers_retained_shortcut",
+      "duplicate_delaunay_edge",
+      "collinear_points_rejected",
+      "null_input",
+      "null_output",
+      "short_output_capacity",
+      "invalid_before_null_output"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "skip-search-v1",
+  "algorithm": "skip_search",
+  "function_symbol": "skip_search",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Skip Search",
+    "url": "https://igm.univ-mlv.fr/~lecroq/string/node31.html",
+    "paper": "Charras C., Lecroq T., Pehoushek J.D., A very fast string matching algorithm for small alphabets and long patterns, CPM 1998",
+    "reuse": "algorithm description only; independent implementation, contract, and fixtures"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,text[0..n),pattern[0..m)]",
+    "text_length_range": [0, 4096],
+    "pattern_length_range": [1, 128],
+    "alphabet_range": [0, 3],
+    "sample_positions": "m-1, 2m-1, 3m-1, ... while position<n",
+    "maximum_valid_input_length": 4226,
+    "maximum_parseable_input_length": 4227,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "(match_count << 36) | (sum_of_offsets << 12) | xor_of_offsets",
+    "result_range": "0..562949953421311",
+    "invalid_result": -1
+  },
+  "complexity": {
+    "preprocessing_time": "O(m+sigma)",
+    "search_worst_case_time": "O(m*n)",
+    "expected_text_character_inspections": "O(n) under a uniform symbol model",
+    "auxiliary_space": "O(n+m+sigma) when the port copies the input"
+  },
+  "workspace": {"bytes": 65536},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"overlapping-periodic","input_values":[7,3,0,1,0,1,0,1,0,0,1,0],"expected_result":206158454790},
+    {"id":"repeated-bucket-positions","input_values":[8,3,2,0,1,0,1,0,1,0,0,1,0],"expected_result":206158467079},
+    {"id":"dense-overlap","input_values":[5,3,0,0,0,0,0,0,0],"expected_result":206158442499},
+    {"id":"sampled-candidate-mismatches","input_values":[4,2,0,1,0,1,1,1],"expected_result":0},
+    {"id":"sample-symbol-not-in-pattern","input_values":[5,2,3,3,3,3,3,0,1],"expected_result":0},
+    {"id":"single-symbol-pattern","input_values":[4,1,1,2,1,1,1],"expected_result":206158450689},
+    {"id":"pattern-longer-than-text","input_values":[2,3,0,1,0,1,2],"expected_result":0},
+    {"id":"empty-text","input_values":[0,1,2],"expected_result":0},
+    {"id":"text-symbol-outside-alphabet","input_values":[1,1,4,1],"expected_result":-1},
+    {"id":"pattern-symbol-outside-alphabet","input_values":[1,1,0,4],"expected_result":-1},
+    {"id":"trailing-word","input_values":[0,1,0,0],"expected_result":-1},
+    {"id":"missing-header","input_values":[0],"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_is_null":true,"input_length":0,"expected_result":-1}
+  ]
+}

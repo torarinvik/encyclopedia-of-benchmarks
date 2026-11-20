@@ -1,0 +1,138 @@
+const TC_MAX_N: usize = 64
+const TC_MAX_INPUT_LENGTH: usize = 1 + 2 * (TC_MAX_N - 1)
+
+def tc_compute(input: view[i64], centers: mutable view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > TC_MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > TC_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + 2 * (n - 1): return -1
+
+    adjacency: mutable usize[TC_MAX_N * TC_MAX_N] = zeroed
+    degree: mutable usize[TC_MAX_N] = zeroed
+    edge: mutable usize = 0
+    while edge < n - 1:
+        offset: usize = 1 + 2 * edge
+        left_value: i64 = input[offset]
+        right_value: i64 = input[offset + 1]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or
+            right_value >= n_value or left_value == right_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        adjacency[left * TC_MAX_N + degree[left]] <- right
+        degree[left] <- degree[left] + 1
+        adjacency[right * TC_MAX_N + degree[right]] <- left
+        degree[right] <- degree[right] + 1
+        edge <- edge + 1
+
+    parent: mutable usize[TC_MAX_N] = zeroed
+    order: mutable usize[TC_MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        parent[vertex] <- TC_MAX_N
+        vertex <- vertex + 1
+    parent[0] <- TC_MAX_N + 1
+    order[0] <- 0
+    order_count: mutable usize = 1
+    position: mutable usize = 0
+    while position < order_count:
+        vertex <- order[position]
+        edge <- 0
+        while edge < degree[vertex]:
+            child: usize = adjacency[vertex * TC_MAX_N + edge]
+            if child != parent[vertex]:
+                if parent[child] != TC_MAX_N: return -1
+                parent[child] <- vertex
+                order[order_count] <- child
+                order_count <- order_count + 1
+            edge <- edge + 1
+        position <- position + 1
+    if order_count != n: return -1
+
+    down: mutable usize[TC_MAX_N] = zeroed
+    best: mutable usize[TC_MAX_N] = zeroed
+    second: mutable usize[TC_MAX_N] = zeroed
+    best_child: mutable usize[TC_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        best_child[vertex] <- TC_MAX_N
+        vertex <- vertex + 1
+    position <- n
+    while position > 0:
+        position <- position - 1
+        vertex <- order[position]
+        edge <- 0
+        while edge < degree[vertex]:
+            child <- adjacency[vertex * TC_MAX_N + edge]
+            if parent[child] == vertex:
+                branch: usize = down[child] + 1
+                if branch > best[vertex]:
+                    second[vertex] <- best[vertex]
+                    best[vertex] <- branch
+                    best_child[vertex] <- child
+                elif branch > second[vertex]:
+                    second[vertex] <- branch
+            edge <- edge + 1
+        down[vertex] <- best[vertex]
+
+    outside: mutable i64[TC_MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        outside[vertex] <- -1
+        vertex <- vertex + 1
+    position <- 0
+    while position < n:
+        vertex <- order[position]
+        edge <- 0
+        while edge < degree[vertex]:
+            child <- adjacency[vertex * TC_MAX_N + edge]
+            if parent[child] == vertex:
+                sibling: usize = best[vertex]
+                if best_child[vertex] == child: sibling <- second[vertex]
+                base: i64 = outside[vertex]
+                if sibling.i64() > base: base <- sibling.i64()
+                outside[child] <- base + 1
+            edge <- edge + 1
+        position <- position + 1
+
+    radius: usize = TC_MAX_N
+    vertex <- 0
+    while vertex < n:
+        eccentricity: usize = down[vertex]
+        if outside[vertex] > eccentricity.i64(): eccentricity <- outside[vertex].usize()
+        if eccentricity < radius: radius <- eccentricity
+        vertex <- vertex + 1
+    center_count: mutable usize = 0
+    vertex <- 0
+    while vertex < n:
+        eccentricity <- down[vertex]
+        if outside[vertex] > eccentricity.i64(): eccentricity <- outside[vertex].usize()
+        if eccentricity == radius:
+            centers[center_count] <- vertex.i64()
+            center_count <- center_count + 1
+        vertex <- vertex + 1
+    center_count.i64()
+
+def tc_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+export fn tree_center_rerooting_dp(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > TC_MAX_INPUT_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    centers: mutable i64[2] = zeroed
+    center_count: i64 = tc_compute(input_view, centers[0:2])
+    if center_count < 0: return center_count
+    required: usize = center_count.usize() * 8
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index: mutable usize = 0
+    while index < center_count.usize():
+        tc_store_i64_le(centers[index], output_view, 8 * index)
+        index <- index + 1
+    required.i64()

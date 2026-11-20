@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-set-cover-domination-reduction-i64-array-bytes-output-v1",
+  "algorithm": "set_cover_domination_reduction",
+  "function_symbol": "set_cover_domination_reduction",
+  "abi": "i64_array_bytes_output",
+  "description": "Presolve a weighted set-cover incidence matrix using the chapter's row, simple column, and advanced column domination rules.",
+  "source": {
+    "title": "Set Cover with Almost Consecutive Ones",
+    "authors": ["Michael Dom"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_368",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_368",
+    "algorithm_attribution": "Row domination, column domination, and advanced column domination reductions; profile-specific deterministic scan order and equal-cost ties.",
+    "implementation_status": "clean-room bounded presolve profile; does not implement the chapter's set-cover solver"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[row_count,column_count,weights[column_count],row_coverage_masks[row_count]]",
+    "row_count_range": [1, 8],
+    "column_count_range": [1, 8],
+    "weight_range": [1, 20],
+    "row_mask_rule": "Bit j is 1 iff original column j covers the row.",
+    "exact_length": "2+column_count+row_count",
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_vector",
+    "encoding": "[reduced_row_count,reduced_column_count,row_ids[],column_ids[],column_weights[],reduced_row_masks[]]",
+    "identity_rule": "Row and column IDs are zero-based original indices in ascending order. Each reduced row mask uses compact bit positions matching the ascending retained column_ids array.",
+    "maximum_bytes": 272,
+    "success_result": "8 times the number of output words",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "row_dominance": "If the active-column option set of row i is a subset of row j's option set, remove row j; for equal sets retain the lower original row ID.",
+    "simple_column_dominance": "Remove active column c1 when its active-row coverage is a subset of c2's and weight(c1)>=weight(c2); for equal coverages and weights retain the lower original column ID.",
+    "advanced_column_dominance": "For distinct active c1,c2 with nonempty coverage intersection, let X contain the unique minimum-weight active column covering each row in coverage(c1)\\coverage(c2), breaking minimum-weight ties by lower original column ID. Remove c1 when weight(c1)>=weight(c2)+sum(weight(x) for x in X).",
+    "scan_and_restart": "Repeat to a fixed point. Scan row keep/drop pairs in ascending original IDs and apply the first eligible row reduction. If none applies, scan simple column drop/keep pairs in ascending IDs. If none applies, scan advanced column drop/keep pairs in ascending IDs. After any single deletion, restart from the row rule.",
+    "preservation": "The exact minimum weighted set-cover cost is preserved. An empty reduced row is retained when the instance is infeasible; reduced row/column IDs permit independent reconstruction.",
+    "scope": "This is a matrix-presolve kernel only. It does not enumerate or select a set cover, test the almost-consecutive-ones property, or implement strong-C1P optimization."
+  },
+  "workspace": {
+    "bytes": 272,
+    "meaning": "Maximum caller-provided output capacity in bytes."
+  },
+  "memory": {
+    "internal_scratch_bytes": 1024,
+    "meaning": "Conservative bound for fixed row/column masks, activity flags, identity arrays, and staged output."
+  },
+  "complexity": {
+    "primary_time": "O((m+n)*m*n^3) worst-case for m,n<=8 and at most m+n one-item reductions; each advanced candidate pair scans up to n columns for each of up to m exclusive rows",
+    "primary_auxiliary_space": "O(m+n)",
+    "independent_optimum_check": "O(2^n*m) by exhaustive enumeration of all column subsets before and after reduction"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "oracle_method": "Primary uses row/column bit masks and fixed-point rules. The independent oracle uses row and column sets, then exhaustively compares exact minimum cover costs for the original and reduced matrices.",
+  "cases": [
+    {"id":"single-row-no-reduction","input_values":[1,1,1,1],"input_length":4,"output_capacity":272,"expected_result":48,"expected_output_hex":"0100000000000000 0100000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000"},
+    {"id":"row-dominance-then-column-dominance","input_values":[2,2,1,2,1,3],"input_length":6,"output_capacity":272,"expected_result":48,"expected_output_hex":"0100000000000000 0100000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000"},
+    {"id":"simple-column-dominance","input_values":[1,2,2,1,3],"input_length":5,"output_capacity":272,"expected_result":48,"expected_output_hex":"0100000000000000 0100000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000"},
+    {"id":"no-dominance-identities-retained","input_values":[2,2,1,2,1,2],"input_length":6,"output_capacity":272,"expected_result":80,"expected_output_hex":"0200000000000000 0200000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0100000000000000 0200000000000000 0100000000000000 0200000000000000"},
+    {"id":"advanced-column-domination","input_values":[2,3,3,1,1,3,5],"input_length":7,"output_capacity":272,"expected_result":80,"expected_output_hex":"0200000000000000 0200000000000000 0000000000000000 0100000000000000 0100000000000000 0200000000000000 0100000000000000 0100000000000000 0100000000000000 0200000000000000"},
+    {"id":"infeasible-zero-row-preserved","input_values":[2,2,1,2,0,1],"input_length":6,"output_capacity":272,"expected_result":48,"expected_output_hex":"0100000000000000 0100000000000000 0000000000000000 0000000000000000 0100000000000000 0000000000000000"},
+    {"id":"maximum-valid-frame-and-output","input_values":[8,8,1,2,3,4,5,6,7,8,1,2,4,8,16,32,64,128],"input_length":18,"output_capacity":272,"expected_result":272,"expected_output_hex":"0800000000000000 0800000000000000 0000000000000000 0100000000000000 0200000000000000 0300000000000000 0400000000000000 0500000000000000 0600000000000000 0700000000000000 0000000000000000 0100000000000000 0200000000000000 0300000000000000 0400000000000000 0500000000000000 0600000000000000 0700000000000000 0100000000000000 0200000000000000 0300000000000000 0400000000000000 0500000000000000 0600000000000000 0700000000000000 0800000000000000 0100000000000000 0200000000000000 0400000000000000 0800000000000000 1000000000000000 2000000000000000 4000000000000000 8000000000000000"},
+    {"id":"invalid-row-mask-bits","input_values":[1,1,1,2],"input_length":4,"output_capacity":272,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-zero-weight","input_values":[1,1,0,1],"input_length":4,"output_capacity":272,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-trailing-word","input_values":[1,1,1,1,0],"input_length":5,"output_capacity":272,"expected_result":-1,"expected_output_hex":""},
+    {"id":"maximum-parseable-trailing-value","input_values":[8,8,1,2,3,4,5,6,7,8,1,2,4,8,16,32,64,128,99],"input_length":19,"output_capacity":272,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[2,2,1,2,1,2],"input_length":6,"output_capacity":79,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,1,1],"input_length":4,"output_capacity":272,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":272,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p125_palindrome(value_in:Int64)->Bool:
     if value_in%10==0:return False
     var value=value_in;var rev=Int64(0)

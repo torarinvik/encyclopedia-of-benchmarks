@@ -21,6 +21,7 @@ Check whether a positive base-10 integer is divisible by the sum of its decimal 
 | C3 | [`c3/h/harshad_number.c3`](../../../c3/h/harshad_number.c3) |
 | C++ | [`cpp/h/harshad_number.cpp`](../../../cpp/h/harshad_number.cpp) |
 | Elisa | [`elisa/h/harshad_number.elisa`](../../../elisa/h/harshad_number.elisa) |
+| Mojo | [`mojo/h/harshad_number.mojo`](../../../mojo/h/harshad_number.mojo) |
 | Nim | [`nim/h/harshad_number.nim`](../../../nim/h/harshad_number.nim) |
 | Odin | [`odin/h/harshad_number.odin`](../../../odin/h/harshad_number.odin) |
 | Rust | [`rust/h/harshad_number.rs`](../../../rust/h/harshad_number.rs) |
@@ -30,3 +31,6 @@ Check whether a positive base-10 integer is divisible by the sum of its decimal 
 ## Source
 
 The pinned [TheAlgorithms/Java implementation](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/HarshadNumber.java) exposes `isHarshad(long)`, which sums decimal digits by repeated division and checks divisibility. The ports preserve that integer operation under the bounded scalar ABI.
+
+Scalar verifier registration and a decimal-string reference are drafted and
+have not been executed.

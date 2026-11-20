@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "smallest-number-with-n-divisors-v1",
+  "algorithm": "smallest_number_with_n_divisors",
+  "function_symbol": "smallest_number_with_n_divisors",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Smallest positive integer with exactly d divisors",
+    "url": "https://oeis.org/A005179",
+    "task_url": "https://rosettacode.org/wiki/Sequence:_smallest_number_with_exactly_n_divisors",
+    "reuse": "mathematical definition and divisor-profile idea only; independent bounded contract, code, and fixtures"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[d, inclusive_limit]",
+    "divisor_count_range": [1, 63],
+    "inclusive_limit_range": [1, 1000000],
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "no_solution_result": 0,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "least positive N <= inclusive_limit with exactly d positive divisors; 0 when a valid bounded search has no solution",
+    "result_range": "0..1000000",
+    "invalid_result": -1
+  },
+  "complexity": {
+    "primary_method": "bounded enumeration of nonincreasing multiplicative factorizations of d, with candidate products pruned above inclusive_limit",
+    "enumerated_profile_depth": "at most 5 because d<=63",
+    "factor_probe_time": "O(S*d^2), where S is visited partial profiles and d<=63",
+    "auxiliary_space": "O(1) fixed stack; fewer than 56 pending profiles for d<=63, with 128 reserved"
+  },
+  "workspace": {"bytes": 65536},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-divisor-at-cap","input_values":[1,1],"expected_result":1},
+    {"id":"two-divisors-below-cap","input_values":[2,1],"expected_result":0},
+    {"id":"two-divisors-at-cap","input_values":[2,2],"expected_result":2},
+    {"id":"three-divisors-below-cap","input_values":[3,3],"expected_result":0},
+    {"id":"three-divisors-at-cap","input_values":[3,4],"expected_result":4},
+    {"id":"four-divisors","input_values":[4,6],"expected_result":6},
+    {"id":"prime-divisor-count","input_values":[5,16],"expected_result":16},
+    {"id":"composite-divisor-count","input_values":[6,12],"expected_result":12},
+    {"id":"repeated-profile","input_values":[9,36],"expected_result":36},
+    {"id":"prime-power-result","input_values":[11,1024],"expected_result":1024},
+    {"id":"known-sequence-term","input_values":[15,144],"expected_result":144},
+    {"id":"large-prime-profile-below-cap","input_values":[17,65535],"expected_result":0},
+    {"id":"large-prime-profile-at-cap","input_values":[17,65536],"expected_result":65536},
+    {"id":"second-large-prime-below-cap","input_values":[19,262143],"expected_result":0},
+    {"id":"second-large-prime-at-cap","input_values":[19,262144],"expected_result":262144},
+    {"id":"maximum-divisor-count-below-cap","input_values":[63,14399],"expected_result":0},
+    {"id":"maximum-divisor-count-at-cap","input_values":[63,14400],"expected_result":14400},
+    {"id":"maximum-search-cap","input_values":[19,1000000],"expected_result":262144},
+    {"id":"zero-divisor-count","input_values":[0,100],"expected_result":-1},
+    {"id":"divisor-count-over-profile","input_values":[64,1000000],"expected_result":-1},
+    {"id":"zero-limit","input_values":[3,0],"expected_result":-1},
+    {"id":"limit-over-profile","input_values":[3,1000001],"expected_result":-1},
+    {"id":"missing-limit","input_values":[4],"expected_result":-1},
+    {"id":"trailing-word","input_values":[3,4,0],"expected_result":-1},
+    {"id":"missing-header","input_values":[],"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_is_null":true,"input_length":0,"expected_result":-1}
+  ]
+}

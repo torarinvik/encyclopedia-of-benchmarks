@@ -1,0 +1,62 @@
+{
+  "algorithm": "kosaraju_dense_bitset_scc",
+  "function_symbol": "kosaraju_dense_bitset_scc",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "url": "https://hitonanode.github.io/cplib-cpp/graph/strongly_connected_components_bitset.hpp",
+    "title": "Bitset strongly connected components",
+    "method": "iterative two-pass Kosaraju with packed-row/unvisited intersections"
+  },
+  "discovery": {
+    "url": "https://github.com/yosupo06/library-checker-problems/issues/1373",
+    "title": "Strongly Connected Components (Dense)",
+    "issue_number": 1373,
+    "status": "open proposal",
+    "score": null,
+    "score_note": "No popularity score is published for this proposal; issue-list counts are comments, not a score."
+  },
+  "input": {
+    "format": "[n, row-major signed-i64 words...]",
+    "vertex_count_range": [1, 256],
+    "word_count_per_row": "ceil(n/64)",
+    "maximum_valid_length": 1025,
+    "maximum_parseable_length": 1026,
+    "unused_high_bits": "must be zero; each i64 is interpreted as its unsigned 64-bit pattern",
+    "self_loops": true,
+    "duplicate_edges": "coalesced by the row bitset"
+  },
+  "output": {
+    "encoding": "little-endian u16 component count, then one little-endian u16 canonical ID per vertex",
+    "canonical_order": "ascending minimum vertex in each component",
+    "maximum_bytes": 514,
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2
+  },
+  "workspace": {
+    "bytes": 32768,
+    "accounting": "Two 256x4 u64 matrices occupy 16384 bytes; word masks, DFS stacks/order/cursors, component maps and staged output keep total scratch below the cap."
+  },
+  "references": {
+    "primary": "primary_oracle.py: packed-row iterative Kosaraju",
+    "independent": "independent_oracle.py: adjacency-list Tarjan",
+    "independent_method_url": "https://doi.org/10.1137/0201010"
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call"},
+  "cases": [
+    {"id":"single-isolate","input_values":[1,0],"input_length":2,"expected_result":4,"expected_output_bytes":[1,0,0,0]},
+    {"id":"two-isolates","input_values":[2,0,0],"input_length":3,"expected_result":6,"expected_output_bytes":[2,0,0,0,1,0]},
+    {"id":"two-cycle","input_values":[2,2,1],"input_length":3,"expected_result":6,"expected_output_bytes":[1,0,0,0,0,0]},
+    {"id":"two-sccs","input_values":[4,2,1,8,4],"input_length":5,"expected_result":10,"expected_output_bytes":[2,0,0,0,0,0,1,0,1,0]},
+    {"id":"cycle-and-tail-cycle","input_values":[5,2,4,9,16,8],"input_length":6,"expected_result":12,"expected_output_bytes":[2,0,0,0,0,0,0,0,1,0,1,0]},
+    {"id":"dense-eight-one-component","input_values":[8,255,255,255,255,255,255,255,255],"input_length":9,"expected_result":18,"expected_output_bytes":[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+    {"id":"invalid-zero-vertices","input_values":[0],"input_length":1,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"invalid-over-limit","input_values":[257],"input_length":1,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"invalid-unused-high-bit","input_values":[1,2],"input_length":2,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"invalid-signed-high-bit","input_values":[1,-9223372036854775808],"input_length":2,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"invalid-short-row-matrix","input_values":[2,0],"input_length":2,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"invalid-trailing-word","input_values":[1,0,0],"input_length":3,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_bytes":[]},
+    {"id":"short-output","input_values":[2,0,0],"input_length":3,"output_capacity":5,"expected_result":-2,"expected_output_bytes":[]},
+    {"id":"null-output","input_values":[1,0],"input_length":2,"output_capacity":4,"output_is_null":true,"expected_result":-2,"expected_output_bytes":[]}
+  ]
+}

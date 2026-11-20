@@ -1,0 +1,25 @@
+{
+  "algorithm": "connectivity_aware_plug_dp_binary_grid_colorings",
+  "symbol": "connectivity_aware_plug_dp_binary_grid_colorings",
+  "abi": "i64_array_scalar",
+  "primary_reference": "benchmarks/c/connectivity_aware_plug_dp_binary_grid_colorings/primary_oracle.py",
+  "independent_reference": "benchmarks/c/connectivity_aware_plug_dp_binary_grid_colorings/independent_oracle.py",
+  "workload": "benchmarks/c/connectivity_aware_plug_dp_binary_grid_colorings/workload.json",
+  "static_checker": "benchmarks/c/connectivity_aware_plug_dp_binary_grid_colorings/check_inventory.py",
+  "source_url": "https://en.oi-wiki.org/dp/plug/",
+  "max_valid_input_length": 2,
+  "max_parseable_input_length": 3,
+  "workspace_bytes": 1259712,
+  "ports": [
+    "c/c/connectivity_aware_plug_dp_binary_grid_colorings.c",
+    "c3/c/connectivity_aware_plug_dp_binary_grid_colorings.c3",
+    "cpp/c/connectivity_aware_plug_dp_binary_grid_colorings.cpp",
+    "elisa/c/connectivity_aware_plug_dp_binary_grid_colorings.elisa",
+    "mojo/c/connectivity_aware_plug_dp_binary_grid_colorings.mojo",
+    "nim/c/connectivity_aware_plug_dp_binary_grid_colorings.nim",
+    "odin/c/connectivity_aware_plug_dp_binary_grid_colorings.odin",
+    "rust/c/connectivity_aware_plug_dp_binary_grid_colorings.rs",
+    "v/c/connectivity_aware_plug_dp_binary_grid_colorings.v",
+    "zig/c/connectivity_aware_plug_dp_binary_grid_colorings.zig"
+  ]
+}

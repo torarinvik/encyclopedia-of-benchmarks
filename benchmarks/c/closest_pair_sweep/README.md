@@ -30,4 +30,6 @@ contract and drafts are independently authored. Ten language drafts, two
 references, workload, rights note, package checker, and scalar suite wiring are
 present. The workload includes a maximum-length horizontal point set; the
 verifier source specifies small grids, input reversal, a maximum parabola, and
-null input. Nothing has been compiled or run.
+null input. Read-only review found the ten ports consistent on point ordering,
+duplicate handling, x-window eviction, integer y-radius bounds, and active-set
+range queries. Nothing has been compiled or run.

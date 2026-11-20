@@ -25,6 +25,7 @@ The scalar ABI is `int64_t jacobsthal_number(int64_t n)`.
 | C3 | [`c3/j/jacobsthal_number.c3`](../../../c3/j/jacobsthal_number.c3) |
 | C++ | [`cpp/j/jacobsthal_number.cpp`](../../../cpp/j/jacobsthal_number.cpp) |
 | Elisa | [`elisa/j/jacobsthal_number.elisa`](../../../elisa/j/jacobsthal_number.elisa) |
+| Mojo | [`mojo/j/jacobsthal_number.mojo`](../../../mojo/j/jacobsthal_number.mojo) |
 | Nim | [`nim/j/jacobsthal_number.nim`](../../../nim/j/jacobsthal_number.nim) |
 | Odin | [`odin/j/jacobsthal_number.odin`](../../../odin/j/jacobsthal_number.odin) |
 | Rust | [`rust/j/jacobsthal_number.rs`](../../../rust/j/jacobsthal_number.rs) |
@@ -34,3 +35,6 @@ The scalar ABI is `int64_t jacobsthal_number(int64_t n)`.
 ## Upstream source
 
 - [TheAlgorithms/Java `JacobsthalNumber.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/JacobsthalNumber.java)
+
+Scalar verifier registration and a closed-form reference are drafted and have
+not been executed.

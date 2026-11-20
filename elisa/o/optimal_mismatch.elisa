@@ -1,0 +1,71 @@
+from std.collections import InlineArray
+
+const MAX_TEXT: usize = 256
+const MAX_PATTERN: usize = 16
+const MAX_INPUT: usize = 274
+
+def optimal_mismatch_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MAX_INPUT: return -2
+    raw_n, raw_m := input[0], input[1]
+    if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64(): return -2
+    n, m := raw_n.usize(), raw_m.usize()
+    if length != 2 + n + m: return -2
+    pattern_start: usize = 2 + n
+    for i in 0..<(n + m):
+        byte := input[2 + i]
+        if byte < 0 or byte > 127: return -2
+    if m > n: return -1
+
+    var frequency = InlineArray[usize, 128](fill=0)
+    for i in 0..<n:
+        frequency[input[2 + i].usize()] += 1
+    var order = InlineArray[usize, 16](fill=0)
+    for i in 0..<m:
+        order[i] = i
+    for i in 1..<m:
+        let selected = order[i]
+        var cursor: usize = i
+        while cursor > 0:
+            let previous = order[cursor - 1]
+            let pf = frequency[input[pattern_start + previous].usize()]
+            let sf = frequency[input[pattern_start + selected].usize()]
+            if pf < sf or (pf == sf and previous > selected): break
+            order[cursor] = previous
+            cursor -= 1
+        order[cursor] = selected
+
+    var quick_shift = InlineArray[usize, 128](fill=m + 1)
+    for i in 0..<m:
+        quick_shift[input[pattern_start + i].usize()] = m - i
+    var adapted_shift = InlineArray[usize, 16](fill=m)
+    for rank in 0..<m:
+        let mismatch = order[rank]
+        for shift in 1..<(m + 1):
+            var compatible = true
+            for prior in 0..<rank:
+                let position = order[prior]
+                if position >= shift and input[pattern_start + position] != input[pattern_start + position - shift]:
+                    compatible = false
+                    break
+            if not compatible: continue
+            if mismatch >= shift and input[pattern_start + mismatch - shift] == input[pattern_start + mismatch]:
+                continue
+            adapted_shift[rank] = shift
+            break
+
+    var start: usize = 0
+    let last_start = n - m
+    while start <= last_start:
+        var rank: usize = 0
+        while rank < m and input[2 + start + order[rank]] == input[pattern_start + order[rank]]:
+            rank += 1
+        if rank == m: return start.i64()
+        if start + m == n: break
+        let quick = quick_shift[input[2 + start + m].usize()]
+        start += if adapted_shift[rank] > quick: adapted_shift[rank] else: quick
+    -1
+
+export fn optimal_mismatch(values: i64&, length: usize) -> i64:
+    if values.is_null(): return -2
+    optimal_mismatch_impl(values[0:length])

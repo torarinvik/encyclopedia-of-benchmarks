@@ -123,7 +123,7 @@ fn void ss_mul_cyclic(long* a, long* b, int n, long* buf) {
         a[i * M + j] = A[i * M * 2 + j] + A[(i == 0 ? L - 1 : i - 1) * M * 2 + M + j];
 }
 
-fn long schoenhage_strassen_multiply(long* input, usz length, uint8* output, usz capacity) @export("schoenhage_strassen_multiply") {
+fn long schoenhage_strassen_multiply(long* input, usz length, char* output, usz capacity) @export("schoenhage_strassen_multiply") {
     if (input == null || length != 1027 || input[0] != LIMBS) return -1;
     long[PADDED] a; long[PADDED] b; long[PADDED] scratch;
     for (int i = 0; i < PADDED; i++) { a[i] = 0; b[i] = 0; scratch[i] = 0; }
@@ -135,14 +135,14 @@ fn long schoenhage_strassen_multiply(long* input, usz length, uint8* output, usz
     if (a[LIMBS - 1] != 1 || b[LIMBS - 1] != 1) return -1;
     if (output == null || capacity < OUTPUT_BYTES) return -2;
     ss_mul_cyclic(&a[0], &b[0], 11, &scratch[0]);
-    uint8[OUTPUT_BYTES] result; for (int i = 0; i < OUTPUT_BYTES; i++) result[i] = 0;
+    char[OUTPUT_BYTES] result; for (int i = 0; i < OUTPUT_BYTES; i++) result[i] = 0;
     long carry = 0;
     for (int i = 0; i < 1025; i++) {
-        long value = a[i] + carry; uint8 bit = (uint8)(value % 2); carry = value / 2;
-        if (bit != 0) result[OUTPUT_BYTES - 1 - i / 8] |= (uint8)(1 << (i % 8));
+        long value = a[i] + carry; char bit = (char)(value % 2); carry = value / 2;
+        if (bit != 0) result[OUTPUT_BYTES - 1 - i / 8] |= (char)(1 << (i % 8));
     }
     int bit_index = 1025;
-    while (carry > 0) { if (carry % 2 != 0) result[OUTPUT_BYTES - 1 - bit_index / 8] |= (uint8)(1 << (bit_index % 8)); carry /= 2; bit_index++; }
+    while (carry > 0) { if (carry % 2 != 0) result[OUTPUT_BYTES - 1 - bit_index / 8] |= (char)(1 << (bit_index % 8)); carry /= 2; bit_index++; }
     for (int i = 0; i < OUTPUT_BYTES; i++) output[i] = result[i];
     return OUTPUT_BYTES;
 }

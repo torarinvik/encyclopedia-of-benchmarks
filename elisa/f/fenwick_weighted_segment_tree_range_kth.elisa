@@ -1,0 +1,112 @@
+# Dynamic range selection via mutable value trees at Fenwick position nodes.
+def fwk_change(lefts: mutable view[i64], rights: mutable view[i64], counts: mutable view[i64],
+               used: mutable view[i64], root: i64, low: usize, high: usize,
+               coordinate: usize, delta: i64) -> i64:
+    node: mutable usize = root.usize()
+    if node == 0:
+        used[0] <- used[0] + 1
+        node <- used[0].usize()
+    counts[node] <- counts[node] + delta
+    if high - low > 1:
+        middle: usize = (low + high) / 2
+        if coordinate < middle:
+            lefts[node] <- fwk_change(lefts, rights, counts, used, lefts[node], low, middle, coordinate, delta)
+        else:
+            rights[node] <- fwk_change(lefts, rights, counts, used, rights[node], middle, high, coordinate, delta)
+    node.i64()
+
+def fwk_apply(lefts: mutable view[i64], rights: mutable view[i64], counts: mutable view[i64],
+              used: mutable view[i64], roots: mutable view[i64], n: usize,
+              position: usize, value: i64, delta: i64) -> void:
+    node: mutable usize = position + 1
+    while node <= n:
+        roots[node] <- fwk_change(lefts, rights, counts, used, roots[node], 0, 61, (value + 30).usize(), delta)
+        node <- node + (node & (~node + 1))
+
+def fenwick_weighted_segment_tree_range_kth_impl(input: view[i64]) -> i64:
+    length: usize = input.length
+    if length < 3 or length > 79: return -9223372036854775807 - 1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 12 or q_value < 0 or q_value > 16: return -9223372036854775807 - 1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + n + 4 * q: return -9223372036854775807 - 1
+
+    current: mutable [12]i64 = [0; 12]
+    roots: mutable [13]i64 = [0; 13]
+    lefts: mutable [1281]i64 = [0; 1281]
+    rights: mutable [1281]i64 = [0; 1281]
+    counts: mutable [1281]i64 = [0; 1281]
+    used: mutable [1]i64 = [0; 1]
+    current_view: mutable view[i64] = current[0..<12]
+    roots_view: mutable view[i64] = roots[0..<13]
+    left_view: mutable view[i64] = lefts[0..<1281]
+    right_view: mutable view[i64] = rights[0..<1281]
+    count_view: mutable view[i64] = counts[0..<1281]
+    used_view: mutable view[i64] = used[0..<1]
+    for position in 0..<n:
+        value: i64 = input[2 + position]
+        if value < -30 or value > 30: return -9223372036854775807 - 1
+        current_view[position] <- value
+        fwk_apply(left_view, right_view, count_view, used_view, roots_view, n, position, value, 1)
+
+    checksum: mutable i64 = 0
+    query_number: mutable i64 = 0
+    cursor: mutable usize = 2 + n
+    for _ in 0..<q:
+        opcode: i64 = input[cursor]
+        first: i64 = input[cursor + 1]
+        second: i64 = input[cursor + 2]
+        third: i64 = input[cursor + 3]
+        cursor <- cursor + 4
+        if opcode == 0:
+            if first < 0 or first >= n_value or second < -30 or second > 30 or third != 0:
+                return -9223372036854775807 - 1
+            position: usize = first.usize()
+            fwk_apply(left_view, right_view, count_view, used_view, roots_view, n, position, current_view[position], -1)
+            current_view[position] <- second
+            fwk_apply(left_view, right_view, count_view, used_view, roots_view, n, position, second, 1)
+        elif opcode == 1:
+            if first < 0 or first >= second or second > n_value or third < 1 or third > second - first:
+                return -9223372036854775807 - 1
+            left_roots: mutable [13]i64 = [0; 13]
+            right_roots: mutable [13]i64 = [0; 13]
+            left_size: mutable usize = 0
+            right_size: mutable usize = 0
+            node: mutable usize = first.usize()
+            while node > 0:
+                left_roots[left_size] <- roots_view[node]
+                left_size <- left_size + 1
+                node <- node & (node - 1)
+            node <- second.usize()
+            while node > 0:
+                right_roots[right_size] <- roots_view[node]
+                right_size <- right_size + 1
+                node <- node & (node - 1)
+            low: mutable usize = 0
+            high: mutable usize = 61
+            rank: mutable i64 = third
+            while high - low > 1:
+                middle: usize = (low + high) / 2
+                left_count: mutable i64 = 0
+                for i in 0..<right_size: left_count <- left_count + count_view[left_view[right_roots[i].usize()].usize()]
+                for i in 0..<left_size: left_count <- left_count - count_view[left_view[left_roots[i].usize()].usize()]
+                if rank <= left_count:
+                    for i in 0..<right_size: right_roots[i] <- left_view[right_roots[i].usize()]
+                    for i in 0..<left_size: left_roots[i] <- left_view[left_roots[i].usize()]
+                    high <- middle
+                else:
+                    rank <- rank - left_count
+                    for i in 0..<right_size: right_roots[i] <- right_view[right_roots[i].usize()]
+                    for i in 0..<left_size: left_roots[i] <- right_view[left_roots[i].usize()]
+                    low <- middle
+            query_number <- query_number + 1
+            checksum <- checksum + query_number * (low.i64() - 30)
+        else:
+            return -9223372036854775807 - 1
+    checksum
+
+export fn fenwick_weighted_segment_tree_range_kth(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 79: return -9223372036854775807 - 1
+    fenwick_weighted_segment_tree_range_kth_impl(input[0:length])

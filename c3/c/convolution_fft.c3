@@ -9,7 +9,7 @@ const usz MAX_FFT_LENGTH = 2 * MAX_SIGNAL_LENGTH;
 const double PI = 3.14159265358979323846264338327950288;
 
 fn void write_f64_le(double value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) output[offset + byte] = (char)((bits >> (8 * byte)) & 255);
 }
 

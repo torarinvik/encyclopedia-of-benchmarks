@@ -23,18 +23,18 @@ fn void sort_recursively(long* stack, usz* size) {
     insert_sorted(stack, size, top);
 }
 
-long sort_stack(long* input, usz length, char* output, usz output_capacity)
+fn long sort_stack(long* input, usz length, char* output, usz output_capacity)
         @export("sort_stack") {
     if (input == null || length < 1 || length > 65) return -1;
     if (input[0] < 0 || input[0] > (long)MAX_ITEMS || length != 1 + (usz)input[0]) return -1;
     usz count = (usz)input[0];
-    long stack[64];
+    long[64] stack;
     for (usz i = 0; i < count; i++) {
         if (input[i + 1] < -2147483648L || input[i + 1] > 2147483647L) return -1;
         stack[i] = input[i + 1];
     }
     usz size = count;
-    sort_recursively(stack, &size);
+    sort_recursively(&stack[0], &size);
     usz bytes = size * 4;
     if (output == null || output_capacity < bytes) return -2;
     for (usz i = 0; i < size; i++) {

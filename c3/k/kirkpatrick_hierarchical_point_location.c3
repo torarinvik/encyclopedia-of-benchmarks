@@ -10,7 +10,7 @@ fn bool closed_inside(long px,long py,long*t,long*xy){for(usz e=0;e<3;e+=1){long
 fn bool tri_hit(long*a,long*b,long*xy){for(usz i=0;i<3;i+=1){long p=a[i]*2;if(closed_inside(xy[p],xy[p+1],b,xy))return true;p=b[i]*2;if(closed_inside(xy[p],xy[p+1],a,xy))return true;}for(usz i=0;i<3;i+=1)for(usz j=0;j<3;j+=1){long a0=a[i]*2,a1=a[(i+1)%3]*2,b0=b[j]*2,b1=b[(j+1)%3]*2;if(seg_hit(xy[a0],xy[a0+1],xy[a1],xy[a1+1],xy[b0],xy[b0+1],xy[b1],xy[b1+1]))return true;}return false;}
 fn void put64(char*out,usz pos,long value){ulong bits=(ulong)value;for(usz j=0;j<8;j+=1){out[pos+j]=(char)(bits&255);bits>>=8;}}
 
-long kirkpatrick_hierarchical_point_location(long*in,usz len,char*out,usz cap) @export("kirkpatrick_hierarchical_point_location") {
+fn long kirkpatrick_hierarchical_point_location(long*in,usz len,char*out,usz cap) @export("kirkpatrick_hierarchical_point_location") {
     if(in==null||len<14||len>MAX_INPUT)return -1;
     long nv=in[0],nl=in[1],qx=in[2],qy=in[3];if(nv<3||nv>(long)MAX_VERTICES||nl<1||nl>(long)MAX_LEVELS||qx< -1000||qx>1000||qy< -1000||qy>1000)return -1;
     if(len<4+2*(usz)nv)return -1;

@@ -32,7 +32,7 @@ fn void distances(long* adjacency, usz n, long* result) {
     }
 }
 
-fn long seidel_unweighted_apsp(long* input, usz length, uint8* output, usz capacity)
+fn long seidel_unweighted_apsp(long* input, usz length, char* output, usz capacity)
     @export("seidel_unweighted_apsp") {
     if (input == null || length < 2 || length > 66) return -1;
     if (input[0] < 1 || input[0] > 8) return -1;
@@ -69,7 +69,7 @@ fn long seidel_unweighted_apsp(long* input, usz length, uint8* output, usz capac
         for (usz j = 0; j < n; j++) {
             ulong bits = (ulong)result[8 * i + j];
             for (usz byte = 0; byte < 8; byte++) {
-                output[8 * (i * n + j) + byte] = (uint8)(bits & 255ul);
+                output[8 * (i * n + j) + byte] = (char)(bits & 255ul);
                 bits >>= 8;
             }
         }

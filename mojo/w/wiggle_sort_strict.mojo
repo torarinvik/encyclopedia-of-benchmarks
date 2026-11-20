@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn wss_select(inout v:InlineArray[Int32,4096],n:Int,target:Int)->Int32:

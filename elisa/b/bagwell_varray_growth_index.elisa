@@ -1,0 +1,99 @@
+# Bounded append-only two-dimensional Bagwell VArray using internal views.
+def bvg_level_start(level: usize) -> usize:
+    if level == 0: return 0
+    if level == 1: return 64
+    320
+
+def bvg_pointer_slot(level: usize, index: usize) -> usize:
+    start: usize = bvg_level_start(level)
+    side: usize = 8
+    first_pointer: usize = 0
+    if level == 1:
+        side = 16
+        first_pointer = 8
+    elif level == 2:
+        side = 32
+        first_pointer = 24
+    first_pointer + (index - start) / side
+
+def bvg_child_base(level: usize, index: usize) -> usize:
+    start: usize = bvg_level_start(level)
+    side: usize = 8
+    if level == 1: side = 16
+    elif level == 2: side = 32
+    start + ((index - start) / side) * side
+
+def bvg_element_offset(level: usize, index: usize) -> usize:
+    start: usize = bvg_level_start(level)
+    side: usize = 8
+    if level == 1: side = 16
+    elif level == 2: side = 32
+    (index - start) % side
+
+def bvg_find_level(index: usize, current_header: usize,
+                   previous_header: view[i64]) -> i64:
+    level: i64 = current_header.i64()
+    while level >= 0 and index < bvg_level_start(level.usize()):
+        level = previous_header[level.usize()]
+    level
+
+def bvg_put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits >> (byte * 8)).u8()
+
+def bvg_impl(values: view[i64], output: mutable view[u8], capacity: usize,
+             output_is_null: bool) -> i64:
+    if values.length < 2 or values.length > 580: return -1
+    n_value: i64 = values[0]
+    q_value: i64 = values[1]
+    if n_value < 0 or n_value > 321 or q_value < 0 or q_value > 256: return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if (n == 0 and q != 0) or values.length != 2 + n + q: return -1
+    query_start: usize = 2 + n
+    for query in 0..<q:
+        index: i64 = values[query_start + query]
+        if index < 0 or index >= n_value: return -1
+
+    var data = InlineArray[i64, 352](fill=0)
+    var pointers = InlineArray[i64, 56](fill=-1)
+    var previous_headers = InlineArray[i64, 3](fill=-1)
+    var data_view: mutable view[i64] = data[0:352]
+    var pointer_view: mutable view[i64] = pointers[0:56]
+    var previous_header_view: mutable view[i64] = previous_headers[0:3]
+    var current_header: usize = 0
+    for index in 0..<n:
+        if index == 64 or index == 320:
+            next_header: usize = current_header + 1
+            previous_header_view[next_header] <- current_header.i64()
+            current_header = next_header
+        slot: usize = bvg_pointer_slot(current_header, index)
+        base: usize = bvg_child_base(current_header, index)
+        offset: usize = bvg_element_offset(current_header, index)
+        if pointer_view[slot] == -1: pointer_view[slot] <- base.i64()
+        if pointer_view[slot] != base.i64() or base + offset >= 352: return -1
+        data_view[pointer_view[slot].usize() + offset] <- values[2 + index]
+
+    output_bytes: usize = 8 * (q + 1)
+    if output_is_null or output.length < output_bytes or capacity < output_bytes: return -2
+    bvg_put_i64_le(output, 0, q_value)
+    for query in 0..<q:
+        index: usize = values[query_start + query].usize()
+        level: i64 = bvg_find_level(index, current_header, previous_header_view)
+        slot: usize = bvg_pointer_slot(level.usize(), index)
+        offset: usize = bvg_element_offset(level.usize(), index)
+        value: i64 = data_view[pointer_view[slot].usize() + offset]
+        bvg_put_i64_le(output, 8 * (query + 1), value)
+    output_bytes.i64()
+
+def bvg_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 580: return -1
+    if output.is_null():
+        var empty_output = InlineArray[u8, 1](fill=0)
+        return bvg_impl(input[0:length], empty_output[0:0], capacity, true)
+    bvg_impl(input[0:length], output[0:capacity], capacity, false)
+
+export fn bagwell_varray_growth_index(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize
+) -> i64 = bvg_entry

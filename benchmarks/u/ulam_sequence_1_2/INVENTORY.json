@@ -1,0 +1,51 @@
+{
+  "algorithm": "ulam_sequence_1_2",
+  "abi": "i64_array_scalar",
+  "sequence": "classical U(1,2), OEIS A002858",
+  "sources": {
+    "definition": "https://mathworld.wolfram.com/UlamSequence.html",
+    "sequence_crosscheck": "https://oeis.org/A002858",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "native_paths": [
+    "c/u/ulam_sequence_1_2.c",
+    "cpp/u/ulam_sequence_1_2.cpp",
+    "rust/u/ulam_sequence_1_2.rs",
+    "elisa/u/ulam_sequence_1_2.elisa",
+    "c3/u/ulam_sequence_1_2.c3",
+    "nim/u/ulam_sequence_1_2.nim",
+    "odin/u/ulam_sequence_1_2.odin",
+    "v/u/ulam_sequence_1_2.v",
+    "zig/u/ulam_sequence_1_2.zig",
+    "mojo/u/ulam_sequence_1_2.mojo"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py", "__init__.py"
+  ],
+  "title_band_crosswalk": {
+    "duplicates": {
+      "Padovan sequence": "padovan_sequence",
+      "Multiplicative order": "multiplicative_order",
+      "Cipolla's algorithm": "cipolla_modular_square_root",
+      "Pandigital Prime": "problem41"
+    },
+    "partial_overlap_not_claimed_as_duplicate": {
+      "N-smooth numbers": "hamming_numbers covers the 5-smooth specialization; general smoothness parameters are broader"
+    },
+    "excluded_distinct_task": {
+      "Ulam spiral": "geometric visualization, not an Ulam-sequence recurrence"
+    }
+  },
+  "bounds": {
+    "index_min": 1,
+    "index_max": 14,
+    "maximum_result": 38,
+    "candidate_scan_max": 64,
+    "maximum_pair_sum": 74,
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "workspace_bytes": 1024
+  }
+}

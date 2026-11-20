@@ -1,0 +1,24 @@
+{
+  "algorithm": "cuckoo_filter_operation_trace",
+  "abi": "i64_array_bytes_output",
+  "sources": [
+    "c/c/cuckoo_filter_operation_trace.c",
+    "c3/c/cuckoo_filter_operation_trace.c3",
+    "cpp/c/cuckoo_filter_operation_trace.cpp",
+    "elisa/c/cuckoo_filter_operation_trace.elisa",
+    "mojo/c/cuckoo_filter_operation_trace.mojo",
+    "nim/c/cuckoo_filter_operation_trace.nim",
+    "odin/c/cuckoo_filter_operation_trace.odin",
+    "rust/c/cuckoo_filter_operation_trace.rs",
+    "v/c/cuckoo_filter_operation_trace.v",
+    "zig/c/cuckoo_filter_operation_trace.zig"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "artifacts": ["README.md", "RIGHTS.md", "workload.json", "verify_workload.py", "check_inventory.py", "INVENTORY.md"],
+  "maximum_valid_input_words": 97,
+  "maximum_parseable_input_words": 98,
+  "maximum_output_bytes": 256,
+  "workspace_bytes": 1024,
+  "static_checker": "benchmarks/c/cuckoo_filter_operation_trace/check_inventory.py",
+  "suite_integration": "i64_array_bytes_output runner and verifier registered"
+}

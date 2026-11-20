@@ -6,7 +6,7 @@ const max_input_length = max_text_length + 2
 @[export: 'remove_duplicate_from_string']
 pub fn remove_duplicate_from_string(input &i64, length usize, output &u8, output_capacity usize) i64 {
 	if isnil(input) || length < 1 || length > usize(max_input_length) { return -1 }
-	text_length_value := unsafe { input }
+	text_length_value := unsafe { input[0] }
 	if text_length_value < 0 || text_length_value > max_text_length { return -1 }
 	text_length := int(text_length_value)
 	if length != usize(1 + text_length) { return -1 }

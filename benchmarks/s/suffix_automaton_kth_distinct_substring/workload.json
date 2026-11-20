@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "suffix-automaton-kth-distinct-substring-i64-array-bytes-v1",
+  "algorithm": "suffix_automaton_kth_distinct_substring",
+  "function_symbol": "suffix_automaton_kth_distinct_substring",
+  "abi": "i64_array_bytes_output",
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[n,k,byte_0,...,byte_(n-1)]", "maximum_valid_length": 258, "maximum_parseable_length": 259, "invalid_input_result": -1},
+  "output": {"encoding": "one-based k-th distinct nonempty substring as bytes", "maximum_bytes": 256, "invalid_input_result": -1, "output_error_result": -2, "output_untouched_on_error": true},
+  "workspace": {"bytes": 256, "meaning": "Maximum output buffer size."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "source": {"url": "https://cp-algorithms.com/string/suffix-automaton.html#lexicographically-k-th-substring", "reuse": "Mathematical idea only; contract, code, and fixtures independently authored."},
+  "cases": [
+    {"id":"singleton", "input_values":[1,1,255], "input_length":3, "output_capacity":1, "expected_result":1, "expected_output_hex":"ff"},
+    {"id":"prefix_order", "input_values":[3,3,97,98,97], "input_length":5, "output_capacity":3, "expected_result":3, "expected_output_hex":"616261"},
+    {"id":"last_rank", "input_values":[3,5,97,98,97], "input_length":5, "output_capacity":2, "expected_result":2, "expected_output_hex":"6261"},
+    {"id":"repeated", "input_values":[4,3,7,7,7,7], "input_length":6, "output_capacity":3, "expected_result":3, "expected_output_hex":"070707"},
+    {"id":"long_unique_prefix", "input_values":[32,32,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], "input_length":34, "output_capacity":32, "expected_result":32, "expected_output_hex":"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"},
+    {"id":"long_repeated_prefix", "input_values":[16,16,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65], "input_length":18, "output_capacity":16, "expected_result":16, "expected_output_hex":"41414141414141414141414141414141"},
+    {"id":"embedded_zero", "input_values":[3,4,0,255,0], "input_length":5, "output_capacity":1, "expected_result":1, "expected_output_hex":"ff"},
+    {"id":"excess_rank", "input_values":[3,6,97,98,97], "input_length":5, "output_capacity":0, "output_is_null":true, "expected_result":-1, "expected_output_hex":""},
+    {"id":"zero_rank", "input_values":[1,0,2], "input_length":3, "output_capacity":1, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short_output", "input_values":[3,3,97,98,97], "input_length":5, "output_capacity":2, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null_output", "input_values":[1,1,0], "input_length":3, "output_capacity":1, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"invalid_byte", "input_values":[1,1,256], "input_length":3, "output_capacity":0, "output_is_null":true, "expected_result":-1, "expected_output_hex":""},
+    {"id":"trailing", "input_values":[1,1,0,0], "input_length":4, "output_capacity":1, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "output_capacity":0, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

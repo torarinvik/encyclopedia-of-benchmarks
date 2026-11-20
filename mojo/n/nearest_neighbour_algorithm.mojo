@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn nn_append(mut out:InlineArray[UInt8,47],mut pos:Int,x:Int):
@@ -8,7 +9,7 @@ fn nearest_neighbour_algorithm(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or n>257 or a[0]<1 or a[0]>16:return -1
     let m=Int(a[0]);if n!=c_size_t(1+m*m):return -1
     for i in range(1,Int(n)):if a[i]<0 or a[i]>1000000:return -1
-    var seen=InlineArray[Bool,16]();var path=InlineArray[Int64,16]();var cur=0
+    var seen=InlineArray[Bool,16](fill=False);var path=InlineArray[Int64,16]();var cur=0
     for step in range(m):
         seen[cur]=True;path[step]=cur
         if step+1<m:

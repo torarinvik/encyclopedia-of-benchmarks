@@ -1,0 +1,29 @@
+const PILE_COUNT: i64 = 13
+const CARDS_PER_PILE: i64 = 4
+const CARD_COUNT: i64 = 52
+
+def clock_patience_solve(values: view[i64]) -> i64:
+    if values.length != 52: return -1
+    rank_counts: mutable i64[14] = zeroed
+    for index in 0..<52:
+        rank: i64 = values[index]
+        if rank < 1 or rank > 13: return -1
+        rank_counts[rank] <- rank_counts[rank] + 1
+    for rank in 1..<14:
+        if rank_counts[rank] != 4: return -1
+
+    next_card: mutable i64[13] = zeroed
+    pile: mutable i64 = 12
+    revealed: mutable i64 = 0
+    while next_card[pile] < 4:
+        rank: i64 = values[pile * 4 + next_card[pile]]
+        next_card[pile] <- next_card[pile] + 1
+        revealed <- revealed + 1
+        pile <- rank - 1
+    if revealed == 52: return 1
+    0
+
+export fn clock_patience_simulation(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 52: return -1
+    values: view[i64] = input[0:length]
+    clock_patience_solve(values)

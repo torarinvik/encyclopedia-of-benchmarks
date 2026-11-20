@@ -19,8 +19,8 @@ fn long parboil_stencil_laplacian(double* input, usz length,
     }
     if (output == null || capacity < cells) return -2;
 
-    float a[MAX_CELLS] = {0.0}, b[MAX_CELLS] = {0.0};
-    double staged[MAX_CELLS] = {0.0};
+    float[MAX_CELLS] a = {0.0}, b = {0.0};
+    double[MAX_CELLS] staged = {0.0};
     for (usz q = 0; q < cells; q++) a[q] = b[q] = (float)input[4 + q];
     float c0 = 1.0f / 6.0f, c1 = (1.0f / 6.0f) / 6.0f;
     for (usz step = 0; step < steps; step++) {

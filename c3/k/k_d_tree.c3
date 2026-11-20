@@ -9,7 +9,7 @@ const usz MAX_DIMENSION = 3;
 const long INVALID_RESULT = -1;
 const long OUTPUT_ERROR = -2;
 
-fn usz partition_five(double[MAX_POINTS][MAX_DIMENSION]* points, long* ids,
+fn usz partition_five(double[MAX_DIMENSION]* points, long* ids,
                      usz from, usz to, usz axis) {
     usz middle = (from + to) / 2;
     for (usz i = from; i <= middle; i++) {
@@ -21,10 +21,7 @@ fn usz partition_five(double[MAX_POINTS][MAX_DIMENSION]* points, long* ids,
     return middle;
 }
 
-fn usz select_kth(double[MAX_POINTS][MAX_DIMENSION]* points, long* ids,
-                  usz from, usz to, usz rank, usz axis);
-
-fn usz choose_median_of_medians(double[MAX_POINTS][MAX_DIMENSION]* points, long* ids,
+fn usz choose_median_of_medians(double[MAX_DIMENSION]* points, long* ids,
                                 usz from, usz to, usz axis) {
     if (to - from < 5) return partition_five(points, ids, from, to, axis);
     usz medians_to = from;
@@ -44,13 +41,17 @@ fn usz choose_median_of_medians(double[MAX_POINTS][MAX_DIMENSION]* points, long*
     return select_kth(points, ids, from, medians_to, (medians_count + 1) / 2, axis);
 }
 
-fn usz select_kth(double[MAX_POINTS][MAX_DIMENSION]* points, long* ids,
+fn usz select_kth(double[MAX_DIMENSION]* points, long* ids,
                   usz from_input, usz to_input, usz rank_input, usz axis) {
-    usz from = from_input, to = to_input, rank = rank_input;
+    usz from = from_input;
+    usz to = to_input;
+    usz rank = rank_input;
     while (from < to) {
         usz pivot_index = choose_median_of_medians(points, ids, from, to, axis);
         double pivot = points[ids[pivot_index]][axis];
-        usz i = from, j = from, k = to;
+        usz i = from;
+        usz j = from;
+        usz k = to;
         while (j <= k) {
             double value = points[ids[j]][axis];
             if (value < pivot) {
@@ -79,7 +80,7 @@ fn usz select_kth(double[MAX_POINTS][MAX_DIMENSION]* points, long* ids,
     return from;
 }
 
-fn long build_tree(double[MAX_POINTS][MAX_DIMENSION]* points, long* ids, usz from, usz to,
+fn long build_tree(double[MAX_DIMENSION]* points, long* ids, usz from, usz to,
                    usz dimension, usz depth, long* node_point, long* left,
                    long* right, usz* used) {
     if (from > to) return -1;
@@ -89,12 +90,12 @@ fn long build_tree(double[MAX_POINTS][MAX_DIMENSION]* points, long* ids, usz fro
     usz current = *used;
     *used += 1;
     node_point[current] = ids[middle];
-    left[current] = if middle > from then build_tree(points, ids, from, middle - 1, dimension, depth + 1, node_point, left, right, used) else -1;
-    right[current] = if middle < to then build_tree(points, ids, middle + 1, to, dimension, depth + 1, node_point, left, right, used) else -1;
+    left[current] = middle > from ? build_tree(points, ids, from, middle - 1, dimension, depth + 1, node_point, left, right, used) : -1;
+    right[current] = middle < to ? build_tree(points, ids, middle + 1, to, dimension, depth + 1, node_point, left, right, used) : -1;
     return (long)current;
 }
 
-fn void search_tree(double[MAX_POINTS][MAX_DIMENSION]* points, long* node_point,
+fn void search_tree(double[MAX_DIMENSION]* points, long* node_point,
                     long* left, long* right, long current, usz axis, usz next_axis,
                     usz dimension, double* query, double* best, long* best_point) {
     if (current < 0) return;
@@ -107,8 +108,8 @@ fn void search_tree(double[MAX_POINTS][MAX_DIMENSION]* points, long* node_point,
     double distance = sqrt(squared);
     if (distance < *best) { *best = distance; *best_point = (long)point_index; }
     bool go_left = query[axis] <= points[point_index][axis];
-    long near = if go_left then left[current] else right[current];
-    long far = if go_left then right[current] else left[current];
+    long near = go_left ? left[current] : right[current];
+    long far = go_left ? right[current] : left[current];
     search_tree(points, node_point, left, right, near, next_axis,
                 (next_axis + 1) % dimension, dimension, query, best, best_point);
     if (*best >= fabs(points[point_index][axis] - query[axis]))
@@ -127,13 +128,13 @@ fn long k_d_tree(double* input, usz length, double* output, usz capacity) @expor
         count_value < 1.0 || count_value > 15.0) return INVALID_RESULT;
     usz count = (usz)count_value;
     if (length != 2 + dimension * (count + 1)) return INVALID_RESULT;
-    double query[MAX_DIMENSION] = {0.0, 0.0, 0.0};
+    double[MAX_DIMENSION] query = {};
     for (usz axis = 0; axis < dimension; axis++) {
         double value = input[2 + axis];
         if (value != value || floor(value) != value || value < -1000.0 || value > 1000.0) return INVALID_RESULT;
         query[axis] = value;
     }
-    double[MAX_POINTS][MAX_DIMENSION] points;
+    double[MAX_DIMENSION][MAX_POINTS] points;
     for (usz i = 0; i < count; i++) {
         for (usz axis = 0; axis < dimension; axis++) {
             double value = input[2 + dimension + i * dimension + axis];
@@ -163,12 +164,12 @@ fn long k_d_tree(double* input, usz length, double* output, usz capacity) @expor
     long[MAX_POINTS] ids, node_point, left, right;
     for (usz i = 0; i < count; i++) ids[i] = (long)i;
     usz used = 0;
-    long root = build_tree(&points, &ids[0], 0, count - 1, dimension, 0, &node_point[0], &left[0], &right[0], &used);
+    long root = build_tree(&points[0], &ids[0], 0, count - 1, dimension, 0, &node_point[0], &left[0], &right[0], &used);
     double best = 1.0e300;
     long best_point = 0;
-    search_tree(&points, &node_point[0], &left[0], &right[0], root, 0, 1 % dimension,
+    search_tree(&points[0], &node_point[0], &left[0], &right[0], root, 0, 1 % dimension,
                 dimension, &query[0], &best, &best_point);
     output[0] = best;
     for (usz axis = 0; axis < dimension; axis++) output[axis + 1] = points[(usz)best_point][axis];
-    (long)output_length
+    return (long)output_length;
 }

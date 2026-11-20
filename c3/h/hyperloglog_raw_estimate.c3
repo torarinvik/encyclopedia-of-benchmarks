@@ -5,7 +5,7 @@ fn ulong gcd(ulong a, ulong b) {
     return a;
 }
 
-long hyperloglog_raw_estimate(long* input, usz length, char* output, usz capacity)
+fn long hyperloglog_raw_estimate(long* input, usz length, char* output, usz capacity)
         @export("hyperloglog_raw_estimate") {
     if (input == null || length < 1 || length > 130) return -1;
     long raw = input[0];

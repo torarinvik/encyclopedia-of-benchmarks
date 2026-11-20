@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "distinct-subarray-aggregates-i64-array-scalar-v1",
+  "algorithm": "distinct_subarray_aggregates",
+  "function_symbol": "distinct_subarray_aggregates",
+  "abi": "i64_array_scalar",
+  "description": "Compress equal aggregate values over contiguous subarray-start ranges for every right endpoint.",
+  "source": {
+    "title": "Distinct Subarray Aggregates",
+    "authors": ["Sabit Zahin"],
+    "year": 2026,
+    "reference": "Algovault code_library/data_structures/distinct_subarray_aggregates.cpp at 78cdaf62b70ca0622e8887d2e357fb90b91d449c",
+    "url": "https://github.com/sgtlaugh/algovault/blob/78cdaf62b70ca0622e8887d2e357fb90b91d449c/code_library/data_structures/distinct_subarray_aggregates.cpp",
+    "algorithm_attribution": "Each new value is folded into the previous suffix aggregates; adjacent equal values merge their start-index ranges.",
+    "implementation_status": "clean-room bounded scalar profile; algorithm description only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[mode,N,values...]; mode 0=GCD, 1=bitwise OR, 2=bitwise AND",
+    "mode_range": [0, 2],
+    "length_range": [0, 64],
+    "value_range": [0, 255],
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "1024*aggregate_sum+suffix_distinct_count",
+    "components": {
+      "aggregate_sum": "Sum of the selected aggregate over every nonempty subarray.",
+      "suffix_distinct_count": "Sum, over right endpoints, of the number of distinct aggregate values among suffixes ending there."
+    },
+    "packing_multiplier": 1024,
+    "secondary_component_maximum": 576,
+    "valid_result_range": [0, 543130176],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed arrays for at most 65 aggregate segments and their inclusive start-index intervals."
+  },
+  "contract": {
+    "mode_0": "Nonnegative integer GCD, with gcd(0,0)=0.",
+    "mode_1": "Bitwise OR over nonnegative 8-bit inputs.",
+    "mode_2": "Bitwise AND over nonnegative 8-bit inputs.",
+    "algorithm": "Maintain the distinct aggregates of suffixes ending at the newest value as contiguous start-index ranges; fold in the value and merge adjacent equal ranges.",
+    "secondary_bound": "Each endpoint has at most 9 distinct suffix aggregates: OR/AND can change at most once per bit after the initial value; GCD has at most one zero followed by a strictly decreasing positive divisor chain. Thus the total is at most 9*64=576, below packing multiplier 1024.",
+    "invalid_frames": "Reject null input, modes outside 0..2, lengths outside 0..64, values outside 0..255, and malformed or trailing words.",
+    "invalid_input_result": -1
+  },
+  "complexity": {
+    "primary_time": "O(N*S), where S<=9 is the number of distinct suffix aggregates at one endpoint",
+    "primary_auxiliary_space": "O(S)",
+    "independent_time": "O(N^2) direct subarray folds",
+    "independent_auxiliary_space": "O(N)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary keeps compressed contiguous ranges of starting indices for equal suffix aggregates. The independent oracle folds every subarray directly and counts distinct aggregate values for each right endpoint with a set.",
+  "cases": [
+    {"id":"empty-gcd","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"empty-or","input_values":[1,0],"input_length":2,"expected_result":0},
+    {"id":"empty-and","input_values":[2,0],"input_length":2,"expected_result":0},
+    {"id":"gcd-range-merging","input_values":[0,4,12,18,6,15],"input_length":6,"expected_result":79878},
+    {"id":"or-changing-bits","input_values":[1,4,5,2,8,3],"input_length":6,"expected_result":89097},
+    {"id":"and-changing-bits","input_values":[2,4,7,3,6,2],"input_length":6,"expected_result":31749},
+    {"id":"gcd-zero-transition","input_values":[0,3,0,0,6],"input_length":5,"expected_result":12292},
+    {"id":"or-zero-values","input_values":[1,4,0,1,2,0],"input_length":6,"expected_result":18439},
+    {"id":"and-zero-values","input_values":[2,4,7,6,0,5],"input_length":6,"expected_result":24581},
+    {"id":"all-zero-gcd","input_values":[0,4,0,0,0,0],"input_length":6,"expected_result":4},
+    {"id":"maximum-length-gcd","input_values":[0,64,
+      255,255,255,255,255,255,255,255,
+      255,255,255,255,255,255,255,255,
+      255,255,255,255,255,255,255,255,
+      255,255,255,255,255,255,255,255,
+      255,255,255,255,255,255,255,255,
+      255,255,255,255,255,255,255,255,
+      255,255,255,255,255,255,255,255,
+      255,255,255,255,255,255,255,255],"input_length":66,"expected_result":543129664},
+    {"id":"mode-over-bound","input_values":[3,0],"input_length":2,"expected_result":-1},
+    {"id":"length-over-bound","input_values":[0,65],"input_length":2,"expected_result":-1},
+    {"id":"negative-value","input_values":[0,1,-1],"input_length":3,"expected_result":-1},
+    {"id":"value-over-bound","input_values":[2,1,256],"input_length":3,"expected_result":-1},
+    {"id":"truncated-array","input_values":[1,2,3],"input_length":3,"expected_result":-1},
+    {"id":"trailing-word","input_values":[2,0,8],"input_length":3,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

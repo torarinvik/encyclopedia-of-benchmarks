@@ -1,0 +1,110 @@
+const INTERVAL_MAX_OPERATIONS: usize = 24
+const INTERVAL_RECORD_WIDTH: usize = 3
+const INTERVAL_MAX_VALID_INPUT: usize = 73
+const INTERVAL_MAX_PARSEABLE_INPUT: usize = 74
+const INTERVAL_MAX_ITEMS: usize = 25
+const INTERVAL_DOMAIN_END: i64 = 32
+
+struct IntervalItem:
+    left: i64
+    right: i64
+
+def add_interval(items: mutable view[IntervalItem], count: usize,
+                 left_input: i64, right_input: i64) -> usize:
+    if left_input == right_input:
+        return count
+    left: mutable i64 = left_input
+    right: mutable i64 = right_input
+    next: mutable IntervalItem[INTERVAL_MAX_ITEMS] = zeroed
+    out_count: mutable usize = 0
+    inserted: mutable bool = false
+    for index in 0..<count:
+        current: IntervalItem = items[index]
+        if current.right < left:
+            next[out_count] <- current
+            out_count <- out_count + 1
+        elif right < current.left:
+            if not inserted:
+                next[out_count].left <- left
+                next[out_count].right <- right
+                out_count <- out_count + 1
+                inserted <- true
+            next[out_count] <- current
+            out_count <- out_count + 1
+        else:
+            if current.left < left: left <- current.left
+            if current.right > right: right <- current.right
+    if not inserted:
+        next[out_count].left <- left
+        next[out_count].right <- right
+        out_count <- out_count + 1
+    for index in 0..<out_count: items[index] <- next[index]
+    out_count
+
+def remove_interval(items: mutable view[IntervalItem], count: usize,
+                    left: i64, right: i64) -> usize:
+    if left == right:
+        return count
+    next: mutable IntervalItem[INTERVAL_MAX_ITEMS + 1] = zeroed
+    out_count: mutable usize = 0
+    for index in 0..<count:
+        current: IntervalItem = items[index]
+        if current.right <= left or current.left >= right:
+            next[out_count] <- current
+            out_count <- out_count + 1
+        else:
+            if current.left < left:
+                next[out_count].left <- current.left
+                next[out_count].right <- left
+                out_count <- out_count + 1
+            if current.right > right:
+                next[out_count].left <- right
+                next[out_count].right <- current.right
+                out_count <- out_count + 1
+    for index in 0..<out_count: items[index] <- next[index]
+    out_count
+
+def covered_length(items: view[IntervalItem], count: usize) -> i64:
+    total: mutable i64 = 0
+    for index in 0..<count:
+        total <- total + items[index].right - items[index].left
+    total
+
+def interval_container_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > INTERVAL_MAX_PARSEABLE_INPUT:
+        return -1
+    operation_count_value: i64 = input[0]
+    if operation_count_value < 0 or operation_count_value > INTERVAL_MAX_OPERATIONS.i64():
+        return -1
+    operation_count: usize = operation_count_value.usize()
+    if length != 1 + operation_count * INTERVAL_RECORD_WIDTH:
+        return -1
+    for operation in 0..<operation_count:
+        base: usize = 1 + operation * INTERVAL_RECORD_WIDTH
+        opcode: i64 = input[base]
+        left: i64 = input[base + 1]
+        right: i64 = input[base + 2]
+        if opcode < 0 or opcode > 1 or left < 0 or right < left or
+           right > INTERVAL_DOMAIN_END:
+            return -1
+
+    items: mutable IntervalItem[INTERVAL_MAX_ITEMS] = zeroed
+    count: mutable usize = 0
+    checksum: mutable i64 = 0
+    for operation in 0..<operation_count:
+        base: usize = 1 + operation * INTERVAL_RECORD_WIDTH
+        opcode: i64 = input[base]
+        left: i64 = input[base + 1]
+        right: i64 = input[base + 2]
+        if opcode == 0:
+            count <- add_interval(items[0:INTERVAL_MAX_ITEMS], count, left, right)
+        else:
+            count <- remove_interval(items[0:INTERVAL_MAX_ITEMS], count, left, right)
+        checksum <- checksum + (operation + 1).i64() * covered_length(items, count)
+    checksum
+
+export fn interval_container(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > INTERVAL_MAX_PARSEABLE_INPUT:
+        return -1
+    interval_container_impl(input[0:length])

@@ -1,0 +1,81 @@
+{
+  "algorithm": "van_emde_boas_layout_search",
+  "function_symbol": "van_emde_boas_layout_search",
+  "abi": "i64_array_bytes_output",
+  "status": "complete; ten ports and byte-output runner/verifier/catalog registration present",
+  "suite_integration": [
+    "benchmarks/run_i64_array_bytes_output.py",
+    "benchmarks/verify_i64_array_bytes_output.py"
+  ],
+  "catalog_integration": [
+    "README.md",
+    "CATALOG.md",
+    "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md"
+  ],
+  "sources": [
+    "c/v/van_emde_boas_layout_search.c",
+    "c3/v/van_emde_boas_layout_search.c3",
+    "cpp/v/van_emde_boas_layout_search.cpp",
+    "elisa/v/van_emde_boas_layout_search.elisa",
+    "mojo/v/van_emde_boas_layout_search.mojo",
+    "nim/v/van_emde_boas_layout_search.nim",
+    "odin/v/van_emde_boas_layout_search.odin",
+    "rust/v/van_emde_boas_layout_search.rs",
+    "v/v/van_emde_boas_layout_search.v",
+    "zig/v/van_emde_boas_layout_search.zig"
+  ],
+  "artifacts": [
+    "benchmarks/v/van_emde_boas_layout_search/README.md",
+    "benchmarks/v/van_emde_boas_layout_search/RIGHTS.md",
+    "benchmarks/v/van_emde_boas_layout_search/INVENTORY.md",
+    "benchmarks/v/van_emde_boas_layout_search/INVENTORY.json",
+    "benchmarks/v/van_emde_boas_layout_search/__init__.py",
+    "benchmarks/v/van_emde_boas_layout_search/workload.json",
+    "benchmarks/v/van_emde_boas_layout_search/primary_oracle.py",
+    "benchmarks/v/van_emde_boas_layout_search/independent_oracle.py",
+    "benchmarks/v/van_emde_boas_layout_search/verify_workload.py",
+    "benchmarks/v/van_emde_boas_layout_search/check_inventory.py"
+  ],
+  "bounds": {
+    "minimum_height_levels": 1,
+    "maximum_height_levels": 4,
+    "maximum_nodes": 15,
+    "maximum_queries": 4,
+    "maximum_valid_input_words": 6,
+    "maximum_parseable_input_words": 7,
+    "maximum_output_bytes": 328,
+    "workspace_bytes": 2048,
+    "maximum_recursive_depth": 4
+  },
+  "primary_method": "recursive top subtree layout followed by left-to-right bottom subtree layouts, then ordinary BST key comparisons recording zero-based physical slots",
+  "independent_method": "direct heap-index-to-slot mapping fills the permutation; inorder rank labels drive search",
+  "duplicate_comparison": {
+    "veb_tree": "dynamic predecessor set over a 2^18 universe; not a static memory-order construction or search-slot trace",
+    "binary_tree_traversal": "ordinary tree traversal order; does not construct vEB array storage or return physical search slots",
+    "cache_oblivious_b_tree": "dynamic ordered-set structure with updates; this profile is only the static §2.1 layout/search kernel"
+  },
+  "references": [
+    {
+      "role": "primary algorithm source",
+      "title": "Cache-Oblivious B-Trees, §2.1 Static Layout and Searches",
+      "authors": "Michael A. Bender, Erik D. Demaine, Martin Farach-Colton",
+      "venue": "SIAM Journal on Computing 35(2), 341–358 (2005)",
+      "doi": "10.1137/S0097539701389956",
+      "url": "https://erikdemaine.org/papers/CacheObliviousBTrees_SICOMP/paper.pdf"
+    }
+  ],
+  "fixture_ids": [
+    "singleton-hit",
+    "height-two-branch-and-boundary-misses",
+    "height-three-odd-split-hit-and-boundary-miss",
+    "max-frame-max-output",
+    "maximum-output-one-byte-short",
+    "valid-empty-query-list",
+    "max-parseable-trailing-word",
+    "unsupported-height-precedes-capacity",
+    "query-above-node-key-domain",
+    "nonempty-null-output",
+    "null-input"
+  ],
+  "execution": "No programs, tests, scripts, helpers, checkers, builds, compilers, or benchmarks were run."
+}

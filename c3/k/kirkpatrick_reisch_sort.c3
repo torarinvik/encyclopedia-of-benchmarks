@@ -54,7 +54,7 @@ fn void write_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long kirkpatrick_reisch_sort(long* input, usz input_length, char* output, usz capacity)
+fn long kirkpatrick_reisch_sort(long* input, usz input_length, char* output, usz capacity)
     @export("kirkpatrick_reisch_sort") {
     if (input == null || input_length < 1 || input_length > MAX_PARSEABLE_INPUT_LENGTH) return -1;
     if (input[0] < 0 || input[0] > (long)MAX_ELEMENTS) return -1;

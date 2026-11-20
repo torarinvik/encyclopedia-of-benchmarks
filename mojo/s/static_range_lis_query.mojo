@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -26,7 +27,7 @@ fn static_range_lis_query(
     if length != c_size_t(2 + n + 2 * q):
         return -1
     var permutation = InlineArray[Int64, MAX_N]()
-    var seen = InlineArray[Bool, MAX_N]()
+    var seen = InlineArray[Bool, MAX_N](fill=False)
     var left = InlineArray[Int64, MAX_Q]()
     var right = InlineArray[Int64, MAX_Q]()
     var answers = InlineArray[Int64, MAX_Q]()

@@ -22,4 +22,7 @@ python3 benchmarks/build_scalar.py --algorithm fibonacci_number_check --language
 python3 benchmarks/run_scalar.py --algorithm fibonacci_number_check
 ```
 
-The nine implementations are in `c/f/fibonacci_number_check.c`, `c3/f/fibonacci_number_check.c3`, `cpp/f/fibonacci_number_check.cpp`, `elisa/f/fibonacci_number_check.elisa`, `nim/f/fibonacci_number_check.nim`, `odin/f/fibonacci_number_check.odin`, `rust/f/fibonacci_number_check.rs`, `v/f/fibonacci_number_check.v`, and `zig/f/fibonacci_number_check.zig`.
+The ten implementations are in `c/f/fibonacci_number_check.c`, `c3/f/fibonacci_number_check.c3`, `cpp/f/fibonacci_number_check.cpp`, `elisa/f/fibonacci_number_check.elisa`, `mojo/f/fibonacci_number_check.mojo`, `nim/f/fibonacci_number_check.nim`, `odin/f/fibonacci_number_check.odin`, `rust/f/fibonacci_number_check.rs`, `v/f/fibonacci_number_check.v`, and `zig/f/fibonacci_number_check.zig`.
+
+Scalar verifier registration and an independent Fibonacci-sequence membership
+reference are drafted and have not been executed.

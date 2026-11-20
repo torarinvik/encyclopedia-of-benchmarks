@@ -1,0 +1,56 @@
+# Integer-only Hough accumulator using four fixed, unnormalized normals.
+const MAX_HEIGHT: i64 = 8
+const MAX_WIDTH: i64 = 8
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 67
+const RHO_COUNT: usize = 29
+const OUTPUT_BYTES: usize = 116
+
+def hough_line_transform_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    input_view: view[i64] = input[0:length]
+    height_value: i64 = input_view[0]
+    width_value: i64 = input_view[1]
+    if height_value < 1 or height_value > MAX_HEIGHT or
+            width_value < 1 or width_value > MAX_WIDTH:
+        return -1
+    height: usize = height_value.usize()
+    width: usize = width_value.usize()
+    cells: usize = height * width
+    if length != 2 + cells:
+        return -1
+    index: mutable usize = 0
+    while index < cells:
+        pixel: i64 = input_view[index + 2]
+        if pixel != 0 and pixel != 1:
+            return -1
+        index <- index + 1
+    if output.is_null() or output_capacity < OUTPUT_BYTES:
+        return -2
+
+    accumulator: mutable u8[OUTPUT_BYTES] = zeroed
+    row: mutable usize = 0
+    while row < height:
+        column: mutable usize = 0
+        while column < width:
+            if input_view[2 + row * width + column] != 0:
+                x: i64 = column.i64()
+                y: i64 = row.i64()
+                rho: i64[4] = [x, x + y, y, -x + y]
+                angle: mutable usize = 0
+                while angle < 4:
+                    bin: usize = angle * RHO_COUNT + (rho[angle] + 14).usize()
+                    accumulator[bin] <- accumulator[bin] + 1
+                    angle <- angle + 1
+            column <- column + 1
+        row <- row + 1
+    output_view: mutable view[u8] = output[0:OUTPUT_BYTES]
+    index <- 0
+    while index < OUTPUT_BYTES:
+        output_view[index] <- accumulator[index]
+        index <- index + 1
+    OUTPUT_BYTES.i64()
+
+export fn hough_line_transform(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = hough_line_transform_impl

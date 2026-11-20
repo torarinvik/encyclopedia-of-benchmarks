@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "id": "landau-vishkin-k-difference-endpoint-flags-v1",
+  "algorithm": "landau_vishkin_k_difference_pattern_matching",
+  "function_symbol": "landau_vishkin_k_difference_pattern_matching",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "chapter": "Gonzalo Navarro, Approximate String Matching, Encyclopedia of Algorithms, 2nd ed., Chapter 363",
+    "chapter_doi": "https://doi.org/10.1007/978-1-4939-2864-4_363",
+    "primary": "Landau and Vishkin, Fast String Matching with k Differences, Journal of Computer and System Sciences 37(1), 1988, pp. 63-78",
+    "primary_doi": "https://doi.org/10.1016/0022-0000(88)90045-1",
+    "serial_recurrence": "Landau and Vishkin, Fast Parallel and Serial Approximate String Matching, Journal of Algorithms 10(2), 1989, pp. 157-169",
+    "serial_recurrence_doi": "https://doi.org/10.1016/0196-6774(89)90010-2",
+    "reuse": "algorithm ideas only; implementations, contract, and fixtures are clean-room"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[pattern_length, text_length, max_differences, pattern_symbols..., text_symbols...]",
+    "pattern_length_range": [1, 16],
+    "text_length_range": [0, 32],
+    "max_differences_range": [0, 2],
+    "additional_constraint": "max_differences < pattern_length",
+    "alphabet": "integer symbols 0 through 3",
+    "exact_length": "3 + pattern_length + text_length",
+    "maximum_valid_input_length": 51,
+    "maximum_parseable_input_length": 52,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "unsigned_bytes",
+    "encoding": "one byte per nonempty text endpoint in increasing endpoint order; byte is 1 iff the minimum unit-cost insertion/deletion/substitution distance from the pattern to some text substring ending there is at most max_differences, otherwise 0",
+    "maximum_bytes": 32,
+    "success_result": "bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed furthest-reaching diagonal table (at most 37 by 4 signed 64-bit entries), staged endpoint flags, and bounded local state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "exact-matches-at-two-endpoints",
+      "input_values": [2, 5, 0, 0, 1, 3, 0, 1, 0, 1],
+      "input_length": 10,
+      "expected_result": 5,
+      "expected_output_hex": "0000010001",
+      "output_capacity": 32
+    },
+    {
+      "id": "one-substitution-in-full-pattern",
+      "input_values": [3, 3, 1, 0, 1, 2, 0, 3, 2],
+      "input_length": 9,
+      "expected_result": 3,
+      "expected_output_hex": "000001",
+      "output_capacity": 32
+    },
+    {
+      "id": "one-text-insertion",
+      "input_values": [2, 3, 1, 0, 1, 0, 0, 1],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output_hex": "010101",
+      "output_capacity": 32
+    },
+    {
+      "id": "one-pattern-deletion",
+      "input_values": [3, 2, 1, 0, 1, 2, 0, 2],
+      "input_length": 8,
+      "expected_result": 2,
+      "expected_output_hex": "0001",
+      "output_capacity": 32
+    },
+    {
+      "id": "trailing-text-insertion-is-an-endpoint-match",
+      "input_values": [3, 4, 1, 0, 1, 2, 0, 1, 2, 3],
+      "input_length": 10,
+      "expected_result": 4,
+      "expected_output_hex": "00010101",
+      "output_capacity": 32
+    },
+    {
+      "id": "overlapping-zero-error-matches",
+      "input_values": [2, 3, 0, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": 3,
+      "expected_output_hex": "000101",
+      "output_capacity": 32
+    },
+    {
+      "id": "zero-error-no-match",
+      "input_values": [2, 3, 0, 0, 0, 1, 1, 1],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output_hex": "000000",
+      "output_capacity": 32
+    },
+    {
+      "id": "empty-text",
+      "input_values": [1, 0, 0, 2],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "maximum-input-and-output",
+      "input_values": [
+        16, 32, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+      ],
+      "input_length": 51,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+      "output_capacity": 32
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [3, 4, 1, 0, 1, 2, 0, 1, 2, 3],
+      "input_length": 10,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 3
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 2, 0, 0, 1, 0, 1],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 32,
+      "output_is_null": true
+    },
+    {
+      "id": "null-input",
+      "input_values": [1, 0, 0, 2],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 32,
+      "input_is_null": true
+    },
+    {
+      "id": "trailing-word-invalid",
+      "input_values": [1, 1, 0, 0, 1, 2],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 32
+    },
+    {
+      "id": "symbol-outside-alphabet",
+      "input_values": [1, 1, 0, 4, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 32
+    },
+    {
+      "id": "error-budget-must-be-smaller-than-pattern",
+      "input_values": [1, 0, 1],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 32
+    }
+  ]
+}

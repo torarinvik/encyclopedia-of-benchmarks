@@ -12,7 +12,7 @@ fn void put_i32_le(char* output, int value) {
     }
 }
 
-long median_of_matrix(long* input, usz length, char* output, usz capacity)
+fn long median_of_matrix(long* input, usz length, char* output, usz capacity)
         @export("median_of_matrix") {
     if (input == null || length < 1 || length > MAX_INPUT_WORDS) return -1;
     if (input[0] < 0 || input[0] > 16) return -1;

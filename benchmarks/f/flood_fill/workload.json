@@ -1,8 +1,17 @@
 {
   "schema_version": 1,
-  "id": "flood-fill-eight-connected-i32-v1",
+  "id": "flood-fill-eight-connected-stack-i32-v1",
   "algorithm": "flood_fill",
   "function_symbol": "flood_fill",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "method_source": "Algorithm Archive, Flood Fill",
+    "method_url": "https://www.algorithm-archive.org/contents/flood_fill/flood_fill.html",
+    "cross_check_source": "TheAlgorithms/C-Sharp FloodFill.cs at commit 96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "cross_check_url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/FloodFill.cs",
+    "reuse_scope": "Algorithm idea only; contract, implementations, and fixtures are independent."
+  },
+  "description": "Replace one eight-connected target-color component using a LIFO work stack.",
   "input": {
     "kind": "signed_i64_array",
     "layout": "[width,height,start_x,start_y,new_color,target_color,pixels...]",
@@ -13,23 +22,32 @@
     "storage": "x-major, index = x * height + y",
     "colors": "signed 32-bit integers",
     "new_color_must_differ_from_target_color": true,
+    "maximum_valid_length": 1030,
+    "maximum_parseable_length": 1031,
     "invalid_input_result": -1
   },
   "output": {
     "kind": "little_endian_i64_vector",
     "meaning": "complete image after replacing the eight-connected target-color component with new_color",
     "length": "width * height",
+    "maximum_bytes": 8192,
     "insufficient_output_capacity_result": -2
   },
   "workspace": {
-    "bytes": 8192,
-    "meaning": "maximum 32 by 32 output image"
+    "bytes": 16384,
+    "meaning": "8192-byte image scratch plus at most 8192 bytes of 64-bit traversal stack; caller buffers are excluded"
   },
   "measurement": {
     "comparison_model": "i64_array_bytes_output_call",
     "sample_count": 5,
     "warmup_rounds": 1,
     "repetitions_per_sample": 100
+  },
+  "contract": {
+    "primary_method": "Recolor a matching cell when pushing it onto a LIFO stack so each cell is pushed at most once.",
+    "independent_method": "Repeatedly expand a boolean component mask over all eight-neighbor links until reaching a fixed point.",
+    "complexity": "O(width * height) time and O(width * height) auxiliary space.",
+    "traversal_profile": "Depth-first schedule using a LIFO stack; the breadth-first queue schedule has a separate benchmark entry."
   },
   "cases": [
     {
@@ -42,21 +60,19 @@
         9,
         1,
         1,
-        2,
-        2,
-        2,
+        0,
+        0,
+        0,
         1,
-        2,
-        2,
-        2,
-        1,
-        2,
-        2
+        0,
+        0,
+        0,
+        1
       ],
-      "input_length": 17,
-      "workspace_bytes": 8192,
-      "expected_result": -1,
-      "expected_output_hex": ""
+      "input_length": 15,
+      "output_capacity": 8192,
+      "expected_result": 72,
+      "expected_output_hex": "09000000000000000000000000000000000000000000000000000000000000000900000000000000000000000000000000000000000000000000000000000000000900000000000000"
     },
     {
       "id": "border_flood",
@@ -75,7 +91,7 @@
         1
       ],
       "input_length": 12,
-      "workspace_bytes": 8192,
+      "output_capacity": 8192,
       "expected_result": 48,
       "expected_output_hex": "070000000000000007000000000000000100000000000000070000000000000007000000000000000100000000000000"
     },
@@ -94,7 +110,7 @@
         3
       ],
       "input_length": 10,
-      "workspace_bytes": 8192,
+      "output_capacity": 8192,
       "expected_result": 32,
       "expected_output_hex": "0200000000000000020000000000000001000000000000000300000000000000"
     },
@@ -110,7 +126,7 @@
         -2
       ],
       "input_length": 7,
-      "workspace_bytes": 8192,
+      "output_capacity": 8192,
       "expected_result": 8,
       "expected_output_hex": "0500000000000000"
     },
@@ -129,7 +145,7 @@
         1
       ],
       "input_length": 10,
-      "workspace_bytes": 8,
+      "output_capacity": 8,
       "expected_result": -2,
       "expected_output_hex": ""
     },
@@ -145,7 +161,7 @@
         4
       ],
       "input_length": 7,
-      "workspace_bytes": 8192,
+      "output_capacity": 8192,
       "expected_result": -1,
       "expected_output_hex": ""
     },
@@ -161,7 +177,7 @@
         0
       ],
       "input_length": 7,
-      "workspace_bytes": 8192,
+      "output_capacity": 8192,
       "expected_result": -1,
       "expected_output_hex": ""
     },
@@ -176,7 +192,7 @@
         0
       ],
       "input_length": 6,
-      "workspace_bytes": 8192,
+      "output_capacity": 8192,
       "expected_result": -1,
       "expected_output_hex": ""
     },
@@ -192,8 +208,34 @@
         2147483648
       ],
       "input_length": 7,
-      "workspace_bytes": 8192,
+      "output_capacity": 8192,
       "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_trailing_word",
+      "input_values": [1, 1, 0, 0, 9, 1, 1, 55],
+      "input_length": 8,
+      "output_capacity": 8192,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 8192,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [1, 1, 0, 0, 9, 1, 1],
+      "input_length": 7,
+      "output_is_null": true,
+      "output_capacity": 8192,
+      "expected_result": -2,
       "expected_output_hex": ""
     }
   ]

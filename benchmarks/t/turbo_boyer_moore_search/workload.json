@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "id": "turbo-boyer-moore-all-occurrences-i64-array-bytes-v1",
+  "algorithm": "turbo_boyer_moore_search",
+  "function_symbol": "turbo_boyer_moore_search",
+  "abi": "i64_array_bytes_output",
+  "description": "Return all overlapping byte-pattern occurrences using Turbo Boyer–Moore.",
+  "source": {
+    "title": "Speeding Up Two String-Matching Algorithms",
+    "authors": ["Maxime Crochemore", "Artur Czumaj", "Leszek Gąsieniec", "Stefan Jarominek", "Thierry Lecroq", "Wojciech Plandowski", "Wojciech Rytter"],
+    "publisher": "Algorithmica",
+    "volume": 12,
+    "issue": "4/5",
+    "year": 1994,
+    "pages": "247–267",
+    "reference_url": "https://doi.org/10.1007/BF01185427",
+    "algorithm_description_url": "https://igm.univ-mlv.fr/~lecroq/string/node15.html",
+    "preprocessing_description_url": "https://igm.univ-mlv.fr/~lecroq/string/node14.html",
+    "implementation_status": "bounded clean-room Turbo Boyer–Moore profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, pattern_length, text_bytes..., pattern_bytes...]",
+    "text_length_range": [0, 255],
+    "pattern_length_range": [1, 64],
+    "element_range": [0, 127],
+    "maximum_valid_length": 321,
+    "maximum_parseable_length": 322,
+    "exact_frame_rule": "The length is exactly 2 + text_length + pattern_length.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "All zero-based matching start positions in increasing order as little-endian signed 64-bit integers; overlapping matches are included.",
+    "maximum_match_count": 255,
+    "maximum_bytes": 2040,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "nonnull_output_required_for_empty_result": true
+  },
+  "workspace": {
+    "bytes": 5100,
+    "meaning": "255 i64 match positions (2,040 bytes), 64-entry pattern tables for 128-byte alphabet plus suffix state, and bounded working storage; caller output is separate."
+  },
+  "contract": {
+    "comparison_order": "Compare pattern and text from right to left at each alignment.",
+    "memory_state": "Remember the length u of the factor that matched a suffix on the previous attempt; skip its known positions during the next comparison and retain memory only after a good-suffix shift or a full match.",
+    "shift_rule": "At mismatch index i, let v be the current matched-suffix length. Compute turboShift=u-v, bcShift=bmBc[text[i+alignment]]-m+1+i, and goodSuffix=bmGs[i]. Shift by their maximum. If the good-suffix shift wins, retain min(m-shift,v); otherwise clear u, and if turboShift<bcShift also enforce shift>=u+1. After a full match shift by bmGs[0] and set u=m-shift.",
+    "preprocessing": "Build the standard Boyer–Moore bad-character and good-suffix tables. The bad-character table covers bytes 0..127; good-suffix preprocessing is linear in pattern length.",
+    "empty_pattern": "Invalid; pattern length must be 1..64.",
+    "result": "Collect every matching alignment, then serialize positions as little-endian signed i64 values.",
+    "error_precedence": "Validate input pointer, exact frame, lengths, and byte domain before searching; validate output pointer/capacity after all input work.",
+    "no_write_on_error": true,
+    "bounds": "At most 255 alignments are scanned; output has at most 255 positions and 2,040 bytes."
+  },
+  "complexity": {
+    "preprocessing_time": "O(pattern_length + 128)",
+    "search_time": "O(text_length) text comparisons for the Turbo BM search phase, plus O(match_count) output serialization.",
+    "space": "O(pattern_length + 128 + match_count), all bounded by this profile."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "overlapping-pattern", "input_values": [5, 3, 97, 98, 97, 98, 97, 97, 98, 97], "output_bytes": 16},
+      {"id": "single-byte-all-match", "input_values": [5, 1, 97, 97, 97, 97, 97, 97], "output_bytes": 40},
+      {"id": "empty-result", "input_values": [6, 2, 97, 98, 99, 100, 101, 102, 103, 104], "output_bytes": 0}
+    ]
+  },
+  "cases": [
+    {"id":"overlapping-matches","input_values":[5,3,97,98,97,98,97,97,98,97],"input_length":10,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"later-matches","input_values":[9,3,120,120,97,98,99,120,97,98,99,97,98,99],"input_length":14,"output_capacity":16,"expected_result":16,"expected_output_hex":"02000000000000000600000000000000"},
+    {"id":"all-overlapping-one-byte-matches","input_values":[5,1,97,97,97,97,97,97],"input_length":8,"output_capacity":40,"expected_result":40,"expected_output_hex":"00000000000000000100000000000000020000000000000003000000000000000400000000000000"},
+    {"id":"embedded-nul-byte","input_values":[4,2,0,65,0,65,0,65],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"highest-ascii-byte","input_values":[3,1,127,65,127,127],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"no-match","input_values":[6,2,97,98,99,100,101,102,103,104],"input_length":10,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty-text","input_values":[0,1,97],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"pattern-longer-than-text","input_values":[2,3,97,98,97,98,99],"input_length":7,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty-pattern-invalid","input_values":[0,0],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-byte","input_values":[1,1,128,97],"input_length":4,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"text-length-above-bound","input_values":[256,1],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"pattern-length-above-bound","input_values":[1,65],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-packed-word","input_values":[1,1,97,97,98],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"maximum-parseable-frame-with-trailing-word","input_values":[255,64,
+      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+      "input_length":322,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-packed-frame","input_values":[2,2,97],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[0,1,97],"input_length":3,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output-with-matches","input_values":[5,3,97,98,97,98,97,97,98,97],"input_length":10,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-with-empty-result","input_values":[6,2,97,98,99,100,101,102,103,104],"input_length":10,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[5,3,97,98,97,98,97,97,98,97],"input_length":10,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-before-output-error","input_values":[0,0],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

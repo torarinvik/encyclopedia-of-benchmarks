@@ -4,17 +4,17 @@ const long COORDINATE_LIMIT = 10000;
 
 struct Point { long x; long y; }
 
-long orientation(Point a, Point b, Point c) {
+fn long orientation(Point a, Point b, Point c) {
     (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
 }
 
-bool on_segment(Point a, Point b, Point p) {
+fn bool on_segment(Point a, Point b, Point p) {
     orientation(a, b, p) == 0 && p.x >= (a.x < b.x ? a.x : b.x) &&
         p.x <= (a.x > b.x ? a.x : b.x) && p.y >= (a.y < b.y ? a.y : b.y) &&
         p.y <= (a.y > b.y ? a.y : b.y)
 }
 
-bool segments_intersect(Point a, Point b, Point c, Point d) {
+fn bool segments_intersect(Point a, Point b, Point c, Point d) {
     long ab_c = orientation(a, b, c);
     long ab_d = orientation(a, b, d);
     long cd_a = orientation(c, d, a);

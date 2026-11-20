@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "algorithm": "halley_root_finding",
+  "abi": "float64_pair",
+  "workload": "benchmarks/h/halley_root_finding/workload.json",
+  "primary_oracle": "benchmarks/h/halley_root_finding/primary_oracle.py",
+  "independent_oracle": "benchmarks/h/halley_root_finding/independent_oracle.py",
+  "languages": {
+    "c": "c/h/halley_root_finding.c",
+    "c3": "c3/h/halley_root_finding.c3",
+    "cpp": "cpp/h/halley_root_finding.cpp",
+    "elisa": "elisa/h/halley_root_finding.elisa",
+    "mojo": "mojo/h/halley_root_finding.mojo",
+    "nim": "nim/h/halley_root_finding.nim",
+    "odin": "odin/h/halley_root_finding.odin",
+    "rust": "rust/h/halley_root_finding.rs",
+    "v": "v/h/halley_root_finding.v",
+    "zig": "zig/h/halley_root_finding.zig"
+  }
+}

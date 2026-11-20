@@ -27,7 +27,7 @@ fn bool epsilon_similar(usz numerator, usz denominator_sq) {
 }
 
 // Clean-room bounded GBBS SCAN profile; see package LICENSE.txt.
-long gbbs_scan_structural_clustering(long* input, usz length, char* output,
+fn long gbbs_scan_structural_clustering(long* input, usz length, char* output,
         usz capacity) @export("gbbs_scan_structural_clustering") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

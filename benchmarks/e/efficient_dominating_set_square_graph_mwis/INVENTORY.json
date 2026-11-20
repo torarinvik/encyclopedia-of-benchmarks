@@ -1,0 +1,25 @@
+{
+  "algorithm": "efficient_dominating_set_square_graph_mwis",
+  "symbol": "efficient_dominating_set_square_graph_mwis",
+  "abi": "i64_array_scalar",
+  "primary_reference": "benchmarks/e/efficient_dominating_set_square_graph_mwis/primary_oracle.py",
+  "independent_reference": "benchmarks/e/efficient_dominating_set_square_graph_mwis/independent_oracle.py",
+  "workload": "benchmarks/e/efficient_dominating_set_square_graph_mwis/workload.json",
+  "static_checker": "benchmarks/e/efficient_dominating_set_square_graph_mwis/check_inventory.py",
+  "source_url": "https://doi.org/10.1007/978-1-4939-2864-4_689",
+  "max_valid_input_length": 134,
+  "max_parseable_input_length": 135,
+  "workspace_bytes": 4096,
+  "ports": [
+    "c/e/efficient_dominating_set_square_graph_mwis.c",
+    "c3/e/efficient_dominating_set_square_graph_mwis.c3",
+    "cpp/e/efficient_dominating_set_square_graph_mwis.cpp",
+    "elisa/e/efficient_dominating_set_square_graph_mwis.elisa",
+    "mojo/e/efficient_dominating_set_square_graph_mwis.mojo",
+    "nim/e/efficient_dominating_set_square_graph_mwis.nim",
+    "odin/e/efficient_dominating_set_square_graph_mwis.odin",
+    "rust/e/efficient_dominating_set_square_graph_mwis.rs",
+    "v/e/efficient_dominating_set_square_graph_mwis.v",
+    "zig/e/efficient_dominating_set_square_graph_mwis.zig"
+  ]
+}

@@ -1,0 +1,128 @@
+# Endpoint sweep for the bounded exact-integer segment-intersection profile.
+const SWEEP_MAX_INPUT: usize = 98
+
+def sweep_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+
+def sweep_between(a: i64, b: i64, point: i64) -> bool:
+    if a <= b: return a <= point and point <= b
+    b <= point and point <= a
+
+def sweep_on_segment(ax: i64, ay: i64, bx: i64, by: i64, px: i64, py: i64) -> bool:
+    sweep_orient(ax, ay, bx, by, px, py) == 0 and
+        sweep_between(ax, bx, px) and sweep_between(ay, by, py)
+
+def sweep_intersects(values: view[i64], first: usize, second: usize) -> bool:
+    a: usize = 1 + 4 * first
+    b: usize = 1 + 4 * second
+    ab_c: i64 = sweep_orient(values[a], values[a + 1], values[a + 2], values[a + 3], values[b], values[b + 1])
+    ab_d: i64 = sweep_orient(values[a], values[a + 1], values[a + 2], values[a + 3], values[b + 2], values[b + 3])
+    cd_a: i64 = sweep_orient(values[b], values[b + 1], values[b + 2], values[b + 3], values[a], values[a + 1])
+    cd_b: i64 = sweep_orient(values[b], values[b + 1], values[b + 2], values[b + 3], values[a + 2], values[a + 3])
+    if ab_c == 0 and sweep_on_segment(values[a], values[a + 1], values[a + 2], values[a + 3], values[b], values[b + 1]): return true
+    if ab_d == 0 and sweep_on_segment(values[a], values[a + 1], values[a + 2], values[a + 3], values[b + 2], values[b + 3]): return true
+    if cd_a == 0 and sweep_on_segment(values[b], values[b + 1], values[b + 2], values[b + 3], values[a], values[a + 1]): return true
+    if cd_b == 0 and sweep_on_segment(values[b], values[b + 1], values[b + 2], values[b + 3], values[a + 2], values[a + 3]): return true
+    ((ab_c < 0 and ab_d > 0) or (ab_c > 0 and ab_d < 0)) and
+        ((cd_a < 0 and cd_b > 0) or (cd_a > 0 and cd_b < 0))
+
+def sweep_compare_at_x(values: view[i64], first: usize, second: usize, x: i64) -> i64:
+    a: usize = 1 + 4 * first
+    b: usize = 1 + 4 * second
+    adx: i64 = values[a + 2] - values[a]
+    bdx: i64 = values[b + 2] - values[b]
+    anum: i64 = values[a + 1] * adx + (values[a + 3] - values[a + 1]) * (x - values[a])
+    bnum: i64 = values[b + 1] * bdx + (values[b + 3] - values[b + 1]) * (x - values[b])
+    left: i64 = anum * bdx
+    right: i64 = bnum * adx
+    if left < right: return -1
+    if left > right: return 1
+    aslope: i64 = (values[a + 3] - values[a + 1]) * bdx
+    bslope: i64 = (values[b + 3] - values[b + 1]) * adx
+    if aslope < bslope: return -1
+    if aslope > bslope: return 1
+    if first < second: return -1
+    if first > second: return 1
+    0
+
+def intersecting_segments_sweep_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > SWEEP_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 24: return -1
+    count: usize = count_value.usize()
+    if length != 1 + 4 * count: return -1
+    used_x: mutable bool[201] = zeroed
+    event_x: mutable i64[48] = zeroed
+    event_id: mutable usize[48] = zeroed
+    event_start: mutable bool[48] = zeroed
+    event_count: mutable usize = 0
+    for id in 0..<count:
+        offset: usize = 1 + 4 * id
+        x1: i64 = values[offset]
+        y1: i64 = values[offset + 1]
+        x2: i64 = values[offset + 2]
+        y2: i64 = values[offset + 3]
+        if x1 < -100 or x1 > 100 or x2 < -100 or x2 > 100 or y1 < -100 or y1 > 100 or y2 < -100 or y2 > 100 or x1 >= x2:
+            return -1
+        first_x: usize = (x1 + 100).usize()
+        second_x: usize = (x2 + 100).usize()
+        if used_x[first_x] or used_x[second_x]: return -1
+        used_x[first_x] <- true
+        used_x[second_x] <- true
+        event_x[event_count] <- x1
+        event_id[event_count] <- id
+        event_start[event_count] <- true
+        event_count <- event_count + 1
+        event_x[event_count] <- x2
+        event_id[event_count] <- id
+        event_start[event_count] <- false
+        event_count <- event_count + 1
+    index: mutable usize = 1
+    while index < event_count:
+        saved_x: i64 = event_x[index]
+        saved_id: usize = event_id[index]
+        saved_start: bool = event_start[index]
+        position: mutable usize = index
+        while position > 0 and event_x[position - 1] > saved_x:
+            event_x[position] <- event_x[position - 1]
+            event_id[position] <- event_id[position - 1]
+            event_start[position] <- event_start[position - 1]
+            position <- position - 1
+        event_x[position] <- saved_x
+        event_id[position] <- saved_id
+        event_start[position] <- saved_start
+        index <- index + 1
+
+    active: mutable usize[24] = zeroed
+    active_count: mutable usize = 0
+    for event_index in 0..<event_count:
+        x: i64 = event_x[event_index]
+        id: usize = event_id[event_index]
+        if event_start[event_index]:
+            position: mutable usize = 0
+            while position < active_count and sweep_compare_at_x(values, active[position], id, x) < 0:
+                position <- position + 1
+            if position > 0 and sweep_intersects(values, active[position - 1], id): return 1
+            if position < active_count and sweep_intersects(values, active[position], id): return 1
+            move: mutable usize = active_count
+            while move > position:
+                active[move] <- active[move - 1]
+                move <- move - 1
+            active[position] <- id
+            active_count <- active_count + 1
+        else:
+            position: mutable usize = 0
+            while position < active_count and active[position] != id:
+                position <- position + 1
+            if position == active_count: return -1
+            if position > 0 and position + 1 < active_count and sweep_intersects(values, active[position - 1], active[position + 1]):
+                return 1
+            move: mutable usize = position
+            while move + 1 < active_count:
+                active[move] <- active[move + 1]
+                move <- move + 1
+            active_count <- active_count - 1
+    0
+
+export fn intersecting_segments_sweep(input: i64&, length: usize) -> i64 = intersecting_segments_sweep_impl

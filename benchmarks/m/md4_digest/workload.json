@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "rfc1320-md4-bounded-message-i64-array-bytes-output-v1",
+  "algorithm": "md4_digest",
+  "function_symbol": "md4_digest",
+  "abi": "i64_array_bytes_output",
+  "pinned_sources": [
+    {
+      "title": "The MD4 Message-Digest Algorithm",
+      "repository": "RFC Editor",
+      "document": "RFC 1320",
+      "url": "https://www.rfc-editor.org/rfc/rfc1320",
+      "role": "algorithm definition"
+    },
+    {
+      "title": "MD4 to Historic Status",
+      "repository": "RFC Editor",
+      "document": "RFC 6150",
+      "url": "https://www.rfc-editor.org/rfc/rfc6150",
+      "role": "security status"
+    },
+    {
+      "title": "MD4",
+      "repository": "RosettaCodeData",
+      "commit": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+      "path": "popular-tasks",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+      "role": "title discovery only"
+    }
+  ],
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n, byte_0, ..., byte_(n-1)]",
+    "message_length_range": [0, 4096],
+    "byte_range": [0, 255],
+    "exact_word_count": "n + 1",
+    "maximum_valid_input_words": 4097,
+    "maximum_parseable_input_words": 4098,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Four final 32-bit state words serialized in state order, each least-significant byte first",
+    "maximum_output_bytes": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_leave_output_untouched": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "A shared scratch ceiling for a 16-word block (64 bytes), chaining and working states (32 bytes), optional staged digest (16 bytes), length/index locals, and alignment. Ports process one 64-byte block at a time and do not store the padded message."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty", "input_values": [0], "expected_result": 16},
+    {"id": "short_binary", "input_values": [4, 0, 127, 255, 128], "expected_result": 16},
+    {"id": "padding_before_length_boundary_55", "message_length": 55, "message_generator": {"kind": "affine_bytes", "multiplier": 37, "offset": 11}, "expected_result": 16},
+    {"id": "padding_length_boundary_56", "message_length": 56, "message_generator": {"kind": "affine_bytes", "multiplier": 37, "offset": 11}, "expected_result": 16},
+    {"id": "one_block_end_63", "message_length": 63, "message_generator": {"kind": "affine_bytes", "multiplier": 37, "offset": 11}, "expected_result": 16},
+    {"id": "exact_block_64", "message_length": 64, "message_generator": {"kind": "affine_bytes", "multiplier": 37, "offset": 11}, "expected_result": 16},
+    {"id": "next_block_65", "message_length": 65, "message_generator": {"kind": "affine_bytes", "multiplier": 37, "offset": 11}, "expected_result": 16},
+    {"id": "maximum_message_4096", "message_length": 4096, "message_generator": {"kind": "affine_bytes", "multiplier": 37, "offset": 11}, "expected_result": 16},
+    {"id": "missing_count_prefix", "input_values": [], "expected_result": -1},
+    {"id": "negative_message_length", "input_values": [-1], "expected_result": -1},
+    {"id": "message_length_above_limit", "input_values": [4097], "expected_result": -1},
+    {"id": "truncated_message", "input_values": [2, 9], "expected_result": -1},
+    {"id": "trailing_word", "input_values": [0, 9], "expected_result": -1},
+    {"id": "negative_byte", "input_values": [1, -1], "expected_result": -1},
+    {"id": "byte_above_range", "input_values": [1, 256], "expected_result": -1},
+    {"id": "short_output_capacity", "input_values": [0], "output_capacity": 15, "expected_result": -2},
+    {"id": "null_output", "input_values": [0], "output_is_null": true, "expected_result": -2},
+    {"id": "null_input", "input_values": [], "input_is_null": true, "input_length": 1, "expected_result": -1},
+    {"id": "invalid_input_precedes_null_output", "input_values": [-1], "output_is_null": true, "expected_result": -1},
+    {"id": "maximum_parseable_trailing_value", "message_length": 4096, "message_generator": {"kind": "affine_bytes", "multiplier": 37, "offset": 11}, "append_trailing_word": true, "expected_result": -1}
+  ]
+}

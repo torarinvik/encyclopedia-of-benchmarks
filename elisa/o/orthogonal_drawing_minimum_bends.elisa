@@ -1,0 +1,275 @@
+const BEND_MAX_N: usize = 8
+const BEND_MAX_M: usize = 16
+const BEND_MAX_F: usize = 10
+const BEND_MAX_INPUT: usize = 79
+const BEND_MAX_NODES: usize = 20
+const BEND_MAX_EDGES: usize = 200
+const BEND_INF: i64 = 1152921504606846976
+
+struct BendFlowEdge:
+    from_node: usize
+    to_node: usize
+    reverse_index: usize
+    capacity: i64
+    cost: i64
+
+def bend_connected(adjacency: view[bool], n: usize, removed: i64) -> bool:
+    start: usize = 1 if removed == 0 else 0
+    seen: mutable bool[8] = zeroed
+    stack: mutable usize[8] = zeroed
+    top: mutable usize = 0
+    count: mutable usize = 0
+    seen[start] <- true
+    stack[top] <- start
+    top <- top + 1
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        count <- count + 1
+        for v in 0..<n:
+            if v.i64() != removed && adjacency[u * 8 + v] && not seen[v]:
+                seen[v] <- true
+                stack[top] <- v
+                top <- top + 1
+    expected: usize = n - (1 if removed >= 0 else 0)
+    count == expected
+
+def bend_add_arc(edges: mutable view[BendFlowEdge], edge_count: mutable usize&,
+                 u: usize, v: usize, capacity: i64, cost: i64) -> bool:
+    if edge_count + 2 > BEND_MAX_EDGES: return false
+    e: usize = edge_count
+    edges[e].from_node <- u
+    edges[e].to_node <- v
+    edges[e].reverse_index <- e + 1
+    edges[e].capacity <- capacity
+    edges[e].cost <- cost
+    edges[e + 1].from_node <- v
+    edges[e + 1].to_node <- u
+    edges[e + 1].reverse_index <- e
+    edges[e + 1].capacity <- 0
+    edges[e + 1].cost <- -cost
+    edge_count <- edge_count + 2
+    true
+
+def bend_compute(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 4 || length > BEND_MAX_INPUT: return -1
+    n_raw: i64 = values[0]
+    m_raw: i64 = values[1]
+    f_raw: i64 = values[2]
+    outer_raw: i64 = values[3]
+    if n_raw < 3 || n_raw > 8 || m_raw < n_raw || m_raw > 16 ||
+            f_raw < 2 || f_raw > 10 || f_raw != m_raw - n_raw + 2 ||
+            outer_raw < 0 || outer_raw >= f_raw: return -1
+    n: usize = n_raw.usize()
+    m: usize = m_raw.usize()
+    f: usize = f_raw.usize()
+    outer: usize = outer_raw.usize()
+    adjacency_storage: mutable bool[64] = zeroed
+    adjacency: mutable view[bool] = adjacency_storage[0:64]
+    degree: mutable usize[8] = zeroed
+    edge_u: mutable usize[16] = zeroed
+    edge_v: mutable usize[16] = zeroed
+    uses: mutable usize[64] = zeroed
+    cursor: mutable usize = 4
+    for e in 0..<m:
+        if cursor + 2 > length: return -1
+        u_raw: i64 = values[cursor]
+        v_raw: i64 = values[cursor + 1]
+        cursor <- cursor + 2
+        if u_raw < 0 || u_raw >= v_raw || v_raw >= n_raw: return -1
+        u: usize = u_raw.usize()
+        v: usize = v_raw.usize()
+        if adjacency[u * 8 + v] || (e > 0 && (u < edge_u[e - 1] ||
+                (u == edge_u[e - 1] && v <= edge_v[e - 1]))): return -1
+        adjacency[u * 8 + v] <- true
+        adjacency[v * 8 + u] <- true
+        degree[u] <- degree[u] + 1
+        degree[v] <- degree[v] + 1
+        edge_u[e] <- u
+        edge_v[e] <- v
+    for v in 0..<n:
+        if degree[v] < 2 || degree[v] > 4: return -1
+
+    faces_storage: mutable usize[80] = zeroed
+    faces: mutable view[usize] = faces_storage[0:80]
+    widths: mutable usize[10] = zeroed
+    for face in 0..<f:
+        if cursor >= length: return -1
+        width_raw: i64 = values[cursor]
+        cursor <- cursor + 1
+        if width_raw < 3 || width_raw > n_raw || cursor + width_raw.usize() > length: return -1
+        width: usize = width_raw.usize()
+        widths[face] <- width
+        row_seen: mutable bool[8] = zeroed
+        for i in 0..<width:
+            vertex_raw: i64 = values[cursor]
+            cursor <- cursor + 1
+            if vertex_raw < 0 || vertex_raw >= n_raw: return -1
+            vertex: usize = vertex_raw.usize()
+            if row_seen[vertex]: return -1
+            row_seen[vertex] <- true
+            faces[face * 8 + i] <- vertex
+        for i in 0..<width:
+            u: usize = faces[face * 8 + i]
+            v: usize = faces[face * 8 + ((i + 1) % width)]
+            if not adjacency[u * 8 + v]: return -1
+            uses[u * 8 + v] <- uses[u * 8 + v] + 1
+    link_adj_storage: mutable bool[512] = zeroed
+    link_adj: mutable view[bool] = link_adj_storage[0:512]
+    link_degree: mutable usize[64] = zeroed
+    for face in 0..<f:
+        width: usize = widths[face]
+        for i in 0..<width:
+            center: usize = faces[face * 8 + i]
+            before: usize = faces[face * 8 + ((i + width - 1) % width)]
+            after: usize = faces[face * 8 + ((i + 1) % width)]
+            if before == after: return -1
+            link_adj[(center * 8 + before) * 8 + after] <- true
+            link_adj[(center * 8 + after) * 8 + before] <- true
+            link_degree[center * 8 + before] <- link_degree[center * 8 + before] + 1
+            link_degree[center * 8 + after] <- link_degree[center * 8 + after] + 1
+    if cursor != length || n.i64() - m_raw + f_raw != 2 || not bend_connected(adjacency, n, -1): return -1
+    for v in 0..<n:
+        if not bend_connected(adjacency, n, v.i64()): return -1
+    for e in 0..<m:
+        u: usize = edge_u[e]
+        v: usize = edge_v[e]
+        if uses[u * 8 + v] != 1 || uses[v * 8 + u] != 1: return -1
+    for center in 0..<n:
+        start: mutable i64 = -1
+        incident_count: mutable usize = 0
+        for neighbor in 0..<n:
+            if adjacency[center * 8 + neighbor]:
+                if link_degree[center * 8 + neighbor] != 2: return -1
+                if start < 0: start <- neighbor.i64()
+                incident_count <- incident_count + 1
+            elif link_degree[center * 8 + neighbor] != 0: return -1
+        seen: mutable bool[8] = zeroed
+        stack: mutable usize[8] = zeroed
+        top: mutable usize = 1
+        reached: mutable usize = 0
+        seen[start.usize()] <- true
+        stack[0] <- start.usize()
+        while top > 0:
+            top <- top - 1
+            neighbor: usize = stack[top]
+            reached <- reached + 1
+            for other in 0..<n:
+                if link_adj[(center * 8 + neighbor) * 8 + other] && not seen[other]:
+                    seen[other] <- true
+                    stack[top] <- other
+                    top <- top + 1
+        if reached != incident_count: return -1
+
+    face_a: mutable usize[16] = zeroed
+    face_b: mutable usize[16] = zeroed
+    face_use: mutable usize[16] = zeroed
+    for face in 0..<f:
+        for i in 0..<widths[face]:
+            u: usize = faces[face * 8 + i]
+            v: usize = faces[face * 8 + ((i + 1) % widths[face])]
+            lo: usize = u if u < v else v
+            hi: usize = v if u < v else u
+            found: i64 = -1
+            for e in 0..<m:
+                if edge_u[e] == lo && edge_v[e] == hi: found <- e.i64(); break
+            if found < 0 || face_use[found.usize()] >= 2: return -1
+            if face_use[found.usize()] == 0: face_a[found.usize()] <- face
+            else: face_b[found.usize()] <- face
+            face_use[found.usize()] <- face_use[found.usize()] + 1
+    for e in 0..<m:
+        if face_use[e] != 2 || face_a[e] == face_b[e]: return -1
+
+    base: usize = n + f
+    source: usize = base
+    sink: usize = base + 1
+    node_count: usize = base + 2
+    edge_storage: mutable BendFlowEdge[200] = zeroed
+    edges: mutable view[BendFlowEdge] = edge_storage[0:BEND_MAX_EDGES]
+    edge_count: mutable usize = 0
+    balance: mutable i64[18] = zeroed
+    for v in 0..<n: balance[v] <- 4
+    for face in 0..<f:
+        d: i64 = widths[face].i64()
+        balance[n + face] <- balance[n + face] - 2 * d - (4 if face == outer else -4)
+        for i in 0..<widths[face]:
+            v: usize = faces[face * 8 + i]
+            balance[v] <- balance[v] - 1
+            balance[n + face] <- balance[n + face] + 1
+            if not bend_add_arc(edges, edge_count, v, n + face, 4 * n.i64(), 0): return -1
+    for e in 0..<m:
+        if not bend_add_arc(edges, edge_count, n + face_a[e], n + face_b[e], 4 * n.i64(), 1): return -1
+        if not bend_add_arc(edges, edge_count, n + face_b[e], n + face_a[e], 4 * n.i64(), 1): return -1
+    required: mutable i64 = 0
+    for v in 0..<base:
+        if balance[v] > 0:
+            if not bend_add_arc(edges, edge_count, source, v, balance[v], 0): return -1
+            required <- required + balance[v]
+        elif balance[v] < 0:
+            if not bend_add_arc(edges, edge_count, v, sink, -balance[v], 0): return -1
+
+    potential: mutable i64[20] = zeroed
+    total_flow: mutable i64 = 0
+    total_cost: mutable i64 = 0
+    while total_flow < required:
+        dist: mutable i64[20] = zeroed
+        parent: mutable i64[20] = zeroed
+        used: mutable bool[20] = zeroed
+        for v in 0..<node_count:
+            dist[v] <- BEND_INF
+            parent[v] <- -1
+        dist[source] <- 0
+        for _ in 0..<node_count:
+            chosen: mutable i64 = -1
+            for v in 0..<node_count:
+                if not used[v] && dist[v] != BEND_INF &&
+                        (chosen < 0 || dist[v] < dist[chosen.usize()]): chosen <- v.i64()
+            if chosen < 0: break
+            u: usize = chosen.usize()
+            used[u] <- true
+            for e in 0..<edge_count:
+                if edges[e].from_node == u && edges[e].capacity > 0:
+                    v: usize = edges[e].to_node
+                    candidate: i64 = dist[u] + edges[e].cost + potential[u] - potential[v]
+                    if not used[v] && candidate < dist[v]:
+                        dist[v] <- candidate
+                        parent[v] <- e.i64()
+        if dist[sink] == BEND_INF: return -1
+        for v in 0..<node_count:
+            if dist[v] != BEND_INF: potential[v] <- potential[v] + dist[v]
+        amount: mutable i64 = required - total_flow
+        path_cost: mutable i64 = 0
+        vertex: mutable usize = sink
+        while vertex != source:
+            edge_index: i64 = parent[vertex]
+            if edge_index < 0: return -1
+            e: usize = edge_index.usize()
+            if amount > edges[e].capacity: amount <- edges[e].capacity
+            path_cost <- path_cost + edges[e].cost
+            vertex <- edges[e].from_node
+        vertex <- sink
+        while vertex != source:
+            e: usize = parent[vertex].usize()
+            reverse: usize = edges[e].reverse_index
+            edges[e].capacity <- edges[e].capacity - amount
+            edges[reverse].capacity <- edges[reverse].capacity + amount
+            vertex <- edges[e].from_node
+        total_flow <- total_flow + amount
+        total_cost <- total_cost + amount * path_cost
+    total_cost
+
+def orthogonal_drawing_minimum_bends_impl(input: i64&, length: usize, output: mutable u8&,
+                                          output_capacity: usize) -> i64:
+    if input.is_null() || length < 4 || length > BEND_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    result: i64 = bend_compute(values)
+    if result < 0: return -1
+    if output.is_null() || output_capacity < 8: return -2
+    target: mutable view[u8] = output[0:8]
+    bits: u64 = result.u64()
+    for byte in 0..<8: target[byte] <- (bits >> (8 * byte)).u8()
+    8
+
+export fn orthogonal_drawing_minimum_bends(input: i64&, input_length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = orthogonal_drawing_minimum_bends_impl

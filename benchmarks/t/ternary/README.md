@@ -8,6 +8,12 @@ Input is exactly `[operation, a_milli, b_milli, epsilon_micro, max_calls]`; one 
 
 Each frame checks `abs(a-b) <= epsilon` first and, when true, returns the objective at `(a+b)/2`. Otherwise it computes left then right trisection points, evaluates the objective at each in source order, and recurses with the source's strict comparison; ties take the `a, right` branch. If the next recursive frame would exceed the budget, the call returns `-1e300`. Invalid inputs use the same sentinel. Output comparisons use absolute and relative tolerances of `1e-12`.
 
+The related [`ternary_search_min_max_recursive`](../ternary_search_min_max_recursive/README.md)
+uses binary32 arithmetic, narrows to the middle third on equal objective
+values, and returns the objective at the left endpoint. This profile uses
+binary64, retains the left two thirds on ties, and evaluates the midpoint;
+these differences change the measured recursion and numerical behavior.
+
 Pinned source: [ternary.go](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/search/ternary.go). See [workload](workload.json) and [oracle](../../ternary_oracle.py).
 
 | Language | Port |

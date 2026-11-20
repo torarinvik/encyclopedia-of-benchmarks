@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p119_digitsum(value_in:Int64)->Int64:
     var value=value_in;var sum=Int64(0)
     while value>0:sum+=value%10;value//=10

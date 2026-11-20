@@ -73,8 +73,9 @@ def valid_segment(left: i64, right: i64, slope: i64, intercept: i64) -> bool:
 
 def segment_add_get_min_impl(input: i64&, length: usize) -> i64:
     if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
-    initial_value: i64 = input[0]
-    operation_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    initial_value: i64 = frame[0]
+    operation_value: i64 = frame[1]
     if initial_value < 0 or initial_value > 16 or operation_value < 0 or operation_value > 32:
         return -1
     initial_count: usize = initial_value.usize()
@@ -84,10 +85,10 @@ def segment_add_get_min_impl(input: i64&, length: usize) -> i64:
     position: mutable usize = 2
     for index in 0..<initial_count:
         if length - position < 4: return -1
-        left: i64 = input[position]
-        right: i64 = input[position + 1]
-        slope: i64 = input[position + 2]
-        intercept: i64 = input[position + 3]
+        left: i64 = frame[position]
+        right: i64 = frame[position + 1]
+        slope: i64 = frame[position + 2]
+        intercept: i64 = frame[position + 3]
         if not valid_segment(left, right, slope, intercept): return -1
         add_segment(tree[0:TREE_CAPACITY], 1, DOMAIN_LOW, DOMAIN_HIGH, left, right, slope, intercept)
         position <- position + 4
@@ -96,20 +97,20 @@ def segment_add_get_min_impl(input: i64&, length: usize) -> i64:
     query_number: mutable i64 = 0
     for operation in 0..<operation_count:
         if position >= length: return -1
-        opcode: i64 = input[position]
+        opcode: i64 = frame[position]
         position <- position + 1
         if opcode == 0:
             if length - position < 4: return -1
-            left: i64 = input[position]
-            right: i64 = input[position + 1]
-            slope: i64 = input[position + 2]
-            intercept: i64 = input[position + 3]
+            left: i64 = frame[position]
+            right: i64 = frame[position + 1]
+            slope: i64 = frame[position + 2]
+            intercept: i64 = frame[position + 3]
             if not valid_segment(left, right, slope, intercept): return -1
             add_segment(tree[0:TREE_CAPACITY], 1, DOMAIN_LOW, DOMAIN_HIGH, left, right, slope, intercept)
             position <- position + 4
         else if opcode == 1:
             if position >= length: return -1
-            x: i64 = input[position]
+            x: i64 = frame[position]
             position <- position + 1
             if x < DOMAIN_LOW or x > DOMAIN_HIGH: return -1
             answer: i64 = minimum_at(tree[0:TREE_CAPACITY], 1, DOMAIN_LOW, DOMAIN_HIGH, x)

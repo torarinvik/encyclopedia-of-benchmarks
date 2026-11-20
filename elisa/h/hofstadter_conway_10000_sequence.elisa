@@ -1,0 +1,25 @@
+from std.collections import InlineArray
+
+const HOFSTADTER_CONWAY_MAX_INDEX = 8192
+const HOFSTADTER_CONWAY_MAX_INPUT_LENGTH = 2
+
+def hofstadter_conway_10000_impl(input: view[i64]) -> i64:
+    if input.len() != 1: return -1
+    index_value: i64 = input[0]
+    if index_value < 2 or index_value > HOFSTADTER_CONWAY_MAX_INDEX: return -1
+    target: Int = Int(index_value)
+    var a = InlineArray[Int64, 8193](fill=0)
+    a[1] <- 1
+    a[2] <- 1
+    for n in range(3, target + 1):
+        previous: i64 = a[n - 1]
+        other: i64 = i64(n) - previous
+        if previous < 1 or previous >= i64(n) or other < 1 or other >= i64(n): return -1
+        a[n] <- a[Int(previous)] + a[Int(other)]
+    a[target]
+
+@export("hofstadter_conway_10000_sequence")
+fn hofstadter_conway_10000_sequence(input: i64&, length: usize) abi("C") -> i64:
+    if input.is_null() or length < 1 or length > HOFSTADTER_CONWAY_MAX_INPUT_LENGTH: return -1
+    let input_view: view[i64] = input[0:Int(length)]
+    hofstadter_conway_10000_impl(input_view)

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "algorithm": "planar_directed_general_st_flow_borradaile_klein",
+  "abi": "i64_array_bytes_output",
+  "suite_status": "registered_i64_array_bytes_output",
+  "runtime_validation": "not-run-by-design",
+  "workload": "benchmarks/p/planar_directed_general_st_flow_borradaile_klein/workload.json",
+  "primary_reference": "benchmarks/p/planar_directed_general_st_flow_borradaile_klein/primary_oracle.py",
+  "independent_reference": "benchmarks/p/planar_directed_general_st_flow_borradaile_klein/independent_oracle.py",
+  "static_inventory": "benchmarks/p/planar_directed_general_st_flow_borradaile_klein/check_inventory.py",
+  "languages": {
+    "c": "c/p/planar_directed_general_st_flow_borradaile_klein.c",
+    "c3": "c3/p/planar_directed_general_st_flow_borradaile_klein.c3",
+    "cpp": "cpp/p/planar_directed_general_st_flow_borradaile_klein.cpp",
+    "elisa": "elisa/p/planar_directed_general_st_flow_borradaile_klein.elisa",
+    "mojo": "mojo/p/planar_directed_general_st_flow_borradaile_klein.mojo",
+    "nim": "nim/p/planar_directed_general_st_flow_borradaile_klein.nim",
+    "odin": "odin/p/planar_directed_general_st_flow_borradaile_klein.odin",
+    "rust": "rust/p/planar_directed_general_st_flow_borradaile_klein.rs",
+    "v": "v/p/planar_directed_general_st_flow_borradaile_klein.v",
+    "zig": "zig/p/planar_directed_general_st_flow_borradaile_klein.zig"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n,m,s,t,(tail,head,capacity)*m,(degree,edge_id...)*n]",
+    "maximum_vertices": 6,
+    "maximum_edges": 10,
+    "capacity_range": [1, 5],
+    "maximum_valid_words": 60,
+    "maximum_parseable_words": 61,
+    "embedding": "Connected simple graph with supplied counterclockwise cyclic rotations; dart face orbits must satisfy Euler F=m-n+2.",
+    "infinite_face": "Right face of the local dart starting at t along the first edge in t's supplied rotation row, irrespective of input arc orientation.",
+    "right_first": "At t start with the first row incidence; at other vertices take counterclockwise-next after the incoming incidence.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[maximum_flow_value]",
+    "maximum_bytes": 8,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed bounded graph, dart-face, dual-distance, residual-capacity, and DFS arrays plus recursion frames and output staging."
+  },
+  "pinned_sources": [
+    {
+      "title": "An O(n log n) Algorithm for Maximum st-Flow in a Directed Planar Graph",
+      "authors": ["Glencora Borradaile", "Philip N. Klein"],
+      "doi": "10.1145/1502793.1502798",
+      "section": "3"
+    },
+    {
+      "title": "Planar Maximum s-t Flow",
+      "authors": ["Glencora Borradaile"],
+      "doi": "10.1007/978-1-4939-2864-4_626",
+      "epub_path": "OEBPS/AChap626.html"
+    },
+    {
+      "title": "The Vertex-Disjoint Menger Problem in Planar Graphs",
+      "authors": ["Heike Ripphausen-Lipa", "Dorothea Wagner", "Karsten Weihe"],
+      "doi": "10.1137/S0097539793253565",
+      "section": "1: counterclockwise-next right-first DFS convention"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

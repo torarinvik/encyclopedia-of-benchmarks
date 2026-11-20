@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 comptime N=512
@@ -10,7 +11,7 @@ fn kasai_algorithm(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->I
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<1 or n>1025 or a[0]<0 or a[0]>512:return -1
     let count=Int(a[0])
     if n!=c_size_t(1+2*count):return -1
-    var sa=InlineArray[Int64,N]();var rank=InlineArray[Int64,N]();var seen=InlineArray[Bool,N]();var lcp=InlineArray[Int64,N]()
+    var sa=InlineArray[Int64,N]();var rank=InlineArray[Int64,N]();var seen=InlineArray[Bool,N](fill=False);var lcp=InlineArray[Int64,N](fill=0)
     for i in range(count):
         let ch=a[1+i];let si=a[1+count+i]
         if ch<0 or ch>127 or si<0 or si>=count or seen[Int(si)]:return -1

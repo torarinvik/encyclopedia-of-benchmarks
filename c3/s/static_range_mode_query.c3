@@ -30,12 +30,12 @@ fn usz range_frequency(usz* occurrences, usz* offsets, usz id, usz left, usz rig
            lower_bound_usz(occurrences, begin, end, left);
 }
 
-fn void write_i64(uint8* output, usz offset, long value) {
+fn void write_i64(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
-    for (usz byte = 0; byte < 8; byte++) output[offset + byte] = (uint8)(bits >> (8 * byte));
+    for (usz byte = 0; byte < 8; byte++) output[offset + byte] = (char)(bits >> (8 * byte));
 }
 
-fn long static_range_mode_query(long* input, usz length, uint8* output, usz output_capacity)
+fn long static_range_mode_query(long* input, usz length, char* output, usz output_capacity)
         @export("static_range_mode_query") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     long n_value = input[0], q_value = input[1];

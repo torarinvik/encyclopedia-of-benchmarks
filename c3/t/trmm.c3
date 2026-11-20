@@ -12,8 +12,8 @@ fn long trmm(double* input, usz length, double* output, usz capacity) @export("t
         m_value < 1.0 || m_value > MAX_M || n_value < 1.0 || n_value > MAX_N) return -1;
     usz m = (usz)m_value, n = (usz)n_value, required = m*n;
     if (output == null || capacity < required) return -2;
-    double a[MAX_M][MAX_M] = {0.0};
-    double b[MAX_M][MAX_N] = {0.0};
+    double[MAX_M][MAX_M] a = {};
+    double[MAX_N][MAX_M] b = {};
     for (usz i = 0; i < m; i++) {
         for (usz j = 0; j < i; j++) a[i][j] = (double)((i+j)%m)/(double)m;
         a[i][i] = 1.0;
@@ -23,7 +23,7 @@ fn long trmm(double* input, usz length, double* output, usz capacity) @export("t
         for (usz k = i+1; k < m; k++) b[i][j] += a[k][i]*b[k][j];
         b[i][j] = 1.5*b[i][j];
     }
-    double staged[MAX_M*MAX_N];
+    double[MAX_M*MAX_N] staged;
     for (usz i = 0; i < m; i++) for (usz j = 0; j < n; j++) staged[i*n+j] = b[i][j];
     for (usz i = 0; i < required; i++) output[i] = staged[i];
     return (long)required;

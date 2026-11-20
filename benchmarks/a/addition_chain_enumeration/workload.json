@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "addition-chain-enumeration-bounded-v1",
+  "algorithm": "addition_chain_enumeration",
+  "function_symbol": "addition_chain_enumeration",
+  "abi": "i64_array_bytes_output",
+  "description": "Count unrestricted and Brauer shortest addition chains for a bounded target.",
+  "source": {
+    "title": "Rosetta Code: Addition chains",
+    "url": "https://rosettagit.org/tasks/addition-chains/",
+    "algorithm_reference": "OEIS A003313 and the standard addition-chain definition",
+    "source_license": "Rosetta Code content is GNU Free Documentation License 1.2 according to its copyright page; algorithm idea only, with no prose, code, examples, fixtures, or tests reused",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[target]",
+    "target_range": [1, 31],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "[minimum_length, brauer_chain_count, non_brauer_chain_count] as signed 64-bit little-endian words",
+    "maximum_bytes": 24,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 32768,
+    "meaning": "Fixed target-indexed candidate mask, one chain workspace, recursion state, and three staged output words"
+  },
+  "contract": {
+    "operation": "Return the minimum unrestricted addition-chain length and the counts of shortest Brauer and non-Brauer chains.",
+    "chain_rule": "Start with 1; each strictly larger term is the sum of two earlier terms, which may be equal.",
+    "brauer_rule": "Every new term in a Brauer chain is the previous term plus any earlier term.",
+    "search": "Iteratively deepen from ceil(log2(target)) through the binary-chain upper bound; enumerate each distinct next sum once.",
+    "pruning": "Reject a prefix if doubling its last term for every remaining step still cannot reach the target.",
+    "complexity": "Exponential in minimum chain length, with O(L^2) candidate-addend pairs per prefix for chain length L; fixed target bound 31.",
+    "tie_rule": "Chain counts ignore the order in which addend pairs produce the same next term.",
+    "error_precedence": "Validate and compute the result before checking output pointer and capacity.",
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "upper-bound-target", "input_values": [31]},
+      {"id": "middle-range-target", "input_values": [23]}
+    ]
+  },
+  "cases": [
+    {"id": "unit-target", "input_values": [1], "input_length": 1, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "000000000000000001000000000000000000000000000000"},
+    {"id": "target-two", "input_values": [2], "input_length": 1, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "010000000000000001000000000000000000000000000000"},
+    {"id": "target-three", "input_values": [3], "input_length": 1, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "020000000000000001000000000000000000000000000000"},
+    {"id": "target-five", "input_values": [5], "input_length": 1, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "030000000000000002000000000000000000000000000000"},
+    {"id": "target-six", "input_values": [6], "input_length": 1, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "030000000000000002000000000000000000000000000000"},
+    {"id": "target-eight", "input_values": [8], "input_length": 1, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "030000000000000001000000000000000000000000000000"},
+    {"id": "short-output-capacity", "input_values": [5], "input_length": 1, "output_capacity": 23, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [5], "input_length": 1, "output_capacity": 24, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "zero-target", "input_values": [0], "input_length": 1, "output_capacity": 24, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "above-bound", "input_values": [32], "input_length": 1, "output_capacity": 24, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "wrong-input-length", "input_values": [3, 4], "input_length": 2, "output_capacity": 24, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "empty-input", "input_values": [], "input_length": 0, "output_capacity": 24, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

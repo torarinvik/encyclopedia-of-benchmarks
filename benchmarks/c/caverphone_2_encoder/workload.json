@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "caverphone-2-encoder-i64-array-bytes-output-v1",
+  "algorithm": "caverphone_2_encoder",
+  "function_symbol": "caverphone_2_encoder",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, ASCII letter codes...]",
+    "text_length_range": [0, 64],
+    "array_length": "1 + text_length",
+    "maximum_length": 65,
+    "maximum_parseable_length": 67,
+    "ascii_letter_ranges": [[65, 90], [97, 122]],
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ASCII bytes",
+    "encoding": "exactly ten Caverphone 2.0 code characters from AFKLMNPRSTWY1",
+    "maximum_bytes": 10,
+    "success_result": "output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"bytes": 10},
+  "algorithm_policy": {
+    "variant": "Caverphone 2.0",
+    "transform_order": "strip final e; start/end substitutions; ordered consonant replacements; initial and later vowel markers; y rules; gh/g rules; consonant group compression; w/h/r/l rules; marker removal and final 1 padding",
+    "empty_text_code": "1111111111",
+    "maximum_text_length": 64,
+    "time_complexity": "O(L) with a fixed number of whole-string passes",
+    "space_complexity": "O(L)",
+    "independent_reference": "left-to-right replacement buffers and explicit character-list vowel handling"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "algorithm_index": "https://xlinux.nist.gov/dads/HTML/caverphone.html",
+    "specification": "https://caversham.otago.ac.nz/files/working/ctp150804.pdf",
+    "specification_citation": "David Hood, Caverphone Revisited, Technical Paper CTP150804, University of Otago, 2004",
+    "reuse": "Algorithm descriptions only; no source code, samples, problem text, tests, or fixtures copied"
+  },
+  "cases": [
+    {"id": "empty-name", "input_values": [0], "input_length": 1, "expected_result": 10, "expected_output_hex": "31313131313131313131"},
+    {"id": "initial-vowel", "input_values": [1, 97], "input_length": 2, "expected_result": 10, "expected_output_hex": "41313131313131313131"},
+    {"id": "initial-y", "input_values": [1, 121], "input_length": 2, "expected_result": 10, "expected_output_hex": "41313131313131313131"},
+    {"id": "grouped-consonants", "input_values": [3, 98, 111, 98], "input_length": 4, "expected_result": 10, "expected_output_hex": "50503131313131313131"},
+    {"id": "leading-ough-pattern", "input_values": [5, 99, 111, 117, 103, 104], "input_length": 6, "expected_result": 10, "expected_output_hex": "4b463131313131313131"},
+    {"id": "initial-gn-and-final-e", "input_values": [5, 103, 110, 111, 109, 101], "input_length": 6, "expected_result": 10, "expected_output_hex": "4e4d3131313131313131"},
+    {"id": "uppercase-is-normalized", "input_values": [5, 67, 79, 85, 71, 72], "input_length": 6, "expected_result": 10, "expected_output_hex": "4b463131313131313131"},
+    {"id": "invalid-empty-array", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "invalid-punctuation", "input_values": [1, 45], "input_length": 2, "expected_result": -1},
+    {"id": "invalid-trailing-word", "input_values": [1, 97, 98], "input_length": 3, "expected_result": -1},
+    {"id": "valid-but-small-output", "input_values": [1, 97], "input_length": 2, "output_capacity": 9, "expected_result": -2},
+    {"id": "valid-null-output", "input_values": [1, 97], "input_length": 2, "output_capacity": 10, "output_is_null": true, "expected_result": -2},
+    {"id": "invalid-input-before-null-output", "input_values": [1, 33], "input_length": 2, "output_is_null": true, "expected_result": -1},
+    {"id": "null-input-positive-length", "input_values": [], "input_length": 1, "input_is_null": true, "expected_result": -1}
+  ]
+}

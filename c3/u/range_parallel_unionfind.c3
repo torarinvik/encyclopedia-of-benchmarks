@@ -10,14 +10,14 @@ fn long normalize(long value) {
     return value < 0 ? value + MODULUS : value;
 }
 
-fn usz find_root(usz[MAX_LEVELS][MAX_N]* parent, usz level, usz item) {
+fn usz find_root(usz[MAX_N][MAX_LEVELS]* parent, usz level, usz item) {
     if ((*parent)[level][item] != item)
         (*parent)[level][item] = find_root(parent, level, (*parent)[level][item]);
     return (*parent)[level][item];
 }
 
 fn void merge_inner(usz level, usz left, usz right,
-    usz[MAX_LEVELS][MAX_N]* parent, usz[MAX_LEVELS][MAX_N]* set_size,
+    usz[MAX_N][MAX_LEVELS]* parent, usz[MAX_N][MAX_LEVELS]* set_size,
     long[MAX_N]* weight, long* pair_sum) {
     usz root_left = find_root(parent, level, left);
     usz root_right = find_root(parent, level, right);
@@ -46,7 +46,7 @@ fn usz floor_log2(usz value) {
 }
 
 fn void merge_ranges(usz length, usz left, usz right,
-    usz[MAX_LEVELS][MAX_N]* parent, usz[MAX_LEVELS][MAX_N]* set_size,
+    usz[MAX_N][MAX_LEVELS]* parent, usz[MAX_N][MAX_LEVELS]* set_size,
     long[MAX_N]* weight, long* pair_sum) {
     if (length == 0) return;
     usz level = floor_log2(length - 1);
@@ -81,8 +81,8 @@ fn long range_parallel_unionfind(long* input, usz length, char* output, usz capa
     usz required = 8 * q;
     if (output == null || capacity < required) return -2;
 
-    usz[MAX_LEVELS][MAX_N] parent = zeroed;
-    usz[MAX_LEVELS][MAX_N] set_size = zeroed;
+    usz[MAX_N][MAX_LEVELS] parent = zeroed;
+    usz[MAX_N][MAX_LEVELS] set_size = zeroed;
     long[MAX_N] weight = zeroed;
     for (usz level = 0; level < MAX_LEVELS; level += 1) {
         usz block = (usz)1 << level;

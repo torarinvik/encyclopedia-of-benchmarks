@@ -1,0 +1,61 @@
+const MAX_INPUT_LENGTH = 195
+
+def offline_range_paint_successor_dsu_impl(input: view[i64]) -> i64:
+    if input.len() < 2 or input.len() > MAX_INPUT_LENGTH: return -1
+    let n_value: i64 = input[0]
+    let q_value: i64 = input[1]
+    if n_value < 1 or n_value > 64 or q_value < 0 or q_value > 64: return -1
+    let n: usize = n_value.usize()
+    let q: usize = q_value.usize()
+    if input.len() != 2 + 3 * q: return -1
+    left: mutable i64[64] = zeroed
+    right: mutable i64[64] = zeroed
+    color: mutable i64[64] = zeroed
+    operation: mutable usize = 0
+    while operation < q:
+        left[operation] <- input[2 + 3 * operation]
+        right[operation] <- input[3 + 3 * operation]
+        color[operation] <- input[4 + 3 * operation]
+        if left[operation] < 0 or left[operation] > right[operation] or right[operation] >= n_value or
+            color[operation] < -1000 or color[operation] > 1000: return -1
+        operation <- operation + 1
+
+    parent: mutable i64[65] = zeroed
+    final_color: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index <= n:
+        parent[index] <- index.i64()
+        index <- index + 1
+    while operation > 0:
+        operation <- operation - 1
+        cell: mutable usize = left[operation].usize()
+        root: mutable usize = cell
+        while parent[root].usize() != root:
+            root <- parent[root].usize()
+        while parent[cell].usize() != cell:
+            let next: usize = parent[cell].usize()
+            parent[cell] <- root.i64()
+            cell <- next
+        while cell <= right[operation].usize():
+            final_color[cell] <- color[operation]
+            next_cell: mutable usize = cell + 1
+            root <- next_cell
+            while parent[root].usize() != root:
+                root <- parent[root].usize()
+            while parent[next_cell].usize() != next_cell:
+                let following: usize = parent[next_cell].usize()
+                parent[next_cell] <- root.i64()
+                next_cell <- following
+            parent[cell] <- root.i64()
+            cell <- root
+    checksum: mutable i64 = 0
+    index <- 0
+    while index < n:
+        checksum <- checksum + (index + 1).i64() * (final_color[index] + 1001)
+        index <- index + 1
+    checksum
+
+export fn offline_range_paint_successor_dsu(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    let input_view: view[i64] = input[0:length]
+    offline_range_paint_successor_dsu_impl(input_view)

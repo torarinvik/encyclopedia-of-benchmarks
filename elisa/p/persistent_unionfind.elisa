@@ -62,8 +62,9 @@ def puf_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
 def persistent_unionfind_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 6 or length > MAX_INPUT_VALUES: return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
@@ -83,10 +84,10 @@ def persistent_unionfind_impl(input: i64&, length: usize,
     operation: mutable usize = 0
     while operation < q:
         offset: usize = 2 + 4 * operation
-        kind[operation] <- input[offset]
-        version: i64 = input[offset + 1]
-        u[operation] <- input[offset + 2]
-        v[operation] <- input[offset + 3]
+        kind[operation] <- frame[offset]
+        version: i64 = frame[offset + 1]
+        u[operation] <- frame[offset + 2]
+        v[operation] <- frame[offset + 3]
         if (kind[operation] != 0 and kind[operation] != 1) or version < -1 or
             version >= operation.i64() or u[operation] < 0 or u[operation] >= n_value or
             v[operation] < 0 or v[operation] >= n_value: return -1

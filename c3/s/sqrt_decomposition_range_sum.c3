@@ -33,7 +33,7 @@ fn long sqrt_decomposition_range_sum(long* input, usz length, char* output, usz 
     usz operation_count = (usz)input[n + 1];
     if (length != 2 + n + 3 * operation_count) return -1;
 
-    long elements[MAX_N];
+    long[MAX_N] elements;
     for (usz index = 0; index < n; index++) {
         long value = input[index + 1];
         if (value < -1000 || value > 1000) return -1;
@@ -58,7 +58,7 @@ fn long sqrt_decomposition_range_sum(long* input, usz length, char* output, usz 
     if (output == null || capacity < output_bytes) return -2;
 
     usz block_size = block_size_for(n);
-    long blocks[MAX_N];
+    long[MAX_N] blocks;
     for (usz index = 0; index < MAX_N; index++) blocks[index] = 0;
     for (usz index = 0; index < n; index++) {
         usz block = index / block_size;
@@ -73,7 +73,7 @@ fn long sqrt_decomposition_range_sum(long* input, usz length, char* output, usz 
         usz first = (usz)input[offset + 1];
         long second = input[offset + 2];
         if (kind == 0) {
-            long sum = query_sum(elements, blocks, block_size, first, (usz)second);
+            long sum = query_sum(&elements[0], &blocks[0], block_size, first, (usz)second);
             ulong bits = (ulong)sum;
             for (usz byte = 0; byte < 8; byte++) {
                 output[output_offset++] = (char)(bits & 255);

@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "segment-tree-max-right-i64-array-scalar-v1",
+  "algorithm": "segment_tree_max_right",
+  "function_symbol": "segment_tree_max_right",
+  "abi": "i64_array_scalar",
+  "description": "Point assignments and O(log n) sum-monoid maximum-prefix boundary searches.",
+  "source": {
+    "title": "AtCoder Library: Segtree max_right",
+    "authors": ["AtCoder Library contributors"],
+    "reference": "Official AtCoder Library documentation, max_right API",
+    "url": "https://atcoder.github.io/ac-library/master/document_en/segtree.html",
+    "algorithm_attribution": "Segment-tree max_right boundary search",
+    "implementation_status": "clean-room implementation from published semantics"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, operation_count, initial_values..., operation_rows...]",
+    "operation_row_width": 3,
+    "operation_rows": {
+      "point_assignment": "[0, index, value]",
+      "max_right": "[1, left, limit]"
+    },
+    "n_range": [0, 16],
+    "operation_count_range": [0, 12],
+    "initial_and_assigned_value_range": [0, 1000],
+    "left_range": "0..n",
+    "limit_range": [0, 16000],
+    "exact_length": "2 + n + 3*operation_count",
+    "maximum_valid_length": 54,
+    "maximum_parseable_length": 55,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "five-bit max_right endpoint fields in query order; updates emit no field",
+    "invalid_input_result": -1,
+    "maximum_query_count": 12,
+    "maximum_endpoint": 16
+  },
+  "contract": {
+    "monoid": "integer addition with identity zero",
+    "predicate": "sum <= limit",
+    "values_nonnegative": true,
+    "predicate_monotone": true,
+    "empty_prefix_predicate_true": true,
+    "table_rebuilt_each_call": true,
+    "invalid_input_result": -1
+  },
+  "complexity": {
+    "build": "O(n)",
+    "point_assignment": "O(log n)",
+    "max_right": "O(log n)",
+    "auxiliary_space": "O(n)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "updates-and-prefix-boundaries",
+      "input_values": [6, 5, 2, 1, 3, 0, 4, 2, 1, 0, 3, 1, 2, 3, 0, 3, 5, 1, 1, 9, 1, 4, 5],
+      "input_length": 23,
+      "expected_result": 168066
+    },
+    {
+      "id": "zero-valued-run",
+      "input_values": [4, 3, 0, 0, 0, 0, 1, 0, 0, 1, 2, 0, 1, 4, 0],
+      "input_length": 15,
+      "expected_result": 4228
+    },
+    {
+      "id": "empty-array-query",
+      "input_values": [0, 1, 1, 0, 0],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum-array-and-operation-frame",
+      "input_values": [16, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0, 1, 16, 0],
+      "input_length": 54,
+      "expected_result": 595056260442243600
+    },
+    {
+      "id": "no-operations",
+      "input_values": [3, 0, 1, 2, 3],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "negative-initial-value",
+      "input_values": [1, 0, -1],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "negative-limit",
+      "input_values": [1, 1, 2, 1, 0, -1],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "out-of-range-update-index",
+      "input_values": [1, 1, 2, 0, 1, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "unknown-operation",
+      "input_values": [1, 1, 2, 7, 0, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-operation-frame",
+      "input_values": [2, 1, 1, 2, 1, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

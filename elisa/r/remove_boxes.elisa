@@ -1,0 +1,56 @@
+const MAX_BOXES: usize = 18
+const MAX_PARSEABLE_LENGTH: usize = MAX_BOXES + 2
+const MAX_MEMO: usize = MAX_BOXES * MAX_BOXES * (MAX_BOXES + 1)
+
+def remove_boxes_solve(left: usize, right: usize, carry: usize,
+        colors: view[i64], counts: view[i64], memo: mutable view[i64]) -> i64:
+    if left > right: return 0
+    slot: usize = (left * MAX_BOXES + right) * (MAX_BOXES + 1) + carry
+    if memo[slot] >= 0: return memo[slot]
+    attached: usize = counts[left].usize() + carry
+    best: mutable i64 = (attached * attached).i64() + remove_boxes_solve(
+        left + 1, right, 0, colors, counts, memo)
+    later: mutable usize = left + 1
+    while later <= right:
+        if colors[later] == colors[left]:
+            joined: i64 = remove_boxes_solve(left + 1, later - 1, 0,
+                    colors, counts, memo) + remove_boxes_solve(
+                    later, right, attached, colors, counts, memo)
+            if joined > best: best <- joined
+        later <- later + 1
+    memo[slot] <- best
+    return best
+
+def remove_boxes_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    if input_view[0] < 0 or input_view[0] > MAX_BOXES.i64(): return -1
+    n: usize = input_view[0].usize()
+    if length != n + 1: return -1
+
+    colors: mutable i64[MAX_BOXES] = zeroed
+    counts: mutable i64[MAX_BOXES] = zeroed
+    groups: mutable usize = 0
+    index: mutable usize = 0
+    while index < n:
+        color: i64 = input_view[index + 1]
+        if color < 0 or color > 7: return -1
+        if groups > 0 and colors[groups - 1] == color:
+            counts[groups - 1] <- counts[groups - 1] + 1
+        else:
+            colors[groups] <- color
+            counts[groups] <- 1
+            groups <- groups + 1
+        index <- index + 1
+    if groups == 0: return 0
+
+    memo: mutable i64[MAX_MEMO] = zeroed
+    memo_view: mutable view[i64] = memo[0:MAX_MEMO]
+    index <- 0
+    while index < MAX_MEMO:
+        memo_view[index] <- -1
+        index <- index + 1
+    remove_boxes_solve(0, groups - 1, 0, colors[0:groups],
+            counts[0:groups], memo_view)
+
+export fn remove_boxes(input: i64&, length: usize) -> i64 = remove_boxes_impl

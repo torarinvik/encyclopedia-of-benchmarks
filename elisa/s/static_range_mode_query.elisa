@@ -34,7 +34,7 @@ def mode_range_frequency(occurrences: view[usize], offsets: view[usize],
     mode_lower_bound_positions(occurrences, begin, end, right) -
         mode_lower_bound_positions(occurrences, begin, end, left)
 
-def mode_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def mode_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
@@ -44,8 +44,9 @@ def static_range_mode_query(input: i64&, input_length: usize,
         @export("static_range_mode_query"):
     if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:input_length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > 32 or q_value < 1 or q_value > 16:
         return -1
     n: usize = n_value.usize()
@@ -53,16 +54,17 @@ def static_range_mode_query(input: i64&, input_length: usize,
     if input_length != 2 + n + 2 * q:
         return -1
     for index in 0..n:
-        value: i64 = input[2 + index]
+        value: i64 = frame[2 + index]
         if value < 0 or value > 1000000000:
             return -1
     for query in 0..q:
-        left: i64 = input[2 + n + 2 * query]
-        right: i64 = input[3 + n + 2 * query]
+        left: i64 = frame[2 + n + 2 * query]
+        right: i64 = frame[3 + n + 2 * query]
         if left < 0 or right <= left or right > n_value:
             return -1
     if output.is_null() or output_capacity < 16 * q:
         return -2
+    output_view: mutable view[u8] = output[0:16 * q]
 
     sorted: mutable i64[MAX_N] = zeroed
     unique_values: mutable i64[MAX_N] = zeroed
@@ -73,7 +75,7 @@ def static_range_mode_query(input: i64&, input_length: usize,
     occurrences: mutable usize[MAX_N] = zeroed
     block_mode: mutable usize[MAX_BLOCKS * MAX_BLOCKS] = zeroed
     for index in 0..n:
-        value: i64 = input[2 + index]
+        value: i64 = frame[2 + index]
         position: mutable usize = index
         while position > 0 and sorted[position - 1] > value:
             sorted[position] <- sorted[position - 1]
@@ -86,7 +88,7 @@ def static_range_mode_query(input: i64&, input_length: usize,
             unique_values[distinct] <- sorted[index]
             distinct <- distinct + 1
     for index in 0..n:
-        id: usize = mode_lower_bound(unique_values, distinct, input[2 + index])
+        id: usize = mode_lower_bound(unique_values, distinct, frame[2 + index])
         compressed[index] <- id
         frequencies[id] <- frequencies[id] + 1
     for id in 0..distinct:
@@ -111,8 +113,8 @@ def static_range_mode_query(input: i64&, input_length: usize,
         last: mutable usize = first
         while last < block_count:
             begin: usize = last * block_size
-            end: usize = begin + block_size
-            if end > n: end = n
+            end: mutable usize = begin + block_size
+            if end > n: end <- n
             for index in begin..end:
                 id: usize = compressed[index]
                 frequency[id] <- frequency[id] + 1
@@ -124,8 +126,8 @@ def static_range_mode_query(input: i64&, input_length: usize,
             last <- last + 1
 
     for query in 0..q:
-        left: usize = input[2 + n + 2 * query].usize()
-        right: usize = input[3 + n + 2 * query].usize()
+        left: usize = frame[2 + n + 2 * query].usize()
+        right: usize = frame[3 + n + 2 * query].usize()
         first_full: usize = (left + block_size - 1) / block_size
         after_full: usize = right / block_size
         best_id: mutable usize = 0
@@ -154,6 +156,6 @@ def static_range_mode_query(input: i64&, input_length: usize,
                 if count > best_count or (count == best_count and id < best_id):
                     best_id <- id
                     best_count <- count
-        mode_write_i64(output, 16 * query, unique_values[best_id])
-        mode_write_i64(output, 16 * query + 8, best_count.i64())
+        mode_write_i64(output_view, 16 * query, unique_values[best_id])
+        mode_write_i64(output_view, 16 * query + 8, best_count.i64())
     (16 * q).i64()

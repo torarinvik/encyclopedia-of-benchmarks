@@ -39,8 +39,9 @@ def wf_milli(value: f64) -> i64:
     integer: i64 = lower.i64()
     if integer % 2 == 0: integer else: integer + 1
 
-def word_frequency_functions_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null or length < 1 or length > WF_MAX_PACKED: return -1
+def word_frequency_functions_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > WF_MAX_PACKED: return -1
     operation: i64 = input[0]
     kind: mutable i64 = 0
     first: mutable i64 = 0
@@ -135,13 +136,16 @@ def word_frequency_functions_impl(input: i64&, length: usize, output: mutable u8
     else:
         return -1
     if output == null or capacity < output_length: return -2
+    result: mutable view[u8] = output[0:output_length]
     position: mutable usize = 0
-    wf_put32(output[0:capacity], position&, kind.u32())
+    wf_put32(result, position&, kind.u32())
     if kind == 0 or kind == 2:
-        wf_put64(output[0:capacity], position&, first)
+        wf_put64(result, position&, first)
     else if kind == 1:
-        wf_put64(output[0:capacity], position&, first)
-        wf_put64(output[0:capacity], position&, second)
+        wf_put64(result, position&, first)
+        wf_put64(result, position&, second)
     position.i64()
 
-export fn word_frequency_functions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_frequency_functions_impl
+export fn word_frequency_functions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > WF_MAX_PACKED: return -1
+    word_frequency_functions_impl(input[0:length], output, capacity)

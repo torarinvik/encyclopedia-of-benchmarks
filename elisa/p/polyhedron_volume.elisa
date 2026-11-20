@@ -1,0 +1,89 @@
+const PV_MAX_FACES: usize = 32
+const PV_MAX_PARSEABLE_LENGTH: usize = 290
+const PV_SCALE: i64 = 1000000
+
+def fn pv_coord(xyz: view[i64], face: usize, corner: usize, axis: usize) -> i64:
+    xyz[9 * face + 3 * corner + axis]
+
+def fn pv_edge_matches(xyz: view[i64], face: usize, edge: usize,
+                       other_face: usize, other_edge: usize, reverse: bool) -> bool:
+    other_end: usize = (other_edge + 1) % 3
+    edge_end: usize = (edge + 1) % 3
+    other_start: usize = if reverse then other_end else other_edge
+    other_finish: usize = if reverse then other_edge else other_end
+    for axis in 0..<3:
+        if pv_coord(xyz, face, edge, axis) != pv_coord(xyz, other_face, other_start, axis): return false
+        if pv_coord(xyz, face, edge_end, axis) != pv_coord(xyz, other_face, other_finish, axis): return false
+    true
+
+def fn pv_store_i64(value: i64, output: mutable view[u8]) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def fn polyhedron_volume_impl(input: view[i64], output: mutable view[u8],
+                              capacity: usize, output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > PV_MAX_PARSEABLE_LENGTH: return -1
+    face_count_value: i64 = input[0]
+    if face_count_value < 4 or face_count_value > PV_MAX_FACES.i64(): return -1
+    face_count: usize = face_count_value.usize()
+    if length != 1 + 9 * face_count: return -1
+
+    xyz: mutable i64[32 * 9] = zeroed
+    for face in 0..<face_count:
+        for corner in 0..<3:
+            for axis in 0..<3:
+                value: i64 = input[1 + 9 * face + 3 * corner + axis]
+                if value < -50 or value > 50: return -1
+                xyz[9 * face + 3 * corner + axis] <- value
+        ax: i64 = pv_coord(xyz[0:face_count * 9], face, 1, 0) - pv_coord(xyz[0:face_count * 9], face, 0, 0)
+        ay: i64 = pv_coord(xyz[0:face_count * 9], face, 1, 1) - pv_coord(xyz[0:face_count * 9], face, 0, 1)
+        az: i64 = pv_coord(xyz[0:face_count * 9], face, 1, 2) - pv_coord(xyz[0:face_count * 9], face, 0, 2)
+        bx: i64 = pv_coord(xyz[0:face_count * 9], face, 2, 0) - pv_coord(xyz[0:face_count * 9], face, 0, 0)
+        by: i64 = pv_coord(xyz[0:face_count * 9], face, 2, 1) - pv_coord(xyz[0:face_count * 9], face, 0, 1)
+        bz: i64 = pv_coord(xyz[0:face_count * 9], face, 2, 2) - pv_coord(xyz[0:face_count * 9], face, 0, 2)
+        if ay * bz - az * by == 0 and az * bx - ax * bz == 0 and ax * by - ay * bx == 0: return -1
+
+    mesh: view[i64] = xyz[0:face_count * 9]
+    for face in 0..<face_count:
+        for edge in 0..<3:
+            same_count: mutable usize = 0
+            reverse_count: mutable usize = 0
+            for other_face in 0..<face_count:
+                for other_edge in 0..<3:
+                    if pv_edge_matches(mesh, face, edge, other_face, other_edge, false): same_count <- same_count + 1
+                    if pv_edge_matches(mesh, face, edge, other_face, other_edge, true): reverse_count <- reverse_count + 1
+            if same_count != 1 or reverse_count != 1: return -1
+
+    determinant_sum: mutable i64 = 0
+    for face in 0..<face_count:
+        ax: i64 = pv_coord(mesh, face, 0, 0)
+        ay: i64 = pv_coord(mesh, face, 0, 1)
+        az: i64 = pv_coord(mesh, face, 0, 2)
+        bx: i64 = pv_coord(mesh, face, 1, 0)
+        by: i64 = pv_coord(mesh, face, 1, 1)
+        bz: i64 = pv_coord(mesh, face, 1, 2)
+        cx: i64 = pv_coord(mesh, face, 2, 0)
+        cy: i64 = pv_coord(mesh, face, 2, 1)
+        cz: i64 = pv_coord(mesh, face, 2, 2)
+        determinant_sum <- determinant_sum + ax * (by * cz - bz * cy) + ay * (bz * cx - bx * cz) + az * (bx * cy - by * cx)
+    sign: i64 = if determinant_sum < 0 then -1 else 1
+    magnitude: u64 = if determinant_sum < 0 then (-determinant_sum).u64() else determinant_sum.u64()
+    scaled: u64 = magnitude * PV_SCALE.u64()
+    quotient: mutable u64 = scaled / 6
+    if 2 * (scaled % 6) >= 6: quotient <- quotient + 1
+    result: i64 = sign * quotient.i64()
+    if output_is_null or capacity < 8: return -2
+    pv_store_i64(result, output[0:8])
+    8
+
+export fn polyhedron_volume(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length > PV_MAX_PARSEABLE_LENGTH: return -1
+    if output.is_null():
+        staged: mutable u8[8] = zeroed
+        return polyhedron_volume_impl(input[0:length], staged[0:8], capacity, true)
+    output_view: mutable view[u8] = output[0:capacity]
+    polyhedron_volume_impl(input[0:length], output_view, capacity, false)

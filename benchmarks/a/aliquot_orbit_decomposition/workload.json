@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "aliquot-orbit-decomposition-i64-array-bytes-output-v1",
+  "algorithm": "aliquot_orbit_decomposition",
+  "function_symbol": "aliquot_orbit_decomposition",
+  "abi": "i64_array_bytes_output",
+  "description": "Decompose one bounded aliquot orbit into its transient and eventual period, or report termination/caps.",
+  "source": {
+    "title": "Aliquot sequences",
+    "authors": ["OEIS Wiki contributors", "Eric Weisstein"],
+    "url": "https://oeis.org/wiki/Aliquot_sequences",
+    "license": "Algorithm description cited; clean-room implementation",
+    "algorithm_attribution": "Iterate the sum of positive proper divisors and classify the first terminal zero or repeated positive term.",
+    "implementation_status": "Bounded orbit decomposition; no source code copied",
+    "independent_reference_sources": [
+      {"title":"Aliquot Sequence","url":"https://mathworld.wolfram.com/AliquotSequence.html"},
+      {"title":"Divisor Function","url":"https://mathworld.wolfram.com/DivisorFunction.html"},
+      {"title":"OEIS A044050","url":"https://oeis.org/A044050"}
+    ]
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[seed,max_transitions]",
+    "seed_range": [1, 100000],
+    "max_transitions_range": [1, 4096],
+    "orbit_value_ceiling": 100000,
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "cycle_encoding": "[1,mu,lambda], where the seed has sequence index zero",
+    "termination_encoding": "[0,positive_term_count,0], with s(1)=0 and zero reached after a positive term",
+    "value_cap_encoding": "[-2,transitions_completed,first_value_above_100000]",
+    "step_cap_encoding": "[-3,transitions_completed,current_positive_value]",
+    "malformed_encoding": "[-1,0,0]",
+    "output_bytes": 24,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "error_precedence": "Classify an in-cap repeated or terminal value before applying the transition cap; malformed input precedes output-buffer validation.",
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 200000,
+    "meaning": "Bounded first-seen table/history for at most 4097 terms and a three-word result buffer."
+  },
+  "algorithm_details": {
+    "map": "s(x) is the sum of positive proper divisors of x; s(1)=0. No value-zero divisor sum is needed because zero terminates the positive orbit.",
+    "primary": "Store each in-cap positive value with its first sequence index; detect the first repeat to recover mu and lambda.",
+    "independent_oracle": "Compute s(x) from prime factorization and linearly scan the prior-term list for the first repeat.",
+    "cap_order": "At each in-cap value, classify zero/repetition first, then apply the transition cap, then compute its next aliquot value. An over-cap next value is reported immediately. A repeat or zero reached on the final permitted transition wins over the step-cap status.",
+    "complexity": "At most 4096 transitions; each in-cap divisor-pair or factorization calculation is bounded by sqrt(100000). The sorted-table primary and linear-history reference are each O(T^2) worst case for T<=4097, with binary-search lookup in the primary."
+  },
+  "primary_oracle": "benchmarks/a/aliquot_orbit_decomposition/primary_oracle.py",
+  "independent_oracle": "benchmarks/a/aliquot_orbit_decomposition/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"perfect-fixed-point","input_values":[6,4096],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000100000000000000"},
+    {"id":"amicable-two-cycle","input_values":[220,4096],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000200000000000000"},
+    {"id":"transient-into-amicable-cycle","input_values":[562,4096],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000001000000000000000200000000000000"},
+    {"id":"transient-into-perfect-fixed-point","input_values":[95,4096],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000002000000000000000100000000000000"},
+    {"id":"seed-one-terminates-at-zero","input_values":[1,4096],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000001000000000000000000000000000000"},
+    {"id":"prime-orbit-terminates-at-zero","input_values":[2,4096],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000002000000000000000000000000000000"},
+    {"id":"first-next-value-over-ceiling","input_values":[100000,4096],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"feffffffffffffff01000000000000009e3a020000000000"},
+    {"id":"step-cap-after-first-transition","input_values":[220,1],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output_hex":"fdffffffffffffff01000000000000001c01000000000000"},
+    {"id":"zero-seed-invalid-before-null-output","input_values":[0,10],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"step-cap-out-of-range","input_values":[220,4097],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[220,4096,0],"input_length":3,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[6,4096],"input_length":2,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output","input_values":[6,4096],"input_length":2,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":24,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

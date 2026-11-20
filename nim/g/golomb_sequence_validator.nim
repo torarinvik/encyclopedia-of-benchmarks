@@ -3,7 +3,7 @@ const MaxN = 1024
 
 proc golomb_sequence_validator*(input: ptr UncheckedArray[int64], length: csize_t): int64
     {.cdecl, exportc: "golomb_sequence_validator".} =
-  if length < 1 or length > csize_t(MaxN): return -1
+  if input == nil or length < 1 or length > csize_t(MaxN): return -1
   if input[0] < 1 or input[0] > MaxN: return -1
   let n = int(input[0])
   if int(length) != n: return -1

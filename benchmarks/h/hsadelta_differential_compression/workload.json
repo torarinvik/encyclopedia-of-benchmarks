@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "hsadelta-differential-compression-i64-array-bytes-output-v1",
+  "algorithm": "hsadelta_differential_compression",
+  "function_symbol": "hsadelta_differential_compression",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "HsaDelta: An approximation to the greedy algorithm for differential compression",
+    "url": "https://xlinux.nist.gov/dads/HTML/hsadelta.html",
+    "primary_reference": "https://doi.org/10.1147/rd.501.0149",
+    "authors": ["Ramesh C. Agarwal", "Karan Gupta", "Shaili Jain", "Suchitra Amalapurapu"],
+    "publication": "IBM Journal of Research and Development 50(1), 149-166 (2006)",
+    "algorithm_attribution": "Fixed-block HsaDelta: block fingerprints, suffix-array best-match lookup, byte extension, insert/copy commands.",
+    "implementation_status": "bounded clean-room profile; source descriptions only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[reference_length, version_length, block_size, reference_bytes..., version_bytes...]",
+    "reference_length_range": [0, 32],
+    "version_length_range": [0, 32],
+    "block_size_range": [2, 4],
+    "byte_range": [0, 255],
+    "maximum_valid_length": 67,
+    "maximum_parseable_length": 68,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "No count prefix. INSERT is (0, byte_count, byte_as_i64...); COPY is (1, reference_offset, byte_count).",
+    "maximum_bytes": 912,
+    "success_result": "bytes written",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "reference_blocks": "Hash complete reference blocks at offsets 0, p, 2p, ...; ignore an incomplete reference tail.",
+    "fingerprint": "Fixed-width base-257 polynomial encoding of byte+1 digits; for p<=4 it is collision-free and fits signed i64.",
+    "suffix_array": "Build a lexicographic suffix array over the reference block-fingerprint sequence. Binary-search prefix intervals to find the maximum number d of matching consecutive block fingerprints.",
+    "best_match_refinement": "For each query offset, inspect suffixes with d or d-1 matching block fingerprints, then extend exact byte matches left and right.",
+    "scan_rule": "Search the next p version offsets as one window; choose longest extended match, then smaller target start, then smaller reference start. If no match exists, advance the scan by one byte.",
+    "delta_rule": "Emit pending version bytes as one INSERT before each selected COPY; append a final INSERT for remaining bytes.",
+    "output_tie_rule": "The first source with the smallest reference offset wins after the longest match and earliest target-start rules.",
+    "variant_scope": "Uses the fixed-block-size variant. The separate block-size-proportional-to-reference variant is excluded.",
+    "bounded_refinement": "The quick-index filter, pointer array, and packed block-hash table are omitted; ordinary suffix-array prefix bounds preserve the best-match method at this small bound.",
+    "validation_order": "Reject malformed/null input before output-buffer checks; errors leave output untouched."
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Fixed arrays for at most 16 reference block hashes, suffix order, match candidates, and a 912-byte staged command stream."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {"id":"empty-version","input_values":[0,0,2],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"no-reference-blocks","input_values":[0,3,2,5,6,7],"input_length":6,"output_capacity":40,"expected_result":40,"expected_output_hex":"00000000000000000300000000000000050000000000000006000000000000000700000000000000"},
+    {"id":"exact-copy","input_values":[4,4,2,10,20,30,40,10,20,30,40],"input_length":11,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000400000000000000"},
+    {"id":"insert-prefix-then-copy","input_values":[4,5,2,10,20,30,40,99,10,20,30,40],"input_length":12,"output_capacity":48,"expected_result":48,"expected_output_hex":"000000000000000001000000000000006300000000000000010000000000000000000000000000000400000000000000"},
+    {"id":"left-extension-from-block-boundary","input_values":[5,4,2,9,10,20,30,40,10,20,30,40],"input_length":12,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000001000000000000000400000000000000"},
+    {"id":"duplicate-block-tie-uses-low-source","input_values":[4,2,2,5,6,5,6,5,6],"input_length":9,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000200000000000000"},
+    {"id":"three-byte-block","input_values":[6,3,3,1,2,3,4,5,6,4,5,6],"input_length":12,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000003000000000000000300000000000000"},
+    {"id":"maximum-length-repeated-blocks","input_values":[32,32,2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],"input_length":67,"output_capacity":24,"expected_result":24,"expected_output_hex":"010000000000000000000000000000002000000000000000"},
+    {"id":"invalid-block-size","input_values":[0,0,1],"input_length":3,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-frame-length","input_values":[1,1,2,12],"input_length":4,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-byte","input_values":[1,1,2,256,3],"input_length":5,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"reference-over-limit","input_values":[33,0,2],"input_length":3,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[4,4,2,10,20,30,40,10,20,30,40],"input_length":11,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[0,2,2,5,6],"input_length":5,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

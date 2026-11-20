@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn tr_hash(text:InlineArray[UInt8,544],length:Int)->Int64:

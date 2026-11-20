@@ -85,7 +85,7 @@ fn void pack_i64(char* output, usz offset, long value) {
     for (usz i = 0; i < 8; i++) output[offset + i] = (char)((bits >> (8 * i)) & 255);
 }
 
-long segment_tree_merge_split(long* input, usz length, char* output, usz capacity)
+fn long segment_tree_merge_split(long* input, usz length, char* output, usz capacity)
         @export("segment_tree_merge_split") {
     if (input == null || length < 2 || length > MAX_INPUT || input[0] != (long)DOMAIN
         || input[1] < 0 || input[1] > (long)MAX_Q) return -1;

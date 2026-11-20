@@ -1,0 +1,162 @@
+const CT_MAX_N: usize = 8
+const CT_MAX_M: usize = 28
+const CT_MAX_INPUT: usize = 59
+
+def fn ct_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def fn ct_biconnected(n: usize, m: usize, u: view[usize], v: view[usize],
+                      active: view[bool]) -> bool:
+    removed: mutable usize = 0
+    while removed < n:
+        start: usize = 0
+        if removed == 0: start <- 1
+        seen: mutable bool[8] = zeroed
+        queue: mutable usize[8] = zeroed
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        seen[start] <- true
+        queue[0] <- start
+        while head < tail:
+            current: usize = queue[head]
+            head <- head + 1
+            edge: mutable usize = 0
+            while edge < m:
+                if active[edge] and u[edge] != removed and v[edge] != removed:
+                    next: usize = n
+                    if u[edge] == current: next <- v[edge]
+                    elif v[edge] == current: next <- u[edge]
+                    if next < n and not seen[next]:
+                        seen[next] <- true
+                        queue[tail] <- next
+                        tail <- tail + 1
+                edge <- edge + 1
+        vertex: mutable usize = 0
+        while vertex < n:
+            if vertex != removed and not seen[vertex]: return false
+            vertex <- vertex + 1
+        removed <- removed + 1
+    return true
+
+@export("cheriyan_thurimella_two_vertex_connected_augmentation")
+def cheriyan_thurimella_two_vertex_connected_augmentation(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > CT_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n64: i64 = input_view[0]
+    m64: i64 = input_view[1]
+    if n64 < 3 or n64 > 8 or m64 < 3 or m64 > 28: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 2 * m: return -1
+
+    u: mutable usize[28] = zeroed
+    v: mutable usize[28] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        a: i64 = input_view[2 + 2 * edge]
+        b: i64 = input_view[3 + 2 * edge]
+        if a < 0 or a >= b or b >= n64: return -1
+        u[edge] <- a.usize()
+        v[edge] <- b.usize()
+        prior: mutable usize = 0
+        while prior < edge:
+            if u[prior] == u[edge] and v[prior] == v[edge]: return -1
+            prior <- prior + 1
+        edge <- edge + 1
+
+    u_view: view[usize] = u[0:m]
+    v_view: view[usize] = v[0:m]
+    active: mutable bool[28] = zeroed
+    active_view: mutable view[bool] = active[0:m]
+    edge <- 0
+    while edge < m:
+        active_view[edge] <- true
+        edge <- edge + 1
+    if not ct_biconnected(n, m, u_view, v_view, active_view): return -1
+
+    states: usize = 1 << n
+    best: mutable i64[256] = zeroed
+    choice: mutable i64[256] = zeroed
+    mask: mutable usize = 0
+    while mask < states:
+        choice[mask] <- -1
+        mask <- mask + 1
+    mask <- 1
+    while mask < states:
+        first: mutable usize = 0
+        while (mask & (1 << first)) == 0: first <- first + 1
+        edge <- 0
+        while edge < m:
+            other: usize = n
+            if u_view[edge] == first: other <- v_view[edge]
+            elif v_view[edge] == first: other <- u_view[edge]
+            if other < n and (mask & (1 << other)) != 0:
+                rest: usize = mask & ~(1 << first) & ~(1 << other)
+                candidate: i64 = 1 + best[rest]
+                if candidate > best[mask]:
+                    best[mask] <- candidate
+                    choice[mask] <- edge.i64()
+            edge <- edge + 1
+        rest: usize = mask & ~(1 << first)
+        if best[rest] > best[mask]:
+            best[mask] <- best[rest]
+            choice[mask] <- -1
+        mask <- mask + 1
+
+    cover: mutable bool[28] = zeroed
+    covered: mutable bool[8] = zeroed
+    mask <- states - 1
+    while mask != 0:
+        first: mutable usize = 0
+        while (mask & (1 << first)) == 0: first <- first + 1
+        edge_index: i64 = choice[mask]
+        if edge_index < 0:
+            mask <- mask & ~(1 << first)
+            continue
+        edge <- edge_index.usize()
+        cover[edge] <- true
+        covered[u_view[edge]] <- true
+        covered[v_view[edge]] <- true
+        mask <- mask & ~(1 << u_view[edge]) & ~(1 << v_view[edge])
+    vertex: mutable usize = 0
+    while vertex < n:
+        if not covered[vertex]:
+            edge <- 0
+            while edge < m:
+                if u_view[edge] == vertex or v_view[edge] == vertex:
+                    cover[edge] <- true
+                    covered[u_view[edge]] <- true
+                    covered[v_view[edge]] <- true
+                    break
+                edge <- edge + 1
+        vertex <- vertex + 1
+    edge <- 0
+    while edge < m:
+        if not cover[edge]:
+            active_view[edge] <- false
+            if not ct_biconnected(n, m, u_view, v_view, active_view): active_view[edge] <- true
+        edge <- edge + 1
+
+    count: mutable usize = 0
+    edge <- 0
+    while edge < m:
+        if active_view[edge]: count <- count + 1
+        edge <- edge + 1
+    bytes: usize = 8 * (1 + 2 * count)
+    if output.is_null() or capacity < bytes: return -2
+    output_view: mutable view[u8] = output[0:bytes]
+    ct_put_i64(count.i64(), output_view, 0)
+    slot: mutable usize = 0
+    edge <- 0
+    while edge < m:
+        if active_view[edge]:
+            ct_put_i64(u_view[edge].i64(), output_view, 8 * (1 + 2 * slot))
+            ct_put_i64(v_view[edge].i64(), output_view, 8 * (2 + 2 * slot))
+            slot <- slot + 1
+        edge <- edge + 1
+    return bytes.i64()

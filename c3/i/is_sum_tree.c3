@@ -16,7 +16,7 @@ fn bool check_node(long* nodes, long index) {
 }
 fn long is_sum_tree(long* nodes, usz count, long root) @export("is_sum_tree") {
     if(nodes==null||count==0||count>MAX_NODES||root<0||(ulong)root>=count)return INVALID_RESULT;
-    bool seen[MAX_NODES]={}; long stack[MAX_NODES*2]={}; usz top=0; stack[top++]=root;
+    bool[MAX_NODES] seen={}; long[MAX_NODES*2] stack={}; usz top=0; stack[top++]=root;
     while(top>0){long i=stack[--top];if(i<0||(ulong)i>=count||seen[i])return INVALID_RESULT;seen[i]=true;
         long value=nodes[3*i],left=nodes[3*i+1],right=nodes[3*i+2];
         if(value < -1000000000||value>1000000000||left < -1||right < -1||(left>=0&&(ulong)left>=count)||(right>=0&&(ulong)right>=count))return INVALID_RESULT;

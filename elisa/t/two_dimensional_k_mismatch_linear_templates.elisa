@@ -1,0 +1,133 @@
+const KM_MAX_SIDE: usize = 12
+const KM_MAX_CELLS: usize = KM_MAX_SIDE * KM_MAX_SIDE
+const KM_MAX_PARSEABLE_INPUT_LENGTH: usize = 2 + 2 * KM_MAX_CELLS + 1
+
+def km_sample_code(input: view[i64], base: usize, side: usize, row: usize,
+        column: usize, q: usize, stride: usize) -> usize:
+    code: mutable usize = 0
+    step: mutable usize = 0
+    while step < q:
+        at: usize = base + row * side + column + step * stride
+        code <- 4 * code + input[at].usize()
+        step <- step + 1
+    code
+
+def km_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def two_dimensional_k_mismatch_linear_templates_impl(input: view[i64],
+        output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > KM_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 3 or n_value > 12 or m_value < 3 or m_value > n_value: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    text_size: usize = n * n
+    pattern_size: usize = m * m
+    if length != 2 + text_size + pattern_size: return -1
+    pattern_base: usize = 2 + text_size
+    index: mutable usize = 0
+    while index < text_size + pattern_size:
+        if input[2 + index] < 0 or input[2 + index] > 3: return -1
+        index <- index + 1
+
+    q: mutable usize = 1
+    code_capacity: mutable usize = 4
+    while code_capacity < pattern_size:
+        q <- q + 1
+        code_capacity <- code_capacity * 4
+    stride: usize = m / q
+    final_offset: usize = (q - 1) * stride
+    heads: mutable i64[256] = zeroed
+    next_address: mutable i64[KM_MAX_CELLS] = zeroed
+    sample_row: mutable i64[KM_MAX_CELLS] = zeroed
+    sample_column: mutable i64[KM_MAX_CELLS] = zeroed
+    index <- 0
+    while index < 256:
+        heads[index] <- -1
+        index <- index + 1
+    sample_count: mutable usize = 0
+    row: mutable usize = 0
+    while row < m:
+        residue: mutable usize = 0
+        while residue < stride:
+            code: usize = km_sample_code(input, pattern_base, m, row, residue, q, stride)
+            sample_row[sample_count] <- row.i64()
+            sample_column[sample_count] <- residue.i64()
+            next_address[sample_count] <- heads[code]
+            heads[code] <- sample_count.i64()
+            sample_count <- sample_count + 1
+            residue <- residue + 1
+        row <- row + 1
+    considered: mutable bool[KM_MAX_CELLS] = zeroed
+    matched: mutable bool[KM_MAX_CELLS] = zeroed
+    starts: usize = n - m + 1
+    text_row: mutable usize = 0
+    while text_row < n:
+        if text_row % m >= m - 2:
+            text_column: mutable usize = 0
+            while text_column + final_offset < n:
+                code: usize = km_sample_code(input, 2, n, text_row, text_column, q, stride)
+                address: mutable i64 = heads[code]
+                while address >= 0:
+                    slot: usize = address.usize()
+                    candidate_row: i64 = text_row.i64() - sample_row[slot]
+                    candidate_column: i64 = text_column.i64() - sample_column[slot]
+                    if candidate_row >= 0 and candidate_column >= 0 and
+                            candidate_row.usize() < starts and candidate_column.usize() < starts:
+                        candidate: usize = candidate_row.usize() * n + candidate_column.usize()
+                        if not considered[candidate]:
+                            considered[candidate] <- true
+                            mismatches: mutable usize = 0
+                            dr: mutable usize = 0
+                            while dr < m and mismatches < 2:
+                                dc: mutable usize = 0
+                                while dc < m:
+                                    text_at: usize = 2 + (candidate_row.usize() + dr) * n + candidate_column.usize() + dc
+                                    pattern_at: usize = pattern_base + dr * m + dc
+                                    if input[text_at] != input[pattern_at]:
+                                        mismatches <- mismatches + 1
+                                        if mismatches == 2: break
+                                    dc <- dc + 1
+                                dr <- dr + 1
+                            matched[candidate] <- mismatches <= 1
+                    address <- next_address[slot]
+                text_column <- text_column + stride
+        text_row <- text_row + 1
+
+    match_count: mutable usize = 0
+    row <- 0
+    while row < starts:
+        column: mutable usize = 0
+        while column < starts:
+            if matched[row * n + column]: match_count <- match_count + 1
+            column <- column + 1
+        row <- row + 1
+    output_bytes: usize = 8 * (1 + 2 * match_count)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    km_put_i64(match_count.i64(), output_view, 0)
+    word: mutable usize = 1
+    row <- 0
+    while row < starts:
+        column <- 0
+        while column < starts:
+            if matched[row * n + column]:
+                km_put_i64(row.i64(), output_view, 8 * word)
+                word <- word + 1
+                km_put_i64(column.i64(), output_view, 8 * word)
+                word <- word + 1
+            column <- column + 1
+        row <- row + 1
+    output_bytes.i64()
+
+export fn two_dimensional_k_mismatch_linear_templates(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > KM_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    two_dimensional_k_mismatch_linear_templates_impl(input[0:length], output, capacity)

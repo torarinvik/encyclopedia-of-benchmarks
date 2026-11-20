@@ -1,0 +1,7 @@
+"""Race-car minimum instruction count benchmark package."""
+
+MAX_TARGET = 127
+MAX_RESULT_UPPER_BOUND = 379
+MAX_VALID_INPUT_LENGTH = 1
+MAX_PARSEABLE_INPUT_LENGTH = 2
+WORKSPACE_BYTES = 512

@@ -25,7 +25,7 @@ fn int compare_word(long* input, usz start, usz length,
 }
 
 fn usz write_count(char* output, usz position, usz count) {
-	char digits[4];
+	char[4] digits;
 	usz digit_count = 0;
 	do {
 		digits[digit_count++] = (char)('0' + count % 10);
@@ -41,9 +41,9 @@ fn long word_count_julia(long* input, usz length, char* output, usz output_capac
 		@export("word_count_julia") {
 	if (length > 1000 || (length != 0 && input == null)) return -1;
 	for (usz i = 0; i < length; i++) if (input[i] < 0 || input[i] > 127) return -1;
-	usz starts[1000];
-	usz lengths[1000];
-	usz counts[1000];
+	usz[1000] starts;
+	usz[1000] lengths;
+	usz[1000] counts;
 	usz unique_count = 0, index = 0;
 	while (index < length) {
 		if (!is_word_byte(lower_byte(input, index))) { index++; continue; }
@@ -55,8 +55,8 @@ fn long word_count_julia(long* input, usz length, char* output, usz output_capac
 			index += 2;
 		}
 		usz position = 0;
-		while (position < unique_count && compare_word(input, start, token_length, starts, lengths, position) > 0) position++;
-		if (position < unique_count && compare_word(input, start, token_length, starts, lengths, position) == 0) {
+		while (position < unique_count && compare_word(input, start, token_length, &starts[0], &lengths[0], position) > 0) position++;
+		if (position < unique_count && compare_word(input, start, token_length, &starts[0], &lengths[0], position) == 0) {
 			counts[position]++;
 		} else {
 			for (usz move = unique_count; move > position; move--) {

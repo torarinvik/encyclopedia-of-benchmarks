@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn mr_pow(mut base:Int64,mut exponent:Int64,modulus:Int64)->Int64:
     var result:Int64=1;base%=modulus
     while exponent>0:

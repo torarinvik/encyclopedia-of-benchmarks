@@ -50,7 +50,7 @@ fn long problem68(long gon_side) @export("problem68") {
                 int outer = line == 0 ? 0 : (line == n - 1 ? 2 * n - 1 : 2 * line + 1);
                 int inner_left = line == 0 ? 1 : 2 * line;
                 int inner_right = line == n - 1 ? 1 : (line == 0 ? 2 : 2 * line + 2);
-                long triple[3] = {value_at(&values[0], &indices[0], outer), value_at(&values[0], &indices[0], inner_left), value_at(&values[0], &indices[0], inner_right)};
+                long[3] triple = {value_at(&values[0], &indices[0], outer), value_at(&values[0], &indices[0], inner_left), value_at(&values[0], &indices[0], inner_right)};
                 for (int part = 0; part < 3; part++) result = result * (triple[(usz)part] >= 10 ? 100 : 10) + triple[(usz)part];
             }
             return result;

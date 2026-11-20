@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "cocomparability-ldfs-minimum-path-cover-i64-array-scalar-v1",
+  "algorithm": "cocomparability_ldfs_minimum_path_cover",
+  "function_symbol": "cocomparability_ldfs_minimum_path_cover",
+  "abi": "i64_array_scalar",
+  "description": "Count the minimum path cover produced by LDFS+ followed by the Rightmost-Neighbor sweep on a bounded cocomparability graph.",
+  "source": {
+    "title": "LDFS-Based Certifying Algorithm for the Minimum Path Cover Problem on Cocomparability Graphs",
+    "authors": ["Derek G. Corneil", "Barnaby Dalton", "Michel Habib"],
+    "journal": "SIAM Journal on Computing 42(3), 792-807 (2013)",
+    "doi": "10.1137/11083856X",
+    "url": "https://doi.org/10.1137/11083856X",
+    "operational_search_source": "G. B. Mertzios and D. G. Corneil, A Simple Polynomial Algorithm for the Longest Path Problem on Cocomparability Graphs, SIAM Journal on Discrete Mathematics 26(3), 940-963 (2012), DOI 10.1137/100793529, Section 2 Algorithms 2 and 3.",
+    "corrigendum": "J. Dusart, D. G. Corneil, and M. Habib, Corrigendum: LDFS-Based Certifying Algorithm for the Minimum Path Cover Problem on Cocomparability Graphs, SIAM Journal on Computing 50(3), 1148-1153 (2021), DOI 10.1137/20M1327835; algorithms unchanged.",
+    "encyclopedia_chapter": "Chapter 685, DOI 10.1007/978-1-4939-2864-4_685",
+    "reuse": "Algorithm descriptions and theorem attribution only; contract, workload, oracles, and ports are clean-room."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, adjacency_mask[n], order[n]]",
+    "vertex_count_range": [1, 8],
+    "adjacency_mask": "Bit v in row u means undirected edge {u,v}; rows are symmetric with no diagonal or out-of-range bits.",
+    "order": "Permutation of vertices from left to right; must be umbrella-free.",
+    "umbrella_free_condition": "For every i<j<k in order, edge(order[i],order[k]) implies edge(order[i],order[j]) or edge(order[j],order[k]).",
+    "graph_condition": "Connected simple undirected graph.",
+    "maximum_valid_input_length": 17,
+    "maximum_parseable_input_length": 18,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Number of outer RMN iterations, which is the number of paths in the minimum path cover.",
+    "valid_result_range": [1, 8],
+    "maximum_result": 8,
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "primary": "Run LDFS+ over all vertices: choose the unvisited vertex with lexicographically largest newest-first sequence of visit timestamps, breaking ties by rightmost position in the supplied order; prepend the current step to each unvisited neighbor label. Then run RMN on the resulting order: start each path at the rightmost unvisited vertex and repeatedly visit the current vertex's rightmost unvisited neighbor.",
+    "independent": "For each vertex subset compute whether its induced graph has a Hamilton path by endpoint subset recurrence, then use an anchored subset partition recurrence to find the minimum number of pathable subsets covering all vertices.",
+    "tie_policy": "Labels compare as integer sequences; a longer sequence is greater when the shorter is its prefix. Equal labels select the rightmost vertex under the supplied order. RMN uses the same rightmost rule for starts and neighbors.",
+    "connectivity_validation": "Breadth-first reachability must include every vertex.",
+    "order_validation": "The supplied order must satisfy the umbrella-free condition, which is a cocomparability ordering."
+  },
+  "complexity": {
+    "primary_time": "O(n^3) with bounded label comparisons and neighbor scans",
+    "primary_auxiliary_space": "O(n^2)",
+    "independent_time": "O(n*2^n + 3^n)",
+    "independent_space": "O(2^n)"
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed adjacency rows, supplied and computed orderings, bounded LDFS timestamp labels, and RMN visited state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/c/cocomparability_ldfs_minimum_path_cover/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/cocomparability_ldfs_minimum_path_cover/independent_oracle.py",
+  "cases": [
+    {"id":"singleton","input_values":[1,0,0],"input_length":3,"expected_result":1},
+    {"id":"three_vertex_path","input_values":[3,2,5,2,0,1,2],"input_length":7,"expected_result":1},
+    {"id":"four_vertex_star_two_paths","input_values":[4,14,1,1,1,1,0,2,3],"input_length":9,"expected_result":2},
+    {"id":"complete_four","input_values":[4,14,13,11,7,0,1,2,3],"input_length":9,"expected_result":1},
+    {"id":"eight_vertex_star_maximum_case","input_values":[8,254,1,1,1,1,1,1,1,1,0,2,3,4,5,6,7],"input_length":17,"expected_result":6},
+    {"id":"disconnected_graph","input_values":[3,2,1,0,0,1,2],"input_length":7,"expected_result":-1},
+    {"id":"umbrella_violation","input_values":[4,8,4,10,5,0,1,2,3],"input_length":9,"expected_result":-1},
+    {"id":"asymmetric_adjacency","input_values":[2,2,0,0,1],"input_length":5,"expected_result":-1},
+    {"id":"self_loop_bit","input_values":[2,3,1,0,1],"input_length":5,"expected_result":-1},
+    {"id":"out_of_range_mask_bit","input_values":[2,4,0,0,1],"input_length":5,"expected_result":-1},
+    {"id":"duplicate_order_vertex","input_values":[2,2,1,0,0],"input_length":5,"expected_result":-1},
+    {"id":"zero_vertex_count","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"trailing_word_at_parseable_bound","input_values":[8,254,1,1,1,1,1,1,1,1,0,2,3,4,5,6,7,0],"input_length":18,"expected_result":-1},
+    {"id":"null_input","input_values":[],"input_length":17,"input_is_null":true,"expected_result":-1},
+    {"id":"null_input_at_parseable_bound","input_values":[],"input_length":18,"input_is_null":true,"expected_result":-1}
+  ]
+}

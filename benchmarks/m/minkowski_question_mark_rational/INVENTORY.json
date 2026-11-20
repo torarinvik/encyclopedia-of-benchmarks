@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "algorithm": "minkowski_question_mark_rational",
+  "function_symbol": "minkowski_question_mark_rational",
+  "abi": "i64_array_bytes_output",
+  "status": "complete; byte-output runner and verifier registered",
+  "suite_integration": "benchmarks/run_i64_array_bytes_output.py and benchmarks/verify_i64_array_bytes_output.py",
+  "native_paths": [
+    "c/m/minkowski_question_mark_rational.c",
+    "c3/m/minkowski_question_mark_rational.c3",
+    "cpp/m/minkowski_question_mark_rational.cpp",
+    "elisa/m/minkowski_question_mark_rational.elisa",
+    "mojo/m/minkowski_question_mark_rational.mojo",
+    "nim/m/minkowski_question_mark_rational.nim",
+    "odin/m/minkowski_question_mark_rational.odin",
+    "rust/m/minkowski_question_mark_rational.rs",
+    "v/m/minkowski_question_mark_rational.v",
+    "zig/m/minkowski_question_mark_rational.zig"
+  ],
+  "package_files": [
+    "__init__.py", "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_denominator": 1000000,
+    "maximum_partial_quotient_sum": 60,
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "maximum_output_bytes": 16,
+    "maximum_output_exponent": 59,
+    "workspace_bytes": 128
+  },
+  "sources": [
+    {
+      "role": "continued_fraction_definition",
+      "title": "The moments of Minkowski question mark function: the dyadic period function",
+      "url": "https://doi.org/10.1017/S0017089509990152"
+    },
+    {
+      "role": "mediant_identity_cross_reference",
+      "title": "Minkowski's Question Mark Function",
+      "url": "https://mathworld.wolfram.com/MinkowskisQuestionMarkFunction.html"
+    },
+    {
+      "role": "title_discovery_only",
+      "title": "RosettaCodeData popular-tasks at pinned revision; score 20",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+    }
+  ]
+}

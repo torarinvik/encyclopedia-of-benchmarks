@@ -1,0 +1,226 @@
+const WBLT_MAX_OPERATIONS: i64 = 64
+const WBLT_NODE_CAPACITY: usize = 129
+const WBLT_MISSING: i64 = -129
+
+struct WbltTree:
+    left: i64[129]
+    right: i64[129]
+    size: i64[129]
+    free_next: i64[129]
+    key: i64[129]
+    maximum: i64[129]
+    next_node: usize
+    free_head: usize
+
+def wblt_allocate(tree: mutable WbltTree&) -> usize:
+    node: mutable usize = 0
+    if tree.free_head != 0:
+        node <- tree.free_head
+        tree.free_head <- tree.free_next[node].usize()
+    else:
+        node <- tree.next_node
+        tree.next_node <- tree.next_node + 1
+    tree.left[node] <- 0
+    tree.right[node] <- 0
+    tree.size[node] <- 0
+    tree.free_next[node] <- 0
+    tree.key[node] <- 0
+    tree.maximum[node] <- 0
+    node
+
+def wblt_release(tree: mutable WbltTree&, node: usize) -> void:
+    tree.left[node] <- 0
+    tree.right[node] <- 0
+    tree.size[node] <- 0
+    tree.key[node] <- 0
+    tree.maximum[node] <- 0
+    tree.free_next[node] <- tree.free_head.i64()
+    tree.free_head <- node
+
+def wblt_leaf(tree: mutable WbltTree&, value: i64) -> usize:
+    node: usize = wblt_allocate(tree)
+    tree.key[node] <- value
+    tree.maximum[node] <- value
+    tree.size[node] <- 1
+    node
+
+def wblt_join(tree: mutable WbltTree&, left: usize, right: usize) -> usize:
+    node: usize = wblt_allocate(tree)
+    tree.left[node] <- left.i64()
+    tree.right[node] <- right.i64()
+    tree.size[node] <- tree.size[left] + tree.size[right]
+    tree.maximum[node] <- tree.maximum[right]
+    node
+
+def wblt_too_heavy(left_size: i64, right_size: i64) -> bool:
+    left_size > 3 * right_size
+
+def wblt_merge(tree: mutable WbltTree&, left: usize, right: usize) -> usize:
+    if left == 0: return right
+    if right == 0: return left
+    if wblt_too_heavy(tree.size[left], tree.size[right]):
+        left_child: usize = tree.left[left].usize()
+        right_child: usize = tree.right[left].usize()
+        wblt_release(tree, left)
+        merged: usize = wblt_merge(tree, right_child, right)
+        joined: usize = wblt_join(tree, left_child, merged)
+        joined_left: usize = tree.left[joined].usize()
+        joined_right: usize = tree.right[joined].usize()
+        if wblt_too_heavy(tree.size[joined_left], tree.size[joined_right]) or wblt_too_heavy(tree.size[joined_right], tree.size[joined_left]):
+            a: usize = joined_left
+            b: usize = joined_right
+            wblt_release(tree, joined)
+            return wblt_merge(tree, a, b)
+        return joined
+    if wblt_too_heavy(tree.size[right], tree.size[left]):
+        left_child: usize = tree.left[right].usize()
+        right_child: usize = tree.right[right].usize()
+        wblt_release(tree, right)
+        merged: usize = wblt_merge(tree, left, left_child)
+        joined: usize = wblt_join(tree, merged, right_child)
+        joined_left: usize = tree.left[joined].usize()
+        joined_right: usize = tree.right[joined].usize()
+        if wblt_too_heavy(tree.size[joined_left], tree.size[joined_right]) or wblt_too_heavy(tree.size[joined_right], tree.size[joined_left]):
+            a: usize = joined_left
+            b: usize = joined_right
+            wblt_release(tree, joined)
+            return wblt_merge(tree, a, b)
+        return joined
+    joined: usize = wblt_join(tree, left, right)
+    joined_left: usize = tree.left[joined].usize()
+    joined_right: usize = tree.right[joined].usize()
+    if wblt_too_heavy(tree.size[joined_left], tree.size[joined_right]) or wblt_too_heavy(tree.size[joined_right], tree.size[joined_left]):
+        a: usize = joined_left
+        b: usize = joined_right
+        wblt_release(tree, joined)
+        return wblt_merge(tree, a, b)
+    joined
+
+def wblt_rebalance(tree: mutable WbltTree&, node: usize) -> usize:
+    if tree.size[node] == 1: return node
+    left: usize = tree.left[node].usize()
+    right: usize = tree.right[node].usize()
+    if wblt_too_heavy(tree.size[left], tree.size[right]) or wblt_too_heavy(tree.size[right], tree.size[left]):
+        wblt_release(tree, node)
+        return wblt_merge(tree, left, right)
+    node
+
+def wblt_insert(tree: mutable WbltTree&, node: usize, value: i64) -> usize:
+    if node == 0: return wblt_leaf(tree, value)
+    if tree.size[node] == 1:
+        if value <= tree.key[node]:
+            added: usize = wblt_leaf(tree, value)
+            return wblt_join(tree, added, node)
+        added: usize = wblt_leaf(tree, value)
+        return wblt_join(tree, node, added)
+    left: usize = tree.left[node].usize()
+    if value <= tree.maximum[left]:
+        tree.left[node] <- wblt_insert(tree, left, value).i64()
+    else:
+        right: usize = tree.right[node].usize()
+        tree.right[node] <- wblt_insert(tree, right, value).i64()
+    left <- tree.left[node].usize()
+    right <- tree.right[node].usize()
+    tree.size[node] <- tree.size[left] + tree.size[right]
+    tree.maximum[node] <- tree.maximum[right]
+    wblt_rebalance(tree, node)
+
+def wblt_remove(tree: mutable WbltTree&, node: usize, value: i64,
+                removed: mutable bool&) -> usize:
+    removed <- false
+    if node == 0: return 0
+    if tree.size[node] == 1:
+        if tree.key[node] != value: return node
+        wblt_release(tree, node)
+        removed <- true
+        return 0
+    left: usize = tree.left[node].usize()
+    if value <= tree.maximum[left]:
+        tree.left[node] <- wblt_remove(tree, left, value, removed).i64()
+    else:
+        right: usize = tree.right[node].usize()
+        tree.right[node] <- wblt_remove(tree, right, value, removed).i64()
+    if not removed: return node
+    left <- tree.left[node].usize()
+    right <- tree.right[node].usize()
+    if left == 0 or right == 0:
+        child: usize = if left != 0: left else: right
+        wblt_release(tree, node)
+        return child
+    tree.size[node] <- tree.size[left] + tree.size[right]
+    tree.maximum[node] <- tree.maximum[right]
+    wblt_rebalance(tree, node)
+
+def wblt_rank(tree: WbltTree&, node: usize, value: i64) -> i64:
+    if node == 0: return 0
+    if tree.size[node] == 1: return if tree.key[node] < value: 1 else: 0
+    left: usize = tree.left[node].usize()
+    if value <= tree.maximum[left]: return wblt_rank(tree, left, value)
+    tree.size[left] + wblt_rank(tree, tree.right[node].usize(), value)
+
+def wblt_kth(tree: WbltTree&, node_input: usize, index_input: i64) -> i64:
+    if node_input == 0 or index_input >= tree.size[node_input]: return WBLT_MISSING
+    node: mutable usize = node_input
+    index: mutable i64 = index_input
+    while tree.size[node] != 1:
+        left: usize = tree.left[node].usize()
+        if index < tree.size[left]: node <- left
+        else:
+            index <- index - tree.size[left]
+            node <- tree.right[node].usize()
+    tree.key[node]
+
+def wblt_predecessor(tree: WbltTree&, node: usize, value: i64) -> i64:
+    if node == 0: return WBLT_MISSING
+    if tree.size[node] == 1: return if tree.key[node] < value: tree.key[node] else: WBLT_MISSING
+    left: usize = tree.left[node].usize()
+    if value <= tree.maximum[left]: return wblt_predecessor(tree, left, value)
+    answer: i64 = wblt_predecessor(tree, tree.right[node].usize(), value)
+    if answer == WBLT_MISSING: return tree.maximum[left]
+    answer
+
+def wblt_successor(tree: WbltTree&, node: usize, value: i64) -> i64:
+    if node == 0: return WBLT_MISSING
+    if tree.size[node] == 1: return if tree.key[node] > value: tree.key[node] else: WBLT_MISSING
+    left: usize = tree.left[node].usize()
+    if value < tree.maximum[left]: return wblt_successor(tree, left, value)
+    wblt_successor(tree, tree.right[node].usize(), value)
+
+def weight_balanced_leaf_tree_order_statistics_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 130: return -1
+    q: i64 = input[0]
+    if q < 0 or q > WBLT_MAX_OPERATIONS or length != 1 + 2 * q.usize(): return -1
+    index: mutable usize = 0
+    while index < q.usize():
+        op: i64 = input[1 + 2 * index]
+        arg: i64 = input[2 + 2 * index]
+        if op < 0 or op > 5: return -1
+        if op == 3:
+            if arg < 0 or arg >= WBLT_MAX_OPERATIONS: return -1
+        else if arg < -128 or arg > 127: return -1
+        index <- index + 1
+
+    tree: mutable WbltTree = zeroed
+    tree.next_node <- 1
+    root: mutable usize = 0
+    checksum: mutable i64 = 0
+    index <- 0
+    while index < q.usize():
+        op: i64 = input[1 + 2 * index]
+        arg: i64 = input[2 + 2 * index]
+        if op == 0:
+            root <- wblt_insert(tree, root, arg)
+        else if op == 1:
+            removed: mutable bool = false
+            root <- wblt_remove(tree, root, arg, removed)
+        else:
+            answer: mutable i64 = 0
+            if op == 2: answer <- wblt_rank(tree, root, arg)
+            else if op == 3: answer <- wblt_kth(tree, root, arg)
+            else if op == 4: answer <- wblt_predecessor(tree, root, arg)
+            else: answer <- wblt_successor(tree, root, arg)
+            checksum <- checksum + (index.i64() + 1) * (answer - WBLT_MISSING)
+        index <- index + 1
+    checksum
+
+export fn weight_balanced_leaf_tree_order_statistics(input: i64&, length: usize) -> i64 = weight_balanced_leaf_tree_order_statistics_impl

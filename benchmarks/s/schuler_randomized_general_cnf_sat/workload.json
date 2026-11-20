@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-schuler-randomized-general-cnf-sat-i64-array-bytes-output-v1",
+  "algorithm": "schuler_randomized_general_cnf_sat",
+  "function_symbol": "schuler_randomized_general_cnf_sat",
+  "abi": "i64_array_bytes_output",
+  "pinned_source": {
+    "title": "An algorithm for the satisfiability problem of formulas in conjunctive normal form",
+    "doi": "10.1016/j.jalgor.2004.04.012",
+    "url": "https://doi.org/10.1016/j.jalgor.2004.04.012",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_133",
+    "ppz_doi": "10.1109/SFCS.1997.646146",
+    "license": "No source-code license asserted; clean-room mathematical algorithm"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,(clause_length,signed_literal_ids...)*,(permutation[n],random_bits[n],clause_choice)*(n+1)]",
+    "variable_count_range": [1, 6],
+    "clause_count_range": [1, 4],
+    "maximum_valid_length": 121,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "formula": "Clauses are ordered lists of unique-variable signed one-based literals. Positive v is x_v and negative -v is not x_v.",
+    "prefix_size": "At a call with m0 clauses, k=1+the least integer strictly greater than log2(m0), equivalently m0.bit_length()+1; truncate each clause to its first k literals.",
+    "ppz_attempt": "Visit every variable not fixed by an ancestor in supplied permutation order, including variables absent from the truncated formula. Prefer a positive unit clause, then a negative unit clause, otherwise use the random bit at that variable's position in the permutation filtered to unfixed variables and count a guess. Simplify after each assignment and return success only when no empty clause remains.",
+    "recursive_step": "If PPZ fails and a clause has at least k literals, select the supplied zero-based index among eligible current clauses in order, falsify its first k literals, simplify the original current formula, and recurse. If no eligible clause exists, fail. A selected index outside the current eligible set is invalid.",
+    "random_tape": "There are n+1 rows. Each row contains a permutation of 1..n, n bits in {0,1}, and a clause choice in [0,m). Bits are indexed by position after filtering the permutation to variables not fixed by ancestors; forced variables ignore their bit, while absent variables use their bit as a guess. Every row is validated, including unused rows. The supplied tape defines one deterministic trace and makes no probability claim.",
+    "output": "[found,assignment_mask,calls,unit_forces,random_guesses,max_depth] as six signed-i64 words. Bit v-1 is x_v; failed solves emit mask zero. At an empty-formula terminal, variables not fixed by branches default false. Random guesses include variables absent from the shortened formula. Root depth is zero.",
+    "error_timing": "Validate the complete frame and finish the bounded solve before output capacity handling. Invalid input returns -1."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "six signed-i64 words",
+    "maximum_bytes": 48,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Bounded formulas, recursive residuals, tape rows, and staged output for n<=6 and m<=4."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "ppz-random-bit-model",
+      "input_values": [2, 1, 2, 1, 2, 1, 2, 1, 0, 0, 1, 2, 1, 0, 0, 1, 2, 1, 0, 0],
+      "input_length": 20,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000001000000000000000100000000000000000000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "ppz-failure-recursive-prefix-falsification",
+      "input_values": [4, 4, 4, 1, 2, 3, 4, 4, 1, 2, 3, -4, 4, -1, 2, 3, 4, 4, 1, -2, 3, 4, 1, 2, 3, 4, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0],
+      "input_length": 67,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000000200000000000000010000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "contradictory-unit-clauses",
+      "input_values": [2, 2, 1, 1, 1, -1, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0],
+      "input_length": 21,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000000100000000000000010000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "absent-variable-is-still-guessed",
+      "input_values": [2, 1, 1, 1, 1, 2, 0, 1, 0, 1, 2, 0, 1, 0, 1, 2, 0, 1, 0],
+      "input_length": 19,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000003000000000000000100000000000000010000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "duplicate-variable-in-clause-is-invalid",
+      "input_values": [2, 1, 2, 1, -1],
+      "input_length": 5,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 1, 2, 1, 2, 1, 2, 1, 0, 0, 1, 2, 1, 0, 0, 1, 2, 1, 0, 0],
+      "input_length": 20,
+      "output_capacity": 40,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

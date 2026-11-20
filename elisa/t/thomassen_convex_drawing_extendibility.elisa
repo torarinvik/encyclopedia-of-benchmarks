@@ -1,0 +1,282 @@
+const TH_N: usize = 8
+const TH_M: usize = 18
+const TH_F: usize = 12
+const TH_MAX_INPUT: usize = 93
+const TH_STATES: usize = 256
+
+def th_connected(adjacency: view[bool], n: usize, removed: i64) -> bool:
+    start: usize = 1 if removed == 0 else 0
+    seen: mutable bool[8] = zeroed
+    stack: mutable usize[8] = zeroed
+    top: mutable usize = 1
+    count: mutable usize = 0
+    seen[start] <- true
+    stack[0] <- start
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        count <- count + 1
+        for v in 0..<n:
+            if v.i64() != removed && adjacency[u * 8 + v] && not seen[v]:
+                seen[v] <- true
+                stack[top] <- v
+                top <- top + 1
+    expected: usize = n - (1 if removed >= 0 else 0)
+    count == expected
+
+def th_three_outer_paths(adjacency: view[bool], outer: view[bool], n: usize, root: usize) -> bool:
+    residual: mutable usize[324] = zeroed
+    source: usize = 2 * n
+    sink: usize = source + 1
+    nodes: usize = sink + 1
+    for v in 0..<n:
+        if v != root: residual[(2 * v) * 18 + (2 * v + 1)] <- 1
+    for u in 0..<n:
+        for v in (u + 1)..<n:
+            if not adjacency[u * 8 + v]: continue
+            if u == root:
+                residual[source * 18 + 2 * v] <- residual[source * 18 + 2 * v] + 1
+            elif v == root:
+                residual[source * 18 + 2 * u] <- residual[source * 18 + 2 * u] + 1
+            else:
+                residual[(2 * u + 1) * 18 + 2 * v] <- residual[(2 * u + 1) * 18 + 2 * v] + 1
+                residual[(2 * v + 1) * 18 + 2 * u] <- residual[(2 * v + 1) * 18 + 2 * u] + 1
+    for v in 0..<n:
+        if outer[v] && v != root:
+            residual[(2 * v + 1) * 18 + sink] <- residual[(2 * v + 1) * 18 + sink] + 1
+    for _ in 0..<3:
+        parent: mutable i64[18] = zeroed
+        queue: mutable usize[18] = zeroed
+        for v in 0..<nodes: parent[v] <- -1
+        parent[source] <- source.i64()
+        queue[0] <- source
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        while head < tail && parent[sink] < 0:
+            u: usize = queue[head]
+            head <- head + 1
+            for v in 0..<nodes:
+                if residual[u * 18 + v] > 0 && parent[v] < 0:
+                    parent[v] <- u.i64()
+                    queue[tail] <- v
+                    tail <- tail + 1
+                    if v == sink: break
+        if parent[sink] < 0: return false
+        at: usize = sink
+        while at != source:
+            previous: usize = parent[at].usize()
+            residual[previous * 18 + at] <- residual[previous * 18 + at] - 1
+            residual[at * 18 + previous] <- residual[at * 18 + previous] + 1
+            at <- previous
+    true
+
+def th_condition_three(inner: view[bool], degree: view[usize], n: usize) -> bool:
+    mask_size: mutable usize[256] = zeroed
+    for mask in 1..<TH_STATES:
+        mask_size[mask] <- mask_size[mask >> 1] + (mask & 1)
+    for start in 0..<n:
+        dp_storage: mutable u8[2048] = zeroed
+        dp: mutable view[u8] = dp_storage[0:2048]
+        for i in 0..<2048: dp[i] <- 255
+        initial: usize = 1 << start
+        dp[initial * 8 + start] <- (1 if degree[start] >= 3 else 0).u8()
+        for mask in 0..<(1 << n):
+            if (mask & initial) == 0: continue
+            for last in start..<n:
+                used: u8 = dp[mask * 8 + last]
+                if used == 255: continue
+                if mask_size[mask] >= 3 && inner[last * 8 + start] && used < 3: return false
+                for next in (start + 1)..<n:
+                    bit: usize = 1 << next
+                    if (mask & bit) != 0 || not inner[last * 8 + next]: continue
+                    next_mask: usize = mask | bit
+                    candidate: u8 = used + (1 if degree[next] >= 3 else 0).u8()
+                    if candidate < dp[next_mask * 8 + next]: dp[next_mask * 8 + next] <- candidate
+    true
+
+def th_compute(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 5 || length > TH_MAX_INPUT: return -1
+    n_raw: i64 = values[0]
+    m_raw: i64 = values[1]
+    f_raw: i64 = values[2]
+    outer_raw: i64 = values[3]
+    sides_raw: i64 = values[4]
+    if n_raw < 3 || n_raw > 8 || m_raw < n_raw || m_raw > 18 || m_raw > 3 * n_raw - 6 ||
+            f_raw < 2 || f_raw > 12 || f_raw != m_raw - n_raw + 2 ||
+            outer_raw < 0 || outer_raw >= f_raw || sides_raw < 3 || sides_raw > n_raw: return -1
+    n: usize = n_raw.usize()
+    m: usize = m_raw.usize()
+    f: usize = f_raw.usize()
+    outer: usize = outer_raw.usize()
+    side_count: usize = sides_raw.usize()
+    adjacency_storage: mutable bool[64] = zeroed
+    adjacency: mutable view[bool] = adjacency_storage[0:64]
+    edge_u: mutable usize[18] = zeroed
+    edge_v: mutable usize[18] = zeroed
+    cursor: mutable usize = 5
+    for e in 0..<m:
+        if cursor + 2 > length: return -1
+        u_raw: i64 = values[cursor]
+        v_raw: i64 = values[cursor + 1]
+        cursor <- cursor + 2
+        if u_raw < 0 || u_raw >= v_raw || v_raw >= n_raw: return -1
+        u: usize = u_raw.usize()
+        v: usize = v_raw.usize()
+        if adjacency[u * 8 + v] || (e > 0 && (u < edge_u[e - 1] || (u == edge_u[e - 1] && v <= edge_v[e - 1]))): return -1
+        adjacency[u * 8 + v] <- true
+        adjacency[v * 8 + u] <- true
+        edge_u[e] <- u
+        edge_v[e] <- v
+    faces_storage: mutable usize[96] = zeroed
+    faces: mutable view[usize] = faces_storage[0:96]
+    widths: mutable usize[12] = zeroed
+    darts: mutable usize[64] = zeroed
+    for face in 0..<f:
+        if cursor >= length: return -1
+        width_raw: i64 = values[cursor]
+        cursor <- cursor + 1
+        if width_raw < 3 || width_raw > n_raw || cursor + width_raw.usize() > length: return -1
+        width: usize = width_raw.usize()
+        widths[face] <- width
+        row_seen: mutable bool[8] = zeroed
+        for i in 0..<width:
+            vertex_raw: i64 = values[cursor]
+            cursor <- cursor + 1
+            if vertex_raw < 0 || vertex_raw >= n_raw: return -1
+            vertex: usize = vertex_raw.usize()
+            if row_seen[vertex]: return -1
+            row_seen[vertex] <- true
+            faces[face * 8 + i] <- vertex
+        for i in 0..<width:
+            u: usize = faces[face * 8 + i]
+            v: usize = faces[face * 8 + ((i + 1) % width)]
+            if not adjacency[u * 8 + v]: return -1
+            darts[u * 8 + v] <- darts[u * 8 + v] + 1
+    if cursor + side_count != length: return -1
+    apex: mutable usize[8] = zeroed
+    for i in 0..<side_count:
+        position_raw: i64 = values[cursor]
+        cursor <- cursor + 1
+        if position_raw < 0 || position_raw >= widths[outer].i64() ||
+                (i > 0 && position_raw <= apex[i - 1].i64()): return -1
+        apex[i] <- position_raw.usize()
+    for e in 0..<m:
+        u: usize = edge_u[e]
+        v: usize = edge_v[e]
+        if darts[u * 8 + v] != 1 || darts[v * 8 + u] != 1: return -1
+    if not th_connected(adjacency, n, -1): return -1
+    for v in 0..<n:
+        if not th_connected(adjacency, n, v.i64()): return -1
+
+    link_storage: mutable bool[512] = zeroed
+    link_adj: mutable view[bool] = link_storage[0:512]
+    link_degree: mutable usize[64] = zeroed
+    for face in 0..<f:
+        width: usize = widths[face]
+        for i in 0..<width:
+            center: usize = faces[face * 8 + i]
+            before: usize = faces[face * 8 + ((i + width - 1) % width)]
+            after: usize = faces[face * 8 + ((i + 1) % width)]
+            if before == after: return -1
+            link_adj[(center * 8 + before) * 8 + after] <- true
+            link_adj[(center * 8 + after) * 8 + before] <- true
+            link_degree[center * 8 + before] <- link_degree[center * 8 + before] + 1
+            link_degree[center * 8 + after] <- link_degree[center * 8 + after] + 1
+    outer_vertices: mutable bool[8] = zeroed
+    outer_edges: mutable bool[64] = zeroed
+    for i in 0..<widths[outer]:
+        u: usize = faces[outer * 8 + i]
+        v: usize = faces[outer * 8 + ((i + 1) % widths[outer])]
+        outer_vertices[u] <- true
+        outer_edges[u * 8 + v] <- true
+        outer_edges[v * 8 + u] <- true
+    for center in 0..<n:
+        start: mutable i64 = -1
+        incident_count: mutable usize = 0
+        for neighbor in 0..<n:
+            if adjacency[center * 8 + neighbor]:
+                if link_degree[center * 8 + neighbor] != 2: return -1
+                if start < 0: start <- neighbor.i64()
+                incident_count <- incident_count + 1
+            elif link_degree[center * 8 + neighbor] != 0: return -1
+        seen_link: mutable bool[8] = zeroed
+        stack: mutable usize[8] = zeroed
+        top: mutable usize = 1
+        reached: mutable usize = 0
+        seen_link[start.usize()] <- true
+        stack[0] <- start.usize()
+        while top > 0:
+            top <- top - 1
+            neighbor: usize = stack[top]
+            reached <- reached + 1
+            for other in 0..<n:
+                if link_adj[(center * 8 + neighbor) * 8 + other] && not seen_link[other]:
+                    seen_link[other] <- true
+                    stack[top] <- other
+                    top <- top + 1
+        if reached != incident_count: return -1
+
+    sides: mutable bool[64] = zeroed
+    for side in 0..<side_count:
+        at: mutable usize = apex[side]
+        end: usize = apex[(side + 1) % side_count]
+        while true:
+            sides[side * 8 + faces[outer * 8 + at]] <- true
+            if at == end: break
+            at <- (at + 1) % widths[outer]
+    degree: mutable usize[8] = zeroed
+    for u in 0..<n:
+        for v in 0..<n:
+            if adjacency[u * 8 + v]: degree[u] <- degree[u] + 1
+    for root in 0..<n:
+        if not outer_vertices[root] && degree[root] >= 3 && not th_three_outer_paths(adjacency, outer_vertices, n, root): return 0
+
+    seen_inner: mutable bool[8] = zeroed
+    for seed in 0..<n:
+        if outer_vertices[seed] || seen_inner[seed]: continue
+        border: mutable bool[8] = zeroed
+        stack: mutable usize[8] = zeroed
+        top: mutable usize = 1
+        seen_inner[seed] <- true
+        stack[0] <- seed
+        while top > 0:
+            top <- top - 1
+            u: usize = stack[top]
+            for v in 0..<n:
+                if not adjacency[u * 8 + v]: continue
+                if outer_vertices[v]: border[v] <- true
+                elif not seen_inner[v]:
+                    seen_inner[v] <- true
+                    stack[top] <- v
+                    top <- top + 1
+        for side in 0..<side_count:
+            nonempty: mutable bool = false
+            contained: mutable bool = true
+            for v in 0..<n:
+                if border[v]:
+                    nonempty <- true
+                    if not sides[side * 8 + v]: contained <- false
+            if nonempty && contained: return 0
+    for e in 0..<m:
+        u: usize = edge_u[e]
+        v: usize = edge_v[e]
+        if not outer_edges[u * 8 + v]:
+            for side in 0..<side_count:
+                if sides[side * 8 + u] && sides[side * 8 + v]: return 0
+    inner_storage: mutable bool[64] = zeroed
+    inner: mutable view[bool] = inner_storage[0:64]
+    for e in 0..<m:
+        u: usize = edge_u[e]
+        v: usize = edge_v[e]
+        if not outer_edges[u * 8 + v]:
+            inner[u * 8 + v] <- true
+            inner[v * 8 + u] <- true
+    if th_condition_three(inner, degree, n): 1 else: 0
+
+def thomassen_convex_drawing_extendibility_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() || length < 5 || length > TH_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    th_compute(values)
+
+export fn thomassen_convex_drawing_extendibility(input: i64&, input_length: usize) -> i64 = thomassen_convex_drawing_extendibility_impl

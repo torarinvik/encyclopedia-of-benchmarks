@@ -1,8 +1,8 @@
 module felsenstein_substitution_likelihood;
 
-fn void put_i64(uint8* out,long value){ulong bits=(ulong)value;for(usz b=0;b<8;b++)out[b]=(uint8)(bits>>(8*b));}
+fn void put_i64(char* out,long value){ulong bits=(ulong)value;for(usz b=0;b<8;b++)out[b]=(char)(bits>>(8*b));}
 
-fn long felsenstein_substitution_likelihood(long* input,usz length,uint8* output,usz capacity) @export("felsenstein_substitution_likelihood") {
+fn long felsenstein_substitution_likelihood(long* input,usz length,char* output,usz capacity) @export("felsenstein_substitution_likelihood") {
     if(input==null||length<3||length>38)return -1;
     long n=input[0];if(n<1||n>8)return -1;
     long[16] stack;long sp=0,leaves=0,joins=0,edges=0;usz at=1;

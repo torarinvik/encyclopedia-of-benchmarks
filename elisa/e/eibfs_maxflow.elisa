@@ -1,0 +1,289 @@
+const EIBFS_NMAX: usize = 8
+const EIBFS_MMAX: usize = 24
+const EIBFS_INPUT_MAX: usize = 77
+const EIBFS_FREE: i64 = 0
+const EIBFS_S: i64 = 1
+const EIBFS_T: i64 = 2
+
+struct EibfsState:
+    n: usize
+    source: usize
+    sink: usize
+    forward: bool
+    kind: i64[8]
+    parent: i64[8]
+    original: i64[64]
+    residual: i64[64]
+    balance: i64[8]
+    ds: i64[8]
+    dt: i64[8]
+    ds_max: i64
+    dt_max: i64
+    orphaned: bool[8]
+    events: usize
+
+def eibfs_root(state: EibfsState&, start: usize) -> i64:
+    vertex: mutable usize = start
+    for _ in 0..<state.n:
+        if state.parent[vertex] < 0: return vertex.i64()
+        vertex <- state.parent[vertex].usize()
+    -1
+
+def eibfs_bottleneck(state: EibfsState&, start: usize, kind: i64) -> i64:
+    vertex: mutable usize = start
+    answer: mutable i64 = 2401
+    for _ in 0..<state.n:
+        parent: i64 = state.parent[vertex]
+        if parent < 0: return answer
+        p: usize = parent.usize()
+        capacity: i64 = state.residual[p * EIBFS_NMAX + vertex]
+        if kind == EIBFS_T: capacity <- state.residual[vertex * EIBFS_NMAX + p]
+        if capacity < answer: answer <- capacity
+        vertex <- p
+    0
+
+def eibfs_push(state: mutable EibfsState&, u: usize, v: usize, amount: i64) -> void:
+    state.residual[u * EIBFS_NMAX + v] <- state.residual[u * EIBFS_NMAX + v] - amount
+    state.residual[v * EIBFS_NMAX + u] <- state.residual[v * EIBFS_NMAX + u] + amount
+    if u != state.source and u != state.sink: state.balance[u] <- state.balance[u] - amount
+    if v != state.source and v != state.sink: state.balance[v] <- state.balance[v] + amount
+
+def eibfs_mark(state: mutable EibfsState&, vertex: usize, queue: mutable view[usize], tail: mutable usize&) -> void:
+    if not state.orphaned[vertex]:
+        state.orphaned[vertex] <- true
+        queue[tail] <- vertex
+        tail <- tail + 1
+
+def eibfs_detach(state: mutable EibfsState&, vertex: usize, kind: i64,
+                 queue: mutable view[usize], tail: mutable usize&) -> void:
+    for child in 0..<state.n:
+        if state.kind[child] == kind and state.parent[child] == vertex.i64():
+            state.parent[child] <- -1
+            eibfs_mark(state&, child, queue, tail&)
+
+def eibfs_adopt(state: mutable EibfsState&, vertex: usize, kind: i64,
+                queue: mutable view[usize], tail: mutable usize&) -> void:
+    sink_side: bool = kind == EIBFS_T
+    state.orphaned[vertex] <- false
+    old: i64 = if sink_side: state.dt[vertex] else: state.ds[vertex]
+    for candidate in 0..<state.n:
+        cap: i64 = if sink_side: state.residual[vertex * EIBFS_NMAX + candidate] else: state.residual[candidate * EIBFS_NMAX + vertex]
+        here: i64 = if sink_side: state.dt[vertex] else: state.ds[vertex]
+        label: i64 = if sink_side: state.dt[candidate] else: state.ds[candidate]
+        if candidate != vertex and state.kind[candidate] == kind and cap > 0 and here == label + 1:
+            state.parent[vertex] <- candidate.i64()
+            return
+    frontier: i64 = if sink_side: state.dt_max else: state.ds_max
+    subtract: bool = if sink_side: state.forward else: not state.forward
+    limit: i64 = frontier - (if subtract: 1 else: 0)
+    best: mutable i64 = (4 * state.n).i64()
+    for candidate in 0..<state.n:
+        cap: i64 = if sink_side: state.residual[vertex * EIBFS_NMAX + candidate] else: state.residual[candidate * EIBFS_NMAX + vertex]
+        label: i64 = if sink_side: state.dt[candidate] else: state.ds[candidate]
+        if candidate != vertex and state.kind[candidate] == kind and cap > 0 and label <= limit and label < best:
+            best <- label
+    parent: mutable i64 = -1
+    for candidate in 0..<state.n:
+        cap: i64 = if sink_side: state.residual[vertex * EIBFS_NMAX + candidate] else: state.residual[candidate * EIBFS_NMAX + vertex]
+        label: i64 = if sink_side: state.dt[candidate] else: state.ds[candidate]
+        if candidate != vertex and state.kind[candidate] == kind and cap > 0 and label == best:
+            parent <- candidate.i64()
+            break
+    if parent >= 0 and best + 1 > old:
+        eibfs_detach(state&, vertex, kind, queue, tail&)
+        state.parent[vertex] <- parent
+        if sink_side: state.dt[vertex] <- best + 1
+        else: state.ds[vertex] <- best + 1
+        return
+    eibfs_detach(state&, vertex, kind, queue, tail&)
+    state.parent[vertex] <- -1
+    state.kind[vertex] <- EIBFS_FREE
+    if sink_side and state.balance[vertex] > 0:
+        state.kind[vertex] <- EIBFS_S
+        state.ds[vertex] <- state.ds_max + (if state.forward: 1 else: 0)
+    elif not sink_side and state.balance[vertex] < 0:
+        state.kind[vertex] <- EIBFS_T
+        state.dt[vertex] <- state.dt_max + (if state.forward: 0 else: 1)
+
+def eibfs_repair_orphans(state: mutable EibfsState&, kind: i64,
+                         queue: mutable view[usize], head: usize, tail: mutable usize&) -> void:
+    at: mutable usize = head
+    while at < tail:
+        vertex: usize = queue[at]
+        at <- at + 1
+        state.orphaned[vertex] <- false
+        if state.kind[vertex] == kind: eibfs_adopt(state&, vertex, kind, queue, tail&)
+
+def eibfs_drain(state: mutable EibfsState&, start: usize, kind: i64) -> void:
+    root: i64 = eibfs_root(state&, start)
+    if root < 0: return
+    queue: mutable usize[512] = zeroed
+    head: usize = 0
+    tail: mutable usize = 0
+    vertex: mutable usize = start
+    while (if kind == EIBFS_T: state.balance[vertex] > 0 else: state.balance[vertex] < 0) and state.parent[vertex] >= 0:
+        parent: usize = state.parent[vertex].usize()
+        cap: i64 = if kind == EIBFS_T: state.residual[vertex * EIBFS_NMAX + parent] else: state.residual[parent * EIBFS_NMAX + vertex]
+        need: i64 = if kind == EIBFS_T: state.balance[vertex] else: -state.balance[vertex]
+        amount: i64 = if need < cap: need else: cap
+        if amount > 0:
+            if kind == EIBFS_T: eibfs_push(state&, vertex, parent, amount)
+            else: eibfs_push(state&, parent, vertex, amount)
+        after: i64 = if kind == EIBFS_T: state.balance[vertex] else: -state.balance[vertex]
+        remaining: i64 = if kind == EIBFS_T: state.residual[vertex * EIBFS_NMAX + parent] else: state.residual[parent * EIBFS_NMAX + vertex]
+        if remaining == 0 and after >= 0:
+            state.parent[vertex] <- -1
+            eibfs_mark(state&, vertex, queue[0:512], tail&)
+            break
+        if after == 0: break
+        vertex <- parent
+    root_vertex: usize = root.usize()
+    if kind == EIBFS_T and root_vertex != state.sink and state.kind[root_vertex] == kind and state.balance[root_vertex] >= 0:
+        state.parent[root_vertex] <- -1
+        eibfs_mark(state&, root_vertex, queue[0:512], tail&)
+    if kind == EIBFS_S and root_vertex != state.source and state.kind[root_vertex] == kind and state.balance[root_vertex] <= 0:
+        state.parent[root_vertex] <- -1
+        eibfs_mark(state&, root_vertex, queue[0:512], tail&)
+    eibfs_repair_orphans(state&, kind, queue[0:512], head, tail&)
+
+def eibfs_repair(state: mutable EibfsState&) -> void:
+    while true:
+        found: mutable bool = false
+        for vertex in 0..<state.n:
+            if state.kind[vertex] == EIBFS_T and state.balance[vertex] > 0:
+                eibfs_drain(state&, vertex, EIBFS_T)
+                found <- true
+                break
+        if found: continue
+        for vertex in 0..<state.n:
+            if state.kind[vertex] == EIBFS_S and state.balance[vertex] < 0:
+                eibfs_drain(state&, vertex, EIBFS_S)
+                found <- true
+                break
+        if not found: return
+
+def eibfs_augment(state: mutable EibfsState&, v: usize, w: usize) -> bool:
+    rs: i64 = eibfs_root(state&, v)
+    rt: i64 = eibfs_root(state&, w)
+    if rs < 0 or rt < 0 or state.residual[v * EIBFS_NMAX + w] <= 0: return false
+    connector: i64 = state.residual[v * EIBFS_NMAX + w]
+    bs: i64 = eibfs_bottleneck(state&, v, EIBFS_S)
+    bt: i64 = eibfs_bottleneck(state&, w, EIBFS_T)
+    amount: mutable i64 = connector
+    if rs == state.source.i64() and rt == state.sink.i64(): pass
+    elif rs == state.source.i64(): amount <- if bs < connector: bs else: connector
+    elif rt == state.sink.i64(): amount <- if connector < bt: connector else: bt
+    else:
+        amount <- state.balance[rs.usize()]
+        if bs < amount: amount <- bs
+        if connector < amount: amount <- connector
+        if bt < amount: amount <- bt
+        if -state.balance[rt.usize()] < amount: amount <- -state.balance[rt.usize()]
+    if amount <= 0: return false
+    eibfs_push(state&, v, w, amount)
+    eibfs_repair(state&)
+    true
+
+def eibfs_solve(state: mutable EibfsState&) -> i64:
+    finished: mutable bool = false
+    for _ in 0..<(4 * state.n + 4):
+        if finished: break
+        while true:
+            restart: mutable bool = false
+            if state.forward:
+                for v in 0..<state.n:
+                    if restart: break
+                    if state.kind[v] != EIBFS_S or state.ds[v] != state.ds_max: continue
+                    for w in 0..<state.n:
+                        if state.residual[v * EIBFS_NMAX + w] <= 0 or state.kind[w] == EIBFS_S: continue
+                        if state.kind[w] == EIBFS_FREE:
+                            state.kind[w] <- EIBFS_S
+                            state.parent[w] <- v.i64()
+                            state.ds[w] <- state.ds_max + 1
+                        elif state.kind[w] == EIBFS_T and eibfs_augment(state&, v, w):
+                            state.events <- state.events + 1
+                            if state.events > 100000: return -1
+                            restart <- true
+                            break
+                if not restart:
+                    next: mutable bool = false
+                    for v in 0..<state.n:
+                        if state.kind[v] == EIBFS_S and state.ds[v] == state.ds_max + 1: next <- true
+                    if next: state.ds_max <- state.ds_max + 1
+                    else: finished <- true
+                    break
+            else:
+                for w in 0..<state.n:
+                    if restart: break
+                    if state.kind[w] != EIBFS_T or state.dt[w] != state.dt_max: continue
+                    for v in 0..<state.n:
+                        if state.residual[v * EIBFS_NMAX + w] <= 0 or state.kind[v] == EIBFS_T: continue
+                        if state.kind[v] == EIBFS_FREE:
+                            state.kind[v] <- EIBFS_T
+                            state.parent[v] <- w.i64()
+                            state.dt[v] <- state.dt_max + 1
+                        elif state.kind[v] == EIBFS_S and eibfs_augment(state&, v, w):
+                            state.events <- state.events + 1
+                            if state.events > 100000: return -1
+                            restart <- true
+                            break
+                if not restart:
+                    next: mutable bool = false
+                    for v in 0..<state.n:
+                        if state.kind[v] == EIBFS_T and state.dt[v] == state.dt_max + 1: next <- true
+                    if next: state.dt_max <- state.dt_max + 1
+                    else: finished <- true
+                    break
+            if not restart: break
+        if not finished: state.forward <- not state.forward
+    reachable: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    for v in 0..<state.n:
+        if state.kind[v] == EIBFS_S:
+            reachable[v] <- true
+            queue[tail] <- v
+            tail <- tail + 1
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        for v in 0..<state.n:
+            if state.residual[u * EIBFS_NMAX + v] > 0 and not reachable[v]:
+                reachable[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+    cut: mutable i64 = 0
+    for u in 0..<state.n:
+        if reachable[u]:
+            for v in 0..<state.n:
+                if not reachable[v]: cut <- cut + state.original[u * EIBFS_NMAX + v]
+    cut
+
+def eibfs_maxflow_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 4 or length > EIBFS_INPUT_MAX: return -1
+    nv,mv,sv,tv := input[0],input[1],input[2],input[3]
+    if nv < 2 or nv > EIBFS_NMAX.i64() or mv < 0 or mv > EIBFS_MMAX.i64() or sv < 0 or sv >= nv or tv < 0 or tv >= nv or sv == tv: return -1
+    n,m,source,sink := nv.usize(),mv.usize(),sv.usize(),tv.usize()
+    if length != 4 + 3 * m: return -1
+    for edge in 0..<m:
+        u,v,c := input[4 + 3 * edge],input[5 + 3 * edge],input[6 + 3 * edge]
+        if u < 0 or u >= nv or v < 0 or v >= nv or u == v or c < 0 or c > 100: return -1
+    state: mutable EibfsState = zeroed
+    state.n <- n
+    state.source <- source
+    state.sink <- sink
+    state.forward <- true
+    for vertex in 0..<n: state.parent[vertex] <- -1
+    for edge in 0..<m:
+        u,v,c := input[4 + 3 * edge].usize(),input[5 + 3 * edge].usize(),input[6 + 3 * edge]
+        state.original[u * EIBFS_NMAX + v] <- state.original[u * EIBFS_NMAX + v] + c
+        state.residual[u * EIBFS_NMAX + v] <- state.residual[u * EIBFS_NMAX + v] + c
+    state.kind[source] <- EIBFS_S
+    state.kind[sink] <- EIBFS_T
+    eibfs_solve(state&)
+
+export fn eibfs_maxflow(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > EIBFS_INPUT_MAX: return -1
+    eibfs_maxflow_impl(input[0:length])

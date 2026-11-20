@@ -1,0 +1,173 @@
+def boids_trunc_zero(numerator: i64, denominator: i64) -> i64:
+    if numerator < 0: return -((-numerator) / denominator)
+    return numerator / denominator
+
+def boids_ceil_sqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = 4096
+    while low < high:
+        middle: i64 = (low + high) / 2
+        if middle * middle < value: low <- middle + 1
+        else: high <- middle
+    low
+
+def boids_cap_x(x: i64, y: i64, limit: i64) -> i64:
+    squared: i64 = x*x + y*y
+    if squared <= limit*limit: return x
+    if limit == 0: return 0
+    boids_trunc_zero(x*limit, boids_ceil_sqrt(squared))
+
+def boids_cap_y(x: i64, y: i64, limit: i64) -> i64:
+    squared: i64 = x*x + y*y
+    if squared <= limit*limit: return y
+    if limit == 0: return 0
+    boids_trunc_zero(y*limit, boids_ceil_sqrt(squared))
+
+def boids_store_i32(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u32 = value.i32().u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def boids_flocking_simulation_impl(input: view[i64], output: mutable view[u8], output_is_null: bool) -> i64:
+    if input.length < 9 or input.length > 70: return -1
+    n_value: i64 = input[0]
+    steps: i64 = input[1]
+    radius: i64 = input[2]
+    max_speed: i64 = input[3]
+    max_acceleration: i64 = input[4]
+    if n_value < 1 or n_value > 16 or steps < 0 or steps > 16 or radius < 0 or radius > 128
+        or max_speed < 1 or max_speed > 32 or max_acceleration < 0 or max_acceleration > 8
+        or input.length != 5 + 4 * n_value.usize(): return -1
+    n: usize = n_value.usize()
+    x: mutable i64[16] = zeroed
+    y: mutable i64[16] = zeroed
+    vx: mutable i64[16] = zeroed
+    vy: mutable i64[16] = zeroed
+    next_x: mutable i64[16] = zeroed
+    next_y: mutable i64[16] = zeroed
+    next_vx: mutable i64[16] = zeroed
+    next_vy: mutable i64[16] = zeroed
+    x_view: mutable view[i64] = x[0:16]
+    y_view: mutable view[i64] = y[0:16]
+    vx_view: mutable view[i64] = vx[0:16]
+    vy_view: mutable view[i64] = vy[0:16]
+    nx_view: mutable view[i64] = next_x[0:16]
+    ny_view: mutable view[i64] = next_y[0:16]
+    nvx_view: mutable view[i64] = next_vx[0:16]
+    nvy_view: mutable view[i64] = next_vy[0:16]
+    i: mutable usize = 0
+    while i < n:
+        x_view[i] <- input[5 + 4*i]
+        y_view[i] <- input[6 + 4*i]
+        vx_view[i] <- input[7 + 4*i]
+        vy_view[i] <- input[8 + 4*i]
+        if x_view[i] < -256 or x_view[i] > 256 or y_view[i] < -256 or y_view[i] > 256
+            or vx_view[i] < -32 or vx_view[i] > 32 or vy_view[i] < -32 or vy_view[i] > 32
+            or vx_view[i]*vx_view[i] + vy_view[i]*vy_view[i] > max_speed*max_speed: return -1
+        i <- i + 1
+    needed: usize = n * 16
+    if output_is_null or output.length < needed: return -2
+    radius_squared: i64 = radius * radius
+    step: mutable i64 = 0
+    while step < steps:
+        i <- 0
+        while i < n:
+            sx: mutable i64 = 0
+            sy: mutable i64 = 0
+            velocity_x: mutable i64 = 0
+            velocity_y: mutable i64 = 0
+            offset_x: mutable i64 = 0
+            offset_y: mutable i64 = 0
+            neighbors: mutable i64 = 0
+            other: mutable usize = 0
+            while other < n:
+                if other != i:
+                    dx: i64 = x_view[other] - x_view[i]
+                    dy: i64 = y_view[other] - y_view[i]
+                    distance_squared: i64 = dx*dx + dy*dy
+                    if distance_squared <= radius_squared:
+                        neighbors <- neighbors + 1
+                        if distance_squared == 0:
+                            if i < other: sx <- sx - 256
+                            else: sx <- sx + 256
+                        else:
+                            length: i64 = boids_ceil_sqrt(distance_squared)
+                            sx <- sx + boids_trunc_zero(-dx*256, length)
+                            sy <- sy + boids_trunc_zero(-dy*256, length)
+                        velocity_x <- velocity_x + vx_view[other]
+                        velocity_y <- velocity_y + vy_view[other]
+                        offset_x <- offset_x + dx
+                        offset_y <- offset_y + dy
+                other <- other + 1
+            accel_x: mutable i64 = 0
+            accel_y: mutable i64 = 0
+            if neighbors > 0:
+                rx: mutable i64[3] = zeroed
+                ry: mutable i64[3] = zeroed
+                rx_view: mutable view[i64] = rx[0:3]
+                ry_view: mutable view[i64] = ry[0:3]
+                sep_x: i64 = boids_trunc_zero(sx, neighbors)
+                sep_y: i64 = boids_trunc_zero(sy, neighbors)
+                rx_view[0] <- boids_cap_x(sep_x, sep_y, max_acceleration)
+                ry_view[0] <- boids_cap_y(sep_x, sep_y, max_acceleration)
+                align_x: i64 = boids_trunc_zero(velocity_x, neighbors) - vx_view[i]
+                align_y: i64 = boids_trunc_zero(velocity_y, neighbors) - vy_view[i]
+                rx_view[1] <- boids_cap_x(align_x, align_y, max_acceleration)
+                ry_view[1] <- boids_cap_y(align_x, align_y, max_acceleration)
+                rx_view[2] <- boids_cap_x(boids_trunc_zero(offset_x, neighbors), boids_trunc_zero(offset_y, neighbors), max_acceleration)
+                ry_view[2] <- boids_cap_y(boids_trunc_zero(offset_x, neighbors), boids_trunc_zero(offset_y, neighbors), max_acceleration)
+                used: mutable i64 = 0
+                rule: mutable usize = 0
+                while rule < 3:
+                    remaining: i64 = max_acceleration - used
+                    if remaining <= 0: break
+                    request_length: i64 = boids_ceil_sqrt(rx_view[rule]*rx_view[rule] + ry_view[rule]*ry_view[rule])
+                    if request_length == 0:
+                        rule <- rule + 1
+                        continue
+                    if request_length <= remaining:
+                        accel_x <- accel_x + rx_view[rule]
+                        accel_y <- accel_y + ry_view[rule]
+                        used <- used + request_length
+                    else:
+                        accel_x <- accel_x + boids_cap_x(rx_view[rule], ry_view[rule], remaining)
+                        accel_y <- accel_y + boids_cap_y(rx_view[rule], ry_view[rule], remaining)
+                        break
+                    rule <- rule + 1
+            new_vx: i64 = boids_cap_x(vx_view[i] + accel_x, vy_view[i] + accel_y, max_speed)
+            new_vy: i64 = boids_cap_y(vx_view[i] + accel_x, vy_view[i] + accel_y, max_speed)
+            nvx_view[i] <- new_vx
+            nvy_view[i] <- new_vy
+            nx_view[i] <- x_view[i] + new_vx
+            ny_view[i] <- y_view[i] + new_vy
+            i <- i + 1
+        i <- 0
+        while i < n:
+            x_view[i] <- nx_view[i]
+            y_view[i] <- ny_view[i]
+            vx_view[i] <- nvx_view[i]
+            vy_view[i] <- nvy_view[i]
+            i <- i + 1
+        step <- step + 1
+    i <- 0
+    while i < n:
+        offset: usize = i * 16
+        boids_store_i32(x_view[i], output, offset)
+        boids_store_i32(y_view[i], output, offset + 4)
+        boids_store_i32(vx_view[i], output, offset + 8)
+        boids_store_i32(vy_view[i], output, offset + 12)
+        i <- i + 1
+    needed.i64()
+
+export fn boids_flocking_simulation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 9 or length > 70: return -1
+    input_view: view[i64] = input[0:length]
+    if output == null:
+        empty_storage: mutable u8[1] = zeroed
+        empty_view: mutable view[u8] = empty_storage[0:0]
+        return boids_flocking_simulation_impl(input_view, empty_view, true)
+    output_view: mutable view[u8] = output[0:capacity]
+    boids_flocking_simulation_impl(input_view, output_view, false)

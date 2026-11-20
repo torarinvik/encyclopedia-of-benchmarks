@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p70_same_digits(left_in:Int32,right_in:Int32)->Bool:
     var left=left_in;var right=right_in;var counts=InlineArray[Int32,10](fill=0)
     while left!=0:counts[left%10]+=1;left//=10

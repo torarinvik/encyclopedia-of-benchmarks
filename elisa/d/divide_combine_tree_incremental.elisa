@@ -1,0 +1,185 @@
+const DCT_MAX_N: usize = 16
+const DCT_MAX_NODES: usize = 31
+const DCT_MAX_PARSEABLE_LENGTH: usize = 18
+
+def dct_add(node: usize, left: usize, right: usize, ql: usize, qr: usize, delta: i64,
+            minimum: mutable view[i64], lazy: mutable view[i64]):
+    if ql <= left and right <= qr:
+        minimum[node] <- minimum[node] + delta
+        lazy[node] <- lazy[node] + delta
+        return
+    middle: usize = (left + right) / 2
+    if lazy[node] != 0:
+        tag: i64 = lazy[node]
+        minimum[node * 2] <- minimum[node * 2] + tag
+        minimum[node * 2 + 1] <- minimum[node * 2 + 1] + tag
+        lazy[node * 2] <- lazy[node * 2] + tag
+        lazy[node * 2 + 1] <- lazy[node * 2 + 1] + tag
+        lazy[node] <- 0
+    if ql <= middle and qr >= left:
+        dct_add(node * 2, left, middle, ql, qr, delta, minimum, lazy)
+    if qr > middle and ql <= right:
+        dct_add(node * 2 + 1, middle + 1, right, ql, qr, delta, minimum, lazy)
+    minimum[node] <- if minimum[node * 2] < minimum[node * 2 + 1] then minimum[node * 2] else minimum[node * 2 + 1]
+
+def dct_first_zero(node: usize, left: usize, right: usize, minimum: view[i64]) -> usize:
+    if left == right: return left
+    middle: usize = (left + right) / 2
+    if minimum[node * 2] == 0:
+        return dct_first_zero(node * 2, left, middle, minimum)
+    return dct_first_zero(node * 2 + 1, middle + 1, right, minimum)
+
+def dct_connected(left: usize, right: usize, logs: view[usize],
+                  range_min: view[i64], range_max: view[i64]) -> bool:
+    level: usize = logs[right - left + 1]
+    span: usize = 1 << level
+    other: usize = right + 1 - span
+    low_a: i64 = range_min[level * DCT_MAX_N + left]
+    low_b: i64 = range_min[level * DCT_MAX_N + other]
+    high_a: i64 = range_max[level * DCT_MAX_N + left]
+    high_b: i64 = range_max[level * DCT_MAX_N + other]
+    low: i64 = if low_a < low_b then low_a else low_b
+    high: i64 = if high_a > high_b then high_a else high_b
+    return high - low == (right - left).i64()
+
+def dct_new_node(left: i64, right: i64, combine: i64, last_left: i64,
+                 count: mutable usize, node_left: mutable view[i64],
+                 node_right: mutable view[i64], node_combine: mutable view[i64],
+                 node_last: mutable view[i64]) -> usize:
+    id: usize = count
+    count <- count + 1
+    node_left[id] <- left
+    node_right[id] <- right
+    node_combine[id] <- combine
+    node_last[id] <- last_left
+    return id
+
+export fn divide_combine_tree_incremental(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > DCT_MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    if n_value < 1 or n_value > DCT_MAX_N.i64() or length != n_value.usize() + 1: return -1
+    n: usize = n_value.usize()
+    permutation: mutable i64[DCT_MAX_N] = zeroed
+    seen: mutable i64[DCT_MAX_N] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        value: i64 = input_view[index + 1]
+        if value < 0 or value >= n_value or seen[value.usize()] != 0: return -1
+        permutation[index] <- value
+        seen[value.usize()] <- 1
+        index <- index + 1
+
+    logs: mutable usize[DCT_MAX_N + 1] = zeroed
+    index <- 2
+    while index <= n:
+        logs[index] <- logs[index / 2] + 1
+        index <- index + 1
+    levels: usize = logs[n] + 1
+    range_min: mutable i64[DCT_MAX_N * DCT_MAX_N] = zeroed
+    range_max: mutable i64[DCT_MAX_N * DCT_MAX_N] = zeroed
+    index <- 0
+    while index < n:
+        range_min[index] <- permutation[index]
+        range_max[index] <- permutation[index]
+        index <- index + 1
+    level: mutable usize = 1
+    while level < levels:
+        half: usize = 1 << (level - 1)
+        width: usize = half * 2
+        start: mutable usize = 0
+        while start + width <= n:
+            low_a: i64 = range_min[(level - 1) * DCT_MAX_N + start]
+            low_b: i64 = range_min[(level - 1) * DCT_MAX_N + start + half]
+            range_min[level * DCT_MAX_N + start] <- if low_a < low_b then low_a else low_b
+            high_a: i64 = range_max[(level - 1) * DCT_MAX_N + start]
+            high_b: i64 = range_max[(level - 1) * DCT_MAX_N + start + half]
+            range_max[level * DCT_MAX_N + start] <- if high_a > high_b then high_a else high_b
+            start <- start + 1
+        level <- level + 1
+
+    segment_min: mutable i64[4 * DCT_MAX_N + 4] = zeroed
+    lazy: mutable i64[4 * DCT_MAX_N + 4] = zeroed
+    node_left: mutable i64[DCT_MAX_NODES] = zeroed
+    node_right: mutable i64[DCT_MAX_NODES] = zeroed
+    node_combine: mutable i64[DCT_MAX_NODES] = zeroed
+    node_last: mutable i64[DCT_MAX_NODES] = zeroed
+    node_stack: mutable usize[DCT_MAX_N] = zeroed
+    min_stack: mutable usize[DCT_MAX_N] = zeroed
+    max_stack: mutable usize[DCT_MAX_N] = zeroed
+    node_top: mutable usize = 0
+    min_top: mutable usize = 0
+    max_top: mutable usize = 0
+    node_count: mutable usize = 0
+    end: mutable usize = 0
+    while end < n:
+        value: i64 = permutation[end]
+        while min_top > 0 and permutation[min_stack[min_top - 1]] >= value:
+            min_top <- min_top - 1
+            position: usize = min_stack[min_top]
+            start: usize = if min_top > 0 then min_stack[min_top - 1] + 1 else 0
+            dct_add(1, 0, n - 1, start, position, permutation[position], segment_min[0:4 * DCT_MAX_N + 4], lazy[0:4 * DCT_MAX_N + 4])
+        while max_top > 0 and permutation[max_stack[max_top - 1]] <= value:
+            max_top <- max_top - 1
+            position: usize = max_stack[max_top]
+            start: usize = if max_top > 0 then max_stack[max_top - 1] + 1 else 0
+            dct_add(1, 0, n - 1, start, position, -permutation[position], segment_min[0:4 * DCT_MAX_N + 4], lazy[0:4 * DCT_MAX_N + 4])
+        start: usize = if min_top > 0 then min_stack[min_top - 1] + 1 else 0
+        dct_add(1, 0, n - 1, start, end, -value, segment_min[0:4 * DCT_MAX_N + 4], lazy[0:4 * DCT_MAX_N + 4])
+        min_stack[min_top] <- end
+        min_top <- min_top + 1
+        start <- if max_top > 0 then max_stack[max_top - 1] + 1 else 0
+        dct_add(1, 0, n - 1, start, end, value, segment_min[0:4 * DCT_MAX_N + 4], lazy[0:4 * DCT_MAX_N + 4])
+        max_stack[max_top] <- end
+        max_top <- max_top + 1
+
+        leftmost: usize = dct_first_zero(1, 0, n - 1, segment_min[0:4 * DCT_MAX_N + 4])
+        current: usize = dct_new_node(end.i64(), end.i64(), 0, 0, node_count,
+            node_left[0:DCT_MAX_NODES], node_right[0:DCT_MAX_NODES], node_combine[0:DCT_MAX_NODES], node_last[0:DCT_MAX_NODES])
+        while node_top > 0 and node_left[node_stack[node_top - 1]].usize() >= leftmost:
+            top: usize = node_stack[node_top - 1]
+            if node_combine[top] != 0 and dct_connected(node_last[top].usize(), end, logs[0:DCT_MAX_N + 1], range_min[0:DCT_MAX_N * DCT_MAX_N], range_max[0:DCT_MAX_N * DCT_MAX_N]):
+                node_right[top] <- end.i64()
+                node_last[top] <- node_left[current]
+                node_top <- node_top - 1
+                current <- node_stack[node_top]
+            elif dct_connected(node_left[top].usize(), end, logs[0:DCT_MAX_N + 1], range_min[0:DCT_MAX_N * DCT_MAX_N], range_max[0:DCT_MAX_N * DCT_MAX_N]):
+                merged: usize = dct_new_node(node_left[top], end.i64(), 1, node_left[current], node_count,
+                    node_left[0:DCT_MAX_NODES], node_right[0:DCT_MAX_NODES], node_combine[0:DCT_MAX_NODES], node_last[0:DCT_MAX_NODES])
+                node_top <- node_top - 1
+                current <- merged
+            else:
+                merged: usize = dct_new_node(-1, end.i64(), 0, 0, node_count,
+                    node_left[0:DCT_MAX_NODES], node_right[0:DCT_MAX_NODES], node_combine[0:DCT_MAX_NODES], node_last[0:DCT_MAX_NODES])
+                node_top <- node_top - 1
+                while node_top > 0 and not dct_connected(node_left[node_stack[node_top - 1]].usize(), end,
+                    logs[0:DCT_MAX_N + 1], range_min[0:DCT_MAX_N * DCT_MAX_N], range_max[0:DCT_MAX_N * DCT_MAX_N]):
+                    node_top <- node_top - 1
+                if node_top == 0: return -1
+                node_top <- node_top - 1
+                base: usize = node_stack[node_top]
+                node_left[merged] <- node_left[base]
+                current <- merged
+        node_stack[node_top] <- current
+        node_top <- node_top + 1
+        dct_add(1, 0, n - 1, 0, end, -1, segment_min[0:4 * DCT_MAX_N + 4], lazy[0:4 * DCT_MAX_N + 4])
+        end <- end + 1
+
+    index <- 1
+    while index < node_count:
+        left: i64 = node_left[index]
+        right: i64 = node_right[index]
+        j: mutable usize = index
+        while j > 0 and (node_left[j - 1] > left or (node_left[j - 1] == left and node_right[j - 1] > right)):
+            node_left[j] <- node_left[j - 1]
+            node_right[j] <- node_right[j - 1]
+            j <- j - 1
+        node_left[j] <- left
+        node_right[j] <- right
+        index <- index + 1
+    checksum: mutable i64 = 0
+    index <- 0
+    while index < node_count:
+        checksum <- checksum + (index.i64() + 1) * ((node_left[index] + 1) * (n.i64() + 1) + node_right[index] + 1)
+        index <- index + 1
+    return checksum

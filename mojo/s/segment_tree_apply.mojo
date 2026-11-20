@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn sta_up(t:UnsafePointer[Int64,MutAnyOrigin],m:UnsafePointer[Int64,MutAnyOrigin],ql:Int,qr:Int,node:Int,l:Int,r:Int,f:Int64):

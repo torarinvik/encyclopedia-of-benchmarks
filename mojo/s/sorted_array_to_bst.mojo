@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn bst_emit(a:InlineArray[Int64,64],start:Int,end:Int,out:UnsafePointer[UInt8,MutAnyOrigin],p:Int)->Int:

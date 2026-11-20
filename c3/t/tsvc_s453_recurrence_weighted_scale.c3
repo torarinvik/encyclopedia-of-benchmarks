@@ -11,7 +11,7 @@ fn void store_i64_le(uchar* output, usz offset, long value) {
     }
 }
 
-long tsvc_s453_recurrence_weighted_scale(long* input, usz length,
+fn long tsvc_s453_recurrence_weighted_scale(long* input, usz length,
         uchar* output, usz capacity) @export("tsvc_s453_recurrence_weighted_scale") {
     if (input == null || length < 2 || length > 33) return -1;
     if (input[0] < 1 || input[0] > (long)MAX_N) return -1;

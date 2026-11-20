@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("kolakoski_sequence")
 fn kolakoski_sequence(idx:Int64) abi("C")->Int64:
     if idx<0 or idx>63:return -1

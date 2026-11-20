@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -14,6 +15,9 @@ fn gmc_stoer_wagner(n: Int, spokes: InlineArray[Int64, 16], m: Int,
     edge_w: InlineArray[Int64, 64]) -> Int64:
     let vertex_count = n + 1
     var weights = InlineArray[InlineArray[Int64, 17], 17]()
+    for u in range(vertex_count):
+        for v in range(vertex_count):
+            weights[u][v] = 0
     for e in range(m):
         let u = Int(edge_u[e]); let v = Int(edge_v[e])
         weights[u][v] += edge_w[e]; weights[v][u] += edge_w[e]
@@ -24,8 +28,8 @@ fn gmc_stoer_wagner(n: Int, spokes: InlineArray[Int64, 16], m: Int,
     var count = vertex_count
     var best: Int64 = 9223372036854775807
     while count > 1:
-        var used = InlineArray[Bool, 17]()
-        var connection = InlineArray[Int64, 17]()
+        var used = InlineArray[Bool, 17](fill=False)
+        var connection = InlineArray[Int64, 17](fill=0)
         var previous = -1
         for step in range(count):
             var selected = -1
@@ -70,7 +74,7 @@ fn global_minimum_cut_of_dynamic_star_augmented_graph(
         spokes[i] = input[pos]; pos += 1
         if spokes[i] < 0 or spokes[i] > GMC_MAX_W: return -1
     var edge_u = InlineArray[Int32, 64](); var edge_v = InlineArray[Int32, 64](); var edge_w = InlineArray[Int64, 64]()
-    var seen = InlineArray[Bool, 256]()
+    var seen = InlineArray[Bool, 256](fill=False)
     for e in range(m):
         let u0 = input[pos]; let v0 = input[pos + 1]; let weight = input[pos + 2]; pos += 3
         if u0 < 0 or u0 >= n0 or v0 < 0 or v0 >= n0 or u0 == v0 or weight < 0 or weight > GMC_MAX_W: return -1

@@ -18,7 +18,7 @@ fn void write_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long self_organizing_linked_list(long* input, usz length, char* output,
+fn long self_organizing_linked_list(long* input, usz length, char* output,
                                  usz output_capacity) @export("self_organizing_linked_list") {
     if (input == null || length < 1 || length > MAX_INPUT_LENGTH) return -1;
     long operation_count = input[0];

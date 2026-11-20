@@ -1,0 +1,224 @@
+const KKT_MAX_N: usize = 16
+const KKT_MAX_M: usize = 16
+const KKT_MAX_INPUT: usize = 52
+const KKT_MASK32: u64 = 0xffffffff.u64()
+const KKT_GOLDEN: u64 = 0x9E3779B97F4A7C15
+const KKT_MIX1: u64 = 0xBF58476D1CE4E5B9
+const KKT_MIX2: u64 = 0x94D049BB133111EB
+
+struct KktEdge:
+    u: usize
+    v: usize
+    weight: i64
+    id: usize
+
+def kkt_edge_less(first: KktEdge, second: KktEdge) -> bool:
+    first.weight < second.weight or (first.weight == second.weight and first.id < second.id)
+
+def kkt_add64(left: u64, right: u64) -> u64:
+    low: u64 = (left & KKT_MASK32) + (right & KKT_MASK32)
+    high: u64 = (left >> 32) + (right >> 32) + (low >> 32)
+    ((high & KKT_MASK32) << 32) | (low & KKT_MASK32)
+
+def kkt_mul64(left: u64, right: u64) -> u64:
+    left_low: u64 = left & KKT_MASK32
+    left_high: u64 = left >> 32
+    right_low: u64 = right & KKT_MASK32
+    right_high: u64 = right >> 32
+    low_product: u64 = left_low * right_low
+    high_product: u64 = (low_product >> 32) +
+        ((left_low * right_high) & KKT_MASK32) + ((left_high * right_low) & KKT_MASK32)
+    ((high_product & KKT_MASK32) << 32) | (low_product & KKT_MASK32)
+
+def kkt_next_splitmix(state: mutable u64&) -> u64:
+    state <- kkt_add64(state, KKT_GOLDEN)
+    value: mutable u64 = state
+    value <- kkt_mul64(value ^ (value >> 30), KKT_MIX1)
+    value <- kkt_mul64(value ^ (value >> 27), KKT_MIX2)
+    value ^ (value >> 31)
+
+def kkt_root(parent: mutable view[usize], node_input: usize) -> usize:
+    node: mutable usize = node_input
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def kkt_sort_edges(edges: mutable view[KktEdge], count: usize) -> void:
+    index: mutable usize = 1
+    while index < count:
+        key: KktEdge = edges[index]
+        position: mutable usize = index
+        while position > 0 and kkt_edge_less(key, edges[position - 1]):
+            edges[position] <- edges[position - 1]
+            position <- position - 1
+        edges[position] <- key
+        index <- index + 1
+
+def kkt_boruvka_phase(n: mutable usize&, edges: mutable view[KktEdge],
+        edge_count: mutable usize&, selected_mask: mutable u64&) -> void:
+    if edge_count == 0: return
+    best: mutable i64[KKT_MAX_N] = zeroed
+    for vertex in 0..<KKT_MAX_N: best[vertex] <- -1
+    for vertex in 0..<n:
+        for index in 0..<edge_count:
+            edge: KktEdge = edges[index]
+            if edge.u != vertex and edge.v != vertex: continue
+            if best[vertex] < 0 or kkt_edge_less(edge, edges[best[vertex].usize()]):
+                best[vertex] <- index.i64()
+
+    parent: mutable usize[KKT_MAX_N] = zeroed
+    for vertex in 0..<n: parent[vertex] <- vertex
+    for vertex in 0..<n:
+        if best[vertex] < 0: continue
+        edge: KktEdge = edges[best[vertex].usize()]
+        selected_mask <- selected_mask | (1.u64() << edge.id)
+        first_root: usize = kkt_root(parent[0:KKT_MAX_N], edge.u)
+        second_root: usize = kkt_root(parent[0:KKT_MAX_N], edge.v)
+        if first_root != second_root: parent[first_root] <- second_root
+
+    root_to_local: mutable i64[KKT_MAX_N] = zeroed
+    for vertex in 0..<KKT_MAX_N: root_to_local[vertex] <- -1
+    local_of: mutable usize[KKT_MAX_N] = zeroed
+    contracted_n: mutable usize = 0
+    for vertex in 0..<n:
+        representative: usize = kkt_root(parent[0:KKT_MAX_N], vertex)
+        if root_to_local[representative] < 0:
+            root_to_local[representative] <- contracted_n.i64()
+            contracted_n <- contracted_n + 1
+        local_of[vertex] <- root_to_local[representative].usize()
+
+    contracted: mutable KktEdge[KKT_MAX_M] = zeroed
+    contracted_count: mutable usize = 0
+    for index in 0..<edge_count:
+        edge: KktEdge = edges[index]
+        a: usize = local_of[edge.u]
+        b: usize = local_of[edge.v]
+        if a == b: continue
+        if a > b:
+            temporary: usize = a
+            a <- b
+            b <- temporary
+        edge.u <- a
+        edge.v <- b
+        duplicate: i64 = -1
+        for existing in 0..<contracted_count:
+            if contracted[existing].u == a and contracted[existing].v == b:
+                duplicate <- existing.i64()
+                break
+        if duplicate >= 0:
+            duplicate_index: usize = duplicate.usize()
+            if kkt_edge_less(edge, contracted[duplicate_index]):
+                contracted[duplicate_index] <- edge
+        else:
+            contracted[contracted_count] <- edge
+            contracted_count <- contracted_count + 1
+    for index in 0..<KKT_MAX_M: edges[index] <- contracted[index]
+    n <- contracted_n
+    edge_count <- contracted_count
+
+def kkt_sample_path_max(sample: view[KktEdge], sample_count: usize, forest_mask: u64,
+        start: usize, target: usize, maximum_weight: mutable i64&,
+        maximum_id: mutable usize&) -> bool:
+    seen: mutable bool[KKT_MAX_N] = zeroed
+    stack: mutable usize[KKT_MAX_N] = zeroed
+    has_maximum: mutable bool[KKT_MAX_N] = zeroed
+    path_weight: mutable i64[KKT_MAX_N] = zeroed
+    path_id: mutable usize[KKT_MAX_N] = zeroed
+    top: mutable usize = 1
+    stack[0] <- start
+    seen[start] <- true
+    while top > 0 and not seen[target]:
+        top <- top - 1
+        current: usize = stack[top]
+        for index in 0..<sample_count:
+            edge: KktEdge = sample[index]
+            if (forest_mask & (1.u64() << edge.id)) == 0: continue
+            neighbor: mutable i64 = -1
+            if edge.u == current: neighbor <- edge.v.i64()
+            else if edge.v == current: neighbor <- edge.u.i64()
+            if neighbor < 0 or seen[neighbor.usize()]: continue
+            next: usize = neighbor.usize()
+            seen[next] <- true
+            stack[top] <- next
+            top <- top + 1
+            path_weight[next] <- edge.weight
+            path_id[next] <- edge.id
+            if has_maximum[current]:
+                path_weight[next] <- path_weight[current]
+                path_id[next] <- path_id[current]
+                if edge.weight > path_weight[current] or (edge.weight == path_weight[current] and edge.id > path_id[current]):
+                    path_weight[next] <- edge.weight
+                    path_id[next] <- edge.id
+            has_maximum[next] <- true
+    if not seen[target]: return false
+    maximum_weight <- path_weight[target]
+    maximum_id <- path_id[target]
+    true
+
+def kkt_recursive(n_input: usize, edge_count_input: usize, input_edges: view[KktEdge],
+        state: mutable u64&) -> u64:
+    if edge_count_input == 0: return 0
+    n: mutable usize = n_input
+    edge_count: mutable usize = edge_count_input
+    edges: mutable KktEdge[KKT_MAX_M] = zeroed
+    for index in 0..<edge_count: edges[index] <- input_edges[index]
+    selected_mask: mutable u64 = 0
+    kkt_boruvka_phase(n&, edges[0:KKT_MAX_M], edge_count&, selected_mask&)
+    if edge_count == 0: return selected_mask
+    kkt_boruvka_phase(n&, edges[0:KKT_MAX_M], edge_count&, selected_mask&)
+    if edge_count == 0: return selected_mask
+    kkt_sort_edges(edges[0:KKT_MAX_M], edge_count)
+
+    sample: mutable KktEdge[KKT_MAX_M] = zeroed
+    sample_count: mutable usize = 0
+    for index in 0..<edge_count:
+        if (kkt_next_splitmix(state&) & 1.u64()) != 0:
+            sample[sample_count] <- edges[index]
+            sample_count <- sample_count + 1
+    forest_mask: u64 = kkt_recursive(n, sample_count, sample[0:KKT_MAX_M], state&)
+
+    light: mutable KktEdge[KKT_MAX_M] = zeroed
+    light_count: mutable usize = 0
+    for index in 0..<edge_count:
+        edge: KktEdge = edges[index]
+        maximum_weight: mutable i64 = 0
+        maximum_id: mutable usize = 0
+        connected: bool = kkt_sample_path_max(sample[0:KKT_MAX_M], sample_count, forest_mask,
+            edge.u, edge.v, maximum_weight&, maximum_id&)
+        heavy: bool = connected and (edge.weight > maximum_weight or (edge.weight == maximum_weight and edge.id > maximum_id))
+        if not heavy:
+            light[light_count] <- edge
+            light_count <- light_count + 1
+    selected_mask | kkt_recursive(n, light_count, light[0:KKT_MAX_M], state&)
+
+def kkt_recursive_mst_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 3 or length > KKT_MAX_INPUT: return -1
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    seed_value: i64 = values[2]
+    if n_value < 1 or n_value > KKT_MAX_N.i64() or m_value < 0 or m_value > KKT_MAX_M.i64() or seed_value < 0: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 3 + 3 * m: return -1
+    edges: mutable KktEdge[KKT_MAX_M] = zeroed
+    for index in 0..<m:
+        u_value: i64 = values[3 + 3 * index]
+        v_value: i64 = values[4 + 3 * index]
+        weight: i64 = values[5 + 3 * index]
+        if u_value < 0 or u_value >= v_value or v_value >= n_value or weight < 0 or weight > 255: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        for previous in 0..<index:
+            if edges[previous].u == u and edges[previous].v == v: return -1
+        edges[index].u <- u
+        edges[index].v <- v
+        edges[index].weight <- weight
+        edges[index].id <- index
+    state: mutable u64 = seed_value.u64()
+    kkt_recursive(n, m, edges[0:KKT_MAX_M], state&).i64()
+
+export fn kkt_recursive_mst(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > KKT_MAX_INPUT: return -1
+    kkt_recursive_mst_impl(input[0:length])

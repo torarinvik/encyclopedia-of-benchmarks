@@ -14,7 +14,7 @@ fn long shortest_common_supersequence(long* input, usz length, char* output, usz
         if (input[2 + index] < 32 || input[2 + index] > 126) return -1;
     }
 
-    long lcs[4225];
+    long[4225] lcs;
     for (usz index = 0; index < 4225; index++) lcs[index] = 0;
     for (usz i = 1; i <= m; i++) {
         for (usz j = 1; j <= n; j++) {
@@ -29,7 +29,7 @@ fn long shortest_common_supersequence(long* input, usz length, char* output, usz
         }
     }
 
-    char reversed[128];
+    char[128] reversed;
     usz used = 0;
     usz i = m;
     usz j = n;
@@ -53,5 +53,5 @@ fn long shortest_common_supersequence(long* input, usz length, char* output, usz
     if (output == null || capacity < used) return -2;
     for (usz index = 0; index < used; index++)
         output[index] = reversed[used - 1 - index];
-    (long)used
+    return (long)used;
 }

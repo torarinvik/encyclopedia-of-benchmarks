@@ -8,7 +8,7 @@ extern fn double cos(double value);
 const double PI = 3.14159265358979323846264338327950288;
 const double EARTH_RADIUS = 6371000.0;
 
-bool finite_value(double value) { return value == value && value >= -1e308 && value <= 1e308; }
+fn bool finite_value(double value) { return value == value && value >= -1e308 && value <= 1e308; }
 
 fn long rhumb_destination(double* input, usz input_length, double* output, usz output_capacity)
     @export("rhumb_destination") {

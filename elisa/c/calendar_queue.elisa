@@ -1,0 +1,239 @@
+const CQ_MAX_OPS: usize = 128
+const CQ_MAX_LIVE: usize = 64
+const CQ_MAX_BUCKETS: usize = 64
+const CQ_MAX_PRIORITY: i64 = 1000000
+const CQ_MAX_INPUT: usize = 258
+const CQ_STATE_LENGTH: usize = 329
+const CQ_PRIORITY_BASE: usize = 0
+const CQ_ID_BASE: usize = 64
+const CQ_NEXT_BASE: usize = 128
+const CQ_ACTIVE_BASE: usize = 192
+const CQ_HEAD_BASE: usize = 256
+const CQ_BUCKET_COUNT: usize = 320
+const CQ_LIVE: usize = 321
+const CQ_NEXT_ID: usize = 322
+const CQ_LAST_PRIORITY: usize = 323
+const CQ_LAST_BUCKET: usize = 324
+const CQ_WIDTH_NUM: usize = 325
+const CQ_WIDTH_DEN: usize = 326
+const CQ_TOP_NUM: usize = 327
+const CQ_TOP_DEN: usize = 328
+
+def cq_less(state: view[i64], left: usize, right: usize) -> bool:
+    left_priority: i64 = state[CQ_PRIORITY_BASE + left]
+    right_priority: i64 = state[CQ_PRIORITY_BASE + right]
+    left_priority < right_priority or
+        (left_priority == right_priority and state[CQ_ID_BASE + left] < state[CQ_ID_BASE + right])
+
+def cq_gcd(a_value: i64, b_value: i64) -> i64:
+    a: mutable i64 = a_value
+    b: mutable i64 = b_value
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def cq_virtual_bucket(priority: i64, width_num: i64, width_den: i64) -> usize:
+    (priority * width_den / width_num).usize()
+
+def cq_reset_cursor(state: mutable view[i64], priority: i64) -> void:
+    bucket_count: usize = state[CQ_BUCKET_COUNT].usize()
+    virtual_index: usize = cq_virtual_bucket(priority, state[CQ_WIDTH_NUM], state[CQ_WIDTH_DEN])
+    state[CQ_LAST_BUCKET] <- (virtual_index % bucket_count).i64()
+    state[CQ_TOP_NUM] <- (2 * virtual_index.i64() + 3) * state[CQ_WIDTH_NUM]
+    state[CQ_TOP_DEN] <- 2 * state[CQ_WIDTH_DEN]
+
+def cq_insert(state: mutable view[i64], slot: usize) -> void:
+    bucket_count: usize = state[CQ_BUCKET_COUNT].usize()
+    priority: i64 = state[CQ_PRIORITY_BASE + slot]
+    bucket: usize = cq_virtual_bucket(priority, state[CQ_WIDTH_NUM], state[CQ_WIDTH_DEN]) % bucket_count
+    previous: mutable usize = CQ_MAX_LIVE
+    current: mutable usize = state[CQ_HEAD_BASE + bucket].usize()
+    while current != CQ_MAX_LIVE and cq_less(state, current, slot):
+        previous <- current
+        current <- state[CQ_NEXT_BASE + current].usize()
+    state[CQ_NEXT_BASE + slot] <- current.i64()
+    if previous == CQ_MAX_LIVE:
+        state[CQ_HEAD_BASE + bucket] <- slot.i64()
+    else:
+        state[CQ_NEXT_BASE + previous] <- slot.i64()
+
+def cq_new_width(state: view[i64], scratch: mutable view[i64]) -> void:
+    count: mutable usize = 0
+    slot: mutable usize = 0
+    while slot < CQ_MAX_LIVE:
+        if state[CQ_ACTIVE_BASE + slot] != 0:
+            at: mutable usize = count
+            while at > 0 and cq_less(state, slot, scratch[at - 1].usize()):
+                scratch[at] <- scratch[at - 1]
+                at <- at - 1
+            scratch[at] <- slot.i64()
+            count <- count + 1
+        slot <- slot + 1
+    if count < 2:
+        scratch[64] <- 1
+        scratch[65] <- 1
+        return
+    samples: usize = count
+    if count > 5:
+        samples <- 5 + count / 10
+        if samples > 25: samples <- 25
+    gaps: usize = samples - 1
+    gap_sum: mutable i64 = 0
+    index: mutable usize = 0
+    while index < gaps:
+        left: usize = scratch[index].usize()
+        right: usize = scratch[index + 1].usize()
+        gap_sum <- gap_sum + state[CQ_PRIORITY_BASE + right] - state[CQ_PRIORITY_BASE + left]
+        index <- index + 1
+    if gap_sum == 0:
+        scratch[64] <- 1
+        scratch[65] <- 1
+        return
+    kept_sum: mutable i64 = 0
+    kept_count: mutable i64 = 0
+    index <- 0
+    while index < gaps:
+        left <- scratch[index].usize()
+        right <- scratch[index + 1].usize()
+        gap: i64 = state[CQ_PRIORITY_BASE + right] - state[CQ_PRIORITY_BASE + left]
+        if gap * gaps.i64() <= 2 * gap_sum:
+            kept_sum <- kept_sum + gap
+            kept_count <- kept_count + 1
+        index <- index + 1
+    if kept_sum == 0 or kept_count == 0:
+        scratch[64] <- 1
+        scratch[65] <- 1
+        return
+    numerator: i64 = 3 * kept_sum
+    divisor: i64 = cq_gcd(numerator, kept_count)
+    scratch[64] <- numerator / divisor
+    scratch[65] <- kept_count / divisor
+
+def cq_resize(state: mutable view[i64], scratch: mutable view[i64], new_count: usize) -> void:
+    cq_new_width(state, scratch)
+    state[CQ_BUCKET_COUNT] <- new_count.i64()
+    state[CQ_WIDTH_NUM] <- scratch[64]
+    state[CQ_WIDTH_DEN] <- scratch[65]
+    bucket: mutable usize = 0
+    while bucket < CQ_MAX_BUCKETS:
+        state[CQ_HEAD_BASE + bucket] <- CQ_MAX_LIVE.i64()
+        bucket <- bucket + 1
+    cq_reset_cursor(state, state[CQ_LAST_PRIORITY])
+    slot: mutable usize = 0
+    while slot < CQ_MAX_LIVE:
+        if state[CQ_ACTIVE_BASE + slot] != 0: cq_insert(state, slot)
+        slot <- slot + 1
+
+def cq_enqueue(state: mutable view[i64], scratch: mutable view[i64], priority: i64) -> bool:
+    live: usize = state[CQ_LIVE].usize()
+    if priority < 0 or priority > CQ_MAX_PRIORITY or priority < state[CQ_LAST_PRIORITY] or live == CQ_MAX_LIVE:
+        return false
+    slot: mutable usize = 0
+    while slot < CQ_MAX_LIVE and state[CQ_ACTIVE_BASE + slot] != 0: slot <- slot + 1
+    if slot == CQ_MAX_LIVE: return false
+    state[CQ_PRIORITY_BASE + slot] <- priority
+    state[CQ_ID_BASE + slot] <- state[CQ_NEXT_ID]
+    state[CQ_NEXT_ID] <- state[CQ_NEXT_ID] + 1
+    state[CQ_NEXT_BASE + slot] <- CQ_MAX_LIVE.i64()
+    state[CQ_ACTIVE_BASE + slot] <- 1
+    state[CQ_LIVE] <- state[CQ_LIVE] + 1
+    cq_insert(state, slot)
+    if state[CQ_LIVE] > 2 * state[CQ_BUCKET_COUNT]:
+        cq_resize(state, scratch, (2 * state[CQ_BUCKET_COUNT]).usize())
+    true
+
+def cq_dequeue(state: mutable view[i64], scratch: mutable view[i64], result: mutable view[i64]) -> bool:
+    if state[CQ_LIVE] == 0: return false
+    bucket: mutable usize = state[CQ_LAST_BUCKET].usize()
+    bucket_count: usize = state[CQ_BUCKET_COUNT].usize()
+    while true:
+        slot: usize = state[CQ_HEAD_BASE + bucket].usize()
+        if slot != CQ_MAX_LIVE and state[CQ_PRIORITY_BASE + slot] * state[CQ_TOP_DEN] < state[CQ_TOP_NUM]:
+            result[0] <- state[CQ_ID_BASE + slot]
+            result[1] <- state[CQ_PRIORITY_BASE + slot]
+            state[CQ_HEAD_BASE + bucket] <- state[CQ_NEXT_BASE + slot]
+            state[CQ_ACTIVE_BASE + slot] <- 0
+            state[CQ_LIVE] <- state[CQ_LIVE] - 1
+            state[CQ_LAST_BUCKET] <- bucket.i64()
+            state[CQ_LAST_PRIORITY] <- result[1]
+            bottom: i64 = bucket_count.i64() / 2 - 2
+            if bucket_count > 2 and state[CQ_LIVE] < bottom:
+                cq_resize(state, scratch, bucket_count / 2)
+            return true
+        bucket <- (bucket + 1) % bucket_count
+        state[CQ_TOP_NUM] <- state[CQ_TOP_NUM] + 2 * state[CQ_WIDTH_NUM]
+        if bucket == state[CQ_LAST_BUCKET].usize():
+            minimum: mutable usize = CQ_MAX_LIVE
+            index: mutable usize = 0
+            while index < bucket_count:
+                head: usize = state[CQ_HEAD_BASE + index].usize()
+                if head != CQ_MAX_LIVE and (minimum == CQ_MAX_LIVE or cq_less(state, head, minimum)):
+                    minimum <- head
+                index <- index + 1
+            if minimum == CQ_MAX_LIVE: return false
+            state[CQ_LAST_PRIORITY] <- state[CQ_PRIORITY_BASE + minimum]
+            cq_reset_cursor(state, state[CQ_LAST_PRIORITY])
+            bucket <- state[CQ_LAST_BUCKET].usize()
+
+def cq_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def calendar_queue_impl(input: view[i64], length: usize,
+        output: mutable view[u8], capacity: usize) -> i64:
+    if input.is_null() || length < 1 || length > CQ_MAX_INPUT: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 || count_value > CQ_MAX_OPS.i64(): return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count: return -1
+    state: mutable i64[CQ_STATE_LENGTH] = zeroed
+    scratch: mutable i64[66] = zeroed
+    trace: mutable i64[256] = zeroed
+    state[CQ_BUCKET_COUNT] <- 2
+    state[CQ_WIDTH_NUM] <- 1
+    state[CQ_WIDTH_DEN] <- 1
+    state[CQ_TOP_NUM] <- 3
+    state[CQ_TOP_DEN] <- 2
+    bucket: mutable usize = 0
+    while bucket < CQ_MAX_BUCKETS:
+        state[CQ_HEAD_BASE + bucket] <- CQ_MAX_LIVE.i64()
+        bucket <- bucket + 1
+    state_view: mutable view[i64] = state[0:CQ_STATE_LENGTH]
+    scratch_view: mutable view[i64] = scratch[0:66]
+    trace_view: mutable view[i64] = trace[0:256]
+    step: mutable usize = 0
+    dequeued: mutable usize = 0
+    while step < count:
+        opcode: i64 = input[1 + 2 * step]
+        argument: i64 = input[2 + 2 * step]
+        if opcode == 1:
+            if not cq_enqueue(state_view, scratch_view, argument): return -1
+        elif opcode == 2:
+            if argument != 0: return -1
+            event: mutable i64[2] = zeroed
+            event_view: mutable view[i64] = event[0:2]
+            if not cq_dequeue(state_view, scratch_view, event_view): return -1
+            trace_view[2 * dequeued] <- event[0]
+            trace_view[2 * dequeued + 1] <- event[1]
+            dequeued <- dequeued + 1
+        else:
+            return -1
+        step <- step + 1
+    required: usize = 8 * (1 + 2 * dequeued)
+    if output.is_null() || capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    cq_put_i64(output_view, 0, dequeued.i64())
+    word: mutable usize = 0
+    while word < 2 * dequeued:
+        cq_put_i64(output_view, 8 * (word + 1), trace_view[word])
+        word <- word + 1
+    required.i64()
+
+export fn calendar_queue(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = calendar_queue_impl

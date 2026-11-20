@@ -1,0 +1,234 @@
+from std.collections import InlineArray
+
+const QF_SLOTS: usize = 8
+const QF_MAX_OPERATIONS: usize = 32
+const QF_MAX_ITEMS: usize = 6
+
+def qf_next(index: usize) -> usize:
+    (index + 1) % QF_SLOTS
+
+def qf_prev(index: usize) -> usize:
+    (index + QF_SLOTS - 1) % QF_SLOTS
+
+def qf_empty(index: usize, rem: InlineArray[u8, QF_SLOTS],
+              occupied: InlineArray[bool, QF_SLOTS],
+              continuation: InlineArray[bool, QF_SLOTS],
+              shifted: InlineArray[bool, QF_SLOTS]) -> bool:
+    rem[index] == 0 and not occupied[index] and not continuation[index] and not shifted[index]
+
+def qf_find_run(q: usize, occupied: InlineArray[bool, QF_SLOTS],
+        continuation: InlineArray[bool, QF_SLOTS],
+        shifted: InlineArray[bool, QF_SLOTS]) -> Int:
+    if not occupied[q]: return -2
+    bucket: mutable usize = q
+    steps: mutable usize = 0
+    while shifted[bucket] and steps < QF_SLOTS:
+        bucket <- qf_prev(bucket)
+        steps <- steps + 1
+    if steps >= QF_SLOTS: return -1
+    slot: mutable usize = bucket
+    while bucket != q:
+        slot <- qf_next(slot)
+        steps <- 0
+        while continuation[slot] and steps < QF_SLOTS:
+            slot <- qf_next(slot)
+            steps <- steps + 1
+        if steps >= QF_SLOTS: return -1
+        bucket <- qf_next(bucket)
+        steps <- 0
+        while not occupied[bucket] and steps < QF_SLOTS:
+            bucket <- qf_next(bucket)
+            steps <- steps + 1
+        if steps >= QF_SLOTS: return -1
+    Int(slot)
+
+def qf_find_insert_position(q: usize, occupied: InlineArray[bool, QF_SLOTS],
+        continuation: InlineArray[bool, QF_SLOTS],
+        shifted: InlineArray[bool, QF_SLOTS]) -> Int:
+    bucket: mutable usize = q
+    steps: mutable usize = 0
+    while shifted[bucket] and steps < QF_SLOTS:
+        bucket <- qf_prev(bucket)
+        steps <- steps + 1
+    if steps >= QF_SLOTS: return -1
+    slot: mutable usize = bucket
+    while bucket != q:
+        steps <- 0
+        while steps < QF_SLOTS:
+            slot <- qf_next(slot)
+            steps <- steps + 1
+            if not continuation[slot]: break
+        if steps >= QF_SLOTS: return -1
+        bucket <- qf_next(bucket)
+        steps <- 0
+        while bucket != q and not occupied[bucket] and steps < QF_SLOTS:
+            bucket <- qf_next(bucket)
+            steps <- steps + 1
+        if steps >= QF_SLOTS: return -1
+    Int(slot)
+
+def qf_next_occupied(q: usize, occupied: InlineArray[bool, QF_SLOTS]) -> Int:
+    bucket: mutable usize = qf_next(q)
+    index: mutable usize = 0
+    while index < QF_SLOTS:
+        if occupied[bucket]: return Int(bucket)
+        bucket <- qf_next(bucket)
+        index <- index + 1
+    -1
+
+def qf_insert_at(position: usize, q: usize, remainder: u8, has_run: bool,
+        run_start: usize, inout rem: InlineArray[u8, QF_SLOTS],
+        inout occupied: InlineArray[bool, QF_SLOTS],
+        inout continuation: InlineArray[bool, QF_SLOTS],
+        inout shifted: InlineArray[bool, QF_SLOTS]) -> bool:
+    new_continuation: bool = has_run and position != run_start
+    if has_run and position == run_start: continuation[position] <- true
+    empty: mutable usize = position
+    found_empty: mutable bool = false
+    index: mutable usize = 0
+    while index < QF_SLOTS:
+        if qf_empty(empty, rem, occupied, continuation, shifted):
+            found_empty <- true
+            break
+        empty <- qf_next(empty)
+        index <- index + 1
+    if not found_empty: return false
+    slot: mutable usize = empty
+    while slot != position:
+        previous: usize = qf_prev(slot)
+        rem[slot] <- rem[previous]
+        continuation[slot] <- continuation[previous]
+        shifted[slot] <- true
+        slot <- previous
+    rem[position] <- remainder
+    continuation[position] <- new_continuation
+    shifted[position] <- position != q
+    occupied[q] <- true
+    true
+
+def qf_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values.len()
+    if length < 1 or length > 66: return -1
+    raw_count: i64 = values[0]
+    if raw_count < 0 or raw_count > 32 or length != 1 + 2 * raw_count.usize(): return -1
+    count: usize = raw_count.usize()
+    operation: mutable usize = 0
+    while operation < count:
+        opcode: i64 = values[1 + 2 * operation]
+        fingerprint: i64 = values[2 + 2 * operation]
+        if opcode < 0 or opcode > 2 or fingerprint < 0 or fingerprint > 255: return -1
+        operation <- operation + 1
+    if output.is_null() or capacity < count: return -2
+
+    var rem = InlineArray[u8, QF_SLOTS](fill=0)
+    var occupied = InlineArray[bool, QF_SLOTS](fill=false)
+    var continuation = InlineArray[bool, QF_SLOTS](fill=false)
+    var shifted = InlineArray[bool, QF_SLOTS](fill=false)
+    var statuses = InlineArray[u8, QF_MAX_OPERATIONS](fill=0)
+    total: mutable usize = 0
+    operation <- 0
+    while operation < count:
+        opcode: i64 = values[1 + 2 * operation]
+        fingerprint: usize = values[2 + 2 * operation].usize()
+        q: usize = fingerprint >> 5
+        remainder: u8 = (fingerprint & 31).u8()
+        if opcode == 0:
+            if total == QF_MAX_ITEMS:
+                statuses[operation] <- 2
+                operation <- operation + 1
+                continue
+            position: mutable Int = qf_find_run(q, occupied, continuation, shifted)
+            if position == -1: return -1
+            run_start: usize = if position >= 0: position.usize() else: 0
+            if position >= 0:
+                step: mutable usize = 0
+                while step < QF_SLOTS:
+                    if rem[position.usize()] > remainder: break
+                    next: usize = qf_next(position.usize())
+                    position <- Int(next)
+                    if not continuation[next]: break
+                    step <- step + 1
+            else if not qf_empty(q, rem, occupied, continuation, shifted):
+                position <- qf_find_insert_position(q, occupied, continuation, shifted)
+                if position < 0: return -1
+            else: position <- Int(q)
+            if not qf_insert_at(position.usize(), q, remainder, occupied[q], run_start,
+                    inout rem, inout occupied, inout continuation, inout shifted): return -1
+            total <- total + 1
+            statuses[operation] <- 1
+        else if opcode == 1:
+            position: mutable Int = qf_find_run(q, occupied, continuation, shifted)
+            if position == -1: return -1
+            found: mutable bool = false
+            if position >= 0:
+                step: mutable usize = 0
+                while step < QF_SLOTS:
+                    if rem[position.usize()] == remainder: found <- true; break
+                    if rem[position.usize()] > remainder: break
+                    next: usize = qf_next(position.usize())
+                    if not continuation[next]: break
+                    position <- Int(next)
+                    step <- step + 1
+            statuses[operation] <- if found: 1 else: 0
+        else:
+            position: mutable Int = qf_find_run(q, occupied, continuation, shifted)
+            if position == -1: return -1
+            removed: mutable bool = false
+            if position >= 0:
+                step: mutable usize = 0
+                while step < QF_SLOTS:
+                    if rem[position.usize()] == remainder: removed <- true; break
+                    if rem[position.usize()] > remainder: break
+                    next: usize = qf_next(position.usize())
+                    if not continuation[next]: break
+                    position <- Int(next)
+                    step <- step + 1
+            if not removed:
+                statuses[operation] <- 0
+                operation <- operation + 1
+                continue
+            was_run_start: bool = not continuation[position.usize()]
+            following: usize = qf_next(position.usize())
+            has_more_same: bool = not qf_empty(following, rem, occupied, continuation, shifted) and continuation[following]
+            if was_run_start and not has_more_same: occupied[q] <- false
+            rem[position.usize()] <- 0
+            continuation[position.usize()] <- false
+            shifted[position.usize()] <- false
+            hole: mutable usize = position.usize()
+            current_q: mutable usize = q
+            first_shift: mutable bool = true
+            step: mutable usize = 0
+            while step < QF_SLOTS - 1:
+                next: usize = qf_next(hole)
+                if qf_empty(next, rem, occupied, continuation, shifted) or not shifted[next]: break
+                source_continuation: bool = continuation[next]
+                promote: bool = first_shift and was_run_start and has_more_same
+                if not source_continuation and not promote:
+                    next_q: Int = qf_next_occupied(current_q, occupied)
+                    if next_q < 0: return -1
+                    current_q <- next_q.usize()
+                rem[hole] <- rem[next]
+                continuation[hole] <- if promote: false else: source_continuation
+                shifted[hole] <- continuation[hole] or hole != current_q
+                rem[next] <- 0
+                continuation[next] <- false
+                shifted[next] <- false
+                hole <- next
+                first_shift <- false
+                step <- step + 1
+            rem[hole] <- 0
+            continuation[hole] <- false
+            shifted[hole] <- false
+            total <- total - 1
+            statuses[operation] <- 1
+        operation <- operation + 1
+    operation <- 0
+    while operation < count:
+        output[operation] <- statuses[operation]
+        operation <- operation + 1
+    Int64(count)
+
+export fn quotient_filter_operation_trace(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > 66: return -1
+    qf_impl(input[0:input_length], output, capacity)

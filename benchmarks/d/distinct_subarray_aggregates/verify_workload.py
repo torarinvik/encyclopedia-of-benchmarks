@@ -1,0 +1,161 @@
+"""Static package, workload, fixture, rights, and port inventory checks."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+import re
+
+PACKAGE = Path(__file__).resolve().parent
+ROOT = PACKAGE.parents[2]
+SYMBOL = "distinct_subarray_aggregates"
+SOURCE_URL = (
+    "https://github.com/sgtlaugh/algovault/blob/"
+    "78cdaf62b70ca0622e8887d2e357fb90b91d449c/"
+    "code_library/data_structures/distinct_subarray_aggregates.cpp"
+)
+SOURCE_PATHS = (
+    "c/d/distinct_subarray_aggregates.c",
+    "c3/d/distinct_subarray_aggregates.c3",
+    "cpp/d/distinct_subarray_aggregates.cpp",
+    "elisa/d/distinct_subarray_aggregates.elisa",
+    "mojo/d/distinct_subarray_aggregates.mojo",
+    "nim/d/distinct_subarray_aggregates.nim",
+    "odin/d/distinct_subarray_aggregates.odin",
+    "rust/d/distinct_subarray_aggregates.rs",
+    "v/d/distinct_subarray_aggregates.v",
+    "zig/d/distinct_subarray_aggregates.zig",
+)
+
+try:
+    from .independent_oracle import expected_result as independent_result
+    from .primary_oracle import (
+        MAX_N,
+        MAX_PARSEABLE_INPUT_LENGTH,
+        MAX_RESULT,
+        MAX_SECONDARY_COUNT,
+        MAX_VALID_INPUT_LENGTH,
+        MAX_WORKSPACE_BYTES,
+        PACKING_MULTIPLIER,
+        expected_result as primary_result,
+    )
+except ImportError:  # Direct invocation from the package directory.
+    from independent_oracle import expected_result as independent_result  # type: ignore[no-redef]
+    from primary_oracle import (  # type: ignore[no-redef]
+        MAX_N,
+        MAX_PARSEABLE_INPUT_LENGTH,
+        MAX_RESULT,
+        MAX_SECONDARY_COUNT,
+        MAX_VALID_INPUT_LENGTH,
+        MAX_WORKSPACE_BYTES,
+        PACKING_MULTIPLIER,
+        expected_result as primary_result,
+    )
+
+
+def verify_workload(workload: object | None = None) -> list[str]:
+    issues: list[str] = []
+    for name in ("README.md", "RIGHTS.md", "INVENTORY.md", "workload.json",
+                 "primary_oracle.py", "independent_oracle.py", "verify_workload.py"):
+        if not (PACKAGE / name).is_file():
+            issues.append(f"missing package file: {name}")
+    for source_path in SOURCE_PATHS:
+        path = ROOT / source_path
+        if not path.is_file():
+            issues.append(f"missing port: {source_path}")
+        elif SYMBOL not in path.read_text(encoding="utf-8"):
+            issues.append(f"missing exported symbol in {source_path}")
+
+    if workload is None:
+        try:
+            workload = json.loads((PACKAGE / "workload.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            return issues + [f"cannot read workload: {error}"]
+    if not isinstance(workload, dict):
+        return issues + ["workload must be an object"]
+
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "distinct-subarray-aggregates-i64-array-scalar-v1"
+            or workload.get("algorithm") != SYMBOL
+            or workload.get("function_symbol") != SYMBOL
+            or workload.get("abi") != "i64_array_scalar"):
+        issues.append("workload identity or ABI differs")
+    source = workload.get("source", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    workspace = workload.get("workspace", {})
+    if (not isinstance(source, dict) or source.get("url") != SOURCE_URL
+            or not isinstance(input_spec, dict)
+            or input_spec.get("mode_range") != [0, 2]
+            or input_spec.get("length_range") != [0, MAX_N]
+            or input_spec.get("value_range") != [0, 255]
+            or input_spec.get("maximum_valid_length") != MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_input_result") != -1):
+        issues.append("source attribution or input bounds differ")
+    if (not isinstance(output_spec, dict)
+            or output_spec.get("kind") != "signed_64_bit_scalar"
+            or output_spec.get("packing_multiplier") != PACKING_MULTIPLIER
+            or output_spec.get("secondary_component_maximum") != MAX_SECONDARY_COUNT
+            or output_spec.get("valid_result_range") != [0, MAX_RESULT]
+            or output_spec.get("invalid_input_result") != -1):
+        issues.append("packed output contract differs")
+    if (not isinstance(workspace, dict)
+            or workspace.get("bytes") != MAX_WORKSPACE_BYTES):
+        issues.append("workspace metadata differs")
+
+    contract = workload.get("contract", {})
+    if (not isinstance(contract, dict)
+            or "9*64=576" not in contract.get("secondary_bound", "")
+            or MAX_SECONDARY_COUNT >= PACKING_MULTIPLIER):
+        issues.append("secondary component bound does not prove collision-free packing")
+
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or not cases:
+        return issues + ["missing workload cases"]
+    seen: set[str] = set()
+    modes_seen: set[int] = set()
+    for case in cases:
+        if not isinstance(case, dict) or not isinstance(case.get("id"), str):
+            issues.append("invalid workload case")
+            continue
+        case_id = case["id"]
+        if case_id in seen:
+            issues.append(f"duplicate workload case: {case_id}")
+        seen.add(case_id)
+        values = case.get("input_values")
+        length = case.get("input_length")
+        expected = case.get("expected_result")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(length) is not int or length != len(values)
+                or type(expected) is not int or type(input_is_null) is not bool):
+            issues.append(f"invalid workload case fields: {case_id}")
+            continue
+        if values and type(values[0]) is int and 0 <= values[0] <= 2:
+            modes_seen.add(values[0])
+        if primary_result(values, input_is_null, length) != expected:
+            issues.append(f"primary oracle fixture mismatch: {case_id}")
+        if independent_result(values, input_is_null, length) != expected:
+            issues.append(f"independent oracle fixture mismatch: {case_id}")
+    if modes_seen != {0, 1, 2}:
+        issues.append("fixtures must cover GCD, bitwise OR, and bitwise AND modes")
+
+    readme_path = PACKAGE / "README.md"
+    rights_path = PACKAGE / "RIGHTS.md"
+    if readme_path.is_file() and rights_path.is_file():
+        readme = readme_path.read_text(encoding="utf-8")
+        rights = rights_path.read_text(encoding="utf-8")
+        if SOURCE_URL not in readme or SOURCE_URL not in rights:
+            issues.append("package docs omit pinned algorithm source")
+        if "MIT" not in rights or "clean-room" not in rights:
+            issues.append("rights note omits license or clean-room status")
+        for target in re.findall(r"\]\(([^)]+)\)", readme):
+            if target.startswith(("http://", "https://", "#")):
+                continue
+            local_target = target.split("#", 1)[0]
+            if not (PACKAGE / local_target).resolve().is_file():
+                issues.append(f"broken README target: {target}")
+    return issues
+
+
+static_issues = verify_workload

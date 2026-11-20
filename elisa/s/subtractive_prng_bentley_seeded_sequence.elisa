@@ -1,0 +1,76 @@
+const MAX_COUNT: usize = 64
+const STATE_SIZE: usize = 55
+const WARMUP_VALUES: usize = 165
+const MODULUS: i32 = 1000000000
+
+def subtractive_put_i64_le(output: mutable view[u8], offset: usize,
+        value: i32) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def subtractive_generate(input: view[i64], output: mutable view[u8],
+        count: usize) -> void:
+    seed_state: mutable i32[55] = zeroed
+    ring: mutable i32[55] = zeroed
+    seed_state[0] <- input[0].i32()
+    seed_state[1] <- 1
+    index: mutable usize = 2
+    while index < STATE_SIZE:
+        value: mutable i32 = seed_state[index - 2] - seed_state[index - 1]
+        if value < 0:
+            value <- value + MODULUS
+        seed_state[index] <- value
+        index <- index + 1
+    index <- 0
+    while index < STATE_SIZE:
+        ring[index] <- seed_state[(34 * (index + 1)) % STATE_SIZE]
+        index <- index + 1
+
+    write_index: mutable usize = 0
+    lag_index: mutable usize = STATE_SIZE - 24
+    step: mutable usize = 0
+    while step < WARMUP_VALUES + count:
+        value: mutable i32 = ring[write_index] - ring[lag_index]
+        if value < 0:
+            value <- value + MODULUS
+        ring[write_index] <- value
+        if step >= WARMUP_VALUES:
+            subtractive_put_i64_le(output, (step - WARMUP_VALUES) * 8, value)
+        write_index <- (write_index + 1) % STATE_SIZE
+        lag_index <- (lag_index + 1) % STATE_SIZE
+        step <- step + 1
+
+def subtractive_prng_bentley_seeded_sequence_impl(input: view[i64],
+        output: mutable view[u8], capacity: usize) -> i64:
+    seed: i64 = input[0]
+    count_value: i64 = input[1]
+    if seed < 0 or seed >= 1000000000 or count_value < 0 or count_value > MAX_COUNT.i64():
+        return -1
+    count: usize = count_value.usize()
+    required: usize = count * 8
+    if capacity < required:
+        return -2
+    if count == 0:
+        return 0
+    subtractive_generate(input, output[0:required], count)
+    required.i64()
+
+export fn subtractive_prng_bentley_seeded_sequence(input: i64&,
+        length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 2:
+        return -1
+    seed: i64 = input[0]
+    count_value: i64 = input[1]
+    if seed < 0 or seed >= 1000000000 or count_value < 0 or count_value > MAX_COUNT.i64():
+        return -1
+    required: usize = count_value.usize() * 8
+    if capacity < required or (required != 0 and output.is_null()):
+        return -2
+    if required == 0:
+        return 0
+    subtractive_prng_bentley_seeded_sequence_impl(
+        input[0:length], output[0:required], capacity)

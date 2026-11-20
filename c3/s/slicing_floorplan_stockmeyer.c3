@@ -5,7 +5,7 @@ const usz MAX_CANDIDATES = 256;
 const usz MAX_INPUT = 32;
 const usz OUTPUT_BYTES = 32;
 
-bool mask_lex_less(long a, long b, usz leaves) {
+fn bool mask_lex_less(long a, long b, usz leaves) {
     for (usz bit = 0; bit < leaves; bit++) {
         long av = (a >> bit) & 1, bv = (b >> bit) & 1;
         if (av != bv) return av < bv;
@@ -13,7 +13,7 @@ bool mask_lex_less(long a, long b, usz leaves) {
     return false;
 }
 
-void store_i64_le(char* output, usz offset, long value) {
+fn void store_i64_le(char* output, usz offset, long value) {
     long bits = value;
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (char)(bits & 255);
@@ -21,7 +21,7 @@ void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long slicing_floorplan_stockmeyer(long* input, usz length, char* output, usz capacity)
+fn long slicing_floorplan_stockmeyer(long* input, usz length, char* output, usz capacity)
         @export("slicing_floorplan_stockmeyer") {
     if (input == null || length < 4 || length > MAX_INPUT || input[0] < 1 || input[0] > 8) return -1;
     usz leaves = (usz)input[0];

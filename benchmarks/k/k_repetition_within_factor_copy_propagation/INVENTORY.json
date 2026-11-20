@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "algorithm": "k_repetition_within_factor_copy_propagation",
+  "abi": "i64_array_bytes_output",
+  "maximum_valid_input_words": 1556,
+  "maximum_parseable_input_words": 1557,
+  "maximum_output_bytes": 11912,
+  "workspace_bytes": 16384,
+  "sources": [
+    "c/k/k_repetition_within_factor_copy_propagation.c",
+    "c3/k/k_repetition_within_factor_copy_propagation.c3",
+    "cpp/k/k_repetition_within_factor_copy_propagation.cpp",
+    "elisa/k/k_repetition_within_factor_copy_propagation.elisa",
+    "mojo/k/k_repetition_within_factor_copy_propagation.mojo",
+    "nim/k/k_repetition_within_factor_copy_propagation.nim",
+    "odin/k/k_repetition_within_factor_copy_propagation.odin",
+    "rust/k/k_repetition_within_factor_copy_propagation.rs",
+    "v/k/k_repetition_within_factor_copy_propagation.v",
+    "zig/k/k_repetition_within_factor_copy_propagation.zig"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "check_inventory.py",
+    "verify_workload.py"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-cartesian-tree-fcb-rmq-i64-array-bytes-output-v1",
+  "algorithm": "rmq_cartesian_tree_fcb",
+  "function_symbol": "rmq_cartesian_tree_fcb",
+  "abi": "i64_array_bytes_output",
+  "description": "Exact leftmost argmin range queries through a Cartesian tree and Euler-tour FCB index.",
+  "pinned_source": {
+    "repository": "CP-Algorithms",
+    "path": "src/graph/rmq_linear.md",
+    "section": "Solve RMQ by finding LCA",
+    "url": "https://cp-algorithms.com/graph/rmq_linear.html"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[n,q,values[n],(left,right)*q]",
+    "n_range": [1, 64],
+    "q_range": [0, 64],
+    "value_range": [-1000, 1000],
+    "query_encoding": "inclusive zero-based [left,right], with 0<=left<=right<n",
+    "exact_length": "2+n+2*q",
+    "maximum_valid_length": 194,
+    "maximum_parseable_length": 195,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "count_prefixed_unsigned_byte_sequence",
+    "encoding": "[q,leftmost_argmin_index_0,...,leftmost_argmin_index_(q-1)]",
+    "result": "number of output bytes",
+    "valid_output_bytes": "q+1",
+    "maximum_output_bytes": 65,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 65,
+    "reason": "At most 64 query answers plus one count-prefix byte are emitted."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "single-element", "input_values": [1, 1, 7, 0, 0], "input_length": 5, "expected_result": 2, "expected_output_hex": "0100"},
+    {"id": "leftmost-ties-and-mixed-ranges", "input_values": [5, 4, 4, 1, 1, 5, 0, 0, 4, 1, 3, 2, 2, 3, 4], "input_length": 15, "expected_result": 5, "expected_output_hex": "0404010204"},
+    {"id": "empty-query-batch", "input_values": [3, 0, 3, 2, 1], "input_length": 5, "expected_result": 1, "expected_output_hex": "00"},
+    {"id": "maximum-null-output", "input_values": [1, 0, 0], "input_length": 3, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "undersized-output", "input_values": [3, 2, 5, 1, 4, 0, 2, 1, 1], "input_length": 9, "output_capacity": 2, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "invalid-query-order", "input_values": [2, 1, 0, 1, 1, 0], "input_length": 6, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing-word", "input_values": [1, 0, 3, 99], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id":"maximum-size-and-65-byte-output","input_values":[64,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63],"input_length":194,"expected_result":65,"expected_output_hex":"4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"maximum-parseable-195-word-trailing-word","input_values":[64,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,0,63,99],"input_length":195,"expected_result":-1,"expected_output_hex":""},
+    {"id": "null-input", "input_values": [], "input_is_null": true, "input_length": 0, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

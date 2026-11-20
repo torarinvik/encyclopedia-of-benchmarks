@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "algorithm": "random_3sat_cl_bucket_heuristic",
+  "abi": "i64_array_bytes_output",
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "inventory.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py",
+    "verify_workload.py"
+  ],
+  "language_files": {
+    "c": "c/r/random_3sat_cl_bucket_heuristic.c",
+    "c3": "c3/r/random_3sat_cl_bucket_heuristic.c3",
+    "cpp": "cpp/r/random_3sat_cl_bucket_heuristic.cpp",
+    "elisa": "elisa/r/random_3sat_cl_bucket_heuristic.elisa",
+    "mojo": "mojo/r/random_3sat_cl_bucket_heuristic.mojo",
+    "nim": "nim/r/random_3sat_cl_bucket_heuristic.nim",
+    "odin": "odin/r/random_3sat_cl_bucket_heuristic.odin",
+    "rust": "rust/r/random_3sat_cl_bucket_heuristic.rs",
+    "v": "v/r/random_3sat_cl_bucket_heuristic.v",
+    "zig": "zig/r/random_3sat_cl_bucket_heuristic.zig"
+  }
+}

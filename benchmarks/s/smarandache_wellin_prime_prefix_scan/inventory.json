@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "algorithm": "smarandache_wellin_prime_prefix_scan",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "smarandache_wellin_prime_prefix_scan",
+  "suite_status": "registered_i64_array_bytes_output",
+  "native_ports": {
+    "C": "c/s/smarandache_wellin_prime_prefix_scan.c",
+    "C3": "c3/s/smarandache_wellin_prime_prefix_scan.c3",
+    "C++": "cpp/s/smarandache_wellin_prime_prefix_scan.cpp",
+    "Elisa": "elisa/s/smarandache_wellin_prime_prefix_scan.elisa",
+    "Mojo": "mojo/s/smarandache_wellin_prime_prefix_scan.mojo",
+    "Nim": "nim/s/smarandache_wellin_prime_prefix_scan.nim",
+    "Odin": "odin/s/smarandache_wellin_prime_prefix_scan.odin",
+    "Rust": "rust/s/smarandache_wellin_prime_prefix_scan.rs",
+    "V": "v/s/smarandache_wellin_prime_prefix_scan.v",
+    "Zig": "zig/s/smarandache_wellin_prime_prefix_scan.zig"
+  },
+  "primary_oracle": "benchmarks/s/smarandache_wellin_prime_prefix_scan/primary_oracle.py",
+  "independent_oracle": "benchmarks/s/smarandache_wellin_prime_prefix_scan/independent_oracle.py",
+  "workload": "benchmarks/s/smarandache_wellin_prime_prefix_scan/workload.json",
+  "rights": "benchmarks/s/smarandache_wellin_prime_prefix_scan/RIGHTS.md",
+  "inventory_doc": "benchmarks/s/smarandache_wellin_prime_prefix_scan/INVENTORY.md",
+  "static_inventory_helper": "benchmarks/s/smarandache_wellin_prime_prefix_scan/check_inventory.py",
+  "workload_reference_helper": "benchmarks/s/smarandache_wellin_prime_prefix_scan/verify_workload.py",
+  "limits": {
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "maximum_output_bytes": 24,
+    "workspace_bytes": 256,
+    "maximum_count": 6,
+    "maximum_prefix_value": 23571113
+  }
+}

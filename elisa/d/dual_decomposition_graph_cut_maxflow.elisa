@@ -1,0 +1,176 @@
+# Clean-room finite profile of two-way overlap-label graph-cut dual decomposition.
+const DD_N: usize = 6
+const DD_M: usize = 10
+const DD_STRIDE: usize = 8
+const DD_OFFSET: i64 = 7000
+
+def dd_member(owner: view[i64], vertex: usize, side: usize) -> bool:
+    owner[vertex] == side.i64() or owner[vertex] == 2
+
+def dd_solve(side: usize, n: usize, m: usize, owner: view[i64], source_cap: view[i64],
+    sink_cap: view[i64], eu: view[usize], ev: view[usize], uv: view[i64], vu: view[i64],
+    lambda: view[i64], scale: i64, labels: mutable view[i64]) -> i64:
+    source: usize = n
+    sink: usize = n + 1
+    size: usize = n + 2
+    residual: mutable i64[DD_STRIDE * DD_STRIDE] = zeroed
+    constant: mutable i64 = 0
+    flow: mutable i64 = 0
+    source_sum: mutable i64 = 0
+    lambda_sum: mutable i64 = 0
+    u: mutable usize = 0
+    while u < n:
+        source_sum <- source_sum + source_cap[u]
+        if dd_member(owner, u, side):
+            factor: i64 = if owner[u] == 2: scale / 2 else: scale
+            residual[source * DD_STRIDE + u] <- residual[source * DD_STRIDE + u] + source_cap[u] * factor
+            residual[u * DD_STRIDE + sink] <- residual[u * DD_STRIDE + sink] + sink_cap[u] * factor
+        if owner[u] == 2:
+            lambda_sum <- lambda_sum + (if lambda[u] < 0: -lambda[u] else: lambda[u])
+        u <- u + 1
+    i: mutable usize = 0
+    while i < m:
+        if dd_member(owner, eu[i], side) and dd_member(owner, ev[i], side):
+            factor: i64 = if owner[eu[i]] == 2 and owner[ev[i]] == 2: scale / 2 else: scale
+            residual[eu[i] * DD_STRIDE + ev[i]] <- residual[eu[i] * DD_STRIDE + ev[i]] + uv[i] * factor
+            residual[ev[i] * DD_STRIDE + eu[i]] <- residual[ev[i] * DD_STRIDE + eu[i]] + vu[i] * factor
+        i <- i + 1
+    u <- 0
+    while u < n:
+        if owner[u] == 2:
+            q: i64 = if side == 0: lambda[u] else: -lambda[u]
+            if q >= 0: residual[source * DD_STRIDE + u] <- residual[source * DD_STRIDE + u] + q
+            else:
+                residual[u * DD_STRIDE + sink] <- residual[u * DD_STRIDE + sink] - q
+                constant <- constant + q
+        u <- u + 1
+    while true:
+        parent: mutable i64[DD_STRIDE] = zeroed
+        queue: mutable usize[DD_STRIDE] = zeroed
+        i <- 0
+        while i < size:
+            parent[i] <- -1
+            i <- i + 1
+        parent[source] <- source.i64()
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        queue[0] <- source
+        while head < tail and parent[sink] < 0:
+            u <- queue[head]
+            head <- head + 1
+            v: mutable usize = 0
+            while v < size:
+                if parent[v] < 0 and residual[u * DD_STRIDE + v] > 0:
+                    parent[v] <- u.i64()
+                    queue[tail] <- v
+                    tail <- tail + 1
+                    if v == sink: break
+                v <- v + 1
+        if parent[sink] < 0:
+            u <- 0
+            while u < n:
+                labels[u] <- if dd_member(owner, u, side) and parent[u] < 0: 1 else: 0
+                u <- u + 1
+            return flow + constant
+        amount: mutable i64 = source_sum * scale + lambda_sum + 1
+        v: mutable usize = sink
+        while v != source:
+            u <- parent[v].usize()
+            if residual[u * DD_STRIDE + v] < amount: amount <- residual[u * DD_STRIDE + v]
+            v <- u
+        v <- sink
+        while v != source:
+            u <- parent[v].usize()
+            residual[u * DD_STRIDE + v] <- residual[u * DD_STRIDE + v] - amount
+            residual[v * DD_STRIDE + u] <- residual[v * DD_STRIDE + u] + amount
+            v <- u
+        flow <- flow + amount
+
+def dd_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 4 or length > 63: return -1
+    raw_n: i64 = input[0]
+    raw_m: i64 = input[1]
+    raw_overlap: i64 = input[2]
+    raw_rounds: i64 = input[3]
+    if raw_n < 3 or raw_n > DD_N.i64() or raw_m < 0 or raw_m > DD_M.i64() or
+       raw_overlap < 1 or raw_overlap > 3 or raw_rounds < 1 or raw_rounds > 8 or
+       length != 4 + 3 * raw_n.usize() + 4 * raw_m.usize(): return -1
+    n: usize = raw_n.usize()
+    m: usize = raw_m.usize()
+    overlap: usize = raw_overlap.usize()
+    rounds: usize = raw_rounds.usize()
+    owner: mutable i64[DD_N] = zeroed
+    counts: mutable usize[3] = zeroed
+    at: mutable usize = 4
+    u: mutable usize = 0
+    while u < n:
+        value: i64 = input[at]
+        at <- at + 1
+        if value < 0 or value > 2: return -1
+        owner[u] <- value
+        counts[value.usize()] <- counts[value.usize()] + 1
+        u <- u + 1
+    if counts[0] == 0 or counts[1] == 0 or counts[2] != overlap: return -1
+    source_cap: mutable i64[DD_N] = zeroed
+    sink_cap: mutable i64[DD_N] = zeroed
+    u <- 0
+    while u < n:
+        source_cap[u] <- input[at]
+        at <- at + 1
+        if source_cap[u] < 0 or source_cap[u] > 6 or source_cap[u] % 2 != 0: return -1
+        u <- u + 1
+    u <- 0
+    while u < n:
+        sink_cap[u] <- input[at]
+        at <- at + 1
+        if sink_cap[u] < 0 or sink_cap[u] > 6 or sink_cap[u] % 2 != 0: return -1
+        u <- u + 1
+    eu: mutable usize[DD_M] = zeroed
+    ev: mutable usize[DD_M] = zeroed
+    uv: mutable i64[DD_M] = zeroed
+    vu: mutable i64[DD_M] = zeroed
+    i: mutable usize = 0
+    while i < m:
+        raw_u: i64 = input[at]
+        raw_v: i64 = input[at + 1]
+        c: i64 = input[at + 2]
+        d: i64 = input[at + 3]
+        at <- at + 4
+        if raw_u < 0 or raw_u >= raw_n or raw_v < 0 or raw_v >= raw_n or raw_u == raw_v or
+           (owner[raw_u.usize()] == 0 and owner[raw_v.usize()] == 1) or (owner[raw_u.usize()] == 1 and owner[raw_v.usize()] == 0) or
+           c < 0 or c > 6 or c % 2 != 0 or d < 0 or d > 6 or d % 2 != 0: return -1
+        eu[i] <- raw_u.usize(); ev[i] <- raw_v.usize(); uv[i] <- c; vu[i] <- d
+        i <- i + 1
+    scales: mutable i64[9] = zeroed
+    scales[1] <- 2; scales[2] <- 2; scales[3] <- 6; scales[4] <- 12
+    scales[5] <- 60; scales[6] <- 60; scales[7] <- 420; scales[8] <- 840
+    scale: i64 = scales[rounds]
+    lambda: mutable i64[DD_N] = zeroed
+    labels_m: mutable i64[DD_N] = zeroed
+    labels_n: mutable i64[DD_N] = zeroed
+    dual_scaled: mutable i64 = 0
+    agreement: mutable bool = false
+    iteration: mutable usize = 1
+    while iteration <= rounds:
+        energy_m: i64 = dd_solve(0,n,m,owner[0:n],source_cap[0:n],sink_cap[0:n],eu[0:m],ev[0:m],uv[0:m],vu[0:m],lambda[0:n],scale,labels_m[0:n])
+        energy_n: i64 = dd_solve(1,n,m,owner[0:n],source_cap[0:n],sink_cap[0:n],eu[0:m],ev[0:m],uv[0:m],vu[0:m],lambda[0:n],scale,labels_n[0:n])
+        dual_scaled <- energy_m + energy_n
+        agreement <- true
+        u <- 0
+        while u < n:
+            if owner[u] == 2 and labels_m[u] != labels_n[u]: agreement <- false
+            u <- u + 1
+        if agreement or iteration == rounds: break
+        step: i64 = scale / iteration.i64()
+        u <- 0
+        while u < n:
+            if owner[u] == 2: lambda[u] <- lambda[u] + step * (labels_m[u] - labels_n[u])
+            u <- u + 1
+        iteration <- iteration + 1
+    2 * (dual_scaled + DD_OFFSET) + (if agreement: 1 else: 0)
+
+export def dual_decomposition_graph_cut_maxflow(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 63: return -1
+    values: view[i64] = input[0:length]
+    dd_impl(values)

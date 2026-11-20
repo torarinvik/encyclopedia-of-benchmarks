@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "riordan-number-i64-array-scalar-v1",
+  "algorithm": "riordan_number",
+  "function_symbol": "riordan_number",
+  "abi": "i64_array_scalar",
+  "description": "Return the exact Riordan number R_n for a bounded path length.",
+  "source": {
+    "title": "Riordan Paths and Derangements",
+    "authors": ["William Y. C. Chen", "Eva Y. P. Deng", "Laura L. M. Yang"],
+    "publisher": "arXiv preprint",
+    "year": 2006,
+    "reference_url": "https://arxiv.org/abs/math/0602298",
+    "recurrence_url": "https://doi.org/10.1016/j.disc.2007.05.001",
+    "independent_identity_url": "https://pages.stat.wisc.edu/~callan/notes/riordan/riordan.pdf",
+    "sequence_url": "https://oeis.org/A005043",
+    "discovery_url": "https://raw.githubusercontent.com/acmeism/RosettaCodeData/main/popular-tasks",
+    "implementation_status": "bounded clean-room exact-sequence profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n]",
+    "n_range": [0, 30],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "R_n, where R_0=1, R_1=0, and (n+1)R_n=(n-1)(2R_(n-1)+3R_(n-2)) for n>=2",
+    "valid_result_range": [0, 439742222071],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "definition": "R_n counts length-n Motzkin paths from height zero to height zero that never go below zero and contain no horizontal step at height zero.",
+    "primary_method": "Bottom-up exact recurrence (n+1)R_n=(n-1)(2R_(n-1)+3R_(n-2)), with R_0=1 and R_1=0.",
+    "independent_method": "Difference of central trinomial coefficients R_n=t(n,0)-t(n,-1), where t(n,k) counts unrestricted up/flat/down walks of length n ending at height k.",
+    "invalid_cases": "Null input, empty frame, trailing word, negative n, or n>30 returns -1.",
+    "overflow_proof": "For n<=30 the result is at most R_30=439,742,222,071. The recurrence numerator is at most 29*(2*R_29+3*R_28)=13,632,008,884,201, below 1.4e13. Each independent walk count is at most 3^30=205,891,132,094,649, below signed-i64 maximum."
+  },
+  "complexity": {
+    "primary_time": "O(n), at most 29 recurrence steps for n<=30",
+    "primary_space": "31 signed 64-bit table entries, 248 bytes",
+    "independent_time": "O(n^2) transitions for bounded central trinomial coefficients",
+    "independent_space": "O(n) counts, at most 63 signed 64-bit entries per row"
+  },
+  "workspace": {"bytes": 512},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"index-zero","input_values":[0],"input_length":1,"expected_result":1},
+    {"id":"index-one","input_values":[1],"input_length":1,"expected_result":0},
+    {"id":"first-positive","input_values":[2],"input_length":1,"expected_result":1},
+    {"id":"small-path-count","input_values":[4],"input_length":1,"expected_result":3},
+    {"id":"recurrence-midpoint","input_values":[10],"input_length":1,"expected_result":603},
+    {"id":"midrange","input_values":[20],"input_length":1,"expected_result":13393689},
+    {"id":"maximum-index","input_values":[30],"input_length":1,"expected_result":439742222071},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"above-domain-invalid","input_values":[31],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[10,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

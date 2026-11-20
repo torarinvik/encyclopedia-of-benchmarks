@@ -4,7 +4,7 @@ module tsvc_s171_stride_indexed_accumulate;
 const usz MAX_N = 32;
 const usz MAX_STRIDE = 4;
 
-void store_i64_le(uchar* output, usz offset, long value) {
+fn void store_i64_le(uchar* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (uchar)(bits & 0xffu);
@@ -12,7 +12,7 @@ void store_i64_le(uchar* output, usz offset, long value) {
     }
 }
 
-long tsvc_s171_stride_indexed_accumulate(long* input, usz length,
+fn long tsvc_s171_stride_indexed_accumulate(long* input, usz length,
         uchar* output, usz capacity) @export("tsvc_s171_stride_indexed_accumulate") {
     if (input == null || length < 4 || length > 159) return -1;
     if (input[0] < 1 || input[0] > (long)MAX_N ||

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 
@@ -71,9 +72,9 @@ fn planar_face_count(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size
             if points[2 * v] == points[2 * prior] and points[2 * v + 1] == points[2 * prior + 1]:
                 return -1
 
-    var adjacent = InlineArray[Bool, MAX_N * MAX_N]()
+    var adjacent = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     var neighbors = InlineArray[Int, MAX_N * MAX_N]()
-    var degree = InlineArray[Int, MAX_N]()
+    var degree = InlineArray[Int, MAX_N](fill=0)
     var edge_u = InlineArray[Int, MAX_M]()
     var edge_v = InlineArray[Int, MAX_M]()
     let offset = 2 + 2 * n
@@ -95,7 +96,7 @@ fn planar_face_count(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size
         edge_u[e] = u
         edge_v[e] = v
 
-    var reached = InlineArray[Bool, MAX_N]()
+    var reached = InlineArray[Bool, MAX_N](fill=False)
     var queue = InlineArray[Int, MAX_N]()
     var head = 0
     var tail = 1
@@ -148,7 +149,7 @@ fn planar_face_count(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size
                 j -= 1
             neighbors[u * MAX_N + j] = key
 
-    var used = InlineArray[Bool, MAX_N * MAX_N]()
+    var used = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     var faces = 0
     for e in range(m):
         for direction in range(2):

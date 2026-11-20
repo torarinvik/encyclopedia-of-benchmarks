@@ -5,12 +5,15 @@ This benchmark follows the pinned Julia `partitions_recursive` implementation. I
 ## Contract
 
 - The scalar input is `n` in `0..=100`.
-- The result is the exact signed 64-bit partition count. Examples include `p(0)=1`, `p(5)=7`, and `p(100)=79270`.
+- The result is the exact signed 64-bit partition count. Examples include `p(0)=1`, `p(5)=7`, and `p(100)=190569292`.
 - Inputs outside the range return `INT64_MIN`; the Julia source throws for negative values, while the upper bound keeps the result representable in signed 64-bit.
 
 The source sums `P_k(n)` for `k=1..n` and uses `P_k(n)=P_{k-1}(n-1)+P_k(n-k)`, with base cases for `P_0(0)`, one-part partitions, and `k=n`. The benchmark ports memoize that recursion per call to bound repeated work; the recurrence and result are unchanged. The zero case is handled directly as the source does.
 
 This is distinct from [`integer_partition`](../i/integer_partition/README.md), which ports a two-dimensional iterative table from Python and Rust and excludes zero.
+
+The new scalar verifier registration uses a generalized-pentagonal recurrence
+reference and has not been executed.
 
 ## Implementations
 
@@ -20,6 +23,7 @@ This is distinct from [`integer_partition`](../i/integer_partition/README.md), w
 | C3 | [`c3/p/partitions.c3`](../../../c3/p/partitions.c3) |
 | C++ | [`cpp/p/partitions.cpp`](../../../cpp/p/partitions.cpp) |
 | Elisa | [`elisa/p/partitions.elisa`](../../../elisa/p/partitions.elisa) |
+| Mojo | [`mojo/p/partitions.mojo`](../../../mojo/p/partitions.mojo) |
 | Nim | [`nim/p/partitions.nim`](../../../nim/p/partitions.nim) |
 | Odin | [`odin/p/partitions.odin`](../../../odin/p/partitions.odin) |
 | Rust | [`rust/p/partitions.rs`](../../../rust/p/partitions.rs) |

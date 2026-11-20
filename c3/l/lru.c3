@@ -18,7 +18,7 @@ fn void write_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long lru(long* input, usz length, char* output, usz output_capacity) @export("lru") {
+fn long lru(long* input, usz length, char* output, usz output_capacity) @export("lru") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     long capacity_value = input[0];
     long operation_count = input[1];

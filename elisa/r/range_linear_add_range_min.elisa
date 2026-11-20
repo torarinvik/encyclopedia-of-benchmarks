@@ -94,16 +94,17 @@ def range_linear_query(data: view[i64], hull_x: view[i64], hull_y: view[i64],
     minimum
 
 def range_linear_add_range_min_impl(input: i64&, length: usize) -> i64:
-    if input == null or length < 3 or length > RANGE_LINEAR_MAX_INPUT: return -1
-    if input[0] < 1 or input[0] > RANGE_LINEAR_MAX_LENGTH.i64() or
-       input[1] < 1 or input[1] > RANGE_LINEAR_MAX_OPERATIONS.i64(): return -1
-    let n: usize = input[0].usize()
-    let q: usize = input[1].usize()
+    if input.is_null() or length < 3 or length > RANGE_LINEAR_MAX_INPUT: return -1
+    frame: view[i64] = input[0:length]
+    if frame[0] < 1 or frame[0] > RANGE_LINEAR_MAX_LENGTH.i64() or
+       frame[1] < 1 or frame[1] > RANGE_LINEAR_MAX_OPERATIONS.i64(): return -1
+    let n: usize = frame[0].usize()
+    let q: usize = frame[1].usize()
     if length < n + 2: return -1
     data: mutable i64[RANGE_LINEAR_MAX_LENGTH] = zeroed
     for i in 0..<n:
-        if input[i + 2] < -1000000 or input[i + 2] > 1000000: return -1
-        data[i] <- input[i + 2]
+        if frame[i + 2] < -1000000 or frame[i + 2] > 1000000: return -1
+        data[i] <- frame[i + 2]
     hull_x: mutable i64[RANGE_LINEAR_MAX_LENGTH] = zeroed
     hull_y: mutable i64[RANGE_LINEAR_MAX_LENGTH] = zeroed
     hull_count: mutable i64[RANGE_LINEAR_MAX_BLOCKS] = zeroed
@@ -118,14 +119,14 @@ def range_linear_add_range_min_impl(input: i64&, length: usize) -> i64:
     checksum: mutable i64 = 0
     for operation in 0..<q:
         if cursor >= length: return -1
-        let opcode: i64 = input[cursor]
+        let opcode: i64 = frame[cursor]
         cursor <- cursor + 1
         if opcode == 0:
             if cursor + 4 > length: return -1
-            let left: i64 = input[cursor]
-            let right: i64 = input[cursor + 1]
-            let slope: i64 = input[cursor + 2]
-            let intercept: i64 = input[cursor + 3]
+            let left: i64 = frame[cursor]
+            let right: i64 = frame[cursor + 1]
+            let slope: i64 = frame[cursor + 2]
+            let intercept: i64 = frame[cursor + 3]
             cursor <- cursor + 4
             if left < 0 or left >= right or right > n.i64() or slope < -99 or slope > 99 or
                intercept < -100000 or intercept > 100000: return -1
@@ -135,8 +136,8 @@ def range_linear_add_range_min_impl(input: i64&, length: usize) -> i64:
                 n, left.usize(), right.usize(), slope, intercept)
         else if opcode == 1:
             if cursor + 2 > length: return -1
-            let left: i64 = input[cursor]
-            let right: i64 = input[cursor + 1]
+            let left: i64 = frame[cursor]
+            let right: i64 = frame[cursor + 1]
             cursor <- cursor + 2
             if left < 0 or left >= right or right > n.i64(): return -1
             let result: i64 = range_linear_query(data[0:RANGE_LINEAR_MAX_LENGTH],

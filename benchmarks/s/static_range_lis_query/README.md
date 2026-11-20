@@ -39,6 +39,8 @@ about an optimized solution for the upstream maximum. See [RIGHTS.md](RIGHTS.md)
 
 The primary oracle uses the same tails invariant per query. The independent
 verifier uses quadratic dynamic programming over each selected subarray.
+The Elisa draft uses bounded views after validating its ABI input and output
+references. This source change has not been compiled or executed.
 
 ## Ports
 

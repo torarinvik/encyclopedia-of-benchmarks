@@ -7,13 +7,13 @@ fn void put64(char* output, usz position, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[position+byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long optimistic_flow_control_updates(long* input, usz length, char* output, usz capacity) @export("optimistic_flow_control_updates") {
+fn long optimistic_flow_control_updates(long* input, usz length, char* output, usz capacity) @export("optimistic_flow_control_updates") {
     if (input == null || length < 7 || length > MAX_INPUT) return -1;
     long n64=input[0], l64=input[1], mode64=input[2], q64=input[3];
     if (n64 < 2 || n64 > (long)MAX_N || l64 < 1 || l64 > (long)MAX_L || mode64 < 0 || mode64 > 3 || q64 < 1 || q64 > 6) return -1;
     usz n=(usz)n64, links=(usz)l64, mode=(usz)mode64, updates=(usz)q64;
     if (length != 4 + links + n*links) return -1;
-    long[MAX_L] cap = zeroed; bool[MAX_N][MAX_L] path = zeroed; long[MAX_N] rate = zeroed;
+    long[MAX_L] cap = zeroed; bool[MAX_L][MAX_N] path = zeroed; long[MAX_N] rate = zeroed;
     for (usz e=0; e<links; e+=1) { cap[e]=input[4+e]; if (cap[e]<1 || cap[e]>16) return -1; }
     for (usz s=0; s<n; s+=1) {
         bool used=false;

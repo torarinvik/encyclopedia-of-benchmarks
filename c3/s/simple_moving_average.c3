@@ -18,7 +18,7 @@ fn long simple_moving_average(long* input, usz length, char* output, usz capacit
             long sum = 0;
             for (usz j = i + 1 - window; j <= i; j++) sum += input[2 + j];
             double average = (double)sum / (double)window;
-            ulong bits = @bitcast(ulong, average);
+            ulong bits = bitcast(average, ulong);
             put_u64_le(bits, output, i * 8);
         }
     }

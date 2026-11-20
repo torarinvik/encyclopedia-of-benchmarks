@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "raita-all-occurrences-i64-array-bytes-v1",
+  "algorithm": "raita_search",
+  "function_symbol": "raita_search",
+  "abi": "i64_array_bytes_output",
+  "description": "Return all overlapping byte-pattern occurrences with Raita probe order and Horspool shifts.",
+  "source": {
+    "title": "Tuning the Boyer-Moore-Horspool String Searching Algorithm",
+    "author": "Timo Raita",
+    "publisher": "Software: Practice and Experience",
+    "volume": 22,
+    "issue": 10,
+    "year": 1992,
+    "pages": "879–884",
+    "reference_url": "https://doi.org/10.1002/spe.4380221006",
+    "algorithm_description_url": "https://igm.univ-mlv.fr/~lecroq/string/node22.html",
+    "shift_table_description_url": "https://igm.univ-mlv.fr/~lecroq/string/node14.html",
+    "implementation_status": "bounded clean-room Raita profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, pattern_length, text_bytes..., pattern_bytes...]",
+    "text_length_range": [0, 255],
+    "pattern_length_range": [1, 64],
+    "element_range": [0, 127],
+    "maximum_valid_length": 321,
+    "maximum_parseable_length": 322,
+    "exact_frame_rule": "The length is exactly 2 + text_length + pattern_length.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "All zero-based matching start positions in increasing order as little-endian signed 64-bit integers; overlapping matches are included.",
+    "maximum_match_count": 255,
+    "maximum_bytes": 2040,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "nonnull_output_required_for_empty_result": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "A 128-entry Horspool table, fixed pattern and match-position storage, and bounded scratch; caller output is separate."
+  },
+  "contract": {
+    "middle_index": "pattern_length / 2 using integer division",
+    "comparison_order": "At every alignment, compare the pattern's final byte with the text window's final byte, then compare the first byte, then the middle byte, then compare interior indices 1 through pattern_length - 2 in increasing order. The middle byte can be compared again as part of the interior.",
+    "short_pattern_behavior": "For pattern lengths one and two, the interior range is empty. Repeated last/first/middle probes are retained in the specified order.",
+    "shift_rule": "Initialize every byte shift to pattern_length. For each pattern index i before the final index, set shift[pattern[i]] to pattern_length - i - 1. After each alignment, including a match, shift by the table entry for the text byte at the window's final position.",
+    "preprocessing": "Build a 128-entry bad-byte shift table in O(pattern_length + 128) time.",
+    "empty_pattern": "Invalid; pattern length must be 1..64.",
+    "result": "Collect every matching alignment, then serialize positions as little-endian signed i64 values.",
+    "error_precedence": "Validate input pointer, exact frame, lengths, and byte domain and complete the search before validating output pointer/capacity.",
+    "no_write_on_error": true,
+    "bounds": "At most 255 alignments are scanned; output has at most 255 positions and 2,040 bytes."
+  },
+  "complexity": {
+    "preprocessing_time": "O(pattern_length + 128)",
+    "search_time": "O(text_length * pattern_length) worst case, plus O(match_count) output serialization.",
+    "space": "O(128 + pattern_length + match_count), all bounded by this profile."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "overlapping-matches", "input_values": [5, 3, 97, 98, 97, 98, 97, 97, 98, 97], "output_bytes": 16},
+      {"id": "one-byte-all-matches", "input_values": [5, 1, 97, 97, 97, 97, 97, 97], "output_bytes": 40},
+      {"id": "early-probes-pass-interior-fails", "input_values": [6, 5, 97, 120, 99, 100, 101, 102, 97, 98, 99, 100, 101], "output_bytes": 0}
+    ]
+  },
+  "cases": [
+    {"id":"overlapping-matches","input_values":[5,3,97,98,97,98,97,97,98,97],"input_length":10,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"later-matches","input_values":[9,3,120,120,97,98,99,120,97,98,99,97,98,99],"input_length":14,"output_capacity":16,"expected_result":16,"expected_output_hex":"02000000000000000600000000000000"},
+    {"id":"early-probes-pass-interior-fails","input_values":[6,5,97,120,99,100,101,102,97,98,99,100,101],"input_length":13,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"middle-probe-fails","input_values":[5,5,97,98,120,100,101,97,98,99,100,101],"input_length":12,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"last-probe-fails","input_values":[5,3,97,98,120,97,98,99],"input_length":8,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"first-probe-fails","input_values":[6,6,88,98,99,100,101,102,97,98,99,100,101,102],"input_length":14,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"one-byte-pattern-overlaps","input_values":[5,1,97,97,97,97,97,97],"input_length":8,"output_capacity":40,"expected_result":40,"expected_output_hex":"00000000000000000100000000000000020000000000000003000000000000000400000000000000"},
+    {"id":"two-byte-pattern-overlaps","input_values":[5,2,97,98,97,98,97,97,98],"input_length":9,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"embedded-nul-byte","input_values":[4,2,0,65,0,65,0,65],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"highest-ascii-byte","input_values":[3,1,127,65,127,127],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"no-match","input_values":[6,2,97,98,99,100,101,102,103,104],"input_length":10,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty-text","input_values":[0,1,97],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"pattern-longer-than-text","input_values":[2,3,97,98,97,98,99],"input_length":7,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty-pattern-invalid","input_values":[0,0],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-byte","input_values":[1,1,128,97],"input_length":4,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-packed-word","input_values":[1,1,97,97,98],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-packed-frame","input_values":[2,2,97],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[0,1,97],"input_length":3,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output-with-match","input_values":[5,3,97,98,97,98,97,97,98,97],"input_length":10,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-with-empty-result","input_values":[6,2,97,98,99,100,101,102,103,104],"input_length":10,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[5,3,97,98,97,98,97,97,98,97],"input_length":10,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-before-output-error","input_values":[0,0],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

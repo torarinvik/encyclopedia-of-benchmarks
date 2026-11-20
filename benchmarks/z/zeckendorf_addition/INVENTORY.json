@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "algorithm": "zeckendorf_addition",
+  "abi": "i64_array_bytes_output",
+  "workload": "benchmarks/z/zeckendorf_addition/workload.json",
+  "primary_reference": "benchmarks/z/zeckendorf_addition/primary_oracle.py",
+  "independent_reference": "benchmarks/z/zeckendorf_addition/independent_oracle.py",
+  "static_inventory": "benchmarks/z/zeckendorf_addition/check_inventory.py",
+  "languages": {
+    "c": "c/z/zeckendorf_addition.c",
+    "cpp": "cpp/z/zeckendorf_addition.cpp",
+    "rust": "rust/z/zeckendorf_addition.rs",
+    "elisa": "elisa/z/zeckendorf_addition.elisa",
+    "c3": "c3/z/zeckendorf_addition.c3",
+    "nim": "nim/z/zeckendorf_addition.nim",
+    "odin": "odin/z/zeckendorf_addition.odin",
+    "v": "v/z/zeckendorf_addition.v",
+    "zig": "zig/z/zeckendorf_addition.zig",
+    "mojo": "mojo/z/zeckendorf_addition.mojo"
+  },
+  "input": {
+    "layout": "[len_a,bits_a...,len_b,bits_b...]",
+    "bit_order": "most-significant Fibonacci weight first",
+    "maximum_bits_per_operand": 64,
+    "maximum_valid_words": 130,
+    "maximum_parseable_words": 131,
+    "truncation": "none; oversized vectors and malformed frames are rejected"
+  },
+  "output": {
+    "encoding": "canonical ASCII bits, most-significant weight first",
+    "maximum_bytes": 66
+  },
+  "workspace_bytes": 256
+}

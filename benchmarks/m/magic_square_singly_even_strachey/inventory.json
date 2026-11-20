@@ -1,0 +1,22 @@
+{
+  "algorithm": "magic_square_singly_even_strachey",
+  "abi": "scalar_call",
+  "function_symbol": "magic_square_singly_even_strachey",
+  "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL27/Chia/chia6.pdf",
+  "ports": {
+    "c": "../../../c/m/magic_square_singly_even_strachey.c",
+    "c3": "../../../c3/m/magic_square_singly_even_strachey.c3",
+    "cpp": "../../../cpp/m/magic_square_singly_even_strachey.cpp",
+    "elisa": "../../../elisa/m/magic_square_singly_even_strachey.elisa",
+    "mojo": "../../../mojo/m/magic_square_singly_even_strachey.mojo",
+    "nim": "../../../nim/m/magic_square_singly_even_strachey.nim",
+    "odin": "../../../odin/m/magic_square_singly_even_strachey.odin",
+    "rust": "../../../rust/m/magic_square_singly_even_strachey.rs",
+    "v": "../../../v/m/magic_square_singly_even_strachey.v",
+    "zig": "../../../zig/m/magic_square_singly_even_strachey.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "execution_status": "source-only; no programs, tests, or checks run"
+}

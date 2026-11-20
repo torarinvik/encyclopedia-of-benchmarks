@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "list-rooted-trees-unordered-shapes-v1",
+  "algorithm": "list_rooted_trees",
+  "function_symbol": "list_rooted_trees",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Unordered rooted-tree shape enumeration",
+    "discovery_url": "https://rosettagit.org/tasks/list-rooted-trees/",
+    "count_reference": "https://oeis.org/A000081",
+    "reuse": "algorithm idea only; clean-room contract and implementations"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[vertex_count]",
+    "vertex_count_range": [1, 7],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "u16 little-endian shape count followed by lexicographically sorted fixed-width nested-parenthesis encodings",
+    "maximum_bytes": 674,
+    "success_result": "bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Bounded shape pool, recursive child-multiset search, and staged result."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-vertex","input_values":[1],"input_length":1,"expected_result":4,"expected_output_hex":"01002829","output_capacity":674},
+    {"id":"two-vertex-chain","input_values":[2],"input_length":1,"expected_result":6,"expected_output_hex":"010028282929","output_capacity":674},
+    {"id":"three-vertex-chain-and-star","input_values":[3],"input_length":1,"expected_result":14,"expected_output_hex":"0200282828292929282829282929","output_capacity":674},
+    {"id":"four-unordered-shapes","input_values":[4],"input_length":1,"expected_result":34,"expected_output_hex":"04002828282829292929282828292829292928282829292829292828292829282929","output_capacity":674},
+    {"id":"short-output-capacity","input_values":[4],"input_length":1,"expected_result":-2,"expected_output_hex":"","output_capacity":33},
+    {"id":"null-output","input_values":[3],"input_length":1,"expected_result":-2,"expected_output_hex":"","output_capacity":674,"output_is_null":true},
+    {"id":"zero-vertices-invalid","input_values":[0],"input_length":1,"expected_result":-1,"expected_output_hex":"","output_capacity":674},
+    {"id":"above-bound-invalid","input_values":[8],"input_length":1,"expected_result":-1,"expected_output_hex":"","output_capacity":674},
+    {"id":"trailing-value-invalid","input_values":[3,0],"input_length":2,"expected_result":-1,"expected_output_hex":"","output_capacity":674}
+  ]
+}

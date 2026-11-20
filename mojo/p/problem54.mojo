@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn p54_rank(cards:InlineArray[Int64,5])->InlineArray[Int64,6]:

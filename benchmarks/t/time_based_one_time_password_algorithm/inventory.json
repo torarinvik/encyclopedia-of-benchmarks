@@ -1,0 +1,29 @@
+{
+  "algorithm": "time_based_one_time_password_algorithm",
+  "function_symbol": "time_based_one_time_password_algorithm",
+  "abi": "i64_array_bytes_output",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc6238.html",
+  "additional_source_urls": [
+    "https://www.rfc-editor.org/rfc/rfc4226.html",
+    "https://rosettacode.org/wiki/Time-based_one-time_password_algorithm",
+    "https://raw.githubusercontent.com/acmeism/RosettaCodeData/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  ],
+  "ports": {
+    "c": "../../../c/t/time_based_one_time_password_algorithm.c",
+    "c3": "../../../c3/t/time_based_one_time_password_algorithm.c3",
+    "cpp": "../../../cpp/t/time_based_one_time_password_algorithm.cpp",
+    "elisa": "../../../elisa/t/time_based_one_time_password_algorithm.elisa",
+    "mojo": "../../../mojo/t/time_based_one_time_password_algorithm.mojo",
+    "nim": "../../../nim/t/time_based_one_time_password_algorithm.nim",
+    "odin": "../../../odin/t/time_based_one_time_password_algorithm.odin",
+    "rust": "../../../rust/t/time_based_one_time_password_algorithm.rs",
+    "v": "../../../v/t/time_based_one_time_password_algorithm.v",
+    "zig": "../../../zig/t/time_based_one_time_password_algorithm.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "workload_verifier": "verify_workload.py",
+  "suite_status": "integrated",
+  "execution_status": "source-only; no programs, tests, or checks run"
+}

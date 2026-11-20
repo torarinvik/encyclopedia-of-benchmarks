@@ -10,7 +10,13 @@ The scalar ABI is `int64_t primorial_numbers_sequence(int64_t index)`. Index 15 
 
 The pinned C# generator initializes its product to 1, then for each prime yields the current product before multiplying by that prime. This makes the first yielded term the empty product 1. The local contract uses zero-based positions in this generator and bounds it before signed 64-bit overflow.
 
-This returns the primorial products themselves. `kummer_numbers_sequence` skips the empty product and subtracts one from each later primorial; `euclid_numbers_sequence` adds one to its primorial terms. Their outputs are different sequences.
+This returns the primorial products themselves. The Euclid-number source adds
+one to each term; the Kummer-number source skips the empty product and
+subtracts one. These use the same prime-enumeration and multiplication
+algorithm and are mapped here with explicit output/index adjustments:
+Euclid(n) = primorial(n) + 1 for 0..15; Kummer(n) = primorial(n+1) - 1 for
+0..14. Check those domains before applying an adjustment to avoid changing
+the invalid-input sentinel.
 
 ## Workload
 
@@ -24,6 +30,7 @@ This returns the primorial products themselves. `kummer_numbers_sequence` skips 
 | C3 | [`c3/p/primorial_numbers_sequence.c3`](../../../c3/p/primorial_numbers_sequence.c3) |
 | C++ | [`cpp/p/primorial_numbers_sequence.cpp`](../../../cpp/p/primorial_numbers_sequence.cpp) |
 | Elisa | [`elisa/p/primorial_numbers_sequence.elisa`](../../../elisa/p/primorial_numbers_sequence.elisa) |
+| Mojo | [`mojo/p/primorial_numbers_sequence.mojo`](../../../mojo/p/primorial_numbers_sequence.mojo) |
 | Nim | [`nim/p/primorial_numbers_sequence.nim`](../../../nim/p/primorial_numbers_sequence.nim) |
 | Odin | [`odin/p/primorial_numbers_sequence.odin`](../../../odin/p/primorial_numbers_sequence.odin) |
 | Rust | [`rust/p/primorial_numbers_sequence.rs`](../../../rust/p/primorial_numbers_sequence.rs) |
@@ -34,3 +41,8 @@ This returns the primorial products themselves. `kummer_numbers_sequence` skips 
 
 - [C# `PrimorialNumbersSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/PrimorialNumbersSequence.cs)
 - [C# `PrimesSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/PrimesSequence.cs)
+- [C# `EuclidNumbersSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/EuclidNumbersSequence.cs)
+- [C# `KummerNumbersSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/KummerNumbersSequence.cs)
+
+The scalar-suite registration and fixed-prime reference are drafted and have
+not been executed.

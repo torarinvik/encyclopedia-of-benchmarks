@@ -3,7 +3,7 @@ module ski_rental_deterministic;
 const usz MAX_INPUT = 4;
 const usz MAX_TRIPS = 32;
 
-long ski_rental_deterministic(long* input, usz length, char* output, usz capacity)
+fn long ski_rental_deterministic(long* input, usz length, char* output, usz capacity)
         @export("ski_rental_deterministic") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long rent = input[0], purchase = input[1], trips = input[2];

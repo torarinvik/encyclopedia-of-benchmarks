@@ -1,0 +1,60 @@
+const MFAS_MAX_N: usize = 8
+const MFAS_MAX_M: usize = 56
+const MFAS_MAX_LENGTH: usize = 114
+const MFAS_STATES: usize = 256
+const MFAS_INF: i64 = 2305843009213693951
+
+def minimum_directed_feedback_arc_set_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MFAS_MAX_LENGTH + 1: return -1
+    if input[0] < 1 or input[0] > MFAS_MAX_N.i64(): return -1
+    if input[1] < 0 or input[1] > MFAS_MAX_M.i64(): return -1
+    vertices: usize = input[0].usize()
+    edges: usize = input[1].usize()
+    if length != 2 + 2 * edges: return -1
+
+    outgoing: mutable usize[MFAS_MAX_N] = zeroed
+    edge: usize = 0
+    while edge < edges:
+        tail_value: i64 = input[2 + 2 * edge]
+        head_value: i64 = input[3 + 2 * edge]
+        if tail_value < 0 or head_value < 0: return -1
+        if tail_value >= vertices.i64() or head_value >= vertices.i64() or tail_value == head_value:
+            return -1
+        tail: usize = tail_value.usize()
+        head: usize = head_value.usize()
+        bit: usize = 1 << head
+        if (outgoing[tail] & bit) != 0: return -1
+        outgoing[tail] <- outgoing[tail] | bit
+        edge <- edge + 1
+
+    full: usize = (1 << vertices) - 1
+    dp: mutable i64[MFAS_STATES] = zeroed
+    mask: mutable usize = 0
+    while mask < MFAS_STATES:
+        dp[mask] <- MFAS_INF
+        mask <- mask + 1
+    dp[0] <- 0
+    prefix: mutable usize = 0
+    while prefix <= full:
+        if dp[prefix] != MFAS_INF:
+            vertex: mutable usize = 0
+            while vertex < vertices:
+                bit: usize = 1 << vertex
+                if (prefix & bit) == 0:
+                    backward: mutable i64 = 0
+                    prior: mutable usize = 0
+                    while prior < vertices:
+                        if (prefix & (1 << prior)) != 0 and (outgoing[vertex] & (1 << prior)) != 0:
+                            backward <- backward + 1
+                        prior <- prior + 1
+                    target: usize = prefix | bit
+                    candidate: i64 = dp[prefix] + backward
+                    if candidate < dp[target]: dp[target] <- candidate
+                vertex <- vertex + 1
+        prefix <- prefix + 1
+    dp[full]
+
+export fn minimum_directed_feedback_arc_set(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MFAS_MAX_LENGTH + 1: return -1
+    minimum_directed_feedback_arc_set_impl(input[0:length])

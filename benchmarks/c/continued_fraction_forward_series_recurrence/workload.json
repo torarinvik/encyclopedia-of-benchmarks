@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "nist-dlmf-forward-series-cf-f998244353-i64-array-bytes-output-v1",
+  "algorithm": "continued_fraction_forward_series_recurrence",
+  "function_symbol": "continued_fraction_forward_series_recurrence",
+  "abi": "i64_array_bytes_output",
+  "description": "Emit every partial sum from the DLMF forward-series continued-fraction recurrence over F_998244353.",
+  "source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.10(iii), Forward Series Recurrence Algorithm, Eq. 3.10.15",
+    "authors": ["NIST Digital Library of Mathematical Functions contributors"],
+    "url": "https://dlmf.nist.gov/3.10#E15",
+    "license": "Algorithmic description only; no copied text or code",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "contract": {
+    "operation": "Advance rho, term, and partial-sum states over the prime field F_998244353; emit every prefix sum.",
+    "primary_method": "DLMF Eq. 3.10.15 rho/term recurrence with a divisor preflight before output validation.",
+    "independent_method": "Evaluate each finite unit-denominator continued-fraction prefix from the tail using homogeneous numerator/denominator pairs.",
+    "duplicate_comparison": "continued_fraction_convergents advances generic numerator/denominator continuants; this package implements the distinct forward-series rho/term recurrence.",
+    "invalid_input_result": -1,
+    "zero_divisor_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,a0,...,a_(N-1)]",
+    "coefficient_count_range": [2, 9],
+    "coefficient_range": [0, 998244352],
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 11,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array_bytes",
+    "encoding": "[N,S1,...,SN], each S is a canonical residue modulo 998244353",
+    "word_count_range": [3, 10],
+    "maximum_bytes": 80,
+    "success_result": "number of output bytes, equal to 8*(N+1)",
+    "invalid_input_or_divisor_result": -1,
+    "null_or_short_output_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 0,
+    "meaning": "Native ports use scalar state only and write directly after a complete divisor preflight."
+  },
+  "complexity": {
+    "native_primary_time": "O(N log p) modular operations (O(N) for fixed p), including a full divisor preflight and a second output pass",
+    "native_primary_auxiliary_space": "O(1)",
+    "independent_reference_time": "O(N^2 + N log p), including one modular inversion per prefix",
+    "independent_reference_auxiliary_space": "O(1) apart from returned reference values"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/c/continued_fraction_forward_series_recurrence/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/continued_fraction_forward_series_recurrence/independent_oracle.py",
+  "cases": [
+    {"id":"two-term-negative-residue","input_values":[2,1,2],"input_length":3,"output_capacity":24,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000000803b00000000"},
+    {"id":"three-term-prefixes","input_values":[3,1,2,1],"input_length":4,"output_capacity":32,"expected_result":32,"expected_output_hex":"030000000000000001000000000000000000803b000000000000000000000000"},
+    {"id":"zero-series-after-first-term","input_values":[2,0,0],"input_length":3,"output_capacity":24,"expected_result":24,"expected_output_hex":"020000000000000000000000000000000000000000000000"},
+    {"id":"nontrivial-field-inverse","input_values":[2,1,998244352],"input_length":3,"output_capacity":24,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000100c01d00000000"},
+    {"id":"maximum-valid-frame","input_values":[9,7,0,0,0,0,0,0,0,0],"input_length":10,"output_capacity":80,"expected_result":80,"expected_output_hex":"0900000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000070000000000000007000000000000000700000000000000"},
+    {"id":"maximum-output-one-byte-short","input_values":[9,7,0,0,0,0,0,0,0,0],"input_length":10,"output_capacity":79,"expected_result":-2,"expected_output_hex":""},
+    {"id":"singular-first-rho-denominator","input_values":[2,1,1],"input_length":3,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"singular-before-output-capacity","input_values":[2,1,1],"input_length":3,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[2,1,0],"input_length":3,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output","input_values":[2,1,0],"input_length":3,"output_capacity":23,"expected_result":-2,"expected_output_hex":""},
+    {"id":"coefficient-equals-modulus","input_values":[2,1,998244353],"input_length":3,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-coefficient","input_values":[2,1,-1],"input_length":3,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"count-below-bound","input_values":[1,2],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"count-above-bound","input_values":[10],"input_length":1,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"maximum-parseable-trailing-word","input_values":[9,7,0,0,0,0,0,0,0,0,5],"input_length":11,"output_capacity":80,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":24,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

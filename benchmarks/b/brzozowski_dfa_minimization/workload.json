@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "nist-brzozowski-binary-dfa-minimization-v1",
+  "algorithm": "brzozowski_dfa_minimization",
+  "function_symbol": "brzozowski_dfa_minimization",
+  "abi": "i64_array_scalar",
+  "description": "Return the number of states in the reachable minimal DFA by reversing and determinizing twice.",
+  "source": {
+    "discovery_title": "finite state machine minimization",
+    "discovery_url": "https://xlinux.nist.gov/dads/HTML/finitestmmin.html",
+    "method_title": "Canonical regular expressions and minimal state graphs for definite events",
+    "method_authors": ["Janusz A. Brzozowski"],
+    "method_year": 1962,
+    "method_reference": "Mathematical Theory of Automata, vol. 12, pp. 529-561; reverse/subset theorem also stated in the Prague Stringology proceedings",
+    "method_url": "https://psc.fit.cvut.cz/cgi-bin/getfile.cgi?c=-&n=11&t=pdf&y=2002",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,start_state,accepting_mask,(transition_on_0,transition_on_1)*N]",
+    "alphabet": [0, 1],
+    "state_count_range": [1, 3],
+    "state_ids": "0 through N-1",
+    "accepting_mask_rule": "bit i is 1 exactly when state i is accepting",
+    "transition_rule": "exactly one in-range destination for every state and each alphabet symbol",
+    "maximum_valid_length": 9,
+    "maximum_parseable_length": 10,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "primary_method": "Reverse the DFA and determinize reachable subsets; reverse that reachable DFA and determinize reachable subsets again.",
+    "first_stage_bound": "At most 2^N=8 reachable subsets.",
+    "second_stage_bound": "At most 2^8=256 reachable subsets.",
+    "output": "Number of states in the accessible minimal DFA recognizing the input DFA's language.",
+    "unreachable_input_states": "Ignored in the result because each subset construction emits only states reachable from its initial subset.",
+    "workspace_bytes": 8192
+  },
+  "references": {
+    "primary": "primary_oracle.py: reverse an automaton and construct its reachable subset DFA twice",
+    "independent": "independent_oracle.py: mark original reachable states and iteratively table-fill distinguishable state pairs"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one_rejecting_state","input_values":[1,0,0,0,0],"input_length":5,"expected_result":1},
+    {"id":"one_accepting_state","input_values":[1,0,1,0,0],"input_length":5,"expected_result":1},
+    {"id":"two_distinguishable_reachable_states","input_values":[2,0,2,1,0,1,0],"input_length":7,"expected_result":2},
+    {"id":"three_residue_states","input_values":[3,0,1,0,1,2,0,1,2],"input_length":9,"expected_result":3},
+    {"id":"unreachable_states_removed","input_values":[3,0,1,0,0,1,1,2,2],"input_length":9,"expected_result":1},
+    {"id":"empty_language_collapses","input_values":[3,1,0,0,1,2,0,1,2],"input_length":9,"expected_result":1},
+    {"id":"invalid_start","input_values":[2,2,1,0,1,0,1],"input_length":7,"expected_result":-1},
+    {"id":"accepting_mask_out_of_range","input_values":[2,0,4,0,1,1,0],"input_length":7,"expected_result":-1},
+    {"id":"invalid_transition","input_values":[2,0,1,0,2,1,0],"input_length":7,"expected_result":-1},
+    {"id":"trailing_word","input_values":[1,0,0,0,0,99],"input_length":6,"expected_result":-1},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

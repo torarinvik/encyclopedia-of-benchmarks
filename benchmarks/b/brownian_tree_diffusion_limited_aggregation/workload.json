@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "brownian-tree-dla-bounded-v1",
+  "algorithm": "brownian_tree_diffusion_limited_aggregation",
+  "function_symbol": "brownian_tree_diffusion_limited_aggregation",
+  "abi": "i64_array_bytes_output",
+  "description": "Deterministic bounded lattice DLA with independent per-particle xorshift64* streams.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[attempts,seed,step_cap]",
+    "exact_length": 3,
+    "maximum_input_length": 4,
+    "attempts_range": [0, 16],
+    "seed_range": [1, 9223372036854775807],
+    "step_cap_range": [1, 512],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_word_sequence",
+    "encoding": "[point_count,x0,y0,...]",
+    "result": "number of output bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "maximum_output_words": 35,
+    "maximum_output_bytes": 280
+  },
+  "contract": {
+    "input_encoding": "[attempts,seed,step_cap]",
+    "input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "attempts_range": [0, 16],
+    "seed_range": [1, 9223372036854775807],
+    "step_cap_range": [1, 512],
+    "grid": {"width": 33, "height": 33, "outer_ring_coordinate": 0, "maximum_coordinate": 32},
+    "initial_seed": [16, 16],
+    "attempt_state": "seed XOR (0x9e3779b97f4a7c15 * (attempt+1)) modulo 2^64; replace zero with 0x2545f4914f6cdd1d",
+    "prng": "xorshift64* with shifts 12,25,27 and multiplier 0x2545f4914f6cdd1d; every state operation wraps modulo 2^64",
+    "draw_mapping": "unsigned output remainder by bound",
+    "launch": "draw side modulo 4, then position 1 + draw modulo 31; sides top,right,bottom,left",
+    "direction_mapping": ["left", "up", "right", "down"],
+    "contact": "check the launch site before moving, then attach at the first empty current site with an occupied left, up, right, or down neighbor",
+    "discard": "drop a particle that starts at an occupied launch site, reaches the outer ring after a move, or uses the full step cap without contact",
+    "output_encoding": "little-endian signed-i64 words [point_count,x0,y0,...] with center seed first and attached sites in insertion order",
+    "invalid_input_result": -1,
+    "null_or_insufficient_output_result": -2,
+    "errors_write_no_output": true,
+    "maximum_output_words": 35,
+    "maximum_output_bytes": 280
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "The largest port uses a 1089-byte occupancy bitmap and two 17-entry i64 coordinate arrays (272 bytes), totaling 1361 fixed bytes before scalar scratch; excludes caller input/output."
+  },
+  "expected_output_provider": {
+    "module": "primary_oracle.py",
+    "function": "expected_output",
+    "cross_check_module": "independent_oracle.py",
+    "cross_check_function": "expected_output",
+    "evaluation": "derive result bytes from both references and require byte-for-byte agreement"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "kernel_boundary": "bounded seeded random walks and first-contact cluster growth; no image rendering or external random source",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 4
+  },
+  "cases": [
+    {"id": "seed-only", "input_values": [0, 1, 1], "input_length": 3, "output_capacity": 24, "expected_result": 24, "expected_output_hex": "010000000000000010000000000000001000000000000000"},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "one-particle-short-walk", "input_values": [1, 1, 13], "input_length": 3, "output_capacity": 280, "expected_result": 24, "expected_output_hex": "010000000000000010000000000000001000000000000000"},
+    {"id": "small-attempt-batch-short-walk", "input_values": [6, 987654321, 13], "input_length": 3, "output_capacity": 280, "expected_result": 24, "expected_output_hex": "010000000000000010000000000000001000000000000000"},
+    {"id": "maximum-attempts-short-walk", "input_values": [16, 123456789, 13], "input_length": 3, "output_capacity": 280, "expected_result": 24, "expected_output_hex": "010000000000000010000000000000001000000000000000"},
+    {"id": "maximum-step-cap-no-particles", "input_values": [0, 730201, 512], "input_length": 3, "output_capacity": 280, "expected_result": 24, "expected_output_hex": "010000000000000010000000000000001000000000000000"},
+    {"id": "null-output", "input_values": [0, 2, 1], "input_length": 3, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-capacity", "input_values": [0, 2, 1], "input_length": 3, "output_capacity": 23, "expected_result": -2, "expected_output_hex": "", "capacity_error_result": -2},
+    {"id": "negative-attempt-count", "input_values": [-1, 1, 1], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "too-many-attempts", "input_values": [17, 1, 1], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "zero-seed", "input_values": [1, 0, 1], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "zero-step-cap", "input_values": [1, 1, 0], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "over-cap-step-limit", "input_values": [1, 1, 513], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing-word", "input_values": [0, 1, 1, 99], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "i64-minimum-seed", "input_values": [0, -9223372036854775808, 1], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "i64-maximum-step-limit", "input_values": [0, 1, 9223372036854775807], "input_length": 3, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

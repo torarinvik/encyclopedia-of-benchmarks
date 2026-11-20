@@ -83,8 +83,8 @@
     "short_capacity_writes_nothing": true
   },
   "workspace": {
-    "bytes": 512,
-    "meaning": "Up to 64 signed-i64 cells for the returned route matrix."
+    "bytes": 1024,
+    "meaning": "At most two fixed 64-element i64 arrays; per-call recursive control frames are included in the O(V) space bound but not this fixed-array byte count."
   },
   "measurement": {
     "comparison_model": "i64_array_bytes_output_call",

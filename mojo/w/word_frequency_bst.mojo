@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn wfb_alpha(c:UInt8)->Bool:return (c>=65 and c<=90) or (c>=97 and c<=122)

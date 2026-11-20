@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn hldm_store(o:UnsafePointer[UInt8,MutAnyOrigin],i:Int,v:Int64):

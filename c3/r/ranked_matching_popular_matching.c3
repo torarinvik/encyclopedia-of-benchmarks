@@ -19,7 +19,7 @@ fn bool lex_less(usz[MAX_A] left, usz[MAX_A] right, usz count) {
     return false;
 }
 
-long ranked_matching_popular_matching(long* input, usz length, char* output, usz capacity)
+fn long ranked_matching_popular_matching(long* input, usz length, char* output, usz capacity)
         @export("ranked_matching_popular_matching") {
     if (input == null || length < 6 || length > MAX_INPUT) return -1;
     long a64 = input[0], p64 = input[1], e64 = input[2];
@@ -30,8 +30,8 @@ long ranked_matching_popular_matching(long* input, usz length, char* output, usz
     if (length != 3 + 3*edges) return -1;
     usz post_count = posts + applicants, node_count = applicants + post_count;
     usz output_bytes = 8*(applicants+1);
-    long[MAX_A][MAX_P] rank = zeroed;
-    bool[MAX_A][MAX_P+1] rank_seen = zeroed;
+    long[MAX_P][MAX_A] rank = zeroed;
+    bool[MAX_P+1][MAX_A] rank_seen = zeroed;
     usz[MAX_A] max_rank = zeroed;
     for (usz edge = 0; edge < edges; edge += 1) {
         usz at = 3 + 3*edge;
@@ -96,7 +96,7 @@ long ranked_matching_popular_matching(long* input, usz length, char* output, usz
     }
     long[MAX_NODES] class_of = zeroed;
     for (usz n = 0; n < node_count; n += 1) class_of[n] = parity[n] < 0 ? 2 : parity[n];
-    bool[MAX_A][MAX_POSTS] reduced = zeroed, allowed = zeroed;
+    bool[MAX_POSTS][MAX_A] reduced = zeroed, allowed = zeroed;
     for (usz a = 0; a < applicants; a += 1) {
         usz best_even_rank = posts+1;
         for (usz p = 0; p < posts; p += 1) {

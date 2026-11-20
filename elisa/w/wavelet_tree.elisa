@@ -81,8 +81,9 @@ def wavelet_count_le(nodes: view[WaveletNode], root: i64, left: usize, right: us
             last <- last - left_after
     result
 
-def wavelet_tree_benchmark_impl(values: i64&, length: usize) -> i64:
-    if values == null or length < 3 or length > 706 or values[0] < 1 or values[0] > 64: return -1
+def wavelet_tree_benchmark_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 3 or length > 706 or values[0] < 1 or values[0] > 64: return -1
     n: usize = values[0].usize()
     if length < n + 2: return -1
     data: mutable i64[64] = zeroed
@@ -261,4 +262,6 @@ def wavelet_tree_benchmark_impl(values: i64&, length: usize) -> i64:
         total <- total + (j + 1).i64() * (answer + 1000001)
     total
 
-export fn wavelet_tree_benchmark(values: i64&, length: usize) -> i64 = wavelet_tree_benchmark_impl
+export fn wavelet_tree_benchmark(values: i64&, length: usize) -> i64:
+    if values == null or length < 3 or length > 706: return -1
+    wavelet_tree_benchmark_impl(values[0:length])

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn grundy(pos:Int,memo:UnsafePointer[Int64,MutAnyOrigin],moves:UnsafePointer[Int64,ImmutAnyOrigin],mc:Int)->Int64:

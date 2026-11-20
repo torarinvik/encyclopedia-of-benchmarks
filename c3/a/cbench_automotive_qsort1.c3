@@ -59,10 +59,10 @@ fn long cbench_automotive_qsort1(long* values, usz length, char* output,
     long n_value = values[0];
     if (n_value < 1 || n_value > MAX_POINTS || length != 1 + 3 * (usz)n_value) return -1;
     usz n = (usz)n_value;
-    int coords[MAX_POINTS][3];
-    usz ids[MAX_POINTS];
-    double score[MAX_POINTS];
-    long radius2[MAX_POINTS];
+    int[3][MAX_POINTS] coords;
+    usz[MAX_POINTS] ids;
+    double[MAX_POINTS] score;
+    long[MAX_POINTS] radius2;
     for (usz i = 0; i < n; i++) {
         long sum = 0;
         for (usz a = 0; a < 3; a++) {
@@ -75,8 +75,8 @@ fn long cbench_automotive_qsort1(long* values, usz length, char* output,
         score[i] = sqrt((double)coords[i][0]*(double)coords[i][0] + (double)coords[i][1]*(double)coords[i][1] + (double)coords[i][2]*(double)coords[i][2]);
     }
     if (output == null || output_capacity < 12*n) return -2;
-    sort_range(ids, score, 0, n-1);
-    char staged[MAX_POINTS*12];
+    sort_range(&ids[0], &score[0], 0, n-1);
+    char[MAX_POINTS*12] staged;
     for (usz r = 0; r < n; r++) for (usz a = 0; a < 3; a++) {
         uint bits = (uint)coords[ids[r]][a];
         for (usz b = 0; b < 4; b++) staged[12*r+4*a+b] = (char)((bits >> (8*b)) & 255);

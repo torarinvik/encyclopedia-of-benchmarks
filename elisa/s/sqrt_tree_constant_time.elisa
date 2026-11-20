@@ -1,0 +1,169 @@
+# Power-of-two Sqrt Tree with bounded views and fixed summary arrays.
+const STC_MAX_N: usize = 64
+const STC_MAX_Q: usize = 64
+const STC_MAX_LEVELS: usize = 4
+const STC_MAX_INPUT: usize = 195
+const STC_VALUE_LIMIT: i64 = 1000000000
+const STC_INF: i64 = 9223372036854775807
+
+struct SqrtTreeConstantState:
+    values: i64[64]
+    prefix: i64[4][64]
+    suffix: i64[4][64]
+    between: i64[4][64]
+    floor_log: usize[65]
+    padded: usize
+    layer_count: usize
+    segment_bits: usize[4]
+    block_bits: usize[4]
+    layer_for_diff: i64[7]
+
+def stc_min(a: i64, b: i64) -> i64:
+    if a < b: return a
+    b
+
+def stc_build(state: mutable SqrtTreeConstantState&, input: view[i64], n: usize) -> void:
+    padded: mutable usize = 1
+    while padded < n: padded <- padded * 2
+    state.padded <- padded
+    i: mutable usize = 0
+    while i < n:
+        state.values[i] <- input[2 + i]
+        i <- i + 1
+    while i < padded:
+        state.values[i] <- STC_INF
+        i <- i + 1
+    state.floor_log[0] <- 0
+    state.floor_log[1] <- 0
+    i <- 2
+    while i <= padded:
+        state.floor_log[i] <- state.floor_log[i / 2] + 1
+        i <- i + 1
+    i <- 0
+    while i < 7:
+        state.layer_for_diff[i] <- -1
+        i <- i + 1
+    bits: mutable usize = state.floor_log[padded]
+    while bits > 1:
+        level: usize = state.layer_count
+        state.layer_count <- state.layer_count + 1
+        block_bits: usize = (bits + 1) / 2
+        state.segment_bits[level] <- bits
+        state.block_bits[level] <- block_bits
+        bit: mutable usize = block_bits
+        while bit < bits:
+            state.layer_for_diff[bit] <- level.i64()
+            bit <- bit + 1
+        bits <- block_bits
+
+    level: mutable usize = 0
+    while level < state.layer_count:
+        segment_bits: usize = state.segment_bits[level]
+        block_bits: usize = state.block_bits[level]
+        segment_size: usize = 1 << segment_bits
+        block_size: usize = 1 << block_bits
+        block_count: usize = segment_size / block_size
+        pair_count: usize = block_count * block_count
+        base: mutable usize = 0
+        while base < padded:
+            segment_index: usize = base / segment_size
+            block: mutable usize = 0
+            while block < block_count:
+                start: usize = base + block * block_size
+                end: usize = start + block_size
+                state.prefix[level][start] <- state.values[start]
+                pos: mutable usize = start + 1
+                while pos < end:
+                    state.prefix[level][pos] <- stc_min(state.prefix[level][pos - 1], state.values[pos])
+                    pos <- pos + 1
+                state.suffix[level][end - 1] <- state.values[end - 1]
+                pos <- end - 1
+                while pos > start:
+                    pos <- pos - 1
+                    state.suffix[level][pos] <- stc_min(state.values[pos], state.suffix[level][pos + 1])
+                block <- block + 1
+            left_block: mutable usize = 0
+            while left_block < block_count:
+                aggregate: mutable i64 = STC_INF
+                right_block: mutable usize = left_block
+                while right_block < block_count:
+                    start: usize = base + right_block * block_size
+                    aggregate <- stc_min(aggregate, state.suffix[level][start])
+                    slot: usize = segment_index * pair_count + left_block * block_count + right_block
+                    state.between[level][slot] <- aggregate
+                    right_block <- right_block + 1
+                left_block <- left_block + 1
+            base <- base + segment_size
+        level <- level + 1
+
+def stc_query(state: SqrtTreeConstantState, left: usize, right: usize) -> i64:
+    if left == right: return state.values[left]
+    difference: usize = left ^ right
+    bit: usize = state.floor_log[difference]
+    if bit == 0: return stc_min(state.values[left], state.values[right])
+    level: usize = state.layer_for_diff[bit].usize()
+    segment_bits: usize = state.segment_bits[level]
+    block_bits: usize = state.block_bits[level]
+    segment_size: usize = 1 << segment_bits
+    block_size: usize = 1 << block_bits
+    base: usize = (left / segment_size) * segment_size
+    segment_index: usize = base / segment_size
+    block_count: usize = segment_size / block_size
+    left_block: usize = (left - base) / block_size
+    right_block: usize = (right - base) / block_size
+    answer: mutable i64 = stc_min(state.suffix[level][left], state.prefix[level][right])
+    if left_block + 1 < right_block:
+        pair_count: usize = block_count * block_count
+        slot: usize = segment_index * pair_count + (left_block + 1) * block_count + right_block - 1
+        answer <- stc_min(answer, state.between[level][slot])
+    answer
+
+def stc_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255.u64()).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def sqrt_tree_constant_time_impl(input: view[i64], output: mutable view[u8], length: usize, output_capacity: usize) -> i64:
+    if length < 2 or length > STC_MAX_INPUT or input.len() != length: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > STC_MAX_N.i64() or q_value < 0 or q_value > STC_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + n + 2 * q: return -1
+    i: mutable usize = 0
+    while i < n:
+        if input[2 + i] < -STC_VALUE_LIMIT or input[2 + i] > STC_VALUE_LIMIT: return -1
+        i <- i + 1
+    query_offset: usize = 2 + n
+    query: mutable usize = 0
+    while query < q:
+        left: i64 = input[query_offset + 2 * query]
+        right: i64 = input[query_offset + 2 * query + 1]
+        if left < 0 or right < left or right >= n_value: return -1
+        query <- query + 1
+    required: usize = 8 * q
+    if output_capacity < required or (required > 0 and output.len() < required): return -2
+
+    state: mutable SqrtTreeConstantState = zeroed
+    stc_build(state, input, n)
+    query <- 0
+    while query < q:
+        left: usize = input[query_offset + 2 * query].usize()
+        right: usize = input[query_offset + 2 * query + 1].usize()
+        stc_store_i64(output[0:required], 8 * query, stc_query(state, left, right))
+        query <- query + 1
+    required.i64()
+
+export fn sqrt_tree_constant_time(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > STC_MAX_INPUT: return -1
+    let input_view: view[i64] = input[0:length]
+    if output.is_null():
+        let empty_storage: mutable u8[1] = zeroed
+        let empty_output: mutable view[u8] = empty_storage[0:0]
+        return sqrt_tree_constant_time_impl(input_view, empty_output, length, output_capacity)
+    let output_view: mutable view[u8] = output[0:output_capacity]
+    sqrt_tree_constant_time_impl(input_view, output_view, length, output_capacity)

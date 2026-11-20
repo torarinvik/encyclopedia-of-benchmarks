@@ -1,0 +1,211 @@
+const DSL_MAX_N: usize = 16
+const DSL_MAX_E: usize = 48
+const DSL_MAX_Q: usize = 16
+const DSL_MAX_INPUT: usize = 198
+const DSL_MAX_PARSEABLE: usize = 199
+const DSL_INF: i64 = 1000000000
+
+def dsl_manhattan(left: usize, right: usize, width: usize) -> i64:
+    left_row: usize = left / width
+    right_row: usize = right / width
+    left_col: usize = left % width
+    right_col: usize = right % width
+    row_delta: usize = if left_row > right_row: left_row - right_row else: right_row - left_row
+    col_delta: usize = if left_col > right_col: left_col - right_col else: right_col - left_col
+    (row_delta + col_delta).i64()
+
+def dsl_key1(g: view[i64], rhs: view[i64], node: usize, start: usize,
+             width: usize, km: i64) -> i64:
+    base: i64 = if g[node] < rhs[node]: g[node] else: rhs[node]
+    if base >= DSL_INF: return DSL_INF
+    base + dsl_manhattan(start, node, width) + km
+
+def dsl_pair_less(left_first: i64, left_second: i64,
+                  right_first: i64, right_second: i64) -> bool:
+    left_first < right_first or (left_first == right_first and left_second < right_second)
+
+def dsl_update_vertex(node: usize, goal: usize, edge_count: usize,
+                      edge_from: view[usize], edge_to: view[usize], edge_cost: view[i64],
+                      g: view[i64], rhs: mutable view[i64], open: mutable view[u8],
+                      queue_first: mutable view[i64], queue_second: mutable view[i64],
+                      start: usize, width: usize, km: i64) -> void:
+    if node != goal:
+        best: mutable i64 = DSL_INF
+        edge: mutable usize = 0
+        while edge < edge_count:
+            if edge_from[edge] == node and g[edge_to[edge]] < DSL_INF:
+                candidate: i64 = edge_cost[edge] + g[edge_to[edge]]
+                if candidate < best: best <- candidate
+            edge <- edge + 1
+        rhs[node] <- best
+    open[node] <- 0
+    if g[node] != rhs[node]:
+        open[node] <- 1
+        queue_first[node] <- dsl_key1(g, rhs, node, start, width, km)
+        queue_second[node] <- if g[node] < rhs[node]: g[node] else: rhs[node]
+
+def d_star_lite_incremental_replanning_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 6 or length > DSL_MAX_PARSEABLE: return -1
+    height_value: i64 = values[0]
+    width_value: i64 = values[1]
+    edge_value: i64 = values[2]
+    query_value: i64 = values[3]
+    if height_value < 1 or height_value > 4 or width_value < 1 or width_value > 4: return -1
+    height: usize = height_value.usize()
+    width: usize = width_value.usize()
+    node_count: usize = height * width
+    if node_count < 2 or node_count > DSL_MAX_N: return -1
+    if edge_value < 0 or edge_value > DSL_MAX_E.i64() or query_value < 0 or query_value > DSL_MAX_Q.i64(): return -1
+    edge_count: usize = edge_value.usize()
+    query_count: usize = query_value.usize()
+    max_edges: usize = 2 * (height * (width - 1) + width * (height - 1))
+    if edge_count > max_edges or length != 6 + 3 * edge_count + 3 * query_count or length > DSL_MAX_INPUT: return -1
+    start_value: i64 = values[4]
+    goal_value: i64 = values[5]
+    if start_value < 0 or goal_value < 0 or start_value >= node_count.i64() or goal_value >= node_count.i64(): return -1
+
+    edge_from: mutable usize[DSL_MAX_E] = zeroed
+    edge_to: mutable usize[DSL_MAX_E] = zeroed
+    edge_cost: mutable i64[DSL_MAX_E] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        base: usize = 6 + 3 * edge
+        from_value: i64 = values[base]
+        to_value: i64 = values[base + 1]
+        cost: i64 = values[base + 2]
+        if from_value < 0 or to_value < 0 or from_value >= node_count.i64() or to_value >= node_count.i64(): return -1
+        if cost < 1 or cost > 9: return -1
+        from_node: usize = from_value.usize()
+        to_node: usize = to_value.usize()
+        if dsl_manhattan(from_node, to_node, width) != 1: return -1
+        previous: mutable usize = 0
+        while previous < edge:
+            if edge_from[previous] == from_node and edge_to[previous] == to_node: return -1
+            previous <- previous + 1
+        edge_from[edge] <- from_node
+        edge_to[edge] <- to_node
+        edge_cost[edge] <- cost
+        edge <- edge + 1
+
+    event_start: mutable usize[DSL_MAX_Q] = zeroed
+    event_edge: mutable usize[DSL_MAX_Q] = zeroed
+    event_cost: mutable i64[DSL_MAX_Q] = zeroed
+    event: mutable usize = 0
+    while event < query_count:
+        base: usize = 6 + 3 * edge_count + 3 * event
+        next_start: i64 = values[base]
+        edge_index: i64 = values[base + 1]
+        cost: i64 = values[base + 2]
+        if next_start < 0 or next_start >= node_count.i64() or edge_index < 0 or edge_index >= edge_count.i64(): return -1
+        if cost < 1 or cost > 9: return -1
+        event_start[event] <- next_start.usize()
+        event_edge[event] <- edge_index.usize()
+        event_cost[event] <- cost
+        event <- event + 1
+
+    g: mutable i64[DSL_MAX_N] = zeroed
+    rhs: mutable i64[DSL_MAX_N] = zeroed
+    in_open: mutable u8[DSL_MAX_N] = zeroed
+    queue_first: mutable i64[DSL_MAX_N] = zeroed
+    queue_second: mutable i64[DSL_MAX_N] = zeroed
+    node: mutable usize = 0
+    while node < node_count:
+        g[node] <- DSL_INF
+        rhs[node] <- DSL_INF
+        node <- node + 1
+    start: mutable usize = start_value.usize()
+    goal: usize = goal_value.usize()
+    last_start: mutable usize = start
+    km: mutable i64 = 0
+    rhs[goal] <- 0
+    in_open[goal] <- 1
+    queue_first[goal] <- dsl_key1(g[0:node_count], rhs[0:node_count], goal, start, width, km)
+    queue_second[goal] <- 0
+
+    event <- 0
+    checksum: mutable i64 = 0
+    while event < query_count:
+        start <- event_start[event]
+        km <- km + dsl_manhattan(last_start, start, width)
+        last_start <- start
+        edge_cost[event_edge[event]] <- event_cost[event]
+        dsl_update_vertex(edge_from[event_edge[event]], goal, edge_count,
+                          edge_from[0:edge_count], edge_to[0:edge_count], edge_cost[0:edge_count],
+                          g[0:node_count], rhs[0:node_count], in_open[0:node_count],
+                          queue_first[0:node_count], queue_second[0:node_count], start, width, km)
+
+        while true:
+            selected: mutable usize = node_count
+            candidate_node: mutable usize = 0
+            while candidate_node < node_count:
+                if in_open[candidate_node] != 0:
+                    if selected == node_count:
+                        selected <- candidate_node
+                    elif dsl_pair_less(queue_first[candidate_node], queue_second[candidate_node],
+                                       queue_first[selected], queue_second[selected]) or
+                         (queue_first[candidate_node] == queue_first[selected] and
+                          queue_second[candidate_node] == queue_second[selected] and candidate_node < selected):
+                        selected <- candidate_node
+                candidate_node <- candidate_node + 1
+            if selected == node_count: break
+            start_key_first: i64 = dsl_key1(g[0:node_count], rhs[0:node_count], start, start, width, km)
+            start_key_second: i64 = if g[start] < rhs[start]: g[start] else: rhs[start]
+            top_before_start: bool = dsl_pair_less(queue_first[selected], queue_second[selected], start_key_first, start_key_second)
+            if not top_before_start and rhs[start] == g[start]: break
+
+            old_first: i64 = queue_first[selected]
+            old_second: i64 = queue_second[selected]
+            in_open[selected] <- 0
+            new_first: i64 = dsl_key1(g[0:node_count], rhs[0:node_count], selected, start, width, km)
+            new_second: i64 = if g[selected] < rhs[selected]: g[selected] else: rhs[selected]
+            if dsl_pair_less(old_first, old_second, new_first, new_second):
+                in_open[selected] <- 1
+                queue_first[selected] <- new_first
+                queue_second[selected] <- new_second
+            elif g[selected] > rhs[selected]:
+                g[selected] <- rhs[selected]
+                edge <- 0
+                while edge < edge_count:
+                    if edge_to[edge] == selected:
+                        dsl_update_vertex(edge_from[edge], goal, edge_count,
+                                          edge_from[0:edge_count], edge_to[0:edge_count], edge_cost[0:edge_count],
+                                          g[0:node_count], rhs[0:node_count], in_open[0:node_count],
+                                          queue_first[0:node_count], queue_second[0:node_count], start, width, km)
+                    edge <- edge + 1
+            else:
+                g[selected] <- DSL_INF
+                dsl_update_vertex(selected, goal, edge_count,
+                                  edge_from[0:edge_count], edge_to[0:edge_count], edge_cost[0:edge_count],
+                                  g[0:node_count], rhs[0:node_count], in_open[0:node_count],
+                                  queue_first[0:node_count], queue_second[0:node_count], start, width, km)
+                edge <- 0
+                while edge < edge_count:
+                    if edge_to[edge] == selected:
+                        dsl_update_vertex(edge_from[edge], goal, edge_count,
+                                          edge_from[0:edge_count], edge_to[0:edge_count], edge_cost[0:edge_count],
+                                          g[0:node_count], rhs[0:node_count], in_open[0:node_count],
+                                          queue_first[0:node_count], queue_second[0:node_count], start, width, km)
+                    edge <- edge + 1
+
+        next_code: mutable i64 = 0
+        if start != goal and g[start] < DSL_INF:
+            best: mutable i64 = DSL_INF
+            best_node: mutable usize = node_count
+            edge <- 0
+            while edge < edge_count:
+                if edge_from[edge] == start and g[edge_to[edge]] < DSL_INF:
+                    candidate: i64 = edge_cost[edge] + g[edge_to[edge]]
+                    if candidate < best or (candidate == best and edge_to[edge] < best_node):
+                        best <- candidate
+                        best_node <- edge_to[edge]
+                edge <- edge + 1
+            if best == g[start] and best_node < node_count: next_code <- best_node.i64() + 1
+        distance_code: i64 = if g[start] < DSL_INF: g[start] else: 136
+        checksum <- checksum + (event.i64() + 1) * (distance_code + 1) * (next_code + 1)
+        event <- event + 1
+    checksum
+
+export fn d_star_lite_incremental_replanning(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 6 or length > DSL_MAX_PARSEABLE: return -1
+    d_star_lite_incremental_replanning_impl(input[0:length])

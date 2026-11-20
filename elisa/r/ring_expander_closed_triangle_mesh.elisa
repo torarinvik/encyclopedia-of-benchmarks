@@ -1,0 +1,225 @@
+# One deterministic LR Ring-Expander pass on a closed oriented triangle mesh.
+const RE_N: usize = 12
+const RE_T: usize = 20
+const RE_C: usize = 60
+const RE_INPUT: usize = 64
+const RE_OUTPUT: usize = 504
+
+def re_next(corner: usize) -> usize:
+    3 * (corner / 3) + ((corner % 3) + 1) % 3
+
+def re_prev(corner: usize) -> usize:
+    3 * (corner / 3) + ((corner % 3) + 2) % 3
+
+def re_vertex(faces: view[i64], corner: usize) -> usize:
+    faces[3 * (corner / 3) + corner % 3].usize()
+
+def re_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def re_compute(input: view[i64], trace: mutable view[i64],
+               trace_count: mutable usize&, vertex_mask: mutable u64&,
+               triangle_mask: mutable u64&) -> bool:
+    length: usize = input.len()
+    if length < 15 or length > RE_INPUT: return false
+    n_raw: i64 = input[0]
+    t_raw: i64 = input[1]
+    seed_raw: i64 = input[2]
+    if n_raw < 4 or n_raw > RE_N.i64() or t_raw < 4 or t_raw > RE_T.i64(): return false
+    n: usize = n_raw.usize()
+    t: usize = t_raw.usize()
+    if length != 3 + 3 * t or seed_raw < 0 or seed_raw >= (3 * t).i64(): return false
+    seed: usize = seed_raw.usize()
+    link: mutable bool[RE_N * RE_N * RE_N] = zeroed
+    used: mutable bool[RE_N] = zeroed
+    opposite: mutable i32[RE_C] = zeroed
+    edge_count: mutable u8[RE_N * RE_N] = zeroed
+    edge_first: mutable i32[RE_N * RE_N] = zeroed
+    edge_second: mutable i32[RE_N * RE_N] = zeroed
+    index: mutable usize = 0
+    while index < RE_N * RE_N:
+        edge_first[index] <- -1
+        edge_second[index] <- -1
+        index <- index + 1
+    corner: mutable usize = 0
+    while corner < 3 * t:
+        opposite[corner] <- -1
+        corner <- corner + 1
+    ti: mutable usize = 0
+    while ti < t:
+        a: i64 = input[3 + 3 * ti]
+        b: i64 = input[3 + 3 * ti + 1]
+        c: i64 = input[3 + 3 * ti + 2]
+        if a < 0 or a >= n_raw or b < 0 or b >= n_raw or c < 0 or c >= n_raw: return false
+        if a == b or b == c or c == a: return false
+        av: usize = a.usize()
+        bv: usize = b.usize()
+        cv: usize = c.usize()
+        used[av] <- true
+        used[bv] <- true
+        used[cv] <- true
+        link[av * RE_N * RE_N + bv * RE_N + cv] <- true
+        link[av * RE_N * RE_N + cv * RE_N + bv] <- true
+        link[bv * RE_N * RE_N + cv * RE_N + av] <- true
+        link[bv * RE_N * RE_N + av * RE_N + cv] <- true
+        link[cv * RE_N * RE_N + av * RE_N + bv] <- true
+        link[cv * RE_N * RE_N + bv * RE_N + av] <- true
+        j: mutable usize = 0
+        while j < 3:
+            first: usize = input[3 + 3 * ti + (j + 1) % 3].usize()
+            second: usize = input[3 + 3 * ti + (j + 2) % 3].usize()
+            low: usize = first
+            high: usize = second
+            if low > high:
+                low <- second
+                high <- first
+            edge_at: usize = low * RE_N + high
+            count: u8 = edge_count[edge_at]
+            if count == 0: edge_first[edge_at] <- (3 * ti + j).i32()
+            elif count == 1: edge_second[edge_at] <- (3 * ti + j).i32()
+            else: return false
+            edge_count[edge_at] <- count + 1
+            j <- j + 1
+        ti <- ti + 1
+    ti <- 0
+    while ti < n:
+        if not used[ti]: return false
+        ti <- ti + 1
+
+    low: mutable usize = 0
+    while low < n:
+        high: mutable usize = low + 1
+        while high < n:
+            edge_at: usize = low * RE_N + high
+            if edge_count[edge_at] != 0:
+                if edge_count[edge_at] != 2: return false
+                a: usize = edge_first[edge_at].usize()
+                b: usize = edge_second[edge_at].usize()
+                at: usize = a / 3
+                aj: usize = a % 3
+                bt: usize = b / 3
+                bj: usize = b % 3
+                a0: i64 = input[3 + 3 * at + (aj + 1) % 3]
+                a1: i64 = input[3 + 3 * at + (aj + 2) % 3]
+                b0: i64 = input[3 + 3 * bt + (bj + 1) % 3]
+                b1: i64 = input[3 + 3 * bt + (bj + 2) % 3]
+                if a0 != b1 or a1 != b0: return false
+                opposite[a] <- b.i32()
+                opposite[b] <- a.i32()
+            high <- high + 1
+        low <- low + 1
+
+    vertex: mutable usize = 0
+    while vertex < n:
+        start: mutable i64 = -1
+        w: mutable usize = 0
+        while w < n:
+            degree: mutable usize = 0
+            x: mutable usize = 0
+            while x < n:
+                if link[vertex * RE_N * RE_N + w * RE_N + x]: degree <- degree + 1
+                x <- x + 1
+            if degree > 0 and start < 0: start <- w.i64()
+            if degree > 0 and degree != 2: return false
+            w <- w + 1
+        if start < 0: return false
+        seen: mutable bool[RE_N] = zeroed
+        queue: mutable usize[RE_N] = zeroed
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        seen[start.usize()] <- true
+        queue[tail] <- start.usize()
+        tail <- tail + 1
+        while head < tail:
+            w <- queue[head]
+            head <- head + 1
+            x <- 0
+            while x < n:
+                if link[vertex * RE_N * RE_N + w * RE_N + x] and not seen[x]:
+                    seen[x] <- true
+                    queue[tail] <- x
+                    tail <- tail + 1
+                x <- x + 1
+        w <- 0
+        while w < n:
+            has_edge: mutable bool = false
+            x <- 0
+            while x < n:
+                has_edge = has_edge or link[vertex * RE_N * RE_N + w * RE_N + x]
+                x <- x + 1
+            if has_edge and not seen[w]: return false
+            w <- w + 1
+        vertex <- vertex + 1
+
+    reached: mutable bool[RE_T] = zeroed
+    tri_queue: mutable usize[RE_T] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    reached[0] <- true
+    tri_queue[tail] <- 0
+    tail <- tail + 1
+    while head < tail:
+        ti <- tri_queue[head]
+        head <- head + 1
+        local <- 0
+        while local < 3:
+            other_tri: usize = opposite[3 * ti + local].usize() / 3
+            if not reached[other_tri]:
+                reached[other_tri] <- true
+                tri_queue[tail] <- other_tri
+                tail <- tail + 1
+            local <- local + 1
+    ti <- 0
+    while ti < t:
+        if not reached[ti]: return false
+        ti <- ti + 1
+
+    seen_corners: mutable bool[RE_C] = zeroed
+    trace_count <- 0
+    vertex_mask <- 0
+    triangle_mask <- 0
+    vertex_mask <- vertex_mask | ((1).u64() << re_vertex(input[3:3 + 3 * t], re_next(seed)))
+    vertex_mask <- vertex_mask | ((1).u64() << re_vertex(input[3:3 + 3 * t], re_prev(seed)))
+    stop: usize = opposite[seed].usize()
+    current: mutable usize = seed
+    while current != stop:
+        if current >= 3 * t or seen_corners[current] or trace_count >= 3 * t: return false
+        seen_corners[current] <- true
+        trace[trace_count] <- current.i64()
+        trace_count <- trace_count + 1
+        ti <- current / 3
+        vertex <- re_vertex(input[3:3 + 3 * t], current)
+        if ((vertex_mask >> vertex) & 1) == 0:
+            vertex_mask <- vertex_mask | ((1).u64() << vertex)
+            triangle_mask <- triangle_mask | ((1).u64() << ti)
+        elif ((triangle_mask >> ti) & 1) == 0:
+            current <- opposite[current].usize()
+        current <- opposite[re_prev(current)].usize()
+    true
+
+export fn ring_expander_closed_triangle_mesh(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 15 or length > RE_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    trace: mutable i64[RE_C] = zeroed
+    trace_count: mutable usize = 0
+    vertices: mutable u64 = 0
+    triangles: mutable u64 = 0
+    if not re_compute(input_view, trace[0:RE_C], trace_count, vertices, triangles): return -1
+    words: usize = 1 + trace_count + 2
+    bytes: usize = words * 8
+    if output.is_null() or capacity < bytes: return -2
+    output_view: mutable view[u8] = output[0:bytes]
+    re_store(output_view, 0, trace_count.i64())
+    index: mutable usize = 0
+    while index < trace_count:
+        re_store(output_view, 8 * (index + 1), trace[index])
+        index <- index + 1
+    re_store(output_view, 8 * (trace_count + 1), vertices.i64())
+    re_store(output_view, 8 * (trace_count + 2), triangles.i64())
+    bytes.i64()

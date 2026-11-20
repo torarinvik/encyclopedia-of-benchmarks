@@ -14,7 +14,7 @@ fn void put_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long sorted_linked_list(long* input, usz input_length, char* output, usz capacity)
+fn long sorted_linked_list(long* input, usz input_length, char* output, usz capacity)
         @export("sorted_linked_list") {
     if (input == null || input_length < 3 || input_length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 0 || input[0] > (long)MAX_INITIAL_COUNT) return -1;

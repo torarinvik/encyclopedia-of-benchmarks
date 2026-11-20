@@ -1,0 +1,30 @@
+{
+  "algorithm": "k_repetition_block_head_pair_pass",
+  "abi": "i64_array_bytes_output",
+  "maximum_valid_input_words": 26,
+  "maximum_parseable_input_words": 27,
+  "maximum_output_bytes": 39112,
+  "workspace_bytes": 8192,
+  "sources": [
+    "c/k/k_repetition_block_head_pair_pass.c",
+    "c3/k/k_repetition_block_head_pair_pass.c3",
+    "cpp/k/k_repetition_block_head_pair_pass.cpp",
+    "elisa/k/k_repetition_block_head_pair_pass.elisa",
+    "mojo/k/k_repetition_block_head_pair_pass.mojo",
+    "nim/k/k_repetition_block_head_pair_pass.nim",
+    "odin/k/k_repetition_block_head_pair_pass.odin",
+    "rust/k/k_repetition_block_head_pair_pass.rs",
+    "v/k/k_repetition_block_head_pair_pass.v",
+    "zig/k/k_repetition_block_head_pair_pass.zig"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "verify_workload.py",
+    "check_inventory.py",
+    "INVENTORY.md",
+    "INVENTORY.json"
+  ]
+}

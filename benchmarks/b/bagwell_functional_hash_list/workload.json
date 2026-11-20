@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "id": "bagwell-functional-hash-list-i64-array-bytes-output-v1",
+  "algorithm": "bagwell_functional_hash_list",
+  "function_symbol": "bagwell_functional_hash_list",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "layout": "[n,(key,value)*n,q,(root,key)*q]",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "n_range": [0, 32],
+    "q_range": [1, 32],
+    "key_and_value_range": [-2147483648, 2147483647],
+    "invalid_result": -1
+  },
+  "output": {
+    "encoding": "q little-endian signed i64 lookup values; absent is INT64_MIN",
+    "maximum_bytes": 256,
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "workspace": {
+    "bytes": 4096,
+    "accounting": "56 i64 key/value/next-entry slots, 56 bucket heads, three previous-block links, and root block/offset tables; input and caller output buffers excluded."
+  },
+  "complexity": {
+    "primary": "O(n + q*(n + number_of_blocks)) worst-case time using block-local hash chains; n,q<=32.",
+    "independent": "O(n*q) time by scanning each visible prefix newest-first; n,q<=32."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "url": "https://lampwww.epfl.ch/papers/techlists.pdf",
+    "section": "Section 3, Figure 6",
+    "reuse": "Algorithmic ideas only; all ports, references, workload traces, and fixtures are independently authored."
+  },
+  "cases": [
+    {
+      "id": "empty-root-lookup",
+      "input_values": [0, 1, 0, 7],
+      "input_length": 4,
+      "output_capacity": 8,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000080"
+    },
+    {
+      "id": "collision-duplicate-shadow-and-snapshot",
+      "input_values": [3, 1, 10, 9, 90, 1, 11, 4, 0, 1, 1, 1, 2, 9, 3, 1],
+      "input_length": 16,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 32,
+      "expected_output_hex": "00000000000000800a000000000000005a000000000000000b00000000000000"
+    },
+    {
+      "id": "cross-block-fallback-and-root-boundary",
+      "input_values": [9, 0, 100, 1, 101, 2, 102, 3, 103, 4, 104, 5, 105, 7, 107, 8, 108, 9, 109, 4, 8, 7, 9, 7, 9, 9, 9, 8],
+      "input_length": 28,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 32,
+      "expected_output_hex": "6b000000000000006b000000000000006d000000000000006c00000000000000"
+    },
+    {
+      "id": "level-8-16-32-boundaries",
+      "input_values": [25, 0, 100, 1, 101, 2, 102, 3, 103, 4, 104, 5, 105, 6, 106, 7, 107, 8, 108, 9, 109, 10, 110, 11, 111, 12, 112, 13, 113, 14, 114, 15, 115, 16, 116, 17, 117, 18, 118, 19, 119, 20, 120, 21, 121, 22, 122, 23, 123, 24, 124, 6, 8, 7, 9, 7, 24, 23, 25, 24, 25, 7, 25, 32],
+      "input_length": 64,
+      "output_capacity": 48,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 48,
+      "expected_output_hex": "6b000000000000006b000000000000007b000000000000007c000000000000006b000000000000000000000000000080"
+    },
+    {
+      "id": "maximum-frame-and-output",
+      "input_values": [32, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0, 16, 0, 17, 0, 18, 0, 19, 0, 20, 0, 21, 0, 22, 0, 23, 0, 24, 0, 25, 0, 26, 0, 27, 0, 28, 0, 29, 0, 30, 0, 31, 0, 32, 32, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0, 32, 0],
+      "input_length": 130,
+      "output_capacity": 256,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": 256
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [0, 1, 0, 7, 99],
+      "input_length": 5,
+      "output_capacity": 8,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-root",
+      "input_values": [0, 1, 1, 7],
+      "input_length": 4,
+      "output_capacity": 8,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key-out-of-range",
+      "input_values": [1, 2147483648, 5, 1, 1, 1],
+      "input_length": 6,
+      "output_capacity": 8,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value-out-of-range",
+      "input_values": [1, 1, 2147483648, 1, 1, 1],
+      "input_length": 6,
+      "output_capacity": 8,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [0, 1, 0, 7],
+      "input_length": 4,
+      "output_capacity": 7,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0, 1, 0, 7],
+      "input_length": 4,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-before-null-output",
+      "input_values": [1, 2147483648, 5, 1, 1, 1],
+      "input_length": 6,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 256,
+      "output_is_null": false,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

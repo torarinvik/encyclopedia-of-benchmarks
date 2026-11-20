@@ -28,6 +28,8 @@ byte-output suite registration are present. No code has been executed;
 validation remains.
 The suite source specifies an order-five binary de Bruijn fixture reaching the
 six-byte output bound, exhaustive small inputs and malformed-input precedence.
+The workload also specifies a four-symbol sequence containing every pair
+except `3,0`, so the expected missing word exercises alphabet ordering.
 
 | Language | Draft |
 | --- | --- |

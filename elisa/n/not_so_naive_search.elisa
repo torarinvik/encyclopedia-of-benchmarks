@@ -1,0 +1,40 @@
+const MAX_TEXT: usize = 512
+const MIN_PATTERN: usize = 2
+const MAX_PATTERN: usize = 64
+const MAX_INPUT: usize = 578
+
+def not_so_naive_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MAX_INPUT: return -2
+    raw_text, raw_pattern := input[0], input[1]
+    if raw_text < 0 or raw_text > MAX_TEXT.i64() or
+        raw_pattern < MIN_PATTERN.i64() or raw_pattern > MAX_PATTERN.i64(): return -2
+    text_length, pattern_length := raw_text.usize(), raw_pattern.usize()
+    if length != 2 + text_length + pattern_length: return -2
+    pattern_start: usize = 2 + text_length
+    for i in 0..<(text_length + pattern_length):
+        byte := input[2 + i]
+        if byte < 0 or byte > 127: return -2
+    if pattern_length > text_length: return -1
+
+    same_prefix: bool = input[pattern_start] == input[pattern_start + 1]
+    mismatch_shift: usize = if same_prefix: 2 else: 1
+    post_check_shift: usize = if same_prefix: 1 else: 2
+    position: mutable usize = 0
+    last_start: usize = text_length - pattern_length
+    while position <= last_start:
+        if input[pattern_start + 1] != input[2 + position + 1]:
+            position <- position + mismatch_shift
+            continue
+        pattern_index: mutable usize = 2
+        while pattern_index < pattern_length and
+            input[pattern_start + pattern_index] == input[2 + position + pattern_index]:
+            pattern_index <- pattern_index + 1
+        if pattern_index == pattern_length and input[pattern_start] == input[2 + position]:
+            return position.i64()
+        position <- position + post_check_shift
+    -1
+
+export fn not_so_naive_search(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_INPUT: return -2
+    not_so_naive_impl(values[0:length])

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "sieve-of-sundaram-count-primes-through-limit-i64-scalar-v1",
+  "algorithm": "sieve_of_sundaram",
+  "function_symbol": "sieve_of_sundaram",
+  "abi": "scalar_call",
+  "input": {
+    "kind": "inclusive_upper_bound",
+    "minimum_limit": 0,
+    "maximum_limit": 4096,
+    "result": "number of primes in [2, limit]",
+    "invalid_result": -1
+  },
+  "source": {
+    "title": "GPGPU and Sieve of Sundaram",
+    "authors": ["Mircea Ghidarcea", "Decebal Popescu"],
+    "publisher": "UPB Scientific Bulletin, Series C",
+    "volume": 86,
+    "issue": 4,
+    "year": 2024,
+    "pages": "31-42",
+    "reference_url": "https://www.scientificbulletin.upb.ro/rev_docs_arhiva/fullb1a_720372.pdf",
+    "independent_reference_url": "https://www.mdpi.com/1999-4893/17/4/157",
+    "original_attribution": "V. Ramaswami Aiyar, Sundaram's Sieve for Prime Numbers, The Mathematics Student 2(2), 1934, p. 73"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "profiles": [
+      {"id": "one-thousand", "input_value": 1000},
+      {"id": "maximum-bound", "input_value": 4096}
+    ]
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":0},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"three","input_value":3,"expected_result":2},
+    {"id":"four","input_value":4,"expected_result":2},
+    {"id":"five","input_value":5,"expected_result":3},
+    {"id":"ten","input_value":10,"expected_result":4},
+    {"id":"perfect-square-limit","input_value":49,"expected_result":15},
+    {"id":"classic-limit","input_value":100,"expected_result":25},
+    {"id":"prime-limit","input_value":997,"expected_result":168},
+    {"id":"one-after-prime-limit","input_value":998,"expected_result":168},
+    {"id":"thousand","input_value":1000,"expected_result":168},
+    {"id":"maximum-limit","input_value":4096,"expected_result":564},
+    {"id":"negative-limit","input_value":-1,"expected_result":-1},
+    {"id":"first-unsupported-limit","input_value":4097,"expected_result":-1},
+    {"id":"signed-64-minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed-64-maximum","input_value":9223372036854775807,"expected_result":-1}
+  ]
+}

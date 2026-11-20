@@ -12,7 +12,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long max_cut_sahni_gonzalez(long* input, usz length, char* output, usz capacity)
+fn long max_cut_sahni_gonzalez(long* input, usz length, char* output, usz capacity)
         @export("max_cut_sahni_gonzalez") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

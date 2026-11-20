@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn ojs_digit(mut b:InlineArray[UInt8,2048],mut pos:Int,x:UInt32):

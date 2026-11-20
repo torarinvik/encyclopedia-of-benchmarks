@@ -36,14 +36,41 @@ static int finite_f64(double value)
     return value == value && value <= DBL_MAX && value >= -DBL_MAX;
 }
 
+enum { COMPARISON_BYTES, COMPARISON_FLOAT64_VECTOR, COMPARISON_FLOAT64_CSC };
+
+static int float64_csc_structural_bytes(const uint8_t *expected,
+                                        size_t expected_bytes,
+                                        size_t *structural_bytes)
+{
+    if (expected_bytes % 8 != 0 || expected_bytes < 16) return 0;
+    const double dimension_value = decode_little_endian_f64(expected);
+    const double nonzero_value = decode_little_endian_f64(expected + 8);
+    if (!finite_f64(dimension_value) || dimension_value < 2.0 || dimension_value > 16.0 ||
+        dimension_value != (double)(uint64_t)dimension_value ||
+        !finite_f64(nonzero_value) || nonzero_value < 0.0 || nonzero_value > 256.0 ||
+        nonzero_value != (double)(uint64_t)nonzero_value) return 0;
+    const size_t dimension = (size_t)dimension_value;
+    const size_t nonzeros = (size_t)nonzero_value;
+    const size_t structural_words = 2 + dimension + 1 + nonzeros;
+    const size_t total_words = structural_words + nonzeros;
+    if (total_words != expected_bytes / 8) return 0;
+    *structural_bytes = structural_words * 8;
+    return 1;
+}
+
 static int output_matches(const uint8_t *observed, const uint8_t *expected,
-                          size_t expected_bytes, int float64_vector,
+                          size_t expected_bytes, int comparison_kind,
                           double absolute_tolerance, double relative_tolerance)
 {
-    if (!float64_vector)
+    if (comparison_kind == COMPARISON_BYTES)
         return expected_bytes == 0 || memcmp(observed, expected, expected_bytes) == 0;
+    if (expected_bytes == 0) return 1;
     if (expected_bytes % 8 != 0) return 0;
-    for (size_t offset = 0; offset < expected_bytes; offset += 8) {
+    size_t first_tolerant_byte = 0;
+    if (comparison_kind == COMPARISON_FLOAT64_CSC &&
+        (!float64_csc_structural_bytes(expected, expected_bytes, &first_tolerant_byte) ||
+         memcmp(observed, expected, first_tolerant_byte) != 0)) return 0;
+    for (size_t offset = first_tolerant_byte; offset < expected_bytes; offset += 8) {
         const double actual = decode_little_endian_f64(observed + offset);
         const double reference = decode_little_endian_f64(expected + offset);
         const double difference = actual >= reference ? actual - reference : reference - actual;
@@ -70,7 +97,7 @@ int main(void)
         fprintf(stderr, "expected a nonempty case count\n");
         return 2;
     }
-    int float64_vector = 0;
+    int comparison_kind = COMPARISON_BYTES;
 #ifdef BENCHMARK_WORKSPACE_BYTES
     int explicit_capacity = 1;
 #else
@@ -84,14 +111,16 @@ int main(void)
         fprintf(stderr, "missing checker comparison mode\n");
         return 2;
     }
-    if (strcmp(comparison_mode, "float64_vector") == 0) {
+    if (strcmp(comparison_mode, "float64_vector") == 0 ||
+        strcmp(comparison_mode, "float64_csc") == 0) {
         if (scanf("%lf %lf", &absolute_tolerance, &relative_tolerance) != 2 ||
             !finite_f64(absolute_tolerance) || absolute_tolerance < 0.0 ||
             !finite_f64(relative_tolerance) || relative_tolerance < 0.0) {
             fprintf(stderr, "invalid checker float64 tolerances\n");
             return 2;
         }
-        float64_vector = 1;
+        comparison_kind = strcmp(comparison_mode, "float64_csc") == 0
+                              ? COMPARISON_FLOAT64_CSC : COMPARISON_FLOAT64_VECTOR;
     } else if (strcmp(comparison_mode, "bytes_with_capacity") == 0) {
         explicit_capacity = 1;
     } else {
@@ -212,7 +241,7 @@ int main(void)
             }
         }
         if (result != expected_count ||
-            !output_matches(observed, expected, (size_t)expected_bytes, float64_vector,
+            !output_matches(observed, expected, (size_t)expected_bytes, comparison_kind,
                             absolute_tolerance, relative_tolerance) ||
             (check_canary && canary_changed)) {
             fprintf(stderr, "case=%" PRIu64 ": expected count=%" PRId64

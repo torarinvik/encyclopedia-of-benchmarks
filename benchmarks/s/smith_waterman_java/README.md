@@ -23,3 +23,6 @@ The reference is the pinned Java [`SmithWaterman.align`](https://github.com/TheA
 sensitivity, the ordinary hyphen character, malformed framing and character
 values. Build with `i64_array_scalar` and record with
 `benchmarks/run_i64_array_scalar.py`.
+
+The [Mojo implementation](../../../mojo/s/smith_waterman_java.mojo) is a
+draft and has not been verified.

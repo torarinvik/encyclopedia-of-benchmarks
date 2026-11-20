@@ -1,0 +1,116 @@
+const MBSTF_MAX_N: usize = 6
+const MBSTF_MAX_M: usize = 8
+const MBSTF_MAX_INPUT: usize = 37
+const MBSTF_NODE_CAP: usize = 8
+const MBSTF_MATRIX_CAP: usize = 64
+
+fn mbstf_feasible(input: i64&, length: usize, n: usize, m: usize,
+        source: usize, sink: usize, flow_cap: i64) -> bool:
+    input_view: view[i64] = input[0:length]
+    residual: mutable i64[MBSTF_MATRIX_CAP] = zeroed
+    balance: mutable i64[MBSTF_MAX_N] = zeroed
+    for index in 0..<m:
+        offset: usize = 4 + 4 * index
+        u: usize = input_view[offset].usize()
+        v: usize = input_view[offset + 1].usize()
+        lower: i64 = input_view[offset + 2]
+        upper: i64 = input_view[offset + 3]
+        residual[u * MBSTF_NODE_CAP + v] <- residual[u * MBSTF_NODE_CAP + v] + upper - lower
+        balance[u] <- balance[u] - lower
+        balance[v] <- balance[v] + lower
+    residual[sink * MBSTF_NODE_CAP + source] <- residual[sink * MBSTF_NODE_CAP + source] + flow_cap
+
+    super_source: usize = n
+    super_sink: usize = n + 1
+    node_count: usize = n + 2
+    demand: mutable i64 = 0
+    for vertex in 0..<n:
+        if balance[vertex] > 0:
+            residual[super_source * MBSTF_NODE_CAP + vertex] <- residual[super_source * MBSTF_NODE_CAP + vertex] + balance[vertex]
+            demand <- demand + balance[vertex]
+        else if balance[vertex] < 0:
+            residual[vertex * MBSTF_NODE_CAP + super_sink] <- residual[vertex * MBSTF_NODE_CAP + super_sink] - balance[vertex]
+
+    flow: mutable i64 = 0
+    while flow < demand:
+        parent: mutable i64[MBSTF_NODE_CAP] = zeroed
+        for vertex in 0..<node_count:
+            parent[vertex] <- -1
+        queue: mutable usize[MBSTF_NODE_CAP] = zeroed
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        parent[super_source] <- super_source.i64()
+        queue[tail] <- super_source
+        tail <- tail + 1
+        while head < tail and parent[super_sink] < 0:
+            u: usize = queue[head]
+            head <- head + 1
+            for v in 0..<node_count:
+                if residual[u * MBSTF_NODE_CAP + v] > 0 and parent[v] < 0:
+                    parent[v] <- u.i64()
+                    queue[tail] <- v
+                    tail <- tail + 1
+                    if v == super_sink:
+                        break
+        if parent[super_sink] < 0:
+            break
+        amount: mutable i64 = demand - flow
+        vertex: mutable usize = super_sink
+        while vertex != super_source:
+            u: usize = parent[vertex].usize()
+            if residual[u * MBSTF_NODE_CAP + vertex] < amount:
+                amount <- residual[u * MBSTF_NODE_CAP + vertex]
+            vertex <- u
+        vertex <- super_sink
+        while vertex != super_source:
+            u: usize = parent[vertex].usize()
+            residual[u * MBSTF_NODE_CAP + vertex] <- residual[u * MBSTF_NODE_CAP + vertex] - amount
+            residual[vertex * MBSTF_NODE_CAP + u] <- residual[vertex * MBSTF_NODE_CAP + u] + amount
+            vertex <- u
+        flow <- flow + amount
+    return flow == demand
+
+export fn minimum_bounded_s_t_flow(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > MBSTF_MAX_INPUT:
+        return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    m_value: i64 = input_view[1]
+    source_value: i64 = input_view[2]
+    sink_value: i64 = input_view[3]
+    if n_value < 2 or n_value > 6 or m_value < 0 or m_value > 8:
+        return -1
+    if source_value < 0 or source_value >= n_value or sink_value < 0 or
+            sink_value >= n_value or source_value == sink_value:
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    source: usize = source_value.usize()
+    sink: usize = sink_value.usize()
+    if length != 4 + 4 * m:
+        return -1
+
+    upper_bound: mutable i64 = 0
+    for index in 0..<m:
+        offset: usize = 4 + 4 * index
+        u_value: i64 = input_view[offset]
+        v_value: i64 = input_view[offset + 1]
+        lower: i64 = input_view[offset + 2]
+        upper: i64 = input_view[offset + 3]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or
+                lower < 0 or upper < lower or upper > 2:
+            return -1
+        if u_value.usize() == source and v_value.usize() != source:
+            upper_bound <- upper_bound + upper
+
+    low: mutable i64 = 0
+    high: mutable i64 = upper_bound + 1
+    while low < high:
+        middle: i64 = low + (high - low) / 2
+        if mbstf_feasible(input, length, n, m, source, sink, middle):
+            high <- middle
+        else:
+            low <- middle + 1
+    if low > upper_bound:
+        return -2
+    return low

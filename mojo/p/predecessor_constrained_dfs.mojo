@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn pc_visit(node:Int,count:Int,adj:InlineArray[Bool,256],pred:InlineArray[Bool,256],inout seen:InlineArray[Bool,16],inout ev:InlineArray[Int64,408],inout ec:Int,inout order:Int):

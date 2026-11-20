@@ -1,0 +1,56 @@
+const MAX_N: i64 = 1000000
+const MAX_ROOT: usize = 1000
+const MAX_PRIMES: usize = 168
+
+def powerful_number_enumerate(primes: view[i64], prime_count: usize,
+        start: usize, current: i64, current_h: i64, n: i64,
+        total: mutable i64&) -> void:
+    remaining: i64 = n / current
+    prime_index: mutable usize = start
+    while prime_index < prime_count:
+        prime: i64 = primes[prime_index]
+        if prime > remaining / prime:
+            break
+        prime_power: mutable i64 = prime * prime
+        h_power: mutable i64 = prime - 1
+        while prime_power <= remaining:
+            powerful: i64 = current * prime_power
+            h_value: i64 = current_h * h_power
+            total <- total + h_value * (n / powerful)
+            powerful_number_enumerate(primes, prime_count, prime_index + 1,
+                powerful, h_value, n, total)
+            if prime_power > remaining / prime:
+                break
+            prime_power <- prime_power * prime
+            h_power <- h_power * prime
+        prime_index <- prime_index + 1
+
+export fn powerful_number_summatory_sieve(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+    n: i64 = input[0]
+    if n < 1 or n > MAX_N:
+        return -1
+
+    root: mutable i64 = 1
+    while root + 1 <= n / (root + 1):
+        root <- root + 1
+
+    composite: mutable bool[MAX_ROOT + 1] = zeroed
+    primes: mutable i64[MAX_PRIMES] = zeroed
+    prime_count: mutable usize = 0
+    candidate: mutable usize = 2
+    while candidate <= root.usize():
+        if not composite[candidate]:
+            primes[prime_count] <- candidate.i64()
+            prime_count <- prime_count + 1
+            if candidate <= root.usize() / candidate:
+                multiple: mutable usize = candidate * candidate
+                while multiple <= root.usize():
+                    composite[multiple] <- true
+                    multiple <- multiple + candidate
+        candidate <- candidate + 1
+
+    total: mutable i64 = n
+    powerful_number_enumerate(primes[0:prime_count], prime_count, 0, 1, 1, n, total)
+    total

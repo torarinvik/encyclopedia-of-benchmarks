@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn shc_alnum(x:Int64)->Bool:return (x>=48 and x<=57) or (x>=65 and x<=90) or (x>=97 and x<=122)
@@ -5,7 +6,7 @@ fn shc_alnum(x:Int64)->Bool:return (x>=48 and x<=57) or (x>=65 and x<=90) or (x>
 fn shuffled_shift_cipher(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UInt8,MutAnyOrigin],cap:c_size_t) abi("C")->Int64:
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or n>279:return -1
     let pn=a[0];let tn=a[1];if pn<1 or pn>20 or tn<0 or tn>256 or n!=c_size_t(2+pn+tn):return -1
-    var breaks=InlineArray[Bool,128]();var shift:Int64=0
+    var breaks=InlineArray[Bool,128](fill=False);var shift:Int64=0
     for i in range(Int(pn)):
         let c=a[i+2];if not shc_alnum(c):return -1;breaks[Int(c)]=True
         shift+=c if i%2==0 else -c

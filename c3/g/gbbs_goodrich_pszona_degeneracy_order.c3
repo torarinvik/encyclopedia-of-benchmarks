@@ -13,7 +13,7 @@ fn void store_i64_le(char* output, long value) {
 }
 
 // Clean-room bounded GBBS Goodrich-Pszona degeneracy-order profile.
-long gbbs_goodrich_pszona_degeneracy_order(long* input, usz length,
+fn long gbbs_goodrich_pszona_degeneracy_order(long* input, usz length,
         char* output, usz capacity) @export("gbbs_goodrich_pszona_degeneracy_order") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

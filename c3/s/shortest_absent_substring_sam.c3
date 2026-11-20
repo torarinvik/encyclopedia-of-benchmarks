@@ -1,6 +1,6 @@
 module shortest_absent_substring_sam;
 
-long shortest_absent_substring_sam(long* input, usz length, char* output, usz capacity) @export("shortest_absent_substring_sam") {
+fn long shortest_absent_substring_sam(long* input, usz length, char* output, usz capacity) @export("shortest_absent_substring_sam") {
     if (input == null || length < 2 || length > 66 || input[0] < 2 || input[0] > 4 || input[1] < 0 || input[1] > 64) return -1;
     int alphabet = (int)input[0], n = (int)input[1];
     if (length != (usz)(2+n)) return -1;

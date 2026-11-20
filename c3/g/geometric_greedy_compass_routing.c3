@@ -15,7 +15,7 @@ fn bool angle_equal(long da, long la, long db, long lb) {
     return (da >= 0) == (db >= 0) && da * da * lb == db * db * la;
 }
 
-long geometric_greedy_compass_routing(long* input, usz length, char* output, usz capacity) @export("geometric_greedy_compass_routing") {
+fn long geometric_greedy_compass_routing(long* input, usz length, char* output, usz capacity) @export("geometric_greedy_compass_routing") {
     if (input == null || length < 12 || length > MAX_INPUT) return -1;
     long n64 = input[0], mode = input[1], source64 = input[2], target64 = input[3];
     if (n64 < 2 || n64 > (long)MAX_N || mode < 0 || mode > 1 || source64 < 0 || target64 < 0 || source64 >= n64 || target64 >= n64) return -1;

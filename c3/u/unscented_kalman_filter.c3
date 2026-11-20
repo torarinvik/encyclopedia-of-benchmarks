@@ -1,18 +1,18 @@
 module unscented_kalman_filter;
 extern fn double sqrt(double value);
 
-fn bool sigma_points(double x, double y, double p00, double p01, double p11, double[5][2]* points) {
+fn bool sigma_points(double x, double y, double p00, double p01, double p11, double* points) {
     double l00 = sqrt(2.0 * p00);
     if (l00 <= 0.0) return false;
     double l10 = (2.0 * p01) / l00;
     double remainder = 2.0 * p11 - l10 * l10;
     if (remainder <= 0.0) return false;
     double l11 = sqrt(remainder);
-    points[0][0] = x;        points[0][1] = y;
-    points[1][0] = x + l00;  points[1][1] = y + l10;
-    points[2][0] = x;        points[2][1] = y + l11;
-    points[3][0] = x - l00;  points[3][1] = y - l10;
-    points[4][0] = x;        points[4][1] = y - l11;
+    points[0] = x;        points[1] = y;
+    points[2] = x + l00;  points[3] = y + l10;
+    points[4] = x;        points[5] = y + l11;
+    points[6] = x - l00;  points[7] = y - l10;
+    points[8] = x;        points[9] = y - l11;
     return true;
 }
 
@@ -31,8 +31,9 @@ fn double unscented_kalman_filter(long* v, usz n) @export("unscented_kalman_filt
     double p00 = (double)v[3] / scale, p01 = (double)v[4] / scale, p11 = (double)v[5] / scale;
     double q0 = (double)v[6] / scale, q1 = (double)v[7] / scale, noise = (double)v[8] / scale;
     for (long t = 0; t < steps; t++) {
-        double sigma[5][2] = {{0}}, propagated[5][2] = {{0}};
-        if (!sigma_points(x, y, p00, p01, p11, &sigma)) return BAD;
+        double[2][5] sigma = {};
+        double[2][5] propagated = {};
+        if (!sigma_points(x, y, p00, p01, p11, &sigma[0][0])) return BAD;
         for (usz i = 0; i < 5; i++) {
             double sx = sigma[i][0], sy = sigma[i][1];
             propagated[i][0] = sx + 0.1 * sy;
@@ -55,8 +56,8 @@ fn double unscented_kalman_filter(long* v, usz n) @export("unscented_kalman_filt
         x = mean_x; y = mean_y;
         p00 = next_p00 + q0; p01 = 0.5 * (next_p01 + next_p01); p11 = next_p11 + q1;
 
-        if (!sigma_points(x, y, p00, p01, p11, &sigma)) return BAD;
-        double mapped[5] = {0};
+        if (!sigma_points(x, y, p00, p01, p11, &sigma[0][0])) return BAD;
+        double[5] mapped = {};
         for (usz i = 0; i < 5; i++) mapped[i] = 0.05 * sigma[i][0] * sigma[i][0] + sigma[i][1];
         double expected_z = 0.0;
         for (usz i = 1; i < 5; i++) expected_z += 0.25 * mapped[i];

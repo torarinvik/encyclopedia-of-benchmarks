@@ -12,7 +12,7 @@ fn void store_i64_le(uchar* output, usz offset, long value) {
     }
 }
 
-long tsvc_s124_conditional_fma_map(long* input, usz length, uchar* output, usz capacity) @export("tsvc_s124_conditional_fma_map") {
+fn long tsvc_s124_conditional_fma_map(long* input, usz length, uchar* output, usz capacity) @export("tsvc_s124_conditional_fma_map") {
     if (input == null || length < 5 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 1 || input[0] > (long)MAX_N) return -1;
     usz n = (usz)input[0];

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("krishnamurthy_number_checker")
 fn krishnamurthy_number_checker(x:Int64) abi("C")->Int64:
     if x< -2147483648 or x>2147483647:return -1

@@ -16,13 +16,19 @@ The pinned C++ source exposes `fiboSum(n, m)` and uses a matrix recurrence to co
 
 [`workload.json`](workload.json) includes singleton and multi-term ranges, a range beginning at zero, the largest supported endpoint, reversed endpoints, and an endpoint above the supported bound. The benchmark uses the shared `binary_scalar` ABI family: two unsigned 64-bit inputs and one signed 64-bit result.
 
+The workload's ABI declaration and the 20-through-30 expected sum have been
+corrected. Runner/verifier wiring and an independent direct-summation
+reference are drafted; these changes have not been executed.
+
 ## Implementations
 
 | Language | Source |
 | --- | --- |
 | C | [`c/f/fibonacci_sum.c`](../../../c/f/fibonacci_sum.c) |
 | C3 | [`c3/f/fibonacci_sum.c3`](../../../c3/f/fibonacci_sum.c3) |
+| C++ | [`cpp/f/fibonacci_sum.cpp`](../../../cpp/f/fibonacci_sum.cpp) |
 | Elisa | [`elisa/f/fibonacci_sum.elisa`](../../../elisa/f/fibonacci_sum.elisa) |
+| Mojo | [`mojo/f/fibonacci_sum.mojo`](../../../mojo/f/fibonacci_sum.mojo) |
 | Nim | [`nim/f/fibonacci_sum.nim`](../../../nim/f/fibonacci_sum.nim) |
 | Odin | [`odin/f/fibonacci_sum.odin`](../../../odin/f/fibonacci_sum.odin) |
 | Rust | [`rust/f/fibonacci_sum.rs`](../../../rust/f/fibonacci_sum.rs) |

@@ -6,6 +6,6 @@ fn void visit(long* nums, usz n, long target, usz start, long current, long rema
 }
 fn void put64(char* out, usz* pos, long x){ulong v=(ulong)x;for(usz j=0;j<8;j++){out[*pos]=(char)(v&255);*pos+=1;v>>=8;}}
 fn long sum_of_subsets(long* input, usz length, char* output, usz capacity) @export("sum_of_subsets") {
- if(input==null||length<2)return -1;long n0=input[0],target=input[1];if(n0<0||n0>10||length!=(usz)n0+2||target<0||target>250)return -1;usz n=(usz)n0;long nums[10];long rem=0;for(usz i=0;i<n;i++){long x=input[2+i];if(x<0||x>50)return -1;nums[i]=x;rem+=x;}
- long path[10];long solutions[10240];usz lens[1024];usz count=0;visit(&nums[0],n,target,0,0,rem,&path[0],0,&solutions[0],&lens[0],&count);usz need=8;for(usz i=0;i<count;i++)need+=8+8*lens[i];if(output==null||capacity<need)return -2;usz pos=0;put64(output,&pos,(long)count);for(usz i=0;i<count;i++){put64(output,&pos,(long)lens[i]);for(usz j=0;j<lens[i];j++)put64(output,&pos,solutions[i*10+j]);}return (long)pos;
+ if(input==null||length<2)return -1;long n0=input[0],target=input[1];if(n0<0||n0>10||length!=(usz)n0+2||target<0||target>250)return -1;usz n=(usz)n0;long[10] nums;long rem=0;for(usz i=0;i<n;i++){long x=input[2+i];if(x<0||x>50)return -1;nums[i]=x;rem+=x;}
+ long[10] path;long[10240] solutions;usz[1024] lens;usz count=0;visit(&nums[0],n,target,0,0,rem,&path[0],0,&solutions[0],&lens[0],&count);usz need=8;for(usz i=0;i<count;i++)need+=8+8*lens[i];if(output==null||capacity<need)return -2;usz pos=0;put64(output,&pos,(long)count);for(usz i=0;i<count;i++){put64(output,&pos,(long)lens[i]);for(usz j=0;j<lens[i];j++)put64(output,&pos,solutions[i*10+j]);}return (long)pos;
 }

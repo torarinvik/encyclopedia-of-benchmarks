@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn stack_insert(a:UnsafePointer[Int32,MutAnyOrigin],size:Int,value:Int32):Int:

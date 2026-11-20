@@ -12,7 +12,7 @@ The digital root is found by repeatedly summing the decimal digits until one dig
 
 ## Workload and verification
 
-[`workload.json`](workload.json) covers zero, one-digit values, repeated reductions, powers of ten, large signed-64-bit boundaries, and invalid negative inputs. [`verify_scalar.py`](../../verify_scalar.py) checks the nine implementations against an independent repeated-sum oracle over every value from `-16` through `10,000`, 512 deterministic signed-64-bit samples, and explicit boundaries. It also verifies the benchmark recorder output for every workload case.
+[`workload.json`](workload.json) covers zero, one-digit values, repeated reductions, powers of ten, large signed-64-bit boundaries, and invalid negative inputs. [`verify_scalar.py`](../../verify_scalar.py) specifies checks over every value from `-16` through `10,000`, 512 deterministic signed-64-bit samples, and explicit boundaries. Its oracle now uses the independent modulo-nine identity; that oracle change has not been executed.
 
 ## Reviewed TheAlgorithms sources
 

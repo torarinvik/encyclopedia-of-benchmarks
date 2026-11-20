@@ -6,7 +6,7 @@ fn long vertex_connectivity(long* input, usz length) @export("vertex_connectivit
     if (input[0]<0 || input[0]>(long)N || input[1]<0 || input[1]>(long)M) return -1;
     usz n=(usz)input[0], m=(usz)input[1];
     if (length!=2+2*m) return -1;
-    ulong adjacency[N]={0};
+    ulong[N] adjacency={0};
     for (usz e=0; e<m; e++) {
         long left=input[2+2*e], right=input[3+2*e];
         if (left<0 || right<0 || (ulong)left>=(ulong)n || (ulong)right>=(ulong)n) return -1;
@@ -16,7 +16,7 @@ fn long vertex_connectivity(long* input, usz length) @export("vertex_connectivit
         }
     }
     if (n<=1) return 0;
-    ulong reached=1ul; usz graph_queue[N]; usz graph_head=0, graph_tail=0; graph_queue[graph_tail++]=0;
+    ulong reached=1ul; usz[N] graph_queue; usz graph_head=0, graph_tail=0; graph_queue[graph_tail++]=0;
     while (graph_head<graph_tail) {
         usz u=graph_queue[graph_head++];
         for (usz v=0; v<n; v++) {
@@ -29,7 +29,7 @@ fn long vertex_connectivity(long* input, usz length) @export("vertex_connectivit
     for (usz source=0; source<n; source++) {
         for (usz target=source+1; target<n; target++) {
             if ((adjacency[source]&(1ul << (ulong)target))!=0ul) continue;
-            long residual[DN*DN];
+            long[DN*DN] residual;
             for (usz i=0; i<DN*DN; i++) residual[i]=0;
             usz nodes=2*n;
             for (usz v=0; v<n; v++) {
@@ -47,7 +47,7 @@ fn long vertex_connectivity(long* input, usz length) @export("vertex_connectivit
             usz start=2*source+1, sink=2*target;
             long flow=0;
             while (flow<best) {
-                long parent[DN]; usz queue[DN];
+                long[DN] parent; usz[DN] queue;
                 for (usz v=0; v<nodes; v++) parent[v]=-1;
                 parent[start]=(long)start;
                 usz head=0, tail=0; queue[tail++]=start;

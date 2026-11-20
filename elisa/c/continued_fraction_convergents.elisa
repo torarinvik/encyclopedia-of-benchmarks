@@ -1,0 +1,40 @@
+const MAX_INPUT_LENGTH: usize = 18
+
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def continued_fraction_convergents_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    let length: usize = input.len()
+    if length < 2 or length > MAX_INPUT_LENGTH: return -1
+    let count_value: i64 = input[0]
+    if count_value < 1 or count_value > 16 or input[1] < -1000 or input[1] > 1000: return -1
+    let count: usize = count_value.usize()
+    if length != count + 1: return -1
+    for i in 2..<length:
+        if input[i] < 1 or input[i] > 8: return -1
+    let required: usize = 16 * count
+    if output == null or capacity < required: return -2
+
+    let bytes: mutable view[u8] = output[0:required]
+    let p_two_back: mutable i64 = 0
+    let p_one_back: mutable i64 = 1
+    let q_two_back: mutable i64 = 1
+    let q_one_back: mutable i64 = 0
+    for i in 0..<count:
+        let p: i64 = input[i + 1] * p_one_back + p_two_back
+        let q: i64 = input[i + 1] * q_one_back + q_two_back
+        store_i64_le(p, bytes, 16 * i)
+        store_i64_le(q, bytes, 16 * i + 8)
+        p_two_back <- p_one_back
+        p_one_back <- p
+        q_two_back <- q_one_back
+        q_one_back <- q
+    required.i64()
+
+export fn continued_fraction_convergents(input: i64&, length: usize,
+                                          output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    continued_fraction_convergents_impl(input[0:length], output, capacity)

@@ -11,7 +11,7 @@ fn long egg_dropping_puzzle(long* input, usz length) @export("egg_dropping_puzzl
 
     usz eggs = (usz)eggs_value;
     usz floors = (usz)floors_value;
-    long[MAX_EGGS + 1][MAX_FLOORS + 1] dp = zeroed;
+    long[MAX_FLOORS + 1][MAX_EGGS + 1] dp = zeroed;
     for (usz egg = 1; egg <= eggs; egg += 1) dp[egg][1] = 1;
     for (usz floor_count = 1; floor_count <= floors; floor_count += 1) dp[1][floor_count] = (long)floor_count;
 

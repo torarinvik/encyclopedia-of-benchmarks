@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "rfc3492-punycode-scalar-sequence-v1",
+  "algorithm": "punycode_codepoint_sequence_encode",
+  "function_symbol": "punycode_codepoint_sequence_encode",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Punycode: A Bootstring encoding of Unicode for Internationalized Domain Names in Applications",
+    "author": "Adam M. Costello",
+    "year": 2003,
+    "url": "https://www.rfc-editor.org/rfc/rfc3492.html",
+    "sections": "§3 Bootstring parameters; §4 generalized variable-length integers; §5 bias adaptation; §6 Punycode; especially §6.3 encoding procedure",
+    "discovery_title_url": "https://github.com/mathiasbynens/punycode.js",
+    "discovery_scope": "Repository used only to identify a Punycode algorithm gap; no source, prose, test, or example was copied."
+  },
+  "contract": {
+    "input_layout": "[count, codepoint_0, ..., codepoint_(count-1)]",
+    "count_range": [0, 32],
+    "codepoint_range": [0, 1114111],
+    "excluded_codepoints": "UTF-16 surrogates 55296..57343",
+    "output": "RFC 3492 Punycode payload bytes; basic code points are copied in input order and a '-' delimiter is appended whenever at least one basic point was copied, even if all points are basic.",
+    "excluded_processing": "No xn-- prefix, Unicode normalization, case folding, IDNA mapping, label splitting, or domain validation.",
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "empty_payload_output_rule": "The empty codepoint sequence succeeds with zero bytes, including when output is null or capacity is zero.",
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "bytes",
+    "maximum_bytes": 320,
+    "success_bytes": "returned payload length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 320,
+    "meaning": "One fixed 320-byte encoded-payload staging buffer; caller-owned input and output storage are excluded."
+  },
+  "complexity": {
+    "primary_time": "O(n^2 + output_bytes) due to repeated minimum-codepoint selection and input scans; n<=32.",
+    "primary_auxiliary_space": "O(output_bytes) in one fixed 320-byte staging buffer.",
+    "independent_reference_time": "O(n + output_bytes) for the built-in Punycode encoder plus a decoder insertion pass; n<=32.",
+    "independent_reference_auxiliary_space": "O(n + output_bytes) for decoded code points and payload bytes; n<=32 and output_bytes<=320."
+  },
+  "oracle": "benchmarks/p/punycode_codepoint_sequence_encode/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/punycode_codepoint_sequence_encode/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-sequence",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "all-basic-keeps-required-delimiter",
+      "input_values": [3, 97, 45, 98],
+      "input_length": 4,
+      "output_capacity": 320,
+      "expected_result": 4,
+      "expected_output_hex": "612d622d"
+    },
+    {
+      "id": "nonbasic-only",
+      "input_values": [1, 128],
+      "input_length": 2,
+      "output_capacity": 320,
+      "expected_result": 1,
+      "expected_output_hex": "61"
+    },
+    {
+      "id": "basic-and-nonbasic",
+      "input_values": [2, 97, 256],
+      "input_length": 3,
+      "output_capacity": 320,
+      "expected_result": 5,
+      "expected_output_hex": "612d6d6861"
+    },
+    {
+      "id": "maximum-all-basic-delimiter",
+      "input_values": [
+        32,
+        97, 97, 97, 97, 97, 97, 97, 97,
+        97, 97, 97, 97, 97, 97, 97, 97,
+        97, 97, 97, 97, 97, 97, 97, 97,
+        97, 97, 97, 97, 97, 97, 97, 97
+      ],
+      "input_length": 33,
+      "output_capacity": 320,
+      "expected_result": 33,
+      "expected_output_hex": "6161616161616161 6161616161616161 6161616161616161 6161616161616161 2d"
+    },
+    {
+      "id": "surrogate-is-invalid",
+      "input_values": [1, 55296],
+      "input_length": 2,
+      "output_capacity": 320,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "above-unicode-range-is-invalid",
+      "input_values": [1, 1114112],
+      "input_length": 2,
+      "output_capacity": 320,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-is-invalid",
+      "input_values": [1, 97, 98],
+      "input_length": 3,
+      "output_capacity": 320,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [1, 128],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 128],
+      "input_length": 2,
+      "output_capacity": 320,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 320,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

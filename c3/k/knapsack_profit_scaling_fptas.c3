@@ -6,7 +6,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz b = 0; b < 8; b += 1) { output[offset + b] = (char)(bits & 255); bits >>= 8; }
 }
 
-long knapsack_profit_scaling_fptas(long* input, usz length, char* output, usz capacity) @export("knapsack_profit_scaling_fptas") {
+fn long knapsack_profit_scaling_fptas(long* input, usz length, char* output, usz capacity) @export("knapsack_profit_scaling_fptas") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     long cap = input[0], n64 = input[1];
     if (cap < 1 || cap > 100 || n64 < 1 || n64 > MAX_N || length != 2 + 2 * (usz)n64) return -1;

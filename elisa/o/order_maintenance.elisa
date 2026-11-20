@@ -1,0 +1,92 @@
+const OM_MAX_ELEMENTS: usize = 64
+const OM_MAX_OPERATIONS: usize = 128
+const OM_MAX_INPUT_LENGTH: usize = 387
+const OM_LABEL_MODULUS: i64 = 2_147_483_648
+const OM_LABEL_RING: i64 = 4_294_967_296
+
+def om_label_width(left: i64, right: i64) -> i64:
+    difference: mutable i64 = (right - left) % OM_LABEL_RING
+    if difference < 0: difference <- difference + OM_LABEL_RING
+    if difference == 0: return OM_LABEL_MODULUS
+    if difference > OM_LABEL_MODULUS: return difference - OM_LABEL_MODULUS
+    difference
+
+def om_insert_after(labels: mutable view[i64], previous: mutable view[i64],
+                    following: mutable view[i64], anchor: usize, new_id: usize) -> void:
+    successor: mutable usize = following[anchor].usize()
+    if om_label_width(labels[anchor], labels[successor]) <= 1:
+        middle: mutable usize = successor
+        ending: mutable usize = following[middle].usize()
+        required: mutable i64 = 3
+        while ending != anchor and om_label_width(labels[anchor], labels[ending]) <=
+              4 * om_label_width(labels[anchor], labels[middle]):
+            required <- required + 1
+            ending <- following[ending].usize()
+            if ending == anchor: break
+            required <- required + 1
+            ending <- following[ending].usize()
+            middle <- following[middle].usize()
+        interval: i64 = OM_LABEL_MODULUS if ending == anchor else
+            om_label_width(labels[anchor], labels[ending])
+        let spacing: i64 = interval / required
+        value: mutable i64 = labels[ending]
+        cursor: mutable usize = ending
+        while true:
+            if cursor == 0: value <- value + OM_LABEL_MODULUS
+            if value >= OM_LABEL_RING: value <- value - OM_LABEL_RING
+            cursor <- previous[cursor].usize()
+            if cursor == anchor: break
+            value <- value - spacing
+            if value < 0: value <- value + OM_LABEL_RING
+            labels[cursor] <- value
+
+    successor <- following[anchor].usize()
+    labels[new_id] <- labels[anchor] +
+        om_label_width(labels[anchor], labels[successor]) / 2
+    if labels[new_id] >= OM_LABEL_RING: labels[new_id] <- labels[new_id] - OM_LABEL_RING
+    previous[new_id] <- anchor.i64()
+    following[new_id] <- successor.i64()
+    following[anchor] <- new_id.i64()
+    previous[successor] <- new_id.i64()
+
+def order_maintenance_impl(input: view[i64]) -> i64:
+    let length: usize = input.len()
+    if length < 2 or length > OM_MAX_INPUT_LENGTH: return -1
+    let capacity_value: i64 = input[0]
+    let operation_value: i64 = input[1]
+    if capacity_value < 0 or capacity_value > OM_MAX_ELEMENTS.i64() or
+       operation_value < 0 or operation_value > OM_MAX_OPERATIONS.i64(): return -1
+    let capacity: usize = capacity_value.usize()
+    let operation_count: usize = operation_value.usize()
+    if length != 2 + 3 * operation_count: return -1
+
+    labels: mutable i64[OM_MAX_ELEMENTS + 1] = zeroed
+    previous: mutable i64[OM_MAX_ELEMENTS + 1] = zeroed
+    following: mutable i64[OM_MAX_ELEMENTS + 1] = zeroed
+    inserted: mutable usize = 0
+    checksum: mutable i64 = 0
+    operation: mutable usize = 0
+    while operation < operation_count:
+        let offset: usize = 2 + 3 * operation
+        let opcode: i64 = input[offset]
+        let first: i64 = input[offset + 1]
+        let second: i64 = input[offset + 2]
+        if opcode == 0:
+            if inserted >= capacity or first < 0 or first > inserted.i64() or
+               second != inserted.i64() + 1: return -1
+            inserted <- inserted + 1
+            om_insert_after(labels[0:OM_MAX_ELEMENTS + 1], previous[0:OM_MAX_ELEMENTS + 1],
+                following[0:OM_MAX_ELEMENTS + 1], first.usize(), inserted)
+        elif opcode == 1:
+            if first < 1 or first > inserted.i64() or second < 1 or
+               second > inserted.i64(): return -1
+            if labels[first.usize()] < labels[second.usize()]:
+                checksum <- checksum + operation.i64() + 1
+        else:
+            return -1
+        operation <- operation + 1
+    checksum
+
+export fn order_maintenance(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > OM_MAX_INPUT_LENGTH: return -1
+    order_maintenance_impl(input[0:length])

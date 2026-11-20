@@ -4,7 +4,7 @@ fn bool chord_between(int* ids, int ring, int left, int item, int right) {
     int distance = (ids[item]-ids[left]+ring)%ring, span = (ids[right]-ids[left]+ring)%ring;
     return distance > 0 && (span == 0 || distance < span);
 }
-long chord_stabilization_trace(long* input, usz length, char* output, usz capacity) @export("chord_stabilization_trace") {
+fn long chord_stabilization_trace(long* input, usz length, char* output, usz capacity) @export("chord_stabilization_trace") {
     if (input == null || length < 6 || length > 115 || input[0] < 1 || input[0] > 6 || input[1] < 1 || input[1] > 16 || input[2] < 0 || input[2] > 64) return -1;
     int ring = 1 << (int)input[0], n = (int)input[1], q = (int)input[2];
     if (n > ring || length != (usz)(3+3*n+q)) return -1;

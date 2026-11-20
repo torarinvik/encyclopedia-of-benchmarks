@@ -47,8 +47,12 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/d/deficient_numbe
 | C3 | [`c3/d/deficient_numbers.c3`](../../../c3/d/deficient_numbers.c3) |
 | C++ | [`cpp/d/deficient_numbers.cpp`](../../../cpp/d/deficient_numbers.cpp) |
 | Elisa | [`elisa/d/deficient_numbers.elisa`](../../../elisa/d/deficient_numbers.elisa) |
+| Mojo | [`mojo/d/deficient_numbers.mojo`](../../../mojo/d/deficient_numbers.mojo) |
 | Nim | [`nim/d/deficient_numbers.nim`](../../../nim/d/deficient_numbers.nim) |
 | Odin | [`odin/d/deficient_numbers.odin`](../../../odin/d/deficient_numbers.odin) |
 | Rust | [`rust/d/deficient_numbers.rs`](../../../rust/d/deficient_numbers.rs) |
 | V | [`v/d/deficient_numbers.v`](../../../v/d/deficient_numbers.v) |
 | Zig | [`zig/d/deficient_numbers.zig`](../../../zig/d/deficient_numbers.zig) |
+
+The scalar runner and verifier are now wired to an independent factorization
+oracle. This new suite wiring has not been executed.

@@ -1,10 +1,11 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 @export("sjfscheduling")
 fn sjfscheduling(a:UnsafePointer[Int32,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UInt8,MutAnyOrigin],cap:c_size_t) abi("C")->Int64:
     if a==UnsafePointer[Int32,ImmutAnyOrigin]() or n<1 or n>129:return -1
     let count=a[0];if count<0 or count>64 or n!=c_size_t(1+2*count):return -1
-    var arrivals=InlineArray[Int32,64]();var bursts=InlineArray[Int32,64]();var done=InlineArray[Bool,64]();var order=InlineArray[Int32,64]()
+    var arrivals=InlineArray[Int32,64]();var bursts=InlineArray[Int32,64]();var done=InlineArray[Bool,64](fill=False);var order=InlineArray[Int32,64]()
     for i in range(Int(count)):
         arrivals[i]=a[1+2*i];bursts[i]=a[2+2*i]
         if arrivals[i]<0 or arrivals[i]>255 or bursts[i]<1 or bursts[i]>255:return -1

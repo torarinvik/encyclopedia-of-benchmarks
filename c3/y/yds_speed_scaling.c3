@@ -15,7 +15,7 @@ fn void put64(char* output, usz at, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[at+byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long yds_speed_scaling(long* input, usz length, char* output, usz capacity)
+fn long yds_speed_scaling(long* input, usz length, char* output, usz capacity)
         @export("yds_speed_scaling") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     long n64 = input[0];

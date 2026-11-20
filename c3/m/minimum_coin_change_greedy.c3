@@ -24,7 +24,7 @@ fn long minimum_coin_change_greedy(long* input, usz length, char* output, usz ca
     usz denomination_count = (usz)count_value;
     if (length != 2 + denomination_count) return -1;
 
-    int denominations[32] = {0};
+    int[32] denominations = {};
     long previous = 0;
     for (usz index = 0; index < denomination_count; index++) {
         long denomination = input[2 + index];
@@ -33,7 +33,7 @@ fn long minimum_coin_change_greedy(long* input, usz length, char* output, usz ca
         previous = denomination;
     }
 
-    int chosen[4096] = {0};
+    int[4096] chosen = {};
     usz chosen_count = 0;
     if (target > 0) {
         long remaining = target;

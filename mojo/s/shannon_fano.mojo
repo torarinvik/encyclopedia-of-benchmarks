@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn sf_build(freq:UnsafePointer[Int32,ImmutAnyOrigin],sym:UnsafePointer[Int32,MutAnyOrigin],lo:Int,hi:Int,bits:UnsafePointer[UInt16,MutAnyOrigin],lens:UnsafePointer[Int32,MutAnyOrigin],prefix:UInt16,depth:Int):

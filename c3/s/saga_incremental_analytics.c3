@@ -17,7 +17,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long saga_incremental_analytics(long* input, usz length, char* output, usz capacity)
+fn long saga_incremental_analytics(long* input, usz length, char* output, usz capacity)
         @export("saga_incremental_analytics") {
     if (input == null || length < 5 || length > MAX_INPUT) return -1;
     long mode64 = input[0], n64 = input[1], base64 = input[2], added64 = input[3], source64 = input[4];

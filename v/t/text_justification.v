@@ -9,7 +9,7 @@ const max_output_bytes = max_words * max_width + max_words
 @[export: 'text_justification']
 pub fn text_justification(input &i64, length usize, output &u8, capacity usize) i64 {
 	if isnil(input) || length < 2 || length > usize(max_input_length) { return -1 }
-	width_value := unsafe { input }
+	width_value := unsafe { input[0] }
 	text_length_value := unsafe { input[1] }
 	if width_value < 1 || width_value > max_width || text_length_value < 0 || text_length_value > max_text_bytes { return -1 }
 	width := int(width_value)

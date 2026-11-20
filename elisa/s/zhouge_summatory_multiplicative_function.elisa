@@ -1,0 +1,212 @@
+const ZSG_MODULUS: i64 = 469762049
+const ZSG_MAX_N: i64 = 10000000
+const ZSG_MAX_ROOT: usize = 3162
+const ZSG_MAX_TABLE: usize = 6324
+
+def zsg_floor_sqrt(value: i64) -> i64:
+    low: mutable i64 = 1
+    high: mutable i64 = ZSG_MAX_ROOT.i64()
+    while low < high:
+        middle: i64 = low + (high - low + 1) / 2
+        if middle <= value / middle:
+            low <- middle
+        else:
+            high <- middle - 1
+    low
+
+def zsg_normalize(value: i64) -> i64:
+    remainder: i64 = value % ZSG_MODULUS
+    if remainder < 0:
+        remainder <- remainder + ZSG_MODULUS
+    remainder
+
+def zsg_quotient_at(index: usize, n: i64, high_count: usize, size: usize) -> i64:
+    if index < high_count:
+        return n / index.i64()
+    (size - index).i64()
+
+def zsg_value_index(value: i64, n: i64, root: i64, size: usize) -> usize:
+    if value <= root:
+        return size - value.usize()
+    (n / value).usize()
+
+def zsg_upper_bound(primes: view[i64], count: usize, value: i64) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if primes[middle] <= value:
+            low <- middle + 1
+        else:
+            high <- middle
+    low
+
+def zsg_apply_skipped_prime_range(index: usize, stage: usize,
+        small_lo: view[u32], small_hi: view[u32], simple_cursor: mutable view[u32],
+        prefix_g: view[i64], smooth_sum: mutable view[i64]) -> void:
+    next: mutable u32 = (stage + 1).u32()
+    if next < small_lo[index]:
+        next <- small_lo[index]
+    if next > small_hi[index]:
+        next <- small_hi[index]
+    old: u32 = simple_cursor[index]
+    if next < old:
+        smooth_sum[index] <- zsg_normalize(
+            smooth_sum[index] + prefix_g[old.usize()] - prefix_g[next.usize()])
+        simple_cursor[index] <- next
+
+def zsg_apply_skipped_power_sums(index: usize, stage: usize,
+        small_lo: view[u32], small_hi: view[u32], g_cursor: mutable view[u32],
+        prefix_sum: view[i64], g_zero: mutable view[i64], g_one: mutable view[i64]) -> void:
+    next: mutable u32 = stage.u32()
+    if next < small_lo[index]:
+        next <- small_lo[index]
+    if next > small_hi[index]:
+        next <- small_hi[index]
+    old: u32 = g_cursor[index]
+    if next > old:
+        g_zero[index] <- zsg_normalize(g_zero[index] - (next - old).i64())
+        g_one[index] <- zsg_normalize(
+            g_one[index] - (prefix_sum[next.usize()] - prefix_sum[old.usize()]))
+        g_cursor[index] <- next
+
+def zsg_small_value(value: i64, smallest: view[u32], a: i64, b: i64) -> i64:
+    remaining: mutable i64 = value
+    result: mutable i64 = 1
+    while remaining > 1:
+        prime: i64 = smallest[remaining.usize()].i64()
+        exponent: mutable i64 = 0
+        while remaining % prime == 0:
+            remaining <- remaining / prime
+            exponent <- exponent + 1
+        result <- result * ((a * exponent + b * prime) % ZSG_MODULUS) % ZSG_MODULUS
+    result
+
+def zhouge_summatory_multiplicative_function_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 3:
+        return -1
+    n: i64 = input[0]
+    a: i64 = input[1]
+    b: i64 = input[2]
+    if n < 1 or n > ZSG_MAX_N or a < 0 or a >= ZSG_MODULUS or b < 0 or b >= ZSG_MODULUS:
+        return -1
+
+    root: i64 = zsg_floor_sqrt(n)
+    high_count: mutable usize = (n / root).usize()
+    while high_count > 1 and (n / (high_count - 1).i64()) == root:
+        high_count <- high_count - 1
+    size: usize = high_count + root.usize()
+
+    smallest: mutable u32[ZSG_MAX_ROOT + 1] = zeroed
+    primes: mutable i64[ZSG_MAX_ROOT + 1] = zeroed
+    prefix_sum: mutable i64[ZSG_MAX_ROOT + 1] = zeroed
+    prefix_g: mutable i64[ZSG_MAX_ROOT + 1] = zeroed
+    g_zero: mutable i64[ZSG_MAX_TABLE] = zeroed
+    g_one: mutable i64[ZSG_MAX_TABLE] = zeroed
+    smooth_sum: mutable i64[ZSG_MAX_TABLE] = zeroed
+    small_lo: mutable u32[ZSG_MAX_TABLE] = zeroed
+    small_hi: mutable u32[ZSG_MAX_TABLE] = zeroed
+    simple_cursor: mutable u32[ZSG_MAX_TABLE] = zeroed
+    g_cursor: mutable u32[ZSG_MAX_TABLE] = zeroed
+
+    prime_total: mutable usize = 0
+    value: mutable i64 = 2
+    while value <= root:
+        if smallest[value.usize()] != 0:
+            value <- value + 1
+            continue
+        smallest[value.usize()] <- value.u32()
+        primes[prime_total] <- value
+        prime_total <- prime_total + 1
+        if value <= root / value:
+            multiple: mutable i64 = value * value
+            while multiple <= root:
+                if smallest[multiple.usize()] == 0:
+                    smallest[multiple.usize()] <- value.u32()
+                multiple <- multiple + value
+        value <- value + 1
+
+    prime_index: mutable usize = 0
+    while prime_index < prime_total:
+        prime: i64 = primes[prime_index]
+        prefix_sum[prime_index + 1] <- zsg_normalize(prefix_sum[prime_index] + prime)
+        prefix_g[prime_index + 1] <- zsg_normalize(prefix_g[prime_index] + a + b * prime)
+        prime_index <- prime_index + 1
+
+    index: mutable usize = 1
+    while index < size:
+        y: i64 = zsg_quotient_at(index, n, high_count, size)
+        small_lo[index] <- zsg_upper_bound(primes[:], prime_total, zsg_floor_sqrt(y)).u32()
+        small_hi[index] <- zsg_upper_bound(primes[:], prime_total, y).u32()
+        simple_cursor[index] <- small_hi[index]
+        g_cursor[index] <- small_lo[index]
+        g_zero[index] <- y % ZSG_MODULUS
+        left: mutable i64 = y
+        right: mutable i64 = y + 1
+        if (left & 1) == 0:
+            left <- left / 2
+        else:
+            right <- right / 2
+        g_one[index] <- (left % ZSG_MODULUS) * (right % ZSG_MODULUS) % ZSG_MODULUS
+        smooth_sum[index] <- 1
+        index <- index + 1
+
+    prime_index <- 0
+    while prime_index < prime_total:
+        prime: i64 = primes[prime_index]
+        square: i64 = prime * prime
+        index <- 1
+        while index < size:
+            y: i64 = zsg_quotient_at(index, n, high_count, size)
+            if y < square:
+                break
+            child: usize = zsg_value_index(y / prime, n, root, size)
+            zsg_apply_skipped_power_sums(child, prime_index, small_lo[:], small_hi[:],
+                g_cursor[:], prefix_sum[:], g_zero[:], g_one[:])
+            g_zero[index] <- zsg_normalize(g_zero[index] - g_zero[child])
+            g_one[index] <- zsg_normalize(g_one[index] - prime * g_one[child])
+            index <- index + 1
+        prime_index <- prime_index + 1
+
+    index <- 1
+    while index < size:
+        zsg_apply_skipped_power_sums(index, prime_total, small_lo[:], small_hi[:],
+            g_cursor[:], prefix_sum[:], g_zero[:], g_one[:])
+        index <- index + 1
+
+    position: mutable usize = prime_total
+    while position > 0:
+        position <- position - 1
+        prime: i64 = primes[position]
+        square: i64 = prime * prime
+        index <- 1
+        while index < size:
+            y: i64 = zsg_quotient_at(index, n, high_count, size)
+            if y < square:
+                break
+            zsg_apply_skipped_prime_range(index, position, small_lo[:], small_hi[:],
+                simple_cursor[:], prefix_g[:], smooth_sum[:])
+            power: mutable i64 = prime
+            exponent: mutable i64 = 1
+            while power <= y:
+                child: usize = zsg_value_index(y / power, n, root, size)
+                zsg_apply_skipped_prime_range(child, position, small_lo[:], small_hi[:],
+                    simple_cursor[:], prefix_g[:], smooth_sum[:])
+                local: i64 = (a * exponent + b * prime) % ZSG_MODULUS
+                smooth_sum[index] <- zsg_normalize(smooth_sum[index] + local * smooth_sum[child])
+                power <- power * prime
+                exponent <- exponent + 1
+            index <- index + 1
+
+    answer: mutable i64 = smooth_sum[1]
+    value <- 1
+    while value <= root:
+        child: usize = zsg_value_index(n / value, n, root, size)
+        large_prime_sum: i64 = zsg_normalize(
+            a * zsg_normalize(g_zero[child] - 1) + b * zsg_normalize(g_one[child] - 1))
+        answer <- zsg_normalize(answer + zsg_small_value(value, smallest[:], a, b) * large_prime_sum)
+        value <- value + 1
+    answer
+
+export fn zhouge_summatory_multiplicative_function(input: i64&, length: usize) -> i64 =
+    zhouge_summatory_multiplicative_function_impl

@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "kirkpatrick-seidel-convex-hull-i64-array-bytes-output-v1",
+  "algorithm": "kirkpatrick_seidel_convex_hull",
+  "function_symbol": "kirkpatrick_seidel_convex_hull",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n,x0,y0,...]",
+    "point_count": [3, 32],
+    "coordinate_range": [-1000, 1000],
+    "unique_x_coordinates": true,
+    "must_contain_non_collinear_triple": true,
+    "collinear_boundary_points": "accepted and omitted from the strict hull",
+    "maximum_valid_values": 65,
+    "maximum_parseable_values": 66,
+    "invalid_result": -1
+  },
+  "output": {
+    "layout": "little-endian signed i64 coordinate pairs in CCW order from the lexicographically least point",
+    "maximum_output_bytes": 512,
+    "invalid_result": -1,
+    "short_output_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Bounded point, candidate, selection, bridge, and chain arrays plus recursive CONNECT frames; caller-owned input/output excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "sources": {
+    "method": "https://doi.org/10.1137/0215021",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "reuse": "Published mathematical method and task title only; implementations, contract, and fixtures are independently authored."
+  },
+  "cases": [
+    {
+      "id": "triangle_unsorted",
+      "input_values": [3, 2, 0, 0, 0, 1, 2],
+      "input_length": 7,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000000200000000000000000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "maximum_input_with_parallel_pairs_and_collinear_boundary",
+      "input_values": [32, -16, 0, -15, 0, -14, 0, -13, 0, -12, 0, -11, 0, -10, 0, -9, 0, -8, 0, -7, 0, -6, 0, -5, 0, -4, 0, -3, 0, -2, 0, -1, 0, 0, 10, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0],
+      "input_length": 65,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "f0ffffffffffffff00000000000000000f0000000000000000000000000000000000000000000000000a00000000000000"
+    },
+    {
+      "id": "collinear_boundary_points_are_skipped",
+      "input_values": [5, 0, 0, 1, 0, 2, 0, 3, 2, 4, 0],
+      "input_length": 11,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000000400000000000000000000000000000003000000000000000200000000000000"
+    },
+    {
+      "id": "interior_points_unsorted",
+      "input_values": [5, 4, 0, 2, 4, 0, 0, 3, 1, 1, 1],
+      "input_length": 11,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000000400000000000000000000000000000002000000000000000400000000000000"
+    },
+    {
+      "id": "separator_through_lower_hull_vertex",
+      "input_values": [3, 2, 2, 0, 2, 1, 0],
+      "input_length": 7,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000002000000000000000100000000000000000000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "duplicate_x",
+      "input_values": [3, 0, 0, 0, 1, 2, 0],
+      "input_length": 7,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "all_collinear",
+      "input_values": [4, 0, 0, 1, 1, 2, 2, 3, 3],
+      "input_length": 9,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output",
+      "input_values": [3, 0, 0, 2, 0, 1, 2],
+      "input_length": 7,
+      "output_capacity": 47,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [3, 0, 0, 2, 0, 1, 2],
+      "input_length": 7,
+      "output_capacity": 48,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [3, 0, 0, 0, 1, 2, 0],
+      "input_length": 7,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_word",
+      "input_values": [3, 0, 0, 2, 0, 1, 2, 7],
+      "input_length": 8,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [3, 0, 0, 1001, 0, 1, 2],
+      "input_length": 7,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

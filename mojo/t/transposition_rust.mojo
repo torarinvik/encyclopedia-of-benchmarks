@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn tr_norm(src:InlineArray[UInt8,511],length:Int,inout dst:InlineArray[UInt8,511])->Int:

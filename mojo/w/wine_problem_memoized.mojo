@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn wpm_solve(a:UnsafePointer[Int64,ImmutAnyOrigin],n:Int,l:Int,r:Int,inout memo:InlineArray[Int64,4096])->Int64:

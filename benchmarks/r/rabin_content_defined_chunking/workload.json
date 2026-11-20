@@ -13,6 +13,7 @@
     {"id": "empty", "input_values": [0], "input_length": 1, "output_capacity": 0, "expected_result": 0, "expected_output_hex": ""},
     {"id": "all_zero_windows", "input_values": [5, 0, 0, 0, 0, 0], "input_length": 6, "output_capacity": 5, "expected_result": 5, "expected_output_hex": "0102030405"},
     {"id": "outgoing_nonzero_byte", "input_values": [5, 1, 0, 0, 0, 0], "input_length": 6, "output_capacity": 2, "expected_result": 2, "expected_output_hex": "0205"},
+    {"id": "outgoing_nonzero_byte_continues", "input_values": [6, 1, 0, 0, 0, 0, 0], "input_length": 7, "output_capacity": 3, "expected_result": 3, "expected_output_hex": "020506"},
     {"id": "final_chunk_without_anchor", "input_values": [2, 1, 1], "input_length": 3, "output_capacity": 1, "expected_result": 1, "expected_output_hex": "02"},
     {"id": "short_output", "input_values": [2, 0, 0], "input_length": 3, "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""},
     {"id": "null_output_empty", "input_values": [0], "input_length": 1, "output_capacity": 0, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},

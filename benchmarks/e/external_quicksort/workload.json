@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "nist-external-quicksort-i64-sort-call-v1",
+  "algorithm": "external_quicksort",
+  "function_symbol": "external_quicksort",
+  "abi": "mutable_i64_array",
+  "input": {
+    "kind": "signed_i64_array",
+    "lengths": [0, 16, 256, 1024],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 48271,
+      "modulus": 2000003,
+      "offset": 1000001,
+      "formula": "values[index] = ((index * 48271) mod 2000003) - 1000001"
+    }
+  },
+  "profile": {
+    "maximum_length": 1024,
+    "minimum_value": -9223372036854775808,
+    "maximum_value": 9223372036854775807,
+    "stable": false,
+    "buffer_size": 8,
+    "workspace_bytes": 768,
+    "workspace_description": "Twelve active recursive range frames, each with one eight-value signed-i64 buffer; scalar bounds and call metadata excluded.",
+    "above_bound_behavior": "input is left unchanged"
+  },
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7,
+    "workspace_timed": true
+  },
+  "source": {
+    "title": "NIST Dictionary of Algorithms and Data Structures: external quicksort",
+    "url": "https://xlinux.nist.gov/dads/HTML/externalQuicksort.html",
+    "linked_implementation": "Gonnet and Baeza-Yates, Handbook of Algorithms and Data Structures, 446.sort.c",
+    "linked_implementation_url": "https://users.dcc.uchile.cl/~rbaeza/handbook/algs/4/446.sort.c.html",
+    "algorithm_attribution": "Fixed-size sorted pivot buffer, balanced two-ended reads, inward writes, endpoint-order bounds, and smaller-side recursion; clean-room implementation.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "cases": [
+    {"id": "empty", "input_values": [], "expected_values": []},
+    {"id": "singleton", "input_values": [42], "expected_values": [42]},
+    {"id": "smaller-than-buffer", "input_values": [8, -1, 4, 4, 0], "expected_values": [-1, 0, 4, 4, 8]},
+    {"id": "exact-buffer-size", "input_values": [7, -3, 4, 0, 9, 1, -1, 5], "expected_values": [-3, -1, 0, 1, 4, 5, 7, 9]},
+    {"id": "buffer-and-both-partitions", "input_values": [8, 1, 7, 0, 6, 2, 5, 3, 4, -9, 20, 10, -1, 15, 11, -4, 13, 12, -2, 19, 14, -8, 18, -7, 17, -6, 16, -5, 9], "expected_values": [-9, -8, -7, -6, -5, -4, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]},
+    {"id": "duplicates-across-buffer-boundaries", "input_values": [4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 4, 3, 5, 4, 3, 5, 4, 3, 5], "expected_values": [3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5]},
+    {"id": "signed-extremes", "input_values": [9223372036854775807, -9223372036854775808, 0, -1, 9223372036854775807, -9223372036854775808, 1], "expected_values": [-9223372036854775808, -9223372036854775808, -1, 0, 1, 9223372036854775807, 9223372036854775807]}
+  ]
+}

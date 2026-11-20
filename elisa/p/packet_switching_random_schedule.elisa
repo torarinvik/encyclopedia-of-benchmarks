@@ -1,0 +1,101 @@
+const MAX_QUEUES: usize = 4
+const MAX_BUFFER: usize = 4
+const MAX_SLOTS: usize = 8
+const MAX_PARSEABLE_INPUT: usize = 68
+const MAX_OUTPUT_BYTES: usize = 64
+const MAX_PRIORITY: i64 = 4294967295
+
+def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def packet_switching_random_schedule_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_PARSEABLE_INPUT: return -1
+    m_value: i64 = input[0]
+    b_value: i64 = input[1]
+    slots_value: i64 = input[2]
+    if m_value < 2 or m_value > 4 or b_value < 1 or b_value > 4 or slots_value < 1 or slots_value > 8: return -1
+    m: usize = m_value.usize()
+    b: usize = b_value.usize()
+    slots: usize = slots_value.usize()
+    cells: usize = m * slots
+    if length != 3 + 2 * cells: return -1
+    cell: mutable usize = 0
+    while cell < cells:
+        flag: i64 = input[3 + cell]
+        priority: i64 = input[3 + cells + cell]
+        if flag < 0 or flag > 1 or priority < 0 or priority > MAX_PRIORITY: return -1
+        cell <- cell + 1
+    loads: mutable usize[MAX_QUEUES] = zeroed
+    counts: mutable usize[MAX_QUEUES] = zeroed
+    priorities: mutable i64[MAX_QUEUES * MAX_BUFFER] = zeroed
+    marks: mutable bool[MAX_QUEUES * MAX_BUFFER] = zeroed
+    trace: mutable i64[MAX_SLOTS] = zeroed
+    slot: mutable usize = 0
+    while slot < slots:
+        queue: mutable usize = 0
+        while queue < m:
+            index: usize = slot * m + queue
+            if input[3 + index] != 0 and loads[queue] < b:
+                base: usize = queue * MAX_BUFFER
+                if counts[queue] == b:
+                    i: mutable usize = 1
+                    while i < counts[queue]:
+                        priorities[base + i - 1] <- priorities[base + i]
+                        marks[base + i - 1] <- marks[base + i]
+                        i <- i + 1
+                    counts[queue] <- counts[queue] - 1
+                priorities[base + counts[queue]] <- input[3 + cells + index]
+                marks[base + counts[queue]] <- false
+                counts[queue] <- counts[queue] + 1
+                loads[queue] <- loads[queue] + 1
+            queue <- queue + 1
+        best_queue: mutable usize = m
+        best_index: mutable usize = 0
+        best_priority: mutable i64 = -1
+        queue <- 0
+        while queue < m:
+            i: mutable usize = 0
+            while i < counts[queue]:
+                index: usize = queue * MAX_BUFFER + i
+                if not marks[index] and (best_queue == m or priorities[index] > best_priority):
+                    best_queue <- queue
+                    best_index <- index
+                    best_priority <- priorities[index]
+                i <- i + 1
+            queue <- queue + 1
+        if best_queue != m:
+            marks[best_index] <- true
+        else:
+            queue <- 0
+            while queue < m:
+                if loads[queue] > 0:
+                    best_queue <- queue
+                    break
+                queue <- queue + 1
+        if best_queue == m:
+            trace[slot] <- -1
+        else:
+            trace[slot] <- best_queue.i64()
+            loads[best_queue] <- loads[best_queue] - 1
+        slot <- slot + 1
+    output_bytes: usize = 8 * slots
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    slot <- 0
+    while slot < slots:
+        store_i64_le(trace[slot], staged[0:MAX_OUTPUT_BYTES], 8 * slot)
+        slot <- slot + 1
+    byte: mutable usize = 0
+    while byte < output_bytes:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    output_bytes.i64()
+
+export fn packet_switching_random_schedule(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = packet_switching_random_schedule_impl

@@ -8,11 +8,11 @@ extern fn double sqrt(double value);
 extern fn double fabs(double value);
 extern fn double trunc(double value);
 
-bool finite_value(double value) {
+fn bool finite_value(double value) {
     return value == value && value - value == 0.0;
 }
 
-bool integer_in_range(double value, int minimum, int maximum) {
+fn bool integer_in_range(double value, int minimum, int maximum) {
     return finite_value(value) && value >= (double)minimum && value <= (double)maximum && value == trunc(value);
 }
 

@@ -56,7 +56,7 @@ fn void put_i32_le(char* output, usz offset, int value) {
     for (usz byte = 0; byte < 4; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long multikey_quick_sort(int* input, usz length, char* output, usz capacity)
+fn long multikey_quick_sort(int* input, usz length, char* output, usz capacity)
         @export("multikey_quick_sort") {
     if (input == null || length < 1 || length > MAX_PARSEABLE_INPUT_WORDS) return -1;
     int count = input[0];

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "fast-prime-sums-i64-v1",
+  "algorithm": "fast_prime_sums",
+  "function_symbol": "fast_prime_sums",
+  "abi": "i64_scalar",
+  "source": {
+    "repository": "sgtlaugh/algovault",
+    "algorithm": "Fast Prime Sums",
+    "url": "https://github.com/sgtlaugh/algovault/blob/c4e8beb105e84a31596b9222f9b3282c0dc78dd2/code_library/number_theory/fast_prime_sums.cpp",
+    "source_type": "algorithm_description",
+    "reuse": "Algorithm description only; ports and the direct-sieve oracle are independently written."
+  },
+  "contract": {
+    "operation": "Return the sum of primes p with p <= n.",
+    "input_range": [0, 1000000000],
+    "invalid_input_result": -1,
+    "algorithm": "Meissel-Lehmer weighted partial-sieve recurrence with prime-sum corrections.",
+    "oracle": "Segmented sieve through 1e6, plus independently published fixtures at 1e8 and 1e9."
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 0},
+    {"id": "first-prime", "input_value": 2, "expected_result": 2},
+    {"id": "ten", "input_value": 10, "expected_result": 17},
+    {"id": "hundred", "input_value": 100, "expected_result": 1060},
+    {"id": "one-thousand", "input_value": 1000, "expected_result": 76127},
+    {"id": "million", "input_value": 1000000, "expected_result": 37550402023},
+    {"id": "published-one-hundred-million", "input_value": 100000000, "expected_result": 279209790387276},
+    {"id": "published-maximum", "input_value": 1000000000, "expected_result": 24739512092254535},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first-unsupported", "input_value": 1000000001, "expected_result": -1},
+    {"id": "signed-minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "signed-maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  }
+}

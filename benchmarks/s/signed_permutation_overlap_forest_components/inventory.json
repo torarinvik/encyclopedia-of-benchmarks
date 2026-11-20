@@ -1,0 +1,46 @@
+{
+  "algorithm": "signed_permutation_overlap_forest_components",
+  "function_symbol": "signed_permutation_overlap_forest_components",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "chapter": "Encyclopedia of Algorithms, Chapter 383: Sorting Signed Permutations by Reversal (Reversal Distance)",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_383",
+    "operational_reference": "Bader, Moret, and Yan, A Linear-Time Algorithm for Computing Inversion Distance between Signed Permutations with an Experimental Study, sections 4–5, Figure 2",
+    "operational_doi": "10.1089/106652701753216503"
+  },
+  "bounds": {
+    "signed_permutation_size": [1, 8],
+    "maximum_cycles": 9,
+    "maximum_valid_input_words": 9,
+    "maximum_parseable_input_words": 10,
+    "maximum_output_bytes": 224,
+    "workspace_bytes": 4096
+  },
+  "native_paths": {
+    "c": "c/s/signed_permutation_overlap_forest_components.c",
+    "c3": "c3/s/signed_permutation_overlap_forest_components.c3",
+    "cpp": "cpp/s/signed_permutation_overlap_forest_components.cpp",
+    "elisa": "elisa/s/signed_permutation_overlap_forest_components.elisa",
+    "mojo": "mojo/s/signed_permutation_overlap_forest_components.mojo",
+    "nim": "nim/s/signed_permutation_overlap_forest_components.nim",
+    "odin": "odin/s/signed_permutation_overlap_forest_components.odin",
+    "rust": "rust/s/signed_permutation_overlap_forest_components.rs",
+    "v": "v/s/signed_permutation_overlap_forest_components.v",
+    "zig": "zig/s/signed_permutation_overlap_forest_components.zig"
+  },
+  "package_files": [
+    "__init__.py", "README.md", "RIGHTS.md", "INVENTORY.md", "inventory.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "root_references": [
+    "benchmarks/signed_permutation_overlap_forest_oracle.py",
+    "benchmarks/signed_permutation_overlap_forest_verifier_oracle.py"
+  ],
+  "workload_cases": [
+    "identity-single-gene", "negative-single-gene", "overlapping-cycle-extents-merge",
+    "maximum-identity-cycle-output", "duplicate-absolute-gene", "zero-gene",
+    "out-of-range-gene", "trailing-input-word", "signed-int64-minimum-is-invalid",
+    "short-output-capacity", "null-input", "null-output"
+  ]
+}

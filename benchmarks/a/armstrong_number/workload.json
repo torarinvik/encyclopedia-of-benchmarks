@@ -8,6 +8,17 @@
     "result": "1 for an Armstrong number; 0 otherwise"
   },
   "cases": [
+    {"id":"java_source_1634","input_value":1634,"expected_result":1},
+    {"id":"java_source_1234","input_value":1234,"expected_result":0},
+    {"id":"java_source_54748","input_value":54748,"expected_result":1},
+    {"id":"java_source_92727","input_value":92727,"expected_result":1},
+    {"id":"java_source_548834","input_value":548834,"expected_result":1},
+    {"id":"java_source_1741725","input_value":1741725,"expected_result":1},
+    {"id":"java_source_24678050","input_value":24678050,"expected_result":1},
+    {"id":"java_source_146511208","input_value":146511208,"expected_result":1},
+    {"id":"java_source_472335975","input_value":472335975,"expected_result":1},
+    {"id":"java_int32_min","input_value":-2147483648,"expected_result":0},
+    {"id":"java_int32_max","input_value":2147483647,"expected_result":0},
     {
       "id": "negative_9223372036854775808",
       "input_value": -9223372036854775808,

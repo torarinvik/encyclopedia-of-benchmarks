@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "canonical_order_schnyder_realizer",
+  "function_symbol": "canonical_order_schnyder_realizer",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/c/canonical_order_schnyder_realizer.c",
+    "c3": "c3/c/canonical_order_schnyder_realizer.c3",
+    "cpp": "cpp/c/canonical_order_schnyder_realizer.cpp",
+    "elisa": "elisa/c/canonical_order_schnyder_realizer.elisa",
+    "mojo": "mojo/c/canonical_order_schnyder_realizer.mojo",
+    "nim": "nim/c/canonical_order_schnyder_realizer.nim",
+    "odin": "odin/c/canonical_order_schnyder_realizer.odin",
+    "rust": "rust/c/canonical_order_schnyder_realizer.rs",
+    "v": "v/c/canonical_order_schnyder_realizer.v",
+    "zig": "zig/c/canonical_order_schnyder_realizer.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "check_inventory.py"],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Canonical Orders and Schnyder Realizers",
+    "doi": "10.1007/978-1-4939-2864-4_650",
+    "section": "Schnyder Realizer; Equivalency of Canonical Orders and Schnyder Realizers; Lemma 3"
+  },
+  "contract": {
+    "input_layout": "[n,u,v,w,(degree[x],clockwise_neighbors[x]...)*n,order[0..n)]",
+    "maximum_valid_input_words": 56,
+    "maximum_parseable_input_words": 57,
+    "maximum_output_bytes": 168,
+    "workspace_bytes": 4096,
+    "output_layout": "[n,(interior_vertex,parent_T1,parent_T2,parent_T3)* in canonical order]",
+    "roots_and_colors": "T1 rooted at u uses leftmost predecessor; T2 rooted at v uses rightmost predecessor; T3 rooted at w uses highest-labeled successor. Outer roots have no output records.",
+    "clockwise_conversion": "The stored row advances in the selected face-walk successor orientation; with u,v,w counterclockwise on the outer face, the Chapter 650 clockwise local rule traverses that stored row in reverse."
+  }
+}

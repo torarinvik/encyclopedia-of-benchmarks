@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "id": "gray-code-k-combinations-i64-array-bytes-output-v1",
+  "algorithm": "gray_code_k_combinations",
+  "function_symbol": "gray_code_k_combinations",
+  "abi": "i64_array_bytes_output",
+  "description": "Enumerate fixed-cardinality subsets in reflected Gray-code order.",
+  "source": {
+    "title": "CP-Algorithms: Generating all K-combinations",
+    "authors": ["CP-Algorithms contributors"],
+    "reference": "Reflected Gray-code filtering for fixed-cardinality subsets",
+    "url": "https://cp-algorithms.com/combinatorics/generating_combinations.html",
+    "license": "CC BY-SA 4.0",
+    "algorithm_attribution": "Filter reflected Gray-code masks by population count; use the direct fixed-weight recurrence as an independent reference",
+    "implementation_status": "clean-room implementations from algorithm descriptions"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,K]",
+    "universe_size_range": [0, 12],
+    "subset_size_range": "0 <= K <= N",
+    "exact_length": 2,
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_16_bit_mask_array",
+    "encoding": "u16 combination_count followed by C(N,K) u16 position masks in reflected Gray order",
+    "result": "C(N,K), the number of masks emitted",
+    "maximum_combination_count": 924,
+    "maximum_output_bytes": 1850,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "invalid_input_result": -1
+  },
+  "complexity": {
+    "primary_time": "O(N*2^N) Gray-mask filtering with an O(N) population-count loop per mask",
+    "primary_auxiliary_space": "O(1) beyond the output buffer",
+    "independent_reference_time": "O(N*C(N,K)) recursive fixed-weight generation"
+  },
+  "workspace": {
+    "bytes": 1850,
+    "meaning": "Maximum output capacity; ports emit directly into the caller's buffer and use constant auxiliary state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-universe-empty-subset",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "expected_result": 1,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "three-way-singletons-gray-order",
+      "input_values": [3, 1],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "expected_result": 3,
+      "expected_output_hex": "0300010002000400"
+    },
+    {
+      "id": "three-way-pairs-gray-order",
+      "input_values": [3, 2],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "expected_result": 3,
+      "expected_output_hex": "0300030006000500"
+    },
+    {
+      "id": "four-way-pairs-minimal-change-cycle",
+      "input_values": [4, 2],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "expected_result": 6,
+      "expected_output_hex": "06000300060005000c000a000900"
+    },
+    {
+      "id": "maximum-universe-singletons",
+      "input_values": [12, 1],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "expected_result": 12,
+      "expected_output_hex": "0c0001000200040008001000200040008000000100020004000800"
+    },
+    {
+      "id": "all-elements-selected",
+      "input_values": [5, 5],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "expected_result": 1,
+      "expected_output_hex": "01001f00"
+    },
+    {
+      "id": "subset-size-exceeds-universe",
+      "input_values": [3, 4],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "universe-outside-profile",
+      "input_values": [13, 1],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-value",
+      "input_values": [3, 1, 9],
+      "input_length": 3,
+      "output_capacity": 1850,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [3, 1],
+      "input_length": 2,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [3, 1],
+      "input_length": 2,
+      "output_capacity": 1850,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 1850,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

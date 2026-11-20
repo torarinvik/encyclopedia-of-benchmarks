@@ -1,0 +1,179 @@
+extern sqrt(value: f64) -> f64
+
+struct LaguerreComplex:
+    re: f64
+    im: f64
+
+def lc_make(re: f64, im: f64) -> LaguerreComplex:
+    LaguerreComplex(re: re, im: im)
+
+def lc_add(a: LaguerreComplex, b: LaguerreComplex) -> LaguerreComplex:
+    lc_make(a.re + b.re, a.im + b.im)
+
+def lc_sub(a: LaguerreComplex, b: LaguerreComplex) -> LaguerreComplex:
+    lc_make(a.re - b.re, a.im - b.im)
+
+def lc_mul(a: LaguerreComplex, b: LaguerreComplex) -> LaguerreComplex:
+    lc_make(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re)
+
+def lc_div(a: LaguerreComplex, b: LaguerreComplex) -> LaguerreComplex:
+    denominator: f64 = b.re * b.re + b.im * b.im
+    lc_make((a.re * b.re + a.im * b.im) / denominator,
+            (a.im * b.re - a.re * b.im) / denominator)
+
+def lc_magnitude(a: LaguerreComplex) -> f64:
+    sqrt(a.re * a.re + a.im * a.im)
+
+def lc_finite_value(value: f64) -> bool:
+    value == value and value <= 1.0e308 and value >= -1.0e308
+
+def lc_finite(a: LaguerreComplex) -> bool:
+    lc_finite_value(a.re) and lc_finite_value(a.im)
+
+def lc_sqrt(a: LaguerreComplex) -> LaguerreComplex:
+    magnitude: f64 = lc_magnitude(a)
+    real: f64 = sqrt(max(0.0, (magnitude + a.re) * 0.5))
+    imaginary: f64 = sqrt(max(0.0, (magnitude - a.re) * 0.5))
+    if a.im < 0.0: imaginary <- -imaginary
+    lc_make(real, imaginary)
+
+def lc_integer(value: f64, low: i64, high: i64) -> (i64, bool):
+    if not lc_finite_value(value) or value < low.f64() or value > high.f64(): return (0, false)
+    decoded: i64 = value.i64()
+    if decoded.f64() != value: return (0, false)
+    (decoded, true)
+
+def lc_evaluate(coefficients: view[f64], degree: usize, z: LaguerreComplex) -> (LaguerreComplex, LaguerreComplex, LaguerreComplex, f64):
+    mut p: LaguerreComplex = lc_make(coefficients[degree], 0.0)
+    mut first: LaguerreComplex = lc_make(0.0, 0.0)
+    mut second: LaguerreComplex = lc_make(0.0, 0.0)
+    mut index: usize = degree
+    while index > 0:
+        index <- index - 1
+        second <- lc_add(lc_mul(second, z), lc_make(2.0 * first.re, 2.0 * first.im))
+        first <- lc_add(lc_mul(first, z), p)
+        p <- lc_add(lc_mul(p, z), lc_make(coefficients[index], 0.0))
+    radius: f64 = lc_magnitude(z)
+    mut scale: f64 = abs(coefficients[degree])
+    index <- degree
+    while index > 0:
+        index <- index - 1
+        scale <- scale * radius + abs(coefficients[index])
+    (p, first, second, scale)
+
+def lc_solve(coefficients: view[f64], degree: usize, start: LaguerreComplex,
+    tolerance: f64, iterations: usize, staged: mutable view[f64]) -> i64:
+    mut z: LaguerreComplex = start
+    mut step: usize = 0
+    while step <= iterations:
+        if not lc_finite(z): return -3
+        p: LaguerreComplex
+        first: LaguerreComplex
+        second: LaguerreComplex
+        scale: f64
+        (p, first, second, scale) = lc_evaluate(coefficients, degree, z)
+        if not lc_finite(p) or not lc_finite(first) or not lc_finite(second) or not lc_finite_value(scale): return -3
+        if lc_magnitude(p) <= tolerance * max(1.0, scale):
+            staged[0] <- z.re
+            staged[1] <- z.im
+            return 2
+        if step == iterations or (p.re == 0.0 and p.im == 0.0): return -3
+        g: LaguerreComplex = lc_div(first, p)
+        h: LaguerreComplex = lc_sub(lc_mul(g, g), lc_div(second, p))
+        radicand: LaguerreComplex = lc_mul(lc_make((degree - 1).f64(), 0.0),
+            lc_sub(lc_mul(lc_make(degree.f64(), 0.0), h), lc_mul(g, g)))
+        if not lc_finite(g) or not lc_finite(h) or not lc_finite(radicand): return -3
+        root: LaguerreComplex = lc_sqrt(radicand)
+        plus: LaguerreComplex = lc_add(g, root)
+        minus: LaguerreComplex = lc_sub(g, root)
+        denominator: LaguerreComplex = plus
+        if lc_magnitude(minus) > lc_magnitude(plus): denominator <- minus
+        denominator_magnitude: f64 = lc_magnitude(denominator)
+        if denominator_magnitude == 0.0 or not lc_finite_value(denominator_magnitude): return -3
+        correction: LaguerreComplex = lc_div(lc_make(degree.f64(), 0.0), denominator)
+        if not lc_finite(correction): return -3
+        z <- lc_sub(z, correction)
+        step <- step + 1
+    -3
+
+def lc_valid_input(input: view[f64], input_length: usize) -> bool:
+    if input_length < 1 or input_length > 13: return false
+    degree_value: i64
+    degree_ok: bool
+    (degree_value, degree_ok) = lc_integer(input[0], 2, 6)
+    if not degree_ok: return false
+    degree: usize = degree_value.usize()
+    if input_length != degree + 6: return false
+    mut coefficients: f64[7] = zeroed
+    mut index: usize = 0
+    while index <= degree:
+        coefficient: i64
+        coefficient_ok: bool
+        (coefficient, coefficient_ok) = lc_integer(input[1 + index], -16, 16)
+        if not coefficient_ok: return false
+        coefficients[index] <- coefficient.f64()
+        index <- index + 1
+    if coefficients[degree] == 0.0: return false
+    re_milli: i64
+    im_milli: i64
+    tolerance_micro: i64
+    iterations: i64
+    re_ok: bool
+    im_ok: bool
+    tolerance_ok: bool
+    iterations_ok: bool
+    (re_milli, re_ok) = lc_integer(input[degree + 2], -4000, 4000)
+    (im_milli, im_ok) = lc_integer(input[degree + 3], -4000, 4000)
+    (tolerance_micro, tolerance_ok) = lc_integer(input[degree + 4], 1, 1000)
+    (iterations, iterations_ok) = lc_integer(input[degree + 5], 8, 128)
+    re_ok and im_ok and tolerance_ok and iterations_ok
+
+def laguerre_complex_polynomial_root_impl(input: view[f64], input_length: usize,
+    staged: mutable view[f64]) -> i64:
+    if input_length < 1 or input_length > 13: return -1
+    degree_value: i64
+    degree_ok: bool
+    (degree_value, degree_ok) = lc_integer(input[0], 2, 6)
+    if not degree_ok: return -1
+    degree: usize = degree_value.usize()
+    if input_length != degree + 6: return -1
+    mut coefficients: f64[7] = zeroed
+    mut index: usize = 0
+    while index <= degree:
+        coefficient: i64
+        coefficient_ok: bool
+        (coefficient, coefficient_ok) = lc_integer(input[1 + index], -16, 16)
+        if not coefficient_ok: return -1
+        coefficients[index] <- coefficient.f64()
+        index <- index + 1
+    if coefficients[degree] == 0.0: return -1
+    re_milli: i64
+    im_milli: i64
+    tolerance_micro: i64
+    iterations: i64
+    re_ok: bool
+    im_ok: bool
+    tolerance_ok: bool
+    iterations_ok: bool
+    (re_milli, re_ok) = lc_integer(input[degree + 2], -4000, 4000)
+    (im_milli, im_ok) = lc_integer(input[degree + 3], -4000, 4000)
+    (tolerance_micro, tolerance_ok) = lc_integer(input[degree + 4], 1, 1000)
+    (iterations, iterations_ok) = lc_integer(input[degree + 5], 8, 128)
+    if not re_ok or not im_ok or not tolerance_ok or not iterations_ok: return -1
+    lc_solve(coefficients[0:degree + 1], degree, lc_make(re_milli.f64() / 1000.0, im_milli.f64() / 1000.0),
+        tolerance_micro.f64() / 1000000.0, iterations.usize(), staged)
+
+export fn laguerre_complex_polynomial_root(input: f64&, input_length: usize,
+    output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > 13: return -1
+    input_view: view[f64] = input[0:input_length]
+    if not lc_valid_input(input_view, input_length): return -1
+    if output.is_null() or output_capacity < 2: return -2
+    mut staged: f64[2] = zeroed
+    staged_view: mutable view[f64] = staged[0:2]
+    status: i64 = laguerre_complex_polynomial_root_impl(input_view, input_length, staged_view)
+    if status != 2: return status
+    output_view: mutable view[f64] = output[0:2]
+    output_view[0] <- staged_view[0]
+    output_view[1] <- staged_view[1]
+    2

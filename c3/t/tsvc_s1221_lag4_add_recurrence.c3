@@ -12,7 +12,7 @@ fn void store_i64_le(uchar* output, usz offset, long value) {
     }
 }
 
-long tsvc_s1221_lag4_add_recurrence(long* input, usz length,
+fn long tsvc_s1221_lag4_add_recurrence(long* input, usz length,
         uchar* output, usz capacity) @export("tsvc_s1221_lag4_add_recurrence") {
     if (input == null || length < 11 || length > 65) return -1;
     if (input[0] < (long)MIN_N || input[0] > (long)MAX_N) return -1;

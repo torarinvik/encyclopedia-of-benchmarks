@@ -1,7 +1,7 @@
 module metric_tsp_christofides;
 const usz N=8; const usz MASKS=256;
 fn void put64(char* o,usz p,long x){ulong b=(ulong)x;for(usz i=0;i<8;i+=1){o[p+i]=(char)(b&255);b>>=8;}}
-long metric_tsp_christofides(long* input,usz length,char* output,usz capacity) @export("metric_tsp_christofides") {
+fn long metric_tsp_christofides(long* input,usz length,char* output,usz capacity) @export("metric_tsp_christofides") {
  if(input==null||length<2||length>65)return -1;long n0=input[0];if(n0<1||n0>(long)N||length!=1+(usz)n0*(usz)n0)return -1;usz n=(usz)n0;
  long[N][N] d=zeroed;for(usz i=0;i<n;i+=1)for(usz j=0;j<n;j+=1){long w=input[1+i*n+j];if(w<0||w>10000||(i==j&&w!=0))return -1;d[i][j]=w;}
  for(usz i=0;i<n;i+=1)for(usz j=0;j<n;j+=1){if(d[i][j]!=d[j][i])return -1;for(usz k=0;k<n;k+=1)if(d[i][j]>d[i][k]+d[k][j])return -1;}

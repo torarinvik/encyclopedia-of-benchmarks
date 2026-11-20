@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "algorithm": "recursive_backtracker_maze_generation",
+  "function_symbol": "recursive_backtracker_maze_generation",
+  "abi": "i64_array_bytes_output",
+  "native_paths": [
+    "c/r/recursive_backtracker_maze_generation.c",
+    "c3/r/recursive_backtracker_maze_generation.c3",
+    "cpp/r/recursive_backtracker_maze_generation.cpp",
+    "elisa/r/recursive_backtracker_maze_generation.elisa",
+    "mojo/r/recursive_backtracker_maze_generation.mojo",
+    "nim/r/recursive_backtracker_maze_generation.nim",
+    "odin/r/recursive_backtracker_maze_generation.odin",
+    "rust/r/recursive_backtracker_maze_generation.rs",
+    "v/r/recursive_backtracker_maze_generation.v",
+    "zig/r/recursive_backtracker_maze_generation.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "bounds": {
+    "rows": [1, 64],
+    "columns": [1, 64],
+    "maximum_cells": 64,
+    "maximum_valid_input_length": 67,
+    "maximum_parseable_input_length": 68,
+    "maximum_output_bytes": 64,
+    "workspace_bytes": 1024
+  }
+}

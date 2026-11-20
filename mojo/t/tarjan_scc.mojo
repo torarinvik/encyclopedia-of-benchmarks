@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -8,7 +9,7 @@ fn tarjan_scc(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t,
     let nv = input[0]; let ne = input[1]
     if nv < 0 or nv > 40 or ne < 0 or ne > 2047 or length != c_size_t(2 + 2 * ne): return -1
     let n = Int(nv)
-    var adj = InlineArray[UInt64, 40]()
+    var adj = InlineArray[UInt64, 40](fill=0)
     for e in range(Int(ne)):
         let u = input[2 + 2 * e]; let v = input[3 + 2 * e]
         if u < 0 or u >= nv or v < 0 or v >= nv: return -1

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "clock-patience-supplied-deal-v1",
+  "algorithm": "clock_patience_simulation",
+  "function_symbol": "clock_patience_simulation",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "pile_major_top_to_bottom_card_ranks",
+    "encoding": "exactly 52 signed i64 ranks; four consecutive values per pile, piles 1 through 12 followed by center pile 13",
+    "pile_count": 13,
+    "cards_per_pile": 4,
+    "rank_range": [1, 13],
+    "rank_multiplicity": 4,
+    "maximum_valid_values": 52,
+    "maximum_parseable_values": 53,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "values": {"loss": 0, "win": 1, "malformed": -1},
+    "meaning": "whether the deterministic rank-directed reveal chain turns all 52 cards face up"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "spanning_bottom_tree_win",
+      "input_values": [1,1,1,2, 1,2,2,3, 2,3,3,4, 3,4,4,5, 4,5,5,6, 5,6,6,7, 6,7,7,8, 7,8,8,9, 8,9,9,10, 9,10,10,11, 10,11,11,12, 11,12,12,13, 12,13,13,13],
+      "input_length": 52,
+      "expected_result": 1
+    },
+    {
+      "id": "center_bottom_does_not_change_tree_outcome",
+      "input_values": [13,1,1,2, 1,2,2,3, 2,3,3,4, 3,4,4,5, 4,5,5,6, 5,6,6,7, 6,7,7,8, 7,8,8,9, 8,9,9,10, 9,10,10,11, 10,11,11,12, 11,12,12,13, 12,13,13,1],
+      "input_length": 52,
+      "expected_result": 1
+    },
+    {
+      "id": "bottom_self_loop_loss",
+      "input_values": [1,1,1,2, 1,2,2,3, 2,3,3,4, 3,4,4,5, 4,5,5,6, 5,6,6,7, 6,7,7,8, 7,8,8,9, 8,9,9,10, 9,10,10,11, 10,11,11,13, 11,12,12,12, 12,13,13,13],
+      "input_length": 52,
+      "expected_result": 0
+    },
+    {
+      "id": "wrong_length",
+      "input_values": [1,1,1,2, 1,2,2,3, 2,3,3,4, 3,4,4,5, 4,5,5,6, 5,6,6,7, 6,7,7,8, 7,8,8,9, 8,9,9,10, 9,10,10,11, 10,11,11,12, 11,12,12,13, 12,13,13],
+      "input_length": 51,
+      "expected_result": -1
+    },
+    {
+      "id": "rank_below_domain",
+      "input_values": [0,1,1,2, 1,2,2,3, 2,3,3,4, 3,4,4,5, 4,5,5,6, 5,6,6,7, 6,7,7,8, 7,8,8,9, 8,9,9,10, 9,10,10,11, 10,11,11,12, 11,12,12,13, 12,13,13,13],
+      "input_length": 52,
+      "expected_result": -1
+    },
+    {
+      "id": "rank_multiplicity_mismatch",
+      "input_values": [2,1,1,2, 1,2,2,3, 2,3,3,4, 3,4,4,5, 4,5,5,6, 5,6,6,7, 6,7,7,8, 7,8,8,9, 8,9,9,10, 9,10,10,11, 10,11,11,12, 11,12,12,13, 12,13,13,13],
+      "input_length": 52,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_value",
+      "input_values": [1,1,1,2, 1,2,2,3, 2,3,3,4, 3,4,4,5, 4,5,5,6, 5,6,6,7, 6,7,7,8, 7,8,8,9, 8,9,9,10, 9,10,10,11, 10,11,11,12, 11,12,12,13, 12,13,13,13, 1],
+      "input_length": 53,
+      "expected_result": -1
+    },
+    {
+      "id": "null_empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "null_pointer_with_valid_length",
+      "input_values": [],
+      "input_length": 52,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

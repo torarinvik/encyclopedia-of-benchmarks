@@ -1,0 +1,75 @@
+def shortest_path_visiting_all_nodes_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > 93:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 10 or m_value < 0 or m_value > 45:
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if m > n * (n - 1) / 2 or length != 2 + 2 * m:
+        return -1
+
+    adjacency: mutable i64[10] = zeroed
+    for edge in 0..<m:
+        u_value: i64 = input[2 + 2 * edge]
+        v_value: i64 = input[3 + 2 * edge]
+        if u_value < 0 or v_value < 0 or u_value >= n_value or v_value >= n_value or u_value == v_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        u_bit: i64 = 1 << v
+        v_bit: i64 = 1 << u
+        if (adjacency[u] & u_bit) != 0:
+            return -1
+        adjacency[u] <- adjacency[u] | u_bit
+        adjacency[v] <- adjacency[v] | v_bit
+
+    reached: mutable i64 = 1
+    while true:
+        previous: i64 = reached
+        for vertex in 0..<n:
+            if (reached & (1 << vertex)) != 0:
+                reached <- reached | adjacency[vertex]
+        if reached == previous:
+            break
+    full: i64 = (1 << n) - 1
+    if reached != full:
+        return -1
+
+    state_count: usize = (1 << n) * n
+    distance: mutable i64[10240] = zeroed
+    queue: mutable usize[10240] = zeroed
+    for i in 0..<state_count:
+        distance[i] <- -1
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    for start in 0..<n:
+        state: usize = (1 << start) * n + start
+        distance[state] <- 0
+        queue[tail] <- state
+        tail <- tail + 1
+    while head < tail:
+        state: usize = queue[head]
+        head <- head + 1
+        mask: usize = state / n
+        vertex: usize = state % n
+        if mask == full.usize():
+            return distance[state]
+        for next in 0..<n:
+            if (adjacency[vertex] & (1 << next)) == 0:
+                continue
+            next_mask: usize = mask | (1 << next)
+            next_state: usize = next_mask * n + next
+            if distance[next_state] >= 0:
+                continue
+            distance[next_state] <- distance[state] + 1
+            queue[tail] <- next_state
+            tail <- tail + 1
+    return -1
+
+export fn shortest_path_visiting_all_nodes(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 93:
+        return -1
+    shortest_path_visiting_all_nodes_impl(input[0:length])

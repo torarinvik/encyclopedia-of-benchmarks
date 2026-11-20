@@ -9,7 +9,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long landlord_file_caching(long* input, usz length, char* output, usz capacity) @export("landlord_file_caching") {
+fn long landlord_file_caching(long* input, usz length, char* output, usz capacity) @export("landlord_file_caching") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long capacity_value = input[0], count_value = input[1];
     if (capacity_value < 1 || capacity_value > 8 || count_value < 0 || count_value > (long)MAX_REQUESTS ||

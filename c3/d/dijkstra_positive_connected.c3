@@ -1,5 +1,5 @@
 module dijkstra_positive_connected;
-fn void put_i64(long value,char* output,usz index){ulong bits=@bitcast(ulong,value);for(usz b=0;b<8;b++){output[index*8+b]=(char)(bits&255);bits>>=8;}}
+fn void put_i64(long value,char* output,usz index){ulong bits=bitcast(value,ulong);for(usz b=0;b<8;b++){output[index*8+b]=(char)(bits&255);bits>>=8;}}
 fn long dijkstra_positive_connected(long* input,usz length,char* output,usz capacity) @export("dijkstra_positive_connected") {
  if(input==null||length<2)return -1;long nv=input[0],mv=input[1];if(nv<2||nv>4||mv<0||mv>6||length!=(usz)(2+3*mv))return -1;usz n=(usz)nv,m=(usz)mv;if(m<n-1||m>n*(n-1)/2)return -1;
  bool[16] adj;long[16] weight;usz[4*6] neighbors;usz[4] degree;for(usz e=0;e<m;e++){long av=input[2+3*e],bv=input[3+3*e],cost=input[4+3*e];if(av<0||av>=nv||bv<0||bv>=nv||av==bv||cost<1||cost>255)return -1;usz a=(usz)av,b=(usz)bv;usz ab=a*4+b,ba=b*4+a;if(adj[ab])return -1;adj[ab]=true;adj[ba]=true;weight[ab]=cost;weight[ba]=cost;neighbors[a*6+degree[a]]=b;degree[a]++;neighbors[b*6+degree[b]]=a;degree[b]++;}

@@ -1,0 +1,170 @@
+const SR_MAX_PARTICIPANTS: usize = 8
+const SR_MAX_PARSEABLE_LENGTH: usize = 58
+const SR_CYCLE_STORAGE: usize = 2 * SR_MAX_PARTICIPANTS + 2
+
+def stable_roommates_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > SR_MAX_PARSEABLE_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 2 or n_value > SR_MAX_PARTICIPANTS.i64() or (n_value & 1) != 0:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + n * (n - 1):
+        return -1
+
+    preference: mutable i64[SR_MAX_PARTICIPANTS][SR_MAX_PARTICIPANTS] = zeroed
+    rank: mutable i64[SR_MAX_PARTICIPANTS][SR_MAX_PARTICIPANTS] = zeroed
+    cursor: mutable usize = 1
+    person: mutable usize = 0
+    while person < n:
+        seen: mutable bool[SR_MAX_PARTICIPANTS] = zeroed
+        position: mutable usize = 0
+        while position < n - 1:
+            other: i64 = input[cursor]
+            cursor <- cursor + 1
+            if other < 0 or other >= n_value or other == person.i64() or seen[other.usize()]:
+                return -1
+            seen[other.usize()] <- true
+            preference[person][position] <- other
+            rank[person][other.usize()] <- position.i64()
+            position <- position + 1
+        preference[person][n - 1] <- person.i64()
+        rank[person][person] <- (n - 1).i64()
+        person <- person + 1
+
+    left: mutable i64[SR_MAX_PARTICIPANTS] = zeroed
+    right: mutable i64[SR_MAX_PARTICIPANTS] = zeroed
+    proposed_to: mutable bool[SR_MAX_PARTICIPANTS] = zeroed
+    person <- 0
+    while person < n:
+        right[person] <- (n - 1).i64()
+        person <- person + 1
+
+    proposer: mutable i64 = 0
+    choice: mutable i64 = 0
+    person <- 0
+    while person < n:
+        proposer <- person.i64()
+        loop:
+            choice <- preference[proposer.usize()][left[proposer.usize()].usize()]
+            if choice == proposer:
+                return 0
+            current: mutable i64 = preference[choice.usize()][right[choice.usize()].usize()]
+            while rank[choice.usize()][proposer.usize()] > rank[choice.usize()][current.usize()]:
+                left[proposer.usize()] <- left[proposer.usize()] + 1
+                if left[proposer.usize()].usize() >= n:
+                    return 0
+                choice <- preference[proposer.usize()][left[proposer.usize()].usize()]
+                if choice == proposer:
+                    return 0
+                current <- preference[choice.usize()][right[choice.usize()].usize()]
+            right[choice.usize()] <- rank[choice.usize()][proposer.usize()]
+            proposer <- current
+            if not proposed_to[choice.usize()]:
+                break
+        proposed_to[choice.usize()] <- true
+        person <- person + 1
+
+    possible: mutable bool = proposer == choice
+    person <- 0
+    while person < n:
+        if left[person] > right[person]:
+            possible <- false
+        person <- person + 1
+    if not possible:
+        return 0
+
+    second: mutable i64[SR_MAX_PARTICIPANTS] = zeroed
+    person <- 0
+    while person < n:
+        second[person] <- left[person] + 1
+        person <- person + 1
+    first_unmatched: mutable usize = 0
+    first_in_cycle: mutable usize = 0
+    tail: mutable bool[SR_MAX_PARTICIPANTS] = zeroed
+    cycle: mutable i64[SR_CYCLE_STORAGE] = zeroed
+
+    loop:
+        while first_unmatched < n and left[first_unmatched] == right[first_unmatched]:
+            first_unmatched <- first_unmatched + 1
+        if first_unmatched == n:
+            person <- 0
+            while person < n:
+                if left[person] != right[person]:
+                    return 0
+                partner: i64 = preference[person][left[person].usize()]
+                if partner == person.i64() or
+                        preference[partner.usize()][left[partner.usize()].usize()] != person.i64():
+                    return 0
+                person <- person + 1
+            return 1
+
+        cycle_set: mutable bool[SR_MAX_PARTICIPANTS] = zeroed
+        position: mutable usize = 0
+        if first_in_cycle > 0:
+            proposer <- cycle[first_in_cycle - 1]
+            position <- first_in_cycle - 1
+            person <- 0
+            while person < n:
+                cycle_set[person] <- tail[person]
+                person <- person + 1
+        else:
+            proposer <- first_unmatched.i64()
+        
+        loop:
+            cycle_set[proposer.usize()] <- true
+            if position >= SR_CYCLE_STORAGE:
+                return 0
+            cycle[position] <- proposer
+            position <- position + 1
+
+            list_position: mutable i64 = second[proposer.usize()]
+            next_choice: mutable i64 = -1
+            found_choice: mutable bool = false
+            while list_position.usize() < n:
+                next_choice <- preference[proposer.usize()][list_position.usize()]
+                list_position <- list_position + 1
+                if next_choice == proposer:
+                    return 0
+                if rank[next_choice.usize()][proposer.usize()] <= right[next_choice.usize()]:
+                    found_choice <- true
+                    break
+            if not found_choice:
+                return 0
+            second[proposer.usize()] <- list_position - 1
+            proposer <- preference[next_choice.usize()][right[next_choice.usize()].usize()]
+            if cycle_set[proposer.usize()]:
+                break
+
+        last_in_cycle: usize = position - 1
+        person <- 0
+        while person < n:
+            tail[person] <- cycle_set[person]
+            person <- person + 1
+        cycle_position: mutable usize = position
+        found_cycle_start: mutable bool = false
+        while cycle_position > 0:
+            cycle_position <- cycle_position - 1
+            tail[cycle[cycle_position].usize()] <- false
+            if cycle[cycle_position] == proposer:
+                found_cycle_start <- true
+                break
+        if not found_cycle_start:
+            return 0
+        first_in_cycle <- cycle_position
+
+        cycle_index: mutable usize = first_in_cycle
+        while cycle_index <= last_in_cycle:
+            proposer <- cycle[cycle_index]
+            left[proposer.usize()] <- second[proposer.usize()]
+            second[proposer.usize()] <- left[proposer.usize()] + 1
+            choice <- preference[proposer.usize()][left[proposer.usize()].usize()]
+            right[choice.usize()] <- rank[choice.usize()][proposer.usize()]
+            cycle_index <- cycle_index + 1
+        cycle_index <- first_in_cycle
+        while cycle_index <= last_in_cycle:
+            if left[cycle[cycle_index].usize()] > right[cycle[cycle_index].usize()]:
+                return 0
+            cycle_index <- cycle_index + 1
+
+export fn stable_roommates(input: i64&, length: usize) -> i64 = stable_roommates_impl

@@ -1,0 +1,128 @@
+const PGP_MODULUS: i64 = 998244353
+const PGP_MAX_STATES: usize = 7
+const PGP_MATRIX_WIDTH: usize = 8
+
+def pgp_pow_mod(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * base) % PGP_MODULUS
+        base <- (base * base) % PGP_MODULUS
+        exponent <- exponent >> 1
+    result
+
+export fn penney_game_pattern_probability(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 3: return -1
+    word_length: i64 = input[0]
+    if word_length < 1 or word_length > 4: return -1
+    limit: i64 = i64(1) << word_length
+    first: i64 = input[1]
+    second: i64 = input[2]
+    if first < 0 or second < 0 or first >= limit or second >= limit or first == second:
+        return -1
+
+    codes: mutable i64[PGP_MAX_STATES] = zeroed
+    state_lengths: mutable usize[PGP_MAX_STATES] = zeroed
+    state_count: mutable usize = 1
+    prefix_length: mutable usize = 1
+    while prefix_length < word_length.usize():
+        which: mutable usize = 0
+        while which < 2:
+            pattern: i64 = first
+            if which == 1: pattern <- second
+            shift: usize = (word_length.usize() - prefix_length)
+            code: i64 = pattern >> shift
+            found: mutable bool = false
+            state_index: mutable usize = 0
+            while state_index < state_count:
+                if codes[state_index] == code and state_lengths[state_index] == prefix_length:
+                    found <- true
+                    break
+                state_index <- state_index + 1
+            if not found:
+                codes[state_count] <- code
+                state_lengths[state_count] <- prefix_length
+                state_count <- state_count + 1
+            which <- which + 1
+        prefix_length <- prefix_length + 1
+
+    matrix: mutable i64[PGP_MAX_STATES * PGP_MATRIX_WIDTH] = zeroed
+    row: mutable usize = 0
+    while row < state_count:
+        column: mutable usize = 0
+        while column < state_count:
+            if row == column: matrix[row * PGP_MATRIX_WIDTH + column] <- 2
+            column <- column + 1
+        bit: mutable i64 = 0
+        while bit <= 1:
+            candidate: i64 = (codes[row] << 1) | bit
+            candidate_length: usize = state_lengths[row] + 1
+            if candidate_length == word_length.usize() and candidate == first:
+                matrix[row * PGP_MATRIX_WIDTH + state_count] <- matrix[row * PGP_MATRIX_WIDTH + state_count] + 1
+                bit <- bit + 1
+                continue
+            if candidate_length == word_length.usize() and candidate == second:
+                bit <- bit + 1
+                continue
+
+            suffix_length: mutable usize = candidate_length
+            if suffix_length >= word_length.usize(): suffix_length <- word_length.usize() - 1
+            destination: mutable usize = 0
+            has_destination: mutable bool = false
+            while not has_destination:
+                suffix_mask: i64 = (i64(1) << suffix_length.i64()) - 1
+                suffix: i64 = candidate & suffix_mask
+                state_index <- 0
+                while state_index < state_count:
+                    if codes[state_index] == suffix and state_lengths[state_index] == suffix_length:
+                        destination <- state_index
+                        has_destination <- true
+                        break
+                    state_index <- state_index + 1
+                if not has_destination:
+                    if suffix_length == 0:
+                        destination <- 0
+                        has_destination <- true
+                    else:
+                        suffix_length <- suffix_length - 1
+            target: usize = row * PGP_MATRIX_WIDTH + destination
+            matrix[target] <- (matrix[target] - 1 + PGP_MODULUS) % PGP_MODULUS
+            bit <- bit + 1
+        row <- row + 1
+
+    column: mutable usize = 0
+    while column < state_count:
+        pivot: mutable usize = column
+        while pivot < state_count and matrix[pivot * PGP_MATRIX_WIDTH + column] == 0:
+            pivot <- pivot + 1
+        if pivot == state_count: return -1
+        if pivot != column:
+            index: mutable usize = 0
+            while index <= state_count:
+                left: usize = column * PGP_MATRIX_WIDTH + index
+                right: usize = pivot * PGP_MATRIX_WIDTH + index
+                temporary: i64 = matrix[left]
+                matrix[left] <- matrix[right]
+                matrix[right] <- temporary
+                index <- index + 1
+        inverse: i64 = pgp_pow_mod(matrix[column * PGP_MATRIX_WIDTH + column], PGP_MODULUS - 2)
+        index <- column
+        while index <= state_count:
+            target: usize = column * PGP_MATRIX_WIDTH + index
+            matrix[target] <- (matrix[target] * inverse) % PGP_MODULUS
+            index <- index + 1
+        row <- 0
+        while row < state_count:
+            if row != column:
+                factor: i64 = matrix[row * PGP_MATRIX_WIDTH + column]
+                index <- column
+                while index <= state_count:
+                    target: usize = row * PGP_MATRIX_WIDTH + index
+                    pivot_target: usize = column * PGP_MATRIX_WIDTH + index
+                    product: i64 = (factor * matrix[pivot_target]) % PGP_MODULUS
+                    matrix[target] <- (matrix[target] - product + PGP_MODULUS) % PGP_MODULUS
+                    index <- index + 1
+            row <- row + 1
+        column <- column + 1
+    matrix[state_count]

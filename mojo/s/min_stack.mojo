@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn ms_put(o:UnsafePointer[UInt8,MutAnyOrigin],p:Int,v:Int64):

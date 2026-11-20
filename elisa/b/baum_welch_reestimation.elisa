@@ -1,0 +1,107 @@
+# One bounded discrete Baum–Welch expectation and re-estimation step.
+def bw_exact_integer(value: f64, low: i64, high: i64) -> bool:
+    if value != value or value > 1.7976931348623157e308 or value < -1.7976931348623157e308:
+        return false
+    if value < low.f64() or value > high.f64(): return false
+    value.i64().f64() == value
+
+def bw_valid_row(values: view[f64], start: usize, count: usize) -> bool:
+    total: mutable f64 = 0.0
+    for i in 0..<count:
+        value: f64 = values[start + i]
+        if value < 0.001 or value > 1.0: return false
+        total <- total + value
+    difference: f64 = total - 1.0
+    if difference < 0.0: difference <- -difference
+    difference <= 1e-9
+
+def bw_compute(values: view[f64], staged: mutable view[f64]) -> i64:
+    length: usize = values.len()
+    if length < 3 or length > 48: return -1.i64()
+    if not bw_exact_integer(values[0], 2, 4) or not bw_exact_integer(values[1], 2, 4) or not bw_exact_integer(values[2], 1, 8): return -1.i64()
+    states: usize = values[0].usize()
+    symbols: usize = values[1].usize()
+    time_count: usize = values[2].usize()
+    if length != 3 + states + states * states + states * symbols + time_count: return -1.i64()
+    cursor: usize = 3
+    initial: mutable f64[4] = zeroed
+    transition: mutable f64[16] = zeroed
+    emission: mutable f64[16] = zeroed
+    observations: mutable usize[8] = zeroed
+    for i in 0..<states: initial[i] <- values[cursor + i]
+    cursor <- cursor + states
+    for i in 0..<(states * states): transition[i] <- values[cursor + i]
+    cursor <- cursor + states * states
+    for i in 0..<(states * symbols): emission[i] <- values[cursor + i]
+    cursor <- cursor + states * symbols
+    if not bw_valid_row(initial[0:states], 0, states): return -1.i64()
+    for state in 0..<states:
+        if not bw_valid_row(transition[0:states * states], state * states, states) or not bw_valid_row(emission[0:states * symbols], state * symbols, symbols): return -1.i64()
+    for time in 0..<time_count:
+        if not bw_exact_integer(values[cursor + time], 0, symbols.i64() - 1): return -1.i64()
+        observations[time] <- values[cursor + time].usize()
+
+    alpha: mutable f64[32] = zeroed
+    beta: mutable f64[32] = zeroed
+    gamma: mutable f64[32] = zeroed
+    for state in 0..<states: alpha[state] <- initial[state] * emission[state * symbols + observations[0]]
+    for time in 1..<time_count:
+        for destination in 0..<states:
+            incoming: mutable f64 = 0.0
+            for source in 0..<states: incoming <- incoming + alpha[(time - 1) * states + source] * transition[source * states + destination]
+            alpha[time * states + destination] <- incoming * emission[destination * symbols + observations[time]]
+    likelihood: mutable f64 = 0.0
+    for state in 0..<states: likelihood <- likelihood + alpha[(time_count - 1) * states + state]
+    for state in 0..<states: beta[(time_count - 1) * states + state] <- 1.0
+    time: mutable usize = time_count
+    while time > 1:
+        time <- time - 1
+        for source in 0..<states:
+            total: mutable f64 = 0.0
+            for destination in 0..<states:
+                total <- total + transition[source * states + destination] * emission[destination * symbols + observations[time]] * beta[time * states + destination]
+            beta[(time - 1) * states + source] <- total
+    for t in 0..<time_count:
+        for state in 0..<states: gamma[t * states + state] <- alpha[t * states + state] * beta[t * states + state] / likelihood
+
+    output_count: usize = states + states * states + states * symbols
+    out: mutable usize = 0
+    for state in 0..<states:
+        staged[out] <- gamma[state]
+        out <- out + 1
+    if time_count == 1:
+        for i in 0..<(states * states):
+            staged[out] <- transition[i]
+            out <- out + 1
+    else:
+        for source in 0..<states:
+            denominator: mutable f64 = 0.0
+            for t in 0..<(time_count - 1): denominator <- denominator + gamma[t * states + source]
+            for destination in 0..<states:
+                count: mutable f64 = 0.0
+                for t in 0..<(time_count - 1):
+                    count <- count + alpha[t * states + source] * transition[source * states + destination] * emission[destination * symbols + observations[t + 1]] * beta[(t + 1) * states + destination] / likelihood
+                staged[out] <- count / denominator
+                out <- out + 1
+    for state in 0..<states:
+        denominator: mutable f64 = 0.0
+        for t in 0..<time_count: denominator <- denominator + gamma[t * states + state]
+        for symbol in 0..<symbols:
+            count: mutable f64 = 0.0
+            for t in 0..<time_count:
+                if observations[t] == symbol: count <- count + gamma[t * states + state]
+            staged[out] <- count / denominator
+            out <- out + 1
+    if out != output_count: return -1.i64()
+    output_count.i64()
+
+export fn baum_welch_reestimation(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length > 48: return -1.i64()
+    staged: mutable f64[36] = zeroed
+    result: i64 = bw_compute(input[0:input_length], staged[0:36])
+    if result < 0.i64(): return result
+    output_count: usize = result.usize()
+    if output.is_null() or output_capacity < output_count: return -2.i64()
+    output_view: mutable view[f64] = output[0:output_count]
+    for i in 0..<output_count: output_view[i] <- staged[i]
+    result

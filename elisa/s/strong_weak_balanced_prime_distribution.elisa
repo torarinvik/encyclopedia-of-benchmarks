@@ -1,0 +1,49 @@
+const MAX_LIMIT: i64 = 100000
+const SIEVE_LENGTH: usize = 200001
+const MAX_PARSEABLE_LENGTH: usize = 2
+
+def strong_weak_balanced_count(input: view[i64]) -> i64:
+    if input.length < 1 or input.length > MAX_PARSEABLE_LENGTH: return -1
+    limit: i64 = input[0]
+    if input.length != 1 or limit < 3 or limit > MAX_LIMIT: return -1
+
+    ceiling: usize = (2 * limit).usize()
+    prime: mutable i64[SIEVE_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < SIEVE_LENGTH:
+        prime[index] <- 1
+        index <- index + 1
+    prime[0] <- 0
+    prime[1] <- 0
+    divisor: mutable usize = 2
+    while divisor * divisor <= ceiling:
+        if prime[divisor] != 0:
+            multiple: mutable usize = divisor * divisor
+            while multiple <= ceiling:
+                prime[multiple] <- 0
+                multiple <- multiple + divisor
+        divisor <- divisor + 1
+
+    strong: mutable i64 = 0
+    weak: mutable i64 = 0
+    balanced: mutable i64 = 0
+    previous: mutable i64 = 0
+    current: mutable i64 = 0
+    candidate: mutable usize = 2
+    while candidate <= ceiling:
+        if prime[candidate] != 0:
+            if previous != 0 and current >= 3 and current <= limit:
+                twice: i64 = 2 * current
+                neighbors: i64 = previous + candidate.i64()
+                if twice > neighbors: strong <- strong + 1
+                elif twice < neighbors: weak <- weak + 1
+                else: balanced <- balanced + 1
+            previous <- current
+            current <- candidate.i64()
+        candidate <- candidate + 1
+    strong * 10000000000 + weak * 100000 + balanced
+
+export fn strong_weak_balanced_prime_distribution(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    strong_weak_balanced_count(input_view)

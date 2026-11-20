@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "sieve-of-pritchard-bounded-i64-array-scalar-v1",
+  "algorithm": "sieve_of_pritchard",
+  "function_symbol": "sieve_of_pritchard",
+  "abi": "i64_array_scalar",
+  "description": "Count primes in the inclusive range [2,N] using Pritchard's dynamic wheel sieve.",
+  "source": {
+    "primary": "https://doi.org/10.1145/358527.358540",
+    "wheel_derivation": "https://doi.org/10.1007/BF00264164",
+    "discovery_index": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "reuse": "title-only discovery; clean-room algorithm implementation and fixtures"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N]",
+    "N_range": [2, 1024],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "pi(N), the count of primes in [2,N]",
+    "maximum_result": 172,
+    "invalid_input_result": -1
+  },
+  "algorithm_details": {
+    "primary": "Start with wheel W1={1}, length 2, and p=3. While p^2<=N, extend by rolling the ordered wheel through min(p*length,N), delete p*w in descending wheel order, count p, and select the next wheel element after 1. Extend the final wheel to N and count its members other than 1.",
+    "independent_reference": "Test each integer from 2 through N by trial division through its integer square root.",
+    "distinctness": "The primary builds and mutates Pritchard's dynamic wheel; the independent reference does not use a sieve.",
+    "primary_complexity": "O(N/log(log(N))) ordered-set operations with array-backed next/previous links; O(N) words.",
+    "independent_complexity": "O(N*sqrt(N)) modulo operations and O(1) auxiliary space."
+  },
+  "workspace": {
+    "bytes": 9216,
+    "accounting": "Two fixed 1,026-entry i32 link arrays occupy 8,208 bytes; cap includes scalar locals, stack alignment, and ABI bookkeeping."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"minimum-limit","input_values":[2],"input_length":1,"expected_result":1},
+    {"id":"first-extension","input_values":[3],"input_length":1,"expected_result":2},
+    {"id":"composite-square-small","input_values":[4],"input_length":1,"expected_result":2},
+    {"id":"wheel-two","input_values":[6],"input_length":1,"expected_result":3},
+    {"id":"early-prime","input_values":[11],"input_length":1,"expected_result":5},
+    {"id":"multiple-wheel-growth","input_values":[30],"input_length":1,"expected_result":10},
+    {"id":"prime-square-boundary","input_values":[49],"input_length":1,"expected_result":15},
+    {"id":"hundred","input_values":[100],"input_length":1,"expected_result":25},
+    {"id":"prime-limit-997","input_values":[997],"input_length":1,"expected_result":168},
+    {"id":"maximum-limit","input_values":[1024],"input_length":1,"expected_result":172},
+    {"id":"below-domain","input_values":[1],"input_length":1,"expected_result":-1},
+    {"id":"above-domain","input_values":[1025],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1024,7],"input_length":2,"expected_result":-1},
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"signed-minimum","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"signed-maximum","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

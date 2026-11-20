@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "k-repetition-within-factor-copy-propagation-i64-array-bytes-output-v1",
+  "algorithm": "k_repetition_within_factor_copy_propagation",
+  "function_symbol": "k_repetition_within_factor_copy_propagation",
+  "abi": "i64_array_bytes_output",
+  "description": "Propagate supplied K-mismatch repetition records through the copied prefixes of a validated copy-overlap LZ factorization.",
+  "source": {
+    "title": "Approximate Tandem Repeats",
+    "encyclopedia_chapter": 24,
+    "encyclopedia_doi": "10.1007/978-1-4939-2864-4_24",
+    "operational_report": "Kolpakov-Kucherov, Finding Approximate Repetitions under Hamming Distance, INRIA RR-4163 (2001), section 3, third stage",
+    "operational_paper": "Kolpakov-Kucherov, Finding Maximal Repetitions in a Word in Linear Time, FOCS 1999, section 4",
+    "paper_doi": "10.1109/SFFCS.1999.814634",
+    "reuse": "Algorithm descriptions only; implementations and fixtures are clean-room."
+  },
+  "contract": {
+    "input_layout": "[n,K,text[n],factor_count,(start,end_exclusive,copy_start)*factor_count,seed_count,(start,end_exclusive,period,mismatches)*seed_count]",
+    "text_length": [1, 16],
+    "mismatch_budget": [0, 3],
+    "symbol_range": [0, 5],
+    "terminal_precondition": "The final symbol occurs nowhere earlier in the text.",
+    "factorization": "Copy-overlap LZ factors partition the text. Each later factor is the shortest prefix of the remaining suffix without an earlier occurrence; copy_start names any earlier occurrence of its maximal copied prefix. A zero-length prefix uses -1.",
+    "seed_contract": "Each seed is a globally maximal K-mismatch repetition with exact half-open bounds, positive period, and exact mismatch count. Duplicate seed triples are accepted and deduplicated.",
+    "propagation": "For each factor [a,b) with copy start c, delta=a-c and copy_end=c+(b-a-1). For target starts j in [a+1,b-2], propagate sorted records beginning at j-delta whose end_exclusive<=copy_end. Shift both endpoints by delta and retain only end_exclusive<=b-2. New records are available to later target starts and factors.",
+    "duplicate_rule": "Records are set-valued by (start,end_exclusive,period); exact duplicate triples are emitted once.",
+    "output_scope": "Within-factor copy propagation only over the supplied earlier-stage seed set; emit only newly added triples, not the seed set. The block-head and binary-division stages are not run.",
+    "output_encoding": "Little-endian signed-64 words [record_count,(start,end_exclusive,period,mismatches)*record_count], sorted by start, end_exclusive, period, then mismatches.",
+    "position_base": 0,
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "validation_order": "Validate the entire frame, factorization, and seeds before checking output nullness/capacity; errors write no bytes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "n,K,text,factor_count,factor rows,seed_count,seed rows",
+    "n_range": [1, 16],
+    "K_range": [0, 3],
+    "symbol_range": [0, 5],
+    "factor_count_range": [1, 16],
+    "seed_count_range": [0, 372],
+    "maximum_valid_length": 1556,
+    "maximum_parseable_length": 1557,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "little-endian signed-64 count followed by four signed-64 fields per record",
+    "record_order": ["start", "end_exclusive", "period", "mismatches"],
+    "maximum_records": 372,
+    "maximum_output_bytes": 11912,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 16384,
+    "accounting": "At most 372 four-field records (11,904 bytes with 64-bit fields), two 2,448-bit dedup maps (624 bytes), text/factor storage, counters, and traversal locals fit below 16,384 bytes; caller buffers are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "complexity": {
+    "primary": "O(n^3+n^2*R+R^2) bounded validation, ordered-list scans, and sorted insertion; O(R) record storage, with n<=16 and R<=372.",
+    "independent_reference": "O(n^3+n^2*R+R^2) bounded direct factor checks, whole-set scans, and deduplication; O(R) record storage, with n<=16 and R<=372."
+  },
+  "cases": [
+    {
+      "id": "interior-seed-copied-and-duplicates-collapse",
+      "input_values": [16, 0, 3, 0, 1, 0, 1, 2, 3, 5, 3, 0, 1, 0, 1, 2, 3, 4, 6, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 8, 0, 8, 16, 0, 2, 1, 5, 2, 0, 1, 5, 2, 0],
+      "input_length": 46,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "010000000000000009000000000000000d0000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "overlapping-lz-copy-propagates-earlier-seed",
+      "input_values": [14, 0, 3, 0, 1, 0, 1, 2, 3, 0, 1, 0, 1, 2, 3, 4, 5, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 14, 0, 1, 1, 5, 2, 0],
+      "input_length": 37,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "010000000000000007000000000000000b0000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "copied-record-touching-head-neighbor-is-clipped",
+      "input_values": [16, 2, 3, 0, 1, 0, 1, 2, 3, 5, 3, 0, 1, 0, 1, 2, 3, 4, 6, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 8, 0, 8, 16, 0, 1, 1, 7, 2, 2],
+      "input_length": 42,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "source-record-at-factor-boundary-is-not-copied",
+      "input_values": [16, 2, 3, 0, 1, 0, 1, 2, 3, 5, 3, 0, 1, 0, 1, 2, 3, 4, 6, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 8, 0, 8, 16, 0, 1, 0, 6, 2, 2],
+      "input_length": 42,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "empty-seed-set",
+      "input_values": [16, 0, 3, 0, 1, 0, 1, 2, 3, 5, 3, 0, 1, 0, 1, 2, 3, 4, 6, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 8, 0, 8, 16, 0, 0],
+      "input_length": 38,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "single-symbol-factor",
+      "input_values": [1, 0, 4, 1, 0, 1, -1, 0],
+      "input_length": 8,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "invalid-copy-pointer",
+      "input_values": [16, 0, 3, 0, 1, 0, 1, 2, 3, 5, 3, 0, 1, 0, 1, 2, 3, 4, 6, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 8, 0, 8, 16, 1, 0],
+      "input_length": 38,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-seed-mismatch-count",
+      "input_values": [16, 0, 3, 0, 1, 0, 1, 2, 3, 5, 3, 0, 1, 0, 1, 2, 3, 4, 6, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 8, 0, 8, 16, 0, 1, 1, 5, 2, 1],
+      "input_length": 42,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-incomplete-factor-partition",
+      "input_values": [2, 0, 0, 1, 1, 0, 1, -1, 0],
+      "input_length": 9,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-i64-min-symbol",
+      "input_values": [1, 0, -9223372036854775808],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-trailing-word",
+      "input_values": [1, 0, 4, 1, 0, 1, -1, 0, 9],
+      "input_length": 9,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [16, 0, 3, 0, 1, 0, 1, 2, 3, 5, 3, 0, 1, 0, 1, 2, 3, 4, 6, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 8, 0, 8, 16, 0, 2, 1, 5, 2, 0, 1, 5, 2, 0],
+      "input_length": 46,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [16, 0, 3, 0, 1, 0, 1, 2, 3, 5, 3, 0, 1, 0, 1, 2, 3, 4, 6, 0, 1, -1, 1, 2, -1, 2, 3, -1, 3, 6, 1, 6, 8, 0, 8, 16, 0, 2, 1, 5, 2, 0, 1, 5, 2, 0],
+      "input_length": 46,
+      "output_capacity": 40,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 11912,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

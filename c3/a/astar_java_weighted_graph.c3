@@ -2,7 +2,7 @@ module astar_java_weighted_graph;
 
 const int MAX_VERTICES = 7;
 const usz MAX_STATES = 4096;
-struct SearchState { int distance; int heuristic; int length; int path[7]; }
+struct SearchState { int distance; int heuristic; int length; int[7] path; }
 
 fn void write_i64(char* output, usz offset, long value) {
     ulong bits = (ulong)value;

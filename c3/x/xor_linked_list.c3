@@ -17,8 +17,8 @@ fn long xor_linked_list(long* input, usz length, char* output, usz capacity) @ex
     usz needed = 8 + 8 * count;
     if (output == null || capacity < needed) return -2;
 
-    long node_values[65] = {0};
-    usz both[65] = {0};
+    long[65] node_values = {};
+    usz[65] both = {};
     usz tail = 0;
     for (usz i = 0; i < count; i++) {
         usz node_id = i + 1;

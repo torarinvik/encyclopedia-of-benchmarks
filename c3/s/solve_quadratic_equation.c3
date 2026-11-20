@@ -1,7 +1,7 @@
 module solve_quadratic_equation;
 extern fn double sqrt(double value);
 const long LIMIT=1000000;
-fn void put_f64_le(double value,char* output,usz offset){ulong bits=@bitcast(ulong,value);for(usz b=0;b<8;b++)output[offset+b]=(char)((bits>>(8*b))&255);}
+fn void put_f64_le(double value,char* output,usz offset){ulong bits=bitcast(value,ulong);for(usz b=0;b<8;b++)output[offset+b]=(char)((bits>>(8*b))&255);}
 fn long solve_quadratic_equation(long* values,usz length,char* output,usz capacity) @export("solve_quadratic_equation") {
     if(values==null||length!=2)return -1;long pi=values[0],qi=values[1];if(pi < -LIMIT||pi>LIMIT||qi < -LIMIT||qi>LIMIT)return -1;
     double p=(double)pi,q=(double)qi,root=sqrt(p*p/4.0-q);if(root!=root)return 0;

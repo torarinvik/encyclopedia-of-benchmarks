@@ -1,0 +1,169 @@
+const SIM_MAX_N: usize = 8
+const SIM_MAX_M: usize = 9
+const SIM_MAX_STATES: usize = 1023
+const SIM_MAX_ZDD: usize = 511
+const SIM_MAX_INPUT: usize = 23
+const SIM_RADIX: i64 = 2048
+
+def sim_degree(mate: i64[8], vertex: usize) -> i64:
+    if mate[vertex] == (vertex + 1).i64(): return 0
+    if mate[vertex] == 0: return 2
+    1
+
+# Status 0 prunes, 1 returns a suffix state, 2 returns the one-terminal.
+def sim_transition(n: usize, source: usize, target: usize, level: usize,
+        edges: view[i64], last: view[i64], state: i64, selected: bool) -> (i64, i64):
+    mate: mutable i64[8] = zeroed
+    for vertex in 0..<n:
+        mate[vertex] <- (state >> (4 * vertex)).i64() & 15
+    if selected:
+        u: usize = edges[2 * level].usize()
+        v: usize = edges[2 * level + 1].usize()
+        du: i64 = sim_degree(mate, u)
+        dv: i64 = sim_degree(mate, v)
+        if du == 2 or dv == 2: return (0, state)
+        if (u == source or u == target) and du == 1: return (0, state)
+        if (v == source or v == target) and dv == 1: return (0, state)
+        mu: usize = mate[u].usize()
+        mv: usize = mate[v].usize()
+        if mu == v + 1 and mv == u + 1: return (0, state)
+        if (mu == source + 1 and mv == target + 1) or (mu == target + 1 and mv == source + 1):
+            for w in 0..<n:
+                if w != source and w != target and w != u and w != v and sim_degree(mate, w) == 1:
+                    return (0, state)
+            return (2, state)
+        mate[u] <- 0
+        mate[v] <- 0
+        mate[mu - 1] <- mv.i64()
+        mate[mv - 1] <- mu.i64()
+    for w in 0..<n:
+        if last[w].usize() != level: continue
+        degree: i64 = sim_degree(mate, w)
+        if w == source or w == target:
+            if degree == 0: return (0, state)
+        else:
+            if degree == 1: return (0, state)
+            mate[w] <- (w + 1).i64()
+    next_state: mutable i64 = 0
+    for vertex in 0..<n:
+        next_state <- next_state | (mate[vertex] << (4 * vertex))
+    (1, next_state)
+
+def sim_make_node(level: usize, low: i64, high: i64,
+        node_levels: mutable view[i64], node_lows: mutable view[i64],
+        node_highs: mutable view[i64], node_count: mutable usize&) -> i64:
+    if high == 0: return low
+    for index in 0..<node_count:
+        if node_levels[index] == level.i64() and node_lows[index] == low and node_highs[index] == high:
+            return (index + 2).i64()
+    if node_count >= SIM_MAX_ZDD: return -1
+    node_levels[node_count] <- level.i64()
+    node_lows[node_count] <- low
+    node_highs[node_count] <- high
+    node_count <- node_count + 1
+    (node_count + 1).i64()
+
+def sim_solve(n: usize, m: usize, source: usize, target: usize, level: usize,
+        edges: view[i64], last: view[i64], state: i64,
+        memo_levels: mutable view[i64], memo_states: mutable view[i64],
+        memo_results: mutable view[i64], memo_count: mutable usize&,
+        node_levels: mutable view[i64], node_lows: mutable view[i64],
+        node_highs: mutable view[i64], node_count: mutable usize&) -> i64:
+    if level == m: return 0
+    for slot in 0..<memo_count:
+        if memo_levels[slot] == level.i64() and memo_states[slot] == state:
+            return memo_results[slot]
+    low_status: i64
+    low_state: i64
+    (low_status, low_state) = sim_transition(n, source, target, level, edges, last, state, false)
+    low: mutable i64 = 0
+    if low_status != 0:
+        low <- sim_solve(n, m, source, target, level + 1, edges, last, low_state,
+            memo_levels, memo_states, memo_results, memo_count,
+            node_levels, node_lows, node_highs, node_count)
+    high_status: i64
+    high_state: i64
+    (high_status, high_state) = sim_transition(n, source, target, level, edges, last, state, true)
+    high: mutable i64 = 0
+    if high_status == 2:
+        high <- 1
+    elif high_status == 1:
+        high <- sim_solve(n, m, source, target, level + 1, edges, last, high_state,
+            memo_levels, memo_states, memo_results, memo_count,
+            node_levels, node_lows, node_highs, node_count)
+    result: i64 = sim_make_node(level, low, high, node_levels, node_lows, node_highs, node_count)
+    if result < 0 or memo_count >= SIM_MAX_STATES: return -1
+    memo_levels[memo_count] <- level.i64()
+    memo_states[memo_count] <- state
+    memo_results[memo_count] <- result
+    memo_count <- memo_count + 1
+    result
+
+def sim_reachable(node_count: usize, root: i64, lows: view[i64], highs: view[i64]) -> usize:
+    seen: mutable bool[SIM_MAX_ZDD + 2] = zeroed
+    stack: mutable i64[2 * SIM_MAX_ZDD + 3] = zeroed
+    top: mutable usize = 1
+    count: mutable usize = 0
+    stack[0] <- root
+    while top > 0:
+        top <- top - 1
+        identifier: usize = stack[top].usize()
+        if identifier <= 1 or seen[identifier]: continue
+        seen[identifier] <- true
+        count <- count + 1
+        stack[top] <- lows[identifier - 2]
+        top <- top + 1
+        stack[top] <- highs[identifier - 2]
+        top <- top + 1
+    count
+
+export def simpath_st_paths_zdd(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > SIM_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
+    s64: i64 = values[2]
+    t64: i64 = values[3]
+    if n64 < 2 or n64 > SIM_MAX_N.i64() or m64 < 0 or m64 > SIM_MAX_M.i64(): return -1
+    if s64 < 0 or s64 >= n64 or t64 < 0 or t64 >= n64 or s64 == t64: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    source: usize = s64.usize()
+    target: usize = t64.usize()
+    if length != 4 + 2 * m: return -1
+    edges: mutable i64[2 * SIM_MAX_M] = zeroed
+    last: mutable i64[SIM_MAX_N] = zeroed
+    for v in 0..<n: last[v] <- -1
+    for i in 0..<m:
+        u: i64 = values[4 + 2 * i]
+        v: i64 = values[5 + 2 * i]
+        if u < 0 or u >= v or v >= n64: return -1
+        for j in 0..<i:
+            if edges[2 * j] == u and edges[2 * j + 1] == v: return -1
+        edges[2 * i] <- u
+        edges[2 * i + 1] <- v
+        last[u.usize()] <- i.i64()
+        last[v.usize()] <- i.i64()
+    initial: mutable i64 = 0
+    for vertex in 0..<n: initial <- initial | ((vertex + 1).i64() << (4 * vertex))
+    memo_levels: mutable i64[SIM_MAX_STATES] = zeroed
+    memo_states: mutable i64[SIM_MAX_STATES] = zeroed
+    memo_results: mutable i64[SIM_MAX_STATES] = zeroed
+    node_levels: mutable i64[SIM_MAX_ZDD] = zeroed
+    node_lows: mutable i64[SIM_MAX_ZDD] = zeroed
+    node_highs: mutable i64[SIM_MAX_ZDD] = zeroed
+    memo_count: mutable usize = 0
+    node_count: mutable usize = 0
+    root: i64 = sim_solve(n, m, source, target, 0, edges[0:2 * m], last[0:n], initial,
+        memo_levels[0:SIM_MAX_STATES], memo_states[0:SIM_MAX_STATES],
+        memo_results[0:SIM_MAX_STATES], memo_count,
+        node_levels[0:SIM_MAX_ZDD], node_lows[0:SIM_MAX_ZDD], node_highs[0:SIM_MAX_ZDD], node_count)
+    if root < 0: return -1
+    ways: mutable i64[SIM_MAX_ZDD + 2] = zeroed
+    ways[1] <- 1
+    for identifier in 2..<(node_count + 2):
+        ways[identifier] <- ways[node_lows[identifier - 2].usize()] + ways[node_highs[identifier - 2].usize()]
+    path_count: i64 = ways[root.usize()]
+    if path_count >= SIM_RADIX: return -1
+    reachable: usize = sim_reachable(node_count, root, node_lows[0:node_count], node_highs[0:node_count])
+    reachable.i64() * SIM_RADIX + path_count

@@ -7,14 +7,14 @@ const usz MAX_OUTPUT_VALUES = 1024;
 struct SkewNode { int value; int left; int right; int next_free; }
 struct SkewHeap { SkewNode[MAX_LIVE_VALUES] nodes; int root; int free_head; int count; }
 
-void initialize(SkewHeap* heap) {
+fn void initialize(SkewHeap* heap) {
     heap.root = -1; heap.count = 0; heap.free_head = 0;
     for (int i = 0; i < (int)MAX_LIVE_VALUES; ++i) {
         heap.nodes[i].left = -1; heap.nodes[i].right = -1;
         heap.nodes[i].next_free = i + 1 < (int)MAX_LIVE_VALUES ? i + 1 : -1;
     }
 }
-int merge(SkewHeap* heap, int first, int second) {
+fn int merge(SkewHeap* heap, int first, int second) {
     if (first < 0) return second;
     if (second < 0) return first;
     if (heap.nodes[first].value > heap.nodes[second].value) { int temporary = first; first = second; second = temporary; }
@@ -23,19 +23,19 @@ int merge(SkewHeap* heap, int first, int second) {
     heap.nodes[first].left = merge(heap, old_right, second);
     return first;
 }
-bool insert(SkewHeap* heap, int value) {
+fn bool insert(SkewHeap* heap, int value) {
     if (heap.free_head < 0) return false;
     int node = heap.free_head; heap.free_head = heap.nodes[node].next_free;
     heap.nodes[node] = SkewNode{value, -1, -1, -1};
     heap.root = merge(heap, heap.root, node); ++heap.count; return true;
 }
-int pop(SkewHeap* heap) {
+fn int pop(SkewHeap* heap) {
     int node = heap.root; int value = heap.nodes[node].value;
     heap.root = merge(heap, heap.nodes[node].left, heap.nodes[node].right);
     heap.nodes[node].next_free = heap.free_head; heap.free_head = node; --heap.count; return value;
 }
-void store_i64(char* output, usz offset, long value) {
-    ulong bits = @bitcast(ulong, value);
+fn void store_i64(char* output, usz offset, long value) {
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; ++byte) output[offset + byte] = (char)(bits >> (8 * byte));
 }
 

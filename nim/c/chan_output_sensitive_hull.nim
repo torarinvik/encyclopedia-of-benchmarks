@@ -26,22 +26,13 @@ proc groupHull(points: seq[Point], beginIndex, endIndex: int): seq[int] =
 proc tangent(points: seq[Point], hull: seq[int], query: int): int =
   let size = hull.len
   if size == 1: return hull[0]
-  if size == 2:
-    if turn(points[query], points[hull[0]], points[hull[1]]) > 0: return hull[0]
-    return hull[1]
-  let initialUp = turn(points[query], points[hull[0]], points[hull[1]]) > 0
   var lo = 0
-  var hi = size
+  var hi = size-1
   while lo < hi:
     let mid = lo + (hi-lo) div 2
-    let lessPrev = turn(points[query], points[hull[mid]], points[hull[(mid+size-1) mod size]]) > 0
-    let lessNext = turn(points[query], points[hull[mid]], points[hull[(mid+1) mod size]]) > 0
-    if lessPrev and lessNext: return hull[mid]
-    let beforeAnchor = mid != 0 and turn(points[query], points[hull[mid]], points[hull[0]]) > 0
-    let afterAnchor = mid != 0 and turn(points[query], points[hull[0]], points[hull[mid]]) > 0
-    let searchLeft = if initialUp: lessNext and beforeAnchor else: lessNext or afterAnchor
-    if searchLeft: hi = mid else: lo = mid+1
-  -1
+    if turn(points[query], points[hull[mid]], points[hull[hi]]) > 0: hi = mid
+    else: lo = mid+1
+  hull[lo]
 
 proc chan_output_sensitive_hull*(input: ptr UncheckedArray[int64], length: csize_t,
                                  output: ptr UncheckedArray[uint8], capacity: csize_t): int64

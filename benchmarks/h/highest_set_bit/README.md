@@ -39,6 +39,7 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/h/highest_set_bit
 | C3 | [`c3/h/highest_set_bit.c3`](../../../c3/h/highest_set_bit.c3) |
 | C++ | [`cpp/h/highest_set_bit.cpp`](../../../cpp/h/highest_set_bit.cpp) |
 | Elisa | [`elisa/h/highest_set_bit.elisa`](../../../elisa/h/highest_set_bit.elisa) |
+| Mojo | [`mojo/h/highest_set_bit.mojo`](../../../mojo/h/highest_set_bit.mojo) |
 | Nim | [`nim/h/highest_set_bit.nim`](../../../nim/h/highest_set_bit.nim) |
 | Odin | [`odin/h/highest_set_bit.odin`](../../../odin/h/highest_set_bit.odin) |
 | Rust | [`rust/h/highest_set_bit.rs`](../../../rust/h/highest_set_bit.rs) |
@@ -50,3 +51,6 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/h/highest_set_bit
 - [Java `HighestSetBit.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/HighestSetBit.java)
 - [Rust `highest_set_bit.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/bit_manipulation/highest_set_bit.rs)
 - [Python `highest_set_bit.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/highest_set_bit.py)
+
+Scalar verifier registration and a bit-length reference are drafted and have
+not been executed.

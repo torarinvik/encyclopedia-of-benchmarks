@@ -1,5 +1,6 @@
 # Go Problem17: sum byte lengths after splitting on ASCII space.
-def word_length_sum_impl(values: i64&, length: usize) -> i64:
+def word_length_sum_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
     if length > 4096:
         return -1
     total: mutable i64 = 0
@@ -10,4 +11,8 @@ def word_length_sum_impl(values: i64&, length: usize) -> i64:
             total <- total + 1
     total
 
-export fn word_length_sum(values: i64&, length: usize) -> i64 = word_length_sum_impl
+export fn word_length_sum(values: i64&, length: usize) -> i64:
+    if length > 4096: return -1
+    if length == 0: return 0
+    if values == null: return -1
+    word_length_sum_impl(values[0:length])

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn wp_write(v:Int,inout bytes:InlineArray[UInt8,1025],inout p:Int):

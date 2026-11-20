@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn lfu_move(mut keys:InlineArray[Int64,16],mut vals:InlineArray[Int64,16],index:Int):

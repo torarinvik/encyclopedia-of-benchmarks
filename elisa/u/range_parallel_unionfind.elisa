@@ -66,23 +66,24 @@ def rpu_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
 def range_parallel_unionfind_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 6 or length > MAX_INPUT_VALUES: return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
     if length != 2 + n + 3 * q: return -1
     item: mutable usize = 0
     while item < n:
-        if input[2 + item] < 0 or input[2 + item] >= MODULUS: return -1
+        if frame[2 + item] < 0 or frame[2 + item] >= MODULUS: return -1
         item <- item + 1
     operations_at: usize = 2 + n
     operation: mutable usize = 0
     while operation < q:
         position: usize = operations_at + 3 * operation
-        span: i64 = input[position]
-        left: i64 = input[position + 1]
-        right: i64 = input[position + 2]
+        span: i64 = frame[position]
+        left: i64 = frame[position + 1]
+        right: i64 = frame[position + 2]
         if span < 0 or span > n_value or left < 0 or right < 0 or
             left > n_value - span or right > n_value - span: return -1
         operation <- operation + 1
@@ -104,14 +105,14 @@ def range_parallel_unionfind_impl(input: i64&, length: usize,
         level <- level + 1
     item <- 0
     while item < n:
-        weight[item] <- input[2 + item]
+        weight[item] <- frame[2 + item]
         item <- item + 1
     pair_sum: mutable i64 = 0
     operation <- 0
     output_view: mutable view[u8] = output[0:required]
     while operation < q:
         position: usize = operations_at + 3 * operation
-        rpu_merge_ranges(input[position].usize(), input[position + 1].usize(), input[position + 2].usize(),
+        rpu_merge_ranges(frame[position].usize(), frame[position + 1].usize(), frame[position + 2].usize(),
             parent[0:MAX_LEVELS * MAX_N], set_size[0:MAX_LEVELS * MAX_N],
             weight[0:MAX_N], pair_sum)
         rpu_store_i64_le(pair_sum, output_view, 8 * operation)

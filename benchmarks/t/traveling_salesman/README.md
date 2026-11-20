@@ -12,4 +12,10 @@ Input framing and matrix values outside this contract return `-1`. Maximum valid
 
 Pinned source: [Java `TravelingSalesman.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/TravelingSalesman.java), method `bruteForce`.
 
+The pinned C# `SolveBruteForce` and Python `travelling_salesman_brute_force`
+implementations use the same fixed-start permutation search. Their route
+projection and coordinate parsing are not separate benchmark algorithms; those
+duplicate packages were consolidated here. The C++ permutation-search aliases
+are also mapped to this profile in the source catalog.
+
 See [workload](workload.json) and [oracle](../../traveling_salesman_oracle.py).

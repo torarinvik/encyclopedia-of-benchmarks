@@ -225,11 +225,11 @@ fn dynamic_top_tree_component_diameter(input: UnsafePointer[Int64, ImmutAnyOrigi
     var node_count = 0
     var base_rake = InlineArray[Int, MAX_N]()
     var base_edge = InlineArray[Int, MAX_E]()
-    var adj = InlineArray[Bool, MAX_N * MAX_N]()
+    var adj = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     var active = InlineArray[Bool, MAX_N]()
     var edge_cluster = InlineArray[Int, MAX_N * MAX_N]()
     var branches = InlineArray[InlineArray[Int, MAX_N], MAX_N]()
-    var branch_count = InlineArray[Int, MAX_N]()
+    var branch_count = InlineArray[Int, MAX_N](fill=0)
     for i in range(MAX_N * MAX_N): edge_cluster[i] = -1
     for v in range(n):
         active[v] = True
@@ -286,7 +286,7 @@ fn dynamic_top_tree_component_diameter(input: UnsafePointer[Int64, ImmutAnyOrigi
             edge_cluster[x*MAX_N+y]= -1;edge_cluster[y*MAX_N+x]= -1
             active[x]=False;active_count-=1
         if active_count<=1:break
-        var chosen=InlineArray[Bool,MAX_N]()
+        var chosen=InlineArray[Bool,MAX_N](fill=False)
         var cv=InlineArray[Int,MAX_N]();var cc=0
         for x in range(n):
             if active[x]:

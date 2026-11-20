@@ -134,7 +134,7 @@
   ],
   "measurement": {
     "timer": "clock()",
-    "comparison_model": "scalar_call",
+    "comparison_model": "binary_scalar_call",
     "repetitions_per_sample": 10000,
     "warmup_rounds": 2,
     "sample_count": 7

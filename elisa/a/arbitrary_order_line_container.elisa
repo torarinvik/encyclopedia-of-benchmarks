@@ -1,0 +1,127 @@
+# Arbitrary-order line envelope with integer intersection breakpoints.
+const AOLC_MAX_OPERATIONS: usize = 32
+const AOLC_MAX_INPUT_LENGTH: usize = 99
+const AOLC_BREAKPOINT_INFINITY: i64 = 1000000000000000
+const AOLC_CHECKSUM_OFFSET: i64 = 2000001
+
+struct AolcLine:
+    slope: i64
+    intercept: i64
+    breakpoint: i64
+
+def aolc_floor_div(numerator: i64, denominator: i64) -> i64:
+    quotient: mutable i64 = numerator / denominator
+    if numerator % denominator != 0 and numerator < 0:
+        quotient <- quotient - 1
+    quotient
+
+def aolc_intersection(left: AolcLine, right: AolcLine) -> i64:
+    aolc_floor_div(left.intercept - right.intercept, right.slope - left.slope)
+
+def aolc_erase(lines: mutable AolcLine[32], count: usize, position: usize) -> usize:
+    index: mutable usize = position
+    while index + 1 < count:
+        lines[index] <- lines[index + 1]
+        index <- index + 1
+    count - 1
+
+def aolc_insert(lines: mutable AolcLine[32], initial_count: usize, slope: i64, intercept: i64) -> usize:
+    count: mutable usize = initial_count
+    position: mutable usize = 0
+    while position < count and lines[position].slope < slope:
+        position <- position + 1
+    if position < count and lines[position].slope == slope:
+        if lines[position].intercept >= intercept:
+            return count
+        count <- aolc_erase(lines, count, position)
+    index: mutable usize = count
+    while index > position:
+        lines[index] <- lines[index - 1]
+        index <- index - 1
+    lines[position] <- AolcLine(slope=slope, intercept=intercept, breakpoint=AOLC_BREAKPOINT_INFINITY)
+    count <- count + 1
+    active: mutable usize = position
+    while active + 1 < count:
+        breakpoint: i64 = aolc_intersection(lines[active], lines[active + 1])
+        lines[active].breakpoint <- breakpoint
+        if breakpoint >= lines[active + 1].breakpoint:
+            count <- aolc_erase(lines, count, active + 1)
+        else:
+            break
+    if active + 1 == count:
+        lines[active].breakpoint <- AOLC_BREAKPOINT_INFINITY
+    if active > 0:
+        breakpoint: i64 = aolc_intersection(lines[active - 1], lines[active])
+        lines[active - 1].breakpoint <- breakpoint
+        cursor: mutable usize = 0
+        if breakpoint >= lines[active].breakpoint:
+            count <- aolc_erase(lines, count, active)
+            active <- active - 1
+            if active + 1 < count:
+                lines[active].breakpoint <- aolc_intersection(lines[active], lines[active + 1])
+            else:
+                lines[active].breakpoint <- AOLC_BREAKPOINT_INFINITY
+            cursor <- active
+        else:
+            cursor <- active - 1
+        while cursor > 0 and lines[cursor - 1].breakpoint >= lines[cursor].breakpoint:
+            count <- aolc_erase(lines, count, cursor)
+            cursor <- cursor - 1
+            active <- active - 1
+            if cursor + 1 < count:
+                lines[cursor].breakpoint <- aolc_intersection(lines[cursor], lines[cursor + 1])
+            else:
+                lines[cursor].breakpoint <- AOLC_BREAKPOINT_INFINITY
+    count
+
+def aolc_query(lines: AolcLine[32], count: usize, x: i64, objective: i64) -> i64:
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if lines[middle].breakpoint < x:
+            low <- middle + 1
+        else:
+            high <- middle
+    (lines[low].slope * x + lines[low].intercept) * objective
+
+def arbitrary_order_line_container_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > AOLC_MAX_INPUT_LENGTH: return -1
+    mode: i64 = input[0]
+    operation_value: i64 = input[1]
+    if (mode != 0 and mode != 1) or operation_value < 0 or operation_value > AOLC_MAX_OPERATIONS.i64(): return -1
+    operations: usize = operation_value.usize()
+    if length != 2 + 3 * operations: return -1
+    seen_line: mutable bool = false
+    for operation in 0..<operations:
+        p: usize = 2 + 3 * operation
+        opcode: i64 = input[p]
+        first: i64 = input[p + 1]
+        second: i64 = input[p + 2]
+        if opcode == 0:
+            if first < -1000 or first > 1000 or second < -1000 or second > 1000: return -1
+            seen_line <- true
+        elif opcode == 1:
+            if not seen_line or first < -1000 or first > 1000 or second != 0: return -1
+        else:
+            return -1
+
+    objective: i64 = if mode == 1: 1 else: -1
+    lines: mutable AolcLine[32] = zeroed
+    line_count: mutable usize = 0
+    query_index: mutable usize = 0
+    checksum: mutable i64 = 0
+    for operation in 0..<operations:
+        p: usize = 2 + 3 * operation
+        if input[p] == 0:
+            line_count <- aolc_insert(lines, line_count, input[p + 1] * objective, input[p + 2] * objective)
+        else:
+            optimum: i64 = aolc_query(lines, line_count, input[p + 1], objective)
+            checksum <- checksum + (query_index + 1).i64() * (optimum + AOLC_CHECKSUM_OFFSET)
+            query_index <- query_index + 1
+    checksum
+
+export fn arbitrary_order_line_container(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > AOLC_MAX_INPUT_LENGTH: return -1
+    arbitrary_order_line_container_impl(input[0:length])

@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "eoa-rosetta-straddling-checkerboard-transducer-v1",
+  "algorithm": "straddling_checkerboard_transducer",
+  "function_symbol": "straddling_checkerboard_transducer",
+  "abi": "i64_array_bytes_output",
+  "time_complexity": "O(text_length) for a fixed 30-cell board, including bounded O(28^2) duplicate-symbol validation.",
+  "space_complexity": "O(1) fixed scratch apart from at most 128 bytes of staged output.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[mode,board[30],text_length,text_bytes[text_length]]",
+    "mode": {"encode": 0, "decode": 1},
+    "board_layout": "Three row-major rows of ten cells. Exactly two zero holes are permitted in the top row; their column digits label rows 1 and 2. All other cells hold distinct printable ASCII bytes 32..126.",
+    "text_length_range": [0, 64],
+    "maximum_valid_length": 96,
+    "maximum_parseable_length": 97,
+    "encoding_input": "Printable ASCII symbols present in the board.",
+    "decoding_input": "ASCII decimal digits 48..57; a top-row hole consumes the next digit as its column.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_byte_stream",
+    "encoding_output": "ASCII decimal digit bytes, one digit for a top-row symbol and two for a lower-row symbol.",
+    "decoding_output": "The board symbols as raw bytes.",
+    "maximum_bytes": 128,
+    "invalid_or_malformed_result": -1,
+    "null_or_short_output_result": -2,
+    "null_output_is_invalid_even_for_empty_output": true,
+    "errors_write_no_output": true
+  },
+  "algorithm": {
+    "encoder": "Map each byte to its unique board coordinate; omit the row indicator for row zero.",
+    "decoder": "Read digits left-to-right. A non-hole leading digit indexes row zero; a hole digit consumes one more digit and indexes the corresponding lower row.",
+    "codewords": "Prefix-free because the only single-digit codes are top-row columns not reserved as row indicators."
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Conservative fixed stack-space ceiling for row indicators, counters, local validation state, and staging in the Elisa port. Caller buffers are excluded."
+  },
+  "sources": [
+    {
+      "title": "Learning and Experiencing Cryptography with CrypTool and SageMath",
+      "editor": "Bernhard Esslinger",
+      "edition": 12,
+      "year": 2018,
+      "section": "2.2.1, pp. 33-34",
+      "url": "https://www.csd.uoc.gr/~hy458/2022/resources/files/CrypTool-Book-en-v12-May18.pdf",
+      "license": "GNU Free Documentation License 1.3 or later; free distribution is permitted with author, title, and CrypTool website attribution",
+      "role": "method description; algorithm idea only"
+    },
+    {
+      "title": "Extended Straddling Checkerboard",
+      "source": "RosettaCodeData pinned popular-task title index",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+      "score": 9,
+      "role": "title-only discovery"
+    }
+  ],
+  "references": {
+    "primary": "primary_oracle.py: direct row/column encoding and escape-digit decoding",
+    "independent": "independent_oracle.py: generated codeword map and prefix-trie parsing"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-encode",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 0],
+      "input_length": 32,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "encode-mixed-row-codes",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 6, 65, 66, 67, 83, 82, 46],
+      "input_length": 38,
+      "output_capacity": 9,
+      "expected_result": 9,
+      "expected_output_hex": "303133353032393539"
+    },
+    {
+      "id": "decode-mixed-row-codes",
+      "input_values": [1, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 9, 48, 49, 51, 53, 48, 50, 57, 53, 57],
+      "input_length": 41,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output_hex": "41424353522e"
+    },
+    {
+      "id": "top-row-single-digit",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 1, 72],
+      "input_length": 33,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "39"
+    },
+    {
+      "id": "second-row-two-digit",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 1, 73],
+      "input_length": 33,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "3230"
+    },
+    {
+      "id": "third-row-two-digit",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 1, 46],
+      "input_length": 33,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "3539"
+    },
+    {
+      "id": "invalid-symbol-not-in-board",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 1, 63],
+      "input_length": 33,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-nul-encode-hole-is-not-a-symbol",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 1, 0],
+      "input_length": 33,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-dangling-row-indicator",
+      "input_values": [1, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 1, 50],
+      "input_length": 33,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-nondigit-decoding-input",
+      "input_values": [1, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 1, 120],
+      "input_length": 33,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-duplicate-board-symbol",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 65, 0],
+      "input_length": 32,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-trailing-word",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 0, 99],
+      "input_length": 33,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-after-valid-encode",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 6, 65, 66, 67, 83, 82, 46],
+      "input_length": 38,
+      "output_capacity": 9,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-after-valid-encode",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 6, 65, 66, 67, 83, 82, 46],
+      "input_length": 38,
+      "output_capacity": 8,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-input-precedes-output-error",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 1, 63],
+      "input_length": 33,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty-output-still-requires-pointer",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 0],
+      "input_length": 32,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-128-byte-lower-row-encoding",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 64,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73],
+      "input_length": 96,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "32303230323032303230323032303230 32303230323032303230323032303230 32303230323032303230323032303230 32303230323032303230323032303230 32303230323032303230323032303230 32303230323032303230323032303230 32303230323032303230323032303230 32303230323032303230323032303230"
+    },
+    {
+      "id": "maximum-output-capacity-127-fails",
+      "input_values": [0, 65, 66, 0, 67, 68, 0, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 32, 46, 64,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73,
+        73, 73, 73, 73, 73, 73, 73, 73],
+      "input_length": 96,
+      "output_capacity": 127,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

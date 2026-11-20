@@ -7,7 +7,7 @@ extern fn double pow(double base, double exponent);
 extern fn double sqrt(double value);
 
 fn void store_f64_le(char *output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (char)(bits & 255);
         bits >>= 8;
@@ -31,9 +31,9 @@ fn long fluidanimate_sph(long *input, usz length, char *output, usz capacity)
     usz output_bytes = 40 * count;
     if (output == null || capacity < output_bytes) return -2;
 
-    double[MAX_PARTICLES][3] position = zeroed;
-    double[MAX_PARTICLES][3] velocity = zeroed;
-    double[MAX_PARTICLES][3] acceleration = zeroed;
+    double[3][MAX_PARTICLES] position = zeroed;
+    double[3][MAX_PARTICLES] velocity = zeroed;
+    double[3][MAX_PARTICLES] acceleration = zeroed;
     double[MAX_PARTICLES] density = zeroed;
     double rpm = (double)rpm_milli / 1000.0;
     double h = 1.695 / rpm, h2 = h * h;
@@ -77,7 +77,7 @@ fn long fluidanimate_sph(long *input, usz length, char *output, usz capacity)
             double pressure_scale = pressure_coeff * (hmr * hmr / distance)
                 * (density[i] + density[j] - 2000.0) / rho_product;
             double viscosity_scale = viscosity_coeff * hmr / rho_product;
-            double disp[3] = {dx, dy, dz};
+            double[3] disp = {dx, dy, dz};
             for (usz axis = 0; axis < 3; axis++) {
                 double force = disp[axis] * pressure_scale
                     + (velocity[j][axis] - velocity[i][axis]) * viscosity_scale;
@@ -87,7 +87,7 @@ fn long fluidanimate_sph(long *input, usz length, char *output, usz capacity)
         }
     }
     for (usz i = 0; i < count; i++) {
-        double fields[5] = {density[i], 3.0 * (density[i] - 1000.0),
+        double[5] fields = {density[i], 3.0 * (density[i] - 1000.0),
             acceleration[i][0], acceleration[i][1], acceleration[i][2]};
         for (usz field = 0; field < 5; field++) store_f64_le(output, 8 * (5 * i + field), fields[field]);
     }

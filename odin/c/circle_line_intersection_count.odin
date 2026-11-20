@@ -29,7 +29,7 @@ circle_line_intersection_count :: proc "c" (input: [^]i64, length: c.size_t,
 		a_values[query], b_values[query], c_values[query] = a, b, c_value
 	}
 	needed := 8 * query_count
-	if needed > 0 && (output == nil || int(capacity) < needed) do return -2
+	if needed > 0 && (output == nil || capacity < c.size_t(needed)) do return -2
 	staged: [MAX_OUTPUT_BYTES]u8 = {}
 	for query := 0; query < query_count; query += 1 {
 		a, b, c_value := a_values[query], b_values[query], c_values[query]

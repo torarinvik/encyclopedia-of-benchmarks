@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "algorithm": "wolstenholme_numbers",
+  "abi": "i64_array_scalar",
+  "function_symbol": "wolstenholme_numbers",
+  "status": "implemented; i64_array_scalar runner and verifier integrated; statically reviewed; not executed",
+  "input": {
+    "encoding": "[n]",
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "n_range": [1, 22]
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "reduced numerator of H_n^(2)",
+    "range": [1, 86364397717734821],
+    "invalid": -1
+  },
+  "workspace": {"bytes": 256},
+  "bounds": {
+    "maximum_common_denominator": 54192375991353600,
+    "maximum_pre_reduction_numerator_bound_exclusive": 108384751982707200,
+    "maximum_result": 86364397717734821,
+    "signed_i64_safe": true
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/w/wolstenholme_numbers.c",
+    "c3/w/wolstenholme_numbers.c3",
+    "cpp/w/wolstenholme_numbers.cpp",
+    "elisa/w/wolstenholme_numbers.elisa",
+    "mojo/w/wolstenholme_numbers.mojo",
+    "nim/w/wolstenholme_numbers.nim",
+    "odin/w/wolstenholme_numbers.odin",
+    "rust/w/wolstenholme_numbers.rs",
+    "v/w/wolstenholme_numbers.v",
+    "zig/w/wolstenholme_numbers.zig"
+  ],
+  "sources": [
+    "https://mathworld.wolfram.com/WolstenholmeNumber.html",
+    "https://oeis.org/A007406"
+  ]
+}

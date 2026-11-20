@@ -11,7 +11,7 @@ fn void write_i32_le(char* output, usz index, int value) {
     }
 }
 
-long reverse_singly_linked_list(int* values, usz length, char* output, usz output_capacity) @export("reverse_singly_linked_list") {
+fn long reverse_singly_linked_list(int* values, usz length, char* output, usz output_capacity) @export("reverse_singly_linked_list") {
     if (values == null || length > MAX_LENGTH) return -1;
     usz output_bytes = length * 4;
     if (output == null || output_capacity < output_bytes) return -2;

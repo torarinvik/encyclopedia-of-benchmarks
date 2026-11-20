@@ -24,7 +24,7 @@ fn long vector3_axis_rotation(double* input, usz input_len,
     angle = angle / 450.0 * 180.0 / PI;
     double x = input[0], y = input[1], z = input[2];
     double cosine = cos(angle), sine = sin(angle);
-    double result[3];
+    double[3] result;
     if (axis == 0.0) {
         result[0] = x;
         result[1] = y * cosine - z * sine;

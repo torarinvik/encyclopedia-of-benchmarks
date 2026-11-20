@@ -1,0 +1,71 @@
+const MAX_INPUT_LENGTH = 130
+
+def segment_union_length_klee_impl(input: view[i64]) -> i64:
+    if input.len() < 1 or input.len() > MAX_INPUT_LENGTH: return -1
+    let n_value: i64 = input[0]
+    if n_value < 0 or n_value > 64: return -1
+    let n: usize = n_value.usize()
+    if input.len() != 1 + 2 * n: return -1
+    events: mutable i64[128] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        let left: i64 = input[1 + 2 * index]
+        let right: i64 = input[2 + 2 * index]
+        if left < -1000 or left > right or right > 1000: return -1
+        events[2 * index] <- 2 * (left + 1000)
+        events[2 * index + 1] <- 2 * (right + 1000) + 1
+        index <- index + 1
+    let event_count: usize = 2 * n
+    if event_count == 0: return 0
+
+    start: mutable usize = event_count / 2
+    root: mutable usize = 0
+    child: mutable usize = 0
+    while start > 0:
+        start <- start - 1
+        root <- start
+        while root < event_count / 2:
+            child <- 2 * root + 1
+            if child + 1 < event_count and events[child] < events[child + 1]: child <- child + 1
+            if events[root] >= events[child]: break
+            let temporary: i64 = events[root]
+            events[root] <- events[child]
+            events[child] <- temporary
+            root <- child
+    heap_end: mutable usize = event_count
+    while heap_end > 1:
+        heap_end <- heap_end - 1
+        let temporary: i64 = events[0]
+        events[0] <- events[heap_end]
+        events[heap_end] <- temporary
+        root <- 0
+        while root < heap_end / 2:
+            child <- 2 * root + 1
+            if child + 1 < heap_end and events[child] < events[child + 1]: child <- child + 1
+            if events[root] >= events[child]: break
+            let swap_value: i64 = events[root]
+            events[root] <- events[child]
+            events[child] <- swap_value
+            root <- child
+
+    active: mutable i64 = 0
+    total: mutable i64 = 0
+    previous: mutable i64 = 0
+    index <- 0
+    while index < event_count:
+        let coordinate_code: i64 = events[index] / 2
+        let coordinate: i64 = coordinate_code - 1000
+        if index > 0 and active > 0: total <- total + coordinate - previous
+        delta: mutable i64 = 0
+        while index < event_count and events[index] / 2 == coordinate_code:
+            if events[index] % 2 == 0: delta <- delta + 1
+            else: delta <- delta - 1
+            index <- index + 1
+        active <- active + delta
+        previous <- coordinate
+    total
+
+export fn segment_union_length_klee(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    let input_view: view[i64] = input[0:length]
+    segment_union_length_klee_impl(input_view)

@@ -1,4 +1,4 @@
-# Rabin content-defined chunking (in progress)
+# Rabin content-defined chunking
 
 This profile scans a byte sequence using a rolling polynomial fingerprint over
 GF(2). It emits a boundary when the low three fingerprint bits are zero, and
@@ -6,7 +6,7 @@ also emits the final position if the last byte did not already cause a cut.
 The rolling window continues across cuts. Unlike pattern search, the input
 content determines the chunk boundaries.
 
-The proposed `i64_array_bytes_output` input is `[n, byte_0, ..., byte_(n-1)]`,
+The `i64_array_bytes_output` input is `[n, byte_0, ..., byte_(n-1)]`,
 where `0 <= n <= 64`, each byte is in `0..255`, and the frame length is
 exactly `n+1`. Use polynomial `x^16 + x^12 + x^3 + x + 1` (`0x1100b`) and a
 four-byte window. Before four bytes have arrived, use the available prefix.
@@ -16,10 +16,12 @@ byte in increasing order. An empty input emits no bytes. The return value is
 the byte count; invalid input returns `-1`, and a null output or insufficient
 capacity returns `-2`, including for an empty result. Errors do not write.
 
-The intended implementation precomputes the contribution of each outgoing
-byte and updates the fingerprint in constant time per byte. It takes O(n)
-time after a fixed-size table initialization, with O(1) bounded auxiliary
-space. An independent oracle should reduce each window from scratch.
+The implementation precomputes the outgoing byte's x^24 contribution. Once a
+full window exists, it XORs that contribution from the current fingerprint
+before shifting in the new byte and reducing again. This order removes the
+oldest byte from the prior window. It takes O(n) time after a fixed-size table
+initialization, with O(1) bounded auxiliary space. The independent oracle
+reduces every window from scratch.
 
 The [PARSEC report](https://www.cs.princeton.edu/techreports/2010/890.pdf)
 identifies low-bit Rabin-fingerprint fragmentation as a Dedup kernel. A
@@ -28,10 +30,11 @@ describes sliding-window polynomial fingerprints for content-defined chunks.
 This is a deliberately small independent profile, not a claim of exact PARSEC
 parameters or complete Dedup behavior. No source text or code is reused.
 
-**Status:** two oracle drafts, a workload, ten language drafts and byte-output
-suite registration are present. All remain unexecuted and require validation.
-The suite's package validation checks each draft's path and exported name, and
-the workload includes a nonzero byte leaving the window after four positions.
+The package includes rolling and per-window references, workload fixtures,
+a static inventory checker, ten language ports, and byte-output suite
+registration. The workload includes a nonzero byte leaving the window after
+four positions. No programs, tests, checkers, compilers, or benchmarks have
+been run.
 
 | Language | Draft |
 | --- | --- |

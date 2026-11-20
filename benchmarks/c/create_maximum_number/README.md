@@ -34,6 +34,10 @@ is greater; identical suffixes choose the first source. Split counts are
 visited in ascending order and an equal final sequence retains its first
 candidate.
 
+The Elisa draft uses bounded views for subsequence selection and merging. Its
+view-length calls were aligned with the repository's view API by static
+inspection; this revision has not been compiled or executed.
+
 With `S` feasible splits, `S<=k+1`, the bounded primary work is
 `O(S*(m+n+k^2))`: each split scans both sources, and direct suffix comparison
 can take `O(k)` at each of `k` merge steps. Fixed auxiliary storage is

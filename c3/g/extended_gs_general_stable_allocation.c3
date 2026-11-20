@@ -62,7 +62,7 @@ fn void put_i64(uint8* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte++) output[offset + byte] = (uint8)(bits >> (8 * byte));
 }
 
-long extended_gs_general_stable_allocation(long* input, usz length, uint8* output, usz capacity)
+fn long extended_gs_general_stable_allocation(long* input, usz length, uint8* output, usz capacity)
         @export("extended_gs_general_stable_allocation") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     if (input[0] < 1 || input[0] > 2 || input[1] < 1 || input[1] > 2 || input[2] < 1 || input[2] > 2) return -1;

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "coloured-triangle-reduction-i64-array-scalar-v1",
+  "algorithm": "coloured_triangle_reduction",
+  "function_symbol": "coloured_triangle_reduction",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "signed_64_bit_array_with_count_then_colors",
+    "count_range": [1, 256],
+    "color_range": [0, 2],
+    "exact_length": "n+1",
+    "maximum_valid_length": 257,
+    "maximum_parseable_length": 258,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "valid_values": [0, 1, 2],
+    "invalid_input_result": -1
+  },
+  "source": {
+    "idea_index_url": "https://www.codewars.com/kata/5a25ac6ac5e284cfbe000111",
+    "lucas_original_url": "https://doi.org/10.2307/2369308",
+    "lucas_modular_reference_url": "https://doi.org/10.1016/S0195-6698(13)80122-9"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "single-zero", "input_values": [1, 0], "input_length": 2, "expected_result": 0},
+    {"id": "single-two", "input_values": [1, 2], "input_length": 2, "expected_result": 2},
+    {"id": "pair-cancels", "input_values": [2, 1, 2], "input_length": 3, "expected_result": 0},
+    {"id": "pair-third-color", "input_values": [2, 0, 1], "input_length": 3, "expected_result": 2},
+    {"id": "three-first-position", "input_values": [3, 1, 0, 0], "input_length": 4, "expected_result": 1},
+    {"id": "three-middle-position", "input_values": [3, 0, 1, 0], "input_length": 4, "expected_result": 2},
+    {"id": "four-middle-coefficients-vanish", "input_values": [4, 1, 1, 2, 0], "input_length": 5, "expected_result": 2},
+    {"id": "lucas-base-three-carry", "input_values": [10, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1], "input_length": 11, "expected_result": 2},
+    {"id": "constant-color-five", "input_values": [5, 2, 2, 2, 2, 2], "input_length": 6, "expected_result": 2},
+    {"id": "maximum-valid-count-constant-color", "input_values": [256,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+    ], "input_length": 257, "expected_result": 2},
+    {"id": "maximum-count-wrong-length", "input_values": [256, 1], "input_length": 2, "expected_result": -1},
+    {"id": "zero-count", "input_values": [0], "input_length": 1, "expected_result": -1},
+    {"id": "count-above-bound", "input_values": [257], "input_length": 1, "expected_result": -1},
+    {"id": "missing-color", "input_values": [3, 0, 1], "input_length": 3, "expected_result": -1},
+    {"id": "extra-color", "input_values": [1, 1, 0], "input_length": 3, "expected_result": -1},
+    {"id": "color-out-of-range", "input_values": [2, 0, 3], "input_length": 3, "expected_result": -1},
+    {"id": "negative-color", "input_values": [1, -1], "input_length": 2, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 2, "input_is_null": true, "expected_result": -1}
+  ]
+}

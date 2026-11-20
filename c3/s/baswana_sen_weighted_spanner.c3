@@ -4,11 +4,11 @@ const usz MAX_N = 8;
 const usz MAX_M = 28;
 const usz MAX_INPUT = 90;
 
-bool edge_before(long aw, long au, long av, long bw, long bu, long bv) {
+fn bool edge_before(long aw, long au, long av, long bw, long bu, long bv) {
     return aw < bw || (aw == bw && au < bu) || (aw == bw && au == bu && av < bv);
 }
 
-long baswana_sen_weighted_spanner(long* input, usz length, char* output, usz capacity)
+fn long baswana_sen_weighted_spanner(long* input, usz length, char* output, usz capacity)
         @export("baswana_sen_weighted_spanner") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1], k = input[2];

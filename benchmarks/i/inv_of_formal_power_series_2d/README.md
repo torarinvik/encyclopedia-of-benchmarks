@@ -18,6 +18,10 @@ The draft solves coefficient relations in row-major order, with a modular
 inverse for the constant term. Its time is O(rows² columns² + log P), with
 O(rows columns) storage. The independent reference uses Newton refinement and
 truncated two-dimensional multiplication.
+Starting with the inverse constant term, each Newton step squares the error
+and therefore doubles its minimum total degree. Four steps eliminate every
+possible nonconstant term: the largest retained total degree is 14 when both
+dimensions are 8, while the remaining error starts at total degree 16.
 
 The [Library Checker catalog entry](https://judge.yosupo.jp/problem/inv_of_formal_power_series_2d)
 provides the operation idea; its problem repository declares Apache-2.0. The

@@ -26,8 +26,8 @@ without reusing the pairing reduction. At the profile limits there are at most
 ## Distinctness and provenance
 
 [`eulerian_path`](../../e/eulerian_path/README.md) and
-[`eulerian_trail_undirected_simple`](../../e/eulerian_trail_undirected_simple/README.md)
-construct trails in graphs satisfying Eulerian degree conditions; this package
+[`undirected_eulerian_trail_hierholzer`](../undirected_eulerian_trail_hierholzer/README.md)
+construct directed and undirected trails in graphs satisfying Eulerian conditions; this package
 adds the minimum-cost repeated traversals needed to make an arbitrary connected
 weighted graph Eulerian. [`general_weighted_matching`](../../g/general_weighted_matching/README.md)
 optimizes weights on an explicit graph and does not construct the odd-vertex

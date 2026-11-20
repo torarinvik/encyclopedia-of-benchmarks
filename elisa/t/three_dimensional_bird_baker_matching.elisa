@@ -1,0 +1,177 @@
+const MAX_DIM: usize = 5
+const MAX_PAT_DIM: usize = 4
+const MAX_INPUT: usize = 196
+const MAX_MATCHES: usize = 125
+
+def b3_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def b3_same_rows(plane: view[i64], left: usize, right: usize, width: usize) -> bool:
+    column: mutable usize = 0
+    while column < width:
+        if plane[left * width + column] != plane[right * width + column]: return false
+        column <- column + 1
+    true
+
+def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 7 or length > MAX_INPUT: return -1
+    rows64: i64 = input[0]
+    columns64: i64 = input[1]
+    depths64: i64 = input[2]
+    pattern_rows64: i64 = input[3]
+    pattern_columns64: i64 = input[4]
+    pattern_depths64: i64 = input[5]
+    if rows64 < 1 or rows64 > 5 or columns64 < 1 or columns64 > 5 or depths64 < 1 or depths64 > 5: return -1
+    if pattern_rows64 < 1 or pattern_rows64 > 4 or pattern_columns64 < 1 or pattern_columns64 > 4 or pattern_depths64 < 1 or pattern_depths64 > 4: return -1
+    if pattern_rows64 > rows64 or pattern_columns64 > columns64 or pattern_depths64 > depths64: return -1
+    rows: usize = rows64.usize()
+    columns: usize = columns64.usize()
+    depths: usize = depths64.usize()
+    pattern_rows: usize = pattern_rows64.usize()
+    pattern_columns: usize = pattern_columns64.usize()
+    pattern_depths: usize = pattern_depths64.usize()
+    text_size: usize = rows * columns * depths
+    pattern_size: usize = pattern_rows * pattern_columns * pattern_depths
+    if length != 6 + text_size + pattern_size: return -1
+    text: mutable i64[125] = zeroed
+    pattern: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < text_size:
+        text[index] <- input[6 + index]
+        if text[index] < 0 or text[index] > 3: return -1
+        index <- index + 1
+    index <- 0
+    while index < pattern_size:
+        pattern[index] <- input[6 + text_size + index]
+        if pattern[index] < 0 or pattern[index] > 3: return -1
+        index <- index + 1
+
+    plane_ids: mutable usize[MAX_PAT_DIM] = zeroed
+    unique_planes: mutable i64[MAX_PAT_DIM * MAX_PAT_DIM * MAX_PAT_DIM] = zeroed
+    unique_count: mutable usize = 0
+    plane_area: usize = pattern_rows * pattern_columns
+    pz: mutable usize = 0
+    while pz < pattern_depths:
+        found: mutable usize = unique_count
+        candidate: mutable usize = 0
+        while candidate < unique_count:
+            equal: mutable bool = true
+            cell: mutable usize = 0
+            while cell < plane_area:
+                if unique_planes[candidate * 16 + cell] != pattern[pz * plane_area + cell]: equal <- false
+                cell <- cell + 1
+            if equal:
+                found <- candidate
+                break
+            candidate <- candidate + 1
+        if found == unique_count:
+            cell <- 0
+            while cell < plane_area:
+                unique_planes[unique_count * 16 + cell] <- pattern[pz * plane_area + cell]
+                cell <- cell + 1
+            unique_count <- unique_count + 1
+        plane_ids[pz] <- found
+        pz <- pz + 1
+
+    row_starts: usize = rows - pattern_rows + 1
+    column_starts: usize = columns - pattern_columns + 1
+    labels: mutable i64[125] = zeroed
+    index <- 0
+    while index < 125:
+        labels[index] <- -1
+        index <- index + 1
+    z: mutable usize = 0
+    while z < depths:
+        unique: mutable usize = 0
+        while unique < unique_count:
+            marks: mutable bool[100] = zeroed
+            prefix: mutable usize[MAX_PAT_DIM] = zeroed
+            plane: view[i64] = unique_planes[unique * 16:unique * 16 + 16]
+            i: mutable usize = 1
+            while i < pattern_rows:
+                matched: mutable usize = prefix[i - 1]
+                while matched > 0 and not b3_same_rows(plane, i, matched, pattern_columns): matched <- prefix[matched - 1]
+                if b3_same_rows(plane, i, matched, pattern_columns): matched <- matched + 1
+                prefix[i] <- matched
+                i <- i + 1
+            row: mutable usize = 0
+            while row < rows:
+                column: mutable usize = 0
+                while column < column_starts:
+                    p_row: mutable usize = 0
+                    while p_row < pattern_rows:
+                        equal: mutable bool = true
+                        p_column: mutable usize = 0
+                        while p_column < pattern_columns:
+                            text_index0: usize = (z * rows + row) * columns + column + p_column
+                            if text[text_index0] != plane[p_row * pattern_columns + p_column]: equal <- false
+                            p_column <- p_column + 1
+                        marks[(row * MAX_DIM + column) * MAX_PAT_DIM + p_row] <- equal
+                        p_row <- p_row + 1
+                    column <- column + 1
+                row <- row + 1
+            column <- 0
+            while column < column_starts:
+                matched <- 0
+                row <- 0
+                while row < rows:
+                    while matched > 0 and not marks[(row * MAX_DIM + column) * MAX_PAT_DIM + matched]: matched <- prefix[matched - 1]
+                    if marks[(row * MAX_DIM + column) * MAX_PAT_DIM + matched]: matched <- matched + 1
+                    if matched == pattern_rows:
+                        label_index: usize = (z * MAX_DIM + row + 1 - pattern_rows) * MAX_DIM + column
+                        labels[label_index] <- unique.i64()
+                        matched <- prefix[matched - 1]
+                    row <- row + 1
+                column <- column + 1
+            unique <- unique + 1
+        z <- z + 1
+
+    depth_prefix: mutable usize[MAX_PAT_DIM] = zeroed
+    i <- 1
+    while i < pattern_depths:
+        matched: mutable usize = depth_prefix[i - 1]
+        while matched > 0 and plane_ids[i] != plane_ids[matched]: matched <- depth_prefix[matched - 1]
+        if plane_ids[i] == plane_ids[matched]: matched <- matched + 1
+        depth_prefix[i] <- matched
+        i <- i + 1
+    matches: mutable i64[MAX_MATCHES * 3] = zeroed
+    count: mutable usize = 0
+    row: mutable usize = 0
+    while row < row_starts:
+        column: mutable usize = 0
+        while column < column_starts:
+            matched <- 0
+            z <- 0
+            while z < depths:
+                token: i64 = labels[(z * MAX_DIM + row) * MAX_DIM + column]
+                while matched > 0 and token != plane_ids[matched].i64(): matched <- depth_prefix[matched - 1]
+                if token == plane_ids[matched].i64(): matched <- matched + 1
+                if matched == pattern_depths:
+                    matches[count * 3] <- row.i64()
+                    matches[count * 3 + 1] <- column.i64()
+                    matches[count * 3 + 2] <- (z + 1 - pattern_depths).i64()
+                    count <- count + 1
+                    matched <- depth_prefix[matched - 1]
+                z <- z + 1
+            column <- column + 1
+        row <- row + 1
+
+    output_bytes: usize = 8 * (1 + 3 * count)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    b3_put(count.i64(), output_view, 0)
+    index <- 0
+    while index < 3 * count:
+        b3_put(matches[index], output_view, 8 * (index + 1))
+        index <- index + 1
+    output_bytes.i64()
+
+export fn three_dimensional_bird_baker_matching(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 7 or length > MAX_INPUT: return -1
+    three_dimensional_bird_baker_matching_impl(input[0:length], output, capacity)

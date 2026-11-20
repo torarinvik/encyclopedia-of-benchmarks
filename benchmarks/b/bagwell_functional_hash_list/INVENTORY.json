@@ -1,0 +1,44 @@
+{
+  "algorithm": "bagwell_functional_hash_list",
+  "function_symbol": "bagwell_functional_hash_list",
+  "abi": "i64_array_bytes_output",
+  "language_sources": {
+    "c": "c/b/bagwell_functional_hash_list.c",
+    "c3": "c3/b/bagwell_functional_hash_list.c3",
+    "cpp": "cpp/b/bagwell_functional_hash_list.cpp",
+    "elisa": "elisa/b/bagwell_functional_hash_list.elisa",
+    "mojo": "mojo/b/bagwell_functional_hash_list.mojo",
+    "nim": "nim/b/bagwell_functional_hash_list.nim",
+    "odin": "odin/b/bagwell_functional_hash_list.odin",
+    "rust": "rust/b/bagwell_functional_hash_list.rs",
+    "v": "v/b/bagwell_functional_hash_list.v",
+    "zig": "zig/b/bagwell_functional_hash_list.zig"
+  },
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "maximum_output_bytes": 256,
+    "workspace_bytes": 4096,
+    "maximum_entries": 32,
+    "maximum_queries": 32,
+    "block_sides": [8, 16, 32]
+  },
+  "source": {
+    "url": "https://lampwww.epfl.ch/papers/techlists.pdf",
+    "section": "Section 3, Figure 6",
+    "reuse": "Algorithmic ideas only; clean-room benchmark package."
+  },
+  "status": "complete: ten language ports, references, workload, static inventory, byte-output suite, catalog, and coverage are integrated; no executable checks were run"
+}

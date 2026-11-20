@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn wtn_word(a:UnsafePointer[Int64,ImmutAnyOrigin],start:Int,length:Int)->Int:

@@ -12,13 +12,13 @@ fn void store_i64_le(long value, char* out, usz pos) {
 fn long tsvc_s293_first_element_broadcast(long* input, usz length,
         char* output, usz capacity) @export("tsvc_s293_first_element_broadcast") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
-    if (input[0] < 1 || input[0] > MAX_N || length != 1 + input[0].usz()) return -1;
-    usz n = input[0].usz();
+    if (input[0] < 1 || input[0] > MAX_N || length != 1 + (usz)input[0]) return -1;
+    usz n = (usz)input[0];
     for (usz i = 1; i < length; i++) if (input[i] < -8 || input[i] > 8) return -1;
     usz bytes = 8 * n;
     if (output == null || capacity < bytes) return -2;
-    long staged[MAX_N];
+    long[MAX_N] staged;
     for (usz i = 0; i < n; i++) staged[i] = input[1];
     for (usz i = 0; i < n; i++) store_i64_le(staged[i], output, 8 * i);
-    return bytes.long();
+    return (long)bytes;
 }

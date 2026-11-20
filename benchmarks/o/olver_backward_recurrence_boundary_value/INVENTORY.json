@@ -1,0 +1,44 @@
+{
+  "algorithm": "olver_backward_recurrence_boundary_value",
+  "abi": "float64_slice_io",
+  "function_symbol": "olver_backward_recurrence_boundary_value",
+  "sources": {
+    "primary": "https://dlmf.nist.gov/3.6.v#E8",
+    "cutoff": "https://dlmf.nist.gov/3.6.v#E9",
+    "back_substitution": "https://dlmf.nist.gov/3.6.v#E10",
+    "duplicate_review": "local CATALOG.md, ALGORITHM_EXPANSION_COVERAGE.md, and package README"
+  },
+  "native_paths": [
+    "c/o/olver_backward_recurrence_boundary_value.c",
+    "c3/o/olver_backward_recurrence_boundary_value.c3",
+    "cpp/o/olver_backward_recurrence_boundary_value.cpp",
+    "elisa/o/olver_backward_recurrence_boundary_value.elisa",
+    "mojo/o/olver_backward_recurrence_boundary_value.mojo",
+    "nim/o/olver_backward_recurrence_boundary_value.nim",
+    "odin/o/olver_backward_recurrence_boundary_value.odin",
+    "rust/o/olver_backward_recurrence_boundary_value.rs",
+    "v/o/olver_backward_recurrence_boundary_value.v",
+    "zig/o/olver_backward_recurrence_boundary_value.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json", "__init__.py",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "bounds": {
+    "M_min": 1,
+    "M_max": 8,
+    "Nmax_max": 12,
+    "maximum_valid_input_length": 52,
+    "maximum_parseable_input_length": 53,
+    "maximum_output_elements": 10,
+    "maximum_output_bytes": 80,
+    "workspace_output_elements": 10,
+    "native_scratch_bytes": 320
+  },
+  "methods": {
+    "primary": "Olver forward p/e state, relative cutoff selection, scalar backward reconstruction",
+    "independent": "same mandated cutoff state, then pivoted dense boundary linear system"
+  },
+  "integration": "Registered in benchmarks/run_float64_slice_io.py and benchmarks/verify_float64_slice_io.py"
+}

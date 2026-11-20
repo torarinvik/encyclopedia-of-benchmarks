@@ -17,4 +17,7 @@ python3 benchmarks/build_scalar.py --algorithm kaprekar_number --language c
 python3 benchmarks/run_scalar.py --algorithm kaprekar_number
 ```
 
-Implementations: `c/k/kaprekar_number.c`, `c3/k/kaprekar_number.c3`, `cpp/k/kaprekar_number.cpp`, `elisa/k/kaprekar_number.elisa`, `nim/k/kaprekar_number.nim`, `odin/k/kaprekar_number.odin`, `rust/k/kaprekar_number.rs`, `v/k/kaprekar_number.v`, and `zig/k/kaprekar_number.zig`.
+Implementations: `c/k/kaprekar_number.c`, `c3/k/kaprekar_number.c3`, `cpp/k/kaprekar_number.cpp`, `elisa/k/kaprekar_number.elisa`, `mojo/k/kaprekar_number.mojo`, `nim/k/kaprekar_number.nim`, `odin/k/kaprekar_number.odin`, `rust/k/kaprekar_number.rs`, `v/k/kaprekar_number.v`, and `zig/k/kaprekar_number.zig`.
+
+Scalar verifier registration and a string-split reference are drafted and
+have not been executed.

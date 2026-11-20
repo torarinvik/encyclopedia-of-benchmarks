@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("vampire_number")
 fn vampire_number(a:UInt64,b:UInt64) abi("C")->Int64:
     if a<1 or a>9999 or b<1 or b>9999:return -1

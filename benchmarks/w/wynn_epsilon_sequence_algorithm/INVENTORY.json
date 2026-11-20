@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "algorithm": "wynn_epsilon_sequence_algorithm",
+  "abi": "float64_slice_io",
+  "function_symbol": "wynn_epsilon_sequence_algorithm",
+  "status": "integrated",
+  "input": {"minimum_valid_length": 7, "maximum_valid_length": 12, "maximum_parseable_length": 13},
+  "output": {"maximum_elements": 36, "kind": "float64_array"},
+  "workspace": {"bytes": 2048, "elements": 36},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/w/wynn_epsilon_sequence_algorithm.c",
+    "c3/w/wynn_epsilon_sequence_algorithm.c3",
+    "cpp/w/wynn_epsilon_sequence_algorithm.cpp",
+    "elisa/w/wynn_epsilon_sequence_algorithm.elisa",
+    "mojo/w/wynn_epsilon_sequence_algorithm.mojo",
+    "nim/w/wynn_epsilon_sequence_algorithm.nim",
+    "odin/w/wynn_epsilon_sequence_algorithm.odin",
+    "rust/w/wynn_epsilon_sequence_algorithm.rs",
+    "v/w/wynn_epsilon_sequence_algorithm.v",
+    "zig/w/wynn_epsilon_sequence_algorithm.zig"
+  ],
+  "source": "https://dlmf.nist.gov/3.9#E11"
+}

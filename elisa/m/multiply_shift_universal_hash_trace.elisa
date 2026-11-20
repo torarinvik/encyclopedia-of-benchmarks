@@ -1,0 +1,48 @@
+# Bounded 32-bit multiply-shift trace; only the exported FFI wrapper uses pointers.
+const MS_MAX_QUERIES: usize = 32
+const MS_MAX_WORDS: usize = 2 + 2 * MS_MAX_QUERIES
+const MS_MASK: u64 = 0xFFFF_FFFF
+
+def ms_write(output: mutable view[u8], query: usize, value: u64) -> void:
+    byte: mutable usize = 0
+    while byte < 8:
+        output[query * 8 + byte] <- ((value >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def multiply_shift_universal_hash_trace_impl(input: view[i64], output: mutable u8&,
+        capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > MS_MAX_WORDS + 1: return -1
+    width: i64 = input[0]
+    count_value: i64 = input[1]
+    if width < 1 or width > 16 or count_value < 0 or count_value > MS_MAX_QUERIES.i64(): return -1
+    count: usize = count_value.usize()
+    if length != 2 + 2 * count: return -1
+
+    query: mutable usize = 0
+    while query < count:
+        multiplier: i64 = input[2 + 2 * query]
+        key: i64 = input[3 + 2 * query]
+        if multiplier < 1 or multiplier > 4294967295 or (multiplier & 1) == 0 or
+           key < 0 or key > 4294967295: return -1
+        query <- query + 1
+
+    required: usize = count * 8
+    if (required > 0 and output.is_null()) or capacity < required: return -2
+    if required == 0: return 0
+    result_view: mutable view[u8] = output[0:required]
+    shift: usize = 32 - width.usize()
+    query <- 0
+    while query < count:
+        multiplier: u64 = input[2 + 2 * query].u64()
+        key: u64 = input[3 + 2 * query].u64()
+        product_low: u64 = (multiplier * key) & MS_MASK
+        ms_write(result_view, query, product_low >> shift)
+        query <- query + 1
+    required.i64()
+
+@export("multiply_shift_universal_hash_trace")
+def multiply_shift_universal_hash_trace(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MS_MAX_WORDS + 1: return -1
+    multiply_shift_universal_hash_trace_impl(input[0:length], output, capacity)

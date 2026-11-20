@@ -1,9 +1,10 @@
 extern trunc(value: f64) -> f64
 const MAX_INPUT: usize = 124
 
-def graphai_frontier_sampler_impl(input: f64&, length: usize,
+def graphai_frontier_sampler_impl(input: view[f64],
                                   output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    length: usize = input.len()
+    if length < 3 or length > MAX_INPUT: return -1
     for q in 0..<length:
         value: f64 = input[q]
         if value != value or value > 1.7976931348623157e308 or value < -1.7976931348623157e308: return -1
@@ -64,8 +65,11 @@ def graphai_frontier_sampler_impl(input: f64&, length: usize,
         front_size <- next_size
     if choice != 21*r or out_at != required: return -1
     if output.is_null() or capacity < required: return -2
-    for q in 0..<required: output[q] <- staged[q]
+    result: mutable view[f64] = output[0:required]
+    for q in 0..<required: result[q] <- staged[q]
     required.i64()
 
 export fn graphai_frontier_sampler(input: f64&, length: usize,
-                                   output: mutable f64&, capacity: usize) -> i64 = graphai_frontier_sampler_impl
+                                   output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    graphai_frontier_sampler_impl(input[0:length], output, capacity)

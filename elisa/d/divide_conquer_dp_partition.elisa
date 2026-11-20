@@ -1,0 +1,82 @@
+# Layered contiguous partition DP using monotone-argmin divide and conquer.
+const DCDP_MAX_N: usize = 64
+const DCDP_MAX_GROUPS: usize = 8
+const DCDP_MAX_INPUT: usize = 66
+const DCDP_STACK_CAPACITY: usize = 136
+const DCDP_INF: i64 = 2305843009213693951
+
+def dcdp_compute_row(previous: view[i64], current: mutable view[i64],
+                     prefix: view[i64], n: usize, group: usize) -> void:
+    stack_left: mutable usize[DCDP_STACK_CAPACITY] = zeroed
+    stack_right: mutable usize[DCDP_STACK_CAPACITY] = zeroed
+    stack_low: mutable usize[DCDP_STACK_CAPACITY] = zeroed
+    stack_high: mutable usize[DCDP_STACK_CAPACITY] = zeroed
+    top: mutable usize = 1
+    stack_left[0] <- group
+    stack_right[0] <- n
+    stack_low[0] <- group - 1
+    stack_high[0] <- n - 1
+    while top > 0:
+        top <- top - 1
+        left: usize = stack_left[top]
+        right: usize = stack_right[top]
+        opt_low: usize = stack_low[top]
+        opt_high: usize = stack_high[top]
+        if left > right: continue
+        middle: usize = left + (right - left) / 2
+        upper: usize = if opt_high < middle - 1 then opt_high else middle - 1
+        best: mutable i64 = DCDP_INF
+        best_split: mutable usize = opt_low
+        split: mutable usize = opt_low
+        while split <= upper:
+            if previous[split] != DCDP_INF:
+                segment: i64 = prefix[middle] - prefix[split]
+                candidate: i64 = previous[split] + segment * segment
+                if candidate < best:
+                    best <- candidate
+                    best_split <- split
+            split <- split + 1
+        current[middle] <- best
+        if middle < right:
+            stack_left[top] <- middle + 1
+            stack_right[top] <- right
+            stack_low[top] <- best_split
+            stack_high[top] <- opt_high
+            top <- top + 1
+        if left < middle:
+            stack_left[top] <- left
+            stack_right[top] <- middle - 1
+            stack_low[top] <- opt_low
+            stack_high[top] <- best_split
+            top <- top + 1
+
+export fn divide_conquer_dp_partition(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 3 or length > DCDP_MAX_INPUT: return -1
+    input: view[i64] = values[0:length]
+    n_value: i64 = input[0]
+    groups_value: i64 = input[1]
+    if n_value < 1 or n_value > DCDP_MAX_N.i64() or groups_value < 1 or
+       groups_value > DCDP_MAX_GROUPS.i64() or groups_value > n_value or length != n_value.usize() + 2:
+        return -1
+    n: usize = n_value.usize()
+    groups: usize = groups_value.usize()
+    prefix: mutable i64[DCDP_MAX_N + 1] = zeroed
+    first: mutable i64[DCDP_MAX_N + 1] = zeroed
+    second: mutable i64[DCDP_MAX_N + 1] = zeroed
+    for i in 0..<n:
+        value: i64 = input[i + 2]
+        if value < 0 or value > 1000: return -1
+        prefix[i + 1] <- prefix[i] + value
+    for i in 0..=n: first[i] <- DCDP_INF
+    first[0] <- 0
+    previous: mutable view[i64] = first[0:n + 1]
+    current: mutable view[i64] = second[0:n + 1]
+    prefix_view: view[i64] = prefix[0:n + 1]
+    for group in 1..=groups:
+        for i in 0..=n: current[i] <- DCDP_INF
+        dcdp_compute_row(previous[0:n + 1], current[0:n + 1], prefix_view, n, group)
+        for i in 0..=n:
+            temporary: i64 = previous[i]
+            previous[i] <- current[i]
+            current[i] <- temporary
+    previous[n]

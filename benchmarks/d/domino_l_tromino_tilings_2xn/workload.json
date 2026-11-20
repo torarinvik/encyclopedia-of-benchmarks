@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "domino-l-tromino-tilings-2xn-i64-v1",
+  "algorithm": "domino_l_tromino_tilings_2xn",
+  "function_symbol": "domino_l_tromino_tilings_2xn",
+  "abi": "i64_array_scalar",
+  "description": "Count exact tilings of a 2-by-n board using dominoes and L-shaped trominoes.",
+  "source": {
+    "title": "Tiling a 2×n Board with Dominos and L-Shaped Trominos",
+    "authors": ["Gregory Dresden", "Michael Tulskikh"],
+    "publication": "Journal of Integer Sequences, volume 24 (2021), Article 21.4.5",
+    "url": "https://cs.uwaterloo.ca/journals/JIS/VOL24/Dresden2/dresden9.pdf",
+    "cross_check": "OEIS A052980",
+    "cross_check_url": "https://oeis.org/A052980/list",
+    "discovery_source": "Codewars public title only",
+    "discovery_url": "https://www.codewars.com/kata/6ac3dbb358ef7bac7b16dd52",
+    "source_license": "References consulted for mathematical definitions and sequence values only; implementations are clean-room."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[board_width]",
+    "width_range": [0, 32],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "exact number of complete tilings",
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Four frontier-state counts and scalar temporaries."
+  },
+  "contract": {
+    "tiles": "A domino covers two edge-adjacent cells. An L tromino covers any three cells of a 2-by-2 block; all rotations/reflections are allowed.",
+    "tilings": "A tiling is a set of non-overlapping tile placements covering every board cell; pieces are uncolored and identical by shape.",
+    "empty_board": "Width zero has one empty tiling.",
+    "primary_method": "Four-state column-frontier dynamic programming with tile-specific domino and L-tromino transitions.",
+    "independent_method": "a(0)=1, a(1)=1, a(2)=2; a(n)=2*a(n-1)+a(n-3) for n>=3.",
+    "complexity": "O(n) time and O(1) state for the fixed width-two frontier.",
+    "error_precedence": "Reject null input, parseable length outside 1..2, non-exact length, non-integer values, and out-of-range width before computation.",
+    "null_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "profiles": [
+      {"id":"small-board","input_values":[8]},
+      {"id":"maximum-board","input_values":[32]}
+    ]
+  },
+  "cases": [
+    {"id":"empty-board","input_values":[0],"expected_result":1},
+    {"id":"one-column","input_values":[1],"expected_result":1},
+    {"id":"two-columns","input_values":[2],"expected_result":2},
+    {"id":"first-tromino-enabled-width","input_values":[3],"expected_result":5},
+    {"id":"width-4","input_values":[4],"expected_result":11},
+    {"id":"width-8","input_values":[8],"expected_result":258},
+    {"id":"width-16","input_values":[16],"expected_result":144467},
+    {"id":"width-24","input_values":[24],"expected_result":80897393},
+    {"id":"width-28","input_values":[28],"expected_result":1914332891},
+    {"id":"maximum-width-32","input_values":[32],"expected_result":45300228866},
+    {"id":"negative-width","input_values":[-1],"expected_result":-1},
+    {"id":"first-width-over-bound","input_values":[33],"expected_result":-1},
+    {"id":"missing-word","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"extra-input-word","input_values":[8,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"signed-64-min","input_values":[-9223372036854775808],"expected_result":-1},
+    {"id":"signed-64-max","input_values":[9223372036854775807],"expected_result":-1}
+  ]
+}

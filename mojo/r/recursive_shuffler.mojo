@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn rsf_shuff(mut v:InlineArray[Int64,64],item:Int,mut state:UInt64):

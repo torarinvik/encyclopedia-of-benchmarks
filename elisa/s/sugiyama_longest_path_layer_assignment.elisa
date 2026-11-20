@@ -1,0 +1,83 @@
+const SUG_LPA_MAX_N: usize = 32
+const SUG_LPA_MAX_M: usize = 128
+const SUG_LPA_MAX_INPUT: usize = 258
+
+def sugiyama_lpa_put_i64_le(output: mutable view[u8], word: usize, value: i64): void:
+    bits: mutable u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def sugiyama_longest_path_layer_assignment_impl(values: view[i64],
+        output: mutable u8&, capacity: usize): i64:
+    length: usize = values.len()
+    if length < 2 or length > SUG_LPA_MAX_INPUT + 1: return -1
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    if n_value < 0 or n_value > 32 or m_value < 0 or m_value > 128: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m: return -1
+
+    adjacency: mutable u32[32] = zeroed
+    edge: usize = 0
+    while edge < m:
+        source: i64 = values[2 + 2 * edge]
+        target: i64 = values[3 + 2 * edge]
+        if source < 0 or source >= n_value or target < 0 or target >= n_value: return -1
+        source_id: usize = source.usize()
+        target_id: usize = target.usize()
+        bit: u32 = 1.u32() << target_id
+        if (adjacency[source_id] & bit) != 0.u32(): return -1
+        adjacency[source_id] <- adjacency[source_id] | bit
+        edge <- edge + 1
+
+    removed: mutable bool[32] = zeroed
+    sink_depth: mutable usize[32] = zeroed
+    remaining: mutable usize = n
+    depth: mutable usize = 0
+    while remaining > 0:
+        sinks: mutable bool[32] = zeroed
+        sink_count: mutable usize = 0
+        vertex: usize = 0
+        while vertex < n:
+            if not removed[vertex]:
+                has_successor: mutable bool = false
+                target: usize = 0
+                while target < n:
+                    if not removed[target] and
+                            (adjacency[vertex] & (1.u32() << target)) != 0.u32():
+                        has_successor <- true
+                        break
+                    target <- target + 1
+                if not has_successor:
+                    sinks[vertex] <- true
+                    sink_count <- sink_count + 1
+            vertex <- vertex + 1
+        if sink_count == 0: return -1
+        vertex <- 0
+        while vertex < n:
+            if sinks[vertex]:
+                removed[vertex] <- true
+                sink_depth[vertex] <- depth
+            vertex <- vertex + 1
+        remaining <- remaining - sink_count
+        depth <- depth + 1
+
+    output_bytes: usize = 8 * (n + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable view[u8] = output[0:output_bytes]
+    sugiyama_lpa_put_i64_le(staged, 0, depth.i64())
+    vertex: usize = 0
+    while vertex < n:
+        sugiyama_lpa_put_i64_le(staged, vertex + 1, (depth - 1 - sink_depth[vertex]).i64())
+        vertex <- vertex + 1
+    output_bytes.i64()
+
+export fn sugiyama_longest_path_layer_assignment(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize): i64:
+    if input.is_null() or length < 2 or length > SUG_LPA_MAX_INPUT + 1: return -1
+    values: view[i64] = input[0:length]
+    sugiyama_longest_path_layer_assignment_impl(values, output, capacity)

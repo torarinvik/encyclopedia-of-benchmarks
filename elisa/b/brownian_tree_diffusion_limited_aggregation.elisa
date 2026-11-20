@@ -1,0 +1,107 @@
+from std.collections import InlineArray
+
+const SIDE: usize = 33
+const MAX_POINTS: usize = 17
+const MAX_ATTEMPTS: i64 = 16
+const MAX_STEPS: i64 = 512
+const MASK32: u64 = 0xffff_ffff
+const GOLDEN: u64 = 0x9e3779b97f4a7c15
+const MULTIPLIER: u64 = 0x2545f4914f6cdd1d
+
+def dla_mul64(left: u64, right: u64) -> u64:
+    left_low: u64 = left & MASK32
+    left_high: u64 = left >> 32
+    right_low: u64 = right & MASK32
+    right_high: u64 = right >> 32
+    low_product: u64 = left_low * right_low
+    high_product: u64 = (low_product >> 32) +
+        ((left_low * right_high) & MASK32) + ((left_high * right_low) & MASK32)
+    ((high_product & MASK32) << 32) | (low_product & MASK32)
+
+def dla_next(state: mutable u64&) -> u64:
+    state <- state ^ (state >> 12)
+    state <- state ^ (state << 25)
+    state <- state ^ (state >> 27)
+    dla_mul64(state, MULTIPLIER)
+
+def dla_touches(occupied: view[u8], x: usize, y: usize) -> bool:
+    occupied[y * SIDE + x - 1] != 0 or occupied[(y - 1) * SIDE + x] != 0 or occupied[y * SIDE + x + 1] != 0 or occupied[(y + 1) * SIDE + x] != 0
+
+def dla_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def brownian_tree_diffusion_limited_aggregation_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 3: return -1
+    attempts_value: i64 = input[0]
+    seed_value: i64 = input[1]
+    steps_value: i64 = input[2]
+    if attempts_value < 0 or attempts_value > MAX_ATTEMPTS or seed_value < 1 or steps_value < 1 or steps_value > MAX_STEPS: return -1
+
+    var occupied = InlineArray[UInt8, SIDE * SIDE](fill=0)
+    var point_x = InlineArray[Int32, MAX_POINTS](fill=0)
+    var point_y = InlineArray[Int32, MAX_POINTS](fill=0)
+    point_x[0] <- 16
+    point_y[0] <- 16
+    point_count: mutable usize = 1
+    occupied[16 * SIDE + 16] <- 1
+    attempt: mutable usize = 0
+    while attempt < attempts_value.usize():
+        state: mutable u64 = seed_value.u64() ^ dla_mul64(GOLDEN, (attempt + 1).u64())
+        if state == 0: state <- MULTIPLIER
+        side_draw: u64 = dla_next(state)
+        position_draw: u64 = dla_next(state)
+        launch_side: usize = (side_draw % 4).usize()
+        position: usize = 1 + (position_draw % 31).usize()
+        x: mutable usize = position
+        y: mutable usize = position
+        if launch_side == 0: y <- 1
+        elif launch_side == 1: x <- 31
+        elif launch_side == 2: y <- 31
+        else: x <- 1
+
+        at: mutable usize = y * SIDE + x
+        if occupied[at] != 0: attempt <- attempt + 1; continue
+        if dla_touches(occupied[0:SIDE * SIDE], x, y):
+            occupied[at] <- 1
+            point_x[point_count] <- x.i32()
+            point_y[point_count] <- y.i32()
+            point_count <- point_count + 1
+            attempt <- attempt + 1
+            continue
+        step: mutable usize = 0
+        while step < steps_value.usize():
+            direction: usize = (dla_next(state) % 4).usize()
+            if direction == 0: x <- x - 1
+            elif direction == 1: y <- y - 1
+            elif direction == 2: x <- x + 1
+            else: y <- y + 1
+            if x == 0 or x == 32 or y == 0 or y == 32: break
+            at <- y * SIDE + x
+            if dla_touches(occupied[0:SIDE * SIDE], x, y):
+                occupied[at] <- 1
+                point_x[point_count] <- x.i32()
+                point_y[point_count] <- y.i32()
+                point_count <- point_count + 1
+                break
+            step <- step + 1
+        attempt <- attempt + 1
+
+    required: usize = (1 + 2 * point_count) * 8
+    if output.is_null() or capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+    dla_store_i64(result, 0, point_count.i64())
+    point: mutable usize = 0
+    while point < point_count:
+        dla_store_i64(result, (1 + 2 * point) * 8, point_x[point].i64())
+        dla_store_i64(result, (2 + 2 * point) * 8, point_y[point].i64())
+        point <- point + 1
+    required.i64()
+
+export fn brownian_tree_diffusion_limited_aggregation(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = brownian_tree_diffusion_limited_aggregation_impl

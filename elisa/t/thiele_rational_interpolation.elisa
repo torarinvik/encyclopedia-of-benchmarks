@@ -1,0 +1,86 @@
+const THIELE_MAX_N: usize = 6
+const THIELE_MAX_INPUT: usize = 15
+const THIELE_GRID: f64 = 18014398509481984.0
+const THIELE_MIN_NODE_SEPARATION: f64 = 0.0625
+const THIELE_LOW: f64 = 0.03125000023283064365386963
+const THIELE_CAP: f64 = 63.99999999976716935634613037
+const THIELE_MAX_FINITE: f64 = 1.7976931348623157e308
+
+def thiele_finite(value: f64) -> bool:
+    value == value and value <= THIELE_MAX_FINITE and value >= -THIELE_MAX_FINITE
+
+def thiele_grid_value(value: f64) -> bool:
+    if not thiele_finite(value) or value < -8.0 or value > 8.0: return false
+    scaled: f64 = value * THIELE_GRID
+    scaled.i64().f64() == scaled
+
+def thiele_guarded(value: f64) -> bool:
+    (value > THIELE_LOW and value < THIELE_CAP) or (value < -THIELE_LOW and value > -THIELE_CAP)
+
+def thiele_below_cap(value: f64) -> bool:
+    thiele_finite(value) and value > -THIELE_CAP and value < THIELE_CAP
+
+def thiele_compute(input: view[f64], staged: mutable view[f64]) -> bool:
+    length: usize = input.len()
+    if length < 4 or length > THIELE_MAX_INPUT: return false
+    if not thiele_grid_value(input[0]) or input[0] < 1.0 or input[0] > 6.0: return false
+    count_value: i64 = input[0].i64()
+    if count_value.f64() != input[0]: return false
+    count: usize = count_value.usize()
+    if length != 2 + 2 * count: return false
+
+    x: mutable f64[6] = zeroed
+    y: mutable f64[6] = zeroed
+    difference: mutable f64[36] = zeroed
+    for i in 0..<count:
+        x[i] <- input[1 + 2 * i]
+        y[i] <- input[2 + 2 * i]
+        if not thiele_grid_value(x[i]) or not thiele_grid_value(y[i]): return false
+        for j in 0..<i:
+            if x[i] == x[j] or (x[i] - x[j] < THIELE_MIN_NODE_SEPARATION and x[i] - x[j] > -THIELE_MIN_NODE_SEPARATION): return false
+        difference[i] <- y[i]
+    query: f64 = input[length - 1]
+    if not thiele_grid_value(query): return false
+
+    for order in 1..<count:
+        for endpoint in order..<count:
+            denominator: f64 = difference[(order - 1) * 6 + order - 1] - difference[(order - 1) * 6 + endpoint]
+            if not thiele_guarded(denominator): return false
+            value: f64 = (x[order - 1] - x[endpoint]) / denominator
+            if not thiele_below_cap(value): return false
+            difference[order * 6 + endpoint] <- value
+        if not thiele_guarded(difference[order * 6 + order]): return false
+
+    at_node: bool = false
+    result: mutable f64 = 0.0
+    for i in 0..<count:
+        if query == x[i]:
+            result <- y[i]
+            at_node = true
+            break
+    if not at_node and count == 1: result <- y[0]
+    if not at_node and count > 1:
+        tail: mutable f64 = difference[(count - 1) * 6 + count - 1]
+        order: mutable usize = count - 1
+        while order > 1:
+            order <- order - 1
+            if not thiele_guarded(tail): return false
+            tail <- difference[order * 6 + order] + (query - x[order]) / tail
+            if not thiele_below_cap(tail): return false
+        if not thiele_guarded(tail): return false
+        result <- y[0] + (query - x[0]) / tail
+    if not thiele_below_cap(result): return false
+    staged[0] <- result
+    true
+
+export fn thiele_rational_interpolation(input: f64&, input_length: usize,
+                                        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 4 or input_length > THIELE_MAX_INPUT: return -1
+    input_view: view[f64] = input[0:input_length]
+    staged: mutable f64[1] = zeroed
+    staged_view: mutable view[f64] = staged[0:1]
+    if not thiele_compute(input_view, staged_view): return -1
+    if output.is_null() or output_capacity < 1: return -2
+    output_view: mutable view[f64] = output[0:1]
+    output_view[0] <- staged_view[0]
+    1

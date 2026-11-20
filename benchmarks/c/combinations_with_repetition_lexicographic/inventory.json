@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "combinations_with_repetition_lexicographic",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "combinations_with_repetition_lexicographic",
+  "suite_status": "registered_i64_array_bytes_output",
+  "native_ports": {
+    "C": "c/c/combinations_with_repetition_lexicographic.c",
+    "C3": "c3/c/combinations_with_repetition_lexicographic.c3",
+    "C++": "cpp/c/combinations_with_repetition_lexicographic.cpp",
+    "Elisa": "elisa/c/combinations_with_repetition_lexicographic.elisa",
+    "Mojo": "mojo/c/combinations_with_repetition_lexicographic.mojo",
+    "Nim": "nim/c/combinations_with_repetition_lexicographic.nim",
+    "Odin": "odin/c/combinations_with_repetition_lexicographic.odin",
+    "Rust": "rust/c/combinations_with_repetition_lexicographic.rs",
+    "V": "v/c/combinations_with_repetition_lexicographic.v",
+    "Zig": "zig/c/combinations_with_repetition_lexicographic.zig"
+  },
+  "primary_oracle": "benchmarks/c/combinations_with_repetition_lexicographic/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/combinations_with_repetition_lexicographic/independent_oracle.py",
+  "workload": "benchmarks/c/combinations_with_repetition_lexicographic/workload.json",
+  "rights": "benchmarks/c/combinations_with_repetition_lexicographic/RIGHTS.md",
+  "inventory_doc": "benchmarks/c/combinations_with_repetition_lexicographic/INVENTORY.md",
+  "static_inventory_helper": "benchmarks/c/combinations_with_repetition_lexicographic/check_inventory.py",
+  "workload_reference_helper": "benchmarks/c/combinations_with_repetition_lexicographic/verify_workload.py",
+  "limits": {
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "maximum_output_bytes": 142,
+    "workspace_bytes": 128,
+    "maximum_n": 4,
+    "maximum_r": 4,
+    "maximum_tuple_count": 35
+  }
+}

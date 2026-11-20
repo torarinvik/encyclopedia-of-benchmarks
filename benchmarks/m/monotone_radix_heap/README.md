@@ -28,4 +28,6 @@ runner/verifier registration are independently authored. The verifier source
 specifies short operation traces, boundary keys, maximum frames, and null
 inputs. The workload also covers reinsertion at the last removed key and keys
 straddling bit 30. The Elisa draft uses a bounded input view and indexed fixed arrays.
-Nothing has been compiled or run.
+Read-only review found all ten ports consistent on XOR bucket selection,
+minimum-based redistribution, monotonic insertion checks, and weighted
+removal results. Nothing has been compiled or run.

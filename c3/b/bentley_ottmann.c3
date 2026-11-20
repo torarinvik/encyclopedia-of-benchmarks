@@ -9,7 +9,7 @@ fn void put(char* out,usz slot,long v){ulong bits=(ulong)v;for(usz i=0;i<8;i++)o
 fn long bentley_ottmann(long* input,usz length,char* output,usz capacity) @export("bentley_ottmann") {
  if(input==null||length<1||input[0]<0||input[0]>(long)N)return -1;usz n=(usz)input[0];if(length!=1+4*n)return -1;Seg[N] s;
  for(usz i=0;i<n;i++){long x1=input[1+4*i],y1=input[2+4*i],x2=input[3+4*i],y2=input[4+4*i];if(x1< -1000||x1>1000||x2< -1000||x2>1000||y1< -1000||y1>1000||y2< -1000||y2>1000||x1==x2)return -1;if(x1<x2)s[i]=Seg{x1,y1,x2,y2};else s[i]=Seg{x2,y2,x1,y1};}
- Ev[E] ev;usz ec=0;for(usz i=0;i<n;i++){ev[ec]=Ev{s[i].x1,s[i].y1,(int)i,-1,0,false};ec++;ev[ec]=Ev{s[i].x2,s[i].y2,(int)i,-1,1,false};ec++;}bool[N][N] sched;int[N] active;usz ac=0;long[P][2] pts;usz pc=0;
+ Ev[E] ev;usz ec=0;for(usz i=0;i<n;i++){ev[ec]=Ev{s[i].x1,s[i].y1,(int)i,-1,0,false};ec++;ev[ec]=Ev{s[i].x2,s[i].y2,(int)i,-1,1,false};ec++;}bool[N][N] sched;int[N] active;usz ac=0;long[2][P] pts;usz pc=0;
  while(true){usz ei=ec;for(usz j=0;j<ec;j++)if(!ev[j].done&&(ei==ec||ev[j].x<ev[ei].x||(ev[j].x==ev[ei].x&&ev[j].y<ev[ei].y)))ei=j;if(ei==ec)break;Ev e=ev[ei];ev[ei].done=true;if(e.t==0){active[ac]=e.a;ac++;}else if(e.t==1){for(usz j=0;j<ac;j++)if(active[j]==e.a){for(usz k=j+1;k<ac;k++)active[k-1]=active[k];ac--;break;}}else{pts[pc][0]=e.x;pts[pc][1]=e.y;pc++;}
  for(usz i=1;i<ac;i++){int v=active[i];usz j=i;while(j>0&&less(s, v,active[j-1],e.x)){active[j]=active[j-1];j--;}active[j]=v;}
  for(usz i=1;i<ac;i++){int a=active[i-1],b=active[i];if(sched[a][b])continue;long x,y;if(intersection(s[a],s[b],&x,&y)&&x>e.x){if(ec>=E)return -1;ev[ec]=Ev{x,y,a,b,2,false};ec++;sched[a][b]=true;sched[b][a]=true;}}

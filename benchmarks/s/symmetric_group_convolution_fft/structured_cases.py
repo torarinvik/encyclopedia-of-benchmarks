@@ -55,6 +55,15 @@ def cases(degrees=None, include_extra=True):
             odd_sum = (sum(values)-even_sum) % P
             parity_payload = encode([even_sum if sign == 1 else odd_sum for sign in signs])
             yield f"even_subgroup_left_{n}", [n, *even_indicator, *values], 4*count, parity_payload
+            # Any function constant on parity classes acts through two class
+            # sums. Use unrelated coefficients to cover more than sign and
+            # subgroup-indicator special cases, including modular subtraction.
+            parity_weighted = [P - 2 if sign == 1 else 3 for sign in signs]
+            weighted_even = (-2 * even_sum + 3 * odd_sum) % P
+            weighted_odd = (-2 * odd_sum + 3 * even_sum) % P
+            weighted_payload = encode([weighted_even if sign == 1 else weighted_odd for sign in signs])
+            yield f"parity_weighted_left_{n}", [n, *parity_weighted, *values], 4*count, weighted_payload
+            yield f"parity_weighted_right_{n}", [n, *values, *parity_weighted], 4*count, weighted_payload
             # Two full-support functions probe noncommuting composition. For
             # a(q)=q[i]+1 and b(r)=r[j]+1, fix t=p[j]. If q[i]=t then
             # q^-1(t)=i; otherwise each distinct pair of image constraints
@@ -88,6 +97,17 @@ def cases(degrees=None, include_extra=True):
                 right_output.append((2*values[rank] + 3*values[permutation_rank(right_translation)]) % P)
             yield f"two_support_left_{n}", [n, *sparse, *values], 4*count, encode(left_output)
             yield f"two_support_right_{n}", [n, *values, *sparse], 4*count, encode(right_output)
+            # Add a dense constant component to the two-support function.
+            # Convolution by that component is seven times the sum of the
+            # other operand at every output permutation.
+            near_constant = [7] * count
+            near_constant[0] += 2
+            near_constant[factorial(n-1)] += 3
+            constant_term = 7 * sum(values) % P
+            near_left = [(constant_term + value) % P for value in left_output]
+            near_right = [(constant_term + value) % P for value in right_output]
+            yield f"near_constant_left_{n}", [n, *near_constant, *values], 4*count, encode(near_left)
+            yield f"near_constant_right_{n}", [n, *values, *near_constant], 4*count, encode(near_right)
             if n <= 5:
                 # Exercise the reference's three-entry support boundary using
                 # both adjacent transpositions and both multiplication orders.

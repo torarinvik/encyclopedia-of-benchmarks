@@ -8,7 +8,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long johnson_trotter_adjacent_gray_code(long* input, usz length, char* output,
+fn long johnson_trotter_adjacent_gray_code(long* input, usz length, char* output,
         usz capacity) @export("johnson_trotter_adjacent_gray_code") {
     if (input == null || length != 1 || input[0] < 1 || input[0] > (long)MAX_N) return -1;
     usz n = (usz)input[0], permutation_count = 1;

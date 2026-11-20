@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn scramble_rec(a:UnsafePointer[Int64,ImmutAnyOrigin],b1:Int,b2:Int,i:Int,j:Int,l:Int,m:UnsafePointer[Int64,MutAnyOrigin])->Bool:

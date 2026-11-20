@@ -9,7 +9,7 @@ fn void store_i64_le(char* output, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long gbbs_barenboim_elkin_degeneracy_order(long* input, usz length,
+fn long gbbs_barenboim_elkin_degeneracy_order(long* input, usz length,
         char* output, usz capacity) @export("gbbs_barenboim_elkin_degeneracy_order") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

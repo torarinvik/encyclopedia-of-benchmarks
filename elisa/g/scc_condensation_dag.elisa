@@ -1,0 +1,146 @@
+# Clean-room bounded Kosaraju plus condensation quotient construction.
+const SCC_DAG_MAX_N: usize = 8
+const SCC_DAG_MAX_M: usize = 28
+const SCC_DAG_MAX_INPUT: usize = 58
+const SCC_DAG_MAX_OUTPUT: usize = 17
+
+def scc_condensation_dag_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > SCC_DAG_MAX_INPUT: return -1
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    if n_value < 0 or n_value > 8 or m_value < 0 or m_value > 28: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m: return -1
+
+    adjacency: mutable u16[8] = zeroed
+    reverse: mutable u16[8] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        source: i64 = values[2 + 2 * edge]
+        target: i64 = values[3 + 2 * edge]
+        if source < 0 or source >= n_value or target < 0 or target >= n_value: return -1
+        adjacency[source.usize()] <- adjacency[source.usize()] | (1.u16() << target.usize())
+        reverse[target.usize()] <- reverse[target.usize()] | (1.u16() << source.usize())
+        edge <- edge + 1
+
+    visited: mutable bool[8] = zeroed
+    order: mutable usize[8] = zeroed
+    stack_vertex: mutable usize[8] = zeroed
+    stack_next: mutable usize[8] = zeroed
+    order_count: mutable usize = 0
+    start: mutable usize = 0
+    while start < n:
+        if not visited[start]:
+            stack_size: mutable usize = 1
+            stack_vertex[0] <- start
+            stack_next[0] <- 0
+            visited[start] <- true
+            while stack_size > 0:
+                frame: usize = stack_size - 1
+                vertex: usize = stack_vertex[frame]
+                candidate: mutable usize = stack_next[frame]
+                while candidate < n and (adjacency[vertex] & (1.u16() << candidate)) == 0.u16():
+                    candidate <- candidate + 1
+                if candidate < n:
+                    stack_next[frame] <- candidate + 1
+                    if not visited[candidate]:
+                        visited[candidate] <- true
+                        stack_vertex[stack_size] <- candidate
+                        stack_next[stack_size] <- 0
+                        stack_size <- stack_size + 1
+                else:
+                    order[order_count] <- vertex
+                    order_count <- order_count + 1
+                    stack_size <- stack_size - 1
+        start <- start + 1
+
+    raw_component: mutable i64[8] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        raw_component[i] <- -1
+        visited[i] <- false
+        i <- i + 1
+    component_count: mutable usize = 0
+    while order_count > 0:
+        order_count <- order_count - 1
+        start <- order[order_count]
+        if not visited[start]:
+            stack_size: mutable usize = 1
+            stack_vertex[0] <- start
+            visited[start] <- true
+            raw_component[start] <- component_count.i64()
+            while stack_size > 0:
+                stack_size <- stack_size - 1
+                vertex: usize = stack_vertex[stack_size]
+                candidate: mutable usize = 0
+                while candidate < n:
+                    if (reverse[vertex] & (1.u16() << candidate)) != 0.u16() and not visited[candidate]:
+                        visited[candidate] <- true
+                        raw_component[candidate] <- component_count.i64()
+                        stack_vertex[stack_size] <- candidate
+                        stack_size <- stack_size + 1
+                    candidate <- candidate + 1
+            component_count <- component_count + 1
+
+    minimum: mutable usize[8] = zeroed
+    raw_order: mutable usize[8] = zeroed
+    canonical: mutable usize[8] = zeroed
+    labels: mutable usize[8] = zeroed
+    row_mask: mutable u8[8] = zeroed
+    component: mutable usize = 0
+    while component < component_count:
+        minimum[component] <- n
+        raw_order[component] <- component
+        component <- component + 1
+    vertex: mutable usize = 0
+    while vertex < n:
+        component <- raw_component[vertex].usize()
+        if vertex < minimum[component]: minimum[component] <- vertex
+        vertex <- vertex + 1
+    i <- 1
+    while i < component_count:
+        key: usize = raw_order[i]
+        j: mutable usize = i
+        while j > 0 and minimum[raw_order[j - 1]] > minimum[key]:
+            raw_order[j] <- raw_order[j - 1]
+            j <- j - 1
+        raw_order[j] <- key
+        i <- i + 1
+    i <- 0
+    while i < component_count:
+        canonical[raw_order[i]] <- i
+        i <- i + 1
+    vertex <- 0
+    while vertex < n:
+        labels[vertex] <- canonical[raw_component[vertex].usize()]
+        vertex <- vertex + 1
+    source: mutable usize = 0
+    while source < n:
+        target: mutable usize = 0
+        while target < n:
+            if (adjacency[source] & (1.u16() << target)) != 0.u16():
+                left: usize = labels[source]
+                right: usize = labels[target]
+                if left != right: row_mask[left] <- row_mask[left] | (1.u8() << right)
+            target <- target + 1
+        source <- source + 1
+
+    output_size: usize = 1 + n + component_count
+    if output.is_null() or capacity < output_size: return -2
+    result: mutable view[u8] = output[0:output_size]
+    result[0] <- component_count.u8()
+    vertex <- 0
+    while vertex < n:
+        result[1 + vertex] <- labels[vertex].u8()
+        vertex <- vertex + 1
+    component <- 0
+    while component < component_count:
+        result[1 + n + component] <- row_mask[component]
+        component <- component + 1
+    output_size.i64()
+
+export fn scc_condensation_dag(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > SCC_DAG_MAX_INPUT: return -1
+    scc_condensation_dag_impl(input[0:length], output, capacity)

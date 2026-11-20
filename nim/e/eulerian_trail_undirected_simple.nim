@@ -12,7 +12,7 @@ proc eulerian_trail_undirected_simple*(input:ptr UncheckedArray[int64],length:cs
   if input==nil or length<2:return -1
   let n0=input[0];let m0=input[1]
   if n0<2 or n0>MaxV or m0<0 or m0>MaxE:return -1
-  let n=int(n0);let m=int(m0);if int(length)!=2+2*m:return -1
+  let n=int(n0);let m=int(m0);if length!=csize_t(2+2*m):return -1
   var neighbors:array[MaxV,array[MaxE,int]];var degree:array[MaxV,int];var adjacent:array[MaxV,array[MaxV,bool]]
   for i in 0..<m:
     let a=input[2+2*i];let b=input[3+2*i]
@@ -35,6 +35,6 @@ proc eulerian_trail_undirected_simple*(input:ptr UncheckedArray[int64],length:cs
   var seen:array[MaxV,array[MaxV,bool]];var path:array[MaxE+1,int64];var count=0;dfs(start,neighbors,degree,seen,path,count)
   if count!=m+1:return -1
   let bytes=(2+count)*8
-  if output==nil or int(capacity)<bytes:return -2
+  if output==nil or capacity<csize_t(bytes):return -2
   put(output,0,int64(status));put(output,1,int64(count));for i in 0..<count:put(output,2+i,path[i])
   int64(bytes)

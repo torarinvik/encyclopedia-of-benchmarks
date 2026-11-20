@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn nq_count(n:Int,col:Int,mut rows:InlineArray[Int64,8],mut count:Int64):

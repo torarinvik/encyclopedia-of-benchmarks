@@ -9,7 +9,7 @@ fn void put64(char* output, usz position, long value) {
     }
 }
 
-long list_ranking_independent_set_contraction(long* input, usz length, char* output,
+fn long list_ranking_independent_set_contraction(long* input, usz length, char* output,
                                                usz capacity) @export("list_ranking_independent_set_contraction") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     long n_value = input[0], head_value = input[1];

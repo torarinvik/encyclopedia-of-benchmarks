@@ -6,7 +6,7 @@ const long MAX_INSERT_COUNT = 3;
 const usz MAX_PARSEABLE_INPUT_LENGTH = 5;
 
 fn void write_i64_le(char* output, usz offset, long value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (char)(bits & 255);
         bits >>= 8;

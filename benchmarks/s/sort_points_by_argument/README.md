@@ -55,4 +55,5 @@ work; no upstream implementation or prose was copied. See [`RIGHTS.md`](RIGHTS.m
 | V | [`v/s/sort_points_by_argument.v`](../../../v/s/sort_points_by_argument.v) |
 | Zig | [`zig/s/sort_points_by_argument.zig`](../../../zig/s/sort_points_by_argument.zig) |
 
-Root owns shared suite registration and benchmark-corpus wiring.
+The package is registered in the shared `i64_array_bytes_output` runner and
+independent verifier.

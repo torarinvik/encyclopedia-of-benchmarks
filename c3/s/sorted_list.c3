@@ -20,7 +20,7 @@ fn long sorted_list_benchmark(long* input, usz length) @export("sorted_list_benc
     usz operation_count = length / 2;
     if (operation_count > 512) return -1;
 
-    long items[256];
+    long[256] items;
     usz size = 0;
     long checksum = 0;
     for (usz operation = 0; operation < operation_count; ++operation) {
@@ -31,14 +31,14 @@ fn long sorted_list_benchmark(long* input, usz length) @export("sorted_list_benc
 
         if (opcode == 0) {
             if (payload < 0 || payload > MAX_VALUE || size >= 256) return -1;
-            usz position = sorted_list_lower_bound(items, size, payload);
+            usz position = sorted_list_lower_bound(&items[0], size, payload);
             for (usz index = size; index > position; --index) items[index] = items[index - 1];
             items[position] = payload;
             size += 1;
             has_observation = false;
         } else if (opcode == 1 || opcode == 2) {
             if (payload < 0 || payload > MAX_VALUE) return -1;
-            usz position = sorted_list_lower_bound(items, size, payload);
+            usz position = sorted_list_lower_bound(&items[0], size, payload);
             bool found = position < size && items[position] == payload;
             observed = found ? 1 : 0;
             if (opcode == 2 && found) {

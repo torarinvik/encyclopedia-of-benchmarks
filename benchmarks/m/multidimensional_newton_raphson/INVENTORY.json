@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "algorithm": "multidimensional_newton_raphson",
+  "function_symbol": "multidimensional_newton_raphson",
+  "abi": "i64_array_bytes_output",
+  "native_paths": [
+    "c/m/multidimensional_newton_raphson.c",
+    "c3/m/multidimensional_newton_raphson.c3",
+    "cpp/m/multidimensional_newton_raphson.cpp",
+    "elisa/m/multidimensional_newton_raphson.elisa",
+    "mojo/m/multidimensional_newton_raphson.mojo",
+    "nim/m/multidimensional_newton_raphson.nim",
+    "odin/m/multidimensional_newton_raphson.odin",
+    "rust/m/multidimensional_newton_raphson.rs",
+    "v/m/multidimensional_newton_raphson.v",
+    "zig/m/multidimensional_newton_raphson.zig"
+  ],
+  "bounds": {
+    "maximum_valid_input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "coordinate_milli_range": [900, 1500],
+    "updates_range": [1, 8],
+    "maximum_output_bytes": 16,
+    "workspace_bytes": 128
+  },
+  "method": "binary64 coupled two-variable Newton update using the full 2x2 Jacobian",
+  "primary_reference": "primary_oracle.py",
+  "primary_reference_method": "binary64 simplified inverse-Jacobian expressions",
+  "independent_reference": "independent_oracle.py",
+  "independent_reference_method": "binary64 Cramer solve from explicitly formed Jacobian entries",
+  "workload": "workload.json",
+  "suite_registration": "i64_array_bytes_output runner and verifier"
+}

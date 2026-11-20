@@ -1,0 +1,67 @@
+const CONSTANT_INTERVALS_MAX_N: usize = 256
+
+def constant_intervals_value(index: usize, step: i64, offset: i64, divisor: i64) -> i64:
+    (step * index.i64() + offset) / divisor
+
+def constant_intervals_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def constant_intervals_append(lo: usize, hi: usize, value: i64,
+        output: mutable view[u8], state: mutable view[i64]) -> void:
+    count: usize = state[0].usize()
+    if state[3] != 0 and state[1].usize() == lo and state[2] == value:
+        constant_intervals_store_i32(hi.i64(), output, (count - 1) * 12 + 4)
+    else:
+        position: usize = count * 12
+        constant_intervals_store_i32(lo.i64(), output, position)
+        constant_intervals_store_i32(hi.i64(), output, position + 4)
+        constant_intervals_store_i32(value, output, position + 8)
+        state[0] <- state[0] + 1
+    state[1] <- hi.i64()
+    state[2] <- value
+    state[3] <- 1
+
+def constant_intervals_visit(lo: usize, hi: usize, step: i64, offset: i64, divisor: i64,
+        output: mutable view[u8], state: mutable view[i64]) -> void:
+    first: i64 = constant_intervals_value(lo, step, offset, divisor)
+    last: i64 = constant_intervals_value(hi - 1, step, offset, divisor)
+    if first == last or hi - lo == 1:
+        constant_intervals_append(lo, hi, first, output, state)
+        return
+    mid: usize = lo + (hi - lo) / 2
+    constant_intervals_visit(lo, mid, step, offset, divisor, output, state)
+    constant_intervals_visit(mid, hi, step, offset, divisor, output, state)
+
+def constant_intervals_impl(input: view[i64], output: mutable u8&, output_capacity: usize) -> i64:
+    if input.len() != 4:
+        return -1
+    n_value: i64 = input[0]
+    step: i64 = input[1]
+    offset: i64 = input[2]
+    divisor: i64 = input[3]
+    if n_value < 0 or n_value > CONSTANT_INTERVALS_MAX_N.i64() or step < 0 or step > 65535:
+        return -1
+    if offset < 0 or offset > 65535 or divisor < 1 or divisor > 65535:
+        return -1
+    n: usize = n_value.usize()
+    maximum_bytes: usize = n * 12
+    if output_capacity < maximum_bytes:
+        return -2
+    if n == 0:
+        return 0
+    if output.is_null():
+        return -2
+    result: mutable view[u8] = output[0:maximum_bytes]
+    state: mutable i64[4] = zeroed
+    constant_intervals_visit(0, n, step, offset, divisor, result, state[0:4])
+    state[0]
+
+export fn constant_intervals(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length != 4 or input.is_null():
+        return -1
+    constant_intervals_impl(input[0:length], output, output_capacity)

@@ -4,7 +4,7 @@ const usz MAX_TASKS = 16;
 const usz MAX_STEPS = 64;
 const usz MAX_INPUT_LENGTH = MAX_TASKS + 3;
 
-fn long self_adjusting_scheduling(long* input, usz length, uint8* output, usz capacity)
+fn long self_adjusting_scheduling(long* input, usz length, char* output, usz capacity)
     @export("self_adjusting_scheduling") {
     if (input == null || length < 3 || length > MAX_INPUT_LENGTH) return -1;
     long task_count_value = input[0], steps_value = input[1];
@@ -13,9 +13,9 @@ fn long self_adjusting_scheduling(long* input, usz length, uint8* output, usz ca
         length != (usz)task_count_value + 2) return -1;
 
     usz task_count = (usz)task_count_value, steps = (usz)steps_value;
-    long priorities[16];
-    long wait_times[16] = {0};
-    uint8 schedule[64];
+    long[16] priorities;
+    long[16] wait_times = {0};
+    char[64] schedule;
     for (usz task = 0; task < task_count; task++) {
         long priority = input[task + 2];
         if (priority < -2147483648 || priority > 2147483647) return -1;
@@ -32,7 +32,7 @@ fn long self_adjusting_scheduling(long* input, usz length, uint8* output, usz ca
         for (usz task = 1; task < task_count; task++) {
             if (priorities[task] < priorities[selected]) selected = task;
         }
-        schedule[step] = (uint8)selected;
+        schedule[step] = (char)selected;
         wait_times[selected]++;
         long updated_priority = priorities[selected] + wait_times[selected];
         if (updated_priority < -2147483648 || updated_priority > 2147483647) return -1;

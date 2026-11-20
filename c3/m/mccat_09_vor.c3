@@ -45,7 +45,7 @@ fn Priority point_key(Point* p, int* h, int n, int i) {
 
 fn int make_hull(Point* p, int n, int* h) {
     for (int i=1;i<n;i++) { Point v=p[i]; int j=i; while (j>0 && (v.x<p[j-1].x || (v.x==p[j-1].x && v.y<p[j-1].y))) { p[j]=p[j-1]; j--; } p[j]=v; }
-    int stack[16], k=0;
+    int[16] stack; int k=0;
     for (int i=0;i<n;i++) { while (k>=2 && cross(p[stack[k-2]],p[stack[k-1]],p[i])<=0) k--; stack[k++]=i; }
     int threshold=k+1;
     for (int i=n-2;i>=0;i--) { while (k>=threshold && cross(p[stack[k-2]],p[stack[k-1]],p[i])<=0) k--; stack[k++]=i; }
@@ -57,7 +57,7 @@ fn long pack_circle(Point* p, int* h) {
     int s0=length2(b,c), s1=length2(a,c), s2=length2(a,b), opposite=0, u=1, v=2, longest=s0;
     if (s1>longest) { longest=s1; opposite=1; u=0; v=2; }
     if (s2>longest) { longest=s2; opposite=2; u=0; v=1; }
-    Point tri[3]={a,b,c}, o=tri[opposite];
+    Point[3] tri={a,b,c}; Point o=tri[opposite];
     double dot=(double)(tri[u].x-o.x)*(tri[v].x-o.x)+(double)(tri[u].y-o.y)*(tri[v].y-o.y);
     DPoint center; double radius;
     if (dot<0.0) { center={(double)(tri[u].x+tri[v].x)/2.0,(double)(tri[u].y+tri[v].y)/2.0}; radius=sqrt((double)longest)/2.0; }

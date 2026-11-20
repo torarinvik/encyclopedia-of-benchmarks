@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "algorithm": "sieve_of_pritchard",
+  "abi": "i64_array_scalar",
+  "function_symbol": "sieve_of_pritchard",
+  "status": "complete; scalar runner and verifier registered",
+  "sources": [
+    "https://doi.org/10.1145/358527.358540",
+    "https://doi.org/10.1007/BF00264164",
+    "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  ],
+  "input": {
+    "encoding": "[N]",
+    "N_range": [2, 1024],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "number of primes in [2,N]",
+    "maximum_result": 172,
+    "invalid_result": -1
+  },
+  "workspace": {
+    "bytes": 9216,
+    "accounting": "two fixed 1,026-entry i32 link arrays (8,208 bytes) plus scalar state and alignment"
+  },
+  "methods": {
+    "primary": "Pritchard dynamic wheel using array-backed ordered links and reverse multiple deletion",
+    "independent": "direct trial division for each candidate from 2 through N"
+  },
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json", "workload.json",
+    "primary_oracle.py", "independent_oracle.py", "__init__.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "native_paths": [
+    "c/s/sieve_of_pritchard.c",
+    "c3/s/sieve_of_pritchard.c3",
+    "cpp/s/sieve_of_pritchard.cpp",
+    "elisa/s/sieve_of_pritchard.elisa",
+    "mojo/s/sieve_of_pritchard.mojo",
+    "nim/s/sieve_of_pritchard.nim",
+    "odin/s/sieve_of_pritchard.odin",
+    "rust/s/sieve_of_pritchard.rs",
+    "v/s/sieve_of_pritchard.v",
+    "zig/s/sieve_of_pritchard.zig"
+  ],
+  "suite_integration": "benchmarks/run_i64_array_scalar.py and benchmarks/verify_i64_array_scalar.py"
+}

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 @export("welsh_powell")
@@ -5,7 +6,7 @@ fn welsh_powell(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or n>1026:return -1
     let vertices=a[0];let edges=a[1]
     if vertices<0 or vertices>32 or edges<0 or edges>512 or n!=c_size_t(2+2*edges):return -1
-    var graph=InlineArray[Bool,1024]();var degree=InlineArray[Int32,32]();var order=InlineArray[Int32,32]();var colors=InlineArray[Int32,32]()
+    var graph=InlineArray[Bool,1024](fill=False);var degree=InlineArray[Int32,32](fill=0);var order=InlineArray[Int32,32]();var colors=InlineArray[Int32,32]()
     for i in range(Int(vertices)):colors[i]= -1
     for i in range(Int(edges)):
         let u=a[2+2*i];let v=a[3+2*i]

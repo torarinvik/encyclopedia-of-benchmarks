@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "hickerson-almost-integer-i64-array-float64-v1",
+  "algorithm": "hickerson_almost_integer",
+  "function_symbol": "hickerson_almost_integer",
+  "abi": "i64_array_float64",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n]",
+    "exact_length": 1,
+    "n_range": [1, 17],
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "float64_scalar",
+    "meaning": "binary64 approximation of n!/(2*(ln(2)^(n+1)))",
+    "absolute_tolerance": 6e-6,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 17,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 6e-6,
+    "relative_tolerance": 1e-12
+  },
+  "primary_oracle": "benchmarks/h/hickerson_almost_integer/primary_oracle.py",
+  "independent_oracle": "benchmarks/h/hickerson_almost_integer/independent_oracle.py",
+  "cases": [
+    {"id":"n01","input_values":[1],"input_length":1,"expected_result":1.04068},
+    {"id":"n02","input_values":[2],"input_length":1,"expected_result":3.00278},
+    {"id":"n03","input_values":[3],"input_length":1,"expected_result":12.99629},
+    {"id":"n04","input_values":[4],"input_length":1,"expected_result":74.99874},
+    {"id":"n05","input_values":[5],"input_length":1,"expected_result":541.00152},
+    {"id":"n06","input_values":[6],"input_length":1,"expected_result":4683.00125},
+    {"id":"n07","input_values":[7],"input_length":1,"expected_result":47292.99873},
+    {"id":"n08","input_values":[8],"input_length":1,"expected_result":545834.99791},
+    {"id":"n09","input_values":[9],"input_length":1,"expected_result":7087261.00162},
+    {"id":"n10","input_values":[10],"input_length":1,"expected_result":102247563.00527},
+    {"id":"n11","input_values":[11],"input_length":1,"expected_result":1622632572.99755},
+    {"id":"n12","input_values":[12],"input_length":1,"expected_result":28091567594.98157},
+    {"id":"n13","input_values":[13],"input_length":1,"expected_result":526858348381.00125},
+    {"id":"n14","input_values":[14],"input_length":1,"expected_result":10641342970443.08453},
+    {"id":"n15","input_values":[15],"input_length":1,"expected_result":230283190977853.03744},
+    {"id":"n16_not_almost_integer","input_values":[16],"input_length":1,"expected_result":5315654681981354.51308},
+    {"id":"n17_not_almost_integer","input_values":[17],"input_length":1,"expected_result":130370767029135900.45799},
+    {"id":"zero_invalid","input_values":[0],"input_length":1,"expected_result":-1e300},
+    {"id":"upper_bound_plus_one","input_values":[18],"input_length":1,"expected_result":-1e300},
+    {"id":"wrong_length","input_values":[5,6],"input_length":2,"expected_result":-1e300},
+    {"id":"empty_input","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1e300}
+  ]
+}

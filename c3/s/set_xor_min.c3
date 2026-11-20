@@ -5,7 +5,7 @@ const usz MAX_BITS = 30;
 const usz MAX_NODES = 1 + MAX_BITS * MAX_Q;
 const usz MAX_INPUT_VALUES = 1 + 2 * MAX_Q;
 
-fn int find_or_create_child(int[MAX_NODES][2]* children, int* node_count,
+fn int find_or_create_child(int[2]* children, int* node_count,
     int node, int direction) {
     int child = children[node][direction];
     if (child < 0) {
@@ -18,7 +18,7 @@ fn int find_or_create_child(int[MAX_NODES][2]* children, int* node_count,
     return child;
 }
 
-fn void insert_value(int[MAX_NODES][2]* children, int[MAX_NODES]* count,
+fn void insert_value(int[2]* children, int* count,
     int* node_count, ulong value) {
     int[MAX_BITS + 1] path;
     int node = 0;
@@ -33,7 +33,7 @@ fn void insert_value(int[MAX_NODES][2]* children, int[MAX_NODES]* count,
     for (int depth = 0; depth <= (int)MAX_BITS; depth += 1) count[path[depth]] += 1;
 }
 
-fn void remove_value(int[MAX_NODES][2]* children, int[MAX_NODES]* count, ulong value) {
+fn void remove_value(int[2]* children, int* count, ulong value) {
     int[MAX_BITS + 1] path;
     int node = 0;
     path[0] = 0;
@@ -48,7 +48,7 @@ fn void remove_value(int[MAX_NODES][2]* children, int[MAX_NODES]* count, ulong v
     for (int depth = 0; depth <= (int)MAX_BITS; depth += 1) count[path[depth]] -= 1;
 }
 
-fn ulong minimum_xor(int[MAX_NODES][2]* children, int[MAX_NODES]* count, ulong value) {
+fn ulong minimum_xor(int[2]* children, int* count, ulong value) {
     int node = 0;
     ulong result = 0;
     for (int bit = (int)MAX_BITS - 1; bit >= 0; bit -= 1) {
@@ -83,7 +83,7 @@ fn long set_xor_min(long* input, usz length, char* output, usz capacity)
             input[offset + 1] < 0 || input[offset + 1] >= 1073741824) return -1;
     }
 
-    int[MAX_NODES][2] children;
+    int[2][MAX_NODES] children;
     int[MAX_NODES] count = zeroed;
     for (usz node = 0; node < MAX_NODES; node += 1) {
         children[node][0] = -1;
@@ -97,12 +97,12 @@ fn long set_xor_min(long* input, usz length, char* output, usz capacity)
         long kind = input[offset];
         ulong value = (ulong)input[offset + 1];
         if (kind == 0) {
-            insert_value(&children, &count, &node_count, value);
+            insert_value(&children[0], &count[0], &node_count, value);
         } else if (kind == 1) {
-            remove_value(&children, &count, value);
+            remove_value(&children[0], &count[0], value);
         } else {
             if (count[0] == 0) return -1;
-            answers[answer_count] = (long)minimum_xor(&children, &count, value);
+            answers[answer_count] = (long)minimum_xor(&children[0], &count[0], value);
             answer_count += 1;
         }
     }

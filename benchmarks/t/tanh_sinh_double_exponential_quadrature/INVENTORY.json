@@ -1,0 +1,42 @@
+{
+  "algorithm": "tanh_sinh_double_exponential_quadrature",
+  "abi": "float64_slice_io",
+  "function_symbol": "tanh_sinh_double_exponential_quadrature",
+  "sources": {
+    "primary": "https://doi.org/10.2977/prims/1195192451",
+    "discovery_index": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "native_paths": [
+    "c/t/tanh_sinh_double_exponential_quadrature.c",
+    "c3/t/tanh_sinh_double_exponential_quadrature.c3",
+    "cpp/t/tanh_sinh_double_exponential_quadrature.cpp",
+    "elisa/t/tanh_sinh_double_exponential_quadrature.elisa",
+    "mojo/t/tanh_sinh_double_exponential_quadrature.mojo",
+    "nim/t/tanh_sinh_double_exponential_quadrature.nim",
+    "odin/t/tanh_sinh_double_exponential_quadrature.odin",
+    "rust/t/tanh_sinh_double_exponential_quadrature.rs",
+    "v/t/tanh_sinh_double_exponential_quadrature.v",
+    "zig/t/tanh_sinh_double_exponential_quadrature.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json", "workload.json",
+    "primary_oracle.py", "independent_oracle.py", "__init__.py", "verify_workload.py", "check_inventory.py"
+  ],
+  "contract": {
+    "input": "[function_id,p], function_id=0..3, p=2..4",
+    "sample_count": "2*3*2^p+1; 25..97",
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "maximum_output_elements": 1,
+    "maximum_output_bytes": 8,
+    "workspace_elements": 1,
+    "workspace_bytes": 8,
+    "absolute_tolerance": 1e-5,
+    "relative_tolerance": 1e-12
+  },
+  "methods": {
+    "primary": "finite Takahasi–Mori transformed trapezoid with stable q=exp(-2*abs(u)) identities",
+    "independent": "closed-form exact integral of the selected fixed callback"
+  },
+  "suite_integration": "benchmarks/run_float64_slice_io.py and benchmarks/verify_float64_slice_io.py registered"
+}

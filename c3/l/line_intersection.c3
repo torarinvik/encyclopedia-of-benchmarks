@@ -3,19 +3,19 @@ module line_intersection;
 const long COORDINATE_LIMIT = 10000;
 struct Point { long x; long y; }
 
-bool same(Point a, Point b) { return a.x == b.x && a.y == b.y; }
-long cross(Point a, Point b, Point c) {
+fn bool same(Point a, Point b) { return a.x == b.x && a.y == b.y; }
+fn long cross(Point a, Point b, Point c) {
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
-bool on_segment(Point a, Point b, Point p) {
+fn bool on_segment(Point a, Point b, Point p) {
     return cross(a, b, p) == 0 && p.x >= (a.x < b.x ? a.x : b.x) &&
         p.x <= (a.x > b.x ? a.x : b.x) && p.y >= (a.y < b.y ? a.y : b.y) &&
         p.y <= (a.y > b.y ? a.y : b.y);
 }
-long write_point(char* output, usz capacity, double x, double y) {
+fn long write_point(char* output, usz capacity, double x, double y) {
     if (output == null || capacity < 16) return -2;
-    ulong x_bits = @bitcast(ulong, x);
-    ulong y_bits = @bitcast(ulong, y);
+    ulong x_bits = bitcast(x, ulong);
+    ulong y_bits = bitcast(y, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[byte] = (char)(x_bits >> (8 * byte));
         output[8 + byte] = (char)(y_bits >> (8 * byte));

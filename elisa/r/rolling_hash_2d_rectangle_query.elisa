@@ -1,0 +1,75 @@
+const RH2_MAX_H: usize = 32
+const RH2_MAX_W: usize = 32
+const RH2_MAX_Q: usize = 128
+const RH2_MAX_INPUT: usize = 1540
+const RH2_MAX_OUTPUT: usize = 1024
+const RH2_MODULUS: i64 = 1000000007
+const RH2_ROW_BASE: i64 = 31
+const RH2_COL_BASE: i64 = 37
+
+def rh2_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def rolling_hash_2d_rectangle_query_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > RH2_MAX_INPUT: return -1
+    h_value: i64 = input[0]
+    w_value: i64 = input[1]
+    q_value: i64 = input[2]
+    if h_value < 1 or h_value > RH2_MAX_H.i64() or w_value < 1 or w_value > RH2_MAX_W.i64() or
+            q_value < 1 or q_value > RH2_MAX_Q.i64(): return -1
+    h: usize = h_value.usize()
+    w: usize = w_value.usize()
+    q: usize = q_value.usize()
+    if length != 3 + h * w + 4 * q: return -1
+    query_offset: usize = 3 + h * w
+    for i in 0..<h * w:
+        if input[3 + i] < 0 or input[3 + i] > 255: return -1
+    for i in 0..<q:
+        r0: i64 = input[query_offset + 4 * i]
+        c0: i64 = input[query_offset + 4 * i + 1]
+        r1: i64 = input[query_offset + 4 * i + 2]
+        c1: i64 = input[query_offset + 4 * i + 3]
+        if r0 < 0 or r0 > r1 or r1 > h_value or c0 < 0 or c0 > c1 or c1 > w_value: return -1
+    required: usize = 8 * q
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+
+    row_power: mutable i64[RH2_MAX_H + 1] = zeroed
+    col_power: mutable i64[RH2_MAX_W + 1] = zeroed
+    row_power[0] <- 1
+    col_power[0] <- 1
+    for i in 1..<(h + 1): row_power[i] <- row_power[i - 1] * RH2_ROW_BASE % RH2_MODULUS
+    for j in 1..<(w + 1): col_power[j] <- col_power[j - 1] * RH2_COL_BASE % RH2_MODULUS
+    prefix: mutable i64[(RH2_MAX_H + 1) * (RH2_MAX_W + 1)] = zeroed
+    for r in 1..<(h + 1):
+        row_hash: mutable i64 = 0
+        for c in 1..<(w + 1):
+            row_hash <- (row_hash * RH2_COL_BASE + input[3 + (r - 1) * w + c - 1]) % RH2_MODULUS
+            prefix[r * (RH2_MAX_W + 1) + c] <-
+                (prefix[(r - 1) * (RH2_MAX_W + 1) + c] * RH2_ROW_BASE + row_hash) % RH2_MODULUS
+    staged: mutable u8[RH2_MAX_OUTPUT] = zeroed
+    for i in 0..<q:
+        r0: usize = input[query_offset + 4 * i].usize()
+        c0: usize = input[query_offset + 4 * i + 1].usize()
+        r1: usize = input[query_offset + 4 * i + 2].usize()
+        c1: usize = input[query_offset + 4 * i + 3].usize()
+        rh: usize = r1 - r0
+        cw: usize = c1 - c0
+        value: mutable i64 = prefix[r1 * (RH2_MAX_W + 1) + c1]
+            - prefix[r0 * (RH2_MAX_W + 1) + c1] * row_power[rh] % RH2_MODULUS
+            - prefix[r1 * (RH2_MAX_W + 1) + c0] * col_power[cw] % RH2_MODULUS
+            + prefix[r0 * (RH2_MAX_W + 1) + c0] * row_power[rh] % RH2_MODULUS * col_power[cw] % RH2_MODULUS
+        value <- value % RH2_MODULUS
+        if value < 0: value <- value + RH2_MODULUS
+        rh2_store_i64_le(value, staged[0:RH2_MAX_OUTPUT], 8 * i)
+    for i in 0..<required: output_view[i] <- staged[i]
+    required.i64()
+
+@export("rolling_hash_2d_rectangle_query")
+def rolling_hash_2d_rectangle_query(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > RH2_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    rolling_hash_2d_rectangle_query_impl(input_view, output, capacity)

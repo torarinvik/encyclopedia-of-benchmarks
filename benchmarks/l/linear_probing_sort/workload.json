@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "linear-probing-sort-byte-sort-v1",
+  "algorithm": "linear_probing_sort",
+  "function_symbol": "linear_probing_sort",
+  "input": {
+    "kind": "bounded_byte_key_array",
+    "lengths": [0, 16, 64, 256, 1024],
+    "minimum_key": 0,
+    "maximum_key": 255,
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 73,
+      "modulus": 256,
+      "offset": 0,
+      "formula": "values[index] = ((index * 73) mod 256)"
+    }
+  },
+  "profile": {
+    "maximum_length": 1024,
+    "minimum_key": 0,
+    "maximum_key": 255,
+    "main_slots": "m = 256 * (n + 1) + 1",
+    "overflow_slots": "n",
+    "home_slot": "floor((key - minimum) * (m - 1) / (maximum - minimum)); zero when all keys equal",
+    "maximum_workspace_bytes": 2107400,
+    "time_bound": "O(m+n^2) worst case",
+    "comparison_model": "sort_call"
+  },
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7,
+    "table_allocation_timed": true
+  },
+  "source": {
+    "title": "Linear probing sort",
+    "repository": "NIST Dictionary of Algorithms and Data Structures",
+    "url": "https://xlinux.nist.gov/dads/HTML/linearProbingSort.html",
+    "modified": "2019-02-12",
+    "accessed": "2026-11-16",
+    "license": "Algorithm description only; no source code or prose copied"
+  },
+  "cases": [
+    {"id":"empty", "input_values":[], "expected_values":[]},
+    {"id":"singleton", "input_values":[42], "expected_values":[42]},
+    {"id":"ascending", "input_values":[0,1,2,127,254,255], "expected_values":[0,1,2,127,254,255]},
+    {"id":"descending", "input_values":[255,254,127,2,1,0], "expected_values":[0,1,2,127,254,255]},
+    {"id":"all_equal", "input_values":[17,17,17,17,17,17,17,17], "expected_values":[17,17,17,17,17,17,17,17]},
+    {"id":"overlapping_duplicate_runs", "input_values":[1,0,1,0,1,0,1,0,2,1,0,2,255,0,255,1], "expected_values":[0,0,0,0,0,0,1,1,1,1,1,1,2,2,255,255]},
+    {"id":"sparse_key_collisions", "input_values":[255,0,128,0,255,1,128,128,1,255,64,0], "expected_values":[0,0,0,1,1,64,128,128,128,255,255,255]},
+    {"id":"byte_extrema_repeated", "input_values":[255,0,255,0,255,0,255,0], "expected_values":[0,0,0,0,255,255,255,255]}
+  ]
+}

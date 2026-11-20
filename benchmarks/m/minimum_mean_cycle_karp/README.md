@@ -53,6 +53,9 @@ self-loop, a maximum-input 8-vertex graph, disconnected input, duplicate edges,
 invalid weights, null pointers, and capacity errors. The
 [primary oracle](primary_oracle.py) follows Karp's DP formula; the
 [independent oracle](independent_oracle.py) enumerates simple cycles.
+Additional cases specify a negative fractional mean and reduction of a
+negative ratio. The Elisa output view is bounded to the 16 bytes written,
+even when the caller advertises a larger capacity. These edits are unexecuted.
 `check_inventory.py` statically checks package metadata, workload bounds, all
 ten language ports, and the Elisa safe-view requirement.
 

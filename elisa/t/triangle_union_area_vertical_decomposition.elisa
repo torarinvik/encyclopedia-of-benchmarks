@@ -1,0 +1,230 @@
+# Clean-room exact vertical-decomposition profile; see package README/RIGHTS.
+const TRI_UD_MAX_TRIANGLES: usize = 3
+const TRI_UD_MAX_SEGMENTS: usize = 9
+const TRI_UD_MAX_EVENTS: usize = 45
+
+struct TriUdRat:
+    n: i64
+    d: i64
+
+struct TriUdSeg:
+    x0: i64
+    y0: i64
+    x1: i64
+    y1: i64
+    id: i64
+
+struct TriUdInterval:
+    lo: TriUdRat
+    hi: TriUdRat
+    low: TriUdSeg
+    high: TriUdSeg
+    low_id: i64
+    high_id: i64
+
+def tri_ud_abs(x: i64) -> i64:
+    if x < 0: -x else: x
+
+def tri_ud_gcd(a_arg: i64, b_arg: i64) -> i64:
+    a: mutable i64 = tri_ud_abs(a_arg)
+    b: mutable i64 = tri_ud_abs(b_arg)
+    while b != 0:
+        t: i64 = a % b
+        a <- b
+        b <- t
+    if a == 0: 1 else: a
+
+def tri_ud_rat(n_arg: i64, d_arg: i64) -> TriUdRat:
+    n: mutable i64 = n_arg
+    d: mutable i64 = d_arg
+    if d < 0: n <- -n; d <- -d
+    g: i64 = tri_ud_gcd(n, d)
+    TriUdRat(n / g, d / g)
+
+def tri_ud_add(a: TriUdRat, b: TriUdRat) -> TriUdRat:
+    tri_ud_rat(a.n*b.d+b.n*a.d,a.d*b.d)
+
+def tri_ud_sub(a: TriUdRat, b: TriUdRat) -> TriUdRat:
+    tri_ud_rat(a.n*b.d-b.n*a.d,a.d*b.d)
+
+def tri_ud_mul(a: TriUdRat, b: TriUdRat) -> TriUdRat:
+    tri_ud_rat(a.n*b.n,a.d*b.d)
+
+def tri_ud_div(a: TriUdRat, b: TriUdRat) -> TriUdRat:
+    tri_ud_rat(a.n*b.d,a.d*b.n)
+
+def tri_ud_cmp(a: TriUdRat, b: TriUdRat) -> i64:
+    x: i64 = a.n*b.d
+    y: i64 = b.n*a.d
+    if x < y: -1
+    elif x > y: 1
+    else: 0
+
+def tri_ud_cross(ax: i64, ay: i64, bx: i64, by: i64) -> i64:
+    ax*by-ay*bx
+
+def tri_ud_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    tri_ud_cross(bx-ax,by-ay,cx-ax,cy-ay)
+
+def tri_ud_y_at(s: TriUdSeg, x: TriUdRat) -> TriUdRat:
+    tri_ud_add(tri_ud_rat(s.y0,1),tri_ud_mul(tri_ud_rat(s.y1-s.y0,s.x1-s.x0),tri_ud_sub(x,tri_ud_rat(s.x0,1))))
+
+def tri_ud_intersection(a: TriUdSeg, b: TriUdSeg, result: mutable TriUdRat&) -> bool:
+    rx: i64 = a.x1-a.x0
+    ry: i64 = a.y1-a.y0
+    sx: i64 = b.x1-b.x0
+    sy: i64 = b.y1-b.y0
+    den: i64 = tri_ud_cross(rx,ry,sx,sy)
+    if den == 0: return False
+    qx: i64 = b.x0-a.x0
+    qy: i64 = b.y0-a.y0
+    t: TriUdRat = tri_ud_rat(tri_ud_cross(qx,qy,sx,sy),den)
+    u: TriUdRat = tri_ud_rat(tri_ud_cross(qx,qy,rx,ry),den)
+    if tri_ud_cmp(t,tri_ud_rat(0,1)) < 0 or tri_ud_cmp(t,tri_ud_rat(1,1)) > 0 or tri_ud_cmp(u,tri_ud_rat(0,1)) < 0 or tri_ud_cmp(u,tri_ud_rat(1,1)) > 0: return False
+    result <- tri_ud_add(tri_ud_rat(a.x0,1),tri_ud_mul(t,tri_ud_rat(rx,1)))
+    True
+
+def tri_ud_push_event(events: mutable view[TriUdRat], count: mutable usize&, value: TriUdRat) -> void:
+    i: mutable usize = 0
+    while i < count:
+        if tri_ud_cmp(events[i],value) == 0: return
+        i <- i+1
+    events[count] <- value
+    count <- count+1
+
+def tri_ud_less_interval(a: TriUdInterval, b: TriUdInterval) -> bool:
+    c: i64 = tri_ud_cmp(a.lo,b.lo)
+    if c != 0: return c < 0
+    if a.low_id != b.low_id: return a.low_id < b.low_id
+    c <- tri_ud_cmp(a.hi,b.hi)
+    if c != 0: return c < 0
+    a.high_id < b.high_id
+
+def tri_ud_integrate(area: mutable TriUdRat&, low: TriUdSeg, high: TriUdSeg, xl: TriUdRat, xr: TriUdRat) -> void:
+    h0: TriUdRat = tri_ud_sub(tri_ud_y_at(high,xl),tri_ud_y_at(low,xl))
+    h1: TriUdRat = tri_ud_sub(tri_ud_y_at(high,xr),tri_ud_y_at(low,xr))
+    area <- tri_ud_add(area,tri_ud_mul(tri_ud_sub(xr,xl),tri_ud_div(tri_ud_add(h0,h1),tri_ud_rat(2,1))))
+
+def tri_ud_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset+byte] <- ((bits>>(8*byte))&255).u8()
+        byte <- byte+1
+
+def triangle_union_area_vertical_decomposition_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 20: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 3 or length != 1+6*n_value.usize(): return -1
+    n: usize = n_value.usize()
+    px: mutable i64[9] = zeroed
+    py: mutable i64[9] = zeroed
+    t: mutable usize = 0
+    while t < n:
+        j: mutable usize = 0
+        while j < 3:
+            x: i64 = input[1+6*t+2*j]
+            y: i64 = input[2+6*t+2*j]
+            if x < -1 or x > 1 or y < -1 or y > 1: return -1
+            px[3*t+j] <- x
+            py[3*t+j] <- y
+            j <- j+1
+        if (px[3*t]==px[3*t+1] and py[3*t]==py[3*t+1]) or (px[3*t]==px[3*t+2] and py[3*t]==py[3*t+2]) or (px[3*t+1]==px[3*t+2] and py[3*t+1]==py[3*t+2]) or tri_ud_orient(px[3*t],py[3*t],px[3*t+1],py[3*t+1],px[3*t+2],py[3*t+2])==0: return -1
+        t <- t+1
+    seg: mutable TriUdSeg[9] = zeroed
+    events: mutable TriUdRat[45] = zeroed
+    ns: mutable usize = 0
+    ne: mutable usize = 0
+    t <- 0
+    while t < n:
+        j: mutable usize = 0
+        while j < 3:
+            k: usize = (j+1)%3
+            seg[ns] <- TriUdSeg(px[3*t+j],py[3*t+j],px[3*t+k],py[3*t+k],(3*t+j).i64())
+            tri_ud_push_event(events[0:45],ne,tri_ud_rat(px[3*t+j],1))
+            ns <- ns+1
+            j <- j+1
+        t <- t+1
+    i: mutable usize = 0
+    while i < ns:
+        j: mutable usize = i+1
+        while j < ns:
+            x: mutable TriUdRat = tri_ud_rat(0,1)
+            if tri_ud_intersection(seg[i],seg[j],x): tri_ud_push_event(events[0:45],ne,x)
+            j <- j+1
+        i <- i+1
+    i <- 1
+    while i < ne:
+        value: TriUdRat = events[i]
+        j: mutable usize = i
+        while j > 0 and tri_ud_cmp(value,events[j-1]) < 0:
+            events[j] <- events[j-1]
+            j <- j-1
+        events[j] <- value
+        i <- i+1
+    area: mutable TriUdRat = tri_ud_rat(0,1)
+    e: mutable usize = 0
+    while e+1 < ne:
+        xl: TriUdRat = events[e]
+        xr: TriUdRat = events[e+1]
+        if tri_ud_cmp(xl,xr) < 0:
+            xm: TriUdRat = tri_ud_div(tri_ud_add(xl,xr),tri_ud_rat(2,1))
+            iv: mutable TriUdInterval[3] = zeroed
+            ni: mutable usize = 0
+            t <- 0
+            while t < n:
+                cross_seg: mutable TriUdSeg[3] = zeroed
+                ys: mutable TriUdRat[3] = zeroed
+                count: mutable usize = 0
+                j <- 0
+                while j < 3:
+                    s: TriUdSeg = seg[3*t+j]
+                    lo_x: i64 = if s.x0 < s.x1: s.x0 else: s.x1
+                    hi_x: i64 = if s.x0 > s.x1: s.x0 else: s.x1
+                    if s.x0 != s.x1 and tri_ud_cmp(xm,tri_ud_rat(lo_x,1)) > 0 and tri_ud_cmp(xm,tri_ud_rat(hi_x,1)) < 0:
+                        cross_seg[count] <- s
+                        ys[count] <- tri_ud_y_at(s,xm)
+                        count <- count+1
+                    j <- j+1
+                if count == 2:
+                    swap: bool = tri_ud_cmp(ys[0],ys[1]) > 0 or (tri_ud_cmp(ys[0],ys[1]) == 0 and cross_seg[0].id > cross_seg[1].id)
+                    if swap: iv[ni] <- TriUdInterval(ys[1],ys[0],cross_seg[1],cross_seg[0],cross_seg[1].id,cross_seg[0].id)
+                    else: iv[ni] <- TriUdInterval(ys[0],ys[1],cross_seg[0],cross_seg[1],cross_seg[0].id,cross_seg[1].id)
+                    ni <- ni+1
+                elif count != 0: return -1
+                t <- t+1
+            i <- 1
+            while i < ni:
+                value_iv: TriUdInterval = iv[i]
+                j <- i
+                while j > 0 and tri_ud_less_interval(value_iv,iv[j-1]):
+                    iv[j] <- iv[j-1]
+                    j <- j-1
+                iv[j] <- value_iv
+                i <- i+1
+            have: mutable bool = False
+            low: mutable TriUdSeg = zeroed
+            high: mutable TriUdSeg = zeroed
+            top: mutable TriUdRat = tri_ud_rat(0,1)
+            high_id: mutable i64 = 0
+            i <- 0
+            while i < ni:
+                item: TriUdInterval = iv[i]
+                if not have:
+                    low <- item.low; high <- item.high; top <- item.hi; high_id <- item.high_id; have <- True
+                elif tri_ud_cmp(item.lo,top) <= 0:
+                    c: i64 = tri_ud_cmp(item.hi,top)
+                    if c > 0 or (c == 0 and item.high_id < high_id): high <- item.high; top <- item.hi; high_id <- item.high_id
+                else:
+                    tri_ud_integrate(area,low,high,xl,xr)
+                    low <- item.low; high <- item.high; top <- item.hi; high_id <- item.high_id
+                i <- i+1
+            if have: tri_ud_integrate(area,low,high,xl,xr)
+        e <- e+1
+    if area.n < 0 or area.d <= 0 or area.n > 11289600 or area.d > 2822400: return -1
+    if output.is_null() or capacity < 16: return -2
+    tri_ud_put(area.n,output[0:16],0)
+    tri_ud_put(area.d,output[0:16],8)
+    16
+
+export fn triangle_union_area_vertical_decomposition(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = triangle_union_area_vertical_decomposition_impl

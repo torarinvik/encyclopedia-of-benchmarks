@@ -1,0 +1,51 @@
+const S7_MAX_DRAWS: usize = 256
+const S7_MAX_INPUT_LENGTH: usize = S7_MAX_DRAWS + 2
+
+def s7_generate(input: view[i64], staged: mutable view[u8]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > S7_MAX_INPUT_LENGTH: return -1
+    draw_count_value: i64 = input[0]
+    if draw_count_value < 0 or draw_count_value > S7_MAX_DRAWS.i64() or
+        length != draw_count_value.usize() + 1: return -1
+    draw_count: usize = draw_count_value.usize()
+    index: mutable usize = 0
+    while index < draw_count:
+        if input[index + 1] < 0 or input[index + 1] > 4: return -1
+        index <- index + 1
+
+    value: mutable i64 = 0
+    state_range: mutable i64 = 1
+    written: mutable usize = 0
+    index <- 0
+    while index < draw_count:
+        value <- 5 * value + input[index + 1]
+        state_range <- state_range * 5
+        while state_range >= 7:
+            accepted: i64 = state_range - state_range % 7
+            if value < accepted:
+                staged[written] <- (value % 7 + 1).u8()
+                written <- written + 1
+                value <- value / 7
+                state_range <- accepted / 7
+            else:
+                value <- value - accepted
+                state_range <- state_range - accepted
+        index <- index + 1
+    written.i64()
+
+export fn seven_sided_dice_from_five_sided_dice(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > S7_MAX_INPUT_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    staged_data: mutable u8[S7_MAX_DRAWS] = zeroed
+    staged: mutable view[u8] = staged_data[0:S7_MAX_DRAWS]
+    written: i64 = s7_generate(input_view, staged)
+    if written < 0: return -1
+    required: usize = written.usize()
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index: mutable usize = 0
+    while index < required:
+        output_view[index] <- staged[index]
+        index <- index + 1
+    written

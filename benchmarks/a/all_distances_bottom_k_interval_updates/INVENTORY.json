@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "algorithm": "all_distances_bottom_k_interval_updates",
+  "function_symbol": "all_distances_bottom_k_interval_updates",
+  "abi": "i64_array_bytes_output",
+  "workspace_bytes": 4096,
+  "languages": {
+    "c": "c/a/all_distances_bottom_k_interval_updates.c",
+    "c3": "c3/a/all_distances_bottom_k_interval_updates.c3",
+    "cpp": "cpp/a/all_distances_bottom_k_interval_updates.cpp",
+    "elisa": "elisa/a/all_distances_bottom_k_interval_updates.elisa",
+    "mojo": "mojo/a/all_distances_bottom_k_interval_updates.mojo",
+    "nim": "nim/a/all_distances_bottom_k_interval_updates.nim",
+    "odin": "odin/a/all_distances_bottom_k_interval_updates.odin",
+    "rust": "rust/a/all_distances_bottom_k_interval_updates.rs",
+    "v": "v/a/all_distances_bottom_k_interval_updates.v",
+    "zig": "zig/a/all_distances_bottom_k_interval_updates.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "All-Distances Sketches",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_574",
+    "paper_title": "Summarizing Data using Bottom-k Sketches",
+    "paper_doi": "10.1145/1281100.1281133",
+    "section": "Sections 4-5, arbitrary-order interval representation/update for bottom-k ADS"
+  },
+  "contract": {
+    "input_layout": "[n,k,(item_id,distance,rank)*n] in arrival order",
+    "maximum_valid_input_words": 98,
+    "maximum_parseable_input_words": 99,
+    "maximum_output_words": 97,
+    "maximum_output_bytes": 776,
+    "workspace_bytes": 4096,
+    "tie_rule": "Item IDs, ranks, and distances are unique; interval order is ascending (start,item_id)."
+  },
+  "suite_integration": "i64_array_bytes_output runner and verifier"
+}

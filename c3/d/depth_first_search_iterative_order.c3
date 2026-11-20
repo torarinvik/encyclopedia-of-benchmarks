@@ -18,7 +18,7 @@ fn long depth_first_search_iterative_order(long* input, usz length,
     if (n_value < 1 || n_value > MAX_VERTICES || edge_value < 0 || edge_value > MAX_EDGES ||
         length != (usz)(3 + 2 * edge_value)) return -1;
     int n = (int)n_value;
-    int[MAX_VERTICES + 1][MAX_DEGREE] adjacency;
+    int[MAX_DEGREE][MAX_VERTICES + 1] adjacency;
     int[MAX_VERTICES + 1] degree;
     for (int edge = 0; edge < (int)edge_value; edge++) {
         long left_value = input[2 + 2 * edge], right_value = input[3 + 2 * edge];

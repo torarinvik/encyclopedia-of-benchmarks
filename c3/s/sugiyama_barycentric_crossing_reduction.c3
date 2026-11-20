@@ -1,8 +1,8 @@
 module sugiyama_barycentric_crossing_reduction;
 
-fn void put_i64(uint8* out, usz word, long value) {
+fn void put_i64(char* out, usz word, long value) {
     ulong bits = (ulong)value;
-    for (usz b = 0; b < 8; b++) out[word * 8 + b] = (uint8)(bits >> (8 * b));
+    for (usz b = 0; b < 8; b++) out[word * 8 + b] = (char)(bits >> (8 * b));
 }
 
 fn void positions(long* order, long* sizes, long layer, long* pos) {
@@ -50,7 +50,7 @@ fn void reorder(long* order, long* sizes, long* owner, long* eu, long* ev,
 }
 
 fn long sugiyama_barycentric_crossing_reduction(long* input, usz length,
-    uint8* output, usz capacity) @export("sugiyama_barycentric_crossing_reduction") {
+    char* output, usz capacity) @export("sugiyama_barycentric_crossing_reduction") {
     if (input == null || length < 2 || length > 299) return -1;
     long layers = input[0], limit = input[1];
     if (layers < 2 || layers > 8 || limit < 0 || limit > 16) return -1;

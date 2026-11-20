@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-nagamochi-ibaraki-forest-certificate-i64-array-bytes-output-v1",
+  "algorithm": "nagamochi_ibaraki_sparse_k_connectivity_certificate",
+  "function_symbol": "nagamochi_ibaraki_sparse_k_connectivity_certificate",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic FOREST decomposition and sparse k-edge-connectivity certificate.",
+  "source": {
+    "title": "A Linear-Time Algorithm for Finding a Sparse k-Connected Spanning Subgraph of a k-Connected Graph",
+    "authors": ["Hiroshi Nagamochi", "Toshihide Ibaraki"],
+    "year": 1992,
+    "reference": "Algorithmica 7 (1992), 583–596",
+    "paper_url": "https://gi.cebitec.uni-bielefeld.de/_media/teaching/2013summer/936nagamochi-ibaraki-1992-sparse-k-connected-subgraph.pdf",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_171",
+    "algorithm_attribution": "Section 2 FOREST procedure and Theorem 2.1 sparse edge-connectivity certificate",
+    "implementation_status": "bounded clean-room algorithm implementation; no source code or test data copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,k,(u,v)*m]",
+    "vertex_count_range": [3, 8],
+    "edge_count_range": [0, 28],
+    "k_range": [1, 3],
+    "maximum_valid_length": 59,
+    "maximum_parseable_length": 60,
+    "simple_graph": true,
+    "disconnected_graphs_valid": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[input_edge_count,layer_by_input_edge_record]",
+    "layer_zero_means": "edge belongs to a FOREST layer greater than k",
+    "maximum_bytes": 232,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded adjacency records, rank state, edge labels, and staged output."
+  },
+  "contract": {
+    "rank_initialization": 0,
+    "vertex_choice": "maximum current rank; lowest vertex ID breaks ties",
+    "incident_edge_order": "input record order",
+    "edge_layer": "rank[other_endpoint]+1 before rank updates",
+    "rank_update": "increment chosen vertex rank when it equals the other endpoint rank, then increment the other endpoint rank",
+    "certificate": "retain exactly edges assigned to layers 1 through k",
+    "connectivity_property": "for every pair, the certificate preserves edge connectivity capped at k",
+    "output_order": "input edge record order"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty_graph","input_values":[3,0,3],"input_length":3,"output_capacity":8,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"triangle_k1","input_values":[3,3,1,0,1,1,2,0,2],"input_length":9,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000010000000000000000000000000000000100000000000000"},
+    {"id":"triangle_k3","input_values":[3,3,3,0,1,1,2,0,2],"input_length":9,"output_capacity":32,"expected_result":32,"expected_output_hex":"0300000000000000010000000000000002000000000000000100000000000000"},
+    {"id":"disconnected_components","input_values":[4,2,1,0,1,2,3],"input_length":7,"output_capacity":24,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000100000000000000"},
+    {"id":"complete_four_k2","input_values":[4,6,2,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":15,"output_capacity":56,"expected_result":56,"expected_output_hex":"0600000000000000010000000000000001000000000000000100000000000000020000000000000002000000000000000000000000000000"},
+    {"id":"complete_eight_maximum_output","input_values":[8,28,3,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,2,1,3,1,4,1,5,1,6,1,7,2,3,2,4,2,5,2,6,2,7,3,4,3,5,3,6,3,7,4,5,4,6,4,7,5,6,5,7,6,7],"input_length":59,"output_capacity":232,"expected_result":232,"expected_output_hex":"1c00000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0200000000000000 0200000000000000 0200000000000000 0200000000000000 0200000000000000 0200000000000000 0300000000000000 0300000000000000 0300000000000000 0300000000000000 0300000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"invalid_loop","input_values":[3,1,2,0,0],"input_length":5,"output_capacity":232,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_duplicate","input_values":[3,2,2,0,1,0,1],"input_length":7,"output_capacity":232,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_endpoint","input_values":[3,1,2,0,3],"input_length":5,"output_capacity":232,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_k","input_values":[3,0,0],"input_length":3,"output_capacity":232,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_length","input_values":[3,1,1,0,1,99],"input_length":6,"output_capacity":232,"expected_result":-1,"expected_output_hex":""},
+    {"id":"maximum_parseable_trailing_value","input_values":[8,28,3,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,2,1,3,1,4,1,5,1,6,1,7,2,3,2,4,2,5,2,6,2,7,3,4,3,5,3,6,3,7,4,5,4,6,4,7,5,6,5,7,6,7,99],"input_length":60,"output_capacity":232,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":232,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[3,3,1,0,1,1,2,0,2],"input_length":9,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short_output","input_values":[3,3,1,0,1,1,2,0,2],"input_length":9,"output_capacity":31,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "ratcliff-obershelp-similarity-i64-array-scalar-v1",
+  "algorithm": "ratcliff_obershelp_similarity",
+  "function_symbol": "ratcliff_obershelp_similarity",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[first_length, second_length, first ASCII non-NUL bytes..., second ASCII non-NUL bytes...]",
+    "first_length_range": [0, 32],
+    "second_length_range": [0, 32],
+    "maximum_length": 66,
+    "maximum_parseable_length": 67,
+    "byte_range": [1, 127],
+    "case_sensitive": true,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "integer percentage",
+    "encoding": "floor(200 * matched_characters / (first_length + second_length))",
+    "range": [0, 100],
+    "empty_string_result": 0,
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 16384,
+    "maximum_recursion_depth": 33,
+    "time_complexity": "O(n*m*min(n,m)) worst case for the bounded recursive profile",
+    "space_complexity": "O(min(n,m)) with a released one-row DP buffer per recursive level"
+  },
+  "algorithm_policy": {
+    "variant": "Ratcliff/Obershelp Gestalt pattern matching",
+    "longest_common_substring_tie_break": "leftmost start in first string, then leftmost start in second string",
+    "decomposition": "sum the chosen block length and recursively score the unmatched prefix and suffix pairs",
+    "integer_rounding": "floor",
+    "maximum_text_length": 32,
+    "primary_reference": "one-row longest-common-substring dynamic program and recursive decomposition",
+    "independent_reference": "direct candidate-substring comparisons and explicit work stack"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "algorithm_index": "https://xlinux.nist.gov/dads/HTML/ratcliffObershelp.html",
+    "primary_specification": "https://jacobfilipp.com/DrDobbs/articles/DDJ/1988/8807/8807c/8807c.htm",
+    "primary_citation": "John W. Ratcliff and David E. Metzener, Pattern Matching: The Gestalt Approach, Dr. Dobb's Journal, July 1988, p. 46",
+    "reuse": "Algorithm description only; no source code, samples, tests, or fixtures copied"
+  },
+  "cases": [
+    {"id": "two-empty-strings", "input_values": [0, 0], "input_length": 2, "expected_result": 0},
+    {"id": "first-empty", "input_values": [0, 3, 97, 98, 99], "input_length": 5, "expected_result": 0},
+    {"id": "second-empty", "input_values": [3, 0, 97, 98, 99], "input_length": 5, "expected_result": 0},
+    {"id": "identical", "input_values": [3, 3, 97, 98, 99, 97, 98, 99], "input_length": 8, "expected_result": 100},
+    {"id": "disjoint", "input_values": [2, 2, 97, 98, 99, 100], "input_length": 6, "expected_result": 0},
+    {"id": "prefix-match", "input_values": [3, 2, 97, 98, 99, 97, 98], "input_length": 7, "expected_result": 80},
+    {"id": "recursive-match-on-both-sides", "input_values": [3, 3, 97, 98, 99, 97, 120, 99], "input_length": 8, "expected_result": 66},
+    {"id": "case-sensitive-bytes", "input_values": [1, 1, 65, 97], "input_length": 4, "expected_result": 0},
+    {"id": "ratcliff-metzener-example-floor", "input_values": [12, 12, 80, 101, 110, 110, 115, 121, 108, 118, 97, 110, 105, 97, 80, 101, 110, 99, 105, 108, 118, 97, 110, 101, 121, 97], "input_length": 26, "expected_result": 66},
+    {"id": "max-equal-length-strings", "input_values": [32, 32, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106], "input_length": 66, "expected_result": 100},
+    {"id": "invalid-non-ascii", "input_values": [1, 1, 128], "input_length": 3, "expected_result": -1},
+    {"id": "invalid-nul-byte", "input_values": [1, 1, 0], "input_length": 3, "expected_result": -1},
+    {"id": "invalid-trailing-word", "input_values": [0, 0, 1], "input_length": 3, "expected_result": -1},
+    {"id": "invalid-overlong-input", "input_values": [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], "input_length": 68, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

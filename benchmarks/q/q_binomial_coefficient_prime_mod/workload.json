@@ -91,7 +91,7 @@
     },
     {
       "id": "largest-profile-n-and-q-minus-one",
-      "input_values": [4, 31, 30, 16, 0, 16, 15, 16, 16, 16, 17],
+      "input_values": [4, 31, 30, 16, 0, 16, 15, 16, 16, 15, 16],
       "input_length": 11,
       "output_capacity": 4,
       "expected_result": 4,

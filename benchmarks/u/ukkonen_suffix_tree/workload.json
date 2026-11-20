@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "ukkonen-online-suffix-tree-i64-array-scalar-v1",
+  "algorithm": "ukkonen_suffix_tree",
+  "function_symbol": "ukkonen_suffix_tree",
+  "abi": "i64_array_scalar",
+  "description": "Online suffix-tree construction with a unique terminal and deterministic structural checksum.",
+  "source": {
+    "title": "On-Line Construction of Suffix Trees",
+    "authors": ["Esko Ukkonen"],
+    "year": 1995,
+    "url": "https://doi.org/10.1007/BF01206331",
+    "used_for": "Online phase extension using an active point, suffix links, open leaf ends, and edge splitting; algorithm idea only."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, symbol_0, ..., symbol_(n-1)]",
+    "text_length_range": [0, 64],
+    "symbol_range": [0, 3],
+    "terminator": 4,
+    "framing_rule": "The input length must be exactly n+1; the implementation appends one unique terminal symbol 4.",
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "construction": "Process each text symbol from left to right, maintaining the active reference pair, suffix links, open leaf ends, and update/canonize/test-and-split transitions.",
+    "maximum_nodes": 130,
+    "maximum_serialization_tokens": 8903,
+    "maximum_distinct_substrings": 2080,
+    "maximum_token_hash": 2576350140,
+    "canonical_serialization": "Preorder from the root, with child edges ordered by first symbol. Begin with root token 0. For each edge emit [1, edge_length, each edge symbol plus 1, tag]. A leaf uses tag 2 followed by suffix_start+1; an internal node uses tag 3, its children, and closing token 4. Append closing token 4 after the root."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Pack node_count in bits 44+, distinct nonterminal substrings in bits 32..43, and H in bits 0..31. H is the one-based rank-weighted sum of canonical serialization tokens; distinct_substrings is the sum of nonterminal edge-label symbols.",
+    "valid_result_range": [0, 2295920294099900],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty-text-terminal-only", "input_values": [0], "input_length": 1, "expected_result": 35184372088901},
+    {"id": "one-symbol", "input_values": [1, 0], "input_length": 2, "expected_result": 52780853100765},
+    {"id": "two-equal-symbols-suffix-links", "input_values": [2, 0, 0], "input_length": 3, "expected_result": 87969520157362},
+    {"id": "two-distinct-symbols", "input_values": [2, 0, 1], "input_length": 3, "expected_result": 70381629080083},
+    {"id": "invalid-empty-input", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1},
+    {"id": "invalid-count-above-bound", "input_values": [65], "input_length": 1, "expected_result": -1},
+    {"id": "invalid-symbol", "input_values": [1, 4], "input_length": 2, "expected_result": -1},
+    {"id": "invalid-truncated-text", "input_values": [2, 0], "input_length": 2, "expected_result": -1},
+    {"id": "invalid-trailing-word", "input_values": [0, 1], "input_length": 2, "expected_result": -1}
+  ]
+}

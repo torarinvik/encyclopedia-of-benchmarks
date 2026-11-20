@@ -45,6 +45,10 @@ already-built harness and library paths and performs no builds. The paired
 driver skips unrequested degrees before constructing their cases; this matters
 for the factorially sized inputs. Paired timings do not replace the byte
 runner's ABI error probes.
+The structured corpus also drafts near-constant inputs in both operand orders
+through degree nine; their expected outputs combine a constant sum with two
+explicit group translations. The verifier compares those formulas with the
+independent direct reference at small degrees. These cases are unexecuted.
 
 The prime exceeds `n`, so it does not divide `n!`; modular inverses of the
 nonzero integers through nine exist. A seminormal basis is a promising way to
@@ -69,8 +73,9 @@ outside the production contract. A second [target-oriented reference](target_ora
 enumerates the left operand for each output and derives the right operand by
 inversion. The [ABI reference](abi_reference.py) specifies error precedence and
 serialization, with full-range direct formulas when either operand is constant,
-has at most one nonzero coefficient, or is exactly the sign character or even
-subgroup indicator. It also recognizes pairs whose values are one plus the
+has at most three nonzero coefficients, is constant except for at most three
+coefficients, or is constant separately on even and odd permutations.
+It also recognizes pairs whose values are one plus the
 image of position zero or one. It raises `NotImplementedError` for other valid
 inputs above degree five; those inputs remain in scope. [Reference
 cases](reference_cases.py) include opposite orders of
@@ -98,9 +103,9 @@ and [inverse](../../../cpp/s/symmetric_group_convolution_fft_inverse.hpp)
 drafts use those embeddings and coset actions. A [C++ entry point](../../../cpp/s/symmetric_group_convolution_fft.cpp)
 drafts ordered block multiplication and the ABI. The builder records the three
 header hashes; the runner now checks those hashes and preserves them in records,
-and the verifier source compares them. Other language ports and complete suite
-integration remain outstanding. The C++ entry point and provenance changes
-remain uncompiled and unexecuted.
+and the verifier source compares them. The C++ entry point and provenance
+changes remain uncompiled and unexecuted; the other language drafts and their
+remaining integration gaps are described below.
 A [Rust plan scaffold](../../../rust/s/symmetric_group_convolution_fft_plan.rs)
 now drafts the same degree-nine tableau, generator, and restriction structures.
 The [Rust forward draft](../../../rust/s/symmetric_group_convolution_fft_forward.rs)
@@ -190,7 +195,8 @@ not yet mapped to `-3`; the draft has not been compiled or run.
 
 The [structured-case draft](structured_cases.py) specifies identity,
 constant-function, sign-character, and even-subgroup outputs through degree
-nine, plus a maximum extra-word rejection. Sign-character cases use two dense,
+nine, plus weighted parity-class cases in both operand orders and a maximum
+extra-word rejection. Sign-character cases use two dense,
 nonconstant operands; coordinate cases use two dense functions whose reversed
 orders distinguish noncommuting products. It also includes the two orders of
 noncommuting adjacent swaps, and weighted two-support translations against a

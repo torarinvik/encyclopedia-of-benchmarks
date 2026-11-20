@@ -1,0 +1,57 @@
+# Linear probing sort over bounded byte-valued keys.
+extern calloc(count: usize, size: usize) -> mutable i64&?
+extern free(memory: mutable i64&) -> void
+
+const MAX_LENGTH: usize = 1024
+
+def linear_probing_insertion(values: mutable view[i64], length: usize) -> void:
+    index: mutable usize = 1
+    while index < length:
+        key: i64 = values[index]
+        position: mutable usize = index
+        while position > 0 and values[position - 1] > key:
+            values[position] <- values[position - 1]
+            position <- position - 1
+        values[position] <- key
+        index <- index + 1
+
+def linear_probing_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2: return
+    if length > MAX_LENGTH:
+        items: mutable view[i64] = values[0:length]
+        linear_probing_insertion(items, length)
+        return
+
+    items: mutable view[i64] = values[0:length]
+    minimum: mutable i64 = items[0]
+    maximum: mutable i64 = items[0]
+    for index in 0..<length:
+        if items[index] < 0 or items[index] > 255:
+            linear_probing_insertion(items, length)
+            return
+        if items[index] < minimum: minimum <- items[index]
+        if items[index] > maximum: maximum <- items[index]
+
+    main_slots: usize = 256 * (length + 1) + 1
+    table_length: usize = main_slots + length
+    memory: mutable i64& = get calloc(table_length, 8) else:
+        linear_probing_insertion(items, length)
+        return
+    table: mutable view[i64] = memory[0:table_length]
+    span: i64 = maximum - minimum
+    for index in 0..<length:
+        home: usize = 0
+        if span != 0:
+            home <- ((items[index] - minimum) * (main_slots - 1).i64() / span).usize()
+        slot: mutable usize = home
+        while table[slot] != 0: slot <- slot + 1
+        table[slot] <- items[index] + 1
+
+    output: mutable usize = 0
+    for slot in 0..<table_length:
+        if table[slot] != 0:
+            items[output] <- table[slot] - 1
+            output <- output + 1
+    free(memory)
+
+export fn linear_probing_sort(values: mutable i64&, length: usize) -> void = linear_probing_sort_impl

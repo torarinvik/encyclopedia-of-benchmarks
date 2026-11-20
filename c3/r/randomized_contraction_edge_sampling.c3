@@ -3,7 +3,7 @@ const usz MAX_N=16; const usz MAX_M=24; const usz MAX_INPUT=74;
 
 fn void put32(char*out,usz p,long x){ulong b=(ulong)x;for(usz j=0;j<4;j+=1){out[p+j]=(char)(b&255);b>>=8;}}
 
-long randomized_contraction_edge_sampling(long*in,usz len,char*out,usz cap) @export("randomized_contraction_edge_sampling") {
+fn long randomized_contraction_edge_sampling(long*in,usz len,char*out,usz cap) @export("randomized_contraction_edge_sampling") {
     if(in==null||len<5||len>MAX_INPUT)return -1;
     long n64=in[0],m64=in[1];
     if(n64<2||n64>(long)MAX_N||m64<n64-1||m64>(long)MAX_M||len!=2+3*(usz)m64)return -1;

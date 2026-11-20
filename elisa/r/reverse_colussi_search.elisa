@@ -1,0 +1,133 @@
+const MAX_TEXT: usize = 4096
+const MAX_PATTERN: usize = 128
+const MAX_INPUT_LENGTH: usize = 4227
+
+def reverse_colussi_search_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_n: i64 = input[0]
+    raw_m: i64 = input[1]
+    if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64():
+        return -1
+    let n: usize = raw_n.usize()
+    let m: usize = raw_m.usize()
+    if length != 2 + n + m:
+        return -1
+    text: mutable u8[MAX_TEXT] = zeroed
+    pattern: mutable u8[MAX_PATTERN] = zeroed
+    q: mutable usize = 0
+    while q < n:
+        let value: i64 = input[2 + q]
+        if value < 0 or value > 3:
+            return -1
+        text[q] <- value.u8()
+        q <- q + 1
+    q <- 0
+    while q < m:
+        let value: i64 = input[2 + n + q]
+        if value < 0 or value > 3:
+            return -1
+        pattern[q] <- value.u8()
+        q <- q + 1
+    if n < m:
+        return 0
+
+    hmin: mutable i64[MAX_PATTERN + 1] = zeroed
+    kmin: mutable i64[MAX_PATTERN] = zeroed
+    rmin: mutable i64[MAX_PATTERN] = zeroed
+    order: mutable i64[MAX_PATTERN] = zeroed
+    good_suffix: mutable i64[MAX_PATTERN + 1] = zeroed
+    bad_character: mutable i64[4][MAX_PATTERN + 1] = zeroed
+    shift: mutable usize = 1
+    while shift <= m:
+        last_mismatch: mutable usize = shift - 1
+        q <- shift
+        while q < m:
+            if pattern[q] != pattern[q - shift]:
+                last_mismatch <- q
+            q <- q + 1
+        hmin[shift] <- last_mismatch.i64()
+        shift <- shift + 1
+    shift <- m
+    while shift > 0:
+        let end: usize = hmin[shift].usize()
+        if end != m - 1:
+            kmin[end] <- shift.i64()
+        shift <- shift - 1
+
+    next_boundary: mutable usize = m
+    end: mutable i64 = m.i64() - 1
+    while end >= 0:
+        if hmin[(end + 1).usize()] == end:
+            next_boundary <- (end + 1).usize()
+        rmin[end.usize()] <- next_boundary.i64()
+        end <- end - 1
+
+    order[0] <- (m - 1).i64()
+    cursor: mutable usize = 0
+    shift <- 1
+    while shift <= m:
+        let h_end: usize = hmin[shift].usize()
+        if h_end != m - 1 and kmin[h_end] == shift.i64():
+            cursor <- cursor + 1
+            order[cursor] <- h_end.i64()
+            good_suffix[cursor] <- shift.i64()
+        shift <- shift + 1
+    cursor <- m - 1
+    end <- m.i64() - 2
+    while end >= 0:
+        if kmin[end.usize()] == 0:
+            order[cursor] <- end
+            good_suffix[cursor] <- rmin[end.usize()]
+            cursor <- cursor - 1
+        end <- end - 1
+    good_suffix[m] <- rmin[0]
+
+    symbol: mutable usize = 0
+    while symbol < 4:
+        prior_shift: mutable usize = 1
+        while prior_shift <= m:
+            let boundary: i64 = raw_m - prior_shift.i64() - 1
+            shift <- 1
+            while shift <= m:
+                if shift < m and pattern[m - shift - 1].i64() != symbol.i64():
+                    shift <- shift + 1
+                    continue
+                if shift.i64() <= boundary and
+                   pattern[(raw_m - shift.i64() - prior_shift.i64() - 1).usize()] != pattern[boundary.usize()]:
+                    shift <- shift + 1
+                    continue
+                bad_character[symbol][prior_shift] <- shift.i64()
+                break
+            prior_shift <- prior_shift + 1
+        symbol <- symbol + 1
+
+    count: mutable i64 = 0
+    offset_sum: mutable i64 = 0
+    offset_xor: mutable i64 = 0
+    start: mutable i64 = 0
+    shift_state: mutable usize = m
+    let last_start: i64 = raw_n - raw_m
+    while start <= last_start:
+        while start <= last_start and pattern[(m - 1)].i64() != text[(start + raw_m - 1).usize()].i64():
+            let tail: usize = text[(start + raw_m - 1).usize()].usize()
+            shift_state <- bad_character[tail][shift_state].usize()
+            start <- start + shift_state.i64()
+        if start > last_start:
+            break
+        index: mutable usize = 1
+        while index < m and pattern[order[index].usize()] == text[(start + order[index]).usize()]:
+            index <- index + 1
+        if index == m:
+            count <- count + 1
+            offset_sum <- offset_sum + start
+            offset_xor <- offset_xor ^ start
+        shift_state <- good_suffix[index].usize()
+        start <- start + shift_state.i64()
+    (count << 36) | (offset_sum << 12) | offset_xor
+
+export fn reverse_colussi_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let input_view: view[i64] = input[0:length]
+    reverse_colussi_search_impl(input_view, length)

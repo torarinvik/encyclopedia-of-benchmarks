@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn treap_pri(key:Int64)->Int64:return ((key+1000000)*1103515245+12345)%2147483648

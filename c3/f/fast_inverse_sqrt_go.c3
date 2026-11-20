@@ -14,9 +14,9 @@ fn double fast_inverse_sqrt_go(double value) @export("fast_inverse_sqrt_go") {
     if (value != value || value < MIN_VALUE || value > MAX_VALUE) return -1.0;
     float number = (float)value;
     float x2 = number * 0.5f;
-    uint bits = @bitcast(uint, number);
+    uint bits = bitcast(number, uint);
     bits = 0x5f3759df - (bits >> 1);
-    float y = @bitcast(float, bits);
+    float y = bitcast(bits, float);
     y = newton_step(x2, y);
     y = newton_step(x2, y);
     return (double)y;

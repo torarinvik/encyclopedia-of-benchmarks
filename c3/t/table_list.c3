@@ -18,7 +18,7 @@ fn void write_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long table_list(long* input, usz length, char* output, usz output_capacity) @export("table_list") {
+fn long table_list(long* input, usz length, char* output, usz output_capacity) @export("table_list") {
     if (input == null || length < 1 || length > MAX_INPUT_LENGTH) return -1;
     long operation_count = input[0];
     if (operation_count < 0 || operation_count > 32 || length != 1 + 3 * (usz)operation_count) return -1;

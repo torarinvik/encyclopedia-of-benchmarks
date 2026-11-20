@@ -2,7 +2,7 @@ module maximum_fenwick_tree;
 
 fn long previous_bucket(long index) { return (index & (index + 1)) - 1; }
 
-long maximum_fenwick_tree(long* input, usz length, char* output, usz output_capacity)
+fn long maximum_fenwick_tree(long* input, usz length, char* output, usz output_capacity)
         @export("maximum_fenwick_tree") {
     if (input == null || length < 2 || length > 194 || input[0] < 1 || input[0] > 64 || input[1] < 0 || input[1] > 64) return -1;
     usz size = (usz)input[0], op_count = (usz)input[1];

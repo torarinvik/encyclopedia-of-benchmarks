@@ -1,0 +1,264 @@
+const MAX_VERTICES: usize = 8
+const MAX_INPUT_LENGTH: usize = 53
+const FREE_TREE: i64 = 0
+const SOURCE_TREE: i64 = 1
+const SINK_TREE: i64 = 2
+const MAX_FLOW: i64 = 240
+
+def bk_capacity(residual: view[i64], kind: i64, parent: usize, child: usize) -> i64:
+    if kind == SOURCE_TREE:
+        return residual[parent * MAX_VERTICES + child]
+    residual[child * MAX_VERTICES + parent]
+
+def bk_has_terminal_origin(candidate: usize, blocked: usize, kind: i64,
+        root: usize, tree: view[i64], parent: view[i64], residual: view[i64],
+        n: usize) -> bool:
+    seen: mutable bool[MAX_VERTICES] = zeroed
+    current: mutable usize = candidate
+    while true:
+        if current == blocked or current >= n or tree[current] != kind:
+            return false
+        if current == root:
+            return true
+        if seen[current]:
+            return false
+        seen[current] <- true
+        previous_value: i64 = parent[current]
+        if previous_value < 0 or previous_value >= n.i64():
+            return false
+        previous: usize = previous_value.usize()
+        if bk_capacity(residual, kind, previous, current) <= 0:
+            return false
+        current <- previous
+
+def bk_activate(queue: mutable view[usize], count: mutable usize&,
+        is_active: mutable view[bool], vertex: usize) -> void:
+    if is_active[vertex]:
+        return
+    queue[count] <- vertex
+    count <- count + 1
+    is_active[vertex] <- true
+
+def bk_remove_active(queue: mutable view[usize], count: mutable usize&,
+        is_active: mutable view[bool], vertex: usize) -> void:
+    if not is_active[vertex]:
+        return
+    kept: mutable usize[MAX_VERTICES] = zeroed
+    kept_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < count:
+        queued: usize = queue[index]
+        if queued != vertex:
+            kept[kept_count] <- queued
+            kept_count <- kept_count + 1
+        index <- index + 1
+    index <- 0
+    while index < kept_count:
+        queue[index] <- kept[index]
+        index <- index + 1
+    count <- kept_count
+    is_active[vertex] <- false
+
+def boykov_kolmogorov_impl(values: view[i64]) -> i64:
+    if values.len() < 4 or values.len() > MAX_INPUT_LENGTH:
+        return -1
+    nv: i64 = values[0]
+    mv: i64 = values[1]
+    sv: i64 = values[2]
+    tv: i64 = values[3]
+    if nv < 2 or nv > 8 or mv < 0 or mv > 16 or sv < 0 or sv >= nv or tv < 0 or tv >= nv or sv == tv:
+        return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    source: usize = sv.usize()
+    sink: usize = tv.usize()
+    if values.len() != 4 + 3 * m:
+        return -1
+
+    residual: mutable i64[MAX_VERTICES * MAX_VERTICES] = zeroed
+    for edge_index in 0..<m:
+        u_value: i64 = values[4 + 3 * edge_index]
+        v_value: i64 = values[5 + 3 * edge_index]
+        capacity: i64 = values[6 + 3 * edge_index]
+        if u_value < 0 or u_value >= nv or v_value < 0 or v_value >= nv or u_value == v_value or capacity < 0 or capacity > 15:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        residual[u * MAX_VERTICES + v] <- residual[u * MAX_VERTICES + v] + capacity
+
+    tree: mutable i64[MAX_VERTICES] = zeroed
+    parent: mutable i64[MAX_VERTICES] = zeroed
+    tree[source] <- SOURCE_TREE
+    tree[sink] <- SINK_TREE
+    parent[source] <- -1
+    parent[sink] <- -1
+    active_queue: mutable usize[MAX_VERTICES] = zeroed
+    active_count: mutable usize = 0
+    is_active: mutable bool[MAX_VERTICES] = zeroed
+    active_queue[0] <- source
+    active_queue[1] <- sink
+    active_count <- 2
+    is_active[source] <- true
+    is_active[sink] <- true
+    total_flow: mutable i64 = 0
+
+    while active_count > 0:
+        bridge_source: mutable i64 = -1
+        bridge_sink: mutable i64 = -1
+        found_bridge: mutable bool = false
+        while active_count > 0 and not found_bridge:
+            vertex: usize = active_queue[0]
+            shift_index: mutable usize = 1
+            while shift_index < active_count:
+                active_queue[shift_index - 1] <- active_queue[shift_index]
+                shift_index <- shift_index + 1
+            active_count <- active_count - 1
+            is_active[vertex] <- false
+            kind: i64 = tree[vertex]
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                capacity: i64 = bk_capacity(residual[0:MAX_VERTICES * MAX_VERTICES], kind, vertex, neighbor)
+                if capacity > 0:
+                    if tree[neighbor] == FREE_TREE:
+                        tree[neighbor] <- kind
+                        parent[neighbor] <- vertex.i64()
+                        bk_activate(active_queue[0:MAX_VERTICES], active_count, is_active[0:MAX_VERTICES], neighbor)
+                    elif tree[neighbor] != kind:
+                        if kind == SOURCE_TREE:
+                            bridge_source <- vertex.i64()
+                            bridge_sink <- neighbor.i64()
+                        else:
+                            bridge_source <- neighbor.i64()
+                            bridge_sink <- vertex.i64()
+                        bk_activate(active_queue[0:MAX_VERTICES], active_count, is_active[0:MAX_VERTICES], vertex)
+                        found_bridge <- true
+                        break
+                neighbor <- neighbor + 1
+
+        if not found_bridge:
+            break
+
+        source_reverse: mutable usize[MAX_VERTICES] = zeroed
+        source_length: mutable usize = 0
+        current: mutable usize = bridge_source.usize()
+        while current != source:
+            source_reverse[source_length] <- current
+            source_length <- source_length + 1
+            source_parent_value: i64 = parent[current]
+            if source_parent_value < 0 or source_parent_value >= nv:
+                return -1
+            current <- source_parent_value.usize()
+
+        path_from: mutable usize[MAX_VERTICES * 2] = zeroed
+        path_to: mutable usize[MAX_VERTICES * 2] = zeroed
+        path_length: mutable usize = 0
+        previous: mutable usize = source
+        while source_length > 0:
+            source_length <- source_length - 1
+            source_next: usize = source_reverse[source_length]
+            path_from[path_length] <- previous
+            path_to[path_length] <- source_next
+            path_length <- path_length + 1
+            previous <- source_next
+        path_from[path_length] <- bridge_source.usize()
+        path_to[path_length] <- bridge_sink.usize()
+        path_length <- path_length + 1
+        current <- bridge_sink.usize()
+        while current != sink:
+            sink_parent_value: i64 = parent[current]
+            if sink_parent_value < 0 or sink_parent_value >= nv:
+                return -1
+            sink_next: usize = sink_parent_value.usize()
+            path_from[path_length] <- current
+            path_to[path_length] <- sink_next
+            path_length <- path_length + 1
+            current <- sink_next
+
+        bottleneck: mutable i64 = MAX_FLOW
+        index: mutable usize = 0
+        while index < path_length:
+            path_capacity: i64 = residual[path_from[index] * MAX_VERTICES + path_to[index]]
+            if path_capacity < bottleneck:
+                bottleneck <- path_capacity
+            index <- index + 1
+        if bottleneck <= 0:
+            return -1
+        index <- 0
+        while index < path_length:
+            augment_from: usize = path_from[index]
+            augment_to: usize = path_to[index]
+            residual[augment_from * MAX_VERTICES + augment_to] <- residual[augment_from * MAX_VERTICES + augment_to] - bottleneck
+            residual[augment_to * MAX_VERTICES + augment_from] <- residual[augment_to * MAX_VERTICES + augment_from] + bottleneck
+            index <- index + 1
+        total_flow <- total_flow + bottleneck
+
+        orphan_queue: mutable usize[MAX_VERTICES] = zeroed
+        orphan_count: mutable usize = 0
+        is_orphan: mutable bool[MAX_VERTICES] = zeroed
+        index <- 0
+        while index < path_length:
+            orphan_from: usize = path_from[index]
+            orphan_to: usize = path_to[index]
+            if residual[orphan_from * MAX_VERTICES + orphan_to] == 0:
+                if tree[orphan_from] == SOURCE_TREE and tree[orphan_to] == SOURCE_TREE and parent[orphan_to] == orphan_from.i64():
+                    parent[orphan_to] <- -1
+                    if not is_orphan[orphan_to]:
+                        orphan_queue[orphan_count] <- orphan_to
+                        orphan_count <- orphan_count + 1
+                        is_orphan[orphan_to] <- true
+                elif tree[orphan_from] == SINK_TREE and tree[orphan_to] == SINK_TREE and parent[orphan_from] == orphan_to.i64():
+                    parent[orphan_from] <- -1
+                    if not is_orphan[orphan_from]:
+                        orphan_queue[orphan_count] <- orphan_from
+                        orphan_count <- orphan_count + 1
+                        is_orphan[orphan_from] <- true
+            index <- index + 1
+
+        while orphan_count > 0:
+            orphan: usize = orphan_queue[0]
+            orphan_shift_index: mutable usize = 1
+            while orphan_shift_index < orphan_count:
+                orphan_queue[orphan_shift_index - 1] <- orphan_queue[orphan_shift_index]
+                orphan_shift_index <- orphan_shift_index + 1
+            orphan_count <- orphan_count - 1
+            is_orphan[orphan] <- false
+            orphan_kind: i64 = tree[orphan]
+            if orphan_kind == FREE_TREE:
+                continue
+
+            replacement: mutable i64 = -1
+            orphan_root: mutable usize = source
+            if orphan_kind == SINK_TREE:
+                orphan_root <- sink
+            adoption_candidate: mutable usize = 0
+            while adoption_candidate < n:
+                if adoption_candidate != orphan and tree[adoption_candidate] == orphan_kind and bk_capacity(residual[0:MAX_VERTICES * MAX_VERTICES], orphan_kind, adoption_candidate, orphan) > 0 and bk_has_terminal_origin(adoption_candidate, orphan, orphan_kind, orphan_root, tree[0:MAX_VERTICES], parent[0:MAX_VERTICES], residual[0:MAX_VERTICES * MAX_VERTICES], n):
+                    replacement <- adoption_candidate.i64()
+                    break
+                adoption_candidate <- adoption_candidate + 1
+            if replacement >= 0:
+                parent[orphan] <- replacement
+                continue
+
+            orphan_neighbor: mutable usize = 0
+            while orphan_neighbor < n:
+                if tree[orphan_neighbor] == orphan_kind:
+                    if bk_capacity(residual[0:MAX_VERTICES * MAX_VERTICES], orphan_kind, orphan_neighbor, orphan) > 0:
+                        bk_activate(active_queue[0:MAX_VERTICES], active_count, is_active[0:MAX_VERTICES], orphan_neighbor)
+                    if parent[orphan_neighbor] == orphan.i64():
+                        parent[orphan_neighbor] <- -1
+                        if not is_orphan[orphan_neighbor]:
+                            orphan_queue[orphan_count] <- orphan_neighbor
+                            orphan_count <- orphan_count + 1
+                            is_orphan[orphan_neighbor] <- true
+                orphan_neighbor <- orphan_neighbor + 1
+            tree[orphan] <- FREE_TREE
+            parent[orphan] <- -1
+            bk_remove_active(active_queue[0:MAX_VERTICES], active_count, is_active[0:MAX_VERTICES], orphan)
+
+    total_flow
+
+export fn boykov_kolmogorov_maxflow(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+        return -1
+    boykov_kolmogorov_impl(input[0:length])

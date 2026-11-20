@@ -2,7 +2,7 @@ module ear_clipping_polygon_triangulation;
 
 const usz MAX_VERTICES = 64;
 
-long orient(long* v, usz a, usz b, usz c) {
+fn long orient(long* v, usz a, usz b, usz c) {
     long abx = v[2 * b] - v[2 * a];
     long aby = v[2 * b + 1] - v[2 * a + 1];
     long acx = v[2 * c] - v[2 * a];
@@ -10,14 +10,14 @@ long orient(long* v, usz a, usz b, usz c) {
     return abx * acy - aby * acx;
 }
 
-bool on_segment(long* v, usz a, usz b, usz p) {
+fn bool on_segment(long* v, usz a, usz b, usz p) {
     return v[2 * p] >= (v[2 * a] < v[2 * b] ? v[2 * a] : v[2 * b]) &&
            v[2 * p] <= (v[2 * a] > v[2 * b] ? v[2 * a] : v[2 * b]) &&
            v[2 * p + 1] >= (v[2 * a + 1] < v[2 * b + 1] ? v[2 * a + 1] : v[2 * b + 1]) &&
            v[2 * p + 1] <= (v[2 * a + 1] > v[2 * b + 1] ? v[2 * a + 1] : v[2 * b + 1]);
 }
 
-bool segments_intersect(long* v, usz a, usz b, usz c, usz d) {
+fn bool segments_intersect(long* v, usz a, usz b, usz c, usz d) {
     long o1 = orient(v, a, b, c), o2 = orient(v, a, b, d);
     long o3 = orient(v, c, d, a), o4 = orient(v, c, d, b);
     if (((o1 > 0 && o2 < 0) || (o1 < 0 && o2 > 0)) &&
@@ -28,13 +28,13 @@ bool segments_intersect(long* v, usz a, usz b, usz c, usz d) {
            (o4 == 0 && on_segment(v, c, d, b));
 }
 
-bool in_triangle(long* v, usz a, usz b, usz c, usz p, long winding) {
+fn bool in_triangle(long* v, usz a, usz b, usz c, usz p, long winding) {
     return orient(v, a, b, p) * winding >= 0 &&
            orient(v, b, c, p) * winding >= 0 &&
            orient(v, c, a, p) * winding >= 0;
 }
 
-void write_index(char* output, usz position, usz id) {
+fn void write_index(char* output, usz position, usz id) {
     u32 value = (u32)id;
     for (usz byte = 0; byte < 4; byte++) output[4 * position + byte] = (char)(value >> (8 * byte));
 }
@@ -65,7 +65,7 @@ fn long ear_clipping_polygon_triangulation(long* values, usz length, char* outpu
     if (output == null || output_capacity < 12 * (n - 2)) return -2;
 
     long winding = area2 > 0 ? 1 : -1;
-    bool live[MAX_VERTICES] = zeroed;
+    bool[MAX_VERTICES] live = {};
     for (usz i = 0; i < n; i++) live[i] = true;
     usz live_count = n, emitted = 0;
     while (live_count > 3) {

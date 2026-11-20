@@ -3,15 +3,15 @@ module spiral_print;
 const usz MAX_CELLS = 256;
 const usz MAX_INPUT_LENGTH = 259;
 
-fn void spiral_print_put_i64_le(uint8* output, usz offset, long value) {
+fn void spiral_print_put_i64_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte++) {
-        output[offset + byte] = (uint8)(bits & 255);
+        output[offset + byte] = (char)(bits & 255);
         bits >>= 8;
     }
 }
 
-fn long spiral_print(long* input, usz length, uint8* output, usz capacity) @export("spiral_print") {
+fn long spiral_print(long* input, usz length, char* output, usz capacity) @export("spiral_print") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     long rows_value = input[0], columns_value = input[1];
     if (rows_value < 1 || rows_value > 16 || columns_value < 2 || columns_value > 16) return -1;
@@ -20,7 +20,7 @@ fn long spiral_print(long* input, usz length, uint8* output, usz capacity) @expo
     usz cell_count = rows * columns;
     if (length != 2 + cell_count) return -1;
 
-    long matrix[MAX_CELLS] = {0};
+    long[MAX_CELLS] matrix = {0};
     for (usz index = 0; index < cell_count; index++) {
         long value = input[2 + index];
         if (value < -2147483648 || value > 2147483647) return -1;
@@ -30,7 +30,7 @@ fn long spiral_print(long* input, usz length, uint8* output, usz capacity) @expo
     usz required_bytes = 8 * cell_count;
     if (output == null || capacity < required_bytes) return -2;
 
-    long order[MAX_CELLS] = {0};
+    long[MAX_CELLS] order = {0};
     usz order_length = 0;
     usz top = 0, bottom = rows - 1, left = 0, right = columns - 1;
     while (top <= bottom && left <= right) {

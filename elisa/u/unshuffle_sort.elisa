@@ -1,0 +1,112 @@
+const MAX_ITEMS: usize = 1024
+const NONE: u32 = 1024
+
+def unshuffle_sort_impl(values: mutable view[i64], scratch: mutable view[i64], length: usize) -> void:
+    if length < 2 or length > MAX_ITEMS:
+        return
+    previous: mutable u32[MAX_ITEMS] = zeroed
+    next: mutable u32[MAX_ITEMS] = zeroed
+    pile_front: mutable u32[MAX_ITEMS] = zeroed
+    pile_back: mutable u32[MAX_ITEMS] = zeroed
+    heap: mutable u32[MAX_ITEMS] = zeroed
+    pile_count: mutable usize = 0
+
+    node: mutable usize = 0
+    while node < length:
+        previous[node] <- NONE
+        next[node] <- NONE
+        pile: mutable usize = 0
+        while pile < pile_count:
+            front: usize = pile_front[pile].usize()
+            back: usize = pile_back[pile].usize()
+            if values[node] <= values[front]:
+                next[node] <- front.u32()
+                previous[front] <- node.u32()
+                pile_front[pile] <- node.u32()
+                break
+            if values[node] >= values[back]:
+                previous[node] <- back.u32()
+                next[back] <- node.u32()
+                pile_back[pile] <- node.u32()
+                break
+            pile <- pile + 1
+        if pile == pile_count:
+            pile_front[pile_count] <- node.u32()
+            pile_back[pile_count] <- node.u32()
+            pile_count <- pile_count + 1
+        node <- node + 1
+
+    heap_size: mutable usize = 0
+    pile: mutable usize = 0
+    while pile < pile_count:
+        position: mutable usize = heap_size
+        heap[position] <- pile.u32()
+        heap_size <- heap_size + 1
+        while position > 0:
+            parent: usize = (position - 1) / 2
+            current_pile: usize = heap[position].usize()
+            parent_pile: usize = heap[parent].usize()
+            current_node: usize = pile_front[current_pile].usize()
+            parent_node: usize = pile_front[parent_pile].usize()
+            if values[current_node] > values[parent_node] or (
+                values[current_node] == values[parent_node] and current_pile >= parent_pile
+            ):
+                break
+            temporary: u32 = heap[position]
+            heap[position] <- heap[parent]
+            heap[parent] <- temporary
+            position <- parent
+        pile <- pile + 1
+
+    output: mutable usize = 0
+    while heap_size > 0:
+        current_pile: usize = heap[0].usize()
+        current_node: usize = pile_front[current_pile].usize()
+        scratch[output] <- values[current_node]
+        output <- output + 1
+        successor: usize = next[current_node].usize()
+        if successor != MAX_ITEMS:
+            previous[successor] <- NONE
+            next[current_node] <- NONE
+            pile_front[current_pile] <- successor.u32()
+        else:
+            pile_front[current_pile] <- NONE
+            pile_back[current_pile] <- NONE
+            heap_size <- heap_size - 1
+            if heap_size > 0:
+                heap[0] <- heap[heap_size]
+        if heap_size > 0:
+            position: mutable usize = 0
+            while position * 2 + 1 < heap_size:
+                child: mutable usize = position * 2 + 1
+                if child + 1 < heap_size:
+                    right_pile: usize = heap[child + 1].usize()
+                    left_pile: usize = heap[child].usize()
+                    right_node: usize = pile_front[right_pile].usize()
+                    left_node: usize = pile_front[left_pile].usize()
+                    if values[right_node] < values[left_node] or (
+                        values[right_node] == values[left_node] and right_pile < left_pile
+                    ):
+                        child <- child + 1
+                child_pile: usize = heap[child].usize()
+                position_pile: usize = heap[position].usize()
+                child_node: usize = pile_front[child_pile].usize()
+                position_node: usize = pile_front[position_pile].usize()
+                if values[child_node] > values[position_node] or (
+                    values[child_node] == values[position_node] and child_pile >= position_pile
+                ):
+                    break
+                temporary: u32 = heap[position]
+                heap[position] <- heap[child]
+                heap[child] <- temporary
+                position <- child
+
+    index: mutable usize = 0
+    while index < length:
+        values[index] <- scratch[index]
+        index <- index + 1
+
+export fn unshuffle_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if values.is_null() or scratch.is_null() or length < 2 or length > MAX_ITEMS:
+        return
+    unshuffle_sort_impl(values[0:length], scratch[0:length], length)

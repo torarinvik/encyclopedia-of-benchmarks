@@ -31,7 +31,7 @@ fn long stream_vector_kernels(long* input, usz length, char* output, usz capacit
     for (usz index = 0; index < array_count * count; index++)
         if (input[a_start + index] < -1000 || input[a_start + index] > 1000) return -1;
 
-    long staged[128];
+    long[128] staged;
     for (usz index = 0; index < count; index++) {
         long a = input[a_start + index];
         long value;

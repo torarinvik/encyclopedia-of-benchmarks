@@ -1,0 +1,5 @@
+# Rights and provenance
+
+The benchmark uses the mathematical recurrence for the Mian–Chowla B₂ sequence, attributed to Abdul Majid Mian and S. Chowla, “On the B₂ sequences of Sidon,” *Proceedings of the National Institute of Sciences of India, Section A* 14 (1944), 3–4. A later [academic review](https://journals.us.edu.pl/index.php/AMSIL/article/download/14110/10834/40240) supplies the bibliographic citation. The normalized recurrence and accepted initial terms are cross-referenced with [OEIS A005282](https://oeis.org/A005282). The [RosettaGit task](https://rosettagit.org/tasks/mian-chowla-sequence/) served as an algorithm-title discovery index; its content is licensed GFDL-1.3-or-later.
+
+Only the algorithm idea and mathematical definition were used. No RosettaGit or OEIS implementation code, task wording, examples, test data, or prose was copied. Every language port and both references were written independently for this repository. The data values in `workload.json` are sequence terms, not copied program output fixtures.

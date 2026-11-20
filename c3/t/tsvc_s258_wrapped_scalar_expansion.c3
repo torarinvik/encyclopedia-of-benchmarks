@@ -3,7 +3,7 @@ module tsvc_s258_wrapped_scalar_expansion;
 
 const usz MAX_N = 64;
 
-long tsvc_s258_wrapped_scalar_expansion(long* input, usz length)
+fn long tsvc_s258_wrapped_scalar_expansion(long* input, usz length)
         @export("tsvc_s258_wrapped_scalar_expansion") {
     if (input == null || length < 5 || length > 257) return -1;
     if (input[0] < 1 || input[0] > (long)MAX_N) return -1;

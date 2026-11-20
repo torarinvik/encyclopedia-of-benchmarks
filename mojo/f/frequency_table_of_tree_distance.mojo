@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -29,7 +30,7 @@ fn frequency_table_of_tree_distance(input: UnsafePointer[Int64, ImmutAnyOrigin],
     if length != c_size_t(1 + 2 * (n - 1)):
         return -1
 
-    var adjacent = InlineArray[Bool, MAX_N * MAX_N]()
+    var adjacent = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     var dsu_parent = InlineArray[Int, MAX_N]()
     var dsu_size = InlineArray[Int, MAX_N]()
     for vertex in range(n):
@@ -58,8 +59,8 @@ fn frequency_table_of_tree_distance(input: UnsafePointer[Int64, ImmutAnyOrigin],
         adjacent[left * MAX_N + right] = True
         adjacent[right * MAX_N + left] = True
 
-    var removed = InlineArray[Bool, MAX_N]()
-    var answer = InlineArray[Int64, MAX_N]()
+    var removed = InlineArray[Bool, MAX_N](fill=False)
+    var answer = InlineArray[Int64, MAX_N](fill=0)
     var pending = InlineArray[Int, MAX_N]()
     var pending_count = 1
     pending[0] = 0
@@ -108,14 +109,14 @@ fn frequency_table_of_tree_distance(input: UnsafePointer[Int64, ImmutAnyOrigin],
             if 2 * largest_part <= order_count and (centroid == MAX_N or vertex < centroid):
                 centroid = vertex
 
-        var frequency = InlineArray[Int64, MAX_N]()
+        var frequency = InlineArray[Int64, MAX_N](fill=0)
         var frequency_max = 0
         frequency[0] = 1
         removed[centroid] = True
         for child in range(n):
             if not adjacent[centroid * MAX_N + child] or removed[child]:
                 continue
-            var local_frequency = InlineArray[Int, MAX_N]()
+            var local_frequency = InlineArray[Int, MAX_N](fill=0)
             var walk_vertex = InlineArray[Int, MAX_N]()
             var walk_parent = InlineArray[Int, MAX_N]()
             var walk_depth = InlineArray[Int, MAX_N]()

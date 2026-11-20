@@ -2,6 +2,11 @@
 
 This benchmark preserves the pinned Java implementation's greedy schedule for jobs with arrival times, deadlines, and profits. Jobs are stably sorted by descending profit, so equal-profit jobs retain their input order. Each feasible job takes the latest free slot from its deadline backward through its arrival time. A job whose arrival is later than its deadline is accepted but skipped.
 
+This greedy procedure does not always maximize profit for arbitrary release
+windows. For example, jobs `(arrival=1, deadline=2, profit=10)` and
+`(arrival=2, deadline=2, profit=9)` leave the second job unscheduled when
+processed in that order, even though placing the first at slot 1 allows both.
+
 ## Contract
 
 - Input is a signed 64-bit array encoded as [n, (id, arrival, deadline, profit) repeated n times]. The job count is 0 through 128, the exact length is 1 + 4*n, and the maximum length is 513.

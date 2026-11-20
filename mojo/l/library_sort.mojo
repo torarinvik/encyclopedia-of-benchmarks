@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import MutAnyOrigin,UnsafePointer
 fn lib_find(data:InlineArray[Int64,512],used:InlineArray[Int64,512],cap:Int,value:Int64)->Int:

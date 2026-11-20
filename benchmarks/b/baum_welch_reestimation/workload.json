@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "baum-welch-one-discrete-hmm-reestimation-float64-slice-io-v1",
+  "algorithm": "baum_welch_reestimation",
+  "function_symbol": "baum_welch_reestimation",
+  "abi": "float64_slice_io",
+  "description": "Perform one Baum–Welch re-estimation update of a dense discrete HMM from one observation sequence.",
+  "source": {
+    "title": "A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition",
+    "authors": ["Lawrence R. Rabiner"],
+    "publisher": "Proceedings of the IEEE",
+    "volume": 77,
+    "issue": 2,
+    "year": 1989,
+    "pages": "257–286",
+    "reference_url": "https://doi.org/10.1109/5.18626",
+    "reestimation_description_url": "https://www.cs.cmu.edu/~durand/03-711/Readings/Rabiner89.pdf",
+    "discovery_index_url": "https://xlinux.nist.gov/dads/ui.html",
+    "algorithm_entry_url": "https://xlinux.nist.gov/dads/HTML/baumWelch.html",
+    "implementation_status": "bounded clean-room one-iteration discrete Baum–Welch profile"
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[state_count,symbol_count,sequence_length,initial[state_count],transition[state_count*state_count],emission[state_count*symbol_count],observations[sequence_length]]",
+    "minimum_valid_length": 14,
+    "maximum_valid_length": 47,
+    "maximum_parseable_length": 48,
+    "state_count_range": [2, 4],
+    "symbol_count_range": [2, 4],
+    "sequence_length_range": [1, 8],
+    "probability_range": [0.001, 1.0],
+    "distribution_row_sum_tolerance": 1e-9,
+    "observation_index_range": "0..symbol_count-1",
+    "dimension_and_observation_fields_are_exact_integers": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[updated_initial[state_count],updated_transition[state_count*state_count],updated_emission[state_count*symbol_count]]",
+    "maximum_elements": 36,
+    "success_result": "number of output elements written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "workspace": {
+    "elements": 256,
+    "meaning": "Bounded forward/backward/posterior tables and sufficient-statistic accumulators; output is staged before the caller buffer is written."
+  },
+  "contract": {
+    "forward": "alpha[0,i]=pi[i]*B[i,O[0]]; alpha[t,j]=B[j,O[t]]*sum_i(alpha[t-1,i]*A[i,j]).",
+    "backward": "beta[T-1,i]=1; beta[t,i]=sum_j(A[i,j]*B[j,O[t+1]]*beta[t+1,j]).",
+    "posterior_state": "gamma[t,i]=alpha[t,i]*beta[t,i]/sum_j(alpha[T-1,j]).",
+    "posterior_transition": "xi[t,i,j]=alpha[t,i]*A[i,j]*B[j,O[t+1]]*beta[t+1,j]/sum_j(alpha[T-1,j]).",
+    "reestimation": "pi'[i]=gamma[0,i]; A'[i,j]=sum_t xi[t,i,j]/sum_t gamma[t,i] for t=0..T-2; B'[i,k]=sum_{t:O[t]=k}gamma[t,i]/sum_t gamma[t,i].",
+    "single_observation": "For T=1 there are no transitions to estimate; preserve A exactly while updating pi and B.",
+    "input_model": "All initial probabilities and every row of A and B are positive and normalized within the specified tolerance.",
+    "operation_count": "Exactly one forward-backward expectation step and one re-estimation step; no convergence loop.",
+    "error_precedence": "Validate the complete input and compute the result before validating output pointer/capacity.",
+    "no_write_on_error": true
+  },
+  "complexity": {
+    "primary_time": "O(sequence_length*state_count^2 + state_count*symbol_count)",
+    "independent_reference_time_bound": "O(state_count^sequence_length * sequence_length)",
+    "space": "O(sequence_length*state_count + state_count^2 + state_count*symbol_count), bounded by the fixed profile."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9,
+    "profiles": [
+      {"id": "two-state-nontrivial-update", "input_values": [2, 2, 2, 0.5, 0.5, 0.8, 0.2, 0.3, 0.7, 0.9, 0.1, 0.2, 0.8, 0, 1], "output_elements": 10},
+      {"id": "eight-observation-symmetric-update", "input_values": [2, 2, 8, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 0.4, 0.6, 0.4, 0, 1, 0, 1, 0, 1, 0, 1], "output_elements": 10}
+    ]
+  },
+  "cases": [
+    {"id":"two-state-nontrivial-update","input_values":[2,2,2,0.5,0.5,0.8,0.2,0.3,0.7,0.9,0.1,0.2,0.8,0,1],"input_length":15,"expected_result":10,"expected_output":[0.6467065868263473,0.3532934131736527,0.3333333333333333,0.6666666666666666,0.05084745762711865,0.9491525423728814,0.7346938775510204,0.2653061224489796,0.3155080213903743,0.6844919786096257]},
+    {"id":"single-observation-preserves-transitions","input_values":[2,2,1,0.5,0.5,0.8,0.2,0.3,0.7,0.75,0.25,0.25,0.75,0],"input_length":14,"expected_result":10,"expected_output":[0.75,0.25,0.8,0.2,0.3,0.7,1.0,0.0,1.0,0.0]},
+    {"id":"eight-observation-symmetric-update","input_values":[2,2,8,0.5,0.5,0.5,0.5,0.5,0.5,0.6,0.4,0.6,0.4,0,1,0,1,0,1,0,1],"input_length":21,"expected_result":10,"expected_output":[0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]},
+    {"id":"invalid-state-count","input_values":[1,2,1],"input_length":3,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional-dimension","input_values":[2.5,2,1],"input_length":3,"expected_result":-1,"expected_output":[]},
+    {"id":"unnormalized-initial-distribution","input_values":[2,2,1,0.4,0.4,0.8,0.2,0.3,0.7,0.75,0.25,0.25,0.75,0],"input_length":14,"expected_result":-1,"expected_output":[]},
+    {"id":"observation-out-of-range","input_values":[2,2,1,0.5,0.5,0.8,0.2,0.3,0.7,0.75,0.25,0.25,0.75,2],"input_length":14,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional-observation","input_values":[2,2,1,0.5,0.5,0.8,0.2,0.3,0.7,0.75,0.25,0.25,0.75,0.5],"input_length":14,"expected_result":-1,"expected_output":[]},
+    {"id":"short-frame","input_values":[2,2,1,0.5,0.5,0.8,0.2,0.3,0.7,0.75,0.25,0.25,0.75],"input_length":13,"expected_result":-1,"expected_output":[]},
+    {"id":"trailing-frame-value","input_values":[2,2,1,0.5,0.5,0.8,0.2,0.3,0.7,0.75,0.25,0.25,0.75,0,1],"input_length":15,"expected_result":-1,"expected_output":[]},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output":[]},
+    {"id":"null-output","input_values":[2,2,1,0.5,0.5,0.8,0.2,0.3,0.7,0.75,0.25,0.25,0.75,0],"input_length":14,"output_capacity":10,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"short-output-capacity","input_values":[2,2,1,0.5,0.5,0.8,0.2,0.3,0.7,0.75,0.25,0.25,0.75,0],"input_length":14,"output_capacity":9,"expected_result":-2,"expected_output":[]},
+    {"id":"invalid-input-before-output-error","input_values":[1,2,1],"input_length":3,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output":[]}
+  ]
+}

@@ -93,8 +93,8 @@ fn npb_mg_vcycle(input: UnsafePointer[Float64, ImmutAnyOrigin], input_length: c_
     let iterations = Int(iterations_value)
     let count = Int(count_value)
     if input_length != c_size_t(2 + 4*count): return -1
-    var rhs = InlineArray[Float64, CELLS]()
-    var seen = InlineArray[Bool, CELLS]()
+    var rhs = InlineArray[Float64, CELLS](fill=0.0)
+    var seen = InlineArray[Bool, CELLS](fill=False)
     for source in range(count):
         let base = 2 + 4*source
         let xv = input[base]; let yv = input[base+1]; let zv = input[base+2]; let value = input[base+3]

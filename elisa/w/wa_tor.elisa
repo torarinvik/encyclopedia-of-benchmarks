@@ -96,8 +96,9 @@ def wa_tor_predator_action(entities: mutable view[WaTorEntity], entity_count: mu
         wa_tor_move_and_reproduce(entities, entity_count, board, entity_id, width, height)
     entities[entity_id].energy <- entities[entity_id].energy - 1
 
-def wa_tor_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 3 or length > 196:
+def wa_tor_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 3 or length > 196:
         return -1
     width_value: i64 = values[0]
     height_value: i64 = values[1]
@@ -173,4 +174,6 @@ def wa_tor_impl(values: i64&, length: usize) -> i64:
         state_hash <- (state_hash * WA_TOR_HASH_MULTIPLIER + code) % WA_TOR_HASH_MODULUS
     state_hash * 4225 + 65 * prey_count + predator_count
 
-export fn wa_tor(values: i64&, length: usize) -> i64 = wa_tor_impl
+export fn wa_tor(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 3 or length > 196: return -1
+    wa_tor_impl(values[0:length])

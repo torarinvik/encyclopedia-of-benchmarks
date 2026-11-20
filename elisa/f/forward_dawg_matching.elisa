@@ -1,0 +1,110 @@
+from std.collections import InlineArray
+
+comptime MAX_TEXT = 4096
+comptime MAX_PATTERN = 128
+comptime MAX_INPUT = 4227
+comptime MAX_STATES = 2 * MAX_PATTERN + 2
+
+fn fdm_init(transition: mutable view[Int64], suffix_link: mutable view[Int64], max_length: mutable view[Int64]):
+    for state in range(MAX_STATES):
+        suffix_link[state] <- -1
+        max_length[state] <- 0
+        for symbol in range(4):
+            transition[state * 4 + symbol] <- -1
+
+fn fdm_extend(transition: mutable view[Int64], suffix_link: mutable view[Int64],
+        max_length: mutable view[Int64], state_count: mutable Int&, last: Int,
+        symbol: Int) -> Int:
+    if state_count >= MAX_STATES:
+        return -1
+    let current = state_count
+    state_count <- state_count + 1
+    max_length[current] <- max_length[last] + 1
+    var state = last
+    while state >= 0 and transition[state * 4 + symbol] < 0:
+        transition[state * 4 + symbol] <- Int64(current)
+        state <- Int(suffix_link[state])
+    if state < 0:
+        suffix_link[current] <- 0
+    else:
+        let target = transition[state * 4 + symbol]
+        if max_length[state] + 1 == max_length[Int(target)]:
+            suffix_link[current] <- target
+        else:
+            if state_count >= MAX_STATES:
+                return -1
+            let clone = state_count
+            state_count <- state_count + 1
+            max_length[clone] <- max_length[state] + 1
+            suffix_link[clone] <- suffix_link[Int(target)]
+            for c in range(4):
+                transition[clone * 4 + c] <- transition[Int(target) * 4 + c]
+            while state >= 0 and transition[state * 4 + symbol] == target:
+                transition[state * 4 + symbol] <- Int64(clone)
+                state <- Int(suffix_link[state])
+            suffix_link[Int(target)] <- Int64(clone)
+            suffix_link[current] <- Int64(clone)
+    current
+
+fn fdm_search(transition: view[Int64], suffix_link: view[Int64], max_length: view[Int64],
+        text: view[Int64], n: Int, m: Int) -> Int64:
+    var state = 0
+    var matched: Int64 = 0
+    var count: Int64 = 0
+    var offset_sum: Int64 = 0
+    var offset_xor: Int64 = 0
+    for position in range(n):
+        let symbol = Int(text[position])
+        var target = transition[state * 4 + symbol]
+        if target >= 0:
+            matched <- matched + 1
+            state <- Int(target)
+        else:
+            while state != 0 and transition[state * 4 + symbol] < 0:
+                state <- Int(suffix_link[state])
+            target <- transition[state * 4 + symbol]
+            if target >= 0:
+                matched <- max_length[state] + 1
+                state <- Int(target)
+            else:
+                matched <- 0
+                state <- 0
+        if matched == Int64(m):
+            let start = Int64(position + 1 - m)
+            count <- count + 1
+            offset_sum <- offset_sum + start
+            offset_xor <- offset_xor ^ start
+    (count << 36) | (offset_sum << 12) | offset_xor
+
+@export("forward_dawg_matching")
+fn forward_dawg_matching(input: i64&, length: usize) abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    let input_view: view[Int64] = input[0:Int(length)]
+    let n_value = input_view[0]
+    let m_value = input_view[1]
+    if n_value < 0 or n_value > MAX_TEXT.i64() or m_value < 1 or m_value > MAX_PATTERN.i64(): return -1
+    let n = Int(n_value)
+    let m = Int(m_value)
+    if Int(length) != 2 + n + m: return -1
+    for index in range(n + m):
+        let symbol = input_view[2 + index]
+        if symbol < 0 or symbol > 3: return -1
+    var pattern = InlineArray[Int64, MAX_PATTERN](fill=0)
+    for index in range(m): pattern[index] <- input_view[2 + n + index]
+    var transition = InlineArray[Int64, MAX_STATES * 4](fill=-1)
+    var suffix_link = InlineArray[Int64, MAX_STATES](fill=-1)
+    var max_length = InlineArray[Int64, MAX_STATES](fill=0)
+    var transition_view: mutable view[Int64] = transition[0:MAX_STATES * 4]
+    var suffix_view: mutable view[Int64] = suffix_link[0:MAX_STATES]
+    var length_view: mutable view[Int64] = max_length[0:MAX_STATES]
+    fdm_init(transition_view, suffix_view, length_view)
+    var state_count = 1
+    var last = 0
+    for index in range(m):
+        last <- fdm_extend(transition_view, suffix_view, length_view, state_count&, last, Int(pattern[index]))
+        if last < 0: return -1
+    let text_view: view[Int64] = input_view[2:2 + n]
+    let read_transition: view[Int64] = transition[0:MAX_STATES * 4]
+    let read_suffix: view[Int64] = suffix_link[0:MAX_STATES]
+    let read_length: view[Int64] = max_length[0:MAX_STATES]
+    fdm_search(read_transition, read_suffix, read_length, text_view, n, m)

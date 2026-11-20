@@ -8,7 +8,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz b = 0; b < 8; b += 1) { output[offset + b] = (char)(bits & 255); bits >>= 8; }
 }
 
-long metric_tsp_tree_doubling(long* input, usz length, char* output, usz capacity)
+fn long metric_tsp_tree_doubling(long* input, usz length, char* output, usz capacity)
         @export("metric_tsp_tree_doubling") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0];

@@ -20,7 +20,7 @@ fn bool allowed_channel(long value) {
     return value == 0 || value == 64 || value == 128 || value == 255;
 }
 
-fn long sepia(long* input, usz input_length, uint8* output, usz output_capacity)
+fn long sepia(long* input, usz input_length, char* output, usz output_capacity)
     @export("sepia") {
     if (input == null || input_length < 3 || input_length > MAX_PARSEABLE_INPUT_LENGTH) return -1L;
     if (input[0] < (long)MIN_DIMENSION || input[0] > (long)MAX_DIMENSION ||
@@ -35,7 +35,7 @@ fn long sepia(long* input, usz input_length, uint8* output, usz output_capacity)
     for (usz index = 0; index < 3 * pixel_count; index++)
         if (!allowed_channel(input[3 + index])) return -1L;
 
-    uint8[MAX_OUTPUT_BYTES] staged = zeroed;
+    char[MAX_OUTPUT_BYTES] staged = zeroed;
     for (usz pixel = 0; pixel < pixel_count; pixel++) {
         double blue = (double)input[3 + 3 * pixel];
         double green = (double)input[3 + 3 * pixel + 1];
@@ -48,9 +48,9 @@ fn long sepia(long* input, usz input_length, uint8* output, usz output_capacity)
         long gray = (long)grayscale;
         long green_tinted = gray + factor;
         long red_tinted = gray + 2 * factor;
-        staged[3 * pixel] = (uint8)gray;
-        staged[3 * pixel + 1] = (uint8)(green_tinted < 255 ? green_tinted : 255);
-        staged[3 * pixel + 2] = (uint8)(red_tinted < 255 ? red_tinted : 255);
+        staged[3 * pixel] = (char)gray;
+        staged[3 * pixel + 1] = (char)(green_tinted < 255 ? green_tinted : 255);
+        staged[3 * pixel + 2] = (char)(red_tinted < 255 ? red_tinted : 255);
     }
 
     usz output_bytes = 3 * pixel_count;

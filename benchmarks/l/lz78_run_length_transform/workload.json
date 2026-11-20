@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi634-lz78-run-length-transform-i64-array-bytes-output-v1",
+  "algorithm": "lz78_run_length_transform",
+  "function_symbol": "lz78_run_length_transform",
+  "comparison_model": "i64_array_bytes_output_call",
+  "source": {
+    "title": "Compression of Low Entropy Strings with Lempel-Ziv Algorithms",
+    "authors": ["S. Rao Kosaraju", "Giovanni Manzini"],
+    "doi": "10.1137/S0097539797331105",
+    "paper_url": "https://doi.org/10.1137/S0097539797331105",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_634",
+    "section": "3.1, LZ78RL",
+    "attribution": "Algorithm attribution only; clean-room bounded implementation"
+  },
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n, symbol_0, ..., symbol_(n-1)]",
+    "text_length_range": [0, 32],
+    "symbol_code_range": [1, 3],
+    "reserved_transform_symbol": 0,
+    "exact_valid_length": "n+1",
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "invalid_result": -1
+  },
+  "transform": {
+    "run_definition": "Each maximal consecutive run alpha^m is transformed independently.",
+    "encoding": "Write m in ordinary MSB-first binary with no leading zero; replace each one bit by alpha and each zero bit by reserved symbol 0.",
+    "empty_input": "Transforms to the empty sequence.",
+    "length_bound": "Each run encoding has length at most m, so transformed length is at most n."
+  },
+  "lz78": {
+    "phrase_rule": "Start with the empty phrase ID 0. Repeatedly emit the longest dictionary phrase at the current position followed by its next transformed symbol, then add that new phrase with the next increasing ID.",
+    "terminal_rule": "If the remaining nonempty suffix is already a dictionary phrase, emit (phrase_id, 0, 1). The third field tags this terminal phrase; zero is also a legal transformed symbol.",
+    "ordinary_token": "(parent_phrase_id, next_symbol, 0)",
+    "terminal_token": "(existing_phrase_id, 0, 1)",
+    "empty_stream": "No phrase tokens."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[token_count, (parent_id, next_symbol, terminal_tag)*]",
+    "maximum_token_count": 32,
+    "maximum_bytes": 776,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Bounded run-transformed symbols, four-way trie nodes, token triples, and staged output."
+  },
+  "measurement": {
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-input",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 776,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "single-symbol-run",
+      "input_values": [1, 1],
+      "input_length": 2,
+      "output_capacity": 776,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000000000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "binary-101-run-and-terminal-tag",
+      "input_values": [5, 1, 1, 1, 1, 1],
+      "input_length": 6,
+      "output_capacity": 776,
+      "expected_result": 80,
+      "expected_output_hex": "0300000000000000 0000000000000000 0100000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000"
+    },
+    {
+      "id": "reserved-zero-as-symbol-and-terminal",
+      "input_values": [4, 2, 2, 2, 2],
+      "input_length": 5,
+      "output_capacity": 776,
+      "expected_result": 80,
+      "expected_output_hex": "0300000000000000 0000000000000000 0200000000000000 0000000000000000 0000000000000000 0000000000000000 0200000000000000 0000000000000000 0100000000000000"
+    },
+    {
+      "id": "alternating-singleton-runs-terminal",
+      "input_values": [3, 1, 2, 1],
+      "input_length": 4,
+      "output_capacity": 776,
+      "expected_result": 80,
+      "expected_output_hex": "0300000000000000 0000000000000000 0100000000000000 0000000000000000 0000000000000000 0200000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000"
+    },
+    {
+      "id": "multiple-run-binary-transform",
+      "input_values": [9, 1, 1, 1, 2, 2, 1, 3, 3, 3],
+      "input_length": 10,
+      "output_capacity": 776,
+      "expected_result": 128,
+      "expected_output_hex": "0500000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0200000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0300000000000000 0000000000000000 0000000000000000 0300000000000000 0000000000000000"
+    },
+    {
+      "id": "maximum-repetitive-frame",
+      "input_values": [32, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      "input_length": 33,
+      "output_capacity": 776,
+      "expected_result": 104,
+      "expected_output_hex": "0400000000000000 0000000000000000 0200000000000000 0000000000000000 0000000000000000 0000000000000000 0200000000000000 0000000000000000 0000000000000000 0300000000000000 0000000000000000 0100000000000000"
+    },
+    {
+      "id": "invalid-reserved-input-symbol",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 776,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-symbol-above-alphabet",
+      "input_values": [1, 4],
+      "input_length": 2,
+      "output_capacity": 776,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-trailing-word",
+      "input_values": [1, 1, 2],
+      "input_length": 3,
+      "output_capacity": 776,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-n-over-maximum",
+      "input_values": [33],
+      "input_length": 1,
+      "output_capacity": 776,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 776,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-zero-length",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 776,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-maximum-parseable-length",
+      "input_values": [],
+      "input_length": 34,
+      "input_is_null": true,
+      "output_capacity": 776,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

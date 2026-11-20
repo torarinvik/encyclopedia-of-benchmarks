@@ -15,6 +15,11 @@ The pinned Python `is_square_free(factors)` function returns whether `len(set(fa
 [`workload.json`](workload.json) covers empty and unique lists, repeated values, negative and zero factors, and the int32 value boundary.
 
 An independent set-based [oracle draft](../../square_free_factor_list_oracle.py) validates the full input before checking uniqueness. The shared i64-array scalar runner and verifier now include draft oracle wiring and boundary cases. This integration, the oracle, and the ports have not been executed.
+The verifier source specifies null-pointer calls at lengths 0, 1, 256, and
+257, covering both the empty-list exception and the nonempty-null guard.
+Static inspection of all ten port guards found the same length and null
+conditions. This does not establish that the drafts compile or behave
+correctly beyond those guards.
 
 Static review added missing nonempty-null guards to the Elisa, V, and Zig ports;
 the Elisa port uses a bounded view after checking its ABI input. These changes

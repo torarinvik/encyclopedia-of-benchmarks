@@ -1,0 +1,90 @@
+const RUF_MAX_N: usize = 32
+const RUF_MAX_Q: usize = 32
+const RUF_MAX_PARSEABLE_LENGTH: usize = 99
+
+def ruf_find(parent: mutable view[i64], vertex_input: usize) -> usize:
+    vertex: mutable usize = vertex_input
+    while parent[vertex] >= 0:
+        ancestor: usize = parent[vertex].usize()
+        if parent[ancestor] >= 0: parent[vertex] <- parent[ancestor]
+        vertex <- ancestor
+    vertex
+
+def ruf_unite_roots(parent: mutable view[i64], left: mutable view[i64],
+                    right: mutable view[i64], root_a_input: usize,
+                    root_b_input: usize) -> usize:
+    root_a: mutable usize = root_a_input
+    root_b: mutable usize = root_b_input
+    if parent[root_a] > parent[root_b]:
+        temporary: usize = root_a
+        root_a <- root_b
+        root_b <- temporary
+    parent[root_a] <- parent[root_a] + parent[root_b]
+    parent[root_b] <- root_a.i64()
+    if left[root_b] < left[root_a]: left[root_a] <- left[root_b]
+    if right[root_b] > right[root_a]: right[root_a] <- right[root_b]
+    root_a
+
+def ruf_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > RUF_MAX_PARSEABLE_LENGTH: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > RUF_MAX_N.i64() or q_value < 0 or
+       q_value > RUF_MAX_Q.i64() or length != 2 + 3 * q_value.usize(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    operation: mutable usize = 0
+    while operation < q:
+        base: usize = 2 + 3 * operation
+        opcode: i64 = input[base]
+        first: i64 = input[base + 1]
+        second: i64 = input[base + 2]
+        if opcode == 0:
+            if first < 0 or first > second or second > n_value: return -1
+        elif opcode == 1:
+            if first < 0 or first >= n_value or second < 0 or second >= n_value: return -1
+        elif opcode == 2:
+            if first < 0 or first >= n_value or second != 0: return -1
+        else: return -1
+        operation <- operation + 1
+
+    parent: mutable i64[RUF_MAX_N] = zeroed
+    left: mutable i64[RUF_MAX_N] = zeroed
+    right: mutable i64[RUF_MAX_N] = zeroed
+    vertex: usize = 0
+    while vertex < n:
+        parent[vertex] <- -1
+        left[vertex] <- vertex.i64()
+        right[vertex] <- (vertex + 1).i64()
+        vertex <- vertex + 1
+    components: mutable usize = n
+    total: mutable i64 = 0
+    operation <- 0
+    while operation < q:
+        base: usize = 2 + 3 * operation
+        opcode: i64 = input[base]
+        first: usize = input[base + 1].usize()
+        second: usize = input[base + 2].usize()
+        observed: mutable i64 = 0
+        if opcode == 0:
+            if first < second:
+                root: mutable usize = ruf_find(parent[0:n], first)
+                next: mutable usize = right[root].usize()
+                while next < second:
+                    next_root: usize = ruf_find(parent[0:n], next)
+                    if root == next_root: break
+                    root <- ruf_unite_roots(parent[0:n], left[0:n], right[0:n], root, next_root)
+                    components <- components - 1
+                    next <- right[root].usize()
+            observed <- components.i64()
+        elif opcode == 1:
+            observed <- 1 if ruf_find(parent[0:n], first) == ruf_find(parent[0:n], second) else 0
+        else:
+            observed <- -parent[ruf_find(parent[0:n], first)]
+        total <- total + (operation + 1).i64() * observed
+        operation <- operation + 1
+    total
+
+export fn range_union_find(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > RUF_MAX_PARSEABLE_LENGTH: return -1
+    ruf_impl(input[0:length], length)

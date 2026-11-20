@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "algorithm": "interval_tree_point_stabbing",
+  "abi": "i64_array_bytes_output",
+  "artifacts": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "ports": {
+    "c": "c/i/interval_tree_point_stabbing.c",
+    "c3": "c3/i/interval_tree_point_stabbing.c3",
+    "cpp": "cpp/i/interval_tree_point_stabbing.cpp",
+    "elisa": "elisa/i/interval_tree_point_stabbing.elisa",
+    "mojo": "mojo/i/interval_tree_point_stabbing.mojo",
+    "nim": "nim/i/interval_tree_point_stabbing.nim",
+    "odin": "odin/i/interval_tree_point_stabbing.odin",
+    "rust": "rust/i/interval_tree_point_stabbing.rs",
+    "v": "v/i/interval_tree_point_stabbing.v",
+    "zig": "zig/i/interval_tree_point_stabbing.zig"
+  },
+  "bounds": {
+    "maximum_valid_input_words": 42,
+    "maximum_parseable_input_words": 43,
+    "maximum_output_bytes": 72,
+    "workspace_bytes": 4096
+  },
+  "suite_registration": "integrated"
+}

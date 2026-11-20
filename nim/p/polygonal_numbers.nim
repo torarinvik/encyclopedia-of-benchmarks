@@ -1,6 +1,6 @@
 proc polygonal_numbers*(packed: ptr UncheckedArray[int64], length: csize_t): int64
     {.cdecl, exportc: "polygonal_numbers".} =
-  if length != 2:
+  if packed == nil or length != 2:
     return -1
   let num = packed[0]
   let sides = packed[1]

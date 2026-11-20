@@ -20,6 +20,7 @@ The existing [`decimal_to_octal`](../decimal_to_octal/README.md) benchmark retur
 | C3 | [`c3/d/decimal_to_octal_recursion.c3`](../../../c3/d/decimal_to_octal_recursion.c3) |
 | C++ | [`cpp/d/decimal_to_octal_recursion.cpp`](../../../cpp/d/decimal_to_octal_recursion.cpp) |
 | Elisa | [`elisa/d/decimal_to_octal_recursion.elisa`](../../../elisa/d/decimal_to_octal_recursion.elisa) |
+| Mojo | [`mojo/d/decimal_to_octal_recursion.mojo`](../../../mojo/d/decimal_to_octal_recursion.mojo) |
 | Nim | [`nim/d/decimal_to_octal_recursion.nim`](../../../nim/d/decimal_to_octal_recursion.nim) |
 | Odin | [`odin/d/decimal_to_octal_recursion.odin`](../../../odin/d/decimal_to_octal_recursion.odin) |
 | Rust | [`rust/d/decimal_to_octal_recursion.rs`](../../../rust/d/decimal_to_octal_recursion.rs) |
@@ -29,3 +30,6 @@ The existing [`decimal_to_octal`](../decimal_to_octal/README.md) benchmark retur
 ## TheAlgorithms source
 
 - [C `decimal_to_octal_recursion.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/conversions/decimal_to_octal_recursion.c)
+
+The independent formatting oracle and scalar-suite verifier registration are
+drafted and have not been executed.

@@ -1,0 +1,142 @@
+const MAX_STATES: usize = 3
+const MAX_TEXT: usize = 512
+
+def text_length(text: view[u8]) -> usize:
+    length: mutable usize = 0
+    while length < MAX_TEXT and text[length] != 0: length <- length + 1
+    length
+
+def text_copy(output: mutable view[u8], source: view[u8]) -> bool:
+    length: usize = text_length(source)
+    if length >= MAX_TEXT: return false
+    index: mutable usize = 0
+    while index <= length:
+        output[index] <- source[index]
+        index <- index + 1
+    true
+
+def is_symbol(text: view[u8], symbol: u8) -> bool:
+    text[0] == symbol and text[1] == 0
+
+def compare_text(left: view[u8], right: view[u8]) -> i64:
+    left_length: usize = text_length(left)
+    right_length: usize = text_length(right)
+    shared: usize = if left_length < right_length: left_length else: right_length
+    index: mutable usize = 0
+    while index < shared:
+        if left[index] < right[index]: return -1
+        if left[index] > right[index]: return 1
+        index <- index + 1
+    if left_length < right_length: return -1
+    if left_length > right_length: return 1
+    0
+
+def regex_union(output: mutable view[u8], left: view[u8], right: view[u8]) -> bool:
+    if is_symbol(left, '#'.u8()): return text_copy(output, right)
+    if is_symbol(right, '#'.u8()) or compare_text(left, right) == 0:
+        return text_copy(output, left)
+    first: view[u8] = if compare_text(left, right) < 0: left else: right
+    second: view[u8] = if compare_text(left, right) < 0: right else: left
+    temporary: mutable u8[MAX_TEXT] = zeroed
+    position: mutable usize = 0
+    temporary[position] <- '('.u8(); position <- position + 1
+    index: mutable usize = 0
+    while index < text_length(first): temporary[position] <- first[index]; position <- position + 1; index <- index + 1
+    temporary[position] <- '|'.u8(); position <- position + 1
+    index <- 0
+    while index < text_length(second): temporary[position] <- second[index]; position <- position + 1; index <- index + 1
+    temporary[position] <- ')'.u8()
+    text_copy(output, temporary[0:MAX_TEXT])
+
+def regex_concat(output: mutable view[u8], left: view[u8], right: view[u8]) -> bool:
+    if is_symbol(left, '#'.u8()) or is_symbol(right, '#'.u8()):
+        temporary: mutable u8[MAX_TEXT] = zeroed
+        temporary[0] <- '#'.u8()
+        return text_copy(output, temporary[0:MAX_TEXT])
+    if is_symbol(left, '@'.u8()): return text_copy(output, right)
+    if is_symbol(right, '@'.u8()): return text_copy(output, left)
+    temporary: mutable u8[MAX_TEXT] = zeroed
+    position: mutable usize = 0
+    temporary[position] <- '('.u8(); position <- position + 1
+    index: mutable usize = 0
+    while index < text_length(left): temporary[position] <- left[index]; position <- position + 1; index <- index + 1
+    temporary[position] <- '.'.u8(); position <- position + 1
+    index <- 0
+    while index < text_length(right): temporary[position] <- right[index]; position <- position + 1; index <- index + 1
+    temporary[position] <- ')'.u8()
+    text_copy(output, temporary[0:MAX_TEXT])
+
+def regex_star(output: mutable view[u8], value: view[u8]) -> bool:
+    if is_symbol(value, '#'.u8()) or is_symbol(value, '@'.u8()):
+        temporary: mutable u8[MAX_TEXT] = zeroed
+        temporary[0] <- '@'.u8()
+        return text_copy(output, temporary[0:MAX_TEXT])
+    temporary: mutable u8[MAX_TEXT] = zeroed
+    position: mutable usize = 0
+    temporary[position] <- '('.u8(); position <- position + 1
+    index: mutable usize = 0
+    while index < text_length(value): temporary[position] <- value[index]; position <- position + 1; index <- index + 1
+    temporary[position] <- ')'.u8(); position <- position + 1
+    temporary[position] <- '*'.u8()
+    text_copy(output, temporary[0:MAX_TEXT])
+
+def brzozowski_dfa_to_regex_impl(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 10: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    start_value: i64 = input_view[1]
+    accepting: i64 = input_view[2]
+    if n_value < 1 or n_value > MAX_STATES.i64() or start_value < 0 or start_value >= n_value or
+        accepting < 0 or accepting >= (1.i64() << n_value.usize()) or length != 3 + 2 * n_value.usize(): return -1
+    n: usize = n_value.usize()
+    start: usize = start_value.usize()
+    coefficient: mutable u8[MAX_STATES][MAX_STATES][MAX_TEXT] = zeroed
+    constant: mutable u8[MAX_STATES][MAX_TEXT] = zeroed
+    for state in 0..<n:
+        constant[state][0] <- if accepting & (1.i64() << state) != 0: '@'.u8() else: '#'.u8()
+        for target in 0..<n: coefficient[state][target][0] <- '#'.u8()
+        for symbol in 0..<2:
+            next_value: i64 = input_view[3 + 2 * state + symbol]
+            if next_value < 0 or next_value >= n_value: return -1
+            next: usize = next_value.usize()
+            label: mutable u8[MAX_TEXT] = zeroed
+            label[0] <- (48 + symbol).u8()
+            if not regex_union(coefficient[state][next][0:MAX_TEXT],
+                coefficient[state][next][0:MAX_TEXT], label[0:MAX_TEXT]): return -1
+
+    for pivot in 0..<n:
+        if pivot == start: continue
+        loop: mutable u8[MAX_TEXT] = zeroed
+        if not regex_star(loop[0:MAX_TEXT], coefficient[pivot][pivot][0:MAX_TEXT]): return -1
+        pivot_row: mutable u8[MAX_STATES][MAX_TEXT] = coefficient[pivot]
+        pivot_constant: mutable u8[MAX_TEXT] = constant[pivot]
+        pivot_column: mutable u8[MAX_STATES][MAX_TEXT] = zeroed
+        for state in 0..<n:
+            for index in 0..<MAX_TEXT: pivot_column[state][index] <- coefficient[state][pivot][index]
+        for source in 0..<n:
+            if source == pivot: continue
+            prefix: mutable u8[MAX_TEXT] = zeroed
+            if not regex_concat(prefix[0:MAX_TEXT], pivot_column[source][0:MAX_TEXT], loop[0:MAX_TEXT]): return -1
+            for target in 0..<n:
+                if target == pivot: continue
+                through: mutable u8[MAX_TEXT] = zeroed
+                if not regex_concat(through[0:MAX_TEXT], prefix[0:MAX_TEXT], pivot_row[target][0:MAX_TEXT]) or
+                    not regex_union(coefficient[source][target][0:MAX_TEXT], coefficient[source][target][0:MAX_TEXT], through[0:MAX_TEXT]): return -1
+            through_constant: mutable u8[MAX_TEXT] = zeroed
+            if not regex_concat(through_constant[0:MAX_TEXT], prefix[0:MAX_TEXT], pivot_constant[0:MAX_TEXT]) or
+                not regex_union(constant[source][0:MAX_TEXT], constant[source][0:MAX_TEXT], through_constant[0:MAX_TEXT]): return -1
+
+    loop: mutable u8[MAX_TEXT] = zeroed
+    answer: mutable u8[MAX_TEXT] = zeroed
+    if not regex_star(loop[0:MAX_TEXT], coefficient[start][start][0:MAX_TEXT]) or
+        not regex_concat(answer[0:MAX_TEXT], loop[0:MAX_TEXT], constant[start][0:MAX_TEXT]): return -1
+    result_length: usize = text_length(answer[0:MAX_TEXT])
+    if result_length > 270: return -1
+    if output.is_null() or output_capacity < result_length: return -2
+    output_view: mutable view[u8] = output[0:result_length]
+    for index in 0..<result_length: output_view[index] <- answer[index]
+    result_length.i64()
+
+export fn brzozowski_dfa_to_regex(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = brzozowski_dfa_to_regex_impl

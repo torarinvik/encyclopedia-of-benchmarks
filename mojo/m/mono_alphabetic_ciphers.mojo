@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn macs_step(h:UInt64,b:UInt8)->UInt64:return (h^UInt64(b))*1099511628211

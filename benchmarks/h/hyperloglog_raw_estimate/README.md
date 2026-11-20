@@ -1,6 +1,6 @@
 # HyperLogLog raw estimate
 
-This in-progress benchmark maintains the original HyperLogLog register sketch
+This benchmark maintains the original HyperLogLog register sketch
 for a supplied stream of 32-bit hash values and returns its uncorrected raw
 estimate as an exact rational. It differs from the existing `hyper_log_log`
 package, which preserves a source-specific identity-indexed calculation over
@@ -39,7 +39,9 @@ exact-rational reference, and ten language drafts are present. A separate
 [corrected-estimate draft](../hyperloglog_corrected_estimate/README.md) covers
 the original correction branches. The byte-output runner and verifier
 are wired to this raw core; verifier source covers all buckets and possible
-ranks, duplicates, malformed frames, and the maximum input. Nothing has been
+ranks, duplicates, malformed frames, and the maximum input. Read-only review
+found all ten drafts consistent on bucket/rank extraction, maximum-register
+updates, exact rational reduction, and little-endian output. Nothing has been
 executed.
 
 | Language | Draft port |

@@ -42,8 +42,9 @@ def sras_put64(value: i64, output: mutable view[u8], offset: usize) -> void:
 def static_rectangle_add_rectangle_sum_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 2 or length > 291: return -1
-    n64: i64 = input[0]
-    q64: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n64: i64 = frame[0]
+    q64: i64 = frame[1]
     if n64 < 1 or n64 > 32 or q64 < 0 or q64 > 32: return -1
     n: usize = n64.usize()
     q: usize = q64.usize()
@@ -64,11 +65,11 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&, length: usize,
     off: mutable usize = 2
     i: mutable usize = 0
     while i < n:
-        ul[i] <- input[off]
-        ud[i] <- input[off + 1]
-        ur[i] <- input[off + 2]
-        uu[i] <- input[off + 3]
-        uw[i] <- input[off + 4]
+        ul[i] <- frame[off]
+        ud[i] <- frame[off + 1]
+        ur[i] <- frame[off + 2]
+        uu[i] <- frame[off + 3]
+        uw[i] <- frame[off + 4]
         off <- off + 5
         if ul[i] < 0 or ul[i] >= ur[i] or ur[i] > 1000000 or ud[i] < 0 or ud[i] >= uu[i] or uu[i] > 1000000 or uw[i] < 0 or uw[i] >= MODULUS: return -1
         xs[nx] <- ul[i]
@@ -80,10 +81,10 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&, length: usize,
         i <- i + 1
     i <- 0
     while i < q:
-        ql[i] <- input[off]
-        qd[i] <- input[off + 1]
-        qr[i] <- input[off + 2]
-        qu[i] <- input[off + 3]
+        ql[i] <- frame[off]
+        qd[i] <- frame[off + 1]
+        qr[i] <- frame[off + 2]
+        qu[i] <- frame[off + 3]
         off <- off + 4
         if ql[i] < 0 or ql[i] >= qr[i] or qr[i] > 1000000 or qd[i] < 0 or qd[i] >= qu[i] or qu[i] > 1000000: return -1
         xs[nx] <- ql[i]
@@ -148,9 +149,10 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&, length: usize,
         k <- k + 1
     bytes: usize = 8 * q
     if output.is_null() or capacity < bytes: return -2
+    output_view: mutable view[u8] = output[0:bytes]
     k <- 0
     while k < q:
-        sras_put64(answer[k], output, 8 * k)
+        sras_put64(answer[k], output_view, 8 * k)
         k <- k + 1
     bytes.i64()
 

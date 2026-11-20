@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "algorithm": "succinct_bp_pioneer_match_index",
+  "function_symbol": "succinct_bp_pioneer_match_index",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/s/succinct_bp_pioneer_match_index.c",
+    "c3": "c3/s/succinct_bp_pioneer_match_index.c3",
+    "cpp": "cpp/s/succinct_bp_pioneer_match_index.cpp",
+    "elisa": "elisa/s/succinct_bp_pioneer_match_index.elisa",
+    "mojo": "mojo/s/succinct_bp_pioneer_match_index.mojo",
+    "nim": "nim/s/succinct_bp_pioneer_match_index.nim",
+    "odin": "odin/s/succinct_bp_pioneer_match_index.odin",
+    "rust": "rust/s/succinct_bp_pioneer_match_index.rs",
+    "v": "v/s/succinct_bp_pioneer_match_index.v",
+    "zig": "zig/s/succinct_bp_pioneer_match_index.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "INVENTORY.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "check_inventory.py", "verify_workload.py"],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "chapter": "Succinct Data Structures for Parentheses Matching",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_410",
+    "operational_source": "A Simple Optimal Representation for Balanced Parentheses",
+    "operational_doi": "10.1016/j.tcs.2006.09.014",
+    "sections": ["2.1", "2.2", "2.3"]
+  },
+  "contract": {
+    "input_layout": "[n,bit[0..2n-1]]",
+    "pairs": [1, 32],
+    "maximum_valid_input_words": 65,
+    "maximum_parseable_input_words": 66,
+    "maximum_output_bytes": 520,
+    "workspace_bytes": 8192,
+    "block_bits": 8,
+    "base_bits": 16,
+    "position_order": "zero-based original parenthesis position",
+    "invalid_result": -1,
+    "capacity_error_result": -2
+  }
+}

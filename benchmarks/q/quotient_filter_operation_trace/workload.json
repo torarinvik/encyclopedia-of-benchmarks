@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "id": "standard-quotient-filter-i64-array-bytes-output-v1",
+  "algorithm": "quotient_filter_operation_trace",
+  "function_symbol": "quotient_filter_operation_trace",
+  "abi": "i64_array_bytes_output",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[Q,(opcode,fingerprint)*Q]",
+    "operation_count_range": [0, 32],
+    "opcode_meaning": {
+      "0": "insert one fingerprint copy",
+      "1": "membership lookup",
+      "2": "delete one matching copy"
+    },
+    "fingerprint_range": [0, 255],
+    "fingerprint_split": "q=fingerprint>>5; remainder=fingerprint&31",
+    "quotient_bits": 3,
+    "remainder_bits": 5,
+    "slot_count": 8,
+    "maximum_total_copies": 6,
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "operations": {
+    "duplicate_policy": "multiset; insert adds one copy; equal remainders stay adjacent and insert after existing equals",
+    "delete_policy": "remove one first matching remainder in sorted run; absent delete is a no-op",
+    "full_insert_status": 2,
+    "insert_success_status": 1,
+    "lookup_present_status": 1,
+    "lookup_absent_status": 0,
+    "delete_success_status": 1,
+    "delete_absent_status": 0,
+    "full_insert_mutates": false,
+    "trace_aborts_on_full": false,
+    "slot_metadata": "occupied at canonical q; continuation for same run as previous circular slot; shifted when stored away from q",
+    "metadata_update": "locate clusters by walking shifted bits backward, continuation bits forward, and occupied buckets in quotient order; insert shifts only to the next empty slot, promotes the displaced old head to continuation when inserting before a run head, and marks moved entries shifted; delete promotes the next same-run copy when deleting a head, then shifts left through shifted entries until an empty slot or unshifted home slot; run-head home tracking advances through occupied buckets; occupied changes only on first insertion or final-copy deletion"
+  },
+  "output": {
+    "kind": "raw_status_bytes",
+    "layout": "one unsigned status byte per operation",
+    "maximum_bytes": 32,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "input_validation_precedes_capacity": true,
+    "errors_leave_output_untouched": true,
+    "slot_state_bytes_emitted": false
+  },
+  "workspace": {
+    "bytes": 256,
+    "accounting": "eight remainder cells, three eight-cell metadata arrays, 32-byte status staging, and scalar/parser locals; no per-operation quotient-origin array"
+  },
+  "complexity": {
+    "primary_time": "O(Q*8) bounded metadata-guided run traversal and local shifts",
+    "primary_state": "O(8+Q) bytes/words",
+    "independent_reference_time": "expected O(Q) using a bounded fingerprint multiplicity map",
+    "independent_reference_state": "O(6) distinct fingerprints"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "input_and_correctness_validation": "outside timed call"
+  },
+  "source": {
+    "title": "Don't Thrash: How to Cache Your Hash on Flash",
+    "authors": ["Michael A. Bender", "Martin Farach-Colton", "Rob Johnson", "Russell Kraner", "Bradley C. Kuszmaul"],
+    "url": "https://doi.org/10.14778/2350229.2350275",
+    "section": "3, Quotient Filter; Figure 3",
+    "secondary_title": "Quotient Filters: Approximate Membership Queries on the GPU",
+    "secondary_url": "https://doi.org/10.1109/IPDPS.2018.00055",
+    "secondary_section": "III-A, Standard Quotient Filters"
+  },
+  "cases": [
+    {
+      "id": "zero-operations",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wraparound-run-duplicate-delete",
+      "input_values": [11, 0, 255, 0, 224, 0, 0, 1, 255, 1, 0, 2, 224, 1, 0, 0, 32, 1, 255, 2, 255, 1, 255],
+      "input_length": 23,
+      "output_capacity": 11,
+      "expected_result": 11,
+      "expected_output_hex": "0101010101010101010100"
+    },
+    {
+      "id": "six-equal-copies-full-and-one-copy-delete",
+      "input_values": [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 1, 32],
+      "input_length": 23,
+      "output_capacity": 11,
+      "expected_result": 11,
+      "expected_output_hex": "0101010101010201010100"
+    },
+    {
+      "id": "maximum-valid-frame-and-output",
+      "input_values": [32,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255],
+      "input_length": 65,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-output-one-byte-short",
+      "input_values": [32,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255],
+      "input_length": 65,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-one-word-overlong-frame",
+      "input_values": [32,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255, 1, 255,
+        999],
+      "input_length": 66,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-pointer",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-pointer",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-opcode",
+      "input_values": [1, 3, 0],
+      "input_length": 3,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fingerprint-outside-byte-domain",
+      "input_values": [1, 1, 256],
+      "input_length": 3,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -14,7 +14,7 @@ fn long boyer_moore(long* values, usz length) @export("boyer_moore") {
     if (pattern_length > text_length) return -1;
 
     usz pattern_start = 2 + text_length;
-    long last_occurrence[127];
+    long[127] last_occurrence;
     for (usz byte = 0; byte < 127; byte++) last_occurrence[byte] = -1;
     for (usz index = 0; index < pattern_length; index++)
         last_occurrence[(usz)values[pattern_start + index]] = (long)index;

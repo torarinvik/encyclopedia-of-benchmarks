@@ -1,0 +1,63 @@
+const MAX_INPUT_LENGTH: usize = 258
+const MAX_SEARCH_LENGTH: usize = 128
+const MAX_PATTERN_LENGTH: usize = 128
+
+def minimum_window_subsequence_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > MAX_SEARCH_LENGTH.i64(): return -1
+    search_length: usize = input[0].usize()
+    pattern_length_index: usize = search_length + 1
+    if length <= pattern_length_index: return -1
+    pattern_length_value: i64 = input[pattern_length_index]
+    if pattern_length_value < 1 or pattern_length_value > MAX_PATTERN_LENGTH.i64(): return -1
+    pattern_length: usize = pattern_length_value.usize()
+    if length != search_length + pattern_length + 2: return -1
+    index: mutable usize = 0
+    while index < search_length:
+        if input[index + 1] < 0 or input[index + 1] > 127: return -1
+        index <- index + 1
+    index <- 0
+    while index < pattern_length:
+        byte: i64 = input[search_length + 2 + index]
+        if byte < 0 or byte > 127: return -1
+        index <- index + 1
+
+    latest_start: mutable i8[MAX_PATTERN_LENGTH] = zeroed
+    index <- 0
+    while index < pattern_length:
+        latest_start[index] <- -1.i8()
+        index <- index + 1
+    best_start: mutable i64 = -1
+    best_length: mutable usize = search_length + 1
+    end: mutable usize = 0
+    while end < search_length:
+        byte: i64 = input[end + 1]
+        j: mutable usize = pattern_length
+        while j > 0:
+            pattern_index: usize = j - 1
+            if byte == input[search_length + 2 + pattern_index]:
+                candidate: i64 = if pattern_index == 0: end.i64() else: latest_start[pattern_index - 1].i64()
+                if candidate >= 0 and candidate > latest_start[pattern_index].i64():
+                    latest_start[pattern_index] <- candidate.i8()
+            j <- j - 1
+        if byte == input[search_length + 2 + pattern_length - 1] and latest_start[pattern_length - 1] >= 0:
+            start: usize = latest_start[pattern_length - 1].usize()
+            window_length: usize = end - start + 1
+            if window_length < best_length or (window_length == best_length and (best_start < 0 or start.i64() < best_start)):
+                best_start <- start.i64()
+                best_length <- window_length
+        end <- end + 1
+    if best_start < 0: return 0
+    if output.is_null() or capacity < best_length: return -2
+    result: mutable view[u8] = output[0:best_length]
+    index <- 0
+    while index < best_length:
+        result[index] <- input[best_start.usize() + 1 + index].u8()
+        index <- index + 1
+    best_length.i64()
+
+export fn minimum_window_subsequence(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return -1
+    minimum_window_subsequence_impl(input[0:length], output, capacity)

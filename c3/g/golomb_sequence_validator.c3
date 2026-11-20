@@ -3,7 +3,7 @@ module golomb_sequence_validator;
 const long MAX_N = 1024;
 
 fn long golomb_sequence_validator(long* input, usz length) @export("golomb_sequence_validator") {
-    if (length < 1 || length > 1024) return -1;
+    if (input == null || length < 1 || length > 1024) return -1;
     if (input[0] < 1 || input[0] > MAX_N) return -1;
     usz n = (usz)input[0];
     if (length != n) return -1;

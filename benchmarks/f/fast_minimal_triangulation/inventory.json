@@ -1,0 +1,17 @@
+{
+  "algorithm": "fast_minimal_triangulation",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "../../../c/f/fast_minimal_triangulation.c",
+    "c3": "../../../c3/f/fast_minimal_triangulation.c3",
+    "cpp": "../../../cpp/f/fast_minimal_triangulation.cpp",
+    "elisa": "../../../elisa/f/fast_minimal_triangulation.elisa",
+    "mojo": "../../../mojo/f/fast_minimal_triangulation.mojo",
+    "nim": "../../../nim/f/fast_minimal_triangulation.nim",
+    "odin": "../../../odin/f/fast_minimal_triangulation.odin",
+    "rust": "../../../rust/f/fast_minimal_triangulation.rs",
+    "v": "../../../v/f/fast_minimal_triangulation.v",
+    "zig": "../../../zig/f/fast_minimal_triangulation.zig"
+  },
+  "package_files": ["README.md", "RIGHTS.md", "INVENTORY.md", "inventory.json", "workload.json", "primary_oracle.py", "independent_oracle.py", "verify_workload.py", "check_inventory.py"]
+}

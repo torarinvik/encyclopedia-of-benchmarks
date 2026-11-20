@@ -1,7 +1,7 @@
 module rgb_hsv_conversion;
 
 fn void write_f64_le(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz i = 0; i < 8; i++) { output[offset + i] = (char)(bits & 255); bits >>= 8; }
 }
 

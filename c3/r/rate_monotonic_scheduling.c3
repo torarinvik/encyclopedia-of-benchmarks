@@ -12,7 +12,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long rate_monotonic_scheduling(long* input, usz length, char* output,
+fn long rate_monotonic_scheduling(long* input, usz length, char* output,
         usz capacity) @export("rate_monotonic_scheduling") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long count_value = input[0];

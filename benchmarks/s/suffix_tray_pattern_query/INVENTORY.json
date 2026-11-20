@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "algorithm": "suffix_tray_pattern_query",
+  "abi": "i64_array_bytes_output",
+  "status": "package complete; byte-suite, verifier, catalog, and chapter-crosswalk registration integrated; source-only review, no execution",
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "metadata": ["__init__.py", "README.md", "RIGHTS.md", "workload.json", "verify_workload.py", "check_inventory.py"],
+  "bounds": {
+    "maximum_valid_input_length": 23,
+    "maximum_parseable_input_length": 24,
+    "maximum_output_bytes": 16,
+    "workspace_bytes": 16384,
+    "maximum_text_symbols": 12,
+    "maximum_pattern_symbols": 8,
+    "alphabet_size": [2, 4],
+    "maximum_suffix_tree_nodes": 25
+  },
+  "ports": {
+    "c": "c/s/suffix_tray_pattern_query.c",
+    "c3": "c3/s/suffix_tray_pattern_query.c3",
+    "cpp": "cpp/s/suffix_tray_pattern_query.cpp",
+    "elisa": "elisa/s/suffix_tray_pattern_query.elisa",
+    "mojo": "mojo/s/suffix_tray_pattern_query.mojo",
+    "nim": "nim/s/suffix_tray_pattern_query.nim",
+    "odin": "odin/s/suffix_tray_pattern_query.odin",
+    "rust": "rust/s/suffix_tray_pattern_query.rs",
+    "v": "v/s/suffix_tray_pattern_query.v",
+    "zig": "zig/s/suffix_tray_pattern_query.zig"
+  }
+}

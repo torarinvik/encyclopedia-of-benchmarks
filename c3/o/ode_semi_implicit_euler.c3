@@ -1,7 +1,7 @@
 module ode_semi_implicit_euler;
 
 fn void store_f64_le(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (char)(bits & 255);
         bits >>= 8;

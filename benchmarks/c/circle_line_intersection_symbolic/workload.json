@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "circle-line-intersection-symbolic-v1",
+  "algorithm": "circle_line_intersection_symbolic",
+  "function_symbol": "circle_line_intersection_symbolic",
+  "abi": "i64_array_bytes_output",
+  "description": "Construct exact symbolic circle-line intersection coordinates.",
+  "source": {"title":"Circle-line intersection", "authors":["CP-Algorithms contributors"], "url":"https://cp-algorithms.com/geometry/circle-line-intersection.html", "license":"CC BY-SA 4.0", "license_note":"Mathematical ideas only; independently authored contract, code and fixtures."},
+  "input": {"kind":"signed_64_bit_integer_array", "encoding":"[cx,cy,r,a,b,c]", "coordinate_and_coefficient_range":[-1000,1000], "radius_range":[1,1000], "normal_rule":"(a,b) nonzero", "exact_length":6, "maximum_valid_length":6, "maximum_parseable_length":7, "invalid_input_result":-1, "null_input_result":-1},
+  "output": {"kind":"little_endian_signed_i64_vector", "encoding":"[0] or [count,fx,fy,d,vx,vy,h]", "maximum_output_bytes":56, "null_output_result":-2, "insufficient_output_capacity_result":-2, "no_write_on_error":true},
+  "workspace": {"bytes":56, "meaning":"Maximum encoded result."},
+  "algorithm_details": {"primary":"Project the center onto the line and express the displacement using an integer radicand.", "independent_oracle":"Solve the quadratic obtained by substituting a line parameter into the circle equation.", "complexity":"O(1) time and space."},
+  "measurement": {"comparison_model":"i64_array_bytes_output_call", "sample_count":7, "warmup_rounds":1, "repetitions_per_sample":100},
+  "cases": [
+    {"id":"diameter", "input_values":[0,0,1,1,0,0], "input_length":6, "output_capacity":56, "expected_result":56, "expected_output_hex":"0200000000000000000000000000000000000000000000000100000000000000000000000000000001000000000000000100000000000000"},
+    {"id":"tangent", "input_values":[0,0,1,1,0,-1], "input_length":6, "output_capacity":56, "expected_result":56, "expected_output_hex":"0100000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000"},
+    {"id":"translated-slanted-secant", "input_values":[3,4,5,2,3,-7], "input_length":6, "output_capacity":56, "expected_result":56, "expected_output_hex":"0200000000000000110000000000000013000000000000000d00000000000000fdffffffffffffff0200000000000000cc00000000000000"},
+    {"id":"reversed-line-orientation", "input_values":[3,4,5,-2,-3,7], "input_length":6, "output_capacity":56, "expected_result":56, "expected_output_hex":"0200000000000000110000000000000013000000000000000d000000000000000300000000000000feffffffffffffffcc00000000000000"},
+    {"id":"disjoint", "input_values":[0,0,1,1,0,-2], "input_length":6, "output_capacity":8, "expected_result":8, "expected_output_hex":"0000000000000000"},
+    {"id":"short-output", "input_values":[0,0,1,1,0,0], "input_length":6, "output_capacity":55, "expected_result":-2, "expected_output_hex":""},
+    {"id":"zero-normal", "input_values":[0,0,1,0,0,0], "input_length":6, "output_capacity":56, "expected_result":-1, "expected_output_hex":""},
+    {"id":"signed-minimum-invalid", "input_values":[-9223372036854775808,0,1,1,0,0], "input_length":6, "output_capacity":56, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[0,0,1,1,0,-2], "input_length":6, "output_capacity":8, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "output_capacity":56, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

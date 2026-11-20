@@ -3,9 +3,770 @@
 
 from __future__ import annotations
 
+from f.four_square_sum_representation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FOUR_SQUARE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FOUR_SQUARE_MAX_VALID_INPUT_LENGTH,
+    expected_result as four_square_sum_representation_primary,
+)
+from f.four_square_sum_representation.check_inventory import static_issues as four_square_static_issues
+from f.four_square_sum_representation.verify_workload import workload_issues as four_square_workload_issues
+
+from b.bk_tree_edit_distance_search.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BK_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as BK_TREE_WORKSPACE_BYTES,
+    expected_result as bk_tree_edit_distance_search_primary,
+)
+from b.bk_tree_edit_distance_search.check_inventory import (
+    static_issues as bk_tree_edit_distance_search_static_issues,
+)
+from b.bk_tree_edit_distance_search.verify_workload import (
+    workload_issues as bk_tree_edit_distance_search_workload_issues,
+)
+
 import argparse
+from a.abelian_sandpile_stabilization.primary_oracle import (
+    expected_result as abelian_sandpile_stabilization_primary,
+    MAX_PARSEABLE_INPUT_LENGTH as ABELIAN_SANDPILE_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from a.abelian_sandpile_stabilization.check_inventory import (
+    static_issues as abelian_sandpile_stabilization_static_issues,
+)
+from c.chebyshev_clenshaw_evaluation.primary_oracle import (
+    expected_result as chebyshev_clenshaw_evaluation_primary,
+)
+from c.chebyshev_clenshaw_evaluation.check_inventory import (
+    static_issues as chebyshev_clenshaw_evaluation_static_issues,
+)
+from c.carmichael_lambda_function.primary_oracle import (
+    expected_result as carmichael_lambda_function_primary,
+)
+from c.carmichael_lambda_function.check_inventory import (
+    static_issues as carmichael_lambda_function_static_issues,
+)
+from k.kanj_perkovic_modified_yao_spanner.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as KANJ_PERKOVIC_MODIFIED_YAO_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as KANJ_PERKOVIC_MODIFIED_YAO_WORKSPACE_BYTES,
+    expected_result as kanj_perkovic_modified_yao_spanner_primary,
+)
+from k.kanj_perkovic_modified_yao_spanner.check_inventory import (
+    static_issues as kanj_perkovic_modified_yao_spanner_static_issues,
+)
+from k.kanj_perkovic_modified_yao_spanner.verify_workload import (
+    workload_issues as kanj_perkovic_modified_yao_spanner_workload_issues,
+)
+from r.routh_hurwitz_stability_predicate.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ROUTH_HURWITZ_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as ROUTH_HURWITZ_WORKSPACE_BYTES,
+    expected_result as routh_hurwitz_stability_predicate_primary,
+)
+from r.routh_hurwitz_stability_predicate.check_inventory import (
+    static_issues as routh_hurwitz_stability_predicate_static_issues,
+)
+from r.routh_hurwitz_stability_predicate.verify_workload import (
+    static_issues as routh_hurwitz_stability_predicate_workload_issues,
+)
+from j.jury_discrete_time_stability_predicate.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as JURY_STABILITY_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as JURY_STABILITY_WORKSPACE_BYTES,
+    expected_result as jury_discrete_time_stability_predicate_primary,
+)
+from j.jury_discrete_time_stability_predicate.check_inventory import (
+    static_issues as jury_discrete_time_stability_predicate_static_issues,
+)
+from j.jury_discrete_time_stability_predicate.verify_workload import (
+    static_issues as jury_discrete_time_stability_predicate_workload_issues,
+)
+from r.rna_pair_activity_partition_function.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RNA_PAIR_ACTIVITY_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as RNA_PAIR_ACTIVITY_WORKSPACE_BYTES,
+    expected_result as rna_pair_activity_partition_function_primary,
+)
+from r.rna_pair_activity_partition_function.check_inventory import (
+    static_issues as rna_pair_activity_partition_function_static_issues,
+)
+from r.rna_pair_activity_partition_function.verify_workload import (
+    static_issues as rna_pair_activity_partition_function_workload_issues,
+)
+from l.lucas_carmichael_number_predicate.primary_oracle import (
+    expected_result as lucas_carmichael_number_predicate_primary,
+)
+from l.lucas_carmichael_number_predicate.check_inventory import (
+    static_issues as lucas_carmichael_number_predicate_static_issues,
+)
+from m.mian_chowla_sequence.primary_oracle import (
+    expected_result as mian_chowla_sequence_primary,
+)
+from m.mian_chowla_sequence.check_inventory import (
+    static_issues as mian_chowla_sequence_static_issues,
+)
+from k.klarner_rado_affine_closure_sequence.primary_oracle import (
+    expected_result as klarner_rado_affine_closure_sequence_primary,
+)
+from k.klarner_rado_affine_closure_sequence.check_inventory import (
+    static_issues as klarner_rado_affine_closure_sequence_static_issues,
+)
+from u.ulam_sequence_1_2.primary_oracle import (
+    expected_result as ulam_sequence_1_2_primary,
+)
+from u.ulam_sequence_1_2.check_inventory import (
+    static_issues as ulam_sequence_1_2_static_issues,
+)
+from n.next_palindromic_number.primary_oracle import (
+    expected as next_palindromic_number_primary,
+)
+from n.next_palindromic_number.check_inventory import (
+    static_issues as next_palindromic_number_static_issues,
+)
+from b.bdd_symbolic_reachability.primary_oracle import (
+    expected as bdd_symbolic_reachability_primary,
+)
+from b.bdd_symbolic_reachability.check_inventory import (
+    static_issues as bdd_symbolic_reachability_static_issues,
+)
+from s.same_fringe_leaf_iterator.primary_oracle import (
+    expected_result as same_fringe_leaf_iterator_primary,
+)
+from s.same_fringe_leaf_iterator.check_inventory import (
+    static_issues as same_fringe_leaf_iterator_static_issues,
+)
+from s.self_number_count_sieve.primary_oracle import (
+    expected_result as self_number_count_sieve_primary,
+)
+from s.self_number_count_sieve.check_inventory import (
+    static_issues as self_number_count_sieve_static_issues,
+)
+from o.odd_even_jump_reachability_count.primary_oracle import (
+    expected as odd_even_jump_reachability_count_primary,
+)
+from o.odd_even_jump_reachability_count.check_inventory import (
+    static_issues as odd_even_jump_reachability_count_static_issues,
+)
+from g.grid_shortest_path_obstacle_elimination.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as GRID_OBSTACLE_PATH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as GRID_OBSTACLE_PATH_WORKSPACE_BYTES,
+    expected_result as grid_shortest_path_obstacle_elimination_primary,
+)
+from g.grid_shortest_path_obstacle_elimination.check_inventory import (
+    static_issues as grid_shortest_path_obstacle_elimination_static_issues,
+)
+from g.grid_shortest_path_obstacle_elimination.verify_workload import (
+    workload_issues as grid_shortest_path_obstacle_elimination_workload_issues,
+)
+from z.zwick_deterministic_bridging_set.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as ZWICK_BRIDGING_SET_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ZWICK_BRIDGING_SET_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as ZWICK_BRIDGING_SET_WORKSPACE_BYTES,
+    expected_result as zwick_deterministic_bridging_set_primary,
+)
+from z.zwick_deterministic_bridging_set.check_inventory import (
+    static_issues as zwick_deterministic_bridging_set_static_issues,
+)
+from z.zwick_deterministic_bridging_set.verify_workload import (
+    workload_issues as zwick_deterministic_bridging_set_workload_issues,
+)
+from p.perfect_phylogeny_three_state_2sat.primary_oracle import (
+    expected_result as perfect_phylogeny_three_state_2sat_primary,
+)
+from p.perfect_phylogeny_three_state_2sat.check_inventory import (
+    static_issues as perfect_phylogeny_three_state_2sat_static_issues,
+)
+from a.arithmetic_derivative.primary_oracle import (
+    expected_result as arithmetic_derivative_primary,
+)
+from a.arithmetic_derivative.check_inventory import (
+    static_issues as arithmetic_derivative_static_issues,
+)
+from f.frobenius_number_apery.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as FROBENIUS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as FROBENIUS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as FROBENIUS_MAX_RESULT,
+    WORKSPACE_BYTES as FROBENIUS_WORKSPACE_BYTES,
+    expected_result as frobenius_number_apery_primary,
+)
+from f.frobenius_number_apery.check_inventory import (
+    static_issues as frobenius_number_apery_static_issues,
+)
+from m.motzkin_number.primary_oracle import (
+    MAX_N as MOTZKIN_MAX_N,
+    MAX_VALID_INPUT_LENGTH as MOTZKIN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MOTZKIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT_BOUND as MOTZKIN_MAX_RESULT,
+    WORKSPACE_BYTES as MOTZKIN_WORKSPACE_BYTES,
+    expected_result as motzkin_number_primary,
+)
+from m.motzkin_number.check_inventory import (
+    static_issues as motzkin_number_static_issues,
+)
+from r.riordan_number.primary_oracle import (
+    MAX_N as RIORDAN_MAX_N,
+    MAX_VALID_INPUT_LENGTH as RIORDAN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as RIORDAN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT_BOUND as RIORDAN_MAX_RESULT,
+    WORKSPACE_BYTES as RIORDAN_WORKSPACE_BYTES,
+    expected_result as riordan_number_primary,
+)
+from r.riordan_number.check_inventory import (
+    static_issues as riordan_number_static_issues,
+)
+from c.cube_root_proper_divisor_product.primary_oracle import (
+    MAX_K as CUBE_ROOT_PRODUCT_MAX_K,
+    MAX_VALID_INPUT_LENGTH as CUBE_ROOT_PRODUCT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CUBE_ROOT_PRODUCT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as CUBE_ROOT_PRODUCT_MAX_RESULT,
+    WORKSPACE_BYTES as CUBE_ROOT_PRODUCT_WORKSPACE_BYTES,
+    expected_result as cube_root_proper_divisor_product_primary,
+)
+from c.cube_root_proper_divisor_product.check_inventory import (
+    check_inventory as cube_root_product_check_inventory,
+)
+from e.euclid_mullin_sequence.primary_oracle import (
+    MAX_N as EUCLID_MULLIN_MAX_N,
+    MAX_VALID_INPUT_LENGTH as EUCLID_MULLIN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as EUCLID_MULLIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_TERM as EUCLID_MULLIN_MAX_TERM,
+    WORKSPACE_BYTES as EUCLID_MULLIN_WORKSPACE_BYTES,
+    expected_result as euclid_mullin_sequence_primary,
+)
+from e.euclid_mullin_sequence.check_inventory import (
+    check_inventory as euclid_mullin_sequence_check_inventory,
+)
+from e.euclid_mullin_sequence.verify_workload import (
+    verify as euclid_mullin_sequence_verify_workload,
+)
+from c.convex_polygon_minimum_weight_triangulation.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as CONVEX_MIN_WEIGHT_TRIANGULATION_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONVEX_MIN_WEIGHT_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as CONVEX_MIN_WEIGHT_TRIANGULATION_WORKSPACE_BYTES,
+    expected_result as convex_min_weight_triangulation_primary,
+)
+from c.convex_polygon_minimum_weight_triangulation.check_inventory import (
+    static_issues as convex_min_weight_triangulation_static_issues,
+)
+from t.taxicab_number_minimum_representations.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as TAXICAB_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as TAXICAB_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as TAXICAB_WORKSPACE_BYTES,
+    taxicab_number_minimum_representations as taxicab_number_primary,
+)
+from t.taxicab_number_minimum_representations.check_inventory import (
+    static_issues as taxicab_number_static_issues,
+)
+from f.fortunate_numbers.primary_oracle import (
+    MAX_N as FORTUNATE_NUMBERS_MAX_N,
+    MAX_VALID_INPUT_LENGTH as FORTUNATE_NUMBERS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as FORTUNATE_NUMBERS_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as FORTUNATE_NUMBERS_WORKSPACE_BYTES,
+    expected_result as fortunate_numbers_primary,
+)
+from f.fortunate_numbers.check_inventory import (
+    static_issues as fortunate_numbers_static_issues,
+)
+from f.fortunate_numbers.verify_workload import (
+    workload_issues as fortunate_numbers_workload_issues,
+)
+from w.wolstenholme_numbers.primary_oracle import (
+    MAX_N as WOLSTENHOLME_MAX_N,
+    MAX_VALID_INPUT_LENGTH as WOLSTENHOLME_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as WOLSTENHOLME_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as WOLSTENHOLME_MAX_RESULT,
+    WORKSPACE_BYTES as WOLSTENHOLME_WORKSPACE_BYTES,
+    expected_result as wolstenholme_numbers_primary,
+)
+from w.wolstenholme_numbers.check_inventory import (
+    static_issues as wolstenholme_numbers_static_issues,
+)
+from w.wolstenholme_numbers.verify_workload import (
+    workload_issues as wolstenholme_numbers_workload_issues,
+)
+from m.moore_dfa_minimization.primary_oracle import (
+    MAX_STATES as MOORE_DFA_MAX_STATES,
+    MAX_ALPHABET as MOORE_DFA_MAX_ALPHABET,
+    MAX_VALID_INPUT_LENGTH as MOORE_DFA_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MOORE_DFA_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as MOORE_DFA_WORKSPACE_BYTES,
+    expected as moore_dfa_minimization_primary,
+)
+from m.moore_dfa_minimization.check_inventory import (
+    static_issues as moore_dfa_minimization_static_issues,
+)
+from m.moore_dfa_minimization.verify_workload import (
+    workload_issues as moore_dfa_minimization_workload_issues,
+)
+from r.ruth_aaron_number_predicate.primary_oracle import (
+    MAX_N as RUTH_AARON_MAX_N,
+    MAX_VALID_INPUT_LENGTH as RUTH_AARON_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as RUTH_AARON_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as RUTH_AARON_WORKSPACE_BYTES,
+    expected_result as ruth_aaron_number_primary,
+)
+from r.ruth_aaron_number_predicate.check_inventory import (
+    static_issues as ruth_aaron_number_static_issues,
+)
+from r.ruth_aaron_number_predicate.verify_workload import (
+    workload_issues as ruth_aaron_number_workload_issues,
+)
+from r.dividuus_number_predicate.primary_oracle import (
+    MAX_N as DIVIDUUS_MAX_N,
+    MAX_VALID_INPUT_LENGTH as DIVIDUUS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DIVIDUUS_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as DIVIDUUS_WORKSPACE_BYTES,
+    expected_result as dividuus_number_predicate_primary,
+)
+from r.dividuus_number_predicate.check_inventory import (
+    static_issues as dividuus_number_predicate_static_issues,
+)
+from r.dividuus_number_predicate.verify_workload import (
+    workload_issues as dividuus_number_predicate_workload_issues,
+)
+from g.gaussian_prime_classifier.primary_oracle import (
+    MAX_COORDINATE as GAUSSIAN_PRIME_MAX_COORDINATE,
+    MAX_VALID_INPUT_LENGTH as GAUSSIAN_PRIME_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GAUSSIAN_PRIME_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as GAUSSIAN_PRIME_WORKSPACE_BYTES,
+    expected_result as gaussian_prime_classifier_primary,
+)
+from g.gaussian_prime_classifier.check_inventory import (
+    static_issues as gaussian_prime_classifier_static_issues,
+)
+from g.gaussian_prime_classifier.verify_workload import (
+    workload_issues as gaussian_prime_classifier_workload_issues,
+)
+from w.wulff_nilsen_distance_refinement.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as WULFF_NILSEN_REFINEMENT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as WULFF_NILSEN_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as WULFF_NILSEN_REFINEMENT_WORKSPACE_BYTES,
+    expected_result as wulff_nilsen_distance_refinement_primary,
+)
+from w.wulff_nilsen_distance_refinement.check_inventory import (
+    static_issues as wulff_nilsen_distance_refinement_static_issues,
+)
+from w.wulff_nilsen_distance_refinement.verify_workload import (
+    workload_issues as wulff_nilsen_distance_refinement_workload_issues,
+)
+from e.erdos_selfridge_prime_class.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as ERDOS_SELFRIDGE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ERDOS_SELFRIDGE_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as ERDOS_SELFRIDGE_WORKSPACE_BYTES,
+    expected_result as erdos_selfridge_prime_class_primary,
+)
+from e.erdos_selfridge_prime_class.check_inventory import (
+    static_issues as erdos_selfridge_prime_class_static_issues,
+)
+from e.erdos_selfridge_prime_class.verify_workload import (
+    workload_issues as erdos_selfridge_prime_class_workload_issues,
+)
+from s.sieve_of_pritchard.primary_oracle import (
+    MIN_LIMIT as PRITCHARD_MIN_LIMIT,
+    MAX_LIMIT as PRITCHARD_MAX_LIMIT,
+    MAX_VALID_INPUT_LENGTH as PRITCHARD_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PRITCHARD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as PRITCHARD_WORKSPACE_BYTES,
+    expected_result as sieve_of_pritchard_primary,
+)
+from s.sieve_of_pritchard.check_inventory import (
+    static_issues as sieve_of_pritchard_static_issues,
+)
+from s.sieve_of_pritchard.verify_workload import (
+    workload_issues as sieve_of_pritchard_workload_issues,
+)
+from s.squfof_semiprime_factor.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as SQUFOF_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SQUFOF_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as SQUFOF_WORKSPACE_BYTES,
+    expected_result as squfof_semiprime_factor_primary,
+)
+from s.squfof_semiprime_factor.check_inventory import (
+    static_issues as squfof_semiprime_factor_static_issues,
+)
+from s.squfof_semiprime_factor.verify_workload import (
+    workload_issues as squfof_semiprime_factor_workload_issues,
+)
+from w.wieferich_prime_count_up_to_limit.primary_oracle import (
+    MAX_LIMIT as WIEFERICH_MAX_LIMIT,
+    MAX_VALID_INPUT_LENGTH as WIEFERICH_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as WIEFERICH_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as WIEFERICH_WORKSPACE_BYTES,
+    wieferich_prime_count_up_to_limit as wieferich_prime_count_primary,
+)
+from w.wieferich_prime_count_up_to_limit.check_inventory import (
+    static_issues as wieferich_prime_count_static_issues,
+)
+from y.yellowstone_permutation_prefix.primary_oracle import (
+    expected_result as yellowstone_permutation_prefix_primary,
+)
+from y.yellowstone_permutation_prefix.check_inventory import (
+    static_issues as yellowstone_permutation_prefix_static_issues,
+)
+from l.left_truncatable_prime_search.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LEFT_TRUNCATABLE_PRIME_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as left_truncatable_prime_search_primary,
+)
+from l.left_truncatable_prime_search.check_inventory import (
+    static_issues as left_truncatable_prime_search_static_issues,
+)
+from l.liu_hui_pi_approximation.primary_oracle import (
+    MAX_DOUBLINGS as LIU_HUI_MAX_DOUBLINGS,
+    expected_output as liu_hui_pi_approximation_primary,
+)
+from l.liu_hui_pi_approximation.check_inventory import (
+    static_issues as liu_hui_pi_approximation_static_issues,
+)
+from s.strong_weak_balanced_prime_distribution.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STRONG_WEAK_BALANCED_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as strong_weak_balanced_prime_distribution_primary,
+)
+from s.strong_weak_balanced_prime_distribution.check_inventory import (
+    static_issues as strong_weak_balanced_prime_distribution_static_issues,
+)
+from p.pocklington_primality_certificate.primary_oracle import (
+    expected_result as pocklington_primality_certificate_primary,
+)
+from p.pocklington_primality_certificate.check_inventory import (
+    static_issues as pocklington_primality_certificate_static_issues,
+)
+from p.pisano_period.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PISANO_PERIOD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as PISANO_PERIOD_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as PISANO_PERIOD_WORKSPACE_BYTES,
+    expected_result as pisano_period_primary,
+)
+from p.pisano_period.check_inventory import (
+    static_issues as pisano_period_static_issues,
+)
+from l.longest_common_increasing_subsequence.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LCIS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LCIS_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as LCIS_WORKSPACE_BYTES,
+    expected_result as lcis_primary,
+)
+from l.longest_common_increasing_subsequence.check_inventory import (
+    static_issues as lcis_static_issues,
+)
+from r.randomized_binary_search_tree_order_statistics_split_join.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RBST_ORDER_STATS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as RBST_ORDER_STATS_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as RBST_ORDER_STATS_WORKSPACE_BYTES,
+    expected_result as randomized_bst_order_statistics_primary,
+)
+from r.randomized_binary_search_tree_order_statistics_split_join.check_inventory import (
+    static_issues as randomized_bst_order_statistics_static_issues,
+)
+from l.linear_hashing_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LINEAR_HASHING_TRACE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LINEAR_HASHING_TRACE_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as LINEAR_HASHING_TRACE_WORKSPACE_BYTES,
+    expected_result as linear_hashing_trace_primary,
+)
+from l.linear_hashing_trace.check_inventory import (
+    static_issues as linear_hashing_trace_static_issues,
+)
+from m.move_to_root_bst_access_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MOVE_TO_ROOT_BST_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MOVE_TO_ROOT_BST_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as MOVE_TO_ROOT_BST_WORKSPACE_BYTES,
+    expected_result as move_to_root_bst_primary,
+)
+from m.move_to_root_bst_access_trace.check_inventory import (
+    static_issues as move_to_root_bst_static_issues,
+)
+from l.lovasz_toggle_defective_coloring_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LOVASZ_TOGGLE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LOVASZ_TOGGLE_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as LOVASZ_TOGGLE_WORKSPACE_BYTES,
+    expected_result as lovasz_toggle_primary,
+)
+from l.lovasz_toggle_defective_coloring_trace.check_inventory import (
+    static_issues as lovasz_toggle_static_issues,
+)
+from e.erasable_priority_queue_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ERASABLE_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ERASABLE_PRIORITY_QUEUE_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as ERASABLE_PRIORITY_QUEUE_WORKSPACE_BYTES,
+    expected_result as erasable_priority_queue_primary,
+)
+from e.erasable_priority_queue_trace.check_inventory import (
+    static_issues as erasable_priority_queue_static_issues,
+)
+from r.rolling_hash_on_segment_tree_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ROLLING_HASH_SEGMENT_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ROLLING_HASH_SEGMENT_TREE_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as ROLLING_HASH_SEGMENT_TREE_WORKSPACE_BYTES,
+    expected_result as rolling_hash_segment_tree_primary,
+)
+from r.rolling_hash_on_segment_tree_trace.check_inventory import (
+    static_issues as rolling_hash_segment_tree_static_issues,
+)
+from m.manhattan_mst_candidate_edge_reduction.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MANHATTAN_MST_CANDIDATE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MANHATTAN_MST_CANDIDATE_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as MANHATTAN_MST_CANDIDATE_WORKSPACE_BYTES,
+    expected_result as manhattan_mst_candidate_primary,
+)
+from m.manhattan_mst_candidate_edge_reduction.check_inventory import (
+    static_issues as manhattan_mst_candidate_static_issues,
+)
+from c.c_connected_clustered_embedding_condition.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CCEC_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as CCEC_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as CCEC_WORKSPACE_BYTES,
+    expected_result as c_connected_clustered_embedding_condition_primary,
+)
+from c.c_connected_clustered_embedding_condition.check_inventory import (
+    static_issues as c_connected_clustered_embedding_condition_static_issues,
+)
+from p.pohlig_hellman_discrete_log.primary_oracle import (
+    expected_result as pohlig_hellman_discrete_log_primary,
+)
+from p.pohlig_hellman_discrete_log.check_inventory import (
+    static_issues as pohlig_hellman_discrete_log_static_issues,
+)
+from g.general_weighted_matching_primal_dual_blossom.check_inventory import (
+    static_issues as general_weighted_matching_primal_dual_blossom_static_issues,
+)
+from g.general_weighted_matching_primal_dual_blossom.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as WEIGHTED_BLOSSOM_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from m.multiplicative_order.check_inventory import (
+    static_issues as multiplicative_order_static_issues,
+)
+from m.multiplicative_order.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MULTIPLICATIVE_ORDER_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from o.observed_remove_set.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as OBSERVED_REMOVE_SET_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as observed_remove_set_primary,
+)
+from o.observed_remove_set.verify_workload import verify as verify_observed_remove_set_package
+from t.token_bucket_rate_limiter_virtual_time.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as TOKEN_BUCKET_VIRTUAL_TIME_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as token_bucket_virtual_time_primary,
+)
+from t.token_bucket_rate_limiter_virtual_time.verify_workload import (
+    verify as verify_token_bucket_virtual_time_package,
+)
+from o.optimal_mismatch.primary_oracle import (
+    expected_result as optimal_mismatch_primary,
+)
+from o.optimal_mismatch.check_inventory import (
+    static_issues as optimal_mismatch_static_issues,
+)
+from b.berry_ravindran_search.primary_oracle import (
+    expected_result as berry_ravindran_search_primary,
+)
+from b.berry_ravindran_search.check_inventory import (
+    static_issues as berry_ravindran_search_static_issues,
+)
+from b.bipartite_minimum_vertex_cover.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BIPARTITE_MINIMUM_VERTEX_COVER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BIPARTITE_MINIMUM_VERTEX_COVER_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as BIPARTITE_MINIMUM_VERTEX_COVER_WORKSPACE_BYTES,
+    expected_result as bipartite_minimum_vertex_cover_expected,
+)
+from b.bipartite_minimum_vertex_cover.verify_workload import (
+    verify_workload as verify_bipartite_minimum_vertex_cover_package,
+)
+from p.pisinger_bounded_weight_subset_sum.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PISINGER_SUBSET_SUM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as PISINGER_SUBSET_SUM_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as PISINGER_SUBSET_SUM_WORKSPACE_BYTES,
+    expected_result as pisinger_bounded_weight_subset_sum_expected,
+)
+from p.pisinger_bounded_weight_subset_sum.verify_workload import (
+    check_workload as verify_pisinger_bounded_weight_subset_sum_package,
+)
+from p.pisinger_bounded_weight_subset_sum.check_inventory import (
+    check_inventory as verify_pisinger_bounded_weight_subset_sum_inventory,
+)
+from r.ryser_permanent.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RYSER_PERMANENT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as RYSER_PERMANENT_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as RYSER_PERMANENT_WORKSPACE_BYTES,
+    expected_result as ryser_permanent_expected,
+)
+from r.ryser_permanent.verify_ryser_permanent_package import (
+    verify_workload as verify_ryser_permanent_package,
+)
+from b.binary_search_maximum_average_segment.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MAX_AVERAGE_SEGMENT_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MAX_AVERAGE_SEGMENT_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as MAX_AVERAGE_SEGMENT_WORKSPACE_BYTES,
+    expected_result as binary_search_maximum_average_segment_expected,
+)
+from b.binary_search_maximum_average_segment.verify_workload import (
+    verify_workload as verify_binary_search_maximum_average_segment_package,
+)
+from b.bounded_knapsack_binary_grouping.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BOUNDED_KNAPSACK_BINARY_GROUPING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BOUNDED_KNAPSACK_BINARY_GROUPING_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as BOUNDED_KNAPSACK_BINARY_GROUPING_WORKSPACE_BYTES,
+    expected_result as bounded_knapsack_binary_grouping_expected,
+)
+from b.bounded_knapsack_binary_grouping.verify_workload import (
+    verify_workload as verify_bounded_knapsack_binary_grouping_package,
+)
+from b.bounded_knapsack_binary_grouping.check_inventory import (
+    inspect_inventory as verify_bounded_knapsack_binary_grouping_inventory,
+)
+from w.weisfeiler_lehman_color_refinement.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as WEISFEILER_LEHMAN_COLOR_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as WEISFEILER_LEHMAN_COLOR_REFINEMENT_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as WEISFEILER_LEHMAN_COLOR_REFINEMENT_WORKSPACE_BYTES,
+    expected_result as weisfeiler_lehman_color_refinement_expected,
+)
+from w.weisfeiler_lehman_color_refinement.verify_weisfeiler_lehman_color_refinement_package import (
+    static_issues as weisfeiler_lehman_color_refinement_static_issues,
+)
+from m.mixed_knapsack.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MIXED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MIXED_KNAPSACK_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as MIXED_KNAPSACK_WORKSPACE_BYTES,
+    expected_result as mixed_knapsack_expected,
+)
+from m.mixed_knapsack.verify_workload import (
+    verify_workload as verify_mixed_knapsack_package,
+)
+from m.mixed_knapsack.check_inventory import (
+    inspect_inventory as verify_mixed_knapsack_inventory,
+)
+from z.zhu_takaoka_search.primary_oracle import (
+    expected_result as zhu_takaoka_search_primary,
+)
+from z.zhu_takaoka_search.check_inventory import (
+    static_issues as zhu_takaoka_search_static_issues,
+)
+from s.simon_string_search.primary_oracle import (
+    expected_result as simon_string_search_primary,
+)
+from s.simon_string_search.check_inventory import (
+    static_issues as simon_string_search_static_issues,
+)
+from g.galil_seiferas_search.primary_oracle import (
+    expected_result as galil_seiferas_search_primary,
+)
+from g.galil_seiferas_search.check_inventory import (
+    static_issues as galil_seiferas_search_static_issues,
+)
+from g.galil_giancarlo_search.primary_oracle import (
+    expected_result as galil_giancarlo_search_primary,
+)
+from g.galil_giancarlo_search.verify_workload import (
+    static_issues as galil_giancarlo_search_static_issues,
+)
+from k.kmp_skip_search.primary_oracle import (
+    expected_result as kmp_skip_search_primary,
+)
+from k.kmp_skip_search.verify_workload import (
+    verify_workload as kmp_skip_search_verify_workload,
+)
+from f.forward_dawg_matching.primary_oracle import (
+    expected_result as forward_dawg_matching_primary,
+)
+from f.forward_dawg_matching.verify_workload import (
+    static_issues as forward_dawg_matching_static_issues,
+)
+from r.reverse_colussi_search.primary_oracle import (
+    expected_result as reverse_colussi_search_primary,
+)
+from r.reverse_colussi_search.verify_workload import (
+    verify_workload as reverse_colussi_search_verify_workload,
+)
+from r.reverse_factor_search.primary_oracle import (
+    expected_result as reverse_factor_search_primary,
+)
+from r.reverse_factor_search.verify_workload import (
+    verify_workload as reverse_factor_search_verify_workload,
+)
+from t.turbo_reverse_factor_search.primary_oracle import (
+    expected_result as turbo_reverse_factor_search_primary,
+)
+from t.turbo_reverse_factor_search.verify_workload import (
+    static_issues as turbo_reverse_factor_search_static_issues,
+)
+from s.smallest_number_with_n_divisors.primary_oracle import (
+    expected_result as smallest_number_with_n_divisors_primary,
+)
+from s.smallest_number_with_n_divisors.check_inventory import (
+    verify_workload as smallest_number_with_n_divisors_verify_workload,
+)
+from m.maximal_shift_search.primary_oracle import (
+    expected_result as maximal_shift_search_primary,
+)
+from m.maximal_shift_search.check_inventory import (
+    verify_workload as maximal_shift_search_verify_workload,
+)
+from s.skip_search.primary_oracle import expected_result as skip_search_primary
+from s.skip_search.verify_workload import verify_workload as skip_search_verify_workload
+from s.string_matching_ordered_alphabets.primary_oracle import (
+    expected_result as string_matching_ordered_alphabets_primary,
+)
+from s.string_matching_ordered_alphabets.verify_workload import (
+    verify_workload as string_matching_ordered_alphabets_verify_workload,
+)
+from m.morris_pratt_search.primary_oracle import (
+    expected_result as morris_pratt_search_primary,
+)
+from m.morris_pratt_search.verify_workload import (
+    verify_workload as morris_pratt_search_verify_workload,
+)
 from i.ida_star_graph_oracle import expected_result as ida_star_graph_expected
 from i.ida_star_graph.check_inventory import static_issues as ida_star_graph_static_issues
+from n.not_so_naive_search.primary_oracle import expected_result as not_so_naive_search_primary
+from n.not_so_naive_search.check_inventory import static_issues as not_so_naive_search_static_issues
+from c.commentz_walter.primary_oracle import expected_result as commentz_walter_primary
+from c.commentz_walter.verify_workload import verify as verify_commentz_walter_package
+from check_commentz_walter_package import static_issues as commentz_walter_static_issues
+from p.priority_search_tree_three_sided_reporting.primary_oracle import (
+    expected_result as priority_search_tree_primary,
+)
+from p.priority_search_tree_three_sided_reporting.verify_workload import (
+    verify as verify_priority_search_tree_package,
+)
+from d.dag_minimum_path_cover.primary_oracle import (
+    expected_result as dag_minimum_path_cover_primary,
+)
+from d.dag_minimum_path_cover.verify_workload import (
+    verify as verify_dag_minimum_path_cover_package,
+)
+from c.cocomparability_ldfs_minimum_path_cover.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as COCOMPARABILITY_PATH_COVER_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as COCOMPARABILITY_PATH_COVER_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as COCOMPARABILITY_PATH_COVER_WORKSPACE_BYTES,
+    expected_result as cocomparability_ldfs_minimum_path_cover_primary,
+)
+from c.cocomparability_ldfs_minimum_path_cover.verify_workload import (
+    static_issues as cocomparability_path_cover_static_issues,
+    workload_issues as cocomparability_path_cover_workload_issues,
+)
+from k.k_ary_huffman_weighted_path_cost.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as K_ARY_HUFFMAN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as K_ARY_HUFFMAN_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as K_ARY_HUFFMAN_WORKSPACE_BYTES,
+    expected_result as k_ary_huffman_weighted_path_cost_primary,
+)
+from k.k_ary_huffman_weighted_path_cost.check_inventory import (
+    static_issues as k_ary_huffman_static_issues,
+)
+from k.k_ary_huffman_weighted_path_cost.verify_workload import (
+    workload_issues as k_ary_huffman_workload_issues,
+)
+from e.extendible_hashing_trace.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as EXTENDIBLE_HASHING_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as EXTENDIBLE_HASHING_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as EXTENDIBLE_HASHING_WORKSPACE_BYTES,
+    expected_result as extendible_hashing_trace_primary,
+)
+from e.extendible_hashing_trace.check_inventory import (
+    static_issues as extendible_hashing_trace_static_issues,
+)
+from e.extendible_hashing_trace.verify_workload import (
+    workload_issues as extendible_hashing_trace_workload_issues,
+)
+from d.dulmage_mendelsohn_decomposition.primary_oracle import (
+    expected_result as dulmage_mendelsohn_decomposition_primary,
+)
+from d.dulmage_mendelsohn_decomposition.verify_workload import (
+    verify as verify_dulmage_mendelsohn_decomposition_package,
+)
 from collections import deque
 import datetime as dt
 import heapq
@@ -21,6 +782,430 @@ import sys
 import zlib
 from functools import lru_cache
 from fractions import Fraction
+from c.cipolla_modular_square_root.primary_oracle import (
+    expected_result as cipolla_modular_square_root_primary,
+)
+from c.cipolla_modular_square_root.verify_workload import (
+    verify_workload as verify_cipolla_modular_square_root_package,
+)
+from b.binomial_divisibility_primality_test.primary_oracle import (
+    expected_result as binomial_divisibility_primality_test_primary,
+)
+from b.binomial_divisibility_primality_test.verify_workload import (
+    verify_workload as verify_binomial_divisibility_primality_test_package,
+)
+from e.erdos_gallai_graphical_sequence.primary_oracle import (
+    expected_result as erdos_gallai_graphical_sequence_primary,
+)
+from e.erdos_gallai_graphical_sequence.verify_workload import (
+    verify_workload as verify_erdos_gallai_graphical_sequence_package,
+)
+from p.prime_modulus_p_free_factorial.primary_oracle import (
+    expected_result as prime_modulus_p_free_factorial_primary,
+)
+from p.prime_modulus_p_free_factorial.verify_workload import (
+    verify_workload as verify_prime_modulus_p_free_factorial_package,
+)
+from p.perfect_shuffle_order.primary_oracle import (
+    expected_result as perfect_shuffle_order_primary,
+)
+from p.perfect_shuffle_order.verify_workload import (
+    verify_workload as verify_perfect_shuffle_order_package,
+)
+from p.persistent_leftist_heap.primary_oracle import (
+    expected_result as persistent_leftist_heap_primary,
+)
+from p.persistent_leftist_heap.verify_workload import (
+    verify_workload as verify_persistent_leftist_heap_package,
+)
+from p.pagoda_meldable_priority_queue.primary_oracle import (
+    MAX_PARSEABLE_INPUT_WORDS as PAGODA_MAX_PARSEABLE_INPUT_WORDS,
+    expected_output as pagoda_meldable_priority_queue_primary,
+)
+from p.pagoda_meldable_priority_queue.verify_workload import (
+    verify_workload as verify_pagoda_meldable_priority_queue_package,
+)
+from s.stable_roommates.primary_oracle import (
+    expected_result as stable_roommates_primary,
+)
+from s.stable_roommates.verify_workload import (
+    verify_workload as verify_stable_roommates_package,
+)
+from s.super_stable_matching_ties_incomplete.primary_oracle import (
+    expected_result as super_stable_matching_ties_incomplete_primary,
+)
+from s.super_stable_matching_ties_incomplete.check_inventory import (
+    static_issues as super_stable_matching_ties_incomplete_static_issues,
+)
+from m.maximum_cardinality_popular_matching.primary_oracle import (
+    expected_result as maximum_cardinality_popular_matching_primary,
+)
+from m.maximum_cardinality_popular_matching.verify_workload import (
+    verify as verify_maximum_cardinality_popular_matching_package,
+)
+from t.ties_maximum_cardinality_popular_matching.primary_oracle import (
+    expected_result as ties_maximum_cardinality_popular_matching_primary,
+)
+from t.ties_maximum_cardinality_popular_matching.verify_workload import (
+    verify as verify_ties_maximum_cardinality_popular_matching_package,
+)
+from o.ordered_tree_edit_distance_zhang_shasha.primary_oracle import (
+    expected_result as ordered_tree_edit_distance_zhang_shasha_primary,
+)
+from o.ordered_tree_edit_distance_zhang_shasha.verify_package import (
+    verify as verify_ordered_tree_edit_distance_zhang_shasha_package,
+)
+from m.minimum_cost_circulation_cost_scaling.primary_oracle import (
+    expected_result as minimum_cost_circulation_cost_scaling_primary,
+)
+from m.minimum_cost_circulation_cost_scaling.verify_workload import (
+    verify_workload as verify_minimum_cost_circulation_cost_scaling_package,
+)
+from l.lower_bound_circulation_feasibility.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LOWER_BOUND_CIRCULATION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as lower_bound_circulation_feasibility_primary,
+)
+from l.lower_bound_circulation_feasibility.verify_workload import (
+    verify_workload as verify_lower_bound_circulation_feasibility_package,
+)
+from m.minimum_bounded_s_t_flow.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_BOUNDED_ST_FLOW_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as minimum_bounded_s_t_flow_primary,
+)
+from m.minimum_bounded_s_t_flow.verify_workload import (
+    verify_workload as verify_minimum_bounded_s_t_flow_package,
+)
+from j.json_pointer_evaluation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as JSON_POINTER_EVALUATION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as JSON_POINTER_EVALUATION_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as JSON_POINTER_EVALUATION_WORKSPACE_BYTES,
+    expected_result as json_pointer_evaluation_primary,
+)
+from j.json_pointer_evaluation.check_inventory import (
+    static_issues as json_pointer_evaluation_static_issues,
+)
+from j.json_pointer_evaluation.verify_workload import (
+    workload_issues as json_pointer_evaluation_workload_issues,
+)
+from w.wave_function_collapse_simple_tiled.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as WAVE_FUNCTION_COLLAPSE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as wave_function_collapse_simple_tiled_primary,
+)
+from w.wave_function_collapse_simple_tiled.check_inventory import (
+    static_issues as wave_function_collapse_simple_tiled_static_issues,
+)
+from w.wave_function_collapse_simple_tiled.verify_workload import (
+    workload_issues as wave_function_collapse_simple_tiled_workload_issues,
+)
+from h.hashiwokakero_small_solver.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HASHIWOKAKERO_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as hashiwokakero_small_solver_primary,
+)
+from h.hashiwokakero_small_solver.check_inventory import (
+    static_issues as hashiwokakero_small_solver_static_issues,
+)
+from h.hashiwokakero_small_solver.verify_workload import (
+    workload_issues as hashiwokakero_small_solver_workload_issues,
+)
+from p.prim_sparse_heap.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PRIM_SPARSE_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as prim_sparse_heap_primary,
+)
+from p.prim_sparse_heap.verify_workload import (
+    verify_workload as verify_prim_sparse_heap_package,
+)
+from m.mestre_strict_weighted_popular_matching.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MESTRE_STRICT_POPULAR_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as mestre_strict_weighted_popular_matching_primary,
+)
+from m.mestre_strict_weighted_popular_matching.verify_workload import (
+    verify_workload as verify_mestre_strict_weighted_popular_matching_package,
+)
+from m.mestre_strict_weighted_popular_matching.check_inventory import (
+    static_issues as mestre_strict_weighted_popular_matching_static_issues,
+)
+from b.baum_sweet_sequence.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BAUM_SWEET_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as baum_sweet_sequence_primary,
+)
+from b.baum_sweet_sequence.verify_workload import (
+    verify_workload as verify_baum_sweet_sequence_package,
+)
+from c.coloured_triangle_reduction.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as COLOURED_TRIANGLE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as coloured_triangle_reduction_primary,
+)
+from c.coloured_triangle_reduction.verify_workload import (
+    verify_workload as verify_coloured_triangle_reduction_package,
+)
+from p.polydivisible_prefix_search.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as POLYDIVISIBLE_PREFIX_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as polydivisible_prefix_search_primary,
+)
+from p.polydivisible_prefix_search.verify_workload import (
+    verify_workload as verify_polydivisible_prefix_search_package,
+)
+from g.global_balanced_binary_tree.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as GLOBAL_BALANCED_BINARY_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as global_balanced_binary_tree_primary,
+)
+from g.global_balanced_binary_tree.verify_workload import (
+    verify_workload as verify_global_balanced_binary_tree_package,
+)
+from h.hanging_line_largest_rectangle.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HANGING_LINE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as hanging_line_largest_rectangle_primary,
+)
+from h.hanging_line_largest_rectangle.verify_workload import (
+    verify_workload as verify_hanging_line_largest_rectangle_package,
+)
+from r.rsk_row_insertion.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RSK_ROW_INSERTION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as rsk_row_insertion_primary,
+)
+from r.rsk_row_insertion.verify_workload import (
+    verify_workload as verify_rsk_row_insertion_package,
+)
+from s.shortest_path_modulo_small_multiple.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SMALL_MULTIPLE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as shortest_path_modulo_small_multiple_primary,
+)
+from s.shortest_path_modulo_small_multiple.verify_workload import (
+    verify_workload as verify_shortest_path_modulo_small_multiple_package,
+)
+from d.dynamic_centroid_active_set_diameter.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DYNAMIC_CENTROID_DIAMETER_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as dynamic_centroid_active_set_diameter_primary,
+)
+from d.dynamic_centroid_active_set_diameter.verify_workload import (
+    verify_workload as verify_dynamic_centroid_active_set_diameter_package,
+)
+from f.fenwick_tree_in_block_array_rectangle_count.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FENWICK_BLOCK_RECTANGLE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as fenwick_tree_in_block_array_rectangle_count_primary,
+)
+from f.fenwick_tree_in_block_array_rectangle_count.verify_workload import (
+    verify_workload as verify_fenwick_tree_in_block_array_rectangle_count_package,
+)
+from d.divide_combine_tree_incremental.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DIVIDE_COMBINE_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as divide_combine_tree_incremental_primary,
+)
+from d.divide_combine_tree_incremental.verify_workload import (
+    verify_workload as verify_divide_combine_tree_incremental_package,
+)
+from f.fenwick_weighted_segment_tree_range_kth.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FENWICK_WEIGHTED_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as fenwick_weighted_segment_tree_range_kth_primary,
+)
+from f.fenwick_weighted_segment_tree_range_kth.check_inventory import (
+    static_issues as fenwick_weighted_segment_tree_range_kth_static_issues,
+)
+from b.berlekamp_welch_rs_decode.primary_oracle import (
+    expected_result as berlekamp_welch_rs_decode_primary,
+)
+from b.berlekamp_welch_rs_decode.verify_workload import (
+    verify_workload as verify_berlekamp_welch_rs_decode_package,
+)
+from g.gao_rs_decode.primary_oracle import (
+    expected_result as gao_rs_decode_primary,
+)
+from g.gao_rs_decode.verify_workload import (
+    verify_workload as verify_gao_rs_decode_package,
+)
+from f.freivalds_matrix_product_verification.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FREIVALDS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as freivalds_matrix_product_verification_primary,
+)
+from f.freivalds_matrix_product_verification.verify_workload import (
+    static_issues as freivalds_matrix_product_verification_static_issues,
+)
+from k.kruskal_reconstruction_tree_bottleneck.primary_oracle import (
+    expected_result as kruskal_reconstruction_tree_bottleneck_primary,
+)
+from k.kruskal_reconstruction_tree_bottleneck.verify_workload import (
+    verify_workload as verify_kruskal_reconstruction_tree_bottleneck_package,
+)
+from s.subset_sum_bin_packing.primary_oracle import (
+    expected_result as subset_sum_bin_packing_primary,
+)
+from s.subset_sum_bin_packing.verify_workload import (
+    verify_workload as verify_subset_sum_bin_packing_package,
+)
+from j.johnson_elementary_circuit_enumeration.primary_oracle import (
+    expected_result as johnson_elementary_circuit_enumeration_primary,
+)
+from j.johnson_elementary_circuit_enumeration.verify_workload import (
+    verify_workload as verify_johnson_elementary_circuit_enumeration_package,
+)
+from h.housing_top_trading_cycles.primary_oracle import (
+    expected_result as housing_top_trading_cycles_primary,
+)
+from h.housing_top_trading_cycles.verify_workload import (
+    verify_workload as verify_housing_top_trading_cycles_package,
+)
+from u.ukkonen_suffix_tree.primary_oracle import expected_result as ukkonen_suffix_tree_primary
+from u.ukkonen_suffix_tree.verify_workload import (
+    verify_workload as verify_ukkonen_suffix_tree_package,
+)
+from b.burstsort.primary_oracle import expected_result as burstsort_primary
+from b.burstsort.verify_workload import verify_workload as verify_burstsort_package
+from l.lawler_knapsack_profit_scaling_fptas.primary_oracle import (
+    expected_result as lawler_knapsack_profit_scaling_fptas_primary,
+)
+from l.lawler_knapsack_profit_scaling_fptas.verify_workload import (
+    verify_workload as verify_lawler_knapsack_profit_scaling_fptas_package,
+)
+from r.reverse_cuthill_mckee.primary_oracle import (
+    expected_result as reverse_cuthill_mckee_primary,
+)
+from r.reverse_cuthill_mckee.verify_workload import (
+    verify_workload as verify_reverse_cuthill_mckee_package,
+)
+from f.floyd_rivest_select.primary_oracle import (
+    expected_result as floyd_rivest_select_primary,
+)
+from f.floyd_rivest_select.verify_workload import (
+    verify_workload as verify_floyd_rivest_select_package,
+)
+from s.sum_over_subsets_zeta_transform.primary_oracle import (
+    expected_result as sum_over_subsets_zeta_transform_primary,
+)
+from s.sum_over_subsets_zeta_transform.verify_workload import (
+    verify_workload as verify_sum_over_subsets_zeta_transform_package,
+)
+from p.powerful_number_summatory_sieve.primary_oracle import (
+    expected_result as powerful_number_summatory_sieve_primary,
+)
+from p.powerful_number_summatory_sieve.verify_workload import (
+    verify_workload as verify_powerful_number_summatory_sieve_package,
+)
+from b.boykov_kolmogorov_maxflow.primary_oracle import (
+    expected_result as boykov_kolmogorov_maxflow_primary,
+)
+from b.boykov_kolmogorov_maxflow.verify_workload import (
+    verify_workload as verify_boykov_kolmogorov_maxflow_package,
+)
+from l.length_limited_huffman_package_merge.primary_oracle import (
+    expected_result as length_limited_huffman_package_merge_primary,
+)
+from l.length_limited_huffman_package_merge.verify_workload import (
+    verify_workload as verify_length_limited_huffman_package_merge,
+)
+from e.elias_fano_monotone_sequence.primary_oracle import (
+    expected_result as elias_fano_monotone_sequence_primary,
+)
+from e.elias_fano_monotone_sequence.verify_workload import (
+    verify_workload as verify_elias_fano_monotone_sequence_package,
+)
+from c.chernick_carmichael_least_multiplier.primary_oracle import (
+    expected_result as chernick_carmichael_least_multiplier_primary,
+)
+from c.chernick_carmichael_least_multiplier.verify_workload import (
+    verify_workload as verify_chernick_carmichael_least_multiplier_package,
+)
+from c.colussi_search.primary_oracle import (
+    expected_result as colussi_search_primary,
+)
+from c.colussi_search.verify_workload import (
+    verify_workload as verify_colussi_search_package,
+)
+from b.binomial_coefficient_lucas.primary_oracle import (
+    expected_result as binomial_coefficient_lucas_primary,
+)
+from b.binomial_coefficient_lucas.verify_workload import (
+    verify_workload as verify_binomial_coefficient_lucas_package,
+)
+from p.pell_fundamental_solution.primary_oracle import (
+    expected_result as pell_fundamental_solution_primary,
+)
+from p.pell_fundamental_solution.verify_workload import (
+    verify_workload as verify_pell_fundamental_solution_package,
+)
+from p.penney_game_pattern_probability.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PENNEY_GAME_PATTERN_PROBABILITY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as penney_game_pattern_probability_primary,
+)
+from p.penney_game_pattern_probability.verify_workload import (
+    verify_workload as verify_penney_game_pattern_probability_package,
+)
+from c.undirected_four_cycle_count_degree_order.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FOUR_CYCLE_DEGREE_ORDER_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as undirected_four_cycle_count_degree_order_primary,
+)
+from c.undirected_four_cycle_count_degree_order.verify_workload import (
+    static_issues as undirected_four_cycle_count_degree_order_static_issues,
+)
+from a.american_flag_string_sorter.primary_oracle import (
+    expected_result as american_flag_string_sorter_primary,
+)
+from a.american_flag_string_sorter.verify_workload import (
+    verify_workload as verify_american_flag_string_sorter_package,
+)
+from a.apostolico_crochemore_search.primary_oracle import (
+    expected_result as apostolico_crochemore_search_primary,
+)
+from a.apostolico_crochemore_search.verify_workload import (
+    verify_workload as verify_apostolico_crochemore_search_package,
+)
+from a.alpha_skip_search.primary_oracle import (
+    expected_result as alpha_skip_search_primary,
+)
+from a.alpha_skip_search.verify_workload import (
+    verify_workload as verify_alpha_skip_search_package,
+)
+from a.arbitrary_order_line_container.primary_oracle import (
+    MAX_OPERATIONS as ARBITRARY_ORDER_LINE_CONTAINER_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as ARBITRARY_ORDER_LINE_CONTAINER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ARBITRARY_ORDER_LINE_CONTAINER_MAX_VALID_INPUT_LENGTH,
+    expected_result as arbitrary_order_line_container_primary,
+)
+from a.arbitrary_order_line_container.verify_workload import (
+    verify_workload as verify_arbitrary_order_line_container_package,
+)
+from g.generalized_suffix_automaton_union.primary_oracle import (
+    expected_result as generalized_suffix_automaton_union_primary,
+)
+from g.generalized_suffix_automaton_union.verify_workload import (
+    verify_workload as verify_generalized_suffix_automaton_union_package,
+)
+from s.schorr_waite_graph_marking.primary_oracle import (
+    expected_result as schorr_waite_graph_marking_primary,
+)
+from s.schorr_waite_graph_marking.verify_workload import (
+    verify_workload as verify_schorr_waite_graph_marking_package,
+)
+from s.size_balanced_ordered_set.primary_oracle import (
+    expected_result as size_balanced_ordered_set_primary,
+)
+from s.size_balanced_ordered_set.verify_workload import (
+    verify_workload as verify_size_balanced_ordered_set_package,
+)
+from w.weight_balanced_leaf_tree_order_statistics.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as WEIGHT_BALANCED_LEAF_TREE_ORDER_STATISTICS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as weight_balanced_leaf_tree_order_statistics_primary,
+)
+from w.weight_balanced_leaf_tree_order_statistics.verify_workload import (
+    verify_workload as verify_weight_balanced_leaf_tree_order_statistics_package,
+)
+from m.mo_with_modifications.primary_oracle import (
+    expected_result as mo_with_modifications_primary,
+)
+from m.mo_with_modifications.verify_workload import (
+    verify_workload as verify_mo_with_modifications_package,
+)
+from l.lgv_nonintersecting_paths.primary_oracle import (
+    expected_result as lgv_nonintersecting_paths_primary,
+)
+from l.lgv_nonintersecting_paths.verify_workload import (
+    verify_workload as verify_lgv_nonintersecting_paths_package,
+)
+from w.weak_heapsort.primary_oracle import (
+    expected_result as weak_heapsort_primary,
+)
+from w.weak_heapsort.verify_workload import (
+    verify_workload as verify_weak_heapsort_package,
+)
 
 from build_abi import ROOT, sha256_file
 from min_of_mod_of_linear_oracle import expected_result as min_of_mod_of_linear_expected
@@ -48,6 +1233,28 @@ from sum_of_multiplicative_function_large_oracle import MAX_PARSEABLE_INPUT_LENG
 from sum_of_multiplicative_function_large_oracle import MAX_VALID_INPUT_LENGTH as SUM_MULTIPLICATIVE_MAX_VALID_INPUT_LENGTH
 from sum_of_multiplicative_function_large_oracle import MODULUS as SUM_MULTIPLICATIVE_MODULUS
 from sum_of_multiplicative_function_large_oracle import expected_result as sum_of_multiplicative_function_large_expected
+from z.zhouge_summatory_multiplicative_function.primary_oracle import (
+    INVALID_RESULT as ZHOUGE_INVALID_RESULT,
+    MAX_N as ZHOUGE_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as ZHOUGE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ZHOUGE_MAX_VALID_INPUT_LENGTH,
+    MODULUS as ZHOUGE_MODULUS,
+    WORKSPACE_BYTES as ZHOUGE_WORKSPACE_BYTES,
+    expected_result as zhouge_summatory_multiplicative_function_expected,
+)
+from z.zhouge_summatory_multiplicative_function.check_inventory import (
+    static_issues as zhouge_summatory_multiplicative_function_static_issues,
+)
+from p.pearson_hash.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PEARSON_HASH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as PEARSON_HASH_WORKSPACE_BYTES,
+    MAX_TEXT_BYTES as PEARSON_HASH_MAX_TEXT_BYTES,
+    MAX_VALID_INPUT_LENGTH as PEARSON_HASH_MAX_VALID_INPUT_LENGTH,
+    expected_result as pearson_hash_expected,
+)
+from p.pearson_hash.independent_oracle import (
+    expected_result as pearson_hash_independent,
+)
 from coremark_crc_oracle import INVALID_RESULT as COREMARK_CRC_INVALID_RESULT
 from coremark_crc_oracle import MAX_INPUT_LENGTH as COREMARK_CRC_MAX_INPUT_LENGTH
 from coremark_crc_oracle import expected_result as coremark_crc_expected
@@ -532,28 +1739,81 @@ from roulette_wheel_selection_oracle import MAX_INPUT_LENGTH as MAX_ROULETTE_WHE
 from roulette_wheel_selection_oracle import expected_result as roulette_wheel_selection_expected
 from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
 from k.karger_contraction_trial.primary_oracle import expected_output as karger_contraction_trial_expected
+from k.karger_stein_recursive_contraction.reference import expected_result as karger_stein_recursive_contraction_expected
+from check_karger_stein_recursive_contraction_package import static_issues as karger_stein_recursive_contraction_static_issues
 from d.directed_girth_bfs.primary_oracle import expected_output as directed_girth_bfs_expected
+from c.convex_polygon_integer_inradius.reference import expected_result as convex_polygon_integer_inradius_expected
+from check_convex_polygon_integer_inradius_package import static_issues as convex_polygon_integer_inradius_static_issues
 from f.functional_graph_cycle_brent.primary_oracle import expected_output as functional_graph_cycle_brent_expected
 from o.offline_range_distinct_fenwick.primary_oracle import expected_output as offline_range_distinct_fenwick_expected
+from u.unit_job_release_deadline_weighted_matching.independent_oracle import expected_output as unit_job_release_deadline_weighted_matching_expected
+from check_unit_job_release_deadline_weighted_matching_package import static_issues as unit_job_release_deadline_weighted_matching_static_issues
 from d.dinic_capacity_scaling.primary_oracle import expected_output as dinic_capacity_scaling_expected
 from h.highest_label_push_relabel.primary_oracle import expected_output as highest_label_push_relabel_expected
 from c.closest_pair_sweep.primary_oracle import expected_output as closest_pair_sweep_expected
 from m.monotone_radix_heap.primary_oracle import expected_output as monotone_radix_heap_expected
+from m.multi_root_hollow_heap.primary_oracle import MAX_PARSEABLE_INPUT_VALUES as MULTI_ROOT_HOLLOW_HEAP_MAX_PARSEABLE_INPUT_VALUES
+from m.multi_root_hollow_heap.primary_oracle import expected_output as multi_root_hollow_heap_expected
+from r.rank_pairing_heap.primary_oracle import MAX_PARSEABLE_INPUT_VALUES as RANK_PAIRING_HEAP_MAX_PARSEABLE_INPUT_VALUES
+from r.rank_pairing_heap.primary_oracle import expected_output as rank_pairing_heap_expected
+from s.skew_binomial_queue.primary_oracle import MAX_PARSEABLE_INPUT_VALUES as SKEW_BINOMIAL_QUEUE_MAX_PARSEABLE_INPUT_VALUES
+from s.skew_binomial_queue.primary_oracle import expected_output as skew_binomial_queue_expected
+from d.dsatur_greedy_coloring.primary_oracle import MAX_PARSEABLE_INPUT_VALUES as DSATUR_GREEDY_COLORING_MAX_PARSEABLE_INPUT_VALUES
+from d.dsatur_greedy_coloring.primary_oracle import expected_output as dsatur_greedy_coloring_expected
+from k.kkt_recursive_mst.primary_oracle import MAX_PARSEABLE_INPUT_LENGTH as KKT_RECURSIVE_MST_MAX_PARSEABLE_INPUT_LENGTH
+from k.kkt_recursive_mst.primary_oracle import expected_result as kkt_recursive_mst_expected
+from k.kkt_recursive_mst.verify_workload import verify_workload as verify_kkt_recursive_mst_workload
+from check_kkt_recursive_mst_package import static_issues as kkt_recursive_mst_static_issues
 from f.fixed_length_walk_minplus.reference import expected as fixed_length_walk_minplus_expected
 from check_fixed_length_walk_minplus_package import static_issues as fixed_length_walk_minplus_static_issues
 from f.fixed_length_walk_count.reference import expected as fixed_length_walk_count_expected
 from check_fixed_length_walk_count_package import static_issues as fixed_length_walk_count_static_issues
 from t.tree_min_cost_proper_coloring.reference import expected as tree_min_cost_proper_coloring_expected
+from t.tree_sibling_distinct_cost_coloring.reference import expected as tree_sibling_distinct_cost_coloring_expected
+from check_tree_sibling_distinct_cost_coloring_package import static_issues as tree_sibling_distinct_cost_coloring_static_issues
 from check_tree_min_cost_proper_coloring_package import static_issues as tree_min_cost_proper_coloring_static_issues
+from t.tree_min_cost_edge_coloring.fast_reference import expected as tree_min_cost_edge_coloring_expected
+from check_tree_min_cost_edge_coloring_package import static_issues as tree_min_cost_edge_coloring_static_issues
+from t.tree_weighted_vertex_cover.reference import expected as tree_weighted_vertex_cover_expected
+from check_tree_weighted_vertex_cover_package import static_issues as tree_weighted_vertex_cover_static_issues
+from t.tree_weighted_edge_dominating_set.reference import expected as tree_weighted_edge_dominating_set_expected
+from check_tree_weighted_edge_dominating_set_package import static_issues as tree_weighted_edge_dominating_set_static_issues
+from t.tree_minimum_path_partition.reference import expected as tree_minimum_path_partition_expected
+from check_tree_minimum_path_partition_package import static_issues as tree_minimum_path_partition_static_issues
+from c.chordal_graph_optimal_coloring.reference import expected as chordal_graph_optimal_coloring_expected
+from check_chordal_graph_optimal_coloring_package import static_issues as chordal_graph_optimal_coloring_static_issues
+from b.bit_parallel_lcs.reference import expected as bit_parallel_lcs_expected
+from check_bit_parallel_lcs_package import static_issues as bit_parallel_lcs_static_issues
+from m.myers_bitvector_edit_distance.reference import expected as myers_bitvector_edit_distance_expected
+from check_myers_bitvector_edit_distance_package import static_issues as myers_bitvector_edit_distance_static_issues
+from c.count_distinct_lcs.reference import expected as count_distinct_lcs_expected
+from check_count_distinct_lcs_package import static_issues as count_distinct_lcs_static_issues
+from p.polygonal_numbers.reference import expected as polygonal_numbers_expected
+from g.golomb_sequence_validator.reference import expected as golomb_sequence_validator_expected
+from t.tree_weighted_dominating_set.reference import expected as tree_weighted_dominating_set_expected
+from check_tree_weighted_dominating_set_package import static_issues as tree_weighted_dominating_set_static_issues
+from t.tree_weighted_total_dominating_set.reference import expected as tree_weighted_total_dominating_set_expected
+from check_tree_weighted_total_dominating_set_package import static_issues as tree_weighted_total_dominating_set_static_issues
+from t.tree_weighted_independent_dominating_set.reference import expected as tree_weighted_independent_dominating_set_expected
+from check_tree_weighted_independent_dominating_set_package import static_issues as tree_weighted_independent_dominating_set_static_issues
+from t.tree_distance_k_dominating_set.reference import expected as tree_distance_k_dominating_set_expected
+from check_tree_distance_k_dominating_set_package import static_issues as tree_distance_k_dominating_set_static_issues
 from b.backward_nondeterministic_dawg_match.independent_oracle import expected_output as bndm_expected
 from check_backward_nondeterministic_dawg_match_package import static_issues as bndm_static_issues
 from b.backward_oracle_match.independent_oracle import expected_output as bom_expected
 from check_backward_oracle_match_package import static_issues as bom_static_issues
 from w.wavelet_matrix.independent_oracle import expected_output as wavelet_matrix_expected
 from check_wavelet_matrix_package import static_issues as wavelet_matrix_static_issues
+from o.one_sided_jacobi_svd.primary_oracle import MAX_PARSEABLE_INPUT_LENGTH as ONE_SIDED_JACOBI_SVD_MAX_PARSEABLE_INPUT_LENGTH
+from o.one_sided_jacobi_svd.primary_oracle import expected_result as one_sided_jacobi_svd_expected
+from check_one_sided_jacobi_svd_package import static_issues as one_sided_jacobi_svd_static_issues
 from x.xor_filter_peeling.independent_oracle import expected_output as xor_filter_peeling_expected
 from check_xor_filter_peeling_package import static_issues as xor_filter_peeling_static_issues
 from check_monotone_radix_heap_package import static_issues as monotone_radix_heap_static_issues
+from check_multi_root_hollow_heap_package import static_issues as multi_root_hollow_heap_static_issues
+from check_rank_pairing_heap_package import static_issues as rank_pairing_heap_static_issues
+from check_skew_binomial_queue_package import static_issues as skew_binomial_queue_static_issues
+from check_dsatur_greedy_coloring_package import static_issues as dsatur_greedy_coloring_static_issues
 from check_closest_pair_sweep_package import static_issues as closest_pair_sweep_static_issues
 from check_highest_label_push_relabel_package import static_issues as highest_label_push_relabel_static_issues
 from check_dinic_capacity_scaling_package import static_issues as dinic_capacity_scaling_static_issues
@@ -634,6 +1894,34 @@ from p.point_set_range_sort_range_composite.primary_oracle import (
 )
 from p.point_set_range_sort_range_composite.verify_workload import (
     verify as verify_point_set_range_sort_range_composite_package,
+)
+from p.point_location_sweep.primary_oracle import (
+    MAX_PARSEABLE_LENGTH as POINT_LOCATION_SWEEP_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as point_location_sweep_expected,
+)
+from p.point_location_sweep.verify_workload import (
+    verify_workload as verify_point_location_sweep_package,
+)
+from p.triangulation_stochastic_visibility_walk.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as TRIANGULATION_STOCHASTIC_VISIBILITY_WALK_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as triangulation_stochastic_visibility_walk_expected,
+)
+from p.triangulation_stochastic_visibility_walk.verify_workload import (
+    verify_workload as verify_triangulation_stochastic_visibility_walk_package,
+)
+from z.zielonka_parity_game_solver.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ZIELONKA_PARITY_GAME_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as zielonka_parity_game_solver_expected,
+)
+from z.zielonka_parity_game_solver.verify_workload import (
+    verify_workload as verify_zielonka_parity_game_solver_package,
+)
+from s.small_progress_measure_parity_game_solver.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SMALL_PROGRESS_MEASURE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as small_progress_measure_parity_game_solver_expected,
+)
+from s.small_progress_measure_parity_game_solver.verify_workload import (
+    verify_workload as verify_small_progress_measure_parity_game_solver_package,
 )
 from stirling_number_of_the_second_kind_small_p_large_n_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as STIRLING_S2_SMALL_P_MAX_INPUT_LENGTH,
@@ -790,6 +2078,62 @@ from wildcard_matching_oracle import MAX_INPUT_LENGTH as MAX_WILDCARD_MATCHING_I
 from wildcard_matching_oracle import expected_result as wildcard_matching_expected
 from primitive_root_oracle import MAX_INPUT_LENGTH as MAX_PRIMITIVE_ROOT_INPUT_LENGTH
 from primitive_root_oracle import expected_result as primitive_root_expected
+from p.primitive_root_factorization.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PRIMITIVE_ROOT_FACTORIZATION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as primitive_root_factorization_expected,
+)
+from p.primitive_root_factorization.verify_workload import (
+    verify_workload as primitive_root_factorization_verify_workload,
+)
+from d.distinct_substring_count_hashing.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DISTINCT_SUBSTRING_HASHING_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as distinct_substring_count_hashing_expected,
+)
+from d.distinct_substring_count_hashing.verify_workload import (
+    verify_workload as distinct_substring_count_hashing_verify_workload,
+)
+from a.arpa_offline_rmq.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ARPA_OFFLINE_RMQ_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as arpa_offline_rmq_expected,
+)
+from a.arpa_offline_rmq.verify_workload import (
+    verify_workload as arpa_offline_rmq_verify_workload,
+)
+from o.offline_range_paint_successor_dsu.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as OFFLINE_RANGE_PAINT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as offline_range_paint_successor_dsu_expected,
+)
+from o.offline_range_paint_successor_dsu.verify_workload import (
+    verify_workload as offline_range_paint_successor_dsu_verify_workload,
+)
+from o.online_bipartiteness_dsu.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ONLINE_BIPARTITENESS_DSU_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as online_bipartiteness_dsu_expected,
+)
+from o.online_bipartiteness_dsu.verify_workload import (
+    verify_workload as online_bipartiteness_dsu_verify_workload,
+)
+from g.segment_union_length_klee.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SEGMENT_UNION_LENGTH_KLEE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as segment_union_length_klee_expected,
+)
+from g.segment_union_length_klee.verify_workload import (
+    verify_workload as segment_union_length_klee_verify_workload,
+)
+from b.balanced_parenthesis_rank_unrank.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BALANCED_PARENTHESIS_RANK_UNRANK_MAX_INPUT_LENGTH,
+    expected_result as balanced_parenthesis_rank_unrank_expected,
+)
+from b.balanced_parenthesis_rank_unrank.verify_workload import (
+    verify_workload as balanced_parenthesis_rank_unrank_verify_workload,
+)
+from i.intersecting_segments_sweep.primary_oracle import (
+    MAX_PARSEABLE_LENGTH as INTERSECTING_SEGMENTS_SWEEP_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as intersecting_segments_sweep_expected,
+)
+from i.intersecting_segments_sweep.verify_workload import (
+    verify_workload as intersecting_segments_sweep_verify_workload,
+)
 from quadratic_residue_oracle import MAX_INPUT_LENGTH as MAX_QUADRATIC_RESIDUE_INPUT_LENGTH
 from quadratic_residue_oracle import expected_result as quadratic_residue_expected
 from dijkstras_two_stack_algorithm_oracle import MAX_INPUT_LENGTH as MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH
@@ -1382,6 +2726,8 @@ from constrained_shortest_path_oracle import MAX_INPUT_LENGTH as MAX_CONSTRAINED
 from constrained_shortest_path_oracle import expected_result as constrained_shortest_path_expected
 from jump_game_oracle import MAX_INPUT_LENGTH as MAX_JUMP_GAME_INPUT_LENGTH
 from jump_game_oracle import expected_result as jump_game_expected
+from s.same_value_teleport_bfs.primary_oracle import MAX_INPUT_LENGTH as MAX_SAME_VALUE_TELEPORT_BFS_INPUT_LENGTH
+from s.same_value_teleport_bfs.primary_oracle import expected_result as same_value_teleport_bfs_expected
 from max_consecutive_ones_iii_oracle import MAX_INPUT_LENGTH as MAX_MAX_CONSECUTIVE_ONES_III_INPUT_LENGTH
 from max_consecutive_ones_iii_oracle import expected_result as max_consecutive_ones_iii_expected
 from pairs_with_given_sum_oracle import MAX_INPUT_LENGTH as MAX_PAIRS_WITH_GIVEN_SUM_INPUT_LENGTH
@@ -1412,6 +2758,147 @@ from burkes_dithering_oracle import MAX_INPUT_LENGTH as MAX_BURKES_DITHERING_INP
 from burkes_dithering_oracle import expected_result as burkes_dithering_expected
 from burstballoons_oracle import MAX_BALLOONS as MAX_BURST_BALLOONS
 from burstballoons_oracle import expected_result as burstballoons_expected
+from r.remove_boxes.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as REMOVE_BOXES_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as REMOVE_BOXES_MAX_WORKSPACE_BYTES,
+    expected_result as remove_boxes_primary,
+)
+from r.remove_boxes.check_inventory import static_issues as remove_boxes_static_issues
+from s.strange_printer.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STRANGE_PRINTER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as STRANGE_PRINTER_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as STRANGE_PRINTER_MAX_WORKSPACE_BYTES,
+    expected_result as strange_printer_primary,
+)
+from s.strange_printer.verify_workload import static_issues as strange_printer_static_issues
+from s.strange_printer_ii.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STRANGE_PRINTER_II_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as STRANGE_PRINTER_II_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as STRANGE_PRINTER_II_MAX_WORKSPACE_BYTES,
+    expected_result as strange_printer_ii_primary,
+)
+from s.strange_printer_ii.verify_workload import static_issues as strange_printer_ii_static_issues
+from a.alphabetic_anagrams.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ALPHABETIC_ANAGRAMS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ALPHABETIC_ANAGRAMS_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as ALPHABETIC_ANAGRAMS_MAX_WORKSPACE_BYTES,
+    expected_result as alphabetic_anagrams_primary,
+)
+from a.alphabetic_anagrams.verify_workload import (
+    static_issues as alphabetic_anagrams_static_issues,
+)
+from i.infinite_knight_distance.primary_oracle import (
+    MAX_COORDINATE as INFINITE_KNIGHT_DISTANCE_MAX_COORDINATE,
+    MAX_PARSEABLE_INPUT_LENGTH as INFINITE_KNIGHT_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as INFINITE_KNIGHT_DISTANCE_MAX_RESULT,
+    MAX_VALID_INPUT_LENGTH as INFINITE_KNIGHT_DISTANCE_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as INFINITE_KNIGHT_DISTANCE_MAX_WORKSPACE_BYTES,
+    expected_result as infinite_knight_distance_primary,
+)
+from i.infinite_knight_distance.verify_workload import (
+    static_issues as infinite_knight_distance_static_issues,
+)
+from a.android_unlock_pattern_count.primary_oracle import (
+    MAX_PATTERN_LENGTH as ANDROID_UNLOCK_PATTERN_MAX_PATTERN_LENGTH,
+    MAX_RESULT as ANDROID_UNLOCK_PATTERN_MAX_RESULT,
+    MIN_PATTERN_LENGTH as ANDROID_UNLOCK_PATTERN_MIN_PATTERN_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ANDROID_UNLOCK_PATTERN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ANDROID_UNLOCK_PATTERN_MAX_VALID_INPUT_LENGTH,
+    expected_result as android_unlock_pattern_count_primary,
+)
+from a.android_unlock_pattern_count.independent_oracle import (
+    expected_result as android_unlock_pattern_count_independent,
+)
+from a.android_unlock_pattern_count.check_inventory import (
+    static_issues as android_unlock_pattern_count_static_issues,
+)
+from r.random_permutation_cycle_cap_count.primary_oracle import (
+    MAX_N as RANDOM_PERMUTATION_CYCLE_CAP_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as RANDOM_PERMUTATION_CYCLE_CAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as RANDOM_PERMUTATION_CYCLE_CAP_MAX_VALID_INPUT_LENGTH,
+    expected_result as random_permutation_cycle_cap_count_primary,
+)
+from r.random_permutation_cycle_cap_count.independent_oracle import (
+    expected_result as random_permutation_cycle_cap_count_independent,
+)
+from r.random_permutation_cycle_cap_count.verify_workload import (
+    workload_issues as random_permutation_cycle_cap_count_workload_issues,
+)
+from e.eulerian_number.primary_oracle import (
+    MAX_N as EULERIAN_NUMBER_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as EULERIAN_NUMBER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as EULERIAN_NUMBER_MAX_VALID_INPUT_LENGTH,
+    MAX_RESULT as EULERIAN_NUMBER_MAX_RESULT,
+    MAX_WORKSPACE_BYTES as EULERIAN_NUMBER_WORKSPACE_BYTES,
+    expected_result as eulerian_number_primary,
+)
+from e.eulerian_number.independent_oracle import (
+    expected_result as eulerian_number_independent,
+)
+from e.eulerian_number.check_inventory import (
+    static_issues as eulerian_number_static_issues,
+)
+from e.eulerian_number.verify_workload import (
+    workload_issues as eulerian_number_workload_issues,
+)
+from f.fractional_programming_ratio_knapsack_binary_search.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FRAC_RATIO_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FRAC_RATIO_KNAPSACK_MAX_VALID_INPUT_LENGTH,
+    MAX_RESULT as FRAC_RATIO_KNAPSACK_MAX_RESULT,
+    MAX_WORKSPACE_BYTES as FRAC_RATIO_KNAPSACK_WORKSPACE_BYTES,
+    expected_result as fractional_programming_ratio_knapsack_binary_search_primary,
+)
+from f.fractional_programming_ratio_knapsack_binary_search.independent_oracle import (
+    expected_result as fractional_programming_ratio_knapsack_binary_search_independent,
+)
+from f.fractional_programming_ratio_knapsack_binary_search.check_inventory import (
+    static_issues as fractional_programming_ratio_knapsack_binary_search_static_issues,
+)
+from f.fractional_programming_ratio_knapsack_binary_search.verify_workload import (
+    workload_issues as fractional_programming_ratio_knapsack_binary_search_workload_issues,
+)
+from n.nmea_xor_checksum.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as NMEA_XOR_CHECKSUM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as NMEA_XOR_CHECKSUM_MAX_VALID_INPUT_LENGTH,
+    expected_result as nmea_xor_checksum_primary,
+)
+from n.nmea_xor_checksum.check_inventory import (
+    static_issues as nmea_xor_checksum_static_issues,
+)
+from n.nmea_xor_checksum.verify_workload import (
+    workload_issues as nmea_xor_checksum_workload_issues,
+)
+from f.factorial_last_nonzero_digit.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FACTORIAL_LAST_NONZERO_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FACTORIAL_LAST_NONZERO_MAX_VALID_INPUT_LENGTH,
+    MAX_N as FACTORIAL_LAST_NONZERO_MAX_N,
+    expected_result as factorial_last_nonzero_digit_primary,
+)
+from f.factorial_last_nonzero_digit.verify_workload import (
+    workload_issues as factorial_last_nonzero_digit_workload_issues,
+)
+from e.egg_drop_max_floors_by_moves.primary_oracle import (
+    MAX_EGGS as EGG_DROP_MAX_FLOORS_MAX_EGGS,
+    MAX_MOVES as EGG_DROP_MAX_FLOORS_MAX_MOVES,
+    MAX_PARSEABLE_INPUT_LENGTH as EGG_DROP_MAX_FLOORS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as EGG_DROP_MAX_FLOORS_MAX_RESULT,
+    MAX_VALID_INPUT_LENGTH as EGG_DROP_MAX_FLOORS_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as EGG_DROP_MAX_FLOORS_MAX_WORKSPACE_BYTES,
+    expected_result as egg_drop_max_floors_by_moves_primary,
+)
+from e.egg_drop_max_floors_by_moves.verify_workload import (
+    static_issues as egg_drop_max_floors_by_moves_static_issues,
+)
+from g.rectangle_union_area_sweep.primary_oracle import (
+    MAX_AREA as RECTANGLE_UNION_AREA_SWEEP_MAX_AREA,
+    MAX_PARSEABLE_INPUT_LENGTH as RECTANGLE_UNION_AREA_SWEEP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as RECTANGLE_UNION_AREA_SWEEP_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as RECTANGLE_UNION_AREA_SWEEP_MAX_WORKSPACE_BYTES,
+    expected_result as rectangle_union_area_sweep_primary,
+)
+from g.rectangle_union_area_sweep.verify_workload import (
+    static_issues as rectangle_union_area_sweep_static_issues,
+)
 from brightness_oracle import MAX_INPUT_LENGTH as MAX_BRIGHTNESS_INPUT_LENGTH
 from brightness_oracle import expected_result as brightness_expected
 from bst_from_sorted_array_oracle import MAX_INPUT_LENGTH as MAX_BST_FROM_SORTED_ARRAY_INPUT_LENGTH
@@ -1572,6 +3059,160 @@ from fast_searcher_oracle import MAX_INPUT_LENGTH as MAX_FAST_SEARCHER_INPUT_LEN
 from fast_searcher_oracle import expected_result as fast_searcher_expected
 from minimum_sum_partition_oracle import MAX_INPUT_LENGTH as MAX_MINIMUM_SUM_PARTITION_INPUT_LENGTH
 from minimum_sum_partition_oracle import expected_result as minimum_sum_partition_expected
+from s.shortest_subarray_with_sum_at_least_k.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SHORTEST_SUBARRAY_SUM_AT_LEAST_K_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as shortest_subarray_with_sum_at_least_k_expected,
+)
+from s.shortest_subarray_with_sum_at_least_k.check_inventory import (
+    static_issues as shortest_subarray_with_sum_at_least_k_static_issues,
+)
+from l.linear_partition_minimax.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LINEAR_PARTITION_MINIMAX_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as linear_partition_minimax_expected,
+)
+from l.linear_partition_minimax.check_inventory import (
+    static_issues as linear_partition_minimax_static_issues,
+)
+from n.number_of_ways_of_cutting_a_pizza.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CUTTING_PIZZA_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as number_of_ways_of_cutting_a_pizza_expected,
+)
+from n.number_of_ways_of_cutting_a_pizza.check_inventory import (
+    static_issues as number_of_ways_of_cutting_a_pizza_static_issues,
+)
+from m.minimum_cost_to_merge_stones.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_COST_TO_MERGE_STONES_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as minimum_cost_to_merge_stones_expected,
+)
+from m.minimum_cost_to_merge_stones.check_inventory import (
+    static_issues as minimum_cost_to_merge_stones_static_issues,
+)
+from c.connectivity_aware_plug_dp_binary_grid_colorings.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CONNECTIVITY_PLUG_DP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as CONNECTIVITY_PLUG_DP_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as CONNECTIVITY_PLUG_DP_WORKSPACE_BYTES,
+    expected_result as connectivity_aware_plug_dp_binary_grid_colorings_expected,
+)
+from c.connectivity_aware_plug_dp_binary_grid_colorings.check_inventory import (
+    static_issues as connectivity_aware_plug_dp_binary_grid_colorings_static_issues,
+)
+from p.paint_house_iii.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PAINT_HOUSE_III_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as PAINT_HOUSE_III_MAX_VALID_INPUT_LENGTH,
+    expected_output as paint_house_iii_expected,
+)
+from p.paint_house_iii.check_inventory import (
+    static_issues as paint_house_iii_static_issues,
+)
+from e.efficient_dominating_set_square_graph_mwis.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as EFFICIENT_DOMINATING_SET_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as EFFICIENT_DOMINATING_SET_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as EFFICIENT_DOMINATING_SET_WORKSPACE_BYTES,
+    expected_result as efficient_dominating_set_square_graph_mwis_expected,
+)
+from e.efficient_dominating_set_square_graph_mwis.check_inventory import (
+    static_issues as efficient_dominating_set_square_graph_mwis_static_issues,
+)
+from m.maximum_employees_to_be_invited.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MAXIMUM_EMPLOYEES_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MAXIMUM_EMPLOYEES_MAX_VALID_INPUT_LENGTH,
+    expected_result as maximum_employees_to_be_invited_expected,
+)
+from m.maximum_employees_to_be_invited.check_inventory import (
+    static_issues as maximum_employees_to_be_invited_static_issues,
+)
+from m.max_points_on_a_line.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MAX_POINTS_ON_A_LINE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MAX_POINTS_ON_A_LINE_MAX_VALID_INPUT_LENGTH,
+    expected_result as max_points_on_a_line_expected,
+)
+from m.max_points_on_a_line.check_inventory import (
+    static_issues as max_points_on_a_line_static_issues,
+)
+from c.cherry_pickup_ii.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CHERRY_PICKUP_II_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as CHERRY_PICKUP_II_MAX_VALID_INPUT_LENGTH,
+    expected_result as cherry_pickup_ii_expected,
+)
+from c.cherry_pickup_ii.check_inventory import (
+    static_issues as cherry_pickup_ii_static_issues,
+)
+from d.delaunay_rooted_triangulation_reverse_search.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DELAUNAY_ROOTED_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as DELAUNAY_ROOTED_TRIANGULATION_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as DELAUNAY_ROOTED_TRIANGULATION_WORKSPACE_BYTES,
+    expected_result as delaunay_rooted_triangulation_reverse_search_expected,
+)
+from d.delaunay_rooted_triangulation_reverse_search.check_inventory import (
+    static_issues as delaunay_rooted_triangulation_reverse_search_static_issues,
+)
+from s.string_compression_ii.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STRING_COMPRESSION_II_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as STRING_COMPRESSION_II_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as STRING_COMPRESSION_II_WORKSPACE_BYTES,
+    expected_result as string_compression_ii_expected,
+)
+from s.string_compression_ii.check_inventory import (
+    static_issues as string_compression_ii_static_issues,
+)
+from h.hofstadter_q_sequence.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HOFSTADTER_Q_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_INDEX as HOFSTADTER_Q_MAX_INDEX,
+    WORKSPACE_BYTES as HOFSTADTER_Q_WORKSPACE_BYTES,
+    expected_result as hofstadter_q_sequence_expected,
+)
+from h.hofstadter_q_sequence.check_inventory import (
+    static_issues as hofstadter_q_sequence_static_issues,
+)
+from h.hofstadter_conway_10000_sequence.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HOFSTADTER_CONWAY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_INDEX as HOFSTADTER_CONWAY_MAX_INDEX,
+    WORKSPACE_BYTES as HOFSTADTER_CONWAY_WORKSPACE_BYTES,
+    expected_result as hofstadter_conway_10000_sequence_expected,
+)
+from h.hofstadter_conway_10000_sequence.check_inventory import (
+    static_issues as hofstadter_conway_10000_sequence_static_issues,
+)
+from m.minimum_cost_bipartite_edge_cover_subset_dp.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BIPARTITE_EDGE_COVER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BIPARTITE_EDGE_COVER_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as BIPARTITE_EDGE_COVER_WORKSPACE_BYTES,
+    expected_result as minimum_cost_bipartite_edge_cover_subset_dp_expected,
+)
+from m.minimum_cost_bipartite_edge_cover_subset_dp.check_inventory import (
+    static_issues as minimum_cost_bipartite_edge_cover_subset_dp_static_issues,
+)
+from s.simpath_st_paths_zdd.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SIMPATH_ST_PATHS_ZDD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SIMPATH_ST_PATHS_ZDD_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as SIMPATH_ST_PATHS_ZDD_WORKSPACE_BYTES,
+    expected_result as simpath_st_paths_zdd_expected,
+)
+from s.simpath_st_paths_zdd.check_inventory import (
+    static_issues as simpath_st_paths_zdd_static_issues,
+)
+from d.domino_l_tromino_tilings_2xn.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DOMINO_L_TROMINO_TILINGS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as DOMINO_L_TROMINO_TILINGS_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as DOMINO_L_TROMINO_TILINGS_WORKSPACE_BYTES,
+    expected_result as domino_l_tromino_tilings_expected,
+)
+from d.domino_l_tromino_tilings_2xn.check_inventory import (
+    static_issues as domino_l_tromino_tilings_static_issues,
+)
+from r.ratcliff_obershelp_similarity.primary_oracle import (
+    MAX_INPUT_LENGTH as RATCLIFF_OBERSHELP_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as RATCLIFF_OBERSHELP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_TEXT as RATCLIFF_OBERSHELP_MAX_TEXT,
+    WORKSPACE_BYTES as RATCLIFF_OBERSHELP_WORKSPACE_BYTES,
+    expected_result as ratcliff_obershelp_primary_oracle,
+)
+from r.ratcliff_obershelp_similarity.independent_oracle import (
+    expected_result as ratcliff_obershelp_independent_oracle,
+)
+from r.ratcliff_obershelp_similarity.check_inventory import (
+    static_issues as ratcliff_obershelp_static_issues,
+)
 from upper_bound_oracle import MAX_INPUT_LENGTH as MAX_UPPER_BOUND_INPUT_LENGTH
 from upper_bound_oracle import expected_result as upper_bound_expected
 from longest_subarray_with_sum_at_most_oracle import MAX_INPUT_LENGTH as MAX_LONGEST_SUBARRAY_INPUT_LENGTH
@@ -1630,6 +3271,8 @@ from how_many_times_rotated_oracle import expected_result as how_many_times_rota
 from is_valid_email_address_oracle import expected_result as is_valid_email_address_expected
 from n_in_a_row_board_status_oracle import MAX_INPUT_LENGTH as MAX_N_IN_A_ROW_INPUT_LENGTH
 from n_in_a_row_board_status_oracle import expected_result as n_in_a_row_board_status_expected
+from c.clock_patience_simulation.primary_oracle import expected_result as clock_patience_simulation_expected
+from c.clock_patience_simulation.check_inventory import static_issues as clock_patience_simulation_static_issues
 from depth_first_search_tic_tac_toe_oracle import expected_result as depth_first_search_tic_tac_toe_expected
 from dynamic_coin_change_solver_oracle import expected_result as dynamic_coin_change_solver_expected
 from string_prefix_suffix_oracle import MAX_INPUT_LENGTH as MAX_STRING_PREFIX_SUFFIX_INPUT_LENGTH
@@ -1957,6 +3600,136 @@ from b.bareiss_determinant.primary_oracle import (
 from b.bareiss_determinant.verify_bareiss_determinant_package import (
     static_issues as bareiss_determinant_static_issues,
 )
+from r.rational_polygon_lattice_points.primary_oracle import (
+    MAX_PARSEABLE_LENGTH as RATIONAL_POLYGON_LATTICE_POINTS_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_LENGTH as RATIONAL_POLYGON_LATTICE_POINTS_MAX_VALID_LENGTH,
+    expected_output as rational_polygon_lattice_points_expected,
+)
+from r.rational_polygon_lattice_points.verify_workload import (
+    verify_workload as verify_rational_polygon_lattice_points_package,
+)
+from d.divide_conquer_dp_partition.primary_oracle import (
+    MAX_GROUPS as DIVIDE_CONQUER_DP_PARTITION_MAX_GROUPS,
+    MAX_N as DIVIDE_CONQUER_DP_PARTITION_MAX_N,
+    MAX_VALUE as DIVIDE_CONQUER_DP_PARTITION_MAX_VALUE,
+    expected_result as divide_conquer_dp_partition_expected,
+)
+from d.divide_conquer_dp_partition.check_inventory import (
+    check_inventory as check_divide_conquer_dp_partition_inventory,
+)
+from m.monge_dag_fixed_edge_shortest_path.primary_oracle import (
+    MAX_N as MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_VALID_LENGTH,
+    MAX_WORKSPACE_BYTES as MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_WORKSPACE_BYTES,
+    expected_result as monge_dag_fixed_edge_shortest_path_expected,
+)
+from m.monge_dag_fixed_edge_shortest_path.verify_workload import (
+    verify_workload as verify_monge_dag_fixed_edge_shortest_path_package,
+)
+from c.cactus_graph_recognition.primary_oracle import (
+    MAX_N as CACTUS_GRAPH_RECOGNITION_MAX_N,
+    MAX_M as CACTUS_GRAPH_RECOGNITION_MAX_M,
+    MAX_PARSEABLE_INPUT_LENGTH as CACTUS_GRAPH_RECOGNITION_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as CACTUS_GRAPH_RECOGNITION_MAX_VALID_LENGTH,
+    MAX_WORKSPACE_BYTES as CACTUS_GRAPH_RECOGNITION_MAX_WORKSPACE_BYTES,
+    expected_result as cactus_graph_recognition_expected,
+)
+from c.cactus_graph_recognition.verify_workload import (
+    verify_workload as verify_cactus_graph_recognition_package,
+)
+from e.entringer_number.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ENTRINGER_NUMBER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as ENTRINGER_NUMBER_MAX_VALID_INPUT_LENGTH,
+    entringer_number as entringer_number_primary,
+)
+from e.entringer_number.check_inventory import (
+    static_issues as entringer_number_inventory_issues,
+)
+from e.entringer_number.verify_workload import (
+    static_issues as entringer_number_workload_issues,
+)
+from j.josephus_batched_small_k.primary_oracle import (
+    MAX_N as JOSEPHUS_BATCHED_MAX_N,
+    MAX_K as JOSEPHUS_BATCHED_MAX_K,
+    MAX_PARSEABLE_INPUT_LENGTH as JOSEPHUS_BATCHED_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as JOSEPHUS_BATCHED_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as JOSEPHUS_BATCHED_WORKSPACE_BYTES,
+    josephus_batched_small_k as josephus_batched_small_k_primary,
+)
+from j.josephus_batched_small_k.check_inventory import (
+    static_issues as josephus_batched_inventory_issues,
+)
+from j.josephus_batched_small_k.verify_workload import (
+    static_issues as josephus_batched_workload_issues,
+)
+from b.brzozowski_dfa_minimization.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BRZOZOWSKI_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BRZOZOWSKI_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as BRZOZOWSKI_WORKSPACE_BYTES,
+    expected as brzozowski_dfa_minimization_primary,
+)
+from b.brzozowski_dfa_minimization.check_inventory import (
+    static_issues as brzozowski_dfa_minimization_inventory_issues,
+)
+from i.interpolation_sequential_search.primary_oracle import (
+    MAX_N as INTERPOLATION_SEQUENTIAL_SEARCH_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as INTERPOLATION_SEQUENTIAL_SEARCH_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as INTERPOLATION_SEQUENTIAL_SEARCH_MAX_VALID_LENGTH,
+    MAX_WORKSPACE_BYTES as INTERPOLATION_SEQUENTIAL_SEARCH_MAX_WORKSPACE_BYTES,
+    expected_result as interpolation_sequential_search_expected,
+)
+from i.interpolation_sequential_search.verify_workload import (
+    verify_workload as verify_interpolation_sequential_search_package,
+)
+from l.lcfs_hashing.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LCFS_HASHING_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as lcfs_hashing_expected,
+)
+from l.lcfs_hashing.verify_workload import (
+    verify_workload as verify_lcfs_hashing_package,
+)
+from d.distinct_subarray_aggregates.primary_oracle import (
+    MAX_N as DISTINCT_SUBARRAY_AGGREGATES_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as DISTINCT_SUBARRAY_AGGREGATES_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as DISTINCT_SUBARRAY_AGGREGATES_MAX_VALID_LENGTH,
+    MAX_RESULT as DISTINCT_SUBARRAY_AGGREGATES_MAX_RESULT,
+    MAX_SECONDARY_COUNT as DISTINCT_SUBARRAY_AGGREGATES_MAX_SECONDARY_COUNT,
+    MAX_WORKSPACE_BYTES as DISTINCT_SUBARRAY_AGGREGATES_MAX_WORKSPACE_BYTES,
+    PACKING_MULTIPLIER as DISTINCT_SUBARRAY_AGGREGATES_PACKING_MULTIPLIER,
+    expected_result as distinct_subarray_aggregates_expected,
+)
+from d.distinct_subarray_aggregates.verify_workload import (
+    verify_workload as verify_distinct_subarray_aggregates_package,
+)
+from b.bond_sequential_search.primary_oracle import (
+    MAX_N as BOND_SEQUENTIAL_SEARCH_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as BOND_SEQUENTIAL_SEARCH_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BOND_SEQUENTIAL_SEARCH_MAX_VALID_LENGTH,
+    MAX_WORKSPACE_BYTES as BOND_SEQUENTIAL_SEARCH_MAX_WORKSPACE_BYTES,
+    expected_result as bond_sequential_search_expected,
+)
+from b.bond_sequential_search.verify_workload import (
+    verify_workload as verify_bond_sequential_search_package,
+)
+from m.matroid_intersection.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MATROID_INTERSECTION_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MATROID_INTERSECTION_MAX_VALID_LENGTH,
+    MAX_WORKSPACE_BYTES as MATROID_INTERSECTION_MAX_WORKSPACE_BYTES,
+    expected_result as matroid_intersection_expected,
+)
+from m.matroid_intersection.verify_workload import (
+    verify_workload as verify_matroid_intersection_package,
+)
+from t.thomassen_convex_drawing_extendibility.primary_oracle import (
+    MAX_INPUT_LENGTH as THOMASSEN_CONVEX_DRAWING_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as THOMASSEN_CONVEX_DRAWING_MAX_VALID_LENGTH,
+    WORKSPACE_BYTES as THOMASSEN_CONVEX_DRAWING_WORKSPACE_BYTES,
+    expected_result as thomassen_convex_drawing_expected,
+)
+from t.thomassen_convex_drawing_extendibility.check_inventory import (
+    static_issues as thomassen_convex_drawing_static_issues,
+)
 from p.pollard_p_minus_one_factorization.primary_oracle import (
     INVALID_RESULT as POLLARD_P_MINUS_ONE_INVALID_RESULT,
     MAX_BOUND as POLLARD_P_MINUS_ONE_MAX_BOUND,
@@ -1968,6 +3741,28 @@ from p.pollard_p_minus_one_factorization.primary_oracle import (
 )
 from p.pollard_p_minus_one_factorization.verify_pollard_p_minus_one_factorization_package import (
     static_issues as pollard_p_minus_one_static_issues,
+)
+from f.fermat_factorization.primary_oracle import (
+    INVALID_RESULT as FERMAT_FACTORIZATION_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as FERMAT_FACTORIZATION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FERMAT_FACTORIZATION_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as FERMAT_FACTORIZATION_WORKSPACE_BYTES,
+    expected_result as fermat_factorization_expected,
+)
+from f.fermat_factorization.check_inventory import (
+    static_issues as fermat_factorization_static_issues,
+)
+from g.generalized_chinese_remainder_theorem.primary_oracle import (
+    INCONSISTENT_RESULT as GENERALIZED_CRT_INCONSISTENT_RESULT,
+    INVALID_RESULT as GENERALIZED_CRT_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as GENERALIZED_CRT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_PRODUCT as GENERALIZED_CRT_MAX_PRODUCT,
+    MAX_VALID_INPUT_LENGTH as GENERALIZED_CRT_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as GENERALIZED_CRT_WORKSPACE_BYTES,
+    expected_result as generalized_chinese_remainder_theorem_expected,
+)
+from g.generalized_chinese_remainder_theorem.check_inventory import (
+    static_issues as generalized_crt_static_issues,
 )
 from f.factoring_exponentiation.primary_oracle import (
     INVALID_RESULT as FACTORING_EXPONENTIATION_INVALID_RESULT,
@@ -2036,6 +3831,33 @@ from count_different_palindromic_subsequences_oracle import (
 from c.count_different_palindromic_subsequences.check_inventory import (
     static_issues as count_different_palindromic_subsequences_static_issues,
 )
+from k_inverse_pairs_array_oracle import (
+    MAX_K as K_INVERSE_PAIRS_ARRAY_MAX_K,
+    MAX_N as K_INVERSE_PAIRS_ARRAY_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as K_INVERSE_PAIRS_ARRAY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as K_INVERSE_PAIRS_ARRAY_MAX_VALID_INPUT_LENGTH,
+    MODULUS as K_INVERSE_PAIRS_ARRAY_MODULUS,
+    expected_result as k_inverse_pairs_array_expected,
+)
+from k.k_inverse_pairs_array.check_inventory import (
+    static_issues as k_inverse_pairs_array_static_issues,
+)
+from max_sum_rectangle_no_larger_than_k_oracle import (
+    CELL_MAX as MAX_SUM_RECTANGLE_CELL_MAX,
+    CELL_MIN as MAX_SUM_RECTANGLE_CELL_MIN,
+    INVALID_RESULT as MAX_SUM_RECTANGLE_INVALID_RESULT,
+    K_MAX as MAX_SUM_RECTANGLE_K_MAX,
+    K_MIN as MAX_SUM_RECTANGLE_K_MIN,
+    MAX_COLUMNS as MAX_SUM_RECTANGLE_MAX_COLUMNS,
+    MAX_PARSEABLE_INPUT_LENGTH as MAX_SUM_RECTANGLE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_ROWS as MAX_SUM_RECTANGLE_MAX_ROWS,
+    MAX_VALID_INPUT_LENGTH as MAX_SUM_RECTANGLE_MAX_VALID_INPUT_LENGTH,
+    NO_FEASIBLE_RESULT as MAX_SUM_RECTANGLE_NO_FEASIBLE_RESULT,
+    expected_result as max_sum_rectangle_no_larger_than_k_expected,
+)
+from m.max_sum_rectangle_no_larger_than_k.check_inventory import (
+    static_issues as max_sum_rectangle_no_larger_than_k_static_issues,
+)
 from functional_graph_cycle_parameters_oracle import (
     ENCODING_BASE as FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_ENCODING_BASE,
     MAX_N as FUNCTIONAL_GRAPH_CYCLE_PARAMETERS_MAX_N,
@@ -2074,8 +3896,367 @@ from convex_polygon_minimax_length_triangulation_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH,
     expected_result as convex_polygon_minimax_length_triangulation_expected,
 )
+from convex_polygon_minimax_angle_edge_insertion_oracle import (
+    MIN_VERTICES as CONVEX_POLYGON_MINIMAX_ANGLE_MIN_VERTICES,
+    MAX_VERTICES as CONVEX_POLYGON_MINIMAX_ANGLE_MAX_VERTICES,
+    COORDINATE_LIMIT as CONVEX_POLYGON_MINIMAX_ANGLE_COORDINATE_LIMIT,
+    MAX_VALID_INPUT_LENGTH as CONVEX_POLYGON_MINIMAX_ANGLE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONVEX_POLYGON_MINIMAX_ANGLE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as convex_polygon_minimax_angle_edge_insertion_expected,
+)
+from check_convex_polygon_minimax_angle_edge_insertion_package import (
+    static_issues as convex_polygon_minimax_angle_edge_insertion_static_issues,
+)
+from convex_polygon_minimax_slope_edge_insertion_oracle import (
+    MIN_VERTICES as CONVEX_POLYGON_MINIMAX_SLOPE_MIN_VERTICES,
+    MAX_VERTICES as CONVEX_POLYGON_MINIMAX_SLOPE_MAX_VERTICES,
+    COORDINATE_LIMIT as CONVEX_POLYGON_MINIMAX_SLOPE_COORDINATE_LIMIT,
+    MAX_VALID_INPUT_LENGTH as CONVEX_POLYGON_MINIMAX_SLOPE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONVEX_POLYGON_MINIMAX_SLOPE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as convex_polygon_minimax_slope_edge_insertion_expected,
+)
+from check_convex_polygon_minimax_slope_edge_insertion_package import (
+    static_issues as convex_polygon_minimax_slope_edge_insertion_static_issues,
+)
+from convex_polygon_minimax_eccentricity_edge_insertion_oracle import (
+    MIN_VERTICES as CONVEX_POLYGON_ECCENTRICITY_MIN_VERTICES,
+    MAX_VERTICES as CONVEX_POLYGON_ECCENTRICITY_MAX_VERTICES,
+    COORDINATE_LIMIT as CONVEX_POLYGON_ECCENTRICITY_COORDINATE_LIMIT,
+    MAX_VALID_INPUT_LENGTH as CONVEX_POLYGON_ECCENTRICITY_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONVEX_POLYGON_ECCENTRICITY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as convex_polygon_minimax_eccentricity_edge_insertion_expected,
+)
+from check_convex_polygon_minimax_eccentricity_edge_insertion_package import (
+    static_issues as convex_polygon_minimax_eccentricity_edge_insertion_static_issues,
+)
 from check_convex_polygon_minimax_length_triangulation_package import (
     static_issues as convex_polygon_minimax_length_triangulation_static_issues,
+)
+from c.convex_polygon_max_min_length_triangulation.primary_oracle import (
+    MIN_VERTICES as CONVEX_POLYGON_MAX_MIN_LENGTH_MIN_VERTICES,
+    MAX_VERTICES as CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_VERTICES,
+    COORDINATE_LIMIT as CONVEX_POLYGON_MAX_MIN_LENGTH_COORDINATE_LIMIT,
+    MAX_VALID_INPUT_LENGTH as CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_STEPS as CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_STEPS,
+    expected_result as convex_polygon_max_min_length_triangulation_expected,
+)
+from c.convex_polygon_max_min_length_triangulation.verify_workload import (
+    verify as verify_convex_polygon_max_min_length_triangulation_package,
+)
+from s.shewchuk_expansion_sum.primary_oracle import (
+    MAX_TERMS as SHEWCHUK_EXPANSION_SUM_MAX_TERMS,
+    MAX_VALID_INPUT_LENGTH as SHEWCHUK_EXPANSION_SUM_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SHEWCHUK_EXPANSION_SUM_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_OFFSET as SHEWCHUK_EXPANSION_SUM_OUTPUT_OFFSET,
+    expected_result as shewchuk_expansion_sum_expected,
+)
+from s.shewchuk_expansion_sum.verify_workload import (
+    verify as verify_shewchuk_expansion_sum_package,
+)
+from b.bidirectional_fm_index.primary_oracle import (
+    MIN_TEXT_LENGTH as BIDIRECTIONAL_FM_MIN_TEXT_LENGTH,
+    MAX_TEXT_LENGTH as BIDIRECTIONAL_FM_MAX_TEXT_LENGTH,
+    MAX_OPERATIONS as BIDIRECTIONAL_FM_MAX_OPERATIONS,
+    ALPHABET_SIZE as BIDIRECTIONAL_FM_ALPHABET_SIZE,
+    MAX_VALID_INPUT_LENGTH as BIDIRECTIONAL_FM_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as BIDIRECTIONAL_FM_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as bidirectional_fm_index_expected,
+)
+from b.bidirectional_fm_index.verify_workload import (
+    verify as verify_bidirectional_fm_index_package,
+)
+from m.minimum_cycle_basis_horton.primary_oracle import (
+    MIN_VERTICES as MINIMUM_CYCLE_BASIS_HORTON_MIN_VERTICES,
+    MAX_VERTICES as MINIMUM_CYCLE_BASIS_HORTON_MAX_VERTICES,
+    MAX_EDGES as MINIMUM_CYCLE_BASIS_HORTON_MAX_EDGES,
+    MAX_VALID_INPUT_LENGTH as MINIMUM_CYCLE_BASIS_HORTON_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_CYCLE_BASIS_HORTON_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as minimum_cycle_basis_horton_expected,
+)
+from m.minimum_cycle_basis_horton.verify_workload import (
+    static_issues as minimum_cycle_basis_horton_static_issues,
+)
+from l.linear_extension_count.primary_oracle import (
+    MAX_N as LINEAR_EXTENSION_COUNT_MAX_N,
+    MAX_VALID_INPUT_LENGTH as LINEAR_EXTENSION_COUNT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as LINEAR_EXTENSION_COUNT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as linear_extension_count_expected,
+)
+from l.linear_extension_count.verify_workload import (
+    verify as verify_linear_extension_count_package,
+)
+from g.goldberg_maximum_density_subgraph.primary_oracle import (
+    MIN_VERTICES as GOLDBERG_DENSITY_MIN_VERTICES,
+    MAX_VERTICES as GOLDBERG_DENSITY_MAX_VERTICES,
+    MAX_EDGES as GOLDBERG_DENSITY_MAX_EDGES,
+    MAX_VALID_INPUT_LENGTH as GOLDBERG_DENSITY_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GOLDBERG_DENSITY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as goldberg_maximum_density_subgraph_expected,
+)
+from g.goldberg_maximum_density_subgraph.verify_workload import (
+    static_issues as goldberg_maximum_density_subgraph_static_issues,
+)
+from s.sparse_set_dense_array.primary_oracle import (
+    MIN_UNIVERSE as SPARSE_SET_DENSE_ARRAY_MIN_UNIVERSE,
+    MAX_UNIVERSE as SPARSE_SET_DENSE_ARRAY_MAX_UNIVERSE,
+    MAX_OPERATIONS as SPARSE_SET_DENSE_ARRAY_MAX_OPERATIONS,
+    MAX_VALID_INPUT_LENGTH as SPARSE_SET_DENSE_ARRAY_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SPARSE_SET_DENSE_ARRAY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as sparse_set_dense_array_expected,
+)
+from s.sparse_set_dense_array.verify_workload import (
+    verify as verify_sparse_set_dense_array_package,
+)
+from b.barrett_reduction.primary_oracle import (
+    MIN_MODULUS as BARRETT_REDUCTION_MIN_MODULUS,
+    MAX_MODULUS as BARRETT_REDUCTION_MAX_MODULUS,
+    MAX_VALUES as BARRETT_REDUCTION_MAX_VALUES,
+    MAX_VALID_INPUT_LENGTH as BARRETT_REDUCTION_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as BARRETT_REDUCTION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as BARRETT_REDUCTION_MAX_RESULT,
+    expected_result as barrett_reduction_expected,
+)
+from b.barrett_reduction.verify_workload import (
+    verify as verify_barrett_reduction_package,
+)
+from s.sequitur_grammar_induction.primary_oracle import (
+    MIN_TEXT_LENGTH as SEQUITUR_MIN_TEXT_LENGTH,
+    MAX_TEXT_LENGTH as SEQUITUR_MAX_TEXT_LENGTH,
+    ALPHABET_MAX as SEQUITUR_ALPHABET_MAX,
+    MAX_VALID_INPUT_LENGTH as SEQUITUR_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SEQUITUR_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as SEQUITUR_MAX_RESULT,
+    expected_result as sequitur_grammar_induction_expected,
+)
+from s.sequitur_grammar_induction.verify_workload import (
+    verify as verify_sequitur_grammar_induction_package,
+)
+from h.hensel_lifting_polynomial_root.primary_oracle import (
+    MAX_DEGREE as HENSEL_ROOT_MAX_DEGREE,
+    MAX_PRIME as HENSEL_ROOT_MAX_PRIME,
+    MAX_EXPONENT as HENSEL_ROOT_MAX_EXPONENT,
+    MAX_MODULUS as HENSEL_ROOT_MAX_MODULUS,
+    MAX_VALID_INPUT_LENGTH as HENSEL_ROOT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as HENSEL_ROOT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as HENSEL_ROOT_MAX_RESULT,
+    expected_result as hensel_lifting_polynomial_root_expected,
+)
+from h.hensel_lifting_polynomial_root.verify_workload import (
+    verify as verify_hensel_lifting_polynomial_root_package,
+)
+from r.rotation_system_planarity_test.primary_oracle import (
+    MIN_VERTICES as ROTATION_PLANARITY_MIN_VERTICES,
+    MAX_VERTICES as ROTATION_PLANARITY_MAX_VERTICES,
+    MAX_EDGES as ROTATION_PLANARITY_MAX_EDGES,
+    MAX_VALID_INPUT_LENGTH as ROTATION_PLANARITY_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ROTATION_PLANARITY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as rotation_system_planarity_test_expected,
+)
+from r.rotation_system_planarity_test.verify_workload import (
+    static_issues as rotation_system_planarity_static_issues,
+)
+from l.lz_end_phrase_parsing.primary_oracle import (
+    MIN_TEXT_LENGTH as LZ_END_MIN_TEXT_LENGTH,
+    MAX_TEXT_LENGTH as LZ_END_MAX_TEXT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LZ_END_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as LZ_END_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as LZ_END_MAX_RESULT,
+    expected_result as lz_end_phrase_parsing_expected,
+)
+from l.lz_end_phrase_parsing.verify_workload import (
+    verify as verify_lz_end_phrase_parsing_package,
+)
+from j.jacobi_symbol.primary_oracle import (
+    MAX_MODULUS as JACOBI_SYMBOL_MAX_MODULUS,
+    MAX_VALID_INPUT_LENGTH as JACOBI_SYMBOL_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as JACOBI_SYMBOL_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as JACOBI_SYMBOL_MAX_RESULT,
+    expected_result as jacobi_symbol_expected,
+)
+from j.jacobi_symbol.verify_workload import (
+    verify as verify_jacobi_symbol_package,
+)
+from m.minimum_directed_feedback_arc_set.primary_oracle import (
+    MIN_VERTICES as MIN_DIRECTED_FAS_MIN_VERTICES,
+    MAX_VERTICES as MIN_DIRECTED_FAS_MAX_VERTICES,
+    MAX_EDGES as MIN_DIRECTED_FAS_MAX_EDGES,
+    MAX_VALID_INPUT_LENGTH as MIN_DIRECTED_FAS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MIN_DIRECTED_FAS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as minimum_directed_feedback_arc_set_expected,
+)
+from m.minimum_directed_feedback_arc_set.verify_workload import (
+    verify as verify_minimum_directed_feedback_arc_set_package,
+)
+from t.tunstall_codebook_construction.primary_oracle import (
+    MIN_ALPHABET_SIZE as TUNSTALL_MIN_ALPHABET_SIZE,
+    MAX_ALPHABET_SIZE as TUNSTALL_MAX_ALPHABET_SIZE,
+    MIN_CODE_BITS as TUNSTALL_MIN_CODE_BITS,
+    MAX_CODE_BITS as TUNSTALL_MAX_CODE_BITS,
+    MAX_WEIGHT_SUM as TUNSTALL_MAX_WEIGHT_SUM,
+    MAX_VALID_INPUT_LENGTH as TUNSTALL_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as TUNSTALL_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_S as TUNSTALL_MAX_S,
+    MAX_RESULT as TUNSTALL_MAX_RESULT,
+    expected_result as tunstall_codebook_construction_expected,
+)
+from t.tunstall_codebook_construction.verify_workload import (
+    verify as verify_tunstall_codebook_construction_package,
+)
+from d.dag_transitive_reduction.primary_oracle import (
+    MIN_VERTICES as DAG_TRANSITIVE_REDUCTION_MIN_VERTICES,
+    MAX_VERTICES as DAG_TRANSITIVE_REDUCTION_MAX_VERTICES,
+    MAX_EDGES as DAG_TRANSITIVE_REDUCTION_MAX_EDGES,
+    MAX_VALID_INPUT_LENGTH as DAG_TRANSITIVE_REDUCTION_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DAG_TRANSITIVE_REDUCTION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as dag_transitive_reduction_expected,
+)
+from d.dag_transitive_reduction.verify_workload import (
+    verify as verify_dag_transitive_reduction_package,
+)
+from c.cornacchia_x2_plus_2y2.primary_oracle import (
+    MAX_PRIME as CORNACCHIA_X2_2Y2_MAX_PRIME,
+    MAX_VALID_INPUT_LENGTH as CORNACCHIA_X2_2Y2_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CORNACCHIA_X2_2Y2_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as CORNACCHIA_X2_2Y2_MAX_RESULT,
+    expected_result as cornacchia_x2_plus_2y2_expected,
+)
+from c.cornacchia_x2_plus_2y2.verify_workload import (
+    verify as verify_cornacchia_x2_plus_2y2_package,
+)
+from n.newton_divided_difference_interpolation.primary_oracle import (
+    MAX_NODES as NEWTON_INTERPOLATION_MAX_NODES,
+    MAX_VALID_INPUT_LENGTH as NEWTON_INTERPOLATION_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as NEWTON_INTERPOLATION_MAX_PARSEABLE_INPUT_LENGTH,
+    MODULUS as NEWTON_INTERPOLATION_MODULUS,
+    expected_result as newton_divided_difference_interpolation_expected,
+)
+from n.newton_divided_difference_interpolation.verify_workload import (
+    verify_workload as verify_newton_divided_difference_interpolation_package,
+)
+from c.cyk_context_free_recognition.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as CYK_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CYK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as CYK_MAX_RESULT,
+    expected_result as cyk_context_free_recognition_expected,
+)
+from c.cyk_context_free_recognition.verify_workload import (
+    verify_workload as verify_cyk_context_free_recognition_package,
+)
+from m.minimum_dominating_set_branch_bound.primary_oracle import (
+    MAX_VERTICES as MIN_DOMINATING_SET_MAX_VERTICES,
+    MAX_EDGES as MIN_DOMINATING_SET_MAX_EDGES,
+    MAX_VALID_INPUT_LENGTH as MIN_DOMINATING_SET_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MIN_DOMINATING_SET_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as minimum_dominating_set_branch_bound_expected,
+)
+from m.minimum_dominating_set_branch_bound.verify_workload import (
+    verify as verify_minimum_dominating_set_branch_bound_package,
+)
+from d.dedekind_sum_reciprocity.primary_oracle import (
+    MAX_MODULUS as DEDEKIND_SUM_MAX_MODULUS,
+    MAX_VALID_INPUT_LENGTH as DEDEKIND_SUM_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DEDEKIND_SUM_MAX_PARSEABLE_INPUT_LENGTH,
+    RESULT_OFFSET as DEDEKIND_SUM_RESULT_OFFSET,
+    MAX_RESULT as DEDEKIND_SUM_MAX_RESULT,
+    expected_result as dedekind_sum_reciprocity_expected,
+)
+from d.dedekind_sum_reciprocity.verify_workload import (
+    verify as verify_dedekind_sum_reciprocity_package,
+)
+from d.dag_shortest_path.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as DAG_SHORTEST_PATH_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DAG_SHORTEST_PATH_MAX_PARSEABLE_INPUT_LENGTH,
+    DISTANCE_OFFSET as DAG_SHORTEST_PATH_DISTANCE_OFFSET,
+    expected_result as dag_shortest_path_expected,
+)
+from d.dag_shortest_path.verify_workload import (
+    verify_workload as verify_dag_shortest_path_package,
+)
+from f.free_polyomino_enumeration.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FREE_POLYOMINO_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as free_polyomino_enumeration_expected,
+)
+from f.free_polyomino_enumeration.check_inventory import (
+    verify as check_free_polyomino_enumeration_package,
+)
+from d.dual_decomposition_graph_cut_maxflow.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DUAL_DECOMPOSITION_GRAPH_CUT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as dual_decomposition_graph_cut_expected,
+)
+from d.dual_decomposition_graph_cut_maxflow.verify_workload import (
+    verify as check_dual_decomposition_graph_cut_package,
+)
+from r.region_discharge_path_push_relabel_maxflow.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as REGION_DISCHARGE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as region_discharge_path_push_relabel_expected,
+)
+from r.region_discharge_path_push_relabel_maxflow.verify_workload import (
+    verify as check_region_discharge_path_push_relabel_package,
+)
+from o.oi_wiki_maximum_clique_branch_bound.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as OI_WIKI_MAX_CLIQUE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as OI_WIKI_MAX_CLIQUE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as oi_wiki_maximum_clique_branch_bound_expected,
+)
+from o.oi_wiki_maximum_clique_branch_bound.verify_workload import (
+    verify as verify_oi_wiki_maximum_clique_branch_bound_package,
+)
+from k.konc_maxclique_dyn.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as KONC_MAXCLIQUE_DYN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as KONC_MAXCLIQUE_DYN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as KONC_MAXCLIQUE_DYN_MAX_WORKSPACE_BYTES,
+    expected_result as konc_maxclique_dyn_expected,
+)
+from k.konc_maxclique_dyn.verify_workload import (
+    verify_workload as verify_konc_maxclique_dyn_package,
+)
+from o.order_maintenance.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as ORDER_MAINTENANCE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ORDER_MAINTENANCE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as order_maintenance_expected,
+)
+from o.order_maintenance.verify_workload import verify_workload as verify_order_maintenance_package
+from s.synchronous_round_push_relabel.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SYNCHRONOUS_ROUND_PUSH_RELABEL_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as synchronous_round_push_relabel_expected,
+)
+from s.synchronous_round_push_relabel.verify_workload import (
+    verify_workload as verify_synchronous_round_push_relabel_package,
+)
+from eibfs_maxflow_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as EIBFS_MAXFLOW_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as eibfs_maxflow_expected,
+)
+from check_eibfs_maxflow_package import static_issues as check_eibfs_maxflow_package
+from h.hochbaum_pseudoflow_maxflow.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HOCHBAUM_PSEUDOFLOW_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as hochbaum_pseudoflow_expected,
+)
+from h.hochbaum_pseudoflow_maxflow.check_inventory import verify as check_hochbaum_pseudoflow_package
+from a.adaptive_bottom_up_graph_cut_merging.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ADAPTIVE_BOTTOM_UP_GRAPH_CUT_MERGING_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as adaptive_bottom_up_graph_cut_merging_expected,
+)
+from a.adaptive_bottom_up_graph_cut_merging.verify_workload import verify as verify_adaptive_bottom_up_graph_cut_merging_package
+from e.eibfs_bottom_up_graph_cut_merging.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PEIBFS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as peibfs_expected,
+)
+from check_eibfs_bottom_up_graph_cut_merging_package import (
+    static_issues as check_eibfs_bottom_up_graph_cut_merging_package,
+)
+from m.max_min_triangle_height_triangulation.primary_oracle import (
+    MIN_VERTICES as MAX_MIN_HEIGHT_MIN_VERTICES,
+    MAX_VERTICES as MAX_MIN_HEIGHT_MAX_VERTICES,
+    COORDINATE_LIMIT as MAX_MIN_HEIGHT_COORDINATE_LIMIT,
+    MAX_VALID_INPUT_LENGTH as MAX_MIN_HEIGHT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MAX_MIN_HEIGHT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT as MAX_MIN_HEIGHT_MAX_OUTPUT,
+    expected_result as max_min_triangle_height_triangulation_expected,
+)
+from m.max_min_triangle_height_triangulation.verify_workload import (
+    verify as verify_max_min_triangle_height_triangulation_package,
 )
 from p.pfaffian_of_matrix.primary_oracle import (
     MODULUS as PFAFFIAN_OF_MATRIX_MODULUS,
@@ -2099,6 +4280,683 @@ from x_fast_trie_static_predecessor_oracle import (
 from check_x_fast_trie_static_predecessor_package import (
     static_issues as x_fast_trie_static_predecessor_static_issues,
 )
+from y_fast_trie_static_predecessor_oracle import (
+    MAX_KEYS as Y_FAST_TRIE_MAX_KEYS,
+    MAX_QUERIES as Y_FAST_TRIE_MAX_QUERIES,
+    UNIVERSE_BITS as Y_FAST_TRIE_UNIVERSE_BITS,
+    BUCKET_SIZE as Y_FAST_TRIE_BUCKET_SIZE,
+    MAX_VALID_INPUT_LENGTH as Y_FAST_TRIE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as Y_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as y_fast_trie_static_predecessor_expected,
+)
+from check_y_fast_trie_static_predecessor_package import (
+    static_issues as y_fast_trie_static_predecessor_static_issues,
+)
+from fractional_cascading_subset_chain_oracle import (
+    MIN_CATALOGS as FRACTIONAL_CASCADING_MIN_CATALOGS,
+    MAX_CATALOGS as FRACTIONAL_CASCADING_MAX_CATALOGS,
+    MIN_QUERIES as FRACTIONAL_CASCADING_MIN_QUERIES,
+    MAX_QUERIES as FRACTIONAL_CASCADING_MAX_QUERIES,
+    MAX_CATALOG_SIZE as FRACTIONAL_CASCADING_MAX_CATALOG_SIZE,
+    KEY_MIN as FRACTIONAL_CASCADING_KEY_MIN,
+    KEY_MAX as FRACTIONAL_CASCADING_KEY_MAX,
+    QUERY_MIN as FRACTIONAL_CASCADING_QUERY_MIN,
+    QUERY_MAX as FRACTIONAL_CASCADING_QUERY_MAX,
+    MAX_VALID_INPUT_LENGTH as FRACTIONAL_CASCADING_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as FRACTIONAL_CASCADING_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as fractional_cascading_subset_chain_expected,
+)
+from check_fractional_cascading_subset_chain_package import (
+    static_issues as fractional_cascading_subset_chain_static_issues,
+)
+from y.y_fast_trie_static_predecessor.verify_workload import (
+    verify_workload as verify_y_fast_trie_static_predecessor_workload,
+)
+from hits_fixed_point_oracle import (
+    MAX_VERTICES as HITS_MAX_VERTICES,
+    MAX_EDGES as HITS_MAX_EDGES,
+    MAX_ITERATIONS as HITS_MAX_ITERATIONS,
+    SCALE as HITS_SCALE,
+    MAX_VALID_INPUT_LENGTH as HITS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as HITS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as hits_fixed_point_expected,
+)
+from check_hits_fixed_point_package import (
+    static_issues as hits_fixed_point_static_issues,
+)
+from h.hits_fixed_point.verify_workload import (
+    verify_workload as verify_hits_fixed_point_workload,
+)
+from graphai_gnns_hill_climbing_oracle import (
+    MAX_VALID_INPUT_LENGTH as GRAPHIA_GNNS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GRAPHIA_GNNS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as graphai_gnns_hill_climbing_expected,
+)
+from check_graphai_gnns_hill_climbing_package import (
+    static_issues as graphai_gnns_hill_climbing_static_issues,
+)
+from g.graphai_gnns_hill_climbing.verify_workload import (
+    verify_workload as verify_graphai_gnns_hill_climbing_workload,
+)
+from b.belady_optimal_paging.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BELADY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BELADY_MAX_VALID_INPUT_LENGTH,
+    expected_result as belady_optimal_paging_expected,
+)
+from b.belady_optimal_paging.verify_workload import (
+    verify_workload as verify_belady_optimal_paging_workload,
+)
+from f.fks_static_perfect_hash.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FKS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FKS_MAX_VALID_INPUT_LENGTH,
+    expected_result as fks_static_perfect_hash_expected,
+)
+from f.fks_static_perfect_hash.verify_workload import (
+    verify_workload as verify_fks_static_perfect_hash_workload,
+)
+from s.segment_tree_max_right.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SEGMENT_TREE_MAX_RIGHT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SEGMENT_TREE_MAX_RIGHT_MAX_VALID_INPUT_LENGTH,
+    expected_result as segment_tree_max_right_expected,
+)
+from s.segment_tree_max_right.verify_workload import (
+    verify_workload as verify_segment_tree_max_right_workload,
+)
+from t.two_vertex_cuts_spqr.two_vertex_cuts_spqr_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as TWO_VERTEX_CUTS_SPQR_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as TWO_VERTEX_CUTS_SPQR_MAX_VALID_INPUT_LENGTH,
+    expected_result as two_vertex_cuts_spqr_expected,
+)
+from t.two_vertex_cuts_spqr.verify_two_vertex_cuts_spqr_package import (
+    validate_workload as validate_two_vertex_cuts_spqr_package,
+)
+from m.minimum_refueling_stops_heap.primary_oracle import (
+    MAX_N as MINIMUM_REFUELING_STOPS_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_REFUELING_STOPS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MINIMUM_REFUELING_STOPS_MAX_VALID_INPUT_LENGTH,
+    expected_result as minimum_refueling_stops_heap_expected,
+)
+from m.minimum_refueling_stops_heap.verify_workload import (
+    verify_workload as verify_minimum_refueling_stops_heap_workload,
+)
+from s.shortest_path_visiting_all_nodes.primary_oracle import (
+    MAX_M as SHORTEST_PATH_VISITING_ALL_NODES_MAX_M,
+    MAX_N as SHORTEST_PATH_VISITING_ALL_NODES_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as SHORTEST_PATH_VISITING_ALL_NODES_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SHORTEST_PATH_VISITING_ALL_NODES_MAX_VALID_INPUT_LENGTH,
+    expected_result as shortest_path_visiting_all_nodes_expected,
+)
+from s.shortest_path_visiting_all_nodes.verify_workload import (
+    verify_workload as verify_shortest_path_visiting_all_nodes_workload,
+)
+from v.vogel_approximation_transportation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VAM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as VAM_MAX_VALID_INPUT_LENGTH,
+    MAX_RESULT as VAM_MAX_RESULT,
+    expected_result as vogel_approximation_transportation_expected,
+)
+from v.vogel_approximation_transportation.check_inventory import (
+    static_issues as vogel_approximation_transportation_static_issues,
+)
+from m.misra_gries_edge_coloring.primary_oracle import (
+    MAX_EDGES as MISRA_GRIES_EDGE_COLORING_MAX_EDGES,
+    MAX_PARSEABLE_INPUT_LENGTH as MISRA_GRIES_EDGE_COLORING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as MISRA_GRIES_EDGE_COLORING_MAX_RESULT,
+    MAX_VALID_INPUT_LENGTH as MISRA_GRIES_EDGE_COLORING_MAX_VALID_INPUT_LENGTH,
+    expected_result as misra_gries_edge_coloring_expected,
+)
+from m.misra_gries_edge_coloring.check_inventory import (
+    static_issues as misra_gries_edge_coloring_static_issues,
+)
+from f.fenwick_kth.primary_oracle import (
+    MAX_INPUT_LENGTH as FENWICK_KTH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_N as FENWICK_KTH_MAX_N,
+    MAX_Q as FENWICK_KTH_MAX_Q,
+    expected_output as fenwick_kth_expected,
+)
+from f.fenwick_kth.verify_workload import (
+    verify_workload as verify_fenwick_kth_workload,
+)
+from i.incremental_convex_hull_3d.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as INCREMENTAL_CONVEX_HULL_3D_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as INCREMENTAL_CONVEX_HULL_3D_MAX_VALID_INPUT_LENGTH,
+    expected_result as incremental_convex_hull_3d_expected,
+)
+from i.incremental_convex_hull_3d.verify_workload import (
+    verify_workload as verify_incremental_convex_hull_3d_workload,
+)
+from t.ternary_search_trie.primary_oracle import (
+    MAX_INPUT_VALUES as TERNARY_SEARCH_TRIE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_VALUES as TERNARY_SEARCH_TRIE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as ternary_search_trie_expected,
+)
+from t.ternary_search_trie.verify_workload import (
+    validate_inventory as validate_ternary_search_trie_inventory,
+)
+from i.interval_cover.primary_oracle import (
+    MAX_INTERVALS as INTERVAL_COVER_MAX_INTERVALS,
+    MAX_PARSEABLE_INPUT_LENGTH as INTERVAL_COVER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as INTERVAL_COVER_MAX_VALID_INPUT_LENGTH,
+    expected_result as interval_cover_expected,
+)
+from i.interval_cover.verify_workload import (
+    verify_workload as verify_interval_cover_workload,
+)
+from i.interval_container.primary_oracle import (
+    MAX_INPUT_LENGTH as INTERVAL_CONTAINER_MAX_VALID_INPUT_LENGTH,
+    MAX_OPERATIONS as INTERVAL_CONTAINER_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as INTERVAL_CONTAINER_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as interval_container_expected,
+)
+from i.interval_container.verify_workload import (
+    review as review_interval_container_package,
+)
+from l.lazy_segment_tree_range_add_max_right.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LAZY_MAX_RIGHT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LAZY_MAX_RIGHT_MAX_VALID_INPUT_LENGTH,
+    expected_result as lazy_segment_tree_range_add_max_right_expected,
+)
+from l.lazy_segment_tree_range_add_max_right.verify_workload import (
+    verify_workload as verify_lazy_segment_tree_range_add_max_right_workload,
+)
+from w.w_ary_predecessor_set.primary_oracle import (
+    MAX_PARSEABLE_LENGTH as W_ARY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_LENGTH as W_ARY_MAX_VALID_INPUT_LENGTH,
+    expected_output as w_ary_predecessor_set_expected,
+)
+from w.w_ary_predecessor_set.verify_workload import (
+    verify_workload as verify_w_ary_predecessor_set_workload,
+)
+from r.range_union_find.primary_oracle import (
+    MAX_N as RANGE_UNION_FIND_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as RANGE_UNION_FIND_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_Q as RANGE_UNION_FIND_MAX_Q,
+    expected_result as range_union_find_expected,
+)
+from r.range_union_find.verify_workload import (
+    validate_inventory as validate_range_union_find_inventory,
+)
+from u.union_find_enumerate.primary_oracle import (
+    MAX_ITEMS as UNION_FIND_ENUMERATE_MAX_ITEMS,
+    MAX_OPERATIONS as UNION_FIND_ENUMERATE_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as UNION_FIND_ENUMERATE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as UNION_FIND_ENUMERATE_MAX_VALID_INPUT_LENGTH,
+    expected_result as union_find_enumerate_expected,
+)
+from u.union_find_enumerate.verify_workload import (
+    verify_workload as verify_union_find_enumerate_package,
+)
+from s.slide_window_aggregation_deque.primary_oracle import (
+    MAX_OPERATIONS as SLIDE_WINDOW_AGGREGATION_DEQUE_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as SLIDE_WINDOW_AGGREGATION_DEQUE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SLIDE_WINDOW_AGGREGATION_DEQUE_MAX_VALID_INPUT_LENGTH,
+    expected_result as slide_window_aggregation_deque_expected,
+)
+from s.slide_window_aggregation_deque.verify_workload import (
+    verify_workload as verify_slide_window_aggregation_deque_package,
+)
+from mo_2d_rectangle_frequency_square_oracle import (
+    MAX_VALID_INPUT_LENGTH as MO_2D_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MO_2D_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as mo_2d_rectangle_frequency_square_expected,
+)
+from check_mo_2d_rectangle_frequency_square_package import (
+    static_issues as mo_2d_rectangle_frequency_square_static_issues,
+)
+from m.mo_2d_rectangle_frequency_square.verify_workload import (
+    verify_workload as verify_mo_2d_rectangle_frequency_square_workload,
+)
+from dinkelbach_fixed_cardinality_ratio_oracle import (
+    MAX_VALID_INPUT_LENGTH as DINKELBACH_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DINKELBACH_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as dinkelbach_fixed_cardinality_ratio_expected,
+)
+from m.minimum_unfairness_k_selection.primary_oracle import (
+    MAX_N as MINIMUM_UNFAIRNESS_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_UNFAIRNESS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MINIMUM_UNFAIRNESS_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as MINIMUM_UNFAIRNESS_WORKSPACE_BYTES,
+    evaluate as minimum_unfairness_k_selection_expected,
+)
+from m.minimum_unfairness_k_selection.check_inventory import (
+    validate_inventory as minimum_unfairness_k_selection_inventory_issues,
+)
+from check_dinkelbach_fixed_cardinality_ratio_package import (
+    static_issues as dinkelbach_fixed_cardinality_ratio_static_issues,
+)
+from d.dinkelbach_fixed_cardinality_ratio.verify_workload import (
+    verify_workload as verify_dinkelbach_fixed_cardinality_ratio_workload,
+)
+from fourier_motzkin_feasibility_oracle import (
+    MAX_VALID_INPUT_LENGTH as FME_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as FME_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as fourier_motzkin_feasibility_expected,
+)
+from check_fourier_motzkin_feasibility_package import (
+    static_issues as fourier_motzkin_feasibility_static_issues,
+)
+from f.fourier_motzkin_feasibility.verify_workload import (
+    verify_workload as verify_fourier_motzkin_feasibility_workload,
+)
+from d_star_lite_incremental_replanning_oracle import (
+    MAX_VALID_INPUT_LENGTH as D_STAR_LITE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as D_STAR_LITE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as d_star_lite_incremental_replanning_expected,
+)
+from check_d_star_lite_incremental_replanning_package import (
+    static_issues as d_star_lite_incremental_replanning_static_issues,
+)
+from d.d_star_lite_incremental_replanning.verify_workload import (
+    verify_workload as verify_d_star_lite_incremental_replanning_workload,
+)
+from fiduccia_mattheyses_hypergraph_bipartitioning_oracle import (
+    MAX_VALID_INPUT_LENGTH as FM_HYPERGRAPH_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as FM_HYPERGRAPH_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as fiduccia_mattheyses_hypergraph_bipartitioning_expected,
+)
+from check_fiduccia_mattheyses_hypergraph_bipartitioning_package import (
+    static_issues as fiduccia_mattheyses_hypergraph_bipartitioning_static_issues,
+)
+from f.fiduccia_mattheyses_hypergraph_bipartitioning.verify_workload import (
+    verify_workload as verify_fiduccia_mattheyses_hypergraph_bipartitioning_workload,
+)
+from louvain_multilevel_community_detection_oracle import (
+    MAX_VALID_INPUT_LENGTH as LOUVAIN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as LOUVAIN_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as louvain_multilevel_community_detection_expected,
+)
+from check_louvain_multilevel_community_detection_package import (
+    static_issues as louvain_multilevel_community_detection_static_issues,
+)
+from l.louvain_multilevel_community_detection.verify_workload import (
+    verify_workload as verify_louvain_multilevel_community_detection_workload,
+)
+
+
+from r.race_car_minimum_instruction_count.primary_oracle import (
+    MAX_TARGET as RACE_CAR_MAX_TARGET,
+    MAX_VALID_INPUT_LENGTH as RACE_CAR_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as RACE_CAR_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT_UPPER_BOUND as RACE_CAR_MAX_RESULT_UPPER_BOUND,
+    WORKSPACE_BYTES as RACE_CAR_WORKSPACE_BYTES,
+    expected_result as race_car_minimum_instruction_count_primary,
+)
+from r.race_car_minimum_instruction_count.check_inventory import (
+    check_inventory as race_car_minimum_instruction_count_check_inventory,
+)
+from r.race_car_minimum_instruction_count.verify_workload import (
+    verify_workload as race_car_minimum_instruction_count_verify_workload,
+)
+from b.barycentric_lagrange_evaluation.primary_oracle import (
+    MODULUS as BARYCENTRIC_MODULUS,
+    MAX_NODES as BARYCENTRIC_MAX_NODES,
+    MAX_VALID_INPUT_LENGTH as BARYCENTRIC_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as BARYCENTRIC_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as BARYCENTRIC_WORKSPACE_BYTES,
+    expected_result as barycentric_lagrange_evaluation_primary,
+)
+from b.barycentric_lagrange_evaluation.check_inventory import (
+    check_inventory as barycentric_lagrange_evaluation_check_inventory,
+)
+from b.barycentric_lagrange_evaluation.verify_workload import (
+    workload_issues as barycentric_lagrange_evaluation_workload_issues,
+)
+from p.pratt_expression_evaluation.primary_oracle import (
+    MAX_TOKENS as PRATT_MAX_TOKENS,
+    MAX_VALID_INPUT_LENGTH as PRATT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PRATT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RECURSION_DEPTH as PRATT_MAX_RECURSION_DEPTH,
+    MAX_ABS_RESULT as PRATT_MAX_ABS_RESULT,
+    expected_result as pratt_expression_evaluation_primary,
+)
+from p.pratt_expression_evaluation.check_inventory import (
+    static_issues as pratt_expression_evaluation_static_issues,
+)
+from p.pratt_expression_evaluation.verify_workload import (
+    workload_issues as pratt_expression_evaluation_workload_issues,
+)
+from m.minimal_dominating_sets_permutation_graphs.primary_oracle import (
+    MAX_N as PERMUTATION_DOMINATING_SETS_MAX_N,
+    MAX_VALID_INPUT_LENGTH as PERMUTATION_DOMINATING_SETS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PERMUTATION_DOMINATING_SETS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RESULT as PERMUTATION_DOMINATING_SETS_MAX_RESULT,
+    WORKSPACE_BYTES as PERMUTATION_DOMINATING_SETS_WORKSPACE_BYTES,
+    expected_result as minimal_dominating_sets_permutation_graphs_primary,
+)
+from m.minimal_dominating_sets_permutation_graphs.check_inventory import (
+    static_issues as minimal_dominating_sets_permutation_graphs_static_issues,
+)
+from m.minimal_dominating_sets_permutation_graphs.verify_workload import (
+    workload_issues as minimal_dominating_sets_permutation_graphs_workload_issues,
+)
+from m.minimum_area_rectangle_arbitrary_orientation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_AREA_RECTANGLE_ARBITRARY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as minimum_area_rectangle_arbitrary_orientation_primary,
+)
+from m.minimum_area_rectangle_arbitrary_orientation.verify_workload import (
+    verify_workload as verify_minimum_area_rectangle_arbitrary_orientation_workload,
+)
+from s.secret_sharing_time_batched_dsu.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SECRET_SHARING_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as secret_sharing_time_batched_dsu_primary,
+)
+from s.secret_sharing_time_batched_dsu.verify_workload import (
+    verify_workload as verify_secret_sharing_time_batched_dsu_workload,
+)
+from r.redundant_directed_connection_repair.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as REDUNDANT_DIRECTED_CONNECTION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as redundant_directed_connection_repair_primary,
+)
+from r.redundant_directed_connection_repair.verify_workload import (
+    verify_workload as verify_redundant_directed_connection_repair_workload,
+)
+from u.undirected_simple_cycle_subset_dp_count.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as UNDIRECTED_SIMPLE_CYCLE_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_BYTES as UNDIRECTED_SIMPLE_CYCLE_WORKSPACE_BYTES,
+    expected_result as undirected_simple_cycle_subset_dp_count_primary,
+)
+from u.undirected_simple_cycle_subset_dp_count.verify_workload import (
+    static_issues as undirected_simple_cycle_subset_dp_count_static_issues,
+)
+
+
+def validate_race_car_minimum_instruction_count_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "r" / "race_car_minimum_instruction_count" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("race-car workload differs from its package file")
+    contract = workload.get("contract", {})
+    if (contract.get("maximum_valid_input_words") != RACE_CAR_MAX_VALID_INPUT_LENGTH
+            or contract.get("maximum_parseable_input_words") != RACE_CAR_MAX_PARSEABLE_INPUT_LENGTH
+            or contract.get("target_range") != [0, RACE_CAR_MAX_TARGET]
+            or contract.get("result_upper_bound") != RACE_CAR_MAX_RESULT_UPPER_BOUND
+            or workload.get("workspace", {}).get("bytes") != RACE_CAR_WORKSPACE_BYTES):
+        raise ValueError("race-car bounds or workspace differ from its contract")
+    issues = (race_car_minimum_instruction_count_check_inventory()
+              + race_car_minimum_instruction_count_verify_workload())
+    if issues:
+        raise ValueError("race-car package is incomplete: " + "; ".join(issues))
+
+
+def validate_barycentric_lagrange_evaluation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "b" / "barycentric_lagrange_evaluation" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("barycentric Lagrange workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("maximum_valid_length") != BARYCENTRIC_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != BARYCENTRIC_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("node_count_range") != [1, BARYCENTRIC_MAX_NODES]
+            or input_spec.get("field") != f"F_{BARYCENTRIC_MODULUS}"
+            or workload.get("output", {}).get("result_range") != [0, BARYCENTRIC_MODULUS - 1]
+            or workload.get("workspace", {}).get("bytes") != BARYCENTRIC_WORKSPACE_BYTES):
+        raise ValueError("barycentric Lagrange bounds or workspace differ from its contract")
+    issues = (barycentric_lagrange_evaluation_check_inventory()
+              + barycentric_lagrange_evaluation_workload_issues())
+    if issues:
+        raise ValueError("barycentric Lagrange package is incomplete: " + "; ".join(issues))
+
+
+def validate_pratt_expression_evaluation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "p" / "pratt_expression_evaluation" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Pratt expression workload differs from its package file")
+    inventory = json.loads((package_workload.parent / "INVENTORY.json").read_text(encoding="utf-8"))
+    bounds = inventory.get("bounds", {})
+    if (workload.get("input", {}).get("maximum_tokens") != PRATT_MAX_TOKENS
+            or bounds.get("maximum_tokens") != PRATT_MAX_TOKENS
+            or bounds.get("maximum_valid_input_words") != PRATT_MAX_VALID_INPUT_LENGTH
+            or bounds.get("maximum_parseable_input_words") != PRATT_MAX_PARSEABLE_INPUT_LENGTH
+            or bounds.get("maximum_recursion_depth") != PRATT_MAX_RECURSION_DEPTH
+            or bounds.get("maximum_absolute_result") != PRATT_MAX_ABS_RESULT):
+        raise ValueError("Pratt expression bounds differ from its contract")
+    issues = pratt_expression_evaluation_static_issues() + pratt_expression_evaluation_workload_issues()
+    if issues:
+        raise ValueError("Pratt expression package is incomplete: " + "; ".join(issues))
+
+
+def validate_minimal_dominating_sets_permutation_graphs_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "m" / "minimal_dominating_sets_permutation_graphs" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("permutation-graph minimal-dominating-set workload differs from its package file")
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    inventory = json.loads((package_workload.parent / "INVENTORY.json").read_text(encoding="utf-8"))
+    if (input_spec.get("n_range") != [1, PERMUTATION_DOMINATING_SETS_MAX_N]
+            or input_spec.get("maximum_valid_length") != PERMUTATION_DOMINATING_SETS_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != PERMUTATION_DOMINATING_SETS_MAX_PARSEABLE_INPUT_LENGTH
+            or output_spec.get("valid_result_range") != [1, PERMUTATION_DOMINATING_SETS_MAX_RESULT]
+            or workload.get("workspace", {}).get("bytes") != PERMUTATION_DOMINATING_SETS_WORKSPACE_BYTES
+            or inventory.get("workspace_bytes") != PERMUTATION_DOMINATING_SETS_WORKSPACE_BYTES):
+        raise ValueError("permutation-graph minimal-dominating-set bounds or workspace differ from its contract")
+    issues = (minimal_dominating_sets_permutation_graphs_static_issues()
+              + minimal_dominating_sets_permutation_graphs_workload_issues())
+    if issues:
+        raise ValueError("permutation-graph minimal-dominating-set package is incomplete: " + "; ".join(issues))
+
+
+def validate_minimum_area_rectangle_arbitrary_orientation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "m" / "minimum_area_rectangle_arbitrary_orientation" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("minimum-area arbitrary-orientation rectangle workload differs from its package file")
+    issues = verify_minimum_area_rectangle_arbitrary_orientation_workload(workload)
+    if issues:
+        raise ValueError("minimum-area arbitrary-orientation rectangle package is incomplete: " + "; ".join(issues))
+
+
+def validate_secret_sharing_time_batched_dsu_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "s" / "secret_sharing_time_batched_dsu" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("time-batched secret-sharing workload differs from its package file")
+    issues = verify_secret_sharing_time_batched_dsu_workload(workload)
+    if issues:
+        raise ValueError("time-batched secret-sharing package is incomplete: " + "; ".join(issues))
+
+
+def validate_redundant_directed_connection_repair_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "r" / "redundant_directed_connection_repair" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("directed-connection repair workload differs from its package file")
+    issues = verify_redundant_directed_connection_repair_workload(workload)
+    if issues:
+        raise ValueError("directed-connection repair package is incomplete: " + "; ".join(issues))
+
+
+def validate_undirected_simple_cycle_subset_dp_count_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "u" / "undirected_simple_cycle_subset_dp_count" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("undirected simple-cycle workload differs from its package file")
+    if workload.get("workspace", {}).get("bytes") != UNDIRECTED_SIMPLE_CYCLE_WORKSPACE_BYTES:
+        raise ValueError("undirected simple-cycle workspace differs from its contract")
+    issues = undirected_simple_cycle_subset_dp_count_static_issues(workload)
+    if issues:
+        raise ValueError("undirected simple-cycle package is incomplete: " + "; ".join(issues))
+
+
+def validate_fortunate_numbers_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "f" / "fortunate_numbers" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Fortunate-number workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("n_range") != [1, FORTUNATE_NUMBERS_MAX_N]
+            or input_spec.get("maximum_valid_length") != FORTUNATE_NUMBERS_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != FORTUNATE_NUMBERS_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != FORTUNATE_NUMBERS_WORKSPACE_BYTES):
+        raise ValueError("Fortunate-number bounds or workspace differ from its contract")
+    issues = fortunate_numbers_static_issues() + fortunate_numbers_workload_issues()
+    if issues:
+        raise ValueError("Fortunate-number package is incomplete: " + "; ".join(issues))
+
+
+def validate_wolstenholme_numbers_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "w" / "wolstenholme_numbers" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Wolstenholme-number workload differs from its package file")
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (input_spec.get("n_range") != [1, WOLSTENHOLME_MAX_N]
+            or input_spec.get("maximum_valid_length") != WOLSTENHOLME_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != WOLSTENHOLME_MAX_PARSEABLE_INPUT_LENGTH
+            or output_spec.get("valid_result_range") != [1, WOLSTENHOLME_MAX_RESULT]
+            or workload.get("workspace", {}).get("bytes") != WOLSTENHOLME_WORKSPACE_BYTES):
+        raise ValueError("Wolstenholme-number bounds or workspace differ from its contract")
+    issues = wolstenholme_numbers_static_issues() + wolstenholme_numbers_workload_issues()
+    if issues:
+        raise ValueError("Wolstenholme-number package is incomplete: " + "; ".join(issues))
+
+
+def validate_moore_dfa_minimization_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "m" / "moore_dfa_minimization" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Moore DFA workload differs from its package file")
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (input_spec.get("maximum_states") != MOORE_DFA_MAX_STATES
+            or input_spec.get("maximum_alphabet") != MOORE_DFA_MAX_ALPHABET
+            or input_spec.get("maximum_valid_length") != MOORE_DFA_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != MOORE_DFA_MAX_PARSEABLE_INPUT_LENGTH
+            or output_spec.get("maximum_result") != 2264924159
+            or workload.get("workspace", {}).get("bytes") != MOORE_DFA_WORKSPACE_BYTES
+            or workload.get("contract", {}).get("maximum_workspace_bytes")
+            != MOORE_DFA_WORKSPACE_BYTES):
+        raise ValueError("Moore DFA bounds or workspace differ from its contract")
+    issues = moore_dfa_minimization_static_issues() + moore_dfa_minimization_workload_issues()
+    if issues:
+        raise ValueError("Moore DFA package is incomplete: " + "; ".join(issues))
+
+
+def validate_ruth_aaron_number_predicate_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks" / "r" / "ruth_aaron_number_predicate" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Ruth–Aaron workload differs from its package file")
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (input_spec.get("n_range") != [1, RUTH_AARON_MAX_N]
+            or input_spec.get("maximum_valid_length") != RUTH_AARON_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != RUTH_AARON_MAX_PARSEABLE_INPUT_LENGTH
+            or output_spec.get("valid_result_range") != [0, 1]
+            or workload.get("workspace", {}).get("bytes") != RUTH_AARON_WORKSPACE_BYTES):
+        raise ValueError("Ruth–Aaron bounds or workspace differ from its contract")
+    issues = ruth_aaron_number_static_issues() + ruth_aaron_number_workload_issues()
+    if issues:
+        raise ValueError("Ruth–Aaron package is incomplete: " + "; ".join(issues))
+
+
+def validate_dividuus_number_predicate_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/r/dividuus_number_predicate/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Dividuus workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("n_range") != [1, DIVIDUUS_MAX_N]
+            or input_spec.get("maximum_valid_length") != DIVIDUUS_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != DIVIDUUS_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("valid_result_range") != [0, 1]
+            or workload.get("workspace", {}).get("bytes") != DIVIDUUS_WORKSPACE_BYTES):
+        raise ValueError("Dividuus bounds or workspace differ from its contract")
+    issues = (dividuus_number_predicate_static_issues()
+              + dividuus_number_predicate_workload_issues())
+    if issues:
+        raise ValueError("Dividuus package is incomplete: " + "; ".join(issues))
+
+
+def validate_gaussian_prime_classifier_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/g/gaussian_prime_classifier/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Gaussian-prime workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("coordinate_range")
+            != [-GAUSSIAN_PRIME_MAX_COORDINATE, GAUSSIAN_PRIME_MAX_COORDINATE]
+            or input_spec.get("maximum_valid_input_length")
+            != GAUSSIAN_PRIME_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length")
+            != GAUSSIAN_PRIME_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != GAUSSIAN_PRIME_WORKSPACE_BYTES):
+        raise ValueError("Gaussian-prime bounds or workspace differ from its contract")
+    issues = (gaussian_prime_classifier_static_issues()
+              + gaussian_prime_classifier_workload_issues())
+    if issues:
+        raise ValueError("Gaussian-prime package is incomplete: " + "; ".join(issues))
+
+
+def validate_wulff_nilsen_distance_refinement_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/w/wulff_nilsen_distance_refinement/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Wulff–Nilsen refinement workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("maximum_valid_input_length")
+            != WULFF_NILSEN_REFINEMENT_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length")
+            != WULFF_NILSEN_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("stretch_guarantee") != 11
+            or workload.get("workspace", {}).get("bytes")
+            != WULFF_NILSEN_REFINEMENT_WORKSPACE_BYTES):
+        raise ValueError("Wulff–Nilsen refinement bounds or workspace differ from its contract")
+    issues = (wulff_nilsen_distance_refinement_static_issues()
+              + wulff_nilsen_distance_refinement_workload_issues())
+    if issues:
+        raise ValueError("Wulff–Nilsen refinement package is incomplete: " + "; ".join(issues))
+
+
+def validate_erdos_selfridge_prime_class_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/e/erdos_selfridge_prime_class/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Erdős–Selfridge workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("maximum_valid_input_length")
+            != ERDOS_SELFRIDGE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length")
+            != ERDOS_SELFRIDGE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != ERDOS_SELFRIDGE_WORKSPACE_BYTES):
+        raise ValueError("Erdős–Selfridge bounds or workspace differ from its contract")
+    issues = (erdos_selfridge_prime_class_static_issues()
+              + erdos_selfridge_prime_class_workload_issues())
+    if issues:
+        raise ValueError("Erdős–Selfridge package is incomplete: " + "; ".join(issues))
+
+
+def validate_sieve_of_pritchard_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/sieve_of_pritchard/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("Pritchard-sieve workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("N_range") != [PRITCHARD_MIN_LIMIT, PRITCHARD_MAX_LIMIT]
+            or input_spec.get("maximum_valid_length") != PRITCHARD_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != PRITCHARD_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("maximum_result") != 172
+            or workload.get("workspace", {}).get("bytes") != PRITCHARD_WORKSPACE_BYTES):
+        raise ValueError("Pritchard-sieve bounds or workspace differ from its contract")
+    issues = sieve_of_pritchard_static_issues() + sieve_of_pritchard_workload_issues()
+    if issues:
+        raise ValueError("Pritchard-sieve package is incomplete: " + "; ".join(issues))
+
+
+def validate_squfof_semiprime_factor_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/squfof_semiprime_factor/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("SQUFOF workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("maximum_valid_length") != SQUFOF_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != SQUFOF_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != SQUFOF_WORKSPACE_BYTES):
+        raise ValueError("SQUFOF bounds or workspace differ from its contract")
+    issues = (squfof_semiprime_factor_static_issues()
+              + squfof_semiprime_factor_workload_issues())
+    if issues:
+        raise ValueError("SQUFOF package is incomplete: " + "; ".join(issues))
+
+
+def validate_bk_tree_edit_distance_search_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/bk_tree_edit_distance_search/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("BK-tree workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length") != 27
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != BK_TREE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != BK_TREE_WORKSPACE_BYTES):
+        raise ValueError("BK-tree bounds or workspace differ from its contract")
+    issues = (bk_tree_edit_distance_search_static_issues()
+              + bk_tree_edit_distance_search_workload_issues())
+    if issues:
+        raise ValueError("BK-tree package is incomplete: " + "; ".join(issues))
 
 
 def validate_three_edge_connected_components_workload(workload: dict) -> None:
@@ -2214,6 +5072,97 @@ def validate_point_set_range_sort_range_composite_workload(workload: dict) -> No
         raise ValueError("; ".join(errors))
 
 
+def validate_point_location_sweep_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/p/point_location_sweep/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("point_location_sweep workload differs from its package file")
+    fixture_count = verify_point_location_sweep_package()
+    if fixture_count != len(workload.get("cases", [])):
+        raise ValueError("point_location_sweep package review did not cover every fixture")
+
+
+def validate_triangulation_stochastic_visibility_walk_workload(workload: dict) -> None:
+    package_workload = ROOT / (
+        "benchmarks/p/triangulation_stochastic_visibility_walk/workload.json")
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("triangulation_stochastic_visibility_walk workload differs from its package file")
+    issues = verify_triangulation_stochastic_visibility_walk_package()
+    if issues:
+        raise ValueError("; ".join(issues))
+
+
+def validate_zielonka_parity_game_solver_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/z/zielonka_parity_game_solver/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("zielonka_parity_game_solver workload differs from its package file")
+    issues = verify_zielonka_parity_game_solver_package()
+    if issues:
+        raise ValueError("; ".join(issues))
+
+
+def validate_small_progress_measure_parity_game_solver_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/small_progress_measure_parity_game_solver/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("small_progress_measure_parity_game_solver workload differs from its package file")
+    issues = verify_small_progress_measure_parity_game_solver_package()
+    if issues:
+        raise ValueError("; ".join(issues))
+
+
+def validate_arpa_offline_rmq_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/a/arpa_offline_rmq/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("arpa_offline_rmq workload differs from its package file")
+    issues = arpa_offline_rmq_verify_workload(workload)
+    if issues:
+        raise ValueError("arpa_offline_rmq package: " + "; ".join(issues))
+
+
+def validate_offline_range_paint_successor_dsu_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/o/offline_range_paint_successor_dsu/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("offline_range_paint_successor_dsu workload differs from its package file")
+    issues = offline_range_paint_successor_dsu_verify_workload(workload)
+    if issues:
+        raise ValueError("offline_range_paint_successor_dsu package: " + "; ".join(issues))
+
+
+def validate_online_bipartiteness_dsu_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/o/online_bipartiteness_dsu/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("online_bipartiteness_dsu workload differs from its package file")
+    issues = online_bipartiteness_dsu_verify_workload(workload)
+    if issues:
+        raise ValueError("online_bipartiteness_dsu package: " + "; ".join(issues))
+
+
+def validate_segment_union_length_klee_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/g/segment_union_length_klee/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("segment_union_length_klee workload differs from its package file")
+    issues = segment_union_length_klee_verify_workload(workload)
+    if issues:
+        raise ValueError("segment_union_length_klee package: " + "; ".join(issues))
+
+
+def validate_intersecting_segments_sweep_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/i/intersecting_segments_sweep/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("intersecting_segments_sweep workload differs from its package file")
+    issues = intersecting_segments_sweep_verify_workload()
+    if issues:
+        raise ValueError("intersecting_segments_sweep package: " + "; ".join(issues))
+
+
+def validate_balanced_parenthesis_rank_unrank_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/balanced_parenthesis_rank_unrank/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("balanced_parenthesis_rank_unrank workload differs from its package file")
+    issues = balanced_parenthesis_rank_unrank_verify_workload(workload)
+    if issues:
+        raise ValueError("balanced_parenthesis_rank_unrank package: " + "; ".join(issues))
+
+
 def validate_stirling_s2_small_p_large_n_workload(workload: dict) -> None:
     package_workload = ROOT / (
         "benchmarks/s/stirling_number_of_the_second_kind_small_p_large_n/workload.json")
@@ -2249,7 +5198,8 @@ def validate_deque_operate_all_composite_workload(workload: dict) -> None:
 
 def validate_sum_of_multiplicative_function_large_workload(workload: dict) -> None:
     expected_ids = {
-        "f_one_only", "tau_through_two", "mixed_through_three", "tau_through_four",
+        "f_one_only", "prime_power_exponents_through_two", "mixed_through_three",
+        "prime_power_exponents_through_four",
         "mixed_prime_powers_through_six", "radical_through_ten", "tau_through_ten",
         "large_zero_function", "empty_input", "wrong_input_length", "parseable_extra_value",
         "zero_n", "n_above_local_bound", "negative_a", "negative_b", "a_not_canonical",
@@ -2296,6 +5246,114 @@ def validate_sum_of_multiplicative_function_large_workload(workload: dict) -> No
                 or type(case.get("expected_result")) is not int
                 or case.get("expected_result") != sum_of_multiplicative_function_large_expected(values)):
             raise ValueError(f"sum_of_multiplicative_function_large fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_zhouge_summatory_multiplicative_function_workload(workload: dict) -> None:
+    expected_ids = {
+        "f_one_only", "prime_power_exponents_through_two", "mixed_through_three",
+        "prime_power_exponents_through_four",
+        "mixed_prime_powers_through_six", "radical_through_ten", "prime_power_exponents_through_ten",
+        "maximum_input_zero_function", "maximum_coefficients_at_one", "empty_input",
+        "wrong_input_length", "parseable_extra_value", "zero_n", "n_above_local_bound",
+        "negative_a", "negative_b", "a_not_canonical", "b_not_canonical",
+    }
+    input_spec = workload.get("input", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "zhouge-summatory-multiplicative-function-v1"
+            or workload.get("algorithm") != "zhouge_summatory_multiplicative_function"
+            or workload.get("function_symbol") != "zhouge_summatory_multiplicative_function"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("layout") != "[N, a, b]"
+            or input_spec.get("minimum_n") != 1
+            or input_spec.get("maximum_n") != ZHOUGE_MAX_N
+            or input_spec.get("maximum_valid_input_length") != ZHOUGE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length") != ZHOUGE_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("coefficient_modulus") != ZHOUGE_MODULUS
+            or input_spec.get("coefficient_range") != f"0 <= a,b < {ZHOUGE_MODULUS}"
+            or input_spec.get("prime_power_definition") != "f(p^e) = a*e + b*p mod 469762049"
+            or input_spec.get("f_one") != 1
+            or input_spec.get("invalid_input_result") != ZHOUGE_INVALID_RESULT
+            or workload.get("output", {}).get("kind") != "signed_64_bit_integer"
+            or workload.get("output", {}).get("meaning") != "sum(f(n), 1 <= n <= N) modulo 469762049"
+            or workload.get("output", {}).get("modulus") != ZHOUGE_MODULUS
+            or workload.get("output", {}).get("invalid_input_result") != ZHOUGE_INVALID_RESULT
+            or workload.get("workspace", {}).get("bytes") != ZHOUGE_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or workload.get("measurement", {}).get("sample_count") != 7
+            or workload.get("measurement", {}).get("warmup_rounds") != 1
+            or workload.get("measurement", {}).get("repetitions_per_sample") != 1
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(expected_ids)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+        raise ValueError("zhouge_summatory_multiplicative_function workload differs from its bounded sieve contract")
+    readme = (ROOT / "benchmarks" / "z" / "zhouge_summatory_multiplicative_function" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source not in readme for source in (
+            "https://oi-wiki.org/math/number-theory/zhou/",
+            "https://yutong.site/wp-content/uploads/2018/09/")):
+        raise ValueError("zhouge_summatory_multiplicative_function README is missing method provenance")
+    issues = zhouge_summatory_multiplicative_function_static_issues()
+    if issues:
+        raise ValueError("zhouge_summatory_multiplicative_function package is incomplete: " + "; ".join(issues))
+    for case in workload["cases"]:
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if (not isinstance(values, list)
+                or case.get("input_length") != len(values)
+                or type(case.get("expected_result")) is not int
+                or case.get("expected_result") != zhouge_summatory_multiplicative_function_expected(values)):
+            raise ValueError(f"zhouge_summatory_multiplicative_function fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_pearson_hash_workload(workload: dict) -> None:
+    package_path = ROOT / "benchmarks" / "p" / "pearson_hash"
+    package_workload = json.loads((package_path / "workload.json").read_text(encoding="utf-8"))
+    expected_ids = {
+        "empty_text", "one_ascii_byte", "repeated_ascii_byte", "maximum_byte",
+        "high_bytes", "negative_text_byte_rejected", "text_byte_above_byte_domain_rejected",
+        "overlength_text_rejected", "duplicate_table_entry_rejected",
+        "short_frame_rejected", "trailing_word_rejected",
+    }
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "pearson-byte-string-hash-v1"
+            or workload.get("algorithm") != "pearson_hash"
+            or workload.get("function_symbol") != "pearson_hash"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("kind") != "i64_array_scalar_pearson_frame"
+            or input_spec.get("frame") != "[text_length, table[256], text[text_length]]"
+            or input_spec.get("maximum_text_length") != PEARSON_HASH_MAX_TEXT_BYTES
+            or input_spec.get("maximum_valid_length") != PEARSON_HASH_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != PEARSON_HASH_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != PEARSON_HASH_WORKSPACE_BYTES
+            or workload.get("output", {}).get("kind") != "signed_64_bit_integer"
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(expected_ids)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+        raise ValueError("pearson_hash workload differs from its bounded permutation-table contract")
+
+    extensions = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa",
+                  "mojo": "mojo", "nim": "nim", "odin": "odin", "rust": "rs",
+                  "v": "v", "zig": "zig"}
+    for language, extension in extensions.items():
+        source = ROOT / language / "p" / f"pearson_hash.{extension}"
+        if not source.is_file() or "pearson_hash" not in source.read_text(encoding="utf-8"):
+            raise ValueError(f"pearson_hash port missing: {source}")
+
+    table_rule = input_spec.get("workload_table", {})
+    if (table_rule.get("rule") != "8-bit nibble reversal"
+            or table_rule.get("definition") != "table[x] = ((x & 15) << 4) | (x >> 4)"
+            or table_rule.get("is_permutation") is not True):
+        raise ValueError("pearson_hash workload permutation is not pinned to its clean-room formula")
+    for case in workload["cases"]:
+        values = encode_case(case, "pearson_hash")
+        expected = case.get("expected_result")
+        if (type(expected) is not int
+                or len(values) > PEARSON_HASH_MAX_PARSEABLE_INPUT_LENGTH
+                or pearson_hash_expected(values) != expected
+                or pearson_hash_independent(values) != expected):
+            raise ValueError(f"pearson_hash fixture differs from its references: {case.get('id')}")
 
 
 def validate_manhattan_mst_workload(workload: dict) -> None:
@@ -2612,6 +5670,126 @@ def validate_convex_polygon_minimax_length_triangulation_workload(workload: dict
         raise ValueError("convex_polygon_minimax_length_triangulation package is incomplete: " + "; ".join(issues))
 
 
+def validate_convex_polygon_minimax_angle_edge_insertion_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/c/convex_polygon_minimax_angle_edge_insertion/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("convex_polygon_minimax_angle_edge_insertion workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (CONVEX_POLYGON_MINIMAX_ANGLE_MIN_VERTICES != 3
+            or CONVEX_POLYGON_MINIMAX_ANGLE_MAX_VERTICES != 4
+            or CONVEX_POLYGON_MINIMAX_ANGLE_COORDINATE_LIMIT != 16
+            or input_contract.get("vertex_count_range") != [3, 4]
+            or input_contract.get("coordinate_range") != [-16, 16]
+            or input_contract.get("vertex_order") != "strict convex boundary order, clockwise or counterclockwise; no three points collinear"
+            or input_contract.get("exact_length") != "1 + 2*N"
+            or input_contract.get("maximum_valid_length") != CONVEX_POLYGON_MINIMAX_ANGLE_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != CONVEX_POLYGON_MINIMAX_ANGLE_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or workload.get("output", {}).get("kind") != "signed_64_bit_scalar"
+            or workload.get("output", {}).get("maximum_result") != 12
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("convex_polygon_minimax_angle_edge_insertion workload differs from its bounded contract")
+    issues = convex_polygon_minimax_angle_edge_insertion_static_issues(workload)
+    if issues:
+        raise ValueError("convex_polygon_minimax_angle_edge_insertion package is incomplete: " + "; ".join(issues))
+
+
+def validate_max_min_triangle_height_triangulation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/m/max_min_triangle_height_triangulation/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("max_min_triangle_height_triangulation workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (MAX_MIN_HEIGHT_MIN_VERTICES != 3
+            or MAX_MIN_HEIGHT_MAX_VERTICES != 5
+            or MAX_MIN_HEIGHT_COORDINATE_LIMIT != 8
+            or input_contract.get("vertex_count_range") != [3, 5]
+            or input_contract.get("coordinate_range") != [-8, 8]
+            or input_contract.get("maximum_valid_length") != MAX_MIN_HEIGHT_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != MAX_MIN_HEIGHT_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != MAX_MIN_HEIGHT_MAX_OUTPUT
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("max_min_triangle_height_triangulation workload differs from its bounded contract")
+    verify_max_min_triangle_height_triangulation_package()
+
+
+def validate_convex_polygon_minimax_slope_edge_insertion_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/c/convex_polygon_minimax_slope_edge_insertion/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("convex_polygon_minimax_slope_edge_insertion workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (CONVEX_POLYGON_MINIMAX_SLOPE_MIN_VERTICES != 3
+            or CONVEX_POLYGON_MINIMAX_SLOPE_MAX_VERTICES != 4
+            or CONVEX_POLYGON_MINIMAX_SLOPE_COORDINATE_LIMIT != 8
+            or input_contract.get("vertex_count_range") != [3, 4]
+            or input_contract.get("coordinate_range") != [-8, 8]
+            or input_contract.get("maximum_valid_length") != CONVEX_POLYGON_MINIMAX_SLOPE_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != CONVEX_POLYGON_MINIMAX_SLOPE_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or workload.get("output", {}).get("kind") != "signed_64_bit_scalar"
+            or workload.get("output", {}).get("maximum_result") != 4
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("convex_polygon_minimax_slope_edge_insertion workload differs from its bounded contract")
+    issues = convex_polygon_minimax_slope_edge_insertion_static_issues(workload)
+    if issues:
+        raise ValueError("convex_polygon_minimax_slope_edge_insertion package is incomplete: " + "; ".join(issues))
+
+
+def validate_convex_polygon_max_min_length_triangulation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/c/convex_polygon_max_min_length_triangulation/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("convex_polygon_max_min_length_triangulation workload differs from its package file")
+    input_contract = workload.get("input", {})
+    contract = workload.get("contract", {})
+    output_contract = workload.get("output", {})
+    if (CONVEX_POLYGON_MAX_MIN_LENGTH_MIN_VERTICES != 3
+            or CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_VERTICES != 6
+            or CONVEX_POLYGON_MAX_MIN_LENGTH_COORDINATE_LIMIT != 8
+            or CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_VALID_INPUT_LENGTH != 13
+            or CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_PARSEABLE_INPUT_LENGTH != 14
+            or CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_STEPS != 24
+            or input_contract.get("vertex_count_range") != [3, 6]
+            or input_contract.get("coordinate_range") != [-8, 8]
+            or input_contract.get("exact_length") != "1 + 2*n"
+            or input_contract.get("maximum_valid_length") != CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_PARSEABLE_INPUT_LENGTH
+            or contract.get("maximum_greedy_steps") != CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_STEPS
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 262655
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("convex_polygon_max_min_length_triangulation workload differs from its bounded contract")
+    verify_convex_polygon_max_min_length_triangulation_package()
+
+
+def validate_convex_polygon_minimax_eccentricity_edge_insertion_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/c/convex_polygon_minimax_eccentricity_edge_insertion/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("convex_polygon_minimax_eccentricity_edge_insertion workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (CONVEX_POLYGON_ECCENTRICITY_MIN_VERTICES != 3
+            or CONVEX_POLYGON_ECCENTRICITY_MAX_VERTICES != 6
+            or CONVEX_POLYGON_ECCENTRICITY_COORDINATE_LIMIT != 4
+            or CONVEX_POLYGON_ECCENTRICITY_MAX_VALID_INPUT_LENGTH != 13
+            or CONVEX_POLYGON_ECCENTRICITY_MAX_PARSEABLE_INPUT_LENGTH != 14
+            or input_contract.get("vertex_count_range") != [3, 6]
+            or input_contract.get("coordinate_range") != [-4, 4]
+            or input_contract.get("exact_length") != "1 + 2*N"
+            or input_contract.get("maximum_valid_length") != CONVEX_POLYGON_ECCENTRICITY_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != CONVEX_POLYGON_ECCENTRICITY_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 20
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("convex_polygon_minimax_eccentricity_edge_insertion workload differs from its bounded contract")
+    issues = convex_polygon_minimax_eccentricity_edge_insertion_static_issues(workload)
+    if issues:
+        raise ValueError("convex_polygon_minimax_eccentricity_edge_insertion package is incomplete: " + "; ".join(issues))
+
+
 def validate_pfaffian_of_matrix_workload(workload: dict) -> None:
     package_workload = ROOT / "benchmarks/p/pfaffian_of_matrix/workload.json"
     if workload != json.loads(package_workload.read_text(encoding="utf-8")):
@@ -2658,6 +5836,7 @@ def validate_x_fast_trie_static_predecessor_workload(workload: dict) -> None:
             or input_contract.get("query_count_range") != [0, 24]
             or input_contract.get("key_and_query_range") != [0, 65535]
             or input_contract.get("keys_must_be_unique") is not True
+            or input_contract.get("queries_may_repeat") is not True
             or input_contract.get("exact_length") != "2+N+Q"
             or input_contract.get("maximum_valid_length")
             != X_FAST_TRIE_MAX_VALID_INPUT_LENGTH
@@ -2671,6 +5850,1938 @@ def validate_x_fast_trie_static_predecessor_workload(workload: dict) -> None:
     issues = x_fast_trie_static_predecessor_static_issues()
     if issues:
         raise ValueError("x_fast_trie_static_predecessor package is incomplete: " + "; ".join(issues))
+
+
+def validate_y_fast_trie_static_predecessor_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/y/y_fast_trie_static_predecessor/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("y_fast_trie_static_predecessor workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (Y_FAST_TRIE_MAX_KEYS != 256
+            or Y_FAST_TRIE_MAX_QUERIES != 256
+            or Y_FAST_TRIE_UNIVERSE_BITS != 16
+            or Y_FAST_TRIE_BUCKET_SIZE != 16
+            or Y_FAST_TRIE_MAX_VALID_INPUT_LENGTH != 514
+            or Y_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH != 515
+            or input_contract.get("encoding") != "[N,Q,key[0..N),query[0..Q)]"
+            or input_contract.get("key_count_range") != [0, 256]
+            or input_contract.get("query_count_range") != [0, 256]
+            or input_contract.get("key_and_query_range") != [0, 65535]
+            or input_contract.get("keys_must_be_unique") is not True
+            or input_contract.get("queries_may_repeat") is not True
+            or input_contract.get("exact_length") != "2+N+Q"
+            or input_contract.get("maximum_valid_length")
+            != Y_FAST_TRIE_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length")
+            != Y_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("exact_hits_are_excluded_from_both_neighbors") is not True
+            or output_contract.get("empty_key_set_result") != 0
+            or output_contract.get("zero_query_result") != 0):
+        raise ValueError("y_fast_trie_static_predecessor workload differs from its bounded neighbor profile")
+    verify_y_fast_trie_static_predecessor_workload(workload)
+    issues = y_fast_trie_static_predecessor_static_issues()
+    if issues:
+        raise ValueError("y_fast_trie_static_predecessor package is incomplete: " + "; ".join(issues))
+
+
+def validate_fractional_cascading_subset_chain_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/f/fractional_cascading_subset_chain/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("fractional_cascading_subset_chain workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (FRACTIONAL_CASCADING_MIN_CATALOGS != 2
+            or FRACTIONAL_CASCADING_MAX_CATALOGS != 8
+            or FRACTIONAL_CASCADING_MIN_QUERIES != 1
+            or FRACTIONAL_CASCADING_MAX_QUERIES != 8
+            or FRACTIONAL_CASCADING_MAX_CATALOG_SIZE != 16
+            or FRACTIONAL_CASCADING_KEY_MIN != -16
+            or FRACTIONAL_CASCADING_KEY_MAX != 16
+            or FRACTIONAL_CASCADING_QUERY_MIN != -17
+            or FRACTIONAL_CASCADING_QUERY_MAX != 17
+            or FRACTIONAL_CASCADING_MAX_VALID_INPUT_LENGTH != 146
+            or FRACTIONAL_CASCADING_MAX_PARSEABLE_INPUT_LENGTH != 147
+            or input_contract.get("catalog_count_range") != [2, 8]
+            or input_contract.get("query_count_range") != [1, 8]
+            or input_contract.get("catalog_size_range") != [1, 16]
+            or input_contract.get("catalog_key_range") != [-16, 16]
+            or input_contract.get("query_key_range") != [-17, 17]
+            or input_contract.get("exact_length") != "2 + m + sum(catalog_sizes) + q"
+            or input_contract.get("maximum_valid_length") != FRACTIONAL_CASCADING_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != FRACTIONAL_CASCADING_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 44064
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("fractional_cascading_subset_chain workload differs from its bounded contract")
+    issues = fractional_cascading_subset_chain_static_issues(workload)
+    if issues:
+        raise ValueError("fractional_cascading_subset_chain package is incomplete: " + "; ".join(issues))
+
+
+def validate_shewchuk_expansion_sum_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/shewchuk_expansion_sum/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("shewchuk_expansion_sum workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (SHEWCHUK_EXPANSION_SUM_MAX_TERMS != 16
+            or SHEWCHUK_EXPANSION_SUM_MAX_VALID_INPUT_LENGTH != 33
+            or SHEWCHUK_EXPANSION_SUM_MAX_PARSEABLE_INPUT_LENGTH != 34
+            or input_contract.get("term_count_range") != [0, 16]
+            or input_contract.get("mantissa_range") != [-(1 << 24), 1 << 24]
+            or input_contract.get("binary_exponent_range") != [-30, 0]
+            or input_contract.get("exact_length") != "1 + 2*n"
+            or input_contract.get("maximum_valid_length") != SHEWCHUK_EXPANSION_SUM_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != SHEWCHUK_EXPANSION_SUM_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or SHEWCHUK_EXPANSION_SUM_OUTPUT_OFFSET != (1 << 58) + 1
+            or output_contract.get("encoding") != "exact_sum * 2^30 + 2^58 + 1"
+            or output_contract.get("result_range") != [1, (1 << 59) + 1]
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("shewchuk_expansion_sum workload differs from its bounded dyadic contract")
+    verify_shewchuk_expansion_sum_package()
+
+
+def validate_bidirectional_fm_index_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/bidirectional_fm_index/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("bidirectional_fm_index workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (BIDIRECTIONAL_FM_MIN_TEXT_LENGTH != 0
+            or BIDIRECTIONAL_FM_MAX_TEXT_LENGTH != 64
+            or BIDIRECTIONAL_FM_MAX_OPERATIONS != 64
+            or BIDIRECTIONAL_FM_ALPHABET_SIZE != 4
+            or BIDIRECTIONAL_FM_MAX_VALID_INPUT_LENGTH != 194
+            or BIDIRECTIONAL_FM_MAX_PARSEABLE_INPUT_LENGTH != 195
+            or input_contract.get("encoding") != "[N,Q,text_symbols..., (side,symbol)*Q]"
+            or input_contract.get("text_length_range") != [0, 64]
+            or input_contract.get("operation_count_range") != [0, 64]
+            or input_contract.get("symbol_range") != [1, 4]
+            or input_contract.get("exact_length") != "2 + N + 2*Q"
+            or input_contract.get("maximum_valid_input_length") != BIDIRECTIONAL_FM_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != BIDIRECTIONAL_FM_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_valid_result") != 45760
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("bidirectional_fm_index workload differs from its bounded extension contract")
+    issues = verify_bidirectional_fm_index_package(workload)
+    if issues:
+        raise ValueError("bidirectional_fm_index package is incomplete: " + "; ".join(issues))
+
+
+def validate_minimum_cycle_basis_horton_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/m/minimum_cycle_basis_horton/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("minimum_cycle_basis_horton workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (MINIMUM_CYCLE_BASIS_HORTON_MIN_VERTICES != 3
+            or MINIMUM_CYCLE_BASIS_HORTON_MAX_VERTICES != 8
+            or MINIMUM_CYCLE_BASIS_HORTON_MAX_EDGES != 12
+            or MINIMUM_CYCLE_BASIS_HORTON_MAX_VALID_INPUT_LENGTH != 38
+            or MINIMUM_CYCLE_BASIS_HORTON_MAX_PARSEABLE_INPUT_LENGTH != 39
+            or input_contract.get("vertex_count_range") != [3, 8]
+            or input_contract.get("edge_count_range") != "N-1 through 12, also bounded by N*(N-1)/2"
+            or input_contract.get("weight_range") != [1, 9]
+            or input_contract.get("exact_length") != "2 + 3*M"
+            or input_contract.get("maximum_valid_length") != MINIMUM_CYCLE_BASIS_HORTON_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != MINIMUM_CYCLE_BASIS_HORTON_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 378
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("minimum_cycle_basis_horton workload differs from its bounded graph contract")
+    issues = minimum_cycle_basis_horton_static_issues()
+    if issues:
+        raise ValueError("minimum_cycle_basis_horton package is incomplete: " + "; ".join(issues))
+
+
+def validate_linear_extension_count_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/l/linear_extension_count/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("linear_extension_count workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (LINEAR_EXTENSION_COUNT_MAX_N != 12
+            or LINEAR_EXTENSION_COUNT_MAX_VALID_INPUT_LENGTH != 13
+            or LINEAR_EXTENSION_COUNT_MAX_PARSEABLE_INPUT_LENGTH != 14
+            or input_contract.get("n_range") != [0, 12]
+            or input_contract.get("exact_length") != "n + 1"
+            or input_contract.get("maximum_valid_length") != LINEAR_EXTENSION_COUNT_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != LINEAR_EXTENSION_COUNT_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 479001600
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("linear_extension_count workload differs from its bounded poset contract")
+    verify_linear_extension_count_package()
+
+
+def validate_remove_boxes_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/r/remove_boxes/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("remove_boxes workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (REMOVE_BOXES_MAX_PARSEABLE_INPUT_LENGTH != 20
+            or input_contract.get("n_range") != [0, 18]
+            or input_contract.get("color_range") != [0, 7]
+            or input_contract.get("maximum_valid_length") != 19
+            or input_contract.get("maximum_parseable_length") != REMOVE_BOXES_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_integer"
+            or output_contract.get("maximum_result") != 324
+            or output_contract.get("invalid_input_result") != -1
+            or workload.get("workspace", {}).get("bytes") != REMOVE_BOXES_MAX_WORKSPACE_BYTES):
+        raise ValueError("remove_boxes workload differs from its bounded score contract")
+    issues = remove_boxes_static_issues()
+    if issues:
+        raise ValueError("remove_boxes package is incomplete: " + "; ".join(issues))
+
+
+def validate_strange_printer_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/strange_printer/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("strange_printer workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (workload.get("algorithm") != "strange_printer"
+            or workload.get("function_symbol") != "strange_printer"
+            or workload.get("abi") != "i64_array_scalar"
+            or STRANGE_PRINTER_MAX_VALID_INPUT_LENGTH != 9
+            or STRANGE_PRINTER_MAX_PARSEABLE_INPUT_LENGTH != 10
+            or input_contract.get("encoding") != "[n, symbol_0, ..., symbol_(n-1)]"
+            or input_contract.get("n_range") != [0, 8]
+            or input_contract.get("symbol_range") != [0, 2]
+            or input_contract.get("maximum_valid_length") != STRANGE_PRINTER_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != STRANGE_PRINTER_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or input_contract.get("null_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_integer"
+            or output_contract.get("valid_result_range") != [0, 8]
+            or output_contract.get("invalid_input_result") != -1
+            or workload.get("workspace", {}).get("bytes") != STRANGE_PRINTER_MAX_WORKSPACE_BYTES):
+        raise ValueError("strange_printer workload differs from its bounded interval-DP contract")
+    issues = strange_printer_static_issues()
+    if issues:
+        raise ValueError("strange_printer package is incomplete: " + "; ".join(issues))
+
+
+def validate_strange_printer_ii_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/strange_printer_ii/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("strange_printer_ii workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (workload.get("algorithm") != "strange_printer_ii"
+            or workload.get("function_symbol") != "strange_printer_ii"
+            or workload.get("abi") != "i64_array_scalar"
+            or STRANGE_PRINTER_II_MAX_VALID_INPUT_LENGTH != 38
+            or STRANGE_PRINTER_II_MAX_PARSEABLE_INPUT_LENGTH != 39
+            or input_contract.get("encoding") != "[rows, columns, row_major_cells...]"
+            or input_contract.get("row_range") != [1, 6]
+            or input_contract.get("column_range") != [1, 6]
+            or input_contract.get("color_range") != [1, 6]
+            or input_contract.get("maximum_valid_length") != STRANGE_PRINTER_II_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != STRANGE_PRINTER_II_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or input_contract.get("null_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_integer"
+            or output_contract.get("valid_result_range") != [0, 1]
+            or output_contract.get("invalid_input_result") != -1
+            or workload.get("workspace", {}).get("bytes") != STRANGE_PRINTER_II_MAX_WORKSPACE_BYTES):
+        raise ValueError("strange_printer_ii workload differs from its bounded rectangle-DAG contract")
+    issues = strange_printer_ii_static_issues()
+    if issues:
+        raise ValueError("strange_printer_ii package is incomplete: " + "; ".join(issues))
+
+
+def validate_alphabetic_anagrams_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/a/alphabetic_anagrams/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("alphabetic_anagrams workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (workload.get("algorithm") != "alphabetic_anagrams"
+            or workload.get("function_symbol") != "alphabetic_anagrams"
+            or workload.get("abi") != "i64_array_scalar"
+            or ALPHABETIC_ANAGRAMS_MAX_VALID_INPUT_LENGTH != 9
+            or ALPHABETIC_ANAGRAMS_MAX_PARSEABLE_INPUT_LENGTH != 10
+            or input_contract.get("encoding") != "[n, symbol_0, ..., symbol_(n-1)]"
+            or input_contract.get("n_range") != [0, 8]
+            or input_contract.get("symbol_range") != [0, 25]
+            or input_contract.get("maximum_valid_length") != ALPHABETIC_ANAGRAMS_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != ALPHABETIC_ANAGRAMS_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or input_contract.get("null_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_integer"
+            or output_contract.get("valid_result_range") != [1, 40320]
+            or output_contract.get("empty_word_result") != 1
+            or output_contract.get("invalid_input_result") != -1
+            or workload.get("workspace", {}).get("bytes") != ALPHABETIC_ANAGRAMS_MAX_WORKSPACE_BYTES):
+        raise ValueError("alphabetic_anagrams workload differs from its bounded multiset-rank contract")
+    issues = alphabetic_anagrams_static_issues()
+    if issues:
+        raise ValueError("alphabetic_anagrams package is incomplete: " + "; ".join(issues))
+
+
+def validate_infinite_knight_distance_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/i/infinite_knight_distance/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("infinite_knight_distance workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (workload.get("algorithm") != "infinite_knight_distance"
+            or workload.get("function_symbol") != "infinite_knight_distance"
+            or workload.get("abi") != "i64_array_scalar"
+            or INFINITE_KNIGHT_DISTANCE_MAX_VALID_INPUT_LENGTH != 2
+            or INFINITE_KNIGHT_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH != 3
+            or input_contract.get("encoding") != "[dx, dy]"
+            or input_contract.get("required_length") != 2
+            or input_contract.get("coordinate_range") != [-INFINITE_KNIGHT_DISTANCE_MAX_COORDINATE,
+                                                              INFINITE_KNIGHT_DISTANCE_MAX_COORDINATE]
+            or input_contract.get("maximum_valid_length") != INFINITE_KNIGHT_DISTANCE_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != INFINITE_KNIGHT_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or input_contract.get("null_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_integer"
+            or output_contract.get("valid_result_range") != [0, INFINITE_KNIGHT_DISTANCE_MAX_RESULT]
+            or output_contract.get("invalid_input_result") != -1
+            or workload.get("workspace", {}).get("bytes") != INFINITE_KNIGHT_DISTANCE_MAX_WORKSPACE_BYTES):
+        raise ValueError("infinite_knight_distance workload differs from its bounded formula contract")
+    issues = infinite_knight_distance_static_issues()
+    if issues:
+        raise ValueError("infinite_knight_distance package is incomplete: " + "; ".join(issues))
+
+
+def validate_android_unlock_pattern_count_workload(workload: dict) -> None:
+    package = ROOT / "benchmarks" / "a" / "android_unlock_pattern_count"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "android_unlock_pattern_count"
+            or workload.get("function_symbol") != "android_unlock_pattern_count"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("encoding") != "[L]"
+            or input_spec.get("exact_length") != ANDROID_UNLOCK_PATTERN_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_valid_length") != ANDROID_UNLOCK_PATTERN_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != ANDROID_UNLOCK_PATTERN_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("pattern_length_range") != [
+                ANDROID_UNLOCK_PATTERN_MIN_PATTERN_LENGTH,
+                ANDROID_UNLOCK_PATTERN_MAX_PATTERN_LENGTH,
+            ]
+            or input_spec.get("invalid_input_result") != -1
+            or input_spec.get("null_input_result") != -1
+            or output_spec.get("valid_result_range") != [1624, ANDROID_UNLOCK_PATTERN_MAX_RESULT]
+            or output_spec.get("invalid_input_result") != -1
+            or workload.get("measurement", {}).get("comparison_model")
+            != "i64_array_scalar_call"):
+        raise ValueError("android_unlock_pattern_count metadata differs from its bounded 3x3 profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or type(input_is_null) is not bool or input_length != len(values)
+                or input_length > ANDROID_UNLOCK_PATTERN_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and values)):
+            raise ValueError("android_unlock_pattern_count fixture framing is invalid")
+        expected = case.get("expected_result")
+        primary = android_unlock_pattern_count_primary(
+            values, input_is_null=input_is_null, input_length=input_length)
+        independent = android_unlock_pattern_count_independent(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if type(expected) is not int or expected != primary or primary != independent:
+            raise ValueError("android_unlock_pattern_count fixture differs between its references")
+    issues = android_unlock_pattern_count_static_issues()
+    if issues:
+        raise ValueError("android_unlock_pattern_count package is incomplete: " + "; ".join(issues))
+
+
+def validate_random_permutation_cycle_cap_count_workload(workload: dict) -> None:
+    package = ROOT / "benchmarks" / "r" / "random_permutation_cycle_cap_count"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "random_permutation_cycle_cap_count"
+            or workload.get("function_symbol") != "random_permutation_cycle_cap_count"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("encoding") != "[n,k]"
+            or input_spec.get("exact_length") != RANDOM_PERMUTATION_CYCLE_CAP_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_valid_length") != RANDOM_PERMUTATION_CYCLE_CAP_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length")
+            != RANDOM_PERMUTATION_CYCLE_CAP_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("n_range") != [1, RANDOM_PERMUTATION_CYCLE_CAP_MAX_N]
+            or input_spec.get("k_constraint") != "1 <= k <= n"
+            or input_spec.get("invalid_input_result") != -1
+            or input_spec.get("null_input_result") != -1
+            or workload.get("measurement", {}).get("comparison_model")
+            != "i64_array_scalar_call"):
+        raise ValueError("random_permutation_cycle_cap_count metadata differs from its bounded [n,k] profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or type(input_is_null) is not bool or input_length != len(values)
+                or input_length > RANDOM_PERMUTATION_CYCLE_CAP_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and values)):
+            raise ValueError("random_permutation_cycle_cap_count fixture framing is invalid")
+        expected = case.get("expected_result")
+        primary = random_permutation_cycle_cap_count_primary(
+            values, input_is_null=input_is_null, input_length=input_length)
+        independent = random_permutation_cycle_cap_count_independent(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if type(expected) is not int or expected != primary or primary != independent:
+            raise ValueError("random_permutation_cycle_cap_count fixture differs between its references")
+    issues = random_permutation_cycle_cap_count_workload_issues(workload)
+    if issues:
+        raise ValueError("random_permutation_cycle_cap_count package is incomplete: "
+                         + "; ".join(issues))
+
+
+def validate_eulerian_number_workload(workload: dict) -> None:
+    package = ROOT / "benchmarks" / "e" / "eulerian_number"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "eulerian_number"
+            or workload.get("function_symbol") != "eulerian_number"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("encoding") != "[n,k]"
+            or input_spec.get("maximum_valid_length") != EULERIAN_NUMBER_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length")
+            != EULERIAN_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("n_range") != [0, EULERIAN_NUMBER_MAX_N]
+            or workload.get("output", {}).get("valid_result_range")
+            != [1, EULERIAN_NUMBER_MAX_RESULT]
+            or workload.get("workspace", {}).get("bytes") != EULERIAN_NUMBER_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model")
+            != "i64_array_scalar_call"):
+        raise ValueError("eulerian_number metadata differs from its bounded descent-count profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or type(input_is_null) is not bool or input_length != len(values)
+                or input_length > EULERIAN_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and values)):
+            raise ValueError("eulerian_number fixture framing is invalid")
+        expected = case.get("expected_result")
+        primary = eulerian_number_primary(
+            values, input_is_null=input_is_null, input_length=input_length)
+        independent = eulerian_number_independent(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if type(expected) is not int or expected != primary or primary != independent:
+            raise ValueError("eulerian_number fixture differs between its references")
+    issues = (eulerian_number_static_issues()
+              + eulerian_number_workload_issues(workload))
+    if issues:
+        raise ValueError("eulerian_number package is incomplete: " + "; ".join(issues))
+
+
+def validate_minimum_bounded_s_t_flow_workload(workload: dict) -> None:
+    issues = verify_minimum_bounded_s_t_flow_package(workload)
+    if issues:
+        raise ValueError("minimum_bounded_s_t_flow package is incomplete: "
+                         + "; ".join(issues))
+
+
+def validate_json_pointer_evaluation_workload(workload: dict) -> None:
+    package_workload = json.loads(
+        (ROOT / "benchmarks" / "j" / "json_pointer_evaluation" / "workload.json")
+        .read_text(encoding="utf-8"))
+    if (workload != package_workload
+            or workload.get("algorithm") != "json_pointer_evaluation"
+            or workload.get("function_symbol") != "json_pointer_evaluation"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input", {}).get("maximum_valid_length")
+            != JSON_POINTER_EVALUATION_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != JSON_POINTER_EVALUATION_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != JSON_POINTER_EVALUATION_WORKSPACE_BYTES):
+        raise ValueError("json_pointer_evaluation metadata differs from its bounded tree profile")
+    issues = json_pointer_evaluation_static_issues() + json_pointer_evaluation_workload_issues()
+    if issues:
+        raise ValueError("json_pointer_evaluation package is incomplete: " + "; ".join(issues))
+
+
+def validate_wave_function_collapse_simple_tiled_workload(workload: dict) -> None:
+    package_workload = json.loads(
+        (ROOT / "benchmarks" / "w" / "wave_function_collapse_simple_tiled" / "workload.json")
+        .read_text(encoding="utf-8"))
+    if (workload != package_workload
+            or workload.get("algorithm") != "wave_function_collapse_simple_tiled"
+            or workload.get("function_symbol") != "wave_function_collapse_simple_tiled"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input", {}).get("maximum_valid_input_length") != 55
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != WAVE_FUNCTION_COLLAPSE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != 1024):
+        raise ValueError("wave_function_collapse_simple_tiled metadata differs from its bounded profile")
+    issues = (wave_function_collapse_simple_tiled_static_issues()
+              + wave_function_collapse_simple_tiled_workload_issues(workload))
+    if issues:
+        raise ValueError("wave_function_collapse_simple_tiled package is incomplete: "
+                         + "; ".join(issues))
+
+
+def validate_hashiwokakero_small_solver_workload(workload: dict) -> None:
+    package_workload = json.loads(
+        (ROOT / "benchmarks" / "h" / "hashiwokakero_small_solver" / "workload.json")
+        .read_text(encoding="utf-8"))
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "hashiwokakero_small_solver"
+            or workload.get("function_symbol") != "hashiwokakero_small_solver"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input", {}).get("maximum_valid_length") != 19
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != HASHIWOKAKERO_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("method", {}).get("maximum_candidate_edges") != 7
+            or workload.get("method", {}).get("maximum_independent_vectors") != 2187):
+        raise ValueError("hashiwokakero_small_solver metadata differs from its bounded profile")
+    issues = (hashiwokakero_small_solver_static_issues()
+              + hashiwokakero_small_solver_workload_issues(workload))
+    if issues:
+        raise ValueError("hashiwokakero_small_solver package is incomplete: "
+                         + "; ".join(issues))
+
+
+def validate_fractional_programming_ratio_knapsack_binary_search_workload(
+        workload: dict) -> None:
+    package = ROOT / "benchmarks" / "f" / "fractional_programming_ratio_knapsack_binary_search"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "fractional_programming_ratio_knapsack_binary_search"
+            or workload.get("function_symbol") != "fractional_programming_ratio_knapsack_binary_search"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("encoding") != "[n,W,(a_i,b_i)*n]"
+            or input_spec.get("maximum_valid_length") != FRAC_RATIO_KNAPSACK_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != FRAC_RATIO_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("n_range") != [1, 12]
+            or workload.get("output", {}).get("valid_result_range") != [0, FRAC_RATIO_KNAPSACK_MAX_RESULT]
+            or workload.get("workspace", {}).get("bytes") != FRAC_RATIO_KNAPSACK_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model")
+            != "i64_array_scalar_call"):
+        raise ValueError(
+            "fractional-programming workload differs from the bounded ratio-knapsack contract")
+    issues = (fractional_programming_ratio_knapsack_binary_search_static_issues()
+              + fractional_programming_ratio_knapsack_binary_search_workload_issues(workload))
+    if issues:
+        raise ValueError("fractional-programming package is incomplete: " + "; ".join(issues))
+
+
+def validate_nmea_xor_checksum_workload(workload: dict) -> None:
+    package = ROOT / "benchmarks" / "n" / "nmea_xor_checksum"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "nmea_xor_checksum"
+            or workload.get("function_symbol") != "nmea_xor_checksum"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != NMEA_XOR_CHECKSUM_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != NMEA_XOR_CHECKSUM_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("payload_length_range") != [0, 76]
+            or input_spec.get("payload_byte_range") != [0, 127]
+            or workload.get("output", {}).get("range") != [0, 127]
+            or workload.get("measurement", {}).get("comparison_model")
+            != "i64_array_scalar_call"):
+        raise ValueError("NMEA XOR checksum metadata differs from the bounded payload contract")
+    issues = nmea_xor_checksum_workload_issues(workload) + nmea_xor_checksum_static_issues()
+    if issues:
+        raise ValueError("NMEA XOR checksum package is incomplete: " + "; ".join(issues))
+
+
+def validate_factorial_last_nonzero_digit_workload(workload: dict) -> None:
+    package = ROOT / "benchmarks" / "f" / "factorial_last_nonzero_digit"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "factorial_last_nonzero_digit"
+            or workload.get("function_symbol") != "factorial_last_nonzero_digit"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != FACTORIAL_LAST_NONZERO_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != FACTORIAL_LAST_NONZERO_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("n_range") != [0, FACTORIAL_LAST_NONZERO_MAX_N]
+            or workload.get("output", {}).get("result_range") != [0, 9]
+            or workload.get("measurement", {}).get("comparison_model")
+            != "i64_array_scalar_call"):
+        raise ValueError("factorial last nonzero digit metadata differs from its bounded contract")
+    issues = factorial_last_nonzero_digit_workload_issues(workload)
+    if issues:
+        raise ValueError("factorial last nonzero digit package is incomplete: "
+                         + "; ".join(issues))
+
+
+def validate_egg_drop_max_floors_by_moves_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/e/egg_drop_max_floors_by_moves/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("egg_drop_max_floors_by_moves workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (workload.get("algorithm") != "egg_drop_max_floors_by_moves"
+            or workload.get("function_symbol") != "egg_drop_max_floors_by_moves"
+            or workload.get("abi") != "i64_array_scalar"
+            or EGG_DROP_MAX_FLOORS_MAX_VALID_INPUT_LENGTH != 2
+            or EGG_DROP_MAX_FLOORS_MAX_PARSEABLE_INPUT_LENGTH != 3
+            or input_contract.get("encoding") != "[eggs, moves]"
+            or input_contract.get("eggs_range") != [0, EGG_DROP_MAX_FLOORS_MAX_EGGS]
+            or input_contract.get("moves_range") != [0, EGG_DROP_MAX_FLOORS_MAX_MOVES]
+            or input_contract.get("maximum_valid_length") != EGG_DROP_MAX_FLOORS_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != EGG_DROP_MAX_FLOORS_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or input_contract.get("null_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_integer"
+            or output_contract.get("valid_result_range") != [0, EGG_DROP_MAX_FLOORS_MAX_RESULT]
+            or output_contract.get("zero_egg_result") != 0
+            or output_contract.get("zero_move_result") != 0
+            or output_contract.get("invalid_input_result") != -1
+            or workload.get("workspace", {}).get("bytes") != EGG_DROP_MAX_FLOORS_MAX_WORKSPACE_BYTES):
+        raise ValueError("egg_drop_max_floors_by_moves workload differs from its bounded recurrence contract")
+    issues = egg_drop_max_floors_by_moves_static_issues()
+    if issues:
+        raise ValueError("egg_drop_max_floors_by_moves package is incomplete: " + "; ".join(issues))
+
+
+def validate_rectangle_union_area_sweep_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/g/rectangle_union_area_sweep/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("rectangle_union_area_sweep workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (workload.get("algorithm") != "rectangle_union_area_sweep"
+            or workload.get("function_symbol") != "rectangle_union_area_sweep"
+            or workload.get("abi") != "i64_array_scalar"
+            or RECTANGLE_UNION_AREA_SWEEP_MAX_VALID_INPUT_LENGTH != 257
+            or RECTANGLE_UNION_AREA_SWEEP_MAX_PARSEABLE_INPUT_LENGTH != 258
+            or input_contract.get("layout") != "[n, x1, y1, x2, y2, ...]"
+            or input_contract.get("count_range") != [0, 64]
+            or input_contract.get("coordinate_range") != [-1_000_000_000, 1_000_000_000]
+            or input_contract.get("maximum_valid_length") != RECTANGLE_UNION_AREA_SWEEP_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != RECTANGLE_UNION_AREA_SWEEP_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or input_contract.get("null_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("valid_result_range") != [0, RECTANGLE_UNION_AREA_SWEEP_MAX_AREA]
+            or output_contract.get("invalid_input_result") != -1
+            or workload.get("workspace", {}).get("bytes") != RECTANGLE_UNION_AREA_SWEEP_MAX_WORKSPACE_BYTES):
+        raise ValueError("rectangle_union_area_sweep workload differs from its bounded sweep contract")
+    issues = rectangle_union_area_sweep_static_issues()
+    if issues:
+        raise ValueError("rectangle_union_area_sweep package is incomplete: " + "; ".join(issues))
+
+
+def validate_goldberg_maximum_density_subgraph_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/g/goldberg_maximum_density_subgraph/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("goldberg_maximum_density_subgraph workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (GOLDBERG_DENSITY_MIN_VERTICES != 2
+            or GOLDBERG_DENSITY_MAX_VERTICES != 8
+            or GOLDBERG_DENSITY_MAX_EDGES != 28
+            or GOLDBERG_DENSITY_MAX_VALID_INPUT_LENGTH != 58
+            or GOLDBERG_DENSITY_MAX_PARSEABLE_INPUT_LENGTH != 59
+            or input_contract.get("encoding") != "[N, M, (u, v)*M]"
+            or input_contract.get("vertex_count_range") != [2, 8]
+            or input_contract.get("edge_count_range") != [0, 28]
+            or input_contract.get("exact_length") != "2 + 2*M"
+            or input_contract.get("maximum_valid_length") != GOLDBERG_DENSITY_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != GOLDBERG_DENSITY_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 260
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("goldberg_maximum_density_subgraph workload differs from its bounded graph contract")
+    issues = goldberg_maximum_density_subgraph_static_issues()
+    if issues:
+        raise ValueError("goldberg_maximum_density_subgraph package is incomplete: " + "; ".join(issues))
+
+
+def validate_sparse_set_dense_array_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/sparse_set_dense_array/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("sparse_set_dense_array workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (SPARSE_SET_DENSE_ARRAY_MIN_UNIVERSE != 1
+            or SPARSE_SET_DENSE_ARRAY_MAX_UNIVERSE != 32
+            or SPARSE_SET_DENSE_ARRAY_MAX_OPERATIONS != 30
+            or SPARSE_SET_DENSE_ARRAY_MAX_VALID_INPUT_LENGTH != 62
+            or SPARSE_SET_DENSE_ARRAY_MAX_PARSEABLE_INPUT_LENGTH != 63
+            or input_contract.get("universe_size_range") != [1, 32]
+            or input_contract.get("operation_count_range") != [0, 30]
+            or input_contract.get("exact_length") != "2 + 2*operation_count"
+            or input_contract.get("maximum_valid_length") != SPARSE_SET_DENSE_ARRAY_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != SPARSE_SET_DENSE_ARRAY_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != (1 << 62) - 1
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("sparse_set_dense_array workload differs from its bounded set contract")
+    verify_sparse_set_dense_array_package()
+
+
+def validate_barrett_reduction_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/barrett_reduction/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("barrett_reduction workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (BARRETT_REDUCTION_MIN_MODULUS != 2
+            or BARRETT_REDUCTION_MAX_MODULUS != 65535
+            or BARRETT_REDUCTION_MAX_VALUES != 12
+            or BARRETT_REDUCTION_MAX_VALID_INPUT_LENGTH != 14
+            or BARRETT_REDUCTION_MAX_PARSEABLE_INPUT_LENGTH != 15
+            or BARRETT_REDUCTION_MAX_RESULT != 5_111_730
+            or input_contract.get("encoding") != "[modulus,count,value[0],...,value[count-1]]"
+            or input_contract.get("modulus_range") != [2, 65535]
+            or input_contract.get("count_range") != [0, 12]
+            or input_contract.get("exact_length") != "2 + count"
+            or input_contract.get("maximum_valid_length") != BARRETT_REDUCTION_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != BARRETT_REDUCTION_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != BARRETT_REDUCTION_MAX_RESULT
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("barrett_reduction workload differs from its bounded reduction contract")
+    verify_barrett_reduction_package()
+
+
+def validate_sequitur_grammar_induction_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/sequitur_grammar_induction/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("sequitur_grammar_induction workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (SEQUITUR_MIN_TEXT_LENGTH != 0
+            or SEQUITUR_MAX_TEXT_LENGTH != 64
+            or SEQUITUR_ALPHABET_MAX != 255
+            or SEQUITUR_MAX_VALID_INPUT_LENGTH != 65
+            or SEQUITUR_MAX_PARSEABLE_INPUT_LENGTH != 66
+            or SEQUITUR_MAX_RESULT != 64_064
+            or input_contract.get("minimum_text_length") != 0
+            or input_contract.get("maximum_text_length") != 64
+            or input_contract.get("alphabet_minimum") != 0
+            or input_contract.get("alphabet_maximum") != 255
+            or input_contract.get("maximum_valid_input_length") != SEQUITUR_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_input_length") != SEQUITUR_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_result") != -1
+            or output_contract.get("maximum_result") != SEQUITUR_MAX_RESULT
+            or output_contract.get("invalid_result") != -1):
+        raise ValueError("sequitur_grammar_induction workload differs from its bounded grammar contract")
+    issues = verify_sequitur_grammar_induction_package(workload)
+    if issues:
+        raise ValueError("sequitur_grammar_induction package is incomplete: " + "; ".join(issues))
+
+
+def validate_hensel_lifting_polynomial_root_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/h/hensel_lifting_polynomial_root/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("hensel_lifting_polynomial_root workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (HENSEL_ROOT_MAX_DEGREE != 4
+            or HENSEL_ROOT_MAX_PRIME != 43
+            or HENSEL_ROOT_MAX_EXPONENT != 6
+            or HENSEL_ROOT_MAX_MODULUS != 100_000
+            or HENSEL_ROOT_MAX_VALID_INPUT_LENGTH != 9
+            or HENSEL_ROOT_MAX_PARSEABLE_INPUT_LENGTH != 10
+            or HENSEL_ROOT_MAX_RESULT != 83_520
+            or input_contract.get("degree_range") != [1, 4]
+            or input_contract.get("prime_range") != [2, 43]
+            or input_contract.get("exponent_range") != [1, 6]
+            or input_contract.get("modulus_requirement") != "prime^exponent <= 100000"
+            or input_contract.get("exact_length") != "degree + 5"
+            or input_contract.get("maximum_valid_length") != HENSEL_ROOT_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != HENSEL_ROOT_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != HENSEL_ROOT_MAX_RESULT
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("hensel_lifting_polynomial_root workload differs from its bounded lift contract")
+    verify_hensel_lifting_polynomial_root_package()
+
+
+def validate_rotation_system_planarity_test_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/r/rotation_system_planarity_test/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("rotation_system_planarity_test workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (ROTATION_PLANARITY_MIN_VERTICES != 1
+            or ROTATION_PLANARITY_MAX_VERTICES != 6
+            or ROTATION_PLANARITY_MAX_EDGES != 15
+            or ROTATION_PLANARITY_MAX_VALID_INPUT_LENGTH != 32
+            or ROTATION_PLANARITY_MAX_PARSEABLE_INPUT_LENGTH != 33
+            or input_contract.get("encoding") != "[N, M, (u, v)*M]"
+            or input_contract.get("vertex_count_range") != [1, 6]
+            or input_contract.get("edge_count_range") != [0, 15]
+            or input_contract.get("exact_length") != "2 + 2*M"
+            or input_contract.get("maximum_valid_length") != ROTATION_PLANARITY_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != ROTATION_PLANARITY_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 1
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("rotation_system_planarity_test workload differs from its bounded graph contract")
+    issues = rotation_system_planarity_static_issues()
+    if issues:
+        raise ValueError("rotation_system_planarity_test package is incomplete: " + "; ".join(issues))
+
+
+def validate_lz_end_phrase_parsing_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/l/lz_end_phrase_parsing/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("lz_end_phrase_parsing workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (LZ_END_MIN_TEXT_LENGTH != 0
+            or LZ_END_MAX_TEXT_LENGTH != 64
+            or LZ_END_MAX_VALID_INPUT_LENGTH != 65
+            or LZ_END_MAX_PARSEABLE_INPUT_LENGTH != 66
+            or LZ_END_MAX_RESULT != 8_652_864
+            or input_contract.get("encoding") != "[n, byte_0, ..., byte_(n-1)]"
+            or input_contract.get("minimum_text_length") != 0
+            or input_contract.get("maximum_text_length") != 64
+            or input_contract.get("alphabet_range") != [0, 255]
+            or input_contract.get("maximum_valid_input_length") != LZ_END_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_input_length") != LZ_END_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_integer"
+            or output_contract.get("maximum_result") != LZ_END_MAX_RESULT
+            or output_contract.get("invalid_result") != -1):
+        raise ValueError("lz_end_phrase_parsing workload differs from its bounded compression contract")
+    issues = verify_lz_end_phrase_parsing_package(workload)
+    if issues:
+        raise ValueError("lz_end_phrase_parsing package is incomplete: " + "; ".join(issues))
+
+
+def validate_jacobi_symbol_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/j/jacobi_symbol/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("jacobi_symbol workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (JACOBI_SYMBOL_MAX_MODULUS != 1_000_000_000
+            or JACOBI_SYMBOL_MAX_VALID_INPUT_LENGTH != 2
+            or JACOBI_SYMBOL_MAX_PARSEABLE_INPUT_LENGTH != 3
+            or JACOBI_SYMBOL_MAX_RESULT != 2
+            or input_contract.get("encoding") != "[numerator,odd_denominator]"
+            or input_contract.get("numerator_range") != "0 <= numerator < odd_denominator"
+            or input_contract.get("denominator_range") != [1, 1_000_000_000]
+            or input_contract.get("denominator_requirement") != "positive odd integer; composite values are accepted"
+            or input_contract.get("exact_length") != 2
+            or input_contract.get("maximum_valid_length") != JACOBI_SYMBOL_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != JACOBI_SYMBOL_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("valid_result_range") != [0, JACOBI_SYMBOL_MAX_RESULT]
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("jacobi_symbol workload differs from its bounded reciprocity contract")
+    verify_jacobi_symbol_package()
+
+
+def validate_minimum_directed_feedback_arc_set_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/m/minimum_directed_feedback_arc_set/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("minimum_directed_feedback_arc_set workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (MIN_DIRECTED_FAS_MIN_VERTICES != 1
+            or MIN_DIRECTED_FAS_MAX_VERTICES != 8
+            or MIN_DIRECTED_FAS_MAX_EDGES != 56
+            or MIN_DIRECTED_FAS_MAX_VALID_INPUT_LENGTH != 114
+            or MIN_DIRECTED_FAS_MAX_PARSEABLE_INPUT_LENGTH != 115
+            or input_contract.get("encoding") != "[N, M, (tail, head)*M]"
+            or input_contract.get("vertex_count_range") != [1, 8]
+            or input_contract.get("arc_count_range") != [0, 56]
+            or input_contract.get("exact_length") != "2 + 2*M"
+            or input_contract.get("maximum_valid_length") != MIN_DIRECTED_FAS_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != MIN_DIRECTED_FAS_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 28
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("minimum_directed_feedback_arc_set workload differs from its bounded digraph contract")
+    verify_minimum_directed_feedback_arc_set_package()
+
+
+def validate_tunstall_codebook_construction_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/t/tunstall_codebook_construction/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("tunstall_codebook_construction workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (TUNSTALL_MIN_ALPHABET_SIZE != 2
+            or TUNSTALL_MAX_ALPHABET_SIZE != 4
+            or TUNSTALL_MIN_CODE_BITS != 2
+            or TUNSTALL_MAX_CODE_BITS != 4
+            or TUNSTALL_MAX_WEIGHT_SUM != 8
+            or TUNSTALL_MAX_VALID_INPUT_LENGTH != 6
+            or TUNSTALL_MAX_PARSEABLE_INPUT_LENGTH != 7
+            or TUNSTALL_MAX_S != 15 * 8**16
+            or TUNSTALL_MAX_RESULT != 16 * (TUNSTALL_MAX_S + 1) + TUNSTALL_MAX_S
+            or input_contract.get("encoding") != "[K, B, weight_0, ..., weight_(K-1)]"
+            or input_contract.get("alphabet_size_range") != [2, 4]
+            or input_contract.get("codeword_bits_range") != [2, 4]
+            or input_contract.get("positive_integer_weights") is not True
+            or input_contract.get("maximum_weight_sum") != 8
+            or input_contract.get("maximum_valid_input_length") != TUNSTALL_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_input_length") != TUNSTALL_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_integer"
+            or output_contract.get("maximum_result") != TUNSTALL_MAX_RESULT
+            or output_contract.get("invalid_result") != -1):
+        raise ValueError("tunstall_codebook_construction workload differs from its bounded source-coding contract")
+    issues = verify_tunstall_codebook_construction_package(workload)
+    if issues:
+        raise ValueError("tunstall_codebook_construction package is incomplete: " + "; ".join(issues))
+
+
+def validate_dag_transitive_reduction_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/d/dag_transitive_reduction/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("dag_transitive_reduction workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (DAG_TRANSITIVE_REDUCTION_MIN_VERTICES != 1
+            or DAG_TRANSITIVE_REDUCTION_MAX_VERTICES != 8
+            or DAG_TRANSITIVE_REDUCTION_MAX_EDGES != 28
+            or DAG_TRANSITIVE_REDUCTION_MAX_VALID_INPUT_LENGTH != 58
+            or DAG_TRANSITIVE_REDUCTION_MAX_PARSEABLE_INPUT_LENGTH != 59
+            or input_contract.get("encoding") != "[N, M, (tail, head)*M]"
+            or input_contract.get("vertex_count_range") != [1, 8]
+            or input_contract.get("edge_count_range") != [0, 28]
+            or input_contract.get("exact_length") != "2 + 2*M"
+            or input_contract.get("maximum_valid_length") != DAG_TRANSITIVE_REDUCTION_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != DAG_TRANSITIVE_REDUCTION_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != 28
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("dag_transitive_reduction workload differs from its bounded DAG contract")
+    verify_dag_transitive_reduction_package()
+
+
+def validate_cornacchia_x2_plus_2y2_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/c/cornacchia_x2_plus_2y2/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("cornacchia_x2_plus_2y2 workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (CORNACCHIA_X2_2Y2_MAX_PRIME != 1_000_000
+            or CORNACCHIA_X2_2Y2_MAX_VALID_INPUT_LENGTH != 2
+            or CORNACCHIA_X2_2Y2_MAX_PARSEABLE_INPUT_LENGTH != 3
+            or CORNACCHIA_X2_2Y2_MAX_RESULT != 1_023_683
+            or input_contract.get("encoding") != "[prime,root_of_minus_two]"
+            or input_contract.get("prime_range") != [3, 1_000_000]
+            or input_contract.get("prime_requirement") != "odd prime"
+            or input_contract.get("root_range") != "1 <= root_of_minus_two <= floor(prime/2)"
+            or input_contract.get("root_requirement") != "root_of_minus_two^2 == -2 mod prime"
+            or input_contract.get("exact_length") != 2
+            or input_contract.get("maximum_valid_length") != CORNACCHIA_X2_2Y2_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != CORNACCHIA_X2_2Y2_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("kind") != "signed_64_bit_scalar"
+            or output_contract.get("maximum_result") != CORNACCHIA_X2_2Y2_MAX_RESULT
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("cornacchia_x2_plus_2y2 workload differs from its bounded prime-form contract")
+    verify_cornacchia_x2_plus_2y2_package()
+
+
+def validate_newton_divided_difference_interpolation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/n/newton_divided_difference_interpolation/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("newton_divided_difference_interpolation workload differs from its package file")
+    if (NEWTON_INTERPOLATION_MAX_NODES != 12
+            or NEWTON_INTERPOLATION_MODULUS != 998244353
+            or NEWTON_INTERPOLATION_MAX_VALID_INPUT_LENGTH != 26
+            or NEWTON_INTERPOLATION_MAX_PARSEABLE_INPUT_LENGTH != 27
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input", {}).get("exact_length") != "2+2*N"
+            or workload.get("output", {}).get("result_range") != [0, 998244352]
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("newton_divided_difference_interpolation limits differ from the reviewed contract")
+    verify_newton_divided_difference_interpolation_package()
+
+
+def validate_cyk_context_free_recognition_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/c/cyk_context_free_recognition/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("cyk_context_free_recognition workload differs from its package file")
+    if (CYK_MAX_VALID_INPUT_LENGTH != 61 or CYK_MAX_PARSEABLE_INPUT_LENGTH != 62
+            or CYK_MAX_RESULT != 1
+            or workload.get("input", {}).get("maximum_valid_input_length") != 61
+            or workload.get("input", {}).get("maximum_parseable_input_length") != 62
+            or workload.get("output", {}).get("valid_result_range") != [0, 1]
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("cyk_context_free_recognition bounds differ from its CNF profile")
+    issues = verify_cyk_context_free_recognition_package(workload)
+    if issues:
+        raise ValueError("cyk_context_free_recognition package is incomplete: " + "; ".join(issues))
+
+
+def validate_minimum_dominating_set_branch_bound_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/m/minimum_dominating_set_branch_bound/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("minimum_dominating_set_branch_bound workload differs from its package file")
+    if (MIN_DOMINATING_SET_MAX_VERTICES != 12 or MIN_DOMINATING_SET_MAX_EDGES != 66
+            or MIN_DOMINATING_SET_MAX_VALID_INPUT_LENGTH != 134
+            or MIN_DOMINATING_SET_MAX_PARSEABLE_INPUT_LENGTH != 135
+            or workload.get("input", {}).get("maximum_valid_length") != 134
+            or workload.get("input", {}).get("maximum_parseable_length") != 135
+            or workload.get("output", {}).get("maximum_result") != 12
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("minimum_dominating_set_branch_bound bounds differ from its graph profile")
+    verify_minimum_dominating_set_branch_bound_package()
+
+
+def validate_dedekind_sum_reciprocity_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/d/dedekind_sum_reciprocity/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("dedekind_sum_reciprocity workload differs from its package file")
+    if (DEDEKIND_SUM_MAX_MODULUS != 100_000
+            or DEDEKIND_SUM_MAX_VALID_INPUT_LENGTH != 2
+            or DEDEKIND_SUM_MAX_PARSEABLE_INPUT_LENGTH != 3
+            or DEDEKIND_SUM_RESULT_OFFSET != 29_999_700_001
+            or DEDEKIND_SUM_MAX_RESULT != 59_999_400_001
+            or workload.get("output", {}).get("maximum_result") != DEDEKIND_SUM_MAX_RESULT
+            or workload.get("output", {}).get("invalid_input_result") != -1):
+        raise ValueError("dedekind_sum_reciprocity bounds differ from the scaled-sum profile")
+    verify_dedekind_sum_reciprocity_package()
+
+
+def validate_dag_shortest_path_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/d/dag_shortest_path/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("dag_shortest_path workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length") != DAG_SHORTEST_PATH_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length") != DAG_SHORTEST_PATH_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("distance_offset") != DAG_SHORTEST_PATH_DISTANCE_OFFSET):
+        raise ValueError("dag_shortest_path bounds differ from its topological-relaxation profile")
+    verify_dag_shortest_path_package()
+
+
+def validate_free_polyomino_enumeration_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/f/free_polyomino_enumeration/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("free_polyomino_enumeration workload differs from its package file")
+    issues = check_free_polyomino_enumeration_package()
+    if issues:
+        raise ValueError("free_polyomino_enumeration package inventory failed: " + "; ".join(issues))
+
+
+def validate_dual_decomposition_graph_cut_maxflow_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/d/dual_decomposition_graph_cut_maxflow/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("dual_decomposition_graph_cut_maxflow workload differs from its package file")
+    issues = check_dual_decomposition_graph_cut_package()
+    if issues:
+        raise ValueError("dual_decomposition_graph_cut_maxflow package inventory failed: " + "; ".join(issues))
+
+
+def validate_region_discharge_path_push_relabel_maxflow_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/r/region_discharge_path_push_relabel_maxflow/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("region_discharge_path_push_relabel_maxflow workload differs from its package file")
+    issues = check_region_discharge_path_push_relabel_package()
+    if issues:
+        raise ValueError("region_discharge_path_push_relabel_maxflow package inventory failed: " + "; ".join(issues))
+
+
+def validate_oi_wiki_maximum_clique_branch_bound_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/o/oi_wiki_maximum_clique_branch_bound/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("oi_wiki_maximum_clique_branch_bound workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length") != OI_WIKI_MAX_CLIQUE_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length") != OI_WIKI_MAX_CLIQUE_MAX_PARSEABLE_INPUT_LENGTH):
+        raise ValueError("oi_wiki_maximum_clique_branch_bound bounds differ from its ordered-search profile")
+    verify_oi_wiki_maximum_clique_branch_bound_package()
+
+
+def validate_konc_maxclique_dyn_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/k/konc_maxclique_dyn/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("konc_maxclique_dyn workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length")
+            != KONC_MAXCLIQUE_DYN_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != KONC_MAXCLIQUE_DYN_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != KONC_MAXCLIQUE_DYN_MAX_WORKSPACE_BYTES):
+        raise ValueError("konc_maxclique_dyn bounds differ from its dynamic-coloring profile")
+    verify_konc_maxclique_dyn_package()
+
+
+def validate_bipartite_minimum_vertex_cover_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/bipartite_minimum_vertex_cover/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("bipartite_minimum_vertex_cover workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length")
+            != BIPARTITE_MINIMUM_VERTEX_COVER_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != BIPARTITE_MINIMUM_VERTEX_COVER_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != BIPARTITE_MINIMUM_VERTEX_COVER_WORKSPACE_BYTES):
+        raise ValueError("bipartite_minimum_vertex_cover bounds differ from its matching profile")
+    verify_bipartite_minimum_vertex_cover_package()
+
+
+def validate_pisinger_bounded_weight_subset_sum_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/p/pisinger_bounded_weight_subset_sum/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("pisinger_bounded_weight_subset_sum workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length")
+            != PISINGER_SUBSET_SUM_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != PISINGER_SUBSET_SUM_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != PISINGER_SUBSET_SUM_WORKSPACE_BYTES):
+        raise ValueError("pisinger_bounded_weight_subset_sum bounds differ from its balanced-state profile")
+    verify_pisinger_bounded_weight_subset_sum_package()
+    verify_pisinger_bounded_weight_subset_sum_inventory()
+
+
+def validate_ryser_permanent_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/r/ryser_permanent/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("ryser_permanent workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length")
+            != RYSER_PERMANENT_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != RYSER_PERMANENT_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != RYSER_PERMANENT_WORKSPACE_BYTES):
+        raise ValueError("ryser_permanent bounds differ from the Ryser profile")
+    verify_ryser_permanent_package()
+
+
+def validate_binary_search_maximum_average_segment_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/binary_search_maximum_average_segment/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("binary_search_maximum_average_segment workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length")
+            != MAX_AVERAGE_SEGMENT_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != MAX_AVERAGE_SEGMENT_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != MAX_AVERAGE_SEGMENT_WORKSPACE_BYTES):
+        raise ValueError("binary_search_maximum_average_segment bounds differ from its threshold-search profile")
+    verify_binary_search_maximum_average_segment_package()
+
+
+def validate_bounded_knapsack_binary_grouping_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/bounded_knapsack_binary_grouping/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("bounded_knapsack_binary_grouping workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length")
+            != BOUNDED_KNAPSACK_BINARY_GROUPING_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != BOUNDED_KNAPSACK_BINARY_GROUPING_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != BOUNDED_KNAPSACK_BINARY_GROUPING_WORKSPACE_BYTES):
+        raise ValueError("bounded_knapsack_binary_grouping bounds differ from its binary-grouping profile")
+    verify_bounded_knapsack_binary_grouping_package()
+    verify_bounded_knapsack_binary_grouping_inventory()
+
+
+def validate_weisfeiler_lehman_color_refinement_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/w/weisfeiler_lehman_color_refinement/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("weisfeiler_lehman_color_refinement workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length")
+            != WEISFEILER_LEHMAN_COLOR_REFINEMENT_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != WEISFEILER_LEHMAN_COLOR_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes")
+            != WEISFEILER_LEHMAN_COLOR_REFINEMENT_WORKSPACE_BYTES):
+        raise ValueError("weisfeiler_lehman_color_refinement bounds differ from its canonical-color profile")
+    issues = weisfeiler_lehman_color_refinement_static_issues()
+    if issues:
+        raise ValueError("weisfeiler_lehman_color_refinement package is incomplete: " + "; ".join(issues))
+
+
+def validate_mixed_knapsack_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/m/mixed_knapsack/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("mixed_knapsack workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_length")
+            != MIXED_KNAPSACK_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length")
+            != MIXED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != MIXED_KNAPSACK_WORKSPACE_BYTES):
+        raise ValueError("mixed_knapsack bounds differ from its heterogeneous mode profile")
+    verify_mixed_knapsack_package()
+    verify_mixed_knapsack_inventory()
+
+
+def validate_order_maintenance_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/o/order_maintenance/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("order_maintenance workload differs from its package file")
+    if (workload.get("input", {}).get("maximum_valid_input_length")
+            != ORDER_MAINTENANCE_MAX_VALID_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_input_length")
+            != ORDER_MAINTENANCE_MAX_PARSEABLE_INPUT_LENGTH):
+        raise ValueError("order_maintenance bounds differ from its cyclic-label profile")
+    issues = verify_order_maintenance_package(workload)
+    if issues:
+        raise ValueError("order_maintenance package is incomplete: " + "; ".join(issues))
+
+
+def validate_synchronous_round_push_relabel_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/synchronous_round_push_relabel/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("synchronous_round_push_relabel workload differs from its package file")
+    issues = verify_synchronous_round_push_relabel_package(workload)
+    if issues:
+        raise ValueError("synchronous_round_push_relabel package is incomplete: " + "; ".join(issues))
+
+
+def validate_eibfs_maxflow_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/e/eibfs_maxflow/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("eibfs_maxflow workload differs from its package file")
+    issues = check_eibfs_maxflow_package()
+    if issues:
+        raise ValueError("eibfs_maxflow package is incomplete: " + "; ".join(issues))
+
+
+def validate_hochbaum_pseudoflow_maxflow_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/h/hochbaum_pseudoflow_maxflow/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("hochbaum_pseudoflow_maxflow workload differs from its package file")
+    check_hochbaum_pseudoflow_package()
+
+
+def validate_adaptive_bottom_up_graph_cut_merging_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/a/adaptive_bottom_up_graph_cut_merging/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("adaptive_bottom_up_graph_cut_merging workload differs from its package file")
+    issues = verify_adaptive_bottom_up_graph_cut_merging_package(workload)
+    if issues:
+        raise ValueError("adaptive_bottom_up_graph_cut_merging package is incomplete: " + "; ".join(issues))
+
+
+def validate_eibfs_bottom_up_graph_cut_merging_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/e/eibfs_bottom_up_graph_cut_merging/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("eibfs_bottom_up_graph_cut_merging workload differs from its package file")
+    issues = check_eibfs_bottom_up_graph_cut_merging_package()
+    if issues:
+        raise ValueError("eibfs_bottom_up_graph_cut_merging package is incomplete: " + "; ".join(issues))
+
+
+def validate_hits_fixed_point_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/h/hits_fixed_point/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("hits_fixed_point workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (HITS_MAX_VERTICES != 16
+            or HITS_MAX_EDGES != 64
+            or HITS_MAX_ITERATIONS != 32
+            or HITS_SCALE != 1_000_000
+            or HITS_MAX_VALID_INPUT_LENGTH != 131
+            or HITS_MAX_PARSEABLE_INPUT_LENGTH != 132
+            or input_contract.get("encoding") != "[N,M,K,(source,target)*M]"
+            or input_contract.get("vertex_count_range") != [1, 16]
+            or input_contract.get("edge_count_range") != [0, 64]
+            or input_contract.get("iteration_count_range") != [0, 32]
+            or input_contract.get("directed_simple_graph") is not True
+            or input_contract.get("self_loops_allowed") is not False
+            or input_contract.get("duplicate_ordered_arcs_allowed") is not False
+            or input_contract.get("exact_length") != "3+2*M"
+            or input_contract.get("maximum_valid_length") != HITS_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != HITS_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("score_scale") != HITS_SCALE):
+        raise ValueError("hits_fixed_point workload differs from its bounded fixed-point contract")
+    verify_hits_fixed_point_workload(workload)
+    issues = hits_fixed_point_static_issues()
+    if issues:
+        raise ValueError("hits_fixed_point package is incomplete: " + "; ".join(issues))
+
+
+def validate_graphai_gnns_hill_climbing_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/g/graphai_gnns_hill_climbing/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("graphai_gnns_hill_climbing workload differs from its package file")
+    input_contract = workload.get("input", {})
+    controls = workload.get("profile_controls", {})
+    output_contract = workload.get("output", {})
+    if (GRAPHIA_GNNS_MAX_VALID_INPUT_LENGTH != 89
+            or GRAPHIA_GNNS_MAX_PARSEABLE_INPUT_LENGTH != 90
+            or input_contract.get("encoding")
+            != "[N,D,start,E,T,point_coordinates[N*D],outgoing_masks[N],query[D]]"
+            or input_contract.get("vertex_count_range") != [2, 16]
+            or input_contract.get("dimension_range") != [1, 4]
+            or input_contract.get("exact_length") != "5+N*D+N+D"
+            or input_contract.get("maximum_valid_length") != 89
+            or input_contract.get("maximum_parseable_length") != 90
+            or controls.get("K") != 1 or controls.get("R") != 1
+            or controls.get("offline_graph_construction", "").find("precomputed") < 0
+            or output_contract.get("packing")
+            != "(((distance_evaluations*17+move_count)*16+final_vertex)*160001+final_squared_distance)"):
+        raise ValueError("graphai_gnns_hill_climbing workload differs from its bounded GNNS contract")
+    verify_graphai_gnns_hill_climbing_workload(workload)
+    issues = graphai_gnns_hill_climbing_static_issues()
+    if issues:
+        raise ValueError("graphai_gnns_hill_climbing package is incomplete: " + "; ".join(issues))
+
+
+def validate_belady_optimal_paging_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/b/belady_optimal_paging/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("belady_optimal_paging workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (BELADY_MAX_VALID_INPUT_LENGTH != 66
+            or BELADY_MAX_PARSEABLE_INPUT_LENGTH != 67
+            or input_contract.get("encoding") != "[capacity, request_count, page_ids...]"
+            or input_contract.get("capacity_range") != [1, 8]
+            or input_contract.get("request_count_range") != [0, 64]
+            or input_contract.get("page_id_range") != [0, 15]
+            or input_contract.get("maximum_valid_input_length") != 66
+            or input_contract.get("maximum_parseable_input_length") != 67
+            or workload.get("contract", {}).get("tie_rule")
+            != "Among equally distant resident pages, evict the smallest page ID."
+            or output_contract.get("fault_radix") != 33_281
+            or output_contract.get("maximum_eviction_checksum") != 33_280):
+        raise ValueError("belady_optimal_paging workload differs from its bounded offline-paging contract")
+    issues = verify_belady_optimal_paging_workload(workload)
+    if issues:
+        raise ValueError("belady_optimal_paging package is incomplete: " + "; ".join(issues))
+
+
+def validate_fks_static_perfect_hash_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/f/fks_static_perfect_hash/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("fks_static_perfect_hash workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (FKS_MAX_VALID_INPUT_LENGTH != 18
+            or FKS_MAX_PARSEABLE_INPUT_LENGTH != 19
+            or input_contract.get("exact_length") != "2 + stored_key_count + query_count"
+            or input_contract.get("maximum_valid_length") != 18
+            or input_contract.get("maximum_parseable_length") != 19
+            or input_contract.get("stored_key_count_range") != [0, 8]
+            or input_contract.get("query_count_range") != [0, 8]
+            or workload.get("contract", {}).get("prime") != 257):
+        raise ValueError("fks_static_perfect_hash workload differs from its bounded FKS contract")
+    issues = verify_fks_static_perfect_hash_workload(workload)
+    if issues:
+        raise ValueError("fks_static_perfect_hash package is incomplete: " + "; ".join(issues))
+
+
+def validate_segment_tree_max_right_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/segment_tree_max_right/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("segment_tree_max_right workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (SEGMENT_TREE_MAX_RIGHT_MAX_VALID_INPUT_LENGTH != 54
+            or SEGMENT_TREE_MAX_RIGHT_MAX_PARSEABLE_INPUT_LENGTH != 55
+            or input_contract.get("exact_length") != "2 + n + 3*operation_count"
+            or input_contract.get("maximum_valid_length") != 54
+            or input_contract.get("maximum_parseable_length") != 55
+            or input_contract.get("n_range") != [0, 16]
+            or input_contract.get("operation_count_range") != [0, 12]
+            or workload.get("contract", {}).get("predicate") != "sum <= limit"
+            or workload.get("output", {}).get("maximum_query_count") != 12):
+        raise ValueError("segment_tree_max_right workload differs from its bounded contract")
+    issues = verify_segment_tree_max_right_workload(workload)
+    if issues:
+        raise ValueError("segment_tree_max_right package is incomplete: " + "; ".join(issues))
+
+
+def validate_lazy_segment_tree_range_add_max_right_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/l/lazy_segment_tree_range_add_max_right/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("lazy_segment_tree_range_add_max_right workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (LAZY_MAX_RIGHT_MAX_VALID_INPUT_LENGTH != 66
+            or LAZY_MAX_RIGHT_MAX_PARSEABLE_INPUT_LENGTH != 67
+            or workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("exact_length") != "2+n+4*q"
+            or input_contract.get("n_range") != [1, 16]
+            or input_contract.get("operation_count_range") != [0, 12]
+            or input_contract.get("maximum_valid_length") != 66
+            or input_contract.get("maximum_parseable_length") != 67
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("encoding") != "five-bit max_right endpoint fields in query order; range additions emit no field"
+            or output_contract.get("maximum_query_count") != 12
+            or output_contract.get("maximum_endpoint") != 16
+            or output_contract.get("invalid_input_result") != -1
+            or workload.get("contract", {}).get("predicate") != "sum(values[left:end]) <= limit"
+            or workload.get("contract", {}).get("maximum_total_sum") != 6_448):
+        raise ValueError("lazy_segment_tree_range_add_max_right workload differs from its bounded contract")
+    issues = verify_lazy_segment_tree_range_add_max_right_workload(workload)
+    if issues:
+        raise ValueError("lazy_segment_tree_range_add_max_right package is incomplete: " + "; ".join(issues))
+
+
+def validate_w_ary_predecessor_set_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/w/w_ary_predecessor_set/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("w_ary_predecessor_set workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (W_ARY_MAX_VALID_INPUT_LENGTH != 65
+            or W_ARY_MAX_PARSEABLE_INPUT_LENGTH != 66
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("function_symbol") != "w_ary_predecessor_set"
+            or input_contract.get("exact_length") != "1 + 2*q"
+            or input_contract.get("operation_count_range") != [0, 32]
+            or input_contract.get("maximum_valid_length") != 65
+            or input_contract.get("maximum_parseable_length") != 66
+            or output_contract.get("result_range") != [0, 138_412_032]
+            or output_contract.get("maximum_operation_response") != 262_144
+            or workload.get("contract", {}).get("universe") != "fixed integer keys 0 through 262143 inclusive"):
+        raise ValueError("w_ary_predecessor_set workload differs from its bounded contract")
+    case_count = verify_w_ary_predecessor_set_workload()
+    if case_count != len(workload.get("cases", [])):
+        raise ValueError("w_ary_predecessor_set package inventory and workload case counts differ")
+
+
+def validate_range_union_find_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/r/range_union_find/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("range_union_find workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (RANGE_UNION_FIND_MAX_N != 32
+            or RANGE_UNION_FIND_MAX_Q != 32
+            or RANGE_UNION_FIND_MAX_PARSEABLE_INPUT_LENGTH != 99
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("function_symbol") != "range_union_find"
+            or input_contract.get("exact_length") != "2+3*q"
+            or input_contract.get("n_range") != [1, 32]
+            or input_contract.get("q_range") != [0, 32]
+            or input_contract.get("maximum_valid_length") != 98
+            or input_contract.get("maximum_parseable_length") != 99
+            or output_contract.get("result_range") != [0, 16_896]
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("range_union_find workload differs from its bounded contract")
+    issues = validate_range_union_find_inventory(workload)
+    if issues:
+        raise ValueError("range_union_find package is incomplete: " + "; ".join(issues))
+
+
+def validate_union_find_enumerate_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/u/union_find_enumerate/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("union_find_enumerate workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (UNION_FIND_ENUMERATE_MAX_ITEMS != 16
+            or UNION_FIND_ENUMERATE_MAX_OPERATIONS != 32
+            or UNION_FIND_ENUMERATE_MAX_VALID_INPUT_LENGTH != 98
+            or UNION_FIND_ENUMERATE_MAX_PARSEABLE_INPUT_LENGTH != 99
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("function_symbol") != "union_find_enumerate"
+            or input_contract.get("maximum_valid_length") != 98
+            or input_contract.get("maximum_parseable_length") != 99
+            or output_contract.get("result_range") != [0, 34_603_008]
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("union_find_enumerate workload differs from its bounded contract")
+    issues = verify_union_find_enumerate_package(workload)
+    if issues:
+        raise ValueError("union_find_enumerate package is incomplete: " + "; ".join(issues))
+
+
+def validate_slide_window_aggregation_deque_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/slide_window_aggregation_deque/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("slide_window_aggregation_deque workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (SLIDE_WINDOW_AGGREGATION_DEQUE_MAX_OPERATIONS != 32
+            or SLIDE_WINDOW_AGGREGATION_DEQUE_MAX_VALID_INPUT_LENGTH != 161
+            or SLIDE_WINDOW_AGGREGATION_DEQUE_MAX_PARSEABLE_INPUT_LENGTH != 162
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("function_symbol") != "slide_window_aggregation_deque"
+            or input_contract.get("maximum_valid_length") != 161
+            or input_contract.get("maximum_parseable_length") != 162
+            or output_contract.get("result_range") != [0, 46_743_460_368]
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("slide_window_aggregation_deque workload differs from its bounded contract")
+    issues = verify_slide_window_aggregation_deque_package(workload)
+    if issues:
+        raise ValueError("slide_window_aggregation_deque package is incomplete: " + "; ".join(issues))
+
+
+def validate_arbitrary_order_line_container_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/a/arbitrary_order_line_container/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("arbitrary_order_line_container workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (ARBITRARY_ORDER_LINE_CONTAINER_MAX_OPERATIONS != 32
+            or ARBITRARY_ORDER_LINE_CONTAINER_MAX_VALID_INPUT_LENGTH != 98
+            or ARBITRARY_ORDER_LINE_CONTAINER_MAX_PARSEABLE_INPUT_LENGTH != 99
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("function_symbol") != "arbitrary_order_line_container"
+            or input_contract.get("operation_count_range") != [0, 32]
+            or input_contract.get("maximum_valid_length") != 98
+            or input_contract.get("maximum_parseable_length") != 99
+            or output_contract.get("result_range") != [0, 1_488_496_496]
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("arbitrary_order_line_container workload differs from its bounded contract")
+    issues = verify_arbitrary_order_line_container_package(workload)
+    if issues:
+        raise ValueError("arbitrary_order_line_container package is incomplete: " + "; ".join(issues))
+
+
+def validate_two_vertex_cuts_spqr_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/t/two_vertex_cuts_spqr/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("two_vertex_cuts_spqr workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (TWO_VERTEX_CUTS_SPQR_MAX_VALID_INPUT_LENGTH != 66
+            or TWO_VERTEX_CUTS_SPQR_MAX_PARSEABLE_INPUT_LENGTH != 67
+            or workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("maximum_valid_input_length") != 66
+            or input_contract.get("maximum_parseable_input_length") != 67
+            or input_contract.get("vertex_count_range") != [3, 8]
+            or input_contract.get("edge_count_range") != [3, 28]
+            or output_contract.get("meaning", "").find("cc(G-{u,v})-1") < 0
+            or "998244353" not in output_contract.get("meaning", "")):
+        raise ValueError("two_vertex_cuts_spqr workload differs from its bounded contract")
+    validate_two_vertex_cuts_spqr_package(workload)
+
+
+def validate_minimum_refueling_stops_heap_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/m/minimum_refueling_stops_heap/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("minimum_refueling_stops_heap workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (MINIMUM_REFUELING_STOPS_MAX_VALID_INPUT_LENGTH != 19
+            or MINIMUM_REFUELING_STOPS_MAX_PARSEABLE_INPUT_LENGTH != 20
+            or workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("target_range") != [1, 2000]
+            or input_contract.get("start_fuel_range") != [0, 2000]
+            or input_contract.get("station_count_range") != [0, MINIMUM_REFUELING_STOPS_MAX_N]
+            or input_contract.get("station_position_range") != "strictly increasing integers in 1..target-1"
+            or input_contract.get("station_fuel_range") != [1, 2000]
+            or input_contract.get("maximum_valid_length") != 19
+            or input_contract.get("maximum_parseable_length") != 20
+            or input_contract.get("exact_length") != "3 + 2*n"
+            or input_contract.get("station_at_current_reach_is_reachable") is not True
+            or input_contract.get("exact_zero_fuel_arrival_is_success") is not True
+            or output_contract.get("invalid_input_result") != -2
+            or output_contract.get("encoding") != "minimum number of refueling stops, or -1 if a valid trip is impossible"
+            or output_contract.get("maximum_stop_count") != MINIMUM_REFUELING_STOPS_MAX_N):
+        raise ValueError("minimum_refueling_stops_heap workload differs from its bounded contract")
+    issues = verify_minimum_refueling_stops_heap_workload(workload)
+    if issues:
+        raise ValueError("minimum_refueling_stops_heap package is incomplete: " + "; ".join(issues))
+
+
+def validate_shortest_path_visiting_all_nodes_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/shortest_path_visiting_all_nodes/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("shortest_path_visiting_all_nodes workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (SHORTEST_PATH_VISITING_ALL_NODES_MAX_VALID_INPUT_LENGTH != 92
+            or SHORTEST_PATH_VISITING_ALL_NODES_MAX_PARSEABLE_INPUT_LENGTH != 93
+            or workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("vertex_count_range") != [1, SHORTEST_PATH_VISITING_ALL_NODES_MAX_N]
+            or input_contract.get("edge_count_range") != [0, SHORTEST_PATH_VISITING_ALL_NODES_MAX_M]
+            or input_contract.get("exact_length") != "2 + 2*M"
+            or input_contract.get("maximum_valid_length") != 92
+            or input_contract.get("maximum_parseable_length") != 93
+            or input_contract.get("graph_requirement") != "connected"
+            or output_contract.get("invalid_input_result") != -1
+            or output_contract.get("maximum_result") != 18):
+        raise ValueError("shortest_path_visiting_all_nodes workload differs from its bounded contract")
+    issues = verify_shortest_path_visiting_all_nodes_workload(workload)
+    if issues:
+        raise ValueError("shortest_path_visiting_all_nodes package is incomplete: " + "; ".join(issues))
+
+
+def validate_vogel_approximation_transportation_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/v/vogel_approximation_transportation/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("vogel_approximation_transportation workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("maximum_valid_length") != VAM_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != VAM_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("valid_result_range") != [0, VAM_MAX_RESULT]
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("vogel_approximation_transportation workload differs from its bounded contract")
+    issues = vogel_approximation_transportation_static_issues()
+    if issues:
+        raise ValueError("vogel_approximation_transportation package is incomplete: " + "; ".join(issues))
+
+
+def validate_misra_gries_edge_coloring_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/m/misra_gries_edge_coloring/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("misra_gries_edge_coloring workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("edges_range") != [0, MISRA_GRIES_EDGE_COLORING_MAX_EDGES]
+            or input_contract.get("maximum_valid_length") != MISRA_GRIES_EDGE_COLORING_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != MISRA_GRIES_EDGE_COLORING_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("valid_result_range") != [0, MISRA_GRIES_EDGE_COLORING_MAX_RESULT]
+            or output_contract.get("invalid_input_result") != -1):
+        raise ValueError("misra_gries_edge_coloring workload differs from its bounded contract")
+    issues = misra_gries_edge_coloring_static_issues()
+    if issues:
+        raise ValueError("misra_gries_edge_coloring package is incomplete: " + "; ".join(issues))
+
+
+def validate_fenwick_kth_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/f/fenwick_kth/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("fenwick_kth workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    contract = workload.get("contract", {})
+    if (workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("n_range") != [1, FENWICK_KTH_MAX_N]
+            or input_contract.get("operation_count_range") != [0, FENWICK_KTH_MAX_Q]
+            or input_contract.get("initial_frequency_range") != [0, 1_000_000]
+            or input_contract.get("update_delta_range") != [-1_000_000, 1_000_000]
+            or input_contract.get("exact_length") != "2 + n + 3*q"
+            or input_contract.get("maximum_valid_length") != 162
+            or input_contract.get("maximum_parseable_length") != FENWICK_KTH_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("result_range") != [0, 33_792]
+            or output_contract.get("invalid_input_result") != -1
+            or contract.get("selection_rule") != "return the first index whose inclusive prefix frequency is at least the one-based rank"
+            or contract.get("initial_total_maximum") != 64_000_000
+            or contract.get("updated_total_maximum") != 64_000_000):
+        raise ValueError("fenwick_kth workload differs from its bounded selection contract")
+    case_count = verify_fenwick_kth_workload()
+    if case_count != len(workload.get("cases", [])):
+        raise ValueError("fenwick_kth package inventory and workload case counts differ")
+
+
+def validate_incremental_convex_hull_3d_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/i/incremental_convex_hull_3d/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("incremental_convex_hull_3d workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    contract = workload.get("contract", {})
+    if (INCREMENTAL_CONVEX_HULL_3D_MAX_VALID_INPUT_LENGTH != 19
+            or INCREMENTAL_CONVEX_HULL_3D_MAX_PARSEABLE_INPUT_LENGTH != 20
+            or workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("point_count_range") != [4, 6]
+            or input_contract.get("coordinate_range") != [-10, 10]
+            or input_contract.get("point_requirements") != ["all points distinct", "no four points coplanar"]
+            or input_contract.get("exact_length") != "1 + 3*n"
+            or input_contract.get("maximum_valid_input_length") != 19
+            or input_contract.get("maximum_parseable_input_length") != 20
+            or output_contract.get("encoding") != "six times the exact convex-hull volume"
+            or output_contract.get("result_range") != [0, 48_000]
+            or output_contract.get("result_range_upper_bound") != 48_000
+            or contract.get("arithmetic") != "exact signed integer determinants"
+            or contract.get("general_position") != "no four input points lie in one plane"):
+        raise ValueError("incremental_convex_hull_3d workload differs from its bounded contract")
+    issues = verify_incremental_convex_hull_3d_workload(workload)
+    if issues:
+        raise ValueError("incremental_convex_hull_3d package is incomplete: " + "; ".join(issues))
+
+
+def validate_ternary_search_trie_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/t/ternary_search_trie/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("ternary_search_trie workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (TERNARY_SEARCH_TRIE_MAX_VALID_INPUT_LENGTH != 577
+            or TERNARY_SEARCH_TRIE_MAX_PARSEABLE_INPUT_LENGTH != 578
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("function_symbol") != "ternary_search_trie"
+            or input_contract.get("record_width") != 9
+            or input_contract.get("operation_count_range") != [0, 64]
+            or input_contract.get("maximum_key_length") != 6
+            or input_contract.get("maximum_valid_input_length") != 577
+            or input_contract.get("maximum_parseable_input_length") != 578
+            or input_contract.get("exact_length") != "1 + operation_count * 9"
+            or input_contract.get("maximum_nodes") != 384
+            or output_contract.get("invalid_input_result") != -1
+            or output_contract.get("maximum_valid_result") != 136_247_265):
+        raise ValueError("ternary_search_trie workload differs from its bounded contract")
+    validate_ternary_search_trie_inventory(workload)
+
+
+def validate_interval_cover_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/i/interval_cover/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("interval_cover workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    contract = workload.get("contract", {})
+    if (INTERVAL_COVER_MAX_INTERVALS != 16
+            or INTERVAL_COVER_MAX_VALID_INPUT_LENGTH != 35
+            or INTERVAL_COVER_MAX_PARSEABLE_INPUT_LENGTH != 36
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("function_symbol") != "interval_cover"
+            or input_contract.get("target_range") != "0 <= target_left <= target_right <= 32"
+            or input_contract.get("interval_count_range") != [0, 16]
+            or input_contract.get("interval_endpoint_range") != "0 <= left_i < right_i <= 32"
+            or input_contract.get("interval_semantics") != "half-open [left_i, right_i)"
+            or input_contract.get("exact_length") != "3 + 2*n"
+            or input_contract.get("maximum_valid_length") != 35
+            or input_contract.get("maximum_parseable_length") != 36
+            or input_contract.get("invalid_input_result") != -2
+            or output_contract.get("empty_target_result") != 0
+            or output_contract.get("impossible_target_result") != -1
+            or output_contract.get("invalid_input_result") != -2
+            or output_contract.get("maximum_valid_result") != 16
+            or contract.get("selection_semantics")
+            != "Each input interval may be selected at most once; duplicate intervals are allowed as distinct choices."):
+        raise ValueError("interval_cover workload differs from its bounded contract")
+    issues = verify_interval_cover_workload(workload)
+    if issues:
+        raise ValueError("interval_cover package is incomplete: " + "; ".join(issues))
+
+
+def validate_interval_container_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/i/interval_container/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("interval_container workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    contract = workload.get("contract", {})
+    if (INTERVAL_CONTAINER_MAX_OPERATIONS != 24
+            or INTERVAL_CONTAINER_MAX_VALID_INPUT_LENGTH != 73
+            or INTERVAL_CONTAINER_MAX_PARSEABLE_INPUT_LENGTH != 74
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("function_symbol") != "interval_container"
+            or input_contract.get("operation_width") != 3
+            or input_contract.get("operation_count_range") != [0, 24]
+            or input_contract.get("domain") != "32 integer unit cells [0,1), [1,2), ..., [31,32)"
+            or input_contract.get("endpoint_range") != [0, 32]
+            or input_contract.get("exact_length") != "1 + 3*operation_count"
+            or input_contract.get("maximum_valid_input_length") != 73
+            or input_contract.get("maximum_parseable_input_length") != 74
+            or input_contract.get("invalid_input_result") != -1
+            or output_contract.get("maximum_valid_result") != 9_600
+            or contract.get("initial_union_is_empty") is not True
+            or contract.get("adjacent_ranges_are_merged_on_add") is not True
+            or contract.get("remove_only_subtracts_requested_half_open_cells") is not True):
+        raise ValueError("interval_container workload differs from its bounded contract")
+    issues = review_interval_container_package()
+    if issues:
+        raise ValueError("interval_container package is incomplete: " + "; ".join(issues))
+
+
+def validate_mo_2d_rectangle_frequency_square_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/m/mo_2d_rectangle_frequency_square/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("mo_2d_rectangle_frequency_square workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (MO_2D_MAX_VALID_INPUT_LENGTH != 194
+            or MO_2D_MAX_PARSEABLE_INPUT_LENGTH != 195
+            or input_contract.get("encoding") != "[N,Q,matrix row-major N*N,(top,left,bottom,right)*Q]"
+            or input_contract.get("matrix_size_range") != [1, 8]
+            or input_contract.get("query_count_range") != [0, 32]
+            or input_contract.get("matrix_value_range") != [0, 7]
+            or input_contract.get("exact_length") != "2+N*N+4*Q"
+            or input_contract.get("maximum_valid_length") != MO_2D_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != MO_2D_MAX_PARSEABLE_INPUT_LENGTH):
+        raise ValueError("mo_2d_rectangle_frequency_square workload differs from its bounded contract")
+    verify_mo_2d_rectangle_frequency_square_workload(workload)
+    issues = mo_2d_rectangle_frequency_square_static_issues()
+    if issues:
+        raise ValueError("mo_2d_rectangle_frequency_square package is incomplete: " + "; ".join(issues))
+
+
+def validate_dinkelbach_fixed_cardinality_ratio_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/d/dinkelbach_fixed_cardinality_ratio/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("dinkelbach_fixed_cardinality_ratio workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (DINKELBACH_MAX_VALID_INPUT_LENGTH != 26
+            or DINKELBACH_MAX_PARSEABLE_INPUT_LENGTH != 27
+            or input_contract.get("encoding") != "[N,K,(numerator,denominator)*N]"
+            or input_contract.get("item_count_range") != [1, 12]
+            or input_contract.get("cardinality_range") != "1..N"
+            or input_contract.get("numerator_range") != [0, 10000]
+            or input_contract.get("denominator_range") != [1, 10000]
+            or input_contract.get("exact_length") != "2+2*N"
+            or input_contract.get("maximum_valid_length") != DINKELBACH_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != DINKELBACH_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("meaning") !=
+            "reduced_numerator*120001+reduced_denominator for the maximum exact-K ratio"):
+        raise ValueError("dinkelbach_fixed_cardinality_ratio differs from its bounded exact-ratio contract")
+    verify_dinkelbach_fixed_cardinality_ratio_workload(workload)
+    issues = dinkelbach_fixed_cardinality_ratio_static_issues()
+    if issues:
+        raise ValueError("dinkelbach_fixed_cardinality_ratio package is incomplete: " + "; ".join(issues))
+
+
+def validate_minimum_unfairness_k_selection_workload(workload: dict) -> None:
+    """Pin the bounded K-selection contract and statically inventory its ports."""
+    package_workload = ROOT / "benchmarks/m/minimum_unfairness_k_selection/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("minimum_unfairness_k_selection workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (MINIMUM_UNFAIRNESS_MAX_N != 64
+            or MINIMUM_UNFAIRNESS_MAX_VALID_INPUT_LENGTH != 66
+            or MINIMUM_UNFAIRNESS_MAX_PARSEABLE_INPUT_LENGTH != 67
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "minimum_unfairness_k_selection"
+            or workload.get("function_symbol") != "minimum_unfairness_k_selection"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_contract.get("encoding") != "[N, K, value_0, ..., value_(N-1)]"
+            or input_contract.get("n_range") != [2, MINIMUM_UNFAIRNESS_MAX_N]
+            or input_contract.get("k_range") != [2, "N"]
+            or input_contract.get("value_range") != [-1_000_000_000, 1_000_000_000]
+            or input_contract.get("exact_length") != "N + 2"
+            or input_contract.get("maximum_valid_input_length") != MINIMUM_UNFAIRNESS_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_input_length") != MINIMUM_UNFAIRNESS_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_result") != -1
+            or workload.get("output", {}).get("kind") != "minimum_maximum_minus_minimum"
+            or workload.get("output", {}).get("valid_range") != [0, 2_000_000_000]
+            or workload.get("output", {}).get("invalid_input_result") != -1
+            or workload.get("workspace", {}).get("bytes") != MINIMUM_UNFAIRNESS_WORKSPACE_BYTES):
+        raise ValueError("minimum_unfairness_k_selection bounds differ from its bounded contract")
+    issues = minimum_unfairness_k_selection_inventory_issues()
+    if issues:
+        raise ValueError("minimum_unfairness_k_selection package is incomplete: " + "; ".join(issues))
+
+
+def validate_fourier_motzkin_feasibility_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/f/fourier_motzkin_feasibility/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("fourier_motzkin_feasibility workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (FME_MAX_VALID_INPUT_LENGTH != 26
+            or FME_MAX_PARSEABLE_INPUT_LENGTH != 27
+            or input_contract.get("encoding") !=
+            "[d,m,(a[0],...,a[d-1],b)*m] representing a*x<=b over the reals"
+            or input_contract.get("variable_count_range") != [1, 3]
+            or input_contract.get("inequality_count_range") != [1, 6]
+            or input_contract.get("coefficient_range") != [-3, 3]
+            or input_contract.get("bound_range") != [-6, 6]
+            or input_contract.get("exact_length") != "2+m*(d+1)"
+            or input_contract.get("maximum_valid_length") != FME_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != FME_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("feasible_value") != 1
+            or output_contract.get("infeasible_value") != 0):
+        raise ValueError("fourier_motzkin_feasibility differs from its bounded contract")
+    verify_fourier_motzkin_feasibility_workload(workload)
+    issues = fourier_motzkin_feasibility_static_issues()
+    if issues:
+        raise ValueError("fourier_motzkin_feasibility package is incomplete: " + "; ".join(issues))
+
+
+def validate_d_star_lite_incremental_replanning_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/d/d_star_lite_incremental_replanning/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("d_star_lite_incremental_replanning workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (D_STAR_LITE_MAX_VALID_INPUT_LENGTH != 198
+            or D_STAR_LITE_MAX_PARSEABLE_INPUT_LENGTH != 199
+            or input_contract.get("encoding") !=
+            "[H,W,E,Q,start,goal,(u,v,c)*E,(new_start,edge_id,new_cost)*Q]"
+            or input_contract.get("height_range") != [1, 4]
+            or input_contract.get("width_range") != [1, 4]
+            or input_contract.get("vertex_count_range") != [2, 16]
+            or input_contract.get("event_count_range") != [0, 16]
+            or input_contract.get("edge_cost_range") != [1, 9]
+            or input_contract.get("exact_length") != "6+3*E+3*Q"
+            or input_contract.get("maximum_valid_length") != D_STAR_LITE_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != D_STAR_LITE_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("maximum_result_bound") != 316_744):
+        raise ValueError("d_star_lite_incremental_replanning differs from its bounded D* Lite contract")
+    verify_d_star_lite_incremental_replanning_workload(workload)
+    issues = d_star_lite_incremental_replanning_static_issues()
+    if issues:
+        raise ValueError("d_star_lite_incremental_replanning package is incomplete: " + "; ".join(issues))
+
+
+def validate_fiduccia_mattheyses_hypergraph_bipartitioning_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/f/fiduccia_mattheyses_hypergraph_bipartitioning/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("fiduccia_mattheyses_hypergraph_bipartitioning workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (FM_HYPERGRAPH_MAX_VALID_INPUT_LENGTH != 111
+            or FM_HYPERGRAPH_MAX_PARSEABLE_INPUT_LENGTH != 112
+            or input_contract.get("encoding") != "[n,m,initial_mask,(degree,sorted_vertex_ids...)*m]"
+            or input_contract.get("vertex_count_range") != [4, 8]
+            or input_contract.get("vertex_count_constraint") != "even"
+            or input_contract.get("net_count_range") != [0, 12]
+            or input_contract.get("maximum_valid_length") != FM_HYPERGRAPH_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != FM_HYPERGRAPH_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("maximum_result_bound") != 3327):
+        raise ValueError("fiduccia_mattheyses_hypergraph_bipartitioning differs from its bounded FM contract")
+    verify_fiduccia_mattheyses_hypergraph_bipartitioning_workload(workload)
+    issues = fiduccia_mattheyses_hypergraph_bipartitioning_static_issues()
+    if issues:
+        raise ValueError("fiduccia_mattheyses_hypergraph_bipartitioning package is incomplete: " + "; ".join(issues))
+
+
+def validate_louvain_multilevel_community_detection_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/l/louvain_multilevel_community_detection/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("louvain_multilevel_community_detection workload differs from its package file")
+    input_contract = workload.get("input", {})
+    output_contract = workload.get("output", {})
+    if (LOUVAIN_MAX_VALID_INPUT_LENGTH != 86
+            or LOUVAIN_MAX_PARSEABLE_INPUT_LENGTH != 87
+            or input_contract.get("encoding") != "[n,m,(u,v,w)*m]"
+            or input_contract.get("vertex_count_range") != [2, 8]
+            or input_contract.get("edge_weight_range") != [1, 7]
+            or input_contract.get("exact_length") != "2+3*m"
+            or input_contract.get("maximum_valid_length") != LOUVAIN_MAX_VALID_INPUT_LENGTH
+            or input_contract.get("maximum_parseable_length") != LOUVAIN_MAX_PARSEABLE_INPUT_LENGTH
+            or output_contract.get("maximum_result_bound") != 150_994_943):
+        raise ValueError("louvain_multilevel_community_detection differs from its bounded Louvain contract")
+    verify_louvain_multilevel_community_detection_workload(workload)
+    issues = louvain_multilevel_community_detection_static_issues()
+    if issues:
+        raise ValueError("louvain_multilevel_community_detection package is incomplete: " + "; ".join(issues))
+
+
+def validate_kkt_recursive_mst_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/k/kkt_recursive_mst/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("kkt_recursive_mst workload differs from its package file")
+    input_contract = workload.get("input", {})
+    if (input_contract.get("maximum_valid_values") != 51
+            or input_contract.get("maximum_parseable_values")
+            != KKT_RECURSIVE_MST_MAX_PARSEABLE_INPUT_LENGTH
+            or input_contract.get("invalid_result") != -1):
+        raise ValueError("kkt_recursive_mst workload differs from its bounded graph contract")
+    verify_kkt_recursive_mst_workload(workload)
+    issues = kkt_recursive_mst_static_issues(workload)
+    if issues:
+        raise ValueError("kkt_recursive_mst package is incomplete: " + "; ".join(issues))
 
 
 def validate_convex_layers_workload(workload: dict) -> None:
@@ -4407,8 +9518,10 @@ def validate_edge_connectivity_all_pairs_maxflow_workload(workload: dict) -> Non
         raise ValueError("edge_connectivity_all_pairs_maxflow package is incomplete: "
                          + "; ".join(issues))
     for case in workload.get("cases", []):
-        values = case.get("input_values") if isinstance(case, dict) else None
-        input_is_null = case.get("input_is_null", False) if isinstance(case, dict) else False
+        if not isinstance(case, dict):
+            raise ValueError("liu_hui_pi_approximation workload contains a non-object fixture")
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
         input_length = case.get("input_length") if isinstance(case, dict) else None
         if (not isinstance(values, list)
                 or type(input_is_null) is not bool
@@ -7921,10 +13034,48 @@ def validate_naive_knapsack_solver_workload(workload: dict) -> None:
             raise ValueError(f"naive_knapsack_solver missing {language} source")
 
 
+def materialize_pearson_hash_case(case: dict) -> list[int]:
+    table = [((value & 15) << 4) | (value >> 4) for value in range(256)]
+    mutation = case.get("table_mutation")
+    if mutation is not None:
+        table[mutation["index"]] = mutation["value"]
+    if "text_length" in case:
+        text = [case["text_fill"]] * case["text_length"]
+    else:
+        text = list(case["text_values"])
+    frame = [len(text), *table, *text]
+    frame_mutation = case.get("frame_mutation")
+    if frame_mutation == "remove_last_word":
+        frame.pop()
+    elif frame_mutation == "append_zero":
+        frame.append(0)
+    elif frame_mutation is not None:
+        raise ValueError(f"unknown pearson_hash frame mutation: {frame_mutation}")
+    return frame
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
+    if algorithm == "pearson_hash":
+        return materialize_pearson_hash_case(case)
     values, expected = case.get("input_values"), case.get("expected_result")
     # Permit one extra element so this profile can exercise its exact-length rejection case.
-    max_input_length = (35 if algorithm == "effective_resistance_unit_graph" else
+    max_input_length = (COCOMPARABILITY_PATH_COVER_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "cocomparability_ldfs_minimum_path_cover" else
+                        EXTENDIBLE_HASHING_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "extendible_hashing_trace" else
+                        K_ARY_HUFFMAN_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "k_ary_huffman_weighted_path_cost" else
+                        MAX_SUM_RECTANGLE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "max_sum_rectangle_no_larger_than_k" else
+                        K_INVERSE_PAIRS_ARRAY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "k_inverse_pairs_array" else
+                        35 if algorithm == "effective_resistance_unit_graph" else
+                        SHORTEST_PATH_VISITING_ALL_NODES_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "shortest_path_visiting_all_nodes" else
+                        VAM_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "vogel_approximation_transportation" else
+                        MISRA_GRIES_EDGE_COLORING_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "misra_gries_edge_coloring" else
                         65 if algorithm == "cartesian_histogram_area" else
                         131 if algorithm in ("slope_trick_lipschitz_l1", "wqs_path_independent_set") else
                         355 if algorithm == "subsequence_automaton" else
@@ -7932,6 +13083,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         20483 if algorithm == "hopcroft_dfa_minimization" else
                         32771 if algorithm == "range_constraint_topological_feasibility" else
                         2050 if algorithm == "maximum_area_triangle_convex" else
+                        RSK_ROW_INSERTION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "rsk_row_insertion" else
+                        SMALL_MULTIPLE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "shortest_path_modulo_small_multiple" else
+                        DYNAMIC_CENTROID_DIAMETER_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "dynamic_centroid_active_set_diameter" else
+                        FENWICK_BLOCK_RECTANGLE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "fenwick_tree_in_block_array_rectangle_count" else
+                        DIVIDE_COMBINE_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "divide_combine_tree_incremental" else
+                        FENWICK_WEIGHTED_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "fenwick_weighted_segment_tree_range_kth" else
                         65538 if algorithm in ("hook_length_tableaux", "difference_product") else
                         2 if algorithm == "hpcc_random_access" else
                         CONVEX_LAYERS_MAX_INPUT_LENGTH if algorithm == "convex_layers" else
@@ -7970,6 +13133,12 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
                         POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "pollard_p_minus_one_factorization" else
+                        SQUFOF_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "squfof_semiprime_factor" else
+                        FERMAT_FACTORIZATION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "fermat_factorization" else
+                        GENERALIZED_CRT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "generalized_chinese_remainder_theorem" else
                         FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "factoring_exponentiation" else
                         ISAP_MAX_PARSEABLE_INPUT_LENGTH
@@ -7993,6 +13162,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "rsa_java_big_integer" else
                         RSA_RUBY_BYTE_CHUNK_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "rsa_ruby_byte_chunk" else
+                        FREIVALDS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "freivalds_matrix_product_verification" else
                         K_MEANS_JULIA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "k_means_julia" else
                         11 if algorithm == "k_means_rust" else
                         K_MEANS_CLUSTERING_C_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "k_means_clustering_c" else
@@ -8060,10 +13231,90 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "tree_edge_paint_path_count" else
                         CONVEX_POLYGON_MINIMAX_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "convex_polygon_minimax_length_triangulation" else
+                        CONVEX_POLYGON_MINIMAX_ANGLE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "convex_polygon_minimax_angle_edge_insertion" else
+                        MAX_MIN_HEIGHT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "max_min_triangle_height_triangulation" else
+                        CONVEX_POLYGON_MINIMAX_SLOPE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "convex_polygon_minimax_slope_edge_insertion" else
+                        FRACTIONAL_CASCADING_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "fractional_cascading_subset_chain" else
+                        CONVEX_POLYGON_MAX_MIN_LENGTH_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "convex_polygon_max_min_length_triangulation" else
+                        CONVEX_POLYGON_ECCENTRICITY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "convex_polygon_minimax_eccentricity_edge_insertion" else
+                        SHEWCHUK_EXPANSION_SUM_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "shewchuk_expansion_sum" else
+                        BIDIRECTIONAL_FM_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "bidirectional_fm_index" else
+                        MINIMUM_CYCLE_BASIS_HORTON_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "minimum_cycle_basis_horton" else
+                        LINEAR_EXTENSION_COUNT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "linear_extension_count" else
+                        GOLDBERG_DENSITY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "goldberg_maximum_density_subgraph" else
+                        SPARSE_SET_DENSE_ARRAY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "sparse_set_dense_array" else
+                        BARRETT_REDUCTION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "barrett_reduction" else
+                        SEQUITUR_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "sequitur_grammar_induction" else
+                        HENSEL_ROOT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "hensel_lifting_polynomial_root" else
+                        ROTATION_PLANARITY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "rotation_system_planarity_test" else
+                        LZ_END_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "lz_end_phrase_parsing" else
+                        JACOBI_SYMBOL_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "jacobi_symbol" else
+                        MIN_DIRECTED_FAS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "minimum_directed_feedback_arc_set" else
+                        TUNSTALL_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "tunstall_codebook_construction" else
+                        DAG_TRANSITIVE_REDUCTION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "dag_transitive_reduction" else
+                        CORNACCHIA_X2_2Y2_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "cornacchia_x2_plus_2y2" else
+                        NEWTON_INTERPOLATION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "newton_divided_difference_interpolation" else
+                        CYK_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "cyk_context_free_recognition" else
+                        MIN_DOMINATING_SET_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "minimum_dominating_set_branch_bound" else
+                        DEDEKIND_SUM_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "dedekind_sum_reciprocity" else
+                        DAG_SHORTEST_PATH_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "dag_shortest_path" else
+                        FREE_POLYOMINO_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "free_polyomino_enumeration" else
+                        DUAL_DECOMPOSITION_GRAPH_CUT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "dual_decomposition_graph_cut_maxflow" else
+                        REGION_DISCHARGE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "region_discharge_path_push_relabel_maxflow" else
+                        OI_WIKI_MAX_CLIQUE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "oi_wiki_maximum_clique_branch_bound" else
+                        ORDER_MAINTENANCE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "order_maintenance" else
+                        SYNCHRONOUS_ROUND_PUSH_RELABEL_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "synchronous_round_push_relabel" else
+                        EIBFS_MAXFLOW_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "eibfs_maxflow" else
+                        HOCHBAUM_PSEUDOFLOW_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "hochbaum_pseudoflow_maxflow" else
+                        ADAPTIVE_BOTTOM_UP_GRAPH_CUT_MERGING_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "adaptive_bottom_up_graph_cut_merging" else
+                        PEIBFS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "eibfs_bottom_up_graph_cut_merging" else
                         PFAFFIAN_OF_MATRIX_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "pfaffian_of_matrix" else
                         X_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "x_fast_trie_static_predecessor" else
+                        Y_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "y_fast_trie_static_predecessor" else
+                        HITS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "hits_fixed_point" else
+                        KKT_RECURSIVE_MST_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "kkt_recursive_mst" else
                         EDGE_CONNECTIVITY_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "edge_connectivity_all_pairs_maxflow" else
                         THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
@@ -8084,6 +13335,12 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "segment_tree_beats" else
                         POINT_IN_POLYGON_RAY_CASTING_MAX_INPUT_LENGTH + 1
                         if algorithm == "point_in_polygon_ray_casting" else
+                        POINT_LOCATION_SWEEP_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "point_location_sweep" else
+                        UNION_FIND_ENUMERATE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "union_find_enumerate" else
+                        SLIDE_WINDOW_AGGREGATION_DEQUE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "slide_window_aggregation_deque" else
                         KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
                         if algorithm == "knapsack_zero_one_tabulation" else
                         BOUNDED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
@@ -8116,7 +13373,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_SEARCH_SINGLY_LINKED_LIST_RECURSION_INPUT_LENGTH
                         if algorithm == "search_singly_linked_list_recursion"
                         else MAX_CHECK_CYCLE_INPUT_LENGTH if algorithm == "check_cycle"
-                        else MAX_UNDIRECTED_CYCLE_CHECK_INPUT_LENGTH if algorithm == "undirected_cycle_check"
+                        else MAX_UNDIRECTED_CYCLE_CHECK_INPUT_LENGTH if algorithm in {"undirected_cycle_check", "undirected_cycle_check_bfs"}
                         else MAX_COUNT_HOMOGENOUS_INPUT_LENGTH if algorithm == "count_homogenous"
                         else MAX_MAX_AREA_OF_ISLAND_INPUT_LENGTH if algorithm == "max_area_of_island"
                         else MAX_DIRECTED_DFS_FOREST_COUNT_INPUT_LENGTH + 1 if algorithm == "directed_dfs_forest_count"
@@ -8162,6 +13419,22 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "segment_tree_update"
                         else MAX_WILDCARD_MATCHING_INPUT_LENGTH if algorithm == "wildcard_matching"
                         else MAX_PRIMITIVE_ROOT_INPUT_LENGTH if algorithm == "primitive_root"
+                        else PRIMITIVE_ROOT_FACTORIZATION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "primitive_root_factorization"
+                        else DISTINCT_SUBSTRING_HASHING_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "distinct_substring_count_hashing"
+                        else ARPA_OFFLINE_RMQ_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "arpa_offline_rmq"
+                        else OFFLINE_RANGE_PAINT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "offline_range_paint_successor_dsu"
+                        else ONLINE_BIPARTITENESS_DSU_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "online_bipartiteness_dsu"
+                        else BALANCED_PARENTHESIS_RANK_UNRANK_MAX_INPUT_LENGTH
+                        if algorithm == "balanced_parenthesis_rank_unrank"
+                        else SEGMENT_UNION_LENGTH_KLEE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "segment_union_length_klee"
+                        else INTERSECTING_SEGMENTS_SWEEP_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "intersecting_segments_sweep"
                         else MAX_QUADRATIC_RESIDUE_INPUT_LENGTH if algorithm == "quadratic_residue"
                         else MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH if algorithm == "dijkstras_two_stack_algorithm"
                         else MAX_UNBIAS_01_INPUT_LENGTH if algorithm == "unbias_01"
@@ -8191,6 +13464,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_GENERIC_HASH_MAP_INPUT_LENGTH if algorithm == "generic_hash_map"
                         else MAX_HASH_MAP_OPEN_ADDRESSING_INPUT_LENGTH if algorithm == "hash_map_open_addressing"
                         else MAX_HASH_MAP_SEPARATE_CHAINING_INPUT_LENGTH if algorithm == "hash_map_separate_chaining"
+                        else LCFS_HASHING_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lcfs_hashing"
+                        else BOND_SEQUENTIAL_SEARCH_MAX_PARSEABLE_LENGTH if algorithm == "bond_sequential_search"
+                        else MATROID_INTERSECTION_MAX_PARSEABLE_LENGTH if algorithm == "matroid_intersection"
+                        else THOMASSEN_CONVEX_DRAWING_MAX_PARSEABLE_LENGTH
+                        if algorithm == "thomassen_convex_drawing_extendibility"
                         else MAX_UNDIRECTED_GRAPH_INPUT_LENGTH if algorithm == "undirected_graph"
                         else 4 + TWO_POINTER_TECHNIQUE_MAX_NODES if algorithm == "two_pointer_technique"
                         else MAX_TWO_POINTERS_PAIR_EXISTS_INPUT_LENGTH if algorithm == "two_pointers_pair_exists"
@@ -8234,6 +13512,25 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_BURKES_DITHERING_INPUT_LENGTH if algorithm == "burkes_dithering"
                         else MAX_BST_FROM_SORTED_ARRAY_INPUT_LENGTH if algorithm == "bst_from_sorted_array"
                         else MAX_BURST_BALLOONS_INPUT_LENGTH if algorithm == "burstballoons"
+                        else REMOVE_BOXES_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "remove_boxes"
+                        else STRANGE_PRINTER_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "strange_printer"
+                        else STRANGE_PRINTER_II_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "strange_printer_ii"
+                        else ALPHABETIC_ANAGRAMS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "alphabetic_anagrams"
+                        else ANDROID_UNLOCK_PATTERN_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "android_unlock_pattern_count"
+                        else RANDOM_PERMUTATION_CYCLE_CAP_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "random_permutation_cycle_cap_count"
+                        else EULERIAN_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "eulerian_number"
+                        else FRAC_RATIO_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "fractional_programming_ratio_knapsack_binary_search"
+                        else NMEA_XOR_CHECKSUM_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "nmea_xor_checksum"
+                        else FACTORIAL_LAST_NONZERO_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "factorial_last_nonzero_digit"
+                        else INFINITE_KNIGHT_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "infinite_knight_distance"
+                        else EGG_DROP_MAX_FLOORS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "egg_drop_max_floors_by_moves"
+                        else RECTANGLE_UNION_AREA_SWEEP_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "rectangle_union_area_sweep"
                         else MAX_CHECKEQUAL_INPUT_LENGTH if algorithm == "checkequal"
                         else MAX_COINCHANGE_INPUT_LENGTH if algorithm == "coinchange"
                         else MAX_BANDWIDTH_ALLOCATION_INPUT_LENGTH
@@ -8276,6 +13573,19 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_DPLL_INPUT_LENGTH if algorithm == "davis_putnam_logemann_loveland"
                         else MAX_DOUBLE_HASH_HASH_TABLE_INPUT_LENGTH if algorithm == "double_hash_hash_table"
                         else MAX_N_IN_A_ROW_INPUT_LENGTH if algorithm == "n_in_a_row_board_status"
+                        else 53 if algorithm == "clock_patience_simulation"
+                        else LINEAR_HASHING_TRACE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "linear_hashing_trace"
+                        else MOVE_TO_ROOT_BST_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "move_to_root_bst_access_trace"
+                        else LOVASZ_TOGGLE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "lovasz_toggle_defective_coloring_trace"
+                        else ERASABLE_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "erasable_priority_queue_trace"
+                        else ROLLING_HASH_SEGMENT_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "rolling_hash_on_segment_tree_trace"
+                        else MANHATTAN_MST_CANDIDATE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "manhattan_mst_candidate_edge_reduction"
                         else 11 if algorithm == "depth_first_search_tic_tac_toe"
                         else 11 if algorithm == "dynamic_coin_change_solver"
                         else MAX_SLIDING_WINDOW_INPUT_LENGTH
@@ -8391,12 +13701,52 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "maximal_square" else
                         MAX_LARGEST_RECTANGLE_HISTOGRAM_INPUT_LENGTH
                         if algorithm == "largest_rectangle_histogram" else
+                        HANGING_LINE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "hanging_line_largest_rectangle" else
+                        GLOBAL_BALANCED_BINARY_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "global_balanced_binary_tree" else
                         MAX_HAMILTONIAN_PATH_EXISTS_INPUT_LENGTH
                         if algorithm == "hamiltonian_path_exists" else
                         MAX_FAST_SEARCHER_INPUT_LENGTH
                         if algorithm == "fast_searcher" else
                         MAX_MINIMUM_SUM_PARTITION_INPUT_LENGTH
                         if algorithm == "minimum_sum_partition" else
+                        SHORTEST_SUBARRAY_SUM_AT_LEAST_K_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "shortest_subarray_with_sum_at_least_k" else
+                        LINEAR_PARTITION_MINIMAX_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "linear_partition_minimax" else
+                        CUTTING_PIZZA_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "number_of_ways_of_cutting_a_pizza" else
+                        MINIMUM_COST_TO_MERGE_STONES_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "minimum_cost_to_merge_stones" else
+                        CONNECTIVITY_PLUG_DP_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "connectivity_aware_plug_dp_binary_grid_colorings" else
+                        PAINT_HOUSE_III_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "paint_house_iii" else
+                        EFFICIENT_DOMINATING_SET_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "efficient_dominating_set_square_graph_mwis" else
+                        MAXIMUM_EMPLOYEES_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "maximum_employees_to_be_invited" else
+                        CHERRY_PICKUP_II_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "cherry_pickup_ii" else
+                        DELAUNAY_ROOTED_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "delaunay_rooted_triangulation_reverse_search" else
+                        STRING_COMPRESSION_II_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "string_compression_ii" else
+                        HOFSTADTER_Q_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "hofstadter_q_sequence" else
+                        HOFSTADTER_CONWAY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "hofstadter_conway_10000_sequence" else
+                        BIPARTITE_EDGE_COVER_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "minimum_cost_bipartite_edge_cover_subset_dp" else
+                        SIMPATH_ST_PATHS_ZDD_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "simpath_st_paths_zdd" else
+                        DOMINO_L_TROMINO_TILINGS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "domino_l_tromino_tilings_2xn" else
+                        RATCLIFF_OBERSHELP_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "ratcliff_obershelp_similarity" else
+                        MAX_POINTS_ON_A_LINE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "max_points_on_a_line" else
                         MAX_UPPER_BOUND_INPUT_LENGTH
                         if algorithm == "upper_bound" else
                         MAX_LONGEST_SUBARRAY_INPUT_LENGTH
@@ -8469,6 +13819,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_SECOND_MIN_MAX_INPUT_LENGTH if algorithm == "second_min_max"
                         else MAX_CONSTRAINED_SHORTEST_PATH_INPUT_LENGTH if algorithm == "constrained_shortest_path"
                         else MAX_JUMP_GAME_INPUT_LENGTH if algorithm == "jump_game"
+                        else MAX_SAME_VALUE_TELEPORT_BFS_INPUT_LENGTH if algorithm == "same_value_teleport_bfs"
                         else MAX_MAX_CONSECUTIVE_ONES_III_INPUT_LENGTH if algorithm == "max_consecutive_ones_iii"
                         else MAX_PAIRS_WITH_GIVEN_SUM_INPUT_LENGTH + 1 if algorithm == "pairs_with_given_sum"
                         else MAX_COMPARISON_INPUT_LENGTH + 1 if algorithm == "comparison"
@@ -8487,20 +13838,45 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_WA_TOR_PARSEABLE_INPUT_LENGTH if algorithm == "wa_tor"
                         else MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH if algorithm == "largest_product_in_a_grid"
                         else MAX_STOER_WAGNER_INPUT_LENGTH if algorithm == "stoer_wagner"
+                        else 38 if algorithm == "convex_polygon_integer_inradius"
                         else 131 if algorithm == "directed_girth_bfs"
                         else 67 if algorithm == "functional_graph_cycle_brent"
                         else 195 if algorithm == "offline_range_distinct_fenwick"
+                        else 98 if algorithm == "unit_job_release_deadline_weighted_matching"
                         else 197 if algorithm == "dinic_capacity_scaling"
                         else 197 if algorithm == "highest_label_push_relabel"
                         else 130 if algorithm == "closest_pair_sweep"
                         else 130 if algorithm == "monotone_radix_heap"
+                        else PAGODA_MAX_PARSEABLE_INPUT_WORDS if algorithm == "pagoda_meldable_priority_queue"
+                        else MULTI_ROOT_HOLLOW_HEAP_MAX_PARSEABLE_INPUT_VALUES if algorithm == "multi_root_hollow_heap"
+                        else RANK_PAIRING_HEAP_MAX_PARSEABLE_INPUT_VALUES if algorithm == "rank_pairing_heap"
+                        else SKEW_BINOMIAL_QUEUE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "skew_binomial_queue"
+                        else DSATUR_GREEDY_COLORING_MAX_PARSEABLE_INPUT_VALUES if algorithm == "dsatur_greedy_coloring"
+                        else KKT_RECURSIVE_MST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kkt_recursive_mst"
                         else 261 if algorithm == "fixed_length_walk_minplus"
                         else 261 if algorithm == "fixed_length_walk_count"
+                        else 354 if algorithm == "tree_sibling_distinct_cost_coloring"
                         else 1090 if algorithm == "tree_min_cost_proper_coloring"
+                        else 82 if algorithm == "tree_min_cost_edge_coloring"
+                        else 129 if algorithm == "tree_weighted_vertex_cover"
+                        else 128 if algorithm == "tree_weighted_edge_dominating_set"
+                        else 65 if algorithm == "tree_minimum_path_partition"
+                        else 18 if algorithm == "chordal_graph_optimal_coloring"
+                        else 515 if algorithm == "bit_parallel_lcs"
+                        else 515 if algorithm == "myers_bitvector_edit_distance"
+                        else 131 if algorithm == "count_distinct_lcs"
+                        else 3 if algorithm == "polygonal_numbers"
+                        else 1025 if algorithm == "golomb_sequence_validator"
+                        else 129 if algorithm == "tree_weighted_dominating_set"
+                        else 129 if algorithm == "tree_weighted_total_dominating_set"
+                        else 129 if algorithm == "tree_weighted_independent_dominating_set"
+                        else 66 if algorithm == "tree_distance_k_dominating_set"
                         else 4162 if algorithm == "backward_nondeterministic_dawg_match"
                         else 4162 if algorithm == "backward_oracle_match"
                         else 707 if algorithm == "wavelet_matrix"
+                        else ONE_SIDED_JACOBI_SVD_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "one_sided_jacobi_svd"
                         else 260 if algorithm == "xor_filter_peeling"
+                        else 132 if algorithm == "karger_stein_recursive_contraction"
                         else 57 if algorithm == "karger_contraction_trial"
                         else 260 if algorithm == "turnstile_one_sparse_fingerprint_recovery"
                         else 515 if algorithm == "longest_common_substring_sam"
@@ -8632,6 +14008,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else 516 if algorithm == "euler" else 100001)
     if algorithm == "square_free_factor_list":
         max_input_length = 257
+    elif algorithm == "liu_hui_pi_approximation":
+        max_input_length = 2
     elif algorithm in {"sum_of_floor_of_linear", "min_of_mod_of_linear"}:
         max_input_length = 5
     elif algorithm == "kth_root_integer":
@@ -8642,6 +14020,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = TETRATION_MOD_MAX_PARSEABLE_INPUT_LENGTH
     elif algorithm == "sum_of_multiplicative_function_large":
         max_input_length = SUM_MULTIPLICATIVE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "zhouge_summatory_multiplicative_function":
+        max_input_length = ZHOUGE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "pearson_hash":
+        max_input_length = PEARSON_HASH_MAX_PARSEABLE_INPUT_LENGTH
     elif algorithm == "cbench_rsynth_f0_flutter":
         max_input_length = CBENCH_RSYNTH_F0_FLUTTER_MAX_PARSEABLE_INPUT_LENGTH
     elif algorithm == "trimaran_enc_pc1":
@@ -8732,12 +14114,88 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         max_input_length = RLE_LCS_BLOCK_DP_MAX_INPUT_LENGTH
     elif algorithm == "hunt_szymanski_lcs":
         max_input_length = HUNT_SZYMANSKI_LCS_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "left_truncatable_prime_search":
+        max_input_length = LEFT_TRUNCATABLE_PRIME_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "strong_weak_balanced_prime_distribution":
+        max_input_length = STRONG_WEAK_BALANCED_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "clock_patience_simulation":
+        max_input_length = 53
+    elif algorithm == "linear_hashing_trace":
+        max_input_length = LINEAR_HASHING_TRACE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "move_to_root_bst_access_trace":
+        max_input_length = MOVE_TO_ROOT_BST_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "lovasz_toggle_defective_coloring_trace":
+        max_input_length = LOVASZ_TOGGLE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "erasable_priority_queue_trace":
+        max_input_length = ERASABLE_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "rolling_hash_on_segment_tree_trace":
+        max_input_length = ROLLING_HASH_SEGMENT_TREE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "manhattan_mst_candidate_edge_reduction":
+        max_input_length = MANHATTAN_MST_CANDIDATE_MAX_PARSEABLE_INPUT_LENGTH
     elif algorithm == "rle_levenshtein_block_dp":
         max_input_length = RLE_LEVENSHTEIN_BLOCK_DP_MAX_INPUT_LENGTH
+    elif algorithm == "bipartite_minimum_vertex_cover":
+        max_input_length = BIPARTITE_MINIMUM_VERTEX_COVER_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "pisinger_bounded_weight_subset_sum":
+        max_input_length = PISINGER_SUBSET_SUM_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "ryser_permanent":
+        max_input_length = RYSER_PERMANENT_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "binary_search_maximum_average_segment":
+        max_input_length = MAX_AVERAGE_SEGMENT_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "bounded_knapsack_binary_grouping":
+        max_input_length = BOUNDED_KNAPSACK_BINARY_GROUPING_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "weisfeiler_lehman_color_refinement":
+        max_input_length = WEISFEILER_LEHMAN_COLOR_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "mixed_knapsack":
+        max_input_length = MIXED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
     elif algorithm in {"hopcroft_karp_cardinality", "bipartite_matching_kuhn"}:
         max_input_length = 8196
     elif algorithm == "maximum_independent_set":
         max_input_length = MAXIMUM_INDEPENDENT_SET_MAX_INPUT_LENGTH
+    elif algorithm in {
+        "klarner_rado_affine_closure_sequence", "ulam_sequence_1_2",
+        "next_palindromic_number", "race_car_minimum_instruction_count",
+    }:
+        max_input_length = (RACE_CAR_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "race_car_minimum_instruction_count" else 2)
+    elif algorithm == "barycentric_lagrange_evaluation":
+        max_input_length = BARYCENTRIC_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "pratt_expression_evaluation":
+        max_input_length = PRATT_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "minimal_dominating_sets_permutation_graphs":
+        max_input_length = PERMUTATION_DOMINATING_SETS_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "minimum_area_rectangle_arbitrary_orientation":
+        max_input_length = MINIMUM_AREA_RECTANGLE_ARBITRARY_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "secret_sharing_time_batched_dsu":
+        max_input_length = SECRET_SHARING_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "redundant_directed_connection_repair":
+        max_input_length = REDUNDANT_DIRECTED_CONNECTION_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "undirected_simple_cycle_subset_dp_count":
+        max_input_length = UNDIRECTED_SIMPLE_CYCLE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "bdd_symbolic_reachability":
+        max_input_length = 133
+    elif algorithm == "same_fringe_leaf_iterator":
+        max_input_length = 93
+    elif algorithm == "self_number_count_sieve":
+        max_input_length = 2
+    elif algorithm == "odd_even_jump_reachability_count":
+        max_input_length = 66
+    elif algorithm == "grid_shortest_path_obstacle_elimination":
+        max_input_length = GRID_OBSTACLE_PATH_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "zwick_deterministic_bridging_set":
+        max_input_length = ZWICK_BRIDGING_SET_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "perfect_phylogeny_three_state_2sat":
+        max_input_length = 67
+    elif algorithm == "lucas_carmichael_number_predicate":
+        max_input_length = 2
+    elif algorithm == "kanj_perkovic_modified_yao_spanner":
+        max_input_length = KANJ_PERKOVIC_MODIFIED_YAO_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "routh_hurwitz_stability_predicate":
+        max_input_length = ROUTH_HURWITZ_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "jury_discrete_time_stability_predicate":
+        max_input_length = JURY_STABILITY_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "rna_pair_activity_partition_function":
+        max_input_length = RNA_PAIR_ACTIVITY_MAX_PARSEABLE_INPUT_LENGTH
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
@@ -8763,6 +14221,12 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
     elif algorithm == "sum_of_multiplicative_function_large":
         if expected != sum_of_multiplicative_function_large_expected(values):
             raise ValueError("sum_of_multiplicative_function_large expected_result must match the direct prime-power oracle")
+    elif algorithm == "zhouge_summatory_multiplicative_function":
+        if expected != zhouge_summatory_multiplicative_function_expected(values):
+            raise ValueError("zhouge_summatory_multiplicative_function expected_result must match the sieve oracle")
+    elif algorithm == "pearson_hash":
+        if expected != pearson_hash_expected(values):
+            raise ValueError("pearson_hash expected_result must match the table-state oracle")
     elif algorithm == "drop3":
         expected_from_source = drop3_expected(values)
         if expected != expected_from_source:
@@ -8865,6 +14329,36 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             None if input_is_null else values, case.get("input_length", len(values)))
         if expected != expected_from_source:
             raise ValueError("hook_length_tableaux expected_result differs from the bounded hook-length count")
+    elif algorithm == "rsk_row_insertion":
+        expected_from_source = rsk_row_insertion_primary(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("rsk_row_insertion expected_result differs from the forward row-insertion reference")
+    elif algorithm == "shortest_path_modulo_small_multiple":
+        expected_from_source = shortest_path_modulo_small_multiple_primary(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("shortest_path_modulo_small_multiple expected_result differs from the residue 0–1 BFS")
+    elif algorithm == "dynamic_centroid_active_set_diameter":
+        expected_from_source = dynamic_centroid_active_set_diameter_primary(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("dynamic_centroid_active_set_diameter expected_result differs from its centroid reference")
+    elif algorithm == "fenwick_tree_in_block_array_rectangle_count":
+        expected_from_source = fenwick_tree_in_block_array_rectangle_count_primary(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("fenwick_tree_in_block_array_rectangle_count expected_result differs from its blocked Fenwick reference")
+    elif algorithm == "divide_combine_tree_incremental":
+        expected_from_source = divide_combine_tree_incremental_primary(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("divide_combine_tree_incremental expected_result differs from its incremental construction reference")
+    elif algorithm == "fenwick_weighted_segment_tree_range_kth":
+        expected_from_source = fenwick_weighted_segment_tree_range_kth_primary(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("fenwick_weighted_segment_tree_range_kth expected_result differs from its Fenwick-of-value-trees reference")
     elif algorithm == "difference_product":
         expected_from_source = difference_product_expected(
             None if case.get("input_is_null", False) else values, case.get("input_length", len(values)))
@@ -9212,6 +14706,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         if expected != sparse_recovery_expected(
                 values, case.get("input_is_null", False), case.get("input_length", len(values))):
             raise ValueError("singleton fingerprint recovery expected_result differs from replay")
+    elif algorithm == "convex_polygon_integer_inradius":
+        if expected != convex_polygon_integer_inradius_expected(values, case.get("input_is_null", False)):
+            raise ValueError("convex polygon inradius fixture differs from its reference")
     elif algorithm == "directed_girth_bfs":
         if expected != directed_girth_bfs_expected(values, case.get("input_is_null", False),
                                                     case.get("input_length", len(values))):
@@ -9224,6 +14721,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         if expected != offline_range_distinct_fenwick_expected(values, case.get("input_is_null", False),
                                                                case.get("input_length", len(values))):
             raise ValueError("offline_range_distinct_fenwick expected_result differs from reference")
+    elif algorithm == "unit_job_release_deadline_weighted_matching":
+        if expected != unit_job_release_deadline_weighted_matching_expected(values, case.get("input_is_null", False),
+                                                                               case.get("input_length", len(values))):
+            raise ValueError("unit_job_release_deadline_weighted_matching expected_result differs from reference")
     elif algorithm == "dinic_capacity_scaling":
         if expected != dinic_capacity_scaling_expected(values, case.get("input_is_null", False),
                                                        case.get("input_length", len(values))):
@@ -9242,6 +14743,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
     elif algorithm == "wavelet_matrix":
         if expected != wavelet_matrix_expected(values, case.get("input_is_null", False), case.get("input_length", len(values))):
             raise ValueError("wavelet_matrix expected_result differs from reference")
+    elif algorithm == "one_sided_jacobi_svd":
+        if expected != one_sided_jacobi_svd_expected(values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("one_sided_jacobi_svd expected_result differs from reference")
     elif algorithm == "backward_oracle_match":
         if expected != bom_expected(values, case.get("input_is_null", False), case.get("input_length", len(values))):
             raise ValueError("backward_oracle_match expected_result differs from reference")
@@ -9252,15 +14756,77 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         if expected != monotone_radix_heap_expected(values, case.get("input_is_null", False),
                                                    case.get("input_length", len(values))):
             raise ValueError("monotone_radix_heap expected_result differs from reference")
+    elif algorithm == "multi_root_hollow_heap":
+        if expected != multi_root_hollow_heap_expected(values, case.get("input_is_null", False),
+                                                       case.get("input_length", len(values))):
+            raise ValueError("multi_root_hollow_heap expected_result differs from reference")
+    elif algorithm == "rank_pairing_heap":
+        if expected != rank_pairing_heap_expected(values, case.get("input_is_null", False),
+                                                  case.get("input_length", len(values))):
+            raise ValueError("rank_pairing_heap expected_result differs from reference")
+    elif algorithm == "skew_binomial_queue":
+        if expected != skew_binomial_queue_expected(values, case.get("input_is_null", False),
+                                                    case.get("input_length", len(values))):
+            raise ValueError("skew_binomial_queue expected_result differs from reference")
+    elif algorithm == "dsatur_greedy_coloring":
+        if expected != dsatur_greedy_coloring_expected(values, case.get("input_is_null", False),
+                                                       case.get("input_length", len(values))):
+            raise ValueError("dsatur_greedy_coloring expected_result differs from reference")
+    elif algorithm == "kkt_recursive_mst":
+        if expected != kkt_recursive_mst_expected(values, case.get("input_is_null", False),
+                                                  case.get("input_length", len(values))):
+            raise ValueError("kkt_recursive_mst expected_result differs from recursive KKT reference")
     elif algorithm == "fixed_length_walk_minplus":
         if expected != fixed_length_walk_minplus_expected(None if case.get("input_is_null", False) else values):
             raise ValueError("fixed_length_walk_minplus expected_result differs from reference")
     elif algorithm == "fixed_length_walk_count":
         if expected != fixed_length_walk_count_expected(None if case.get("input_is_null", False) else values):
             raise ValueError("fixed_length_walk_count expected_result differs from reference")
+    elif algorithm == "tree_sibling_distinct_cost_coloring":
+        if expected != tree_sibling_distinct_cost_coloring_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_sibling_distinct_cost_coloring expected_result differs from reference")
     elif algorithm == "tree_min_cost_proper_coloring":
         if expected != tree_min_cost_proper_coloring_expected(None if case.get("input_is_null", False) else values):
             raise ValueError("tree_min_cost_proper_coloring expected_result differs from reference")
+    elif algorithm == "tree_min_cost_edge_coloring":
+        if expected != tree_min_cost_edge_coloring_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_min_cost_edge_coloring expected_result differs from reference")
+    elif algorithm == "tree_weighted_vertex_cover":
+        if expected != tree_weighted_vertex_cover_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_weighted_vertex_cover expected_result differs from reference")
+    elif algorithm == "tree_weighted_edge_dominating_set":
+        if expected != tree_weighted_edge_dominating_set_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_weighted_edge_dominating_set expected_result differs from reference")
+    elif algorithm == "tree_minimum_path_partition":
+        if expected != tree_minimum_path_partition_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_minimum_path_partition expected_result differs from reference")
+    elif algorithm == "chordal_graph_optimal_coloring":
+        if expected != chordal_graph_optimal_coloring_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("chordal_graph_optimal_coloring expected_result differs from reference")
+    elif algorithm == "bit_parallel_lcs":
+        if expected != bit_parallel_lcs_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("bit_parallel_lcs expected_result differs from reference")
+    elif algorithm == "myers_bitvector_edit_distance":
+        if expected != myers_bitvector_edit_distance_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("myers_bitvector_edit_distance expected_result differs from reference")
+    elif algorithm == "count_distinct_lcs":
+        if expected != count_distinct_lcs_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("count_distinct_lcs expected_result differs from reference")
+    elif algorithm == "tree_weighted_dominating_set":
+        if expected != tree_weighted_dominating_set_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_weighted_dominating_set expected_result differs from reference")
+    elif algorithm == "tree_weighted_total_dominating_set":
+        if expected != tree_weighted_total_dominating_set_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_weighted_total_dominating_set expected_result differs from reference")
+    elif algorithm == "tree_weighted_independent_dominating_set":
+        if expected != tree_weighted_independent_dominating_set_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_weighted_independent_dominating_set expected_result differs from reference")
+    elif algorithm == "tree_distance_k_dominating_set":
+        if expected != tree_distance_k_dominating_set_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("tree_distance_k_dominating_set expected_result differs from reference")
+    elif algorithm == "karger_stein_recursive_contraction":
+        if expected != (-1 if case.get("input_is_null", False) else karger_stein_recursive_contraction_expected(values)):
+            raise ValueError("recursive contraction expected_result differs from reference")
     elif algorithm == "karger_contraction_trial":
         if expected != karger_contraction_trial_expected(values, case.get("input_is_null", False),
                                                           case.get("input_length", len(values))):
@@ -9508,6 +15074,22 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("pollard_p_minus_one_factorization expected_result must match staged p−1 gcds")
+    elif algorithm == "fermat_factorization":
+        expected_from_source = fermat_factorization_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("fermat_factorization expected_result must match bounded square-difference search")
+    elif algorithm == "generalized_chinese_remainder_theorem":
+        expected_from_source = generalized_chinese_remainder_theorem_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("generalized_chinese_remainder_theorem expected_result must match non-coprime CRT")
     elif algorithm == "factoring_exponentiation":
         expected_from_source = factoring_exponentiation_expected(
             values,
@@ -9552,6 +15134,131 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             raise ValueError(
                 "count_different_palindromic_subsequences expected_result must match distinct palindrome sequences"
             )
+    elif algorithm == "k_inverse_pairs_array":
+        expected_from_source = k_inverse_pairs_array_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("k_inverse_pairs_array expected_result must match the Mahonian coefficient")
+    elif algorithm == "max_sum_rectangle_no_larger_than_k":
+        expected_from_source = max_sum_rectangle_no_larger_than_k_expected(values)
+        if expected != expected_from_source:
+            raise ValueError(
+                "max_sum_rectangle_no_larger_than_k expected_result must match the constrained rectangle oracle"
+            )
+    elif algorithm == "liu_hui_pi_approximation":
+        expected_from_source = (liu_hui_pi_approximation_primary(values[0])
+                                if len(values) == 1 else -1)
+        if expected != expected_from_source:
+            raise ValueError("liu_hui_pi_approximation expected_result must match the polygon-area recurrence")
+    elif algorithm == "rational_polygon_lattice_points":
+        expected_from_source = rational_polygon_lattice_points_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "rational_polygon_lattice_points expected_result must match the exact edge floor sums"
+            )
+    elif algorithm == "divide_conquer_dp_partition":
+        expected_from_source = divide_conquer_dp_partition_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "divide_conquer_dp_partition expected_result must match monotone-argmin partition DP"
+            )
+    elif algorithm == "monge_dag_fixed_edge_shortest_path":
+        expected_from_source = monge_dag_fixed_edge_shortest_path_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "monge_dag_fixed_edge_shortest_path expected_result must match Monge-DAG exact-edge DP"
+            )
+    elif algorithm == "cactus_graph_recognition":
+        expected_from_source = cactus_graph_recognition_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "cactus_graph_recognition expected_result must match DFS cycle ownership"
+            )
+    elif algorithm == "entringer_number":
+        expected_from_source = entringer_number_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("entringer_number expected_result must match the Entringer row recurrence")
+    elif algorithm == "josephus_batched_small_k":
+        expected_from_source = josephus_batched_small_k_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("josephus_batched_small_k expected_result must match the batched recurrence")
+    elif algorithm == "brzozowski_dfa_minimization":
+        expected_from_source = brzozowski_dfa_minimization_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("brzozowski_dfa_minimization expected_result must match reverse/determinize minimization")
+    elif algorithm == "interpolation_sequential_search":
+        expected_from_source = interpolation_sequential_search_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "interpolation_sequential_search expected_result must match one-estimate linear search"
+            )
+    elif algorithm == "lcfs_hashing":
+        expected_from_source = lcfs_hashing_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("lcfs_hashing expected_result must match LCFS resident displacements")
+    elif algorithm == "distinct_subarray_aggregates":
+        expected_from_source = distinct_subarray_aggregates_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "distinct_subarray_aggregates expected_result must match suffix-range aggregation"
+            )
+    elif algorithm == "bond_sequential_search":
+        expected_from_source = bond_sequential_search_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "bond_sequential_search expected_result must match the composite-mask search"
+            )
+    elif algorithm == "matroid_intersection":
+        expected_from_source = matroid_intersection_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "matroid_intersection expected_result must match the exchange-graph optimum"
+            )
+    elif algorithm == "thomassen_convex_drawing_extendibility":
+        expected_from_source = thomassen_convex_drawing_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "thomassen_convex_drawing_extendibility expected_result must match the three-condition reference"
+            )
     elif algorithm == "functional_graph_cycle_parameters":
         expected_from_source = functional_graph_cycle_parameters_expected(values)
         if expected != expected_from_source:
@@ -9575,6 +15282,372 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 "convex_polygon_minimax_length_triangulation expected_result must "
                 "match the interval minimax edge-length objective"
             )
+    elif algorithm == "convex_polygon_minimax_angle_edge_insertion":
+        expected_from_source = convex_polygon_minimax_angle_edge_insertion_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "convex_polygon_minimax_angle_edge_insertion expected_result must "
+                "match the exact min-max-angle objective"
+            )
+    elif algorithm == "max_min_triangle_height_triangulation":
+        expected_from_source = max_min_triangle_height_triangulation_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "max_min_triangle_height_triangulation expected_result must match "
+                "the exact max-min squared-altitude objective"
+            )
+    elif algorithm == "convex_polygon_minimax_slope_edge_insertion":
+        expected_from_source = convex_polygon_minimax_slope_edge_insertion_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "convex_polygon_minimax_slope_edge_insertion expected_result must match "
+                "the exact lifted min-max-slope objective"
+            )
+    elif algorithm == "fractional_cascading_subset_chain":
+        expected_from_source = fractional_cascading_subset_chain_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "fractional_cascading_subset_chain expected_result must match "
+                "the exact bridged successor checksum"
+            )
+    elif algorithm == "convex_polygon_max_min_length_triangulation":
+        expected_from_source = convex_polygon_max_min_length_triangulation_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "convex_polygon_max_min_length_triangulation expected_result must "
+                "match the Hu corner-cut triangulation and packed signature"
+            )
+    elif algorithm == "convex_polygon_minimax_eccentricity_edge_insertion":
+        expected_from_source = convex_polygon_minimax_eccentricity_edge_insertion_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "convex_polygon_minimax_eccentricity_edge_insertion expected_result must "
+                "match the exact eccentricity edge-insertion profile"
+            )
+    elif algorithm == "shewchuk_expansion_sum":
+        expected_from_source = shewchuk_expansion_sum_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "shewchuk_expansion_sum expected_result must match the exact dyadic expansion sum"
+            )
+    elif algorithm == "bidirectional_fm_index":
+        expected_from_source = bidirectional_fm_index_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "bidirectional_fm_index expected_result must match exact paired-BWT interval extension"
+            )
+    elif algorithm == "minimum_cycle_basis_horton":
+        expected_from_source = minimum_cycle_basis_horton_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "minimum_cycle_basis_horton expected_result must match Horton candidate generation and GF(2) basis extraction"
+            )
+    elif algorithm == "linear_extension_count":
+        expected_from_source = linear_extension_count_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "linear_extension_count expected_result must match the exact linear-extension count"
+            )
+    elif algorithm == "goldberg_maximum_density_subgraph":
+        expected_from_source = goldberg_maximum_density_subgraph_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "goldberg_maximum_density_subgraph expected_result must match Goldberg's exact min-cut search"
+            )
+    elif algorithm == "sparse_set_dense_array":
+        expected_from_source = sparse_set_dense_array_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "sparse_set_dense_array expected_result must match dense/sparse set operations"
+            )
+    elif algorithm == "barrett_reduction":
+        expected_from_source = barrett_reduction_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "barrett_reduction expected_result must match reciprocal estimation and correction"
+            )
+    elif algorithm == "sequitur_grammar_induction":
+        expected_from_source = sequitur_grammar_induction_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "sequitur_grammar_induction expected_result must match deterministic grammar induction"
+            )
+    elif algorithm == "hensel_lifting_polynomial_root":
+        expected_from_source = hensel_lifting_polynomial_root_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "hensel_lifting_polynomial_root expected_result must match simple-root Hensel lifting"
+            )
+    elif algorithm == "rotation_system_planarity_test":
+        expected_from_source = rotation_system_planarity_test_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "rotation_system_planarity_test expected_result must match rotation-system planarity"
+            )
+    elif algorithm == "lz_end_phrase_parsing":
+        expected_from_source = lz_end_phrase_parsing_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "lz_end_phrase_parsing expected_result must match greedy LZ-End phrase parsing"
+            )
+    elif algorithm == "jacobi_symbol":
+        expected_from_source = jacobi_symbol_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "jacobi_symbol expected_result must match quadratic reciprocity and symbol encoding"
+            )
+    elif algorithm == "minimum_directed_feedback_arc_set":
+        expected_from_source = minimum_directed_feedback_arc_set_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "minimum_directed_feedback_arc_set expected_result must match the minimum backward-arc ordering"
+            )
+    elif algorithm == "tunstall_codebook_construction":
+        expected_from_source = tunstall_codebook_construction_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "tunstall_codebook_construction expected_result must match exact-probability leaf splitting"
+            )
+    elif algorithm == "dag_transitive_reduction":
+        expected_from_source = dag_transitive_reduction_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "dag_transitive_reduction expected_result must match alternate-path reduction"
+            )
+    elif algorithm == "cornacchia_x2_plus_2y2":
+        expected_from_source = cornacchia_x2_plus_2y2_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "cornacchia_x2_plus_2y2 expected_result must match root-seeded Euclidean descent"
+            )
+    elif algorithm == "newton_divided_difference_interpolation":
+        expected_from_source = newton_divided_difference_interpolation_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "newton_divided_difference_interpolation expected_result must match Newton divided differences"
+            )
+    elif algorithm == "cyk_context_free_recognition":
+        expected_from_source = cyk_context_free_recognition_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "cyk_context_free_recognition expected_result must match the CYK chart recurrence"
+            )
+    elif algorithm == "minimum_dominating_set_branch_bound":
+        expected_from_source = minimum_dominating_set_branch_bound_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "minimum_dominating_set_branch_bound expected_result must match exact branch and bound"
+            )
+    elif algorithm == "dedekind_sum_reciprocity":
+        expected_from_source = dedekind_sum_reciprocity_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "dedekind_sum_reciprocity expected_result must match Euclidean reciprocity"
+            )
+    elif algorithm == "dag_shortest_path":
+        expected_from_source = dag_shortest_path_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "dag_shortest_path expected_result must match Kahn topological relaxation"
+            )
+    elif algorithm == "free_polyomino_enumeration":
+        expected_from_source = free_polyomino_enumeration_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("free_polyomino_enumeration result must match canonical growth")
+    elif algorithm == "dual_decomposition_graph_cut_maxflow":
+        expected_from_source = dual_decomposition_graph_cut_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("dual_decomposition_graph_cut_maxflow result must match fixed-point dual ascent")
+    elif algorithm == "region_discharge_path_push_relabel_maxflow":
+        expected_from_source = region_discharge_path_push_relabel_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("region_discharge_path_push_relabel_maxflow result must match sequential S-ARD")
+    elif algorithm == "oi_wiki_maximum_clique_branch_bound":
+        expected_from_source = oi_wiki_maximum_clique_branch_bound_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "oi_wiki_maximum_clique_branch_bound expected_result must match ordered branch and bound"
+            )
+    elif algorithm == "konc_maxclique_dyn":
+        expected_from_source = konc_maxclique_dyn_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("konc_maxclique_dyn expected_result must match dynamic coloring and bounds")
+    elif algorithm == "order_maintenance":
+        expected_from_source = order_maintenance_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("order_maintenance expected_result must match cyclic-label order queries")
+    elif algorithm == "synchronous_round_push_relabel":
+        expected_from_source = synchronous_round_push_relabel_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("synchronous_round_push_relabel expected_result must match synchronous rounds")
+    elif algorithm == "eibfs_maxflow":
+        expected_from_source = eibfs_maxflow_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("eibfs_maxflow expected_result must match the EIBFS blocking cut")
+    elif algorithm == "hochbaum_pseudoflow_maxflow":
+        expected_from_source = hochbaum_pseudoflow_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("hochbaum_pseudoflow_maxflow result must match the terminal blocking cut")
+    elif algorithm == "adaptive_bottom_up_graph_cut_merging":
+        expected_from_source = adaptive_bottom_up_graph_cut_merging_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("adaptive_bottom_up_graph_cut_merging result must match its merge profile")
+    elif algorithm == "eibfs_bottom_up_graph_cut_merging":
+        expected_from_source = peibfs_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("eibfs_bottom_up_graph_cut_merging result must match its PEIBFS merge profile")
     elif algorithm == "pfaffian_of_matrix":
         expected_from_source = pfaffian_of_matrix_expected(
             values,
@@ -9591,6 +15664,234 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("x_fast_trie_static_predecessor expected_result must match x-fast prefix search")
+    elif algorithm == "y_fast_trie_static_predecessor":
+        expected_from_source = y_fast_trie_static_predecessor_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("y_fast_trie_static_predecessor expected_result must match y-fast strict neighbors")
+    elif algorithm == "hits_fixed_point":
+        expected_from_source = hits_fixed_point_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("hits_fixed_point expected_result must match integer HITS updates")
+    elif algorithm == "graphai_gnns_hill_climbing":
+        expected_from_source = graphai_gnns_hill_climbing_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("graphai_gnns_hill_climbing expected_result must match GNNS query search")
+    elif algorithm == "belady_optimal_paging":
+        expected_from_source = belady_optimal_paging_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("belady_optimal_paging expected_result must match farthest-next-use paging")
+    elif algorithm == "fks_static_perfect_hash":
+        expected_from_source = fks_static_perfect_hash_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("fks_static_perfect_hash expected_result must match FKS membership queries")
+    elif algorithm == "segment_tree_max_right":
+        expected_from_source = segment_tree_max_right_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("segment_tree_max_right expected_result must match tree-guided max_right")
+    elif algorithm == "lazy_segment_tree_range_add_max_right":
+        expected_from_source = lazy_segment_tree_range_add_max_right_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("lazy_segment_tree_range_add_max_right expected_result must match lazy tree-guided max_right")
+    elif algorithm == "w_ary_predecessor_set":
+        expected_from_source = w_ary_predecessor_set_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("w_ary_predecessor_set expected_result must match 64-ary predecessor traversal")
+    elif algorithm == "range_union_find":
+        expected_from_source = range_union_find_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("range_union_find expected_result must match right-boundary DSU updates")
+    elif algorithm == "union_find_enumerate":
+        expected_from_source = union_find_enumerate_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("union_find_enumerate expected_result must match circular component enumeration")
+    elif algorithm == "slide_window_aggregation_deque":
+        expected_from_source = slide_window_aggregation_deque_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("slide_window_aggregation_deque expected_result must match the two-stack fold")
+    elif algorithm == "arbitrary_order_line_container":
+        expected_from_source = arbitrary_order_line_container_primary(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("arbitrary_order_line_container expected_result must match the breakpoint envelope")
+    elif algorithm == "two_vertex_cuts_spqr":
+        expected_from_source = two_vertex_cuts_spqr_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("two_vertex_cuts_spqr expected_result must match weighted two-cut aggregation")
+    elif algorithm == "minimum_refueling_stops_heap":
+        expected_from_source = minimum_refueling_stops_heap_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("minimum_refueling_stops_heap expected_result must match greedy heap refueling")
+    elif algorithm == "shortest_path_visiting_all_nodes":
+        expected_from_source = shortest_path_visiting_all_nodes_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("shortest_path_visiting_all_nodes expected_result must match product-state BFS")
+    elif algorithm == "vogel_approximation_transportation":
+        expected_from_source = vogel_approximation_transportation_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("vogel_approximation_transportation expected_result must match deterministic VAM")
+    elif algorithm == "misra_gries_edge_coloring":
+        expected_from_source = misra_gries_edge_coloring_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("misra_gries_edge_coloring expected_result must match deterministic fan coloring")
+    elif algorithm == "fenwick_kth":
+        expected_from_source = fenwick_kth_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("fenwick_kth expected_result must match Fenwick binary lifting")
+    elif algorithm == "incremental_convex_hull_3d":
+        expected_from_source = incremental_convex_hull_3d_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("incremental_convex_hull_3d expected_result must match incremental hull volume")
+    elif algorithm == "ternary_search_trie":
+        expected_from_source = ternary_search_trie_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("ternary_search_trie expected_result must match bounded TST operations")
+    elif algorithm == "interval_cover":
+        expected_from_source = interval_cover_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("interval_cover expected_result must match greedy interval cover")
+    elif algorithm == "interval_container":
+        expected_from_source = interval_container_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("interval_container expected_result must match sorted interval updates")
+    elif algorithm == "mo_2d_rectangle_frequency_square":
+        expected_from_source = mo_2d_rectangle_frequency_square_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("mo_2d_rectangle_frequency_square expected_result must match 2D Mo updates")
+    elif algorithm == "dinkelbach_fixed_cardinality_ratio":
+        expected_from_source = dinkelbach_fixed_cardinality_ratio_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("dinkelbach_fixed_cardinality_ratio expected_result must match exact Dinkelbach iterations")
+    elif algorithm == "minimum_unfairness_k_selection":
+        expected_from_source = minimum_unfairness_k_selection_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("minimum_unfairness_k_selection expected_result must match sorted adjacent K-windows")
+    elif algorithm == "fourier_motzkin_feasibility":
+        expected_from_source = fourier_motzkin_feasibility_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("fourier_motzkin_feasibility expected_result must match exact projection")
+    elif algorithm == "d_star_lite_incremental_replanning":
+        expected_from_source = d_star_lite_incremental_replanning_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("d_star_lite_incremental_replanning expected_result must match D* Lite repair")
+    elif algorithm == "fiduccia_mattheyses_hypergraph_bipartitioning":
+        expected_from_source = fiduccia_mattheyses_hypergraph_bipartitioning_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("fiduccia_mattheyses_hypergraph_bipartitioning expected_result must match deterministic FM passes")
+    elif algorithm == "louvain_multilevel_community_detection":
+        expected_from_source = louvain_multilevel_community_detection_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("louvain_multilevel_community_detection expected_result must match deterministic Louvain passes")
     elif algorithm == "hpcc_random_access":
         expected_from_source = hpcc_random_access_expected(
             values,
@@ -9615,6 +15916,26 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("point_in_polygon_ray_casting expected_result must match exact even-odd crossings")
+    elif algorithm == "point_location_sweep":
+        expected_from_source = point_location_sweep_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("point_location_sweep expected_result must match the offline face-location sweep")
+    elif algorithm == "triangulation_stochastic_visibility_walk":
+        expected_from_source = triangulation_stochastic_visibility_walk_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("triangulation_stochastic_visibility_walk expected_result must match the face-adjacency replay")
+    elif algorithm == "zielonka_parity_game_solver":
+        expected_from_source = zielonka_parity_game_solver_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("zielonka_parity_game_solver expected_result must match the recursive parity-game partition")
+    elif algorithm == "small_progress_measure_parity_game_solver":
+        expected_from_source = small_progress_measure_parity_game_solver_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("small_progress_measure_parity_game_solver expected_result must match progress-measure lifting")
     elif algorithm == "vertex_connectivity":
         expected_from_source = vertex_connectivity_expected(
             values,
@@ -9747,6 +16068,54 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = primitive_root_expected(values)
         if expected != expected_from_source:
             raise ValueError("primitive_root expected_result must preserve the bounded distinct-power search")
+    elif algorithm == "primitive_root_factorization":
+        expected_from_source = primitive_root_factorization_expected(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("primitive_root_factorization expected_result differs from its order-factor test")
+    elif algorithm == "distinct_substring_count_hashing":
+        expected_from_source = distinct_substring_count_hashing_expected(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("distinct_substring_count_hashing expected_result differs from collision-resolved hashing")
+    elif algorithm == "arpa_offline_rmq":
+        expected_from_source = arpa_offline_rmq_expected(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("arpa_offline_rmq expected_result differs from monotone-stack DSU query answers")
+    elif algorithm == "offline_range_paint_successor_dsu":
+        expected_from_source = offline_range_paint_successor_dsu_expected(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("offline_range_paint_successor_dsu expected_result differs from reverse last-writer painting")
+    elif algorithm == "online_bipartiteness_dsu":
+        expected_from_source = online_bipartiteness_dsu_expected(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("online_bipartiteness_dsu expected_result differs from parity-DSU connectivity queries")
+    elif algorithm == "balanced_parenthesis_rank_unrank":
+        expected_from_source = balanced_parenthesis_rank_unrank_expected(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("balanced_parenthesis_rank_unrank expected_result differs from suffix-completion rank/unrank")
+    elif algorithm == "segment_union_length_klee":
+        expected_from_source = segment_union_length_klee_expected(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("segment_union_length_klee expected_result differs from endpoint-event coverage")
+    elif algorithm == "intersecting_segments_sweep":
+        expected_from_source = intersecting_segments_sweep_expected(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("intersecting_segments_sweep expected_result differs from the endpoint sweep")
     elif algorithm == "dijkstras_two_stack_algorithm":
         expected_from_source = dijkstras_two_stack_expected(values)
         if expected != expected_from_source:
@@ -9771,7 +16140,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = check_cycle_expected(values)
         if expected != expected_from_source:
             raise ValueError("check_cycle expected_result must match bounded directed-cycle detection")
-    elif algorithm == "undirected_cycle_check":
+    elif algorithm in {"undirected_cycle_check", "undirected_cycle_check_bfs"}:
         expected_from_source = undirected_cycle_check_expected(values)
         if expected != expected_from_source:
             raise ValueError("undirected_cycle_check expected_result must match bounded undirected-cycle detection")
@@ -9913,6 +16282,64 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = burstballoons_expected(values)
         if expected != expected_from_source:
             raise ValueError("burstballoons expected_result must match the bounded interval recurrence")
+    elif algorithm == "remove_boxes":
+        expected_from_source = remove_boxes_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("remove_boxes expected_result must match the bounded carry-state recurrence")
+    elif algorithm == "strange_printer":
+        expected_from_source = strange_printer_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("strange_printer expected_result must match the bounded interval recurrence")
+    elif algorithm == "strange_printer_ii":
+        expected_from_source = strange_printer_ii_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("strange_printer_ii expected_result must match the rectangle-dependency DAG")
+    elif algorithm == "alphabetic_anagrams":
+        expected_from_source = alphabetic_anagrams_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("alphabetic_anagrams expected_result must match multinomial block ranking")
+    elif algorithm == "infinite_knight_distance":
+        expected_from_source = infinite_knight_distance_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("infinite_knight_distance expected_result must match the published lattice formula")
+    elif algorithm == "android_unlock_pattern_count":
+        expected_from_source = android_unlock_pattern_count_primary(
+            values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("android_unlock_pattern_count expected_result must match the visited-mask enumeration")
+    elif algorithm == "random_permutation_cycle_cap_count":
+        expected_from_source = random_permutation_cycle_cap_count_primary(
+            values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("random_permutation_cycle_cap_count expected_result must match the fixed-label cycle recurrence")
+    elif algorithm == "eulerian_number":
+        expected_from_source = eulerian_number_primary(values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("eulerian_number expected_result must match the Eulerian-row recurrence")
+    elif algorithm == "fractional_programming_ratio_knapsack_binary_search":
+        expected_from_source = fractional_programming_ratio_knapsack_binary_search_primary(
+            values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError(
+                "fractional_programming_ratio_knapsack_binary_search expected_result must match ratio bisection")
+    elif algorithm == "nmea_xor_checksum":
+        expected_from_source = nmea_xor_checksum_primary(
+            values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("nmea_xor_checksum expected_result must match the bounded payload XOR fold")
+    elif algorithm == "factorial_last_nonzero_digit":
+        expected_from_source = factorial_last_nonzero_digit_primary(
+            values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("factorial_last_nonzero_digit expected_result must match the base-five recurrence")
+    elif algorithm == "egg_drop_max_floors_by_moves":
+        expected_from_source = egg_drop_max_floors_by_moves_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("egg_drop_max_floors_by_moves expected_result must match move-major coverage updates")
+    elif algorithm == "rectangle_union_area_sweep":
+        expected_from_source = rectangle_union_area_sweep_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("rectangle_union_area_sweep expected_result must match the x-sweep coverage tree")
     elif algorithm == "checkequal":
         expected_from_source = checkequal_expected(values)
         if expected != expected_from_source:
@@ -10257,6 +16684,113 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = minimum_sum_partition_expected(values)
         if expected != expected_from_source:
             raise ValueError("minimum_sum_partition expected_result must match bounded minimum subset-sum difference")
+    elif algorithm == "shortest_subarray_with_sum_at_least_k":
+        expected_from_source = shortest_subarray_with_sum_at_least_k_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("shortest_subarray_with_sum_at_least_k expected_result must match the monotone-deque oracle")
+    elif algorithm == "linear_partition_minimax":
+        expected_from_source = linear_partition_minimax_expected(
+            values,
+            input_length=case.get("input_length", len(values)),
+            input_is_null=case.get("input_is_null", False),
+        )
+        if expected != expected_from_source:
+            raise ValueError("linear_partition_minimax expected_result must match the binary-search feasibility oracle")
+    elif algorithm == "number_of_ways_of_cutting_a_pizza":
+        expected_from_source = number_of_ways_of_cutting_a_pizza_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("number_of_ways_of_cutting_a_pizza expected_result must match suffix-count DP")
+    elif algorithm == "minimum_cost_to_merge_stones":
+        expected_from_source = minimum_cost_to_merge_stones_expected(
+            values,
+            input_length=case.get("input_length", len(values)),
+            input_is_null=case.get("input_is_null", False),
+        )
+        if expected != expected_from_source:
+            raise ValueError("minimum_cost_to_merge_stones expected_result must match pile-count interval DP")
+    elif algorithm == "connectivity_aware_plug_dp_binary_grid_colorings":
+        expected_from_source = connectivity_aware_plug_dp_binary_grid_colorings_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("connectivity_aware_plug_dp_binary_grid_colorings expected_result must match frontier DP")
+    elif algorithm == "paint_house_iii":
+        expected_from_source = paint_house_iii_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("paint_house_iii expected_result must match the neighborhood-count DP")
+    elif algorithm == "efficient_dominating_set_square_graph_mwis":
+        expected_from_source = efficient_dominating_set_square_graph_mwis_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("efficient_dominating_set_square_graph_mwis expected_result must match weighted MWIS")
+    elif algorithm == "maximum_employees_to_be_invited":
+        expected_from_source = maximum_employees_to_be_invited_expected(
+            values, input_length=case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("maximum_employees_to_be_invited expected_result must match functional-graph decomposition")
+    elif algorithm == "max_points_on_a_line":
+        expected_from_source = max_points_on_a_line_expected(
+            values, input_length=case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("max_points_on_a_line expected_result must match normalized-direction counting")
+    elif algorithm == "cherry_pickup_ii":
+        expected_from_source = cherry_pickup_ii_expected(
+            values, input_length=case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("cherry_pickup_ii expected_result must match paired-column dynamic programming")
+    elif algorithm == "delaunay_rooted_triangulation_reverse_search":
+        expected_from_source = delaunay_rooted_triangulation_reverse_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("delaunay_rooted_triangulation_reverse_search expected_result must match reverse search")
+    elif algorithm == "string_compression_ii":
+        expected_from_source = string_compression_ii_expected(
+            values, input_length=case.get("input_length", len(values)),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("string_compression_ii expected_result must match deletion-aware RLE DP")
+    elif algorithm == "hofstadter_q_sequence":
+        expected_from_source = hofstadter_q_sequence_expected(
+            values, input_length=case.get("input_length", len(values)),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("hofstadter_q_sequence expected_result must match bounded Q recurrence")
+    elif algorithm == "hofstadter_conway_10000_sequence":
+        expected_from_source = hofstadter_conway_10000_sequence_expected(
+            values, input_length=case.get("input_length", len(values)),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("hofstadter_conway_10000_sequence expected_result must match bounded Conway recurrence")
+    elif algorithm == "minimum_cost_bipartite_edge_cover_subset_dp":
+        expected_from_source = minimum_cost_bipartite_edge_cover_subset_dp_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("minimum_cost_bipartite_edge_cover_subset_dp expected_result differs from edge-cover DP")
+    elif algorithm == "simpath_st_paths_zdd":
+        expected_from_source = simpath_st_paths_zdd_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("simpath_st_paths_zdd expected_result must match frontier/mate ZDD construction")
+    elif algorithm == "domino_l_tromino_tilings_2xn":
+        expected_from_source = domino_l_tromino_tilings_expected(
+            values, input_length=case.get("input_length", len(values)),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("domino_l_tromino_tilings_2xn expected_result must match the four-state frontier DP")
+    elif algorithm == "ratcliff_obershelp_similarity":
+        expected_from_source = ratcliff_obershelp_primary_oracle(
+            values, input_length=case.get("input_length", len(values)),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("ratcliff_obershelp_similarity expected_result must match recursive Gestalt matching")
     elif algorithm == "upper_bound":
         expected_from_source = upper_bound_expected(values)
         if expected != expected_from_source:
@@ -11045,6 +17579,64 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError("crc16 expected_result must match the bounded CRC-16/CCITT-FALSE byte recurrence")
+    elif algorithm == "bipartite_minimum_vertex_cover":
+        expected_from_source = bipartite_minimum_vertex_cover_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError(
+                "bipartite_minimum_vertex_cover result must match the canonical minimum-cover certificate"
+            )
+    elif algorithm == "pisinger_bounded_weight_subset_sum":
+        expected_from_source = pisinger_bounded_weight_subset_sum_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("pisinger_bounded_weight_subset_sum result must match the balanced-state oracle")
+    elif algorithm == "ryser_permanent":
+        expected_from_source = ryser_permanent_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("ryser_permanent result must match the Ryser/Gray-code oracle")
+    elif algorithm == "binary_search_maximum_average_segment":
+        expected_from_source = binary_search_maximum_average_segment_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("binary_search_maximum_average_segment result must match the integer-threshold oracle")
+    elif algorithm == "bounded_knapsack_binary_grouping":
+        expected_from_source = bounded_knapsack_binary_grouping_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("bounded_knapsack_binary_grouping result must match the binary-bundle oracle")
+    elif algorithm == "weisfeiler_lehman_color_refinement":
+        expected_from_source = weisfeiler_lehman_color_refinement_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("weisfeiler_lehman_color_refinement result must match the canonical refinement oracle")
+    elif algorithm == "mixed_knapsack":
+        expected_from_source = mixed_knapsack_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("mixed_knapsack result must match the per-mode capacity-DP oracle")
     elif algorithm in {"hopcroft_karp_cardinality", "bipartite_matching_kuhn"}:
         valid = (
             len(values) >= 3
@@ -11156,6 +17748,34 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = n_in_a_row_board_status_expected(values)
         if expected != expected_from_source:
             raise ValueError("n_in_a_row_board_status expected_result must match bounded board win/draw/continue semantics")
+    elif algorithm == "clock_patience_simulation":
+        expected_from_source = clock_patience_simulation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("clock_patience_simulation expected_result must match the supplied deal's pile simulation")
+    elif algorithm == "linear_hashing_trace":
+        expected_from_source = linear_hashing_trace_primary(values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("linear_hashing_trace expected_result must match the incremental bucket-split trace")
+    elif algorithm == "move_to_root_bst_access_trace":
+        expected_from_source = move_to_root_bst_primary(values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("move_to_root_bst_access_trace expected_result must match the repeated single-rotation access trace")
+    elif algorithm == "lovasz_toggle_defective_coloring_trace":
+        expected_from_source = lovasz_toggle_primary(values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("lovasz_toggle_defective_coloring_trace expected_result must match lowest-index recoloring")
+    elif algorithm == "erasable_priority_queue_trace":
+        expected_from_source = erasable_priority_queue_primary(values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("erasable_priority_queue_trace expected_result must match the lazy-cancellation operation trace")
+    elif algorithm == "rolling_hash_on_segment_tree_trace":
+        expected_from_source = rolling_hash_segment_tree_primary(values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("rolling_hash_on_segment_tree_trace expected_result must match the point-update hash trace")
+    elif algorithm == "manhattan_mst_candidate_edge_reduction":
+        expected_from_source = manhattan_mst_candidate_primary(values, input_length=len(values))
+        if expected != expected_from_source:
+            raise ValueError("manhattan_mst_candidate_edge_reduction expected_result must match the four-sweep candidate graph")
     elif algorithm == "depth_first_search_tic_tac_toe":
         expected_from_source = depth_first_search_tic_tac_toe_expected(values)
         if expected != expected_from_source:
@@ -11914,21 +18534,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         if expected != expected_from_source:
             raise ValueError("is_subsequence expected_result must match the Unicode-scalar greedy scan")
     elif algorithm == "golomb_sequence_validator":
-        valid = (1 <= len(values) <= 1024 and values[0] == len(values)
-                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[1:]))
-        if not valid:
-            expected_from_source = -1
-        else:
-            n = values[0]
-            sequence = [0] * n
-            sequence[0] = 1
-            for index in range(1, n):
-                prior = sequence[index - 1]
-                previous_index = index - sequence[prior]
-                sequence[index] = 1 + sequence[previous_index]
-            expected_from_source = int(values[1:] == sequence[1:])
-        if expected != expected_from_source:
-            raise ValueError("golomb_sequence_validator expected_result must match the generated Golomb prefix")
+        if expected != golomb_sequence_validator_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("golomb_sequence_validator expected_result differs from the queue reference")
     elif algorithm == "sum_of_two_integers":
         valid = (len(values) == 2
                  and all(-(2**31) <= value <= 2**31 - 1 for value in values))
@@ -12841,6 +19448,457 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         break
         if expected != expected_from_source:
             raise ValueError("horspool_search expected_result must match the bounded case-sensitive Horspool scan")
+    elif algorithm == "commentz_walter":
+        expected_from_source = commentz_walter_primary(
+            values, case.get("input_is_null", False), case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("commentz_walter expected_result must match algorithm B")
+    elif algorithm == "not_so_naive_search":
+        expected_from_source = not_so_naive_search_primary(
+            values, length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("not_so_naive_search expected_result must match the bounded two-shift scan")
+    elif algorithm == "priority_search_tree_three_sided_reporting":
+        expected_from_source = priority_search_tree_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("priority search tree expected_result differs from its radix-tree reference")
+    elif algorithm == "chebyshev_clenshaw_evaluation":
+        expected_from_source = chebyshev_clenshaw_evaluation_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("chebyshev_clenshaw_evaluation expected_result differs from its backward recurrence")
+    elif algorithm == "dag_minimum_path_cover":
+        expected_from_source = dag_minimum_path_cover_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("dag_minimum_path_cover expected_result differs from its Kuhn path-cover reference")
+    elif algorithm == "cocomparability_ldfs_minimum_path_cover":
+        expected_from_source = cocomparability_ldfs_minimum_path_cover_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("cocomparability LDFS path-cover result differs from its primary reference")
+    elif algorithm == "k_ary_huffman_weighted_path_cost":
+        expected_from_source = k_ary_huffman_weighted_path_cost_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("k-ary Huffman cost differs from its stable k-way merge reference")
+    elif algorithm == "extendible_hashing_trace":
+        expected_from_source = extendible_hashing_trace_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("extendible-hashing trace differs from its directory reference")
+    elif algorithm == "carmichael_lambda_function":
+        expected_from_source = carmichael_lambda_function_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("carmichael_lambda_function expected_result differs from its prime-power reference")
+    elif algorithm == "lucas_carmichael_number_predicate":
+        expected_from_source = lucas_carmichael_number_predicate_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("Lucas–Carmichael fixture differs from its residual factor reference")
+    elif algorithm == "kanj_perkovic_modified_yao_spanner":
+        expected_from_source = kanj_perkovic_modified_yao_spanner_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("modified-Yao fixture differs from its cone-bucket reference")
+    elif algorithm == "routh_hurwitz_stability_predicate":
+        expected_from_source = routh_hurwitz_stability_predicate_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("Routh–Hurwitz fixture differs from its exact-table reference")
+    elif algorithm == "jury_discrete_time_stability_predicate":
+        expected_from_source = jury_discrete_time_stability_predicate_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("Jury stability fixture differs from its exact-table reference")
+    elif algorithm == "rna_pair_activity_partition_function":
+        expected_from_source = rna_pair_activity_partition_function_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("RNA pair-activity fixture differs from its interval reference")
+    elif algorithm == "mian_chowla_sequence":
+        expected_from_source = mian_chowla_sequence_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("mian_chowla_sequence expected_result differs from the incremental pair-sum recurrence")
+    elif algorithm == "klarner_rado_affine_closure_sequence":
+        expected_from_source = klarner_rado_affine_closure_sequence_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("Klarner–Rado expected_result differs from the three-stream closure merge")
+    elif algorithm == "ulam_sequence_1_2":
+        expected_from_source = ulam_sequence_1_2_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("U(1,2) Ulam expected_result differs from the incremental representation-count recurrence")
+    elif algorithm == "next_palindromic_number":
+        expected_from_source = next_palindromic_number_primary(
+            values, case.get("input_is_null", False), case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("next_palindromic_number expected_result differs from decimal prefix mirroring and carry")
+    elif algorithm == "bdd_symbolic_reachability":
+        expected_from_source = bdd_symbolic_reachability_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("bdd_symbolic_reachability expected_result differs from ROBDD relational-product reachability")
+    elif algorithm == "same_fringe_leaf_iterator":
+        expected_from_source = same_fringe_leaf_iterator_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("same_fringe_leaf_iterator expected_result differs from lockstep leaf iteration")
+    elif algorithm == "self_number_count_sieve":
+        expected_from_source = self_number_count_sieve_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("self_number_count_sieve expected_result differs from packed digit-addition marks")
+    elif algorithm == "race_car_minimum_instruction_count":
+        expected_from_source = race_car_minimum_instruction_count_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("race-car expected_result differs from the run-length dynamic program")
+    elif algorithm == "barycentric_lagrange_evaluation":
+        expected_from_source = barycentric_lagrange_evaluation_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("barycentric Lagrange result differs from reciprocal-weight evaluation")
+    elif algorithm == "pratt_expression_evaluation":
+        expected_from_source = pratt_expression_evaluation_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("Pratt expression result differs from binding-power evaluation")
+    elif algorithm == "minimal_dominating_sets_permutation_graphs":
+        expected_from_source = minimal_dominating_sets_permutation_graphs_primary(
+            None if case.get("input_is_null", False) else values)
+        if expected != expected_from_source:
+            raise ValueError("permutation-graph minimal-dominating-set result differs from five-tuple DAG counting")
+    elif algorithm == "minimum_area_rectangle_arbitrary_orientation":
+        expected_from_source = minimum_area_rectangle_arbitrary_orientation_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("arbitrary-orientation rectangle result differs from pair-of-diagonals enumeration")
+    elif algorithm == "secret_sharing_time_batched_dsu":
+        expected_from_source = secret_sharing_time_batched_dsu_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("time-batched secret-sharing result differs from timestamp-local DSU propagation")
+    elif algorithm == "redundant_directed_connection_repair":
+        expected_from_source = redundant_directed_connection_repair_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("directed-connection repair differs from parent-conflict and DSU resolution")
+    elif algorithm == "undirected_simple_cycle_subset_dp_count":
+        expected_from_source = undirected_simple_cycle_subset_dp_count_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("undirected simple-cycle count differs from least-vertex subset-path DP")
+    elif algorithm == "odd_even_jump_reachability_count":
+        expected_from_source = odd_even_jump_reachability_count_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("odd_even_jump_reachability_count expected_result differs from sorted successors and parity DP")
+    elif algorithm == "grid_shortest_path_obstacle_elimination":
+        expected_from_source = grid_shortest_path_obstacle_elimination_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("grid obstacle-elimination result differs from product-state BFS")
+    elif algorithm == "zwick_deterministic_bridging_set":
+        expected_from_source = zwick_deterministic_bridging_set_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("Zwick bridge-set result differs from recursive witness-prefix construction")
+    elif algorithm == "perfect_phylogeny_three_state_2sat":
+        expected_from_source = perfect_phylogeny_three_state_2sat_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("perfect_phylogeny_three_state_2sat expected_result differs from expanded-column 2-SAT")
+    elif algorithm == "yellowstone_permutation_prefix":
+        expected_from_source = yellowstone_permutation_prefix_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("yellowstone_permutation_prefix expected_result differs from its Euclidean-GCD construction")
+    elif algorithm == "arithmetic_derivative":
+        expected_from_source = arithmetic_derivative_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("arithmetic_derivative expected_result differs from its prime-factor formula")
+    elif algorithm == "taxicab_number_minimum_representations":
+        expected_from_source = taxicab_number_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("taxicab_number_minimum_representations expected_result differs from its heap merge")
+    elif algorithm == "fortunate_numbers":
+        expected_from_source = fortunate_numbers_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("fortunate_numbers expected_result differs from its trial-division reference")
+    elif algorithm == "wolstenholme_numbers":
+        expected_from_source = wolstenholme_numbers_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("wolstenholme_numbers expected_result differs from its reduced-fraction recurrence")
+    elif algorithm == "moore_dfa_minimization":
+        expected_from_source = moore_dfa_minimization_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("moore_dfa_minimization expected_result differs from synchronous signature refinement")
+    elif algorithm == "ruth_aaron_number_predicate":
+        expected_from_source = ruth_aaron_number_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("ruth_aaron_number_predicate expected_result differs from repeated-factor trial division")
+    elif algorithm == "dividuus_number_predicate":
+        expected_from_source = dividuus_number_predicate_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("dividuus_number_predicate expected_result differs from the numeric digit predicate")
+    elif algorithm == "gaussian_prime_classifier":
+        expected_from_source = gaussian_prime_classifier_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("gaussian_prime_classifier expected_result differs from the norm classification")
+    elif algorithm == "wulff_nilsen_distance_refinement":
+        expected_from_source = wulff_nilsen_distance_refinement_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("wulff_nilsen_distance_refinement expected_result differs from Figure 4 refinement")
+    elif algorithm == "erdos_selfridge_prime_class":
+        expected_from_source = erdos_selfridge_prime_class_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("erdos_selfridge_prime_class expected_result differs from recursive factor classes")
+    elif algorithm == "squfof_semiprime_factor":
+        expected_from_source = squfof_semiprime_factor_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("squfof_semiprime_factor expected_result differs from the bounded square-form walk")
+    elif algorithm == "sieve_of_pritchard":
+        expected_from_source = sieve_of_pritchard_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("sieve_of_pritchard expected_result differs from the dynamic-wheel reference")
+    elif algorithm == "bk_tree_edit_distance_search":
+        expected_from_source = bk_tree_edit_distance_search_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("BK-tree result differs from insertion-ordered metric-tree search")
+    elif algorithm == "wieferich_prime_count_up_to_limit":
+        expected_from_source = wieferich_prime_count_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("wieferich_prime_count_up_to_limit expected_result differs from sieve and binary powering")
+    elif algorithm == "convex_polygon_minimum_weight_triangulation":
+        expected_from_source = convex_min_weight_triangulation_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("convex_polygon_minimum_weight_triangulation expected_result differs from interval DP")
+    elif algorithm == "frobenius_number_apery":
+        expected_from_source = frobenius_number_apery_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("frobenius_number_apery expected_result differs from residue shortest paths")
+    elif algorithm == "motzkin_number":
+        expected_from_source = motzkin_number_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("motzkin_number expected_result differs from the convolution recurrence")
+    elif algorithm == "riordan_number":
+        expected_from_source = riordan_number_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("riordan_number expected_result differs from the Riordan recurrence")
+    elif algorithm == "cube_root_proper_divisor_product":
+        expected_from_source = cube_root_proper_divisor_product_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("cube_root_proper_divisor_product expected_result differs from prime-signature search")
+    elif algorithm == "euclid_mullin_sequence":
+        expected_from_source = euclid_mullin_sequence_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("euclid_mullin_sequence expected_result differs from trial factorization")
+    elif algorithm == "left_truncatable_prime_search":
+        expected_from_source = left_truncatable_prime_search_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("left_truncatable_prime_search expected_result differs from the prepend-prime search")
+    elif algorithm == "strong_weak_balanced_prime_distribution":
+        expected_from_source = strong_weak_balanced_prime_distribution_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("strong_weak_balanced_prime_distribution expected_result differs from sieve classification")
+    elif algorithm == "abelian_sandpile_stabilization":
+        expected_from_source = abelian_sandpile_stabilization_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("abelian_sandpile_stabilization expected_result differs from legal toppling")
+    elif algorithm == "dulmage_mendelsohn_decomposition":
+        expected_from_source = dulmage_mendelsohn_decomposition_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("dulmage_mendelsohn_decomposition expected_result differs from its matching/BFS reference")
+    elif algorithm == "pocklington_primality_certificate":
+        expected_from_source = pocklington_primality_certificate_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("pocklington_primality_certificate expected_result differs from its certificate reference")
+    elif algorithm == "pohlig_hellman_discrete_log":
+        expected_from_source = pohlig_hellman_discrete_log_primary(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if expected != expected_from_source:
+            raise ValueError("pohlig_hellman_discrete_log expected_result differs from its prime-power reference")
+    elif algorithm == "optimal_mismatch":
+        expected_from_source = optimal_mismatch_primary(
+            values, length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("optimal_mismatch expected_result differs from its frequency-ordered reference")
+    elif algorithm == "berry_ravindran_search":
+        expected_from_source = berry_ravindran_search_primary(
+            values, length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("berry_ravindran_search expected_result differs from its pair-lookahead reference")
+    elif algorithm == "zhu_takaoka_search":
+        expected_from_source = zhu_takaoka_search_primary(
+            values, length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("zhu_takaoka_search expected_result differs from its pair-shift reference")
+    elif algorithm == "simon_string_search":
+        expected_from_source = simon_string_search_primary(
+            values, length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("simon_string_search expected_result differs from its sparse-automaton reference")
+    elif algorithm == "galil_seiferas_search":
+        expected_from_source = galil_seiferas_search_primary(
+            values, length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("galil_seiferas_search expected_result differs from its perfect-factorization reference")
+    elif algorithm == "galil_giancarlo_search":
+        expected_from_source = galil_giancarlo_search_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("galil_giancarlo_search expected_result differs from its ordered-search reference")
+    elif algorithm == "kmp_skip_search":
+        expected_from_source = kmp_skip_search_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("kmp_skip_search expected_result differs from its bucket-and-prefix reference")
+    elif algorithm == "forward_dawg_matching":
+        expected_from_source = forward_dawg_matching_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("forward_dawg_matching expected_result differs from its suffix-automaton reference")
+    elif algorithm == "reverse_colussi_search":
+        expected_from_source = reverse_colussi_search_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("reverse_colussi_search expected_result differs from its h-ordered reference")
+    elif algorithm == "reverse_factor_search":
+        expected_from_source = reverse_factor_search_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("reverse_factor_search expected_result differs from its suffix-automaton reference")
+    elif algorithm == "turbo_reverse_factor_search":
+        expected_from_source = turbo_reverse_factor_search_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("turbo_reverse_factor_search expected_result differs from its weighted automaton reference")
+    elif algorithm == "smallest_number_with_n_divisors":
+        expected_from_source = smallest_number_with_n_divisors_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("smallest_number_with_n_divisors expected_result differs from its exponent-profile reference")
+    elif algorithm == "maximal_shift_search":
+        expected_from_source = maximal_shift_search_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("maximal_shift_search expected_result differs from its pattern-order reference")
+    elif algorithm == "skip_search":
+        expected_from_source = skip_search_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("skip_search expected_result differs from its character-bucket reference")
+    elif algorithm == "string_matching_ordered_alphabets":
+        expected_from_source = string_matching_ordered_alphabets_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("string_matching_ordered_alphabets expected_result differs from its online maximal-suffix reference")
+    elif algorithm == "morris_pratt_search":
+        expected_from_source = morris_pratt_search_primary(
+            values, input_length=case.get("input_length"),
+            input_is_null=case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("morris_pratt_search expected_result differs from its MP border-table reference")
     elif algorithm == "temperature_conversion":
         if (len(values) != 2 or not 0 <= values[0] <= 15
                 or not -1_000_000 <= values[1] <= 1_000_000):
@@ -13448,15 +20506,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         if expected != expected_from_source:
             raise ValueError("xs3_conversion expected_result must match the bounded source-order packed XS-3 conversion")
     elif algorithm == "polygonal_numbers":
-        valid = (len(values) == 2 and 0 <= values[0] <= 100_000_000
-                 and 3 <= values[1] <= 64)
-        expected_from_source = -1
-        if valid:
-            number, sides = values
-            numerator = (sides - 2) * number * number - (sides - 4) * number
-            expected_from_source = numerator // 2
-        if expected != expected_from_source:
-            raise ValueError("polygonal_numbers expected_result must match the bounded source formula")
+        if expected != polygonal_numbers_expected(None if case.get("input_is_null", False) else values):
+            raise ValueError("polygonal_numbers expected_result differs from the combination reference")
     elif algorithm == "min_number_of_jumps":
         valid = 1 <= len(values) <= 64 and all(0 <= jump <= 64 for jump in values)
         expected_from_source = -1
@@ -13527,6 +20578,201 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                                 expected_from_source = min(modular_r, prime - modular_r)
         if expected != expected_from_source:
             raise ValueError("tonelli_shanks expected_result must match the bounded modular-root source algorithm")
+    elif algorithm == "cipolla_modular_square_root":
+        if expected != cipolla_modular_square_root_primary(values):
+            raise ValueError("cipolla_modular_square_root expected_result differs from its extension-field reference")
+    elif algorithm == "binomial_divisibility_primality_test":
+        if expected != binomial_divisibility_primality_test_primary(values):
+            raise ValueError("binomial_divisibility_primality_test expected_result differs from the Pascal-row criterion")
+    elif algorithm == "erdos_gallai_graphical_sequence":
+        if expected != erdos_gallai_graphical_sequence_primary(values):
+            raise ValueError("erdos_gallai_graphical_sequence expected_result differs from its sorted-inequality oracle")
+    elif algorithm == "prime_modulus_p_free_factorial":
+        if expected != prime_modulus_p_free_factorial_primary(values):
+            raise ValueError("prime_modulus_p_free_factorial expected_result differs from its Wilson-block oracle")
+    elif algorithm == "perfect_shuffle_order":
+        if expected != perfect_shuffle_order_primary(values):
+            raise ValueError("perfect_shuffle_order expected_result differs from direct shuffle simulation")
+    elif algorithm == "chernick_carmichael_least_multiplier":
+        if expected != chernick_carmichael_least_multiplier_primary(values):
+            raise ValueError("chernick_carmichael_least_multiplier expected_result differs from its trial-division search")
+    elif algorithm == "binomial_coefficient_lucas":
+        if expected != binomial_coefficient_lucas_primary(values):
+            raise ValueError("binomial_coefficient_lucas expected_result differs from its factorial-table Lucas oracle")
+    elif algorithm == "pell_fundamental_solution":
+        if expected != pell_fundamental_solution_primary(values):
+            raise ValueError("pell_fundamental_solution expected_result differs from its continued-fraction oracle")
+    elif algorithm == "american_flag_string_sorter":
+        if expected != american_flag_string_sorter_primary(values):
+            raise ValueError("american_flag_string_sorter expected_result differs from its in-place radix oracle")
+    elif algorithm == "apostolico_crochemore_search":
+        if expected != apostolico_crochemore_search_primary(values):
+            raise ValueError("apostolico_crochemore_search expected_result differs from its KMP-next search oracle")
+    elif algorithm == "alpha_skip_search":
+        if expected != alpha_skip_search_primary(values):
+            raise ValueError("alpha_skip_search expected_result differs from its factor-bucket search oracle")
+    elif algorithm == "generalized_suffix_automaton_union":
+        if expected != generalized_suffix_automaton_union_primary(values):
+            raise ValueError("generalized_suffix_automaton_union expected_result differs from its trie-built automaton oracle")
+    elif algorithm == "schorr_waite_graph_marking":
+        if expected != schorr_waite_graph_marking_primary(values):
+            raise ValueError("schorr_waite_graph_marking expected_result differs from its stack reachability oracle")
+    elif algorithm == "size_balanced_ordered_set":
+        if expected != size_balanced_ordered_set_primary(values):
+            raise ValueError("size_balanced_ordered_set expected_result differs from its subtree-size tree oracle")
+    elif algorithm == "weight_balanced_leaf_tree_order_statistics":
+        if expected != weight_balanced_leaf_tree_order_statistics_primary(values):
+            raise ValueError("weight_balanced_leaf_tree_order_statistics expected_result differs from its merge-based WBLT oracle")
+    elif algorithm == "penney_game_pattern_probability":
+        if expected != penney_game_pattern_probability_primary(
+                values, case.get("input_is_null", False),
+                case.get("input_length", len(values))):
+            raise ValueError("penney_game_pattern_probability expected_result differs from its prefix-automaton oracle")
+    elif algorithm == "undirected_four_cycle_count_degree_order":
+        if expected != undirected_four_cycle_count_degree_order_primary(
+                values, case.get("input_is_null", False),
+                case.get("input_length", len(values))):
+            raise ValueError("degree-order four-cycle count differs from its two-path reference")
+    elif algorithm == "mo_with_modifications":
+        if expected != mo_with_modifications_primary(values):
+            raise ValueError("mo_with_modifications expected_result differs from its time-aware Mo oracle")
+    elif algorithm == "lgv_nonintersecting_paths":
+        if expected != lgv_nonintersecting_paths_primary(values):
+            raise ValueError("lgv_nonintersecting_paths expected_result differs from its path-matrix determinant oracle")
+    elif algorithm == "weak_heapsort":
+        if expected != weak_heapsort_primary(values):
+            raise ValueError("weak_heapsort expected_result differs from its reverse-bit weak-heap oracle")
+    elif algorithm == "persistent_leftist_heap":
+        if expected != persistent_leftist_heap_primary(values):
+            raise ValueError("persistent_leftist_heap expected_result differs from its path-copying heap oracle")
+    elif algorithm == "pagoda_meldable_priority_queue":
+        if expected != pagoda_meldable_priority_queue_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("pagoda_meldable_priority_queue expected_result differs from its Pagoda trace oracle")
+    elif algorithm == "colussi_search":
+        if expected != colussi_search_primary(values):
+            raise ValueError("colussi_search expected_result differs from its Colussi table-search oracle")
+    elif algorithm == "stable_roommates":
+        if expected != stable_roommates_primary(values):
+            raise ValueError("stable_roommates expected_result differs from Irving's two-phase list-reduction oracle")
+    elif algorithm == "super_stable_matching_ties_incomplete":
+        if expected != super_stable_matching_ties_incomplete_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("super_stable_matching_ties_incomplete expected_result differs from the SUPER2 oracle")
+    elif algorithm == "maximum_cardinality_popular_matching":
+        if expected != maximum_cardinality_popular_matching_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("maximum_cardinality_popular_matching expected_result differs from its degree/cycle oracle")
+    elif algorithm == "ties_maximum_cardinality_popular_matching":
+        if expected != ties_maximum_cardinality_popular_matching_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("ties_maximum_cardinality_popular_matching expected_result differs from its E/O/U augmentation oracle")
+    elif algorithm == "ordered_tree_edit_distance_zhang_shasha":
+        if expected != ordered_tree_edit_distance_zhang_shasha_primary(values):
+            raise ValueError("ordered_tree_edit_distance_zhang_shasha expected_result differs from its keyroot oracle")
+    elif algorithm == "minimum_cost_circulation_cost_scaling":
+        if expected != minimum_cost_circulation_cost_scaling_primary(values):
+            raise ValueError("minimum_cost_circulation_cost_scaling expected_result differs from its epsilon-refinement oracle")
+    elif algorithm == "lower_bound_circulation_feasibility":
+        if expected != lower_bound_circulation_feasibility_primary(values):
+            raise ValueError("lower_bound_circulation_feasibility expected_result differs from its super-source feasibility oracle")
+    elif algorithm == "minimum_bounded_s_t_flow":
+        if expected != minimum_bounded_s_t_flow_primary(values):
+            raise ValueError("minimum_bounded_s_t_flow expected_result differs from its binary-search feasibility oracle")
+    elif algorithm == "json_pointer_evaluation":
+        if expected != json_pointer_evaluation_primary(values):
+            raise ValueError("json_pointer_evaluation expected_result differs from its flat-tree traversal oracle")
+    elif algorithm == "wave_function_collapse_simple_tiled":
+        if expected != wave_function_collapse_simple_tiled_primary(
+                values, input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length", len(values))):
+            raise ValueError("wave_function_collapse_simple_tiled expected_result differs from its FIFO bitmask oracle")
+    elif algorithm == "hashiwokakero_small_solver":
+        if expected != hashiwokakero_small_solver_primary(
+                values, input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length", len(values))):
+            raise ValueError("hashiwokakero_small_solver expected_result differs from its residual-degree search oracle")
+    elif algorithm == "prim_sparse_heap":
+        if expected != prim_sparse_heap_primary(values):
+            raise ValueError("prim_sparse_heap expected_result differs from its indexed-heap Prim oracle")
+    elif algorithm == "mestre_strict_weighted_popular_matching":
+        if expected != mestre_strict_weighted_popular_matching_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("mestre_strict_weighted_popular_matching expected_result differs from its category-pruning oracle")
+    elif algorithm == "baum_sweet_sequence":
+        if expected != baum_sweet_sequence_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("baum_sweet_sequence expected_result differs from its zero-run automaton oracle")
+    elif algorithm == "polydivisible_prefix_search":
+        if expected != polydivisible_prefix_search_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("polydivisible_prefix_search expected_result differs from its prefix-tree oracle")
+    elif algorithm == "global_balanced_binary_tree":
+        if expected != global_balanced_binary_tree_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("global_balanced_binary_tree expected_result differs from its weighted-midpoint oracle")
+    elif algorithm == "coloured_triangle_reduction":
+        if expected != coloured_triangle_reduction_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("coloured_triangle_reduction expected_result differs from its Lucas oracle")
+    elif algorithm == "hanging_line_largest_rectangle":
+        if expected != hanging_line_largest_rectangle_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("hanging_line_largest_rectangle expected_result differs from its prior-link oracle")
+    elif algorithm == "berlekamp_welch_rs_decode":
+        if expected != berlekamp_welch_rs_decode_primary(values):
+            raise ValueError("berlekamp_welch_rs_decode expected_result differs from its interpolation decoder")
+    elif algorithm == "gao_rs_decode":
+        if expected != gao_rs_decode_primary(values):
+            raise ValueError("gao_rs_decode expected_result differs from its interpolation and partial-EEA decoder")
+    elif algorithm == "freivalds_matrix_product_verification":
+        if expected != freivalds_matrix_product_verification_primary(
+                values, case.get("input_is_null", False), case.get("input_length", len(values))):
+            raise ValueError("freivalds_matrix_product_verification expected_result differs from its supplied-tape trace")
+    elif algorithm == "kruskal_reconstruction_tree_bottleneck":
+        if expected != kruskal_reconstruction_tree_bottleneck_primary(values):
+            raise ValueError("kruskal_reconstruction_tree_bottleneck expected_result differs from its Kruskal-tree LCA oracle")
+    elif algorithm == "subset_sum_bin_packing":
+        if expected != subset_sum_bin_packing_primary(values):
+            raise ValueError("subset_sum_bin_packing expected_result differs from its suffix subset-sum oracle")
+    elif algorithm == "johnson_elementary_circuit_enumeration":
+        if expected != johnson_elementary_circuit_enumeration_primary(values):
+            raise ValueError("johnson_elementary_circuit_enumeration expected_result differs from its Johnson circuit oracle")
+    elif algorithm == "housing_top_trading_cycles":
+        if expected != housing_top_trading_cycles_primary(values):
+            raise ValueError("housing_top_trading_cycles expected_result differs from its TTC cycle oracle")
+    elif algorithm == "ukkonen_suffix_tree":
+        if expected != ukkonen_suffix_tree_primary(values):
+            raise ValueError("ukkonen_suffix_tree expected_result differs from its online suffix-tree oracle")
+    elif algorithm == "burstsort":
+        if expected != burstsort_primary(values):
+            raise ValueError("burstsort expected_result differs from its burst-trie oracle")
+    elif algorithm == "lawler_knapsack_profit_scaling_fptas":
+        if expected != lawler_knapsack_profit_scaling_fptas_primary(values):
+            raise ValueError("lawler_knapsack_profit_scaling_fptas expected_result differs from its grouped dyadic-scaling oracle")
+    elif algorithm == "reverse_cuthill_mckee":
+        if expected != reverse_cuthill_mckee_primary(values):
+            raise ValueError("reverse_cuthill_mckee expected_result differs from its degree-ordered BFS oracle")
+    elif algorithm == "floyd_rivest_select":
+        if expected != floyd_rivest_select_primary(values, case.get("input_is_null", False), len(values)):
+            raise ValueError("floyd_rivest_select expected_result differs from its rank-centered selection oracle")
+    elif algorithm == "sum_over_subsets_zeta_transform":
+        if expected != sum_over_subsets_zeta_transform_primary(values, case.get("input_is_null", False), len(values)):
+            raise ValueError("sum_over_subsets_zeta_transform expected_result differs from its dimension-wise zeta oracle")
+    elif algorithm == "powerful_number_summatory_sieve":
+        if expected != powerful_number_summatory_sieve_primary(values, case.get("input_is_null", False), len(values)):
+            raise ValueError("powerful_number_summatory_sieve expected_result differs from its powerful-number convolution oracle")
+    elif algorithm == "boykov_kolmogorov_maxflow":
+        if expected != boykov_kolmogorov_maxflow_primary(values, case.get("input_is_null", False), len(values)):
+            raise ValueError("boykov_kolmogorov_maxflow expected_result differs from its two-tree grow/augment/adopt oracle")
+    elif algorithm == "length_limited_huffman_package_merge":
+        if expected != length_limited_huffman_package_merge_primary(
+                values, case.get("input_is_null", False), len(values)):
+            raise ValueError("length_limited_huffman_package_merge expected_result differs from its width-scaled package-merge oracle")
+    elif algorithm == "elias_fano_monotone_sequence":
+        if expected != elias_fano_monotone_sequence_primary(
+                values, case.get("input_is_null", False), len(values)):
+            raise ValueError("elias_fano_monotone_sequence expected_result differs from its bitvector-access oracle")
     elif algorithm == "excel_title_to_column":
         valid = (len(values) >= 1 and 1 <= values[0] <= 12
                  and len(values) == values[0] + 1
@@ -13916,6 +21162,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = jump_game_expected(values)
         if expected != expected_from_source:
             raise ValueError("jump_game expected_result must match backward reachability")
+    elif algorithm == "same_value_teleport_bfs":
+        expected_from_source = same_value_teleport_bfs_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("same_value_teleport_bfs expected_result must match grouped-value BFS")
     elif algorithm == "max_consecutive_ones_iii":
         expected_from_source = max_consecutive_ones_iii_expected(values)
         if expected != expected_from_source:
@@ -14128,6 +21378,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = two_pset_expected(values)
         if expected != expected_from_source:
             raise ValueError("two_pset expected_result must match the two-replica state digest contract")
+    elif algorithm == "observed_remove_set":
+        expected_from_source = observed_remove_set_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("observed_remove_set expected_result differs from its add-wins operation trace")
+    elif algorithm == "token_bucket_rate_limiter_virtual_time":
+        expected_from_source = token_bucket_virtual_time_primary(values)
+        if expected != expected_from_source:
+            raise ValueError("token bucket virtual-time expected_result differs from its admission trace")
     elif algorithm == "matrix_rank":
         expected_from_source = matrix_rank_expected(values)
         if expected != expected_from_source:
@@ -23501,6 +30759,51 @@ def validate_pollard_p_minus_one_factorization_workload(workload: dict) -> None:
             )
 
 
+def validate_fermat_factorization_workload(workload: dict) -> None:
+    """Pin the bounded Fermat profile and inspect its ten language ports."""
+    package_workload = ROOT / "benchmarks/f/fermat_factorization/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("fermat_factorization workload differs from its package file")
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload.get("algorithm") != "fermat_factorization"
+            or workload.get("function_symbol") != "fermat_factorization"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != FERMAT_FACTORIZATION_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != FERMAT_FACTORIZATION_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_input_result") != FERMAT_FACTORIZATION_INVALID_RESULT
+            or output_spec.get("invalid_input_result") != FERMAT_FACTORIZATION_INVALID_RESULT
+            or workload.get("workspace", {}).get("bytes") != FERMAT_FACTORIZATION_WORKSPACE_BYTES):
+        raise ValueError("fermat_factorization metadata differs from its bounded profile")
+    package_issues = fermat_factorization_static_issues()
+    if package_issues:
+        raise ValueError("fermat_factorization package is incomplete: " + "; ".join(package_issues))
+
+
+def validate_generalized_chinese_remainder_theorem_workload(workload: dict) -> None:
+    """Pin the bounded non-coprime CRT profile and inspect its ten ports."""
+    package_workload = ROOT / "benchmarks/g/generalized_chinese_remainder_theorem/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("generalized_chinese_remainder_theorem workload differs from its package file")
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload.get("algorithm") != "generalized_chinese_remainder_theorem"
+            or workload.get("function_symbol") != "generalized_chinese_remainder_theorem"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != GENERALIZED_CRT_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != GENERALIZED_CRT_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("modulus_product_maximum") != GENERALIZED_CRT_MAX_PRODUCT
+            or input_spec.get("invalid_input_result") != GENERALIZED_CRT_INVALID_RESULT
+            or output_spec.get("inconsistent_result") != GENERALIZED_CRT_INCONSISTENT_RESULT
+            or output_spec.get("invalid_input_result") != GENERALIZED_CRT_INVALID_RESULT
+            or workload.get("workspace", {}).get("bytes") != GENERALIZED_CRT_WORKSPACE_BYTES):
+        raise ValueError("generalized_chinese_remainder_theorem metadata differs from its bounded profile")
+    package_issues = generalized_crt_static_issues()
+    if package_issues:
+        raise ValueError("generalized_chinese_remainder_theorem package is incomplete: "
+                         + "; ".join(package_issues))
+
+
 def validate_factoring_exponentiation_workload(workload: dict) -> None:
     """Check the factoring method's metadata, ports, and declared results."""
     package_workload = ROOT / "benchmarks/f/factoring_exponentiation/workload.json"
@@ -23868,6 +31171,1132 @@ def validate_count_different_palindromic_subsequences_workload(workload: dict) -
         raise ValueError("; ".join(package_errors))
 
 
+def validate_k_inverse_pairs_array_workload(workload: dict) -> None:
+    """Pin the bounded Mahonian-count workload and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "k" / "k_inverse_pairs_array"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    outputs = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "k_inverse_pairs_array"
+            or workload.get("function_symbol") != "k_inverse_pairs_array"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("encoding") != "[n,k]"
+            or inputs.get("n_range") != [0, K_INVERSE_PAIRS_ARRAY_MAX_N]
+            or inputs.get("k_range") != [0, K_INVERSE_PAIRS_ARRAY_MAX_K]
+            or inputs.get("maximum_valid_length") != K_INVERSE_PAIRS_ARRAY_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != K_INVERSE_PAIRS_ARRAY_MAX_PARSEABLE_INPUT_LENGTH
+            or outputs.get("modulus") != K_INVERSE_PAIRS_ARRAY_MODULUS):
+        raise ValueError("k_inverse_pairs_array bounds differ from its bounded contract")
+    package_errors = k_inverse_pairs_array_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_max_sum_rectangle_no_larger_than_k_workload(workload: dict) -> None:
+    """Pin the constrained rectangle workload and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "m" / "max_sum_rectangle_no_larger_than_k"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    outputs = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "max_sum_rectangle_no_larger_than_k"
+            or workload.get("function_symbol") != "max_sum_rectangle_no_larger_than_k"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("rows_range") != [1, MAX_SUM_RECTANGLE_MAX_ROWS]
+            or inputs.get("columns_range") != [1, MAX_SUM_RECTANGLE_MAX_COLUMNS]
+            or inputs.get("cell_value_range") != [MAX_SUM_RECTANGLE_CELL_MIN, MAX_SUM_RECTANGLE_CELL_MAX]
+            or inputs.get("K_range") != [MAX_SUM_RECTANGLE_K_MIN, MAX_SUM_RECTANGLE_K_MAX]
+            or inputs.get("maximum_valid_length") != MAX_SUM_RECTANGLE_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != MAX_SUM_RECTANGLE_MAX_PARSEABLE_INPUT_LENGTH
+            or outputs.get("no_feasible_rectangle_result") != MAX_SUM_RECTANGLE_NO_FEASIBLE_RESULT
+            or outputs.get("invalid_input_result") != MAX_SUM_RECTANGLE_INVALID_RESULT):
+        raise ValueError("max_sum_rectangle_no_larger_than_k bounds differ from its bounded contract")
+    package_errors = max_sum_rectangle_no_larger_than_k_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_shortest_subarray_with_sum_at_least_k_workload(workload: dict) -> None:
+    """Pin the signed shortest-subarray profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "s" / "shortest_subarray_with_sum_at_least_k"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "shortest_subarray_with_sum_at_least_k"
+            or workload.get("function_symbol") != "shortest_subarray_with_sum_at_least_k"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != 258
+            or inputs.get("maximum_parseable_length") != SHORTEST_SUBARRAY_SUM_AT_LEAST_K_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("count_range") != [0, 256]
+            or inputs.get("target_range") != [-4096, 4096]
+            or inputs.get("value_range") != [-1000, 1000]):
+        raise ValueError("shortest_subarray_with_sum_at_least_k bounds differ from its bounded contract")
+    package_errors = shortest_subarray_with_sum_at_least_k_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_linear_partition_minimax_workload(workload: dict) -> None:
+    """Pin the minimax partition profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "l" / "linear_partition_minimax"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "linear_partition_minimax"
+            or workload.get("function_symbol") != "linear_partition_minimax"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != 34
+            or inputs.get("maximum_parseable_length") != LINEAR_PARTITION_MINIMAX_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("n_range") != [1, 32]
+            or inputs.get("groups_range") != [1, 32]
+            or inputs.get("value_range") != [0, 1000]):
+        raise ValueError("linear_partition_minimax bounds differ from its bounded contract")
+    package_errors = linear_partition_minimax_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_number_of_ways_of_cutting_a_pizza_workload(workload: dict) -> None:
+    """Pin the bounded guillotine pizza-cut profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "n" / "number_of_ways_of_cutting_a_pizza"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    outputs = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "number_of_ways_of_cutting_a_pizza"
+            or workload.get("function_symbol") != "number_of_ways_of_cutting_a_pizza"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != 39
+            or inputs.get("maximum_parseable_length") != CUTTING_PIZZA_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("rows_range") != [1, 6]
+            or inputs.get("columns_range") != [1, 6]
+            or inputs.get("cuts_range") != [0, 5]
+            or outputs.get("modulus") != 1_000_000_007):
+        raise ValueError("number_of_ways_of_cutting_a_pizza bounds differ from its bounded contract")
+    package_errors = number_of_ways_of_cutting_a_pizza_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_minimum_cost_to_merge_stones_workload(workload: dict) -> None:
+    """Pin the bounded k-ary interval merge profile and inventory its ports."""
+    package = ROOT / "benchmarks" / "m" / "minimum_cost_to_merge_stones"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "minimum_cost_to_merge_stones"
+            or workload.get("function_symbol") != "minimum_cost_to_merge_stones"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != 32
+            or inputs.get("maximum_parseable_length") != MINIMUM_COST_TO_MERGE_STONES_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("n_range") != [1, 30]
+            or inputs.get("merge_arity_range") != [2, 30]
+            or inputs.get("stone_weight_range") != [1, 100]):
+        raise ValueError("minimum_cost_to_merge_stones bounds differ from its bounded contract")
+    package_errors = minimum_cost_to_merge_stones_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_connectivity_aware_plug_dp_binary_grid_colorings_workload(workload: dict) -> None:
+    """Pin the connected-coloring plug-DP profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "c" / "connectivity_aware_plug_dp_binary_grid_colorings"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    workspace = workload.get("workspace", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "connectivity_aware_plug_dp_binary_grid_colorings"
+            or workload.get("function_symbol") != "connectivity_aware_plug_dp_binary_grid_colorings"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_values") != CONNECTIVITY_PLUG_DP_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_values") != CONNECTIVITY_PLUG_DP_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("rows_range") != [2, 4]
+            or inputs.get("columns_range") != [2, 4]
+            or workspace.get("bytes") != CONNECTIVITY_PLUG_DP_WORKSPACE_BYTES):
+        raise ValueError("connectivity_aware_plug_dp_binary_grid_colorings bounds differ from its profile")
+    package_errors = connectivity_aware_plug_dp_binary_grid_colorings_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_paint_house_iii_workload(workload: dict) -> None:
+    """Pin the exact-neighborhood painting profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "p" / "paint_house_iii"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "paint_house_iii"
+            or workload.get("function_symbol") != "paint_house_iii"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != PAINT_HOUSE_III_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != PAINT_HOUSE_III_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("m_range") != [1, 8]
+            or inputs.get("n_range") != [1, 4]
+            or inputs.get("cost_range") != [0, 100]):
+        raise ValueError("paint_house_iii bounds differ from its bounded contract")
+    package_errors = paint_house_iii_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_efficient_dominating_set_square_graph_mwis_workload(workload: dict) -> None:
+    """Pin the graph-square efficient-domination profile and statically inventory ports."""
+    package = ROOT / "benchmarks" / "e" / "efficient_dominating_set_square_graph_mwis"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    workspace = workload.get("workspace", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "efficient_dominating_set_square_graph_mwis"
+            or workload.get("function_symbol") != "efficient_dominating_set_square_graph_mwis"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != EFFICIENT_DOMINATING_SET_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != EFFICIENT_DOMINATING_SET_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("vertex_count_range") != [1, 12]
+            or inputs.get("edge_count_range") != [0, 66]
+            or workspace.get("bytes") != EFFICIENT_DOMINATING_SET_WORKSPACE_BYTES):
+        raise ValueError("efficient_dominating_set_square_graph_mwis bounds differ from its contract")
+    package_errors = efficient_dominating_set_square_graph_mwis_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_maximum_employees_to_be_invited_workload(workload: dict) -> None:
+    """Pin the circular-invitation functional-graph profile and inventory its ports."""
+    package = ROOT / "benchmarks" / "m" / "maximum_employees_to_be_invited"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "maximum_employees_to_be_invited"
+            or workload.get("function_symbol") != "maximum_employees_to_be_invited"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != MAXIMUM_EMPLOYEES_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != MAXIMUM_EMPLOYEES_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("n_range") != [2, 8]):
+        raise ValueError("maximum_employees_to_be_invited bounds differ from its bounded contract")
+    package_errors = maximum_employees_to_be_invited_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_max_points_on_a_line_workload(workload: dict) -> None:
+    """Pin the bounded planar-collinearity profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "m" / "max_points_on_a_line"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "max_points_on_a_line"
+            or workload.get("function_symbol") != "max_points_on_a_line"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != MAX_POINTS_ON_A_LINE_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != MAX_POINTS_ON_A_LINE_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("n_range") != [1, 16]
+            or inputs.get("coordinate_range") != [-100, 100]):
+        raise ValueError("max_points_on_a_line bounds differ from its bounded contract")
+    package_errors = max_points_on_a_line_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_cherry_pickup_ii_workload(workload: dict) -> None:
+    """Pin the synchronized two-robot grid profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "c" / "cherry_pickup_ii"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "cherry_pickup_ii"
+            or workload.get("function_symbol") != "cherry_pickup_ii"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != CHERRY_PICKUP_II_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != CHERRY_PICKUP_II_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("rows_range") != [2, 6]
+            or inputs.get("columns_range") != [2, 6]
+            or inputs.get("cell_range") != [0, 100]):
+        raise ValueError("cherry_pickup_ii bounds differ from its bounded contract")
+    package_errors = cherry_pickup_ii_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_delaunay_rooted_triangulation_reverse_search_workload(workload: dict) -> None:
+    """Pin the bounded geometric reverse-search profile and inventory its ports."""
+    package = ROOT / "benchmarks" / "d" / "delaunay_rooted_triangulation_reverse_search"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if workload != expected_workload:
+        raise ValueError("delaunay_rooted_triangulation_reverse_search workload differs from its package file")
+    inputs = workload.get("input", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("algorithm") != "delaunay_rooted_triangulation_reverse_search"
+            or workload.get("function_symbol") != "delaunay_rooted_triangulation_reverse_search"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != DELAUNAY_ROOTED_TRIANGULATION_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != DELAUNAY_ROOTED_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != DELAUNAY_ROOTED_TRIANGULATION_WORKSPACE_BYTES):
+        raise ValueError("Delaunay reverse-search bounds differ from the reviewed profile")
+    package_errors = delaunay_rooted_triangulation_reverse_search_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_string_compression_ii_workload(workload: dict) -> None:
+    """Pin the bounded deletion-aware RLE profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "s" / "string_compression_ii"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "string_compression_ii"
+            or workload.get("function_symbol") != "string_compression_ii"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != STRING_COMPRESSION_II_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != STRING_COMPRESSION_II_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("n_range") != [0, 12]
+            or workload.get("workspace", {}).get("bytes") != STRING_COMPRESSION_II_WORKSPACE_BYTES):
+        raise ValueError("string_compression_ii bounds differ from its bounded contract")
+    package_errors = string_compression_ii_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_hofstadter_q_sequence_workload(workload: dict) -> None:
+    """Pin the finite Hofstadter Q prefix and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "h" / "hofstadter_q_sequence"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "hofstadter_q_sequence"
+            or workload.get("function_symbol") != "hofstadter_q_sequence"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != 1
+            or inputs.get("maximum_parseable_length") != HOFSTADTER_Q_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("index_range") != [1, HOFSTADTER_Q_MAX_INDEX]
+            or workload.get("workspace", {}).get("bytes") != HOFSTADTER_Q_WORKSPACE_BYTES):
+        raise ValueError("hofstadter_q_sequence bounds differ from its finite-prefix contract")
+    package_errors = hofstadter_q_sequence_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_hofstadter_conway_10000_sequence_workload(workload: dict) -> None:
+    """Pin the bounded Conway prefix and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "h" / "hofstadter_conway_10000_sequence"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "hofstadter_conway_10000_sequence"
+            or workload.get("function_symbol") != "hofstadter_conway_10000_sequence"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != 1
+            or inputs.get("maximum_parseable_length") != HOFSTADTER_CONWAY_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("index_range") != [2, HOFSTADTER_CONWAY_MAX_INDEX]
+            or workload.get("workspace", {}).get("bytes") != HOFSTADTER_CONWAY_WORKSPACE_BYTES):
+        raise ValueError("hofstadter_conway_10000_sequence bounds differ from its finite-prefix contract")
+    package_errors = hofstadter_conway_10000_sequence_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_minimum_cost_bipartite_edge_cover_subset_dp_workload(workload: dict) -> None:
+    """Pin the bounded bipartite edge-cover frame and statically inventory ports."""
+    package = ROOT / "benchmarks" / "m" / "minimum_cost_bipartite_edge_cover_subset_dp"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "minimum_cost_bipartite_edge_cover_subset_dp"
+            or workload.get("function_symbol") != "minimum_cost_bipartite_edge_cover_subset_dp"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != BIPARTITE_EDGE_COVER_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != BIPARTITE_EDGE_COVER_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != BIPARTITE_EDGE_COVER_WORKSPACE_BYTES):
+        raise ValueError("minimum_cost_bipartite_edge_cover_subset_dp bounds differ from its contract")
+    package_errors = minimum_cost_bipartite_edge_cover_subset_dp_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_simpath_st_paths_zdd_workload(workload: dict) -> None:
+    """Pin the bounded Simpath graph frame and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "s" / "simpath_st_paths_zdd"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    contract = workload.get("contract", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "simpath_st_paths_zdd"
+            or workload.get("function_symbol") != "simpath_st_paths_zdd"
+            or workload.get("abi") != "i64_array_scalar"
+            or contract.get("maximum_valid_input_length") != SIMPATH_ST_PATHS_ZDD_MAX_VALID_INPUT_LENGTH
+            or contract.get("maximum_parseable_input_length") != SIMPATH_ST_PATHS_ZDD_MAX_PARSEABLE_INPUT_LENGTH
+            or contract.get("maximum_zdd_nodes") != 511
+            or contract.get("workspace_bytes") != SIMPATH_ST_PATHS_ZDD_WORKSPACE_BYTES):
+        raise ValueError("Simpath s–t path ZDD bounds differ from its bounded contract")
+    package_errors = simpath_st_paths_zdd_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_domino_l_tromino_tilings_2xn_workload(workload: dict) -> None:
+    """Pin the bounded 2-by-n tiling profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "d" / "domino_l_tromino_tilings_2xn"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "domino_l_tromino_tilings_2xn"
+            or workload.get("function_symbol") != "domino_l_tromino_tilings_2xn"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_valid_length") != DOMINO_L_TROMINO_TILINGS_MAX_VALID_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != DOMINO_L_TROMINO_TILINGS_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("width_range") != [0, 32]
+            or workload.get("workspace", {}).get("bytes") != DOMINO_L_TROMINO_TILINGS_WORKSPACE_BYTES):
+        raise ValueError("domino/tromino tiling bounds differ from its bounded contract")
+    package_errors = domino_l_tromino_tilings_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_ratcliff_obershelp_similarity_workload(workload: dict) -> None:
+    """Pin the bounded Gestalt similarity contract and cross-check fixtures."""
+    package = ROOT / "benchmarks" / "r" / "ratcliff_obershelp_similarity"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "ratcliff_obershelp_similarity"
+            or workload.get("function_symbol") != "ratcliff_obershelp_similarity"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("maximum_length") != RATCLIFF_OBERSHELP_MAX_INPUT_LENGTH
+            or inputs.get("maximum_parseable_length") != RATCLIFF_OBERSHELP_MAX_PARSEABLE_INPUT_LENGTH
+            or inputs.get("first_length_range") != [0, RATCLIFF_OBERSHELP_MAX_TEXT]
+            or inputs.get("second_length_range") != [0, RATCLIFF_OBERSHELP_MAX_TEXT]
+            or workload.get("workspace", {}).get("bytes") != RATCLIFF_OBERSHELP_WORKSPACE_BYTES):
+        raise ValueError("Ratcliff/Obershelp bounds differ from the bounded profile")
+    for case in workload.get("cases", []):
+        if not isinstance(case, dict):
+            raise ValueError("Ratcliff/Obershelp fixture must be an object")
+        values = case.get("input_values")
+        length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(length) is not int
+                or type(input_is_null) is not bool or length != len(values)
+                or input_is_null and length != 0):
+            raise ValueError(f"Ratcliff/Obershelp fixture framing is invalid: {case.get('id')}")
+        options = {"input_length": length, "input_is_null": input_is_null}
+        primary = ratcliff_obershelp_primary_oracle(values, **options)
+        independent = ratcliff_obershelp_independent_oracle(values, **options)
+        if case.get("expected_result") != independent or primary != independent:
+            raise ValueError(f"Ratcliff/Obershelp fixture differs between references: {case.get('id')}")
+    package_errors = ratcliff_obershelp_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_liu_hui_pi_approximation_workload(workload: dict) -> None:
+    """Pin the bounded Liu Hui profile and statically inventory its ports."""
+    package = ROOT / "benchmarks" / "l" / "liu_hui_pi_approximation"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    inputs = workload.get("input", {})
+    outputs = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "liu_hui_pi_approximation"
+            or workload.get("function_symbol") != "liu_hui_pi_approximation"
+            or workload.get("abi") != "i64_array_scalar"
+            or inputs.get("encoding") != "[doublings]"
+            or inputs.get("doublings_range") != [0, LIU_HUI_MAX_DOUBLINGS]
+            or inputs.get("maximum_valid_input_length") != 1
+            or inputs.get("maximum_parseable_input_length") != 2
+            or outputs.get("valid_result_range") != [2_598_076, 3_141_593]
+            or outputs.get("invalid_input_result") != -1
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("liu_hui_pi_approximation metadata differs from its bounded profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values") if isinstance(case, dict) else None
+        input_is_null = case.get("input_is_null", False) if isinstance(case, dict) else False
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or type(input_is_null) is not bool
+                or (input_is_null and (values or input_length != 1))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"liu_hui_pi_approximation fixture framing is invalid: {case.get('id')}")
+        expected = (liu_hui_pi_approximation_primary(values[0])
+                    if len(values) == 1 and not input_is_null else -1)
+        if case.get("expected_result") != expected:
+            raise ValueError(f"liu_hui_pi_approximation fixture differs from recurrence: {case.get('id')}")
+    package_errors = liu_hui_pi_approximation_static_issues()
+    if package_errors:
+        raise ValueError("; ".join(package_errors))
+
+
+def validate_rational_polygon_lattice_points_workload(workload: dict) -> None:
+    """Pin the bounded rational-polygon profile and statically inspect its package."""
+    package = ROOT / "benchmarks" / "r" / "rational_polygon_lattice_points"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "rational_polygon_lattice_points"
+            or workload.get("function_symbol") != "rational_polygon_lattice_points"
+            or workload.get("abi") != "i64_array_scalar"
+            or RATIONAL_POLYGON_LATTICE_POINTS_MAX_VALID_LENGTH != 18
+            or RATIONAL_POLYGON_LATTICE_POINTS_MAX_PARSEABLE_LENGTH != 19
+            or input_spec.get("vertex_count_range") != [3, 8]
+            or input_spec.get("scale_range") != [2, 8]
+            or input_spec.get("coordinate_numerator_range") != [-32, 32]
+            or input_spec.get("maximum_valid_length") != 18
+            or input_spec.get("maximum_parseable_length") != 19
+            or output_spec.get("result_range") != [0, 49]
+            or workload.get("workspace", {}).get("bytes") != 1024):
+        raise ValueError("rational_polygon_lattice_points metadata differs from its bounded profile")
+    verify_rational_polygon_lattice_points_package()
+
+
+def validate_divide_conquer_dp_partition_workload(workload: dict) -> None:
+    """Pin the bounded monotone-argmin partition profile and inspect its sources."""
+    package = ROOT / "benchmarks" / "d" / "divide_conquer_dp_partition"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "divide_conquer_dp_partition"
+            or workload.get("function_symbol") != "divide_conquer_dp_partition"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("n_range") != [1, DIVIDE_CONQUER_DP_PARTITION_MAX_N]
+            or input_spec.get("group_count_range") != [1, DIVIDE_CONQUER_DP_PARTITION_MAX_GROUPS]
+            or input_spec.get("value_range") != [0, DIVIDE_CONQUER_DP_PARTITION_MAX_VALUE]
+            or input_spec.get("maximum_valid_length") != 66
+            or input_spec.get("maximum_parseable_length") != 67
+            or output_spec.get("valid_result_range") != [0, 4_096_000_000]):
+        raise ValueError("divide_conquer_dp_partition metadata differs from its bounded profile")
+    issues = check_divide_conquer_dp_partition_inventory()
+    if issues:
+        raise ValueError("divide_conquer_dp_partition package is incomplete: " + "; ".join(issues))
+
+
+def validate_monge_dag_fixed_edge_shortest_path_workload(workload: dict) -> None:
+    """Pin the Monge-DAG exact-edge profile and statically inspect its package."""
+    package = ROOT / "benchmarks" / "m" / "monge_dag_fixed_edge_shortest_path"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "monge_dag_fixed_edge_shortest_path"
+            or workload.get("function_symbol") != "monge_dag_fixed_edge_shortest_path"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("N_range") != [1, MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_N]
+            or input_spec.get("maximum_valid_length") != MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_VALID_LENGTH
+            or input_spec.get("maximum_parseable_length") != MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_PARSEABLE_LENGTH
+            or output_spec.get("valid_result_range") != [0, 32_000_000]
+            or workload.get("workspace", {}).get("bytes") != MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_WORKSPACE_BYTES):
+        raise ValueError("monge_dag_fixed_edge_shortest_path metadata differs from its bounded profile")
+    issues = verify_monge_dag_fixed_edge_shortest_path_package(workload)
+    if issues:
+        raise ValueError("monge_dag_fixed_edge_shortest_path package is incomplete: " + "; ".join(issues))
+
+
+def validate_cactus_graph_recognition_workload(workload: dict) -> None:
+    """Pin the bounded cactus profile and statically inspect its package."""
+    package = ROOT / "benchmarks" / "c" / "cactus_graph_recognition"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "cactus_graph_recognition"
+            or workload.get("function_symbol") != "cactus_graph_recognition"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("vertex_count_range") != [1, CACTUS_GRAPH_RECOGNITION_MAX_N]
+            or input_spec.get("edge_count_range") != [0, CACTUS_GRAPH_RECOGNITION_MAX_M]
+            or input_spec.get("maximum_valid_length") != CACTUS_GRAPH_RECOGNITION_MAX_VALID_LENGTH
+            or input_spec.get("maximum_parseable_length") != CACTUS_GRAPH_RECOGNITION_MAX_PARSEABLE_LENGTH
+            or output_spec.get("valid_result_range") != [0, 171]
+            or workload.get("workspace", {}).get("bytes") != CACTUS_GRAPH_RECOGNITION_MAX_WORKSPACE_BYTES):
+        raise ValueError("cactus_graph_recognition metadata differs from its bounded profile")
+    issues = verify_cactus_graph_recognition_package(workload)
+    if issues:
+        raise ValueError("cactus_graph_recognition package is incomplete: " + "; ".join(issues))
+
+
+def validate_entringer_number_workload(workload: dict) -> None:
+    """Pin the bounded Entringer-triangle contract and inspect its package files."""
+    package = ROOT / "benchmarks" / "e" / "entringer_number"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "entringer_number"
+            or workload.get("function_symbol") != "entringer_number"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("n_range") != [0, 12]
+            or input_spec.get("k_range") != [0, 12]
+            or input_spec.get("exact_valid_length") != ENTRINGER_NUMBER_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != ENTRINGER_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != 512):
+        raise ValueError("entringer_number metadata differs from its bounded triangle profile")
+    issues = entringer_number_inventory_issues() + entringer_number_workload_issues()
+    if issues:
+        raise ValueError("entringer_number package is incomplete: " + "; ".join(issues))
+
+
+def validate_josephus_batched_small_k_workload(workload: dict) -> None:
+    """Pin the batched small-k Josephus contract and inspect its package files."""
+    package = ROOT / "benchmarks" / "j" / "josephus_batched_small_k"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "josephus_batched_small_k"
+            or workload.get("function_symbol") != "josephus_batched_small_k"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("N_range") != [1, JOSEPHUS_BATCHED_MAX_N]
+            or input_spec.get("K_range") != [1, JOSEPHUS_BATCHED_MAX_K]
+            or input_spec.get("exact_valid_length") != JOSEPHUS_BATCHED_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != JOSEPHUS_BATCHED_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != JOSEPHUS_BATCHED_WORKSPACE_BYTES):
+        raise ValueError("josephus_batched_small_k metadata differs from its bounded profile")
+    issues = josephus_batched_inventory_issues() + josephus_batched_workload_issues()
+    if issues:
+        raise ValueError("josephus_batched_small_k package is incomplete: " + "; ".join(issues))
+
+
+def validate_brzozowski_dfa_minimization_workload(workload: dict) -> None:
+    """Pin the bounded reverse/determinize DFA-minimization profile."""
+    package = ROOT / "benchmarks" / "b" / "brzozowski_dfa_minimization"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "brzozowski_dfa_minimization"
+            or workload.get("function_symbol") != "brzozowski_dfa_minimization"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("encoding")
+            != "[N,start_state,accepting_mask,(transition_on_0,transition_on_1)*N]"
+            or input_spec.get("state_count_range") != [1, 3]
+            or input_spec.get("maximum_valid_length") != BRZOZOWSKI_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != BRZOZOWSKI_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != BRZOZOWSKI_WORKSPACE_BYTES):
+        raise ValueError("brzozowski_dfa_minimization metadata differs from its bounded profile")
+    issues = brzozowski_dfa_minimization_inventory_issues()
+    if issues:
+        raise ValueError("brzozowski_dfa_minimization package is incomplete: " + "; ".join(issues))
+
+
+def validate_interpolation_sequential_search_workload(workload: dict) -> None:
+    """Pin the one-estimate interpolation-plus-linear-scan profile."""
+    package = ROOT / "benchmarks" / "i" / "interpolation_sequential_search"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "interpolation_sequential_search"
+            or workload.get("function_symbol") != "interpolation_sequential_search"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("N_range") != [0, INTERPOLATION_SEQUENTIAL_SEARCH_MAX_N]
+            or input_spec.get("maximum_valid_length") != INTERPOLATION_SEQUENTIAL_SEARCH_MAX_VALID_LENGTH
+            or input_spec.get("maximum_parseable_length") != INTERPOLATION_SEQUENTIAL_SEARCH_MAX_PARSEABLE_LENGTH
+            or output_spec.get("valid_result_range") != [-1, INTERPOLATION_SEQUENTIAL_SEARCH_MAX_N - 1]
+            or workload.get("workspace", {}).get("bytes") != INTERPOLATION_SEQUENTIAL_SEARCH_MAX_WORKSPACE_BYTES):
+        raise ValueError("interpolation_sequential_search metadata differs from its bounded profile")
+    issues = verify_interpolation_sequential_search_package(workload)
+    if issues:
+        raise ValueError("interpolation_sequential_search package is incomplete: " + "; ".join(issues))
+
+
+def validate_lcfs_hashing_workload(workload: dict) -> None:
+    """Pin LCFS displacement semantics and statically inspect its package."""
+    package = ROOT / "benchmarks" / "l" / "lcfs_hashing"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "lcfs_hashing"
+            or workload.get("function_symbol") != "lcfs_hashing"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input", {}).get("maximum_valid_length") != 34
+            or workload.get("input", {}).get("maximum_parseable_length") != LCFS_HASHING_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("output", {}).get("valid_result_range") != [0, 496]
+            or workload.get("workspace", {}).get("bytes") != 256):
+        raise ValueError("lcfs_hashing metadata differs from its bounded profile")
+    issues = verify_lcfs_hashing_package(workload)
+    if issues:
+        raise ValueError("lcfs_hashing package is incomplete: " + "; ".join(issues))
+
+
+def validate_distinct_subarray_aggregates_workload(workload: dict) -> None:
+    """Pin the shared suffix-range compression profile and inspect its package."""
+    package = ROOT / "benchmarks" / "d" / "distinct_subarray_aggregates"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "distinct_subarray_aggregates"
+            or workload.get("function_symbol") != "distinct_subarray_aggregates"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("mode_range") != [0, 2]
+            or input_spec.get("length_range") != [0, DISTINCT_SUBARRAY_AGGREGATES_MAX_N]
+            or input_spec.get("value_range") != [0, 255]
+            or input_spec.get("maximum_valid_length") != DISTINCT_SUBARRAY_AGGREGATES_MAX_VALID_LENGTH
+            or input_spec.get("maximum_parseable_length") != DISTINCT_SUBARRAY_AGGREGATES_MAX_PARSEABLE_LENGTH
+            or output_spec.get("packing_multiplier") != DISTINCT_SUBARRAY_AGGREGATES_PACKING_MULTIPLIER
+            or output_spec.get("secondary_component_maximum") != DISTINCT_SUBARRAY_AGGREGATES_MAX_SECONDARY_COUNT
+            or output_spec.get("valid_result_range") != [0, DISTINCT_SUBARRAY_AGGREGATES_MAX_RESULT]
+            or workload.get("workspace", {}).get("bytes") != DISTINCT_SUBARRAY_AGGREGATES_MAX_WORKSPACE_BYTES):
+        raise ValueError("distinct_subarray_aggregates metadata differs from its bounded profile")
+    issues = verify_distinct_subarray_aggregates_package(workload)
+    if issues:
+        raise ValueError("distinct_subarray_aggregates package is incomplete: " + "; ".join(issues))
+
+
+def validate_bond_sequential_search_workload(workload: dict) -> None:
+    """Pin the bounded two-key composite-mask search and inspect its package."""
+    package = ROOT / "benchmarks" / "b" / "bond_sequential_search"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "bond_sequential_search"
+            or workload.get("function_symbol") != "bond_sequential_search"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("N_range") != [0, BOND_SEQUENTIAL_SEARCH_MAX_N]
+            or input_spec.get("key_range") != [0, 255]
+            or input_spec.get("value_range") != [0, 255]
+            or input_spec.get("maximum_valid_length") != BOND_SEQUENTIAL_SEARCH_MAX_VALID_LENGTH
+            or input_spec.get("maximum_parseable_length") != BOND_SEQUENTIAL_SEARCH_MAX_PARSEABLE_LENGTH
+            or output_spec.get("valid_result_range") != [0, 4224]
+            or workload.get("workspace", {}).get("bytes") != BOND_SEQUENTIAL_SEARCH_MAX_WORKSPACE_BYTES):
+        raise ValueError("bond_sequential_search metadata differs from its bounded profile")
+    issues = verify_bond_sequential_search_package(workload)
+    if issues:
+        raise ValueError("bond_sequential_search package is incomplete: " + "; ".join(issues))
+
+
+def validate_matroid_intersection_workload(workload: dict) -> None:
+    """Pin the bounded graphic/partition matroid profile and inspect its package."""
+    package = ROOT / "benchmarks" / "m" / "matroid_intersection"
+    expected_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload != expected_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "matroid_intersection"
+            or workload.get("function_symbol") != "matroid_intersection"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("vertex_count_range") != [1, 10]
+            or input_spec.get("edge_count_range") != [0, 20]
+            or input_spec.get("color_count_range") != [1, 8]
+            or input_spec.get("maximum_valid_length") != MATROID_INTERSECTION_MAX_VALID_LENGTH
+            or input_spec.get("maximum_parseable_length") != MATROID_INTERSECTION_MAX_PARSEABLE_LENGTH
+            or output_spec.get("valid_result_range") != [0, 9]
+            or workload.get("workspace", {}).get("bytes") != MATROID_INTERSECTION_MAX_WORKSPACE_BYTES):
+        raise ValueError("matroid_intersection metadata differs from its bounded profile")
+    issues = verify_matroid_intersection_package(workload)
+    if issues:
+        raise ValueError("matroid_intersection package is incomplete: " + "; ".join(issues))
+
+
+def validate_thomassen_convex_drawing_extendibility_workload(workload: dict) -> None:
+    """Pin the bounded theorem decision profile and inspect its package."""
+    package = ROOT / "benchmarks" / "t" / "thomassen_convex_drawing_extendibility"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "thomassen_convex_drawing_extendibility"
+            or workload.get("function_symbol") != "thomassen_convex_drawing_extendibility"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != THOMASSEN_CONVEX_DRAWING_MAX_VALID_LENGTH
+            or input_spec.get("maximum_parseable_length") != THOMASSEN_CONVEX_DRAWING_MAX_PARSEABLE_LENGTH
+            or workload.get("workspace", {}).get("bytes") != THOMASSEN_CONVEX_DRAWING_WORKSPACE_BYTES
+            or workload.get("measurement") != measurement):
+        raise ValueError("thomassen_convex_drawing_extendibility metadata differs from its bounded theorem contract")
+    issues = thomassen_convex_drawing_static_issues(workload)
+    if issues:
+        raise ValueError("thomassen_convex_drawing_extendibility package is incomplete: "
+                         + "; ".join(issues))
+
+
+def validate_pisano_period_workload(workload: dict) -> None:
+    """Pin the bounded least-return period search and inspect its package."""
+    package = ROOT / "benchmarks" / "p" / "pisano_period"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "pisano_period"
+            or workload.get("function_symbol") != "pisano_period"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != PISANO_PERIOD_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != PISANO_PERIOD_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != PISANO_PERIOD_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("pisano_period metadata differs from its bounded period-search profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > PISANO_PERIOD_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("pisano_period fixture framing is invalid")
+        expected = pisano_period_primary(
+            values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("pisano_period fixture differs from the pair-iteration reference")
+    issues = pisano_period_static_issues()
+    if issues:
+        raise ValueError("pisano_period package is incomplete: " + "; ".join(issues))
+
+
+def validate_longest_common_increasing_subsequence_workload(workload: dict) -> None:
+    """Pin the bounded LCIS contract and check fixture results statically."""
+    package = ROOT / "benchmarks" / "l" / "longest_common_increasing_subsequence"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "longest_common_increasing_subsequence"
+            or workload.get("function_symbol") != "longest_common_increasing_subsequence"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != LCIS_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != LCIS_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != LCIS_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("longest_common_increasing_subsequence metadata differs from its bounded profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > LCIS_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("longest_common_increasing_subsequence fixture framing is invalid")
+        expected = lcis_primary(values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("longest_common_increasing_subsequence fixture differs from its DP reference")
+    issues = lcis_static_issues()
+    if issues:
+        raise ValueError("longest_common_increasing_subsequence package is incomplete: "
+                         + "; ".join(issues))
+
+
+def validate_randomized_binary_search_tree_order_statistics_split_join_workload(workload: dict) -> None:
+    """Pin the bounded RBST trace contract and check fixture results statically."""
+    package = ROOT / "benchmarks" / "r" / "randomized_binary_search_tree_order_statistics_split_join"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "randomized_binary_search_tree_order_statistics_split_join"
+            or workload.get("function_symbol") != "randomized_binary_search_tree_order_statistics_split_join"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != RBST_ORDER_STATS_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != RBST_ORDER_STATS_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != RBST_ORDER_STATS_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("randomized RBST metadata differs from its bounded operation-trace profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > RBST_ORDER_STATS_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("randomized RBST fixture framing is invalid")
+        expected = randomized_bst_order_statistics_primary(
+            values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("randomized RBST fixture differs from its size-based tree reference")
+    issues = randomized_bst_order_statistics_static_issues()
+    if issues:
+        raise ValueError("randomized RBST package is incomplete: " + "; ".join(issues))
+
+
+def validate_linear_hashing_trace_workload(workload: dict) -> None:
+    """Pin the incremental split contract and check all fixture answers statically."""
+    package = ROOT / "benchmarks" / "l" / "linear_hashing_trace"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "linear_hashing_trace"
+            or workload.get("function_symbol") != "linear_hashing_trace"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != LINEAR_HASHING_TRACE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != LINEAR_HASHING_TRACE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != LINEAR_HASHING_TRACE_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("linear hashing metadata differs from its bounded operation-trace profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > LINEAR_HASHING_TRACE_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("linear hashing fixture framing is invalid")
+        expected = linear_hashing_trace_primary(
+            values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("linear hashing fixture differs from its split-table reference")
+    issues = linear_hashing_trace_static_issues()
+    if issues:
+        raise ValueError("linear hashing package is incomplete: " + "; ".join(issues))
+
+
+def validate_move_to_root_bst_access_trace_workload(workload: dict) -> None:
+    """Pin the one-rotation access rule and verify every bounded fixture."""
+    package = ROOT / "benchmarks" / "m" / "move_to_root_bst_access_trace"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "move_to_root_bst_access_trace"
+            or workload.get("function_symbol") != "move_to_root_bst_access_trace"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != MOVE_TO_ROOT_BST_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != MOVE_TO_ROOT_BST_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != MOVE_TO_ROOT_BST_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("move-to-root BST metadata differs from its bounded access-trace profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > MOVE_TO_ROOT_BST_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("move-to-root BST fixture framing is invalid")
+        expected = move_to_root_bst_primary(
+            values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("move-to-root BST fixture differs from its array-backed reference")
+    issues = move_to_root_bst_static_issues(workload)
+    if issues:
+        raise ValueError("move-to-root BST package is incomplete: " + "; ".join(issues))
+
+
+def validate_lovasz_toggle_defective_coloring_trace_workload(workload: dict) -> None:
+    """Pin the lowest-index toggle rule and check the bounded coloring fixtures."""
+    package = ROOT / "benchmarks" / "l" / "lovasz_toggle_defective_coloring_trace"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "lovasz_toggle_defective_coloring_trace"
+            or workload.get("function_symbol") != "lovasz_toggle_defective_coloring_trace"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != LOVASZ_TOGGLE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != LOVASZ_TOGGLE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != LOVASZ_TOGGLE_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("Lovasz toggle metadata differs from its bounded defective-coloring profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > LOVASZ_TOGGLE_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("Lovasz toggle fixture framing is invalid")
+        expected = lovasz_toggle_primary(
+            values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("Lovasz toggle fixture differs from its bit-mask reference")
+    issues = lovasz_toggle_static_issues(workload)
+    if issues:
+        raise ValueError("Lovasz toggle package is incomplete: " + "; ".join(issues))
+
+
+def validate_erasable_priority_queue_trace_workload(workload: dict) -> None:
+    """Pin lazy-cancellation semantics and validate all bounded queue fixtures."""
+    package = ROOT / "benchmarks" / "e" / "erasable_priority_queue_trace"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "erasable_priority_queue_trace"
+            or workload.get("function_symbol") != "erasable_priority_queue_trace"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != ERASABLE_PRIORITY_QUEUE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != ERASABLE_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != ERASABLE_PRIORITY_QUEUE_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("erasable priority queue metadata differs from its bounded trace profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > ERASABLE_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("erasable priority queue fixture framing is invalid")
+        expected = erasable_priority_queue_primary(
+            values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("erasable priority queue fixture differs from its two-heap reference")
+    issues = erasable_priority_queue_static_issues(workload)
+    if issues:
+        raise ValueError("Erasable priority queue package is incomplete: " + "; ".join(issues))
+
+
+def validate_rolling_hash_on_segment_tree_trace_workload(workload: dict) -> None:
+    """Pin dynamic rolling-hash semantics and validate the bounded fixtures."""
+    package = ROOT / "benchmarks" / "r" / "rolling_hash_on_segment_tree_trace"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "rolling_hash_on_segment_tree_trace"
+            or workload.get("function_symbol") != "rolling_hash_on_segment_tree_trace"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != ROLLING_HASH_SEGMENT_TREE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != ROLLING_HASH_SEGMENT_TREE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != ROLLING_HASH_SEGMENT_TREE_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("rolling-hash segment-tree metadata differs from its bounded profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > ROLLING_HASH_SEGMENT_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("rolling-hash segment-tree fixture framing is invalid")
+        expected = rolling_hash_segment_tree_primary(
+            values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("rolling-hash segment-tree fixture differs from its segment-tree reference")
+    issues = rolling_hash_segment_tree_static_issues(workload)
+    if issues:
+        raise ValueError("Rolling-hash segment-tree package is incomplete: " + "; ".join(issues))
+
+
+def validate_manhattan_mst_candidate_edge_reduction_workload(workload: dict) -> None:
+    """Pin the four-sweep sparse candidate profile and validate its fixtures."""
+    package = ROOT / "benchmarks" / "m" / "manhattan_mst_candidate_edge_reduction"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "manhattan_mst_candidate_edge_reduction"
+            or workload.get("function_symbol") != "manhattan_mst_candidate_edge_reduction"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != MANHATTAN_MST_CANDIDATE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != MANHATTAN_MST_CANDIDATE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != MANHATTAN_MST_CANDIDATE_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("Manhattan candidate-reduction metadata differs from its bounded profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > MANHATTAN_MST_CANDIDATE_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("Manhattan candidate-reduction fixture framing is invalid")
+        expected = manhattan_mst_candidate_primary(
+            values, input_length=input_length, input_is_null=input_is_null)
+        if case.get("expected_result") != expected:
+            raise ValueError("Manhattan candidate-reduction fixture differs from its sweep reference")
+    issues = manhattan_mst_candidate_static_issues(workload)
+    if issues:
+        raise ValueError("Manhattan candidate-reduction package is incomplete: " + "; ".join(issues))
+
+
+def validate_c_connected_clustered_embedding_condition_workload(workload: dict) -> None:
+    """Pin the supplied-embedding criterion and check fixtures against its face-DSU reference."""
+    package = ROOT / "benchmarks" / "c" / "c_connected_clustered_embedding_condition"
+    package_workload = json.loads((package / "workload.json").read_text(encoding="utf-8"))
+    input_spec = workload.get("input", {})
+    if (workload != package_workload
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "c_connected_clustered_embedding_condition"
+            or workload.get("function_symbol") != "c_connected_clustered_embedding_condition"
+            or workload.get("abi") != "i64_array_scalar"
+            or input_spec.get("maximum_valid_length") != CCEC_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != CCEC_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != CCEC_WORKSPACE_BYTES
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+        raise ValueError("c-connected clustered embedding metadata differs from its bounded profile")
+    for case in workload.get("cases", []):
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > CCEC_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)):
+            raise ValueError("c-connected clustered embedding fixture framing is invalid")
+        expected = c_connected_clustered_embedding_condition_primary(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if case.get("expected_result") != expected:
+            raise ValueError("c-connected clustered embedding fixture differs from the face-DSU reference")
+    issues = c_connected_clustered_embedding_condition_static_issues()
+    if issues:
+        raise ValueError("c-connected clustered embedding package is incomplete: " + "; ".join(issues))
+
+
+def validate_four_square_sum_representation_workload(workload: dict) -> None:
+    """Pin the canonical tuple encoding and check the package fixtures statically."""
+    package_workload = ROOT / "benchmarks" / "f" / "four_square_sum_representation" / "workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("four-square workload differs from its package file")
+    input_spec = workload.get("input", {})
+    if (input_spec.get("maximum_valid_length") != FOUR_SQUARE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != FOUR_SQUARE_MAX_PARSEABLE_INPUT_LENGTH
+            or workload.get("workspace", {}).get("bytes") != 0):
+        raise ValueError("four-square bounds or workspace differ from its contract")
+    issues = (four_square_static_issues() + four_square_workload_issues())
+    if issues:
+        raise ValueError("four-square package is incomplete: " + "; ".join(issues))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -23919,6 +32348,9 @@ def main() -> int:
         "gapbs_betweenness_centrality": "b",
         "gapbs_pagerank_pull_gs": "p",
         "maximum_independent_set": "m",
+        "dividuus_number_predicate": "r",
+        "gaussian_prime_classifier": "g",
+        "sieve_of_pritchard": "s",
     }.get(algorithm, letter)
     workload_path = args.workload or (
         ROOT / "benchmarks" / "k" / algorithm / "workload.json"
@@ -23948,11 +32380,733 @@ def main() -> int:
             workload_path = flat_workload
     from workload_json import load_workload
     workload = load_workload(workload_path)
+    if algorithm == "four_square_sum_representation":
+        validate_four_square_sum_representation_workload(workload)
+    if algorithm == "race_car_minimum_instruction_count":
+        validate_race_car_minimum_instruction_count_workload(workload)
+    if algorithm == "barycentric_lagrange_evaluation":
+        validate_barycentric_lagrange_evaluation_workload(workload)
+    if algorithm == "pratt_expression_evaluation":
+        validate_pratt_expression_evaluation_workload(workload)
+    if algorithm == "minimal_dominating_sets_permutation_graphs":
+        validate_minimal_dominating_sets_permutation_graphs_workload(workload)
+    if algorithm == "minimum_area_rectangle_arbitrary_orientation":
+        validate_minimum_area_rectangle_arbitrary_orientation_workload(workload)
+    if algorithm == "secret_sharing_time_batched_dsu":
+        validate_secret_sharing_time_batched_dsu_workload(workload)
+    if algorithm == "redundant_directed_connection_repair":
+        validate_redundant_directed_connection_repair_workload(workload)
+    if algorithm == "undirected_simple_cycle_subset_dp_count":
+        validate_undirected_simple_cycle_subset_dp_count_workload(workload)
+    if algorithm == "fortunate_numbers":
+        validate_fortunate_numbers_workload(workload)
+    if algorithm == "wolstenholme_numbers":
+        validate_wolstenholme_numbers_workload(workload)
+    if algorithm == "moore_dfa_minimization":
+        validate_moore_dfa_minimization_workload(workload)
+    if algorithm == "ruth_aaron_number_predicate":
+        validate_ruth_aaron_number_predicate_workload(workload)
+    if algorithm == "dividuus_number_predicate":
+        validate_dividuus_number_predicate_workload(workload)
+    if algorithm == "gaussian_prime_classifier":
+        validate_gaussian_prime_classifier_workload(workload)
+    if algorithm == "wulff_nilsen_distance_refinement":
+        validate_wulff_nilsen_distance_refinement_workload(workload)
+    if algorithm == "erdos_selfridge_prime_class":
+        validate_erdos_selfridge_prime_class_workload(workload)
+    if algorithm == "squfof_semiprime_factor":
+        validate_squfof_semiprime_factor_workload(workload)
+    if algorithm == "sieve_of_pritchard":
+        validate_sieve_of_pritchard_workload(workload)
+    if algorithm == "bk_tree_edit_distance_search":
+        validate_bk_tree_edit_distance_search_workload(workload)
     if algorithm == "naive_knapsack_solver":
         validate_naive_knapsack_solver_workload(workload)
+    if algorithm == "not_so_naive_search":
+        package_issues = not_so_naive_search_static_issues()
+        if package_issues:
+            parser.error("not_so_naive_search package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "commentz_walter":
+        package_issues = verify_commentz_walter_package() + commentz_walter_static_issues()
+        if package_issues:
+            parser.error("commentz_walter package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "priority_search_tree_three_sided_reporting":
+        package_issues = verify_priority_search_tree_package(workload)
+        if package_issues:
+            parser.error("priority search tree package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "chebyshev_clenshaw_evaluation":
+        package_issues = chebyshev_clenshaw_evaluation_static_issues()
+        if package_issues:
+            parser.error("Chebyshev Clenshaw package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "dag_minimum_path_cover":
+        package_issues = verify_dag_minimum_path_cover_package(workload)
+        if package_issues:
+            parser.error("DAG minimum path cover package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "cocomparability_ldfs_minimum_path_cover":
+        input_spec = workload.get("input", {})
+        if (input_spec.get("maximum_valid_input_length")
+                != COCOMPARABILITY_PATH_COVER_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length")
+                != COCOMPARABILITY_PATH_COVER_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != COCOMPARABILITY_PATH_COVER_WORKSPACE_BYTES):
+            parser.error("cocomparability LDFS path-cover bounds or workspace differ from its contract")
+        package_issues = (cocomparability_path_cover_static_issues(workload)
+                          + cocomparability_path_cover_workload_issues(workload))
+        if package_issues:
+            parser.error("cocomparability LDFS path-cover package is incomplete: "
+                         + "; ".join(package_issues))
+    if algorithm == "k_ary_huffman_weighted_path_cost":
+        input_spec = workload.get("input", {})
+        if (input_spec.get("maximum_valid_length")
+                != K_ARY_HUFFMAN_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length")
+                != K_ARY_HUFFMAN_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != K_ARY_HUFFMAN_WORKSPACE_BYTES):
+            parser.error("k-ary Huffman bounds or workspace differ from its contract")
+        package_issues = k_ary_huffman_static_issues() + k_ary_huffman_workload_issues()
+        if package_issues:
+            parser.error("k-ary Huffman package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "extendible_hashing_trace":
+        input_spec = workload.get("input", {})
+        if (input_spec.get("maximum_valid_length")
+                != EXTENDIBLE_HASHING_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length")
+                != EXTENDIBLE_HASHING_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != EXTENDIBLE_HASHING_WORKSPACE_BYTES):
+            parser.error("extendible-hashing bounds or workspace differ from its contract")
+        package_issues = (extendible_hashing_trace_static_issues()
+                          + extendible_hashing_trace_workload_issues())
+        if package_issues:
+            parser.error("extendible-hashing package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "carmichael_lambda_function":
+        package_issues = carmichael_lambda_function_static_issues()
+        if package_issues:
+            parser.error("Carmichael lambda package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "lucas_carmichael_number_predicate":
+        package_issues = lucas_carmichael_number_predicate_static_issues()
+        if package_issues:
+            parser.error("Lucas–Carmichael package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "kanj_perkovic_modified_yao_spanner":
+        if workload.get("workspace", {}).get("bytes") != KANJ_PERKOVIC_MODIFIED_YAO_WORKSPACE_BYTES:
+            parser.error("modified-Yao workspace differs from its contract")
+        package_issues = (kanj_perkovic_modified_yao_spanner_static_issues()
+                          + kanj_perkovic_modified_yao_spanner_workload_issues())
+        if package_issues:
+            parser.error("modified-Yao package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "routh_hurwitz_stability_predicate":
+        if workload.get("workspace", {}).get("bytes") != ROUTH_HURWITZ_WORKSPACE_BYTES:
+            parser.error("Routh–Hurwitz workspace differs from its contract")
+        package_issues = (routh_hurwitz_stability_predicate_static_issues()
+                          + routh_hurwitz_stability_predicate_workload_issues())
+        if package_issues:
+            parser.error("Routh–Hurwitz package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "jury_discrete_time_stability_predicate":
+        if workload.get("workspace", {}).get("bytes") != JURY_STABILITY_WORKSPACE_BYTES:
+            parser.error("Jury stability workspace differs from its contract")
+        package_issues = (jury_discrete_time_stability_predicate_static_issues()
+                          + jury_discrete_time_stability_predicate_workload_issues())
+        if package_issues:
+            parser.error("Jury stability package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "rna_pair_activity_partition_function":
+        if workload.get("workspace", {}).get("bytes") != RNA_PAIR_ACTIVITY_WORKSPACE_BYTES:
+            parser.error("RNA pair-activity workspace differs from its contract")
+        package_issues = (rna_pair_activity_partition_function_static_issues()
+                          + rna_pair_activity_partition_function_workload_issues())
+        if package_issues:
+            parser.error("RNA pair-activity package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "mian_chowla_sequence":
+        package_issues = mian_chowla_sequence_static_issues()
+        if package_issues:
+            parser.error("Mian–Chowla sequence package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "klarner_rado_affine_closure_sequence":
+        package_issues = klarner_rado_affine_closure_sequence_static_issues()
+        if package_issues:
+            parser.error("Klarner–Rado sequence package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "ulam_sequence_1_2":
+        package_issues = ulam_sequence_1_2_static_issues()
+        if package_issues:
+            parser.error("U(1,2) Ulam sequence package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "next_palindromic_number":
+        package_issues = next_palindromic_number_static_issues()
+        if package_issues:
+            parser.error("Next palindromic number package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "bdd_symbolic_reachability":
+        package_issues = bdd_symbolic_reachability_static_issues()
+        if package_issues:
+            parser.error("BDD symbolic reachability package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "same_fringe_leaf_iterator":
+        package_issues = same_fringe_leaf_iterator_static_issues()
+        if package_issues:
+            parser.error("Same-fringe package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "self_number_count_sieve":
+        package_issues = self_number_count_sieve_static_issues()
+        if package_issues:
+            parser.error("Self-number package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "odd_even_jump_reachability_count":
+        package_issues = odd_even_jump_reachability_count_static_issues()
+        if package_issues:
+            parser.error("Odd/even jump package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "grid_shortest_path_obstacle_elimination":
+        package_issues = grid_shortest_path_obstacle_elimination_static_issues()
+        if package_issues:
+            parser.error("Grid obstacle-elimination package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "zwick_deterministic_bridging_set":
+        package_issues = zwick_deterministic_bridging_set_static_issues()
+        if package_issues:
+            parser.error("Zwick bridge-set package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "perfect_phylogeny_three_state_2sat":
+        package_issues = perfect_phylogeny_three_state_2sat_static_issues()
+        if package_issues:
+            parser.error("Three-state perfect phylogeny package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "yellowstone_permutation_prefix":
+        package_issues = yellowstone_permutation_prefix_static_issues()
+        if package_issues:
+            parser.error("Yellowstone permutation package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "arithmetic_derivative":
+        package_issues = arithmetic_derivative_static_issues()
+        if package_issues:
+            parser.error("Arithmetic derivative package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "fortunate_numbers":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != FORTUNATE_NUMBERS_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != FORTUNATE_NUMBERS_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != FORTUNATE_NUMBERS_WORKSPACE_BYTES):
+            parser.error("Fortunate-number bounds or workspace differ from its contract")
+        package_issues = fortunate_numbers_static_issues()
+        if package_issues:
+            parser.error("Fortunate-number package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "wolstenholme_numbers":
+        validate_wolstenholme_numbers_workload(workload)
+    if algorithm == "moore_dfa_minimization":
+        validate_moore_dfa_minimization_workload(workload)
+    if algorithm == "ruth_aaron_number_predicate":
+        validate_ruth_aaron_number_predicate_workload(workload)
+    if algorithm == "dividuus_number_predicate":
+        validate_dividuus_number_predicate_workload(workload)
+    if algorithm == "gaussian_prime_classifier":
+        validate_gaussian_prime_classifier_workload(workload)
+    if algorithm == "wulff_nilsen_distance_refinement":
+        validate_wulff_nilsen_distance_refinement_workload(workload)
+    if algorithm == "erdos_selfridge_prime_class":
+        validate_erdos_selfridge_prime_class_workload(workload)
+    if algorithm == "squfof_semiprime_factor":
+        validate_squfof_semiprime_factor_workload(workload)
+    if algorithm == "sieve_of_pritchard":
+        validate_sieve_of_pritchard_workload(workload)
+    if algorithm == "bk_tree_edit_distance_search":
+        validate_bk_tree_edit_distance_search_workload(workload)
+    if algorithm == "taxicab_number_minimum_representations":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != TAXICAB_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != TAXICAB_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != TAXICAB_WORKSPACE_BYTES):
+            parser.error("Taxicab number bounds or workspace differ from its contract")
+        package_issues = taxicab_number_static_issues()
+        if package_issues:
+            parser.error("Taxicab number package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "wieferich_prime_count_up_to_limit":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != WIEFERICH_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != WIEFERICH_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != WIEFERICH_WORKSPACE_BYTES):
+            parser.error("Wieferich-prime bounds or workspace differ from its contract")
+        package_issues = wieferich_prime_count_static_issues()
+        if package_issues:
+            parser.error("Wieferich-prime package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "convex_polygon_minimum_weight_triangulation":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != CONVEX_MIN_WEIGHT_TRIANGULATION_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != CONVEX_MIN_WEIGHT_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != CONVEX_MIN_WEIGHT_TRIANGULATION_WORKSPACE_BYTES):
+            parser.error("Convex minimum-weight triangulation bounds or workspace differ from its contract")
+        package_issues = convex_min_weight_triangulation_static_issues()
+        if package_issues:
+            parser.error("Convex minimum-weight triangulation package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "frobenius_number_apery":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != FROBENIUS_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != FROBENIUS_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("valid_result_range")
+                != [1, FROBENIUS_MAX_RESULT]
+                or workload.get("workspace", {}).get("bytes")
+                != FROBENIUS_WORKSPACE_BYTES):
+            parser.error("Frobenius number bounds or workspace differ from its contract")
+        package_issues = frobenius_number_apery_static_issues()
+        if package_issues:
+            parser.error("Frobenius number package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "motzkin_number":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != MOTZKIN_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != MOTZKIN_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("input", {}).get("n_range") != [0, MOTZKIN_MAX_N]
+                or workload.get("output", {}).get("valid_result_range")
+                != [1, MOTZKIN_MAX_RESULT]
+                or workload.get("workspace", {}).get("bytes")
+                != MOTZKIN_WORKSPACE_BYTES):
+            parser.error("Motzkin-number bounds or workspace differ from its contract")
+        package_issues = motzkin_number_static_issues()
+        if package_issues:
+            parser.error("Motzkin-number package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "riordan_number":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != RIORDAN_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != RIORDAN_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("input", {}).get("n_range") != [0, RIORDAN_MAX_N]
+                or workload.get("output", {}).get("valid_result_range")
+                != [0, RIORDAN_MAX_RESULT]
+                or workload.get("workspace", {}).get("bytes")
+                != RIORDAN_WORKSPACE_BYTES):
+            parser.error("Riordan-number bounds or workspace differ from its contract")
+        package_issues = riordan_number_static_issues()
+        if package_issues:
+            parser.error("Riordan-number package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "cube_root_proper_divisor_product":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != CUBE_ROOT_PRODUCT_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != CUBE_ROOT_PRODUCT_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("input", {}).get("k_range")
+                != [1, CUBE_ROOT_PRODUCT_MAX_K]
+                or workload.get("output", {}).get("valid_result_range")
+                != [1, CUBE_ROOT_PRODUCT_MAX_RESULT]
+                or workload.get("workspace", {}).get("bytes")
+                != CUBE_ROOT_PRODUCT_WORKSPACE_BYTES):
+            parser.error("Cube-root proper-divisor bounds or workspace differ from its contract")
+        cube_root_product_check_inventory()
+    if algorithm == "euclid_mullin_sequence":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != EUCLID_MULLIN_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != EUCLID_MULLIN_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("input", {}).get("n_range") != [1, EUCLID_MULLIN_MAX_N]
+                or workload.get("output", {}).get("valid_result_range")
+                != [2, EUCLID_MULLIN_MAX_TERM]
+                or workload.get("workspace", {}).get("bytes")
+                != EUCLID_MULLIN_WORKSPACE_BYTES):
+            parser.error("Euclid–Mullin bounds or workspace differ from its contract")
+        euclid_mullin_sequence_check_inventory()
+        workload_issues = euclid_mullin_sequence_verify_workload()
+        if workload_issues:
+            parser.error("Euclid–Mullin workload differs from its references: "
+                         + "; ".join(workload_issues))
+    if algorithm == "left_truncatable_prime_search":
+        package_issues = left_truncatable_prime_search_static_issues()
+        if package_issues:
+            parser.error("Left-truncatable prime package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "strong_weak_balanced_prime_distribution":
+        package_issues = strong_weak_balanced_prime_distribution_static_issues()
+        if package_issues:
+            parser.error("Strong/weak/balanced prime package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "clock_patience_simulation":
+        package_issues = clock_patience_simulation_static_issues(workload)
+        if package_issues:
+            parser.error("Clock Patience package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "linear_hashing_trace":
+        package_issues = linear_hashing_trace_static_issues(workload)
+        if package_issues:
+            parser.error("Linear hashing package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "move_to_root_bst_access_trace":
+        package_issues = move_to_root_bst_static_issues(workload)
+        if package_issues:
+            parser.error("Move-to-root BST package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "lovasz_toggle_defective_coloring_trace":
+        package_issues = lovasz_toggle_static_issues(workload)
+        if package_issues:
+            parser.error("Lovasz toggle package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "erasable_priority_queue_trace":
+        package_issues = erasable_priority_queue_static_issues(workload)
+        if package_issues:
+            parser.error("Erasable priority queue package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "rolling_hash_on_segment_tree_trace":
+        package_issues = rolling_hash_segment_tree_static_issues(workload)
+        if package_issues:
+            parser.error("Rolling-hash segment-tree package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "manhattan_mst_candidate_edge_reduction":
+        package_issues = manhattan_mst_candidate_static_issues(workload)
+        if package_issues:
+            parser.error("Manhattan candidate-reduction package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "abelian_sandpile_stabilization":
+        package_issues = abelian_sandpile_stabilization_static_issues()
+        if package_issues:
+            parser.error("Abelian sandpile package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "dulmage_mendelsohn_decomposition":
+        package_issues = verify_dulmage_mendelsohn_decomposition_package(workload)
+        if package_issues:
+            parser.error("Dulmage–Mendelsohn package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "pocklington_primality_certificate":
+        package_issues = pocklington_primality_certificate_static_issues()
+        if package_issues:
+            parser.error("Pocklington certificate package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "pohlig_hellman_discrete_log":
+        package_issues = pohlig_hellman_discrete_log_static_issues()
+        if package_issues:
+            parser.error("Pohlig–Hellman package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "multiplicative_order":
+        package_issues = multiplicative_order_static_issues()
+        if package_issues:
+            parser.error("multiplicative_order package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "general_weighted_matching_primal_dual_blossom":
+        package_issues = general_weighted_matching_primal_dual_blossom_static_issues(workload)
+        if package_issues:
+            parser.error("weighted blossom package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "observed_remove_set":
+        package_workload = ROOT / "benchmarks/o/observed_remove_set/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            parser.error("observed_remove_set workload differs from its package file")
+        try:
+            verify_observed_remove_set_package()
+        except (AssertionError, OSError, ValueError) as error:
+            parser.error("observed_remove_set package is incomplete: " + str(error))
+    if algorithm == "token_bucket_rate_limiter_virtual_time":
+        package_workload = ROOT / "benchmarks/t/token_bucket_rate_limiter_virtual_time/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            parser.error("token_bucket_rate_limiter_virtual_time workload differs from its package file")
+        try:
+            verify_token_bucket_virtual_time_package()
+        except (AssertionError, OSError, ValueError) as error:
+            parser.error("token bucket virtual-time package is incomplete: " + str(error))
+    if algorithm == "optimal_mismatch":
+        package_issues = optimal_mismatch_static_issues()
+        if package_issues:
+            parser.error("Optimal Mismatch package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "berry_ravindran_search":
+        package_issues = berry_ravindran_search_static_issues()
+        if package_issues:
+            parser.error("Berry–Ravindran package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "zhu_takaoka_search":
+        package_issues = zhu_takaoka_search_static_issues()
+        if package_issues:
+            parser.error("Zhu–Takaoka package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "simon_string_search":
+        package_issues = simon_string_search_static_issues()
+        if package_issues:
+            parser.error("Simon sparse-automaton package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "galil_seiferas_search":
+        package_issues = galil_seiferas_search_static_issues()
+        if package_issues:
+            parser.error("Galil–Seiferas package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "galil_giancarlo_search":
+        package_issues = galil_giancarlo_search_static_issues()
+        if package_issues:
+            parser.error("Galil–Giancarlo package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "kmp_skip_search":
+        package_issues = kmp_skip_search_verify_workload(workload)
+        if package_issues:
+            parser.error("KmpSkip package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "forward_dawg_matching":
+        package_issues = forward_dawg_matching_static_issues()
+        if package_issues:
+            parser.error("Forward DAWG package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "reverse_colussi_search":
+        package_issues = reverse_colussi_search_verify_workload(workload)
+        if package_issues:
+            parser.error("Reverse Colussi package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "reverse_factor_search":
+        package_issues = reverse_factor_search_verify_workload(workload)
+        if package_issues:
+            parser.error("Reverse Factor package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "turbo_reverse_factor_search":
+        package_issues = turbo_reverse_factor_search_static_issues()
+        if package_issues:
+            parser.error("Turbo Reverse Factor package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "smallest_number_with_n_divisors":
+        package_issues = smallest_number_with_n_divisors_verify_workload(workload)
+        if package_issues:
+            parser.error("smallest_number_with_n_divisors package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "maximal_shift_search":
+        package_issues = maximal_shift_search_verify_workload(workload)
+        if package_issues:
+            parser.error("maximal_shift_search package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "skip_search":
+        package_issues = skip_search_verify_workload(workload)
+        if package_issues:
+            parser.error("Skip Search package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "string_matching_ordered_alphabets":
+        package_issues = string_matching_ordered_alphabets_verify_workload(workload)
+        if package_issues:
+            parser.error("Ordered Alphabets package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "morris_pratt_search":
+        package_issues = morris_pratt_search_verify_workload(workload)
+        if package_issues:
+            parser.error("Morris-Pratt package is incomplete: " + "; ".join(package_issues))
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
         parser.error("workload does not match the built array scalar algorithm")
+    if algorithm == "cipolla_modular_square_root":
+        package_issues = verify_cipolla_modular_square_root_package(workload)
+        if package_issues:
+            parser.error("Cipolla package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "binomial_divisibility_primality_test":
+        package_issues = verify_binomial_divisibility_primality_test_package(workload)
+        if package_issues:
+            parser.error("binomial_divisibility_primality_test package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "erdos_gallai_graphical_sequence":
+        package_issues = verify_erdos_gallai_graphical_sequence_package(workload)
+        if package_issues:
+            parser.error("erdos_gallai_graphical_sequence package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "prime_modulus_p_free_factorial":
+        package_issues = verify_prime_modulus_p_free_factorial_package(workload)
+        if package_issues:
+            parser.error("prime_modulus_p_free_factorial package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "perfect_shuffle_order":
+        package_issues = verify_perfect_shuffle_order_package(workload)
+        if package_issues:
+            parser.error("perfect_shuffle_order package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "chernick_carmichael_least_multiplier":
+        package_issues = verify_chernick_carmichael_least_multiplier_package(workload)
+        if package_issues:
+            parser.error("chernick_carmichael_least_multiplier package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "binomial_coefficient_lucas":
+        package_issues = verify_binomial_coefficient_lucas_package(workload)
+        if package_issues:
+            parser.error("binomial_coefficient_lucas package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "pell_fundamental_solution":
+        package_issues = verify_pell_fundamental_solution_package(workload)
+        if package_issues:
+            parser.error("pell_fundamental_solution package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "american_flag_string_sorter":
+        package_issues = verify_american_flag_string_sorter_package(workload)
+        if package_issues:
+            parser.error("american_flag_string_sorter package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "apostolico_crochemore_search":
+        package_issues = verify_apostolico_crochemore_search_package(workload)
+        if package_issues:
+            parser.error("apostolico_crochemore_search package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "alpha_skip_search":
+        package_issues = verify_alpha_skip_search_package(workload)
+        if package_issues:
+            parser.error("alpha_skip_search package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "generalized_suffix_automaton_union":
+        package_issues = verify_generalized_suffix_automaton_union_package(workload)
+        if package_issues:
+            parser.error("generalized_suffix_automaton_union package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "schorr_waite_graph_marking":
+        package_issues = verify_schorr_waite_graph_marking_package(workload)
+        if package_issues:
+            parser.error("schorr_waite_graph_marking package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "size_balanced_ordered_set":
+        package_issues = verify_size_balanced_ordered_set_package(workload)
+        if package_issues:
+            parser.error("size_balanced_ordered_set package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "weight_balanced_leaf_tree_order_statistics":
+        package_issues = verify_weight_balanced_leaf_tree_order_statistics_package(workload)
+        if package_issues:
+            parser.error("weight_balanced_leaf_tree_order_statistics package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "penney_game_pattern_probability":
+        package_issues = verify_penney_game_pattern_probability_package(workload)
+        if package_issues:
+            parser.error("penney_game_pattern_probability package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "undirected_four_cycle_count_degree_order":
+        package_issues = undirected_four_cycle_count_degree_order_static_issues(workload)
+        if package_issues:
+            parser.error("degree-order four-cycle package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "mo_with_modifications":
+        package_issues = verify_mo_with_modifications_package(workload)
+        if package_issues:
+            parser.error("mo_with_modifications package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "lgv_nonintersecting_paths":
+        package_issues = verify_lgv_nonintersecting_paths_package(workload)
+        if package_issues:
+            parser.error("lgv_nonintersecting_paths package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "weak_heapsort":
+        package_issues = verify_weak_heapsort_package(workload)
+        if package_issues:
+            parser.error("weak_heapsort package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "persistent_leftist_heap":
+        package_issues = verify_persistent_leftist_heap_package(workload)
+        if package_issues:
+            parser.error("persistent_leftist_heap package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "pagoda_meldable_priority_queue":
+        package_issues = verify_pagoda_meldable_priority_queue_package(workload)
+        if package_issues:
+            parser.error("pagoda_meldable_priority_queue package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "colussi_search":
+        package_issues = verify_colussi_search_package(workload)
+        if package_issues:
+            parser.error("colussi_search package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "stable_roommates":
+        package_issues = verify_stable_roommates_package(workload)
+        if package_issues:
+            parser.error("stable_roommates package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "super_stable_matching_ties_incomplete":
+        package_issues = super_stable_matching_ties_incomplete_static_issues()
+        if package_issues:
+            parser.error("super_stable_matching_ties_incomplete package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "maximum_cardinality_popular_matching":
+        package_issues = verify_maximum_cardinality_popular_matching_package(workload)
+        if package_issues:
+            parser.error("maximum_cardinality_popular_matching package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "ties_maximum_cardinality_popular_matching":
+        package_issues = verify_ties_maximum_cardinality_popular_matching_package(workload)
+        if package_issues:
+            parser.error("ties_maximum_cardinality_popular_matching package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "ordered_tree_edit_distance_zhang_shasha":
+        try:
+            verify_ordered_tree_edit_distance_zhang_shasha_package()
+        except (OSError, ValueError) as error:
+            parser.error("ordered_tree_edit_distance_zhang_shasha package is incomplete: " + str(error))
+    if algorithm == "minimum_cost_circulation_cost_scaling":
+        package_issues = verify_minimum_cost_circulation_cost_scaling_package(workload)
+        if package_issues:
+            parser.error("minimum_cost_circulation_cost_scaling package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "lower_bound_circulation_feasibility":
+        package_issues = verify_lower_bound_circulation_feasibility_package(workload)
+        if package_issues:
+            parser.error("lower_bound_circulation_feasibility package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "minimum_bounded_s_t_flow":
+        package_issues = verify_minimum_bounded_s_t_flow_package(workload)
+        if package_issues:
+            parser.error("minimum_bounded_s_t_flow package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "json_pointer_evaluation":
+        try:
+            validate_json_pointer_evaluation_workload(workload)
+        except (OSError, ValueError) as error:
+            parser.error("json_pointer_evaluation package is incomplete: " + str(error))
+    if algorithm == "wave_function_collapse_simple_tiled":
+        try:
+            validate_wave_function_collapse_simple_tiled_workload(workload)
+        except (OSError, ValueError) as error:
+            parser.error("wave_function_collapse_simple_tiled package is incomplete: " + str(error))
+    if algorithm == "hashiwokakero_small_solver":
+        try:
+            validate_hashiwokakero_small_solver_workload(workload)
+        except (OSError, ValueError) as error:
+            parser.error("hashiwokakero_small_solver package is incomplete: " + str(error))
+    if algorithm == "prim_sparse_heap":
+        package_issues = verify_prim_sparse_heap_package(workload)
+        if package_issues:
+            parser.error("prim_sparse_heap package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "mestre_strict_weighted_popular_matching":
+        package_issues = mestre_strict_weighted_popular_matching_static_issues()
+        package_issues.extend(verify_mestre_strict_weighted_popular_matching_package(workload))
+        if package_issues:
+            parser.error("mestre_strict_weighted_popular_matching package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "baum_sweet_sequence":
+        package_issues = verify_baum_sweet_sequence_package(workload)
+        if package_issues:
+            parser.error("baum_sweet_sequence package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "polydivisible_prefix_search":
+        package_issues = verify_polydivisible_prefix_search_package(workload)
+        if package_issues:
+            parser.error("polydivisible_prefix_search package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "global_balanced_binary_tree":
+        package_issues = verify_global_balanced_binary_tree_package(workload)
+        if package_issues:
+            parser.error("global_balanced_binary_tree package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "rsk_row_insertion":
+        package_issues = verify_rsk_row_insertion_package(workload)
+        if package_issues:
+            parser.error("rsk_row_insertion package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "shortest_path_modulo_small_multiple":
+        package_issues = verify_shortest_path_modulo_small_multiple_package(workload)
+        if package_issues:
+            parser.error("shortest_path_modulo_small_multiple package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "dynamic_centroid_active_set_diameter":
+        package_issues = verify_dynamic_centroid_active_set_diameter_package(workload)
+        if package_issues:
+            parser.error("dynamic_centroid_active_set_diameter package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "fenwick_tree_in_block_array_rectangle_count":
+        package_issues = verify_fenwick_tree_in_block_array_rectangle_count_package(workload)
+        if package_issues:
+            parser.error("fenwick_tree_in_block_array_rectangle_count package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "divide_combine_tree_incremental":
+        package_issues = verify_divide_combine_tree_incremental_package(workload)
+        if package_issues:
+            parser.error("divide_combine_tree_incremental package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "fenwick_weighted_segment_tree_range_kth":
+        package_issues = fenwick_weighted_segment_tree_range_kth_static_issues(workload)
+        if package_issues:
+            parser.error("fenwick_weighted_segment_tree_range_kth package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "hanging_line_largest_rectangle":
+        package_issues = verify_hanging_line_largest_rectangle_package(workload)
+        if package_issues:
+            parser.error("hanging_line_largest_rectangle package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "coloured_triangle_reduction":
+        package_issues = verify_coloured_triangle_reduction_package(workload)
+        if package_issues:
+            parser.error("coloured_triangle_reduction package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "berlekamp_welch_rs_decode":
+        package_issues = verify_berlekamp_welch_rs_decode_package(workload)
+        if package_issues:
+            parser.error("berlekamp_welch_rs_decode package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "gao_rs_decode":
+        package_issues = verify_gao_rs_decode_package(workload)
+        if package_issues:
+            parser.error("gao_rs_decode package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "freivalds_matrix_product_verification":
+        package_issues = freivalds_matrix_product_verification_static_issues(workload)
+        if package_issues:
+            parser.error("freivalds_matrix_product_verification package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "kruskal_reconstruction_tree_bottleneck":
+        package_issues = verify_kruskal_reconstruction_tree_bottleneck_package(workload)
+        if package_issues:
+            parser.error("kruskal_reconstruction_tree_bottleneck package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "subset_sum_bin_packing":
+        package_issues = verify_subset_sum_bin_packing_package(workload)
+        if package_issues:
+            parser.error("subset_sum_bin_packing package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "johnson_elementary_circuit_enumeration":
+        package_issues = verify_johnson_elementary_circuit_enumeration_package(workload)
+        if package_issues:
+            parser.error("johnson_elementary_circuit_enumeration package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "housing_top_trading_cycles":
+        package_issues = verify_housing_top_trading_cycles_package(workload)
+        if package_issues:
+            parser.error("housing_top_trading_cycles package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "ukkonen_suffix_tree":
+        package_issues = verify_ukkonen_suffix_tree_package(workload)
+        if package_issues:
+            parser.error("ukkonen_suffix_tree package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "burstsort":
+        package_issues = verify_burstsort_package(workload)
+        if package_issues:
+            parser.error("burstsort package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "lawler_knapsack_profit_scaling_fptas":
+        package_issues = verify_lawler_knapsack_profit_scaling_fptas_package(workload)
+        if package_issues:
+            parser.error("lawler_knapsack_profit_scaling_fptas package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "reverse_cuthill_mckee":
+        package_issues = verify_reverse_cuthill_mckee_package(workload)
+        if package_issues:
+            parser.error("reverse_cuthill_mckee package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "floyd_rivest_select":
+        package_issues = verify_floyd_rivest_select_package(workload)
+        if package_issues:
+            parser.error("floyd_rivest_select package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "sum_over_subsets_zeta_transform":
+        package_issues = verify_sum_over_subsets_zeta_transform_package(workload)
+        if package_issues:
+            parser.error("sum_over_subsets_zeta_transform package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "powerful_number_summatory_sieve":
+        package_issues = verify_powerful_number_summatory_sieve_package(workload)
+        if package_issues:
+            parser.error("powerful_number_summatory_sieve package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "boykov_kolmogorov_maxflow":
+        package_issues = verify_boykov_kolmogorov_maxflow_package(workload)
+        if package_issues:
+            parser.error("boykov_kolmogorov_maxflow package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "length_limited_huffman_package_merge":
+        package_issues = verify_length_limited_huffman_package_merge(workload)
+        if package_issues:
+            parser.error("length_limited_huffman_package_merge package is incomplete: " + "; ".join(package_issues))
+    if algorithm == "elias_fano_monotone_sequence":
+        package_issues = verify_elias_fano_monotone_sequence_package(workload)
+        if package_issues:
+            parser.error("elias_fano_monotone_sequence package is incomplete: " + "; ".join(package_issues))
     if algorithm == "msd_radix_string_sorter":
         validate_msd_radix_string_sorter_workload(workload)
     elif algorithm == "hook_length_tableaux":
@@ -24292,10 +33446,186 @@ def main() -> int:
         validate_tree_edge_paint_path_count_workload(workload)
     elif algorithm == "convex_polygon_minimax_length_triangulation":
         validate_convex_polygon_minimax_length_triangulation_workload(workload)
+    elif algorithm == "convex_polygon_minimax_angle_edge_insertion":
+        validate_convex_polygon_minimax_angle_edge_insertion_workload(workload)
+    elif algorithm == "max_min_triangle_height_triangulation":
+        validate_max_min_triangle_height_triangulation_workload(workload)
+    elif algorithm == "convex_polygon_minimax_slope_edge_insertion":
+        validate_convex_polygon_minimax_slope_edge_insertion_workload(workload)
+    elif algorithm == "fractional_cascading_subset_chain":
+        validate_fractional_cascading_subset_chain_workload(workload)
+    elif algorithm == "convex_polygon_max_min_length_triangulation":
+        validate_convex_polygon_max_min_length_triangulation_workload(workload)
+    elif algorithm == "convex_polygon_minimax_eccentricity_edge_insertion":
+        validate_convex_polygon_minimax_eccentricity_edge_insertion_workload(workload)
+    elif algorithm == "shewchuk_expansion_sum":
+        validate_shewchuk_expansion_sum_workload(workload)
+    elif algorithm == "bidirectional_fm_index":
+        validate_bidirectional_fm_index_workload(workload)
+    elif algorithm == "minimum_cycle_basis_horton":
+        validate_minimum_cycle_basis_horton_workload(workload)
+    elif algorithm == "linear_extension_count":
+        validate_linear_extension_count_workload(workload)
+    elif algorithm == "goldberg_maximum_density_subgraph":
+        validate_goldberg_maximum_density_subgraph_workload(workload)
+    elif algorithm == "sparse_set_dense_array":
+        validate_sparse_set_dense_array_workload(workload)
+    elif algorithm == "barrett_reduction":
+        validate_barrett_reduction_workload(workload)
+    elif algorithm == "sequitur_grammar_induction":
+        validate_sequitur_grammar_induction_workload(workload)
+    elif algorithm == "hensel_lifting_polynomial_root":
+        validate_hensel_lifting_polynomial_root_workload(workload)
+    elif algorithm == "rotation_system_planarity_test":
+        validate_rotation_system_planarity_test_workload(workload)
+    elif algorithm == "lz_end_phrase_parsing":
+        validate_lz_end_phrase_parsing_workload(workload)
+    elif algorithm == "jacobi_symbol":
+        validate_jacobi_symbol_workload(workload)
+    elif algorithm == "minimum_directed_feedback_arc_set":
+        validate_minimum_directed_feedback_arc_set_workload(workload)
+    elif algorithm == "tunstall_codebook_construction":
+        validate_tunstall_codebook_construction_workload(workload)
+    elif algorithm == "dag_transitive_reduction":
+        validate_dag_transitive_reduction_workload(workload)
+    elif algorithm == "cornacchia_x2_plus_2y2":
+        validate_cornacchia_x2_plus_2y2_workload(workload)
+    elif algorithm == "newton_divided_difference_interpolation":
+        validate_newton_divided_difference_interpolation_workload(workload)
+    elif algorithm == "cyk_context_free_recognition":
+        validate_cyk_context_free_recognition_workload(workload)
+    elif algorithm == "minimum_dominating_set_branch_bound":
+        validate_minimum_dominating_set_branch_bound_workload(workload)
+    elif algorithm == "dedekind_sum_reciprocity":
+        validate_dedekind_sum_reciprocity_workload(workload)
+    elif algorithm == "dag_shortest_path":
+        validate_dag_shortest_path_workload(workload)
+    elif algorithm == "free_polyomino_enumeration":
+        validate_free_polyomino_enumeration_workload(workload)
+    elif algorithm == "dual_decomposition_graph_cut_maxflow":
+        validate_dual_decomposition_graph_cut_maxflow_workload(workload)
+    elif algorithm == "region_discharge_path_push_relabel_maxflow":
+        validate_region_discharge_path_push_relabel_maxflow_workload(workload)
+    elif algorithm == "oi_wiki_maximum_clique_branch_bound":
+        validate_oi_wiki_maximum_clique_branch_bound_workload(workload)
+    elif algorithm == "konc_maxclique_dyn":
+        validate_konc_maxclique_dyn_workload(workload)
+    elif algorithm == "bipartite_minimum_vertex_cover":
+        validate_bipartite_minimum_vertex_cover_workload(workload)
+    elif algorithm == "pisinger_bounded_weight_subset_sum":
+        validate_pisinger_bounded_weight_subset_sum_workload(workload)
+    elif algorithm == "ryser_permanent":
+        validate_ryser_permanent_workload(workload)
+    elif algorithm == "binary_search_maximum_average_segment":
+        validate_binary_search_maximum_average_segment_workload(workload)
+    elif algorithm == "grid_shortest_path_obstacle_elimination":
+        package_workload = ROOT / "benchmarks/g/grid_shortest_path_obstacle_elimination/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("grid obstacle-elimination workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_input_length") != 39
+                or workload.get("input", {}).get("maximum_parseable_input_length")
+                != GRID_OBSTACLE_PATH_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes") != GRID_OBSTACLE_PATH_WORKSPACE_BYTES):
+            raise ValueError("grid obstacle-elimination bounds differ from its product-state profile")
+        issues = grid_shortest_path_obstacle_elimination_workload_issues()
+        if issues:
+            raise ValueError("grid obstacle-elimination workload is invalid: " + "; ".join(issues))
+    elif algorithm == "zwick_deterministic_bridging_set":
+        package_workload = ROOT / "benchmarks/z/zwick_deterministic_bridging_set/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Zwick bridge-set workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != ZWICK_BRIDGING_SET_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != ZWICK_BRIDGING_SET_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != ZWICK_BRIDGING_SET_WORKSPACE_BYTES):
+            raise ValueError("Zwick bridge-set bounds or workspace differ from its contract")
+        issues = zwick_deterministic_bridging_set_workload_issues()
+        if issues:
+            raise ValueError("Zwick bridge-set workload is invalid: " + "; ".join(issues))
+    elif algorithm == "bounded_knapsack_binary_grouping":
+        validate_bounded_knapsack_binary_grouping_workload(workload)
+    elif algorithm == "weisfeiler_lehman_color_refinement":
+        validate_weisfeiler_lehman_color_refinement_workload(workload)
+    elif algorithm == "mixed_knapsack":
+        validate_mixed_knapsack_workload(workload)
+    elif algorithm == "order_maintenance":
+        validate_order_maintenance_workload(workload)
+    elif algorithm == "synchronous_round_push_relabel":
+        validate_synchronous_round_push_relabel_workload(workload)
+    elif algorithm == "eibfs_maxflow":
+        validate_eibfs_maxflow_workload(workload)
+    elif algorithm == "hochbaum_pseudoflow_maxflow":
+        validate_hochbaum_pseudoflow_maxflow_workload(workload)
+    elif algorithm == "adaptive_bottom_up_graph_cut_merging":
+        validate_adaptive_bottom_up_graph_cut_merging_workload(workload)
+    elif algorithm == "eibfs_bottom_up_graph_cut_merging":
+        validate_eibfs_bottom_up_graph_cut_merging_workload(workload)
     elif algorithm == "pfaffian_of_matrix":
         validate_pfaffian_of_matrix_workload(workload)
     elif algorithm == "x_fast_trie_static_predecessor":
         validate_x_fast_trie_static_predecessor_workload(workload)
+    elif algorithm == "y_fast_trie_static_predecessor":
+        validate_y_fast_trie_static_predecessor_workload(workload)
+    elif algorithm == "hits_fixed_point":
+        validate_hits_fixed_point_workload(workload)
+    elif algorithm == "graphai_gnns_hill_climbing":
+        validate_graphai_gnns_hill_climbing_workload(workload)
+    elif algorithm == "belady_optimal_paging":
+        validate_belady_optimal_paging_workload(workload)
+    elif algorithm == "fks_static_perfect_hash":
+        validate_fks_static_perfect_hash_workload(workload)
+    elif algorithm == "segment_tree_max_right":
+        validate_segment_tree_max_right_workload(workload)
+    elif algorithm == "lazy_segment_tree_range_add_max_right":
+        validate_lazy_segment_tree_range_add_max_right_workload(workload)
+    elif algorithm == "w_ary_predecessor_set":
+        validate_w_ary_predecessor_set_workload(workload)
+    elif algorithm == "range_union_find":
+        validate_range_union_find_workload(workload)
+    elif algorithm == "union_find_enumerate":
+        validate_union_find_enumerate_workload(workload)
+    elif algorithm == "slide_window_aggregation_deque":
+        validate_slide_window_aggregation_deque_workload(workload)
+    elif algorithm == "arbitrary_order_line_container":
+        validate_arbitrary_order_line_container_workload(workload)
+    elif algorithm == "two_vertex_cuts_spqr":
+        validate_two_vertex_cuts_spqr_workload(workload)
+    elif algorithm == "minimum_refueling_stops_heap":
+        validate_minimum_refueling_stops_heap_workload(workload)
+    elif algorithm == "shortest_path_visiting_all_nodes":
+        validate_shortest_path_visiting_all_nodes_workload(workload)
+    elif algorithm == "vogel_approximation_transportation":
+        validate_vogel_approximation_transportation_workload(workload)
+    elif algorithm == "misra_gries_edge_coloring":
+        validate_misra_gries_edge_coloring_workload(workload)
+    elif algorithm == "fenwick_kth":
+        validate_fenwick_kth_workload(workload)
+    elif algorithm == "incremental_convex_hull_3d":
+        validate_incremental_convex_hull_3d_workload(workload)
+    elif algorithm == "ternary_search_trie":
+        validate_ternary_search_trie_workload(workload)
+    elif algorithm == "interval_cover":
+        validate_interval_cover_workload(workload)
+    elif algorithm == "interval_container":
+        validate_interval_container_workload(workload)
+    elif algorithm == "mo_2d_rectangle_frequency_square":
+        validate_mo_2d_rectangle_frequency_square_workload(workload)
+    elif algorithm == "dinkelbach_fixed_cardinality_ratio":
+        validate_dinkelbach_fixed_cardinality_ratio_workload(workload)
+    elif algorithm == "minimum_unfairness_k_selection":
+        validate_minimum_unfairness_k_selection_workload(workload)
+    elif algorithm == "fourier_motzkin_feasibility":
+        validate_fourier_motzkin_feasibility_workload(workload)
+    elif algorithm == "d_star_lite_incremental_replanning":
+        validate_d_star_lite_incremental_replanning_workload(workload)
+    elif algorithm == "fiduccia_mattheyses_hypergraph_bipartitioning":
+        validate_fiduccia_mattheyses_hypergraph_bipartitioning_workload(workload)
+    elif algorithm == "louvain_multilevel_community_detection":
+        validate_louvain_multilevel_community_detection_workload(workload)
+    elif algorithm == "kkt_recursive_mst":
+        validate_kkt_recursive_mst_workload(workload)
     elif algorithm == "hpcc_random_access":
         validate_hpcc_random_access_workload(workload)
     elif algorithm == "convex_layers":
@@ -24304,6 +33634,26 @@ def main() -> int:
         validate_segment_tree_beats_workload(workload)
     elif algorithm == "point_in_polygon_ray_casting":
         validate_point_in_polygon_ray_casting_workload(workload)
+    elif algorithm == "point_location_sweep":
+        validate_point_location_sweep_workload(workload)
+    elif algorithm == "triangulation_stochastic_visibility_walk":
+        validate_triangulation_stochastic_visibility_walk_workload(workload)
+    elif algorithm == "zielonka_parity_game_solver":
+        validate_zielonka_parity_game_solver_workload(workload)
+    elif algorithm == "small_progress_measure_parity_game_solver":
+        validate_small_progress_measure_parity_game_solver_workload(workload)
+    elif algorithm == "arpa_offline_rmq":
+        validate_arpa_offline_rmq_workload(workload)
+    elif algorithm == "offline_range_paint_successor_dsu":
+        validate_offline_range_paint_successor_dsu_workload(workload)
+    elif algorithm == "online_bipartiteness_dsu":
+        validate_online_bipartiteness_dsu_workload(workload)
+    elif algorithm == "segment_union_length_klee":
+        validate_segment_union_length_klee_workload(workload)
+    elif algorithm == "intersecting_segments_sweep":
+        validate_intersecting_segments_sweep_workload(workload)
+    elif algorithm == "balanced_parenthesis_rank_unrank":
+        validate_balanced_parenthesis_rank_unrank_workload(workload)
     elif algorithm == "vertex_connectivity":
         validate_vertex_connectivity_workload(workload)
     elif algorithm == "edge_connectivity_all_pairs_maxflow":
@@ -24324,6 +33674,10 @@ def main() -> int:
         issues = sparse_recovery_static_issues(workload)
         if issues:
             raise ValueError("singleton fingerprint recovery package: " + "; ".join(issues))
+    elif algorithm == "convex_polygon_integer_inradius":
+        issues = convex_polygon_integer_inradius_static_issues(workload)
+        if issues:
+            raise ValueError("convex polygon inradius package: " + "; ".join(issues))
     elif algorithm == "directed_girth_bfs":
         issues = directed_girth_bfs_static_issues(workload)
         if issues:
@@ -24336,6 +33690,10 @@ def main() -> int:
         issues = offline_range_distinct_fenwick_static_issues(workload)
         if issues:
             raise ValueError("offline_range_distinct_fenwick package: " + "; ".join(issues))
+    elif algorithm == "unit_job_release_deadline_weighted_matching":
+        issues = unit_job_release_deadline_weighted_matching_static_issues(workload)
+        if issues:
+            raise ValueError("unit_job_release_deadline_weighted_matching package: " + "; ".join(issues))
     elif algorithm == "dinic_capacity_scaling":
         issues = dinic_capacity_scaling_static_issues(workload)
         if issues:
@@ -24356,6 +33714,10 @@ def main() -> int:
         issues = wavelet_matrix_static_issues(workload)
         if issues:
             raise ValueError("wavelet_matrix package: " + "; ".join(issues))
+    elif algorithm == "one_sided_jacobi_svd":
+        issues = one_sided_jacobi_svd_static_issues(workload)
+        if issues:
+            raise ValueError("one_sided_jacobi_svd package: " + "; ".join(issues))
     elif algorithm == "backward_oracle_match":
         issues = bom_static_issues(workload)
         if issues:
@@ -24372,18 +33734,126 @@ def main() -> int:
         issues = fixed_length_walk_count_static_issues(workload)
         if issues:
             raise ValueError("fixed_length_walk_count package: " + "; ".join(issues))
+    elif algorithm == "tree_sibling_distinct_cost_coloring":
+        issues = tree_sibling_distinct_cost_coloring_static_issues(workload)
+        if issues:
+            raise ValueError("tree_sibling_distinct_cost_coloring package: " + "; ".join(issues))
     elif algorithm == "tree_min_cost_proper_coloring":
         issues = tree_min_cost_proper_coloring_static_issues(workload)
         if issues:
             raise ValueError("tree_min_cost_proper_coloring package: " + "; ".join(issues))
+    elif algorithm == "tree_min_cost_edge_coloring":
+        issues = tree_min_cost_edge_coloring_static_issues(workload)
+        if issues:
+            raise ValueError("tree_min_cost_edge_coloring package: " + "; ".join(issues))
+    elif algorithm == "tree_weighted_vertex_cover":
+        issues = tree_weighted_vertex_cover_static_issues(workload)
+        if issues:
+            raise ValueError("tree_weighted_vertex_cover package: " + "; ".join(issues))
+    elif algorithm == "tree_weighted_edge_dominating_set":
+        issues = tree_weighted_edge_dominating_set_static_issues(workload)
+        if issues:
+            raise ValueError("tree_weighted_edge_dominating_set package: " + "; ".join(issues))
+    elif algorithm == "tree_minimum_path_partition":
+        issues = tree_minimum_path_partition_static_issues(workload)
+        if issues:
+            raise ValueError("tree_minimum_path_partition package: " + "; ".join(issues))
+    elif algorithm == "chordal_graph_optimal_coloring":
+        issues = chordal_graph_optimal_coloring_static_issues(workload)
+        if issues:
+            raise ValueError("chordal_graph_optimal_coloring package: " + "; ".join(issues))
+    elif algorithm == "bit_parallel_lcs":
+        issues = bit_parallel_lcs_static_issues(workload)
+        if issues:
+            raise ValueError("bit_parallel_lcs package: " + "; ".join(issues))
+    elif algorithm == "myers_bitvector_edit_distance":
+        issues = myers_bitvector_edit_distance_static_issues(workload)
+        if issues:
+            raise ValueError("myers_bitvector_edit_distance package: " + "; ".join(issues))
+    elif algorithm == "count_distinct_lcs":
+        issues = count_distinct_lcs_static_issues(workload)
+        if issues:
+            raise ValueError("count_distinct_lcs package: " + "; ".join(issues))
+    elif algorithm == "tree_weighted_dominating_set":
+        issues = tree_weighted_dominating_set_static_issues(workload)
+        if issues:
+            raise ValueError("tree_weighted_dominating_set package: " + "; ".join(issues))
+    elif algorithm == "tree_weighted_total_dominating_set":
+        issues = tree_weighted_total_dominating_set_static_issues(workload)
+        if issues:
+            raise ValueError("tree_weighted_total_dominating_set package: " + "; ".join(issues))
+    elif algorithm == "tree_weighted_independent_dominating_set":
+        issues = tree_weighted_independent_dominating_set_static_issues(workload)
+        if issues:
+            raise ValueError("tree_weighted_independent_dominating_set package: " + "; ".join(issues))
+    elif algorithm == "tree_distance_k_dominating_set":
+        issues = tree_distance_k_dominating_set_static_issues(workload)
+        if issues:
+            raise ValueError("tree_distance_k_dominating_set package: " + "; ".join(issues))
     elif algorithm == "monotone_radix_heap":
         issues = monotone_radix_heap_static_issues(workload)
         if issues:
             raise ValueError("monotone_radix_heap package: " + "; ".join(issues))
+    elif algorithm == "multi_root_hollow_heap":
+        issues = multi_root_hollow_heap_static_issues(workload)
+        if issues:
+            raise ValueError("multi_root_hollow_heap package: " + "; ".join(issues))
+    elif algorithm == "rank_pairing_heap":
+        issues = rank_pairing_heap_static_issues(workload)
+        if issues:
+            raise ValueError("rank_pairing_heap package: " + "; ".join(issues))
+    elif algorithm == "skew_binomial_queue":
+        issues = skew_binomial_queue_static_issues(workload)
+        if issues:
+            raise ValueError("skew_binomial_queue package: " + "; ".join(issues))
+    elif algorithm == "dsatur_greedy_coloring":
+        issues = dsatur_greedy_coloring_static_issues(workload)
+        if issues:
+            raise ValueError("dsatur_greedy_coloring package: " + "; ".join(issues))
+    elif algorithm == "kkt_recursive_mst":
+        issues = kkt_recursive_mst_static_issues(workload)
+        if issues:
+            raise ValueError("kkt_recursive_mst package: " + "; ".join(issues))
+    elif algorithm == "karger_stein_recursive_contraction":
+        issues = karger_stein_recursive_contraction_static_issues(workload)
+        if issues:
+            raise ValueError("recursive contraction package: " + "; ".join(issues))
     elif algorithm == "karger_contraction_trial":
         issues = karger_contraction_trial_static_issues(workload)
         if issues:
             raise ValueError("karger_contraction_trial package: " + "; ".join(issues))
+    elif algorithm == "primitive_root_factorization":
+        issues = primitive_root_factorization_verify_workload(workload)
+        if issues:
+            raise ValueError("primitive_root_factorization package: " + "; ".join(issues))
+    elif algorithm == "distinct_substring_count_hashing":
+        issues = distinct_substring_count_hashing_verify_workload(workload)
+        if issues:
+            raise ValueError("distinct_substring_count_hashing package: " + "; ".join(issues))
+    elif algorithm == "arpa_offline_rmq":
+        issues = arpa_offline_rmq_verify_workload(workload)
+        if issues:
+            raise ValueError("arpa_offline_rmq package: " + "; ".join(issues))
+    elif algorithm == "offline_range_paint_successor_dsu":
+        issues = offline_range_paint_successor_dsu_verify_workload(workload)
+        if issues:
+            raise ValueError("offline_range_paint_successor_dsu package: " + "; ".join(issues))
+    elif algorithm == "online_bipartiteness_dsu":
+        issues = online_bipartiteness_dsu_verify_workload(workload)
+        if issues:
+            raise ValueError("online_bipartiteness_dsu package: " + "; ".join(issues))
+    elif algorithm == "segment_union_length_klee":
+        issues = segment_union_length_klee_verify_workload(workload)
+        if issues:
+            raise ValueError("segment_union_length_klee package: " + "; ".join(issues))
+    elif algorithm == "intersecting_segments_sweep":
+        issues = intersecting_segments_sweep_verify_workload()
+        if issues:
+            raise ValueError("intersecting_segments_sweep package: " + "; ".join(issues))
+    elif algorithm == "balanced_parenthesis_rank_unrank":
+        issues = balanced_parenthesis_rank_unrank_verify_workload(workload)
+        if issues:
+            raise ValueError("balanced_parenthesis_rank_unrank package: " + "; ".join(issues))
     elif algorithm == "point_set_range_composite":
         validate_point_set_range_composite_workload(workload)
     elif algorithm == "queue_operate_all_composite":
@@ -24392,6 +33862,10 @@ def main() -> int:
         validate_deque_operate_all_composite_workload(workload)
     elif algorithm == "sum_of_multiplicative_function_large":
         validate_sum_of_multiplicative_function_large_workload(workload)
+    elif algorithm == "zhouge_summatory_multiplicative_function":
+        validate_zhouge_summatory_multiplicative_function_workload(workload)
+    elif algorithm == "pearson_hash":
+        validate_pearson_hash_workload(workload)
     elif algorithm == "matrix_exponentiation":
         validate_matrix_exponentiation_workload(workload)
     elif algorithm == "miller_rabin_primality_checker":
@@ -24444,6 +33918,10 @@ def main() -> int:
         validate_bareiss_determinant_workload(workload)
     elif algorithm == "pollard_p_minus_one_factorization":
         validate_pollard_p_minus_one_factorization_workload(workload)
+    elif algorithm == "fermat_factorization":
+        validate_fermat_factorization_workload(workload)
+    elif algorithm == "generalized_chinese_remainder_theorem":
+        validate_generalized_chinese_remainder_theorem_workload(workload)
     elif algorithm == "factoring_exponentiation":
         validate_factoring_exponentiation_workload(workload)
     elif algorithm == "isap_maxflow":
@@ -24456,6 +33934,120 @@ def main() -> int:
         validate_persistent_segment_tree_range_kth_workload(workload)
     elif algorithm == "count_different_palindromic_subsequences":
         validate_count_different_palindromic_subsequences_workload(workload)
+    elif algorithm == "k_inverse_pairs_array":
+        validate_k_inverse_pairs_array_workload(workload)
+    elif algorithm == "max_sum_rectangle_no_larger_than_k":
+        validate_max_sum_rectangle_no_larger_than_k_workload(workload)
+    elif algorithm == "shortest_subarray_with_sum_at_least_k":
+        validate_shortest_subarray_with_sum_at_least_k_workload(workload)
+    elif algorithm == "linear_partition_minimax":
+        validate_linear_partition_minimax_workload(workload)
+    elif algorithm == "number_of_ways_of_cutting_a_pizza":
+        validate_number_of_ways_of_cutting_a_pizza_workload(workload)
+    elif algorithm == "minimum_cost_to_merge_stones":
+        validate_minimum_cost_to_merge_stones_workload(workload)
+    elif algorithm == "connectivity_aware_plug_dp_binary_grid_colorings":
+        validate_connectivity_aware_plug_dp_binary_grid_colorings_workload(workload)
+    elif algorithm == "paint_house_iii":
+        validate_paint_house_iii_workload(workload)
+    elif algorithm == "efficient_dominating_set_square_graph_mwis":
+        validate_efficient_dominating_set_square_graph_mwis_workload(workload)
+    elif algorithm == "maximum_employees_to_be_invited":
+        validate_maximum_employees_to_be_invited_workload(workload)
+    elif algorithm == "max_points_on_a_line":
+        validate_max_points_on_a_line_workload(workload)
+    elif algorithm == "cherry_pickup_ii":
+        validate_cherry_pickup_ii_workload(workload)
+    elif algorithm == "delaunay_rooted_triangulation_reverse_search":
+        validate_delaunay_rooted_triangulation_reverse_search_workload(workload)
+    elif algorithm == "string_compression_ii":
+        validate_string_compression_ii_workload(workload)
+    elif algorithm == "hofstadter_q_sequence":
+        validate_hofstadter_q_sequence_workload(workload)
+    elif algorithm == "hofstadter_conway_10000_sequence":
+        validate_hofstadter_conway_10000_sequence_workload(workload)
+    elif algorithm == "minimum_cost_bipartite_edge_cover_subset_dp":
+        validate_minimum_cost_bipartite_edge_cover_subset_dp_workload(workload)
+    elif algorithm == "simpath_st_paths_zdd":
+        validate_simpath_st_paths_zdd_workload(workload)
+    elif algorithm == "domino_l_tromino_tilings_2xn":
+        validate_domino_l_tromino_tilings_2xn_workload(workload)
+    elif algorithm == "ratcliff_obershelp_similarity":
+        validate_ratcliff_obershelp_similarity_workload(workload)
+    elif algorithm == "liu_hui_pi_approximation":
+        validate_liu_hui_pi_approximation_workload(workload)
+    elif algorithm == "rational_polygon_lattice_points":
+        validate_rational_polygon_lattice_points_workload(workload)
+    elif algorithm == "divide_conquer_dp_partition":
+        validate_divide_conquer_dp_partition_workload(workload)
+    elif algorithm == "monge_dag_fixed_edge_shortest_path":
+        validate_monge_dag_fixed_edge_shortest_path_workload(workload)
+    elif algorithm == "cactus_graph_recognition":
+        validate_cactus_graph_recognition_workload(workload)
+    elif algorithm == "entringer_number":
+        validate_entringer_number_workload(workload)
+    elif algorithm == "josephus_batched_small_k":
+        validate_josephus_batched_small_k_workload(workload)
+    elif algorithm == "brzozowski_dfa_minimization":
+        validate_brzozowski_dfa_minimization_workload(workload)
+    elif algorithm == "interpolation_sequential_search":
+        validate_interpolation_sequential_search_workload(workload)
+    elif algorithm == "lcfs_hashing":
+        validate_lcfs_hashing_workload(workload)
+    elif algorithm == "distinct_subarray_aggregates":
+        validate_distinct_subarray_aggregates_workload(workload)
+    elif algorithm == "bond_sequential_search":
+        validate_bond_sequential_search_workload(workload)
+    elif algorithm == "matroid_intersection":
+        validate_matroid_intersection_workload(workload)
+    elif algorithm == "remove_boxes":
+        validate_remove_boxes_workload(workload)
+    elif algorithm == "strange_printer":
+        validate_strange_printer_workload(workload)
+    elif algorithm == "strange_printer_ii":
+        validate_strange_printer_ii_workload(workload)
+    elif algorithm == "alphabetic_anagrams":
+        validate_alphabetic_anagrams_workload(workload)
+    elif algorithm == "infinite_knight_distance":
+        validate_infinite_knight_distance_workload(workload)
+    elif algorithm == "android_unlock_pattern_count":
+        validate_android_unlock_pattern_count_workload(workload)
+    elif algorithm == "random_permutation_cycle_cap_count":
+        validate_random_permutation_cycle_cap_count_workload(workload)
+    elif algorithm == "eulerian_number":
+        validate_eulerian_number_workload(workload)
+    elif algorithm == "fractional_programming_ratio_knapsack_binary_search":
+        validate_fractional_programming_ratio_knapsack_binary_search_workload(workload)
+    elif algorithm == "nmea_xor_checksum":
+        validate_nmea_xor_checksum_workload(workload)
+    elif algorithm == "factorial_last_nonzero_digit":
+        validate_factorial_last_nonzero_digit_workload(workload)
+    elif algorithm == "egg_drop_max_floors_by_moves":
+        validate_egg_drop_max_floors_by_moves_workload(workload)
+    elif algorithm == "rectangle_union_area_sweep":
+        validate_rectangle_union_area_sweep_workload(workload)
+    elif algorithm == "thomassen_convex_drawing_extendibility":
+        validate_thomassen_convex_drawing_extendibility_workload(workload)
+    elif algorithm == "pisano_period":
+        validate_pisano_period_workload(workload)
+    elif algorithm == "longest_common_increasing_subsequence":
+        validate_longest_common_increasing_subsequence_workload(workload)
+    elif algorithm == "randomized_binary_search_tree_order_statistics_split_join":
+        validate_randomized_binary_search_tree_order_statistics_split_join_workload(workload)
+    elif algorithm == "linear_hashing_trace":
+        validate_linear_hashing_trace_workload(workload)
+    elif algorithm == "move_to_root_bst_access_trace":
+        validate_move_to_root_bst_access_trace_workload(workload)
+    elif algorithm == "lovasz_toggle_defective_coloring_trace":
+        validate_lovasz_toggle_defective_coloring_trace_workload(workload)
+    elif algorithm == "erasable_priority_queue_trace":
+        validate_erasable_priority_queue_trace_workload(workload)
+    elif algorithm == "rolling_hash_on_segment_tree_trace":
+        validate_rolling_hash_on_segment_tree_trace_workload(workload)
+    elif algorithm == "manhattan_mst_candidate_edge_reduction":
+        validate_manhattan_mst_candidate_edge_reduction_workload(workload)
+    elif algorithm == "c_connected_clustered_embedding_condition":
+        validate_c_connected_clustered_embedding_condition_workload(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -24483,10 +34075,10 @@ def main() -> int:
         if type(input_is_null) is not bool:
             raise ValueError(f"input_is_null must be boolean for {case['id']}")
         if input_is_null:
-            minimum_null_length = 0 if algorithm in (
+            minimum_null_length = 0 if algorithm in {"abelian_sandpile_stabilization", "belady_optimal_paging", "fks_static_perfect_hash", "segment_tree_max_right", "lazy_segment_tree_range_add_max_right", "w_ary_predecessor_set", "range_union_find", "union_find_enumerate", "slide_window_aggregation_deque", "arbitrary_order_line_container", "minimum_refueling_stops_heap", "shortest_path_visiting_all_nodes", "vogel_approximation_transportation", "misra_gries_edge_coloring", "fenwick_kth", "incremental_convex_hull_3d", "ternary_search_trie", "interval_cover", "interval_container", "convex_polygon_minimax_length_triangulation", "convex_polygon_minimax_angle_edge_insertion", "max_min_triangle_height_triangulation", "convex_polygon_minimax_slope_edge_insertion", "fractional_cascading_subset_chain", "convex_polygon_max_min_length_triangulation", "convex_polygon_minimax_eccentricity_edge_insertion", "shewchuk_expansion_sum", "bidirectional_fm_index", "minimum_cycle_basis_horton", "linear_extension_count", "goldberg_maximum_density_subgraph", "sparse_set_dense_array", "barrett_reduction", "sequitur_grammar_induction", "hensel_lifting_polynomial_root", "rotation_system_planarity_test", "lz_end_phrase_parsing", "jacobi_symbol", "minimum_directed_feedback_arc_set", "tunstall_codebook_construction", "dag_transitive_reduction", "cornacchia_x2_plus_2y2", "newton_divided_difference_interpolation", "cyk_context_free_recognition", "minimum_dominating_set_branch_bound", "dedekind_sum_reciprocity", "dag_shortest_path", "free_polyomino_enumeration", "dual_decomposition_graph_cut_maxflow", "region_discharge_path_push_relabel_maxflow", "monge_dag_fixed_edge_shortest_path"} or algorithm == "order_maintenance" or algorithm in (
                 "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie", "effective_resistance_unit_graph",
                 "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
-                "stanford_puzzle", "mallocbench_cfrac", "hook_length_tableaux", "difference_product", "polynomial_resultant_half_gcd", "subsequence_automaton", "slope_trick_lipschitz_l1", "wqs_path_independent_set", "cartesian_histogram_area", "maximum_area_triangle_convex", "range_constraint_topological_feasibility", "hopcroft_dfa_minimization", "npb_serial_dc", "npb_dc_smallest_parent",
+                "stanford_puzzle", "mallocbench_cfrac", "hook_length_tableaux", "rsk_row_insertion", "shortest_path_modulo_small_multiple", "dynamic_centroid_active_set_diameter", "fenwick_tree_in_block_array_rectangle_count", "difference_product", "polynomial_resultant_half_gcd", "subsequence_automaton", "slope_trick_lipschitz_l1", "wqs_path_independent_set", "cartesian_histogram_area", "maximum_area_triangle_convex", "range_constraint_topological_feasibility", "hopcroft_dfa_minimization", "npb_serial_dc", "npb_dc_smallest_parent",
                 "prolangs_c_assembler", "prolangs_c_bison_nullable",
                 "versabench_dbms_choose_entry", "tsvc_s424_alias_overlap_feedback",
                 "tsvc_s423_antidependence_offset64", "tsvc_s258_wrapped_scalar_expansion",
@@ -24495,7 +34087,10 @@ def main() -> int:
                 "queue_operate_all_composite", "deque_operate_all_composite",
                 "number_of_increasing_sequences_between_two_sequences",
                 "point_set_range_sort_range_composite",
-                "point_in_polygon_ray_casting",
+                "point_in_polygon_ray_casting", "point_location_sweep",
+                "triangulation_stochastic_visibility_walk",
+                "zielonka_parity_game_solver",
+                "small_progress_measure_parity_game_solver",
                 "vertex_connectivity",
                 "edge_connectivity_all_pairs_maxflow",
                 "stirling_number_of_the_second_kind_small_p_large_n",
@@ -24504,33 +34099,155 @@ def main() -> int:
                 "cdq_three_dimensional_dominance",
                 "bareiss_determinant", "ida_star_graph",
                 "pollard_p_minus_one_factorization",
+                "squfof_semiprime_factor",
                 "factoring_exponentiation",
                 "isap_maxflow",
                 "elliptic_curve_method_stage1",
                 "ordered_set_avl_order_statistics",
                 "persistent_segment_tree_range_kth",
-                "count_different_palindromic_subsequences",
-                "karger_contraction_trial", "directed_girth_bfs", "functional_graph_cycle_brent", "offline_range_distinct_fenwick", "dinic_capacity_scaling", "highest_label_push_relabel", "closest_pair_sweep", "monotone_radix_heap", "backward_nondeterministic_dawg_match", "backward_oracle_match", "wavelet_matrix", "xor_filter_peeling", "turnstile_one_sparse_fingerprint_recovery",
-                "second_best_mst_binary_lifting", "longest_common_substring_sam", "fixed_length_walk_minplus", "fixed_length_walk_count", "tree_min_cost_proper_coloring") else 1
-            maximum_null_length = (SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
+                "count_different_palindromic_subsequences", "k_inverse_pairs_array",
+                "max_sum_rectangle_no_larger_than_k",
+                "rational_polygon_lattice_points",
+                "tree_sibling_distinct_cost_coloring",
+                "unit_job_release_deadline_weighted_matching",
+                "karger_contraction_trial", "karger_stein_recursive_contraction", "convex_polygon_integer_inradius", "directed_girth_bfs", "functional_graph_cycle_brent", "offline_range_distinct_fenwick", "dinic_capacity_scaling", "highest_label_push_relabel", "closest_pair_sweep", "monotone_radix_heap", "multi_root_hollow_heap", "rank_pairing_heap", "skew_binomial_queue", "dsatur_greedy_coloring", "kkt_recursive_mst", "y_fast_trie_static_predecessor", "hits_fixed_point", "graphai_gnns_hill_climbing", "mo_2d_rectangle_frequency_square", "dinkelbach_fixed_cardinality_ratio", "fourier_motzkin_feasibility", "d_star_lite_incremental_replanning", "fiduccia_mattheyses_hypergraph_bipartitioning", "louvain_multilevel_community_detection", "backward_nondeterministic_dawg_match", "backward_oracle_match", "wavelet_matrix", "one_sided_jacobi_svd", "xor_filter_peeling", "turnstile_one_sparse_fingerprint_recovery",
+                "second_best_mst_binary_lifting", "longest_common_substring_sam", "fixed_length_walk_minplus", "fixed_length_walk_count", "tree_min_cost_proper_coloring", "tree_min_cost_edge_coloring", "tree_weighted_vertex_cover", "tree_weighted_edge_dominating_set", "tree_minimum_path_partition", "chordal_graph_optimal_coloring", "bit_parallel_lcs", "myers_bitvector_edit_distance", "count_distinct_lcs", "polygonal_numbers", "golomb_sequence_validator", "tree_weighted_dominating_set", "tree_weighted_total_dominating_set", "tree_weighted_independent_dominating_set", "tree_distance_k_dominating_set") else 1
+            if algorithm in {"stable_roommates", "super_stable_matching_ties_incomplete",
+                             "maximum_cardinality_popular_matching",
+                             "ties_maximum_cardinality_popular_matching",
+                             "ordered_tree_edit_distance_zhang_shasha",
+                             "freivalds_matrix_product_verification",
+                             "k_inverse_pairs_array",
+                             "max_sum_rectangle_no_larger_than_k"}:
+                minimum_null_length = 0
+            if algorithm in {"maximum_employees_to_be_invited", "max_points_on_a_line",
+                             "cherry_pickup_ii", "string_compression_ii",
+                             "hofstadter_q_sequence", "hofstadter_conway_10000_sequence",
+                             "minimum_cost_bipartite_edge_cover_subset_dp",
+                             "simpath_st_paths_zdd",
+                             "domino_l_tromino_tilings_2xn",
+                             "ratcliff_obershelp_similarity"}:
+                minimum_null_length = 0
+            if algorithm in {"minimum_area_rectangle_arbitrary_orientation",
+                             "secret_sharing_time_batched_dsu",
+                             "redundant_directed_connection_repair",
+                             "undirected_simple_cycle_subset_dp_count"}:
+                minimum_null_length = 0
+            maximum_null_length = (TOKEN_BUCKET_VIRTUAL_TIME_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "token_bucket_rate_limiter_virtual_time" else
+                                   OBSERVED_REMOVE_SET_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "observed_remove_set" else
+                                   WEIGHTED_BLOSSOM_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "general_weighted_matching_primal_dual_blossom" else
+                                   MULTIPLICATIVE_ORDER_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "multiplicative_order" else
+                                   WEIGHT_BALANCED_LEAF_TREE_ORDER_STATISTICS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "weight_balanced_leaf_tree_order_statistics" else
+                                   PENNEY_GAME_PATTERN_PROBABILITY_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "penney_game_pattern_probability" else
+                                   FOUR_CYCLE_DEGREE_ORDER_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "undirected_four_cycle_count_degree_order" else
+                                   SEGMENT_ADD_GET_MIN_MAX_INPUT_LENGTH
                                    if algorithm == "segment_add_get_min" else
                                    260 if algorithm == "turnstile_one_sparse_fingerprint_recovery" else
+                                   Y_FAST_TRIE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "y_fast_trie_static_predecessor" else
+                                   HITS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "hits_fixed_point" else
+                                   GRAPHIA_GNNS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "graphai_gnns_hill_climbing" else
+                                   BELADY_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "belady_optimal_paging" else
+                                   FKS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "fks_static_perfect_hash" else
+                                   SEGMENT_TREE_MAX_RIGHT_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "segment_tree_max_right" else
+                                   LAZY_MAX_RIGHT_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "lazy_segment_tree_range_add_max_right" else
+                                   W_ARY_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "w_ary_predecessor_set" else
+                                   RANGE_UNION_FIND_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "range_union_find" else
+                                   UNION_FIND_ENUMERATE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "union_find_enumerate" else
+                                   SLIDE_WINDOW_AGGREGATION_DEQUE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "slide_window_aggregation_deque" else
+                                   ARBITRARY_ORDER_LINE_CONTAINER_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "arbitrary_order_line_container" else
+                                   TWO_VERTEX_CUTS_SPQR_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "two_vertex_cuts_spqr" else
+                                   MINIMUM_REFUELING_STOPS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "minimum_refueling_stops_heap" else
+                                   SHORTEST_PATH_VISITING_ALL_NODES_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "shortest_path_visiting_all_nodes" else
+                                   VAM_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "vogel_approximation_transportation" else
+                                   MISRA_GRIES_EDGE_COLORING_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "misra_gries_edge_coloring" else
+                                   FENWICK_KTH_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "fenwick_kth" else
+                                   INCREMENTAL_CONVEX_HULL_3D_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "incremental_convex_hull_3d" else
+                                   TERNARY_SEARCH_TRIE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "ternary_search_trie" else
+                                   INTERVAL_COVER_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "interval_cover" else
+                                   INTERVAL_CONTAINER_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "interval_container" else
+                                   MO_2D_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "mo_2d_rectangle_frequency_square" else
+                                   DINKELBACH_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "dinkelbach_fixed_cardinality_ratio" else
+                                   MINIMUM_UNFAIRNESS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "minimum_unfairness_k_selection" else
+                                   FME_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "fourier_motzkin_feasibility" else
+                                   D_STAR_LITE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "d_star_lite_incremental_replanning" else
+                                   FM_HYPERGRAPH_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "fiduccia_mattheyses_hypergraph_bipartitioning" else
+                                   LOUVAIN_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "louvain_multilevel_community_detection" else
                                    515 if algorithm == "longest_common_substring_sam" else
                                    63 if algorithm == "second_best_mst_binary_lifting" else
+                                   38 if algorithm == "convex_polygon_integer_inradius" else
                                    131 if algorithm == "directed_girth_bfs" else
                                    67 if algorithm == "functional_graph_cycle_brent" else
                                    195 if algorithm == "offline_range_distinct_fenwick" else
+                                   98 if algorithm == "unit_job_release_deadline_weighted_matching" else
                                    197 if algorithm == "dinic_capacity_scaling" else
                                    197 if algorithm == "highest_label_push_relabel" else
                                    130 if algorithm == "closest_pair_sweep" else
                                    130 if algorithm == "monotone_radix_heap" else
+                                   PAGODA_MAX_PARSEABLE_INPUT_WORDS if algorithm == "pagoda_meldable_priority_queue" else
+                                   MULTI_ROOT_HOLLOW_HEAP_MAX_PARSEABLE_INPUT_VALUES if algorithm == "multi_root_hollow_heap" else
+                                   RANK_PAIRING_HEAP_MAX_PARSEABLE_INPUT_VALUES if algorithm == "rank_pairing_heap" else
+                                   SKEW_BINOMIAL_QUEUE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "skew_binomial_queue" else
+                                   DSATUR_GREEDY_COLORING_MAX_PARSEABLE_INPUT_VALUES if algorithm == "dsatur_greedy_coloring" else
+                                   KKT_RECURSIVE_MST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kkt_recursive_mst" else
                                    261 if algorithm == "fixed_length_walk_minplus" else
                                    261 if algorithm == "fixed_length_walk_count" else
+                                   354 if algorithm == "tree_sibling_distinct_cost_coloring" else
                                    1090 if algorithm == "tree_min_cost_proper_coloring" else
+                                   82 if algorithm == "tree_min_cost_edge_coloring" else
+                                   129 if algorithm == "tree_weighted_vertex_cover" else
+                                   128 if algorithm == "tree_weighted_edge_dominating_set" else
+                                   65 if algorithm == "tree_minimum_path_partition" else
+                                   18 if algorithm == "chordal_graph_optimal_coloring" else
+                                   515 if algorithm == "bit_parallel_lcs" else
+                                   515 if algorithm == "myers_bitvector_edit_distance" else
+                                   131 if algorithm == "count_distinct_lcs" else
+                                   3 if algorithm == "polygonal_numbers" else
+                                   1025 if algorithm == "golomb_sequence_validator" else
+                                   129 if algorithm == "tree_weighted_dominating_set" else
+                                   129 if algorithm == "tree_weighted_total_dominating_set" else
+                                   129 if algorithm == "tree_weighted_independent_dominating_set" else
+                                   66 if algorithm == "tree_distance_k_dominating_set" else
                                    4162 if algorithm == "backward_nondeterministic_dawg_match" else
                                    4162 if algorithm == "backward_oracle_match" else
                                    707 if algorithm == "wavelet_matrix" else
+                                   ONE_SIDED_JACOBI_SVD_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "one_sided_jacobi_svd" else
                                    260 if algorithm == "xor_filter_peeling" else
+                                   132 if algorithm == "karger_stein_recursive_contraction" else
                                    57 if algorithm == "karger_contraction_trial" else
                                    382 if algorithm == "edmonds_blossom_algorithm" else
                                    8195 if algorithm in {"hopcroft_karp_cardinality", "bipartite_matching_kuhn"} else
@@ -24545,6 +34262,10 @@ def main() -> int:
                                    if algorithm == "bareiss_determinant" else
                                    POLLARD_P_MINUS_ONE_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "pollard_p_minus_one_factorization" else
+                                   FERMAT_FACTORIZATION_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "fermat_factorization" else
+                                   GENERALIZED_CRT_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "generalized_chinese_remainder_theorem" else
                                    FACTORING_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "factoring_exponentiation" else
                                    ISAP_MAX_PARSEABLE_INPUT_LENGTH
@@ -24555,6 +34276,12 @@ def main() -> int:
                                    if algorithm == "ordered_set_avl_order_statistics" else
                                    PERSISTENT_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "persistent_segment_tree_range_kth" else
+                                   RATIONAL_POLYGON_LATTICE_POINTS_MAX_PARSEABLE_LENGTH
+                                   if algorithm == "rational_polygon_lattice_points" else
+                                   MAX_SUM_RECTANGLE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "max_sum_rectangle_no_larger_than_k" else
+                                   K_INVERSE_PAIRS_ARRAY_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "k_inverse_pairs_array" else
                                    COUNT_DIFFERENT_PALINDROMIC_SUBSEQUENCES_MAX_PARSEABLE_INPUT_LENGTH
                                    if algorithm == "count_different_palindromic_subsequences" else
                                    STIRLING_S2_SMALL_P_MAX_INPUT_LENGTH
@@ -24569,13 +34296,382 @@ def main() -> int:
                                    if algorithm == "point_set_range_sort_range_composite" else
                                    POINT_IN_POLYGON_RAY_CASTING_MAX_INPUT_LENGTH
                                    if algorithm == "point_in_polygon_ray_casting" else
+                                   POINT_LOCATION_SWEEP_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "point_location_sweep" else
+                                   TRIANGULATION_STOCHASTIC_VISIBILITY_WALK_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "triangulation_stochastic_visibility_walk" else
+                                   ZIELONKA_PARITY_GAME_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "zielonka_parity_game_solver" else
+                                   SMALL_PROGRESS_MEASURE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "small_progress_measure_parity_game_solver" else
                                    VERTEX_CONNECTIVITY_MAX_INPUT_LENGTH
                                    if algorithm == "vertex_connectivity" else
                                    EDGE_CONNECTIVITY_MAX_VALID_INPUT_LENGTH
                                    if algorithm == "edge_connectivity_all_pairs_maxflow" else
                                    THREE_EDGE_CONNECTED_COMPONENTS_MAX_INPUT_LENGTH
                                    if algorithm == "three_edge_connected_components" else
-                                   INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else 100002)
+                                   INCREMENTAL_SCC_MAX_INPUT_LENGTH if algorithm == "incremental_scc" else
+                                   EIBFS_MAXFLOW_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "eibfs_maxflow" else
+                                   HOCHBAUM_PSEUDOFLOW_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "hochbaum_pseudoflow_maxflow" else
+                                   ADAPTIVE_BOTTOM_UP_GRAPH_CUT_MERGING_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "adaptive_bottom_up_graph_cut_merging" else
+                                   FREIVALDS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "freivalds_matrix_product_verification" else
+                                   ENTRINGER_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "entringer_number" else
+                                   JOSEPHUS_BATCHED_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "josephus_batched_small_k" else
+                                   BRZOZOWSKI_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "brzozowski_dfa_minimization" else
+                                   TAXICAB_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "taxicab_number_minimum_representations" else
+                                   FORTUNATE_NUMBERS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "fortunate_numbers" else
+                                   WOLSTENHOLME_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "wolstenholme_numbers" else
+                                   MOORE_DFA_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "moore_dfa_minimization" else
+                                   RUTH_AARON_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "ruth_aaron_number_predicate" else
+                                   DIVIDUUS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "dividuus_number_predicate" else
+                                   GAUSSIAN_PRIME_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "gaussian_prime_classifier" else
+                                   WULFF_NILSEN_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "wulff_nilsen_distance_refinement" else
+                                   ERDOS_SELFRIDGE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "erdos_selfridge_prime_class" else
+                                   SQUFOF_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "squfof_semiprime_factor" else
+                                   PRITCHARD_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "sieve_of_pritchard" else
+                                   BK_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "bk_tree_edit_distance_search" else
+                                   MINIMUM_AREA_RECTANGLE_ARBITRARY_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "minimum_area_rectangle_arbitrary_orientation" else
+                                   SECRET_SHARING_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "secret_sharing_time_batched_dsu" else
+                                   REDUNDANT_DIRECTED_CONNECTION_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "redundant_directed_connection_repair" else
+                                   UNDIRECTED_SIMPLE_CYCLE_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "undirected_simple_cycle_subset_dp_count" else
+                                   WIEFERICH_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "wieferich_prime_count_up_to_limit" else
+                                   CONVEX_MIN_WEIGHT_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "convex_polygon_minimum_weight_triangulation" else
+                                   FROBENIUS_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "frobenius_number_apery" else
+                                   MOTZKIN_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "motzkin_number" else
+                                   RIORDAN_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "riordan_number" else
+                                   EUCLID_MULLIN_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "euclid_mullin_sequence" else
+                                   CUBE_ROOT_PRODUCT_MAX_PARSEABLE_INPUT_LENGTH
+                                   if algorithm == "cube_root_proper_divisor_product" else
+                                   52 if algorithm == "ties_maximum_cardinality_popular_matching" else 100002)
+            if algorithm == "one_sided_jacobi_svd":
+                minimum_null_length = 0
+                maximum_null_length = ONE_SIDED_JACOBI_SVD_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "taxicab_number_minimum_representations":
+                minimum_null_length = 0
+                maximum_null_length = TAXICAB_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "fortunate_numbers":
+                minimum_null_length = 0
+                maximum_null_length = FORTUNATE_NUMBERS_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "wolstenholme_numbers":
+                minimum_null_length = 0
+                maximum_null_length = WOLSTENHOLME_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "moore_dfa_minimization":
+                minimum_null_length = 0
+                maximum_null_length = MOORE_DFA_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "ruth_aaron_number_predicate":
+                minimum_null_length = 0
+                maximum_null_length = RUTH_AARON_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "dividuus_number_predicate":
+                minimum_null_length = 0
+                maximum_null_length = DIVIDUUS_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "gaussian_prime_classifier":
+                minimum_null_length = 0
+                maximum_null_length = GAUSSIAN_PRIME_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "wulff_nilsen_distance_refinement":
+                minimum_null_length = 0
+                maximum_null_length = WULFF_NILSEN_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "erdos_selfridge_prime_class":
+                minimum_null_length = 0
+                maximum_null_length = ERDOS_SELFRIDGE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "squfof_semiprime_factor":
+                minimum_null_length = 0
+                maximum_null_length = SQUFOF_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "sieve_of_pritchard":
+                minimum_null_length = 0
+                maximum_null_length = PRITCHARD_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "bk_tree_edit_distance_search":
+                minimum_null_length = 0
+                maximum_null_length = BK_TREE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "minimum_area_rectangle_arbitrary_orientation":
+                maximum_null_length = MINIMUM_AREA_RECTANGLE_ARBITRARY_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "secret_sharing_time_batched_dsu":
+                maximum_null_length = SECRET_SHARING_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "redundant_directed_connection_repair":
+                maximum_null_length = REDUNDANT_DIRECTED_CONNECTION_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "undirected_simple_cycle_subset_dp_count":
+                maximum_null_length = UNDIRECTED_SIMPLE_CYCLE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "wieferich_prime_count_up_to_limit":
+                minimum_null_length = 0
+                maximum_null_length = WIEFERICH_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "convex_polygon_minimum_weight_triangulation":
+                minimum_null_length = 0
+                maximum_null_length = CONVEX_MIN_WEIGHT_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "frobenius_number_apery":
+                minimum_null_length = 0
+                maximum_null_length = FROBENIUS_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "motzkin_number":
+                minimum_null_length = 0
+                maximum_null_length = MOTZKIN_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "riordan_number":
+                minimum_null_length = 0
+                maximum_null_length = RIORDAN_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "euclid_mullin_sequence":
+                minimum_null_length = 0
+                maximum_null_length = EUCLID_MULLIN_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "cube_root_proper_divisor_product":
+                minimum_null_length = 0
+                maximum_null_length = CUBE_ROOT_PRODUCT_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "entringer_number":
+                minimum_null_length = 0
+                maximum_null_length = ENTRINGER_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "josephus_batched_small_k":
+                minimum_null_length = 0
+                maximum_null_length = JOSEPHUS_BATCHED_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "brzozowski_dfa_minimization":
+                minimum_null_length = 0
+                maximum_null_length = BRZOZOWSKI_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "simpath_st_paths_zdd":
+                maximum_null_length = SIMPATH_ST_PATHS_ZDD_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "hofstadter_conway_10000_sequence":
+                minimum_null_length = 0
+                maximum_null_length = HOFSTADTER_CONWAY_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "minimum_cost_bipartite_edge_cover_subset_dp":
+                minimum_null_length = 0
+                maximum_null_length = BIPARTITE_EDGE_COVER_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "domino_l_tromino_tilings_2xn":
+                maximum_null_length = DOMINO_L_TROMINO_TILINGS_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "ratcliff_obershelp_similarity":
+                maximum_null_length = RATCLIFF_OBERSHELP_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "eibfs_bottom_up_graph_cut_merging":
+                maximum_null_length = PEIBFS_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "free_polyomino_enumeration":
+                maximum_null_length = FREE_POLYOMINO_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "abelian_sandpile_stabilization":
+                maximum_null_length = ABELIAN_SANDPILE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "dual_decomposition_graph_cut_maxflow":
+                maximum_null_length = DUAL_DECOMPOSITION_GRAPH_CUT_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "region_discharge_path_push_relabel_maxflow":
+                maximum_null_length = REGION_DISCHARGE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "monge_dag_fixed_edge_shortest_path":
+                maximum_null_length = MONGE_DAG_FIXED_EDGE_SHORTEST_PATH_MAX_PARSEABLE_LENGTH
+            if algorithm == "cactus_graph_recognition":
+                minimum_null_length = 0
+                maximum_null_length = CACTUS_GRAPH_RECOGNITION_MAX_PARSEABLE_LENGTH
+            if algorithm == "interpolation_sequential_search":
+                minimum_null_length = 0
+                maximum_null_length = INTERPOLATION_SEQUENTIAL_SEARCH_MAX_PARSEABLE_LENGTH
+            if algorithm == "lcfs_hashing":
+                minimum_null_length = 0
+                maximum_null_length = LCFS_HASHING_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "distinct_subarray_aggregates":
+                minimum_null_length = 0
+                maximum_null_length = DISTINCT_SUBARRAY_AGGREGATES_MAX_PARSEABLE_LENGTH
+            if algorithm == "bond_sequential_search":
+                minimum_null_length = 0
+                maximum_null_length = BOND_SEQUENTIAL_SEARCH_MAX_PARSEABLE_LENGTH
+            if algorithm == "matroid_intersection":
+                minimum_null_length = 0
+                maximum_null_length = MATROID_INTERSECTION_MAX_PARSEABLE_LENGTH
+            if algorithm == "thomassen_convex_drawing_extendibility":
+                minimum_null_length = 0
+                maximum_null_length = THOMASSEN_CONVEX_DRAWING_MAX_PARSEABLE_LENGTH
+            if algorithm == "lower_bound_circulation_feasibility":
+                minimum_null_length = 0
+                maximum_null_length = LOWER_BOUND_CIRCULATION_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "minimum_bounded_s_t_flow":
+                minimum_null_length = 0
+                maximum_null_length = MINIMUM_BOUNDED_ST_FLOW_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "json_pointer_evaluation":
+                minimum_null_length = 0
+                maximum_null_length = JSON_POINTER_EVALUATION_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "wave_function_collapse_simple_tiled":
+                minimum_null_length = 0
+                maximum_null_length = WAVE_FUNCTION_COLLAPSE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "hashiwokakero_small_solver":
+                minimum_null_length = 0
+                maximum_null_length = HASHIWOKAKERO_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "prim_sparse_heap":
+                minimum_null_length = 0
+                maximum_null_length = PRIM_SPARSE_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "mestre_strict_weighted_popular_matching":
+                minimum_null_length = 0
+                maximum_null_length = MESTRE_STRICT_POPULAR_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "baum_sweet_sequence":
+                minimum_null_length = 0
+                maximum_null_length = BAUM_SWEET_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "clock_patience_simulation":
+                minimum_null_length = 0
+                maximum_null_length = 53
+            if algorithm == "linear_hashing_trace":
+                minimum_null_length = 0
+                maximum_null_length = LINEAR_HASHING_TRACE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "move_to_root_bst_access_trace":
+                minimum_null_length = 0
+                maximum_null_length = MOVE_TO_ROOT_BST_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "lovasz_toggle_defective_coloring_trace":
+                minimum_null_length = 0
+                maximum_null_length = LOVASZ_TOGGLE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "erasable_priority_queue_trace":
+                minimum_null_length = 0
+                maximum_null_length = ERASABLE_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "rolling_hash_on_segment_tree_trace":
+                minimum_null_length = 0
+                maximum_null_length = ROLLING_HASH_SEGMENT_TREE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "manhattan_mst_candidate_edge_reduction":
+                minimum_null_length = 0
+                maximum_null_length = MANHATTAN_MST_CANDIDATE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "polydivisible_prefix_search":
+                minimum_null_length = 0
+                maximum_null_length = POLYDIVISIBLE_PREFIX_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "hanging_line_largest_rectangle":
+                minimum_null_length = 0
+                maximum_null_length = HANGING_LINE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "rsk_row_insertion":
+                minimum_null_length = 0
+                maximum_null_length = RSK_ROW_INSERTION_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "shortest_path_modulo_small_multiple":
+                minimum_null_length = 0
+                maximum_null_length = SMALL_MULTIPLE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "dynamic_centroid_active_set_diameter":
+                maximum_null_length = DYNAMIC_CENTROID_DIAMETER_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "fenwick_tree_in_block_array_rectangle_count":
+                minimum_null_length = 0
+                maximum_null_length = FENWICK_BLOCK_RECTANGLE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "divide_combine_tree_incremental":
+                minimum_null_length = 0
+                maximum_null_length = DIVIDE_COMBINE_TREE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "fenwick_weighted_segment_tree_range_kth":
+                minimum_null_length = 0
+                maximum_null_length = FENWICK_WEIGHTED_RANGE_KTH_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "coloured_triangle_reduction":
+                minimum_null_length = 0
+                maximum_null_length = COLOURED_TRIANGLE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "remove_boxes":
+                minimum_null_length = 0
+                maximum_null_length = REMOVE_BOXES_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "strange_printer":
+                minimum_null_length = 0
+                maximum_null_length = STRANGE_PRINTER_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "strange_printer_ii":
+                minimum_null_length = 0
+                maximum_null_length = STRANGE_PRINTER_II_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "alphabetic_anagrams":
+                minimum_null_length = 0
+                maximum_null_length = ALPHABETIC_ANAGRAMS_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "infinite_knight_distance":
+                minimum_null_length = 0
+                maximum_null_length = INFINITE_KNIGHT_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "android_unlock_pattern_count":
+                minimum_null_length = 0
+                maximum_null_length = ANDROID_UNLOCK_PATTERN_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "random_permutation_cycle_cap_count":
+                minimum_null_length = 0
+                maximum_null_length = RANDOM_PERMUTATION_CYCLE_CAP_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "eulerian_number":
+                minimum_null_length = 0
+                maximum_null_length = EULERIAN_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "fractional_programming_ratio_knapsack_binary_search":
+                minimum_null_length = 0
+                maximum_null_length = FRAC_RATIO_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "egg_drop_max_floors_by_moves":
+                minimum_null_length = 0
+                maximum_null_length = EGG_DROP_MAX_FLOORS_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "rectangle_union_area_sweep":
+                minimum_null_length = 0
+                maximum_null_length = RECTANGLE_UNION_AREA_SWEEP_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "balanced_parenthesis_rank_unrank":
+                minimum_null_length = 0
+                maximum_null_length = BALANCED_PARENTHESIS_RANK_UNRANK_MAX_INPUT_LENGTH
+            if algorithm == "primitive_root_factorization":
+                minimum_null_length = 0
+                maximum_null_length = PRIMITIVE_ROOT_FACTORIZATION_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "distinct_substring_count_hashing":
+                minimum_null_length = 0
+                maximum_null_length = DISTINCT_SUBSTRING_HASHING_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "arpa_offline_rmq":
+                minimum_null_length = 0
+                maximum_null_length = ARPA_OFFLINE_RMQ_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "offline_range_paint_successor_dsu":
+                minimum_null_length = 0
+                maximum_null_length = OFFLINE_RANGE_PAINT_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "online_bipartiteness_dsu":
+                minimum_null_length = 0
+                maximum_null_length = ONLINE_BIPARTITENESS_DSU_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "segment_union_length_klee":
+                minimum_null_length = 0
+                maximum_null_length = SEGMENT_UNION_LENGTH_KLEE_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "intersecting_segments_sweep":
+                minimum_null_length = 0
+                maximum_null_length = INTERSECTING_SEGMENTS_SWEEP_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "bipartite_minimum_vertex_cover":
+                minimum_null_length = 0
+                maximum_null_length = BIPARTITE_MINIMUM_VERTEX_COVER_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "pisinger_bounded_weight_subset_sum":
+                minimum_null_length = 0
+                maximum_null_length = PISINGER_SUBSET_SUM_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "ryser_permanent":
+                minimum_null_length = 0
+                maximum_null_length = RYSER_PERMANENT_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "binary_search_maximum_average_segment":
+                minimum_null_length = 0
+                maximum_null_length = MAX_AVERAGE_SEGMENT_PARSEABLE_INPUT_LENGTH
+            if algorithm == "bounded_knapsack_binary_grouping":
+                minimum_null_length = 0
+                maximum_null_length = BOUNDED_KNAPSACK_BINARY_GROUPING_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "weisfeiler_lehman_color_refinement":
+                minimum_null_length = 0
+                maximum_null_length = WEISFEILER_LEHMAN_COLOR_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "mixed_knapsack":
+                minimum_null_length = 0
+                maximum_null_length = MIXED_KNAPSACK_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "cocomparability_ldfs_minimum_path_cover":
+                minimum_null_length = 0
+                maximum_null_length = COCOMPARABILITY_PATH_COVER_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "k_ary_huffman_weighted_path_cost":
+                minimum_null_length = 0
+                maximum_null_length = K_ARY_HUFFMAN_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "extendible_hashing_trace":
+                minimum_null_length = 0
+                maximum_null_length = EXTENDIBLE_HASHING_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "grid_shortest_path_obstacle_elimination":
+                minimum_null_length = 0
+                maximum_null_length = GRID_OBSTACLE_PATH_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "weight_balanced_leaf_tree_order_statistics":
+                minimum_null_length = 0
+                maximum_null_length = WEIGHT_BALANCED_LEAF_TREE_ORDER_STATISTICS_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "penney_game_pattern_probability":
+                minimum_null_length = 0
+                maximum_null_length = PENNEY_GAME_PATTERN_PROBABILITY_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm == "undirected_four_cycle_count_degree_order":
+                minimum_null_length = 0
+                maximum_null_length = FOUR_CYCLE_DEGREE_ORDER_MAX_PARSEABLE_INPUT_LENGTH
+            if algorithm in {"synchronous_round_push_relabel", "eibfs_maxflow",
+                             "hochbaum_pseudoflow_maxflow",
+                             "adaptive_bottom_up_graph_cut_merging",
+                             "eibfs_bottom_up_graph_cut_merging",
+                             "multiplicative_order",
+                             "general_weighted_matching_primal_dual_blossom",
+                             "observed_remove_set",
+                             "token_bucket_rate_limiter_virtual_time"}:
+                minimum_null_length = 0
             if (values or type(input_length) is not int
                     or not minimum_null_length <= input_length <= maximum_null_length):
                 raise ValueError(f"null input length is outside the supported range for {case['id']}")

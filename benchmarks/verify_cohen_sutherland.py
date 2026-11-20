@@ -14,7 +14,7 @@ import random
 import subprocess
 import sys
 
-from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
 from cohen_sutherland_oracle import (
     MAX_COORDINATE_MICRO, expected_result,
 )
@@ -156,7 +156,8 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    languages = {**EXTENSIONS, **OPTIONAL_EXTENSIONS}
+    parser.add_argument("--languages", nargs="+", choices=languages, default=list(languages))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--build-dir", type=Path,
                         default=ROOT / "build/i64_array_float64/cohen_sutherland")

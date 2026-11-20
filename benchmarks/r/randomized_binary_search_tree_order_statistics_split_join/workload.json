@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "randomized-bst-order-statistics-split-join-i64-array-scalar-v1",
+  "algorithm": "randomized_binary_search_tree_order_statistics_split_join",
+  "function_symbol": "randomized_binary_search_tree_order_statistics_split_join",
+  "abi": "i64_array_scalar",
+  "description": "Deterministic replay of subtree-size randomized BST insertion, kth selection, split, and ordered join operations.",
+  "source": {
+    "title": "Randomized Binary Search Trees",
+    "authors": ["Conrado Martínez", "Salvador Roura"],
+    "url": "https://doi.org/10.1145/274787.274812",
+    "license": "Algorithm described in scholarly source; clean-room implementation",
+    "algorithm_attribution": "Martínez–Roura randomized binary search tree with subtree-size based insertion and join probabilities.",
+    "independent_reference_sources": [
+      {"title": "Randomised Binary Search Trees", "url": "https://isa-afp.org/entries/Randomised_BSTs.html"}
+    ],
+    "discovery_source": "https://github.com/suisen-cp/java_competitive_programming_library",
+    "discovery_use": "README title/index only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,seed,initial[N],(opcode,a,b,c)*Q]",
+    "initial_count_range": [0, 32],
+    "operation_count_range": [0, 32],
+    "seed_range": [0, 4294967295],
+    "key_range": [0, 1000],
+    "pivot_range": [0, 1001],
+    "maximum_live_keys": 64,
+    "maximum_valid_length": 163,
+    "maximum_valid_input_length": 163,
+    "maximum_parseable_length": 164,
+    "maximum_parseable_input_length": 164,
+    "malformed_or_state_invalid_result": -1,
+    "null_input_result": -1,
+    "initialization": "Initial keys are inserted into tree 0 in input order; tree 1 starts empty.",
+    "prng": {
+      "word_width": 32,
+      "initial_state": "input seed",
+      "transition": "state=(1664525*state+1013904223) mod 2^32; a raw draw returns the updated state",
+      "bounded_draw": "threshold=2^32 mod bound; redraw while raw<threshold; return raw mod bound",
+      "rejected_draw_state": "Every rejected raw draw advances and retains the LCG state."
+    }
+  },
+  "operations": {
+    "record_width": 4,
+    "0": "(0,tree,key,0): insert key if absent",
+    "1": "(1,tree,key,0): erase key if present",
+    "2": "(2,tree,k,0): one-based kth key; k is 1..65; answer -1 if k exceeds size",
+    "3": "(3,source,destination,pivot): source retains keys <pivot and destination receives keys >=pivot; IDs differ and destination must be empty",
+    "4": "(4,left,right,0): ordered join into left, then clear right; IDs differ and all left keys must be smaller than all right keys; empty sides are allowed and consume no random draw"
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "sum(query_number*(answer+1)) over kth queries, with query_number one-based among kth queries",
+    "valid_result_range": [0, 528528],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed storage for at most 64 allocated nodes, two roots, recursion state, and the bounded trace."
+  },
+  "complexity": {
+    "primary_expected_time": "O((N+Q) log 64) for randomized updates and join, O(log 64) per kth query; split is O(64) worst case",
+    "primary_auxiliary_space": "O(64)",
+    "independent_reference_time": "O((N+Q)*64)",
+    "independent_reference_space": "O(64)"
+  },
+  "oracle_method": "The primary uses Martínez–Roura subtree-size randomized insertion/join with subtree-size selection. The independent oracle stores each tree as a sorted list and models split, join, updates, and kth answers by ordered-list operations.",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"split_kth_join_split_kth","input_values":[4,7,17,1,4,7,10,3,0,1,7,2,0,2,0,2,1,1,0,4,0,1,0,2,0,4,0,3,0,1,4,2,1,2,0],"input_length":35,"expected_result":86},
+    {"id":"insert_erase_and_duplicate_updates","input_values":[3,5,9,2,5,8,0,0,6,0,0,0,6,0,1,0,2,0,1,0,0,0,2,0,1,0],"input_length":26,"expected_result":6},
+    {"id":"join_empty_left_transfers_right","input_values":[1,3,31,9,3,0,1,0,4,0,1,0,2,0,1,0],"input_length":16,"expected_result":10},
+    {"id":"join_empty_right_preserves_left","input_values":[1,2,11,9,4,0,1,0,2,0,1,0],"input_length":12,"expected_result":10},
+    {"id":"join_both_empty_then_query","input_values":[0,2,0,4,0,1,0,2,1,1,0],"input_length":11,"expected_result":0},
+    {"id":"kth_out_of_range_answers_zero_contribution","input_values":[1,1,7,5,2,0,2,0],"input_length":8,"expected_result":0},
+    {"id":"rank_sixty_five_is_a_valid_miss","input_values":[0,1,3,2,0,65,0],"input_length":7,"expected_result":0},
+    {"id":"split_at_existing_key_then_join","input_values":[3,4,23,2,5,8,3,0,1,5,2,0,1,0,2,1,1,0,4,0,1,0],"input_length":22,"expected_result":15},
+    {"id":"split_destination_not_empty_invalid","input_values":[2,2,1,2,5,3,0,1,0,3,0,1,3],"input_length":13,"expected_result":-1},
+    {"id":"join_key_order_invalid","input_values":[1,3,2,5,3,0,1,1001,0,1,0,0,4,0,1,0],"input_length":16,"expected_result":-1},
+    {"id":"split_same_tree_invalid","input_values":[0,1,4,3,0,0,10],"input_length":7,"expected_result":-1},
+    {"id":"zero_rank_invalid","input_values":[0,1,4,2,0,0,0],"input_length":7,"expected_result":-1},
+    {"id":"unknown_opcode_invalid","input_values":[0,1,4,9,0,0,0],"input_length":7,"expected_result":-1},
+    {"id":"invalid_seed","input_values":[0,0,4294967296],"input_length":3,"expected_result":-1},
+    {"id":"unsorted_initial_keys_invalid","input_values":[2,0,7,8,3],"input_length":5,"expected_result":-1},
+    {"id":"maximum_live_nodes_and_valid_length","input_values":[32,32,123,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,0,32,0,0,0,33,0,0,0,34,0,0,0,35,0,0,0,36,0,0,0,37,0,0,0,38,0,0,0,39,0,0,0,40,0,0,0,41,0,0,0,42,0,0,0,43,0,0,0,44,0,0,0,45,0,0,0,46,0,0,0,47,0,0,0,48,0,0,0,49,0,0,0,50,0,0,0,51,0,0,0,52,0,0,0,53,0,0,0,54,0,0,0,55,0,0,0,56,0,0,0,57,0,0,0,58,0,0,0,59,0,0,0,60,0,0,0,61,0,0,0,62,0,0,0,63,0,0],"input_length":163,"expected_result":0},
+    {"id":"maximum_parseable_trailing_word","input_values":[32,32,123,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,0,32,0,0,0,33,0,0,0,34,0,0,0,35,0,0,0,36,0,0,0,37,0,0,0,38,0,0,0,39,0,0,0,40,0,0,0,41,0,0,0,42,0,0,0,43,0,0,0,44,0,0,0,45,0,0,0,46,0,0,0,47,0,0,0,48,0,0,0,49,0,0,0,50,0,0,0,51,0,0,0,52,0,0,0,53,0,0,0,54,0,0,0,55,0,0,0,56,0,0,0,57,0,0,0,58,0,0,0,59,0,0,0,60,0,0,0,61,0,0,0,62,0,0,0,63,0,0,99],"input_length":164,"expected_result":-1},
+    {"id":"null_input_invalid","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

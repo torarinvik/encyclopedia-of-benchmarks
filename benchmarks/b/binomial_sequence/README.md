@@ -24,6 +24,7 @@ The pinned C# generator builds row 0, then row 1, then each following row, yield
 | C3 | [`c3/b/binomial_sequence.c3`](../../../c3/b/binomial_sequence.c3) |
 | C++ | [`cpp/b/binomial_sequence.cpp`](../../../cpp/b/binomial_sequence.cpp) |
 | Elisa | [`elisa/b/binomial_sequence.elisa`](../../../elisa/b/binomial_sequence.elisa) |
+| Mojo | [`mojo/b/binomial_sequence.mojo`](../../../mojo/b/binomial_sequence.mojo) |
 | Nim | [`nim/b/binomial_sequence.nim`](../../../nim/b/binomial_sequence.nim) |
 | Odin | [`odin/b/binomial_sequence.odin`](../../../odin/b/binomial_sequence.odin) |
 | Rust | [`rust/b/binomial_sequence.rs`](../../../rust/b/binomial_sequence.rs) |
@@ -33,3 +34,8 @@ The pinned C# generator builds row 0, then row 1, then each following row, yield
 ## TheAlgorithms reference
 
 - [C# `BinomialSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/BinomialSequence.cs)
+
+Scalar verifier registration and a direct combinatorial reference are
+drafted and have not been executed. The recursive coefficient calculation
+differs from the iterative Pascal-row implementation in
+[`binomial_coefficient`](../binomial_coefficient/README.md).

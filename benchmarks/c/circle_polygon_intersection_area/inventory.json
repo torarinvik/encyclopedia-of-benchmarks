@@ -1,0 +1,23 @@
+{
+  "algorithm": "circle_polygon_intersection_area",
+  "abi": "i64_array_float64",
+  "function_symbol": "circle_polygon_intersection_area",
+  "source_identity": "KACTL CirclePolygonIntersection.h; algorithmic idea only",
+  "source_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/geometry/CirclePolygonIntersection.h",
+  "ports": {
+    "c": "../../../c/circle_polygon_intersection_area.c",
+    "c3": "../../../c3/circle_polygon_intersection_area.c3",
+    "cpp": "../../../cpp/circle_polygon_intersection_area.cpp",
+    "elisa": "../../../elisa/circle_polygon_intersection_area.elisa",
+    "mojo": "../../../mojo/circle_polygon_intersection_area.mojo",
+    "nim": "../../../nim/circle_polygon_intersection_area.nim",
+    "odin": "../../../odin/circle_polygon_intersection_area.odin",
+    "rust": "../../../rust/circle_polygon_intersection_area.rs",
+    "v": "../../../v/circle_polygon_intersection_area.v",
+    "zig": "../../../zig/circle_polygon_intersection_area.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_inventory": "check_inventory.py",
+  "execution_status": "static source package; no programs or checks run"
+}

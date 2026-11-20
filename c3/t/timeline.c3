@@ -12,7 +12,7 @@ fn void push_word(long* words, usz* count, long value) {
     count[0]++;
 }
 
-fn long timeline(long* input, usz input_length, uint8* output, usz output_capacity)
+fn long timeline(long* input, usz input_length, char* output, usz output_capacity)
     @export("timeline") {
     if (input == null || input_length < 2 || input_length > MAX_PARSEABLE_INPUT_LENGTH) return -1L;
     if (input[0] < 0 || input[0] > (long)MAX_INITIAL_EVENTS) return -1L;
@@ -174,7 +174,7 @@ fn long timeline(long* input, usz input_length, uint8* output, usz output_capaci
     for (usz index = 0; index < word_count; index++) {
         ulong bits = (ulong)words[index];
         for (usz byte = 0; byte < 8; byte++) {
-            output[index * 8 + byte] = (uint8)(bits & 255);
+            output[index * 8 + byte] = (char)(bits & 255);
             bits >>= 8;
         }
     }

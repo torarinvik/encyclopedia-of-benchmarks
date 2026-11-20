@@ -30,15 +30,15 @@ at commit [`17834cb29b7c542481c2e3740dc9664841b72f59`](https://github.com/chenxu
 | Compressed-graph BFS (additional source family) | `src/structure/bfs_main.cu`, `src/structure/gpu_kernels/bfs_gcgt*.cuh` | Duplicate BFS traversal core. Graph compression and CUDA decode scheduling are outside the local traversal result contract. |
 | BFS and SSSP | `src/traversal/{omp_base.cc,omp_direction.cc,omp_dstep.cc,gpu_base.cu,gpu_dstep.cu,gpu_bellmanford.cu,...}` | BFS overlaps local BFS packages; SSSP overlaps Dijkstra, Bellman–Ford, and delta-stepping packages. Source frontier schedules are execution profiles. |
 | Hierarchical agglomerative graph clustering (additional source family) | `src/clustering/{NNChainBased.h,HeapBased.h,ClusteredGraph.h}`; launcher defaults in `src/clustering/main.cc` | Implemented as [`graphai_hac_complete_linkage`](g/graphai_hac_complete_linkage/README.md): connected simple weighted graphs with at most eight vertices, unique integer edge similarities, maximum-similarity merge selection, min-linkage update for common neighbors, one-sided edge preservation, and source-shaped parent/merge-level output. Unique initial weights keep all active edge scores unique; a deterministic full scan replaces the source heap. |
-| Approximate nearest-neighbor search (additional source family) | `src/nearest_neighbor_search/{omp_base.cc,gpu_base.cu,ann.h}` | Related to local exact nearest-neighbor and k-NN packages, but the index/search approximation profile is different. It depends on a large graph index and is not selected as a compact kernel. |
+| Approximate nearest-neighbor search (additional source family) | `src/nearest_neighbor_search/{omp_base.cc,gpu_base.cu,ann.h}` | The pinned OpenMP file has only an empty per-vertex loop and `// add code here`; `ann.h` declares the routine but supplies no query algorithm. The distinct GNNS method in the source paper is represented by clean-room bounded [`graphai_gnns_hill_climbing`](g/graphai_gnns_hill_climbing/README.md): the directed k-NN graph is precomputed and supplied, one start node is supplied (`R=1`), `K=1`, `E` is a prefix in ascending vertex-ID order, and `T` caps strict-improvement moves. This is explicitly a paper-derived profile, not a port of the GraphAIBench stub. |
 | Graph partitioning and conversion utilities | `src/partitioner/graph_partition.cc`, `src/converters/*` | Preprocessing/manipulation utilities, not separate listed graph algorithms. Their partition materialization depends on source graph layouts and is excluded from this bounded-kernel inventory. |
 
 ## Compact kernels and remaining candidates
 
 `graphai_gcn_aggregation`, `graphai_sage_aggregation`,
 `graphai_gat_aggregation`, `graphai_frontier_sampler`,
-`graphai_cf_sgd_sweep`, and `graphai_hac_complete_linkage` are completed
-compact profiles. GCN takes
+`graphai_cf_sgd_sweep`, `graphai_hac_complete_linkage`, and
+`graphai_gnns_hill_climbing` are completed compact profiles. GCN takes
 caller-supplied normalization values instead of reproducing degree setup;
 GraphSAGE preserves per-row mean aggregation; GAT computes attention scores,
 row softmax, and weighted neighbor accumulation. They preserve CSR edge order
@@ -51,3 +51,14 @@ integer edge similarities to avoid source heap ties and disconnected-component
 fallback behavior. Training,
 optimizer, GPU scheduling, and random initialization are excluded from the
 respective bounded profiles.
+
+The GNNS paper's offline k-NN graph construction is supplied/precomputed and
+excluded. Its query profile fixes one supplied start (`R=1`) and `K=1`, scans
+the first `E` outgoing edges in ascending vertex ID, and stops at a local
+minimum or after at most `T` strict-improvement moves. No visited set is used;
+strict decrease in query distance prevents a revisit. The profile cites
+Hajebi et al., [“Fast Approximate Nearest-Neighbor Search with k-Nearest
+Neighbor Graph”](https://ijcai.org/proceedings/2011/222), as algorithmic
+provenance only. It is separate from the local exact KD-tree package. No
+GraphAIBench GNNS behavior is inferred from its empty pinned implementation
+stub.

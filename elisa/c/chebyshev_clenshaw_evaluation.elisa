@@ -1,0 +1,35 @@
+const CLENSHAW_MODULUS: i64 = 998244353
+const CLENSHAW_MAX_DEGREE: usize = 16
+const CLENSHAW_MAX_PARSEABLE_LENGTH: usize = 21
+
+def reduce_field(value: i64) -> i64:
+    var reduced: mutable i64 = value % CLENSHAW_MODULUS
+    if reduced < 0: reduced <- reduced + CLENSHAW_MODULUS
+    reduced
+
+def evaluate(input: view[i64], degree: usize, x: i64) -> i64:
+    let twice_x: i64 = (2 * x) % CLENSHAW_MODULUS
+    var next_one: mutable i64 = 0
+    var next_two: mutable i64 = 0
+    var k: mutable usize = degree
+    while k > 0:
+        let current: i64 = reduce_field(input[2 + k] + twice_x * next_one - next_two)
+        next_two <- next_one
+        next_one <- current
+        k <- k - 1
+    reduce_field(input[2] + x * next_one - next_two)
+
+export fn chebyshev_clenshaw_evaluation(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > CLENSHAW_MAX_PARSEABLE_LENGTH: return -1
+    let values: view[i64] = input[0:length]
+    let degree_value: i64 = values[0]
+    if degree_value < 0 or degree_value > CLENSHAW_MAX_DEGREE.i64(): return -1
+    let degree: usize = degree_value.usize()
+    if length != degree + 3: return -1
+    let x: i64 = values[1]
+    if x < 0 or x >= CLENSHAW_MODULUS: return -1
+    var i: mutable usize = 0
+    while i <= degree:
+        if values[2 + i] < 0 or values[2 + i] >= CLENSHAW_MODULUS: return -1
+        i <- i + 1
+    evaluate(values, degree, x)

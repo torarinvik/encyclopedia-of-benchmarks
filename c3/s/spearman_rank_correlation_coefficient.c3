@@ -6,7 +6,7 @@ const double INVALID_RESULT = -1.0e300;
 const long MAX_N = 3;
 
 fn void assign_ranks(long* data, usz n, double* ranks) {
-    usz order[3];
+    usz[3] order;
     for (usz i = 0; i < n; i++) order[i] = i;
     for (usz i = 1; i < n; i++) {
         usz key = order[i];
@@ -43,7 +43,7 @@ fn double spearman_rank_correlation_coefficient(long* values, usz length) @expor
     usz n = (usz)n_value;
     long* x = values + 1;
     long* y = values + 1 + n;
-    double rank_x[3], rank_y[3];
+    double[3] rank_x; double[3] rank_y;
     for (usz i = 0; i < n; i++)
         if (x[i] < -1000 || x[i] > 1000 || y[i] < -1000 || y[i] > 1000) return INVALID_RESULT;
     assign_ranks(x, n, &rank_x[0]);

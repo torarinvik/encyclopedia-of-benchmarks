@@ -113,7 +113,7 @@ fn ushort* enumerate_states(usz leaves, ushort* a, ushort* b, usz* state_count) 
     return current;
 }
 
-long nni_phylogeny_distance(long* input, usz length, char* output, usz capacity) @export("nni_phylogeny_distance") {
+fn long nni_phylogeny_distance(long* input, usz length, char* output, usz capacity) @export("nni_phylogeny_distance") {
     if (input == null || length < 7 || length > MAX_INPUT) return -1;
     long leaf_value = input[0];
     if (leaf_value < 3 || leaf_value > (long)MAX_LEAVES) return -1;

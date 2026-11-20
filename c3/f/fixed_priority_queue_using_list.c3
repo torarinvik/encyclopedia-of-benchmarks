@@ -1,13 +1,13 @@
 module fixed_priority_queue_using_list;
 
-void store_i64(char* output, usz offset, long value) { ulong bits = @bitcast(ulong, value); for (usz i = 0; i < 8; i++) output[offset + i] = (char)(bits >> (8 * i)); }
+fn void store_i64(char* output, usz offset, long value) { ulong bits = bitcast(value, ulong); for (usz i = 0; i < 8; i++) output[offset + i] = (char)(bits >> (8 * i)); }
 
 fn long fixed_priority_queue_using_list(long* input, usz length, char* output, usz capacity)
     @export("fixed_priority_queue_using_list") {
     if (input == null || length < 1 || length > 770) return -1;
     long operation_count = input[0];
     if (operation_count < 0 || operation_count > 256 || length != 1 + 3 * (usz)operation_count) return -1;
-    int[3][100] buckets = zeroed;
+    int[100][3] buckets = zeroed;
     usz[3] counts = zeroed;
     long[128] dequeued = zeroed;
     usz dequeued_count = 0;

@@ -1,0 +1,130 @@
+# Clean-room bounded deterministic Sequitur grammar profile.
+export fn sequitur_grammar_induction(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 66: return -1
+    frame: view[i64] = input[0:length]
+    if frame[0] < 0 or frame[0] > 64 or length != frame[0].usize()+1: return -1
+    n: usize = frame[0].usize()
+    for i in 0..<n:
+        if frame[i+1] < 0 or frame[i+1] > 255: return -1
+
+    symbols: mutable i32[16384] = zeroed
+    lengths: mutable usize[256] = zeroed
+    live: mutable u8[256] = zeroed
+    live[0] <- 1
+    next_rule: mutable usize = 1
+    for input_index in 0..<n:
+        symbols[lengths[0]] <- frame[input_index+1].i32()
+        lengths[0] <- lengths[0]+1
+        normalizing: mutable bool = true
+        while normalizing:
+            cleanup_changed: mutable bool = true
+            while cleanup_changed:
+                cleanup_changed <- false
+                for target in 1..<next_rule:
+                    if live[target] != 0 and not cleanup_changed:
+                        count: mutable usize = 0
+                        parent: mutable usize = 0
+                        position: mutable usize = 0
+                        token: i32 = (256+target).i32()
+                        for rule in 0..<next_rule:
+                            if live[rule] != 0:
+                                for at in 0..<lengths[rule]:
+                                    if symbols[rule*64+at] == token:
+                                        count <- count+1
+                                        parent <- rule
+                                        position <- at
+                        if count == 0:
+                            live[target] <- 0
+                            lengths[target] <- 0
+                            cleanup_changed <- true
+                        else if count == 1:
+                            replacement_length: usize = lengths[target]
+                            copy: mutable i32[64] = zeroed
+                            for i in 0..<replacement_length: copy[i] <- symbols[target*64+i]
+                            delta: usize = replacement_length-1
+                            old_length: usize = lengths[parent]
+                            at: mutable usize = old_length
+                            while at > position+1:
+                                at <- at-1
+                                symbols[parent*64+at+delta] <- symbols[parent*64+at]
+                            for i in 0..<replacement_length: symbols[parent*64+position+i] <- copy[i]
+                            lengths[parent] <- old_length+delta
+                            live[target] <- 0
+                            lengths[target] <- 0
+                            cleanup_changed <- true
+
+            duplicate_found: mutable bool = false
+            d_r1: mutable usize = 0
+            d_p1: mutable usize = 0
+            d_r2: mutable usize = 0
+            d_p2: mutable usize = 0
+            d_left: mutable i32 = 0
+            d_right: mutable i32 = 0
+            for r1 in 0..<next_rule:
+                if live[r1] != 0 and not duplicate_found:
+                    p1: mutable usize = 0
+                    while p1+1 < lengths[r1] and not duplicate_found:
+                        left: i32 = symbols[r1*64+p1]
+                        right: i32 = symbols[r1*64+p1+1]
+                        for r2 in r1..<next_rule:
+                            if live[r2] != 0 and not duplicate_found:
+                                p2: mutable usize = 0
+                                if r2 == r1: p2 <- p1+2
+                                while p2+1 < lengths[r2] and not duplicate_found:
+                                    if symbols[r2*64+p2] == left and symbols[r2*64+p2+1] == right:
+                                        duplicate_found <- true
+                                        d_r1 <- r1
+                                        d_p1 <- p1
+                                        d_r2 <- r2
+                                        d_p2 <- p2
+                                        d_left <- left
+                                        d_right <- right
+                                    p2 <- p2+1
+                        p1 <- p1+1
+            if not duplicate_found:
+                normalizing <- false
+            else:
+                existing: mutable i64 = -1
+                for rule in 1..<next_rule:
+                    if live[rule] != 0 and existing < 0 and lengths[rule] == 2 and symbols[rule*64] == d_left and symbols[rule*64+1] == d_right:
+                        existing <- rule.i64()
+                if existing >= 0:
+                    target_rule: mutable usize = d_r1
+                    target_pos: mutable usize = d_p1
+                    if target_rule == existing.usize() and target_pos == 0:
+                        target_rule <- d_r2
+                        target_pos <- d_p2
+                    at: mutable usize = target_pos+2
+                    while at < lengths[target_rule]:
+                        symbols[target_rule*64+at-1] <- symbols[target_rule*64+at]
+                        at <- at+1
+                    lengths[target_rule] <- lengths[target_rule]-1
+                    symbols[target_rule*64+target_pos] <- (256+existing).i32()
+                else:
+                    fresh: usize = next_rule
+                    next_rule <- next_rule+1
+                    live[fresh] <- 1
+                    lengths[fresh] <- 2
+                    symbols[fresh*64] <- d_left
+                    symbols[fresh*64+1] <- d_right
+                    token: i32 = (256+fresh).i32()
+                    at: mutable usize = d_p2+2
+                    while at < lengths[d_r2]:
+                        symbols[d_r2*64+at-1] <- symbols[d_r2*64+at]
+                        at <- at+1
+                    lengths[d_r2] <- lengths[d_r2]-1
+                    symbols[d_r2*64+d_p2] <- token
+                    at <- d_p1+2
+                    while at < lengths[d_r1]:
+                        symbols[d_r1*64+at-1] <- symbols[d_r1*64+at]
+                        at <- at+1
+                    lengths[d_r1] <- lengths[d_r1]-1
+                    symbols[d_r1*64+d_p1] <- token
+
+    rules: mutable i64 = 0
+    symbol_count: mutable i64 = 0
+    for rule in 0..<next_rule:
+        if live[rule] != 0:
+            if rule != 0: rules <- rules+1
+            symbol_count <- symbol_count+lengths[rule].i64()
+    1000*rules+symbol_count

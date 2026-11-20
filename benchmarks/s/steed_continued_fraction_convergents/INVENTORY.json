@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "algorithm": "steed_continued_fraction_convergents",
+  "function_symbol": "steed_continued_fraction_convergents",
+  "abi": "i64_array_bytes_output",
+  "status": "integrated in the shared byte-output suite and catalog",
+  "input": {
+    "minimum_valid_length": 4,
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "level_range": [1, 8],
+    "coefficient_residue_range": [0, 998244352]
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_word_bytes",
+    "encoding": "[N+1,C0,...,CN]",
+    "maximum_bytes": 80
+  },
+  "workspace": {"bytes": 0},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/s/steed_continued_fraction_convergents.c",
+    "c3/s/steed_continued_fraction_convergents.c3",
+    "cpp/s/steed_continued_fraction_convergents.cpp",
+    "elisa/s/steed_continued_fraction_convergents.elisa",
+    "mojo/s/steed_continued_fraction_convergents.mojo",
+    "nim/s/steed_continued_fraction_convergents.nim",
+    "odin/s/steed_continued_fraction_convergents.odin",
+    "rust/s/steed_continued_fraction_convergents.rs",
+    "v/s/steed_continued_fraction_convergents.v",
+    "zig/s/steed_continued_fraction_convergents.zig"
+  ],
+  "source": "https://dlmf.nist.gov/3.10#E16"
+}

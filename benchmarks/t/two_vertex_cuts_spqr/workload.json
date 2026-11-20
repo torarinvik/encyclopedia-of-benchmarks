@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "library-checker-two-vertex-cuts-bounded-spqr-v1",
+  "algorithm": "two_vertex_cuts_spqr",
+  "function_symbol": "two_vertex_cuts_spqr",
+  "abi": "i64_array_scalar",
+  "source_basis": {
+    "organization": "Library Checker problem proposal",
+    "title": "Two-Vertex Cuts",
+    "url": "https://github.com/yosupo06/library-checker-problems/issues/1427",
+    "role": "problem_definition"
+  },
+  "input": {
+    "kind": "packed_weighted_undirected_simple_biconnected_graph",
+    "encoding": "[N, M, weights[N], (u, v)*M]",
+    "vertex_count_range": [3, 8],
+    "edge_count_range": [3, 28],
+    "weight_range": [0, 1000000],
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 67,
+    "vertex_numbering": "0 through N-1",
+    "graph_constraints": "Simple, undirected, biconnected; input edge records are unordered pairs.",
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Sum over unordered vertex pairs of w[u]*w[v]*(cc(G-{u,v})-1), modulo 998244353.",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"triangle_no_two_cut","input_values":[3,3,1,1,1,0,1,1,2,2,0],"expected_result":0},
+    {"id":"cycle_four_weighted_opposite_pairs","input_values":[4,4,1,2,3,4,0,1,1,2,2,3,3,0],"expected_result":11},
+    {"id":"cycle_eight_skeleton","input_values":[8,8,1,1,1,1,1,1,1,1,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,0],"expected_result":20},
+    {"id":"complete_four_rigid_piece","input_values":[4,6,1,1,1,1,0,1,0,2,0,3,1,2,1,3,2,3],"expected_result":0},
+    {"id":"complete_eight_maximum_frame","input_values":[8,28,1,1,1,1,1,1,1,1,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,2,1,3,1,4,1,5,1,6,1,7,2,3,2,4,2,5,2,6,2,7,3,4,3,5,3,6,3,7,4,5,4,6,4,7,5,6,5,7,6,7],"expected_result":0},
+    {"id":"two_paths_merge_to_series_cycle","input_values":[4,4,0,0,0,0,0,2,2,1,0,3,3,1],"expected_result":0},
+    {"id":"parallel_three_branch_pole_pair","input_values":[5,6,1,1,1,1,1,0,2,0,3,0,4,1,2,1,3,1,4],"expected_result":2},
+    {"id":"parallel_six_branches_pole_pair","input_values":[8,12,1,1,1,1,1,1,1,1,0,2,0,3,0,4,0,5,0,6,0,7,1,2,1,3,1,4,1,5,1,6,1,7],"expected_result":5},
+    {"id":"parallel_branches_with_real_pole_edge","input_values":[5,7,1,1,1,1,1,0,1,0,2,0,3,0,4,1,2,1,3,1,4],"expected_result":2},
+    {"id":"mixed_r_p_s_structure_zero_weights","input_values":[6,10,0,0,0,0,0,0,0,1,0,2,0,3,1,2,1,3,2,3,0,4,4,1,0,5,5,1],"expected_result":0},
+    {"id":"maximum_weights_modular_reduction","input_values":[4,4,1000000,1000000,1000000,1000000,0,1,1,2,2,3,3,0],"expected_result":516560941},
+    {"id":"maximum_weight_with_zero_contribution","input_values":[3,3,1000000,0,1000000,0,1,1,2,2,0],"expected_result":0},
+    {"id":"invalid_articulation_vertex","input_values":[5,6,1,1,1,1,1,0,1,1,2,2,0,0,3,3,4,4,0],"expected_result":-1},
+    {"id":"invalid_duplicate_edge","input_values":[3,4,1,1,1,0,1,1,2,2,0,0,1],"expected_result":-1},
+    {"id":"invalid_loop","input_values":[3,3,1,1,1,0,0,0,1,1,2],"expected_result":-1},
+    {"id":"invalid_weight","input_values":[3,3,1000001,1,1,0,1,1,2,2,0],"expected_result":-1},
+    {"id":"malformed_edge_record","input_values":[3,3,1,1,1,0,1,1,2,2],"expected_result":-1},
+    {"id":"maximum_parseable_trailing_value","input_values":[8,28,1,1,1,1,1,1,1,1,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,2,1,3,1,4,1,5,1,6,1,7,2,3,2,4,2,5,2,6,2,7,3,4,3,5,3,6,3,7,4,5,4,6,4,7,5,6,5,7,6,7,0],"expected_result":-1},
+    {"id":"null_input_pointer_with_positive_length","input_values":[],"input_length":1,"input_is_null":true,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  }
+}

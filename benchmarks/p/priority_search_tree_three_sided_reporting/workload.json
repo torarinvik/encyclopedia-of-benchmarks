@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "mccreight-radix-priority-search-tree-three-sided-reporting-i64-array-scalar-v1",
+  "algorithm": "priority_search_tree_three_sided_reporting",
+  "function_symbol": "priority_search_tree_three_sided_reporting",
+  "abi": "i64_array_scalar",
+  "description": "Build McCreight's radix priority search tree and answer bounded three-sided point-reporting queries.",
+  "source": {
+    "title": "Priority Search Trees",
+    "author": "Edward M. McCreight",
+    "year": 1985,
+    "doi": "10.1137/0214021",
+    "url": "https://doi.org/10.1137/0214021",
+    "algorithm_attribution": "Section 2 radix priority search tree: fixed x-interval bisection, y-min heap ordering, and three-sided enumeration.",
+    "implementation_status": "bounded clean-room static-build/query profile; algorithm description only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,Q,(x,y,label)*N,(x0,x1,y1)*Q]",
+    "point_count_range": [0, 8],
+    "query_count_range": [0, 7],
+    "x_domain": [0, 31],
+    "y_range": [-64, 63],
+    "label_range": [0, 7],
+    "point_constraints": "x values and labels are individually unique; points are inserted in input order.",
+    "query_semantics": "Report labels for all points with x0 <= x <= x1 and y <= y1; x intervals are closed.",
+    "query_bounds": "0 <= x0 <= x1 <= 31 and -64 <= y1 <= 63.",
+    "exact_length": "2 + 3*N + 3*Q",
+    "maximum_valid_input_length": 47,
+    "maximum_parseable_input_length": 48,
+    "maximum_valid_length": 47,
+    "maximum_parseable_length": 48,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Each query's 8-bit label-hit mask is packed into the corresponding result byte, in query order; bit label is set when that labeled point is reported.",
+    "encoding": "OR over query_index of (hit_mask << (8*query_index)); Q is at most 7, so the scalar is nonnegative and lossless for every query mask.",
+    "maximum_result": 72057594037927935,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "data_structure": "McCreight's Section 2 radix priority search tree on fixed x interval [0,32); each distinct-x point appears once, x intervals bisect, and parent y is <= each child y.",
+    "insertion": "Process points in input order. A strictly smaller y displaces the current node point; ties do not swap. Insert the displaced point into the child selected by its x against the interval midpoint.",
+    "query": "Depth-first enumeration prunes a subtree when its x interval misses [x0,x1] or its y-minimum exceeds y1. Report the node label if its point satisfies both bounds.",
+    "primary_method": "Build the priority search tree by the source's radix insertion rule, then query through interval overlap and the y-min heap invariant.",
+    "independent_method": "Scan each query against every original point and form its label mask directly.",
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Eight point nodes with x intervals and heap/split links, seven query records, a bounded traversal stack, and packed result state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/p/priority_search_tree_three_sided_reporting/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/priority_search_tree_three_sided_reporting/independent_oracle.py",
+  "cases": [
+    {"id":"empty_points_multiple_queries","input_values":[0,2,0,31,63,4,9,-1],"input_length":8,"expected_result":0},
+    {"id":"heap_pruning_and_reporting","input_values":[4,2,0,5,0,1,-2,1,2,4,2,3,1,3,0,3,1,1,2,4],"input_length":20,"expected_result":1546},
+    {"id":"inclusive_x_and_y_boundaries","input_values":[3,3,2,-64,3,4,0,0,6,63,7,2,2,-64,4,6,63,0,31,-64],"input_length":20,"expected_result":557320},
+    {"id":"equal_y_priority_ties","input_values":[4,1,2,5,4,0,5,1,1,0,7,3,5,2,0,3,5],"input_length":17,"expected_result":150},
+    {"id":"maximum_frame_and_packed_result","input_values":[8,7,0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,0,31,63,0,31,63,0,31,63,0,31,63,0,31,63,0,31,63,0,31,63],"input_length":47,"expected_result":72057594037927935},
+    {"id":"duplicate_x_coordinate","input_values":[2,1,1,0,0,1,1,1,0,31,0],"input_length":11,"expected_result":-1},
+    {"id":"duplicate_label","input_values":[2,1,0,0,0,1,1,0,0,31,0],"input_length":11,"expected_result":-1},
+    {"id":"x_coordinate_out_of_range","input_values":[1,1,32,0,0,0,31,0],"input_length":8,"expected_result":-1},
+    {"id":"y_coordinate_out_of_range","input_values":[1,1,0,64,0,0,0,0],"input_length":8,"expected_result":-1},
+    {"id":"reversed_query_interval","input_values":[1,1,0,0,0,3,2,0],"input_length":8,"expected_result":-1},
+    {"id":"truncated_frame","input_values":[1,1,0,0,0,0],"input_length":6,"expected_result":-1},
+    {"id":"trailing_word_at_parseable_bound","input_values":[8,7,0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,0,31,63,0,31,63,0,31,63,0,31,63,0,31,63,0,31,63,0,31,63,99],"input_length":48,"expected_result":-1},
+    {"id":"query_count_out_of_range","input_values":[0,8],"input_length":2,"expected_result":-1},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"null_input_at_parseable_bound","input_values":[],"input_length":48,"input_is_null":true,"expected_result":-1}
+  ]
+}

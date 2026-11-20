@@ -1,0 +1,83 @@
+const SUBSET_SUM_BIN_PACKING_MAX_ITEMS: usize = 16
+const SUBSET_SUM_BIN_PACKING_MAX_CAPACITY: usize = 32
+const SUBSET_SUM_BIN_PACKING_MAX_INPUT_LENGTH: usize = 19
+const SUBSET_SUM_BIN_PACKING_STRIDE: usize = 33
+
+def subset_sum_bin_packing_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > SUBSET_SUM_BIN_PACKING_MAX_INPUT_LENGTH:
+        return -1
+    raw_count: i64 = input[0]
+    raw_capacity: i64 = input[1]
+    if raw_count < 1 or raw_count > 16 or raw_capacity < 1 or raw_capacity > 32:
+        return -1
+    count: usize = raw_count.usize()
+    capacity: usize = raw_capacity.usize()
+    if length != 2 + count:
+        return -1
+
+    remaining_size: mutable i64[16] = zeroed
+    remaining_item: mutable usize[16] = zeroed
+    assigned_bin: mutable i64[16] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        size: i64 = input[2 + index]
+        if size < 1 or size > raw_capacity:
+            return -1
+        remaining_size[index] <- size
+        remaining_item[index] <- index
+        index <- index + 1
+
+    remaining_count: mutable usize = count
+    bin_count: mutable i64 = 0
+    while remaining_count > 0:
+        reachable: mutable bool[17 * 33] = zeroed
+        reachable[remaining_count * SUBSET_SUM_BIN_PACKING_STRIDE] <- true
+        row: mutable usize = remaining_count
+        while row > 0:
+            row <- row - 1
+            size: usize = remaining_size[row].usize()
+            sum: mutable usize = 0
+            while sum <= capacity:
+                reachable[row * SUBSET_SUM_BIN_PACKING_STRIDE + sum] <-
+                    reachable[(row + 1) * SUBSET_SUM_BIN_PACKING_STRIDE + sum]
+                if sum >= size and reachable[(row + 1) * SUBSET_SUM_BIN_PACKING_STRIDE + sum - size]:
+                    reachable[row * SUBSET_SUM_BIN_PACKING_STRIDE + sum] <- true
+                sum <- sum + 1
+
+        target: mutable usize = capacity
+        while target > 0 and not reachable[target]:
+            target <- target - 1
+        selected: mutable bool[16] = zeroed
+        needed: mutable usize = target
+        item: mutable usize = 0
+        while item < remaining_count:
+            size: usize = remaining_size[item].usize()
+            if size <= needed and reachable[(item + 1) * SUBSET_SUM_BIN_PACKING_STRIDE + needed - size]:
+                selected[item] <- true
+                needed <- needed - size
+                assigned_bin[remaining_item[item]] <- bin_count
+            item <- item + 1
+
+        survivors: mutable usize = 0
+        item <- 0
+        while item < remaining_count:
+            if not selected[item]:
+                remaining_size[survivors] <- remaining_size[item]
+                remaining_item[survivors] <- remaining_item[item]
+                survivors <- survivors + 1
+            item <- item + 1
+        remaining_count <- survivors
+        bin_count <- bin_count + 1
+
+    checksum: mutable i64 = bin_count * 10000
+    index <- 0
+    while index < count:
+        checksum <- checksum + (index.i64() + 1) * (assigned_bin[index] + 1)
+        index <- index + 1
+    checksum
+
+export fn subset_sum_bin_packing(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > SUBSET_SUM_BIN_PACKING_MAX_INPUT_LENGTH:
+        return -1
+    input_view: view[i64] = input[0:length]
+    subset_sum_bin_packing_impl(input_view, length)

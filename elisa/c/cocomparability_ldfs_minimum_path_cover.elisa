@@ -1,0 +1,144 @@
+def cocomparability_ldfs_minimum_path_cover_impl(values: view[i64]) -> i64:
+    length: usize = values.length
+    if length < 1 or length > 18: return -1
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > 8: return -1
+    n: usize = n_value.usize()
+    if length != 1 + 2 * n: return -1
+
+    adjacency: mutable usize[8] = zeroed
+    order: mutable usize[8] = zeroed
+    rank: mutable usize[8] = zeroed
+    seen_order: mutable bool[8] = zeroed
+    full: usize = (1 << n) - 1
+    vertex: mutable usize = 0
+    while vertex < n:
+        row: i64 = values[1 + vertex]
+        if row < 0: return -1
+        if row.usize() > full or (row & (1 << vertex).i64()) != 0: return -1
+        adjacency[vertex] <- row.usize()
+        vertex <- vertex + 1
+    vertex <- 0
+    while vertex < n:
+        other: mutable usize = 0
+        while other < n:
+            if ((adjacency[vertex] >> other) & 1) != ((adjacency[other] >> vertex) & 1): return -1
+            other <- other + 1
+        vertex <- vertex + 1
+    vertex <- 0
+    while vertex < n:
+        value: i64 = values[1 + n + vertex]
+        if value < 0 or value >= n_value or seen_order[value.usize()]: return -1
+        order[vertex] <- value.usize()
+        rank[value.usize()] <- vertex
+        seen_order[value.usize()] <- true
+        vertex <- vertex + 1
+
+    i: mutable usize = 0
+    while i < n:
+        j: mutable usize = i + 1
+        while j < n:
+            k: mutable usize = j + 1
+            while k < n:
+                a: usize = order[i]
+                b: usize = order[j]
+                c: usize = order[k]
+                if ((adjacency[a] >> c) & 1) != 0 and ((adjacency[a] >> b) & 1) == 0 and ((adjacency[b] >> c) & 1) == 0:
+                    return -1
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+
+    reached: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    queue[0] <- 0
+    reached[0] <- true
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        v: mutable usize = 0
+        while v < n:
+            if ((adjacency[u] >> v) & 1) != 0 and not reached[v]:
+                reached[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+            v <- v + 1
+    v: mutable usize = 0
+    while v < n:
+        if not reached[v]: return -1
+        v <- v + 1
+
+    labels: mutable u8[8][8] = zeroed
+    label_len: mutable usize[8] = zeroed
+    visited: mutable bool[8] = zeroed
+    ldfs: mutable usize[8] = zeroed
+    step: mutable usize = 1
+    while step <= n:
+        chosen: mutable usize = 8
+        v <- 0
+        while v < n:
+            if not visited[v]:
+                if chosen == 8:
+                    chosen <- v
+                else:
+                    common: usize = if label_len[v] < label_len[chosen]: label_len[v] else: label_len[chosen]
+                    cmp: mutable i64 = 0
+                    q: mutable usize = 0
+                    while q < common:
+                        if labels[v][q] != labels[chosen][q]:
+                            cmp <- if labels[v][q] > labels[chosen][q]: 1 else: -1
+                            break
+                        q <- q + 1
+                    if cmp == 0 and label_len[v] != label_len[chosen]:
+                        cmp <- if label_len[v] > label_len[chosen]: 1 else: -1
+                    if cmp > 0 or (cmp == 0 and rank[v] > rank[chosen]): chosen <- v
+            v <- v + 1
+        ldfs[step - 1] <- chosen
+        visited[chosen] <- true
+        v <- 0
+        while v < n:
+            if not visited[v] and ((adjacency[chosen] >> v) & 1) != 0:
+                q: mutable usize = label_len[v]
+                while q > 0:
+                    labels[v][q] <- labels[v][q - 1]
+                    q <- q - 1
+                labels[v][0] <- step.u8()
+                label_len[v] <- label_len[v] + 1
+            v <- v + 1
+        step <- step + 1
+    position: mutable usize[8] = zeroed
+    i <- 0
+    while i < n:
+        position[ldfs[i]] <- i
+        i <- i + 1
+
+    v <- 0
+    while v < n:
+        visited[v] <- false
+        v <- v + 1
+    paths: mutable i64 = 0
+    while true:
+        current: mutable usize = 8
+        v <- 0
+        while v < n:
+            if not visited[v] and (current == 8 or position[v] > position[current]): current <- v
+            v <- v + 1
+        if current == 8: break
+        paths <- paths + 1
+        visited[current] <- true
+        while true:
+            next: mutable usize = 8
+            v <- 0
+            while v < n:
+                if not visited[v] and ((adjacency[current] >> v) & 1) != 0 and (next == 8 or position[v] > position[next]): next <- v
+                v <- v + 1
+            if next == 8: break
+            visited[next] <- true
+            current <- next
+    paths
+
+export fn cocomparability_ldfs_minimum_path_cover(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 18: return -1
+    cocomparability_ldfs_minimum_path_cover_impl(input[0:length])

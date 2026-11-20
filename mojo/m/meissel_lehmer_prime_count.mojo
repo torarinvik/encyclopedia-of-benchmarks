@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 const MAX_INPUT: Int64 = 100_000_000
 const SIEVE_LIMIT: Int = 10_000
 const MAX_PRIMES: Int = 1_300

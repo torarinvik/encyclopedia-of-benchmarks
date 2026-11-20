@@ -4,7 +4,7 @@ const int MAX_MODULES = 8;
 const int MAX_NETS = 16;
 const usz MAX_INPUT = 146;
 
-fn int edge_cut(int* side, int[MAX_NETS][MAX_MODULES]* nets, int* degrees, int net_count) {
+fn int edge_cut(int* side, int[MAX_MODULES]* nets, int* degrees, int net_count) {
     int total = 0;
     for (int net = 0; net < net_count; net++)
         for (int i = 0; i < degrees[net]; i++)
@@ -13,7 +13,7 @@ fn int edge_cut(int* side, int[MAX_NETS][MAX_MODULES]* nets, int* degrees, int n
     return total;
 }
 
-fn int net_cut(int* side, int[MAX_NETS][MAX_MODULES]* nets, int* degrees, int net_count) {
+fn int net_cut(int* side, int[MAX_MODULES]* nets, int* degrees, int net_count) {
     int total = 0;
     for (int net = 0; net < net_count; net++) {
         int first = side[nets[net][0]];
@@ -29,7 +29,7 @@ fn long ptrdist_ks(long* input, usz length) @export("ptrdist_ks") {
     if (input[0] < 2 || input[0] > MAX_MODULES || input[0] % 2 != 0 || input[1] < 0 || input[1] > MAX_NETS) return -1;
     int modules = (int)input[0];
     int net_count = (int)input[1];
-    int[MAX_NETS][MAX_MODULES] nets;
+    int[MAX_MODULES][MAX_NETS] nets;
     int[MAX_NETS] degrees;
     usz cursor = 2;
     for (int net = 0; net < net_count; net++) {
@@ -53,20 +53,20 @@ fn long ptrdist_ks(long* input, usz length) @export("ptrdist_ks") {
     int accepted_passes = 0;
     while (true) {
         int[MAX_MODULES] work, remaining_a, remaining_b, selected_a, selected_b;
-        int count_a = half, count_b = half;
+        int count_a = half; int count_b = half;
         for (int i = 0; i < modules; i++) work[i] = side[i];
         for (int i = 0; i < half; i++) { remaining_a[i] = order_a[i]; remaining_b[i] = order_b[i]; }
-        int cumulative_gain = 0, best_gain = -2147483647, best_prefix = 0;
+        int cumulative_gain = 0; int best_gain = -2147483647; int best_prefix = 0;
 
         for (int step = 0; step < half; step++) {
-            int baseline = edge_cut(&work[0], &nets, &degrees[0], net_count);
-            int pair_gain = -2147483647, chosen_a = -1, chosen_b = -1;
+            int baseline = edge_cut(&work[0], &nets[0], &degrees[0], net_count);
+            int pair_gain = -2147483647; int chosen_a = -1; int chosen_b = -1;
             for (int ai = 0; ai < count_a; ai++) {
                 int a = remaining_a[ai];
                 for (int bi = 0; bi < count_b; bi++) {
                     int b = remaining_b[bi];
                     work[a] = 1; work[b] = 0;
-                    int gain = baseline - edge_cut(&work[0], &nets, &degrees[0], net_count);
+                    int gain = baseline - edge_cut(&work[0], &nets[0], &degrees[0], net_count);
                     work[a] = 0; work[b] = 1;
                     if (gain > pair_gain) { pair_gain = gain; chosen_a = a; chosen_b = b; }
                 }
@@ -98,6 +98,6 @@ fn long ptrdist_ks(long* input, usz length) @export("ptrdist_ks") {
     }
     int mask = 0;
     for (int i = 0; i < modules; i++) if (side[i] == 0) mask |= 1 << i;
-    return (long)mask + ((long)edge_cut(&side[0], &nets, &degrees[0], net_count) << 8) +
-           ((long)net_cut(&side[0], &nets, &degrees[0], net_count) << 17) + ((long)accepted_passes << 22);
+    return (long)mask + ((long)edge_cut(&side[0], &nets[0], &degrees[0], net_count) << 8) +
+           ((long)net_cut(&side[0], &nets[0], &degrees[0], net_count) << 17) + ((long)accepted_passes << 22);
 }

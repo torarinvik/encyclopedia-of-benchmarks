@@ -5,27 +5,27 @@ const usz MAX_INPUT_LENGTH = 66;
 const long MIN_SAMPLE = -4611686018427387904;
 const long MAX_SAMPLE = 4611686018427387903;
 
-void store_i64_le(char* output, usz offset, long value) {
-    ulong bits = @bitcast(ulong, value);
+fn void store_i64_le(char* output, usz offset, long value) {
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) output[offset + byte] = (char)(bits >> (8 * byte));
 }
-void push_max(long* heap, usz* count, long value) {
+fn void push_max(long* heap, usz* count, long value) {
     usz position = (*count)++;
     while (position > 0 && heap[(position - 1) / 2] < value) { usz parent = (position - 1) / 2; heap[position] = heap[parent]; position = parent; }
     heap[position] = value;
 }
-long pop_max(long* heap, usz* count) {
+fn long pop_max(long* heap, usz* count) {
     long result = heap[0], value = heap[--(*count)]; if (*count == 0) return result;
     usz position = 0;
     while (2 * position + 1 < *count) { usz child = 2 * position + 1; if (child + 1 < *count && heap[child + 1] > heap[child]) child++; if (heap[child] <= value) break; heap[position] = heap[child]; position = child; }
     heap[position] = value; return result;
 }
-void push_min(long* heap, usz* count, long value) {
+fn void push_min(long* heap, usz* count, long value) {
     usz position = (*count)++;
     while (position > 0 && heap[(position - 1) / 2] > value) { usz parent = (position - 1) / 2; heap[position] = heap[parent]; position = parent; }
     heap[position] = value;
 }
-long pop_min(long* heap, usz* count) {
+fn long pop_min(long* heap, usz* count) {
     long result = heap[0], value = heap[--(*count)]; if (*count == 0) return result;
     usz position = 0;
     while (2 * position + 1 < *count) { usz child = 2 * position + 1; if (child + 1 < *count && heap[child + 1] < heap[child]) child++; if (heap[child] >= value) break; heap[position] = heap[child]; position = child; }

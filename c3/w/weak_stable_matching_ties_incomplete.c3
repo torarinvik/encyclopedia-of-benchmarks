@@ -9,7 +9,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long weak_stable_matching_ties_incomplete(long* input, usz length, char* output, usz capacity)
+fn long weak_stable_matching_ties_incomplete(long* input, usz length, char* output, usz capacity)
         @export("weak_stable_matching_ties_incomplete") {
     if (input == null || length < 1 || length > MAX_INPUT) return -1;
     long n_raw = input[0];

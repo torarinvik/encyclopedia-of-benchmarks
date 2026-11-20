@@ -1,0 +1,147 @@
+const MAX_N: usize = 16
+const MAX_NONZER: usize = 4
+const MAX_SUPPORT: usize = 5
+const MAX_TRIPLETS: usize = 416
+const MAX_INPUT: usize = 131
+const MAX_VALUE_MICRO: i64 = 1000000
+const MAX_SHIFT_MICRO: i64 = 10000000
+const SCALE: f64 = 1000000.0
+const RCOND: f64 = 0.1
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+extern pow(base: f64, exponent: f64) -> f64
+
+def npb_cg_put_u64(output: mutable view[u8], position: mutable usize&, value: u64) -> void:
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position] <- ((value >> (8 * byte)) & 255).u8()
+        position <- position + 1
+        byte <- byte + 1
+
+def npb_cg_put_f64(output: mutable view[u8], position: mutable usize&, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    npb_cg_put_u64(output, position, bits)
+
+def npb_cg_outer_product_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > MAX_INPUT: return -1
+    if input[0] < 2 or input[0] > MAX_N.i64() or input[1] < 1 or input[1] > MAX_NONZER.i64() or
+       input[2] < 0 or input[2] > MAX_SHIFT_MICRO: return -1
+    n: usize = input[0].usize()
+    nonzer: usize = input[1].usize()
+    if length != 3 + 2 * n * nonzer: return -1
+    cursor: mutable usize = 3
+    vector: mutable usize = 0
+    while vector < n:
+        seen: mutable u32 = 0
+        entry: mutable usize = 0
+        while entry < nonzer:
+            coordinate: i64 = input[cursor]
+            value: i64 = input[cursor + 1]
+            if coordinate < 0 or coordinate >= n.i64() or value == 0 or
+               value < -MAX_VALUE_MICRO or value > MAX_VALUE_MICRO: return -1
+            bit: u32 = 1.u32() << coordinate.usize()
+            if (seen & bit) != 0: return -1
+            seen <- seen | bit
+            cursor <- cursor + 2
+            entry <- entry + 1
+        vector <- vector + 1
+    
+    raw_rows: mutable u8[MAX_TRIPLETS] = zeroed
+    raw_columns: mutable u8[MAX_TRIPLETS] = zeroed
+    raw_values: mutable f64[MAX_TRIPLETS] = zeroed
+    raw_count: mutable usize = 0
+    cursor <- 3
+    vector <- 0
+    while vector < n:
+        coordinates: mutable u8[MAX_SUPPORT] = zeroed
+        vector_values: mutable f64[MAX_SUPPORT] = zeroed
+        support_count: mutable usize = nonzer
+        has_anchor: mutable bool = false
+        entry <- 0
+        while entry < nonzer:
+            coordinate: usize = input[cursor].usize()
+            coordinates[entry] <- coordinate.u8()
+            vector_values[entry] <- input[cursor + 1].f64() / SCALE
+            cursor <- cursor + 2
+            if coordinate == vector:
+                vector_values[entry] <- 0.5
+                has_anchor <- true
+            entry <- entry + 1
+        if not has_anchor:
+            coordinates[support_count] <- vector.u8()
+            vector_values[support_count] <- 0.5
+            support_count <- support_count + 1
+        weight: f64 = 1.0
+        if vector == n - 1: weight <- RCOND
+        else if vector > 0: weight <- pow(RCOND, vector.f64() / (n - 1).f64())
+        column_slot: mutable usize = 0
+        while column_slot < support_count:
+            scaled_column: f64 = weight * vector_values[column_slot]
+            row_slot: mutable usize = 0
+            while row_slot < support_count:
+                raw_rows[raw_count] <- coordinates[row_slot]
+                raw_columns[raw_count] <- coordinates[column_slot]
+                raw_values[raw_count] <- vector_values[row_slot] * scaled_column
+                raw_count <- raw_count + 1
+                row_slot <- row_slot + 1
+            column_slot <- column_slot + 1
+        vector <- vector + 1
+    diagonal_addend: f64 = RCOND - input[2].f64() / SCALE
+    vector <- 0
+    while vector < n:
+        raw_rows[raw_count] <- vector.u8()
+        raw_columns[raw_count] <- vector.u8()
+        raw_values[raw_count] <- diagonal_addend
+        raw_count <- raw_count + 1
+        vector <- vector + 1
+
+    column_pointers: mutable i64[MAX_N + 1] = zeroed
+    row_indices: mutable u8[MAX_N * MAX_N] = zeroed
+    matrix_values: mutable f64[MAX_N * MAX_N] = zeroed
+    nnz: mutable usize = 0
+    column: mutable usize = 0
+    while column < n:
+        column_pointers[column] <- nnz.i64()
+        row: mutable usize = 0
+        while row < n:
+            total: mutable f64 = 0.0
+            touched: mutable bool = false
+            triple: mutable usize = 0
+            while triple < raw_count:
+                if raw_rows[triple].usize() == row and raw_columns[triple].usize() == column:
+                    total <- total + raw_values[triple]
+                    touched <- true
+                triple <- triple + 1
+            if touched:
+                row_indices[nnz] <- row.u8()
+                matrix_values[nnz] <- total
+                nnz <- nnz + 1
+            row <- row + 1
+        column <- column + 1
+    column_pointers[n] <- nnz.i64()
+
+    required: usize = 8 * (2 + (n + 1) + 2 * nnz)
+    if output.is_null() or capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+    position: mutable usize = 0
+    npb_cg_put_f64(result, position, n.f64())
+    npb_cg_put_f64(result, position, nnz.f64())
+    index: mutable usize = 0
+    while index <= n:
+        npb_cg_put_f64(result, position, column_pointers[index].f64())
+        index <- index + 1
+    index <- 0
+    while index < nnz:
+        npb_cg_put_f64(result, position, row_indices[index].f64())
+        index <- index + 1
+    index <- 0
+    while index < nnz:
+        npb_cg_put_f64(result, position, matrix_values[index])
+        index <- index + 1
+    required.i64()
+
+export fn npb_cg_sparse_outer_product_assembly(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length > MAX_INPUT: return -1
+    npb_cg_outer_product_impl(input[0:length], output, output_capacity)

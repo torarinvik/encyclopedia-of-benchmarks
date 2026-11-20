@@ -1,0 +1,83 @@
+# Two-replica add-wins observed-remove set with deterministic value tags.
+const ORS_MAX_Q: usize = 32
+const ORS_MAX_TAGS: usize = 64
+const ORS_MAX_INPUT: usize = 129
+
+def ors_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > ORS_MAX_INPUT: return -1
+    q_value: i64 = input[0]
+    if q_value < 0 or q_value > ORS_MAX_Q.i64(): return -1
+    q: usize = q_value.usize()
+    if length != 1 + 4 * q: return -1
+    i: usize = 0
+    while i < q:
+        opcode: i64 = input[1 + 4 * i]
+        replica: i64 = input[2 + 4 * i]
+        element: i64 = input[3 + 4 * i]
+        peer: i64 = input[4 + 4 * i]
+        if opcode >= 0 and opcode <= 2:
+            if replica < 0 or replica > 1 or element < 0 or element > 15 or peer != 0: return -1
+        elif opcode == 3 or opcode == 4:
+            if replica < 0 or replica > 1 or element != 0 or peer < 0 or peer > 1: return -1
+        else:
+            return -1
+        i <- i + 1
+
+    used: mutable bool[ORS_MAX_TAGS] = zeroed
+    tag_element: mutable i64[ORS_MAX_TAGS] = zeroed
+    next_sequence: mutable usize[2] = zeroed
+    additions: mutable bool[2 * ORS_MAX_TAGS] = zeroed
+    removals: mutable bool[2 * ORS_MAX_TAGS] = zeroed
+    answer: mutable u64 = 0
+    read_count: mutable usize = 0
+    i <- 0
+    while i < q:
+        opcode: i64 = input[1 + 4 * i]
+        replica: usize = input[2 + 4 * i].usize()
+        element: i64 = input[3 + 4 * i]
+        peer: usize = input[4 + 4 * i].usize()
+        base: usize = replica * ORS_MAX_TAGS
+        peer_base: usize = peer * ORS_MAX_TAGS
+        result: mutable bool = false
+        if opcode == 0:
+            tag: usize = replica * ORS_MAX_Q + next_sequence[replica]
+            next_sequence[replica] <- next_sequence[replica] + 1
+            used[tag] <- true
+            tag_element[tag] <- element
+            additions[base + tag] <- true
+        elif opcode == 1:
+            tag: mutable usize = 0
+            while tag < ORS_MAX_TAGS:
+                if additions[base + tag] and not removals[base + tag] and used[tag] and tag_element[tag] == element:
+                    removals[base + tag] <- true
+                tag <- tag + 1
+        elif opcode == 2:
+            tag: mutable usize = 0
+            while tag < ORS_MAX_TAGS:
+                if additions[base + tag] and not removals[base + tag] and used[tag] and tag_element[tag] == element:
+                    result <- true
+                tag <- tag + 1
+        elif opcode == 3:
+            tag: mutable usize = 0
+            while tag < ORS_MAX_TAGS:
+                additions[base + tag] <- additions[base + tag] or additions[peer_base + tag]
+                removals[base + tag] <- removals[base + tag] or removals[peer_base + tag]
+                tag <- tag + 1
+        else:
+            result <- true
+            tag: mutable usize = 0
+            while tag < ORS_MAX_TAGS:
+                if (additions[base + tag] and not additions[peer_base + tag]) or
+                    (removals[base + tag] and not removals[peer_base + tag]): result <- false
+                tag <- tag + 1
+        if opcode == 2 or opcode == 4:
+            if result: answer <- answer | (1.u64() << read_count)
+            read_count <- read_count + 1
+        i <- i + 1
+    answer.i64()
+
+export fn observed_remove_set(input: i64&, length: usize) -> i64 @export("observed_remove_set"):
+    if input.is_null() or length > ORS_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    ors_impl(input_view)

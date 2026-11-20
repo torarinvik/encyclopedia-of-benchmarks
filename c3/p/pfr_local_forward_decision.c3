@@ -5,7 +5,7 @@ fn void put64(char *out, usz pos, long value) {
 	for (usz i = 0; i < 8; i += 1) { out[pos+i] = (char)(bits & 255); bits >>= 8; }
 }
 
-long pfr_local_forward_decision(long *input, usz length, char *output, usz capacity) @export("pfr_local_forward_decision") {
+fn long pfr_local_forward_decision(long *input, usz length, char *output, usz capacity) @export("pfr_local_forward_decision") {
 	if (input == null || length != 2) return -1;
 	long angle = input[0], draw = input[1];
 	if (angle < 0 || angle > 180000000 || draw < 0 || draw >= 1000000) return -1;

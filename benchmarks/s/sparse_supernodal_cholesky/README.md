@@ -11,3 +11,8 @@ The numerical work is bounded by O(n³) time and O(n²) storage in the dense wor
 Output is the complete lower triangle of `L`, including structural zeros, as little-endian binary64 words in row-major triangular order. The result is its byte length. The maximum frame has 55 i64 words, the maximum output has 288 bytes, and a parseable malformed frame may have 56 words. Compare binary64 output with absolute and relative tolerances of `1e-9`.
 
 The primary oracle independently validates the frame and performs right-looking block and panel updates; a dense scalar reference oracle separately validates and factors it. The workload includes diagonal, sparse-chain, multiple dense supernodes with signed panel entries, maximum-size, malformed-pattern, late pivot failure, and output-buffer cases. All ten language ports use compact storage for structurally present factor entries and are registered in the byte-output suite. This is a bounded numerical-factorization profile, not a reproduction of the SPLASH-2 scheduler. The mathematical approach is informed by [Karsavuran et al.](https://arxiv.org/abs/2409.13090); the article is CC BY-NC-ND 4.0 and no text or code has been copied. The package and registration have not been executed.
+
+The partial-panel fixture has a dense first supernode and a later row that
+contains only its second column. Its pattern satisfies the separate fill
+closure requirement, so rejection specifically exercises rectangular-panel
+validation. This source-level distinction remains unverified at runtime.

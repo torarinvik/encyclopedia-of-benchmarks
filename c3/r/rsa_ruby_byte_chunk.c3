@@ -23,7 +23,7 @@ fn long rsa_ruby_byte_chunk(long* packed, usz length) @export("rsa_ruby_byte_chu
         message_length < 1 || message_length > 64 || length != (usz)(4 + message_length)) return INVALID_RESULT;
     for (usz i = 0; i < (usz)message_length; i += 1)
         if (packed[4 + i] < 0 || packed[4 + i] >= modulus) return INVALID_RESULT;
-    long ciphertexts[64];
+    long[64] ciphertexts;
     for (usz i = 0; i < (usz)message_length; i += 1)
         ciphertexts[i] = bounded_power(packed[4 + i], public_exponent) % modulus;
     ulong hash = FNV_OFFSET_BASIS;

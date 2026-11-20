@@ -4,7 +4,7 @@ module seam_carving;
 
 extern fn double sqrt(double value);
 
-long seam_carving(long* input, usz length, char* output, usz output_capacity)
+fn long seam_carving(long* input, usz length, char* output, usz output_capacity)
         @export("seam_carving") {
     if (input == null || length < 2 || length > 39) return -1;
     long width_value = input[0], height_value = input[1];
@@ -65,12 +65,12 @@ long seam_carving(long* input, usz length, char* output, usz output_capacity)
 
     usz needed = height * (width - 1);
     if (output == null || output_capacity < needed) return -2;
-    u8[30] staged = zeroed;
+    char[30] staged = zeroed;
     usz position = 0;
     for (usz y = 0; y < height; y++) {
         for (usz x = 0; x < width; x++) {
             if (x != seam_x[y]) {
-                staged[position] = (u8)input[2 + y * width + x];
+                staged[position] = (char)input[2 + y * width + x];
                 position++;
             }
         }

@@ -13,7 +13,7 @@ fn long prefix_sum2_d(long* input, usz length) @export("prefix_sum2_d") {
     long row1v = input[query], col1v = input[query + 1], row2v = input[query + 2], col2v = input[query + 3];
     if (row1v < 0 || col1v < 0 || row2v < row1v || col2v < col1v ||
         (ulong)row2v >= rows || (ulong)col2v >= cols) return INVALID_RESULT;
-    long prefix[289] = {0};
+    long[289] prefix = {0};
     for (usz i = 0; i < rows; i++) {
         for (usz j = 0; j < cols; j++) {
             long value = input[2 + i * cols + j];

@@ -23,7 +23,7 @@ fn long hash_responses(int32* responses, usz count) {
     return (long)(hash & 0x7fffffffffffffff);
 }
 
-long mrucache(long* input, usz length) @export("mrucache") {
+fn long mrucache(long* input, usz length) @export("mrucache") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     long capacity64 = input[0];
     long operation_count64 = input[1];

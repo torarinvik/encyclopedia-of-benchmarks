@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-eulerian-number-descent-count-i64-array-scalar-v1",
+  "algorithm": "eulerian_number",
+  "function_symbol": "eulerian_number",
+  "abi": "i64_array_scalar",
+  "description": "Return one Eulerian number A(n,k), counting permutations with exactly k descents.",
+  "source": {
+    "discovery_title": "Eulerian Number",
+    "discovery_note": "Current OI Wiki algorithm heading only; discovery only, with no code or examples reused.",
+    "discovery_url": "https://oi-wiki.org/math/combinatorics/eulerian/",
+    "index_url": "https://github.com/OI-wiki/OI-wiki/blob/master/mkdocs.yml",
+    "method_reference": "Richard P. Stanley, Enumerative Combinatorics, Volume 1, Section 1.4",
+    "sequence_reference": "OEIS A008292",
+    "sequence_url": "https://oeis.org/A008292",
+    "license_note": "OI Wiki states CC BY-SA 4.0 and SATA; only the mathematical method idea is used."
+  },
+  "input": {
+    "kind": "two_element_signed_64_bit_array",
+    "encoding": "[n,k]",
+    "n_range": [0, 20],
+    "k_range_for_n_zero": [0, 0],
+    "k_range_for_positive_n": "0 <= k < n",
+    "statistic": "k is the number of descents in a permutation of [n]",
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Eulerian number A(n,k); A(0,0)=1",
+    "valid_result_range": [1, 2432902008176640000],
+    "invalid_result": -1
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Two fixed 21-entry i64 rows require 336 bytes; the remaining allowance covers scalar bookkeeping."
+  },
+  "contract": {
+    "primary_method": "Build each Eulerian row using A(0,0)=1 and A(n,k)=(k+1)A(n-1,k)+(n-k)A(n-1,k-1), with out-of-range entries zero.",
+    "independent_method": "For n>=1, use the inclusion-exclusion formula sum(j=0..k+1, (-1)^j * binom(n+1,j) * (k+1-j)^n) with arbitrary-precision intermediates; return A(0,0)=1 directly.",
+    "complexity": "Primary O(n^2) time and O(n) auxiliary space; independent formula uses O(n) big-integer terms.",
+    "invalid_cases": "Null input, non-exact framing, n outside 0..20, or k outside its n-dependent range returns -1.",
+    "distinct_from": "Entringer numbers group alternating permutations by first element; graph Eulerian paths/circuits concern edge traversal. This package counts ordinary permutations by descents."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"truncated-frame","input_values":[3],"input_length":1,"expected_result":-1},
+    {"id":"extra-word","input_values":[3,1,0],"input_length":3,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"empty-permutation","input_values":[0,0],"input_length":2,"expected_result":1},
+    {"id":"single-permutation","input_values":[1,0],"input_length":2,"expected_result":1},
+    {"id":"zero-descents","input_values":[5,0],"input_length":2,"expected_result":1},
+    {"id":"one-descent","input_values":[3,1],"input_length":2,"expected_result":4},
+    {"id":"four-elements-one-descent","input_values":[4,1],"input_length":2,"expected_result":11},
+    {"id":"five-elements-two-descents","input_values":[5,2],"input_length":2,"expected_result":66},
+    {"id":"seven-elements-three-descents","input_values":[7,3],"input_length":2,"expected_result":2416},
+    {"id":"ten-elements-four-descents","input_values":[10,4],"input_length":2,"expected_result":1310354},
+    {"id":"maximum-n-minimum-k","input_values":[20,0],"input_length":2,"expected_result":1},
+    {"id":"maximum-n-maximum-k","input_values":[20,19],"input_length":2,"expected_result":1},
+    {"id":"negative-n","input_values":[-1,0],"input_length":2,"expected_result":-1},
+    {"id":"n-over-bound","input_values":[21,0],"input_length":2,"expected_result":-1},
+    {"id":"negative-k","input_values":[4,-1],"input_length":2,"expected_result":-1},
+    {"id":"k-equals-n","input_values":[4,4],"input_length":2,"expected_result":-1},
+    {"id":"i64-min-n","input_values":[-9223372036854775808,0],"input_length":2,"expected_result":-1},
+    {"id":"i64-max-k","input_values":[4,9223372036854775807],"input_length":2,"expected_result":-1}
+  ],
+  "generated_profile": {
+    "maximum_n": 20,
+    "maximum_row_sum": 2432902008176640000,
+    "description": "A generated complete row at n=20 sums to 20!, bounding every valid output."
+  }
+}

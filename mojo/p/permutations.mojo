@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn perms_mix(h:UInt32,b:UInt8)->UInt32:return (h^UInt32(b))*16777619

@@ -22,7 +22,7 @@ fn long npb_sp_pentadiagonal_line_solve(double* input, usz length,
     if (lower2[0] != 0.0 || lower2[1] != 0.0 || lower1[0] != 0.0 ||
         upper1[n-1] != 0.0 || upper2[n-2] != 0.0 || upper2[n-1] != 0.0) return -1;
     for (usz row = 0; row < n; row += 1) {
-        double bands[4] = {lower2[row], lower1[row], upper1[row], upper2[row]};
+        double[4] bands = {lower2[row], lower1[row], upper1[row], upper2[row]};
         double radius = 0.0;
         for (usz band = 0; band < 4; band += 1) {
             if (bands[band] != bands[band] || math.abs(bands[band]) > 2.0) return -1;
@@ -33,8 +33,12 @@ fn long npb_sp_pentadiagonal_line_solve(double* input, usz length,
             diagonal[row] - radius < 0.25) return -1;
     }
     if (output == null || capacity < n) return -2;
-    double lo1[MAX_N] = {0.0}, diag[MAX_N] = {0.0}, up1[MAX_N] = {0.0};
-    double up2[MAX_N] = {0.0}, work_rhs[MAX_N] = {0.0}, solution[MAX_N] = {0.0};
+    double[MAX_N] lo1 = {};
+    double[MAX_N] diag = {};
+    double[MAX_N] up1 = {};
+    double[MAX_N] up2 = {};
+    double[MAX_N] work_rhs = {};
+    double[MAX_N] solution = {};
     for (usz row = 0; row < n; row += 1) {
         lo1[row] = lower1[row]; diag[row] = diagonal[row];
         up1[row] = upper1[row]; up2[row] = upper2[row]; work_rhs[row] = rhs[row];

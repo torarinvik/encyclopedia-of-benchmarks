@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "pell-fundamental-solution-v1",
+  "algorithm": "pell_fundamental_solution",
+  "function_symbol": "pell_fundamental_solution",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Pell equation",
+    "url": "https://oi-wiki.org/math/number-theory/pell-equation/",
+    "reuse": "mathematical equation and continued-fraction method only; clean-room implementation"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[D]",
+    "D_range": [2, 31],
+    "D_must_be_nonsquare": true,
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "(x << 32) | y for the least positive solution x^2-D*y^2=1",
+    "result_range": "positive signed-64-bit packed pair",
+    "invalid_result": -1
+  },
+  "complexity": {
+    "time": "O(L), where L is the continued-fraction expansion length examined",
+    "auxiliary_space": "O(1)"
+  },
+  "workspace": {"bytes": 256},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {"id":"d-two","input_values":[2],"input_length":1,"expected_result":12884901890},
+    {"id":"d-three","input_values":[3],"input_length":1,"expected_result":8589934593},
+    {"id":"d-five","input_values":[5],"input_length":1,"expected_result":38654705668},
+    {"id":"d-thirteen","input_values":[13],"input_length":1,"expected_result":2787433775284},
+    {"id":"d-twenty-nine","input_values":[29],"input_length":1,"expected_result":42094974469916},
+    {"id":"d-thirty-one","input_values":[31],"input_length":1,"expected_result":6528350290193},
+    {"id":"below-domain","input_values":[1],"input_length":1,"expected_result":-1},
+    {"id":"above-domain","input_values":[32],"input_length":1,"expected_result":-1},
+    {"id":"square-four","input_values":[4],"input_length":1,"expected_result":-1},
+    {"id":"square-twenty-five","input_values":[25],"input_length":1,"expected_result":-1},
+    {"id":"trailing-value","input_values":[2,0],"input_length":2,"expected_result":-1},
+    {"id":"empty-input","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_is_null":true,"input_length":0,"expected_result":-1}
+  ]
+}

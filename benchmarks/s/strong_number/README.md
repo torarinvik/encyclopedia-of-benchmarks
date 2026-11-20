@@ -21,4 +21,7 @@ python3 benchmarks/build_scalar.py --algorithm strong_number --language c
 python3 benchmarks/run_scalar.py --algorithm strong_number
 ```
 
-The nine implementations are in `c/s/strong_number.c`, `c3/s/strong_number.c3`, `cpp/s/strong_number.cpp`, `elisa/s/strong_number.elisa`, `nim/s/strong_number.nim`, `odin/s/strong_number.odin`, `rust/s/strong_number.rs`, `v/s/strong_number.v`, and `zig/s/strong_number.zig`.
+The ten implementations are in `c/s/strong_number.c`, `c3/s/strong_number.c3`, `cpp/s/strong_number.cpp`, `elisa/s/strong_number.elisa`, `mojo/s/strong_number.mojo`, `nim/s/strong_number.nim`, `odin/s/strong_number.odin`, `rust/s/strong_number.rs`, `v/s/strong_number.v`, and `zig/s/strong_number.zig`.
+
+Scalar verifier registration and a digit-factorial reference are drafted and
+have not been executed.

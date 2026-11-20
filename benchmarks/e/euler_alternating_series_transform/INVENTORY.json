@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "algorithm": "euler_alternating_series_transform",
+  "abi": "i64_array_bytes_output",
+  "native_paths": [
+    "c/e/euler_alternating_series_transform.c",
+    "c3/e/euler_alternating_series_transform.c3",
+    "cpp/e/euler_alternating_series_transform.cpp",
+    "elisa/e/euler_alternating_series_transform.elisa",
+    "mojo/e/euler_alternating_series_transform.mojo",
+    "nim/e/euler_alternating_series_transform.nim",
+    "odin/e/euler_alternating_series_transform.odin",
+    "rust/e/euler_alternating_series_transform.rs",
+    "v/e/euler_alternating_series_transform.v",
+    "zig/e/euler_alternating_series_transform.zig"
+  ],
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ],
+  "bounds": {
+    "minimum_terms": 1,
+    "maximum_terms": 16,
+    "sequence_value_min": -1000000,
+    "sequence_value_max": 1000000,
+    "maximum_valid_input_words": 17,
+    "maximum_parseable_input_words": 18,
+    "maximum_output_bytes": 16,
+    "maximum_binomial_coefficient": 6435,
+    "maximum_absolute_forward_difference": 32768000000,
+    "maximum_absolute_numerator": 524288000000,
+    "maximum_denominator": 65536,
+    "workspace_bytes": 0
+  }
+}

@@ -14,8 +14,16 @@ The pinned Java source is `src/main/java/com/thealgorithms/graph/Edmonds.java` a
 | C3 | [c3/e/edmonds.c3](../../../c3/e/edmonds.c3) |
 | C++ | [cpp/e/edmonds.cpp](../../../cpp/e/edmonds.cpp) |
 | Elisa | [elisa/e/edmonds.elisa](../../../elisa/e/edmonds.elisa) |
+| Mojo | [mojo/e/edmonds.mojo](../../../mojo/e/edmonds.mojo) (draft, unverified) |
 | Nim | [nim/e/edmonds.nim](../../../nim/e/edmonds.nim) |
 | Odin | [odin/e/edmonds.odin](../../../odin/e/edmonds.odin) |
 | Rust | [rust/e/edmonds.rs](../../../rust/e/edmonds.rs) |
 | V | [v/e/edmonds.v](../../../v/e/edmonds.v) |
 | Zig | [zig/e/edmonds.zig](../../../zig/e/edmonds.zig) |
+
+Static review corrected C and C++ header validation before narrowing to native
+integers, added a missing Mojo array import, and moved Elisa input access to a
+bounded view. The scalar verifier source includes extreme malformed headers;
+these changes have not been compiled or run.
+The workload also includes simultaneous incoming-edge cycles connected by a
+bridge, parallel edges, ignored edges, and an oversized header.

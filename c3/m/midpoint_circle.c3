@@ -8,7 +8,7 @@ fn void write_i32_le(char* output, usz position, long value) {
     output[position + 3] = (char)(bits >> 24);
 }
 
-usz count_points(long radius) {
+fn usz count_points(long radius) {
     if (radius == 0) return 1;
     long x = radius;
     long y = 0;

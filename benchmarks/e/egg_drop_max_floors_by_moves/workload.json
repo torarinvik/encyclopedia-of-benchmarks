@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "egg-drop-max-floors-by-moves-boardman-v1",
+  "algorithm": "egg_drop_max_floors_by_moves",
+  "function_symbol": "egg_drop_max_floors_by_moves",
+  "abi": "i64_array_scalar",
+  "source": {
+    "discovery_title": "Fabergé Easter Eggs crush-test",
+    "discovery_note": "Public title only; no task statement, examples, or solutions used.",
+    "method_source": "Michael Boardman, The Egg-Drop Numbers, Mathematics Magazine 77(5), 2004, pp. 368-372.",
+    "method_urls": [
+      "https://doi.org/10.1080/0025570X.2004.11953281",
+      "https://www.jstor.org/stable/3219201"
+    ],
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[eggs, moves]",
+    "eggs_range": [0, 32],
+    "moves_range": [0, 32],
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "maximum floor count distinguishable with the given egg and move budgets",
+    "valid_result_range": [0, 4294967295],
+    "zero_egg_result": 0,
+    "zero_move_result": 0,
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 264,
+    "meaning": "A fixed 33-element signed 64-bit coverage table indexed by egg count."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "zero-eggs", "input_values": [0, 7], "input_length": 2, "expected_result": 0},
+    {"id": "zero-moves", "input_values": [7, 0], "input_length": 2, "expected_result": 0},
+    {"id": "one-egg-five-moves", "input_values": [1, 5], "input_length": 2, "expected_result": 5},
+    {"id": "two-eggs-eight-moves", "input_values": [2, 8], "input_length": 2, "expected_result": 36},
+    {"id": "two-eggs-fourteen-moves", "input_values": [2, 14], "input_length": 2, "expected_result": 105},
+    {"id": "three-eggs-five-moves", "input_values": [3, 5], "input_length": 2, "expected_result": 25},
+    {"id": "more-eggs-than-moves", "input_values": [5, 3], "input_length": 2, "expected_result": 7},
+    {"id": "single-move", "input_values": [32, 1], "input_length": 2, "expected_result": 1},
+    {"id": "single-egg-maximum-moves", "input_values": [1, 32], "input_length": 2, "expected_result": 32},
+    {"id": "maximum-eggs-and-moves", "input_values": [32, 32], "input_length": 2, "expected_result": 4294967295},
+    {"id": "negative-eggs", "input_values": [-1, 2], "input_length": 2, "expected_result": -1},
+    {"id": "eggs-over-bound", "input_values": [33, 2], "input_length": 2, "expected_result": -1},
+    {"id": "moves-over-bound", "input_values": [2, 33], "input_length": 2, "expected_result": -1},
+    {"id": "short-array", "input_values": [2], "input_length": 1, "expected_result": -1},
+    {"id": "extra-word", "input_values": [2, 8, 0], "input_length": 3, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

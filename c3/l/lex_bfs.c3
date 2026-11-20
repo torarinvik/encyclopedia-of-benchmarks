@@ -12,7 +12,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long lex_bfs(long* input, usz length, char* output, usz capacity) @export("lex_bfs") {
+fn long lex_bfs(long* input, usz length, char* output, usz capacity) @export("lex_bfs") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1], start64 = input[2];
     if (n64 < 1 || n64 > (long)MAX_N || m64 < 0 || m64 > (long)MAX_M ||

@@ -1,0 +1,273 @@
+const BPPI_MAX_BITS: usize = 64
+const BPPI_BLOCK: usize = 8
+const BPPI_BASE: usize = 16
+const BPPI_LEVELS: usize = 3
+const BPPI_MAX_INPUT: usize = 66
+const BPPI_MAX_WORDS: usize = 65
+const BPPI_MAX_OUTPUT: usize = 520
+
+struct BppiGroup:
+    key: u16
+    start: u8
+    count: u8
+    cursor: u8
+
+struct BppiLevel:
+    length: usize
+    bits: u8[64]
+    mate: u8[64]
+    far: u8[64]
+    family: u8[64]
+    family_rank: i16[64]
+    depth: i16[65]
+    open_pioneer: u8[64]
+    close_pioneer: u8[64]
+    open_groups: BppiGroup[64]
+    close_groups: BppiGroup[64]
+    open_members: u8[64]
+    close_members: u8[64]
+    open_group_count: usize
+    close_group_count: usize
+
+def bppi_group_key(source: usize, target: usize, depth: i16) -> u16:
+    ((source << 10) | (target << 7) | depth.usize()).u16()
+
+def bppi_find_group(groups: view[BppiGroup], count: usize, key: u16) -> usize:
+    for i in 0..count:
+        if groups[i].key == key: return i
+    BPPI_MAX_BITS
+
+def bppi_build_groups(levels: mutable view[BppiLevel], level: usize, targets: view[i16]) -> void:
+    for position in 0..levels[level].length:
+        if levels[level].far[position] == 0: continue
+        source: usize = position / BPPI_BLOCK
+        target: usize = targets[position].usize()
+        depth: i16 = levels[level].depth[position]
+        if levels[level].bits[position] == 0: depth = levels[level].depth[position + 1]
+        key: u16 = bppi_group_key(source, target, depth)
+        if levels[level].bits[position] != 0:
+            index: usize = bppi_find_group(levels[level].open_groups[0:BPPI_MAX_BITS], levels[level].open_group_count, key)
+            if index == BPPI_MAX_BITS:
+                index = levels[level].open_group_count
+                levels[level].open_group_count <- index + 1
+                levels[level].open_groups[index].key <- key
+                levels[level].open_groups[index].count <- 0.u8()
+            levels[level].open_groups[index].count <- levels[level].open_groups[index].count + 1.u8()
+        else:
+            index: usize = bppi_find_group(levels[level].close_groups[0:BPPI_MAX_BITS], levels[level].close_group_count, key)
+            if index == BPPI_MAX_BITS:
+                index = levels[level].close_group_count
+                levels[level].close_group_count <- index + 1
+                levels[level].close_groups[index].key <- key
+                levels[level].close_groups[index].count <- 0.u8()
+            levels[level].close_groups[index].count <- levels[level].close_groups[index].count + 1.u8()
+    open_offset: mutable usize = 0
+    for i in 0..levels[level].open_group_count:
+        levels[level].open_groups[i].start <- open_offset.u8()
+        levels[level].open_groups[i].cursor <- 0.u8()
+        open_offset <- open_offset + levels[level].open_groups[i].count.usize()
+    close_offset: mutable usize = 0
+    for i in 0..levels[level].close_group_count:
+        levels[level].close_groups[i].start <- close_offset.u8()
+        levels[level].close_groups[i].cursor <- 0.u8()
+        close_offset <- close_offset + levels[level].close_groups[i].count.usize()
+    for position in 0..levels[level].length:
+        if levels[level].far[position] == 0: continue
+        source: usize = position / BPPI_BLOCK
+        target: usize = targets[position].usize()
+        depth: i16 = levels[level].depth[position]
+        if levels[level].bits[position] == 0: depth = levels[level].depth[position + 1]
+        key: u16 = bppi_group_key(source, target, depth)
+        if levels[level].bits[position] != 0:
+            index: usize = bppi_find_group(levels[level].open_groups[0:BPPI_MAX_BITS], levels[level].open_group_count, key)
+            group: BppiGroup = levels[level].open_groups[index]
+            levels[level].open_members[group.start.usize() + group.cursor.usize()] <- position.u8()
+            levels[level].open_groups[index].cursor <- group.cursor + 1.u8()
+        else:
+            index: usize = bppi_find_group(levels[level].close_groups[0:BPPI_MAX_BITS], levels[level].close_group_count, key)
+            group: BppiGroup = levels[level].close_groups[index]
+            levels[level].close_members[group.start.usize() + group.cursor.usize()] <- position.u8()
+            levels[level].close_groups[index].cursor <- group.cursor + 1.u8()
+
+def bppi_build_level(levels: mutable view[BppiLevel], level: usize, bits: view[u8], length: usize) -> bool:
+    if level >= BPPI_LEVELS or length > BPPI_MAX_BITS: return false
+    levels[level].length <- length
+    levels[level].open_group_count <- 0
+    levels[level].close_group_count <- 0
+    stack: mutable usize[64] = zeroed
+    matched: mutable u8[64] = zeroed
+    targets: mutable i16[64] = zeroed
+    top: mutable usize = 0
+    for i in 0..length:
+        levels[level].bits[i] <- bits[i]
+        levels[level].mate[i] <- 0.u8()
+        levels[level].far[i] <- 0.u8()
+        levels[level].family[i] <- 0.u8()
+        levels[level].family_rank[i] <- -1.i16()
+        levels[level].open_pioneer[i] <- 0.u8()
+        levels[level].close_pioneer[i] <- 0.u8()
+        targets[i] <- -1.i16()
+        if bits[i] != 0:
+            stack[top] <- i
+            top <- top + 1
+        else:
+            if top == 0: return false
+            top <- top - 1
+            opening: usize = stack[top]
+            matched[opening] <- i.u8()
+            matched[i] <- opening.u8()
+    if top != 0: return false
+    levels[level].depth[0] <- 0.i16()
+    for i in 0..length:
+        delta: i16 = 1.i16()
+        if bits[i] == 0: delta <- -1.i16()
+        levels[level].depth[i + 1] <- levels[level].depth[i] + delta
+    if length <= BPPI_BASE:
+        for i in 0..length: levels[level].mate[i] <- matched[i]
+        return true
+    for i in 0..length:
+        target: usize = matched[i].usize() / BPPI_BLOCK
+        if target == i / BPPI_BLOCK: levels[level].mate[i] <- matched[i]
+        else:
+            levels[level].far[i] <- 1.u8()
+            targets[i] <- target.i16()
+    bppi_build_groups(levels, level, targets[0:BPPI_MAX_BITS])
+    start: mutable usize = 0
+    while start < length:
+        end: mutable usize = start + BPPI_BLOCK
+        if end > length: end <- length
+        previous_target: mutable i16 = -1.i16()
+        for i in start..end:
+            if bits[i] == 0 or levels[level].far[i] == 0: continue
+            if previous_target < 0 or targets[i] != previous_target: levels[level].open_pioneer[i] <- 1.u8()
+            previous_target <- targets[i]
+        next_target: mutable i16 = -1.i16()
+        i: mutable usize = end
+        while i > start:
+            i <- i - 1
+            if bits[i] != 0 or levels[level].far[i] == 0: continue
+            if next_target < 0 or targets[i] != next_target: levels[level].close_pioneer[i] <- 1.u8()
+            next_target <- targets[i]
+        start <- start + BPPI_BLOCK
+    for i in 0..length:
+        if levels[level].open_pioneer[i] != 0 or levels[level].close_pioneer[i] != 0:
+            levels[level].family[i] <- 1.u8()
+            levels[level].family[matched[i].usize()] <- 1.u8()
+    child: mutable u8[64] = zeroed
+    count: mutable usize = 0
+    for i in 0..length:
+        if levels[level].family[i] != 0:
+            levels[level].family_rank[i] <- count.i16()
+            child[count] <- bits[i]
+            count <- count + 1
+    if count == 0 or count >= length: return false
+    bppi_build_level(levels, level + 1, child[0:count], count)
+
+def bppi_find_pioneer(levels: view[BppiLevel], level: usize, position: usize, result: mutable view[usize]) -> bool:
+    block_start: usize = (position / BPPI_BLOCK) * BPPI_BLOCK
+    if levels[level].bits[position] != 0:
+        i: mutable usize = position + 1
+        while i > block_start:
+            i <- i - 1
+            if levels[level].open_pioneer[i] != 0:
+                result[0] <- i
+                return true
+    else:
+        end: usize = min(block_start + BPPI_BLOCK, levels[level].length)
+        for i in position..end:
+            if levels[level].close_pioneer[i] != 0:
+                result[0] <- i
+                return true
+    false
+
+def bppi_match(levels: view[BppiLevel], level: usize, position: usize, result: mutable view[usize]) -> bool:
+    if position >= levels[level].length: return false
+    if levels[level].length <= BPPI_BASE or levels[level].far[position] == 0:
+        result[0] <- levels[level].mate[position].usize()
+        return true
+    pioneer_result: mutable usize[1] = zeroed
+    if not bppi_find_pioneer(levels, level, position, pioneer_result[0:1]): return false
+    pioneer: usize = pioneer_result[0]
+    child_result: mutable usize[1] = zeroed
+    if not bppi_match(levels, level + 1, levels[level].family_rank[pioneer].usize(), child_result[0:1]): return false
+    anchor: usize = levels[level].family[child_result[0]].usize()
+    source: usize = position / BPPI_BLOCK
+    target: usize = anchor / BPPI_BLOCK
+    target_depth: mutable i16 = 0.i16()
+    if levels[level].bits[position] != 0:
+        delta: i16 = levels[level].depth[position] - levels[level].depth[pioneer]
+        target_depth <- levels[level].depth[pioneer] + delta
+        key: u16 = bppi_group_key(source, target, target_depth)
+        source_group: usize = bppi_find_group(levels[level].open_groups[0:BPPI_MAX_BITS], levels[level].open_group_count, key)
+        target_group: usize = bppi_find_group(levels[level].close_groups[0:BPPI_MAX_BITS], levels[level].close_group_count, bppi_group_key(target, source, target_depth))
+        if source_group == BPPI_MAX_BITS or target_group == BPPI_MAX_BITS: return false
+        left: BppiGroup = levels[level].open_groups[source_group]
+        right: BppiGroup = levels[level].close_groups[target_group]
+        rank: mutable usize = 0
+        found: mutable bool = false
+        while rank < left.count.usize():
+            if levels[level].open_members[left.start.usize() + rank].usize() == position: found <- true; break
+            rank <- rank + 1
+        if not found or rank >= right.count.usize(): return false
+        result[0] <- levels[level].close_members[right.start.usize() + rank].usize()
+        return true
+    delta: i16 = levels[level].depth[position + 1] - levels[level].depth[pioneer + 1]
+    target_depth <- levels[level].depth[pioneer + 1] + delta
+    key: u16 = bppi_group_key(source, target, target_depth)
+    source_group: usize = bppi_find_group(levels[level].close_groups[0:BPPI_MAX_BITS], levels[level].close_group_count, key)
+    target_group: usize = bppi_find_group(levels[level].open_groups[0:BPPI_MAX_BITS], levels[level].open_group_count, bppi_group_key(target, source, target_depth))
+    if source_group == BPPI_MAX_BITS or target_group == BPPI_MAX_BITS: return false
+    left: BppiGroup = levels[level].close_groups[source_group]
+    right: BppiGroup = levels[level].open_groups[target_group]
+    rank: mutable usize = 0
+    found: mutable bool = false
+    while rank < left.count.usize():
+        if levels[level].close_members[left.start.usize() + rank].usize() == position: found <- true; break
+        rank <- rank + 1
+    if not found or rank >= right.count.usize(): return false
+    result[0] <- levels[level].open_members[right.start.usize() + rank].usize()
+    true
+
+def bppi_write_word(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8: output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def bppi_impl(input: view[i64], staged: mutable view[u8]) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > BPPI_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 32 or length != 1 + 2 * n_value.usize(): return -1
+    bit_count: usize = 2 * n_value.usize()
+    bits: mutable u8[64] = zeroed
+    balance: mutable i64 = 0
+    for i in 0..bit_count:
+        if input[i + 1] != 0 and input[i + 1] != 1: return -1
+        bits[i] <- input[i + 1].u8()
+        balance <- balance + (if bits[i] != 0: 1 else: -1)
+        if balance < 0: return -1
+    if balance != 0: return -1
+    levels: mutable BppiLevel[BPPI_LEVELS] = zeroed
+    if not bppi_build_level(levels[0:BPPI_LEVELS], 0, bits[0:bit_count], bit_count): return -1
+    words: mutable i64[65] = zeroed
+    words[0] <- bit_count.i64()
+    for i in 0..bit_count:
+        result: mutable usize[1] = zeroed
+        if not bppi_match(levels[0:BPPI_LEVELS], 0, i, result[0:1]): return -1
+        words[i + 1] <- result[0].i64()
+    required: usize = 8 * (1 + bit_count)
+    if staged.len() < required: return -2
+    for i in 0..(1 + bit_count): bppi_write_word(words[i], staged, 8 * i)
+    required.i64()
+
+def succinct_bp_pioneer_match_index(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("succinct_bp_pioneer_match_index"):
+    if input.is_null() or length < 3 or length > BPPI_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    staged: mutable u8[BPPI_MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:BPPI_MAX_OUTPUT]
+    result: i64 = bppi_impl(input_view, staged_view)
+    if result < 0: return result
+    required: usize = result.usize()
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    for i in 0..required: output_view[i] <- staged[i]
+    result

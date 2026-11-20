@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "buddy-system-allocator-trace-v1",
+  "algorithm": "buddy_system_allocator",
+  "function_symbol": "buddy_system_allocator",
+  "input": {
+    "kind": "signed_i64_operation_trace",
+    "format": "[operation_count,(opcode,id,argument)*operation_count]",
+    "maximum_valid_length": 193,
+    "maximum_parseable_length": 194,
+    "maximum_operations": 64,
+    "arena_units": 256,
+    "id_range": [0, 31],
+    "allocation_size_range": [1, 256],
+    "operations": {
+      "0": "allocate argument units under id",
+      "1": "free live id; argument must be zero"
+    },
+    "allocator_policy": "round to smallest power-of-two block; search the requested order then larger orders; choose lowest base within the first available order; split by retaining the lower half and freeing the upper half",
+    "free_policy": "merge with a free equal-sized buddy repeatedly; buddy base is base XOR size",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_trace_and_free_blocks",
+    "encoding": "three words [status,base,rounded_size] per operation, then free_block_count and sorted (base,size) pairs",
+    "maximum_bytes": 5640
+  },
+  "workspace": {
+    "bytes": 16384,
+    "accounting": "9x256 free-block presence table, 32 active-ID records, operation trace staging, and final free-block serialization"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty-trace-initial-arena",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000001000000000000"
+    },
+    {
+      "id": "round-up-and-recursive-split",
+      "input_values": [1, 0, 0, 5],
+      "input_length": 4,
+      "expected_result": 112,
+      "expected_output_hex": "010000000000000000000000000000000800000000000000050000000000000008000000000000000800000000000000100000000000000010000000000000002000000000000000200000000000000040000000000000040000000000000008000000000000000800000000000000"
+    },
+    {
+      "id": "free-coalesces-to-arena",
+      "input_values": [2, 0, 0, 32, 1, 0, 0],
+      "input_length": 7,
+      "expected_result": 72,
+      "expected_output_hex": "010000000000000000000000000000002000000000000000010000000000000000000000000000002000000000000000010000000000000000000000000000000001000000000000"
+    },
+    {
+      "id": "exhausted-arena-allocation-fails",
+      "input_values": [2, 0, 0, 256, 0, 1, 1],
+      "input_length": 7,
+      "expected_result": 56,
+      "expected_output_hex": "0100000000000000000000000000000000010000000000000000000000000000ffffffffffffffff000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "invalid-free-precedes-capacity",
+      "input_values": [1, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [0, 99],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 24,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "one-byte-short-output",
+      "input_values": [1, 0, 0, 5],
+      "input_length": 4,
+      "output_capacity": 111,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

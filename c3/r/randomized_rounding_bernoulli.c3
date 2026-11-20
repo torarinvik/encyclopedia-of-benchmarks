@@ -1,7 +1,7 @@
 module randomized_rounding_bernoulli;
 const usz MAX_N=16; const usz MAX_INPUT=65;
 
-long randomized_rounding_bernoulli(long*in,usz len,char*out,usz cap) @export("randomized_rounding_bernoulli") {
+fn long randomized_rounding_bernoulli(long*in,usz len,char*out,usz cap) @export("randomized_rounding_bernoulli") {
     if(in==null||len<5||len>MAX_INPUT)return -1;
     long n64=in[0];
     if(n64<1||n64>(long)MAX_N||len!=1+4*(usz)n64)return -1;

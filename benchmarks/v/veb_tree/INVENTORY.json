@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "algorithm": "veb_tree",
+  "function_symbol": "veb_tree",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/v/veb_tree.c",
+    "c3": "c3/v/veb_tree.c3",
+    "cpp": "cpp/v/veb_tree.cpp",
+    "elisa": "elisa/v/veb_tree.elisa",
+    "mojo": "mojo/v/veb_tree.mojo",
+    "nim": "nim/v/veb_tree.nim",
+    "odin": "odin/v/veb_tree.odin",
+    "rust": "rust/v/veb_tree.rs",
+    "v": "v/v/veb_tree.v",
+    "zig": "zig/v/veb_tree.zig"
+  },
+  "metadata": [
+    "README.md",
+    "INVENTORY.json",
+    "workload.json",
+    "benchmarks/veb_tree_oracle.py"
+  ],
+  "contract": {
+    "maximum_valid_input_values": 771,
+    "maximum_parseable_input_values": 772,
+    "maximum_output_bytes": 1024,
+    "maximum_universe": 256,
+    "maximum_count": 256
+  },
+  "source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/data_structures/veb_tree.rs"
+  }
+}

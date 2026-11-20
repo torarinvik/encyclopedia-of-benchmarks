@@ -1,0 +1,108 @@
+# Lazy binary-heap Dijkstra using fixed adjacency and frontier arrays.
+def dijkstra_lazy_heap_impl(edges: i64&, vertices: usize, edge_count: usize, source: usize, distances: mutable i64&, reachable: mutable u8&) -> i64:
+    if vertices > 64 or edge_count > 256:
+        return -3
+    if vertices == 0:
+        return 0 if source == 0 and edge_count == 0 else -3
+    if source >= vertices:
+        return -3
+
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin: i64 = edges[3 * edge]
+        destination: i64 = edges[3 * edge + 1]
+        weight: i64 = edges[3 * edge + 2]
+        if origin < 0 or destination < 0:
+            return -3
+        if origin.u64() >= vertices.u64() or destination.u64() >= vertices.u64():
+            return -3
+        if weight < 0:
+            return -4
+        edge <- edge + 1
+
+    head: mutable usize[64] = zeroed
+    tail: mutable usize[64] = zeroed
+    next: mutable usize[256] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertices:
+        head[vertex] <- 256
+        tail[vertex] <- 256
+        vertex <- vertex + 1
+    edge <- 0
+    while edge < edge_count:
+        origin: usize = edges[3 * edge].usize()
+        next[edge] <- 256
+        if head[origin] == 256:
+            head[origin] <- edge
+        else:
+            next[tail[origin]] <- edge
+        tail[origin] <- edge
+        edge <- edge + 1
+
+    vertex <- 0
+    while vertex < vertices:
+        distances[vertex] <- 0
+        reachable[vertex] <- 0
+        vertex <- vertex + 1
+    heap_distance: mutable i64[257] = zeroed
+    heap_vertex: mutable usize[257] = zeroed
+    heap_count: mutable usize = 1
+    heap_distance[0] <- 0
+    heap_vertex[0] <- source
+    distances[source] <- 0
+    reachable[source] <- 1
+
+    while heap_count > 0:
+        current: i64 = heap_distance[0]
+        origin: usize = heap_vertex[0]
+        heap_count <- heap_count - 1
+        if heap_count > 0:
+            last_distance: i64 = heap_distance[heap_count]
+            last_vertex: usize = heap_vertex[heap_count]
+            position: mutable usize = 0
+            while 2 * position + 1 < heap_count:
+                child: mutable usize = 2 * position + 1
+                if child + 1 < heap_count and (heap_distance[child + 1] < heap_distance[child] or (heap_distance[child + 1] == heap_distance[child] and heap_vertex[child + 1] < heap_vertex[child])):
+                    child <- child + 1
+                if heap_distance[child] > last_distance or (heap_distance[child] == last_distance and heap_vertex[child] >= last_vertex):
+                    break
+                heap_distance[position] <- heap_distance[child]
+                heap_vertex[position] <- heap_vertex[child]
+                position <- child
+            heap_distance[position] <- last_distance
+            heap_vertex[position] <- last_vertex
+
+        if current != distances[origin] or reachable[origin] == 2:
+            continue
+        reachable[origin] <- 2
+        edge <- head[origin]
+        while edge != 256:
+            destination: usize = edges[3 * edge + 1].usize()
+            weight: i64 = edges[3 * edge + 2]
+            if current > 9223372036854775807 - weight:
+                return -2
+            candidate: i64 = current + weight
+            if reachable[destination] != 2 and (reachable[destination] == 0 or candidate < distances[destination]):
+                distances[destination] <- candidate
+                reachable[destination] <- 1
+                position: mutable usize = heap_count
+                heap_count <- heap_count + 1
+                while position > 0:
+                    parent: usize = (position - 1) / 2
+                    if candidate > heap_distance[parent] or (candidate == heap_distance[parent] and destination >= heap_vertex[parent]):
+                        break
+                    heap_distance[position] <- heap_distance[parent]
+                    heap_vertex[position] <- heap_vertex[parent]
+                    position <- parent
+                heap_distance[position] <- candidate
+                heap_vertex[position] <- destination
+            edge <- next[edge]
+
+    vertex <- 0
+    while vertex < vertices:
+        if reachable[vertex] == 2:
+            reachable[vertex] <- 1
+        vertex <- vertex + 1
+    return 0
+
+export fn dijkstra_lazy_heap(edges: i64&, vertices: usize, edge_count: usize, source: usize, distances: mutable i64&, reachable: mutable u8&) -> i64 = dijkstra_lazy_heap_impl

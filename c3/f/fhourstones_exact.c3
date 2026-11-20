@@ -15,9 +15,9 @@ module fhourstones_exact;
 
 const int WIDTH = 7, HEIGHT = 6, BOARD_CELLS = 42;
 const int MIN_MOVES = 36, MAX_MOVES = 41, MAX_INPUT_LENGTH = 42;
-const int MOVE_ORDER[7] = {3, 2, 4, 1, 5, 0, 6};
-const int DIR_X[4] = {1, 0, 1, 1};
-const int DIR_Y[4] = {0, 1, 1, -1};
+const int[7] MOVE_ORDER = {3, 2, 4, 1, 5, 0, 6};
+const int[4] DIR_X = {1, 0, 1, 1};
+const int[4] DIR_Y = {0, 1, 1, -1};
 
 fn bool wins_at(char* board, int column, int row, int side) {
     for (int direction = 0; direction < 4; direction++) {
@@ -66,8 +66,8 @@ fn long fhourstones_exact(long* input, usz input_length) @export("fhourstones_ex
     int count = (int)count_value;
     if (input_length != (usz)count + 1) return -1;
 
-    char board[BOARD_CELLS] = {0};
-    int height[WIDTH] = {0};
+    char[BOARD_CELLS] board = {};
+    int[WIDTH] height = {};
     for (int turn = 0; turn < count; turn++) {
         long column_value = input[(usz)turn + 1];
         if (column_value < 0 || column_value >= WIDTH) return -1;
@@ -77,8 +77,8 @@ fn long fhourstones_exact(long* input, usz input_length) @export("fhourstones_ex
         int side = turn % 2 == 0 ? 1 : 2;
         board[row * WIDTH + column] = (char)side;
         height[column] = row + 1;
-        if (wins_at(board, column, row, side)) return -1;
+        if (wins_at(&board[0], column, row, side)) return -1;
     }
     int side = count % 2 == 0 ? 1 : 2;
-    return solve_endgame(board, height, side, BOARD_CELLS - count, -3, 3);
+    return solve_endgame(&board[0], &height[0], side, BOARD_CELLS - count, -3, 3);
 }

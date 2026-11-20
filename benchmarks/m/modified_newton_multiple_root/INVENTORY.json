@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "algorithm": "modified_newton_multiple_root",
+  "abi": "float64_pair",
+  "workload": "benchmarks/m/modified_newton_multiple_root/workload.json",
+  "primary_oracle": "benchmarks/m/modified_newton_multiple_root/primary_oracle.py",
+  "independent_oracle": "benchmarks/m/modified_newton_multiple_root/independent_oracle.py",
+  "languages": {
+    "c": "c/m/modified_newton_multiple_root.c",
+    "c3": "c3/m/modified_newton_multiple_root.c3",
+    "cpp": "cpp/m/modified_newton_multiple_root.cpp",
+    "elisa": "elisa/m/modified_newton_multiple_root.elisa",
+    "mojo": "mojo/m/modified_newton_multiple_root.mojo",
+    "nim": "nim/m/modified_newton_multiple_root.nim",
+    "odin": "odin/m/modified_newton_multiple_root.odin",
+    "rust": "rust/m/modified_newton_multiple_root.rs",
+    "v": "v/m/modified_newton_multiple_root.v",
+    "zig": "zig/m/modified_newton_multiple_root.zig"
+  }
+}

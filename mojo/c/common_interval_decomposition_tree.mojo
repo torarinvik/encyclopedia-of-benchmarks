@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -31,7 +32,7 @@ fn common_interval_decomposition_tree(
     if length != c_size_t(n + 1):
         return -1
 
-    var seen = InlineArray[Bool, MAX_N]()
+    var seen = InlineArray[Bool, MAX_N](fill=False)
     for i in range(n):
         let value = input[i + 1]
         if value < 0 or value >= n_value:
@@ -40,8 +41,8 @@ fn common_interval_decomposition_tree(
             return -1
         seen[Int(value)] = True
 
-    var connected = InlineArray[Bool, GRID]()
-    var strong = InlineArray[Bool, GRID]()
+    var connected = InlineArray[Bool, GRID](fill=False)
+    var strong = InlineArray[Bool, GRID](fill=False)
     for left in range(n):
         var minimum = n_value
         var maximum: Int64 = -1

@@ -536,6 +536,28 @@
       "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
     },
     {
+      "benchmark_name": "fast_minimal_triangulation",
+      "source_repository": "Encyclopedia of Algorithms",
+      "source_path": "chapter 142",
+      "source_url": "https://doi.org/10.1007/978-1-4939-2864-4_142",
+      "local_contract": "benchmarks/f/fast_minimal_triangulation/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Bounded recursive saturation profile; Chapter 142 remains partial because the fast pivot and matrix-multiplication machinery is not implemented or claimed."
+    },
+    {
+      "benchmark_name": "van_emde_boas_layout_search",
+      "source_repository": "Encyclopedia of Algorithms",
+      "source_path": "chapter 61, section 2.1 of Cache-Oblivious B-Trees",
+      "source_url": "https://doi.org/10.1109/SFCS.2000.892127",
+      "local_contract": "benchmarks/v/van_emde_boas_layout_search/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Partial chapter profile for static vEB layout and search-slot traces only; dynamic updates and cache-transfer measurement are excluded."
+    },
+    {
       "benchmark_name": "chromatic_polynomial",
       "source_repository": "yosupo06/library-checker-problems",
       "source_path": "graph/chromatic_polynomial/task.md",
@@ -556,6 +578,138 @@
       "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
       "status": "registered_i64_array_bytes_output",
       "note": "This external-source package is not included in the TheAlgorithms candidate/source counts above."
+    },
+    {
+      "benchmark_name": "planar_directed_general_st_flow_borradaile_klein",
+      "source_repository": "Encyclopedia of Algorithms",
+      "source_path": "chapter 626; Borradaile–Klein directed planar s-t flow",
+      "source_url": "https://doi.org/10.1007/978-1-4939-2864-4_626",
+      "local_contract": "benchmarks/p/planar_directed_general_st_flow_borradaile_klein/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Bounded general directed planar s-t flow using dual potentials and right-first residual search; chapter 626 remains partial."
+    },
+    {
+      "benchmark_name": "posit8_rational_encoder",
+      "source_repository": "Posit Standard / Rosetta Code title index",
+      "source_path": "2022 Posit Standard §§3.2–3.3, 4.1; Posit-numbers-encoding discovery title",
+      "source_url": "https://posithub.org/docs/posit_standard-2.pdf",
+      "local_contract": "benchmarks/p/posit8_rational_encoder/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Exact bounded rational-to-posit8 encoding and rounding; Rosetta Code supplied title discovery only."
+    },
+    {
+      "benchmark_name": "cactus_stack_branch_trace",
+      "source_repository": "NIST Dictionary of Algorithms and Data Structures",
+      "source_path": "cactus stack entry; Hauck–Dent persistent cactus-stack structure",
+      "source_url": "https://xlinux.nist.gov/dads/HTML/cactusstack.html",
+      "local_contract": "benchmarks/c/cactus_stack_branch_trace/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Bounded cactus-stack branch, notch, and pop trace; distinct from ordinary stacks and persistent vector benchmarks."
+    },
+    {
+      "benchmark_name": "smarandache_wellin_prime_prefix_scan",
+      "source_repository": "RosettaCodeData / OEIS",
+      "source_path": "Smarandache-Wellin-primes title discovery; A019518 sequence and A069151 prime-valued subsequence",
+      "source_url": "https://oeis.org/A069151",
+      "local_contract": "benchmarks/s/smarandache_wellin_prime_prefix_scan/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Bounded primality scan of decimal prefixes of consecutive primes; distinct from primorial and prime-concatenation profiles."
+    },
+    {
+      "benchmark_name": "junta_test_partition_binary_search",
+      "source_repository": "Encyclopedia of Algorithms / NIST DADS",
+      "source_path": "Chapter 709 context; Blais, Testing Juntas Nearly Optimally, §3.1/Figure 1",
+      "source_url": "https://www.cs.cmu.edu/~eblais/papers/TestingJuntas.pdf",
+      "local_contract": "benchmarks/j/junta_test_partition_binary_search/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Deterministic supplied-partition/sample replay of bounded JuntaTest logic; randomized guarantees are outside the profile."
+    },
+    {
+      "benchmark_name": "moore_dfa_minimization",
+      "source_repository": "NIST Dictionary of Algorithms and Data Structures / Moore, Automata Studies",
+      "source_path": "Finite-state-machine minimization; Moore's iterative whole-partition refinement",
+      "source_url": "https://xlinux.nist.gov/dads/HTML/finitestmmin.html",
+      "local_contract": "benchmarks/m/moore_dfa_minimization/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_scalar",
+      "note": "All-state Moore refinement; distinct from Hopcroft predecessor splitters and Brzozowski reverse/determinize."
+    },
+    {
+      "benchmark_name": "combinations_with_repetition_lexicographic",
+      "source_repository": "RosettaCodeData / TAOCP",
+      "source_path": "Combinations with repetitions title discovery; Knuth TAOCP Volume 4A §7.2.1.3",
+      "source_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+      "local_contract": "benchmarks/c/combinations_with_repetition_lexicographic/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Lexicographic enumeration of nondecreasing tuples with repetition; distinct from subset combinations and count-only nCr."
+    },
+    {
+      "benchmark_name": "gregorian_daycount_to_ordinal_date",
+      "source_repository": "RosettaCodeData / Howard Hinnant / USNO",
+      "source_path": "Convert day count to ordinal date title discovery; proleptic Gregorian day-count inversion",
+      "source_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+      "local_contract": "benchmarks/g/gregorian_daycount_to_ordinal_date/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Decodes signed Unix-epoch day offsets into proleptic-Gregorian year and ordinal day; distinct from forward date difference."
+    },
+    {
+      "benchmark_name": "shannon_fano_elias_symbol_codes",
+      "source_repository": "NIST DADS / Gilbert–Moore",
+      "source_path": "Shannon–Fano–Elias cumulative-midpoint symbol coding",
+      "source_url": "https://doi.org/10.1002/j.1538-7305.1959.tb01583.x",
+      "local_contract": "benchmarks/s/shannon_fano_elias_symbol_codes/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Assigns each ordered symbol a code from its exact cumulative-probability midpoint; distinct from recursive Shannon–Fano partitioning and whole-message arithmetic coding."
+    },
+    {
+      "benchmark_name": "goodstein_sequence_bounded_prefix",
+      "source_repository": "RosettaCodeData / Goodstein / Andrew Marks",
+      "source_path": "Goodstein sequence title discovery; hereditary-base successor definition",
+      "source_url": "https://doi.org/10.2307/2268019",
+      "local_contract": "benchmarks/g/goodstein_sequence_bounded_prefix/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Bounded hereditary-base sequence prefix with two distinct references; no complete-termination claim."
+    },
+    {
+      "benchmark_name": "order_preserving_huffman_greedy_trace",
+      "source_repository": "NIST DADS / Graefe",
+      "source_path": "Order-preserving Huffman coding; adjacent-minimum ordered merges",
+      "source_url": "https://xlinux.nist.gov/dads/HTML/orderPreservingHuffmanCoding.html",
+      "local_contract": "benchmarks/o/order_preserving_huffman_greedy_trace/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Greedy adjacent-minimum merge preserving symbol order; distinct from unrestricted Huffman and optimal Garsia–Wachs coding."
+    },
+    {
+      "benchmark_name": "gpsr_perimeter_recovery_trace",
+      "source_repository": "Encyclopedia of Algorithms Chapter 352 / Karp–Kung GPSR",
+      "source_path": "Geographic Routing crosswalk; perimeter face traversal and Lf recovery",
+      "source_url": "https://doi.org/10.1145/345910.345953",
+      "local_contract": "benchmarks/g/gpsr_perimeter_recovery_trace/README.md",
+      "coverage_record": "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md",
+      "language_ports": ["C", "C3", "C++", "Elisa", "Mojo", "Nim", "Odin", "Rust", "V", "Zig"],
+      "status": "registered_i64_array_bytes_output",
+      "note": "Bounded exact GPSR perimeter replay over a supplied planar embedding; distinct from greedy/compass forwarding."
     }
   ],
   "candidates": [
@@ -1922,7 +2076,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "R",
@@ -7608,9 +7762,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "armstrong",
-      "benchmark_contract": "benchmarks/a/armstrong/README.md",
-      "review_notes": "The pinned Java predicate rejects negative ints, computes the decimal digit count, and compares the sum of each digit raised to that count against the input. Zero returns true because the digit loop is empty and the accumulator starts at zero. The benchmark preserves this behavior over the complete Java signed-int domain; it remains distinct from the narrower C# Narcissistic checker contract."
+      "alias_of": "armstrong_number",
+      "benchmark_contract": "benchmarks/a/armstrong_number/README.md",
+      "review_notes": "The Java candidate uses the same decimal digit-power predicate as armstrong_number on its signed-int input range. The shared benchmark supports the wider signed-i64 domain; inputs beyond the Java range use the shared contract rather than the former range-error sentinel."
     },
     {
       "candidate_id": "armstrong_digit_cubes",
@@ -17496,9 +17650,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "central_polygonal_numbers_sequence",
-      "review_notes": "The pinned C# sequence starts at n=0 and yields n*(n+1)/2+1 as BigInteger. The benchmark returns the indexed term for 0..4,294,967,295, the greatest index whose result fits signed i64; the next index exceeds that result range. Ports divide the even factor before multiplication. This is distinct from triangular_number by the additional +1.",
-      "benchmark_contract": "benchmarks/c/central_polygonal_numbers_sequence/README.md"
+      "alias_of": "triangular_numbers",
+      "review_notes": "The source's central polygonal value is triangular_number(n)+1. It uses the same triangular-number computation with a constant output adjustment; add one to the benchmark result for valid inputs to recover the source sequence.",
+      "benchmark_contract": "benchmarks/t/triangular_number/README.md"
     },
     {
       "candidate_id": "centripetal_force",
@@ -19501,8 +19655,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/c/climbing_stairs/README.md",
-      "review_notes": "Inspected the pinned Java, JavaScript, Python, and Ruby sources. They count ordered sequences of one-step and two-step moves, but differ in implementation and zero-step behavior: JavaScript and Ruby define one way to climb zero steps, Python requires a positive input, and Java computes the positive-step recurrence. The shared contract accepts 1 through 45 and returns F(n+1), with -1 outside that range. Nine portable ports use the iterative recurrence; the maximum result fits signed 32-bit."
+      "alias_of": "fibonacci",
+      "benchmark_contract": "benchmarks/f/fibonacci/README.md",
+      "review_notes": "The previously benchmarked positive-step implementation uses the same iterative Fibonacci recurrence. For 1<=n<=45 its result is fibonacci(n+1); callers must apply that input shift and the source-specific validation separately. The original sources differ in zero-step behavior."
     },
     {
       "candidate_id": "cll",
@@ -25537,12 +25692,16 @@
       "alias_of": "check_cycle",
       "benchmark_contract": "benchmarks/c/check_cycle/README.md",
       "additional_benchmark_names": [
-        "undirected_cycle_check"
+        "undirected_cycle_check",
+        "undirected_cycle_check_bfs",
+        "cycle_check_directed_graph_kahn"
       ],
       "additional_benchmark_contracts": [
-        "benchmarks/u/undirected_cycle_check/README.md"
+        "benchmarks/u/undirected_cycle_check/README.md",
+        "benchmarks/u/undirected_cycle_check_bfs/README.md",
+        "benchmarks/c/cycle_check_directed_graph_kahn/README.md"
       ],
-      "review_notes": "The pinned Rust file implements directed-graph cycle detection with DFS recursion-stack tracking and Kahn removal, plus undirected-graph cycle detection with DFS/BFS parent tracking. Its directed methods alias the shared check_cycle contract on declared vertices and valid endpoints; its undirected methods map to the distinct undirected_cycle_check contract. Edge weights are ignored by all four procedures."
+      "review_notes": "The pinned Rust file implements directed cycle detection with DFS recursion-stack tracking and Kahn removal, plus undirected cycle detection with DFS/BFS parent tracking. Its directed DFS maps to check_cycle and its Kahn method to cycle_check_directed_graph_kahn; its undirected DFS maps to undirected_cycle_check and its BFS maps to undirected_cycle_check_bfs. The independently written bounded contracts and graph representations differ from the Rust source. Edge weights are ignored by all four procedures. The BFS drafts remain uncompiled and unexecuted."
     },
     {
       "candidate_id": "detecting_english_programmatically",
@@ -29657,9 +29816,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "euclid_numbers_sequence",
-      "review_notes": "The pinned C# sequence is primorial(n)+1: zero-based index 0 returns 2, then 3, 7, 31, and so on. The nine ports preserve the +1 offset and bound indices to 0..15 so all results fit signed i64; later terms overflow the ABI.",
-      "benchmark_contract": "benchmarks/e/euclid_numbers_sequence/README.md"
+      "alias_of": "primorial_numbers_sequence",
+      "review_notes": "The source returns the primorial at index n plus one. Use primorial_numbers_sequence(n)+1 for valid 0<=n<=15; do not adjust the invalid-input sentinel. A former duplicate had an off-by-one disagreement between implementation and workload.",
+      "benchmark_contract": "benchmarks/p/primorial_numbers_sequence/README.md"
     },
     {
       "candidate_id": "euclidean",
@@ -30055,7 +30214,7 @@
       ],
       "benchmark_name": "eulerian_trail_undirected_simple",
       "benchmark_contract": "benchmarks/e/eulerian_trail_undirected_simple/README.md",
-      "review_notes": "The pinned Python source classifies undirected Euler paths by odd-degree count and has a DFS helper that can return a trail. The shared domain is a simple undirected graph connected across all nonzero-degree vertices, with no self-loops or parallel edges, labels in the source's range, and vertex 1 present for circuit cases. It preserves input adjacency order and starts a circuit at vertex 1; a two-odd-vertex path starts at the highest odd label. The source does not check connectivity and collapses parallel edges, so those cases are excluded. Its printed wrapper is outside the contract."
+      "review_notes": "The pinned Python source classifies undirected Euler paths by odd-degree count and appends vertices on DFS entry. That discovery sequence is not necessarily an edge-covering walk, even on a connected Eulerian simple graph. The benchmark preserves this source-specific behavior on a bounded simple graph connected across all nonzero-degree vertices; it preserves input adjacency order, starts a circuit at vertex 1, and starts a two-odd-vertex case at the highest odd label. The source does not check connectivity and collapses parallel edges, so those cases are excluded. Its printed wrapper is outside the contract."
     },
     {
       "candidate_id": "eulers_function",
@@ -32459,9 +32618,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "fib",
-      "benchmark_contract": "benchmarks/f/fib/README.md",
-      "review_note": "The pinned MATLAB-Octave source returns the shifted sequence 1, 2, 3, ... with fib(0)=1 and fib(1)=2; this is F(n+2), not the standard zero-based Fibonacci contract. A dedicated bounded scalar contract preserves that source convention."
+      "alias_of": "fibonacci",
+      "benchmark_contract": "benchmarks/f/fibonacci/README.md",
+      "review_note": "The MATLAB-Octave source uses the same iterative recurrence with fib(n)=F(n+2). For the former valid domain 0..90, call fibonacci(n+2); apply the former input check separately."
     },
     {
       "candidate_id": "fibonacci",
@@ -41606,9 +41765,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "hexagonal_number",
-      "benchmark_contract": "benchmarks/h/hexagonal_number/README.md",
-      "review_notes": "The pinned JavaScript and Python sources require a positive integer index and compute n*(2*n-1). The benchmark uses the common exact domain 1..67,108,864, keeping JavaScript integer results at or below 2^53-1; the next index exceeds that precision limit. Invalid inputs return -1."
+      "alias_of": "polygonal_numbers",
+      "benchmark_contract": "benchmarks/p/polygonal_numbers/README.md",
+      "review_notes": "The hexagonal formula is the six-sided case of the shared polygonal formula. Use polygonal_numbers([n,6]) for 1<=n<=67,108,864 and apply that source domain separately."
     },
     {
       "candidate_id": "hexagonal_numbers",
@@ -41635,15 +41794,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "hexagonal_numbers",
-      "benchmark_contract": "benchmarks/h/hexagonal_numbers/README.md",
-      "additional_benchmark_names": [
-        "hexagonal_numbers_one_based"
-      ],
-      "additional_benchmark_contracts": [
-        "benchmarks/h/hexagonal_numbers_one_based/README.md"
-      ],
-      "review_notes": "The pinned Python implementation returns h_0 through h_(length-1), including zero; the pinned TypeScript implementation returns h_1 through h_n and permits n=0 as an empty sequence. The two indexing contracts are represented by separate packages."
+      "benchmark_name": "hexagonal_numbers_one_based",
+      "benchmark_contract": "benchmarks/h/hexagonal_numbers_one_based/README.md",
+      "review_notes": "Both sources enumerate the same hexagonal formula. The benchmark uses the TypeScript one-based sequence. For the former Python domain 1<=length<=1024, prepend zero to the first length-1 terms to reproduce the zero-based output; validate the Python input domain separately."
     },
     {
       "candidate_id": "hidden_markov_model",
@@ -41681,10 +41834,10 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java source uses Hierholzer traversal on undirected circuits, storing parallel edges and self-loops in per-vertex linked deques. This is the same traversal algorithm as canonical eulerian_trail_undirected_simple, which returns the full route and supports open trails; Java's multigraph inputs and hashed circuit result are source-profile differences, not a distinct algorithm contract.",
-      "benchmark_name": "eulerian_trail_undirected_simple",
-      "alias_of": "eulerian_trail_undirected_simple",
-      "benchmark_contract": "benchmarks/e/eulerian_trail_undirected_simple/README.md"
+      "review_notes": "The pinned Java source uses Hierholzer traversal on undirected circuits with parallel edges and self-loops. The independently written undirected_eulerian_trail_hierholzer draft represents the same traversal family and also supports open trails; its edge ordering and full-route output differ from the source profile. The separate eulerian_trail_undirected_simple benchmark preserves a DFS discovery sequence that can fail to be a trail, so it is not an alias of this algorithm. The new drafts are uncompiled and unexecuted.",
+      "benchmark_name": "undirected_eulerian_trail_hierholzer",
+      "alias_of": "undirected_eulerian_trail_hierholzer",
+      "benchmark_contract": "benchmarks/u/undirected_eulerian_trail_hierholzer/README.md"
     },
     {
       "candidate_id": "hierholzer_eulerian_path",
@@ -47770,7 +47923,7 @@
       ],
       "benchmark_name": "k_means_clustering_c",
       "benchmark_contract": "benchmarks/k/k_means_clustering_c/README.md",
-      "review_notes": "The pinned C source uses rand()%2 initial labels and repeats label reassignment while changed points exceed size/10000; the bounded size makes this threshold zero. The deterministic adapter supplies initial labels and returns -1 if an intermediate group empties. 97b CLEARed README/workload/oracle; nine ports pending."
+      "review_notes": "The pinned C source uses rand()%2 initial labels and repeats label reassignment while changed points exceed size/10000; the bounded size makes this threshold zero. The deterministic adapter supplies initial labels and returns -1 if an intermediate group empties. Ten language ports and scalar-suite wiring are present."
     },
     {
       "candidate_id": "k_means_clustering_zig",
@@ -47793,7 +47946,7 @@
       ],
       "benchmark_name": "k_means_clustering_zig",
       "benchmark_contract": "benchmarks/k/k_means_clustering_zig/README.md",
-      "review_notes": "The pinned Zig source starts from the first two points, uses f32, and stops only when both centers and counts are unchanged. 97b CLEARed README/workload/oracle; nine ports pending."
+      "review_notes": "The pinned Zig source starts from the first two points, uses f32, and stops only when both centers and counts are unchanged. Ten language ports and scalar-suite wiring are present."
     },
     {
       "candidate_id": "k_means_julia",
@@ -47814,7 +47967,7 @@
       ],
       "benchmark_name": "k_means_julia",
       "benchmark_contract": "benchmarks/k/k_means_julia/README.md",
-      "review_notes": "The pinned Julia source initializes centers at its evenly spaced source indices, assigns nearest centers with first-center tie priority, and iterates to exact center equality. The adapter converts bounded integer coordinates to binary64. 97b CLEARed README/workload/oracle; nine ports pending."
+      "review_notes": "The pinned Julia source initializes centers at its evenly spaced source indices, assigns nearest centers with first-center tie priority, and iterates to exact center equality. The adapter converts bounded integer coordinates to binary64. Ten language ports and scalar-suite wiring are present."
     },
     {
       "candidate_id": "k_means_r_excluded",
@@ -47856,7 +48009,7 @@
       ],
       "benchmark_name": "k_means_rust",
       "benchmark_contract": "benchmarks/k/k_means_rust/README.md",
-      "review_notes": "The pinned Rust machine-learning source initializes random 2D centers and returns labels after exactly max_iter passes. Its explicit draw-stream replay remains distinct from deterministic general kmeans. 97b CLEARed README/workload/oracle; nine ports pending."
+      "review_notes": "The pinned Rust machine-learning source initializes random 2D centers and returns labels after exactly max_iter passes. Its explicit draw-stream replay remains distinct from deterministic general kmeans. Ten language ports and scalar-suite wiring are present."
     },
     {
       "candidate_id": "k_medoids",
@@ -48320,7 +48473,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned R function is deterministic on explicit observed_prices; top-level seeded data generation and plots are excluded. It preserves the column-major transition matrix, the source all-ones covariance update, filtered states, and final predicted state/covariance. 97b CLEARed README/workload/oracle; nine ports pending.",
+      "review_notes": "The pinned R function is deterministic on explicit observed_prices; top-level seeded data generation and plots are excluded. It preserves the column-major transition matrix, the source all-ones covariance update, filtered states, and final predicted state/covariance. Ten language ports and float64-slice suite wiring are present.",
       "benchmark_name": "kalman_filter_r_two_state_simulation",
       "benchmark_contract": "benchmarks/k/kalman_filter_r_two_state_simulation/README.md"
     },
@@ -48971,7 +49124,7 @@
       ],
       "benchmark_name": "kmeans_rust",
       "benchmark_contract": "benchmarks/k/kmeans_rust/README.md",
-      "review_notes": "The pinned Rust general source uses deterministic evenly spaced initialization over arbitrary-dimensional points, recomputes means, and returns when labels stop changing. This remains separate from random 2D k_means. 97b CLEARed README/workload/oracle; nine ports pending."
+      "review_notes": "The pinned Rust general source uses deterministic evenly spaced initialization over arbitrary-dimensional points, recomputes means, and returns when labels stop changing. This remains separate from random 2D k_means. Ten language ports and scalar-suite wiring are present."
     },
     {
       "candidate_id": "kmp",
@@ -50292,9 +50445,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "kummer_numbers_sequence",
-      "benchmark_contract": "benchmarks/k/kummer_numbers_sequence/README.md",
-      "review_notes": "The pinned C# Kummer generator skips the empty primorial and subtracts one from each later primorial, so zero-based terms are product(first n+1 primes)-1, beginning 1, 5, 29. The corrected benchmark cap is index 14: 47#-1 fits signed i64, while index 15 includes 53 and exceeds INT64_MAX. This remains distinct from the Euclid-number sequence."
+      "alias_of": "primorial_numbers_sequence",
+      "benchmark_contract": "benchmarks/p/primorial_numbers_sequence/README.md",
+      "review_notes": "The source skips the empty primorial and subtracts one: for valid 0<=n<=14 use primorial_numbers_sequence(n+1)-1. Apply the original domain check before adjusting an output."
     },
     {
       "candidate_id": "kynea_numbers",
@@ -71253,6 +71406,25 @@
       "review_notes": "The two pinned C++ sources agree on repeated multiplication of a decimal digit array to compute a nonnegative integer power. The benchmark restricts base and exponent to fit the fixed 513-byte output workspace and omits the CLI label."
     },
     {
+      "candidate_id": "powerful_numbers_square_cube_enumeration",
+      "source_repository_count": 1,
+      "source_repositories": ["RosettaCodeData"],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "RosettaCodeData",
+          "language": "title index",
+          "path": "popular-tasks",
+          "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "powerful_numbers_square_cube_enumeration",
+      "benchmark_contract": "benchmarks/p/powerful_numbers_square_cube_enumeration/README.md",
+      "review_notes": "The pinned RosettaCodeData index supplied only the Powerful numbers discovery title. The bounded profile emits the sorted sequence by enumerating the unique a^2*b^3 representation with squarefree b; a direct ascending factorization scan is the independent reference. This is distinct from powerful_number_summatory_sieve, which computes a summatory arithmetic function and uses powerful numbers as convolution support."
+    },
+    {
       "candidate_id": "power_iteration",
       "source_repository_count": 2,
       "source_repositories": [
@@ -72733,7 +72905,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python primelib.py is a bundle of independent methods; map each method separately. is_even and is_odd match their signed-i64 contracts exactly. is_prime maps to prime_check on 0..2,147,483,647 (negative inputs assert in the source). sieve_er and get_prime_numbers both map to inclusive prime_numbers for limits 3..80. get_primes_between uses the same candidate trial-division core as prime_numbers, so endpoint filtering is treated as a call profile, not a separate algorithm. prime_factorization maps to prime_factors for 2..1,000,005 with repeated ascending factors; it also maps to prime_factorization for that same positive range by grouping equal adjacent factors into (prime, exponent) pairs. Its source results [0] and [1] are excluded. get_divisors maps to divisors for 1..62 using the contract's lossless bit-mask encoding of the returned list. is_perfect_number maps on 2..10,000, a practical subset for its linear divisor scan. kg_v maps to lcm when both operands are positive and the result fits signed 64-bit; zero is rejected by the source, so use bounded positive operands (up to 10,000). get_prime is zero-based and maps to one-based nthprime by calling get_prime(n-1), for n=1..100. goldbach maps to goldbach_conjecture for even inputs 8..4,096: the source requires distinct primes and fails for 4 and 6, while for this intersection its ascending prime-pair scan agrees with the benchmark. fib returns F(n+1) and maps to the existing F(n+2) fib contract by calling source fib(n+1), for target inputs 0..90. factorial matches factorial on 0..20. greatest_prime_factor, smallest_prime_factor (defined for n>=2), and simplify_fraction remain separate named benchmark gaps. get_primes_between requires prime endpoints with p1<p2 and raises on adjacent endpoints because its final assertion indexes an empty result; that source error is outside prime_numbers' inclusive-limit contract. simplify_fraction preserves denominator sign, including negative denominators. The module main/doctest block is not a benchmark.",
+      "review_notes": "The pinned Python primelib.py is a bundle of independent methods; map each method separately. is_even and is_odd match their signed-i64 contracts exactly. is_prime maps to prime_check on 0..2,147,483,647 (negative inputs assert in the source). sieve_er and get_prime_numbers both map to inclusive prime_numbers for limits 3..80. get_primes_between uses the same candidate trial-division core as prime_numbers, so endpoint filtering is treated as a call profile, not a separate algorithm. prime_factorization maps to prime_factors for 2..1,000,005 with repeated ascending factors; it also maps to prime_factorization for that same positive range by grouping equal adjacent factors into (prime, exponent) pairs. Its source results [0] and [1] are excluded. get_divisors maps to divisors for 1..62 using the contract's lossless bit-mask encoding of the returned list. is_perfect_number maps on 2..10,000, a practical subset for its linear divisor scan. kg_v maps to lcm when both operands are positive and the result fits signed 64-bit; zero is rejected by the source, so use bounded positive operands (up to 10,000). get_prime is zero-based and maps to one-based nthprime by calling get_prime(n-1), for n=1..100. goldbach maps to goldbach_conjecture for even inputs 8..4,096: the source requires distinct primes and fails for 4 and 6, while for this intersection its ascending prime-pair scan agrees with the benchmark. fib returns F(n+1), matching the Fibonacci benchmark at index n+1 on its supported overlap. factorial matches factorial on 0..20. greatest_prime_factor, smallest_prime_factor (defined for n>=2), and simplify_fraction remain separate named benchmark gaps. get_primes_between requires prime endpoints with p1<p2 and raises on adjacent endpoints because its final assertion indexes an empty result; that source error is outside prime_numbers' inclusive-limit contract. simplify_fraction preserves denominator sign, including negative denominators. The module main/doctest block is not a benchmark.",
       "benchmark_name": "is_even",
       "benchmark_contract": "benchmarks/i/is_even/README.md",
       "additional_benchmark_names": [
@@ -72751,7 +72923,7 @@
         "perfect_number",
         "simplify_fraction",
         "factorial",
-        "fib"
+        "fibonacci"
       ],
       "additional_benchmark_contracts": [
         "benchmarks/i/is_odd/README.md",
@@ -72768,7 +72940,7 @@
         "benchmarks/p/perfect_number/README.md",
         "benchmarks/s/simplify_fraction/README.md",
         "benchmarks/f/factorial/README.md",
-        "benchmarks/f/fib/README.md"
+        "benchmarks/f/fibonacci/README.md"
       ]
     },
     {
@@ -84305,7 +84477,7 @@
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "reservoir_sampling_algorithm_r",
       "benchmark_contract": "benchmarks/r/reservoir_sampling_algorithm_r/README.md",
-      "review_notes": "The pinned Java sampler uses an unseeded Random and is not used as code. The independently authored Algorithm R draft accepts explicit bounded draw outcomes; language and suite coverage remain incomplete."
+      "review_notes": "The pinned Java sampler uses an unseeded Random and is not used as code. The clean-room Algorithm R profile accepts explicit bounded draw outcomes; ten language ports and byte-output runner/verifier coverage are present."
     },
     {
       "candidate_id": "resistor_color_code",
@@ -99595,7 +99767,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -99605,9 +99777,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "traveling_salesman_solver_brute_force",
-      "benchmark_contract": "benchmarks/t/traveling_salesman_solver_brute_force/README.md",
-      "review_notes": "This method-level candidate covers only C# TravelingSalesmanSolver.SolveBruteForce: it rejects n<2, fixes city 0, enumerates all other-city permutations, and returns the first minimum closed route plus its distance. The bounded package projects route positions and distance as scalar calls; its complete nonnegative integer matrix domain guarantees a route."
+      "benchmark_name": "traveling_salesman",
+      "alias_of": "traveling_salesman",
+      "benchmark_contract": "benchmarks/t/traveling_salesman/README.md",
+      "review_notes": "C# TravelingSalesmanSolver.SolveBruteForce fixes city 0 and enumerates all other-city permutations, the same exhaustive search as the canonical traveling_salesman profile. Its route projection is omitted; the canonical profile returns the minimum cost over the broader bounded directed-matrix contract."
     },
     {
       "candidate_id": "traveling_salesman_solver_nearest_neighbor",
@@ -99690,7 +99863,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -99700,9 +99873,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "travelling_salesman_python_bruteforce",
-      "benchmark_contract": "benchmarks/t/travelling_salesman_python_bruteforce/README.md",
-      "review_notes": "This method-scoped row covers only travelling_salesman_brute_force, which enumerates all permutations of insertion-ordered coordinate nodes and retains the first strict minimum route."
+      "benchmark_name": "traveling_salesman",
+      "alias_of": "traveling_salesman",
+      "benchmark_contract": "benchmarks/t/traveling_salesman/README.md",
+      "review_notes": "The pinned Python travelling_salesman_brute_force enumerates all permutations after fixing the first node. It is the same exhaustive tour search as the canonical traveling_salesman profile; coordinate-to-distance calculation and route serialization are source-interface details omitted from the canonical scalar contract."
     },
     {
       "candidate_id": "travelling_salesman_python_held_karp",
@@ -99711,7 +99885,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -99721,9 +99895,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "travelling_salesman_python_held_karp",
-      "benchmark_contract": "benchmarks/t/travelling_salesman_python_held_karp/README.md",
-      "review_notes": "This method-scoped row covers only travelling_salesman_dynamic_programming, preserving the Held-Karp subset table, lowest end-node tie, and ascending predecessor reconstruction."
+      "benchmark_name": "traveling_salesman_bitmask",
+      "alias_of": "traveling_salesman_bitmask",
+      "benchmark_contract": "benchmarks/t/traveling_salesman_bitmask/README.md",
+      "review_notes": "The pinned Python travelling_salesman_dynamic_programming method uses the Held-Karp subset-state recurrence already represented by traveling_salesman_bitmask. Coordinate input and deterministic route reconstruction are source-interface details; the duplicate package was removed."
     },
     {
       "candidate_id": "travelling_salesman_using_bit_manipulation",

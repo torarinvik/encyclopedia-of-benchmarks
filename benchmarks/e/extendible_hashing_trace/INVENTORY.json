@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "algorithm": "extendible_hashing_trace",
+  "function_symbol": "extendible_hashing_trace",
+  "abi": "i64_array_scalar",
+  "languages": {
+    "c": "c/e/extendible_hashing_trace.c",
+    "c3": "c3/e/extendible_hashing_trace.c3",
+    "cpp": "cpp/e/extendible_hashing_trace.cpp",
+    "elisa": "elisa/e/extendible_hashing_trace.elisa",
+    "mojo": "mojo/e/extendible_hashing_trace.mojo",
+    "nim": "nim/e/extendible_hashing_trace.nim",
+    "odin": "odin/e/extendible_hashing_trace.odin",
+    "rust": "rust/e/extendible_hashing_trace.rs",
+    "v": "v/e/extendible_hashing_trace.v",
+    "zig": "zig/e/extendible_hashing_trace.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json", "workload.json", "primary_oracle.py", "independent_oracle.py", "verify_workload.py", "check_inventory.py"],
+  "bounds": {
+    "maximum_operations": 40,
+    "maximum_key": 255,
+    "bucket_capacity": 2,
+    "maximum_valid_input_length": 81,
+    "maximum_parseable_input_length": 82,
+    "maximum_depth": 8,
+    "maximum_result": 5841451291187871743,
+    "workspace_bytes": 8192
+  },
+  "sources": [
+    {"role": "algorithm definition", "title": "NIST DADS: extendible hashing", "url": "https://xlinux.nist.gov/dads/HTML/extendibleHashing.html"},
+    {"role": "primary paper", "title": "Extendible Hashing – A Fast Access Method for Dynamic Files", "authors": "R. Fagin, J. Nievergelt, N. Pippenger, H. R. Strong", "doi": "10.1145/320083.320092", "url": "https://doi.org/10.1145/320083.320092"}
+  ],
+  "fixture_ids": ["empty-trace", "first-split-and-query", "split-then-coalesce-and-shrink", "duplicate-insert-and-membership", "cascading-prefix-splits", "maximum-depth-eight-split", "deep-buddy-coalescing", "maximum-valid-frame", "maximum-parseable-trailing-word", "invalid-opcode", "invalid-key", "null-input"],
+  "static_review": "clean-room source draft; no executable validation performed"
+}

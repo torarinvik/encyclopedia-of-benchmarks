@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-konc-maxclique-dyn-i64-array-scalar-v1",
+  "algorithm": "konc_maxclique_dyn",
+  "function_symbol": "konc_maxclique_dyn",
+  "abi": "i64_array_scalar",
+  "description": "Maximum clique cardinality using approximate-coloring bounds with selectively recomputed degree order.",
+  "source": {
+    "title": "An Improved Branch and Bound Algorithm for the Maximum Clique Problem",
+    "authors": ["Janez Konc", "Dušanka Janežič"],
+    "year": 2007,
+    "reference": "MATCH Communications in Mathematical and in Computer Chemistry 58(3), pp. 569-590, Section 2",
+    "url": "https://insilab.org/articles/match2007.pdf",
+    "algorithm_description_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/graph/MaximumClique.h",
+    "algorithm_attribution": "Clean-room bounded MaxCliqueDyn-style approximate coloring, branch-and-bound, and dynamic degree reordering; algorithm descriptions only.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, adjacency_mask_0, ..., adjacency_mask_(n-1)]",
+    "vertex_count_range": [0, 24],
+    "adjacency_mask_range": "nonnegative masks with bits only in [0,n)",
+    "graph": "simple undirected and loopless; each row mask is symmetric with its opposite row",
+    "vertex_label_range": "[0,n)",
+    "maximum_valid_length": 25,
+    "maximum_parseable_length": 26,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "maximum clique cardinality",
+    "result_range": [0, 24],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 65536,
+    "meaning": "Fixed adjacency rows, candidate/color-order arrays in recursion frames of depth at most 24, current clique, dynamic step counters, and bounded call-frame allowance."
+  },
+  "contract": {
+    "root_order": "Initialize all vertices by descending degree, with ascending vertex ID as the deterministic tie break; assign each suffix the bound min(position, maximum_degree)+1.",
+    "candidate_order": "For each selected vertex, intersect the earlier candidate prefix with its neighborhood, greedily partition that list into independent color classes, and visit the concatenated classes from the highest color down.",
+    "dynamic_reordering": "At each nonempty child candidate set, update the per-depth search count and total coloring-call count. Recompute descending-degree order when 1000*prior_depth_count < 25*new_total_count, matching the 0.025 threshold; ascending vertex ID breaks degree ties.",
+    "color_bound": "A color class is an independent set, so its one-based color number bounds the size of a clique in that candidate suffix. Drop colors below max(best-current_size+1,1).",
+    "validation": "Reject negative or out-of-domain masks, self loops, asymmetric adjacency, truncated rows, and trailing words.",
+    "maximum_input_length": 25,
+    "maximum_parseable_input_length": 26
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "oracle_method": "The primary reference applies MaxCliqueDyn-style dynamic degree reordering and greedy coloring bounds. The independent reference enumerates vertex subsets and checks pairwise adjacency; it is used through 16 vertices. The 24-vertex path and complete graph have hand-derived answers and are checked against the primary only.",
+  "cases": [
+    {"id":"empty-graph","input_values":[0],"input_length":1,"expected_result":0},
+    {"id":"singleton","input_values":[1,0],"input_length":2,"expected_result":1},
+    {"id":"edgeless-six","input_values":[6,0,0,0,0,0,0],"input_length":7,"expected_result":1},
+    {"id":"path-four","input_values":[4,2,5,10,4],"input_length":5,"expected_result":2},
+    {"id":"five-cycle","input_values":[5,18,5,10,20,9],"input_length":6,"expected_result":2},
+    {"id":"triangle-with-isolated-vertex","input_values":[4,6,5,3,0],"input_length":5,"expected_result":3},
+    {"id":"complete-four","input_values":[4,14,13,11,7],"input_length":5,"expected_result":4},
+    {"id":"two-disjoint-triangles","input_values":[6,6,5,3,48,40,24],"input_length":7,"expected_result":3},
+    {"id":"maximum-complete-24","input_values":[24,16777214,16777213,16777211,16777207,16777199,16777183,16777151,16777087,16776959,16776703,16776191,16775167,16773119,16769023,16760831,16744447,16711679,16646143,16515071,16252927,15728639,14680063,12582911,8388607],"input_length":25,"expected_result":24},
+    {"id":"maximum-path-24","input_values":[24,2,5,10,20,40,80,160,320,640,1280,2560,5120,10240,20480,40960,81920,163840,327680,655360,1310720,2621440,5242880,10485760,4194304],"input_length":25,"expected_result":2},
+    {"id":"self-loop","input_values":[2,1,0],"input_length":3,"expected_result":-1},
+    {"id":"asymmetric-adjacency","input_values":[3,2,0,0],"input_length":4,"expected_result":-1},
+    {"id":"out-of-domain-bit","input_values":[3,8,0,0],"input_length":4,"expected_result":-1},
+    {"id":"negative-mask","input_values":[2,-1,0],"input_length":3,"expected_result":-1},
+    {"id":"truncated-rows","input_values":[3,2,1],"input_length":3,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,0,0],"input_length":3,"expected_result":-1},
+    {"id":"maximum-parseable-trailing-word","input_values":[24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":26,"expected_result":-1}
+  ]
+}

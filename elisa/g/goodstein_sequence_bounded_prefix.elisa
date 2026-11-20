@@ -1,0 +1,66 @@
+const MAX_INPUT_WORDS: usize = 3
+const MAX_TRANSITIONS: i64 = 16
+
+def goodstein_small_power(base: i64, exponent: i64) -> i64:
+    result: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < exponent:
+        result <- result * base
+        index <- index + 1
+    result
+
+def goodstein_rebase_hereditary(value: i64, base: i64, raised_base: i64) -> i64:
+    if value == 0: return 0
+    result: mutable i64 = 0
+    place: mutable i64 = 1
+    exponent: mutable i64 = 0
+    while place <= value:
+        digit: i64 = (value / place) % base
+        if digit != 0:
+            raised_exponent: i64 = goodstein_rebase_hereditary(exponent, base, raised_base)
+            result <- result + digit * goodstein_small_power(raised_base, raised_exponent)
+        place <- place * base
+        exponent <- exponent + 1
+    result
+
+def goodstein_store_i64_le(value: i64, output: mutable view[u8], offset: usize):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def goodstein_sequence_bounded_prefix_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_WORDS or length != 2: return -1
+    input_view: view[i64] = input[0:length]
+    start: i64 = input_view[0]
+    transitions: i64 = input_view[1]
+    if start < 0 or start > 4 or transitions < 0 or transitions > MAX_TRANSITIONS: return -1
+
+    terms: mutable i64[17] = zeroed
+    count: mutable usize = 1
+    terms[0] <- start
+    current: mutable i64 = start
+    base: mutable i64 = 2
+    step: mutable i64 = 0
+    while step < transitions and current != 0:
+        current <- goodstein_rebase_hereditary(current, base, base + 1) - 1
+        base <- base + 1
+        terms[count] <- current
+        count <- count + 1
+        step <- step + 1
+
+    output_bytes: usize = (count + 1) * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:capacity]
+    goodstein_store_i64_le(count.i64(), output_view, 0)
+    index: mutable usize = 0
+    while index < count:
+        goodstein_store_i64_le(terms[index], output_view, (index + 1) * 8)
+        index <- index + 1
+    output_bytes.i64()
+
+export fn goodstein_sequence_bounded_prefix(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = goodstein_sequence_bounded_prefix_impl

@@ -251,14 +251,11 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
                 return len(output), output
         raise ValueError("the bounded even Goldbach input has no prime pair")
 
-    if encoding in {"hexagonal_numbers", "hexagonal_numbers_one_based"}:
-        zero_based = encoding == "hexagonal_numbers"
-        lower_bound = 1 if zero_based else 0
-        if not lower_bound <= value <= 1024:
+    if encoding == "hexagonal_numbers_one_based":
+        if not 0 <= value <= 1024:
             return -1, b""
-        first_index = 0 if zero_based else 1
         output = b"".join(struct.pack("<q", index * (2 * index - 1))
-                           for index in range(first_index, first_index + value))
+                           for index in range(1, 1 + value))
         return value, output
     if encoding == "int_to_string_packed":
         if value < 0:
@@ -496,7 +493,7 @@ def fnv1a(data: bytes) -> int:
 
 def workload_oracle_encoding(workload: dict) -> int | str:
     algorithm = workload.get("algorithm")
-    if algorithm in {"hexagonal_numbers", "hexagonal_numbers_one_based",
+    if algorithm in {"hexagonal_numbers_one_based",
                      "decimal_to_hex", "decimal_to_gray", "n_queens_backtracking_csharp",
                      "faster_perfect_numbers", "fizz_buzz", "magicdiamondpattern"}:
         return algorithm

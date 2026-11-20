@@ -12,6 +12,11 @@ The Java candidate named `CountFriendsPairing` does not count friend pairings. I
 
 All ports use the `i64_array_scalar` ABI and a fixed 1,024-element table. The recurrence runs in O(n) time and uses O(n) stack storage.
 
+The workload's ABI declaration is corrected. Null guards were added to the
+C3, Elisa, Nim, Odin, and Zig drafts; Elisa uses a bounded internal view.
+An independent queue reference and suite verifier wiring are drafted. These
+changes have not been compiled or executed.
+
 ## Workload
 
 [`workload.json`](workload.json) covers the empty prefix, matching and mismatching prefixes, malformed lengths, and invalid bounds.

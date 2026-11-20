@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 
@@ -20,8 +21,8 @@ fn undirected_chinese_postman(input: UnsafePointer[Int64, ImmutAnyOrigin], lengt
     if m < n - 1:
         return -1
     var distance = InlineArray[Int64, MAX_N * MAX_N]()
-    var seen = InlineArray[Bool, MAX_N * MAX_N]()
-    var degree = InlineArray[Int, MAX_N]()
+    var seen = InlineArray[Bool, MAX_N * MAX_N](fill=False)
+    var degree = InlineArray[Int, MAX_N](fill=0)
     for u in range(n):
         for v in range(n):
             distance[u * MAX_N + v] = 0 if u == v else INF

@@ -24,7 +24,7 @@
     {"id":"prefix_value_outside_i32","input_values":[2,2147483648],"input_length":2,"expected_result":-1}
   ],
   "measurement": {
-    "comparison_model": "scalar_call",
+    "comparison_model": "i64_array_scalar_call",
     "sample_count": 7,
     "warmup_rounds": 2,
     "repetitions_per_sample": 10000

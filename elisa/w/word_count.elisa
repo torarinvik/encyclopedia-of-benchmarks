@@ -5,7 +5,8 @@ def word_count_store_i64(value: i64, output: mutable view[u8], position: usize) 
         output[position + byte] <- (bits % 256.u64()).u8()
         bits <- bits / 256.u64()
 
-def word_count_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+def word_count_impl(values: view[i64], output: mutable u8&, output_capacity: usize) -> i64:
+    length: usize = values.len()
     if length < 2 or length > 1050 or values[0] < 0 or values[0] > 999:
         return -1
     text_length: usize = values[0].usize()
@@ -39,10 +40,13 @@ def word_count_impl(values: i64&, length: usize, output: mutable u8&, output_cap
                     matches <- matches + 1
             total <- total + 1
             start <- end + 1
-    if output_capacity < 16:
+    if output == null or output_capacity < 16:
         return -2
-    word_count_store_i64(total.i64(), output[0:output_capacity], 0)
-    word_count_store_i64(matches.i64(), output[0:output_capacity], 8)
+    result: mutable view[u8] = output[0:16]
+    word_count_store_i64(total.i64(), result, 0)
+    word_count_store_i64(matches.i64(), result, 8)
     16.i64()
 
-export fn word_count(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_count_impl
+export fn word_count(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values == null or length < 2 or length > 1050: return -1
+    word_count_impl(values[0:length], output, output_capacity)

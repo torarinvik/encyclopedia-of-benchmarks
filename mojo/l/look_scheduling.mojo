@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,UnsafePointer
 fn look_hash(h0:UInt64,x:Int64)->UInt64:

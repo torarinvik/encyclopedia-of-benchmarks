@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "algorithm": "asteroid_collision_stack",
+  "abi": "i64_array_bytes_output",
+  "language_sources": {
+    "c": "c/a/asteroid_collision_stack.c",
+    "c3": "c3/a/asteroid_collision_stack.c3",
+    "cpp": "cpp/a/asteroid_collision_stack.cpp",
+    "elisa": "elisa/a/asteroid_collision_stack.elisa",
+    "mojo": "mojo/a/asteroid_collision_stack.mojo",
+    "nim": "nim/a/asteroid_collision_stack.nim",
+    "odin": "odin/a/asteroid_collision_stack.odin",
+    "rust": "rust/a/asteroid_collision_stack.rs",
+    "v": "v/a/asteroid_collision_stack.v",
+    "zig": "zig/a/asteroid_collision_stack.zig"
+  },
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "check_inventory.py",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "workload.json"
+  ],
+  "bounds": {
+    "maximum_valid_input_words": 65,
+    "maximum_parseable_input_words": 66,
+    "maximum_output_bytes": 65,
+    "workspace_bytes": 512
+  },
+  "integration": {
+    "suite_runner": "benchmarks/run_i64_array_bytes_output.py and benchmarks/verify_i64_array_bytes_output.py",
+    "catalog": "CATALOG.md and README.md"
+  }
+}

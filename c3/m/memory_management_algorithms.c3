@@ -6,7 +6,7 @@ const usz MAX_INPUT_LENGTH = 52;
 const usz MAX_OUTPUT_BYTES = 256;
 const long NO_ALLOCATION = -255;
 
-void put_i64_le(char* output, usz offset, long value) {
+fn void put_i64_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte += 1) {
         output[offset + byte] = (char)(bits & 255);
@@ -14,7 +14,7 @@ void put_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long memory_management_algorithms(long* input, usz length, char* output, usz capacity)
+fn long memory_management_algorithms(long* input, usz length, char* output, usz capacity)
         @export("memory_management_algorithms") {
     if (input == null || length < 3 || length > MAX_INPUT_LENGTH) return -1;
     long policy = input[0];

@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "bitcoin-base58check-bounded-payload-i64-array-bytes-v1",
+  "algorithm": "base58check_encode",
+  "function_symbol": "base58check_encode",
+  "abi": "i64_array_bytes_output",
+  "description": "Versioned payload encoding with a four-byte double-SHA256 checksum and leading-zero-preserving Bitcoin Base58 digits.",
+  "source": {
+    "title": "Base58Check encoding",
+    "discovery": "RosettaCodeData popular-title index, score 32; title used only for candidate discovery",
+    "specification": "Bitcoin Wiki stable revision",
+    "specification_url": "https://en.bitcoin.it/wiki/Base58Check?oldid=68948",
+    "implementation_reference": "Bitcoin Core v28.0",
+    "implementation_url": "https://github.com/bitcoin/bitcoin/blob/110183746150428e6385880c79f8c5733b1361ba/src/base58.cpp",
+    "license": "Algorithm description only; implementation and bounded contract are original, with published known-answer outputs used as interoperability anchors"
+  },
+  "contract": {
+    "operation": "Prefix one version byte to a payload, append the first four bytes of SHA256(SHA256(version||payload)), then encode the combined bytes in the Bitcoin Base58 alphabet.",
+    "input_encoding": "[version_byte,payload_length,payload_byte_0,...]",
+    "checksum": "first four bytes of SHA256(SHA256(version_byte||payload))",
+    "conversion": "big-endian base-58 using the Bitcoin alphabet; each leading zero input byte becomes one leading '1'",
+    "invalid_input_result": -1,
+    "insufficient_output_result": -2,
+    "time_complexity": "O(n^2) bounded byte-array radix conversion, plus two SHA-256 evaluations",
+    "space_complexity": "O(n) fixed local buffers"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[version_byte,payload_length,payload_byte_0,...]",
+    "version_range": [0, 255],
+    "payload_length_range": [0, 32],
+    "payload_byte_range": [0, 255],
+    "exact_length": "2 + payload_length",
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "ASCII byte string",
+    "encoding": "Bitcoin Base58 alphabet",
+    "maximum_length_bytes": 51,
+    "result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "errors_write_no_output": true
+  },
+  "workspace": {
+    "bytes": 826,
+    "meaning": "largest fixed native scratch set: 218 bytes for message, intermediate digests, raw checksum-bearing bytes and base-58 digits; plus 608 bytes for the largest SHA-256 helper's round constants, padded block, message schedule and state. Caller-owned input and output buffers are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/b/base58check_encode/primary_oracle.py",
+  "independent_oracle": "benchmarks/b/base58check_encode/independent_oracle.py",
+  "cases": [
+    {
+      "id": "leading-zero-version-and-payload",
+      "input_values": [0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 22,
+      "expected_result": 27,
+      "expected_output_hex": "313131313131313131313131313131313131313131346f4c765432"
+    },
+    {
+      "id": "empty-payload",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "expected_result": 6,
+      "expected_output_hex": "315768346268"
+    },
+    {
+      "id": "maximum-payload-maximum-encoded-length",
+      "input_values": [128, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      "input_length": 34,
+      "expected_result": 51,
+      "expected_output_hex": "354870486167543635545a7a473150483343537536336b3844627076443873356970346e4542336b45737265416e6368754466"
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [128, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      "input_length": 35,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "version-out-of-range",
+      "input_values": [256, 0],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "payload-length-out-of-range",
+      "input_values": [0, 33],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "payload-byte-out-of-range",
+      "input_values": [7, 1, 256],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-payload",
+      "input_values": [7, 2, 9],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [7, 0, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "undersized-output",
+      "input_values": [0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 22,
+      "output_capacity": 26,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

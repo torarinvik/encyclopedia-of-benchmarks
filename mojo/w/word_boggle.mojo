@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn wb_dfs(board:InlineArray[UInt8,36],rows:Int,cols:Int,words:InlineArray[InlineArray[UInt8,15],32],lens:InlineArray[Int32,32],wc:Int,cell:Int,depth:Int,inout visited:InlineArray[Bool,36],inout path:InlineArray[UInt8,15],inout found:InlineArray[Bool,32]):
@@ -49,7 +50,7 @@ fn word_boggle(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[
         if not duplicate:words[unique]=word;lens[unique]=Int32(length);unique+=1
         pos+=Int(length)
     if pos!=Int(n):return -1
-    var found=InlineArray[Bool,32]();var visited=InlineArray[Bool,36]();var path=InlineArray[UInt8,15]()
+    var found=InlineArray[Bool,32](fill=False);var visited=InlineArray[Bool,36](fill=False);var path=InlineArray[UInt8,15]()
     for cell in range(cells):wb_dfs(board,Int(rows),Int(cols),words,lens,unique,cell,0,visited,path,found)
     var order=InlineArray[Int32,32]();var found_count=0;var bytes=0
     for w in range(unique):if found[w]:order[found_count]=Int32(w);found_count+=1;bytes+=Int(lens[w])+1

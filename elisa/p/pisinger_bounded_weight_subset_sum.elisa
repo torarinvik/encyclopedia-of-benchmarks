@@ -1,0 +1,82 @@
+# Pisinger balanced-state subset sum using bounded state arrays and a safe view.
+const PIS_MAX_ITEMS: usize = 32
+const PIS_MAX_TARGET: i64 = 256
+const PIS_MAX_WEIGHT: i64 = 12
+const PIS_MAX_PARSEABLE_LENGTH: usize = 35
+const PIS_MAX_STATES: usize = 24
+
+def pisinger_bounded_subset_sum_impl(values: view[i64], length: usize) -> i64:
+    if length < 2 or length > PIS_MAX_PARSEABLE_LENGTH or values.len() != length: return -1
+    n_value: i64 = values[0]
+    target_value: i64 = values[1]
+    if n_value < 0 or n_value > PIS_MAX_ITEMS.i64() or target_value < 0 or target_value > PIS_MAX_TARGET: return -1
+    n: usize = n_value.usize()
+    if length != n + 2: return -1
+
+    width: mutable usize = 0
+    index: mutable usize = 0
+    while index < n:
+        weight: i64 = values[index + 2]
+        if weight < 1 or weight > PIS_MAX_WEIGHT: return -1
+        if weight.usize() > width: width <- weight.usize()
+        index <- index + 1
+    if n == 0: return 0
+
+    target: usize = target_value.usize()
+    prefix_sum: mutable usize = 0
+    break_index: mutable usize = 0
+    while break_index < n and prefix_sum + values[break_index + 2].usize() <= target:
+        prefix_sum <- prefix_sum + values[break_index + 2].usize()
+        break_index <- break_index + 1
+    if break_index == n: return prefix_sum.i64()
+
+    previous: mutable i64[PIS_MAX_STATES] = zeroed
+    current: mutable i64[PIS_MAX_STATES] = zeroed
+    state: mutable usize = 0
+    while state < 2 * width:
+        previous[state] <- -1
+        state <- state + 1
+    previous[prefix_sum + width - target - 1] <- break_index.i64()
+
+    item: mutable usize = break_index
+    while item < n:
+        state <- 0
+        while state < 2 * width:
+            current[state] <- previous[state]
+            state <- state + 1
+        weight: usize = values[item + 2].usize()
+        state <- 0
+        while state < width:
+            destination: usize = state + weight
+            if previous[state] > current[destination]: current[destination] <- previous[state]
+            state <- state + 1
+        state <- 2 * width
+        while state > width:
+            state <- state - 1
+            first_item: mutable usize = 0
+            if previous[state] > 0: first_item <- previous[state].usize()
+            stop_item: i64 = current[state]
+            removed: mutable usize = first_item
+            while removed.i64() < stop_item:
+                reduced: usize = state - values[removed + 2].usize()
+                if removed.i64() > current[reduced]: current[reduced] <- removed.i64()
+                removed <- removed + 1
+        state <- 0
+        while state < 2 * width:
+            previous[state] <- current[state]
+            state <- state + 1
+        item <- item + 1
+
+    low: mutable usize = 0
+    if target >= width: low <- target - width + 1
+    mass: mutable usize = target
+    while mass >= low:
+        if previous[mass + width - target - 1] >= 0: return mass.i64()
+        if mass == 0: break
+        mass <- mass - 1
+    0
+
+export fn pisinger_bounded_weight_subset_sum(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > PIS_MAX_PARSEABLE_LENGTH: return -1
+    let values: view[i64] = input[0:length]
+    pisinger_bounded_subset_sum_impl(values, length)

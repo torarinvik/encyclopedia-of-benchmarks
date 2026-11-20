@@ -21,7 +21,8 @@ fn long tsvc_s323_coupled_recurrence(long* input, usz length, char* output,
 
     usz a_start = 1, b_start = a_start + n, c_start = b_start + n;
     usz d_start = c_start + n, e_start = d_start + n;
-    long a[MAX_N], b[MAX_N];
+    long[MAX_N] a;
+    long[MAX_N] b;
     for (usz i = 0; i < n; i += 1) {
         a[i] = input[a_start + i];
         b[i] = input[b_start + i];

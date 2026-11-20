@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p31_rec(target:Int64,coin_index:Int)->Int64:
     if target<0:return 0
     if coin_index==0:return 1

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem234")
 fn problem234(limit:Int64) abi("C")->Int64:
     if limit<0 or limit>999966663333:return -1

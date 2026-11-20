@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "algorithm": "canonical_order_maximal_plane_triangulation",
+  "function_symbol": "canonical_order_maximal_plane_triangulation",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/c/canonical_order_maximal_plane_triangulation.c",
+    "c3": "c3/c/canonical_order_maximal_plane_triangulation.c3",
+    "cpp": "cpp/c/canonical_order_maximal_plane_triangulation.cpp",
+    "elisa": "elisa/c/canonical_order_maximal_plane_triangulation.elisa",
+    "mojo": "mojo/c/canonical_order_maximal_plane_triangulation.mojo",
+    "nim": "nim/canonical_order_maximal_plane_triangulation.nim",
+    "odin": "odin/canonical_order_maximal_plane_triangulation.odin",
+    "rust": "rust/canonical_order_maximal_plane_triangulation.rs",
+    "v": "v/canonical_order_maximal_plane_triangulation.v",
+    "zig": "zig/c/canonical_order_maximal_plane_triangulation.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "check_inventory.py"],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Canonical Orders and Schnyder Realizers",
+    "doi": "10.1007/978-1-4939-2864-4_650",
+    "section": "Canonical Order; Definition 1 and Theorem 1 proof"
+  },
+  "contract": {
+    "input_layout": "[n,u,v,w,(degree[x],clockwise_neighbors[x]...)*n]",
+    "maximum_valid_input_words": 48,
+    "maximum_parseable_input_words": 49,
+    "maximum_output_bytes": 72,
+    "workspace_bytes": 4096,
+    "ordering": "Canonical order begins u,v, ends w; sibling/order ties choose the lowest vertex ID among source-permitted removals."
+  }
+}

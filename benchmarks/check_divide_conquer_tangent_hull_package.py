@@ -31,7 +31,7 @@ def static_issues(workload=None):
             or inputs.get("maximum_valid_values") != 65 or inputs.get("maximum_parseable_values") != 66
             or output.get("maximum_output_bytes") != 512 or output.get("no_write_on_error") is not True):
         issues.append("identity or contract mismatch")
-    if (not isinstance(workload.get("workspace"), dict) or workload["workspace"].get("bytes") != 512
+    if (not isinstance(workload.get("workspace"), dict) or workload["workspace"].get("bytes") != 4096
             or not isinstance(workload.get("measurement"), dict)
             or workload["measurement"].get("comparison_model") != "i64_array_bytes_output_call"):
         issues.append("workspace or measurement mismatch")

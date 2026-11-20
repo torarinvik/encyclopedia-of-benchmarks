@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "muthukrishnan-document-listing-i64-array-bytes-v1",
+  "algorithm": "muthukrishnan_document_listing",
+  "function_symbol": "muthukrishnan_document_listing",
+  "abi": "i64_array_bytes_output",
+  "description": "Lists distinct document IDs from supplied suffix-array rank intervals using previous occurrences and RMQ recursion.",
+  "source": {
+    "chapter": "Sharma V. Thankachan, Document Retrieval on String Collections, Encyclopedia of Algorithms, Chapter 629",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_629",
+    "primary": "S. Muthukrishnan, Efficient Algorithms for Document Retrieval Problems, SODA 2002, pages 657-666",
+    "primary_doi": "10.1145/545381.545469",
+    "independent_exposition": "G. Navarro and V. Mäkinen, Compressed Full-Text Indexes, Section 2.3",
+    "independent_doi": "10.1145/1216370.1216372",
+    "rights": "Algorithmic ideas only; original bounded contract, implementations, references, and fixtures. No source code, prose, examples, or tests copied."
+  },
+  "contract": {
+    "operation": "For each inclusive suffix-array-rank interval, use the previous occurrence array C and leftmost range minima to report one rank per distinct document.",
+    "input_encoding": "[N,D,Q,DA[0..N),(lo_0,hi_0),...,(lo_(Q-1),hi_(Q-1))]",
+    "bounds": {"N": [1, 32], "D": [1, 8], "Q": [1, 16], "document_id": [0, 7]},
+    "interval_convention": "Each query is inclusive and must satisfy 0<=lo<=hi<N.",
+    "previous_array": "C[i] is the greatest j<i with DA[j]=DA[i], or -1 if no such j exists.",
+    "reporting_rule": "Find the leftmost argmin k of C in the current interval. Stop if C[k]>=the original query lo; otherwise emit DA[k], recurse left, then recurse right.",
+    "output_encoding": "Concatenate Q byte records [count,document_id_0,...] in increasing first-occurrence suffix-rank order. The primary sorts the RMQ witnesses by rank; the independent oracle directly scans the interval.",
+    "invalid_input_result": -1,
+    "insufficient_output_result": -2,
+    "time_complexity": "Primary O(N log N + QD log D), including sorting each query's at most D RMQ witnesses by suffix rank; independent direct interval scan O(QN).",
+    "space_complexity": "Fixed 4096-byte workspace including sparse-table, previous-occurrence, staged-output, and bounded recursion storage; excludes caller buffers."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,D,Q,DA[0..N),(lo_0,hi_0),...,(lo_(Q-1),hi_(Q-1))]",
+    "N_range": [1, 32],
+    "document_count_range": [1, 8],
+    "query_count_range": [1, 16],
+    "document_id_range": "0..D-1",
+    "interval_range": "0<=lo<=hi<N, inclusive",
+    "exact_length": "3 + N + 2*Q",
+    "maximum_valid_length": 67,
+    "maximum_parseable_length": 68,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "packed byte records in increasing first-occurrence rank order",
+    "encoding": "For each query, one count byte followed by document IDs ordered by increasing first-occurrence suffix-array rank; query order is input order. The primary sorts RMQ witnesses by rank, while the independent oracle emits IDs during a left-to-right scan.",
+    "maximum_bytes": 144,
+    "maximum_length_bytes": 144,
+    "result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "errors_write_no_output": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Conservative native cap for C[32], sparse-table RMQ indices, query recursion frames of depth at most D+1<=9, logs/last-document state, and a 144-byte staged output; caller-owned input/output buffers are excluded. Largest fixed arrays total under 1.7 KiB."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/m/muthukrishnan_document_listing/primary_oracle.py",
+  "independent_oracle": "benchmarks/m/muthukrishnan_document_listing/independent_oracle.py",
+  "cases": [
+    {
+      "id": "four-documents-first-occurrence-order",
+      "input_values": [8,4,4,0,1,0,2,1,0,2,3,0,7,2,6,4,4,5,7],
+      "input_length": 19,
+      "expected_result": 15,
+      "expected_output_hex": "0400010203030002010103000203"
+    },
+    {
+      "id": "single-suffix-rank",
+      "input_values": [1,1,1,0,0,0],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output_hex": "0100"
+    },
+    {
+      "id": "one-document-with-repeated-occurrences",
+      "input_values": [6,1,1,0,0,0,0,0,0,0,5],
+      "input_length": 11,
+      "expected_result": 1,
+      "expected_output_hex": "0100"
+    },
+    {
+      "id": "maximum-valid-frame-and-output",
+      "input_values": [32,8,16,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31],
+      "input_length": 67,
+      "expected_result": 144,
+      "expected_output_hex": "080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607 080001020304050607"
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [32,8,16,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0,31,0],
+      "input_length": 68,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "document-id-out-of-range",
+      "input_values": [2,2,1,0,2,0,1],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "interval-out-of-range",
+      "input_values": [2,2,1,0,1,0,2],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-query",
+      "input_values": [2,2,1,0,1,0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "undersized-output",
+      "input_values": [8,4,4,0,1,0,2,1,0,2,3,0,7,2,6,4,4,5,7],
+      "input_length": 19,
+      "output_capacity": 14,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,1,1,0,0,0],
+      "input_length": 6,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

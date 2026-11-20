@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "schoebel-strong-c1p-set-cover-shortest-path-i64-array-bytes-output-v1",
+  "algorithm": "strong_c1p_set_cover_shortest_path",
+  "function_symbol": "strong_c1p_set_cover_shortest_path",
+  "abi": "i64_array_bytes_output",
+  "description": "Reduce a strong-C1P weighted set-cover matrix to strictly monotone interval rows, then solve its column-node DAG by shortest path.",
+  "source": {
+    "title": "Set covering problems with consecutive ones property",
+    "authors": ["Anita Schöbel"],
+    "year": 2005,
+    "reference": "Preprint 2005-03, Institute of Numerical and Applied Mathematics, University of Göttingen",
+    "url": "https://num.math.uni-goettingen.de/bibi/preprintserie/preprints/schoebel/paper.pdf",
+    "encyclopedia_entry": "Michael Dom, Set Cover with Almost Consecutive Ones, Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_368",
+    "algorithm_attribution": "Schöbel Algorithm 1 strict-monotone row reduction and Algorithm 2 shortest path on column intervals.",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[row_count,column_count,weights[column_count],row_interval_bitmasks[row_count]]",
+    "row_count_range": [1, 8],
+    "column_count_range": [1, 10],
+    "column_weight_range": [1, 20],
+    "row_mask_rule": "Bit j means column j covers the row; every nonzero row mask must have one contiguous run of 1-bits. A zero row is valid but uncoverable.",
+    "maximum_valid_length": 20,
+    "maximum_parseable_length": 21,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_vector",
+    "encoding": "[minimum_total_weight], or [-1] for a valid uncoverable instance",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Conservative fixed per-call budget for row interval endpoints, column interval endpoints, a ten-node shortest-path distance array, parser state, and staged output. The ten ports use fixed bounded arrays or equivalent bounded stack storage."
+  },
+  "contract": {
+    "precondition": "Rows are already in strong C1P order: every row's 1-bits are consecutive in the supplied column order. Nonconsecutive masks are malformed.",
+    "row_reduction": "Sort nonempty rows by left endpoint. For equal left endpoints retain a shortest interval (duplicate intervals keep the earliest input row). Then retain only strict suffix minima of right endpoints, scanning from right to left; this implements Schöbel Algorithm 1's two row reductions with its rightmost tie rule.",
+    "column_intervals": "In the reduced row order, each nonempty column covers one contiguous interval of rows; empty columns are excluded from the DAG.",
+    "dag": "There is a source arc to each column interval starting at row 0, an arc j->k for j<k when start[k] <= end[j]+1, and an arc from each interval ending at the last reduced row to the sink.",
+    "arc_cost": "Source arcs cost zero. Every outgoing arc from column j, including its sink arc, costs weight[j], so a path cost is the total weight of its selected columns.",
+    "ties": "Only the optimum weight is emitted; path ties do not affect the result.",
+    "error_results": "Malformed dimensions, weights, masks, or non-strong-C1P rows return -1. A valid zero row emits [-1]. Null or undersized output returns -2 without writes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "oracle_method": "The primary applies strict-monotone interval-row reduction and the Schöbel column-interval shortest-path DAG. The independent oracle enumerates all column subsets directly and checks row coverage.",
+  "cases": [
+    {"id":"overlapping-intervals-optimum","input_values":[4,5,6,2,5,3,8,3,6,12,24],"input_length":11,"output_capacity":8,"expected_result":8,"expected_output_hex":"0500000000000000"},
+    {"id":"disjoint-forced-columns","input_values":[3,5,4,7,2,5,1,1,4,16],"input_length":10,"output_capacity":8,"expected_result":8,"expected_output_hex":"0700000000000000"},
+    {"id":"nested-rows-reduced","input_values":[4,5,9,2,4,3,8,31,6,15,28],"input_length":11,"output_capacity":8,"expected_result":8,"expected_output_hex":"0400000000000000"},
+    {"id":"equal-start-and-ending-ties","input_values":[4,5,10,1,5,7,2,3,15,6,30],"input_length":11,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"empty-column-ignored","input_values":[2,4,2,4,1,7,1,12],"input_length":8,"output_capacity":8,"expected_result":8,"expected_output_hex":"0300000000000000"},
+    {"id":"one-column-covers-every-row","input_values":[3,3,7,1,6,7,2,6],"input_length":8,"output_capacity":8,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"maximum-valid-strong-c1p-frame","input_values":[8,10,1,1,1,1,1,1,1,1,1,1,3,6,12,24,48,96,192,384],"input_length":20,"output_capacity":8,"expected_result":8,"expected_output_hex":"0400000000000000"},
+    {"id":"valid-uncoverable-zero-row","input_values":[2,3,1,2,3,0,6],"input_length":7,"output_capacity":8,"expected_result":8,"expected_output_hex":"ffffffffffffffff"},
+    {"id":"invalid-nonconsecutive-row","input_values":[1,4,1,1,1,1,5],"input_length":7,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-row-mask-high-bit","input_values":[1,3,1,2,3,8],"input_length":6,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-zero-weight","input_values":[1,2,0,1,1],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"maximum-parseable-trailing-word","input_values":[8,10,1,1,1,1,1,1,1,1,1,1,3,6,12,24,48,96,192,384,99],"input_length":21,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,2,1,2,3],"input_length":5,"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,2,1,2,3],"input_length":5,"output_capacity":8,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

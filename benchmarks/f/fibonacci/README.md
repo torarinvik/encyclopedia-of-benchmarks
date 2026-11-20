@@ -12,6 +12,22 @@ int64_t fibonacci(int64_t n);
 
 The local implementations use the same iterative two-value recurrence. Upstream files differ in indexing and implementation: the C example uses a one-based argument and naive recursion, C++ uses zero-based naive recursion, and the Rust source includes several conventions and implementations. The local contract makes the zero-based sequence explicit and keeps the benchmark workload within the exact signed 64-bit range.
 
+The former climbing-stairs benchmark used the same recurrence: for its valid
+range `1 <= n <= 45`, the answer is `fibonacci(n+1)`. Its catalog entry
+maps here with that explicit index shift. The Fibonacci function itself does
+not enforce the former climbing-stairs input bounds; callers reproducing that
+contract must check them separately. Source references: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/ClimbingStairs.java),
+[JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/ClimbingStairs.js),
+[Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/climbing_stairs.py),
+and [Ruby](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/dynamic_programming/climbing_stairs.rb).
+
+The MATLAB-Octave [shifted `fib` source](https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/project-euler/Problem2/fib.m)
+uses the same recurrence with `fib(n)=F(n+2)`. Its former bounded profile
+maps to `fibonacci(n+2)` for `0 <= n <= 90`; the original input validation
+must be applied separately. The former C draft also computed the next
+unrepresentable Fibonacci value on its maximum input; the shared implementation
+stops after the requested value.
+
 ## Workload and measurement
 
 [`workload.json`](workload.json) covers boundary values, representative sequence positions, the maximum supported input, a negative input, and the first out-of-range value. The C11 scalar runner checks each expected result before timing, runs two warmup batches, then records seven samples of 10,000 calls each. Input parsing, correctness checks, and JSON writing are outside the timed interval.

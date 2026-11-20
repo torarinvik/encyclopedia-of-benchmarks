@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "remove-boxes-i64-array-scalar-v1",
+  "algorithm": "remove_boxes",
+  "function_symbol": "remove_boxes",
+  "abi": "i64_array_scalar",
+  "description": "Maximize squared run-removal scores using a carry-state interval dynamic program.",
+  "source": {
+    "title": "LeetCode 546: Remove Boxes",
+    "url": "https://leetcode.com/problems/remove-boxes/",
+    "catalog_note": "https://github.com/wisdompeak/LeetCode/blob/9ad43c8952fa474f76597738a599774d081103fc/DFS/546.Remove-Boxes/Readme.md",
+    "catalog_revision": "9ad43c8952fa474f76597738a599774d081103fc",
+    "algorithm_attribution": "Compressed-run interval DP with a carried count of matching boxes outside the subproblem interval.",
+    "implementation_status": "clean-room bounded profile; algorithm ideas only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, color_0, ..., color_(n-1)]",
+    "n_range": [0, 18],
+    "color_range": [0, 7],
+    "maximum_valid_length": 19,
+    "maximum_parseable_length": 20,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "maximum sum of k squared over removed contiguous equal-color runs",
+    "empty_sequence_result": 0,
+    "maximum_result": 324,
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 65536,
+    "meaning": "Fixed carry-state interval memo table and run-compressed color/count arrays."
+  },
+  "oracle_method": "Primary uses compressed-run dp(left,right,carry). Independent reference memoizes remaining color tuples and tries every legal contiguous equal-color interval removal.",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-sequence","input_values":[0],"input_length":1,"expected_result":0},
+    {"id":"single-box","input_values":[1,7],"input_length":2,"expected_result":1},
+    {"id":"single-color-run","input_values":[4,2,2,2,2],"input_length":5,"expected_result":16},
+    {"id":"alternating-groups-merge","input_values":[5,1,2,1,2,1],"input_length":6,"expected_result":11},
+    {"id":"remove-separator-to-merge","input_values":[4,0,0,1,0],"input_length":5,"expected_result":10},
+    {"id":"distinct-colors","input_values":[8,0,1,2,3,4,5,6,7],"input_length":9,"expected_result":8},
+    {"id":"nested-color-merges","input_values":[5,1,2,3,2,1],"input_length":6,"expected_result":9},
+    {"id":"maximum-length-single-run","input_values":[18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":19,"expected_result":324},
+    {"id":"missing-count","input_values":[2,0],"input_length":2,"expected_result":-1},
+    {"id":"frame-length-mismatch","input_values":[1,0,1],"input_length":3,"expected_result":-1},
+    {"id":"negative-color","input_values":[1,-1],"input_length":2,"expected_result":-1},
+    {"id":"color-above-bound","input_values":[1,8],"input_length":2,"expected_result":-1},
+    {"id":"over-limit-count","input_values":[19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":20,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

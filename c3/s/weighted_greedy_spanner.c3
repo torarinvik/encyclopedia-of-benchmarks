@@ -4,7 +4,7 @@ const usz MAX_N = 8;
 const usz MAX_M = 28;
 const usz MAX_INPUT = 88;
 
-long weighted_greedy_spanner(long* input, usz length, char* output, usz capacity)
+fn long weighted_greedy_spanner(long* input, usz length, char* output, usz capacity)
         @export("weighted_greedy_spanner") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1], k = input[2];

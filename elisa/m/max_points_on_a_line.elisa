@@ -1,0 +1,72 @@
+const MPL_MAX_N: usize = 16
+const MPL_MAX_INPUT: usize = 34
+const MPL_TABLE_SIZE: usize = 32
+
+def mpl_gcd(a_value: i64, b_value: i64) -> i64:
+    var a: mutable i64 = a_value
+    var b: mutable i64 = b_value
+    while b != 0:
+        let remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def max_points_on_a_line_impl(values: view[i64], length: usize) -> i64:
+    if length < 3 or length > MPL_MAX_INPUT or values.len() != length: return -1
+    let n_value: i64 = values[0]
+    if n_value < 1 or n_value > MPL_MAX_N.i64() or length != (1 + 2 * n_value) as usize: return -1
+    let n: usize = n_value.usize()
+    var x: mutable i64[16] = zeroed
+    var y: mutable i64[16] = zeroed
+    var i: mutable usize = 0
+    while i < n:
+        let xv: i64 = values[1 + 2 * i]
+        let yv: i64 = values[2 + 2 * i]
+        if xv < -100 or xv > 100 or yv < -100 or yv > 100: return -1
+        var j: usize = 0
+        while j < i:
+            if x[j] == xv and y[j] == yv: return -1
+            j <- j + 1
+        x[i] <- xv
+        y[i] <- yv
+        i <- i + 1
+    if n == 1: return 1
+    var answer: mutable i64 = 2
+    var anchor: mutable usize = 0
+    while anchor < n:
+        var keys: mutable i64[32] = zeroed
+        var counts: mutable i64[32] = zeroed
+        var slot: mutable usize = 0
+        while slot < MPL_TABLE_SIZE:
+            keys[slot] <- -1
+            slot <- slot + 1
+        var best: mutable i64 = 0
+        var other: mutable usize = 0
+        while other < n:
+            if other != anchor:
+                var dx: mutable i64 = x[other] - x[anchor]
+                var dy: mutable i64 = y[other] - y[anchor]
+                let abs_dx: i64 = if dx < 0: -dx else: dx
+                let abs_dy: i64 = if dy < 0: -dy else: dy
+                let divisor: i64 = mpl_gcd(abs_dx, abs_dy)
+                dx <- dx / divisor
+                dy <- dy / divisor
+                if dx < 0 or (dx == 0 and dy < 0):
+                    dx <- -dx
+                    dy <- -dy
+                let direction_key: i64 = dx * 401 + dy + 200
+                slot <- (direction_key % MPL_TABLE_SIZE.i64()).usize()
+                while keys[slot] != -1 and keys[slot] != direction_key:
+                    slot <- (slot + 1) % MPL_TABLE_SIZE
+                if keys[slot] == -1: keys[slot] <- direction_key
+                counts[slot] <- counts[slot] + 1
+                if counts[slot] > best: best <- counts[slot]
+            other <- other + 1
+        if best + 1 > answer: answer <- best + 1
+        anchor <- anchor + 1
+    answer
+
+export fn max_points_on_a_line(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > MPL_MAX_INPUT: return -1
+    let values: view[i64] = input[0:length]
+    max_points_on_a_line_impl(values, length)

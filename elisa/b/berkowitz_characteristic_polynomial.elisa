@@ -1,0 +1,68 @@
+# Division-free Samuelson-Berkowitz characteristic-polynomial recurrence.
+def berkowitz_residue(value: i64, modulus: i64) -> i64:
+    remainder: i64 = value % modulus
+    if remainder < 0: remainder <- remainder + modulus
+    remainder
+
+def berkowitz_negative_residue(value: i64, modulus: i64) -> i64:
+    if value == 0: return 0
+    modulus - value
+
+export fn berkowitz_characteristic_polynomial(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 3 or length > 52: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    modulus: i64 = values[1]
+    if n64 < 1 or n64 > 7 or modulus < 2 or modulus > 1000000000: return -1
+    n: usize = n64.usize()
+    if length != 2 + n * n: return -1
+
+    matrix: mutable i64[49] = zeroed
+    for i in 0..<(n * n):
+        entry: i64 = values[i + 2]
+        if entry < -1000000 or entry > 1000000: return -1
+        matrix[i] <- berkowitz_residue(entry, modulus)
+    output_bytes: usize = (n + 1) * 8
+    if output.is_null() or output_capacity < output_bytes: return -2
+
+    coefficients: mutable i64[8] = zeroed
+    current: mutable i64[8] = zeroed
+    toeplitz: mutable i64[8] = zeroed
+    vector: mutable i64[7] = zeroed
+    next_vector: mutable i64[7] = zeroed
+    coefficients[0] <- 1
+    for size in 1..<(n + 1):
+        start: usize = n - size
+        block: usize = size - 1
+        for i in 0..<(size + 1): toeplitz[i] <- 0
+        toeplitz[0] <- 1
+        toeplitz[1] <- berkowitz_negative_residue(matrix[start * n + start], modulus)
+        for row in 0..<block:
+            vector[row] <- matrix[(start + 1 + row) * n + start]
+        for power in 0..<block:
+            dot: mutable i64 = 0
+            for col in 0..<block:
+                dot <- (dot + matrix[start * n + start + 1 + col] * vector[col]) % modulus
+            toeplitz[power + 2] <- berkowitz_negative_residue(dot, modulus)
+            for row in 0..<block:
+                value: mutable i64 = 0
+                for col in 0..<block:
+                    value <- (value + matrix[(start + 1 + row) * n + start + 1 + col]
+                        * vector[col]) % modulus
+                next_vector[row] <- value
+            for row in 0..<block: vector[row] <- next_vector[row]
+        for i in 0..<(size + 1):
+            value: mutable i64 = 0
+            last_child: usize = i
+            if last_child >= size: last_child <- size - 1
+            for j in 0..<(last_child + 1):
+                value <- (value + toeplitz[i - j] * coefficients[j]) % modulus
+            current[i] <- value
+        for i in 0..<(size + 1): coefficients[i] <- current[i]
+
+    result: mutable view[u8] = output[0:output_bytes]
+    for i in 0..<(n + 1):
+        bits: u64 = coefficients[i].u64()
+        for byte in 0..<8: result[i * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+    output_bytes.i64()

@@ -18,6 +18,9 @@ The pinned C++ function repeatedly divides `n` by `p` and adds each quotient. It
 
 [`workload.json`](workload.json) includes the source examples, zero and small boundaries, several primes, the maximum `n`, and invalid prime/range inputs. It uses the shared `binary_scalar` ABI family: two unsigned 64-bit inputs and one signed 64-bit result.
 
+The workload's ABI declaration is corrected. Binary-scalar verifier wiring
+and a base-p digit-sum reference are drafted; they have not been executed.
+
 ## Implementations
 
 | Language | Source |
@@ -26,6 +29,7 @@ The pinned C++ function repeatedly divides `n` by `p` and adds each quotient. It
 | C3 | [`c3/l/largest_power.c3`](../../../c3/l/largest_power.c3) |
 | C++ | [`cpp/l/largest_power.cpp`](../../../cpp/l/largest_power.cpp) |
 | Elisa | [`elisa/l/largest_power.elisa`](../../../elisa/l/largest_power.elisa) |
+| Mojo | [`mojo/l/largest_power.mojo`](../../../mojo/l/largest_power.mojo) |
 | Nim | [`nim/l/largest_power.nim`](../../../nim/l/largest_power.nim) |
 | Odin | [`odin/l/largest_power.odin`](../../../odin/l/largest_power.odin) |
 | Rust | [`rust/l/largest_power.rs`](../../../rust/l/largest_power.rs) |

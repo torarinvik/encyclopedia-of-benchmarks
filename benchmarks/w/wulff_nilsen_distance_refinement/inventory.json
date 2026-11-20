@@ -1,0 +1,25 @@
+{
+  "algorithm": "wulff_nilsen_distance_refinement",
+  "abi": "i64_array_scalar",
+  "symbol": "wulff_nilsen_distance_refinement",
+  "references": [
+    "benchmarks/wulff_nilsen_distance_refinement_oracle.py",
+    "benchmarks/wulff_nilsen_distance_refinement_independent_oracle.py"
+  ],
+  "workload": "workload.json",
+  "metadata": ["README.md", "RIGHTS.md", "INVENTORY.md"],
+  "helpers": ["check_inventory.py", "verify_workload.py"],
+  "languages": ["c", "c3", "cpp", "elisa", "mojo", "nim", "odin", "rust", "v", "zig"],
+  "source_paths": [
+    "c/w/wulff_nilsen_distance_refinement.c",
+    "c3/w/wulff_nilsen_distance_refinement.c3",
+    "cpp/w/wulff_nilsen_distance_refinement.cpp",
+    "elisa/w/wulff_nilsen_distance_refinement.elisa",
+    "mojo/w/wulff_nilsen_distance_refinement.mojo",
+    "nim/w/wulff_nilsen_distance_refinement.nim",
+    "odin/w/wulff_nilsen_distance_refinement.odin",
+    "rust/w/wulff_nilsen_distance_refinement.rs",
+    "v/w/wulff_nilsen_distance_refinement.v",
+    "zig/w/wulff_nilsen_distance_refinement.zig"
+  ]
+}

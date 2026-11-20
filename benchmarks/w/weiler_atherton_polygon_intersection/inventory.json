@@ -1,0 +1,27 @@
+{
+  "algorithm": "weiler_atherton_polygon_intersection",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "weiler_atherton_polygon_intersection",
+  "sources": {
+    "method": "https://doi.org/10.1145/563858.563896",
+    "arrangement_reference_context": "https://www.csun.edu/~ctoth/Handbook/chap42.pdf",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "ports": {
+    "c": "../../../c/w/weiler_atherton_polygon_intersection.c",
+    "c3": "../../../c3/w/weiler_atherton_polygon_intersection.c3",
+    "cpp": "../../../cpp/w/weiler_atherton_polygon_intersection.cpp",
+    "elisa": "../../../elisa/w/weiler_atherton_polygon_intersection.elisa",
+    "mojo": "../../../mojo/w/weiler_atherton_polygon_intersection.mojo",
+    "nim": "../../../nim/w/weiler_atherton_polygon_intersection.nim",
+    "odin": "../../../odin/w/weiler_atherton_polygon_intersection.odin",
+    "rust": "../../../rust/w/weiler_atherton_polygon_intersection.rs",
+    "v": "../../../v/w/weiler_atherton_polygon_intersection.v",
+    "zig": "../../../zig/w/weiler_atherton_polygon_intersection.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "suite_status": "pending root integration",
+  "execution_status": "source-only; no programs or checks run"
+}

@@ -57,8 +57,8 @@ fn long minimum_mean_cycle_karp(long* input, usz length, char* output, usz capac
 	if (!all_reachable(n, &adjacent[0], false) || !all_reachable(n, &adjacent[0], true)) return -1;
 	if (output == null || capacity < OUTPUT_BYTES) return -2;
 
-	long[MAX_N + 1][MAX_N] cost = {};
-	bool[MAX_N + 1][MAX_N] reachable = {};
+	long[MAX_N][MAX_N + 1] cost = {};
+	bool[MAX_N][MAX_N + 1] reachable = {};
 	reachable[0][0] = true;
 	for (usz k = 1; k <= n; ++k) {
 		for (usz e = 0; e < m; ++e) {

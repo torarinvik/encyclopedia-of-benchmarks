@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "domain-coloring-z2-integer-rgb24-i64-array-bytes-v1",
+  "algorithm": "domain_coloring",
+  "function_symbol": "domain_coloring",
+  "description": "Color a bounded complex sample grid for z squared with phase hue and magnitude contours.",
+  "contract": {
+    "operation": "Evaluate f(z)=z^2 on a regular fixed-point complex grid and serialize each domain-colored pixel as RGB24.",
+    "input_encoding": "[width, height, x0_q, y0_q, dx_q, dy_q], with coordinates divided by 4",
+    "output_encoding": "row-major RGB byte triples",
+    "numeric_model": "Exact signed integer arithmetic; phase is a piecewise-linear integer octant map and color conversion uses floor division.",
+    "invalid": "Malformed framing, dimensions, coordinate steps, or endpoints return -1.",
+    "capacity": "For valid input, null or insufficient output storage returns -2 without writing; success returns 3*width*height."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[width, height, x0_q, y0_q, dx_q, dy_q]",
+    "exact_input_length": 6,
+    "maximum_valid_input_values": 6,
+    "maximum_input_values_for_malformed_cases": 7,
+    "width_range": [1, 16],
+    "height_range": [1, 16],
+    "start_coordinate_range": [-32, 32],
+    "step_range": [-8, 8],
+    "endpoint_constraint": "x0_q+(width-1)*dx_q and y0_q+(height-1)*dy_q must each be in [-32,32]",
+    "coordinate_scale": 4,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "RGB24, three bytes per pixel in row-major order",
+    "length": "3*width*height",
+    "maximum_bytes": 768,
+    "success_result": "number of output bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_leave_output_untouched": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity."
+  },
+  "workspace": {
+    "bytes": 768,
+    "meaning": "Maximum local RGB staging buffer for a 16 by 16 grid."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "provenance": {
+    "source": "Algorithm Archive, Domain Coloring",
+    "url": "https://www.algorithm-archive.org/contents/domain_coloring/domain_coloring.html",
+    "role": "Algorithmic method: color a sampled complex function by phase and magnitude. The bounded integer mapping is independently specified here."
+  },
+  "oracle_method": "The primary reference evaluates the integer complex-square equations and maps each result through the exact phase-octant, contour, and HSV integer rules. The independent reference uses a separate octant-sector derivation and direct color-channel construction.",
+  "cases": [
+    {
+      "id": "zero-output-phase-is-defined-as-zero",
+      "input_values": [1, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output_hex": "800000"
+    },
+    {
+      "id": "fractional-magnitude-contour-shade",
+      "input_values": [1, 1, 1, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output_hex": "880000"
+    },
+    {
+      "id": "positive-imaginary-phase-of-square",
+      "input_values": [1, 1, 4, 4, 0, 0],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output_hex": "3f8000"
+    },
+    {
+      "id": "negative-imaginary-phase-of-square",
+      "input_values": [1, 1, 4, -4, 0, 0],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output_hex": "400080"
+    },
+    {
+      "id": "row-major-two-by-two-grid",
+      "input_values": [2, 2, 0, 0, 4, 4],
+      "input_length": 6,
+      "expected_result": 12,
+      "expected_output_hex": "8000008000000080803f8000"
+    },
+    {
+      "id": "endpoint-out-of-domain",
+      "input_values": [2, 1, 32, 0, 1, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension-out-of-domain",
+      "input_values": [17, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-input-frame",
+      "input_values": [1, 1, 0, 0, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

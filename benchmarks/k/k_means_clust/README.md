@@ -29,6 +29,7 @@ The random initial-centroid helper, repeated convergence loop, heterogeneity rec
 | C3 | [`c3/k/k_means_clust.c3`](../../../c3/k/k_means_clust.c3) |
 | C++ | [`cpp/k/k_means_clust.cpp`](../../../cpp/k/k_means_clust.cpp) |
 | Elisa | [`elisa/k/k_means_clust.elisa`](../../../elisa/k/k_means_clust.elisa) |
+| Mojo | [`mojo/k/k_means_clust.mojo`](../../../mojo/k/k_means_clust.mojo) |
 | Nim | [`nim/k/k_means_clust.nim`](../../../nim/k/k_means_clust.nim) |
 | Odin | [`odin/k/k_means_clust.odin`](../../../odin/k/k_means_clust.odin) |
 | Rust | [`rust/k/k_means_clust.rs`](../../../rust/k/k_means_clust.rs) |

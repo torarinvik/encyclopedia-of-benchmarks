@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn sw_select(v:UnsafePointer[Int64,MutAnyOrigin],n:Int,k:Int)->Int64:

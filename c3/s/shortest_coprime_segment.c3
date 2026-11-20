@@ -17,10 +17,13 @@ fn long shortest_coprime_segment(long* input, usz length, char* output, usz outp
     @export("shortest_coprime_segment") {
     if (length > MAX_LENGTH || (length != 0 && input == null)) return -1;
     for (usz i = 0; i < length; i++) if (input[i] < 1 || input[i] > 1000) return -1;
-    long front[MAX_LENGTH], front_gcd[MAX_LENGTH], back[MAX_LENGTH], back_gcd[MAX_LENGTH];
+    long[MAX_LENGTH] front;
+    long[MAX_LENGTH] front_gcd;
+    long[MAX_LENGTH] back;
+    long[MAX_LENGTH] back_gcd;
     usz front_length = 0, back_length = 0, left = 0, best_start = 0, best_length = length + 1;
     for (usz right = 0; right < length; right++) {
-        push(input[right], back, back_gcd, &back_length);
+        push(input[right], &back[0], &back_gcd[0], &back_length);
         long window_gcd = gcd_positive(front_length > 0 ? front_gcd[front_length - 1] : 0,
                                        back_length > 0 ? back_gcd[back_length - 1] : 0);
         while (window_gcd == 1) {
@@ -29,7 +32,7 @@ fn long shortest_coprime_segment(long* input, usz length, char* output, usz outp
             if (front_length == 0) {
                 while (back_length > 0) {
                     long value = back[--back_length];
-                    push(value, front, front_gcd, &front_length);
+                    push(value, &front[0], &front_gcd[0], &front_length);
                 }
             }
             --front_length;

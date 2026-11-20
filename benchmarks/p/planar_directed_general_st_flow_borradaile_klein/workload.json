@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi626-general-directed-planar-st-flow-v1",
+  "algorithm": "planar_directed_general_st_flow_borradaile_klein",
+  "function_symbol": "planar_directed_general_st_flow_borradaile_klein",
+  "abi": "i64_array_bytes_output",
+  "comparison_model": "i64_array_bytes_output_call",
+  "pinned_source": {
+    "title": "An O(n log n) Algorithm for Maximum st-Flow in a Directed Planar Graph",
+    "authors": ["Glencora Borradaile", "Philip N. Klein"],
+    "doi": "10.1145/1502793.1502798",
+    "url": "https://doi.org/10.1145/1502793.1502798",
+    "section": "3: dual potential preprocessing and leftmost path augmentation",
+    "license": "Algorithm description only; clean-room implementation"
+  },
+  "context_source": {
+    "title": "Planar Maximum s-t Flow",
+    "authors": ["Glencora Borradaile"],
+    "doi": "10.1007/978-1-4939-2864-4_626",
+    "epub_path": "OEBPS/AChap626.html"
+  },
+  "right_first_source": {
+    "title": "The Vertex-Disjoint Menger Problem in Planar Graphs",
+    "authors": ["Heike Ripphausen-Lipa", "Dorothea Wagner", "Karsten Weihe"],
+    "doi": "10.1137/S0097539793253565",
+    "section": "1: counterclockwise-next incidence rule"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n,m,s,t,(tail,head,capacity)*m,(degree,edge_id...)*n]",
+    "n": [2, 6],
+    "m": [1, 10],
+    "capacity": [1, 5],
+    "maximum_valid_length": 60,
+    "maximum_parseable_length": 61,
+    "embedding_promise": "Connected simple undirected support with one orientation per edge; supplied counterclockwise cyclic incidence rows form a sphere embedding, checked by dart-face orbits and F=m-n+2.",
+    "face_convention": "Number face orbits by first unseen dart in increasing dart ID; choose the right face of the local dart that starts at t along its first listed incident edge, regardless of the input arc direction.",
+    "right_first_convention": "Scan the counterclockwise-next incidence after the incoming incidence; start at t with the first row incidence, whose right face defines infinity.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "layout": "[maximum_flow_value]",
+    "maximum_bytes": 8,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Fixed arrays for at most six vertices, ten edges, twenty darts, six faces, dual adjacency/distances, residual capacities, DFS state, and bounded recursion/output staging."
+  },
+  "profile": {
+    "operation": "Reverse-dual Dijkstra potentials, capacity split over the two dart directions, then repeated right-first residual DFS from t and bottleneck saturation of the corresponding leftmost s-to-t path.",
+    "maxflow_scope": "Return the flow value only; no arc assignment or dynamic-tree state is serialized.",
+    "implementation_note": "Uses direct bounded Dijkstra and recomputes each right-first tree; does not claim the paper's O(n log n) time bound.",
+    "duplicate_rationale": "Extends the local st_planar_leftmost_augmenting_flow special case by adding dual preprocessing and non-cofacial terminal placements."
+  },
+  "measurement": {
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-directed-bridge",
+      "input_values": [2,1,0,1,0,1,4,1,0,1,0],
+      "input_length": 11,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0400000000000000"
+    },
+    {
+      "id": "single-bridge-wrong-direction",
+      "input_values": [2,1,1,0,0,1,4,1,0,1,0],
+      "input_length": 11,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "triangle-two-directed-routes",
+      "input_values": [3,3,0,2,0,1,3,1,2,2,0,2,1,2,0,2,2,1,0,2,2,1],
+      "input_length": 22,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000000"
+    },
+    {
+      "id": "noncofacial-bipyramid-poles",
+      "input_values": [5,9,3,4,0,1,2,1,2,2,2,0,1,3,0,1,3,1,1,3,2,1,0,4,1,1,4,1,2,4,1,4,0,3,2,6,4,0,7,1,4,4,1,8,2,5,3,3,4,5,3,6,8,7],
+      "input_length": 54,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000000"
+    },
+    {
+      "id": "asymmetric-chorded-cycle-residual-reroute",
+      "input_values": [6,7,0,5,0,1,1,0,2,1,1,3,1,1,4,1,2,3,1,3,5,1,4,5,1,2,0,1,3,3,0,2,2,4,1,3,5,2,4,2,3,6,2,5,6],
+      "input_length": 45,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    },
+    {
+      "id": "maximum-frame-wheel",
+      "input_values": [6,10,0,3,0,1,1,0,2,1,0,3,1,0,4,1,0,5,1,1,2,1,2,3,1,3,4,1,4,5,1,5,1,1,5,0,1,2,3,4,3,5,0,9,3,6,1,5,3,7,2,6,3,3,7,8,3,9,4,8],
+      "input_length": 60,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    },
+    {
+      "id": "nonplanar-k33-rotation-rejected",
+      "input_values": [6,9,0,5,0,3,1,0,4,1,0,5,1,1,3,1,1,4,1,1,5,1,2,3,1,2,4,1,2,5,1,3,0,1,2,3,3,3,4,5,3,6,7,8,3,0,3,6,3,1,4,7,3,2,5,8],
+      "input_length": 55,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-capacity-rejected",
+      "input_values": [2,1,0,1,0,1,0,1,0,1,0],
+      "input_length": 11,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "incomplete-rotation-rejected",
+      "input_values": [2,1,0,1,0,1,4,1,0,0],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-rotation-row-rejected",
+      "input_values": [2,1,0,1,0,1,4,1,0,1],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-rejected",
+      "input_values": [2,1,0,1,0,1,4,1,0,1,0,99],
+      "input_length": 12,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2,1,0,1,0,1,4,1,0,1,0],
+      "input_length": 11,
+      "output_is_null": true,
+      "output_capacity": 8,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2,1,0,1,0,1,4,1,0,1,0],
+      "input_length": 11,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

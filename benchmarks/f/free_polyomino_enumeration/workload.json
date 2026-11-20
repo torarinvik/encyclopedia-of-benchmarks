@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "free-polyomino-enumeration-i64-array-scalar-v1",
+  "algorithm": "free_polyomino_enumeration",
+  "function_symbol": "free_polyomino_enumeration",
+  "abi": "i64_array_scalar",
+  "input": {
+    "layout": "[n]",
+    "minimum_n": 1,
+    "maximum_n": 8,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_result": -1
+  },
+  "algorithm_policy": {
+    "primary": "grow free shapes one edge-neighbor at a time; normalize every extension under translation, rotation, and reflection; retain one lexicographically canonical signature per size",
+    "symmetry_group": "the eight rotations/reflections of the square (D4)",
+    "independent_reference": "restricted fixed-shape growth in Redelmeier's half-plane followed by D4 canonicalization",
+    "shape_state_capacity": 512,
+    "complexity": "for layer sizes k=1..n-1, at most S_k<=512 shapes produce 4*k candidates each; each candidate canonicalization costs O(8*k^2) and linear-list deduplication costs O(S_(k+1)*k), so primary time is O(sum_k 4*k*S_k*(8*k^2+S_(k+1)*k)) and state space is O(2*512*n) coordinate words",
+    "independent_reference_complexity": "restricted fixed-shape growth visits each fixed shape at most once per size; with conservative O(n^2) copied blocked/frontier bookkeeping per visit and O(8*n*log(n)) final symmetry normalization, time is O(n^2*sum_k F_k + 8*n*log(n)*F_n), where F_k is the fixed-shape count; recursive copies use O(n^3) space plus stored free signatures"
+  },
+  "output": {
+    "encoding": "number of free n-ominoes, where translations, rotations, and reflections are identified",
+    "maximum_result": 369,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "discovery_index": "https://rosettagit.org/tasks/",
+    "title_index_candidate": "https://rosettagit.org/tasks/free-polyominoes-enumeration/",
+    "primary_reference": "https://doi.org/10.1016/0012-365X(81)90237-5",
+    "author_copy": "https://barequet.cs.technion.ac.il/poly-papers/math-cs/1981-Redelmeier.pdf",
+    "supporting_exposition": "https://arxiv.org/abs/1106.1078",
+    "reuse": "task titles identify the subject only; algorithm descriptions are paraphrased, and no source code, task text, examples, or tests are copied"
+  },
+  "cases": [
+    {"id": "monomino", "input_values": [1], "input_length": 1, "expected_result": 1},
+    {"id": "domino", "input_values": [2], "input_length": 1, "expected_result": 1},
+    {"id": "triomino", "input_values": [3], "input_length": 1, "expected_result": 2},
+    {"id": "tetromino", "input_values": [4], "input_length": 1, "expected_result": 5},
+    {"id": "pentomino", "input_values": [5], "input_length": 1, "expected_result": 12},
+    {"id": "hexomino", "input_values": [6], "input_length": 1, "expected_result": 35},
+    {"id": "heptomino", "input_values": [7], "input_length": 1, "expected_result": 108},
+    {"id": "octomino-maximum", "input_values": [8], "input_length": 1, "expected_result": 369},
+    {"id": "invalid-empty", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "invalid-zero", "input_values": [0], "input_length": 1, "expected_result": -1},
+    {"id": "invalid-above-bound", "input_values": [9], "input_length": 1, "expected_result": -1},
+    {"id": "invalid-trailing-word", "input_values": [4, 0], "input_length": 2, "expected_result": -1},
+    {"id": "maximum-parseable-trailing-value", "input_values": [8, 99], "input_length": 2, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

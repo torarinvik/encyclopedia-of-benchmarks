@@ -20,6 +20,7 @@ The pinned C# method stores the input's decimal digits from least-significant to
 | C3 | [`c3/k/keith_number_checker.c3`](../../../c3/k/keith_number_checker.c3) |
 | C++ | [`cpp/k/keith_number_checker.cpp`](../../../cpp/k/keith_number_checker.cpp) |
 | Elisa | [`elisa/k/keith_number_checker.elisa`](../../../elisa/k/keith_number_checker.elisa) |
+| Mojo | [`mojo/k/keith_number_checker.mojo`](../../../mojo/k/keith_number_checker.mojo) |
 | Nim | [`nim/k/keith_number_checker.nim`](../../../nim/k/keith_number_checker.nim) |
 | Odin | [`odin/k/keith_number_checker.odin`](../../../odin/k/keith_number_checker.odin) |
 | Rust | [`rust/k/keith_number_checker.rs`](../../../rust/k/keith_number_checker.rs) |
@@ -29,3 +30,7 @@ The pinned C# method stores the input's decimal digits from least-significant to
 ## TheAlgorithms reference
 
 - [C# `KeithNumberChecker.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/KeithNumberChecker.cs)
+
+Scalar verifier registration and a rolling-window reference are drafted and
+have not been executed. This implementation sums its full window each step,
+unlike the incremental rolling-sum `keith_number` benchmark.

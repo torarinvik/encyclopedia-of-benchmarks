@@ -1,6 +1,6 @@
 module logistic_regression_predict;
 
-long logistic_regression_predict(long* values, usz length) @export("logistic_regression_predict") {
+fn long logistic_regression_predict(long* values, usz length) @export("logistic_regression_predict") {
     if (values == null || length < 2 || length > 2051) return -1;
     long rows = values[0], features = values[1];
     if (rows < 1 || rows > 63 || features < 1 || features > 32) return -1;

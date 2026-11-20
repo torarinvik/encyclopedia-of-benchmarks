@@ -17,13 +17,13 @@ fn long tsvc_s281_reverse_coupled_update(long* input, usz length,
         char* output, usz capacity) @export("tsvc_s281_reverse_coupled_update") {
     if (input == null || length < 5 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 1 || input[0] > MAX_N || input[1] < 1 || input[1] > 8) return -1;
-    usz n = input[0].usz();
-    usz passes = input[1].usz();
+    usz n = (usz)input[0];
+    usz passes = (usz)input[1];
     if (length != 2 + 3 * n) return -1;
 
-    double a[MAX_N];
-    double b[MAX_N];
-    double c[MAX_N];
+    double[MAX_N] a;
+    double[MAX_N] b;
+    double[MAX_N] c;
     for (usz i = 0; i < n; i++) {
         long av = input[2 + i];
         long bv = input[2 + n + i];
@@ -47,5 +47,5 @@ fn long tsvc_s281_reverse_coupled_update(long* input, usz length,
         store_i64_le((long)a[i], output, 8 * i);
         store_i64_le((long)b[i], output, 8 * (n + i));
     }
-    return output_bytes.long();
+    return (long)output_bytes;
 }

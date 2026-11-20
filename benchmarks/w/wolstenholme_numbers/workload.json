@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "wolstenholme-numbers-bounded-i64-array-scalar-v1",
+  "algorithm": "wolstenholme_numbers",
+  "function_symbol": "wolstenholme_numbers",
+  "abi": "i64_array_scalar",
+  "description": "Return the reduced numerator of H_n^(2) for 1 <= n <= 22.",
+  "source": {
+    "definition_url": "https://mathworld.wolfram.com/WolstenholmeNumber.html",
+    "sequence_url": "https://oeis.org/A007406",
+    "sequence_id": "A007406",
+    "role": "mathematical definition and published values; implementation is clean-room"
+  },
+  "contract": {
+    "definition": "For 1 <= n <= 22, return the numerator after reducing sum(k=1..n, 1/k^2) to lowest terms.",
+    "input_encoding": "[n]",
+    "valid_n_range": [1, 22],
+    "exact_input_length": 1,
+    "invalid_input_result": -1,
+    "error_order": "Reject null, malformed, non-unit-length, or out-of-range input before arithmetic."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n]",
+    "n_range": [1, 22],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "reduced numerator of H_n^(2)",
+    "valid_result_range": [1, 86364397717734821],
+    "invalid_input_result": -1
+  },
+  "bounds": {
+    "maximum_common_denominator": 54192375991353600,
+    "maximum_pre_reduction_numerator_bound_exclusive": 108384751982707200,
+    "maximum_result": 86364397717734821,
+    "signed_i64_safe": true
+  },
+  "complexity": {
+    "primary_time": "O(n log L) arithmetic operations across gcd reductions, with n <= 22 and L <= 54192375991353600",
+    "primary_space": "O(1) scalar state; 256-byte native workspace cap",
+    "independent_time": "O(n log L) arithmetic operations to form the LCM-scaled sum and reduce once",
+    "independent_space": "O(1) scalar state"
+  },
+  "workspace": {"bytes": 256},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"wolstenholme-1","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"wolstenholme-2","input_values":[2],"input_length":1,"expected_result":5},
+    {"id":"wolstenholme-3","input_values":[3],"input_length":1,"expected_result":49},
+    {"id":"wolstenholme-4","input_values":[4],"input_length":1,"expected_result":205},
+    {"id":"wolstenholme-5","input_values":[5],"input_length":1,"expected_result":5269},
+    {"id":"wolstenholme-6","input_values":[6],"input_length":1,"expected_result":5369},
+    {"id":"wolstenholme-7","input_values":[7],"input_length":1,"expected_result":266681},
+    {"id":"wolstenholme-8","input_values":[8],"input_length":1,"expected_result":1077749},
+    {"id":"wolstenholme-9","input_values":[9],"input_length":1,"expected_result":9778141},
+    {"id":"wolstenholme-10","input_values":[10],"input_length":1,"expected_result":1968329},
+    {"id":"wolstenholme-11","input_values":[11],"input_length":1,"expected_result":239437889},
+    {"id":"wolstenholme-12","input_values":[12],"input_length":1,"expected_result":240505109},
+    {"id":"wolstenholme-13","input_values":[13],"input_length":1,"expected_result":40799043101},
+    {"id":"wolstenholme-14","input_values":[14],"input_length":1,"expected_result":40931552621},
+    {"id":"wolstenholme-15","input_values":[15],"input_length":1,"expected_result":205234915681},
+    {"id":"wolstenholme-16","input_values":[16],"input_length":1,"expected_result":822968714749},
+    {"id":"wolstenholme-17","input_values":[17],"input_length":1,"expected_result":238357395880861},
+    {"id":"wolstenholme-18","input_values":[18],"input_length":1,"expected_result":238820721143261},
+    {"id":"wolstenholme-19-maximum-result","input_values":[19],"input_length":1,"expected_result":86364397717734821},
+    {"id":"wolstenholme-20","input_values":[20],"input_length":1,"expected_result":17299975731542641},
+    {"id":"wolstenholme-21","input_values":[21],"input_length":1,"expected_result":353562301485889},
+    {"id":"wolstenholme-22","input_values":[22],"input_length":1,"expected_result":354019312583809},
+    {"id":"zero-invalid","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"above-bound-invalid","input_values":[23],"input_length":1,"expected_result":-1},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"empty-frame","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"trailing-word","input_values":[1,0],"input_length":2,"expected_result":-1},
+    {"id":"over-parseable-frame","input_values":[1,0,0],"input_length":3,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

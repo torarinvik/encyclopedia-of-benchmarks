@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -160,7 +161,7 @@ fn sparse_matrix_det(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size
     let k = Int(k_value)
     if length != c_size_t(2 + 3 * k):
         return -1
-    var seen = InlineArray[Bool, MAX_N * MAX_N]()
+    var seen = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     var row = InlineArray[Int, MAX_K]()
     var column = InlineArray[Int, MAX_K]()
     var entry = InlineArray[Int64, MAX_K]()

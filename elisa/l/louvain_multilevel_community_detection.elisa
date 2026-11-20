@@ -1,0 +1,198 @@
+const MAX_VERTICES: usize = 8
+const MAX_EDGES: usize = 28
+const MAX_INPUT_LENGTH: usize = 86
+const MAX_PARSEABLE_LENGTH: usize = 87
+const ADJACENCY_CELLS: usize = 64
+
+def louvain_partition_score(adjacency: view[i64], community: view[i64], n: usize) -> i64:
+    degree: mutable i64[8] = zeroed
+    total_degree: mutable i64 = 0
+    internal_directed: mutable i64 = 0
+    i: mutable usize = 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            weight: i64 = adjacency[i * MAX_VERTICES + j]
+            degree[i] <- degree[i] + weight
+            if community[i] == community[j]:
+                internal_directed <- internal_directed + weight
+            j <- j + 1
+        total_degree <- total_degree + degree[i]
+        i <- i + 1
+
+    degree_squares: mutable i64 = 0
+    i <- 0
+    while i < n:
+        first_in_community: mutable bool = true
+        j <- 0
+        while j < i:
+            if community[j] == community[i]:
+                first_in_community <- false
+                break
+            j <- j + 1
+        if first_in_community:
+            community_degree: mutable i64 = 0
+            j <- i
+            while j < n:
+                if community[j] == community[i]:
+                    community_degree <- community_degree + degree[j]
+                j <- j + 1
+            degree_squares <- degree_squares + community_degree * community_degree
+        i <- i + 1
+    total_degree * internal_directed - degree_squares
+
+def louvain_multilevel_community_detection_impl(values: view[i64], length: usize) -> i64:
+    if length < 5 or length > MAX_PARSEABLE_LENGTH:
+        return -1
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    if n_value < 2 or n_value > MAX_VERTICES.i64() or m_value < 1 or m_value > MAX_EDGES.i64():
+        return -1
+    n: mutable usize = n_value.usize()
+    edge_count: usize = m_value.usize()
+    if length != 2 + 3 * edge_count or length > MAX_INPUT_LENGTH:
+        return -1
+
+    adjacency: mutable i64[ADJACENCY_CELLS] = zeroed
+    vertex_masks: mutable u64[MAX_VERTICES] = zeroed
+    canonical_keys: mutable usize[MAX_VERTICES] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        vertex_masks[vertex] <- 1.u64() << vertex
+        canonical_keys[vertex] <- vertex
+        vertex <- vertex + 1
+
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u_value: i64 = values[2 + 3 * edge]
+        v_value: i64 = values[3 + 3 * edge]
+        weight: i64 = values[4 + 3 * edge]
+        if u_value < 0 or u_value >= v_value or v_value >= n_value or weight < 1 or weight > 7:
+            return -1
+        if edge > 0 and (u_value < previous_u or (u_value == previous_u and v_value <= previous_v)):
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        adjacency[u * MAX_VERTICES + v] <- weight
+        adjacency[v * MAX_VERTICES + u] <- weight
+        previous_u <- u_value
+        previous_v <- v_value
+        edge <- edge + 1
+
+    while true:
+        community: mutable i64[MAX_VERTICES] = zeroed
+        vertex <- 0
+        while vertex < n:
+            community[vertex] <- vertex.i64()
+            vertex <- vertex + 1
+
+        any_move: mutable bool = false
+        while true:
+            sweep_moved: mutable bool = false
+            vertex <- 0
+            while vertex < n:
+                current_score: i64 = louvain_partition_score(adjacency[0:ADJACENCY_CELLS], community[0:MAX_VERTICES], n)
+                old_community: i64 = community[vertex]
+                best_community: mutable i64 = -1
+                best_gain: mutable i64 = 0
+                best_key: mutable usize = MAX_VERTICES
+                neighbor: mutable usize = 0
+                while neighbor < n:
+                    if neighbor != vertex and adjacency[vertex * MAX_VERTICES + neighbor] > 0:
+                        target: i64 = community[neighbor]
+                        if target != old_community:
+                            seen_before: mutable bool = false
+                            earlier: mutable usize = 0
+                            while earlier < neighbor:
+                                if earlier != vertex and adjacency[vertex * MAX_VERTICES + earlier] > 0 and community[earlier] == target:
+                                    seen_before <- true
+                                    break
+                                earlier <- earlier + 1
+                            if not seen_before:
+                                target_key: mutable usize = MAX_VERTICES
+                                member: mutable usize = 0
+                                while member < n:
+                                    if community[member] == target and canonical_keys[member] < target_key:
+                                        target_key <- canonical_keys[member]
+                                    member <- member + 1
+                                community[vertex] <- target
+                                candidate_score: i64 = louvain_partition_score(adjacency[0:ADJACENCY_CELLS], community[0:MAX_VERTICES], n)
+                                community[vertex] <- old_community
+                                gain: i64 = candidate_score - current_score
+                                if gain > 0 and (gain > best_gain or (gain == best_gain and target_key < best_key)):
+                                    best_community <- target
+                                    best_gain <- gain
+                                    best_key <- target_key
+                    neighbor <- neighbor + 1
+                if best_community >= 0:
+                    community[vertex] <- best_community
+                    sweep_moved <- true
+                    any_move <- true
+                vertex <- vertex + 1
+            if not sweep_moved:
+                break
+
+        if not any_move:
+            break
+
+        group_label: mutable i64[MAX_VERTICES] = zeroed
+        group_key: mutable usize[MAX_VERTICES] = zeroed
+        group_mask: mutable u64[MAX_VERTICES] = zeroed
+        group_of: mutable usize[MAX_VERTICES] = zeroed
+        group_count: mutable usize = 0
+        vertex <- 0
+        while vertex < n:
+            group: mutable usize = 0
+            while group < group_count and group_label[group] != community[vertex]:
+                group <- group + 1
+            if group == group_count:
+                group_label[group] <- community[vertex]
+                group_key[group] <- canonical_keys[vertex]
+                group_count <- group_count + 1
+            group_of[vertex] <- group
+            group_mask[group] <- group_mask[group] | vertex_masks[vertex]
+            vertex <- vertex + 1
+        if group_count >= n:
+            return -1
+
+        next_adjacency: mutable i64[ADJACENCY_CELLS] = zeroed
+        i: mutable usize = 0
+        while i < n:
+            j: mutable usize = 0
+            while j < n:
+                next_adjacency[group_of[i] * MAX_VERTICES + group_of[j]] <- next_adjacency[group_of[i] * MAX_VERTICES + group_of[j]] + adjacency[i * MAX_VERTICES + j]
+                j <- j + 1
+            i <- i + 1
+        i <- 0
+        while i < ADJACENCY_CELLS:
+            adjacency[i] <- next_adjacency[i]
+            i <- i + 1
+        i <- 0
+        while i < group_count:
+            vertex_masks[i] <- group_mask[i]
+            canonical_keys[i] <- group_key[i]
+            i <- i + 1
+        n <- group_count
+
+    labels: mutable i64[MAX_VERTICES] = zeroed
+    vertex <- 0
+    while vertex < n:
+        original: mutable usize = 0
+        while original < MAX_VERTICES:
+            if (vertex_masks[vertex] & (1.u64() << original)) != 0:
+                labels[original] <- canonical_keys[vertex].i64()
+            original <- original + 1
+        vertex <- vertex + 1
+    packed: mutable u64 = n.u64() << 24
+    original <- 0
+    while original < MAX_VERTICES:
+        packed <- packed | (labels[original].u64() << (3 * original))
+        original <- original + 1
+    packed.i64()
+
+export fn louvain_multilevel_community_detection(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 5 or length > MAX_PARSEABLE_LENGTH:
+        return -1
+    louvain_multilevel_community_detection_impl(input[0:length], length)

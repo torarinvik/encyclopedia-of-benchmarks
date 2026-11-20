@@ -1,0 +1,38 @@
+def four_square_floor_sqrt(value: i64) -> i64:
+    root: mutable i64 = 0
+    while (root + 1) * (root + 1) <= value:
+        root <- root + 1
+    root
+
+def four_square_pack(a: i64, b: i64, c: i64, d: i64) -> i64:
+    (((a * 33 + b) * 33 + c) * 33 + d)
+
+export fn four_square_sum_representation(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+    n: i64 = input[0]
+    if n < 0 or n > 1024:
+        return -1
+
+    a: mutable i64 = four_square_floor_sqrt(n)
+    while a >= 0:
+        rem_a: i64 = n - a * a
+        b_max: mutable i64 = four_square_floor_sqrt(rem_a)
+        if b_max > a:
+            b_max <- a
+        b: mutable i64 = b_max
+        while b >= 0:
+            rem_b: i64 = rem_a - b * b
+            c_max: mutable i64 = four_square_floor_sqrt(rem_b)
+            if c_max > b:
+                c_max <- b
+            c: mutable i64 = c_max
+            while c >= 0:
+                rem_c: i64 = rem_b - c * c
+                d: i64 = four_square_floor_sqrt(rem_c)
+                if d <= c and d * d == rem_c:
+                    return four_square_pack(a, b, c, d)
+                c <- c - 1
+            b <- b - 1
+        a <- a - 1
+    -2

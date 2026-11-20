@@ -1,0 +1,104 @@
+const LC_MAX_N: usize = 64
+const LC_MAX_INPUT: usize = 65
+
+struct LcState:
+    parent: i64[64]
+    first_child: i64[64]
+    next_sibling: i64[64]
+    height: i64[64]
+    heavy: i64[64]
+    base: i64[64]
+    count: i64[64]
+    dominant_depth: i64[64]
+
+def lc_solve(state: mutable LcState&, n: usize) -> void:
+    for vertex in 0..<n:
+        state.height[vertex] <- 1
+        state.heavy[vertex] <- -1
+        state.first_child[vertex] <- -1
+    state.parent[0] <- -1
+    for vertex in 1..<n:
+        parent: usize = state.parent[vertex].usize()
+        state.next_sibling[vertex] <- state.first_child[parent]
+        state.first_child[parent] <- vertex.i64()
+
+    reverse: mutable usize = n
+    while reverse > 0:
+        reverse <- reverse - 1
+        vertex: usize = reverse
+        child: mutable i64 = state.first_child[vertex]
+        maximum_height: mutable i64 = 0
+        while child >= 0:
+            child_index: usize = child.usize()
+            child_height: i64 = state.height[child_index]
+            if child_height > maximum_height or
+                    (child_height == maximum_height and child < state.heavy[vertex]):
+                maximum_height <- child_height
+                state.heavy[vertex] <- child
+            child <- state.next_sibling[child_index]
+        state.height[vertex] <- maximum_height + 1
+
+    pool_size: mutable i64 = 0
+    for vertex in 0..<n:
+        if vertex == 0 or state.heavy[state.parent[vertex].usize()] != vertex.i64():
+            current: mutable i64 = vertex.i64()
+            while current >= 0:
+                current_index: usize = current.usize()
+                state.base[current_index] <- pool_size
+                pool_size <- pool_size + 1
+                current <- state.heavy[current_index]
+
+    reverse <- n
+    while reverse > 0:
+        reverse <- reverse - 1
+        vertex: usize = reverse
+        base: usize = state.base[vertex].usize()
+        state.count[base] <- 1
+        best_depth: mutable i64 = 0
+        best_count: mutable i64 = 1
+        heavy: i64 = state.heavy[vertex]
+        if heavy >= 0:
+            heavy_index: usize = heavy.usize()
+            best_depth <- state.dominant_depth[heavy_index] + 1
+            best_count <- state.count[base + best_depth.usize()]
+        child <- state.first_child[vertex]
+        while child >= 0:
+            child_index: usize = child.usize()
+            if child != heavy:
+                child_base: usize = state.base[child_index].usize()
+                for child_depth in 0..<state.height[child_index].usize():
+                    depth: usize = child_depth + 1
+                    slot: usize = base + depth
+                    amount: i64 = state.count[slot] + state.count[child_base + child_depth]
+                    state.count[slot] <- amount
+                    if amount > best_count or (amount == best_count and depth.i64() < best_depth):
+                        best_count <- amount
+                        best_depth <- depth.i64()
+            child <- state.next_sibling[child_index]
+        state.dominant_depth[vertex] <- best_depth
+
+def lc_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def long_chain_dominant_depth_index(input: i64&, input_length: usize,
+                                   output: mutable u8&, output_capacity: usize) -> i64
+        @export("long_chain_dominant_depth_index"):
+    if input.is_null() or input_length == 0 or input_length > LC_MAX_INPUT: return -1
+    values: view[i64] = input[0:input_length]
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > LC_MAX_N.i64() or input_length != n_value.usize(): return -1
+    n: usize = n_value.usize()
+    for vertex in 1..<n:
+        if values[vertex] < 0 or values[vertex] >= vertex.i64(): return -1
+    required: usize = 8 * n
+    if output.is_null() or output_capacity < required: return -2
+    result: mutable view[u8] = output[0:required]
+    state: mutable LcState = zeroed
+    for vertex in 1..<n:
+        state.parent[vertex] <- values[vertex]
+    lc_solve(state, n)
+    for vertex in 0..<n:
+        lc_write_i64(result, 8 * vertex, state.dominant_depth[vertex])
+    required.i64()

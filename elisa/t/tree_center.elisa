@@ -1,0 +1,120 @@
+const TC_MAX_N: usize = 64
+const TC_MAX_INPUT_LENGTH: usize = 1 + 2 * (TC_MAX_N - 1)
+
+def tc_find_root(parent: mutable view[usize], item: usize) -> usize:
+    node: mutable usize = item
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def tc_compute(input: view[i64], centers: mutable view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > TC_MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > TC_MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != 1 + 2 * (n - 1): return -1
+
+    adjacency: mutable usize[TC_MAX_N * TC_MAX_N] = zeroed
+    adjacency_count: mutable usize[TC_MAX_N] = zeroed
+    degree: mutable usize[TC_MAX_N] = zeroed
+    parent: mutable usize[TC_MAX_N] = zeroed
+    component_size: mutable usize[TC_MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        parent[vertex] <- vertex
+        component_size[vertex] <- 1
+        vertex <- vertex + 1
+    edge: mutable usize = 0
+    while edge < n - 1:
+        offset: usize = 1 + 2 * edge
+        left_value: i64 = input[offset]
+        right_value: i64 = input[offset + 1]
+        if left_value < 0 or left_value >= n_value or right_value < 0 or
+            right_value >= n_value or left_value == right_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        root_left: usize = tc_find_root(parent[0:TC_MAX_N], left)
+        root_right: usize = tc_find_root(parent[0:TC_MAX_N], right)
+        if root_left == root_right: return -1
+        if component_size[root_left] < component_size[root_right]:
+            temporary: usize = root_left
+            root_left <- root_right
+            root_right <- temporary
+        parent[root_right] <- root_left
+        component_size[root_left] <- component_size[root_left] + component_size[root_right]
+        adjacency[left * TC_MAX_N + adjacency_count[left]] <- right
+        adjacency_count[left] <- adjacency_count[left] + 1
+        adjacency[right * TC_MAX_N + adjacency_count[right]] <- left
+        adjacency_count[right] <- adjacency_count[right] + 1
+        degree[left] <- degree[left] + 1
+        degree[right] <- degree[right] + 1
+        edge <- edge + 1
+    if n > 1 and component_size[tc_find_root(parent[0:TC_MAX_N], 0)] != n: return -1
+
+    active: mutable bool[TC_MAX_N] = zeroed
+    leaves: mutable usize[TC_MAX_N] = zeroed
+    leaf_count: mutable usize = 0
+    vertex <- 0
+    while vertex < n:
+        active[vertex] <- true
+        if degree[vertex] <= 1:
+            leaves[leaf_count] <- vertex
+            leaf_count <- leaf_count + 1
+        vertex <- vertex + 1
+    remaining: mutable usize = n
+    while remaining > 2:
+        index: mutable usize = 0
+        while index < leaf_count:
+            active[leaves[index]] <- false
+            index <- index + 1
+        remaining <- remaining - leaf_count
+        index <- 0
+        while index < leaf_count:
+            leaf: usize = leaves[index]
+            edge_index: mutable usize = 0
+            while edge_index < adjacency_count[leaf]:
+                neighbor: usize = adjacency[leaf * TC_MAX_N + edge_index]
+                if active[neighbor]: degree[neighbor] <- degree[neighbor] - 1
+                edge_index <- edge_index + 1
+            index <- index + 1
+        if remaining <= 2: break
+        leaf_count <- 0
+        vertex <- 0
+        while vertex < n:
+            if active[vertex] and degree[vertex] == 1:
+                leaves[leaf_count] <- vertex
+                leaf_count <- leaf_count + 1
+            vertex <- vertex + 1
+
+    center_count: mutable usize = 0
+    vertex <- 0
+    while vertex < n:
+        if active[vertex]:
+            centers[center_count] <- vertex.i64()
+            center_count <- center_count + 1
+        vertex <- vertex + 1
+    center_count.i64()
+
+def tc_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+export fn tree_center(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > TC_MAX_INPUT_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    centers: mutable i64[2] = zeroed
+    center_count: i64 = tc_compute(input_view, centers[0:2])
+    if center_count < 0: return center_count
+    required: usize = center_count.usize() * 8
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index: mutable usize = 0
+    while index < center_count.usize():
+        tc_store_i64_le(centers[index], output_view, 8 * index)
+        index <- index + 1
+    required.i64()

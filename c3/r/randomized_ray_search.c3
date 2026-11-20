@@ -12,7 +12,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long randomized_ray_search(long* input, usz length, char* output,
+fn long randomized_ray_search(long* input, usz length, char* output,
         usz capacity) @export("randomized_ray_search") {
     if (input == null || length < 5 || length > MAX_INPUT) return -1;
     long ray_count_value = input[0], growth = input[1], initial = input[2];

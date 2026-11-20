@@ -86,8 +86,9 @@ def maskwords_append_token(text: view[u8], start: usize, finish: usize, mask: vi
             position <- position + 1
     written
 
-def maskwords_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values == null or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+def maskwords_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     if values[0] < 0 or values[0] > MAX_TEXT_BYTES.i64(): return -1
     text_length: usize = values[0].usize()
     mask_length_index: usize = 1 + text_length
@@ -134,10 +135,14 @@ def maskwords_impl(values: i64&, length: usize, output: mutable u8&, capacity: u
             mask_length, scratch[0:MAX_OUTPUT_BYTES], written)
     if written > MAX_OUTPUT_BYTES: return -1
     if capacity < written or (written != 0 and output == null): return -2
+    if written == 0: return 0
+    result: mutable view[u8] = output[0:written]
     index <- 0
     while index < written:
-        output[index] <- scratch[index]
+        result[index] <- scratch[index]
         index <- index + 1
     written.i64()
 
-export fn maskwords(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = maskwords_impl
+export fn maskwords(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    maskwords_impl(values[0:length], output, capacity)

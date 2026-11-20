@@ -1,4 +1,5 @@
 # Bounded integer STREAM-kernel variant; see package README and upstream notice.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 

@@ -30,7 +30,7 @@ fn bool tree_distance(int node_count, int edge_count, int* edge_u, int* edge_v,
     return false;
 }
 
-long phylogenetic_tree_from_distance_matrix(long* input, usz length, char* output, usz capacity)
+fn long phylogenetic_tree_from_distance_matrix(long* input, usz length, char* output, usz capacity)
         @export("phylogenetic_tree_from_distance_matrix") {
     if (input == null || length < 1 || length > MAX_N * MAX_N + 2) return -1;
     long raw_n = input[0];

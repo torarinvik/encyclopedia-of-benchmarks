@@ -89,12 +89,12 @@ fn bool block_less(Context* context, usz left, usz right) {
 	return context->block_size[left] < context->block_size[right];
 }
 
-fn void store_u64_le(uint8* output, usz offset, ulong value) {
+fn void store_u64_le(char* output, usz offset, ulong value) {
 	for (usz byte = 0; byte < 8; byte += 1)
-		output[offset + byte] = (uint8)((value >> (byte * 8)) & 255);
+		output[offset + byte] = (char)((value >> (byte * 8)) & 255);
 }
 
-long two_edge_connected_components(long* input, usz length, uint8* output,
+fn long two_edge_connected_components(long* input, usz length, char* output,
 		usz output_capacity) @export("two_edge_connected_components") {
 	if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
 	long n_value = input[0], m_value = input[1];
@@ -154,7 +154,7 @@ long two_edge_connected_components(long* input, usz length, uint8* output,
 	}
 	usz bytes = 8 * packed_count;
 	if (output == null || output_capacity < bytes) return -2;
-	uint8[MAX_OUTPUT_BYTES] staged = zeroed;
+	char[MAX_OUTPUT_BYTES] staged = zeroed;
 	for (usz i = 0; i < packed_count; i += 1) store_u64_le(&staged[0], 8 * i, packed[i]);
 	for (usz i = 0; i < bytes; i += 1) output[i] = staged[i];
 	return (long)bytes;

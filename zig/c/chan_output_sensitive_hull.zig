@@ -51,21 +51,17 @@ fn groupHull(points: *const [32]Point, begin: usize, count: usize, out: []usize)
 fn tangent(points: *const [32]Point, hull: []const usize, query: usize) ?usize {
     const n = hull.len;
     if (n == 1) return hull[0];
-    if (n == 2) return if (turn(points[query], points[hull[0]], points[hull[1]]) > 0) hull[0] else hull[1];
-    const initial_up = turn(points[query], points[hull[0]], points[hull[1]]) > 0;
     var lo: usize = 0;
-    var hi = n;
+    var hi = n-1;
     while (lo < hi) {
         const mid = lo + (hi-lo)/2;
-        const before = turn(points[query], points[hull[mid]], points[hull[(mid+n-1)%n]]) > 0;
-        const after = turn(points[query], points[hull[mid]], points[hull[(mid+1)%n]]) > 0;
-        if (before and after) return hull[mid];
-        const below_anchor = mid != 0 and turn(points[query], points[hull[mid]], points[hull[0]]) > 0;
-        const above_anchor = mid != 0 and turn(points[query], points[hull[0]], points[hull[mid]]) > 0;
-        const left = if (initial_up) after and below_anchor else after or above_anchor;
-        if (left) { hi = mid; } else { lo = mid+1; }
+        if (turn(points[query], points[hull[mid]], points[hull[hi]]) > 0) {
+            hi = mid;
+        } else {
+            lo = mid+1;
+        }
     }
-    return null;
+    return hull[lo];
 }
 
 export fn chan_output_sensitive_hull(input_opt: ?[*]const i64, length: usize,

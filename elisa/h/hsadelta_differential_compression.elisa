@@ -1,0 +1,176 @@
+const HSD_MAX_LEN: usize = 32
+const HSD_MAX_BLOCKS: usize = 16
+const HSD_MAX_WORDS: usize = 114
+const HSD_MAX_INPUT: usize = 68
+
+def hsd_block_hash(data: view[i64], start: usize, width: usize) -> i64:
+    value: mutable i64 = 0
+    for i in 0..<width: value <- value * 257 + data[start + i] + 1
+    value
+
+def hsd_suffix_compare(hashes: i64[HSD_MAX_BLOCKS], count: usize, a0: usize, b0: usize) -> i64:
+    a: mutable usize = a0
+    b: mutable usize = b0
+    while a < count and b < count:
+        if hashes[a] != hashes[b]: return if hashes[a] < hashes[b]: -1 else: 1
+        a <- a + 1
+        b <- b + 1
+    if a == count and b == count: 0
+    else if a == count: -1
+    else: 1
+
+def hsd_prefix_compare(hashes: i64[HSD_MAX_BLOCKS], count: usize, suffix: usize,
+                       query: i64[HSD_MAX_BLOCKS], depth: usize) -> i64:
+    for i in 0..<depth:
+        if suffix + i >= count: return -1
+        if hashes[suffix + i] != query[i]: return if hashes[suffix + i] < query[i]: -1 else: 1
+    0
+
+def hsd_interval(sa: usize[HSD_MAX_BLOCKS], count: usize, hashes: i64[HSD_MAX_BLOCKS],
+                 query: i64[HSD_MAX_BLOCKS], depth: usize) -> usize[2]:
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if hsd_prefix_compare(hashes, count, sa[middle], query, depth) < 0: low <- middle + 1
+        else: high <- middle
+    first: usize = low
+    high <- count
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if hsd_prefix_compare(hashes, count, sa[middle], query, depth) <= 0: low <- middle + 1
+        else: high <- middle
+    result: mutable usize[2] = zeroed
+    result[0] <- first
+    result[1] <- low
+    result
+
+def hsd_best_depth(sa: usize[HSD_MAX_BLOCKS], count: usize, hashes: i64[HSD_MAX_BLOCKS],
+                   query: i64[HSD_MAX_BLOCKS], qcount: usize) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = (if count < qcount: count else: qcount) + 1
+    while low + 1 < high:
+        middle: usize = low + (high - low) / 2
+        bounds: usize[2] = hsd_interval(sa, count, hashes, query, middle)
+        if bounds[0] < bounds[1]: low <- middle
+        else: high <- middle
+    low
+
+def hsd_extend(reference: view[i64], version: view[i64], source0: usize, target0: usize,
+               floor: usize) -> usize[3]:
+    source: mutable usize = source0
+    target: mutable usize = target0
+    length: mutable usize = 0
+    while source + length < reference.len() and target + length < version.len() and
+          reference[source + length] == version[target + length]: length <- length + 1
+    while source > 0 and target > floor and reference[source - 1] == version[target - 1]:
+        source <- source - 1
+        target <- target - 1
+        length <- length + 1
+    result: mutable usize[3] = zeroed
+    result[0] <- source
+    result[1] <- target
+    result[2] <- length
+    result
+
+def hsd_better(a: usize[3], b: usize[3]) -> bool:
+    a[2] > b[2] or (a[2] == b[2] and (a[1] < b[1] or (a[1] == b[1] and a[0] < b[0])))
+
+def hsd_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8: output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def hsadelta_differential_compression_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > HSD_MAX_INPUT: return -1
+    mv: i64 = input[0]
+    nv: i64 = input[1]
+    pv: i64 = input[2]
+    if mv < 0 or mv > HSD_MAX_LEN.i64() or nv < 0 or nv > HSD_MAX_LEN.i64() or pv < 2 or pv > 4: return -1
+    m: usize = mv.usize()
+    n: usize = nv.usize()
+    p: usize = pv.usize()
+    if length != 3 + m + n: return -1
+    for i in 0..<m + n:
+        if input[3 + i] < 0 or input[3 + i] > 255: return -1
+    reference: view[i64] = input[3:3 + m]
+    version: view[i64] = input[3 + m:3 + m + n]
+
+    hashes: mutable i64[HSD_MAX_BLOCKS] = zeroed
+    suffixes: mutable usize[HSD_MAX_BLOCKS] = zeroed
+    count: usize = if m >= p: (m - p) / p + 1 else: 0
+    for i in 0..<count:
+        hashes[i] <- hsd_block_hash(reference, i * p, p)
+        suffixes[i] <- i
+    for i in 1..<count:
+        value: usize = suffixes[i]
+        j: mutable usize = i
+        while j > 0 and (hsd_suffix_compare(hashes, count, value, suffixes[j - 1]) < 0 or
+              (hsd_suffix_compare(hashes, count, value, suffixes[j - 1]) == 0 and value < suffixes[j - 1])):
+            suffixes[j] <- suffixes[j - 1]
+            j <- j - 1
+        suffixes[j] <- value
+
+    tokens: mutable i64[HSD_MAX_WORDS] = zeroed
+    words: mutable usize = 0
+    cursor: mutable usize = 0
+    consumed: mutable usize = 0
+    while cursor + p <= n:
+        found: mutable bool = false
+        best: mutable usize[3] = zeroed
+        scan_end: usize = if cursor + p - 1 < n - p: cursor + p - 1 else: n - p
+        for target in cursor..scan_end:
+            qcount: usize = (n - target) / p
+            if qcount == 0 or count == 0: continue
+            query: mutable i64[HSD_MAX_BLOCKS] = zeroed
+            for i in 0..<qcount: query[i] <- hsd_block_hash(version, target + i * p, p)
+            depth: usize = hsd_best_depth(suffixes, count, hashes, query, qcount)
+            if depth == 0: continue
+            bounds: usize[2] = hsd_interval(suffixes, count, hashes, query, if depth > 1: depth - 1 else: 1)
+            for rank in bounds[0]..<bounds[1]:
+                source: usize = suffixes[rank] * p
+                if source + p > m: continue
+                candidate: usize[3] = hsd_extend(reference, version, source, target, consumed)
+                if candidate[2] < p: continue
+                if not found or hsd_better(candidate, best):
+                    found <- true
+                    best <- candidate
+        if not found:
+            cursor <- cursor + 1
+            continue
+        if best[1] > consumed:
+            tokens[words] <- 0
+            words <- words + 1
+            tokens[words] <- (best[1] - consumed).i64()
+            words <- words + 1
+            for i in consumed..<best[1]:
+                tokens[words] <- version[i]
+                words <- words + 1
+        tokens[words] <- 1
+        words <- words + 1
+        tokens[words] <- best[0].i64()
+        words <- words + 1
+        tokens[words] <- best[2].i64()
+        words <- words + 1
+        consumed <- best[1] + best[2]
+        cursor <- consumed
+    if consumed < n:
+        tokens[words] <- 0
+        words <- words + 1
+        tokens[words] <- (n - consumed).i64()
+        words <- words + 1
+        for i in consumed..<n:
+            tokens[words] <- version[i]
+            words <- words + 1
+    required: usize = words * 8
+    if required > 0 and (output.is_null() or capacity < required): return -2
+    if required == 0: return 0
+    output_view: mutable view[u8] = output[0:required]
+    for i in 0..<words: hsd_store_i64(output_view, 8 * i, tokens[i])
+    required.i64()
+
+@export("hsadelta_differential_compression")
+def hsadelta_differential_compression(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > HSD_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    hsadelta_differential_compression_impl(input_view, output, capacity)

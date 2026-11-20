@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-bkp-speed-scaling-trace-i64-array-bytes-output-v1",
+  "algorithm": "bkp_speed_scaling_trace",
+  "function_symbol": "bkp_speed_scaling_trace",
+  "abi": "i64_array_bytes_output",
+  "description": "BKP online speed-selection rule at supplied bounded states; no EDF schedule is simulated.",
+  "source": {
+    "title": "Speed Scaling to Manage Energy and Temperature",
+    "authors": ["Nikhil Bansal", "Tracy Kimbrel", "Kirk Pruhs"],
+    "url": "https://doi.org/10.1145/1206035.1206038",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_390",
+    "used_for": "BKP current-time speed formula and release/deadline candidate-boundary characterization; e is fixed by this profile to 271828/100000."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[job_count,sample_count,(release,deadline,work)*job_count,(time,unfinished_mask)*sample_count]",
+    "job_count_range": [1, 4],
+    "sample_count_range": [1, 8],
+    "time_range": [0, 8],
+    "work_range": [1, 8],
+    "maximum_valid_length": 30,
+    "maximum_parseable_length": 31,
+    "job_rule": "Integer release < deadline; work is positive; all times are in 0..8.",
+    "sample_rule": "Mask bits name jobs that are unfinished at the observation; every named job must have been released by that sample. Empty mask means idle.",
+    "e_rational": [271828, 100000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[sample_count,(reduced_speed_numerator,reduced_speed_denominator)*sample_count]",
+    "maximum_values": 17,
+    "maximum_bytes": 136,
+    "success_result": "8 * output_value_count bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Fixed arrays for four jobs, eight sample states, staged 17-value output, and bounded integer candidate arithmetic."
+  },
+  "contract": {
+    "known_jobs": "At sample time t, consider only jobs with release <= t; their original work amounts are used in window sums.",
+    "candidate_endpoints": "For each known job, consider its deadline d>t and, when release r<t, (e*t-r)/(e-1).",
+    "window_work": "For candidate t2, include known jobs satisfying e*t-(e-1)*t2 <= release and deadline <= t2.",
+    "speed": "Maximum included original work divided by t2-t; report the reduced exact rational under e=271828/100000.",
+    "idle": "An empty unfinished mask emits 0/1 without evaluating candidate windows.",
+    "claim_limit": "This is a speed-selection trace, not a schedule, feasibility, energy, or competitive-ratio benchmark."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "single-job-deadline-candidate", "input_values": [1, 1, 0, 4, 4, 0, 1], "input_length": 7, "output_capacity": 136, "expected_result": 24, "expected_output_hex": "010000000000000001000000000000000100000000000000"},
+    {"id": "multi-job-window-sums-original-work", "input_values": [2, 1, 0, 4, 2, 0, 4, 4, 0, 3], "input_length": 10, "output_capacity": 136, "expected_result": 24, "expected_output_hex": "010000000000000003000000000000000200000000000000"},
+    {"id": "single-job-release-crossing", "input_values": [1, 1, 0, 4, 4, 3, 1], "input_length": 7, "output_capacity": 136, "expected_result": 24, "expected_output_hex": "0100000000000000ef370000000000006a18000000000000"},
+    {"id": "idle-mask", "input_values": [1, 1, 0, 4, 4, 4, 0], "input_length": 7, "output_capacity": 136, "expected_result": 24, "expected_output_hex": "010000000000000000000000000000000100000000000000"},
+    {"id": "ordered-samples-with-idle", "input_values": [1, 2, 0, 4, 4, 0, 1, 0, 0], "input_length": 9, "output_capacity": 136, "expected_result": 40, "expected_output_hex": "02000000000000000100000000000000010000000000000000000000000000000100000000000000"},
+    {"id": "future-job-marked-unfinished", "input_values": [1, 1, 2, 4, 1, 1, 1], "input_length": 7, "output_capacity": 136, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "maximum-bounds-output", "input_values": [4, 8, 0, 8, 8, 0, 8, 8, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 30, "output_capacity": 136, "expected_result": 136, "expected_output_hex": "08000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000"},
+    {"id": "trailing-value", "input_values": [1, 1, 0, 4, 4, 0, 1, 0], "input_length": 8, "output_capacity": 136, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insufficient-output-capacity", "input_values": [1, 1, 0, 4, 4, 0, 1], "input_length": 7, "output_capacity": 23, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 1, 0, 4, 4, 0, 1], "input_length": 7, "output_capacity": 24, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 136, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "id": "smith-string-search-all-occurrences-i64-array-bytes-v1",
+  "algorithm": "smith_string_search",
+  "function_symbol": "smith_string_search",
+  "abi": "i64_array_bytes_output",
+  "description": "Return all overlapping byte-pattern occurrences using Smith's combined Horspool and Quick Search shift.",
+  "source": {
+    "title": "Experiments with a very fast substring search algorithm",
+    "authors": ["P. D. Smith"],
+    "publisher": "Software: Practice and Experience",
+    "volume": 21,
+    "issue": 10,
+    "year": 1991,
+    "pages": "1065–1074",
+    "reference_url": "https://doi.org/10.1002/spe.4380211006",
+    "algorithm_description_url": "https://igm.univ-mlv.fr/~lecroq/string/node21.html",
+    "horspool_description_url": "https://igm.univ-mlv.fr/~lecroq/string/node18.html",
+    "quick_search_description_url": "https://igm.univ-mlv.fr/~lecroq/string/node19.html",
+    "implementation_status": "bounded clean-room Smith string-search profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, pattern_length, text_bytes..., pattern_bytes...]",
+    "text_length_range": [0, 255],
+    "pattern_length_range": [1, 64],
+    "element_range": [0, 127],
+    "maximum_valid_length": 321,
+    "maximum_parseable_length": 322,
+    "exact_frame_rule": "The length is exactly 2 + text_length + pattern_length.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "All zero-based matching start positions in increasing order as little-endian signed 64-bit integers; overlapping matches are included.",
+    "maximum_match_count": 255,
+    "maximum_bytes": 2040,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "nonnull_output_required_for_empty_result": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Two 128-entry shift tables and bounded storage for 255 match positions; caller output is separate."
+  },
+  "contract": {
+    "comparison": "At every valid alignment compare the complete pattern to the same-length text window.",
+    "horspool_preprocessing": "Initialize each Horspool shift to pattern_length. For pattern indices 0 through pattern_length-2, set shift[pattern[i]] = pattern_length-i-1.",
+    "quick_search_preprocessing": "Initialize each Quick Search shift to pattern_length+1. For pattern indices 0 through pattern_length-1, set shift[pattern[i]] = pattern_length-i; later occurrences overwrite earlier ones.",
+    "shift_rule": "After each candidate window, advance by max(horspool[text[alignment+pattern_length-1]], quick_search[text[alignment+pattern_length]]) when the lookahead is in the text.",
+    "end_of_text": "When alignment+pattern_length equals text_length, use the virtual byte 128. It is outside the byte domain and has the default Quick Search shift pattern_length+1.",
+    "empty_pattern": "Invalid; pattern length must be 1..64.",
+    "pattern_longer_than_text": "Valid and returns an empty result without scanning windows.",
+    "result": "Collect every matching alignment, then serialize positions as little-endian signed i64 values.",
+    "error_precedence": "Validate input pointer, exact frame, lengths, and byte domain and complete searching before validating output pointer/capacity.",
+    "no_write_on_error": true,
+    "bounds": "At most 255 windows and positions; output has at most 2,040 bytes."
+  },
+  "complexity": {
+    "preprocessing_time": "O(pattern_length + 128)",
+    "search_time": "O(text_length * pattern_length) worst case, plus O(match_count) output serialization.",
+    "space": "O(128 + pattern_length + match_count), bounded by this profile."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "profiles": [
+      {"id": "quick-search-shift-wins", "input_values": [7, 3, 120, 120, 97, 90, 97, 98, 99, 97, 98, 99], "output_bytes": 8},
+      {"id": "horspool-shift-wins", "input_values": [7, 3, 120, 120, 122, 99, 97, 98, 99, 97, 98, 99], "output_bytes": 8},
+      {"id": "overlapping-matches", "input_values": [5, 3, 97, 97, 97, 97, 97, 97, 97, 97], "output_bytes": 24},
+      {"id": "empty-result", "input_values": [6, 2, 97, 98, 99, 100, 101, 102, 103, 104], "output_bytes": 0}
+    ]
+  },
+  "cases": [
+    {"id":"quick-search-shift-wins","input_values":[7,3,120,120,97,90,97,98,99,97,98,99],"input_length":12,"output_capacity":8,"expected_result":8,"expected_output_hex":"0400000000000000"},
+    {"id":"horspool-shift-wins","input_values":[7,3,120,120,122,99,97,98,99,97,98,99],"input_length":12,"output_capacity":8,"expected_result":8,"expected_output_hex":"0400000000000000"},
+    {"id":"overlapping-matches","input_values":[5,3,97,97,97,97,97,97,97,97],"input_length":10,"output_capacity":24,"expected_result":24,"expected_output_hex":"000000000000000001000000000000000200000000000000"},
+    {"id":"one-byte-pattern","input_values":[3,1,97,98,97,97],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"embedded-nul-byte","input_values":[4,2,0,65,0,65,0,65],"input_length":8,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"highest-ascii-byte","input_values":[3,1,127,65,127,127],"input_length":6,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000200000000000000"},
+    {"id":"no-match","input_values":[6,2,97,98,99,100,101,102,103,104],"input_length":10,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty-text","input_values":[0,1,97],"input_length":3,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"pattern-longer-than-text","input_values":[1,3,97,98,97,98],"input_length":6,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"empty-pattern-invalid","input_values":[0,0],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-byte","input_values":[1,1,128,97],"input_length":4,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"text-length-above-bound","input_values":[256,1],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"pattern-length-above-bound","input_values":[1,65],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-packed-word","input_values":[1,1,97,97,98],"input_length":5,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-packed-frame","input_values":[2,2,97],"input_length":3,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {"id":"declared-length-mismatch","input_values":[3,1,97,98,97,97],"input_length":5,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[0,1,97],"input_length":3,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output-with-match","input_values":[3,1,97,98,97,97],"input_length":6,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output-with-empty-result","input_values":[6,2,97,98,99,100,101,102,103,104],"input_length":10,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[3,1,97,98,97,97],"input_length":6,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-before-output-error","input_values":[0,0],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

@@ -47,24 +47,13 @@ group_hull :: proc "contextless" (x, y: []i64, begin, count: int, out: []int) ->
 tangent :: proc "contextless" (x, y: []i64, hull: []int, query: int) -> int {
     n := len(hull)
     if n == 1 do return hull[0]
-    if n == 2 {
-        if turn(x, y, query, hull[0], hull[1]) > 0 do return hull[0]
-        return hull[1]
-    }
-    initial_up := turn(x, y, query, hull[0], hull[1]) > 0
-    lo, hi := 0, n
+    lo, hi := 0, n-1
     for lo < hi {
         mid := lo + (hi-lo)/2
-        before := turn(x, y, query, hull[mid], hull[(mid+n-1)%n]) > 0
-        after := turn(x, y, query, hull[mid], hull[(mid+1)%n]) > 0
-        if before && after do return hull[mid]
-        below := mid != 0 && turn(x, y, query, hull[mid], hull[0]) > 0
-        above := mid != 0 && turn(x, y, query, hull[0], hull[mid]) > 0
-        search_left := after || above
-        if initial_up do search_left = after && below
-        if search_left { hi = mid } else { lo = mid+1 }
+        if turn(x, y, query, hull[mid], hull[hi]) > 0 { hi = mid }
+        else { lo = mid+1 }
     }
-    return -1
+    return hull[lo]
 }
 
 @(export)

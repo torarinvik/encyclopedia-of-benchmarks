@@ -1,0 +1,136 @@
+const LOUDS_MAX_N: usize = 32
+const LOUDS_MAX_Q: usize = 32
+const LOUDS_MAX_INPUT: usize = 130
+const LOUDS_MAX_OUTPUT_WORDS: usize = 4 + LOUDS_MAX_Q
+
+def louds_compute(input: view[i64], words: mutable view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > LOUDS_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > LOUDS_MAX_N.i64() or q_value < 0 or q_value > LOUDS_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 2 + (n - 1) + 3 * q: return -1
+
+    parent: mutable usize[LOUDS_MAX_N] = zeroed
+    vertex: mutable usize = 1
+    while vertex < n:
+        value: i64 = input[1 + vertex]
+        if value < 0 or value >= vertex.i64(): return -1
+        parent[vertex] <- value.usize()
+        vertex <- vertex + 1
+
+    query_base: usize = n + 1
+    index: mutable usize = 0
+    while index < q:
+        offset: usize = query_base + 3 * index
+        opcode: i64 = input[offset]
+        node: i64 = input[offset + 1]
+        argument: i64 = input[offset + 2]
+        if node < 0 or node >= n_value: return -1
+        if opcode == 0 or opcode == 1:
+            if argument != 0: return -1
+        elif opcode == 2:
+            if argument < 0 or argument > n_value: return -1
+        else: return -1
+        index <- index + 1
+
+    order: mutable usize[LOUDS_MAX_N] = zeroed
+    order[0] <- 0
+    order_count: mutable usize = 1
+    cursor: mutable usize = 0
+    while cursor < order_count:
+        current: usize = order[cursor]
+        vertex <- 1
+        while vertex < n:
+            if parent[vertex] == current:
+                order[order_count] <- vertex
+                order_count <- order_count + 1
+            vertex <- vertex + 1
+        cursor <- cursor + 1
+    if order_count != n: return -1
+
+    degree: mutable usize[LOUDS_MAX_N] = zeroed
+    cursor <- 0
+    while cursor < n:
+        vertex <- 1
+        while vertex < n:
+            if parent[vertex] == order[cursor]: degree[cursor] <- degree[cursor] + 1
+            vertex <- vertex + 1
+        cursor <- cursor + 1
+
+    packed: mutable u64 = 0
+    bit_length: mutable usize = 0
+    cursor <- 0
+    while cursor < n:
+        index <- 0
+        while index < degree[cursor]:
+            packed <- packed | (1.u64() << bit_length)
+            bit_length <- bit_length + 1
+            index <- index + 1
+        bit_length <- bit_length + 1
+        cursor <- cursor + 1
+
+    decoded: mutable usize[LOUDS_MAX_N] = zeroed
+    rank_prefix: mutable usize[LOUDS_MAX_N + 1] = zeroed
+    bit_position: mutable usize = 0
+    previous_zero: mutable usize = 0
+    cursor <- 0
+    while cursor < n:
+        while bit_position < bit_length and ((packed >> bit_position) & 1) != 0:
+            bit_position <- bit_position + 1
+        decoded[cursor] <- bit_position - previous_zero
+        if cursor == 0: decoded[cursor] <- bit_position
+        previous_zero <- bit_position + 1
+        bit_position <- bit_position + 1
+        rank_prefix[cursor + 1] <- rank_prefix[cursor] + decoded[cursor]
+        cursor <- cursor + 1
+
+    words[0] <- n_value
+    words[1] <- bit_length.i64()
+    words[2] <- packed.i64()
+    words[3] <- q_value
+    index <- 0
+    while index < q:
+        offset: usize = query_base + 3 * index
+        opcode: i64 = input[offset]
+        node: usize = input[offset + 1].usize()
+        argument: i64 = input[offset + 2]
+        answer: i64 = -1
+        if opcode == 0: answer <- decoded[node].i64()
+        elif opcode == 1:
+            if node != 0:
+                cursor <- 0
+                while cursor < n:
+                    if rank_prefix[cursor + 1] >= node:
+                        answer <- cursor.i64()
+                        break
+                    cursor <- cursor + 1
+        elif argument.usize() < decoded[node]:
+            answer <- (1 + rank_prefix[node] + argument.usize()).i64()
+        words[4 + index] <- answer
+        index <- index + 1
+    (4 + q).i64()
+
+def louds_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+export fn louds_ordered_tree_navigation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > LOUDS_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    words: mutable i64[LOUDS_MAX_OUTPUT_WORDS] = zeroed
+    word_count: i64 = louds_compute(input_view, words[0:LOUDS_MAX_OUTPUT_WORDS])
+    if word_count < 0: return word_count
+    required: usize = word_count.usize() * 8
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index: mutable usize = 0
+    while index < word_count.usize():
+        louds_store(words[index], output_view, 8 * index)
+        index <- index + 1
+    required.i64()

@@ -49,8 +49,9 @@ def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
 def unionfind_with_potential_non_commutative_group_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 9 or length > 2 + 7 * MAX_Q: return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
@@ -59,24 +60,25 @@ def unionfind_with_potential_non_commutative_group_impl(input: i64&, length: usi
     operation: mutable usize = 0
     while operation < q:
         position: usize = 2 + 7 * operation
-        kind: i64 = input[position]
-        u: i64 = input[position + 1]
-        v: i64 = input[position + 2]
+        kind: i64 = frame[position]
+        u: i64 = frame[position + 1]
+        v: i64 = frame[position + 2]
         if u < 0 or u >= n_value or v < 0 or v >= n_value: return -1
         if kind == 0:
-            a: i64 = input[position + 3]
-            b: i64 = input[position + 4]
-            c: i64 = input[position + 5]
-            d: i64 = input[position + 6]
+            a: i64 = frame[position + 3]
+            b: i64 = frame[position + 4]
+            c: i64 = frame[position + 5]
+            d: i64 = frame[position + 6]
             if a < 0 or a >= MODULUS or b < 0 or b >= MODULUS or c < 0 or c >= MODULUS or d < 0 or d >= MODULUS or normalize(a * d - b * c) != 1: return -1
         elif kind == 1:
             for cell in 0..4:
-                if input[position + 3 + cell] != 0: return -1
+                if frame[position + 3 + cell] != 0: return -1
         else:
             return -1
         operation <- operation + 1
     required: usize = 32 * q
     if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
 
     parent: mutable usize[MAX_N] = zeroed
     set_size: mutable usize[MAX_N] = zeroed
@@ -89,9 +91,9 @@ def unionfind_with_potential_non_commutative_group_impl(input: i64&, length: usi
     operation <- 0
     while operation < q:
         position: usize = 2 + 7 * operation
-        kind: i64 = input[position]
-        u: usize = input[position + 1].usize()
-        v: usize = input[position + 2].usize()
+        kind: i64 = frame[position]
+        u: usize = frame[position + 1].usize()
+        v: usize = frame[position + 2].usize()
         root_u: usize = find_root(parent[0:MAX_N], difference[0:4 * MAX_N], u)
         root_v: usize = find_root(parent[0:MAX_N], difference[0:4 * MAX_N], v)
         row: mutable i64[4] = zeroed
@@ -106,10 +108,10 @@ def unionfind_with_potential_non_commutative_group_impl(input: i64&, length: usi
                 for cell in 0..4: row[cell] <- -1
         else:
             relation: mutable i64[4] = zeroed
-            relation[0] <- input[position + 3]
-            relation[1] <- input[position + 4]
-            relation[2] <- input[position + 5]
-            relation[3] <- input[position + 6]
+            relation[0] <- frame[position + 3]
+            relation[1] <- frame[position + 4]
+            relation[2] <- frame[position + 5]
+            relation[3] <- frame[position + 6]
             if root_u == root_v:
                 inverse_v: mutable i64[4] = zeroed
                 known: mutable i64[4] = zeroed
@@ -136,7 +138,7 @@ def unionfind_with_potential_non_commutative_group_impl(input: i64&, length: usi
                 parent[root_v] <- root_u
                 set_size[root_u] <- set_size[root_u] + set_size[root_v]
                 row[0] <- 1
-        for cell in 0..4: put_i64_le(output[0:capacity], 32 * operation + 8 * cell, row[cell])
+        for cell in 0..4: put_i64_le(output_view, 32 * operation + 8 * cell, row[cell])
         operation <- operation + 1
     required.i64()
 

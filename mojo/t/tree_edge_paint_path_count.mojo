@@ -97,16 +97,16 @@ fn tree_edge_paint_path_count(input: UnsafePointer[Int64, ImmutAnyOrigin], lengt
         if root_of(dsu, v) != tree_root:
             return -1
 
-    var parent = InlineArray[Int32, 16]()
-    var depth = InlineArray[Int32, 16]()
-    var first = InlineArray[Int32, 16]()
-    var visited = InlineArray[Bool, 16]()
+    var parent = InlineArray[Int32, 16](fill=0)
+    var depth = InlineArray[Int32, 16](fill=0)
+    var first = InlineArray[Int32, 16](fill=0)
+    var visited = InlineArray[Bool, 16](fill=False)
     var down = InlineArray[Int32, 15]()
     var up = InlineArray[Int32, 15]()
-    var stack_node = InlineArray[Int32, 16]()
+    var stack_node = InlineArray[Int32, 16](fill=0)
     var stack_parent = InlineArray[Int32, 16]()
     var stack_in = InlineArray[Int32, 16]()
-    var stack_cursor = InlineArray[Int32, 16]()
+    var stack_cursor = InlineArray[Int32, 16](fill=0)
     stack_parent[0] = -1
     stack_in[0] = -1
     visited[0] = True
@@ -156,9 +156,9 @@ fn tree_edge_paint_path_count(input: UnsafePointer[Int64, ImmutAnyOrigin], lengt
     var base = 1
     while base < occurrences:
         base *= 2
-    var forward = InlineArray[Int64, 64]()
-    var backward = InlineArray[Int64, 64]()
-    var painted = InlineArray[Bool, 15]()
+    var forward = InlineArray[Int64, 64](fill=0)
+    var backward = InlineArray[Int64, 64](fill=0)
+    var painted = InlineArray[Bool, 15](fill=False)
     var total: Int64 = 0
     for _ in range(q):
         let kind = input[cursor]

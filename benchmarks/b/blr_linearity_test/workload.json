@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-blr-linearity-test-i64-array-bytes-output-v1",
+  "algorithm": "blr_linearity_test",
+  "function_symbol": "blr_linearity_test",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Self-testing/correcting with applications to numerical problems",
+    "authors": ["Manuel Blum", "Michael Luby", "Ronitt Rubinfeld"],
+    "year": 1993,
+    "reference": "Journal of Computer and System Sciences 47(3), pp. 549-595",
+    "doi": "10.1016/0022-0000(93)90044-W",
+    "url": "https://doi.org/10.1016/0022-0000(93)90044-W",
+    "chapter": "Encyclopedia of Algorithms, Chapter 202: Linearity Testing/Testing Hadamard Codes",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_202",
+    "rights": "Clean-room ports based on mathematical method; no source code, examples, figures, or protected prose reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,q,f(0),...,f(2^n-1),x0,y0,...,x(q-1),y(q-1)]",
+    "dimension_range": [1, 6],
+    "round_range": [1, 32],
+    "truth_table": "Boolean values indexed by the integer vector whose coordinate zero is the least significant bit.",
+    "random_tape": "Each x,y pair supplies independent uniform choices from [0,2^n); values are replayed in order.",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_result": -1
+  },
+  "contract": {
+    "algorithm": "For each supplied pair, query f(x), f(y), f(x xor y); reject at the first round for which f(x) xor f(y) differs from f(x xor y). Accept only after all q rounds pass.",
+    "query_calls": "Three per evaluated round, including repeated points.",
+    "output": "[accept_bit,rounds_executed,query_calls] as little-endian i64 values.",
+    "scope": "Fixed deterministic replay profile; arbitrary tapes and q are not assigned a BLR soundness or epsilon-to-query guarantee."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[accept_bit,rounds_executed,query_calls]",
+    "maximum_bytes": 24,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Input truth table and tape are read in place; local state and staged output fit within this fixed bound."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "parity-linear-all-rounds-pass",
+      "input_values": [2, 3, 0, 1, 1, 0, 1, 2, 2, 3, 3, 1],
+      "input_length": 12,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000003000000000000000900000000000000"
+    },
+    {
+      "id": "zero-function-repeated-query-points",
+      "input_values": [2, 3, 0, 0, 0, 0, 1, 2, 0, 3, 3, 3],
+      "input_length": 12,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000003000000000000000900000000000000"
+    },
+    {
+      "id": "quadratic-function-first-round-fails",
+      "input_values": [2, 1, 0, 0, 0, 1, 1, 2],
+      "input_length": 8,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000001000000000000000300000000000000"
+    },
+    {
+      "id": "quadratic-function-stops-at-second-round",
+      "input_values": [2, 3, 0, 0, 0, 1, 0, 1, 1, 2, 0, 0],
+      "input_length": 12,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000002000000000000000600000000000000"
+    },
+    {
+      "id": "affine-offset-is-not-linear",
+      "input_values": [2, 2, 1, 0, 0, 1, 0, 1],
+      "input_length": 8,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000001000000000000000300000000000000"
+    },
+    {
+      "id": "one-dimensional-identity",
+      "input_values": [1, 2, 0, 1, 0, 1, 1, 1],
+      "input_length": 8,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000002000000000000000600000000000000"
+    },
+    {
+      "id": "maximum-table-and-full-tape",
+      "input_values": [6, 32,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 130,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000020000000000000006000000000000000"
+    }
+  ],
+  "invalid_cases": [
+    {"id": "invalid-dimension", "input_values": [0, 1], "expected_result": -1},
+    {"id": "non-boolean-table-entry", "input_values": [1, 1, 0, 2, 0, 0], "expected_result": -1},
+    {"id": "out-of-domain-pair", "input_values": [1, 1, 0, 1, 2, 0], "expected_result": -1},
+    {"id": "trailing-word", "input_values": [1, 1, 0, 1, 0, 1, 99], "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ],
+  "capacity_cases": [
+    {"id": "null-output", "input_values": [1, 1, 0, 1, 0, 1], "input_length": 6, "output_capacity": 24, "output_is_null": true, "expected_result": -2},
+    {"id": "short-output", "input_values": [1, 1, 0, 1, 0, 1], "input_length": 6, "output_capacity": 23, "expected_result": -2}
+  ]
+}

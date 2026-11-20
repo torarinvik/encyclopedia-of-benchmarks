@@ -1,0 +1,5 @@
+# Rights and provenance
+
+This package is a clean-room implementation of the base-10 self-number count profile. The mathematical definition is cross-referenced with Eric Weisstein's [MathWorld entry](https://mathworld.wolfram.com/SelfNumber.html), the [CMU ACM problem statement](https://www.cs.cmu.edu/~eugene/teach/acm03/prob/self.html), and [OEIS A003052](https://oeis.org/A003052). The counting-function cross-check is [OEIS A282711](https://oeis.org/A282711); a published [self-number count cross-check](https://www.primepuzzles.net/puzzles/puzz_373.htm) gives 102, 983, and 9,784 through 1,000, 10,000, and 100,000.
+
+The pinned [RosettaCodeData popular-task index](https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks) was used for title discovery only. No task text, source code, examples, or tests were copied. The benchmark contract, bitmap sieve, independent predecessor search, fixtures, ports, and documentation are original. Copyright and terms for linked sources remain with their respective owners; this package uses only the mathematical definition and publicly stated sequence values.

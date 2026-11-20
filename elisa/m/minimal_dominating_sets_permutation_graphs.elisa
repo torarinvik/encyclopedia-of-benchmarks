@@ -1,0 +1,303 @@
+const MDS_MAX_N: usize = 8
+const MDS_MAX_INPUT: usize = 10
+const MDS_MAX_STATES: usize = 59049
+
+def mds_case(top: view[usize], i: usize, j: usize, k: usize) -> usize:
+    a: usize = top[i]
+    b: usize = top[j]
+    c: usize = top[k]
+    if a < b and b < c: return 1
+    if a < c and c < b: return 2
+    if b < a and a < c: return 3
+    if b < c and c < a: return 4
+    if c < a and a < b: return 5
+    0
+
+def mds_covered(adj: view[bool], n: usize, y: usize, selected: view[usize]) -> bool:
+    z: mutable usize = 0
+    while z < selected.length:
+        if adj[selected[z] * MDS_MAX_N + y]: return true
+        z <- z + 1
+    false
+
+def mds_irredundant(adj: view[bool], n: usize, selected: view[usize]) -> bool:
+    x: mutable usize = 0
+    while x < selected.length:
+        found: mutable bool = false
+        y: mutable usize = 0
+        while y < n and not found:
+            if adj[selected[x] * MDS_MAX_N + y]:
+                shared: mutable bool = false
+                z: mutable usize = 0
+                while z < selected.length and not shared:
+                    if z != x and adj[selected[z] * MDS_MAX_N + y]: shared <- true
+                    z <- z + 1
+                if not shared: found <- true
+            y <- y + 1
+        if not found: return false
+        x <- x + 1
+    true
+
+def mds_private_min(top: view[usize], adj: view[bool], n: usize, x: usize,
+                    selected: view[usize]) -> i64:
+    best: mutable i64 = -1
+    y: mutable usize = 0
+    while y < n:
+        if adj[x * MDS_MAX_N + y]:
+            shared: mutable bool = false
+            z: mutable usize = 0
+            while z < selected.length and not shared:
+                if selected[z] != x and adj[selected[z] * MDS_MAX_N + y]: shared <- true
+                z <- z + 1
+            if not shared and (best < 0 or top[y] < top[best.usize()]): best <- y.i64()
+        y <- y + 1
+    best
+
+def mds_initial(top: view[usize], adj: view[bool], n: usize,
+                i: usize, j: usize, k: usize, r: usize, s: usize) -> bool:
+    tri: mutable usize[3] = zeroed
+    tri[0] <- i
+    tri[1] <- j
+    tri[2] <- k
+    tri_view: view[usize] = tri[0:3]
+    if r != n or not mds_irredundant(adj, n, tri_view): return false
+    kind: usize = mds_case(top, i, j, k)
+    y: mutable usize = 0
+    if kind == 1:
+        while y < n:
+            if y < i and top[y] < top[i]: return false
+            y <- y + 1
+        return s.i64() == mds_private_min(top, adj, n, i, tri_view)
+    if kind == 2:
+        if s != n: return false
+        y <- 0
+        while y < n:
+            if top[y] < top[k] and y < j and not mds_covered(adj, n, y, tri_view): return false
+            y <- y + 1
+        return true
+    if kind == 3:
+        y <- 0
+        while y < n:
+            if top[y] < top[j] and y < i: return false
+            y <- y + 1
+        return s.i64() == mds_private_min(top, adj, n, j, tri_view)
+    if kind == 4:
+        if s != n: return false
+        y <- 0
+        while y < n:
+            if top[y] < top[j] and y < i and not mds_covered(adj, n, y, tri_view): return false
+            y <- y + 1
+        return true
+    if kind == 5:
+        y <- 0
+        while y < n:
+            if top[y] < top[k] and y < i: return false
+            y <- y + 1
+        return s.i64() == mds_private_min(top, adj, n, k, tri_view)
+    false
+
+def mds_regular(top: view[usize], adj: view[bool], n: usize,
+                i: usize, j: usize, k: usize, r: usize, s: usize) -> bool:
+    tri: mutable usize[3] = zeroed
+    tri[0] <- i
+    tri[1] <- j
+    tri[2] <- k
+    tri_view: view[usize] = tri[0:3]
+    if not mds_irredundant(adj, n, tri_view): return false
+    kind: usize = mds_case(top, i, j, k)
+    if kind >= 1 and kind <= 4:
+        if r >= i: return false
+    else if kind == 5:
+        if r != n: return false
+    else:
+        return false
+    if kind == 2 or kind == 4: return s == n
+    if s >= n: return false
+    if kind == 1:
+        return adj[i * MDS_MAX_N + s] and not adj[r * MDS_MAX_N + s] and not adj[j * MDS_MAX_N + s] and not adj[k * MDS_MAX_N + s]
+    if kind == 3:
+        return adj[j * MDS_MAX_N + s] and not adj[r * MDS_MAX_N + s] and not adj[i * MDS_MAX_N + s] and not adj[k * MDS_MAX_N + s]
+    adj[k * MDS_MAX_N + s] and not adj[i * MDS_MAX_N + s] and not adj[j * MDS_MAX_N + s]
+
+def mds_final(top: view[usize], adj: view[bool], n: usize,
+              i: usize, j: usize, k: usize, r: usize) -> bool:
+    selected: mutable usize[4] = zeroed
+    count: mutable usize = 0
+    if r != n:
+        selected[count] <- r
+        count <- count + 1
+    selected[count] <- i
+    count <- count + 1
+    selected[count] <- j
+    count <- count + 1
+    selected[count] <- k
+    count <- count + 1
+    selected_view: view[usize] = selected[0:count]
+    y: mutable usize = 0
+    while y < n:
+        if i < y and top[i] < top[y] and not mds_covered(adj, n, y, selected_view): return false
+        y <- y + 1
+    true
+
+def mds_state_index(i: usize, j: usize, k: usize, r: usize, s: usize, base: usize) -> usize:
+    ((((i * base + j) * base + k) * base + r) * base + s)
+
+def mds_successor(top: view[usize], top_vertex: view[usize], adj: view[bool], n: usize,
+                  i: usize, j: usize, k: usize, r: usize, s: usize, ell: usize,
+                  out_r: mutable usize&, out_s: mutable usize&) -> bool:
+    kind: usize = mds_case(top, j, k, ell)
+    if kind == 0: return false
+    selected: mutable usize[5] = zeroed
+    count: mutable usize = 0
+    if r != n:
+        selected[count] <- r
+        count <- count + 1
+    selected[count] <- i
+    count <- count + 1
+    selected[count] <- j
+    count <- count + 1
+    selected[count] <- k
+    count <- count + 1
+    selected[count] <- ell
+    count <- count + 1
+    selected_view: view[usize] = selected[0:count]
+    if not mds_irredundant(adj, n, selected_view): return false
+    if s != n and top[ell] <= top[s]: return false
+    y: mutable usize = 0
+    if not adj[j * MDS_MAX_N + k]:
+        while y < n:
+            if i < y and y < j and top[i] < top[y] and top[y] < top[j] and not mds_covered(adj, n, y, selected_view): return false
+            y <- y + 1
+    if adj[i * MDS_MAX_N + k]:
+        y <- 0
+        while y < n:
+            if j < y and y < k and top[j] < top[y] and top[y] < top[ell] and not mds_covered(adj, n, y, selected_view): return false
+            y <- y + 1
+    if kind == 5:
+        out_r <- n
+    else:
+        max_rank: mutable usize = top[i]
+        if r != n and top[r] > max_rank: max_rank <- top[r]
+        out_r <- top_vertex[max_rank]
+    if kind == 2 or kind == 4:
+        out_s <- n
+    else:
+        old_min: mutable usize = top[i]
+        if top[j] < old_min: old_min <- top[j]
+        if top[k] < old_min: old_min <- top[k]
+        new_min: mutable usize = top[j]
+        if top[k] < new_min: new_min <- top[k]
+        if top[ell] < new_min: new_min <- top[ell]
+        if s != n and old_min == new_min:
+            out_s <- s
+        else:
+            y <- j
+            if top[k] < top[y]: y <- k
+            if top[ell] < top[y]: y <- ell
+            private: i64 = mds_private_min(top, adj, n, y, selected_view)
+            if private < 0: return false
+            out_s <- private.usize()
+    mds_regular(top, adj, n, j, k, ell, out_r, out_s)
+
+def mds_dominates(mask: u64, hoods: view[u64], n: usize) -> bool:
+    cover: mutable u64 = 0
+    x: mutable usize = 0
+    while x < n:
+        if (mask & (1.u64() << x)) != 0: cover <- cover | hoods[x]
+        x <- x + 1
+    cover == (1.u64() << n) - 1.u64()
+
+def minimal_dominating_sets_permutation_graphs_impl(input: view[i64]) -> i64:
+    if input.length < 1 or input.length > MDS_MAX_INPUT: return -1
+    n0: i64 = input[0]
+    if n0 < 1 or n0 > MDS_MAX_N: return -1
+    n: usize = n0.usize()
+    if input.length != n + 1: return -1
+    top: mutable usize[MDS_MAX_N] = zeroed
+    top_vertex: mutable usize[MDS_MAX_N] = zeroed
+    seen: mutable bool[MDS_MAX_N] = zeroed
+    for x in 0..<n:
+        rank: i64 = input[x + 1]
+        if rank < 0 or rank >= n0: return -1
+        ri: usize = rank.usize()
+        if seen[ri]: return -1
+        seen[ri] <- true
+        top[x] <- ri
+        top_vertex[ri] <- x
+    adj: mutable bool[64] = zeroed
+    for x in 0..<n:
+        adj[x * MDS_MAX_N + x] <- true
+        for y in x + 1..<n:
+            value: bool = top[x] > top[y]
+            adj[x * MDS_MAX_N + y] <- value
+            adj[y * MDS_MAX_N + x] <- value
+    top_view: view[usize] = top[0:MDS_MAX_N]
+    top_vertex_view: view[usize] = top_vertex[0:MDS_MAX_N]
+    adj_view: view[bool] = adj[0:64]
+    ways: mutable i64[MDS_MAX_STATES] = zeroed
+    base: usize = n + 1
+    answer: mutable i64 = 0
+    if n >= 3:
+        i: mutable i64 = (n - 3).i64()
+        while i >= 0:
+            ii: usize = i.usize()
+            j: mutable usize = ii + 1
+            while j + 1 < n:
+                k: mutable usize = j + 1
+                while k < n:
+                    tri: mutable usize[3] = zeroed
+                    tri[0] <- ii
+                    tri[1] <- j
+                    tri[2] <- k
+                    tri_view: view[usize] = tri[0:3]
+                    if mds_case(top_view, ii, j, k) != 0 and mds_irredundant(adj_view, n, tri_view):
+                        ri_loop: mutable usize = 0
+                        while ri_loop <= ii:
+                            r: usize = if ri_loop == ii then n else ri_loop
+                            s: mutable usize = 0
+                            while s <= n:
+                                if mds_initial(top_view, adj_view, n, ii, j, k, r, s) or mds_regular(top_view, adj_view, n, ii, j, k, r, s):
+                                    paths: mutable i64 = 0
+                                    if mds_final(top_view, adj_view, n, ii, j, k, r): paths <- 1
+                                    ell: mutable usize = k + 1
+                                    while ell < n:
+                                        nr: mutable usize = 0
+                                        ns: mutable usize = 0
+                                        if mds_successor(top_view, top_vertex_view, adj_view, n, ii, j, k, r, s, ell, nr, ns):
+                                            paths <- paths + ways[mds_state_index(j, k, ell, nr, ns, base)]
+                                        ell <- ell + 1
+                                    ways[mds_state_index(ii, j, k, r, s, base)] <- paths
+                                    if mds_initial(top_view, adj_view, n, ii, j, k, r, s): answer <- answer + paths
+                                s <- s + 1
+                            ri_loop <- ri_loop + 1
+                    k <- k + 1
+                j <- j + 1
+            i <- i - 1
+    hoods: mutable u64[8] = zeroed
+    for x in 0..<n:
+        for y in 0..<n:
+            if adj[x * MDS_MAX_N + y]: hoods[x] <- hoods[x] | (1.u64() << y)
+    hoods_view: view[u64] = hoods[0:8]
+    full: u64 = (1.u64() << n) - 1.u64()
+    mask: mutable u64 = 1
+    while mask <= full:
+        size: mutable usize = 0
+        bits: mutable u64 = mask
+        while bits != 0:
+            size <- size + (bits & 1.u64()).usize()
+            bits <- bits >> 1
+        if size <= 2 and mds_dominates(mask, hoods_view, n):
+            minimal: mutable bool = true
+            x: mutable usize = 0
+            while x < n:
+                bit: u64 = 1.u64() << x
+                if (mask & bit) != 0 and mds_dominates(mask ^ bit, hoods_view, n): minimal <- false
+                x <- x + 1
+            if minimal: answer <- answer + 1
+        mask <- mask + 1
+    answer
+
+export fn minimal_dominating_sets_permutation_graphs(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MDS_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    minimal_dominating_sets_permutation_graphs_impl(input_view)

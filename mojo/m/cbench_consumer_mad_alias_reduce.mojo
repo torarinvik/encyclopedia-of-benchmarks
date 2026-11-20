@@ -1,4 +1,5 @@
 # Independent bounded alias-reduction profile; see package LICENSE.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 

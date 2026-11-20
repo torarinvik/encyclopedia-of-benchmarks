@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "liu-hui-pi-approximation-i64-array-scalar-v1",
+  "algorithm": "liu_hui_pi_approximation",
+  "function_symbol": "liu_hui_pi_approximation",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Liu Hui's exhaustion method",
+    "url": "https://mathworld.wolfram.com/LiuHuisExhaustionMethod.html",
+    "independent_url": "https://mathshistory.st-andrews.ac.uk/Biographies/Liu_Hui/",
+    "discovery_title": "Liu Hui π Algorithm",
+    "discovery_url": "https://github.com/trekhleb/javascript-algorithms#algorithms",
+    "discovery_scope": "Public repository title/index only; no implementation code or task text copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[doublings]",
+    "doublings_range": [0, 16],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "nearest millionth of the inscribed regular polygon's unit-circle area",
+    "rounding": "floor(area*1000000+0.5)",
+    "valid_result_range": [2598076, 3141593],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 0,
+    "meaning": "The recurrence stores only side count, chord, and apothem scalars."
+  },
+  "algorithm_details": {
+    "initial_state": "N=6, s=1, r=sqrt(3)/2",
+    "doubling_step": "h=s/2; s=sqrt(h*h+(1-r)*(1-r)); N=2*N; r=sqrt(1-(s/2)*(s/2))",
+    "area": "N*s*r/2",
+    "maximum_sides": 393216,
+    "primary_reference": "Iterated side/apothem recurrence.",
+    "independent_reference": "Direct-angle polygon area (N/2)*sin(2*pi/N)."
+  },
+  "cases": [
+    {"id":"negative_doublings","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"minimum_i64","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"hexagon","input_values":[0],"input_length":1,"expected_result":2598076},
+    {"id":"dodecagon","input_values":[1],"input_length":1,"expected_result":3000000},
+    {"id":"24_gon","input_values":[2],"input_length":1,"expected_result":3105829},
+    {"id":"48_gon","input_values":[3],"input_length":1,"expected_result":3132629},
+    {"id":"96_gon","input_values":[4],"input_length":1,"expected_result":3139350},
+    {"id":"192_gon","input_values":[5],"input_length":1,"expected_result":3141032},
+    {"id":"maximum_doublings","input_values":[16],"input_length":1,"expected_result":3141593},
+    {"id":"first_unsupported_doublings","input_values":[17],"input_length":1,"expected_result":-1},
+    {"id":"maximum_i64","input_values":[9223372036854775807],"input_length":1,"expected_result":-1},
+    {"id":"empty_array","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"null_array","input_values":[],"input_length":1,"input_is_null":true,"expected_result":-1},
+    {"id":"trailing_value","input_values":[0,1],"input_length":2,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10
+  }
+}

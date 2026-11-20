@@ -1,0 +1,27 @@
+{
+  "algorithm": "forest_fire_synchronous_stochastic_ca",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "forest_fire_synchronous_stochastic_ca",
+  "source_url": "https://doi.org/10.1103/PhysRevLett.69.1629",
+  "additional_source_urls": [
+    "https://rosettagit.org/tasks/forest-fire/",
+    "https://arxiv.org/abs/cond-mat/9310059"
+  ],
+  "ports": {
+    "c": "../../../c/f/forest_fire_synchronous_stochastic_ca.c",
+    "c3": "../../../c3/f/forest_fire_synchronous_stochastic_ca.c3",
+    "cpp": "../../../cpp/f/forest_fire_synchronous_stochastic_ca.cpp",
+    "elisa": "../../../elisa/f/forest_fire_synchronous_stochastic_ca.elisa",
+    "mojo": "../../../mojo/f/forest_fire_synchronous_stochastic_ca.mojo",
+    "nim": "../../../nim/f/forest_fire_synchronous_stochastic_ca.nim",
+    "odin": "../../../odin/f/forest_fire_synchronous_stochastic_ca.odin",
+    "rust": "../../../rust/f/forest_fire_synchronous_stochastic_ca.rs",
+    "v": "../../../v/f/forest_fire_synchronous_stochastic_ca.v",
+    "zig": "../../../zig/f/forest_fire_synchronous_stochastic_ca.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "workload_verifier": "verify_workload.py",
+  "execution_status": "source-only; no programs, tests, or checks run"
+}

@@ -19,11 +19,11 @@ fn long text_justification(long* input, usz length, char* output,
     usz width = (usz)width_value;
     usz text_length = (usz)text_length_value;
 
-    u8[MAX_TEXT_BYTES] text;
+    char[MAX_TEXT_BYTES] text;
     for (usz index = 0; index < text_length; index++) {
         long value = input[index + 2];
         if (value != 32 && (value < 33 || value > 126)) { return -1; }
-        text[index] = (u8)value;
+        text[index] = (char)value;
     }
 
     usz[MAX_WORDS] starts;
@@ -42,7 +42,7 @@ fn long text_justification(long* input, usz length, char* output,
         word_count++;
     }
 
-    u8[MAX_OUTPUT_BYTES] result = zeroed;
+    char[MAX_OUTPUT_BYTES] result = zeroed;
     usz result_length = 0;
     usz line_start = 0;
     usz line_end = 0;

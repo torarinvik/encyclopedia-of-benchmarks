@@ -1,0 +1,60 @@
+def schorr_waite_graph_marking_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 66:
+        return -1
+
+    node_count_value: i64 = input[0]
+    root: i64 = input[1]
+    if node_count_value < 1 or node_count_value > 32:
+        return -1
+    node_count: usize = node_count_value.usize()
+    if length != 2 + 2 * node_count or root < 0 or root >= node_count_value:
+        return -1
+
+    left: mutable i64[32] = zeroed
+    right: mutable i64[32] = zeroed
+    marked: mutable bool[32] = zeroed
+    phase: mutable bool[32] = zeroed
+    node: mutable usize = 0
+    while node < node_count:
+        left_child: i64 = input[2 + 2 * node]
+        right_child: i64 = input[3 + 2 * node]
+        if left_child < -1 or left_child >= node_count_value or right_child < -1 or right_child >= node_count_value:
+            return -1
+        left[node] <- left_child
+        right[node] <- right_child
+        node <- node + 1
+
+    parent: mutable i64 = -1
+    current: mutable i64 = root
+    temporary: mutable i64 = 0
+    while parent != -1 or (current != -1 and not marked[current.usize()]):
+        if current == -1 or marked[current.usize()]:
+            frame: usize = parent.usize()
+            if phase[frame]:
+                temporary <- current
+                current <- parent
+                parent <- right[frame]
+                right[frame] <- temporary
+            else:
+                temporary <- current
+                current <- right[frame]
+                right[frame] <- left[frame]
+                left[frame] <- temporary
+                phase[frame] <- true
+        else:
+            temporary <- parent
+            parent <- current
+            current <- left[parent.usize()]
+            left[parent.usize()] <- temporary
+            marked[parent.usize()] <- true
+            phase[parent.usize()] <- false
+
+    reachable: mutable i64 = 0
+    node <- 0
+    while node < node_count:
+        if marked[node]:
+            reachable <- reachable | (1.i64() << node.i64())
+        node <- node + 1
+    reachable
+
+export fn schorr_waite_graph_marking(input: i64&, length: usize) -> i64 = schorr_waite_graph_marking_impl

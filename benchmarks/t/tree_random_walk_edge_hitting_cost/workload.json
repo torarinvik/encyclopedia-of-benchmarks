@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "tree-random-walk-edge-hitting-cost-bounded-v1",
+  "algorithm": "tree_random_walk_edge_hitting_cost",
+  "function_symbol": "tree_random_walk_edge_hitting_cost",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "method_reference": "https://oi-wiki.org/graph/tree-random-walk/",
+    "reuse_scope": "Mathematical method only; contract, fixtures, references, and ports are clean-room."
+  },
+  "contract": {
+    "profile": "Expected weighted traversal costs until first reaching the opposite endpoint, for every edge in a static tree.",
+    "input_layout": "[n,root,(u,v,w)*(n-1)]",
+    "vertex_count_range": [1, 16],
+    "root_range": "0 <= root < n",
+    "edge_weight_range": [1, 9],
+    "tree_rule": "The n-1 records form a simple undirected tree; input record order and endpoint orientation are arbitrary.",
+    "walk_rule": "At each vertex choose each adjacent vertex uniformly; traversing an edge adds its positive weight to accumulated cost.",
+    "output_layout": "For each input edge (u,v,w), emit expected cost u-to-v then v-to-u as little-endian signed 64-bit integers.",
+    "rooted_recurrence": "down[u]=sum(weights of all incident edges)+sum(down[child]); down[root] uses the same base. up[root]=0; up[child]=up[parent]+down[parent]-down[child].",
+    "invalid_precedence": "Invalid or null input returns -1 before output checks; valid input with null or short output returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 47,
+    "maximum_parseable_length": 48,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "maximum_bytes": 240,
+    "size_formula": "16*(n-1)",
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "no_write_on_error": true,
+    "empty_tree_output": "For n=1, the valid output length is zero bytes; null output still returns -2."
+  },
+  "workspace": {
+    "bytes": 16384,
+    "meaning": "Conservative cap for all fixed graph, disjoint-set, traversal, recurrence, and output state."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 200
+  },
+  "cases": [
+    {
+      "id": "single-vertex-empty-output",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single-vertex-null-output",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single-weighted-edge",
+      "input_values": [2, 0, 0, 1, 5],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "05000000000000000500000000000000"
+    },
+    {
+      "id": "reversed-edge-record",
+      "input_values": [2, 1, 1, 0, 7],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "07000000000000000700000000000000"
+    },
+    {
+      "id": "weighted-chain-root-in-middle",
+      "input_values": [3, 1, 0, 1, 2, 1, 2, 3],
+      "input_length": 8,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0200000000000000080000000000000007000000000000000300000000000000"
+    },
+    {
+      "id": "branched-tree-mixed-record-orientations",
+      "input_values": [4, 0, 2, 0, 4, 0, 1, 2, 0, 3, 1],
+      "input_length": 11,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "04000000000000000a000000000000000c0000000000000002000000000000000d000000000000000100000000000000"
+    },
+    {
+      "id": "nonzero-root-and-arbitrary-record-order",
+      "input_values": [5, 3, 4, 2, 9, 0, 1, 1, 3, 1, 2, 2, 3, 3],
+      "input_length": 14,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "0900000000000000150000000000000001000000000000001d000000000000001a00000000000000040000000000000015000000000000000900000000000000"
+    },
+    {
+      "id": "maximum-weight-edge",
+      "input_values": [2, 0, 0, 1, 9],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "09000000000000000900000000000000"
+    },
+    {
+      "id": "out-of-range-root",
+      "input_values": [2, 2, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-weight-edge",
+      "input_values": [2, 0, 0, 1, 0],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self-loop",
+      "input_values": [2, 0, 0, 0, 2],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cycle-instead-of-tree",
+      "input_values": [4, 0, 0, 1, 1, 1, 2, 1, 2, 0, 1],
+      "input_length": 11,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-edge-record",
+      "input_values": [2, 0, 0, 1],
+      "input_length": 4,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-word-frame",
+      "input_values": [2, 0, 0, 1, 1, 99],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-before-output-capacity",
+      "input_values": [2, 2, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 0, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 0, 0, 1, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 240,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "generated_profile": {
+    "maximum_n": 16,
+    "maximum_input_length": 47,
+    "maximum_output_bytes": 240,
+    "description": "A deterministic 16-vertex tree with a root at an interior vertex, a branching point, and input edges ordered independently from the rooted traversal."
+  }
+}

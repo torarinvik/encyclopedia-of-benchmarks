@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 from std.memory import MutAnyOrigin, UnsafePointer
 @export("prime_factorization")
 fn prime_factorization(n:Int64,out:UnsafePointer[UInt8,MutAnyOrigin],cap:UInt64) abi("C")->Int64:

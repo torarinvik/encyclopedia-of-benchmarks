@@ -1,0 +1,99 @@
+const MAX_BITS: usize=4096
+const MAX_WORDS: usize=64
+const MAX_OPERATIONS: usize=64
+
+def popcount64(value:u64)->i32:
+    remaining:mutable u64=value
+    count:mutable i32=0
+    while remaining!=0:
+        remaining<-remaining & (remaining-1)
+        count<-count+1
+    count
+
+def put_i32(value:i32,output:mutable view[u8],pos:usize)->void:
+    bits:mutable u32=value.u32()
+    byte:mutable usize=0
+    while byte<4:
+        output[pos+byte]<-((bits>>(8*byte))&255).u8()
+        byte<-byte+1
+
+def bitset_xor_shift_trace(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("bitset_xor_shift_trace"):
+    if input.is_null() or length<3 or length>131:return -1
+    frame:view[i64]=input[0:length]
+    n64:i64=frame[0]
+    q64:i64=frame[1]
+    if n64<1 or n64>4096 or q64<0 or q64>64:return -1
+    n:usize=n64.usize()
+    q:usize=q64.usize()
+    word_count:usize=(n+63)/64
+    shift_offset:usize=2+word_count
+    if length!=shift_offset+q:return -1
+
+    words:mutable u64[MAX_WORDS]=zeroed
+    word:mutable usize=0
+    while word<word_count:
+        words[word]<-frame[2+word].u64()
+        word<-word+1
+    tail_bits:usize=n%64
+    tail_mask:u64=if tail_bits==0 then (0.u64()-1) else (1.u64()<<tail_bits)-1
+    if (words[word_count-1]&~tail_mask)!=0:return -1
+    operation:mutable usize=0
+    while operation<q:
+        shift:i64=frame[shift_offset+operation]
+        if shift < -(n64-1) or shift > n64-1:return -1
+        operation<-operation+1
+
+    output_bytes:usize=q*4
+    if output_bytes!=0 and (output.is_null() or capacity<output_bytes):return -2
+    counts:mutable i32[MAX_OPERATIONS]=zeroed
+    operation<-0
+    while operation<q:
+        shift:i64=frame[shift_offset+operation]
+        if shift==0:
+            word<-0
+            while word<word_count:
+                words[word]<-0
+                word<-word+1
+        elif shift>0:
+            distance:usize=shift.usize()
+            whole:usize=distance/64
+            part:usize=distance%64
+            word<-0
+            while word<word_count:
+                source:usize=word+whole
+                shifted:mutable u64=0
+                if source<word_count:shifted<-words[source]>>part
+                if part!=0 and source+1<word_count:
+                    shifted<-shifted | (words[source+1]<<(64-part))
+                words[word]<-words[word] ^ shifted
+                word<-word+1
+        else:
+            distance:usize=(-shift).usize()
+            whole:usize=distance/64
+            part:usize=distance%64
+            reverse:mutable usize=0
+            while reverse<word_count:
+                destination:usize=word_count-1-reverse
+                source:isize=destination.isize()-whole.isize()
+                shifted:mutable u64=0
+                if source>=0:shifted<-words[source.usize()]<<part
+                if part!=0 and source>0:
+                    shifted<-shifted | (words[(source-1).usize()]>>(64-part))
+                words[destination]<-words[destination] ^ shifted
+                reverse<-reverse+1
+        words[word_count-1]<-words[word_count-1] & tail_mask
+        count:mutable i32=0
+        word<-0
+        while word<word_count:
+            count<-count+popcount64(words[word])
+            word<-word+1
+        counts[operation]<-count
+        operation<-operation+1
+
+    if output_bytes!=0:
+        output_view:mutable view[u8]=output[0:output_bytes]
+        operation<-0
+        while operation<q:
+            put_i32(counts[operation],output_view,operation*4)
+            operation<-operation+1
+    output_bytes.i64()

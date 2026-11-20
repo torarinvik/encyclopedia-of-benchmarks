@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn linq_next(mut a:InlineArray[Int64,56],mut i:Int,mut ip:Int)->Int64:

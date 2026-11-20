@@ -11,7 +11,7 @@ fn void put_i32_le(char* output, usz offset, int value) {
     }
 }
 
-long median_search2(long* input, usz length, char* output, usz capacity)
+fn long median_search2(long* input, usz length, char* output, usz capacity)
         @export("median_search2") {
     if (input == null || length < 1 || length > MAX_INPUT_LENGTH) return -1;
     if (input[0] < 0 || input[0] > 128) return -1;

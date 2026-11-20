@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "nist-dads-volder-cordic-rotation-fixed-point-v1",
+  "algorithm": "cordic_rotation_fixed_point",
+  "function_symbol": "cordic_rotation_fixed_point",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "discovery": "NIST DADS CORDIC entry",
+    "discovery_url": "https://xlinux.nist.gov/dads/HTML/cordic.html",
+    "primary": "Jack E. Volder, The CORDIC Trigonometric Computing Technique, IRE Transactions on Electronic Computers EC-8(3), 330-334 (1959), DOI 10.1109/TEC.1959.5222693",
+    "primary_url": "https://doi.org/10.1109/TEC.1959.5222693",
+    "sections": "Functional Description, equations (5)-(10), (15)-(20), and Table I",
+    "reuse": "Algorithm idea and equations only; no code, prose, figures, or example traces reused."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[angle_nanoradians,total_stages]",
+    "exact_length": 2,
+    "maximum_valid_input_values": 2,
+    "maximum_parseable_input_values": 3,
+    "angle_range_inclusive": [-3141592653, 3141592653],
+    "stage_count_range_inclusive": [1, 16],
+    "stage_count_definition": "Total rotations, including the initial exact signed 90-degree stage.",
+    "fixed_point_scale": 1000000000,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "Three little-endian IEEE-754 binary64 words [X/Q,Y/Q,Z/Q], 8 bytes per word and 24 bytes total.",
+    "maximum_output_elements": 3,
+    "maximum_output_bytes": 24,
+    "success_result": "output byte count (24)",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 5e-8,
+    "relative_tolerance": 5e-8,
+    "gain_compensation": false
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Per-call mutable register, temporary, and output staging storage; fixed read-only angle constants are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"zero-angle-one-stage-tie-goes-positive","input_values":[0,1],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output":[0.0,1.0,-1.570796327]},
+    {"id":"zero-angle-two-stages","input_values":[0,2],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output":[1.0,1.0,-0.785398164]},
+    {"id":"zero-angle-four-stages","input_values":[0,4],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output":[1.625,0.125,-0.076771892]},
+    {"id":"zero-angle-maximum-stages","input_values":[0,16],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output":[1.646760256,0.000021281,-0.000012924]},
+    {"id":"positive-quarter-turn-one-stage","input_values":[1570796327,1],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output":[0.0,1.0,0.0]},
+    {"id":"negative-quarter-turn-one-stage","input_values":[-1570796327,1],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output":[0.0,-1.0,0.0]},
+    {"id":"positive-domain-edge-one-stage","input_values":[3141592653,1],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output":[0.0,1.0,1.570796326]},
+    {"id":"negative-domain-edge-one-stage","input_values":[-3141592653,1],"input_length":2,"output_capacity":24,"expected_result":24,"expected_output":[0.0,-1.0,-1.570796326]},
+    {"id":"short-output-capacity","input_values":[0,16],"input_length":2,"output_capacity":23,"expected_result":-2,"expected_output":[]},
+    {"id":"null-output","input_values":[0,16],"input_length":2,"output_capacity":24,"output_is_null":true,"expected_result":-2,"expected_output":[]},
+    {"id":"short-input-frame","input_values":[0],"input_length":1,"output_capacity":24,"expected_result":-1,"expected_output":[]},
+    {"id":"extra-input-word","input_values":[0,1,7],"input_length":3,"output_capacity":24,"expected_result":-1,"expected_output":[]},
+    {"id":"angle-below-domain","input_values":[-3141592654,16],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output":[]},
+    {"id":"angle-above-domain","input_values":[3141592654,16],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output":[]},
+    {"id":"zero-stage-count","input_values":[0,0],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output":[]},
+    {"id":"too-many-stages","input_values":[0,17],"input_length":2,"output_capacity":24,"expected_result":-1,"expected_output":[]},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":24,"expected_result":-1,"expected_output":[]}
+  ]
+}

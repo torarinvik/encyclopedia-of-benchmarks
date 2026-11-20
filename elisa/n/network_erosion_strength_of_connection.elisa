@@ -1,0 +1,130 @@
+# Network-erosion strength of connection for the bounded all-positive profile.
+const SOC_MAX_INPUT: usize = 117
+const SOC_OUTPUT_BYTES: usize = 16
+
+def soc_shortest_path(adjacency: view[u16], n: usize, source: usize,
+                      target: usize, path: mutable view[usize]) -> usize:
+    distance: mutable i64[8] = zeroed
+    predecessor: mutable usize[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    for vertex in 0..<8: distance[vertex] <- -1
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    queue[0] <- source
+    distance[source] <- 0
+    while head < tail:
+        vertex: usize = queue[head]
+        head <- head + 1
+        for successor in 0..<n:
+            bit: u16 = (1 << successor).u16()
+            if (adjacency[vertex] & bit) != 0 and distance[successor] == -1:
+                distance[successor] <- distance[vertex] + 1
+                predecessor[successor] <- vertex
+                queue[tail] <- successor
+                tail <- tail + 1
+    if distance[target] < 0: return 0
+
+    reversed: mutable usize[8] = zeroed
+    count: mutable usize = 0
+    vertex: mutable usize = target
+    while true:
+        reversed[count] <- vertex
+        count <- count + 1
+        if vertex == source: break
+        vertex <- predecessor[vertex]
+    for index in 0..<count: path[index] <- reversed[count - index - 1]
+    count
+
+def soc_gcd(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def soc_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def network_erosion_strength_of_connection(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 @export("network_erosion_strength_of_connection"):
+    if input.is_null() or length < 4 or length > SOC_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    source_value: i64 = values[2]
+    target_value: i64 = values[3]
+    if n_value < 2 or n_value > 8 or m_value < 0 or m_value > n_value * (n_value - 1): return -1
+    if source_value < 0 or source_value >= n_value or target_value < 0 or target_value >= n_value:
+        return -1
+    if source_value == target_value: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    source: usize = source_value.usize()
+    target: usize = target_value.usize()
+    if length != 4 + 2 * m: return -1
+
+    adjacency: mutable u16[8] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        from_value: i64 = values[4 + 2 * edge]
+        to_value: i64 = values[5 + 2 * edge]
+        if from_value < 0 or from_value >= n_value or to_value < 0 or to_value >= n_value:
+            return -1
+        if from_value == to_value: return -1
+        from: usize = from_value.usize()
+        to: usize = to_value.usize()
+        bit: u16 = (1 << to).u16()
+        if (adjacency[from] & bit) != 0: return -1
+        adjacency[from] <- adjacency[from] | bit
+        edge <- edge + 1
+
+    adjacency_view: mutable view[u16] = adjacency[0:8]
+    distances: mutable i64[8] = zeroed
+    for vertex in 0..<8: distances[vertex] <- -1
+    path_storage: mutable usize[8] = zeroed
+    path: mutable view[usize] = path_storage[0:8]
+    initial_count: usize = soc_shortest_path(adjacency_view, n, source, target, path)
+    if initial_count > 0:
+        initial_distance: i64 = (initial_count - 1).i64()
+        distances[source] <- initial_distance
+        distances[target] <- initial_distance
+        while true:
+            path_count: usize = soc_shortest_path(adjacency_view, n, source, target, path)
+            if path_count == 0: break
+            path_distance: i64 = (path_count - 1).i64()
+            if path_distance == 1:
+                direct_bit: u16 = (1 << target).u16()
+                adjacency[source] <- adjacency[source] & ~direct_bit
+                continue
+            for index in 0..<path_count:
+                vertex: usize = path[index]
+                if distances[vertex] < 0: distances[vertex] <- path_distance
+            for index in 1..<(path_count - 1):
+                vertex: usize = path[index]
+                removed_bit: u16 = (1 << vertex).u16()
+                adjacency[vertex] <- 0
+                for other in 0..<n:
+                    adjacency[other] <- adjacency[other] & ~removed_bit
+
+    reciprocal_sum_scaled: mutable i64 = 0
+    for vertex in 0..<n:
+        if distances[vertex] > 0:
+            reciprocal_sum_scaled <- reciprocal_sum_scaled + 420 / distances[vertex]
+    numerator: mutable i64 = 2 * reciprocal_sum_scaled
+    denominator: mutable i64 = 420 * (n_value + 2)
+    if numerator == 0:
+        denominator <- 1
+    else:
+        divisor: i64 = soc_gcd(numerator, denominator)
+        numerator <- numerator / divisor
+        denominator <- denominator / divisor
+
+    if output.is_null() or capacity < SOC_OUTPUT_BYTES: return -2
+    output_view: mutable view[u8] = output[0:SOC_OUTPUT_BYTES]
+    soc_store_i64_le(output_view, 0, numerator)
+    soc_store_i64_le(output_view, 8, denominator)
+    SOC_OUTPUT_BYTES.i64()

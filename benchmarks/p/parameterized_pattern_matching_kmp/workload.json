@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-parameterized-pattern-matching-kmp-i64-array-bytes-output-v1",
+  "algorithm": "parameterized_pattern_matching_kmp",
+  "function_symbol": "parameterized_pattern_matching_kmp",
+  "abi": "i64_array_bytes_output",
+  "description": "Find all one-dimensional parameterized matches using the modified KMP failure automaton.",
+  "source": {
+    "title": "Parameterized Pattern Matching",
+    "authors": ["Moshe Lewenstein"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_282; operational method: Amir, Farach, and Muthukrishnan, Alphabet Dependence in Parameterized Matching, §2, DOI 10.1016/0020-0190(94)90086-8",
+    "url": "https://doi.org/10.1016/0020-0190(94)90086-8",
+    "algorithm_attribution": "Parameter-only mapped matching through KMP with source-defined pattern and text comparison predicates",
+    "implementation_status": "clean-room bounded profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length,pattern_length,alphabet_size,text_symbols...,pattern_symbols...]",
+    "text_length_range": [0, 64],
+    "pattern_length_range": [1, 16],
+    "alphabet_size_range": [1, 16],
+    "symbol_range": "0 <= symbol < alphabet_size",
+    "maximum_valid_length": 83,
+    "maximum_parseable_length": 84,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_bytes",
+    "encoding": "[match_count,zero_based_match_start...] in ascending order",
+    "maximum_bytes": 520,
+    "success_result": "8 bytes times 1 + number of matches",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed pattern, failure, last-occurrence, match-index, and staged-output arrays; excludes caller buffers."
+  },
+  "contract": {
+    "matching_rule": "Every pattern symbol is a parameter; a window matches iff a one-to-one renaming maps the pattern symbols to the corresponding text symbols.",
+    "algorithm": "Build the previous-occurrence table and parameterized KMP failure table, then scan text using mapped-match comparisons and failure links.",
+    "pattern_longer_than_text": "valid and produces an empty match list",
+    "complexity": "Primary O(n+m+sigma) time and O(m+sigma) workspace for the bounded alphabet-array profile; independent window-map oracle O((n-m+1)*m) time and O(sigma) temporary workspace.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "renamed-pattern-at-two-separated-starts",
+      "input_values": [9, 3, 6, 2, 3, 2, 4, 5, 4, 1, 1, 1, 0, 1, 0],
+      "input_length": 15,
+      "output_capacity": 520,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000000000000000000000300000000000000"
+    },
+    {
+      "id": "failure-link-fallback-and-overlapping-matches",
+      "input_values": [6, 3, 2, 0, 1, 1, 0, 1, 0, 0, 1, 0],
+      "input_length": 12,
+      "output_capacity": 520,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "bijection-pattern-mismatch",
+      "input_values": [3, 3, 2, 0, 0, 1, 0, 1, 1],
+      "input_length": 9,
+      "output_capacity": 520,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "pattern-longer-than-text",
+      "input_values": [2, 3, 3, 0, 1, 0, 2, 1],
+      "input_length": 8,
+      "output_capacity": 520,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "empty-text",
+      "input_values": [0, 1, 16, 15],
+      "input_length": 4,
+      "output_capacity": 520,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "maximum-valid-frame-single-occurrence",
+      "input_values": [64, 16, 16,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      "input_length": 83,
+      "output_capacity": 520,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-output-rejected-one-byte-short",
+      "input_values": [64, 1, 1,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0],
+      "input_length": 68,
+      "output_capacity": 519,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "alphabet-size-out-of-range",
+      "input_values": [1, 1, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "symbol-out-of-range",
+      "input_values": [1, 1, 4, 4, 0],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed-minimum-symbol-rejected",
+      "input_values": [1, 1, 16, -9223372036854775808, 0],
+      "input_length": 5,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-rejected",
+      "input_values": [1, 1, 2, 0, 1, 99],
+      "input_length": 6,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [9, 3, 6, 2, 3, 2, 4, 5, 4, 1, 1, 1, 0, 1, 0],
+      "input_length": 15,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [0, 1, 1, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

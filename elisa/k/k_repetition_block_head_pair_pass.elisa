@@ -1,0 +1,172 @@
+const KHP_N: usize = 24
+const KHP_K: usize = 3
+const KHP_INPUT: usize = 27
+const KHP_CONTEXT: usize = 48
+const KHP_FACTORS: usize = 25
+const KHP_PERIODS: usize = 13
+const KHP_BITS: usize = 117
+const KHP_OUTPUT: usize = 39112
+
+def khp_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+    var bits: mutable u64 = value.u64()
+    for b in 0..<8:
+        output[offset + b] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def khp_right(w: view[i32], size: usize, center: usize, period: usize, allowed: usize) -> usize:
+    left: usize = center - period
+    limit: usize = if size - left < size - center then size - left else size - center
+    var errors: mutable usize = 0
+    for d in 0..<limit:
+        if w[left + d] != w[center + d]:
+            errors <- errors + 1
+            if errors > allowed: return d
+    return limit
+
+def khp_left(w: view[i32], center: usize, period: usize, allowed: usize) -> usize:
+    limit: usize = center - period
+    var errors: mutable usize = 0
+    for d in 0..<limit:
+        if w[center - period - 1 - d] != w[center - 1 - d]:
+            errors <- errors + 1
+            if errors > allowed: return d
+    return limit
+
+def khp_mark(seen: mutable view[u64], n: usize, base: usize, size: usize,
+             center: usize, next_head: usize, lo: usize, hi: usize, period: usize) -> void:
+    if hi >= size or hi - lo + 1 < 2 * period: return
+    if lo > center + 1 or hi + 1 < center: return
+    if lo <= next_head + 1 and hi + 1 >= next_head: return
+    start: usize = base + lo
+    finish: usize = base + hi
+    if finish >= n: return
+    index: usize = (start * KHP_N + finish) * KHP_PERIODS + period
+    seen[index / 64] <- seen[index / 64] | (1 << (index % 64))
+
+def khp_at_head(seen: mutable view[u64], n: usize, budget: usize,
+                w: view[i32], size: usize, base: usize, center: usize, next_head: usize) -> void:
+    if center == 0 or center + 1 >= size: return
+    for period in 1..<center + 1:
+        for split in 0..<budget + 1:
+            f: usize = khp_right(w, size, center, period, split)
+            b: usize = khp_left(w, center, period, budget - split)
+            if f <= period and f + b >= period:
+                khp_mark(seen, n, base, size, center, next_head,
+                         center - period - b, center + f - 1, period)
+    var reversed: mutable [KHP_CONTEXT]i32 = [0; KHP_CONTEXT]
+    var reverse_view: mutable view[i32] = reversed[0:KHP_CONTEXT]
+    for i in 0..<size: reverse_view[i] <- w[size - 1 - i]
+    reverse_center: usize = size - 1 - center
+    for period in 1..<reverse_center + 1:
+        for split in 0..<budget + 1:
+            f: usize = khp_right(reverse_view, size, reverse_center, period, split)
+            b: usize = khp_left(reverse_view, reverse_center, period, budget - split)
+            if f <= period and f + b >= period:
+                reverse_start: usize = reverse_center - period - b
+                reverse_end: usize = reverse_center + f - 1
+                khp_mark(seen, n, base, size, center, next_head,
+                         size - 1 - reverse_end, size - 1 - reverse_start, period)
+
+def khp_factorize(text: view[i32], n: usize, starts: mutable view[usize],
+                  ends: mutable view[usize], factor_count: mutable usize&) -> void:
+    var pos: mutable usize = 0
+    while pos < n:
+        var best: mutable usize = 0
+        for earlier in 0..<pos:
+            var matched: mutable usize = 0
+            while pos + matched < n and earlier + matched < n and text[earlier + matched] == text[pos + matched]:
+                matched <- matched + 1
+            if matched > best: best <- matched
+        finish: usize = pos + best + 1
+        if finish > n: finish <- n
+        starts[factor_count] <- pos
+        ends[factor_count] <- finish
+        factor_count <- factor_count + 1
+        pos <- finish
+
+def khp_run_heads(text: view[i32], n: usize, budget: usize,
+                  starts: view[usize], ends: view[usize], factor_count: usize,
+                  seen: mutable view[u64]) -> void:
+    block: usize = budget + 2
+    block_count: usize = (factor_count + block - 1) // block
+    for bi in 0..<block_count - 1:
+        first: usize = bi * block
+        first_end: usize = first + block
+        if first_end > factor_count: first_end <- factor_count
+        second_end: usize = first_end + block
+        if second_end > factor_count: second_end <- factor_count
+        head: usize = ends[first_end - 1] - 1
+        next_head: usize = ends[second_end - 1] - 1
+        pair_start: usize = starts[first]
+        pair_end: usize = ends[second_end - 1]
+        span: usize = pair_end - pair_start
+        base: usize = if pair_start > span then pair_start - span else 0
+        size: usize = pair_end - base
+        khp_at_head(seen, n, budget, text[base:pair_end], size, base,
+                    head - base, next_head - base)
+
+def khp_marked(seen: view[u64], start: usize, finish: usize, period: usize) -> bool:
+    index: usize = (start * KHP_N + finish) * KHP_PERIODS + period
+    (seen[index / 64] & (1 << (index % 64))) != 0
+
+def khp_impl(input: view[i64], length: usize, output: mutable view[u8],
+             capacity: usize, output_is_null: bool) -> i64:
+    if length < 3 or length > KHP_INPUT: return -1
+    n_value: i64 = input[0]
+    budget_value: i64 = input[1]
+    if n_value < 1 or n_value > KHP_N.i64() or budget_value < 0 or budget_value > KHP_K.i64(): return -1
+    n: usize = n_value.usize()
+    budget: usize = budget_value.usize()
+    if length != n + 2: return -1
+    var text: mutable [KHP_N]i32 = [0; KHP_N]
+    var starts: mutable [KHP_FACTORS]usize = [0; KHP_FACTORS]
+    var ends: mutable [KHP_FACTORS]usize = [0; KHP_FACTORS]
+    var seen: mutable [KHP_BITS]u64 = [0; KHP_BITS]
+    var text_view: mutable view[i32] = text[0:KHP_N]
+    var starts_view: mutable view[usize] = starts[0:KHP_FACTORS]
+    var ends_view: mutable view[usize] = ends[0:KHP_FACTORS]
+    var seen_view: mutable view[u64] = seen[0:KHP_BITS]
+    for i in 0..<n:
+        if input[i + 2] < 0 or input[i + 2] > 4: return -1
+        text_view[i] <- input[i + 2].i32()
+    for i in 0..<n - 1:
+        if text_view[i] == text_view[n - 1]: return -1
+    var factor_count: mutable usize = 0
+    khp_factorize(text_view, n, starts_view, ends_view, factor_count)
+    khp_run_heads(text_view, n, budget, starts_view, ends_view, factor_count, seen_view)
+    var records: mutable usize = 0
+    for start in 0..<n:
+        for length_value in 2..<n - start + 1:
+            finish: usize = start + length_value - 1
+            for period in 1..<length_value // 2 + 1:
+                if khp_marked(seen_view, start, finish, period): records <- records + 1
+    written: usize = 8 + records * 32
+    if written > KHP_OUTPUT: return -1
+    if output_is_null or capacity < written: return -2
+    khp_put(records.i64(), output, 0)
+    var offset: mutable usize = 8
+    for start in 0..<n:
+        for length_value in 2..<n - start + 1:
+            finish: usize = start + length_value - 1
+            for period in 1..<length_value // 2 + 1:
+                if not khp_marked(seen_view, start, finish, period): continue
+                var mismatches: mutable usize = 0
+                var i: mutable usize = start
+                while i + period <= finish:
+                    if text_view[i] != text_view[i + period]: mismatches <- mismatches + 1
+                    i <- i + 1
+                khp_put(start.i64(), output, offset); offset <- offset + 8
+                khp_put(length_value.i64(), output, offset); offset <- offset + 8
+                khp_put(period.i64(), output, offset); offset <- offset + 8
+                khp_put(mismatches.i64(), output, offset); offset <- offset + 8
+    written.i64()
+
+export fn k_repetition_block_head_pair_pass(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > KHP_INPUT: return -1
+    if output.is_null():
+        var scratch: mutable [1]u8 = [0; 1]
+        return khp_impl(input[0:length], length, scratch[0:1], capacity, true)
+    safe_capacity: mutable usize = capacity
+    if safe_capacity > KHP_OUTPUT: safe_capacity <- KHP_OUTPUT
+    khp_impl(input[0:length], length, output[0:safe_capacity], capacity, false)

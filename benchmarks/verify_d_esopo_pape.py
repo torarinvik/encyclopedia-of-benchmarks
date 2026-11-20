@@ -152,7 +152,7 @@ def main() -> int:
         require(source["url"] in readme, f"README is missing the citation for {source['organization']}")
     require("exponential" in readme.lower() and "no polynomial worst-case claim" in readme.lower(),
             "README must accurately state the lack of a polynomial worst-case bound")
-    print("D'Esopo-Pape static contract, Bellman-Ford fixtures, and nine paths checked")
+    print(f"D'Esopo-Pape static contract, Bellman-Ford fixtures, and {len(LANGUAGES)} paths checked")
     return 0
 
 

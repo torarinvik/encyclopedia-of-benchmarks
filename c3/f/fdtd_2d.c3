@@ -9,7 +9,7 @@ fn long fdtd_2d(double* input, usz length, double* output, usz capacity) @export
     if(tv<0||tv>MAX_TMAX||xv<1||xv>MAX_NX||yv<1||yv>MAX_NY)return -1;
     usz tmax=(usz)tv,nx=(usz)xv,ny=(usz)yv,n=nx*ny,required=3*n;
     if(output==null||capacity<required)return -2;
-    double ex[36]={0.0},ey[36]={0.0},hz[36]={0.0},fict[4]={0.0},staged[108]={0.0};
+    double[36] ex={};double[36] ey={};double[36] hz={};double[4] fict={};double[108] staged={};
     for(usz t=0;t<tmax;t++)fict[t]=(double)t;
     for(usz i=0;i<nx;i++)for(usz j=0;j<ny;j++){ex[i*ny+j]=(double)(i*(j+1))/(double)nx;ey[i*ny+j]=(double)(i*(j+2))/(double)ny;hz[i*ny+j]=(double)(i*(j+3))/(double)nx;}
     for(usz t=0;t<tmax;t++){

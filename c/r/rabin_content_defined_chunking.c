@@ -19,8 +19,8 @@ int64_t rabin_content_defined_chunking(const int64_t *input, size_t length,
     uint8_t boundaries[64];
     size_t count = 0;
     for (size_t i = 0; i < n; ++i) {
-        fingerprint = cdc_reduce(((uint32_t)fingerprint << 8) | (uint32_t)input[i + 1]);
         if (i >= 4) fingerprint ^= outgoing[(size_t)input[i - 3]];
+        fingerprint = cdc_reduce(((uint32_t)fingerprint << 8) | (uint32_t)input[i + 1]);
         if ((fingerprint & 7u) == 0) boundaries[count++] = (uint8_t)(i + 1);
     }
     if (n && (!count || boundaries[count - 1] != n)) boundaries[count++] = (uint8_t)n;

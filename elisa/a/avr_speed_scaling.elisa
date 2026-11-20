@@ -1,0 +1,152 @@
+const AVR_MAX_JOBS: usize = 8
+const AVR_MAX_TIME: usize = 8
+const AVR_MAX_INPUT: usize = 25
+const AVR_MAX_OUTPUT_VALUES: usize = 79
+const AVR_MAX_OUTPUT_BYTES: usize = 632
+const AVR_DENSITY_SCALE: i64 = 840
+
+def avr_gcd(a0: i64, b0: i64) -> i64:
+    a: mutable i64 = a0
+    b: mutable i64 = b0
+    while b != 0:
+        r: i64 = a % b
+        a <- b
+        b <- r
+    if a < 0: return -a
+    a
+
+def avr_store_i64(values: view[i64], output: mutable view[u8], word: usize) -> void:
+    bits: u64 = values[word].u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[8 * word + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+export fn avr_speed_scaling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > AVR_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    count_value: i64 = input_view[0]
+    if count_value < 1 or count_value > AVR_MAX_JOBS.i64(): return -1
+    jobs: usize = count_value.usize()
+    if length != 1 + 3 * jobs: return -1
+
+    release: mutable usize[AVR_MAX_JOBS] = zeroed
+    deadline: mutable usize[AVR_MAX_JOBS] = zeroed
+    remaining: mutable i64[AVR_MAX_JOBS] = zeroed
+    changes: mutable i64[AVR_MAX_TIME + 1] = zeroed
+    points: mutable bool[AVR_MAX_TIME + 1] = zeroed
+    finish_num: mutable i64[AVR_MAX_JOBS] = zeroed
+    finish_den: mutable i64[AVR_MAX_JOBS] = zeroed
+    finished: mutable bool[AVR_MAX_JOBS] = zeroed
+
+    j: mutable usize = 0
+    while j < jobs:
+        r: i64 = input_view[1 + 3 * j]
+        d: i64 = input_view[2 + 3 * j]
+        w: i64 = input_view[3 + 3 * j]
+        if r < 0 or r >= d or d > AVR_MAX_TIME.i64() or w < 1 or w > 8: return -1
+        release[j] <- r.usize()
+        deadline[j] <- d.usize()
+        scaled_density: i64 = w * (AVR_DENSITY_SCALE / (d - r))
+        changes[r.usize()] <- changes[r.usize()] + scaled_density
+        changes[d.usize()] <- changes[d.usize()] - scaled_density
+        points[r.usize()] <- true
+        points[d.usize()] <- true
+        remaining[j] <- w * AVR_DENSITY_SCALE
+        j <- j + 1
+
+    values: mutable i64[AVR_MAX_OUTPUT_VALUES] = zeroed
+    segment_count: mutable usize = 0
+    energy_scaled: mutable i64 = 0
+    speed_scaled: mutable i64 = 0
+    start: mutable usize = 0
+    while start < AVR_MAX_TIME:
+        speed_scaled <- speed_scaled + changes[start]
+        if not points[start]:
+            start <- start + 1
+            continue
+        end: mutable usize = start + 1
+        while end <= AVR_MAX_TIME and not points[end]: end <- end + 1
+        if end > AVR_MAX_TIME or speed_scaled <= 0:
+            start <- start + 1
+            continue
+
+        energy_scaled <- energy_scaled + speed_scaled * speed_scaled * speed_scaled * (end - start).i64()
+        speed_gcd: i64 = avr_gcd(speed_scaled, AVR_DENSITY_SCALE)
+        speed_num: i64 = speed_scaled / speed_gcd
+        speed_den: i64 = AVR_DENSITY_SCALE / speed_gcd
+        if segment_count > 0:
+            last: usize = 3 + 4 * (segment_count - 1)
+            if values[last + 1] == start.i64() and values[last + 2] == speed_num and values[last + 3] == speed_den:
+                values[last + 1] <- end.i64()
+            else:
+                at: usize = 3 + 4 * segment_count
+                segment_count <- segment_count + 1
+                values[at] <- start.i64()
+                values[at + 1] <- end.i64()
+                values[at + 2] <- speed_num
+                values[at + 3] <- speed_den
+        else:
+            at: usize = 3 + 4 * segment_count
+            segment_count <- segment_count + 1
+            values[at] <- start.i64()
+            values[at + 1] <- end.i64()
+            values[at + 2] <- speed_num
+            values[at + 3] <- speed_den
+
+        cursor_scaled: mutable i64 = start.i64() * speed_scaled
+        end_scaled: i64 = end.i64() * speed_scaled
+        while cursor_scaled < end_scaled:
+            selected: mutable usize = jobs
+            j <- 0
+            while j < jobs:
+                if not finished[j] and remaining[j] > 0 and release[j] <= start and deadline[j] > start:
+                    if selected == jobs or deadline[j] < deadline[selected]: selected <- j
+                j <- j + 1
+            if selected == jobs: break
+            if cursor_scaled + remaining[selected] <= end_scaled:
+                cursor_scaled <- cursor_scaled + remaining[selected]
+                remaining[selected] <- 0
+                common: i64 = avr_gcd(cursor_scaled, speed_scaled)
+                finish_num[selected] <- cursor_scaled / common
+                finish_den[selected] <- speed_scaled / common
+                finished[selected] <- true
+            else:
+                remaining[selected] <- remaining[selected] - (end_scaled - cursor_scaled)
+                cursor_scaled <- end_scaled
+        start <- start + 1
+
+    j <- 0
+    while j < jobs:
+        if not finished[j]: return -1
+        j <- j + 1
+    energy_denominator: i64 = AVR_DENSITY_SCALE * AVR_DENSITY_SCALE * AVR_DENSITY_SCALE
+    energy_gcd: i64 = avr_gcd(energy_scaled, energy_denominator)
+    segment_end: usize = 3 + 4 * segment_count
+    values[0] <- segment_count.i64()
+    values[1] <- energy_scaled / energy_gcd
+    values[2] <- energy_denominator / energy_gcd
+    output_values: mutable usize = segment_end
+    j <- 0
+    while j < jobs:
+        values[output_values] <- finish_num[j]
+        output_values <- output_values + 1
+        values[output_values] <- finish_den[j]
+        output_values <- output_values + 1
+        j <- j + 1
+
+    output_bytes: usize = 8 * output_values
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[AVR_MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:AVR_MAX_OUTPUT_BYTES]
+    values_view: view[i64] = values[0:AVR_MAX_OUTPUT_VALUES]
+    index: usize = 0
+    while index < output_values:
+        avr_store_i64(values_view, staged_view, index)
+        index <- index + 1
+    output_view: mutable view[u8] = output[0:output_bytes]
+    index <- 0
+    while index < output_bytes:
+        output_view[index] <- staged_view[index]
+        index <- index + 1
+    output_bytes.i64()

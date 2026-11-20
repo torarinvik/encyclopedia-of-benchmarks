@@ -1,0 +1,72 @@
+const MAX_ORDER: i64 = 30
+const FNV_OFFSET: u64 = 0xcbf29ce484222325
+const FNV_PRIME: u64 = 0x100000001b3
+
+def magic_square_singly_even_strachey_impl(n: i64) -> i64:
+    if n < 6 or n > MAX_ORDER or n % 4 != 2:
+        return -1
+    order: i64 = n
+    half: i64 = order / 2
+    k: i64 = half / 2
+    block_size: i64 = half * half
+    odd: mutable i32[900] = zeroed
+    square: mutable i32[900] = zeroed
+
+    row: mutable i64 = 0
+    column: mutable i64 = half / 2
+    odd[row * MAX_ORDER + column] <- 1
+    for value in 2..<block_size + 1:
+        next_row: i64 = (row - 1 + half) % half
+        next_column: i64 = (column + 1) % half
+        if odd[next_row * MAX_ORDER + next_column] == 0:
+            row <- next_row
+            column <- next_column
+        else:
+            row <- (row + 1) % half
+        odd[row * MAX_ORDER + column] <- value.i32()
+
+    for r in 0..<half:
+        for c in 0..<half:
+            value: i64 = odd[r * MAX_ORDER + c].i64()
+            square[r * MAX_ORDER + c] <- value.i32()
+            square[r * MAX_ORDER + half + c] <- (value + 2 * block_size).i32()
+            square[(half + r) * MAX_ORDER + c] <- (value + 3 * block_size).i32()
+            square[(half + r) * MAX_ORDER + half + c] <- (value + block_size).i32()
+
+    for r in 0..<half:
+        for c in 0..<k:
+            top: i64 = r * MAX_ORDER + c
+            bottom: i64 = (half + r) * MAX_ORDER + c
+            saved: mutable i32 = square[top]
+            square[top] <- square[bottom]
+            square[bottom] <- saved
+        for c in (half - (k - 1))..<half:
+            top: i64 = r * MAX_ORDER + half + c
+            bottom: i64 = (half + r) * MAX_ORDER + half + c
+            saved: mutable i32 = square[top]
+            square[top] <- square[bottom]
+            square[bottom] <- saved
+
+    top: i64 = k * MAX_ORDER
+    bottom: i64 = (half + k) * MAX_ORDER
+    saved: mutable i32 = square[top]
+    square[top] <- square[bottom]
+    square[bottom] <- saved
+
+    top = k * MAX_ORDER + k
+    bottom = (half + k) * MAX_ORDER + k
+    saved <- square[top]
+    square[top] <- square[bottom]
+    square[bottom] <- saved
+
+    hash: mutable u64 = FNV_OFFSET
+    hash <- (hash ^ order.u8().u64()) * FNV_PRIME
+    for r in 0..<order:
+        for c in 0..<order:
+            bits: u32 = square[r * MAX_ORDER + c].u32()
+            for byte_index in 0..<4:
+                byte: u32 = (bits >> (byte_index * 8)) & 255.u32()
+                hash <- (hash ^ byte.u64()) * FNV_PRIME
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn magic_square_singly_even_strachey(n: i64) i64 = magic_square_singly_even_strachey_impl

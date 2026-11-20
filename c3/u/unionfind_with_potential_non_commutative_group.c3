@@ -10,7 +10,7 @@ fn long normalize(long value) {
 }
 
 fn void matrix_multiply(const long* left, const long* right, long* result) {
-    long temporary[4] = {0, 0, 0, 0};
+    long[4] temporary = {0, 0, 0, 0};
     for (usz row = 0; row < 2; row += 1)
         for (usz column = 0; column < 2; column += 1)
             for (usz inner = 0; inner < 2; inner += 1)
@@ -20,7 +20,7 @@ fn void matrix_multiply(const long* left, const long* right, long* result) {
 }
 
 fn void matrix_inverse(const long* matrix, long* inverse) {
-    long temporary[4] = {matrix[3], normalize(-matrix[1]), normalize(-matrix[2]), matrix[0]};
+    long[4] temporary = {matrix[3], normalize(-matrix[1]), normalize(-matrix[2]), matrix[0]};
     for (usz cell = 0; cell < 4; cell += 1) inverse[cell] = temporary[cell];
 }
 
@@ -33,8 +33,8 @@ fn usz find_root(long* parent, long* difference, usz item) {
     if ((usz)parent[item] != item) {
         usz old_parent = (usz)parent[item];
         usz root = find_root(parent, difference, old_parent);
-        long product[4];
-        matrix_multiply(&difference[4 * old_parent], &difference[4 * item], product);
+        long[4] product;
+        matrix_multiply(&difference[4 * old_parent], &difference[4 * item], &product[0]);
         for (usz cell = 0; cell < 4; cell += 1) difference[4 * item + cell] = product[cell];
         parent[item] = (long)root;
     }
@@ -69,7 +69,8 @@ fn long unionfind_with_potential_non_commutative_group(long* input, usz length,
     usz required = 32 * q;
     if (output == null || capacity < required) return -2;
 
-    long parent[MAX_N], set_size[MAX_N], difference[4 * MAX_N];
+    long[MAX_N] parent, set_size;
+    long[4 * MAX_N] difference;
     for (usz item = 0; item < n; item += 1) {
         parent[item] = (long)item; set_size[item] = 1;
         difference[4 * item] = 1; difference[4 * item + 1] = 0;
@@ -79,34 +80,34 @@ fn long unionfind_with_potential_non_commutative_group(long* input, usz length,
         usz position = 2 + 7 * operation;
         long kind = input[position];
         usz u = (usz)input[position + 1], v = (usz)input[position + 2];
-        long row[4] = {0, 0, 0, 0};
-        usz root_u = find_root(parent, difference, u), root_v = find_root(parent, difference, v);
+        long[4] row = {0, 0, 0, 0};
+        usz root_u = find_root(&parent[0], &difference[0], u), root_v = find_root(&parent[0], &difference[0], v);
         if (kind == 1) {
             if (root_u == root_v) {
-                long inverse_v[4], relative[4];
-                matrix_inverse(&difference[4 * v], inverse_v);
-                matrix_multiply(inverse_v, &difference[4 * u], relative);
+                long[4] inverse_v, relative;
+                matrix_inverse(&difference[4 * v], &inverse_v[0]);
+                matrix_multiply(&inverse_v[0], &difference[4 * u], &relative[0]);
                 for (usz cell = 0; cell < 4; cell += 1) row[cell] = relative[cell];
             } else for (usz cell = 0; cell < 4; cell += 1) row[cell] = -1;
         } else {
-            long relation[4] = {input[position + 3], input[position + 4], input[position + 5], input[position + 6]};
+            long[4] relation = {input[position + 3], input[position + 4], input[position + 5], input[position + 6]};
             if (root_u == root_v) {
-                long inverse_v[4], known[4];
-                matrix_inverse(&difference[4 * v], inverse_v);
-                matrix_multiply(inverse_v, &difference[4 * u], known);
-                row[0] = matrix_equal(known, relation) ? 1 : 0;
+                long[4] inverse_v, known;
+                matrix_inverse(&difference[4 * v], &inverse_v[0]);
+                matrix_multiply(&inverse_v[0], &difference[4 * u], &known[0]);
+                row[0] = matrix_equal(&known[0], &relation[0]) ? 1 : 0;
             } else if (set_size[root_u] < set_size[root_v]) {
-                long first[4], inverse_u[4];
-                matrix_multiply(&difference[4 * v], relation, first);
-                matrix_inverse(&difference[4 * u], inverse_u);
-                matrix_multiply(first, inverse_u, &difference[4 * root_u]);
+                long[4] first, inverse_u;
+                matrix_multiply(&difference[4 * v], &relation[0], &first[0]);
+                matrix_inverse(&difference[4 * u], &inverse_u[0]);
+                matrix_multiply(&first[0], &inverse_u[0], &difference[4 * root_u]);
                 parent[root_u] = (long)root_v; set_size[root_v] += set_size[root_u]; row[0] = 1;
             } else {
-                long inverse_relation[4], first[4], inverse_v[4];
-                matrix_inverse(relation, inverse_relation);
-                matrix_multiply(&difference[4 * u], inverse_relation, first);
-                matrix_inverse(&difference[4 * v], inverse_v);
-                matrix_multiply(first, inverse_v, &difference[4 * root_v]);
+                long[4] inverse_relation, first, inverse_v;
+                matrix_inverse(&relation[0], &inverse_relation[0]);
+                matrix_multiply(&difference[4 * u], &inverse_relation[0], &first[0]);
+                matrix_inverse(&difference[4 * v], &inverse_v[0]);
+                matrix_multiply(&first[0], &inverse_v[0], &difference[4 * root_v]);
                 parent[root_v] = (long)root_u; set_size[root_u] += set_size[root_v]; row[0] = 1;
             }
         }

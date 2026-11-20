@@ -19,12 +19,12 @@ fn bool point_less(Point a, Point b) {
     if (a.x != b.x) return a.x < b.x;
     return a.y < b.y;
 }
-fn void store_le(uint8* output, usz at, long value) {
+fn void store_le(char* output, usz at, long value) {
     ulong bits = (ulong)value;
-    for (usz byte = 0; byte < 8; byte++) output[at + byte] = (uint8)((bits >> (8 * byte)) & 255);
+    for (usz byte = 0; byte < 8; byte++) output[at + byte] = (char)((bits >> (8 * byte)) & 255);
 }
 
-fn long sort_points_by_argument(long* input, usz length, uint8* output, usz capacity) @export("sort_points_by_argument") {
+fn long sort_points_by_argument(long* input, usz length, char* output, usz capacity) @export("sort_points_by_argument") {
     if (input == null || length < 1 || length > INPUT_MAX) return -1;
     long nr = input[0];
     if (nr < 1 || nr > (long)MAX_N || length != 1 + 2 * (usz)nr) return -1;

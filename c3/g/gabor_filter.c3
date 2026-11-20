@@ -6,14 +6,14 @@ extern fn double exp(double value);
 
 const double PI = 3.14159265358979323846264338327950288;
 
-fn void put_f32(uint8 *output, usz offset, double value) {
+fn void put_f32(char *output, usz offset, double value) {
     float rounded = (float)value;
-    uint bits = @bitcast(uint, rounded);
+    uint bits = bitcast(rounded, uint);
     for (usz byte = 0; byte < 4; ++byte)
-        output[offset + byte] = (uint8)(bits >> (8 * byte));
+        output[offset + byte] = (char)(bits >> (8 * byte));
 }
 
-fn long gabor_filter(long *values, usz length, uint8 *output, usz capacity)
+fn long gabor_filter(long *values, usz length, char *output, usz capacity)
     @export("gabor_filter") {
     if (values == null || length < 1 || length > 7) return -1;
     if (length != 6) return -1;

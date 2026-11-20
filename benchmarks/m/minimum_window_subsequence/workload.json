@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "minimum-window-subsequence-ascii-v1",
+  "algorithm": "minimum_window_subsequence",
+  "function_symbol": "minimum_window_subsequence",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[search_length, search_ascii_bytes..., pattern_length, pattern_ascii_bytes...]",
+    "search_length_range": [0, 128],
+    "pattern_length_range": [1, 128],
+    "alphabet": "ASCII values 0 through 127",
+    "exact_framing": true,
+    "maximum_parseable_length": 258
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "meaning": "shortest contiguous search window containing the pattern as an ordered subsequence; earliest start breaks equal-length ties",
+    "return_value": "number of output bytes",
+    "maximum_length": 128,
+    "no_match_result": 0,
+    "malformed_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "empty_output_accepts_null_buffer": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "one signed-byte latest-start state per pattern position; the output buffer is supplied by the caller"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "gapped_pattern",
+      "input_values": [6, 97, 120, 98, 121, 99, 122, 3, 97, 98, 99],
+      "workspace_bytes": 128,
+      "expected_result": 5,
+      "expected_output_hex": "6178627963"
+    },
+    {
+      "id": "earliest_equal_windows",
+      "input_values": [6, 97, 98, 120, 120, 97, 98, 2, 97, 98],
+      "workspace_bytes": 128,
+      "expected_result": 2,
+      "expected_output_hex": "6162"
+    },
+    {
+      "id": "latest_start_shortest_match",
+      "input_values": [6, 97, 97, 97, 97, 97, 98, 3, 97, 97, 98],
+      "workspace_bytes": 128,
+      "expected_result": 3,
+      "expected_output_hex": "616162"
+    },
+    {
+      "id": "pattern_order_matters",
+      "input_values": [2, 98, 97, 2, 97, 98],
+      "workspace_bytes": 128,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_search",
+      "input_values": [0, 1, 97],
+      "workspace_bytes": 0,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "pattern_longer_than_search",
+      "input_values": [2, 97, 98, 3, 97, 98, 99],
+      "workspace_bytes": 128,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "ascii_boundary_bytes",
+      "input_values": [3, 0, 1, 127, 2, 1, 127],
+      "workspace_bytes": 128,
+      "expected_result": 2,
+      "expected_output_hex": "017f"
+    },
+    {
+      "id": "capacity_short",
+      "input_values": [5, 97, 120, 98, 121, 99, 3, 97, 98, 99],
+      "workspace_bytes": 4,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_search_byte",
+      "input_values": [1, 128, 1, 97],
+      "workspace_bytes": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_pattern_length",
+      "input_values": [1, 97, 0],
+      "workspace_bytes": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_pattern",
+      "input_values": [2, 97, 98, 2, 97],
+      "workspace_bytes": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-ch294-kanj-perkovic-modified-yao-i64-array-scalar-v1",
+  "algorithm": "kanj_perkovic_modified_yao_spanner",
+  "function_symbol": "kanj_perkovic_modified_yao_spanner",
+  "abi": "i64_array_scalar",
+  "description": "Replays the fixed-k modified-Yao edge-selection pass on a supplied connected plane graph with per-vertex cone and rotation data.",
+  "pinned_sources": [
+    {"title": "Planar Geometric Spanners", "doi": "10.1007/978-1-4939-2864-4_294", "role": "encyclopedia chapter context"},
+    {"title": "On Geometric Spanners of Euclidean and Unit Disk Graphs", "doi": "10.4230/LIPIcs.STACS.2008.1320", "sections": "2.3, Figure 3", "role": "operational modified-Yao selection rule"}
+  ],
+  "contract": {
+    "input_layout": "[n,m,(u,v,squared_length,cone_u,cone_v)*m,(degree,dart_ids...)*n]",
+    "vertex_range": [3, 16],
+    "edge_range": "n-1 <= m <= min(42,3n-6)",
+    "edge_order": "Edges have 0<=u<v<n and are sorted lexicographically by (u,v); edge ID is input order.",
+    "dart_order": "Dart 2e is u->v and dart 2e+1 is v->u for edge e.",
+    "sector_order": "k=14 equal-angle sectors numbered counterclockwise from a supplied reference ray; boundary rays are excluded. Each vertex's CCW rotation starts at that reference ray, lists darts by nondecreasing cone ID, and lists darts within each cone counterclockwise.",
+    "preconditions": "The supplied graph is connected and planar; per-endpoint squared lengths, cone assignments, and rotations are consistent with one intended geometric plane-graph instance. The package checks connectedness, rotation-system planarity, dart ownership, framing, and cone ordering. It does not construct a Delaunay graph or verify that the supplied realization is a Delaunay triangulation.",
+    "algorithm": "At every vertex choose the shortest incident edge in each occupied cone. For each cyclic maximal run of ell empty cones, if ell>1 choose floor(ell/2) previously unselected incident edges clockwise from the run and ceil(ell/2) counterclockwise. If ell=1, inspect the adjacent clockwise/counterclockwise edges: select the other if either is already selected, otherwise choose the shorter.",
+    "determinism": "Squared lengths order Euclidean lengths. Equal shortest edges and the single-gap equal-length choice use lowest edge ID. A cyclic maximal empty run starts at c when c is empty and c-1 mod 14 is occupied; runs are processed by increasing start cone. For ell>1, clockwise scans backward from the last dart of the preceding occupied cone, skips selected darts, and selects floor(ell/2) before counterclockwise scans forward from the first dart of the following occupied cone to select ceil(ell/2). Singleton runs inspect those nearest darts. The clockwise side is processed first.",
+    "output_encoding": "One signed-i64 bitmask; bit e is set exactly when both endpoints selected edge ID e.",
+    "scope": "The measured kernel is the bounded selection pass only. Delaunay construction, geometry-to-cone classification, distributed message behavior, and the source's stretch-factor theorem are not measured or claimed for arbitrary supplied plane graphs.",
+    "maximum_valid_input_length": 312,
+    "maximum_parseable_input_length": 313,
+    "maximum_workspace_bytes": 16384,
+    "invalid_result": -1
+  },
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[n,m,(u,v,squared_length,cone_u,cone_v)*m,(degree,dart_ids...)*n]", "maximum_valid_length": 312, "maximum_valid_input_length": 312, "maximum_parseable_length": 313, "maximum_parseable_input_length": 313, "invalid_result": -1, "invalid_input_result": -1, "null_input_result": -1},
+  "output": {"kind": "signed_64_bit_integer", "encoding": "mutual-selection edge bitmask in input edge-ID order", "valid_result_range": "0..(1<<m)-1", "invalid_result": -1, "invalid_input_result": -1},
+  "workspace": {"bytes": 16384, "description": "Conservative fixed-array and call-local cap for the widest native port: bounded edge and dart records, rotations and cone bucket boundaries, graph traversal, face validation, parser state, and selection flags."},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 1},
+  "cases": [
+    {"id":"triangle-mutual-selections", "input_values":[3,3,0,1,1,0,0,0,2,4,7,7,1,2,9,7,0,2,0,2,2,1,4,2,5,3], "input_length":26, "expected_result":7},
+    {"id":"two-cone-gap-selects-both-sides", "input_values":[15,14,0,1,1,0,0,0,2,2,0,0,0,3,1,3,0,0,4,2,3,0,0,5,1,4,0,0,6,1,5,0,0,7,1,6,0,0,8,1,7,0,0,9,1,8,0,0,10,1,9,0,0,11,1,10,0,0,12,1,11,0,0,13,1,12,0,0,14,1,13,0,0,14,0,2,4,6,8,10,12,14,16,18,20,22,24,26,1,1,1,3,1,5,1,7,1,9,1,11,1,13,1,15,1,17,1,19,1,21,1,23,1,25,1,27], "input_length":115, "expected_result":16383},
+    {"id":"singleton-gap-equal-length-tie", "input_values":[16,15,0,1,5,0,0,0,2,1,0,0,0,3,1,12,0,0,4,5,12,0,0,5,2,1,0,0,6,2,2,0,0,7,2,3,0,0,8,2,4,0,0,9,2,5,0,0,10,2,6,0,0,11,2,7,0,0,12,2,8,0,0,13,2,9,0,0,14,2,10,0,0,15,2,11,0,0,15,0,2,8,10,12,14,16,18,20,22,24,26,28,4,6,1,1,3,1,5,1,7,1,9,1,11,1,13,1,15,1,17,1,19,1,21,1,23,1,25,1,27,1,29], "input_length":123, "expected_result":32759},
+    {"id":"out-of-range-cone-invalid", "input_values":[3,3,0,1,1,14,0,0,2,4,7,7,1,2,9,7,0,2,0,2,2,1,4,2,5,3], "input_length":26, "expected_result":-1},
+    {"id":"duplicate-dart-invalid", "input_values":[3,3,0,1,1,0,0,0,2,4,7,7,1,2,9,7,0,2,2,2,2,1,4,2,5,3], "input_length":26, "expected_result":-1},
+    {"id":"trailing-word-invalid", "input_values":[3,3,0,1,1,0,0,0,2,4,7,7,1,2,9,7,0,2,0,2,2,1,4,2,5,3,0], "input_length":27, "expected_result":-1},
+    {"id":"null-input-invalid", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

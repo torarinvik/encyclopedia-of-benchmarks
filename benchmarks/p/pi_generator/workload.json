@@ -17,7 +17,7 @@
     "invalid_input_result": -1
   },
   "source_bound": {
-    "description": "The pinned Python calculate_pi uses the Rabinowitz-Wagon spigot state (q,r,t,k,n,m), appending digit n and a decimal point after the first digit until the requested fractional digit count is reached. The benchmark preserves the loop and limits precision to 8 digits for portable signed-64-bit intermediates."
+    "description": "The pinned Python calculate_pi uses the q/r/t/k/n/l linear-fractional-transform streaming recurrence described by Jeremy Gibbons, appending digit n and a decimal point after the first digit until the requested fractional digit count is reached. The benchmark preserves the loop and limits precision to 8 digits for portable signed-64-bit intermediates."
   },
   "measurement": {
     "comparison_model": "scalar_call",

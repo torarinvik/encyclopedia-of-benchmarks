@@ -8,9 +8,10 @@ def welsh_powell_put_i64(output: mutable view[u8], offset: usize, value: i64) ->
         output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
         byte <- byte + 1
 
-def welsh_powell_impl(input: i64&, length: usize,
+def welsh_powell_impl(input: view[i64],
                       output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 1027:
+    length: usize = input.len()
+    if length < 2 or length > 1027:
         return -1
     n64: i64 = input[0]
     edge_count64: i64 = input[1]
@@ -37,6 +38,7 @@ def welsh_powell_impl(input: i64&, length: usize,
     output_bytes: usize = n * 8
     if output.is_null() or capacity < output_bytes:
         return -2
+    result: mutable view[u8] = output[0:output_bytes]
 
     degrees: mutable usize[32] = zeroed
     order: mutable usize[32] = zeroed
@@ -93,9 +95,11 @@ def welsh_powell_impl(input: i64&, length: usize,
 
     vertex <- 0
     while vertex < n:
-        welsh_powell_put_i64(output[0:capacity], vertex * 8, colors[vertex])
+        welsh_powell_put_i64(result, vertex * 8, colors[vertex])
         vertex <- vertex + 1
     output_bytes.i64()
 
 export fn welsh_powell(input: i64&, length: usize,
-                       output: mutable u8&, capacity: usize) -> i64 = welsh_powell_impl
+                       output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 1027: return -1
+    welsh_powell_impl(input[0:length], output, capacity)

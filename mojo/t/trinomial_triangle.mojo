@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.memory import ImmutAnyOrigin, UnsafePointer
 @export("trinomial_triangle")
 fn trinomial_triangle(a:UnsafePointer[Int64,ImmutAnyOrigin],n:UInt)->Int64:

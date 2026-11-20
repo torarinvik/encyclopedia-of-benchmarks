@@ -17,4 +17,7 @@ python3 benchmarks/build_scalar.py --algorithm disarium_number --language c
 python3 benchmarks/run_scalar.py --algorithm disarium_number
 ```
 
-Implementations: `c/d/disarium_number.c`, `c3/d/disarium_number.c3`, `cpp/d/disarium_number.cpp`, `elisa/d/disarium_number.elisa`, `nim/d/disarium_number.nim`, `odin/d/disarium_number.odin`, `rust/d/disarium_number.rs`, `v/d/disarium_number.v`, and `zig/d/disarium_number.zig`.
+Implementations: `c/d/disarium_number.c`, `c3/d/disarium_number.c3`, `cpp/d/disarium_number.cpp`, `elisa/d/disarium_number.elisa`, `mojo/d/disarium_number.mojo`, `nim/d/disarium_number.nim`, `odin/d/disarium_number.odin`, `rust/d/disarium_number.rs`, `v/d/disarium_number.v`, and `zig/d/disarium_number.zig`.
+
+The scalar verifier and independent left-to-right digit oracle are newly
+registered drafts. This suite wiring has not been executed.

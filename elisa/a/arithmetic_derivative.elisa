@@ -1,0 +1,30 @@
+const AD_MAX_N: i64 = 1000000000000
+const AD_MAX_PARSEABLE_LENGTH: usize = 2
+
+def arithmetic_derivative_impl(input: view[i64]) -> i64:
+    if input.length < 1 or input.length > AD_MAX_PARSEABLE_LENGTH: return -1
+    if input.length != 1: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > AD_MAX_N: return -1
+    if n_value < 2: return 0
+
+    original: i64 = n_value
+    remaining: mutable i64 = n_value
+    derivative: mutable i64 = 0
+    factor: mutable i64 = 2
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            exponent: mutable i64 = 0
+            while remaining % factor == 0:
+                remaining <- remaining / factor
+                exponent <- exponent + 1
+            derivative <- derivative + (original / factor) * exponent
+        if factor == 2: factor <- 3
+        else: factor <- factor + 2
+    if remaining > 1: derivative <- derivative + original / remaining
+    derivative
+
+export fn arithmetic_derivative(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > AD_MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    arithmetic_derivative_impl(input_view)

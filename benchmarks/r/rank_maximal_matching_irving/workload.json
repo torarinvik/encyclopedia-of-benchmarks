@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "rank-maximal-matching-irving-i64-array-bytes-output-v1",
+  "algorithm": "rank_maximal_matching_irving",
+  "function_symbol": "rank_maximal_matching_irving",
+  "abi": "i64_array_bytes_output",
+  "description": "Compute the lexicographically maximum rank-count signature by Irving's rank-phase reduced-graph algorithm.",
+  "source": {
+    "title": "Ranked Matching",
+    "authors": ["Telikepalli Kavitha"],
+    "reference": "Encyclopedia of Algorithms, Chapter 331, pp. 1780-1784.",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_331",
+    "primary_method_reference": "R. W. Irving, T. Kavitha, K. Mehlhorn, D. Michail, and K. Paluch, Rank-maximal matchings, ACM Transactions on Algorithms 2(4), 602-610 (2006).",
+    "primary_method_url": "https://doi.org/10.1145/1198513.1198520",
+    "primary_method_location": "Sections 2.2 and 2.4: even/odd/unreachable classes and the per-rank reduced-graph procedure.",
+    "algorithm_attribution": "Rank-phase reduced-graph method using even/odd/unreachable decomposition and maximum matching at each rank.",
+    "implementation_status": "Bounded clean-room profile; no source code or protected text is reused."
+  },
+  "contract": {
+    "operation": "Find the lexicographically maximum rank-count signature of a matching in a ranked bipartite applicant-post graph.",
+    "rank_objective": "For signature (s1,...,sR), maximize s1; subject to that maximize s2; continue through sR.",
+    "input_semantics": "Equal positive edge ranks encode ties. Applicants may omit rank levels. Every applicant lists at least one post. Unmatched applicants are allowed and are not given private dummy posts.",
+    "phase_method": "At phase i, take a maximum matching in the surviving graph through rank i; classify vertices E/O/U by alternating paths from all unmatched vertices; delete active O-O and O-U edges; permanently delete higher-rank edges incident to O or U; then introduce the next rank and repeat.",
+    "bounded_matching_subroutine": "For this tiny profile, each phase recomputes a maximum matching by exhaustive assignment enumeration, with unmatched encoded after all real post IDs. This changes only the bounded maximum-matching subroutine, not the phase reduction or rank-signature objective.",
+    "output_encoding": "[R,s1,...,sR] as little-endian signed i64 values; malformed input returns -1.",
+    "input_order": "Preference records are normalized into an applicant/post rank matrix; record order does not affect the result.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[A,P,E,(applicant_id,post_id,rank)*E]",
+    "applicant_count_range": [1, 4],
+    "post_count_range": [1, 4],
+    "edge_count_range": "A..min(16,A*P)",
+    "rank_range": [1, 4],
+    "edge_rules": ["zero-based IDs", "no duplicate applicant/post pair", "each applicant has at least one edge"],
+    "maximum_valid_length": 51,
+    "maximum_parseable_length": 52,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[R,s1,...,sR]",
+    "maximum_values": 5,
+    "maximum_bytes": 40,
+    "success_result": "8*(1+R) bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Fixed 4x4 rank/blocked matrices, eight alternating-forest labels, assignments, and bounded enumeration state."
+  },
+  "complexity": {
+    "time": "O(R*(P+1)^A*A*P + R*(A+P)^2), with A,P,R<=4",
+    "auxiliary_space": "O(A*P+A+P)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/r/rank_maximal_matching_irving/primary_oracle.py",
+  "independent_oracle": "benchmarks/r/rank_maximal_matching_irving/independent_oracle.py",
+  "cases": [
+    {"id":"two-independent-first-choices", "input_values":[2,2,2,0,0,1,1,1,1], "input_length":9, "output_capacity":16, "expected_result":16, "expected_output_hex":"01000000000000000200000000000000"},
+    {"id":"one-rank-one-edge-one-rank-two-edge", "input_values":[2,2,3,0,0,1,0,1,2,1,0,1], "input_length":12, "output_capacity":24, "expected_result":24, "expected_output_hex":"020000000000000001000000000000000100000000000000"},
+    {"id":"rank-one-priority-through-rank-four", "input_values":[1,2,2,0,0,1,0,1,4], "input_length":9, "output_capacity":40, "expected_result":40, "expected_output_hex":"04000000000000000100000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"rank-gap-keeps-lower-rank-edge", "input_values":[2,3,3,0,0,1,0,1,3,1,0,2], "input_length":12, "output_capacity":32, "expected_result":32, "expected_output_hex":"0300000000000000010000000000000000000000000000000000000000000000"},
+    {"id":"tied-rank-one-complete-market", "input_values":[2,2,4,0,0,1,0,1,1,1,0,1,1,1,1], "input_length":15, "output_capacity":16, "expected_result":16, "expected_output_hex":"01000000000000000200000000000000"},
+    {"id":"maximum-four-by-four-frame", "input_values":[4,4,16,0,0,1,0,1,2,0,2,3,0,3,4,1,1,1,1,0,2,1,2,3,1,3,4,2,2,1,2,0,2,1,1,2,3,2,3,4,3,3,1,3,0,2,3,1,2,2,3,4], "input_length":51, "output_capacity":40, "expected_result":40, "expected_output_hex":"04000000000000000400000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"duplicate-edge-invalid", "input_values":[1,2,2,0,0,1,0,0,2], "input_length":9, "output_capacity":16, "expected_result":-1, "expected_output_hex":""},
+    {"id":"applicant-without-listed-post-invalid", "input_values":[2,2,2,0,0,1,0,1,2], "input_length":9, "output_capacity":16, "expected_result":-1, "expected_output_hex":""},
+    {"id":"rank-outside-profile-invalid", "input_values":[1,1,1,0,0,5], "input_length":6, "output_capacity":16, "expected_result":-1, "expected_output_hex":""},
+    {"id":"maximum-parseable-trailing-word", "input_values":[4,4,16,0,0,1,0,1,2,0,2,3,0,3,4,1,1,1,1,0,2,1,2,3,1,3,4,2,2,1,2,0,2,1,1,2,3,2,3,4,3,3,1,3,0,2,3,1,2,2,3,4,99], "input_length":52, "output_capacity":40, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "output_capacity":40, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-output-capacity", "input_values":[1,1,1,0,0,1], "input_length":6, "output_capacity":15, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[1,1,1,0,0,1], "input_length":6, "output_capacity":16, "output_is_null":true, "expected_result":-2, "expected_output_hex":""}
+  ]
+}

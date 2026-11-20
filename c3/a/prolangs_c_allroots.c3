@@ -37,7 +37,7 @@ fn double newton_root(int degree, double* coefficients, double lower, double upp
 }
 
 fn void store_f64_le(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz i = 0; i < 8; i++) {
         output[offset + i] = (char)(bits & 255);
         bits >>= 8;
@@ -67,7 +67,7 @@ fn void solve(char* output) {
     store_f64_le(output, 16, refined_minus);
 }
 
-long prolangs_c_allroots(long* values, usz length, char* output, usz output_capacity)
+fn long prolangs_c_allroots(long* values, usz length, char* output, usz output_capacity)
     @export("prolangs_c_allroots") {
     if (values == null || length != 4 || values[0] != 4 || values[1] != -4 ||
         values[2] != -1 || values[3] != 1) return -1;

@@ -11,7 +11,7 @@ fn float subf(float a, float b) { return a - b; }
 fn float mulf(float a, float b) { return a * b; }
 fn float divf(float a, float b) { return a / b; }
 
-double rodinia_leukocyte_gicov(long* input, usz length) @export("rodinia_leukocyte_gicov") {
+fn double rodinia_leukocyte_gicov(long* input, usz length) @export("rodinia_leukocyte_gicov") {
     if (input == null || length < 1) return GICOV_INVALID;
     if (input[0] < 2 || input[0] > (long)GICOV_MAX_POINTS) return GICOV_INVALID;
     usz points = (usz)input[0];

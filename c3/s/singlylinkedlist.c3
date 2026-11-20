@@ -85,13 +85,13 @@ fn long remove_tail(ListNode* nodes, int* head, int* tail, usz* list_count) {
     return value;
 }
 
-fn void store_little_endian_i64(uint8* output, long value) {
+fn void store_little_endian_i64(char* output, long value) {
     ulong bits = (ulong)value;
     for (usz byte = 0; byte < 8; byte++)
-        output[byte] = (uint8)(bits >> (8 * byte));
+        output[byte] = (char)(bits >> (8 * byte));
 }
 
-fn long singlylinkedlist(long* input, usz input_length, uint8* output,
+fn long singlylinkedlist(long* input, usz input_length, char* output,
                          usz output_capacity) @export("singlylinkedlist") {
     if (input == null || input_length < 2 ||
         input_length > MAX_PARSEABLE_INPUT_VALUES) return INVALID_RESULT;
@@ -225,7 +225,7 @@ fn long singlylinkedlist(long* input, usz input_length, uint8* output,
     }
 
     usz output_bytes = output_word_count * 8;
-    uint8[MAX_OUTPUT_BYTES] encoded;
+    char[MAX_OUTPUT_BYTES] encoded;
     for (usz index = 0; index < output_word_count; index++)
         store_little_endian_i64(&encoded[index * 8], output_words[index]);
 

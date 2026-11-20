@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem77")
 fn problem77(threshold:Int64) abi("C")->Int64:
     if threshold<0 or threshold>100000:return -1

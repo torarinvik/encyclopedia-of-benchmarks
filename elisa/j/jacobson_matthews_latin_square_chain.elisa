@@ -1,0 +1,114 @@
+from std.collections import InlineArray
+
+comptime MAX_N = 4
+comptime MAX_CELLS = 64
+comptime MAX_MOVES = 48
+comptime MAX_WORDS = 66
+
+@fieldwise_init
+struct JMMove:
+    var i: Int
+    var j: Int
+    var k: Int
+    var ip: Int
+    var jp: Int
+    var kp: Int
+
+fn jm_at(n: Int, i: Int, j: Int, k: Int) -> Int:
+    return (i * n + j) * n + k
+
+fn jm_select_move(tensor: InlineArray[Int64, MAX_CELLS], n: Int, choice: Int,
+                  selected: mutable JMMove&) -> Bool:
+    var moves = InlineArray[JMMove, MAX_MOVES](fill=JMMove(i=0,j=0,k=0,ip=0,jp=0,kp=0))
+    var defects = 0
+    var pi = 0
+    var pj = 0
+    var pk = 0
+    var count = 0
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                if tensor[jm_at(n,i,j,k)] == -1:
+                    defects <- defects + 1
+                    pi <- i
+                    pj <- j
+                    pk <- k
+    if defects > 1: return False
+    if defects == 1:
+        for ip in range(n):
+            for jp in range(n):
+                for kp in range(n):
+                    if (ip != pi and jp != pj and kp != pk and
+                            tensor[jm_at(n,pi,pj,kp)] == 1 and
+                            tensor[jm_at(n,pi,jp,pk)] == 1 and tensor[jm_at(n,ip,pj,pk)] == 1):
+                        moves[count] <- JMMove(i=pi,j=pj,k=pk,ip=ip,jp=jp,kp=kp)
+                        count <- count + 1
+        if count != 8: return False
+    else:
+        for i in range(n):
+            for j in range(n):
+                for k in range(n):
+                    if tensor[jm_at(n,i,j,k)] != 0: continue
+                    var ip = n
+                    var jp = n
+                    var kp = n
+                    for x in range(n):
+                        if tensor[jm_at(n,x,j,k)] == 1: ip <- x
+                    for x in range(n):
+                        if tensor[jm_at(n,i,x,k)] == 1: jp <- x
+                    for x in range(n):
+                        if tensor[jm_at(n,i,j,x)] == 1: kp <- x
+                    if ip == n or jp == n or kp == n: return False
+                    moves[count] <- JMMove(i=i,j=j,k=k,ip=ip,jp=jp,kp=kp)
+                    count <- count + 1
+        if count != n * n * n - n * n: return False
+    if choice < 0 or choice >= count: return False
+    selected <- moves[choice]
+    return True
+
+fn jm_apply_choice(tensor: mutable InlineArray[Int64, MAX_CELLS]&, n: Int, choice: Int) -> Bool:
+    var m = JMMove(i=0,j=0,k=0,ip=0,jp=0,kp=0)
+    if not jm_select_move(tensor, n, choice, m&): return False
+    tensor[jm_at(n,m.i,m.j,m.k)] <- tensor[jm_at(n,m.i,m.j,m.k)] + 1
+    tensor[jm_at(n,m.ip,m.jp,m.k)] <- tensor[jm_at(n,m.ip,m.jp,m.k)] + 1
+    tensor[jm_at(n,m.ip,m.j,m.kp)] <- tensor[jm_at(n,m.ip,m.j,m.kp)] + 1
+    tensor[jm_at(n,m.i,m.jp,m.kp)] <- tensor[jm_at(n,m.i,m.jp,m.kp)] + 1
+    tensor[jm_at(n,m.ip,m.j,m.k)] <- tensor[jm_at(n,m.ip,m.j,m.k)] - 1
+    tensor[jm_at(n,m.i,m.jp,m.k)] <- tensor[jm_at(n,m.i,m.jp,m.k)] - 1
+    tensor[jm_at(n,m.i,m.j,m.kp)] <- tensor[jm_at(n,m.i,m.j,m.kp)] - 1
+    tensor[jm_at(n,m.ip,m.jp,m.kp)] <- tensor[jm_at(n,m.ip,m.jp,m.kp)] - 1
+    return True
+
+fn jm_write_i64_le(output: mutable view[UInt8], offset: Int, value: Int64) -> Void:
+    let bits = bitcast[UInt64](value)
+    for byte in range(8): output[offset + byte] = UInt8((bits >> (byte * 8)) & UInt64(255))
+
+@export("jacobson_matthews_latin_square_chain")
+fn jacobson_matthews_latin_square_chain(
+    input: i64&, length: usize,
+    output: mutable u8&, capacity: usize,
+) abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > 14: return -1
+    let input_view: view[Int64] = input[0:Int(length)]
+    let nv = input_view[0]
+    let sv = input_view[1]
+    if nv < 2 or nv > MAX_N.i64() or sv < 0 or sv > 12 or Int(length) != 2 + Int(sv): return -1
+    let n = Int(nv)
+    let steps = Int(sv)
+    var tensor = InlineArray[Int64, MAX_CELLS](fill=0)
+    for i in range(n):
+        for j in range(n): tensor[jm_at(n,i,j,(i+j)%n)] <- 1
+    for step in range(steps):
+        let choice_value = input_view[2 + step]
+        if (choice_value < 0 or choice_value >= MAX_MOVES.i64() or
+                not jm_apply_choice(tensor&, n, Int(choice_value))): return -1
+    let word_count = 2 + n * n * n
+    let output_bytes = word_count * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    var words = InlineArray[Int64, MAX_WORDS](fill=0)
+    words[0] <- nv
+    words[1] <- sv
+    for i in range(n * n * n): words[2 + i] <- tensor[i]
+    var output_view: mutable view[UInt8] = output[0:output_bytes]
+    for i in range(word_count): jm_write_i64_le(output_view&, i * 8, words[i])
+    return Int64(output_bytes)

@@ -1,0 +1,174 @@
+const BP_MAX_N: usize = 31
+const BP_MAX_Q: usize = 32
+const BP_MAX_INPUT: usize = 129
+const BP_MAX_BITS: usize = 2 * BP_MAX_N
+const BP_MAX_OUTPUT_WORDS: usize = 4 + BP_MAX_Q
+
+def bp_compute(input: view[i64], words: mutable view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > BP_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > BP_MAX_N.i64() or q_value < 0 or q_value > BP_MAX_Q.i64(): return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    bit_length: usize = 2 * n
+    if length != 2 + (n - 1) + 3 * q: return -1
+
+    parent: mutable usize[BP_MAX_N] = zeroed
+    vertex: mutable usize = 1
+    while vertex < n:
+        value: i64 = input[1 + vertex]
+        if value < 0 or value >= vertex.i64(): return -1
+        parent[vertex] <- value.usize()
+        vertex <- vertex + 1
+
+    query_base: usize = n + 1
+    index: mutable usize = 0
+    while index < q:
+        offset: usize = query_base + 3 * index
+        opcode: i64 = input[offset]
+        first: i64 = input[offset + 1]
+        second: i64 = input[offset + 2]
+        if opcode == 0 or opcode == 1:
+            if first < 0 or first > bit_length.i64() or second < -bit_length.i64() or second > bit_length.i64(): return -1
+        elif opcode == 2:
+            if first < 0 or second < first or second >= bit_length.i64(): return -1
+        elif opcode == 3 or opcode == 4 or opcode == 5:
+            if first < 0 or first >= bit_length.i64() or second != 0: return -1
+        else: return -1
+        index <- index + 1
+
+    bits: mutable u8[BP_MAX_BITS] = zeroed
+    stack_node: mutable usize[BP_MAX_N + 1] = zeroed
+    next_child: mutable usize[BP_MAX_N + 1] = zeroed
+    bit_count: mutable usize = 0
+    depth: mutable usize = 1
+    bits[bit_count] <- 1.u8()
+    bit_count <- bit_count + 1
+    next_child[0] <- 1
+    while depth > 0:
+        frame: usize = depth - 1
+        node: usize = stack_node[frame]
+        child: mutable usize = next_child[frame]
+        while child < n and parent[child] != node: child <- child + 1
+        if child < n:
+            next_child[frame] <- child + 1
+            bits[bit_count] <- 1.u8()
+            bit_count <- bit_count + 1
+            stack_node[depth] <- child
+            next_child[depth] <- 1
+            depth <- depth + 1
+        else:
+            bits[bit_count] <- 0.u8()
+            bit_count <- bit_count + 1
+            depth <- depth - 1
+    if bit_count != bit_length: return -1
+
+    excess: mutable i64[BP_MAX_BITS + 1] = zeroed
+    packed: mutable u64 = 0
+    index <- 0
+    while index < bit_length:
+        if bits[index] != 0: packed <- packed | (1.u64() << index)
+        if bits[index] != 0: excess[index + 1] <- excess[index] + 1
+        else: excess[index + 1] <- excess[index] - 1
+        index <- index + 1
+    index <- 0
+    while index < q:
+        offset: usize = query_base + 3 * index
+        opcode: i64 = input[offset]
+        first: usize = input[offset + 1].usize()
+        if opcode == 3 and bits[first] == 0.u8(): return -1
+        if opcode == 4 and bits[first] != 0.u8(): return -1
+        if opcode == 5 and bits[first] == 0.u8(): return -1
+        index <- index + 1
+
+    words[0] <- n_value
+    words[1] <- bit_length.i64()
+    words[2] <- packed.i64()
+    words[3] <- q_value
+    index <- 0
+    while index < q:
+        offset: usize = query_base + 3 * index
+        opcode: i64 = input[offset]
+        first: usize = input[offset + 1].usize()
+        second: i64 = input[offset + 2]
+        answer: mutable i64 = -1
+        if opcode == 0 or opcode == 1:
+            target: i64 = excess[first] + second
+            if opcode == 0:
+                answer <- bit_length.i64() + 1
+                position: mutable usize = first + 1
+                while position <= bit_length:
+                    if excess[position] == target:
+                        answer <- position.i64()
+                        break
+                    position <- position + 1
+            else:
+                position: mutable usize = first
+                answer <- 0
+                while position > 0:
+                    position <- position - 1
+                    if excess[position] == target:
+                        answer <- position.i64()
+                        break
+        elif opcode == 2:
+            right: usize = second.usize()
+            best: mutable usize = first
+            position: mutable usize = first + 1
+            while position <= right:
+                if excess[position + 1] < excess[best + 1]: best <- position
+                position <- position + 1
+            answer <- best.i64()
+        elif opcode == 3:
+            target: i64 = excess[first + 1] - 1
+            position: mutable usize = first + 2
+            while position <= bit_length:
+                if excess[position] == target:
+                    answer <- (position - 1).i64()
+                    break
+                position <- position + 1
+        elif opcode == 4:
+            target: i64 = excess[first + 1]
+            position: mutable usize = first + 1
+            while position > 0:
+                position <- position - 1
+                if excess[position] == target:
+                    answer <- position.i64()
+                    break
+        elif first == 0:
+            answer <- -1
+        else:
+            target: i64 = excess[first + 1] - 2
+            position: mutable usize = first + 1
+            while position > 0:
+                position <- position - 1
+                if excess[position] == target:
+                    answer <- position.i64()
+                    break
+        words[4 + index] <- answer
+        index <- index + 1
+    (4 + q).i64()
+
+def bp_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+export fn bp_ordered_tree_navigation(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > BP_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    words: mutable i64[BP_MAX_OUTPUT_WORDS] = zeroed
+    word_count: i64 = bp_compute(input_view, words[0:BP_MAX_OUTPUT_WORDS])
+    if word_count < 0: return word_count
+    required: usize = word_count.usize() * 8
+    if output.is_null() or capacity < required: return -2
+    output_view: mutable view[u8] = output[0:required]
+    index: mutable usize = 0
+    while index < word_count.usize():
+        bp_store(words[index], output_view, 8 * index)
+        index <- index + 1
+    required.i64()

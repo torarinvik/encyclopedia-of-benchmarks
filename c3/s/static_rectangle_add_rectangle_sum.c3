@@ -21,12 +21,12 @@ fn void unique_sort(long[MAX_COORDS]* a, usz* n) {
     *n=out;
 }
 
-fn void put64(uint8* output, usz at, long value) {
-    uint64 bits=(uint64)value;
-    for (usz b=0;b<8;b+=1) output[at+b]=(uint8)(bits>>(8*b));
+fn void put64(char* output, usz at, long value) {
+    ulong bits=(ulong)value;
+    for (usz b=0;b<8;b+=1) output[at+b]=(char)(bits>>(8*b));
 }
 
-fn long static_rectangle_add_rectangle_sum(long* input, usz length, uint8* output,
+fn long static_rectangle_add_rectangle_sum(long* input, usz length, char* output,
                                             usz capacity) @export("static_rectangle_add_rectangle_sum") {
     if(input==null || length<2 || length>291) return -1;
     long n64=input[0], q64=input[1];

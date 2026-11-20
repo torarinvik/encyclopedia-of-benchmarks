@@ -55,7 +55,7 @@ fn bool valid_tree(long* input, usz offset, usz n, usz edges) {
     return true;
 }
 
-long non_shared_edges(long* input, usz length, char* output, usz capacity) @export("non_shared_edges") {
+fn long non_shared_edges(long* input, usz length, char* output, usz capacity) @export("non_shared_edges") {
     if (input == null || length < 7 || length > MAX_INPUT) return -1;
     long leaf_value = input[0];
     if (leaf_value < 3 || leaf_value > (long)MAX_LEAVES) return -1;

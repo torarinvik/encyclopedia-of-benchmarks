@@ -22,6 +22,10 @@ per value. With `d` distinct values seen so far, updates cost O(d + log n),
 queries O(d + log n), and storage O(n + d); bitmap population counting is
 bounded by 64 bit operations. A direct frequency-count model is provided for
 independent comparison.
+The 128-slot value table covers every possible distinct value: at most 64
+appear initially and at most 63 further values can be introduced by updates,
+because at least one of the 64 operations must be a query. Position 63 uses
+the high bit of the bitmap; a prefix ending at 64 covers all bits.
 
 The [Library Checker task](https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/data_structure/majority_voting/task.md)
 supplies the operation idea; its repository declares Apache-2.0. The local

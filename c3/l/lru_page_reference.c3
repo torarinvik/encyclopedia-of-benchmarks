@@ -6,5 +6,5 @@ fn long lru_page_reference(long* input,usz length,char* output,usz capacity) @ex
  for(usz i=0;i<n;i++){long page=input[2+i],evicted=-1;usz p=0;while(p<used&&cache[p]!=page)p++;if(p<used){usz j=p;while(j>0){cache[j]=cache[j-1];j--;}cache[0]=page;events[2*i]=1;}else{if(used==c){evicted=cache[used-1];used--;}usz j=used;while(j>0){cache[j]=cache[j-1];j--;}cache[0]=page;used++;events[2*i]=0;}events[2*i+1]=evicted;}
  usz words=2*n+2+used;if(output==null||capacity<words*8)return -2;
  long[578] result;usz k=0;result[k++]=(long)n;for(usz i=0;i<2*n;i++)result[k++]=events[i];result[k++]=(long)used;for(usz i=0;i<used;i++)result[k++]=cache[i];
- for(usz i=0;i<k;i++){ulong bits=@bitcast(ulong,result[i]);for(usz b=0;b<8;b++){output[i*8+b]=(char)(bits&255);bits>>=8;}}return (long)(words*8);
+ for(usz i=0;i<k;i++){ulong bits=bitcast(result[i],ulong);for(usz b=0;b<8;b++){output[i*8+b]=(char)(bits&255);bits>>=8;}}return (long)(words*8);
 }

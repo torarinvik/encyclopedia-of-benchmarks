@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn mk_char(d:InlineArray[Int32,512],lens:InlineArray[Int32,32],i:Int,depth:Int)->Int:

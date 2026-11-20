@@ -6,11 +6,11 @@ extern fn double fabs(double value);
 
 const usz MAX_INPUT_LENGTH = 6;
 const long MAX_INTERVALS = 16;
-const double NODES[7] = {0.9914553711208126392, 0.9491079123427585245, 0.8648644233597690728,
+const double[7] NODES = {0.9914553711208126392, 0.9491079123427585245, 0.8648644233597690728,
     0.7415311855993944399, 0.5860872354676911303, 0.4058451513773971669, 0.2077849550078984676};
-const double KW[7] = {0.022935322010529225, 0.06309209262997855, 0.10479001032225018,
+const double[7] KW = {0.022935322010529225, 0.06309209262997855, 0.10479001032225018,
     0.14065325971552592, 0.16900472663926790, 0.19035057806478541, 0.20443294007529889};
-const double GW[3] = {0.12948496616886969, 0.27970539148927667, 0.38183005050511894};
+const double[3] GW = {0.12948496616886969, 0.27970539148927667, 0.38183005050511894};
 
 fn bool integer_field(double x, long lo, long hi) {
     return x == x && x >= (double)lo && x <= (double)hi && (double)(long)x == x;
@@ -52,7 +52,7 @@ fn long adaptive_gauss_kronrod_15_quadrature(double* input, usz input_length,
     if (output == null || output_capacity < 1) return -2L;
     double a = (double)a_micro / 1000000.0; double b = (double)b_micro / 1000000.0;
     if (a == b) { output[0] = 0.0; return 1L; }
-    double lefts[16]; double rights[16]; double values[16]; double errors[16];
+    double[16] lefts; double[16] rights; double[16] values; double[16] errors;
     double k; double g; pair_estimate(id, a, b, &k, &g);
     lefts[0] = a; rights[0] = b; values[0] = k; errors[0] = fabs(k - g);
     long count = 1; double tolerance = 1.0;

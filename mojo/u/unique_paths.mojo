@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("unique_paths")
 fn unique_paths(rows: Int64, cols: Int64) abi("C") -> Int64:
     if rows<1 or rows>34 or cols<1 or cols>34:return -1

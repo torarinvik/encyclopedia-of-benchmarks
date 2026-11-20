@@ -1,0 +1,101 @@
+# Exact-D shortest path in an implicit upper-triangular Monge DAG.
+const MON_DAG_MAX_N: usize = 32
+const MON_DAG_SIDE: usize = 33
+const MON_DAG_MAX_INPUT: usize = 531
+const MON_DAG_MAX_FRAMES: usize = 64
+const MON_DAG_INF: i64 = 1152921504606846976
+
+def monge_dag_fixed_edge_shortest_path_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MON_DAG_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    d_value: i64 = input[1]
+    if n_value < 1 or n_value > 32 or d_value < 1 or d_value > n_value: return -1
+    n: usize = n_value.usize()
+    layers: usize = d_value.usize()
+    if length != 2 + n * (n + 1) / 2: return -1
+
+    cost: mutable i64[1089] = zeroed
+    offset: mutable usize = 2
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = u + 1
+        while v <= n:
+            weight: i64 = input[offset]
+            offset <- offset + 1
+            if weight < 0 or weight > 1000000: return -1
+            cost[u * MON_DAG_SIDE + v] <- weight
+            v <- v + 1
+        u <- u + 1
+    u <- 0
+    while u + 1 < n:
+        v: mutable usize = u + 2
+        while v < n:
+            if cost[u * MON_DAG_SIDE + v] + cost[(u + 1) * MON_DAG_SIDE + v + 1] > cost[u * MON_DAG_SIDE + v + 1] + cost[(u + 1) * MON_DAG_SIDE + v]: return -1
+            v <- v + 1
+        u <- u + 1
+
+    dp: mutable i64[33] = zeroed
+    next: mutable i64[33] = zeroed
+    v <- 0
+    while v <= n:
+        dp[v] <- MON_DAG_INF
+        v <- v + 1
+    dp[0] <- 0
+    layer: mutable usize = 1
+    while layer <= layers:
+        v <- 0
+        while v <= n:
+            next[v] <- MON_DAG_INF
+            v <- v + 1
+
+        stack_row_begin: mutable usize[64]
+        stack_row_end: mutable usize[64]
+        stack_col_begin: mutable usize[64]
+        stack_col_end: mutable usize[64]
+        top: mutable usize = 1
+        stack_row_begin[0] <- layer
+        stack_row_end[0] <- n + 1
+        stack_col_begin[0] <- layer - 1
+        stack_col_end[0] <- n
+        while top > 0:
+            top <- top - 1
+            row_begin: usize = stack_row_begin[top]
+            row_end: usize = stack_row_end[top]
+            col_begin: usize = stack_col_begin[top]
+            col_end: usize = stack_col_end[top]
+            if row_begin >= row_end: continue
+            row: usize = (row_begin + row_end) / 2
+            upper: usize = if col_end < row then col_end else row
+            best_column: mutable usize = col_begin
+            best_value: mutable i64 = MON_DAG_INF
+            column: mutable usize = col_begin
+            while column < upper:
+                if dp[column] != MON_DAG_INF:
+                    candidate: i64 = dp[column] + cost[column * MON_DAG_SIDE + row]
+                    if candidate < best_value:
+                        best_value <- candidate
+                        best_column <- column
+                column <- column + 1
+            next[row] <- best_value
+            if row + 1 < row_end and best_column < col_end:
+                stack_row_begin[top] <- row + 1
+                stack_row_end[top] <- row_end
+                stack_col_begin[top] <- best_column
+                stack_col_end[top] <- col_end
+                top <- top + 1
+            if row_begin < row and col_begin <= best_column:
+                stack_row_begin[top] <- row_begin
+                stack_row_end[top] <- row
+                stack_col_begin[top] <- col_begin
+                stack_col_end[top] <- best_column + 1
+                top <- top + 1
+        v <- 0
+        while v <= n:
+            dp[v] <- next[v]
+            v <- v + 1
+        layer <- layer + 1
+    dp[n]
+
+export fn monge_dag_fixed_edge_shortest_path(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MON_DAG_MAX_INPUT: return -1
+    monge_dag_fixed_edge_shortest_path_impl(input[0:length], length)

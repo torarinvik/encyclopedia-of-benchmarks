@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "cupif-giannini-perfect-tree-traversal-i64-array-bytes-output-v1",
+  "algorithm": "cupif_giannini_tree_traversal",
+  "function_symbol": "cupif_giannini_tree_traversal",
+  "abi": "i64_array_bytes_output",
+  "description": "Visit every leaf of an implicit perfect binary tree in the count-XOR-key order, with low-order bits selecting root-to-leaf branches.",
+  "source": {
+    "title": "Cupif-Giannini tree traversal",
+    "authors": ["NIST Dictionary of Algorithms and Data Structures entry author: Paul E. Black", "Jérôme François", "Abdelkader Lahmadi", "Valentin Giannini", "Damien Cupif", "Frédéric Beck", "Bertrand Wallrich"],
+    "reference": "Optimizing Internet Scanning for Assessing Industrial Systems Exposure, IWCMC 2016, pp. 516-522",
+    "url": "https://doi.org/10.1109/IWCMC.2016.7577111",
+    "algorithm_description": "NIST DADS Cupif-Giannini tree traversal entry",
+    "algorithm_url": "https://xlinux.nist.gov/dads/HTML/CupifGianniniTreeTraversal.html",
+    "pinned_behavior": "DADS pseudocode: enumerate count from zero through 2^height-1, XOR with the supplied key, consume low-order bits from root to leaf."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[height,key]",
+    "maximum_height": 6,
+    "height_range": [0, 6],
+    "key_range": "0 <= key < 2^height; key must be zero when height is zero",
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1,
+    "validation_order": "Reject null input and lengths outside 2..3; require exact length two; validate signed-word values, height, and key; then validate output pointer/capacity."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "one byte per visited leaf containing its LSB-first root-to-leaf path code (count XOR key); zero selects left and one selects right",
+    "maximum_output_bytes": 64,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "accounting": "Scalar height, key, count, path, node, depth, and output-index state; no tree nodes or per-leaf array are stored by the language ports. The output buffer is separately supplied by the caller."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"height-zero-single-root","input_values":[0,0],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"height-one-left-first","input_values":[1,0],"input_length":2,"output_capacity":2,"expected_result":2,"expected_output_hex":"0001"},
+    {"id":"height-two-key-one","input_values":[2,1],"input_length":2,"output_capacity":4,"expected_result":4,"expected_output_hex":"01000302"},
+    {"id":"height-three-key-five","input_values":[3,5],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output_hex":"0504070601000302"},
+    {"id":"maximum-height-key-zero","input_values":[6,0],"input_length":2,"output_capacity":64,"expected_result":64,"expected_output_hex":"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"},
+    {"id":"maximum-height-insufficient-by-one","input_values":[6,63],"input_length":2,"output_capacity":63,"expected_result":-2,"expected_output_hex":""},
+    {"id":"negative-height","input_values":[-1,0],"input_length":2,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"height-above-profile","input_values":[7,0],"input_length":2,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"key-outside-height-domain","input_values":[2,4],"input_length":2,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-frame-word","input_values":[2,1,0],"input_length":3,"output_capacity":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,5],"input_length":2,"output_is_null":true,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

@@ -12,9 +12,16 @@ This benchmark ports the pinned Go `Spigot(n)` routine. It returns the first `n`
 The bounded spigot maintains O(n) remainders and performs O(n²) arithmetic
 operations to produce n digits.
 
+This is the Rabinowitz–Wagon finite mixed-radix array method. It differs from
+[`pi_generator`](../../p/pi_generator/README.md), which uses Gibbons's
+linear-fractional-transform streaming recurrence; the two share a digit
+spigot interface but use different state and recurrences.
+
 ## Pinned source
 
 [TheAlgorithms/Go `spigotpi.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/pi/spigotpi.go), commit `5ba447ec5ff3d1213de65b92e726ee74c5d5cc19`, method `Spigot(n)`.
+
+Rabinowitz and Wagon, [“A Spigot Algorithm for the Digits of π”](https://doi.org/10.1080/00029890.1995.11990560), for the finite mixed-radix array procedure.
 
 ## Ports
 

@@ -26,6 +26,7 @@ Compile [`benchmarks/harness/scalar_runner.c`](../../harness/scalar_runner.c) wi
 | C3 | [`c3/f/fibonacci_dp.c3`](../../../c3/f/fibonacci_dp.c3) |
 | C++ | [`cpp/f/fibonacci_dp.cpp`](../../../cpp/f/fibonacci_dp.cpp) |
 | Elisa | [`elisa/f/fibonacci_dp.elisa`](../../../elisa/f/fibonacci_dp.elisa) |
+| Mojo | [`mojo/f/fibonacci_dp.mojo`](../../../mojo/f/fibonacci_dp.mojo) |
 | Nim | [`nim/f/fibonacci_dp.nim`](../../../nim/f/fibonacci_dp.nim) |
 | Odin | [`odin/f/fibonacci_dp.odin`](../../../odin/f/fibonacci_dp.odin) |
 | Rust | [`rust/f/fibonacci_dp.rs`](../../../rust/f/fibonacci_dp.rs) |
@@ -37,3 +38,6 @@ The local ports are independent implementations of the bounded table recurrence.
 ## TheAlgorithms source
 
 - [C `fibonacci_dp.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/math/fibonacci_dp.c)
+
+Scalar verifier registration and an independent fast-doubling reference are
+drafted and have not been executed.

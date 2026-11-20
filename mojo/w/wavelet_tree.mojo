@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn wt_build(v:InlineArray[Int32,64],count:Int,low:Int,high:Int,node:Int,inout pref:InlineArray[Int32,8320],inout left:InlineArray[Int32,128],inout right:InlineArray[Int32,128],inout lows:InlineArray[Int32,128],inout highs:InlineArray[Int32,128],inout nodes:Int):

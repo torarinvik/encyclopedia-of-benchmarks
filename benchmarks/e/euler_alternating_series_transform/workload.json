@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "euler-alternating-series-finite-integer-transform-v1",
+  "algorithm": "euler_alternating_series_transform",
+  "function_symbol": "euler_alternating_series_transform",
+  "abi": "i64_array_bytes_output",
+  "description": "Return the exact rational value of a finite Euler forward-difference transform over an integer term prefix.",
+  "source": {
+    "title": "Euler's transformation of series",
+    "specification": "NIST Digital Library of Mathematical Functions, Section 3.9(ii), Equations 3.9.2-3.9.4",
+    "url": "https://dlmf.nist.gov/3.9#E2",
+    "license": "Algorithm description only; bounded integer/rational contract and all implementations are original"
+  },
+  "contract": {
+    "operation": "For n terms a0..a(n-1), return T_n=sum(k=0..n-1, (-1)^k*Delta^k(a0)/2^(k+1)).",
+    "forward_difference": "Delta^k(a0)=sum(m=0..k, (-1)^m*C(k,m)*a(k-m)).",
+    "input_encoding": "[n,a0,a1,...,a(n-1)]",
+    "n_range": [1, 16],
+    "sequence_value_range": [-1000000, 1000000],
+    "exact_input_length": "n+1",
+    "minimum_valid_input_length": 2,
+    "maximum_valid_input_length": 17,
+    "maximum_parseable_input_length": 18,
+    "invalid_input_result": -1,
+    "rational_normalization": "Reduce by gcd(abs(numerator), denominator); denominator is positive.",
+    "output_encoding": "one little-endian signed i64 numerator followed by one positive i64 denominator",
+    "output_bytes": 16,
+    "maximum_output_bytes": 16,
+    "insufficient_or_null_output_result": -2,
+    "errors_write_no_output": true,
+    "time_complexity": "O(n^2)",
+    "space_complexity": "O(1) auxiliary native workspace"
+  },
+  "workspace": {
+    "bytes": 0,
+    "meaning": "Native ports evaluate binomial differences with scalar locals and write one pair directly to caller-owned output; caller input/output are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/e/euler_alternating_series_transform/primary_oracle.py",
+  "independent_oracle": "benchmarks/e/euler_alternating_series_transform/independent_oracle.py",
+  "cases": [
+    {
+      "id": "single-term-half",
+      "input_values": [1, 8],
+      "input_length": 2,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "04000000000000000100000000000000"
+    },
+    {
+      "id": "two-term-cancellation",
+      "input_values": [2, 1, 3],
+      "input_length": 3,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000100000000000000"
+    },
+    {
+      "id": "three-term-nonintegral-transform",
+      "input_values": [3, 1, 2, 4],
+      "input_length": 4,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000800000000000000"
+    },
+    {
+      "id": "four-term-negative-rational",
+      "input_values": [4, 2, 5, 6, 9],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "ffffffffffffffff0400000000000000"
+    },
+    {
+      "id": "constant-prefix",
+      "input_values": [4, 3, 3, 3, 3],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000200000000000000"
+    },
+    {
+      "id": "mixed-sign-forward-differences",
+      "input_values": [4, 5, -2, 7, -4],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "11000000000000000200000000000000"
+    },
+    {
+      "id": "maximum-terms-alternating-values",
+      "input_values": [16, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000],
+      "input_length": 17,
+      "expected_result": 16,
+      "expected_output_hex": "00127a00000000000100000000000000"
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [2, 1, 3, 99],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-frame",
+      "input_values": [2, 1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "term-out-of-range",
+      "input_values": [1, 1000001],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [16, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 1000000, -1000000, 99],
+      "input_length": 18,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "undersized-output",
+      "input_values": [1, 8],
+      "input_length": 2,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 8],
+      "input_length": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

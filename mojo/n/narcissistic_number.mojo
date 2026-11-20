@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import MutAnyOrigin, UnsafePointer
 fn narc_power(d:Int,expn:Int)->Int64:

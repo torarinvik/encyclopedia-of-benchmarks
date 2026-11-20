@@ -1,0 +1,331 @@
+const PLR_MAX_N: usize = 32
+const PLR_MAX_M: usize = 96
+const PLR_MAX_D: usize = 192
+
+struct PlrContext:
+    n: usize
+    m: usize
+    edge_of: i64[1024]
+    adj: i64[1024]
+    degree: i64[32]
+    eu: i64[96]
+    ev: i64[96]
+    tail: i64[96]
+    head: i64[96]
+    low: i64[96]
+    low2: i64[96]
+    nest: i64[96]
+    reference: i64[96]
+    side: i64[96]
+    low_edge: i64[96]
+    bottom: i64[96]
+    height: i64[32]
+    parent: i64[32]
+    out: i64[1024]
+    out_count: i64[32]
+    stack_left_low: i64[192]
+    stack_left_high: i64[192]
+    stack_right_low: i64[192]
+    stack_right_high: i64[192]
+    stack_len: usize
+    rotation: i64[1024]
+    rotation_count: i64[32]
+    left_ref: i64[32]
+    right_ref: i64[32]
+    roots: i64[32]
+    root_count: usize
+
+def plr_empty_interval(low: i64, high: i64) -> bool:
+    low < 0
+
+def plr_swap_intervals(context: mutable PlrContext&, slot: usize) -> void:
+    temporary_low: i64 = context.stack_left_low[slot]
+    temporary_high: i64 = context.stack_left_high[slot]
+    context.stack_left_low[slot] <- context.stack_right_low[slot]
+    context.stack_left_high[slot] <- context.stack_right_high[slot]
+    context.stack_right_low[slot] <- temporary_low
+    context.stack_right_high[slot] <- temporary_high
+
+def plr_update_parent(context: mutable PlrContext&, back: usize, pe: i64) -> void:
+    if pe < 0: return
+    parent_edge: usize = pe.usize()
+    if context.low[back] < context.low[parent_edge]:
+        context.low2[parent_edge] <- if context.low[parent_edge] < context.low2[back]: context.low[parent_edge] else: context.low2[back]
+        context.low[parent_edge] <- context.low[back]
+    else if context.low[back] > context.low[parent_edge]:
+        context.low2[parent_edge] <- if context.low2[parent_edge] < context.low[back]: context.low2[parent_edge] else: context.low[back]
+    else:
+        context.low2[parent_edge] <- if context.low2[back] < context.low2[parent_edge]: context.low2[back] else: context.low2[parent_edge]
+
+def plr_orient(context: mutable PlrContext&, vertex: usize) -> void:
+    parent_edge: i64 = context.parent[vertex]
+    count: usize = context.degree[vertex].usize()
+    for i in 0..<count:
+        neighbor: usize = context.adj[vertex * PLR_MAX_N + i].usize()
+        edge: usize = context.edge_of[vertex * PLR_MAX_N + neighbor].usize()
+        if context.tail[edge] >= 0: continue
+        context.tail[edge] <- vertex.i64()
+        context.head[edge] <- neighbor.i64()
+        context.low[edge] <- context.height[vertex]
+        context.low2[edge] <- context.height[vertex]
+        if context.height[neighbor] < 0:
+            context.parent[neighbor] <- edge.i64()
+            context.height[neighbor] <- context.height[vertex] + 1
+            plr_orient(context&, neighbor)
+            chord: i64 = if context.low2[edge] < context.height[vertex]: 1 else: 0
+            context.nest[edge] <- 2 * context.low[edge] + chord
+        else:
+            context.low[edge] <- context.height[neighbor]
+            context.low2[edge] <- context.height[vertex]
+            chord: i64 = if context.low2[edge] < context.height[vertex]: 1 else: 0
+            context.nest[edge] <- 2 * context.low[edge] + chord
+        plr_update_parent(context&, edge, parent_edge)
+
+def plr_interval_conflicts(context: PlrContext&, high: i64, edge: usize) -> bool:
+    high >= 0 and context.low[high.usize()] > context.low[edge]
+
+def plr_pair_lowest(context: PlrContext&, slot: usize) -> i64:
+    left_low: i64 = context.stack_left_low[slot]
+    right_low: i64 = context.stack_right_low[slot]
+    left_value: i64 = if left_low >= 0: context.low[left_low.usize()] else: 1000
+    right_value: i64 = if right_low >= 0: context.low[right_low.usize()] else: 1000
+    if left_value < right_value: left_value else: right_value
+
+def plr_add_constraints(context: mutable PlrContext&, ei: usize, parent_edge: usize) -> bool:
+    left_low: mutable i64 = -1
+    left_high: mutable i64 = -1
+    right_low: mutable i64 = -1
+    right_high: mutable i64 = -1
+    loop:
+        if context.stack_len == 0: return false
+        context.stack_len <- context.stack_len - 1
+        slot: usize = context.stack_len
+        if context.stack_left_low[slot] >= 0: plr_swap_intervals(context&, slot)
+        if context.stack_left_low[slot] >= 0: return false
+        stack_right_low: i64 = context.stack_right_low[slot]
+        if context.low[stack_right_low.usize()] > context.low[parent_edge]:
+            if right_low < 0:
+                right_low <- stack_right_low
+                right_high <- context.stack_right_high[slot]
+            else:
+                context.reference[right_low.usize()] <- context.stack_right_high[slot]
+                right_low <- stack_right_low
+        else:
+            context.reference[stack_right_low.usize()] <- context.low_edge[parent_edge]
+        if context.stack_len.i64() - 1 == context.bottom[ei]: break
+    while context.stack_len > 0:
+        top: usize = context.stack_len - 1
+        if not plr_interval_conflicts(context&, context.stack_left_high[top], ei) and not plr_interval_conflicts(context&, context.stack_right_high[top], ei): break
+        context.stack_len <- top
+        if plr_interval_conflicts(context&, context.stack_right_high[top], ei): plr_swap_intervals(context&, top)
+        if plr_interval_conflicts(context&, context.stack_right_high[top], ei): return false
+        if right_low >= 0: context.reference[right_low.usize()] <- context.stack_right_high[top]
+        if context.stack_right_low[top] >= 0: right_low <- context.stack_right_low[top]
+        if left_low < 0:
+            left_low <- context.stack_left_low[top]
+            left_high <- context.stack_left_high[top]
+        else:
+            context.reference[left_low.usize()] <- context.stack_left_high[top]
+            left_low <- context.stack_left_low[top]
+    if left_low >= 0 or right_low >= 0:
+        slot: usize = context.stack_len
+        context.stack_left_low[slot] <- left_low
+        context.stack_left_high[slot] <- left_high
+        context.stack_right_low[slot] <- right_low
+        context.stack_right_high[slot] <- right_high
+        context.stack_len <- context.stack_len + 1
+    true
+
+def plr_remove_returns(context: mutable PlrContext&, edge: usize) -> void:
+    vertex: usize = context.tail[edge].usize()
+    while context.stack_len > 0:
+        top: usize = context.stack_len - 1
+        if plr_pair_lowest(context&, top) != context.height[vertex]: break
+        context.stack_len <- top
+        if context.stack_left_low[top] >= 0: context.side[context.stack_left_low[top].usize()] <- -1
+    if context.stack_len > 0:
+        slot: usize = context.stack_len - 1
+        context.stack_len <- slot
+        while context.stack_left_high[slot] >= 0 and context.head[context.stack_left_high[slot].usize()] == vertex.i64():
+            context.stack_left_high[slot] <- context.reference[context.stack_left_high[slot].usize()]
+        if context.stack_left_high[slot] < 0 and context.stack_left_low[slot] >= 0:
+            context.reference[context.stack_left_low[slot].usize()] <- context.stack_right_low[slot]
+            context.side[context.stack_left_low[slot].usize()] <- -1
+            context.stack_left_low[slot] <- -1
+        while context.stack_right_high[slot] >= 0 and context.head[context.stack_right_high[slot].usize()] == vertex.i64():
+            context.stack_right_high[slot] <- context.reference[context.stack_right_high[slot].usize()]
+        if context.stack_right_high[slot] < 0 and context.stack_right_low[slot] >= 0:
+            context.reference[context.stack_right_low[slot].usize()] <- context.stack_left_low[slot]
+            context.side[context.stack_right_low[slot].usize()] <- -1
+            context.stack_right_low[slot] <- -1
+        context.stack_len <- slot + 1
+    if context.low[edge] < context.height[vertex] and context.stack_len > 0:
+        slot: usize = context.stack_len - 1
+        left_high: i64 = context.stack_left_high[slot]
+        right_high: i64 = context.stack_right_high[slot]
+        context.reference[edge] <- if left_high >= 0 and (right_high < 0 or context.low[left_high.usize()] > context.low[right_high.usize()]): left_high else: right_high
+
+def plr_test(context: mutable PlrContext&, vertex: usize) -> bool:
+    parent_edge: i64 = context.parent[vertex]
+    count: usize = context.out_count[vertex].usize()
+    for i in 0..<count:
+        edge: usize = context.out[vertex * PLR_MAX_N + i].usize()
+        neighbor: usize = context.head[edge].usize()
+        context.bottom[edge] <- context.stack_len.i64() - 1
+        if context.parent[neighbor] == edge.i64():
+            if not plr_test(context&, neighbor): return false
+        else:
+            context.low_edge[edge] <- edge.i64()
+            slot: usize = context.stack_len
+            context.stack_left_low[slot] <- -1
+            context.stack_left_high[slot] <- -1
+            context.stack_right_low[slot] <- edge.i64()
+            context.stack_right_high[slot] <- edge.i64()
+            context.stack_len <- slot + 1
+            if context.low[edge] < context.height[vertex]:
+                if i == 0:
+                    if parent_edge >= 0: context.low_edge[parent_edge.usize()] <- edge.i64()
+                else if parent_edge < 0 or not plr_add_constraints(context&, edge, parent_edge.usize()):
+                    return false
+    if parent_edge >= 0: plr_remove_returns(context&, parent_edge.usize())
+    true
+
+def plr_resolve_side(context: mutable PlrContext&, edge: usize) -> i64:
+    if context.reference[edge] >= 0:
+        reference: usize = context.reference[edge].usize()
+        context.side[edge] <- context.side[edge] * plr_resolve_side(context&, reference)
+        context.reference[edge] <- -1
+    context.side[edge]
+
+def plr_edge_before(context: PlrContext&, a: usize, b: usize, depth: view[i64]) -> bool:
+    depth[a] < depth[b] or (depth[a] == depth[b] and context.head[a] < context.head[b])
+
+def plr_insert(context: mutable PlrContext&, vertex: usize, neighbor: usize, reference: i64, after: bool) -> void:
+    count: usize = context.rotation_count[vertex].usize()
+    position: mutable usize = 0
+    if count > 0 and reference >= 0:
+        while position < count and context.rotation[vertex * PLR_MAX_N + position] != reference: position <- position + 1
+        if position == count: position <- count
+        else if after: position <- (position + 1) % count
+    i: mutable usize = count
+    while i > position:
+        context.rotation[vertex * PLR_MAX_N + i] <- context.rotation[vertex * PLR_MAX_N + i - 1]
+        i <- i - 1
+    context.rotation[vertex * PLR_MAX_N + position] <- neighbor.i64()
+    context.rotation_count[vertex] <- (count + 1).i64()
+
+def plr_embed(context: mutable PlrContext&, vertex: usize) -> void:
+    count: usize = context.out_count[vertex].usize()
+    for i in 0..<count:
+        edge: usize = context.out[vertex * PLR_MAX_N + i].usize()
+        neighbor: usize = context.head[edge].usize()
+        if context.parent[neighbor] == edge.i64():
+            plr_insert(context&, neighbor, vertex, -1, false)
+            context.left_ref[vertex] <- neighbor.i64()
+            context.right_ref[vertex] <- neighbor.i64()
+            plr_embed(context&, neighbor)
+        else if context.side[edge] == 1:
+            plr_insert(context&, neighbor, vertex, context.right_ref[neighbor], true)
+        else:
+            plr_insert(context&, neighbor, vertex, context.left_ref[neighbor], false)
+            context.left_ref[neighbor] <- vertex.i64()
+
+def planar_embedding_lr_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 195: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
+    if n64 < 1 or n64 > PLR_MAX_N.i64() or m64 < 0 or m64 > PLR_MAX_M.i64(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 2 * m: return -1
+    context: mutable PlrContext = zeroed
+    context.n <- n
+    context.m <- m
+    for v in 0..<n:
+        context.height[v] <- -1
+        context.parent[v] <- -1
+        context.left_ref[v] <- -1
+        context.right_ref[v] <- -1
+        for w in 0..<n: context.edge_of[v * PLR_MAX_N + w] <- -1
+    for edge in 0..<m:
+        context.tail[edge] <- -1
+        context.head[edge] <- -1
+        context.reference[edge] <- -1
+        context.side[edge] <- 1
+        context.low_edge[edge] <- -1
+        context.bottom[edge] <- -1
+        u64: i64 = values[2 + 2 * edge]
+        v64: i64 = values[3 + 2 * edge]
+        if u64 < 0 or u64 >= v64 or v64 >= n64: return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if context.edge_of[u * PLR_MAX_N + v] >= 0: return -1
+        context.edge_of[u * PLR_MAX_N + v] <- edge.i64()
+        context.edge_of[v * PLR_MAX_N + u] <- edge.i64()
+        context.eu[edge] <- u.i64()
+        context.ev[edge] <- v.i64()
+    for vertex in 0..<n:
+        for neighbor in 0..<n:
+            if context.edge_of[vertex * PLR_MAX_N + neighbor] >= 0:
+                index: usize = context.degree[vertex].usize()
+                context.adj[vertex * PLR_MAX_N + index] <- neighbor.i64()
+                context.degree[vertex] <- (index + 1).i64()
+    for root in 0..<n:
+        if context.height[root] < 0:
+            context.height[root] <- 0
+            context.roots[context.root_count] <- root.i64()
+            context.root_count <- context.root_count + 1
+            plr_orient(context&, root)
+    for edge in 0..<m:
+        vertex: usize = context.tail[edge].usize()
+        index: usize = context.out_count[vertex].usize()
+        context.out[vertex * PLR_MAX_N + index] <- edge.i64()
+        context.out_count[vertex] <- (index + 1).i64()
+    for vertex in 0..<n:
+        count: usize = context.out_count[vertex].usize()
+        for i in 1..<count:
+            edge: usize = context.out[vertex * PLR_MAX_N + i].usize()
+            j: mutable usize = i
+            while j > 0 and plr_edge_before(context, edge, context.out[vertex * PLR_MAX_N + j - 1].usize(), context.nest[0:m]):
+                context.out[vertex * PLR_MAX_N + j] <- context.out[vertex * PLR_MAX_N + j - 1]
+                j <- j - 1
+            context.out[vertex * PLR_MAX_N + j] <- edge.i64()
+    planar: mutable bool = true
+    for i in 0..<context.root_count:
+        if not plr_test(context&, context.roots[i].usize()):
+            planar <- false
+            break
+    if output == null: return -2
+    if not planar:
+        if capacity < 1: return -2
+        output[0] <- 0
+        return 1
+    depth: mutable i64[96] = zeroed
+    for edge in 0..<m: depth[edge] <- context.nest[edge] * plr_resolve_side(context&, edge)
+    for vertex in 0..<n:
+        count: usize = context.out_count[vertex].usize()
+        for i in 1..<count:
+            edge: usize = context.out[vertex * PLR_MAX_N + i].usize()
+            j: mutable usize = i
+            while j > 0 and plr_edge_before(context, edge, context.out[vertex * PLR_MAX_N + j - 1].usize(), depth[0:m]):
+                context.out[vertex * PLR_MAX_N + j] <- context.out[vertex * PLR_MAX_N + j - 1]
+                j <- j - 1
+            context.out[vertex * PLR_MAX_N + j] <- edge.i64()
+    for vertex in 0..<n:
+        for i in 0..<context.out_count[vertex].usize():
+            index: usize = vertex * PLR_MAX_N + context.rotation_count[vertex].usize()
+            context.rotation[index] <- context.head[context.out[vertex * PLR_MAX_N + i].usize()]
+            context.rotation_count[vertex] <- context.rotation_count[vertex] + 1
+    for i in 0..<context.root_count: plr_embed(context&, context.roots[i].usize())
+    needed: usize = 1 + 2 * m
+    if capacity < needed: return -2
+    output[0] <- 1
+    at: mutable usize = 1
+    for vertex in 0..<n:
+        for i in 0..<context.rotation_count[vertex].usize():
+            output[at] <- context.rotation[vertex * PLR_MAX_N + i].u8()
+            at <- at + 1
+    needed.i64()
+
+export fn planar_embedding_lr(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = planar_embedding_lr_impl

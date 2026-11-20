@@ -1,12 +1,12 @@
 module stack_using_two_queues;
 
-long stack_using_two_queues(long* input, usz length, char* output, usz output_capacity)
+fn long stack_using_two_queues(long* input, usz length, char* output, usz output_capacity)
         @export("stack_using_two_queues") {
     if (input == null || length < 1 || length > 257 || input[0] < 0 || input[0] > 128 ||
         length != 1 + 2 * (usz)input[0]) return -1;
-    long queue_a[128], queue_b[128], tags[128], results[128];
-    long* main_queue = queue_a;
-    long* temp_queue = queue_b;
+    long[128] queue_a; long[128] queue_b; long[128] tags; long[128] results;
+    long* main_queue = &queue_a[0];
+    long* temp_queue = &queue_b[0];
     usz head = 0, tail = 0, record_count = 0, position = 1;
     for (usz opi = 0; opi < (usz)input[0]; opi++) {
         long opcode = input[position], operand = input[position + 1];

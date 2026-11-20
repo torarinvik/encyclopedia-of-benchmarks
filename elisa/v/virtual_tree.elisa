@@ -152,9 +152,11 @@ def virtual_tree_impl(input: view[i64], output: mutable view[u8], capacity: usiz
         virtual_tree_put(output, word_index * 8, words[word_index])
     byte_count.i64()
 
-def virtual_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("virtual_tree"):
-    if input == null or length < 2 or length > MAX_INPUT: return -1
-    if output == null:
+export fn virtual_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    if output.is_null():
         scratch: mutable u8[1] = zeroed
-        return virtual_tree_impl(input[0:length], scratch[0:1], capacity, True)
-    virtual_tree_impl(input[0:length], output[0:capacity], capacity, False)
+        return virtual_tree_impl(input[0:length], scratch[0:1], capacity, true)
+    output_length: mutable usize = capacity
+    if output_length > 8 * MAX_WORDS: output_length <- 8 * MAX_WORDS
+    virtual_tree_impl(input[0:length], output[0:output_length], capacity, false)

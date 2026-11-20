@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "algorithm": "cordic_rotation_fixed_point",
+  "function_symbol": "cordic_rotation_fixed_point",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/c/cordic_rotation_fixed_point.c",
+    "c3": "c3/c/cordic_rotation_fixed_point.c3",
+    "cpp": "cpp/c/cordic_rotation_fixed_point.cpp",
+    "elisa": "elisa/c/cordic_rotation_fixed_point.elisa",
+    "mojo": "mojo/c/cordic_rotation_fixed_point.mojo",
+    "nim": "nim/c/cordic_rotation_fixed_point.nim",
+    "odin": "odin/c/cordic_rotation_fixed_point.odin",
+    "rust": "rust/c/cordic_rotation_fixed_point.rs",
+    "v": "v/c/cordic_rotation_fixed_point.v",
+    "zig": "zig/c/cordic_rotation_fixed_point.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "INVENTORY.json", "check_inventory.py"],
+  "static_checker": "check_inventory.py",
+  "contract": {
+    "maximum_valid_input_values": 2,
+    "maximum_parseable_input_values": 3,
+    "maximum_output_bytes": 24,
+    "workspace_bytes": 128,
+    "maximum_stages": 16,
+    "fixed_point_scale": 1000000000
+  },
+  "source": {
+    "discovery": "NIST DADS CORDIC entry",
+    "url": "https://xlinux.nist.gov/dads/HTML/cordic.html",
+    "primary_url": "https://doi.org/10.1109/TEC.1959.5222693",
+    "primary_author": "Jack E. Volder",
+    "primary_title": "The CORDIC Trigonometric Computing Technique",
+    "doi": "10.1109/TEC.1959.5222693"
+  }
+}

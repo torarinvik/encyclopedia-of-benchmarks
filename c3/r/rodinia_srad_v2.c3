@@ -10,7 +10,7 @@ fn float add32(float a,float b) @noinline{return a+b;}
 fn float sub32(float a,float b) @noinline{return a-b;}
 fn float mul32(float a,float b) @noinline{return a*b;}
 fn float div32(float a,float b) @noinline{return a/b;}
-fn float from_bits(uint bits) @noinline{return @bitcast(float,bits);}
+fn float from_bits(uint bits) @noinline{return bitcast(bits,float);}
 
 fn long rodinia_srad_v2(long* values,usz length) @export("rodinia_srad_v2") {
     if(values==null||length!=INPUTS)return -1;

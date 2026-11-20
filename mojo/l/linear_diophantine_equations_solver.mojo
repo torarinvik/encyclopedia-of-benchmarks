@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,UnsafePointer
 fn dio_eg(a:Int64,b:Int64)->InlineArray[Int64,3]:

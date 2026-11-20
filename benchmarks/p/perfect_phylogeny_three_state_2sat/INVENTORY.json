@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "algorithm": "perfect_phylogeny_three_state_2sat",
+  "function_symbol": "perfect_phylogeny_three_state_2sat",
+  "abi": "i64_array_scalar",
+  "workspace_bytes": 8192,
+  "maximum_input_words": 66,
+  "maximum_parseable_words": 67,
+  "valid_result_range": [0, 1],
+  "invalid_result": -1,
+  "bounded_contract": "Rows are taxa, columns are characters, each cell is 0/1/2, and each nonempty character observes one to three labels. Two-state characters force their absent state-column false; constant characters are unconstrained. The primary uses the expanded-column 2-SAT reduction and Kosaraju SCCs.",
+  "clause_bound": 284,
+  "implication_arc_bound": 568,
+  "primary_reference": "primary_oracle.py",
+  "independent_reference": "independent_oracle.py",
+  "workload": "workload.json",
+  "source_dois": [
+    "10.1007/978-1-4939-2864-4_288",
+    "10.4310/CIS.2009.v9.n4.a1"
+  ],
+  "languages": {
+    "c": "c/p/perfect_phylogeny_three_state_2sat.c",
+    "c3": "c3/p/perfect_phylogeny_three_state_2sat.c3",
+    "cpp": "cpp/p/perfect_phylogeny_three_state_2sat.cpp",
+    "elisa": "elisa/p/perfect_phylogeny_three_state_2sat.elisa",
+    "mojo": "mojo/p/perfect_phylogeny_three_state_2sat.mojo",
+    "nim": "nim/p/perfect_phylogeny_three_state_2sat.nim",
+    "odin": "odin/p/perfect_phylogeny_three_state_2sat.odin",
+    "rust": "rust/p/perfect_phylogeny_three_state_2sat.rs",
+    "v": "v/p/perfect_phylogeny_three_state_2sat.v",
+    "zig": "zig/p/perfect_phylogeny_three_state_2sat.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "SOURCE_CROSSWALK.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ],
+  "suite_integration": "i64_array_scalar"
+}

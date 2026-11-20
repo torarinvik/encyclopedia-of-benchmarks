@@ -17,7 +17,7 @@ fn long largest_smallest_words(long* values, usz length, char* output, usz outpu
     if (values == null || length < 1 || length > 515 || values[0] < 1 || values[0] > 512 ||
         length != 1 + (usz)values[0]) return -1;
     usz text_length = (usz)values[0];
-    char text[512];
+    char[512] text;
     for (usz i = 0; i < text_length; i++) {
         long value = values[i + 1];
         if (value < 32 || value > 126) return -1;

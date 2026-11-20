@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn pd_digits(v:UnsafePointer[Int64,ImmutAnyOrigin],a:Int,b:Int)->Int:

@@ -8,7 +8,7 @@ fn ulong feed(ulong hash, long value) {
     return hash;
 }
 
-long submatrix(long* values, usz length) @export("submatrix") {
+fn long submatrix(long* values, usz length) @export("submatrix") {
     if (values == null || length < 6 || length > 70) return -1;
     long rows = values[0], cols = values[1], row_start = values[2], col_start = values[3];
     long out_rows = values[4], out_cols = values[5];

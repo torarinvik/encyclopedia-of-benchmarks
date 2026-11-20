@@ -23,6 +23,7 @@ See the [workload](workload.json) and [oracle](../../kalman_filter_r_two_state_s
 - [C3](../../../c3/k/kalman_filter_r_two_state_simulation.c3)
 - [Rust](../../../rust/k/kalman_filter_r_two_state_simulation.rs)
 - [Elisa](../../../elisa/k/kalman_filter_r_two_state_simulation.elisa)
+- [Mojo](../../../mojo/k/kalman_filter_r_two_state_simulation.mojo)
 - [Nim](../../../nim/k/kalman_filter_r_two_state_simulation.nim)
 - [Odin](../../../odin/k/kalman_filter_r_two_state_simulation.odin)
 - [V](../../../v/k/kalman_filter_r_two_state_simulation.v)

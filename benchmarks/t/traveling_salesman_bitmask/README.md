@@ -12,6 +12,11 @@ The source uses signed 32-bit bit operations, so the benchmark caps the graph at
 
 Pinned source: [`travelingSalesman_bitmask.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/travelingSalesman_bitmask.r), function `tsp_bitmask_dp`.
 
+The pinned Java `dynamicProgramming` and Python
+`travelling_salesman_dynamic_programming` methods use the same Held–Karp
+subset-state recurrence. The Python route reconstruction and coordinate input
+are source-interface details; that duplicate package was consolidated here.
+
 See [workload](workload.json) and [oracle](../../traveling_salesman_bitmask_oracle.py).
 
 | Language | Port |
@@ -25,3 +30,4 @@ See [workload](workload.json) and [oracle](../../traveling_salesman_bitmask_orac
 | Rust | [traveling_salesman_bitmask.rs](../../../rust/t/traveling_salesman_bitmask.rs) |
 | V | [traveling_salesman_bitmask.v](../../../v/t/traveling_salesman_bitmask.v) |
 | Zig | [traveling_salesman_bitmask.zig](../../../zig/t/traveling_salesman_bitmask.zig) |
+| Mojo | [traveling_salesman_bitmask.mojo](../../../mojo/t/traveling_salesman_bitmask.mojo) (draft; unverified) |

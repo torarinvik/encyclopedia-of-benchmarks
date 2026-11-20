@@ -1,0 +1,35 @@
+# Token bucket request admissions over caller-supplied virtual-time intervals.
+const TB_MAX_REQUESTS: usize = 63
+const TB_MAX_INPUT: usize = 66
+
+def tb_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > TB_MAX_INPUT: return -1
+    capacity: i64 = input[0]
+    rate: i64 = input[1]
+    q_value: i64 = input[2]
+    if capacity < 0 or capacity > 64 or rate < 0 or rate > 32 or q_value < 0 or q_value > TB_MAX_REQUESTS.i64(): return -1
+    q: usize = q_value.usize()
+    if length != 3 + q: return -1
+    i: usize = 0
+    while i < q:
+        if input[3 + i] < 0 or input[3 + i] > 256: return -1
+        i <- i + 1
+
+    tokens: mutable i64 = capacity
+    allowed: mutable u64 = 0
+    i <- 0
+    while i < q:
+        tokens <- tokens + input[3 + i] * rate
+        if tokens > capacity: tokens <- capacity
+        if tokens > 0:
+            allowed <- allowed | (1.u64() << i)
+            tokens <- tokens - 1
+        i <- i + 1
+    allowed.i64()
+
+export fn token_bucket_rate_limiter_virtual_time(input: i64&, length: usize) -> i64
+    @export("token_bucket_rate_limiter_virtual_time"):
+    if input.is_null() or length > TB_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    tb_impl(input_view)

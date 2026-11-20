@@ -1,0 +1,299 @@
+const SCH_MAX_N: usize = 6
+const SCH_MAX_M: usize = 4
+const SCH_MAX_CALLS: usize = 7
+const SCH_MAX_INPUT: usize = 122
+
+def sch_lit_variable(literal: i64) -> usize:
+    if literal < 0: return (-literal).usize() - 1
+    literal.usize() - 1
+
+def sch_literal_true(literal: i64, value: i64) -> bool:
+    if literal > 0: return value == 1
+    value == 0
+
+def sch_prefix_size(clause_count: usize) -> usize:
+    count: mutable usize = clause_count
+    bits: mutable usize = 0
+    while count > 0:
+        bits <- bits + 1
+        count <- count / 2
+    bits + 1
+
+def sch_ppz(n: usize, m: usize, formula: view[i64], lengths: view[usize],
+        fixed: view[i64], permutation: view[usize], bits: view[i64],
+        local: mutable view[i64], stats: mutable view[i64]) -> bool:
+    active: mutable usize[SCH_MAX_N] = zeroed
+    active_count: mutable usize = 0
+    item: mutable usize = 0
+    while item < n:
+        local[item] <- -1
+        variable: usize = permutation[item] - 1
+        if fixed[variable] < 0:
+            active[active_count] <- variable
+            active_count <- active_count + 1
+        item <- item + 1
+
+    work: mutable i64[SCH_MAX_M * SCH_MAX_N] = zeroed
+    work_lengths: mutable usize[SCH_MAX_M] = zeroed
+    clause: mutable usize = 0
+    while clause < m:
+        work_lengths[clause] <- lengths[clause]
+        item <- 0
+        while item < work_lengths[clause]:
+            work[clause * SCH_MAX_N + item] <- formula[clause * SCH_MAX_N + item]
+            item <- item + 1
+        clause <- clause + 1
+    offset: mutable usize = 0
+    while offset < active_count:
+        variable: usize = active[offset]
+        positive_unit: mutable bool = false
+        negative_unit: mutable bool = false
+        clause <- 0
+        while clause < m:
+            if work_lengths[clause] == 1:
+                literal: i64 = work[clause * SCH_MAX_N]
+                if literal == variable.i64() + 1: positive_unit <- true
+                if literal == -(variable.i64() + 1): negative_unit <- true
+            clause <- clause + 1
+        value: mutable i64 = 0
+        if positive_unit:
+            value <- 1
+            stats[0] <- stats[0] + 1
+        elif negative_unit:
+            value <- 0
+            stats[0] <- stats[0] + 1
+        else:
+            value <- bits[offset]
+            stats[1] <- stats[1] + 1
+        local[variable] <- value
+
+        next: mutable i64[SCH_MAX_M * SCH_MAX_N] = zeroed
+        next_lengths: mutable usize[SCH_MAX_M] = zeroed
+        next_m: mutable usize = 0
+        clause <- 0
+        while clause < m:
+            satisfied: mutable bool = false
+            out_length: mutable usize = 0
+            item <- 0
+            while item < work_lengths[clause]:
+                literal: i64 = work[clause * SCH_MAX_N + item]
+                if sch_lit_variable(literal) != variable:
+                    next[next_m * SCH_MAX_N + out_length] <- literal
+                    out_length <- out_length + 1
+                elif sch_literal_true(literal, value):
+                    satisfied <- true
+                    break
+                item <- item + 1
+            if not satisfied:
+                next_lengths[next_m] <- out_length
+                next_m <- next_m + 1
+            clause <- clause + 1
+        clause <- 0
+        while clause < next_m:
+            work_lengths[clause] <- next_lengths[clause]
+            item <- 0
+            while item < next_lengths[clause]:
+                work[clause * SCH_MAX_N + item] <- next[clause * SCH_MAX_N + item]
+                item <- item + 1
+            clause <- clause + 1
+        m <- next_m
+        offset <- offset + 1
+    clause <- 0
+    while clause < m:
+        if work_lengths[clause] == 0: return false
+        clause <- clause + 1
+    true
+
+def sch_put_i64(value: i64, output: mutable view[u8], word: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def schuler_randomized_general_cnf_sat(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64 @export("schuler_randomized_general_cnf_sat"):
+    if input.is_null() or length < 2 or length > SCH_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
+    if n64 < 1 or n64 > SCH_MAX_N.i64() or m64 < 1 or m64 > SCH_MAX_M.i64(): return -1
+    n: usize = n64.usize()
+    original_m: usize = m64.usize()
+    formula: mutable i64[SCH_MAX_M * SCH_MAX_N] = zeroed
+    lengths: mutable usize[SCH_MAX_M] = zeroed
+    position: mutable usize = 2
+    clause: mutable usize = 0
+    while clause < original_m:
+        if position >= length: return -1
+        size64: i64 = values[position]
+        position <- position + 1
+        if size64 < 1 or size64 > n64 or position + size64.usize() > length: return -1
+        size: usize = size64.usize()
+        seen: mutable bool[SCH_MAX_N] = zeroed
+        item: mutable usize = 0
+        while item < size:
+            literal: i64 = values[position]
+            position <- position + 1
+            if literal == 0 or literal < -n64 or literal > n64: return -1
+            variable: usize = sch_lit_variable(literal)
+            if seen[variable]: return -1
+            seen[variable] <- true
+            formula[clause * SCH_MAX_N + item] <- literal
+            item <- item + 1
+        lengths[clause] <- size
+        clause <- clause + 1
+
+    permutations: mutable usize[SCH_MAX_CALLS * SCH_MAX_N] = zeroed
+    random_bits: mutable i64[SCH_MAX_CALLS * SCH_MAX_N] = zeroed
+    choices: mutable usize[SCH_MAX_CALLS] = zeroed
+    call: mutable usize = 0
+    while call <= n:
+        seen: mutable bool[SCH_MAX_N] = zeroed
+        item <- 0
+        while item < n:
+            if position >= length: return -1
+            value: i64 = values[position]
+            position <- position + 1
+            if value < 1 or value > n64 or seen[value.usize() - 1]: return -1
+            seen[value.usize() - 1] <- true
+            permutations[call * SCH_MAX_N + item] <- value.usize()
+            item <- item + 1
+        item <- 0
+        while item < n:
+            if position >= length or (values[position] != 0 and values[position] != 1): return -1
+            random_bits[call * SCH_MAX_N + item] <- values[position]
+            position <- position + 1
+            item <- item + 1
+        if position >= length: return -1
+        choice: i64 = values[position]
+        position <- position + 1
+        if choice < 0 or choice >= m64: return -1
+        choices[call] <- choice.usize()
+        call <- call + 1
+    if position != length: return -1
+
+    fixed: mutable i64[SCH_MAX_N] = zeroed
+    item <- 0
+    while item < n: fixed[item] <- -1; item <- item + 1
+    current: mutable i64[SCH_MAX_M * SCH_MAX_N] = zeroed
+    current_lengths: mutable usize[SCH_MAX_M] = zeroed
+    current_m: mutable usize = original_m
+    clause <- 0
+    while clause < current_m:
+        current_lengths[clause] <- lengths[clause]
+        item <- 0
+        while item < lengths[clause]:
+            current[clause * SCH_MAX_N + item] <- formula[clause * SCH_MAX_N + item]
+            item <- item + 1
+        clause <- clause + 1
+
+    stats: mutable i64[2] = zeroed
+    calls: mutable i64 = 0
+    max_depth: mutable usize = 0
+    found: mutable i64 = 0
+    mask: mutable i64 = 0
+    depth: mutable usize = 0
+    while true:
+        calls <- calls + 1
+        if depth > max_depth: max_depth <- depth
+        if current_m == 0:
+            found <- 1
+            item <- 0
+            while item < n:
+                if fixed[item] == 1: mask <- mask | (1.i64() << item)
+                item <- item + 1
+            break
+        k: usize = sch_prefix_size(current_m)
+        shortened: mutable i64[SCH_MAX_M * SCH_MAX_N] = zeroed
+        short_lengths: mutable usize[SCH_MAX_M] = zeroed
+        clause <- 0
+        while clause < current_m:
+            if current_lengths[clause] < k:
+                short_lengths[clause] <- current_lengths[clause]
+            else:
+                short_lengths[clause] <- k
+            item <- 0
+            while item < short_lengths[clause]:
+                shortened[clause * SCH_MAX_N + item] <- current[clause * SCH_MAX_N + item]
+                item <- item + 1
+            clause <- clause + 1
+        local: mutable i64[SCH_MAX_N] = zeroed
+        perm_view: view[usize] = permutations[depth * SCH_MAX_N:depth * SCH_MAX_N + n]
+        bit_view: view[i64] = random_bits[depth * SCH_MAX_N:depth * SCH_MAX_N + n]
+        local_view: mutable view[i64] = local[0:n]
+        fixed_view: view[i64] = fixed[0:n]
+        short_view: view[i64] = shortened[0:SCH_MAX_M * SCH_MAX_N]
+        length_view: view[usize] = short_lengths[0:SCH_MAX_M]
+        success: bool = sch_ppz(n, current_m, short_view, length_view, fixed_view, perm_view, bit_view, local_view, stats)
+        if success:
+            found <- 1
+            item <- 0
+            while item < n:
+                if fixed[item] == 1 or (fixed[item] < 0 and local[item] == 1): mask <- mask | (1.i64() << item)
+                item <- item + 1
+            break
+        eligible: mutable usize[SCH_MAX_M] = zeroed
+        eligible_count: mutable usize = 0
+        clause <- 0
+        while clause < current_m:
+            if short_lengths[clause] == k:
+                eligible[eligible_count] <- clause
+                eligible_count <- eligible_count + 1
+            clause <- clause + 1
+        if eligible_count == 0: break
+        if choices[depth] >= eligible_count: return -1
+        selected: usize = eligible[choices[depth]]
+        next_fixed: mutable i64[SCH_MAX_N] = zeroed
+        item <- 0
+        while item < n: next_fixed[item] <- fixed[item]; item <- item + 1
+        item <- 0
+        while item < k:
+            literal: i64 = shortened[selected * SCH_MAX_N + item]
+            next_fixed[sch_lit_variable(literal)] <- if literal > 0 { 0 } else { 1 }
+            item <- item + 1
+        next: mutable i64[SCH_MAX_M * SCH_MAX_N] = zeroed
+        next_lengths: mutable usize[SCH_MAX_M] = zeroed
+        next_m: mutable usize = 0
+        clause <- 0
+        while clause < current_m:
+            satisfied: mutable bool = false
+            out_length: mutable usize = 0
+            item <- 0
+            while item < current_lengths[clause]:
+                literal: i64 = current[clause * SCH_MAX_N + item]
+                value: i64 = next_fixed[sch_lit_variable(literal)]
+                if value < 0:
+                    next[next_m * SCH_MAX_N + out_length] <- literal
+                    out_length <- out_length + 1
+                elif sch_literal_true(literal, value):
+                    satisfied <- true
+                    break
+                item <- item + 1
+            if not satisfied:
+                next_lengths[next_m] <- out_length
+                next_m <- next_m + 1
+            clause <- clause + 1
+        clause <- 0
+        while clause < next_m:
+            current_lengths[clause] <- next_lengths[clause]
+            item <- 0
+            while item < next_lengths[clause]:
+                current[clause * SCH_MAX_N + item] <- next[clause * SCH_MAX_N + item]
+                item <- item + 1
+            clause <- clause + 1
+        current_m <- next_m
+        item <- 0
+        while item < n: fixed[item] <- next_fixed[item]; item <- item + 1
+        depth <- depth + 1
+        if depth > n: return -1
+    if found == 0: mask <- 0
+    staged: mutable i64[6] = zeroed
+    staged[0] <- found; staged[1] <- mask; staged[2] <- calls; staged[3] <- stats[0]; staged[4] <- stats[1]; staged[5] <- max_depth.i64()
+    if output.is_null() or capacity < 48: return -2
+    out: mutable view[u8] = output[0:capacity]
+    word: mutable usize = 0
+    while word < 6:
+        put_i64(staged[word], out, word)
+        word <- word + 1
+    48

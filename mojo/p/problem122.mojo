@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p122_solve(inout chain:InlineArray[Int64,32],length:Int,goal:Int64,depth:Int)->Bool:
     let last=chain[length-1]
     for index in range(length):

@@ -1,0 +1,158 @@
+const IM_LT_MAX_N: usize = 8
+const IM_LT_MAX_M: usize = 24
+const IM_LT_MAX_WORLDS: usize = 8
+const IM_LT_MAX_INPUT: usize = 141
+const IM_LT_WEIGHT_SCALE: usize = 256
+
+def im_lt_reachable_count(n: usize, parents: view[usize], seeds: u64) -> i64:
+    reached: mutable u64 = seeds
+    queue: mutable usize[8] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        if (seeds & (1.u64() << vertex)) != 0:
+            queue[tail] <- vertex
+            tail <- tail + 1
+        vertex <- vertex + 1
+    while head < tail:
+        source: usize = queue[head]
+        head <- head + 1
+        vertex <- 0
+        while vertex < n:
+            bit: u64 = 1.u64() << vertex
+            if parents[vertex] == source + 1 and (reached & bit) == 0:
+                reached <- reached | bit
+                queue[tail] <- vertex
+                tail <- tail + 1
+            vertex <- vertex + 1
+    count: mutable i64 = 0
+    vertex <- 0
+    while vertex < n:
+        if (reached & (1.u64() << vertex)) != 0: count <- count + 1
+        vertex <- vertex + 1
+    count
+
+def im_lt_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def influence_maximization_greedy_linear_threshold(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64
+        @export("influence_maximization_greedy_linear_threshold"):
+    if input.is_null() or length < 4 or length > IM_LT_MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n64: i64 = values[0]
+    m64: i64 = values[1]
+    k64: i64 = values[2]
+    worlds64: i64 = values[3]
+    if n64 < 1 or n64 > IM_LT_MAX_N.i64() or m64 < 0 or m64 > IM_LT_MAX_M.i64()
+            or k64 < 0 or k64 > n64 or worlds64 < 1 or worlds64 > IM_LT_MAX_WORLDS.i64():
+        return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    k: usize = k64.usize()
+    worlds: usize = worlds64.usize()
+    if length != 4 + 3 * m + worlds * n: return -1
+
+    edge_u: mutable usize[24] = zeroed
+    edge_v: mutable usize[24] = zeroed
+    edge_weight: mutable usize[24] = zeroed
+    incoming_sum: mutable usize[8] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        offset: usize = 4 + 3 * edge
+        u64: i64 = values[offset]
+        v64: i64 = values[offset + 1]
+        weight64: i64 = values[offset + 2]
+        if u64 < 0 or u64 >= n64 or v64 < 0 or v64 >= n64 or u64 == v64
+                or weight64 < 0 or weight64 > IM_LT_WEIGHT_SCALE.i64():
+            return -1
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        prior: mutable usize = 0
+        while prior < edge:
+            if edge_u[prior] == u and edge_v[prior] == v: return -1
+            prior <- prior + 1
+        edge_u[edge] <- u
+        edge_v[edge] <- v
+        edge_weight[edge] <- weight64.usize()
+        incoming_sum[v] <- incoming_sum[v] + weight64.usize()
+        if incoming_sum[v] > IM_LT_WEIGHT_SCALE: return -1
+        edge <- edge + 1
+
+    draws: mutable usize[64] = zeroed
+    draws_start: usize = 4 + 3 * m
+    world: mutable usize = 0
+    while world < worlds:
+        vertex: mutable usize = 0
+        while vertex < n:
+            draw64: i64 = values[draws_start + world * n + vertex]
+            if draw64 < 0 or draw64 >= IM_LT_WEIGHT_SCALE.i64(): return -1
+            draws[world * 8 + vertex] <- draw64.usize()
+            vertex <- vertex + 1
+        world <- world + 1
+
+    parents: mutable usize[64] = zeroed
+    world <- 0
+    while world < worlds:
+        vertex: mutable usize = 0
+        while vertex < n:
+            ticket: usize = draws[world * 8 + vertex]
+            cumulative: mutable usize = 0
+            edge <- 0
+            while edge < m:
+                if edge_v[edge] == vertex:
+                    next: usize = cumulative + edge_weight[edge]
+                    if cumulative <= ticket and ticket < next:
+                        parents[world * 8 + vertex] <- edge_u[edge] + 1
+                        break
+                    cumulative <- next
+                edge <- edge + 1
+            vertex <- vertex + 1
+        world <- world + 1
+
+    selected: mutable u64 = 0
+    chosen: mutable usize[8] = zeroed
+    scores: mutable i64[8] = zeroed
+    round: mutable usize = 0
+    while round < k:
+        current: mutable i64[8] = zeroed
+        world <- 0
+        while world < worlds:
+            current[world] <- im_lt_reachable_count(n, parents[world * 8:world * 8 + n], selected)
+            world <- world + 1
+        best_node: mutable i64 = -1
+        best_score: mutable i64 = -1
+        candidate: mutable usize = 0
+        while candidate < n:
+            bit: u64 = 1.u64() << candidate
+            if (selected & bit) == 0:
+                score: mutable i64 = 0
+                world <- 0
+                while world < worlds:
+                    score <- score + im_lt_reachable_count(n, parents[world * 8:world * 8 + n], selected | bit) - current[world]
+                    world <- world + 1
+                if score > best_score:
+                    best_node <- candidate.i64()
+                    best_score <- score
+            candidate <- candidate + 1
+        if best_node < 0: return -1
+        selected <- selected | (1.u64() << best_node.usize())
+        chosen[round] <- best_node.usize()
+        scores[round] <- best_score
+        round <- round + 1
+
+    output_bytes: usize = 8 * (1 + 2 * k)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    im_lt_put_i64(k.i64(), output_view, 0)
+    round <- 0
+    while round < k:
+        im_lt_put_i64(chosen[round].i64(), output_view, 8 * (1 + 2 * round))
+        im_lt_put_i64(scores[round], output_view, 8 * (2 + 2 * round))
+        round <- round + 1
+    output_bytes.i64()

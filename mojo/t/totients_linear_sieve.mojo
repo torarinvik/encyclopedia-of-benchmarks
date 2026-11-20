@@ -1,9 +1,10 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import MutAnyOrigin, UnsafePointer
 @export("totients_linear_sieve")
 fn totients_linear_sieve(n:Int64,o:UnsafePointer[UInt8,MutAnyOrigin],cap:c_size_t) abi("C")->Int64:
     if n<1 or n>80:return -1
-    var phi=InlineArray[Int,81]();var composite=InlineArray[Bool,81]();var primes=InlineArray[Int,80]();var pc=0;phi[1]=1
+    var phi=InlineArray[Int,81]();var composite=InlineArray[Bool,81](fill=False);var primes=InlineArray[Int,80]();var pc=0;phi[1]=1
     for i in range(2,Int(n)+1):
         if not composite[i]:primes[pc]=i;pc+=1;phi[i]=i-1
         for j in range(pc):

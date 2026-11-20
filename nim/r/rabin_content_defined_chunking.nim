@@ -20,8 +20,8 @@ proc rabin_content_defined_chunking*(input: ptr UncheckedArray[int64], length: c
   var boundaries: array[64, uint8]
   var count = 0
   for i in 0..<n:
-    fingerprint = reduce((uint32(fingerprint) shl 8) or uint32(input[i + 1]))
     if i >= 4: fingerprint = fingerprint xor outgoing[int(input[i - 3])]
+    fingerprint = reduce((uint32(fingerprint) shl 8) or uint32(input[i + 1]))
     if (fingerprint and 7) == 0:
       boundaries[count] = uint8(i + 1)
       inc count

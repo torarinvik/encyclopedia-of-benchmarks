@@ -41,7 +41,7 @@ fn ulong inverse_mod(ulong value, ulong modulus) {
 }
 
 fn void put_i64(long value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; ++byte)
         output[offset + byte] = (char)(bits >> (8 * byte));
 }

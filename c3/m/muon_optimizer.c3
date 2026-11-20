@@ -38,7 +38,7 @@ fn void orthogonalize(double* gradient, usz rows, usz columns, usz ns_steps, dou
     bool transposed = rows < columns;
     usz working_rows = transposed ? columns : rows;
     usz working_columns = transposed ? rows : columns;
-    double matrix[4][4] = {{0}};
+    double[4][4] matrix = {};
 
     for (usz row = 0; row < rows; row++) {
         for (usz column = 0; column < columns; column++) {
@@ -48,8 +48,8 @@ fn void orthogonalize(double* gradient, usz rows, usz columns, usz ns_steps, dou
     }
 
     for (usz step = 0; step < ns_steps; step++) {
-        double gram[4][4] = {{0}};
-        double product[4][4] = {{0}};
+        double[4][4] gram = {};
+        double[4][4] product = {};
         for (usz left = 0; left < working_columns; left++) {
             for (usz right = 0; right < working_columns; right++) {
                 double sum = 0.0;

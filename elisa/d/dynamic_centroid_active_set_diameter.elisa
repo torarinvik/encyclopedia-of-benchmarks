@@ -1,0 +1,215 @@
+const ACTIVE_DIAMETER_MAX_N: usize = 32
+const ACTIVE_DIAMETER_MAX_OPERATIONS: usize = 64
+const ACTIVE_DIAMETER_MAX_LEVELS: usize = 6
+const ACTIVE_DIAMETER_MAX_PARSEABLE_LENGTH: usize = 98
+
+fn i64 active_component_size(
+    n: usize, adjacency: view[i64], blocked: view[i64],
+    subtree_size: mutable view[i64], vertex: usize, parent: i64
+) -> i64:
+    total: mutable i64 = 1
+    neighbor: mutable usize = 0
+    while neighbor < n:
+        if adjacency[vertex * n + neighbor] != 0
+                and neighbor.i64() != parent and blocked[neighbor] == 0:
+            total <- total + active_component_size(
+                n, adjacency, blocked, subtree_size, neighbor, vertex.i64()
+            )
+        neighbor <- neighbor + 1
+    subtree_size[vertex] <- total
+    total
+
+fn usize active_choose_centroid(
+    n: usize, adjacency: view[i64], blocked: view[i64],
+    subtree_size: view[i64], vertex: usize, parent: i64, total: i64
+) -> usize:
+    neighbor: mutable usize = 0
+    while neighbor < n:
+        if adjacency[vertex * n + neighbor] != 0
+                and neighbor.i64() != parent and blocked[neighbor] == 0
+                and subtree_size[neighbor] > total / 2:
+            return active_choose_centroid(
+                n, adjacency, blocked, subtree_size, neighbor, vertex.i64(), total
+            )
+        neighbor <- neighbor + 1
+    vertex
+
+fn void active_record_component(
+    n: usize, level: usize, adjacency: view[i64], blocked: view[i64],
+    record_count: mutable view[i64], record_centroid: mutable view[i64],
+    record_branch: mutable view[i64], record_distance: mutable view[i64],
+    centroid: usize, vertex: usize, parent: i64, distance: i64, branch: usize
+):
+    if level >= ACTIVE_DIAMETER_MAX_LEVELS: return
+    index: usize = vertex * ACTIVE_DIAMETER_MAX_LEVELS + level
+    record_centroid[index] <- centroid.i64()
+    record_branch[index] <- if vertex == centroid then n.i64() else branch.i64()
+    record_distance[index] <- distance
+    record_count[vertex] <- (level + 1).i64()
+    neighbor: mutable usize = 0
+    while neighbor < n:
+        if adjacency[vertex * n + neighbor] != 0
+                and neighbor.i64() != parent and blocked[neighbor] == 0:
+            next_branch: usize = if vertex == centroid then neighbor else branch
+            active_record_component(
+                n, level, adjacency, blocked, record_count, record_centroid,
+                record_branch, record_distance, centroid, neighbor, vertex.i64(),
+                distance + 1, next_branch
+            )
+        neighbor <- neighbor + 1
+
+fn void active_build_centroids(
+    n: usize, level: usize, adjacency: view[i64], blocked: mutable view[i64],
+    subtree_size: mutable view[i64], record_count: mutable view[i64],
+    record_centroid: mutable view[i64], record_branch: mutable view[i64],
+    record_distance: mutable view[i64], entry: usize
+):
+    if level >= ACTIVE_DIAMETER_MAX_LEVELS: return
+    total: i64 = active_component_size(
+        n, adjacency, blocked, subtree_size, entry, -1
+    )
+    centroid: usize = active_choose_centroid(
+        n, adjacency, blocked, subtree_size, entry, -1, total
+    )
+    active_record_component(
+        n, level, adjacency, blocked, record_count, record_centroid,
+        record_branch, record_distance, centroid, centroid, -1, 0, n
+    )
+    blocked[centroid] <- 1
+    neighbor: mutable usize = 0
+    while neighbor < n:
+        if adjacency[centroid * n + neighbor] != 0 and blocked[neighbor] == 0:
+            active_build_centroids(
+                n, level + 1, adjacency, blocked, subtree_size, record_count,
+                record_centroid, record_branch, record_distance, neighbor
+            )
+        neighbor <- neighbor + 1
+
+fn void active_recompute_branch(
+    n: usize, active: view[i64], record_count: view[i64],
+    record_centroid: view[i64], record_branch: view[i64],
+    record_distance: view[i64], best: mutable view[i64],
+    centroid: usize, branch: usize
+):
+    best[centroid * (n + 1) + branch] <- -1
+    vertex: mutable usize = 0
+    while vertex < n:
+        if active[vertex] != 0:
+            record: mutable usize = 0
+            while record < record_count[vertex].usize():
+                index: usize = vertex * ACTIVE_DIAMETER_MAX_LEVELS + record
+                if record_centroid[index] == centroid.i64()
+                        and record_branch[index] == branch.i64()
+                        and record_distance[index] > best[centroid * (n + 1) + branch]:
+                    best[centroid * (n + 1) + branch] <- record_distance[index]
+                record <- record + 1
+        vertex <- vertex + 1
+
+fn i64 active_diameter(n: usize, best: view[i64]) -> i64:
+    answer: mutable i64 = 0
+    centroid: mutable usize = 0
+    while centroid < n:
+        first: mutable i64 = -1
+        second: mutable i64 = -1
+        branch: mutable usize = 0
+        while branch <= n:
+            distance: i64 = best[centroid * (n + 1) + branch]
+            if distance > first:
+                second <- first
+                first <- distance
+            elif distance > second:
+                second <- distance
+            branch <- branch + 1
+        if second >= 0 and first + second > answer:
+            answer <- first + second
+        centroid <- centroid + 1
+    answer
+
+export fn dynamic_centroid_active_set_diameter(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2
+            or length > ACTIVE_DIAMETER_MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    q_value: i64 = input_view[1]
+    if n_value < 1 or n_value > ACTIVE_DIAMETER_MAX_N.i64()
+            or q_value < 0 or q_value > ACTIVE_DIAMETER_MAX_OPERATIONS.i64():
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != n + 1 + q: return -1
+
+    adjacency: mutable i64[ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_N] = zeroed
+    blocked: mutable i64[ACTIVE_DIAMETER_MAX_N] = zeroed
+    subtree_size: mutable i64[ACTIVE_DIAMETER_MAX_N] = zeroed
+    record_count: mutable i64[ACTIVE_DIAMETER_MAX_N] = zeroed
+    record_centroid: mutable i64[ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS] = zeroed
+    record_branch: mutable i64[ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS] = zeroed
+    record_distance: mutable i64[ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS] = zeroed
+    best: mutable i64[ACTIVE_DIAMETER_MAX_N * (ACTIVE_DIAMETER_MAX_N + 1)] = zeroed
+    active: mutable i64[ACTIVE_DIAMETER_MAX_N] = zeroed
+
+    vertex: mutable usize = 1
+    while vertex < n:
+        parent_value: i64 = input_view[vertex + 1]
+        if parent_value < 0 or parent_value >= vertex.i64(): return -1
+        parent: usize = parent_value.usize()
+        adjacency[parent * n + vertex] <- 1
+        adjacency[vertex * n + parent] <- 1
+        vertex <- vertex + 1
+    offset: mutable usize = 0
+    while offset < q:
+        operation: i64 = input_view[n + 1 + offset]
+        if operation != -1 and (operation < 0 or operation >= n.i64()): return -1
+        offset <- offset + 1
+
+    active_build_centroids(
+        n, 0, adjacency[0:ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_N],
+        blocked[0:ACTIVE_DIAMETER_MAX_N], subtree_size[0:ACTIVE_DIAMETER_MAX_N],
+        record_count[0:ACTIVE_DIAMETER_MAX_N],
+        record_centroid[0:ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS],
+        record_branch[0:ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS],
+        record_distance[0:ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS], 0
+    )
+    centroid: mutable usize = 0
+    while centroid < n:
+        branch: mutable usize = 0
+        while branch <= n:
+            best[centroid * (n + 1) + branch] <- -1
+            branch <- branch + 1
+        centroid <- centroid + 1
+
+    checksum: mutable i64 = 0
+    query_number: mutable i64 = 0
+    offset <- 0
+    while offset < q:
+        operation: i64 = input_view[n + 1 + offset]
+        if operation == -1:
+            query_number <- query_number + 1
+            checksum <- checksum + query_number * (
+                active_diameter(n, best[0:ACTIVE_DIAMETER_MAX_N * (ACTIVE_DIAMETER_MAX_N + 1)]) + 1
+            )
+        else:
+            vertex <- operation.usize()
+            active[vertex] <- if active[vertex] == 0 then 1 else 0
+            record: mutable usize = 0
+            while record < record_count[vertex].usize():
+                index: usize = vertex * ACTIVE_DIAMETER_MAX_LEVELS + record
+                centroid <- record_centroid[index].usize()
+                branch <- record_branch[index].usize()
+                distance: i64 = record_distance[index]
+                if active[vertex] != 0:
+                    if distance > best[centroid * (n + 1) + branch]:
+                        best[centroid * (n + 1) + branch] <- distance
+                elif best[centroid * (n + 1) + branch] == distance:
+                    active_recompute_branch(
+                        n, active[0:ACTIVE_DIAMETER_MAX_N],
+                        record_count[0:ACTIVE_DIAMETER_MAX_N],
+                        record_centroid[0:ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS],
+                        record_branch[0:ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS],
+                        record_distance[0:ACTIVE_DIAMETER_MAX_N * ACTIVE_DIAMETER_MAX_LEVELS],
+                        best[0:ACTIVE_DIAMETER_MAX_N * (ACTIVE_DIAMETER_MAX_N + 1)],
+                        centroid, branch
+                    )
+                record <- record + 1
+        offset <- offset + 1
+    checksum

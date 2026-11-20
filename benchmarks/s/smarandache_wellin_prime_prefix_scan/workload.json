@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "smarandache-wellin-prime-prefix-scan-v1",
+  "algorithm": "smarandache_wellin_prime_prefix_scan",
+  "function_symbol": "smarandache_wellin_prime_prefix_scan",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Smarandache-Wellin-primes",
+    "discovery_title_url": "https://rosettacode.org/wiki/Smarandache-Wellin-primes",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "sequence_definition": "https://oeis.org/A019518",
+    "prime_subsequence": "https://oeis.org/A069151",
+    "primality_bound": "https://ceur-ws.org/Vol-1326/020-Forisek.pdf",
+    "discovery_scope": "The pinned RosettaCodeData index supplied the title only. Sequence definitions and the deterministic primality bound define this original bounded profile; no source code, task wording, examples, or tests are reused."
+  },
+  "contract": {
+    "input_layout": "[count]",
+    "count_range": [0, 6],
+    "sequence_rule": "For k from 1 through count, form the base-10 integer by concatenating the first k ordinary primes in increasing order. Emit the prefix value if it is prime.",
+    "output_order": "Increasing prefix length k.",
+    "output_encoding": "One signed-i64 little-endian word per emitted prefix value.",
+    "maximum_prefix_value": 23571113,
+    "maximum_output_values": 3,
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "validation_precedes_output_capacity": true,
+    "no_write_on_error": true,
+    "empty_count_behavior": "count zero inspects no prefix and succeeds with a zero-byte result when output is non-null."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "bytes",
+    "maximum_bytes": 24,
+    "success_bytes": "8 times the number of prime-valued prefixes among the first count prefixes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Includes three staged u64 result values, a 24-byte serialization buffer, bounded primality constants, and scalar/index state. Caller-owned input/output are excluded."
+  },
+  "complexity": {
+    "primary_time": "Bounded generation of at most six consecutive primes, decimal prefix appends, and three-base Miller-Rabin checks for values below 2^32.",
+    "primary_auxiliary_space": "Constant; at most three staged results and 24 serialization bytes.",
+    "independent_reference_time": "Sieve through 20 for the first six primes, followed by trial division through the square root of each prefix.",
+    "independent_reference_auxiliary_space": "A 21-entry sieve, up to three result values, and bounded scalar state."
+  },
+  "oracle": "benchmarks/s/smarandache_wellin_prime_prefix_scan/primary_oracle.py",
+  "independent_oracle": "benchmarks/s/smarandache_wellin_prime_prefix_scan/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero-prefixes-empty-result",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "first-prefix",
+      "input_values": [1],
+      "input_length": 1,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    },
+    {
+      "id": "two-prefixes",
+      "input_values": [2],
+      "input_length": 1,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000001700000000000000"
+    },
+    {
+      "id": "composite-third-prefix-is-skipped",
+      "input_values": [3],
+      "input_length": 1,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000001700000000000000"
+    },
+    {
+      "id": "prime-fourth-prefix",
+      "input_values": [4],
+      "input_length": 1,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000017000000000000003509000000000000"
+    },
+    {
+      "id": "maximum-prefix-count-and-output",
+      "input_values": [6],
+      "input_length": 1,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000017000000000000003509000000000000",
+      "fixture_note": "The fifth and sixth concatenations are composite; the six-prefix bound still emits only the first, second, and fourth values."
+    },
+    {
+      "id": "count-above-profile-bound",
+      "input_values": [7],
+      "input_length": 1,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative-count",
+      "input_values": [-1],
+      "input_length": 1,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-invalid",
+      "input_values": [0, 9],
+      "input_length": 2,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty-result-null-output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonempty-short-output-capacity",
+      "input_values": [2],
+      "input_length": 1,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ],
+  "description": "Generate bounded decimal concatenations of consecutive primes and retain the prime-valued prefixes."
+}

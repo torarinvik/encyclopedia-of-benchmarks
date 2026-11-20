@@ -1,0 +1,180 @@
+const MCB_MAX_N: usize = 8
+const MCB_MAX_M: usize = 12
+const MCB_MAX_LENGTH: usize = 39
+const MCB_MAX_CANDIDATES: usize = 96
+const MCB_INF: i64 = 0x3fffffffffffffff
+
+struct McbEdge:
+    u: usize
+    v: usize
+    weight: i64
+
+def mcb_cycle_weight(mask: i64, edges: view[McbEdge], m: usize) -> i64:
+    total: mutable i64 = 0
+    e: mutable usize = 0
+    while e < m:
+        if ((mask >> e.u32()) & 1) != 0:
+            total <- total + edges[e].weight
+        e <- e + 1
+    total
+
+def mcb_horton_weight(n: usize, m: usize, edges: view[McbEdge]) -> i64:
+    candidates: mutable i64[MCB_MAX_CANDIDATES] = zeroed
+    costs: mutable i64[MCB_MAX_CANDIDATES] = zeroed
+    candidate_count: mutable usize = 0
+    root: mutable usize = 0
+    while root < n:
+        distance: mutable i64[MCB_MAX_N] = zeroed
+        parent: mutable usize[MCB_MAX_N] = zeroed
+        parent_edge: mutable usize[MCB_MAX_N] = zeroed
+        settled: mutable bool[MCB_MAX_N] = zeroed
+        tree_edge: mutable bool[MCB_MAX_M] = zeroed
+        path_mask: mutable i64[MCB_MAX_N] = zeroed
+        v: mutable usize = 0
+        while v < n:
+            distance[v] <- MCB_INF
+            parent[v] <- MCB_MAX_N
+            parent_edge[v] <- MCB_MAX_M
+            v <- v + 1
+        distance[root] <- 0
+        tie_scale: i64 = (m + 1).i64() * (1.i64() << m.u32())
+        step: mutable usize = 0
+        while step < n:
+            vertex: mutable usize = MCB_MAX_N
+            v <- 0
+            while v < n:
+                if not settled[v] and distance[v] != MCB_INF and
+                        (vertex == MCB_MAX_N or distance[v] < distance[vertex] or (distance[v] == distance[vertex] and v < vertex)):
+                    vertex <- v
+                v <- v + 1
+            if vertex == MCB_MAX_N: break
+            settled[vertex] <- true
+            e: mutable usize = 0
+            while e < m:
+                neighbor: mutable usize = MCB_MAX_N
+                if edges[e].u == vertex: neighbor <- edges[e].v
+                elif edges[e].v == vertex: neighbor <- edges[e].u
+                if neighbor < n and not settled[neighbor]:
+                    candidate: i64 = distance[vertex] + edges[e].weight * tie_scale + (1.i64() << e.u32())
+                    if candidate < distance[neighbor]:
+                        distance[neighbor] <- candidate
+                        parent[neighbor] <- vertex
+                        parent_edge[neighbor] <- e
+                e <- e + 1
+            step <- step + 1
+        v <- 0
+        while v < n:
+            if v != root:
+                cursor: mutable usize = v
+                steps: mutable usize = 0
+                while cursor != root and steps < n:
+                    pe: usize = parent_edge[cursor]
+                    if pe == MCB_MAX_M: return -1
+                    tree_edge[pe] <- true
+                    path_mask[v] <- path_mask[v] | (1.i64() << pe.u32())
+                    cursor <- parent[cursor]
+                    steps <- steps + 1
+                if cursor != root: return -1
+            v <- v + 1
+        e <- 0
+        while e < m:
+            if not tree_edge[e]:
+                cycle: i64 = path_mask[edges[e].u] ^ path_mask[edges[e].v] ^ (1.i64() << e.u32())
+                if cycle != 0:
+                    duplicate: mutable bool = false
+                    i: mutable usize = 0
+                    while i < candidate_count:
+                        if candidates[i] == cycle:
+                            duplicate <- true
+                            break
+                        i <- i + 1
+                    if not duplicate and candidate_count < MCB_MAX_CANDIDATES:
+                        candidates[candidate_count] <- cycle
+                        costs[candidate_count] <- mcb_cycle_weight(cycle, edges, m)
+                        candidate_count <- candidate_count + 1
+            e <- e + 1
+        root <- root + 1
+    i: mutable usize = 0
+    while i < candidate_count:
+        j: mutable usize = i + 1
+        while j < candidate_count:
+            if costs[j] < costs[i] or (costs[j] == costs[i] and candidates[j] < candidates[i]):
+                old_cost: i64 = costs[i]
+                costs[i] <- costs[j]
+                costs[j] <- old_cost
+                old_mask: i64 = candidates[i]
+                candidates[i] <- candidates[j]
+                candidates[j] <- old_mask
+            j <- j + 1
+        i <- i + 1
+    dimension: usize = m - n + 1
+    basis: mutable i64[MCB_MAX_M] = zeroed
+    rank: mutable usize = 0
+    total: mutable i64 = 0
+    i <- 0
+    while i < candidate_count and rank < dimension:
+        residual: mutable i64 = candidates[i]
+        bit: mutable usize = m
+        while bit > 0:
+            bit <- bit - 1
+            if ((residual >> bit.u32()) & 1) == 0: continue
+            if basis[bit] != 0:
+                residual <- residual ^ basis[bit]
+            else:
+                basis[bit] <- residual
+                rank <- rank + 1
+                total <- total + costs[i]
+                break
+        i <- i + 1
+    if rank == dimension: total else: -1
+
+def mcb_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MCB_MAX_LENGTH: return -1
+    if input[0] < 3 or input[0] > MCB_MAX_N.i64(): return -1
+    n: usize = input[0].usize()
+    if input[1] < (n - 1).i64() or input[1] > MCB_MAX_M.i64() or input[1] > (n * (n - 1) / 2).i64(): return -1
+    m: usize = input[1].usize()
+    if length != 2 + 3 * m: return -1
+    edges: mutable McbEdge[MCB_MAX_M] = zeroed
+    adjacent: mutable bool[MCB_MAX_N * MCB_MAX_N] = zeroed
+    previous_u: mutable usize = MCB_MAX_N
+    previous_v: mutable usize = 0
+    e: mutable usize = 0
+    while e < m:
+        ru: i64 = input[2 + 3 * e]
+        rv: i64 = input[3 + 3 * e]
+        weight: i64 = input[4 + 3 * e]
+        if ru < 0 or rv < 0 or ru >= n.i64() or rv >= n.i64() or ru >= rv or weight < 1 or weight > 9: return -1
+        u: usize = ru.usize()
+        v: usize = rv.usize()
+        if e > 0 and (u < previous_u or (u == previous_u and v <= previous_v)): return -1
+        previous_u <- u
+        previous_v <- v
+        edges[e] <- McbEdge{u:u,v:v,weight:weight}
+        adjacent[u * MCB_MAX_N + v] <- true
+        adjacent[v * MCB_MAX_N + u] <- true
+        e <- e + 1
+    seen: mutable bool[MCB_MAX_N] = zeroed
+    queue: mutable usize[MCB_MAX_N] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    seen[0] <- true
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        v: mutable usize = 0
+        while v < n:
+            if adjacent[u * MCB_MAX_N + v] and not seen[v]:
+                seen[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+            v <- v + 1
+    v: mutable usize = 0
+    while v < n:
+        if not seen[v]: return -1
+        v <- v + 1
+    mcb_horton_weight(n,m,edges[0:m])
+
+export fn minimum_cycle_basis_horton(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MCB_MAX_LENGTH: return -1
+    mcb_impl(input[0:length],length)

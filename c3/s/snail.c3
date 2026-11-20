@@ -27,7 +27,7 @@ fn long snail(int* values, usz length, char* output, usz output_capacity) @expor
     if (output == null || output_capacity < required_bytes) return -2;
     if (cell_count == 0) return 0;
 
-    int matrix[MAX_CELLS] = {0};
+    int[MAX_CELLS] matrix = {};
     for (usz index = 0; index < cell_count; index += 1)
         matrix[index] = values[2 + index];
 

@@ -1,0 +1,100 @@
+const BKP_MAX_JOBS: usize = 4
+const BKP_MAX_SAMPLES: usize = 8
+const BKP_MAX_INPUT: usize = 31
+const BKP_MAX_OUTPUT: usize = 136
+const BKP_E_NUM: i64 = 271828
+const BKP_E_DEN: i64 = 100000
+const BKP_EM1_NUM: i64 = 171828
+
+def bkp_gcd(a0: i64, b0: i64) -> i64:
+    a: mutable i64 = a0
+    b: mutable i64 = b0
+    while b != 0:
+        r: i64 = a%b
+        a <- b
+        b <- r
+    if a < 0: return -a
+    a
+
+def bkp_consider(release: view[i64], deadline: view[i64], work: view[i64],
+        n: usize, t: i64, x_num: i64, x_den: i64,
+        best_num: mutable i64&, best_den: mutable i64&) -> void:
+    delta: i64 = x_num-t*x_den
+    if delta <= 0: return
+    left_scaled: i64 = BKP_E_NUM*t*x_den-BKP_EM1_NUM*x_num
+    total: mutable i64 = 0
+    j: mutable usize = 0
+    while j < n:
+        if release[j] <= t and left_scaled <= BKP_E_DEN*x_den*release[j] and deadline[j]*x_den <= x_num:
+            total <- total+work[j]
+        j <- j+1
+    numerator: i64 = total*x_den
+    if numerator*best_den > best_num*delta:
+        best_num <- numerator
+        best_den <- delta
+
+def bkp_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[offset+b] <- ((bits>>(8*b))&255).u8()
+        b <- b+1
+
+def bkp_speed_scaling_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > BKP_MAX_INPUT: return -1
+    n64: i64 = input[0]
+    samples64: i64 = input[1]
+    if n64 < 1 or n64 > BKP_MAX_JOBS.i64() or samples64 < 1 or samples64 > BKP_MAX_SAMPLES.i64(): return -1
+    n: usize = n64.usize()
+    samples: usize = samples64.usize()
+    if length != 2+3*n+2*samples: return -1
+    release: mutable i64[BKP_MAX_JOBS] = zeroed
+    deadline: mutable i64[BKP_MAX_JOBS] = zeroed
+    work: mutable i64[BKP_MAX_JOBS] = zeroed
+    j: mutable usize = 0
+    while j < n:
+        release[j] <- input[2+3*j]
+        deadline[j] <- input[3+3*j]
+        work[j] <- input[4+3*j]
+        if release[j] < 0 or release[j] >= deadline[j] or deadline[j] > 8 or work[j] < 1 or work[j] > 8: return -1
+        j <- j+1
+    values: mutable i64[1+2*BKP_MAX_SAMPLES] = zeroed
+    values[0] <- samples64
+    s: mutable usize = 0
+    while s < samples:
+        t: i64 = input[2+3*n+2*s]
+        mask: i64 = input[3+3*n+2*s]
+        if t < 0 or t > 8 or mask < 0 or mask >= (1i64<<n): return -1
+        j <- 0
+        while j < n:
+            if (mask&(1i64<<j)) != 0 and release[j] > t: return -1
+            j <- j+1
+        best_num: mutable i64 = 0
+        best_den: mutable i64 = 1
+        if mask != 0:
+            j <- 0
+            while j < n:
+                if release[j] <= t:
+                    if deadline[j] > t:
+                        bkp_consider(release[0:n],deadline[0:n],work[0:n],n,t,deadline[j],1,best_num,best_den)
+                    if release[j] < t:
+                        bkp_consider(release[0:n],deadline[0:n],work[0:n],n,t,BKP_E_NUM*t-BKP_E_DEN*release[j],BKP_EM1_NUM,best_num,best_den)
+                j <- j+1
+        divisor: i64 = bkp_gcd(best_num,best_den)
+        values[1+2*s] <- best_num/divisor
+        values[2+2*s] <- best_den/divisor
+        s <- s+1
+    output_bytes: usize = 8*(1+2*samples)
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    i: mutable usize = 0
+    while i < 1+2*samples:
+        bkp_put(values[i],output_view,8*i)
+        i <- i+1
+    output_bytes.i64()
+
+export fn bkp_speed_scaling_trace(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > BKP_MAX_INPUT: return -1
+    bkp_speed_scaling_impl(input[0:length],output,capacity)

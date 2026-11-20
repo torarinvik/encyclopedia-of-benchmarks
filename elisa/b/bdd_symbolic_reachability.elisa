@@ -1,0 +1,243 @@
+const MAX_INPUT: usize = 133
+const MAX_NODES: usize = 17000
+const UNIQUE_CAP: usize = 32768
+
+def bdd_make(variable: usize, low: u16, high: u16,
+             variables: mutable view[u8], lows: mutable view[u16], highs: mutable view[u16],
+             unique: mutable view[u16], next_id: mutable u16&, failed: mutable bool&) -> u16:
+    if low == high: return low
+    slot: mutable usize = (variable * 4099 + low.usize() * 131 + high.usize()) & (UNIQUE_CAP - 1)
+    probes: mutable usize = 0
+    while probes < UNIQUE_CAP:
+        encoded: u16 = unique[slot]
+        if encoded == 0.u16():
+            if next_id[0].usize() >= MAX_NODES:
+                failed[0] <- true
+                return 0.u16()
+            id: u16 = next_id[0]
+            next_id[0] <- (id.u32() + 1).u16()
+            variables[id.usize()] <- variable.u8()
+            lows[id.usize()] <- low
+            highs[id.usize()] <- high
+            unique[slot] <- (id.u32() + 1).u16()
+            return id
+        id: u16 = (encoded.u32() - 1).u16()
+        if variables[id.usize()].usize() == variable and lows[id.usize()] == low and highs[id.usize()] == high:
+            return id
+        slot <- (slot + 1) & (UNIQUE_CAP - 1)
+        probes <- probes + 1
+    failed[0] <- true
+    0.u16()
+
+def bdd_reset_round(relation_end: usize, variables: view[u8], lows: view[u16],
+                   highs: view[u16], unique: mutable view[u16],
+                   next_id: mutable u16&, exists_cache: mutable view[u16],
+                   rename_cache: mutable view[u16]) -> None:
+    i: mutable usize = 0
+    while i < UNIQUE_CAP:
+        unique[i] <- 0.u16()
+        i <- i + 1
+    i <- 0
+    while i < MAX_NODES:
+        exists_cache[i] <- 0.u16()
+        rename_cache[i] <- 0.u16()
+        i <- i + 1
+    next_id[0] <- relation_end.u16()
+    i <- 2
+    while i < relation_end:
+        slot: mutable usize = (variables[i].usize() * 4099 + lows[i].usize() * 131 + highs[i].usize()) & (UNIQUE_CAP - 1)
+        while unique[slot] != 0.u16():
+            slot <- (slot + 1) & (UNIQUE_CAP - 1)
+        unique[slot] <- (i + 1).u16()
+        i <- i + 1
+
+def bdd_top(node: u16, variable_count: usize, variables: view[u8]) -> usize:
+    if node < 2.u16(): return variable_count
+    variables[node.usize()].usize()
+
+def bdd_apply_recursive(left_value: u16, right_value: u16, is_or: bool,
+                        variable_count: usize,
+                        variables: mutable view[u8], lows: mutable view[u16], highs: mutable view[u16],
+                        unique: mutable view[u16], next_id: mutable u16&, failed: mutable bool&) -> u16:
+    if failed[0]: return 0.u16()
+    if is_or:
+        if left_value == 1.u16() or right_value == 1.u16(): return 1.u16()
+        if left_value == 0.u16(): return right_value
+        if right_value == 0.u16() or left_value == right_value: return left_value
+    else:
+        if left_value == 0.u16() or right_value == 0.u16(): return 0.u16()
+        if left_value == 1.u16(): return right_value
+        if right_value == 1.u16() or left_value == right_value: return left_value
+
+    left: mutable u16 = left_value
+    right: mutable u16 = right_value
+    if left > right:
+        swap: u16 = left
+        left <- right
+        right <- swap
+    variable: usize = bdd_top(left, variable_count, variables)
+    right_variable: usize = bdd_top(right, variable_count, variables)
+    if right_variable < variable: variable <- right_variable
+    left_low: mutable u16 = left
+    left_high: mutable u16 = left
+    right_low: mutable u16 = right
+    right_high: mutable u16 = right
+    if left >= 2.u16() and variables[left.usize()].usize() == variable:
+        left_low <- lows[left.usize()]
+        left_high <- highs[left.usize()]
+    if right >= 2.u16() and variables[right.usize()].usize() == variable:
+        right_low <- lows[right.usize()]
+        right_high <- highs[right.usize()]
+    result_low: u16 = bdd_apply_recursive(left_low, right_low, is_or, variable_count,
+        variables, lows, highs, unique, next_id, failed)
+    result_high: u16 = bdd_apply_recursive(left_high, right_high, is_or, variable_count,
+        variables, lows, highs, unique, next_id, failed)
+    result: u16 = bdd_make(variable, result_low, result_high,
+        variables, lows, highs, unique, next_id, failed)
+    if failed[0]: return 0.u16()
+    result
+
+def bdd_apply(left: u16, right: u16, is_or: bool, variable_count: usize,
+              variables: mutable view[u8], lows: mutable view[u16], highs: mutable view[u16],
+              unique: mutable view[u16], next_id: mutable u16&, failed: mutable bool&) -> u16:
+    bdd_apply_recursive(left, right, is_or, variable_count,
+        variables, lows, highs, unique, next_id, failed)
+
+def bdd_truth(bits: view[i64], variable: usize, prefix: usize, variable_count: usize,
+              variables: mutable view[u8], lows: mutable view[u16], highs: mutable view[u16],
+              unique: mutable view[u16], next_id: mutable u16&, failed: mutable bool&) -> u16:
+    if failed[0]: return 0.u16()
+    if variable == variable_count: return bits[prefix].u16()
+    low: u16 = bdd_truth(bits, variable + 1, prefix * 2, variable_count,
+        variables, lows, highs, unique, next_id, failed)
+    high: u16 = bdd_truth(bits, variable + 1, prefix * 2 + 1, variable_count,
+        variables, lows, highs, unique, next_id, failed)
+    bdd_make(variable, low, high, variables, lows, highs, unique, next_id, failed)
+
+def bdd_exists(node: u16, quantified_variables: usize, variable_count: usize,
+               variables: mutable view[u8], lows: mutable view[u16], highs: mutable view[u16],
+               unique: mutable view[u16], next_id: mutable u16&, failed: mutable bool&,
+               exists_cache: mutable view[u16]) -> u16:
+    if failed[0] or node < 2.u16(): return node
+    cached: u16 = exists_cache[node.usize()]
+    if cached != 0.u16(): return (cached.u32() - 1).u16()
+    variable: usize = variables[node.usize()].usize()
+    low: u16 = bdd_exists(lows[node.usize()], quantified_variables, variable_count,
+        variables, lows, highs, unique, next_id, failed, exists_cache)
+    high: u16 = bdd_exists(highs[node.usize()], quantified_variables, variable_count,
+        variables, lows, highs, unique, next_id, failed, exists_cache)
+    result: u16 = if variable < quantified_variables
+        then bdd_apply(low, high, true, variable_count, variables, lows, highs,
+            unique, next_id, failed)
+        else bdd_make(variable, low, high, variables, lows, highs, unique, next_id, failed)
+    if not failed[0]: exists_cache[node.usize()] <- (result.u32() + 1).u16()
+    result
+
+def bdd_rename(node: u16, first_variable: usize,
+               variables: mutable view[u8], lows: mutable view[u16], highs: mutable view[u16],
+               unique: mutable view[u16], next_id: mutable u16&, failed: mutable bool&,
+               rename_cache: mutable view[u16]) -> u16:
+    if failed[0] or node < 2.u16(): return node
+    cached: u16 = rename_cache[node.usize()]
+    if cached != 0.u16(): return (cached.u32() - 1).u16()
+    variable: usize = variables[node.usize()].usize()
+    if variable < first_variable:
+        failed[0] <- true
+        return 0.u16()
+    low: u16 = bdd_rename(lows[node.usize()], first_variable,
+        variables, lows, highs, unique, next_id, failed, rename_cache)
+    high: u16 = bdd_rename(highs[node.usize()], first_variable,
+        variables, lows, highs, unique, next_id, failed, rename_cache)
+    result: u16 = bdd_make(variable - first_variable, low, high,
+        variables, lows, highs, unique, next_id, failed)
+    if not failed[0]: rename_cache[node.usize()] <- (result.u32() + 1).u16()
+    result
+
+def bdd_evaluate(node_value: u16, assignment: usize, variable_count: usize,
+                 variables: view[u8], lows: view[u16], highs: view[u16]) -> usize:
+    node: mutable u16 = node_value
+    while node >= 2.u16():
+        variable: usize = variables[node.usize()].usize()
+        shift: usize = variable_count - variable - 1
+        if ((assignment >> shift) & 1) != 0:
+            node <- highs[node.usize()]
+        else:
+            node <- lows[node.usize()]
+    node.usize()
+
+def bdd_symbolic_reachability_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    values: view[i64] = input[0:length]
+    n_raw: i64 = values[0]
+    m_raw: i64 = values[1]
+    initial_raw: i64 = values[2]
+    invariant_raw: i64 = values[3]
+    if n_raw < 1 or n_raw > 3 or m_raw < 0 or m_raw > 1: return -1
+    n: usize = n_raw.usize()
+    m: usize = m_raw.usize()
+    state_count: usize = 1 << n
+    state_mask: i64 = (1 << state_count) - 1
+    relation_length: usize = 1 << (2 * n + m)
+    if initial_raw < 0 or invariant_raw < 0 or (initial_raw & ~state_mask) != 0 or
+       (invariant_raw & ~state_mask) != 0 or length != 4 + relation_length: return -1
+    i: mutable usize = 0
+    while i < relation_length:
+        if values[4 + i] != 0 and values[4 + i] != 1: return -1
+        i <- i + 1
+
+    variables_array: mutable u8[MAX_NODES] = zeroed
+    lows_array: mutable u16[MAX_NODES] = zeroed
+    highs_array: mutable u16[MAX_NODES] = zeroed
+    unique_array: mutable u16[UNIQUE_CAP] = zeroed
+    exists_cache_array: mutable u16[MAX_NODES] = zeroed
+    rename_cache_array: mutable u16[MAX_NODES] = zeroed
+    next_id: mutable u16 = 2.u16()
+    variable_count: usize = 2 * n + m
+    failed: mutable bool = false
+    variables: mutable view[u8] = variables_array[0:MAX_NODES]
+    lows: mutable view[u16] = lows_array[0:MAX_NODES]
+    highs: mutable view[u16] = highs_array[0:MAX_NODES]
+    unique: mutable view[u16] = unique_array[0:UNIQUE_CAP]
+    exists_cache: mutable view[u16] = exists_cache_array[0:MAX_NODES]
+    rename_cache: mutable view[u16] = rename_cache_array[0:MAX_NODES]
+
+    relation_bits: view[i64] = values[4:length]
+    relation: u16 = bdd_truth(relation_bits, 0, 0, variable_count,
+        variables, lows, highs, unique, next_id, failed)
+    if failed: return -1
+    relation_end: usize = next_id.usize()
+    reached_mask: mutable usize = initial_raw.usize()
+    iteration: mutable usize = 0
+    while iteration <= state_count:
+        bdd_reset_round(relation_end, variables, lows, highs, unique,
+            next_id, exists_cache, rename_cache)
+        reached_bits_array: mutable i64[8] = zeroed
+        reached_bits: mutable view[i64] = reached_bits_array[0:state_count]
+        state: mutable usize = 0
+        while state < state_count:
+            reached_bits[state] <- ((reached_mask >> state) & 1).i64()
+            state <- state + 1
+        reached: u16 = bdd_truth(reached_bits, 0, 0, n,
+            variables, lows, highs, unique, next_id, failed)
+        product: u16 = bdd_apply(reached, relation, false, variable_count,
+            variables, lows, highs, unique, next_id, failed)
+        next_set: u16 = bdd_exists(product, n + m, variable_count,
+            variables, lows, highs, unique, next_id, failed, exists_cache)
+        next_set <- bdd_rename(next_set, n + m,
+            variables, lows, highs, unique, next_id, failed, rename_cache)
+        joined: u16 = bdd_apply(reached, next_set, true, variable_count,
+            variables, lows, highs, unique, next_id, failed)
+        if failed: return -1
+        if joined == reached: break
+        reached_mask <- 0
+        state <- 0
+        while state < state_count:
+            reached_mask <- reached_mask | (bdd_evaluate(joined.u16(), state, n, variables, lows, highs) << state)
+            state <- state + 1
+        if iteration == state_count: return -1
+        iteration <- iteration + 1
+
+    violation: usize = if (reached_mask & invariant_raw.usize()) != reached_mask then 1 else 0
+    ((reached_mask << 1) | violation).i64()
+
+export fn bdd_symbolic_reachability(input: i64&, length: usize) -> i64 = bdd_symbolic_reachability_impl

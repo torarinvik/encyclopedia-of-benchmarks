@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "oi-wiki-entringer-number-i64-array-scalar-v1",
+  "algorithm": "entringer_number",
+  "function_symbol": "entringer_number",
+  "abi": "i64_array_scalar",
+  "description": "Return one Entringer-triangle count of down-up alternating permutations grouped by first value.",
+  "source": {
+    "title": "Entringer Number",
+    "authors": ["OI Wiki contributors"],
+    "reference": "Entringer triangle recurrence",
+    "url": "https://oi-wiki.org/math/combinatorics/entringer/",
+    "cross_references": [
+      "https://oeis.org/A008281",
+      "https://oeis.org/A000111"
+    ],
+    "algorithm_attribution": "E(0,0)=1; E(n,0)=0 for n>0; E(n,k)=E(n,k-1)+E(n-1,n-k)",
+    "implementation_status": "clean-room bounded recurrence profile"
+  },
+  "input": {
+    "kind": "two_element_signed_64_bit_array_[n,k]",
+    "n_range": [0, 12],
+    "k_range": [0, 12],
+    "k_constraint": "k<=n",
+    "permutation_values": "0 through n",
+    "alternation": "first comparison is down: p[0]>p[1]<p[2]>p[3]<...",
+    "invalid_result": -1,
+    "exact_valid_length": 2,
+    "maximum_parseable_length": 3
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "number of qualifying permutations whose first value is k",
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Two fixed 13-entry i64 rows use 208 bytes; remaining capacity covers scalar locals and ABI state."
+  },
+  "complexity": {
+    "primary_time": "O(n^2)",
+    "primary_extra_space": "O(n)",
+    "independent_reference": "subset-state permutation count, O(n^2*2^n) time and O(n*2^n) storage"
+  },
+  "cases": [
+    {"id":"empty", "input_values":[], "input_length":0, "expected_result":-1},
+    {"id":"one_value", "input_values":[4], "input_length":1, "expected_result":-1},
+    {"id":"extra_value", "input_values":[4,2,0], "input_length":3, "expected_result":-1},
+    {"id":"empty-permutation-base", "input_values":[0,0], "input_length":2, "expected_result":1},
+    {"id":"single-position-first-value", "input_values":[1,1], "input_length":2, "expected_result":1},
+    {"id":"n-one-zero-entry", "input_values":[1,0], "input_length":2, "expected_result":0},
+    {"id":"n-two-first-low", "input_values":[2,1], "input_length":2, "expected_result":1},
+    {"id":"n-three-middle", "input_values":[3,2], "input_length":2, "expected_result":2},
+    {"id":"n-four-first-low", "input_values":[4,1], "input_length":2, "expected_result":2},
+    {"id":"n-five-middle", "input_values":[5,3], "input_length":2, "expected_result":14},
+    {"id":"n-eight-interior", "input_values":[8,6], "input_length":2, "expected_result":1324},
+    {"id":"maximum-n-diagonal", "input_values":[12,12], "input_length":2, "expected_result":2702765},
+    {"id":"maximum-n-zero-column", "input_values":[12,0], "input_length":2, "expected_result":0},
+    {"id":"negative-n", "input_values":[-1,0], "input_length":2, "expected_result":-1},
+    {"id":"n-above-bound", "input_values":[13,0], "input_length":2, "expected_result":-1},
+    {"id":"negative-k", "input_values":[4,-1], "input_length":2, "expected_result":-1},
+    {"id":"k-above-n", "input_values":[4,5], "input_length":2, "expected_result":-1},
+    {"id":"i64-min-n", "input_values":[-9223372036854775808,0], "input_length":2, "expected_result":-1},
+    {"id":"i64-max-k", "input_values":[4,9223372036854775807], "input_length":2, "expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

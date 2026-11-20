@@ -1,0 +1,40 @@
+const MAX_VALUES: usize = 64
+const MAX_INPUT_LENGTH: usize = 66
+const MAX_FUNCTION_VALUE: i64 = 1000000
+
+def sum_over_subsets_zeta_transform_run(values: mutable view[i64],
+        bit_count: usize, state_count: usize) -> i64:
+    bit_index: mutable usize = 0
+    while bit_index < bit_count:
+        bit_mask: usize = 1 << bit_index
+        mask: mutable usize = 0
+        while mask < state_count:
+            if (mask & bit_mask) != 0:
+                values[mask] <- values[mask] + values[mask ^ bit_mask]
+            mask <- mask + 1
+        bit_index <- bit_index + 1
+    checksum: mutable i64 = 0
+    mask <- 0
+    while mask < state_count:
+        checksum <- checksum + (mask + 1).i64() * values[mask]
+        mask <- mask + 1
+    checksum
+
+export fn sum_over_subsets_zeta_transform(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    bit_count64: i64 = input[0]
+    if bit_count64 < 0 or bit_count64 > 6:
+        return -1
+    bit_count: usize = bit_count64.usize()
+    state_count: usize = 1 << bit_count
+    if length != state_count + 1:
+        return -1
+
+    values: mutable i64[MAX_VALUES] = zeroed
+    for mask in 0..<state_count:
+        value: i64 = input[mask + 1]
+        if value < 0 or value > MAX_FUNCTION_VALUE:
+            return -1
+        values[mask] <- value
+    sum_over_subsets_zeta_transform_run(values[0:state_count], bit_count, state_count)

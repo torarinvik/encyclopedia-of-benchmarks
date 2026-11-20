@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "fenwick-weighted-segment-tree-range-kth-i64-array-scalar-v1",
+  "algorithm": "fenwick_weighted_segment_tree_range_kth",
+  "function_symbol": "fenwick_weighted_segment_tree_range_kth",
+  "abi": "i64_array_scalar",
+  "description": "Point replacement and dynamic range k-th selection using a Fenwick tree of weighted value segment trees.",
+  "source": {
+    "title": "OI Wiki: Fenwick Tree of Segment Trees",
+    "authors": ["OI Wiki contributors"],
+    "urls": ["https://www.timothywang.ca/OI-wiki/ds/seg-in-bit/"],
+    "algorithm_attribution": "Dynamic range order statistics from Fenwick prefix roots and weighted value trees",
+    "implementation_status": "clean-room implementations from the published algorithmic method"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, q, initial[n], operation_rows...]; each row has four words",
+    "operation_row_width": 4,
+    "operations": {
+      "point_replacement": "[0, zero_based_position, new_value, 0]",
+      "range_kth": "[1, zero_based_left, zero_based_exclusive_right, one_based_k]"
+    },
+    "n_range": [1, 12],
+    "operation_count_range": [0, 16],
+    "value_range": [-30, 30],
+    "query_constraints": "0 <= left < right <= n; 1 <= k <= right-left",
+    "exact_length": "2 + n + 4*q",
+    "maximum_valid_length": 78,
+    "maximum_parseable_length": 79,
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "sum(query_ordinal * selected_value), with one-based query ordinals",
+    "invalid_input_result": -9223372036854775808,
+    "maximum_query_count": 16,
+    "maximum_absolute_value": 30,
+    "result_range": [-4080, 4080]
+  },
+  "contract": {
+    "outer_structure": "one-based Fenwick tree over array positions",
+    "inner_structure": "mutable weighted segment tree over the 61 ordered values -30 through 30",
+    "query_method": "descend the Fenwick roots for right and left prefixes together using signed count differences",
+    "update_semantics": "remove the old value and insert its replacement along the position Fenwick path",
+    "node_capacity": 1280,
+    "malformed_frame_result": -9223372036854775808,
+    "no_query_result": 0
+  },
+  "complexity": {
+    "point_replacement": "O(log n * log V)",
+    "range_kth": "O(log n * log V)",
+    "storage": "O(n * log n * log V) bounded by the declared node capacity"
+  },
+  "cases": [
+    {"id":"no-operations","input_values":[3,0,-1,0,5],"input_length":5,"expected_result":0},
+    {"id":"single-value-query","input_values":[1,1,-4,1,0,1,1],"input_length":7,"expected_result":-4},
+    {"id":"replacement-changes-query-answer","input_values":[4,3,5,1,7,3,1,0,4,2,0,1,6,0,1,1,4,2],"input_length":18,"expected_result":13},
+    {"id":"duplicates-negative-values-and-range-offset","input_values":[5,4,-2,4,-2,1,4,1,0,5,3,0,0,4,0,1,0,3,2,0,1,2,5,3],"input_length":23,"expected_result":21},
+    {"id":"updates-only","input_values":[3,2,1,2,3,0,1,-4,0,0,2,30,0],"input_length":13,"expected_result":0},
+    {"id":"maximum-valid-frame-and-query-ordinal","input_values":[
+      12,16,
+      1,1,1,1, 1,1,1,1, 1,1,1,1,
+      1,0,12,1, 1,0,12,1, 1,0,12,1, 1,0,12,1,
+      1,0,12,1, 1,0,12,1, 1,0,12,1, 1,0,12,1,
+      1,0,12,1, 1,0,12,1, 1,0,12,1, 1,0,12,1,
+      1,0,12,1, 1,0,12,1, 1,0,12,1, 1,0,12,1
+    ],"input_length":78,"expected_result":136},
+    {"id":"invalid-query-rank","input_values":[2,1,1,2,1,0,2,3],"input_length":8,"expected_result":-9223372036854775808},
+    {"id":"empty-query-range","input_values":[2,1,1,2,1,1,1,1],"input_length":8,"expected_result":-9223372036854775808},
+    {"id":"invalid-update-padding","input_values":[1,1,0,0,1,2],"input_length":6,"expected_result":-9223372036854775808},
+    {"id":"replacement-outside-value-domain","input_values":[1,1,0,0,0,31,0],"input_length":7,"expected_result":-9223372036854775808},
+    {"id":"unknown-operation","input_values":[1,1,0,7,0,0,0],"input_length":7,"expected_result":-9223372036854775808},
+    {"id":"truncated-operation","input_values":[2,1,1,2,1,0,2],"input_length":7,"expected_result":-9223372036854775808},
+    {"id":"trailing-word","input_values":[1,0,4,99],"input_length":4,"expected_result":-9223372036854775808},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-9223372036854775808}
+  ]
+}

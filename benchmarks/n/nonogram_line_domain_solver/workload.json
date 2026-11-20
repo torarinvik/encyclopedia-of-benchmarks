@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "nonogram-line-domain-i64-array-bytes-output-v1",
+  "algorithm": "nonogram_line_domain_solver",
+  "function_symbol": "nonogram_line_domain_solver",
+  "abi": "i64_array_bytes_output",
+  "comparison_model": "i64_array_bytes_output_call",
+  "description": "Bounded binary-nonogram solving by line-domain support propagation and ordered search.",
+  "source": {
+    "discovery_title": "Rosetta Code: Nonogram solver",
+    "discovery_url": "https://rosettagit.org/tasks/nonogram-solver/",
+    "paper_title": "An Efficient Approach to Solving Nonograms",
+    "paper_doi": "10.1109/TCIAIG.2013.2251884",
+    "paper_url": "https://doi.org/10.1109/TCIAIG.2013.2251884",
+    "algorithm_scope": "The cited paper motivates line-solving and search; the bounded support-propagation profile is specified independently. No task text or source code is reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[height,width, row clue blocks, column clue blocks]; each line block is [count,run0,run1,run2,run3]",
+    "height_range": [1, 8],
+    "width_range": [1, 8],
+    "maximum_runs_per_line": 4,
+    "unused_run_slots": 0,
+    "maximum_valid_length": 82,
+    "maximum_parseable_length": 83,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "row-major cell values, each byte exactly 0 or 1",
+    "maximum_bytes": 64,
+    "success_result": "height*width",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Maximum caller-provided output buffer; bounded solver state is separate."
+  },
+  "working_memory": {
+    "maximum_bytes": 65536,
+    "meaning": "Conservative bound for fixed line domains and recursive domain snapshots."
+  },
+  "contract": {
+    "domain_rule": "A line pattern belongs to its domain exactly when its maximal one-runs equal the clue list.",
+    "propagation_rule": "At each crossing, remove patterns with no row/column pattern supporting the same cell bit; repeat to a fixed point.",
+    "branch_rule": "Choose the first unresolved row and try its masks in ascending unsigned order.",
+    "output_rule": "Emit the first valid row-mask tuple in row-major byte order, with bit c corresponding to column c.",
+    "unsatisfiable_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {
+      "id": "single-empty-cell",
+      "input_values": [1,1,0,0,0,0,0,0,0,0,0,0],
+      "input_length": 12,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "single-filled-cell",
+      "input_values": [1,1,1,1,0,0,0,1,1,0,0,0],
+      "input_length": 12,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "01"
+    },
+    {
+      "id": "forced-cross",
+      "input_values": [3,3,1,1,0,0,0,1,3,0,0,0,1,1,0,0,0,1,1,0,0,0,1,3,0,0,0,1,1,0,0,0],
+      "input_length": 32,
+      "output_capacity": 9,
+      "expected_result": 9,
+      "expected_output_hex": "000100010101000100"
+    },
+    {
+      "id": "ambiguous-2x2-first-row-mask-tie",
+      "input_values": [2,2,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0],
+      "input_length": 22,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "01000001"
+    },
+    {
+      "id": "inconsistent-row-column-total",
+      "input_values": [2,2,1,2,0,0,0,1,2,0,0,0,1,1,0,0,0,1,1,0,0,0],
+      "input_length": 22,
+      "output_capacity": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-run-count",
+      "input_values": [1,1,5,1,1,1,1,0,0,0,0,0],
+      "input_length": 12,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra-input-word",
+      "input_values": [1,1,1,1,0,0,0,1,1,0,0,0,0],
+      "input_length": 13,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "forced-cross-short-output",
+      "input_values": [3,3,1,1,0,0,0,1,3,0,0,0,1,1,0,0,0,1,1,0,0,0,1,3,0,0,0,1,1,0,0,0],
+      "input_length": 32,
+      "output_capacity": 8,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single-cell-null-output",
+      "input_values": [1,1,1,1,0,0,0,1,1,0,0,0],
+      "input_length": 12,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 64,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

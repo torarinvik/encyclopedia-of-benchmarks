@@ -14,7 +14,7 @@ fn void put_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long list_based_stack(long* input, usz length, char* output, usz capacity)
+fn long list_based_stack(long* input, usz length, char* output, usz capacity)
         @export("list_based_stack") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
     long raw_initial_count = input[0];
@@ -23,7 +23,7 @@ long list_based_stack(long* input, usz length, char* output, usz capacity)
     usz operation_count_index = 1 + initial_count;
     if (operation_count_index >= length) return -1;
 
-    long initial_items[32];
+    long[32] initial_items;
     for (usz index = 0; index < initial_count; index += 1) {
         long value = input[1 + index];
         if (value < -2147483648 || value > 2147483647) return -1;
@@ -33,7 +33,8 @@ long list_based_stack(long* input, usz length, char* output, usz capacity)
     long raw_operation_count = input[operation_count_index];
     if (raw_operation_count < 0 || raw_operation_count > 64) return -1;
     usz operation_count = (usz)raw_operation_count;
-    long opcodes[64], arguments[64];
+    long[64] opcodes;
+    long[64] arguments;
     usz cursor = operation_count_index + 1;
     usz validated_size = initial_count;
     for (usz index = 0; index < operation_count; index += 1) {
@@ -59,11 +60,11 @@ long list_based_stack(long* input, usz length, char* output, usz capacity)
     }
     if (cursor != length) return -1;
 
-    long stack[96];
+    long[96] stack;
     usz stack_size = initial_count;
     for (usz index = 0; index < initial_count; index += 1)
         stack[index] = initial_items[index];
-    char buffer[1024];
+    char[1024] buffer;
     usz written = 0;
     for (usz index = 0; index < operation_count; index += 1) {
         long opcode = opcodes[index];

@@ -22,11 +22,11 @@ fn long numeric_string_sort(long* values, usz length, u8* output, usz output_cap
     if (values == null || length == 0 || length > MAX_INPUT_LENGTH + 1) return -1;
     if (values[0] < 0 || values[0] > MAX_ITEMS) return -1;
     usz count = (usz)values[0];
-    usz starts[MAX_ITEMS];
-    usz lengths[MAX_ITEMS];
-    usz normalized_starts[MAX_ITEMS];
-    usz normalized_lengths[MAX_ITEMS];
-    usz order[MAX_ITEMS];
+    usz[MAX_ITEMS] starts;
+    usz[MAX_ITEMS] lengths;
+    usz[MAX_ITEMS] normalized_starts;
+    usz[MAX_ITEMS] normalized_lengths;
+    usz[MAX_ITEMS] order;
     usz cursor = 1;
     usz output_length = count == 0 ? 0 : count - 1;
 

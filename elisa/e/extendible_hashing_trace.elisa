@@ -1,0 +1,172 @@
+# Fixed-array extendible-hashing trace. Pointer access is limited to the FFI boundary.
+const MAX_OPS: usize = 40
+const MAX_WORDS: usize = 82
+const KEY_COUNT: usize = 256
+
+def extendible_hashing_trace_impl(input: view[i64]) -> i64:
+    if input.length < 1 or input.length > MAX_WORDS:
+        return -1
+    q_value: i64 = input[0]
+    if q_value < 0 or q_value > i64(MAX_OPS) or input.length != usize(1 + 2 * q_value):
+        return -1
+    q: usize = q_value.usize()
+    index: mutable usize = 0
+    while index < q:
+        opcode: i64 = input[1 + 2 * index]
+        key: i64 = input[2 + 2 * index]
+        if opcode < 0 or opcode > 2 or key < 0 or key > 255:
+            return -1
+        index <- index + 1
+
+    directory: mutable u8[256] = zeroed
+    keys: mutable u8[512] = zeroed
+    counts: mutable u8[256] = zeroed
+    depths: mutable u8[256] = zeroed
+    active: mutable u8[256] = zeroed
+    directory[0] <- 0
+    directory[1] <- 1
+    active[0] <- 1
+    active[1] <- 1
+    depths[0] <- 1
+    depths[1] <- 1
+    gd: mutable usize = 1
+    high: mutable usize = 1
+    bucket_count: mutable usize = 2
+    live: mutable usize = 0
+    successes: mutable u64 = 0
+    index <- 0
+    while index < q:
+        opcode: usize = input[1 + 2 * index].usize()
+        key: usize = input[2 + 2 * index].usize()
+        mask: usize = (1 << gd) - 1
+        bucket: mutable usize = directory[key & mask].usize()
+        slot: mutable usize = 2
+        scan: mutable usize = 0
+        while scan < counts[bucket].usize():
+            if keys[2 * bucket + scan].usize() == key:
+                slot <- scan
+                break
+            scan <- scan + 1
+        success: mutable u64 = 0
+        if opcode == 0 and slot == 2:
+            while counts[bucket] == 2:
+                depth: usize = depths[bucket].usize()
+                if depth >= 8:
+                    break
+                if depth == gd:
+                    old_size: usize = 1 << gd
+                    scan <- 0
+                    while scan < old_size:
+                        directory[scan + old_size] <- directory[scan]
+                        scan <- scan + 1
+                    gd <- gd + 1
+                    if gd > high:
+                        high <- gd
+                fresh: mutable usize = 0
+                while fresh < KEY_COUNT and active[fresh] != 0:
+                    fresh <- fresh + 1
+                if fresh == KEY_COUNT:
+                    break
+                active[fresh] <- 1
+                depths[bucket] <- (depth + 1).u8()
+                depths[fresh] <- (depth + 1).u8()
+                old_count: usize = counts[bucket].usize()
+                old_key0: u8 = keys[2 * bucket]
+                old_key1: u8 = keys[2 * bucket + 1]
+                counts[bucket] <- 0
+                counts[fresh] <- 0
+                keys[2 * bucket] <- 0
+                keys[2 * bucket + 1] <- 0
+                keys[2 * fresh] <- 0
+                keys[2 * fresh + 1] <- 0
+                split_bit: usize = 1 << depth
+                dir_size: usize = 1 << gd
+                scan <- 0
+                while scan < dir_size:
+                    if directory[scan].usize() == bucket and (scan & split_bit) != 0:
+                        directory[scan] <- fresh.u8()
+                    scan <- scan + 1
+                move_index: mutable usize = 0
+                while move_index < old_count:
+                    value: usize = if move_index == 0: old_key0.usize() else: old_key1.usize()
+                    target: usize = if (value & split_bit) != 0: fresh else: bucket
+                    destination: usize = 2 * target + counts[target].usize()
+                    keys[destination] <- value.u8()
+                    counts[target] <- counts[target] + 1
+                    move_index <- move_index + 1
+                bucket <- directory[key & ((1 << gd) - 1)].usize()
+            if counts[bucket] < 2:
+                keys[2 * bucket + counts[bucket].usize()] <- key.u8()
+                counts[bucket] <- counts[bucket] + 1
+                live <- live + 1
+                success <- 1
+        elif opcode == 1 and slot < 2:
+            counts[bucket] <- counts[bucket] - 1
+            last: usize = counts[bucket].usize()
+            keys[2 * bucket + slot] <- keys[2 * bucket + last]
+            keys[2 * bucket + last] <- 0
+            live <- live - 1
+            success <- 1
+            while depths[bucket] > 1:
+                depth: usize = depths[bucket].usize()
+                dir_size: usize = 1 << gd
+                representative: mutable usize = dir_size
+                scan <- 0
+                while scan < dir_size:
+                    if directory[scan].usize() == bucket:
+                        representative <- scan
+                        break
+                    scan <- scan + 1
+                if representative == dir_size:
+                    break
+                prefix: usize = representative & ((1 << depth) - 1)
+                buddy_prefix: usize = prefix ^ (1 << (depth - 1))
+                buddy: usize = directory[buddy_prefix].usize()
+                if buddy == bucket or active[buddy] == 0 or depths[buddy].usize() != depth or counts[bucket].usize() + counts[buddy].usize() > 2:
+                    break
+                keep: mutable usize = bucket
+                drop: mutable usize = buddy
+                if buddy_prefix < prefix:
+                    keep <- buddy
+                    drop <- bucket
+                keep_count: usize = counts[keep].usize()
+                drop_count: usize = counts[drop].usize()
+                move_index <- 0
+                while move_index < drop_count:
+                    keys[2 * keep + keep_count + move_index] <- keys[2 * drop + move_index]
+                    move_index <- move_index + 1
+                counts[keep] <- counts[keep] + counts[drop]
+                counts[drop] <- 0
+                keys[2 * drop] <- 0
+                keys[2 * drop + 1] <- 0
+                depths[keep] <- (depth - 1).u8()
+                active[drop] <- 0
+                scan <- 0
+                while scan < dir_size:
+                    if directory[scan].usize() == drop:
+                        directory[scan] <- keep.u8()
+                    scan <- scan + 1
+                bucket_count <- bucket_count - 1
+                bucket <- keep
+            while gd > 1:
+                half: usize = 1 << (gd - 1)
+                mirror: mutable bool = True
+                scan <- 0
+                while scan < half:
+                    if directory[scan] != directory[scan + half]:
+                        mirror <- False
+                        break
+                    scan <- scan + 1
+                if not mirror:
+                    break
+                gd <- gd - 1
+        elif opcode == 2 and slot < 2:
+            success <- 1
+        successes <- (successes << 1) | success
+        index <- index + 1
+    (successes | (bucket_count.u64() << 40) | (gd.u64() << 49) | (high.u64() << 53) | (live.u64() << 57)).i64()
+
+export fn extendible_hashing_trace(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_WORDS:
+        return -1
+    extendible_hashing_trace_impl(input[0:length])

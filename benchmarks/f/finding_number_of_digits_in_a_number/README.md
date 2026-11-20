@@ -30,8 +30,13 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/f/finding_number_
 | C3 | [`c3/f/finding_number_of_digits_in_a_number.c3`](../../../c3/f/finding_number_of_digits_in_a_number.c3) |
 | C++ | [`cpp/f/finding_number_of_digits_in_a_number.cpp`](../../../cpp/f/finding_number_of_digits_in_a_number.cpp) |
 | Elisa | [`elisa/f/finding_number_of_digits_in_a_number.elisa`](../../../elisa/f/finding_number_of_digits_in_a_number.elisa) |
+| Mojo | [`mojo/f/finding_number_of_digits_in_a_number.mojo`](../../../mojo/f/finding_number_of_digits_in_a_number.mojo) |
 | Nim | [`nim/f/finding_number_of_digits_in_a_number.nim`](../../../nim/f/finding_number_of_digits_in_a_number.nim) |
 | Odin | [`odin/f/finding_number_of_digits_in_a_number.odin`](../../../odin/f/finding_number_of_digits_in_a_number.odin) |
 | Rust | [`rust/f/finding_number_of_digits_in_a_number.rs`](../../../rust/f/finding_number_of_digits_in_a_number.rs) |
 | V | [`v/f/finding_number_of_digits_in_a_number.v`](../../../v/f/finding_number_of_digits_in_a_number.v) |
 | Zig | [`zig/f/finding_number_of_digits_in_a_number.zig`](../../../zig/f/finding_number_of_digits_in_a_number.zig) |
+
+Scalar verifier registration and a decimal-string reference are drafted and
+have not been executed. This divide-by-ten loop differs from the local
+`number_of_digits` implementation, which divides by 10,000 per iteration.

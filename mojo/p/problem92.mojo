@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p92_sqsum(v_in:Int)->Int:
     var v=v_in;var total=0
     while v!=0:let d=v%10;total+=d*d;v//=10

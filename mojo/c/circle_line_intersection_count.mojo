@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 
@@ -34,7 +35,7 @@ fn circle_line_intersection_count(input: UnsafePointer[Int64, ImmutAnyOrigin], l
         b_values[query] = b
         c_values[query] = c
     let needed = 8 * query_count
-    if needed > 0 and (output == UnsafePointer[UInt8, MutAnyOrigin]() or Int(capacity) < needed):
+    if needed > 0 and (output == UnsafePointer[UInt8, MutAnyOrigin]() or capacity < c_size_t(needed)):
         return -2
 
     var staged = InlineArray[UInt8, 256]()

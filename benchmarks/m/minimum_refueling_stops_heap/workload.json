@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "minimum-refueling-stops-heap-i64-array-scalar-v1",
+  "algorithm": "minimum_refueling_stops_heap",
+  "function_symbol": "minimum_refueling_stops_heap",
+  "abi": "i64_array_scalar",
+  "description": "Minimum selected refueling stops on a one-way route via a greedy maximum-fuel heap.",
+  "source": {
+    "title": "LeetCode 871: Minimum Number of Refueling Stops",
+    "authors": ["LeetCode editorial contributors"],
+    "reference": "Official problem statement and editorial; greedy max-heap approach",
+    "url": "https://leetcode.com/problems/minimum-number-of-refueling-stops/",
+    "editorial_url": "https://leetcode.com/problems/minimum-number-of-refueling-stops/editorial/",
+    "algorithm_attribution": "Greedy minimum refueling stops using a max-heap of reachable station fuel amounts",
+    "implementation_status": "clean-room implementations from the published problem and algorithm description"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[target, start_fuel, n, position_0, fuel_0, ...]",
+    "target_range": [1, 2000],
+    "start_fuel_range": [0, 2000],
+    "station_count_range": [0, 8],
+    "station_position_range": "strictly increasing integers in 1..target-1",
+    "station_fuel_range": [1, 2000],
+    "exact_length": "3 + 2*n",
+    "maximum_valid_length": 19,
+    "maximum_parseable_length": 20,
+    "station_at_current_reach_is_reachable": true,
+    "exact_zero_fuel_arrival_is_success": true,
+    "invalid_input_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "minimum number of refueling stops, or -1 if a valid trip is impossible",
+    "invalid_input_result": -2,
+    "maximum_stop_count": 8
+  },
+  "contract": {
+    "heap_order": "maximum station fuel first",
+    "deferred_choice": "only choose a reachable station when current reach must increase",
+    "stations_consumed_at_most_once": true,
+    "reachable_stations_inserted_synchronously_before_each_choice": true,
+    "invalid_input_result": -2,
+    "impossible_trip_result": -1
+  },
+  "complexity": {
+    "time": "O(n log n)",
+    "auxiliary_space": "O(n)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "multi-stop-greedy-choice",
+      "input_values": [100, 10, 4, 10, 60, 20, 30, 30, 30, 60, 40],
+      "input_length": 11,
+      "expected_result": 2
+    },
+    {
+      "id": "already-within-initial-reach",
+      "input_values": [100, 100, 2, 10, 1, 90, 1],
+      "input_length": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "exact-fuel-arrival",
+      "input_values": [100, 10, 1, 10, 90],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "no-stations-impossible",
+      "input_values": [50, 10, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "zero-start-fuel-boundary",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "first-station-unreachable",
+      "input_values": [50, 10, 1, 11, 100],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum-station-count",
+      "input_values": [900, 100, 8, 100, 100, 200, 100, 300, 100, 400, 100, 500, 100, 600, 100, 700, 100, 800, 100],
+      "input_length": 19,
+      "expected_result": 8
+    },
+    {
+      "id": "duplicate-station-position",
+      "input_values": [100, 10, 2, 10, 20, 10, 30],
+      "input_length": 7,
+      "expected_result": -2
+    },
+    {
+      "id": "station-at-destination",
+      "input_values": [100, 10, 1, 100, 20],
+      "input_length": 5,
+      "expected_result": -2
+    },
+    {
+      "id": "zero-station-fuel",
+      "input_values": [100, 10, 1, 10, 0],
+      "input_length": 5,
+      "expected_result": -2
+    },
+    {
+      "id": "truncated-station-row",
+      "input_values": [100, 10, 1, 10],
+      "input_length": 4,
+      "expected_result": -2
+    },
+    {
+      "id": "trailing-input-value",
+      "input_values": [100, 10, 0, 7],
+      "input_length": 4,
+      "expected_result": -2
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -2
+    }
+  ]
+}

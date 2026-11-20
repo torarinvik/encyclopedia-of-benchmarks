@@ -1,0 +1,142 @@
+const MAX_N: usize = 8
+const MAX_VERTICES: usize = 2 * MAX_N + 2
+const MAX_CYCLES: usize = MAX_N + 1
+const MAX_INPUT: usize = MAX_N + 2
+const MAX_OUTPUT_WORDS: usize = 1 + 3 * MAX_CYCLES
+const MAX_OUTPUT: usize = 8 * MAX_OUTPUT_WORDS
+
+def store_word(value: i64, output: mutable view[u8], word: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def signed_permutation_overlap_forest_components_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > MAX_N.i64() or length != n_value.usize() + 1: return -1
+    n: usize = n_value.usize()
+    vertex_count: usize = 2 * n + 2
+
+    permutation: mutable usize[MAX_VERTICES] = zeroed
+    permutation[vertex_count - 1] <- vertex_count - 1
+    seen: mutable bool[MAX_N + 1] = zeroed
+    position: mutable usize = 0
+    while position < n:
+        gene: i64 = input[position + 1]
+        if gene == 0 or gene < -n_value or gene > n_value: return -1
+        absolute: mutable i64 = gene
+        if absolute < 0: absolute <- -absolute
+        if seen[absolute.usize()]: return -1
+        seen[absolute.usize()] <- true
+        left: mutable usize = 2 * absolute.usize() - 1
+        right: mutable usize = 2 * absolute.usize()
+        if gene < 0:
+            temporary: usize = left
+            left <- right
+            right <- temporary
+        permutation[2 * position + 1] <- left
+        permutation[2 * position + 2] <- right
+        position <- position + 1
+
+    gray: mutable usize[MAX_VERTICES] = zeroed
+    pair: mutable usize = 0
+    while pair <= n:
+        left: usize = permutation[2 * pair]
+        right: usize = permutation[2 * pair + 1]
+        gray[left] <- right
+        gray[right] <- left
+        pair <- pair + 1
+    cycle_of: mutable i64[MAX_VERTICES] = zeroed
+    vertex: mutable usize = 0
+    while vertex < MAX_VERTICES:
+        cycle_of[vertex] <- -1
+        vertex <- vertex + 1
+    begin: mutable usize[MAX_CYCLES] = zeroed
+    end: mutable usize[MAX_CYCLES] = zeroed
+    cycle_count: mutable usize = 0
+    seed: mutable usize = 0
+    while seed < vertex_count:
+        if cycle_of[seed] < 0:
+            cid: usize = cycle_count
+            cycle_count <- cycle_count + 1
+            vertex <- seed
+            low: mutable usize = seed
+            high: mutable usize = seed
+            while cycle_of[vertex] < 0:
+                cycle_of[vertex] <- cid.i64()
+                if vertex < low: low <- vertex
+                if vertex > high: high <- vertex
+                vertex <- gray[vertex ^ 1]
+            begin[cid] <- low
+            end[cid] <- high
+        seed <- seed + 1
+
+    parent: mutable usize[MAX_CYCLES] = zeroed
+    cid: mutable usize = 0
+    while cid < cycle_count:
+        parent[cid] <- cid
+        cid <- cid + 1
+    stack_id: mutable usize[MAX_CYCLES] = zeroed
+    stack_begin: mutable usize[MAX_CYCLES] = zeroed
+    stack_end: mutable usize[MAX_CYCLES] = zeroed
+    top: mutable usize = 0
+    vertex <- 0
+    while vertex < vertex_count:
+        cid <- cycle_of[vertex].usize()
+        low: usize = begin[cid]
+        high: usize = end[cid]
+        if vertex == low:
+            stack_id[top] <- cid
+            stack_begin[top] <- low
+            stack_end[top] <- high
+            top <- top + 1
+        extent_begin: mutable usize = low
+        extent_end: mutable usize = high
+        while top > 0 and stack_begin[top - 1] > low:
+            top <- top - 1
+            popped: usize = stack_id[top]
+            if stack_begin[top] < extent_begin: extent_begin <- stack_begin[top]
+            if stack_end[top] > extent_end: extent_end <- stack_end[top]
+            parent[popped] <- cid
+        if top == 0: return -1
+        if extent_begin < stack_begin[top - 1]: stack_begin[top - 1] <- extent_begin
+        if extent_end > stack_end[top - 1]: stack_end[top - 1] <- extent_end
+        if vertex == stack_end[top - 1]: top <- top - 1
+        vertex <- vertex + 1
+
+    component: mutable usize[MAX_CYCLES] = zeroed
+    cid <- 0
+    while cid < cycle_count:
+        if parent[cid] == cid: component[cid] <- begin[cid]
+        else: component[cid] <- component[parent[cid]]
+        cid <- cid + 1
+    words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    words[0] <- cycle_count.i64()
+    cid <- 0
+    while cid < cycle_count:
+        words[1 + 3 * cid] <- begin[cid].i64()
+        words[2 + 3 * cid] <- end[cid].i64()
+        words[3 + 3 * cid] <- component[cid].i64()
+        cid <- cid + 1
+    output_bytes: usize = (1 + 3 * cycle_count) * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
+    cid <- 0
+    while cid < 1 + 3 * cycle_count:
+        store_word(words[cid], staged_view, cid)
+        cid <- cid + 1
+    output_view: mutable view[u8] = output[0:output_bytes]
+    vertex <- 0
+    while vertex < output_bytes:
+        output_view[vertex] <- staged[vertex]
+        vertex <- vertex + 1
+    output_bytes.i64()
+
+export fn signed_permutation_overlap_forest_components(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 =
+    signed_permutation_overlap_forest_components_impl

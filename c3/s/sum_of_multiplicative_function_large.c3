@@ -29,8 +29,8 @@ fn long triangular_mod(long value) {
 }
 
 fn usz value_index(long value, long n, long root, usz size) {
-    if (value <= root) return size - value.usz();
-    return (n / value).usz();
+    if (value <= root) return size - (usz)value;
+    return (usz)(n / value);
 }
 
 fn long sum_of_multiplicative_function_large(long* input, usz length) @export("sum_of_multiplicative_function_large") {
@@ -39,14 +39,14 @@ fn long sum_of_multiplicative_function_large(long* input, usz length) @export("s
     if (n < 1 || n > MAX_N || a < 0 || a >= MODULUS || b < 0 || b >= MODULUS) return -1;
 
     long root = floor_sqrt(n);
-    usz high_count = (n / root).usz();
-    while (high_count > 1 && n / (high_count - 1).long() == root) high_count -= 1;
-    usz size = high_count + root.usz();
+    usz high_count = (usz)(n / root);
+    while (high_count > 1 && n / (long)(high_count - 1) == root) high_count -= 1;
+    usz size = high_count + (usz)root;
     long* quotients = (long*)malloc(size * 8);
     long* prime_count = (long*)malloc(size * 8);
     long* prime_sum = (long*)malloc(size * 8);
-    u8* composite = (u8*)malloc((root.usz() + 1) * 1);
-    long* primes = (long*)malloc((root.usz() + 1) * 8);
+    char* composite = (char*)malloc((usz)root + 1);
+    long* primes = (long*)malloc(((usz)root + 1) * 8);
     long* values = (long*)malloc(size * 8);
     long* next_values = (long*)malloc(size * 8);
     if (quotients == null || prime_count == null || prime_sum == null || composite == null ||
@@ -66,19 +66,19 @@ fn long sum_of_multiplicative_function_large(long* input, usz length) @export("s
         quotients[i] = 0; prime_count[i] = 0; prime_sum[i] = 0;
         values[i] = 0; next_values[i] = 0;
     }
-    for (usz i = 0; i <= root.usz(); i++) composite[i] = 0;
+    for (usz i = 0; i <= (usz)root; i++) composite[i] = 0;
 
-    for (usz i = 1; i < high_count; i++) quotients[i] = n / i.long();
-    for (long value = 1; value <= root; value++) quotients[size - value.usz()] = value;
+    for (usz i = 1; i < high_count; i++) quotients[i] = n / (long)i;
+    for (long value = 1; value <= root; value++) quotients[size - (usz)value] = value;
 
     usz prime_total = 0;
     for (long value = 2; value <= root; value++) {
-        if (composite[value.usz()] != 0) continue;
+        if (composite[(usz)value] != 0) continue;
         primes[prime_total] = value;
         prime_total += 1;
         if (value <= root / value) {
             for (long multiple = value * value; multiple <= root; multiple += value)
-                composite[multiple.usz()] = 1;
+                composite[(usz)multiple] = 1;
         }
     }
 

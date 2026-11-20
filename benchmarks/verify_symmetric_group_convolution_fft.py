@@ -14,7 +14,7 @@ import tempfile
 
 from build_abi import ROOT, sha256_file
 from s.symmetric_group_convolution_fft.abi_reference import (
-    bounded_sparse, coordinate_structured, expected, parity_structured,
+    bounded_sparse, coordinate_structured, expected, near_constant_structured, parity_structured,
 )
 from s.symmetric_group_convolution_fft.structured_cases import cases as structured_cases
 from s.symmetric_group_convolution_fft.target_oracle import convolve as target_convolve
@@ -113,11 +113,13 @@ def main():
                 a, b = values[1:1 + size], values[1 + size:]
                 if name.startswith("coordinate_"):
                     shortcut = coordinate_structured(values[0], a, b)
-                elif name.startswith(("sign_character_", "even_subgroup_")):
+                elif name.startswith(("sign_character_", "even_subgroup_", "parity_weighted_")):
                     shortcut = parity_structured(values[0], a, b)
                 elif name.startswith(("two_support_", "three_support_")):
                     shortcut = bounded_sparse(values[0], a, b)
-                if name.startswith(("coordinate_", "sign_character_", "even_subgroup_", "two_support_", "three_support_")):
+                elif name.startswith("near_constant_"):
+                    shortcut = near_constant_structured(values[0], a, b)
+                if name.startswith(("coordinate_", "sign_character_", "even_subgroup_", "parity_weighted_", "two_support_", "three_support_", "near_constant_")):
                     if shortcut != coefficients:
                         raise ValueError(f"structured shortcut disagrees with target oracle: {name}")
             write_case(corpus, values, len(values), result, output, len(output), False, False)

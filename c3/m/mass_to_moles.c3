@@ -4,7 +4,7 @@ const double INVALID_RESULT = -1.0e300;
 
 fn double round_binary64_to_hundredth(double value) {
     if (value == 0.0) return 0.0;
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     ulong fraction = bits & ((1ul << 52) - 1);
     int exponent_bits = (int)((bits >> 52) & 0x7ff);
     ulong significand = (1ul << 52) | fraction;

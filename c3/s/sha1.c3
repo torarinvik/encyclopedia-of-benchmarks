@@ -5,16 +5,16 @@ const usz MAX_PADDED = 4160;
 
 fn uint rol(uint value, uint shift) { return (value << shift) | (value >> (32 - shift)); }
 
-fn long sha1(long* input, usz length, u8* output, usz capacity) @export("sha1") {
+fn long sha1(long* input, usz length, char* output, usz capacity) @export("sha1") {
     if (length > MAX_INPUT || (length > 0 && input == null)) return -1;
     for (usz i=0;i<length;i++) if(input[i]<0||input[i]>255)return -1;
-    u8[MAX_PADDED] padded;
+    char[MAX_PADDED] padded;
     for (usz i=0;i<MAX_PADDED;i++) padded[i]=0;
-    for (usz i=0;i<length;i++) padded[i]=(u8)input[i];
+    for (usz i=0;i<length;i++) padded[i]=(char)input[i];
     padded[length]=0x80;
     usz blocks=(length+9+63)/64, padded_length=blocks*64;
     ulong bit_length=(ulong)length*8;
-    for(usz i=0;i<8;i++)padded[padded_length-1-i]=(u8)(bit_length>>(8*i));
+    for(usz i=0;i<8;i++)padded[padded_length-1-i]=(char)(bit_length>>(8*i));
     uint h0=0x67452301,h1=0xEFCDAB89,h2=0x98BADCFE,h3=0x10325476,h4=0xC3D2E1F0;
     for(usz block=0;block<blocks;block++){
         uint[80] w;
@@ -33,6 +33,6 @@ fn long sha1(long* input, usz length, u8* output, usz capacity) @export("sha1") 
     }
     if(output==null||capacity<20)return -2;
     uint[5] digest={h0,h1,h2,h3,h4};
-    for(usz i=0;i<5;i++)for(usz byte=0;byte<4;byte++)output[i*4+byte]=(u8)(digest[i]>>(24-8*byte));
+    for(usz i=0;i<5;i++)for(usz byte=0;byte<4;byte++)output[i*4+byte]=(char)(digest[i]>>(24-8*byte));
     return 20;
 }

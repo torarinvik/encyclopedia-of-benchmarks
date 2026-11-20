@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "unshuffle-sort-i64-v1",
+  "algorithm": "unshuffle_sort",
+  "function_symbol": "unshuffle_sort",
+  "abi": "mutable_i64_with_scratch",
+  "input": {
+    "kind": "signed_i64_array",
+    "lengths": [0, 1, 16, 256, 1024],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 48271,
+      "modulus": 2000003,
+      "offset": 1000001,
+      "formula": "values[index] = ((index * 48271) mod 2000003) - 1000001"
+    }
+  },
+  "maximum_length": 1024,
+  "scratch_elements_extra": 0,
+  "profile": {
+    "pile_selection": "first pile that accepts at an endpoint; prefer the front when both endpoints accept",
+    "pile_order": "nondecreasing from front to back",
+    "merge": "min-heap over the current front of every pile, ties by pile index",
+    "stable": false,
+    "maximum_workspace_bytes": 28672
+  },
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7,
+    "scratch_allocation_timed": false
+  },
+  "source": {
+    "title": "UnShuffle sort",
+    "repository": "NIST Dictionary of Algorithms and Data Structures",
+    "url": "https://xlinux.nist.gov/dads/HTML/unshufflsort.html",
+    "primary_reference": "Art S. Kagel, Unshuffle Algorithm, Not Quite a Sort?, Computer Language 3(11), November 1985",
+    "accessed": "2026-11-16",
+    "license": "Algorithm descriptions only; no source code or prose copied"
+  },
+  "cases": [
+    {"id":"empty", "input_values":[], "expected_values":[]},
+    {"id":"singleton", "input_values":[7], "expected_values":[7]},
+    {"id":"ascending-one-pile", "input_values":[-4,-2,0,3,9], "expected_values":[-4,-2,0,3,9]},
+    {"id":"descending-one-pile", "input_values":[9,3,0,-2,-4], "expected_values":[-4,-2,0,3,9]},
+    {"id":"separate-piles", "input_values":[3,1,2,0], "expected_values":[0,1,2,3]},
+    {"id":"interleaved-values", "input_values":[8,1,7,2,6,3,5,4], "expected_values":[1,2,3,4,5,6,7,8]},
+    {"id":"equal-and-duplicate-keys", "input_values":[4,4,1,4,1,2,2,4], "expected_values":[1,1,2,2,4,4,4,4]},
+    {"id":"signed-boundaries", "input_values":[9223372036854775807,-9223372036854775808,0,-1,9223372036854775807,-9223372036854775808], "expected_values":[-9223372036854775808,-9223372036854775808,-1,0,9223372036854775807,9223372036854775807]}
+  ]
+}

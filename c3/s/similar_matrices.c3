@@ -55,30 +55,30 @@ fn void sm_multiply(long* a, long* b, usz n, long* out) {
 }
 
 fn bool sm_similar(long* a, long* b, usz n) {
-    long ca[3]; long cb[3];
-    sm_charpoly(a,n,ca); sm_charpoly(b,n,cb);
+    long[3] ca; long[3] cb;
+    sm_charpoly(a,n,&ca[0]); sm_charpoly(b,n,&cb[0]);
     if (ca[0] != cb[0] || ca[1] != cb[1] || ca[2] != cb[2]) return false;
     if (n == 1) return true;
     if (n == 2) {
         if (ca[0]*ca[0] - 4*ca[1] != 0) return true;
-        long da[9]; long db[9];
-        sm_shifted(a,n,-ca[0],2,da); sm_shifted(b,n,-ca[0],2,db);
-        return sm_rank_singular(da,n) == sm_rank_singular(db,n);
+        long[9] da; long[9] db;
+        sm_shifted(a,n,-ca[0],2,&da[0]); sm_shifted(b,n,-ca[0],2,&db[0]);
+        return sm_rank_singular(&da[0],n) == sm_rank_singular(&db[0],n);
     }
     if (sm_disc3(ca[0],ca[1],ca[2]) != 0) return true;
     long q = ca[0]*ca[0] - 3*ca[1];
-    long da[9]; long db[9];
+    long[9] da; long[9] db;
     if (q == 0) {
-        sm_shifted(a,n,-ca[0],3,da); sm_shifted(b,n,-ca[0],3,db);
-        if (sm_rank_singular(da,n) != sm_rank_singular(db,n)) return false;
-        long da2[9]; long db2[9];
-        sm_multiply(da,da,n,da2); sm_multiply(db,db,n,db2);
-        return sm_rank_singular(da2,n) == sm_rank_singular(db2,n);
+        sm_shifted(a,n,-ca[0],3,&da[0]); sm_shifted(b,n,-ca[0],3,&db[0]);
+        if (sm_rank_singular(&da[0],n) != sm_rank_singular(&db[0],n)) return false;
+        long[9] da2; long[9] db2;
+        sm_multiply(&da[0],&da[0],n,&da2[0]); sm_multiply(&db[0],&db[0],n,&db2[0]);
+        return sm_rank_singular(&da2[0],n) == sm_rank_singular(&db2[0],n);
     }
     long numerator = 9*ca[2] - ca[0]*ca[1];
     long denominator = 2*q;
-    sm_shifted(a,n,numerator,denominator,da); sm_shifted(b,n,numerator,denominator,db);
-    return sm_rank_singular(da,n) == sm_rank_singular(db,n);
+    sm_shifted(a,n,numerator,denominator,&da[0]); sm_shifted(b,n,numerator,denominator,&db[0]);
+    return sm_rank_singular(&da[0],n) == sm_rank_singular(&db[0],n);
 }
 
 fn long similar_matrices(long* input, usz length) @export("similar_matrices") {
@@ -88,12 +88,12 @@ fn long similar_matrices(long* input, usz length) @export("similar_matrices") {
     usz n = (usz)n_value;
     usz matrix_size = n*n;
     if (length != 1 + 2*matrix_size) return -1;
-    long a[9]; long b[9];
+    long[9] a; long[9] b;
     for (usz i = 0; i < 2*matrix_size; i++) {
         long value = input[1+i];
         if (value < -5 || value > 5) return -1;
         if (i < matrix_size) a[i] = value;
         else b[i-matrix_size] = value;
     }
-    return sm_similar(a,b,n) ? 1 : 0;
+    return sm_similar(&a[0],&b[0],n) ? 1 : 0;
 }

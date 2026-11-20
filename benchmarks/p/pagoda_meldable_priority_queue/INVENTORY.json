@@ -1,0 +1,38 @@
+{
+  "algorithm": "pagoda_meldable_priority_queue",
+  "function_symbol": "pagoda_meldable_priority_queue",
+  "abi": "i64_array_scalar",
+  "sources": [
+    "c/p/pagoda_meldable_priority_queue.c",
+    "c3/p/pagoda_meldable_priority_queue.c3",
+    "cpp/p/pagoda_meldable_priority_queue.cpp",
+    "elisa/p/pagoda_meldable_priority_queue.elisa",
+    "mojo/p/pagoda_meldable_priority_queue.mojo",
+    "nim/p/pagoda_meldable_priority_queue.nim",
+    "odin/p/pagoda_meldable_priority_queue.odin",
+    "rust/p/pagoda_meldable_priority_queue.rs",
+    "v/p/pagoda_meldable_priority_queue.v",
+    "zig/p/pagoda_meldable_priority_queue.zig"
+  ],
+  "artifacts": [
+    "benchmarks/p/pagoda_meldable_priority_queue/primary_oracle.py",
+    "benchmarks/p/pagoda_meldable_priority_queue/independent_oracle.py",
+    "benchmarks/p/pagoda_meldable_priority_queue/workload.json",
+    "benchmarks/p/pagoda_meldable_priority_queue/verify_workload.py",
+    "benchmarks/p/pagoda_meldable_priority_queue/check_inventory.py",
+    "benchmarks/p/pagoda_meldable_priority_queue/README.md",
+    "benchmarks/p/pagoda_meldable_priority_queue/RIGHTS.md",
+    "benchmarks/p/pagoda_meldable_priority_queue/INVENTORY.md",
+    "benchmarks/p/pagoda_meldable_priority_queue/INVENTORY.json"
+  ],
+  "bounds": {
+    "max_queues": 8,
+    "max_operations": 64,
+    "max_nodes": 64,
+    "max_valid_input_words": 258,
+    "max_parseable_input_words": 259,
+    "workspace_bytes": 4096,
+    "max_result": 4160079
+  },
+  "status": "complete: package artifacts, ten ports, scalar suite, catalog, and coverage are integrated; no executable checks were run"
+}

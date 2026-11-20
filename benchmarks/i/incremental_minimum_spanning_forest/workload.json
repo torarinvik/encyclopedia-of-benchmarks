@@ -12,7 +12,9 @@
   "cases": [
     {"id": "join_replace_reject_loop", "input_values": [4,6,0,1,7,1,2,5,0,2,3,0,2,9,2,3,1,3,3,4], "input_length": 20, "expected_result": 48, "expected_output_hex": "ffffffffffffffffffffffffffffffff00000000000000000300000000000000ffffffffffffffff0500000000000000"},
     {"id": "one_vertex_loop", "input_values": [1,1,0,0,1], "input_length": 5, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "parallel_replace_then_reject", "input_values": [2,3,0,1,9,0,1,4,0,1,8], "input_length": 11, "expected_result": 24, "expected_output_hex": "ffffffffffffffff00000000000000000200000000000000"},
     {"id": "duplicate_weight", "input_values": [2,2,0,1,5,0,1,5], "input_length": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_before_null_output", "input_values": [2,2,0,1,5,0,1,5], "input_length": 8, "output_is_null": true, "expected_result": -1, "expected_output_hex": ""},
     {"id": "short_output", "input_values": [2,1,0,1,1], "input_length": 5, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
     {"id": "null_output", "input_values": [2,1,0,1,1], "input_length": 5, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
     {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}

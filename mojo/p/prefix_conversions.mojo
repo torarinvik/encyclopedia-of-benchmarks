@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 from std.math import pow, isfinite
 @export("prefix_conversions")
 fn prefix_conversions(value:Float64,from:Float64,to:Float64) abi("C")->Float64:

@@ -1,0 +1,95 @@
+# Fixed-size sorted endpoint-buffer quicksort over a safe borrowed view.
+const MAX_LENGTH: usize = 1024
+const BUFFER_SIZE: usize = 8
+
+def sort_buffer(buffer: mutable view[i64], length: usize) -> void:
+    index: mutable usize = 1
+    while index < length:
+        value: i64 = buffer[index]
+        position: mutable usize = index
+        while position > 0 and value < buffer[position - 1]:
+            buffer[position] <- buffer[position - 1]
+            position <- position - 1
+        buffer[position] <- value
+        index <- index + 1
+
+def sort_range(values: mutable view[i64], first_arg: i64, last_arg: i64) -> void:
+    first: mutable i64 = first_arg
+    last: mutable i64 = last_arg
+    while last > first:
+        read_low: mutable i64 = first
+        write_low: mutable i64 = first
+        read_high: mutable i64 = last
+        write_high: mutable i64 = last
+        buffer_storage: mutable i64[BUFFER_SIZE] = zeroed
+        buffer: mutable view[i64] = buffer_storage[0:BUFFER_SIZE]
+        buffered: mutable usize = 0
+        have_max_lower: mutable bool = false
+        have_min_upper: mutable bool = false
+        max_lower: mutable i64 = 0
+        min_upper: mutable i64 = 0
+        lower_written_bound: mutable i64 = first - 1
+        upper_written_bound: mutable i64 = last + 1
+
+        while read_high >= read_low:
+            incoming: mutable i64 = 0
+            if read_low - write_low < write_high - read_high:
+                incoming <- values[read_low.usize()]
+                read_low <- read_low + 1
+            else:
+                incoming <- values[read_high.usize()]
+                read_high <- read_high - 1
+
+            if buffered < BUFFER_SIZE:
+                buffer[buffered] <- incoming
+                buffered <- buffered + 1
+                sort_buffer(buffer, buffered)
+            elif incoming > buffer[BUFFER_SIZE - 1]:
+                if have_min_upper and incoming > min_upper:
+                    upper_written_bound <- write_high
+                else:
+                    min_upper <- incoming
+                    have_min_upper <- true
+                values[write_high.usize()] <- incoming
+                write_high <- write_high - 1
+            elif incoming < buffer[0]:
+                if have_max_lower and incoming < max_lower:
+                    lower_written_bound <- write_low
+                else:
+                    max_lower <- incoming
+                    have_max_lower <- true
+                values[write_low.usize()] <- incoming
+                write_low <- write_low + 1
+            elif write_low - first < last - write_high:
+                outgoing: i64 = buffer[0]
+                values[write_low.usize()] <- outgoing
+                write_low <- write_low + 1
+                max_lower <- outgoing
+                have_max_lower <- true
+                buffer[0] <- incoming
+                sort_buffer(buffer, BUFFER_SIZE)
+            else:
+                outgoing: i64 = buffer[BUFFER_SIZE - 1]
+                values[write_high.usize()] <- outgoing
+                write_high <- write_high - 1
+                min_upper <- outgoing
+                have_min_upper <- true
+                buffer[BUFFER_SIZE - 1] <- incoming
+                sort_buffer(buffer, BUFFER_SIZE)
+
+        while buffered > 0:
+            buffered <- buffered - 1
+            values[write_high.usize()] <- buffer[buffered]
+            write_high <- write_high - 1
+
+        if lower_written_bound - first < last - upper_written_bound:
+            sort_range(values, first, lower_written_bound)
+            first <- upper_written_bound
+        else:
+            sort_range(values, upper_written_bound, last)
+            last <- lower_written_bound
+
+export fn external_quicksort(values: mutable i64&, length: usize) -> void:
+    if length == 0 or length > MAX_LENGTH or values.is_null(): return
+    values_view: mutable view[i64] = values[0:length]
+    sort_range(values_view, 0, length.i64() - 1)

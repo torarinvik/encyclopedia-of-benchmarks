@@ -1,0 +1,32 @@
+{
+  "algorithm": "wave_function_collapse_simple_tiled",
+  "abi": "i64_array_scalar",
+  "symbol": "wave_function_collapse_simple_tiled",
+  "references": [
+    "benchmarks/w/wave_function_collapse_simple_tiled/primary_oracle.py",
+    "benchmarks/w/wave_function_collapse_simple_tiled/independent_oracle.py"
+  ],
+  "workload": "benchmarks/w/wave_function_collapse_simple_tiled/workload.json",
+  "metadata": [
+    "benchmarks/w/wave_function_collapse_simple_tiled/README.md",
+    "benchmarks/w/wave_function_collapse_simple_tiled/RIGHTS.md",
+    "benchmarks/w/wave_function_collapse_simple_tiled/INVENTORY.md"
+  ],
+  "helpers": [
+    "benchmarks/w/wave_function_collapse_simple_tiled/check_inventory.py",
+    "benchmarks/w/wave_function_collapse_simple_tiled/verify_workload.py"
+  ],
+  "languages": ["c", "c3", "cpp", "elisa", "mojo", "nim", "odin", "rust", "v", "zig"],
+  "source_paths": [
+    "c/w/wave_function_collapse_simple_tiled.c",
+    "c3/w/wave_function_collapse_simple_tiled.c3",
+    "cpp/w/wave_function_collapse_simple_tiled.cpp",
+    "elisa/w/wave_function_collapse_simple_tiled.elisa",
+    "mojo/w/wave_function_collapse_simple_tiled.mojo",
+    "nim/w/wave_function_collapse_simple_tiled.nim",
+    "odin/w/wave_function_collapse_simple_tiled.odin",
+    "rust/w/wave_function_collapse_simple_tiled.rs",
+    "v/w/wave_function_collapse_simple_tiled.v",
+    "zig/w/wave_function_collapse_simple_tiled.zig"
+  ]
+}

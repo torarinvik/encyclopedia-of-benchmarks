@@ -78,20 +78,20 @@
       "expected_output_hex": "100000000000000001000000000000000200000000000000030000000000000004000000000000002100000000000000220000000000000023000000000000004100000000000000420000000000000043000000000000006100000000000000620000000000000081000000000000008200000000000000a100000000000000c100000000000000"
     },
     {
-      "id": "nested-and-crossing-squares",
-      "input_values": [6, 97, 98, 97, 97, 98, 97],
-      "input_length": 7,
-      "output_capacity": 24,
-      "expected_result": 24,
-      "expected_output_hex": "020000000000000003000000000000004100000000000000"
+      "id": "binary-crossing-square",
+      "input_values": [4, 0, 1, 0, 1],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000200000000000000"
     },
     {
-      "id": "mixed-alphabet-repetitions",
-      "input_values": [9, 97, 99, 97, 98, 97, 98, 97, 101, 101],
-      "input_length": 10,
-      "output_capacity": 32,
-      "expected_result": 32,
-      "expected_output_hex": "030000000000000042000000000000006200000000000000e100000000000000"
+      "id": "separated-equal-pairs",
+      "input_values": [5, 3, 3, 4, 3, 3],
+      "input_length": 6,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000001000000000000006100000000000000"
     },
     {
       "id": "no-repetitions",
@@ -119,9 +119,9 @@
     },
     {
       "id": "short-output-capacity",
-      "input_values": [6, 97, 98, 97, 97, 98, 97],
-      "input_length": 7,
-      "output_capacity": 23,
+      "input_values": [4, 0, 1, 0, 1],
+      "input_length": 5,
+      "output_capacity": 15,
       "expected_result": -2,
       "expected_output_hex": ""
     },

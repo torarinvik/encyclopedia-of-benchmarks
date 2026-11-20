@@ -6,7 +6,7 @@ fn void store_le(char* out, usz offset, long value) {
 }
 
 // Clean-room bounded GBBS approximate set-cover profile; see package MIT notice.
-long gbbs_approximate_set_cover(long* input, usz length, char* output, usz capacity)
+fn long gbbs_approximate_set_cover(long* input, usz length, char* output, usz capacity)
         @export("gbbs_approximate_set_cover") {
     if (input == null || length < 2 || length > 10) return -1;
     long ns64 = input[0];

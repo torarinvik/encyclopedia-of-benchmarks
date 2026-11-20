@@ -1,4 +1,4 @@
-"""Static inventory and fixture checks for the draft Chan hull package."""
+"""Static inventory and fixture checks for the Chan hull package."""
 
 from pathlib import Path
 
@@ -34,7 +34,7 @@ def static_issues(workload=None):
             or output.get("maximum_output_bytes") != 512 or output.get("no_write_on_error") is not True):
         issues.append("identity or contract mismatch")
     if (not isinstance(workload.get("workspace"), dict)
-            or workload["workspace"].get("bytes") != 512
+            or workload["workspace"].get("bytes") != 16384
             or not isinstance(workload.get("measurement"), dict)
             or workload["measurement"].get("comparison_model") != "i64_array_bytes_output_call"):
         issues.append("workspace or measurement mismatch")

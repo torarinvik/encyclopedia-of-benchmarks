@@ -20,7 +20,7 @@ struct TreeNode {
 extern fn double log2(double value);
 extern fn double trunc(double value);
 
-double entropy(int* rows, usz start, usz end, int* labels) {
+fn double entropy(int* rows, usz start, usz end, int* labels) {
     double sum = 0.0;
     usz length = end - start;
     for (usz position = start; position < end; position++) {
@@ -40,7 +40,7 @@ double entropy(int* rows, usz start, usz end, int* labels) {
     return -sum;
 }
 
-int majority_label(int* rows, usz row_count, int* labels) {
+fn int majority_label(int* rows, usz row_count, int* labels) {
     usz[3] counts = zeroed;
     for (usz index = 0; index < row_count; index++) counts[labels[rows[index]]]++;
     int best_label = labels[rows[0]];
@@ -55,7 +55,7 @@ int majority_label(int* rows, usz row_count, int* labels) {
     return best_label;
 }
 
-int build_tree(TreeNode* nodes, usz* used, double* features, int* labels,
+fn int build_tree(TreeNode* nodes, usz* used, double* features, int* labels,
     int* rows, usz row_count, usz feature_count, usz max_depth,
     usz min_samples_split, usz depth) {
     if (*used >= MAX_TREE_NODES || row_count == 0) return -1;
@@ -132,7 +132,7 @@ int build_tree(TreeNode* nodes, usz* used, double* features, int* labels,
     return current;
 }
 
-int predict(TreeNode* nodes, int node, double* query) {
+fn int predict(TreeNode* nodes, int node, double* query) {
     while (!nodes[node].leaf) {
         TreeNode* current = &nodes[node];
         node = query[current.feature] < current.threshold ? current.left : current.right;
@@ -140,15 +140,15 @@ int predict(TreeNode* nodes, int node, double* query) {
     return nodes[node].label;
 }
 
-bool integer_in_range(double value, int minimum, int maximum) {
+fn bool integer_in_range(double value, int minimum, int maximum) {
     return value == value && value >= (double)minimum && value <= (double)maximum && value == trunc(value);
 }
 
-bool finite_value(double value) {
+fn bool finite_value(double value) {
     return value == value && value - value == 0.0;
 }
 
-bool valid_feature(double value) {
+fn bool valid_feature(double value) {
     if (!finite_value(value) || value < -4.0 || value > 4.0) return false;
     double scaled = value * 4.0;
     return scaled == trunc(scaled);

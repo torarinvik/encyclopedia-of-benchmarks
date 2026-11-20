@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn tsp_enum(m:UnsafePointer[Int64,ImmutAnyOrigin],n:Int,inout order:InlineArray[Int,7],pos:Int,inout best:Int64):

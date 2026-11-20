@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.math import cos, floor, isfinite, sin
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer

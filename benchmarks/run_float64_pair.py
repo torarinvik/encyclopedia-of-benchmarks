@@ -19,11 +19,32 @@ from simpson_rule_oracle import INPUT_SCALED_TOLERANCE as SIMPSON_RULE_INPUT_SCA
 from simpson_rule_oracle import INVALID_RESULT as SIMPSON_RULE_INVALID_RESULT
 from simpson_rule_oracle import SUPPORTED_BOUNDS as SIMPSON_RULE_SUPPORTED_BOUNDS
 from simpson_rule_oracle import expected_result as simpson_rule_oracle
+from fibonacci_modular_oracle import expected_result as fibonacci_modular_expected
+from c.cosine_fixed_point_iteration.primary_oracle import (
+    expected_result as cosine_fixed_point_iteration_oracle,
+)
+from c.cosine_fixed_point_iteration.independent_oracle import (
+    expected_result as cosine_fixed_point_iteration_independent_oracle,
+)
+from h.halley_root_finding.primary_oracle import (
+    expected_result as halley_root_finding_oracle,
+)
+from h.halley_root_finding.independent_oracle import (
+    expected_result as halley_root_finding_independent_oracle,
+)
+from m.modified_newton_multiple_root.primary_oracle import (
+    expected_result as modified_newton_multiple_root_oracle,
+)
+from m.modified_newton_multiple_root.independent_oracle import (
+    expected_result as modified_newton_multiple_root_independent_oracle,
+)
 
 SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions", "speed_conversion",
                        "leaky_relu", "exponential_linear_unit", "elu", "composite_simpson_rule",
                        "false_position", "to_polar_angle_degrees", "problem144", "circle",
-                       "sigmoid_without_inbuilt", "simpson_rule"}
+                       "sigmoid_without_inbuilt", "simpson_rule", "fibonacci_matrix_exponentiation",
+                       "cosine_fixed_point_iteration", "halley_root_finding",
+                       "modified_newton_multiple_root"}
 
 
 def source_agm(a: float, g: float) -> float:
@@ -89,7 +110,10 @@ def encode_case(case: dict, tolerance: float,
     if not math.isfinite(tolerance) or tolerance <= 0.0:
         raise ValueError("relative tolerance must be positive and finite")
     first, second = map(float, values)
-    if algorithm == "conditional_probability":
+    if algorithm == "fibonacci_matrix_exponentiation":
+        if float(expected) != fibonacci_modular_expected(first, second):
+            raise ValueError("fibonacci_matrix_exponentiation expected_result differs from modular fast doubling")
+    elif algorithm == "conditional_probability":
         valid = (0.0 <= first <= second and 0.0 < second <= 1.0)
         if valid and not 0.0 <= expected <= 1.0:
             raise ValueError("valid conditional probability inputs must produce a result in [0, 1]")
@@ -265,6 +289,33 @@ def encode_case(case: dict, tolerance: float,
         elif (expected == -1e300
               or abs(expected - expected_from_source) > tolerance * max(1.0, abs(first), abs(second))):
             raise ValueError("problem144 expected result must match the bounded ellipse reflection count")
+    elif algorithm == "cosine_fixed_point_iteration":
+        expected_from_source = cosine_fixed_point_iteration_oracle(first, second)
+        if expected_from_source == -1.0:
+            if expected != -1.0:
+                raise ValueError("invalid cosine fixed-point inputs must use the -1 result sentinel")
+        elif (expected == -1.0
+              or abs(expected - expected_from_source)
+              > tolerance * max(1.0, abs(first), abs(second))):
+            raise ValueError("cosine fixed-point expected result must match the source-style iteration")
+    elif algorithm == "halley_root_finding":
+        expected_from_source = halley_root_finding_oracle(first, second)
+        if expected_from_source == -1.0:
+            if expected != -1.0:
+                raise ValueError("invalid Halley inputs must use the -1 result sentinel")
+        elif (expected == -1.0
+              or abs(expected - expected_from_source)
+              > tolerance * max(1.0, abs(first), abs(second))):
+            raise ValueError("Halley expected result must match the bounded update recurrence")
+    elif algorithm == "modified_newton_multiple_root":
+        expected_from_source = modified_newton_multiple_root_oracle(first, second)
+        if expected_from_source == -1.0:
+            if expected != -1.0:
+                raise ValueError("invalid modified-Newton inputs must use the -1 result sentinel")
+        elif (expected == -1.0
+              or abs(expected - expected_from_source)
+              > tolerance * max(1.0, abs(first), abs(second))):
+            raise ValueError("modified-Newton expected result must match the multiplicity-corrected recurrence")
     elif algorithm == "circle":
         valid = (-1_000_000.0 <= first <= 1_000_000.0
                  and second in (0.0, 1.0))
@@ -365,6 +416,240 @@ def validate_simpson_rule_workload(workload: dict) -> None:
         raise ValueError("simpson_rule README is missing its pinned source or numeric contract")
 
 
+def validate_cosine_fixed_point_iteration_workload(workload: dict) -> None:
+    """Pin the bounded source-style iteration and its complete case set."""
+    required_case_ids = {
+        "zero_start_one_update", "unit_start_one_update", "upper_endpoint_one_update",
+        "zero_start_two_updates", "maximum_source_iteration_count",
+        "fractional_iteration_count", "initial_value_below_interval",
+        "iteration_count_above_bound",
+    }
+    cases = workload.get("cases") if isinstance(workload, dict) else None
+    case_ids = [case.get("id") if isinstance(case, dict) else None
+                for case in cases] if isinstance(cases, list) else []
+
+    def finite_binary64(value: object) -> bool:
+        if type(value) not in (int, float):
+            return False
+        try:
+            return math.isfinite(float(value))
+        except (OverflowError, ValueError):
+            return False
+
+    if (not isinstance(workload, dict)
+            or workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "thealgorithms-cpp-cosine-fixed-point-iteration-v1"
+            or workload.get("algorithm") != "cosine_fixed_point_iteration"
+            or workload.get("function_symbol") != "cosine_fixed_point_iteration"
+            or workload.get("description") != "Replay the bounded fixed-point map x <- (cos(x)+2)/2 with an explicit initial value and source-style update count."
+            or workload.get("input") != {
+                "kind": "two_finite_binary64_values",
+                "layout": ["initial_x", "source_n"],
+                "initial_x_range": [0.0, 2.0],
+                "source_n_range": [0.0, 64.0],
+                "source_n_integral": True,
+                "updates_per_call": "source_n + 1, matching the upstream inclusive i <= n loop",
+                "map": "g(x) = (cos(x) + 2) / 2",
+                "invalid_input_result": -1.0,
+            }
+            or workload.get("output") != {
+                "kind": "binary64",
+                "definition": "The iterate after source_n + 1 applications of g, with no early stopping rule.",
+                "invalid_input_result": -1.0,
+            }
+            or workload.get("references") != {
+                "primary": "benchmarks/c/cosine_fixed_point_iteration/primary_oracle.py",
+                "independent": "benchmarks/c/cosine_fixed_point_iteration/independent_oracle.py",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "float64_pair_call",
+                "input_scaled_tolerance": 1e-7,
+                "sample_count": 5,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 1000,
+            }
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids
+            or any(not isinstance(case, dict)
+                   or not isinstance(case.get("input_values"), list)
+                   or len(case["input_values"]) != 2
+                   or any(not finite_binary64(value) for value in case["input_values"])
+                   or not finite_binary64(case.get("expected_result"))
+                   for case in cases)):
+        raise ValueError("cosine fixed-point workload metadata or case set differs from its bounded profile")
+
+    tolerance = workload["measurement"]["input_scaled_tolerance"]
+    for case in cases:
+        first, second, expected = encode_case(case, tolerance,
+                                               "cosine_fixed_point_iteration")
+        independent = cosine_fixed_point_iteration_independent_oracle(first, second)
+        if not matches(expected, independent, tolerance, first, second):
+            raise ValueError(f"cosine fixed-point fixture differs from its reference: {case['id']}")
+
+    readme = (ROOT / "benchmarks/c/cosine_fixed_point_iteration/README.md").read_text(
+        encoding="utf-8")
+    source = "https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/numerical_methods/successive_approximation.cpp"
+    if source not in readme or "no early stopping rule" not in readme:
+        raise ValueError("cosine fixed-point README is missing source attribution or iteration semantics")
+
+
+def validate_halley_root_finding_workload(workload: dict) -> None:
+    """Pin the bounded DLMF Halley iteration and complete fixture set."""
+    required_case_ids = {
+        "zero-updates", "one-update-from-one", "two-updates-from-one",
+        "lower-initial-bound", "upper-initial-bound",
+        "eight-updates-converge-to-cube-root-two", "fractional-iteration-count",
+        "negative-iteration-count", "iteration-count-above-bound",
+        "initial-value-below-bound", "initial-value-above-bound",
+    }
+    cases = workload.get("cases") if isinstance(workload, dict) else None
+    case_ids = [case.get("id") if isinstance(case, dict) else None
+                for case in cases] if isinstance(cases, list) else []
+
+    def finite_binary64(value: object) -> bool:
+        if type(value) not in (int, float):
+            return False
+        try:
+            return math.isfinite(float(value))
+        except (OverflowError, ValueError):
+            return False
+
+    if (not isinstance(workload, dict)
+            or workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "nist-dlmf-halley-cube-root-two-f64-pair-v1"
+            or workload.get("algorithm") != "halley_root_finding"
+            or workload.get("function_symbol") != "halley_root_finding"
+            or workload.get("description") != "Apply a bounded number of Halley updates to f(x)=x^3-2 and return the final iterate."
+            or workload.get("input") != {
+                "kind": "two_finite_binary64_values",
+                "layout": ["initial_x", "iteration_count"],
+                "initial_x_range": [0.5, 2.0],
+                "iteration_count_range": [0.0, 8.0],
+                "iteration_count_integral": True,
+                "equation": "f(x)=x^3-2",
+                "invalid_input_result": -1.0,
+            }
+            or workload.get("output") != {
+                "kind": "binary64",
+                "definition": "The value after exactly iteration_count Halley updates, with no early stopping rule.",
+                "invalid_input_result": -1.0,
+            }
+            or workload.get("references") != {
+                "primary": "benchmarks/h/halley_root_finding/primary_oracle.py",
+                "independent": "benchmarks/h/halley_root_finding/independent_oracle.py",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "float64_pair_call",
+                "input_scaled_tolerance": 1e-12,
+                "sample_count": 5,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 1000,
+            }
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids
+            or any(not isinstance(case, dict)
+                   or not isinstance(case.get("input_values"), list)
+                   or len(case["input_values"]) != 2
+                   or any(not finite_binary64(value) for value in case["input_values"])
+                   or not finite_binary64(case.get("expected_result"))
+                   for case in cases)):
+        raise ValueError("Halley workload metadata or case set differs from its bounded profile")
+
+    tolerance = workload["measurement"]["input_scaled_tolerance"]
+    for case in cases:
+        first, second, expected = encode_case(case, tolerance, "halley_root_finding")
+        independent = halley_root_finding_independent_oracle(first, second)
+        if not matches(expected, independent, tolerance, first, second):
+            raise ValueError(f"Halley fixture differs from its independent reference: {case['id']}")
+
+    readme = (ROOT / "benchmarks/h/halley_root_finding/README.md").read_text(
+        encoding="utf-8")
+    if "https://dlmf.nist.gov/3.8#E12" not in readme or "exact number of updates" not in readme:
+        raise ValueError("Halley README is missing source attribution or update semantics")
+
+
+def validate_modified_newton_multiple_root_workload(workload: dict) -> None:
+    """Pin the bounded known-multiplicity Newton update and its fixtures."""
+    required_case_ids = {
+        "zero-updates", "one-update-from-upper-bound", "two-updates-from-upper-bound",
+        "one-update-from-interior", "two-updates-from-interior",
+        "eight-updates-reach-rounded-root", "exact-multiple-root",
+        "fractional-iteration-count", "negative-iteration-count",
+        "iteration-count-above-bound", "initial-value-below-bound",
+        "initial-value-above-bound",
+    }
+    cases = workload.get("cases") if isinstance(workload, dict) else None
+    case_ids = [case.get("id") if isinstance(case, dict) else None
+                for case in cases] if isinstance(cases, list) else []
+
+    def finite_binary64(value: object) -> bool:
+        if type(value) not in (int, float):
+            return False
+        try:
+            return math.isfinite(float(value))
+        except (OverflowError, ValueError):
+            return False
+
+    if (not isinstance(workload, dict)
+            or workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "nist-dlmf-multiple-root-modified-newton-f64-pair-v1"
+            or workload.get("algorithm") != "modified_newton_multiple_root"
+            or workload.get("function_symbol") != "modified_newton_multiple_root"
+            or workload.get("description") != "Apply a bounded number of multiplicity-corrected Newton updates to f(x)=(x-1)^2*(x+2)."
+            or workload.get("input") != {
+                "kind": "two_finite_binary64_values",
+                "layout": ["initial_x", "iteration_count"],
+                "initial_x_range": [1.0, 2.0],
+                "iteration_count_range": [0.0, 8.0],
+                "iteration_count_integral": True,
+                "equation": "f(x)=(x-1)^2*(x+2); known root multiplicity=2",
+                "invalid_input_result": -1.0,
+            }
+            or workload.get("output") != {
+                "kind": "binary64",
+                "definition": "The iterate after the requested multiplicity-corrected Newton updates; the exact root remains fixed.",
+                "invalid_input_result": -1.0,
+            }
+            or workload.get("references") != {
+                "primary": "benchmarks/m/modified_newton_multiple_root/primary_oracle.py",
+                "independent": "benchmarks/m/modified_newton_multiple_root/independent_oracle.py",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "float64_pair_call",
+                "input_scaled_tolerance": 1e-12,
+                "sample_count": 5,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 1000,
+            }
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids
+            or any(not isinstance(case, dict)
+                   or not isinstance(case.get("input_values"), list)
+                   or len(case["input_values"]) != 2
+                   or any(not finite_binary64(value) for value in case["input_values"])
+                   or not finite_binary64(case.get("expected_result"))
+                   for case in cases)):
+        raise ValueError("modified-Newton workload metadata or case set differs from its bounded profile")
+
+    tolerance = workload["measurement"]["input_scaled_tolerance"]
+    for case in cases:
+        first, second, expected = encode_case(
+            case, tolerance, "modified_newton_multiple_root")
+        independent = modified_newton_multiple_root_independent_oracle(first, second)
+        if not matches(expected, independent, tolerance, first, second):
+            raise ValueError(f"modified-Newton fixture differs from its independent reference: {case['id']}")
+
+    readme = (ROOT / "benchmarks/m/modified_newton_multiple_root/README.md").read_text(
+        encoding="utf-8")
+    if ("https://dlmf.nist.gov/3.8#E4" not in readme
+            or "known root multiplicity" not in readme
+            or "f(x)/f'(x)" not in readme):
+        raise ValueError("modified-Newton README is missing source attribution or method semantics")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -396,6 +681,12 @@ def main() -> int:
         parser.error("workload does not match the built float64 pair algorithm")
     if algorithm == "simpson_rule":
         validate_simpson_rule_workload(workload)
+    elif algorithm == "cosine_fixed_point_iteration":
+        validate_cosine_fixed_point_iteration_workload(workload)
+    elif algorithm == "halley_root_finding":
+        validate_halley_root_finding_workload(workload)
+    elif algorithm == "modified_newton_multiple_root":
+        validate_modified_newton_multiple_root_workload(workload)
     timing = workload["measurement"]
     tolerance = float(timing.get("relative_tolerance", timing.get("input_scaled_tolerance", 0.0)))
     absolute_tolerance = float(timing.get("absolute_tolerance", 0.0))

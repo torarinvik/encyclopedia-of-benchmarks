@@ -30,8 +30,12 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/b/bcd_conversion/
 | C3 | [`c3/b/bcd_conversion.c3`](../../../c3/b/bcd_conversion.c3) |
 | C++ | [`cpp/b/bcd_conversion.cpp`](../../../cpp/b/bcd_conversion.cpp) |
 | Elisa | [`elisa/b/bcd_conversion.elisa`](../../../elisa/b/bcd_conversion.elisa) |
+| Mojo | [`mojo/b/bcd_conversion.mojo`](../../../mojo/b/bcd_conversion.mojo) |
 | Nim | [`nim/b/bcd_conversion.nim`](../../../nim/b/bcd_conversion.nim) |
 | Odin | [`odin/b/bcd_conversion.odin`](../../../odin/b/bcd_conversion.odin) |
 | Rust | [`rust/b/bcd_conversion.rs`](../../../rust/b/bcd_conversion.rs) |
 | V | [`v/b/bcd_conversion.v`](../../../v/b/bcd_conversion.v) |
 | Zig | [`zig/b/bcd_conversion.zig`](../../../zig/b/bcd_conversion.zig) |
+
+Scalar verifier registration and a string-based packing reference are drafted
+and have not been executed.

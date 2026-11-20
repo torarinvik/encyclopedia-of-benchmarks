@@ -1,0 +1,248 @@
+const PDF_MAX_N: usize = 6
+const PDF_MAX_M: usize = 10
+const PDF_MAX_DARTS: usize = 20
+const PDF_MAX_FACES: usize = 10
+const PDF_MAX_INPUT: usize = 61
+const PDF_MAX_AUG: usize = 25
+const PDF_INF: i64 = 0x3fffffffffffffff
+
+struct PlanarFlowGraph:
+    n: usize
+    m: usize
+    source: usize
+    sink: usize
+    tail: i64[PDF_MAX_M]
+    head: i64[PDF_MAX_M]
+    capacity: i64[PDF_MAX_M]
+    degree: i64[PDF_MAX_N]
+    rotation: i64[PDF_MAX_N * PDF_MAX_N]
+    local_position: i64[PDF_MAX_N * PDF_MAX_M]
+    left_face: i64[PDF_MAX_DARTS]
+    right_face: i64[PDF_MAX_DARTS]
+    face_count: usize
+    infinity_face: usize
+    root_anchor: usize
+
+def pdf_dart_head(graph: PlanarFlowGraph&, dart: usize) -> usize:
+    edge: usize = dart / 2
+    if (dart & 1) == 0: graph.head[edge].usize() else: graph.tail[edge].usize()
+
+def pdf_left_successor(graph: PlanarFlowGraph&, dart: usize) -> i64:
+    vertex: usize = pdf_dart_head(graph&, dart)
+    edge: usize = dart / 2
+    count: usize = graph.degree[vertex].usize()
+    position: i64 = graph.local_position[vertex * PDF_MAX_M + edge]
+    if count == 0 or position < 0: return -1
+    prior: usize = graph.rotation[vertex * PDF_MAX_N + (position.usize() + count - 1) % count].usize()
+    (2 * prior + if graph.head[prior].usize() == vertex: 1 else: 0).i64()
+
+def pdf_decode(values: view[i64], graph: mutable PlanarFlowGraph&) -> bool:
+    length: usize = values.len()
+    if length < 4 or length > PDF_MAX_INPUT: return false
+    n_word: i64 = values[0]
+    m_word: i64 = values[1]
+    source_word: i64 = values[2]
+    sink_word: i64 = values[3]
+    if n_word < 2 or n_word > PDF_MAX_N.i64() or m_word < 1 or m_word > PDF_MAX_M.i64(): return false
+    if source_word < 0 or source_word >= n_word or sink_word < 0 or sink_word >= n_word or source_word == sink_word: return false
+    graph.n <- n_word.usize()
+    graph.m <- m_word.usize()
+    graph.source <- source_word.usize()
+    graph.sink <- sink_word.usize()
+    if length < 4 + 3 * graph.m: return false
+    pairs: mutable bool[PDF_MAX_N * PDF_MAX_N] = zeroed
+    occurrence: mutable i64[PDF_MAX_M * 2] = zeroed
+    used: mutable bool[PDF_MAX_N * PDF_MAX_M] = zeroed
+    for x in 0..<graph.n:
+        for e in 0..<graph.m: graph.local_position[x * PDF_MAX_M + e] <- -1
+    at: mutable usize = 4
+    for edge in 0..<graph.m:
+        u_word: i64 = values[at]
+        v_word: i64 = values[at + 1]
+        capacity: i64 = values[at + 2]
+        at <- at + 3
+        if u_word < 0 or u_word >= n_word or v_word < 0 or v_word >= n_word or u_word == v_word: return false
+        if capacity < 1 or capacity > 5: return false
+        u: usize = u_word.usize()
+        v: usize = v_word.usize()
+        if pairs[u * PDF_MAX_N + v] or pairs[v * PDF_MAX_N + u]: return false
+        pairs[u * PDF_MAX_N + v] <- true
+        pairs[v * PDF_MAX_N + u] <- true
+        graph.tail[edge] <- u_word
+        graph.head[edge] <- v_word
+        graph.capacity[edge] <- capacity
+    for vertex in 0..<graph.n:
+        if at >= length: return false
+        degree_word: i64 = values[at]
+        at <- at + 1
+        if degree_word < 1 or degree_word >= n_word or at + degree_word.usize() > length: return false
+        degree: usize = degree_word.usize()
+        graph.degree[vertex] <- degree_word
+        for j in 0..<degree:
+            edge_word: i64 = values[at]
+            at <- at + 1
+            if edge_word < 0 or edge_word >= m_word: return false
+            edge: usize = edge_word.usize()
+            slot: usize = vertex * PDF_MAX_M + edge
+            if used[slot]: return false
+            used[slot] <- true
+            graph.rotation[vertex * PDF_MAX_N + j] <- edge_word
+            graph.local_position[slot] <- j.i64()
+            if graph.tail[edge].usize() == vertex:
+                occurrence[2 * edge] <- occurrence[2 * edge] + 1
+            else if graph.head[edge].usize() == vertex:
+                occurrence[2 * edge + 1] <- occurrence[2 * edge + 1] + 1
+            else:
+                return false
+    if at != length: return false
+    for edge in 0..<graph.m:
+        if occurrence[2 * edge] != 1 or occurrence[2 * edge + 1] != 1: return false
+
+    adjacent: mutable bool[PDF_MAX_N * PDF_MAX_N] = zeroed
+    for edge in 0..<graph.m:
+        u: usize = graph.tail[edge].usize()
+        v: usize = graph.head[edge].usize()
+        adjacent[u * PDF_MAX_N + v] <- true
+        adjacent[v * PDF_MAX_N + u] <- true
+    reached: mutable bool[PDF_MAX_N] = zeroed
+    queue: mutable usize[PDF_MAX_N] = zeroed
+    head_index: mutable usize = 0
+    tail_index: mutable usize = 1
+    reached[graph.source] <- true
+    queue[0] <- graph.source
+    while head_index < tail_index:
+        vertex: usize = queue[head_index]
+        head_index <- head_index + 1
+        for neighbor in 0..<graph.n:
+            if adjacent[vertex * PDF_MAX_N + neighbor] and not reached[neighbor]:
+                reached[neighbor] <- true
+                queue[tail_index] <- neighbor
+                tail_index <- tail_index + 1
+    for vertex in 0..<graph.n:
+        if not reached[vertex]: return false
+
+    for dart in 0..<(2 * graph.m): graph.left_face[dart] <- -1
+    graph.face_count <- 0
+    for start in 0..<(2 * graph.m):
+        if graph.left_face[start] >= 0: continue
+        dart: usize = start
+        while graph.left_face[dart] < 0:
+            graph.left_face[dart] <- graph.face_count.i64()
+            next_dart: i64 = pdf_left_successor(graph&, dart)
+            if next_dart < 0: return false
+            dart <- next_dart.usize()
+        if dart != start: return false
+        graph.face_count <- graph.face_count + 1
+    if graph.face_count != graph.m - graph.n + 2: return false
+    for dart in 0..<(2 * graph.m): graph.right_face[dart] <- graph.left_face[dart ^ 1]
+
+    graph.root_anchor <- graph.rotation[graph.sink * PDF_MAX_N].usize()
+    root_edge: usize = graph.root_anchor
+    root_dart: usize = 2 * root_edge + if graph.head[root_edge].usize() == graph.sink: 1 else: 0
+    graph.infinity_face <- graph.right_face[root_dart].usize()
+    true
+
+def pdf_right_first(graph: PlanarFlowGraph&, vertex: usize, anchor: usize, root: bool,
+                    residual: view[i64], seen: mutable view[bool], parent: mutable view[i64]) -> void:
+    degree: usize = graph.degree[vertex].usize()
+    position: usize = graph.local_position[vertex * PDF_MAX_M + anchor].usize()
+    first: usize = if root: 0 else: 1
+    for step in first..<(first + degree):
+        edge: usize = graph.rotation[vertex * PDF_MAX_N + (position + step) % degree].usize()
+        tail: usize = graph.tail[edge].usize()
+        neighbor: usize = if tail == vertex: graph.head[edge].usize() else: tail
+        if not seen[neighbor] and residual[neighbor * PDF_MAX_N + vertex] > 0:
+            seen[neighbor] <- true
+            parent[neighbor] <- vertex.i64()
+            pdf_right_first(graph&, neighbor, edge, false, residual, seen, parent)
+
+def pdf_solve(graph: mutable PlanarFlowGraph&) -> i64:
+    dual: mutable i64[PDF_MAX_FACES * PDF_MAX_FACES] = zeroed
+    distance: mutable i64[PDF_MAX_FACES] = zeroed
+    settled: mutable bool[PDF_MAX_FACES] = zeroed
+    for f in 0..<PDF_MAX_FACES:
+        distance[f] <- PDF_INF
+        for h in 0..<PDF_MAX_FACES: dual[f * PDF_MAX_FACES + h] <- PDF_INF
+    for dart in 0..<(2 * graph.m):
+        from_face: usize = graph.right_face[dart].usize()
+        to_face: usize = graph.left_face[dart].usize()
+        weight: i64 = if (dart & 1) == 0: graph.capacity[dart / 2] else: 0
+        slot: usize = from_face * PDF_MAX_FACES + to_face
+        if weight < dual[slot]: dual[slot] <- weight
+    distance[graph.infinity_face] <- 0
+    for _ in 0..<graph.face_count:
+        current: mutable i64 = -1
+        for face in 0..<graph.face_count:
+            if not settled[face] and (current < 0 or distance[face] < distance[current.usize()]): current <- face.i64()
+        if current < 0 or distance[current.usize()] == PDF_INF: break
+        c: usize = current.usize()
+        settled[c] <- true
+        for next in 0..<graph.face_count:
+            weight: i64 = dual[c * PDF_MAX_FACES + next]
+            if weight != PDF_INF and distance[c] + weight < distance[next]: distance[next] <- distance[c] + weight
+
+    residual: mutable i64[PDF_MAX_N * PDF_MAX_N] = zeroed
+    for edge in 0..<graph.m:
+        left: usize = graph.left_face[2 * edge].usize()
+        right: usize = graph.right_face[2 * edge].usize()
+        eta: i64 = distance[left] - distance[right]
+        if eta < 0 or eta > graph.capacity[edge]: return -1
+        u: usize = graph.tail[edge].usize()
+        v: usize = graph.head[edge].usize()
+        residual[u * PDF_MAX_N + v] <- residual[u * PDF_MAX_N + v] + graph.capacity[edge] - eta
+        residual[v * PDF_MAX_N + u] <- residual[v * PDF_MAX_N + u] + eta
+
+    total: mutable i64 = 0
+    seen: mutable bool[PDF_MAX_N] = zeroed
+    parent: mutable i64[PDF_MAX_N] = zeroed
+    seen_view: mutable view[bool] = seen[0:PDF_MAX_N]
+    parent_view: mutable view[i64] = parent[0:PDF_MAX_N]
+    residual_view: view[i64] = residual[0:PDF_MAX_N * PDF_MAX_N]
+    for augmentation in 0..<(PDF_MAX_AUG + 1):
+        for vertex in 0..<graph.n:
+            seen[vertex] <- false
+            parent[vertex] <- -1
+        seen[graph.sink] <- true
+        pdf_right_first(graph&, graph.sink, graph.root_anchor, true, residual_view, seen_view, parent_view)
+        if not seen[graph.source]: return total
+        if augmentation == PDF_MAX_AUG: return -1
+        delta: mutable i64 = 0x7fffffff
+        vertex: mutable usize = graph.source
+        while vertex != graph.sink:
+            next: usize = parent[vertex].usize()
+            amount: i64 = residual[vertex * PDF_MAX_N + next]
+            if amount < delta: delta <- amount
+            vertex <- next
+        vertex <- graph.source
+        while vertex != graph.sink:
+            next: usize = parent[vertex].usize()
+            residual[vertex * PDF_MAX_N + next] <- residual[vertex * PDF_MAX_N + next] - delta
+            residual[next * PDF_MAX_N + vertex] <- residual[next * PDF_MAX_N + vertex] + delta
+            vertex <- next
+        total <- total + delta
+    -1
+
+def pdf_put_i64(output: mutable view[u8], value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8: output[byte] <- (bits >> (8 * byte)).u8()
+
+def pdf_impl(values: view[i64], output: mutable view[u8]) -> i64:
+    graph: mutable PlanarFlowGraph = zeroed
+    if not pdf_decode(values, graph&): return -1
+    value: i64 = pdf_solve(graph&)
+    if value < 0: return -1
+    pdf_put_i64(output, value)
+    8
+
+export fn planar_directed_general_st_flow_borradaile_klein(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > PDF_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    staged: mutable u8[8] = zeroed
+    staged_view: mutable view[u8] = staged[0:8]
+    result: i64 = pdf_impl(input_view, staged_view)
+    if result < 0: return result
+    if output.is_null() or capacity < 8: return -2
+    output_view: mutable view[u8] = output[0:8]
+    for byte in 0..<8: output_view[byte] <- staged[byte]
+    8

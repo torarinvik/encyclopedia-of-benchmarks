@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn ny_match(s:InlineArray[UInt8,64],length:Int,at:Int,word:String)->Bool:

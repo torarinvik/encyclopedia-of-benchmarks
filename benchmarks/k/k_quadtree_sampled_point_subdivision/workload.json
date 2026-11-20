@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "k-quadtree-sampled-point-subdivision-i64-array-bytes-output-v1",
+  "algorithm": "k_quadtree_sampled_point_subdivision",
+  "function_symbol": "k_quadtree_sampled_point_subdivision",
+  "abi": "i64_array_bytes_output",
+  "description": "Deduplicated canonical split squares induced by every-kth Morton-sorted point samples.",
+  "source": {
+    "title": "An Edge Quadtree for External Memory",
+    "authors": ["Herman Haverkort", "Mark McGranaghan", "Laura Toma"],
+    "section": "Sections 2 and 3, Constructing the subdivision, Lemma 1",
+    "doi": "10.1007/978-3-642-38527-8_12",
+    "url": "https://tildesites.bowdoin.edu/~ltoma/papers/2013-sea-quad.pdf",
+    "encyclopedia_chapter": 585,
+    "encyclopedia_doi": "10.1007/978-1-4939-2864-4_585",
+    "pinned_behavior": "Sort points in Z-order; take ranks 0,k,2k,...; each adjacent sample pair induces its smallest containing canonical square; output the unique split squares in Morton preorder."
+  },
+  "contract": {
+    "operation": "Construct the internal split-square set of the sampled Morton trie.",
+    "input_layout": "[n,k,D,(x,y)*n]",
+    "quadrant_order": ["SW", "NW", "SE", "NE"],
+    "morton_digit": "2*x_bit+y_bit, reading coordinate bits most-significant first",
+    "sample_count": "s=floor((n-1)/k)+1; sampled ranks are 0,k,2k,...",
+    "split_count": "r is the number of distinct longest-common-prefix squares over consecutive sample pairs; r<=s-1",
+    "descriptor": "(depth,prefix), where root is (0,0), depth counts quadrant digits, and prefix is their base-4 integer",
+    "output_layout": "[r,(depth,prefix)*r]",
+    "output_order": "Increasing prefix*4^(D-depth), then increasing depth; ancestor precedes a descendant with the same interval start",
+    "output_encoding": "Signed 64-bit words in little-endian byte order",
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "validation_order": "Validate non-null input, parseable length, header/ranges, exact frame length, coordinates and point uniqueness; then calculate output size and validate output pointer/capacity."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,k,D,(x,y)*n]",
+    "n_range": [1, 32],
+    "k_range": "1 through n",
+    "depth_range": [1, 8],
+    "coordinate_range": "0 through 2^D-1 on each axis",
+    "coordinates_must_be_unique": true,
+    "maximum_valid_length": 67,
+    "maximum_parseable_length": 68,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "[r,(depth,prefix)*r], each signed i64 little-endian",
+    "maximum_split_count": 31,
+    "maximum_output_bytes": 504,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 4096,
+    "accounting": "Fixed storage for at most 32 Morton keys and 31 split descriptors, sorting/deduplication temporaries, and bounded scalar state; excludes caller input and output buffers."
+  },
+  "maximum_profile": {
+    "input_values": "[32,1,5,(0,y) for y=0..31]",
+    "sample_count": 32,
+    "split_count": 31,
+    "output_bytes": 504,
+    "pinned_output_words": [31,0,0,1,0,2,0,3,0,4,0,4,1,3,1,4,2,4,3,2,1,3,2,4,4,4,5,3,3,4,6,4,7,1,1,2,2,3,4,4,8,4,9,3,5,4,10,4,11,2,3,3,6,4,12,4,13,3,7,4,14,4,15]
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"single-sample", "input_values":[1,1,1,0,0], "input_length":5, "output_capacity":8, "expected_result":8, "expected_output_words":[0]},
+    {"id":"stride-at-n-one-sample", "input_values":[3,3,2,0,0,0,1,2,0], "input_length":9, "output_capacity":8, "expected_result":8, "expected_output_words":[0]},
+    {"id":"repeated-root-lca-deduplicated", "input_values":[3,1,1,0,0,0,1,1,1], "input_length":9, "output_capacity":24, "expected_result":24, "expected_output_words":[1,0,0]},
+    {"id":"preorder-multiple-branches", "input_values":[4,1,2,0,0,0,1,2,0,2,1], "input_length":11, "output_capacity":56, "expected_result":56, "expected_output_words":[3,0,0,1,0,1,2]},
+    {"id":"maximum-31-splits-504-bytes", "input_values":[32,1,5,0,0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,13,0,14,0,15,0,16,0,17,0,18,0,19,0,20,0,21,0,22,0,23,0,24,0,25,0,26,0,27,0,28,0,29,0,30,0,31], "input_length":67, "output_capacity":504, "expected_result":504, "expected_output_words":[31,0,0,1,0,2,0,3,0,4,0,4,1,3,1,4,2,4,3,2,1,3,2,4,4,4,5,3,3,4,6,4,7,1,1,2,2,3,4,4,8,4,9,3,5,4,10,4,11,2,3,3,6,4,12,4,13,3,7,4,14,4,15]},
+    {"id":"duplicate-coordinate-invalid", "input_values":[2,1,1,0,0,0,0], "input_length":7, "output_capacity":0, "expected_result":-1, "expected_output_words":[]},
+    {"id":"coordinate-outside-domain", "input_values":[1,1,2,4,0], "input_length":5, "output_capacity":0, "expected_result":-1, "expected_output_words":[]},
+    {"id":"one-extra-word-invalid", "input_values":[1,1,1,0,0,9], "input_length":6, "output_capacity":0, "expected_result":-1, "expected_output_words":[]},
+    {"id":"invalid-before-short-capacity", "input_values":[2,1,1,0,0,0,0], "input_length":7, "output_capacity":0, "expected_result":-1, "expected_output_words":[]},
+    {"id":"one-byte-short-capacity", "input_values":[3,1,1,0,0,0,1,1,1], "input_length":9, "output_capacity":23, "expected_result":-2, "expected_output_words":[]},
+    {"id":"null-input", "input_values":[], "input_length":5, "input_is_null":true, "output_capacity":504, "expected_result":-1, "expected_output_words":[]},
+    {"id":"null-output", "input_values":[3,1,1,0,0,0,1,1,1], "input_length":9, "output_capacity":24, "output_is_null":true, "expected_result":-2, "expected_output_words":[]}
+  ]
+}

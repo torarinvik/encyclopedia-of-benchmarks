@@ -1,0 +1,26 @@
+{
+  "algorithm": "triangle_mesh_faces_from_edge_graph",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "triangle_mesh_faces_from_edge_graph",
+  "sources": {
+    "method": "https://cescg.org/wp-content/uploads/2018/04/Zabran-An-Algorithm-Recreating-3D-Triangle-Mesh-Faces-from-Its-Edges.pdf",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "ports": {
+    "c": "../../../c/f/triangle_mesh_faces_from_edge_graph.c",
+    "c3": "../../../c3/f/triangle_mesh_faces_from_edge_graph.c3",
+    "cpp": "../../../cpp/f/triangle_mesh_faces_from_edge_graph.cpp",
+    "elisa": "../../../elisa/f/triangle_mesh_faces_from_edge_graph.elisa",
+    "mojo": "../../../mojo/f/triangle_mesh_faces_from_edge_graph.mojo",
+    "nim": "../../../nim/f/triangle_mesh_faces_from_edge_graph.nim",
+    "odin": "../../../odin/f/triangle_mesh_faces_from_edge_graph.odin",
+    "rust": "../../../rust/f/triangle_mesh_faces_from_edge_graph.rs",
+    "v": "../../../v/f/triangle_mesh_faces_from_edge_graph.v",
+    "zig": "../../../zig/f/triangle_mesh_faces_from_edge_graph.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "suite_registration": "integrated",
+  "execution_status": "source-only; no programs or checks run"
+}

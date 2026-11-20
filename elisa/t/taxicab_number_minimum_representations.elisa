@@ -1,0 +1,75 @@
+const TAXICAB_MAX_ROOT: usize = 444
+const TAXICAB_MAX_PARSEABLE_LENGTH: usize = 2
+
+struct TaxicabNode:
+    sum: i32
+    a: i32
+    b: i32
+
+def taxicab_node_less(left: TaxicabNode, right: TaxicabNode) -> bool:
+    if left.sum != right.sum: return left.sum < right.sum
+    if left.a != right.a: return left.a < right.a
+    left.b < right.b
+
+def taxicab_heap_push(heap: mutable view[TaxicabNode], size: mutable usize&, node: TaxicabNode) -> void:
+    index: mutable usize = size
+    size <- size + 1
+    while index > 0:
+        parent: usize = (index - 1) / 2
+        if !taxicab_node_less(node, heap[parent]): break
+        heap[index] <- heap[parent]
+        index <- parent
+    heap[index] <- node
+
+def taxicab_heap_pop(heap: mutable view[TaxicabNode], size: mutable usize&) -> TaxicabNode:
+    result: TaxicabNode = heap[0]
+    size <- size - 1
+    if size == 0: return result
+    last: TaxicabNode = heap[size]
+    index: mutable usize = 0
+    while 2 * index + 1 < size:
+        child: mutable usize = 2 * index + 1
+        if child + 1 < size and taxicab_node_less(heap[child + 1], heap[child]): child <- child + 1
+        if !taxicab_node_less(heap[child], last): break
+        heap[index] <- heap[child]
+        index <- child
+    heap[index] <- last
+    result
+
+def taxicab_cube(value: i32) -> i32:
+    value * value * value
+
+def taxicab_impl(input: view[i64]) -> i64:
+    if input.len() != 1: return -1
+    ways_value: i64 = input[0]
+    if ways_value != 2 and ways_value != 3: return -1
+    ways: i32 = ways_value.i32()
+    heap: mutable TaxicabNode[TAXICAB_MAX_ROOT] = zeroed
+    heap_view: mutable view[TaxicabNode] = heap[0:TAXICAB_MAX_ROOT]
+    size: mutable usize = 0
+    a: mutable usize = 1
+    while a <= TAXICAB_MAX_ROOT:
+        a32: i32 = a.i32()
+        value: i32 = taxicab_cube(a32)
+        taxicab_heap_push(heap_view, size, TaxicabNode{sum: 2 * value, a: a32, b: a32})
+        a <- a + 1
+    while size > 0:
+        first: TaxicabNode = taxicab_heap_pop(heap_view, size)
+        total: i32 = first.sum
+        count: mutable i32 = 1
+        if first.b < TAXICAB_MAX_ROOT.i32():
+            next_b: i32 = first.b + 1
+            taxicab_heap_push(heap_view, size, TaxicabNode{sum: taxicab_cube(first.a) + taxicab_cube(next_b), a: first.a, b: next_b})
+        while size > 0 and heap_view[0].sum == total:
+            equal: TaxicabNode = taxicab_heap_pop(heap_view, size)
+            count <- count + 1
+            if equal.b < TAXICAB_MAX_ROOT.i32():
+                next_b: i32 = equal.b + 1
+                taxicab_heap_push(heap_view, size, TaxicabNode{sum: taxicab_cube(equal.a) + taxicab_cube(next_b), a: equal.a, b: next_b})
+        if count >= ways: return total.i64()
+    -1
+
+export fn taxicab_number_minimum_representations(input: i64&, length: usize) abi("C") -> i64:
+    if input.is_null() or length < 1 or length > TAXICAB_MAX_PARSEABLE_LENGTH: return -1
+    if length != 1: return -1
+    taxicab_impl(input[0:length])

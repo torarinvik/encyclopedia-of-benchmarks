@@ -1,0 +1,34 @@
+{
+  "algorithm": "wilson_uniform_spanning_tree",
+  "abi": "i64_array_bytes_output",
+  "sources": [
+    "c/w/wilson_uniform_spanning_tree.c",
+    "c3/w/wilson_uniform_spanning_tree.c3",
+    "cpp/w/wilson_uniform_spanning_tree.cpp",
+    "elisa/w/wilson_uniform_spanning_tree.elisa",
+    "mojo/w/wilson_uniform_spanning_tree.mojo",
+    "nim/w/wilson_uniform_spanning_tree.nim",
+    "odin/w/wilson_uniform_spanning_tree.odin",
+    "rust/w/wilson_uniform_spanning_tree.rs",
+    "v/w/wilson_uniform_spanning_tree.v",
+    "zig/w/wilson_uniform_spanning_tree.zig"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "verify_workload.py",
+    "check_inventory.py",
+    "INVENTORY.md"
+  ],
+  "maximum_valid_input_words": 508,
+  "maximum_parseable_input_words": 509,
+  "maximum_output_bytes": 112,
+  "workspace_bytes": 2048,
+  "static_checker": "benchmarks/w/wilson_uniform_spanning_tree/check_inventory.py",
+  "suite_integration": "i64_array_bytes_output runner and verifier registered; README and CATALOG entries present"
+}

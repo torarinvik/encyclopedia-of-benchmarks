@@ -17,6 +17,23 @@ import struct
 import sys
 
 from build_abi import ROOT, sha256_file
+from c.circle_polygon_intersection_area.check_inventory import inventory_errors as circle_polygon_inventory_errors
+from c.circle_polygon_intersection_area.primary_oracle import (
+    INVALID as CIRCLE_POLYGON_INTERSECTION_AREA_INVALID_RESULT,
+    circle_polygon_intersection_area as circle_polygon_intersection_area_expected,
+)
+from q.quantum_spectral_energy_expectation.check_inventory import (
+    static_issues as quantum_spectral_energy_expectation_static_issues,
+)
+from q.quantum_spectral_energy_expectation.primary_oracle import (
+    INVALID_RESULT as QUANTUM_SPECTRAL_ENERGY_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as QUANTUM_SPECTRAL_ENERGY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as QUANTUM_SPECTRAL_ENERGY_MAX_VALID_INPUT_LENGTH,
+    expected_result as quantum_spectral_energy_expectation_expected,
+)
+from q.quantum_spectral_energy_expectation.verify_workload import (
+    workload_issues as quantum_spectral_energy_expectation_workload_issues,
+)
 from ansibench_whetstone_oracle import (
     INVALID_RESULT as ANSIBENCH_WHETSTONE_INVALID_RESULT,
     MAX_PARSEABLE_INPUT_LENGTH as ANSIBENCH_WHETSTONE_MAX_PARSEABLE_INPUT_LENGTH,
@@ -51,6 +68,13 @@ from freebench_fbench_oracle import (
     INVALID_RESULT as FREEBENCH_FBENCH_INVALID_RESULT,
     MAX_PASSES as FREEBENCH_FBENCH_MAX_PASSES,
     expected_result as freebench_fbench_expected,
+)
+from h.hickerson_almost_integer.check_inventory import static_issues as hickerson_inventory_issues
+from h.hickerson_almost_integer.primary_oracle import (
+    INVALID_RESULT as HICKERSON_ALMOST_INTEGER_INVALID_RESULT,
+    MAX_N as HICKERSON_ALMOST_INTEGER_MAX_N,
+    MIN_N as HICKERSON_ALMOST_INTEGER_MIN_N,
+    expected_result as hickerson_almost_integer_expected,
 )
 from doe_rsbench_doppler_xs_oracle import (
     INVALID_RESULT as DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT,
@@ -120,13 +144,10 @@ from gbbs_greedy_plus_plus_densest_subgraph_oracle import (
 )
 from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
-    MAX_BRUTE_FORCE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH,
-    MAX_BRUTE_FORCE_PARSEABLE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_PARSEABLE_INPUT_LENGTH,
     MAX_CITIES as TRAVELING_SALESMAN_SOLVER_MAX_CITIES,
     MAX_EDGE_COST as TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST,
     MAX_NEAREST_NEIGHBOR_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_INPUT_LENGTH,
     MAX_NEAREST_NEIGHBOR_PARSEABLE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH,
-    expected_result_brute_force as traveling_salesman_solver_brute_force_expected,
     expected_result_nearest_neighbor as traveling_salesman_solver_nearest_neighbor_expected,
 )
 from gradient_descent_oracle import expected_result as gradient_descent_expected
@@ -621,11 +642,73 @@ from monte_carlo_integration_independent_oracle import (
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
+MAX_CIRCLE_POLYGON_INTERSECTION_AREA_PARSEABLE_INPUT_LENGTH = 37
 MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH = 9 + UNSCENTED_KALMAN_FILTER_MAX_STEPS
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH = 2 + 32 + 32 * 32
 MAX_REALTIME_STATS_CASE_INPUT_LENGTH = MAX_REALTIME_STATS_PARSEABLE_INPUT_LENGTH + 1
 MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH = KMEANS_RAW_R_MAX_PARSEABLE_INPUT_LENGTH + 1
 MAX_DOE_MINIAMR_STENCIL_AVERAGE_PARSEABLE_INPUT_LENGTH = DOE_MINIAMR_STENCIL_AVERAGE_MAX_INPUT_LENGTH + 1
+
+
+def validate_circle_polygon_intersection_area_workload(workload: dict) -> None:
+    """Check the bounded circle/polygon contract and static port inventory."""
+    errors = circle_polygon_inventory_errors()
+    if errors:
+        raise ValueError("circle_polygon_intersection_area package is incomplete: "
+                         + "; ".join(errors))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "circle-polygon-intersection-area-i64-array-float64-v1"
+            or workload.get("algorithm") != "circle_polygon_intersection_area"
+            or workload.get("function_symbol") != "circle_polygon_intersection_area"
+            or workload.get("abi") != "i64_array_float64"
+            or input_spec.get("maximum_valid_input_length") != 36
+            or input_spec.get("maximum_parseable_input_length")
+            != MAX_CIRCLE_POLYGON_INTERSECTION_AREA_PARSEABLE_INPUT_LENGTH
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("absolute_tolerance") != 1e-9
+            or output_spec.get("relative_tolerance") != 1e-12
+            or output_spec.get("invalid_input_result")
+            != CIRCLE_POLYGON_INTERSECTION_AREA_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-9
+            or measurement.get("relative_tolerance") != 1e-12
+            or not isinstance(workload.get("cases"), list)
+            or not workload["cases"]):
+        raise ValueError("circle_polygon_intersection_area workload metadata differs from its contract")
+
+
+def validate_quantum_spectral_energy_expectation_workload(workload: dict) -> None:
+    """Check the normalized spectral-energy contract and clean-room inventory."""
+    issues = (quantum_spectral_energy_expectation_static_issues()
+              + quantum_spectral_energy_expectation_workload_issues(workload))
+    if issues:
+        raise ValueError("quantum_spectral_energy_expectation package is incomplete: "
+                         + "; ".join(issues))
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "quantum-spectral-energy-expectation-i64-array-float64-v1"
+            or workload.get("function_symbol") != "quantum_spectral_energy_expectation"
+            or workload.get("abi") != "i64_array_float64"
+            or input_spec.get("minimum_N") != 2
+            or input_spec.get("maximum_N") != 32
+            or input_spec.get("fixed_point_scale") != 256
+            or input_spec.get("maximum_valid_input_length")
+            != QUANTUM_SPECTRAL_ENERGY_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length")
+            != QUANTUM_SPECTRAL_ENERGY_MAX_PARSEABLE_INPUT_LENGTH
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("invalid_input_result") != QUANTUM_SPECTRAL_ENERGY_INVALID_RESULT
+            or output_spec.get("absolute_tolerance") != 1e-9
+            or output_spec.get("relative_tolerance") != 1e-10
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-9
+            or measurement.get("relative_tolerance") != 1e-10):
+        raise ValueError("quantum_spectral_energy_expectation workload metadata differs from its contract")
 
 
 def validate_rodinia_myocyte_cam_rhs_workload(workload: dict) -> None:
@@ -2170,12 +2253,9 @@ MAX_LOGISTIC_REGRESSION_CSHARP_BINARY_GD_INPUT_LENGTH = 300
 
 
 def validate_traveling_salesman_solver_workload(workload: dict, algorithm: str) -> None:
-    is_nearest = algorithm == "traveling_salesman_solver_nearest_neighbor"
-    if algorithm not in {"traveling_salesman_solver_brute_force",
-                         "traveling_salesman_solver_nearest_neighbor"}:
+    if algorithm != "traveling_salesman_solver_nearest_neighbor":
         raise ValueError(f"unsupported traveling_salesman_solver workload: {algorithm}")
-    function_symbol = ("TravelingSalesmanSolver.SolveNearestNeighbor" if is_nearest
-                       else "TravelingSalesmanSolver.SolveBruteForce")
+    function_symbol = "TravelingSalesmanSolver.SolveNearestNeighbor"
     source_url = "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs"
     expected_source = {
         "repository": "TheAlgorithms/C-Sharp",
@@ -2186,25 +2266,17 @@ def validate_traveling_salesman_solver_workload(workload: dict, algorithm: str) 
         "role": "algorithm",
         "dependencies": [],
     }
-    max_input_length = (TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_INPUT_LENGTH if is_nearest
-                        else TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH)
-    max_parseable_input_length = (
-        TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH if is_nearest
-        else TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_PARSEABLE_INPUT_LENGTH)
-    minimum_cities = 1 if is_nearest else 2
-    input_encoding = ("[selector,n,start,distance_row_major...]" if is_nearest
-                      else "[selector,n,distance_row_major...]")
+    max_input_length = TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_INPUT_LENGTH
+    max_parseable_input_length = TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH
     expected_input = {
         "kind": "signed_64_bit_integer_array",
-        "encoding": input_encoding,
+        "encoding": "[selector,n,start,distance_row_major...]",
         "selector": {"0": "closed route distance",
                      "1_to_n_plus_1": "route position selector-1"},
-        "city_count_range": [minimum_cities, TRAVELING_SALESMAN_SOLVER_MAX_CITIES],
-        **({"start_range": "[0,n)"} if is_nearest else {}),
+        "city_count_range": [1, TRAVELING_SALESMAN_SOLVER_MAX_CITIES],
+        "start_range": "[0,n)",
         "edge_cost_range": [0, TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST],
-        "matrix": ("complete directed square matrix; diagonal is used for the single-city closing edge and otherwise ignored"
-                   if is_nearest else
-                   "complete directed square matrix; diagonal entries are validated but ignored"),
+        "matrix": "complete directed square matrix; diagonal is used for the single-city closing edge and otherwise ignored",
         "maximum_valid_array_length": max_input_length,
         "maximum_parseable_array_length": max_parseable_input_length,
         "invalid_input_result": TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
@@ -2220,44 +2292,27 @@ def validate_traveling_salesman_solver_workload(workload: dict, algorithm: str) 
         "comparison_model": "i64_array_float64_call",
         "sample_count": 5,
         "warmup_rounds": 1,
-        "repetitions_per_sample": 100 if is_nearest else 50,
+        "repetitions_per_sample": 100,
         "absolute_tolerance": 0,
         "relative_tolerance": 0,
     }
-    expected_contract = ({
+    expected_contract = {
         "operation": "Start at the selected city, repeatedly visit the nearest unvisited city, then add the directed return edge to the start and return the selected scalar.",
         "tie_order": "The source scans candidate city indices in ascending order and updates the next city only for a strict distance decrease, so ties select the lowest unvisited index.",
         "projection": "Selector 0 returns total distance. Selectors 1..n+1 return route elements 0..n as binary64 integers. For n=1, route is [start,start] and distance is the diagonal entry.",
         "error": "Invalid selector, framing, city count, start, or edge cost returns -1e300. The bounded complete graph always has an available unvisited city.",
-    } if is_nearest else {
-        "operation": "Fix city 0, enumerate permutations of cities 1..n-1, close each directed route back to 0, and return the first minimum route's selected scalar.",
-        "permutation_order": "The source recursively selects remaining cities in ascending array order. Tied minima keep the first lexicographic route because the source updates only for a strict distance decrease.",
-        "projection": "Selector 0 returns the total distance. Selectors 1..n+1 return route elements 0..n as binary64 integers.",
-        "error": "Invalid selector, length, city count, or edge cost returns -1e300. The bounded complete graph always has a route.",
-    })
-    case_ids = ({
+    }
+    case_ids = {
         "single_city_distance_uses_diagonal", "single_city_route_start", "single_city_route_close",
         "greedy_route_distance_not_global_minimum", "greedy_route_start", "greedy_route_second",
         "greedy_route_third", "greedy_route_fourth", "greedy_route_close",
         "tie_uses_lowest_city_index", "tie_route_next_position", "maximum_city_count_distance",
         "city_count_below_range", "city_count_above_range", "start_out_of_range",
         "selector_out_of_range", "truncated_matrix", "extra_matrix_value", "edge_above_bound",
-    } if is_nearest else {
-        "two_city_distance", "two_city_start", "two_city_other_city", "two_city_close",
-        "unique_optimum_distance", "unique_optimum_route_start", "unique_optimum_route_second",
-        "unique_optimum_route_third", "unique_optimum_route_fourth", "unique_optimum_route_close",
-        "tie_keeps_lexicographically_first_route", "maximum_city_count_distance",
-        "minimum_city_count_rejected", "too_many_cities_rejected", "selector_out_of_range",
-        "truncated_matrix", "extra_matrix_value", "edge_above_bound",
-    })
-    workload_id = ("thealgorithms-csharp-traveling-salesman-nearest-neighbor-i64-array-float64-v1"
-                   if is_nearest else
-                   "thealgorithms-csharp-traveling-salesman-brute-force-i64-array-float64-v1")
-    description = ("Return a selected route city or total distance from the pinned C# nearest-neighbor TSP solver."
-                   if is_nearest else
-                   "Return a selected route city or total distance from the pinned C# brute-force TSP solver.")
-    oracle_entry = ("expected_result_nearest_neighbor(values)" if is_nearest
-                    else "expected_result_brute_force(values)")
+    }
+    workload_id = "thealgorithms-csharp-traveling-salesman-nearest-neighbor-i64-array-float64-v1"
+    description = "Return a selected route city or total distance from the pinned C# nearest-neighbor TSP solver."
+    oracle_entry = "expected_result_nearest_neighbor(values)"
     if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
                           "input", "output", "measurement", "contract", "pinned_source",
                           "oracle_method", "oracle_module", "oracle_entry_point", "cases"}
@@ -2273,18 +2328,14 @@ def validate_traveling_salesman_solver_workload(workload: dict, algorithm: str) 
             or workload.get("pinned_source") != expected_source
             or workload.get("oracle_module") != "benchmarks/traveling_salesman_solver_oracle.py"
             or workload.get("oracle_entry_point") != oracle_entry
-            or workload.get("oracle_method") != (
+            or workload.get("oracle_method") !=
                 "Apply ascending-index greedy nearest-neighbor selection, then project one route or distance scalar."
-                if is_nearest else
-                "Enumerate the same fixed-city-0 route set, preserving lexicographic tie order, then project one route or distance scalar.")
             or (TRAVELING_SALESMAN_SOLVER_MAX_CITIES,
                 TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST,
-                TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH,
-                TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_PARSEABLE_INPUT_LENGTH,
                 TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_INPUT_LENGTH,
                 TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH,
                 TRAVELING_SALESMAN_SOLVER_INVALID_RESULT)
-            != (8, 1000, 66, 67, 67, 68, -1e300)
+            != (8, 1000, 67, 68, -1e300)
             or not isinstance(workload.get("cases"), list)
             or len(workload["cases"]) != len(case_ids)
             or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != case_ids):
@@ -2293,8 +2344,7 @@ def validate_traveling_salesman_solver_workload(workload: dict, algorithm: str) 
     readme = (ROOT / "benchmarks" / "t" / algorithm / "README.md").read_text(encoding="utf-8")
     if (source_url not in readme or "Selector `0` returns the route distance" not in readme
             or "`-1e300`" not in readme
-            or ("lexicographically ascending city order" not in readme if not is_nearest
-                else "lowest city index" not in readme)):
+            or "lowest city index" not in readme):
         raise ValueError(f"{algorithm} README is missing its pinned source or route semantics")
 
     for case in workload["cases"]:
@@ -2309,8 +2359,7 @@ def validate_traveling_salesman_solver_workload(workload: dict, algorithm: str) 
                 or type(case.get("expected_result")) not in (int, float)):
             raise ValueError(f"{algorithm} fixture framing is invalid: {case_id}")
         encoded, expected = encode_case(case, algorithm)
-        source_result = (traveling_salesman_solver_nearest_neighbor_expected(encoded) if is_nearest
-                         else traveling_salesman_solver_brute_force_expected(encoded))
+        source_result = traveling_salesman_solver_nearest_neighbor_expected(encoded)
         if expected != source_result:
             raise ValueError(f"{algorithm} fixture differs from its pinned C# oracle: {case_id}")
 
@@ -2359,6 +2408,73 @@ def validate_nbench_fourier_coefficients_workload(workload: dict) -> None:
             values, input_is_null=input_is_null, input_length=input_length)
         if case.get("expected_result") != expected:
             raise ValueError(f"nbench_fourier_coefficients fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_hickerson_almost_integer_workload(workload: dict) -> None:
+    expected_ids = {
+        *(f"n{n:02d}" for n in range(HICKERSON_ALMOST_INTEGER_MIN_N, 16)),
+        "n16_not_almost_integer", "n17_not_almost_integer",
+        "zero_invalid", "upper_bound_plus_one", "wrong_length", "empty_input", "null_input",
+    }
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "hickerson-almost-integer-i64-array-float64-v1"
+            or workload.get("algorithm") != "hickerson_almost_integer"
+            or workload.get("function_symbol") != "hickerson_almost_integer"
+            or workload.get("abi") != "i64_array_float64"
+            or input_spec.get("kind") != "signed_i64_array"
+            or input_spec.get("encoding") != "[n]"
+            or input_spec.get("exact_length") != 1
+            or input_spec.get("n_range") != [HICKERSON_ALMOST_INTEGER_MIN_N,
+                                               HICKERSON_ALMOST_INTEGER_MAX_N]
+            or input_spec.get("invalid_result") != HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+            or output_spec.get("kind") != "float64_scalar"
+            or output_spec.get("absolute_tolerance") != 6e-6
+            or output_spec.get("relative_tolerance") != 1e-12
+            or output_spec.get("invalid_result") != HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("sample_count") != 17
+            or measurement.get("warmup_rounds") != 2
+            or measurement.get("repetitions_per_sample") != 1000
+            or measurement.get("absolute_tolerance") != 6e-6
+            or measurement.get("relative_tolerance") != 1e-12
+            or workload.get("primary_oracle")
+                != "benchmarks/h/hickerson_almost_integer/primary_oracle.py"
+            or workload.get("independent_oracle")
+                != "benchmarks/h/hickerson_almost_integer/independent_oracle.py"
+            or {case.get("id") for case in workload.get("cases", [])
+                if isinstance(case, dict)} != expected_ids):
+        raise ValueError("hickerson_almost_integer metadata differs from its bounded expression contract")
+
+    inventory_issues = hickerson_inventory_issues()
+    if inventory_issues:
+        raise ValueError("hickerson_almost_integer inventory is incomplete: "
+                         + "; ".join(inventory_issues))
+
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length")
+        actual = case.get("expected_result")
+        if (not isinstance(values, list) or len(values) > 2
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or type(actual) not in (int, float) or not math.isfinite(actual)):
+            raise ValueError(f"hickerson_almost_integer fixture framing is invalid: {case.get('id')}")
+        expected = hickerson_almost_integer_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if (expected == HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                and actual != HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                or expected != HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                and (actual == HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                     or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=6e-6))):
+            raise ValueError(f"hickerson_almost_integer fixture differs from its recurrence oracle: {case.get('id')}")
 
 
 def validate_misc_flops_workload(workload: dict) -> None:
@@ -3770,7 +3886,11 @@ def validate_gbbs_greedy_plus_plus_densest_subgraph_workload(workload: dict) -> 
 
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (GBBS_CHARIKAR_MAX_PARSEABLE_INPUT_LENGTH
+    max_input_length = (QUANTUM_SPECTRAL_ENERGY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "quantum_spectral_energy_expectation" else
+                        MAX_CIRCLE_POLYGON_INTERSECTION_AREA_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "circle_polygon_intersection_area" else
+                        GBBS_CHARIKAR_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "gbbs_charikar_densest_subgraph" else
                         GBBS_BKV12_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "gbbs_bkv12_densest_subgraph" else
@@ -3931,12 +4051,11 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "shunting_yard" else
                         MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH if algorithm == "kmeans_raw_r" else
                         MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH if algorithm == "maxwells_equations" else
-                        TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_PARSEABLE_INPUT_LENGTH
-                        if algorithm == "traveling_salesman_solver_brute_force" else
                         TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "traveling_salesman_solver_nearest_neighbor" else
                         NBENCH_FOURIER_COEFFICIENTS_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "nbench_fourier_coefficients" else
+                        2 if algorithm == "hickerson_almost_integer" else
                         ANSIBENCH_WHETSTONE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "ansibench_whetstone" else
                         LINPACK_LU_SOLVE_MAX_PARSEABLE_INPUT_LENGTH
@@ -3966,11 +4085,26 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
-    if algorithm in {"traveling_salesman_solver_brute_force",
-                     "traveling_salesman_solver_nearest_neighbor"}:
-        source_result = (traveling_salesman_solver_nearest_neighbor_expected(values)
-                         if algorithm == "traveling_salesman_solver_nearest_neighbor"
-                         else traveling_salesman_solver_brute_force_expected(values))
+    if algorithm == "circle_polygon_intersection_area":
+        source_result = circle_polygon_intersection_area_expected(values)
+        if source_result == CIRCLE_POLYGON_INTERSECTION_AREA_INVALID_RESULT:
+            if expected != CIRCLE_POLYGON_INTERSECTION_AREA_INVALID_RESULT:
+                raise ValueError("invalid circle_polygon_intersection_area inputs must use the -1e300 sentinel")
+        elif expected == CIRCLE_POLYGON_INTERSECTION_AREA_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("circle_polygon_intersection_area expected_result must match the edge-sector oracle")
+    if algorithm == "quantum_spectral_energy_expectation":
+        source_result = quantum_spectral_energy_expectation_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if source_result == QUANTUM_SPECTRAL_ENERGY_INVALID_RESULT:
+            if expected != QUANTUM_SPECTRAL_ENERGY_INVALID_RESULT:
+                raise ValueError("invalid quantum spectral inputs must use the -1e300 sentinel")
+        elif expected == QUANTUM_SPECTRAL_ENERGY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-10, abs_tol=1e-9):
+            raise ValueError("quantum spectral expected_result must match the radix-2 reference")
+    if algorithm == "traveling_salesman_solver_nearest_neighbor":
+        source_result = traveling_salesman_solver_nearest_neighbor_expected(values)
         if expected != source_result:
             raise ValueError(f"{algorithm} expected_result must match the pinned route projection")
     if algorithm == "shunting_yard":
@@ -3987,6 +4121,17 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         source_result = nbench_fourier_coefficients_expected(values)
         if expected != source_result:
             raise ValueError("nbench_fourier_coefficients expected_result must match the pinned coefficient projection")
+    if algorithm == "hickerson_almost_integer":
+        source_result = hickerson_almost_integer_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if (source_result == HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                and expected != HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                or source_result != HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                and (expected == HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                     or not math.isclose(expected, source_result,
+                                         rel_tol=1e-12, abs_tol=6e-6))):
+            raise ValueError("hickerson_almost_integer expected_result must match its recurrence oracle")
     if algorithm == "misc_flops":
         source_result = misc_flops_expected(values)
         if source_result == MISC_FLOPS_INVALID_RESULT:
@@ -6467,7 +6612,11 @@ def main() -> int:
             workload_path = flat_workload
     from workload_json import load_workload
     workload = load_workload(workload_path)
-    if algorithm == "temperature_conversions":
+    if algorithm == "circle_polygon_intersection_area":
+        validate_circle_polygon_intersection_area_workload(workload)
+    elif algorithm == "quantum_spectral_energy_expectation":
+        validate_quantum_spectral_energy_expectation_workload(workload)
+    elif algorithm == "temperature_conversions":
         validate_temperature_conversions_workload(workload)
     elif algorithm == "gbbs_charikar_densest_subgraph":
         validate_gbbs_charikar_densest_subgraph_workload(workload)
@@ -6499,11 +6648,12 @@ def main() -> int:
         validate_maxwells_equations_workload(workload)
     elif algorithm == "shunting_yard":
         validate_shunting_yard_workload(workload)
-    elif algorithm in {"traveling_salesman_solver_brute_force",
-                       "traveling_salesman_solver_nearest_neighbor"}:
+    elif algorithm == "traveling_salesman_solver_nearest_neighbor":
         validate_traveling_salesman_solver_workload(workload, algorithm)
     elif algorithm == "nbench_fourier_coefficients":
         validate_nbench_fourier_coefficients_workload(workload)
+    elif algorithm == "hickerson_almost_integer":
+        validate_hickerson_almost_integer_workload(workload)
     elif algorithm == "misc_flops":
         validate_misc_flops_workload(workload)
     elif algorithm == "freebench_fbench":
@@ -6574,6 +6724,7 @@ def main() -> int:
                 or algorithm == "sharpe_ratio" and input_length == 0
                 or algorithm == "kmeans_raw_r" and input_length in (0, 4)
                 or algorithm == "nbench_fourier_coefficients" and input_length == 0
+                or algorithm == "hickerson_almost_integer" and input_length == 0
                 or algorithm == "ansibench_whetstone" and input_length == 1
                 or algorithm == "linpack_lu_solve" and input_length == 1
                 or algorithm == "npb_bt_5x5_block_tridiagonal" and input_length == 0
@@ -6588,7 +6739,9 @@ def main() -> int:
                                  "monte_carlo_integration_independent"} and input_length == 3
                 or algorithm in {"gbbs_charikar_densest_subgraph",
                                  "gbbs_bkv12_densest_subgraph",
-                                 "gbbs_greedy_plus_plus_densest_subgraph"} and input_length == 0)
+                                 "gbbs_greedy_plus_plus_densest_subgraph"} and input_length == 0
+                or algorithm == "circle_polygon_intersection_area" and input_length == 0
+                or algorithm == "quantum_spectral_energy_expectation" and input_length == 0)
             if not supported_null_input or values:
                 raise ValueError(f"unsupported null-pointer input for {case['id']}")
         elif input_length != len(values):

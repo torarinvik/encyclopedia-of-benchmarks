@@ -79,8 +79,8 @@ fn double shunting_yard(long* input, usz length) @export("shunting_yard") {
         if (input[index + 1] < 0 || input[index + 1] > 127) return INVALID_RESULT;
     }
 
-    double numbers[MAX_OPERANDS] = {0.0};
-    char operators[MAX_OPERATORS] = {0};
+    double[MAX_OPERANDS] numbers = {};
+    char[MAX_OPERATORS] operators = {};
     usz number_count = 0;
     usz operator_count = 0;
     usz operand_count = 0;
@@ -137,7 +137,7 @@ fn double shunting_yard(long* input, usz length) @export("shunting_yard") {
                 int current_precedence = precedence(current);
                 if (previous_precedence < current_precedence ||
                     (previous_precedence == current_precedence && current == '^')) break;
-                if (!apply_top(numbers, &number_count, operators, &operator_count))
+                if (!apply_top(&numbers[0], &number_count, &operators[0], &operator_count))
                     return INVALID_RESULT;
             }
             operators[operator_count] = current;
@@ -151,7 +151,7 @@ fn double shunting_yard(long* input, usz length) @export("shunting_yard") {
     if (expect_number || operand_count == 0 ||
         parsed_operator_count + 1 != operand_count) return INVALID_RESULT;
     while (operator_count > 0) {
-        if (!apply_top(numbers, &number_count, operators, &operator_count))
+        if (!apply_top(&numbers[0], &number_count, &operators[0], &operator_count))
             return INVALID_RESULT;
     }
     if (number_count != 1) return INVALID_RESULT;

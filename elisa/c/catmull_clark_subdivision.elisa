@@ -1,0 +1,350 @@
+extern fabs(value: f64) -> f64
+extern trunc(value: f64) -> f64
+
+const CC_MAX_V: usize = 24
+const CC_MAX_F: usize = 8
+const CC_MAX_D: usize = 8
+const CC_MAX_E: usize = 32
+const CC_MAX_IN: usize = 122
+const CC_MAX_OUT: usize = 386
+const CC_MAX_FINITE: f64 = 1.7976931348623157e308
+
+def cc_int(value: f64, low: i64, high: i64) -> i64:
+    if value != value or fabs(value) > CC_MAX_FINITE or trunc(value) != value or
+            value < low.f64() or value > high.f64(): return -1
+    value.i64()
+
+def cc_face_index(face: usize, corner: usize) -> usize:
+    face * CC_MAX_D + corner
+
+def cc_mean(values: view[f64]) -> f64:
+    scale: mutable f64 = 0.0
+    for i in 0..<values.len():
+        if fabs(values[i]) > scale: scale <- fabs(values[i])
+    if scale == 0.0: return 0.0
+    total: mutable f64 = 0.0
+    for i in 0..<values.len(): total <- total + values[i] / scale
+    (total / values.len().f64()) * scale
+
+def cc_midpoint(a: f64, b: f64) -> f64:
+    scale: f64 = if fabs(a) > fabs(b): fabs(a) else: fabs(b)
+    if scale == 0.0: return 0.0
+    ((a / scale + b / scale) * 0.5) * scale
+
+def cc_average4(a: f64, b: f64, c: f64, d: f64) -> f64:
+    scale: mutable f64 = fabs(a)
+    if fabs(b) > scale: scale <- fabs(b)
+    if fabs(c) > scale: scale <- fabs(c)
+    if fabs(d) > scale: scale <- fabs(d)
+    if scale == 0.0: return 0.0
+    ((a / scale + b / scale + c / scale + d / scale) * 0.25) * scale
+
+def cc_compute(values: view[f64], staged: mutable view[f64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > CC_MAX_IN: return -1
+    for i in 0..<length:
+        value: f64 = values[i]
+        if value != value or fabs(value) > CC_MAX_FINITE: return -1
+    nv_value: i64 = cc_int(values[0], 0, CC_MAX_V.i64())
+    nf_value: i64 = cc_int(values[1], 0, CC_MAX_F.i64())
+    if nv_value < 0 or nf_value < 0: return -1
+    nv: usize = nv_value.usize()
+    nf: usize = nf_value.usize()
+    if (nv == 0 or nf == 0) and not (nv == 0 and nf == 0 and length == 2): return -1
+
+    x_storage: mutable f64[CC_MAX_V] = zeroed
+    y_storage: mutable f64[CC_MAX_V] = zeroed
+    degree_storage: mutable usize[CC_MAX_F] = zeroed
+    face_storage: mutable usize[CC_MAX_F * CC_MAX_D] = zeroed
+    x: mutable view[f64] = x_storage[0:CC_MAX_V]
+    y: mutable view[f64] = y_storage[0:CC_MAX_V]
+    degree: mutable view[usize] = degree_storage[0:CC_MAX_F]
+    face: mutable view[usize] = face_storage[0:CC_MAX_F * CC_MAX_D]
+    position: mutable usize = 2
+    if position + 2 * nv > length: return -1
+    vertex: mutable usize = 0
+    while vertex < nv:
+        x[vertex] <- values[position]
+        y[vertex] <- values[position + 1]
+        position <- position + 2
+        vertex <- vertex + 1
+
+    edge_u_storage: mutable usize[CC_MAX_E] = zeroed
+    edge_v_storage: mutable usize[CC_MAX_E] = zeroed
+    edge_f0_storage: mutable usize[CC_MAX_E] = zeroed
+    edge_f1_storage: mutable usize[CC_MAX_E] = zeroed
+    edge_uses_storage: mutable usize[CC_MAX_E] = zeroed
+    edge_u: mutable view[usize] = edge_u_storage[0:CC_MAX_E]
+    edge_v: mutable view[usize] = edge_v_storage[0:CC_MAX_E]
+    edge_f0: mutable view[usize] = edge_f0_storage[0:CC_MAX_E]
+    edge_f1: mutable view[usize] = edge_f1_storage[0:CC_MAX_E]
+    edge_uses: mutable view[usize] = edge_uses_storage[0:CC_MAX_E]
+    edge_count: mutable usize = 0
+    f: mutable usize = 0
+    while f < nf:
+        if position >= length: return -1
+        d_value: i64 = cc_int(values[position], 3, CC_MAX_D.i64())
+        position <- position + 1
+        if d_value < 0: return -1
+        d: usize = d_value.usize()
+        degree[f] <- d
+        if position + d > length: return -1
+        i: mutable usize = 0
+        while i < d:
+            v_value: i64 = cc_int(values[position], 0, nv_value - 1)
+            position <- position + 1
+            if v_value < 0: return -1
+            v: usize = v_value.usize()
+            j: usize = 0
+            while j < i:
+                if face[cc_face_index(f, j)] == v: return -1
+                j <- j + 1
+            face[cc_face_index(f, i)] <- v
+            i <- i + 1
+        i <- 0
+        while i < d:
+            a: usize = face[cc_face_index(f, i)]
+            b: usize = face[cc_face_index(f, (i + 1) % d)]
+            u: usize = if a < b: a else: b
+            v: usize = if a < b: b else: a
+            found: mutable i64 = -1
+            e: usize = 0
+            while e < edge_count:
+                if edge_u[e] == u and edge_v[e] == v:
+                    found <- e.i64()
+                    break
+                e <- e + 1
+            if found < 0:
+                if edge_count == CC_MAX_E: return -1
+                edge_u[edge_count] <- u
+                edge_v[edge_count] <- v
+                edge_f0[edge_count] <- f
+                edge_f1[edge_count] <- 0
+                edge_uses[edge_count] <- 1
+                edge_count <- edge_count + 1
+            else:
+                e = found.usize()
+                if edge_uses[e] != 1 or edge_f0[e] == f: return -1
+                edge_uses[e] <- 2
+                edge_f1[e] <- f
+            i <- i + 1
+        f <- f + 1
+    if position != length: return -1
+    e: usize = 0
+    while e < edge_count:
+        if edge_uses[e] != 2: return -1
+        e <- e + 1
+
+    vertex <- 0
+    while vertex < nv:
+        valence: mutable usize = 0
+        e <- 0
+        while e < edge_count:
+            if edge_u[e] == vertex or edge_v[e] == vertex: valence <- valence + 1
+            e <- e + 1
+        link_a_storage: mutable usize[CC_MAX_F] = zeroed
+        link_b_storage: mutable usize[CC_MAX_F] = zeroed
+        link_a: mutable view[usize] = link_a_storage[0:CC_MAX_F]
+        link_b: mutable view[usize] = link_b_storage[0:CC_MAX_F]
+        links: mutable usize = 0
+        f <- 0
+        while f < nf:
+            i <- 0
+            while i < degree[f]:
+                if face[cc_face_index(f, i)] == vertex:
+                    a: usize = face[cc_face_index(f, (i + degree[f] - 1) % degree[f])]
+                    b: usize = face[cc_face_index(f, (i + 1) % degree[f])]
+                    lo: usize = if a < b: a else: b
+                    hi: usize = if a < b: b else: a
+                    j: usize = 0
+                    while j < links:
+                        old_lo: usize = if link_a[j] < link_b[j]: link_a[j] else: link_b[j]
+                        old_hi: usize = if link_a[j] < link_b[j]: link_b[j] else: link_a[j]
+                        if lo == old_lo and hi == old_hi: return -1
+                        j <- j + 1
+                    link_a[links] <- a
+                    link_b[links] <- b
+                    links <- links + 1
+                i <- i + 1
+            f <- f + 1
+        if valence < 3 or links != valence: return -1
+        reached_storage: mutable bool[CC_MAX_V] = zeroed
+        reached: mutable view[bool] = reached_storage[0:CC_MAX_V]
+        reached[link_a[0]] <- true
+        changed: mutable bool = true
+        while changed:
+            changed <- false
+            i <- 0
+            while i < links:
+                if reached[link_a[i]] and not reached[link_b[i]]:
+                    reached[link_b[i]] <- true
+                    changed <- true
+                if reached[link_b[i]] and not reached[link_a[i]]:
+                    reached[link_a[i]] <- true
+                    changed <- true
+                i <- i + 1
+        node_degree_storage: mutable usize[CC_MAX_V] = zeroed
+        node_degree: mutable view[usize] = node_degree_storage[0:CC_MAX_V]
+        i <- 0
+        while i < links:
+            node_degree[link_a[i]] <- node_degree[link_a[i]] + 1
+            node_degree[link_b[i]] <- node_degree[link_b[i]] + 1
+            i <- i + 1
+        nodes: mutable usize = 0
+        i <- 0
+        while i < nv:
+            if node_degree[i] != 0:
+                nodes <- nodes + 1
+                if node_degree[i] != 2 or not reached[i]: return -1
+            i <- i + 1
+        if nodes < 3: return -1
+        vertex <- vertex + 1
+
+    i: mutable usize = 1
+    while i < edge_count:
+        u: usize = edge_u[i]
+        v: usize = edge_v[i]
+        f0: usize = edge_f0[i]
+        f1: usize = edge_f1[i]
+        j: mutable usize = i
+        while j > 0 and (edge_u[j - 1] > u or (edge_u[j - 1] == u and edge_v[j - 1] > v)):
+            edge_u[j] <- edge_u[j - 1]
+            edge_v[j] <- edge_v[j - 1]
+            edge_f0[j] <- edge_f0[j - 1]
+            edge_f1[j] <- edge_f1[j - 1]
+            j <- j - 1
+        edge_u[j] <- u
+        edge_v[j] <- v
+        edge_f0[j] <- f0
+        edge_f1[j] <- f1
+        i <- i + 1
+
+    face_x_storage: mutable f64[CC_MAX_F] = zeroed
+    face_y_storage: mutable f64[CC_MAX_F] = zeroed
+    face_x: mutable view[f64] = face_x_storage[0:CC_MAX_F]
+    face_y: mutable view[f64] = face_y_storage[0:CC_MAX_F]
+    f <- 0
+    while f < nf:
+        vx_storage: mutable f64[CC_MAX_F] = zeroed
+        vy_storage: mutable f64[CC_MAX_F] = zeroed
+        vx: mutable view[f64] = vx_storage[0:CC_MAX_F]
+        vy: mutable view[f64] = vy_storage[0:CC_MAX_F]
+        i <- 0
+        while i < degree[f]:
+            vx[i] <- x[face[cc_face_index(f, i)]]
+            vy[i] <- y[face[cc_face_index(f, i)]]
+            i <- i + 1
+        face_x[f] <- cc_mean(vx[0:degree[f]])
+        face_y[f] <- cc_mean(vy[0:degree[f]])
+        f <- f + 1
+
+    staged_storage: mutable f64[CC_MAX_OUT] = zeroed
+    staged: mutable view[f64] = staged_storage[0:CC_MAX_OUT]
+    out: mutable usize = 0
+    output_vertices: usize = nv + edge_count + nf
+    output_faces: mutable usize = 0
+    f <- 0
+    while f < nf: output_faces <- output_faces + degree[f]; f <- f + 1
+    staged[out] <- output_vertices.f64(); out <- out + 1
+    staged[out] <- output_faces.f64(); out <- out + 1
+    vertex <- 0
+    while vertex < nv:
+        fxs_storage: mutable f64[CC_MAX_F] = zeroed
+        fys_storage: mutable f64[CC_MAX_F] = zeroed
+        rx_storage: mutable f64[CC_MAX_F] = zeroed
+        ry_storage: mutable f64[CC_MAX_F] = zeroed
+        fxs: mutable view[f64] = fxs_storage[0:CC_MAX_F]
+        fys: mutable view[f64] = fys_storage[0:CC_MAX_F]
+        rx: mutable view[f64] = rx_storage[0:CC_MAX_F]
+        ry: mutable view[f64] = ry_storage[0:CC_MAX_F]
+        nfi: mutable usize = 0
+        nei: mutable usize = 0
+        f <- 0
+        while f < nf:
+            i <- 0
+            while i < degree[f]:
+                if face[cc_face_index(f, i)] == vertex:
+                    fxs[nfi] <- face_x[f]
+                    fys[nfi] <- face_y[f]
+                    nfi <- nfi + 1
+                    break
+                i <- i + 1
+            f <- f + 1
+        e <- 0
+        while e < edge_count:
+            if edge_u[e] == vertex or edge_v[e] == vertex:
+                rx[nei] <- cc_midpoint(x[edge_u[e]], x[edge_v[e]])
+                ry[nei] <- cc_midpoint(y[edge_u[e]], y[edge_v[e]])
+                nei <- nei + 1
+            e <- e + 1
+        fx_avg: f64 = cc_mean(fxs[0:nfi])
+        fy_avg: f64 = cc_mean(fys[0:nfi])
+        rx_avg: f64 = cc_mean(rx[0:nei])
+        ry_avg: f64 = cc_mean(ry[0:nei])
+        sx: mutable f64 = fabs(x[vertex])
+        sy: mutable f64 = fabs(y[vertex])
+        if fabs(fx_avg) > sx: sx <- fabs(fx_avg)
+        if fabs(rx_avg) > sx: sx <- fabs(rx_avg)
+        if fabs(fy_avg) > sy: sy <- fabs(fy_avg)
+        if fabs(ry_avg) > sy: sy <- fabs(ry_avg)
+        px: f64 = 0.0
+        py: f64 = 0.0
+        if sx != 0.0: px = ((fx_avg/sx + 2.0*rx_avg/sx + (nei.i64()-3).f64()*(x[vertex]/sx))/nei.f64())*sx
+        if sy != 0.0: py = ((fy_avg/sy + 2.0*ry_avg/sy + (nei.i64()-3).f64()*(y[vertex]/sy))/nei.f64())*sy
+        staged[out] <- px; out <- out + 1
+        staged[out] <- py; out <- out + 1
+        vertex <- vertex + 1
+    e <- 0
+    while e < edge_count:
+        staged[out] <- cc_average4(x[edge_u[e]], x[edge_v[e]], face_x[edge_f0[e]], face_x[edge_f1[e]])
+        out <- out + 1
+        staged[out] <- cc_average4(y[edge_u[e]], y[edge_v[e]], face_y[edge_f0[e]], face_y[edge_f1[e]])
+        out <- out + 1
+        e <- e + 1
+    f <- 0
+    while f < nf:
+        staged[out] <- face_x[f]; out <- out + 1
+        staged[out] <- face_y[f]; out <- out + 1
+        f <- f + 1
+    f <- 0
+    while f < nf:
+        i <- 0
+        while i < degree[f]:
+            v: usize = face[cc_face_index(f, i)]
+            next: usize = face[cc_face_index(f, (i + 1) % degree[f])]
+            prev: usize = face[cc_face_index(f, (i + degree[f] - 1) % degree[f])]
+            u1: usize = if v < next: v else: next
+            v1: usize = if v < next: next else: v
+            u2: usize = if prev < v: prev else: v
+            v2: usize = if prev < v: v else: prev
+            en: mutable usize = 0
+            ep: mutable usize = 0
+            e <- 0
+            while e < edge_count:
+                if edge_u[e] == u1 and edge_v[e] == v1: en <- e
+                if edge_u[e] == u2 and edge_v[e] == v2: ep <- e
+                e <- e + 1
+            staged[out] <- v.f64(); out <- out + 1
+            staged[out] <- (nv + en).f64(); out <- out + 1
+            staged[out] <- (nv + edge_count + f).f64(); out <- out + 1
+            staged[out] <- (nv + ep).f64(); out <- out + 1
+            i <- i + 1
+        f <- f + 1
+    if out > CC_MAX_OUT: return -1
+    if output.is_null() or capacity < out: return -2
+    output_view: mutable view[f64] = output[0:out]
+    for i in 0..<out: output_view[i] <- staged[i]
+    out.i64()
+
+export fn catmull_clark_subdivision(input: f64&, input_length: usize,
+                                    output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > CC_MAX_IN: return -1
+    input_view: view[f64] = input[0:input_length]
+    staged_storage: mutable f64[CC_MAX_OUT] = zeroed
+    staged_view: mutable view[f64] = staged_storage[0:CC_MAX_OUT]
+    result: i64 = cc_compute(input_view, staged_view)
+    if result < 0: return -1
+    if output.is_null() or output_capacity < result.usize(): return -2
+    output_view: mutable view[f64] = output[0:result.usize()]
+    for i in 0..<result.usize(): output_view[i] <- staged_view[i]
+    result

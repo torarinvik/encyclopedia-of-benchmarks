@@ -1,0 +1,64 @@
+const MAX_N: i64 = 8
+const MAX_CANDIDATE: usize = 40320
+const MAX_PARSEABLE_LENGTH: usize = 2
+
+def gcd_i64(left: i64, right: i64) -> i64:
+    a: mutable i64 = left
+    b: mutable i64 = right
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def write_i64_le(output: mutable view[u8], offset: usize, value: u64) -> void:
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((value >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def ekg_sequence_impl(input: view[i64], output: mutable u8&, output_capacity: usize) -> i64:
+    if input.length < 1 or input.length > MAX_PARSEABLE_LENGTH: return -1
+    requested: i64 = input[0]
+    if input.length != 1 or requested < 1 or requested > MAX_N: return -1
+
+    terms: mutable i64[8] = zeroed
+    used: mutable u8[MAX_CANDIDATE + 1] = zeroed
+    terms_view: mutable view[i64] = terms[0:8]
+    used_view: mutable view[u8] = used[0:MAX_CANDIDATE + 1]
+    terms_view[0] <- 1
+    used_view[1] <- 1
+    term_count: mutable usize = 1
+    if requested >= 2:
+        terms_view[1] <- 2
+        used_view[2] <- 1
+        term_count <- 2
+
+    while term_count < requested.usize():
+        position: i64 = (term_count + 1).i64()
+        previous: i64 = terms_view[term_count - 1]
+        search_bound: i64 = previous * position
+        candidate: mutable i64 = 1
+        while candidate <= search_bound:
+            if used_view[candidate.usize()] == 0 and gcd_i64(previous, candidate) > 1:
+                break
+            candidate <- candidate + 1
+        if candidate > search_bound: return -1
+        terms_view[term_count] <- candidate
+        used_view[candidate.usize()] <- 1
+        term_count <- term_count + 1
+
+    output_bytes: usize = requested.usize() * 8
+    if output.is_null() or output_capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    index: mutable usize = 0
+    while index < term_count:
+        write_i64_le(output_view, index * 8, terms_view[index].u64())
+        index <- index + 1
+    output_bytes.i64()
+
+export fn ekg_sequence(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    ekg_sequence_impl(input_view, output, output_capacity)

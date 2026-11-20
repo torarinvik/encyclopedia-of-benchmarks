@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "tree-distance-k-dominating-set-i64-array-scalar-v1",
+  "algorithm": "tree_distance_k_dominating_set",
+  "function_symbol": "tree_distance_k_dominating_set",
+  "abi": "i64_array_scalar",
+  "input": {"layout": "[n,k,parent[1..n-1]]", "maximum_valid_values": 65, "maximum_parseable_values": 66, "invalid_result": -1},
+  "output": {"encoding": "minimum distance-k dominating-set cardinality", "invalid_result": -1},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "source": {"url": "https://ftp.gwdg.de/pub/misc/EMIS/journals/JGAA/accepted/2015/TurauKoehler2015.19.1.pdf", "reuse": "Objective only; independently authored sequential method and fixtures."},
+  "cases": [
+    {"id":"single_vertex", "input_values":[1,0], "input_length":2, "expected_result":1},
+    {"id":"radius_zero", "input_values":[4,0,0,0,0], "input_length":5, "expected_result":4},
+    {"id":"star_radius_one", "input_values":[4,1,0,0,0], "input_length":5, "expected_result":1},
+    {"id":"path_radius_one", "input_values":[7,1,0,1,2,3,4,5], "input_length":8, "expected_result":3},
+    {"id":"path_radius_two", "input_values":[7,2,0,1,2,3,4,5], "input_length":8, "expected_result":2},
+    {"id":"balanced_branches", "input_values":[7,1,0,0,1,1,2,2], "input_length":8, "expected_result":2},
+    {"id":"uneven_branches", "input_values":[8,1,0,0,1,1,2,2,4], "input_length":9, "expected_result":2},
+    {"id":"oversized_radius", "input_values":[7,63,0,1,2,3,4,5], "input_length":8, "expected_result":1},
+    {"id":"invalid_parent", "input_values":[2,1,1], "input_length":3, "expected_result":-1},
+    {"id":"invalid_radius", "input_values":[1,64], "input_length":2, "expected_result":-1},
+    {"id":"trailing_word", "input_values":[1,0,0], "input_length":3, "expected_result":-1},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "id": "nist-dlmf-pade-f998244353-i64-array-bytes-output-v1",
+  "algorithm": "pade_approximant_series_coefficients",
+  "function_symbol": "pade_approximant_series_coefficients",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.11(iv), Padé Approximations",
+    "equations": "3.11.20–3.11.23",
+    "url": "https://dlmf.nist.gov/3.11.iv",
+    "license": "Algorithmic description only; no copied text or code"
+  },
+  "contract": {
+    "operation": "Compute the unique normalized Padé [p/q] coefficients matching a formal power-series prefix over F_998244353.",
+    "field_modulus": 998244353,
+    "input_encoding": "[p,q,c0,...,c_(p+q)]",
+    "degree_bounds": "1<=q<=p<=4",
+    "coefficient_domain": "canonical residues 0..998244352",
+    "normalization": "b0=1",
+    "denominator_system": "For m=p+1..p+q solve sum(j=1..q,c_(m-j)*b_j)=-c_m mod P.",
+    "numerator_convolution": "a_m=sum(j=0..min(m,q),c_(m-j)*b_j) mod P, m=0..p.",
+    "output_encoding": "[p,q,a0,...,ap,b0,...,bq] as little-endian signed-i64 words",
+    "singular_system_result": -3,
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "error_precedence": "Malformed input returns -1; valid input with null or short output returns -2 before solving; otherwise a singular system returns -3.",
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[p,q,c0,...,c_(p+q)]",
+    "p_range": [1, 4],
+    "q_range": [1, 4],
+    "degree_constraint": "q<=p",
+    "coefficient_range": [0, 998244352],
+    "maximum_valid_length": 11,
+    "maximum_parseable_length": 12,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array_bytes",
+    "encoding": "[p,q,a0,...,ap,b0,...,bq]",
+    "word_count_range": [6, 12],
+    "maximum_bytes": 96,
+    "success_result": "8*(p+q+4) output bytes",
+    "invalid_result": -1,
+    "short_or_null_output_result": -2,
+    "singular_system_result": -3,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Native fixed scratch: up to nine coefficient residues and a 4x5 augmented modular matrix, plus scalar state. The caller output buffer is provided separately."
+  },
+  "complexity": {
+    "native_primary_time": "O(q^3+(p+1)q) modular operations",
+    "native_primary_auxiliary_space": "O(q^2+p+q), bounded by 256 bytes",
+    "independent_reference_time": "O(q!*q) determinant work plus O((p+1)q) convolution",
+    "independent_reference_auxiliary_space": "O(q^2+p+q)"
+  },
+  "primary_oracle": "primary_oracle.py: modular Gauss-Jordan elimination",
+  "independent_oracle": "independent_oracle.py: determinant/Cramer coefficient solve",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"linear_pade_11","input_values":[1,1,3,5,998244343],"input_length":5,"output_capacity":48,"expected_result":48,"expected_output_hex":"0100000000000000010000000000000003000000000000000b0000000000000001000000000000000200000000000000"},
+    {"id":"geometric_series_pade_11","input_values":[1,1,1,1,1],"input_length":5,"output_capacity":48,"expected_result":48,"expected_output_hex":"01000000000000000100000000000000010000000000000000000000000000000100000000000000000000803b00000000"},
+    {"id":"nontrivial_pade_21","input_values":[2,1,1,1,3,998244344],"input_length":6,"output_capacity":56,"expected_result":56,"expected_output_hex":"0200000000000000010000000000000001000000000000000400000000000000060000000000000001000000000000000300000000000000"},
+    {"id":"nontrivial_pade_22","input_values":[2,2,1,2,998244352,998244349,11],"input_length":7,"output_capacity":64,"expected_result":64,"expected_output_hex":"02000000000000000200000000000000010000000000000004000000000000000600000000000000010000000000000002000000000000000300000000000000"},
+    {"id":"maximum_degrees_and_output","input_values":[4,4,1,998244351,1,0,0,6,998244336,16,998244348],"input_length":11,"output_capacity":96,"expected_result":96,"expected_output_hex":"040000000000000004000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000200000000000000030000000000000004000000000000000500000000000000"},
+    {"id":"maximum_output_one_byte_short","input_values":[4,4,1,998244351,1,0,0,6,998244336,16,998244348],"input_length":11,"output_capacity":95,"expected_result":-2,"expected_output_hex":""},
+    {"id":"singular_denominator_system","input_values":[1,1,0,0,1],"input_length":5,"output_capacity":48,"expected_result":-3,"expected_output_hex":""},
+    {"id":"singular_after_capacity_check","input_values":[1,1,0,0,1],"input_length":5,"output_capacity":0,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_output","input_values":[1,1,3,5,998244343],"input_length":5,"output_capacity":48,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid_degree_before_output_error","input_values":[0,1,0,0],"input_length":4,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_q_above_p","input_values":[1,2,0,0,0,0],"input_length":6,"output_capacity":96,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_noncanonical_coefficient","input_values":[1,1,0,0,998244353],"input_length":5,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_short_frame","input_values":[1,1,0,0],"input_length":4,"output_capacity":48,"expected_result":-1,"expected_output_hex":""},
+    {"id":"maximum_parseable_trailing_word","input_values":[4,4,1,998244351,1,0,0,6,998244336,16,998244348,7],"input_length":12,"output_capacity":96,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":96,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

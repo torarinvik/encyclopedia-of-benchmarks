@@ -32,9 +32,9 @@ def expected_output(values: Sequence[int] | None, capacity: int | None = None,
     fingerprint = 0
     boundaries = bytearray()
     for i, byte in enumerate(values[1:]):
-        fingerprint = _reduce((fingerprint << 8) | byte)
         if i >= 4:
             fingerprint ^= outgoing[values[i - 3]]
+        fingerprint = _reduce((fingerprint << 8) | byte)
         if fingerprint & 7 == 0:
             boundaries.append(i + 1)
     if n and (not boundaries or boundaries[-1] != n):

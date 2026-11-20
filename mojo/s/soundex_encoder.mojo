@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn ascii_letter(x:Int64)->Bool:return (x>=65 and x<=90) or (x>=97 and x<=122)

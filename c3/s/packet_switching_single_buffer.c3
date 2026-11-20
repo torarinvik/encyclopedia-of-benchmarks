@@ -19,7 +19,7 @@ fn void erase_packet(long* ids, long* values, usz* count, usz index) {
     *count -= 1;
 }
 
-long packet_switching_single_buffer(long* input, usz length, char* output,
+fn long packet_switching_single_buffer(long* input, usz length, char* output,
         usz capacity) @export("packet_switching_single_buffer") {
     if (input == null || length < 5 || length > MAX_INPUT) return -1;
     long mode = input[0], buffer = input[1], beta = input[2], slots_value = input[3], count_value = input[4];
@@ -39,7 +39,7 @@ long packet_switching_single_buffer(long* input, usz length, char* output,
     long[MAX_SLOTS] schedule = zeroed;
     usz resident_count = 0, next_packet = 0;
     for (usz slot = 0; slot < slots; slot += 1) {
-        while (next_packet < packet_count && arrival[next_packet] == slot.i64()) {
+        while (next_packet < packet_count && arrival[next_packet] == (long)slot) {
             long value = packet_value[next_packet];
             usz preempt = resident_count;
             if (mode == 1) {
@@ -54,9 +54,9 @@ long packet_switching_single_buffer(long* input, usz length, char* output,
             }
             if (preempt < resident_count) {
                 erase_packet(&resident_id[0], &resident_value[0], &resident_count, preempt);
-                resident_id[resident_count] = next_packet.i64(); resident_value[resident_count] = value; resident_count += 1;
+                resident_id[resident_count] = (long)next_packet; resident_value[resident_count] = value; resident_count += 1;
             } else if (resident_count < (usz)buffer) {
-                resident_id[resident_count] = next_packet.i64(); resident_value[resident_count] = value; resident_count += 1;
+                resident_id[resident_count] = (long)next_packet; resident_value[resident_count] = value; resident_count += 1;
             } else {
                 long smallest = resident_value[0];
                 for (usz index = 1; index < resident_count; index += 1) if (resident_value[index] < smallest) smallest = resident_value[index];
@@ -64,7 +64,7 @@ long packet_switching_single_buffer(long* input, usz length, char* output,
                     usz evict = 0;
                     while (resident_value[evict] != smallest) evict += 1;
                     erase_packet(&resident_id[0], &resident_value[0], &resident_count, evict);
-                    resident_id[resident_count] = next_packet.i64(); resident_value[resident_count] = value; resident_count += 1;
+                    resident_id[resident_count] = (long)next_packet; resident_value[resident_count] = value; resident_count += 1;
                 }
             }
             next_packet += 1;
@@ -79,5 +79,5 @@ long packet_switching_single_buffer(long* input, usz length, char* output,
     char[MAX_OUTPUT_BYTES] staged = zeroed;
     for (usz slot = 0; slot < slots; slot += 1) store_i64_le(&staged[0], 8 * slot, schedule[slot]);
     for (usz byte = 0; byte < output_bytes; byte += 1) output[byte] = staged[byte];
-    return output_bytes.i64();
+    return (long)output_bytes;
 }

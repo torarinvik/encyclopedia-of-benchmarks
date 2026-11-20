@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn sk_merge(v:UnsafePointer[Int64,MutAnyOrigin],l:UnsafePointer[Int32,MutAnyOrigin],r:UnsafePointer[Int32,MutAnyOrigin],a:Int32,b:Int32)->Int32:

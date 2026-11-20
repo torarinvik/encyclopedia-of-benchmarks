@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "asteroid-collision-stack-i64-array-bytes-output-v1",
+  "algorithm": "asteroid_collision_stack",
+  "function_symbol": "asteroid_collision_stack",
+  "abi": "i64_array_bytes_output",
+  "description": "Resolve a bounded one-dimensional signed-asteroid sequence in input order.",
+  "source": {
+    "title": "Asteroid Collision",
+    "url": "https://leetcode.com/problems/asteroid-collision/",
+    "discovery_scope": "Public title and algorithm-topic metadata only; no task wording, examples, tests, submissions, or code used.",
+    "independent_description": "The package-local repeated-adjacent-rewrite model is an independently structured specification of the same pairwise collision rules."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, size_0, ..., size_(n-1)]",
+    "count_range": [0, 64],
+    "size_domain": "Each size is a nonzero signed integer in [-127,127]; sign gives direction and absolute value gives mass.",
+    "collision_rule": "Only a positive survivor immediately left of a negative incoming asteroid can collide. The smaller magnitude disappears; equal magnitudes remove both. Preserve the order of all survivors.",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1,
+    "validation_order": "Validate the complete non-null input frame and all sizes before checking output pointer or capacity."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "One unsigned survivor-count byte followed by survivor values encoded as signed two's-complement bytes in original order.",
+    "maximum_bytes": 65,
+    "maximum_success_result": 65,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "accounting": "The largest port uses one fixed 64-element i64 survivor array (512 bytes); caller input and output buffers are excluded. Other ports use an equal or smaller fixed stack."
+  },
+  "complexity": {
+    "primary": "O(n) time and O(n) workspace using a single pass and survivor stack.",
+    "independent": "O(n^2) time and O(n) workspace by repeatedly scanning for and rewriting the leftmost colliding adjacent pair."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"empty-sequence","input_values":[0],"input_length":1,"output_capacity":65,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"single-negative-survivor","input_values":[1,-5],"input_length":2,"output_capacity":2,"expected_result":2,"expected_output_hex":"01fb"},
+    {"id":"same-direction-survivors","input_values":[4,1,2,3,4],"input_length":5,"output_capacity":5,"expected_result":5,"expected_output_hex":"0401020304"},
+    {"id":"diverging-directions-do-not-collide","input_values":[2,-2,3],"input_length":3,"output_capacity":3,"expected_result":3,"expected_output_hex":"02fe03"},
+    {"id":"equal-magnitudes-annihilate","input_values":[2,7,-7],"input_length":3,"output_capacity":1,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"positive-survivor-is-larger","input_values":[2,9,-4],"input_length":3,"output_capacity":2,"expected_result":2,"expected_output_hex":"0109"},
+    {"id":"incoming-negative-is-larger","input_values":[2,4,-9],"input_length":3,"output_capacity":2,"expected_result":2,"expected_output_hex":"01f7"},
+    {"id":"cascade-removes-multiple-left-survivors","input_values":[5,3,8,2,-10,1],"input_length":6,"output_capacity":3,"expected_result":3,"expected_output_hex":"02f601"},
+    {"id":"maximum-valid-frame-and-output","input_values":[
+      64,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1
+    ],"input_length":65,"output_capacity":65,"expected_result":65,"expected_output_hex":"40 0101010101010101 0101010101010101 0101010101010101 0101010101010101 0101010101010101 0101010101010101 0101010101010101 0101010101010101"},
+    {"id":"maximum-output-one-byte-short","input_values":[
+      64,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1
+    ],"input_length":65,"output_capacity":64,"expected_result":-2,"expected_output_hex":""},
+    {"id":"maximum-parseable-trailing-word","input_values":[
+      64,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      0
+    ],"input_length":66,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-size-invalid-before-capacity","input_values":[1,0],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"size-outside-signed-byte-domain","input_values":[1,-128],"input_length":2,"output_capacity":65,"expected_result":-1,"expected_output_hex":""},
+    {"id":"count-above-bound","input_values":[65],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word-invalid","input_values":[1,2,3],"input_length":3,"output_capacity":65,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[0],"input_length":1,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":65,"expected_result":-1,"expected_output_hex":""},
+    {"id":"declared-length-mismatch","input_values":[0],"input_length":0,"output_capacity":65,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

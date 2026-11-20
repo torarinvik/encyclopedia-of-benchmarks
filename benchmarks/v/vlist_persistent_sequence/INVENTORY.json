@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "algorithm": "vlist_persistent_sequence",
+  "abi": "i64_array_bytes_output",
+  "language_sources": {
+    "c": "c/v/vlist_persistent_sequence.c",
+    "c3": "c3/v/vlist_persistent_sequence.c3",
+    "cpp": "cpp/v/vlist_persistent_sequence.cpp",
+    "elisa": "elisa/v/vlist_persistent_sequence.elisa",
+    "mojo": "mojo/v/vlist_persistent_sequence.mojo",
+    "nim": "nim/v/vlist_persistent_sequence.nim",
+    "odin": "odin/v/vlist_persistent_sequence.odin",
+    "rust": "rust/v/vlist_persistent_sequence.rs",
+    "v": "v/v/vlist_persistent_sequence.v",
+    "zig": "zig/v/vlist_persistent_sequence.zig"
+  },
+  "package_files": [
+    "__init__.py", "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "check_inventory.py", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "workload.json"
+  ]
+}

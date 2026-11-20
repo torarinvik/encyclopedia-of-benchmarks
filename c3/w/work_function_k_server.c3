@@ -7,7 +7,7 @@ fn usz find_cfg(long* cfg,usz count,long* x,usz k){for(usz i=0;i<count;++i){usz 
 fn long cfg_dist(long* a,long* b,usz k,long* d,usz p){
  if(k==1)return d[(usz)a[0]*p+(usz)b[0]];
  if(k==2){long x=d[(usz)a[0]*p+(usz)b[0]]+d[(usz)a[1]*p+(usz)b[1]];long y=d[(usz)a[0]*p+(usz)b[1]]+d[(usz)a[1]*p+(usz)b[0]];return x<y?x:y;}
- usz[6][3] q={{0,1,2},{0,2,1},{1,0,2},{1,2,0},{2,0,1},{2,1,0}};long best=0x7FFFFFFFFFFFFFFF;
+ usz[3][6] q={{0,1,2},{0,2,1},{1,0,2},{1,2,0},{2,0,1},{2,1,0}};long best=0x7FFFFFFFFFFFFFFF;
  for(usz z=0;z<6;++z){long v=d[(usz)a[0]*p+(usz)b[q[z][0]]]+d[(usz)a[1]*p+(usz)b[q[z][1]]]+d[(usz)a[2]*p+(usz)b[q[z][2]]];if(v<best)best=v;}return best;
 }
 

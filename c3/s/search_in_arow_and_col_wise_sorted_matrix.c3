@@ -51,9 +51,9 @@ fn long search_in_arow_and_col_wise_sorted_matrix(long* input, usz length, char*
     }
 
     if (output == null || capacity < 8) return -2;
-    char buffer[8] = {0};
-    write_i32_le(buffer, 0, result_row);
-    write_i32_le(buffer, 4, result_column);
+    char[8] buffer = {0};
+    write_i32_le(&buffer[0], 0, result_row);
+    write_i32_le(&buffer[0], 4, result_column);
     for (usz index = 0; index < 8; index++) output[index] = buffer[index];
     return found;
 }

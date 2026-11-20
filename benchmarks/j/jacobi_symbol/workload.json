@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "jacobi-symbol-i64-array-scalar-v1",
+  "algorithm": "jacobi_symbol",
+  "function_symbol": "jacobi_symbol",
+  "abi": "i64_array_scalar",
+  "description": "Compute a Jacobi symbol for a canonical numerator and any bounded positive odd denominator using quadratic reciprocity without factoring.",
+  "source": {
+    "title": "Quadratic Reciprocity — The Jacobi Symbol; A Computational Introduction to Number Theory and Algebra, §12.3",
+    "author": "Ben Lynn; Victor Shoup",
+    "reference": "Stanford Pairing-Based Cryptography Notes, Quadratic Reciprocity; Shoup, version 2.0, §12.3.",
+    "url": "https://crypto.stanford.edu/pbc/notes/numbertheory/quadrecip.html",
+    "supporting_url": "https://www.shoup.net/ntb/ntb-v2_0.pdf",
+    "implementation_status": "Clean-room iterative reciprocity implementation; source descriptions only."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[numerator,odd_denominator]",
+    "numerator_range": "0 <= numerator < odd_denominator",
+    "denominator_range": [1, 1000000000],
+    "denominator_requirement": "positive odd integer; composite values are accepted",
+    "exact_length": 2,
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "Jacobi symbol -1 maps to 0, symbol 0 maps to 1, and symbol +1 maps to 2",
+    "valid_result_range": [0, 2],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "algorithm": "Repeatedly remove powers of 2, applying (2/n)=(-1)^((n^2-1)/8), then swap numerator and denominator, apply quadratic reciprocity when both odd operands are 3 modulo 4, and reduce the new numerator modulo the new denominator.",
+    "termination": "Each swap replaces the denominator with a positive odd numerator smaller than the previous denominator; the loop ends at numerator zero.",
+    "composite_semantics": "The Jacobi symbol is defined through the prime factorization of the odd denominator, but the primary reciprocity algorithm does not factor it. A result of +1 for a composite denominator does not imply that the numerator is a square modulo that denominator.",
+    "invalid_cases": "Null, non-exact frame, negative or noncanonical numerator, zero or even denominator, and denominator above 1000000000 return -1.",
+    "null_input_result": -1
+  },
+  "complexity": {
+    "time": "O(log^2 n) bit operations for the Euclidean-like reciprocity loop",
+    "space": "O(1)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"supplementary-law-two-prime", "input_values":[2,7], "input_length":2, "expected_result":2},
+    {"id":"prime-nonresidue", "input_values":[2,3], "input_length":2, "expected_result":0},
+    {"id":"reciprocity-sign-flip", "input_values":[3,7], "input_length":2, "expected_result":0},
+    {"id":"reciprocity-reversed-pair", "input_values":[7,3], "input_length":2, "expected_result":2},
+    {"id":"composite-positive-symbol-not-residue", "input_values":[2,15], "input_length":2, "expected_result":2},
+    {"id":"composite-square-denominator", "input_values":[2,9], "input_length":2, "expected_result":2},
+    {"id":"stanford-reciprocity-example", "input_values":[31,103], "input_length":2, "expected_result":0},
+    {"id":"second-prime-nonresidue", "input_values":[5,13], "input_length":2, "expected_result":0},
+    {"id":"noncoprime-numerator", "input_values":[3,15], "input_length":2, "expected_result":1},
+    {"id":"zero-numerator", "input_values":[0,15], "input_length":2, "expected_result":1},
+    {"id":"unit-denominator", "input_values":[0,1], "input_length":2, "expected_result":2},
+    {"id":"maximum-odd-denominator", "input_values":[0,999999999], "input_length":2, "expected_result":1},
+    {"id":"trailing-word", "input_values":[2,7,0], "input_length":3, "expected_result":-1},
+    {"id":"negative-numerator", "input_values":[-1,7], "input_length":2, "expected_result":-1},
+    {"id":"noncanonical-numerator", "input_values":[7,7], "input_length":2, "expected_result":-1},
+    {"id":"even-denominator", "input_values":[1,14], "input_length":2, "expected_result":-1},
+    {"id":"denominator-too-large", "input_values":[0,1000000001], "input_length":2, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

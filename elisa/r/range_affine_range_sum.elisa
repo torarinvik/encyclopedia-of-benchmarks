@@ -58,16 +58,17 @@ def range_affine_query(sum: mutable view[i64], lazy_mul: mutable view[i64],
                         range_affine_query(sum, lazy_mul, lazy_add, ql, qr, node * 2 + 1, middle, right))
 
 def range_affine_range_sum_impl(input: i64&, length: usize) -> i64:
-    if input == null or length < 2 or length > RANGE_AFFINE_MAX_PARSEABLE_INPUT: return -1
-    if input[0] < 1 or input[0] > RANGE_AFFINE_MAX_LENGTH.i64(): return -1
-    n: usize = input[0].usize()
+    if input.is_null() or length < 2 or length > RANGE_AFFINE_MAX_PARSEABLE_INPUT: return -1
+    frame: view[i64] = input[0:length]
+    if frame[0] < 1 or frame[0] > RANGE_AFFINE_MAX_LENGTH.i64(): return -1
+    n: usize = frame[0].usize()
     if length < n + 2: return -1
     initial: mutable i64[RANGE_AFFINE_MAX_LENGTH] = zeroed
     for i in 0..<n:
-        if input[i + 1] < 0 or input[i + 1] >= RANGE_AFFINE_MODULUS: return -1
-        initial[i] <- input[i + 1]
-    if input[n + 1] < 1 or input[n + 1] > RANGE_AFFINE_MAX_OPERATIONS.i64(): return -1
-    operation_count: usize = input[n + 1].usize()
+        if frame[i + 1] < 0 or frame[i + 1] >= RANGE_AFFINE_MODULUS: return -1
+        initial[i] <- frame[i + 1]
+    if frame[n + 1] < 1 or frame[n + 1] > RANGE_AFFINE_MAX_OPERATIONS.i64(): return -1
+    operation_count: usize = frame[n + 1].usize()
     sum: mutable i64[RANGE_AFFINE_TREE_NODES] = zeroed
     lazy_mul: mutable i64[RANGE_AFFINE_TREE_NODES]
     lazy_add: mutable i64[RANGE_AFFINE_TREE_NODES] = zeroed
@@ -78,21 +79,21 @@ def range_affine_range_sum_impl(input: i64&, length: usize) -> i64:
     checksum: mutable i64 = 0
     for operation in 0..<operation_count:
         if cursor >= length: return -1
-        opcode: i64 = input[cursor]
+        opcode: i64 = frame[cursor]
         cursor <- cursor + 1
         if opcode == 0:
             if cursor + 4 > length: return -1
-            left: i64 = input[cursor]
-            right: i64 = input[cursor + 1]
-            a: i64 = input[cursor + 2]
-            b: i64 = input[cursor + 3]
+            left: i64 = frame[cursor]
+            right: i64 = frame[cursor + 1]
+            a: i64 = frame[cursor + 2]
+            b: i64 = frame[cursor + 3]
             cursor <- cursor + 4
             if left < 0 or left >= right or right > n.i64() or a < 1 or a >= RANGE_AFFINE_MODULUS or b < 0 or b >= RANGE_AFFINE_MODULUS: return -1
             range_affine_update(sum[0:RANGE_AFFINE_TREE_NODES], lazy_mul[0:RANGE_AFFINE_TREE_NODES], lazy_add[0:RANGE_AFFINE_TREE_NODES], left.usize(), right.usize(), 1, 0, n, a, b)
         else if opcode == 1:
             if cursor + 2 > length: return -1
-            left: i64 = input[cursor]
-            right: i64 = input[cursor + 1]
+            left: i64 = frame[cursor]
+            right: i64 = frame[cursor + 1]
             cursor <- cursor + 2
             if left < 0 or left >= right or right > n.i64(): return -1
             result: i64 = range_affine_query(sum[0:RANGE_AFFINE_TREE_NODES], lazy_mul[0:RANGE_AFFINE_TREE_NODES], lazy_add[0:RANGE_AFFINE_TREE_NODES], left.usize(), right.usize(), 1, 0, n)

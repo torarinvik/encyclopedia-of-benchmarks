@@ -66,7 +66,7 @@ fn void filter_once(usz width, usz height, float* image, float* output, float* y
     for (usz at = 0; at < width * height; at++) output[at] = 1.0f * (y1[at] + y2[at]);
 }
 
-double deriche(long* values, ulong length) @export("deriche") {
+fn double deriche(long* values, ulong length) @export("deriche") {
     if (values == null || length != 3 || values[0] < 1 || values[0] > (long)MAX_WIDTH ||
         values[1] < 1 || values[1] > (long)MAX_HEIGHT || values[2] < 1 || values[2] > 4)
         return INVALID_RESULT;

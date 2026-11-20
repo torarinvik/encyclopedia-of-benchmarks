@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-minimum-cycle-basis-horton-i64-array-scalar-v1",
+  "algorithm": "minimum_cycle_basis_horton",
+  "function_symbol": "minimum_cycle_basis_horton",
+  "abi": "i64_array_scalar",
+  "description": "Bounded exact minimum-weight cycle basis for connected simple undirected graphs using Horton candidates.",
+  "source": {
+    "title": "A Polynomial-Time Algorithm to Find the Shortest Cycle Basis of a Graph",
+    "author": "Joseph D. Horton",
+    "year": 1987,
+    "reference": "SIAM Journal on Computing 16(2), 358-366, DOI 10.1137/0216026",
+    "url": "https://doi.org/10.1137/0216026",
+    "candidate_construction": "Mehlhorn and Michail, Minimum Cycle Bases: Faster and Simpler, https://people.mpi-inf.mpg.de/~mehlhorn/ftp/MinCycleBasisFasterSimpler.pdf",
+    "copyright": "The publications remain copyrighted; this package uses algorithmic ideas and independently authored contracts, references, fixtures, and ports."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, M, (u, v, weight)*M]",
+    "vertex_count_range": [3, 8],
+    "edge_count_range": "N-1 through 12, also bounded by N*(N-1)/2",
+    "graph": "connected, simple, undirected; each edge has 0 <= u < v < N; edge pairs are strictly increasing lexicographically",
+    "weight_range": [1, 9],
+    "exact_length": "2 + 3*M",
+    "maximum_valid_length": 38,
+    "maximum_parseable_length": 39,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "minimum total edge-weight, summed over all cycles in a GF(2) cycle-space basis; a tree has basis weight zero",
+    "maximum_result": 378,
+    "invalid_input_result": -1
+  },
+  "algorithm_details": {
+    "primary": "For each root, construct a deterministic shortest-path tree with Dijkstra. For each graph edge not in that tree, XOR the two root paths and the edge to form a Horton candidate cycle. Deduplicate candidates, sort by (cycle weight, edge-mask), and use GF(2) Gaussian elimination to greedily select independent cycles until the cycle-space dimension M-N+1 is reached.",
+    "independent_oracle": "Enumerate every simple cycle by DFS with its least-numbered vertex as the start, deduplicate its edge mask, sort all cycles by weight, and run the cycle-space greedy basis extraction.",
+    "tie_rules": "Dijkstra uses perturbed edge lengths weight*(M+1)*2^M + 2^edge_id. A simple path suffix sum is below 2^M, and a whole basis suffix sum is at most M*(2^M-1), so this scale preserves the original minimum basis weight while selecting unique shortest paths. Candidate and cycle sorting uses unperturbed (cycle weight, unsigned edge mask).",
+    "termination": "At most N*M Horton candidates are considered; a connected graph has cycle-space dimension M-N+1. The bounded edge-mask fits in 12 bits.",
+    "arithmetic_bound": "A simple cycle weighs at most 8*9=72. Maximizing (min(12, N*(N-1)/2)-N+1)*9*N over N=3..8 gives a safe total bound of 378; distances, cycle weights, and totals use signed 64-bit integers."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"triangle-single-cycle","input_values":[3,3,0,1,2,0,2,3,1,2,5],"input_length":11,"expected_result":10},
+    {"id":"connected-tree-empty-cycle-space","input_values":[5,4,0,1,2,1,2,3,2,3,1,3,4,4],"input_length":14,"expected_result":0},
+    {"id":"weighted-square","input_values":[4,4,0,1,1,0,3,4,1,2,2,2,3,3],"input_length":14,"expected_result":10},
+    {"id":"equal-weight-diamond-two-triangles","input_values":[4,5,0,1,1,0,2,1,0,3,1,1,2,1,2,3,1],"input_length":17,"expected_result":6},
+    {"id":"heavier-diagonal-prefers-shorter-cycle-basis","input_values":[4,5,0,1,1,0,2,5,0,3,1,1,2,1,2,3,1],"input_length":17,"expected_result":11},
+    {"id":"complete-four-vertex-graph","input_values":[4,6,0,1,1,0,2,1,0,3,1,1,2,1,1,3,1,2,3,1],"input_length":20,"expected_result":9},
+    {"id":"maximum-eight-vertex-twelve-edge-frame","input_values":[8,12,0,1,1,0,2,1,0,3,1,0,4,1,0,5,1,1,2,1,1,3,1,2,3,1,3,6,1,3,7,1,4,5,1,6,7,1],"input_length":38,"expected_result":15},
+    {"id":"disconnected-graph","input_values":[4,3,0,1,1,0,2,1,1,2,1],"input_length":11,"expected_result":-1},
+    {"id":"duplicate-edge-pair","input_values":[3,3,0,1,1,0,1,2,0,2,1],"input_length":11,"expected_result":-1},
+    {"id":"zero-edge-weight","input_values":[3,3,0,1,0,0,2,1,1,2,1],"input_length":11,"expected_result":-1},
+    {"id":"unsorted-edge-pairs","input_values":[3,3,1,2,1,0,1,1,0,2,1],"input_length":11,"expected_result":-1},
+    {"id":"trailing-word-at-parseable-bound","input_values":[8,12,0,1,1,0,2,1,0,3,1,0,4,1,0,5,1,1,2,1,1,3,1,2,3,1,3,6,1,3,7,1,4,5,1,6,7,1,99],"input_length":39,"expected_result":-1},
+    {"id":"count-out-of-range","input_values":[2,1],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

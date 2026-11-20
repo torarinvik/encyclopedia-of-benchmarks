@@ -65,24 +65,13 @@ fn chan_group(inout x: InlineArray[Int64, 32], inout y: InlineArray[Int64, 32], 
 fn chan_tangent(inout x: InlineArray[Int64, 32], inout y: InlineArray[Int64, 32],
                 inout hulls: InlineArray[Int, 32], offset: Int, count: Int, query: Int) -> Int:
     if count == 1: return hulls[offset]
-    if count == 2:
-        if chan_turn(x, y, query, hulls[offset], hulls[offset+1]) > 0: return hulls[offset]
-        return hulls[offset+1]
-    let initial_up = chan_turn(x, y, query, hulls[offset], hulls[offset+1]) > 0
     var lo = 0
-    var hi = count
+    var hi = count-1
     while lo < hi:
         let mid = lo+(hi-lo)//2
-        let before = chan_turn(x, y, query, hulls[offset+mid], hulls[offset+(mid+count-1)%count]) > 0
-        let after = chan_turn(x, y, query, hulls[offset+mid], hulls[offset+(mid+1)%count]) > 0
-        if before and after: return hulls[offset+mid]
-        let below = mid != 0 and chan_turn(x, y, query, hulls[offset+mid], hulls[offset]) > 0
-        let above = mid != 0 and chan_turn(x, y, query, hulls[offset], hulls[offset+mid]) > 0
-        var search_left = after or above
-        if initial_up: search_left = after and below
-        if search_left: hi = mid
+        if chan_turn(x, y, query, hulls[offset+mid], hulls[offset+hi]) > 0: hi = mid
         else: lo = mid+1
-    return -1
+    return hulls[offset+lo]
 
 @export("chan_output_sensitive_hull")
 fn chan_output_sensitive_hull(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t,

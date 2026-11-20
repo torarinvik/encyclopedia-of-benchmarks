@@ -1,12 +1,12 @@
 module sdes;
 
-const u8[8] P8 = {6,3,7,4,8,5,10,9};
-const u8[10] P10 = {3,5,2,7,4,10,1,9,8,6};
-const u8[4] P4 = {2,4,3,1};
-const u8[8] IP = {2,6,3,1,4,8,5,7};
-const u8[8] IP_INV = {4,1,3,5,7,2,8,6};
-const u8[8] EXPANSION = {4,1,2,3,2,3,4,1};
-const u8[32] SBOXES = {1,0,3,2,3,2,1,0,0,2,1,3,3,1,3,2,0,1,2,3,2,0,1,3,3,0,1,0,2,1,0,3};
+const char[8] P8 = {6,3,7,4,8,5,10,9};
+const char[10] P10 = {3,5,2,7,4,10,1,9,8,6};
+const char[4] P4 = {2,4,3,1};
+const char[8] IP = {2,6,3,1,4,8,5,7};
+const char[8] IP_INV = {4,1,3,5,7,2,8,6};
+const char[8] EXPANSION = {4,1,2,3,2,3,4,1};
+const char[32] SBOXES = {1,0,3,2,3,2,1,0,0,2,1,3,3,1,3,2,0,1,2,3,2,0,1,3,3,0,1,0,2,1,0,3};
 
 fn uint table_value(uint table, usz index) {
     if (table == 0) return P8[index];

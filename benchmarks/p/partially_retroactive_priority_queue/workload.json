@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "partially-retroactive-priority-queue-i64-bytes-v1",
+  "algorithm": "partially_retroactive_priority_queue",
+  "function_symbol": "partially_retroactive_priority_queue",
+  "abi": "i64_array_bytes_output",
+  "comparison_model": "i64_array_bytes_output_call",
+  "description": "Replace historical priority-queue operations and report the resulting current multiset size and sum.",
+  "source": {
+    "title": "Library Checker proposal: Partially Retroactive Priority Queue",
+    "url": "https://github.com/yosupo06/library-checker-problems/pull/1411",
+    "issue_url": "https://github.com/yosupo06/library-checker-problems/issues/1213",
+    "repository": "yosupo06/library-checker-problems",
+    "commit": "494ddf7a14d6e49759047a270aa37a1302592cbc",
+    "path": "data_structure/partially_retroactive_priority_queue",
+    "method_reference": "Demaine, Iacono, Langerman, Retroactive Data Structures, ACM Transactions on Algorithms 3(2), 2007, DOI 10.1145/1240233.1240236",
+    "implementation_status": "clean-room bounded profile; source proposal is open in the audited snapshot"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[N,Q,(type,value)*N,(index,new_type,new_value)*Q]",
+    "n_range": [1, 64],
+    "q_range": [1, 64],
+    "type_range": [0, 2],
+    "insert_value_range": [0, 1000000],
+    "non_insert_value": -1,
+    "update_index_range": "[0,N)",
+    "maximum_valid_length": 322,
+    "maximum_parseable_length": 323,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "encoding": "For each update, current element count then sum as two signed i64 little-endian values.",
+    "maximum_bytes": 1024,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Validate the full frame and all operation records before checking output pointer and capacity."
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Maximum caller-provided output buffer; segment-tree state has a separate internal-memory bound."
+  },
+  "working_memory": {
+    "maximum_bytes": 16384,
+    "meaning": "Conservative bound for the segment summaries and timeline, excluding caller-owned output."
+  },
+  "algorithm": {
+    "primary": "A segment tree stores operation balance, prefix minima, suffix maxima, and canonical unmatched insertion/deletion IDs. Bridge searches constrain the interval affected by a historical operation replacement; updates undo the old matching and repair the new matching.",
+    "independent": "For each query, replay the updated timeline from empty with an ordinary min-heap; empty minimum-deletions are ignored.",
+    "tie_rule": "Minimum-insertion summaries choose lower value, then larger timeline index. Maximum-deletion summaries choose higher value, then smaller timeline index. Sentinel ID 0 represents an empty-queue deletion and -1 means no candidate."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "historical-type-replacement",
+      "input_values": [3,4,0,5,1,-1,0,2,1,2,-1,0,0,1,1,1,-1,2,1,-1],
+      "input_length": 20,
+      "expected_result": 64,
+      "expected_output_hex": "02000000000000000700000000000000020000000000000003000000000000000100000000000000020000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "duplicate-priorities-and-empty-delete",
+      "input_values": [4,3,0,3,0,3,1,-1,1,-1,2,2,-1,0,1,-1,3,0,3],
+      "input_length": 19,
+      "expected_result": 48,
+      "expected_output_hex": "01000000000000000300000000000000000000000000000000000000000000000002000000000000000600000000000000"
+    },
+    {
+      "id": "single-slot-empty-queue-transitions",
+      "input_values": [1,3,2,-1,0,0,9,0,1,-1,0,2,-1],
+      "input_length": 13,
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000009000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length-mismatch",
+      "input_values": [1,1,2,-1,0,2,-1],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "type-out-of-range",
+      "input_values": [1,1,3,-1,0,2,-1],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insert-value-out-of-range",
+      "input_values": [1,1,0,-1,0,2,-1],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "noninsert-value-not-sentinel",
+      "input_values": [1,1,1,0,0,2,-1],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "update-index-out-of-range",
+      "input_values": [1,1,2,-1,1,0,4],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "update-value-out-of-range",
+      "input_values": [1,1,2,-1,0,0,1000001],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "n-above-bound",
+      "input_values": [65,1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "q-above-bound",
+      "input_values": [1,65,2,-1],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [1,1,2,-1,0,0,1],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": false,
+      "output_capacity": 15
+    },
+    {
+      "id": "null-output",
+      "input_values": [1,1,2,-1,0,0,1],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 16
+    },
+    {
+      "id": "invalid-before-null-output",
+      "input_values": [1,1,5,-1,0,2,-1],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 0
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "galil-giancarlo-search-bounded-i64-v1",
+  "algorithm": "galil_giancarlo_search",
+  "function_symbol": "galil_giancarlo_search",
+  "abi": "i64_array_scalar",
+  "description": "Exact overlapping string search with Galil–Giancarlo's heavy remembered-prefix refinement of Colussi.",
+  "source": {
+    "title": "On the Exact Complexity of String Matching: Upper Bounds",
+    "authors": ["Zvi Galil", "Raffaele Giancarlo"],
+    "publication": "SIAM Journal on Computing 21(3), 407–437 (1992)",
+    "doi": "10.1137/0221028",
+    "url": "https://doi.org/10.1137/0221028",
+    "algorithm_description": "Thierry Lecroq, Galil-Giancarlo algorithm",
+    "algorithm_description_url": "https://igm.univ-mlv.fr/~lecroq/string/node11.html",
+    "source_license": "Copyright belongs to the cited authors and publisher. Mathematical algorithm descriptions only; independent implementation and workload."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, pattern_length, text[0..n), pattern[0..m)]",
+    "text_length_range": [0, 4096],
+    "pattern_length_range": [1, 128],
+    "alphabet_range": [0, 3],
+    "maximum_valid_length": 4226,
+    "maximum_parseable_length": 4227,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "(match_count << 36) | (sum_of_offsets << 12) | xor_of_offsets",
+    "includes_overlapping_matches": true,
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 49152,
+    "meaning": "Fixed text staging where used, pattern storage, Colussi/Galil-Giancarlo tables, and bounded local state."
+  },
+  "contract": {
+    "preprocessing": "Construct the Colussi h, next, and shift tables for the pattern with an out-of-alphabet sentinel at position m.",
+    "initial_run": "ell is the last index in the initial run of pattern[0]; if the whole pattern is constant, use a streaming run-count search.",
+    "heavy_resumption": "After a remembered-prefix overlap and i=0, scan from last+1 for pattern[0]. If the run is too short or the following symbol is not pattern[ell+1], advance past the scanned run; otherwise resume with i=1 and remember the prefix through ell+1.",
+    "text_end": "The remembered-prefix scan stops at text_length and treats end-of-text as a mismatch without reading outside the input.",
+    "result_bounds": "At most 4096 matches; sum of offsets is below 2^23, so the packed result is below 2^49 and fits signed 64-bit.",
+    "complexity": "O(m) preprocessing time and space, O(n) search time; at most 4n/3 text comparisons for the nonconstant branch as stated by the source.",
+    "error_precedence": "Validate the input pointer, parseable length, header, exact packed length, and symbol ranges before searching.",
+    "output_is_scalar": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "profiles": [
+      {"id": "heavy-overlap-prefix", "input_values": [9, 4, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0], "expected_result": 137438982151},
+      {"id": "constant-symbol-overlap", "input_values": [5, 3, 2, 2, 2, 2, 2, 2, 2], "expected_result": 206158442499}
+    ]
+  },
+  "cases": [
+    {"id": "heavy-overlap-prefix", "input_values": [9, 4, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0], "expected_result": 137438982151},
+    {"id": "constant-symbol-overlap", "input_values": [5, 3, 2, 2, 2, 2, 2, 2, 2], "expected_result": 206158442499},
+    {"id": "nonconstant-periodic-overlap", "input_values": [5, 2, 0, 1, 0, 1, 1, 0, 1], "expected_result": 137438961666},
+    {"id": "no-match", "input_values": [6, 3, 0, 0, 0, 0, 0, 0, 0, 1, 1], "expected_result": 0},
+    {"id": "pattern-longer-than-text", "input_values": [2, 3, 0, 1, 0, 1, 2], "expected_result": 0},
+    {"id": "empty-text", "input_values": [0, 1, 2], "expected_result": 0},
+    {"id": "text-symbol-outside-alphabet", "input_values": [1, 1, 4, 1], "expected_result": -1},
+    {"id": "pattern-symbol-outside-alphabet", "input_values": [1, 1, 0, 4], "expected_result": -1},
+    {"id": "trailing-word", "input_values": [0, 1, 2, 3], "expected_result": -1},
+    {"id": "missing-header", "input_values": [], "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_is_null": true, "input_length": 0, "expected_result": -1}
+  ]
+}

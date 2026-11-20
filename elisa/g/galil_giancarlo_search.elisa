@@ -1,0 +1,130 @@
+from std.collections import InlineArray
+
+comptime MAX_TEXT = 4096
+comptime MAX_PATTERN = 128
+comptime MAX_INPUT = 4227
+comptime TABLES = 130
+
+fn gg_preprocess(pattern: view[Int64], m: Int,
+        order: mutable InlineArray[Int64, TABLES]&, next_pos: mutable InlineArray[Int64, TABLES]&, shift: mutable InlineArray[Int64, TABLES]&) -> Int:
+    var hmax = InlineArray[Int64, TABLES](fill=0)
+    var kmin = InlineArray[Int64, TABLES](fill=0)
+    var prefix = InlineArray[Int64, TABLES](fill=0)
+    var rmin = InlineArray[Int64, TABLES](fill=0)
+    var i = 1
+    var k = 1
+    while k <= m:
+        while pattern[i] == pattern[i-k]: i <- i + 1
+        hmax[k] <- Int64(i)
+        var q = k + 1
+        while hmax[q-k] + Int64(k) < Int64(i):
+            hmax[q] <- hmax[q-k] + Int64(k)
+            q <- q + 1
+        k <- q
+        if k == i + 1: i <- k
+    for x in range(m, 0, -1):
+        if hmax[x] < Int64(m): kmin[Int(hmax[x])] <- Int64(x)
+    var r = m
+    for x in range(m-1, -1, -1):
+        if hmax[x+1] == Int64(m): r <- x + 1
+        if kmin[x] == 0: rmin[x] <- Int64(r)
+    var split = -1
+    r <- m
+    for x in range(m):
+        if kmin[x] == 0:
+            r <- r - 1
+            order[r] <- Int64(x)
+        else:
+            split <- split + 1
+            order[split] <- Int64(x)
+    for x in range(split + 1): shift[x] <- kmin[Int(order[x])]
+    for x in range(split + 1, m): shift[x] <- rmin[Int(order[x])]
+    shift[m] <- rmin[0]
+    var count = 0
+    for x in range(m):
+        prefix[x] <- Int64(count)
+        if kmin[x] > 0: count <- count + 1
+    for x in range(split + 1):
+        let position = Int(order[x])
+        next_pos[x] <- prefix[Int(order[x] - kmin[position])]
+    for x in range(split + 1, m):
+        next_pos[x] <- prefix[m - Int(rmin[Int(order[x])])]
+    next_pos[m] <- prefix[m - Int(rmin[Int(order[m-1])])]
+    return split
+
+fn gg_search(text: view[Int64], pattern: view[Int64], n: Int, m: Int) -> Int64:
+    var ell = 0
+    while ell + 1 < m and pattern[ell+1] == pattern[0]: ell <- ell + 1
+    var matches: Int64 = 0
+    var offset_sum: Int64 = 0
+    var offset_xor: Int64 = 0
+    if ell == m - 1:
+        var run = 0
+        for position in range(n):
+            if text[position] == pattern[0]: run <- run + 1
+            else: run <- 0
+            if run >= m:
+                let start = Int64(position + 1 - m)
+                matches <- matches + 1
+                offset_sum <- offset_sum + start
+                offset_xor <- offset_xor ^ start
+        return (matches << 36) | (offset_sum << 12) | offset_xor
+    var order = InlineArray[Int64, TABLES](fill=0)
+    var next_pos = InlineArray[Int64, TABLES](fill=0)
+    var shift = InlineArray[Int64, TABLES](fill=0)
+    let nd = gg_preprocess(pattern,m,order&,next_pos&,shift&)
+    if n < m: return 0
+    var i = 0
+    var j = 0
+    var last = -1
+    var heavy = False
+    while j <= n - m:
+        if heavy and i == 0:
+            var k = last - j + 1
+            while j + k < n and pattern[0] == text[j+k]: k <- k + 1
+            if k <= ell or j+k >= n or pattern[ell+1] != text[j+k]:
+                i <- 0
+                j <- j + k + 1
+                last <- j - 1
+            else:
+                i <- 1
+                last <- j + k
+                j <- last - ell - 1
+        else:
+            while (i < m and last < j + Int(order[i]) and
+                    pattern[Int(order[i])] == text[j + Int(order[i])]): i <- i + 1
+            if i >= m or last >= j + Int(order[i]):
+                matches <- matches + 1
+                offset_sum <- offset_sum + Int64(j)
+                offset_xor <- offset_xor ^ Int64(j)
+                i <- m
+            if i > nd: last <- j + m - 1
+            j <- j + Int(shift[i])
+            i <- Int(next_pos[i])
+        heavy <- j <= last
+    (matches << 36) | (offset_sum << 12) | offset_xor
+
+@export("galil_giancarlo_search")
+fn galil_giancarlo_search(input: i64&, length: usize) abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    let input_view: view[Int64] = input[0:Int(length)]
+    let n_value = input_view[0]
+    let m_value = input_view[1]
+    if n_value < 0 or n_value > MAX_TEXT.i64() or m_value < 1 or m_value > MAX_PATTERN.i64(): return -1
+    let n = Int(n_value)
+    let m = Int(m_value)
+    if Int(length) != 2 + n + m: return -1
+    var text = InlineArray[Int64, MAX_TEXT](fill=0)
+    var pattern = InlineArray[Int64, TABLES](fill=0)
+    for index in range(n):
+        let symbol = input_view[2+index]
+        if symbol < 0 or symbol > 3: return -1
+        text[index] <- symbol
+    for index in range(m):
+        let symbol = input_view[2+n+index]
+        if symbol < 0 or symbol > 3: return -1
+        pattern[index] <- symbol
+    pattern[m] <- 4
+    var text_view: view[Int64] = text[0:n]
+    var pattern_view: view[Int64] = pattern[0:m+1]
+    gg_search(text_view,pattern_view,n,m)

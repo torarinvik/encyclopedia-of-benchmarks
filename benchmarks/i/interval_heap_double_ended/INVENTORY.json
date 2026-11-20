@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "algorithm": "interval_heap_double_ended",
+  "function_symbol": "interval_heap_double_ended",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/i/interval_heap_double_ended.c",
+    "c3": "c3/i/interval_heap_double_ended.c3",
+    "cpp": "cpp/i/interval_heap_double_ended.cpp",
+    "elisa": "elisa/i/interval_heap_double_ended.elisa",
+    "mojo": "mojo/i/interval_heap_double_ended.mojo",
+    "nim": "nim/i/interval_heap_double_ended.nim",
+    "odin": "odin/i/interval_heap_double_ended.odin",
+    "rust": "rust/i/interval_heap_double_ended.rs",
+    "v": "v/i/interval_heap_double_ended.v",
+    "zig": "zig/i/interval_heap_double_ended.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py"
+  ],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Interval Heaps",
+    "authors": ["Jan van Leeuwen", "Derick Wood"],
+    "doi": "10.1093/comjnl/36.3.209",
+    "publication": "The Computer Journal 36(3), 209-216 (1993)",
+    "sections": "1-2",
+    "technical_report": "CS-1987/1987-01",
+    "discovery": "NIST DADS double-ended priority queue"
+  },
+  "contract": {
+    "input_layout": "[initial_count, initial_values..., operation_count, (opcode, argument)*]",
+    "maximum_initial_values": 64,
+    "maximum_operations": 128,
+    "maximum_live_values": 192,
+    "maximum_input_words": 322,
+    "maximum_output_bytes": 1552,
+    "workspace_bytes": 8192,
+    "key_range": [-2147483648, 2147483647],
+    "tie_rule": "strict endpoint sifts; left child selected on equal child endpoints; duplicate identity is unobservable",
+    "output_layout": "[event_count, event_results..., final_count, final_values_sorted_ascending...]"
+  }
+}

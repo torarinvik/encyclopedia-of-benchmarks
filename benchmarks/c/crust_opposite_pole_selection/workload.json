@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-doi713-crust-opposite-pole-selection-v1",
+  "algorithm": "crust_opposite_pole_selection",
+  "function_symbol": "crust_opposite_pole_selection",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "chapter": "Encyclopedia of Algorithms, Chapter 713: Surface Reconstruction",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_713",
+    "title": "A New Voronoi-Based Surface Reconstruction Algorithm",
+    "authors": ["Nina Amenta", "Marshall Bern", "Manolis Kamvysselis"],
+    "year": 1998,
+    "reference": "Section 4, Crust algorithm, step 2(a,c), pp. 4-5",
+    "doi": "10.1145/280814.280947",
+    "url": "https://doi.org/10.1145/280814.280947",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_713",
+    "rights": "Clean-room ports implement the mathematical selection rule; no source code, prose, figures, or fixtures are reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,(sx,sy,sz,k,(vx,vy,vz)*k)*n]",
+    "sample_count_range": [1, 8],
+    "vertices_per_cell_range": [1, 8],
+    "coordinate_range": [-16, 16],
+    "maximum_valid_length": 225,
+    "maximum_parseable_length": 226,
+    "invalid_result": -1,
+    "row_semantics": "Each row supplies one non-convex-hull sample and the finite Voronoi-cell vertex candidates for that sample; cell construction and completeness are caller preconditions."
+  },
+  "contract": {
+    "algorithm": "For each row, choose the candidate with maximum squared distance from the sample as positive pole; choose the maximum-distance candidate with strictly negative dot product against the positive displacement as negative pole.",
+    "tie_rule": "Equal squared distances choose the lowest row-local candidate ordinal. Dot product zero is not opposite and is excluded.",
+    "no_opposite_rule": "When no candidate has negative dot product, emit -1 as the negative ordinal. This totalizes the bounded selector outside the source sampling promise.",
+    "output": "[n,(positive_ordinal,negative_ordinal)*n] as little-endian signed i64 values.",
+    "scope": "Pole selection only for the non-convex-hull branch; Voronoi construction, convex-hull normal estimation, augmented Delaunay construction, facet filtering, and reconstruction guarantees are excluded."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[n,(positive_ordinal,negative_ordinal)*n]",
+    "maximum_bytes": 136,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Bounded row parsing, sample/candidate validation, and staged ordinal output; caller-owned input and output buffers are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "farthest-and-opposite-pole",
+      "input_values": [1, 0, 0, 0, 4, 5, 0, 0, -4, 0, 0, 0, 3, 0, 0, 0, -2],
+      "input_length": 17,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "0100000000000000 0000000000000000 0100000000000000"
+    },
+    {
+      "id": "positive-and-negative-distance-ties-use-lowest-ordinal",
+      "input_values": [1, 0, 0, 0, 4, 4, 0, 0, -3, 1, 0, -3, 0, 1, 0, 4, 0],
+      "input_length": 17,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "0100000000000000 0000000000000000 0100000000000000"
+    },
+    {
+      "id": "no-strictly-opposite-candidate",
+      "input_values": [1, 0, 0, 0, 4, 5, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1],
+      "input_length": 17,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "0100000000000000 0000000000000000 ffffffffffffffff"
+    },
+    {
+      "id": "row-local-ordinals-reset-for-each-sample",
+      "input_values": [2, 0, 0, 0, 4, 5, 0, 0, -4, 0, 0, 0, 3, 0, 0, 0, -2, 10, 0, 0, 3, 10, 3, 0, 6, 0, 0, 12, 0, 0],
+      "input_length": 30,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "0200000000000000 0000000000000000 0100000000000000 0100000000000000 0200000000000000"
+    },
+    {
+      "id": "maximum-frame-and-output",
+      "input_values": [8,
+        -3, 0, 0, 8, 5, 0, 0, -10, 0, 0, -3, 6, 0, -3, 0, -5, 1, 4, 0, 4, 1, 0, 4, -7, -4, -2,
+        -2, 0, 0, 8, 6, 0, 0, -9, 0, 0, -2, 6, 0, -2, 0, -5, 2, 4, 0, 4, 2, 0, 4, -6, -4, -2,
+        -1, 0, 0, 8, 7, 0, 0, -8, 0, 0, -1, 6, 0, -1, 0, -5, 3, 4, 0, 4, 3, 0, 4, -5, -4, -2,
+        0, 0, 0, 8, 8, 0, 0, -7, 0, 0, 0, 6, 0, 0, 0, -5, 4, 4, 0, 4, 4, 0, 4, -4, -4, -2,
+        1, 0, 0, 8, 9, 0, 0, -6, 0, 0, 1, 6, 0, 1, 0, -5, 5, 4, 0, 4, 5, 0, 4, -3, -4, -2,
+        2, 0, 0, 8, 10, 0, 0, -5, 0, 0, 2, 6, 0, 2, 0, -5, 6, 4, 0, 4, 6, 0, 4, -2, -4, -2,
+        3, 0, 0, 8, 11, 0, 0, -4, 0, 0, 3, 6, 0, 3, 0, -5, 7, 4, 0, 4, 7, 0, 4, -1, -4, -2,
+        4, 0, 0, 8, 12, 0, 0, -3, 0, 0, 4, 6, 0, 4, 0, -5, 8, 4, 0, 4, 8, 0, 4, 0, -4, -2
+      ],
+      "input_length": 225,
+      "output_capacity": 136,
+      "expected_result": 136,
+      "expected_output_hex": "0800000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000"
+    }
+  ],
+  "invalid_cases": [
+    {"id": "zero-samples", "input_values": [0], "input_length": 1, "expected_result": -1},
+    {"id": "zero-candidates", "input_values": [1, 0, 0, 0, 0], "input_length": 5, "expected_result": -1},
+    {"id": "duplicate-sample-points", "input_values": [2, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 2, 2, 2], "input_length": 15, "expected_result": -1},
+    {"id": "duplicate-cell-candidate", "input_values": [1, 0, 0, 0, 2, 1, 0, 0, 1, 0, 0], "input_length": 11, "expected_result": -1},
+    {"id": "coordinate-out-of-range", "input_values": [1, 0, 0, 0, 1, 17, 0, 0], "input_length": 8, "expected_result": -1},
+    {"id": "trailing-word", "input_values": [1, 0, 0, 0, 1, 5, 0, 0, 99], "input_length": 9, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ],
+  "capacity_cases": [
+    {"id": "null-output", "input_values": [1, 0, 0, 0, 4, 5, 0, 0, -4, 0, 0, 0, 3, 0, 0, 0, -2], "input_length": 17, "output_capacity": 24, "output_is_null": true, "expected_result": -2},
+    {"id": "short-output", "input_values": [1, 0, 0, 0, 4, 5, 0, 0, -4, 0, 0, 0, 3, 0, 0, 0, -2], "input_length": 17, "output_capacity": 23, "expected_result": -2}
+  ]
+}

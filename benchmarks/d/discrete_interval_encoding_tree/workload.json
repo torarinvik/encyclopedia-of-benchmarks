@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "discrete-interval-encoding-tree-i64-array-bytes-output-v1",
+  "algorithm": "discrete_interval_encoding_tree",
+  "function_symbol": "discrete_interval_encoding_tree",
+  "abi": "i64_array_bytes_output",
+  "description": "Point set updates and membership queries in an unbalanced BST of maximal adjacent-key intervals.",
+  "source": {
+    "title": "Diets for Fat Sets",
+    "author": "Martin Erwig",
+    "venue": "Journal of Functional Programming 8(6), 627-632 (1998)",
+    "url": "https://doi.org/10.1017/S0956796898003116",
+    "discovery_source": "NIST DADS discrete interval encoding tree entry",
+    "discovery_url": "https://xlinux.nist.gov/dads/HTML/discretintrv.html",
+    "pinned_behavior": "Closed intervals store maximal consecutive keys; insert extends and fuses adjacent intervals, delete shortens, removes, or splits an interval, and member follows BST comparisons."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[operation_count,(opcode,key)*operation_count]",
+    "operation_count_range": [0, 32],
+    "key_range": [-15, 15],
+    "operations": {
+      "0": "insert key; existing key is a no-op",
+      "1": "delete key; absent key is a no-op",
+      "2": "query membership without mutation"
+    },
+    "initial_set": "empty",
+    "tree_shape": "unbalanced BST ordered by interval endpoints; no balancing",
+    "exact_length": "1 + 2*operation_count",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1,
+    "validation_order": "Reject null input, invalid length/count/exact framing, non-i64 values, invalid opcode, and out-of-domain key before output capacity."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "one little-endian signed i64 per operation: 64*cardinality + 2*interval_node_count + present_after_operation",
+    "maximum_output_bytes": 256,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "zero_length_output_allows_null_pointer": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "accounting": "64 fixed interval nodes, operation/index locals, recursion frames bounded by the 64-node arena, and output staging; caller input and output are excluded."
+  },
+  "complexity": {
+    "single_operation": "O(h), where h is the current unbalanced BST height",
+    "complete_trace_worst_case": "O(Q^2)",
+    "auxiliary_space": "O(Q) with a fixed 64-node arena"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty-trace-null-output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "bridge-two-runs-split-and-rejoin",
+      "input_values": [9, 0, 5, 0, 7, 0, 6, 1, 6, 2, 5, 2, 6, 1, 5, 0, 6, 2, 7],
+      "input_length": 19,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "4300000000000000 8500000000000000 c300000000000000 8400000000000000 8500000000000000 8400000000000000 4200000000000000 8300000000000000 8300000000000000"
+    },
+    {
+      "id": "duplicate-insert-absent-delete",
+      "input_values": [5, 0, 0, 0, 0, 1, 10, 2, 0, 1, 0],
+      "input_length": 11,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "4300000000000000 4300000000000000 4200000000000000 4300000000000000 0000000000000000"
+    },
+    {
+      "id": "maximum-frame-maximum-output",
+      "input_values": [32, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15],
+      "input_length": 65,
+      "output_capacity": 256,
+      "expected_result": 256,
+      "expected_output_hex": "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000"
+    },
+    {
+      "id": "maximum-output-one-byte-short",
+      "input_values": [32, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15],
+      "input_length": 65,
+      "output_capacity": 255,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [32, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 1, -15, 99],
+      "input_length": 66,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-opcode-precedes-capacity",
+      "input_values": [1, 9, 0],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key-outside-domain",
+      "input_values": [1, 0, 16],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonempty-null-output",
+      "input_values": [1, 2, 0],
+      "input_length": 3,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

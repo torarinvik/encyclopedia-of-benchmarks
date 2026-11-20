@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("van_ecks_sequence")
 fn van_ecks_sequence(pos:Int64) abi("C")->Int64:
     if pos<1 or pos>16:return -1

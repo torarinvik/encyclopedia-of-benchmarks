@@ -1,0 +1,174 @@
+from std.collections import InlineArray
+
+const PMR_MAX_SEGMENTS: usize = 8
+const PMR_MAX_DEPTH: usize = 8
+const PMR_MAX_NODES: usize = 2048
+const PMR_MAX_INPUT: usize = 35
+
+struct PmrNode:
+    parent: i64
+    quadrant: i64
+    depth: i64
+    xmin: i64
+    ymin: i64
+    xmax: i64
+    ymax: i64
+    children: i64[4]
+    ids: i64[8]
+    id_count: usize
+
+def pmr_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx-ax)*(cy-ay)-(by-ay)*(cx-ax)
+
+def pmr_between(a: i64, b: i64, p: i64) -> bool:
+    (a <= p and p <= b) or (b <= p and p <= a)
+
+def pmr_on_segment(ax: i64, ay: i64, bx: i64, by: i64, px: i64, py: i64) -> bool:
+    pmr_between(ax,bx,px) and pmr_between(ay,by,py)
+
+def pmr_segments_intersect(ax: i64, ay: i64, bx: i64, by: i64,
+                           cx: i64, cy: i64, dx: i64, dy: i64) -> bool:
+    o1: i64 = pmr_orient(ax,ay,bx,by,cx,cy)
+    o2: i64 = pmr_orient(ax,ay,bx,by,dx,dy)
+    o3: i64 = pmr_orient(cx,cy,dx,dy,ax,ay)
+    o4: i64 = pmr_orient(cx,cy,dx,dy,bx,by)
+    if ((o1 < 0 and o2 > 0) or (o1 > 0 and o2 < 0)) and ((o3 < 0 and o4 > 0) or (o3 > 0 and o4 < 0)):
+        return true
+    (o1 == 0 and pmr_on_segment(ax,ay,bx,by,cx,cy)) or
+        (o2 == 0 and pmr_on_segment(ax,ay,bx,by,dx,dy)) or
+        (o3 == 0 and pmr_on_segment(cx,cy,dx,dy,ax,ay)) or
+        (o4 == 0 and pmr_on_segment(cx,cy,dx,dy,bx,by))
+
+def pmr_intersects_box(segments: view[i64], sid: usize, node: PmrNode) -> bool:
+    offset: usize = sid * 4
+    x0: i64 = 2 * segments[offset]
+    y0: i64 = 2 * segments[offset + 1]
+    x1: i64 = 2 * segments[offset + 2]
+    y1: i64 = 2 * segments[offset + 3]
+    if ((node.xmin <= x0 and x0 <= node.xmax and node.ymin <= y0 and y0 <= node.ymax) or
+        (node.xmin <= x1 and x1 <= node.xmax and node.ymin <= y1 and y1 <= node.ymax)):
+        return true
+    pmr_segments_intersect(x0,y0,x1,y1,node.xmin,node.ymin,node.xmax,node.ymin) or
+        pmr_segments_intersect(x0,y0,x1,y1,node.xmax,node.ymin,node.xmax,node.ymax) or
+        pmr_segments_intersect(x0,y0,x1,y1,node.xmax,node.ymax,node.xmin,node.ymax) or
+        pmr_segments_intersect(x0,y0,x1,y1,node.xmin,node.ymax,node.xmin,node.ymin)
+
+def pmr_init_node(nodes: mutable view[PmrNode], id: usize, parent: i64, q: i64,
+                  depth: i64, xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> void:
+    nodes[id].parent <- parent
+    nodes[id].quadrant <- q
+    nodes[id].depth <- depth
+    nodes[id].xmin <- xmin
+    nodes[id].ymin <- ymin
+    nodes[id].xmax <- xmax
+    nodes[id].ymax <- ymax
+    nodes[id].id_count <- 0
+    for k in 0..<4: nodes[id].children[k] <- -1
+    for k in 0..<PMR_MAX_SEGMENTS: nodes[id].ids[k] <- 0
+
+def pmr_insert(nodes: mutable view[PmrNode], segments: view[i64], used: mutable usize&,
+               node_id: usize, sid: usize, threshold: usize) -> bool:
+    if nodes[node_id].children[0] >= 0:
+        for q in 0..<4:
+            child: usize = nodes[node_id].children[q].usize()
+            if pmr_intersects_box(segments, sid, nodes[child]) and
+                not pmr_insert(nodes, segments, used, child, sid, threshold): return false
+        return true
+    if nodes[node_id].id_count >= PMR_MAX_SEGMENTS: return false
+    slot: usize = nodes[node_id].id_count
+    nodes[node_id].ids[slot] <- sid.i64()
+    nodes[node_id].id_count <- slot + 1
+    if nodes[node_id].id_count <= threshold: return true
+    if nodes[node_id].depth >= PMR_MAX_DEPTH.i64() or used + 4 > PMR_MAX_NODES: return false
+
+    previous: mutable i64[8] = zeroed
+    previous_count: usize = nodes[node_id].id_count
+    for i in 0..<previous_count: previous[i] <- nodes[node_id].ids[i]
+    xmin: i64 = nodes[node_id].xmin
+    ymin: i64 = nodes[node_id].ymin
+    xmax: i64 = nodes[node_id].xmax
+    ymax: i64 = nodes[node_id].ymax
+    mx: i64 = xmin + (xmax-xmin)/2
+    my: i64 = ymin + (ymax-ymin)/2
+    base: usize = used
+    depth: i64 = nodes[node_id].depth + 1
+    for q in 0..<4:
+        x0: i64 = if q % 2 == 0: xmin else: mx
+        x1: i64 = if q % 2 == 0: mx else: xmax
+        y0: i64 = if q < 2: my else: ymin
+        y1: i64 = if q < 2: ymax else: my
+        pmr_init_node(nodes, base+q, node_id.i64(), q.i64(), depth, x0,y0,x1,y1)
+    used <- used + 4
+    nodes[node_id].id_count <- 0
+    for q in 0..<4: nodes[node_id].children[q] <- (base+q).i64()
+    for i in 0..<previous_count:
+        old_sid: usize = previous[i].usize()
+        for q in 0..<4:
+            child: usize = base + q
+            if pmr_intersects_box(segments, old_sid, nodes[child]) and
+                not pmr_insert(nodes, segments, used, child, old_sid, threshold): return false
+    true
+
+def pmr_preorder(nodes: view[PmrNode], id: usize, order: mutable usize[2048],
+                 count: mutable usize&) -> void:
+    order[count] <- id
+    count <- count + 1
+    if nodes[id].children[0] >= 0:
+        for q in 0..<4: pmr_preorder(nodes, nodes[id].children[q].usize(), order, count)
+
+def pmr_store_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8: output[offset+byte] <- (bits >> (8*byte)).u8()
+
+def pmr_impl(input: view[i64], output: mutable view[u8]) -> i64:
+    if input.len() < 2 or input.len() > PMR_MAX_INPUT: return -1
+    if input[0] < 0 or input[0] > 8 or input[1] < 1 or input[1] > 8: return -1
+    count: usize = input[0].usize()
+    threshold: usize = input[1].usize()
+    if input.len() != 2 + 4*count: return -1
+    nodes: mutable PmrNode[2048] = zeroed
+    node_view: mutable view[PmrNode] = nodes[0:PMR_MAX_NODES]
+    segment_data: mutable i64[32] = zeroed
+    segments: mutable view[i64] = segment_data[0:32]
+    for sid in 0..<count:
+        for k in 0..<4:
+            value: i64 = input[2+4*sid+k]
+            if value < 0 or value > 255: return -1
+            segments[sid*4+k] <- value
+        if segments[sid*4] == segments[sid*4+2] and segments[sid*4+1] == segments[sid*4+3]: return -1
+    pmr_init_node(node_view,0,-1,-1,0,-1,-1,511,511)
+    used: mutable usize = 1
+    for sid in 0..<count:
+        if not pmr_insert(node_view,segments,used,0,sid,threshold): return -1
+    order: mutable usize[2048] = zeroed
+    remap: mutable i64[2048] = zeroed
+    node_count: mutable usize = 0
+    pmr_preorder(node_view,0,order,node_count)
+    bytes: usize = 16
+    for i in 0..<node_count: bytes <- bytes + 32 + 8*node_view[order[i]].id_count
+    if output.len() < bytes: return -2
+    for i in 0..<node_count: remap[order[i]] <- i.i64()
+    pmr_store_le(output,0,node_count.i64())
+    pmr_store_le(output,8,count.i64())
+    cursor: mutable usize = 16
+    for i in 0..<node_count:
+        node: PmrNode = node_view[order[i]]
+        pmr_store_le(output,cursor,if node.parent < 0: -1 else: remap[node.parent.usize()]); cursor <- cursor+8
+        pmr_store_le(output,cursor,node.quadrant); cursor <- cursor+8
+        pmr_store_le(output,cursor,node.depth); cursor <- cursor+8
+        pmr_store_le(output,cursor,node.id_count.i64()); cursor <- cursor+8
+        for j in 0..<node.id_count: pmr_store_le(output,cursor,node.ids[j]); cursor <- cursor+8
+    bytes.i64()
+
+@export("pmr_edge_quadtree")
+fn pmr_edge_quadtree(input_ptr: i64&, length: usize,
+    output_ptr: mutable u8&, capacity: usize) abi("C") -> Int64:
+    if input_ptr.is_null() or length < 2 or length > PMR_MAX_INPUT:
+        return -1
+    input: view[i64] = input_ptr[0:length]
+    if output_ptr.is_null():
+        empty_storage: mutable u8[1] = zeroed
+        empty_output: mutable view[u8] = empty_storage[0:0]
+        return pmr_impl(input, empty_output)
+    output: mutable view[u8] = output_ptr[0:capacity]
+    pmr_impl(input, output)

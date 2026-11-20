@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-lz77-lpf-sa-psv-nsv-i64-array-bytes-output-v1",
+  "algorithm": "lz77_lpf_suffix_array",
+  "function_symbol": "lz77_lpf_suffix_array",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Linear Time Lempel-Ziv Factorization: Simple, Fast, Small",
+    "authors": ["Juha Kärkkäinen", "Dominik Kempa", "Simon J. Puglisi"],
+    "year": 2013,
+    "reference": "CPM 2013; Encyclopedia of Algorithms entry 634",
+    "paper_url": "https://cpm.cs.helsinki.fi/cpm13/16_kempa.pdf",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_634",
+    "algorithm_attribution": "K3 suffix-array previous/next-smaller-value LPF factorization",
+    "implementation_status": "bounded clean-room implementation; no upstream code reproduced"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, byte_0, ..., byte_(n-1)]",
+    "maximum_text_length": 32,
+    "byte_range": [0, 255],
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "(zero-based source_position,match_length) pairs; (-1,0) is a literal; no count prefix",
+    "maximum_bytes": 512,
+    "success_result": "bytes written",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "factor_rule": "At each phrase boundary compare LCPs with PSV and NSV, the previous and next strictly smaller suffix-array values around the current suffix start.",
+    "psv_definition": "For text start i, use the SA value at greatest rank r<ISA[i] with SA[r]<i.",
+    "nsv_definition": "For text start i, use the SA value at least rank r>ISA[i] with SA[r]<i.",
+    "candidate_tie_rule": "Choose NSV only when its LCP is strictly greater; PSV wins ties.",
+    "literal_rule": "If match length is zero, output source sentinel -1 and length zero.",
+    "advance_rule": "Advance by max(match_length,1).",
+    "overlap_rule": "LCP is compared against the original input and may overlap the target phrase.",
+    "oracle_split": "Primary uses suffix array plus SA previous/next-smaller stacks; independent reference directly enumerates prior starts and orders their suffixes by direct comparison.",
+    "validation_order": "Reject null/malformed input before checking output pointer or capacity; do not write on error."
+  },
+  "workspace": {"bytes": 512, "meaning": "Maximum serialized source and LPF-length pairs."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 5},
+  "cases": [
+    {"id":"empty", "input_values":[0], "input_length":1, "output_capacity":0, "expected_result":0, "expected_output_hex":""},
+    {"id":"single-literal", "input_values":[1,97], "input_length":2, "output_capacity":16, "expected_result":16, "expected_output_hex":"ffffffffffffffff0000000000000000"},
+    {"id":"lpf-ababc", "input_values":[5,97,98,97,98,99], "input_length":6, "output_capacity":64, "expected_result":64, "expected_output_hex":"ffffffffffffffff0000000000000000ffffffffffffffff000000000000000000000000000000000200000000000000ffffffffffffffff0000000000000000"},
+    {"id":"psv-wins-equal-lcp", "input_values":[9,97,98,120,97,98,122,97,98,121], "input_length":10, "output_capacity":112, "expected_result":112, "expected_output_hex":"ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff000000000000000000000000000000000200000000000000ffffffffffffffff000000000000000000000000000000000200000000000000ffffffffffffffff0000000000000000"},
+    {"id":"maximum-frame-repetitive", "input_values":[32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":33, "output_capacity":32, "expected_result":32, "expected_output_hex":"ffffffffffffffff000000000000000000000000000000001f00000000000000"},
+    {"id":"maximum-output-all-literals", "input_values":[32,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], "input_length":33, "output_capacity":512, "expected_result":512, "expected_output_hex":"ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff0000000000000000"},
+    {"id":"short-output-maximum", "input_values":[32,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], "input_length":33, "output_capacity":511, "expected_result":-2, "expected_output_hex":""},
+    {"id":"invalid-extra-word", "input_values":[1,97,98], "input_length":3, "output_capacity":16, "expected_result":-1, "expected_output_hex":""},
+    {"id":"invalid-byte", "input_values":[1,256], "input_length":2, "output_capacity":16, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-output", "input_values":[1,97], "input_length":2, "output_capacity":15, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[1,97], "input_length":2, "output_capacity":16, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_length":1, "input_is_null":true, "output_capacity":512, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

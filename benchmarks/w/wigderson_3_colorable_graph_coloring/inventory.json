@@ -1,0 +1,33 @@
+{
+  "algorithm": "wigderson_3_colorable_graph_coloring",
+  "abi": "i64_array_bytes_output",
+  "fixed_workspace_bytes_upper_bound": 2048,
+  "languages": [
+    {"name":"C","path":"c/t/wigderson_3_colorable_graph_coloring.c","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"C3","path":"c3/t/wigderson_3_colorable_graph_coloring.c3","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"C++","path":"cpp/t/wigderson_3_colorable_graph_coloring.cpp","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"Elisa","path":"elisa/t/wigderson_3_colorable_graph_coloring.elisa","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"Mojo","path":"mojo/t/wigderson_3_colorable_graph_coloring.mojo","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"Nim","path":"nim/t/wigderson_3_colorable_graph_coloring.nim","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"Odin","path":"odin/t/wigderson_3_colorable_graph_coloring.odin","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"Rust","path":"rust/t/wigderson_3_colorable_graph_coloring.rs","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"V","path":"v/t/wigderson_3_colorable_graph_coloring.v","symbol":"wigderson_3_colorable_graph_coloring"},
+    {"name":"Zig","path":"zig/t/wigderson_3_colorable_graph_coloring.zig","symbol":"wigderson_3_colorable_graph_coloring"}
+  ],
+  "workload": {
+    "path": "benchmarks/w/wigderson_3_colorable_graph_coloring/workload.json",
+    "valid_cases": [
+      {"id":"empty-graph","input_values":[0,0],"output_capacity":33,"expected_result":1,"expected_output_hex":"00"},
+      {"id":"isolated-singleton","input_values":[1,0],"output_capacity":33,"expected_result":2,"expected_output_hex":"0101"},
+      {"id":"single-edge","input_values":[2,1,0,1],"output_capacity":33,"expected_result":3,"expected_output_hex":"030301"},
+      {"id":"star-neighborhood","input_values":[5,4,0,1,0,2,0,3,0,4],"output_capacity":33,"expected_result":6,"expected_output_hex":"030301010101"},
+      {"id":"triangle-neighborhood-edge","input_values":[3,3,0,1,0,2,1,2],"output_capacity":33,"expected_result":4,"expected_output_hex":"03030102"},
+      {"id":"maximum-degree-tie-path-five","input_values":[5,4,0,1,1,2,2,3,3,4],"output_capacity":33,"expected_result":6,"expected_output_hex":"040103010304"},
+      {"id":"two-round-color-stride-reuse","input_values":[10,6,0,1,0,2,0,3,4,5,4,6,4,7],"output_capacity":33,"expected_result":11,"expected_output_hex":"0503010101050303030505"},
+      {"id":"cycle-five-residual-first-fit","input_values":[5,5,0,1,1,2,2,3,3,4,0,4],"output_capacity":33,"expected_result":6,"expected_output_hex":"040301030401"},
+      {"id":"all-isolates-maximum-output","input_values":[32,0],"output_capacity":33,"expected_result":33,"expected_output_hex":"010101010101010101010101010101010101010101010101010101010101010101"}
+    ],
+    "invalid_case_ids": ["reversed-edge","duplicate-edge","self-loop","trailing-word","non-bipartite-selected-neighborhood-outside-promise","null-input"],
+    "capacity_case_ids": ["null-output","short-output"]
+  }
+}

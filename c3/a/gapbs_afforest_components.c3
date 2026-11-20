@@ -32,7 +32,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
 }
 
 // Clean-room bounded GAPBS Afforest profile; see package LICENSE.txt.
-long gapbs_afforest_components(long* input, usz length, char* output, usz capacity)
+fn long gapbs_afforest_components(long* input, usz length, char* output, usz capacity)
         @export("gapbs_afforest_components") {
     if (input == null || length < 4 || length > 195) return -1;
     long n64 = input[0], m64 = input[1], sample_count64 = input[2];

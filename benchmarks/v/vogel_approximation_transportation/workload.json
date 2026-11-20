@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "vogel-approximation-transportation-i64-array-scalar-v1",
+  "algorithm": "vogel_approximation_transportation",
+  "function_symbol": "vogel_approximation_transportation",
+  "abi": "i64_array_scalar",
+  "description": "Build a deterministic feasible transportation allocation using Vogel's approximation method.",
+  "source": {
+    "title": "The Transportation Problem and the Vogel Approximation Method",
+    "authors": ["Harvey H. Shore"],
+    "publisher": "Decision Sciences",
+    "volume": 1,
+    "year": 1970,
+    "pages": "441-457",
+    "reference_url": "https://doi.org/10.1111/j.1540-5915.1970.tb00792.x",
+    "steps_url": "https://egyankosh.ac.in/bitstream/123456789/28668/1/Unit-7.pdf",
+    "discovery_url": "https://rosettagit.org/tasks/vogels-approximation-method/",
+    "implementation_status": "bounded deterministic clean-room VAM profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[R,C,costs row-major,supply[R],demand[C]]",
+    "rows_range": [1, 3],
+    "cols_range": [1, 3],
+    "cost_range": [0, 9],
+    "margin_range": [1, 3],
+    "balanced_only": true,
+    "exact_length": "2+R*C+R+C",
+    "maximum_valid_length": 17,
+    "maximum_parseable_length": 18,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "total_cost*4^9 plus the fixed 3x3 row-major allocation matrix in nine base-4 digits",
+    "valid_result_range": [0, 21495807],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "penalty": "For each active row or column, subtract its least active unit cost from its second least. A line with one active cell receives penalty 10, greater than every finite penalty in the cost domain.",
+    "line_ties": "Choose the maximum penalty. Scan active rows by increasing ID before active columns by increasing ID, replacing a selected line only for a strictly larger penalty; equal penalties retain the earlier row/column candidate.",
+    "cell_ties": "Within the chosen line, choose the cheapest active cell and then the lowest partner ID.",
+    "allocation": "Allocate the maximum feasible quantity min(remaining supply, remaining demand), update residual margins, and remove every exhausted row and column. Continue until all margins are zero.",
+    "independent_method": "The independent reference reconstructs each active row/column's candidate-cell list, sorts its costs to recompute the two-minimum penalty, selects with the documented stable ordering, and then verifies the resulting allocation encoding.",
+    "invalid_cases": "Null, malformed or trailing frames, out-of-range costs/margins, zero margins, or unequal total supply and demand return -1.",
+    "distinction": "VAM returns a feasible heuristic initial solution and does not guarantee minimum cost; it is distinct from exact min-cost flow and transportation simplex methods."
+  },
+  "complexity": {
+    "primary_time": "O((R+C)*R*C) direct penalty scans over at most R+C-1 allocation iterations, with R,C<=3.",
+    "primary_space": "O(R*C+R+C) for costs, allocations, and residual margins.",
+    "independent_time": "O((R+C)*R*C*log(max(R,C))) due to independent per-line cost sorting, over at most R+C-1 iterations.",
+    "independent_space": "O(R*C+R+C) for the direct matrix and active margins."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-cell-table","input_values":[1,1,5,2,2],"input_length":5,"expected_result":2621442},
+    {"id":"row-first-penalty-tie","input_values":[2,2,1,9,9,1,2,2,2,2],"input_length":10,"expected_result":1049090},
+    {"id":"strict-penalty-choice","input_values":[2,2,1,9,2,8,2,2,2,2],"input_length":10,"expected_result":4719106},
+    {"id":"two-by-three-reallocation","input_values":[2,3,1,8,6,5,2,7,2,2,1,1,2],"input_length":13,"expected_result":4195601},
+    {"id":"maximum-valid-frame","input_values":[3,3,9,9,9,9,9,9,9,9,9,3,3,3,3,3,3],"input_length":17,"expected_result":21431043},
+    {"id":"unbalanced-invalid","input_values":[1,1,0,2,1],"input_length":5,"expected_result":-1},
+    {"id":"zero-row-invalid","input_values":[0,1,1],"input_length":3,"expected_result":-1},
+    {"id":"zero-supply-invalid","input_values":[1,1,0,0,1],"input_length":5,"expected_result":-1},
+    {"id":"negative-cost-invalid","input_values":[1,1,-1,1,1],"input_length":5,"expected_result":-1},
+    {"id":"cost-over-maximum-invalid","input_values":[1,1,10,1,1],"input_length":5,"expected_result":-1},
+    {"id":"truncated-frame-invalid","input_values":[2,2,1,2,3,4,2,2,2],"input_length":9,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[1,1,0,1,1,0],"input_length":6,"expected_result":-1},
+    {"id":"maximum-parseable-trailing-invalid","input_values":[3,3,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,0],"input_length":18,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

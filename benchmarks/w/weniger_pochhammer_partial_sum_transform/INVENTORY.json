@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "algorithm": "weniger_pochhammer_partial_sum_transform",
+  "function_symbol": "weniger_pochhammer_partial_sum_transform",
+  "abi": "i64_array_bytes_output",
+  "status": "integrated",
+  "input": {
+    "minimum_valid_length": 7,
+    "maximum_valid_length": 16,
+    "maximum_parseable_length": 17
+  },
+  "output": {
+    "kind": "little_endian_i64_pair_bytes",
+    "maximum_bytes": 16
+  },
+  "workspace": {"bytes": 0},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/w/weniger_pochhammer_partial_sum_transform.c",
+    "c3/w/weniger_pochhammer_partial_sum_transform.c3",
+    "cpp/w/weniger_pochhammer_partial_sum_transform.cpp",
+    "elisa/w/weniger_pochhammer_partial_sum_transform.elisa",
+    "mojo/w/weniger_pochhammer_partial_sum_transform.mojo",
+    "nim/w/weniger_pochhammer_partial_sum_transform.nim",
+    "odin/w/weniger_pochhammer_partial_sum_transform.odin",
+    "rust/w/weniger_pochhammer_partial_sum_transform.rs",
+    "v/w/weniger_pochhammer_partial_sum_transform.v",
+    "zig/w/weniger_pochhammer_partial_sum_transform.zig"
+  ],
+  "source": "https://dlmf.nist.gov/3.9#E16"
+}

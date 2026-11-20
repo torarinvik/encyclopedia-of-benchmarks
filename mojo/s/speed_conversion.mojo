@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.math import floor
 fn php_round2(x:Float64)->Float64:return floor(x*100.0+0.5)/100.0
 @export("speed_conversion")

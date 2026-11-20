@@ -16,7 +16,7 @@ fn long eulerian_path(long* input, usz length, char* output, usz capacity) @expo
     usz edges = (usz)input[1];
     if (length != 2 + 2 * edges) return -1;
 
-    long[MAX_VERTICES][MAX_EDGES] adjacency = zeroed;
+    long[MAX_EDGES][MAX_VERTICES] adjacency = zeroed;
     usz[MAX_VERTICES] in_degree = zeroed;
     usz[MAX_VERTICES] out_degree = zeroed;
     for (usz edge = 0; edge < edges; edge++) {

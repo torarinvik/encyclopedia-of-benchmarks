@@ -12,7 +12,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long misra_gries_summaries(long* input, usz length, char* output, usz capacity)
+fn long misra_gries_summaries(long* input, usz length, char* output, usz capacity)
         @export("misra_gries_summaries") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long k64 = input[0], count64 = input[1];

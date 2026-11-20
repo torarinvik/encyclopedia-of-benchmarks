@@ -1,0 +1,28 @@
+{
+  "algorithm": "zwick_deterministic_bridging_set",
+  "function_symbol": "zwick_deterministic_bridging_set",
+  "abi": "i64_array_scalar",
+  "workspace_bytes": 4096,
+  "languages": {
+    "c": "c/z/zwick_deterministic_bridging_set.c",
+    "c3": "c3/z/zwick_deterministic_bridging_set.c3",
+    "cpp": "cpp/z/zwick_deterministic_bridging_set.cpp",
+    "elisa": "elisa/z/zwick_deterministic_bridging_set.elisa",
+    "mojo": "mojo/z/zwick_deterministic_bridging_set.mojo",
+    "nim": "nim/z/zwick_deterministic_bridging_set.nim",
+    "odin": "odin/z/zwick_deterministic_bridging_set.odin",
+    "rust": "rust/z/zwick_deterministic_bridging_set.rs",
+    "v": "v/z/zwick_deterministic_bridging_set.v",
+    "zig": "zig/z/zwick_deterministic_bridging_set.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ]
+}

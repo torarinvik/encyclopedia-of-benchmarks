@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "algorithm": "routh_hurwitz_stability_predicate",
+  "function_symbol": "routh_hurwitz_stability_predicate",
+  "abi": "i64_array_scalar",
+  "status": "integrated",
+  "native_paths": [
+    "c/r/routh_hurwitz_stability_predicate.c",
+    "c3/r/routh_hurwitz_stability_predicate.c3",
+    "cpp/r/routh_hurwitz_stability_predicate.cpp",
+    "elisa/r/routh_hurwitz_stability_predicate.elisa",
+    "mojo/r/routh_hurwitz_stability_predicate.mojo",
+    "nim/r/routh_hurwitz_stability_predicate.nim",
+    "odin/r/routh_hurwitz_stability_predicate.odin",
+    "rust/r/routh_hurwitz_stability_predicate.rs",
+    "v/r/routh_hurwitz_stability_predicate.v",
+    "zig/r/routh_hurwitz_stability_predicate.zig"
+  ],
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_degree": 4,
+    "coefficient_absolute_value": 3,
+    "maximum_valid_input_length": 6,
+    "maximum_parseable_input_length": 7,
+    "maximum_native_table_entry": 729,
+    "workspace_bytes": 1024
+  },
+  "references": [
+    {
+      "role": "primary",
+      "method": "Exact rational Routh tableau. Native ports use an equivalent fraction-free row scaling that preserves the first-column signs."
+    },
+    {
+      "role": "independent",
+      "method": "Construct the Hurwitz matrix and test each leading principal determinant by recursive cofactor expansion."
+    }
+  ],
+  "sources": [
+    {
+      "role": "routh_method",
+      "title": "Routh, A Treatise on the Stability of a Given State of Motion (1877)",
+      "url": "https://archive.org/details/treatiseonstabil00routuoft"
+    },
+    {
+      "role": "hurwitz_criterion",
+      "title": "Hurwitz, Über die Bedingungen ... (1895)",
+      "url": "https://doi.org/10.1007/BF01446812"
+    },
+    {
+      "role": "criterion_summary",
+      "title": "Encyclopedia of Mathematics: Routh-Hurwitz criterion",
+      "url": "https://encyclopediaofmath.org/wiki/Routh-Hurwitz_criterion"
+    },
+    {
+      "role": "title_discovery_only",
+      "title": "RosettaCodeData popular-tasks at pinned revision",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+    }
+  ]
+}

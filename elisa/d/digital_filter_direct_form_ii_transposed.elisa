@@ -1,0 +1,62 @@
+from std.collections import InlineArray
+from std.ffi import c_size_t
+
+const MAX_SAMPLES: usize = 32
+const MAX_ORDER: usize = 4
+const MAX_INPUT_WORDS: usize = 45
+
+def digital_filter_direct_form_ii_transposed_impl(
+    input: view[i64], output: mutable u8&, capacity: usize,
+) -> i64:
+    let length: usize = input.len()
+    if length < 2 or length > MAX_INPUT_WORDS: return -1
+    let count_word: i64 = input[0]
+    let order_word: i64 = input[1]
+    if count_word < 0 or count_word > MAX_SAMPLES.i64() or order_word < 0 or order_word > MAX_ORDER.i64(): return -1
+    let count: usize = count_word.usize()
+    let order: usize = order_word.usize()
+    if length != count + 2 * order + 4: return -1
+    let a_start: usize = 2
+    let b_start: usize = order + 3
+    let x_start: usize = 2 * order + 4
+    if input[a_start] != 1: return -1
+    var index: mutable usize = 1
+    while index <= order:
+        if input[a_start + index] < -1 or input[a_start + index] > 1: return -1
+        index <- index + 1
+    index <- 0
+    while index <= order:
+        if input[b_start + index] < -1 or input[b_start + index] > 1: return -1
+        index <- index + 1
+    index <- 0
+    while index < count:
+        if input[x_start + index] < -16 or input[x_start + index] > 16: return -1
+        index <- index + 1
+    let bytes: usize = count * 8
+    if bytes > 0 and (output.is_null() or capacity < bytes): return -2
+    if count == 0: return 0
+
+    var state = InlineArray[i64, 4](fill=0)
+    let out: mutable view[u8] = output[0:bytes]
+    var sample_index: mutable usize = 0
+    while sample_index < count:
+        let sample: i64 = input[x_start + sample_index]
+        let value: i64 = input[b_start] * sample + (state[0] if order > 0 else 0)
+        var stage: mutable usize = 0
+        while stage < order:
+            let next_state: i64 = state[stage + 1] if stage + 1 < order else 0
+            state[stage] <- next_state + input[b_start + stage + 1] * sample - input[a_start + stage + 1] * value
+            stage <- stage + 1
+        let bits: u64 = value.u64()
+        var byte_index: mutable usize = 0
+        while byte_index < 8:
+            out[sample_index * 8 + byte_index] <- ((bits >> (byte_index * 8)) & 255).u8()
+            byte_index <- byte_index + 1
+        sample_index <- sample_index + 1
+    bytes.i64()
+
+export fn digital_filter_direct_form_ii_transposed(
+    input: i64&, length: c_size_t, output: mutable u8&, capacity: usize,
+) abi("C") -> Int64:
+    if input.is_null() or length < 2 or length > c_size_t(MAX_INPUT_WORDS): return -1
+    digital_filter_direct_form_ii_transposed_impl(input[0:length], output, capacity)

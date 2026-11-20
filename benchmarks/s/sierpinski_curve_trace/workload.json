@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "sierpinski-curve-direction-trace-i64-bytes-v1",
+  "algorithm": "sierpinski_curve_trace",
+  "function_symbol": "sierpinski_curve_trace",
+  "abi": "i64_array_bytes_output",
+  "description": "Emit the compact move trace for one closed Wirth Sierpinski curve.",
+  "source": {
+    "discovery_title": "Sierpinski curve",
+    "discovery_score": 28,
+    "discovery_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_scope": "Pinned title and score metadata only; no task text, examples, tests, or submissions used.",
+    "algorithm_description": "Niklaus Wirth, Algorithms and Data Structures (Oberon version), Section 3.3, Figures 3.5-3.6, pp. 105-107.",
+    "algorithm_url": "https://people.inf.ethz.ch/~wirth/AD.pdf",
+    "variant": "Benchmark order q denotes Wirth curve S_q. q=0 is the non-empty S0 base square; q=1 and q=2 are his first two refined curves. The path is A(q), outer direction 7, B(q), direction 5, C(q), direction 3, D(q), direction 1."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[order]",
+    "order_range": [0, 2],
+    "valid_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "extra_word_behavior": "Reject the two-word parseable frame.",
+    "invalid_input_result": -1,
+    "validation_order": "Validate non-null input, exact length, and order before output pointer or capacity checks."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "One move byte per line segment. Low 3 bits are Wirth's direction index (45 degrees times the value); bit 3 selects length 2h instead of h. No output header.",
+    "move_count_by_order": {"0": 4, "1": 16, "2": 64},
+    "maximum_bytes": 64,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "accounting": "At most 64 fixed two-byte symbol/depth frames (128 bytes), plus order, stack/output indices, and scalar loop state. Input and output buffers are excluded."
+  },
+  "complexity": {
+    "primary": "O(4^(q+1)) time for recursive A/B/C/D expansion; O(q) active recursion state, bounded by the fixed order range.",
+    "independent": "O(4^(q+1)) time for grammar rewriting; O(4^(q+1)) temporary token storage in the Python reference. Native ports use a fixed expansion stack."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"order-zero-base-curve","input_values":[0],"input_length":1,"output_capacity":4,"expected_result":4,"expected_output_hex":"07 05 03 01"},
+    {"id":"order-one-recursive-curve","input_values":[1],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"07 08 01 07 05 0e 07 05 03 0c 05 03 01 0a 03 01"},
+    {"id":"maximum-order-and-output","input_values":[2],"input_length":1,"output_capacity":64,"expected_result":64,"expected_output_hex":"07 08 01 07 05 0e 07 08 01 0a 03 01 07 08 01 07 05 0e 07 05 03 0c 05 0e 07 08 01 07 05 0e 07 05 03 0c 05 03 01 0a 03 0c 05 0e 07 05 03 0c 05 03 01 0a 03 01 07 08 01 0a 03 0c 05 03 01 0a 03 01"},
+    {"id":"maximum-output-one-byte-short","input_values":[2],"input_length":1,"output_capacity":63,"expected_result":-2,"expected_output_hex":""},
+    {"id":"maximum-parseable-extra-word","input_values":[2,0],"input_length":2,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-order","input_values":[-1],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"order-above-bound","input_values":[3],"input_length":1,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"empty-nonnull-frame","input_values":[],"input_length":0,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":64,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1],"input_length":1,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"malformed-before-capacity","input_values":[3],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

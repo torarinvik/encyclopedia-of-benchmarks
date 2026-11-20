@@ -1,0 +1,32 @@
+alias KIPA_MAX_N = 128
+alias KIPA_MAX_K = 512
+alias KIPA_MODULUS = 1_000_000_007
+
+def kipa_impl(values: view[i64]) -> i64:
+    if values.len() != 2: return -1
+    let n_value = values[0]
+    let k_value = values[1]
+    if n_value < 0 or n_value > KIPA_MAX_N or k_value < 0 or k_value > KIPA_MAX_K: return -1
+    let n = n_value.usize()
+    let k = k_value.usize()
+    let max_inversions = n * (if n > 0: n - 1 else: 0) / 2
+    if k > max_inversions: return 0
+
+    var previous: mutable i64[KIPA_MAX_K + 1] = zeroed
+    var current: mutable i64[KIPA_MAX_K + 1] = zeroed
+    previous[0] <- 1
+    for size in range(1, n + 1):
+        var window: mutable i64 = 0
+        for inversions in range(k + 1):
+            window <- window + previous[inversions]
+            if inversions >= size: window <- window - previous[inversions - size]
+            window <- window % KIPA_MODULUS
+            if window < 0: window <- window + KIPA_MODULUS
+            current[inversions] <- window
+        for inversions in range(k + 1): previous[inversions] <- current[inversions]
+    previous[k]
+
+export fn k_inverse_pairs_array(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 3: return -1
+    let values: view[i64] = input[0:length]
+    kipa_impl(values)

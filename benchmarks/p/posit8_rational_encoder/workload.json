@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "posit8-es2-rational-nearest-v1",
+  "algorithm": "posit8_rational_encoder",
+  "function_symbol": "posit8_rational_encoder",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Posit numbers encoding",
+    "discovery_title_url": "https://rosettacode.org/wiki/Posit_numbers_encoding",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "normative_source": "https://posithub.org/docs/posit_standard-2.pdf",
+    "sections": "Posit Standard (2022), §§3.2–3.3 and 4.1",
+    "discovery_scope": "The pinned RosettaCodeData title index identifies the task only. The Posit Standard defines this benchmark profile; no task code, wording, examples, or fixtures are reused."
+  },
+  "contract": {
+    "input_layout": "[count, (numerator, positive_denominator)*count]",
+    "count_range": [0, 32],
+    "numerator_range": [-2147483648, 2147483648],
+    "denominator_range": [1, 2147483648],
+    "number_domain": "Exact rational numerator/denominator values; a zero numerator is canonical zero regardless of denominator.",
+    "format": "posit8 with es=2, as specified by the Posit Standard 2022.",
+    "output": "One raw unsigned posit8 encoding byte per rational, in input order. Zero is 0x00; NaR is never emitted by this finite-rational input profile. Negative encodings are the 8-bit two's-complement form of the corresponding positive magnitude encoding.",
+    "rounding": "Exact values retain their code. Otherwise choose the nearest representable posit, with exact midpoint ties resolved by the lower-magnitude positive codeword's least-significant bit: even selects lower, odd selects upper. Magnitudes below minPos clamp to minPos and magnitudes above maxPos clamp to maxPos; apply the sign after magnitude rounding.",
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "bytes",
+    "maximum_bytes": 32,
+    "success_bytes": "count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Includes a 32-byte staging buffer and bounded scalar/index state. Caller-owned input and output buffers are excluded. No codebook table is materialized."
+  },
+  "complexity": {
+    "primary_time": "O(count * log(127)) exact codeword comparisons; each probe decodes at most seven posit bits.",
+    "primary_auxiliary_space": "32 bytes for staged output plus bounded scalar state.",
+    "independent_reference_time": "O(count * 127) exact rational comparisons over all positive posit8 codewords.",
+    "independent_reference_auxiliary_space": "A constant number of exact rational temporaries per item."
+  },
+  "oracle": "benchmarks/p/posit8_rational_encoder/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/posit8_rational_encoder/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-batch",
+      "input_values": [0],
+      "input_length": 1,
+      "output_capacity": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact-zero-units-powers-and-smallest-in-domain-scale",
+      "input_values": [8, 0, 1, 1, 1, -1, 1, 2, 1, 1, 2, 1, 1024, 1, 16777216, 1, 2147483648],
+      "input_length": 17,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0040c048380c0101",
+      "fixture_note": "Hand-derived exact encodings include zero, ±1, 2, 1/2, 2^-10, minPos=2^-24, and a positive rational below minPos that clamps to minPos."
+    },
+    {
+      "id": "nearest-even-midpoint-decisions",
+      "input_values": [4, 17, 16, 19, 16, -17, 16, -19, 16],
+      "input_length": 9,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "4042c0be",
+      "fixture_note": "The magnitudes are midpoints between posit8 encodings 0x40/0x41 and 0x41/0x42. The standard parity rule selects 0x40 and 0x42; their negative two's-complement encodings are 0xc0 and 0xbe."
+    },
+    {
+      "id": "finite-range-saturation-and-negative-codes",
+      "input_values": [4, 16777216, 1, -16777216, 1, 2147483648, 1, -2147483648, 1],
+      "input_length": 9,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "7f817f81",
+      "fixture_note": "The first pair in each sign reaches maxPos exactly; the second exceeds it and clamps. Negative encodings use two's complement."
+    },
+    {
+      "id": "maximum-32-value-input-and-output",
+      "input_values": [
+        32,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+      ],
+      "input_length": 65,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "4040404040404040404040404040404040404040404040404040404040404040",
+      "fixture_note": "Thirty-two authored copies of the exact rational 1 cover the maximum valid frame and output size."
+    },
+    {
+      "id": "zero-denominator-invalid",
+      "input_values": [1, 4, 0],
+      "input_length": 3,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-numerator-invalid",
+      "input_values": [1, 2147483649, 1],
+      "input_length": 3,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-denominator-invalid",
+      "input_values": [1, 1, 2147483649],
+      "input_length": 3,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-invalid",
+      "input_values": [1, 1, 1, 9],
+      "input_length": 4,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid-null-output",
+      "input_values": [1, 1, 1],
+      "input_length": 3,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid-short-capacity",
+      "input_values": [2, 1, 1, 2, 1],
+      "input_length": 5,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

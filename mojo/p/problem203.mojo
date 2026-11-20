@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p203_squarefree(value_in:Int64)->Bool:
     var value=value_in;var factor=Int64(2)
     while factor<=value//factor:

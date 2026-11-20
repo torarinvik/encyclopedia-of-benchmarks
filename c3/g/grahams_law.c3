@@ -12,7 +12,7 @@ fn double rounded_six(double value) {
     return lower / 1000000.0;
 }
 fn double decode_positive(long* values, usz index) {
-    double result = @bitcast(double, values[index]);
+    double result = bitcast(values[index], double);
     return result >= 1.0e-6 && result <= 1.0e6 ? result : 0.0;
 }
 fn double grahams_law(long* values, usz length) @export("grahams_law") {

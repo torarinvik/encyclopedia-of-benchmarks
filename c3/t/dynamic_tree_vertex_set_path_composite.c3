@@ -117,13 +117,13 @@ fn bool connected(bool* adjacency, usz n, usz start, usz target) {
     }
     return false;
 }
-fn void store_le(uint8* output, usz offset, long value) {
+fn void store_le(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
-    for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (uint8)(bits & 255ul); bits >>= 8; }
+    for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (char)(bits & 255ul); bits >>= 8; }
 }
 
 fn long dynamic_tree_vertex_set_path_composite(long* input, usz length,
-    uint8* output, usz capacity) @export("dynamic_tree_vertex_set_path_composite") {
+    char* output, usz capacity) @export("dynamic_tree_vertex_set_path_composite") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n_value = input[0], q_value = input[1];
     if (n_value < 1 || n_value > (long)MAX_N || q_value < 1 || q_value > (long)MAX_Q) return -1;

@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-hypercube-edge-monotonicity-tester-i64-array-bytes-output-v1",
+  "algorithm": "hypercube_edge_monotonicity_tester",
+  "function_symbol": "hypercube_edge_monotonicity_tester",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "chapter": "Encyclopedia of Algorithms, Chapter 699: Monotonicity Testing",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_699",
+    "title": "Optimal Bounds for Monotonicity and Lipschitz Testing over Hypercubes and Hypergrids",
+    "authors": ["Deeparnab Chakrabarty", "C. Seshadhri"],
+    "year": 2013,
+    "reference": "STOC 2013, Sections 1.1 and 2",
+    "doi": "10.1145/2488608.2488661",
+    "arxiv": "1204.0849",
+    "url": "https://arxiv.org/abs/1204.0849",
+    "rights": "Clean-room ports based on mathematical method; no source code, examples, figures, or protected prose reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,q,f(0),...,f(2^n-1),v0,i0,...,v(q-1),i(q-1)]",
+    "dimension_range": [1, 6],
+    "round_range": [1, 32],
+    "truth_table": "Boolean function indexed by the integer representation of the hypercube vertex; coordinate zero is the least significant bit.",
+    "random_tape": "Each (vertex,coordinate) pair gives one uniform vertex and one uniform dimension, inducing the uniform undirected hypercube-edge distribution.",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_result": -1
+  },
+  "contract": {
+    "algorithm": "For each supplied pair, clear its coordinate bit to get the lower endpoint, set it to get the upper endpoint, query both truth-table entries, and reject at the first round with f(lower)>f(upper). Accept after all q rounds pass.",
+    "query_calls": "Two per evaluated round, including repeated queries across rounds.",
+    "output": "[accept_bit,rounds_executed,query_calls] as little-endian signed i64 values.",
+    "scope": "Fixed deterministic replay profile; arbitrary tapes and q are not assigned a soundness or epsilon-to-query-count guarantee."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_byte_array",
+    "encoding": "[accept_bit,rounds_executed,query_calls]",
+    "maximum_bytes": 24,
+    "success_result": "number of bytes written",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Truth table and supplied sample tape are read in place; only staged output and scalar state are needed."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {
+      "id": "coordinate-zero-projection-passes",
+      "input_values": [2, 3, 0, 1, 0, 1, 0, 0, 2, 0, 1, 1],
+      "input_length": 12,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000003000000000000000600000000000000"
+    },
+    {
+      "id": "single-bottom-violation-rejects-first-sample",
+      "input_values": [2, 1, 1, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "rejects-on-second-sample",
+      "input_values": [2, 2, 1, 0, 0, 0, 1, 1, 0, 0],
+      "input_length": 10,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000002000000000000000400000000000000"
+    },
+    {
+      "id": "fixed-tape-can-miss-an-unqueried-violation",
+      "input_values": [2, 2, 1, 0, 0, 0, 2, 0, 1, 1],
+      "input_length": 10,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000002000000000000000400000000000000"
+    },
+    {
+      "id": "one-dimensional-identity",
+      "input_values": [1, 1, 0, 1, 1, 0],
+      "input_length": 6,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "maximum-table-and-tape",
+      "input_values": [6, 32,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 130,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000020000000000000004000000000000000"
+    }
+  ],
+  "invalid_cases": [
+    {"id": "invalid-dimension", "input_values": [0, 1], "expected_result": -1},
+    {"id": "non-boolean-truth-table", "input_values": [1, 1, 0, 2, 0, 0], "expected_result": -1},
+    {"id": "out-of-domain-vertex", "input_values": [1, 1, 0, 1, 2, 0], "expected_result": -1},
+    {"id": "out-of-range-coordinate", "input_values": [1, 1, 0, 1, 0, 1], "expected_result": -1},
+    {"id": "trailing-word", "input_values": [1, 1, 0, 1, 0, 0, 99], "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ],
+  "capacity_cases": [
+    {"id": "null-output", "input_values": [1, 1, 0, 1, 0, 0], "input_length": 6, "output_capacity": 24, "output_is_null": true, "expected_result": -2},
+    {"id": "short-output", "input_values": [1, 1, 0, 1, 0, 0], "input_length": 6, "output_capacity": 23, "expected_result": -2}
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "id": "position-only-stormer-verlet-i64-array-bytes-v1",
+  "algorithm": "stormer_verlet_position",
+  "function_symbol": "stormer_verlet_position",
+  "description": "Advance a one-dimensional trajectory with the position-only Störmer-Verlet recurrence.",
+  "contract": {
+    "operation": "Return the initial positions and the complete recurrence trace x[i]=2*x[i-1]-x[i-2]+u[i-2].",
+    "input_encoding": "[N,x0,x1,u0,...,u(N-3)] with exact length N+1",
+    "acceleration_term": "Each integer u[k] is the exact precombined acceleration contribution a[k]*dt^2 in position units.",
+    "output_encoding": "N little-endian signed-i64 positions, including x0 and x1.",
+    "invalid": "Invalid length, step count, initial positions, or acceleration term returns -1.",
+    "capacity": "For valid input, null or undersized output returns -2 without writing; success returns 8*N."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[N,x0,x1,u0,...,u(N-3)]",
+    "step_count_range": [2, 32],
+    "initial_position_range": [-1024, 1024],
+    "acceleration_term_range": [-64, 64],
+    "exact_input_length": "N+1",
+    "maximum_valid_input_values": 33,
+    "maximum_input_values_for_malformed_cases": 33,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "N positions in trajectory order",
+    "length": "8*N bytes",
+    "maximum_bytes": 256,
+    "success_result": "number of output bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_leave_output_untouched": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity."
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum local staging buffer for 32 signed-i64 positions."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "provenance": [
+    {
+      "source": "Algorithm Archive, Verlet Integration",
+      "url": "https://www.algorithm-archive.org/contents/verlet_integration/verlet_integration.html",
+      "role": "Primary mathematical source for the position-only two-step recurrence."
+    },
+    {
+      "source": "PARSEC Facesim source metadata",
+      "url": "https://github.com/cirosantilli/parsec-benchmark/blob/master/pkgs/apps/facesim/src/README",
+      "role": "Secondary discovery/application context identifying Verlet position updates; it does not supply the recurrence formula."
+    }
+  ],
+  "oracle_method": "Primary reference uses the two-state recurrence. Independent reference uses the closed form x[i]=x0+i*(x1-x0)+sum((i-j-1)*u[j]) for each i.",
+  "cases": [
+    {
+      "id": "two-initial-samples-no-updates",
+      "input_values": [2, 3, 5],
+      "input_length": 3,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000500000000000000"
+    },
+    {
+      "id": "single-negative-acceleration-term",
+      "input_values": [3, 0, 2, -1],
+      "input_length": 4,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "varying-positive-and-negative-terms",
+      "input_values": [4, 4, 7, 2, -3],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output_hex": "040000000000000007000000000000000c000000000000000e00000000000000"
+    },
+    {
+      "id": "negative-trajectory-and-terms",
+      "input_values": [4, 10, 4, -2, -2],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output_hex": "0a000000000000000400000000000000fcfffffffffffffff2ffffffffffffff"
+    },
+    {
+      "id": "zero-terms-preserve-linear-motion",
+      "input_values": [5, 5, 9, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": 40,
+      "expected_output_hex": "050000000000000009000000000000000d0000000000000011000000000000001500000000000000"
+    },
+    {
+      "id": "step-count-below-domain",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "term-count-does-not-match-step-count",
+      "input_values": [4, 0, 1, 1],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initial-position-out-of-domain",
+      "input_values": [2, 1025, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "acceleration-term-out-of-domain",
+      "input_values": [3, 0, 0, 65],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 3, 5],
+      "input_length": 3,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

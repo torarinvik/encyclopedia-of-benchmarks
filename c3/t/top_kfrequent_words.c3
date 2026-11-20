@@ -10,7 +10,7 @@ fn void sift_down(long* heap, long* counts, usz size, usz root) {
 
 fn long top_kfrequent_words(long* v, usz n, char* output, usz output_capacity) @export("top_kfrequent_words") {
     if (v == null || n < 2 || n > 1090 || v[0] < 0 || v[0] > 64 || v[1] < 0 || v[1] > 64) return -1;
-    long lens[64] = {}, counts[64] = {}, words[64][16] = {}, heap[64] = {}, temp[1089] = {};
+    long[64] lens = {}; long[64] counts = {}; long[16][64] words = {}; long[64] heap = {}; long[1089] temp = {};
     usz k = (usz)v[0], wn = (usz)v[1], distinct = 0, pos = 2;
     for (usz w = 0; w < wn; w++) {
         if (pos >= n || v[pos] < 1 || v[pos] > 16 || v[pos] > (long)(n-pos-1)) return -1;
@@ -21,8 +21,8 @@ fn long top_kfrequent_words(long* v, usz n, char* output, usz output_capacity) @
     if(pos!=n)return -1;
     for(usz id=0;id<distinct;id++){usz rank=0;for(usz other=0;other<distinct;other++){usz common=(usz)lens[id]<(usz)lens[other]?(usz)lens[id]:(usz)lens[other];usz j=0;while(j<common&&words[other][j]==words[id][j])j++;if((j<common&&words[other][j]<words[id][j])||(j==common&&lens[other]<lens[id]))rank++;}counts[id]=counts[id]*65+(long)distinct-(long)rank;}
     for(usz i=0;i<distinct;i++)heap[i]=(long)i;
-    usz i=distinct/2;while(i>0){i--;sift_down(heap,counts,distinct,i);}
+    usz i=distinct/2;while(i>0){i--;sift_down(&heap[0],&counts[0],distinct,i);}
     usz limit=k<distinct?k:distinct, at=0;
-    for(usz r=0;r<limit;r++){usz id=(usz)heap[0];for(usz j=0;j<(usz)lens[id];j++)temp[at++]=words[id][j];temp[at++]='\n';heap[0]=heap[--distinct];if(distinct>0)sift_down(heap,counts,distinct,0);}
-    temp[at++]=0;if(output==null||output_capacity<at)return -2;for(usz j=0;j<at;j++)output[j]=temp[j];return (long)at;
+    for(usz r=0;r<limit;r++){usz id=(usz)heap[0];for(usz j=0;j<(usz)lens[id];j++)temp[at++]=words[id][j];temp[at++]='\n';heap[0]=heap[--distinct];if(distinct>0)sift_down(&heap[0],&counts[0],distinct,0);}
+    temp[at++]=0;if(output==null||output_capacity<at)return -2;for(usz j=0;j<at;j++)output[j]=(char)temp[j];return (long)at;
 }

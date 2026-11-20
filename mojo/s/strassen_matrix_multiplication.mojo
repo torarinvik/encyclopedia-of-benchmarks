@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn strassen(a:UnsafePointer[Int64,ImmutAnyOrigin],b:UnsafePointer[Int64,ImmutAnyOrigin],c:UnsafePointer[Int64,MutAnyOrigin],n:Int):

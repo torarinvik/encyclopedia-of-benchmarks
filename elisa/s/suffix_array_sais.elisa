@@ -36,17 +36,17 @@ def induce(symbols: view[i32], length: usize, upper: usize,
 def same_lms_substring(symbols: view[i32], is_s: view[bool],
                        lms_map: view[i32], length: usize,
                        left: usize, right: usize) -> bool:
-    if left == right: return True
+    if left == right: return true
     offset: mutable usize = 0
     while offset < length:
         a: usize = left + offset
         b: usize = right + offset
-        if a >= length or b >= length or symbols[a] != symbols[b] or is_s[a] != is_s[b]: return False
+        if a >= length or b >= length or symbols[a] != symbols[b] or is_s[a] != is_s[b]: return false
         a_lms: bool = offset > 0 and lms_map[a] >= 0
         b_lms: bool = offset > 0 and lms_map[b] >= 0
         if a_lms or b_lms: return a_lms and b_lms
         offset <- offset + 1
-    return False
+    return false
 
 def sais(symbols: view[i32], length: usize, upper: usize,
          suffixes: mutable view[i32]) -> void:
@@ -59,7 +59,7 @@ def sais(symbols: view[i32], length: usize, upper: usize,
         return
 
     is_s: mutable bool[MAX_TEXT_LENGTH + 1] = zeroed
-    is_s[length - 1] <- True
+    is_s[length - 1] <- true
     i: mutable usize = length - 1
     while i > 0:
         i <- i - 1
@@ -125,24 +125,26 @@ def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
 
 def suffix_array_sais_impl(input: i64&, length: usize,
                            output: mutable u8&, capacity: usize) -> i64:
-    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
-    count_value: i64 = input[0]
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    frame: view[i64] = input[0:length]
+    count_value: i64 = frame[0]
     if count_value < 0 or count_value > MAX_TEXT_LENGTH.i64(): return -1
     count: usize = count_value.usize()
     if length != count + 1: return -1
     for i in 0..<count:
-        if input[i + 1] < 0 or input[i + 1] > 255: return -1
+        if frame[i + 1] < 0 or frame[i + 1] > 255: return -1
     output_bytes: usize = count * 8
-    if output == null or capacity < output_bytes: return -2
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
     symbols: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
-    for i in 0..<count: symbols[i] <- (input[i + 1] + 1).i32()
+    for i in 0..<count: symbols[i] <- (frame[i + 1] + 1).i32()
     symbols[count] <- 0
     suffixes: mutable i32[MAX_TEXT_LENGTH + 1] = zeroed
     sais(symbols[0:MAX_TEXT_LENGTH + 1], count + 1, 256, suffixes[0:MAX_TEXT_LENGTH + 1])
     out: mutable usize = 0
     for i in 0..<(count + 1):
         if suffixes[i] == count.i32(): continue
-        put_i64_le(output[0:capacity], out * 8, suffixes[i].i64())
+        put_i64_le(output_view, out * 8, suffixes[i].i64())
         out <- out + 1
     return output_bytes.i64()
 

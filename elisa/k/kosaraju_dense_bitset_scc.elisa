@@ -1,0 +1,140 @@
+const MAX_VERTICES: usize = 256
+const MAX_WORDS: usize = 4
+const MAX_CELLS: usize = MAX_VERTICES * MAX_WORDS
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 1026
+
+def lowest_bit_index(bits: u64) -> usize:
+    value: mutable u64 = bits
+    index: mutable usize = 0
+    while (value & 1.u64()) == 0 |value, index|:
+        value <- value >> 1
+        index <- index + 1
+    index
+
+def write_u16_le(output: mutable view[u8], position: usize, value: u16) -> void:
+    output[position] <- (value & 255.u16()).u8()
+    output[position + 1] <- (value >> 8).u8()
+
+def kosaraju_dense_bitset_scc_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    if input[0] < 1 or input[0] > i64(MAX_VERTICES):
+        return -1
+    n: usize = input[0].usize()
+    words: usize = (n + 63) / 64
+    if length != 1 + n * words:
+        return -1
+
+    adjacency: mutable u64[MAX_CELLS] = zeroed
+    transpose: mutable u64[MAX_CELLS] = zeroed
+    for cell in 0..<n * words |input, adjacency|:
+        adjacency[cell] <- input[1 + cell].bitcast[u64]()
+    if (n & 63) != 0:
+        valid: u64 = (1.u64() << (n & 63)) - 1.u64()
+        for vertex in 0..<n |adjacency|:
+            if (adjacency[vertex * words + words - 1] & ~valid) != 0:
+                return -1
+    for source in 0..<n |adjacency, transpose|:
+        for word in 0..<words |source, word, adjacency, transpose|:
+            bits: mutable u64 = adjacency[source * words + word]
+            while bits != 0.u64() |source, word, bits, transpose|:
+                bit: usize = lowest_bit_index(bits)
+                target: usize = word * 64 + bit
+                transpose[target * words + source / 64] <- transpose[target * words + source / 64] | (1.u64() << (source & 63))
+                bits <- bits & (bits - 1.u64())
+
+    unvisited: mutable u64[MAX_WORDS] = zeroed
+    for word in 0..<words |unvisited|:
+        unvisited[word] <- 18446744073709551615.u64()
+    if (n & 63) != 0:
+        unvisited[words - 1] <- (1.u64() << (n & 63)) - 1.u64()
+    stack: mutable u16[MAX_VERTICES] = zeroed
+    next_word: mutable u16[MAX_VERTICES] = zeroed
+    order: mutable u16[MAX_VERTICES] = zeroed
+    order_length: mutable usize = 0
+    for root in 0..<n |root, words, unvisited, adjacency, stack, next_word, order, order_length|:
+        root_word: usize = root / 64
+        root_bit: usize = root & 63
+        if ((unvisited[root_word] >> root_bit) & 1.u64()) == 0.u64():
+            continue
+        unvisited[root_word] <- unvisited[root_word] & ~(1.u64() << root_bit)
+        stack_length: mutable usize = 1
+        stack[0] <- root.u16()
+        next_word[0] <- 0.u16()
+        while stack_length != 0 |stack_length, stack, next_word, order, order_length, adjacency, unvisited, words|:
+            depth: usize = stack_length - 1
+            vertex: usize = stack[depth].usize()
+            pushed: mutable bool = false
+            while next_word[depth].usize() < words |next_word, depth, vertex, adjacency, unvisited, words, stack, stack_length, pushed|:
+                word: usize = next_word[depth].usize()
+                candidates: u64 = adjacency[vertex * words + word] & unvisited[word]
+                if candidates != 0.u64():
+                    bit: usize = lowest_bit_index(candidates)
+                    neighbor: usize = word * 64 + bit
+                    unvisited[word] <- unvisited[word] & ~(1.u64() << bit)
+                    stack[stack_length] <- neighbor.u16()
+                    next_word[stack_length] <- 0.u16()
+                    stack_length <- stack_length + 1
+                    pushed <- true
+                    break
+                next_word[depth] <- next_word[depth] + 1.u16()
+            if not pushed and next_word[depth].usize() == words:
+                order[order_length] <- vertex.u16()
+                order_length <- order_length + 1
+                stack_length <- stack_length - 1
+
+    for word in 0..<words |unvisited|:
+        unvisited[word] <- 18446744073709551615.u64()
+    if (n & 63) != 0:
+        unvisited[words - 1] <- (1.u64() << (n & 63)) - 1.u64()
+    raw_component: mutable u16[MAX_VERTICES] = zeroed
+    component_count: mutable u16 = 0.u16()
+    while order_length != 0 |order_length, order, unvisited, stack, raw_component, transpose, words, component_count|:
+        order_length <- order_length - 1
+        root: usize = order[order_length].usize()
+        root_word: usize = root / 64
+        root_bit: usize = root & 63
+        if ((unvisited[root_word] >> root_bit) & 1.u64()) == 0.u64():
+            continue
+        unvisited[root_word] <- unvisited[root_word] & ~(1.u64() << root_bit)
+        stack_length: mutable usize = 1
+        stack[0] <- root.u16()
+        raw_component[root] <- component_count
+        while stack_length != 0 |stack_length, stack, unvisited, transpose, raw_component, words, component_count|:
+            stack_length <- stack_length - 1
+            vertex: usize = stack[stack_length].usize()
+            for word in 0..<words |word, vertex, transpose, unvisited, stack, stack_length, raw_component, component_count|:
+                candidates: mutable u64 = transpose[vertex * words + word] & unvisited[word]
+                while candidates != 0.u64() |candidates, word, vertex, transpose, unvisited, stack, stack_length, raw_component, component_count|:
+                    bit: usize = lowest_bit_index(candidates)
+                    neighbor: usize = word * 64 + bit
+                    selected: u64 = 1.u64() << bit
+                    unvisited[word] <- unvisited[word] & ~selected
+                    candidates <- candidates & ~selected
+                    raw_component[neighbor] <- component_count
+                    stack[stack_length] <- neighbor.u16()
+                    stack_length <- stack_length + 1
+        component_count <- component_count + 1.u16()
+
+    remap: mutable u16[MAX_VERTICES] = zeroed
+    for component in 0..<MAX_VERTICES |remap|:
+        remap[component] <- 65535.u16()
+    canonical_count: mutable u16 = 0.u16()
+    for vertex in 0..<n |vertex, raw_component, remap, canonical_count|:
+        raw: usize = raw_component[vertex].usize()
+        if remap[raw].u32() == 65535:
+            remap[raw] <- canonical_count
+            canonical_count <- canonical_count + 1.u16()
+
+    output_length: usize = 2 + 2 * n
+    if output.is_null() or output_capacity < output_length:
+        return -2
+    target: mutable view[u8] = output[0:output_length]
+    write_u16_le(target, 0, canonical_count)
+    for vertex in 0..<n |vertex, target, remap, raw_component|:
+        write_u16_le(target, 2 + 2 * vertex, remap[raw_component[vertex].usize()])
+    output_length.i64()
+
+export fn kosaraju_dense_bitset_scc(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = kosaraju_dense_bitset_scc_impl

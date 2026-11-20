@@ -12,6 +12,9 @@ Find a directed walk that uses every edge exactly once. This is the canonical di
 - The Rust source consumes each vertex's adjacency list from the end. The ports preserve input edge order and use an iterative Hierholzer stack with fixed storage, avoiding recursion-depth and platform-specific behavior.
 
 [`workload.json`](workload.json) covers open paths, circuits, parallel edges, self-loops, disconnected components, invalid degrees and endpoints, empty graphs, maximum edge count, and output-capacity failure.
+The verifier source also specifies null output for an empty graph, a graph
+with no trail, a valid nonempty trail, and malformed input. These probes have
+not been run.
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm eulerian_path --language c

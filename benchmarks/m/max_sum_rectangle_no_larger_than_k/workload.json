@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "leetcode-title-max-sum-rectangle-no-larger-than-k-scalar-v1",
+  "algorithm": "max_sum_rectangle_no_larger_than_k",
+  "function_symbol": "max_sum_rectangle_no_larger_than_k",
+  "abi": "i64_array_scalar",
+  "description": "Find the greatest nonempty rectangle sum no larger than a supplied ceiling.",
+  "source": {
+    "title": "Max Sum of Rectangle No Larger Than K",
+    "url": "https://leetcode.com/problems/max-sum-of-rectangle-no-larger-than-k/",
+    "discovery_scope": "Public title/topic catalog only; no problem text, examples, tests, submissions, editorial, or site code reused.",
+    "algorithm_references": [
+      {
+        "title": "Algorithms, chapter 3, exercise 4(d)",
+        "url": "https://jeffe.cs.illinois.edu/teaching/algorithms/book/Algorithms-JeffE.pdf",
+        "supports": "The one-dimensional maximum contiguous-subarray sum bounded above by a limit."
+      },
+      {
+        "title": "VerifyThis 2017 Challenge 2",
+        "url": "https://formal.kastel.kit.edu/ulbrich/verifythis2017/challenge2.pdf",
+        "supports": "Reducing a two-dimensional maximum-sum rectangle to row bands and one-dimensional maximum-subarray scans."
+      }
+    ]
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rows, columns, K, row-major cells...]",
+    "rows_range": [1, 8],
+    "columns_range": [1, 8],
+    "cell_value_range": [-16, 16],
+    "K_range": [-1024, 1024],
+    "exact_length": "3 + rows*columns",
+    "maximum_valid_length": 67,
+    "maximum_parseable_length": 68,
+    "invalid_input_result": -1026
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Maximum sum of a nonempty contiguous axis-aligned rectangle whose sum is at most K.",
+    "no_feasible_rectangle_result": -1025,
+    "invalid_input_result": -1026,
+    "valid_sum_range": [-1024, 1024]
+  },
+  "algorithm_details": {
+    "primary": "Compress each band over the shorter matrix dimension; scan prefix sums in the other dimension and use the lower bound successor among prior prefixes to find the greatest nonempty subarray sum at most K.",
+    "independent_reference": "Enumerate all top, left, bottom, and right boundaries and sum every rectangle cell directly.",
+    "primary_complexity": "O(s^2*l^2) time with bounded sorted-vector insertion, where s=min(rows,columns), l=max(rows,columns); O(l) auxiliary space.",
+    "independent_complexity": "O(rows^3*columns^3) direct cell visits in the worst case; bounded dimensions are at most 8 by 8."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "profiles": [
+      {"id": "maximum-dimensions-zero", "input_values": [8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "expected_result": 0},
+      {"id": "constrained-negative-boundary", "input_values": [8, 8, -1024, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16], "expected_result": -1024}
+    ]
+  },
+  "cases": [
+    {"id": "single-cell-at-ceiling", "input_values": [1, 1, 5, 5], "input_length": 4, "expected_result": 5},
+    {"id": "single-cell-above-ceiling", "input_values": [1, 1, 4, 5], "input_length": 4, "expected_result": -1025},
+    {"id": "band-and-prefix-successor", "input_values": [2, 3, 3, 4, -2, 1, -1, 3, -4], "input_length": 9, "expected_result": 3},
+    {"id": "ceiling-excludes-singletons", "input_values": [2, 2, 1, 2, -1, -1, 2], "input_length": 7, "expected_result": 1},
+    {"id": "negative-best-result", "input_values": [2, 2, -3, -1, -2, -2, -2], "input_length": 7, "expected_result": -3},
+    {"id": "duplicate-prefixes", "input_values": [1, 4, 0, 2, -2, 2, -2], "input_length": 7, "expected_result": 0},
+    {"id": "no-feasible-rectangle", "input_values": [1, 1, -17, -16], "input_length": 4, "expected_result": -1025},
+    {"id": "maximum-dimensions-zero", "input_values": [8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 67, "expected_result": 0},
+    {"id": "minimum-ceiling-full-negative-matrix", "input_values": [8, 8, -1024, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16, -16], "input_length": 67, "expected_result": -1024},
+    {"id": "invalid-empty-frame", "input_values": [], "input_length": 0, "expected_result": -1026},
+    {"id": "invalid-short-frame", "input_values": [1, 1], "input_length": 2, "expected_result": -1026},
+    {"id": "invalid-row-count", "input_values": [0, 1, 0, 0], "input_length": 4, "expected_result": -1026},
+    {"id": "invalid-ceiling-bound", "input_values": [1, 1, 1025, 0], "input_length": 4, "expected_result": -1026},
+    {"id": "invalid-cell-bound", "input_values": [1, 1, 0, 17], "input_length": 4, "expected_result": -1026},
+    {"id": "trailing-word-invalid", "input_values": [8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 68, "expected_result": -1026},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1026}
+  ]
+}

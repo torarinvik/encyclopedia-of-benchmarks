@@ -37,7 +37,9 @@ fn long bodytrack_annealed_particle_filter(long* input, usz length,
     usz pose_at = sigma_at + layers - 1;
     usz uniform_at = pose_at + n * d;
     usz shock_at = uniform_at + (layers - 1) * n;
-    long target[MAX_D], beta[MAX_L], sigma[MAX_L - 1];
+    long[MAX_D] target;
+    long[MAX_L] beta;
+    long[MAX_L - 1] sigma;
     for (usz axis = 0; axis < d; axis += 1) {
         target[axis] = input[target_at + axis];
         if (target[axis] < -10000 || target[axis] > 10000) return -1;
@@ -61,7 +63,9 @@ fn long bodytrack_annealed_particle_filter(long* input, usz length,
 
     usz required = 8 * d;
     if (output == null || capacity < required) return -2;
-    long population[2][MAX_N][MAX_D], weights[MAX_N], estimate[MAX_D];
+    long[MAX_D][MAX_N][2] population;
+    long[MAX_N] weights;
+    long[MAX_D] estimate;
     for (usz particle = 0; particle < n; particle += 1)
         for (usz axis = 0; axis < d; axis += 1)
             population[0][particle][axis] = input[pose_at + particle * d + axis];

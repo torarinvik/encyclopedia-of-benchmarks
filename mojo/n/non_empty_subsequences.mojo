@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn nes_walk(start:Int,depth:Int,n:Int,vals:InlineArray[Int64,8],mut path:InlineArray[Int64,8],mut staged:InlineArray[UInt8,5116],mut pos:Int,mut rows:Int):

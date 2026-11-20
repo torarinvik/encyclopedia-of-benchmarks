@@ -118,12 +118,12 @@ fn long sh_query(ShNode* tree, usz node, usz left, usz right,
     return answer;
 }
 
-fn void sh_write_i64(u8* output, usz offset, long value) {
+fn void sh_write_i64(char* output, usz offset, long value) {
     ulong bits = (ulong)value;
-    for (usz byte = 0; byte < 8; byte++) output[offset + byte] = (u8)(bits >> (8 * byte));
+    for (usz byte = 0; byte < 8; byte++) output[offset + byte] = (char)(bits >> (8 * byte));
 }
 
-fn long segment_history_extreme(long* input, usz input_length, u8* output, usz output_capacity)
+fn long segment_history_extreme(long* input, usz input_length, char* output, usz output_capacity)
     @export("segment_history_extreme") {
     if (input == null || input_length < 2 || input_length > SH_MAX_INPUT) return -1;
     long n_value = input[0], q_value = input[1];

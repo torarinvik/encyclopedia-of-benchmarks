@@ -1,0 +1,167 @@
+const OT_MAX_N: usize = 8
+const OT_MAX_LENGTH: usize = 35
+const OT_INF: i64 = 1000000
+
+def ot_read_tree(values: view[i64], position: mutable usize&, n: usize,
+                 labels: mutable view[i64], children: mutable view[usize],
+                 child_count: mutable view[usize]) -> bool:
+    vertex: mutable usize = 0
+    while vertex < n |vertex, n, values, position, labels|:
+        label: i64 = values[position]
+        position <- position + 1
+        if label < 0 or label > 3:
+            return false
+        labels[vertex] <- label
+        vertex <- vertex + 1
+    stack: mutable usize[OT_MAX_N] = zeroed
+    top: mutable usize = 0
+    vertex <- 0
+    while vertex < n |vertex, n, values, position, stack, top, children, child_count|:
+        parent_value: i64 = values[position]
+        position <- position + 1
+        if vertex == 0:
+            if parent_value != -1:
+                return false
+            stack[0] <- 0
+            vertex <- vertex + 1
+            continue
+        if parent_value < 0 or parent_value >= vertex.i64():
+            return false
+        parent: usize = parent_value.usize()
+        while top > 0 and stack[top] != parent |top, stack, parent|:
+            top <- top - 1
+        if stack[top] != parent:
+            return false
+        children[parent * OT_MAX_N + child_count[parent]] <- vertex
+        child_count[parent] <- child_count[parent] + 1
+        top <- top + 1
+        stack[top] <- vertex
+        vertex <- vertex + 1
+    true
+
+def ot_post_visit(vertex: usize, labels: view[i64], children: view[usize],
+                  child_count: view[usize], post_labels: mutable view[i64],
+                  leftmost: mutable view[usize], post_count: mutable usize&) -> usize:
+    first_left: mutable usize = 0
+    child: mutable usize = 0
+    while child < child_count[vertex] |child, child_count, vertex, children, labels, post_labels, leftmost, post_count, first_left|:
+        child_left: usize = ot_post_visit(children[vertex * OT_MAX_N + child], labels, children,
+            child_count, post_labels, leftmost, &post_count)
+        if child == 0:
+            first_left <- child_left
+        child <- child + 1
+    post_count <- post_count + 1
+    node_id: usize = post_count
+    post_labels[node_id] <- labels[vertex]
+    if first_left == 0:
+        leftmost[node_id] <- node_id
+    else:
+        leftmost[node_id] <- first_left
+    leftmost[node_id]
+
+def ot_distance(labels_a: view[i64], children_a: view[usize], counts_a: view[usize], n_a: usize,
+                labels_b: view[i64], children_b: view[usize], counts_b: view[usize], n_b: usize) -> i64:
+    post_a: mutable i64[OT_MAX_N + 1] = zeroed
+    post_b: mutable i64[OT_MAX_N + 1] = zeroed
+    left_a: mutable usize[OT_MAX_N + 1] = zeroed
+    left_b: mutable usize[OT_MAX_N + 1] = zeroed
+    post_n_a: mutable usize = 0
+    post_n_b: mutable usize = 0
+    _ = ot_post_visit(0, labels_a, children_a, counts_a, post_a[0:OT_MAX_N + 1], left_a[0:OT_MAX_N + 1], &post_n_a)
+    _ = ot_post_visit(0, labels_b, children_b, counts_b, post_b[0:OT_MAX_N + 1], left_b[0:OT_MAX_N + 1], &post_n_b)
+    key_a: mutable usize[OT_MAX_N + 1] = zeroed
+    key_b: mutable usize[OT_MAX_N + 1] = zeroed
+    i: mutable usize = 1
+    while i <= post_n_a |i, post_n_a, left_a, key_a|:
+        key_a[left_a[i]] <- i
+        i <- i + 1
+    j: mutable usize = 1
+    while j <= post_n_b |j, post_n_b, left_b, key_b|:
+        key_b[left_b[j]] <- j
+        j <- j + 1
+    td: mutable i64[81] = zeroed
+    root_a: mutable usize = 1
+    root_b: mutable usize = 1
+    while root_a <= post_n_a |root_a, post_n_a, left_a, key_a, root_b, post_n_b, left_b, key_b, td, post_a, post_b|:
+        if key_a[left_a[root_a]] != root_a:
+            root_a <- root_a + 1
+            continue
+        root_b <- 1
+        while root_b <= post_n_b |root_b, post_n_b, left_b, key_b, left_a, root_a, td, post_a, post_b|:
+            if key_b[left_b[root_b]] != root_b:
+                root_b <- root_b + 1
+                continue
+            start_a: usize = left_a[root_a]
+            start_b: usize = left_b[root_b]
+            fd: mutable i64[81] = zeroed
+            x: mutable usize = 0
+            while x < 9 |x, fd|:
+                y: mutable usize = 0
+                while y < 9 |y, x, fd|:
+                    fd[x * 9 + y] <- OT_INF
+                    y <- y + 1
+                x <- x + 1
+            fd[(start_a - 1) * 9 + start_b - 1] <- 0
+            x <- start_a
+            while x <= root_a |x, root_a, start_a, start_b, fd|:
+                fd[x * 9 + start_b - 1] <- fd[(x - 1) * 9 + start_b - 1] + 1
+                x <- x + 1
+            y: mutable usize = start_b
+            while y <= root_b |y, root_b, start_a, fd|:
+                fd[(start_a - 1) * 9 + y] <- fd[(start_a - 1) * 9 + y - 1] + 1
+                y <- y + 1
+            x <- start_a
+            while x <= root_a |x, root_a, start_a, start_b, fd, post_a, post_b, left_a, left_b, td|:
+                y <- start_b
+                while y <= root_b |y, root_b, x, start_a, start_b, fd, post_a, post_b, left_a, left_b, td|:
+                    del: i64 = fd[(x - 1) * 9 + y] + 1
+                    ins: i64 = fd[x * 9 + y - 1] + 1
+                    if left_a[x] == start_a and left_b[y] == start_b:
+                        rename: i64 = fd[(x - 1) * 9 + y - 1]
+                        if post_a[x] != post_b[y]:
+                            rename <- rename + 1
+                        best: i64 = del
+                        if ins < best: best <- ins
+                        if rename < best: best <- rename
+                        fd[x * 9 + y] <- best
+                        td[x * 9 + y] <- best
+                    else:
+                        join: i64 = fd[(left_a[x] - 1) * 9 + left_b[y] - 1] + td[x * 9 + y]
+                        best: i64 = del
+                        if ins < best: best <- ins
+                        if join < best: best <- join
+                        fd[x * 9 + y] <- best
+                    y <- y + 1
+                x <- x + 1
+            root_b <- root_b + 1
+        root_a <- root_a + 1
+    td[post_n_a * 9 + post_n_b]
+
+def ordered_tree_edit_distance_zhang_shasha_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 6 or length > OT_MAX_LENGTH:
+        return -1
+    values: view[i64] = input[0:length]
+    n1_value: i64 = values[0]
+    n2_value: i64 = values[1]
+    if n1_value < 1 or n1_value > OT_MAX_N.i64() or n2_value < 1 or n2_value > OT_MAX_N.i64():
+        return -1
+    n1: usize = n1_value.usize()
+    n2: usize = n2_value.usize()
+    if length != 2 + 2 * n1 + 2 * n2:
+        return -1
+    labels_a: mutable i64[OT_MAX_N] = zeroed
+    labels_b: mutable i64[OT_MAX_N] = zeroed
+    children_a: mutable usize[OT_MAX_N * OT_MAX_N] = zeroed
+    children_b: mutable usize[OT_MAX_N * OT_MAX_N] = zeroed
+    counts_a: mutable usize[OT_MAX_N] = zeroed
+    counts_b: mutable usize[OT_MAX_N] = zeroed
+    position: mutable usize = 2
+    if not ot_read_tree(values, &position, n1, labels_a[0:OT_MAX_N], children_a[0:OT_MAX_N * OT_MAX_N], counts_a[0:OT_MAX_N]):
+        return -1
+    if not ot_read_tree(values, &position, n2, labels_b[0:OT_MAX_N], children_b[0:OT_MAX_N * OT_MAX_N], counts_b[0:OT_MAX_N]):
+        return -1
+    ot_distance(labels_a[0:OT_MAX_N], children_a[0:OT_MAX_N * OT_MAX_N], counts_a[0:OT_MAX_N], n1,
+        labels_b[0:OT_MAX_N], children_b[0:OT_MAX_N * OT_MAX_N], counts_b[0:OT_MAX_N], n2)
+
+export fn ordered_tree_edit_distance_zhang_shasha(input: i64&, length: usize) -> i64:
+    ordered_tree_edit_distance_zhang_shasha_impl(input, length)

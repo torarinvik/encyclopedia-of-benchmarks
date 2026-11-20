@@ -14,6 +14,13 @@ The online algorithm maintains a disjoint-set structure for connected components
 
 This package is a bounded clean-room implementation of the [CP-Algorithms online bridge-finding algorithm](https://cp-algorithms.com/graph/bridge-searching-online.html). The source article accepts an initially empty graph and reports the bridge count after every inserted edge; this ABI packs a bounded insertion trace into one call. See [`workload.json`](workload.json) and [`benchmarks/online_bridge_finding_oracle.py`](../../online_bridge_finding_oracle.py).
 
+Static review corrected the Elisa rerooting swap variable to be mutable and
+changed input indexing to a bounded view. These edits have not been compiled
+or run. The workload now declares the ABI and null-output metadata required
+by its verifier and includes a larger-left-component rerooting trace. Explicit
+fixtures cover null input, null output for empty and nonempty traces, and
+invalid-input precedence over output errors. They are unexecuted.
+
 ## Implementations
 
 | Language | Source |

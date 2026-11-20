@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p74s_fact_sum(value_in:Int64)->Int64:
     var value=value_in;var sum=Int64(0)
     while True:

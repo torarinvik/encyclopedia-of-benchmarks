@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn pso_sorted(a:InlineArray[Int64,8],n:Int)->Bool:

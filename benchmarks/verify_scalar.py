@@ -24,6 +24,43 @@ import sys
 
 from newton_square_root_oracle import expected_result as newton_square_root_expected, boundary_inputs as newton_square_root_inputs
 from build_scalar import EXTENSIONS, ROOT, build, sha256_file
+from build_abi import OPTIONAL_EXTENSIONS
+from derangement_oracle import expected_result as derangement_oracle
+from divisors_count_sequence_oracle import expected_result as divisors_count_sequence_oracle
+from disarium_number_oracle import expected_result as disarium_number_oracle
+from dudeney_number_oracle import expected_result as dudeney_number_oracle
+from deficient_numbers_oracle import expected_result as deficient_numbers_oracle
+from recursive_radix_encoding_oracle import binary as recursive_binary_oracle, octal as recursive_octal_oracle
+from digit_predicate_oracles import armstrong_digit_cubes as armstrong_digit_cubes_oracle
+from digit_predicate_oracles import additive_persistence as additive_persistence_oracle
+from bounded_scalar_extra_oracles import buzz_number as buzz_number_oracle, binomial_sequence as binomial_sequence_oracle
+from bounded_scalar_extra_oracles import binary_to_gray_code as binary_to_gray_code_oracle, bcd_conversion as bcd_conversion_oracle
+from bounded_scalar_extra_oracles import triangular_number as triangular_number_oracle
+from bounded_scalar_extra_oracles import cake_numbers_sequence as cake_numbers_sequence_oracle
+from bounded_scalar_extra_oracles import count_sorted_vowel_strings as count_sorted_vowel_strings_oracle
+from bounded_scalar_extra_oracles import primorial_numbers_sequence as primorial_numbers_sequence_oracle
+from bounded_scalar_extra_oracles import fibonacci_variant as fibonacci_variant_oracle
+from bounded_scalar_extra_oracles import fibonacci_number_check as fibonacci_number_check_oracle
+from bounded_scalar_extra_oracles import golombs_sequence as golombs_sequence_oracle
+from bounded_scalar_extra_oracles import find_previous_power_of_two as previous_power_oracle
+from bounded_scalar_extra_oracles import fermat_numbers_sequence as fermat_sequence_oracle
+from bounded_scalar_extra_oracles import figurate_number as figurate_number_oracle
+from bounded_scalar_extra_oracles import finding_number_of_digits_in_a_number as unsigned_digit_count_oracle
+from bounded_scalar_extra_oracles import harshad_number as harshad_number_oracle, highest_set_bit as highest_set_bit_oracle
+from bounded_scalar_extra_oracles import partition_variant as partition_variant_oracle
+from bounded_scalar_extra_oracles import keith_number_checker as keith_number_checker_oracle
+from bounded_scalar_extra_oracles import is_square_free as is_square_free_oracle
+from bounded_scalar_extra_oracles import jacobsthal_number as jacobsthal_number_oracle
+from bounded_scalar_extra_oracles import kolakoski_sequence as kolakoski_sequence_oracle
+from bounded_scalar_extra_oracles import kaprekar_number as kaprekar_number_oracle
+from bounded_scalar_extra_oracles import digit_factorial_predicate as digit_factorial_oracle
+from bounded_scalar_extra_oracles import gray_to_binary as gray_to_binary_oracle
+from bounded_scalar_extra_oracles import lowest_set_bit as lowest_set_bit_oracle
+from bounded_scalar_extra_oracles import index_of_right_most_set_bit as rightmost_index_oracle
+from bounded_scalar_extra_oracles import tetrahedral_sequence as tetrahedral_sequence_oracle
+from bounded_scalar_extra_oracles import square_pyramidal_numbers as square_pyramidal_numbers_oracle
+from bounded_scalar_extra_oracles import bailey_borwein_plouffe as bailey_borwein_plouffe_oracle
+from easter_computus_oracle import expected_result as easter_computus_oracle
 from freebench_pifft_oracle import expected_result as freebench_pifft_oracle
 from fib2_oracle import MAX_N as FIB2_MAX_N
 from fib2_oracle import expected_result as fib2_oracle
@@ -65,6 +102,24 @@ from problem12_sol1_oracle import expected_result as problem12_sol1_oracle
 from sum_multiples_inclusion_exclusion_oracle import expected_result as sum_multiples_inclusion_exclusion_oracle
 from twos_complement_of_binary_oracle import expected_result as twos_complement_of_binary_oracle
 from magic_square_oracle import expected_result as magic_square_oracle
+from m.magic_square_singly_even_strachey.independent_oracle import (
+    expected_result as magic_square_singly_even_strachey_independent,
+)
+from m.magic_square_singly_even_strachey.primary_oracle import (
+    expected_result as magic_square_singly_even_strachey_primary,
+)
+from m.magic_square_singly_even_strachey.check_inventory import (
+    check_inventory as check_magic_square_singly_even_strachey_inventory,
+)
+from m.magic_square_doubly_even_complement.primary_oracle import (
+    expected_result as magic_square_doubly_even_complement_primary,
+)
+from m.magic_square_doubly_even_complement.independent_oracle import (
+    expected_result as magic_square_doubly_even_complement_independent,
+)
+from m.magic_square_doubly_even_complement.check_inventory import (
+    check_inventory as check_magic_square_doubly_even_complement_inventory,
+)
 from mersenne_primes_oracle import expected_result as mersenne_primes_oracle
 from trial_division_factorizer_oracle import expected_result as trial_division_factorizer_oracle
 from pollards_rho_factorizing_oracle import MAX_INPUT as POLLARDS_RHO_MAX_INPUT
@@ -97,8 +152,29 @@ from sum_of_totient_function_oracle import MAX_N as SUM_OF_TOTIENT_MAX_N
 from sum_of_totient_function_oracle import expected_result as sum_of_totient_function_oracle
 from meissel_lehmer_prime_count_oracle import MAX_INPUT as MEISSEL_LEHMER_MAX_INPUT
 from meissel_lehmer_prime_count_oracle import expected_output as meissel_lehmer_prime_count_oracle
+from f.fast_prime_sums.independent_oracle import DIRECT_LIMIT as FAST_PRIME_SUMS_DIRECT_LIMIT
+from f.fast_prime_sums.independent_oracle import MAX_INPUT as FAST_PRIME_SUMS_MAX_INPUT
+from f.fast_prime_sums.independent_oracle import expected_result as fast_prime_sums_oracle
 from legendre_prime_count_oracle import MAX_INPUT as LEGENDRE_PRIME_COUNT_MAX_INPUT
 from legendre_prime_count_independent_oracle import expected_output as legendre_prime_count_oracle
+from s.sieve_of_sundaram.independent_oracle import MAX_LIMIT as SUNDARAM_MAX_LIMIT
+from s.sieve_of_sundaram.independent_oracle import prime_count as sieve_of_sundaram_oracle
+from p.perfect_totient_number.independent_oracle import MIN_INPUT as PERFECT_TOTIENT_MIN_INPUT
+from p.perfect_totient_number.independent_oracle import MAX_INPUT as PERFECT_TOTIENT_MAX_INPUT
+from p.perfect_totient_number.independent_oracle import expected_result as perfect_totient_number_oracle
+from n.next_higher_number_with_same_number_of_set_bits.independent_oracle import (
+    MAX_INPUT as NEXT_SAME_SET_BITS_MAX_INPUT,
+    expected_result as next_same_set_bits_oracle,
+)
+from n.next_higher_number_with_same_number_of_set_bits.primary_oracle import (
+    expected_result as next_same_set_bits_primary,
+)
+from n.next_higher_number_with_same_number_of_set_bits.check_inventory import (
+    static_issues as next_same_set_bits_static_issues,
+)
+from n.next_higher_number_with_same_number_of_set_bits.verify_workload import (
+    workload_issues as next_same_set_bits_workload_issues,
+)
 from run_scalar import validate_multiple_of_3_or_5_term_workload
 from run_scalar import validate_mcgill_chomp_workload
 from run_scalar import validate_automotive_bitcount_workload
@@ -107,13 +183,19 @@ from run_scalar import validate_freebench_pifft_workload
 from run_scalar import validate_counting_squarefrees_workload
 from run_scalar import validate_sum_of_totient_function_workload
 from run_scalar import validate_meissel_lehmer_prime_count_workload
+from run_scalar import validate_fast_prime_sums_workload
 from run_scalar import validate_legendre_prime_count_workload
+from run_scalar import validate_sieve_of_sundaram_workload
+from run_scalar import validate_perfect_totient_number_workload
+from run_scalar import validate_next_higher_number_with_same_number_of_set_bits_workload
 
 ALGORITHMS = ("factorial", "check_factorial", "factorial_trailing_zeroes", "binary_count_trailing_zeros", "trailing_zeroes", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "sum_of_divisors", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "bell_numbers", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "isautomorphic", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz", "problem1", "problem2", "problem3", "problem4", "problem5", "problem6", "problem7", "problem8", "problem9", "problem10", "problem10_ruby_prefix", "problem11_sol1", "problem12", "problem12_sol1", "problem13", "problem14", "problem15", "problem15_dp", "problem16", "problem17", "problem19", "problem20", "problem21", "problem23", "problem24", "problem25", "problem26", "problem27", "problem28", "problem29", "problem30", "problem31", "problem31_recursive", "problem32", "problem33", "problem34", "problem35", "problem36", "problem37", "problem38", "problem39", "problem40", "problem41", "problem43", "problem44", "problem45", "problem46", "problem47", "problem48", "problem49", "problem50", "problem51", "problem52", "problem53", "problem55", "problem57", "problem60", "problem62", "problem64", "problem65", "problem68", "problem69", "problem70", "problem72", "problem73", "problem75", "problem76", "problem77", "problem78", "problem79", "problem80", "problem85", "problem86", "problem87", "problem89", "problem95", "problem91", "problem92", "problem94", "problem97", "problem100", "problem101", "problem104", "problem109", "problem111", "problem112", "problem113", "problem114", "problem115", "problem116", "problem117", "problem119", "problem120", "problem121", "problem122", "problem123", "problem125", "problem129", "problem131", "problem135", "problem136", "problem137", "problem138", "problem142", "problem145", "problem164", "problem173", "problem180", "problem187", "problem190", "problem191", "problem203", "problem205", "problem206", "problem234", "problem301", "problem401", "problem493", "problem551", "problem686", "endian_converter", "euler_totient", "byte_encoding_utils", "liouville_lambda", "liouville", "twos_complement_of_binary", "gauss_easter", "leap_year", "is_odd", "binary_length", "count_set_bits", "count_leading_zeros", "clear_leftmost_set_bit", "clear_lowest_set_bit", "sum_of_odd_numbers", "sum_multiples_inclusion_exclusion", "carmichael_number", "evil_number", "keith_number", "kynea_numbers", "padovan_sequence", "pell_number", "perrin_number", "smith_number", "sphenic_number", "all_ones_sequence", "all_twos_sequence", "all_threes_sequence", "cubes_sequence")
 ALGORITHMS += ("binary_palindrome_check",)
 ALGORITHMS += ("mersenne_primes",)
 ALGORITHMS += ("trial_division_factorizer",)
 ALGORITHMS += ("magic_square",)
+ALGORITHMS += ("magic_square_singly_even_strachey",)
+ALGORITHMS += ("magic_square_doubly_even_complement",)
 ALGORITHMS += ("problem014",)
 ALGORITHMS += ("problem44_start_cursor",)
 ALGORITHMS += ("problem21_pair_sum",)
@@ -123,6 +205,32 @@ ALGORITHMS += ("multiple_of_3_or_5_term",)
 ALGORITHMS += ("greatest_prime_factor",)
 ALGORITHMS += ("nestedloop",)
 ALGORITHMS += ("fib2",)
+ALGORITHMS += ("derangement",)
+ALGORITHMS += ("divisors_count_sequence",)
+ALGORITHMS += ("disarium_number",)
+ALGORITHMS += ("dudeney_number",)
+ALGORITHMS += ("deficient_numbers",)
+ALGORITHMS += ("decimal_to_binary_recursion", "decimal_to_octal_recursion")
+ALGORITHMS += ("armstrong_digit_cubes", "additive_persistence")
+ALGORITHMS += ("buzz_number", "binomial_sequence")
+ALGORITHMS += ("binary_to_gray_code", "bcd_conversion")
+ALGORITHMS += ("triangular_number",)
+ALGORITHMS += ("cake_numbers_sequence", "bailey_borwein_plouffe")
+ALGORITHMS += ("count_sorted_vowel_strings",)
+ALGORITHMS += ("primorial_numbers_sequence",)
+ALGORITHMS += ("easter",)
+ALGORITHMS += ("fibonacci_dp", "fibonacci_recursive", "fibonacci_formula")
+ALGORITHMS += ("fibonacci_matrix", "fibonacci_number_check")
+ALGORITHMS += ("golombs_sequence",)
+ALGORITHMS += ("find_previous_power_of_two", "fermat_numbers_sequence", "figurate_number")
+ALGORITHMS += ("fast_factorial", "finding_number_of_digits_in_a_number")
+ALGORITHMS += ("harshad_number", "highest_set_bit")
+ALGORITHMS += ("tetrahedral_sequence", "square_pyramidal_numbers")
+ALGORITHMS += ("integer_partition", "partitions", "keith_number_checker")
+ALGORITHMS += ("is_square_free",)
+ALGORITHMS += ("jacobsthal_number", "kolakoski_sequence")
+ALGORITHMS += ("gray_to_binary", "lowest_set_bit", "index_of_right_most_set_bit")
+ALGORITHMS += ("kaprekar_number", "strong_number", "krishnamurthy_number_checker")
 ALGORITHMS += ("mcgill_chomp",)
 ALGORITHMS += ("automotive_bitcount",)
 ALGORITHMS += ("shootout_hash",)
@@ -130,7 +238,11 @@ ALGORITHMS += ("freebench_pifft",)
 ALGORITHMS += ("counting_squarefrees",)
 ALGORITHMS += ("sum_of_totient_function",)
 ALGORITHMS += ("meissel_lehmer_prime_count",)
+ALGORITHMS += ("fast_prime_sums",)
 ALGORITHMS += ("legendre_prime_count",)
+ALGORITHMS += ("sieve_of_sundaram",)
+ALGORITHMS += ("perfect_totient_number",)
+ALGORITHMS += ("next_higher_number_with_same_number_of_set_bits",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 PROBLEM79_KEYLOG = (319, 680, 180, 690, 129, 620, 762, 689, 762, 318,
@@ -2136,6 +2248,92 @@ def euler_totient_oracle(n: int) -> int:
 
 
 def oracle(algorithm: str, n: int) -> int:
+    if algorithm == "sieve_of_sundaram":
+        return sieve_of_sundaram_oracle(n)
+    if algorithm == "perfect_totient_number":
+        return perfect_totient_number_oracle(n)
+    if algorithm == "next_higher_number_with_same_number_of_set_bits":
+        return next_same_set_bits_oracle(n)
+    if algorithm == "kaprekar_number":
+        return kaprekar_number_oracle(n)
+    if algorithm in ("strong_number", "krishnamurthy_number_checker"):
+        return digit_factorial_oracle(n)
+    if algorithm in ("gray_to_binary", "lowest_set_bit", "index_of_right_most_set_bit"):
+        reference = {"gray_to_binary": gray_to_binary_oracle,
+                     "lowest_set_bit": lowest_set_bit_oracle,
+                     "index_of_right_most_set_bit": rightmost_index_oracle}[algorithm]
+        return reference(n)
+    if algorithm == "jacobsthal_number":
+        return jacobsthal_number_oracle(n)
+    if algorithm == "kolakoski_sequence":
+        return kolakoski_sequence_oracle(n)
+    if algorithm == "is_square_free":
+        return is_square_free_oracle(n)
+    if algorithm in ("integer_partition", "partitions"):
+        return partition_variant_oracle(n, algorithm)
+    if algorithm == "keith_number_checker":
+        return keith_number_checker_oracle(n)
+    if algorithm == "tetrahedral_sequence":
+        return tetrahedral_sequence_oracle(n)
+    if algorithm == "square_pyramidal_numbers":
+        return square_pyramidal_numbers_oracle(n)
+    if algorithm == "harshad_number":
+        return harshad_number_oracle(n)
+    if algorithm == "highest_set_bit":
+        return highest_set_bit_oracle(n)
+    if algorithm == "fast_factorial":
+        return math.factorial(n) if 0 <= n <= 20 else -1
+    if algorithm == "finding_number_of_digits_in_a_number":
+        return unsigned_digit_count_oracle(n)
+    if algorithm in ("find_previous_power_of_two", "fermat_numbers_sequence", "figurate_number"):
+        reference = {"find_previous_power_of_two": previous_power_oracle,
+                     "fermat_numbers_sequence": fermat_sequence_oracle,
+                     "figurate_number": figurate_number_oracle}[algorithm]
+        return reference(n)
+    if algorithm == "golombs_sequence":
+        return golombs_sequence_oracle(n)
+    if algorithm == "fibonacci_number_check":
+        return fibonacci_number_check_oracle(n)
+    if algorithm in ("fibonacci_dp", "fibonacci_recursive", "fibonacci_formula", "fibonacci_matrix"):
+        return fibonacci_variant_oracle(n, algorithm)
+    if algorithm == "easter":
+        return easter_computus_oracle(n)
+    if algorithm == "primorial_numbers_sequence":
+        return primorial_numbers_sequence_oracle(n)
+    if algorithm == "count_sorted_vowel_strings":
+        return count_sorted_vowel_strings_oracle(n)
+    if algorithm == "cake_numbers_sequence":
+        return cake_numbers_sequence_oracle(n)
+    if algorithm == "bailey_borwein_plouffe":
+        return bailey_borwein_plouffe_oracle(n)
+    if algorithm == "triangular_number":
+        return triangular_number_oracle(n)
+    if algorithm == "binary_to_gray_code":
+        return binary_to_gray_code_oracle(n)
+    if algorithm == "bcd_conversion":
+        return bcd_conversion_oracle(n)
+    if algorithm == "buzz_number":
+        return buzz_number_oracle(n)
+    if algorithm == "binomial_sequence":
+        return binomial_sequence_oracle(n)
+    if algorithm == "armstrong_digit_cubes":
+        return armstrong_digit_cubes_oracle(n)
+    if algorithm == "additive_persistence":
+        return additive_persistence_oracle(n)
+    if algorithm == "decimal_to_binary_recursion":
+        return recursive_binary_oracle(n)
+    if algorithm == "decimal_to_octal_recursion":
+        return recursive_octal_oracle(n)
+    if algorithm == "deficient_numbers":
+        return deficient_numbers_oracle(n)
+    if algorithm == "dudeney_number":
+        return dudeney_number_oracle(n)
+    if algorithm == "disarium_number":
+        return disarium_number_oracle(n)
+    if algorithm == "divisors_count_sequence":
+        return divisors_count_sequence_oracle(n)
+    if algorithm == "derangement":
+        return derangement_oracle(n)
     if algorithm == "newton_square_root":
         return newton_square_root_expected(n)
     if algorithm == "freebench_pifft":
@@ -2158,6 +2356,10 @@ def oracle(algorithm: str, n: int) -> int:
         return problem014_oracle(n)
     if algorithm == "magic_square":
         return magic_square_oracle(n)
+    if algorithm == "magic_square_singly_even_strachey":
+        return magic_square_singly_even_strachey_independent(n)
+    if algorithm == "magic_square_doubly_even_complement":
+        return magic_square_doubly_even_complement_independent(n)
     if algorithm == "trial_division_factorizer":
         return trial_division_factorizer_oracle(n)
     if algorithm == "greatest_prime_factor":
@@ -2168,6 +2370,8 @@ def oracle(algorithm: str, n: int) -> int:
         return sum_of_totient_function_oracle(n)
     if algorithm == "meissel_lehmer_prime_count":
         return meissel_lehmer_prime_count_oracle(n)
+    if algorithm == "fast_prime_sums":
+        return fast_prime_sums_oracle(n)
     if algorithm == "legendre_prime_count":
         return legendre_prime_count_oracle(n)
     if algorithm == "pollards_rho_factorizing":
@@ -2880,13 +3084,7 @@ def oracle(algorithm: str, n: int) -> int:
     if algorithm == "digital_root":
         if n < 0:
             return -1
-        while n >= 10:
-            total = 0
-            while n > 0:
-                total += n % 10
-                n //= 10
-            n = total
-        return n
+        return 0 if n == 0 else 1 + (n - 1) % 9
     if algorithm == "hamming_weight":
         if not 0 <= n <= 2**32 - 1:
             return -1
@@ -2993,14 +3191,6 @@ def oracle(algorithm: str, n: int) -> int:
         if remaining > 1:
             sigma *= remaining + 1
         return int(sigma - n == n)
-    if algorithm == "number_of_digits":
-        inputs.update(range(-1024, 1025))
-        inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(512))
-        inputs.update([I64_MIN, I64_MIN + 1, -10**18, -10**17, -10, -1, 0, 1,
-                       9, 10, 10**17, 10**18, I64_MAX - 1, I64_MAX])
-        for power in range(1, 19):
-            value = 10 ** power
-            inputs.update([value - 1, value, value + 1, -value + 1, -value, -value - 1])
     if algorithm == "catalan_number":
         return math.comb(2 * n, n) // (n + 1) if 0 <= n <= 35 else -1
     if algorithm == "bell_numbers":
@@ -3181,6 +3371,15 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         inputs.update((999, 1_000, 9_999, 10_000, 10_001,
                        1_000_000, 10_000_000, MEISSEL_LEHMER_MAX_INPUT,
                        MEISSEL_LEHMER_MAX_INPUT + 1, I64_MIN, I64_MAX))
+    elif algorithm == "fast_prime_sums":
+        validate_fast_prime_sums_workload(workload)
+        inputs.update(range(-3, 257))
+        inputs.update((999, 1_000, 9_999, 10_000, 31_999, 32_000,
+                       32_001, FAST_PRIME_SUMS_DIRECT_LIMIT,
+                       100_000_000, FAST_PRIME_SUMS_MAX_INPUT,
+                       FAST_PRIME_SUMS_MAX_INPUT + 1, I64_MIN, I64_MAX))
+        inputs.update(rng.randrange(0, FAST_PRIME_SUMS_DIRECT_LIMIT + 1)
+                      for _ in range(64))
     elif algorithm == "legendre_prime_count":
         validate_legendre_prime_count_workload(workload)
         inputs.update(range(-3, 257))
@@ -3191,6 +3390,46 @@ def corpus(algorithm: str) -> tuple[str, dict]:
                       for value in range(2, 101)
                       for offset in (-1, 0, 1))
         inputs.update(rng.randrange(LEGENDRE_PRIME_COUNT_MAX_INPUT + 1) for _ in range(64))
+    elif algorithm == "sieve_of_sundaram":
+        validate_sieve_of_sundaram_workload(workload)
+        inputs.update(range(-3, SUNDARAM_MAX_LIMIT + 2))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "perfect_totient_number":
+        validate_perfect_totient_number_workload(workload)
+        inputs.update(range(PERFECT_TOTIENT_MIN_INPUT - 3,
+                           PERFECT_TOTIENT_MIN_INPUT + 257))
+        inputs.update((PERFECT_TOTIENT_MIN_INPUT - 1,
+                       PERFECT_TOTIENT_MIN_INPUT,
+                       PERFECT_TOTIENT_MAX_INPUT - 1,
+                       PERFECT_TOTIENT_MAX_INPUT,
+                       PERFECT_TOTIENT_MAX_INPUT + 1,
+                       I64_MIN, I64_MAX))
+    elif algorithm == "next_higher_number_with_same_number_of_set_bits":
+        validate_next_higher_number_with_same_number_of_set_bits_workload(workload)
+        issues = next_same_set_bits_static_issues()
+        if issues:
+            raise ValueError("next-higher-set-bits package is incomplete: " + "; ".join(issues))
+        issues = next_same_set_bits_workload_issues()
+        if issues:
+            raise ValueError("next-higher-set-bits fixtures differ from references: "
+                             + "; ".join(issues))
+        inputs.update(range(-3, 130))
+        inputs.update((NEXT_SAME_SET_BITS_MAX_INPUT - 1,
+                       NEXT_SAME_SET_BITS_MAX_INPUT,
+                       NEXT_SAME_SET_BITS_MAX_INPUT + 1,
+                       I64_MIN, I64_MAX))
+        for set_count in range(1, 31):
+            inputs.add((1 << set_count) - 1)
+        for power in range(1, 31):
+            inputs.update(((1 << power) - 1, 1 << power, (1 << power) + 1))
+        for trailing_zeroes in range(30):
+            for run_of_ones in range(1, 31 - trailing_zeroes):
+                inputs.add(((1 << run_of_ones) - 1) << trailing_zeroes)
+        inputs.update(rng.randrange(1, NEXT_SAME_SET_BITS_MAX_INPUT + 1)
+                      for _ in range(128))
+        if any(next_same_set_bits_primary(value) != next_same_set_bits_oracle(value)
+               for value in inputs):
+            raise ValueError("next-higher-set-bits references disagree on the boundary corpus")
     elif algorithm == "problem014":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -3319,6 +3558,33 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 30, 31, 32, 33,
                        I64_MAX - 1, I64_MAX])
         inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(128))
+    elif algorithm == "magic_square_singly_even_strachey":
+        issues = check_magic_square_singly_even_strachey_inventory()
+        if issues:
+            raise ValueError("singly-even magic-square package is incomplete: " + "; ".join(issues))
+        for case in workload["cases"]:
+            order = case["input_value"]
+            primary = magic_square_singly_even_strachey_primary(order)
+            independent = magic_square_singly_even_strachey_independent(order)
+            if ("expected_result" in case and case["expected_result"] != primary
+                    or primary != independent):
+                raise ValueError("singly-even magic-square references or workload disagree")
+        inputs.update(range(-2, 35))
+        inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
+    elif algorithm == "magic_square_doubly_even_complement":
+        try:
+            check_magic_square_doubly_even_complement_inventory()
+        except (AssertionError, OSError, json.JSONDecodeError, KeyError) as error:
+            raise ValueError(f"doubly-even magic-square package is incomplete: {error}") from error
+        for case in workload["cases"]:
+            order = case["input_value"]
+            primary = magic_square_doubly_even_complement_primary(order)
+            independent = magic_square_doubly_even_complement_independent(order)
+            if ("expected_result" in case and case["expected_result"] != primary
+                    or primary != independent):
+                raise ValueError("doubly-even magic-square references or workload disagree")
+        inputs.update(range(-2, 67))
+        inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
     elif algorithm == "euler_totient":
         inputs.update(range(-3, 101))
         inputs.update([210, 2310, 999_983, 1_000_000, 1_000_001, I64_MIN, I64_MAX])
@@ -4191,6 +4457,166 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         for exponent in range(16):
             value = 4**exponent
             inputs.update([value - 1, value, value + 1])
+    elif algorithm in ("kaprekar_number", "strong_number", "krishnamurthy_number_checker"):
+        inputs.update(range(-16, 10001))
+        inputs.update(rng.randrange(0, 2_147_483_648) for _ in range(512))
+        inputs.update((I64_MIN, -(2**31)-1, -(2**31), -1, 0, 1, 2, 145, 40585,
+                       2_000_000_000, 2_000_000_001, 2**31-1, 2**31, I64_MAX))
+    elif algorithm in ("gray_to_binary", "lowest_set_bit", "index_of_right_most_set_bit"):
+        inputs.update(range(-4096, 4097))
+        for shift in range(63):
+            value = 1 << shift
+            inputs.update((value-1, value, value+1, -value))
+        inputs.update((I64_MIN, I64_MAX-1, I64_MAX, -(2**31)-1, -(2**31), 2**31-1, 2**31))
+        inputs.update(rng.randrange(I64_MIN, I64_MAX+1) for _ in range(512))
+    elif algorithm in ("jacobsthal_number", "kolakoski_sequence"):
+        limit = 64 if algorithm == "jacobsthal_number" else 63
+        inputs.update(range(-4, limit+5))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "is_square_free":
+        inputs.update(range(-4, 10001))
+        inputs.update(rng.randrange(1, 1_000_001) for _ in range(512))
+        inputs.update((999_999, 1_000_000, 1_000_001, I64_MIN, I64_MAX))
+    elif algorithm in ("integer_partition", "partitions"):
+        limit = 300 if algorithm == "integer_partition" else 100
+        inputs.update(range(-4, limit+5))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "keith_number_checker":
+        inputs.update(range(-4, 1005))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm in ("tetrahedral_sequence", "square_pyramidal_numbers"):
+        limit = 3_810_777 if algorithm == "tetrahedral_sequence" else 2_097_151
+        inputs.update(range(-4, 1001))
+        inputs.update(rng.randrange(0, limit+1) for _ in range(512))
+        inputs.update((limit-1, limit, limit+1, I64_MIN, I64_MAX))
+    elif algorithm == "harshad_number":
+        inputs.update(range(-4, 10001))
+        inputs.update(rng.randrange(1, 2_147_483_648) for _ in range(512))
+        inputs.update((2_147_483_646, 2_147_483_647, 2_147_483_648, I64_MIN, I64_MAX))
+    elif algorithm == "highest_set_bit":
+        inputs.update(range(-4, 4097))
+        for shift in range(63):
+            value = 1 << shift
+            inputs.update((value-1, value, value+1))
+        inputs.update((I64_MIN, I64_MAX-1, I64_MAX))
+    elif algorithm == "fast_factorial":
+        inputs.update(range(-4, 25))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "finding_number_of_digits_in_a_number":
+        inputs.update(range(-4, 10001))
+        inputs.update(rng.randrange(0, I64_MAX+1) for _ in range(512))
+        for power in range(1, 19):
+            value = 10 ** power
+            inputs.update((value-1, value, value+1))
+        inputs.update((I64_MIN, -1, I64_MAX-1, I64_MAX))
+    elif algorithm == "find_previous_power_of_two":
+        inputs.update(range(-4, 4097))
+        for shift in range(31):
+            power = 1 << shift
+            inputs.update((power-1, power, power+1))
+        inputs.update((I64_MIN, 2_147_483_647, 2_147_483_648, I64_MAX))
+    elif algorithm == "fermat_numbers_sequence":
+        inputs.update(range(-4, 10))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "figurate_number":
+        inputs.update(range(-4, 10001))
+        inputs.update(rng.randrange(0, 1_000_001) for _ in range(512))
+        inputs.update((999_999, 1_000_000, 1_000_001, I64_MIN, I64_MAX))
+    elif algorithm == "golombs_sequence":
+        inputs.update(range(-4, 70))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "fibonacci_number_check":
+        inputs.update(range(-10000, 10001))
+        a, b = 0, 1
+        while a <= 1_300_000_000:
+            inputs.update((a-1, a, a+1, -a-1, -a, -a+1))
+            a, b = b, a+b
+        inputs.update((-1_300_000_001, -1_300_000_000, 1_300_000_000, 1_300_000_001, I64_MIN, I64_MAX))
+    elif algorithm in ("fibonacci_dp", "fibonacci_recursive", "fibonacci_formula", "fibonacci_matrix"):
+        limit = {"fibonacci_dp": 46, "fibonacci_recursive": 30, "fibonacci_formula": 35,
+                 "fibonacci_matrix": 92}[algorithm]
+        inputs.update(range(-4, limit+5))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "easter":
+        inputs.update(range(-4, 10004))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "primorial_numbers_sequence":
+        inputs.update(range(-4, 20))
+        inputs.update((I64_MIN, I64_MIN+1, I64_MAX-1, I64_MAX))
+    elif algorithm == "count_sorted_vowel_strings":
+        inputs.update(range(-4, 1001))
+        inputs.update(rng.randrange(0, 30_001) for _ in range(512))
+        inputs.update((29_999, 30_000, 30_001, I64_MIN, I64_MAX))
+    elif algorithm == "cake_numbers_sequence":
+        inputs.update(range(-4, 1001))
+        inputs.update(rng.randrange(0, 2_000_001) for _ in range(512))
+        inputs.update((1_999_999, 2_000_000, 2_000_001, I64_MIN, I64_MAX))
+    elif algorithm == "bailey_borwein_plouffe":
+        inputs.update(range(-4, 16))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "triangular_number":
+        inputs.update(range(-4, 10001))
+        inputs.update(rng.randrange(0, 4_294_967_296) for _ in range(512))
+        inputs.update((4_294_967_294, 4_294_967_295, 4_294_967_296, I64_MIN, I64_MAX))
+    elif algorithm == "binary_to_gray_code":
+        inputs.update(range(-16, 10001))
+        inputs.update(rng.randrange(0, I64_MAX+1) for _ in range(512))
+        for shift in range(63):
+            value = 1 << shift
+            inputs.update((value-1, value, value+1))
+        inputs.update((I64_MIN, -1, I64_MAX-1, I64_MAX))
+    elif algorithm == "bcd_conversion":
+        inputs.update(range(-4, 10004))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "buzz_number":
+        inputs.update(range(-10000, 10001))
+        inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(512))
+        inputs.update((I64_MIN, I64_MIN+1, I64_MAX-1, I64_MAX))
+    elif algorithm == "binomial_sequence":
+        inputs.update(range(-4, 235))
+        inputs.update((I64_MIN, I64_MIN+1, I64_MAX-1, I64_MAX))
+    elif algorithm == "armstrong_digit_cubes":
+        inputs.update(range(-10000, 10001))
+        inputs.update(rng.randrange(-(2**31), 2**31) for _ in range(512))
+        inputs.update((-(2**31)-1, -(2**31), 2**31-1, 2**31, I64_MIN, I64_MAX))
+    elif algorithm == "additive_persistence":
+        inputs.update(range(-16, 10001))
+        inputs.update(rng.randrange(0, I64_MAX+1) for _ in range(512))
+        inputs.update((I64_MIN, -1, 0, 1, 9, 10, 19, 199, I64_MAX-1, I64_MAX))
+    elif algorithm == "decimal_to_binary_recursion":
+        inputs.update(range(-4, 1030))
+        inputs.update((I64_MIN, I64_MAX))
+    elif algorithm == "decimal_to_octal_recursion":
+        inputs.update(range(-4, 4097))
+        for exponent in range(1, 10):
+            power = 8 ** exponent
+            inputs.update((power - 1, power, power + 1))
+        inputs.update(rng.randrange(0, 295_600_128) for _ in range(512))
+        inputs.update((295_600_126, 295_600_127, 295_600_128, I64_MIN, I64_MAX))
+    elif algorithm == "deficient_numbers":
+        inputs.update(range(-16, 10001))
+        inputs.update(rng.randrange(1, 100_000_001) for _ in range(512))
+        inputs.update((99_999_999, 100_000_000, 100_000_001, I64_MIN, I64_MAX))
+    elif algorithm == "dudeney_number":
+        inputs.update(range(-8, 10001))
+        for root in range(1, 1291):
+            cube = root ** 3
+            inputs.update((cube-1, cube, cube+1))
+        inputs.update(rng.randrange(1, 2_147_483_648) for _ in range(512))
+        inputs.update((2_147_483_646, 2_147_483_647, 2_147_483_648, I64_MIN, I64_MAX))
+    elif algorithm == "disarium_number":
+        inputs.update(range(-8, 10001))
+        inputs.update(rng.randrange(1, 100_000_000) for _ in range(512))
+        for power in range(1, 8):
+            inputs.update((10**power - 1, 10**power, 10**power + 1))
+        inputs.update((99_999_998, 99_999_999, 100_000_000, I64_MIN, I64_MAX))
+    elif algorithm == "divisors_count_sequence":
+        inputs.update(range(-4, 513))
+        inputs.update(value * value - 1 for value in range(1, 101))
+        inputs.update([9998, 9999, 10000, I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
+    elif algorithm == "derangement":
+        inputs.update(range(-4, 25))
+        inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
     elif algorithm == "catalan_number":
         inputs.update(range(-4, 42))
         inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(256))
@@ -4202,7 +4628,11 @@ def corpus(algorithm: str) -> tuple[str, dict]:
                        23, 24, 25, 26, 27, I64_MAX - 1, I64_MAX])
     for case in workload["cases"]:
         expected = oracle(algorithm, case["input_value"])
-        if case["expected_result"] != expected:
+        if algorithm in {"magic_square_singly_even_strachey",
+                         "magic_square_doubly_even_complement"}:
+            if "expected_result" in case and case["expected_result"] != expected:
+                raise ValueError(f"workload oracle mismatch: {algorithm}/{case['id']}")
+        elif case["expected_result"] != expected:
             raise ValueError(f"workload oracle mismatch: {algorithm}/{case['id']}")
     data = "".join(f"{n} {oracle(algorithm, n)}\n" for n in sorted(inputs))
     return data, workload
@@ -4246,10 +4676,12 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
+        expected_case_result = (case["expected_result"] if "expected_result" in case
+                                else oracle(algorithm, case["input_value"]))
         if (record["algorithm"] != algorithm or record["implementation"]["language"] != language
                 or record["workload"]["input_value"] != case["input_value"]
-                or record["workload"]["expected_result"] != case["expected_result"]
-                or record["measurement"]["observed_result"] != case["expected_result"]
+                or record["workload"]["expected_result"] != expected_case_result
+                or record["measurement"]["observed_result"] != expected_case_result
                 or record["workload"]["input_length"] is not None
                 or len(record["measurement"]["samples_ns"]) != 1
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]):
@@ -4267,7 +4699,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--algorithms", nargs="+", choices=ALGORITHMS, default=list(ALGORITHMS))
-    parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
+    parser.add_argument("--languages", nargs="+", choices={**EXTENSIONS, **OPTIONAL_EXTENSIONS}, default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler", help="Custom Elisa compiler executable path")
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build/scalar")
     parser.add_argument("--report", type=Path)

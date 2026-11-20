@@ -25,7 +25,7 @@ def validate_workload(workload):
         length = case.get("input_length", len(values) if isinstance(values, list) else -1)
         if (not isinstance(name, str) or not name or name in seen or not isinstance(values, list)
                 or len(values) > 20483 or any(type(x) is not int or not -(1 << 63) <= x < (1 << 63) for x in values)
-                or type(null) is not bool or type(length) is not int or not 0 <= length <= 100002
+                or type(null) is not bool or type(length) is not int or not 0 <= length <= 20483
                 or (null and values) or (not null and length != len(values))):
             raise ValueError("invalid DFA-minimization fixture framing")
         seen.add(name)

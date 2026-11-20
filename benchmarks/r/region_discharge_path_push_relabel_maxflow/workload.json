@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "shekhovtsov-hlavac-sequential-ard-i64-array-scalar-v1",
+  "algorithm": "region_discharge_path_push_relabel_maxflow",
+  "function_symbol": "region_discharge_path_push_relabel_maxflow",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,M,K,source,sink,region[N],(u,v,capacity)*M]",
+    "vertices_range_including_terminals": [4, 8],
+    "directed_arc_record_count_range": [1, 12],
+    "region_count_range": [2, 4],
+    "capacity_range": [0, 7],
+    "parallel_and_antiparallel_arcs": "allowed_and_summed",
+    "terminal_region_ids": -1,
+    "nonterminal_region_ids": "0..K-1, each represented",
+    "terminal_arc_rules": "No arc enters source or leaves sink; source-to-sink arcs are allowed.",
+    "self_loops": "invalid",
+    "positive_cross_region_arc_required": true,
+    "maximum_boundary_vertices": 6,
+    "maximum_valid_input_length": 49,
+    "maximum_parseable_input_length": 50,
+    "invalid_input_result": -1,
+    "null_pointer_behavior": "Null input returns -1 at declared lengths 0 and 50."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Maximum source-to-sink flow value",
+    "valid_result_range": [0, 84],
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "method": "Sequential S-ARD: fixed ascending region order; staged local augmenting paths to the sink and eligible boundary vertices; region relabel after each discharge.",
+    "initialization": "Saturate all source-outgoing arcs into a preflow, set all labels to 0 except source label d_infinity=|B|, and retain global residual/excess state.",
+    "boundary": "B is the set of nonterminal endpoints of positive-capacity inter-region arcs; B_R is the set of external nonterminal neighbors of region R.",
+    "region_network": "For a discharge, use current global residual capacities on R union {s,t} and on R<->B_R arcs, but set incoming boundary-to-R residual capacities to zero; local augmentations update the global residual and excess arrays.",
+    "stages": "For k=0..|B|, target T_k={sink} union {v in B_R | label[v]<k}; repeatedly choose a shortest residual path from an active vertex in R to T_k, scanning vertex IDs ascending, and augment its bottleneck/excess.",
+    "relabel": "After the final stage, set each u in R to the minimum k for which u reaches T_k in the updated local residual network, or |B| if none; boundary labels remain unchanged.",
+    "schedule": "Sequential sweeps visit region IDs ascending and repeat until no positive-excess vertex has label below |B|. Optional global-gap heuristics and disk/parallel execution are omitted.",
+    "sweep_bound": "For B boundary vertices, S-ARD terminates in at most 2*B^2+1 sweeps; this bounded profile rejects only if that theorem-based limit is exceeded.",
+    "complexity": "At most 2*B^2+1 sweeps; each sweep discharges K regions, each with B+1 nested-target stages. Each stage uses deterministic breadth-first augmenting paths on at most N vertices and M residual arc records; for fixed targets this is Edmonds-Karp-style O(N*M^2).",
+    "distinctness": "Unlike global push-relabel, this performs path augmentation to nested sink/boundary target sets and relabels by region distance. Unlike block merging, it preserves one global preflow/residual state while discharging the fixed regions sequentially.",
+    "maximum_result_derivation": "At most M=12 source-outgoing arc records each have capacity at most 7, so flow is at most 84."
+  },
+  "oracle_method": "Primary: deterministic sequential S-ARD with staged BFS path augmentation, boundary-to-region capacity suppression, global residual/excess updates, and region relabeling. Independent: enumerate all source-side subsets and compute the minimum directed cut capacity.",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "paper": "https://cmp.felk.cvut.cz/~shekhovt/publications/shekhovtsov-11-mixed_maxflow.pdf",
+    "technical_report": "https://cmp.felk.cvut.cz/~shekhovt/publications/shekhovtsov-11-mixed_maxflow-TR.pdf",
+    "arxiv": "https://arxiv.org/abs/1109.1146",
+    "sections": "Paper §4.1-4.3 and Alg. 1; technical report §4.2-4.3 (S-ARD), Statement 9 and Theorem 3.",
+    "reuse": "Algorithm descriptions only. This is a deterministic in-memory bounded sequential S-ARD profile, not the paper's distributed/streaming implementation or P-ARD parallel schedule."
+  },
+  "cases": [
+    {"id":"two-region-chain","input_values":[4,3,2,0,3,-1,0,1,-1,0,1,4,1,2,3,2,3,2],"input_length":18,"expected_result":2},
+    {"id":"local-path-and-boundary-transfer","input_values":[6,6,2,0,5,-1,0,0,1,1,-1,0,1,5,1,2,5,2,3,4,3,4,4,4,5,5,2,5,1],"input_length":29,"expected_result":5},
+    {"id":"direct-terminal-arc-plus-cross-region-route","input_values":[4,4,2,0,3,-1,0,1,-1,0,3,2,0,1,3,1,1,2,3,2,3,3],"input_length":22,"expected_result":5},
+    {"id":"antiparallel-cross-capacity","input_values":[4,5,2,0,3,-1,0,1,-1,0,1,4,1,2,3,2,1,2,2,3,4,1,3,1],"input_length":24,"expected_result":4},
+    {"id":"stranded-excess-no-sink-path","input_values":[4,2,2,0,3,-1,0,1,-1,0,1,3,1,2,2],"input_length":15,"expected_result":0},
+    {"id":"maximum-valid-frame-and-flow","input_values":[8,12,4,0,7,-1,0,0,1,2,3,3,-1,0,1,7,0,2,7,0,3,7,0,4,7,0,5,7,1,7,7,2,7,7,3,7,7,4,7,7,5,7,7,1,3,7,4,6,7],"input_length":49,"expected_result":35},
+    {"id":"maximum-parseable-length","input_values":[8,12,4,0,7,-1,0,0,1,2,3,3,-1,0,1,7,0,2,7,0,3,7,0,4,7,0,5,7,1,7,7,2,7,7,3,7,7,4,7,7,5,7,7,1,3,7,4,6,7,9],"input_length":50,"expected_result":-1},
+    {"id":"invalid-terminal-region","input_values":[4,1,2,0,3,0,0,1,-1,0,1,2,1,2,1],"input_length":15,"expected_result":-1},
+    {"id":"invalid-arc-enters-source","input_values":[4,2,2,0,3,-1,0,1,-1,1,0,2,1,2,1],"input_length":15,"expected_result":-1},
+    {"id":"invalid-no-positive-cross-region-arc","input_values":[4,2,2,0,3,-1,0,1,-1,0,1,2,1,2,0],"input_length":15,"expected_result":-1},
+    {"id":"invalid-capacity","input_values":[4,1,2,0,3,-1,0,1,-1,0,1,8],"input_length":12,"expected_result":-1},
+    {"id":"trailing-word","input_values":[4,1,2,0,3,-1,0,1,-1,0,1,1,9],"input_length":13,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"null-at-parser-limit","input_values":[],"input_length":50,"input_is_null":true,"expected_result":-1}
+  ]
+}

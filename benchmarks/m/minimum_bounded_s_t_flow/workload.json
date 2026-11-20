@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "id": "minimum-bounded-s-t-flow-i64-array-scalar-v1",
+  "algorithm": "minimum_bounded_s_t_flow",
+  "function_symbol": "minimum_bounded_s_t_flow",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Flows with demands — minimal flow",
+    "authors": ["CP-Algorithms contributors"],
+    "url": "https://cp-algorithms.com/graph/flow_with_demands.html",
+    "license": "CC BY-SA 4.0; algorithm description only, no copied code or prose"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,s,t,(u,v,lower,upper)*m]",
+    "vertex_count_range": [2, 6],
+    "edge_count_range": [0, 8],
+    "terminal_rule": "0 <= s,t < n and s != t",
+    "endpoint_range": "0 <= endpoint < n",
+    "bound_range": "0 <= lower <= upper <= 2",
+    "parallel_arcs_allowed": true,
+    "self_loops_allowed": true,
+    "exact_length": "4+4*m",
+    "maximum_valid_input_length": 36,
+    "maximum_parseable_input_length": 37,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "minimum nonnegative net s-to-t flow value",
+    "result_range": "0..16, or -2 when no nonnegative feasible s-t flow exists",
+    "infeasible_result": -2,
+    "invalid_result": -1
+  },
+  "workspace": {"bytes": 1024, "external_bytes_per_case": 0},
+  "complexity": {
+    "primary_algorithm": "lower-bound balance transformation, Edmonds-Karp feasibility, and binary search on auxiliary t-to-s capacity",
+    "search_upper_bound": "sum of upper capacities on non-self-loop arcs leaving s, at most 16",
+    "maximum_feasibility_checks": 5,
+    "transformed_vertex_count_maximum": 8,
+    "transformed_forward_arc_count_maximum": 15,
+    "primary_time": "O(log(U+2)*V^3*E) with matrix BFS; V<=8, E<=15, 64 matrix cells per BFS",
+    "independent_oracle": "enumerate at most 3^8 bounded edge-flow assignments"
+  },
+  "oracle_method": "The primary tests monotone feasibility by adding a capacity-K t-to-s edge to the lower-bound circulation reduction and binary-searching the smallest feasible K. The independent reference enumerates each edge flow in [lower,upper], checks internal conservation and opposite terminal net balances, and minimizes the nonnegative s-to-t value.",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"empty-network-zero-flow","input_values":[2,0,0,1],"input_length":4,"workspace_bytes":0,"expected_result":0},
+    {"id":"lower-bounded-direct-edge","input_values":[2,1,0,1,0,1,1,2],"input_length":8,"workspace_bytes":0,"expected_result":1},
+    {"id":"forced-two-units","input_values":[2,1,0,1,0,1,2,2],"input_length":8,"workspace_bytes":0,"expected_result":2},
+    {"id":"lower-bounded-cycle-has-zero-value","input_values":[2,2,0,1,0,1,1,1,1,0,1,1],"input_length":12,"workspace_bytes":0,"expected_result":0},
+    {"id":"parallel-arcs-minimize-total","input_values":[2,2,0,1,0,1,0,2,0,1,1,2],"input_length":12,"workspace_bytes":0,"expected_result":1},
+    {"id":"internal-lower-demand-routed-through-terminals","input_values":[4,4,0,3,0,1,0,2,1,2,1,1,2,3,0,2,0,3,0,2],"input_length":20,"workspace_bytes":0,"expected_result":1},
+    {"id":"residual-rerouting-in-feasibility","input_values":[6,5,4,5,2,0,1,1,3,1,1,1,0,2,0,1,0,3,0,1,1,2,0,1],"input_length":24,"workspace_bytes":0,"expected_result":0},
+    {"id":"mandatory-reverse-flow-only","input_values":[2,1,0,1,1,0,1,1],"input_length":8,"workspace_bytes":0,"expected_result":-2},
+    {"id":"unreachable-internal-demand","input_values":[3,1,0,2,1,2,1,1],"input_length":8,"workspace_bytes":0,"expected_result":-2},
+    {"id":"terminal-independent-cycle-zero-value","input_values":[3,2,0,2,0,1,1,1,1,0,1,1],"input_length":12,"workspace_bytes":0,"expected_result":0},
+    {"id":"self-loop-does-not-change-flow-value","input_values":[2,2,0,1,0,0,2,2,0,1,1,1],"input_length":12,"workspace_bytes":0,"expected_result":1},
+    {"id":"maximum-search-range-zero-answer","input_values":[
+      2,8,0,1,
+      0,1,0,2, 0,1,0,2, 0,1,0,2, 0,1,0,2,
+      0,1,0,2, 0,1,0,2, 0,1,0,2, 0,1,0,2
+    ],"input_length":36,"workspace_bytes":0,"expected_result":0},
+    {"id":"maximum-search-range-forced-answer","input_values":[
+      2,8,0,1,
+      0,1,2,2, 0,1,2,2, 0,1,2,2, 0,1,2,2,
+      0,1,2,2, 0,1,2,2, 0,1,2,2, 0,1,2,2
+    ],"input_length":36,"workspace_bytes":0,"expected_result":16},
+    {"id":"invalid-empty-input","input_values":[],"input_length":0,"workspace_bytes":0,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-one-vertex","input_values":[1,0,0,0],"input_length":4,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-too-many-vertices","input_values":[7,0,0,1],"input_length":4,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-too-many-edges","input_values":[2,9,0,1],"input_length":4,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-equal-terminals","input_values":[2,0,1,1],"input_length":4,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-terminal-endpoint","input_values":[2,0,0,2],"input_length":4,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-edge-endpoint","input_values":[2,1,0,1,0,2,0,1],"input_length":8,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-negative-lower","input_values":[2,1,0,1,0,1,-1,1],"input_length":8,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-upper-bound","input_values":[2,1,0,1,0,1,0,3],"input_length":8,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-reversed-bounds","input_values":[2,1,0,1,0,1,2,1],"input_length":8,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-truncated-edge","input_values":[2,1,0,1,0,1,0],"input_length":7,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-trailing-word","input_values":[2,0,0,1,0],"input_length":5,"workspace_bytes":0,"expected_result":-1},
+    {"id":"invalid-maximum-trailing-word","input_values":[
+      2,8,0,1,
+      0,1,0,2, 0,1,0,2, 0,1,0,2, 0,1,0,2,
+      0,1,0,2, 0,1,0,2, 0,1,0,2, 0,1,0,2,
+      0
+    ],"input_length":37,"workspace_bytes":0,"expected_result":-1}
+  ]
+}

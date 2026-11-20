@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "algorithm": "bdd_symbolic_reachability",
+  "abi": "i64_array_scalar",
+  "source": {
+    "symbolic_model_checking": "https://doi.org/10.1007/978-1-4939-2864-4_416",
+    "binary_decision_graph": "https://doi.org/10.1007/978-1-4939-2864-4_48"
+  },
+  "native_paths": [
+    "c/b/bdd_symbolic_reachability.c",
+    "cpp/b/bdd_symbolic_reachability.cpp",
+    "rust/b/bdd_symbolic_reachability.rs",
+    "elisa/b/bdd_symbolic_reachability.elisa",
+    "c3/b/bdd_symbolic_reachability.c3",
+    "nim/b/bdd_symbolic_reachability.nim",
+    "odin/b/bdd_symbolic_reachability.odin",
+    "v/b/bdd_symbolic_reachability.v",
+    "zig/b/bdd_symbolic_reachability.zig",
+    "mojo/b/bdd_symbolic_reachability.mojo"
+  ],
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ],
+  "bounds": {
+    "state_bits_min": 1,
+    "state_bits_max": 3,
+    "input_bits_min": 0,
+    "input_bits_max": 1,
+    "maximum_valid_input_length": 132,
+    "maximum_parseable_input_length": 133,
+    "maximum_output": 511,
+    "workspace_bytes": 294912,
+    "fixed_array_bytes_max": 218536,
+    "fixed_array_bytes_without_transform_results": 150536,
+    "node_capacity": 17000,
+    "conservative_per_round_node_bound": 16531,
+    "unique_table_capacity": 32768,
+    "binary_apply_memoized": false
+  }
+}

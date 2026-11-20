@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "newton-divided-difference-interpolation-f998244353-i64-array-scalar-v1",
+  "algorithm": "newton_divided_difference_interpolation",
+  "function_symbol": "newton_divided_difference_interpolation",
+  "abi": "i64_array_scalar",
+  "description": "Evaluate the Newton-form interpolant from distinct finite-field sample nodes using in-place divided differences.",
+  "source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.3 Interpolation",
+    "url": "https://dlmf.nist.gov/3.3",
+    "role": "Newton divided-difference formula and nested-basis evaluation; algorithm ideas only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,x[0..N-1],y[0..N-1],query]",
+    "node_count_range": [1, 12],
+    "field": "F_998244353",
+    "canonical_field_values": "0 <= each node, ordinate, and query < 998244353",
+    "nodes": "pairwise distinct",
+    "exact_length": "2+2*N",
+    "maximum_valid_length": 26,
+    "maximum_parseable_length": 27,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "the interpolating polynomial evaluated at query modulo 998244353",
+    "result_range": [0, 998244352],
+    "invalid_input_result": -1
+  },
+  "algorithm_contract": {
+    "divided_difference_update": "For order k=1..N-1 and indices i descending from N-1 through k, replace d[i] by (d[i]-d[i-1])/(x[i]-x[i-k]) in F_998244353.",
+    "inverse": "Use Fermat inversion because every node difference is nonzero in the prime field.",
+    "evaluation": "Nested Newton form: start with d[N-1], then for i=N-2..0 set value=value*(query-x[i])+d[i] modulo the field.",
+    "valid_empty_case": "N must be at least one; a singleton interpolant is the constant y[0]."
+  },
+  "complexity": {
+    "time": "O(N^2 log MODULUS) with independent modular inversions in the divided-difference table",
+    "space": "O(N)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"singleton-constant","input_values":[1,5,9,12],"input_length":4,"expected_result":9},
+    {"id":"linear-interpolation","input_values":[2,1,4,5,11,7],"input_length":6,"expected_result":17},
+    {"id":"quadratic-newton-nesting","input_values":[3,0,1,3,1,4,16,4],"input_length":8,"expected_result":25},
+    {"id":"modular-wraparound","input_values":[2,0,1,3,5,998244352],"input_length":6,"expected_result":1},
+    {"id":"unsorted-nodes","input_values":[3,4,1,3,17,2,10,2],"input_length":8,"expected_result":5},
+    {"id":"query-at-sample-node","input_values":[3,2,5,9,4,25,81,5],"input_length":8,"expected_result":25},
+    {"id":"maximum-node-count","input_values":[12,0,1,2,3,4,5,6,7,8,9,10,11,7,7,7,7,7,7,7,7,7,7,7,7,42],"input_length":26,"expected_result":7},
+    {"id":"duplicate-nodes","input_values":[2,3,3,4,5,9],"input_length":6,"expected_result":-1},
+    {"id":"field-value-out-of-range","input_values":[1,0,998244353,2],"input_length":4,"expected_result":-1},
+    {"id":"truncated-frame","input_values":[2,0,1,3,5],"input_length":5,"expected_result":-1},
+    {"id":"trailing-frame-value","input_values":[1,0,3,4,8],"input_length":5,"expected_result":-1},
+    {"id":"maximum-parseable-length","input_values":[12,0,1,2,3,4,5,6,7,8,9,10,11,7,7,7,7,7,7,7,7,7,7,7,7,42,0],"input_length":27,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

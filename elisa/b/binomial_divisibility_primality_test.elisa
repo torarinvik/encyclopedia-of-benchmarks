@@ -1,0 +1,23 @@
+def binomial_divisibility_primality_test_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    n_value: i64 = input[0]
+    if n_value < 2 or n_value > 1000: return -1
+    n: usize = n_value.usize()
+
+    row: mutable i64[1001] = zeroed
+    row[0] <- 1
+    degree: mutable usize = 1
+    while degree <= n:
+        row[degree] <- 1
+        index: mutable usize = degree - 1
+        while index > 0:
+            row[index] <- (row[index] + row[index - 1]) % n_value
+            index <- index - 1
+        degree <- degree + 1
+    index <- 1
+    while index < n:
+        if row[index] != 0: return 0
+        index <- index + 1
+    return 1
+
+export fn binomial_divisibility_primality_test(input: i64&, length: usize) -> i64 = binomial_divisibility_primality_test_impl

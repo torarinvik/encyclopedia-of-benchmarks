@@ -15,7 +15,7 @@ fn long sliding_window_aggregator(long* input, usz length) @export("sliding_wind
         if (input[index + 2] < -MAX_VALUE || input[index + 2] > MAX_VALUE) return INVALID_RESULT;
     }
 
-    long window[64] = {0};
+    long[64] window = {};
     usz head = 0;
     usz size = 0;
     long sum = 0;

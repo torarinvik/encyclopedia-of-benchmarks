@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn swp_u32(o:UnsafePointer[UInt8,MutAnyOrigin],p:Int,v:UInt32):

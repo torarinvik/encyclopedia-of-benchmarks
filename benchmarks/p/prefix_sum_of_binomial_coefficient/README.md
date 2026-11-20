@@ -62,4 +62,5 @@ See [`RIGHTS.md`](RIGHTS.md).
 | V | [`v/p/prefix_sum_of_binomial_coefficient.v`](../../../v/p/prefix_sum_of_binomial_coefficient.v) |
 | Zig | [`zig/p/prefix_sum_of_binomial_coefficient.zig`](../../../zig/p/prefix_sum_of_binomial_coefficient.zig) |
 
-Root owns shared byte-output suite imports, maps, bounds, and corpus wiring.
+The package is registered in the shared `i64_array_bytes_output` runner and
+independent verifier.

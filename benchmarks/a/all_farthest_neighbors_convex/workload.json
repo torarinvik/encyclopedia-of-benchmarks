@@ -11,6 +11,7 @@
   "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
   "cases": [
     {"id": "square", "input_values": [4,0,0,0,2,2,2,2,0], "input_length": 9, "expected_result": 32, "expected_output_hex": "0200000000000000030000000000000000000000000000000100000000000000"},
+    {"id": "coordinate_limit_square", "input_values": [4,-1000000,-1000000,-1000000,1000000,1000000,1000000,1000000,-1000000], "input_length": 9, "expected_result": 32, "expected_output_hex": "0200000000000000030000000000000000000000000000000100000000000000"},
     {"id": "triangle", "input_values": [3,0,0,0,3,4,0], "input_length": 7, "expected_result": 24, "expected_output_hex": "020000000000000002000000000000000100000000000000"},
     {"id": "cyclic_tie", "input_values": [3,0,0,0,2,2,0], "input_length": 7, "expected_result": 24, "expected_output_hex": "010000000000000002000000000000000100000000000000"},
     {"id": "counterclockwise_invalid", "input_values": [3,0,0,4,0,0,3], "input_length": 7, "expected_result": -1, "expected_output_hex": ""},

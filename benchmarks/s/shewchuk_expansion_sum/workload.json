@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "shewchuk-expansion-sum-i64-array-scalar-v1",
+  "algorithm": "shewchuk_expansion_sum",
+  "function_symbol": "shewchuk_expansion_sum",
+  "abi": "i64_array_scalar",
+  "description": "Exactly sum bounded dyadic values with a binary64 Grow-Expansion and return fixed-point integer units.",
+  "source": {
+    "title": "Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates",
+    "authors": ["Jonathan Richard Shewchuk"],
+    "reference": "Discrete & Computational Geometry 18(3), 305-363 (1997).",
+    "url": "https://doi.org/10.1007/PL00009321",
+    "author_pdf": "https://people.eecs.berkeley.edu/~jrs/papers/robustr.pdf",
+    "algorithm_attribution": "Two-Sum error-free transforms and Grow-Expansion from Shewchuk's exact floating-point expansion arithmetic.",
+    "implementation_status": "Clean-room bounded ports from the published algorithm description; no published source code copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,(mantissa,exponent)*n]",
+    "term_count_range": [0, 16],
+    "mantissa_range": [-16777216, 16777216],
+    "binary_exponent_range": [-30, 0],
+    "term_value": "mantissa * 2^exponent; all terms are exactly representable in IEEE-754 binary64",
+    "exact_length": "1 + 2*n",
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 34,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "exact_sum * 2^30 + 2^58 + 1",
+    "result_range": [1, 576460752303423489],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "rounding_environment": "IEEE-754 binary64, round-to-nearest, ties-to-even; no fast-math reassociation",
+    "primary_algorithm": "Maintain a nonoverlapping expansion in increasing-magnitude order. Add each nonzero input value with Grow-Expansion, using general Two-Sum to emit each exact residual and the rounded accumulator. Sum the expansion components as integer units after scaling each by 2^30.",
+    "independent_method": "The verifier maps each input directly to integer units: mantissa * 2^(exponent+30), then sums those integers without floating-point operations.",
+    "observable_result": "Because the input exponents are at least -30, the exact sum is an integer multiple of 2^-30. The output adds 2^58+1 to the scaled integer so every exact sum is visible while valid results cannot collide with the -1 invalid sentinel.",
+    "bound_reason": "At most 16 terms each have absolute value at most 2^24; after scaling by 2^30, the sum of absolute units is at most 2^58. Adding the offset gives valid outputs in [1,2^59+1], safely inside signed 64-bit range.",
+    "null_input_result": -1
+  },
+  "complexity": {
+    "time": "O(n^2) Two-Sum operations in the worst case, with n<=16.",
+    "auxiliary_space": "O(n) expansion components, with n<=16."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-expansion", "input_values":[0], "input_length":1, "expected_result":288230376151711745},
+    {"id":"single-half-unit", "input_values":[1,5,-1], "input_length":3, "expected_result":288230378836066305},
+    {"id":"large-cancellation-recovers-quarter-ulp", "input_values":[3,16777216,0,1,-30,-16777216,0], "input_length":7, "expected_result":288230376151711746},
+    {"id":"cancellation-then-fractional-term", "input_values":[4,16777216,0,1,-30,-16777216,0,3,-2], "input_length":9, "expected_result":288230376957018114},
+    {"id":"signed-small-units", "input_values":[2,-7,-30,5,-30], "input_length":5, "expected_result":288230376151711743},
+    {"id":"three-overlapping-exponents", "input_values":[3,1,-30,1,-29,1,-28], "input_length":7, "expected_result":288230376151711752},
+    {"id":"maximum-valid-cancellation", "input_values":[16,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,1,-30,5,-30], "input_length":33, "expected_result":288230376151711751},
+    {"id":"valid-minus-one-unit-not-invalid", "input_values":[1,-1,-30], "input_length":3, "expected_result":288230376151711744},
+    {"id":"maximum-parseable-trailing-value", "input_values":[16,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,16777216,0,-16777216,0,1,-30,5,-30,99], "input_length":34, "expected_result":-1},
+    {"id":"mantissa-out-of-range", "input_values":[1,16777217,0], "input_length":3, "expected_result":-1},
+    {"id":"exponent-below-grid", "input_values":[1,1,-31], "input_length":3, "expected_result":-1},
+    {"id":"truncated-term", "input_values":[1,4], "input_length":2, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-hypergraph-incidence-graph-encoding-i64-array-bytes-output-v1",
+  "algorithm": "hypergraph_incidence_graph_encoding",
+  "function_symbol": "hypergraph_incidence_graph_encoding",
+  "abi": "i64_array_bytes_output",
+  "description": "Canonical bounded construction of the two-color bipartite incidence graph of an indexed hyperedge family.",
+  "source": {
+    "book_title": "Encyclopedia of Algorithms",
+    "book_chapter": "Graph Isomorphism",
+    "book_chapter_doi": "10.1007/978-1-4939-2864-4_172",
+    "algorithm_attribution": "Hypergraph incidence graph reduction to a vertex-colored bipartite graph; canonical IDs and output ordering are local profile rules",
+    "implementation_status": "bounded clean-room representation-transform benchmark; algorithm ideas only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,m,(size,vertex_ids...)*m]",
+    "vertex_count_range": [1, 8],
+    "hyperedge_count_range": [0, 12],
+    "maximum_valid_length": 110,
+    "maximum_parseable_length": 111,
+    "hyperedges_indexed_in_input_order": true,
+    "equal_hyperedges_remain_distinct": true,
+    "empty_hyperedges_allowed": true,
+    "repeated_vertex_within_hyperedge_invalid": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[N,K,colors[N],incidence_endpoint_pairs[2*K]]",
+    "vertex_id_order": "original vertices first, then hyperedge-nodes in input order",
+    "color_0": "original hypergraph vertices",
+    "color_1": "hyperedge-nodes",
+    "incidence_pair_order": "lexicographic (vertex_id,hyperedge_node_id)",
+    "maximum_bytes": 1712,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 4096, "meaning": "bounded incidence matrix and canonical graph output"},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {"id":"shared_vertices","input_values":[3,2,2,0,1,2,1,2],"input_length":8,"output_capacity":1712,"expected_result":120,"expected_output_hex":"0500000000000000 0400000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0000000000000000 0300000000000000 0100000000000000 0300000000000000 0100000000000000 0400000000000000 0200000000000000 0400000000000000"},
+    {"id":"disjoint_singletons","input_values":[2,2,1,0,1,1],"input_length":6,"output_capacity":1712,"expected_result":80,"expected_output_hex":"0400000000000000 0200000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0000000000000000 0200000000000000 0100000000000000 0300000000000000"},
+    {"id":"one_full_hyperedge","input_values":[4,1,4,0,1,2,3],"input_length":7,"output_capacity":1712,"expected_result":120,"expected_output_hex":"0500000000000000 0400000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0000000000000000 0400000000000000 0100000000000000 0400000000000000 0200000000000000 0400000000000000 0300000000000000 0400000000000000"},
+    {"id":"no_hyperedges","input_values":[3,0],"input_length":2,"output_capacity":40,"expected_result":40,"expected_output_hex":"0300000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"empty_hyperedge","input_values":[3,1,0],"input_length":3,"output_capacity":48,"expected_result":48,"expected_output_hex":"0400000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000"},
+    {"id":"maximum_nodes_empty_hyperedges","input_values":[8,12,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":14,"output_capacity":1712,"expected_result":176,"expected_output_hex":"1400000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000 0100000000000000"},
+    {"id":"equal_hyperedges_preserved","input_values":[3,2,2,0,1,2,0,1],"input_length":8,"output_capacity":1712,"expected_result":120,"expected_output_hex":"0500000000000000 0400000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0000000000000000 0300000000000000 0000000000000000 0400000000000000 0100000000000000 0300000000000000 0100000000000000 0400000000000000"},
+    {"id":"single_vertex_singleton","input_values":[1,1,1,0],"input_length":4,"output_capacity":1712,"expected_result":48,"expected_output_hex":"0200000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000"},
+    {"id":"repeated_vertex_invalid","input_values":[3,1,2,0,0],"input_length":5,"output_capacity":1712,"expected_result":-1,"expected_output_hex":""},
+    {"id":"out_of_domain_vertex","input_values":[3,1,1,3],"input_length":4,"output_capacity":1712,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_word","input_values":[2,1,1,0,99],"input_length":5,"output_capacity":1712,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_vertex_count","input_values":[0,0],"input_length":2,"output_capacity":1712,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":1712,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[1,1,1,0],"input_length":4,"output_capacity":48,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short_output","input_values":[1,1,1,0],"input_length":4,"output_capacity":47,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short_empty_output","input_values":[3,0],"input_length":2,"output_capacity":39,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

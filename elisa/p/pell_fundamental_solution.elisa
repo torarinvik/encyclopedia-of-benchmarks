@@ -1,0 +1,41 @@
+def pell_fundamental_solution_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+
+    d_value: i64 = input[0]
+    if d_value < 2 or d_value > 31:
+        return -1
+
+    a0: mutable i64 = 1
+    while (a0 + 1) * (a0 + 1) <= d_value:
+        a0 <- a0 + 1
+    if a0 * a0 == d_value:
+        return -1
+
+    m: mutable i64 = 0
+    denominator: mutable i64 = 1
+    coefficient: mutable i64 = a0
+    p_previous_previous: mutable i64 = 0
+    p_previous: mutable i64 = 1
+    q_previous_previous: mutable i64 = 1
+    q_previous: mutable i64 = 0
+
+    while true:
+        p: i64 = coefficient * p_previous + p_previous_previous
+        q: i64 = coefficient * q_previous + q_previous_previous
+        if p * p - d_value * q * q == 1:
+            return p * 4294967296 + q
+
+        p_previous_previous <- p_previous
+        p_previous <- p
+        q_previous_previous <- q_previous
+        q_previous <- q
+
+        next_m: i64 = denominator * coefficient - m
+        next_denominator: i64 = (d_value - next_m * next_m) / denominator
+        next_coefficient: i64 = (a0 + next_m) / next_denominator
+        m <- next_m
+        denominator <- next_denominator
+        coefficient <- next_coefficient
+
+export fn pell_fundamental_solution(input: i64&, length: usize) -> i64 = pell_fundamental_solution_impl

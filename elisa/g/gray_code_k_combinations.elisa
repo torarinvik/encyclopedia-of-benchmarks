@@ -1,0 +1,44 @@
+def gray_code_k_combinations_impl(values: view[i64], output: mutable view[u8],
+        output_is_null: bool, capacity: usize) -> i64:
+    if values.len() != 2: return -1
+    let n_value: i64 = values[0]
+    let k_value: i64 = values[1]
+    if n_value < 0 or n_value > 12 or k_value < 0 or k_value > n_value: return -1
+    let n: usize = n_value.usize()
+    let k: usize = k_value.usize()
+    let smaller: mutable usize = k
+    if smaller > n - k: smaller <- n - k
+    let count: mutable usize = 1
+    let factor: mutable usize = 1
+    while factor <= smaller:
+        count <- count * (n - smaller + factor) / factor
+        factor <- factor + 1
+    let required: usize = 2 + 2 * count
+    if output_is_null or capacity < required: return -2
+    let bytes: mutable view[u8] = output[0:required]
+    bytes[0] <- (count & 255).u8()
+    bytes[1] <- ((count >> 8) & 255).u8()
+
+    let limit: usize = 1.usize() << n
+    let emitted: mutable usize = 0
+    for index in 0..<limit:
+        let mask: usize = index ^ (index >> 1)
+        let population: mutable usize = 0
+        let remaining: mutable usize = mask
+        while remaining > 0:
+            remaining <- remaining & (remaining - 1)
+            population <- population + 1
+        if population == k:
+            bytes[2 + 2 * emitted] <- (mask & 255).u8()
+            bytes[3 + 2 * emitted] <- ((mask >> 8) & 255).u8()
+            emitted <- emitted + 1
+    count.i64()
+
+export fn gray_code_k_combinations(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length > 3: return -1
+    let values: view[i64] = input[0:length]
+    if output.is_null():
+        let empty: mutable u8[1] = zeroed
+        return gray_code_k_combinations_impl(values, empty[0:0], true, capacity)
+    gray_code_k_combinations_impl(values, output[0:capacity], false, capacity)

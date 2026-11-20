@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "erdos-gallai-graphical-sequence-v1",
+  "algorithm": "erdos_gallai_graphical_sequence",
+  "function_symbol": "erdos_gallai_graphical_sequence",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "Erdős–Gallai characterization of graphical sequences",
+    "url": "https://web.iitd.ac.in/~atripath/publications/constructive_Erdos-Gallai.pdf",
+    "clarification": "https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.graphical.is_graphical.html",
+    "reuse": "theorem and algorithm idea only; clean-room profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, degree_0, ..., degree_(n-1)]",
+    "vertex_count_range": [0, 256],
+    "degree_range": "0..n-1",
+    "maximum_valid_input_length": 257,
+    "maximum_parseable_input_length": 258,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "1 if the sequence is graphical, otherwise 0",
+    "invalid_result": -1
+  },
+  "workspace": {"bytes": 8192},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {"id":"empty-sequence","input_values":[0],"input_length":1,"expected_result":1},
+    {"id":"single-isolated-vertex","input_values":[1,0],"input_length":2,"expected_result":1},
+    {"id":"single-impossible-degree","input_values":[1,1],"input_length":2,"expected_result":-1},
+    {"id":"four-vertex-path","input_values":[4,1,2,2,1],"input_length":5,"expected_result":1},
+    {"id":"five-vertex-star","input_values":[5,4,1,1,1,1],"input_length":6,"expected_result":1},
+    {"id":"complete-four-vertex-graph","input_values":[4,3,3,3,3],"input_length":5,"expected_result":1},
+    {"id":"odd-degree-sum","input_values":[3,1,1,1],"input_length":4,"expected_result":0},
+    {"id":"even-sum-but-not-graphical","input_values":[3,2,2,0],"input_length":4,"expected_result":0},
+    {"id":"all-isolated","input_values":[6,0,0,0,0,0,0],"input_length":7,"expected_result":1},
+    {"id":"degree-equals-vertex-count","input_values":[3,3,1,1],"input_length":4,"expected_result":-1},
+    {"id":"trailing-value","input_values":[2,1,1,0],"input_length":4,"expected_result":-1},
+    {"id":"negative-vertex-count","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"above-vertex-bound","input_values":[257],"input_length":1,"expected_result":-1},
+    {"id":"maximum-all-isolated","input_values":[256,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":257,"expected_result":1}
+  ]
+}

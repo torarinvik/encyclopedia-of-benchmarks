@@ -43,20 +43,13 @@ fn usz group_hull(long* x, long* y, usz begin, usz count, usz* output) {
 }
 fn usz tangent(long* x, long* y, usz* hull, usz n, usz query) {
     if (n == 1) return hull[0];
-    if (n == 2) return turn(x, y, query, hull[0], hull[1]) > 0 ? hull[0] : hull[1];
-    bool initial_up = turn(x, y, query, hull[0], hull[1]) > 0;
-    usz lo = 0, hi = n;
+    usz lo = 0, hi = n-1;
     while (lo < hi) {
         usz mid = lo + (hi-lo)/2;
-        bool before = turn(x, y, query, hull[mid], hull[(mid+n-1)%n]) > 0;
-        bool after = turn(x, y, query, hull[mid], hull[(mid+1)%n]) > 0;
-        if (before && after) return hull[mid];
-        bool below = mid != 0 && turn(x, y, query, hull[mid], hull[0]) > 0;
-        bool above = mid != 0 && turn(x, y, query, hull[0], hull[mid]) > 0;
-        bool search_left = initial_up ? (after && below) : (after || above);
-        if (search_left) hi = mid; else lo = mid+1;
+        if (turn(x, y, query, hull[mid], hull[hi]) > 0) hi = mid;
+        else lo = mid+1;
     }
-    return 32;
+    return hull[lo];
 }
 fn long chan_output_sensitive_hull(long* input, usz length, char* output, usz capacity) @export("chan_output_sensitive_hull") {
     if (input == null || length < 7 || length > 66 || input[0] < 3 || input[0] > 32) return -1;

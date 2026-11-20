@@ -1,0 +1,69 @@
+{
+  "algorithm": "hash_map_hopscotch_hashing",
+  "function_symbol": "hash_map_hopscotch_hashing",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/h/hash_map_hopscotch_hashing.c",
+    "c3": "c3/h/hash_map_hopscotch_hashing.c3",
+    "cpp": "cpp/h/hash_map_hopscotch_hashing.cpp",
+    "elisa": "elisa/h/hash_map_hopscotch_hashing.elisa",
+    "mojo": "mojo/h/hash_map_hopscotch_hashing.mojo",
+    "nim": "nim/h/hash_map_hopscotch_hashing.nim",
+    "odin": "odin/h/hash_map_hopscotch_hashing.odin",
+    "rust": "rust/h/hash_map_hopscotch_hashing.rs",
+    "v": "v/h/hash_map_hopscotch_hashing.v",
+    "zig": "zig/h/hash_map_hopscotch_hashing.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py"
+  ],
+  "contract": {
+    "table_slots": 16,
+    "neighborhood_size": 4,
+    "max_operations": 32,
+    "maximum_input_words": 97,
+    "maximum_output_bytes": 64,
+    "workspace_bytes": 1024,
+    "max_key": 63,
+    "max_home_slot": 15
+  },
+  "sources": [
+    {
+      "role": "primary algorithm specification",
+      "title": "Hopscotch Hashing",
+      "authors": "Maurice Herlihy, Nir Shavit, Moran Tzafrir",
+      "venue": "Distributed Computing, DISC 2008, Section 2 and Figure 1",
+      "doi": "10.1007/978-3-540-87779-0_24",
+      "url": "https://people.csail.mit.edu/shanir/publications/disc2008_submission_98.pdf"
+    },
+    {
+      "role": "discovery index",
+      "title": "NIST DADS hashing entries",
+      "url": "https://xlinux.nist.gov/dads/termsType.html"
+    }
+  ],
+  "fixture_ids": [
+    "empty-table",
+    "direct-insert-hit-and-miss",
+    "backward-hole-relocation",
+    "circular-wraparound-relocation",
+    "duplicate-insert",
+    "home-bucket-neighborhood-limit",
+    "max-output-success",
+    "full-table-insertion-failure",
+    "max-output-one-byte-short",
+    "empty-output-one-byte-short",
+    "null-output",
+    "invalid-frame-precedes-null-output",
+    "reject-inconsistent-home",
+    "reject-trailing-word",
+    "null-input"
+  ]
+}

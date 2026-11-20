@@ -1,0 +1,34 @@
+const TABLE_SIZE: usize = 256
+const MAX_TEXT: usize = 64
+const MAX_WORDS: usize = 1 + TABLE_SIZE + MAX_TEXT
+
+def pearson_hash_impl(input: i64&, length: usize) -> i64:
+    if length < 1 + TABLE_SIZE or length > MAX_WORDS + 1:
+        return -1
+    declared: i64 = input[0]
+    if declared < 0 or declared > 64 or length != 257 + declared.usize():
+        return -1
+
+    table: mutable [u8; 256] = [0; 256]
+    used: mutable [bool; 256] = [false; 256]
+    for slot in 0..<TABLE_SIZE:
+        value: i64 = input[1 + slot]
+        if value < 0 or value > 255:
+            return -1
+        byte: usize = value.usize()
+        if used[byte]:
+            return -1
+        used[byte] <- true
+        table[slot] <- value.u8()
+
+    for offset in 0..<declared.usize():
+        value: i64 = input[257 + offset]
+        if value < 0 or value > 255:
+            return -1
+    state: mutable u8 = 0
+    for offset in 0..<declared.usize():
+        byte: u8 = input[257 + offset].u8()
+        state <- table[(state ^ byte).usize()]
+    state.i64()
+
+export fn pearson_hash(input: i64&, length: usize) -> i64 = pearson_hash_impl

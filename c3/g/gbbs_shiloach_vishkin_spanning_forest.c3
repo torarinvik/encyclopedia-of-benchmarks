@@ -4,7 +4,7 @@ const usz N = 12;
 const usz M = 24;
 const usz INPUT = 2 + 2 * M;
 
-usz find_root(usz* parent, usz vertex) {
+fn usz find_root(usz* parent, usz vertex) {
     while (parent[vertex] != vertex) {
         parent[vertex] = parent[parent[vertex]];
         vertex = parent[vertex];
@@ -12,7 +12,7 @@ usz find_root(usz* parent, usz vertex) {
     return vertex;
 }
 
-long gbbs_shiloach_vishkin_spanning_forest(long* input, usz length,
+fn long gbbs_shiloach_vishkin_spanning_forest(long* input, usz length,
         char* output, usz capacity) @export("gbbs_shiloach_vishkin_spanning_forest") {
     if (input == null || length < 2 || length > INPUT) return -1;
     long n64 = input[0], m64 = input[1];

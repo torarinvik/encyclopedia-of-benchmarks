@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 comptime M=15
@@ -31,9 +32,9 @@ fn nearest_neighbour_search(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:U
     for i in range(nodes):
         let b=kd_base(d,i)
         for k in range(d):if a[b+k]< -1000 or a[b+k]>1000:return -1
-    var seen=InlineArray[Bool,M]();var reached=0
+    var seen=InlineArray[Bool,M](fill=False);var reached=0
     if not nn_validate(a,d,nodes,0,seen,reached) or reached!=nodes:return -1
-    var best=InlineArray[Int64,3]();var bestd:Int64=9223372036854775807;var visited:Int64=0
+    var best=InlineArray[Int64,3](fill=0);var bestd:Int64=9223372036854775807;var visited:Int64=0
     nn_search(a,d,0,0,q,best,bestd,visited)
     if o==UnsafePointer[UInt8,MutAnyOrigin]() or cap<48:return -2
     var result=InlineArray[Int64,6]();result[0]=d0;result[1]=best[0];result[2]=best[1];result[3]=best[2];result[4]=bestd;result[5]=visited

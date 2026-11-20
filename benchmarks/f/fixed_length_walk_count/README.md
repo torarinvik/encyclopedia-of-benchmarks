@@ -24,5 +24,8 @@ is used solely for the mathematical idea; no source prose, code or examples
 are copied. Two independently organized reference drafts and drafts in all ten
 languages are uncompiled and unrun. Elisa uses a bounded view after its ABI
 guard. A workload, source inventory checker, rights note, and scalar runner and
-verifier integration are drafted; none has been executed. The verifier source
-specifies short-walk reference comparisons and complete-graph closed forms.
+verifier integration are drafted; none has been executed. Read-only review
+found all ten ports consistent on row-vector selected-power multiplication,
+modular matrix squaring, zero-edge behavior, and accumulator bounds. The
+verifier source specifies short-walk reference comparisons and complete-graph
+closed forms.

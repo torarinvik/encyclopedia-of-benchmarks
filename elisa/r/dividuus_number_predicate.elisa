@@ -1,0 +1,50 @@
+const DV_MAX_N: i64 = 100000
+const DV_MAX_PARSEABLE_LENGTH: usize = 2
+
+def dv_digit_sum(value_arg: i64) -> i64:
+    value: mutable i64 = value_arg
+    total: mutable i64 = 0
+    while value > 0:
+        total <- total + value % 10
+        value <- value / 10
+    total
+
+def dv_digit_product(value_arg: i64) -> i64:
+    value: mutable i64 = value_arg
+    product: mutable i64 = 1
+    while value > 0:
+        product <- product * (value % 10)
+        value <- value / 10
+    product
+
+def dv_digital_root(value_arg: i64) -> i64:
+    value: mutable i64 = value_arg
+    while value >= 10:
+        value <- dv_digit_sum(value)
+    value
+
+def dv_multiplicative_root(value_arg: i64) -> i64:
+    value: mutable i64 = value_arg
+    while value >= 10:
+        value <- dv_digit_product(value)
+    value
+
+def dv_is_dividuus(n: i64) -> bool:
+    sum: i64 = dv_digit_sum(n)
+    product: i64 = dv_digit_product(n)
+    root: i64 = dv_digital_root(n)
+    mroot: i64 = dv_multiplicative_root(n)
+    if sum == 0 or product == 0 or root == 0 or mroot == 0: return false
+    n % sum == 0 and n % product == 0 and n % root == 0 and n % mroot == 0
+
+def dv_impl(input: view[i64]) -> i64:
+    if input.length != 1: return -1
+    n: i64 = input[0]
+    if n < 1 or n > DV_MAX_N: return -1
+    if dv_is_dividuus(n): return 1
+    0
+
+export fn dividuus_number_predicate(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > DV_MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:input_length]
+    dv_impl(input_view)

@@ -1,7 +1,7 @@
 module radio_network_decay_phase;
 const usz MAX_N=8;const usz MAX_K=8;const usz MAX_INPUT=75;
 fn void put64(char *out,usz offset,long value){ulong bits=(ulong)value;for(usz b=0;b<8;b+=1){out[offset+b]=(char)(bits&255);bits>>=8;}}
-long radio_network_decay_phase(long *input,usz length,char *output,usz capacity) @export("radio_network_decay_phase"){
+fn long radio_network_decay_phase(long *input,usz length,char *output,usz capacity) @export("radio_network_decay_phase"){
     if(input==null||length<3||length>MAX_INPUT)return -1;
     long n64=input[0],k64=input[1],initial=input[2];
     if(n64<2||n64>8||k64<1||k64>8||length!=3+(usz)n64+(usz)n64*(usz)k64)return -1;

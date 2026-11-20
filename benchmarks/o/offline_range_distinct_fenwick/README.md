@@ -30,4 +30,9 @@ queries over distinct values. Nothing has been compiled or run.
 The [Library Checker task](https://github.com/yosupo06/library-checker-problems/blob/master/data_structure/static_range_count_distinct/task.md)
 identifies the operation. The [AtCoder editorial](https://atcoder.jp/contests/awc0122/editorial/22807?lang=ja)
 describes the sweep. Only algorithmic ideas are used; the contract, code, and
-eventual fixtures are independently authored.
+fixtures are independently authored. Static review of the C draft checked that
+right-endpoint buckets retain the original query index for weighting, including
+empty intervals at endpoint zero. Static review of the remaining language drafts
+also checked input bounds, marker replacement, endpoint buckets, and weighted
+query indices. The repeated-value workload crosses changing left boundaries to
+exercise removal of old markers. Compilation and execution remain outstanding.

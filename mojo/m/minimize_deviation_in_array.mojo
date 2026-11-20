@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn mda_push(mut h:InlineArray[Int64,64],mut size:Int,x:Int64):

@@ -1,0 +1,3 @@
+# Rights and provenance
+
+This package's code, benchmark contract, workload, references, and documentation were written independently. The [Algorithm Archive Approximate Counting chapter](https://www.algorithm-archive.org/contents/approximate_counting/approximate_counting.html) was consulted for the generalized Morris equations and its `a=1/2` parameter example. The Archive states that its example code is MIT licensed and its chapter text is CC BY-SA 4.0; neither code nor prose is reproduced here. The historical source is Robert Morris, [“Counting Large Numbers of Events in Small Registers”](https://doi.org/10.1145/359619.359627). No external code, prose, tests, or fixtures were copied.

@@ -1,0 +1,145 @@
+# Bounded recursive minimal triangulation using component-neighborhood saturation.
+const FMT_N: usize = 8
+const FMT_M: usize = 28
+const FMT_INPUT: usize = 59
+
+def fmt_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def fmt_run(vertices: u16, graph: view[u16]) -> u64:
+    complete: mutable bool = true
+    u: mutable usize = 0
+    while u < FMT_N:
+        if ((vertices >> u) & 1) != 0:
+            others: u16 = vertices & ~(1.u16 << u)
+            if (graph[u] & others) != others: complete <- false
+        u <- u + 1
+    if complete: return 0
+    pivot: mutable usize = 0
+    while pivot < FMT_N:
+        if ((vertices >> pivot) & 1) != 0:
+            others: u16 = vertices & ~(1.u16 << pivot)
+            if (graph[pivot] & others) != others: break
+        pivot <- pivot + 1
+    a: u16 = (1.u16 << pivot) | (graph[pivot] & vertices)
+    unseen: mutable u16 = vertices & ~a
+    components: mutable u16[FMT_N] = zeroed
+    closures: mutable u16[FMT_N] = zeroed
+    count: mutable usize = 0
+    while unseen != 0:
+        seed: mutable usize = 0
+        while ((unseen >> seed) & 1) == 0: seed <- seed + 1
+        comp: mutable u16 = 1.u16 << seed
+        unseen <- unseen & ~comp
+        frontier: mutable u16 = comp
+        while frontier != 0:
+            u <- 0
+            while ((frontier >> u) & 1) == 0: u <- u + 1
+            frontier <- frontier & ~(1.u16 << u)
+            added: u16 = graph[u] & unseen
+            comp <- comp | added
+            frontier <- frontier | added
+            unseen <- unseen & ~added
+        components[count] <- comp
+        count <- count + 1
+    saturated: mutable u16[FMT_N] = zeroed
+    u <- 0
+    while u < FMT_N:
+        saturated[u] <- graph[u]
+        u <- u + 1
+    result: mutable u64 = 0
+    ci: mutable usize = 0
+    while ci < count:
+        comp: u16 = components[ci]
+        boundary: mutable u16 = 0
+        u <- 0
+        while u < FMT_N:
+            if ((comp >> u) & 1) != 0: boundary <- boundary | (graph[u] & vertices & ~comp)
+            u <- u + 1
+        closures[ci] <- comp | boundary
+        u <- 0
+        while u < FMT_N:
+            if ((boundary >> u) & 1) != 0:
+                v: mutable usize = u + 1
+                while v < FMT_N:
+                    if ((boundary >> v) & 1) != 0 and ((saturated[u] >> v) & 1) == 0:
+                        saturated[u] <- saturated[u] | (1.u16 << v)
+                        saturated[v] <- saturated[v] | (1.u16 << u)
+                        result <- result | (1.u64 << (u * FMT_N + v))
+                    v <- v + 1
+            u <- u + 1
+        ci <- ci + 1
+    result <- result | fmt_run(a, saturated[0:FMT_N])
+    ci <- 0
+    while ci < count:
+        result <- result | fmt_run(closures[ci], saturated[0:FMT_N])
+        ci <- ci + 1
+    result
+
+def fmt_solve(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > FMT_INPUT: return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > FMT_N.i64() or m64 < 0 or m64 > FMT_M.i64() or length != 2 + 2 * m64.usize(): return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    graph: mutable u16[FMT_N] = zeroed
+    original: mutable u64 = 0
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < m:
+        u64: i64 = input[2 + 2 * edge]
+        v64: i64 = input[3 + 2 * edge]
+        if u64 < 0 or v64 <= u64 or v64 >= n64 or u64 < previous_u or (u64 == previous_u and v64 <= previous_v): return -1
+        previous_u <- u64
+        previous_v <- v64
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        graph[u] <- graph[u] | (1.u16 << v)
+        graph[v] <- graph[v] | (1.u16 << u)
+        original <- original | (1.u64 << (u * FMT_N + v))
+        edge <- edge + 1
+    fill: u64 = fmt_run(((1.u16 << n) - 1), graph[0:FMT_N]) & ~original
+    fill.i64()
+
+@export("fast_minimal_triangulation")
+fn fast_minimal_triangulation(input_ptr: UnsafePointer[Int64, ImmutAnyOrigin],
+    length: c_size_t, output_ptr: UnsafePointer[UInt8, MutAnyOrigin], capacity: c_size_t) abi("C") -> Int64:
+    if input_ptr == UnsafePointer[Int64, ImmutAnyOrigin]() or length < 2 or length > FMT_INPUT: return -1
+    input: view[i64] = input_ptr[0:length]
+    fill_signed: i64 = fmt_solve(input)
+    if fill_signed < 0: return -1
+    fill: u64 = fill_signed.u64()
+    n: usize = input[0].usize()
+    count: mutable usize = 0
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = u + 1
+        while v < n:
+            if ((fill >> (u * FMT_N + v)) & 1) != 0: count <- count + 1
+            v <- v + 1
+        u <- u + 1
+    bytes: usize = 8 * (1 + 2 * count)
+    if output_ptr == UnsafePointer[UInt8, MutAnyOrigin]() or capacity < bytes: return -2
+    output: mutable view[u8] = output_ptr[0:bytes]
+    fmt_store(output, 0, count.i64())
+    index: mutable usize = 1
+    u <- 0
+    while u < n:
+        v <- u + 1
+        while v < n:
+            if ((fill >> (u * FMT_N + v)) & 1) != 0:
+                fmt_store(output, 8 * index, u.i64())
+                index <- index + 1
+                fmt_store(output, 8 * index, v.i64())
+                index <- index + 1
+            v <- v + 1
+        u <- u + 1
+    bytes.i64()

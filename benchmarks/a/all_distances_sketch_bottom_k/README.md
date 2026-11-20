@@ -38,6 +38,9 @@ Fixtures are in [`workload.json`](workload.json). The primary oracle is
 [`all_distances_sketch_bottom_k_oracle.py`](../all_distances_sketch_bottom_k_oracle.py);
 the independent verifier is
 [`all_distances_sketch_bottom_k_verifier_oracle.py`](../all_distances_sketch_bottom_k_verifier_oracle.py).
+Verifier source also specifies full-size complete and nearly complete graphs,
+including ascending and descending rank permutations at k=1. These probes
+have not been executed.
 
 Language ports: `c/a/all_distances_sketch_bottom_k.c`,
 `c3/a/all_distances_sketch_bottom_k.c3`,

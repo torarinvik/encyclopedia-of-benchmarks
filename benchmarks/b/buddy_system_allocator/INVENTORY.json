@@ -1,0 +1,65 @@
+{
+  "algorithm": "buddy_system_allocator",
+  "function_symbol": "buddy_system_allocator",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/b/buddy_system_allocator.c",
+    "c3": "c3/b/buddy_system_allocator.c3",
+    "cpp": "cpp/b/buddy_system_allocator.cpp",
+    "elisa": "elisa/b/buddy_system_allocator.elisa",
+    "mojo": "mojo/b/buddy_system_allocator.mojo",
+    "nim": "nim/b/buddy_system_allocator.nim",
+    "odin": "odin/b/buddy_system_allocator.odin",
+    "rust": "rust/b/buddy_system_allocator.rs",
+    "v": "v/b/buddy_system_allocator.v",
+    "zig": "zig/b/buddy_system_allocator.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "contract": {
+    "arena_units": 256,
+    "maximum_operations": 64,
+    "maximum_ids": 32,
+    "maximum_input_words": 194,
+    "maximum_output_bytes": 5640,
+    "workspace_bytes": 16384,
+    "maximum_free_blocks": 256,
+    "operation_record_words": 3
+  },
+  "sources": [
+    {
+      "role": "algorithm discovery and terminology",
+      "title": "buddy system",
+      "author": "Paul E. Black",
+      "venue": "NIST Dictionary of Algorithms and Data Structures",
+      "url": "https://xlinux.nist.gov/dads/HTML/buddysystem.html"
+    },
+    {
+      "role": "algorithm behavior cross-check",
+      "title": "Hardware Support for Fast and Bounded-Time Storage Allocation",
+      "authors": "Steven M. Donahue, Matthew P. Hampton, Ron K. Cytron, Mark Franklin, Krishna Kavi",
+      "section": "3.1",
+      "url": "https://engineering.unt.edu/cse/research/labs/csrl/files/wmpi02.pdf"
+    }
+  ],
+  "fixture_ids": [
+    "empty-trace-initial-arena",
+    "round-up-and-recursive-split",
+    "free-coalesces-to-arena",
+    "exhausted-arena-allocation-fails",
+    "invalid-free-precedes-capacity",
+    "trailing-word",
+    "null-output",
+    "one-byte-short-output",
+    "null-input"
+  ]
+}

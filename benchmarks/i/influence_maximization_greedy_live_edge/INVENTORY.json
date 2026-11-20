@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "algorithm": "influence_maximization_greedy_live_edge",
+  "function_symbol": "influence_maximization_greedy_live_edge",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/i/influence_maximization_greedy_live_edge.c",
+    "c3": "c3/i/influence_maximization_greedy_live_edge.c3",
+    "cpp": "cpp/i/influence_maximization_greedy_live_edge.cpp",
+    "elisa": "elisa/i/influence_maximization_greedy_live_edge.elisa",
+    "mojo": "mojo/i/influence_maximization_greedy_live_edge.mojo",
+    "nim": "nim/i/influence_maximization_greedy_live_edge.nim",
+    "odin": "odin/i/influence_maximization_greedy_live_edge.odin",
+    "rust": "rust/i/influence_maximization_greedy_live_edge.rs",
+    "v": "v/i/influence_maximization_greedy_live_edge.v",
+    "zig": "zig/i/influence_maximization_greedy_live_edge.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py"
+  ],
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "source": {
+    "title": "Influence and Profit",
+    "doi": "10.1007/978-1-4939-2864-4_624",
+    "section": "Independent Cascade and Linear Threshold Models; Problem 1 (InfMax); Algorithm 1"
+  },
+  "contract": {
+    "input_layout": "[n,m,k,world_count,(u,v,live_world_mask)*m]",
+    "maximum_valid_input_words": 76,
+    "maximum_parseable_input_words": 77,
+    "maximum_output_bytes": 136,
+    "workspace_bytes": 4096,
+    "tie_rule": "Equal marginal sums choose the smallest vertex ID."
+  }
+}

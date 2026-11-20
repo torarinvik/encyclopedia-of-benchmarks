@@ -32,6 +32,7 @@ Build an implementation and its ABI checker with:
 | C3 | `c3/v/veb_tree.c3` |
 | C++ | `cpp/v/veb_tree.cpp` |
 | Elisa | `elisa/v/veb_tree.elisa` |
+| Mojo | `mojo/v/veb_tree.mojo` |
 | Nim | `nim/v/veb_tree.nim` |
 | Odin | `odin/v/veb_tree.odin` |
 | Rust | `rust/v/veb_tree.rs` |

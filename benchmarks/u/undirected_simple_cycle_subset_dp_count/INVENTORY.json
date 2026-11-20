@@ -1,0 +1,37 @@
+{
+  "algorithm": "undirected_simple_cycle_subset_dp_count",
+  "function_symbol": "undirected_simple_cycle_subset_dp_count",
+  "abi": "i64_array_scalar",
+  "source": {
+    "title": "OI Wiki ring counting: ordinary simple cycles",
+    "url": "https://oi-wiki.org/graph/rings-count/",
+    "license_note": "OI Wiki CC BY-SA 4.0 with SATA attribution; method context only."
+  },
+  "contract": {
+    "maximum_valid_input_words": 184,
+    "maximum_parseable_input_words": 185,
+    "workspace_bytes": 2097152,
+    "maximum_vertices": 14,
+    "maximum_edges": 91,
+    "cycle_lengths": "all lengths from 3 through n",
+    "undirected_orientation_counted_once": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "languages": {
+    "c": "c/u/undirected_simple_cycle_subset_dp_count.c",
+    "c3": "c3/u/undirected_simple_cycle_subset_dp_count.c3",
+    "cpp": "cpp/u/undirected_simple_cycle_subset_dp_count.cpp",
+    "elisa": "elisa/u/undirected_simple_cycle_subset_dp_count.elisa",
+    "mojo": "mojo/u/undirected_simple_cycle_subset_dp_count.mojo",
+    "nim": "nim/u/undirected_simple_cycle_subset_dp_count.nim",
+    "odin": "odin/u/undirected_simple_cycle_subset_dp_count.odin",
+    "rust": "rust/u/undirected_simple_cycle_subset_dp_count.rs",
+    "v": "v/u/undirected_simple_cycle_subset_dp_count.v",
+    "zig": "zig/u/undirected_simple_cycle_subset_dp_count.zig"
+  }
+}

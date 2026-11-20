@@ -3,15 +3,15 @@ module convex_hull_quickhull;
 const usz MAX_POINTS = 1024;
 struct Point { long x; long y; usz id; }
 
-bool before(Point* a, Point* b) {
+fn bool before(Point* a, Point* b) {
     if (a.x != b.x) return a.x < b.x;
     if (a.y != b.y) return a.y < b.y;
     return a.id < b.id;
 }
-long cross(Point* a, Point* b, Point* c) {
+fn long cross(Point* a, Point* b, Point* c) {
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
-void sort_points(Point* points, Point* scratch, usz begin, usz end) {
+fn void sort_points(Point* points, Point* scratch, usz begin, usz end) {
     if (end - begin < 2) return;
     usz middle = begin + (end - begin) / 2;
     sort_points(points, scratch, begin, middle);
@@ -23,7 +23,7 @@ void sort_points(Point* points, Point* scratch, usz begin, usz end) {
     while (right < end) scratch[out++] = points[right++];
     for (usz i = begin; i < end; i++) points[i] = scratch[i];
 }
-void quick_hull(Point* points, usz count, usz left, usz right, bool* on_hull) {
+fn void quick_hull(Point* points, usz count, usz left, usz right, bool* on_hull) {
     usz farthest = MAX_POINTS;
     long greatest_area = 0;
     for (usz i = 0; i < count; i++) {
@@ -40,7 +40,8 @@ fn long convex_hull_quickhull(long* values, usz length, char* output, usz output
     @export("convex_hull_quickhull") {
     if (length > 2 * MAX_POINTS || length % 2 != 0 || (length != 0 && values == null)) return -1;
     usz input_count = length / 2;
-    Point points[MAX_POINTS], scratch[MAX_POINTS];
+    Point[MAX_POINTS] points;
+    Point[MAX_POINTS] scratch;
     for (usz i = 0; i < input_count; i++) {
         long x = values[2 * i], y = values[2 * i + 1];
         if (x < -1000000000 || x > 1000000000 || y < -1000000000 || y > 1000000000) return -1;
@@ -53,7 +54,7 @@ fn long convex_hull_quickhull(long* values, usz length, char* output, usz output
         if (count == 0 || points[count - 1].x != points[i].x || points[count - 1].y != points[i].y)
             points[count++] = points[i];
     }
-    bool on_hull[MAX_POINTS];
+    bool[MAX_POINTS] on_hull;
     for (usz i = 0; i < MAX_POINTS; i++) on_hull[i] = false;
     if (count == 1) on_hull[0] = true;
     else {

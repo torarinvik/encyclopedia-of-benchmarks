@@ -3,6 +3,1062 @@
 
 from __future__ import annotations
 
+from i.inverted_list_svs_binary_search.independent_oracle import (
+    expected_output as inverted_list_svs_binary_search_independent_oracle,
+)
+from i.inverted_list_svs_binary_search.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as INVERTED_LIST_SVS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as INVERTED_LIST_SVS_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as INVERTED_LIST_SVS_WORKSPACE_BYTES,
+)
+from i.inverted_list_svs_binary_search.check_inventory import (
+    static_issues as inverted_list_svs_static_issues,
+)
+from i.inverted_list_svs_binary_search.verify_workload import (
+    workload_issues as inverted_list_svs_workload_issues,
+)
+from i.interval_tree_point_stabbing.independent_oracle import (
+    expected_output as interval_tree_point_stabbing_independent_oracle,
+)
+from i.interval_tree_point_stabbing.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as INTERVAL_TREE_POINT_STABBING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as INTERVAL_TREE_POINT_STABBING_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as INTERVAL_TREE_POINT_STABBING_WORKSPACE_BYTES,
+)
+from i.interval_tree_point_stabbing.check_inventory import (
+    static_issues as interval_tree_point_stabbing_static_issues,
+)
+from i.interval_tree_point_stabbing.verify_workload import (
+    workload_issues as interval_tree_point_stabbing_workload_issues,
+)
+
+from m.minkowski_question_mark_rational.independent_oracle import (
+    expected_output as minkowski_question_mark_rational_independent_oracle,
+)
+from m.minkowski_question_mark_rational.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MINKOWSKI_QUESTION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MINKOWSKI_QUESTION_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MINKOWSKI_QUESTION_WORKSPACE_BYTES,
+)
+from m.minkowski_question_mark_rational.check_inventory import (
+    static_issues as minkowski_question_mark_static_issues,
+)
+from m.minkowski_question_mark_rational.verify_workload import (
+    workload_issues as minkowski_question_mark_workload_issues,
+)
+
+from s.snake_case_to_camel_pascal_case.independent_oracle import (
+    expected_output as snake_case_to_camel_pascal_case_independent_oracle,
+)
+from s.snake_case_to_camel_pascal_case.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SNAKE_CASE_TO_CAMEL_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SNAKE_CASE_TO_CAMEL_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SNAKE_CASE_TO_CAMEL_WORKSPACE_BYTES,
+)
+from s.snake_case_to_camel_pascal_case.check_inventory import (
+    static_issues as snake_case_to_camel_static_issues,
+)
+from s.snake_case_to_camel_pascal_case.verify_workload import (
+    workload_issues as snake_case_to_camel_workload_issues,
+)
+
+from c.cuckoo_filter_operation_trace.independent_oracle import (
+    expected_output as cuckoo_filter_operation_trace_independent_oracle,
+)
+from c.cuckoo_filter_operation_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_WORDS as CUCKOO_FILTER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CUCKOO_FILTER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CUCKOO_FILTER_WORKSPACE_BYTES,
+)
+from c.cuckoo_filter_operation_trace.check_inventory import (
+    static_issues as cuckoo_filter_operation_trace_static_issues,
+)
+from r.rank_maximal_matching_irving.independent_oracle import (
+    expected_output as rank_maximal_matching_irving_independent_oracle,
+)
+from r.rank_maximal_matching_irving.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RANK_MAXIMAL_MATCHING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RANK_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as RANK_MAXIMAL_MATCHING_WORKSPACE_BYTES,
+)
+from r.rank_maximal_matching_irving.check_inventory import (
+    static_issues as rank_maximal_matching_irving_static_issues,
+)
+from n.numbers_with_prime_divisor_count_not_two.independent_oracle import (
+    expected_output as numbers_with_prime_divisor_count_not_two_independent_oracle,
+)
+from n.numbers_with_prime_divisor_count_not_two.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PRIME_DIVISOR_COUNT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PRIME_DIVISOR_COUNT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as PRIME_DIVISOR_COUNT_WORKSPACE_BYTES,
+)
+from n.numbers_with_prime_divisor_count_not_two.check_inventory import (
+    static_issues as numbers_with_prime_divisor_count_not_two_static_issues,
+)
+from s.star_quadtree_fat_triangulation.independent_oracle import (
+    expected_output as star_quadtree_fat_triangulation_independent_oracle,
+)
+from s.star_quadtree_fat_triangulation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STAR_QUADTREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as STAR_QUADTREE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as STAR_QUADTREE_WORKSPACE_BYTES,
+)
+from s.star_quadtree_fat_triangulation.check_inventory import (
+    static_issues as star_quadtree_fat_triangulation_static_issues,
+)
+from t.two_left_hashing_operation_trace.independent_oracle import (
+    expected_output as two_left_hashing_operation_trace_independent_oracle,
+)
+from t.two_left_hashing_operation_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_WORDS as TWO_LEFT_HASHING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TWO_LEFT_HASHING_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as TWO_LEFT_HASHING_WORKSPACE_BYTES,
+)
+from t.two_left_hashing_operation_trace.check_inventory import (
+    static_issues as two_left_hashing_operation_trace_static_issues,
+)
+from b.bagwell_varray_growth_index.independent_oracle import (
+    expected_output as bagwell_varray_growth_index_independent_oracle,
+)
+from b.bagwell_varray_growth_index.primary_oracle import (
+    MAX_PARSEABLE_INPUT as BAGWELL_VARRAY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BAGWELL_VARRAY_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as BAGWELL_VARRAY_WORKSPACE_BYTES,
+)
+from b.bagwell_varray_growth_index.check_inventory import (
+    static_issues as bagwell_varray_growth_index_static_issues,
+)
+from b.bagwell_varray_growth_index.verify_workload import (
+    workload_issues as bagwell_varray_growth_index_workload_issues,
+)
+from b.bagwell_functional_hash_list.independent_oracle import (
+    expected_output as bagwell_functional_hash_list_independent_oracle,
+)
+from b.bagwell_functional_hash_list.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BAGWELL_HASH_LIST_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BAGWELL_HASH_LIST_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BAGWELL_HASH_LIST_WORKSPACE_BYTES,
+)
+from b.bagwell_functional_hash_list.check_inventory import (
+    static_issues as bagwell_functional_hash_list_static_issues,
+)
+from b.bagwell_functional_hash_list.verify_workload import (
+    workload_issues as bagwell_functional_hash_list_workload_issues,
+)
+from r.reverse_delete_mst.independent_oracle import (
+    expected_output as reverse_delete_mst_independent_oracle,
+)
+from r.reverse_delete_mst.primary_oracle import (
+    MAX_PARSEABLE_INPUT as REVERSE_DELETE_MST_MAX_INPUT_LENGTH,
+    OUTPUT_BYTES as REVERSE_DELETE_MST_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as REVERSE_DELETE_MST_WORKSPACE_BYTES,
+)
+from r.reverse_delete_mst.check_inventory import (
+    static_issues as reverse_delete_mst_static_issues,
+)
+from r.reverse_delete_mst.verify_workload import (
+    workload_issues as reverse_delete_mst_workload_issues,
+)
+from m.minimum_weight_cycle_floyd.independent_oracle import (
+    expected_output as minimum_weight_cycle_floyd_independent_oracle,
+)
+from m.minimum_weight_cycle_floyd.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_WEIGHT_CYCLE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MINIMUM_WEIGHT_CYCLE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as MINIMUM_WEIGHT_CYCLE_WORKSPACE_BYTES,
+)
+from m.minimum_weight_cycle_floyd.check_inventory import (
+    static_issues as minimum_weight_cycle_floyd_static_issues,
+)
+from m.minimum_weight_cycle_floyd.verify_workload import (
+    workload_issues as minimum_weight_cycle_floyd_workload_issues,
+)
+from k.k2_tree_compact_graph.independent_oracle import (
+    expected_output as k2_tree_compact_graph_independent_oracle,
+)
+from k.k2_tree_compact_graph.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as K2_TREE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as K2_TREE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as K2_TREE_WORKSPACE_BYTES,
+)
+from k.k2_tree_compact_graph.check_inventory import (
+    static_issues as k2_tree_compact_graph_static_issues,
+)
+from k.k2_tree_compact_graph.verify_workload import (
+    verify as k2_tree_compact_graph_workload_issues,
+)
+from k.k_quadtree_sampled_point_subdivision.independent_oracle import (
+    expected_output as k_quadtree_sampled_point_subdivision_independent_oracle,
+)
+from k.k_quadtree_sampled_point_subdivision.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as K_QUADTREE_SAMPLED_SUBDIVISION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as K_QUADTREE_SAMPLED_SUBDIVISION_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as K_QUADTREE_SAMPLED_SUBDIVISION_WORKSPACE_BYTES,
+)
+from k.k_quadtree_sampled_point_subdivision.check_inventory import (
+    static_issues as k_quadtree_sampled_point_subdivision_static_issues,
+)
+from k.k_quadtree_sampled_point_subdivision.verify_workload import (
+    workload_issues as k_quadtree_sampled_point_subdivision_workload_issues,
+)
+from k.k_quadtree_edge_distribution.independent_oracle import (
+    expected_output as k_quadtree_edge_distribution_independent_oracle,
+)
+from k.k_quadtree_edge_distribution.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as K_QUADTREE_EDGE_DISTRIBUTION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as K_QUADTREE_EDGE_DISTRIBUTION_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as K_QUADTREE_EDGE_DISTRIBUTION_WORKSPACE_BYTES,
+)
+from k.k_quadtree_edge_distribution.check_inventory import (
+    static_issues as k_quadtree_edge_distribution_static_issues,
+)
+from k.k_quadtree_edge_distribution.verify_workload import (
+    workload_issues as k_quadtree_edge_distribution_workload_issues,
+)
+from b.brownian_tree_diffusion_limited_aggregation.independent_oracle import (
+    expected_output as brownian_tree_diffusion_limited_aggregation_independent_oracle,
+)
+from b.brownian_tree_diffusion_limited_aggregation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BROWNIAN_TREE_DLA_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BROWNIAN_TREE_DLA_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BROWNIAN_TREE_DLA_WORKSPACE_BYTES,
+)
+from b.brownian_tree_diffusion_limited_aggregation.check_inventory import (
+    verify_static_inventory as brownian_tree_dla_static_issues,
+)
+from b.brownian_tree_diffusion_limited_aggregation.verify_workload import (
+    verify_workload as brownian_tree_dla_workload_issues,
+)
+from f.forest_fire_synchronous_stochastic_ca.independent_oracle import (
+    expected_output as forest_fire_synchronous_stochastic_ca_independent_oracle,
+)
+from f.forest_fire_synchronous_stochastic_ca.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FOREST_FIRE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FOREST_FIRE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as FOREST_FIRE_WORKSPACE_BYTES,
+)
+from f.forest_fire_synchronous_stochastic_ca.check_inventory import (
+    verify_static_inventory as forest_fire_static_issues,
+)
+from f.forest_fire_synchronous_stochastic_ca.verify_workload import (
+    verify_workload as forest_fire_workload_issues,
+)
+from f.farey_sequence_ordered_enumeration.independent_oracle import (
+    expected_output as farey_sequence_ordered_enumeration_independent_oracle,
+)
+from f.farey_sequence_ordered_enumeration.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FAREY_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FAREY_SEQUENCE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as FAREY_SEQUENCE_WORKSPACE_BYTES,
+)
+from f.farey_sequence_ordered_enumeration.check_inventory import verify_inventory as farey_sequence_inventory
+from f.farey_sequence_ordered_enumeration.verify_workload import verify_workload as farey_sequence_workload
+from t.tutte_matrix_randomized_perfect_matching.independent_oracle import (
+    expected_output as tutte_matrix_randomized_perfect_matching_independent_oracle,
+)
+from t.tutte_matrix_randomized_perfect_matching.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as TUTTE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TUTTE_MATCHING_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as TUTTE_MATCHING_WORKSPACE_BYTES,
+)
+from t.tutte_matrix_randomized_perfect_matching.check_inventory import (
+    static_issues as tutte_matrix_randomized_perfect_matching_static_issues,
+)
+from t.tutte_matrix_randomized_perfect_matching.verify_workload import (
+    workload_issues as tutte_matrix_randomized_perfect_matching_workload_issues,
+)
+from s.signed_permutation_overlap_forest_components.independent_oracle import (
+    expected_output as signed_permutation_overlap_forest_components_independent_oracle,
+)
+from s.signed_permutation_overlap_forest_components.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SIGNED_OVERLAP_FOREST_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SIGNED_OVERLAP_FOREST_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SIGNED_OVERLAP_FOREST_WORKSPACE_BYTES,
+)
+from s.signed_permutation_overlap_forest_components.check_inventory import (
+    static_issues as signed_permutation_overlap_forest_components_static_issues,
+)
+from s.signed_permutation_overlap_forest_components.verify_workload import (
+    workload_issues as signed_permutation_overlap_forest_components_workload_issues,
+)
+from r.recursive_backtracker_maze_generation.independent_oracle import (
+    expected_output as recursive_backtracker_maze_generation_independent_oracle,
+)
+from r.recursive_backtracker_maze_generation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RECURSIVE_BACKTRACKER_MAZE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RECURSIVE_BACKTRACKER_MAZE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as RECURSIVE_BACKTRACKER_MAZE_WORKSPACE_BYTES,
+)
+from r.recursive_backtracker_maze_generation.check_inventory import (
+    static_issues as recursive_backtracker_maze_generation_static_issues,
+)
+from r.recursive_backtracker_maze_generation.verify_workload import (
+    workload_issues as recursive_backtracker_maze_generation_workload_issues,
+)
+from c.chess960_scharnagl_position_unrank.independent_oracle import (
+    expected_output as chess960_scharnagl_position_unrank_independent_oracle,
+)
+from c.chess960_scharnagl_position_unrank.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CHESS960_UNRANK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CHESS960_UNRANK_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CHESS960_UNRANK_WORKSPACE_BYTES,
+)
+from c.chess960_scharnagl_position_unrank.check_inventory import (
+    static_issues as chess960_scharnagl_position_unrank_static_issues,
+)
+from c.chess960_scharnagl_position_unrank.verify_workload import (
+    workload_issues as chess960_scharnagl_position_unrank_workload_issues,
+)
+from p.parameterized_pattern_matching_kmp.independent_oracle import (
+    expected_output as parameterized_pattern_matching_kmp_independent_oracle,
+)
+from p.parameterized_pattern_matching_kmp.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PARAMETERIZED_KMP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PARAMETERIZED_KMP_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as PARAMETERIZED_KMP_WORKSPACE_BYTES,
+)
+from p.parameterized_pattern_matching_kmp.check_inventory import (
+    static_issues as parameterized_pattern_matching_kmp_static_issues,
+)
+from p.parameterized_pattern_matching_kmp.verify_workload import (
+    workload_issues as parameterized_pattern_matching_kmp_workload_issues,
+)
+from p.pade_approximant_series_coefficients.independent_oracle import (
+    expected_output as pade_approximant_series_coefficients_independent_oracle,
+)
+from p.pade_approximant_series_coefficients.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PADE_APPROXIMANT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PADE_APPROXIMANT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as PADE_APPROXIMANT_WORKSPACE_BYTES,
+)
+from p.pade_approximant_series_coefficients.check_inventory import (
+    static_issues as pade_approximant_series_coefficients_static_issues,
+)
+from p.pade_approximant_series_coefficients.verify_workload import (
+    workload_issues as pade_approximant_series_coefficients_workload_issues,
+)
+from m.myrvold_ruskey_permutation_unrank.independent_oracle import (
+    expected_output as myrvold_ruskey_permutation_unrank_independent_oracle,
+)
+from m.myrvold_ruskey_permutation_unrank.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MYRVOLD_RUSKEY_UNRANK_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MYRVOLD_RUSKEY_UNRANK_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MYRVOLD_RUSKEY_UNRANK_WORKSPACE_BYTES,
+)
+from m.myrvold_ruskey_permutation_unrank.check_inventory import (
+    static_issues as myrvold_ruskey_permutation_unrank_static_issues,
+)
+from m.myrvold_ruskey_permutation_unrank.verify_workload import (
+    workload_issues as myrvold_ruskey_permutation_unrank_workload_issues,
+)
+from b.base58check_encode.independent_oracle import (
+    expected_output as base58check_encode_independent_oracle,
+)
+from b.base58check_encode.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BASE58CHECK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BASE58CHECK_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BASE58CHECK_WORKSPACE_BYTES,
+)
+from b.base58check_encode.check_inventory import (
+    check_inventory as base58check_encode_check_inventory,
+)
+from b.base58check_encode.verify_workload import (
+    verify_workload as base58check_encode_verify_workload,
+)
+from a.aitken_delta_squared_sequence_transform.independent_oracle import (
+    expected_output as aitken_delta_squared_sequence_transform_independent_oracle,
+)
+from a.aitken_delta_squared_sequence_transform.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as AITKEN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as AITKEN_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as AITKEN_WORKSPACE_BYTES,
+)
+from a.aitken_delta_squared_sequence_transform.check_inventory import (
+    check_inventory as aitken_delta_squared_sequence_transform_check_inventory,
+)
+from a.aitken_delta_squared_sequence_transform.verify_workload import (
+    verify_workload as aitken_delta_squared_sequence_transform_verify_workload,
+)
+from e.euler_alternating_series_transform.independent_oracle import (
+    expected_output as euler_alternating_series_transform_independent_oracle,
+)
+from e.euler_alternating_series_transform.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as EULER_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as EULER_TRANSFORM_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as EULER_TRANSFORM_WORKSPACE_BYTES,
+)
+from e.euler_alternating_series_transform.check_inventory import (
+    check_inventory as euler_alternating_series_transform_check_inventory,
+)
+from e.euler_alternating_series_transform.verify_workload import (
+    verify_workload as euler_alternating_series_transform_verify_workload,
+)
+from l.levin_partial_sum_transform.independent_oracle import (
+    expected_output as levin_partial_sum_transform_independent_oracle,
+)
+from l.levin_partial_sum_transform.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LEVIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LEVIN_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as LEVIN_WORKSPACE_BYTES,
+)
+from l.levin_partial_sum_transform.check_inventory import (
+    check_inventory as levin_partial_sum_transform_check_inventory,
+)
+from l.levin_partial_sum_transform.verify_workload import (
+    verify_workload as levin_partial_sum_transform_verify_workload,
+)
+from s.set_puzzle_find_sets.independent_oracle import (
+    expected_output as set_puzzle_find_sets_independent_oracle,
+)
+from s.set_puzzle_find_sets.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SET_PUZZLE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SET_PUZZLE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SET_PUZZLE_WORKSPACE_BYTES,
+)
+from s.set_puzzle_find_sets.check_inventory import (
+    check_inventory as set_puzzle_find_sets_check_inventory,
+)
+from s.set_puzzle_find_sets.verify_workload import (
+    verify_workload as set_puzzle_find_sets_verify_workload,
+)
+from w.weniger_pochhammer_partial_sum_transform.independent_oracle import (
+    expected_output as weniger_pochhammer_partial_sum_transform_independent_oracle,
+)
+from w.weniger_pochhammer_partial_sum_transform.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as WENIGER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as WENIGER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as WENIGER_WORKSPACE_BYTES,
+)
+from w.weniger_pochhammer_partial_sum_transform.check_inventory import (
+    check_inventory as weniger_pochhammer_partial_sum_transform_check_inventory,
+)
+from w.weniger_pochhammer_partial_sum_transform.verify_workload import (
+    verify_workload as weniger_pochhammer_partial_sum_transform_verify_workload,
+)
+from ring_expander_closed_triangle_mesh_verifier_oracle import (
+    expected_output as ring_expander_closed_triangle_mesh_independent_oracle,
+)
+from ring_expander_closed_triangle_mesh_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RING_EXPANDER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RING_EXPANDER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as RING_EXPANDER_WORKSPACE_BYTES,
+)
+from r.ring_expander_closed_triangle_mesh.check_inventory import (
+    check_inventory as ring_expander_closed_triangle_mesh_check_inventory,
+)
+from r.ring_expander_closed_triangle_mesh.verify_workload import (
+    verify_workload as ring_expander_closed_triangle_mesh_verify_workload,
+)
+from s.stieltjes_quotient_difference_transform.independent_oracle import (
+    expected_output as stieltjes_quotient_difference_transform_independent_oracle,
+)
+from s.stieltjes_quotient_difference_transform.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STIELTJES_QD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as STIELTJES_QD_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as STIELTJES_QD_WORKSPACE_BYTES,
+)
+from s.stieltjes_quotient_difference_transform.check_inventory import (
+    check_inventory as stieltjes_quotient_difference_transform_check_inventory,
+)
+from s.stieltjes_quotient_difference_transform.verify_workload import (
+    workload_issues as stieltjes_quotient_difference_transform_workload_issues,
+)
+from c.continued_fraction_forward_series_recurrence.independent_oracle import (
+    expected_output as continued_fraction_forward_series_recurrence_independent_oracle,
+)
+from c.continued_fraction_forward_series_recurrence.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CONTINUED_FRACTION_FORWARD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CONTINUED_FRACTION_FORWARD_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CONTINUED_FRACTION_FORWARD_WORKSPACE_BYTES,
+)
+from c.continued_fraction_forward_series_recurrence.check_inventory import (
+    check_inventory as continued_fraction_forward_series_recurrence_check_inventory,
+)
+from c.continued_fraction_forward_series_recurrence.verify_workload import (
+    workload_issues as continued_fraction_forward_series_recurrence_workload_issues,
+)
+from s.subtractive_prng_bentley_seeded_sequence.independent_oracle import (
+    expected_output as subtractive_prng_bentley_seeded_sequence_independent_oracle,
+)
+from s.subtractive_prng_bentley_seeded_sequence.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BENTLEY_SUBTRACTIVE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BENTLEY_SUBTRACTIVE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BENTLEY_SUBTRACTIVE_WORKSPACE_BYTES,
+)
+from s.subtractive_prng_bentley_seeded_sequence.check_inventory import (
+    check_inventory as subtractive_prng_bentley_seeded_sequence_check_inventory,
+)
+from s.subtractive_prng_bentley_seeded_sequence.verify_workload import (
+    verify_workload as subtractive_prng_bentley_seeded_sequence_verify_workload,
+)
+from h.hilbert_curve_index_encode.independent_oracle import (
+    expected_output as hilbert_curve_index_encode_independent_oracle,
+)
+from h.hilbert_curve_index_encode.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HILBERT_INDEX_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as HILBERT_INDEX_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as HILBERT_INDEX_WORKSPACE_BYTES,
+)
+from h.hilbert_curve_index_encode.check_inventory import (
+    check_inventory as hilbert_curve_index_encode_check_inventory,
+)
+from h.hilbert_curve_index_encode.verify_workload import (
+    workload_issues as hilbert_curve_index_encode_workload_issues,
+)
+from b.bricks_falling_when_hit_reverse_dsu.independent_oracle import (
+    expected_output as bricks_falling_when_hit_reverse_dsu_independent_oracle,
+)
+from b.bricks_falling_when_hit_reverse_dsu.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BRICKS_FALL_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BRICKS_FALL_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BRICKS_FALL_WORKSPACE_BYTES,
+)
+from b.bricks_falling_when_hit_reverse_dsu.check_inventory import (
+    check_inventory as bricks_falling_when_hit_reverse_dsu_check_inventory,
+)
+from b.bricks_falling_when_hit_reverse_dsu.verify_workload import (
+    verify_workload as bricks_falling_when_hit_reverse_dsu_verify_workload,
+)
+from s.steed_continued_fraction_convergents.independent_oracle import (
+    expected_output as steed_continued_fraction_convergents_independent_oracle,
+)
+from s.steed_continued_fraction_convergents.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STEED_CF_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as STEED_CF_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as STEED_CF_WORKSPACE_BYTES,
+)
+from s.steed_continued_fraction_convergents.check_inventory import (
+    check_inventory as steed_continued_fraction_convergents_check_inventory,
+)
+from s.steed_continued_fraction_convergents.verify_workload import (
+    workload_issues as steed_continued_fraction_convergents_workload_issues,
+)
+from a.aho_build_rooted_triplet_tree.independent_oracle import (
+    expected_output as aho_build_rooted_triplet_tree_independent_oracle,
+)
+from a.aho_build_rooted_triplet_tree.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as AHO_BUILD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as AHO_BUILD_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as AHO_BUILD_WORKSPACE_BYTES,
+)
+from a.aho_build_rooted_triplet_tree.check_inventory import (
+    check_inventory as aho_build_rooted_triplet_tree_check_inventory,
+)
+from a.aho_build_rooted_triplet_tree.verify_workload import (
+    workload_issues as aho_build_rooted_triplet_tree_workload_issues,
+)
+from m.miller_backward_recurrence_normalization.independent_oracle import (
+    expected_output as miller_backward_recurrence_normalization_independent_oracle,
+)
+from m.miller_backward_recurrence_normalization.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MILLER_BACKWARD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MILLER_BACKWARD_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MILLER_BACKWARD_WORKSPACE_BYTES,
+)
+from m.miller_backward_recurrence_normalization.check_inventory import (
+    check_inventory as miller_backward_recurrence_normalization_check_inventory,
+)
+from m.miller_backward_recurrence_normalization.verify_workload import (
+    workload_issues as miller_backward_recurrence_normalization_workload_issues,
+)
+from r.random_3sat_cl_bucket_heuristic.independent_oracle import (
+    expected_output as random_3sat_cl_bucket_heuristic_independent_oracle,
+)
+from r.random_3sat_cl_bucket_heuristic.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as RANDOM_3SAT_CL_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RANDOM_3SAT_CL_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as RANDOM_3SAT_CL_WORKSPACE_BYTES,
+)
+from r.random_3sat_cl_bucket_heuristic.check_inventory import (
+    check_inventory as random_3sat_cl_bucket_heuristic_check_inventory,
+)
+from r.random_3sat_cl_bucket_heuristic.verify_workload import (
+    workload_issues as random_3sat_cl_bucket_heuristic_workload_issues,
+)
+from b.bairstow_quadratic_factor_iteration.independent_oracle import (
+    expected_output as bairstow_quadratic_factor_iteration_independent_oracle,
+)
+from b.bairstow_quadratic_factor_iteration.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BAIRSTOW_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BAIRSTOW_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BAIRSTOW_WORKSPACE_BYTES,
+)
+from b.bairstow_quadratic_factor_iteration.check_inventory import (
+    check_inventory as bairstow_quadratic_factor_iteration_check_inventory,
+)
+from b.bairstow_quadratic_factor_iteration.verify_workload import (
+    workload_issues as bairstow_quadratic_factor_iteration_workload_issues,
+)
+from p.punycode_codepoint_sequence_encode.independent_oracle import (
+    expected_output as punycode_codepoint_sequence_encode_independent_oracle,
+)
+from p.punycode_codepoint_sequence_encode.primary_oracle import (
+    MAX_PARSEABLE_INPUT_WORDS as PUNYCODE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PUNYCODE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as PUNYCODE_WORKSPACE_BYTES,
+)
+from p.punycode_codepoint_sequence_encode.check_inventory import (
+    static_issues as punycode_codepoint_sequence_encode_static_issues,
+)
+from p.punycode_codepoint_sequence_encode.verify_workload import (
+    workload_issues as punycode_codepoint_sequence_encode_workload_issues,
+)
+from l.lentz_continued_fraction_convergents.independent_oracle import (
+    expected_output as lentz_continued_fraction_convergents_independent_oracle,
+)
+from l.lentz_continued_fraction_convergents.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LENTZ_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LENTZ_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as LENTZ_WORKSPACE_BYTES,
+)
+from l.lentz_continued_fraction_convergents.check_inventory import (
+    check_inventory as lentz_continued_fraction_convergents_check_inventory,
+)
+from l.lentz_continued_fraction_convergents.verify_workload import (
+    workload_issues as lentz_continued_fraction_convergents_workload_issues,
+)
+from f.fornberg_finite_difference_weights.independent_oracle import (
+    expected_output as fornberg_finite_difference_weights_independent_oracle,
+)
+from f.fornberg_finite_difference_weights.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as FORNBERG_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as FORNBERG_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FORNBERG_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as FORNBERG_WORKSPACE_BYTES,
+)
+from f.fornberg_finite_difference_weights.check_inventory import (
+    static_issues as fornberg_finite_difference_weights_static_issues,
+)
+from f.fornberg_finite_difference_weights.verify_workload import (
+    workload_issues as fornberg_finite_difference_weights_workload_issues,
+)
+from f.triangle_mesh_faces_from_edge_graph.independent_oracle import (
+    expected_output as triangle_mesh_faces_from_edge_graph_independent_oracle,
+)
+from f.triangle_mesh_faces_from_edge_graph.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as TRIANGLE_MESH_FACES_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TRIANGLE_MESH_FACES_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as TRIANGLE_MESH_FACES_WORKSPACE_BYTES,
+)
+from f.triangle_mesh_faces_from_edge_graph.check_inventory import (
+    verify_static_inventory as triangle_mesh_faces_from_edge_graph_check_inventory,
+)
+from f.triangle_mesh_faces_from_edge_graph.verify_workload import (
+    verify_workload as triangle_mesh_faces_from_edge_graph_verify_workload,
+)
+from b.bondy_chvatal_hamiltonian_closure.independent_oracle import (
+    expected_output as bondy_chvatal_hamiltonian_closure_independent_oracle,
+)
+from b.bondy_chvatal_hamiltonian_closure.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BONDY_CHVATAL_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BONDY_CHVATAL_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BONDY_CHVATAL_WORKSPACE_BYTES,
+)
+from b.bondy_chvatal_hamiltonian_closure.check_inventory import (
+    verify_static_inventory as bondy_chvatal_hamiltonian_closure_check_inventory,
+)
+from b.bondy_chvatal_hamiltonian_closure.verify_workload import (
+    verify_workload as bondy_chvatal_hamiltonian_closure_verify_workload,
+)
+from h.hash_heap_priority_queue_trace.independent_oracle import (
+    expected_output as hash_heap_priority_queue_trace_independent_oracle,
+)
+from h.hash_heap_priority_queue_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as HASH_HEAP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as HASH_HEAP_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as HASH_HEAP_WORKSPACE_BYTES,
+)
+from h.hash_heap_priority_queue_trace.check_inventory import (
+    static_issues as hash_heap_priority_queue_trace_static_issues,
+)
+from h.hash_heap_priority_queue_trace.verify_workload import (
+    workload_issues as hash_heap_priority_queue_trace_workload_issues,
+)
+from s.steiner_tree_mehlhorn_voronoi_mst.independent_oracle import (
+    expected_output as steiner_tree_mehlhorn_voronoi_mst_independent_oracle,
+)
+from s.steiner_tree_mehlhorn_voronoi_mst.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MEHLHORN_STEINER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEHLHORN_STEINER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MEHLHORN_STEINER_WORKSPACE_BYTES,
+)
+from s.steiner_tree_mehlhorn_voronoi_mst.check_inventory import (
+    static_issues as steiner_tree_mehlhorn_voronoi_mst_static_issues,
+)
+from s.steiner_tree_mehlhorn_voronoi_mst.verify_workload import (
+    workload_issues as steiner_tree_mehlhorn_voronoi_mst_workload_issues,
+)
+from s.succinct_bp_pioneer_match_index.independent_oracle import (
+    expected_output as succinct_bp_pioneer_match_index_independent_oracle,
+)
+from s.succinct_bp_pioneer_match_index.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SUCCINCT_BP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SUCCINCT_BP_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SUCCINCT_BP_WORKSPACE_BYTES,
+)
+from s.succinct_bp_pioneer_match_index.check_inventory import (
+    static_issues as succinct_bp_pioneer_match_index_static_issues,
+)
+from s.succinct_bp_pioneer_match_index.verify_workload import (
+    verify_workload as succinct_bp_pioneer_match_index_verify_workload,
+)
+from q.quotient_filter_operation_trace.independent_oracle import (
+    expected_output as quotient_filter_operation_trace_independent_oracle,
+)
+from q.quotient_filter_operation_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as QUOTIENT_FILTER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as QUOTIENT_FILTER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as QUOTIENT_FILTER_WORKSPACE_BYTES,
+)
+from q.quotient_filter_operation_trace.check_inventory import (
+    check_inventory as quotient_filter_operation_trace_check_inventory,
+)
+from q.quotient_filter_operation_trace.verify_workload import (
+    verify_workload as quotient_filter_operation_trace_verify_workload,
+)
+from c.counting_bloom_filter_operation_trace.independent_oracle import (
+    expected_output as counting_bloom_filter_operation_trace_independent_oracle,
+)
+from c.counting_bloom_filter_operation_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as COUNTING_BLOOM_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as COUNTING_BLOOM_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as COUNTING_BLOOM_WORKSPACE_BYTES,
+)
+from c.counting_bloom_filter_operation_trace.check_inventory import (
+    check_inventory as counting_bloom_filter_operation_trace_check_inventory,
+)
+from c.counting_bloom_filter_operation_trace.verify_workload import (
+    verify_workload as counting_bloom_filter_operation_trace_verify_workload,
+)
+from w.weiler_atherton_polygon_intersection.independent_oracle import (
+    expected_output as weiler_atherton_polygon_intersection_independent_oracle,
+)
+from w.weiler_atherton_polygon_intersection.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as WEILER_ATHERTON_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as WEILER_ATHERTON_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as WEILER_ATHERTON_WORKSPACE_BYTES,
+)
+from w.weiler_atherton_polygon_intersection.check_inventory import (
+    verify_static_inventory as weiler_atherton_polygon_intersection_check_inventory,
+)
+from w.weiler_atherton_polygon_intersection.verify_workload import (
+    verify_workload as weiler_atherton_polygon_intersection_verify_workload,
+)
+from k.k_subset_colex_rank_unrank.independent_oracle import (
+    expected_output as k_subset_colex_rank_unrank_independent_oracle,
+)
+from k.k_subset_colex_rank_unrank.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as K_SUBSET_COLEX_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as K_SUBSET_COLEX_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as K_SUBSET_COLEX_WORKSPACE_BYTES,
+)
+from k.k_subset_colex_rank_unrank.check_inventory import (
+    check_inventory as k_subset_colex_rank_unrank_check_inventory,
+)
+from c.consistent_overhead_byte_stuffing.independent_oracle import (
+    expected_output as consistent_overhead_byte_stuffing_independent_oracle,
+)
+from c.consistent_overhead_byte_stuffing.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as COBS_MAX_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as COBS_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as COBS_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as COBS_WORKSPACE_BYTES,
+)
+from c.consistent_overhead_byte_stuffing.check_inventory import (
+    check_inventory as consistent_overhead_byte_stuffing_check_inventory,
+)
+from c.consistent_overhead_byte_stuffing.verify_workload import (
+    verify_workload as consistent_overhead_byte_stuffing_verify_workload,
+)
+from wulff_nilsen_logarithmic_distance_query_verifier_oracle import (
+    expected_output as wulff_nilsen_logarithmic_distance_query_independent_oracle,
+)
+from wulff_nilsen_logarithmic_distance_query_oracle import (
+    MAX_PARSEABLE_INPUT as WULFF_NILSEN_MAX_PARSEABLE_INPUT,
+    MAX_OUTPUT_BYTES as WULFF_NILSEN_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as WULFF_NILSEN_WORKSPACE_BYTES,
+)
+from a.all_pairs_directed_random_walk_hitting_times.independent_oracle import (
+    expected_output as all_pairs_directed_random_walk_hitting_times_independent_oracle,
+)
+from a.all_pairs_directed_random_walk_hitting_times.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ALL_PAIRS_RANDOM_WALK_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ALL_PAIRS_RANDOM_WALK_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as ALL_PAIRS_RANDOM_WALK_WORKSPACE_BYTES,
+)
+from a.all_pairs_directed_random_walk_hitting_times.check_inventory import (
+    static_issues as all_pairs_directed_random_walk_hitting_times_static_issues,
+)
+from a.all_pairs_directed_random_walk_hitting_times.verify_workload import (
+    workload_issues as all_pairs_directed_random_walk_hitting_times_workload_issues,
+)
+from v.vlist_persistent_sequence.independent_oracle import (
+    expected_output as vlist_persistent_sequence_independent_oracle,
+)
+from v.vlist_persistent_sequence.primary_oracle import (
+    MAX_PARSEABLE_INPUT as VLIST_PERSISTENT_SEQUENCE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VLIST_PERSISTENT_SEQUENCE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as VLIST_PERSISTENT_SEQUENCE_WORKSPACE_BYTES,
+)
+from v.vlist_persistent_sequence.check_inventory import (
+    static_issues as vlist_persistent_sequence_static_issues,
+)
+from v.vlist_persistent_sequence.verify_workload import (
+    workload_issues as vlist_persistent_sequence_workload_issues,
+)
+from z.zeckendorf_addition.independent_oracle import (
+    expected_output as zeckendorf_addition_independent_oracle,
+)
+from z.zeckendorf_addition.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ZECKENDORF_ADDITION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ZECKENDORF_ADDITION_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as ZECKENDORF_ADDITION_WORKSPACE_BYTES,
+)
+from z.zeckendorf_addition.check_inventory import (
+    static_issues as zeckendorf_addition_static_issues,
+)
+from z.zeckendorf_addition.verify_workload import (
+    verify as zeckendorf_addition_workload_issues,
+)
+from m.minimum_parenthesis_removal_bfs.check_inventory import (
+    static_issues as minimum_parenthesis_removal_bfs_static_issues,
+)
+from m.md4_digest.independent_oracle import (
+    expected_output as md4_digest_independent_oracle,
+)
+
+from r.rolling_hash_2d_rectangle_query.independent_oracle import (
+    expected_output as rolling_hash_2d_independent_oracle,
+)
+from a.aliquot_orbit_decomposition.independent_oracle import (
+    expected_output as aliquot_orbit_decomposition_independent_oracle,
+)
+from a.aliquot_orbit_decomposition.primary_oracle import (
+    WORKSPACE_BYTES as ALIQUOT_ORBIT_DECOMPOSITION_WORKSPACE_BYTES,
+)
+from a.aliquot_orbit_decomposition.check_inventory import (
+    static_issues as aliquot_orbit_decomposition_static_issues,
+)
+from s.symmetric_drawing_cyclic_wedge.independent_oracle import (
+    expected_output as symmetric_drawing_cyclic_wedge_independent_oracle,
+)
+from s.symmetric_drawing_cyclic_wedge.primary_oracle import (
+    WORKSPACE_BYTES as SYMMETRIC_DRAWING_CYCLIC_WEDGE_WORKSPACE_BYTES,
+)
+from s.symmetric_drawing_cyclic_wedge.check_inventory import (
+    static_issues as symmetric_drawing_cyclic_wedge_static_issues,
+)
+from r.rmq_cartesian_tree_fcb.independent_oracle import (
+    expected_output as rmq_cartesian_tree_fcb_independent_oracle,
+)
+from r.rmq_cartesian_tree_fcb.primary_oracle import (
+    WORKSPACE_BYTES as RMQ_CARTESIAN_TREE_FCB_WORKSPACE_BYTES,
+)
+from r.rmq_cartesian_tree_fcb.check_inventory import (
+    static_issues as rmq_cartesian_tree_fcb_static_issues,
+)
+from r.rolling_hash_2d_rectangle_query.primary_oracle import (
+    MAX_OUTPUT_BYTES as ROLLING_HASH_2D_VERIFIER_MAX_OUTPUT_BYTES,
+)
+from r.rolling_hash_2d_rectangle_query.verify_workload import (
+    verify_workload as verify_rolling_hash_2d_package,
+)
+from t.tree_center.independent_oracle import (
+    expected_output as tree_center_independent_oracle,
+)
+from t.tree_center.verify_workload import verify as verify_tree_center_package
+from t.tree_center_rerooting_dp.independent_oracle import (
+    expected_output as tree_center_rerooting_independent_oracle,
+)
+from t.tree_center_rerooting_dp.primary_oracle import (
+    MAX_INPUT_LENGTH as TREE_CENTER_REROOTING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TREE_CENTER_REROOTING_MAX_OUTPUT_BYTES,
+)
+from t.tree_center_rerooting_dp.verify_workload import (
+    verify as verify_tree_center_rerooting_package,
+)
+from b.batch_gcd_small_range_precomputed.independent_oracle import (
+    expected_output as batch_gcd_small_range_precomputed_independent_oracle,
+)
+from b.batch_gcd_small_range_precomputed.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BATCH_GCD_SMALL_RANGE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BATCH_GCD_SMALL_RANGE_VERIFIER_MAX_OUTPUT_BYTES,
+)
+from b.batch_gcd_small_range_precomputed.verify_workload import (
+    verify as verify_batch_gcd_small_range_precomputed_package,
+)
+from m.morris_approximate_counter_base_three.independent_oracle import (
+    expected_output as morris_approximate_counter_base_three_independent_oracle,
+)
+from m.morris_approximate_counter_base_three.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MORRIS_BASE_THREE_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MORRIS_BASE_THREE_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MORRIS_BASE_THREE_VERIFIER_WORKSPACE_BYTES,
+)
+from k.kosaraju_dense_bitset_scc.independent_oracle import (
+    expected_output as kosaraju_dense_bitset_scc_independent_oracle,
+)
+from k.kosaraju_dense_bitset_scc.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as KOSARAJU_DENSE_SCC_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as KOSARAJU_DENSE_SCC_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as KOSARAJU_DENSE_SCC_VERIFIER_WORKSPACE_BYTES,
+)
+from b.binary_divisibility_by_three_dfa.independent_oracle import (
+    expected_output as binary_divisibility_by_three_dfa_independent_oracle,
+)
+from b.binary_divisibility_by_three_dfa.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BINARY_DIV3_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BINARY_DIV3_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as BINARY_DIV3_VERIFIER_WORKSPACE_BYTES,
+)
+from b.binary_divisibility_by_three_dfa.check_inventory import (
+    static_issues as binary_divisibility_by_three_dfa_static_issues,
+)
+from b.binary_divisibility_by_three_dfa.verify_workload import (
+    workload_issues as binary_divisibility_by_three_dfa_workload_issues,
+)
+from schieber_vishkin_lca_independent_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SCHIEBER_VISHKIN_LCA_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SCHIEBER_VISHKIN_LCA_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as SCHIEBER_VISHKIN_LCA_VERIFIER_WORKSPACE_BYTES,
+    expected_output as schieber_vishkin_lca_independent_oracle,
+)
+from f.flood_fill.independent_oracle import (
+    expected_output as flood_fill_independent_oracle,
+)
+from f.flood_fill.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FLOOD_FILL_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FLOOD_FILL_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as FLOOD_FILL_VERIFIER_WORKSPACE_BYTES,
+)
+from f.flood_fill.check_inventory import static_issues as flood_fill_static_issues
+from f.flood_fill.verify_workload import workload_issues as flood_fill_workload_issues
+from f.flood_fill_breadth_first.independent_oracle import (
+    expected_output as flood_fill_breadth_first_independent_oracle,
+)
+from f.flood_fill_breadth_first.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FLOOD_FILL_BFS_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FLOOD_FILL_BFS_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as FLOOD_FILL_BFS_VERIFIER_WORKSPACE_BYTES,
+)
+from f.flood_fill_breadth_first.check_inventory import (
+    static_issues as flood_fill_breadth_first_static_issues,
+)
+from f.flood_fill_breadth_first.verify_workload import (
+    workload_issues as flood_fill_breadth_first_workload_issues,
+)
+from l.louds_ordered_tree_navigation.independent_oracle import (
+    expected_output as louds_ordered_tree_navigation_independent_oracle,
+)
+from l.louds_ordered_tree_navigation.check_inventory import (
+    static_issues as louds_ordered_tree_navigation_static_issues,
+)
+from b.bp_ordered_tree_navigation.independent_oracle import (
+    expected_output as bp_ordered_tree_navigation_independent_oracle,
+)
+from b.bp_ordered_tree_navigation.check_inventory import (
+    static_issues as bp_ordered_tree_navigation_static_issues,
+)
+from d.dfuds_ordered_tree_navigation.independent_oracle import (
+    expected_output as dfuds_ordered_tree_navigation_independent_oracle,
+)
+from d.dfuds_ordered_tree_navigation.check_inventory import (
+    static_issues as dfuds_ordered_tree_navigation_static_issues,
+)
+from c.canonical_order_maximal_plane_triangulation.independent_oracle import (
+    expected_output as canonical_order_maximal_plane_triangulation_independent_oracle,
+)
+from c.canonical_order_maximal_plane_triangulation.check_inventory import (
+    static_issues as canonical_order_maximal_plane_triangulation_static_issues,
+)
+from c.canonical_order_schnyder_realizer.independent_oracle import (
+    expected_output as canonical_order_schnyder_realizer_independent_oracle,
+)
+from c.canonical_order_schnyder_realizer.check_inventory import (
+    static_issues as canonical_order_schnyder_realizer_static_issues,
+)
+from p.polygon_area_centroid.independent_oracle import (
+    expected_output as polygon_area_centroid_independent_output,
+)
+from p.polygon_area_centroid.check_inventory import (
+    static_issues as polygon_area_centroid_static_issues,
+)
+from l.line_hull_intersection.independent_oracle import (
+    expected_output as line_hull_intersection_independent_output,
+)
+from l.line_hull_intersection.check_inventory import (
+    static_issues as line_hull_intersection_static_issues,
+)
+from p.polyhedron_volume.independent_oracle import (
+    expected_output as polyhedron_volume_independent_output,
+)
+from p.polyhedron_volume.check_inventory import (
+    static_issues as polyhedron_volume_static_issues,
+)
+from o.orthogonal_drawing_minimum_bends.independent_oracle import (
+    expected_output as orthogonal_drawing_minimum_bends_independent_output,
+)
+from o.orthogonal_drawing_minimum_bends.check_inventory import (
+    static_issues as orthogonal_drawing_minimum_bends_static_issues,
+)
+from h.havel_hakimi_graph_realization.independent_oracle import (
+    expected_output as havel_hakimi_graph_realization_independent_output,
+)
+from h.havel_hakimi_graph_realization.check_inventory import (
+    static_issues as havel_hakimi_graph_realization_static_issues,
+)
+from s.sqrt_tree_constant_time.independent_oracle import (
+    expected_output as sqrt_tree_constant_time_independent_output,
+    expected_result as sqrt_tree_constant_time_independent_result,
+)
+from s.sqrt_tree_constant_time.primary_oracle import (
+    MAX_OUTPUT_BYTES as SQRT_TREE_CONSTANT_TIME_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as SQRT_TREE_CONSTANT_TIME_VERIFIER_WORKSPACE_BYTES,
+)
+from s.sqrt_tree_constant_time.check_inventory import (
+    static_issues as sqrt_tree_constant_time_static_issues,
+)
+from s.suffix_array_inplace_readonly_integer.independent_oracle import (
+    expected_output as suffix_array_inplace_readonly_integer_independent_oracle,
+)
+from s.suffix_array_inplace_readonly_integer.verify_workload import (
+    verify_workload as verify_suffix_array_inplace_readonly_integer_package,
+)
+from s.suffix_array_blind_trie.primary_oracle import (
+    MAX_INPUT_LENGTH as SUFFIX_ARRAY_BLIND_TRIE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SUFFIX_ARRAY_BLIND_TRIE_MAX_OUTPUT_BYTES,
+    MAX_TEXT_LENGTH as SUFFIX_ARRAY_BLIND_TRIE_MAX_TEXT_LENGTH,
+    WORKSPACE_BYTES as SUFFIX_ARRAY_BLIND_TRIE_WORKSPACE_BYTES,
+    expected_output as suffix_array_blind_trie_primary_oracle,
+)
+from s.suffix_array_blind_trie.independent_oracle import (
+    expected_output as suffix_array_blind_trie_independent_oracle,
+)
+from s.suffix_array_blind_trie.verify_workload import (
+    verify_workload as verify_suffix_array_blind_trie_package,
+)
+from s.seven_sided_dice_from_five_sided_dice.independent_oracle import (
+    expected_output as seven_sided_dice_independent_oracle,
+)
+from s.seven_sided_dice_from_five_sided_dice.verify_workload import (
+    static_issues as seven_sided_dice_static_issues,
+)
+from p.pmr_edge_quadtree.independent_oracle import (
+    expected_output as pmr_edge_quadtree_independent_oracle,
+)
+from p.pmr_edge_quadtree.verify_workload import verify as verify_pmr_edge_quadtree_package
+from z.zhang_suen_thinning.primary_oracle import (
+    MAX_OUTPUT_BYTES as ZHANG_SUEN_THINNING_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as ZHANG_SUEN_THINNING_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as zhang_suen_thinning_primary_oracle,
+)
+from z.zhang_suen_thinning.independent_oracle import (
+    expected_output as zhang_suen_thinning_independent_oracle,
+)
+from z.zhang_suen_thinning.check_inventory import (
+    static_issues as zhang_suen_thinning_static_issues,
+)
+
 from q.quadratic_form_gf2_normal_form.abi_reference import expected as quadratic_form_gf2_oracle
 from b.benchmarkgame_nbody_oracle import expected_output as benchmarkgame_nbody_oracle
 from b.benchmarkgame_nbody_verifier_oracle import expected_output as benchmarkgame_nbody_independent_oracle
@@ -13,6 +1069,81 @@ from x.xor_leaf_tree_traversal.oracle import expected_output as xor_leaf_tree_tr
 from x.xor_leaf_tree_traversal.primary_oracle import expected_output as xor_leaf_tree_traversal_primary
 from kmp_slp_jump_output_oracle import expected_output as kmp_slp_jump_output_primary_oracle
 from extended_gs_general_stable_allocation_oracle import expected_output as extended_gs_primary_oracle
+from e.ecdsa_signature_verification.independent_oracle import (
+    expected_output as ecdsa_signature_verification_independent_reference,
+)
+from e.ecdsa_signature_verification.primary_oracle import (
+    MAX_INPUT_LENGTH as ECDSA_SIGNATURE_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ECDSA_SIGNATURE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as ECDSA_SIGNATURE_WORKSPACE_BYTES,
+)
+from e.ecdsa_signature_verification.check_inventory import (
+    static_issues as ecdsa_signature_verification_static_issues,
+)
+from e.ecdsa_signature_verification.verify_workload import (
+    workload_issues as ecdsa_signature_verification_workload_issues,
+)
+from b.brzozowski_dfa_to_regex.independent_oracle import (
+    language_equivalent as brzozowski_dfa_to_regex_language_equivalent,
+)
+from b.brzozowski_dfa_to_regex.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BRZOZOWSKI_REGEX_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BRZOZOWSKI_REGEX_MAX_VALID_INPUT_LENGTH,
+    MAX_REGEX_BYTES as BRZOZOWSKI_REGEX_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BRZOZOWSKI_REGEX_WORKSPACE_BYTES,
+    expected_output as brzozowski_dfa_to_regex_primary_oracle,
+)
+from b.brzozowski_dfa_to_regex.check_inventory import (
+    static_issues as brzozowski_dfa_to_regex_static_issues,
+)
+from b.brzozowski_dfa_to_regex.verify_workload import (
+    workload_issues as brzozowski_dfa_to_regex_workload_issues,
+)
+from m.multidimensional_newton_raphson.independent_oracle import (
+    expected_output as multidimensional_newton_raphson_independent_reference,
+)
+from m.multidimensional_newton_raphson.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MULTIDIMENSIONAL_NEWTON_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MULTIDIMENSIONAL_NEWTON_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MULTIDIMENSIONAL_NEWTON_WORKSPACE_BYTES,
+    expected_output as multidimensional_newton_raphson_primary_oracle,
+)
+from m.multidimensional_newton_raphson.check_inventory import (
+    static_issues as multidimensional_newton_raphson_static_issues,
+)
+from m.multidimensional_newton_raphson.verify_workload import (
+    workload_issues as multidimensional_newton_raphson_workload_issues,
+)
+from b.brace_range_expansion.independent_oracle import (
+    expected_output as brace_range_expansion_independent_reference,
+)
+from b.brace_range_expansion.primary_oracle import (
+    MAX_INPUT_LENGTH as BRACE_RANGE_EXPANSION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BRACE_RANGE_EXPANSION_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as BRACE_RANGE_EXPANSION_WORKSPACE_BYTES,
+    expected_output as brace_range_expansion_primary_oracle,
+)
+from b.brace_range_expansion.check_inventory import (
+    static_issues as brace_range_expansion_static_issues,
+)
+from b.brace_range_expansion.verify_workload import (
+    verify_workload as brace_range_expansion_workload_issues,
+)
+from s.straddling_checkerboard_transducer.independent_oracle import (
+    expected_output as straddling_checkerboard_transducer_independent_reference,
+)
+from s.straddling_checkerboard_transducer.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STRADDLING_CHECKERBOARD_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as STRADDLING_CHECKERBOARD_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as STRADDLING_CHECKERBOARD_WORKSPACE_BYTES,
+    expected_output as straddling_checkerboard_transducer_primary_oracle,
+)
+from s.straddling_checkerboard_transducer.check_inventory import (
+    static_issues as straddling_checkerboard_transducer_static_issues,
+)
+from s.straddling_checkerboard_transducer.verify_workload import (
+    workload_issues as straddling_checkerboard_transducer_workload_issues,
+)
 
 import argparse
 from collections import OrderedDict
@@ -52,6 +1183,9 @@ from c.crochemore_perrin_two_way.primary_oracle import (
 from i.indexed_block_list.independent_oracle import (
     expected_output as indexed_block_list_independent_oracle,
 )
+from u.undirected_eulerian_trail_hierholzer.independent_oracle import expected_output as undirected_hierholzer_independent_oracle
+from u.undirected_eulerian_trail_hierholzer.oracle import expected_output as undirected_hierholzer_primary_oracle
+from e.eulerian_trail_undirected_simple.independent_oracle import expected_output as undirected_discovery_oracle
 from i.incremental_minimum_spanning_forest.independent_oracle import expected_output as incremental_msf_independent_oracle
 from s.static_range_sum_with_upper_bound.oracle import expected_output as static_range_sum_upper_oracle
 from m.dynamic_range_majority.oracle import expected_output as dynamic_range_majority_oracle
@@ -72,6 +1206,15 @@ from s.space_saving_frequent_items.primary_oracle import expected_output as spac
 from m.melkman_simple_polyline_hull.independent_oracle import expected_output as melkman_simple_polyline_hull_independent_oracle
 from c.chan_output_sensitive_hull.independent_oracle import expected_output as chan_output_sensitive_hull_independent_oracle
 from d.divide_conquer_tangent_hull.independent_oracle import expected_output as divide_conquer_tangent_hull_independent_oracle
+from k.kirkpatrick_seidel_convex_hull.independent_oracle import (
+    expected_output as kirkpatrick_seidel_convex_hull_independent_oracle,
+)
+from k.kirkpatrick_seidel_convex_hull.check_inventory import (
+    verify_static_inventory as kirkpatrick_seidel_convex_hull_static_issues,
+)
+from k.kirkpatrick_seidel_convex_hull.verify_workload import (
+    verify_workload as verify_kirkpatrick_seidel_convex_hull_workload,
+)
 from p.planted_3sat_clause_generator.independent_oracle import expected_output as planted_3sat_clause_generator_independent_oracle
 from p.planted_3sat_clause_generator.primary_oracle import expected_output as planted_3sat_clause_generator_primary_oracle
 from m.minimum_area_enclosing_rectangle.independent_oracle import expected_output as minimum_area_enclosing_rectangle_independent_oracle
@@ -83,12 +1226,49 @@ from check_rrr_class_offset_rank_select_package import static_issues as rrr_clas
 from r.reservoir_sampling_algorithm_r.independent_oracle import expected_output as reservoir_sampling_algorithm_r_independent_oracle
 from r.reservoir_sampling_algorithm_r.primary_oracle import expected_output as reservoir_sampling_algorithm_r_primary_oracle
 from check_reservoir_sampling_algorithm_r_package import static_issues as reservoir_sampling_algorithm_r_static_issues
+from x.reservoir_sampling_algorithm_x.independent_oracle import expected_output as reservoir_sampling_algorithm_x_independent_oracle
+from x.reservoir_sampling_algorithm_x.primary_oracle import expected_output as reservoir_sampling_algorithm_x_primary_oracle
+from check_reservoir_sampling_algorithm_x_package import static_issues as reservoir_sampling_algorithm_x_static_issues
+from e.edge_colored_graph_layer_encoding.independent_oracle import (
+    expected_output as edge_colored_graph_layer_encoding_independent_oracle,
+)
+from e.edge_colored_graph_layer_encoding.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as EDGE_COLORED_GRAPH_LAYER_ENCODING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as EDGE_COLORED_GRAPH_LAYER_ENCODING_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as EDGE_COLORED_GRAPH_LAYER_ENCODING_WORKSPACE_BYTES,
+    expected_output as edge_colored_graph_layer_encoding_primary_oracle,
+)
+from e.edge_colored_graph_layer_encoding.check_inventory import (
+    static_issues as edge_colored_graph_layer_encoding_static_issues,
+)
+from t.three_dimensional_bird_baker_matching.independent_oracle import (
+    expected_output as three_dimensional_bird_baker_independent_oracle,
+)
+from t.three_dimensional_bird_baker_matching.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as THREE_DIMENSIONAL_BIRD_BAKER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as THREE_DIMENSIONAL_BIRD_BAKER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as THREE_DIMENSIONAL_BIRD_BAKER_WORKSPACE_BYTES,
+    expected_output as three_dimensional_bird_baker_primary_oracle,
+)
+from t.three_dimensional_bird_baker_matching.verify_workload import (
+    static_issues as three_dimensional_bird_baker_static_issues,
+)
 from l.lossy_counting_summary.independent_oracle import expected_output as lossy_counting_summary_independent_oracle
 from l.lossy_counting_summary.primary_oracle import expected_output as lossy_counting_summary_primary_oracle
 from check_lossy_counting_summary_package import static_issues as lossy_counting_summary_static_issues
 from s.sticky_sampling_summary.independent_oracle import expected_output as sticky_sampling_summary_independent_oracle
 from s.sticky_sampling_summary.primary_oracle import expected_output as sticky_sampling_summary_primary_oracle
 from check_sticky_sampling_summary_package import static_issues as sticky_sampling_summary_static_issues
+from p.prufer_decode_linear.reference import expected_output as prufer_decode_linear_primary_oracle, independent_output as prufer_decode_linear_independent_oracle
+from check_prufer_decode_linear_package import static_issues as prufer_decode_linear_static_issues
+from s.suffix_automaton_minimum_rotation.reference import expected_output as suffix_automaton_minimum_rotation_oracle
+from check_suffix_automaton_minimum_rotation_package import static_issues as suffix_automaton_minimum_rotation_static_issues
+from s.suffix_automaton_kth_distinct_substring.reference import expected_output as suffix_automaton_kth_distinct_substring_oracle
+from check_suffix_automaton_kth_distinct_substring_package import static_issues as suffix_automaton_kth_distinct_substring_static_issues
+from m.minimum_enclosing_circle_incremental_boundary.reference import expected_output as minimum_enclosing_circle_incremental_boundary_oracle
+from check_minimum_enclosing_circle_incremental_boundary_package import static_issues as minimum_enclosing_circle_incremental_boundary_static_issues
+from c.calkin_wilf_index.reference import expected_output as calkin_wilf_index_primary_oracle, independent_output as calkin_wilf_index_independent_oracle
+from check_calkin_wilf_index_package import static_issues as calkin_wilf_index_static_issues
 from e.exponential_histogram_window.independent_oracle import expected_output as exponential_histogram_window_independent_oracle
 from e.exponential_histogram_window.primary_oracle import expected_output as exponential_histogram_window_primary_oracle
 from check_exponential_histogram_window_package import static_issues as exponential_histogram_window_static_issues
@@ -141,6 +1321,157 @@ from v.virtual_tree.primary_oracle import (
     MAX_VALID_INPUT_LENGTH as VIRTUAL_TREE_MAX_VALID_INPUT_LENGTH,
     MAX_VERTICES as VIRTUAL_TREE_MAX_VERTICES,
 )
+from t.tree_subtree_distinct_sack.primary_oracle import (
+    MAX_N as TREE_SUBTREE_DISTINCT_SACK_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as TREE_SUBTREE_DISTINCT_SACK_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TREE_SUBTREE_DISTINCT_SACK_MAX_OUTPUT_BYTES,
+    expected_output as tree_subtree_distinct_sack_primary_oracle,
+)
+from t.tree_subtree_distinct_sack.independent_oracle import (
+    expected_output as tree_subtree_distinct_sack_independent_oracle,
+)
+from t.tree_path_distinct_mo.primary_oracle import (
+    MAX_N as TREE_PATH_DISTINCT_MO_MAX_N,
+    MAX_Q as TREE_PATH_DISTINCT_MO_MAX_Q,
+    MAX_VALID_INPUT_LENGTH as TREE_PATH_DISTINCT_MO_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as TREE_PATH_DISTINCT_MO_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TREE_PATH_DISTINCT_MO_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as TREE_PATH_DISTINCT_MO_MAX_WORKSPACE_BYTES,
+    expected_output as tree_path_distinct_mo_primary_oracle,
+)
+from t.tree_path_distinct_mo.independent_oracle import (
+    expected_output as tree_path_distinct_mo_independent_oracle,
+)
+from s.small_to_large_subtree_color_mode_sum.primary_oracle import (
+    MAX_VERTICES as SMALL_TO_LARGE_SUBTREE_MODE_MAX_VERTICES,
+    MAX_VALID_INPUT_LENGTH as SMALL_TO_LARGE_SUBTREE_MODE_MAX_VALID_INPUT_LENGTH,
+    MAX_INPUT_LENGTH as SMALL_TO_LARGE_SUBTREE_MODE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES,
+    expected_output as small_to_large_subtree_color_mode_sum_primary_oracle,
+)
+from s.small_to_large_subtree_color_mode_sum.independent_oracle import (
+    expected_output as small_to_large_subtree_color_mode_sum_independent_oracle,
+)
+from t.tree_random_walk_edge_hitting_cost.primary_oracle import (
+    MAX_N as TREE_RANDOM_WALK_HITTING_MAX_N,
+    MAX_INPUT_LENGTH as TREE_RANDOM_WALK_HITTING_MAX_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as TREE_RANDOM_WALK_HITTING_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TREE_RANDOM_WALK_HITTING_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as TREE_RANDOM_WALK_HITTING_MAX_WORKSPACE_BYTES,
+    expected_output as tree_random_walk_edge_hitting_cost_primary_oracle,
+)
+from t.tree_random_walk_edge_hitting_cost.independent_oracle import (
+    expected_output as tree_random_walk_edge_hitting_cost_independent_oracle,
+)
+from t.triangle_union_area_vertical_decomposition.primary_oracle import (
+    MAX_INPUT_LENGTH as TRIANGLE_UNION_AREA_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as TRIANGLE_UNION_AREA_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as TRIANGLE_UNION_AREA_MAX_WORKSPACE_BYTES,
+    MAX_AREA_DENOMINATOR as TRIANGLE_UNION_AREA_MAX_DENOMINATOR,
+    MAX_AREA_NUMERATOR as TRIANGLE_UNION_AREA_MAX_NUMERATOR,
+    expected_output as triangle_union_area_vertical_decomposition_primary_oracle,
+)
+from t.triangle_union_area_vertical_decomposition.independent_oracle import (
+    expected_output as triangle_union_area_vertical_decomposition_independent_oracle,
+)
+from e.external_point_tangents_convex_polygon.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as EXTERNAL_POINT_TANGENTS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_INPUT_LENGTH as EXTERNAL_POINT_TANGENTS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES,
+    MAX_VERTICES as EXTERNAL_POINT_TANGENTS_MAX_VERTICES,
+    MAX_QUERIES as EXTERNAL_POINT_TANGENTS_MAX_QUERIES,
+    MAX_COORDINATE as EXTERNAL_POINT_TANGENTS_MAX_COORDINATE,
+    WORKSPACE_BYTES as EXTERNAL_POINT_TANGENTS_WORKSPACE_BYTES,
+    valid_query as external_point_tangents_valid_query,
+    expected_output as external_point_tangents_primary_oracle,
+)
+from e.external_point_tangents_convex_polygon.independent_oracle import (
+    expected_output as external_point_tangents_independent_oracle,
+)
+from e.elkin_peleg_sparse_spanner.independent_oracle import (
+    expected_output as elkin_peleg_sparse_spanner_independent_oracle,
+)
+from e.elkin_peleg_sparse_spanner.verify_workload import (
+    static_issues as elkin_peleg_sparse_spanner_static_issues,
+)
+from f.fakcharoenphol_rao_planar_sssp.independent_oracle import (
+    expected_output as fakcharoenphol_rao_planar_sssp_independent_oracle,
+)
+from f.fakcharoenphol_rao_planar_sssp.check_inventory import (
+    static_issues as fakcharoenphol_rao_planar_sssp_static_issues,
+)
+from n.nonogram_line_domain_solver.independent_oracle import (
+    expected_output as nonogram_line_domain_solver_independent_oracle,
+)
+from n.nonogram_line_domain_solver.check_inventory import (
+    missing_artifacts as nonogram_line_domain_solver_missing_artifacts,
+)
+from p.partially_retroactive_priority_queue.independent_oracle import (
+    expected_result as partially_retroactive_priority_queue_independent,
+)
+from p.partially_retroactive_priority_queue.verify_workload import (
+    verify_workload as verify_partially_retroactive_priority_queue_package,
+)
+from n.negafibonacci_representation.independent_oracle import (
+    expected_call as negafibonacci_independent_expected_call,
+)
+from n.negafibonacci_representation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as NEGAFIBONACCI_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as NEGAFIBONACCI_MAX_OUTPUT_BYTES,
+)
+from n.negafibonacci_representation.check_inventory import (
+    missing_artifacts as negafibonacci_representation_missing_artifacts,
+)
+from c.constant_intervals.independent_oracle import (
+    expected_call as constant_intervals_independent_expected_call,
+)
+from c.constant_intervals.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CONSTANT_INTERVALS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CONSTANT_INTERVALS_MAX_OUTPUT_BYTES,
+)
+from c.constant_intervals.check_inventory import (
+    missing_artifacts as constant_intervals_missing_artifacts,
+)
+
+
+from p.pq_tree_consecutive_ones.primary_oracle import (
+    MAX_N as PQ_TREE_MAX_N,
+    MAX_M as PQ_TREE_MAX_M,
+    MAX_VALID_INPUT_LENGTH as PQ_TREE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PQ_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PQ_TREE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as PQ_TREE_WORKSPACE_BYTES,
+    expected_output as pq_tree_primary_oracle,
+)
+from p.pq_tree_consecutive_ones.independent_oracle import (
+    expected_output as pq_tree_small_frontier_oracle,
+)
+from m.measured_finger_tree_sequence.oracle import (
+    MAX_INITIAL as MEASURED_FINGER_TREE_MAX_INITIAL,
+    MAX_Q as MEASURED_FINGER_TREE_MAX_Q,
+    MAX_LEN as MEASURED_FINGER_TREE_MAX_LENGTH,
+    MAX_VALUE as MEASURED_FINGER_TREE_MAX_VALUE,
+    MAX_SUM as MEASURED_FINGER_TREE_MAX_SUM,
+    MAX_VALID_INPUT as MEASURED_FINGER_TREE_MAX_VALID_INPUT,
+    MAX_PARSEABLE_INPUT as MEASURED_FINGER_TREE_MAX_PARSEABLE_INPUT,
+    MAX_OUTPUT_BYTES as MEASURED_FINGER_TREE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as MEASURED_FINGER_TREE_WORKSPACE_BYTES,
+    expected_output as measured_finger_tree_primary_oracle,
+)
+from m.measured_finger_tree_sequence.independent_oracle import (
+    expected_output as measured_finger_tree_independent_oracle,
+)
+from t.tetrahedral_element_force_kernel.primary_oracle import (
+    MAX_ELEMENTS as TETRAHEDRAL_FORCE_MAX_ELEMENTS,
+    MAX_VALID_INPUT_LENGTH as TETRAHEDRAL_FORCE_MAX_VALID_INPUT_LENGTH,
+    MAX_INPUT_LENGTH as TETRAHEDRAL_FORCE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES,
+    expected_output as tetrahedral_element_force_kernel_primary_oracle,
+)
+from t.tetrahedral_element_force_kernel.independent_oracle import (
+    expected_output as tetrahedral_element_force_kernel_independent_oracle,
+)
 from hirschberg_lcs_oracle import (
     MAX_INPUT_LENGTH as HIRSCHBERG_LCS_MAX_VALID_INPUT_LENGTH,
     MAX_PARSEABLE_LENGTH as HIRSCHBERG_LCS_MAX_PARSEABLE_LENGTH,
@@ -190,6 +1521,8 @@ from half_plane_intersection_oracle import (
 from half_plane_intersection_verifier_oracle import (
     expected_output as half_plane_intersection_independent_oracle,
 )
+from c.circle_line_intersection_symbolic.verifier import expected_output as circle_line_intersection_symbolic_independent_oracle
+from c.circle_circle_intersection_symbolic.verifier import expected_output as circle_circle_intersection_symbolic_independent_oracle
 from s.smawk_row_minima.primary_oracle import (
     MAX_COLUMNS as SMAWK_ROW_MINIMA_MAX_COLUMNS,
     MAX_INPUT_LENGTH as SMAWK_ROW_MINIMA_MAX_VALID_INPUT_LENGTH,
@@ -276,7 +1609,26 @@ from m.minimum_mean_cycle_karp.primary_oracle import (
 from m.minimum_mean_cycle_karp.independent_oracle import (
     expected_output as minimum_mean_cycle_karp_independent_oracle,
 )
+from c.cograph_cotree_decomposition.independent_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as COGRAPH_COTREE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as COGRAPH_COTREE_MAX_OUTPUT_BYTES,
+    expected_abi_output as cograph_cotree_decomposition_independent_oracle,
+)
+from c.cograph_cotree_decomposition.verify_workload import (
+    verify as verify_cograph_cotree_decomposition_package,
+)
 MINIMUM_MEAN_CYCLE_KARP_WORKSPACE_BYTES = 2048
+from m.minimum_mean_cycle_howard.primary_oracle import (
+    MAX_EDGES as MINIMUM_MEAN_CYCLE_HOWARD_MAX_EDGES,
+    MAX_PARSEABLE_INPUT_LENGTH as MINIMUM_MEAN_CYCLE_HOWARD_MAX_PARSEABLE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MINIMUM_MEAN_CYCLE_HOWARD_MAX_VALID_LENGTH,
+    MAX_VERTICES as MINIMUM_MEAN_CYCLE_HOWARD_MAX_VERTICES,
+    OUTPUT_BYTES as MINIMUM_MEAN_CYCLE_HOWARD_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MINIMUM_MEAN_CYCLE_HOWARD_WORKSPACE_BYTES,
+)
+from m.minimum_mean_cycle_howard.independent_oracle import (
+    expected_output as minimum_mean_cycle_howard_independent_oracle,
+)
 from h.hash_join.primary_oracle import (
     HASH_CAPACITY as HASH_JOIN_HASH_CAPACITY,
     MAX_OUTPUT_BYTES as HASH_JOIN_MAX_OUTPUT_BYTES,
@@ -302,6 +1654,47 @@ from p.palindrome_pairs.independent_oracle import (
 )
 from p.palindrome_pairs.check_inventory import (
     static_issues as palindrome_pairs_static_issues,
+)
+from p.palindromic_partition_series_links.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PALINDROMIC_PARTITION_SERIES_LINKS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PALINDROMIC_PARTITION_SERIES_LINKS_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as PALINDROMIC_PARTITION_SERIES_LINKS_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as PALINDROMIC_PARTITION_SERIES_LINKS_WORKSPACE_BYTES,
+)
+from p.palindromic_partition_series_links.independent_oracle import (
+    expected_output as palindromic_partition_series_links_independent_oracle,
+)
+from p.palindromic_partition_series_links.verify_workload import (
+    static_issues as palindromic_partition_series_links_static_issues,
+)
+from lzw_compressed_shift_and_matching_oracle import (
+    MAX_ALPHABET as LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_ALPHABET,
+    MAX_CODES as LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_CODES,
+    MAX_EXPANDED_LENGTH as LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_EXPANDED_LENGTH,
+    MAX_INPUT_LENGTH as LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_OUTPUT_BYTES,
+    MAX_PATTERN as LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_PATTERN,
+    MAX_WORKSPACE_BYTES as LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_WORKSPACE_BYTES,
+    expected_output as lzw_compressed_shift_and_matching_primary_oracle,
+)
+from lzw_compressed_shift_and_matching_verifier_oracle import (
+    expected_output as lzw_compressed_shift_and_matching_independent_oracle,
+)
+from l.lzw_compressed_shift_and_matching.check_inventory import (
+    missing_files as lzw_compressed_shift_and_matching_missing_files,
+)
+from b.bkp_speed_scaling_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BKP_SPEED_SCALING_TRACE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BKP_SPEED_SCALING_TRACE_MAX_VALID_INPUT_LENGTH,
+)
+from b.bkp_speed_scaling_trace.verify_workload import (
+    static_issues as bkp_speed_scaling_trace_static_issues,
+)
+from bkp_speed_scaling_trace_oracle import (
+    expected_output as bkp_speed_scaling_trace_primary_oracle,
+)
+from bkp_speed_scaling_trace_verifier_oracle import (
+    expected_output as bkp_speed_scaling_trace_independent_oracle,
 )
 from b.binomial_coefficient_prime_power.primary_oracle import (
     MAX_EXPONENT as BINOMIAL_COEFFICIENT_PRIME_POWER_MAX_EXPONENT,
@@ -489,6 +1882,17 @@ from minkowski_sum_convex_polygons_oracle import (
 from addition_of_big_integers_verifier_oracle import (
     expected_output as addition_of_big_integers_independent_oracle,
 )
+from k.knuth_big_integer_division.primary_oracle import (
+    MAX_INPUT as KNUTH_BIG_INTEGER_DIVISION_MAX_INPUT,
+    MAX_OUTPUT as KNUTH_BIG_INTEGER_DIVISION_MAX_OUTPUT,
+    expected_output as knuth_big_integer_division_primary_oracle,
+)
+from knuth_big_integer_division_oracle import (
+    expected_output as knuth_big_integer_division_independent_oracle,
+)
+from k.knuth_big_integer_division.verify_workload import (
+    verify_workload as verify_knuth_big_integer_division_package,
+)
 from prefix_sum_of_binomial_coefficient_independent_oracle import (
     expected_output as prefix_sum_of_binomial_coefficient_independent_oracle,
 )
@@ -562,6 +1966,19 @@ from npb_cg_sparse_inverse_power_verifier_oracle import (
     MAX_INPUT_LENGTH as NPB_CG_SPARSE_INVERSE_POWER_VERIFIER_MAX_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as NPB_CG_SPARSE_INVERSE_POWER_VERIFIER_MAX_OUTPUT_BYTES,
     expected_output as npb_cg_sparse_inverse_power_independent_oracle,
+)
+from n.npb_cg_sparse_outer_product_assembly.independent_oracle import (
+    expected_output as npb_cg_sparse_outer_product_assembly_independent_oracle,
+    validate_output as npb_cg_sparse_outer_product_assembly_validate_output,
+)
+from n.npb_cg_sparse_outer_product_assembly.primary_oracle import (
+    MAX_INPUT_LENGTH as NPB_CG_SPARSE_ASSEMBLY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as NPB_CG_SPARSE_ASSEMBLY_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as NPB_CG_SPARSE_ASSEMBLY_WORKSPACE_BYTES,
+    expected_output as npb_cg_sparse_outer_product_assembly_primary_oracle,
+)
+from n.npb_cg_sparse_outer_product_assembly.verify_workload import (
+    verify as verify_npb_cg_sparse_outer_product_assembly_package,
 )
 from npb_lu_block_ssor_verifier_oracle import (
     MAX_INPUT_LENGTH as NPB_LU_BLOCK_SSOR_VERIFIER_MAX_INPUT_LENGTH,
@@ -729,6 +2146,53 @@ from soundex_encoder_oracle import MAX_OUTPUT_BYTES as SOUNDEX_ENCODER_MAX_OUTPU
 from soundex_encoder_oracle import I64_MIN as SOUNDEX_ENCODER_I64_MIN
 from soundex_encoder_oracle import I64_MAX as SOUNDEX_ENCODER_I64_MAX
 from soundex_encoder_oracle import expected_output as soundex_encoder_oracle
+from d.double_metaphone.independent_oracle import (
+    expected_output as double_metaphone_independent_oracle,
+)
+from d.double_metaphone.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DOUBLE_METAPHONE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DOUBLE_METAPHONE_MAX_OUTPUT_BYTES,
+)
+from d.domain_coloring.independent_oracle import (
+    expected_output as domain_coloring_independent_oracle,
+)
+from domain_coloring_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as DOMAIN_COLORING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DOMAIN_COLORING_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as DOMAIN_COLORING_WORKSPACE_BYTES,
+)
+from t.two_dimensional_optimal_expected_matching.independent_oracle import (
+    expected_output as two_dimensional_optimal_expected_independent_oracle,
+)
+from t.two_dimensional_optimal_expected_matching.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as TWO_DIMENSIONAL_OPTIMAL_EXPECTED_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TWO_DIMENSIONAL_OPTIMAL_EXPECTED_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as TWO_DIMENSIONAL_OPTIMAL_EXPECTED_WORKSPACE_BYTES,
+)
+from c.cupif_giannini_tree_traversal.independent_oracle import (
+    expected_output as cupif_giannini_tree_traversal_independent_oracle,
+)
+from c.cupif_giannini_tree_traversal.primary_oracle import (
+    MAX_INPUT_LENGTH as CUPIF_GIANNINI_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CUPIF_GIANNINI_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CUPIF_GIANNINI_WORKSPACE_BYTES,
+)
+from s.stormer_verlet_position.independent_oracle import (
+    expected_output as stormer_verlet_position_independent_oracle,
+)
+from stormer_verlet_position_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as STORMER_VERLET_POSITION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as STORMER_VERLET_POSITION_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as STORMER_VERLET_POSITION_WORKSPACE_BYTES,
+)
+from t.two_dimensional_k_mismatch_linear_templates.independent_oracle import (
+    expected_output as two_dimensional_k_mismatch_independent_oracle,
+)
+from t.two_dimensional_k_mismatch_linear_templates.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as TWO_DIMENSIONAL_K_MISMATCH_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TWO_DIMENSIONAL_K_MISMATCH_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as TWO_DIMENSIONAL_K_MISMATCH_WORKSPACE_BYTES,
+)
 from mirror_oracle import INVALID_RESULT as MIRROR_INVALID_RESULT
 from mirror_oracle import INSUFFICIENT_OUTPUT_CAPACITY as MIRROR_OUTPUT_ERROR_RESULT
 from mirror_oracle import I64_MIN as MIRROR_I64_MIN
@@ -822,6 +2286,7 @@ from rat_in_maze_oracle import INVALID_RESULT as RAT_IN_MAZE_INVALID_RESULT
 from rat_in_maze_oracle import MAX_DIMENSION as RAT_IN_MAZE_MAX_DIMENSION
 from rat_in_maze_oracle import MAX_OUTPUT_BYTES as RAT_IN_MAZE_MAX_OUTPUT_BYTES
 from rat_in_maze_oracle import MAX_OUTPUT_WORDS as RAT_IN_MAZE_MAX_OUTPUT_WORDS
+from rat_in_maze_oracle import MAX_WORKSPACE_BYTES as RAT_IN_MAZE_MAX_WORKSPACE_BYTES
 from rat_in_maze_oracle import MAX_PARSEABLE_INPUT_LENGTH as RAT_IN_MAZE_MAX_PARSEABLE_INPUT_LENGTH
 from rat_in_maze_oracle import MAX_VALID_INPUT_LENGTH as RAT_IN_MAZE_MAX_VALID_INPUT_LENGTH
 from rat_in_maze_oracle import NO_PATH_RESULT as RAT_IN_MAZE_NO_PATH_RESULT
@@ -1152,6 +2617,36 @@ from sierpinski_triangle_oracle import MIN_DEPTH as SIERPINSKI_TRIANGLE_MIN_DEPT
 from sierpinski_triangle_oracle import I64_MAX as SIERPINSKI_TRIANGLE_I64_MAX
 from sierpinski_triangle_oracle import I64_MIN as SIERPINSKI_TRIANGLE_I64_MIN
 from sierpinski_triangle_oracle import expected_output as sierpinski_triangle_oracle
+from s.sierpinski_curve_trace.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as SIERPINSKI_CURVE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SIERPINSKI_CURVE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SIERPINSKI_CURVE_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as SIERPINSKI_CURVE_WORKSPACE_BYTES,
+)
+from s.sierpinski_curve_trace.independent_oracle import (
+    expected_output as sierpinski_curve_trace_independent_oracle,
+)
+from s.sierpinski_curve_trace.check_inventory import (
+    static_issues as sierpinski_curve_trace_static_issues,
+)
+from s.sierpinski_curve_trace.verify_workload import (
+    workload_issues as sierpinski_curve_trace_workload_issues,
+)
+from s.sturmian_standard_word.independent_oracle import (
+    expected_output as sturmian_standard_word_independent_oracle,
+)
+from s.sturmian_standard_word.primary_oracle import (
+    MAX_OUTPUT_BYTES as STURMIAN_STANDARD_WORD_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as STURMIAN_STANDARD_WORD_MAX_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as STURMIAN_STANDARD_WORD_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as STURMIAN_STANDARD_WORD_WORKSPACE_BYTES,
+)
+from s.sturmian_standard_word.check_inventory import (
+    static_issues as sturmian_standard_word_static_issues,
+)
+from s.sturmian_standard_word.verify_workload import (
+    workload_issues as sturmian_standard_word_workload_issues,
+)
 from priority_queues_oracle import MAX_CAPACITY as PRIORITY_QUEUES_MAX_CAPACITY
 from priority_queues_oracle import MAX_INPUT_VALUES as PRIORITY_QUEUES_MAX_INPUT_VALUES
 from priority_queues_oracle import MAX_OPERATIONS as PRIORITY_QUEUES_MAX_OPERATIONS
@@ -1712,6 +3207,11 @@ from permute_string_oracle import MAX_OUTPUT_BYTES as PERMUTE_STRING_MAX_OUTPUT_
 from permute_string_oracle import MAX_PARSEABLE_INPUT_LENGTH as PERMUTE_STRING_MAX_PARSEABLE_INPUT_LENGTH
 from permute_string_oracle import OUTPUT_ERROR_RESULT as PERMUTE_STRING_OUTPUT_ERROR
 from permute_string_oracle import expected_output as permute_string_oracle
+from minimum_parenthesis_removal_bfs_oracle import MAX_INPUT_LENGTH as MIN_PAREN_REMOVAL_MAX_INPUT_LENGTH
+from minimum_parenthesis_removal_bfs_oracle import MAX_PARSEABLE_INPUT_LENGTH as MIN_PAREN_REMOVAL_MAX_PARSEABLE_INPUT_LENGTH
+from minimum_parenthesis_removal_bfs_oracle import MAX_OUTPUT_BYTES as MIN_PAREN_REMOVAL_MAX_OUTPUT_BYTES
+from minimum_parenthesis_removal_bfs_oracle import WORKSPACE_BYTES as MIN_PAREN_REMOVAL_WORKSPACE_BYTES
+from minimum_parenthesis_removal_bfs_independent_oracle import expected_output as minimum_parenthesis_removal_bfs_independent_oracle
 from split_oracle import MAX_INPUT_LENGTH as SPLIT_MAX_INPUT_LENGTH
 from split_oracle import MAX_PARSEABLE_INPUT_LENGTH as SPLIT_MAX_PARSEABLE_INPUT_LENGTH
 from split_oracle import MAX_TEXT_LENGTH as SPLIT_MAX_TEXT_LENGTH
@@ -1861,6 +3361,24 @@ from dynamic_top_tree_component_diameter_oracle import (
 from dynamic_top_tree_component_diameter_verifier_oracle import (
     expected_output as dynamic_top_tree_component_diameter_independent_oracle,
 )
+from d.dynamic_tree_maximum_weight_independent_set.primary_oracle import (
+    MAX_OUTPUT_BYTES as DYNAMIC_TREE_MWIS_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_UPDATES as DYNAMIC_TREE_MWIS_VERIFIER_MAX_UPDATES,
+    MAX_VERTICES as DYNAMIC_TREE_MWIS_VERIFIER_MAX_VERTICES,
+    MAX_WEIGHT as DYNAMIC_TREE_MWIS_VERIFIER_MAX_WEIGHT,
+)
+from d.dynamic_tree_maximum_weight_independent_set.independent_oracle import (
+    expected_output as dynamic_tree_maximum_weight_independent_set_independent_oracle,
+)
+from d.dynamic_tree_maximum_weight_independent_set.verify_workload import (
+    verify as verify_dynamic_tree_maximum_weight_independent_set_package,
+)
+from c.continued_fraction_convergents.independent_oracle import (
+    expected_output as continued_fraction_convergents_independent_oracle,
+)
+from c.continued_fraction_convergents.check_inventory import (
+    static_issues as continued_fraction_convergents_static_issues,
+)
 from dynamic_tree_subtree_add_subtree_sum_oracle import (
     MAX_N as DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_N,
     MAX_Q as DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_Q,
@@ -1920,6 +3438,15 @@ from k.knuth_power_tree.primary_oracle import (
     expected_output as knuth_power_tree_primary_oracle,
 )
 from k.knuth_power_tree.independent_oracle import verify_result as knuth_power_tree_verify_result
+from a.addition_chain_enumeration.primary_oracle import (
+    MAX_OUTPUT_BYTES as ADDITION_CHAIN_ENUMERATION_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as ADDITION_CHAIN_ENUMERATION_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_TARGET as ADDITION_CHAIN_ENUMERATION_VERIFIER_MAX_TARGET,
+    expected_output as addition_chain_enumeration_primary_oracle,
+)
+from a.addition_chain_enumeration.independent_oracle import (
+    verify_result as addition_chain_enumeration_verify_result,
+)
 from p.prefix_substring_lcs.primary_oracle import (
     MAX_INPUT_LENGTH as PREFIX_SUBSTRING_LCS_VERIFIER_MAX_VALID_INPUT_LENGTH,
     MAX_OUTPUT_BYTES as PREFIX_SUBSTRING_LCS_VERIFIER_MAX_OUTPUT_BYTES,
@@ -2116,6 +3643,16 @@ from s.splash2_water_nsquared.verify_workload import (
     verify_workload as verify_splash2_water_nsquared_package,
 )
 from w.water_spatial.verify_workload import verify_workload as verify_water_spatial_package
+from s.splash2_volrend_raymarch.independent_oracle import (
+    expected_output as splash2_volrend_raymarch_independent_oracle,
+)
+from s.splash2_volrend_raymarch.primary_oracle import (
+    MAX_PARSEABLE_INPUT_VALUES as SPLASH2_VOLREND_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SPLASH2_VOLREND_VERIFIER_MAX_OUTPUT_BYTES,
+)
+from s.splash2_volrend_raymarch.verify_workload import (
+    verify_workload as verify_splash2_volrend_raymarch_package,
+)
 from xor_linear_basis_oracle import MAX_OPERATIONS as XOR_LINEAR_BASIS_VERIFIER_MAX_OPERATIONS
 from xor_linear_basis_oracle import MAX_INSERTIONS as XOR_LINEAR_BASIS_VERIFIER_MAX_INSERTIONS
 from xor_linear_basis_oracle import MAX_VALID_INPUT_LENGTH as XOR_LINEAR_BASIS_VERIFIER_MAX_VALID_INPUT_LENGTH
@@ -2243,7 +3780,44 @@ from dynamic_graph_vertex_add_component_sum_verifier_oracle import expected_outp
 from run_i64_array_bytes_output import MAX_OUTPUT_CAPACITY
 from run_i64_array_bytes_output import RECORDER_WORKSPACE_ALGORITHMS
 from run_i64_array_bytes_output import EXTERNAL_BYTE_OUTPUT_BOUNDS
+from run_i64_array_bytes_output import EXTERNAL_BYTE_OUTPUT_WORKSPACE_BYTES
+from run_i64_array_bytes_output import BOIDS_FLOCKING_SIMULATION_MAX_INPUT_LENGTH
+from run_i64_array_bytes_output import BOIDS_FLOCKING_SIMULATION_MAX_OUTPUT_BYTES
+from run_i64_array_bytes_output import BOIDS_FLOCKING_SIMULATION_WORKSPACE_BYTES
 from run_i64_array_bytes_output import validate_new_byte_output_workload
+from c.calendar_queue.independent_oracle import (
+    expected_output as calendar_queue_independent_oracle,
+)
+from i.interval_heap_double_ended.independent_oracle import (
+    expected_output as interval_heap_independent_oracle,
+)
+from h.hash_map_hopscotch_hashing.independent_oracle import (
+    expected_output as hopscotch_hashing_independent_oracle,
+)
+from h.hash_map_hopscotch_hashing.check_inventory import (
+    static_issues as hopscotch_hashing_static_issues,
+)
+from o.offline_dynamic_bipartiteness.independent_bfs_reference import (
+    expected_output as offline_dynamic_bipartiteness_independent_oracle,
+)
+from k.k_truss_edge_peeling_decomposition.independent_threshold_reference import (
+    expected_output as k_truss_independent_reference,
+)
+from s.sugiyama_longest_path_layer_assignment.independent_oracle import (
+    expected_output as sugiyama_longest_path_independent_reference,
+)
+from l.lcm_ppc_closed_itemset_enumeration.independent_oracle import (
+    expected_output as lcm_ppc_independent_oracle,
+)
+from m.minimum_window_subsequence.independent_oracle import (
+    expected_output as minimum_window_subsequence_independent_oracle,
+)
+from m.minimum_window_subsequence.primary_oracle import (
+    WORKSPACE_BYTES as MINIMUM_WINDOW_SUBSEQUENCE_WORKSPACE_BYTES,
+)
+from m.minimum_window_subsequence.check_inventory import (
+    static_issues as minimum_window_subsequence_static_issues,
+)
 from rodinia_mummergpu_oracle import MAX_QUERY as RODINIA_MUMMERGPU_MAX_QUERY
 from rodinia_mummergpu_oracle import MAX_REF as RODINIA_MUMMERGPU_MAX_REF
 from rodinia_mummergpu_oracle import MAX_OUTPUT_BYTES as RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES
@@ -3193,6 +4767,64 @@ from cbench_consumer_mad_alias_reduce_oracle import (
 from nbench_huffman_compression_oracle import MAX_OUTPUT_BYTES as NBENCH_HUFFMAN_COMPRESSION_MAX_OUTPUT_BYTES
 from nbench_huffman_compression_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH
 from nbench_huffman_compression_oracle import expected_output as nbench_huffman_compression_oracle
+from h.hsadelta_differential_compression.primary_oracle import (
+    MAX_OUTPUT_BYTES as HSADELTA_DIFFERENTIAL_COMPRESSION_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as HSADELTA_DIFFERENTIAL_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from h.hsadelta_differential_compression.independent_oracle import (
+    expected_output as hsadelta_differential_compression_independent_oracle,
+)
+from h.hsadelta_differential_compression.check_inventory import (
+    static_issues as hsadelta_differential_compression_static_issues,
+)
+from f.fgk_adaptive_huffman.primary_oracle import (
+    MAX_OUTPUT_BYTES as FGK_ADAPTIVE_HUFFMAN_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as FGK_ADAPTIVE_HUFFMAN_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from f.fgk_adaptive_huffman.independent_oracle import (
+    expected_output as fgk_adaptive_huffman_independent_oracle,
+)
+from f.fgk_adaptive_huffman.check_inventory import (
+    static_issues as fgk_adaptive_huffman_static_issues,
+)
+from v.vitter_adaptive_huffman.primary_oracle import (
+    MAX_OUTPUT_BYTES as VITTER_ADAPTIVE_HUFFMAN_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as VITTER_ADAPTIVE_HUFFMAN_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from v.vitter_adaptive_huffman.independent_oracle import (
+    expected_output as vitter_adaptive_huffman_independent_oracle,
+)
+from v.vitter_adaptive_huffman.check_inventory import (
+    static_issues as vitter_adaptive_huffman_static_issues,
+)
+from l.lucky_number_sieve.primary_oracle import (
+    INVALID_RESULT as LUCKY_NUMBER_SIEVE_INVALID_RESULT,
+    MAX_BOUND as LUCKY_NUMBER_SIEVE_MAX_BOUND,
+    MAX_OUTPUT_BYTES as LUCKY_NUMBER_SIEVE_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LUCKY_NUMBER_SIEVE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LUCKY_NUMBER_SIEVE_MAX_VALID_INPUT_LENGTH,
+)
+from l.lucky_number_sieve.independent_oracle import (
+    expected_output as lucky_number_sieve_independent_oracle,
+)
+from l.lucky_number_sieve.verify_workload import (
+    static_issues as lucky_number_sieve_static_issues,
+)
+from i.inverted_list_bitvector_intersection.primary_oracle import (
+    INVALID_RESULT as INVERTED_LIST_BITVECTOR_INTERSECTION_INVALID_RESULT,
+    MAX_DOMAIN as INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_DOMAIN,
+    MAX_LISTS as INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_LISTS,
+    MAX_OUTPUT_BYTES as INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_VALID_INPUT_LENGTH,
+    MAX_WORKSPACE_BYTES as INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_WORKSPACE_BYTES,
+)
+from i.inverted_list_bitvector_intersection.independent_oracle import (
+    expected_output as inverted_list_bitvector_intersection_independent_oracle,
+)
+from i.inverted_list_bitvector_intersection.verify_workload import (
+    static_issues as inverted_list_bitvector_intersection_static_issues,
+)
 from nbench_resource_assignment_oracle import MAX_OUTPUT_BYTES as NBENCH_RESOURCE_ASSIGNMENT_MAX_OUTPUT_BYTES
 from nbench_resource_assignment_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
 from nbench_resource_assignment_oracle import expected_output as nbench_resource_assignment_oracle
@@ -3376,6 +5008,22 @@ from lz77_python_rust_oracle import (
     expected_output as lz77_python_rust_oracle,
 )
 from lz77_infinite_rightmost_verifier_oracle import expected_output as lz77_infinite_rightmost_independent_oracle
+from l.lz77_lpf_suffix_array.independent_oracle import expected_output as lz77_lpf_suffix_array_independent_oracle
+from l.lz77_lpf_suffix_array.verify_workload import verify as verify_lz77_lpf_suffix_array_package
+from l.lz78_run_length_transform.independent_oracle import expected_output as lz78_run_length_transform_independent_oracle
+from l.lz78_run_length_transform.verify_workload import verify as verify_lz78_run_length_transform_package
+from t.two_edge_connected_spanning_subgraph_khuller_vishkin_dfs.independent_oracle import expected_output as kv_2ecss_independent_oracle
+from t.two_edge_connected_spanning_subgraph_khuller_vishkin_dfs.verify_workload import verify as verify_kv_2ecss_package
+from t.two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs.independent_oracle import expected_output as kv_2vcss_independent_oracle
+from t.two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs.verify_workload import verify as verify_kv_2vcss_package
+from t.nagamochi_ibaraki_sparse_k_connectivity_certificate.independent_oracle import expected_output as ni_certificate_independent_oracle
+from t.nagamochi_ibaraki_sparse_k_connectivity_certificate.verify_workload import verify as verify_ni_certificate_package
+from t.cheriyan_thurimella_two_vertex_connected_augmentation.independent_oracle import expected_output as ct_2vcss_independent_oracle
+from t.cheriyan_thurimella_two_vertex_connected_augmentation.verify_workload import verify as verify_ct_2vcss_package
+from t.khuller_raghavachari_three_edge_connected_spanning_subgraph.independent_oracle import expected_output as kr_3ecss_independent_oracle
+from t.khuller_raghavachari_three_edge_connected_spanning_subgraph.verify_workload import verify as verify_kr_3ecss_package
+from a.additive_two_spanner_completion.independent_oracle import expected_output as additive_two_spanner_completion_independent_oracle
+from a.additive_two_spanner_completion.verify_workload import verify as verify_additive_two_spanner_completion_package
 from kmp_slp_jump_output_verifier_oracle import expected_output as kmp_slp_jump_output_independent_oracle
 from sepia_oracle import (
     MIN_DIMENSION as SEPIA_MIN_DIMENSION,
@@ -4144,6 +5792,58 @@ from characteristic_polynomial_oracle import MAX_OUTPUT_BYTES as CHARACTERISTIC_
 from characteristic_polynomial_oracle import MAX_VALID_INPUT_LENGTH as CHARACTERISTIC_POLYNOMIAL_VERIFIER_MAX_VALID_INPUT_LENGTH
 from characteristic_polynomial_oracle import MAX_PARSEABLE_INPUT_LENGTH as CHARACTERISTIC_POLYNOMIAL_VERIFIER_MAX_PARSEABLE_INPUT_LENGTH
 from characteristic_polynomial_oracle import expected_output as characteristic_polynomial_independent_oracle
+from c.cyclotomic_polynomial_coefficients.independent_oracle import (
+    expected_output as cyclotomic_polynomial_coefficients_independent_oracle,
+)
+from c.cyclotomic_polynomial_coefficients.primary_oracle import (
+    MAX_N as CYCLOTOMIC_VERIFIER_MAX_N,
+    MAX_VALID_INPUT_LENGTH as CYCLOTOMIC_VERIFIER_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CYCLOTOMIC_VERIFIER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CYCLOTOMIC_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CYCLOTOMIC_VERIFIER_WORKSPACE_BYTES,
+)
+from c.cyclotomic_polynomial_coefficients.check_inventory import (
+    check_inventory as cyclotomic_polynomial_coefficients_inventory_issues,
+)
+from c.cyclotomic_polynomial_coefficients.verify_workload import (
+    verify_workload as cyclotomic_polynomial_coefficients_verify_workload,
+)
+from k.k_repetition_within_factor_copy_propagation.independent_oracle import (
+    expected_output as k_repetition_within_factor_copy_propagation_independent_oracle,
+)
+from k.k_repetition_within_factor_copy_propagation.primary_oracle import (
+    MAX_N as K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_N,
+    MAX_K as K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_K,
+    MAX_RECORDS as K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_RECORDS,
+    MAX_VALID_INPUT_LENGTH as K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as K_REPETITION_WITHIN_FACTOR_VERIFIER_WORKSPACE_BYTES,
+)
+from k.k_repetition_within_factor_copy_propagation.check_inventory import (
+    check_inventory as k_repetition_within_factor_copy_propagation_inventory_issues,
+)
+from k.k_repetition_within_factor_copy_propagation.verify_workload import (
+    verify_workload as k_repetition_within_factor_copy_propagation_verify_workload,
+)
+from m.mrg32k3a_combined_recursive_generator.independent_oracle import (
+    expected_output as mrg32k3a_combined_recursive_generator_independent_oracle,
+)
+from m.mrg32k3a_combined_recursive_generator.primary_oracle import (
+    M1 as MRG32K3A_VERIFIER_M1,
+    M2 as MRG32K3A_VERIFIER_M2,
+    MAX_COUNT as MRG32K3A_VERIFIER_MAX_COUNT,
+    MAX_VALID_INPUT as MRG32K3A_VERIFIER_MAX_VALID_INPUT,
+    MAX_PARSEABLE_INPUT as MRG32K3A_VERIFIER_MAX_PARSEABLE_INPUT,
+    MAX_OUTPUT_BYTES as MRG32K3A_VERIFIER_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as MRG32K3A_VERIFIER_WORKSPACE_BYTES,
+)
+from m.mrg32k3a_combined_recursive_generator.check_inventory import (
+    check_inventory as mrg32k3a_combined_recursive_generator_inventory_issues,
+)
+from m.mrg32k3a_combined_recursive_generator.verify_workload import (
+    verify_workload as mrg32k3a_combined_recursive_generator_verify_workload,
+)
 from burnside_bracelets_oracle import MAX_COLORS as BURNSIDE_BRACELETS_VERIFIER_MAX_COLORS
 from burnside_bracelets_oracle import MAX_N as BURNSIDE_BRACELETS_VERIFIER_MAX_N
 from burnside_bracelets_oracle import MAX_OUTPUT_BYTES as BURNSIDE_BRACELETS_VERIFIER_MAX_OUTPUT_BYTES
@@ -4696,6 +6396,7 @@ from max_minimum_machine_load_lpt_verifier_oracle import expected_output as max_
 from vector_scheduling_verifier_oracle import expected_output as vector_scheduling_independent_oracle
 from vector_bin_packing_verifier_oracle import expected_output as vector_bin_packing_independent_oracle
 from list_ranking_independent_set_contraction_verifier_oracle import expected_output as list_ranking_contraction_independent_oracle
+from list_ranking_random_mate_verifier_oracle import expected_output as list_ranking_random_mate_independent_oracle
 from frequent_itemset_backtrack_oracle import MAX_INPUT_LENGTH as FREQUENT_ITEMSET_BACKTRACK_MAX_INPUT_LENGTH
 from frequent_itemset_backtrack_verifier_oracle import verify as frequent_itemset_backtrack_independent_check
 from frequent_itemset_delivery_oracle import MAX_INPUT_LENGTH as FREQUENT_ITEMSET_DELIVERY_MAX_INPUT_LENGTH
@@ -4737,12 +6438,309 @@ from approximate_matching_greedy_oracle import MAX_INPUT_LENGTH as APPROXIMATE_M
 from approximate_matching_greedy_verifier_oracle import verify as approximate_matching_greedy_independent_check
 from parentheses_generator_oracle import MAX_INPUT_LENGTH as PARENTHESES_GENERATOR_MAX_INPUT_LENGTH
 from parentheses_generator_verifier_oracle import verify as parentheses_generator_independent_check
+from b.balanced_parenthesis_successor.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BALANCED_PARENTHESIS_SUCCESSOR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BALANCED_PARENTHESIS_SUCCESSOR_MAX_OUTPUT_BYTES,
+    expected_output as balanced_parenthesis_successor_primary_oracle,
+)
+from b.balanced_parenthesis_successor.independent_oracle import (
+    expected_output as balanced_parenthesis_successor_independent_oracle,
+)
+from b.balanced_parenthesis_successor.verify_workload import (
+    verify_workload as verify_balanced_parenthesis_successor_package,
+)
+from r.list_rooted_trees.primary_oracle import MAX_INPUT_LENGTH as LIST_ROOTED_TREES_MAX_INPUT_LENGTH
+from r.list_rooted_trees.primary_oracle import MAX_OUTPUT_BYTES as LIST_ROOTED_TREES_MAX_OUTPUT_BYTES
+from r.list_rooted_trees.primary_oracle import expected_output as list_rooted_trees_primary_oracle
+from r.list_rooted_trees.independent_oracle import expected_output as list_rooted_trees_independent_oracle
+from r.list_rooted_trees.verify_workload import verify_workload as verify_list_rooted_trees_package
+from l.landau_vishkin_k_difference_pattern_matching.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LANDAU_VISHKIN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LANDAU_VISHKIN_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as LANDAU_VISHKIN_WORKSPACE_BYTES,
+    expected_output as landau_vishkin_k_difference_pattern_matching_primary_oracle,
+)
+from l.landau_vishkin_k_difference_pattern_matching.independent_oracle import (
+    expected_output as landau_vishkin_k_difference_pattern_matching_independent_oracle,
+)
+from l.landau_vishkin_k_difference_pattern_matching.verify_workload import (
+    verify_workload as verify_landau_vishkin_k_difference_pattern_matching_package,
+)
+from t.time_based_one_time_password_algorithm.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as TOTP_VERIFIER_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as TOTP_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TOTP_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as TOTP_VERIFIER_WORKSPACE_BYTES,
+    expected_output as time_based_one_time_password_algorithm_primary_oracle,
+)
+from t.time_based_one_time_password_algorithm.independent_oracle import (
+    expected_output as time_based_one_time_password_algorithm_independent_oracle,
+)
+from t.time_based_one_time_password_algorithm.check_inventory import (
+    static_issues as totp_static_inventory_issues,
+)
+from t.time_based_one_time_password_algorithm.verify_workload import (
+    verify_workload as verify_totp_package_workload,
+)
+from f.fast_minimal_triangulation.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as FMT_VERIFIER_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as FMT_VERIFIER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FMT_VERIFIER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as FMT_VERIFIER_WORKSPACE_BYTES,
+    expected_output as fast_minimal_triangulation_primary_oracle,
+)
+from f.fast_minimal_triangulation.independent_oracle import (
+    expected_output as fast_minimal_triangulation_independent_oracle,
+)
+from f.fast_minimal_triangulation.check_inventory import (
+    static_issues as fast_minimal_triangulation_static_issues,
+)
+from f.fast_minimal_triangulation.verify_workload import (
+    workload_issues as fast_minimal_triangulation_workload_issues,
+)
+from v.van_emde_boas_layout_search.primary_oracle import (
+    MAX_VALID_INPUT_WORDS as VEB_LAYOUT_MAX_VALID_INPUT_WORDS,
+    MAX_PARSEABLE_INPUT_WORDS as VEB_LAYOUT_MAX_PARSEABLE_INPUT_WORDS,
+    MAX_OUTPUT_BYTES as VEB_LAYOUT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as VEB_LAYOUT_WORKSPACE_BYTES,
+    expected_output as van_emde_boas_layout_search_primary_oracle,
+)
+from v.van_emde_boas_layout_search.independent_oracle import (
+    expected_output as van_emde_boas_layout_search_independent_oracle,
+)
+from v.van_emde_boas_layout_search.check_inventory import (
+    static_issues as veb_layout_static_issues,
+)
+from v.van_emde_boas_layout_search.verify_workload import (
+    workload_issues as veb_layout_workload_issues,
+)
+from p.planar_directed_general_st_flow_borradaile_klein.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as PLANAR_GENERAL_ST_FLOW_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PLANAR_GENERAL_ST_FLOW_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PLANAR_GENERAL_ST_FLOW_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as PLANAR_GENERAL_ST_FLOW_WORKSPACE_BYTES,
+    expected_output as planar_directed_general_st_flow_primary_oracle,
+)
+from p.planar_directed_general_st_flow_borradaile_klein.independent_oracle import (
+    expected_output as planar_directed_general_st_flow_independent_oracle,
+)
+from p.planar_directed_general_st_flow_borradaile_klein.check_inventory import (
+    static_issues as planar_general_st_flow_static_issues,
+)
+from p.planar_directed_general_st_flow_borradaile_klein.verify_workload import (
+    workload_issues as planar_general_st_flow_workload_issues,
+)
+from p.posit8_rational_encoder.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as POSIT8_ENCODER_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as POSIT8_ENCODER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as POSIT8_ENCODER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as POSIT8_ENCODER_WORKSPACE_BYTES,
+    expected_output as posit8_rational_encoder_primary_oracle,
+)
+from p.posit8_rational_encoder.independent_oracle import (
+    expected_output as posit8_rational_encoder_independent_oracle,
+)
+from p.posit8_rational_encoder.check_inventory import (
+    verify_static_inventory as posit8_encoder_verify_static_inventory,
+)
+from p.posit8_rational_encoder.verify_workload import (
+    verify_workload as verify_posit8_encoder_package_workload,
+)
+from c.cactus_stack_branch_trace.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as CACTUS_STACK_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CACTUS_STACK_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CACTUS_STACK_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CACTUS_STACK_WORKSPACE_BYTES,
+    expected_output as cactus_stack_branch_trace_primary_oracle,
+)
+from c.cactus_stack_branch_trace.independent_oracle import (
+    expected_output as cactus_stack_branch_trace_independent_oracle,
+)
+from c.cactus_stack_branch_trace.check_inventory import (
+    static_issues as cactus_stack_static_issues,
+)
+from c.cactus_stack_branch_trace.verify_workload import (
+    workload_issues as cactus_stack_workload_issues,
+)
+from s.smarandache_wellin_prime_prefix_scan.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as SMARANDACHE_WELLIN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SMARANDACHE_WELLIN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SMARANDACHE_WELLIN_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SMARANDACHE_WELLIN_WORKSPACE_BYTES,
+    expected_output as smarandache_wellin_prime_prefix_scan_primary_oracle,
+)
+from s.smarandache_wellin_prime_prefix_scan.independent_oracle import (
+    expected_output as smarandache_wellin_prime_prefix_scan_independent_oracle,
+)
+from s.smarandache_wellin_prime_prefix_scan.check_inventory import (
+    verify_static_inventory as smarandache_wellin_verify_static_inventory,
+)
+from s.smarandache_wellin_prime_prefix_scan.verify_workload import (
+    verify_workload as verify_smarandache_wellin_package_workload,
+)
+from j.junta_test_partition_binary_search.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as JUNTA_TEST_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as JUNTA_TEST_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as JUNTA_TEST_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as JUNTA_TEST_MAX_WORKSPACE_BYTES,
+    WORKSPACE_BYTES as JUNTA_TEST_WORKSPACE_BYTES,
+    expected_output as junta_test_partition_binary_search_primary_oracle,
+)
+from j.junta_test_partition_binary_search.independent_oracle import (
+    expected_output as junta_test_partition_binary_search_independent_oracle,
+)
+from j.junta_test_partition_binary_search.check_inventory import (
+    static_issues as junta_test_partition_binary_search_static_issues,
+)
+from j.junta_test_partition_binary_search.verify_workload import (
+    workload_issues as junta_test_partition_binary_search_workload_issues,
+)
+from c.combinations_with_repetition_lexicographic.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as MULTICOMBINATIONS_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MULTICOMBINATIONS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MULTICOMBINATIONS_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MULTICOMBINATIONS_WORKSPACE_BYTES,
+    expected_output as combinations_with_repetition_lexicographic_primary_oracle,
+)
+from c.combinations_with_repetition_lexicographic.independent_oracle import (
+    expected_output as combinations_with_repetition_lexicographic_independent_oracle,
+)
+from c.combinations_with_repetition_lexicographic.check_inventory import (
+    verify_static_inventory as multicombinations_verify_static_inventory,
+)
+from c.combinations_with_repetition_lexicographic.verify_workload import (
+    verify_workload as verify_multicombinations_package_workload,
+)
+from g.gregorian_daycount_to_ordinal_date.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as GREGORIAN_DAYCOUNT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GREGORIAN_DAYCOUNT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GREGORIAN_DAYCOUNT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as GREGORIAN_DAYCOUNT_WORKSPACE_BYTES,
+    expected_output as gregorian_daycount_to_ordinal_date_primary_oracle,
+)
+from g.gregorian_daycount_to_ordinal_date.independent_oracle import (
+    expected_output as gregorian_daycount_to_ordinal_date_independent_oracle,
+)
+from g.gregorian_daycount_to_ordinal_date.check_inventory import (
+    static_issues as gregorian_daycount_static_issues,
+)
+from g.gregorian_daycount_to_ordinal_date.verify_workload import (
+    verify_workload as verify_gregorian_daycount_package_workload,
+)
+from s.shannon_fano_elias_symbol_codes.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as SFE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SFE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SFE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SFE_WORKSPACE_BYTES,
+    expected_output as shannon_fano_elias_symbol_codes_primary_oracle,
+)
+from s.shannon_fano_elias_symbol_codes.independent_oracle import (
+    expected_output as shannon_fano_elias_symbol_codes_independent_oracle,
+)
+from s.shannon_fano_elias_symbol_codes.check_inventory import (
+    static_issues as sfe_static_issues,
+)
+from s.shannon_fano_elias_symbol_codes.verify_workload import (
+    workload_issues as sfe_workload_issues,
+)
+from g.goodstein_sequence_bounded_prefix.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as GOODSTEIN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GOODSTEIN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GOODSTEIN_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as GOODSTEIN_WORKSPACE_BYTES,
+    expected_output as goodstein_sequence_bounded_prefix_primary_oracle,
+)
+from g.goodstein_sequence_bounded_prefix.independent_oracle import (
+    expected_output as goodstein_sequence_bounded_prefix_independent_oracle,
+)
+from g.goodstein_sequence_bounded_prefix.check_inventory import (
+    verify_static_inventory as goodstein_verify_static_inventory,
+)
+from g.goodstein_sequence_bounded_prefix.verify_workload import (
+    verify_workload as verify_goodstein_package_workload,
+)
+from g.gpsr_perimeter_recovery_trace.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as GPSR_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GPSR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as GPSR_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as GPSR_WORKSPACE_BYTES,
+    expected_output as gpsr_perimeter_recovery_trace_primary_oracle,
+)
+from g.gpsr_perimeter_recovery_trace.independent_oracle import (
+    expected_output as gpsr_perimeter_recovery_trace_independent_oracle,
+)
+from g.gpsr_perimeter_recovery_trace.check_inventory import (
+    static_issues as gpsr_static_issues,
+)
+from g.gpsr_perimeter_recovery_trace.verify_workload import (
+    workload_issues as gpsr_workload_issues,
+)
+from o.order_preserving_huffman_greedy_trace.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as ORDER_HUFFMAN_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ORDER_HUFFMAN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ORDER_HUFFMAN_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as ORDER_HUFFMAN_WORKSPACE_BYTES,
+    expected_output as order_preserving_huffman_greedy_trace_primary_oracle,
+)
+from o.order_preserving_huffman_greedy_trace.independent_oracle import (
+    expected_output as order_preserving_huffman_greedy_trace_independent_oracle,
+)
+from o.order_preserving_huffman_greedy_trace.check_inventory import (
+    static_issues as order_huffman_static_issues,
+)
+from o.order_preserving_huffman_greedy_trace.verify_workload import (
+    verify_workload as verify_order_huffman_package_workload,
+)
+from p.powerful_numbers_square_cube_enumeration.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as POWERFUL_NUMBERS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as POWERFUL_NUMBERS_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as POWERFUL_NUMBERS_WORKSPACE_BYTES,
+    expected_output as powerful_numbers_square_cube_enumeration_primary_oracle,
+)
+from p.powerful_numbers_square_cube_enumeration.independent_oracle import (
+    expected_output as powerful_numbers_square_cube_enumeration_independent_oracle,
+)
+from p.powerful_numbers_square_cube_enumeration.check_inventory import (
+    verify_static_inventory as powerful_numbers_verify_static_inventory,
+)
+from p.powerful_numbers_square_cube_enumeration.verify_workload import (
+    verify_workload as verify_powerful_numbers_package_workload,
+)
+from t.three_prime_carmichael_enumerator.primary_oracle import (
+    MAX_LIMIT as THREE_PRIME_CARMICHAEL_MAX_LIMIT,
+    MAX_OUTPUT_BYTES as THREE_PRIME_CARMICHAEL_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as THREE_PRIME_CARMICHAEL_MAX_INPUT_LENGTH,
+    WORKSPACE_BYTES as THREE_PRIME_CARMICHAEL_WORKSPACE_BYTES,
+    enumerate_triples as three_prime_carmichael_enumerate_triples,
+    expected_output as three_prime_carmichael_primary_oracle,
+)
+from t.three_prime_carmichael_enumerator.independent_oracle import (
+    expected_output as three_prime_carmichael_independent_oracle,
+)
+from t.three_prime_carmichael_enumerator.verify_workload import (
+    verify_workload as verify_three_prime_carmichael_package,
+)
 from approximating_diameter_bfs_oracle import MAX_INPUT_LENGTH as APPROXIMATING_DIAMETER_BFS_MAX_INPUT_LENGTH
 from approximating_diameter_bfs_verifier_oracle import verify as approximating_diameter_bfs_independent_check
 from domination_local_reduction_oracle import MAX_INPUT_LENGTH as DOMINATION_LOCAL_REDUCTION_MAX_INPUT_LENGTH
 from domination_local_reduction_oracle import MAX_OUTPUT_BYTES as DOMINATION_LOCAL_REDUCTION_MAX_OUTPUT_BYTES
 from domination_local_reduction_verifier_oracle import verify as domination_local_reduction_independent_check
+from s.set_cover_domination_reduction.independent_oracle import (
+    expected_output as set_cover_domination_reduction_independent_oracle,
+)
+from r.ruf_schobel_set_cover.independent_oracle import (
+    expected_output as ruf_schobel_set_cover_independent_oracle,
+)
+from s.strong_c1p_set_cover_shortest_path.independent_oracle import (
+    expected_output as strong_c1p_set_cover_independent_oracle,
+)
 from tsp_few_inner_points_verifier_oracle import expected_output as tsp_few_inner_points_independent_oracle
+from t.tsp_few_inner_points_subset_dp.independent_oracle import expected_output as tsp_few_inner_points_subset_dp_independent_oracle
+from t.tsp_few_inner_points_subset_dp.verify_workload import verify as verify_tsp_few_inner_points_subset_dp_package
+from h.hypergraph_incidence_graph_encoding.independent_oracle import expected_output as hypergraph_incidence_graph_encoding_independent_oracle
+from h.hypergraph_incidence_graph_encoding.verify_workload import verify as verify_hypergraph_incidence_graph_encoding_package
+from c.clarke_wright_savings_cvrp.independent_oracle import expected_output as clarke_wright_savings_cvrp_independent_oracle
+from c.clarke_wright_savings_cvrp.verify_workload import verify as verify_clarke_wright_savings_cvrp_package
 from rate_monotonic_scheduling_verifier_oracle import expected_output as rate_monotonic_scheduling_independent_oracle
 from non_shared_edges_verifier_oracle import expected_output as non_shared_edges_independent_oracle
 from unit_disk_graph_wspd_verifier_oracle import expected_output as unit_disk_graph_wspd_independent_oracle
@@ -4771,6 +6769,20 @@ from random_3sat_greedy_dpll_verifier_oracle import expected_output as random_3s
 from randomized_ray_search_verifier_oracle import expected_output as randomized_ray_search_independent_oracle
 from suffix_array_lcp_search_verifier_oracle import expected_output as suffix_array_lcp_search_independent_oracle
 from suffix_tree_pattern_occurrences_verifier_oracle import expected_output as suffix_tree_pattern_occurrences_independent_oracle
+from s.suffix_tray_pattern_query.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as SUFFIX_TRAY_PATTERN_QUERY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SUFFIX_TRAY_PATTERN_QUERY_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SUFFIX_TRAY_PATTERN_QUERY_WORKSPACE_BYTES,
+)
+from s.suffix_tray_pattern_query.independent_oracle import (
+    expected_output as suffix_tray_pattern_query_independent_oracle,
+)
+from s.suffix_tray_pattern_query.check_inventory import (
+    check_inventory as suffix_tray_pattern_query_check_inventory,
+)
+from s.suffix_tray_pattern_query.verify_workload import (
+    verify_workload as suffix_tray_pattern_query_verify_workload,
+)
 from suffix_array_dc3_verifier_oracle import expected_output as suffix_array_dc3_independent_oracle
 from suffix_array_dc3_oracle import expected_output as suffix_array_dc3_primary_oracle
 from packet_switching_sgr_multi_queue_verifier_oracle import expected_output as packet_switching_sgr_multi_queue_independent_oracle
@@ -4805,6 +6817,104 @@ from hub_labeling_greedy_order_oracle import expected_output as hub_labeling_gre
 from dense_graph_bipartiteness_tester_verifier_oracle import expected_output as dense_graph_bipartiteness_tester_independent_oracle
 from a.all_distances_sketch_bottom_k_oracle import MAX_INPUT_LENGTH as ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH
 from a.all_distances_sketch_bottom_k_verifier_oracle import verify as all_distances_sketch_bottom_k_independent_check
+from a.all_distances_sketch_k_mins.primary_oracle import MAX_INPUT_WORDS as ALL_DISTANCES_K_MINS_MAX_INPUT_WORDS
+from a.all_distances_sketch_k_mins.independent_oracle import evaluate as all_distances_sketch_k_mins_independent_evaluate
+from a.all_distances_bottom_k_interval_updates.primary_oracle import MAX_PARSEABLE_INPUT_LENGTH as ALL_DISTANCES_INTERVAL_UPDATES_MAX_INPUT_LENGTH
+from a.all_distances_bottom_k_interval_updates.primary_oracle import MAX_OUTPUT_BYTES as ALL_DISTANCES_INTERVAL_UPDATES_MAX_OUTPUT_BYTES
+from a.all_distances_bottom_k_interval_updates.primary_oracle import WORKSPACE_BYTES as ALL_DISTANCES_INTERVAL_UPDATES_WORKSPACE_BYTES
+from a.all_distances_bottom_k_interval_updates.independent_oracle import expected_output as all_distances_bottom_k_interval_updates_independent_oracle
+from a.all_distances_bottom_k_interval_updates.check_inventory import static_issues as all_distances_bottom_k_interval_updates_static_issues
+from a.asteroid_collision_stack.primary_oracle import (
+    MAX_N as ASTEROID_COLLISION_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as ASTEROID_COLLISION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ASTEROID_COLLISION_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as ASTEROID_COLLISION_WORKSPACE_BYTES,
+)
+from a.asteroid_collision_stack.independent_oracle import (
+    expected_output as asteroid_collision_stack_independent_oracle,
+)
+from a.asteroid_collision_stack.check_inventory import (
+    static_issues as asteroid_collision_stack_static_issues,
+)
+from k.k_mismatch_longest_extension_table.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as K_MISMATCH_LP_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as K_MISMATCH_LP_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as K_MISMATCH_LP_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as K_MISMATCH_LP_WORKSPACE_BYTES,
+)
+from k.k_mismatch_longest_extension_table.independent_oracle import (
+    expected_output as k_mismatch_longest_extension_table_independent_oracle,
+)
+from k.k_mismatch_longest_extension_table.check_inventory import (
+    static_issues as k_mismatch_longest_extension_table_static_issues,
+)
+from k.k_repetition_binary_division_kernel.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as K_REPETITION_BINARY_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as K_REPETITION_BINARY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as K_REPETITION_BINARY_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as K_REPETITION_BINARY_WORKSPACE_BYTES,
+)
+from k.k_repetition_binary_division_kernel.independent_oracle import (
+    expected_output as k_repetition_binary_division_kernel_independent_oracle,
+)
+from k.k_repetition_binary_division_kernel.check_inventory import (
+    static_issues as k_repetition_binary_division_kernel_static_issues,
+)
+from k.k_repetition_block_head_pair_pass.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as K_REPETITION_BLOCK_HEAD_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as K_REPETITION_BLOCK_HEAD_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as K_REPETITION_BLOCK_HEAD_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as K_REPETITION_BLOCK_HEAD_WORKSPACE_BYTES,
+)
+from k.k_repetition_block_head_pair_pass.independent_oracle import (
+    expected_output as k_repetition_block_head_pair_pass_independent_oracle,
+)
+from k.k_repetition_block_head_pair_pass.check_inventory import (
+    static_issues as k_repetition_block_head_pair_pass_static_issues,
+)
+from m.markov_normal_string_rewriting.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as MARKOV_NORMAL_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as MARKOV_NORMAL_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MARKOV_NORMAL_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MARKOV_NORMAL_WORKSPACE_BYTES,
+)
+from m.markov_normal_string_rewriting.independent_oracle import (
+    expected_output as markov_normal_string_rewriting_independent_oracle,
+)
+from m.markov_normal_string_rewriting.check_inventory import (
+    static_issues as markov_normal_string_rewriting_static_issues,
+)
+from m.muthukrishnan_document_listing.independent_oracle import (
+    expected_output as muthukrishnan_document_listing_independent_oracle,
+)
+from d.discrete_interval_encoding_tree.independent_oracle import (
+    expected_output as discrete_interval_encoding_tree_independent_oracle,
+)
+from r.round_robin_tournament_schedule.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as ROUND_ROBIN_TOURNAMENT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as ROUND_ROBIN_TOURNAMENT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ROUND_ROBIN_TOURNAMENT_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as ROUND_ROBIN_TOURNAMENT_WORKSPACE_BYTES,
+)
+from r.round_robin_tournament_schedule.independent_oracle import (
+    expected_output as round_robin_tournament_schedule_independent_oracle,
+)
+from r.round_robin_tournament_schedule.check_inventory import (
+    static_issues as round_robin_tournament_schedule_static_issues,
+)
+from d.digital_filter_direct_form_ii_transposed.primary_oracle import MAX_PARSEABLE_INPUT_LENGTH as DIGITAL_FILTER_DFII_T_MAX_INPUT_LENGTH
+from d.digital_filter_direct_form_ii_transposed.primary_oracle import MAX_OUTPUT_BYTES as DIGITAL_FILTER_DFII_T_MAX_OUTPUT_BYTES
+from d.digital_filter_direct_form_ii_transposed.primary_oracle import WORKSPACE_BYTES as DIGITAL_FILTER_DFII_T_WORKSPACE_BYTES
+from d.digital_filter_direct_form_ii_transposed.independent_oracle import expected_output as digital_filter_dfii_t_independent_oracle
+from d.digital_filter_direct_form_ii_transposed.check_inventory import static_issues as digital_filter_dfii_t_static_issues
+from z.zobrist_position_hash_trace.independent_oracle import (
+    expected_output as zobrist_position_hash_trace_independent_oracle,
+)
+from z.zobrist_position_hash_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ZOBRIST_POSITION_HASH_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as ZOBRIST_POSITION_HASH_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as ZOBRIST_POSITION_HASH_WORKSPACE_BYTES,
+)
 from sublinear_bipartiteness_walk_tester_verifier_oracle import expected_output as sublinear_bipartiteness_walk_tester_independent_oracle
 from optimal_stable_marriage_verifier_oracle import expected_output as optimal_stable_marriage_independent_oracle
 from quine_mccluskey_minimization_verifier_oracle import expected_output as quine_mccluskey_minimization_independent_oracle
@@ -4836,6 +6946,275 @@ from transit_node_routing_table_query_verifier_oracle import expected_output as 
 from sequential_lut_k_cut_enumeration_verifier_oracle import expected_output as sequential_lut_k_cut_enumeration_independent_oracle
 from rna_mfe_loop_energy_dp_verifier_oracle import expected_output as rna_mfe_loop_energy_dp_independent_oracle
 from spatial_motif_same_type_contact_pmf_verifier_oracle import expected_output as spatial_motif_same_type_contact_pmf_independent_oracle
+from s.spatial_motif_different_type_contact_pmf.independent_oracle import (
+    MAX_PARSEABLE_LENGTH as SPATIAL_MOTIF_DIFFERENT_TYPE_CONTACT_PMF_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SPATIAL_MOTIF_DIFFERENT_TYPE_CONTACT_PMF_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SPATIAL_MOTIF_DIFFERENT_TYPE_CONTACT_PMF_WORKSPACE_BYTES,
+    expected_output as spatial_motif_different_type_contact_pmf_independent_oracle,
+)
+from s.spatial_motif_different_type_contact_pmf.check_inventory import (
+    static_issues as spatial_motif_different_type_contact_pmf_static_issues,
+)
+from c.cordic_rotation_fixed_point.primary_oracle import (
+    MAX_PARSEABLE_INPUT_VALUES as CORDIC_ROTATION_FIXED_POINT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CORDIC_ROTATION_FIXED_POINT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CORDIC_ROTATION_FIXED_POINT_WORKSPACE_BYTES,
+)
+from c.cordic_rotation_fixed_point.independent_oracle import (
+    expected_output as cordic_rotation_fixed_point_independent_oracle,
+)
+from c.cordic_rotation_fixed_point.check_inventory import (
+    static_issues as cordic_rotation_fixed_point_static_issues,
+)
+from p.packet_switching_random_schedule.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as PACKET_RANDOM_SCHEDULE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PACKET_RANDOM_SCHEDULE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as PACKET_RANDOM_SCHEDULE_WORKSPACE_BYTES,
+)
+from p.packet_switching_random_schedule.independent_oracle import (
+    expected_output as packet_switching_random_schedule_independent_oracle,
+)
+from p.packet_switching_random_schedule.check_inventory import (
+    check_inventory as packet_switching_random_schedule_check_inventory,
+)
+from b.bitset_xor_shift_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BITSET_XOR_SHIFT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BITSET_XOR_SHIFT_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BITSET_XOR_SHIFT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BITSET_XOR_SHIFT_WORKSPACE_BYTES,
+)
+from b.bitset_xor_shift_trace.independent_oracle import (
+    expected_output as bitset_xor_shift_trace_independent_output,
+)
+from b.bitset_xor_shift_trace.check_inventory import (
+    inventory_errors as bitset_xor_shift_trace_inventory_errors,
+)
+from b.bitset_xor_shift_trace.verify_workload import (
+    verify_workload as verify_bitset_xor_shift_trace_package,
+)
+from b.buddy_system_allocator.primary_oracle import (
+    MAX_INPUT_LENGTH as BUDDY_SYSTEM_ALLOCATOR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BUDDY_SYSTEM_ALLOCATOR_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BUDDY_SYSTEM_ALLOCATOR_WORKSPACE_BYTES,
+)
+from b.buddy_system_allocator.independent_oracle import (
+    expected_output as buddy_system_allocator_independent_output,
+)
+from b.buddy_system_allocator.check_inventory import (
+    static_issues as buddy_system_allocator_inventory_issues,
+)
+from b.buddy_system_allocator.verify_workload import (
+    workload_issues as verify_buddy_system_allocator_package,
+)
+from b.blelloch_parallel_prefix_scan.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BLELLOCH_SCAN_MAX_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BLELLOCH_SCAN_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BLELLOCH_SCAN_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BLELLOCH_SCAN_WORKSPACE_BYTES,
+)
+from b.blelloch_parallel_prefix_scan.independent_oracle import (
+    expected_output as blelloch_parallel_prefix_scan_independent_output,
+)
+from b.blelloch_parallel_prefix_scan.check_inventory import (
+    static_issues as blelloch_parallel_prefix_scan_inventory_issues,
+)
+from b.blelloch_parallel_prefix_scan.verify_workload import (
+    workload_issues as verify_blelloch_parallel_prefix_scan_package,
+)
+from b.berkowitz_characteristic_polynomial.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as BERKOWITZ_MAX_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as BERKOWITZ_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as BERKOWITZ_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as BERKOWITZ_WORKSPACE_BYTES,
+)
+from b.berkowitz_characteristic_polynomial.independent_oracle import (
+    expected_output as berkowitz_characteristic_polynomial_independent_output,
+)
+from b.berkowitz_characteristic_polynomial.check_inventory import (
+    static_issues as berkowitz_characteristic_polynomial_inventory_issues,
+)
+from b.berkowitz_characteristic_polynomial.verify_workload import (
+    workload_issues as verify_berkowitz_characteristic_polynomial_package,
+)
+from d.deterministic_linear_threshold_spread.primary_oracle import (
+    MAX_VALID_INPUT as DETERMINISTIC_LT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT as DETERMINISTIC_LT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DETERMINISTIC_LT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as DETERMINISTIC_LT_WORKSPACE_BYTES,
+)
+from d.deterministic_linear_threshold_spread.independent_oracle import (
+    expected_output as deterministic_linear_threshold_spread_independent_output,
+)
+from d.deterministic_linear_threshold_spread.check_inventory import (
+    static_issues as deterministic_linear_threshold_spread_inventory_issues,
+)
+from d.deterministic_linear_threshold_spread.verify_workload import (
+    workload_issues as verify_deterministic_linear_threshold_spread_package,
+)
+from b.blr_linearity_test.primary_oracle import (
+    MAX_INPUT as BLR_LINEARITY_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_BYTES as BLR_LINEARITY_WORKSPACE_BYTES,
+)
+from b.blr_linearity_test.independent_oracle import (
+    expected_output as blr_linearity_test_independent_output,
+)
+from b.blr_linearity_test.check_inventory import (
+    static_issues as blr_linearity_test_inventory_issues,
+)
+from b.blr_linearity_test.verify_workload import (
+    workload_issues as verify_blr_linearity_test_package,
+)
+from h.hypercube_edge_monotonicity_tester.primary_oracle import (
+    MAX_VALID_INPUT_WORDS as HYPERCUBE_EDGE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_WORDS as HYPERCUBE_EDGE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as HYPERCUBE_EDGE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as HYPERCUBE_EDGE_WORKSPACE_BYTES,
+)
+from h.hypercube_edge_monotonicity_tester.independent_oracle import (
+    expected_output as hypercube_edge_monotonicity_tester_independent_output,
+)
+from h.hypercube_edge_monotonicity_tester.check_inventory import (
+    static_issues as hypercube_edge_monotonicity_tester_inventory_issues,
+)
+from h.hypercube_edge_monotonicity_tester.verify_workload import (
+    workload_issues as verify_hypercube_edge_monotonicity_tester_package,
+)
+from f.felzenszwalb_huttenlocher_1d_squared_distance_transform.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FH_1D_DISTANCE_MAX_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as FH_1D_DISTANCE_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FH_1D_DISTANCE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as FH_1D_DISTANCE_WORKSPACE_BYTES,
+)
+from f.felzenszwalb_huttenlocher_1d_squared_distance_transform.independent_oracle import (
+    expected_output as fh_1d_distance_independent_output,
+)
+from f.felzenszwalb_huttenlocher_1d_squared_distance_transform.check_inventory import (
+    static_issues as fh_1d_distance_inventory_issues,
+)
+from f.felzenszwalb_huttenlocher_1d_squared_distance_transform.verify_workload import (
+    workload_issues as verify_fh_1d_distance_package,
+)
+from m.multiply_shift_universal_hash_trace.primary_oracle import (
+    MAX_PARSEABLE_INPUT_WORDS as MULTIPLY_SHIFT_MAX_INPUT_LENGTH,
+    MAX_VALID_INPUT_WORDS as MULTIPLY_SHIFT_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MULTIPLY_SHIFT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MULTIPLY_SHIFT_WORKSPACE_BYTES,
+)
+from m.multiply_shift_universal_hash_trace.independent_oracle import (
+    expected_output as multiply_shift_universal_hash_trace_independent_output,
+)
+from m.multiply_shift_universal_hash_trace.check_inventory import (
+    static_issues as multiply_shift_universal_hash_trace_inventory_issues,
+)
+from m.multiply_shift_universal_hash_trace.verify_workload import (
+    workload_issues as verify_multiply_shift_universal_hash_trace_package,
+)
+from h.hashbelt_aging_hash_table.primary_oracle import (
+    MAX_INPUT_LENGTH as HASHBELT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as HASHBELT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as HASHBELT_WORKSPACE_BYTES,
+)
+from h.hashbelt_aging_hash_table.independent_oracle import (
+    expected_output as hashbelt_aging_hash_table_independent_output,
+)
+from h.hashbelt_aging_hash_table.check_inventory import (
+    static_issues as hashbelt_aging_hash_table_inventory_issues,
+)
+from h.hashbelt_aging_hash_table.verify_workload import (
+    workload_issues as verify_hashbelt_aging_hash_table_package,
+)
+from w.wilson_uniform_spanning_tree.primary_oracle import (
+    MAX_VALID_INPUT_WORDS as WILSON_UST_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_WORDS as WILSON_UST_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as WILSON_UST_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as WILSON_UST_WORKSPACE_BYTES,
+)
+from w.wilson_uniform_spanning_tree.independent_oracle import (
+    expected_output as wilson_uniform_spanning_tree_independent_output,
+)
+from w.wilson_uniform_spanning_tree.check_inventory import (
+    static_issues as wilson_uniform_spanning_tree_inventory_issues,
+)
+from w.wilson_uniform_spanning_tree.verify_workload import (
+    workload_issues as verify_wilson_uniform_spanning_tree_package,
+)
+from c.crust_opposite_pole_selection.primary_oracle import (
+    MAX_VALID_INPUT as CRUST_OPPOSITE_POLE_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT as CRUST_OPPOSITE_POLE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CRUST_OPPOSITE_POLE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as CRUST_OPPOSITE_POLE_WORKSPACE_BYTES,
+)
+from c.crust_opposite_pole_selection.independent_oracle import (
+    expected_output as crust_opposite_pole_selection_independent_output,
+)
+from c.crust_opposite_pole_selection.check_inventory import (
+    static_issues as crust_opposite_pole_selection_inventory_issues,
+)
+from c.crust_opposite_pole_selection.verify_workload import (
+    workload_issues as verify_crust_opposite_pole_selection_package,
+)
+from i.invertible_bloom_lookup_table_reconciliation.primary_oracle import (
+    MAX_INPUT_WORDS as IBLT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_WORDS as IBLT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as IBLT_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as IBLT_WORKSPACE_BYTES,
+)
+from i.invertible_bloom_lookup_table_reconciliation.independent_oracle import (
+    expected_output as invertible_bloom_lookup_table_reconciliation_independent_output,
+)
+from i.invertible_bloom_lookup_table_reconciliation.check_inventory import (
+    static_issues as invertible_bloom_lookup_table_reconciliation_inventory_issues,
+)
+from i.invertible_bloom_lookup_table_reconciliation.verify_workload import (
+    workload_issues as verify_invertible_bloom_lookup_table_reconciliation_package,
+)
+from l.levcopoulos_lingas_planar_geometric_spanner.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LL_SPANNER_MAX_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LL_SPANNER_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LL_SPANNER_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as LL_SPANNER_WORKSPACE_BYTES,
+)
+from l.levcopoulos_lingas_planar_geometric_spanner.independent_oracle import (
+    expected_output as ll_spanner_independent_output,
+)
+from l.levcopoulos_lingas_planar_geometric_spanner.check_inventory import (
+    static_issues as ll_spanner_inventory_issues,
+)
+from l.long_chain_dominant_depth_index.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LONG_CHAIN_DOMINANT_DEPTH_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LONG_CHAIN_DOMINANT_DEPTH_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as LONG_CHAIN_DOMINANT_DEPTH_WORKSPACE_BYTES,
+)
+from l.long_chain_dominant_depth_index.independent_oracle import (
+    expected_output as long_chain_dominant_depth_index_independent_output,
+)
+from l.long_chain_dominant_depth_index.verify_workload import (
+    verify_workload as verify_long_chain_dominant_depth_index_package,
+)
+from l.long_chain_kth_ancestor.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as LONG_CHAIN_KTH_ANCESTOR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LONG_CHAIN_KTH_ANCESTOR_MAX_OUTPUT_BYTES,
+    MAX_WORKSPACE_BYTES as LONG_CHAIN_KTH_ANCESTOR_WORKSPACE_BYTES,
+)
+from l.long_chain_kth_ancestor.independent_oracle import (
+    expected_output as long_chain_kth_ancestor_independent_output,
+)
+from l.long_chain_kth_ancestor.verify_workload import (
+    verify_workload as verify_long_chain_kth_ancestor_package,
+)
+from r.radio_network_bgi_broadcast.primary_oracle import (
+    MAX_INPUT as RADIO_NETWORK_BGI_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RADIO_NETWORK_BGI_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as RADIO_NETWORK_BGI_WORKSPACE_BYTES,
+)
+from r.radio_network_bgi_broadcast.independent_oracle import (
+    expected_output as radio_network_bgi_independent_output,
+)
+from r.radio_network_bgi_broadcast.check_inventory import (
+    inventory_errors as radio_network_bgi_inventory_errors,
+)
+from b.boids_flocking_simulation.independent_reference import expected_output as boids_flocking_simulation_independent_oracle
+from b.boids_flocking_simulation.verify_workload import verify_workload as verify_boids_flocking_simulation_package
 from lz78_flexible_parsing_verifier_oracle import verify as lz78_flexible_parsing_independent_check
 from parameterized_pattern_matching_verifier_oracle import expected_output as parameterized_pattern_matching_independent_oracle
 from voronoi_delaunay_empty_circle_verifier_oracle import expected_output as voronoi_delaunay_empty_circle_independent_oracle
@@ -4852,6 +7231,10 @@ from procedure_s_general_cnf_sat_verifier_oracle import evaluate as procedure_s_
 from procedure_s_general_cnf_sat_oracle import evaluate as procedure_s_general_cnf_sat_primary_check
 from srpt_flow_time_verifier_oracle import expected_output as srpt_flow_time_independent_oracle
 from yds_speed_scaling_verifier_oracle import expected_output as yds_speed_scaling_independent_oracle
+from a.avr_speed_scaling.independent_oracle import expected_output as avr_speed_scaling_independent_oracle
+from a.avr_speed_scaling.verify_workload import verify_workload as avr_speed_scaling_package_issues
+from o.oa_speed_scaling.independent_oracle import expected_output as oa_speed_scaling_independent_oracle
+from o.oa_speed_scaling.verify_workload import verify_workload as oa_speed_scaling_package_issues
 from concave_gap_alignment_global_verifier_oracle import expected_output as concave_gap_alignment_global_independent_oracle
 from two_dimensional_string_matching_verifier_oracle import expected_output as two_dimensional_string_matching_independent_oracle
 from two_dimensional_scaled_pattern_matching_verifier_oracle import expected_output as two_dimensional_scaled_pattern_matching_independent_oracle
@@ -4913,6 +7296,11 @@ from point_pattern_translation_voting_verifier_oracle import expected_output as 
 from point_pattern_translation_lex_scan_verifier_oracle import expected_output as point_pattern_translation_lex_scan_independent_oracle
 from phylogenetic_tree_from_distance_matrix_verifier_oracle import expected_output as phylogenetic_tree_from_distance_matrix_independent_oracle
 from facility_location_add_delete_swap_verifier_oracle import expected_output as facility_location_add_delete_swap_independent_oracle
+from c.capacitated_facility_location_t_hunt.independent_oracle import expected_output as capacitated_facility_location_t_hunt_independent_oracle
+from c.capacitated_facility_location_t_hunt_local_search.independent_oracle import expected_output as capacitated_facility_location_t_hunt_local_search_independent_oracle
+from c.capacitated_facility_location_t_hunt_local_search.verify_workload import verify_workload as verify_capacitated_facility_location_t_hunt_local_search_package
+from f.facility_location_randomized_add_delete_many.independent_oracle import expected_output as facility_location_randomized_add_delete_many_independent_oracle
+from f.facility_location_randomized_add_delete_many.verify_workload import verify_workload as verify_facility_location_randomized_add_delete_many_package
 from integer_sequence_codes_verifier_oracle import expected_output as integer_sequence_codes_independent_oracle
 from two_edge_connected_spanning_subgraph_greedy_verifier_oracle import expected_output as two_edge_connected_spanning_subgraph_greedy_independent_oracle
 from single_source_dynamic_reachability_rebuild_verifier_oracle import expected_output as single_source_dynamic_reachability_rebuild_independent_oracle
@@ -4942,6 +7330,108 @@ from mdp_value_iteration_deterministic_verifier_oracle import expected_output as
 from radio_network_decay_phase_verifier_oracle import expected_output as radio_network_decay_phase_independent_oracle
 from radio_network_decay_phase_oracle import expected_output as radio_network_decay_phase_primary_oracle
 from rumor_blocking_greedy_live_edge_verifier_oracle import expected_output as rumor_blocking_greedy_live_edge_independent_oracle
+from i.influence_maximization_greedy_live_edge.independent_oracle import (
+    expected_output as influence_maximization_greedy_live_edge_independent_oracle,
+)
+from i.influence_maximization_greedy_live_edge.check_inventory import (
+    static_issues as influence_maximization_greedy_live_edge_static_issues,
+)
+from i.influence_maximization_greedy_linear_threshold.independent_oracle import (
+    expected_output as influence_maximization_greedy_linear_threshold_independent_oracle,
+)
+from i.influence_maximization_greedy_linear_threshold.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as INFLUENCE_MAXIMIZATION_GREEDY_LINEAR_THRESHOLD_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as INFLUENCE_MAXIMIZATION_GREEDY_LINEAR_THRESHOLD_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as INFLUENCE_MAXIMIZATION_GREEDY_LINEAR_THRESHOLD_WORKSPACE_BYTES,
+    expected_output as influence_maximization_greedy_linear_threshold_primary_oracle,
+)
+from i.influence_maximization_greedy_linear_threshold.check_inventory import (
+    static_issues as influence_maximization_greedy_linear_threshold_static_issues,
+)
+from t.t_threshold_three_sorted_lists.independent_oracle import (
+    expected_output as t_threshold_three_sorted_lists_independent_oracle,
+)
+from t.t_threshold_three_sorted_lists.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as T_THRESHOLD_THREE_SORTED_LISTS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as T_THRESHOLD_THREE_SORTED_LISTS_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as T_THRESHOLD_THREE_SORTED_LISTS_WORKSPACE_BYTES,
+    expected_output as t_threshold_three_sorted_lists_primary_oracle,
+)
+from t.t_threshold_three_sorted_lists.check_inventory import (
+    static_issues as t_threshold_three_sorted_lists_static_issues,
+)
+from m.maximum_matching_word_segmentation.independent_oracle import (
+    expected_output as maximum_matching_word_segmentation_independent_oracle,
+)
+from m.maximum_matching_word_segmentation.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MAXIMUM_MATCHING_WORD_SEGMENTATION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MAXIMUM_MATCHING_WORD_SEGMENTATION_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MAXIMUM_MATCHING_WORD_SEGMENTATION_WORKSPACE_BYTES,
+    expected_output as maximum_matching_word_segmentation_primary_oracle,
+)
+from m.maximum_matching_word_segmentation.check_inventory import (
+    static_issues as maximum_matching_word_segmentation_static_issues,
+)
+from r.random_3sat_hajiaghayi_sorkin_algorithm_a.independent_oracle import (
+    expected_output as random_3sat_hajiaghayi_sorkin_algorithm_a_independent_oracle,
+)
+from r.random_3sat_hajiaghayi_sorkin_algorithm_a.primary_oracle import (
+    MAX_INPUT_LENGTH as RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_WORKSPACE_BYTES,
+    expected_output as random_3sat_hajiaghayi_sorkin_algorithm_a_primary_oracle,
+)
+from r.random_3sat_hajiaghayi_sorkin_algorithm_a.check_inventory import (
+    static_issues as random_3sat_hajiaghayi_sorkin_algorithm_a_static_issues,
+)
+from s.schuler_randomized_general_cnf_sat.independent_oracle import (
+    evaluate as schuler_randomized_general_cnf_sat_independent_core_oracle,
+)
+from s.schuler_randomized_general_cnf_sat.primary_oracle import (
+    MAX_VALID_INPUT as SCHULER_RANDOMIZED_GENERAL_CNF_SAT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SCHULER_RANDOMIZED_GENERAL_CNF_SAT_MAX_OUTPUT_BYTES,
+    evaluate as schuler_randomized_general_cnf_sat_primary_core_oracle,
+)
+from s.schuler_randomized_general_cnf_sat.check_inventory import (
+    inventory_errors as schuler_randomized_general_cnf_sat_inventory_errors,
+)
+from p.planar_embedding_lr.independent_oracle import (
+    validate_result as planar_embedding_lr_validate_result,
+)
+from p.planar_embedding_lr.check_inventory import (
+    inventory_errors as planar_embedding_lr_inventory_errors,
+)
+from w.wigderson_3_colorable_graph_coloring.independent_oracle import (
+    expected_output as wigderson_3_colorable_graph_coloring_independent_oracle,
+    validate_coloring as wigderson_3_colorable_graph_coloring_validate,
+)
+from w.wigderson_3_colorable_graph_coloring.primary_oracle import (
+    MAX_INPUT_LENGTH as WIGDERSON_COLORING_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as WIGDERSON_COLORING_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as WIGDERSON_COLORING_WORKSPACE_BYTES,
+    expected_output as wigderson_3_colorable_graph_coloring_primary_oracle,
+)
+from w.wigderson_3_colorable_graph_coloring.check_inventory import (
+    inventory_errors as wigderson_3_colorable_graph_coloring_inventory_errors,
+)
+from m.metropolis_hastings_asymmetric_proposal.primary_oracle import (
+    MAX_INPUT_LENGTH as METROPOLIS_HASTINGS_ASYMMETRIC_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as METROPOLIS_HASTINGS_ASYMMETRIC_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as METROPOLIS_HASTINGS_ASYMMETRIC_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as METROPOLIS_HASTINGS_ASYMMETRIC_WORKSPACE_BYTES,
+    expected_output as metropolis_hastings_asymmetric_primary_oracle,
+)
+from m.metropolis_hastings_asymmetric_proposal.independent_oracle import (
+    expected_output as metropolis_hastings_asymmetric_independent_oracle,
+)
+from m.metropolis_hastings_asymmetric_proposal.check_inventory import (
+    inventory_errors as metropolis_hastings_asymmetric_inventory_errors,
+)
+from run_i64_array_bytes_output import (
+    PLANAR_EMBEDDING_LR_MAX_PARSEABLE_INPUT_LENGTH,
+    PLANAR_EMBEDDING_LR_MAX_OUTPUT_BYTES,
+    planar_embedding_lr_oracle,
+)
 from distributed_coupon_collection_replay_verifier_oracle import expected_output as distributed_coupon_collection_replay_independent_oracle
 from routing_cost_constrained_cds_goc_mcds_c_verifier_oracle import expected_output as routing_cost_constrained_cds_goc_mcds_c_independent_oracle
 from st_planar_leftmost_augmenting_flow_verifier_oracle import expected_output as st_planar_leftmost_augmenting_flow_independent_oracle
@@ -4954,6 +7444,42 @@ ROOTED_TREE_ISOMORPHISM_MAX_VERTICES = 32
 ROOTED_TREE_ISOMORPHISM_MAX_TOTAL_VERTICES = 128
 ROOTED_TREE_ISOMORPHISM_MAX_INPUT_LENGTH = 1025
 ROOTED_TREE_ISOMORPHISM_MAX_OUTPUT_BYTES = ROOTED_TREE_ISOMORPHISM_MAX_TREES
+
+
+def partially_retroactive_priority_queue_verifier_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    return partially_retroactive_priority_queue_independent(
+        values, input_is_null, input_length, output_is_null, output_capacity)
+
+
+def negafibonacci_representation_verifier_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= NEGAFIBONACCI_MAX_PARSEABLE_INPUT_LENGTH))):
+        return -1, b""
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or (input_length is not None and input_length != len(values))
+            or len(values) != 1 or type(values[0]) is not int):
+        return -1, b""
+    result, output = negafibonacci_independent_expected_call(list(values))
+    if result < 0:
+        return result, output
+    if output_is_null or (output_capacity is not None and output_capacity < result):
+        return -2, b""
+    return result, output
+
+
+def constant_intervals_verifier_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    return constant_intervals_independent_expected_call(
+        values, output_capacity, output_is_null, input_is_null, input_length)
 
 
 def rooted_tree_isomorphism_classification_independent_oracle(
@@ -5063,6 +7589,7 @@ ALGORITHMS = ("letter_combinations_of_phone_number", "blake2b", "charoccurrence"
               "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "floor_and_ceiling", "cusum_detector", "complex_number_multiply", "complex_arithmetic", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "des_ecb", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "composite_lfsr_majority_clock", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler")
 ALGORITHMS = (*ALGORITHMS, "recursive_shuffler", "graph_coloring", "fisher_yates_shuffle")
 ALGORITHMS = (*ALGORITHMS, "sattolo_cycle")
+ALGORITHMS = (*ALGORITHMS, "zhang_suen_thinning")
 ALGORITHMS = (*ALGORITHMS, "predecessor_problem")
 ALGORITHMS = (*ALGORITHMS, "stern_brocot_tree")
 ALGORITHMS = (*ALGORITHMS, "bernoulli_number")
@@ -5099,9 +7626,17 @@ ALGORITHMS = (*ALGORITHMS, "matrix_det_arbitrary_mod", "sparse_matrix_det", "int
 ALGORITHMS = (*ALGORITHMS, "minimum_diameter_spanning_tree")
 ALGORITHMS = (*ALGORITHMS, "two_edge_connected_components", "frequency_table_of_tree_distance")
 ALGORITHMS = (*ALGORITHMS, "offline_dynamic_connectivity")
+ALGORITHMS = (*ALGORITHMS, "calendar_queue", "interval_heap_double_ended",
+              "hash_map_hopscotch_hashing",
+              "offline_dynamic_bipartiteness", "k_truss_edge_peeling_decomposition",
+              "sugiyama_longest_path_layer_assignment",
+              "lcm_ppc_closed_itemset_enumeration")
 ALGORITHMS = (*ALGORITHMS, "cartesian_tree")
 ALGORITHMS = (*ALGORITHMS, "common_interval_decomposition_tree")
 ALGORITHMS = (*ALGORITHMS, "characteristic_polynomial")
+ALGORITHMS = (*ALGORITHMS, "cyclotomic_polynomial_coefficients")
+ALGORITHMS = (*ALGORITHMS, "k_repetition_within_factor_copy_propagation")
+ALGORITHMS = (*ALGORITHMS, "mrg32k3a_combined_recursive_generator")
 ALGORITHMS = (*ALGORITHMS, "burnside_bracelets")
 ALGORITHMS = (*ALGORITHMS, "system_of_linear_equations_mod_2")
 ALGORITHMS = (*ALGORITHMS, "adjugate_matrix")
@@ -5278,6 +7813,11 @@ ALGORITHMS = (*ALGORITHMS, "elliptic_curve_key_exchange", "iso10126_d2_padding")
 ALGORITHMS = (*ALGORITHMS, "tbc_padding")
 ALGORITHMS = (*ALGORITHMS, "pkcs7_padding")
 ALGORITHMS = (*ALGORITHMS, "soundex_encoder")
+ALGORITHMS = (*ALGORITHMS, "double_metaphone")
+ALGORITHMS = (*ALGORITHMS, "domain_coloring")
+ALGORITHMS = (*ALGORITHMS, "two_dimensional_optimal_expected_matching")
+ALGORITHMS = (*ALGORITHMS, "cupif_giannini_tree_traversal", "stormer_verlet_position",
+              "two_dimensional_k_mismatch_linear_templates")
 ALGORITHMS = (*ALGORITHMS, "mirror")
 ALGORITHMS = (*ALGORITHMS, "uniform_crossover")
 ALGORITHMS = (*ALGORITHMS, "welsh_powell")
@@ -5427,6 +7967,22 @@ ALGORITHMS = (*ALGORITHMS, "linqshuffler")
 ALGORITHMS = (*ALGORITHMS, "tree_234")
 ALGORITHMS = (*ALGORITHMS, "length", "job_sequencing")
 ALGORITHMS = (*ALGORITHMS, "misc_lowercase")
+ALGORITHMS = (*ALGORITHMS, "tsp_few_inner_points_subset_dp")
+ALGORITHMS = (*ALGORITHMS, "hypergraph_incidence_graph_encoding")
+ALGORITHMS = (*ALGORITHMS, "clarke_wright_savings_cvrp")
+ALGORITHMS = (*ALGORITHMS, "snake_case_to_camel_pascal_case")
+ALGORITHMS = (*ALGORITHMS, "minkowski_question_mark_rational")
+ALGORITHMS = (*ALGORITHMS, "inverted_list_svs_binary_search")
+ALGORITHMS = (*ALGORITHMS, "interval_tree_point_stabbing")
+ALGORITHMS = (*ALGORITHMS, "bondy_chvatal_hamiltonian_closure")
+ALGORITHMS = (*ALGORITHMS, "hash_heap_priority_queue_trace")
+ALGORITHMS = (*ALGORITHMS, "steiner_tree_mehlhorn_voronoi_mst")
+ALGORITHMS = (*ALGORITHMS, "succinct_bp_pioneer_match_index")
+ALGORITHMS = (*ALGORITHMS, "quotient_filter_operation_trace")
+ALGORITHMS = (*ALGORITHMS, "counting_bloom_filter_operation_trace")
+ALGORITHMS = (*ALGORITHMS, "weiler_atherton_polygon_intersection")
+ALGORITHMS = (*ALGORITHMS, "k_subset_colex_rank_unrank")
+ALGORITHMS = (*ALGORITHMS, "consistent_overhead_byte_stuffing")
 WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_unique_key_ops",
                         "complex_arithmetic",
                         "weight_conversions", "brainfuck", "p_series", "logarithmic_series",
@@ -5492,6 +8048,20 @@ WORKSPACE_ALGORITHMS.update({
     "tsvc_s252_adjacent_product_pair_sum",
 })
 WORKSPACE_ALGORITHMS.update({"recursive_shuffler", "graph_coloring", "fisher_yates_shuffle", "sattolo_cycle", "predecessor_problem", "stern_brocot_tree", "heaps", "heaps_algorithm", "cpu_scheduling_algorithms"})
+WORKSPACE_ALGORITHMS.add("snake_case_to_camel_pascal_case")
+WORKSPACE_ALGORITHMS.add("minkowski_question_mark_rational")
+WORKSPACE_ALGORITHMS.add("inverted_list_svs_binary_search")
+WORKSPACE_ALGORITHMS.add("interval_tree_point_stabbing")
+WORKSPACE_ALGORITHMS.add("bondy_chvatal_hamiltonian_closure")
+WORKSPACE_ALGORITHMS.add("hash_heap_priority_queue_trace")
+WORKSPACE_ALGORITHMS.add("succinct_bp_pioneer_match_index")
+WORKSPACE_ALGORITHMS.add("quotient_filter_operation_trace")
+WORKSPACE_ALGORITHMS.add("counting_bloom_filter_operation_trace")
+WORKSPACE_ALGORITHMS.add("steiner_tree_mehlhorn_voronoi_mst")
+WORKSPACE_ALGORITHMS.add("weiler_atherton_polygon_intersection")
+WORKSPACE_ALGORITHMS.add("k_subset_colex_rank_unrank")
+WORKSPACE_ALGORITHMS.add("consistent_overhead_byte_stuffing")
+WORKSPACE_ALGORITHMS.add("zhang_suen_thinning")
 WORKSPACE_ALGORITHMS.add("bernoulli_number")
 WORKSPACE_ALGORITHMS.add("two_square_sum")
 WORKSPACE_ALGORITHMS.add("gcd_of_gaussian_integers")
@@ -5516,6 +8086,17 @@ WORKSPACE_ALGORITHMS.add("connected_components_of_complement_graph")
 WORKSPACE_ALGORITHMS.add("bipartite_edge_coloring")
 WORKSPACE_ALGORITHMS.add("minimum_cost_b_flow")
 WORKSPACE_ALGORITHMS.add("tree_diameter")
+WORKSPACE_ALGORITHMS.update({
+    "tree_subtree_distinct_sack",
+    "tree_path_distinct_mo",
+    "small_to_large_subtree_color_mode_sum",
+    "tree_random_walk_edge_hitting_cost",
+    "triangle_union_area_vertical_decomposition",
+    "external_point_tangents_convex_polygon",
+    "pq_tree_consecutive_ones",
+    "measured_finger_tree_sequence",
+    "tetrahedral_element_force_kernel",
+})
 WORKSPACE_ALGORITHMS.add("jump_on_tree")
 WORKSPACE_ALGORITHMS.add("hafnian_of_matrix")
 WORKSPACE_ALGORITHMS.add("biconnected_components")
@@ -5526,6 +8107,12 @@ WORKSPACE_ALGORITHMS.update({"matrix_det_arbitrary_mod", "sparse_matrix_det", "i
 WORKSPACE_ALGORITHMS.add("minimum_diameter_spanning_tree")
 WORKSPACE_ALGORITHMS.update({"two_edge_connected_components", "frequency_table_of_tree_distance"})
 WORKSPACE_ALGORITHMS.add("offline_dynamic_connectivity")
+WORKSPACE_ALGORITHMS.update({
+    "calendar_queue", "interval_heap_double_ended", "hash_map_hopscotch_hashing",
+    "offline_dynamic_bipartiteness", "k_truss_edge_peeling_decomposition",
+    "sugiyama_longest_path_layer_assignment",
+    "lcm_ppc_closed_itemset_enumeration",
+})
 WORKSPACE_ALGORITHMS.add("dynamic_graph_vertex_add_component_sum")
 WORKSPACE_ALGORITHMS.add("cartesian_tree")
 WORKSPACE_ALGORITHMS.add("common_interval_decomposition_tree")
@@ -5535,8 +8122,14 @@ WORKSPACE_ALGORITHMS.add("min_plus_convolution_concave_arbitrary")
 WORKSPACE_ALGORITHMS.update({"mul_modp_convolution", "mul_mod2n_convolution",
                              "general_weighted_matching"})
 WORKSPACE_ALGORITHMS.add("characteristic_polynomial")
+WORKSPACE_ALGORITHMS.add("cyclotomic_polynomial_coefficients")
+WORKSPACE_ALGORITHMS.add("k_repetition_within_factor_copy_propagation")
+WORKSPACE_ALGORITHMS.add("mrg32k3a_combined_recursive_generator")
 WORKSPACE_ALGORITHMS.add("burnside_bracelets")
 WORKSPACE_ALGORITHMS.add("system_of_linear_equations_mod_2")
+WORKSPACE_ALGORITHMS.add("three_prime_carmichael_enumerator")
+WORKSPACE_ALGORITHMS.add("avr_speed_scaling")
+WORKSPACE_ALGORITHMS.add("oa_speed_scaling")
 WORKSPACE_ALGORITHMS.add("adjugate_matrix")
 WORKSPACE_ALGORITHMS.add("berlekamp_massey")
 WORKSPACE_ALGORITHMS.add("thomas_algorithm")
@@ -5571,6 +8164,11 @@ WORKSPACE_ALGORITHMS.add("iso10126_d2_padding")
 WORKSPACE_ALGORITHMS.add("tbc_padding")
 WORKSPACE_ALGORITHMS.add("pkcs7_padding")
 WORKSPACE_ALGORITHMS.add("soundex_encoder")
+WORKSPACE_ALGORITHMS.add("double_metaphone")
+WORKSPACE_ALGORITHMS.add("domain_coloring")
+WORKSPACE_ALGORITHMS.add("two_dimensional_optimal_expected_matching")
+WORKSPACE_ALGORITHMS.update({"cupif_giannini_tree_traversal", "stormer_verlet_position",
+                             "two_dimensional_k_mismatch_linear_templates"})
 WORKSPACE_ALGORITHMS.add("mirror")
 WORKSPACE_ALGORITHMS.add("generate_rule_30_grid")
 WORKSPACE_ALGORITHMS.add("crossword_solver")
@@ -5579,6 +8177,18 @@ WORKSPACE_ALGORITHMS.add("cursor_linked_list")
 WORKSPACE_ALGORITHMS.add("cyclic")
 WORKSPACE_ALGORITHMS.add("two_sat")
 WORKSPACE_ALGORITHMS.update({"dispersion", "iir_filter", "word_ladder", "full_wave_rectifier"})
+WORKSPACE_ALGORITHMS.update({"all_distances_bottom_k_interval_updates",
+                             "digital_filter_direct_form_ii_transposed",
+                             "asteroid_collision_stack"})
+WORKSPACE_ALGORITHMS.add("k_mismatch_longest_extension_table")
+WORKSPACE_ALGORITHMS.add("k_repetition_binary_division_kernel")
+WORKSPACE_ALGORITHMS.add("k_repetition_block_head_pair_pass")
+WORKSPACE_ALGORITHMS.add("sierpinski_curve_trace")
+WORKSPACE_ALGORITHMS.add("sturmian_standard_word")
+WORKSPACE_ALGORITHMS.add("markov_normal_string_rewriting")
+WORKSPACE_ALGORITHMS.add("muthukrishnan_document_listing")
+WORKSPACE_ALGORITHMS.add("discrete_interval_encoding_tree")
+WORKSPACE_ALGORITHMS.add("round_robin_tournament_schedule")
 WORKSPACE_ALGORITHMS.add("data_normalization_standardization")
 WORKSPACE_ALGORITHMS.update({"stalin_sort", "railway_time_conversion"})
 WORKSPACE_ALGORITHMS.add("rgb_hsl_conversion")
@@ -5681,10 +8291,14 @@ ALGORITHMS = (*ALGORITHMS, "graph_centrality")
 ALGORITHMS = (*ALGORITHMS, "graph_peripherality")
 ALGORITHMS = (*ALGORITHMS, "graph_adjacency_matrix")
 ALGORITHMS = (*ALGORITHMS, "threaded_binary_tree")
+ALGORITHMS = (*ALGORITHMS, "network_erosion_strength_of_connection")
+ALGORITHMS = (*ALGORITHMS, "scc_condensation_dag")
 WORKSPACE_ALGORITHMS.add("graph_centrality")
 WORKSPACE_ALGORITHMS.add("graph_peripherality")
 WORKSPACE_ALGORITHMS.add("graph_adjacency_matrix")
 WORKSPACE_ALGORITHMS.add("threaded_binary_tree")
+WORKSPACE_ALGORITHMS.add("network_erosion_strength_of_connection")
+WORKSPACE_ALGORITHMS.add("scc_condensation_dag")
 WORKSPACE_ALGORITHMS.add("simplest_radical_form")
 WORKSPACE_ALGORITHMS.add("spread_sort")
 WORKSPACE_ALGORITHMS.add("shortest_seek_time_first")
@@ -5798,7 +8412,15 @@ ALGORITHMS = (*ALGORITHMS, "fixed_priority_queue_using_list", "element_priority_
 ALGORITHMS = (*ALGORITHMS, "memoize")
 ALGORITHMS = (*ALGORITHMS, "lz78")
 ALGORITHMS = (*ALGORITHMS, "lz77_java", "lz77_python_rust")
-ALGORITHMS = (*ALGORITHMS, "lz77_infinite_rightmost", "kmp_slp_jump_output")
+ALGORITHMS = (*ALGORITHMS, "lz77_infinite_rightmost", "lz77_lpf_suffix_array",
+              "kmp_slp_jump_output")
+ALGORITHMS = (*ALGORITHMS, "lz78_run_length_transform")
+ALGORITHMS = (*ALGORITHMS, "two_edge_connected_spanning_subgraph_khuller_vishkin_dfs")
+ALGORITHMS = (*ALGORITHMS, "two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs")
+ALGORITHMS = (*ALGORITHMS, "nagamochi_ibaraki_sparse_k_connectivity_certificate")
+ALGORITHMS = (*ALGORITHMS, "cheriyan_thurimella_two_vertex_connected_augmentation")
+ALGORITHMS = (*ALGORITHMS, "khuller_raghavachari_three_edge_connected_spanning_subgraph")
+ALGORITHMS = (*ALGORITHMS, "additive_two_spanner_completion")
 ALGORITHMS = (*ALGORITHMS, "sepia")
 ALGORITHMS = (*ALGORITHMS, "random_graph_generator")
 ALGORITHMS = (*ALGORITHMS, "shannon_fano_compressor")
@@ -5889,6 +8511,10 @@ ALGORITHMS = (*ALGORITHMS, "ansibench_dhrystone", "stream_vector_kernels",
               "nbench_huffman_compression", "nbench_resource_assignment",
               "nbench_emulated_float_arithmetic", "nbench_neural_network",
               "coremark_matrix_manipulation")
+ALGORITHMS = (*ALGORITHMS, "hsadelta_differential_compression")
+ALGORITHMS = (*ALGORITHMS, "fgk_adaptive_huffman", "vitter_adaptive_huffman")
+ALGORITHMS = (*ALGORITHMS, "lucky_number_sieve")
+ALGORITHMS = (*ALGORITHMS, "inverted_list_bitvector_intersection")
 ALGORITHMS = (*ALGORITHMS, "min_cost_max_flow", "morton_sort", "number_theoretic_transform",
               "relaxed_convolution", "seam_carving", "sqrt_tree", "beta_skeleton",
               "schoenhage_strassen_multiply", "wspd", "batch_dynamic_kd_tree",
@@ -5937,11 +8563,14 @@ ALGORITHMS = (*ALGORITHMS, "max_minimum_machine_load_lpt", "min_hash_k_mins",
               "srpt_flow_time", "concave_gap_alignment_global",
               "two_dimensional_string_matching")
 ALGORITHMS = (*ALGORITHMS, "yds_speed_scaling")
+ALGORITHMS = (*ALGORITHMS, "avr_speed_scaling")
+ALGORITHMS = (*ALGORITHMS, "oa_speed_scaling")
 ALGORITHMS = (*ALGORITHMS, "min_hash_k_partition", "procedure_s_general_cnf_sat")
 ALGORITHMS = (*ALGORITHMS, "clique_reverse_search_enumeration")
 ALGORITHMS = (*ALGORITHMS, "fibonacci_integer_code", "undirected_feedback_vertex_set")
 ALGORITHMS = (*ALGORITHMS, "vector_scheduling")
-ALGORITHMS = (*ALGORITHMS, "vector_bin_packing", "list_ranking_independent_set_contraction")
+ALGORITHMS = (*ALGORITHMS, "vector_bin_packing", "list_ranking_independent_set_contraction",
+              "list_ranking_random_mate")
 ALGORITHMS = (*ALGORITHMS, "two_dimensional_scaled_pattern_matching")
 ALGORITHMS = (*ALGORITHMS, "frequent_itemset_backtrack")
 ALGORITHMS = (*ALGORITHMS, "frequent_itemset_delivery")
@@ -5974,13 +8603,41 @@ ALGORITHMS = (*ALGORITHMS, "point_pattern_translation_voting")
 ALGORITHMS = (*ALGORITHMS, "phylogenetic_tree_from_distance_matrix")
 ALGORITHMS = (*ALGORITHMS, "point_pattern_translation_lex_scan")
 ALGORITHMS = (*ALGORITHMS, "facility_location_add_delete_swap")
+ALGORITHMS = (*ALGORITHMS, "capacitated_facility_location_t_hunt")
+ALGORITHMS = (*ALGORITHMS, "capacitated_facility_location_t_hunt_local_search")
+ALGORITHMS = (*ALGORITHMS, "facility_location_randomized_add_delete_many")
 ALGORITHMS = (*ALGORITHMS, "integer_sequence_codes")
 ALGORITHMS = (*ALGORITHMS, "two_interval_precedence_chain")
 ALGORITHMS = (*ALGORITHMS, "approximate_matching_greedy")
 ALGORITHMS = (*ALGORITHMS, "voronoi_delaunay_empty_circle")
 ALGORITHMS = (*ALGORITHMS, "parentheses_generator")
+ALGORITHMS = (*ALGORITHMS, "balanced_parenthesis_successor")
+ALGORITHMS = (*ALGORITHMS, "list_rooted_trees")
+ALGORITHMS = (*ALGORITHMS, "landau_vishkin_k_difference_pattern_matching")
+ALGORITHMS = (*ALGORITHMS, "time_based_one_time_password_algorithm")
+ALGORITHMS = (*ALGORITHMS, "fast_minimal_triangulation")
+ALGORITHMS = (*ALGORITHMS, "van_emde_boas_layout_search")
+ALGORITHMS = (*ALGORITHMS,
+              "planar_directed_general_st_flow_borradaile_klein",
+              "posit8_rational_encoder", "cactus_stack_branch_trace")
+ALGORITHMS = (*ALGORITHMS, "smarandache_wellin_prime_prefix_scan")
+ALGORITHMS = (*ALGORITHMS, "junta_test_partition_binary_search")
+ALGORITHMS = (*ALGORITHMS, "combinations_with_repetition_lexicographic")
+ALGORITHMS = (*ALGORITHMS, "gregorian_daycount_to_ordinal_date")
+ALGORITHMS = (*ALGORITHMS, "shannon_fano_elias_symbol_codes")
+ALGORITHMS = (*ALGORITHMS, "goodstein_sequence_bounded_prefix")
+ALGORITHMS = (*ALGORITHMS, "gpsr_perimeter_recovery_trace")
+ALGORITHMS = (*ALGORITHMS, "order_preserving_huffman_greedy_trace")
+ALGORITHMS = (*ALGORITHMS, "powerful_numbers_square_cube_enumeration")
+ALGORITHMS = (*ALGORITHMS, "three_prime_carmichael_enumerator")
 ALGORITHMS = (*ALGORITHMS, "approximating_diameter_bfs", "weighted_connected_dominating_set")
 ALGORITHMS = (*ALGORITHMS, "domination_local_reduction")
+ALGORITHMS = (*ALGORITHMS, "set_cover_domination_reduction")
+WORKSPACE_ALGORITHMS.add("set_cover_domination_reduction")
+ALGORITHMS = (*ALGORITHMS, "ruf_schobel_set_cover")
+WORKSPACE_ALGORITHMS.add("ruf_schobel_set_cover")
+ALGORITHMS = (*ALGORITHMS, "strong_c1p_set_cover_shortest_path")
+WORKSPACE_ALGORITHMS.add("strong_c1p_set_cover_shortest_path")
 ALGORITHMS = (*ALGORITHMS, "weighted_popular_matching")
 ALGORITHMS = (*ALGORITHMS, "ranked_matching_popular_matching")
 ALGORITHMS = (*ALGORITHMS, "extended_gs_general_stable_allocation")
@@ -5999,6 +8656,26 @@ ALGORITHMS = (*ALGORITHMS, "pfr_local_forward_decision", "transit_node_routing_t
 ALGORITHMS = (*ALGORITHMS, "sequential_lut_k_cut_enumeration")
 ALGORITHMS = (*ALGORITHMS, "rna_mfe_loop_energy_dp")
 ALGORITHMS = (*ALGORITHMS, "spatial_motif_same_type_contact_pmf")
+ALGORITHMS = (*ALGORITHMS, "spatial_motif_different_type_contact_pmf")
+ALGORITHMS = (*ALGORITHMS, "cordic_rotation_fixed_point")
+ALGORITHMS = (*ALGORITHMS, "packet_switching_random_schedule")
+ALGORITHMS = (*ALGORITHMS, "long_chain_dominant_depth_index")
+ALGORITHMS = (*ALGORITHMS, "bitset_xor_shift_trace")
+ALGORITHMS = (*ALGORITHMS, "buddy_system_allocator")
+ALGORITHMS = (*ALGORITHMS, "levcopoulos_lingas_planar_geometric_spanner")
+ALGORITHMS = (*ALGORITHMS, "blelloch_parallel_prefix_scan", "hashbelt_aging_hash_table")
+ALGORITHMS = (*ALGORITHMS, "blr_linearity_test")
+ALGORITHMS = (*ALGORITHMS, "berkowitz_characteristic_polynomial")
+ALGORITHMS = (*ALGORITHMS, "hypercube_edge_monotonicity_tester")
+ALGORITHMS = (*ALGORITHMS, "deterministic_linear_threshold_spread")
+ALGORITHMS = (*ALGORITHMS, "wilson_uniform_spanning_tree")
+ALGORITHMS = (*ALGORITHMS, "crust_opposite_pole_selection")
+ALGORITHMS = (*ALGORITHMS, "invertible_bloom_lookup_table_reconciliation")
+ALGORITHMS = (*ALGORITHMS, "felzenszwalb_huttenlocher_1d_squared_distance_transform")
+ALGORITHMS = (*ALGORITHMS, "multiply_shift_universal_hash_trace")
+ALGORITHMS = (*ALGORITHMS, "long_chain_kth_ancestor")
+ALGORITHMS = (*ALGORITHMS, "radio_network_bgi_broadcast")
+ALGORITHMS = (*ALGORITHMS, "boids_flocking_simulation")
 ALGORITHMS = (*ALGORITHMS, "parameterized_pattern_matching")
 ALGORITHMS = (*ALGORITHMS, "tsp_few_inner_points")
 ALGORITHMS = (*ALGORITHMS, "rate_monotonic_scheduling", "non_shared_edges", "unit_disk_graph_wspd")
@@ -6039,6 +8716,26 @@ WORKSPACE_ALGORITHMS.update({"pfr_local_forward_decision", "transit_node_routing
 WORKSPACE_ALGORITHMS.add("sequential_lut_k_cut_enumeration")
 WORKSPACE_ALGORITHMS.add("rna_mfe_loop_energy_dp")
 WORKSPACE_ALGORITHMS.add("spatial_motif_same_type_contact_pmf")
+WORKSPACE_ALGORITHMS.add("spatial_motif_different_type_contact_pmf")
+WORKSPACE_ALGORITHMS.add("cordic_rotation_fixed_point")
+WORKSPACE_ALGORITHMS.add("packet_switching_random_schedule")
+WORKSPACE_ALGORITHMS.add("long_chain_dominant_depth_index")
+WORKSPACE_ALGORITHMS.add("bitset_xor_shift_trace")
+WORKSPACE_ALGORITHMS.add("buddy_system_allocator")
+WORKSPACE_ALGORITHMS.add("levcopoulos_lingas_planar_geometric_spanner")
+WORKSPACE_ALGORITHMS.update({"blelloch_parallel_prefix_scan", "hashbelt_aging_hash_table"})
+WORKSPACE_ALGORITHMS.add("blr_linearity_test")
+WORKSPACE_ALGORITHMS.add("berkowitz_characteristic_polynomial")
+WORKSPACE_ALGORITHMS.add("hypercube_edge_monotonicity_tester")
+WORKSPACE_ALGORITHMS.add("deterministic_linear_threshold_spread")
+WORKSPACE_ALGORITHMS.add("wilson_uniform_spanning_tree")
+WORKSPACE_ALGORITHMS.add("crust_opposite_pole_selection")
+WORKSPACE_ALGORITHMS.add("invertible_bloom_lookup_table_reconciliation")
+WORKSPACE_ALGORITHMS.add("felzenszwalb_huttenlocher_1d_squared_distance_transform")
+WORKSPACE_ALGORITHMS.add("multiply_shift_universal_hash_trace")
+WORKSPACE_ALGORITHMS.add("long_chain_kth_ancestor")
+WORKSPACE_ALGORITHMS.add("radio_network_bgi_broadcast")
+WORKSPACE_ALGORITHMS.add("boids_flocking_simulation")
 WORKSPACE_ALGORITHMS.add("lz78_flexible_parsing")
 WORKSPACE_ALGORITHMS.add("three_dimensional_moment_curve")
 WORKSPACE_ALGORITHMS.add("suffix_tree_from_sa_lcp")
@@ -6063,6 +8760,9 @@ WORKSPACE_ALGORITHMS.update({
     "point_pattern_translation_voting",
     "phylogenetic_tree_from_distance_matrix",
     "facility_location_add_delete_swap",
+    "capacitated_facility_location_t_hunt",
+    "capacitated_facility_location_t_hunt_local_search",
+    "facility_location_randomized_add_delete_many",
     "integer_sequence_codes",
     "point_pattern_translation_lex_scan",
 })
@@ -6093,6 +8793,20 @@ ALGORITHMS = (*ALGORITHMS, "dc_tree_k_server_path")
 ALGORITHMS = (*ALGORITHMS, "hub_labeling_pruned", "dense_graph_bipartiteness_tester")
 ALGORITHMS = (*ALGORITHMS, "hub_labeling_greedy_order")
 ALGORITHMS = (*ALGORITHMS, "all_distances_sketch_bottom_k")
+ALGORITHMS = (*ALGORITHMS, "all_distances_sketch_k_mins")
+ALGORITHMS = (*ALGORITHMS, "all_distances_bottom_k_interval_updates",
+              "digital_filter_direct_form_ii_transposed")
+ALGORITHMS = (*ALGORITHMS, "asteroid_collision_stack")
+ALGORITHMS = (*ALGORITHMS, "k_mismatch_longest_extension_table")
+ALGORITHMS = (*ALGORITHMS, "k_repetition_binary_division_kernel")
+ALGORITHMS = (*ALGORITHMS, "k_repetition_block_head_pair_pass")
+ALGORITHMS = (*ALGORITHMS, "sierpinski_curve_trace")
+ALGORITHMS = (*ALGORITHMS, "sturmian_standard_word")
+ALGORITHMS = (*ALGORITHMS, "markov_normal_string_rewriting")
+ALGORITHMS = (*ALGORITHMS, "muthukrishnan_document_listing")
+ALGORITHMS = (*ALGORITHMS, "discrete_interval_encoding_tree")
+ALGORITHMS = (*ALGORITHMS, "round_robin_tournament_schedule")
+ALGORITHMS = (*ALGORITHMS, "zobrist_position_hash_trace")
 ALGORITHMS = (*ALGORITHMS, "sublinear_bipartiteness_walk_tester")
 ALGORITHMS = (*ALGORITHMS, "optimal_stable_marriage")
 ALGORITHMS = (*ALGORITHMS, "quine_mccluskey_minimization")
@@ -6109,6 +8823,7 @@ ALGORITHMS = (*ALGORITHMS, "approximate_tandem_k_runs")
 ALGORITHMS = (*ALGORITHMS, "approximate_tandem_k_edit_repeats")
 ALGORITHMS = (*ALGORITHMS, "timetable_earliest_arrival_dijkstra")
 ALGORITHMS = (*ALGORITHMS, "suffix_tree_pattern_occurrences")
+ALGORITHMS = (*ALGORITHMS, "suffix_tray_pattern_query")
 ALGORITHMS = (*ALGORITHMS, "min_plus_distance_product")
 ALGORITHMS = (*ALGORITHMS, "min_plus_convolution_convex_convex")
 ALGORITHMS = (*ALGORITHMS, "min_plus_convolution_convex_arbitrary")
@@ -6124,7 +8839,16 @@ ALGORITHMS = (*ALGORITHMS, "frequency_count_list_update", "timestamp_list_update
               "bit_list_update", "comb_list_update")
 ALGORITHMS = (*ALGORITHMS, "randomized_marking_page_caching")
 ALGORITHMS = (*ALGORITHMS, "mdp_value_iteration_deterministic", "radio_network_decay_phase",
-              "rumor_blocking_greedy_live_edge")
+              "rumor_blocking_greedy_live_edge",
+              "influence_maximization_greedy_live_edge",
+              "influence_maximization_greedy_linear_threshold",
+              "t_threshold_three_sorted_lists",
+              "maximum_matching_word_segmentation",
+              "random_3sat_hajiaghayi_sorkin_algorithm_a",
+              "wigderson_3_colorable_graph_coloring")
+ALGORITHMS = (*ALGORITHMS, "schuler_randomized_general_cnf_sat")
+ALGORITHMS = (*ALGORITHMS, "planar_embedding_lr")
+ALGORITHMS = (*ALGORITHMS, "metropolis_hastings_asymmetric_proposal")
 ALGORITHMS = (*ALGORITHMS, "distributed_coupon_collection_replay",
               "routing_cost_constrained_cds_goc_mcds_c",
               "st_planar_leftmost_augmenting_flow", "crust_pole_triangle_filter")
@@ -6134,6 +8858,7 @@ ALGORITHMS = (*ALGORITHMS, "lz78_flexible_parsing")
 ALGORITHMS = (*ALGORITHMS, "dominator_tree", "st_numbering", "link_cut_tree",
               "euler_tour_tree",
               "dynamic_top_tree_component_diameter",
+              "dynamic_tree_maximum_weight_independent_set",
               "dynamic_tree_subtree_add_subtree_sum",
               "sort_points_by_argument",
               "count_points_in_triangle",
@@ -6141,6 +8866,7 @@ ALGORITHMS = (*ALGORITHMS, "dominator_tree", "st_numbering", "link_cut_tree",
               "old_driver_tree", "point_set_tree_path_composite_sum_fixed_root",
               "point_set_tree_path_composite_sum",
               "de_bruijn_sequences", "knuth_power_tree",
+              "addition_chain_enumeration",
               "prefix_substring_lcs",
               "main_lorentz_tandem_repetitions",
               "suffix_balanced_tree",
@@ -6162,6 +8888,7 @@ ALGORITHMS = (*ALGORITHMS, "tree_decomposition_width_2",
               "bitwise_xor_convolution", "xor_linear_basis")
 ALGORITHMS = (*ALGORITHMS, "bitwise_or_convolution")
 ALGORITHMS = (*ALGORITHMS, "splash2_water_nsquared", "water_spatial")
+ALGORITHMS = (*ALGORITHMS, "splash2_volrend_raymarch")
 ALGORITHMS = (*ALGORITHMS, "fluidanimate_sph")
 ALGORITHMS = (*ALGORITHMS, "bodytrack_annealed_particle_filter")
 ALGORITHMS = (*ALGORITHMS, "vertex_add_subtree_sum")
@@ -6182,6 +8909,7 @@ ALGORITHMS = (*ALGORITHMS, "dynamic_point_set_rectangle_affine_rectangle_sum")
 ALGORITHMS = (*ALGORITHMS, "npb_cg_sparse_inverse_power", "hpcg_profile",
               "baswana_sen_weighted_spanner", "npb_lu_block_ssor",
               "q_binomial_coefficient_prime_mod", "addition_of_big_integers",
+              "npb_cg_sparse_outer_product_assembly",
               "prefix_sum_of_binomial_coefficient", "inv_of_formal_power_series",
               "exp_of_formal_power_series", "log_of_formal_power_series",
               "composition_of_formal_power_series", "inv_of_polynomials",
@@ -6201,11 +8929,23 @@ ALGORITHMS = (*ALGORITHMS, "gabow_scc")
 ALGORITHMS = (*ALGORITHMS, "suffix_array_sais", "minkowski_sum_convex_polygons")
 ALGORITHMS = (*ALGORITHMS, "crochemore_perrin_two_way")
 ALGORITHMS = (*ALGORITHMS, "virtual_tree")
+ALGORITHMS = (*ALGORITHMS, "tree_subtree_distinct_sack")
+ALGORITHMS = (*ALGORITHMS, "tree_path_distinct_mo")
+ALGORITHMS = (*ALGORITHMS, "small_to_large_subtree_color_mode_sum")
+ALGORITHMS = (*ALGORITHMS, "tree_random_walk_edge_hitting_cost")
+ALGORITHMS = (*ALGORITHMS, "triangle_union_area_vertical_decomposition")
+ALGORITHMS = (*ALGORITHMS, "external_point_tangents_convex_polygon")
+ALGORITHMS = (*ALGORITHMS, "pq_tree_consecutive_ones")
+ALGORITHMS = (*ALGORITHMS, "measured_finger_tree_sequence")
+ALGORITHMS = (*ALGORITHMS, "tetrahedral_element_force_kernel")
 ALGORITHMS = (*ALGORITHMS, "hirschberg_lcs")
 ALGORITHMS = (*ALGORITHMS, "games_on_arbitrary_graphs")
 ALGORITHMS = (*ALGORITHMS, "disjoint_sparse_table_affine_composition")
 ALGORITHMS = (*ALGORITHMS, "lengauer_tarjan_dominator_tree")
 ALGORITHMS = (*ALGORITHMS, "half_plane_intersection")
+ALGORITHMS = (*ALGORITHMS, "half_plane_intersection_incremental_clipping")
+ALGORITHMS = (*ALGORITHMS, "circle_line_intersection_symbolic")
+ALGORITHMS = (*ALGORITHMS, "circle_circle_intersection_symbolic")
 ALGORITHMS = (*ALGORITHMS, "smawk_row_minima")
 ALGORITHMS = (*ALGORITHMS, "min_cost_max_flow_blocking_paths")
 ALGORITHMS = (*ALGORITHMS, "point_in_convex_polygon_log_query")
@@ -6214,6 +8954,8 @@ ALGORITHMS = (*ALGORITHMS, "brent_kung_fps_composition")
 ALGORITHMS = (*ALGORITHMS, "create_maximum_number")
 ALGORITHMS = (*ALGORITHMS, "mst_edge_classification")
 ALGORITHMS = (*ALGORITHMS, "minimum_mean_cycle_karp")
+ALGORITHMS = (*ALGORITHMS, "cograph_cotree_decomposition")
+ALGORITHMS = (*ALGORITHMS, "minimum_mean_cycle_howard")
 ALGORITHMS = (*ALGORITHMS, "hash_join")
 ALGORITHMS = (*ALGORITHMS, "binomial_coefficient_prime_power")
 ALGORITHMS = (*ALGORITHMS, "segment_tree_merge_split")
@@ -6228,10 +8970,186 @@ ALGORITHMS = (*ALGORITHMS, "convolution_f2_64")
 ALGORITHMS = (*ALGORITHMS, "palindrome_pairs")
 ALGORITHMS = (*ALGORITHMS, "dirichlet_convolution_and_prefix_sums")
 ALGORITHMS = (*ALGORITHMS, "all_shortest_paths_unweighted")
+ALGORITHMS = (*ALGORITHMS, "palindromic_partition_series_links")
+ALGORITHMS = (*ALGORITHMS, "lzw_compressed_shift_and_matching")
+ALGORITHMS = (*ALGORITHMS, "bkp_speed_scaling_trace")
+ALGORITHMS = (*ALGORITHMS, "knuth_big_integer_division")
 from rabin_content_defined_chunking_verifier_oracle import expected_output as rabin_content_defined_chunking_independent_oracle
 from rabin_content_defined_chunking_oracle import expected_output as rabin_content_defined_chunking_primary_oracle
 from statistical_region_merging_table_oracle import expected_output as statistical_region_merging_table_primary_oracle
 from statistical_region_merging_table_verifier_oracle import expected_output as statistical_region_merging_table_independent_oracle
+from r.rabin_content_defined_chunking.check_inventory import (
+    static_issues as rabin_content_defined_chunking_static_issues,
+)
+from s.statistical_region_merging_table.check_inventory import (
+    static_issues as statistical_region_merging_table_static_issues,
+)
+from g.gray_code_k_combinations.independent_oracle import evaluate as gray_code_k_combinations_independent_evaluate
+from g.gray_code_k_combinations.primary_oracle import evaluate as gray_code_k_combinations_primary_evaluate
+from g.gray_code_k_combinations.check_inventory import verify_static_inventory as gray_code_k_combinations_static_issues
+from g.glushkov_bit_parallel_regex_search.primary_oracle import (
+    expected_output as glushkov_bit_parallel_regex_search_primary_oracle,
+)
+from g.glushkov_bit_parallel_regex_search.independent_oracle import (
+    verify_result as glushkov_bit_parallel_regex_search_verify_result,
+)
+from g.glushkov_bit_parallel_regex_search.verify_workload import (
+    static_issues as glushkov_bit_parallel_regex_search_static_issues,
+)
+from h.hough_line_transform.primary_oracle import (
+    MAX_OUTPUT_BYTES as HOUGH_LINE_TRANSFORM_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as HOUGH_LINE_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as hough_line_transform_primary_oracle,
+)
+from h.hough_line_transform.independent_oracle import (
+    expected_output as hough_line_transform_independent_reference,
+)
+from h.hough_line_transform.check_inventory import (
+    verify_workload as hough_line_transform_static_issues,
+)
+from k.kmeans_plus_plus_seeding.primary_oracle import (
+    MAX_INPUT_LENGTH as KMEANS_PLUS_PLUS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as KMEANS_PLUS_PLUS_MAX_OUTPUT_BYTES,
+    expected_output as kmeans_plus_plus_seeding_primary_oracle,
+)
+from k.kmeans_plus_plus_seeding.independent_oracle import (
+    expected_output as kmeans_plus_plus_seeding_independent_reference,
+)
+from k.kmeans_plus_plus_seeding.check_inventory import (
+    static_issues as kmeans_plus_plus_seeding_static_issues,
+)
+from v.van_der_corput_sequence.primary_oracle import (
+    expected_output as van_der_corput_sequence_primary_oracle,
+)
+from v.van_der_corput_sequence.independent_oracle import (
+    verify_result as van_der_corput_sequence_verify_result,
+)
+from v.van_der_corput_sequence.check_inventory import (
+    static_issues as van_der_corput_sequence_static_issues,
+)
+from e.ekg_sequence.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as EKG_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as EKG_SEQUENCE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as EKG_SEQUENCE_WORKSPACE_BYTES,
+    expected_output as ekg_sequence_primary_oracle,
+)
+from e.ekg_sequence.independent_oracle import (
+    expected_output as ekg_sequence_independent_reference,
+)
+from e.ekg_sequence.check_inventory import (
+    static_issues as ekg_sequence_static_issues,
+)
+from j.jacobson_matthews_latin_square_chain.primary_oracle import (
+    MAX_INPUT_LENGTH as JM_LATIN_SQUARE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as JM_LATIN_SQUARE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as JM_LATIN_SQUARE_WORKSPACE_BYTES,
+    expected_output as jm_latin_square_primary_oracle,
+)
+from j.jacobson_matthews_latin_square_chain.independent_oracle import (
+    verify_result as jm_latin_square_verify_result,
+)
+from j.jacobson_matthews_latin_square_chain.verify_workload import (
+    static_issues as jm_latin_square_static_issues,
+)
+from h.hofstadter_figure_figure_sequences.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FIGURE_FIGURE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as FIGURE_FIGURE_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as FIGURE_FIGURE_WORKSPACE_BYTES,
+    expected_output as figure_figure_primary_oracle,
+)
+from h.hofstadter_figure_figure_sequences.independent_oracle import (
+    verify_result as figure_figure_verify_result,
+)
+from h.hofstadter_figure_figure_sequences.verify_workload import (
+    static_issues as figure_figure_static_issues,
+)
+from m.maximum_sum_contiguous_submatrix.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MAX_SUM_SUBMATRIX_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MAX_SUM_SUBMATRIX_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as MAX_SUM_SUBMATRIX_WORKSPACE_BYTES,
+    expected_output as maximum_sum_contiguous_submatrix_primary_oracle,
+)
+from m.maximum_sum_contiguous_submatrix.independent_oracle import (
+    verify_result as maximum_sum_contiguous_submatrix_verify_result,
+)
+from m.maximum_sum_contiguous_submatrix.verify_workload import (
+    static_issues as maximum_sum_contiguous_submatrix_static_issues,
+)
+from t.turbo_boyer_moore_search.primary_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as TURBO_BM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TURBO_BM_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as TURBO_BM_WORKSPACE_BYTES,
+    expected_output as turbo_boyer_moore_primary_oracle,
+)
+from t.turbo_boyer_moore_search.independent_oracle import (
+    expected_output as turbo_boyer_moore_independent_reference,
+)
+from t.turbo_boyer_moore_search.check_inventory import (
+    static_issues as turbo_boyer_moore_static_issues,
+)
+from r.raita_search.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as RAITA_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as RAITA_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RAITA_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as RAITA_WORKSPACE_BYTES,
+    expected_output as raita_search_primary_oracle,
+)
+from r.raita_search.independent_oracle import (
+    expected_output as raita_search_independent_reference,
+)
+from r.raita_search.check_inventory import (
+    static_issues as raita_search_static_issues,
+)
+from t.tuned_boyer_moore_search.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as TUNED_BM_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as TUNED_BM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TUNED_BM_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as TUNED_BM_WORKSPACE_BYTES,
+    expected_output as tuned_boyer_moore_primary_oracle,
+)
+from t.tuned_boyer_moore_search.independent_oracle import (
+    expected_output as tuned_boyer_moore_independent_reference,
+)
+from t.tuned_boyer_moore_search.check_inventory import (
+    static_issues as tuned_boyer_moore_static_issues,
+)
+from s.smith_string_search.primary_oracle import (
+    MAX_VALID_INPUT_LENGTH as SMITH_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SMITH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SMITH_MAX_OUTPUT_BYTES,
+    WORKSPACE_BYTES as SMITH_WORKSPACE_BYTES,
+    expected_output as smith_string_search_primary_oracle,
+)
+from s.smith_string_search.independent_oracle import (
+    expected_output as smith_string_search_independent_reference,
+)
+from s.smith_string_search.check_inventory import (
+    static_issues as smith_string_search_static_issues,
+)
+from m.mdp_policy_iteration.primary_oracle import (
+    expected_output as mdp_policy_iteration_primary_oracle,
+)
+from m.mdp_policy_iteration.independent_oracle import (
+    verify_result as mdp_policy_iteration_verify_result,
+)
+from m.mdp_policy_iteration.check_inventory import (
+    static_issues as mdp_policy_iteration_static_issues,
+)
+from n.network_erosion_strength_of_connection.independent_oracle import (
+    OUTPUT_BYTES as NETWORK_EROSION_VERIFIER_OUTPUT_BYTES,
+    expected_output as network_erosion_strength_of_connection_independent_output,
+    expected_result as network_erosion_strength_of_connection_independent_result,
+)
+from n.network_erosion_strength_of_connection.verify_workload import (
+    verify_workload as verify_network_erosion_strength_of_connection_package,
+)
+from g.scc_condensation_dag.independent_oracle import (
+    MAX_OUTPUT_BYTES as SCC_CONDENSATION_DAG_VERIFIER_OUTPUT_BYTES,
+    expected_output as scc_condensation_dag_independent_output,
+)
+from g.scc_condensation_dag.verify_workload import (
+    verify_workload as verify_scc_condensation_dag_package,
+)
 from multiprobe_lsh_probe_sequence_oracle import expected_output as multiprobe_lsh_probe_sequence_primary_oracle
 from multiprobe_lsh_probe_sequence_verifier_oracle import expected_output as multiprobe_lsh_probe_sequence_independent_oracle
 from chord_stabilization_trace_oracle import expected_output as chord_stabilization_trace_primary_oracle
@@ -6239,7 +9157,224 @@ from chord_stabilization_trace_verifier_oracle import expected_output as chord_s
 from shortest_absent_substring_sam_oracle import expected_output as shortest_absent_substring_sam_primary_oracle
 from shortest_absent_substring_sam_verifier_oracle import expected_output as shortest_absent_substring_sam_independent_oracle
 
+
+def gray_code_k_combinations_independent_oracle(values, capacity=None,
+                                                output_is_null=False,
+                                                input_is_null=False,
+                                                input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or input_is_null or values is None or not isinstance(values, (list, tuple))
+            or len(values) > 3
+            or any(type(value) is not int for value in values)
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return -1, b""
+    result, output = gray_code_k_combinations_independent_evaluate(values)
+    if result < 0:
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return result, output
+
+
+def glushkov_bit_parallel_regex_search_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = glushkov_bit_parallel_regex_search_primary_oracle(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    if not glushkov_bit_parallel_regex_search_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        raise ValueError("Glushkov bit-parallel regex references disagree")
+    return result, output
+
+
+def hough_line_transform_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = hough_line_transform_primary_oracle(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    independent = hough_line_transform_independent_reference(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    if (result, output) != independent:
+        raise ValueError("Hough line-transform references disagree")
+    return result, output
+
+
+def kmeans_plus_plus_seeding_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    arguments = dict(
+        input_is_null=input_is_null, input_length=input_length,
+        output_is_null=output_is_null, output_capacity=capacity)
+    primary = kmeans_plus_plus_seeding_primary_oracle(values, **arguments)
+    independent = kmeans_plus_plus_seeding_independent_reference(values, **arguments)
+    if primary != independent:
+        raise ValueError("k-means++ D²-seeding references disagree")
+    return independent
+
+
+def van_der_corput_sequence_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = van_der_corput_sequence_primary_oracle(
+        values, output_capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    if not van_der_corput_sequence_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        raise ValueError("Van der Corput references disagree")
+    return result, output
+
+
+def ekg_sequence_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    arguments = dict(
+        input_is_null=input_is_null, input_length=input_length,
+        output_is_null=output_is_null, output_capacity=capacity)
+    primary = ekg_sequence_primary_oracle(values, **arguments)
+    independent = ekg_sequence_independent_reference(values, **arguments)
+    if primary != independent:
+        raise ValueError("EKG sequence references disagree")
+    return independent
+
+
+def jacobson_matthews_latin_square_chain_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = jm_latin_square_primary_oracle(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    if not jm_latin_square_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        raise ValueError("Jacobson–Matthews transition references disagree")
+    return result, output
+
+
+def hofstadter_figure_figure_sequences_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = figure_figure_primary_oracle(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    if not figure_figure_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        raise ValueError("Figure–Figure recurrence and complement references disagree")
+    return result, output
+
+
+def maximum_sum_contiguous_submatrix_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = maximum_sum_contiguous_submatrix_primary_oracle(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    if not maximum_sum_contiguous_submatrix_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        raise ValueError("maximum-sum submatrix references disagree")
+    return result, output
+
+
+def turbo_boyer_moore_search_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    arguments = dict(
+        input_is_null=input_is_null, input_length=input_length,
+        output_is_null=output_is_null, output_capacity=capacity)
+    primary = turbo_boyer_moore_primary_oracle(values, **arguments)
+    independent = turbo_boyer_moore_independent_reference(values, **arguments)
+    if primary != independent:
+        raise ValueError("Turbo Boyer–Moore and direct-window references disagree")
+    return independent
+
+
+def raita_search_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    arguments = dict(
+        input_is_null=input_is_null, input_length=input_length,
+        output_is_null=output_is_null, output_capacity=capacity)
+    primary = raita_search_primary_oracle(values, **arguments)
+    independent = raita_search_independent_reference(values, **arguments)
+    if primary != independent:
+        raise ValueError("Raita and direct-window references disagree")
+    return independent
+
+
+def tuned_boyer_moore_search_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    arguments = dict(
+        input_is_null=input_is_null, input_length=input_length,
+        output_is_null=output_is_null, output_capacity=capacity)
+    primary = tuned_boyer_moore_primary_oracle(values, **arguments)
+    independent = tuned_boyer_moore_independent_reference(values, **arguments)
+    if primary != independent:
+        raise ValueError("Tuned Boyer–Moore and direct-window references disagree")
+    return independent
+
+
+def smith_string_search_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    arguments = dict(
+        input_is_null=input_is_null, input_length=input_length,
+        output_is_null=output_is_null, output_capacity=capacity)
+    primary = smith_string_search_primary_oracle(values, **arguments)
+    independent = smith_string_search_independent_reference(values, **arguments)
+    if primary != independent:
+        raise ValueError("Smith and direct-window references disagree")
+    return independent
+
+
+def mdp_policy_iteration_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = mdp_policy_iteration_primary_oracle(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    if not mdp_policy_iteration_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        raise ValueError("MDP policy-iteration references disagree")
+    return result, output
+from caverphone_2_encoder_independent_oracle import expected_output as caverphone_2_encoder_independent_oracle
+from m.myers_ond_shortest_edit_script.primary_oracle import (
+    expected_output as myers_ond_shortest_edit_script_primary_oracle,
+)
+from m.myers_ond_shortest_edit_script.check_inventory import (
+    static_issues as myers_ond_shortest_edit_script_static_issues,
+)
+
 ALGORITHMS = (*ALGORITHMS, "rabin_content_defined_chunking")
+ALGORITHMS = (*ALGORITHMS, "gray_code_k_combinations")
+ALGORITHMS = (*ALGORITHMS, "glushkov_bit_parallel_regex_search")
+ALGORITHMS = (*ALGORITHMS, "hough_line_transform")
+ALGORITHMS = (*ALGORITHMS, "kmeans_plus_plus_seeding")
+ALGORITHMS = (*ALGORITHMS, "van_der_corput_sequence")
+ALGORITHMS = (*ALGORITHMS, "ekg_sequence")
+ALGORITHMS = (*ALGORITHMS, "jacobson_matthews_latin_square_chain")
+ALGORITHMS = (*ALGORITHMS, "hofstadter_figure_figure_sequences")
+ALGORITHMS = (*ALGORITHMS, "maximum_sum_contiguous_submatrix")
+ALGORITHMS = (*ALGORITHMS, "turbo_boyer_moore_search")
+ALGORITHMS = (*ALGORITHMS, "raita_search")
+ALGORITHMS = (*ALGORITHMS, "tuned_boyer_moore_search")
+ALGORITHMS = (*ALGORITHMS, "smith_string_search")
+ALGORITHMS = (*ALGORITHMS, "mdp_policy_iteration")
 ALGORITHMS = (*ALGORITHMS, "multiprobe_lsh_probe_sequence")
 ALGORITHMS = (*ALGORITHMS, "chord_stabilization_trace")
 ALGORITHMS = (*ALGORITHMS, "shortest_absent_substring_sam")
@@ -6249,7 +9384,23 @@ WORKSPACE_ALGORITHMS.add("multiprobe_lsh_probe_sequence")
 ALGORITHMS = (*ALGORITHMS, "statistical_region_merging_table")
 WORKSPACE_ALGORITHMS.add("statistical_region_merging_table")
 WORKSPACE_ALGORITHMS.add("rabin_content_defined_chunking")
+WORKSPACE_ALGORITHMS.add("gray_code_k_combinations")
+WORKSPACE_ALGORITHMS.add("glushkov_bit_parallel_regex_search")
+WORKSPACE_ALGORITHMS.add("hough_line_transform")
+WORKSPACE_ALGORITHMS.add("kmeans_plus_plus_seeding")
+WORKSPACE_ALGORITHMS.add("van_der_corput_sequence")
+WORKSPACE_ALGORITHMS.add("ekg_sequence")
+WORKSPACE_ALGORITHMS.add("jacobson_matthews_latin_square_chain")
+WORKSPACE_ALGORITHMS.add("hofstadter_figure_figure_sequences")
+WORKSPACE_ALGORITHMS.add("maximum_sum_contiguous_submatrix")
+WORKSPACE_ALGORITHMS.add("turbo_boyer_moore_search")
+WORKSPACE_ALGORITHMS.add("raita_search")
+WORKSPACE_ALGORITHMS.add("tuned_boyer_moore_search")
+WORKSPACE_ALGORITHMS.add("smith_string_search")
+WORKSPACE_ALGORITHMS.add("mdp_policy_iteration")
 ALGORITHMS = (*ALGORITHMS, "indexed_block_list")
+ALGORITHMS = (*ALGORITHMS, "undirected_eulerian_trail_hierholzer")
+ALGORITHMS = (*ALGORITHMS, "eulerian_trail_undirected_simple")
 ALGORITHMS = (*ALGORITHMS, "xor_leaf_tree_traversal")
 ALGORITHMS = (*ALGORITHMS, "incremental_minimum_spanning_forest")
 ALGORITHMS = (*ALGORITHMS, "static_range_sum_with_upper_bound")
@@ -6268,13 +9419,22 @@ ALGORITHMS = (*ALGORITHMS, "articulation_points")
 ALGORITHMS = (*ALGORITHMS, "melkman_simple_polyline_hull")
 ALGORITHMS = (*ALGORITHMS, "chan_output_sensitive_hull")
 ALGORITHMS = (*ALGORITHMS, "divide_conquer_tangent_hull")
+ALGORITHMS = (*ALGORITHMS, "kirkpatrick_seidel_convex_hull")
 ALGORITHMS = (*ALGORITHMS, "planted_3sat_clause_generator")
 ALGORITHMS = (*ALGORITHMS, "minimum_area_enclosing_rectangle")
 ALGORITHMS = (*ALGORITHMS, "lexicographically_minimal_concatenation")
 ALGORITHMS = (*ALGORITHMS, "rrr_class_offset_rank_select")
 ALGORITHMS = (*ALGORITHMS, "reservoir_sampling_algorithm_r")
+ALGORITHMS = (*ALGORITHMS, "reservoir_sampling_algorithm_x")
+ALGORITHMS = (*ALGORITHMS, "edge_colored_graph_layer_encoding")
+ALGORITHMS = (*ALGORITHMS, "three_dimensional_bird_baker_matching")
 ALGORITHMS = (*ALGORITHMS, "lossy_counting_summary")
 ALGORITHMS = (*ALGORITHMS, "sticky_sampling_summary")
+ALGORITHMS = (*ALGORITHMS, "prufer_decode_linear")
+ALGORITHMS = (*ALGORITHMS, "suffix_automaton_minimum_rotation")
+ALGORITHMS = (*ALGORITHMS, "suffix_automaton_kth_distinct_substring")
+ALGORITHMS = (*ALGORITHMS, "minimum_enclosing_circle_incremental_boundary")
+ALGORITHMS = (*ALGORITHMS, "calkin_wilf_index")
 ALGORITHMS = (*ALGORITHMS, "exponential_histogram_window")
 ALGORITHMS = (*ALGORITHMS, "hyperloglog_raw_estimate")
 ALGORITHMS = (*ALGORITHMS, "hyperloglog_corrected_estimate")
@@ -6285,8 +9445,138 @@ ALGORITHMS = (*ALGORITHMS, "newton_compositional_inverse_fps")
 ALGORITHMS = (*ALGORITHMS, "newton_reciprocal_fps")
 ALGORITHMS = (*ALGORITHMS, "newton_inverse_sqrt_fps")
 ALGORITHMS = (*ALGORITHMS, "seidel_unweighted_apsp")
+ALGORITHMS = (*ALGORITHMS, "caverphone_2_encoder")
+WORKSPACE_ALGORITHMS.add("caverphone_2_encoder")
+ALGORITHMS = (*ALGORITHMS, "myers_ond_shortest_edit_script")
+WORKSPACE_ALGORITHMS.add("myers_ond_shortest_edit_script")
+ALGORITHMS = (*ALGORITHMS, "continued_fraction_convergents")
+ALGORITHMS = (*ALGORITHMS, "rolling_hash_2d_rectangle_query", "tree_center",
+              "tree_center_rerooting_dp")
+ALGORITHMS = (*ALGORITHMS, "batch_gcd_small_range_precomputed")
+ALGORITHMS = (*ALGORITHMS, "morris_approximate_counter_base_three",
+              "kosaraju_dense_bitset_scc")
+ALGORITHMS = (*ALGORITHMS, "binary_divisibility_by_three_dfa")
+ALGORITHMS = (*ALGORITHMS, "aliquot_orbit_decomposition")
+ALGORITHMS = (*ALGORITHMS, "symmetric_drawing_cyclic_wedge")
+ALGORITHMS = (*ALGORITHMS, "rmq_cartesian_tree_fcb")
+ALGORITHMS = (*ALGORITHMS, "louds_ordered_tree_navigation")
+ALGORITHMS = (*ALGORITHMS, "bp_ordered_tree_navigation")
+ALGORITHMS = (*ALGORITHMS, "dfuds_ordered_tree_navigation")
+ALGORITHMS = (*ALGORITHMS, "canonical_order_maximal_plane_triangulation")
+ALGORITHMS = (*ALGORITHMS, "canonical_order_schnyder_realizer")
+ALGORITHMS = (*ALGORITHMS, "polygon_area_centroid")
+ALGORITHMS = (*ALGORITHMS, "line_hull_intersection")
+ALGORITHMS = (*ALGORITHMS, "polyhedron_volume")
+ALGORITHMS = (*ALGORITHMS, "orthogonal_drawing_minimum_bends")
+ALGORITHMS = (*ALGORITHMS, "havel_hakimi_graph_realization")
+ALGORITHMS = (*ALGORITHMS, "sqrt_tree_constant_time")
+ALGORITHMS = (*ALGORITHMS, "suffix_array_inplace_readonly_integer")
+ALGORITHMS = (*ALGORITHMS, "suffix_array_blind_trie")
+ALGORITHMS = (*ALGORITHMS, "seven_sided_dice_from_five_sided_dice")
+ALGORITHMS = (*ALGORITHMS, "elkin_peleg_sparse_spanner")
+ALGORITHMS = (*ALGORITHMS, "fakcharoenphol_rao_planar_sssp")
+ALGORITHMS = (*ALGORITHMS, "nonogram_line_domain_solver")
+ALGORITHMS = (*ALGORITHMS, "partially_retroactive_priority_queue")
+ALGORITHMS = (*ALGORITHMS, "negafibonacci_representation")
+ALGORITHMS = (*ALGORITHMS, "constant_intervals")
+ALGORITHMS = (*ALGORITHMS, "pmr_edge_quadtree")
+ALGORITHMS = (*ALGORITHMS, "cuckoo_filter_operation_trace", "rank_maximal_matching_irving")
+ALGORITHMS = (*ALGORITHMS, "numbers_with_prime_divisor_count_not_two")
+ALGORITHMS = (*ALGORITHMS, "star_quadtree_fat_triangulation")
+ALGORITHMS = (*ALGORITHMS, "two_left_hashing_operation_trace")
+ALGORITHMS = (*ALGORITHMS, "minimum_parenthesis_removal_bfs")
+ALGORITHMS = (*ALGORITHMS, "md4_digest")
+ALGORITHMS = (*ALGORITHMS, "vlist_persistent_sequence")
+ALGORITHMS = (*ALGORITHMS, "zeckendorf_addition")
+ALGORITHMS = (*ALGORITHMS, "bagwell_varray_growth_index", "reverse_delete_mst")
+ALGORITHMS = (*ALGORITHMS, "minimum_weight_cycle_floyd")
+ALGORITHMS = (*ALGORITHMS, "k2_tree_compact_graph")
+ALGORITHMS = (*ALGORITHMS, "bagwell_functional_hash_list")
+ALGORITHMS = (*ALGORITHMS, "all_pairs_directed_random_walk_hitting_times")
+ALGORITHMS = (*ALGORITHMS, "k_quadtree_sampled_point_subdivision")
+ALGORITHMS = (*ALGORITHMS, "brownian_tree_diffusion_limited_aggregation",
+              "pade_approximant_series_coefficients")
+ALGORITHMS = (*ALGORITHMS, "forest_fire_synchronous_stochastic_ca")
+ALGORITHMS = (*ALGORITHMS, "parameterized_pattern_matching_kmp")
+ALGORITHMS = (*ALGORITHMS, "farey_sequence_ordered_enumeration")
+ALGORITHMS = (*ALGORITHMS, "tutte_matrix_randomized_perfect_matching")
+ALGORITHMS = (*ALGORITHMS, "signed_permutation_overlap_forest_components")
+ALGORITHMS = (*ALGORITHMS, "recursive_backtracker_maze_generation")
+ALGORITHMS = (*ALGORITHMS, "chess960_scharnagl_position_unrank")
+ALGORITHMS = (*ALGORITHMS, "k_quadtree_edge_distribution")
+ALGORITHMS = (*ALGORITHMS, "myrvold_ruskey_permutation_unrank")
+ALGORITHMS = (*ALGORITHMS, "base58check_encode")
+ALGORITHMS = (*ALGORITHMS, "aitken_delta_squared_sequence_transform")
+ALGORITHMS = (*ALGORITHMS, "euler_alternating_series_transform")
+ALGORITHMS = (*ALGORITHMS, "levin_partial_sum_transform")
+ALGORITHMS = (*ALGORITHMS, "set_puzzle_find_sets")
+ALGORITHMS = (*ALGORITHMS, "weniger_pochhammer_partial_sum_transform")
+ALGORITHMS = (*ALGORITHMS, "ring_expander_closed_triangle_mesh")
+ALGORITHMS = (*ALGORITHMS, "triangle_mesh_faces_from_edge_graph")
+ALGORITHMS = (*ALGORITHMS, "stieltjes_quotient_difference_transform")
+ALGORITHMS = (*ALGORITHMS, "subtractive_prng_bentley_seeded_sequence")
+ALGORITHMS = (*ALGORITHMS, "wulff_nilsen_logarithmic_distance_query")
+ALGORITHMS = (*ALGORITHMS, "flood_fill", "flood_fill_breadth_first")
+ALGORITHMS = (*ALGORITHMS, "schieber_vishkin_lca")
+ALGORITHMS = (*ALGORITHMS, "continued_fraction_forward_series_recurrence",
+              "hilbert_curve_index_encode", "bricks_falling_when_hit_reverse_dsu",
+              "steed_continued_fraction_convergents",
+              "aho_build_rooted_triplet_tree",
+              "miller_backward_recurrence_normalization")
+ALGORITHMS = (*ALGORITHMS, "random_3sat_cl_bucket_heuristic")
+ALGORITHMS = (*ALGORITHMS, "bairstow_quadratic_factor_iteration")
+ALGORITHMS = (*ALGORITHMS, "punycode_codepoint_sequence_encode")
+ALGORITHMS = (*ALGORITHMS, "lentz_continued_fraction_convergents")
+ALGORITHMS = (*ALGORITHMS, "fornberg_finite_difference_weights")
+ALGORITHMS = (*ALGORITHMS, "ecdsa_signature_verification", "brzozowski_dfa_to_regex")
+ALGORITHMS = (*ALGORITHMS, "multidimensional_newton_raphson", "brace_range_expansion")
+ALGORITHMS = (*ALGORITHMS, "straddling_checkerboard_transducer")
+WORKSPACE_ALGORITHMS.update({"ecdsa_signature_verification", "brzozowski_dfa_to_regex",
+                             "multidimensional_newton_raphson", "brace_range_expansion",
+                             "straddling_checkerboard_transducer"})
+WORKSPACE_ALGORITHMS.add("rolling_hash_2d_rectangle_query")
+WORKSPACE_ALGORITHMS.add("tree_center")
+WORKSPACE_ALGORITHMS.add("tree_center_rerooting_dp")
+WORKSPACE_ALGORITHMS.add("batch_gcd_small_range_precomputed")
+WORKSPACE_ALGORITHMS.update({"morris_approximate_counter_base_three",
+                             "kosaraju_dense_bitset_scc"})
+WORKSPACE_ALGORITHMS.add("binary_divisibility_by_three_dfa")
+WORKSPACE_ALGORITHMS.update({"flood_fill", "flood_fill_breadth_first"})
+WORKSPACE_ALGORITHMS.add("schieber_vishkin_lca")
+WORKSPACE_ALGORITHMS.add("aliquot_orbit_decomposition")
+WORKSPACE_ALGORITHMS.add("symmetric_drawing_cyclic_wedge")
+WORKSPACE_ALGORITHMS.add("rmq_cartesian_tree_fcb")
+WORKSPACE_ALGORITHMS.add("louds_ordered_tree_navigation")
+WORKSPACE_ALGORITHMS.add("bp_ordered_tree_navigation")
+WORKSPACE_ALGORITHMS.add("dfuds_ordered_tree_navigation")
+WORKSPACE_ALGORITHMS.add("canonical_order_maximal_plane_triangulation")
+WORKSPACE_ALGORITHMS.add("canonical_order_schnyder_realizer")
+WORKSPACE_ALGORITHMS.add("polygon_area_centroid")
+WORKSPACE_ALGORITHMS.add("line_hull_intersection")
+WORKSPACE_ALGORITHMS.add("polyhedron_volume")
+WORKSPACE_ALGORITHMS.add("orthogonal_drawing_minimum_bends")
+WORKSPACE_ALGORITHMS.add("havel_hakimi_graph_realization")
+WORKSPACE_ALGORITHMS.add("sqrt_tree_constant_time")
+WORKSPACE_ALGORITHMS.add("suffix_array_inplace_readonly_integer")
+WORKSPACE_ALGORITHMS.add("suffix_array_blind_trie")
+WORKSPACE_ALGORITHMS.add("seven_sided_dice_from_five_sided_dice")
+WORKSPACE_ALGORITHMS.update({"cuckoo_filter_operation_trace", "rank_maximal_matching_irving"})
+WORKSPACE_ALGORITHMS.add("numbers_with_prime_divisor_count_not_two")
+WORKSPACE_ALGORITHMS.add("star_quadtree_fat_triangulation")
+WORKSPACE_ALGORITHMS.add("two_left_hashing_operation_trace")
+WORKSPACE_ALGORITHMS.add("minimum_parenthesis_removal_bfs")
+WORKSPACE_ALGORITHMS.add("md4_digest")
+WORKSPACE_ALGORITHMS.add("elkin_peleg_sparse_spanner")
+WORKSPACE_ALGORITHMS.add("fakcharoenphol_rao_planar_sssp")
+WORKSPACE_ALGORITHMS.add("nonogram_line_domain_solver")
+WORKSPACE_ALGORITHMS.add("partially_retroactive_priority_queue")
+WORKSPACE_ALGORITHMS.add("negafibonacci_representation")
+WORKSPACE_ALGORITHMS.add("constant_intervals")
+WORKSPACE_ALGORITHMS.add("pmr_edge_quadtree")
 WORKSPACE_ALGORITHMS.add("quadratic_form_gf2_normal_form")
 WORKSPACE_ALGORITHMS.add("indexed_block_list")
+WORKSPACE_ALGORITHMS.add("undirected_eulerian_trail_hierholzer")
+WORKSPACE_ALGORITHMS.add("eulerian_trail_undirected_simple")
 WORKSPACE_ALGORITHMS.add("xor_leaf_tree_traversal")
 WORKSPACE_ALGORITHMS.add("incremental_minimum_spanning_forest")
 WORKSPACE_ALGORITHMS.add("static_range_sum_with_upper_bound")
@@ -6305,13 +9595,22 @@ WORKSPACE_ALGORITHMS.add("articulation_points")
 WORKSPACE_ALGORITHMS.add("melkman_simple_polyline_hull")
 WORKSPACE_ALGORITHMS.add("chan_output_sensitive_hull")
 WORKSPACE_ALGORITHMS.add("divide_conquer_tangent_hull")
+WORKSPACE_ALGORITHMS.add("kirkpatrick_seidel_convex_hull")
 WORKSPACE_ALGORITHMS.add("planted_3sat_clause_generator")
 WORKSPACE_ALGORITHMS.add("minimum_area_enclosing_rectangle")
 WORKSPACE_ALGORITHMS.add("lexicographically_minimal_concatenation")
 WORKSPACE_ALGORITHMS.add("rrr_class_offset_rank_select")
 WORKSPACE_ALGORITHMS.add("reservoir_sampling_algorithm_r")
+WORKSPACE_ALGORITHMS.add("reservoir_sampling_algorithm_x")
+WORKSPACE_ALGORITHMS.add("edge_colored_graph_layer_encoding")
+WORKSPACE_ALGORITHMS.add("three_dimensional_bird_baker_matching")
 WORKSPACE_ALGORITHMS.add("lossy_counting_summary")
 WORKSPACE_ALGORITHMS.add("sticky_sampling_summary")
+WORKSPACE_ALGORITHMS.add("prufer_decode_linear")
+WORKSPACE_ALGORITHMS.add("suffix_automaton_minimum_rotation")
+WORKSPACE_ALGORITHMS.add("suffix_automaton_kth_distinct_substring")
+WORKSPACE_ALGORITHMS.add("minimum_enclosing_circle_incremental_boundary")
+WORKSPACE_ALGORITHMS.add("calkin_wilf_index")
 WORKSPACE_ALGORITHMS.add("exponential_histogram_window")
 WORKSPACE_ALGORITHMS.add("hyperloglog_raw_estimate")
 WORKSPACE_ALGORITHMS.add("hyperloglog_corrected_estimate")
@@ -6322,7 +9621,8 @@ WORKSPACE_ALGORITHMS.add("newton_reciprocal_fps")
 WORKSPACE_ALGORITHMS.add("newton_inverse_sqrt_fps")
 WORKSPACE_ALGORITHMS.add("seidel_unweighted_apsp")
 WORKSPACE_ALGORITHMS.update({
-    "npb_cg_sparse_inverse_power", "hpcg_profile", "baswana_sen_weighted_spanner",
+    "npb_cg_sparse_inverse_power", "npb_cg_sparse_outer_product_assembly",
+    "hpcg_profile", "baswana_sen_weighted_spanner",
     "npb_lu_block_ssor", "q_binomial_coefficient_prime_mod",
     "addition_of_big_integers", "prefix_sum_of_binomial_coefficient",
     "inv_of_formal_power_series", "exp_of_formal_power_series",
@@ -6343,6 +9643,9 @@ WORKSPACE_ALGORITHMS.update({
 WORKSPACE_ALGORITHMS.add("disjoint_sparse_table_affine_composition")
 WORKSPACE_ALGORITHMS.add("lengauer_tarjan_dominator_tree")
 WORKSPACE_ALGORITHMS.add("half_plane_intersection")
+WORKSPACE_ALGORITHMS.add("half_plane_intersection_incremental_clipping")
+WORKSPACE_ALGORITHMS.add("circle_line_intersection_symbolic")
+WORKSPACE_ALGORITHMS.add("circle_circle_intersection_symbolic")
 WORKSPACE_ALGORITHMS.add("smawk_row_minima")
 WORKSPACE_ALGORITHMS.add("min_cost_max_flow_blocking_paths")
 WORKSPACE_ALGORITHMS.add("point_in_convex_polygon_log_query")
@@ -6351,6 +9654,8 @@ WORKSPACE_ALGORITHMS.add("brent_kung_fps_composition")
 WORKSPACE_ALGORITHMS.add("create_maximum_number")
 WORKSPACE_ALGORITHMS.add("mst_edge_classification")
 WORKSPACE_ALGORITHMS.add("minimum_mean_cycle_karp")
+WORKSPACE_ALGORITHMS.add("cograph_cotree_decomposition")
+WORKSPACE_ALGORITHMS.add("minimum_mean_cycle_howard")
 WORKSPACE_ALGORITHMS.add("hash_join")
 WORKSPACE_ALGORITHMS.add("binomial_coefficient_prime_power")
 WORKSPACE_ALGORITHMS.add("segment_tree_merge_split")
@@ -6365,6 +9670,10 @@ WORKSPACE_ALGORITHMS.add("convolution_f2_64")
 WORKSPACE_ALGORITHMS.add("palindrome_pairs")
 WORKSPACE_ALGORITHMS.add("dirichlet_convolution_and_prefix_sums")
 WORKSPACE_ALGORITHMS.add("all_shortest_paths_unweighted")
+WORKSPACE_ALGORITHMS.add("palindromic_partition_series_links")
+WORKSPACE_ALGORITHMS.add("lzw_compressed_shift_and_matching")
+WORKSPACE_ALGORITHMS.add("bkp_speed_scaling_trace")
+WORKSPACE_ALGORITHMS.add("knuth_big_integer_division")
 WORKSPACE_ALGORITHMS.update({
     "ams_sketch", "count_min_sketch_affine", "deterministic_line_search",
     "color_coding_k_path",
@@ -6398,10 +9707,13 @@ WORKSPACE_ALGORITHMS.update({
     "min_hash_bottom_k",
     "srpt_flow_time", "concave_gap_alignment_global",
     "yds_speed_scaling",
+    "avr_speed_scaling",
+    "oa_speed_scaling",
     "two_dimensional_string_matching",
     "fibonacci_integer_code", "undirected_feedback_vertex_set",
     "vector_scheduling",
     "vector_bin_packing", "list_ranking_independent_set_contraction",
+    "list_ranking_random_mate",
     "two_dimensional_scaled_pattern_matching",
     "frequent_itemset_backtrack",
     "frequent_itemset_delivery",
@@ -6422,6 +9734,8 @@ WORKSPACE_ALGORITHMS.update({
     "approximate_matching_greedy",
     "voronoi_delaunay_empty_circle",
     "parentheses_generator",
+    "balanced_parenthesis_successor",
+    "list_rooted_trees",
     "approximating_diameter_bfs", "weighted_connected_dominating_set",
     "domination_local_reduction",
     "weighted_popular_matching",
@@ -6455,6 +9769,8 @@ WORKSPACE_ALGORITHMS.update({
     "hub_labeling_greedy_order",
     "dense_graph_bipartiteness_tester",
     "all_distances_sketch_bottom_k",
+    "all_distances_sketch_k_mins",
+    "zobrist_position_hash_trace",
     "sublinear_bipartiteness_walk_tester",
     "optimal_stable_marriage",
     "quine_mccluskey_minimization",
@@ -6482,6 +9798,11 @@ WORKSPACE_ALGORITHMS.update({
     "mdp_value_iteration_deterministic",
     "radio_network_decay_phase",
     "rumor_blocking_greedy_live_edge",
+    "influence_maximization_greedy_live_edge",
+    "influence_maximization_greedy_linear_threshold",
+    "t_threshold_three_sorted_lists",
+    "maximum_matching_word_segmentation",
+    "random_3sat_hajiaghayi_sorkin_algorithm_a",
     "distributed_coupon_collection_replay",
     "routing_cost_constrained_cds_goc_mcds_c",
     "st_planar_leftmost_augmenting_flow",
@@ -6515,8 +9836,20 @@ WORKSPACE_ALGORITHMS.add("memoize")
 WORKSPACE_ALGORITHMS.add("lz78")
 WORKSPACE_ALGORITHMS.update({"lz77_java", "lz77_python_rust"})
 WORKSPACE_ALGORITHMS.update({"lz77_infinite_rightmost", "kmp_slp_jump_output"})
+WORKSPACE_ALGORITHMS.add("lz77_lpf_suffix_array")
+WORKSPACE_ALGORITHMS.add("lz78_run_length_transform")
+WORKSPACE_ALGORITHMS.add("two_edge_connected_spanning_subgraph_khuller_vishkin_dfs")
+WORKSPACE_ALGORITHMS.add("two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs")
+WORKSPACE_ALGORITHMS.add("nagamochi_ibaraki_sparse_k_connectivity_certificate")
+WORKSPACE_ALGORITHMS.add("cheriyan_thurimella_two_vertex_connected_augmentation")
+WORKSPACE_ALGORITHMS.add("khuller_raghavachari_three_edge_connected_spanning_subgraph")
+WORKSPACE_ALGORITHMS.add("additive_two_spanner_completion")
 WORKSPACE_ALGORITHMS.add("sepia")
 WORKSPACE_ALGORITHMS.add("random_graph_generator")
+WORKSPACE_ALGORITHMS.add("schuler_randomized_general_cnf_sat")
+WORKSPACE_ALGORITHMS.add("planar_embedding_lr")
+WORKSPACE_ALGORITHMS.add("wigderson_3_colorable_graph_coloring")
+WORKSPACE_ALGORITHMS.add("metropolis_hastings_asymmetric_proposal")
 WORKSPACE_ALGORITHMS.add("timeline")
 WORKSPACE_ALGORITHMS.add("quadratic_probing_hash_table")
 WORKSPACE_ALGORITHMS.add("lottery_scheduling")
@@ -6622,11 +9955,15 @@ WORKSPACE_ALGORITHMS.update({
     "numeric_token_state_machine", "nbench_huffman_compression",
     "nbench_resource_assignment", "nbench_emulated_float_arithmetic",
     "nbench_neural_network", "coremark_matrix_manipulation",
+    "hsadelta_differential_compression",
+    "fgk_adaptive_huffman", "vitter_adaptive_huffman", "lucky_number_sieve",
+    "inverted_list_bitvector_intersection",
 })
 WORKSPACE_ALGORITHMS.add("dominator_tree")
 WORKSPACE_ALGORITHMS.update({"st_numbering", "link_cut_tree"})
 WORKSPACE_ALGORITHMS.add("euler_tour_tree")
 WORKSPACE_ALGORITHMS.add("dynamic_top_tree_component_diameter")
+WORKSPACE_ALGORITHMS.add("dynamic_tree_maximum_weight_independent_set")
 WORKSPACE_ALGORITHMS.add("dynamic_tree_subtree_add_subtree_sum")
 WORKSPACE_ALGORITHMS.add("sort_points_by_argument")
 WORKSPACE_ALGORITHMS.add("count_points_in_triangle")
@@ -6638,6 +9975,7 @@ WORKSPACE_ALGORITHMS.add("lowest_common_ancestor_farach_colton_bender")
 WORKSPACE_ALGORITHMS.update({"old_driver_tree", "point_set_tree_path_composite_sum_fixed_root"})
 WORKSPACE_ALGORITHMS.add("point_set_tree_path_composite_sum")
 WORKSPACE_ALGORITHMS.update({"de_bruijn_sequences", "knuth_power_tree",
+                             "addition_chain_enumeration",
                              "prefix_substring_lcs"})
 WORKSPACE_ALGORITHMS.add("main_lorentz_tandem_repetitions")
 WORKSPACE_ALGORITHMS.add("suffix_balanced_tree")
@@ -6654,7 +9992,7 @@ WORKSPACE_ALGORITHMS.update({
     "multivariate_convolution_cyclic", "global_minimum_cut_of_dynamic_star_augmented_graph",
     "rooted_tree_topological_order_with_minimum_inversions", "bitwise_xor_convolution",
     "xor_linear_basis", "bitwise_or_convolution",
-    "splash2_water_nsquared", "water_spatial",
+    "splash2_water_nsquared", "water_spatial", "splash2_volrend_raymarch",
 })
 WORKSPACE_ALGORITHMS.add("fluidanimate_sph")
 WORKSPACE_ALGORITHMS.add("bodytrack_annealed_particle_filter")
@@ -6673,6 +10011,65 @@ WORKSPACE_ALGORITHMS.add("range_reverse_range_sum")
 WORKSPACE_ALGORITHMS.add("dynamic_sequence_range_affine_range_sum")
 WORKSPACE_ALGORITHMS.add("dynamic_point_set_rectangle_affine_rectangle_sum")
 WORKSPACE_ALGORITHMS.add("chordal_graph_recognition")
+WORKSPACE_ALGORITHMS.add("tsp_few_inner_points_subset_dp")
+WORKSPACE_ALGORITHMS.add("hypergraph_incidence_graph_encoding")
+WORKSPACE_ALGORITHMS.add("clarke_wright_savings_cvrp")
+WORKSPACE_ALGORITHMS.add("vlist_persistent_sequence")
+WORKSPACE_ALGORITHMS.add("zeckendorf_addition")
+WORKSPACE_ALGORITHMS.update({"bagwell_varray_growth_index", "reverse_delete_mst"})
+WORKSPACE_ALGORITHMS.add("minimum_weight_cycle_floyd")
+WORKSPACE_ALGORITHMS.add("k2_tree_compact_graph")
+WORKSPACE_ALGORITHMS.add("bagwell_functional_hash_list")
+WORKSPACE_ALGORITHMS.add("all_pairs_directed_random_walk_hitting_times")
+WORKSPACE_ALGORITHMS.add("k_quadtree_sampled_point_subdivision")
+WORKSPACE_ALGORITHMS.update({"brownian_tree_diffusion_limited_aggregation",
+                             "pade_approximant_series_coefficients"})
+WORKSPACE_ALGORITHMS.add("forest_fire_synchronous_stochastic_ca")
+WORKSPACE_ALGORITHMS.add("parameterized_pattern_matching_kmp")
+WORKSPACE_ALGORITHMS.add("farey_sequence_ordered_enumeration")
+WORKSPACE_ALGORITHMS.add("tutte_matrix_randomized_perfect_matching")
+WORKSPACE_ALGORITHMS.add("signed_permutation_overlap_forest_components")
+WORKSPACE_ALGORITHMS.add("recursive_backtracker_maze_generation")
+WORKSPACE_ALGORITHMS.add("chess960_scharnagl_position_unrank")
+WORKSPACE_ALGORITHMS.add("k_quadtree_edge_distribution")
+WORKSPACE_ALGORITHMS.add("myrvold_ruskey_permutation_unrank")
+WORKSPACE_ALGORITHMS.add("base58check_encode")
+WORKSPACE_ALGORITHMS.add("aitken_delta_squared_sequence_transform")
+WORKSPACE_ALGORITHMS.add("euler_alternating_series_transform")
+WORKSPACE_ALGORITHMS.add("levin_partial_sum_transform")
+WORKSPACE_ALGORITHMS.add("set_puzzle_find_sets")
+WORKSPACE_ALGORITHMS.add("weniger_pochhammer_partial_sum_transform")
+WORKSPACE_ALGORITHMS.add("ring_expander_closed_triangle_mesh")
+WORKSPACE_ALGORITHMS.add("triangle_mesh_faces_from_edge_graph")
+WORKSPACE_ALGORITHMS.add("stieltjes_quotient_difference_transform")
+WORKSPACE_ALGORITHMS.add("continued_fraction_forward_series_recurrence")
+WORKSPACE_ALGORITHMS.add("subtractive_prng_bentley_seeded_sequence")
+WORKSPACE_ALGORITHMS.add("hilbert_curve_index_encode")
+WORKSPACE_ALGORITHMS.add("bricks_falling_when_hit_reverse_dsu")
+WORKSPACE_ALGORITHMS.add("steed_continued_fraction_convergents")
+WORKSPACE_ALGORITHMS.add("aho_build_rooted_triplet_tree")
+WORKSPACE_ALGORITHMS.add("miller_backward_recurrence_normalization")
+WORKSPACE_ALGORITHMS.add("random_3sat_cl_bucket_heuristic")
+WORKSPACE_ALGORITHMS.add("bairstow_quadratic_factor_iteration")
+WORKSPACE_ALGORITHMS.add("punycode_codepoint_sequence_encode")
+WORKSPACE_ALGORITHMS.add("lentz_continued_fraction_convergents")
+WORKSPACE_ALGORITHMS.add("fornberg_finite_difference_weights")
+WORKSPACE_ALGORITHMS.add("landau_vishkin_k_difference_pattern_matching")
+WORKSPACE_ALGORITHMS.add("time_based_one_time_password_algorithm")
+WORKSPACE_ALGORITHMS.add("fast_minimal_triangulation")
+WORKSPACE_ALGORITHMS.add("van_emde_boas_layout_search")
+WORKSPACE_ALGORITHMS.update({"planar_directed_general_st_flow_borradaile_klein",
+                             "posit8_rational_encoder", "cactus_stack_branch_trace"})
+WORKSPACE_ALGORITHMS.add("smarandache_wellin_prime_prefix_scan")
+WORKSPACE_ALGORITHMS.add("junta_test_partition_binary_search")
+WORKSPACE_ALGORITHMS.add("combinations_with_repetition_lexicographic")
+WORKSPACE_ALGORITHMS.add("gregorian_daycount_to_ordinal_date")
+WORKSPACE_ALGORITHMS.add("shannon_fano_elias_symbol_codes")
+WORKSPACE_ALGORITHMS.add("goodstein_sequence_bounded_prefix")
+WORKSPACE_ALGORITHMS.add("gpsr_perimeter_recovery_trace")
+WORKSPACE_ALGORITHMS.add("order_preserving_huffman_greedy_trace")
+WORKSPACE_ALGORITHMS.add("powerful_numbers_square_cube_enumeration")
+WORKSPACE_ALGORITHMS.add("wulff_nilsen_logarithmic_distance_query")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 MISC_LOWERCASE_MAX_CHARACTERS = 31
@@ -12971,6 +16368,26 @@ def _adapt_array_verifier(verifier, max_parseable_input_length):
     return expected_output
 
 
+def planar_embedding_lr_verifier_oracle(values, capacity=None, output_is_null=False,
+                                        input_is_null=False, input_length=None):
+    result, output = planar_embedding_lr_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if result >= 0 and not planar_embedding_lr_validate_result(list(values), output):
+        raise ValueError("left-right planarity reference emitted an invalid result certificate")
+    return result, output
+
+
+def metropolis_hastings_asymmetric_proposal_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False, input_length=None):
+    result, output = metropolis_hastings_asymmetric_primary_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    independent = metropolis_hastings_asymmetric_independent_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if result >= 0 and independent != (result, output):
+        raise ValueError("independent exact-kernel and direct Metropolis-Hastings traces differ")
+    return result, output
+
+
 def link_cut_tree_independent_oracle(
         values, capacity=None, output_is_null=False, input_is_null=False,
         input_length=None):
@@ -13587,6 +17004,19 @@ def knuth_power_tree_independent_oracle(
     return result, output
 
 
+def addition_chain_enumeration_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = addition_chain_enumeration_primary_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if not addition_chain_enumeration_verify_result(
+            values, result, output, output_capacity=capacity,
+            output_is_null=output_is_null, input_is_null=input_is_null,
+            input_length=input_length):
+        return -1, b""
+    return result, output
+
+
 def prefix_substring_lcs_independent_oracle(
         values, capacity=None, output_is_null=False, input_is_null=False,
         input_length=None):
@@ -13601,7 +17031,345 @@ def prefix_substring_lcs_independent_oracle(
     )
 
 
+def pq_tree_verifier_oracle(values, output_capacity=None, output_is_null=False,
+                            input_is_null=False, input_length=None):
+    primary_result, primary_output = pq_tree_primary_oracle(
+        values, PQ_TREE_MAX_OUTPUT_BYTES, False, input_is_null, input_length)
+    if primary_result < 0:
+        return primary_result, primary_output
+    if (not input_is_null and isinstance(values, (tuple, list)) and values
+            and type(values[0]) is int and 2 <= values[0] <= 8):
+        independent_result, independent_output = pq_tree_small_frontier_oracle(values)
+        if (independent_result, independent_output) != (primary_result, primary_output):
+            raise ValueError("PQ reduction and complete-frontier references disagree")
+        primary_result, primary_output = independent_result, independent_output
+    capacity = PQ_TREE_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    if (type(output_is_null) is not bool or type(capacity) is not int or capacity < 0):
+        return -1, b""
+    if output_is_null or capacity < primary_result:
+        return -2, b""
+    return primary_result, primary_output
+
+
+def rolling_hash_2d_rectangle_query_verifier_oracle(
+        values, capacity=ROLLING_HASH_2D_VERIFIER_MAX_OUTPUT_BYTES,
+        output_is_null=False, input_is_null=False, input_length=None):
+    return rolling_hash_2d_independent_oracle(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+
+
+def network_erosion_strength_of_connection_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    output_capacity = (NETWORK_EROSION_VERIFIER_OUTPUT_BYTES
+                       if capacity is None else capacity)
+    arguments = {
+        "input_length": input_length,
+        "input_is_null": input_is_null,
+        "output_capacity": output_capacity,
+        "output_is_null": output_is_null,
+    }
+    result = network_erosion_strength_of_connection_independent_result(values, **arguments)
+    output = network_erosion_strength_of_connection_independent_output(values, **arguments)
+    return result, output
+
+
+def scc_condensation_dag_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    output_capacity = (SCC_CONDENSATION_DAG_VERIFIER_OUTPUT_BYTES
+                       if capacity is None else capacity)
+    return scc_condensation_dag_independent_output(
+        values, output_capacity=output_capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+
+
+def polygon_area_centroid_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return polygon_area_centroid_independent_output(
+        values, capacity=capacity, input_is_null=input_is_null,
+        output_is_null=output_is_null, input_length=input_length)
+
+
+def line_hull_intersection_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return line_hull_intersection_independent_output(
+        values, capacity=capacity, input_is_null=input_is_null,
+        output_is_null=output_is_null, input_length=input_length)
+
+
+def polyhedron_volume_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return polyhedron_volume_independent_output(
+        values, capacity=capacity, input_is_null=input_is_null,
+        output_is_null=output_is_null, input_length=input_length)
+
+
+def orthogonal_drawing_minimum_bends_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return orthogonal_drawing_minimum_bends_independent_output(
+        values, capacity=capacity, input_is_null=input_is_null,
+        output_is_null=output_is_null, input_length=input_length)
+
+
+def havel_hakimi_graph_realization_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return havel_hakimi_graph_realization_independent_output(
+        values, capacity=capacity, input_is_null=input_is_null,
+        output_is_null=output_is_null, input_length=input_length)
+
+
+def sqrt_tree_constant_time_verifier_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result = sqrt_tree_constant_time_independent_result(
+        values, input_is_null=input_is_null, input_length=input_length)
+    if result < 0:
+        return result, b""
+    output = sqrt_tree_constant_time_independent_output(
+        values, input_is_null=input_is_null, input_length=input_length)
+    actual_capacity = (SQRT_TREE_CONSTANT_TIME_VERIFIER_MAX_OUTPUT_BYTES
+                       if capacity is None else capacity)
+    if (type(output_is_null) is not bool or type(actual_capacity) is not int
+            or actual_capacity < 0):
+        return -2, b""
+    if (output and output_is_null) or len(output) > actual_capacity:
+        return -2, b""
+    return result, output
+
+
+def k_truss_edge_peeling_decomposition_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or capacity is not None and (type(capacity) is not int or capacity < 0)
+            or input_length is not None and
+            (type(input_length) is not int or not 0 <= input_length <= 243)):
+        return -1, b""
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or input_length is not None and input_length != len(values)):
+        return -1, b""
+    result, output = k_truss_independent_reference(values)
+    if result < 0:
+        return result, b""
+    if output_is_null or capacity is not None and capacity < result:
+        return -2, b""
+    return result, output
+
+
+def sugiyama_longest_path_layer_assignment_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return sugiyama_longest_path_independent_reference(
+        values, output_capacity=capacity, input_is_null=input_is_null,
+        output_is_null=output_is_null, input_length=input_length)
+
+
+def long_chain_dominant_depth_index_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    actual_capacity = (LONG_CHAIN_DOMINANT_DEPTH_MAX_OUTPUT_BYTES
+                       if capacity is None else capacity)
+    return long_chain_dominant_depth_index_independent_output(
+        values, input_is_null=input_is_null, input_length=input_length,
+        output_capacity=actual_capacity, output_is_null=output_is_null)
+
+
+def long_chain_kth_ancestor_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    actual_capacity = (LONG_CHAIN_KTH_ANCESTOR_MAX_OUTPUT_BYTES
+                       if capacity is None else capacity)
+    return long_chain_kth_ancestor_independent_output(
+        values, input_is_null=input_is_null, input_length=input_length,
+        output_capacity=actual_capacity, output_is_null=output_is_null)
+
+
+def bitset_xor_shift_trace_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    actual_capacity = (BITSET_XOR_SHIFT_MAX_OUTPUT_BYTES
+                       if capacity is None else capacity)
+    return bitset_xor_shift_trace_independent_output(
+        values, input_is_null=input_is_null, input_length=input_length,
+        capacity=actual_capacity, output_is_null=output_is_null)
+
+
+def buddy_system_allocator_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    actual_capacity = (BUDDY_SYSTEM_ALLOCATOR_MAX_OUTPUT_BYTES
+                       if capacity is None else capacity)
+    return buddy_system_allocator_independent_output(
+        values, capacity=actual_capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+
+
+def levcopoulos_lingas_planar_geometric_spanner_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    actual_capacity = (LL_SPANNER_MAX_OUTPUT_BYTES if capacity is None else capacity)
+    return ll_spanner_independent_output(
+        values, capacity=actual_capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+
+
+def radio_network_bgi_broadcast_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    actual_capacity = (RADIO_NETWORK_BGI_MAX_OUTPUT_BYTES
+                       if capacity is None else capacity)
+    return radio_network_bgi_independent_output(
+        values, input_is_null=input_is_null, input_length=input_length,
+        capacity=actual_capacity, output_is_null=output_is_null)
+
+
+def ecdsa_signature_verification_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    if (type(input_is_null) is not bool or input_is_null
+            or not isinstance(values, (list, tuple))
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return -1, b""
+    return ecdsa_signature_verification_independent_reference(
+        values, output_capacity=capacity, output_is_null=output_is_null)
+
+
+def brzozowski_dfa_to_regex_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    result, output = brzozowski_dfa_to_regex_primary_oracle(
+        values, capacity=capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+    # Canonical bytes are defined by the primary equation-elimination contract;
+    # the independent derivative/product check validates the represented language.
+    if result >= 0 and not brzozowski_dfa_to_regex_language_equivalent(
+            values, output, input_is_null=input_is_null, input_length=input_length):
+        raise ValueError("Brzozowski output regex is not equivalent to the input DFA")
+    return result, output
+
+
+def multidimensional_newton_raphson_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return multidimensional_newton_raphson_independent_reference(
+        values, capacity=(MULTIDIMENSIONAL_NEWTON_MAX_OUTPUT_BYTES
+                          if capacity is None else capacity),
+        output_is_null=output_is_null, input_is_null=input_is_null,
+        input_length=input_length)
+
+
+def brace_range_expansion_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return brace_range_expansion_independent_reference(
+        values, capacity=(BRACE_RANGE_EXPANSION_MAX_OUTPUT_BYTES
+                          if capacity is None else capacity),
+        output_is_null=output_is_null, input_is_null=input_is_null,
+        input_length=input_length)
+
+
+def straddling_checkerboard_transducer_independent_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    return straddling_checkerboard_transducer_independent_reference(
+        values, capacity=(STRADDLING_CHECKERBOARD_MAX_OUTPUT_BYTES
+                          if capacity is None else capacity),
+        output_is_null=output_is_null, input_is_null=input_is_null,
+        input_length=input_length)
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "md4_digest": md4_digest_independent_oracle,
+    "minimum_parenthesis_removal_bfs": minimum_parenthesis_removal_bfs_independent_oracle,
+    "cuckoo_filter_operation_trace": cuckoo_filter_operation_trace_independent_oracle,
+    "rank_maximal_matching_irving": rank_maximal_matching_irving_independent_oracle,
+    "numbers_with_prime_divisor_count_not_two": numbers_with_prime_divisor_count_not_two_independent_oracle,
+    "star_quadtree_fat_triangulation": star_quadtree_fat_triangulation_independent_oracle,
+    "two_left_hashing_operation_trace": two_left_hashing_operation_trace_independent_oracle,
+    "vlist_persistent_sequence": vlist_persistent_sequence_independent_oracle,
+    "zeckendorf_addition": zeckendorf_addition_independent_oracle,
+    "bagwell_varray_growth_index": bagwell_varray_growth_index_independent_oracle,
+    "bagwell_functional_hash_list": bagwell_functional_hash_list_independent_oracle,
+    "reverse_delete_mst": reverse_delete_mst_independent_oracle,
+    "minimum_weight_cycle_floyd": minimum_weight_cycle_floyd_independent_oracle,
+    "k2_tree_compact_graph": k2_tree_compact_graph_independent_oracle,
+    "all_pairs_directed_random_walk_hitting_times": all_pairs_directed_random_walk_hitting_times_independent_oracle,
+    "k_quadtree_sampled_point_subdivision": k_quadtree_sampled_point_subdivision_independent_oracle,
+    "k_quadtree_edge_distribution": k_quadtree_edge_distribution_independent_oracle,
+    "brownian_tree_diffusion_limited_aggregation": brownian_tree_diffusion_limited_aggregation_independent_oracle,
+    "forest_fire_synchronous_stochastic_ca": forest_fire_synchronous_stochastic_ca_independent_oracle,
+    "parameterized_pattern_matching_kmp": parameterized_pattern_matching_kmp_independent_oracle,
+    "farey_sequence_ordered_enumeration": farey_sequence_ordered_enumeration_independent_oracle,
+    "tutte_matrix_randomized_perfect_matching": tutte_matrix_randomized_perfect_matching_independent_oracle,
+    "signed_permutation_overlap_forest_components": signed_permutation_overlap_forest_components_independent_oracle,
+    "recursive_backtracker_maze_generation": recursive_backtracker_maze_generation_independent_oracle,
+    "chess960_scharnagl_position_unrank": chess960_scharnagl_position_unrank_independent_oracle,
+    "pade_approximant_series_coefficients": pade_approximant_series_coefficients_independent_oracle,
+    "myrvold_ruskey_permutation_unrank": myrvold_ruskey_permutation_unrank_independent_oracle,
+    "base58check_encode": base58check_encode_independent_oracle,
+    "aitken_delta_squared_sequence_transform": aitken_delta_squared_sequence_transform_independent_oracle,
+    "euler_alternating_series_transform": euler_alternating_series_transform_independent_oracle,
+    "levin_partial_sum_transform": levin_partial_sum_transform_independent_oracle,
+    "set_puzzle_find_sets": set_puzzle_find_sets_independent_oracle,
+    "weniger_pochhammer_partial_sum_transform": weniger_pochhammer_partial_sum_transform_independent_oracle,
+    "ring_expander_closed_triangle_mesh": ring_expander_closed_triangle_mesh_independent_oracle,
+    "triangle_mesh_faces_from_edge_graph": triangle_mesh_faces_from_edge_graph_independent_oracle,
+    "bondy_chvatal_hamiltonian_closure": bondy_chvatal_hamiltonian_closure_independent_oracle,
+    "hash_heap_priority_queue_trace": hash_heap_priority_queue_trace_independent_oracle,
+    "steiner_tree_mehlhorn_voronoi_mst": steiner_tree_mehlhorn_voronoi_mst_independent_oracle,
+    "succinct_bp_pioneer_match_index": succinct_bp_pioneer_match_index_independent_oracle,
+    "quotient_filter_operation_trace": quotient_filter_operation_trace_independent_oracle,
+    "counting_bloom_filter_operation_trace": counting_bloom_filter_operation_trace_independent_oracle,
+    "weiler_atherton_polygon_intersection": weiler_atherton_polygon_intersection_independent_oracle,
+    "k_subset_colex_rank_unrank": k_subset_colex_rank_unrank_independent_oracle,
+    "consistent_overhead_byte_stuffing": consistent_overhead_byte_stuffing_independent_oracle,
+    "snake_case_to_camel_pascal_case": snake_case_to_camel_pascal_case_independent_oracle,
+    "minkowski_question_mark_rational": minkowski_question_mark_rational_independent_oracle,
+    "inverted_list_svs_binary_search": inverted_list_svs_binary_search_independent_oracle,
+    "interval_tree_point_stabbing": interval_tree_point_stabbing_independent_oracle,
+    "stieltjes_quotient_difference_transform": stieltjes_quotient_difference_transform_independent_oracle,
+    "continued_fraction_forward_series_recurrence": continued_fraction_forward_series_recurrence_independent_oracle,
+    "subtractive_prng_bentley_seeded_sequence": subtractive_prng_bentley_seeded_sequence_independent_oracle,
+    "hilbert_curve_index_encode": hilbert_curve_index_encode_independent_oracle,
+    "bricks_falling_when_hit_reverse_dsu": bricks_falling_when_hit_reverse_dsu_independent_oracle,
+    "steed_continued_fraction_convergents": steed_continued_fraction_convergents_independent_oracle,
+    "aho_build_rooted_triplet_tree": aho_build_rooted_triplet_tree_independent_oracle,
+    "miller_backward_recurrence_normalization": miller_backward_recurrence_normalization_independent_oracle,
+    "random_3sat_cl_bucket_heuristic": random_3sat_cl_bucket_heuristic_independent_oracle,
+    "bairstow_quadratic_factor_iteration": bairstow_quadratic_factor_iteration_independent_oracle,
+    "punycode_codepoint_sequence_encode": punycode_codepoint_sequence_encode_independent_oracle,
+    "lentz_continued_fraction_convergents": lentz_continued_fraction_convergents_independent_oracle,
+    "fornberg_finite_difference_weights": fornberg_finite_difference_weights_independent_oracle,
+    "wulff_nilsen_logarithmic_distance_query": wulff_nilsen_logarithmic_distance_query_independent_oracle,
+    "wigderson_3_colorable_graph_coloring": wigderson_3_colorable_graph_coloring_independent_oracle,
+    "aliquot_orbit_decomposition": aliquot_orbit_decomposition_independent_oracle,
+    "calendar_queue": calendar_queue_independent_oracle,
+    "interval_heap_double_ended": interval_heap_independent_oracle,
+    "hash_map_hopscotch_hashing": hopscotch_hashing_independent_oracle,
+    "offline_dynamic_bipartiteness": offline_dynamic_bipartiteness_independent_oracle,
+    "k_truss_edge_peeling_decomposition": k_truss_edge_peeling_decomposition_independent_oracle,
+    "sugiyama_longest_path_layer_assignment": sugiyama_longest_path_layer_assignment_independent_oracle,
+    "lcm_ppc_closed_itemset_enumeration": lcm_ppc_independent_oracle,
+    "double_metaphone": double_metaphone_independent_oracle,
+    "domain_coloring": domain_coloring_independent_oracle,
+    "two_dimensional_optimal_expected_matching": two_dimensional_optimal_expected_independent_oracle,
+    "cupif_giannini_tree_traversal": cupif_giannini_tree_traversal_independent_oracle,
+    "stormer_verlet_position": stormer_verlet_position_independent_oracle,
+    "two_dimensional_k_mismatch_linear_templates": two_dimensional_k_mismatch_independent_oracle,
+    "symmetric_drawing_cyclic_wedge": symmetric_drawing_cyclic_wedge_independent_oracle,
+    "rmq_cartesian_tree_fcb": rmq_cartesian_tree_fcb_independent_oracle,
+    "caverphone_2_encoder": caverphone_2_encoder_independent_oracle,
+    # Preserve the algorithm's explicit deterministic wavefront tie rule;
+    # the package's independent DP separately checks replay and optimal cost.
+    "myers_ond_shortest_edit_script": myers_ond_shortest_edit_script_primary_oracle,
     "seidel_unweighted_apsp": seidel_unweighted_apsp_independent_oracle,
     "newton_inverse_sqrt_fps": newton_inverse_sqrt_fps_independent_oracle,
     "newton_reciprocal_fps": newton_reciprocal_fps_independent_oracle,
@@ -13613,8 +17381,27 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "multiprobe_lsh_probe_sequence": multiprobe_lsh_probe_sequence_independent_oracle,
     "statistical_region_merging_table": statistical_region_merging_table_independent_oracle,
     "rabin_content_defined_chunking": rabin_content_defined_chunking_independent_oracle,
+    "gray_code_k_combinations": gray_code_k_combinations_independent_oracle,
+    "glushkov_bit_parallel_regex_search": glushkov_bit_parallel_regex_search_independent_oracle,
+    "hough_line_transform": hough_line_transform_independent_oracle,
+    "kmeans_plus_plus_seeding": kmeans_plus_plus_seeding_independent_oracle,
+    "van_der_corput_sequence": van_der_corput_sequence_independent_oracle,
+    "ekg_sequence": ekg_sequence_independent_oracle,
+    "jacobson_matthews_latin_square_chain": jacobson_matthews_latin_square_chain_independent_oracle,
+    "hofstadter_figure_figure_sequences": hofstadter_figure_figure_sequences_independent_oracle,
+    "maximum_sum_contiguous_submatrix": maximum_sum_contiguous_submatrix_independent_oracle,
+    "turbo_boyer_moore_search": turbo_boyer_moore_search_independent_oracle,
+    "raita_search": raita_search_independent_oracle,
+    "tuned_boyer_moore_search": tuned_boyer_moore_search_independent_oracle,
+    "smith_string_search": smith_string_search_independent_oracle,
+    "pmr_edge_quadtree": pmr_edge_quadtree_independent_oracle,
+    "network_erosion_strength_of_connection": network_erosion_strength_of_connection_verifier_oracle,
+    "scc_condensation_dag": scc_condensation_dag_verifier_oracle,
+    "mdp_policy_iteration": mdp_policy_iteration_independent_oracle,
     "quadratic_form_gf2_normal_form": quadratic_form_gf2_oracle,
     "indexed_block_list": indexed_block_list_independent_oracle,
+    "undirected_eulerian_trail_hierholzer": undirected_hierholzer_independent_oracle,
+    "eulerian_trail_undirected_simple": undirected_discovery_oracle,
     "xor_leaf_tree_traversal": xor_leaf_tree_traversal_oracle,
     "incremental_minimum_spanning_forest": incremental_msf_independent_oracle,
     "static_range_sum_with_upper_bound": static_range_sum_upper_oracle,
@@ -13632,24 +17419,77 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "melkman_simple_polyline_hull": melkman_simple_polyline_hull_independent_oracle,
     "chan_output_sensitive_hull": chan_output_sensitive_hull_independent_oracle,
     "divide_conquer_tangent_hull": divide_conquer_tangent_hull_independent_oracle,
+    "kirkpatrick_seidel_convex_hull": kirkpatrick_seidel_convex_hull_independent_oracle,
     "planted_3sat_clause_generator": planted_3sat_clause_generator_independent_oracle,
     "minimum_area_enclosing_rectangle": minimum_area_enclosing_rectangle_independent_oracle,
+    "minimum_window_subsequence": minimum_window_subsequence_independent_oracle,
     "lexicographically_minimal_concatenation": minimal_concatenation_oracle,
     "rrr_class_offset_rank_select": rrr_class_offset_rank_select_independent_oracle,
     "reservoir_sampling_algorithm_r": reservoir_sampling_algorithm_r_independent_oracle,
+    "reservoir_sampling_algorithm_x": reservoir_sampling_algorithm_x_independent_oracle,
+    "edge_colored_graph_layer_encoding": edge_colored_graph_layer_encoding_independent_oracle,
+    "three_dimensional_bird_baker_matching": three_dimensional_bird_baker_independent_oracle,
     "lossy_counting_summary": lossy_counting_summary_independent_oracle,
     "sticky_sampling_summary": sticky_sampling_summary_independent_oracle,
+    "prufer_decode_linear": prufer_decode_linear_independent_oracle,
+    "suffix_automaton_minimum_rotation": suffix_automaton_minimum_rotation_oracle,
+    "suffix_automaton_kth_distinct_substring": suffix_automaton_kth_distinct_substring_oracle,
+    "minimum_enclosing_circle_incremental_boundary": minimum_enclosing_circle_incremental_boundary_oracle,
+    "calkin_wilf_index": calkin_wilf_index_independent_oracle,
     "exponential_histogram_window": exponential_histogram_window_independent_oracle,
     "hyperloglog_raw_estimate": hyperloglog_raw_estimate_independent_oracle,
     "hyperloglog_corrected_estimate": hyperloglog_corrected_estimate_independent_oracle,
+    "rolling_hash_2d_rectangle_query": rolling_hash_2d_rectangle_query_verifier_oracle,
+    "tree_center": tree_center_independent_oracle,
+    "tree_center_rerooting_dp": tree_center_rerooting_independent_oracle,
+    "batch_gcd_small_range_precomputed": batch_gcd_small_range_precomputed_independent_oracle,
+    "morris_approximate_counter_base_three": morris_approximate_counter_base_three_independent_oracle,
+    "kosaraju_dense_bitset_scc": kosaraju_dense_bitset_scc_independent_oracle,
+    "binary_divisibility_by_three_dfa": binary_divisibility_by_three_dfa_independent_oracle,
+    "flood_fill": flood_fill_independent_oracle,
+    "flood_fill_breadth_first": flood_fill_breadth_first_independent_oracle,
+    "schieber_vishkin_lca": schieber_vishkin_lca_independent_oracle,
+    "louds_ordered_tree_navigation": louds_ordered_tree_navigation_independent_oracle,
+    "bp_ordered_tree_navigation": bp_ordered_tree_navigation_independent_oracle,
+    "dfuds_ordered_tree_navigation": dfuds_ordered_tree_navigation_independent_oracle,
+    "canonical_order_maximal_plane_triangulation": canonical_order_maximal_plane_triangulation_independent_oracle,
+    "canonical_order_schnyder_realizer": canonical_order_schnyder_realizer_independent_oracle,
+    "polygon_area_centroid": polygon_area_centroid_verifier_oracle,
+    "line_hull_intersection": line_hull_intersection_verifier_oracle,
+    "polyhedron_volume": polyhedron_volume_verifier_oracle,
+    "orthogonal_drawing_minimum_bends": orthogonal_drawing_minimum_bends_verifier_oracle,
+    "havel_hakimi_graph_realization": havel_hakimi_graph_realization_verifier_oracle,
+    "sqrt_tree_constant_time": sqrt_tree_constant_time_verifier_oracle,
+    "suffix_array_inplace_readonly_integer": suffix_array_inplace_readonly_integer_independent_oracle,
+    "suffix_array_blind_trie": suffix_array_blind_trie_independent_oracle,
+    "seven_sided_dice_from_five_sided_dice": seven_sided_dice_independent_oracle,
+    "zhang_suen_thinning": zhang_suen_thinning_independent_oracle,
     "prime_modulus_inverse_table": prime_modulus_inverse_table_independent_oracle,
     "crochemore_perrin_two_way": crochemore_perrin_two_way_independent_oracle,
     "virtual_tree": virtual_tree_independent_oracle,
+    "tree_subtree_distinct_sack": tree_subtree_distinct_sack_independent_oracle,
+    "tree_path_distinct_mo": tree_path_distinct_mo_independent_oracle,
+    "small_to_large_subtree_color_mode_sum": small_to_large_subtree_color_mode_sum_independent_oracle,
+    "tree_random_walk_edge_hitting_cost": tree_random_walk_edge_hitting_cost_independent_oracle,
+    "triangle_union_area_vertical_decomposition": triangle_union_area_vertical_decomposition_independent_oracle,
+    "external_point_tangents_convex_polygon": external_point_tangents_independent_oracle,
+    "elkin_peleg_sparse_spanner": elkin_peleg_sparse_spanner_independent_oracle,
+    "fakcharoenphol_rao_planar_sssp": fakcharoenphol_rao_planar_sssp_independent_oracle,
+    "nonogram_line_domain_solver": nonogram_line_domain_solver_independent_oracle,
+    "partially_retroactive_priority_queue": partially_retroactive_priority_queue_verifier_oracle,
+    "negafibonacci_representation": negafibonacci_representation_verifier_oracle,
+    "constant_intervals": constant_intervals_verifier_oracle,
+    "pq_tree_consecutive_ones": pq_tree_verifier_oracle,
+    "measured_finger_tree_sequence": measured_finger_tree_independent_oracle,
+    "tetrahedral_element_force_kernel": tetrahedral_element_force_kernel_independent_oracle,
     "hirschberg_lcs": hirschberg_lcs_independent_oracle,
     "games_on_arbitrary_graphs": games_on_arbitrary_graphs_independent_oracle,
     "disjoint_sparse_table_affine_composition": disjoint_sparse_table_affine_independent_oracle,
     "lengauer_tarjan_dominator_tree": lengauer_tarjan_dominator_tree_independent_oracle,
     "half_plane_intersection": half_plane_intersection_independent_oracle,
+    "half_plane_intersection_incremental_clipping": half_plane_intersection_independent_oracle,
+    "circle_line_intersection_symbolic": circle_line_intersection_symbolic_independent_oracle,
+    "circle_circle_intersection_symbolic": circle_circle_intersection_symbolic_independent_oracle,
     "smawk_row_minima": smawk_row_minima_independent_oracle,
     "min_cost_max_flow_blocking_paths": min_cost_max_flow_blocking_paths_independent_oracle,
     "point_in_convex_polygon_log_query": point_in_convex_polygon_log_query_independent_oracle,
@@ -13658,6 +17498,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "create_maximum_number": create_maximum_number_independent_oracle,
     "mst_edge_classification": mst_edge_classification_independent_oracle,
     "minimum_mean_cycle_karp": minimum_mean_cycle_karp_independent_oracle,
+    "cograph_cotree_decomposition": cograph_cotree_decomposition_independent_oracle,
+    "minimum_mean_cycle_howard": minimum_mean_cycle_howard_independent_oracle,
     "hash_join": hash_join_independent_oracle,
     "binomial_coefficient_prime_power": binomial_coefficient_prime_power_independent_oracle,
     "segment_tree_merge_split": segment_tree_merge_split_independent_oracle,
@@ -13671,11 +17513,16 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "convolution_f2_64": convolution_f2_64_independent_oracle,
     "dirichlet_convolution_and_prefix_sums": dirichlet_convolution_and_prefix_sums_independent_oracle,
     "all_shortest_paths_unweighted": all_shortest_paths_unweighted_independent_oracle,
+    "palindromic_partition_series_links": palindromic_partition_series_links_independent_oracle,
+    "lzw_compressed_shift_and_matching": lzw_compressed_shift_and_matching_independent_oracle,
+    "bkp_speed_scaling_trace": bkp_speed_scaling_trace_independent_oracle,
+    "knuth_big_integer_division": knuth_big_integer_division_independent_oracle,
     "palindrome_pairs": palindrome_pairs_independent_oracle,
     "suffix_array_sais": suffix_array_sais_independent_oracle,
     "minkowski_sum_convex_polygons": minkowski_sum_convex_polygons_independent_oracle,
     "de_bruijn_sequences": de_bruijn_sequences_independent_oracle,
     "knuth_power_tree": knuth_power_tree_independent_oracle,
+    "addition_chain_enumeration": addition_chain_enumeration_independent_oracle,
     "prefix_substring_lcs": prefix_substring_lcs_independent_oracle,
     "addition_of_big_integers": addition_of_big_integers_independent_oracle,
     "prefix_sum_of_binomial_coefficient": prefix_sum_of_binomial_coefficient_independent_oracle,
@@ -13704,6 +17551,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "vector_scheduling": vector_scheduling_independent_oracle,
     "vector_bin_packing": vector_bin_packing_independent_oracle,
     "list_ranking_independent_set_contraction": list_ranking_contraction_independent_oracle,
+    "list_ranking_random_mate": list_ranking_random_mate_independent_oracle,
+    "splash2_volrend_raymarch": splash2_volrend_raymarch_independent_oracle,
     "fibonacci_integer_code": _adapt_array_verifier(
         fibonacci_integer_code_independent_check,
         FIBONACCI_INTEGER_CODE_MAX_INPUT_LENGTH + 1),
@@ -13718,6 +17567,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "clique_reverse_search_enumeration": clique_reverse_search_enumeration_independent_oracle,
     "srpt_flow_time": srpt_flow_time_independent_oracle,
     "yds_speed_scaling": yds_speed_scaling_independent_oracle,
+    "avr_speed_scaling": avr_speed_scaling_independent_oracle,
+    "oa_speed_scaling": oa_speed_scaling_independent_oracle,
     "concave_gap_alignment_global": concave_gap_alignment_global_independent_oracle,
     "two_dimensional_string_matching": two_dimensional_string_matching_independent_oracle,
     "two_dimensional_scaled_pattern_matching": two_dimensional_scaled_pattern_matching_independent_oracle,
@@ -13756,6 +17607,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mmpfh_compacted_trie_rank": mmpfh_compacted_trie_rank_independent_oracle,
     "ldfs_ordering_certificate": ldfs_ordering_certificate_independent_oracle,
     "weighted_greedy_set_cover": weighted_greedy_set_cover_independent_oracle,
+    "set_cover_domination_reduction": set_cover_domination_reduction_independent_oracle,
+    "ruf_schobel_set_cover": ruf_schobel_set_cover_independent_oracle,
+    "strong_c1p_set_cover_shortest_path": strong_c1p_set_cover_independent_oracle,
     "weighted_greedy_spanner": weighted_greedy_spanner_independent_oracle,
     "ski_rental_deterministic": ski_rental_deterministic_independent_oracle,
     "shortest_elapsed_time_first": shortest_elapsed_time_first_independent_oracle,
@@ -13769,6 +17623,37 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "parentheses_generator": _adapt_array_verifier(
         parentheses_generator_independent_check,
         PARENTHESES_GENERATOR_MAX_INPUT_LENGTH),
+    "balanced_parenthesis_successor": balanced_parenthesis_successor_independent_oracle,
+    "list_rooted_trees": _adapt_array_verifier(
+        list_rooted_trees_independent_oracle,
+        LIST_ROOTED_TREES_MAX_INPUT_LENGTH),
+    "landau_vishkin_k_difference_pattern_matching": (
+        landau_vishkin_k_difference_pattern_matching_independent_oracle),
+    "time_based_one_time_password_algorithm": (
+        time_based_one_time_password_algorithm_independent_oracle),
+    "fast_minimal_triangulation": fast_minimal_triangulation_independent_oracle,
+    "van_emde_boas_layout_search": van_emde_boas_layout_search_independent_oracle,
+    "planar_directed_general_st_flow_borradaile_klein": (
+        planar_directed_general_st_flow_independent_oracle),
+    "posit8_rational_encoder": posit8_rational_encoder_independent_oracle,
+    "cactus_stack_branch_trace": cactus_stack_branch_trace_independent_oracle,
+    "smarandache_wellin_prime_prefix_scan": smarandache_wellin_prime_prefix_scan_independent_oracle,
+    "junta_test_partition_binary_search": junta_test_partition_binary_search_independent_oracle,
+    "combinations_with_repetition_lexicographic": combinations_with_repetition_lexicographic_independent_oracle,
+    "gregorian_daycount_to_ordinal_date": gregorian_daycount_to_ordinal_date_independent_oracle,
+    "shannon_fano_elias_symbol_codes": shannon_fano_elias_symbol_codes_independent_oracle,
+    "goodstein_sequence_bounded_prefix": goodstein_sequence_bounded_prefix_independent_oracle,
+    "gpsr_perimeter_recovery_trace": gpsr_perimeter_recovery_trace_independent_oracle,
+    "order_preserving_huffman_greedy_trace": order_preserving_huffman_greedy_trace_independent_oracle,
+    "powerful_numbers_square_cube_enumeration": powerful_numbers_square_cube_enumeration_independent_oracle,
+    "ecdsa_signature_verification": ecdsa_signature_verification_independent_oracle,
+    "brzozowski_dfa_to_regex": brzozowski_dfa_to_regex_independent_oracle,
+    "multidimensional_newton_raphson": multidimensional_newton_raphson_independent_oracle,
+    "brace_range_expansion": brace_range_expansion_independent_oracle,
+    "straddling_checkerboard_transducer": straddling_checkerboard_transducer_independent_oracle,
+    "three_prime_carmichael_enumerator": _adapt_array_verifier(
+        three_prime_carmichael_independent_oracle,
+        THREE_PRIME_CARMICHAEL_MAX_INPUT_LENGTH),
     "approximating_diameter_bfs": _adapt_array_verifier(
         approximating_diameter_bfs_independent_check,
         APPROXIMATING_DIAMETER_BFS_MAX_INPUT_LENGTH + 1),
@@ -13780,6 +17665,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "link_cut_tree": link_cut_tree_independent_oracle,
     "euler_tour_tree": euler_tour_tree_independent_oracle,
     "dynamic_top_tree_component_diameter": dynamic_top_tree_component_diameter_independent_oracle,
+    "dynamic_tree_maximum_weight_independent_set": (
+        dynamic_tree_maximum_weight_independent_set_independent_oracle),
+    "continued_fraction_convergents": continued_fraction_convergents_independent_oracle,
     "dynamic_tree_subtree_add_subtree_sum": dynamic_tree_subtree_add_subtree_sum_independent_oracle,
     "sort_points_by_argument": sort_points_by_argument_independent_oracle,
     "count_points_in_triangle": count_points_in_triangle_independent_oracle,
@@ -13841,6 +17729,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "cartesian_tree": cartesian_tree_independent_oracle,
     "common_interval_decomposition_tree": common_interval_decomposition_tree_independent_oracle,
     "characteristic_polynomial": characteristic_polynomial_independent_oracle,
+    "cyclotomic_polynomial_coefficients": cyclotomic_polynomial_coefficients_independent_oracle,
+    "k_repetition_within_factor_copy_propagation": k_repetition_within_factor_copy_propagation_independent_oracle,
+    "mrg32k3a_combined_recursive_generator": mrg32k3a_combined_recursive_generator_independent_oracle,
     "burnside_bracelets": burnside_bracelets_independent_oracle,
     "system_of_linear_equations_mod_2": system_of_linear_equations_mod_2_independent_oracle,
     "adjugate_matrix": adjugate_matrix_independent_oracle,
@@ -13899,9 +17790,39 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "sequential_lut_k_cut_enumeration": sequential_lut_k_cut_enumeration_independent_oracle,
     "rna_mfe_loop_energy_dp": rna_mfe_loop_energy_dp_independent_oracle,
     "spatial_motif_same_type_contact_pmf": spatial_motif_same_type_contact_pmf_independent_oracle,
+    "spatial_motif_different_type_contact_pmf": spatial_motif_different_type_contact_pmf_independent_oracle,
+    "cordic_rotation_fixed_point": cordic_rotation_fixed_point_independent_oracle,
+    "packet_switching_random_schedule": packet_switching_random_schedule_independent_oracle,
+    "long_chain_dominant_depth_index": long_chain_dominant_depth_index_independent_oracle,
+    "long_chain_kth_ancestor": long_chain_kth_ancestor_independent_oracle,
+    "bitset_xor_shift_trace": bitset_xor_shift_trace_independent_oracle,
+    "buddy_system_allocator": buddy_system_allocator_independent_oracle,
+    "levcopoulos_lingas_planar_geometric_spanner": levcopoulos_lingas_planar_geometric_spanner_independent_oracle,
+    "blelloch_parallel_prefix_scan": blelloch_parallel_prefix_scan_independent_output,
+    "blr_linearity_test": blr_linearity_test_independent_output,
+    "berkowitz_characteristic_polynomial":
+        berkowitz_characteristic_polynomial_independent_output,
+    "hypercube_edge_monotonicity_tester":
+        hypercube_edge_monotonicity_tester_independent_output,
+    "deterministic_linear_threshold_spread":
+        deterministic_linear_threshold_spread_independent_output,
+    "wilson_uniform_spanning_tree": wilson_uniform_spanning_tree_independent_output,
+    "crust_opposite_pole_selection": crust_opposite_pole_selection_independent_output,
+    "invertible_bloom_lookup_table_reconciliation":
+        invertible_bloom_lookup_table_reconciliation_independent_output,
+    "felzenszwalb_huttenlocher_1d_squared_distance_transform":
+        fh_1d_distance_independent_output,
+    "multiply_shift_universal_hash_trace":
+        multiply_shift_universal_hash_trace_independent_output,
+    "hashbelt_aging_hash_table": hashbelt_aging_hash_table_independent_output,
+    "radio_network_bgi_broadcast": radio_network_bgi_broadcast_independent_oracle,
+    "boids_flocking_simulation": boids_flocking_simulation_independent_oracle,
     "lz78_flexible_parsing": lz78_flexible_parsing_independent_check,
     "parameterized_pattern_matching": parameterized_pattern_matching_independent_oracle,
     "tsp_few_inner_points": tsp_few_inner_points_independent_oracle,
+    "tsp_few_inner_points_subset_dp": tsp_few_inner_points_subset_dp_independent_oracle,
+    "hypergraph_incidence_graph_encoding": hypergraph_incidence_graph_encoding_independent_oracle,
+    "clarke_wright_savings_cvrp": clarke_wright_savings_cvrp_independent_oracle,
     "rate_monotonic_scheduling": rate_monotonic_scheduling_independent_oracle,
     "non_shared_edges": non_shared_edges_independent_oracle,
     "unit_disk_graph_wspd": unit_disk_graph_wspd_independent_oracle,
@@ -13929,6 +17850,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "randomized_ray_search": randomized_ray_search_independent_oracle,
     "suffix_array_lcp_search": suffix_array_lcp_search_independent_oracle,
     "suffix_tree_pattern_occurrences": suffix_tree_pattern_occurrences_independent_oracle,
+    "suffix_tray_pattern_query": suffix_tray_pattern_query_independent_oracle,
     "suffix_array_dc3": suffix_array_dc3_independent_oracle,
     "packet_switching_sgr_multi_queue": packet_switching_sgr_multi_queue_independent_oracle,
     "packet_switching_single_buffer": packet_switching_single_buffer_independent_oracle,
@@ -13963,6 +17885,22 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "all_distances_sketch_bottom_k": _adapt_array_verifier(
         all_distances_sketch_bottom_k_independent_check,
         ALL_DISTANCES_SKETCH_BOTTOM_K_MAX_INPUT_LENGTH + 1),
+    "all_distances_sketch_k_mins": _adapt_array_verifier(
+        all_distances_sketch_k_mins_independent_evaluate,
+        ALL_DISTANCES_K_MINS_MAX_INPUT_WORDS + 1),
+    "all_distances_bottom_k_interval_updates": all_distances_bottom_k_interval_updates_independent_oracle,
+    "asteroid_collision_stack": asteroid_collision_stack_independent_oracle,
+    "k_mismatch_longest_extension_table": k_mismatch_longest_extension_table_independent_oracle,
+    "k_repetition_binary_division_kernel": k_repetition_binary_division_kernel_independent_oracle,
+    "k_repetition_block_head_pair_pass": k_repetition_block_head_pair_pass_independent_oracle,
+    "sierpinski_curve_trace": sierpinski_curve_trace_independent_oracle,
+    "sturmian_standard_word": sturmian_standard_word_independent_oracle,
+    "markov_normal_string_rewriting": markov_normal_string_rewriting_independent_oracle,
+    "muthukrishnan_document_listing": muthukrishnan_document_listing_independent_oracle,
+    "discrete_interval_encoding_tree": discrete_interval_encoding_tree_independent_oracle,
+    "round_robin_tournament_schedule": round_robin_tournament_schedule_independent_oracle,
+    "digital_filter_direct_form_ii_transposed": digital_filter_dfii_t_independent_oracle,
+    "zobrist_position_hash_trace": zobrist_position_hash_trace_independent_oracle,
     "sublinear_bipartiteness_walk_tester": sublinear_bipartiteness_walk_tester_independent_oracle,
     "optimal_stable_marriage": optimal_stable_marriage_independent_oracle,
     "quine_mccluskey_minimization": quine_mccluskey_minimization_independent_oracle,
@@ -14058,9 +17996,20 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
         weak_stable_matching_ties_incomplete_independent_oracle,
         WEAK_STABLE_MATCHING_TIES_INCOMPLETE_MAX_INPUT_LENGTH + 1),
     "lz77_infinite_rightmost": lz77_infinite_rightmost_independent_oracle,
+    "lz77_lpf_suffix_array": lz77_lpf_suffix_array_independent_oracle,
+    "lz78_run_length_transform": lz78_run_length_transform_independent_oracle,
+    "two_edge_connected_spanning_subgraph_khuller_vishkin_dfs": kv_2ecss_independent_oracle,
+    "two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs": kv_2vcss_independent_oracle,
+    "nagamochi_ibaraki_sparse_k_connectivity_certificate": ni_certificate_independent_oracle,
+    "cheriyan_thurimella_two_vertex_connected_augmentation": ct_2vcss_independent_oracle,
+    "khuller_raghavachari_three_edge_connected_spanning_subgraph": kr_3ecss_independent_oracle,
+    "additive_two_spanner_completion": additive_two_spanner_completion_independent_oracle,
     "kmp_slp_jump_output": kmp_slp_jump_output_independent_oracle,
     "phylogenetic_tree_from_distance_matrix": phylogenetic_tree_from_distance_matrix_independent_oracle,
     "facility_location_add_delete_swap": facility_location_add_delete_swap_independent_oracle,
+    "capacitated_facility_location_t_hunt": capacitated_facility_location_t_hunt_independent_oracle,
+    "capacitated_facility_location_t_hunt_local_search": capacitated_facility_location_t_hunt_local_search_independent_oracle,
+    "facility_location_randomized_add_delete_many": facility_location_randomized_add_delete_many_independent_oracle,
     "integer_sequence_codes": integer_sequence_codes_independent_oracle,
     "almost_c1p_set_cover_enumeration": almost_c1p_set_cover_enumeration_independent_oracle,
     "two_edge_connected_spanning_subgraph_greedy": two_edge_connected_spanning_subgraph_greedy_independent_oracle,
@@ -14082,6 +18031,16 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mdp_value_iteration_deterministic": mdp_value_iteration_deterministic_independent_oracle,
     "radio_network_decay_phase": radio_network_decay_phase_independent_oracle,
     "rumor_blocking_greedy_live_edge": rumor_blocking_greedy_live_edge_independent_oracle,
+    "influence_maximization_greedy_live_edge": influence_maximization_greedy_live_edge_independent_oracle,
+    "influence_maximization_greedy_linear_threshold": influence_maximization_greedy_linear_threshold_independent_oracle,
+    "t_threshold_three_sorted_lists": t_threshold_three_sorted_lists_independent_oracle,
+    "maximum_matching_word_segmentation": maximum_matching_word_segmentation_independent_oracle,
+    "random_3sat_hajiaghayi_sorkin_algorithm_a": random_3sat_hajiaghayi_sorkin_algorithm_a_independent_oracle,
+    "schuler_randomized_general_cnf_sat": _adapt_array_verifier(
+        schuler_randomized_general_cnf_sat_independent_core_oracle,
+        SCHULER_RANDOMIZED_GENERAL_CNF_SAT_MAX_INPUT_LENGTH + 1),
+    "planar_embedding_lr": planar_embedding_lr_verifier_oracle,
+    "metropolis_hastings_asymmetric_proposal": metropolis_hastings_asymmetric_proposal_verifier_oracle,
     "distributed_coupon_collection_replay": distributed_coupon_collection_replay_independent_oracle,
     "routing_cost_constrained_cds_goc_mcds_c": routing_cost_constrained_cds_goc_mcds_c_independent_oracle,
     "st_planar_leftmost_augmenting_flow": st_planar_leftmost_augmenting_flow_independent_oracle,
@@ -14130,6 +18089,11 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "gapbs_shiloach_vishkin_components": gapbs_shiloach_vishkin_components_verifier_oracle,
     "cbench_consumer_mad_alias_reduce": cbench_consumer_mad_alias_reduce_verifier_oracle,
     "nbench_huffman_compression": nbench_huffman_compression_oracle,
+    "hsadelta_differential_compression": hsadelta_differential_compression_independent_oracle,
+    "fgk_adaptive_huffman": fgk_adaptive_huffman_independent_oracle,
+    "vitter_adaptive_huffman": vitter_adaptive_huffman_independent_oracle,
+    "lucky_number_sieve": lucky_number_sieve_independent_oracle,
+    "inverted_list_bitvector_intersection": inverted_list_bitvector_intersection_independent_oracle,
     "nbench_resource_assignment": nbench_resource_assignment_oracle,
     "nbench_emulated_float_arithmetic": nbench_emulated_float_arithmetic_oracle,
     "nbench_neural_network": nbench_neural_network_oracle,
@@ -14297,6 +18261,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "beebs_fasta": beebs_fasta_verifier_oracle,
     "beebs_lcdnum": beebs_lcdnum_verifier_oracle,
     "npb_cg_sparse_inverse_power": npb_cg_sparse_inverse_power_independent_oracle,
+    "npb_cg_sparse_outer_product_assembly": npb_cg_sparse_outer_product_assembly_independent_oracle,
     "npb_lu_block_ssor": npb_lu_block_ssor_independent_oracle,
     "benchmarkgame_nbody": _adapt_array_verifier(benchmarkgame_nbody_independent_oracle, 2),
     "benchmarkgame_puzzle": _adapt_array_verifier(benchmarkgame_puzzle_independent_oracle, 4),
@@ -14355,6 +18320,15 @@ GENERIC_BYTE_OUTPUT_BOUNDS = {
     "chordal_graph_recognition": (
         CHORDAL_GRAPH_RECOGNITION_MAX_INPUT,
         CHORDAL_GRAPH_RECOGNITION_MAX_OUTPUT_BYTES),
+    "hsadelta_differential_compression": (
+        HSADELTA_DIFFERENTIAL_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH,
+        HSADELTA_DIFFERENTIAL_COMPRESSION_MAX_OUTPUT_BYTES),
+    "fgk_adaptive_huffman": (
+        FGK_ADAPTIVE_HUFFMAN_MAX_PARSEABLE_INPUT_LENGTH,
+        FGK_ADAPTIVE_HUFFMAN_MAX_OUTPUT_BYTES),
+    "vitter_adaptive_huffman": (
+        VITTER_ADAPTIVE_HUFFMAN_MAX_PARSEABLE_INPUT_LENGTH,
+        VITTER_ADAPTIVE_HUFFMAN_MAX_OUTPUT_BYTES),
 }
 
 
@@ -15980,6 +19954,2031 @@ def bentley_ottmann_corpus(workload: dict) -> tuple[str, int]:
 def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
+    if algorithm == "snake_case_to_camel_pascal_case":
+        package_workload = ROOT / "benchmarks/s/snake_case_to_camel_pascal_case/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("snake-case conversion workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 257
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != SNAKE_CASE_TO_CAMEL_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != SNAKE_CASE_TO_CAMEL_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != SNAKE_CASE_TO_CAMEL_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    SNAKE_CASE_TO_CAMEL_MAX_INPUT_LENGTH,
+                    SNAKE_CASE_TO_CAMEL_MAX_OUTPUT_BYTES)):
+            raise ValueError("snake-case conversion bounds differ from its contract")
+        issues = (snake_case_to_camel_static_issues()
+                  + snake_case_to_camel_workload_issues())
+        if issues:
+            raise ValueError("snake-case conversion package is incomplete: " + "; ".join(issues))
+    if algorithm == "minkowski_question_mark_rational":
+        package_workload = ROOT / "benchmarks/m/minkowski_question_mark_rational/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Minkowski question-mark workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 2
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != MINKOWSKI_QUESTION_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != MINKOWSKI_QUESTION_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != MINKOWSKI_QUESTION_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    MINKOWSKI_QUESTION_MAX_INPUT_LENGTH,
+                    MINKOWSKI_QUESTION_MAX_OUTPUT_BYTES)):
+            raise ValueError("Minkowski question-mark bounds differ from its exact dyadic contract")
+        issues = (minkowski_question_mark_static_issues()
+                  + minkowski_question_mark_workload_issues())
+        if issues:
+            raise ValueError("Minkowski question-mark package is incomplete: " + "; ".join(issues))
+    if algorithm == "inverted_list_svs_binary_search":
+        package_workload = ROOT / "benchmarks/i/inverted_list_svs_binary_search/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("SvS intersection workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 265
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != INVERTED_LIST_SVS_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != INVERTED_LIST_SVS_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != INVERTED_LIST_SVS_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    INVERTED_LIST_SVS_MAX_INPUT_LENGTH,
+                    INVERTED_LIST_SVS_MAX_OUTPUT_BYTES)):
+            raise ValueError("SvS bounds or workspace differ from its bounded contract")
+        issues = inverted_list_svs_static_issues() + inverted_list_svs_workload_issues()
+        if issues:
+            raise ValueError("SvS package is incomplete: " + "; ".join(issues))
+    if algorithm == "interval_tree_point_stabbing":
+        package_workload = ROOT / "benchmarks/i/interval_tree_point_stabbing/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("interval-tree point-stabbing workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 42
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != INTERVAL_TREE_POINT_STABBING_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != INTERVAL_TREE_POINT_STABBING_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != INTERVAL_TREE_POINT_STABBING_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    INTERVAL_TREE_POINT_STABBING_MAX_INPUT_LENGTH,
+                    INTERVAL_TREE_POINT_STABBING_MAX_OUTPUT_BYTES)):
+            raise ValueError("interval-tree point-stabbing bounds or workspace differ from its contract")
+        issues = (interval_tree_point_stabbing_static_issues()
+                  + interval_tree_point_stabbing_workload_issues())
+        if issues:
+            raise ValueError("interval-tree point-stabbing package is incomplete: " + "; ".join(issues))
+    if algorithm == "bondy_chvatal_hamiltonian_closure":
+        package_workload = ROOT / "benchmarks/b/bondy_chvatal_hamiltonian_closure/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Bondy–Chvátal workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_input_length") != 58
+                or workload.get("input", {}).get("maximum_parseable_input_length")
+                != BONDY_CHVATAL_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != BONDY_CHVATAL_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != BONDY_CHVATAL_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BONDY_CHVATAL_MAX_INPUT_LENGTH, BONDY_CHVATAL_MAX_OUTPUT_BYTES)):
+            raise ValueError("Bondy–Chvátal bounds or workspace differ from its contract")
+        issues = (bondy_chvatal_hamiltonian_closure_check_inventory()
+                  + bondy_chvatal_hamiltonian_closure_verify_workload())
+        if issues:
+            raise ValueError("Bondy–Chvátal package is incomplete: " + "; ".join(issues))
+    if algorithm == "hash_heap_priority_queue_trace":
+        package_workload = ROOT / "benchmarks/h/hash_heap_priority_queue_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("hash-heap workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 131
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != HASH_HEAP_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != HASH_HEAP_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != HASH_HEAP_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    HASH_HEAP_MAX_INPUT_LENGTH, HASH_HEAP_MAX_OUTPUT_BYTES)):
+            raise ValueError("hash-heap bounds or workspace differ from its contract")
+        issues = (hash_heap_priority_queue_trace_static_issues()
+                  + hash_heap_priority_queue_trace_workload_issues())
+        if issues:
+            raise ValueError("hash-heap package is incomplete: " + "; ".join(issues))
+    if algorithm == "steiner_tree_mehlhorn_voronoi_mst":
+        package_workload = ROOT / "benchmarks/s/steiner_tree_mehlhorn_voronoi_mst/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Mehlhorn Steiner-tree workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 53
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != MEHLHORN_STEINER_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != MEHLHORN_STEINER_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != MEHLHORN_STEINER_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    MEHLHORN_STEINER_MAX_INPUT_LENGTH,
+                    MEHLHORN_STEINER_MAX_OUTPUT_BYTES)):
+            raise ValueError("Mehlhorn Steiner-tree bounds or workspace differ from its contract")
+        issues = (steiner_tree_mehlhorn_voronoi_mst_static_issues()
+                  + steiner_tree_mehlhorn_voronoi_mst_workload_issues())
+        if issues:
+            raise ValueError("Mehlhorn Steiner-tree package is incomplete: " + "; ".join(issues))
+    if algorithm == "succinct_bp_pioneer_match_index":
+        package_workload = ROOT / "benchmarks/s/succinct_bp_pioneer_match_index/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("succinct BP workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_input_length") != 65
+                or workload.get("input", {}).get("maximum_parseable_input_length")
+                != SUCCINCT_BP_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != SUCCINCT_BP_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != SUCCINCT_BP_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    SUCCINCT_BP_MAX_INPUT_LENGTH, SUCCINCT_BP_MAX_OUTPUT_BYTES)):
+            raise ValueError("succinct BP bounds or workspace differ from its contract")
+        issues = (succinct_bp_pioneer_match_index_static_issues()
+                  + succinct_bp_pioneer_match_index_verify_workload())
+        if issues:
+            raise ValueError("succinct BP package is incomplete: " + "; ".join(issues))
+    if algorithm == "quotient_filter_operation_trace":
+        package_workload = ROOT / "benchmarks/q/quotient_filter_operation_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("quotient-filter workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 65
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != QUOTIENT_FILTER_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != QUOTIENT_FILTER_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != QUOTIENT_FILTER_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    QUOTIENT_FILTER_MAX_INPUT_LENGTH,
+                    QUOTIENT_FILTER_MAX_OUTPUT_BYTES)):
+            raise ValueError("quotient-filter bounds or workspace differ from its contract")
+        issues = (quotient_filter_operation_trace_check_inventory()
+                  + quotient_filter_operation_trace_verify_workload())
+        if issues:
+            raise ValueError("quotient-filter package is incomplete: " + "; ".join(issues))
+    if algorithm == "counting_bloom_filter_operation_trace":
+        package_workload = ROOT / "benchmarks/c/counting_bloom_filter_operation_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("counting Bloom workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 129
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != COUNTING_BLOOM_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != COUNTING_BLOOM_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != COUNTING_BLOOM_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    COUNTING_BLOOM_MAX_INPUT_LENGTH,
+                    COUNTING_BLOOM_MAX_OUTPUT_BYTES)):
+            raise ValueError("counting Bloom bounds or workspace differ from its contract")
+        issues = (counting_bloom_filter_operation_trace_check_inventory()
+                  + counting_bloom_filter_operation_trace_verify_workload())
+        if issues:
+            raise ValueError("counting Bloom package is incomplete: " + "; ".join(issues))
+    if algorithm == "weiler_atherton_polygon_intersection":
+        package_workload = ROOT / "benchmarks/w/weiler_atherton_polygon_intersection/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Weiler–Atherton workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_input_length") != 26
+                or workload.get("input", {}).get("maximum_parseable_input_length")
+                != WEILER_ATHERTON_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != WEILER_ATHERTON_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != WEILER_ATHERTON_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    WEILER_ATHERTON_MAX_INPUT_LENGTH,
+                    WEILER_ATHERTON_MAX_OUTPUT_BYTES)):
+            raise ValueError("Weiler–Atherton bounds or workspace differ from its contract")
+        issues = (weiler_atherton_polygon_intersection_check_inventory()
+                  + weiler_atherton_polygon_intersection_verify_workload())
+        if issues:
+            raise ValueError("Weiler–Atherton package is incomplete: " + "; ".join(issues))
+    if algorithm == "k_subset_colex_rank_unrank":
+        package_workload = ROOT / "benchmarks/k/k_subset_colex_rank_unrank/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("colex subset workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 19
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != K_SUBSET_COLEX_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != K_SUBSET_COLEX_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != K_SUBSET_COLEX_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    K_SUBSET_COLEX_MAX_INPUT_LENGTH,
+                    K_SUBSET_COLEX_MAX_OUTPUT_BYTES)):
+            raise ValueError("colex subset bounds or workspace differ from its contract")
+        issues = k_subset_colex_rank_unrank_check_inventory()
+        if issues:
+            raise ValueError("colex subset package is incomplete: " + "; ".join(issues))
+    if algorithm == "consistent_overhead_byte_stuffing":
+        package_workload = ROOT / "benchmarks/c/consistent_overhead_byte_stuffing/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("COBS workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_input_values")
+                != COBS_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_input_values")
+                != COBS_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != COBS_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != COBS_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (COBS_MAX_INPUT_LENGTH, COBS_MAX_OUTPUT_BYTES)):
+            raise ValueError("COBS bounds or workspace differ from its contract")
+        consistent_overhead_byte_stuffing_check_inventory()
+        issues = consistent_overhead_byte_stuffing_verify_workload(workload)
+        if issues:
+            raise ValueError("COBS package is incomplete: " + "; ".join(issues))
+    if algorithm == "md4_digest":
+        validate_new_byte_output_workload(workload, algorithm)
+    if algorithm == "boids_flocking_simulation":
+        package_workload = ROOT / "benchmarks/b/boids_flocking_simulation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Boids workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != BOIDS_FLOCKING_SIMULATION_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BOIDS_FLOCKING_SIMULATION_MAX_INPUT_LENGTH,
+                    BOIDS_FLOCKING_SIMULATION_MAX_OUTPUT_BYTES)):
+            raise ValueError("Boids bounds or workspace differ from its bounded profile")
+        verify_boids_flocking_simulation_package()
+    if algorithm == "spatial_motif_different_type_contact_pmf":
+        package_workload = ROOT / "benchmarks/s/spatial_motif_different_type_contact_pmf/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("different-type spatial-contact workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != SPATIAL_MOTIF_DIFFERENT_TYPE_CONTACT_PMF_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    SPATIAL_MOTIF_DIFFERENT_TYPE_CONTACT_PMF_MAX_INPUT_LENGTH,
+                    SPATIAL_MOTIF_DIFFERENT_TYPE_CONTACT_PMF_MAX_OUTPUT_BYTES)):
+            raise ValueError("different-type spatial-contact bounds or workspace differ from profile")
+        issues = spatial_motif_different_type_contact_pmf_static_issues()
+        if issues:
+            raise ValueError("different-type spatial-contact package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "cordic_rotation_fixed_point":
+        package_workload = ROOT / "benchmarks/c/cordic_rotation_fixed_point/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("CORDIC workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_input_values")
+                != CORDIC_ROTATION_FIXED_POINT_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != CORDIC_ROTATION_FIXED_POINT_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != CORDIC_ROTATION_FIXED_POINT_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    CORDIC_ROTATION_FIXED_POINT_MAX_INPUT_LENGTH,
+                    CORDIC_ROTATION_FIXED_POINT_MAX_OUTPUT_BYTES)):
+            raise ValueError("CORDIC bounds or workspace differ from its bounded profile")
+        issues = cordic_rotation_fixed_point_static_issues()
+        if issues:
+            raise ValueError("CORDIC package is incomplete: " + "; ".join(issues))
+    if algorithm == "packet_switching_random_schedule":
+        package_workload = ROOT / "benchmarks/p/packet_switching_random_schedule/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Random Schedule workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_length")
+                != PACKET_RANDOM_SCHEDULE_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != PACKET_RANDOM_SCHEDULE_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != PACKET_RANDOM_SCHEDULE_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    PACKET_RANDOM_SCHEDULE_MAX_INPUT_LENGTH,
+                    PACKET_RANDOM_SCHEDULE_MAX_OUTPUT_BYTES)):
+            raise ValueError("Random Schedule bounds or workspace differ from its bounded profile")
+        packet_switching_random_schedule_check_inventory()
+    if algorithm == "long_chain_dominant_depth_index":
+        package_workload = ROOT / "benchmarks/l/long_chain_dominant_depth_index/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("long-chain dominant-depth workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_input_length")
+                != LONG_CHAIN_DOMINANT_DEPTH_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != LONG_CHAIN_DOMINANT_DEPTH_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != LONG_CHAIN_DOMINANT_DEPTH_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    LONG_CHAIN_DOMINANT_DEPTH_MAX_INPUT_LENGTH,
+                    LONG_CHAIN_DOMINANT_DEPTH_MAX_OUTPUT_BYTES)):
+            raise ValueError("long-chain dominant-depth bounds or workspace differ from profile")
+        issues = verify_long_chain_dominant_depth_index_package(workload)
+        if issues:
+            raise ValueError("long-chain dominant-depth package is incomplete: " + "; ".join(issues))
+    if algorithm == "long_chain_kth_ancestor":
+        package_workload = ROOT / "benchmarks/l/long_chain_kth_ancestor/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("long-chain ancestor workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_input_length")
+                != LONG_CHAIN_KTH_ANCESTOR_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != LONG_CHAIN_KTH_ANCESTOR_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != LONG_CHAIN_KTH_ANCESTOR_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    LONG_CHAIN_KTH_ANCESTOR_MAX_INPUT_LENGTH,
+                    LONG_CHAIN_KTH_ANCESTOR_MAX_OUTPUT_BYTES)):
+            raise ValueError("long-chain ancestor bounds or workspace differ from profile")
+        issues = verify_long_chain_kth_ancestor_package(workload)
+        if issues:
+            raise ValueError("long-chain ancestor package is incomplete: " + "; ".join(issues))
+    if algorithm == "bitset_xor_shift_trace":
+        package_workload = ROOT / "benchmarks/b/bitset_xor_shift_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("bitset XOR-shift workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_input_length")
+                != BITSET_XOR_SHIFT_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_input_length")
+                != BITSET_XOR_SHIFT_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != BITSET_XOR_SHIFT_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != BITSET_XOR_SHIFT_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BITSET_XOR_SHIFT_MAX_PARSEABLE_INPUT_LENGTH,
+                    BITSET_XOR_SHIFT_MAX_OUTPUT_BYTES)):
+            raise ValueError("bitset XOR-shift bounds or workspace differ from profile")
+        issues = verify_bitset_xor_shift_trace_package(workload)
+        if issues:
+            raise ValueError("bitset XOR-shift package is incomplete: " + "; ".join(issues))
+        issues = bitset_xor_shift_trace_inventory_errors()
+        if issues:
+            raise ValueError("bitset XOR-shift inventory is incomplete: " + "; ".join(issues))
+    if algorithm == "buddy_system_allocator":
+        package_workload = ROOT / "benchmarks/b/buddy_system_allocator/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("buddy-system allocator workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 193
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != BUDDY_SYSTEM_ALLOCATOR_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != BUDDY_SYSTEM_ALLOCATOR_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != BUDDY_SYSTEM_ALLOCATOR_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BUDDY_SYSTEM_ALLOCATOR_MAX_INPUT_LENGTH,
+                    BUDDY_SYSTEM_ALLOCATOR_MAX_OUTPUT_BYTES)):
+            raise ValueError("buddy-system bounds or workspace differ from its contract")
+        issues = verify_buddy_system_allocator_package()
+        if issues:
+            raise ValueError("buddy-system package references disagree: " + "; ".join(issues))
+        issues = buddy_system_allocator_inventory_issues()
+        if issues:
+            raise ValueError("buddy-system package is incomplete: " + "; ".join(issues))
+    if algorithm == "levcopoulos_lingas_planar_geometric_spanner":
+        package_workload = ROOT / "benchmarks/l/levcopoulos_lingas_planar_geometric_spanner/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Levcopoulos–Lingas workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != LL_SPANNER_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != LL_SPANNER_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != LL_SPANNER_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != LL_SPANNER_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    LL_SPANNER_MAX_INPUT_LENGTH, LL_SPANNER_MAX_OUTPUT_BYTES)):
+            raise ValueError("Levcopoulos–Lingas bounds or workspace differ from its contract")
+        issues = ll_spanner_inventory_issues()
+        if issues:
+            raise ValueError("Levcopoulos–Lingas package is incomplete: " + "; ".join(issues))
+    if algorithm == "blelloch_parallel_prefix_scan":
+        package_workload = ROOT / "benchmarks/b/blelloch_parallel_prefix_scan/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Blelloch scan workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != BLELLOCH_SCAN_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != BLELLOCH_SCAN_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != BLELLOCH_SCAN_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != BLELLOCH_SCAN_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BLELLOCH_SCAN_MAX_INPUT_LENGTH, BLELLOCH_SCAN_MAX_OUTPUT_BYTES)):
+            raise ValueError("Blelloch scan bounds or workspace differ from its contract")
+        issues = verify_blelloch_parallel_prefix_scan_package()
+        if issues:
+            raise ValueError("Blelloch scan references disagree: " + "; ".join(issues))
+        issues = blelloch_parallel_prefix_scan_inventory_issues()
+        if issues:
+            raise ValueError("Blelloch scan package is incomplete: " + "; ".join(issues))
+    if algorithm == "blr_linearity_test":
+        package_workload = ROOT / "benchmarks/b/blr_linearity_test/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("BLR linearity-test workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != BLR_LINEARITY_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != BLR_LINEARITY_MAX_VALID_INPUT_LENGTH + 1
+                or workload.get("output", {}).get("maximum_bytes") != 24
+                or workload.get("workspace", {}).get("bytes")
+                != BLR_LINEARITY_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BLR_LINEARITY_MAX_VALID_INPUT_LENGTH + 1, 24)):
+            raise ValueError("BLR bounds or workspace differ from its bounded replay contract")
+        issues = verify_blr_linearity_test_package()
+        if issues:
+            raise ValueError("BLR references differ from pinned fixtures: " + "; ".join(issues))
+        issues = blr_linearity_test_inventory_issues()
+        if issues:
+            raise ValueError("BLR package is incomplete: " + "; ".join(issues))
+    if algorithm == "berkowitz_characteristic_polynomial":
+        package_workload = ROOT / "benchmarks/b/berkowitz_characteristic_polynomial/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Berkowitz workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != BERKOWITZ_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != BERKOWITZ_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != BERKOWITZ_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != BERKOWITZ_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BERKOWITZ_MAX_INPUT_LENGTH, BERKOWITZ_MAX_OUTPUT_BYTES)):
+            raise ValueError("Berkowitz bounds or workspace differ from its contract")
+        issues = verify_berkowitz_characteristic_polynomial_package()
+        if issues:
+            raise ValueError("Berkowitz references differ from pinned fixtures: "
+                             + "; ".join(issues))
+        issues = berkowitz_characteristic_polynomial_inventory_issues()
+        if issues:
+            raise ValueError("Berkowitz package is incomplete: " + "; ".join(issues))
+    if algorithm == "hypercube_edge_monotonicity_tester":
+        package_workload = ROOT / "benchmarks/h/hypercube_edge_monotonicity_tester/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("hypercube edge-tester workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != HYPERCUBE_EDGE_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != HYPERCUBE_EDGE_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != HYPERCUBE_EDGE_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != HYPERCUBE_EDGE_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    HYPERCUBE_EDGE_MAX_INPUT_LENGTH, HYPERCUBE_EDGE_MAX_OUTPUT_BYTES)):
+            raise ValueError("hypercube edge-tester bounds or workspace differ from its contract")
+        issues = verify_hypercube_edge_monotonicity_tester_package()
+        if issues:
+            raise ValueError("hypercube edge-tester references differ from pinned fixtures: "
+                             + "; ".join(issues))
+        issues = hypercube_edge_monotonicity_tester_inventory_issues()
+        if issues:
+            raise ValueError("hypercube edge-tester package is incomplete: " + "; ".join(issues))
+    if algorithm == "felzenszwalb_huttenlocher_1d_squared_distance_transform":
+        package_workload = ROOT / "benchmarks/f/felzenszwalb_huttenlocher_1d_squared_distance_transform/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Felzenszwalb–Huttenlocher workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != FH_1D_DISTANCE_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != FH_1D_DISTANCE_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != FH_1D_DISTANCE_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != FH_1D_DISTANCE_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    FH_1D_DISTANCE_MAX_INPUT_LENGTH, FH_1D_DISTANCE_MAX_OUTPUT_BYTES)):
+            raise ValueError("Felzenszwalb–Huttenlocher bounds or workspace differ from its contract")
+        issues = verify_fh_1d_distance_package()
+        if issues:
+            raise ValueError("distance-transform references differ from pinned fixtures: "
+                             + "; ".join(issues))
+        issues = fh_1d_distance_inventory_issues()
+        if issues:
+            raise ValueError("distance-transform package is incomplete: " + "; ".join(issues))
+    if algorithm == "multiply_shift_universal_hash_trace":
+        package_workload = ROOT / "benchmarks/m/multiply_shift_universal_hash_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("multiply-shift workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != MULTIPLY_SHIFT_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != MULTIPLY_SHIFT_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != MULTIPLY_SHIFT_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != MULTIPLY_SHIFT_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    MULTIPLY_SHIFT_MAX_INPUT_LENGTH, MULTIPLY_SHIFT_MAX_OUTPUT_BYTES)):
+            raise ValueError("multiply-shift bounds or workspace differ from its contract")
+        issues = verify_multiply_shift_universal_hash_trace_package()
+        if issues:
+            raise ValueError("multiply-shift references differ from pinned fixtures: "
+                             + "; ".join(issues))
+        issues = multiply_shift_universal_hash_trace_inventory_issues()
+        if issues:
+            raise ValueError("multiply-shift package is incomplete: " + "; ".join(issues))
+    if algorithm == "deterministic_linear_threshold_spread":
+        package_workload = ROOT / "benchmarks/d/deterministic_linear_threshold_spread/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("deterministic-threshold workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != DETERMINISTIC_LT_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != DETERMINISTIC_LT_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != DETERMINISTIC_LT_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != DETERMINISTIC_LT_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    DETERMINISTIC_LT_MAX_INPUT_LENGTH, DETERMINISTIC_LT_MAX_OUTPUT_BYTES)):
+            raise ValueError("deterministic-threshold bounds or workspace differ from its contract")
+        issues = verify_deterministic_linear_threshold_spread_package()
+        if issues:
+            raise ValueError("deterministic-threshold references differ from pinned fixtures: "
+                             + "; ".join(issues))
+        issues = deterministic_linear_threshold_spread_inventory_issues()
+        if issues:
+            raise ValueError("deterministic-threshold package is incomplete: " + "; ".join(issues))
+    if algorithm == "wilson_uniform_spanning_tree":
+        package_workload = ROOT / "benchmarks/w/wilson_uniform_spanning_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Wilson spanning-tree workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != WILSON_UST_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != WILSON_UST_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != WILSON_UST_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != WILSON_UST_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    WILSON_UST_MAX_INPUT_LENGTH, WILSON_UST_MAX_OUTPUT_BYTES)):
+            raise ValueError("Wilson spanning-tree bounds or workspace differ from its contract")
+        issues = verify_wilson_uniform_spanning_tree_package()
+        if issues:
+            raise ValueError("Wilson references differ from pinned fixtures: " + "; ".join(issues))
+        issues = wilson_uniform_spanning_tree_inventory_issues()
+        if issues:
+            raise ValueError("Wilson package is incomplete: " + "; ".join(issues))
+    if algorithm == "crust_opposite_pole_selection":
+        package_workload = ROOT / "benchmarks/c/crust_opposite_pole_selection/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Crust opposite-pole workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != CRUST_OPPOSITE_POLE_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != CRUST_OPPOSITE_POLE_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != CRUST_OPPOSITE_POLE_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != CRUST_OPPOSITE_POLE_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    CRUST_OPPOSITE_POLE_MAX_INPUT_LENGTH,
+                    CRUST_OPPOSITE_POLE_MAX_OUTPUT_BYTES)):
+            raise ValueError("Crust opposite-pole bounds or workspace differ from its contract")
+        issues = verify_crust_opposite_pole_selection_package()
+        if issues:
+            raise ValueError("Crust opposite-pole references differ from pinned fixtures: "
+                             + "; ".join(issues))
+        issues = crust_opposite_pole_selection_inventory_issues()
+        if issues:
+            raise ValueError("Crust opposite-pole package is incomplete: " + "; ".join(issues))
+    if algorithm == "invertible_bloom_lookup_table_reconciliation":
+        package_workload = ROOT / "benchmarks/i/invertible_bloom_lookup_table_reconciliation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("IBLT workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != IBLT_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != IBLT_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != IBLT_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != IBLT_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    IBLT_MAX_INPUT_LENGTH, IBLT_MAX_OUTPUT_BYTES)):
+            raise ValueError("IBLT bounds or workspace differ from its contract")
+        issues = verify_invertible_bloom_lookup_table_reconciliation_package()
+        if issues:
+            raise ValueError("IBLT references differ from pinned fixtures: " + "; ".join(issues))
+        issues = invertible_bloom_lookup_table_reconciliation_inventory_issues()
+        if issues:
+            raise ValueError("IBLT package is incomplete: " + "; ".join(issues))
+    if algorithm == "hashbelt_aging_hash_table":
+        package_workload = ROOT / "benchmarks/h/hashbelt_aging_hash_table/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Hashbelt workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length") != 193
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != HASHBELT_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != HASHBELT_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != HASHBELT_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    HASHBELT_MAX_INPUT_LENGTH, HASHBELT_MAX_OUTPUT_BYTES)):
+            raise ValueError("Hashbelt bounds or workspace differ from its contract")
+        issues = verify_hashbelt_aging_hash_table_package()
+        if issues:
+            raise ValueError("Hashbelt references disagree: " + "; ".join(issues))
+        issues = hashbelt_aging_hash_table_inventory_issues()
+        if issues:
+            raise ValueError("Hashbelt package is incomplete: " + "; ".join(issues))
+    if algorithm == "radio_network_bgi_broadcast":
+        package_workload = ROOT / "benchmarks/r/radio_network_bgi_broadcast/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("BGI radio-network workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != RADIO_NETWORK_BGI_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != RADIO_NETWORK_BGI_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != RADIO_NETWORK_BGI_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    RADIO_NETWORK_BGI_MAX_INPUT_LENGTH,
+                    RADIO_NETWORK_BGI_MAX_OUTPUT_BYTES)):
+            raise ValueError("BGI radio-network bounds or workspace differ from profile")
+        issues = radio_network_bgi_inventory_errors()
+        if issues:
+            raise ValueError("BGI radio-network package is incomplete: " + "; ".join(issues))
+    if algorithm == "hash_map_hopscotch_hashing":
+        package_workload = ROOT / "benchmarks/h/hash_map_hopscotch_hashing/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("hopscotch hashing workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != 1024
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (97, 64)):
+            raise ValueError("hopscotch hashing bounds or workspace differ from its profile")
+        issues = hopscotch_hashing_static_issues()
+        if issues:
+            raise ValueError("hopscotch hashing package is incomplete: " + "; ".join(issues))
+    if algorithm == "minimum_window_subsequence":
+        package_workload = ROOT / "benchmarks/m/minimum_window_subsequence/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("minimum_window_subsequence workload differs from its package file")
+        if workload.get("workspace", {}).get("bytes") != MINIMUM_WINDOW_SUBSEQUENCE_WORKSPACE_BYTES:
+            raise ValueError("minimum_window_subsequence workspace differs from its bounded profile")
+        issues = minimum_window_subsequence_static_issues()
+        if issues:
+            raise ValueError("minimum_window_subsequence package is incomplete: " + "; ".join(issues))
+    if algorithm == "two_left_hashing_operation_trace":
+        package_workload = ROOT / "benchmarks/t/two_left_hashing_operation_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("2-left hashing workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != TWO_LEFT_HASHING_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    TWO_LEFT_HASHING_MAX_INPUT_LENGTH,
+                    TWO_LEFT_HASHING_MAX_OUTPUT_BYTES)):
+            raise ValueError("2-left hashing bounds or workspace differ from its profile")
+        issues = two_left_hashing_operation_trace_static_issues()
+        if issues:
+            raise ValueError("2-left hashing package is incomplete: " + "; ".join(issues))
+    if algorithm == "vlist_persistent_sequence":
+        package_workload = ROOT / "benchmarks/v/vlist_persistent_sequence/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("VList workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != VLIST_PERSISTENT_SEQUENCE_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    VLIST_PERSISTENT_SEQUENCE_MAX_INPUT_LENGTH,
+                    VLIST_PERSISTENT_SEQUENCE_MAX_OUTPUT_BYTES)):
+            raise ValueError("VList bounds or workspace differ from its package contract")
+        issues = vlist_persistent_sequence_static_issues()
+        if issues:
+            raise ValueError("VList package is incomplete: " + "; ".join(issues))
+        issues = vlist_persistent_sequence_workload_issues(workload)
+        if issues:
+            raise ValueError("VList workload references disagree: " + "; ".join(issues))
+    if algorithm == "zeckendorf_addition":
+        package_workload = ROOT / "benchmarks/z/zeckendorf_addition/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Zeckendorf addition workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != ZECKENDORF_ADDITION_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    ZECKENDORF_ADDITION_MAX_INPUT_LENGTH,
+                    ZECKENDORF_ADDITION_MAX_OUTPUT_BYTES)):
+            raise ValueError("Zeckendorf addition bounds or workspace differ from its contract")
+        issues = zeckendorf_addition_static_issues()
+        if issues:
+            raise ValueError("Zeckendorf addition package is incomplete: " + "; ".join(issues))
+        issues = zeckendorf_addition_workload_issues()
+        if issues:
+            raise ValueError("Zeckendorf addition workload references disagree: " + "; ".join(issues))
+    if algorithm == "bagwell_varray_growth_index":
+        package_workload = ROOT / "benchmarks/b/bagwell_varray_growth_index/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Bagwell VArray workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != BAGWELL_VARRAY_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BAGWELL_VARRAY_MAX_INPUT_LENGTH,
+                    BAGWELL_VARRAY_MAX_OUTPUT_BYTES)):
+            raise ValueError("Bagwell VArray bounds or workspace differ from its contract")
+        issues = bagwell_varray_growth_index_static_issues()
+        if issues:
+            raise ValueError("Bagwell VArray package is incomplete: " + "; ".join(issues))
+        issues = bagwell_varray_growth_index_workload_issues()
+        if issues:
+            raise ValueError("Bagwell VArray workload references disagree: " + "; ".join(issues))
+    if algorithm == "bagwell_functional_hash_list":
+        package_workload = ROOT / "benchmarks/b/bagwell_functional_hash_list/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Bagwell hash-list workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != BAGWELL_HASH_LIST_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BAGWELL_HASH_LIST_MAX_INPUT_LENGTH,
+                    BAGWELL_HASH_LIST_MAX_OUTPUT_BYTES)):
+            raise ValueError("Bagwell hash-list bounds or workspace differ from its contract")
+        issues = bagwell_functional_hash_list_static_issues()
+        if issues:
+            raise ValueError("Bagwell hash-list package is incomplete: " + "; ".join(issues))
+        issues = bagwell_functional_hash_list_workload_issues(workload)
+        if issues:
+            raise ValueError("Bagwell hash-list workload references disagree: " + "; ".join(issues))
+    if algorithm == "reverse_delete_mst":
+        package_workload = ROOT / "benchmarks/r/reverse_delete_mst/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Reverse-delete MST workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != REVERSE_DELETE_MST_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    REVERSE_DELETE_MST_MAX_INPUT_LENGTH,
+                    REVERSE_DELETE_MST_MAX_OUTPUT_BYTES)):
+            raise ValueError("Reverse-delete MST bounds or workspace differ from its contract")
+        issues = reverse_delete_mst_static_issues()
+        if issues:
+            raise ValueError("Reverse-delete MST package is incomplete: " + "; ".join(issues))
+        issues = reverse_delete_mst_workload_issues(workload)
+        if issues:
+            raise ValueError("Reverse-delete MST workload references disagree: " + "; ".join(issues))
+    if algorithm == "minimum_weight_cycle_floyd":
+        package_workload = ROOT / "benchmarks/m/minimum_weight_cycle_floyd/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Minimum-weight cycle workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != MINIMUM_WEIGHT_CYCLE_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    MINIMUM_WEIGHT_CYCLE_MAX_INPUT_LENGTH,
+                    MINIMUM_WEIGHT_CYCLE_MAX_OUTPUT_BYTES)):
+            raise ValueError("Minimum-weight cycle bounds or workspace differ from its contract")
+        issues = minimum_weight_cycle_floyd_static_issues()
+        if issues:
+            raise ValueError("Minimum-weight cycle package is incomplete: " + "; ".join(issues))
+        issues = minimum_weight_cycle_floyd_workload_issues()
+        if issues:
+            raise ValueError("Minimum-weight cycle workload references disagree: " + "; ".join(issues))
+    if algorithm == "k2_tree_compact_graph":
+        package_workload = ROOT / "benchmarks/k/k2_tree_compact_graph/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("k²-tree workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != K2_TREE_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    K2_TREE_MAX_INPUT_LENGTH, K2_TREE_MAX_OUTPUT_BYTES)):
+            raise ValueError("k²-tree bounds or workspace differ from its contract")
+        issues = k2_tree_compact_graph_static_issues()
+        if issues:
+            raise ValueError("k²-tree package is incomplete: " + "; ".join(issues))
+        issues = k2_tree_compact_graph_workload_issues()
+        if issues:
+            raise ValueError("k²-tree workload references disagree: " + "; ".join(issues))
+    if algorithm == "all_pairs_directed_random_walk_hitting_times":
+        package_workload = ROOT / "benchmarks/a/all_pairs_directed_random_walk_hitting_times/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("directed random-walk workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != ALL_PAIRS_RANDOM_WALK_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    ALL_PAIRS_RANDOM_WALK_MAX_INPUT_LENGTH,
+                    ALL_PAIRS_RANDOM_WALK_MAX_OUTPUT_BYTES)):
+            raise ValueError("directed random-walk bounds or workspace differ from its contract")
+        issues = all_pairs_directed_random_walk_hitting_times_static_issues()
+        if issues:
+            raise ValueError("directed random-walk package is incomplete: " + "; ".join(issues))
+        issues = all_pairs_directed_random_walk_hitting_times_workload_issues()
+        if issues:
+            raise ValueError("directed random-walk workload references disagree: " + "; ".join(issues))
+    if algorithm == "k_quadtree_sampled_point_subdivision":
+        package_workload = ROOT / "benchmarks/k/k_quadtree_sampled_point_subdivision/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("K-quadtree sampled-subdivision workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != K_QUADTREE_SAMPLED_SUBDIVISION_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    K_QUADTREE_SAMPLED_SUBDIVISION_MAX_INPUT_LENGTH,
+                    K_QUADTREE_SAMPLED_SUBDIVISION_MAX_OUTPUT_BYTES)):
+            raise ValueError("K-quadtree sampled-subdivision bounds or workspace differ from its contract")
+        issues = k_quadtree_sampled_point_subdivision_static_issues()
+        if issues:
+            raise ValueError("K-quadtree sampled-subdivision package is incomplete: " + "; ".join(issues))
+        issues = k_quadtree_sampled_point_subdivision_workload_issues()
+        if issues:
+            raise ValueError("K-quadtree sampled-subdivision workload references disagree: " + "; ".join(issues))
+    if algorithm == "k_quadtree_edge_distribution":
+        package_workload = ROOT / "benchmarks/k/k_quadtree_edge_distribution/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("K-quadtree edge-distribution workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                K_QUADTREE_EDGE_DISTRIBUTION_MAX_INPUT_LENGTH,
+                K_QUADTREE_EDGE_DISTRIBUTION_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != K_QUADTREE_EDGE_DISTRIBUTION_WORKSPACE_BYTES):
+            raise ValueError("K-quadtree edge-distribution bounds or workspace differ from its contract")
+        issues = k_quadtree_edge_distribution_static_issues()
+        if issues:
+            raise ValueError("K-quadtree edge-distribution package is incomplete: " + "; ".join(issues))
+        issues = k_quadtree_edge_distribution_workload_issues()
+        if issues:
+            raise ValueError("K-quadtree edge-distribution workload references disagree: " + "; ".join(issues))
+    if algorithm == "brownian_tree_diffusion_limited_aggregation":
+        package_workload = ROOT / "benchmarks/b/brownian_tree_diffusion_limited_aggregation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Brownian-tree DLA workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                BROWNIAN_TREE_DLA_MAX_INPUT_LENGTH,
+                BROWNIAN_TREE_DLA_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != BROWNIAN_TREE_DLA_WORKSPACE_BYTES):
+            raise ValueError("Brownian-tree DLA bounds or workspace differ from its contract")
+        issues = brownian_tree_dla_static_issues()
+        if issues:
+            raise ValueError("Brownian-tree DLA package is incomplete: " + "; ".join(issues))
+        issues = brownian_tree_dla_workload_issues()
+        if issues:
+            raise ValueError("Brownian-tree DLA workload references disagree: " + "; ".join(issues))
+    if algorithm == "forest_fire_synchronous_stochastic_ca":
+        package_workload = ROOT / "benchmarks/f/forest_fire_synchronous_stochastic_ca/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("forest-fire workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                FOREST_FIRE_MAX_PARSEABLE_INPUT_LENGTH,
+                FOREST_FIRE_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != FOREST_FIRE_WORKSPACE_BYTES):
+            raise ValueError("forest-fire bounds or workspace differ from its contract")
+        issues = forest_fire_static_issues()
+        if issues:
+            raise ValueError("forest-fire package is incomplete: " + "; ".join(issues))
+        issues = forest_fire_workload_issues()
+        if issues:
+            raise ValueError("forest-fire workload references disagree: " + "; ".join(issues))
+    if algorithm == "parameterized_pattern_matching_kmp":
+        package_workload = ROOT / "benchmarks/p/parameterized_pattern_matching_kmp/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("parameterized KMP workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                PARAMETERIZED_KMP_MAX_PARSEABLE_INPUT_LENGTH,
+                PARAMETERIZED_KMP_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != PARAMETERIZED_KMP_WORKSPACE_BYTES):
+            raise ValueError("parameterized KMP bounds or workspace differ from its contract")
+        issues = parameterized_pattern_matching_kmp_static_issues()
+        if issues:
+            raise ValueError("parameterized KMP package is incomplete: " + "; ".join(issues))
+        issues = parameterized_pattern_matching_kmp_workload_issues()
+        if issues:
+            raise ValueError("parameterized KMP workload references disagree: " + "; ".join(issues))
+    if algorithm == "farey_sequence_ordered_enumeration":
+        package_workload = ROOT / "benchmarks/f/farey_sequence_ordered_enumeration/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Farey-sequence workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                FAREY_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH,
+                FAREY_SEQUENCE_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != FAREY_SEQUENCE_WORKSPACE_BYTES):
+            raise ValueError("Farey-sequence bounds or workspace differ from its contract")
+        if farey_sequence_inventory() != 10:
+            raise ValueError("Farey-sequence inventory does not list ten language ports")
+        if farey_sequence_workload() != len(workload.get("cases", [])):
+            raise ValueError("Farey-sequence workload references disagree with its fixtures")
+    if algorithm == "tutte_matrix_randomized_perfect_matching":
+        package_workload = ROOT / "benchmarks/t/tutte_matrix_randomized_perfect_matching/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Tutte-matrix matching workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                TUTTE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH,
+                TUTTE_MATCHING_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != TUTTE_MATCHING_WORKSPACE_BYTES):
+            raise ValueError("Tutte-matrix matching bounds or workspace differ from its contract")
+        issues = tutte_matrix_randomized_perfect_matching_static_issues()
+        if issues:
+            raise ValueError("Tutte-matrix matching package is incomplete: " + "; ".join(issues))
+        issues = tutte_matrix_randomized_perfect_matching_workload_issues(workload)
+        if issues:
+            raise ValueError("Tutte-matrix matching workload differs from its references: "
+                             + "; ".join(issues))
+    if algorithm == "signed_permutation_overlap_forest_components":
+        package_workload = ROOT / "benchmarks/s/signed_permutation_overlap_forest_components/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("signed overlap-forest workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                SIGNED_OVERLAP_FOREST_MAX_PARSEABLE_INPUT_LENGTH,
+                SIGNED_OVERLAP_FOREST_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != SIGNED_OVERLAP_FOREST_WORKSPACE_BYTES):
+            raise ValueError("signed overlap-forest bounds or workspace differ from its contract")
+        issues = signed_permutation_overlap_forest_components_static_issues()
+        if issues:
+            raise ValueError("signed overlap-forest package is incomplete: " + "; ".join(issues))
+        issues = signed_permutation_overlap_forest_components_workload_issues(workload)
+        if issues:
+            raise ValueError("signed overlap-forest workload differs from its references: "
+                             + "; ".join(issues))
+    if algorithm == "recursive_backtracker_maze_generation":
+        package_workload = ROOT / "benchmarks/r/recursive_backtracker_maze_generation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("recursive-backtracker maze workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                RECURSIVE_BACKTRACKER_MAZE_MAX_PARSEABLE_INPUT_LENGTH,
+                RECURSIVE_BACKTRACKER_MAZE_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != RECURSIVE_BACKTRACKER_MAZE_WORKSPACE_BYTES):
+            raise ValueError("recursive-backtracker maze bounds or workspace differ from its contract")
+        issues = recursive_backtracker_maze_generation_static_issues()
+        if issues:
+            raise ValueError("recursive-backtracker maze package is incomplete: " + "; ".join(issues))
+        issues = recursive_backtracker_maze_generation_workload_issues()
+        if issues:
+            raise ValueError("recursive-backtracker maze workload references disagree: " + "; ".join(issues))
+    if algorithm == "chess960_scharnagl_position_unrank":
+        package_workload = ROOT / "benchmarks/c/chess960_scharnagl_position_unrank/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Chess960 workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                CHESS960_UNRANK_MAX_PARSEABLE_INPUT_LENGTH,
+                CHESS960_UNRANK_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != CHESS960_UNRANK_WORKSPACE_BYTES):
+            raise ValueError("Chess960 bounds or workspace differ from its contract")
+        issues = chess960_scharnagl_position_unrank_static_issues()
+        if issues:
+            raise ValueError("Chess960 package is incomplete: " + "; ".join(issues))
+        issues = chess960_scharnagl_position_unrank_workload_issues()
+        if issues:
+            raise ValueError("Chess960 workload references disagree: " + "; ".join(issues))
+    if algorithm == "pade_approximant_series_coefficients":
+        package_workload = ROOT / "benchmarks/p/pade_approximant_series_coefficients/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Padé workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                PADE_APPROXIMANT_MAX_INPUT_LENGTH,
+                PADE_APPROXIMANT_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != PADE_APPROXIMANT_WORKSPACE_BYTES):
+            raise ValueError("Padé bounds or workspace differ from its contract")
+        issues = pade_approximant_series_coefficients_static_issues()
+        if issues:
+            raise ValueError("Padé package is incomplete: " + "; ".join(issues))
+        issues = pade_approximant_series_coefficients_workload_issues()
+        if issues:
+            raise ValueError("Padé workload references disagree: " + "; ".join(issues))
+    if algorithm == "myrvold_ruskey_permutation_unrank":
+        package_workload = ROOT / "benchmarks/m/myrvold_ruskey_permutation_unrank/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Myrvold–Ruskey workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != MYRVOLD_RUSKEY_UNRANK_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    MYRVOLD_RUSKEY_UNRANK_MAX_INPUT_LENGTH,
+                    MYRVOLD_RUSKEY_UNRANK_MAX_OUTPUT_BYTES)):
+            raise ValueError("Myrvold–Ruskey bounds or workspace differ from its contract")
+        issues = myrvold_ruskey_permutation_unrank_static_issues()
+        if issues:
+            raise ValueError("Myrvold–Ruskey package is incomplete: " + "; ".join(issues))
+        issues = myrvold_ruskey_permutation_unrank_workload_issues()
+        if issues:
+            raise ValueError("Myrvold–Ruskey workload references disagree: " + "; ".join(issues))
+    if algorithm == "base58check_encode":
+        package_workload = ROOT / "benchmarks/b/base58check_encode/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Base58Check workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                BASE58CHECK_MAX_PARSEABLE_INPUT_LENGTH, BASE58CHECK_MAX_OUTPUT_BYTES)
+                or workspace_bytes != BASE58CHECK_WORKSPACE_BYTES):
+            raise ValueError("Base58Check bounds or workspace differ from its contract")
+        issues = base58check_encode_check_inventory()
+        if issues:
+            raise ValueError("Base58Check package is incomplete: " + "; ".join(issues))
+        issues = base58check_encode_verify_workload()
+        if issues:
+            raise ValueError("Base58Check workload references disagree: " + "; ".join(issues))
+    if algorithm == "suffix_tray_pattern_query":
+        package_workload = ROOT / "benchmarks/s/suffix_tray_pattern_query/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Suffix-tray workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != SUFFIX_TRAY_PATTERN_QUERY_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    SUFFIX_TRAY_PATTERN_QUERY_MAX_INPUT_LENGTH,
+                    SUFFIX_TRAY_PATTERN_QUERY_MAX_OUTPUT_BYTES)):
+            raise ValueError("Suffix-tray bounds or workspace differ from its contract")
+        issues = suffix_tray_pattern_query_check_inventory()
+        if issues:
+            raise ValueError("Suffix-tray package is incomplete: " + "; ".join(issues))
+        issues = suffix_tray_pattern_query_verify_workload()
+        if issues:
+            raise ValueError("Suffix-tray workload references disagree: " + "; ".join(issues))
+    if algorithm == "aitken_delta_squared_sequence_transform":
+        package_workload = ROOT / "benchmarks/a/aitken_delta_squared_sequence_transform/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Aitken delta-squared workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != AITKEN_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    AITKEN_MAX_PARSEABLE_INPUT_LENGTH, AITKEN_MAX_OUTPUT_BYTES)):
+            raise ValueError("Aitken delta-squared bounds or workspace differ from its contract")
+        issues = aitken_delta_squared_sequence_transform_check_inventory()
+        if issues:
+            raise ValueError("Aitken delta-squared package is incomplete: " + "; ".join(issues))
+        issues = aitken_delta_squared_sequence_transform_verify_workload()
+        if issues:
+            raise ValueError("Aitken delta-squared workload references disagree: " + "; ".join(issues))
+    if algorithm == "euler_alternating_series_transform":
+        package_workload = ROOT / "benchmarks/e/euler_alternating_series_transform/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Euler-transform workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != EULER_TRANSFORM_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    EULER_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+                    EULER_TRANSFORM_MAX_OUTPUT_BYTES)):
+            raise ValueError("Euler-transform bounds or workspace differ from its contract")
+        issues = euler_alternating_series_transform_check_inventory()
+        if issues:
+            raise ValueError("Euler-transform package is incomplete: " + "; ".join(issues))
+        issues = euler_alternating_series_transform_verify_workload()
+        if issues:
+            raise ValueError("Euler-transform workload references disagree: " + "; ".join(issues))
+    if algorithm == "levin_partial_sum_transform":
+        package_workload = ROOT / "benchmarks/l/levin_partial_sum_transform/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Levin-transform workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != LEVIN_WORKSPACE_BYTES
+                or LEVIN_MAX_PARSEABLE_INPUT_LENGTH != 16
+                or LEVIN_MAX_OUTPUT_BYTES != 16):
+            raise ValueError("Levin-transform bounds or workspace differ from its contract")
+        issues = levin_partial_sum_transform_check_inventory()
+        if issues:
+            raise ValueError("Levin-transform package is incomplete: " + "; ".join(issues))
+        issues = levin_partial_sum_transform_verify_workload()
+        if issues:
+            raise ValueError("Levin-transform workload references disagree: " + "; ".join(issues))
+    if algorithm == "set_puzzle_find_sets":
+        package_workload = ROOT / "benchmarks/s/set_puzzle_find_sets/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Set-puzzle workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != SET_PUZZLE_WORKSPACE_BYTES
+                or SET_PUZZLE_MAX_PARSEABLE_INPUT_LENGTH != 14
+                or SET_PUZZLE_MAX_OUTPUT_BYTES != 536):
+            raise ValueError("Set-puzzle bounds or workspace differ from its contract")
+        issues = set_puzzle_find_sets_check_inventory()
+        if issues:
+            raise ValueError("Set-puzzle package is incomplete: " + "; ".join(issues))
+        issues = set_puzzle_find_sets_verify_workload()
+        if issues:
+            raise ValueError("Set-puzzle workload references disagree: " + "; ".join(issues))
+    if algorithm == "weniger_pochhammer_partial_sum_transform":
+        package_workload = ROOT / "benchmarks/w/weniger_pochhammer_partial_sum_transform/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Weniger-transform workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != WENIGER_WORKSPACE_BYTES
+                or WENIGER_MAX_PARSEABLE_INPUT_LENGTH != 17
+                or WENIGER_MAX_OUTPUT_BYTES != 16):
+            raise ValueError("Weniger-transform bounds or workspace differ from its contract")
+        issues = weniger_pochhammer_partial_sum_transform_check_inventory()
+        if issues:
+            raise ValueError("Weniger-transform package is incomplete: " + "; ".join(issues))
+        issues = weniger_pochhammer_partial_sum_transform_verify_workload()
+        if issues:
+            raise ValueError("Weniger-transform workload references disagree: " + "; ".join(issues))
+    if algorithm == "ring_expander_closed_triangle_mesh":
+        package_workload = ROOT / "benchmarks/r/ring_expander_closed_triangle_mesh/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Ring-Expander workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != RING_EXPANDER_WORKSPACE_BYTES
+                or RING_EXPANDER_MAX_PARSEABLE_INPUT_LENGTH != 64
+                or RING_EXPANDER_MAX_OUTPUT_BYTES != 504):
+            raise ValueError("Ring-Expander bounds or workspace differ from its contract")
+        issues = ring_expander_closed_triangle_mesh_check_inventory()
+        if issues:
+            raise ValueError("Ring-Expander package is incomplete: " + "; ".join(issues))
+        issues = ring_expander_closed_triangle_mesh_verify_workload()
+        if issues:
+            raise ValueError("Ring-Expander workload references disagree: " + "; ".join(issues))
+    if algorithm == "triangle_mesh_faces_from_edge_graph":
+        package_workload = ROOT / "benchmarks/f/triangle_mesh_faces_from_edge_graph/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Triangle-mesh face workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_input_length") != 58
+                or workload.get("input", {}).get("maximum_parseable_input_length")
+                != TRIANGLE_MESH_FACES_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != TRIANGLE_MESH_FACES_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != TRIANGLE_MESH_FACES_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    TRIANGLE_MESH_FACES_MAX_INPUT_LENGTH,
+                    TRIANGLE_MESH_FACES_MAX_OUTPUT_BYTES)):
+            raise ValueError("Triangle-mesh face bounds or workspace differ from its contract")
+        issues = triangle_mesh_faces_from_edge_graph_check_inventory()
+        if issues:
+            raise ValueError("Triangle-mesh face package is incomplete: " + "; ".join(issues))
+        issues = triangle_mesh_faces_from_edge_graph_verify_workload()
+        if issues:
+            raise ValueError("Triangle-mesh face workload references disagree: " + "; ".join(issues))
+    if algorithm == "stieltjes_quotient_difference_transform":
+        package_workload = ROOT / "benchmarks/s/stieltjes_quotient_difference_transform/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Stieltjes Q-D workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != STIELTJES_QD_WORKSPACE_BYTES
+                or STIELTJES_QD_MAX_PARSEABLE_INPUT_LENGTH != 11
+                or STIELTJES_QD_MAX_OUTPUT_BYTES != 80):
+            raise ValueError("Stieltjes Q-D bounds or workspace differ from its contract")
+        issues = stieltjes_quotient_difference_transform_check_inventory()
+        if issues:
+            raise ValueError("Stieltjes Q-D package is incomplete: " + "; ".join(issues))
+        issues = stieltjes_quotient_difference_transform_workload_issues()
+        if issues:
+            raise ValueError("Stieltjes Q-D workload references disagree: " + "; ".join(issues))
+    if algorithm == "continued_fraction_forward_series_recurrence":
+        package_workload = ROOT / "benchmarks/c/continued_fraction_forward_series_recurrence/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Continued-fraction forward-series workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != CONTINUED_FRACTION_FORWARD_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    CONTINUED_FRACTION_FORWARD_MAX_PARSEABLE_INPUT_LENGTH,
+                    CONTINUED_FRACTION_FORWARD_MAX_OUTPUT_BYTES)):
+            raise ValueError("Continued-fraction forward-series bounds or workspace differ from its contract")
+        issues = continued_fraction_forward_series_recurrence_check_inventory()
+        if issues:
+            raise ValueError("Continued-fraction forward-series package is incomplete: " + "; ".join(issues))
+        issues = continued_fraction_forward_series_recurrence_workload_issues()
+        if issues:
+            raise ValueError("Continued-fraction forward-series workload references disagree: " + "; ".join(issues))
+    if algorithm == "subtractive_prng_bentley_seeded_sequence":
+        package_workload = ROOT / "benchmarks/s/subtractive_prng_bentley_seeded_sequence/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Bentley subtractive workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != BENTLEY_SUBTRACTIVE_WORKSPACE_BYTES
+                or BENTLEY_SUBTRACTIVE_MAX_PARSEABLE_INPUT_LENGTH != 3
+                or BENTLEY_SUBTRACTIVE_MAX_OUTPUT_BYTES != 512):
+            raise ValueError("Bentley subtractive bounds or workspace differ from its contract")
+        issues = subtractive_prng_bentley_seeded_sequence_check_inventory()
+        if issues:
+            raise ValueError("Bentley subtractive package is incomplete: " + "; ".join(issues))
+        issues = subtractive_prng_bentley_seeded_sequence_verify_workload()
+        if issues:
+            raise ValueError("Bentley subtractive workload references disagree: " + "; ".join(issues))
+    if algorithm == "hilbert_curve_index_encode":
+        package_workload = ROOT / "benchmarks/h/hilbert_curve_index_encode/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Hilbert coordinate-index workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != HILBERT_INDEX_WORKSPACE_BYTES
+                or HILBERT_INDEX_MAX_PARSEABLE_INPUT_LENGTH != 4
+                or HILBERT_INDEX_MAX_OUTPUT_BYTES != 8):
+            raise ValueError("Hilbert coordinate-index bounds or workspace differ from its contract")
+        issues = hilbert_curve_index_encode_check_inventory()
+        if issues:
+            raise ValueError("Hilbert coordinate-index package is incomplete: " + "; ".join(issues))
+        issues = hilbert_curve_index_encode_workload_issues()
+        if issues:
+            raise ValueError("Hilbert coordinate-index workload references disagree: " + "; ".join(issues))
+    if algorithm == "bricks_falling_when_hit_reverse_dsu":
+        package_workload = ROOT / "benchmarks/b/bricks_falling_when_hit_reverse_dsu/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Brick-fall workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != BRICKS_FALL_WORKSPACE_BYTES
+                or BRICKS_FALL_MAX_PARSEABLE_INPUT_LENGTH != 100
+                or BRICKS_FALL_MAX_OUTPUT_BYTES != 128):
+            raise ValueError("Brick-fall bounds or workspace differ from its contract")
+        issues = bricks_falling_when_hit_reverse_dsu_check_inventory()
+        if issues:
+            raise ValueError("Brick-fall package is incomplete: " + "; ".join(issues))
+        issues = bricks_falling_when_hit_reverse_dsu_verify_workload()
+        if issues:
+            raise ValueError("Brick-fall workload references disagree: " + "; ".join(issues))
+    if algorithm == "steed_continued_fraction_convergents":
+        package_workload = ROOT / "benchmarks/s/steed_continued_fraction_convergents/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Steed continued-fraction workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != STEED_CF_WORKSPACE_BYTES
+                or STEED_CF_MAX_PARSEABLE_INPUT_LENGTH != 19
+                or STEED_CF_MAX_OUTPUT_BYTES != 80):
+            raise ValueError("Steed continued-fraction bounds or workspace differ from its contract")
+        issues = steed_continued_fraction_convergents_check_inventory()
+        if issues:
+            raise ValueError("Steed continued-fraction package is incomplete: " + "; ".join(issues))
+        issues = steed_continued_fraction_convergents_workload_issues()
+        if issues:
+            raise ValueError("Steed continued-fraction workload references disagree: " + "; ".join(issues))
+    if algorithm == "aho_build_rooted_triplet_tree":
+        package_workload = ROOT / "benchmarks/a/aho_build_rooted_triplet_tree/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Aho BUILD workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != AHO_BUILD_WORKSPACE_BYTES
+                or AHO_BUILD_MAX_PARSEABLE_INPUT_LENGTH != 318
+                or AHO_BUILD_MAX_OUTPUT_BYTES != 112):
+            raise ValueError("Aho BUILD bounds or workspace differ from its contract")
+        issues = aho_build_rooted_triplet_tree_check_inventory()
+        if issues:
+            raise ValueError("Aho BUILD package is incomplete: " + "; ".join(issues))
+        issues = aho_build_rooted_triplet_tree_workload_issues()
+        if issues:
+            raise ValueError("Aho BUILD workload references disagree: " + "; ".join(issues))
+    if algorithm == "miller_backward_recurrence_normalization":
+        package_workload = ROOT / "benchmarks/m/miller_backward_recurrence_normalization/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Miller backward-recurrence workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != MILLER_BACKWARD_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    MILLER_BACKWARD_MAX_PARSEABLE_INPUT_LENGTH,
+                    MILLER_BACKWARD_MAX_OUTPUT_BYTES)):
+            raise ValueError("Miller backward-recurrence bounds or workspace differ from its contract")
+        issues = miller_backward_recurrence_normalization_check_inventory()
+        if issues:
+            raise ValueError("Miller backward-recurrence package is incomplete: " + "; ".join(issues))
+        issues = miller_backward_recurrence_normalization_workload_issues()
+        if issues:
+            raise ValueError("Miller backward-recurrence workload references disagree: " + "; ".join(issues))
+    if algorithm == "random_3sat_cl_bucket_heuristic":
+        package_workload = ROOT / "benchmarks/r/random_3sat_cl_bucket_heuristic/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("CL bucket-heuristic workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != RANDOM_3SAT_CL_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    RANDOM_3SAT_CL_MAX_PARSEABLE_INPUT_LENGTH,
+                    RANDOM_3SAT_CL_MAX_OUTPUT_BYTES)):
+            raise ValueError("CL bucket-heuristic bounds or workspace differ from its contract")
+        issues = random_3sat_cl_bucket_heuristic_check_inventory()
+        if issues:
+            raise ValueError("CL bucket-heuristic package is incomplete: " + "; ".join(issues))
+        issues = random_3sat_cl_bucket_heuristic_workload_issues()
+        if issues:
+            raise ValueError("CL bucket-heuristic workload references disagree: " + "; ".join(issues))
+    if algorithm == "bairstow_quadratic_factor_iteration":
+        package_workload = ROOT / "benchmarks/b/bairstow_quadratic_factor_iteration/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Bairstow workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != BAIRSTOW_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    BAIRSTOW_MAX_PARSEABLE_INPUT_LENGTH,
+                    BAIRSTOW_MAX_OUTPUT_BYTES)):
+            raise ValueError("Bairstow bounds or workspace differ from its contract")
+        issues = bairstow_quadratic_factor_iteration_check_inventory()
+        if issues:
+            raise ValueError("Bairstow package is incomplete: " + "; ".join(issues))
+        issues = bairstow_quadratic_factor_iteration_workload_issues()
+        if issues:
+            raise ValueError("Bairstow workload references disagree: " + "; ".join(issues))
+    if algorithm == "punycode_codepoint_sequence_encode":
+        package_workload = ROOT / "benchmarks/p/punycode_codepoint_sequence_encode/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Punycode workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != PUNYCODE_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    PUNYCODE_MAX_PARSEABLE_INPUT_LENGTH,
+                    PUNYCODE_MAX_OUTPUT_BYTES)):
+            raise ValueError("Punycode bounds or workspace differ from its contract")
+        issues = punycode_codepoint_sequence_encode_static_issues()
+        if issues:
+            raise ValueError("Punycode package is incomplete: " + "; ".join(issues))
+        issues = punycode_codepoint_sequence_encode_workload_issues(workload)
+        if issues:
+            raise ValueError("Punycode workload references disagree: " + "; ".join(issues))
+    if algorithm == "lentz_continued_fraction_convergents":
+        package_workload = ROOT / "benchmarks/l/lentz_continued_fraction_convergents/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Lentz workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != LENTZ_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    LENTZ_MAX_PARSEABLE_INPUT_LENGTH,
+                    LENTZ_MAX_OUTPUT_BYTES)):
+            raise ValueError("Lentz bounds or workspace differ from its contract")
+        issues = lentz_continued_fraction_convergents_check_inventory()
+        if issues:
+            raise ValueError("Lentz package is incomplete: " + "; ".join(issues))
+        issues = lentz_continued_fraction_convergents_workload_issues()
+        if issues:
+            raise ValueError("Lentz workload references disagree: " + "; ".join(issues))
+    if algorithm == "fornberg_finite_difference_weights":
+        package_workload = ROOT / "benchmarks/f/fornberg_finite_difference_weights/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Fornberg finite-difference workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != FORNBERG_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != FORNBERG_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != FORNBERG_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != FORNBERG_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    FORNBERG_MAX_PARSEABLE_INPUT_LENGTH,
+                    FORNBERG_MAX_OUTPUT_BYTES)):
+            raise ValueError("Fornberg bounds or workspace differ from its contract")
+        issues = fornberg_finite_difference_weights_static_issues()
+        if issues:
+            raise ValueError("Fornberg package is incomplete: " + "; ".join(issues))
+        issues = fornberg_finite_difference_weights_workload_issues()
+        if issues:
+            raise ValueError("Fornberg workload references disagree: " + "; ".join(issues))
+    if algorithm == "wulff_nilsen_logarithmic_distance_query":
+        package_workload = ROOT / "benchmarks/w/wulff_nilsen_logarithmic_distance_query/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Wulff–Nilsen workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != WULFF_NILSEN_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    WULFF_NILSEN_MAX_PARSEABLE_INPUT,
+                    WULFF_NILSEN_MAX_OUTPUT_BYTES)):
+            raise ValueError("Wulff–Nilsen bounds or workspace differ from its contract")
+    if algorithm == "minimum_parenthesis_removal_bfs":
+        package_workload = ROOT / "benchmarks/m/minimum_parenthesis_removal_bfs/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("minimum parenthesis removal workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                MIN_PAREN_REMOVAL_MAX_PARSEABLE_INPUT_LENGTH,
+                MIN_PAREN_REMOVAL_MAX_OUTPUT_BYTES)
+                or MIN_PAREN_REMOVAL_MAX_INPUT_LENGTH != 17
+                or MIN_PAREN_REMOVAL_MAX_PARSEABLE_INPUT_LENGTH != 18
+                or workspace_bytes != MIN_PAREN_REMOVAL_WORKSPACE_BYTES):
+            raise ValueError("minimum parenthesis removal bounds/workspace differ from its contract")
+        issues = minimum_parenthesis_removal_bfs_static_issues()
+        if issues:
+            raise ValueError("minimum parenthesis removal package is incomplete: " + "; ".join(issues))
+    if algorithm == "cuckoo_filter_operation_trace":
+        package_workload = ROOT / "benchmarks/c/cuckoo_filter_operation_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Cuckoo Filter workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != CUCKOO_FILTER_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    CUCKOO_FILTER_MAX_INPUT_LENGTH, CUCKOO_FILTER_MAX_OUTPUT_BYTES)):
+            raise ValueError("Cuckoo Filter bounds or workspace differ from its profile")
+        issues = cuckoo_filter_operation_trace_static_issues()
+        if issues:
+            raise ValueError("Cuckoo Filter package is incomplete: " + "; ".join(issues))
+    if algorithm == "rank_maximal_matching_irving":
+        package_workload = ROOT / "benchmarks/r/rank_maximal_matching_irving/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("rank-maximal matching workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes")
+                != RANK_MAXIMAL_MATCHING_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    RANK_MAXIMAL_MATCHING_MAX_INPUT_LENGTH,
+                    RANK_MAXIMAL_MATCHING_MAX_OUTPUT_BYTES)):
+            raise ValueError("rank-maximal matching bounds or workspace differ from its profile")
+        issues = rank_maximal_matching_irving_static_issues()
+        if issues:
+            raise ValueError("rank-maximal matching package is incomplete: "
+                             + "; ".join(issues))
+        if algorithm == "numbers_with_prime_divisor_count_not_two":
+            package_workload = ROOT / "benchmarks/n/numbers_with_prime_divisor_count_not_two/workload.json"
+            if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+                raise ValueError("prime-divisor-count workload differs from its package file")
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    PRIME_DIVISOR_COUNT_MAX_INPUT_LENGTH,
+                    PRIME_DIVISOR_COUNT_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != PRIME_DIVISOR_COUNT_WORKSPACE_BYTES):
+                raise ValueError("prime-divisor-count bounds or workspace differ from its profile")
+            issues = numbers_with_prime_divisor_count_not_two_static_issues()
+            if issues:
+                raise ValueError("prime-divisor-count package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "star_quadtree_fat_triangulation":
+            package_workload = ROOT / "benchmarks/s/star_quadtree_fat_triangulation/workload.json"
+            if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+                raise ValueError("Star-quadtree workload differs from its package file")
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    STAR_QUADTREE_MAX_INPUT_LENGTH,
+                    STAR_QUADTREE_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != STAR_QUADTREE_WORKSPACE_BYTES):
+                raise ValueError("Star-quadtree bounds or workspace differ from its profile")
+            issues = star_quadtree_fat_triangulation_static_issues()
+            if issues:
+                raise ValueError("Star-quadtree package is incomplete: "
+                                 + "; ".join(issues))
+    if algorithm == "aliquot_orbit_decomposition":
+        package_workload = ROOT / "benchmarks/a/aliquot_orbit_decomposition/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("aliquot_orbit_decomposition workload differs from its package file")
+        if workload.get("workspace", {}).get("bytes") != ALIQUOT_ORBIT_DECOMPOSITION_WORKSPACE_BYTES:
+            raise ValueError("aliquot_orbit_decomposition workspace differs from its bounded profile")
+        issues = aliquot_orbit_decomposition_static_issues()
+        if issues:
+            raise ValueError("aliquot-orbit package is incomplete: " + "; ".join(issues))
+    if algorithm == "symmetric_drawing_cyclic_wedge":
+        package_workload = ROOT / "benchmarks/s/symmetric_drawing_cyclic_wedge/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("symmetric_drawing_cyclic_wedge workload differs from its package file")
+        if workload.get("workspace", {}).get("bytes") != SYMMETRIC_DRAWING_CYCLIC_WEDGE_WORKSPACE_BYTES:
+            raise ValueError("symmetric_drawing_cyclic_wedge workspace differs from its bounded profile")
+        issues = symmetric_drawing_cyclic_wedge_static_issues()
+        if issues:
+            raise ValueError("cyclic-wedge package is incomplete: " + "; ".join(issues))
+    if algorithm == "rmq_cartesian_tree_fcb":
+        package_workload = ROOT / "benchmarks/r/rmq_cartesian_tree_fcb/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("rmq_cartesian_tree_fcb workload differs from its package file")
+        if workload.get("workspace", {}).get("bytes") != RMQ_CARTESIAN_TREE_FCB_WORKSPACE_BYTES:
+            raise ValueError("rmq_cartesian_tree_fcb workspace differs from its bounded profile")
+        issues = rmq_cartesian_tree_fcb_static_issues()
+        if issues:
+            raise ValueError("RMQ Cartesian-tree/FCB package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "rolling_hash_2d_rectangle_query":
+        issues = verify_rolling_hash_2d_package(workload)
+        if issues:
+            raise ValueError("2D rolling-hash package is incomplete: " + "; ".join(issues))
+    if algorithm == "tree_center":
+        verify_tree_center_package()
+    if algorithm == "tree_center_rerooting_dp":
+        verify_tree_center_rerooting_package()
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (TREE_CENTER_REROOTING_MAX_INPUT_LENGTH,
+                    TREE_CENTER_REROOTING_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != TREE_CENTER_REROOTING_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError("tree-center rerooting workload metadata differs from its contract")
+    if algorithm == "batch_gcd_small_range_precomputed":
+        package_workload = ROOT / "benchmarks/b/batch_gcd_small_range_precomputed/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("batch-GCD workload differs from its package file")
+        verify_batch_gcd_small_range_precomputed_package()
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (BATCH_GCD_SMALL_RANGE_VERIFIER_MAX_INPUT_LENGTH,
+                    BATCH_GCD_SMALL_RANGE_VERIFIER_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes") != 4096
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError("batch-GCD bounds or workspace differ from its contract")
+    if algorithm == "morris_approximate_counter_base_three":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (MORRIS_BASE_THREE_VERIFIER_MAX_INPUT_LENGTH,
+                    MORRIS_BASE_THREE_VERIFIER_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != MORRIS_BASE_THREE_VERIFIER_WORKSPACE_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError("base-three Morris bounds or workspace differ from its contract")
+    if algorithm == "kosaraju_dense_bitset_scc":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (KOSARAJU_DENSE_SCC_VERIFIER_MAX_INPUT_LENGTH,
+                    KOSARAJU_DENSE_SCC_VERIFIER_MAX_OUTPUT_BYTES)
+                or workload.get("workspace", {}).get("bytes")
+                != KOSARAJU_DENSE_SCC_VERIFIER_WORKSPACE_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError("dense Kosaraju bounds or workspace differ from its contract")
+    if algorithm == "binary_divisibility_by_three_dfa":
+        package_workload = ROOT / "benchmarks/b/binary_divisibility_by_three_dfa/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("binary divisibility DFA workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (BINARY_DIV3_VERIFIER_MAX_INPUT_LENGTH,
+                    BINARY_DIV3_VERIFIER_MAX_OUTPUT_BYTES)
+                or EXTERNAL_BYTE_OUTPUT_WORKSPACE_BYTES.get(algorithm)
+                != BINARY_DIV3_VERIFIER_WORKSPACE_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != BINARY_DIV3_VERIFIER_WORKSPACE_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError("binary divisibility DFA bounds or workspace differ from its contract")
+        issues = (binary_divisibility_by_three_dfa_static_issues()
+                  + binary_divisibility_by_three_dfa_workload_issues(workload))
+        if issues:
+            raise ValueError("binary divisibility DFA package is incomplete: " + "; ".join(issues))
+    if algorithm in {"flood_fill", "flood_fill_breadth_first"}:
+        is_breadth_first = algorithm == "flood_fill_breadth_first"
+        package_workload = ROOT / "benchmarks/f" / algorithm / "workload.json"
+        max_input = (FLOOD_FILL_BFS_VERIFIER_MAX_INPUT_LENGTH if is_breadth_first
+                     else FLOOD_FILL_VERIFIER_MAX_INPUT_LENGTH)
+        max_output = (FLOOD_FILL_BFS_VERIFIER_MAX_OUTPUT_BYTES if is_breadth_first
+                      else FLOOD_FILL_VERIFIER_MAX_OUTPUT_BYTES)
+        expected_workspace = (FLOOD_FILL_BFS_VERIFIER_WORKSPACE_BYTES if is_breadth_first
+                              else FLOOD_FILL_VERIFIER_WORKSPACE_BYTES)
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError(f"{algorithm} workload differs from its package file")
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (max_input, max_output)
+                or EXTERNAL_BYTE_OUTPUT_WORKSPACE_BYTES.get(algorithm) != expected_workspace
+                or workload.get("input", {}).get("maximum_valid_length") != 1030
+                or workload.get("workspace", {}).get("bytes") != expected_workspace
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError(f"{algorithm} bounds or workspace differ from its contract")
+        inventory_issues = (flood_fill_breadth_first_static_issues if is_breadth_first
+                            else flood_fill_static_issues)
+        fixture_issues = (flood_fill_breadth_first_workload_issues if is_breadth_first
+                          else flood_fill_workload_issues)
+        issues = inventory_issues() + fixture_issues(workload)
+        if issues:
+            raise ValueError(f"{algorithm} package is incomplete: " + "; ".join(issues))
+    if algorithm == "schieber_vishkin_lca":
+        package_workload = ROOT / "benchmarks/l/schieber_vishkin_lca/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Schieber–Vishkin workload differs from its package file")
+        input_spec = workload.get("input", {})
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (SCHIEBER_VISHKIN_LCA_VERIFIER_MAX_INPUT_LENGTH,
+                    SCHIEBER_VISHKIN_LCA_VERIFIER_MAX_OUTPUT_BYTES)
+                or EXTERNAL_BYTE_OUTPUT_WORKSPACE_BYTES.get(algorithm)
+                != SCHIEBER_VISHKIN_LCA_VERIFIER_WORKSPACE_BYTES
+                or input_spec.get("maximum_length") != 2562
+                or input_spec.get("maximum_trailing_frame_probe_length")
+                != SCHIEBER_VISHKIN_LCA_VERIFIER_MAX_INPUT_LENGTH
+                or workload.get("workspace", {}).get("bytes")
+                != SCHIEBER_VISHKIN_LCA_VERIFIER_WORKSPACE_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError("Schieber–Vishkin bounds or workspace differ from its contract")
+    if algorithm == "louds_ordered_tree_navigation":
+        issues = louds_ordered_tree_navigation_static_issues(workload)
+        if issues:
+            raise ValueError("LOUDS navigation package is incomplete: " + "; ".join(issues))
+    if algorithm == "bp_ordered_tree_navigation":
+        issues = bp_ordered_tree_navigation_static_issues(workload)
+        if issues:
+            raise ValueError("BP navigation package is incomplete: " + "; ".join(issues))
+    if algorithm == "dfuds_ordered_tree_navigation":
+        issues = dfuds_ordered_tree_navigation_static_issues(workload)
+        if issues:
+            raise ValueError("DFUDS navigation package is incomplete: " + "; ".join(issues))
+    if algorithm == "canonical_order_maximal_plane_triangulation":
+        issues = canonical_order_maximal_plane_triangulation_static_issues(workload)
+        if issues:
+            raise ValueError("canonical triangulation-order package is incomplete: " + "; ".join(issues))
+    if algorithm == "canonical_order_schnyder_realizer":
+        issues = canonical_order_schnyder_realizer_static_issues(workload)
+        if issues:
+            raise ValueError("canonical Schnyder-realizer package is incomplete: " + "; ".join(issues))
+    if algorithm == "polygon_area_centroid":
+        package_workload = ROOT / "benchmarks/p/polygon_area_centroid/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("polygon_area_centroid workload differs from its package file")
+        issues = polygon_area_centroid_static_issues()
+        if issues:
+            raise ValueError("polygon_area_centroid package is incomplete: " + "; ".join(issues))
+    if algorithm == "line_hull_intersection":
+        package_workload = ROOT / "benchmarks/l/line_hull_intersection/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("line_hull_intersection workload differs from its package file")
+        issues = line_hull_intersection_static_issues()
+        if issues:
+            raise ValueError("line_hull_intersection package is incomplete: " + "; ".join(issues))
+    if algorithm == "polyhedron_volume":
+        package_workload = ROOT / "benchmarks/p/polyhedron_volume/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("polyhedron_volume workload differs from its package file")
+        issues = polyhedron_volume_static_issues()
+        if issues:
+            raise ValueError("polyhedron_volume package is incomplete: " + "; ".join(issues))
+    if algorithm == "orthogonal_drawing_minimum_bends":
+        package_workload = ROOT / "benchmarks/o/orthogonal_drawing_minimum_bends/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("orthogonal_drawing_minimum_bends workload differs from its package file")
+        issues = orthogonal_drawing_minimum_bends_static_issues(workload)
+        if issues:
+            raise ValueError("orthogonal-drawing package is incomplete: " + "; ".join(issues))
+    if algorithm == "havel_hakimi_graph_realization":
+        package_workload = ROOT / "benchmarks/h/havel_hakimi_graph_realization/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("havel_hakimi_graph_realization workload differs from its package file")
+        issues = havel_hakimi_graph_realization_static_issues()
+        if issues:
+            raise ValueError("Havel–Hakimi package is incomplete: " + "; ".join(issues))
+    if algorithm == "sqrt_tree_constant_time":
+        package_workload = ROOT / "benchmarks/s/sqrt_tree_constant_time/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("sqrt_tree_constant_time workload differs from its package file")
+        if workload.get("workspace", {}).get("bytes") != SQRT_TREE_CONSTANT_TIME_VERIFIER_WORKSPACE_BYTES:
+            raise ValueError("sqrt_tree_constant_time workspace differs from its bounded profile")
+        issues = sqrt_tree_constant_time_static_issues()
+        if issues:
+            raise ValueError("Sqrt Tree package is incomplete: " + "; ".join(issues))
+    if algorithm == "suffix_array_inplace_readonly_integer":
+        verify_suffix_array_inplace_readonly_integer_package()
+    if algorithm == "suffix_array_blind_trie":
+        verify_suffix_array_blind_trie_package()
+    if algorithm == "seven_sided_dice_from_five_sided_dice":
+        issues = seven_sided_dice_static_issues(workload)
+        if issues:
+            raise ValueError("seven-sided dice package is incomplete: " + "; ".join(issues))
+    if algorithm == "pmr_edge_quadtree":
+        issues = verify_pmr_edge_quadtree_package()
+        if issues:
+            raise ValueError("PMR edge-quadtree package is incomplete: " + "; ".join(issues))
+    if algorithm == "elkin_peleg_sparse_spanner":
+        issues = elkin_peleg_sparse_spanner_static_issues(workload)
+        if issues:
+            raise ValueError("Elkin–Peleg sparse-spanner package is incomplete: " + "; ".join(issues))
+    if algorithm == "fakcharoenphol_rao_planar_sssp":
+        issues = fakcharoenphol_rao_planar_sssp_static_issues()
+        if issues:
+            raise ValueError("Fakcharoenphol–Rao planar SSSP package is incomplete: " + "; ".join(issues))
+    if algorithm == "nonogram_line_domain_solver":
+        missing = nonogram_line_domain_solver_missing_artifacts()
+        if missing:
+            raise ValueError("nonogram_line_domain_solver package is incomplete: " + "; ".join(missing))
+    if algorithm == "partially_retroactive_priority_queue":
+        issues = verify_partially_retroactive_priority_queue_package(workload)
+        if issues:
+            raise ValueError("partially_retroactive_priority_queue package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "negafibonacci_representation":
+        missing = negafibonacci_representation_missing_artifacts()
+        if missing:
+            raise ValueError("negafibonacci_representation package is incomplete: "
+                             + "; ".join(missing))
+    if algorithm == "constant_intervals":
+        missing = constant_intervals_missing_artifacts()
+        if missing:
+            raise ValueError("constant_intervals package is incomplete: "
+                             + "; ".join(missing))
+    if algorithm == "statistical_region_merging_table":
+        issues = statistical_region_merging_table_static_issues(workload)
+        if issues:
+            raise ValueError("statistical_region_merging_table package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "rabin_content_defined_chunking":
+        issues = rabin_content_defined_chunking_static_issues(workload)
+        if issues:
+            raise ValueError("rabin_content_defined_chunking package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "gray_code_k_combinations":
+        issues = gray_code_k_combinations_static_issues()
+        if issues:
+            raise ValueError("gray_code_k_combinations package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "glushkov_bit_parallel_regex_search":
+        issues = glushkov_bit_parallel_regex_search_static_issues()
+        if issues:
+            raise ValueError("Glushkov regex-search package is incomplete: " + "; ".join(issues))
+    if algorithm == "hough_line_transform":
+        issues = hough_line_transform_static_issues(workload)
+        if issues:
+            raise ValueError("Hough line-transform package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "kmeans_plus_plus_seeding":
+        issues = kmeans_plus_plus_seeding_static_issues()
+        if issues:
+            raise ValueError("k-means++ package is incomplete: " + "; ".join(issues))
+    if algorithm == "van_der_corput_sequence":
+        issues = van_der_corput_sequence_static_issues()
+        if issues:
+            raise ValueError("Van der Corput package is incomplete: " + "; ".join(issues))
+    if algorithm == "ekg_sequence":
+        issues = ekg_sequence_static_issues()
+        if issues:
+            raise ValueError("EKG sequence package is incomplete: " + "; ".join(issues))
+    if algorithm == "jacobson_matthews_latin_square_chain":
+        issues = jm_latin_square_static_issues()
+        if issues:
+            raise ValueError("Jacobson–Matthews package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "hofstadter_figure_figure_sequences":
+        issues = figure_figure_static_issues()
+        if issues:
+            raise ValueError("Figure–Figure package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "maximum_sum_contiguous_submatrix":
+        issues = maximum_sum_contiguous_submatrix_static_issues()
+        if issues:
+            raise ValueError("maximum_sum_contiguous_submatrix package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "turbo_boyer_moore_search":
+        issues = turbo_boyer_moore_static_issues()
+        if issues:
+            raise ValueError("Turbo Boyer–Moore package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "raita_search":
+        issues = raita_search_static_issues()
+        if issues:
+            raise ValueError("Raita package is incomplete: " + "; ".join(issues))
+    if algorithm == "tuned_boyer_moore_search":
+        issues = tuned_boyer_moore_static_issues()
+        if issues:
+            raise ValueError("Tuned Boyer–Moore package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "smith_string_search":
+        issues = smith_string_search_static_issues()
+        if issues:
+            raise ValueError("Smith string-search package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "mdp_policy_iteration":
+        issues = mdp_policy_iteration_static_issues()
+        if issues:
+            raise ValueError("MDP policy-iteration package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "influence_maximization_greedy_live_edge":
+        package_workload = ROOT / "benchmarks/i/influence_maximization_greedy_live_edge/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("influence-maximization workload differs from its package file")
+        issues = influence_maximization_greedy_live_edge_static_issues()
+        if issues:
+            raise ValueError("influence-maximization package is incomplete: " + "; ".join(issues))
+    if algorithm == "influence_maximization_greedy_linear_threshold":
+        package_workload = ROOT / "benchmarks/i/influence_maximization_greedy_linear_threshold/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("linear-threshold influence workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_length")
+                != INFLUENCE_MAXIMIZATION_GREEDY_LINEAR_THRESHOLD_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != INFLUENCE_MAXIMIZATION_GREEDY_LINEAR_THRESHOLD_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != INFLUENCE_MAXIMIZATION_GREEDY_LINEAR_THRESHOLD_WORKSPACE_BYTES):
+            raise ValueError("linear-threshold influence bounds or workspace differ from its profile")
+        issues = influence_maximization_greedy_linear_threshold_static_issues()
+        if issues:
+            raise ValueError("linear-threshold influence package is incomplete: " + "; ".join(issues))
+    if algorithm == "t_threshold_three_sorted_lists":
+        package_workload = ROOT / "benchmarks/t/t_threshold_three_sorted_lists/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("t-threshold workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_length")
+                != T_THRESHOLD_THREE_SORTED_LISTS_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != T_THRESHOLD_THREE_SORTED_LISTS_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != T_THRESHOLD_THREE_SORTED_LISTS_WORKSPACE_BYTES):
+            raise ValueError("t-threshold bounds or workspace differ from its profile")
+        issues = t_threshold_three_sorted_lists_static_issues()
+        if issues:
+            raise ValueError("t-threshold package is incomplete: " + "; ".join(issues))
+    if algorithm == "maximum_matching_word_segmentation":
+        package_workload = ROOT / "benchmarks/m/maximum_matching_word_segmentation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("maximum-matching workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_input_values")
+                != MAXIMUM_MATCHING_WORD_SEGMENTATION_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != MAXIMUM_MATCHING_WORD_SEGMENTATION_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != MAXIMUM_MATCHING_WORD_SEGMENTATION_WORKSPACE_BYTES):
+            raise ValueError("maximum-matching bounds or workspace differ from its profile")
+        issues = maximum_matching_word_segmentation_static_issues()
+        if issues:
+            raise ValueError("maximum-matching package is incomplete: " + "; ".join(issues))
+    if algorithm == "random_3sat_hajiaghayi_sorkin_algorithm_a":
+        package_workload = ROOT / "benchmarks/r/random_3sat_hajiaghayi_sorkin_algorithm_a/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Hajiaghayi–Sorkin workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_WORKSPACE_BYTES):
+            raise ValueError("Hajiaghayi–Sorkin bounds or workspace differ from its profile")
+        issues = random_3sat_hajiaghayi_sorkin_algorithm_a_static_issues()
+        if issues:
+            raise ValueError("Hajiaghayi–Sorkin package is incomplete: " + "; ".join(issues))
+    if algorithm == "schuler_randomized_general_cnf_sat":
+        package_workload = ROOT / "benchmarks/s/schuler_randomized_general_cnf_sat/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Schuler randomized-SAT workload differs from its package file")
+        if (workload.get("workspace", {}).get("bytes") != 8192
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    SCHULER_RANDOMIZED_GENERAL_CNF_SAT_MAX_INPUT_LENGTH + 1,
+                    SCHULER_RANDOMIZED_GENERAL_CNF_SAT_MAX_OUTPUT_BYTES)):
+            raise ValueError("Schuler randomized-SAT bounds or workspace differ from its profile")
+        issues = schuler_randomized_general_cnf_sat_inventory_errors()
+        if issues:
+            raise ValueError("Schuler randomized-SAT package is incomplete: " + "; ".join(issues))
+    if algorithm == "npb_cg_sparse_outer_product_assembly":
+        package_workload = ROOT / "benchmarks/n/npb_cg_sparse_outer_product_assembly/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("NPB CG matrix-assembly workload differs from its package file")
+        if (workload.get("output", {}).get("kind") != "float64_vector"
+                or workload.get("output", {}).get("comparison_mode") != "float64_csc"
+                or workload.get("output", {}).get("absolute_tolerance") != 1e-12
+                or workload.get("output", {}).get("relative_tolerance") != 1e-12
+                or workload.get("workspace", {}).get("bytes")
+                != NPB_CG_SPARSE_ASSEMBLY_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    NPB_CG_SPARSE_ASSEMBLY_MAX_INPUT_LENGTH,
+                    NPB_CG_SPARSE_ASSEMBLY_MAX_OUTPUT_BYTES)):
+            raise ValueError("NPB CG matrix-assembly bounds or tolerance differ from its profile")
+        issues = verify_npb_cg_sparse_outer_product_assembly_package()
+        if issues:
+            raise ValueError("NPB CG matrix-assembly package is incomplete: " + "; ".join(issues))
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", NPB_CG_SPARSE_ASSEMBLY_WORKSPACE_BYTES)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            abi_options = {
+                "output_capacity": capacity,
+                "output_is_null": output_is_null,
+                "input_is_null": input_is_null,
+                "input_length": input_length,
+            }
+            primary = npb_cg_sparse_outer_product_assembly_primary_oracle(values, **abi_options)
+            independent = npb_cg_sparse_outer_product_assembly_independent_oracle(values, **abi_options)
+            if primary[0] != case["expected_result"] or independent[0] != primary[0]:
+                raise ValueError(f"NPB CG matrix-assembly reference status differs: {case['id']}")
+            expected_vector = case.get("expected_output", [])
+            if primary[0] < 0:
+                if primary[1] or independent[1] or expected_vector:
+                    raise ValueError(f"NPB CG matrix-assembly error fixture writes output: {case['id']}")
+            else:
+                if not npb_cg_sparse_outer_product_assembly_validate_output(
+                        values, primary[1], **abi_options):
+                    raise ValueError(f"NPB CG matrix-assembly references disagree: {case['id']}")
+                actual_words = struct.unpack("<" + "d" * (len(independent[1]) // 8), independent[1])
+                if len(expected_vector) != len(actual_words):
+                    raise ValueError(f"NPB CG matrix-assembly fixture length differs: {case['id']}")
+                structural_words = 2 + values[0] + 1 + int(expected_vector[1])
+                if (actual_words[:structural_words] != tuple(expected_vector[:structural_words])
+                        or any(not math.isfinite(actual) or
+                               abs(actual - expected) > 1e-12 + 1e-12 * abs(expected)
+                               for actual, expected in zip(
+                                   actual_words[structural_words:],
+                                   expected_vector[structural_words:]))):
+                    raise ValueError(f"NPB CG matrix-assembly golden output differs: {case['id']}")
+    if algorithm == "planar_embedding_lr":
+        package_workload = ROOT / "benchmarks/p/planar_embedding_lr/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("left-right planarity workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_length")
+                != PLANAR_EMBEDDING_LR_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != PLANAR_EMBEDDING_LR_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != PLANAR_EMBEDDING_LR_MAX_OUTPUT_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    PLANAR_EMBEDDING_LR_MAX_PARSEABLE_INPUT_LENGTH,
+                    PLANAR_EMBEDDING_LR_MAX_OUTPUT_BYTES)):
+            raise ValueError("left-right planarity bounds or workspace differ from its profile")
+        issues = planar_embedding_lr_inventory_errors()
+        if issues:
+            raise ValueError("left-right planarity package is incomplete: " + "; ".join(issues))
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            result, output = planar_embedding_lr_verifier_oracle(values)
+            edge_count = values[1]
+            expected_result = 1 if case["expected_status"] == 0 else 1 + 2 * edge_count
+            if (result != case.get("expected_result", expected_result)
+                    or not output or output[0] != case["expected_status"]):
+                raise ValueError(f"left-right planarity fixture differs: {case['id']}")
+        for case in workload.get("invalid_cases", []):
+            result, output = planar_embedding_lr_verifier_oracle(tuple(case["input_values"]))
+            if result != -1 or output:
+                raise ValueError(f"left-right planarity accepted invalid fixture: {case['id']}")
+    if algorithm == "wigderson_3_colorable_graph_coloring":
+        package_workload = ROOT / "benchmarks/w/wigderson_3_colorable_graph_coloring/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Wigderson coloring workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_parseable_length")
+                != WIGDERSON_COLORING_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != WIGDERSON_COLORING_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != WIGDERSON_COLORING_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    WIGDERSON_COLORING_MAX_INPUT_LENGTH,
+                    WIGDERSON_COLORING_MAX_OUTPUT_BYTES)):
+            raise ValueError("Wigderson coloring bounds or workspace differ from its profile")
+        issues = wigderson_3_colorable_graph_coloring_inventory_errors()
+        if issues:
+            raise ValueError("Wigderson coloring package is incomplete: " + "; ".join(issues))
+        for case in workload.get("cases", []):
+            values = tuple(case["input_values"])
+            options = {"capacity": case.get("output_capacity"),
+                       "input_length": case.get("input_length")}
+            primary = wigderson_3_colorable_graph_coloring_primary_oracle(values, **options)
+            independent = wigderson_3_colorable_graph_coloring_independent_oracle(values, **options)
+            expected = bytes.fromhex(case["expected_output_hex"])
+            if (primary != independent or primary != (case["expected_result"], expected)
+                    or not wigderson_3_colorable_graph_coloring_validate(values, primary[1])):
+                raise ValueError(f"Wigderson coloring reference/golden fixture differs: {case['id']}")
+        for case in workload.get("invalid_cases", []):
+            options = {"capacity": case.get("output_capacity"),
+                       "input_is_null": case.get("input_is_null", False),
+                       "input_length": case.get("input_length")}
+            values = tuple(case.get("input_values", []))
+            primary = wigderson_3_colorable_graph_coloring_primary_oracle(values, **options)
+            independent = wigderson_3_colorable_graph_coloring_independent_oracle(values, **options)
+            if primary != independent or primary != (case.get("expected_result", -1), b""):
+                raise ValueError(f"Wigderson coloring invalid fixture differs: {case['id']}")
+        for case in workload.get("capacity_cases", []):
+            options = {"capacity": case.get("output_capacity"),
+                       "output_is_null": case.get("output_is_null", False),
+                       "input_length": case.get("input_length")}
+            values = tuple(case["input_values"])
+            primary = wigderson_3_colorable_graph_coloring_primary_oracle(values, **options)
+            independent = wigderson_3_colorable_graph_coloring_independent_oracle(values, **options)
+            if primary != independent or primary != (case["expected_result"], b""):
+                raise ValueError(f"Wigderson coloring capacity fixture differs: {case['id']}")
+    if algorithm == "metropolis_hastings_asymmetric_proposal":
+        package_workload = ROOT / "benchmarks/m/metropolis_hastings_asymmetric_proposal/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("asymmetric Metropolis-Hastings workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != METROPOLIS_HASTINGS_ASYMMETRIC_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != METROPOLIS_HASTINGS_ASYMMETRIC_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != METROPOLIS_HASTINGS_ASYMMETRIC_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != METROPOLIS_HASTINGS_ASYMMETRIC_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    METROPOLIS_HASTINGS_ASYMMETRIC_MAX_PARSEABLE_INPUT_LENGTH,
+                    METROPOLIS_HASTINGS_ASYMMETRIC_MAX_OUTPUT_BYTES)):
+            raise ValueError("asymmetric Metropolis-Hastings bounds or workspace differ from its profile")
+        issues = metropolis_hastings_asymmetric_inventory_errors()
+        if issues:
+            raise ValueError("asymmetric Metropolis-Hastings package is incomplete: " + "; ".join(issues))
+        for case in workload.get("cases", []):
+            result, output = metropolis_hastings_asymmetric_proposal_verifier_oracle(
+                tuple(case["input_values"]), case.get("output_capacity"),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (result != case.get("expected_result")
+                    or output.hex() != case.get("expected_output_hex")):
+                raise ValueError(f"asymmetric Metropolis-Hastings fixture differs: {case['id']}")
+    if algorithm == "network_erosion_strength_of_connection":
+        package_workload = ROOT / "benchmarks/n/network_erosion_strength_of_connection/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("network-erosion workload differs from its package file")
+        issues = verify_network_erosion_strength_of_connection_package()
+        if issues:
+            raise ValueError("network-erosion package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "scc_condensation_dag":
+        package_workload = ROOT / "benchmarks/g/scc_condensation_dag/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("SCC-condensation workload differs from its package file")
+        issues = verify_scc_condensation_dag_package(workload)
+        if issues:
+            raise ValueError("SCC-condensation package is incomplete: " + "; ".join(issues))
+        return
+    if algorithm == "cograph_cotree_decomposition":
+        issues = verify_cograph_cotree_decomposition_package(workload)
+        if issues:
+            raise ValueError("cograph_cotree_decomposition package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "dynamic_tree_maximum_weight_independent_set":
+        issues = verify_dynamic_tree_maximum_weight_independent_set_package()
+        if issues:
+            raise ValueError("dynamic_tree_maximum_weight_independent_set package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "continued_fraction_convergents":
+        issues = continued_fraction_convergents_static_issues()
+        if issues:
+            raise ValueError("continued_fraction_convergents package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "hsadelta_differential_compression":
+        issues = hsadelta_differential_compression_static_issues()
+        if issues:
+            raise ValueError("hsadelta_differential_compression package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "fgk_adaptive_huffman":
+        issues = fgk_adaptive_huffman_static_issues()
+        if issues:
+            raise ValueError("FGK adaptive-Huffman package is incomplete: " + "; ".join(issues))
+    if algorithm == "vitter_adaptive_huffman":
+        issues = vitter_adaptive_huffman_static_issues()
+        if issues:
+            raise ValueError("Vitter adaptive-Huffman package is incomplete: " + "; ".join(issues))
+    if algorithm == "lucky_number_sieve":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != LUCKY_NUMBER_SIEVE_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != LUCKY_NUMBER_SIEVE_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("input", {}).get("inclusive_bound_range")
+                != [0, LUCKY_NUMBER_SIEVE_MAX_BOUND]
+                or workload.get("input", {}).get("invalid_input_result")
+                != LUCKY_NUMBER_SIEVE_INVALID_RESULT
+                or workload.get("output", {}).get("maximum_bytes")
+                != LUCKY_NUMBER_SIEVE_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != LUCKY_NUMBER_SIEVE_MAX_OUTPUT_BYTES):
+            raise ValueError("Lucky-number sieve bounds differ from its bounded-prefix profile")
+        issues = lucky_number_sieve_static_issues()
+        if issues:
+            raise ValueError("Lucky-number sieve package is incomplete: " + "; ".join(issues))
+    if algorithm == "inverted_list_bitvector_intersection":
+        if (workload.get("input", {}).get("maximum_valid_length")
+                != INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("input", {}).get("domain_size_range")
+                != [1, INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_DOMAIN]
+                or workload.get("input", {}).get("list_count_range")
+                != [1, INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_LISTS]
+                or workload.get("input", {}).get("invalid_input_result")
+                != INVERTED_LIST_BITVECTOR_INTERSECTION_INVALID_RESULT
+                or workload.get("output", {}).get("maximum_bytes")
+                != INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != INVERTED_LIST_BITVECTOR_INTERSECTION_MAX_WORKSPACE_BYTES):
+            raise ValueError("Inverted-list bitvector bounds differ from its bounded intersection profile")
+        issues = inverted_list_bitvector_intersection_static_issues()
+        if issues:
+            raise ValueError("Inverted-list bitvector package is incomplete: " + "; ".join(issues))
     if algorithm == "qrduino":
         for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
                                     ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
@@ -16013,6 +22012,9 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     if algorithm == "static_rectangle_add_rectangle_sum":
         # The declared workspace is scratch storage; ABI capacity is output-only.
         workspace_bytes = STATIC_RECTANGLE_ADD_RECTANGLE_SUM_VERIFIER_MAX_OUTPUT_BYTES
+    if algorithm == "multiply_shift_universal_hash_trace":
+        # The 128-byte scratch bound excludes the 256-byte caller output buffer.
+        workspace_bytes = MULTIPLY_SHIFT_MAX_OUTPUT_BYTES
     if workspace_bytes is None and algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
         workspace_bytes = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][1]
     if algorithm in ("mibench_security_blowfish", "cbench_blowfish_cbc"):
@@ -17573,21 +23575,239 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        "polynomial_composite_set_power_series", "suffix_balanced_tree",
                        "segment_history_extreme", "kinetic_tournament_tree",
                        "euler_tour_tree", "dynamic_top_tree_component_diameter",
+                       "dynamic_tree_maximum_weight_independent_set",
                        "dynamic_tree_subtree_add_subtree_sum",
-                       "sort_points_by_argument", "count_points_in_triangle"}:
+                       "sort_points_by_argument", "count_points_in_triangle",
+                       "continued_fraction_convergents", "zhang_suen_thinning",
+                       "double_metaphone", "two_dimensional_optimal_expected_matching",
+                       "domain_coloring", "cupif_giannini_tree_traversal",
+                       "stormer_verlet_position",
+                       "all_distances_sketch_k_mins",
+                       "all_distances_bottom_k_interval_updates",
+                       "digital_filter_direct_form_ii_transposed",
+                       "asteroid_collision_stack",
+                       "k_mismatch_longest_extension_table",
+                       "round_robin_tournament_schedule",
+                       "muthukrishnan_document_listing",
+                       "discrete_interval_encoding_tree",
+                       "zobrist_position_hash_trace",
+                       "two_dimensional_k_mismatch_linear_templates"}:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if algorithm == "all_distances_sketch_k_mins" and (
+                max_input != ALL_DISTANCES_K_MINS_MAX_INPUT_WORDS + 1
+                or max_output != 584 or workspace_bytes != 1024):
+            raise ValueError("all-distances k-mins bounds or workspace differ from its profile")
+        if algorithm == "all_distances_bottom_k_interval_updates":
+            package_workload = ROOT / "benchmarks/a/all_distances_bottom_k_interval_updates/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or max_input != ALL_DISTANCES_INTERVAL_UPDATES_MAX_INPUT_LENGTH
+                    or max_output != ALL_DISTANCES_INTERVAL_UPDATES_MAX_OUTPUT_BYTES
+                    or workspace_bytes != ALL_DISTANCES_INTERVAL_UPDATES_WORKSPACE_BYTES):
+                raise ValueError("all-distances interval-update bounds or package workload differ")
+            issues = all_distances_bottom_k_interval_updates_static_issues()
+            if issues:
+                raise ValueError("all-distances interval-update package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "asteroid_collision_stack":
+            package_workload = ROOT / "benchmarks/a/asteroid_collision_stack/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or workload.get("input", {}).get("maximum_valid_length")
+                    != ASTEROID_COLLISION_MAX_N + 1
+                    or workload.get("input", {}).get("maximum_parseable_length")
+                    != ASTEROID_COLLISION_MAX_INPUT_LENGTH
+                    or workload.get("output", {}).get("maximum_bytes")
+                    != ASTEROID_COLLISION_MAX_OUTPUT_BYTES
+                    or max_input != ASTEROID_COLLISION_MAX_INPUT_LENGTH
+                    or max_output != ASTEROID_COLLISION_MAX_OUTPUT_BYTES
+                    or workspace_bytes != ASTEROID_COLLISION_WORKSPACE_BYTES):
+                raise ValueError("asteroid-collision bounds or package workload differ")
+            issues = asteroid_collision_stack_static_issues()
+            if issues:
+                raise ValueError("asteroid-collision package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "k_mismatch_longest_extension_table":
+            package_workload = ROOT / "benchmarks/k/k_mismatch_longest_extension_table/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or workload.get("input", {}).get("maximum_valid_length")
+                    != K_MISMATCH_LP_MAX_VALID_INPUT_LENGTH
+                    or workload.get("input", {}).get("maximum_parseable_length")
+                    != K_MISMATCH_LP_MAX_INPUT_LENGTH
+                    or workload.get("output", {}).get("maximum_output_bytes")
+                    != K_MISMATCH_LP_MAX_OUTPUT_BYTES
+                    or max_input != K_MISMATCH_LP_MAX_INPUT_LENGTH
+                    or max_output != K_MISMATCH_LP_MAX_OUTPUT_BYTES
+                    or workspace_bytes != K_MISMATCH_LP_WORKSPACE_BYTES):
+                raise ValueError("k-mismatch longest-extension bounds or package workload differ")
+            issues = k_mismatch_longest_extension_table_static_issues()
+            if issues:
+                raise ValueError("k-mismatch longest-extension package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "k_repetition_binary_division_kernel":
+            package_workload = ROOT / "benchmarks/k/k_repetition_binary_division_kernel/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or workload.get("input", {}).get("maximum_valid_length")
+                    != K_REPETITION_BINARY_MAX_VALID_INPUT_LENGTH
+                    or workload.get("input", {}).get("maximum_parseable_length")
+                    != K_REPETITION_BINARY_MAX_INPUT_LENGTH
+                    or workload.get("output", {}).get("maximum_output_bytes")
+                    != K_REPETITION_BINARY_MAX_OUTPUT_BYTES
+                    or max_input != K_REPETITION_BINARY_MAX_INPUT_LENGTH
+                    or max_output != K_REPETITION_BINARY_MAX_OUTPUT_BYTES
+                    or workspace_bytes != K_REPETITION_BINARY_WORKSPACE_BYTES):
+                raise ValueError("K-mismatch binary-division bounds or package workload differ")
+            issues = k_repetition_binary_division_kernel_static_issues()
+            if issues:
+                raise ValueError("K-mismatch binary-division package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "k_repetition_block_head_pair_pass":
+            package_workload = ROOT / "benchmarks/k/k_repetition_block_head_pair_pass/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or workload.get("input", {}).get("maximum_valid_length")
+                    != K_REPETITION_BLOCK_HEAD_MAX_VALID_INPUT_LENGTH
+                    or workload.get("input", {}).get("maximum_parseable_length")
+                    != K_REPETITION_BLOCK_HEAD_MAX_INPUT_LENGTH
+                    or workload.get("output", {}).get("maximum_output_bytes")
+                    != K_REPETITION_BLOCK_HEAD_MAX_OUTPUT_BYTES
+                    or max_input != K_REPETITION_BLOCK_HEAD_MAX_INPUT_LENGTH
+                    or max_output != K_REPETITION_BLOCK_HEAD_MAX_OUTPUT_BYTES
+                    or workspace_bytes != K_REPETITION_BLOCK_HEAD_WORKSPACE_BYTES):
+                raise ValueError("K-repetition block-head bounds or package workload differ")
+            issues = k_repetition_block_head_pair_pass_static_issues()
+            if issues:
+                raise ValueError("K-repetition block-head package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "sierpinski_curve_trace":
+            package_workload = ROOT / "benchmarks/s/sierpinski_curve_trace/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or workload.get("input", {}).get("maximum_valid_length")
+                    != SIERPINSKI_CURVE_MAX_VALID_INPUT_LENGTH
+                    or workload.get("input", {}).get("maximum_parseable_length")
+                    != SIERPINSKI_CURVE_MAX_INPUT_LENGTH
+                    or workload.get("output", {}).get("maximum_bytes")
+                    != SIERPINSKI_CURVE_MAX_OUTPUT_BYTES
+                    or max_input != SIERPINSKI_CURVE_MAX_INPUT_LENGTH
+                    or max_output != SIERPINSKI_CURVE_MAX_OUTPUT_BYTES
+                    or workspace_bytes != SIERPINSKI_CURVE_WORKSPACE_BYTES):
+                raise ValueError("Sierpinski curve bounds or package workload differ")
+            issues = sierpinski_curve_trace_static_issues()
+            if issues:
+                raise ValueError("Sierpinski curve package is incomplete: "
+                                 + "; ".join(issues))
+            issues = sierpinski_curve_trace_workload_issues(workload)
+            if issues:
+                raise ValueError("Sierpinski curve references disagree: " + "; ".join(issues))
+    if algorithm == "sturmian_standard_word":
+        package_workload = ROOT / "benchmarks/s/sturmian_standard_word/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Sturmian standard-word workload differs from its package file")
+        if (workload.get("input", {}).get("maximum_valid_input_length")
+                != STURMIAN_STANDARD_WORD_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_input_length")
+                != STURMIAN_STANDARD_WORD_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != STURMIAN_STANDARD_WORD_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != STURMIAN_STANDARD_WORD_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm) != (
+                    STURMIAN_STANDARD_WORD_MAX_INPUT_LENGTH,
+                    STURMIAN_STANDARD_WORD_MAX_OUTPUT_BYTES)):
+            raise ValueError("Sturmian standard-word bounds or workspace differ from its contract")
+        issues = (sturmian_standard_word_static_issues()
+                  + sturmian_standard_word_workload_issues(workload))
+        if issues:
+            raise ValueError("Sturmian standard-word package is incomplete: " + "; ".join(issues))
+        if algorithm == "markov_normal_string_rewriting":
+            package_workload = ROOT / "benchmarks/m/markov_normal_string_rewriting/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or workload.get("input", {}).get("maximum_valid_length")
+                    != MARKOV_NORMAL_MAX_VALID_INPUT_LENGTH
+                    or workload.get("input", {}).get("maximum_parseable_length")
+                    != MARKOV_NORMAL_MAX_INPUT_LENGTH
+                    or workload.get("output", {}).get("maximum_bytes")
+                    != MARKOV_NORMAL_MAX_OUTPUT_BYTES
+                    or max_input != MARKOV_NORMAL_MAX_INPUT_LENGTH
+                    or max_output != MARKOV_NORMAL_MAX_OUTPUT_BYTES
+                    or workspace_bytes != MARKOV_NORMAL_WORKSPACE_BYTES):
+                raise ValueError("Markov rewriting bounds or package workload differ")
+            issues = markov_normal_string_rewriting_static_issues()
+            if issues:
+                raise ValueError("Markov rewriting package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "round_robin_tournament_schedule":
+            package_workload = ROOT / "benchmarks/r/round_robin_tournament_schedule/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or workload.get("input", {}).get("maximum_valid_length")
+                    != ROUND_ROBIN_TOURNAMENT_MAX_VALID_INPUT_LENGTH
+                    or workload.get("input", {}).get("maximum_parseable_length")
+                    != ROUND_ROBIN_TOURNAMENT_MAX_INPUT_LENGTH
+                    or workload.get("output", {}).get("maximum_bytes")
+                    != ROUND_ROBIN_TOURNAMENT_MAX_OUTPUT_BYTES
+                    or max_input != ROUND_ROBIN_TOURNAMENT_MAX_INPUT_LENGTH
+                    or max_output != ROUND_ROBIN_TOURNAMENT_MAX_OUTPUT_BYTES
+                    or workspace_bytes != ROUND_ROBIN_TOURNAMENT_WORKSPACE_BYTES):
+                raise ValueError("round-robin tournament bounds or package workload differ")
+            issues = round_robin_tournament_schedule_static_issues()
+            if issues:
+                raise ValueError("round-robin tournament package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "digital_filter_direct_form_ii_transposed":
+            package_workload = ROOT / "benchmarks/d/digital_filter_direct_form_ii_transposed/workload.json"
+            if (workload != json.loads(package_workload.read_text(encoding="utf-8"))
+                    or max_input != DIGITAL_FILTER_DFII_T_MAX_INPUT_LENGTH
+                    or max_output != DIGITAL_FILTER_DFII_T_MAX_OUTPUT_BYTES
+                    or workspace_bytes != DIGITAL_FILTER_DFII_T_WORKSPACE_BYTES):
+                raise ValueError("transposed direct-form II bounds or package workload differ")
+            issues = digital_filter_dfii_t_static_issues()
+            if issues:
+                raise ValueError("transposed direct-form II package is incomplete: "
+                                 + "; ".join(issues))
+        if algorithm == "zobrist_position_hash_trace" and (
+                max_input != ZOBRIST_POSITION_HASH_MAX_INPUT_LENGTH
+                or max_output != ZOBRIST_POSITION_HASH_MAX_OUTPUT_BYTES
+                or workspace_bytes != ZOBRIST_POSITION_HASH_WORKSPACE_BYTES):
+            raise ValueError("Zobrist bounds or workspace differ from its bounded trace")
+        if algorithm == "double_metaphone" and (
+                max_input != DOUBLE_METAPHONE_MAX_PARSEABLE_INPUT_LENGTH
+                or max_output != DOUBLE_METAPHONE_MAX_OUTPUT_BYTES
+                or workspace_bytes != 80):
+            raise ValueError("double_metaphone bounds or workspace differ from its profile")
+        if algorithm == "two_dimensional_optimal_expected_matching" and (
+                max_input != TWO_DIMENSIONAL_OPTIMAL_EXPECTED_MAX_INPUT_LENGTH
+                or max_output != TWO_DIMENSIONAL_OPTIMAL_EXPECTED_MAX_OUTPUT_BYTES
+                or workspace_bytes != TWO_DIMENSIONAL_OPTIMAL_EXPECTED_WORKSPACE_BYTES):
+            raise ValueError("2D optimal-expected bounds or workspace differ from its profile")
+        if algorithm == "domain_coloring" and (
+                max_input != DOMAIN_COLORING_MAX_INPUT_LENGTH
+                or max_output != DOMAIN_COLORING_MAX_OUTPUT_BYTES
+                or workspace_bytes != DOMAIN_COLORING_WORKSPACE_BYTES):
+            raise ValueError("domain-coloring bounds or workspace differ from its profile")
+        if algorithm == "cupif_giannini_tree_traversal" and (
+                max_input != CUPIF_GIANNINI_MAX_PARSEABLE_INPUT_LENGTH
+                or max_output != CUPIF_GIANNINI_MAX_OUTPUT_BYTES
+                or workspace_bytes != CUPIF_GIANNINI_WORKSPACE_BYTES):
+            raise ValueError("Cupif-Giannini bounds or workspace differ from its profile")
+        if algorithm == "stormer_verlet_position" and (
+                max_input != STORMER_VERLET_POSITION_MAX_INPUT_LENGTH
+                or max_output != STORMER_VERLET_POSITION_MAX_OUTPUT_BYTES
+                or workspace_bytes != STORMER_VERLET_POSITION_WORKSPACE_BYTES):
+            raise ValueError("Störmer-Verlet bounds or workspace differ from its profile")
+        if algorithm == "two_dimensional_k_mismatch_linear_templates" and (
+                max_input != TWO_DIMENSIONAL_K_MISMATCH_MAX_INPUT_LENGTH
+                or max_output != TWO_DIMENSIONAL_K_MISMATCH_MAX_OUTPUT_BYTES
+                or workspace_bytes != TWO_DIMENSIONAL_K_MISMATCH_WORKSPACE_BYTES):
+            raise ValueError("2D k-mismatch bounds or workspace differ from its profile")
     elif algorithm == "online_bridge_finding":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = (ONLINE_BRIDGE_FINDING_MAX_PARSEABLE_INPUT_LENGTH,
                                  ONLINE_BRIDGE_FINDING_MAX_OUTPUT_BYTES)
         expected_case_ids = {
-            "empty_insertion_trace", "first_edge_is_bridge",
+            "empty_insertion_trace", "empty_trace_null_output", "first_edge_is_bridge",
             "triangle_removes_all_three_bridges", "cycle_closes_path",
             "parallel_edge_removes_bridge", "self_loops_do_not_add_bridges",
-            "two_components_join_then_cycle", "cycle_then_tail_cycle",
+            "two_components_join_then_cycle", "larger_left_component_reroot", "cycle_then_tail_cycle",
             "edge_inside_existing_component", "maximum_vertex_bound",
-            "undersized_output", "invalid_empty_input", "invalid_missing_header",
+            "undersized_output", "nonempty_null_output", "invalid_before_null_output", "null_input", "invalid_empty_input", "invalid_missing_header",
             "invalid_extra_edge_word", "invalid_zero_vertices",
             "invalid_edge_count_above_bound", "invalid_endpoint",
             "invalid_negative_endpoint",
@@ -20106,6 +26326,31 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         issues = exponential_histogram_window_static_issues(workload)
         if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (131, 1024) or workspace_bytes != 1024:
             raise ValueError("exponential histogram package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "calkin_wilf_index":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = calkin_wilf_index_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (2, 16) or workspace_bytes != 16:
+            raise ValueError("Calkin–Wilf package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "prufer_decode_linear":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = prufer_decode_linear_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (4096, 65520) or workspace_bytes != 65520:
+            raise ValueError("linear Prüfer package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "minimum_enclosing_circle_incremental_boundary":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = minimum_enclosing_circle_incremental_boundary_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (194, 64) or workspace_bytes != 64:
+            raise ValueError("incremental enclosing-circle package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "suffix_automaton_kth_distinct_substring":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = suffix_automaton_kth_distinct_substring_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (259, 256) or workspace_bytes != 256:
+            raise ValueError("substring selection package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "suffix_automaton_minimum_rotation":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = suffix_automaton_minimum_rotation_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (258, 256) or workspace_bytes != 256:
+            raise ValueError("suffix-automaton rotation package or bounds mismatch: " + "; ".join(issues))
     elif algorithm == "sticky_sampling_summary":
         validate_new_byte_output_workload(workload, algorithm)
         issues = sticky_sampling_summary_static_issues(workload)
@@ -20121,6 +26366,31 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         issues = reservoir_sampling_algorithm_r_static_issues(workload)
         if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (131, 512) or workspace_bytes != 512:
             raise ValueError("reservoir sampler package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "reservoir_sampling_algorithm_x":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = reservoir_sampling_algorithm_x_static_issues(workload)
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (49, 64) or workspace_bytes != 64:
+            raise ValueError("Algorithm X package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "edge_colored_graph_layer_encoding":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = edge_colored_graph_layer_encoding_static_issues(workload)
+        if (issues
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (
+                    EDGE_COLORED_GRAPH_LAYER_ENCODING_MAX_INPUT_LENGTH,
+                    EDGE_COLORED_GRAPH_LAYER_ENCODING_MAX_OUTPUT_BYTES)
+                or workspace_bytes != EDGE_COLORED_GRAPH_LAYER_ENCODING_WORKSPACE_BYTES):
+            raise ValueError("edge-colored graph layer encoding package or bounds mismatch: "
+                             + "; ".join(issues))
+    elif algorithm == "three_dimensional_bird_baker_matching":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = three_dimensional_bird_baker_static_issues(workload)
+        if (issues
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (
+                    THREE_DIMENSIONAL_BIRD_BAKER_MAX_INPUT_LENGTH,
+                    THREE_DIMENSIONAL_BIRD_BAKER_MAX_OUTPUT_BYTES)
+                or workspace_bytes != THREE_DIMENSIONAL_BIRD_BAKER_WORKSPACE_BYTES):
+            raise ValueError("3D Bird–Baker package or bounds mismatch: "
+                             + "; ".join(issues))
     elif algorithm == "rrr_class_offset_rank_select":
         validate_new_byte_output_workload(workload, algorithm)
         issues = rrr_class_offset_rank_select_static_issues(workload)
@@ -20143,13 +26413,24 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     elif algorithm == "divide_conquer_tangent_hull":
         validate_new_byte_output_workload(workload, algorithm)
         issues = divide_conquer_tangent_hull_static_issues(workload)
-        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (66, 512) or workspace_bytes != 512:
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (66, 512) or workspace_bytes != 4096:
             raise ValueError("tangent-merge hull package or bounds mismatch: " + "; ".join(issues))
     elif algorithm == "chan_output_sensitive_hull":
         validate_new_byte_output_workload(workload, algorithm)
         issues = chan_output_sensitive_hull_static_issues(workload)
-        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (66, 512) or workspace_bytes != 512:
+        if issues or EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (66, 512) or workspace_bytes != 16384:
             raise ValueError("Chan package or bounds mismatch: " + "; ".join(issues))
+    elif algorithm == "kirkpatrick_seidel_convex_hull":
+        validate_new_byte_output_workload(workload, algorithm)
+        package_path = ROOT / "benchmarks/k/kirkpatrick_seidel_convex_hull/workload.json"
+        if workload != json.loads(package_path.read_text(encoding="utf-8")):
+            raise ValueError("Kirkpatrick–Seidel workload differs from its package file")
+        issues = kirkpatrick_seidel_convex_hull_static_issues()
+        issues.extend(verify_kirkpatrick_seidel_convex_hull_workload())
+        if issues:
+            raise ValueError("Kirkpatrick–Seidel package is incomplete: " + "; ".join(issues))
+        if EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (66, 512) or workspace_bytes != 16384:
+            raise ValueError("Kirkpatrick–Seidel bounds differ from its contract")
     elif algorithm == "melkman_simple_polyline_hull":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20221,6 +26502,27 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             path = ROOT / language / "q" / f"{algorithm}.{extension}"
             if not path.is_file() or algorithm not in path.read_text(encoding="utf-8"):
                 raise ValueError(f"GF(2) quadratic normal-form draft missing for {language}")
+    elif algorithm == "eulerian_trail_undirected_simple":
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input, max_output, workspace_bytes) != (93, 384, 384):
+            raise ValueError("undirected discovery bounds differ from its contract")
+        for case in workload["cases"]:
+            values = case["input_values"]
+            result, data = undirected_discovery_oracle(
+                values, case.get("output_capacity", workspace_bytes),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length", len(values)))
+            if result != case["expected_result"] or data.hex() != case.get("expected_output_hex", ""):
+                raise ValueError(f"undirected discovery fixture differs: {case['id']}")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("mojo", "mojo"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"), ("v", "v"), ("zig", "zig")):
+            if not (ROOT / language / "e" / f"{algorithm}.{extension}").is_file():
+                raise ValueError(f"undirected discovery port missing: {language}")
+    elif algorithm == "undirected_eulerian_trail_hierholzer":
+        validate_new_byte_output_workload(workload, algorithm)
+        if EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (67, 264) or workspace_bytes != 16384:
+            raise ValueError("undirected Hierholzer bounds differ from its contract")
     elif algorithm == "indexed_block_list":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20311,6 +26613,18 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         max_output = WATER_SPATIAL_VERIFIER_MAX_OUTPUT_BYTES
         if max_input != 260 or max_output != 1552 or workspace_bytes != 1552:
             raise ValueError("water_spatial bounds differ from its linked-cell contract")
+    elif algorithm == "splash2_volrend_raymarch":
+        validate_new_byte_output_workload(workload, algorithm)
+        issues = verify_splash2_volrend_raymarch_package(workload)
+        if issues:
+            raise ValueError("splash2_volrend_raymarch package is incomplete: " + "; ".join(issues))
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SPLASH2_VOLREND_VERIFIER_MAX_INPUT_LENGTH
+                or max_input != 1124
+                or max_output != SPLASH2_VOLREND_VERIFIER_MAX_OUTPUT_BYTES
+                or max_output != 80
+                or workspace_bytes != 80):
+            raise ValueError("splash2_volrend_raymarch bounds differ from its volume-ray profile")
     elif algorithm == "npb_cg_sparse_inverse_power":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20456,6 +26770,130 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or input_spec.get("maximum_parseable_length") != max_input
                 or output_spec.get("maximum_output_bytes") != max_output):
             raise ValueError("crochemore_perrin_two_way bounds differ from its bounded Two-Way profile")
+    elif algorithm == "ekg_sequence":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != EKG_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 2
+                or max_output != EKG_SEQUENCE_MAX_OUTPUT_BYTES
+                or max_output != 64
+                or workspace_bytes != EKG_SEQUENCE_WORKSPACE_BYTES
+                or workspace_bytes != 40_385
+                or input_spec.get("count_range") != [1, 8]
+                or input_spec.get("maximum_valid_length") != 1
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("EKG sequence bounds differ from its bounded-prefix profile")
+    elif algorithm == "jacobson_matthews_latin_square_chain":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != JM_LATIN_SQUARE_MAX_INPUT_LENGTH
+                or max_input != 14
+                or max_output != JM_LATIN_SQUARE_MAX_OUTPUT_BYTES
+                or max_output != 528
+                or workspace_bytes != JM_LATIN_SQUARE_WORKSPACE_BYTES
+                or input_spec.get("order_range") != [2, 4]
+                or input_spec.get("step_count_range") != [0, 12]
+                or input_spec.get("maximum_valid_length") != max_input
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("Jacobson–Matthews bounds differ from its bounded-chain profile")
+    elif algorithm == "hofstadter_figure_figure_sequences":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != FIGURE_FIGURE_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 2
+                or max_output != FIGURE_FIGURE_MAX_OUTPUT_BYTES
+                or max_output != 1032
+                or workspace_bytes != FIGURE_FIGURE_WORKSPACE_BYTES
+                or workspace_bytes != 4096
+                or input_spec.get("term_count_range") != [1, 64]
+                or input_spec.get("maximum_valid_length") != 1
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("Figure–Figure bounds differ from its bounded paired-prefix profile")
+    elif algorithm == "maximum_sum_contiguous_submatrix":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != MAX_SUM_SUBMATRIX_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 67
+                or max_output != MAX_SUM_SUBMATRIX_MAX_OUTPUT_BYTES
+                or max_output != 8
+                or workspace_bytes != MAX_SUM_SUBMATRIX_WORKSPACE_BYTES
+                or workspace_bytes != 1024
+                or input_spec.get("rows_range") != [1, 8]
+                or input_spec.get("columns_range") != [1, 8]
+                or input_spec.get("cell_value_range") != [-1000, 1000]
+                or input_spec.get("maximum_valid_length") != 66
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("maximum-sum submatrix bounds differ from the bounded row-band profile")
+    elif algorithm == "turbo_boyer_moore_search":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != TURBO_BM_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 322
+                or max_output != TURBO_BM_MAX_OUTPUT_BYTES
+                or max_output != 2040
+                or workspace_bytes != TURBO_BM_WORKSPACE_BYTES
+                or workspace_bytes != 5100
+                or input_spec.get("text_length_range") != [0, 255]
+                or input_spec.get("pattern_length_range") != [1, 64]
+                or input_spec.get("element_range") != [0, 127]
+                or input_spec.get("maximum_valid_length") != 321
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("Turbo Boyer–Moore bounds differ from its bounded all-match profile")
+    elif algorithm == "raita_search":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != RAITA_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 322
+                or max_output != RAITA_MAX_OUTPUT_BYTES
+                or max_output != 2040
+                or workspace_bytes != RAITA_WORKSPACE_BYTES
+                or workspace_bytes != 4096
+                or input_spec.get("text_length_range") != [0, 255]
+                or input_spec.get("pattern_length_range") != [1, 64]
+                or input_spec.get("element_range") != [0, 127]
+                or input_spec.get("maximum_valid_length") != RAITA_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("Raita bounds differ from its bounded all-match profile")
+    elif algorithm == "tuned_boyer_moore_search":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != TUNED_BM_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 322
+                or max_output != TUNED_BM_MAX_OUTPUT_BYTES
+                or max_output != 2040
+                or workspace_bytes != TUNED_BM_WORKSPACE_BYTES
+                or workspace_bytes != 4096
+                or input_spec.get("text_length_range") != [0, 255]
+                or input_spec.get("pattern_length_range") != [1, 64]
+                or input_spec.get("element_range") != [0, 127]
+                or input_spec.get("maximum_valid_length")
+                    != TUNED_BM_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("Tuned Boyer–Moore bounds differ from its bounded all-match profile")
+    elif algorithm == "smith_string_search":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SMITH_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 322
+                or max_output != SMITH_MAX_OUTPUT_BYTES
+                or max_output != 2040
+                or workspace_bytes != SMITH_WORKSPACE_BYTES
+                or workspace_bytes != 4096
+                or input_spec.get("text_length_range") != [0, 255]
+                or input_spec.get("pattern_length_range") != [1, 64]
+                or input_spec.get("element_range") != [0, 127]
+                or input_spec.get("maximum_valid_length")
+                    != SMITH_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("Smith bounds differ from its bounded all-match profile")
     elif algorithm == "virtual_tree":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20471,6 +26909,414 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or output_spec.get("maximum_virtual_vertices") != 32
                 or output_spec.get("maximum_output_bytes") != max_output):
             raise ValueError("virtual_tree bounds differ from its bounded compressed-tree profile")
+    elif algorithm == "tree_subtree_distinct_sack":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != TREE_SUBTREE_DISTINCT_SACK_MAX_INPUT_LENGTH
+                or max_output != TREE_SUBTREE_DISTINCT_SACK_MAX_OUTPUT_BYTES
+                or workspace_bytes != 16384
+                or max_input != 130 or max_output != 512
+                or TREE_SUBTREE_DISTINCT_SACK_MAX_N != 64
+                or input_spec.get("maximum_valid_length") != 128
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("vertex_count_range") != [1, 64]
+                or input_spec.get("color_range") != [0, 255]
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("tree_subtree_distinct_sack bounds differ from its rooted-subtree profile")
+    elif algorithm == "tree_path_distinct_mo":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != TREE_PATH_DISTINCT_MO_MAX_INPUT_LENGTH
+                or max_output != TREE_PATH_DISTINCT_MO_MAX_OUTPUT_BYTES
+                or workspace_bytes != TREE_PATH_DISTINCT_MO_MAX_WORKSPACE_BYTES
+                or max_input != 161 or max_output != 256
+                or TREE_PATH_DISTINCT_MO_MAX_N != 32
+                or TREE_PATH_DISTINCT_MO_MAX_Q != 32
+                or TREE_PATH_DISTINCT_MO_MAX_VALID_INPUT_LENGTH != 160
+                or input_spec.get("n_range") != [1, 32]
+                or input_spec.get("q_range") != [0, 32]
+                or input_spec.get("maximum_valid_length") != 160
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("tree_path_distinct_mo bounds differ from its offline path-query profile")
+    elif algorithm == "small_to_large_subtree_color_mode_sum":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SMALL_TO_LARGE_SUBTREE_MODE_MAX_INPUT_LENGTH
+                or max_output != SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES
+                or workspace_bytes != 73728
+                or max_input != 129 or max_output != 512
+                or SMALL_TO_LARGE_SUBTREE_MODE_MAX_VERTICES != 64
+                or SMALL_TO_LARGE_SUBTREE_MODE_MAX_VALID_INPUT_LENGTH != 128
+                or input_spec.get("vertex_count_range") != [1, 64]
+                or input_spec.get("maximum_valid_length") != 128
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("color_range") != [-1000, 1000]
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("small_to_large_subtree_color_mode_sum bounds differ from its map-merge profile")
+    elif algorithm == "tree_random_walk_edge_hitting_cost":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != TREE_RANDOM_WALK_HITTING_MAX_INPUT_LENGTH
+                or max_output != TREE_RANDOM_WALK_HITTING_MAX_OUTPUT_BYTES
+                or workspace_bytes != TREE_RANDOM_WALK_HITTING_MAX_WORKSPACE_BYTES
+                or max_input != 48 or max_output != 240
+                or TREE_RANDOM_WALK_HITTING_MAX_N != 16
+                or TREE_RANDOM_WALK_HITTING_MAX_VALID_INPUT_LENGTH != 47
+                or input_spec.get("maximum_valid_length") != 47
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("tree_random_walk_edge_hitting_cost bounds differ from its directed-edge profile")
+    elif algorithm == "triangle_union_area_vertical_decomposition":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != TRIANGLE_UNION_AREA_MAX_PARSEABLE_INPUT_LENGTH
+                or max_output != TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES
+                or workspace_bytes != TRIANGLE_UNION_AREA_MAX_WORKSPACE_BYTES
+                or max_input != 20 or max_output != 16
+                or TRIANGLE_UNION_AREA_MAX_INPUT_LENGTH != 19
+                or input_spec.get("triangle_count_range") != [1, 3]
+                or input_spec.get("coordinate_range") != [-1, 1]
+                or input_spec.get("maximum_valid_length") != 19
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("triangle union area bounds differ from its exact vertical-decomposition profile")
+    elif algorithm == "external_point_tangents_convex_polygon":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != EXTERNAL_POINT_TANGENTS_MAX_PARSEABLE_INPUT_LENGTH
+                or max_output != EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES
+                or workspace_bytes != EXTERNAL_POINT_TANGENTS_WORKSPACE_BYTES
+                or max_input != 99 or max_output != 256
+                or EXTERNAL_POINT_TANGENTS_MAX_INPUT_LENGTH != 98
+                or EXTERNAL_POINT_TANGENTS_MAX_VERTICES != 32
+                or EXTERNAL_POINT_TANGENTS_MAX_QUERIES != 16
+                or EXTERNAL_POINT_TANGENTS_MAX_COORDINATE != 1000
+                or input_spec.get("vertex_count_range") != [3, 32]
+                or input_spec.get("query_count_range") != [0, 16]
+                or input_spec.get("coordinate_range") != [-1000, 1000]
+                or input_spec.get("maximum_valid_length") != 98
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("external point tangents bounds differ from its convex-polygon profile")
+    elif algorithm == "pq_tree_consecutive_ones":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != PQ_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                or max_output != PQ_TREE_MAX_OUTPUT_BYTES
+                or workspace_bytes != PQ_TREE_WORKSPACE_BYTES
+                or max_input != 35 or max_output != 648
+                or PQ_TREE_MAX_VALID_INPUT_LENGTH != 34
+                or PQ_TREE_MAX_N != 20 or PQ_TREE_MAX_M != 32
+                or input_spec.get("column_count_range") != [2, 20]
+                or input_spec.get("row_count_range") != [0, 32]
+                or input_spec.get("maximum_valid_length") != 34
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("maximum_node_count") != 39):
+            raise ValueError("PQ-tree bounds differ from its consecutive-ones reduction profile")
+    elif algorithm == "measured_finger_tree_sequence":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        contract = workload.get("contract", {})
+        if (max_input != MEASURED_FINGER_TREE_MAX_PARSEABLE_INPUT
+                or max_output != MEASURED_FINGER_TREE_MAX_OUTPUT_BYTES
+                or workspace_bytes != MEASURED_FINGER_TREE_WORKSPACE_BYTES
+                or max_input != 195 or max_output != 1792
+                or MEASURED_FINGER_TREE_MAX_VALID_INPUT != 194
+                or MEASURED_FINGER_TREE_MAX_INITIAL != 32
+                or MEASURED_FINGER_TREE_MAX_Q != 32
+                or MEASURED_FINGER_TREE_MAX_LENGTH != 64
+                or MEASURED_FINGER_TREE_MAX_VALUE != 1_000_000
+                or MEASURED_FINGER_TREE_MAX_SUM != 64_000_000
+                or input_spec.get("maximum_valid_length") != 194
+                or input_spec.get("maximum_parseable_length") != max_input
+                or contract.get("initial_length_range") != [0, 32]
+                or contract.get("operation_count_range") != [1, 32]
+                or contract.get("max_sequence_length") != 64
+                or contract.get("max_sequence_sum") != 64_000_000
+                or output_spec.get("record_words") != 7
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("success_bytes_per_operation") != 56):
+            raise ValueError("measured finger tree bounds differ from its persistent sequence profile")
+    elif algorithm == "tetrahedral_element_force_kernel":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != TETRAHEDRAL_FORCE_MAX_INPUT_LENGTH
+                or max_input != 388
+                or max_output != TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES
+                or max_output != 3072
+                or TETRAHEDRAL_FORCE_MAX_VALID_INPUT_LENGTH != 387
+                or TETRAHEDRAL_FORCE_MAX_ELEMENTS != 32
+                or workspace_bytes != 8192
+                or input_spec.get("exact_length") != "3+12*M"
+                or input_spec.get("maximum_valid_length") != 387
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("element_count_range") != [1, 32]
+                or input_spec.get("lame_parameter_range") != [0, 16]
+                or input_spec.get("coordinate_range") != [-4, 4]
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("no_write_on_error") is not True):
+            raise ValueError("tetrahedral force bounds differ from the linear element profile")
+    elif algorithm == "list_rooted_trees":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != 2 or max_output != LIST_ROOTED_TREES_MAX_OUTPUT_BYTES
+                or workspace_bytes != 16384
+                or input_spec.get("maximum_valid_input_length") != 1
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("vertex_count_range") != [1, 7]
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("list_rooted_trees bounds differ from its unordered-shape profile")
+    elif algorithm == "landau_vishkin_k_difference_pattern_matching":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != LANDAU_VISHKIN_MAX_INPUT_LENGTH or max_input != 52
+                or max_output != LANDAU_VISHKIN_MAX_OUTPUT_BYTES or max_output != 32
+                or workspace_bytes != LANDAU_VISHKIN_WORKSPACE_BYTES
+                or workspace_bytes != 4096
+                or input_spec.get("pattern_length_range") != [1, 16]
+                or input_spec.get("text_length_range") != [0, 32]
+                or input_spec.get("max_differences_range") != [0, 2]
+                or input_spec.get("maximum_valid_input_length") != 51
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("exact_length") != "3 + pattern_length + text_length"
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("output_untouched_on_error") is not True):
+            raise ValueError("Landau–Vishkin bounds differ from its endpoint-mask profile")
+    elif algorithm == "time_based_one_time_password_algorithm":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != TOTP_VERIFIER_MAX_INPUT_LENGTH or max_input != 67
+                or TOTP_VERIFIER_MAX_VALID_INPUT_LENGTH != 66
+                or max_output != TOTP_VERIFIER_MAX_OUTPUT_BYTES or max_output != 6
+                or workspace_bytes != TOTP_VERIFIER_WORKSPACE_BYTES
+                or TOTP_VERIFIER_WORKSPACE_BYTES != 1024
+                or input_spec.get("maximum_valid_length") != 66
+                or input_spec.get("maximum_parseable_length") != max_input
+                or workload.get("contract", {}).get("key_length_range") != [16, 64]
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("no_write_on_error") is not True):
+            raise ValueError("TOTP bounds differ from its six-digit HMAC-SHA-1 profile")
+    elif algorithm == "fast_minimal_triangulation":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != FMT_VERIFIER_MAX_INPUT_LENGTH or max_input != 59
+                or FMT_VERIFIER_MAX_VALID_INPUT_LENGTH != 58
+                or max_output != FMT_VERIFIER_MAX_OUTPUT_BYTES or max_output != 456
+                or workspace_bytes != FMT_VERIFIER_WORKSPACE_BYTES
+                or FMT_VERIFIER_WORKSPACE_BYTES != 4096
+                or input_spec.get("vertex_count_range") != [1, 8]
+                or input_spec.get("edge_count_range") != [0, 28]
+                or input_spec.get("maximum_valid_length") != 58
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("output_untouched_on_error") is not True):
+            raise ValueError("FMT bounds differ from its recursive saturation profile")
+    elif algorithm == "van_emde_boas_layout_search":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        input_spec = workload.get("input", {})
+        if (max_input != VEB_LAYOUT_MAX_PARSEABLE_INPUT_WORDS or max_input != 7
+                or VEB_LAYOUT_MAX_VALID_INPUT_WORDS != 6
+                or max_output != VEB_LAYOUT_MAX_OUTPUT_BYTES or max_output != 328
+                or workspace_bytes != VEB_LAYOUT_WORKSPACE_BYTES
+                or VEB_LAYOUT_WORKSPACE_BYTES != 2048
+                or input_spec.get("height_levels_range") != [1, 4]
+                or input_spec.get("maximum_nodes") != 15
+                or input_spec.get("query_count_range") != [0, 4]
+                or input_spec.get("maximum_valid_input_words") != 6
+                or input_spec.get("maximum_parseable_input_words") != max_input
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("vEB layout bounds differ from its static search-trace profile")
+    elif algorithm == "planar_directed_general_st_flow_borradaile_klein":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != PLANAR_GENERAL_ST_FLOW_MAX_INPUT_LENGTH or max_input != 61
+                or PLANAR_GENERAL_ST_FLOW_MAX_VALID_INPUT_LENGTH != 60
+                or max_output != PLANAR_GENERAL_ST_FLOW_MAX_OUTPUT_BYTES or max_output != 8
+                or workspace_bytes != PLANAR_GENERAL_ST_FLOW_WORKSPACE_BYTES
+                or PLANAR_GENERAL_ST_FLOW_WORKSPACE_BYTES != 8192
+                or input_spec.get("maximum_valid_length") != 60
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("maximum_vertices") != 6
+                or input_spec.get("maximum_edges") != 10
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("general planar-flow bounds differ from its bounded embedding profile")
+    elif algorithm == "posit8_rational_encoder":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != POSIT8_ENCODER_MAX_INPUT_LENGTH or max_input != 66
+                or POSIT8_ENCODER_MAX_VALID_INPUT_LENGTH != 65
+                or max_output != POSIT8_ENCODER_MAX_OUTPUT_BYTES or max_output != 32
+                or workspace_bytes != POSIT8_ENCODER_WORKSPACE_BYTES
+                or POSIT8_ENCODER_WORKSPACE_BYTES != 128
+                or input_spec.get("maximum_valid_length") != 65
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("maximum_count") != 32
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("posit8 encoder bounds differ from its exact rational profile")
+    elif algorithm == "cactus_stack_branch_trace":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != CACTUS_STACK_MAX_INPUT_LENGTH or max_input != 146
+                or CACTUS_STACK_MAX_VALID_INPUT_LENGTH != 145
+                or max_output != CACTUS_STACK_MAX_OUTPUT_BYTES or max_output != 768
+                or workspace_bytes != CACTUS_STACK_WORKSPACE_BYTES
+                or CACTUS_STACK_WORKSPACE_BYTES != 4096
+                or input_spec.get("maximum_valid_length") != 145
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("handle_count") != 8
+                or input_spec.get("maximum_operations") != 48
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("cactus-stack bounds differ from its bounded operation-trace profile")
+    elif algorithm == "smarandache_wellin_prime_prefix_scan":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SMARANDACHE_WELLIN_MAX_INPUT_LENGTH or max_input != 2
+                or SMARANDACHE_WELLIN_MAX_VALID_INPUT_LENGTH != 1
+                or max_output != SMARANDACHE_WELLIN_MAX_OUTPUT_BYTES or max_output != 24
+                or workspace_bytes != SMARANDACHE_WELLIN_WORKSPACE_BYTES
+                or SMARANDACHE_WELLIN_WORKSPACE_BYTES != 256
+                or input_spec.get("maximum_valid_length") != 1
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or workload.get("contract", {}).get("count_range") != [0, 6]
+                or workload.get("contract", {}).get("maximum_output_values") != 3):
+            raise ValueError("Smarandache–Wellin bounds differ from its six-prefix profile")
+    elif algorithm == "junta_test_partition_binary_search":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != JUNTA_TEST_MAX_INPUT_LENGTH or max_input != 40
+                or JUNTA_TEST_MAX_VALID_INPUT_LENGTH != 39
+                or max_output != JUNTA_TEST_MAX_OUTPUT_BYTES or max_output != 56
+                or workspace_bytes != JUNTA_TEST_WORKSPACE_BYTES
+                or JUNTA_TEST_WORKSPACE_BYTES != JUNTA_TEST_MAX_WORKSPACE_BYTES
+                or JUNTA_TEST_WORKSPACE_BYTES != 4096
+                or input_spec.get("maximum_valid_input_length") != 39
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("fixed_round_count") != 24
+                or input_spec.get("fixed_k") != 1
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("output_untouched_on_error") is not True):
+            raise ValueError("junta-test bounds differ from its deterministic replay profile")
+    elif algorithm == "combinations_with_repetition_lexicographic":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != MULTICOMBINATIONS_MAX_INPUT_LENGTH or max_input != 3
+                or MULTICOMBINATIONS_MAX_VALID_INPUT_LENGTH != 2
+                or max_output != MULTICOMBINATIONS_MAX_OUTPUT_BYTES or max_output != 142
+                or workspace_bytes != MULTICOMBINATIONS_WORKSPACE_BYTES
+                or MULTICOMBINATIONS_WORKSPACE_BYTES != 128
+                or input_spec.get("maximum_valid_length") != 2
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or workload.get("contract", {}).get("n_range") != [0, 4]
+                or workload.get("contract", {}).get("r_range") != [0, 4]
+                or workload.get("contract", {}).get("maximum_tuple_count") != 35):
+            raise ValueError("multiset-combination bounds differ from its four-symbol profile")
+    elif algorithm == "gregorian_daycount_to_ordinal_date":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != GREGORIAN_DAYCOUNT_MAX_INPUT_LENGTH or max_input != 2
+                or GREGORIAN_DAYCOUNT_MAX_VALID_INPUT_LENGTH != 1
+                or max_output != GREGORIAN_DAYCOUNT_MAX_OUTPUT_BYTES or max_output != 16
+                or workspace_bytes != GREGORIAN_DAYCOUNT_WORKSPACE_BYTES
+                or GREGORIAN_DAYCOUNT_WORKSPACE_BYTES != 256
+                or input_spec.get("maximum_valid_length") != 1
+                or input_spec.get("maximum_parseable_length") != max_input
+                or workload.get("contract", {}).get("day_offset_range") != [-146097, 146097]
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("Gregorian day-count bounds differ from its 400-year profile")
+    elif algorithm == "shannon_fano_elias_symbol_codes":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        contract = workload.get("contract", {})
+        if (max_input != SFE_MAX_INPUT_LENGTH or max_input != 10
+                or SFE_MAX_VALID_INPUT_LENGTH != 9
+                or max_output != SFE_MAX_OUTPUT_BYTES or max_output != 17
+                or workspace_bytes != SFE_WORKSPACE_BYTES or SFE_WORKSPACE_BYTES != 1024
+                or input_spec.get("maximum_valid_length") != 9
+                or input_spec.get("maximum_parseable_length") != max_input
+                or contract.get("minimum_symbols") != 1
+                or contract.get("maximum_symbols") != 8
+                or contract.get("maximum_weight") != 15
+                or contract.get("maximum_total_weight") != 120
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("Shannon–Fano–Elias bounds differ from its eight-symbol profile")
+    elif algorithm == "goodstein_sequence_bounded_prefix":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        contract = workload.get("contract", {})
+        if (max_input != GOODSTEIN_MAX_INPUT_LENGTH or max_input != 3
+                or GOODSTEIN_MAX_VALID_INPUT_LENGTH != 2
+                or max_output != GOODSTEIN_MAX_OUTPUT_BYTES or max_output != 144
+                or workspace_bytes != GOODSTEIN_WORKSPACE_BYTES
+                or GOODSTEIN_WORKSPACE_BYTES != 512
+                or input_spec.get("maximum_valid_input_length") != 2
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("start_range") != [0, 4]
+                or input_spec.get("max_transitions_range") != [0, 16]
+                or contract.get("maximum_terms") != 17
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("Goodstein-prefix bounds differ from its bounded hereditary-base profile")
+    elif algorithm == "gpsr_perimeter_recovery_trace":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        input_contract = workload.get("input", {})
+        output_contract = workload.get("output", {})
+        if (max_input != GPSR_MAX_INPUT_LENGTH or max_input != 57
+                or GPSR_MAX_VALID_INPUT_LENGTH != 56
+                or max_output != GPSR_MAX_OUTPUT_BYTES or max_output != 896
+                or workspace_bytes != GPSR_WORKSPACE_BYTES or GPSR_WORKSPACE_BYTES != 8192
+                or input_contract.get("maximum_valid_length") != 56
+                or input_contract.get("maximum_parseable_length") != max_input
+                or output_contract.get("maximum_words") != 112
+                or output_contract.get("maximum_bytes") != max_output
+                or workload.get("contract", {}).get("bounds") !=
+                   "At most 2m directed hops and m strict-progress crossings; n<=8 and m<=18."):
+            raise ValueError("GPSR perimeter bounds differ from its bounded supplied-embedding profile")
+    elif algorithm == "order_preserving_huffman_greedy_trace":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != ORDER_HUFFMAN_MAX_INPUT_LENGTH or max_input != 10
+                or ORDER_HUFFMAN_MAX_VALID_INPUT_LENGTH != 9
+                or max_output != ORDER_HUFFMAN_MAX_OUTPUT_BYTES or max_output != 80
+                or workspace_bytes != ORDER_HUFFMAN_WORKSPACE_BYTES
+                or ORDER_HUFFMAN_WORKSPACE_BYTES != 2048
+                or input_spec.get("maximum_valid_length") != 9
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("n_range") != [2, 8]
+                or input_spec.get("weight_range") != [1, 15]
+                or output_spec.get("maximum_bytes") != max_output):
+            raise ValueError("order-preserving Huffman bounds differ from its eight-symbol profile")
+    elif algorithm == "balanced_parenthesis_successor":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != 22 or max_output != BALANCED_PARENTHESIS_SUCCESSOR_MAX_OUTPUT_BYTES
+                or max_output != 20 or workspace_bytes != 128
+                or input_spec.get("pair_count_range") != [1, 10]
+                or input_spec.get("maximum_valid_length") != 21
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("output_untouched_on_error") is not True):
+            raise ValueError("balanced-parenthesis successor bounds differ from its contract")
+    elif algorithm == "three_prime_carmichael_enumerator":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != THREE_PRIME_CARMICHAEL_MAX_INPUT_LENGTH
+                or max_input != 2
+                or max_output != THREE_PRIME_CARMICHAEL_MAX_OUTPUT_BYTES
+                or max_output != 832
+                or workspace_bytes != THREE_PRIME_CARMICHAEL_WORKSPACE_BYTES
+                or workspace_bytes != 4096
+                or THREE_PRIME_CARMICHAEL_MAX_LIMIT != 61
+                or input_spec.get("maximum_valid_input_length") != 1
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("p1_limit_range") != [2, 61]
+                or output_spec.get("maximum_records") != 69
+                or output_spec.get("maximum_output_bytes") != max_output):
+            raise ValueError("three-prime Carmichael bounds differ from its bounded enumeration profile")
     elif algorithm == "hirschberg_lcs":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20532,19 +27378,27 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or output_spec.get("maximum_bytes") != max_output
                 or workload.get("workspace", {}).get("elements") != 9206):
             raise ValueError("lengauer_tarjan_dominator_tree bounds differ from its bounded semidominator profile")
-    elif algorithm == "half_plane_intersection":
+    elif algorithm in ("circle_line_intersection_symbolic", "circle_circle_intersection_symbolic"):
+        validate_new_byte_output_workload(workload, algorithm)
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (7, 56) or workspace_bytes != 56
+                or input_spec.get("maximum_valid_length") != 6
+                or input_spec.get("maximum_parseable_length") != 7
+                or output_spec.get("maximum_output_bytes") != 56):
+            raise ValueError(f"{algorithm} bounds differ from its contract")
+    elif algorithm in ("half_plane_intersection", "half_plane_intersection_incremental_clipping"):
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
-        if (max_input != HALF_PLANE_INTERSECTION_MAX_INPUT_LENGTH
+        expected_parseable = 38 if algorithm == "half_plane_intersection_incremental_clipping" else HALF_PLANE_INTERSECTION_MAX_INPUT_LENGTH
+        if (max_input != expected_parseable
                 or max_output != HALF_PLANE_INTERSECTION_MAX_OUTPUT_BYTES
                 or workspace_bytes != HALF_PLANE_INTERSECTION_WORKSPACE_BYTES
-                or max_input != 37 or max_output != 520
+                or max_output != 520
                 or HALF_PLANE_INTERSECTION_MAX_CONSTRAINTS != 12
                 or HALF_PLANE_INTERSECTION_MAX_OUTPUT_VERTICES != 16
                 or input_spec.get("constraint_count_range") != [0, 12]
                 or input_spec.get("normal_coefficient_range") != [-16, 16]
                 or input_spec.get("offset_range") != [-128, 128]
-                or input_spec.get("maximum_valid_length") != max_input
+                or input_spec.get("maximum_valid_length") != HALF_PLANE_INTERSECTION_MAX_INPUT_LENGTH
                 or output_spec.get("maximum_vertices") != 16
                 or output_spec.get("maximum_output_bytes") != max_output):
             raise ValueError("half_plane_intersection bounds differ from its exact bounded deque profile")
@@ -20701,6 +27555,26 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or output_spec.get("success_result") != max_output
                 or workload.get("workspace", {}).get("bytes") != workspace_bytes):
             raise ValueError("minimum_mean_cycle_karp bounds differ from its exact-rational profile")
+    elif algorithm == "minimum_mean_cycle_howard":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != MINIMUM_MEAN_CYCLE_HOWARD_MAX_PARSEABLE_LENGTH
+                or max_input != 51 or max_output != MINIMUM_MEAN_CYCLE_HOWARD_OUTPUT_BYTES
+                or max_output != 16
+                or workspace_bytes != MINIMUM_MEAN_CYCLE_HOWARD_WORKSPACE_BYTES
+                or MINIMUM_MEAN_CYCLE_HOWARD_MAX_VERTICES != 8
+                or MINIMUM_MEAN_CYCLE_HOWARD_MAX_EDGES != 16
+                or MINIMUM_MEAN_CYCLE_HOWARD_MAX_VALID_LENGTH != 50
+                or input_spec.get("vertex_range") != [1, 8]
+                or input_spec.get("edge_count_range") != "1 through min(16,n*n)"
+                or input_spec.get("maximum_valid_length") != 50
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("weight_range") != [-1000, 1000]
+                or input_spec.get("graph_promise", "").find("strongly connected") < 0
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("success_result") != max_output
+                or workload.get("workspace", {}).get("bytes") != workspace_bytes):
+            raise ValueError("minimum_mean_cycle_howard bounds differ from its exact-rational profile")
     elif algorithm == "hash_join":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -20976,6 +27850,132 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or output_spec.get("insufficient_output_capacity_result") != -2
                 or workspace_bytes != workload.get("workspace", {}).get("bytes")):
             raise ValueError("all_shortest_paths_unweighted bounds differ from its predecessor-DAG profile")
+    elif algorithm == "palindromic_partition_series_links":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != PALINDROMIC_PARTITION_SERIES_LINKS_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 66
+                or max_output != PALINDROMIC_PARTITION_SERIES_LINKS_MAX_OUTPUT_BYTES
+                or max_output != 520
+                or PALINDROMIC_PARTITION_SERIES_LINKS_MAX_VALID_INPUT_LENGTH != 65
+                or PALINDROMIC_PARTITION_SERIES_LINKS_WORKSPACE_BYTES != 16384
+                or input_spec.get("encoding") != "[n, symbols[0..n)]"
+                or input_spec.get("length_range") != [0, 64]
+                or input_spec.get("alphabet_range") != [0, 3]
+                or input_spec.get("maximum_valid_length") != 65
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_bytes != PALINDROMIC_PARTITION_SERIES_LINKS_WORKSPACE_BYTES
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("palindromic_partition_series_links bounds differ from its series-link profile")
+        issues = palindromic_partition_series_links_static_issues(workload)
+        if issues:
+            raise ValueError("palindromic_partition_series_links package is incomplete: "
+                             + "; ".join(issues))
+    elif algorithm == "lzw_compressed_shift_and_matching":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_INPUT_LENGTH
+                or max_input != 67
+                or max_output != LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_OUTPUT_BYTES
+                or max_output != 4232
+                or workspace_bytes != LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_WORKSPACE_BYTES
+                or LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_ALPHABET != 16
+                or LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_PATTERN != 32
+                or LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_CODES != 32
+                or LZW_COMPRESSED_SHIFT_AND_MATCHING_MAX_EXPANDED_LENGTH != 528
+                or input_spec.get("encoding") != "[alphabet_size,pattern_length,code_count,pattern_symbols...,lzw_codes...]"
+                or input_spec.get("alphabet_size_range") != [1, 16]
+                or input_spec.get("pattern_length_range") != [1, 32]
+                or input_spec.get("code_count_range") != [0, 32]
+                or input_spec.get("maximum_valid_length") != 67
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("lzw_compressed_shift_and_matching bounds differ from its phrase-summary profile")
+        missing = lzw_compressed_shift_and_matching_missing_files()
+        if missing:
+            raise ValueError("lzw_compressed_shift_and_matching package is incomplete: "
+                             + "; ".join(str(path) for path in missing))
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            capacity = fixture.get("output_capacity")
+            output_is_null = fixture.get("output_is_null", False)
+            options = {
+                "capacity": capacity,
+                "output_is_null": output_is_null,
+                "input_is_null": input_is_null,
+                "input_length": input_length,
+            }
+            primary = lzw_compressed_shift_and_matching_primary_oracle(values, **options)
+            independent = lzw_compressed_shift_and_matching_independent_oracle(values, **options)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError("lzw_compressed_shift_and_matching fixture differs between references: "
+                                 + str(fixture.get("id")))
+    elif algorithm == "bkp_speed_scaling_trace":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != BKP_SPEED_SCALING_TRACE_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 31
+                or max_output != 136
+                or BKP_SPEED_SCALING_TRACE_MAX_VALID_INPUT_LENGTH != 30
+                or input_spec.get("job_count_range") != [1, 4]
+                or input_spec.get("sample_count_range") != [1, 8]
+                or input_spec.get("e_rational") != [271828, 100000]
+                or input_spec.get("maximum_valid_length") != 30
+                or input_spec.get("maximum_parseable_length") != max_input
+                or output_spec.get("maximum_values") != 17
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_bytes != 512
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("bkp_speed_scaling_trace bounds differ from its finite-state profile")
+        issues = bkp_speed_scaling_trace_static_issues(workload)
+        if issues:
+            raise ValueError("bkp_speed_scaling_trace package is incomplete: "
+                             + "; ".join(issues))
+        for fixture in workload.get("cases", []):
+            values = tuple(fixture.get("input_values", []))
+            options = {
+                "output_capacity": fixture.get("output_capacity", 512),
+                "output_is_null": fixture.get("output_is_null", False),
+                "input_is_null": fixture.get("input_is_null", False),
+                "input_length": fixture.get("input_length", len(values)),
+            }
+            primary = bkp_speed_scaling_trace_primary_oracle(values, **options)
+            independent = bkp_speed_scaling_trace_independent_oracle(values, **options)
+            expected = (fixture.get("expected_result"),
+                        bytes.fromhex(fixture.get("expected_output_hex", "")))
+            if primary != independent or primary != expected:
+                raise ValueError("bkp_speed_scaling_trace fixture differs between references: "
+                                 + str(fixture.get("id")))
+    elif algorithm == "knuth_big_integer_division":
+        validate_new_byte_output_workload(workload, algorithm)
+        package_workload = ROOT / "benchmarks/k/knuth_big_integer_division/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("knuth_big_integer_division workload differs from its package file")
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (KNUTH_BIG_INTEGER_DIVISION_MAX_INPUT != 130
+                or KNUTH_BIG_INTEGER_DIVISION_MAX_OUTPUT != 129
+                or max_input != 130 or max_output != 129
+                or workload.get("input", {}).get("maximum_valid_length") != 130
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_output_bytes") != max_output
+                or workload.get("workspace", {}).get("bytes") != 521):
+            raise ValueError("knuth_big_integer_division bounds differ from its Algorithm D profile")
+        verify_knuth_big_integer_division_package()
     elif algorithm == "procedure_s_general_cnf_sat":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -21007,6 +28007,27 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or input_spec.get("maximum_parseable_length") != max_input
                 or output_spec.get("maximum_output_bytes") != max_output):
             raise ValueError("suffix_array_sais bounds differ from its bounded SA-IS profile")
+    elif algorithm == "suffix_array_blind_trie":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SUFFIX_ARRAY_BLIND_TRIE_MAX_INPUT_LENGTH
+                or max_input != 34
+                or max_output != SUFFIX_ARRAY_BLIND_TRIE_MAX_OUTPUT_BYTES
+                or max_output != 256
+                or workspace_bytes != SUFFIX_ARRAY_BLIND_TRIE_WORKSPACE_BYTES
+                or SUFFIX_ARRAY_BLIND_TRIE_MAX_TEXT_LENGTH != 32
+                or input_spec.get("encoding") != "[text_length, byte_symbols...]"
+                or input_spec.get("text_length_range") != [0, 32]
+                or input_spec.get("symbol_range") != [0, 255]
+                or input_spec.get("maximum_valid_length") != 33
+                or input_spec.get("maximum_parseable_length") != 34
+                or output_spec.get("maximum_output_bytes") != 256
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_bytes != workload.get("workspace", {}).get("bytes")):
+            raise ValueError("suffix_array_blind_trie bounds differ from its bounded blind-trie profile")
+        verify_suffix_array_blind_trie_package()
     elif algorithm == "minkowski_sum_convex_polygons":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -21035,6 +28056,74 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             source_path = ROOT / language / "b" / f"batch_dynamic_kd_tree.{extension}"
             if not source_path.is_file() or "batch_dynamic_kd_tree" not in source_path.read_text(encoding="utf-8"):
                 raise ValueError(f"batch_dynamic_kd_tree source missing for {language}")
+    elif algorithm in {"morris_approximate_counter_base_three",
+                       "kosaraju_dense_bitset_scc"}:
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        expected_workspace = (
+            MORRIS_BASE_THREE_VERIFIER_WORKSPACE_BYTES
+            if algorithm == "morris_approximate_counter_base_three"
+            else KOSARAJU_DENSE_SCC_VERIFIER_WORKSPACE_BYTES)
+        if workspace_bytes != expected_workspace:
+            raise ValueError(f"{algorithm} workspace differs from its profile")
+    elif algorithm == "binary_divisibility_by_three_dfa":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if workspace_bytes != BINARY_DIV3_VERIFIER_WORKSPACE_BYTES:
+            raise ValueError(f"{algorithm} workspace differs from its profile")
+    elif algorithm in {"flood_fill", "flood_fill_breadth_first"}:
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        expected_workspace = (
+            FLOOD_FILL_BFS_VERIFIER_WORKSPACE_BYTES
+            if algorithm == "flood_fill_breadth_first"
+            else FLOOD_FILL_VERIFIER_WORKSPACE_BYTES)
+        if workspace_bytes != expected_workspace:
+            raise ValueError(f"{algorithm} workspace differs from its profile")
+    elif algorithm == "schieber_vishkin_lca":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != SCHIEBER_VISHKIN_LCA_VERIFIER_MAX_INPUT_LENGTH
+                or max_output != SCHIEBER_VISHKIN_LCA_VERIFIER_MAX_OUTPUT_BYTES
+                or workspace_bytes != SCHIEBER_VISHKIN_LCA_VERIFIER_WORKSPACE_BYTES):
+            raise ValueError("Schieber–Vishkin bounds or workspace differ from its profile")
+    elif algorithm in {"ecdsa_signature_verification", "brzozowski_dfa_to_regex"}:
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        expected_workspace = (ECDSA_SIGNATURE_WORKSPACE_BYTES
+                             if algorithm == "ecdsa_signature_verification"
+                             else BRZOZOWSKI_REGEX_WORKSPACE_BYTES)
+        if (workspace_bytes != expected_workspace
+                or EXTERNAL_BYTE_OUTPUT_WORKSPACE_BYTES.get(algorithm)
+                != expected_workspace):
+            raise ValueError(f"{algorithm} workspace differs from its contract")
+    elif algorithm in {"multidimensional_newton_raphson", "brace_range_expansion"}:
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        expected_workspace = (
+            MULTIDIMENSIONAL_NEWTON_WORKSPACE_BYTES
+            if algorithm == "multidimensional_newton_raphson"
+            else BRACE_RANGE_EXPANSION_WORKSPACE_BYTES)
+        if (workspace_bytes != expected_workspace
+                or EXTERNAL_BYTE_OUTPUT_WORKSPACE_BYTES.get(algorithm)
+                != expected_workspace):
+            raise ValueError(f"{algorithm} workspace differs from its contract")
+    elif algorithm == "straddling_checkerboard_transducer":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+        if (max_input != STRADDLING_CHECKERBOARD_MAX_PARSEABLE_INPUT_LENGTH
+                or max_input != 97
+                or max_output != STRADDLING_CHECKERBOARD_MAX_OUTPUT_BYTES
+                or max_output != 128
+                or workspace_bytes != STRADDLING_CHECKERBOARD_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_WORKSPACE_BYTES.get(algorithm)
+                != STRADDLING_CHECKERBOARD_WORKSPACE_BYTES):
+            raise ValueError("straddling-checkerboard bounds or workspace differ from its contract")
+        issues = (straddling_checkerboard_transducer_static_issues()
+                  + straddling_checkerboard_transducer_workload_issues(workload))
+        if issues:
+            raise ValueError("straddling-checkerboard package is incomplete: "
+                             + "; ".join(issues))
     elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = GENERIC_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -21189,6 +28278,9 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                                          "indexed_block_list",
                                          "walker_vose_alias_sampling",
                                          "prime_modulus_inverse_table",
+                                         "dynamic_tree_maximum_weight_independent_set",
+                                         "multiply_shift_universal_hash_trace",
+                                         "wilson_uniform_spanning_tree",
                                      }
                                      and result == 0 and not output)
                                  or capacity < result)
@@ -21240,6 +28332,15 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 if result >= 0 else "expected_values" not in fixture and not output)
         elif algorithm in {"gabow_scc", "games_on_arbitrary_graphs"}:
             output_matches_fixture = fixture.get("expected_output_bytes") == list(output)
+        elif algorithm == "farey_sequence_ordered_enumeration" and fixture.get("oracle_derived_output") is True:
+            output_matches_fixture = (
+                result >= 0 and result == fixture.get("expected_result")
+                and len(output) == result and len(values) == 1)
+        elif fixture.get("oracle_derived_output") is True:
+            output_matches_fixture = (
+                result >= 0 and result == fixture.get("expected_result")
+                and len(output) == result and len(values) == 2
+                and result == 8 * values[1])
         elif algorithm == "common_interval_decomposition_tree" and "expected_output_hex" not in fixture:
             output_matches_fixture = (
                 common_interval_decomposition_tree_validate_output(values, output)
@@ -21268,6 +28369,25 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             expected_text = fixture.get("expected_output_text")
             output_matches_fixture = (isinstance(expected_text, str)
                                       and output == expected_text.encode("ascii"))
+        elif algorithm == "canonical_order_maximal_plane_triangulation":
+            output_matches_fixture = (result < 0 and not output) or (result >= 0 and len(output) == result)
+        elif algorithm == "canonical_order_schnyder_realizer":
+            output_matches_fixture = (result < 0 and not output) or (result >= 0 and len(output) == result)
+        elif algorithm == "md4_digest":
+            # MD4 fixtures store message recipes and expected ABI status, while
+            # the two package references are reconciled by workload validation.
+            output_matches_fixture = (
+                result == 16 and len(output) == 16 if result >= 0 else not output)
+        elif "expected_output_words" in fixture:
+            expected_words = fixture["expected_output_words"]
+            if (isinstance(expected_words, list)
+                    and all(type(word) is int and I64_MIN <= word <= I64_MAX
+                            for word in expected_words)):
+                expected_bytes = struct.pack(
+                    "<" + "q" * len(expected_words), *expected_words)
+                output_matches_fixture = output == expected_bytes
+            else:
+                output_matches_fixture = False
         else:
             output_matches_fixture = fixture.get("expected_output_hex", "").lower() == output.hex()
         if (type(fixture.get("expected_result")) is not int
@@ -21276,6 +28396,46 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             raise ValueError(f"{algorithm} workload fixture differs from its oracle: {fixture.get('id')}")
         add(values, capacity, output_is_null=output_is_null,
             input_is_null=input_is_null, input_length=input_length)
+
+    if algorithm == "blr_linearity_test":
+        for fixture in workload.get("invalid_cases", []):
+            result, output = add(
+                tuple(fixture.get("input_values", [])),
+                fixture.get("output_capacity", workspace_bytes),
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length"))
+            if result != fixture.get("expected_result", -1) or output:
+                raise ValueError(f"BLR invalid fixture differs: {fixture.get('id')}")
+        for fixture in workload.get("capacity_cases", []):
+            result, output = add(
+                tuple(fixture.get("input_values", [])),
+                fixture.get("output_capacity", workspace_bytes),
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length"))
+            if result != fixture.get("expected_result") or output:
+                raise ValueError(f"BLR output-capacity fixture differs: {fixture.get('id')}")
+
+    if algorithm == "hypercube_edge_monotonicity_tester":
+        for fixture in workload.get("invalid_cases", []):
+            result, output = add(
+                tuple(fixture.get("input_values", [])),
+                fixture.get("output_capacity", workspace_bytes),
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length"))
+            if result != fixture.get("expected_result", -1) or output:
+                raise ValueError(f"hypercube edge-tester invalid fixture differs: {fixture.get('id')}")
+        for fixture in workload.get("capacity_cases", []):
+            result, output = add(
+                tuple(fixture.get("input_values", [])),
+                fixture.get("output_capacity", workspace_bytes),
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length"))
+            if result != fixture.get("expected_result") or output:
+                raise ValueError(f"hypercube edge-tester capacity fixture differs: {fixture.get('id')}")
 
     if algorithm == "benchmarkgame_nbody":
         for steps in (0, 1, 2, 17, 100, 999, 1000):
@@ -21434,6 +28594,48 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_result, null_output = add((), input_is_null=True, input_length=0)
         if null_result != -1 or null_output:
             raise ValueError("crochemore_perrin_two_way accepted a null input pointer")
+    elif algorithm == "zhang_suen_thinning":
+        rng_thinning = random.Random(0x25A17)
+        generated_inputs = [
+            (32, 32, *([1] * (32 * 32))),
+            (32, 32, *(0 if (row + column) % 2 else 1
+                       for row in range(32) for column in range(32))),
+            (32, 32, *(int(row in {0, 31} or column in {0, 31})
+                       for row in range(32) for column in range(32))),
+            (1, 32, *([1] * 32)),
+            (32, 1, *([1] * 32)),
+        ]
+        for _ in range(64):
+            rows = rng_thinning.randint(1, 32)
+            columns = rng_thinning.randint(1, 32)
+            density = rng_thinning.choice((0.15, 0.35, 0.5, 0.7, 0.9))
+            pixels = tuple(int(rng_thinning.random() < density)
+                           for _ in range(rows * columns))
+            generated_inputs.append((rows, columns, *pixels))
+
+        for case_index, values in enumerate(generated_inputs):
+            result, output = add(values)
+            primary = zhang_suen_thinning_primary_oracle(
+                values, workspace_bytes, False, False, len(values))
+            if primary != (result, output):
+                raise ValueError("Zhang–Suen primary and row-oriented references disagree")
+            if result != values[0] * values[1] or len(output) != result:
+                raise ValueError("Zhang–Suen generated image has invalid output framing")
+            if case_index % 8 == 0:
+                for capacity in (0, result - 1, result):
+                    capacity_result, capacity_output = add(values, capacity)
+                    expected = ((-2, b"") if capacity < result else (result, output))
+                    if (capacity_result, capacity_output) != expected:
+                        raise ValueError("Zhang–Suen output-capacity boundary differs")
+
+        malformed_thinning = (
+            (), (0, 1), (33, 1), (1, 33), (1, 1), (1, 1, 0, 0),
+            (1, 1, 2), (32, 32, *([0] * 1025)),
+        )
+        for malformed in malformed_thinning:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("Zhang–Suen accepted malformed image input")
     elif algorithm == "virtual_tree":
         def pack_virtual_tree(vertex_count, parents, marked):
             return (vertex_count, len(marked), *parents[1:], *marked)
@@ -21504,6 +28706,1362 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_result, null_output = add((), input_is_null=True, input_length=0)
         if null_result != -1 or null_output:
             raise ValueError("virtual_tree accepted a null input pointer")
+    elif algorithm == "tree_subtree_distinct_sack":
+        rng_tree_sack = random.Random(0x5ACCA11)
+        generated_inputs = []
+        for _ in range(128):
+            n = rng_tree_sack.randint(1, TREE_SUBTREE_DISTINCT_SACK_MAX_N)
+            parents = [0] + [rng_tree_sack.randrange(vertex)
+                             for vertex in range(1, n)]
+            colors = [rng_tree_sack.randrange(256) for _ in range(n)]
+            generated_inputs.append((n, *parents[1:], *colors))
+
+        chain_parents = [0] + list(range(TREE_SUBTREE_DISTINCT_SACK_MAX_N - 1))
+        maximum_values = (
+            TREE_SUBTREE_DISTINCT_SACK_MAX_N,
+            *chain_parents[1:],
+            *([7] * TREE_SUBTREE_DISTINCT_SACK_MAX_N),
+        )
+        if len(maximum_values) != 128:
+            raise ValueError("tree_subtree_distinct_sack maximum frame differs from its input bound")
+        expected_sizes = list(range(TREE_SUBTREE_DISTINCT_SACK_MAX_N, 0, -1))
+        expected_size_bytes = b"".join(
+            size.to_bytes(8, "little", signed=True) for size in expected_sizes)
+        maximum_result, maximum_output = add(maximum_values)
+        if (maximum_result != TREE_SUBTREE_DISTINCT_SACK_MAX_OUTPUT_BYTES
+                or maximum_output != expected_size_bytes):
+            raise ValueError("tree_subtree_distinct_sack all-equal chain differs from subtree sizes")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            primary = tree_subtree_distinct_sack_primary_oracle(values)
+            independent = tree_subtree_distinct_sack_independent_oracle(values)
+            if primary != independent:
+                raise ValueError("tree_subtree_distinct_sack primary and Fenwick references disagree")
+            result, output = add(values)
+            if (result, output) != independent or result > TREE_SUBTREE_DISTINCT_SACK_MAX_OUTPUT_BYTES:
+                raise ValueError("tree_subtree_distinct_sack generated input differs from its reference")
+            if case_index % 8 == 0:
+                n = values[0]
+                if len(values) != 2 * n:
+                    raise ValueError("tree_subtree_distinct_sack generated frame is malformed")
+                remapped_colors = tuple((color * 37 + 11) % 256
+                                        for color in values[n:2 * n])
+                remapped = (n, *values[1:n], *remapped_colors)
+                remapped_result, remapped_output = add(remapped)
+                if (remapped_result, remapped_output) != (result, output):
+                    raise ValueError("tree_subtree_distinct_sack color renaming changed subtree counts")
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("tree_subtree_distinct_sack accepted insufficient output capacity")
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("tree_subtree_distinct_sack rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("tree_subtree_distinct_sack accepted a null output buffer")
+
+        malformed_tree_sack = (
+            (), (0,), (65,), (3, 0, 2, 1, 2, 3),
+            (1, 256), (1, 7, 0),
+        )
+        for malformed in malformed_tree_sack:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("tree_subtree_distinct_sack accepted malformed input")
+        precedence_result, precedence_output = add(
+            (1, 1000), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("tree_subtree_distinct_sack output errors took precedence over invalid input")
+        for capacity in (0, TREE_SUBTREE_DISTINCT_SACK_MAX_OUTPUT_BYTES - 1,
+                         TREE_SUBTREE_DISTINCT_SACK_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < TREE_SUBTREE_DISTINCT_SACK_MAX_OUTPUT_BYTES
+                        else (TREE_SUBTREE_DISTINCT_SACK_MAX_OUTPUT_BYTES, expected_size_bytes))
+            if (result, output) != expected:
+                raise ValueError("tree_subtree_distinct_sack maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("tree_subtree_distinct_sack accepted a null input pointer")
+    elif algorithm == "tree_path_distinct_mo":
+        def pack_tree_path_mo(n, q, colors, edges, queries):
+            return (n, q, *colors,
+                    *(word for edge in edges for word in edge),
+                    *(word for query in queries for word in query))
+
+        rng_tree_path_mo = random.Random(0x7EE10)
+        generated_inputs = []
+        color_pool = (-(1 << 63), -17, -1, 0, 0, 1, 23, (1 << 63) - 1)
+        for _ in range(128):
+            n = rng_tree_path_mo.randint(1, TREE_PATH_DISTINCT_MO_MAX_N)
+            edges = [(rng_tree_path_mo.randrange(vertex), vertex)
+                     for vertex in range(1, n)]
+            rng_tree_path_mo.shuffle(edges)
+            edges = [(v, u) if index % 2 else (u, v)
+                     for index, (u, v) in enumerate(edges)]
+            colors = [rng_tree_path_mo.choice(color_pool) for _ in range(n)]
+            q = rng_tree_path_mo.randint(0, TREE_PATH_DISTINCT_MO_MAX_Q)
+            queries = [(rng_tree_path_mo.randrange(n), rng_tree_path_mo.randrange(n))
+                       for _ in range(q)]
+            generated_inputs.append(pack_tree_path_mo(n, q, colors, edges, queries))
+
+        max_n = TREE_PATH_DISTINCT_MO_MAX_N
+        max_edges = [(vertex - 1, vertex) for vertex in range(1, max_n)]
+        max_queries = [(index % max_n, (index * 13 + 7) % max_n)
+                       for index in range(TREE_PATH_DISTINCT_MO_MAX_Q)]
+        maximum_values = pack_tree_path_mo(
+            max_n, len(max_queries),
+            [color_pool[index % len(color_pool)] for index in range(max_n)],
+            max_edges, max_queries)
+        if len(maximum_values) != TREE_PATH_DISTINCT_MO_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("tree_path_distinct_mo maximum frame differs from its valid-input bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if maximum_result != TREE_PATH_DISTINCT_MO_MAX_OUTPUT_BYTES:
+            raise ValueError("tree_path_distinct_mo maximum query set differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            primary = tree_path_distinct_mo_primary_oracle(values)
+            independent = tree_path_distinct_mo_independent_oracle(values)
+            if primary != independent:
+                raise ValueError("tree_path_distinct_mo direct and endpoint-climbing references disagree")
+            result, output = add(values)
+            if (result, output) != independent or result > TREE_PATH_DISTINCT_MO_MAX_OUTPUT_BYTES:
+                raise ValueError("tree_path_distinct_mo generated input differs from its reference")
+            if case_index % 8 == 0:
+                n, q = values[:2]
+                edge_start = 2 + n
+                edge_end = edge_start + 2 * (n - 1)
+                edges = list(zip(values[edge_start:edge_end:2],
+                                 values[edge_start + 1:edge_end:2]))
+                queries = list(zip(values[edge_end::2], values[edge_end + 1::2]))
+                reordered_edges = [(v, u) for u, v in reversed(edges)]
+                reordered = pack_tree_path_mo(
+                    n, q, values[2:2 + n], reordered_edges, queries)
+                if add(reordered) != (result, output):
+                    raise ValueError("tree_path_distinct_mo answer changed with edge order or orientation")
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("tree_path_distinct_mo rejected exact output capacity")
+                if result > 0:
+                    short_result, short_output = add(values, result - 1)
+                    if short_result != -2 or short_output:
+                        raise ValueError("tree_path_distinct_mo accepted insufficient output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("tree_path_distinct_mo accepted a null output buffer")
+
+        malformed_tree_path_mo = (
+            (), (1,), (0, 0, 7), (1, -1, 7), (2, 0, 10, 20, 0, 2),
+            (3, 0, 1, 2, 3, 0, 1, 1, 0), (1, 1, 9, 0, 1),
+            (1, 0, 9, 99), (*maximum_values, 0),
+        )
+        for malformed in malformed_tree_path_mo:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("tree_path_distinct_mo accepted malformed input")
+        precedence_result, precedence_output = add(
+            (1, 0, 9, 99), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("tree_path_distinct_mo output errors took precedence over invalid input")
+        for capacity in (0, TREE_PATH_DISTINCT_MO_MAX_OUTPUT_BYTES - 1,
+                         TREE_PATH_DISTINCT_MO_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < TREE_PATH_DISTINCT_MO_MAX_OUTPUT_BYTES
+                        else (TREE_PATH_DISTINCT_MO_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("tree_path_distinct_mo maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("tree_path_distinct_mo accepted a null input pointer")
+    elif algorithm == "small_to_large_subtree_color_mode_sum":
+        rng_small_to_large = random.Random(0x51A11)
+        generated_inputs = []
+        color_pool = (-1000, -17, -1, 0, 0, 1, 19, 1000)
+        for _ in range(128):
+            n = rng_small_to_large.randint(
+                1, SMALL_TO_LARGE_SUBTREE_MODE_MAX_VERTICES)
+            parents = [rng_small_to_large.randrange(vertex)
+                       for vertex in range(1, n)]
+            colors = [rng_small_to_large.choice(color_pool) for _ in range(n)]
+            generated_inputs.append((n, *parents, *colors))
+
+        max_n = SMALL_TO_LARGE_SUBTREE_MODE_MAX_VERTICES
+        maximum_chain = (max_n, *range(max_n - 1), *([7] * max_n))
+        maximum_star = (max_n, *([0] * (max_n - 1)),
+                        *([-3 if index % 2 else 5 for index in range(max_n)]))
+        maximum_chain_result, maximum_chain_output = add(maximum_chain)
+        maximum_star_result, maximum_star_output = add(maximum_star)
+        for maximum_values, maximum_result, maximum_output in (
+                (maximum_chain, maximum_chain_result, maximum_chain_output),
+                (maximum_star, maximum_star_result, maximum_star_output)):
+            if len(maximum_values) != SMALL_TO_LARGE_SUBTREE_MODE_MAX_VALID_INPUT_LENGTH:
+                raise ValueError("small_to_large_subtree_color_mode_sum maximum frame differs from its bound")
+            if (maximum_result != SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES
+                    or len(maximum_output) != SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES):
+                raise ValueError("small_to_large_subtree_color_mode_sum maximum tree differs from its output bound")
+            generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            primary = small_to_large_subtree_color_mode_sum_primary_oracle(values)
+            independent = small_to_large_subtree_color_mode_sum_independent_oracle(values)
+            if primary != independent:
+                raise ValueError("small_to_large_subtree_color_mode_sum merge and ancestor references disagree")
+            result, output = add(values)
+            if (result, output) != independent or result > SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES:
+                raise ValueError("small_to_large_subtree_color_mode_sum generated input differs from its reference")
+            if case_index % 8 == 0:
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("small_to_large_subtree_color_mode_sum rejected exact output capacity")
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("small_to_large_subtree_color_mode_sum accepted insufficient output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("small_to_large_subtree_color_mode_sum accepted a null output buffer")
+
+        malformed_small_to_large = (
+            (), (1,), (0, 0), (65, *([0] * 128)),
+            (3, 0, 2, 1, 2, 3), (1, 1001), (1, -1001),
+            (1, 7, 0), (*maximum_chain, 0),
+        )
+        for malformed in malformed_small_to_large:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("small_to_large_subtree_color_mode_sum accepted malformed input")
+        precedence_result, precedence_output = add(
+            (1, 1001), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("small_to_large_subtree_color_mode_sum output errors took precedence over invalid input")
+        for capacity in (0, SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES - 1,
+                         SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_chain, capacity)
+            expected = ((-2, b"") if capacity < SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES
+                        else (SMALL_TO_LARGE_SUBTREE_MODE_MAX_OUTPUT_BYTES, maximum_chain_output))
+            if (result, output) != expected:
+                raise ValueError("small_to_large_subtree_color_mode_sum maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("small_to_large_subtree_color_mode_sum accepted a null input pointer")
+    elif algorithm == "tree_random_walk_edge_hitting_cost":
+        def pack_tree_walk(n, root, edges):
+            return (n, root, *(word for edge in edges for word in edge))
+
+        rng_tree_walk = random.Random(0x7A1C)
+        generated_inputs = []
+        for _ in range(48):
+            n = rng_tree_walk.randint(1, min(8, TREE_RANDOM_WALK_HITTING_MAX_N))
+            edges = [(rng_tree_walk.randrange(vertex), vertex,
+                      rng_tree_walk.randint(1, 9))
+                     for vertex in range(1, n)]
+            rng_tree_walk.shuffle(edges)
+            edges = [(v, u, weight) if index % 2 else (u, v, weight)
+                     for index, (u, v, weight) in enumerate(edges)]
+            root = rng_tree_walk.randrange(n)
+            generated_inputs.append(pack_tree_walk(n, root, edges))
+
+        max_n = TREE_RANDOM_WALK_HITTING_MAX_N
+        maximum_edges = [(vertex - 1, vertex, 9)
+                         for vertex in range(1, max_n)]
+        maximum_values = pack_tree_walk(max_n, max_n // 2, maximum_edges)
+        if len(maximum_values) != TREE_RANDOM_WALK_HITTING_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("tree_random_walk_edge_hitting_cost maximum frame differs from its bound")
+        maximum_result, maximum_output = add(maximum_values)
+        if maximum_result != TREE_RANDOM_WALK_HITTING_MAX_OUTPUT_BYTES:
+            raise ValueError("tree_random_walk_edge_hitting_cost maximum tree differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            primary = tree_random_walk_edge_hitting_cost_primary_oracle(values)
+            independent = tree_random_walk_edge_hitting_cost_independent_oracle(values)
+            if primary != independent:
+                raise ValueError("tree_random_walk_edge_hitting_cost recurrence and linear-system references disagree")
+            result, output = add(values)
+            if (result, output) != independent or result > TREE_RANDOM_WALK_HITTING_MAX_OUTPUT_BYTES:
+                raise ValueError("tree_random_walk_edge_hitting_cost generated input differs from its reference")
+            if case_index % 8 == 0:
+                n, root = values[:2]
+                edges = list(zip(values[2::3], values[3::3], values[4::3]))
+                if add(pack_tree_walk(n, (root + 1) % n, edges)) != (result, output):
+                    raise ValueError("tree_random_walk_edge_hitting_cost changed with the chosen recurrence root")
+                if result > 0:
+                    reversed_edges = [(v, u, weight) for u, v, weight in reversed(edges)]
+                    reversed_values = pack_tree_walk(n, root, reversed_edges)
+                    reversed_result, reversed_output = add(reversed_values)
+                    words = struct.unpack("<" + "q" * (result // 8), output)
+                    expected_words = tuple(
+                        word for first, second in reversed(list(zip(words[::2], words[1::2])))
+                        for word in (second, first))
+                    expected_reversed_output = struct.pack(
+                        "<" + "q" * len(expected_words), *expected_words)
+                    if (reversed_result, reversed_output) != (result, expected_reversed_output):
+                        raise ValueError("tree_random_walk_edge_hitting_cost record order/orientation changed unexpectedly")
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("tree_random_walk_edge_hitting_cost rejected exact output capacity")
+                if result > 0:
+                    short_result, short_output = add(values, result - 1)
+                    if short_result != -2 or short_output:
+                        raise ValueError("tree_random_walk_edge_hitting_cost accepted short output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("tree_random_walk_edge_hitting_cost accepted a null output buffer")
+
+        malformed_tree_walk = (
+            (), (1,), (0, 0), (2, 2, 0, 1, 1), (2, 0, 0, 2, 1),
+            (2, 0, 0, 1, 0), (2, 0, 0, 1, 10),
+            (3, 0, 0, 1, 1, 0, 1, 2),
+            (4, 0, 0, 1, 1, 1, 2, 1, 2, 0, 1),
+            (*maximum_values, 0),
+        )
+        for malformed in malformed_tree_walk:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("tree_random_walk_edge_hitting_cost accepted malformed input")
+        precedence_result, precedence_output = add(
+            (2, 2, 0, 1, 1), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("tree_random_walk_edge_hitting_cost output errors took precedence over invalid input")
+        for capacity in (0, TREE_RANDOM_WALK_HITTING_MAX_OUTPUT_BYTES - 1,
+                         TREE_RANDOM_WALK_HITTING_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < TREE_RANDOM_WALK_HITTING_MAX_OUTPUT_BYTES
+                        else (TREE_RANDOM_WALK_HITTING_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("tree_random_walk_edge_hitting_cost maximum capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("tree_random_walk_edge_hitting_cost accepted a null input pointer")
+    elif algorithm == "triangle_union_area_vertical_decomposition":
+        def pack_triangle_union(triangles):
+            return (len(triangles), *(
+                coordinate for triangle in triangles
+                for point in triangle for coordinate in point))
+
+        lattice = tuple((x, y) for x in (-1, 0, 1) for y in (-1, 0, 1))
+        triangle_shapes = []
+        for triangle in combinations(lattice, 3):
+            if ((triangle[1][0] - triangle[0][0]) * (triangle[2][1] - triangle[0][1])
+                    - (triangle[1][1] - triangle[0][1]) * (triangle[2][0] - triangle[0][0])) != 0:
+                triangle_shapes.append(triangle)
+        if not triangle_shapes:
+            raise ValueError("triangle_union_area_vertical_decomposition generated no valid triangles")
+
+        generated_inputs = [pack_triangle_union((triangle,)) for triangle in triangle_shapes]
+        rng_triangle_union = random.Random(0x7A11A)
+        for case_index in range(96):
+            count = 1 + case_index % 3
+            selected = [rng_triangle_union.choice(triangle_shapes) for _ in range(count)]
+            if case_index % 2:
+                selected = [tuple((triangle[0], triangle[2], triangle[1]))
+                            if index % 2 else triangle
+                            for index, triangle in enumerate(selected)]
+            generated_inputs.append(pack_triangle_union(selected))
+
+        maximum_values = pack_triangle_union(triangle_shapes[:3])
+        if len(maximum_values) != TRIANGLE_UNION_AREA_MAX_INPUT_LENGTH:
+            raise ValueError("triangle_union_area_vertical_decomposition maximum frame differs from its bound")
+        maximum_result, maximum_output = add(
+            maximum_values, TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES)
+        if (maximum_result != TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES
+                or len(maximum_output) != TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES):
+            raise ValueError("triangle_union_area_vertical_decomposition maximum result differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        for case_index, values in enumerate(generated_inputs):
+            primary = triangle_union_area_vertical_decomposition_primary_oracle(values)
+            independent = triangle_union_area_vertical_decomposition_independent_oracle(values)
+            if primary != independent:
+                raise ValueError("triangle union stripe and clipping references disagree")
+            result, output = add(values, TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES)
+            if (result, output) != independent or result != TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES:
+                raise ValueError("triangle union generated input differs from its exact reference")
+            numerator, denominator = struct.unpack("<qq", output)
+            if (numerator < 0 or numerator > TRIANGLE_UNION_AREA_MAX_NUMERATOR
+                    or denominator <= 0 or denominator > TRIANGLE_UNION_AREA_MAX_DENOMINATOR
+                    or math.gcd(numerator, denominator) != 1):
+                raise ValueError("triangle union reference exceeded its reduced rational bounds")
+            if case_index % 16 == 0:
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("triangle union rejected exact output capacity")
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("triangle union accepted short output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("triangle union accepted a null output buffer")
+
+            if case_index % 8 == 0:
+                n = values[0]
+                chunks = [tuple((values[1 + 6 * i + 2 * j],
+                                 values[1 + 6 * i + 2 * j + 1])
+                                for j in range(3)) for i in range(n)]
+                permuted = pack_triangle_union(tuple(reversed(chunks)))
+                if add(permuted, result) != (result, output):
+                    raise ValueError("triangle union changed when triangle input order changed")
+
+        malformed_triangle_union = (
+            (), (0,), (0, 0), (1,), (4, *([0] * 18)),
+            (1, 0, 0, 1, 0, 0, 2),
+            (1, 0, 0, 1, 0, -1, 0),
+            (1, 0, 0, 1, 0, 0, 1, 0),
+            (*maximum_values, 0),
+        )
+        for malformed in malformed_triangle_union:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("triangle union accepted malformed input")
+        precedence_result, precedence_output = add(
+            (1, 0, 0, 1, 0, 0, 2), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("triangle union output errors took precedence over invalid input")
+        for capacity in (0, TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES - 1,
+                         TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES
+                        else (TRIANGLE_UNION_AREA_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("triangle union maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("triangle union accepted a null input pointer")
+    elif algorithm == "external_point_tangents_convex_polygon":
+        def pack_tangents(polygon, queries):
+            return (len(polygon), len(queries),
+                    *(coordinate for point in polygon for coordinate in point),
+                    *(coordinate for query in queries for coordinate in query))
+
+        def tangent_queries(polygon, count=1):
+            min_x = min(point[0] for point in polygon)
+            max_x = max(point[0] for point in polygon)
+            min_y = min(point[1] for point in polygon)
+            max_y = max(point[1] for point in polygon)
+            middle_y = (min_y + max_y) // 2
+            candidates = []
+            for offset in range(2, 14):
+                candidates.extend((
+                    (min_x - offset, min_y - offset - 1),
+                    (min_x - offset, max_y + offset + 1),
+                    (max_x + offset, min_y - offset - 1),
+                    (max_x + offset, max_y + offset + 1),
+                    (min_x - offset, middle_y + offset + 2),
+                    (max_x + offset, middle_y - offset - 2),
+                ))
+            valid = [query for query in candidates
+                     if (-EXTERNAL_POINT_TANGENTS_MAX_COORDINATE <= query[0]
+                         <= EXTERNAL_POINT_TANGENTS_MAX_COORDINATE
+                         and -EXTERNAL_POINT_TANGENTS_MAX_COORDINATE <= query[1]
+                         <= EXTERNAL_POINT_TANGENTS_MAX_COORDINATE
+                         and external_point_tangents_valid_query(polygon, query))]
+            if not valid:
+                raise ValueError("external point tangents could not generate a general-position exterior query")
+            return tuple(valid[index % len(valid)] for index in range(count))
+
+        generated_inputs = []
+        for vertex_count in range(3, EXTERNAL_POINT_TANGENTS_MAX_VERTICES + 1):
+            for slope in (-(vertex_count - 1), 0, 1):
+                base_polygon = [(x, x * x + slope * x) for x in range(vertex_count)]
+                for rotation in (0, vertex_count // 2):
+                    polygon = base_polygon[rotation:] + base_polygon[:rotation]
+                    generated_inputs.append(pack_tangents(polygon, tangent_queries(polygon)))
+
+        maximum_polygon = [
+            (x, x * x + x) for x in range(EXTERNAL_POINT_TANGENTS_MAX_VERTICES)
+        ]
+        maximum_queries = tangent_queries(maximum_polygon, EXTERNAL_POINT_TANGENTS_MAX_QUERIES)
+        maximum_values = pack_tangents(maximum_polygon, maximum_queries)
+        if len(maximum_values) != EXTERNAL_POINT_TANGENTS_MAX_INPUT_LENGTH:
+            raise ValueError("external point tangents maximum frame differs from its bound")
+        maximum_result, maximum_output = add(
+            maximum_values, EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES)
+        if (maximum_result != EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES
+                or len(maximum_output) != EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES):
+            raise ValueError("external point tangents maximum result differs from its output bound")
+        generated_inputs.append(maximum_values)
+
+        zero_query_values = pack_tangents(maximum_polygon, ())
+        if add(zero_query_values, 0) != (0, b""):
+            raise ValueError("external point tangents rejected a nonnull zero-query output")
+        null_zero_result, null_zero_output = add(zero_query_values, 0, output_is_null=True)
+        if null_zero_result != -2 or null_zero_output:
+            raise ValueError("external point tangents accepted a null zero-query output")
+
+        for case_index, values in enumerate(generated_inputs):
+            primary = external_point_tangents_primary_oracle(values)
+            independent = external_point_tangents_independent_oracle(values)
+            if primary != independent or primary[0] <= 0:
+                raise ValueError("external point tangent searches and direct support scan disagree")
+            result, output = add(values, EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES)
+            if (result, output) != independent:
+                raise ValueError("external point tangents generated input differs from the direct reference")
+            if case_index % 12 == 0:
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("external point tangents rejected exact output capacity")
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("external point tangents accepted short output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("external point tangents accepted a null output buffer")
+
+            if case_index % 8 == 0:
+                vertex_count, query_count = values[:2]
+                polygon_end = 2 + 2 * vertex_count
+                polygon_words = values[2:polygon_end]
+                query_words = values[polygon_end:]
+                reversed_queries = tuple(
+                    coordinate
+                    for index in range(query_count - 1, -1, -1)
+                    for coordinate in query_words[2 * index:2 * index + 2]
+                )
+                permuted = (vertex_count, query_count, *polygon_words, *reversed_queries)
+                expected_reversed_output = b"".join(
+                    output[16 * index:16 * index + 16]
+                    for index in range(query_count - 1, -1, -1)
+                )
+                if add(permuted, result) != (result, expected_reversed_output):
+                    raise ValueError("external point tangents query order changed individual tangent pairs")
+
+        malformed_tangents = (
+            (), (0,), (2, 0), (3, 17),
+            (3, 0, 0, 0, 2, 0, 1, 2, 9),
+            (3, 0, 0, 0, 2, 0, 1, 0),
+            (3, 0, 0, 0, 0, 2, 2, 0),
+            (4, 0, 0, 0, 4, 0, 4, 4, 0, 4, 77),
+            (4, 1, 0, 0, 4, 0, 4, 4, 0, 4, 2, 2),
+            (4, 1, 0, 0, 4, 0, 4, 4, 0, 4, 6, 0),
+            (4, 0, 0, 0, 0, 4, 4, 4, 4, 0),
+            (4, 0, 0, 0, 4, 0, 4, 1001, 0, 4),
+            (*maximum_values, 0),
+        )
+        for malformed in malformed_tangents:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("external point tangents accepted malformed input")
+        precedence_result, precedence_output = add(
+            (4, 1, 0, 0, 4, 0, 4, 4, 0, 4, 2, 2),
+            0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("external point tangents output errors took precedence over invalid input")
+        for capacity in (0, EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES - 1,
+                         EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES
+                        else (EXTERNAL_POINT_TANGENTS_MAX_OUTPUT_BYTES, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("external point tangents maximum output-capacity probe failed")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("external point tangents accepted a null input pointer")
+    elif algorithm == "pq_tree_consecutive_ones":
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            result, output = add(
+                values,
+                case.get("output_capacity", PQ_TREE_MAX_OUTPUT_BYTES),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"),
+            )
+            if result != case.get("expected_result"):
+                raise ValueError(f"PQ-tree workload result mismatch: {case.get('id')}")
+            if result < 0 and output:
+                raise ValueError("PQ-tree error fixture wrote output")
+
+        rng_pq_tree = random.Random(0x5077EE)
+        generated_inputs = []
+        for case_index in range(48):
+            n = 2 + case_index % 7
+            row_count = rng_pq_tree.randrange(0, 17)
+            masks = [rng_pq_tree.randrange(1 << n) for _ in range(row_count)]
+            generated_inputs.append((n, row_count, *masks))
+
+        for case_index, values in enumerate(generated_inputs):
+            primary = pq_tree_primary_oracle(values, PQ_TREE_MAX_OUTPUT_BYTES)
+            independent = pq_tree_small_frontier_oracle(values)
+            if primary != independent:
+                raise ValueError("PQ reductions and complete-frontier family enumeration disagree")
+            result, output = add(values, PQ_TREE_MAX_OUTPUT_BYTES)
+            if (result, output) != independent:
+                raise ValueError("PQ-tree generated input differs from the independent family oracle")
+            if case_index % 8 == 0:
+                row_count = values[1]
+                reordered = (values[0], row_count, *reversed(values[2:]))
+                if pq_tree_primary_oracle(reordered, PQ_TREE_MAX_OUTPUT_BYTES) != primary:
+                    raise ValueError("PQ-tree result changed when row order changed")
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("PQ-tree accepted short output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("PQ-tree accepted a null output buffer")
+
+            full_mask = (1 << values[0]) - 1
+            redundant = (values[0], values[1] + 2, *values[2:], 0, full_mask)
+            if pq_tree_primary_oracle(redundant, PQ_TREE_MAX_OUTPUT_BYTES) != primary:
+                raise ValueError("empty/full PQ constraints changed the represented family")
+
+        maximum_values = (PQ_TREE_MAX_N, PQ_TREE_MAX_M, *(0 for _ in range(PQ_TREE_MAX_M)))
+        if len(maximum_values) != PQ_TREE_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("PQ-tree maximum frame differs from its bound")
+        maximum_result, maximum_output = add(maximum_values, PQ_TREE_MAX_OUTPUT_BYTES)
+        if maximum_result <= 0 or len(maximum_output) != maximum_result:
+            raise ValueError("PQ-tree maximum frame did not produce a bounded family encoding")
+        for capacity in (0, maximum_result - 1, maximum_result, PQ_TREE_MAX_OUTPUT_BYTES):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < maximum_result
+                        else (maximum_result, maximum_output))
+            if (result, output) != expected:
+                raise ValueError("PQ-tree maximum capacity probe failed")
+
+        malformed_pq_tree = (
+            (), (1, 0), (21, 0), (3, 33), (3, 1, -1), (3, 1, 8),
+            (3, 1, 0, 0), (*maximum_values, 0),
+        )
+        for malformed in malformed_pq_tree:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("PQ-tree accepted malformed input")
+        invalid_precedence, invalid_output = add((3, 1, 8), 0, output_is_null=True)
+        if invalid_precedence != -1 or invalid_output:
+            raise ValueError("PQ-tree output errors took precedence over malformed input")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("PQ-tree accepted a null input pointer")
+    elif algorithm == "measured_finger_tree_sequence":
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            result, output = add(
+                values,
+                case.get("output_capacity", MEASURED_FINGER_TREE_MAX_OUTPUT_BYTES),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"),
+            )
+            if result != case.get("expected_result"):
+                raise ValueError(f"measured finger tree workload result mismatch: {case.get('id')}")
+            if result < 0 and output:
+                raise ValueError("measured finger tree error fixture wrote output")
+
+        def generate_finger_stream(seed):
+            rng = random.Random(seed)
+            initial = [rng.randrange(8) for _ in range(seed % 6)]
+            versions = [initial]
+            operations = []
+            for step in range(14):
+                tag = step % 7
+                source_id = rng.randrange(len(versions))
+                source = versions[source_id]
+                if tag in (0, 1):
+                    value = rng.randrange(16)
+                    updated = ([value, *source] if tag == 0 else [*source, value])
+                    operations.append((tag, source_id, -1, value, -1))
+                    versions.append(updated)
+                elif tag in (2, 3):
+                    nonempty = [index for index, version in enumerate(versions) if version]
+                    if not nonempty:
+                        tag = 1
+                        source_id = rng.randrange(len(versions))
+                        source = versions[source_id]
+                        value = rng.randrange(16)
+                        operations.append((tag, source_id, -1, value, -1))
+                        versions.append([*source, value])
+                    else:
+                        source_id = rng.choice(nonempty)
+                        source = versions[source_id]
+                        value = source[0] if tag == 2 else source[-1]
+                        operations.append((tag, source_id, -1, -1, -1))
+                        versions.append(source[1:] if tag == 2 else source[:-1])
+                elif tag == 4:
+                    left_id = source_id
+                    right_id = rng.randrange(len(versions))
+                    left, right = versions[left_id], versions[right_id]
+                    if len(left) + len(right) > 64:
+                        right_id = 0
+                        right = versions[right_id]
+                    operations.append((4, left_id, right_id, -1, -1))
+                    versions.append([*left, *right])
+                elif tag == 5:
+                    cut = rng.randrange(len(source) + 1)
+                    operations.append((5, source_id, -1, cut, -1))
+                    versions.extend((source[:cut], source[cut:]))
+                else:
+                    threshold = rng.randrange(1, max(2, sum(source) + 6))
+                    running = 0
+                    cut = len(source)
+                    for index, value in enumerate(source, 1):
+                        running += value
+                        if running >= threshold:
+                            cut = index
+                            break
+                    operations.append((6, source_id, -1, threshold, -1))
+                    versions.extend((source[:cut], source[cut:]))
+            return (len(initial), *initial, len(operations),
+                    *(word for operation in operations for word in operation))
+
+        generated_inputs = [generate_finger_stream(0xF17E + index) for index in range(32)]
+        for case_index, values in enumerate(generated_inputs):
+            primary = measured_finger_tree_primary_oracle(
+                values, MEASURED_FINGER_TREE_MAX_OUTPUT_BYTES, False, False, len(values))
+            independent = measured_finger_tree_independent_oracle(
+                values, MEASURED_FINGER_TREE_MAX_OUTPUT_BYTES, False, False, len(values))
+            if primary != independent or primary[0] <= 0:
+                raise ValueError("measured finger tree and persistent-list references disagree")
+            result, output = add(values, MEASURED_FINGER_TREE_MAX_OUTPUT_BYTES)
+            if (result, output) != independent:
+                raise ValueError("measured finger tree generated operation stream differs from the list oracle")
+            if case_index % 4 == 0:
+                exact_result, exact_output = add(values, result)
+                if (exact_result, exact_output) != (result, output):
+                    raise ValueError("measured finger tree rejected exact output capacity")
+                short_result, short_output = add(values, result - 1)
+                if short_result != -2 or short_output:
+                    raise ValueError("measured finger tree accepted short output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("measured finger tree accepted a null output buffer")
+
+        malformed_finger_tree = (
+            (), (0,), (0, 0, 1), (33, 1), (0, 33),
+            (1, -1, 1, 2, 0, -1, -1),
+            (0, 1, 0, 9, -1, 1, -1),
+            (0, 1, 2, 0, -1, -1, -1),
+            (0, 1, 0, 0, 1, 0, -1),
+            (*tuple(workload["cases"][0]["input_values"]), 0),
+        )
+        for malformed in malformed_finger_tree:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("measured finger tree accepted malformed input")
+        precedence_result, precedence_output = add(
+            (0, 1, 2, 0, -1, -1, -1), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("measured finger tree output errors took precedence over malformed input")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("measured finger tree accepted a null input pointer")
+    elif algorithm == "tetrahedral_element_force_kernel":
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            result, output = add(
+                values,
+                case.get("output_capacity", TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"),
+            )
+            if result != case.get("expected_result") or output.hex() != case.get("expected_output_hex"):
+                raise ValueError(f"tetrahedral element force fixture mismatch: {case.get('id')}")
+
+        rng_force = random.Random(0x7E7A)
+        generated_inputs = []
+        for _ in range(64):
+            element_count = rng_force.randint(1, 12)
+            lame_lambda = rng_force.randint(0, 16)
+            lame_mu = rng_force.randint(0, 16)
+            coordinates = [rng_force.randint(-4, 4)
+                           for _ in range(12 * element_count)]
+            generated_inputs.append((element_count, lame_lambda, lame_mu, *coordinates))
+
+        dilation_coordinates = (0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2)
+        maximum_values = (TETRAHEDRAL_FORCE_MAX_ELEMENTS, 2, 3,
+                          *(dilation_coordinates * TETRAHEDRAL_FORCE_MAX_ELEMENTS))
+        if len(maximum_values) != TETRAHEDRAL_FORCE_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("tetrahedral element force maximum frame differs from its bound")
+        generated_inputs.append(maximum_values)
+
+        for values in generated_inputs:
+            primary = tetrahedral_element_force_kernel_primary_oracle(
+                values, TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES, False, False, len(values))
+            independent = tetrahedral_element_force_kernel_independent_oracle(
+                values, TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES, False, False, len(values))
+            if primary != independent or primary[0] <= 0:
+                raise ValueError("tetrahedral stress and strain-energy references disagree")
+            result, output = add(values, TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES)
+            if (result, output) != independent or result > TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES:
+                raise ValueError("tetrahedral element force ports differ from the exact references")
+            count = values[0]
+            words = struct.unpack(f"<{12 * count}q", output)
+            for element in range(count):
+                offset = 12 * element
+                for axis in range(3):
+                    if sum(words[offset + 3 * vertex + axis] for vertex in range(4)) != 0:
+                        raise ValueError("tetrahedral internal forces do not conserve element momentum")
+
+        base = (1, 2, 3, *dilation_coordinates)
+        translated_coordinates = tuple(
+            coordinate + (1 if index % 3 == 0 else -1 if index % 3 == 1 else 1)
+            for index, coordinate in enumerate(dilation_coordinates))
+        translated = (1, 2, 3, *translated_coordinates)
+        if add(base) != add(translated):
+            raise ValueError("tetrahedral element forces changed under rigid translation")
+
+        for capacity in (0, TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES - 1,
+                         TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES, 8192):
+            result, output = add(maximum_values, capacity)
+            expected = ((-2, b"") if capacity < TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES
+                        else (TETRAHEDRAL_FORCE_MAX_OUTPUT_BYTES,
+                              tetrahedral_element_force_kernel_primary_oracle(maximum_values)[1]))
+            if (result, output) != expected:
+                raise ValueError("tetrahedral force maximum output-capacity probe failed")
+        if add(maximum_values, output_is_null=True) != (-2, b""):
+            raise ValueError("tetrahedral element force accepted a null output buffer")
+
+        malformed_tetra_force = (
+            (), (1,), (0, 2, 3), (33, 2, 3), (1, -1, 3), (1, 2, 17),
+            (1, 2, 3, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 5),
+            (*maximum_values, 0),
+        )
+        for malformed in malformed_tetra_force:
+            if add(malformed) != (-1, b""):
+                raise ValueError("tetrahedral element force accepted malformed input")
+        if add((1, 2, 3, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 5),
+               0, output_is_null=True) != (-1, b""):
+            raise ValueError("tetrahedral force output errors took precedence over malformed input")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("tetrahedral element force accepted a null input pointer")
+    elif algorithm == "list_rooted_trees":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (2, LIST_ROOTED_TREES_MAX_OUTPUT_BYTES)
+                or workspace_bytes != 16384):
+            raise ValueError("list_rooted_trees byte bounds or workspace differ from its package")
+        for vertices in range(1, 8):
+            values = (vertices,)
+            primary = list_rooted_trees_primary_oracle(values)
+            independent = list_rooted_trees_independent_oracle(values)
+            if primary != independent:
+                raise ValueError("rooted-tree multiset and Prüfer references disagree")
+            result, output = add(values, LIST_ROOTED_TREES_MAX_OUTPUT_BYTES)
+            if (result, output) != independent:
+                raise ValueError("list_rooted_trees implementation differs from both references")
+            count = output[0] | (output[1] << 8)
+            width = 2 * vertices
+            records = [output[2 + index * width:2 + (index + 1) * width]
+                       for index in range(count)]
+            if (result != 2 + count * width or records != sorted(set(records))
+                    or any(record.count(b"(") != vertices
+                           or record.count(b")") != vertices for record in records)):
+                raise ValueError("list_rooted_trees output framing or canonical order is invalid")
+        maximum = (7,)
+        for capacity in (LIST_ROOTED_TREES_MAX_OUTPUT_BYTES - 1,
+                         LIST_ROOTED_TREES_MAX_OUTPUT_BYTES):
+            result, output = add(maximum, capacity)
+            expected = ((-2, b"") if capacity < LIST_ROOTED_TREES_MAX_OUTPUT_BYTES
+                        else list_rooted_trees_primary_oracle(maximum))
+            if (result, output) != expected:
+                raise ValueError("list_rooted_trees output-capacity boundary differs")
+        if add(maximum, output_is_null=True) != (-2, b""):
+            raise ValueError("list_rooted_trees accepted a null output buffer")
+        for malformed in ((), (0,), (8,), (4, 0)):
+            if add(malformed) != (-1, b""):
+                raise ValueError("list_rooted_trees accepted malformed input")
+    elif algorithm == "landau_vishkin_k_difference_pattern_matching":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (LANDAU_VISHKIN_MAX_INPUT_LENGTH,
+                    LANDAU_VISHKIN_MAX_OUTPUT_BYTES)
+                or workspace_bytes != LANDAU_VISHKIN_WORKSPACE_BYTES):
+            raise ValueError("Landau–Vishkin byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            capacity = case.get("output_capacity", LANDAU_VISHKIN_MAX_OUTPUT_BYTES)
+            call = {
+                "capacity": capacity,
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = landau_vishkin_k_difference_pattern_matching_primary_oracle(values, **call)
+            independent = landau_vishkin_k_difference_pattern_matching_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError("Landau–Vishkin diagonal and streaming-row references disagree")
+            result, output = add(
+                values, capacity,
+                output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"],
+                input_length=call["input_length"],
+            )
+            if (result, output) != independent:
+                raise ValueError(f"Landau–Vishkin endpoint mask differs for {case.get('id')}")
+            if result >= 0:
+                text_length = values[1]
+                if result != text_length or len(output) != text_length or any(byte not in (0, 1) for byte in output):
+                    raise ValueError("Landau–Vishkin output is not a binary per-endpoint mask")
+    elif algorithm == "time_based_one_time_password_algorithm":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (TOTP_VERIFIER_MAX_INPUT_LENGTH, TOTP_VERIFIER_MAX_OUTPUT_BYTES)
+                or workspace_bytes != TOTP_VERIFIER_WORKSPACE_BYTES):
+            raise ValueError("TOTP byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", TOTP_VERIFIER_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = time_based_one_time_password_algorithm_primary_oracle(values, **call)
+            independent = time_based_one_time_password_algorithm_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"TOTP primary and independent references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"TOTP result differs for {case.get('id')}")
+            if result >= 0 and (result != 6 or len(output) != 6
+                                or any(byte < 48 or byte > 57 for byte in output)):
+                raise ValueError("TOTP output is not six ASCII decimal digits")
+    elif algorithm == "fast_minimal_triangulation":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (FMT_VERIFIER_MAX_INPUT_LENGTH, FMT_VERIFIER_MAX_OUTPUT_BYTES)
+                or workspace_bytes != FMT_VERIFIER_WORKSPACE_BYTES):
+            raise ValueError("FMT byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", FMT_VERIFIER_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = fast_minimal_triangulation_primary_oracle(values, **call)
+            independent = fast_minimal_triangulation_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"FMT primary and independent references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"FMT result differs for {case.get('id')}")
+            if result >= 0 and (result < 8 or result % 16 != 8
+                                or len(output) != result
+                                or len(output) > FMT_VERIFIER_MAX_OUTPUT_BYTES):
+                raise ValueError("FMT output is not a bounded little-endian edge-pair record")
+    elif algorithm == "van_emde_boas_layout_search":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (VEB_LAYOUT_MAX_PARSEABLE_INPUT_WORDS, VEB_LAYOUT_MAX_OUTPUT_BYTES)
+                or workspace_bytes != VEB_LAYOUT_WORKSPACE_BYTES):
+            raise ValueError("vEB layout byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", VEB_LAYOUT_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = van_emde_boas_layout_search_primary_oracle(values, **call)
+            independent = van_emde_boas_layout_search_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"vEB layout references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"vEB layout result differs for {case.get('id')}")
+            if result >= 0 and (result < 24 or result % 8 != 0
+                                or len(output) != result
+                                or len(output) > VEB_LAYOUT_MAX_OUTPUT_BYTES):
+                raise ValueError("vEB layout output is not a bounded signed-i64 byte record")
+    elif algorithm == "planar_directed_general_st_flow_borradaile_klein":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (PLANAR_GENERAL_ST_FLOW_MAX_INPUT_LENGTH,
+                    PLANAR_GENERAL_ST_FLOW_MAX_OUTPUT_BYTES)
+                or workspace_bytes != PLANAR_GENERAL_ST_FLOW_WORKSPACE_BYTES):
+            raise ValueError("general planar-flow byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", PLANAR_GENERAL_ST_FLOW_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = planar_directed_general_st_flow_primary_oracle(values, **call)
+            independent = planar_directed_general_st_flow_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"general planar-flow references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"general planar-flow result differs for {case.get('id')}")
+            if result >= 0 and (result != 8 or len(output) != 8):
+                raise ValueError("general planar-flow output is not one signed-i64 value")
+    elif algorithm == "posit8_rational_encoder":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (POSIT8_ENCODER_MAX_INPUT_LENGTH, POSIT8_ENCODER_MAX_OUTPUT_BYTES)
+                or workspace_bytes != POSIT8_ENCODER_WORKSPACE_BYTES):
+            raise ValueError("posit8 byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", POSIT8_ENCODER_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = posit8_rational_encoder_primary_oracle(values, **call)
+            independent = posit8_rational_encoder_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"posit8 exact references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"posit8 encoded bytes differ for {case.get('id')}")
+            if result >= 0 and (result != len(output) or result > POSIT8_ENCODER_MAX_OUTPUT_BYTES):
+                raise ValueError("posit8 output exceeds its bounded byte batch")
+    elif algorithm == "cactus_stack_branch_trace":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (CACTUS_STACK_MAX_INPUT_LENGTH, CACTUS_STACK_MAX_OUTPUT_BYTES)
+                or workspace_bytes != CACTUS_STACK_WORKSPACE_BYTES):
+            raise ValueError("cactus-stack byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", CACTUS_STACK_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = cactus_stack_branch_trace_primary_oracle(values, **call)
+            independent = cactus_stack_branch_trace_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"cactus-stack references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"cactus-stack trace differs for {case.get('id')}")
+            if result >= 0 and (result % 16 != 0 or result != len(output)
+                                or result > CACTUS_STACK_MAX_OUTPUT_BYTES):
+                raise ValueError("cactus-stack output framing exceeds its operation trace")
+    elif algorithm == "smarandache_wellin_prime_prefix_scan":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (SMARANDACHE_WELLIN_MAX_INPUT_LENGTH, SMARANDACHE_WELLIN_MAX_OUTPUT_BYTES)
+                or workspace_bytes != SMARANDACHE_WELLIN_WORKSPACE_BYTES):
+            raise ValueError("Smarandache–Wellin byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", SMARANDACHE_WELLIN_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = smarandache_wellin_prime_prefix_scan_primary_oracle(values, **call)
+            independent = smarandache_wellin_prime_prefix_scan_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"Smarandache–Wellin references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"Smarandache–Wellin output differs for {case.get('id')}")
+            if result >= 0 and (result != len(output) or result > SMARANDACHE_WELLIN_MAX_OUTPUT_BYTES
+                                or result % 8 != 0):
+                raise ValueError("Smarandache–Wellin output exceeds its three-value bound")
+    elif algorithm == "junta_test_partition_binary_search":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (JUNTA_TEST_MAX_INPUT_LENGTH, JUNTA_TEST_MAX_OUTPUT_BYTES)
+                or workspace_bytes != JUNTA_TEST_WORKSPACE_BYTES):
+            raise ValueError("junta-test byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", JUNTA_TEST_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = junta_test_partition_binary_search_primary_oracle(values, **call)
+            independent = junta_test_partition_binary_search_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"junta-test references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"junta-test replay differs for {case.get('id')}")
+            if result >= 0 and (result != len(output) or result > JUNTA_TEST_MAX_OUTPUT_BYTES
+                                or result % 8 != 0):
+                raise ValueError("junta-test output framing exceeds its seven-word bound")
+    elif algorithm == "combinations_with_repetition_lexicographic":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (MULTICOMBINATIONS_MAX_INPUT_LENGTH, MULTICOMBINATIONS_MAX_OUTPUT_BYTES)
+                or workspace_bytes != MULTICOMBINATIONS_WORKSPACE_BYTES):
+            raise ValueError("multiset-combination byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", MULTICOMBINATIONS_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = combinations_with_repetition_lexicographic_primary_oracle(values, **call)
+            independent = combinations_with_repetition_lexicographic_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"multiset-combination references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"multiset-combination output differs for {case.get('id')}")
+            if result >= 0:
+                count = int.from_bytes(output[:2], "little") if len(output) >= 2 else -1
+                tuple_width = values[1] if len(values) == 2 else -1
+                if (result != len(output) or result < 2 or result > MULTICOMBINATIONS_MAX_OUTPUT_BYTES
+                        or not 0 <= count <= 35 or result != 2 + count * tuple_width):
+                    raise ValueError("multiset-combination output exceeds its tuple-count frame")
+    elif algorithm == "gregorian_daycount_to_ordinal_date":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (GREGORIAN_DAYCOUNT_MAX_INPUT_LENGTH, GREGORIAN_DAYCOUNT_MAX_OUTPUT_BYTES)
+                or workspace_bytes != GREGORIAN_DAYCOUNT_WORKSPACE_BYTES):
+            raise ValueError("Gregorian day-count byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", GREGORIAN_DAYCOUNT_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = gregorian_daycount_to_ordinal_date_primary_oracle(values, **call)
+            independent = gregorian_daycount_to_ordinal_date_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"Gregorian day-count references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"Gregorian day-count output differs for {case.get('id')}")
+            if result >= 0 and (result != 16 or result != len(output)):
+                raise ValueError("Gregorian day-count output differs from its two-i64 frame")
+    elif algorithm == "shannon_fano_elias_symbol_codes":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (SFE_MAX_INPUT_LENGTH, SFE_MAX_OUTPUT_BYTES)
+                or workspace_bytes != SFE_WORKSPACE_BYTES):
+            raise ValueError("Shannon–Fano–Elias byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", SFE_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = shannon_fano_elias_symbol_codes_primary_oracle(values, **call)
+            independent = shannon_fano_elias_symbol_codes_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"Shannon–Fano–Elias references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"Shannon–Fano–Elias output differs for {case.get('id')}")
+            if result >= 0:
+                n = values[0] if values else -1
+                if result != len(output) or result > SFE_MAX_OUTPUT_BYTES or result != 1 + 2 * n:
+                    raise ValueError("Shannon–Fano–Elias output exceeds its symbol-code frame")
+                for index in range(n):
+                    bit_length = output[1 + 2 * index]
+                    code_byte = output[2 + 2 * index]
+                    if (not 1 <= bit_length <= 8
+                            or code_byte & ((1 << (8 - bit_length)) - 1)):
+                        raise ValueError("Shannon–Fano–Elias codeword has invalid length or padding")
+    elif algorithm == "goodstein_sequence_bounded_prefix":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (GOODSTEIN_MAX_INPUT_LENGTH, GOODSTEIN_MAX_OUTPUT_BYTES)
+                or workspace_bytes != GOODSTEIN_WORKSPACE_BYTES):
+            raise ValueError("Goodstein-prefix byte bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", GOODSTEIN_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = goodstein_sequence_bounded_prefix_primary_oracle(values, **call)
+            independent = goodstein_sequence_bounded_prefix_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"Goodstein-prefix references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"Goodstein-prefix output differs for {case.get('id')}")
+            if result >= 0 and (result != len(output) or result > GOODSTEIN_MAX_OUTPUT_BYTES
+                                or result < 16 or result % 8 != 0):
+                raise ValueError("Goodstein-prefix output differs from its i64 term frame")
+    elif algorithm == "gpsr_perimeter_recovery_trace":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (GPSR_MAX_INPUT_LENGTH, GPSR_MAX_OUTPUT_BYTES)
+                or workspace_bytes != GPSR_WORKSPACE_BYTES):
+            raise ValueError("GPSR perimeter bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", GPSR_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = gpsr_perimeter_recovery_trace_primary_oracle(values, **call)
+            independent = gpsr_perimeter_recovery_trace_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"GPSR perimeter references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"GPSR perimeter output differs for {case.get('id')}")
+            if result >= 0:
+                if result != len(output) or result > GPSR_MAX_OUTPUT_BYTES or result % 8:
+                    raise ValueError("GPSR perimeter output differs from its variable i64 record")
+                words = result // 8
+                status, hops = struct.unpack_from("<qq", output)
+                if status not in (0, 1, 2) or hops < 0 or hops > 36:
+                    raise ValueError("GPSR perimeter status or route length exceeds its contract")
+                path_words = hops + 1
+                crossing_offset = 2 + path_words
+                if crossing_offset >= words:
+                    raise ValueError("GPSR perimeter record is missing its crossing count")
+                crossings = struct.unpack_from("<q", output, crossing_offset * 8)[0]
+                if (crossings < 0 or crossings > 18
+                        or words != crossing_offset + 1 + 4 * crossings):
+                    raise ValueError("GPSR perimeter record exceeds its route or crossing frame")
+    elif algorithm == "order_preserving_huffman_greedy_trace":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (ORDER_HUFFMAN_MAX_INPUT_LENGTH, ORDER_HUFFMAN_MAX_OUTPUT_BYTES)
+                or workspace_bytes != ORDER_HUFFMAN_WORKSPACE_BYTES):
+            raise ValueError("order-preserving Huffman bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", ORDER_HUFFMAN_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = order_preserving_huffman_greedy_trace_primary_oracle(values, **call)
+            independent = order_preserving_huffman_greedy_trace_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"order-preserving Huffman references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"order-preserving Huffman output differs for {case.get('id')}")
+            if result >= 0:
+                n = values[0] if values else -1
+                if result != len(output) or result > ORDER_HUFFMAN_MAX_OUTPUT_BYTES or result != 8 * (n + 2):
+                    raise ValueError("order-preserving Huffman output differs from its depth-vector frame")
+    elif algorithm == "powerful_numbers_square_cube_enumeration":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (POWERFUL_NUMBERS_MAX_INPUT_LENGTH, POWERFUL_NUMBERS_MAX_OUTPUT_BYTES)
+                or workspace_bytes != POWERFUL_NUMBERS_WORKSPACE_BYTES):
+            raise ValueError("powerful-number enumeration bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "capacity": case.get("output_capacity", POWERFUL_NUMBERS_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = powerful_numbers_square_cube_enumeration_primary_oracle(values, **call)
+            independent = powerful_numbers_square_cube_enumeration_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"powerful-number references differ for {case.get('id')}")
+            result, output = add(
+                values, call["capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"powerful-number output differs for {case.get('id')}")
+            if result >= 0:
+                if (result != len(output) or result > POWERFUL_NUMBERS_MAX_OUTPUT_BYTES
+                        or result < 16 or result % 8):
+                    raise ValueError("powerful-number output differs from its i64 sequence frame")
+                count = struct.unpack_from("<q", output)[0]
+                if count > 14 or result != 8 * (count + 1):
+                    raise ValueError("powerful-number output count exceeds its sequence frame")
+    elif algorithm == "balanced_parenthesis_successor":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (BALANCED_PARENTHESIS_SUCCESSOR_MAX_INPUT_LENGTH,
+                    BALANCED_PARENTHESIS_SUCCESSOR_MAX_OUTPUT_BYTES)
+                or workspace_bytes != 128):
+            raise ValueError("balanced-parenthesis bounds or workspace differ from its package")
+        for case in workload.get("cases", ()):
+            values = tuple(case.get("input_values", ()))
+            call = {
+                "output_capacity": case.get(
+                    "output_capacity", BALANCED_PARENTHESIS_SUCCESSOR_MAX_OUTPUT_BYTES),
+                "output_is_null": case.get("output_is_null", False),
+                "input_is_null": case.get("input_is_null", False),
+                "input_length": case.get("input_length"),
+            }
+            primary = balanced_parenthesis_successor_primary_oracle(values, **call)
+            independent = balanced_parenthesis_successor_independent_oracle(values, **call)
+            if primary != independent:
+                raise ValueError(f"balanced-parenthesis references differ for {case.get('id')}")
+            result, output = add(
+                values, call["output_capacity"], output_is_null=call["output_is_null"],
+                input_is_null=call["input_is_null"], input_length=call["input_length"])
+            if (result, output) != independent:
+                raise ValueError(f"balanced-parenthesis output differs for {case.get('id')}")
+            if result >= 0 and (result != len(output)
+                                or result != 2 * values[0]
+                                or any(byte not in (40, 41) for byte in output)):
+                raise ValueError("balanced-parenthesis output differs from its ASCII frame")
+    elif algorithm == "three_prime_carmichael_enumerator":
+        if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                != (THREE_PRIME_CARMICHAEL_MAX_INPUT_LENGTH,
+                    THREE_PRIME_CARMICHAEL_MAX_OUTPUT_BYTES)
+                or workspace_bytes != THREE_PRIME_CARMICHAEL_WORKSPACE_BYTES):
+            raise ValueError("three-prime Carmichael byte bounds or workspace differ from its package")
+        for limit in range(2, THREE_PRIME_CARMICHAEL_MAX_LIMIT + 1):
+            values = (limit,)
+            primary = three_prime_carmichael_primary_oracle(values)
+            independent = three_prime_carmichael_independent_oracle(values)
+            if primary != independent:
+                raise ValueError("parameter-loop and Korselt Carmichael references disagree")
+            result, output = add(values, THREE_PRIME_CARMICHAEL_MAX_OUTPUT_BYTES)
+            if (result, output) != (len(independent), independent):
+                raise ValueError("three-prime Carmichael implementation differs from both references")
+            count, = struct.unpack_from("<I", output)
+            if result != 4 + 12 * count or count > 69:
+                raise ValueError("three-prime Carmichael output framing exceeds the bounded count")
+            triples = [struct.unpack_from("<III", output, 4 + 12 * index)
+                       for index in range(count)]
+            if triples != three_prime_carmichael_enumerate_triples(limit):
+                raise ValueError("three-prime Carmichael triples differ from source-loop order")
+
+        maximum_input = (THREE_PRIME_CARMICHAEL_MAX_LIMIT,)
+        maximum_expected = three_prime_carmichael_primary_oracle(maximum_input)
+        if len(maximum_expected) != THREE_PRIME_CARMICHAEL_MAX_OUTPUT_BYTES:
+            raise ValueError("three-prime Carmichael maximum output differs from its 69-record bound")
+        for capacity in (THREE_PRIME_CARMICHAEL_MAX_OUTPUT_BYTES - 1,
+                         THREE_PRIME_CARMICHAEL_MAX_OUTPUT_BYTES, 4096):
+            result, output = add(maximum_input, capacity)
+            expected = ((-2, b"") if capacity < THREE_PRIME_CARMICHAEL_MAX_OUTPUT_BYTES
+                        else (len(maximum_expected), maximum_expected))
+            if (result, output) != expected:
+                raise ValueError("three-prime Carmichael output-capacity boundary differs")
+        if add(maximum_input, output_is_null=True) != (-2, b""):
+            raise ValueError("three-prime Carmichael implementation accepted a null output buffer")
+        for malformed in ((), (1,), (62,), (3, 0)):
+            if add(malformed) != (-1, b""):
+                raise ValueError("three-prime Carmichael implementation accepted malformed input")
+        if add((62,), 0, output_is_null=True) != (-1, b""):
+            raise ValueError("three-prime Carmichael output errors took precedence over invalid input")
+        if add((), input_is_null=True, input_length=0) != (-1, b""):
+            raise ValueError("three-prime Carmichael implementation accepted a null input pointer")
     elif algorithm == "hirschberg_lcs":
         def pack_hirschberg(first, second):
             return (len(first), len(second), *first, *second)
@@ -21713,13 +30271,99 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_result, null_output = add((), input_is_null=True, input_length=0)
         if null_result != -1 or null_output:
             raise ValueError("Lengauer–Tarjan accepted a null input pointer")
-    elif algorithm == "half_plane_intersection":
+    elif algorithm == "circle_circle_intersection_symbolic":
+        generated = [(0,0,2,2,0,2), (0,0,1,2,0,1), (0,0,3,2,0,1),
+                     (0,0,4,1,0,1), (0,0,1,3,0,1), (3,-4,5,3,-4,5),
+                     (3,-4,5,3,-4,3), (1000,-1000,1000,-1000,1000,1000),
+                     (-10,7,13,4,-8,19)]
+        for r1 in (1, 5, 100, 400):
+            for r2 in (1, 7, 100, 400):
+                for boundary in (r1+r2, abs(r1-r2)):
+                    for delta in (-1, 0, 1):
+                        distance = boundary+delta
+                        if 0 <= distance <= 1000:
+                            generated.append((0, 0, r1, distance, 0, r2))
+                            generated.append((0, 0, r1, 0, -distance, r2))
+        rng_circle = random.Random(0xC1AC1F)
+        for _ in range(128):
+            generated.append((rng_circle.randint(-1000,1000), rng_circle.randint(-1000,1000),
+                              rng_circle.randint(1,1000), rng_circle.randint(-1000,1000),
+                              rng_circle.randint(-1000,1000), rng_circle.randint(1,1000)))
+        for values in generated:
+            result, output = add(values)
+            if result not in (8,56) or len(output) != result:
+                raise ValueError("circle-circle symbolic output framing mismatch")
+            if add(values, result) != (result, output):
+                raise ValueError("circle-circle symbolic rejected exact output capacity")
+            if add(values, result-1) != (-2, b"") or add(values, output_is_null=True) != (-2, b""):
+                raise ValueError("circle-circle symbolic accepted invalid output")
+        for values in ((), (0,0,0,0,0,1), (0,0,1,0,0,1001),
+                       (0,0,1,0,0,1,0), (-(1 << 63),0,1,0,0,1),
+                       (0,0,1,(1 << 63)-1,0,1)):
+            if add(values) != (-1,b""):
+                raise ValueError("circle-circle symbolic accepted malformed input")
+        if add((0,0,0,0,0,1), 0, output_is_null=True) != (-1,b""):
+            raise ValueError("circle-circle symbolic output error preceded invalid input")
+        if add((), input_is_null=True, input_length=0) != (-1,b""):
+            raise ValueError("circle-circle symbolic accepted null input")
+    elif algorithm == "circle_line_intersection_symbolic":
+        generated = [
+            (0, 0, 1, 1, 0, 0), (0, 0, 1, 1, 0, -1),
+            (0, 0, 1, 1, 0, -2), (10, -20, 13, 0, -5, -100),
+            (1000, -1000, 1000, -1000, 999, 1000),
+            (3, 4, 5, 2, 3, -7), (3, 4, 5, -2, -3, 7),
+        ]
+        rng_symbolic = random.Random(0xC1AC1E)
+        for _ in range(128):
+            x = rng_symbolic.randint(-1000, 1000)
+            y = rng_symbolic.randint(-1000, 1000)
+            r = rng_symbolic.randint(1, 1000)
+            a = rng_symbolic.randint(-1000, 1000)
+            b = rng_symbolic.randint(-1000, 1000)
+            if a == 0 and b == 0:
+                a = 1
+            generated.append((x, y, r, a, b, rng_symbolic.randint(-1000, 1000)))
+        for values in generated:
+            result, output = add(values)
+            if result not in (8, 56) or len(output) != result:
+                raise ValueError("circle-line symbolic output framing mismatch")
+            exact_result, exact_output = add(values, result)
+            if exact_result != result or exact_output != output:
+                raise ValueError("circle-line symbolic rejected exact output capacity")
+            short_result, short_output = add(values, result - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("circle-line symbolic accepted short output")
+            null_result, null_output = add(values, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("circle-line symbolic accepted null output")
+        for values in ((), (0,0,1,0,0,0), (0,0,0,1,0,0),
+                       (0,0,1,1,0,1001), (0,0,1,1,0,0,0),
+                       (-(1 << 63),0,1,1,0,0), (0,0,1,1,0,(1 << 63)-1)):
+            result, output = add(values)
+            if result != -1 or output:
+                raise ValueError("circle-line symbolic accepted malformed input")
+        result, output = add((0,0,1,0,0,0), 0, output_is_null=True)
+        if result != -1 or output:
+            raise ValueError("circle-line symbolic output errors took precedence over invalid input")
+        result, output = add((), input_is_null=True, input_length=0)
+        if result != -1 or output:
+            raise ValueError("circle-line symbolic accepted null input")
+    elif algorithm in ("half_plane_intersection", "half_plane_intersection_incremental_clipping"):
         def pack_halfplanes(constraints):
             return (len(constraints),
                     *(coefficient for line in constraints for coefficient in line))
 
         rng_halfplanes = random.Random(0xA11CE)
-        generated_inputs = [(0,)]
+        generated_inputs = [
+            (0,),
+            pack_halfplanes([(1, 0, 1), (-1, 0, 1), (0, 1, 1), (0, -1, 1), (1, 1, 2)]),
+            pack_halfplanes([(1, 1, 2), (0, -1, 1), (0, 1, 1), (-1, 0, 1), (1, 0, 1)]),
+            pack_halfplanes([(1, 0, 0), (-1, 0, 0), (0, 1, 1)]),
+            pack_halfplanes([(1, 0, 0), (1, 0, 0), (-1, 0, 0)]),
+            pack_halfplanes([(1, 1, 0), (-1, -1, -1)]),
+            pack_halfplanes([(2, 3, 7), (-3, 2, 5), (1, -1, 4), (-1, 0, 3)]),
+            pack_halfplanes([(1, 0, 4), (0, 1, 4), (-1, 0, 4), (0, -1, 4), (1, 1, 0), (-1, -1, 0)]),
+        ]
         for _ in range(128):
             constraints = []
             for _ in range(rng_halfplanes.randint(0, HALF_PLANE_INTERSECTION_MAX_CONSTRAINTS)):
@@ -21755,10 +30399,12 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 if null_result != -2 or null_output:
                     raise ValueError("half-plane accepted a null output buffer")
 
-        malformed_halfplanes = (
+        malformed_halfplanes = [
             (), (0, 9), (13,), (1, 0, 0, 0), (1, 2, 0, 1),
             (1, 17, 0, 1), (1, 1, 0, 129), (1, 1, 0),
-        )
+        ]
+        if algorithm == "half_plane_intersection_incremental_clipping":
+            malformed_halfplanes.append(maximum_values + (0,))
         for malformed in malformed_halfplanes:
             result, output = add(malformed)
             if result != -1 or output:
@@ -23434,6 +32080,56 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_result, null_output = add((), input_is_null=True, input_length=0)
         if null_result != -1 or null_output:
             raise ValueError("suffix_array_sais accepted a null input pointer")
+    elif algorithm == "suffix_array_blind_trie":
+        rng_blind_trie = random.Random(0xB11D)
+        generated_blind_texts = [
+            (length, *((mask >> index) & 1 for index in range(length)))
+            for length in range(8)
+            for mask in range(1 << length)
+        ]
+        generated_blind_texts.extend(
+            (length, *((index * 37 + length * 11) % 256 for index in range(length)))
+            for length in range(SUFFIX_ARRAY_BLIND_TRIE_MAX_TEXT_LENGTH + 1)
+        )
+        for _ in range(64):
+            length = rng_blind_trie.randrange(SUFFIX_ARRAY_BLIND_TRIE_MAX_TEXT_LENGTH + 1)
+            generated_blind_texts.append(
+                (length, *(rng_blind_trie.randrange(256) for _ in range(length)))
+            )
+        for case_index, values in enumerate(generated_blind_texts):
+            result, output = add(values)
+            primary = suffix_array_blind_trie_primary_oracle(values)
+            independent = suffix_array_blind_trie_independent_oracle(values)
+            if primary != independent or (result, output) != primary:
+                raise ValueError("suffix_array_blind_trie references disagree on generated input")
+            if result != 8 * values[0] or len(output) != result:
+                raise ValueError("suffix_array_blind_trie generated output framing differs")
+            if case_index % 8 == 0:
+                if result > 0:
+                    short_result, short_output = add(values, result - 1)
+                    if short_result != -2 or short_output:
+                        raise ValueError("suffix_array_blind_trie accepted insufficient capacity")
+                exact_result, exact_output = add(values, result)
+                if exact_result != result or exact_output != output:
+                    raise ValueError("suffix_array_blind_trie rejected exact output capacity")
+                null_result, null_output = add(values, output_is_null=True)
+                if null_result != -2 or null_output:
+                    raise ValueError("suffix_array_blind_trie accepted a null output buffer")
+
+        malformed_blind_trie = (
+            (), (-1,), (33, *([0] * 33)), (1, 256), (1, -1),
+            (1, 97, 0), (2, 97), (32, *([0] * 31)),
+        )
+        for malformed in malformed_blind_trie:
+            result, output = add(malformed)
+            if result != -1 or output:
+                raise ValueError("suffix_array_blind_trie accepted malformed text input")
+        precedence_result, precedence_output = add((1, 256), 0, output_is_null=True)
+        if precedence_result != -1 or precedence_output:
+            raise ValueError("suffix_array_blind_trie output errors took precedence over invalid input")
+        null_result, null_output = add((), input_is_null=True, input_length=0)
+        if null_result != -1 or null_output:
+            raise ValueError("suffix_array_blind_trie accepted a null input pointer")
     elif algorithm == "minkowski_sum_convex_polygons":
         def pack_minkowski_polygons(first, second):
             return (
@@ -28477,6 +37173,12 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         maximum_result, maximum_output = add(maximum_input)
         if maximum_result != max_output or len(maximum_output) != max_output:
             raise ValueError("mccat_qbsort maximum fixture does not fill its output bound")
+        # These first-pivot inputs create maximally unbalanced partitions and
+        # exercise the full 560-node capacity of the index-linked drafts.
+        for items in (tuple(range(MCCAT_QBSORT_MAX_COUNT)),
+                      tuple(range(MCCAT_QBSORT_MAX_COUNT - 1, -1, -1)),
+                      (0,) * MCCAT_QBSORT_MAX_COUNT):
+            add((1, MCCAT_QBSORT_MAX_COUNT, *items))
         for capacity in (0, max_output - 1, max_output, workspace_bytes):
             add(maximum_input, capacity)
         add(maximum_input, output_is_null=True)
@@ -29877,6 +38579,607 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 if add(invalid, output_is_null=True) != (-1, b""):
                     raise ValueError("content-defined chunking accepted malformed input")
             add((), input_is_null=True, input_length=0)
+        elif algorithm == "gray_code_k_combinations":
+            def check_gray_sequence(values: tuple[int, ...], result: int, output: bytes) -> None:
+                primary_result, primary_output = gray_code_k_combinations_primary_evaluate(values)
+                if (result, output) != (primary_result, primary_output):
+                    raise ValueError("fixed-weight Gray-code references disagree")
+                n, k = values
+                count = int.from_bytes(output[:2], "little")
+                masks = tuple(int.from_bytes(output[i:i + 2], "little")
+                              for i in range(2, len(output), 2))
+                if (result != math.comb(n, k) or count != result
+                        or len(output) != 2 + 2 * result
+                        or len(set(masks)) != result
+                        or any(mask >= (1 << n) for mask in masks)
+                        or any(mask.bit_count() != k for mask in masks)):
+                    raise ValueError("fixed-weight Gray-code sequence framing or cardinality failed")
+                if len(masks) > 1 and any(
+                        (masks[i] ^ masks[(i + 1) % len(masks)]).bit_count() != 2
+                        for i in range(len(masks))):
+                    raise ValueError("fixed-weight Gray-code sequence lost its cyclic minimal-change order")
+
+            for n in range(8):
+                for k in range(n + 1):
+                    values = (n, k)
+                    result, output = add(values)
+                    check_gray_sequence(values, result, output)
+                    if add(values, len(output) - 1) != (-2, b""):
+                        raise ValueError("fixed-weight Gray-code generator accepted insufficient capacity")
+                    if add(values, output_is_null=True) != (-2, b""):
+                        raise ValueError("fixed-weight Gray-code generator accepted null output")
+            maximum = (12, 6)
+            result, output = add(maximum)
+            check_gray_sequence(maximum, result, output)
+            if result != 924 or len(output) != 1850:
+                raise ValueError("fixed-weight Gray-code maximum profile differs")
+            if add(maximum, len(output) - 1) != (-2, b""):
+                raise ValueError("fixed-weight Gray-code maximum accepted insufficient capacity")
+            if add(maximum, output_is_null=True) != (-2, b""):
+                raise ValueError("fixed-weight Gray-code maximum accepted null output")
+            for invalid in ((), (-1, 0), (3, -1), (3, 4), (13, 1), (3, 1, 9)):
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("fixed-weight Gray-code generator accepted malformed input")
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("fixed-weight Gray-code generator accepted null input")
+        elif algorithm == "glushkov_bit_parallel_regex_search":
+            patterns = (b"a", b".", b"a*", b"a|bc", b"(ab|c)*",
+                        b"(a|b)c", b"(a|b)(a|b)", b".*a")
+            high_byte_wildcard = (1, 1, 127, 46)
+            if (add(high_byte_wildcard)
+                    != glushkov_bit_parallel_regex_search_primary_oracle(high_byte_wildcard)):
+                raise ValueError("Glushkov wildcard search rejected the highest valid input byte")
+            for text_length in range(4):
+                for text in product((97, 98, 99), repeat=text_length):
+                    for pattern in patterns:
+                        values = (len(text), len(pattern), *text, *pattern)
+                        result, output = add(values)
+                        if ((result, output)
+                                != glushkov_bit_parallel_regex_search_primary_oracle(values)):
+                            raise ValueError("Glushkov bit-parallel and position references disagree")
+                        if result != len(text) or len(output) != len(text):
+                            raise ValueError("Glushkov regex search returned invalid prefix framing")
+                        if text:
+                            if add(values, len(text) - 1) != (-2, b""):
+                                raise ValueError("Glushkov regex search accepted insufficient capacity")
+                            if add(values, output_is_null=True) != (-2, b""):
+                                raise ValueError("Glushkov regex search accepted null output")
+            maximum_pattern = b"((((((a|b)(a|b)(a|b)(a|b))))))"
+            maximum_text = tuple(97 if index % 2 == 0 else 98 for index in range(24))
+            maximum = (24, len(maximum_pattern), *maximum_text, *maximum_pattern)
+            result, output = add(maximum)
+            if (len(maximum) != 58 or len(maximum_pattern) != 32
+                    or (result, output)
+                    != glushkov_bit_parallel_regex_search_primary_oracle(maximum)):
+                raise ValueError("Glushkov regex search maximum frame or references disagree")
+            if add(maximum, 23) != (-2, b""):
+                raise ValueError("Glushkov regex search maximum accepted insufficient capacity")
+            if add((0, 1, 97), 0, output_is_null=True) != (0, b""):
+                raise ValueError("Glushkov regex search rejected an empty output with null storage")
+            malformed_patterns = (b"*", b"a|", b"|a", b"()", b"a**", b"(", b"a)")
+            malformed = [(1, len(pattern), 97, *pattern) for pattern in malformed_patterns]
+            malformed.extend((
+                (-1, 1, 97, 97),
+                (0, 0),
+                (1, 1, 0, 97),
+                (2, 1, 97, 97),
+                (25, 1, *(97 for _ in range(25)), 97),
+                (0, 33, *(97 for _ in range(33))),
+                (0, 9, *(97 for _ in range(9))),
+                (1, 1, 97, 97, 98),
+            ))
+            for invalid in malformed:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Glushkov regex search accepted malformed input")
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("Glushkov regex search accepted null input")
+        elif algorithm == "hough_line_transform":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (HOUGH_LINE_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+                        HOUGH_LINE_TRANSFORM_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != HOUGH_LINE_TRANSFORM_MAX_OUTPUT_BYTES):
+                raise ValueError("Hough line-transform suite bounds differ from its fixed accumulator")
+            for height in range(1, 9):
+                for width in range(1, 9):
+                    patterns = (
+                        (0,) * (height * width),
+                        (1,) * (height * width),
+                        tuple(int((row + column) % 2 == 0)
+                              for row in range(height) for column in range(width)),
+                        tuple(int(row == height - 1 and column == width - 1)
+                              for row in range(height) for column in range(width)),
+                    )
+                    for pixels in patterns:
+                        values = (height, width, *pixels)
+                        primary = hough_line_transform_primary_oracle(
+                            values, capacity=HOUGH_LINE_TRANSFORM_MAX_OUTPUT_BYTES)
+                        result, output = add(values)
+                        if ((result, output) != primary
+                                or result != HOUGH_LINE_TRANSFORM_MAX_OUTPUT_BYTES
+                                or len(output) != HOUGH_LINE_TRANSFORM_MAX_OUTPUT_BYTES):
+                            raise ValueError("Hough line-transform accumulator/reference mismatch")
+                        if add(values, result - 1) != (-2, b""):
+                            raise ValueError("Hough line-transform accepted insufficient output capacity")
+                        if add(values, output_is_null=True) != (-2, b""):
+                            raise ValueError("Hough line-transform accepted a null output buffer")
+            maximum = (8, 8, *((1,) * 64))
+            result, output = add(maximum)
+            if ((result, output)
+                    != hough_line_transform_primary_oracle(
+                        maximum, capacity=HOUGH_LINE_TRANSFORM_MAX_OUTPUT_BYTES)
+                    or result != 116 or len(output) != 116
+                    or max(output) != 8 or sum(output) != 256):
+                raise ValueError("Hough line-transform maximum accumulator differs")
+            malformed = (
+                (), (1,), (0, 1, 0), (1, 0, 0), (9, 1, 0), (1, 9, 0),
+                (1, 1), (1, 1, 0, 1), (1, 1, -1), (1, 1, 2),
+                (8, 8, *((0,) * 65)),
+            )
+            for invalid in malformed:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Hough line-transform accepted malformed input")
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("Hough line-transform accepted null input")
+        elif algorithm == "kmeans_plus_plus_seeding":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (KMEANS_PLUS_PLUS_MAX_INPUT_LENGTH,
+                        KMEANS_PLUS_PLUS_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != KMEANS_PLUS_PLUS_MAX_OUTPUT_BYTES):
+                raise ValueError("k-means++ suite bounds differ from its deterministic seeding profile")
+            for point_count in (1, 2, 3, 8, 16, 32):
+                for dimension in (1, 2, 4):
+                    center_counts = sorted({1, min(2, point_count),
+                                            min(8, point_count)})
+                    coordinates = tuple(
+                        (row * 7 + axis * 11 + point_count * 3 + dimension) % 33 - 16
+                        for row in range(point_count)
+                        for axis in range(dimension))
+                    for center_count in center_counts:
+                        first_row = point_count - 1
+                        values = (point_count, dimension, center_count, first_row,
+                                  *coordinates, *((0,) * (center_count - 1)))
+                        result, output = add(values)
+                        if ((result, output)
+                                != kmeans_plus_plus_seeding_primary_oracle(
+                                    values, output_capacity=KMEANS_PLUS_PLUS_MAX_OUTPUT_BYTES)
+                                or result != center_count * 8
+                                or len(output) != center_count * 8):
+                            raise ValueError("k-means++ generated D²-seeding references disagree")
+                        if add(values, result - 1) != (-2, b""):
+                            raise ValueError("k-means++ accepted insufficient output capacity")
+                        if add(values, output_is_null=True) != (-2, b""):
+                            raise ValueError("k-means++ accepted a null output buffer")
+                        selected = struct.unpack("<" + "q" * center_count, output)
+                        if (selected[0] != first_row or len(set(selected)) != center_count
+                                or any(not 0 <= row < point_count for row in selected)):
+                            raise ValueError("k-means++ returned invalid selected-row indices")
+            max_point_count, max_dimension, max_centers = 32, 4, 8
+            max_coordinates = tuple(
+                (row * 7 + axis * 11 + 3) % 33 - 16
+                for row in range(max_point_count) for axis in range(max_dimension))
+            maximum = (max_point_count, max_dimension, max_centers,
+                       max_point_count - 1, *max_coordinates, *((0,) * (max_centers - 1)))
+            result, output = add(maximum, KMEANS_PLUS_PLUS_MAX_OUTPUT_BYTES)
+            if ((result, output)
+                    != kmeans_plus_plus_seeding_primary_oracle(
+                        maximum, output_capacity=KMEANS_PLUS_PLUS_MAX_OUTPUT_BYTES)
+                    or len(maximum) != KMEANS_PLUS_PLUS_MAX_INPUT_LENGTH
+                    or result != KMEANS_PLUS_PLUS_MAX_OUTPUT_BYTES):
+                raise ValueError("k-means++ maximum deterministic frame/reference mismatch")
+            if add(maximum, KMEANS_PLUS_PLUS_MAX_OUTPUT_BYTES - 1) != (-2, b""):
+                raise ValueError("k-means++ maximum frame accepted insufficient capacity")
+            if add(maximum, output_is_null=True) != (-2, b""):
+                raise ValueError("k-means++ maximum frame accepted null output storage")
+            malformed = (
+                (), (1,), (1, 1, 1, 0), (0, 1, 1, 0, 0),
+                (1, 0, 1, 0, 0), (1, 1, 0, 0, 0),
+                (1, 1, 1, 1, 0), (1, 1, 1, 0, 17),
+                (1, 1, 1, 0, 0, 0), (2, 1, 3, 0, 0, 1, 0, 0),
+                (2, 1, 2, 0, 0, 1, -1), (2, 1, 2, 0, 0, 1, 1),
+                (2, 1, 2, 0, 3, 3, 1),
+            )
+            for invalid in malformed:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("k-means++ accepted malformed frame or draw tape")
+            if add((), input_is_null=True, input_length=0) != (-1, b""):
+                raise ValueError("k-means++ accepted null input")
+        elif algorithm == "van_der_corput_sequence":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (4, 2048)
+                    or workspace_bytes != 2048):
+                raise ValueError("Van der Corput suite bounds differ from its exact-rational profile")
+            for base in range(2, 17):
+                for first_index in (1, 2, 3, 17, 255, 4095, 4096):
+                    for count in (0, 1, 2):
+                        if count and first_index + count - 1 > 4096:
+                            continue
+                        values = (base, first_index, count)
+                        primary = van_der_corput_sequence_primary_oracle(
+                            values, output_capacity=2048)
+                        result, output = add(values, 2048)
+                        if ((result, output) != primary
+                                or result != 16 * count or len(output) != result):
+                            raise ValueError("Van der Corput window differs from its digit references")
+                        if output:
+                            if add(values, len(output) - 1) != (-2, b""):
+                                raise ValueError("Van der Corput sequence accepted short output capacity")
+                            if add(values, output_is_null=True) != (-2, b""):
+                                raise ValueError("Van der Corput sequence accepted a null output buffer")
+                        else:
+                            if add(values, 0) != (0, b""):
+                                raise ValueError("Van der Corput empty window wrote output")
+                            if add(values, 0, output_is_null=True) != (-2, b""):
+                                raise ValueError("Van der Corput empty window accepted null output storage")
+
+            maximum = (16, 3969, 128)
+            if add(maximum, 2048) != van_der_corput_sequence_primary_oracle(
+                    maximum, output_capacity=2048):
+                raise ValueError("Van der Corput maximum-window reference mismatch")
+            malformed = (
+                (), (2, 1), (2, 1, 1, 0), (1, 1, 1), (17, 1, 1),
+                (2, 0, 1), (2, 4097, 1), (2, 4096, 2),
+                (2, 1, -1), (2, 1, 129),
+            )
+            for invalid in malformed:
+                if add(invalid) != (-1, b""):
+                    raise ValueError("Van der Corput sequence accepted malformed input")
+            if add((1, 1, 1), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("Van der Corput output error overrode invalid-input precedence")
+            if add((), input_is_null=True, input_length=3) != (-1, b""):
+                raise ValueError("Van der Corput sequence accepted a null input pointer")
+        elif algorithm == "ekg_sequence":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (EKG_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH,
+                        EKG_SEQUENCE_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != EKG_SEQUENCE_WORKSPACE_BYTES):
+                raise ValueError("EKG sequence bounds differ from its bounded-prefix profile")
+            expected_prefix = (1, 2, 4, 6, 3, 9, 12, 8)
+            for count in range(1, len(expected_prefix) + 1):
+                values = (count,)
+                result, output = add(values, EKG_SEQUENCE_MAX_OUTPUT_BYTES)
+                primary = ekg_sequence_primary_oracle(
+                    values, output_capacity=EKG_SEQUENCE_MAX_OUTPUT_BYTES)
+                terms = struct.unpack("<" + "q" * count, output)
+                if ((result, output) != primary
+                        or result != 8 * count
+                        or terms != expected_prefix[:count]):
+                    raise ValueError("EKG sequence prefix differs from the recurrence reference")
+                if add(values, result - 1) != (-2, b""):
+                    raise ValueError("EKG sequence accepted insufficient output capacity")
+                if add(values, output_is_null=True) != (-2, b""):
+                    raise ValueError("EKG sequence accepted a null output buffer")
+            maximum = (8,)
+            if add(maximum, EKG_SEQUENCE_MAX_OUTPUT_BYTES) != (
+                    EKG_SEQUENCE_MAX_OUTPUT_BYTES,
+                    ekg_sequence_primary_oracle(
+                        maximum, output_capacity=EKG_SEQUENCE_MAX_OUTPUT_BYTES)[1]):
+                raise ValueError("EKG sequence maximum-prefix result differs from its reference")
+            malformed = (
+                (), (0,), (-1,), (9,), (8, 0),
+                (-(1 << 63),), ((1 << 63) - 1,),
+            )
+            for invalid in malformed:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("EKG sequence accepted malformed frame or count")
+            if add((8,), input_is_null=True, input_length=1) != (-1, b""):
+                raise ValueError("EKG sequence accepted a null input pointer")
+            if add((9,), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("EKG output error overrode invalid-input precedence")
+        elif algorithm == "jacobson_matthews_latin_square_chain":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (JM_LATIN_SQUARE_MAX_INPUT_LENGTH,
+                        JM_LATIN_SQUARE_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != JM_LATIN_SQUARE_WORKSPACE_BYTES):
+                raise ValueError("Jacobson–Matthews bounds differ from its bounded-chain profile")
+            for order in range(2, 5):
+                values = (order, 0)
+                result, output = add(values, JM_LATIN_SQUARE_MAX_OUTPUT_BYTES)
+                if ((result, output) != jm_latin_square_primary_oracle(
+                        values, capacity=JM_LATIN_SQUARE_MAX_OUTPUT_BYTES)
+                        or result != 8 * (2 + order ** 3)):
+                    raise ValueError("Jacobson–Matthews zero-step state differs from its reference")
+            transition = (3, 2, 0, 5)
+            result, output = add(transition, JM_LATIN_SQUARE_MAX_OUTPUT_BYTES)
+            if ((result, output) != jm_latin_square_primary_oracle(
+                    transition, capacity=JM_LATIN_SQUARE_MAX_OUTPUT_BYTES)
+                    or result != 232):
+                raise ValueError("Jacobson–Matthews proper/improper trajectory differs from its reference")
+            maximum = (4, 12, *((0,) * 12))
+            result, output = add(maximum, JM_LATIN_SQUARE_MAX_OUTPUT_BYTES)
+            if ((result, output) != jm_latin_square_primary_oracle(
+                    maximum, capacity=JM_LATIN_SQUARE_MAX_OUTPUT_BYTES)
+                    or len(maximum) != JM_LATIN_SQUARE_MAX_INPUT_LENGTH
+                    or result != JM_LATIN_SQUARE_MAX_OUTPUT_BYTES):
+                raise ValueError("Jacobson–Matthews maximum frame differs from its reference")
+            if add(maximum, result - 1) != (-2, b""):
+                raise ValueError("Jacobson–Matthews accepted insufficient output capacity")
+            if add(maximum, output_is_null=True) != (-2, b""):
+                raise ValueError("Jacobson–Matthews accepted a null output buffer")
+            malformed = (
+                (), (2,), (1, 0), (5, 0), (2, -1), (2, 13),
+                (2, 0, 0), (2, 1), (3, 1, 48), (3, 2, 0, 8),
+            )
+            for invalid in malformed:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Jacobson–Matthews accepted malformed input or move rank")
+            if add((2, 0), input_is_null=True, input_length=2) != (-1, b""):
+                raise ValueError("Jacobson–Matthews accepted a null input pointer")
+        elif algorithm == "hofstadter_figure_figure_sequences":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (FIGURE_FIGURE_MAX_PARSEABLE_INPUT_LENGTH,
+                        FIGURE_FIGURE_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != FIGURE_FIGURE_WORKSPACE_BYTES):
+                raise ValueError("Figure–Figure bounds differ from its paired-prefix profile")
+            first_figure = (1, 3, 7, 12, 18, 26, 35, 45, 56, 68)
+            first_space = (2, 4, 5, 6, 8, 9, 10, 11, 13, 14)
+            for terms in range(1, 65):
+                values = (terms,)
+                result, output = add(values, FIGURE_FIGURE_MAX_OUTPUT_BYTES)
+                primary = figure_figure_primary_oracle(
+                    values, capacity=FIGURE_FIGURE_MAX_OUTPUT_BYTES)
+                if (result, output) != primary or result != 8 * (1 + 2 * terms):
+                    raise ValueError("Figure–Figure paired prefix differs from its recurrence oracle")
+                if terms <= len(first_figure):
+                    words = struct.unpack("<" + "q" * (1 + 2 * terms), output)
+                    if (words[0] != terms
+                            or words[1:1 + terms] != first_figure[:terms]
+                            or words[1 + terms:] != first_space[:terms]):
+                        raise ValueError("Figure–Figure initial terms differ from the published sequence")
+                if not figure_figure_verify_result(
+                        values, result, output,
+                        output_capacity=FIGURE_FIGURE_MAX_OUTPUT_BYTES):
+                    raise ValueError("Figure–Figure complement verifier rejected its reference output")
+                if add(values, result - 1) != (-2, b""):
+                    raise ValueError("Figure–Figure accepted insufficient output capacity")
+                if add(values, output_is_null=True) != (-2, b""):
+                    raise ValueError("Figure–Figure accepted a null output buffer")
+            malformed = (
+                (), (0,), (-1,), (65,), ((1 << 63) - 1,),
+                (-(1 << 63),), (5, 0),
+            )
+            for invalid in malformed:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Figure–Figure accepted malformed input")
+            if add((64,), FIGURE_FIGURE_MAX_OUTPUT_BYTES - 1) != (-2, b""):
+                raise ValueError("Figure–Figure accepted a short maximum-output capacity")
+            if add((64,), FIGURE_FIGURE_MAX_OUTPUT_BYTES) != (
+                    FIGURE_FIGURE_MAX_OUTPUT_BYTES,
+                    figure_figure_primary_oracle(
+                        (64,), capacity=FIGURE_FIGURE_MAX_OUTPUT_BYTES)[1]):
+                raise ValueError("Figure–Figure maximum paired prefix differs from its oracle")
+            if add((1,), input_length=2) != (-1, b""):
+                raise ValueError("Figure–Figure accepted an incorrect declared input length")
+            if add((1,), input_is_null=True, input_length=1) != (-1, b""):
+                raise ValueError("Figure–Figure accepted a null input pointer")
+            if add((65,), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("Figure–Figure output error overrode invalid-input precedence")
+        elif algorithm == "maximum_sum_contiguous_submatrix":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (MAX_SUM_SUBMATRIX_MAX_PARSEABLE_INPUT_LENGTH,
+                        MAX_SUM_SUBMATRIX_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != MAX_SUM_SUBMATRIX_WORKSPACE_BYTES):
+                raise ValueError("maximum-sum submatrix bounds differ from its row-band profile")
+            maximum = (8, 8, *((1000,) * 64))
+            result, output = add(maximum, MAX_SUM_SUBMATRIX_MAX_OUTPUT_BYTES)
+            if ((result, output) != maximum_sum_contiguous_submatrix_primary_oracle(
+                    maximum, capacity=MAX_SUM_SUBMATRIX_MAX_OUTPUT_BYTES)
+                    or result != MAX_SUM_SUBMATRIX_MAX_OUTPUT_BYTES
+                    or struct.unpack("<q", output)[0] != 64000):
+                raise ValueError("maximum-sum submatrix maximum frame differs from its row-band oracle")
+            if not maximum_sum_contiguous_submatrix_verify_result(
+                    maximum, result, output,
+                    output_capacity=MAX_SUM_SUBMATRIX_MAX_OUTPUT_BYTES):
+                raise ValueError("maximum-sum submatrix exhaustive verifier rejected the maximum frame")
+            if add(maximum, MAX_SUM_SUBMATRIX_MAX_OUTPUT_BYTES - 1) != (-2, b""):
+                raise ValueError("maximum-sum submatrix accepted a short output buffer")
+            if add(maximum, output_is_null=True) != (-2, b""):
+                raise ValueError("maximum-sum submatrix accepted a null output buffer")
+            malformed = (
+                (), (1,), (0, 1), (1, 0), (9, 1), (1, 9),
+                (2, 2, 1, 2, 3), (1, 1, -1001), (1, 1, 1001),
+                (1, 1, 0, 0), (1, 1, 0),
+            )
+            for invalid in malformed:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("maximum-sum submatrix accepted malformed input")
+            if add((1, 1, 7), input_length=4) != (-1, b""):
+                raise ValueError("maximum-sum submatrix accepted an incorrect declared input length")
+            if add((1, 1, 7), input_is_null=True, input_length=3) != (-1, b""):
+                raise ValueError("maximum-sum submatrix accepted a null input pointer")
+            if add((1, 1, 1001), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("maximum-sum submatrix output error overrode invalid-input precedence")
+        elif algorithm == "turbo_boyer_moore_search":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (TURBO_BM_MAX_PARSEABLE_INPUT_LENGTH,
+                        TURBO_BM_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != TURBO_BM_WORKSPACE_BYTES):
+                raise ValueError("Turbo Boyer–Moore bounds differ from its all-match profile")
+            all_matches = (255, 1, *((97,) * 255))
+            result, output = add(all_matches, TURBO_BM_MAX_OUTPUT_BYTES)
+            expected_positions = tuple(range(255))
+            if (result != TURBO_BM_MAX_OUTPUT_BYTES
+                    or struct.unpack("<" + "q" * 255, output) != expected_positions
+                    or (result, output) != turbo_boyer_moore_primary_oracle(
+                        all_matches, output_capacity=TURBO_BM_MAX_OUTPUT_BYTES)):
+                raise ValueError("Turbo Boyer–Moore maximum all-match frame differs from its reference")
+            if (result, output) != turbo_boyer_moore_independent_reference(
+                    all_matches, output_capacity=TURBO_BM_MAX_OUTPUT_BYTES):
+                raise ValueError("Turbo Boyer–Moore direct-window oracle rejected maximum matches")
+            if add(all_matches, TURBO_BM_MAX_OUTPUT_BYTES - 1) != (-2, b""):
+                raise ValueError("Turbo Boyer–Moore accepted a short maximum-output buffer")
+            if add(all_matches, output_is_null=True) != (-2, b""):
+                raise ValueError("Turbo Boyer–Moore accepted null output storage")
+            invalid_frames = (
+                (), (0,), (0, 0), (0, 65), (256, 1), (1, 1, 128, 97),
+                (1, 1, 97), (1, 1, 97, 97, 0),
+            )
+            for invalid in invalid_frames:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Turbo Boyer–Moore accepted malformed input")
+            if add((0, 1, 97), input_length=4) != (-1, b""):
+                raise ValueError("Turbo Boyer–Moore accepted an incorrect declared input length")
+            if add((0, 1, 97), input_is_null=True, input_length=3) != (-1, b""):
+                raise ValueError("Turbo Boyer–Moore accepted a null input pointer")
+            if add((0, 0), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("Turbo Boyer–Moore output error overrode invalid-input precedence")
+        elif algorithm == "raita_search":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (RAITA_MAX_PARSEABLE_INPUT_LENGTH, RAITA_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != RAITA_WORKSPACE_BYTES):
+                raise ValueError("Raita bounds differ from its all-match profile")
+            all_matches = (255, 1, *((97,) * 255))
+            result, output = add(all_matches, RAITA_MAX_OUTPUT_BYTES)
+            if (result != RAITA_MAX_OUTPUT_BYTES
+                    or struct.unpack("<" + "q" * 255, output) != tuple(range(255))
+                    or (result, output) != raita_search_primary_oracle(
+                        all_matches, output_capacity=RAITA_MAX_OUTPUT_BYTES)
+                    or (result, output) != raita_search_independent_reference(
+                        all_matches, output_capacity=RAITA_MAX_OUTPUT_BYTES)):
+                raise ValueError("Raita maximum all-match frame differs from its references")
+            if add(all_matches, RAITA_MAX_OUTPUT_BYTES - 1) != (-2, b""):
+                raise ValueError("Raita accepted a short maximum-output buffer")
+            if add(all_matches, output_is_null=True) != (-2, b""):
+                raise ValueError("Raita accepted null output storage")
+            invalid_frames = (
+                (), (0,), (0, 0), (0, 65), (256, 1), (1, 1, 128, 97),
+                (1, 1, 97), (1, 1, 97, 97, 0),
+            )
+            for invalid in invalid_frames:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Raita accepted malformed input")
+            if add((0, 1, 97), input_length=4) != (-1, b""):
+                raise ValueError("Raita accepted an incorrect declared input length")
+            if add((0, 1, 97), input_is_null=True, input_length=3) != (-1, b""):
+                raise ValueError("Raita accepted a null input pointer")
+            if add((6, 2, 97, 98, 99, 100, 101, 102, 103, 104),
+                   0, output_is_null=True) != (-2, b""):
+                raise ValueError("Raita accepted null output storage for an empty result")
+            if add((0, 0), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("Raita output error overrode invalid-input precedence")
+        elif algorithm == "tuned_boyer_moore_search":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (TUNED_BM_MAX_PARSEABLE_INPUT_LENGTH,
+                        TUNED_BM_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != TUNED_BM_WORKSPACE_BYTES):
+                raise ValueError("Tuned Boyer–Moore bounds differ from its all-match profile")
+            all_matches = (255, 1, *((97,) * 255))
+            result, output = add(all_matches, TUNED_BM_MAX_OUTPUT_BYTES)
+            if (result != TUNED_BM_MAX_OUTPUT_BYTES
+                    or struct.unpack("<" + "q" * 255, output) != tuple(range(255))
+                    or (result, output) != tuned_boyer_moore_primary_oracle(
+                        all_matches, output_capacity=TUNED_BM_MAX_OUTPUT_BYTES)
+                    or (result, output) != tuned_boyer_moore_independent_reference(
+                        all_matches, output_capacity=TUNED_BM_MAX_OUTPUT_BYTES)):
+                raise ValueError("Tuned Boyer–Moore maximum all-match frame differs from its references")
+            if add(all_matches, TUNED_BM_MAX_OUTPUT_BYTES - 1) != (-2, b""):
+                raise ValueError("Tuned Boyer–Moore accepted a short maximum-output buffer")
+            if add(all_matches, output_is_null=True) != (-2, b""):
+                raise ValueError("Tuned Boyer–Moore accepted null output storage")
+            invalid_frames = (
+                (), (0,), (0, 0), (0, 65), (256, 1), (1, 1, 128, 97),
+                (1, 1, 97), (1, 1, 97, 97, 0),
+            )
+            for invalid in invalid_frames:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Tuned Boyer–Moore accepted malformed input")
+            if add((0, 1, 97), input_length=4) != (-1, b""):
+                raise ValueError("Tuned Boyer–Moore accepted an incorrect declared input length")
+            if add((0, 1, 97), input_is_null=True, input_length=3) != (-1, b""):
+                raise ValueError("Tuned Boyer–Moore accepted a null input pointer")
+            if add((6, 2, 97, 98, 99, 100, 101, 102, 103, 104),
+                   0, output_is_null=True) != (-2, b""):
+                raise ValueError("Tuned Boyer–Moore accepted null output for an empty result")
+            if add((0, 0), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("Tuned Boyer–Moore output error overrode invalid-input precedence")
+        elif algorithm == "smith_string_search":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
+                    != (SMITH_MAX_PARSEABLE_INPUT_LENGTH, SMITH_MAX_OUTPUT_BYTES)
+                    or workspace_bytes != SMITH_WORKSPACE_BYTES):
+                raise ValueError("Smith bounds differ from its all-match profile")
+            all_matches = (255, 1, *((97,) * 255))
+            result, output = add(all_matches, SMITH_MAX_OUTPUT_BYTES)
+            if (result != SMITH_MAX_OUTPUT_BYTES
+                    or struct.unpack("<" + "q" * 255, output) != tuple(range(255))
+                    or (result, output) != smith_string_search_primary_oracle(
+                        all_matches, output_capacity=SMITH_MAX_OUTPUT_BYTES)
+                    or (result, output) != smith_string_search_independent_reference(
+                        all_matches, output_capacity=SMITH_MAX_OUTPUT_BYTES)):
+                raise ValueError("Smith maximum all-match frame differs from its references")
+            if add(all_matches, SMITH_MAX_OUTPUT_BYTES - 1) != (-2, b""):
+                raise ValueError("Smith accepted a short maximum-output buffer")
+            if add(all_matches, output_is_null=True) != (-2, b""):
+                raise ValueError("Smith accepted null output storage")
+            invalid_frames = (
+                (), (0,), (0, 0), (0, 65), (256, 1), (1, 1, 128, 97),
+                (1, 1, 97), (1, 1, 97, 97, 0),
+            )
+            for invalid in invalid_frames:
+                if add(invalid, output_is_null=True) != (-1, b""):
+                    raise ValueError("Smith accepted malformed input")
+            if add((0, 1, 97), input_length=4) != (-1, b""):
+                raise ValueError("Smith accepted an incorrect declared input length")
+            if add((0, 1, 97), input_is_null=True, input_length=3) != (-1, b""):
+                raise ValueError("Smith accepted a null input pointer")
+            if add((0, 1, 97), 0, output_is_null=True) != (-2, b""):
+                raise ValueError("Smith accepted null output storage for an empty result")
+            if add((0, 0), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("Smith output error overrode invalid-input precedence")
+        elif algorithm == "mdp_policy_iteration":
+            if (EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm] != (28, 104)
+                    or workspace_bytes != 4096):
+                raise ValueError("MDP policy-iteration bounds differ from its exact-rational profile")
+            for states in range(1, 4):
+                for actions in range(1, 3):
+                    for discount_numerator, discount_denominator in (
+                            (0, 1), (1, 2), (2, 3), (3, 4)):
+                        values = [states, actions, discount_numerator, discount_denominator]
+                        for state in range(states):
+                            for action in range(actions):
+                                reward = (state * 7 + action * 11 + states * 3) % 9 - 4
+                                successor = (state * 2 + action + 1) % states
+                                values.extend((reward, successor))
+                        frame = tuple(values)
+                        primary = mdp_policy_iteration_primary_oracle(frame, capacity=4096)
+                        result, output = add(frame, 4096)
+                        if (result, output) != primary or result != (1 + 3 * states) * 8:
+                            raise ValueError("MDP policy iteration differs from exact rational references")
+                        words = struct.unpack("<" + "q" * (result // 8), output)
+                        if (words[0] != states
+                                or any(not 0 <= action < actions
+                                       for action in words[1:1 + states])
+                                or any(words[index] <= 0
+                                       for index in range(1 + states, len(words), 2))):
+                            raise ValueError("MDP policy iteration returned invalid policy/value framing")
+                        if add(frame, result - 1) != (-2, b""):
+                            raise ValueError("MDP policy iteration accepted insufficient output capacity")
+                        if add(frame, output_is_null=True) != (-2, b""):
+                            raise ValueError("MDP policy iteration accepted a null output buffer")
+
+            maximum = [4, 3, 3, 4]
+            for state in range(4):
+                for action in range(3):
+                    maximum.extend(((state * 13 + action * 7) % 41 - 20,
+                                    (state + action * action + 1) % 4))
+            maximum = tuple(maximum)
+            result, output = add(maximum, 4096)
+            if ((result, output)
+                    != mdp_policy_iteration_primary_oracle(maximum, capacity=4096)
+                    or result != 104 or len(maximum) != 28):
+                raise ValueError("MDP policy iteration maximum frame/reference mismatch")
+            malformed = (
+                (), (0, 1, 0, 1), (5, 1, 0, 1), (1, 0, 0, 1, 0, 0),
+                (1, 4, 0, 1), (1, 1, 1, 1, 0, 0),
+                (1, 1, -1, 2, 0, 0), (1, 1, 0, 5, 0, 0),
+                (1, 1, 0, 1, -21, 0), (1, 1, 0, 1, 21, 0),
+                (1, 1, 0, 1, 0, -1), (1, 1, 0, 1, 0, 1),
+                (1, 1, 0, 1, 0),
+            )
+            for invalid in malformed:
+                if add(invalid) != (-1, b""):
+                    raise ValueError("MDP policy iteration accepted malformed input")
+            if add((1, 1, 1, 2, 21, 0), 0, output_is_null=True) != (-1, b""):
+                raise ValueError("MDP output error overrode invalid-input precedence")
+            if add((), input_is_null=True, input_length=1) != (-1, b""):
+                raise ValueError("MDP policy iteration accepted a null input pointer")
         elif algorithm == "hyperloglog_corrected_estimate":
             for active in range(17):
                 values = (active, *((bucket << 28) | (1 << 27) for bucket in range(active)))
@@ -29988,6 +39291,22 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             expected = (10, 0, 0, *(field for v in range(1, 10) for field in (v, 1)))
             if len(values) != 194 or result != 168 or struct.unpack("<21q", output) != expected:
                 raise ValueError("bottom-k ADS complete directed graph mismatch")
+            ascending = (10, len(edges), 1, 0, *range(10), *(field for edge in edges for field in edge))
+            result, output = add(ascending)
+            if result != 24 or struct.unpack("<3q", output) != (1, 0, 0):
+                raise ValueError("bottom-k ADS ascending ranks should retain only the source")
+            descending = (10, len(edges), 1, 0, *range(9, -1, -1),
+                          *(field for edge in edges for field in edge))
+            result, output = add(descending)
+            if result != 168 or struct.unpack("<21q", output) != expected:
+                raise ValueError("bottom-k ADS descending ranks should retain every vertex")
+            almost_complete = tuple(edge for edge in edges if edge != (0, 9))
+            delayed = (10, len(almost_complete), 10, 0, *range(10),
+                       *(field for edge in almost_complete for field in edge))
+            result, output = add(delayed)
+            expected_delayed = (10, 0, 0, *(field for v in range(1, 9) for field in (v, 1)), 9, 2)
+            if result != 168 or struct.unpack("<21q", output) != expected_delayed:
+                raise ValueError("bottom-k ADS dense graph distance-two mismatch")
             add(values, 167)
             add(values, output_is_null=True)
             add(values + (0,), output_is_null=True)
@@ -30088,6 +39407,102 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add((0, 0), 0, output_is_null=True)
             add((), input_is_null=True, input_length=0)
             add((), input_is_null=True, input_length=131)
+        elif algorithm == "calkin_wilf_index":
+            for index in range(1, 4097):
+                values = (index,)
+                observed = add(values)
+                if observed != calkin_wilf_index_primary_oracle(values):
+                    raise ValueError("Calkin–Wilf references disagree")
+            for exponent in range(1, 62):
+                for index in ((1 << exponent), (1 << exponent)-1, (1 << exponent)+1):
+                    values = (index,)
+                    if add(values) != calkin_wilf_index_primary_oracle(values):
+                        raise ValueError("Calkin–Wilf boundary references disagree")
+            add((1,), 15)
+            add((1,), output_is_null=True)
+            add((0,), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=2)
+        elif algorithm == "minimum_enclosing_circle_incremental_boundary":
+            grid = tuple(product((-1, 0, 1), repeat=2))
+            for n in range(1, 4):
+                for points in product(grid, repeat=n):
+                    coords = tuple(value for point in points for value in point)
+                    for order in permutations(range(n)):
+                        add((n, *coords, *order))
+            for points in combinations(grid, 4):
+                coords = tuple(value for point in points for value in point)
+                for order in permutations(range(4)):
+                    add((4, *coords, *order))
+            for points in (((-100, -99), (100, 99), (99, 99), (0, 0)),
+                           ((-100, 0), (100, 0), (0, 100), (0, -100), (0, 0)),
+                           ((0, 0), (100, 1), (99, 2), (-100, -1), (1, 0))):
+                n = len(points)
+                coords = tuple(value for point in points for value in point)
+                for order in (tuple(range(n)), tuple(range(n-1, -1, -1)),
+                              tuple(range(1, n)) + (0,)):
+                    add((n, *coords, *order))
+            points = ((-100, 0), (100, 0), (0, 0))
+            repeated = tuple(points[i % 3] for i in range(64))
+            maximum = (64, *(value for point in repeated for value in point), *range(63, -1, -1))
+            result, output = add(maximum)
+            if result != 64 or output != bytes(int(i % 3 != 2) for i in range(64)):
+                raise ValueError("incremental enclosing-circle maximum frame mismatch")
+            add(maximum, 63)
+            add(maximum, output_is_null=True)
+            add(maximum + (0,), output_is_null=True)
+            add((2, 0, 0, 1, 0, 0, 0), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=194)
+        elif algorithm == "suffix_automaton_kth_distinct_substring":
+            for n in range(1, 7):
+                for data in product((0, 1), repeat=n):
+                    distinct = {data[i:j] for i in range(n) for j in range(i+1, n+1)}
+                    for k in range(1, len(distinct)+2):
+                        add((n, k, *data))
+            for data, ranks in (((42,)*256, (1, 128, 256, 257)),
+                                (tuple(range(256)), (1, 256, 32896, 32897))):
+                for k in ranks:
+                    add((256, k, *data))
+            add((3, 3, 97, 98, 97), 2)
+            add((3, 6, 97, 98, 97), 0, output_is_null=True)
+            add((1, 1, 0), output_is_null=True)
+            add((1, 0, 0))
+            add((1, 1, 256))
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=259)
+        elif algorithm == "suffix_automaton_minimum_rotation":
+            for n in range(1, 8):
+                for data in product((0, 1), repeat=n):
+                    add((n, *data))
+            for data in (tuple(range(255, -1, -1)), (42,)*256, tuple(i % 7 for i in range(256)),
+                         (2,)*127 + (0,) + (2,)*127 + (1,)):
+                values = (256, *data)
+                add(values)
+                add(values, 255)
+                add(values, output_is_null=True)
+                add(values + (0,), output_is_null=True)
+            add((1, 256), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=258)
+        elif algorithm == "prufer_decode_linear":
+            for n in range(2, 7):
+                for code in product(range(n), repeat=n-2):
+                    values = (n, *code)
+                    observed = add(values)
+                    if observed != prufer_decode_linear_primary_oracle(values):
+                        raise ValueError("linear Prüfer references disagree")
+            for code in ((0,)*4094, tuple(range(4094))):
+                maximum = (4096, *code)
+                observed = add(maximum)
+                if observed[0] != 65520 or observed != prufer_decode_linear_primary_oracle(maximum):
+                    raise ValueError("linear Prüfer maximum frame mismatch")
+                add(maximum, 65519)
+                add(maximum, output_is_null=True)
+                add(maximum + (0,), output_is_null=True)
+            add((3, -1), 0, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=4096)
         elif algorithm == "sticky_sampling_summary":
             for t in (1, 2, 8):
                 for n in range(5):
@@ -30173,6 +39588,133 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add((0, 0), 0, output_is_null=True)
             add((), input_is_null=True, input_length=0)
             add((), input_is_null=True, input_length=131)
+        elif algorithm == "reservoir_sampling_algorithm_x":
+            for n in range(1, 17):
+                for k in (1, 2, 4, 8):
+                    if k > n:
+                        continue
+                    for draw_mode in (0, 1, 2):
+                        if draw_mode == 0:
+                            draw_pairs = (0, 0) * (n-k)
+                        elif draw_mode == 1:
+                            draw_pairs = ((1 << 32) - 1, k-1) * (n-k)
+                        else:
+                            draw_pairs = tuple(
+                                value
+                                for attempt in range(n-k)
+                                for value in (((1 << 32) - 1) if attempt % 2 else 0,
+                                              attempt % k)
+                            )
+                        values = (n, k, *range(n), *draw_pairs)
+                        observed = add(values)
+                        if (observed != reservoir_sampling_algorithm_x_primary_oracle(values)
+                                or observed != reservoir_sampling_algorithm_x_independent_oracle(values)
+                                or observed[0] != 8*k):
+                            raise ValueError("Algorithm X references or output length disagree")
+                        selected = struct.unpack(f"<{k}q", observed[1])
+                        if len(set(selected)) != k or any(item not in range(n) for item in selected):
+                            raise ValueError("Algorithm X reservoir contains duplicate or foreign items")
+            maximum = tuple(next(
+                case["input_values"] for case in workload.get("cases", [])
+                if case.get("id") == "maximum-valid-frame"))
+            observed = add(maximum)
+            if (observed != reservoir_sampling_algorithm_x_primary_oracle(maximum)
+                    or observed != reservoir_sampling_algorithm_x_independent_oracle(maximum)):
+                raise ValueError("Algorithm X maximum-frame references disagree")
+            add(maximum, 7)
+            add(maximum, output_is_null=True)
+            invalid = (2, 1, 3, 4, 1 << 32, 0)
+            if add(invalid, 0, output_is_null=True) != (-1, b""):
+                raise ValueError("Algorithm X invalid-input precedence differs")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=49)
+        elif algorithm == "edge_colored_graph_layer_encoding":
+            for n in range(1, 4):
+                possible_edges = tuple((u, v) for u in range(n) for v in range(u + 1, n))
+                for layers in range(1, 4):
+                    choices = 1 << layers
+                    for assignment in range(choices ** len(possible_edges)):
+                        rest = assignment
+                        edge_words = []
+                        edge_count = 0
+                        for u, v in possible_edges:
+                            color = rest % choices
+                            rest //= choices
+                            if color:
+                                edge_words.extend((u, v, color))
+                                edge_count += 1
+                        for vertex_mask in range(1 << n):
+                            source_colors = tuple((vertex_mask >> v) & 1 for v in range(n))
+                            values = (n, edge_count, layers, 2,
+                                      *source_colors, *edge_words)
+                            observed = add(values)
+                            if (observed != edge_colored_graph_layer_encoding_primary_oracle(values)
+                                    or observed != edge_colored_graph_layer_encoding_independent_oracle(values)):
+                                raise ValueError("edge-colored graph layer encoding references disagree")
+
+            maximum_edges = tuple(
+                word for u in range(8) for v in range(u + 1, 8) for word in (u, v, 7))
+            maximum = (8, 28, 3, 3, *(vertex % 3 for vertex in range(8)), *maximum_edges)
+            observed = add(maximum)
+            if (observed != edge_colored_graph_layer_encoding_primary_oracle(maximum)
+                    or observed != edge_colored_graph_layer_encoding_independent_oracle(maximum)
+                    or observed[0] != EDGE_COLORED_GRAPH_LAYER_ENCODING_MAX_OUTPUT_BYTES):
+                raise ValueError("edge-colored graph layer encoding maximum-frame mismatch")
+            add(maximum, EDGE_COLORED_GRAPH_LAYER_ENCODING_MAX_OUTPUT_BYTES - 1)
+            add(maximum, output_is_null=True)
+            invalid = (2, 1, 1, 1, 0, 0, 0, 0, 1)
+            if add(invalid, 0, output_is_null=True) != (-1, b""):
+                raise ValueError("edge-colored graph invalid-input precedence differs")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True,
+                input_length=EDGE_COLORED_GRAPH_LAYER_ENCODING_MAX_INPUT_LENGTH)
+            add((), input_is_null=True,
+                input_length=EDGE_COLORED_GRAPH_LAYER_ENCODING_MAX_INPUT_LENGTH + 1)
+        elif algorithm == "three_dimensional_bird_baker_matching":
+            for rows, columns, depths, pattern_rows, pattern_columns, pattern_depths in (
+                    (1, 1, 1, 1, 1, 1),
+                    (2, 2, 2, 1, 2, 1),
+                    (3, 2, 3, 2, 1, 2),
+                    (2, 3, 2, 2, 2, 2)):
+                text = tuple((row + 2 * column + 3 * depth) % 2
+                             for depth in range(depths)
+                             for row in range(rows)
+                             for column in range(columns))
+                pattern = tuple(
+                    text[((depth * rows + row) * columns + column)]
+                    for depth in range(pattern_depths)
+                    for row in range(pattern_rows)
+                    for column in range(pattern_columns))
+                values = (rows, columns, depths,
+                          pattern_rows, pattern_columns, pattern_depths,
+                          *text, *pattern)
+                observed = add(values)
+                if (observed != three_dimensional_bird_baker_primary_oracle(values)
+                        or observed != three_dimensional_bird_baker_independent_oracle(values)):
+                    raise ValueError("3D Bird–Baker references disagree on a generated match")
+
+            maximum = (5, 5, 5, 1, 1, 1, *(0 for _ in range(125)), 0)
+            observed = add(maximum)
+            if (observed != three_dimensional_bird_baker_primary_oracle(maximum)
+                    or observed != three_dimensional_bird_baker_independent_oracle(maximum)
+                    or observed[0] != THREE_DIMENSIONAL_BIRD_BAKER_MAX_OUTPUT_BYTES):
+                raise ValueError("3D Bird–Baker maximum-output references disagree")
+            add(maximum, THREE_DIMENSIONAL_BIRD_BAKER_MAX_OUTPUT_BYTES - 1)
+            add(maximum, output_is_null=True)
+            maximum_frame = (5, 5, 5, 4, 4, 4,
+                             *(0 for _ in range(125)), *(0 for _ in range(64)))
+            observed = add(maximum_frame)
+            if (observed != three_dimensional_bird_baker_primary_oracle(maximum_frame)
+                    or observed != three_dimensional_bird_baker_independent_oracle(maximum_frame)):
+                raise ValueError("3D Bird–Baker maximum-input references disagree")
+            invalid = (1, 1, 1, 1, 1, 1, 4, 0)
+            if add(invalid, 0, output_is_null=True) != (-1, b""):
+                raise ValueError("3D Bird–Baker invalid-input precedence differs")
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True,
+                input_length=THREE_DIMENSIONAL_BIRD_BAKER_MAX_INPUT_LENGTH)
+            add((), input_is_null=True,
+                input_length=THREE_DIMENSIONAL_BIRD_BAKER_MAX_INPUT_LENGTH + 1)
         elif algorithm == "rrr_class_offset_rank_select":
             for byte in range(256):
                 queries = tuple((0, i) for i in range(1, 9)) + tuple((1, i) for i in range(1, 9))
@@ -30733,6 +40275,108 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, output_is_null=True)
             add((), input_is_null=True, input_length=0)
             add((2, 0, 1), 0, output_is_null=True)
+        elif algorithm == "eulerian_trail_undirected_simple":
+            for n in range(2, 6):
+                possible = tuple((u, v) for u in range(n) for v in range(u + 1, n))
+                for mask in range(1 << len(possible)):
+                    edges = [edge for bit, edge in enumerate(possible) if mask & (1 << bit)]
+                    for ordered in (edges, list(reversed(edges))):
+                        frame = (n, len(ordered), *(value for edge in ordered for value in edge))
+                        result, data = add(frame)
+                        if (result, data) != recorder_expected_output(list(frame), algorithm):
+                            raise ValueError("undirected discovery references disagree")
+                        if result > 0:
+                            add(frame, result - 1)
+                            add(frame, output_is_null=True)
+            # K10 minus four disjoint edges leaves exactly two odd vertices.
+            maximum_edges = [(u, v) for u in range(10) for v in range(u + 1, 10)
+                             if not (u < 8 and u % 2 == 0 and v == u + 1)]
+            maximum = (10, 41, *(value for edge in maximum_edges for value in edge))
+            result, data = add(maximum)
+            if result != 352 or len(data) != 352:
+                raise ValueError("undirected discovery maximum simple Eulerian graph differs")
+            add(maximum, 351)
+            add(maximum, output_is_null=True)
+            add((), input_is_null=True, input_length=2)
+            add((3, 1, 0, 0), output_is_null=True)
+            add((6, 6, 0, 1, 1, 2, 2, 0, 3, 4, 4, 5, 5, 3), output_is_null=True)
+            add((2, 2, 0, 1, 1, 0), 0)
+            add((5, 5, 0, 3, 0, 1, 0, 2, 2, 4, 0, 4))
+            # Four triangles share vertex 1, causing repeated full scans of
+            # the hub's adjacency while preserving an Eulerian circuit.
+            hub_edges = tuple(edge for v in (2, 4, 6, 8)
+                              for edge in ((1, v), (v, v + 1), (v + 1, 1)))
+            hub = (10, len(hub_edges), *(value for edge in hub_edges for value in edge))
+            result, data = add(hub)
+            if (result, data) != recorder_expected_output(list(hub), algorithm):
+                raise ValueError("undirected discovery hub references disagree")
+        elif algorithm == "undirected_eulerian_trail_hierholzer":
+            def check_undirected_trail(values, result, output):
+                if result <= 0:
+                    return
+                n, m = values[:2]
+                if result != 8 * (m + 1) or len(output) != result:
+                    raise ValueError("undirected trail has incorrect output length")
+                path = struct.unpack(f"<{m + 1}q", output)
+                remaining = {}
+                degree = [0] * n
+                for i in range(m):
+                    u, v = values[2 + 2 * i:4 + 2 * i]
+                    key = (min(u, v), max(u, v))
+                    remaining[key] = remaining.get(key, 0) + 1
+                    degree[u] += 1
+                    degree[v] += 1
+                odd = [v for v in range(n) if degree[v] % 2]
+                start = odd[0] if odd else next((v for v in range(n) if degree[v]), 0)
+                if path[0] != start or any(v < 0 or v >= n for v in path):
+                    raise ValueError("undirected trail has an invalid starting vertex")
+                for u, v in zip(path, path[1:]):
+                    key = (min(u, v), max(u, v))
+                    if remaining.get(key, 0) == 0:
+                        raise ValueError("undirected trail uses a missing or repeated edge")
+                    remaining[key] -= 1
+                if any(remaining.values()):
+                    raise ValueError("undirected trail leaves an input edge unused")
+
+            # Enumerate short edge sequences, including loops and duplicates;
+            # edge order determines the selected trail.
+            for n in range(1, 4):
+                edges = tuple((u, v) for u in range(n) for v in range(u, n))
+                for m in range(4):
+                    for sequence in product(edges, repeat=m):
+                        values = (n, m, *(word for edge in sequence for word in edge))
+                        result, output = add(values)
+                        if (result, output) != undirected_hierholzer_primary_oracle(values):
+                            raise ValueError("undirected Euler trail references disagree")
+                        if result > 0:
+                            check_undirected_trail(values, result, output)
+                            add(values, result - 1)
+                            add(values, output_is_null=True)
+            # Thirty-two loops fill the edge and output bounds.
+            maximum = (1, 32, *([0, 0] * 32))
+            result, output = add(maximum)
+            if result != 264 or len(output) != 264:
+                raise ValueError("undirected Euler trail maximum output is incorrect")
+            check_undirected_trail(maximum, result, output)
+            add(maximum, 263)
+            add(maximum, output_is_null=True)
+            doubled_cycle_edges = [(v, (v + 1) % 16) for v in range(16)] * 2
+            doubled_cycle = (16, 32, *(word for edge in doubled_cycle_edges for word in edge))
+            result, output = add(doubled_cycle)
+            if result != 264 or (result, output) != undirected_hierholzer_primary_oracle(doubled_cycle):
+                raise ValueError("undirected trail references disagree on doubled cycle")
+            check_undirected_trail(doubled_cycle, result, output)
+            # A failed trail needs no output buffer, even when its components
+            # each have only even-degree vertices.
+            add((4, 2, 0, 0, 2, 2), output_is_null=True)
+            add((4, 2, 0, 0, 2, 2), 0)
+            add((2, 1, 0, 2), 0, output_is_null=True)
+            add((4, 1, 2, 2))
+            add(maximum + (0,))
+            for values in ((), (0, 0), (1, -1), (1, 33), (2, 1, 0, 2),
+                           (1, 0, 0), (4, 2, 0, 1, 2, 3)):
+                add(values)
+            add((), input_is_null=True, input_length=0)
         elif algorithm == "indexed_block_list":
             maximum_case = next(case for case in workload["cases"]
                                 if case["id"] == "maximum_frame_and_output")
@@ -31988,6 +41632,87 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     (), input_is_null=True, input_length=null_length)
                 if invalid_result != -1 or invalid_output:
                     raise ValueError("dynamic_top_tree_component_diameter accepted null input")
+        elif algorithm == "dynamic_tree_maximum_weight_independent_set":
+            if (max_input != 320
+                    or max_output != DYNAMIC_TREE_MWIS_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 32768):
+                raise ValueError(
+                    "dynamic_tree_maximum_weight_independent_set bounds or workspace differ from its contract")
+
+            n = DYNAMIC_TREE_MWIS_VERIFIER_MAX_VERTICES
+            q = DYNAMIC_TREE_MWIS_VERIFIER_MAX_UPDATES
+            path_edges = tuple((vertex, vertex + 1) for vertex in range(n - 1))
+            initial_weights = tuple(
+                (vertex * 7919) % (DYNAMIC_TREE_MWIS_VERIFIER_MAX_WEIGHT + 1)
+                for vertex in range(n)
+            )
+            updates = tuple(
+                (index % n,
+                 (index * 15401 + 17) % (DYNAMIC_TREE_MWIS_VERIFIER_MAX_WEIGHT + 1))
+                for index in range(q)
+            )
+            maximum_input = (n, q, *initial_weights,
+                             *(value for edge in path_edges for value in edge),
+                             *(value for update in updates for value in update))
+            result, output = add(maximum_input, max_output)
+            if (len(maximum_input) != max_input or result != max_output
+                    or len(output) != max_output):
+                raise ValueError(
+                    "dynamic_tree_maximum_weight_independent_set maximum profile has invalid framing")
+            for capacity in (0, max_output - 1, max_output, workspace_bytes):
+                add(maximum_input, capacity)
+            short_result, short_output = add(maximum_input, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("dynamic_tree_maximum_weight_independent_set accepted insufficient capacity")
+            null_result, null_output = add(
+                maximum_input, max_output, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("dynamic_tree_maximum_weight_independent_set accepted null output")
+
+            zero_update_result, zero_update_output = add(
+                (1, 0, 0), 0, output_is_null=True)
+            if zero_update_result != 0 or zero_update_output:
+                raise ValueError("dynamic_tree_maximum_weight_independent_set rejected empty output")
+
+            rng_dynamic_tree_mwis = random.Random(20261116)
+            for _ in range(128):
+                count = rng_dynamic_tree_mwis.randint(1, 20)
+                update_count = rng_dynamic_tree_mwis.randint(0, 20)
+                weights = tuple(rng_dynamic_tree_mwis.randint(
+                    0, DYNAMIC_TREE_MWIS_VERIFIER_MAX_WEIGHT) for _ in range(count))
+                edges = tuple((vertex, rng_dynamic_tree_mwis.randrange(vertex))
+                              for vertex in range(1, count))
+                trace = tuple((rng_dynamic_tree_mwis.randrange(count),
+                               rng_dynamic_tree_mwis.randint(
+                                   0, DYNAMIC_TREE_MWIS_VERIFIER_MAX_WEIGHT))
+                              for _ in range(update_count))
+                generated = (count, update_count, *weights,
+                             *(value for edge in edges for value in edge),
+                             *(value for update in trace for value in update))
+                add(generated, max_output)
+
+            cyclic_or_disconnected = (3, 0, 0, 0, 0, 0, 1, 1, 0)
+            malformed = (
+                (), (0, 0), (DYNAMIC_TREE_MWIS_VERIFIER_MAX_VERTICES + 1, 0),
+                (1, 0, -1),
+                (1, 0, DYNAMIC_TREE_MWIS_VERIFIER_MAX_WEIGHT + 1),
+                (2, 0, 1, 1, 0, 2),
+                (1, 1, 5, 1, 5),
+                (1, 1, 5, 0, -1),
+                (1, 0), cyclic_or_disconnected,
+            )
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values, max_output)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("dynamic_tree_maximum_weight_independent_set accepted malformed input")
+            precedence_result, precedence_output = add(
+                cyclic_or_disconnected, 0, output_is_null=True)
+            if precedence_result != -1 or precedence_output:
+                raise ValueError("dynamic_tree_maximum_weight_independent_set checked output before tree validity")
+            invalid_result, invalid_output = add(
+                (), input_is_null=True, input_length=0)
+            if invalid_result != -1 or invalid_output:
+                raise ValueError("dynamic_tree_maximum_weight_independent_set accepted null input")
         elif algorithm == "dynamic_tree_subtree_add_subtree_sum":
             if (max_input != DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_INPUT_LENGTH
                     or max_output != DYNAMIC_TREE_SUBTREE_ADD_VERIFIER_MAX_OUTPUT_BYTES
@@ -32690,6 +42415,33 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     (), input_is_null=True, input_length=null_length)
                 if invalid_result != -1 or invalid_output:
                     raise ValueError("Knuth power-tree accepted null input")
+        elif algorithm == "addition_chain_enumeration":
+            if (max_input != ADDITION_CHAIN_ENUMERATION_VERIFIER_MAX_INPUT_LENGTH
+                    or max_output != ADDITION_CHAIN_ENUMERATION_VERIFIER_MAX_OUTPUT_BYTES
+                    or workspace_bytes != 32768):
+                raise ValueError("addition-chain enumeration bounds or workspace differ from its contract")
+
+            maximum = (ADDITION_CHAIN_ENUMERATION_VERIFIER_MAX_TARGET,)
+            result, output = add(maximum, max_output)
+            if result != ADDITION_CHAIN_ENUMERATION_VERIFIER_MAX_OUTPUT_BYTES or len(output) != max_output:
+                raise ValueError("addition-chain enumeration maximum-target frame is invalid")
+            short_result, short_output = add(maximum, max_output - 1)
+            if short_result != -2 or short_output:
+                raise ValueError("addition-chain enumeration accepted short output capacity")
+            null_result, null_output = add(maximum, output_is_null=True)
+            if null_result != -2 or null_output:
+                raise ValueError("addition-chain enumeration accepted null output")
+            malformed = ((), (0,), (ADDITION_CHAIN_ENUMERATION_VERIFIER_MAX_TARGET + 1,),
+                         (3, 4), tuple([0] * max_input), (-(1 << 63),), ((1 << 63) - 1,))
+            for invalid_values in malformed:
+                invalid_result, invalid_output = add(invalid_values)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("addition-chain enumeration accepted malformed input")
+            for null_length in (0, max_input):
+                invalid_result, invalid_output = add(
+                    (), input_is_null=True, input_length=null_length)
+                if invalid_result != -1 or invalid_output:
+                    raise ValueError("addition-chain enumeration accepted null input")
         elif algorithm == "prefix_substring_lcs":
             if (max_input != PREFIX_SUBSTRING_LCS_VERIFIER_MAX_INPUT_LENGTH
                     or max_output != PREFIX_SUBSTRING_LCS_VERIFIER_MAX_OUTPUT_BYTES
@@ -35032,6 +44784,72 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 result, output = add(malformed, output_is_null=True)
                 if result != -1 or output:
                     raise ValueError("SAGA accepted an out-of-range edge count")
+        elif algorithm == "planar_embedding_lr":
+            for case in workload["cases"]:
+                values = tuple(case["input_values"])
+                result, output = add(values)
+                expected_result = (1 if case["expected_status"] == 0
+                                   else 1 + 2 * values[1])
+                if (result != case.get("expected_result", expected_result)
+                        or not output or output[0] != case["expected_status"]):
+                    raise ValueError(f"left-right planarity workload mismatch: {case['id']}")
+                if result > 0:
+                    add(values, result - 1)
+                    add(values, output_is_null=True)
+            triangulation_edges = {
+                (0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3),
+            }
+            face_vertices = (0, 1, 2)
+            for vertex in range(4, 32):
+                triangulation_edges.update((min(vertex, endpoint), max(vertex, endpoint))
+                                           for endpoint in face_vertices)
+                face_vertices = (0, 1, vertex)
+            maximum = (32, len(triangulation_edges),
+                       *(endpoint for edge in sorted(triangulation_edges) for endpoint in edge))
+            result, output = add(maximum)
+            if (len(maximum) != 2 + 2 * len(triangulation_edges)
+                    or len(triangulation_edges) != 90 or not output or output[0] != 1
+                    or result != 1 + 2 * len(triangulation_edges)):
+                raise ValueError("left-right planarity maximum triangulation has invalid framing")
+            for capacity in (0, result - 1, result, workspace_bytes):
+                add(maximum, capacity)
+            add(maximum, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+            for case in workload.get("invalid_cases", []):
+                values = tuple(case["input_values"])
+                result, output = add(values)
+                if result != -1 or output:
+                    raise ValueError(f"left-right planarity accepted invalid fixture: {case['id']}")
+            add(maximum + (0,))
+        elif algorithm == "npb_cg_sparse_outer_product_assembly":
+            dimension = 16
+            support_offsets = (0, 1, 3, 7, 11)
+            maximum_fields = [dimension, 4, 0]
+            for vector in range(dimension):
+                for offset in support_offsets[1:]:
+                    maximum_fields.extend(((vector + offset) % dimension, 1_000_000))
+            maximum = tuple(maximum_fields)
+            if len(maximum) != max_input:
+                raise ValueError("NPB CG matrix-assembly maximum frame differs from its bound")
+            result, output = add(maximum)
+            if result != max_output or len(output) != max_output:
+                raise ValueError("NPB CG matrix-assembly maximum CSC profile has invalid framing")
+            for capacity in (0, result - 1, result, workspace_bytes):
+                add(maximum, capacity)
+            add(maximum, output_is_null=True)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=max_input)
+            for malformed in (
+                    maximum[:-1], maximum + (0,),
+                    (2, 1, -1, 0, 1_000_000, 1, 1_000_000),
+                    (2, 1, 0, 2, 1_000_000, 1, 1_000_000),
+                    (2, 1, 0, 0, 0, 1, 1_000_000),
+                    (2, 2, 0, 0, 1_000_000, 0, 500_000,
+                     1, 1_000_000, 0, 1_000_000)):
+                result, output = add(malformed)
+                if result != -1 or output:
+                    raise ValueError("NPB CG matrix-assembly accepted malformed input")
         elif algorithm in {"npb_cg_sparse_inverse_power", "hpcg_profile"}:
             dimension = 32
             neighbors_by_row = []
@@ -35127,6 +44945,122 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add((), input_is_null=True, input_length=max_input)
         for values in ((), (UINT_I64_MIN,), (UINT_I64_MAX,), tuple([0] * max_input)):
             add(values)
+    elif algorithm == "ecdsa_signature_verification":
+        valid_values = tuple(next(
+            fixture["input_values"] for fixture in workload["cases"]
+            if fixture.get("expected_output_hex") == "01"))
+        for capacity in (0, ECDSA_SIGNATURE_MAX_OUTPUT_BYTES,
+                         workspace_bytes):
+            add(valid_values, capacity)
+        add(valid_values, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        invalid_values = tuple(next(
+            fixture["input_values"] for fixture in workload["cases"]
+            if fixture.get("id") == "wrong_field_domain"))
+        add(invalid_values, 0, output_is_null=True)
+        for slot in (8, 9, 10):
+            for delta in (-1, 1):
+                changed = list(valid_values)
+                changed[slot] += delta
+                add(tuple(changed))
+    elif algorithm == "brzozowski_dfa_to_regex":
+        examples = [
+            (1, 0, 0, 0, 0),
+            (1, 0, 1, 1, 1),
+            (2, 1, 2, 1, 0, 1, 0),
+            (3, 2, 5, 1, 2, 0, 2, 1, 0),
+        ]
+        rng_regex = random.Random(0xB720A)
+        for state_count in (1, 2, 3):
+            for case_index in range(24):
+                start = rng_regex.randrange(state_count)
+                accepting = rng_regex.randrange(1 << state_count)
+                transitions = tuple(
+                    rng_regex.randrange(state_count)
+                    for _ in range(2 * state_count))
+                examples.append((state_count, start, accepting, *transitions))
+        for case_index, values in enumerate(examples):
+            result, output = add(values)
+            if result >= 0 and result != len(output):
+                raise ValueError("Brzozowski generated regex has inconsistent byte length")
+            if case_index % 8 == 0 and result > 0:
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+        for malformed in (
+                (), (0, 0, 0), (4, 0, 0, *([0] * 8)),
+                (2, 2, 0, 0, 1, 1, 0),
+                (2, 0, 4, 0, 1, 1, 0),
+                (1, 0, 1, 0, 1),
+                (1, 0, 1, 0, 0, 99),
+        ):
+            add(tuple(malformed))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "multidimensional_newton_raphson":
+        valid_values = tuple(next(
+            fixture["input_values"] for fixture in workload["cases"]
+            if fixture.get("id") == "symmetric-one-step-center"))
+        for capacity in (0, MULTIDIMENSIONAL_NEWTON_MAX_OUTPUT_BYTES - 1,
+                         MULTIDIMENSIONAL_NEWTON_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(valid_values, capacity)
+        add(valid_values, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for invalid in ((899, 1000, 1), (1000, 1501, 1),
+                        (1000, 1000, 0), (1000, 1000, 9),
+                        (1000, 1000, 1, 0), ()):
+            add(invalid)
+        add((899, 1000, 1), 0, output_is_null=True)
+    elif algorithm == "brace_range_expansion":
+        def _brace_values(pattern: str) -> tuple[int, ...]:
+            raw = pattern.encode("ascii")
+            return (len(raw), *raw)
+
+        sample = _brace_values("item{1..4}")
+        result, _ = add(sample)
+        if result < 0:
+            raise ValueError("brace-range generated sample was rejected")
+        for capacity in (0, result - 1, result, max_output, workspace_bytes):
+            add(sample, capacity)
+        add(sample, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for invalid in (_brace_values("{4..1..1}"),
+                        _brace_values("{1..2}{3..4}"),
+                        _brace_values("{1..17}"),
+                        _brace_values("{a..Z}"),
+                        (0,), (65,)):
+            add(invalid)
+        add(_brace_values("{4..1..1}"), 0, output_is_null=True)
+    elif algorithm == "straddling_checkerboard_transducer":
+        sample = tuple(next(
+            fixture["input_values"] for fixture in workload["cases"]
+            if fixture.get("id") == "encode-mixed-row-codes"))
+        board = sample[1:31]
+        lower_symbols = tuple(board[10:30])
+        full_output_values = (0, *board, 64,
+                             *(lower_symbols[index % len(lower_symbols)]
+                               for index in range(64)))
+        maximum_result, _ = add(full_output_values)
+        if maximum_result != STRADDLING_CHECKERBOARD_MAX_OUTPUT_BYTES:
+            raise ValueError("straddling-checkerboard maximum encoding does not fill its output bound")
+        for capacity in (0, STRADDLING_CHECKERBOARD_MAX_OUTPUT_BYTES - 1,
+                         STRADDLING_CHECKERBOARD_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(full_output_values, capacity)
+        add(full_output_values, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True,
+            input_length=STRADDLING_CHECKERBOARD_MAX_PARSEABLE_INPUT_LENGTH)
+        hole_a = next(index for index, value in enumerate(board[:10]) if value == 0)
+        invalid_nul_symbol = (0, *board, 1, 0)
+        dangling_escape = (1, *board, 1, 48 + hole_a)
+        add(invalid_nul_symbol)
+        add(invalid_nul_symbol, 0, output_is_null=True)
+        add(dangling_escape)
+        add((2, *board, 0))
+        add((*full_output_values, 0))
     else:
         bits = 128 if algorithm == "uint128_t" else 256
         limb_count = bits // 32
@@ -35177,7 +45111,10 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     if workload.get("output", {}).get("kind") in {"float64_vector", "float64_records"}:
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0)
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0)
-        lines.append(f"float64_vector {absolute_tolerance:.17g} {relative_tolerance:.17g}\n")
+        comparison_mode = workload["output"].get("comparison_mode", "float64_vector")
+        if comparison_mode not in {"float64_vector", "float64_csc"}:
+            raise ValueError(f"unsupported float64 comparison mode: {comparison_mode}")
+        lines.append(f"{comparison_mode} {absolute_tolerance:.17g} {relative_tolerance:.17g}\n")
     for values, capacity, output_is_null, input_is_null, input_length, result, output in records:
         encoded = output.hex() if output else "-"
         header = f"{input_length} {result} {len(output)} {capacity} {int(input_is_null)} {int(output_is_null)}"
@@ -35206,8 +45143,274 @@ def z_array_verifier_oracle(values: tuple[int, ...] | list[int], capacity: int,
 
 
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
+    if algorithm == "mrg32k3a_combined_recursive_generator":
+        package_workload = ROOT / "benchmarks/m/mrg32k3a_combined_recursive_generator/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("MRG32k3a workload differs from its package file")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (input_spec.get("maximum_valid_length") != MRG32K3A_VERIFIER_MAX_VALID_INPUT
+                or input_spec.get("maximum_parseable_length") != MRG32K3A_VERIFIER_MAX_PARSEABLE_INPUT
+                or input_spec.get("component_1_modulus") != MRG32K3A_VERIFIER_M1
+                or input_spec.get("component_2_modulus") != MRG32K3A_VERIFIER_M2
+                or input_spec.get("count_range") != [0, MRG32K3A_VERIFIER_MAX_COUNT]
+                or output_spec.get("maximum_bytes") != MRG32K3A_VERIFIER_MAX_OUTPUT_BYTES
+                or output_spec.get("zero_count_permits_null_output") is not True
+                or workload.get("workspace", {}).get("bytes")
+                != MRG32K3A_VERIFIER_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (MRG32K3A_VERIFIER_MAX_PARSEABLE_INPUT,
+                    MRG32K3A_VERIFIER_MAX_OUTPUT_BYTES)):
+            raise ValueError("MRG32k3a bounds or workspace differ from its contract")
+        issues = (mrg32k3a_combined_recursive_generator_inventory_issues()
+                  + mrg32k3a_combined_recursive_generator_verify_workload())
+        if issues:
+            raise ValueError("MRG32k3a package is incomplete: " + "; ".join(issues))
+    if algorithm == "k_repetition_within_factor_copy_propagation":
+        package_workload = ROOT / "benchmarks/k/k_repetition_within_factor_copy_propagation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("K-repetition within-factor workload differs from its package file")
+        if (workload.get("input", {}).get("n_range")
+                != [1, K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_N]
+                or workload.get("input", {}).get("K_range")
+                != [0, K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_K]
+                or workload.get("input", {}).get("maximum_valid_length")
+                != K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("input", {}).get("seed_count_range")
+                != [0, K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_RECORDS]
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != K_REPETITION_WITHIN_FACTOR_VERIFIER_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_PARSEABLE_INPUT_LENGTH,
+                    K_REPETITION_WITHIN_FACTOR_VERIFIER_MAX_OUTPUT_BYTES)):
+            raise ValueError("K-repetition within-factor bounds or workspace differ from its contract")
+        issues = (k_repetition_within_factor_copy_propagation_inventory_issues()
+                  + k_repetition_within_factor_copy_propagation_verify_workload())
+        if issues:
+            raise ValueError("K-repetition within-factor package is incomplete: "
+                             + "; ".join(issues))
+    if algorithm == "cyclotomic_polynomial_coefficients":
+        package_workload = ROOT / "benchmarks/c/cyclotomic_polynomial_coefficients/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("cyclotomic-polynomial workload differs from its package file")
+        if (workload.get("input", {}).get("n_range") != [1, CYCLOTOMIC_VERIFIER_MAX_N]
+                or workload.get("input", {}).get("maximum_valid_length")
+                != CYCLOTOMIC_VERIFIER_MAX_VALID_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != CYCLOTOMIC_VERIFIER_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != CYCLOTOMIC_VERIFIER_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes")
+                != CYCLOTOMIC_VERIFIER_WORKSPACE_BYTES
+                or EXTERNAL_BYTE_OUTPUT_BOUNDS.get(algorithm)
+                != (CYCLOTOMIC_VERIFIER_MAX_PARSEABLE_INPUT_LENGTH,
+                    CYCLOTOMIC_VERIFIER_MAX_OUTPUT_BYTES)):
+            raise ValueError("cyclotomic-polynomial bounds or workspace differ from its contract")
+        issues = (cyclotomic_polynomial_coefficients_inventory_issues()
+                  + cyclotomic_polynomial_coefficients_verify_workload())
+        if issues:
+            raise ValueError("cyclotomic-polynomial package is incomplete: " + "; ".join(issues))
     if algorithm == "bentley_ottmann":
         return bentley_ottmann_corpus(workload)
+    if algorithm == "balanced_parenthesis_successor":
+        issues = verify_balanced_parenthesis_successor_package(workload)
+        if issues:
+            raise ValueError("balanced_parenthesis_successor package is incomplete: " + "; ".join(issues))
+    if algorithm == "list_rooted_trees":
+        issues = verify_list_rooted_trees_package(workload)
+        if issues:
+            raise ValueError("list_rooted_trees package is incomplete: " + "; ".join(issues))
+    if algorithm == "landau_vishkin_k_difference_pattern_matching":
+        package_workload = ROOT / "benchmarks/l/landau_vishkin_k_difference_pattern_matching/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Landau–Vishkin workload differs from its package file")
+        issues = verify_landau_vishkin_k_difference_pattern_matching_package(workload)
+        if issues:
+            raise ValueError("Landau–Vishkin package is incomplete: " + "; ".join(issues))
+    if algorithm == "time_based_one_time_password_algorithm":
+        package_workload = ROOT / "benchmarks/t/time_based_one_time_password_algorithm/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("TOTP workload differs from its package file")
+        issues = verify_totp_package_workload()
+        if issues:
+            raise ValueError("TOTP workload/reference mismatch: " + "; ".join(issues))
+        issues = totp_static_inventory_issues()
+        if issues:
+            raise ValueError("TOTP package is incomplete: " + "; ".join(issues))
+    if algorithm == "fast_minimal_triangulation":
+        package_workload = ROOT / "benchmarks/f/fast_minimal_triangulation/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("FMT workload differs from its package file")
+        issues = fast_minimal_triangulation_workload_issues(workload)
+        if issues:
+            raise ValueError("FMT workload/reference mismatch: " + "; ".join(issues))
+        issues = fast_minimal_triangulation_static_issues(workload)
+        if issues:
+            raise ValueError("FMT package is incomplete: " + "; ".join(issues))
+    if algorithm == "van_emde_boas_layout_search":
+        package_workload = ROOT / "benchmarks/v/van_emde_boas_layout_search/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("vEB layout workload differs from its package file")
+        issues = veb_layout_workload_issues()
+        if issues:
+            raise ValueError("vEB layout workload/reference mismatch: " + "; ".join(issues))
+        issues = veb_layout_static_issues()
+        if issues:
+            raise ValueError("vEB layout package is incomplete: " + "; ".join(issues))
+    if algorithm == "planar_directed_general_st_flow_borradaile_klein":
+        package_workload = ROOT / "benchmarks/p/planar_directed_general_st_flow_borradaile_klein/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("general planar-flow workload differs from its package file")
+        issues = planar_general_st_flow_workload_issues()
+        if issues:
+            raise ValueError("general planar-flow workload/reference mismatch: " + "; ".join(issues))
+        issues = planar_general_st_flow_static_issues()
+        if issues:
+            raise ValueError("general planar-flow package is incomplete: " + "; ".join(issues))
+    if algorithm == "posit8_rational_encoder":
+        package_workload = ROOT / "benchmarks/p/posit8_rational_encoder/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("posit8 workload differs from its package file")
+        verify_posit8_encoder_package_workload()
+        posit8_encoder_verify_static_inventory()
+    if algorithm == "cactus_stack_branch_trace":
+        package_workload = ROOT / "benchmarks/c/cactus_stack_branch_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("cactus-stack workload differs from its package file")
+        issues = cactus_stack_workload_issues(workload)
+        if issues:
+            raise ValueError("cactus-stack workload/reference mismatch: " + "; ".join(issues))
+        issues = cactus_stack_static_issues()
+        if issues:
+            raise ValueError("cactus-stack package is incomplete: " + "; ".join(issues))
+    if algorithm == "smarandache_wellin_prime_prefix_scan":
+        package_workload = ROOT / "benchmarks/s/smarandache_wellin_prime_prefix_scan/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Smarandache–Wellin workload differs from its package file")
+        verify_smarandache_wellin_package_workload()
+        smarandache_wellin_verify_static_inventory()
+    if algorithm == "junta_test_partition_binary_search":
+        package_workload = ROOT / "benchmarks/j/junta_test_partition_binary_search/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("junta-test workload differs from its package file")
+        issues = junta_test_partition_binary_search_workload_issues(workload)
+        if issues:
+            raise ValueError("junta-test workload/reference mismatch: " + "; ".join(issues))
+        issues = junta_test_partition_binary_search_static_issues()
+        if issues:
+            raise ValueError("junta-test package is incomplete: " + "; ".join(issues))
+    if algorithm == "combinations_with_repetition_lexicographic":
+        package_workload = ROOT / "benchmarks/c/combinations_with_repetition_lexicographic/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("multiset-combination workload differs from its package file")
+        verify_multicombinations_package_workload()
+        multicombinations_verify_static_inventory()
+    if algorithm == "gregorian_daycount_to_ordinal_date":
+        package_workload = ROOT / "benchmarks/g/gregorian_daycount_to_ordinal_date/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Gregorian day-count workload differs from its package file")
+        verify_gregorian_daycount_package_workload()
+        issues = gregorian_daycount_static_issues()
+        if issues:
+            raise ValueError("Gregorian day-count package is incomplete: " + "; ".join(issues))
+    if algorithm == "shannon_fano_elias_symbol_codes":
+        package_workload = ROOT / "benchmarks/s/shannon_fano_elias_symbol_codes/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Shannon–Fano–Elias workload differs from its package file")
+        issues = sfe_workload_issues(workload)
+        if issues:
+            raise ValueError("Shannon–Fano–Elias workload/reference mismatch: " + "; ".join(issues))
+        issues = sfe_static_issues()
+        if issues:
+            raise ValueError("Shannon–Fano–Elias package is incomplete: " + "; ".join(issues))
+    if algorithm == "goodstein_sequence_bounded_prefix":
+        package_workload = ROOT / "benchmarks/g/goodstein_sequence_bounded_prefix/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("Goodstein-prefix workload differs from its package file")
+        issues = verify_goodstein_package_workload()
+        if issues:
+            raise ValueError("Goodstein-prefix workload/reference mismatch: " + "; ".join(issues))
+        issues = goodstein_verify_static_inventory()
+        if issues:
+            raise ValueError("Goodstein-prefix package is incomplete: " + "; ".join(issues))
+    if algorithm == "gpsr_perimeter_recovery_trace":
+        package_workload = ROOT / "benchmarks/g/gpsr_perimeter_recovery_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("GPSR perimeter workload differs from its package file")
+        issues = gpsr_workload_issues(workload)
+        if issues:
+            raise ValueError("GPSR perimeter workload/reference mismatch: " + "; ".join(issues))
+        issues = gpsr_static_issues()
+        if issues:
+            raise ValueError("GPSR perimeter package is incomplete: " + "; ".join(issues))
+    if algorithm == "order_preserving_huffman_greedy_trace":
+        package_workload = ROOT / "benchmarks/o/order_preserving_huffman_greedy_trace/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("order-preserving Huffman workload differs from its package file")
+        verify_order_huffman_package_workload()
+        issues = order_huffman_static_issues()
+        if issues:
+            raise ValueError("order-preserving Huffman package is incomplete: " + "; ".join(issues))
+    if algorithm == "powerful_numbers_square_cube_enumeration":
+        package_workload = ROOT / "benchmarks/p/powerful_numbers_square_cube_enumeration/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            raise ValueError("powerful-number enumeration workload differs from its package file")
+        issues = verify_powerful_numbers_package_workload()
+        if issues:
+            raise ValueError("powerful-number enumeration references differ: " + "; ".join(issues))
+        issues = powerful_numbers_verify_static_inventory()
+        if issues:
+            raise ValueError("powerful-number enumeration package is incomplete: " + "; ".join(issues))
+    if algorithm == "lz77_lpf_suffix_array":
+        verify_lz77_lpf_suffix_array_package(workload)
+    if algorithm == "lz78_run_length_transform":
+        verify_lz78_run_length_transform_package(workload)
+    if algorithm == "two_edge_connected_spanning_subgraph_khuller_vishkin_dfs":
+        verify_kv_2ecss_package(workload)
+    if algorithm == "two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs":
+        verify_kv_2vcss_package(workload)
+    if algorithm == "nagamochi_ibaraki_sparse_k_connectivity_certificate":
+        verify_ni_certificate_package(workload)
+    if algorithm == "cheriyan_thurimella_two_vertex_connected_augmentation":
+        verify_ct_2vcss_package(workload)
+    if algorithm == "khuller_raghavachari_three_edge_connected_spanning_subgraph":
+        verify_kr_3ecss_package(workload)
+    if algorithm == "additive_two_spanner_completion":
+        verify_additive_two_spanner_completion_package(workload)
+    if algorithm == "three_prime_carmichael_enumerator":
+        issues = verify_three_prime_carmichael_package(workload)
+        if issues:
+            raise ValueError("three_prime_carmichael_enumerator package is incomplete: " + "; ".join(issues))
+    if algorithm == "avr_speed_scaling":
+        issues = avr_speed_scaling_package_issues(workload)
+        if issues:
+            raise ValueError("avr_speed_scaling package is incomplete: " + "; ".join(issues))
+    if algorithm == "oa_speed_scaling":
+        issues = oa_speed_scaling_package_issues(workload)
+        if issues:
+            raise ValueError("oa_speed_scaling package is incomplete: " + "; ".join(issues))
+    if algorithm == "facility_location_randomized_add_delete_many":
+        issues = verify_facility_location_randomized_add_delete_many_package(workload)
+        if issues:
+            raise ValueError("randomized facility-location package is incomplete: " + "; ".join(issues))
+    if algorithm == "capacitated_facility_location_t_hunt_local_search":
+        issues = verify_capacitated_facility_location_t_hunt_local_search_package(workload)
+        if issues:
+            raise ValueError("capacitated T-Hunt local-search package is incomplete: " + "; ".join(issues))
+    if algorithm == "myers_ond_shortest_edit_script":
+        issues = myers_ond_shortest_edit_script_static_issues()
+        if issues:
+            raise ValueError("Myers edit-script package is incomplete: " + "; ".join(issues))
+    if algorithm == "tsp_few_inner_points_subset_dp":
+        verify_tsp_few_inner_points_subset_dp_package(workload)
+    if algorithm == "hypergraph_incidence_graph_encoding":
+        verify_hypergraph_incidence_graph_encoding_package(workload)
+    if algorithm == "clarke_wright_savings_cvrp":
+        verify_clarke_wright_savings_cvrp_package(workload)
     if algorithm in BYTE_OUTPUT_ALGORITHM_ORACLES:
         return byte_output_corpus(workload, algorithm)
     Record = (tuple[tuple[int, ...], int, bytes, int | None]
@@ -41220,6 +51423,12 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         cases[null_input_key] = (-1, b"")
         null_input_cases.add(null_input_key)
 
+        for values, expected in (((3, 0), 0), ((2, 2, 0, 0, 1, 1), 0),
+                                 ((2, 1, 0, 1), -2), ((2, 1, 0, 2), -1)):
+            key = (values, default_capacity)
+            cases[key] = (expected, b"")
+            null_output_cases.add(key)
+
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "directed_simple_cycles":
@@ -41797,6 +52006,253 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(values)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "influence_maximization_greedy_linear_threshold":
+        cases: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity < INFLUENCE_MAXIMIZATION_GREEDY_LINEAR_THRESHOLD_MAX_OUTPUT_BYTES):
+            raise ValueError("invalid linear-threshold influence output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, bytes]:
+            effective_length = len(values) if input_length is None else input_length
+            primary = influence_maximization_greedy_linear_threshold_primary_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            independent = influence_maximization_greedy_linear_threshold_independent_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if primary != independent:
+                raise ValueError("linear-threshold influence references disagree")
+            cases[(values, capacity, output_is_null, input_is_null, effective_length)] = independent
+            return independent
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", default_capacity)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            result, output = add(values, capacity, output_is_null, input_is_null, input_length)
+            if (result != case["expected_result"]
+                    or output.hex() != case.get("expected_output_hex", "").lower()):
+                raise ValueError(f"linear-threshold influence workload mismatch: {case['id']}")
+            if result > 0 and not output_is_null and not input_is_null:
+                add(values, result - 1, input_length=input_length)
+
+        rng = random.Random(20261117)
+        for _ in range(96):
+            n = rng.randint(1, 8)
+            possible = [(u, v) for u in range(n) for v in range(n) if u != v]
+            rng.shuffle(possible)
+            edge_count = rng.randint(0, min(24, len(possible)))
+            incoming_remaining = [256] * n
+            edges: list[int] = []
+            for u, v in possible[:edge_count]:
+                weight = rng.randint(0, incoming_remaining[v])
+                incoming_remaining[v] -= weight
+                edges.extend((u, v, weight))
+            budget = rng.randint(0, n)
+            worlds = rng.randint(1, 8)
+            draws = [rng.randrange(256) for _ in range(worlds * n)]
+            values = (n, edge_count, budget, worlds, *edges, *draws)
+            result, _output = add(values)
+            if result > 0:
+                add(values, result - 1)
+
+        for malformed in (
+                (), (1,), (0, 0, 0, 1), (9, 0, 0, 1), (2, 1, 0, 1, 0, 2, 256, 0, 0),
+                (2, 2, 0, 1, 0, 1, 128, 0, 1, 128, 0, 0),
+                tuple([0] * (INFLUENCE_MAXIMIZATION_GREEDY_LINEAR_THRESHOLD_MAX_INPUT_LENGTH + 1))):
+            add(tuple(malformed))
+        add((), 0, input_is_null=True, input_length=0)
+        records.extend((values, result, output, capacity, output_is_null, input_is_null, input_length)
+                       for (values, capacity, output_is_null, input_is_null, input_length),
+                       (result, output) in sorted(cases.items()))
+    elif algorithm == "t_threshold_three_sorted_lists":
+        cases: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity < T_THRESHOLD_THREE_SORTED_LISTS_MAX_OUTPUT_BYTES):
+            raise ValueError("invalid t-threshold output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, bytes]:
+            effective_length = len(values) if input_length is None else input_length
+            primary = t_threshold_three_sorted_lists_primary_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            independent = t_threshold_three_sorted_lists_independent_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if primary != independent:
+                raise ValueError("t-threshold references disagree")
+            cases[(values, capacity, output_is_null, input_is_null, effective_length)] = independent
+            return independent
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", default_capacity)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            result, output = add(values, capacity, output_is_null, input_is_null, input_length)
+            if result != case["expected_result"]:
+                raise ValueError(f"t-threshold workload mismatch: {case['id']}")
+            if ("expected_output_hex" in case
+                    and output.hex() != case["expected_output_hex"].lower()):
+                raise ValueError(f"t-threshold output bytes differ: {case['id']}")
+            if "expected_output_values" in case:
+                if (len(output) % 8 != 0
+                        or [word[0] for word in struct.iter_unpack("<q", output)]
+                        != case["expected_output_values"]):
+                    raise ValueError(f"t-threshold output values differ: {case['id']}")
+            if result > 0 and not output_is_null and not input_is_null:
+                add(values, result - 1, input_length=input_length)
+
+        rng = random.Random(20261117)
+        for _ in range(128):
+            lists = [tuple(sorted(rng.sample(range(-1000000, 1000001), rng.randint(1, 32))))
+                     for _list_id in range(3)]
+            values = tuple(item for items in lists for item in (len(items), *items))
+            result, _output = add(values)
+            if result > 0:
+                add(values, result - 1)
+
+        for malformed in (
+                (), (1,), (0, 1, 1, 1, 1, 1), (33, *range(33), 1, 0, 1, 0),
+                (1, 1, 1, 2, 1, 3, 99), (1, 2147483648, 1, 0, 1, 0),
+                tuple([0] * (T_THRESHOLD_THREE_SORTED_LISTS_MAX_INPUT_LENGTH + 1))):
+            add(tuple(malformed))
+        add((), 0, input_is_null=True, input_length=0)
+        records.extend((values, result, output, capacity, output_is_null, input_is_null, input_length)
+                       for (values, capacity, output_is_null, input_is_null, input_length),
+                       (result, output) in sorted(cases.items()))
+    elif algorithm == "maximum_matching_word_segmentation":
+        cases: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity < MAXIMUM_MATCHING_WORD_SEGMENTATION_MAX_OUTPUT_BYTES):
+            raise ValueError("invalid maximum-matching output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, bytes]:
+            effective_length = len(values) if input_length is None else input_length
+            primary = maximum_matching_word_segmentation_primary_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            independent = maximum_matching_word_segmentation_independent_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if primary != independent:
+                raise ValueError("maximum-matching references disagree")
+            cases[(values, capacity, output_is_null, input_is_null, effective_length)] = independent
+            return independent
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", default_capacity)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            result, output = add(values, capacity, output_is_null, input_is_null, input_length)
+            if result != case["expected_result"]:
+                raise ValueError(f"maximum-matching workload mismatch: {case['id']}")
+            if ("expected_output_hex" in case
+                    and output.hex() != case["expected_output_hex"].lower()):
+                raise ValueError(f"maximum-matching output bytes differ: {case['id']}")
+            if ("expected_output_bytes" in case
+                    and list(output) != case["expected_output_bytes"]):
+                raise ValueError(f"maximum-matching output values differ: {case['id']}")
+            if result > 0 and not output_is_null and not input_is_null:
+                add(values, result - 1, input_length=input_length)
+
+        maximum_word_record = [8] + [97] * 8
+        maximum_frame_words = tuple([64, 16] + [97] * 64 + maximum_word_record * 16)
+        if len(maximum_frame_words) != MAXIMUM_MATCHING_WORD_SEGMENTATION_MAX_INPUT_LENGTH - 1:
+            raise ValueError("maximum-matching valid-frame construction differs from its bound")
+        add(maximum_frame_words)
+
+        rng = random.Random(20261117)
+        for _ in range(128):
+            text = tuple(rng.randint(97, 122) for _ in range(rng.randint(0, 64)))
+            word_count = rng.randint(0, 16)
+            words = [tuple(rng.randint(97, 122) for _ in range(rng.randint(1, 8)))
+                     for _word_id in range(word_count)]
+            values = (len(text), word_count, *text,
+                      *(part for word in words for part in (len(word), *word)))
+            result, _output = add(values)
+            if result > 0:
+                add(values, result - 1)
+
+        for malformed in (
+                (), (0, 0, 7), (1, 0, 65), (0, 1, 0), (0, 17), (65, 0),
+                tuple([0] * (MAXIMUM_MATCHING_WORD_SEGMENTATION_MAX_INPUT_LENGTH + 1))):
+            add(tuple(malformed))
+        add((), input_is_null=True, input_length=0)
+        records.extend((values, result, output, capacity, output_is_null, input_is_null, input_length)
+                       for (values, capacity, output_is_null, input_is_null, input_length),
+                       (result, output) in sorted(cases.items()))
+    elif algorithm == "random_3sat_hajiaghayi_sorkin_algorithm_a":
+        cases: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity < RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_MAX_OUTPUT_BYTES):
+            raise ValueError("invalid Hajiaghayi–Sorkin output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, bytes]:
+            effective_length = len(values) if input_length is None else input_length
+            primary = random_3sat_hajiaghayi_sorkin_algorithm_a_primary_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            independent = random_3sat_hajiaghayi_sorkin_algorithm_a_independent_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if primary != independent:
+                raise ValueError("Hajiaghayi–Sorkin references disagree")
+            cases[(values, capacity, output_is_null, input_is_null, effective_length)] = independent
+            return independent
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", default_capacity)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            result, output = add(values, capacity, output_is_null, input_is_null, input_length)
+            if result != case["expected_result"]:
+                raise ValueError(f"Hajiaghayi–Sorkin workload mismatch: {case['id']}")
+            if ("expected_output_hex" in case
+                    and output.hex() != case["expected_output_hex"].lower()):
+                raise ValueError(f"Hajiaghayi–Sorkin output differs: {case['id']}")
+            if result > 0 and not output_is_null and not input_is_null:
+                add(values, result - 1, input_length=input_length)
+
+        rng = random.Random(20261117)
+        for _ in range(96):
+            n = rng.randint(3, 12)
+            clause_count = rng.randint(0, 32)
+            literals: list[int] = []
+            for _clause_id in range(clause_count):
+                for variable in rng.sample(range(1, n + 1), 3):
+                    literals.append(variable if rng.randrange(2) else -variable)
+            add((n, clause_count, *literals))
+
+        max_literals: list[int] = []
+        for _clause_id in range(32):
+            for variable in rng.sample(range(1, 13), 3):
+                max_literals.append(variable if rng.randrange(2) else -variable)
+        maximum_frame = (12, 32, *max_literals)
+        if len(maximum_frame) != RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_MAX_INPUT_LENGTH:
+            raise ValueError("Hajiaghayi–Sorkin maximum frame differs from its bound")
+        add(maximum_frame)
+
+        for malformed in (
+                (), (3,), (2, 0), (13, 0), (3, -1), (3, 33),
+                (3, 1, 1, -1, 2), (3, 1, 1, 2, 4), (3, 0, 99),
+                tuple([0] * (RANDOM_3SAT_HAJIAGHAYI_SORKIN_ALGORITHM_A_MAX_INPUT_LENGTH + 1))):
+            add(tuple(malformed))
+        add((), input_is_null=True, input_length=0)
+        records.extend((values, result, output, capacity, output_is_null, input_is_null, input_length)
+                       for (values, capacity, output_is_null, input_is_null, input_length),
+                       (result, output) in sorted(cases.items()))
     elif algorithm == "sorted_arrays_intersection":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         default_capacity = workload.get("workspace", {}).get("bytes")
@@ -60770,15 +71226,16 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                            (result, output) in sorted(cases.items()))
     elif algorithm == "rat_in_maze":
         validate_rat_in_maze_workload(workload)
-        default_capacity = workload.get("workspace", {}).get("bytes")
-        if (default_capacity != RAT_IN_MAZE_MAX_OUTPUT_BYTES
+        default_capacity = RAT_IN_MAZE_MAX_OUTPUT_BYTES
+        if (workload.get("workspace", {}).get("bytes") != RAT_IN_MAZE_MAX_WORKSPACE_BYTES
                 or RAT_IN_MAZE_MAX_DIMENSION != 8
                 or RAT_IN_MAZE_PYTHON_VARIANT != 0
                 or RAT_IN_MAZE_RUST_VARIANT != 1
                 or RAT_IN_MAZE_MAX_VALID_INPUT_LENGTH != 70
                 or RAT_IN_MAZE_MAX_PARSEABLE_INPUT_LENGTH != 71
                 or RAT_IN_MAZE_MAX_OUTPUT_WORDS != 64
-                or RAT_IN_MAZE_MAX_OUTPUT_BYTES != 512):
+                or RAT_IN_MAZE_MAX_OUTPUT_BYTES != 512
+                or RAT_IN_MAZE_MAX_WORKSPACE_BYTES != 1024):
             raise ValueError("rat_in_maze bounds differ from its reviewed contract")
 
         cases: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
@@ -70014,13 +80471,65 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add_tabu_search_case((), input_is_null=True, input_length=0)
         add_tabu_search_case((), input_is_null=True, input_length=1)
         add_tabu_search_case(maximum_input + (0,))
+    elif algorithm in {"spatial_motif_different_type_contact_pmf",
+                       "cordic_rotation_fixed_point",
+                       "packet_switching_random_schedule",
+                       "long_chain_dominant_depth_index",
+                       "long_chain_kth_ancestor",
+                       "bitset_xor_shift_trace",
+                       "radio_network_bgi_broadcast",
+                       "two_left_hashing_operation_trace"}:
+        for fixture in workload["cases"]:
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", workspace_bytes)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = oracle(values, capacity, output_is_null,
+                                    input_is_null, input_length)
+            if result != fixture.get("expected_result"):
+                raise ValueError(f"{algorithm} workload result differs: {fixture.get('id')}")
+            if algorithm in {"spatial_motif_different_type_contact_pmf",
+                             "packet_switching_random_schedule",
+                             "long_chain_dominant_depth_index",
+                             "long_chain_kth_ancestor",
+                             "bitset_xor_shift_trace",
+                             "radio_network_bgi_broadcast",
+                             "two_left_hashing_operation_trace"}:
+                if algorithm == "bitset_xor_shift_trace":
+                    expected_counts = fixture.get("expected_output_values")
+                    expected_bytes = (b"".join(struct.pack("<i", value)
+                                                for value in expected_counts)
+                                      if isinstance(expected_counts, list) else None)
+                    matches = expected_bytes is not None and output == expected_bytes
+                else:
+                    expected_hex = "".join(
+                        fixture.get("expected_output_hex", "").split()).lower()
+                    matches = output.hex() == expected_hex
+                if not matches:
+                    raise ValueError(f"{algorithm} workload output differs: {fixture.get('id')}")
+            elif result >= 0:
+                expected = fixture.get("expected_output")
+                if not isinstance(expected, list) or len(expected) != 3 or len(output) != 24:
+                    raise ValueError(f"CORDIC float64 fixture is malformed: {fixture.get('id')}")
+                actual = struct.unpack("<3d", output)
+                absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0)
+                relative_tolerance = workload["output"].get("relative_tolerance", 0.0)
+                if any(abs(found - target) > absolute_tolerance + relative_tolerance * abs(target)
+                       for found, target in zip(actual, expected)):
+                    raise ValueError(f"CORDIC workload output differs: {fixture.get('id')}")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, input_length))
     else:
         raise ValueError(f"no corpus for {algorithm}")
     lines = [str(len(records)) + "\n"]
     if workload.get("output", {}).get("kind") in {"float64_vector", "float64_records"}:
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0)
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0)
-        lines.append(f"float64_vector {absolute_tolerance:.17g} {relative_tolerance:.17g}\n")
+        comparison_mode = workload["output"].get("comparison_mode", "float64_vector")
+        if comparison_mode not in {"float64_vector", "float64_csc"}:
+            raise ValueError(f"unsupported float64 comparison mode: {comparison_mode}")
+        lines.append(f"{comparison_mode} {absolute_tolerance:.17g} {relative_tolerance:.17g}\n")
     for record in records:
         values, count, output, capacity = record[:4]
         explicit_null_output = record[4] if len(record) > 4 else None
@@ -70083,6 +80592,16 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
             expected_output_length = len(bytes.fromhex(case["expected_output_hex"]))
         elif "expected_output_bytes" in case:
             expected_output_length = len(bytes(case["expected_output_bytes"]))
+        elif algorithm == "farey_sequence_ordered_enumeration" and case.get("oracle_derived_output") is True:
+            _oracle_result, oracle_bytes = farey_sequence_ordered_enumeration_independent_oracle(
+                values, case.get("output_capacity", FAREY_SEQUENCE_MAX_OUTPUT_BYTES),
+                case.get("output_is_null", False), input_is_null, input_length)
+            expected_output_length = len(oracle_bytes)
+        elif case.get("oracle_derived_output") is True:
+            _oracle_result, oracle_bytes = subtractive_prng_bentley_seeded_sequence_independent_oracle(
+                values, case.get("output_capacity", BENTLEY_SUBTRACTIVE_MAX_OUTPUT_BYTES),
+                case.get("output_is_null", False), input_is_null, input_length)
+            expected_output_length = len(oracle_bytes)
         elif algorithm == "common_interval_decomposition_tree":
             _oracle_result, oracle_bytes = common_interval_decomposition_tree_independent_oracle(values)
             expected_output_length = len(oracle_bytes)

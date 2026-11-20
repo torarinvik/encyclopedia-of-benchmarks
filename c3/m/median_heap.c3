@@ -5,11 +5,11 @@ const usz MAX_INPUT_LENGTH = 514;
 const usz MAX_LIVE_VALUES = 64;
 const long NIL_SENTINEL = -9223372036854775807 - 1;
 
-void store_i64_le(char* output, usz offset, long value) { ulong bits=@bitcast(ulong,value);for(usz b=0;b<8;b++)output[offset+b]=(char)(bits>>(8*b)); }
-void push_max(int* heap, usz* count, int value){usz p=(*count)++;while(p>0&&heap[(p-1)/2]<value){usz q=(p-1)/2;heap[p]=heap[q];p=q;}heap[p]=value;}
-int pop_max(int* heap, usz* count){int r=heap[0],x=heap[--(*count)];if(*count==0)return r;usz p=0;while(2*p+1<*count){usz c=2*p+1;if(c+1<*count&&heap[c+1]>heap[c])c++;if(heap[c]<=x)break;heap[p]=heap[c];p=c;}heap[p]=x;return r;}
-void push_min(int* heap, usz* count, int value){usz p=(*count)++;while(p>0&&heap[(p-1)/2]>value){usz q=(p-1)/2;heap[p]=heap[q];p=q;}heap[p]=value;}
-int pop_min(int* heap, usz* count){int r=heap[0],x=heap[--(*count)];if(*count==0)return r;usz p=0;while(2*p+1<*count){usz c=2*p+1;if(c+1<*count&&heap[c+1]<heap[c])c++;if(heap[c]>=x)break;heap[p]=heap[c];p=c;}heap[p]=x;return r;}
+fn void store_i64_le(char* output, usz offset, long value) { ulong bits=bitcast(value,ulong);for(usz b=0;b<8;b++)output[offset+b]=(char)(bits>>(8*b)); }
+fn void push_max(int* heap, usz* count, int value){usz p=(*count)++;while(p>0&&heap[(p-1)/2]<value){usz q=(p-1)/2;heap[p]=heap[q];p=q;}heap[p]=value;}
+fn int pop_max(int* heap, usz* count){int r=heap[0],x=heap[--(*count)];if(*count==0)return r;usz p=0;while(2*p+1<*count){usz c=2*p+1;if(c+1<*count&&heap[c+1]>heap[c])c++;if(heap[c]<=x)break;heap[p]=heap[c];p=c;}heap[p]=x;return r;}
+fn void push_min(int* heap, usz* count, int value){usz p=(*count)++;while(p>0&&heap[(p-1)/2]>value){usz q=(p-1)/2;heap[p]=heap[q];p=q;}heap[p]=value;}
+fn int pop_min(int* heap, usz* count){int r=heap[0],x=heap[--(*count)];if(*count==0)return r;usz p=0;while(2*p+1<*count){usz c=2*p+1;if(c+1<*count&&heap[c+1]<heap[c])c++;if(heap[c]>=x)break;heap[p]=heap[c];p=c;}heap[p]=x;return r;}
 
 fn long median_heap(long* input, usz length, char* output, usz capacity) @export("median_heap") {
     if(input==null||length<1||length>MAX_INPUT_LENGTH)return -1;

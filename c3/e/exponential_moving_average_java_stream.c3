@@ -1,7 +1,7 @@
 module exponential_moving_average_java_stream;
 
 fn void put_f64_le(char* output, usz offset, double value) {
-	ulong bits = @bitcast(ulong, value);
+	ulong bits = bitcast(value, ulong);
 	for (usz byte = 0; byte < 8; byte++) output[offset+byte] = (char)((bits >> (8*byte)) & 255);
 }
 fn void put_i64_le(char* output, usz offset, long value) {

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem57")
 fn problem57(iterations:Int64) abi("C")->Int64:
     if iterations<=0:return 0

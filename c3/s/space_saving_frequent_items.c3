@@ -1,6 +1,6 @@
 module space_saving_frequent_items;
 
-long space_saving_frequent_items(long* input, usz length, char* output, usz capacity)
+fn long space_saving_frequent_items(long* input, usz length, char* output, usz capacity)
         @export("space_saving_frequent_items") {
     if (input == null || length < 2 || length > 67) return -1;
     if (input[0] < 1 || input[0] > 8 || input[1] < 0 || input[1] > 64) return -1;

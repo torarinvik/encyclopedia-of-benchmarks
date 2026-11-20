@@ -11,7 +11,7 @@ fn lower_ascii(value u8) u8 {
 @[export: 'max_word']
 pub fn max_word(input &i64, length usize, output &u8, output_capacity usize) i64 {
 	if isnil(input) || length < 1 || length > usize(max_input_length) { return -1 }
-	text_length_value := unsafe { input }
+	text_length_value := unsafe { input[0] }
 	if text_length_value < 1 || text_length_value > max_text_length { return -1 }
 	text_length := int(text_length_value)
 	if length != usize(1 + text_length) { return -1 }

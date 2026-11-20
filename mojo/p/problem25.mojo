@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem25")
 fn problem25(digits_needed:Int64) abi("C")->Int64:
     if digits_needed<2 or digits_needed>1000:return -1

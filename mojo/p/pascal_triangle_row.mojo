@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 from std.memory import MutAnyOrigin, UnsafePointer
 @export("pascal_triangle_row")
 fn pascal_triangle_row(row:Int64,o:UnsafePointer[UInt8,MutAnyOrigin],cap:UInt64) abi("C")->Int64:

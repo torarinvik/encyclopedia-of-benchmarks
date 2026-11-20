@@ -24,6 +24,7 @@ The source stores the answer as a year/month/day structure. The benchmark packs 
 | C3 | [`c3/e/easter.c3`](../../../c3/e/easter.c3) |
 | C++ | [`cpp/e/easter.cpp`](../../../cpp/e/easter.cpp) |
 | Elisa | [`elisa/e/easter.elisa`](../../../elisa/e/easter.elisa) |
+| Mojo | [`mojo/e/easter.mojo`](../../../mojo/e/easter.mojo) |
 | Nim | [`nim/e/easter.nim`](../../../nim/e/easter.nim) |
 | Odin | [`odin/e/easter.odin`](../../../odin/e/easter.odin) |
 | Rust | [`rust/e/easter.rs`](../../../rust/e/easter.rs) |
@@ -34,3 +35,8 @@ The source stores the answer as a year/month/day structure. The benchmark packs 
 
 - [C++ `easter.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/easter.cpp)
 - [C++ additional repository `easter.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/others/easter.cpp)
+
+Scalar-suite registration and an integer Gauss-computus reference are drafted
+and have not been executed. The reference differs from the local
+`gauss_easter` benchmark, which preserves a source-specific fractional
+division behavior.

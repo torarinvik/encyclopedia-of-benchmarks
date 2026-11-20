@@ -7,8 +7,9 @@ const INVALID_RESULT: i64 = -9223372036854775807 - 1
 def persistent_segment_tree_range_kth_impl(input: i64&, length: usize) -> i64:
     if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 1 or n_value > 32 or q_value < 0 or q_value > 32:
         return INVALID_RESULT
     n: usize = n_value.usize()
@@ -19,7 +20,7 @@ def persistent_segment_tree_range_kth_impl(input: i64&, length: usize) -> i64:
     coordinates: mutable i64[32] = zeroed
     i: mutable usize = 0
     while i < n:
-        value: i64 = input[2 + i]
+        value: i64 = frame[2 + i]
         if value < -1000 or value > 1000:
             return INVALID_RESULT
         coordinates[i] <- value
@@ -44,9 +45,9 @@ def persistent_segment_tree_range_kth_impl(input: i64&, length: usize) -> i64:
     query_offset: usize = 2 + n
     qi: mutable usize = 0
     while qi < q:
-        left: i64 = input[query_offset + 3 * qi]
-        right: i64 = input[query_offset + 3 * qi + 1]
-        k: i64 = input[query_offset + 3 * qi + 2]
+        left: i64 = frame[query_offset + 3 * qi]
+        right: i64 = frame[query_offset + 3 * qi + 1]
+        k: i64 = frame[query_offset + 3 * qi + 2]
         if left < 0 or right < left or right >= n_value or k < 1 or k > right - left + 1:
             return INVALID_RESULT
         qi <- qi + 1
@@ -58,7 +59,7 @@ def persistent_segment_tree_range_kth_impl(input: i64&, length: usize) -> i64:
     node_count: mutable usize = 1
     i <- 0
     while i < n:
-        value: i64 = input[2 + i]
+        value: i64 = frame[2 + i]
         low: mutable usize = 0
         high: mutable usize = distinct
         while low < high:
@@ -109,9 +110,9 @@ def persistent_segment_tree_range_kth_impl(input: i64&, length: usize) -> i64:
     qi <- 0
     while qi < q:
         offset: usize = query_offset + 3 * qi
-        left: usize = (input[offset]).usize()
-        right: usize = (input[offset + 1]).usize()
-        k: mutable i32 = (input[offset + 2]).i32()
+        left: usize = (frame[offset]).usize()
+        right: usize = (frame[offset + 1]).usize()
+        k: mutable i32 = (frame[offset + 2]).i32()
         before: mutable usize = (roots[left]).usize()
         after: mutable usize = (roots[right + 1]).usize()
         low: mutable usize = 0

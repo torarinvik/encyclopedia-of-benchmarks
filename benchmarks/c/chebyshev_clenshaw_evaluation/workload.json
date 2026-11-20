@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "chebyshev-clenshaw-evaluation-i64-array-scalar-v1",
+  "algorithm": "chebyshev_clenshaw_evaluation",
+  "function_symbol": "chebyshev_clenshaw_evaluation",
+  "abi": "i64_array_scalar",
+  "description": "Evaluate a Chebyshev-basis polynomial over F_998244353 with the backward Clenshaw recurrence.",
+  "source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.11(ii), Summation of Chebyshev Series: Clenshaw's Algorithm",
+    "authors": ["Frank W. J. Olver", "Daniel W. Lozier", "Ronald F. Boisvert", "Charles W. Clark"],
+    "editors": true,
+    "reference": "DLMF §3.11, equations 3.11.7 and 3.11.15, endpoint formula 3.11.16",
+    "url": "https://dlmf.nist.gov/3.11",
+    "implementation_status": "clean-room bounded exact-field profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[degree,x,a0,...,a_degree]",
+    "degree_range": [0, 16],
+    "field_modulus": 998244353,
+    "canonical_residue_range": [0, 998244352],
+    "exact_length": "degree + 3",
+    "maximum_valid_length": 19,
+    "maximum_parseable_length": 21,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "the canonical residue of sum(a_k*T_k(x)) for k=0..degree, with T_0=1 and T_1=x",
+    "valid_result_range": [0, 998244352],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "basis_recurrence": "T_(k+1)(x)=2*x*T_k(x)-T_(k-1)(x) modulo 998244353",
+    "coefficient_convention": "a0 is the full coefficient of T0; there is no primed-series half-weight convention",
+    "primary_recurrence": "b_(degree+1)=b_(degree+2)=0; for k=degree down to 1, b_k=a_k+2*x*b_(k+1)-b_(k+2); return a0+x*b_1-b_2 modulo the field prime",
+    "modular_division": "none; all operations are additions, subtractions, and multiplications in the prime field",
+    "signed_64_bit_bound": "after reducing 2*x modulo p, each product is below p^2 and each unreduced recurrence expression has magnitude below p^2+p < 10^18",
+    "independent_method": "generate T0,T1,... in increasing degree with the forward basis recurrence and sum a_k*T_k",
+    "boundary_cases": "degree zero returns a0; at x=1 the result is the coefficient sum; at x=-1 modulo the field prime it is the alternating coefficient sum",
+    "invalid_cases": "null, short or trailing frame, degree outside 0..16, or x/coefficient outside the canonical residue range returns -1"
+  },
+  "complexity": {
+    "time": "O(degree)",
+    "space": "O(1) auxiliary state for both rolling recurrences"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"degree-zero","input_values":[0,123,19],"input_length":3,"expected_result":19},
+    {"id":"linear-nonzero-point","input_values":[1,7,3,5],"input_length":4,"expected_result":38},
+    {"id":"only-second-chebyshev-term","input_values":[2,3,0,0,1],"input_length":5,"expected_result":17},
+    {"id":"cubic-at-positive-endpoint","input_values":[3,1,1,2,3,4],"input_length":6,"expected_result":10},
+    {"id":"cubic-at-negative-endpoint","input_values":[3,998244352,5,1,3,6],"input_length":6,"expected_result":1},
+    {"id":"even-terms-at-zero","input_values":[4,0,2,0,5,0,7],"input_length":7,"expected_result":4},
+    {"id":"third-basis-polynomial-at-two","input_values":[3,2,0,0,0,1],"input_length":6,"expected_result":26},
+    {"id":"field-wraparound","input_values":[1,2,998244351,998244350],"input_length":4,"expected_result":998244345},
+    {"id":"maximum-degree-at-one","input_values":[16,1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],"input_length":19,"expected_result":153},
+    {"id":"maximum-degree-at-negative-one","input_values":[16,998244352,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],"input_length":19,"expected_result":8},
+    {"id":"maximum-degree-at-zero","input_values":[16,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"input_length":19,"expected_result":9},
+    {"id":"zero-polynomial-at-maximum-degree","input_values":[16,123456789,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":19,"expected_result":0},
+    {"id":"negative-degree","input_values":[-1,0],"input_length":2,"expected_result":-1},
+    {"id":"degree-too-large","input_values":[17,0],"input_length":2,"expected_result":-1},
+    {"id":"negative-field-point","input_values":[1,-1,1,1],"input_length":4,"expected_result":-1},
+    {"id":"field-point-not-canonical","input_values":[1,998244353,0,0],"input_length":4,"expected_result":-1},
+    {"id":"coefficient-not-canonical","input_values":[0,0,998244353],"input_length":3,"expected_result":-1},
+    {"id":"short-frame","input_values":[1,0,5],"input_length":3,"expected_result":-1},
+    {"id":"trailing-word","input_values":[0,0,5,0],"input_length":4,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"parseable-bound-trailing-frame","input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":21,"expected_result":-1}
+  ]
+}

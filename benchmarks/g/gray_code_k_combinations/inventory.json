@@ -1,0 +1,22 @@
+{
+  "algorithm": "gray_code_k_combinations",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "gray_code_k_combinations",
+  "source_url": "https://cp-algorithms.com/combinatorics/generating_combinations.html",
+  "ports": {
+    "c": "../../../c/g/gray_code_k_combinations.c",
+    "c3": "../../../c3/g/gray_code_k_combinations.c3",
+    "cpp": "../../../cpp/g/gray_code_k_combinations.cpp",
+    "elisa": "../../../elisa/g/gray_code_k_combinations.elisa",
+    "mojo": "../../../mojo/g/gray_code_k_combinations.mojo",
+    "nim": "../../../nim/g/gray_code_k_combinations.nim",
+    "odin": "../../../odin/g/gray_code_k_combinations.odin",
+    "rust": "../../../rust/g/gray_code_k_combinations.rs",
+    "v": "../../../v/g/gray_code_k_combinations.v",
+    "zig": "../../../zig/g/gray_code_k_combinations.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "execution_status": "source-only; no programs or checks run"
+}

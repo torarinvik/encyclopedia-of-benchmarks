@@ -1,0 +1,109 @@
+# Zhang-Suen thinning with two simultaneous directional deletion phases.
+const MAX_ROWS: i64 = 32
+const MAX_COLUMNS: i64 = 32
+const MAX_CELLS: usize = 1024
+
+def zst_thin_phase(image: mutable view[u8], marked: mutable view[u8],
+        rows: usize, columns: usize, second_phase: bool) -> bool:
+    cells: usize = rows * columns
+    index: mutable usize = 0
+    while index < cells:
+        marked[index] <- 0
+        index <- index + 1
+    changed: mutable bool = false
+    row: mutable usize = 1
+    while row + 1 < rows:
+        column: mutable usize = 1
+        while column + 1 < columns:
+            index <- row * columns + column
+            if image[index] != 0:
+                p2: u8 = image[index - columns]
+                p3: u8 = image[index - columns + 1]
+                p4: u8 = image[index + 1]
+                p5: u8 = image[index + columns + 1]
+                p6: u8 = image[index + columns]
+                p7: u8 = image[index + columns - 1]
+                p8: u8 = image[index - 1]
+                p9: u8 = image[index - columns - 1]
+                ring: mutable u8[9] = zeroed
+                ring[0] <- p2
+                ring[1] <- p3
+                ring[2] <- p4
+                ring[3] <- p5
+                ring[4] <- p6
+                ring[5] <- p7
+                ring[6] <- p8
+                ring[7] <- p9
+                ring[8] <- p2
+                black_neighbors: mutable i64 = 0
+                transitions: mutable i64 = 0
+                neighbor: mutable usize = 0
+                while neighbor < 8:
+                    black_neighbors <- black_neighbors + ring[neighbor].i64()
+                    if ring[neighbor] == 0 and ring[neighbor + 1] == 1:
+                        transitions <- transitions + 1
+                    neighbor <- neighbor + 1
+                blocked: mutable bool = false
+                if second_phase:
+                    blocked <- (p2 != 0 and p4 != 0 and p8 != 0) or (p2 != 0 and p6 != 0 and p8 != 0)
+                else:
+                    blocked <- (p2 != 0 and p4 != 0 and p6 != 0) or (p4 != 0 and p6 != 0 and p8 != 0)
+                if black_neighbors >= 2 and black_neighbors <= 6 and
+                        transitions == 1 and not blocked:
+                    marked[index] <- 1
+                    changed <- true
+            column <- column + 1
+        row <- row + 1
+    if changed:
+        index <- 0
+        while index < cells:
+            if marked[index] != 0:
+                image[index] <- 0
+            index <- index + 1
+    changed
+
+def zhang_suen_thinning_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or length > 1027:
+        return -1
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if rows_value < 1 or rows_value > MAX_ROWS or
+            columns_value < 1 or columns_value > MAX_COLUMNS:
+        return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    cells: usize = rows * columns
+    if length != 2 + cells:
+        return -1
+    index: mutable usize = 0
+    while index < cells:
+        pixel: i64 = input[index + 2]
+        if pixel != 0 and pixel != 1:
+            return -1
+        index <- index + 1
+    if output_capacity < cells:
+        return -2
+
+    image: mutable u8[MAX_CELLS] = zeroed
+    marked: mutable u8[MAX_CELLS] = zeroed
+    index <- 0
+    while index < cells:
+        image[index] <- input[index + 2].u8()
+        index <- index + 1
+    image_view: mutable view[u8] = image[0:cells]
+    marked_view: mutable view[u8] = marked[0:cells]
+    while true:
+        first_changed: bool = zst_thin_phase(image_view, marked_view, rows, columns, false)
+        second_changed: bool = zst_thin_phase(image_view, marked_view, rows, columns, true)
+        if not first_changed and not second_changed:
+            break
+    output_view: mutable view[u8] = output[0:cells]
+    index <- 0
+    while index < cells:
+        output_view[index] <- image[index]
+        index <- index + 1
+    cells.i64()
+
+export fn zhang_suen_thinning(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = zhang_suen_thinning_impl

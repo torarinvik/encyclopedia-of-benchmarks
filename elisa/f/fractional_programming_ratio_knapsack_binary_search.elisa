@@ -1,0 +1,75 @@
+const FR_MAX_N: usize = 12
+const FR_MAX_WEIGHT: usize = 32
+const FR_MAX_PARSEABLE: usize = 27
+const FR_SCALE: i64 = 1_000_000
+const FR_MAX_RATIO: i64 = 1_000_000_000
+const FR_NEGATIVE_INFINITY: i64 = -2_305_843_009_213_693_952
+
+def fr_feasible(numerators: view[i64], denominators: view[i64], required_weight: usize,
+                threshold: i64) -> bool:
+    current: mutable i64[33] = zeroed
+    next: mutable i64[33] = zeroed
+    weight: mutable usize = 0
+    while weight <= required_weight:
+        current[weight] <- FR_NEGATIVE_INFINITY
+        weight <- weight + 1
+    current[0] <- 0
+    item: mutable usize = 0
+    while item < numerators.len():
+        weight <- 0
+        while weight <= required_weight:
+            next[weight] <- current[weight]
+            weight <- weight + 1
+        score: i64 = FR_SCALE * numerators[item] - threshold * denominators[item]
+        weight <- 0
+        while weight <= required_weight:
+            if current[weight] != FR_NEGATIVE_INFINITY:
+                sum_weight: usize = weight + denominators[item].usize()
+                target: usize = if sum_weight < required_weight: sum_weight else: required_weight
+                candidate: i64 = current[weight] + score
+                if candidate > next[target]: next[target] <- candidate
+            weight <- weight + 1
+        weight <- 0
+        while weight <= required_weight:
+            current[weight] <- next[weight]
+            weight <- weight + 1
+        item <- item + 1
+    current[required_weight] >= 0
+
+def fractional_programming_ratio_knapsack_binary_search_impl(values: view[i64]) -> i64:
+    if values.len() < 2 or values.len() > FR_MAX_PARSEABLE: return -1
+    n_value: i64 = values[0]
+    required_value: i64 = values[1]
+    if n_value < 1 or n_value > FR_MAX_N.i64() or required_value < 1
+            or required_value > FR_MAX_WEIGHT.i64(): return -1
+    n: usize = n_value.usize()
+    required_weight: usize = required_value.usize()
+    if values.len() != 2 + 2 * n: return -1
+
+    numerators: mutable i64[FR_MAX_N] = zeroed
+    denominators: mutable i64[FR_MAX_N] = zeroed
+    denominator_sum: mutable i64 = 0
+    item: mutable usize = 0
+    while item < n:
+        numerator: i64 = values[2 + 2 * item]
+        denominator: i64 = values[3 + 2 * item]
+        if numerator < 0 or numerator > 1000 or denominator < 1 or denominator > 8: return -1
+        numerators[item] <- numerator
+        denominators[item] <- denominator
+        denominator_sum <- denominator_sum + denominator
+        item <- item + 1
+    if required_value > denominator_sum: return -1
+
+    low: mutable i64 = 0
+    high: mutable i64 = FR_MAX_RATIO + 1
+    while high - low > 1:
+        middle: i64 = low + (high - low) / 2
+        if fr_feasible(numerators[0:n], denominators[0:n], required_weight, middle):
+            low <- middle
+        else:
+            high <- middle
+    low
+
+export fn fractional_programming_ratio_knapsack_binary_search(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > FR_MAX_PARSEABLE: return -1
+    fractional_programming_ratio_knapsack_binary_search_impl(input[0:length])

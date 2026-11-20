@@ -1,0 +1,22 @@
+extern floor(value: f64) -> f64
+
+def modified_newton_multiple_root_impl(initial_input: f64, iteration_count: f64) -> f64:
+    if initial_input != initial_input or iteration_count != iteration_count or
+            initial_input < 1.0 or initial_input > 2.0 or
+            iteration_count < 0.0 or iteration_count > 8.0 or
+            floor(iteration_count) != iteration_count:
+        return -1.0
+
+    x: mutable f64 = initial_input
+    count: usize = iteration_count.usize()
+    for i in 0..<count:
+        if x == 1.0: break
+        offset: f64 = x - 1.0
+        value: f64 = offset * offset * (x + 2.0)
+        derivative: f64 = 3.0 * offset * (x + 1.0)
+        if derivative == 0.0 or derivative != derivative: return -1.0
+        x <- x - 2.0 * (value / derivative)
+        if x != x or x < 1.0 or x > 2.0: return -1.0
+    x
+
+export fn modified_newton_multiple_root(initial_x: f64, iteration_count: f64) -> f64 = modified_newton_multiple_root_impl

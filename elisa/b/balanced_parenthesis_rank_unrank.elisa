@@ -1,0 +1,79 @@
+# Clean-room completion-count dynamic programming for Dyck-word rank/unrank.
+const BPRU_MAX_PAIRS: usize = 10
+const BPRU_MAX_INPUT: usize = 22
+const BPRU_WAYS_STRIDE: usize = 11
+const BPRU_WAYS_COUNT: usize = 231
+
+def balanced_parenthesis_rank_unrank_impl(values: view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > BPRU_MAX_INPUT: return -1
+    mode: i64 = values[0]
+    pair_value: i64 = values[1]
+    if pair_value < 1 or pair_value > 10: return -1
+    pairs: usize = pair_value.usize()
+    sequence_length: usize = 2 * pairs
+    if mode == 0:
+        if length != 2 + sequence_length: return -1
+        balance: mutable i64 = 0
+        i: mutable usize = 0
+        while i < sequence_length:
+            symbol: i64 = values[2 + i]
+            if symbol != 0 and symbol != 1: return -1
+            if symbol == 0: balance <- balance + 1
+            else: balance <- balance - 1
+            if balance < 0: return -1
+            i <- i + 1
+        if balance != 0: return -1
+    elif mode == 1:
+        if length != 3: return -1
+    else:
+        return -1
+
+    ways: mutable i64[BPRU_WAYS_COUNT] = zeroed
+    ways[0] <- 1
+    remaining: mutable usize = 1
+    while remaining <= sequence_length:
+        balance: mutable usize = 0
+        while balance <= pairs:
+            count: mutable i64 = 0
+            if balance < pairs: count <- count + ways[(remaining - 1) * BPRU_WAYS_STRIDE + balance + 1]
+            if balance > 0: count <- count + ways[(remaining - 1) * BPRU_WAYS_STRIDE + balance - 1]
+            ways[remaining * BPRU_WAYS_STRIDE + balance] <- count
+            balance <- balance + 1
+        remaining <- remaining + 1
+
+    if mode == 0:
+        rank: mutable i64 = 0
+        balance: mutable usize = 0
+        i: mutable usize = 0
+        while i < sequence_length:
+            symbol: i64 = values[2 + i]
+            suffix: usize = sequence_length - i - 1
+            if symbol == 1 and balance < pairs:
+                rank <- rank + ways[suffix * BPRU_WAYS_STRIDE + balance + 1]
+            if symbol == 0: balance <- balance + 1
+            else: balance <- balance - 1
+            i <- i + 1
+        return rank
+
+    rank: i64 = values[2]
+    if rank < 0 or rank >= ways[sequence_length * BPRU_WAYS_STRIDE]: return -1
+    balance: mutable usize = 0
+    code: mutable u64 = 0
+    i: mutable usize = 0
+    while i < sequence_length:
+        suffix: usize = sequence_length - i - 1
+        opening_count: i64 = if balance < pairs: ways[suffix * BPRU_WAYS_STRIDE + balance + 1] else: 0
+        symbol: mutable u64 = 0
+        if rank < opening_count: balance <- balance + 1
+        else:
+            rank <- rank - opening_count
+            symbol <- 1
+            balance <- balance - 1
+        code <- (code << 1) | symbol
+        i <- i + 1
+    code.i64()
+
+export fn balanced_parenthesis_rank_unrank(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > BPRU_MAX_INPUT: return -1
+    balanced_parenthesis_rank_unrank_impl(input[0:length])

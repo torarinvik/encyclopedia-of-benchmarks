@@ -1,0 +1,65 @@
+const SSD_MAX_UNIVERSE: usize = 32
+const SSD_MAX_OPERATIONS: usize = 30
+const SSD_MAX_LENGTH: usize = 63
+
+def sparse_set_dense_array_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > SSD_MAX_LENGTH: return -1
+    if input[0] < 1 or input[0] > SSD_MAX_UNIVERSE.i64(): return -1
+    if input[1] < 0 or input[1] > SSD_MAX_OPERATIONS.i64(): return -1
+    universe: usize = input[0].usize()
+    count: usize = input[1].usize()
+    if length != 2+2*count: return -1
+    i: mutable usize = 0
+    while i < count:
+        opcode: i64 = input[2+2*i]
+        key: i64 = input[3+2*i]
+        if opcode < 0 or opcode > 3 or key < 0 or key >= universe.i64(): return -1
+        if opcode == 3 and key != 0: return -1
+        i <- i+1
+
+    dense: mutable i64[SSD_MAX_UNIVERSE] = zeroed
+    sparse: mutable usize[SSD_MAX_UNIVERSE] = zeroed
+    i <- 0
+    while i < universe:
+        sparse[i] <- universe
+        i <- i+1
+    size: mutable usize = 0
+    answers: mutable i64 = 0
+    i <- 0
+    while i < count:
+        opcode: usize = input[2+2*i].usize()
+        key: usize = input[3+2*i].usize()
+        index: usize = sparse[key]
+        present: bool = index < size and dense[index] == key.i64()
+        status: mutable i64 = 0
+        if opcode == 0:
+            if not present:
+                dense[size] <- key.i64()
+                sparse[key] <- size
+                size <- size+1
+                status <- 1
+        else if opcode == 1:
+            if present:
+                last: usize = dense[size-1].usize()
+                dense[index] <- last.i64()
+                sparse[last] <- index
+                size <- size-1
+                status <- 1
+        else if opcode == 2:
+            status <- if present: 1 else: 0
+        else:
+            status <- if size > 0: 1 else: 0
+            size <- 0
+        answers <- (answers << 1) | status
+        i <- i+1
+    final_mask: mutable i64 = 0
+    i <- 0
+    while i < size:
+        final_mask <- final_mask | (1.i64 << dense[i].usize())
+        i <- i+1
+    (final_mask << count) | answers
+
+export fn sparse_set_dense_array(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > SSD_MAX_LENGTH: return -1
+    sparse_set_dense_array_impl(input[0:length])

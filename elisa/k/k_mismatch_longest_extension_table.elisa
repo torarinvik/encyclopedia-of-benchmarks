@@ -1,0 +1,168 @@
+# Bounded clean-room LP_k(p) table; raw memory is confined to the exported ABI.
+const KML_N: usize = 64
+const KML_K: usize = 4
+const KML_LEVELS: usize = 7
+const KML_OUTPUT: usize = 320
+const KML_INPUT: usize = 67
+
+def kml_pair_less(a: usize, b: usize, width: usize, rank: view[i32], n: usize) -> bool:
+    if rank[a] != rank[b]: return rank[a] < rank[b]
+    ra: i32 = if a + width < n then rank[a + width] else -1
+    rb: i32 = if b + width < n then rank[b + width] else -1
+    ra < rb
+
+def kml_lce(a: usize, b: usize, n: usize, inverse: view[usize],
+            sparse: view[i32], logs: view[usize]) -> usize:
+    if a >= n or b >= n: return 0
+    if a == b: return n - a
+    left: mutable usize = inverse[a]
+    right: mutable usize = inverse[b]
+    if left > right:
+        temporary: usize = left
+        left <- right
+        right <- temporary
+    left <- left + 1
+    count: usize = right - left + 1
+    level: usize = logs[count]
+    span: usize = 1 << level
+    x: i32 = sparse[level * KML_N + left]
+    y: i32 = sparse[level * KML_N + right - span + 1]
+    (if x < y then x else y).usize()
+
+def kml_impl(input: view[i64], output: mutable view[u8], capacity: usize,
+             output_is_null: bool) -> i64:
+    if input.length < 3 or input.length > KML_INPUT: return -1
+    n64: i64 = input[0]
+    k64: i64 = input[1]
+    if n64 < 1 or n64 > 64 or k64 < 0 or k64 > 4: return -1
+    n: usize = n64.usize()
+    budget: usize = k64.usize()
+    if input.length != n + 2: return -1
+
+    var text = InlineArray[i32, 64](fill=0)
+    var suffixes = InlineArray[usize, 64](fill=0)
+    var rank = InlineArray[i32, 64](fill=0)
+    var next_rank = InlineArray[i32, 64](fill=0)
+    var inverse = InlineArray[usize, 64](fill=0)
+    var lcp = InlineArray[i32, 64](fill=0)
+    var sparse = InlineArray[i32, 448](fill=0)
+    var logs = InlineArray[usize, 65](fill=0)
+    var staged = InlineArray[u8, 320](fill=0)
+    var text_view: mutable view[i32] = text[0:64]
+    var suffix_view: mutable view[usize] = suffixes[0:64]
+    var rank_view: mutable view[i32] = rank[0:64]
+    var next_view: mutable view[i32] = next_rank[0:64]
+    var inverse_view: mutable view[usize] = inverse[0:64]
+    var lcp_view: mutable view[i32] = lcp[0:64]
+    var sparse_view: mutable view[i32] = sparse[0:448]
+    var logs_view: mutable view[usize] = logs[0:65]
+    var staged_view: mutable view[u8] = staged[0:320]
+
+    var i: mutable usize = 0
+    while i < n:
+        symbol: i64 = input[i + 2]
+        if symbol < 0 or symbol > 25: return -1
+        text_view[i] <- symbol.i32()
+        suffix_view[i] <- i
+        rank_view[i] <- symbol.i32()
+        i <- i + 1
+
+    var width: mutable usize = 1
+    while width < n:
+        i <- 1
+        while i < n:
+            key: usize = suffix_view[i]
+            j: mutable usize = i
+            while j > 0 and kml_pair_less(key, suffix_view[j - 1], width, rank_view, n):
+                suffix_view[j] <- suffix_view[j - 1]
+                j <- j - 1
+            suffix_view[j] <- key
+            i <- i + 1
+        var classes: mutable usize = 0
+        next_view[suffix_view[0]] <- 0
+        i <- 1
+        while i < n:
+            a: usize = suffix_view[i - 1]
+            b: usize = suffix_view[i]
+            a2: i32 = if a + width < n then rank_view[a + width] else -1
+            b2: i32 = if b + width < n then rank_view[b + width] else -1
+            if rank_view[a] != rank_view[b] or a2 != b2: classes <- classes + 1
+            next_view[b] <- classes.i32()
+            i <- i + 1
+        i <- 0
+        while i < n:
+            rank_view[i] <- next_view[i]
+            i <- i + 1
+        if classes == n - 1 or width > n // 2: break
+        width <- width * 2
+
+    i <- 0
+    while i < n:
+        inverse_view[suffix_view[i]] <- i
+        i <- i + 1
+    var matched: mutable usize = 0
+    var start: mutable usize = 0
+    while start < n:
+        order: usize = inverse_view[start]
+        if order == 0:
+            matched <- 0
+            start <- start + 1
+            continue
+        other: usize = suffix_view[order - 1]
+        while start + matched < n and other + matched < n and text_view[start + matched] == text_view[other + matched]:
+            matched <- matched + 1
+        lcp_view[order] <- matched.i32()
+        if matched > 0: matched <- matched - 1
+        start <- start + 1
+
+    i <- 0
+    while i < n:
+        sparse_view[i] <- lcp_view[i]
+        i <- i + 1
+    var level: mutable usize = 1
+    while level < KML_LEVELS:
+        span: usize = 1 << level
+        half: usize = span // 2
+        i <- 0
+        while i + span <= n:
+            a: i32 = sparse_view[(level - 1) * KML_N + i]
+            b: i32 = sparse_view[(level - 1) * KML_N + i + half]
+            sparse_view[level * KML_N + i] <- if a < b then a else b
+            i <- i + 1
+        level <- level + 1
+    i <- 2
+    while i <= n:
+        logs_view[i] <- logs_view[i // 2] + 1
+        i <- i + 1
+
+    var written: mutable usize = 0
+    var p: mutable usize = 0
+    while p < n:
+        limit: usize = n - p
+        extension: mutable usize = kml_lce(0, p, n, inverse_view, sparse_view, logs_view)
+        if extension > limit: extension <- limit
+        staged_view[written] <- extension.u8()
+        written <- written + 1
+        var k: mutable usize = 1
+        while k <= budget:
+            if extension < limit:
+                extension <- extension + 1 + kml_lce(extension + 1, p + extension + 1, n, inverse_view, sparse_view, logs_view)
+                if extension > limit: extension <- limit
+            staged_view[written] <- extension.u8()
+            written <- written + 1
+            k <- k + 1
+        p <- p + 1
+    if output_is_null or output.length < written or capacity < written: return -2
+    var out: mutable usize = 0
+    while out < written:
+        output[out] <- staged_view[out]
+        out <- out + 1
+    written.i64()
+
+export fn k_mismatch_longest_extension_table(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > KML_INPUT: return -1
+    if output.is_null():
+        var empty = InlineArray[u8, 1](fill=0)
+        return kml_impl(input[0:length], empty[0:0], capacity, true)
+    kml_impl(input[0:length], output[0:capacity], capacity, false)

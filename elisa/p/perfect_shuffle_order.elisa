@@ -1,0 +1,38 @@
+const PERFECT_SHUFFLE_MAX_DECK: usize = 10000
+
+def perfect_shuffle_order_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+    deck_size_word: i64 = input[0]
+    if deck_size_word < 2 or deck_size_word > PERFECT_SHUFFLE_MAX_DECK.i64() or deck_size_word % 2 != 0:
+        return -1
+    deck_size: usize = deck_size_word.usize()
+    half: usize = deck_size / 2
+
+    deck: mutable i64[PERFECT_SHUFFLE_MAX_DECK] = zeroed
+    following: mutable i64[PERFECT_SHUFFLE_MAX_DECK] = zeroed
+    for index in 0..<deck_size:
+        deck[index] <- index.i64()
+
+    repetitions: mutable i64 = 0
+    while true:
+        for index in 0..<half:
+            following[index * 2] <- deck[index]
+            following[index * 2 + 1] <- deck[half + index]
+        repetitions <- repetitions + 1
+
+        restored: mutable bool = true
+        index: mutable usize = 0
+        while index < deck_size:
+            if following[index] != index.i64():
+                restored <- false
+                break
+            index <- index + 1
+        if restored:
+            return repetitions
+
+        for index in 0..<deck_size:
+            deck[index] <- following[index]
+    -1
+
+export fn perfect_shuffle_order(input: i64&, length: usize) -> i64 = perfect_shuffle_order_impl

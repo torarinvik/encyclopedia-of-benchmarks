@@ -1,0 +1,27 @@
+{
+  "algorithm": "small_progress_measure_parity_game_solver",
+  "function_symbol": "small_progress_measure_parity_game_solver",
+  "abi": "i64_array_scalar",
+  "languages": {
+    "c": "c/s/small_progress_measure_parity_game_solver.c",
+    "c3": "c3/s/small_progress_measure_parity_game_solver.c3",
+    "cpp": "cpp/s/small_progress_measure_parity_game_solver.cpp",
+    "elisa": "elisa/s/small_progress_measure_parity_game_solver.elisa",
+    "mojo": "mojo/s/small_progress_measure_parity_game_solver.mojo",
+    "nim": "nim/s/small_progress_measure_parity_game_solver.nim",
+    "odin": "odin/s/small_progress_measure_parity_game_solver.odin",
+    "rust": "rust/s/small_progress_measure_parity_game_solver.rs",
+    "v": "v/s/small_progress_measure_parity_game_solver.v",
+    "zig": "zig/s/small_progress_measure_parity_game_solver.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "check_inventory.py",
+    "verify_workload.py"
+  ]
+}

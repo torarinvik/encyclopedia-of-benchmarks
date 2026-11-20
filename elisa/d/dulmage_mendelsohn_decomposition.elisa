@@ -1,0 +1,132 @@
+const DM_SIDE: usize = 6
+const DM_VERTICES: usize = 12
+const DM_MAX_EDGES: usize = 36
+const DM_MAX_PARSEABLE: usize = 76
+
+def dm_augment(left: usize, right_count: usize, adjacency: view[usize],
+               seen: mutable view[bool], match_right: mutable view[i64]) -> bool:
+    right: mutable usize = 0
+    while right < right_count:
+        bit: usize = 1 << right
+        if (adjacency[left] & bit) != 0 and not seen[right]:
+            seen[right] <- true
+            mate: i64 = match_right[right]
+            if mate < 0:
+                match_right[right] <- left.i64()
+                return true
+            if dm_augment(mate.usize(), right_count, adjacency, seen, match_right):
+                match_right[right] <- left.i64()
+                return true
+        right <- right + 1
+    false
+
+def dm_matching(left_count: usize, right_count: usize, adjacency: view[usize],
+                match_left: mutable view[i64], match_right: mutable view[i64]) -> usize:
+    right: mutable usize = 0
+    while right < DM_SIDE:
+        match_right[right] <- -1
+        right <- right + 1
+    size: mutable usize = 0
+    left: mutable usize = 0
+    while left < left_count:
+        seen_data: mutable bool[DM_SIDE] = zeroed
+        seen: mutable view[bool] = seen_data[0:DM_SIDE]
+        if dm_augment(left, right_count, adjacency, seen, match_right): size <- size + 1
+        left <- left + 1
+    left <- 0
+    while left < DM_SIDE:
+        match_left[left] <- -1
+        left <- left + 1
+    right <- 0
+    while right < right_count:
+        if match_right[right] >= 0:
+            match_left[match_right[right].usize()] <- right.i64()
+        right <- right + 1
+    size
+
+def dulmage_mendelsohn_decomposition_impl(values: view[i64]) -> i64:
+    length: usize = values.length
+    if length < 3 or length > DM_MAX_PARSEABLE: return -1
+    left_value: i64 = values[0]
+    right_value: i64 = values[1]
+    edge_value: i64 = values[2]
+    if left_value < 0 or left_value > DM_SIDE.i64() or right_value < 0 or right_value > DM_SIDE.i64() or
+        left_value + right_value < 1 or edge_value < 0 or edge_value > DM_MAX_EDGES.i64() or
+        edge_value > left_value * right_value: return -1
+    left_count: usize = left_value.usize()
+    right_count: usize = right_value.usize()
+    edge_count: usize = edge_value.usize()
+    total: usize = left_count + right_count
+    if length != 3 + 2 * edge_count: return -1
+    adjacency_data: mutable usize[DM_SIDE] = zeroed
+    global: mutable usize[DM_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u_value: i64 = values[3 + 2 * edge]
+        v_value: i64 = values[4 + 2 * edge]
+        if u_value < 0 or u_value >= left_value or v_value < 0 or v_value >= right_value: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        right_vertex: usize = left_count + v
+        bit: usize = 1 << v
+        if (adjacency_data[u] & bit) != 0: return -1
+        adjacency_data[u] <- adjacency_data[u] | bit
+        global[u] <- global[u] | (1 << right_vertex)
+        global[right_vertex] <- global[right_vertex] | (1 << u)
+        edge <- edge + 1
+    adjacency: view[usize] = adjacency_data[0:DM_SIDE]
+    match_left_data: mutable i64[DM_SIDE] = zeroed
+    match_right_data: mutable i64[DM_SIDE] = zeroed
+    match_left: mutable view[i64] = match_left_data[0:DM_SIDE]
+    match_right: mutable view[i64] = match_right_data[0:DM_SIDE]
+    matching_size: usize = dm_matching(left_count, right_count, adjacency, match_left, match_right)
+    seen: mutable bool[2 * DM_VERTICES] = zeroed
+    queue: mutable usize[2 * DM_VERTICES] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    left: mutable usize = 0
+    while left < left_count:
+        if match_left[left] < 0:
+            state: usize = 2 * left
+            seen[state] <- true
+            queue[tail] <- state
+            tail <- tail + 1
+        left <- left + 1
+    right: mutable usize = 0
+    while right < right_count:
+        if match_right[right] < 0:
+            state: usize = 2 * (left_count + right)
+            seen[state] <- true
+            queue[tail] <- state
+            tail <- tail + 1
+        right <- right + 1
+    while head < tail:
+        state: usize = queue[head]
+        head <- head + 1
+        vertex: usize = state / 2
+        parity: usize = state & 1
+        neighbor: mutable usize = 0
+        while neighbor < total:
+            if (global[vertex] & (1 << neighbor)) != 0:
+                matched: bool = if vertex < left_count:
+                    match_left[vertex] == neighbor.i64() - left_count.i64()
+                else:
+                    match_right[vertex - left_count] == neighbor.i64()
+                if not ((parity == 0 and matched) or (parity == 1 and not matched)):
+                    next_state: usize = 2 * neighbor + 1 - parity
+                    if not seen[next_state]:
+                        seen[next_state] <- true
+                        queue[tail] <- next_state
+                        tail <- tail + 1
+            neighbor <- neighbor + 1
+    packed: mutable u64 = matching_size.u64() << 32
+    vertex: mutable usize = 0
+    while vertex < total:
+        code: u64 = if seen[2 * vertex]: 0 else if seen[2 * vertex + 1]: 1 else: 2
+        packed <- packed | (code << (2 * vertex))
+        vertex <- vertex + 1
+    packed.i64()
+
+export fn dulmage_mendelsohn_decomposition(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > DM_MAX_PARSEABLE: return -1
+    dulmage_mendelsohn_decomposition_impl(input[0:length])

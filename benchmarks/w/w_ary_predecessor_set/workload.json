@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "w-ary-predecessor-set-i64-array-scalar-v1",
+  "algorithm": "w_ary_predecessor_set",
+  "function_symbol": "w_ary_predecessor_set",
+  "abi": "i64_array_scalar",
+  "description": "Idempotent set updates and inclusive successor/strict predecessor over a fixed 2^18 universe using 64-ary hierarchical bitmaps.",
+  "source": {
+    "title": "NyaanNyaan/library w-ary-tree.hpp",
+    "authors": ["NyaanNyaan/library contributors"],
+    "urls": ["https://github.com/NyaanNyaan/library/blob/master/data-structure/w-ary-tree.hpp"],
+    "algorithm_attribution": "64-ary hierarchy of bitmap summaries for dynamic predecessor/successor",
+    "implementation_status": "clean-room implementation from the published data-structure description"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[q, (opcode, key)*q]",
+    "operation_row_width": 2,
+    "operation_rows": {
+      "insert": "[0, key]",
+      "erase": "[1, key]",
+      "contains": "[2, key]",
+      "inclusive_successor": "[3, key]",
+      "strict_predecessor": "[4, key]"
+    },
+    "operation_count_range": [0, 32],
+    "key_range": [0, 262143],
+    "exact_length": "1 + 2*q",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "sum((one_based_operation_index) * operation_response)",
+    "responses": {
+      "insert": "1 if newly inserted, otherwise 0",
+      "erase": "1 if present and removed, otherwise 0",
+      "contains": "1 if present, otherwise 0",
+      "inclusive_successor": "key+1 for the least stored key >= query key, otherwise 0",
+      "strict_predecessor": "key+1 for the greatest stored key < query key, otherwise 0"
+    },
+    "maximum_operation_response": 262144,
+    "result_range": [0, 138412032]
+  },
+  "contract": {
+    "universe": "fixed integer keys 0 through 262143 inclusive",
+    "updates": "set insertion and removal are idempotent",
+    "bitmap_hierarchy": "4096 leaf words summarize 64 keys each; 64 middle words summarize leaf words; one top word summarizes middle words",
+    "invalid_operation_or_key": "invalidates the whole frame and returns -1",
+    "empty_set_neighbors": 0,
+    "independent_method": "ordered set with direct successor/predecessor selection"
+  },
+  "complexity": {
+    "insert": "O(1) bitmap updates across at most three levels",
+    "erase": "O(1) bitmap updates across at most three levels",
+    "contains": "O(1)",
+    "successor": "O(1) across at most three hierarchy levels",
+    "predecessor": "O(1) across at most three hierarchy levels",
+    "auxiliary_space": "O(2^18 / 64) words"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "cross-word-boundary-and-strict-neighbors",
+      "input_values": [8, 0, 63, 0, 64, 3, 63, 3, 65, 4, 64, 4, 63, 1, 63, 4, 64],
+      "input_length": 17,
+      "expected_result": 522
+    },
+    {
+      "id": "empty-repeated-and-universe-endpoints",
+      "input_values": [8, 2, 0, 3, 262143, 4, 0, 0, 262143, 3, 262143, 4, 262143, 2, 262143, 1, 262143],
+      "input_length": 17,
+      "expected_result": 1310739
+    },
+    {
+      "id": "idempotent-updates-and-neighbor-inclusion",
+      "input_values": [6, 0, 8, 0, 8, 4, 9, 3, 8, 1, 8, 1, 8],
+      "input_length": 13,
+      "expected_result": 69
+    },
+    {
+      "id": "empty-operation-stream",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum-valid-frame-hierarchical-jumps",
+      "input_values": [32, 0, 0, 0, 16384, 0, 32768, 0, 49152, 0, 65536, 0, 81920, 0, 98304, 0, 114688, 0, 131072, 0, 147456, 0, 163840, 0, 180224, 0, 196608, 0, 212992, 0, 229376, 0, 245760, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385, 3, 16385],
+      "input_length": 65,
+      "expected_result": 12845584
+    },
+    {
+      "id": "negative-key",
+      "input_values": [1, 2, -1],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "key-at-universe-size",
+      "input_values": [1, 4, 262144],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "unknown-operation",
+      "input_values": [1, 5, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-frame",
+      "input_values": [2, 0, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "one-trailing-value",
+      "input_values": [0, 99],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

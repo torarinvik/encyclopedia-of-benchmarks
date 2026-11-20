@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 comptime S=64
@@ -27,7 +28,7 @@ fn ns_before(buf:InlineArray[Int64,4096],lens:InlineArray[Int64,64],prefix:Inlin
 @export("natural_sort")
 fn natural_sort(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UInt8,MutAnyOrigin],cap:c_size_t) abi("C")->Int64:
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<1 or n>4161 or a[0]<0 or a[0]>64:return -1
-    let count=Int(a[0]);var pos=1;var buf=InlineArray[Int64,4096]();var lens=InlineArray[Int64,64]();var prefix=InlineArray[Int64,64]();var has=InlineArray[Bool,64]();var suf=InlineArray[Int64,64]();var order=InlineArray[Int64,64]()
+    let count=Int(a[0]);var pos=1;var buf=InlineArray[Int64,4096]();var lens=InlineArray[Int64,64]();var prefix=InlineArray[Int64,64]();var has=InlineArray[Bool,64](fill=False);var suf=InlineArray[Int64,64]();var order=InlineArray[Int64,64]()
     for id in range(count):
         if pos>=Int(n):return -1
         let len=a[pos];pos+=1;if len<0 or len>64 or pos+Int(len)>Int(n):return -1

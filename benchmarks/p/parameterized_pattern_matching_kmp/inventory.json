@@ -1,0 +1,64 @@
+{
+  "algorithm": "parameterized_pattern_matching_kmp",
+  "function_symbol": "parameterized_pattern_matching_kmp",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "chapter": "Encyclopedia of Algorithms, Chapter 282",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_282",
+    "operational_reference": "Amir, Farach, and Muthukrishnan, Alphabet Dependence in Parameterized Matching, section 2",
+    "operational_doi": "10.1016/0020-0190(94)90086-8"
+  },
+  "bounds": {
+    "text_length": [0, 64],
+    "pattern_length": [1, 16],
+    "alphabet_size": [1, 16],
+    "maximum_valid_input_words": 83,
+    "maximum_parseable_input_words": 84,
+    "maximum_output_bytes": 520,
+    "workspace_bytes": 4096
+  },
+  "native_paths": {
+    "c": "c/p/parameterized_pattern_matching_kmp.c",
+    "c3": "c3/p/parameterized_pattern_matching_kmp.c3",
+    "cpp": "cpp/p/parameterized_pattern_matching_kmp.cpp",
+    "elisa": "elisa/p/parameterized_pattern_matching_kmp.elisa",
+    "mojo": "mojo/p/parameterized_pattern_matching_kmp.mojo",
+    "nim": "nim/p/parameterized_pattern_matching_kmp.nim",
+    "odin": "odin/p/parameterized_pattern_matching_kmp.odin",
+    "rust": "rust/p/parameterized_pattern_matching_kmp.rs",
+    "v": "v/p/parameterized_pattern_matching_kmp.v",
+    "zig": "zig/p/parameterized_pattern_matching_kmp.zig"
+  },
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "inventory.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "root_references": [
+    "benchmarks/parameterized_pattern_matching_kmp_oracle.py",
+    "benchmarks/parameterized_pattern_matching_kmp_verifier_oracle.py"
+  ],
+  "workload_cases": [
+    "renamed-pattern-at-two-separated-starts",
+    "failure-link-fallback-and-overlapping-matches",
+    "bijection-pattern-mismatch",
+    "pattern-longer-than-text",
+    "empty-text",
+    "maximum-valid-frame-single-occurrence",
+    "maximum-output-rejected-one-byte-short",
+    "alphabet-size-out-of-range",
+    "symbol-out-of-range",
+    "signed-minimum-symbol-rejected",
+    "trailing-word-rejected",
+    "short-output-capacity",
+    "null-input",
+    "null-output"
+  ]
+}

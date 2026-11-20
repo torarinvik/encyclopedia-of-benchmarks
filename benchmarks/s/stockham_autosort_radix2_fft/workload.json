@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "stockham-autosort-radix2-fft-float64-slice-io-v1",
+  "algorithm": "stockham_autosort_radix2_fft",
+  "function_symbol": "stockham_autosort_radix2_fft",
+  "abi": "float64_slice_io",
+  "description": "Bounded complex forward DFT using alternating radix-2 Stockham autosort stages.",
+  "source": {
+    "title": "High-speed convolution and correlation",
+    "author": "Thomas G. Stockham, Jr.",
+    "doi": "10.1145/1464182.1464209",
+    "publication": "AFIPS '66 Spring Joint Computer Conference, pages 229-233 (1966)",
+    "url": "https://doi.org/10.1145/1464182.1464209",
+    "role": "algorithm description; clean-room bounded reconstruction"
+  },
+  "contract": {
+    "operation": "Compute one complex forward radix-2 FFT by ping-pong Stockham stages with natural-order output.",
+    "input_encoding": "[n,re0,im0,re1,im1,...]",
+    "n_values": [1, 2, 4, 8, 16, 32, 64],
+    "sample_component_range": [-8, 8],
+    "exact_input_length": "1+2*n",
+    "maximum_valid_input_length": 129,
+    "maximum_parseable_input_length": 130,
+    "forward_sign": "Negative exponent: exp(-2*pi*i*sample_index*frequency/n).",
+    "output_encoding": "Natural-frequency-order interleaved real and imaginary components.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors_write_nothing": true
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n,re0,im0,re1,im1,...]",
+    "minimum_valid_length": 3,
+    "maximum_valid_length": 129,
+    "maximum_parseable_length": 130,
+    "allowed_n": [1, 2, 4, 8, 16, 32, 64],
+    "sample_component_range": [-8, 8],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "Natural-order interleaved complex DFT bins.",
+    "maximum_elements": 128,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 256,
+    "description": "Two interleaved complex scratch buffers, each sized for 64 bins."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "one-point-transform",
+      "input_values": [1, 1.25, -2.5],
+      "input_length": 3,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [1.25, -2.5]
+    },
+    {
+      "id": "two-point-imaginary-sample",
+      "input_values": [2, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output": [1, 1, 1, -1]
+    },
+    {
+      "id": "four-point-natural-order-twiddles",
+      "input_values": [4, 1, 0, 1, 0, 0, 0, 0, 0],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output": [2, 0, 1, -1, 0, 0, 1, 1]
+    },
+    {
+      "id": "maximum-size-zero-transform",
+      "input_values": [
+        64,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 129,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    },
+    {
+      "id": "reject-non-power-of-two-size",
+      "input_values": [3, 0, 0, 0, 0, 0, 0],
+      "input_length": 7,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "reject-short-input-frame",
+      "input_values": [4, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 1, 0, 0, 1],
+      "input_length": 5,
+      "output_capacity": 3,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [1, 2, 3],
+      "input_length": 3,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null-input-buffer",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 128,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

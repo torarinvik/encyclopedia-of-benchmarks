@@ -1,0 +1,146 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 28
+const MAX_NETWORK: usize = 10
+const INVALID_RESULT: i64 = -1
+
+def goldberg_maximum_density_subgraph(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 59: return INVALID_RESULT
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 2 or n64 > 8 or m64 < 0 or m64 > 28 or length != 2 + 2 * m64.usize(): return INVALID_RESULT
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    adjacent: mutable u8[MAX_N * MAX_N] = zeroed
+    degree: mutable i64[MAX_N] = zeroed
+    edge: usize = 0
+    while edge < m:
+        u64: i64 = input[2 + 2 * edge]
+        v64: i64 = input[3 + 2 * edge]
+        if u64 < 0 or u64 >= v64 or v64 >= n64: return INVALID_RESULT
+        u: usize = u64.usize()
+        v: usize = v64.usize()
+        if adjacent[u * MAX_N + v] != 0: return INVALID_RESULT
+        adjacent[u * MAX_N + v] <- 1
+        adjacent[v * MAX_N + u] <- 1
+        degree[u] <- degree[u] + 1
+        degree[v] <- degree[v] + 1
+        edge <- edge + 1
+    if m == 0: return 1
+    low: mutable i64 = 0
+    high: mutable i64 = m64
+    denominator: mutable i64 = 1
+    best: mutable bool[MAX_N] = zeroed
+    while (high - low) * n64 * (n64 - 1) >= denominator:
+        low2: i64 = 2 * low
+        high2: i64 = 2 * high
+        midpoint: i64 = low + high
+        next_denominator: i64 = 2 * denominator
+        source: usize = n
+        sink: usize = n + 1
+        network_size: usize = n + 2
+        residual: mutable i64[MAX_NETWORK * MAX_NETWORK] = zeroed
+        vertex: usize = 0
+        while vertex < n:
+            source_capacity: i64 = m64 * next_denominator
+            residual[source * MAX_NETWORK + vertex] <- source_capacity
+            residual[vertex * MAX_NETWORK + sink] <- source_capacity + 2 * midpoint - next_denominator * degree[vertex]
+            vertex <- vertex + 1
+        edge <- 0
+        while edge < m:
+            u: usize = input[2 + 2 * edge].usize()
+            v: usize = input[3 + 2 * edge].usize()
+            residual[u * MAX_NETWORK + v] <- residual[u * MAX_NETWORK + v] + next_denominator
+            residual[v * MAX_NETWORK + u] <- residual[v * MAX_NETWORK + u] + next_denominator
+            edge <- edge + 1
+        while true:
+            parent: mutable i64[MAX_NETWORK] = zeroed
+            vertex = 0
+            while vertex < network_size:
+                parent[vertex] <- -1
+                vertex <- vertex + 1
+            queue: mutable usize[MAX_NETWORK] = zeroed
+            head: mutable usize = 0
+            tail: mutable usize = 0
+            parent[source] <- source.i64()
+            queue[tail] <- source
+            tail <- tail + 1
+            while head < tail and parent[sink] == -1:
+                here: usize = queue[head]
+                head <- head + 1
+                there: usize = 0
+                while there < network_size:
+                    if parent[there] == -1 and residual[here * MAX_NETWORK + there] > 0:
+                        parent[there] <- here.i64()
+                        queue[tail] <- there
+                        tail <- tail + 1
+                        if there == sink: break
+                    there <- there + 1
+            if parent[sink] == -1: break
+            amount: mutable i64 = 0x7fffffffffffffff
+            vertex = sink
+            while vertex != source:
+                previous: usize = parent[vertex].usize()
+                if residual[previous * MAX_NETWORK + vertex] < amount: amount <- residual[previous * MAX_NETWORK + vertex]
+                vertex <- previous
+            vertex = sink
+            while vertex != source:
+                previous: usize = parent[vertex].usize()
+                residual[previous * MAX_NETWORK + vertex] <- residual[previous * MAX_NETWORK + vertex] - amount
+                residual[vertex * MAX_NETWORK + previous] <- residual[vertex * MAX_NETWORK + previous] + amount
+                vertex <- previous
+        reachable: mutable bool[MAX_NETWORK] = zeroed
+        queue2: mutable usize[MAX_NETWORK] = zeroed
+        head2: mutable usize = 0
+        tail2: mutable usize = 0
+        reachable[source] <- true
+        queue2[tail2] <- source
+        tail2 <- tail2 + 1
+        while head2 < tail2:
+            here: usize = queue2[head2]
+            head2 <- head2 + 1
+            there: usize = 0
+            while there < network_size:
+                if not reachable[there] and residual[here * MAX_NETWORK + there] > 0:
+                    reachable[there] <- true
+                    queue2[tail2] <- there
+                    tail2 <- tail2 + 1
+                there <- there + 1
+        selected: mutable bool[MAX_N] = zeroed
+        any: mutable bool = false
+        vertex = 0
+        while vertex < n:
+            selected[vertex] <- reachable[vertex]
+            if selected[vertex]: any <- true
+            vertex <- vertex + 1
+        if any:
+            vertex = 0
+            while vertex < n:
+                best[vertex] <- selected[vertex]
+                vertex <- vertex + 1
+            low <- midpoint
+            high <- high2
+        else:
+            low <- low2
+            high <- midpoint
+        denominator <- next_denominator
+    vertex_count: mutable i64 = 0
+    edge_count: mutable i64 = 0
+    vertex: usize = 0
+    while vertex < n:
+        if best[vertex]: vertex_count <- vertex_count + 1
+        vertex <- vertex + 1
+    if vertex_count == 0: return 1
+    scan_u: usize = 0
+    while scan_u < n:
+        scan_v: usize = scan_u + 1
+        while scan_v < n:
+            if best[scan_u] and best[scan_v] and adjacent[scan_u * MAX_N + scan_v] != 0: edge_count <- edge_count + 1
+            scan_v <- scan_v + 1
+        scan_u <- scan_u + 1
+    a: mutable i64 = edge_count
+    b: mutable i64 = vertex_count
+    while b != 0:
+        r: i64 = a % b
+        a <- b
+        b <- r
+    return (edge_count / a) * (n64 + 1) + vertex_count / a

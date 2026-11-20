@@ -1,0 +1,26 @@
+{
+  "algorithm": "bondy_chvatal_hamiltonian_closure",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "bondy_chvatal_hamiltonian_closure",
+  "sources": {
+    "method": "https://doi.org/10.1016/0012-365X(76)90078-9",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "ports": {
+    "c": "../../../c/b/bondy_chvatal_hamiltonian_closure.c",
+    "c3": "../../../c3/b/bondy_chvatal_hamiltonian_closure.c3",
+    "cpp": "../../../cpp/b/bondy_chvatal_hamiltonian_closure.cpp",
+    "elisa": "../../../elisa/b/bondy_chvatal_hamiltonian_closure.elisa",
+    "mojo": "../../../mojo/b/bondy_chvatal_hamiltonian_closure.mojo",
+    "nim": "../../../nim/b/bondy_chvatal_hamiltonian_closure.nim",
+    "odin": "../../../odin/b/bondy_chvatal_hamiltonian_closure.odin",
+    "rust": "../../../rust/b/bondy_chvatal_hamiltonian_closure.rs",
+    "v": "../../../v/b/bondy_chvatal_hamiltonian_closure.v",
+    "zig": "../../../zig/b/bondy_chvatal_hamiltonian_closure.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "suite_status": "integrated in the byte-output runner, verifier, and catalog",
+  "execution_status": "source-only; no programs or checks run"
+}

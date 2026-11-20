@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn sr_less(heap:UnsafePointer[Int32,MutAnyOrigin],pos:UnsafePointer[Int32,MutAnyOrigin],starts:UnsafePointer[Int32,MutAnyOrigin],a:UnsafePointer[Int64,ImmutAnyOrigin],x:Int,y:Int)->Bool:

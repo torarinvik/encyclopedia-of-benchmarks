@@ -27,8 +27,10 @@ separate support threshold.
 Ten language drafts, two references, workload, inventory checker, and
 byte-output runner/verifier integration are present. Verifier source specifies
 small streams, frequency bounds, a maximum-output case, capacity errors, and
-null inputs. The Elisa draft uses bounded views and indexed arrays. Nothing has
-been compiled or run.
+null inputs. The Elisa draft uses bounded views and indexed arrays. Read-only
+review found all ten ports consistent on bucket numbering, insertion errors,
+boundary pruning, sorted snapshots, and output bounds. Nothing has been
+compiled or run.
 
 | Language | Draft source |
 | --- | --- |

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "algorithm": "lucas_carmichael_number_predicate",
+  "abi": "i64_array_scalar",
+  "function_symbol": "lucas_carmichael_number_predicate",
+  "status": "integrated in i64_array_scalar runner, verifier, and catalog; statically authored; not executed",
+  "input": {
+    "encoding": "[n]",
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "n_range": [1, 1000000]
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "Lucas-Carmichael predicate: 1 when squarefree composite and every prime p|n has p+1|n+1; otherwise 0",
+    "range": [0, 1],
+    "invalid": -1
+  },
+  "workspace": {"bytes": 128},
+  "bounds": {
+    "maximum_primary_trial_divisor": 1000,
+    "maximum_primary_integer_candidates": 999,
+    "independent_sieve_bound": 1000,
+    "independent_prime_count": 168,
+    "largest_addition": 1000001,
+    "signed_i64_safe": true
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/l/lucas_carmichael_number_predicate.c",
+    "c3/l/lucas_carmichael_number_predicate.c3",
+    "cpp/l/lucas_carmichael_number_predicate.cpp",
+    "elisa/l/lucas_carmichael_number_predicate.elisa",
+    "mojo/l/lucas_carmichael_number_predicate.mojo",
+    "nim/l/lucas_carmichael_number_predicate.nim",
+    "odin/l/lucas_carmichael_number_predicate.odin",
+    "rust/l/lucas_carmichael_number_predicate.rs",
+    "v/l/lucas_carmichael_number_predicate.v",
+    "zig/l/lucas_carmichael_number_predicate.zig"
+  ],
+  "sources": [
+    "https://oeis.org/A006972",
+    "https://mathworld.wolfram.com/Lucas-CarmichaelNumber.html",
+    "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  ]
+}

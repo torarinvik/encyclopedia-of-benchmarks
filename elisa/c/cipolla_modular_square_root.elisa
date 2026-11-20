@@ -1,0 +1,81 @@
+# Return the least square root modulo an odd prime using Cipolla's method.
+const CIPOLLA_MAX_PRIME: i64 = 1000003
+
+def cipolla_normalize(value: i64, prime: i64) -> i64:
+    remainder: mutable i64 = value % prime
+    if remainder < 0:
+        remainder <- remainder + prime
+    remainder
+
+def cipolla_modular_power(base_value: i64, exponent_value: i64, prime: i64) -> i64:
+    base: mutable i64 = cipolla_normalize(base_value, prime)
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- (result * base) % prime
+        exponent <- exponent / 2
+        if exponent > 0:
+            base <- (base * base) % prime
+    result
+
+def cipolla_legendre_symbol(value: i64, prime: i64) -> i64:
+    symbol: i64 = cipolla_modular_power(value, (prime - 1) / 2, prime)
+    if symbol == prime - 1:
+        return -1
+    symbol
+
+def cipolla_pair_real(a: i64, b: i64, c: i64, e: i64, radicand: i64, prime: i64) -> i64:
+    (a * c + radicand * b * e) % prime
+
+def cipolla_pair_imaginary(a: i64, b: i64, c: i64, e: i64, prime: i64) -> i64:
+    (a * e + b * c) % prime
+
+def cipolla_modular_square_root_impl(packed: i64&, length: usize) -> i64:
+    if packed.is_null() or length != 2:
+        return -1
+    residue: i64 = packed[0]
+    prime: i64 = packed[1]
+    if prime < 3 or prime > CIPOLLA_MAX_PRIME or (prime & 1) == 0 or residue < 0 or residue >= prime:
+        return -1
+    if residue == 0:
+        return 0
+    if cipolla_legendre_symbol(residue, prime) != 1:
+        return -1
+
+    parameter: mutable i64 = 0
+    radicand: mutable i64 = 0
+    found: mutable bool = false
+    while parameter < prime:
+        radicand <- cipolla_normalize(parameter * parameter - residue, prime)
+        if cipolla_legendre_symbol(radicand, prime) == -1:
+            found <- true
+            break
+        parameter <- parameter + 1
+    if not found:
+        return -1
+
+    result_real: mutable i64 = 1
+    result_imaginary: mutable i64 = 0
+    base_real: mutable i64 = parameter
+    base_imaginary: mutable i64 = 1
+    exponent: mutable i64 = (prime + 1) / 2
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            next_real: i64 = cipolla_pair_real(result_real, result_imaginary, base_real, base_imaginary, radicand, prime)
+            next_imaginary: i64 = cipolla_pair_imaginary(result_real, result_imaginary, base_real, base_imaginary, prime)
+            result_real <- next_real
+            result_imaginary <- next_imaginary
+        exponent <- exponent / 2
+        if exponent > 0:
+            next_base_real: i64 = cipolla_pair_real(base_real, base_imaginary, base_real, base_imaginary, radicand, prime)
+            next_base_imaginary: i64 = cipolla_pair_imaginary(base_real, base_imaginary, base_real, base_imaginary, prime)
+            base_real <- next_base_real
+            base_imaginary <- next_base_imaginary
+    if result_imaginary != 0:
+        return -1
+    if result_real < prime - result_real:
+        return result_real
+    prime - result_real
+
+export fn cipolla_modular_square_root(packed: i64&, length: usize) -> i64 = cipolla_modular_square_root_impl

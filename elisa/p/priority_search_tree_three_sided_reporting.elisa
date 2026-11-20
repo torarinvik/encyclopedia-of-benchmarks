@@ -1,0 +1,131 @@
+# Clean-room McCreight radix priority-search-tree profile.
+@export("priority_search_tree_three_sided_reporting")
+def priority_search_tree_three_sided_reporting(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 48: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 0 or n64 > 8 or q64 < 0 or q64 > 7: return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if length != 2 + 3 * n + 3 * q: return -1
+    nx: mutable i64[8] = zeroed
+    ny: mutable i64[8] = zeroed
+    nl: mutable i64[8] = zeroed
+    nlo: mutable i64[8] = zeroed
+    nhi: mutable i64[8] = zeroed
+    left: mutable i64[8] = zeroed
+    right: mutable i64[8] = zeroed
+    seen_x: mutable bool[32] = zeroed
+    seen_label: mutable bool[8] = zeroed
+    i: usize = 0
+    while i < 8:
+        left[i] <- -1
+        right[i] <- -1
+        i <- i + 1
+    root: mutable i64 = -1
+    node_count: mutable i64 = 0
+    at: mutable usize = 2
+    record: usize = 0
+    while record < n:
+        x: i64 = input[at]
+        y: i64 = input[at + 1]
+        label: i64 = input[at + 2]
+        at <- at + 3
+        if x < 0 or x >= 32 or y < -64 or y > 63 or label < 0 or label >= 8: return -1
+        if seen_x[x.usize()] or seen_label[label.usize()]: return -1
+        seen_x[x.usize()] <- true
+        seen_label[label.usize()] <- true
+        px: mutable i64 = x
+        py: mutable i64 = y
+        plabel: mutable i64 = label
+        if root < 0:
+            root <- node_count
+            nx[root.usize()] <- px
+            ny[root.usize()] <- py
+            nl[root.usize()] <- plabel
+            nlo[root.usize()] <- 0
+            nhi[root.usize()] <- 32
+            node_count <- node_count + 1
+        else:
+            current: mutable i64 = root
+            low: mutable i64 = 0
+            high: mutable i64 = 32
+            searching: mutable bool = true
+            while searching:
+                c: usize = current.usize()
+                if py < ny[c]:
+                    temp: i64 = nx[c]
+                    nx[c] <- px
+                    px <- temp
+                    temp <- ny[c]
+                    ny[c] <- py
+                    py <- temp
+                    temp <- nl[c]
+                    nl[c] <- plabel
+                    plabel <- temp
+                middle: i64 = (low + high) / 2
+                if px < middle:
+                    if left[c] < 0:
+                        child: usize = node_count.usize()
+                        left[c] <- node_count
+                        nx[child] <- px
+                        ny[child] <- py
+                        nl[child] <- plabel
+                        nlo[child] <- low
+                        nhi[child] <- middle
+                        node_count <- node_count + 1
+                        searching <- false
+                    else:
+                        current <- left[c]
+                        high <- middle
+                else:
+                    if right[c] < 0:
+                        child: usize = node_count.usize()
+                        right[c] <- node_count
+                        nx[child] <- px
+                        ny[child] <- py
+                        nl[child] <- plabel
+                        nlo[child] <- middle
+                        nhi[child] <- high
+                        node_count <- node_count + 1
+                        searching <- false
+                    else:
+                        current <- right[c]
+                        low <- middle
+        record <- record + 1
+    qx0: mutable i64[7] = zeroed
+    qx1: mutable i64[7] = zeroed
+    qy1: mutable i64[7] = zeroed
+    qi: usize = 0
+    while qi < q:
+        x0: i64 = input[at]
+        x1: i64 = input[at + 1]
+        y1: i64 = input[at + 2]
+        at <- at + 3
+        if x0 < 0 or x0 > x1 or x1 >= 32 or y1 < -64 or y1 > 63: return -1
+        qx0[qi] <- x0
+        qx1[qi] <- x1
+        qy1[qi] <- y1
+        qi <- qi + 1
+    result: mutable i64 = 0
+    qi <- 0
+    while qi < q:
+        mask: mutable i64 = 0
+        if root >= 0:
+            stack: mutable i64[8] = zeroed
+            top: mutable usize = 1
+            stack[0] <- root
+            while top > 0:
+                top <- top - 1
+                node: usize = stack[top].usize()
+                if qx1[qi] < nlo[node] or qx0[qi] >= nhi[node] or ny[node] > qy1[qi]: continue
+                if qx0[qi] <= nx[node] and nx[node] <= qx1[qi]: mask <- mask | (1 << nl[node])
+                if left[node] >= 0:
+                    stack[top] <- left[node]
+                    top <- top + 1
+                if right[node] >= 0:
+                    stack[top] <- right[node]
+                    top <- top + 1
+        result <- result | (mask << (8 * qi.i64()))
+        qi <- qi + 1
+    result

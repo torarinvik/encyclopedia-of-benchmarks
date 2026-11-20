@@ -98,8 +98,9 @@ def rrs_store(value: i64, output: mutable view[u8], offset: usize) -> void:
 def range_reverse_range_sum_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
+    frame: view[i64] = input[0:length]
+    n_value: i64 = frame[0]
+    q_value: i64 = frame[1]
     if n_value < 0 or n_value > MAX_N.i64() or q_value < 0 or q_value > MAX_Q.i64(): return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
@@ -107,7 +108,7 @@ def range_reverse_range_sum_impl(input: i64&, length: usize,
     nodes: mutable Node[MAX_N] = zeroed
     offset: mutable usize = 2
     for i in 0..<n:
-        value: i64 = input[offset]
+        value: i64 = frame[offset]
         offset <- offset + 1
         if value < 0 or value > 1000000000: return -1
         nodes[i].left <- NONE
@@ -120,9 +121,9 @@ def range_reverse_range_sum_impl(input: i64&, length: usize,
     query_count: mutable usize = 0
     for i in 0..<q:
         if offset + 3 > length: return -1
-        kind: i64 = input[offset]
-        left: i64 = input[offset + 1]
-        right: i64 = input[offset + 2]
+        kind: i64 = frame[offset]
+        left: i64 = frame[offset + 1]
+        right: i64 = frame[offset + 2]
         offset <- offset + 3
         if (kind != 0 and kind != 1) or left < 0 or left > right or right > n_value: return -1
         operations[i].kind <- kind.usize()

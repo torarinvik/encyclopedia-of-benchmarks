@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 comptime V=40
@@ -13,12 +14,12 @@ fn kosaraju(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UIn
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or n>4096:return -1
     let nv=a[0];let ne=a[1]
     if nv<0 or nv>40 or ne<0 or ne>2047 or n!=c_size_t(2+2*ne):return -1
-    var adj=InlineArray[Bool,1600]()
+    var adj=InlineArray[Bool,1600](fill=False)
     for e in range(Int(ne)):
         let u=a[2+2*e];let v=a[3+2*e]
         if u<0 or u>=nv or v<0 or v>=nv:return -1
         adj[Int(u*nv+v)]=True
-    var seen=InlineArray[Bool,40]();var order=InlineArray[Int64,40]();var used=0
+    var seen=InlineArray[Bool,40](fill=False);var order=InlineArray[Int64,40]();var used=0
     for i in range(Int(nv)):if not seen[i]:kos_dfs(adj,Int(nv),i,seen,order,used)
     var labels=InlineArray[Int64,40]();for i in range(40):labels[i]=-1
     var comps=0

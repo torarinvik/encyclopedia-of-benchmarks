@@ -1,0 +1,120 @@
+const SC1P_MAX_ROWS: usize = 8
+const SC1P_MAX_COLUMNS: usize = 10
+const SC1P_MAX_INPUT: usize = 21
+const SC1P_INF: i64 = 1000000000
+
+def sc1p_store_i64_le(value: i64, output: mutable view[u8]) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def sc1p_solve(rows: usize, columns: usize, weights: view[i64],
+               row_left: view[i64], row_right: view[i64]) -> i64:
+    order: mutable i64[SC1P_MAX_ROWS] = zeroed
+    for row in 0..<rows: order[row] <- row.i64()
+    for i in 1..<rows:
+        value: i64 = order[i]
+        j: mutable usize = i
+        while j > 0 and row_left[order[j - 1].usize()] > row_left[value.usize()]:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- value
+
+    grouped_left: mutable i64[SC1P_MAX_ROWS] = zeroed
+    grouped_right: mutable i64[SC1P_MAX_ROWS] = zeroed
+    groups: mutable usize = 0
+    for i in 0..<rows:
+        row: usize = order[i].usize()
+        if groups == 0 or grouped_left[groups - 1] != row_left[row]:
+            grouped_left[groups] <- row_left[row]
+            grouped_right[groups] <- row_right[row]
+            groups <- groups + 1
+        elif row_right[row] < grouped_right[groups - 1]:
+            grouped_right[groups - 1] <- row_right[row]
+
+    retained_left: mutable i64[SC1P_MAX_ROWS] = zeroed
+    retained_right: mutable i64[SC1P_MAX_ROWS] = zeroed
+    retained: mutable usize = 0
+    suffix_minimum: mutable i64 = columns.i64()
+    i: mutable i64 = groups.i64() - 1
+    while i >= 0:
+        index: usize = i.usize()
+        if grouped_right[index] < suffix_minimum:
+            retained_left[retained] <- grouped_left[index]
+            retained_right[retained] <- grouped_right[index]
+            retained <- retained + 1
+            suffix_minimum <- grouped_right[index]
+        i <- i - 1
+
+    column_start: mutable i64[SC1P_MAX_COLUMNS] = zeroed
+    column_end: mutable i64[SC1P_MAX_COLUMNS] = zeroed
+    for column in 0..<columns:
+        column_start[column] <- -1
+        column_end[column] <- -1
+    for reduced_row in 0..<retained:
+        source: usize = retained - 1 - reduced_row
+        column: mutable usize = retained_left[source].usize()
+        while column <= retained_right[source].usize():
+            if column_start[column] < 0: column_start[column] <- reduced_row.i64()
+            column_end[column] <- reduced_row.i64()
+            column <- column + 1
+
+    distance: mutable i64[SC1P_MAX_COLUMNS] = zeroed
+    for column in 0..<columns:
+        distance[column] <- SC1P_INF
+        if column_start[column] == 0: distance[column] <- 0
+    best: mutable i64 = SC1P_INF
+    for from in 0..<columns:
+        if distance[from] == SC1P_INF: continue
+        if column_end[from] == retained.i64() - 1 and distance[from] + weights[from] < best:
+            best <- distance[from] + weights[from]
+        for to in from + 1..<columns:
+            if column_start[to] >= 0 and column_start[to] <= column_end[from] + 1:
+                candidate: i64 = distance[from] + weights[from]
+                if candidate < distance[to]: distance[to] <- candidate
+    if best == SC1P_INF: return -1
+    best
+
+export fn strong_c1p_set_cover_shortest_path(input: i64&, length: usize,
+                                             output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > SC1P_MAX_INPUT: return -1
+    rows_raw: i64 = input[0]
+    columns_raw: i64 = input[1]
+    if rows_raw < 1 or rows_raw > SC1P_MAX_ROWS.i64() or
+       columns_raw < 1 or columns_raw > SC1P_MAX_COLUMNS.i64(): return -1
+    rows: usize = rows_raw.usize()
+    columns: usize = columns_raw.usize()
+    if length != 2 + rows + columns: return -1
+    weights: mutable i64[SC1P_MAX_COLUMNS] = zeroed
+    for column in 0..<columns:
+        weight: i64 = input[2 + column]
+        if weight < 1 or weight > 20: return -1
+        weights[column] <- weight
+    allowed: u64 = (1.u64() << columns) - 1
+    masks: mutable u64[SC1P_MAX_ROWS] = zeroed
+    row_left: mutable i64[SC1P_MAX_ROWS] = zeroed
+    row_right: mutable i64[SC1P_MAX_ROWS] = zeroed
+    infeasible: mutable bool = false
+    for row in 0..<rows:
+        raw: i64 = input[2 + columns + row]
+        if raw < 0 or (raw.u64() & ~allowed) != 0: return -1
+        masks[row] <- raw.u64()
+        row_left[row] <- columns.i64()
+        row_right[row] <- -1
+        seen_one: mutable bool = false
+        seen_zero_after: mutable bool = false
+        for column in 0..<columns:
+            if (masks[row] & (1.u64() << column)) != 0:
+                if seen_zero_after: return -1
+                seen_one <- true
+                if row_left[row] == columns.i64(): row_left[row] <- column.i64()
+                row_right[row] <- column.i64()
+            elif seen_one:
+                seen_zero_after <- true
+        if masks[row] == 0: infeasible <- true
+    result: i64 = -1
+    if not infeasible:
+        result <- sc1p_solve(rows, columns, weights[0:columns], row_left[0:rows], row_right[0:rows])
+    if output.is_null() or capacity < 8: return -2
+    sc1p_store_i64_le(result, output[0:8])
+    8

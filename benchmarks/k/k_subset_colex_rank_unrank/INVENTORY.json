@@ -1,0 +1,32 @@
+{
+  "algorithm": "k_subset_colex_rank_unrank",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "k_subset_colex_rank_unrank",
+  "maximum_valid_input_words": 19,
+  "maximum_parseable_input_words": 20,
+  "maximum_output_bytes": 136,
+  "workspace_bytes": 1024,
+  "suite_registration": "integrated in i64_array_bytes_output runner and verifier",
+  "sources": [
+    "c/k/k_subset_colex_rank_unrank.c",
+    "c3/k/k_subset_colex_rank_unrank.c3",
+    "cpp/k/k_subset_colex_rank_unrank.cpp",
+    "elisa/k/k_subset_colex_rank_unrank.elisa",
+    "mojo/k/k_subset_colex_rank_unrank.mojo",
+    "nim/k/k_subset_colex_rank_unrank.nim",
+    "odin/k/k_subset_colex_rank_unrank.odin",
+    "rust/k/k_subset_colex_rank_unrank.rs",
+    "v/k/k_subset_colex_rank_unrank.v",
+    "zig/k/k_subset_colex_rank_unrank.zig"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ]
+}

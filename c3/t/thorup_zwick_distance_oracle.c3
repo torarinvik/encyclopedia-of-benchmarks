@@ -5,7 +5,7 @@ const usz M = 66;
 const usz Q = 32;
 const long INF = 0x3fffffffffffffff;
 
-fn long thorup_zwick_distance_oracle(long* input, usz length, uint8* output, usz capacity) @export("thorup_zwick_distance_oracle") {
+fn long thorup_zwick_distance_oracle(long* input, usz length, char* output, usz capacity) @export("thorup_zwick_distance_oracle") {
     if (input == null || length < 4 || length > 266) return -1;
     long n64=input[0], m64=input[1], mask=input[2];
     if (n64 < 1 || n64 > (long)N || m64 < 0 || m64 > (long)M || mask <= 0) return -1;
@@ -52,6 +52,6 @@ fn long thorup_zwick_distance_oracle(long* input, usz length, uint8* output, usz
     }
     usz bytes=8*(q+1);
     if(output==null||capacity<bytes)return -2;
-    for(usz i=0;i<q+1;i++){ulong word=(ulong)staged[i];for(usz b=0;b<8;b++){output[i*8+b]=(uint8)(word&255);word>>=8;}}
+    for(usz i=0;i<q+1;i++){ulong word=(ulong)staged[i];for(usz b=0;b<8;b++){output[i*8+b]=(char)(word&255);word>>=8;}}
     return (long)bytes;
 }

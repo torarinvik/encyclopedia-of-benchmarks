@@ -1,0 +1,76 @@
+const MAX_TEXT = 64
+const MAX_INPUT_LENGTH = 66
+const HASH_MODULUS = 1000000007
+
+def distinct_substring_count_hashing_impl(input: view[i64]) -> i64:
+    if input.len() < 1 or input.len() > MAX_INPUT_LENGTH:
+        return -1
+    let n_value: i64 = input[0]
+    if n_value < 0 or n_value > MAX_TEXT or input.len() != n_value.usize() + 1:
+        return -1
+    let n: usize = n_value.usize()
+    index: mutable usize = 0
+    while index < n:
+        if input[index + 1] < 0 or input[index + 1] > 255:
+            return -1
+        index <- index + 1
+
+    prefix: mutable i64[65] = zeroed
+    powers: mutable i64[65] = zeroed
+    powers[0] <- 1
+    index <- 0
+    while index < n:
+        prefix[index + 1] <- (prefix[index] * 257 + input[index + 1] + 1) % HASH_MODULUS
+        powers[index + 1] <- powers[index] * 257 % HASH_MODULUS
+        index <- index + 1
+
+    group_hash: mutable i64[64] = zeroed
+    group_head: mutable i64[64] = zeroed
+    representative_start: mutable i64[64] = zeroed
+    representative_next: mutable i64[64] = zeroed
+    distinct: mutable i64 = 0
+    width: mutable usize = 1
+    while width <= n:
+        slot: mutable usize = 0
+        while slot < 64:
+            group_hash[slot] <- -1
+            group_head[slot] <- -1
+            slot <- slot + 1
+        representative_count: mutable usize = 0
+        start: mutable usize = 0
+        while start + width <= n:
+            let end: usize = start + width
+            let raw_hash: i64 = (prefix[end] - prefix[start] * powers[width] % HASH_MODULUS) % HASH_MODULUS
+            let fingerprint: i64 = if raw_hash < 0 then raw_hash + HASH_MODULUS else raw_hash
+            slot <- (fingerprint % 64).usize()
+            while group_hash[slot] != -1 and group_hash[slot] != fingerprint:
+                slot <- (slot + 1) % 64
+            if group_hash[slot] == -1:
+                group_hash[slot] <- fingerprint
+
+            duplicate: mutable bool = false
+            prior: mutable i64 = group_head[slot]
+            while prior >= 0:
+                let old_start: usize = representative_start[prior.usize()].usize()
+                offset: mutable usize = 0
+                while offset < width and input[start + offset + 1] == input[old_start + offset + 1]:
+                    offset <- offset + 1
+                if offset == width:
+                    duplicate <- true
+                    break
+                prior <- representative_next[prior.usize()]
+            if not duplicate:
+                representative_start[representative_count] <- start.i64()
+                representative_next[representative_count] <- group_head[slot]
+                group_head[slot] <- representative_count.i64()
+                representative_count <- representative_count + 1
+                distinct <- distinct + 1
+            start <- start + 1
+        width <- width + 1
+    distinct
+
+export fn distinct_substring_count_hashing(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    let input_view: view[i64] = input[0:length]
+    distinct_substring_count_hashing_impl(input_view)

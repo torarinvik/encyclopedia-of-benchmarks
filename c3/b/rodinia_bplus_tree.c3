@@ -7,7 +7,7 @@ fn long rodinia_bplus_tree(long* input, usz length) @export("rodinia_bplus_tree"
         input[2] < 1 || input[2] > 16) return -1;
     usz left_n = (usz)input[0], right_n = (usz)input[1], query_n = (usz)input[2];
     if (length != 3 + 2 * (left_n + right_n) + query_n) return -1;
-    long[2][3] keys, values;
+    long[3][2] keys, values;
     usz[2] counts = {left_n, right_n};
     usz cursor = 3;
     for (usz leaf = 0; leaf < 2; leaf++) {

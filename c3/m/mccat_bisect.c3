@@ -18,7 +18,7 @@ fn int sturm(usz n, double* diagonal, double* off_diagonal, double* beta, double
 }
 
 fn void store_f64_le(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz i = 0; i < 8; i++) { output[offset + i] = (char)(bits & 255); bits >>= 8; }
 }
 
@@ -84,7 +84,7 @@ fn usz solve(int n, char* output) {
     return used;
 }
 
-long mccat_bisect(long* values, usz length, char* output, usz output_capacity)
+fn long mccat_bisect(long* values, usz length, char* output, usz output_capacity)
     @export("mccat_bisect") {
     if (values == null || length != 1 || values[0] < 2 || values[0] > (long)MAX_N) return -1;
     usz required = ((usz)values[0] + 1) * 8;

@@ -39,10 +39,25 @@ checks. A valid route with a null or short output buffer returns `-2` without
 writes. A no-route result returns `-3` before output-capacity checks. Success
 returns the output byte count.
 
+## Complexity
+
+For `V=rows*columns`, depth-first backtracking explores simple route prefixes
+and may revisit a cell after an earlier branch has been undone. Its worst-case
+time is exponential, bounded conservatively by `O(4^V)` for a four-neighbor
+grid. The route mask and recursion path use `O(V)` space, and the serialized
+result uses up to `8V` bytes. The maximum fixed-array workspace across the
+ten ports is 1,024 bytes; recursive control frames are bounded by the same
+`O(V)` path depth. The fixed benchmark bound is `V<=64`.
+
 ## Pinned sources
 
 - Python [`rat_in_maze.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/backtracking/rat_in_maze.py), `solve_maze`, commit `e1a2a8b016001309a73d5fec4818c35cca139795`.
 - Rust [`rat_in_maze.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/backtracking/rat_in_maze.rs), `find_path_in_maze`, commit `fed66cb0c74c4a939ec5163648458a8c2b46fd4c`.
+
+Both repositories identify the pinned source revisions as MIT licensed; see
+[`RIGHTS.md`](RIGHTS.md). This benchmark uses the algorithms' behavior as
+provenance and independently authors the bounded contract, references,
+fixtures, and language ports.
 
 ## Workload and oracle
 
@@ -57,6 +72,7 @@ returns the output byte count.
 | C3 | [`c3/r/rat_in_maze.c3`](../../../c3/r/rat_in_maze.c3) |
 | C++ | [`cpp/r/rat_in_maze.cpp`](../../../cpp/r/rat_in_maze.cpp) |
 | Elisa | [`elisa/r/rat_in_maze.elisa`](../../../elisa/r/rat_in_maze.elisa) |
+| Mojo | [`mojo/r/rat_in_maze.mojo`](../../../mojo/r/rat_in_maze.mojo) |
 | Nim | [`nim/r/rat_in_maze.nim`](../../../nim/r/rat_in_maze.nim) |
 | Odin | [`odin/r/rat_in_maze.odin`](../../../odin/r/rat_in_maze.odin) |
 | Rust | [`rust/r/rat_in_maze.rs`](../../../rust/r/rat_in_maze.rs) |

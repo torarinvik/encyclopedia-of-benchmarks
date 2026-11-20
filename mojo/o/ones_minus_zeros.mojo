@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn omz_put(o:UnsafePointer[UInt8,MutAnyOrigin],cell:Int,x:Int64):

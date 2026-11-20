@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn hn_put(out:UnsafePointer[UInt8,MutAnyOrigin],at:Int,v:Int,base:Int)->Int:

@@ -22,6 +22,7 @@ The Python file with the same basename accepts a list of factor values and only 
 | C3 | [`c3/i/is_square_free.c3`](../../../c3/i/is_square_free.c3) |
 | C++ | [`cpp/i/is_square_free.cpp`](../../../cpp/i/is_square_free.cpp) |
 | Elisa | [`elisa/i/is_square_free.elisa`](../../../elisa/i/is_square_free.elisa) |
+| Mojo | [`mojo/i/is_square_free.mojo`](../../../mojo/i/is_square_free.mojo) |
 | Nim | [`nim/i/is_square_free.nim`](../../../nim/i/is_square_free.nim) |
 | Odin | [`odin/i/is_square_free.odin`](../../../odin/i/is_square_free.odin) |
 | Rust | [`rust/i/is_square_free.rs`](../../../rust/i/is_square_free.rs) |
@@ -32,3 +33,6 @@ The Python file with the same basename accepts a list of factor values and only 
 
 - [JavaScript `IsSquareFree.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/IsSquareFree.js)
 - [TypeScript `is_square_free.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/is_square_free.ts)
+
+Scalar verifier registration and an independent square-divisor reference
+are drafted and have not been executed.

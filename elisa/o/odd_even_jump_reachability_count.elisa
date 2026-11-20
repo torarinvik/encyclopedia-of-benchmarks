@@ -1,0 +1,81 @@
+const MAX_N: usize = 64
+const MAX_PARSEABLE: usize = 66
+
+def build_successors(values: view[i64], n: usize, descending: bool,
+                     target: mutable view[i64]) -> None:
+    order_array: mutable usize[64] = zeroed
+    stack_array: mutable usize[64] = zeroed
+    order: mutable view[usize] = order_array[0:n]
+    stack: mutable view[usize] = stack_array[0:n]
+    i: mutable usize = 0
+    while i < n:
+        order[i] <- i
+        target[i] <- -1
+        i <- i + 1
+    i <- 1
+    while i < n:
+        key: usize = order[i]
+        position: mutable usize = i
+        while position > 0:
+            previous: usize = order[position - 1]
+            before: bool = false
+            if values[key] == values[previous]:
+                before <- key < previous
+            elif descending:
+                before <- values[key] > values[previous]
+            else:
+                before <- values[key] < values[previous]
+            if not before: break
+            order[position] <- previous
+            position <- position - 1
+        order[position] <- key
+        i <- i + 1
+
+    stack_size: mutable usize = 0
+    i <- 0
+    while i < n:
+        index: usize = order[i]
+        while stack_size > 0 and stack[stack_size - 1] < index:
+            stack_size <- stack_size - 1
+            target[stack[stack_size]] <- index.i64()
+        stack[stack_size] <- index
+        stack_size <- stack_size + 1
+        i <- i + 1
+
+def odd_even_jump_reachability_count_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE: return -1
+    values: view[i64] = input[0:length]
+    if values[0] < 1 or values[0] > MAX_N.i64(): return -1
+    n: usize = values[0].usize()
+    if length != n + 1: return -1
+    data: view[i64] = values[1:length]
+    i: mutable usize = 0
+    while i < n:
+        if data[i] < -1000000 or data[i] > 1000000: return -1
+        i <- i + 1
+
+    odd_next_array: mutable i64[64] = zeroed
+    even_next_array: mutable i64[64] = zeroed
+    odd_next: mutable view[i64] = odd_next_array[0:n]
+    even_next: mutable view[i64] = even_next_array[0:n]
+    build_successors(data, n, false, odd_next)
+    build_successors(data, n, true, even_next)
+    odd_array: mutable u8[64] = zeroed
+    even_array: mutable u8[64] = zeroed
+    odd: mutable view[u8] = odd_array[0:n]
+    even: mutable view[u8] = even_array[0:n]
+    odd[n - 1] <- 1.u8()
+    even[n - 1] <- 1.u8()
+    i <- n - 1
+    while i > 0:
+        i <- i - 1
+        if odd_next[i] >= 0: odd[i] <- even[odd_next[i].usize()]
+        if even_next[i] >= 0: even[i] <- odd[even_next[i].usize()]
+    count: mutable i64 = 0
+    i <- 0
+    while i < n:
+        if odd[i] != 0.u8(): count <- count + 1
+        i <- i + 1
+    count
+
+export fn odd_even_jump_reachability_count(input: i64&, length: usize) -> i64 = odd_even_jump_reachability_count_impl

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p174_ceil_sqrt(value:Int64)->Int64:
     if value<=0:return 0
     var root=value;var next=(root+value//root)//2

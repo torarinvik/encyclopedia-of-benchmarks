@@ -1,0 +1,86 @@
+const CYK_MAX_NONTERMINALS: usize = 4
+const CYK_MAX_TERMINALS: usize = 2
+const CYK_MAX_WORD_LENGTH: usize = 8
+const CYK_MAX_PRODUCTIONS: usize = 12
+const CYK_MAX_INPUT_LENGTH: usize = 62
+
+def cyk_context_free_recognition_impl(input: view[i64]) -> i64:
+    let length: usize = input.len()
+    if length < 5 or length > CYK_MAX_INPUT_LENGTH: return -1
+    let variables_value: i64 = input[0]
+    let alphabet_value: i64 = input[1]
+    let word_value: i64 = input[2]
+    let rule_value: i64 = input[3]
+    let start_value: i64 = input[4]
+    if variables_value < 1 or variables_value > CYK_MAX_NONTERMINALS.i64() or
+       alphabet_value < 1 or alphabet_value > CYK_MAX_TERMINALS.i64() or
+       word_value < 1 or word_value > CYK_MAX_WORD_LENGTH.i64() or
+       rule_value < 0 or rule_value > CYK_MAX_PRODUCTIONS.i64() or
+       start_value < 0 or start_value >= variables_value: return -1
+    let word_length: usize = word_value.usize()
+    let rule_count: usize = rule_value.usize()
+    if length != 5 + word_length + 4 * rule_count: return -1
+
+    let mut position: usize = 0
+    while position < word_length:
+        let token: i64 = input[5 + position]
+        if token < 0 or token >= alphabet_value: return -1
+        position <- position + 1
+    let rules: usize = 5 + word_length
+    let mut rule: usize = 0
+    while rule < rule_count:
+        let offset: usize = rules + 4 * rule
+        let kind: i64 = input[offset]
+        let lhs: i64 = input[offset + 1]
+        let first: i64 = input[offset + 2]
+        let second: i64 = input[offset + 3]
+        if lhs < 0 or lhs >= variables_value: return -1
+        if kind == 0:
+            if first < 0 or first >= alphabet_value or second != 0: return -1
+        elif kind == 1:
+            if first < 0 or first >= variables_value or
+               second < 0 or second >= variables_value: return -1
+        else:
+            return -1
+        rule <- rule + 1
+
+    chart: mutable bool[288] = zeroed
+    position <- 0
+    while position < word_length:
+        let token: i64 = input[5 + position]
+        rule <- 0
+        while rule < rule_count:
+            let offset: usize = rules + 4 * rule
+            if input[offset] == 0 and input[offset + 2] == token:
+                let cell: usize = input[offset + 1].usize() * 72 + position * 9 + 1
+                chart[cell] <- true
+            rule <- rule + 1
+        position <- position + 1
+
+    let mut width: usize = 2
+    while width <= word_length:
+        let mut left: usize = 0
+        while left + width <= word_length:
+            rule <- 0
+            while rule < rule_count:
+                let offset: usize = rules + 4 * rule
+                if input[offset] == 1:
+                    let lhs: usize = input[offset + 1].usize()
+                    let first: usize = input[offset + 2].usize()
+                    let second: usize = input[offset + 3].usize()
+                    let mut split: usize = 1
+                    while split < width:
+                        let left_cell: usize = first * 72 + left * 9 + split
+                        let right_cell: usize = second * 72 + (left + split) * 9 + width - split
+                        if chart[left_cell] and chart[right_cell]:
+                            chart[lhs * 72 + left * 9 + width] <- true
+                            break
+                        split <- split + 1
+                rule <- rule + 1
+            left <- left + 1
+        width <- width + 1
+    if chart[start_value.usize() * 72 + word_length]: 1 else: 0
+
+export fn cyk_context_free_recognition(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 5 or length > CYK_MAX_INPUT_LENGTH: return -1
+    cyk_context_free_recognition_impl(input[0:length])

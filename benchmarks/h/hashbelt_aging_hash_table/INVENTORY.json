@@ -1,0 +1,71 @@
+{
+  "algorithm": "hashbelt_aging_hash_table",
+  "function_symbol": "hashbelt_aging_hash_table",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/h/hashbelt_aging_hash_table.c",
+    "c3": "c3/h/hashbelt_aging_hash_table.c3",
+    "cpp": "cpp/h/hashbelt_aging_hash_table.cpp",
+    "elisa": "elisa/h/hashbelt_aging_hash_table.elisa",
+    "mojo": "mojo/h/hashbelt_aging_hash_table.mojo",
+    "nim": "nim/h/hashbelt_aging_hash_table.nim",
+    "odin": "odin/h/hashbelt_aging_hash_table.odin",
+    "rust": "rust/h/hashbelt_aging_hash_table.rs",
+    "v": "v/h/hashbelt_aging_hash_table.v",
+    "zig": "zig/h/hashbelt_aging_hash_table.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "contract": {
+    "generation_count": 4,
+    "unique_live_keys": true,
+    "older_hit_policy": "remove old generation entry before inserting into newest generation",
+    "older_put_policy": "remove old generation entry before inserting updated value into newest generation",
+    "bucket_count_per_generation": 8,
+    "bucket_rule": "key mod 8",
+    "max_distinct_keys_per_generation": 32,
+    "max_operations": 64,
+    "maximum_valid_input_words": 193,
+    "maximum_parseable_input_words": 194,
+    "maximum_output_bytes": 512,
+    "workspace_bytes": 4096,
+    "miss_sentinel": -2147483648
+  },
+  "sources": [
+    {
+      "role": "algorithm discovery and definition",
+      "title": "NIST Dictionary of Algorithms and Data Structures: hashbelt",
+      "url": "https://xlinux.nist.gov/dads/HTML/hashbelt.html"
+    },
+    {
+      "role": "cited design article",
+      "title": "The Hashbelt Data Structure",
+      "author": "William Grosso",
+      "venue": "O'Reilly ONJava.com",
+      "date": "2002-01-09",
+      "url": "http://www.onjava.com/pub/a/onjava/2002/01/30/dataexp2.html"
+    }
+  ],
+  "fixture_ids": [
+    "empty-trace",
+    "put-update-get-and-miss",
+    "four-generation-expiry",
+    "promoted-hit-refreshes-expiration",
+    "put-moves-existing-key",
+    "separate-chain-collision",
+    "max-output-success",
+    "max-output-one-byte-short",
+    "invalid-frame-precedes-capacity",
+    "null-output",
+    "null-input"
+  ]
+}

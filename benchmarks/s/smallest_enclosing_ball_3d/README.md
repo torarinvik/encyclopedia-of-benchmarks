@@ -17,6 +17,10 @@ input returns `-1`; null output or capacity below four values returns `-2`
 without writing. The independent oracle enumerates all candidate support sets
 of size at most four, rather than using Welzl recursion.
 
+Static review of the C3 draft corrected missing function keywords and changed
+local point buffers to C3 array declarations with explicit element pointers.
+This draft has not been compiled or executed.
+
 The existing [`smallest_circle`](../smallest_circle/README.md) profile solves
 the corresponding planar problem; this package handles three-dimensional
 supports, including four-point spheres.

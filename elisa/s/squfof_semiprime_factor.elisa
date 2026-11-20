@@ -1,0 +1,80 @@
+const SQ_MAX_NUMBER: i64 = 1000000000000
+const SQ_MAX_STEPS: i64 = 256
+
+def sq_isqrt(value: i64, upper: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = upper + 1
+    while low + 1 < high:
+        middle: i64 = low + (high - low) / 2
+        if middle * middle <= value:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def sq_gcd(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64) -> i64:
+    root: i64 = sq_isqrt(q, 1414214)
+    if root * root != q: return 0
+    quotient: i64 = (a - p) / root
+    r: mutable i64 = quotient * root + p
+    previous_s: mutable i64 = root
+    s: mutable i64 = (discriminant - r * r) / root
+    step: mutable i64 = 0
+    while step < cap:
+        next_quotient: i64 = (a + r) / s
+        next_r: i64 = next_quotient * s - r
+        if next_r == r:
+            factor: i64 = sq_gcd(number, r)
+            if factor > 1 and factor < number:
+                other: i64 = number / factor
+                if factor < other: return factor
+                return other
+            return 0
+        next_s: i64 = previous_s + next_quotient * (r - next_r)
+        previous_s <- s
+        s <- next_s
+        r <- next_r
+        step <- step + 1
+    0
+
+export fn squfof_semiprime_factor(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > 4: return -1
+    let values: view[i64] = input[0:input_length]
+    if values.len() != 3: return -1
+    let number: i64 = values[0]
+    let forward_cap: i64 = values[1]
+    let reverse_cap: i64 = values[2]
+    if number < 3 or number > SQ_MAX_NUMBER or number % 2 == 0
+        or forward_cap < 0 or forward_cap > SQ_MAX_STEPS
+        or reverse_cap < 0 or reverse_cap > SQ_MAX_STEPS: return -1
+    let exact_root: i64 = sq_isqrt(number, 1000000)
+    if exact_root * exact_root == number: return exact_root
+    let discriminant: i64 = if number % 4 == 1: 2 * number else: number
+    let a: i64 = sq_isqrt(discriminant, 1414214)
+    let previous_q: mutable i64 = 1
+    let q: mutable i64 = discriminant - a * a
+    let p: mutable i64 = a
+    let index: mutable i64 = 1
+    let step: mutable i64 = 0
+    while step < forward_cap:
+        let quotient: i64 = (a + p) / q
+        let next_p: i64 = quotient * q - p
+        let next_q: i64 = previous_q + quotient * (p - next_p)
+        previous_q <- q
+        q <- next_q
+        p <- next_p
+        index <- index + 1
+        if index % 2 == 0:
+            let factor: i64 = sq_reverse(number, discriminant, a, p, q, reverse_cap)
+            if factor != 0: return factor
+        step <- step + 1
+    0

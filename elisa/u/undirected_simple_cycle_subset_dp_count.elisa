@@ -1,0 +1,79 @@
+# Clean-room all-length simple-cycle subset DP; see package RIGHTS.md.
+const MAX_N: usize = 14
+const MAX_M: usize = 91
+const MAX_STATES: usize = 16384
+const MAX_DP_CELLS: usize = 229376
+
+def undirected_simple_cycle_subset_dp_count_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 185: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 14 or m_value < 0 or m_value > 91:
+        return -1
+    if m_value > n_value * (n_value - 1) / 2: return -1
+    n: usize = n_value.usize()
+    edge_count: usize = m_value.usize()
+    if length != 2 + 2 * edge_count: return -1
+
+    adjacency: mutable i64[196] = zeroed
+    neighbors: mutable i64[196] = zeroed
+    degree: mutable i64[14] = zeroed
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u_value: i64 = input[2 + 2 * edge]
+        v_value: i64 = input[3 + 2 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value >= v_value:
+            return -1
+        if edge != 0 and (u_value < previous_u or (u_value == previous_u and v_value <= previous_v)):
+            return -1
+        previous_u <- u_value
+        previous_v <- v_value
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        adjacency[u * MAX_N + v] <- 1
+        adjacency[v * MAX_N + u] <- 1
+        neighbors[u * MAX_N + degree[u].usize()] <- v.i64()
+        degree[u] <- degree[u] + 1
+        neighbors[v * MAX_N + degree[v].usize()] <- u.i64()
+        degree[v] <- degree[v] + 1
+        edge <- edge + 1
+
+    dp: mutable i64[MAX_DP_CELLS] = zeroed
+    state_count: usize = 1 << n
+    start: mutable usize = 0
+    while start < n:
+        dp[(1 << start) * MAX_N + start] <- 1
+        start <- start + 1
+    oriented_cycles: mutable i64 = 0
+    mask: mutable usize = 1
+    while mask < state_count:
+        start <- 0
+        while (mask & (1 << start)) == 0:
+            start <- start + 1
+        cardinality: mutable usize = 0
+        vertex: mutable usize = 0
+        while vertex < n:
+            if (mask & (1 << vertex)) != 0: cardinality <- cardinality + 1
+            vertex <- vertex + 1
+        endpoint: mutable usize = 0
+        while endpoint < n:
+            if (mask & (1 << endpoint)) != 0:
+                ways: i64 = dp[mask * MAX_N + endpoint]
+                if ways != 0:
+                    if cardinality >= 3 and adjacency[endpoint * MAX_N + start] != 0:
+                        oriented_cycles <- oriented_cycles + ways
+                    neighbor_index: mutable usize = 0
+                    while neighbor_index < degree[endpoint].usize():
+                        next: usize = neighbors[endpoint * MAX_N + neighbor_index].usize()
+                        if next > start and (mask & (1 << next)) == 0:
+                            dp[(mask | (1 << next)) * MAX_N + next] <-
+                                dp[(mask | (1 << next)) * MAX_N + next] + ways
+                        neighbor_index <- neighbor_index + 1
+            endpoint <- endpoint + 1
+        mask <- mask + 1
+    oriented_cycles / 2
+
+export fn undirected_simple_cycle_subset_dp_count(input: i64&, length: usize) -> i64 =
+    undirected_simple_cycle_subset_dp_count_impl(input, length)

@@ -39,6 +39,7 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/g/gray_to_binary/
 | C3 | [`c3/g/gray_to_binary.c3`](../../../c3/g/gray_to_binary.c3) |
 | C++ | [`cpp/g/gray_to_binary.cpp`](../../../cpp/g/gray_to_binary.cpp) |
 | Elisa | [`elisa/g/gray_to_binary.elisa`](../../../elisa/g/gray_to_binary.elisa) |
+| Mojo | [`mojo/g/gray_to_binary.mojo`](../../../mojo/g/gray_to_binary.mojo) |
 | Nim | [`nim/g/gray_to_binary.nim`](../../../nim/g/gray_to_binary.nim) |
 | Odin | [`odin/g/gray_to_binary.odin`](../../../odin/g/gray_to_binary.odin) |
 | Rust | [`rust/g/gray_to_binary.rs`](../../../rust/g/gray_to_binary.rs) |
@@ -48,3 +49,6 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/g/gray_to_binary/
 ## Pinned source
 
 - [TheAlgorithms/Python `binary_to_gray_code.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/binary_to_gray_code.py)
+
+Scalar verifier registration and a bit-string reference are drafted and have
+not been executed.

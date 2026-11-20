@@ -1,0 +1,27 @@
+{
+  "algorithm": "goodstein_sequence_bounded_prefix",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "goodstein_sequence_bounded_prefix",
+  "sources": {
+    "goodstein_1944": "https://doi.org/10.2307/2268019",
+    "explicit_definition": "https://www.math.ucla.edu/~marks/notes/set_theory_notes_2.pdf",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "ports": {
+    "c": "../../../c/g/goodstein_sequence_bounded_prefix.c",
+    "c3": "../../../c3/g/goodstein_sequence_bounded_prefix.c3",
+    "cpp": "../../../cpp/g/goodstein_sequence_bounded_prefix.cpp",
+    "elisa": "../../../elisa/g/goodstein_sequence_bounded_prefix.elisa",
+    "mojo": "../../../mojo/g/goodstein_sequence_bounded_prefix.mojo",
+    "nim": "../../../nim/g/goodstein_sequence_bounded_prefix.nim",
+    "odin": "../../../odin/g/goodstein_sequence_bounded_prefix.odin",
+    "rust": "../../../rust/g/goodstein_sequence_bounded_prefix.rs",
+    "v": "../../../v/g/goodstein_sequence_bounded_prefix.v",
+    "zig": "../../../zig/g/goodstein_sequence_bounded_prefix.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "suite_status": "registered_i64_array_bytes_output",
+  "execution_status": "source-only; no programs or checks run"
+}

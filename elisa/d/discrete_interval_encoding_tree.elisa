@@ -1,0 +1,192 @@
+const DIET_MAX_Q: usize = 32
+const DIET_ARENA: usize = 64
+const DIET_MIN_KEY: i64 = -15
+const DIET_MAX_KEY: i64 = 15
+
+struct DietNode:
+    lo: i64
+    hi: i64
+    left: i64
+    right: i64
+
+def diet_new(nodes: mutable view[DietNode], used: mutable usize&, lo: i64, hi: i64,
+             left: i64, right: i64) -> i64:
+    index: usize = used
+    used <- used + 1
+    nodes[index].lo <- lo
+    nodes[index].hi <- hi
+    nodes[index].left <- left
+    nodes[index].right <- right
+    index.i64()
+
+def diet_pop_max(nodes: mutable view[DietNode], root: i64,
+                 lo_out: mutable i64&, hi_out: mutable i64&) -> i64:
+    if nodes[root.usize()].right < 0:
+        lo_out <- nodes[root.usize()].lo
+        hi_out <- nodes[root.usize()].hi
+        return nodes[root.usize()].left
+    nodes[root.usize()].right <- diet_pop_max(nodes, nodes[root.usize()].right, lo_out, hi_out)
+    root
+
+def diet_pop_min(nodes: mutable view[DietNode], root: i64,
+                 lo_out: mutable i64&, hi_out: mutable i64&) -> i64:
+    if nodes[root.usize()].left < 0:
+        lo_out <- nodes[root.usize()].lo
+        hi_out <- nodes[root.usize()].hi
+        return nodes[root.usize()].right
+    nodes[root.usize()].left <- diet_pop_min(nodes, nodes[root.usize()].left, lo_out, hi_out)
+    root
+
+def diet_max_interval(nodes: view[DietNode], root_input: i64) -> DietNode:
+    root: mutable i64 = root_input
+    while nodes[root.usize()].right >= 0:
+        root <- nodes[root.usize()].right
+    nodes[root.usize()]
+
+def diet_min_interval(nodes: view[DietNode], root_input: i64) -> DietNode:
+    root: mutable i64 = root_input
+    while nodes[root.usize()].left >= 0:
+        root <- nodes[root.usize()].left
+    nodes[root.usize()]
+
+def diet_insert(nodes: mutable view[DietNode], used: mutable usize&, root: i64, key: i64,
+        interval_count: mutable usize&, changed: mutable bool&) -> i64:
+    if root < 0:
+        interval_count <- interval_count + 1
+        changed <- true
+        return diet_new(nodes, used, key, key, -1, -1)
+    index: usize = root.usize()
+    if key < nodes[index].lo:
+        if key + 1 == nodes[index].lo:
+            nodes[index].lo <- key
+            changed <- true
+            if nodes[index].left >= 0:
+                pred: DietNode = diet_max_interval(nodes, nodes[index].left)
+                if pred.hi + 1 == key:
+                    pred_lo: mutable i64 = 0
+                    pred_hi: mutable i64 = 0
+                    nodes[index].left <- diet_pop_max(nodes, nodes[index].left, pred_lo, pred_hi)
+                    nodes[index].lo <- pred_lo
+                    interval_count <- interval_count - 1
+        else:
+            nodes[index].left <- diet_insert(nodes, used, nodes[index].left, key,
+                interval_count, changed)
+        return root
+    if key > nodes[index].hi:
+        if key == nodes[index].hi + 1:
+            nodes[index].hi <- key
+            changed <- true
+            if nodes[index].right >= 0:
+                succ: DietNode = diet_min_interval(nodes, nodes[index].right)
+                if key + 1 == succ.lo:
+                    succ_lo: mutable i64 = 0
+                    succ_hi: mutable i64 = 0
+                    nodes[index].right <- diet_pop_min(nodes, nodes[index].right, succ_lo, succ_hi)
+                    nodes[index].hi <- succ_hi
+                    interval_count <- interval_count - 1
+        else:
+            nodes[index].right <- diet_insert(nodes, used, nodes[index].right, key,
+                interval_count, changed)
+        return root
+    changed <- false
+    root
+
+def diet_delete(nodes: mutable view[DietNode], used: mutable usize&, root: i64, key: i64,
+        interval_count: mutable usize&, changed: mutable bool&) -> i64:
+    if root < 0:
+        changed <- false
+        return root
+    index: usize = root.usize()
+    if key < nodes[index].lo:
+        nodes[index].left <- diet_delete(nodes, used, nodes[index].left, key,
+            interval_count, changed)
+        return root
+    if key > nodes[index].hi:
+        nodes[index].right <- diet_delete(nodes, used, nodes[index].right, key,
+            interval_count, changed)
+        return root
+    changed <- true
+    if nodes[index].lo == nodes[index].hi:
+        interval_count <- interval_count - 1
+        if nodes[index].left < 0: return nodes[index].right
+        if nodes[index].right < 0: return nodes[index].left
+        pred_lo: mutable i64 = 0
+        pred_hi: mutable i64 = 0
+        nodes[index].left <- diet_pop_max(nodes, nodes[index].left, pred_lo, pred_hi)
+        nodes[index].lo <- pred_lo
+        nodes[index].hi <- pred_hi
+        return root
+    if key == nodes[index].lo:
+        nodes[index].lo <- nodes[index].lo + 1
+        return root
+    if key == nodes[index].hi:
+        nodes[index].hi <- nodes[index].hi - 1
+        return root
+    piece: i64 = diet_new(nodes, used, key + 1, nodes[index].hi, -1, nodes[index].right)
+    nodes[index].hi <- key - 1
+    nodes[index].right <- piece
+    interval_count <- interval_count + 1
+    root
+
+def diet_contains(nodes: view[DietNode], root_input: i64, key: i64) -> bool:
+    root: mutable i64 = root_input
+    while root >= 0:
+        index: usize = root.usize()
+        if key < nodes[index].lo:
+            root <- nodes[index].left
+        elif key > nodes[index].hi:
+            root <- nodes[index].right
+        else:
+            return true
+    false
+
+def diet_valid(input: view[i64]) -> bool:
+    length: usize = input.len()
+    if length < 1 or length > 2 + 2 * DIET_MAX_Q: return false
+    if input[0] < 0 or input[0] > DIET_MAX_Q.i64(): return false
+    q: usize = input[0].usize()
+    if length != 1 + 2 * q: return false
+    for op in 0..<q:
+        opcode: i64 = input[1 + 2 * op]
+        key: i64 = input[2 + 2 * op]
+        if opcode < 0 or opcode > 2 or key < DIET_MIN_KEY or key > DIET_MAX_KEY:
+            return false
+    true
+
+def diet_impl(input: view[i64], output: mutable view[u8]) -> i64:
+    q: usize = input[0].usize()
+    nodes: mutable DietNode[DIET_ARENA] = zeroed
+    used: mutable usize = 0
+    root: mutable i64 = -1
+    cardinality: mutable usize = 0
+    interval_count: mutable usize = 0
+    staged: mutable i64[DIET_MAX_Q] = zeroed
+    for op in 0..<q:
+        opcode: i64 = input[1 + 2 * op]
+        key: i64 = input[2 + 2 * op]
+        changed: mutable bool = false
+        if opcode == 0:
+            root <- diet_insert(nodes[0:DIET_ARENA], used, root, key, interval_count, changed)
+            if changed: cardinality <- cardinality + 1
+        elif opcode == 1:
+            root <- diet_delete(nodes[0:DIET_ARENA], used, root, key, interval_count, changed)
+            if changed: cardinality <- cardinality - 1
+        present: i64 = if diet_contains(nodes[0:DIET_ARENA], root, key): 1 else: 0
+        staged[op] <- 64 * cardinality.i64() + 2 * interval_count.i64() + present
+    for op in 0..<q:
+        word: u64 = staged[op].u64()
+        for byte in 0..<8:
+            output[8 * op + byte] <- (word & 255).u8()
+            word <- word >> 8
+    (8 * q).i64()
+
+export fn discrete_interval_encoding_tree(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 2 + 2 * DIET_MAX_Q: return -1
+    input_view: view[i64] = input[0:length]
+    if not diet_valid(input_view): return -1
+    q: usize = input_view[0].usize()
+    required: usize = 8 * q
+    if required > 0 and (output.is_null() or capacity < required): return -2
+    if required == 0: return 0
+    diet_impl(input_view, output[0:required])

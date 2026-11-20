@@ -1,0 +1,44 @@
+# Uncompiled monotone-cursor Prüfer decoder draft.
+def pdl_write(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        output[offset + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def pdl_solve(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    if values.len() < 1 or values.len() > 4096: return -1
+    nv: i64 = values[0]
+    if nv < 2 or nv > 4096: return -1
+    n: usize = nv.usize()
+    if values.len() != n - 1: return -1
+    count: mutable i64[4096] = zeroed
+    for i in 1..<values.len():
+        if values[i] < 0 or values[i] >= nv: return -1
+        v: usize = values[i].usize()
+        count[v] <- count[v] + 1
+    needed: usize = 16 * (n - 1)
+    if output == null or capacity < needed: return -2
+    bytes: mutable view[u8] = output[0:needed]
+    cursor: mutable usize = n - 1
+    while count[cursor] != 0: cursor <- cursor - 1
+    leaf: mutable usize = cursor
+    for i in 1..<values.len():
+        v: usize = values[i].usize()
+        pdl_write(bytes, 16 * (i - 1), leaf.i64())
+        pdl_write(bytes, 16 * (i - 1) + 8, v.i64())
+        count[leaf] <- -1
+        count[v] <- count[v] - 1
+        if count[v] == 0 and v > cursor: leaf <- v
+        else:
+            cursor <- cursor - 1
+            while count[cursor] != 0: cursor <- cursor - 1
+            leaf <- cursor
+    other: mutable usize = 0
+    while other == leaf or count[other] != 0: other <- other + 1
+    pdl_write(bytes, 16 * (n - 2), leaf.i64())
+    pdl_write(bytes, 16 * (n - 2) + 8, other.i64())
+    needed.i64()
+
+export fn prufer_decode_linear(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > 4096: return -1
+    pdl_solve(input[0:length], output, capacity)

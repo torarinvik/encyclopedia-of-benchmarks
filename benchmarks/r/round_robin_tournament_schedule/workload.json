@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "round-robin-tournament-schedule-byte-output-v1",
+  "algorithm": "round_robin_tournament_schedule",
+  "function_symbol": "round_robin_tournament_schedule",
+  "abi": "i64_array_bytes_output",
+  "description": "Generate the canonical single round-robin opponent table by the circle method.",
+  "source": {
+    "discovery_title": "Round-robin tournament schedule",
+    "discovery_score": 30,
+    "discovery_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_scope": "Pinned popular-title metadata only; no Rosetta task wording, examples, tests, implementations, or code used.",
+    "algorithm_description": "Ribeiro et al., A tutorial on graph models for scheduling round-robin sports tournaments, Algorithm 1 (circle method), DOI 10.1111/itor.13290.",
+    "algorithm_url": "https://doi.org/10.1111/itor.13290",
+    "independent_description": "The same circle construction is independently described as the clock method by Boschetti and Righini, Teaching Integer Programming by Scheduling the Belgian Soccer League, DOI 10.1287/ited.2022.0269.",
+    "independent_url": "https://doi.org/10.1287/ited.2022.0269"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[team_count]",
+    "team_count_range": [2, 8],
+    "valid_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "extra_word_behavior": "Reject a two-word parseable frame as malformed.",
+    "invalid_input_result": -1,
+    "validation_order": "Validate non-null pointer, array length, and team-count domain before output pointer or capacity checks."
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "[team_count,round_count,opponent_table...], unsigned bytes; rows are team IDs in ascending order, columns are rounds in ascending order, and 0xff denotes a bye.",
+    "odd_team_rule": "Pad to the next even team count with a dummy pivot; omit dummy games so one real team has opponent 0xff per round.",
+    "maximum_bytes": 58,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "accounting": "Fixed opponent table of at most 8*7 bytes, padded ring of at most 7 team IDs, and scalar loop state; caller input/output buffers excluded."
+  },
+  "complexity": {
+    "primary": "O(n^2) time and O(n^2) workspace for modular pair generation and the opponent table.",
+    "independent": "O(n^2) time and O(n^2) workspace for the rotating-ring construction and opponent table."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"two-team-single-match","input_values":[2],"input_length":1,"output_capacity":4,"expected_result":4,"expected_output_hex":"02 01 01 00"},
+    {"id":"three-team-byes","input_values":[3],"input_length":1,"output_capacity":11,"expected_result":11,"expected_output_hex":"03 03 ff 02 01 02 ff 00 01 00 ff"},
+    {"id":"four-team-canonical-table","input_values":[4],"input_length":1,"output_capacity":14,"expected_result":14,"expected_output_hex":"04 03 03 02 01 02 03 00 01 00 03 00 01 02"},
+    {"id":"five-team-odd-byes","input_values":[5],"input_length":1,"output_capacity":27,"expected_result":27,"expected_output_hex":"05 05 ff 02 04 01 03 04 ff 03 00 02 03 00 ff 04 01 02 04 01 ff 00 01 03 00 02 ff"},
+    {"id":"maximum-team-and-output-bound","input_values":[8],"input_length":1,"output_capacity":58,"expected_result":58,"expected_output_hex":"08 07 07 02 04 06 01 03 05 06 07 03 05 00 02 04 05 00 07 04 06 01 03 04 06 01 07 05 00 02 03 05 00 02 07 06 01 02 04 06 01 03 07 00 01 03 05 00 02 04 07 00 01 02 03 04 05 06"},
+    {"id":"maximum-output-one-byte-short","input_values":[8],"input_length":1,"output_capacity":57,"expected_result":-2,"expected_output_hex":""},
+    {"id":"maximum-parseable-extra-word","input_values":[8,0],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"team-count-below-bound","input_values":[1],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"team-count-above-bound","input_values":[9],"input_length":1,"output_capacity":58,"expected_result":-1,"expected_output_hex":""},
+    {"id":"empty-nonnull-frame","input_values":[],"input_length":0,"output_capacity":58,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":58,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[4],"input_length":1,"output_capacity":14,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"malformed-input-before-capacity","input_values":[1],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

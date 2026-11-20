@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "pocklington-primality-certificate-i64-array-scalar-v1",
+  "algorithm": "pocklington_primality_certificate",
+  "function_symbol": "pocklington_primality_certificate",
+  "abi": "i64_array_scalar",
+  "description": "Verify a bounded Pocklington n-1 primality certificate with a supplied witness for each distinct prime factor of its known factored part.",
+  "source": {
+    "title": "The determination of the prime or composite nature of large numbers by Fermat's theorem",
+    "author": "H. C. Pocklington",
+    "publisher": "Proceedings of the Cambridge Philosophical Society, volume 18",
+    "year": 1914,
+    "reference": "Pocklington's n-1 criterion; modern theorem statement and citation in FLINT primality-proving documentation",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Proceedings_-_Cambridge_Philosophical_Society_%28IA_proceedingscambr18camb%29.pdf",
+    "supporting_url": "https://flintlib.org/doc/algorithms/number-theory/primality-proving.html",
+    "implementation_status": "bounded clean-room certificate verifier"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,k,(q_i,e_i,a_i)*k,R]",
+    "n_range": [3, 65535],
+    "factor_count_range": [1, 6],
+    "prime_factors": "q_i are strictly increasing distinct primes; each exponent e_i is in 1..16",
+    "witnesses": "1<=a_i<n; a separate witness is supplied for every q_i",
+    "cofactor_range": "1<=R<n",
+    "factorization_rule": "(product q_i^e_i)*R must equal n-1",
+    "exact_length": "3+3*k",
+    "maximum_valid_length": 21,
+    "maximum_parseable_length": 22,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "1 if the supplied known-factor bound and all Pocklington witness conditions prove n prime; 0 if the frame is structurally valid but the factored part is too small or a witness condition fails; -1 for malformed framing, invalid bounds, nonprime/unsorted q_i, invalid exponent, or a factorization mismatch",
+    "valid_result_range": [0, 1],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "known_part": "F=product(q_i^e_i) is fully factored by the supplied distinct prime q_i and must divide n-1 with quotient R",
+    "size_condition": "F^2>n is required for a proof; a structurally valid certificate with F^2<=n returns 0",
+    "witness_conditions": "For each distinct q_i, a_i^(n-1)=1 mod n and gcd(a_i^((n-1)/q_i)-1,n)=1; any failed congruence or gcd returns 0",
+    "certificate_theorem": "Acceptance proves primality by Pocklington's theorem; rejection does not assert compositeness",
+    "primary_method": "Trial-check each supplied q_i, accumulate F, then verify modular powers by repeated squaring and the gcd conditions by Euclid's algorithm",
+    "independent_method": "Trial-check q_i independently, calculate modular powers by direct repeated multiplication, and check the gcd condition by divisor enumeration",
+    "distinction": "This verifies a deterministic primality proof from a partial factorization of n-1; it is neither a probable-prime round test nor a general primality verdict",
+    "invalid_cases": "Null or non-exact framing, n outside 3..65535, k outside 1..6, unsorted/repeated/nonprime q_i, exponent outside 1..16, witness outside 1..n-1, or (F*R) != n-1 returns -1"
+  },
+  "complexity": {
+    "primary_time": "O(k*sqrt(n) + k*log(n)) trial division and modular arithmetic operations",
+    "primary_space": "O(k)",
+    "independent_time": "O(k*sqrt(n) + k*n) direct modular multiplications and divisor scans",
+    "independent_space": "O(k)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"small-prime-certificate-seven","input_values":[7,2,2,1,3,3,1,2,1],"input_length":9,"expected_result":1},
+    {"id":"small-prime-certificate-thirteen","input_values":[13,2,2,2,2,3,1,2,1],"input_length":9,"expected_result":1},
+    {"id":"prime-certificate-with-three-factors","input_values":[31,3,2,1,3,3,1,3,5,1,3,1],"input_length":12,"expected_result":1},
+    {"id":"composite-fermat-witness-fails","input_values":[9,1,2,3,2,1],"input_length":6,"expected_result":0},
+    {"id":"composite-gcd-witness-fails","input_values":[9,1,2,3,8,1],"input_length":6,"expected_result":0},
+    {"id":"well-formed-factored-part-too-small","input_values":[101,1,2,2,2,25],"input_length":6,"expected_result":0},
+    {"id":"nonprime-factor-invalid","input_values":[31,1,6,1,3,5],"input_length":6,"expected_result":-1},
+    {"id":"nonminimal-factor-order-invalid","input_values":[31,2,3,1,2,2,1,3,5],"input_length":9,"expected_result":-1},
+    {"id":"factorization-mismatch-invalid","input_values":[7,1,2,1,3,2],"input_length":6,"expected_result":-1},
+    {"id":"maximum-n-domain-bound","input_values":[65535,4,2,1,1,7,1,1,31,1,1,151,1,1,1],"input_length":15,"expected_result":0},
+    {"id":"maximum-six-factor-frame-rejected-witness","input_values":[30031,6,2,1,1,3,1,1,5,1,1,7,1,1,11,1,1,13,1,1,1],"input_length":21,"expected_result":0},
+    {"id":"maximum-parseable-trailing-value","input_values":[30031,6,2,1,1,3,1,1,5,1,1,7,1,1,11,1,1,13,1,1,1,0],"input_length":22,"expected_result":-1},
+    {"id":"null-input-zero-length","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"null-input-maximum-parseable-length","input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":22,"input_is_null":true,"expected_result":-1},
+    {"id":"n-below-domain","input_values":[2,1,2,1,1,1],"input_length":6,"expected_result":-1},
+    {"id":"count-above-bound","input_values":[31,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":22,"expected_result":-1}
+  ]
+}

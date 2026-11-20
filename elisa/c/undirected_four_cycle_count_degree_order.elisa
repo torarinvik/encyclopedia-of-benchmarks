@@ -1,0 +1,86 @@
+# Clean-room degree-oriented simple C4 counter; see package RIGHTS.md.
+const MAX_NODES: usize = 16
+const MAX_EDGES: usize = 64
+const MAX_INPUT_LENGTH: usize = 131
+
+def undirected_four_cycle_count_degree_order_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 16 or m_value < 0 or m_value > 64: return -1
+    n: usize = n_value.usize()
+    edge_count: usize = m_value.usize()
+    if length != 2 + 2 * edge_count: return -1
+
+    neighbors: mutable i64[256] = zeroed
+    degree: mutable i64[16] = zeroed
+    previous_u: mutable i64 = -1
+    previous_v: mutable i64 = -1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u_value: i64 = input[2 + 2 * edge]
+        v_value: i64 = input[3 + 2 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value >= v_value:
+            return -1
+        if edge != 0 and (u_value < previous_u or (u_value == previous_u and v_value <= previous_v)):
+            return -1
+        previous_u <- u_value
+        previous_v <- v_value
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        neighbors[u * MAX_NODES + degree[u].usize()] <- v.i64()
+        degree[u] <- degree[u] + 1
+        neighbors[v * MAX_NODES + degree[v].usize()] <- u.i64()
+        degree[v] <- degree[v] + 1
+        edge <- edge + 1
+
+    order: mutable i64[16] = zeroed
+    rank: mutable i64[16] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        order[i] <- i.i64()
+        i <- i + 1
+    i <- 1
+    while i < n:
+        key: i64 = order[i]
+        j: mutable usize = i
+        while j > 0:
+            prior: usize = order[j - 1].usize()
+            key_vertex: usize = key.usize()
+            if degree[prior] < degree[key_vertex] or (degree[prior] == degree[key_vertex] and prior < key_vertex):
+                break
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- key
+        i <- i + 1
+    i <- 0
+    while i < n:
+        rank[order[i].usize()] <- i.i64()
+        i <- i + 1
+
+    count: mutable i64[16] = zeroed
+    total: mutable i64 = 0
+    position: mutable usize = 0
+    while position < n:
+        pivot: usize = order[position].usize()
+        bi: mutable usize = 0
+        while bi < degree[pivot].usize():
+            middle: usize = neighbors[pivot * MAX_NODES + bi].usize()
+            if rank[middle] < position.i64():
+                ci: mutable usize = 0
+                while ci < degree[middle].usize():
+                    opposite: usize = neighbors[middle * MAX_NODES + ci].usize()
+                    if rank[opposite] < position.i64():
+                        total <- total + count[opposite]
+                        count[opposite] <- count[opposite] + 1
+                    ci <- ci + 1
+            bi <- bi + 1
+        vertex: mutable usize = 0
+        while vertex < n:
+            count[vertex] <- 0
+            vertex <- vertex + 1
+        position <- position + 1
+    total
+
+export fn undirected_four_cycle_count_degree_order(input: i64&, length: usize) -> i64 =
+    undirected_four_cycle_count_degree_order_impl(input, length)

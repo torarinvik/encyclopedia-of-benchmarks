@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "bricks-falling-reverse-dsu-v1",
+  "algorithm": "bricks_falling_when_hit_reverse_dsu",
+  "function_symbol": "bricks_falling_when_hit_reverse_dsu",
+  "abi": "i64_array_bytes_output",
+  "description": "Replay distinct removals from a stable binary grid and count cells disconnected from the roof after each hit.",
+  "source": {
+    "title": "Bricks Falling When Hit",
+    "source_id": "LeetCode 803",
+    "url": "https://leetcode.com/problems/bricks-falling-when-hit/",
+    "use": "Public title only as an idea index; no task content is reused."
+  },
+  "contract": {
+    "input_encoding": "[rows,columns,hit_count,grid_cells...,hit_coordinates...]",
+    "grid_order": "row_major",
+    "grid_values": [0, 1],
+    "connectivity": "four_neighbors",
+    "rows_range": [1, 8],
+    "columns_range": [1, 8],
+    "maximum_cells": 64,
+    "hit_count_range": [0, 16],
+    "hit_coordinates": "zero_based_row_column_pairs_in_forward_order",
+    "hit_coordinates_must_be_unique": true,
+    "empty_cell_hits_are_valid": true,
+    "initial_grid_must_be_roof_connected": true,
+    "maximum_valid_input_length": 99,
+    "maximum_parseable_input_length": 100,
+    "output_encoding": "one fall count per hit as little-endian signed i64 words, in forward order",
+    "maximum_output_bytes": 128,
+    "invalid_input_result": -1,
+    "null_or_insufficient_required_output_result": -2,
+    "errors_write_no_output": true,
+    "zero_hit_behavior": "Return zero bytes and permit a null output."
+  },
+  "workspace": {
+    "bytes": 584,
+    "meaning": "A 64-byte mutable grid plus 65-element i32 parent and component-size arrays. The extra DSU element is the virtual roof. Caller input and output are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "kernel_boundary": "Validate a stable bounded grid and unique hit sequence, remove hit cells, build roof-connected DSU components, and restore hits in reverse while counting component-size gains.",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/b/bricks_falling_when_hit_reverse_dsu/primary_oracle.py",
+  "independent_oracle": "benchmarks/b/bricks_falling_when_hit_reverse_dsu/independent_oracle.py",
+  "cases": [
+    {
+      "id": "bridge-hit-drops-lower-cluster",
+      "input_values": [4, 3, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1],
+      "input_length": 17,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000000"
+    },
+    {
+      "id": "later-hit-on-cell-already-fallen",
+      "input_values": [4, 3, 2, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1],
+      "input_length": 19,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "04000000000000000000000000000000"
+    },
+    {
+      "id": "empty-cell-hit-produces-zero",
+      "input_values": [4, 3, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 2],
+      "input_length": 17,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "zero-hit-null-output",
+      "input_values": [1, 1, 0, 1],
+      "input_length": 4,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-output-all-empty-cells",
+      "input_values": [
+        8, 8, 16,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7,
+        1, 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7
+      ],
+      "input_length": 99,
+      "output_capacity": 128,
+      "expected_result": 128,
+      "expected_output_hex": "0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"
+    },
+    {
+      "id": "repeated-hit-is-invalid",
+      "input_values": [2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initially-unstable-grid-is-invalid",
+      "input_values": [2, 2, 0, 0, 0, 0, 1],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out-of-range-hit-coordinate",
+      "input_values": [1, 1, 1, 1, 1, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-frame",
+      "input_values": [1, 1, 1, 1],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [1, 1, 0, 1, 99],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [1, 1, 0, 1],
+      "input_length": 4,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-required",
+      "input_values": [1, 1, 1, 1, 0, 0],
+      "input_length": 6,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 1, 1, 1, 0, 0],
+      "input_length": 6,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    }
+  ]
+}

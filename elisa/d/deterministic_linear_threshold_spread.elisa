@@ -1,0 +1,91 @@
+from std.collections import InlineArray
+
+const DLT_MAX_N: usize = 8
+const DLT_MAX_M: usize = 24
+
+fn dlt_store_i64(output: mutable view[UInt8], offset: Int, value: Int64) -> Void:
+    let bits = bitcast[UInt64](value)
+    for byte in range(8): output[offset + byte] <- UInt8((bits >> (byte * 8)) & UInt64(255))
+
+@export("deterministic_linear_threshold_spread")
+fn deterministic_linear_threshold_spread(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize,
+) abi("C") -> Int64:
+    if input.is_null() or length < 3 or length > 92: return -1
+    let values: view[Int64] = input[0:Int(length)]
+    let n_value = values[0]
+    let m_value = values[1]
+    let s_value = values[2]
+    if n_value < 1 or n_value > 8 or m_value < 0 or m_value > 24 or s_value < 0 or s_value > n_value: return -1
+    let n = Int(n_value)
+    let m = Int(m_value)
+    let seed_count = Int(s_value)
+    let edge_offset = 3 + seed_count
+    let threshold_offset = edge_offset + 3 * m
+    if length != threshold_offset + n: return -1
+
+    var seeded = InlineArray[Bool, DLT_MAX_N](fill=false)
+    var seen = InlineArray[Bool, DLT_MAX_N * DLT_MAX_N](fill=false)
+    var head = InlineArray[Int64, DLT_MAX_N](fill=-1)
+    var edge_to = InlineArray[Int64, DLT_MAX_M](fill=0)
+    var edge_weight = InlineArray[Int64, DLT_MAX_M](fill=0)
+    var edge_next = InlineArray[Int64, DLT_MAX_M](fill=-1)
+    var incoming = InlineArray[Int64, DLT_MAX_N](fill=0)
+    var threshold = InlineArray[Int64, DLT_MAX_N](fill=0)
+    var activation_round = InlineArray[Int64, DLT_MAX_N](fill=-1)
+    var accumulated = InlineArray[Int64, DLT_MAX_N](fill=0)
+    for i in range(seed_count):
+        let seed = values[3 + i]
+        if seed < 0 or seed >= n_value or seeded[Int(seed)]: return -1
+        seeded[Int(seed)] = true
+    for i in range(m):
+        let u = values[edge_offset + 3 * i]
+        let v = values[edge_offset + 3 * i + 1]
+        let w = values[edge_offset + 3 * i + 2]
+        if u < 0 or u >= n_value or v < 0 or v >= n_value or u == v or w < 0 or w > 16: return -1
+        let slot = Int(u * DLT_MAX_N.i64() + v).usize()
+        if seen[slot]: return -1
+        seen[slot] = true
+        incoming[Int(v)] += w
+        if incoming[Int(v)] > 16: return -1
+        edge_to[i] = v
+        edge_weight[i] = w
+        edge_next[i] = head[Int(u)]
+        head[Int(u)] = Int64(i)
+    for v in range(n):
+        threshold[v] = values[threshold_offset + v]
+        if threshold[v] < 1 or threshold[v] > 16: return -1
+        if seeded[v]: activation_round[v] = 0
+
+    let output_bytes = 8 * (n + 2)
+    if output.is_null() or capacity < output_bytes: return -2
+    var frontier = InlineArray[Int, DLT_MAX_N](fill=0)
+    var following = InlineArray[Int, DLT_MAX_N](fill=0)
+    var frontier_count = 0
+    for v in range(n):
+        if seeded[v]:
+            frontier[frontier_count] = v
+            frontier_count += 1
+    var waves = Int64(0)
+    while frontier_count > 0:
+        var following_count = 0
+        for i in range(frontier_count):
+            let source = frontier[i]
+            var edge = head[source]
+            while edge >= 0:
+                let target = Int(edge_to[Int(edge)])
+                if activation_round[target] < 0:
+                    accumulated[target] += edge_weight[Int(edge)]
+                    if accumulated[target] >= threshold[target]:
+                        activation_round[target] = waves + 1
+                        following[following_count] = target
+                        following_count += 1
+                edge = Int(edge_next[Int(edge)])
+        frontier_count = following_count
+        for i in range(following_count): frontier[i] = following[i]
+        if following_count > 0: waves += 1
+    var output_view: mutable view[UInt8] = output[0:output_bytes]
+    dlt_store_i64(output_view&, 0, n_value)
+    dlt_store_i64(output_view&, 8, waves)
+    for v in range(n): dlt_store_i64(output_view&, 8 * (v + 2), activation_round[v])
+    Int64(output_bytes)

@@ -1,0 +1,116 @@
+# Fixed bounded per-bucket min-heaps; only the exported ABI uses borrowed refs.
+const HH_MAX_BUCKETS: usize = 8
+const HH_MAX_OPS: usize = 64
+const HH_MAX_WORDS: usize = 132
+
+def hh_before(keys: view[u8], ids: view[u8], a: usize, b: usize) -> bool:
+    keys[a] < keys[b] or (keys[a] == keys[b] and ids[a] < ids[b])
+
+def hh_swap(keys: mutable view[u8], ids: mutable view[u8], a: usize, b: usize) -> void:
+    key: mutable u8 = keys[a]
+    insertion: mutable u8 = ids[a]
+    keys[a] <- keys[b]
+    ids[a] <- ids[b]
+    keys[b] <- key
+    ids[b] <- insertion
+
+def hh_push(keys: mutable view[u8], ids: mutable view[u8], sizes: mutable view[u8],
+        bucket: usize, key: u8, insertion: u8) -> void:
+    base: usize = bucket * HH_MAX_OPS
+    child: mutable usize = sizes[bucket].usize()
+    sizes[bucket] <- (child + 1).u8()
+    keys[base + child] <- key
+    ids[base + child] <- insertion
+    while child > 0:
+        parent: usize = (child - 1) / 2
+        if not hh_before(keys, ids, base + child, base + parent): break
+        hh_swap(keys, ids, base + child, base + parent)
+        child <- parent
+
+def hh_pop(keys: mutable view[u8], ids: mutable view[u8], sizes: mutable view[u8], bucket: usize) -> void:
+    sizes[bucket] <- (sizes[bucket].usize() - 1).u8()
+    last: usize = sizes[bucket].usize()
+    if last == 0: return
+    base: usize = bucket * HH_MAX_OPS
+    keys[base] <- keys[base + last]
+    ids[base] <- ids[base + last]
+    parent: mutable usize = 0
+    while true:
+        left: usize = parent * 2 + 1
+        if left >= last: break
+        child: mutable usize = left
+        right: usize = left + 1
+        if right < last and hh_before(keys, ids, base + right, base + left): child <- right
+        if not hh_before(keys, ids, base + child, base + parent): break
+        hh_swap(keys, ids, base + child, base + parent)
+        parent <- child
+
+def hh_write(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def hash_heap_priority_queue_trace_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > HH_MAX_WORDS: return -1
+    universe_value: i64 = input[0]
+    bucket_value: i64 = input[1]
+    count_value: i64 = input[2]
+    if universe_value < 1 or universe_value > 128 or bucket_value < 1 or bucket_value > 8 or
+       bucket_value > universe_value or count_value < 0 or count_value > HH_MAX_OPS.i64(): return -1
+    universe: usize = universe_value.usize()
+    bucket_count: usize = bucket_value.usize()
+    count: usize = count_value.usize()
+    if length != 3 + 2 * count: return -1
+    ops: mutable u8[HH_MAX_OPS] = zeroed
+    args: mutable u8[HH_MAX_OPS] = zeroed
+    op: mutable usize = 0
+    while op < count:
+        opcode: i64 = input[3 + 2 * op]
+        argument: i64 = input[4 + 2 * op]
+        if opcode == 0:
+            if argument < 0 or argument >= universe_value: return -1
+        elif opcode == 1 or opcode == 2:
+            if argument != 0: return -1
+        else: return -1
+        ops[op] <- opcode.u8()
+        args[op] <- argument.u8()
+        op <- op + 1
+
+    heap_keys: mutable u8[512] = zeroed
+    heap_ids: mutable u8[512] = zeroed
+    sizes: mutable u8[HH_MAX_BUCKETS] = zeroed
+    words: mutable i64[HH_MAX_OPS + 1] = zeroed
+    words[0] <- count.i64()
+    op <- 0
+    while op < count:
+        if ops[op] == 0:
+            bucket: usize = args[op].usize() * bucket_count / universe
+            hh_push(heap_keys[0:512], heap_ids[0:512], sizes[0:HH_MAX_BUCKETS], bucket, args[op], op.u8())
+            words[op + 1] <- -2
+        else:
+            bucket: mutable usize = 0
+            while bucket < bucket_count and sizes[bucket] == 0: bucket <- bucket + 1
+            if bucket == bucket_count:
+                words[op + 1] <- -1
+            else:
+                base: usize = bucket * HH_MAX_OPS
+                words[op + 1] <- (heap_ids[base].i64() << 8) | heap_keys[base].i64()
+                if ops[op] == 2: hh_pop(heap_keys[0:512], heap_ids[0:512], sizes[0:HH_MAX_BUCKETS], bucket)
+        op <- op + 1
+
+    required: usize = (count + 1) * 8
+    if output.is_null() or capacity < required: return -2
+    encoded: mutable view[u8] = output[0:required]
+    index: mutable usize = 0
+    while index <= count:
+        hh_write(encoded, index * 8, words[index])
+        index <- index + 1
+    required.i64()
+
+export def hash_heap_priority_queue_trace(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 =
+    if input.is_null(): return -1
+    hash_heap_priority_queue_trace_impl(input[0:length], output, capacity)

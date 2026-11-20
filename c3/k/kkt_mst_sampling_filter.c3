@@ -1,7 +1,7 @@
 module kkt_mst_sampling_filter;
 const usz MAX_N=12; const usz MAX_M=24; const usz MAX_INPUT=98;
 
-long kkt_mst_sampling_filter(long*in,usz len,char*out,usz cap) @export("kkt_mst_sampling_filter") {
+fn long kkt_mst_sampling_filter(long*in,usz len,char*out,usz cap) @export("kkt_mst_sampling_filter") {
     if(in==null||len<6||len>MAX_INPUT)return -1;
     long n64=in[0],m64=in[1];
     if(n64<2||n64>(long)MAX_N||m64<1||m64>(long)MAX_M||len!=2+4*(usz)m64)return -1;

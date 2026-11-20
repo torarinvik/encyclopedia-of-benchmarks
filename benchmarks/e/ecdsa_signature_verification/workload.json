@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "id": "ecdsa-signature-verification-toy-prime-field-v1",
+  "algorithm": "ecdsa_signature_verification",
+  "function_symbol": "ecdsa_signature_verification",
+  "abi": "i64_array_bytes_output",
+  "description": "Verify ECDSA signatures over a fixed order-19 prime-field curve; educational bounded profile with no security claim.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[p,a,b,gx,gy,n,qx,qy,z,r,s]",
+    "maximum_valid_input_length": 11,
+    "maximum_parseable_input_length": 12,
+    "fixed_domain": [17, 2, 2, 5, 1, 19],
+    "digest_scalar_range": [0, 31],
+    "signature_scalar_range": [1, 18],
+    "public_point_coordinates_range": [0, 16],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "One byte: 1 for a valid signature, 0 for an invalid signature.",
+    "maximum_bytes": 1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Bounded affine point/scalar state and integer temporaries."
+  },
+  "complexity": {
+    "primary_time": "O(log n) affine point additions after fixed-domain and public-point validation",
+    "primary_auxiliary_space": "O(1)",
+    "independent_reference_time": "O(n) repeated point additions for discrete-log and nonce enumeration",
+    "independent_reference_space": "O(1)"
+  },
+  "oracle_method": "The primary uses s inverse, u1*G+u2*Q, and the x-coordinate test. The independent reference exhaustively recovers Q=dG and checks the ECDSA signing relation for every nonce using repeated point addition.",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"valid_digest_13_nonce_3_signature","input_values":[17,2,2,5,1,19,0,6,13,10,15],"input_length":11,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"valid_digest_4_nonce_5_signature","input_values":[17,2,2,5,1,19,0,6,4,9,2],"input_length":11,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"r_17_in_scalar_range_above_field_prime","input_values":[17,2,2,5,1,19,0,6,13,17,15],"input_length":11,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"altered_digest_invalidates_signature","input_values":[17,2,2,5,1,19,0,6,12,10,15],"input_length":11,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"altered_s_invalidates_signature","input_values":[17,2,2,5,1,19,0,6,13,10,16],"input_length":11,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"public_point_off_curve","input_values":[17,2,2,5,1,19,1,1,13,10,15],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"public_x_out_of_range","input_values":[17,2,2,5,1,19,17,6,13,10,15],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"wrong_field_domain","input_values":[19,2,2,5,1,19,0,6,13,10,15],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"wrong_base_point_domain","input_values":[17,2,2,6,3,19,0,6,13,10,15],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"wrong_group_order_domain","input_values":[17,2,2,5,1,17,0,6,13,10,15],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero_r_invalid","input_values":[17,2,2,5,1,19,0,6,13,0,15],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero_s_invalid","input_values":[17,2,2,5,1,19,0,6,13,10,0],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"digest_scalar_19_reduces_mod_order","input_values":[17,2,2,5,1,19,0,6,19,10,15],"input_length":11,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"digest_conversion_out_of_range","input_values":[17,2,2,5,1,19,0,6,32,10,15],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra_input_word","input_values":[17,2,2,5,1,19,0,6,13,10,15,99],"input_length":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[17,2,2,5,1,19,0,6,13,10,15],"input_length":11,"output_capacity":0,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_output","input_values":[17,2,2,5,1,19,0,6,13,10,15],"input_length":11,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

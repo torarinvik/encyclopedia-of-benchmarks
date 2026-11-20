@@ -1,0 +1,33 @@
+# Uncompiled minimum-weight tree edge-domination draft.
+def tweds_min(a: i64, b: i64) -> i64:
+    if a < b: return a
+    b
+
+def tweds_solve(values: view[i64]) -> i64:
+    if values.len() < 1 or values.len() > 128: return -1
+    nv: i64 = values[0]
+    if nv < 1 or nv > 64: return -1
+    n: usize = nv.usize()
+    if values.len() != 2 * n - 1: return -1
+    for vertex in 1..<n:
+        if values[vertex] < 0 or values[vertex] >= vertex.i64(): return -1
+        if values[n + vertex - 1] < 0 or values[n + vertex - 1] > 1000000: return -1
+    inf: i64 = 1000000000000
+    selected: mutable i64[64] = zeroed
+    closed: mutable i64[64] = zeroed
+    pending: mutable i64[64] = zeroed
+    for vertex in 0..<n: selected[vertex] <- inf
+    vertex: mutable usize = n
+    while vertex > 1:
+        vertex <- vertex - 1
+        parent: usize = values[vertex].usize()
+        skip: i64 = tweds_min(selected[vertex], closed[vertex])
+        take: i64 = values[n + vertex - 1] + tweds_min(selected[vertex], pending[vertex])
+        selected[parent] <- tweds_min(inf, tweds_min(selected[parent] + tweds_min(skip, take), pending[parent] + take))
+        closed[parent] <- tweds_min(inf, closed[parent] + selected[vertex])
+        pending[parent] <- tweds_min(inf, pending[parent] + skip)
+    tweds_min(selected[0], closed[0])
+
+export fn tree_weighted_edge_dominating_set(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 128: return -1
+    tweds_solve(input[0:length])

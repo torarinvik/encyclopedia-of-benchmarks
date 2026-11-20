@@ -20,7 +20,7 @@ struct Edge:
 fn shortest_tree(n: Int, m: Int, edges: InlineArray[Edge, MAX_M],
     center_kind: Int, center_root: Int, center_x2: Int64, center_edge: Int,
     mut distance: InlineArray[Int64, MAX_N], mut parent_edge: InlineArray[Int64, MAX_N]):
-    var settled = InlineArray[Bool, MAX_N]()
+    var settled = InlineArray[Bool, MAX_N](fill=False)
     for vertex in range(n):
         distance[vertex] = INF
         parent_edge[vertex] = -1
@@ -62,7 +62,7 @@ fn shortest_tree(n: Int, m: Int, edges: InlineArray[Edge, MAX_M],
 
 fn selected_tree_diameter(n: Int, edges: InlineArray[Edge, MAX_M],
     selected: InlineArray[Int, MAX_N]) -> Int64:
-    var adjacent = InlineArray[Bool, MAX_N * MAX_N]()
+    var adjacent = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     var weight = InlineArray[Int64, MAX_N * MAX_N]()
     for index in range(n - 1):
         let edge = edges[selected[index]]

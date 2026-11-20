@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p78_mod(value:Int64,modulus:Int64)->Int64:
     let rem=value%modulus
     return rem+modulus if rem<0 else rem

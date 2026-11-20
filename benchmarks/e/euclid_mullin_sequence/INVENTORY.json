@@ -1,0 +1,35 @@
+{
+  "algorithm": "euclid_mullin_sequence",
+  "function_symbol": "euclid_mullin_sequence",
+  "abi": "i64_array_scalar",
+  "workspace_bytes": 64,
+  "maximum_valid_input_length": 1,
+  "maximum_parseable_input_length": 2,
+  "maximum_n": 8,
+  "maximum_result": 6221671,
+  "maximum_candidate": 6221671,
+  "languages": {
+    "c": "c/e/euclid_mullin_sequence.c",
+    "c3": "c3/e/euclid_mullin_sequence.c3",
+    "cpp": "cpp/e/euclid_mullin_sequence.cpp",
+    "elisa": "elisa/e/euclid_mullin_sequence.elisa",
+    "mojo": "mojo/e/euclid_mullin_sequence.mojo",
+    "nim": "nim/e/euclid_mullin_sequence.nim",
+    "odin": "odin/e/euclid_mullin_sequence.odin",
+    "rust": "rust/e/euclid_mullin_sequence.rs",
+    "v": "v/e/euclid_mullin_sequence.v",
+    "zig": "zig/e/euclid_mullin_sequence.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ],
+  "suite_integration": "i64_array_scalar runner and verifier registered"
+}

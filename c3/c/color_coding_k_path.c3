@@ -18,7 +18,7 @@ fn long color_coding_k_path(long* values, usz length, char* output, usz output_c
         usz a=(usz)av,b=(usz)bv; ulong bit=1ul << (ulong)b;
         if((adj[a]&bit)!=0ul)return -1; adj[a]|=bit; adj[b]|=1ul << (ulong)a;
     }
-    bool[64][12] dp = zeroed;
+    bool[12][64] dp = zeroed;
     for(usz v=0;v<n;v++)dp[1ul << (ulong)colors[v]][v]=true;
     usz full=(1ul << (ulong)k)-1; bool found=false;
     for(usz mask=1;mask<=full && !found;mask++) for(usz v=0;v<n;v++) if(dp[mask][v]) {

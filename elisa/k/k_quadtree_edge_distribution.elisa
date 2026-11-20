@@ -1,0 +1,540 @@
+// Clean-room bounded K-quadtree edge-distribution sweep.
+from std.collections import InlineArray
+
+const KQE_MAX_EDGES: usize = 8
+const KQE_MAX_CELLS: usize = 46
+const KQE_DEPTH: usize = 4
+const KQE_MAX_WORDS: usize = 127
+
+@fieldwise_init
+struct KqeCell:
+    var depth: usize
+    var prefix: usize
+    var lo: usize
+    var alternate_lo: usize
+    var x0: i64
+    var y0: i64
+    var x1: i64
+    var y1: i64
+    var endpoint_count: usize
+
+@fieldwise_init
+struct KqeEdge:
+    var x0: i64
+    var y0: i64
+    var x1: i64
+    var y1: i64
+    var start_cell: usize
+    var end_cell: usize
+    var negative: bool
+
+@fieldwise_init
+struct KqePoint:
+    var x: i64
+    var y: i64
+
+@fieldwise_init
+struct KqeExit:
+    var edge: usize
+    var side: usize
+    var numerator: i64
+    var denominator: i64
+
+def kqe_orient(a: KqePoint, b: KqePoint, c: KqePoint) -> i64:
+    (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x)
+
+def kqe_on_segment(a: KqePoint, b: KqePoint, p: KqePoint) -> bool:
+    p.x >= min(a.x,b.x) and p.x <= max(a.x,b.x) and p.y >= min(a.y,b.y) and p.y <= max(a.y,b.y)
+
+def kqe_intersects(a: KqePoint, b: KqePoint, c: KqePoint, d: KqePoint) -> bool:
+    o1: i64 = kqe_orient(a,b,c)
+    o2: i64 = kqe_orient(a,b,d)
+    o3: i64 = kqe_orient(c,d,a)
+    o4: i64 = kqe_orient(c,d,b)
+    if o1 == 0 and kqe_on_segment(a,b,c): return true
+    if o2 == 0 and kqe_on_segment(a,b,d): return true
+    if o3 == 0 and kqe_on_segment(c,d,a): return true
+    if o4 == 0 and kqe_on_segment(c,d,b): return true
+    o1*o2 < 0 and o3*o4 < 0
+
+def kqe_remap(q: usize) -> usize:
+    if q == 0: 2 else if q == 1: 0 else if q == 2: 3 else: 1
+
+def kqe_key(x: i64, y: i64, alternate: bool) -> usize:
+    key: mutable usize = 0
+    bit: mutable i64 = 7
+    while bit >= 4:
+        q: usize = ((((x >> bit) & 1).usize()) << 1) | ((y >> bit) & 1).usize()
+        if alternate: q = kqe_remap(q)
+        key <- (key << 2) | q
+        bit <- bit - 1
+    key
+
+def kqe_alt_prefix(depth: usize, prefix: usize) -> usize:
+    value: mutable usize = 0
+    shift: mutable i64 = (2*(depth.i64()-1))
+    while shift >= 0:
+        value <- (value << 2) | kqe_remap((prefix >> shift.usize()) & 3)
+        shift <- shift - 2
+    value
+
+def kqe_make_box(cell: mutable KqeCell&) -> void:
+    x: mutable usize = 0
+    y: mutable usize = 0
+    shift: mutable i64 = 2*(cell.depth.i64()-1)
+    while shift >= 0:
+        q: usize = (cell.prefix >> shift.usize()) & 3
+        x <- (x << 1) | (q >> 1)
+        y <- (y << 1) | (q & 1)
+        shift <- shift - 2
+    side: i64 = 256 >> cell.depth
+    cell.x0 <- x.i64()*side
+    cell.y0 <- y.i64()*side
+    cell.x1 <- cell.x0+side
+    cell.y1 <- cell.y0+side
+
+def kqe_find_cell(cells: view[KqeCell], count: usize, key: usize) -> usize:
+    i: mutable usize = 0
+    while i < count:
+        span: usize = 1 << (2*(KQE_DEPTH-cells[i].depth))
+        if key >= cells[i].lo and key < cells[i].lo+span: return i
+        i <- i+1
+    KQE_MAX_CELLS
+
+def kqe_sweep_box(cell: KqeCell, rotated: bool) -> (i64,i64,i64,i64):
+    if rotated: (256-cell.y1,cell.x0,256-cell.y0,cell.x1)
+    else: (cell.x0,cell.y0,cell.x1,cell.y1)
+
+def kqe_sweep_edge(edge: KqeEdge, rotated: bool) -> (KqePoint,KqePoint):
+    if rotated:
+        (KqePoint(256-edge.y0,edge.x0),KqePoint(256-edge.y1,edge.x1))
+    else:
+        (KqePoint(edge.x0,edge.y0),KqePoint(edge.x1,edge.y1))
+
+def kqe_segment_box(edge: KqeEdge, cell: KqeCell, rotated: bool) -> bool:
+    box: (i64,i64,i64,i64) = kqe_sweep_box(cell,rotated)
+    ab: (KqePoint,KqePoint) = kqe_sweep_edge(edge,rotated)
+    a: KqePoint = ab.0
+    b: KqePoint = ab.1
+    if a.x >= box.0 and a.x <= box.2 and a.y >= box.1 and a.y <= box.3: return true
+    if b.x >= box.0 and b.x <= box.2 and b.y >= box.1 and b.y <= box.3: return true
+    corners: KqePoint[4] = [KqePoint(box.0,box.1),KqePoint(box.2,box.1),KqePoint(box.2,box.3),KqePoint(box.0,box.3)]
+    i: mutable usize = 0
+    while i < 4:
+        if kqe_intersects(a,b,corners[i],corners[(i+1)&3]): return true
+        i <- i+1
+    false
+
+def kqe_frontier_segment(a: KqePoint, b: KqePoint, path: view[KqePoint], count: usize) -> i64:
+    found: mutable i64 = -1
+    i: mutable usize = 0
+    while i+1 < count:
+        if kqe_intersects(a,b,path[i],path[i+1]):
+            if found >= 0: return -2
+            found <- i.i64()
+        i <- i+1
+    found
+
+def kqe_append_point(path: mutable view[KqePoint], count: mutable usize&, point: KqePoint) -> bool:
+    if count > 0 and path[count-1].x == point.x and path[count-1].y == point.y: return true
+    if count >= 33: return false
+    path[count] <- point
+    count <- count+1
+    true
+
+def kqe_build_frontier(cells: view[KqeCell], cell_count: usize, order: view[usize], cut: usize,
+                       rotated: bool, path: mutable view[KqePoint], path_count: mutable usize&,
+                       corner: mutable usize&) -> bool:
+    atom_cell: mutable i64[256] = zeroed
+    rank: mutable usize[46] = zeroed
+    i: mutable usize = 0
+    while i < 256:
+        atom_cell[i] <- -1
+        i <- i+1
+    i <- 0
+    while i < cell_count:
+        rank[order[i]] <- i
+        cell_id: usize = order[i]
+        start: usize = if rotated: cells[cell_id].alternate_lo else: cells[cell_id].lo
+        span: usize = 1 << (2*(KQE_DEPTH-cells[cell_id].depth))
+        atom: mutable usize = start
+        while atom < start+span:
+            atom_cell[atom] <- cell_id.i64()
+            atom <- atom+1
+        i <- i+1
+    processed: mutable bool[256] = zeroed
+    key: mutable usize = 0
+    while key < 256:
+        if atom_cell[key] < 0: return false
+        x: mutable usize = 0
+        y: mutable usize = 0
+        shift: mutable i64 = 6
+        while shift >= 0:
+            q: usize = (key >> shift.usize()) & 3
+            x <- (x << 1) | (q >> 1)
+            y <- (y << 1) | (q & 1)
+            shift <- shift-2
+        id: usize = atom_cell[key].usize()
+        processed[x*16+y] <- rank[id] < cut
+        key <- key+1
+    heights: mutable usize[16] = zeroed
+    x <- 0
+    while x < 16:
+        height: mutable usize = 0
+        while height < 16 and processed[x*16+height]: height <- height+1
+        y <- 0
+        while y < 16:
+            if processed[x*16+y] != (y < height): return false
+            y <- y+1
+        heights[x] <- height
+        if x > 0 and heights[x-1] < height: return false
+        x <- x+1
+    path_count <- 0
+    if not kqe_append_point(path,path_count,KqePoint(0,256)): return false
+    y: mutable i64 = 15
+    while y >= heights[0].i64():
+        if not kqe_append_point(path,path_count,KqePoint(0,y*16)): return false
+        y <- y-1
+    x <- 0
+    while x < 16:
+        if not kqe_append_point(path,path_count,KqePoint((x+1).i64()*16,heights[x].i64()*16)): return false
+        next_height: usize = 0
+        if x < 15: next_height = heights[x+1]
+        y <- heights[x].i64()-1
+        while y >= next_height.i64():
+            if not kqe_append_point(path,path_count,KqePoint((x+1).i64()*16,y*16)): return false
+            y <- y-1
+        x <- x+1
+    if path[0].x != 0 or path[0].y != 256 or path[path_count-1].x != 256 or path[path_count-1].y != 0: return false
+    box: (i64,i64,i64,i64) = kqe_sweep_box(cells[order[cut]],rotated)
+    i <- 0
+    while i < path_count:
+        if path[i].x == box.0 and path[i].y == box.1:
+            corner <- i
+            return true
+        i <- i+1
+    false
+
+def kqe_exit_for_cell(a: KqePoint, b: KqePoint, box: (i64,i64,i64,i64), id: usize,
+                      out: mutable KqeExit&) -> bool:
+    dx: i64 = b.x-a.x
+    dy: i64 = b.y-a.y
+    found: mutable usize = 0
+    if dy > 0:
+        ydist: i64 = box.3-a.y
+        num: i64 = a.x*dy+ydist*dx
+        if ydist > 0 and ydist < dy and box.0*dy < num and num < box.2*dy:
+            out.edge <- id
+            out.side <- 0
+            out.numerator <- num
+            out.denominator <- dy
+            found <- found+1
+    if dx > 0:
+        xdist: i64 = box.2-a.x
+        num: i64 = a.y*dx+xdist*dy
+        if xdist > 0 and xdist < dx and box.1*dx < num and num < box.3*dx:
+            out.edge <- id
+            out.side <- 1
+            out.numerator <- num
+            out.denominator <- dx
+            found <- found+1
+    found == 1
+
+def kqe_exit_less(a: KqeExit, b: KqeExit) -> bool:
+    left: i64 = a.numerator*b.denominator
+    right: i64 = b.numerator*a.denominator
+    left < right or (left == right and a.edge < b.edge)
+
+def kqe_run_sweep(cells: view[KqeCell], cell_count: usize, edges: view[KqeEdge], edge_count: usize,
+                  endpoint_cells: view[usize], rotated: bool, masks: mutable view[u64]) -> bool:
+    order: mutable usize[46] = zeroed
+    i: mutable usize = 0
+    while i < cell_count: order[i] <- i; i <- i+1
+    if rotated:
+        i <- 1
+        while i < cell_count:
+            value: usize = order[i]
+            j: mutable usize = i
+            while j > 0 and (cells[order[j-1]].alternate_lo > cells[value].alternate_lo or
+                (cells[order[j-1]].alternate_lo == cells[value].alternate_lo and order[j-1] > value)):
+                order[j] <- order[j-1]
+                j <- j-1
+            order[j] <- value
+            i <- i+1
+    edge_a: mutable KqePoint[8] = zeroed
+    edge_b: mutable KqePoint[8] = zeroed
+    ids: mutable usize[8] = zeroed
+    keys: mutable usize[8] = zeroed
+    m: mutable usize = 0
+    i <- 0
+    while i < edge_count:
+        if edges[i].negative == rotated:
+            ab: (KqePoint,KqePoint) = kqe_sweep_edge(edges[i],rotated)
+            edge_a[i] <- ab.0
+            edge_b[i] <- ab.1
+            key: usize = kqe_key(ab.0.x,ab.0.y,false)
+            j: mutable usize = m
+            m <- m+1
+            while j > 0 and (keys[j-1] > key or (keys[j-1] == key and ids[j-1] > i)):
+                keys[j] <- keys[j-1]
+                ids[j] <- ids[j-1]
+                j <- j-1
+            keys[j] <- key
+            ids[j] <- i
+        i <- i+1
+    sl: mutable usize[8] = zeroed
+    sb: mutable usize[8] = zeroed
+    sl_count: mutable usize = 0
+    sb_count: mutable usize = 0
+    pos: mutable usize = 0
+    while pos < cell_count:
+        cid: usize = order[pos]
+        box: (i64,i64,i64,i64) = kqe_sweep_box(cells[cid],rotated)
+        candidates: mutable usize[16] = zeroed
+        candidate_count: mutable usize = 0
+        while sl_count > 0 and kqe_segment_box(edges[sl[sl_count-1]],cells[cid],rotated):
+            sl_count <- sl_count-1
+            candidates[candidate_count] <- sl[sl_count]
+            candidate_count <- candidate_count+1
+        while sb_count > 0 and kqe_segment_box(edges[sb[sb_count-1]],cells[cid],rotated):
+            sb_count <- sb_count-1
+            candidates[candidate_count] <- sb[sb_count]
+            candidate_count <- candidate_count+1
+        q: mutable usize = 0
+        while q < m:
+            id: usize = ids[q]
+            if endpoint_cells[2*id] == cid:
+                candidates[candidate_count] <- id
+                candidate_count <- candidate_count+1
+            q <- q+1
+        exits: mutable KqeExit[16] = zeroed
+        exit_count: mutable usize = 0
+        q <- 0
+        while q < candidate_count:
+            id: usize = candidates[q]
+            masks[cid] <- masks[cid] | (1.u64() << id)
+            if endpoint_cells[2*id+1] != cid:
+                if not kqe_exit_for_cell(edge_a[id],edge_b[id],box,id,exits[exit_count]): return false
+                exit_count <- exit_count+1
+            q <- q+1
+        i <- 1
+        while i < exit_count:
+            value: KqeExit = exits[i]
+            j <- i
+            while j > 0 and (exits[j-1].side > value.side or
+                (exits[j-1].side == value.side and kqe_exit_less(value,exits[j-1]))):
+                exits[j] <- exits[j-1]
+                j <- j-1
+            exits[j] <- value
+            i <- i+1
+        i <- 0
+        while i < exit_count:
+            if exits[i].side == 0:
+                if sl_count >= 8: return false
+                sl[sl_count] <- exits[i].edge
+                sl_count <- sl_count+1
+            else:
+                if sb_count >= 8: return false
+                sb[sb_count] <- exits[i].edge
+                sb_count <- sb_count+1
+            i <- i+1
+        if pos+1 < cell_count:
+            path: mutable KqePoint[33] = zeroed
+            path_count: mutable usize = 0
+            corner: mutable usize = 0
+            if not kqe_build_frontier(cells,cell_count,order[0:cell_count],pos+1,rotated,path[0:33],path_count,corner): return false
+            next_box: (i64,i64,i64,i64) = kqe_sweep_box(cells[order[pos+1]],rotated)
+            if next_box.1 > box.1:
+                while sl_count > 0:
+                    id: usize = sl[sl_count-1]
+                    crossing: i64 = kqe_frontier_segment(edge_a[id],edge_b[id],path[0:path_count],path_count)
+                    if crossing < 0: return false
+                    if crossing.usize() < corner: break
+                    if sb_count >= 8: return false
+                    sb[sb_count] <- sl[sl_count-1]
+                    sb_count <- sb_count+1
+                    sl_count <- sl_count-1
+            else:
+                while sb_count > 0:
+                    id: usize = sb[sb_count-1]
+                    crossing: i64 = kqe_frontier_segment(edge_a[id],edge_b[id],path[0:path_count],path_count)
+                    if crossing < 0: return false
+                    if crossing.usize() >= corner: break
+                    if sl_count >= 8: return false
+                    sl[sl_count] <- sb[sb_count-1]
+                    sl_count <- sl_count+1
+                    sb_count <- sb_count-1
+        pos <- pos+1
+    sl_count == 0 and sb_count == 0
+
+def kqe_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset+byte] <- ((bits >> (8*byte)) & 255).u8()
+        byte <- byte+1
+
+def kqe_impl(input: view[i64], output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > KQE_MAX_WORDS: return -1
+    n64: i64 = input[0]
+    c64: i64 = input[1]
+    if n64 < 0 or n64 > 8 or c64 < 1 or c64 > 46: return -1
+    n: usize = n64.usize()
+    c: usize = c64.usize()
+    if length != 2+2*c+4*n: return -1
+    cells: mutable KqeCell[KQE_MAX_CELLS] = zeroed
+    edges: mutable KqeEdge[KQE_MAX_EDGES] = zeroed
+    endpoints: mutable usize[16] = zeroed
+    at: mutable usize = 2
+    previous: mutable usize = 0
+    i: mutable usize = 0
+    while i < c:
+        d: i64 = input[at]
+        p: i64 = input[at+1]
+        at <- at+2
+        if d < 0 or d > 4 or p < 0 or p >= (1.i64() << (2*d)): return -1
+        cells[i].depth <- d.usize()
+        cells[i].prefix <- p.usize()
+        span: usize = 1 << (2*(KQE_DEPTH-cells[i].depth))
+        cells[i].lo <- cells[i].prefix*span
+        if cells[i].lo != previous: return -1
+        previous <- cells[i].lo+span
+        kqe_make_box(cells[i])
+        i <- i+1
+    if previous != 256 or (n == 0 and (c != 1 or cells[0].depth != 0 or cells[0].prefix != 0)): return -1
+    i <- 0
+    while i < c:
+        cells[i].alternate_lo <- kqe_alt_prefix(cells[i].depth,cells[i].prefix) << (2*(KQE_DEPTH-cells[i].depth))
+        i <- i+1
+    points: mutable KqePoint[16] = zeroed
+    i <- 0
+    while i < n:
+        x0: mutable i64 = input[at]
+        y0: mutable i64 = input[at+1]
+        x1: mutable i64 = input[at+2]
+        y1: mutable i64 = input[at+3]
+        at <- at+4
+        if x0 < 0 or x0 > 255 or y0 < 0 or y0 > 255 or x1 < 0 or x1 > 255 or y1 < 0 or y1 > 255: return -1
+        if x0%16 == 0 or y0%16 == 0 or x1%16 == 0 or y1%16 == 0 or (x0 == x1 and y0 == y1) or y0 == y1: return -1
+        if x0 > x1 or (x0 == x1 and y0 > y1):
+            tx: i64 = x0
+            ty: i64 = y0
+            x0 <- x1; y0 <- y1; x1 <- tx; y1 <- ty
+        if x0 == x1 and y1 <= y0: return -1
+        edges[i].x0 <- x0; edges[i].y0 <- y0; edges[i].x1 <- x1; edges[i].y1 <- y1
+        edges[i].negative <- y1 < y0
+        points[2*i] <- KqePoint(x0,y0)
+        points[2*i+1] <- KqePoint(x1,y1)
+        gx: mutable i64 = 0
+        while gx <= 256:
+            gy: mutable i64 = 0
+            while gy <= 256:
+                grid_point: KqePoint = KqePoint(gx,gy)
+                if kqe_orient(points[2*i],points[2*i+1],grid_point) == 0 and kqe_on_segment(points[2*i],points[2*i+1],grid_point): return -1
+                gy <- gy+16
+            gx <- gx+16
+        j: mutable usize = 0
+        while j < 2*i:
+            if points[j].x == x0 and points[j].y == y0: return -1
+            j <- j+1
+        j <- 0
+        while j < 2*i+1:
+            if points[j].x == x1 and points[j].y == y1: return -1
+            j <- j+1
+        j <- 0
+        while j < i:
+            if kqe_intersects(points[2*i],points[2*i+1],points[2*j],points[2*j+1]): return -1
+            j <- j+1
+        start: usize = kqe_find_cell(cells[0:c],c,kqe_key(x0,y0,false))
+        finish: usize = kqe_find_cell(cells[0:c],c,kqe_key(x1,y1,false))
+        if start >= c or finish >= c: return -1
+        endpoints[2*i] <- start
+        endpoints[2*i+1] <- finish
+        edges[i].start_cell <- start
+        edges[i].end_cell <- finish
+        cells[start].endpoint_count <- cells[start].endpoint_count+1
+        cells[finish].endpoint_count <- cells[finish].endpoint_count+1
+        i <- i+1
+    i <- 0
+    while i < c:
+        if cells[i].endpoint_count > 1: return -1
+        i <- i+1
+    parent_depth: mutable usize[85] = zeroed
+    parent_prefix: mutable usize[85] = zeroed
+    parent_count: mutable usize = 0
+    i <- 0
+    while i < c:
+        d: mutable usize = 0
+        while d < cells[i].depth:
+            p: usize = cells[i].prefix >> (2*(cells[i].depth-d))
+            exists: mutable bool = false
+            q: mutable usize = 0
+            while q < parent_count:
+                if parent_depth[q] == d and parent_prefix[q] == p: exists <- true
+                q <- q+1
+            if not exists:
+                parent_depth[parent_count] <- d
+                parent_prefix[parent_count] <- p
+                parent_count <- parent_count+1
+            d <- d+1
+        i <- i+1
+    q: mutable usize = 0
+    while q < parent_count:
+        occupied: mutable u64 = 0
+        i <- 0
+        while i < c:
+            if cells[i].endpoint_count > 0 and cells[i].depth > parent_depth[q] and
+                (cells[i].prefix >> (2*(cells[i].depth-parent_depth[q]))) == parent_prefix[q]:
+                child: usize = (cells[i].prefix >> (2*(cells[i].depth-parent_depth[q]-1))) & 3
+                occupied <- occupied | (1.u64() << child)
+            i <- i+1
+        if occupied == 0 or (occupied & (occupied-1)) == 0: return -1
+        q <- q+1
+    i <- 0
+    while i < n:
+        direction: mutable usize = 0
+        while direction < 2:
+            rotated: bool = direction == 1
+            if edges[i].negative == rotated:
+                order: mutable usize[46] = zeroed
+                j: mutable usize = 0
+                while j < c: order[j] <- j; j <- j+1
+                if rotated:
+                    j <- 1
+                    while j < c:
+                        value: usize = order[j]
+                        k: mutable usize = j
+                        while k > 0 and cells[order[k-1]].alternate_lo > cells[value].alternate_lo:
+                            order[k] <- order[k-1]; k <- k-1
+                        order[k] <- value; j <- j+1
+                start_rank: mutable usize = 0
+                end_rank: mutable usize = 0
+                j <- 0
+                while j < c:
+                    if order[j] == endpoints[2*i]: start_rank <- j
+                    if order[j] == endpoints[2*i+1]: end_rank <- j
+                    j <- j+1
+                if start_rank > end_rank: return -1
+            direction <- direction+1
+        i <- i+1
+    masks: mutable u64[46] = zeroed
+    if not kqe_run_sweep(cells[0:c],c,edges[0:n],n,endpoints[0:2*n],false,masks[0:c]): return -1
+    if not kqe_run_sweep(cells[0:c],c,edges[0:n],n,endpoints[0:2*n],true,masks[0:c]): return -1
+    bytes: usize = 8*(1+c)
+    if output_is_null or output.len() < bytes or capacity < bytes: return -2
+    result: mutable view[u8] = output[0:bytes]
+    kqe_put(c.i64(),result,0)
+    i <- 0
+    while i < c:
+        kqe_put(masks[i].i64(),result,8*(i+1))
+        i <- i+1
+    bytes.i64()
+
+export fn k_quadtree_edge_distribution(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > KQE_MAX_WORDS: return -1
+    if output.is_null():
+        var empty_output = InlineArray[u8, 1](fill=0)
+        return kqe_impl(input[0:length],empty_output[0:0],capacity,true)
+    kqe_impl(input[0:length],output[0:capacity],capacity,false)

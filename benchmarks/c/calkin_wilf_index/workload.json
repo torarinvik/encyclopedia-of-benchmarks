@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "calkin-wilf-index-i64-array-bytes-output-v1",
+  "algorithm": "calkin_wilf_index",
+  "function_symbol": "calkin_wilf_index",
+  "abi": "i64_array_bytes_output",
+  "input": {"kind": "signed_64_bit_integer_array", "encoding": "[k]", "maximum_valid_length": 1, "maximum_parseable_length": 2, "invalid_input_result": -1},
+  "output": {"encoding": "little-endian i64 [numerator,denominator]", "maximum_bytes": 16, "invalid_input_result": -1, "output_error_result": -2, "output_untouched_on_error": true},
+  "workspace": {"bytes": 16, "meaning": "Numerator and denominator."},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "source": {"url": "https://cp-algorithms.com/algebra/continued-fractions.html", "reuse": "Mathematical idea only; independently authored code and fixtures."},
+  "cases": [
+    {"id":"root", "input_values":[1], "input_length":1, "output_capacity":16, "expected_result":16, "expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"left", "input_values":[2], "input_length":1, "output_capacity":16, "expected_result":16, "expected_output_hex":"01000000000000000200000000000000"},
+    {"id":"right", "input_values":[3], "input_length":1, "output_capacity":16, "expected_result":16, "expected_output_hex":"02000000000000000100000000000000"},
+    {"id":"alternating", "input_values":[10], "input_length":1, "output_capacity":16, "expected_result":16, "expected_output_hex":"03000000000000000500000000000000"},
+    {"id":"deep_left", "input_values":[2305843009213693952], "input_length":1, "output_capacity":16, "expected_result":16, "expected_output_hex":"01000000000000003e00000000000000"},
+    {"id":"deep_right", "input_values":[4611686018427387903], "input_length":1, "output_capacity":16, "expected_result":16, "expected_output_hex":"3e000000000000000100000000000000"},
+    {"id":"deep_alternating","input_values":[3074457345618258602],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"d9bb199aaf030000e264b0c7f6050000"},
+    {"id":"zero", "input_values":[0], "input_length":1, "output_capacity":16, "expected_result":-1, "expected_output_hex":""},
+    {"id":"too_large", "input_values":[4611686018427387904], "input_length":1, "output_capacity":16, "expected_result":-1, "expected_output_hex":""},
+    {"id":"trailing_word", "input_values":[1,0], "input_length":2, "output_capacity":16, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short_output", "input_values":[1], "input_length":1, "output_capacity":15, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null_output", "input_values":[1], "input_length":1, "output_capacity":16, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"invalid_before_output", "input_values":[0], "input_length":1, "output_capacity":0, "output_is_null":true, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null_input", "input_values":[], "input_length":0, "input_is_null":true, "output_capacity":16, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

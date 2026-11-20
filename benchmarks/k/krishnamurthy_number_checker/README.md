@@ -22,11 +22,16 @@ The pinned C# `KrishnamurthyNumberChecker.IsKMurthyNumber` returns false for `n 
 | C3 | [`c3/k/krishnamurthy_number_checker.c3`](../../../c3/k/krishnamurthy_number_checker.c3) |
 | C++ | [`cpp/k/krishnamurthy_number_checker.cpp`](../../../cpp/k/krishnamurthy_number_checker.cpp) |
 | Elisa | [`elisa/k/krishnamurthy_number_checker.elisa`](../../../elisa/k/krishnamurthy_number_checker.elisa) |
+| Mojo | [`mojo/k/krishnamurthy_number_checker.mojo`](../../../mojo/k/krishnamurthy_number_checker.mojo) |
 | Nim | [`nim/k/krishnamurthy_number_checker.nim`](../../../nim/k/krishnamurthy_number_checker.nim) |
 | Odin | [`odin/k/krishnamurthy_number_checker.odin`](../../../odin/k/krishnamurthy_number_checker.odin) |
 | Rust | [`rust/k/krishnamurthy_number_checker.rs`](../../../rust/k/krishnamurthy_number_checker.rs) |
 | V | [`v/k/krishnamurthy_number_checker.v`](../../../v/k/krishnamurthy_number_checker.v) |
 | Zig | [`zig/k/krishnamurthy_number_checker.zig`](../../../zig/k/krishnamurthy_number_checker.zig) |
+
+Scalar verifier registration and a digit-factorial reference are drafted and
+have not been executed. Its factorial lookup differs from the repeated
+multiplication in the `strong_number` port.
 
 ## TheAlgorithms reference
 

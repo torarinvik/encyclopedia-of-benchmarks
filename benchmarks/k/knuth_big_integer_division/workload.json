@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "id": "knuth-algorithm-d-unsigned-decimal-division-v1",
+  "algorithm": "knuth_big_integer_division",
+  "function_symbol": "knuth_big_integer_division",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "task_url": "https://github.com/yosupo06/library-checker-problems/blob/master/big_integer/division_of_big_integers/task.md",
+    "repository_license": "Apache-2.0",
+    "algorithm_reference": "https://fredrikj.net/fdoc/html/algorithms/integers/division.html",
+    "algorithm_attribution": "Knuth, The Art of Computer Programming, Volume 2, section 4.3.1, Algorithm D"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[len_a, len_b, ASCII decimal bytes for a, ASCII decimal bytes for b]",
+    "digit_length_range": [1, 64],
+    "operand_format": "canonical unsigned ASCII decimal; dividend may be zero and divisor must be positive",
+    "exact_length": "2 + len_a + len_b",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 130,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "canonical decimal quotient, colon, canonical decimal remainder; no NUL terminator",
+    "maximum_output_bytes": 129,
+    "result": "number of output bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "oracle": "benchmarks/k/knuth_big_integer_division/primary_oracle.py",
+  "independent_oracle": "benchmarks/knuth_big_integer_division_oracle.py",
+  "contract": {
+    "input_layout": "[len_a, len_b, ascii_a_bytes..., ascii_b_bytes...]",
+    "digit_length_range": [1, 64],
+    "maximum_valid_input_length": 130,
+    "operand_format": "canonical unsigned ASCII decimal; dividend may be zero and divisor must be positive",
+    "limb_base": 1000000000,
+    "division_method": "normalized multi-limb quotient estimation, correction, multiply-subtract, and add-back; single-limb streaming special case",
+    "output_format": "canonical decimal quotient, colon, canonical decimal remainder; no NUL terminator",
+    "maximum_output_bytes": 129,
+    "invalid_input_result": -1,
+    "null_or_small_output_result": -2
+  },
+  "complexity": {
+    "decimal_parsing": "O(D^2) because each digit updates all currently used base-1,000,000,000 limbs",
+    "multi_limb_division": "O(L^2) for at most eight limbs using normalized Algorithm D quotient estimation",
+    "single_limb_division": "O(L)",
+    "decimal_serialization": "O(D)",
+    "auxiliary_space": "521 bytes in the C layout; fixed by the 64-digit profile"
+  },
+  "workspace": {
+    "bytes": 521,
+    "c_layout_bytes": 521,
+    "meaning": "four eight-limb arrays, a nine-limb normalized dividend, an eight-limb normalized divisor, and a 129-byte output staging buffer"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero-dividend",
+      "input_values": [1, 1, 48, 55],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output_hex": "303a30"
+    },
+    {
+      "id": "divisor-larger-than-dividend",
+      "input_values": [1, 1, 55, 56],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output_hex": "303a37"
+    },
+    {
+      "id": "single-limb-exact-division",
+      "input_values": [9, 1, 49, 50, 51, 52, 53, 54, 55, 56, 57, 57],
+      "input_length": 12,
+      "expected_result": 10,
+      "expected_output_hex": "31333731373432313a30"
+    },
+    {
+      "id": "normalized-multi-limb-quotient",
+      "input_values": [19, 10, 49, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 49, 48, 48, 48, 48, 48, 48, 48, 48, 49],
+      "input_length": 31,
+      "expected_result": 11,
+      "expected_output_hex": "3939393939393939393a31"
+    },
+    {
+      "id": "quotient-estimate-correction",
+      "input_values": [
+        27, 18,
+        53, 48, 48, 48, 48, 48, 48, 48, 48,
+        57, 48, 48, 48, 48, 48, 48, 48, 48,
+        48, 48, 48, 48, 48, 48, 48, 48, 48,
+        53, 48, 48, 48, 48, 48, 48, 48, 48,
+        52, 48, 48, 48, 48, 48, 48, 48, 48
+      ],
+      "input_length": 47,
+      "expected_result": 29,
+      "expected_output_hex": "31303030303030303030303a353030303030303030303030303030303030"
+    },
+    {
+      "id": "quotient-estimate-add-back",
+      "input_values": [
+        36, 27,
+        53, 48, 48, 48, 48, 48, 48, 48, 48,
+        54, 48, 48, 48, 48, 48, 48, 48, 48,
+        51, 48, 48, 48, 48, 48, 48, 48, 48,
+        49, 57, 57, 57, 57, 57, 57, 57, 57,
+        53, 48, 48, 48, 48, 48, 48, 48, 48,
+        49, 48, 48, 48, 48, 48, 48, 48, 48,
+        50, 48, 48, 48, 48, 48, 48, 48, 48
+      ],
+      "input_length": 65,
+      "expected_result": 38,
+      "expected_output_hex": "31303030303030303030303a353030303030303030313030303030303030313939393939393939"
+    },
+    {
+      "id": "malformed-leading-zero",
+      "input_values": [2, 1, 48, 55, 50],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-zero-divisor",
+      "input_values": [1, 1, 57, 48],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-nondigit",
+      "input_values": [1, 1, 57, 47],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "packed-length-mismatch",
+      "input_values": [1, 1, 49, 50, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 1, 49, 50],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [1, 1, 49, 50],
+      "input_length": 4,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-pointer",
+      "input_values": [1, 1, 49, 50],
+      "input_length": 4,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

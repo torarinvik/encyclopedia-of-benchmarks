@@ -26,11 +26,11 @@ constant auxiliary state, excluding the `O(k)` result storage for `k` matches.
 
 ## Distinction and verification
 
-[`prefix_function`](../p/prefix_function/README.md) computes KMP border values;
+[`prefix_function`](../../p/prefix_function/README.md) computes KMP border values;
 [`horspool_search`](../../h/horspool_search/README.md) and
-[`boyer_moore`](../b/boyer_moore/README.md) use bad-character/good-suffix
-shifts; [`string_match_finite_automata`](../s/string_match_finite_automata/README.md)
-uses a transition table; and [`substring_search`](../s/substring_search/README.md)
+[`boyer_moore`](../../b/boyer_moore/README.md) use bad-character/good-suffix
+shifts; [`string_match_finite_automata`](../../s/string_match_finite_automata/README.md)
+uses a transition table; and [`substring_search`](../../s/substring_search/README.md)
 directly scans candidates. This package instead uses critical factorization
 and the Two-Way period/memory rule.
 

@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "abelian-sandpile-stabilization-i64-array-scalar-v1",
+  "algorithm": "abelian_sandpile_stabilization",
+  "function_symbol": "abelian_sandpile_stabilization",
+  "abi": "i64_array_scalar",
+  "description": "Stabilize a bounded open-boundary square-grid Abelian sandpile and pack the stable heights.",
+  "source": {
+    "title": "Self-Organized Critical State of Sandpile Automaton Models",
+    "authors": ["Deepak Dhar"],
+    "publisher": "Physical Review Letters",
+    "volume": 64,
+    "issue": 14,
+    "year": 1990,
+    "pages": "1613-1616",
+    "reference_url": "https://repository.ias.ac.in/9280/1/311.pdf",
+    "discovery_url": "https://rosettagit.org/tasks/abelian-sandpile-model/",
+    "implementation_status": "bounded clean-room stabilization profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rows,cols,cells row-major...]",
+    "rows_range": [1, 4],
+    "cols_range": [1, 4],
+    "height_range": [0, 31],
+    "exact_length": "2+rows*cols",
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "sum(stable_height[i] * 4^i), with row-major i=0 as the least-significant base-4 digit",
+    "valid_result_range": [0, 4294967295],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "grid": "Rectangular rows-by-cols square-lattice sites with threshold 4; a topple removes 4 grains, sends one to each in-bounds orthogonal neighbor, and dissipates each grain aimed at a missing neighbor.",
+    "primary_algorithm": "Start a row-major FIFO of unstable sites. Remove the front site, topple it once, and enqueue newly unstable neighbors and the site itself in fixed N,E,S,W order, without duplicate queue entries, until all sites are stable.",
+    "independent_method": "In each synchronous round, every site topples floor(height/4) times from the old board; remainders form the next board and in-bounds transfers are accumulated there. The Abelian property gives the same unique stable state.",
+    "termination_bound": "The nonnegative potential phi(x,y)=x*(cols+1-x)/2+y*(rows+1-y)/2, using one-based coordinates, is at most 6 per grain and decreases by 2 per legal single topple. At most 16*31*6/2=1488 topplings occur; every synchronous nonterminal round has at least one toppling.",
+    "invalid_cases": "Null input, non-i64 values, rows or columns outside 1..4, heights outside 0..31, missing cells, or trailing words return -1.",
+    "distinction": "This is dissipative integer chip-firing stabilization with an Abelian final state, not a finite-state cellular automaton such as Game of Life."
+  },
+  "complexity": {
+    "primary_time": "O(V+T), with at most V=16 sites and T=1488 single-site topplings; each topple checks at most four neighbors.",
+    "primary_space": "O(V) board, queue, and queued flags.",
+    "independent_time": "O(V*R+T), with V<=16 and at most R<=1488 nonterminal synchronous rounds.",
+    "independent_space": "O(V) for the old and next boards."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-cell-empty","input_values":[1,1,0],"input_length":3,"expected_result":0},
+    {"id":"single-cell-sink-topple","input_values":[1,1,4],"input_length":3,"expected_result":0},
+    {"id":"stable-mixed-2x2","input_values":[2,2,0,1,2,3],"input_length":6,"expected_result":228},
+    {"id":"one-corner-topple","input_values":[2,2,4,0,0,0],"input_length":6,"expected_result":20},
+    {"id":"two-corner-topples","input_values":[2,2,8,0,0,0],"input_length":6,"expected_result":40},
+    {"id":"multi-site-cascade","input_values":[2,2,31,0,0,0],"input_length":6,"expected_result":23},
+    {"id":"maximum-packed-stable-board","input_values":[4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"input_length":18,"expected_result":4294967295},
+    {"id":"maximum-valid-frame","input_values":[4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],"input_length":18,"expected_result":1073741824},
+    {"id":"zero-rows-invalid","input_values":[0,2,0,0],"input_length":4,"expected_result":-1},
+    {"id":"too-many-rows-invalid","input_values":[5,1,0,0,0,0,0],"input_length":7,"expected_result":-1},
+    {"id":"negative-height-invalid","input_values":[1,1,-1],"input_length":3,"expected_result":-1},
+    {"id":"height-over-maximum-invalid","input_values":[1,1,32],"input_length":3,"expected_result":-1},
+    {"id":"truncated-frame-invalid","input_values":[2,2,0,0,0],"input_length":5,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[1,1,0,0],"input_length":4,"expected_result":-1},
+    {"id":"maximum-parseable-trailing-word-invalid","input_values":[4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":19,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

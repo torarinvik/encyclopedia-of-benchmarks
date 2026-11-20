@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-pmr-edge-quadtree-i64-bytes-output-v1",
+  "algorithm": "pmr_edge_quadtree",
+  "function_symbol": "pmr_edge_quadtree",
+  "abi": "i64_array_bytes_output",
+  "pinned_source": {
+    "title": "Quadtrees and Morton Indexing",
+    "authors": ["Herman Haverkort", "Laura Toma"],
+    "chapter": 585,
+    "doi": "10.1007/978-1-4939-2864-4_585",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_585",
+    "section": "PM quadtrees",
+    "license": "No source-code license asserted; clean-room bounded profile"
+  },
+  "contract": {
+    "operation": "Incrementally insert each segment into every intersected PMR cell; split leaves when their edge count exceeds the threshold.",
+    "input_encoding": "[segment_count, threshold, x0,y0,x1,y1, ...]",
+    "segment_count_range": [0, 8],
+    "threshold_range": [1, 8],
+    "endpoint_coordinate_range": [0, 255],
+    "segment_rule": "Straight closed segments with distinct endpoints; diagonal, horizontal, and vertical segments are accepted. Intersections between separate input segments are not filtered; bounded depth/node overflow is an error.",
+    "root_square": "[-0.5,255.5] x [-0.5,255.5]; cell bounds are represented in doubled integer coordinates.",
+    "cell_intersection": "Closed square/segment intersection with exact integer orientation predicates. A segment crossing a split boundary is stored in each child it intersects.",
+    "split_rule": "On threshold overflow, allocate four children in NW, NE, SW, SE order and redistribute the leaf's segment IDs in input order.",
+    "depth_limit": 8,
+    "node_limit": 2048,
+    "overflow_rule": "An overfull leaf at depth 8 or a node-allocation overflow returns -1 before output is written.",
+    "exact_valid_input_length": "2 + 4*segment_count",
+    "maximum_valid_input_length": 34,
+    "maximum_parseable_input_length": 35,
+    "maximum_output_words": 24578,
+    "maximum_output_bytes": 196624
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[segment_count, threshold, x0,y0,x1,y1, ...]",
+    "segment_count_range": [0, 8],
+    "threshold_range": [1, 8],
+    "coordinate_range": [0, 255],
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_sequence",
+    "encoding": "[node_count, segment_count, (parent_id,quadrant,depth,local_segment_count,segment_ids...) per node in canonical preorder]",
+    "quadrant_codes": {"0": "northwest", "1": "northeast", "2": "southwest", "3": "southeast"},
+    "root_parent_and_quadrant": -1,
+    "maximum_words": 24578,
+    "maximum_bytes": 196624,
+    "capacity_unit": "bytes",
+    "success_result": "number of bytes written",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 393216,
+    "meaning": "Fixed 2,048-node workspace with parent/quadrant/depth/bounds/child metadata and up to eight local segment IDs per node, plus canonical-order maps, the bounded input segment table, and scalar state. Output is written directly after validation and capacity checks."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 4,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20,
+    "profiles": [
+      {
+        "id": "split-boundary-redistribution",
+        "input_values": [2, 1, 16, 127, 240, 127, 160, 200, 240, 200],
+        "output_capacity": 196624,
+        "expected_result": 200,
+        "expected_output_hex": "05000000000000000200000000000000ffffffffffffffffffffffffffffffff000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000010000000000000001000000000000000100000000000000010000000000000000000000000000000200000000000000010000000000000001000000000000000000000000000000000000000000000000030000000000000001000000000000000100000000000000000000000000000000"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "empty-root-leaf",
+      "input_values": [0, 1],
+      "output_capacity": 196624,
+      "expected_result": 48,
+      "expected_output_hex": "01000000000000000000000000000000ffffffffffffffffffffffffffffffff00000000000000000000000000000000"
+    },
+    {
+      "id": "single-segment-root-leaf",
+      "input_values": [1, 1, 16, 200, 80, 200],
+      "output_capacity": 196624,
+      "expected_result": 56,
+      "expected_output_hex": "01000000000000000100000000000000ffffffffffffffffffffffffffffffff00000000000000000100000000000000000000000000000000"
+    },
+    {
+      "id": "split-boundary-redistribution",
+      "input_values": [2, 1, 16, 127, 240, 127, 160, 200, 240, 200],
+      "output_capacity": 196624,
+      "expected_result": 200,
+      "expected_output_hex": "05000000000000000200000000000000ffffffffffffffffffffffffffffffff000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000010000000000000001000000000000000100000000000000010000000000000000000000000000000200000000000000010000000000000001000000000000000000000000000000000000000000000000030000000000000001000000000000000100000000000000000000000000000000"
+    },
+    {"id": "degenerate-segment", "input_values": [1, 1, 20, 20, 20, 20], "output_capacity": 196624, "expected_result": -1},
+    {"id": "bounded-duplicate-segment-overflow", "input_values": [2, 1, 128, 0, 128, 255, 128, 0, 128, 255], "output_capacity": 196624, "expected_result": -1},
+    {"id": "coordinate-out-of-range", "input_values": [1, 1, 0, 0, 256, 0], "output_capacity": 196624, "expected_result": -1},
+    {"id": "invalid-threshold", "input_values": [0, 0], "output_capacity": 196624, "expected_result": -1},
+    {"id": "trailing-word", "input_values": [0, 1, 99], "output_capacity": 196624, "expected_result": -1},
+    {"id": "null-output", "input_values": [0, 1], "output_is_null": true, "output_capacity": 196624, "expected_result": -2},
+    {"id": "short-output", "input_values": [0, 1], "output_capacity": 47, "expected_result": -2},
+    {"id": "null-input", "input_values": [], "input_is_null": true, "output_capacity": 196624, "expected_result": -1}
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "algorithm": "pade_approximant_series_coefficients",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "pade_approximant_series_coefficients",
+  "sources": {
+    "definition": "https://dlmf.nist.gov/3.11.iv#E20",
+    "coefficient_matching": "https://dlmf.nist.gov/3.11.iv#E23",
+    "discovery_and_duplicate_review": "local CATALOG.md and ALGORITHM_EXPANSION_COVERAGE.md; no community task material reused"
+  },
+  "native_paths": [
+    "c/p/pade_approximant_series_coefficients.c",
+    "c3/p/pade_approximant_series_coefficients.c3",
+    "cpp/p/pade_approximant_series_coefficients.cpp",
+    "elisa/p/pade_approximant_series_coefficients.elisa",
+    "mojo/p/pade_approximant_series_coefficients.mojo",
+    "nim/p/pade_approximant_series_coefficients.nim",
+    "odin/p/pade_approximant_series_coefficients.odin",
+    "rust/p/pade_approximant_series_coefficients.rs",
+    "v/p/pade_approximant_series_coefficients.v",
+    "zig/p/pade_approximant_series_coefficients.zig"
+  ],
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "workload.json", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "check_inventory.py", "__init__.py"
+  ],
+  "bounds": {
+    "modulus": 998244353,
+    "p_min": 1,
+    "p_max": 4,
+    "q_min": 1,
+    "q_max": 4,
+    "constraint": "q<=p",
+    "maximum_valid_input_length": 11,
+    "maximum_parseable_input_length": 12,
+    "maximum_output_words": 12,
+    "maximum_output_bytes": 96,
+    "native_workspace_bytes": 256
+  },
+  "methods": {
+    "primary": "modular Gauss-Jordan elimination for the denominator equations, followed by numerator convolution",
+    "independent": "small-q permutation determinant and Cramer solve, followed by numerator convolution"
+  }
+}

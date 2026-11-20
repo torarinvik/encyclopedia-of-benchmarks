@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "id": "splash2-volrend-bounded-clean-room-raymarch-q8-q16-v1",
+  "algorithm": "splash2_volrend_raymarch",
+  "function_symbol": "splash2_volrend_raymarch",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded deterministic volume ray marching with a per-call opacity-support pyramid, fixed-point trilinear sampling, front-to-back compositing, and early opacity termination.",
+  "provenance": {
+    "title": "SPLASH-2 Volrend, bounded clean-room profile",
+    "reference": "The profile is inspired by volume ray casting and opacity hierarchy behavior, but is not a source-code reimplementation or output reproduction.",
+    "source_url": "https://raw.githubusercontent.com/staceyson/splash2/be64f8e4840fc29ff4c076c3f747e27fdb55ac68/codes/apps/volrend/raytrace.C",
+    "opacity_pyramid_source_url": "https://raw.githubusercontent.com/staceyson/splash2/be64f8e4840fc29ff4c076c3f747e27fdb55ac68/codes/apps/volrend/octree.C",
+    "paper_url": "https://pages.cs.wisc.edu/~markhill/restricted/isca95_splash2.pdf",
+    "algorithm_paper_url": "https://graphics.stanford.edu/papers/vv92/",
+    "license_note": "The referenced 1994 Stanford source restricts redistribution. This package contains independent code, workload, documentation, and oracle materials only."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[S,R,T,(alpha,gray)*S^3,(x0,y0,z0,dx,dy,dz)*R]",
+    "side_values": [2, 4, 8],
+    "ray_count_range": [1, 16],
+    "samples_per_ray_range": [1, 32],
+    "voxel_layout": "x-fast, then y, then z; each pair is opacity byte then grayscale byte",
+    "voxel_alpha_range": [0, 255],
+    "voxel_grayscale_range": [0, 255],
+    "ray_coordinate_format": "signed Q8.8 integer units; one voxel is 256",
+    "origin_range": "0..(S-1)*256 per axis",
+    "step_range": "-(S-1)*256..(S-1)*256 per axis",
+    "sample_positions_must_be_inside": "[0,(S-1)*256]^3",
+    "zero_direction_rule": "for T>1 at least one step component must be nonzero; T=1 may use a zero step",
+    "exact_valid_length": "3 + 2*S^3 + 6*R",
+    "maximum_valid_input_values": 1123,
+    "maximum_parseable_input_values": 1124,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "opacity_support_base": "Set bit (x,y,z) if any opacity among the eight trilinear corners at that lattice point is nonzero; clamp upper corner indices to S-1.",
+    "opacity_support_parent": "Each parent bit is the OR of its eight child bits; S is a power of two.",
+    "sample_order": "For each ray, consume sample k=0..T-1 in order; rays remain in input order.",
+    "interpolation": "Use products of Q8 axis weights; opacity numerator is sum(alpha*w), premultiplied-gray numerator is sum(alpha*gray*w), and the weight denominator is 2^24.",
+    "sample_opacity_q16": "round_half_up(opacity_numerator*65536/(255*2^24))",
+    "sample_premultiplied_gray_q16": "round_half_up(gray_numerator*65536/(255^2*2^24))",
+    "compositing": "For each channel q, add round_half_up((65536-accumulated_alpha)*sample_q/65536); cap at 65536.",
+    "termination": "Stop after the sample that makes accumulated opacity exactly 65536.",
+    "output_frame": "For each ray emit [gray,gray,gray,alpha,used] as five bytes; gray and alpha are Q16-to-byte round-half-up, used counts consumed sample positions including the terminal sample.",
+    "complexity": "O(S^3 + R*T*log(S)) time and O(S^3) auxiliary storage",
+    "output_untouched_on_error": true
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "five bytes per ray in input order: premultiplied grayscale RGBA plus used-sample count",
+    "exact_bytes": "5*R",
+    "maximum_bytes": 80,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -3,
+    "input_validation_precedes_output_errors": true,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 80,
+    "meaning": "Maximum caller output-buffer capacity, matching the exact 5*R byte output frame at R=16."
+  },
+  "memory": {
+    "internal_scratch_bytes": 3456,
+    "internal_scratch_layout": "two 512-byte voxel channels, four 8x8x8 byte pyramid levels, and sixteen six-coordinate int32 ray snapshots",
+    "internal_scratch_scope": "Counts the fixed work arrays only; excludes small scalar and three-coordinate interpolation temporaries plus caller-owned input/output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "transparent-volume-one-sample",
+      "input_values": [
+        2,1,1,
+        0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        0,0,0,0,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "0000000001"
+    },
+    {
+      "id": "opaque-front-sample-terminates-with-premultiplied-gray",
+      "input_values": [
+        2,1,3,
+        255,85, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        0,0,0,128,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "555555ff01"
+    },
+    {
+      "id": "fractional-trilinear-one-eighth-corner-weight",
+      "input_values": [
+        2,1,1,
+        255,255, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        128,128,128,0,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "2020202001"
+    },
+    {
+      "id": "two-front-to-back-samples-in-same-cell",
+      "input_values": [
+        2,1,2,
+        128,255, 128,255, 128,255, 128,255,
+        128,255, 128,255, 128,255, 128,255,
+        0,0,0,1,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "c0c0c0c002"
+    },
+    {
+      "id": "zero-opacity-color-is-skipped-by-pyramid",
+      "input_values": [
+        2,1,1,
+        0,255, 0,255, 0,255, 0,255,
+        0,255, 0,255, 0,255, 0,255,
+        0,0,0,0,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "expected_result": 5,
+      "expected_output_hex": "0000000001"
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [
+        2,1,1,
+        0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        0,0,0,0,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 4,
+      "expected_result": -3,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [
+        2,1,1,
+        0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        0,0,0,0,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-side-precedes-null-output",
+      "input_values": [3,1,1],
+      "input_length": 3,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample-outside-volume",
+      "input_values": [
+        2,1,2,
+        0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        0,0,0,-1,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-direction-with-multiple-samples",
+      "input_values": [
+        2,1,2,
+        0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        0,0,0,0,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-voxel-byte",
+      "input_values": [
+        2,1,1,
+        256,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        0,0,0,0,0,0
+      ],
+      "input_length": 25,
+      "output_capacity": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-input-word",
+      "input_values": [
+        2,1,1,
+        0,0, 0,0, 0,0, 0,0,
+        0,0, 0,0, 0,0, 0,0,
+        0,0,0,0,0,0,9
+      ],
+      "input_length": 26,
+      "output_capacity": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

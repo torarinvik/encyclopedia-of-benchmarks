@@ -7,15 +7,15 @@ fn long gabow_scc(long* input, usz length, char* output, usz output_capacity)
     if (input[0]<0 || input[0]>(long)N || input[1]<0 || input[1]>(long)M) return -1;
     usz n=(usz)input[0], m=(usz)input[1];
     if (length!=2+2*m) return -1;
-    ulong adjacency[N]={0}; usz neighbors[N*N]={0}, degree[N]={0};
+    ulong[N] adjacency={}; usz[N*N] neighbors={}; usz[N] degree={};
     for (usz e=0; e<m; e++) {
         long source=input[2+2*e], target=input[3+2*e];
         if (source<0 || target<0 || (ulong)source>=(ulong)n || (ulong)target>=(ulong)n) return -1;
         usz u=(usz)source, v=(usz)target; ulong bit=1ul << (ulong)v;
         if ((adjacency[u]&bit)==0ul) { adjacency[u] |= bit; neighbors[u*N+degree[u]++]=v; }
     }
-    long preorder[N], component[N];
-    usz vertices[N], boundaries[N], dfs[N], next_neighbor[N];
+    long[N] preorder; long[N] component;
+    usz[N] vertices; usz[N] boundaries; usz[N] dfs; usz[N] next_neighbor;
     for (usz v=0; v<n; v++) { preorder[v]=-1; component[v]=-1; }
     usz vertex_count=0, boundary_count=0, depth=0, clock=0, component_count=0;
     for (usz root=0; root<n; root++) {
@@ -47,7 +47,7 @@ fn long gabow_scc(long* input, usz length, char* output, usz output_capacity)
             }
         }
     }
-    char staged[MAX_OUTPUT]; usz position=1; staged[0]=(char)component_count;
+    char[MAX_OUTPUT] staged; usz position=1; staged[0]=(char)component_count;
     for (usz first=0; first<n; first++) {
         long id=component[first]; bool seen=false;
         for (usz earlier=0; earlier<first; earlier++) if (component[earlier]==id) seen=true;

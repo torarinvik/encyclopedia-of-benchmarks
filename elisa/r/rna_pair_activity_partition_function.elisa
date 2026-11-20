@@ -1,0 +1,44 @@
+const MAX_SEQUENCE_LENGTH: i64 = 16
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 122
+
+def rna_pair_activity_pair_input_index(n: usize, left: usize, right: usize) -> usize:
+    let preceding: usize = left * (2 * n - left - 1) / 2
+    1 + preceding + (right - left - 1)
+
+def rna_pair_activity_partition_function_impl(input: view[i64]) -> i64:
+    if input.len() < 1 or input.len() > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    let n_value: i64 = input[0]
+    if n_value < 0 or n_value > MAX_SEQUENCE_LENGTH: return -1
+    let n: usize = n_value.usize()
+    let expected_length: usize = if n == 0 then 1 else 1 + n * (n - 1) / 2
+    if input.len() != expected_length: return -1
+    let mut index: usize = 1
+    while index < input.len():
+        if input[index] < 0 or input[index] > 3: return -1
+        index <- index + 1
+    if n == 0: return 1
+
+    let table: mutable i64[16][16] = zeroed
+    let mut span: usize = 1
+    while span <= n:
+        let mut left: usize = 0
+        while left + span <= n:
+            let right: usize = left + span - 1
+            let mut total: i64 = 1
+            if left < right: total <- table[left][right - 1]
+            let mut partner: usize = left
+            while partner < right:
+                let activity: i64 = input[rna_pair_activity_pair_input_index(n, partner, right)]
+                let before: i64 = if partner == left then 1 else table[left][partner - 1]
+                let inside: i64 = if partner + 1 >= right then 1 else table[partner + 1][right - 1]
+                total <- total + before * inside * activity
+                partner <- partner + 1
+            table[left][right] <- total
+            left <- left + 1
+        span <- span + 1
+    table[0][n - 1]
+
+export fn rna_pair_activity_partition_function(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    let input_view: view[i64] = input[0:input_length]
+    rna_pair_activity_partition_function_impl(input_view)

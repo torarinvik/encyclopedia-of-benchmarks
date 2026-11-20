@@ -1,9 +1,10 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 @export("kth_number")
 fn kth_number(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or n>65 or a[0]<1 or a[0]>=n:return -1
-    let k=Int(a[0]);let count=Int(n)-1;var v=InlineArray[Int64,64]();var seen=InlineArray[Bool,20001]()
+    let k=Int(a[0]);let count=Int(n)-1;var v=InlineArray[Int64,64]();var seen=InlineArray[Bool,20001](fill=False)
     for i in range(count):
         let x=a[i+1];if x< -10000 or x>10000 or seen[Int(x+10000)]:return -1
         seen[Int(x+10000)]=True;v[i]=x

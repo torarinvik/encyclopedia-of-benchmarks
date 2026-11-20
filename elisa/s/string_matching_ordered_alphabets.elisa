@@ -1,0 +1,121 @@
+const MAX_TEXT: usize = 4096
+const MAX_PATTERN: usize = 128
+const MAX_INPUT_LENGTH: usize = 4227
+
+def ordered_alphabets_advance(segment: view[i64], length: usize,
+        left: mutable i64&, right: mutable i64&, offset: mutable i64&, period: mutable i64&) -> void:
+    while right + offset < length.i64():
+        let a: i64 = segment[(left + offset).usize()]
+        let b: i64 = segment[(right + offset).usize()]
+        if a == b:
+            if offset == period:
+                right <- right + period
+                offset <- 1
+            else:
+                offset <- offset + 1
+        elif a > b:
+            right <- right + offset
+            offset <- 1
+            period <- right - left
+        else:
+            left <- right
+            right <- right + 1
+            offset <- 1
+            period <- 1
+
+def ordered_alphabets_prefix_repeats(segment: view[i64], shift: i64, last_index: i64) -> bool:
+    q: mutable i64 = 0
+    while q <= last_index:
+        if segment[q.usize()] != segment[(shift + q).usize()]:
+            return false
+        q <- q + 1
+    true
+
+def string_matching_ordered_alphabets_impl(input: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let raw_n: i64 = input[0]
+    let raw_m: i64 = input[1]
+    if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64():
+        return -1
+    let n: usize = raw_n.usize()
+    let m: usize = raw_m.usize()
+    if length != 2 + n + m:
+        return -1
+    let pattern_start: usize = 2 + n
+    q: mutable usize = 0
+    while q < n:
+        if input[2 + q] < 0 or input[2 + q] > 3:
+            return -1
+        q <- q + 1
+    q <- 0
+    while q < m:
+        if input[pattern_start + q] < 0 or input[pattern_start + q] > 3:
+            return -1
+        q <- q + 1
+    if n < m:
+        return 0
+
+    alignment: mutable i64 = 0
+    matched: mutable i64 = 0
+    suffix_left: mutable i64 = -1
+    suffix_right: mutable i64 = 0
+    suffix_offset: mutable i64 = 1
+    period: mutable i64 = 1
+    count: mutable i64 = 0
+    offset_sum: mutable i64 = 0
+    offset_xor: mutable i64 = 0
+    while alignment <= (n - m).i64():
+        while alignment + matched < n.i64() and matched < m.i64() and
+                input[pattern_start + matched.usize()] == input[2 + (alignment + matched).usize()]:
+            matched <- matched + 1
+        if matched == 0:
+            alignment <- alignment + 1
+            suffix_left <- -1
+            suffix_right <- 0
+            suffix_offset <- 1
+            period <- 1
+            continue
+        if matched == m.i64():
+            count <- count + 1
+            offset_sum <- offset_sum + alignment
+            offset_xor <- offset_xor ^ alignment
+            if alignment == (n - m).i64():
+                break
+
+        let text_start: usize = 2 + alignment.usize()
+        let segment: view[i64] = input[text_start:text_start + matched.usize() + 1]
+        ordered_alphabets_advance(segment, matched.usize() + 1,
+            suffix_left, suffix_right, suffix_offset, period)
+        let reusable: bool = suffix_left < 0 or
+            (suffix_left < period and ordered_alphabets_prefix_repeats(segment, period, suffix_left))
+        if reusable:
+            alignment <- alignment + period
+            matched <- matched - period
+            if matched < 0:
+                matched <- 0
+            if suffix_right - suffix_left > period:
+                suffix_right <- suffix_right - period
+            else:
+                suffix_left <- -1
+                suffix_right <- 0
+                suffix_offset <- 1
+                period <- 1
+        else:
+            let conservative: i64 = if matched - suffix_left - 1 < suffix_right + 1
+                then matched - suffix_left - 1 else suffix_right + 1
+            let certified: i64 = if suffix_left + 1 > conservative
+                then suffix_left + 1 else conservative
+            alignment <- alignment + certified + 1
+            matched <- 0
+            suffix_left <- -1
+            suffix_right <- 0
+            suffix_offset <- 1
+            period <- 1
+    (count << 36) | (offset_sum << 12) | offset_xor
+
+export fn string_matching_ordered_alphabets(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    let input_view: view[i64] = input[0:length]
+    string_matching_ordered_alphabets_impl(input_view, length)

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn mm_eval(v:InlineArray[Int64,32],idx:Int,depth:Int,height:Int,maximizing:Bool)->Int64:

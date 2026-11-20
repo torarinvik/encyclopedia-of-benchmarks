@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-goldberg-maximum-density-subgraph-i64-array-scalar-v1",
+  "algorithm": "goldberg_maximum_density_subgraph",
+  "function_symbol": "goldberg_maximum_density_subgraph",
+  "abi": "i64_array_scalar",
+  "description": "Exact maximum induced edge density by Goldberg's binary-search and min-cut reduction.",
+  "source": {
+    "title": "Finding a Maximum Density Subgraph",
+    "author": "A. V. Goldberg",
+    "year": 1984,
+    "reference": "UC Berkeley Technical Report CSD-84-171",
+    "url": "https://www2.eecs.berkeley.edu/Pubs/TechRpts/1984/Archive/CSD-84-171.pdf",
+    "copyright": "Algorithmic description only; the package is clean-room authored."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, M, (u, v)*M]",
+    "vertex_count_range": [2, 8],
+    "edge_count_range": [0, 28],
+    "graph": "Simple undirected graph; each edge occurs once with 0 <= u < v < N; edge order is unrestricted; disconnected graphs and isolates are valid.",
+    "exact_length": "2 + 2*M",
+    "maximum_valid_length": 58,
+    "maximum_parseable_length": 59,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "For reduced maximum density p/q, return p*(N+1)+q; an edgeless graph is encoded as 0/1 and returns 1.",
+    "maximum_result": 260,
+    "invalid_input_result": -1
+  },
+  "algorithm_details": {
+    "primary": "Binary search g in [0,M] until the interval is strictly narrower than 1/(N*(N-1)). At dyadic midpoint g=a/d, scale Goldberg's min-cut capacities by d: source arcs M*d, both directions of each input edge d, and vertex-to-sink arcs M*d+2*a-d*degree(v). Residual source-side membership determines which bound moves; save each nonempty side. Compute the reduced density of the saved subset.",
+    "independent_oracle": "Enumerate every nonempty vertex subset, count its induced edges, and maximize e/|S| by exact integer cross multiplication.",
+    "tie_rules": "Edmonds-Karp scans residual neighbors in increasing vertex ID. The minimum source side is the residual-reachable set after max flow. If it contains an input vertex, update the lower bound and save it; otherwise update the upper bound. Exact midpoint ties are valid on either branch.",
+    "termination": "Every possible density is e/s with 0<=e<=M and 1<=s<=N; distinct values differ by at least 1/(N*(N-1)). The interval is halved each round, so the strict-width stopping rule identifies an optimal saved subset. M=0 is handled directly as density 0/1.",
+    "arithmetic_bound": "At most 11 min-cut calls are needed for N<=8 and M<=28. The dyadic denominator is at most 2048; all scaled capacities and flow residuals fit signed 64-bit integers. The returned encoding is at most 28*(8+1)+8=260."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-edge-set","input_values":[4,0],"input_length":2,"expected_result":1},
+    {"id":"one-edge-and-isolates","input_values":[4,1,0,1],"input_length":4,"expected_result":7},
+    {"id":"triangle-with-isolate","input_values":[4,3,0,1,0,2,1,2],"input_length":8,"expected_result":6},
+    {"id":"four-vertex-path","input_values":[4,3,0,1,1,2,2,3],"input_length":8,"expected_result":19},
+    {"id":"five-vertex-path","input_values":[5,4,0,1,1,2,2,3,3,4],"input_length":10,"expected_result":29},
+    {"id":"complete-four-vertex-graph","input_values":[4,6,0,1,0,2,0,3,1,2,1,3,2,3],"input_length":14,"expected_result":17},
+    {"id":"two-disjoint-triangles","input_values":[6,6,0,1,0,2,1,2,3,4,3,5,4,5],"input_length":14,"expected_result":8},
+    {"id":"complete-eight-vertex-graph","input_values":[8,28,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,2,1,3,1,4,1,5,1,6,1,7,2,3,2,4,2,5,2,6,2,7,3,4,3,5,3,6,3,7,4,5,4,6,4,7,5,6,5,7,6,7],"input_length":58,"expected_result":65},
+    {"id":"maximum-frame-k8-minus-one-edge","input_values":[8,27,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,2,1,3,1,4,1,5,1,6,1,7,2,3,2,4,2,5,2,6,2,7,3,4,3,5,3,6,3,7,4,5,4,6,4,7,5,6,5,7],"input_length":56,"expected_result":251},
+    {"id":"duplicate-edge","input_values":[3,2,0,1,0,1],"input_length":6,"expected_result":-1},
+    {"id":"self-loop","input_values":[3,1,1,1],"input_length":4,"expected_result":-1},
+    {"id":"endpoint-out-of-range","input_values":[3,1,0,3],"input_length":4,"expected_result":-1},
+    {"id":"truncated-frame","input_values":[4,2,0,1,1],"input_length":5,"expected_result":-1},
+    {"id":"trailing-word-at-parseable-bound","input_values":[8,28,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,2,1,3,1,4,1,5,1,6,1,7,2,3,2,4,2,5,2,6,2,7,3,4,3,5,3,6,3,7,4,5,4,6,4,7,5,6,5,7,6,7,99],"input_length":59,"expected_result":-1},
+    {"id":"vertex-count-out-of-range","input_values":[1,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"null-input-at-parseable-bound","input_values":[],"input_length":59,"input_is_null":true,"expected_result":-1}
+  ]
+}

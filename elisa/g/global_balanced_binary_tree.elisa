@@ -1,0 +1,119 @@
+const GBST_MAX_N: usize = 64
+const GBST_MAX_PARSEABLE_LENGTH: usize = 65
+
+def gbst_build_interval(
+    lo: usize, hi: usize, path: view[i64], prefix: view[i64],
+    gbst_parent: mutable view[i64], left_child: mutable view[i64],
+    right_child: mutable view[i64], local_size: mutable view[i64]
+) -> i64:
+    total_weight: i64 = prefix[hi] - prefix[lo]
+    low: mutable usize = lo
+    high: mutable usize = hi
+    while high - low > 1:
+        middle: usize = (low + high) / 2
+        if 2 * (prefix[middle] - prefix[lo]) <= total_weight:
+            low <- middle
+        else:
+            high <- middle
+    pivot: usize = low
+    node: i64 = path[pivot]
+    local_size[node.usize()] <- (hi - lo).i64()
+    if lo < pivot:
+        child: i64 = gbst_build_interval(
+            lo, pivot, path, prefix, gbst_parent, left_child, right_child, local_size
+        )
+        left_child[node.usize()] <- child
+        gbst_parent[child.usize()] <- node
+    if pivot + 1 < hi:
+        child: i64 = gbst_build_interval(
+            pivot + 1, hi, path, prefix, gbst_parent, left_child, right_child, local_size
+        )
+        right_child[node.usize()] <- child
+        gbst_parent[child.usize()] <- node
+    node
+
+export fn global_balanced_binary_tree(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > GBST_MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    if n_value < 1 or n_value > GBST_MAX_N.i64(): return -1
+    if length != n_value.usize(): return -1
+    n: usize = n_value.usize()
+
+    parent: mutable i64[GBST_MAX_N] = zeroed
+    subtree_size: mutable i64[GBST_MAX_N] = zeroed
+    heavy_child: mutable i64[GBST_MAX_N] = zeroed
+    gbst_parent: mutable i64[GBST_MAX_N] = zeroed
+    left_child: mutable i64[GBST_MAX_N] = zeroed
+    right_child: mutable i64[GBST_MAX_N] = zeroed
+    local_size: mutable i64[GBST_MAX_N] = zeroed
+    path: mutable i64[GBST_MAX_N] = zeroed
+    prefix: mutable i64[GBST_MAX_N + 1] = zeroed
+
+    vertex: mutable usize = 0
+    while vertex < n:
+        parent[vertex] <- -1
+        subtree_size[vertex] <- 1
+        heavy_child[vertex] <- -1
+        gbst_parent[vertex] <- -1
+        left_child[vertex] <- -1
+        right_child[vertex] <- -1
+        local_size[vertex] <- 0
+        vertex <- vertex + 1
+    vertex <- 1
+    while vertex < n:
+        p: i64 = input_view[vertex]
+        if p < 0 or p >= vertex.i64(): return -1
+        parent[vertex] <- p
+        vertex <- vertex + 1
+
+    cursor: mutable usize = n
+    while cursor > 1:
+        cursor <- cursor - 1
+        p: usize = parent[cursor].usize()
+        subtree_size[p] <- subtree_size[p] + subtree_size[cursor]
+    vertex <- 1
+    while vertex < n:
+        p: usize = parent[vertex].usize()
+        current: i64 = heavy_child[p]
+        if current < 0 or subtree_size[vertex] > subtree_size[current.usize()]:
+            heavy_child[p] <- vertex.i64()
+        vertex <- vertex + 1
+
+    head: mutable usize = 0
+    while head < n:
+        is_head: mutable bool = head == 0
+        if head > 0:
+            is_head <- heavy_child[parent[head].usize()] != head.i64()
+        if is_head:
+            path_length: mutable usize = 0
+            vertex <- head
+            prefix[0] <- 0
+            while vertex < n:
+                child: i64 = heavy_child[vertex]
+                weight: mutable i64 = subtree_size[vertex]
+                if child >= 0:
+                    weight <- weight - subtree_size[child.usize()]
+                path[path_length] <- vertex.i64()
+                prefix[path_length + 1] <- prefix[path_length] + weight
+                path_length <- path_length + 1
+                if child < 0: break
+                vertex <- child.usize()
+            root: i64 = gbst_build_interval(
+                0, path_length, path[0:GBST_MAX_N], prefix[0:GBST_MAX_N + 1],
+                gbst_parent[0:GBST_MAX_N], left_child[0:GBST_MAX_N],
+                right_child[0:GBST_MAX_N], local_size[0:GBST_MAX_N]
+            )
+            gbst_parent[root.usize()] <- if head == 0 then -1 else parent[head]
+        head <- head + 1
+
+    checksum: mutable i64 = 0
+    vertex <- 0
+    while vertex < n:
+        record: i64 = (gbst_parent[vertex] + 1)
+            + 65 * (left_child[vertex] + 1)
+            + 4225 * (right_child[vertex] + 1)
+            + 274625 * local_size[vertex]
+        checksum <- checksum + (vertex.i64() + 1) * record
+        vertex <- vertex + 1
+    checksum

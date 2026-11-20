@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 
@@ -21,7 +22,7 @@ fn trapping_rain_water_ii(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c
         if height < 0 or height > 1000:
             return -1
         heights[cell] = height
-    var visited = InlineArray[Bool, MAX_CELLS]()
+    var visited = InlineArray[Bool, MAX_CELLS](fill=False)
     var heap = InlineArray[Int64, MAX_CELLS]()
     var heap_size = 0
     for row in range(rows):

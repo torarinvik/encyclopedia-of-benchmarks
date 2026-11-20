@@ -5,21 +5,21 @@ from std.memory import ImmutAnyOrigin, UnsafePointer
 @export("check_cycle")
 fn check_cycle(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t) abi("C") -> Int64:
     if input == UnsafePointer[Int64, ImmutAnyOrigin]() or length < 2 or input[0] < 0 or input[0] > 32 or input[1] < 0 or input[1] > 256: return -1
-    let vertices = input[0]
-    let edges = input[1]
-    if length != 2 + 2 * edges: return -1
-    var adjacency = InlineArray[UInt8, 1024](0)
+    let vertices = Int(input[0])
+    let edges = Int(input[1])
+    if length != c_size_t(2 + 2 * edges): return -1
+    var adjacency = InlineArray[UInt8, 1024](fill=0)
     for edge in range(edges):
         let origin = input[2 + 2 * edge]
         let destination = input[3 + 2 * edge]
-        if origin < 0 or origin >= vertices or destination < 0 or destination >= vertices: return -1
-        adjacency[origin * 32 + destination] = 1
-    var color = InlineArray[UInt8, 32](0)
-    var stack = InlineArray[Int64, 32](0)
-    var next_neighbor = InlineArray[Int64, 32](0)
+        if origin < 0 or origin >= Int64(vertices) or destination < 0 or destination >= Int64(vertices): return -1
+        adjacency[Int(origin) * 32 + Int(destination)] = 1
+    var color = InlineArray[UInt8, 32](fill=0)
+    var stack = InlineArray[Int, 32](fill=0)
+    var next_neighbor = InlineArray[Int, 32](fill=0)
     for start in range(vertices):
         if color[start] != 0: continue
-        var top: Int64 = 1
+        var top = 1
         stack[0] = start
         next_neighbor[0] = 0
         color[start] = 1

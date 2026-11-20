@@ -1,0 +1,32 @@
+{
+  "algorithm": "counting_bloom_filter_operation_trace",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "counting_bloom_filter_operation_trace",
+  "maximum_valid_input_words": 129,
+  "maximum_parseable_input_words": 130,
+  "maximum_output_bytes": 64,
+  "workspace_bytes": 1024,
+  "suite_registration": "integrated",
+  "sources": [
+    "c/c/counting_bloom_filter_operation_trace.c",
+    "c3/c/counting_bloom_filter_operation_trace.c3",
+    "cpp/c/counting_bloom_filter_operation_trace.cpp",
+    "elisa/c/counting_bloom_filter_operation_trace.elisa",
+    "mojo/c/counting_bloom_filter_operation_trace.mojo",
+    "nim/c/counting_bloom_filter_operation_trace.nim",
+    "odin/c/counting_bloom_filter_operation_trace.odin",
+    "rust/c/counting_bloom_filter_operation_trace.rs",
+    "v/c/counting_bloom_filter_operation_trace.v",
+    "zig/c/counting_bloom_filter_operation_trace.zig"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ]
+}

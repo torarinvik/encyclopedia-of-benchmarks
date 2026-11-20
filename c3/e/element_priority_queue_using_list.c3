@@ -1,6 +1,6 @@
 module element_priority_queue_using_list;
 
-void store_i64(char* output, usz offset, long value) { ulong bits = @bitcast(ulong, value); for (usz i = 0; i < 8; i++) output[offset + i] = (char)(bits >> (8 * i)); }
+fn void store_i64(char* output, usz offset, long value) { ulong bits = bitcast(value, ulong); for (usz i = 0; i < 8; i++) output[offset + i] = (char)(bits >> (8 * i)); }
 
 fn long element_priority_queue_using_list(long* input, usz length, char* output, usz capacity)
     @export("element_priority_queue_using_list") {

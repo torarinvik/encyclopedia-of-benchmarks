@@ -16,6 +16,13 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, OPTIONAL_EXTENSIONS, ROOT, build, sha256_file
+from c.circle_polygon_intersection_area.independent_oracle import (
+    INVALID as CIRCLE_POLYGON_INTERSECTION_AREA_INVALID_RESULT,
+    circle_polygon_intersection_area as circle_polygon_intersection_area_oracle,
+)
+from q.quantum_spectral_energy_expectation.independent_oracle import (
+    expected_result as quantum_spectral_energy_expectation_oracle,
+)
 from atax_oracle import expected_result as atax_oracle
 from polybench_symm_oracle import expected_result as polybench_symm_oracle
 from polybench_cholesky_oracle import (
@@ -55,6 +62,10 @@ from nbench_fourier_coefficients_oracle import INVALID_RESULT as NBENCH_FOURIER_
 from nbench_fourier_coefficients_oracle import expected_result as nbench_fourier_coefficients_oracle
 from misc_flops_oracle import expected_result as misc_flops_oracle
 from freebench_fbench_oracle import expected_result as freebench_fbench_oracle
+from h.hickerson_almost_integer.independent_oracle import (
+    INVALID_RESULT as HICKERSON_ALMOST_INTEGER_INVALID_RESULT,
+    expected_result as hickerson_almost_integer_oracle,
+)
 from doe_rsbench_doppler_xs_oracle import (
     INVALID_RESULT as DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT,
     MAX_INPUT_LENGTH as DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH,
@@ -116,6 +127,8 @@ from gbbs_greedy_plus_plus_densest_subgraph_verifier_oracle import (
 )
 from run_i64_array_float64 import (
     MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH,
+    validate_circle_polygon_intersection_area_workload,
+    validate_quantum_spectral_energy_expectation_workload,
     encode_case, resolve_tolerances, result_matches,
     validate_temperature_conversions_workload, validate_simpson_integration_workload,
     validate_secant_workload, validate_mean_bias_deviation_percent_workload,
@@ -140,6 +153,7 @@ from run_i64_array_float64 import (
     validate_nbench_fourier_coefficients_workload,
     validate_misc_flops_workload,
     validate_freebench_fbench_workload,
+    validate_hickerson_almost_integer_workload,
     validate_doe_rsbench_doppler_xs_workload,
     validate_doe_simplemoc_quadratic_attenuation_workload,
     validate_doe_xsbench_unionized_macro_xs_workload,
@@ -155,7 +169,6 @@ from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
     MAX_CITIES as TRAVELING_SALESMAN_SOLVER_MAX_CITIES,
     MAX_EDGE_COST as TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST,
-    expected_result_brute_force as traveling_salesman_solver_brute_force_oracle,
     expected_result_nearest_neighbor as traveling_salesman_solver_nearest_neighbor_oracle,
 )
 from variance_oracle import INVALID_RESULT as VARIANCE_INVALID_RESULT
@@ -740,7 +753,7 @@ ALGORITHMS += ("maxwells_equations",)
 ALGORITHMS += ("shunting_yard",)
 ALGORITHMS += ("kmeans_raw_r",)
 ALGORITHMS += ("monte_carlo_integration", "monte_carlo_integration_independent")
-ALGORITHMS += ("traveling_salesman_solver_brute_force", "traveling_salesman_solver_nearest_neighbor")
+ALGORITHMS += ("traveling_salesman_solver_nearest_neighbor",)
 ALGORITHMS += ("mvt", "atax", "bicg", "gemm", "gemver", "covariance", "doitgen", "2mm", "3mm")
 ALGORITHMS += ("polybench_symm",)
 ALGORITHMS += ("polybench_cholesky",)
@@ -750,6 +763,7 @@ ALGORITHMS += ("npb_bt_5x5_block_tridiagonal",)
 ALGORITHMS += ("npb_ua_mesh_adaptation",)
 ALGORITHMS += ("misc_flops",)
 ALGORITHMS += ("freebench_fbench",)
+ALGORITHMS += ("hickerson_almost_integer",)
 ALGORITHMS += ("doe_rsbench_doppler_xs",)
 ALGORITHMS += ("doe_simplemoc_quadratic_attenuation",)
 ALGORITHMS += ("doe_xsbench_unionized_macro_xs",)
@@ -757,6 +771,8 @@ ALGORITHMS += ("doe_minigmg_restriction",)
 ALGORITHMS += ("doe_miniamr_stencil_average",)
 ALGORITHMS += ("rodinia_myocyte_cam_rhs",)
 ALGORITHMS += ("rodinia_leukocyte_gicov",)
+ALGORITHMS += ("circle_polygon_intersection_area",)
+ALGORITHMS += ("quantum_spectral_energy_expectation",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -1087,6 +1103,11 @@ def logistic_regression_csharp_binary_gd_oracle(values: list[int]) -> float:
 
 def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
            input_length: int | None = None) -> float:
+    if algorithm == "quantum_spectral_energy_expectation":
+        return quantum_spectral_energy_expectation_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "circle_polygon_intersection_area":
+        return circle_polygon_intersection_area_oracle(values)
     if algorithm == "gbbs_charikar_densest_subgraph":
         return gbbs_charikar_densest_subgraph_verifier_oracle(
             values, input_is_null=input_is_null, input_length=input_length)
@@ -1117,6 +1138,9 @@ def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
         return misc_flops_oracle(values)
     if algorithm == "freebench_fbench":
         return freebench_fbench_oracle(values)
+    if algorithm == "hickerson_almost_integer":
+        return hickerson_almost_integer_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
     if algorithm == "doe_rsbench_doppler_xs":
         return doe_rsbench_doppler_xs_oracle(
             values, input_is_null=input_is_null, input_length=input_length)
@@ -1160,8 +1184,6 @@ def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
         return two_mm_oracle(values)
     if algorithm == "3mm":
         return three_mm_oracle(values)
-    if algorithm == "traveling_salesman_solver_brute_force":
-        return traveling_salesman_solver_brute_force_oracle(values)
     if algorithm == "traveling_salesman_solver_nearest_neighbor":
         return traveling_salesman_solver_nearest_neighbor_oracle(values)
     if algorithm == "kmeans_raw_r":
@@ -1384,7 +1406,11 @@ def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
 
 
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
-    if algorithm == "gbbs_charikar_densest_subgraph":
+    if algorithm == "quantum_spectral_energy_expectation":
+        validate_quantum_spectral_energy_expectation_workload(workload)
+    elif algorithm == "circle_polygon_intersection_area":
+        validate_circle_polygon_intersection_area_workload(workload)
+    elif algorithm == "gbbs_charikar_densest_subgraph":
         validate_gbbs_charikar_densest_subgraph_workload(workload)
     elif algorithm == "gbbs_bkv12_densest_subgraph":
         validate_gbbs_bkv12_densest_subgraph_workload(workload)
@@ -1416,8 +1442,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_kmeans_raw_r_workload(workload)
     elif algorithm in {"monte_carlo_integration", "monte_carlo_integration_independent"}:
         validate_monte_carlo_integration_workload(workload, algorithm)
-    elif algorithm in {"traveling_salesman_solver_brute_force",
-                       "traveling_salesman_solver_nearest_neighbor"}:
+    elif algorithm == "traveling_salesman_solver_nearest_neighbor":
         validate_traveling_salesman_solver_workload(workload, algorithm)
     elif algorithm == "atax":
         validate_atax_workload(workload)
@@ -1441,6 +1466,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_misc_flops_workload(workload)
     elif algorithm == "freebench_fbench":
         validate_freebench_fbench_workload(workload)
+    elif algorithm == "hickerson_almost_integer":
+        validate_hickerson_almost_integer_workload(workload)
     elif algorithm == "doe_rsbench_doppler_xs":
         validate_doe_rsbench_doppler_xs_workload(workload)
     elif algorithm == "doe_simplemoc_quadratic_attenuation":
@@ -1674,10 +1701,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 raise ValueError("miniAMR accepted a generated malformed input")
             cases[tuple(malformed)] = result
 
-    if algorithm in {"traveling_salesman_solver_brute_force",
-                     "traveling_salesman_solver_nearest_neighbor"}:
-        nearest = algorithm == "traveling_salesman_solver_nearest_neighbor"
-        header_length = 3 if nearest else 2
+    if algorithm == "traveling_salesman_solver_nearest_neighbor":
+        header_length = 3
         max_valid_length = header_length + TRAVELING_SALESMAN_SOLVER_MAX_CITIES ** 2
         max_parseable_length = max_valid_length + 1
 
@@ -1700,54 +1725,36 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                          (row * 137 + column * 71 + salt * 19) % (TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST + 1)
                          for row in range(city_count) for column in range(city_count))
 
-        if nearest:
-            for city_count in range(1, TRAVELING_SALESMAN_SOLVER_MAX_CITIES + 1):
-                matrix = route_matrix(city_count, city_count)
-                for start in range(city_count):
-                    for selector in range(city_count + 2):
-                        add_traveling_salesman_solver_case(
-                            (selector, city_count, start, *matrix))
-            for city_count in range(3, TRAVELING_SALESMAN_SOLVER_MAX_CITIES + 1):
-                tied = tuple(0 if row == column else 1
-                             for row in range(city_count) for column in range(city_count))
+        for city_count in range(1, TRAVELING_SALESMAN_SOLVER_MAX_CITIES + 1):
+            matrix = route_matrix(city_count, city_count)
+            for start in range(city_count):
                 for selector in range(city_count + 2):
-                    add_traveling_salesman_solver_case((selector, city_count, city_count - 1, *tied))
-        else:
-            for city_count in range(2, TRAVELING_SALESMAN_SOLVER_MAX_CITIES + 1):
-                matrix = route_matrix(city_count, city_count)
-                for selector in range(city_count + 2):
-                    add_traveling_salesman_solver_case((selector, city_count, *matrix))
+                    add_traveling_salesman_solver_case(
+                        (selector, city_count, start, *matrix))
+        for city_count in range(3, TRAVELING_SALESMAN_SOLVER_MAX_CITIES + 1):
             tied = tuple(0 if row == column else 1
-                         for row in range(4) for column in range(4))
-            for selector in range(6):
-                add_traveling_salesman_solver_case((selector, 4, *tied))
-            rng_tsp_solver = random.Random(20261017)
-            for trial in range(8):
-                city_count = rng_tsp_solver.randint(2, 7)
-                matrix = tuple(rng_tsp_solver.randint(0, TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST)
-                               for _ in range(city_count * city_count))
-                for selector in range(city_count + 2):
-                    add_traveling_salesman_solver_case((selector, city_count, *matrix))
+                         for row in range(city_count) for column in range(city_count))
+            for selector in range(city_count + 2):
+                add_traveling_salesman_solver_case((selector, city_count, city_count - 1, *tied))
 
         maximum_count = TRAVELING_SALESMAN_SOLVER_MAX_CITIES
         maximum_matrix = tuple(0 if row == column else TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST
                                for row in range(maximum_count) for column in range(maximum_count))
-        maximum_valid = ((0, maximum_count, *maximum_matrix) if not nearest else
-                         (0, maximum_count, 3, *maximum_matrix))
+        maximum_valid = (0, maximum_count, 3, *maximum_matrix)
         add_traveling_salesman_solver_case(maximum_valid)
         malformed = (
             (), (0,), (0, 0),
-            (-1, 2, 0, 1, 1, 0) if not nearest else (-1, 2, 0, 0, 1, 1, 0),
-            (4, 2, 0, 1, 1, 0) if not nearest else (4, 2, 0, 0, 1, 1, 0),
-            (0, 1, 0, 0) if not nearest else (0, 0, 0),
-            (0, 9) if not nearest else (0, 9, 0),
-            (0, 2, 0, 1, 0) if not nearest else (0, 2, 0, 0, 1, 0),
-            (0, 2, 0, 1, 1, 0, 0) if not nearest else (0, 1, 0, 7, 7),
-            (0, 2, 0, -1, 1, 0) if not nearest else (0, 2, 0, 0, -1, 1, 0),
-            (0, 2, 0, 1001, 1, 0) if not nearest else (0, 2, 0, 0, 1001, 1, 0),
-            (0, 2, 0, I64_MIN, 1, 0) if not nearest else (0, 2, 0, 0, I64_MIN, 1, 0),
-            (0, 2, 0, I64_MAX, 1, 0) if not nearest else (0, 2, 0, 0, I64_MAX, 1, 0),
-            (0, 2, 2, 0, 1, 1, 0) if nearest else (0, 2, 0, 1, 1, 0),
+            (-1, 2, 0, 0, 1, 1, 0),
+            (4, 2, 0, 0, 1, 1, 0),
+            (0, 0, 0),
+            (0, 9, 0),
+            (0, 2, 0, 0, 1, 0),
+            (0, 1, 0, 7, 7),
+            (0, 2, 0, 0, -1, 1, 0),
+            (0, 2, 0, 0, 1001, 1, 0),
+            (0, 2, 0, 0, I64_MIN, 1, 0),
+            (0, 2, 0, 0, I64_MAX, 1, 0),
+            (0, 2, 2, 0, 1, 1, 0),
             (*maximum_valid, 0), (*maximum_valid, 0, 0),
         )
         for values in malformed:
@@ -6379,6 +6386,12 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             cases[values] = oracle(algorithm, list(values))
         for values in ((), (0,), (17,), (1, 2), (I64_MIN,), (I64_MAX,)):
             cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "hickerson_almost_integer":
+        for n in range(1, 18):
+            values = (n,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (18,), (5, 6), (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
     elif algorithm == "misc_flops":
         for module in range(1, 9):
             for steps in (2, 3, 7, 16, 64, 127, 128):
@@ -6680,7 +6693,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "butterworth_filter": 6,
                     "center_of_mass": 2,
                     "centripetal_force": 3,
-                    "cohen_sutherland": 9,
+                    "cohen_sutherland": 10,
                     "laplacian_filter": MAX_LAPLACIAN_FILTER_INPUT_LENGTH,
                     "line_sweep": 1,
                     "lorentz_transformation_four_vector": MAX_LORENTZ_TRANSFORMATION_FOUR_VECTOR_INPUT_LENGTH,
@@ -6730,6 +6743,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "npb_bt_5x5_block_tridiagonal": 0,
                     "npb_ua_mesh_adaptation": 0,
                     "nbench_fourier_coefficients": 0,
+                    "hickerson_almost_integer": 0,
                     "doe_rsbench_doppler_xs": DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH,
                     "doe_simplemoc_quadratic_attenuation": 0,
                     "doe_xsbench_unionized_macro_xs": 0,
@@ -6739,7 +6753,9 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "rodinia_leukocyte_gicov": 0,
                     "gbbs_charikar_densest_subgraph": 0,
                     "gbbs_bkv12_densest_subgraph": 0,
-                    "gbbs_greedy_plus_plus_densest_subgraph": 0}
+                    "gbbs_greedy_plus_plus_densest_subgraph": 0,
+                    "circle_polygon_intersection_area": 0,
+                    "quantum_spectral_energy_expectation": 0}
     null_lengths["doitgen"] = 3
     null_lengths["2mm"] = 4
     null_lengths["3mm"] = 5
@@ -6768,6 +6784,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    if algorithm == "rodinia_myocyte_cam_rhs" else
                    RODINIA_LEUKOCYTE_GICOV_INVALID_RESULT
                    if algorithm == "rodinia_leukocyte_gicov" else
+                   -1.0e300 if algorithm == "quantum_spectral_energy_expectation" else
                    MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
                    if algorithm == "mean_bias_deviation_percent" else
                    ANSIBENCH_WHETSTONE_INVALID_RESULT
@@ -6779,6 +6796,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    if algorithm == "npb_ua_mesh_adaptation" else
                    NBENCH_FOURIER_INVALID_RESULT
                    if algorithm == "nbench_fourier_coefficients" else
+                   HICKERSON_ALMOST_INTEGER_INVALID_RESULT
+                   if algorithm == "hickerson_almost_integer" else
                    MONTE_CARLO_INTEGRATION_INVALID_RESULT
                    if algorithm == "monte_carlo_integration" else
                    MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT

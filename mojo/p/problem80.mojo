@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p80_muladd(src:InlineArray[UInt64,16],factor:UInt64,add:UInt64,inout dst:InlineArray[UInt64,16]):
     var carry=add
     for i in range(16):

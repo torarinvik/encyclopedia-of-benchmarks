@@ -11,7 +11,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
         output[offset + byte] = (char)((bits >> (byte * 8)) & 255);
 }
 
-long tsvc_s272_threshold_dual_accumulate(long* input, usz length,
+fn long tsvc_s272_threshold_dual_accumulate(long* input, usz length,
         char* output, usz output_capacity) @export("tsvc_s272_threshold_dual_accumulate") {
     if (input == null || length < 8 || length > MAX_INPUT_LENGTH) return -1;
     long n_raw = input[0], passes_raw = input[1], threshold = input[2];

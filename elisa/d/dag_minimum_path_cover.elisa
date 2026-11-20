@@ -1,0 +1,125 @@
+const MAX_VERTICES: usize = 10
+const MAX_EDGES: usize = 45
+const MAX_PARSEABLE_LENGTH: usize = 93
+
+def dmpc_augment(left: usize, n: usize, used: usize, adjacency: view[usize],
+                 seen: mutable view[bool], match_right: mutable view[i64]) -> bool:
+    right: mutable usize = 0
+    while right < n:
+        bit: usize = 1 << right
+        if (adjacency[left] & bit) != 0 and (used & bit) == 0 and not seen[right]:
+            seen[right] <- true
+            mate: i64 = match_right[right]
+            if mate < 0:
+                match_right[right] <- left.i64()
+                return true
+            if dmpc_augment(mate.usize(), n, used, adjacency, seen, match_right):
+                match_right[right] <- left.i64()
+                return true
+        right <- right + 1
+    false
+
+def dmpc_maximum(adjacency: view[usize], n: usize, first: usize, used: usize) -> usize:
+    match_right: mutable i64[MAX_VERTICES] = zeroed
+    right: mutable usize = 0
+    while right < MAX_VERTICES:
+        match_right[right] <- -1
+        right <- right + 1
+    match_view: mutable view[i64] = match_right[0:MAX_VERTICES]
+    size: mutable usize = 0
+    left: mutable usize = first
+    while left < n:
+        seen_data: mutable bool[MAX_VERTICES] = zeroed
+        seen_view: mutable view[bool] = seen_data[0:MAX_VERTICES]
+        if dmpc_augment(left, n, used, adjacency, seen_view, match_view):
+            size <- size + 1
+        left <- left + 1
+    size
+
+def dag_minimum_path_cover_impl(values: view[i64]) -> i64:
+    length: usize = values.length
+    if length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
+    n_value: i64 = values[0]
+    m_value: i64 = values[1]
+    if n_value < 1 or n_value > MAX_VERTICES.i64() or m_value < 0 or m_value > MAX_EDGES.i64(): return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m: return -1
+
+    adjacency_data: mutable usize[MAX_VERTICES] = zeroed
+    indegree: mutable usize[MAX_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u_value: i64 = values[2 + 2 * edge]
+        v_value: i64 = values[3 + 2 * edge]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        bit: usize = 1 << v
+        if (adjacency_data[u] & bit) != 0: return -1
+        adjacency_data[u] <- adjacency_data[u] | bit
+        indegree[v] <- indegree[v] + 1
+        edge <- edge + 1
+
+    adjacency: view[usize] = adjacency_data[0:MAX_VERTICES]
+    queue: mutable usize[MAX_VERTICES] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    removed: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        if indegree[vertex] == 0:
+            queue[tail] <- vertex
+            tail <- tail + 1
+        vertex <- vertex + 1
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        removed <- removed + 1
+        vertex <- 0
+        while vertex < n:
+            if (adjacency[u] & (1 << vertex)) != 0:
+                indegree[vertex] <- indegree[vertex] - 1
+                if indegree[vertex] == 0:
+                    queue[tail] <- vertex
+                    tail <- tail + 1
+            vertex <- vertex + 1
+    if removed != n: return -1
+
+    maximum: usize = dmpc_maximum(adjacency, n, 0, 0)
+    successor: mutable usize[MAX_VERTICES] = zeroed
+    used: mutable usize = 0
+    fixed: mutable usize = 0
+    left: mutable usize = 0
+    while left < n:
+        chosen: mutable bool = false
+        right: mutable usize = 0
+        while right <= n:
+            matched: bool = right < n
+            if matched:
+                bit: usize = 1 << right
+                if (adjacency[left] & bit) == 0 or (used & bit) != 0:
+                    right <- right + 1
+                    continue
+            next_used: usize = if matched: used | (1 << right) else: used
+            attainable: usize = fixed + (if matched: 1 else: 0) + dmpc_maximum(adjacency, n, left + 1, next_used)
+            if attainable == maximum:
+                successor[left] <- right
+                used <- next_used
+                if matched: fixed <- fixed + 1
+                chosen <- true
+                break
+            right <- right + 1
+        if not chosen: return -1
+        left <- left + 1
+
+    packed: mutable u64 = (n - maximum).u64() << 40
+    vertex <- 0
+    while vertex < n:
+        packed <- packed | (successor[vertex].u64() << (4 * vertex))
+        vertex <- vertex + 1
+    packed.i64()
+
+export fn dag_minimum_path_cover(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
+    dag_minimum_path_cover_impl(input[0:length])

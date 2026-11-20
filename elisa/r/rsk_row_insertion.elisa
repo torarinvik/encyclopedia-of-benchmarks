@@ -1,0 +1,68 @@
+const RSK_MAX_N: usize = 8
+const RSK_INVALID: i64 = -9223372036854775807 - 1
+
+def rsk_row_insertion_impl(input: view[i64], length: usize) -> i64:
+    if length < 1 or length > 10: return RSK_INVALID
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > RSK_MAX_N.i64() or length != n_value.usize() + 1:
+        return RSK_INVALID
+    n: usize = n_value.usize()
+    seen: mutable bool[8] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        value: i64 = input[index + 1]
+        if value < 0 or value >= n_value or seen[value.usize()]: return RSK_INVALID
+        seen[value.usize()] <- true
+        index <- index + 1
+    if n == 0: return 0
+
+    p: mutable i64[64] = zeroed
+    q: mutable i64[64] = zeroed
+    row_lengths: mutable usize[8] = zeroed
+    row_count: mutable usize = 0
+    step: mutable usize = 1
+    while step <= n:
+        value: mutable i64 = input[step] + 1
+        row: mutable usize = 0
+        while true:
+            if row == row_count:
+                p[row * 8] <- value
+                q[row * 8] <- step.i64()
+                row_lengths[row] <- 1
+                row_count <- row_count + 1
+                break
+            column: mutable usize = 0
+            while column < row_lengths[row] and p[row * 8 + column] < value:
+                column <- column + 1
+            if column == row_lengths[row]:
+                p[row * 8 + column] <- value
+                q[row * 8 + column] <- step.i64()
+                row_lengths[row] <- row_lengths[row] + 1
+                break
+            bumped: i64 = p[row * 8 + column]
+            p[row * 8 + column] <- value
+            value <- bumped
+            row <- row + 1
+        step <- step + 1
+
+    p_row: mutable i64[8] = zeroed
+    q_row: mutable i64[8] = zeroed
+    row: mutable usize = 0
+    while row < row_count:
+        column: mutable usize = 0
+        while column < row_lengths[row]:
+            p_row[(p[row * 8 + column] - 1).usize()] <- row.i64()
+            q_row[(q[row * 8 + column] - 1).usize()] <- row.i64()
+            column <- column + 1
+        row <- row + 1
+    code: mutable i64 = n_value
+    label: mutable usize = 0
+    while label < n:
+        code <- code * 9 + p_row[label] + 1
+        code <- code * 9 + q_row[label] + 1
+        label <- label + 1
+    code
+
+export fn rsk_row_insertion(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 10: return RSK_INVALID
+    rsk_row_insertion_impl(input[0:length], length)

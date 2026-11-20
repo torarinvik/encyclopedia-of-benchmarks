@@ -1,0 +1,5 @@
+# Rights and provenance
+
+The package is a clean-room implementation of the same-fringe problem. Its definition and stack-backed generator approach are cross-referenced with Biernacki, Danvy, and Shan, “On the static and dynamic extents of delimited continuations,” *Science of Computer Programming* 60 (2006), §4 ([DOI](https://doi.org/10.1016/j.scico.2006.01.002), [author-hosted copy](https://www.cs.tufts.edu/comp/150FP/archive/olivier-danvy/sdarticle.pdf)). The historical iterator discussion is Finin and Rutter, “Different Fringe for Different Folk,” SIGART Newsletter 60 (1976) ([scan](https://ebiquity.umbc.edu/_file_directory_/papers/1148.pdf)).
+
+The pinned [RosettaCodeData title index](https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks) supplied discovery only. No task text, solution code, examples, or tests were copied. The contracts, trees, fixtures, references, ports, and documentation are original clean-room material. Copyright in cited papers remains with their respective rights holders; the benchmark uses only the algorithmic ideas and bibliographic identification.

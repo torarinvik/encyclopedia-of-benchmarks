@@ -12,7 +12,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long gbbs_maximal_matching(long* input, usz length, char* output, usz capacity)
+fn long gbbs_maximal_matching(long* input, usz length, char* output, usz capacity)
         @export("gbbs_maximal_matching") {
     if (input == null || length < 2 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];

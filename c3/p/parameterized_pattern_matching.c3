@@ -24,7 +24,7 @@ fn void predecessor_code(long* input, usz offset, usz length, long* code) {
     }
 }
 
-long parameterized_pattern_matching(long* input, usz length, char* output,
+fn long parameterized_pattern_matching(long* input, usz length, char* output,
         usz capacity) @export("parameterized_pattern_matching") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long text_length_value = input[0], pattern_length_value = input[1];

@@ -1,4 +1,4 @@
-# Statistical region merging with supplied bounds (in progress)
+# Statistical region merging with supplied bounds
 
 This bounded grayscale profile follows the ordered region-merging structure
 of statistical region merging. Each pixel starts as a region. Visit every
@@ -9,7 +9,7 @@ the supplied size-dependent squared bounds and merge if the squared mean
 difference is at most the sum of the two bounds. Output each pixel's smallest
 row-major index in its final region as one byte.
 
-The proposed `i64_array_bytes_output` input is `[height,width,bounds...,pixels...]`:
+The `i64_array_bytes_output` input is `[height,width,bounds...,pixels...]`:
 `1 <= height,width <= 6`, `n = height*width`, exactly `n` bounds for region
 sizes 1 through n, then `n` grayscale bytes. Bounds are integers in
 `0..65535`; pixels are integers in `0..255`. Input has exactly `2+2*n`
@@ -32,11 +32,17 @@ and the [PARSEC technical report](https://www.cs.princeton.edu/techreports/2010/
 which identifies this method in Ferret. The publications identify the method;
 no source code, figures, prose or example data are reused.
 
-**Status:** two oracle drafts, workload, ten language drafts and byte-output
-suite registration are present. All remain unexecuted and need validation.
-The workload includes exact-threshold and just-over-threshold merges; the
-suite also defines generated comparisons between the two references and
-checks that all listed source paths contain the exported symbol.
+The package includes a sorted-edge disjoint-set primary reference and an
+independent flat-label reference that computes region means with exact
+rationals. [`workload.json`](workload.json) includes exact-threshold and
+just-over-threshold merges, malformed frames, and output-capacity errors.
+[`check_inventory.py`](check_inventory.py) statically checks package metadata,
+fixture answers against both references, source links, and the ten exported
+port paths. The shared byte-output suite also defines generated comparisons
+between the two reference strategies.
+
+All ports and references are source drafts. No program, test, checker,
+compiler, or benchmark has been run.
 
 | Language | Draft |
 | --- | --- |

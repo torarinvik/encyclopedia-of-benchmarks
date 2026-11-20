@@ -1,0 +1,30 @@
+{
+  "algorithm": "gregorian_daycount_to_ordinal_date",
+  "function_symbol": "gregorian_daycount_to_ordinal_date",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/g/gregorian_daycount_to_ordinal_date.c",
+    "c3": "c3/g/gregorian_daycount_to_ordinal_date.c3",
+    "cpp": "cpp/g/gregorian_daycount_to_ordinal_date.cpp",
+    "elisa": "elisa/g/gregorian_daycount_to_ordinal_date.elisa",
+    "mojo": "mojo/g/gregorian_daycount_to_ordinal_date.mojo",
+    "nim": "nim/g/gregorian_daycount_to_ordinal_date.nim",
+    "odin": "odin/g/gregorian_daycount_to_ordinal_date.odin",
+    "rust": "rust/g/gregorian_daycount_to_ordinal_date.rs",
+    "v": "v/g/gregorian_daycount_to_ordinal_date.v",
+    "zig": "zig/g/gregorian_daycount_to_ordinal_date.zig"
+  },
+  "references": [
+    "primary_oracle.py",
+    "independent_oracle.py"
+  ],
+  "artifacts": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "check_inventory.py",
+    "verify_workload.py"
+  ],
+  "suite_status": "registered_i64_array_bytes_output"
+}

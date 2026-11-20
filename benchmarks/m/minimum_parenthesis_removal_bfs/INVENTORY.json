@@ -1,0 +1,34 @@
+{
+  "algorithm": "minimum_parenthesis_removal_bfs",
+  "function_symbol": "minimum_parenthesis_removal_bfs",
+  "languages": ["c", "c3", "cpp", "elisa", "mojo", "nim", "odin", "rust", "v", "zig"],
+  "source_files": [
+    "c/m/minimum_parenthesis_removal_bfs.c",
+    "c3/m/minimum_parenthesis_removal_bfs.c3",
+    "cpp/m/minimum_parenthesis_removal_bfs.cpp",
+    "elisa/m/minimum_parenthesis_removal_bfs.elisa",
+    "mojo/m/minimum_parenthesis_removal_bfs.mojo",
+    "nim/m/minimum_parenthesis_removal_bfs.nim",
+    "odin/m/minimum_parenthesis_removal_bfs.odin",
+    "rust/m/minimum_parenthesis_removal_bfs.rs",
+    "v/m/minimum_parenthesis_removal_bfs.v",
+    "zig/m/minimum_parenthesis_removal_bfs.zig"
+  ],
+  "artifacts": [
+    "benchmarks/minimum_parenthesis_removal_bfs_oracle.py",
+    "benchmarks/minimum_parenthesis_removal_bfs_independent_oracle.py",
+    "benchmarks/m/minimum_parenthesis_removal_bfs/workload.json",
+    "benchmarks/m/minimum_parenthesis_removal_bfs/README.md",
+    "benchmarks/m/minimum_parenthesis_removal_bfs/RIGHTS.md",
+    "benchmarks/m/minimum_parenthesis_removal_bfs/INVENTORY.md",
+    "benchmarks/m/minimum_parenthesis_removal_bfs/check_inventory.py",
+    "benchmarks/m/minimum_parenthesis_removal_bfs/verify_workload.py"
+  ],
+  "bounds": {
+    "maximum_valid_input_values": 17,
+    "maximum_parseable_input_values": 18,
+    "maximum_output_bytes": 4354,
+    "workspace_bytes": 8192
+  },
+  "static_only": true
+}

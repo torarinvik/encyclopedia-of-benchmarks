@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "string-compression-ii-delete-aware-rle-length-i64-array-scalar-v1",
+  "algorithm": "string_compression_ii",
+  "function_symbol": "string_compression_ii",
+  "abi": "i64_array_scalar",
+  "description": "Minimize standard run-length encoded length after deleting at most k lowercase symbols.",
+  "primary_oracle": "benchmarks/s/string_compression_ii/primary_oracle.py",
+  "primary_oracle_entry_point": "expected_result(values, input_length=None, input_is_null=False)",
+  "independent_oracle": "benchmarks/s/string_compression_ii/independent_oracle.py",
+  "independent_oracle_entry_point": "expected_result(values, input_length=None, input_is_null=False)",
+  "sources": {
+    "primary_problem_definition": "https://leetcode.com/problems/string-compression-ii/",
+    "run_length_convention": "https://leetcode.com/problems/string-compression/",
+    "source_use": "Public pages used for the problem operation and RLE length convention; no code or examples are reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,k,symbol_0,...,symbol_(n-1)]",
+    "n_range": [0, 12],
+    "deletion_budget_range": "0..n",
+    "symbol_range": [0, 25],
+    "symbol_mapping": "lowercase letters a=0 through z=25",
+    "exact_framing": true,
+    "maximum_valid_length": 14,
+    "maximum_parseable_length": 15,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "Minimum encoded length after deleting at most k symbols.",
+    "result_range": [0, 12],
+    "empty_retained_string_result": 0,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "run_length": "A run of length 1 costs 1; a run of length r>=2 costs 1 plus the number of decimal digits in r. The run symbol itself costs one character.",
+    "primary": "Prefix DP tracks input position and exact deletions used. Delete the next symbol, or start a run with the next symbol, scan endpoint j, retain any positive number c of matching symbols in the span, delete the rest, and add the encoded cost of c.",
+    "independent_reference": "Enumerate all deletion masks with at most k bits set; directly count maximal equal-symbol runs in each retained sequence.",
+    "at_most_semantics": "Return the minimum over every exact deletion count from zero through k.",
+    "complexity": "The primary is O(n^3 k) time and O(nk) space; the independent exhaustive reference is O(n*2^n) time and O(n) space."
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Bounded prefix-DP table and fixed-size scan state for n<=12."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-string","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"singleton","input_values":[1,0,7],"input_length":3,"expected_result":1},
+    {"id":"same-symbol-pair","input_values":[2,0,3,3],"input_length":4,"expected_result":2},
+    {"id":"delete-separator-merge-three","input_values":[4,1,0,1,0,0],"input_length":6,"expected_result":2},
+    {"id":"nine-symbol-run","input_values":[9,0,0,0,0,0,0,0,0,0,0],"input_length":11,"expected_result":2},
+    {"id":"ten-symbol-run-no-deletion","input_values":[10,0,0,0,0,0,0,0,0,0,0,0],"input_length":12,"expected_result":3},
+    {"id":"delete-to-cross-ten-count-boundary","input_values":[10,1,0,0,0,0,0,0,0,0,0,0],"input_length":12,"expected_result":2},
+    {"id":"delete-all-symbols","input_values":[3,3,5,5,6],"input_length":5,"expected_result":0},
+    {"id":"several-distinct-runs-no-deletion","input_values":[5,0,0,1,2,3,4],"input_length":7,"expected_result":5},
+    {"id":"delete-middle-run-to-join-equal-ends","input_values":[6,2,0,0,0,1,1,0],"input_length":8,"expected_result":2},
+    {"id":"maximum-length-distinct-symbols","input_values":[12,0,0,1,2,3,4,5,6,7,8,9,10,11],"input_length":14,"expected_result":12},
+    {"id":"maximum-valid-frame-plus-trailing-word","input_values":[12,0,0,1,2,3,4,5,6,7,8,9,10,11,0],"input_length":15,"expected_result":-1},
+    {"id":"budget-equals-length","input_values":[12,12,0,1,2,3,4,5,6,7,8,9,10,11],"input_length":14,"expected_result":0},
+    {"id":"n-above-bound","input_values":[13,0,0,1,2,3,4,5,6,7,8,9,10,11,12],"input_length":15,"expected_result":-1},
+    {"id":"budget-above-n","input_values":[2,3,0,0],"input_length":4,"expected_result":-1},
+    {"id":"symbol-above-lowercase-range","input_values":[1,0,26],"input_length":3,"expected_result":-1},
+    {"id":"one-trailing-word","input_values":[1,0,7,0],"input_length":4,"expected_result":-1},
+    {"id":"input-length-mismatch","input_values":[1,0,7],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

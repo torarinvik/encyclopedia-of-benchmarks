@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "algorithm": "cohen_sutherland",
+  "abi": "i64_array_float64",
+  "function_symbol": "cohen_sutherland",
+  "workload": "benchmarks/c/cohen_sutherland/workload.json",
+  "primary_reference": "benchmarks/cohen_sutherland_oracle.py",
+  "independent_reference": "benchmarks/c/cohen_sutherland/independent_oracle.py",
+  "workload_helper": "benchmarks/c/cohen_sutherland/verify_workload.py",
+  "static_inventory": "benchmarks/c/cohen_sutherland/check_inventory.py",
+  "suite_integration": "benchmarks/run_i64_array_float64.py and benchmarks/verify_i64_array_float64.py",
+  "languages": {
+    "c": "c/c/cohen_sutherland.c",
+    "c3": "c3/c/cohen_sutherland.c3",
+    "cpp": "cpp/c/cohen_sutherland.cpp",
+    "elisa": "elisa/c/cohen_sutherland.elisa",
+    "mojo": "mojo/c/cohen_sutherland.mojo",
+    "nim": "nim/c/cohen_sutherland.nim",
+    "odin": "odin/c/cohen_sutherland.odin",
+    "rust": "rust/c/cohen_sutherland.rs",
+    "v": "v/c/cohen_sutherland.v",
+    "zig": "zig/c/cohen_sutherland.zig"
+  },
+  "bounds": {
+    "maximum_valid_input_words": 9,
+    "maximum_parseable_input_words": 10,
+    "coordinate_micro_min": -1000000000,
+    "coordinate_micro_max": 1000000000,
+    "maximum_output_elements": 1,
+    "workspace_bytes": 0,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "methods": {
+    "primary": "endpoint outcodes with iterative clipping in top, bottom, right, left priority",
+    "independent": "four-constraint Liang-Barsky entering/leaving parameter interval"
+  },
+  "sources": [
+    "https://cim.mcgill.ca/~langer/557/6-slides-9pp.pdf",
+    "https://www.cs.helsinki.fi/group/goa/viewing/leikkaus/uuu",
+    "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/lineclipping/CohenSutherland.java",
+    "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/LICENSE"
+  ],
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py",
+    "__init__.py"
+  ]
+}

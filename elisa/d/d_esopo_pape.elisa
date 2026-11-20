@@ -12,9 +12,10 @@ def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
 def d_esopo_pape_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if values.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
         return -1
-    raw_n: i64 = values[0]
-    raw_m: i64 = values[1]
-    raw_source: i64 = values[2]
+    input: view[i64] = values[0:length]
+    raw_n: i64 = input[0]
+    raw_m: i64 = input[1]
+    raw_source: i64 = input[2]
     if raw_n < 1 or raw_n > MAX_VERTICES.i64() or raw_m < 0 or raw_m > MAX_EDGES.i64() or raw_source < 0 or raw_source >= raw_n or length != 3 + 3 * raw_m.usize():
         return -1
 
@@ -30,9 +31,9 @@ def d_esopo_pape_impl(values: i64&, length: usize, output: mutable u8&, output_c
         vertex <- vertex + 1
     edge: usize = 0
     while edge < m:
-        u: i64 = values[3 + 3 * edge]
-        v: i64 = values[4 + 3 * edge]
-        weight: i64 = values[5 + 3 * edge]
+        u: i64 = input[3 + 3 * edge]
+        v: i64 = input[4 + 3 * edge]
+        weight: i64 = input[5 + 3 * edge]
         if u < 0 or u >= raw_n or v < 0 or v >= raw_n or weight < 0 or weight > 1000:
             return -1
         to[edge] <- v

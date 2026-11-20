@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "algorithm": "same_value_teleport_bfs",
+  "function_symbol": "same_value_teleport_bfs",
+  "abi": "i64_array_scalar",
+  "status": "ten ports and scalar suite/catalog integration complete; static review only",
+  "ports": {
+    "c": "c/s/same_value_teleport_bfs.c",
+    "c3": "c3/s/same_value_teleport_bfs.c3",
+    "cpp": "cpp/s/same_value_teleport_bfs.cpp",
+    "elisa": "elisa/s/same_value_teleport_bfs.elisa",
+    "mojo": "mojo/s/same_value_teleport_bfs.mojo",
+    "nim": "nim/s/same_value_teleport_bfs.nim",
+    "odin": "odin/s/same_value_teleport_bfs.odin",
+    "rust": "rust/s/same_value_teleport_bfs.rs",
+    "v": "v/s/same_value_teleport_bfs.v",
+    "zig": "zig/s/same_value_teleport_bfs.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "bounds": {
+    "maximum_valid_input_words": 65,
+    "workspace_bytes": 3072,
+    "array_length": [1, 64],
+    "value_range": [-64, 64]
+  },
+  "suite_registration": "i64_array_scalar"
+}

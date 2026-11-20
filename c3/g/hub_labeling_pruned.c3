@@ -37,7 +37,7 @@ fn bool unique_shortest_paths(bool* adjacency, usz n) {
     return true;
 }
 
-long hub_labeling_pruned(long* input, usz length, char* output, usz capacity) @export("hub_labeling_pruned") {
+fn long hub_labeling_pruned(long* input, usz length, char* output, usz capacity) @export("hub_labeling_pruned") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long n_value = input[0], m_value = input[1];
     if (n_value < 1 || n_value > (long)MAX_VERTICES || m_value < 0 || m_value > (long)MAX_EDGES) return -1;

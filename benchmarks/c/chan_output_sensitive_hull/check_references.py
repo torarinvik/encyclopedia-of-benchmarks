@@ -1,4 +1,4 @@
-"""Unexecuted source-level checks for the in-progress Chan references."""
+"""Source-level checks for the Chan references; execution remains deferred."""
 
 from itertools import combinations, permutations
 import json
@@ -78,7 +78,7 @@ def reference_issues():
                 issues.append("external tangent candidate depends on rotation or query side")
                 break
             if tangent_search(polygon, query) != expected:
-                issues.append("binary tangent draft disagrees with explicit triangle case")
+                issues.append("binary tangent search disagrees with explicit triangle case")
                 break
     # Subsets of a strictly convex parabola are also convex; every excluded
     # point is a global extreme vertex and lies outside the subgroup hull.
@@ -91,8 +91,19 @@ def reference_issues():
                 for offset in range(size):
                     rotated = subgroup[offset:] + subgroup[:offset]
                     if tangent_search(rotated, query) != expected:
-                        issues.append("binary tangent draft disagrees on a rotated subgroup")
+                        issues.append("binary tangent search disagrees on a rotated subgroup")
                         return issues
+    # Queries on opposite sides of a larger convex subgroup exercise both
+    # ray-order cases and every possible cyclic storage origin. Neither
+    # query is collinear with two subgroup vertices.
+    wide_polygon = tuple((x, x*x) for x in range(-3, 4))
+    for query in ((0, -10), (0, 20)):
+        expected = wrapping_candidate(wide_polygon, query)
+        for offset in range(len(wide_polygon)):
+            rotated = wide_polygon[offset:] + wide_polygon[:offset]
+            if tangent_search(rotated, query) != expected:
+                issues.append("binary tangent search disagrees on a wide rotated subgroup")
+                return issues
     # The independent reference rejects degenerate sets; compare only valid
     # subsets to avoid treating invalid input as an algorithm failure.
     grid = tuple((x, y) for x in range(-1, 2) for y in range(-1, 2))
@@ -118,7 +129,7 @@ def reference_issues():
                     for offset in range(len(polygon)):
                         rotated = polygon[offset:] + polygon[:offset]
                         if tangent_search(rotated, query) != expected:
-                            issues.append("binary tangent draft disagrees on a general-position grid subgroup")
+                            issues.append("binary tangent search disagrees on a general-position grid subgroup")
                             return issues
     for points in combinations(grid, 4):
         values = (len(points), *(coordinate for point in points for coordinate in point))

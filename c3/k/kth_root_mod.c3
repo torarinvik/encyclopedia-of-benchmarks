@@ -36,8 +36,8 @@ fn usz factor_distinct(long value, long* factors) {
 fn long primitive_root(long prime) {
     if (prime == 2) return 1;
     long order = prime - 1;
-    long factors[16];
-    usz count = factor_distinct(order, factors);
+    long[16] factors;
+    usz count = factor_distinct(order, &factors[0]);
     for (long candidate = 2; candidate < prime; candidate += 1) {
         usz i = 0;
         while (i < count && modular_power(candidate, order / factors[i], prime) != 1) i += 1;
@@ -91,7 +91,7 @@ fn long kth_root_mod(long* input, usz length, char* output, usz capacity) @expor
     usz t = (usz)t_value;
     if (length != 1 + 3 * t) return -1;
 
-    long triples[3 * MAX_T];
+    long[3 * MAX_T] triples;
     for (usz i = 0; i < 3 * t; i += 3) {
         long exponent = input[i + 1], residue = input[i + 2], prime = input[i + 3];
         if (exponent < 0 || exponent > MAX_K || prime < 2 || prime > MAX_P ||

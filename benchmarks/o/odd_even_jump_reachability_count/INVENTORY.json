@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "algorithm": "odd_even_jump_reachability_count",
+  "abi": "i64_array_scalar",
+  "language_sources": {
+    "c": "c/o/odd_even_jump_reachability_count.c",
+    "c3": "c3/o/odd_even_jump_reachability_count.c3",
+    "cpp": "cpp/o/odd_even_jump_reachability_count.cpp",
+    "elisa": "elisa/o/odd_even_jump_reachability_count.elisa",
+    "mojo": "mojo/o/odd_even_jump_reachability_count.mojo",
+    "nim": "nim/o/odd_even_jump_reachability_count.nim",
+    "odin": "odin/o/odd_even_jump_reachability_count.odin",
+    "rust": "rust/o/odd_even_jump_reachability_count.rs",
+    "v": "v/o/odd_even_jump_reachability_count.v",
+    "zig": "zig/o/odd_even_jump_reachability_count.zig"
+  },
+  "package_files": [
+    "__init__.py", "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json",
+    "check_inventory.py", "primary_oracle.py", "independent_oracle.py",
+    "verify_workload.py", "workload.json"
+  ]
+}

@@ -37,13 +37,13 @@ fn bool valid(long* input,usz length){
     for(usz i=0;i<WINDOW_COUNT;i++)if((i==0||(i>=8&&(i-8)%16==0))&&input[SAMPLE_COUNT+i]<=25000000)return false;
     return true;
 }
-fn void filterbank(long* input,double window[256],double bands[32]){
-    double maximum=window[248],mmax[31],mm[16][31];usz wp=0,wr=0;double w=window[wp++];mmax[15]=w/maximum;
+fn void filterbank(long* input,double* window,double* bands){
+    double maximum=window[248];double[31] mmax;double[31][16] mm;usz wp=0,wr=0;double w=window[wp++];mmax[15]=w/maximum;
     for(usz k=0;k<7;k++)window[wr++]=window[wp++]/w;
     for(int i=14;i>=0;i--){w=window[wp++];mmax[i]=w/maximum;mmax[30-i]=w/maximum;for(usz k=0;k<15;k++)window[wr++]=window[wp++]/w;}
     wp++;for(usz k=0;k<7;k++)window[wr++]=window[wp++]/maximum;
     for(int i=15;i>=0;i--)for(int k=1;k<32;k++)mm[i][k-1]=math.cos((2*i+1)*k*PI/64.0)*mmax[k-1];
-    double inner[31]={0};usz coeff=0;double t=(double)input[255];
+    double[31] inner={};usz coeff=0;double t=(double)input[255];
     t+=(double)(input[223]-input[287])*window[coeff++];t+=(double)(input[191]+input[319])*window[coeff++];
     t+=(double)(input[159]-input[351])*window[coeff++];t+=(double)(input[127]+input[383])*window[coeff++];
     t+=(double)(input[95]-input[415])*window[coeff++];t+=(double)(input[63]+input[447])*window[coeff++];t+=(double)(input[31]-input[479])*window[coeff++];inner[15]=t;
@@ -52,7 +52,7 @@ fn void filterbank(long* input,double window[256],double bands[32]){
     for(int i=15;i>=0;i--){double s0=s,s1=t*mm[i][0];usz at=1;for(int j=0;j<15;j++){s0+=mm[i][2*j+1]*inner[at++];s1+=mm[i][2*j+2]*inner[at++];}bands[i]=s0+s1;bands[31-i]=s0-s1;}
 }
 fn long cbench_consumer_lame_window_subband(long* input,usz input_length,char* output,usz output_capacity) @export("cbench_consumer_lame_window_subband"){
-    if(!valid(input,input_length))return -1;double window[256];for(usz i=0;i<WINDOW_COUNT;i++)window[i]=(double)input[SAMPLE_COUNT+i]/1000000000.0;
-    double bands[32];filterbank(input,window,bands);long staged[32];for(usz i=0;i<BAND_COUNT;i++)staged[i]=round_q1000(bands[i]);
+    if(!valid(input,input_length))return -1;double[256] window;for(usz i=0;i<WINDOW_COUNT;i++)window[i]=(double)input[SAMPLE_COUNT+i]/1000000000.0;
+    double[32] bands;filterbank(input,&window[0],&bands[0]);long[32] staged;for(usz i=0;i<BAND_COUNT;i++)staged[i]=round_q1000(bands[i]);
     if(output==null||output_capacity<OUTPUT_BYTES)return -2;for(usz i=0;i<BAND_COUNT;i++)store_i64_le(output,8*i,staged[i]);return (long)OUTPUT_BYTES;
 }

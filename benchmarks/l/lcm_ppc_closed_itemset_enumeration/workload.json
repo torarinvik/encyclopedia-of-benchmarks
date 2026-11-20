@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-lcm-ppc-closed-itemset-enumeration-i64-array-bytes-output-v1",
+  "algorithm": "lcm_ppc_closed_itemset_enumeration",
+  "function_symbol": "lcm_ppc_closed_itemset_enumeration",
+  "abi": "i64_array_bytes_output",
+  "description": "Enumerate frequent closed itemsets with LCM's prefix-preserving closure DFS.",
+  "source": {
+    "chapter_title": "Frequent Pattern Mining",
+    "chapter_doi": "10.1007/978-1-4939-2864-4_722",
+    "chapter_url": "https://doi.org/10.1007/978-1-4939-2864-4_722",
+    "paper_title": "An Efficient Algorithm for Enumerating Closed Patterns in Transaction Databases",
+    "paper_authors": ["Takeaki Uno", "Tatsuya Asai", "Yuzo Uchida", "Hiroki Arimura"],
+    "paper_year": 2004,
+    "paper_doi": "10.1137/S0097539794275872",
+    "paper_url": "https://doi.org/10.1137/S0097539794275872",
+    "paper_sections": ["2 Preliminaries", "4.3 Prefix-Preserving Closure Extension"],
+    "paper_algorithm": "LCM Algorithm, Figure 3; practical occurrence-delivery variant, Figure 7",
+    "implementation_status": "bounded clean-room profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[item_count,row_count,minimum_support,transaction_mask...]",
+    "item_count_range": [1, 8],
+    "row_count_range": [1, 16],
+    "minimum_support_range": "1 through row_count inclusive",
+    "item_indexing": "bit 0 through bit item_count-1; duplicate row masks are separate transactions",
+    "maximum_valid_length": 19,
+    "maximum_parseable_length": 19,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[record_count,mask_0,support_0,...]",
+    "records": "all frequent closed itemsets, including closure(empty), emitted in ppc depth-first order with candidate item IDs ascending",
+    "maximum_records": 256,
+    "maximum_bytes": 4104,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "meaning": "Staged output for at most 256 (mask,support) pairs plus bounded recursion and row scans."
+  },
+  "contract": {
+    "closure": "Intersection of all transaction masks containing a pattern; closure(empty) is the all-row intersection.",
+    "core_index": "For a non-root closed mask P, the lowest item index i for which support(P restricted to bits 0..i) equals support(P). The root closure uses sentinel core -1.",
+    "ppc_child": "For each absent item i greater than the parent's core, Q=closure(P union {i}) is a child iff it is frequent and P and Q have equal bits below i.",
+    "root": "Start at closure(empty), which is frequent because minimum_support is at most row_count.",
+    "traversal": "Preorder depth-first traversal; candidate item IDs are visited in ascending order.",
+    "duplicate_transaction_semantics": "Each input row is a distinct occurrence even if masks repeat.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"universal_item_root_and_ppc_depth_first_order","input_values":[3,3,1,7,3,5],"input_length":6,"output_capacity":4104,"expected_result":72,"expected_output_hex":"040000000000000001000000000000000300000000000000030000000000000002000000000000000700000000000000010000000000000005000000000000000200000000000000"},
+    {"id":"duplicate_rows_and_distinct_closed_sets","input_values":[3,4,2,3,3,6,4],"input_length":7,"output_capacity":4104,"expected_result":72,"expected_output_hex":"040000000000000000000000000000000400000000000000030000000000000002000000000000000200000000000000030000000000000004000000000000000200000000000000"},
+    {"id":"no_frequent_extension","input_values":[3,2,2,1,2],"input_length":5,"output_capacity":4104,"expected_result":24,"expected_output_hex":"010000000000000000000000000000000200000000000000"},
+    {"id":"maximum_valid_frame","input_values":[8,16,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255],"input_length":19,"output_capacity":4104,"expected_result":40,"expected_output_hex":"020000000000000000000000000000001000000000000000FF000000000000000100000000000000"},
+    {"id":"all_items_universal_at_threshold_boundary","input_values":[3,3,3,7,7,7],"input_length":6,"output_capacity":4104,"expected_result":24,"expected_output_hex":"010000000000000007000000000000000300000000000000"},
+    {"id":"zero_item_count_rejected","input_values":[0,1,1,0],"input_length":4,"output_capacity":4104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"transaction_mask_outside_item_universe","input_values":[3,1,1,8],"input_length":4,"output_capacity":4104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"support_above_row_count_rejected","input_values":[2,1,2,3],"input_length":4,"output_capacity":4104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input_word_rejected","input_values":[2,1,1,1,0],"input_length":5,"output_capacity":4104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":4104,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[3,3,1,7,3,5],"input_length":6,"output_capacity":72,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"insufficient_output_capacity","input_values":[3,3,1,7,3,5],"input_length":6,"output_capacity":71,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

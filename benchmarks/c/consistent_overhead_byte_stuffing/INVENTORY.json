@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "algorithm": "consistent_overhead_byte_stuffing",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "consistent_overhead_byte_stuffing",
+  "status": "integrated in i64_array_bytes_output runner, verifier, and catalog; statically authored; not executed",
+  "input": {
+    "encoding": "[payload_byte_count, payload_bytes...]",
+    "maximum_valid_length": 256,
+    "maximum_parseable_length": 257,
+    "maximum_payload_bytes": 255,
+    "payload_byte_range": [0, 255]
+  },
+  "output": {
+    "kind": "cobs_encoded_bytes",
+    "maximum_bytes": 257,
+    "maximum_bound": "n+ceil(n/254) for n>0; one code byte when n=0",
+    "invalid": -1,
+    "null_or_short": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {"bytes": 384},
+  "bounds": {
+    "staged_output_bytes": 257,
+    "largest_payload_code": 255,
+    "signed_input_arithmetic_safe": true
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/c/consistent_overhead_byte_stuffing.c",
+    "c3/c/consistent_overhead_byte_stuffing.c3",
+    "cpp/c/consistent_overhead_byte_stuffing.cpp",
+    "elisa/c/consistent_overhead_byte_stuffing.elisa",
+    "mojo/c/consistent_overhead_byte_stuffing.mojo",
+    "nim/c/consistent_overhead_byte_stuffing.nim",
+    "odin/c/consistent_overhead_byte_stuffing.odin",
+    "rust/c/consistent_overhead_byte_stuffing.rs",
+    "v/c/consistent_overhead_byte_stuffing.v",
+    "zig/c/consistent_overhead_byte_stuffing.zig"
+  ],
+  "sources": [
+    "https://doi.org/10.1109/90.769765",
+    "https://stuartcheshire.org/papers/COBSforToN.pdf",
+    "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  ]
+}

@@ -22,6 +22,7 @@ height is read. The maximum-length plateau in the workload exercises both the
 The [OI Wiki Cartesian-tree overview](https://en.oi-wiki.org/ds/cartesian-tree/)
 describes the tree-based histogram approach. The local contract, implementation,
 and reference are independently written; no external source or examples are
-copied. Reserved for root: drafts in all ten languages, the independent
-quadratic reference, workload, and scalar-suite registration are unverified.
-No code has been run.
+copied. Static review of all ten ports found consistent stable-leftmost tree
+construction, postorder subtree sizes, height-area scoring, input bounds, and
+null/empty behavior. The interval-enumeration reference, workload, and scalar
+suite wiring are present. Nothing has been compiled or run.

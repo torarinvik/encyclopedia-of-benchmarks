@@ -1,0 +1,124 @@
+const MAX_VERTICES: usize = 24
+const MAX_PARSEABLE_INPUT: usize = 26
+
+struct Candidate:
+    vertex: usize
+    bound: usize
+
+struct Search:
+    adjacency: u64[MAX_VERTICES]
+    chosen: usize[MAX_VERTICES]
+    chosen_count: usize
+    best: usize
+    steps: usize[MAX_VERTICES + 2]
+    prior_child_steps: usize[MAX_VERTICES + 2]
+    total_color_calls: usize
+
+def degree_order(adjacency: view[u64], vertices: view[usize],
+    count: usize, ordered: mutable view[Candidate]):
+    var ids: mutable usize[MAX_VERTICES] = zeroed
+    var degrees: mutable usize[MAX_VERTICES] = zeroed
+    var maximum_degree: usize = 0
+    for i in 0..<count:
+        ids[i] <- vertices[i]
+        for j in 0..<count:
+            if (adjacency[ids[i]] & (u64(1) << vertices[j])) != 0:
+                degrees[i] <- degrees[i] + 1
+        if degrees[i] > maximum_degree: maximum_degree <- degrees[i]
+    for i in 1..<count:
+        let id = ids[i]
+        let degree = degrees[i]
+        var j = i
+        while j > 0 and (degrees[j - 1] < degree or
+                         (degrees[j - 1] == degree and ids[j - 1] > id)):
+            ids[j] <- ids[j - 1]
+            degrees[j] <- degrees[j - 1]
+            j <- j - 1
+        ids[j] <- id
+        degrees[j] <- degree
+    for i in 0..<count:
+        ordered[i] <- Candidate(ids[i], min(i, maximum_degree) + 1)
+
+def expand(search: mutable Search&, candidates: view[Candidate], count: usize, level: usize):
+    search.steps[level] <- search.steps[level] + search.steps[level - 1] - search.prior_child_steps[level]
+    search.prior_child_steps[level] <- search.steps[level - 1]
+    var remaining_count = count
+    while remaining_count > 0:
+        if search.chosen_count + candidates[remaining_count - 1].bound <= search.best: return
+        let vertex = candidates[remaining_count - 1].vertex
+        search.chosen[search.chosen_count] <- vertex
+        search.chosen_count <- search.chosen_count + 1
+        var neighbors: mutable usize[MAX_VERTICES] = zeroed
+        var neighbor_count: usize = 0
+        for i in 0..<remaining_count - 1:
+            let other = candidates[i].vertex
+            if (search.adjacency[vertex] & (u64(1) << other)) != 0:
+                neighbors[neighbor_count] <- other
+                neighbor_count <- neighbor_count + 1
+        if neighbor_count > 0:
+            let prior_steps = search.steps[level]
+            search.steps[level] <- search.steps[level] + 1
+            search.total_color_calls <- search.total_color_calls + 1
+            if prior_steps * 1000 < search.total_color_calls * 25:
+                var reordered: mutable Candidate[MAX_VERTICES] = zeroed
+                degree_order(search.adjacency, neighbors[0..<neighbor_count], neighbor_count,
+                    reordered[0..<neighbor_count])
+                for i in 0..<neighbor_count: neighbors[i] <- reordered[i].vertex
+
+            var class_masks: mutable u64[MAX_VERTICES] = zeroed
+            var colors: mutable usize[MAX_VERTICES] = zeroed
+            var class_count: usize = 0
+            for i in 0..<neighbor_count:
+                var color: usize = 0
+                while color < class_count and
+                    (class_masks[color] & search.adjacency[neighbors[i]]) != 0:
+                    color <- color + 1
+                if color == class_count: class_count <- class_count + 1
+                colors[i] <- color + 1
+                class_masks[color] <- class_masks[color] | (u64(1) << neighbors[i])
+            var minimum_color: usize = 1
+            if search.best >= search.chosen_count:
+                minimum_color <- search.best - search.chosen_count + 1
+            var child: mutable Candidate[MAX_VERTICES] = zeroed
+            var child_count: usize = 0
+            for color in minimum_color..class_count + 1:
+                for i in 0..<neighbor_count:
+                    if colors[i] == color:
+                        child[child_count] <- Candidate(neighbors[i], color)
+                        child_count <- child_count + 1
+            expand(search, child[0..<child_count], child_count, level + 1)
+        elif search.chosen_count > search.best:
+            search.best <- search.chosen_count
+        search.chosen_count <- search.chosen_count - 1
+        remaining_count <- remaining_count - 1
+
+def solve_konc_maxclique_dyn(values: view[i64]) -> i64:
+    if values.len() < 1 or values.len() > MAX_PARSEABLE_INPUT: return -1
+    let n64 = values[0]
+    if n64 < 0 or n64 > MAX_VERTICES.i64(): return -1
+    let n = n64.usize()
+    if values.len() != n + 1: return -1
+    let domain = (u64(1) << n) - u64(1)
+    var search: Search = zeroed
+    for vertex in 0..<n:
+        let row = values[1 + vertex]
+        if row < 0 or (row.u64() & ~domain) != 0: return -1
+        search.adjacency[vertex] <- row.u64()
+        if (search.adjacency[vertex] & (u64(1) << vertex)) != 0: return -1
+    for left in 0..<n:
+        for right in left + 1..<n:
+            let forward = (search.adjacency[left] & (u64(1) << right)) != 0
+            let reverse = (search.adjacency[right] & (u64(1) << left)) != 0
+            if forward != reverse: return -1
+    if n == 0: return 0
+    var vertices: mutable usize[MAX_VERTICES] = zeroed
+    var roots: mutable Candidate[MAX_VERTICES] = zeroed
+    for i in 0..<n: vertices[i] <- i
+    degree_order(search.adjacency, vertices[0..<n], n, roots[0..<n])
+    expand(search, roots[0..<n], n, 1)
+    search.best.i64()
+
+@export("konc_maxclique_dyn")
+fn konc_maxclique_dyn(input: i64&, length: usize) abi("C") -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT: return -1
+    solve_konc_maxclique_dyn(input[0:length])

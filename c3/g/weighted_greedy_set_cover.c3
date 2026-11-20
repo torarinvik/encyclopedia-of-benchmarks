@@ -11,7 +11,7 @@ fn usz bit_count(ulong value) {
     return count;
 }
 
-long weighted_greedy_set_cover(long* input, usz length, char* output, usz capacity) @export("weighted_greedy_set_cover") {
+fn long weighted_greedy_set_cover(long* input, usz length, char* output, usz capacity) @export("weighted_greedy_set_cover") {
     if (input == null || length < 4 || length > MAX_INPUT) return -1;
     long n64 = input[0], m64 = input[1];
     if (n64 < 1 || n64 > (long)MAX_N || m64 < 1 || m64 > (long)MAX_M || length != 2 + 2 * (usz)m64) return -1;

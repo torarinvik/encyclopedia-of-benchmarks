@@ -53,7 +53,7 @@ fn double make_orthogonal(double* mod, double* fixed) {
 }
 
 fn void optimize_one(double* p, double* q, double pi_r, double pi_i) {
-    double grad_f[2], grad_g[2], grad_h[2], dd_grad_f[2];
+    double[2] grad_f, grad_g, grad_h, dd_grad_f;
     double h = find_h(p[0], q[0]);
     if (math.abs(h) > H_EPSILON) {
         double magnitude = gradient_h(&grad_h[0]);
@@ -105,8 +105,8 @@ fn long olden_power(long* input, usz length) @export("olden_power") {
     long leaves_value = input[0], passes_value = input[1];
     if (leaves_value < 1 || leaves_value > MAX_LEAVES || passes_value < 0 || passes_value > MAX_PASSES) return -1;
     int leaves = (int)leaves_value, passes = (int)passes_value;
-    double leaf_p[4] = {1.0, 1.0, 1.0, 1.0};
-    double leaf_q[4] = {1.0, 1.0, 1.0, 1.0};
+    double[4] leaf_p = {1.0, 1.0, 1.0, 1.0};
+    double[4] leaf_q = {1.0, 1.0, 1.0, 1.0};
     double branch_alpha = 0.0, branch_beta = 0.0, lateral_alpha = 0.0, lateral_beta = 0.0;
     const double theta_r = 0.8, theta_i = 0.16;
     long work_count = 0;

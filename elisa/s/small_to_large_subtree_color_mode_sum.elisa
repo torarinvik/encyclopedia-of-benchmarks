@@ -1,0 +1,119 @@
+const MAX_N: usize = 64
+const CELLS: usize = MAX_N * MAX_N
+
+def stlm_add_color(map: usize, color: usize, amount: i64, labels: view[i64],
+                   frequencies: mutable view[i64], keys: mutable view[usize],
+                   lengths: mutable view[usize], maximum: mutable view[i64],
+                   mode_sum: mutable view[i64]) -> void:
+    cell: usize = map * MAX_N + color
+    old: i64 = frequencies[cell]
+    if old == 0:
+        keys[map * MAX_N + lengths[map]] <- color
+        lengths[map] <- lengths[map] + 1
+    if old > 0 and old == maximum[map]: mode_sum[map] <- mode_sum[map] - labels[color]
+    updated: i64 = old + amount
+    if updated > maximum[map]:
+        maximum[map] <- updated
+        mode_sum[map] <- labels[color]
+    else if updated == maximum[map]:
+        mode_sum[map] <- mode_sum[map] + labels[color]
+    frequencies[cell] <- updated
+
+def stlm_put_word(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+export fn small_to_large_subtree_color_mode_sum(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 129: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    if n_value < 1 or n_value > 64 or length != (n_value * 2).usize(): return -1
+    n: usize = n_value.usize()
+    parent: mutable usize[MAX_N] = zeroed
+    vertex: mutable usize = 1
+    while vertex < n:
+        p: i64 = input_view[vertex]
+        if p < 0 or p >= vertex.i64(): return -1
+        parent[vertex] <- p.usize()
+        vertex <- vertex + 1
+    sorted: mutable i64[MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        color: i64 = input_view[n + vertex]
+        if color < -1000 or color > 1000: return -1
+        sorted[vertex] <- color
+        vertex <- vertex + 1
+    i: mutable usize = 1
+    while i < n:
+        value: i64 = sorted[i]
+        j: mutable usize = i
+        while j > 0 and sorted[j - 1] > value:
+            sorted[j] <- sorted[j - 1]
+            j <- j - 1
+        sorted[j] <- value
+        i <- i + 1
+    labels: mutable i64[MAX_N] = zeroed
+    distinct: mutable usize = 0
+    i <- 0
+    while i < n:
+        if distinct == 0 or labels[distinct - 1] != sorted[i]:
+            labels[distinct] <- sorted[i]
+            distinct <- distinct + 1
+        i <- i + 1
+    color_index: mutable usize[MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        index: mutable usize = 0
+        while labels[index] != input_view[n + vertex]: index <- index + 1
+        color_index[vertex] <- index
+        vertex <- vertex + 1
+    if output.is_null() or capacity < 8 * n: return -2
+    output_view: mutable view[u8] = output[0:8 * n]
+
+    frequencies: mutable i64[CELLS] = zeroed
+    keys: mutable usize[CELLS] = zeroed
+    lengths: mutable usize[MAX_N] = zeroed
+    map_id: mutable usize[MAX_N] = zeroed
+    maximum: mutable i64[MAX_N] = zeroed
+    mode_sum: mutable i64[MAX_N] = zeroed
+    answers: mutable i64[MAX_N] = zeroed
+    vertex <- n
+    while vertex > 0:
+        vertex <- vertex - 1
+        largest: mutable usize = n
+        child: mutable usize = vertex + 1
+        while child < n:
+            if parent[child] == vertex and
+                (largest == n or lengths[map_id[child]] > lengths[map_id[largest]]):
+                largest <- child
+            child <- child + 1
+        map: usize = vertex
+        if largest < n: map <- map_id[largest]
+        child <- vertex + 1
+        while child < n:
+            if parent[child] == vertex and child != largest:
+                small: usize = map_id[child]
+                j: mutable usize = 0
+                while j < lengths[small]:
+                    color: usize = keys[small * MAX_N + j]
+                    amount: i64 = frequencies[small * MAX_N + color]
+                    stlm_add_color(map, color, amount, labels[0:MAX_N],
+                        frequencies[0:CELLS], keys[0:CELLS], lengths[0:MAX_N],
+                        maximum[0:MAX_N], mode_sum[0:MAX_N])
+                    j <- j + 1
+            child <- child + 1
+        stlm_add_color(map, color_index[vertex], 1, labels[0:MAX_N],
+            frequencies[0:CELLS], keys[0:CELLS], lengths[0:MAX_N],
+            maximum[0:MAX_N], mode_sum[0:MAX_N])
+        map_id[vertex] <- map
+        answers[vertex] <- mode_sum[map]
+    vertex <- 0
+    while vertex < n:
+        stlm_put_word(output_view, vertex * 8, answers[vertex])
+        vertex <- vertex + 1
+    (8 * n).i64()

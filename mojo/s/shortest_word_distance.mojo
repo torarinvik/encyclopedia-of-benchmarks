@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn swd_eq(a:UnsafePointer[Int64,ImmutAnyOrigin],s:Int,n:Int,t:Int,m:Int)->Bool:

@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("problem15_dp")
 fn problem15_dp(grid_size:Int64) abi("C")->Int64:
     if grid_size<0 or grid_size>20:return -1

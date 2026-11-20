@@ -13,7 +13,7 @@ fn long rod_cutting(long* values, usz length) @export("rod_cutting") {
     for (usz i = 0; i < n; i++) {
         if (values[i + 1] < 1 || values[i + 1] > MAX_PRICE) return INVALID_RESULT;
     }
-    long profit[31] = {0};
+    long[31] profit = {0};
     for (usz rod = 1; rod <= n; rod++) {
         long best = 0;
         for (usz cut = 1; cut <= rod; cut++) {

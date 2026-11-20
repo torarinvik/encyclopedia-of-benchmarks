@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "algorithm": "sturmian_standard_word",
+  "function_symbol": "sturmian_standard_word",
+  "abi": "i64_array_bytes_output",
+  "suite_integration": "benchmarks/run_i64_array_bytes_output.py and benchmarks/verify_i64_array_bytes_output.py registered",
+  "native_paths": [
+    "c/s/sturmian_standard_word.c",
+    "c3/s/sturmian_standard_word.c3",
+    "cpp/s/sturmian_standard_word.cpp",
+    "elisa/s/sturmian_standard_word.elisa",
+    "mojo/s/sturmian_standard_word.mojo",
+    "nim/s/sturmian_standard_word.nim",
+    "odin/s/sturmian_standard_word.odin",
+    "rust/s/sturmian_standard_word.rs",
+    "v/s/sturmian_standard_word.v",
+    "zig/s/sturmian_standard_word.zig"
+  ],
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_steps": 4,
+    "first_directive": [0, 2],
+    "later_directive": [1, 2],
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 6,
+    "maximum_output_bytes": 41,
+    "workspace_bytes": 512
+  },
+  "sources": [
+    {
+      "role": "algorithm_definition",
+      "title": "Sturmian Words, Sturmian Trees and Sturmian Graphs: A Survey on Some Recent Results",
+      "url": "https://www-igm.univ-mlv.fr/~berstel/Exposes/2007-05BerstelCAI.pdf"
+    },
+    {
+      "role": "title_discovery_only",
+      "title": "RosettaCodeData popular-tasks at pinned revision",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+    }
+  ]
+}

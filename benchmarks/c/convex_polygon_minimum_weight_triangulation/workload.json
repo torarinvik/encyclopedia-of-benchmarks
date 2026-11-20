@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "convex-polygon-minimum-weight-triangulation-i64-array-scalar-v1",
+  "algorithm": "convex_polygon_minimum_weight_triangulation",
+  "function_symbol": "convex_polygon_minimum_weight_triangulation",
+  "abi": "i64_array_scalar",
+  "description": "Minimize the sum of supplied nonnegative internal-diagonal weights over triangulations of a convex polygon in cyclic vertex order.",
+  "source": {
+    "title": "Optimal Triangulation",
+    "authors": ["Tiow-Seng Tan"],
+    "reference": "Encyclopedia of Algorithms, Chapter 715.",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_715",
+    "primary_method_reference": "G. T. Klincsek, Minimal triangulations of polygonal domains, Annals of Discrete Mathematics 9 (1980), 121-123.",
+    "primary_method_url": "https://doi.org/10.1016/S0167-5060(08)70044-X",
+    "algorithm_attribution": "Additive interval dynamic programming for minimum-weight triangulation of a convex polygon.",
+    "implementation_status": "Bounded clean-room specialization with supplied integer diagonal weights; no geometry or source code is reused."
+  },
+  "contract": {
+    "operation": "Given a strictly convex polygon represented only by its cyclic vertex labels and a nonnegative integer cost for every internal diagonal, return the minimum total cost of a triangulation.",
+    "vertex_order": "Vertices are 0 through n-1 in counterclockwise cyclic order. Every chord is legal because the polygon is convex.",
+    "diagonal_order": "Supply weights for pairs (i,j) in lexicographic order with 0<=i<j<n, j>=i+2, excluding the hull edge (0,n-1).",
+    "result_encoding": "Minimum sum of the n-3 selected internal-diagonal weights; malformed frames return -1.",
+    "primary_method": "Interval DP. dp[i,j] excludes boundary chord (i,j); for each split k, combine dp[i,k]+dp[k,j] and charge the child boundary chords (i,k),(k,j) when they are internal diagonals of the original polygon. Each selected diagonal is charged exactly once.",
+    "independent_method": "Recursively enumerate all Catalan triangulations as triangle decompositions, form each complete internal-diagonal set, and minimize its supplied-weight sum.",
+    "tie_policy": "Only the scalar optimum is returned, so equal-cost triangulations have identical output and require no tie rule.",
+    "geometry_scope": "Vertices and geometric lengths are not supplied or computed; this measures the additive triangulation DP with explicit diagonal weights.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,w_(i,j)...] in lexicographic internal-diagonal order",
+    "vertex_count_range": [3, 10],
+    "diagonal_weight_range": [0, 1000],
+    "internal_diagonal_count": "n*(n-3)/2",
+    "exact_length": "1+n*(n-3)/2",
+    "maximum_valid_length": 36,
+    "maximum_parseable_length": 37,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "minimum sum of selected internal-diagonal weights",
+    "result_range": [0, 7000],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Bounded 10x10 diagonal-cost table and 10x10 interval-DP table plus scalar bookkeeping; no dynamic allocation is required by the language ports."
+  },
+  "complexity": {
+    "time": "O(n^3), with n<=10",
+    "auxiliary_space": "O(n^2), with n<=10"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/c/convex_polygon_minimum_weight_triangulation/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/convex_polygon_minimum_weight_triangulation/independent_oracle.py",
+  "cases": [
+    {"id":"triangle-no-diagonals", "input_values":[3], "input_length":1, "expected_result":0},
+    {"id":"quadrilateral-choose-cheaper-diagonal", "input_values":[4,10,3], "input_length":3, "expected_result":3},
+    {"id":"pentagon-global-choice", "input_values":[5,4,7,5,2,9], "input_length":6, "expected_result":7},
+    {"id":"pentagon-all-zero-ties", "input_values":[5,0,0,0,0,0], "input_length":6, "expected_result":0},
+    {"id":"maximum-vertex-count-zero-cost", "input_values":[10,
+      0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0], "input_length":36, "expected_result":0},
+    {"id":"maximum-score-all-diagonals-equal", "input_values":[10,
+      1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000,
+      1000,1000,1000,1000,1000,1000,1000], "input_length":36, "expected_result":7000},
+    {"id":"vertex-count-too-small", "input_values":[2], "input_length":1, "expected_result":-1},
+    {"id":"vertex-count-too-large", "input_values":[11], "input_length":1, "expected_result":-1},
+    {"id":"missing-diagonal-weight", "input_values":[4,5], "input_length":2, "expected_result":-1},
+    {"id":"negative-diagonal-weight", "input_values":[4,-1,2], "input_length":3, "expected_result":-1},
+    {"id":"weight-above-bound", "input_values":[4,1001,2], "input_length":3, "expected_result":-1},
+    {"id":"trailing-word", "input_values":[3,77], "input_length":2, "expected_result":-1},
+    {"id":"maximum-parseable-trailing-word", "input_values":[10,
+      0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,7], "input_length":37, "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1}
+  ]
+}

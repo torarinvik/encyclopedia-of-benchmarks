@@ -4,7 +4,7 @@ const usz MAX_ROWS = 64;
 const usz MAX_COLUMNS = 8;
 
 fn void write_f64_le(char* output, usz offset, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) {
         output[offset + byte] = (char)(bits & 255);
         bits >>= 8;
@@ -24,7 +24,7 @@ fn long procentual_proximity(long* input, usz length, char* output, usz capacity
         long weight = input[2 + column];
         if (weight != 0 && weight != 1) return -1;
     }
-    double[MAX_ROWS][MAX_COLUMNS] data = {0};
+    double[MAX_COLUMNS][MAX_ROWS] data = {0};
     for (usz row = 0; row < rows; row++) {
         for (usz column = 0; column < columns; column++) {
             long value = input[2 + columns + row * columns + column];

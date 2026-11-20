@@ -1,0 +1,165 @@
+const POLYPHASE_MAX_ITEMS: usize = 256
+const POLYPHASE_RUN_SIZE: usize = 8
+const POLYPHASE_MAX_RUNS: usize = 34
+
+def polyphase_place_run(input: view[i64], input_length: usize, run_index: usize,
+                        tape: usize, tapes: mutable view[i64],
+                        starts: mutable view[u32], lengths: mutable view[u32],
+                        counts: mutable view[u32], write_offsets: mutable view[u32]) -> void:
+    slot: usize = counts[tape].usize()
+    counts[tape] <- counts[tape] + 1
+    start: usize = write_offsets[tape].usize()
+    source: usize = run_index * POLYPHASE_RUN_SIZE
+    run_length: usize = input_length - source
+    if run_length > POLYPHASE_RUN_SIZE: run_length <- POLYPHASE_RUN_SIZE
+    i: mutable usize = 0
+    while i < run_length:
+        tapes[tape * POLYPHASE_MAX_ITEMS + start + i] <- input[source + i]
+        i <- i + 1
+    i <- 1
+    while i < run_length:
+        value: i64 = tapes[tape * POLYPHASE_MAX_ITEMS + start + i]
+        position: mutable usize = i
+        while position > 0 and tapes[tape * POLYPHASE_MAX_ITEMS + start + position - 1] > value:
+            tapes[tape * POLYPHASE_MAX_ITEMS + start + position] <- tapes[tape * POLYPHASE_MAX_ITEMS + start + position - 1]
+            position <- position - 1
+        tapes[tape * POLYPHASE_MAX_ITEMS + start + position] <- value
+        i <- i + 1
+    starts[tape * POLYPHASE_MAX_RUNS + slot] <- start.u32()
+    lengths[tape * POLYPHASE_MAX_RUNS + slot] <- run_length.u32()
+    write_offsets[tape] <- write_offsets[tape] + run_length.u32()
+
+def polyphase_place_dummy(tape: usize, starts: mutable view[u32],
+                          lengths: mutable view[u32], counts: mutable view[u32],
+                          write_offsets: view[u32]) -> void:
+    slot: usize = counts[tape].usize()
+    counts[tape] <- counts[tape] + 1
+    starts[tape * POLYPHASE_MAX_RUNS + slot] <- write_offsets[tape]
+    lengths[tape * POLYPHASE_MAX_RUNS + slot] <- 0
+
+def polyphase_merge_run(tapes: mutable view[i64], starts: mutable view[u32],
+                        lengths: mutable view[u32], counts: mutable view[u32],
+                        read_indices: mutable view[u32], write_offsets: mutable view[u32],
+                        left_tape: usize, right_tape: usize, output_tape: usize) -> void:
+    left_slot: usize = read_indices[left_tape].usize()
+    right_slot: usize = read_indices[right_tape].usize()
+    read_indices[left_tape] <- read_indices[left_tape] + 1
+    read_indices[right_tape] <- read_indices[right_tape] + 1
+    left_start: usize = starts[left_tape * POLYPHASE_MAX_RUNS + left_slot].usize()
+    right_start: usize = starts[right_tape * POLYPHASE_MAX_RUNS + right_slot].usize()
+    left_length: usize = lengths[left_tape * POLYPHASE_MAX_RUNS + left_slot].usize()
+    right_length: usize = lengths[right_tape * POLYPHASE_MAX_RUNS + right_slot].usize()
+    output_slot: usize = counts[output_tape].usize()
+    counts[output_tape] <- counts[output_tape] + 1
+    output_start: usize = write_offsets[output_tape].usize()
+    left: mutable usize = 0
+    right: mutable usize = 0
+    written: mutable usize = 0
+    while left < left_length and right < right_length:
+        if tapes[left_tape * POLYPHASE_MAX_ITEMS + left_start + left] <= tapes[right_tape * POLYPHASE_MAX_ITEMS + right_start + right]:
+            tapes[output_tape * POLYPHASE_MAX_ITEMS + output_start + written] <- tapes[left_tape * POLYPHASE_MAX_ITEMS + left_start + left]
+            left <- left + 1
+        else:
+            tapes[output_tape * POLYPHASE_MAX_ITEMS + output_start + written] <- tapes[right_tape * POLYPHASE_MAX_ITEMS + right_start + right]
+            right <- right + 1
+        written <- written + 1
+    while left < left_length:
+        tapes[output_tape * POLYPHASE_MAX_ITEMS + output_start + written] <- tapes[left_tape * POLYPHASE_MAX_ITEMS + left_start + left]
+        left <- left + 1
+        written <- written + 1
+    while right < right_length:
+        tapes[output_tape * POLYPHASE_MAX_ITEMS + output_start + written] <- tapes[right_tape * POLYPHASE_MAX_ITEMS + right_start + right]
+        right <- right + 1
+        written <- written + 1
+    starts[output_tape * POLYPHASE_MAX_RUNS + output_slot] <- output_start.u32()
+    lengths[output_tape * POLYPHASE_MAX_RUNS + output_slot] <- written.u32()
+    write_offsets[output_tape] <- write_offsets[output_tape] + written.u32()
+
+def polyphase_merge_sort_impl(values: mutable view[i64]) -> void:
+    n: usize = values.len()
+    if n < 2 or n > POLYPHASE_MAX_ITEMS: return
+    tapes: mutable i64[3 * POLYPHASE_MAX_ITEMS] = zeroed
+    starts: mutable u32[3 * POLYPHASE_MAX_RUNS] = zeroed
+    lengths: mutable u32[3 * POLYPHASE_MAX_RUNS] = zeroed
+    counts: mutable u32[3] = zeroed
+    read_indices: mutable u32[3] = zeroed
+    write_offsets: mutable u32[3] = zeroed
+    initial_runs: usize = (n + POLYPHASE_RUN_SIZE - 1) / POLYPHASE_RUN_SIZE
+    quota_a: mutable usize = 1
+    quota_b: mutable usize = 0
+    while quota_a + quota_b < initial_runs:
+        next: usize = quota_a + quota_b
+        quota_b <- quota_a
+        quota_a <- next
+    run: mutable usize = 0
+    tape_view: mutable view[i64] = tapes[0:3 * POLYPHASE_MAX_ITEMS]
+    starts_view: mutable view[u32] = starts[0:3 * POLYPHASE_MAX_RUNS]
+    lengths_view: mutable view[u32] = lengths[0:3 * POLYPHASE_MAX_RUNS]
+    counts_view: mutable view[u32] = counts[0:3]
+    reads_view: mutable view[u32] = read_indices[0:3]
+    offsets_view: mutable view[u32] = write_offsets[0:3]
+    slot: mutable usize = 0
+    while slot < quota_a:
+        if run < initial_runs:
+            polyphase_place_run(values, n, run, 0, tape_view, starts_view, lengths_view, counts_view, offsets_view)
+        else:
+            polyphase_place_dummy(0, starts_view, lengths_view, counts_view, offsets_view)
+        run <- run + 1
+        slot <- slot + 1
+    slot <- 0
+    while slot < quota_b:
+        if run < initial_runs:
+            polyphase_place_run(values, n, run, 1, tape_view, starts_view, lengths_view, counts_view, offsets_view)
+        else:
+            polyphase_place_dummy(1, starts_view, lengths_view, counts_view, offsets_view)
+        run <- run + 1
+        slot <- slot + 1
+
+    roles: mutable u32[3] = zeroed
+    roles[0] <- 0
+    roles[1] <- 1
+    roles[2] <- 2
+    remaining_total: mutable u32 = counts_view[0] + counts_view[1]
+    while remaining_total > 1:
+        input_a: usize = roles[0].usize()
+        input_b: usize = roles[1].usize()
+        output_tape: usize = roles[2].usize()
+        available_a: u32 = counts_view[input_a] - reads_view[input_a]
+        available_b: u32 = counts_view[input_b] - reads_view[input_b]
+        if available_a == 0 or available_b == 0: break
+        counts_view[output_tape] <- 0
+        reads_view[output_tape] <- 0
+        offsets_view[output_tape] <- 0
+        pairs: u32 = available_a
+        if available_b < pairs: pairs <- available_b
+        pair: mutable u32 = 0
+        while pair < pairs:
+            polyphase_merge_run(tape_view, starts_view, lengths_view, counts_view, reads_view, offsets_view, input_a, input_b, output_tape)
+            pair <- pair + 1
+        left_a: u32 = counts_view[input_a] - reads_view[input_a]
+        left_b: u32 = counts_view[input_b] - reads_view[input_b]
+        remaining_total <- left_a + left_b + counts_view[output_tape]
+        if remaining_total <= 1 or (left_a == 0 and left_b == 0): break
+        if left_a > 0:
+            roles[1] <- output_tape.u32()
+            roles[2] <- input_b.u32()
+        else:
+            roles[0] <- output_tape.u32()
+            roles[2] <- input_a.u32()
+    tape: mutable usize = 0
+    while tape < 3:
+        if reads_view[tape] < counts_view[tape]:
+            final_slot: usize = reads_view[tape].usize()
+            if lengths_view[tape * POLYPHASE_MAX_RUNS + final_slot].usize() == n:
+                start: usize = starts_view[tape * POLYPHASE_MAX_RUNS + final_slot].usize()
+                i: mutable usize = 0
+                while i < n:
+                    values[i] <- tape_view[tape * POLYPHASE_MAX_ITEMS + start + i]
+                    i <- i + 1
+                return
+        tape <- tape + 1
+
+export fn polyphase_merge_sort(values: mutable i64&, length: usize) -> void:
+    if values.is_null() or length < 2 or length > POLYPHASE_MAX_ITEMS: return
+    input_view: mutable view[i64] = values[0:length]
+    polyphase_merge_sort_impl(input_view)

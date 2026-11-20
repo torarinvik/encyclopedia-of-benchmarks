@@ -1,0 +1,22 @@
+const EDFBM_MAX_EGGS: i64 = 32
+const EDFBM_MAX_MOVES: i64 = 32
+
+def egg_drop_max_floors_by_moves_impl(input: view[i64]) -> i64:
+    if input.len() != 2: return -1
+    eggs: i64 = input[0]
+    moves: i64 = input[1]
+    if eggs < 0 or eggs > EDFBM_MAX_EGGS or moves < 0 or moves > EDFBM_MAX_MOVES: return -1
+    covered: mutable i64[33] = zeroed
+    move: mutable i64 = 0
+    while move < moves:
+        egg: mutable i64 = eggs
+        while egg > 0:
+            covered[egg.usize()] <- covered[egg.usize()] + covered[(egg - 1).usize()] + 1
+            egg <- egg - 1
+        move <- move + 1
+    return covered[eggs.usize()]
+
+export fn egg_drop_max_floors_by_moves(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    input_view: view[i64] = input[0:length]
+    egg_drop_max_floors_by_moves_impl(input_view)

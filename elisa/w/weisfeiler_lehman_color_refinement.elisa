@@ -1,0 +1,133 @@
+const MAX_VERTICES: usize = 8
+const MAX_INPUT_LENGTH: usize = 9
+const INVALID_RESULT: i64 = -1
+const DEGREE_COLOR_PLACE: i64 = 43046721
+
+def bit_count(value: i64) -> usize:
+    remaining: mutable i64 = value
+    count: mutable usize = 0
+    while remaining != 0:
+        count <- count + (remaining & 1).usize()
+        remaining <- remaining >> 1
+    return count
+
+def weisfeiler_lehman_color_refinement_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH + 1:
+        return INVALID_RESULT
+
+    values: mutable i64[10] = zeroed
+    frame_index: mutable usize = 0
+    while frame_index < length:
+        values[frame_index] <- input[frame_index]
+        frame_index <- frame_index + 1
+
+    vertex_count_value: i64 = values[0]
+    if vertex_count_value < 0 or vertex_count_value > 8:
+        return INVALID_RESULT
+    n: usize = vertex_count_value.usize()
+    if length != 1 + n:
+        return INVALID_RESULT
+
+    adjacency: mutable i64[8] = zeroed
+    colors: mutable i64[8] = zeroed
+    next_colors: mutable i64[8] = zeroed
+    allowed: i64 = (1 << n) - 1
+    class_count: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        mask: i64 = values[1 + vertex]
+        if mask < 0 or (mask & ~allowed) != 0 or (mask & (1 << vertex)) != 0:
+            return INVALID_RESULT
+        adjacency[vertex] <- mask
+        colors[vertex] <- bit_count(mask).i64()
+        first_degree: mutable bool = true
+        prior: mutable usize = 0
+        while prior < vertex:
+            if colors[prior] == colors[vertex]:
+                first_degree <- false
+            if ((adjacency[vertex] >> prior) & 1) != ((adjacency[prior] >> vertex) & 1):
+                return INVALID_RESULT
+            prior <- prior + 1
+        if first_degree:
+            class_count <- class_count + 1
+        vertex <- vertex + 1
+    if n == 0:
+        return 0
+
+    stable: mutable bool = false
+    while not stable:
+        keys: mutable i64[8] = zeroed
+        unique_keys: mutable i64[8] = zeroed
+        unique_count: mutable usize = 0
+        vertex <- 0
+        while vertex < n:
+            neighbor_colors: mutable i64[8] = zeroed
+            neighbor_count: mutable usize = 0
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                if (adjacency[vertex] & (1 << neighbor)) != 0:
+                    value: i64 = colors[neighbor]
+                    position: mutable usize = neighbor_count
+                    while position > 0 and neighbor_colors[position - 1] > value:
+                        neighbor_colors[position] <- neighbor_colors[position - 1]
+                        position <- position - 1
+                    neighbor_colors[position] <- value
+                    neighbor_count <- neighbor_count + 1
+                neighbor <- neighbor + 1
+
+            suffix: mutable i64 = 0
+            slot: mutable usize = 0
+            while slot < 8:
+                suffix <- suffix * 9
+                if slot < neighbor_count:
+                    suffix <- suffix + neighbor_colors[slot] + 1
+                slot <- slot + 1
+            keys[vertex] <- colors[vertex] * DEGREE_COLOR_PLACE + suffix
+
+            seen: mutable bool = false
+            prior: mutable usize = 0
+            while prior < vertex:
+                if keys[prior] == keys[vertex]:
+                    seen <- true
+                prior <- prior + 1
+            if not seen:
+                unique_keys[unique_count] <- keys[vertex]
+                unique_count <- unique_count + 1
+            vertex <- vertex + 1
+
+        index: mutable usize = 1
+        while index < unique_count:
+            value: i64 = unique_keys[index]
+            position: mutable usize = index
+            while position > 0 and unique_keys[position - 1] > value:
+                unique_keys[position] <- unique_keys[position - 1]
+                position <- position - 1
+            unique_keys[position] <- value
+            index <- index + 1
+
+        vertex <- 0
+        while vertex < n:
+            rank: mutable usize = 0
+            while unique_keys[rank] != keys[vertex]:
+                rank <- rank + 1
+            next_colors[vertex] <- rank.i64()
+            vertex <- vertex + 1
+
+        if unique_count == class_count:
+            stable <- true
+        class_count <- unique_count
+        vertex <- 0
+        while vertex < n:
+            colors[vertex] <- next_colors[vertex]
+            vertex <- vertex + 1
+
+    packed: mutable i64 = 0
+    place: mutable i64 = 1
+    vertex <- 0
+    while vertex < n:
+        packed <- packed + colors[vertex] * place
+        place <- place * 9
+        vertex <- vertex + 1
+    packed
+
+export fn weisfeiler_lehman_color_refinement(input: i64&, length: usize) -> i64 = weisfeiler_lehman_color_refinement_impl

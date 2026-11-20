@@ -67,6 +67,18 @@ from pi_generator_oracle import expected_result as pi_generator_expected
 from mersenne_primes_oracle import expected_result as mersenne_primes_expected
 from greatest_prime_factor_oracle import expected_result as greatest_prime_factor_expected
 from magic_square_oracle import expected_result as magic_square_expected
+from m.magic_square_singly_even_strachey.primary_oracle import (
+    expected_result as magic_square_singly_even_strachey_expected,
+)
+from m.magic_square_singly_even_strachey.check_inventory import (
+    check_inventory as check_magic_square_singly_even_strachey_inventory,
+)
+from m.magic_square_doubly_even_complement.primary_oracle import (
+    expected_result as magic_square_doubly_even_complement_expected,
+)
+from m.magic_square_doubly_even_complement.check_inventory import (
+    check_inventory as check_magic_square_doubly_even_complement_inventory,
+)
 from trial_division_factorizer_oracle import expected_result as trial_division_factorizer_expected
 from pollards_rho_factorizing_oracle import MAX_INPUT as POLLARDS_RHO_MAX_INPUT
 from pollards_rho_factorizing_oracle import MIN_INPUT as POLLARDS_RHO_MIN_INPUT
@@ -88,9 +100,68 @@ from sum_of_totient_function_oracle import MODULUS as SUM_OF_TOTIENT_MODULUS
 from sum_of_totient_function_oracle import expected_result as sum_of_totient_function_expected
 from meissel_lehmer_prime_count_oracle import MAX_INPUT as MEISSEL_LEHMER_MAX_INPUT
 from meissel_lehmer_prime_count_oracle import expected_output as meissel_lehmer_prime_count_expected
+from f.fast_prime_sums.independent_oracle import MAX_INPUT as FAST_PRIME_SUMS_MAX_INPUT
+from f.fast_prime_sums.independent_oracle import expected_result as fast_prime_sums_expected
+from f.fast_prime_sums.check_inventory import static_issues as fast_prime_sums_static_issues
 from legendre_prime_count_oracle import MAX_INPUT as LEGENDRE_PRIME_COUNT_MAX_INPUT
 from legendre_prime_count_oracle import MIN_INPUT as LEGENDRE_PRIME_COUNT_MIN_INPUT
 from legendre_prime_count_oracle import expected_output as legendre_prime_count_expected
+from s.sieve_of_sundaram.primary_oracle import MAX_LIMIT as SUNDARAM_MAX_LIMIT
+from s.sieve_of_sundaram.primary_oracle import prime_count as sieve_of_sundaram_expected
+from s.sieve_of_sundaram.check_inventory import static_issues as sieve_of_sundaram_static_issues
+from s.sieve_of_sundaram.verify_workload import workload_issues as sieve_of_sundaram_workload_issues
+from p.perfect_totient_number.primary_oracle import MIN_INPUT as PERFECT_TOTIENT_MIN_INPUT
+from p.perfect_totient_number.primary_oracle import MAX_INPUT as PERFECT_TOTIENT_MAX_INPUT
+from p.perfect_totient_number.primary_oracle import expected_result as perfect_totient_number_expected
+from p.perfect_totient_number.check_inventory import static_issues as perfect_totient_number_static_issues
+from p.perfect_totient_number.verify_workload import workload_issues as perfect_totient_number_workload_issues
+from n.next_higher_number_with_same_number_of_set_bits.primary_oracle import (
+    MAX_INPUT as NEXT_SAME_SET_BITS_MAX_INPUT,
+    MAX_RESULT as NEXT_SAME_SET_BITS_MAX_RESULT,
+    MIN_INPUT as NEXT_SAME_SET_BITS_MIN_INPUT,
+    expected_result as next_same_set_bits_expected,
+)
+from n.next_higher_number_with_same_number_of_set_bits.check_inventory import (
+    static_issues as next_same_set_bits_static_issues,
+)
+from n.next_higher_number_with_same_number_of_set_bits.verify_workload import (
+    workload_issues as next_same_set_bits_workload_issues,
+)
+from derangement_oracle import expected_result as derangement_expected
+from divisors_count_sequence_oracle import expected_result as divisors_count_sequence_expected
+from disarium_number_oracle import expected_result as disarium_number_expected
+from dudeney_number_oracle import expected_result as dudeney_number_expected
+from deficient_numbers_oracle import expected_result as deficient_numbers_expected
+from recursive_radix_encoding_oracle import binary as recursive_binary_expected, octal as recursive_octal_expected
+from digit_predicate_oracles import armstrong_digit_cubes as armstrong_digit_cubes_expected
+from digit_predicate_oracles import additive_persistence as additive_persistence_expected
+from bounded_scalar_extra_oracles import buzz_number as buzz_number_expected, binomial_sequence as binomial_sequence_expected
+from bounded_scalar_extra_oracles import binary_to_gray_code as binary_to_gray_code_expected, bcd_conversion as bcd_conversion_expected
+from bounded_scalar_extra_oracles import triangular_number as triangular_number_expected
+from bounded_scalar_extra_oracles import cake_numbers_sequence as cake_numbers_sequence_expected
+from bounded_scalar_extra_oracles import count_sorted_vowel_strings as count_sorted_vowel_strings_expected
+from bounded_scalar_extra_oracles import primorial_numbers_sequence as primorial_numbers_sequence_expected
+from bounded_scalar_extra_oracles import fibonacci_variant as fibonacci_variant_expected
+from bounded_scalar_extra_oracles import fibonacci_number_check as fibonacci_number_check_expected
+from bounded_scalar_extra_oracles import golombs_sequence as golombs_sequence_expected
+from bounded_scalar_extra_oracles import find_previous_power_of_two as previous_power_expected
+from bounded_scalar_extra_oracles import fermat_numbers_sequence as fermat_sequence_expected
+from bounded_scalar_extra_oracles import figurate_number as figurate_number_expected
+from bounded_scalar_extra_oracles import finding_number_of_digits_in_a_number as unsigned_digit_count_expected
+from bounded_scalar_extra_oracles import harshad_number as harshad_number_expected, highest_set_bit as highest_set_bit_expected
+from bounded_scalar_extra_oracles import keith_number_checker as keith_number_checker_expected
+from bounded_scalar_extra_oracles import is_square_free as is_square_free_expected
+from bounded_scalar_extra_oracles import jacobsthal_number as jacobsthal_number_expected
+from bounded_scalar_extra_oracles import kolakoski_sequence as kolakoski_sequence_expected
+from bounded_scalar_extra_oracles import kaprekar_number as kaprekar_number_expected
+from bounded_scalar_extra_oracles import digit_factorial_predicate as digit_factorial_expected
+from bounded_scalar_extra_oracles import gray_to_binary as gray_to_binary_expected
+from bounded_scalar_extra_oracles import lowest_set_bit as lowest_set_bit_expected
+from bounded_scalar_extra_oracles import index_of_right_most_set_bit as rightmost_index_expected
+from bounded_scalar_extra_oracles import tetrahedral_sequence as tetrahedral_sequence_expected
+from bounded_scalar_extra_oracles import square_pyramidal_numbers as square_pyramidal_numbers_expected
+from bounded_scalar_extra_oracles import bailey_borwein_plouffe as bailey_borwein_plouffe_expected
+from easter_computus_oracle import expected_result as easter_computus_expected
 
 ROOT = Path(__file__).resolve().parents[1]
 I64_MIN = -(2**63)
@@ -2416,6 +2487,75 @@ def validate_meissel_lehmer_prime_count_workload(workload: dict) -> None:
             raise ValueError(f"meissel_lehmer_prime_count port or README link is missing: {relative}")
 
 
+FAST_PRIME_SUMS_CASES = {
+    "zero": 0,
+    "one": 1,
+    "first-prime": 2,
+    "ten": 10,
+    "hundred": 100,
+    "one-thousand": 1_000,
+    "million": 1_000_000,
+    "published-one-hundred-million": 100_000_000,
+    "published-maximum": FAST_PRIME_SUMS_MAX_INPUT,
+    "negative": -1,
+    "first-unsupported": FAST_PRIME_SUMS_MAX_INPUT + 1,
+    "signed-minimum": I64_MIN,
+    "signed-maximum": I64_MAX,
+}
+
+
+def validate_fast_prime_sums_workload(workload: dict) -> None:
+    expected_source = {
+        "repository": "sgtlaugh/algovault",
+        "algorithm": "Fast Prime Sums",
+        "url": "https://github.com/sgtlaugh/algovault/blob/c4e8beb105e84a31596b9222f9b3282c0dc78dd2/code_library/number_theory/fast_prime_sums.cpp",
+        "source_type": "algorithm_description",
+        "reuse": "Algorithm description only; ports and the direct-sieve oracle are independently written.",
+    }
+    expected_contract = {
+        "operation": "Return the sum of primes p with p <= n.",
+        "input_range": [0, FAST_PRIME_SUMS_MAX_INPUT],
+        "invalid_input_result": -1,
+        "algorithm": "Meissel-Lehmer weighted partial-sieve recurrence with prime-sum corrections.",
+        "oracle": "Segmented sieve through 1e6, plus independently published fixtures at 1e8 and 1e9.",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "source", "contract", "cases", "measurement"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "fast-prime-sums-i64-v1"
+            or workload.get("algorithm") != "fast_prime_sums"
+            or workload.get("function_symbol") != "fast_prime_sums"
+            or workload.get("abi") != "i64_scalar"
+            or workload.get("source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 10,
+            }
+            or FAST_PRIME_SUMS_MAX_INPUT != 1_000_000_000
+            or not isinstance(cases, list) or len(cases) != len(FAST_PRIME_SUMS_CASES)):
+        raise ValueError("fast_prime_sums workload differs from its bounded prime-sum contract")
+    observed: dict[str, int] = {}
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) != {"id", "input_value", "expected_result"}
+                or type(case.get("id")) is not str
+                or type(case.get("input_value")) is not int
+                or not I64_MIN <= case["input_value"] <= I64_MAX
+                or type(case.get("expected_result")) is not int
+                or case["id"] in observed
+                or case["expected_result"] != fast_prime_sums_expected(case["input_value"])):
+            raise ValueError(f"fast_prime_sums fixture differs from its direct-sieve or published oracle: {case_id}")
+        observed[case["id"]] = case["input_value"]
+    if observed != FAST_PRIME_SUMS_CASES:
+        raise ValueError("fast_prime_sums workload is missing a reviewed boundary case")
+    issues = fast_prime_sums_static_issues()
+    if issues:
+        raise ValueError("fast_prime_sums static inventory is incomplete: " + "; ".join(issues))
+
+
 LEGENDRE_PRIME_COUNT_CASES = {
     "negative": -1,
     "signed-minimum": I64_MIN,
@@ -2500,7 +2640,213 @@ def validate_legendre_prime_count_workload(workload: dict) -> None:
             raise ValueError(f"legendre_prime_count port or README link is missing: {relative}")
 
 
+def validate_sieve_of_sundaram_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/s/sieve_of_sundaram/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("sieve_of_sundaram workload differs from its package file")
+    if (SUNDARAM_MAX_LIMIT != 4096
+            or workload.get("abi") != "scalar_call"
+            or workload.get("input", {}).get("maximum_limit") != SUNDARAM_MAX_LIMIT
+            or workload.get("measurement", {}).get("comparison_model") != "scalar_call"):
+        raise ValueError("sieve_of_sundaram bounds differ from its inclusive-limit contract")
+    issues = sieve_of_sundaram_static_issues()
+    if issues:
+        raise ValueError("sieve_of_sundaram package is incomplete: " + "; ".join(issues))
+    issues = sieve_of_sundaram_workload_issues()
+    if issues:
+        raise ValueError("sieve_of_sundaram fixtures differ from its references: "
+                         + "; ".join(issues))
+
+
+def validate_perfect_totient_number_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/p/perfect_totient_number/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("perfect_totient_number workload differs from its package file")
+    if (PERFECT_TOTIENT_MIN_INPUT != 3
+            or PERFECT_TOTIENT_MAX_INPUT != 65535
+            or workload.get("abi") != "scalar_call"
+            or workload.get("input", {}).get("minimum") != PERFECT_TOTIENT_MIN_INPUT
+            or workload.get("input", {}).get("maximum") != PERFECT_TOTIENT_MAX_INPUT
+            or workload.get("measurement", {}).get("comparison_model") != "scalar_call"):
+        raise ValueError("perfect_totient_number bounds differ from its conventional domain")
+    issues = perfect_totient_number_static_issues()
+    if issues:
+        raise ValueError("perfect_totient_number package is incomplete: " + "; ".join(issues))
+    issues = perfect_totient_number_workload_issues()
+    if issues:
+        raise ValueError("perfect_totient_number fixtures differ from its references: "
+                         + "; ".join(issues))
+
+
+def validate_next_higher_number_with_same_number_of_set_bits_workload(workload: dict) -> None:
+    package_workload = ROOT / "benchmarks/n/next_higher_number_with_same_number_of_set_bits/workload.json"
+    if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+        raise ValueError("next_higher_number_with_same_number_of_set_bits workload differs from its package file")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "next-higher-same-set-bits-i30-scalar-v2"
+            or workload.get("algorithm") != "next_higher_number_with_same_number_of_set_bits"
+            or workload.get("function_symbol") != "next_higher_number_with_same_number_of_set_bits"
+            or workload.get("abi") != "scalar_call"
+            or workload.get("input") != {
+                "kind": "bounded_integer",
+                "minimum": NEXT_SAME_SET_BITS_MIN_INPUT,
+                "maximum": NEXT_SAME_SET_BITS_MAX_INPUT,
+                "meaning": "positive signed integer whose next larger equal-popcount value is computed",
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "smallest larger positive integer with the same number of set bits",
+                "maximum": NEXT_SAME_SET_BITS_MAX_RESULT,
+                "invalid_result": -1,
+            }
+            or workload.get("measurement", {}).get("comparison_model") != "scalar_call"
+            or NEXT_SAME_SET_BITS_MIN_INPUT != 1
+            or NEXT_SAME_SET_BITS_MAX_INPUT != 1_073_741_823
+            or NEXT_SAME_SET_BITS_MAX_RESULT != 1_610_612_735):
+        raise ValueError("next_higher_number_with_same_number_of_set_bits metadata differs from its bounded scalar contract")
+    issues = next_same_set_bits_static_issues()
+    if issues:
+        raise ValueError("next_higher_number_with_same_number_of_set_bits package is incomplete: "
+                         + "; ".join(issues))
+    issues = next_same_set_bits_workload_issues()
+    if issues:
+        raise ValueError("next_higher_number_with_same_number_of_set_bits fixtures differ from its references: "
+                         + "; ".join(issues))
+
+
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "sieve_of_sundaram":
+        if expected_result != sieve_of_sundaram_expected(input_value):
+            raise ValueError("sieve_of_sundaram expected_result differs from the indexed sieve reference")
+        return
+    if algorithm == "perfect_totient_number":
+        if expected_result != perfect_totient_number_expected(input_value):
+            raise ValueError("perfect_totient_number expected_result differs from the factorization reference")
+        return
+    if algorithm == "next_higher_number_with_same_number_of_set_bits":
+        if expected_result != next_same_set_bits_expected(input_value):
+            raise ValueError("next_higher_number_with_same_number_of_set_bits expected_result differs from the bit formula")
+        return
+    if algorithm in ("kaprekar_number", "strong_number", "krishnamurthy_number_checker"):
+        reference = kaprekar_number_expected if algorithm == "kaprekar_number" else digit_factorial_expected
+        if expected_result != reference(input_value):
+            raise ValueError("numeric predicate expected_result differs from the digit reference")
+        return
+    if algorithm in ("gray_to_binary", "lowest_set_bit", "index_of_right_most_set_bit"):
+        reference = {"gray_to_binary": gray_to_binary_expected,
+                     "lowest_set_bit": lowest_set_bit_expected,
+                     "index_of_right_most_set_bit": rightmost_index_expected}[algorithm]
+        if expected_result != reference(input_value):
+            raise ValueError("bit operation expected_result differs from the independent reference")
+        return
+    if algorithm in ("jacobsthal_number", "kolakoski_sequence"):
+        reference = jacobsthal_number_expected if algorithm == "jacobsthal_number" else kolakoski_sequence_expected
+        if expected_result != reference(input_value):
+            raise ValueError("sequence expected_result differs from the independent reference")
+        return
+    if algorithm == "is_square_free":
+        if expected_result != is_square_free_expected(input_value):
+            raise ValueError("is_square_free differs from the square-divisor reference")
+        return
+    if algorithm == "keith_number_checker":
+        if expected_result != keith_number_checker_expected(input_value):
+            raise ValueError("keith_number_checker expected_result differs from the rolling-window reference")
+        return
+    if algorithm in ("tetrahedral_sequence", "square_pyramidal_numbers"):
+        reference = tetrahedral_sequence_expected if algorithm == "tetrahedral_sequence" else square_pyramidal_numbers_expected
+        if expected_result != reference(input_value):
+            raise ValueError("sequence expected_result differs from the combination reference")
+        return
+    if algorithm in ("harshad_number", "highest_set_bit"):
+        reference = harshad_number_expected if algorithm == "harshad_number" else highest_set_bit_expected
+        if expected_result != reference(input_value):
+            raise ValueError("scalar expected_result differs from the independent reference")
+        return
+    if algorithm == "finding_number_of_digits_in_a_number":
+        if expected_result != unsigned_digit_count_expected(input_value):
+            raise ValueError("digit count expected_result differs from the string reference")
+        return
+    if algorithm in ("find_previous_power_of_two", "fermat_numbers_sequence", "figurate_number"):
+        reference = {"find_previous_power_of_two": previous_power_expected,
+                     "fermat_numbers_sequence": fermat_sequence_expected,
+                     "figurate_number": figurate_number_expected}[algorithm]
+        if expected_result != reference(input_value):
+            raise ValueError("scalar expected_result differs from the independent reference")
+        return
+    if algorithm == "golombs_sequence":
+        if expected_result != golombs_sequence_expected(input_value):
+            raise ValueError("golombs_sequence expected_result differs from the recurrence reference")
+        return
+    if algorithm == "fibonacci_number_check":
+        if expected_result != fibonacci_number_check_expected(input_value):
+            raise ValueError("fibonacci_number_check differs from the sequence reference")
+        return
+    if algorithm in ("fibonacci_dp", "fibonacci_formula", "fibonacci_matrix"):
+        if expected_result != fibonacci_variant_expected(input_value, algorithm):
+            raise ValueError("fibonacci expected_result differs from the fast-doubling reference")
+        return
+    if algorithm == "easter":
+        if expected_result != easter_computus_expected(input_value):
+            raise ValueError("easter expected_result differs from the integer computus reference")
+        return
+    if algorithm == "primorial_numbers_sequence":
+        if expected_result != primorial_numbers_sequence_expected(input_value):
+            raise ValueError("primorial_numbers_sequence expected_result differs from the fixed-prime reference")
+        return
+    if algorithm == "count_sorted_vowel_strings":
+        if expected_result != count_sorted_vowel_strings_expected(input_value):
+            raise ValueError("count_sorted_vowel_strings expected_result differs from the combinatorial reference")
+        return
+    if algorithm in ("cake_numbers_sequence", "bailey_borwein_plouffe"):
+        oracle = cake_numbers_sequence_expected if algorithm == "cake_numbers_sequence" else bailey_borwein_plouffe_expected
+        if expected_result != oracle(input_value):
+            raise ValueError("scalar expected_result differs from the independent reference")
+        return
+    if algorithm == "triangular_number":
+        if expected_result != triangular_number_expected(input_value):
+            raise ValueError("triangular_number expected_result differs from the combinatorial reference")
+        return
+    if algorithm in ("binary_to_gray_code", "bcd_conversion"):
+        oracle = binary_to_gray_code_expected if algorithm == "binary_to_gray_code" else bcd_conversion_expected
+        if expected_result != oracle(input_value):
+            raise ValueError("conversion expected_result differs from the independent reference")
+        return
+    if algorithm in ("buzz_number", "binomial_sequence"):
+        oracle = buzz_number_expected if algorithm == "buzz_number" else binomial_sequence_expected
+        if expected_result != oracle(input_value):
+            raise ValueError("scalar expected_result differs from the independent reference")
+        return
+    if algorithm in ("armstrong_digit_cubes", "additive_persistence"):
+        oracle = armstrong_digit_cubes_expected if algorithm == "armstrong_digit_cubes" else additive_persistence_expected
+        if expected_result != oracle(input_value):
+            raise ValueError("digit predicate expected_result differs from the reference")
+        return
+    if algorithm in ("decimal_to_binary_recursion", "decimal_to_octal_recursion"):
+        oracle = recursive_binary_expected if algorithm == "decimal_to_binary_recursion" else recursive_octal_expected
+        if expected_result != oracle(input_value):
+            raise ValueError("recursive radix expected_result differs from the formatting oracle")
+        return
+    if algorithm == "deficient_numbers":
+        if expected_result != deficient_numbers_expected(input_value):
+            raise ValueError("deficient_numbers expected_result differs from the factorization oracle")
+        return
+    if algorithm == "dudeney_number":
+        if expected_result != dudeney_number_expected(input_value):
+            raise ValueError("dudeney_number expected_result differs from the digit-sum cube oracle")
+        return
+    if algorithm == "disarium_number":
+        if expected_result != disarium_number_expected(input_value):
+            raise ValueError("disarium_number expected_result differs from the digit oracle")
+        return
+    if algorithm == "divisors_count_sequence":
+        if expected_result != divisors_count_sequence_expected(input_value):
+            raise ValueError("divisors_count_sequence expected_result differs from the factorization oracle")
+        return
+    if algorithm == "derangement":
+        if expected_result != derangement_expected(input_value):
+            raise ValueError("derangement expected_result differs from the inclusion-exclusion oracle")
+        return
     if algorithm == "newton_square_root":
         if expected_result != newton_square_root_expected(input_value):
             raise ValueError("newton_square_root expected_result must match the bounded integer square root")
@@ -2545,6 +2891,10 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         if expected_result != meissel_lehmer_prime_count_expected(input_value):
             raise ValueError("meissel_lehmer_prime_count expected_result must match the independent segmented-sieve oracle")
         return
+    if algorithm == "fast_prime_sums":
+        if expected_result != fast_prime_sums_expected(input_value):
+            raise ValueError("fast_prime_sums expected_result must match the direct-sieve or cited fixture oracle")
+        return
     if algorithm == "legendre_prime_count":
         if expected_result != legendre_prime_count_expected(input_value):
             raise ValueError("legendre_prime_count expected_result must match the Legendre partial-sieve formula")
@@ -2560,6 +2910,14 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
     if algorithm == "magic_square":
         if expected_result != magic_square_expected(input_value):
             raise ValueError("magic_square expected_result must match the bounded Siamese-square hash")
+        return
+    if algorithm == "magic_square_singly_even_strachey":
+        if expected_result != magic_square_singly_even_strachey_expected(input_value):
+            raise ValueError("singly-even magic-square expected_result must match the Strachey-square hash")
+        return
+    if algorithm == "magic_square_doubly_even_complement":
+        if expected_result != magic_square_doubly_even_complement_expected(input_value):
+            raise ValueError("doubly-even magic-square expected_result must match the diagonal-complement hash")
         return
     if algorithm == "trial_division_factorizer":
         expected_from_source = trial_division_factorizer_expected(input_value)
@@ -4140,6 +4498,21 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload["algorithm"] != algorithm:
         parser.error(f"workload algorithm is {workload['algorithm']!r}, not {algorithm!r}")
+    if algorithm == "magic_square_singly_even_strachey":
+        package_workload = ROOT / "benchmarks/m/magic_square_singly_even_strachey/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            parser.error("singly-even magic-square workload differs from its package file")
+        issues = check_magic_square_singly_even_strachey_inventory()
+        if issues:
+            parser.error("singly-even magic-square package is incomplete: " + "; ".join(issues))
+    if algorithm == "magic_square_doubly_even_complement":
+        package_workload = ROOT / "benchmarks/m/magic_square_doubly_even_complement/workload.json"
+        if workload != json.loads(package_workload.read_text(encoding="utf-8")):
+            parser.error("doubly-even magic-square workload differs from its package file")
+        try:
+            check_magic_square_doubly_even_complement_inventory()
+        except (AssertionError, OSError, json.JSONDecodeError, KeyError) as error:
+            parser.error(f"doubly-even magic-square package is incomplete: {error}")
     function_symbol = workload.get("function_symbol", algorithm)
     if not isinstance(function_symbol, str) or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", function_symbol) is None:
         parser.error("workload function_symbol must be a valid C identifier")
@@ -4163,8 +4536,16 @@ def main() -> int:
         validate_sum_of_totient_function_workload(workload)
     elif algorithm == "meissel_lehmer_prime_count":
         validate_meissel_lehmer_prime_count_workload(workload)
+    elif algorithm == "fast_prime_sums":
+        validate_fast_prime_sums_workload(workload)
     elif algorithm == "legendre_prime_count":
         validate_legendre_prime_count_workload(workload)
+    elif algorithm == "sieve_of_sundaram":
+        validate_sieve_of_sundaram_workload(workload)
+    elif algorithm == "perfect_totient_number":
+        validate_perfect_totient_number_workload(workload)
+    elif algorithm == "next_higher_number_with_same_number_of_set_bits":
+        validate_next_higher_number_with_same_number_of_set_bits_workload(workload)
     timing = workload["measurement"]
     sample_count = args.samples if args.samples is not None else int(timing["sample_count"])
     warmup_rounds = args.warmups if args.warmups is not None else int(timing["warmup_rounds"])
@@ -4207,7 +4588,14 @@ def main() -> int:
     records: list[dict[str, Any]] = []
     for case in workload["cases"]:
         input_value = int(case["input_value"])
-        expected_result = int(case["expected_result"])
+        if "expected_result" in case:
+            expected_result = int(case["expected_result"])
+        elif algorithm == "magic_square_singly_even_strachey":
+            expected_result = magic_square_singly_even_strachey_expected(input_value)
+        elif algorithm == "magic_square_doubly_even_complement":
+            expected_result = magic_square_doubly_even_complement_expected(input_value)
+        else:
+            parser.error(f"workload case {case.get('id')!r} is missing expected_result")
         validate_expected_result(algorithm, input_value, expected_result)
         command = [
             str(executable_path),

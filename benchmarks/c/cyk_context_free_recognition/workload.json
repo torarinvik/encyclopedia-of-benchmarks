@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "id": "cyk-cnf-membership-i64-array-scalar-v1",
+  "algorithm": "cyk_context_free_recognition",
+  "function_symbol": "cyk_context_free_recognition",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[V,T,L,P,start,tokens..., (kind,lhs,x,y)*P]",
+    "grammar": "kind=0 encodes A->terminal x with y=0; kind=1 encodes A->B C",
+    "nonterminal_range": [1, 4],
+    "terminal_alphabet_size_range": [1, 2],
+    "word_length_range": [1, 8],
+    "production_count_range": [0, 12],
+    "maximum_valid_input_length": 61,
+    "maximum_parseable_input_length": 62,
+    "duplicate_productions": "allowed and semantically redundant",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "1 if the start nonterminal derives the complete token sequence, otherwise 0; -1 for invalid input",
+    "valid_result_range": [0, 1],
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "grammar_class": "Chomsky normal form with positive-length productions A->a and A->B C; epsilon and unit productions are excluded",
+    "primary": "Fill a triangular CYK chart by increasing span length; a nonterminal derives a span when a matching terminal rule covers a one-token span or a binary rule has a split whose two child spans are derivable.",
+    "independent_reference": "Generate each nonterminal's language bottom-up by increasing positive word length, concatenating generated child strings for each binary rule, then test the supplied word for membership.",
+    "tie_and_duplicate_policy": "Recognition is Boolean. Repeated production rows are accepted and do not change the generated language.",
+    "complexity": "O(P*L^3) time and O(V*L^2) chart space for V<=4, P<=12, L<=8.",
+    "maximum_result": 1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "source": {
+    "url": "https://doi.org/10.1016/S0019-9958(67)80007-X",
+    "references": [
+      "https://www.ideals.illinois.edu/items/100444",
+      "https://isa-afp.org/entries/CYK.html"
+    ],
+    "reuse": "Algorithmic method only; ports, oracle implementations, and fixtures are clean-room works."
+  },
+  "cases": [
+    {
+      "id": "unary-language-generated-by-binary-concatenation",
+      "input_values": [1, 1, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      "input_length": 17,
+      "expected_result": 1
+    },
+    {
+      "id": "two-symbol-concatenation",
+      "input_values": [3, 2, 2, 3, 0, 0, 1, 1, 0, 1, 2, 0, 1, 0, 0, 0, 2, 1, 0],
+      "input_length": 19,
+      "expected_result": 1
+    },
+    {
+      "id": "two-symbol-wrong-order",
+      "input_values": [3, 2, 2, 3, 0, 1, 0, 1, 0, 1, 2, 0, 1, 0, 0, 0, 2, 1, 0],
+      "input_length": 19,
+      "expected_result": 0
+    },
+    {
+      "id": "ambiguous-catalan-word",
+      "input_values": [1, 1, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      "input_length": 18,
+      "expected_result": 1
+    },
+    {
+      "id": "single-terminal-production",
+      "input_values": [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "start-symbol-has-no-derivation",
+      "input_values": [2, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+      "input_length": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum-valid-frame",
+      "input_values": [4, 2, 8, 12, 0, 0, 1, 0, 1, 0, 1, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+        1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0,
+        1, 2, 2, 2, 0, 2, 0, 0, 0, 2, 1, 0,
+        1, 3, 3, 3, 0, 3, 0, 0, 0, 3, 1, 0],
+      "input_length": 61,
+      "expected_result": 1
+    },
+    {
+      "id": "empty-production-set",
+      "input_values": [1, 2, 3, 0, 0, 0, 1, 0],
+      "input_length": 8,
+      "expected_result": 0
+    },
+    {
+      "id": "duplicate-production-is-redundant",
+      "input_values": [1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 14,
+      "expected_result": 1
+    },
+    {
+      "id": "zero-length-word-rejected",
+      "input_values": [1, 1, 0, 0, 0],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "token-outside-alphabet",
+      "input_values": [1, 1, 1, 1, 0, 1, 0, 0, 0, 0],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "unit-production-tag-rejected",
+      "input_values": [2, 1, 1, 1, 0, 0, 2, 0, 1, 0],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "terminal-production-padding-rejected",
+      "input_values": [1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [1, 1, 1, 0, 0, 0, 77],
+      "input_length": 7,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "null-at-parser-limit",
+      "input_values": [],
+      "input_length": 62,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

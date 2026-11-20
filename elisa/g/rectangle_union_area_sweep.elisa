@@ -1,0 +1,148 @@
+const RUAS_MAX_EVENTS: usize = 128
+const RUAS_TREE_SIZE: usize = 512
+
+struct RuasEvent:
+    x: i64
+    y1: i64
+    y2: i64
+    delta: i64
+
+def ruas_sift_values(values: mutable view[i64], root_start: usize, end_value: usize) -> void:
+    root: mutable usize = root_start
+    while root * 2 + 1 < end_value:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end_value and values[child] < values[child + 1]: child <- child + 1
+        if values[root] >= values[child]: return
+        value: mutable i64 = values[root]
+        values[root] <- values[child]
+        values[child] <- value
+        root <- child
+
+def ruas_sort_values(values: mutable view[i64], count: usize) -> void:
+    start: mutable usize = count / 2
+    while start > 0:
+        start <- start - 1
+        ruas_sift_values(values, start, count)
+    end_value: mutable usize = count
+    while end_value > 1:
+        value: mutable i64 = values[0]
+        values[0] <- values[end_value - 1]
+        values[end_value - 1] <- value
+        end_value <- end_value - 1
+        ruas_sift_values(values, 0, end_value)
+
+def ruas_sift_events(events: mutable view[RuasEvent], root_start: usize, end_value: usize) -> void:
+    root: mutable usize = root_start
+    while root * 2 + 1 < end_value:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end_value and events[child].x < events[child + 1].x: child <- child + 1
+        if events[root].x >= events[child].x: return
+        value: mutable RuasEvent = events[root]
+        events[root] <- events[child]
+        events[child] <- value
+        root <- child
+
+def ruas_sort_events(events: mutable view[RuasEvent], count: usize) -> void:
+    start: mutable usize = count / 2
+    while start > 0:
+        start <- start - 1
+        ruas_sift_events(events, start, count)
+    end_value: mutable usize = count
+    while end_value > 1:
+        value: mutable RuasEvent = events[0]
+        events[0] <- events[end_value - 1]
+        events[end_value - 1] <- value
+        end_value <- end_value - 1
+        ruas_sift_events(events, 0, end_value)
+
+def ruas_lower_bound(values: view[i64], count: usize, target: i64) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if values[middle] < target: low <- middle + 1
+        else: high <- middle
+    low
+
+def ruas_update(node: usize, left: usize, right: usize, ql: usize, qr: usize,
+                delta: i64, ys: view[i64], cover: mutable view[i64],
+                covered: mutable view[i64]) -> void:
+    if ql <= left and right <= qr:
+        cover[node] <- cover[node] + delta
+    else:
+        middle: usize = left + (right - left) / 2
+        if ql < middle: ruas_update(node * 2, left, middle, ql, qr, delta, ys, cover, covered)
+        if qr > middle: ruas_update(node * 2 + 1, middle, right, ql, qr, delta, ys, cover, covered)
+    if cover[node] > 0: covered[node] <- ys[right] - ys[left]
+    elif right - left == 1: covered[node] <- 0
+    else: covered[node] <- covered[node * 2] + covered[node * 2 + 1]
+
+def rectangle_union_area_sweep_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > 258: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > 64: return -1
+    count: usize = count_value.usize()
+    if length != 1 + 4 * count: return -1
+
+    ys: mutable i64[RUAS_MAX_EVENTS] = zeroed
+    events: mutable RuasEvent[RUAS_MAX_EVENTS] = zeroed
+    y_count: mutable usize = 0
+    event_count: mutable usize = 0
+    i: mutable usize = 0
+    while i < count:
+        x1: i64 = input[1 + 4 * i]
+        y1: i64 = input[2 + 4 * i]
+        x2: i64 = input[3 + 4 * i]
+        y2: i64 = input[4 + 4 * i]
+        if x1 < -1000000000 or x1 > 1000000000 or x2 < -1000000000 or x2 > 1000000000 or y1 < -1000000000 or y1 > 1000000000 or y2 < -1000000000 or y2 > 1000000000 or x1 >= x2 or y1 >= y2: return -1
+        ys[y_count] <- y1
+        ys[y_count + 1] <- y2
+        y_count <- y_count + 2
+        events[event_count] <- RuasEvent(x: x1, y1: y1, y2: y2, delta: 1)
+        events[event_count + 1] <- RuasEvent(x: x2, y1: y1, y2: y2, delta: -1)
+        event_count <- event_count + 2
+        i <- i + 1
+    if count == 0: return 0
+    ys_view: mutable view[i64] = ys[0:RUAS_MAX_EVENTS]
+    events_view: mutable view[RuasEvent] = events[0:RUAS_MAX_EVENTS]
+    ruas_sort_values(ys_view, y_count)
+    unique_count: mutable usize = 1
+    i <- 1
+    while i < y_count:
+        if ys_view[i] != ys_view[unique_count - 1]:
+            ys_view[unique_count] <- ys_view[i]
+            unique_count <- unique_count + 1
+        i <- i + 1
+    ruas_sort_events(events_view, event_count)
+    cover: mutable i64[RUAS_TREE_SIZE] = zeroed
+    covered: mutable i64[RUAS_TREE_SIZE] = zeroed
+    cover_view: mutable view[i64] = cover[0:RUAS_TREE_SIZE]
+    covered_view: mutable view[i64] = covered[0:RUAS_TREE_SIZE]
+    intervals: usize = unique_count - 1
+    area: mutable i64 = 0
+    previous_x: mutable i64 = events_view[0].x
+    event: mutable usize = 0
+    while event < event_count:
+        x: i64 = events_view[event].x
+        area <- area + covered_view[1] * (x - previous_x)
+        finish: mutable usize = event
+        while finish < event_count and events_view[finish].x == x: finish <- finish + 1
+        pass: mutable i64 = 1
+        while pass >= -1:
+            i <- event
+            while i < finish:
+                if events_view[i].delta == pass:
+                    low: usize = ruas_lower_bound(ys_view, unique_count, events_view[i].y1)
+                    high: usize = ruas_lower_bound(ys_view, unique_count, events_view[i].y2)
+                    ruas_update(1, 0, intervals, low, high, pass, ys_view, cover_view, covered_view)
+                i <- i + 1
+            pass <- pass - 2
+        previous_x <- x
+        event <- finish
+    area
+
+export fn rectangle_union_area_sweep(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 258: return -1
+    input_view: view[i64] = input[0:length]
+    rectangle_union_area_sweep_impl(input_view)

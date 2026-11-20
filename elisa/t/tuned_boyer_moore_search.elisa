@@ -1,0 +1,57 @@
+# Tuned Boyer–Moore skip loop with bounded sentinel and result views.
+def tuned_compute(values: view[i64], positions: mutable view[i64]) -> i64:
+    length: usize = values.len()
+    if length < 2 or length > 322 or values[0] < 0.i64() or values[0] > 255.i64() or values[1] < 1.i64() or values[1] > 64.i64():
+        return -1.i64()
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    if length != 2 + n + m: return -1.i64()
+    for i in 0..<(n + m):
+        if values[2 + i] < 0.i64() or values[2 + i] > 127.i64(): return -1.i64()
+    match_count: mutable usize = 0
+    if m <= n:
+        padded: mutable u8[319] = zeroed
+        shifts: mutable usize[128] = zeroed
+        pattern_start: usize = 2 + n
+        final_byte: usize = values[pattern_start + m - 1].usize()
+        for i in 0..<n: padded[i] <- values[2 + i].u8()
+        for i in 0..<m: padded[n + i] <- final_byte.u8()
+        for byte in 0..<128: shifts[byte] <- m
+        for i in 0..<(m - 1): shifts[values[pattern_start + i].usize()] <- m - i - 1
+        final_shift: usize = shifts[final_byte]
+        shifts[final_byte] <- 0
+        alignment: mutable usize = 0
+        while alignment < n:
+            skip: mutable usize = shifts[padded[alignment + m - 1].usize()]
+            while skip != 0:
+                alignment <- alignment + skip
+                skip <- shifts[padded[alignment + m - 1].usize()]
+                alignment <- alignment + skip
+                skip <- shifts[padded[alignment + m - 1].usize()]
+                alignment <- alignment + skip
+                skip <- shifts[padded[alignment + m - 1].usize()]
+            prefix_matches: mutable bool = true
+            index: mutable usize = 0
+            while index + 1 < m and prefix_matches:
+                if values[pattern_start + index] != padded[alignment + index].i64(): prefix_matches <- false
+                index <- index + 1
+            if prefix_matches and alignment < n:
+                positions[match_count] <- alignment.i64()
+                match_count <- match_count + 1
+            alignment <- alignment + final_shift
+    match_count.i64()
+
+export fn tuned_boyer_moore_search(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 322: return -1.i64()
+    positions: mutable i64[255] = zeroed
+    match_count: i64 = tuned_compute(input[0:length], positions[0:255])
+    if match_count < 0.i64(): return -1.i64()
+    output_bytes: usize = match_count.usize() * 8
+    if output.is_null() or output_capacity < output_bytes: return -2.i64()
+    bytes: mutable view[u8] = output[0:output_bytes]
+    for i in 0..<match_count.usize():
+        bits: mutable u64 = positions[i].u64()
+        for byte in 0..<8:
+            bytes[i * 8 + byte] <- (bits % 256.u64()).u8()
+            bits <- bits / 256.u64()
+    output_bytes.i64()

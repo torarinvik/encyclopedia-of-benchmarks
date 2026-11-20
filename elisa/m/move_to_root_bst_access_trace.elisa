@@ -1,0 +1,84 @@
+fn move_to_root_solve(values: view[i64]) -> i64:
+    if values.length < 2 or values.length > 51: return -1
+    initial_count: i64 = values[0]
+    if initial_count < 0 or initial_count > 16: return -1
+    query_count_index: i64 = 1 + initial_count
+    if values.length < query_count_index + 1: return -1
+    access_count: i64 = values[query_count_index]
+    if access_count < 0 or access_count > 32: return -1
+    if values.length != query_count_index + 1 + access_count: return -1
+
+    keys: mutable i64[16] = zeroed
+    left: mutable i64[16] = zeroed
+    right: mutable i64[16] = zeroed
+    parent: mutable i64[16] = zeroed
+    for index in 0..<16:
+        left[index] <- -1
+        right[index] <- -1
+        parent[index] <- -1
+    for index in 0..<initial_count:
+        key: i64 = values[1 + index]
+        if key < -100 or key > 100: return -1
+        for earlier in 0..<index:
+            if values[1 + earlier] == key: return -1
+        keys[index] <- key
+    for query in 0..<access_count:
+        key: i64 = values[query_count_index + 1 + query]
+        if key < -100 or key > 100: return -1
+
+    root: mutable i64 = -1
+    for node in 0..<initial_count:
+        if root == -1:
+            root <- node
+            continue
+        current: mutable i64 = root
+        while true:
+            if keys[node] < keys[current]:
+                if left[current] == -1:
+                    left[current] <- node
+                    parent[node] <- current
+                    break
+                current <- left[current]
+            else:
+                if right[current] == -1:
+                    right[current] <- node
+                    parent[node] <- current
+                    break
+                current <- right[current]
+
+    result: mutable i64 = 0
+    for zero_based_query in 0..<access_count:
+        query_number: i64 = zero_based_query + 1
+        key: i64 = values[query_count_index + query_number]
+        node: mutable i64 = root
+        comparisons: mutable i64 = 0
+        while node != -1:
+            comparisons <- comparisons + 1
+            if key == keys[node]: break
+            if key < keys[node]: node <- left[node]
+            else: node <- right[node]
+        while node != -1 and parent[node] != -1:
+            old_parent: i64 = parent[node]
+            grandparent: i64 = parent[old_parent]
+            if left[old_parent] == node:
+                middle: i64 = right[node]
+                right[node] <- old_parent
+                left[old_parent] <- middle
+                if middle != -1: parent[middle] <- old_parent
+            else:
+                middle: i64 = left[node]
+                left[node] <- old_parent
+                right[old_parent] <- middle
+                if middle != -1: parent[middle] <- old_parent
+            parent[old_parent] <- node
+            parent[node] <- grandparent
+            if grandparent == -1: root <- node
+            elif left[grandparent] == old_parent: left[grandparent] <- node
+            else: right[grandparent] <- node
+        result <- result + query_number * comparisons
+    result
+
+export fn move_to_root_bst_access_trace(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 51: return -1
+    values: view[i64] = input[0:length]
+    move_to_root_solve(values)

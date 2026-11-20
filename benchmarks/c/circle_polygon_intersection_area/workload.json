@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "circle-polygon-intersection-area-i64-array-float64-v1",
+  "algorithm": "circle_polygon_intersection_area",
+  "function_symbol": "circle_polygon_intersection_area",
+  "abi": "i64_array_float64",
+  "description": "Area common to a circle and a strictly convex CCW polygon containing the circle center.",
+  "source": {
+    "title": "KACTL CirclePolygonIntersection.h",
+    "authors": ["KACTL contributors"],
+    "reference": "KACTL geometry chapter index and CirclePolygonIntersection.h description",
+    "url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/geometry/CirclePolygonIntersection.h",
+    "index_url": "https://raw.githubusercontent.com/kth-competitive-programming/kactl/main/content/geometry/chapter.tex",
+    "license": "CC0",
+    "algorithm_attribution": "Oriented circular-sector and triangle contributions along polygon edges",
+    "implementation_status": "clean-room implementations from the algorithm description"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N, cx, cy, r, x0, y0, ..., x(N-1), y(N-1)]",
+    "vertex_count_range": [3, 16],
+    "coordinate_range": [-32, 32],
+    "radius_range": [1, 32],
+    "requirements": [
+      "exact length is 4 + 2*N",
+      "vertices are distinct and strictly convex",
+      "vertices appear in counterclockwise order",
+      "circle center lies strictly inside the polygon"
+    ],
+    "maximum_valid_input_length": 36,
+    "maximum_parseable_input_length": 37,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Nonnegative area of the intersection between the circle and polygon.",
+    "result_range": [0, 3216.991],
+    "result_range_upper_bound": 3216.991,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "complexity": {
+    "primary_time": "O(N) edge contributions after O(N^2) strict-convexity and center validation",
+    "primary_auxiliary_space": "O(N) fixed point storage",
+    "independent_oracle_time": "Adaptive angular integration over O(N) event intervals; each integrand evaluation scans O(N) edges"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12,
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "disk-inside-large-square",
+      "input_values": [4, 0, 0, 2, -4, -4, 4, -4, 4, 4, -4, 4],
+      "input_length": 12,
+      "expected_result": 12.566370614359172
+    },
+    {
+      "id": "polygon-inside-disk",
+      "input_values": [4, 0, 0, 2, -1, -1, 1, -1, 1, 1, -1, 1],
+      "input_length": 12,
+      "expected_result": 4.0
+    },
+    {
+      "id": "rectangle-clips-circle-on-two-sides",
+      "input_values": [4, 0, 0, 2, -1, -2, 1, -2, 1, 2, -1, 2],
+      "input_length": 12,
+      "expected_result": 7.652891819924145
+    },
+    {
+      "id": "disk-tangent-to-square-sides",
+      "input_values": [4, 0, 0, 2, -2, -2, 2, -2, 2, 2, -2, 2],
+      "input_length": 12,
+      "expected_result": 12.566370614359172
+    },
+    {
+      "id": "maximum-vertex-count-inscribed-disk",
+      "input_values": [16, 0, 0, 6, 10, 0, 9, 4, 7, 7, 4, 9, 0, 10, -4, 9, -7, 7, -9, 4, -10, 0, -9, -4, -7, -7, -4, -9, 0, -10, 4, -9, 7, -7, 9, -4],
+      "input_length": 36,
+      "expected_result": 113.09733552923255
+    },
+    {
+      "id": "offset-circle-clipped-by-square",
+      "input_values": [4, 1, 0, 2, -2, -2, 2, -2, 2, 2, -2, 2],
+      "input_length": 12,
+      "expected_result": 10.109631217141658
+    },
+    {
+      "id": "circle-contains-triangle",
+      "input_values": [3, 0, 0, 10, -4, -3, 4, -3, 0, 5],
+      "input_length": 10,
+      "expected_result": 32.0
+    },
+    {
+      "id": "triangle-contains-unit-disk",
+      "input_values": [3, 0, 0, 1, -4, -3, 4, -3, 0, 5],
+      "input_length": 10,
+      "expected_result": 3.141592653589793
+    },
+    {
+      "id": "disk-tangent-at-diamond-vertices",
+      "input_values": [4, 0, 0, 2, 2, 0, 0, 2, -2, 0, 0, -2],
+      "input_length": 12,
+      "expected_result": 8.0
+    },
+    {
+      "id": "clockwise-polygon-is-invalid",
+      "input_values": [4, 0, 0, 2, -2, -2, -2, 2, 2, 2, 2, -2],
+      "input_length": 12,
+      "expected_result": -1e300
+    },
+    {
+      "id": "nonconvex-polygon-is-invalid",
+      "input_values": [5, 0, 0, 1, -3, -3, 3, -3, 0, -2, 3, 3, -3, 3],
+      "input_length": 14,
+      "expected_result": -1e300
+    },
+    {
+      "id": "center-on-polygon-boundary-is-invalid",
+      "input_values": [4, 0, 0, 1, 0, -2, 2, -2, 2, 2, 0, 2],
+      "input_length": 12,
+      "expected_result": -1e300
+    },
+    {
+      "id": "zero-radius-is-invalid",
+      "input_values": [3, 0, 0, 0, -2, -2, 2, -2, 0, 2],
+      "input_length": 10,
+      "expected_result": -1e300
+    },
+    {
+      "id": "coordinate-outside-profile-is-invalid",
+      "input_values": [3, 0, 0, 1, -33, -2, 2, -2, 0, 2],
+      "input_length": 10,
+      "expected_result": -1e300
+    },
+    {
+      "id": "radius-outside-profile-is-invalid",
+      "input_values": [3, 0, 0, 33, -2, -2, 2, -2, 0, 2],
+      "input_length": 10,
+      "expected_result": -1e300
+    },
+    {
+      "id": "trailing-value-is-invalid",
+      "input_values": [3, 0, 0, 1, -2, -2, 2, -2, 0, 2, 7],
+      "input_length": 11,
+      "expected_result": -1e300
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1e300
+    }
+  ]
+}

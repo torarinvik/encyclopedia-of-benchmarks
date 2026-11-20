@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn path_sum_recur(v:UnsafePointer[Int64,ImmutAnyOrigin],node:Int,sum:Int64,target:Int64)->Bool:

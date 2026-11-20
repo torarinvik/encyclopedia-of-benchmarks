@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p75_gcd(a_in:Int64,b_in:Int64)->Int64:
     var a=a_in;var b=b_in
     while b!=0:let r=a%b;a=b;b=r

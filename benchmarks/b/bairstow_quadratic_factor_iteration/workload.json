@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "nist-dlmf-bairstow-finite-field-trace-f998244353-i64-array-bytes-output-v1",
+  "algorithm": "bairstow_quadratic_factor_iteration",
+  "function_symbol": "bairstow_quadratic_factor_iteration",
+  "abi": "i64_array_bytes_output",
+  "description": "Record a bounded sequence of Bairstow quadratic-factor parameter updates over F_998244353.",
+  "source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.8(iv), Eqs. 3.8.10–3.8.11",
+    "url": "https://dlmf.nist.gov/3.8.iv#E10",
+    "correction_url": "https://dlmf.nist.gov/3.8.iv#E11",
+    "role": "algebraic algorithm description only; finite-field specialization is local"
+  },
+  "contract": {
+    "operation": "Run K fixed Bairstow updates for a supplied polynomial and initial quadratic factor z^2-s*z-t over F_998244353.",
+    "primary_method": "Use the DLMF backward q/r recurrences and Eq. 3.8.11 correction formulas at every step.",
+    "independent_method": "Evaluate q_j and r_j from direct convolution sums with the reciprocal quadratic-series coefficients, then apply the pinned correction formulas.",
+    "finite_profile_caveat": "This exact field trace does not establish convergence to a real quadratic factor or any real roots.",
+    "invalid_input_or_zero_correction_denominator_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N,a_0,...,a_N,s_0,t_0,K]",
+    "degree_range": [3, 8],
+    "iteration_range": [1, 4],
+    "field": "F_998244353",
+    "canonical_residues": "all a_j, s_0, t_0 are in 0..998244352",
+    "leading_coefficient": "a_N is nonzero",
+    "exact_length": "N+5",
+    "maximum_valid_length": 13,
+    "maximum_parseable_length": 14,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array_bytes",
+    "encoding": "[K+1,s_0,t_0,s_1,t_1,...,s_K,t_K] over F_998244353",
+    "word_count_range": [5, 11],
+    "maximum_bytes": 88,
+    "success_result": "8*(2*K+3)",
+    "zero_correction_denominator_result": -1,
+    "null_or_short_output_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Fixed coefficient (72-byte), q/r (160-byte), and trace (80-byte) arrays, scalar temporaries, and conservative stack/alignment allowance; no dynamic allocation."
+  },
+  "complexity": {
+    "native_primary_time": "O(K*N + K log p) modular operations",
+    "native_primary_auxiliary_space": "O(N), capped at 512 bytes",
+    "independent_reference_time": "O(K*N^2 + K log p) using direct convolution sums",
+    "independent_reference_auxiliary_space": "O(N) short coefficient arrays"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/b/bairstow_quadratic_factor_iteration/primary_oracle.py",
+  "independent_oracle": "benchmarks/b/bairstow_quadratic_factor_iteration/independent_oracle.py",
+  "cases": [
+    {"id":"one-step-nontrivial-correction","input_values":[3,1,0,1,1,0,0,1],"input_length":8,"output_capacity":40,"expected_result":40,"expected_output_hex":"0200000000000000 0000000000000000 0000000000000000 0100000000000000 0000803b00000000"},
+    {"id":"exact-cubic-factor-two-updates","input_values":[3,998244351,998244352,2,1,0,1,2],"input_length":8,"output_capacity":56,"expected_result":56,"expected_output_hex":"0300000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000"},
+    {"id":"maximum-valid-frame-and-output","input_values":[8,0,0,1,0,0,0,0,0,1,0,0,4],"input_length":13,"output_capacity":88,"expected_result":88,"expected_output_hex":"0500000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"maximum-output-one-byte-short","input_values":[8,0,0,1,0,0,0,0,0,1,0,0,4],"input_length":13,"output_capacity":87,"expected_result":-2,"expected_output_hex":""},
+    {"id":"singular-correction-before-capacity","input_values":[3,1,0,0,1,0,0,1],"input_length":8,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-leading-coefficient","input_values":[3,0,0,0,0,0,0,1],"input_length":8,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"noncanonical-coefficient","input_values":[3,0,0,998244353,1,0,0,1],"input_length":8,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-initial-parameter","input_values":[3,1,0,1,1,-1,0,1],"input_length":8,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"iteration-count-zero","input_values":[3,1,0,1,1,0,0,0],"input_length":8,"output_capacity":24,"expected_result":-1,"expected_output_hex":""},
+    {"id":"degree-below-bound","input_values":[2,0,1,1,0,0,1,0],"input_length":8,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"degree-above-bound","input_values":[9,0,0,0,0,0,0,0],"input_length":8,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated-frame","input_values":[4,0,0,0,0,1,0,0],"input_length":8,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-frame-value","input_values":[3,1,0,1,1,0,0,1,4],"input_length":9,"output_capacity":40,"expected_result":-1,"expected_output_hex":""},
+    {"id":"maximum-parseable-trailing-word","input_values":[8,998244351,0,2,0,0,0,998244352,0,1,0,1,4,0],"input_length":14,"output_capacity":88,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[3,1,0,1,1,0,0,1],"input_length":8,"output_capacity":40,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output","input_values":[3,1,0,1,1,0,0,1],"input_length":8,"output_capacity":39,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":40,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

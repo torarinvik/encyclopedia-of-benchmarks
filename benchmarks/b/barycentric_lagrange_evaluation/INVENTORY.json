@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "algorithm": "barycentric_lagrange_evaluation",
+  "function_symbol": "barycentric_lagrange_evaluation",
+  "abi": "i64_array_scalar",
+  "status": "ten ports and package artifacts integrated into the scalar suite and catalog",
+  "input": {
+    "minimum_valid_length": 4,
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 19,
+    "node_count_range": [1, 8],
+    "field": "F_998244353",
+    "canonical_residues": true,
+    "distinct_nodes": true
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "encoding": "interpolant value at q modulo 998244353, or -1 on invalid input",
+    "maximum_value": 998244352
+  },
+  "workspace": {"bytes": 128},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/b/barycentric_lagrange_evaluation.c",
+    "c3/b/barycentric_lagrange_evaluation.c3",
+    "cpp/b/barycentric_lagrange_evaluation.cpp",
+    "elisa/b/barycentric_lagrange_evaluation.elisa",
+    "mojo/b/barycentric_lagrange_evaluation.mojo",
+    "nim/b/barycentric_lagrange_evaluation.nim",
+    "odin/b/barycentric_lagrange_evaluation.odin",
+    "rust/b/barycentric_lagrange_evaluation.rs",
+    "v/b/barycentric_lagrange_evaluation.v",
+    "zig/b/barycentric_lagrange_evaluation.zig"
+  ],
+  "source": "https://dlmf.nist.gov/3.3.i#E1",
+  "weight_source": "https://dlmf.nist.gov/3.3.i#E3_1"
+}

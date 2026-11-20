@@ -12,7 +12,7 @@ fn long exact_optimum(usz machines,long*sizes,usz jobs){
 }
 fn void put64(char*out,usz pos,long value){ulong bits=(ulong)value;for(usz j=0;j<8;j+=1){out[pos+j]=(char)(bits&255);bits>>=8;}}
 
-long robust_scheduling_single_arrival_migration(long*in,usz len,char*out,usz cap) @export("robust_scheduling_single_arrival_migration") {
+fn long robust_scheduling_single_arrival_migration(long*in,usz len,char*out,usz cap) @export("robust_scheduling_single_arrival_migration") {
     if(in==null||len<6||len>MAX_INPUT)return -1;
     long m64=in[0],n64=in[1],claim=in[2],new_size=in[3];if(m64<2||m64>(long)MAX_MACHINES||n64<1||n64>(long)MAX_OLD_JOBS||claim<1||new_size<1||new_size>20||len!=4+2*(usz)n64)return -1;
     usz machines=(usz)m64,n=(usz)n64;long[MAX_OLD_JOBS+1] sizes=zeroed;long[MAX_OLD_JOBS+1] assignment=zeroed;long[MAX_MACHINES] loads=zeroed;

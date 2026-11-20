@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "powerful-numbers-square-cube-enumeration-i64-array-bytes-output-v1",
+  "algorithm": "powerful_numbers_square_cube_enumeration",
+  "function_symbol": "powerful_numbers_square_cube_enumeration",
+  "abi": "i64_array_bytes_output",
+  "description": "Enumerate all powerful numbers through a small bound using the unique squarefree-b representation.",
+  "source": {
+    "title": "Powerful numbers",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "primary_method_reference": "https://cs.uwaterloo.ca/journals/JIS/VOL26/Chan/chan33.pdf",
+    "definition_reference": "https://oeis.org/A001694",
+    "discovery_scope": "RosettaCodeData supplies title discovery only. The mathematical sources define powerful numbers and the unique n=a^2*b^3 representation with squarefree b. This package fixes its own bound, enumeration method, ordering, and output frame; no task wording, code, examples, or tests are reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[limit]",
+    "limit_range": [1, 100],
+    "exact_length": 1,
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array_bytes",
+    "encoding": "count followed by all powerful numbers <= limit in ascending order",
+    "result": "serialized output byte length",
+    "maximum_values": 14,
+    "maximum_output_bytes": 120,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "powerful_definition": "A positive integer is powerful iff every prime dividing it occurs with exponent at least two; 1 is included.",
+    "primary_generation": "Enumerate each squarefree b with b^3<=limit and each positive a with a^2*b^3<=limit; emit a^2*b^3, then sort ascending.",
+    "representation": "For each powerful n, the representation n=a^2*b^3 with squarefree b is unique: b contains exactly the primes whose exponent in n is odd.",
+    "maximum_count_proof": "limit<=100 implies b<=4; squarefree b values are 1,2,3, with at most 10,3,1 admissible a values respectively, so at most 14 pairs and outputs.",
+    "distinction": "The local powerful_number_summatory_sieve uses increasing-prime/exponent DFS only to visit convolution support while calculating a summatory function. This profile directly enumerates and serializes the sorted powerful-number sequence via the squarefree-b representation.",
+    "validation_precedes_capacity": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Includes the 14-value staging array, insertion-sort state, and bounded squarefree/trial-factor work state; caller-owned input/output are excluded."
+  },
+  "complexity": {
+    "primary_time": "O(B*A + K^2) with B<=4, A<=10, and at most K=14 staged values",
+    "primary_auxiliary_space": "O(K) for the sorted staging array",
+    "independent_reference_time": "O(limit*sqrt(limit)) trial division, with limit<=100",
+    "independent_reference_auxiliary_space": "O(K) output sequence"
+  },
+  "primary_oracle": "benchmarks/p/powerful_numbers_square_cube_enumeration/primary_oracle.py",
+  "independent_oracle": "benchmarks/p/powerful_numbers_square_cube_enumeration/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"limit-one","input_values":[1],"input_length":1,"output_capacity":120,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"limit-four","input_values":[4],"input_length":1,"output_capacity":120,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000400000000000000"},
+    {"id":"mixed-square-cube-values","input_values":[36],"input_length":1,"output_capacity":120,"expected_result":80,"expected_output_hex":"09000000000000000100000000000000040000000000000008000000000000000900000000000000100000000000000019000000000000001b0000000000000020000000000000002400000000000000"},
+    {"id":"maximum-limit","input_values":[100],"input_length":1,"output_capacity":120,"expected_result":120,"expected_output_hex":"0e000000000000000100000000000000040000000000000008000000000000000900000000000000100000000000000019000000000000001b000000000000002000000000000000240000000000000031000000000000004000000000000000480000000000000051000000000000006400000000000000"},
+    {"id":"zero-limit","input_values":[0],"input_length":1,"output_capacity":120,"expected_result":-1,"expected_output_hex":""},
+    {"id":"limit-above-profile","input_values":[101],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-word","input_values":[36,7],"input_length":2,"output_capacity":120,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":120,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-before-short-capacity","input_values":[101],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1],"input_length":1,"output_capacity":120,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1],"input_length":1,"output_capacity":15,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

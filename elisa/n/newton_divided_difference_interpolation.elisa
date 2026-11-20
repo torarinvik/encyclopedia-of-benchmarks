@@ -1,0 +1,57 @@
+const NDD_MODULUS: i64 = 998244353
+const NDD_MAX_NODES: usize = 12
+const NDD_MAX_LENGTH: usize = 27
+
+def ndd_mod_pow(base_value: i64, exponent_value: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) == 1: result <- result*base%NDD_MODULUS
+        base <- base*base%NDD_MODULUS
+        exponent <- exponent/2
+    result
+
+def ndd_interpolate(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 4 or length > NDD_MAX_LENGTH: return -1
+    if input[0] < 1 or input[0] > NDD_MAX_NODES.i64(): return -1
+    count: usize = input[0].usize()
+    if length != 2+2*count: return -1
+    nodes: mutable [NDD_MAX_NODES]i64 = [0; NDD_MAX_NODES]
+    differences: mutable [NDD_MAX_NODES]i64 = [0; NDD_MAX_NODES]
+    i: mutable usize = 0
+    while i < count:
+        nodes[i] <- input[1+i]
+        differences[i] <- input[1+count+i]
+        if nodes[i] < 0 or nodes[i] >= NDD_MODULUS or differences[i] < 0 or differences[i] >= NDD_MODULUS: return -1
+        j: mutable usize = 0
+        while j < i:
+            if nodes[i] == nodes[j]: return -1
+            j <- j+1
+        i <- i+1
+    query: i64 = input[length-1]
+    if query < 0 or query >= NDD_MODULUS: return -1
+    order: mutable usize = 1
+    while order < count:
+        i <- count
+        while i > order:
+            i <- i-1
+            numerator: mutable i64 = differences[i]-differences[i-1]
+            if numerator < 0: numerator <- numerator+NDD_MODULUS
+            denominator: mutable i64 = nodes[i]-nodes[i-order]
+            if denominator < 0: denominator <- denominator+NDD_MODULUS
+            differences[i] <- numerator*ndd_mod_pow(denominator,NDD_MODULUS-2)%NDD_MODULUS
+        order <- order+1
+    result: mutable i64 = differences[count-1]
+    i <- count-1
+    while i > 0:
+        i <- i-1
+        factor: mutable i64 = query-nodes[i]
+        if factor < 0: factor <- factor+NDD_MODULUS
+        result <- (result*factor+differences[i])%NDD_MODULUS
+    result
+
+export fn newton_divided_difference_interpolation(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > NDD_MAX_LENGTH: return -1
+    ndd_interpolate(input[0:length])

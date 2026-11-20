@@ -13,7 +13,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long point_pattern_translation_lex_scan(long* input, usz length, char* output, usz capacity)
+fn long point_pattern_translation_lex_scan(long* input, usz length, char* output, usz capacity)
         @export("point_pattern_translation_lex_scan") {
     if (input == null || length < 2 || length > 31) return -1;
     long pattern_raw = input[0], target_raw = input[1];

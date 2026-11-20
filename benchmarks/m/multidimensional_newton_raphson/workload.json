@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "multidimensional-newton-raphson-i64-array-bytes-output-v1",
+  "algorithm": "multidimensional_newton_raphson",
+  "function_symbol": "multidimensional_newton_raphson",
+  "abi": "i64_array_bytes_output",
+  "description": "Apply a bounded count of coupled binary64 Newton steps to a two-variable system.",
+  "source": {
+    "title": "A normalized multidimensional Newton-Raphson method",
+    "algorithm_reference": "https://ntrs.nasa.gov/api/citations/19780021877/downloads/19780021877.pdf",
+    "algorithm_reference_title": "A normalized multidimensional Newton-Raphson method",
+    "author": "C. F. Chen and N. R. Strader",
+    "pinned_behavior": "Apply exactly the specified number of ordinary coupled Newton steps using the Jacobian of F1=x*x+y-3 and F2=x+y*y-3."
+  },
+  "contract": {
+    "definition": "Compute the final coordinate pair after exactly updates binary64 Newton-Raphson iterations for the pinned simultaneous-equation system.",
+    "input_encoding": "[x0_milli,y0_milli,updates]",
+    "coordinate_range": "Both initial coordinate words are integers in 900..1500 inclusive and denote values divided by 1000.",
+    "update_range": "1..8 inclusive; perform exactly this many steps without a convergence test.",
+    "system": ["F1=x*x+y-3", "F2=x+y*y-3"],
+    "jacobian": "[[2*x,1],[1,2*y]]; solve J*[dx,dy]=[F1,F2], then subtract the correction.",
+    "output_encoding": "Two signed i64 words [round_1e9(x),round_1e9(y)] serialized little-endian; ties away from zero.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true,
+    "input_validation_precedes_output_validation": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[x0_milli,y0_milli,updates]",
+    "coordinate_milli_range": [900, 1500],
+    "updates_range": [1, 8],
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 4,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array",
+    "encoding": "[round_1e9(x),round_1e9(y)]",
+    "word_count": 2,
+    "maximum_bytes": 16,
+    "success_result": "number of output bytes, always 16",
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Native ports use only fixed scalar binary64 state, integer counters, and byte-packing temporaries. Caller-owned input/output buffers are excluded."
+  },
+  "complexity": {
+    "time": "O(updates), with a constant-size 2x2 Jacobian solve per step",
+    "scratch_space": "O(1), bounded by 128 bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/m/multidimensional_newton_raphson/primary_oracle.py",
+  "independent_oracle": "benchmarks/m/multidimensional_newton_raphson/independent_oracle.py",
+  "cases": [
+    {"id":"symmetric-one-step-center","input_values":[1000,1000,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"550d794f00000000550d794f00000000"},
+    {"id":"symmetric-one-step-lower","input_values":[900,900,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"2eda1a51000000002eda1a5100000000"},
+    {"id":"symmetric-one-step-upper","input_values":[1500,1500,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"20293b4e0000000020293b4e00000000"},
+    {"id":"asymmetric-one-step-x-low","input_values":[900,1500,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"afa9b7530000000046fe664c00000000"},
+    {"id":"asymmetric-one-step-y-low","input_values":[1500,900,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"46fe664c00000000afa9b75300000000"},
+    {"id":"asymmetric-one-step-offset","input_values":[1000,1200,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"51d4ef50000000005e7f8b4c00000000"},
+    {"id":"symmetric-interior-one-step","input_values":[1200,1200,1],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"f12ed64d00000000f12ed64d00000000"},
+    {"id":"symmetric-lower-eight-steps","input_values":[900,900,8],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"56c7a64d0000000056c7a64d00000000"},
+    {"id":"symmetric-upper-eight-steps","input_values":[1500,1500,8],"input_length":3,"output_capacity":16,"expected_result":16,"expected_output_hex":"56c7a64d0000000056c7a64d00000000"},
+    {"id":"short-output","input_values":[1000,1000,1],"input_length":3,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1000,1000,1],"input_length":3,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-before-output-error","input_values":[899,1000,1],"input_length":3,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"x-below-domain","input_values":[899,1000,1],"input_length":3,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"y-above-domain","input_values":[1000,1501,1],"input_length":3,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-updates","input_values":[1000,1000,0],"input_length":3,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"too-many-updates","input_values":[1000,1000,9],"input_length":3,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"empty-frame","input_values":[],"input_length":0,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"two-word-frame","input_values":[1000,1000],"input_length":2,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[1000,1000,1,0],"input_length":4,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,68 @@
+const TFK_MAX_ELEMENTS: usize = 32
+const TFK_MAX_VALID_INPUT: usize = 387
+const TFK_MAX_PARSEABLE_INPUT: usize = 388
+const TFK_MAX_OUTPUT_BYTES: usize = 3072
+
+def tfk_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+export fn tetrahedral_element_force_kernel(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > TFK_MAX_PARSEABLE_INPUT:
+        return -1
+    values: view[i64] = input[0:input_length]
+    element_count_value: i64 = values[0]
+    lame_lambda: i64 = values[1]
+    lame_mu: i64 = values[2]
+    if element_count_value < 1 or element_count_value > TFK_MAX_ELEMENTS.i64():
+        return -1
+    if input_length != 3 + 12 * element_count_value.usize():
+        return -1
+    if lame_lambda < 0 or lame_lambda > 16 or lame_mu < 0 or lame_mu > 16:
+        return -1
+    for index in 3..<input_length:
+        if values[index] < -4 or values[index] > 4:
+            return -1
+
+    element_count: usize = element_count_value.usize()
+    required: usize = 96 * element_count
+    if output.is_null() or output_capacity < required:
+        return -2
+
+    staged: mutable u8[TFK_MAX_OUTPUT_BYTES] = zeroed
+    staged_view: mutable view[u8] = staged[0:required]
+    for element in 0..<element_count:
+        input_base: usize = 3 + 12 * element
+        deformation: mutable i64[9] = zeroed
+        for row in 0..<3:
+            for column in 0..<3:
+                deformation[3 * row + column] <-
+                    values[input_base + 3 * (column + 1) + row] - values[input_base + row]
+        trace_delta: i64 = deformation[0] + deformation[4] + deformation[8] - 3
+
+        stress: mutable i64[9] = zeroed
+        for row in 0..<3:
+            for column in 0..<3:
+                diagonal: i64 = 1 if row == column else 0
+                stress[3 * row + column] <-
+                    lame_lambda * trace_delta * diagonal + lame_mu * (
+                        deformation[3 * row + column] + deformation[3 * column + row]
+                        - 2 * diagonal)
+
+        output_base: usize = 12 * element
+        for row in 0..<3:
+            row_sum: mutable i64 = 0
+            for column in 0..<3:
+                row_sum <- row_sum + stress[3 * row + column]
+            tfk_store_i64(staged_view, 8 * (output_base + row), row_sum)
+        for vertex in 0..<3:
+            for row in 0..<3:
+                tfk_store_i64(staged_view, 8 * (output_base + 3 * (vertex + 1) + row),
+                              -stress[3 * row + vertex])
+
+    output_view: mutable view[u8] = output[0:required]
+    for index in 0..<required:
+        output_view[index] <- staged_view[index]
+    required.i64()

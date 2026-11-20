@@ -1,0 +1,33 @@
+{
+  "algorithm": "motzkin_number",
+  "function_symbol": "motzkin_number",
+  "abi": "i64_array_scalar",
+  "workspace_bytes": 512,
+  "maximum_valid_input_length": 1,
+  "maximum_parseable_input_length": 2,
+  "maximum_n": 30,
+  "maximum_result": 1697385471211,
+  "languages": {
+    "c": "c/m/motzkin_number.c",
+    "c3": "c3/m/motzkin_number.c3",
+    "cpp": "cpp/m/motzkin_number.cpp",
+    "elisa": "elisa/m/motzkin_number.elisa",
+    "mojo": "mojo/m/motzkin_number.mojo",
+    "nim": "nim/m/motzkin_number.nim",
+    "odin": "odin/m/motzkin_number.odin",
+    "rust": "rust/m/motzkin_number.rs",
+    "v": "v/m/motzkin_number.v",
+    "zig": "zig/m/motzkin_number.zig"
+  },
+  "metadata": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "suite_integration": "i64_array_scalar runner and verifier registered"
+}

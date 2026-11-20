@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "self-number-count-sieve-i64-array-scalar-v1",
+  "algorithm": "self_number_count_sieve",
+  "function_symbol": "self_number_count_sieve",
+  "abi": "i64_array_scalar",
+  "description": "Count positive base-10 integers through N that have no digit-addition generator.",
+  "source": {
+    "title": "Self-numbers",
+    "discovery_title": "Self-numbers",
+    "discovery_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "definition_source": "https://mathworld.wolfram.com/SelfNumber.html",
+    "task_definition_crosscheck": "https://www.cs.cmu.edu/~eugene/teach/acm03/prob/self.html",
+    "large_count_crosscheck": "https://www.primepuzzles.net/puzzles/puzz_373.htm",
+    "sequence_source": "https://oeis.org/A003052",
+    "count_sequence_source": "https://oeis.org/A282711",
+    "implementation_status": "bounded clean-room count profile; task index used for title discovery only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[N]",
+    "N_range": [1, 100000],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "number of positive self-numbers y in 1..N, where self means no positive x satisfies x + sum_of_base10_digits(x) = y",
+    "valid_result_range": [1, 100000],
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "definition": "For positive x define g(x)=x+sum_of_base10_digits(x). A positive y is a self-number iff no positive x has g(x)=y. Count such y inclusively from 1 through N.",
+    "primary_method": "Use a fixed 100001-bit bitmap. For each positive source x<=N, compute g(x) and mark it if g(x)<=N; count unmarked positions y in 1..N.",
+    "independent_method": "For each y, test possible positive predecessors x in [max(1,y-9*d), y-1], where d is the number of decimal digits in y. This interval is complete because x<y implies x has at most d digits and its digit sum is at most 9*d.",
+    "invalid_cases": "Null input, an empty/non-exact frame, a trailing word, N<1, or N>100000 returns -1. The generator domain excludes zero.",
+    "distinction": "This is the count of integers with no decimal digit-addition predecessor. It is distinct from the lucky-number elimination sieve and from a divisor-count sieve: marks are produced by x plus its decimal digit sum.",
+    "numeric_checkpoints": "MathWorld lists the initial A003052 terms; the CMU statement gives thirteen self-numbers below 100; OEIS A003052 has terms 995 at index 102 and 1006 at index 103, so the count through 1000 is 102. Prime Puzzles reports counts 983 and 9784 through 10000 and 100000 respectively."
+  },
+  "complexity": {
+    "primary_time": "O(N log10 N) digit-addition work plus O(N) bitmap scan.",
+    "primary_space": "1563 uint64 words (12504 bytes) for 100001 bits plus scalar state; native workspace cap 16384 bytes.",
+    "independent_time": "O(N log10 N) candidate predecessor checks, with at most 9*d predecessors per y and d<=6.",
+    "independent_space": "O(1) scalar state; Python reference overhead is outside the native workspace cap."
+  },
+  "workspace": {"bytes": 16384},
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"minimum-one","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"first-digit-block","input_values":[9],"input_length":1,"expected_result":5},
+    {"id":"first-self-number-at-twenty","input_values":[20],"input_length":1,"expected_result":6},
+    {"id":"published-below-one-hundred","input_values":[99],"input_length":1,"expected_result":13},
+    {"id":"one-hundred-is-self","input_values":[100],"input_length":1,"expected_result":14},
+    {"id":"generated-one-hundred-one","input_values":[101],"input_length":1,"expected_result":14},
+    {"id":"thousand-count-checkpoint","input_values":[1000],"input_length":1,"expected_result":102},
+    {"id":"ten-thousand-count-checkpoint","input_values":[10000],"input_length":1,"expected_result":983},
+    {"id":"maximum-limit","input_values":[100000],"input_length":1,"expected_result":9784},
+    {"id":"zero-invalid","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"negative-invalid","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"above-domain-invalid","input_values":[100001],"input_length":1,"expected_result":-1},
+    {"id":"trailing-word-invalid","input_values":[99,0],"input_length":2,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"i64-min-invalid","input_values":[-9223372036854775808],"input_length":1,"expected_result":-1},
+    {"id":"i64-max-invalid","input_values":[9223372036854775807],"input_length":1,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,246 @@
+# Bounded deterministic profile of adaptive bottom-up graph-cut merging.
+const ABM_N: usize = 8
+const ABM_M: usize = 16
+const ABM_B: usize = 4
+const ABM_STRIDE: usize = 10
+
+def abm_allowed(u: usize, v: usize, n: usize, allowed: view[i64]) -> bool:
+    if u < n and allowed[u] == 0: return false
+    if v < n and allowed[v] == 0: return false
+    v != n and u != n + 1
+
+def abm_augment(residual: mutable view[i64], n: usize, allowed: view[i64]) -> void:
+    source: usize = n
+    sink: usize = n + 1
+    size: usize = n + 2
+    while true:
+        parent: mutable i64[ABM_STRIDE] = zeroed
+        queue: mutable usize[ABM_STRIDE] = zeroed
+        i: mutable usize = 0
+        while i < size:
+            parent[i] <- -1
+            i <- i + 1
+        parent[source] <- source.i64()
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        queue[0] <- source
+        while head < tail and parent[sink] < 0:
+            u: usize = queue[head]
+            head <- head + 1
+            v: mutable usize = 0
+            while v < size:
+                if parent[v] < 0 and residual[u * ABM_STRIDE + v] > 0 and abm_allowed(u, v, n, allowed):
+                    parent[v] <- u.i64()
+                    queue[tail] <- v
+                    tail <- tail + 1
+                    if v == sink: break
+                v <- v + 1
+        if parent[sink] < 0: return
+        amount: mutable i64 = (n * 7).i64()
+        v: mutable usize = sink
+        while v != source:
+            u: usize = parent[v].usize()
+            if residual[u * ABM_STRIDE + v] < amount: amount <- residual[u * ABM_STRIDE + v]
+            v <- u
+        v <- sink
+        while v != source:
+            u: usize = parent[v].usize()
+            residual[u * ABM_STRIDE + v] <- residual[u * ABM_STRIDE + v] - amount
+            residual[v * ABM_STRIDE + u] <- residual[v * ABM_STRIDE + u] + amount
+            v <- u
+
+def abm_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 3 or length > 92: return -1
+    raw_n: i64 = input[0]
+    raw_m: i64 = input[1]
+    raw_b: i64 = input[2]
+    if raw_n < 2 or raw_n > ABM_N.i64() or raw_m < 0 or raw_m > ABM_M.i64() or raw_b < 1 or raw_b > ABM_B.i64() or raw_b > raw_n:
+        return -1
+    n: usize = raw_n.usize()
+    m: usize = raw_m.usize()
+    bcount: usize = raw_b.usize()
+    if length != 3 + 3 * n + 4 * m: return -1
+    block: mutable usize[ABM_N] = zeroed
+    seen: mutable i64[ABM_B] = zeroed
+    source_cap: mutable i64[ABM_N] = zeroed
+    sink_cap: mutable i64[ABM_N] = zeroed
+    at: mutable usize = 3
+    u: mutable usize = 0
+    while u < n:
+        x: i64 = input[at]
+        at <- at + 1
+        if x < 0 or x >= raw_b: return -1
+        block[u] <- x.usize()
+        seen[x.usize()] <- 1
+        u <- u + 1
+    b: mutable usize = 0
+    while b < bcount:
+        if seen[b] == 0: return -1
+        b <- b + 1
+    u <- 0
+    while u < n:
+        source_cap[u] <- input[at]
+        at <- at + 1
+        if source_cap[u] < 0 or source_cap[u] > 7: return -1
+        u <- u + 1
+    u <- 0
+    while u < n:
+        sink_cap[u] <- input[at]
+        at <- at + 1
+        if sink_cap[u] < 0 or sink_cap[u] > 7: return -1
+        u <- u + 1
+
+    eu: mutable usize[ABM_M] = zeroed
+    ev: mutable usize[ABM_M] = zeroed
+    ba: mutable usize[ABM_M] = zeroed
+    bb: mutable usize[ABM_M] = zeroed
+    uv: mutable i64[ABM_M] = zeroed
+    vu: mutable i64[ABM_M] = zeroed
+    cross: mutable i64[ABM_M] = zeroed
+    enabled: mutable i64[ABM_M] = zeroed
+    residual: mutable i64[ABM_STRIDE * ABM_STRIDE] = zeroed
+    u <- 0
+    while u < n:
+        residual[n * ABM_STRIDE + u] <- source_cap[u]
+        residual[u * ABM_STRIDE + n + 1] <- sink_cap[u]
+        u <- u + 1
+    potential: mutable i64[ABM_B * ABM_B] = zeroed
+    present: mutable i64[ABM_B * ABM_B] = zeroed
+    i: mutable usize = 0
+    while i < m:
+        ru: i64 = input[at]
+        rv: i64 = input[at + 1]
+        c: i64 = input[at + 2]
+        d: i64 = input[at + 3]
+        at <- at + 4
+        if ru < 0 or ru >= raw_n or rv < 0 or rv >= raw_n or ru == rv or c < 0 or c > 7 or d < 0 or d > 7: return -1
+        eu[i] <- ru.usize(); ev[i] <- rv.usize(); uv[i] <- c; vu[i] <- d
+        if block[eu[i]] == block[ev[i]]:
+            residual[eu[i] * ABM_STRIDE + ev[i]] <- residual[eu[i] * ABM_STRIDE + ev[i]] + c
+            residual[ev[i] * ABM_STRIDE + eu[i]] <- residual[ev[i] * ABM_STRIDE + eu[i]] + d
+        else:
+            ba[i] <- if block[eu[i]] < block[ev[i]]: block[eu[i]] else: block[ev[i]]
+            bb[i] <- if block[eu[i]] < block[ev[i]]: block[ev[i]] else: block[eu[i]]
+            if c != 0 or d != 0:
+                cross[i] <- 1
+                present[ba[i] * ABM_B + bb[i]] <- 1
+        i <- i + 1
+
+    allowed: mutable i64[ABM_N] = zeroed
+    b <- 0
+    while b < bcount:
+        u <- 0
+        while u < n:
+            allowed[u] <- if block[u] == b: 1 else: 0
+            u <- u + 1
+        abm_augment(residual[0:ABM_STRIDE * ABM_STRIDE], n, allowed[0:n])
+        b <- b + 1
+
+    tag: mutable usize[ABM_N] = zeroed
+    b <- 0
+    while b < bcount:
+        u <- 0
+        while u < n:
+            allowed[u] <- if block[u] == b: 1 else: 0
+            u <- u + 1
+        ss: mutable i64[ABM_STRIDE] = zeroed
+        tt: mutable i64[ABM_STRIDE] = zeroed
+        queue: mutable usize[ABM_STRIDE] = zeroed
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        ss[n] <- 1; queue[0] <- n
+        while head < tail:
+            u <- queue[head]; head <- head + 1
+            v: mutable usize = 0
+            while v < n + 2:
+                if ss[v] == 0 and residual[u * ABM_STRIDE + v] > 0 and (u >= n or allowed[u] != 0) and (v >= n or allowed[v] != 0):
+                    ss[v] <- 1; queue[tail] <- v; tail <- tail + 1
+                v <- v + 1
+        head <- 0; tail <- 1; tt[n + 1] <- 1; queue[0] <- n + 1
+        while head < tail:
+            v <- queue[head]; head <- head + 1
+            u <- 0
+            while u < n + 2:
+                if tt[u] == 0 and residual[u * ABM_STRIDE + v] > 0 and (u >= n or allowed[u] != 0) and (v >= n or allowed[v] != 0):
+                    tt[u] <- 1; queue[tail] <- u; tail <- tail + 1
+                u <- u + 1
+        u <- 0
+        while u < n:
+            if allowed[u] != 0:
+                if ss[u] != 0: tag[u] <- 1
+                else:
+                    if tt[u] != 0: tag[u] <- 2
+                    else: tag[u] <- 0
+            u <- u + 1
+        b <- b + 1
+
+    i <- 0
+    while i < m:
+        if cross[i] != 0 and tag[eu[i]] != tag[ev[i]]:
+            potential[ba[i] * ABM_B + bb[i]] <- potential[ba[i] * ABM_B + bb[i]] + (if uv[i] > 0: 1 else: 0) + (if vu[i] > 0: 1 else: 0)
+        i <- i + 1
+    order_a: mutable usize[ABM_B * ABM_B] = zeroed
+    order_b: mutable usize[ABM_B * ABM_B] = zeroed
+    order_n: mutable usize = 0
+    a: mutable usize = 0
+    while a < bcount:
+        b <- a + 1
+        while b < bcount:
+            if present[a * ABM_B + b] != 0:
+                p: mutable usize = order_n
+                order_n <- order_n + 1
+                while p > 0:
+                    pa: usize = order_a[p - 1]
+                    pb: usize = order_b[p - 1]
+                    prior: i64 = potential[pa * ABM_B + pb]
+                    current: i64 = potential[a * ABM_B + b]
+                    if prior > current or (prior == current and (pa < a or (pa == a and pb <= b))): break
+                    order_a[p] <- pa; order_b[p] <- pb; p <- p - 1
+                order_a[p] <- a; order_b[p] <- b
+            b <- b + 1
+        a <- a + 1
+
+    parent: mutable usize[ABM_B] = zeroed
+    b <- 0
+    while b < bcount: parent[b] <- b; b <- b + 1
+    oi: mutable usize = 0
+    while oi < order_n:
+        a <- order_a[oi]; b <- order_b[oi]
+        while parent[a] != a: a <- parent[a]
+        while parent[b] != b: b <- parent[b]
+        if a != b:
+            root: usize = if a < b: a else: b
+            other: usize = if a < b: b else: a
+            parent[other] <- root
+            i <- 0
+            while i < m:
+                if cross[i] != 0 and enabled[i] == 0:
+                    x: mutable usize = ba[i]
+                    y: mutable usize = bb[i]
+                    while parent[x] != x: x <- parent[x]
+                    while parent[y] != y: y <- parent[y]
+                    if x == y:
+                        residual[eu[i] * ABM_STRIDE + ev[i]] <- residual[eu[i] * ABM_STRIDE + ev[i]] + uv[i]
+                        residual[ev[i] * ABM_STRIDE + eu[i]] <- residual[ev[i] * ABM_STRIDE + eu[i]] + vu[i]
+                        enabled[i] <- 1
+                i <- i + 1
+            u <- 0
+            while u < n:
+                x: mutable usize = block[u]
+                while parent[x] != x: x <- parent[x]
+                allowed[u] <- if x == root: 1 else: 0
+                u <- u + 1
+            abm_augment(residual[0:ABM_STRIDE * ABM_STRIDE], n, allowed[0:n])
+        oi <- oi + 1
+    flow: mutable i64 = 0
+    u <- 0
+    while u < n:
+        flow <- flow + source_cap[u] - residual[n * ABM_STRIDE + u]
+        u <- u + 1
+    flow
+
+export def adaptive_bottom_up_graph_cut_merging(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 92: return -1
+    values: view[i64] = input[0:length]
+    abm_impl(values)

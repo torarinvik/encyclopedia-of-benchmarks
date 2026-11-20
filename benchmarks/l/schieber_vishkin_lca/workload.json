@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "schieber-vishkin-lca-v1",
+  "algorithm": "schieber_vishkin_lca",
+  "function_symbol": "schieber_vishkin_lca",
+  "abi": "i64_array_bytes_output",
+  "description": "Batched lowest-common-ancestor queries using Schieber–Vishkin inlabels, ascendant masks, and constant-time path-head jumps.",
+  "source": {
+    "title": "Schieber–Vishkin algorithm",
+    "authors": ["Baruch Schieber", "Uzi Vishkin"],
+    "title_only_discovery_score": 21,
+    "discovery_index": "RosettaCodeData popular-tasks",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "primary_reference": "On Finding Lowest Common Ancestors: Simplification and Parallelization",
+    "primary_reference_url": "https://doi.org/10.1137/0217079",
+    "operational_description": "Volker Heun, Algorithmische Bioinformatik: Bäume und Graphen, section 4.2, pp. 163 onward",
+    "operational_description_url": "https://www.bio.ifi.lmu.de/mitarbeiter/volker-heun/notes/as9.pdf",
+    "book_chapter": "Parallel Lowest Common Ancestor Computation, in A Synthesis of Parallel Algorithms, chapter 6 (1994)",
+    "book_chapter_author_page": "https://sbarnjit.github.io/",
+    "algorithm_attribution": "Preorder inlabels, ascendant bitsets, run-head parent lookup, and constant-operation query bit manipulation",
+    "implementation_status": "clean-room bounded profile; algorithm descriptions only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[node_count, root_id, edge_count, query_count, (edge_u, edge_v)*edge_count, (query_u, query_v)*query_count]",
+    "node_count_range": [1, 256],
+    "query_count_range": [0, 1024],
+    "edge_count_rule": "node_count - 1",
+    "vertex_id_range": "0 through node_count - 1",
+    "tree_precondition": "The undirected edge list forms one connected acyclic tree rooted at root_id for the queries.",
+    "maximum_length": 2562,
+    "maximum_trailing_frame_probe_length": 2563,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "One unsigned byte containing the LCA vertex ID per query, in query order.",
+    "maximum_bytes": 1024,
+    "success_result": "number of answer bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true,
+    "zero_query_null_output_is_valid": true
+  },
+  "workspace": {
+    "bytes": 32768,
+    "logical_scratch_bytes_maximum": 32768,
+    "meaning": "Fixed adjacency, traversal, preorder/inlabel/ascendant/path-parent arrays, and staged answer bytes; excludes caller input and output buffers."
+  },
+  "contract": {
+    "operation": "Return the lowest common ancestor of every supplied ordered vertex pair under the supplied root.",
+    "algorithm": "Iterative DFS preorder; reverse-preorder maximum-lowbit propagation for inlabels; root-to-node ascendant masks and path-parent table; constant-operation query bit selection.",
+    "complexity": "O(n + q) time and O(n + q) fixed scratch in the bounded word-RAM profile; each query uses a fixed number of bit operations and table accesses.",
+    "error_precedence": "Validate framing, ranges, all edge/query IDs, and connected acyclic tree shape before checking output nullness/capacity; stage every answer before writing.",
+    "no_write_on_error": true,
+    "n_equals_one": "Valid with zero edges; self-query answers are vertex 0.",
+    "empty_query_batch": "Valid and returns 0; null output is accepted.",
+    "duplicate_edges_or_cycles": "Invalid tree and returns -1.",
+    "disconnected_graph": "Invalid tree and returns -1."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-node-self-queries",
+      "input_values": [1, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+      "input_length": 10,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output_hex": "000000"
+    },
+    {
+      "id": "balanced-tree-cross-branches-and-equal-endpoint",
+      "input_values": [7, 0, 6, 4, 0, 1, 0, 2, 1, 3, 1, 4, 2, 5, 2, 6, 3, 4, 3, 5, 5, 6, 4, 4],
+      "input_length": 24,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "01000204"
+    },
+    {
+      "id": "arbitrary-root",
+      "input_values": [5, 3, 4, 3, 0, 1, 1, 2, 1, 3, 3, 4, 0, 4, 2, 4, 3, 3],
+      "input_length": 18,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output_hex": "010103"
+    },
+    {
+      "id": "chain-rooted-in-the-middle",
+      "input_values": [4, 2, 3, 3, 0, 1, 1, 2, 2, 3, 0, 3, 1, 3, 2, 2],
+      "input_length": 16,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output_hex": "020202"
+    },
+    {
+      "id": "empty-query-batch-null-output",
+      "input_values": [1, 0, 0, 0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-edge-and-disconnected-components",
+      "input_values": [4, 0, 3, 1, 0, 1, 1, 0, 2, 3, 0, 0],
+      "input_length": 12,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-query-endpoint",
+      "input_values": [2, 0, 1, 1, 0, 1, 0, 2],
+      "input_length": 8,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word-frame",
+      "input_values": [1, 0, 0, 0, 99],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "undersized-output",
+      "input_values": [2, 0, 1, 1, 0, 1, 0, 1],
+      "input_length": 8,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-with-query",
+      "input_values": [2, 0, 1, 1, 0, 1, 0, 1],
+      "input_length": 8,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

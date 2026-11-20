@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("keith_number_checker")
 fn keith_number_checker(x:Int64) abi("C")->Int64:
     if x<2 or x>1000:return -1

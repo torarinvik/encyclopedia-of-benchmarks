@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "rosettagit-left-truncatable-prime-bounded-search-v1",
+  "algorithm": "left_truncatable_prime_search",
+  "function_symbol": "left_truncatable_prime_search",
+  "abi": "i64_array_scalar",
+  "discovery_source": "https://rosettagit.org/tasks/",
+  "primary_algorithm_source": "https://doi.org/10.1090/S0025-5718-1977-0427213-2",
+  "independent_reference_source": "https://oeis.org/A103443/internal",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[base, max_digits], with array length supplied separately and no count prefix",
+    "valid_length": 2,
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "base_range": [3, 16],
+    "max_digits_range": [1, 10],
+    "search_bound": "base^max_digits <= 100000",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "result": "largest base-b left-truncatable prime with at most max_digits digits, in ordinary decimal integer form",
+    "zero_digit_rule": "No base-b digit may be zero; all suffixes after repeatedly deleting leading digits must be prime.",
+    "no_result": 0,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "base-three-three-digits", "input_values": [3, 3], "expected_result": 23},
+    {"id": "base-three-maximum-digits", "input_values": [3, 10], "expected_result": 23},
+    {"id": "base-four-largest", "input_values": [4, 6], "expected_result": 4091},
+    {"id": "base-five-largest", "input_values": [5, 6], "expected_result": 7817},
+    {"id": "decimal-one-digit", "input_values": [10, 1], "expected_result": 7},
+    {"id": "decimal-two-digits", "input_values": [10, 2], "expected_result": 97},
+    {"id": "left-only-not-right-truncatable-decimal", "input_values": [10, 2], "expected_result": 97},
+    {"id": "decimal-three-digits", "input_values": [10, 3], "expected_result": 997},
+    {"id": "base-sixteen-one-digit", "input_values": [16, 1], "expected_result": 13},
+    {"id": "minimum-base-invalid", "input_values": [2, 1], "expected_result": -1},
+    {"id": "maximum-base-invalid", "input_values": [17, 1], "expected_result": -1},
+    {"id": "zero-digit-limit-invalid", "input_values": [10, 0], "expected_result": -1},
+    {"id": "digit-limit-outside-bound", "input_values": [10, 6], "expected_result": -1},
+    {"id": "wrong-short-frame", "input_values": [10], "expected_result": -1},
+    {"id": "trailing-word", "input_values": [10, 2, 77], "expected_result": -1},
+    {"id": "null-input-zero-length", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1},
+    {"id": "null-input-maximum-parseable-length", "input_values": [10, 2, 77], "input_length": 3, "input_is_null": true, "expected_result": -1}
+  ]
+}

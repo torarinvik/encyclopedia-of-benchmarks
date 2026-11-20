@@ -1,0 +1,127 @@
+const MYERS_MAX_SEQUENCE: usize = 16
+const MYERS_MAX_DISTANCE: usize = 32
+const MYERS_MAX_OUTPUT: usize = 48
+const MYERS_OFFSET: i64 = 33
+const MYERS_DIAGONALS: usize = 67
+
+def myers_script(input: view[i64], output: mutable view[u8]) -> usize:
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    frontier: mutable i64[MYERS_DIAGONALS] = zeroed
+    trace: mutable i64[MYERS_DIAGONALS * (MYERS_MAX_DISTANCE + 1)] = zeroed
+    for i in 0..<MYERS_DIAGONALS: frontier[i] <- -1
+    for i in 0..<(MYERS_DIAGONALS * (MYERS_MAX_DISTANCE + 1)): trace[i] <- -1
+    frontier[(MYERS_OFFSET + 1).usize()] <- 0
+
+    found_d: mutable usize = 0
+    found_k: mutable i64 = 0
+    found: mutable bool = false
+    for distance in 0..<(n + m + 1):
+        d: i64 = distance.i64()
+        diagonal: mutable i64 = -d
+        while diagonal <= d:
+            slot: usize = (MYERS_OFFSET + diagonal).usize()
+            x: mutable i64 = 0
+            if diagonal == -d or (diagonal != d and frontier[slot - 1] < frontier[slot + 1]):
+                x <- frontier[slot + 1]
+            else:
+                x <- frontier[slot - 1] + 1
+            y: mutable i64 = x - diagonal
+            while x < n.i64() and y < m.i64() and input[2 + x.usize()] == input[2 + n + y.usize()]:
+                x <- x + 1
+                y <- y + 1
+            frontier[slot] <- x
+            trace[distance * MYERS_DIAGONALS + slot] <- x
+            if x >= n.i64() and y >= m.i64():
+                found_d <- distance
+                found_k <- diagonal
+                found <- true
+                break
+            diagonal <- diagonal + 2
+        if found: break
+
+    reverse_ops: mutable u8[MYERS_MAX_DISTANCE] = zeroed
+    reverse_symbols: mutable u8[MYERS_MAX_DISTANCE] = zeroed
+    path_length: mutable usize = 0
+    x: mutable i64 = n.i64()
+    y: mutable i64 = m.i64()
+    diagonal: mutable i64 = found_k
+    distance: mutable usize = found_d
+    while distance > 0:
+        d: i64 = distance.i64()
+        slot: usize = (MYERS_OFFSET + diagonal).usize()
+        previous_row: usize = (distance - 1) * MYERS_DIAGONALS
+        previous_diagonal: mutable i64 = 0
+        previous_x: mutable i64 = 0
+        previous_y: mutable i64 = 0
+        snake_x: mutable i64 = 0
+        snake_y: mutable i64 = 0
+        if diagonal == -d or (diagonal != d and trace[previous_row + slot - 1] < trace[previous_row + slot + 1]):
+            previous_diagonal <- diagonal + 1
+            previous_x <- trace[previous_row + (MYERS_OFFSET + previous_diagonal).usize()]
+            previous_y <- previous_x - previous_diagonal
+            snake_x <- previous_x
+            snake_y <- previous_y + 1
+            while x > snake_x and y > snake_y:
+                reverse_ops[path_length] <- 0.u8()
+                reverse_symbols[path_length] <- 0.u8()
+                path_length <- path_length + 1
+                x <- x - 1
+                y <- y - 1
+            reverse_ops[path_length] <- 2.u8()
+            reverse_symbols[path_length] <- input[2 + n + previous_y.usize()].u8()
+            path_length <- path_length + 1
+        else:
+            previous_diagonal <- diagonal - 1
+            previous_x <- trace[previous_row + (MYERS_OFFSET + previous_diagonal).usize()]
+            previous_y <- previous_x - previous_diagonal
+            snake_x <- previous_x + 1
+            snake_y <- previous_y
+            while x > snake_x and y > snake_y:
+                reverse_ops[path_length] <- 0.u8()
+                reverse_symbols[path_length] <- 0.u8()
+                path_length <- path_length + 1
+                x <- x - 1
+                y <- y - 1
+            reverse_ops[path_length] <- 1.u8()
+            reverse_symbols[path_length] <- 0.u8()
+            path_length <- path_length + 1
+        x <- previous_x
+        y <- previous_y
+        diagonal <- previous_diagonal
+        distance <- distance - 1
+
+    prefix: usize = trace[MYERS_OFFSET.usize()].usize()
+    for i in 0..<prefix:
+        reverse_ops[path_length] <- 0.u8()
+        reverse_symbols[path_length] <- 0.u8()
+        path_length <- path_length + 1
+    written: mutable usize = 0
+    for i in 0..<path_length:
+        step: usize = path_length - i - 1
+        operation: u8 = reverse_ops[step]
+        output[written] <- operation
+        written <- written + 1
+        if operation == 2.u8():
+            output[written] <- reverse_symbols[step]
+            written <- written + 1
+    written
+
+export fn myers_ond_shortest_edit_script(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 2 + 2 * MYERS_MAX_SEQUENCE: return -1
+    input_view: view[i64] = input[0:length]
+    n: i64 = input_view[0]
+    m: i64 = input_view[1]
+    if n < 0 or n > MYERS_MAX_SEQUENCE.i64() or m < 0 or m > MYERS_MAX_SEQUENCE.i64(): return -1
+    if length != 2 + n.usize() + m.usize(): return -1
+    for i in 0..<(n.usize() + m.usize()):
+        if input_view[2 + i] < 0 or input_view[2 + i] > 255: return -1
+
+    staged: mutable u8[MYERS_MAX_OUTPUT] = zeroed
+    staged_view: mutable view[u8] = staged[0:MYERS_MAX_OUTPUT]
+    needed: usize = myers_script(input_view, staged_view)
+    if output.is_null() or output_capacity < needed: return -2
+    output_view: mutable view[u8] = output[0:needed]
+    for i in 0..<needed: output_view[i] <- staged_view[i]
+    needed.i64()

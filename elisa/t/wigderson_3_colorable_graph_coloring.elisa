@@ -1,0 +1,140 @@
+const WIG_MAX_VERTICES: usize = 32
+const WIG_MAX_EDGES: usize = 128
+const WIG_MAX_INPUT: usize = 2 + 2 * WIG_MAX_EDGES
+
+def wigderson_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 2 or length > WIG_MAX_INPUT + 1: return -1
+    if input[0] < 0 or input[0] > 32 or input[1] < 0 or input[1] > 128: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 2 * m: return -1
+
+    adjacent: mutable bool[WIG_MAX_VERTICES * WIG_MAX_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        raw_u: i64 = input[2 + 2 * edge]
+        raw_v: i64 = input[3 + 2 * edge]
+        if raw_u < 0 or raw_v <= raw_u or raw_v >= n.i64(): return -1
+        u: usize = raw_u.usize()
+        v: usize = raw_v.usize()
+        uv: usize = u * WIG_MAX_VERTICES + v
+        vu: usize = v * WIG_MAX_VERTICES + u
+        if adjacent[uv]: return -1
+        adjacent[uv] <- true
+        adjacent[vu] <- true
+        edge <- edge + 1
+
+    active: mutable bool[WIG_MAX_VERTICES] = zeroed
+    colors: mutable u8[WIG_MAX_VERTICES] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        active[vertex] <- true
+        vertex <- vertex + 1
+    threshold: mutable usize = 0
+    while (threshold + 1) * (threshold + 1) <= n: threshold <- threshold + 1
+    next_color: mutable i64 = 1
+
+    while true:
+        chosen: mutable usize = n
+        maximum_degree: mutable usize = 0
+        vertex <- 0
+        while vertex < n:
+            if not active[vertex]:
+                vertex <- vertex + 1
+                continue
+            degree: mutable usize = 0
+            neighbor_loop: mutable usize = 0
+            while neighbor_loop < n:
+                if active[neighbor_loop] and adjacent[vertex * WIG_MAX_VERTICES + neighbor_loop]:
+                    degree <- degree + 1
+                neighbor_loop <- neighbor_loop + 1
+            if chosen == n or degree > maximum_degree:
+                chosen <- vertex
+                maximum_degree <- degree
+            vertex <- vertex + 1
+        if chosen == n or maximum_degree < threshold: break
+
+        in_neighborhood: mutable bool[WIG_MAX_VERTICES] = zeroed
+        side: mutable i64[WIG_MAX_VERTICES] = zeroed
+        queue: mutable usize[WIG_MAX_VERTICES] = zeroed
+        vertex <- 0
+        while vertex < n:
+            side[vertex] <- -1
+            in_neighborhood[vertex] <- active[vertex] and adjacent[chosen * WIG_MAX_VERTICES + vertex]
+            vertex <- vertex + 1
+        root: mutable usize = 0
+        while root < n:
+            if not in_neighborhood[root] or side[root] >= 0:
+                root <- root + 1
+                continue
+            head: mutable usize = 0
+            tail: mutable usize = 0
+            side[root] <- 0
+            queue[tail] <- root
+            tail <- tail + 1
+            while head < tail:
+                u: usize = queue[head]
+                head <- head + 1
+                vertex <- 0
+                while vertex < n:
+                    if not in_neighborhood[vertex] or not adjacent[u * WIG_MAX_VERTICES + vertex]:
+                        vertex <- vertex + 1
+                        continue
+                    if side[vertex] < 0:
+                        side[vertex] <- 1 - side[u]
+                        queue[tail] <- vertex
+                        tail <- tail + 1
+                    elif side[vertex] == side[u]:
+                        return -1
+                    vertex <- vertex + 1
+            root <- root + 1
+        vertex <- 0
+        while vertex < n:
+            if in_neighborhood[vertex]: colors[vertex] <- (next_color + side[vertex]).u8()
+            vertex <- vertex + 1
+        colors[chosen] <- (next_color + 2).u8()
+        active[chosen] <- false
+        vertex <- 0
+        while vertex < n:
+            if adjacent[chosen * WIG_MAX_VERTICES + vertex]: active[vertex] <- false
+            vertex <- vertex + 1
+        next_color <- next_color + 2
+
+    vertex <- 0
+    while vertex < n:
+        if not active[vertex]:
+            vertex <- vertex + 1
+            continue
+        used: mutable bool[WIG_MAX_VERTICES + 2] = zeroed
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            if adjacent[vertex * WIG_MAX_VERTICES + neighbor] and colors[neighbor] > 0:
+                used[colors[neighbor].usize()] <- true
+            neighbor <- neighbor + 1
+        candidate: mutable usize = next_color.usize()
+        while candidate < WIG_MAX_VERTICES + 2 and used[candidate]:
+            candidate <- candidate + 1
+        if candidate >= WIG_MAX_VERTICES + 2: return -1
+        colors[vertex] <- candidate.u8()
+        vertex <- vertex + 1
+
+    palette: mutable u8 = 0
+    vertex <- 0
+    while vertex < n:
+        if colors[vertex] > palette: palette <- colors[vertex]
+        vertex <- vertex + 1
+    output_bytes: usize = n + 1
+    if output.is_null() or capacity < output_bytes: return -2
+    output_view: mutable view[u8] = output[0:output_bytes]
+    output_view[0] <- palette
+    vertex <- 0
+    while vertex < n:
+        output_view[vertex + 1] <- colors[vertex]
+        vertex <- vertex + 1
+    output_bytes.i64()
+
+export fn wigderson_3_colorable_graph_coloring(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > WIG_MAX_INPUT + 1: return -1
+    wigderson_impl(input[0:length], output, capacity)

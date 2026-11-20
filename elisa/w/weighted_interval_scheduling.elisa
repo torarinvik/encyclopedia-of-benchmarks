@@ -19,13 +19,14 @@ def store_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def weighted_interval_scheduling_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null or length < 1 or length > MAX_INPUT_LENGTH or input[0] < 0 or input[0] > MAX_INTERVALS.i64():
+def weighted_interval_scheduling_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > MAX_INPUT_LENGTH or input[0] < 0 or input[0] > MAX_INTERVALS.i64():
         return -1
     n: usize = input[0].usize()
     if length != 1 + 3 * n:
         return -1
-    data: view[i64] = input[0:length]
+    data: view[i64] = input
     for i in 0..<n:
         start: i64 = start_at(data, i)
         finish: i64 = end_at(data, i)
@@ -75,10 +76,13 @@ def weighted_interval_scheduling_impl(input: i64&, length: usize, output: mutabl
     needed: usize = 16 + 4 * selected_count
     if output == null or capacity < needed:
         return -2
-    store_i64_le(dp[n], output[0:capacity], 0)
-    store_i64_le(selected_count.i64(), output[0:capacity], 8)
+    result: mutable view[u8] = output[0:needed]
+    store_i64_le(dp[n], result, 0)
+    store_i64_le(selected_count.i64(), result, 8)
     for i in 0..<selected_count:
-        store_i32_le(selected[i].i32(), output[0:capacity], 16 + 4 * i)
+        store_i32_le(selected[i].i32(), result, 16 + 4 * i)
     needed.i64()
 
-export fn weighted_interval_scheduling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = weighted_interval_scheduling_impl
+export fn weighted_interval_scheduling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    weighted_interval_scheduling_impl(input[0:length], output, capacity)

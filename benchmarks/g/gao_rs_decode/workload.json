@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "gao-gf7-unique-decoding-i64-array-scalar-v1",
+  "algorithm": "gao_rs_decode",
+  "function_symbol": "gao_rs_decode",
+  "abi": "i64_array_scalar",
+  "description": "Decode a low-degree GF(7) polynomial by interpolation, partial extended Euclid, and exact polynomial division.",
+  "source": {
+    "title": "A New Algorithm for Decoding Reed-Solomon Codes",
+    "authors": ["Shuhong Gao"],
+    "url": "https://www.math.clemson.edu/~sgao/papers/RS.pdf",
+    "publication": "Communications, Information and Network Security, 2003, pp. 55-68; preprint dated January 31, 2002",
+    "used_for": "Algorithm-family provenance and the interpolation/partial-EEA/division structure; no code, examples, or prose reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,k,t,y_0,...,y_(n-1)] with evaluation x_i=i over GF(7)",
+    "exact_length": "3+n",
+    "n_range": [2, 7],
+    "k_range": [1, 3],
+    "error_radius_range": [0, 2],
+    "unique_decoding_condition": "2*t <= n-k",
+    "field_prime": 7,
+    "received_symbol_range": [0, 6],
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 11,
+    "invalid_input_result": -1,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "0 means no degree<k polynomial is within t mismatches; otherwise 1+sum(c_j*7^j), with k coefficients in increasing degree order",
+    "result_range": "0..343",
+    "minimum_valid_result": 0,
+    "maximum_valid_result": 343,
+    "invalid_result": -1
+  },
+  "workspace": {
+    "bytes": 4096,
+    "description": "Bounded interpolation, polynomial remainder, and Bezout-coefficient work arrays."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "exact-constant", "input_values": [5, 1, 1, 3, 3, 3, 3, 3], "input_length": 8, "expected_result": 4},
+    {"id": "one-error-linear-polynomial", "input_values": [5, 2, 1, 2, 5, 6, 4, 0], "input_length": 8, "expected_result": 24},
+    {"id": "two-errors-quadratic", "input_values": [7, 3, 2, 1, 0, 3, 6, 1, 4, 2], "input_length": 10, "expected_result": 163},
+    {"id": "zero-polynomial", "input_values": [7, 3, 2, 0, 0, 0, 0, 0, 0, 0], "input_length": 10, "expected_result": 1},
+    {"id": "maximum-input", "input_values": [7, 1, 2, 4, 4, 4, 4, 4, 4, 4], "input_length": 10, "expected_result": 5},
+    {"id": "valid-no-decode", "input_values": [2, 1, 0, 1, 2], "input_length": 5, "expected_result": 0},
+    {"id": "trailing-input", "input_values": [5, 1, 1, 3, 3, 3, 3, 3, 0], "input_length": 9, "expected_result": -1},
+    {"id": "maximum-parseable-trailing-value", "input_values": [7, 1, 2, 4, 4, 4, 4, 4, 4, 4, 0], "input_length": 11, "expected_result": -1},
+    {"id": "unique-radius-violation", "input_values": [5, 3, 2, 0, 0, 0, 0, 0], "input_length": 8, "expected_result": -1},
+    {"id": "symbol-out-of-range", "input_values": [5, 1, 0, 0, 0, 0, 0, 7], "input_length": 8, "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ]
+}

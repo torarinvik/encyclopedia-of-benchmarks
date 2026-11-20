@@ -38,7 +38,7 @@ fn void put_i32_le(char* output, usz offset, long value) {
     }
 }
 
-long maze_recursion(long* input, usz length, char* output, usz capacity)
+fn long maze_recursion(long* input, usz length, char* output, usz capacity)
         @export("maze_recursion") {
     if (input == null || length != INPUT_WORDS) return -1;
     if (input[0] < 0 || input[0] > 1) return -1;

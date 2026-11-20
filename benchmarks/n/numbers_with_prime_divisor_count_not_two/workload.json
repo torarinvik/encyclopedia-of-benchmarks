@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "numbers-with-prime-divisor-count-not-two-i64-array-bytes-output-v1",
+  "algorithm": "numbers_with_prime_divisor_count_not_two",
+  "function_symbol": "numbers_with_prime_divisor_count_not_two",
+  "abi": "i64_array_bytes_output",
+  "description": "List positive integers below an exclusive limit whose divisor count is prime and not equal to 2.",
+  "source": {
+    "title": "Numbers whose count of divisors is prime",
+    "discovery_reference_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "task_reference_url": "https://rosettacode.org/wiki/Numbers_whose_count_of_divisors_is_prime",
+    "task_snapshot_commit": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "mathematical_reference_url": "https://cp-algorithms.com/algebra/divisors.html",
+    "primality_reference_url": "https://cp-algorithms.com/algebra/primality_tests.html",
+    "license": "Algorithm description cited; clean-room implementation",
+    "algorithm_attribution": "Sieve the positive divisor counts, then emit n in increasing order when its count is prime and not 2.",
+    "implementation_status": "Bounded clean-room benchmark; no upstream source code copied"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[exclusive_limit]",
+    "exclusive_limit_range": [1, 1000],
+    "positive_integer_range": "1 <= n < exclusive_limit",
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "semantics": "All n in strictly increasing order for which the number of positive divisors of n is prime and is not 2; each n is emitted once.",
+    "encoding": "One little-endian signed 64-bit integer per listed n; no count or terminator is included.",
+    "maximum_output_elements": 16,
+    "maximum_output_bytes": 128,
+    "success_result": "number of bytes written; zero for an empty list",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "null_output_policy": "A null output pointer is rejected with -2 even when the valid result is empty."
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "A 1000-element uint16 divisor-count table uses exactly 2000 bytes; the remaining 2096 bytes bound fixed scalar bookkeeping and implementation alignment. Output is caller-owned and written directly after capacity validation."
+  },
+  "algorithm_details": {
+    "primary": "Initialize divisor counts to zero and increment each multiple of each divisor d in [1,exclusive_limit). Scan n increasingly and test its count by trial division, excluding count 2.",
+    "independent_reference": "For each n, count divisor pairs directly through floor(sqrt(n)); test that result for primality by trial division.",
+    "boundary": "The task's baseline strict bound n<1000 is represented by exclusive_limit=1000; lower exclusive limits produce prefixes of the same listed-number set.",
+    "count_bound": "For n<1000 the maximum divisor count is below 1000, so uint16 values cannot overflow.",
+    "result_bound": "The only qualifying values below 1000 are the 16 prime powers with exponents 2, 4, or 6 listed in the maximum fixture; output is therefore at most 16*8=128 bytes.",
+    "complexity": "The primary divisor-count sieve takes O(L log L) increments and O(L) workspace for L=exclusive_limit<=1000; filtering uses O(L sqrt(L)) worst-case trial divisions. The independent divisor-pair reference takes O(L sqrt(L)) time and O(1) auxiliary space beyond its output."
+  },
+  "primary_oracle": "benchmarks/n/numbers_with_prime_divisor_count_not_two/primary_oracle.py",
+  "independent_oracle": "benchmarks/n/numbers_with_prime_divisor_count_not_two/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "profiles": [
+      {"id": "baseline-exclusive-1000", "input_value": 1000},
+      {"id": "dense-prefix-exclusive-100", "input_value": 100}
+    ]
+  },
+  "cases": [
+    {"id":"no-positive-inputs", "input_values":[1], "input_length":1, "output_capacity":128, "expected_result":0, "expected_values":[], "expected_output_hex":""},
+    {"id":"below-first-match", "input_values":[4], "input_length":1, "output_capacity":128, "expected_result":0, "expected_values":[], "expected_output_hex":""},
+    {"id":"first-prime-divisor-count-not-two", "input_values":[5], "input_length":1, "output_capacity":128, "expected_result":8, "expected_values":[4], "expected_output_hex":"0400000000000000"},
+    {"id":"first-two-matches", "input_values":[10], "input_length":1, "output_capacity":128, "expected_result":16, "expected_values":[4,9], "expected_output_hex":"04000000000000000900000000000000"},
+    {"id":"short-prefix", "input_values":[50], "input_length":1, "output_capacity":128, "expected_result":40, "expected_values":[4,9,16,25,49], "expected_output_hex":"04000000000000000900000000000000100000000000000019000000000000003100000000000000"},
+    {"id":"task-baseline-exclusive-1000", "input_values":[1000], "input_length":1, "output_capacity":128, "expected_result":128, "expected_values":[4,9,16,25,49,64,81,121,169,289,361,529,625,729,841,961], "expected_output_hex":"04000000000000000900000000000000100000000000000019000000000000003100000000000000400000000000000051000000000000007900000000000000a9000000000000002101000000000000690100000000000011020000000000007102000000000000d9020000000000004903000000000000c103000000000000"},
+    {"id":"zero-limit-invalid", "input_values":[0], "input_length":1, "output_capacity":128, "expected_result":-1, "expected_output_hex":""},
+    {"id":"above-baseline-invalid", "input_values":[1001], "input_length":1, "output_capacity":128, "expected_result":-1, "expected_output_hex":""},
+    {"id":"wrong-arity-empty", "input_values":[], "input_length":0, "output_capacity":128, "expected_result":-1, "expected_output_hex":""},
+    {"id":"wrong-arity-extra-word", "input_values":[10,0], "input_length":2, "output_capacity":128, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "output_capacity":128, "expected_result":-1, "expected_output_hex":""},
+    {"id":"invalid-precedes-null-output", "input_values":[0], "input_length":1, "output_capacity":0, "output_is_null":true, "expected_result":-1, "expected_output_hex":""},
+    {"id":"null-output-for-nonempty-result", "input_values":[5], "input_length":1, "output_capacity":128, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"short-output-buffer", "input_values":[5], "input_length":1, "output_capacity":7, "expected_result":-2, "expected_output_hex":""}
+  ]
+}

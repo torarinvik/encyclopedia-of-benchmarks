@@ -1,0 +1,64 @@
+from std.collections import InlineArray
+
+const MAX_TEXT: usize = 256
+const MAX_PATTERN: usize = 16
+const MAX_INPUT: usize = 274
+
+def simon_string_search_impl(values: view[i64], length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT: return -2
+    let raw_n, raw_m = values[0], values[1]
+    if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64(): return -2
+    let n, m = raw_n.usize(), raw_m.usize()
+    if length != 2 + n + m: return -2
+    for i in 0..<(n + m):
+        if values[2 + i] < 0 or values[2 + i] > 15: return -2
+    let p: usize = 2 + n
+    var head = InlineArray[i64, 16](fill=-1)
+    var edge_target = InlineArray[i64, 16](fill=0)
+    var edge_next = InlineArray[i64, 16](fill=0)
+    var edge_count: usize = 0
+    var ell: i64 = -1
+    for i in 1..<m:
+        let k = ell
+        var cell: i64 = if k < 0: -1 else: head[k.usize()]
+        ell = -1
+        if values[p + i] == values[p + (k + 1).usize()]:
+            ell = k + 1
+        else:
+            edge_target[edge_count] = k + 1
+            edge_next[edge_count] = head[i - 1]
+            head[i - 1] = edge_count.i64()
+            edge_count += 1
+        while cell >= 0:
+            let q = edge_target[cell.usize()]
+            if values[p + i] == values[p + q.usize()]:
+                ell = q
+            else:
+                edge_target[edge_count] = q
+                edge_next[edge_count] = head[i - 1]
+                head[i - 1] = edge_count.i64()
+                edge_count += 1
+            cell = edge_next[cell.usize()]
+    var state: i64 = -1
+    var matches: i64 = 0
+    for j in 0..<n:
+        let symbol = values[2 + j]
+        if state < m.i64() - 1 and values[p + (state + 1).usize()] == symbol:
+            state += 1
+        elif state >= 0:
+            var edge = head[state.usize()]
+            state = -1
+            while edge >= 0:
+                let q = edge_target[edge.usize()]
+                if values[p + q.usize()] == symbol:
+                    state = q
+                    break
+                edge = edge_next[edge.usize()]
+        if state >= m.i64() - 1:
+            matches += 1
+            state = ell
+    matches
+
+export fn simon_string_search(values: i64&, length: usize) -> i64:
+    if values.is_null(): return -2
+    simon_string_search_impl(values[0:length], length)

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "id": "nist-two-left-hashing-operation-trace-i64-array-bytes-v1",
+  "algorithm": "two_left_hashing_operation_trace",
+  "function_symbol": "two_left_hashing_operation_trace",
+  "input": {
+    "kind": "signed_i64_array_two_left_hashing_trace",
+    "layout": "[Q,(opcode,key,left_bucket,right_bucket)*Q]",
+    "operation_count_range": [1, 40],
+    "record_words": 4,
+    "opcode": {"0": "insert", "1": "lookup", "2": "delete"},
+    "key_range": [0, 63],
+    "bucket_range": [0, 7],
+    "same_key_bucket_rule": "Every occurrence of one key must use the same (left_bucket,right_bucket) pair.",
+    "maximum_live_distinct_keys": 32,
+    "maximum_valid_length": 161,
+    "maximum_parseable_length": 162,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "live_table_overflow_result": -3
+  },
+  "algorithm_profile": {
+    "table_model": "two separate arrays of eight separate-chaining buckets",
+    "new_insert": "insert at the head of the shorter candidate chain; if chain lengths tie, choose the left table",
+    "duplicate_insert": "return status 0 and do not change either chain",
+    "lookup_and_delete": "search the left candidate chain before the right candidate chain",
+    "capacity_overflow": "a new key when 32 distinct keys are live aborts the entire trace without output"
+  },
+  "output": {
+    "kind": "raw_byte_vector",
+    "layout": "two little-endian signed-i64 words (status,placement) per operation",
+    "status_codes": {"0": "operation did not insert/find/delete", "1": "operation inserted/found/deleted"},
+    "placement_codes": {"-1": "not a new insertion", "0": "new key placed in left table", "1": "new key placed in right table"},
+    "maximum_bytes": 640,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "write_on_error": false
+  },
+  "workspace": {
+    "bytes": 2048,
+    "accounting": "Fixed storage for 16 bucket heads and lengths, 32 key/next-node entries, 40 staged status/placement pairs, validation of up to 40 records, and scalar control state."
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 5},
+  "cases": [
+    {
+      "id": "left-ties-right-shorter-and-lookup",
+      "input_values": [4, 0, 5, 0, 0, 0, 6, 0, 0, 0, 7, 0, 1, 1, 6, 0, 0],
+      "input_length": 17,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "01000000000000000000000000000000010000000000000000000000000000000100000000000000010000000000000001000000000000000100000000000000ffffffffffffffff"
+    },
+    {
+      "id": "duplicate-delete-and-miss",
+      "input_values": [5, 0, 7, 1, 2, 0, 7, 1, 2, 1, 7, 1, 2, 2, 7, 1, 2, 1, 7, 1, 2],
+      "input_length": 21,
+      "output_capacity": 80,
+      "expected_result": 80,
+      "expected_output_hex": "01000000000000000000000000000000ffffffffffffffff0100000000000000ffffffffffffffff0100000000000000ffffffffffffffff0000000000000000ffffffffffffffff"
+    },
+    {
+      "id": "inconsistent-bucket-pair",
+      "input_values": [2, 0, 5, 0, 0, 1, 5, 1, 0],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed-extra-word",
+      "input_values": [1, 1, 5, 1, 2, 99],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "one-byte-short-capacity",
+      "input_values": [1, 1, 5, 1, 2],
+      "input_length": 5,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-output-capacity-boundary",
+      "input_values": [
+        40,
+        1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0,
+        1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0,
+        1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0,
+        1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0,
+        1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0,
+        1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0,
+        1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0,
+        1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0, 1, 63, 0, 0
+      ],
+      "input_length": 161,
+      "output_capacity": 640,
+      "expected_result": 640,
+      "expected_output_hex": "0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff\n0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff\n0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff\n0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff 0000000000000000ffffffffffffffff"
+    },
+    {
+      "id": "thirty-third-live-key-aborts",
+      "input_values": [33, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 9, 0, 0, 0, 10, 0, 0, 0, 11, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 14, 0, 0, 0, 15, 0, 0, 0, 16, 0, 0, 0, 17, 0, 0, 0, 18, 0, 0, 0, 19, 0, 0, 0, 20, 0, 0, 0, 21, 0, 0, 0, 22, 0, 0, 0, 23, 0, 0, 0, 24, 0, 0, 0, 25, 0, 0, 0, 26, 0, 0, 0, 27, 0, 0, 0, 28, 0, 0, 0, 29, 0, 0, 0, 30, 0, 0, 0, 31, 0, 0, 0, 32, 0, 0, 0],
+      "input_length": 133,
+      "output_capacity": 528,
+      "expected_result": -3,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "algorithm": "discrete_interval_encoding_tree",
+  "function_symbol": "discrete_interval_encoding_tree",
+  "abi": "i64_array_bytes_output",
+  "status": "complete; ten ports and byte-output runner/verifier registered",
+  "suite_integration": [
+    "benchmarks/run_i64_array_bytes_output.py",
+    "benchmarks/verify_i64_array_bytes_output.py"
+  ],
+  "catalog_integration": [
+    "README.md",
+    "CATALOG.md",
+    "benchmarks/ALGORITHM_EXPANSION_COVERAGE.md"
+  ],
+  "sources": [
+    "c/d/discrete_interval_encoding_tree.c",
+    "c3/d/discrete_interval_encoding_tree.c3",
+    "cpp/d/discrete_interval_encoding_tree.cpp",
+    "elisa/d/discrete_interval_encoding_tree.elisa",
+    "mojo/d/discrete_interval_encoding_tree.mojo",
+    "nim/d/discrete_interval_encoding_tree.nim",
+    "odin/d/discrete_interval_encoding_tree.odin",
+    "rust/d/discrete_interval_encoding_tree.rs",
+    "v/d/discrete_interval_encoding_tree.v",
+    "zig/d/discrete_interval_encoding_tree.zig"
+  ],
+  "artifacts": [
+    "benchmarks/d/discrete_interval_encoding_tree/README.md",
+    "benchmarks/d/discrete_interval_encoding_tree/RIGHTS.md",
+    "benchmarks/d/discrete_interval_encoding_tree/INVENTORY.md",
+    "benchmarks/d/discrete_interval_encoding_tree/INVENTORY.json",
+    "benchmarks/d/discrete_interval_encoding_tree/__init__.py",
+    "benchmarks/d/discrete_interval_encoding_tree/workload.json",
+    "benchmarks/d/discrete_interval_encoding_tree/primary_oracle.py",
+    "benchmarks/d/discrete_interval_encoding_tree/independent_oracle.py",
+    "benchmarks/d/discrete_interval_encoding_tree/verify_workload.py",
+    "benchmarks/d/discrete_interval_encoding_tree/check_inventory.py"
+  ],
+  "bounds": {
+    "max_operations": 32,
+    "max_key": 15,
+    "minimum_key": -15,
+    "maximum_valid_input_words": 65,
+    "maximum_parseable_input_words": 66,
+    "maximum_output_bytes": 256,
+    "workspace_bytes": 8192,
+    "node_arena_capacity": 64
+  },
+  "primary_method": "unbalanced BST of non-adjacent maximal closed integer intervals",
+  "independent_method": "31-bit set bitmap with direct count and run scan",
+  "duplicate_comparison": {
+    "interval_container": "sorted interval list with half-open range add/remove and covered-length output; DIET uses point insert/delete/member and a BST with node-count output",
+    "common_interval_decomposition_tree": "strong interval decomposition of permutations, not mutable integer-set storage"
+  },
+  "sources": [
+    {
+      "role": "primary algorithm description",
+      "title": "Diets for Fat Sets",
+      "author": "Martin Erwig",
+      "venue": "Journal of Functional Programming 8(6), 627-632 (1998)",
+      "doi": "10.1017/S0956796898003116",
+      "url": "https://doi.org/10.1017/S0956796898003116"
+    },
+    {
+      "role": "discovery index",
+      "title": "NIST Dictionary of Algorithms and Data Structures: discrete interval encoding tree",
+      "url": "https://xlinux.nist.gov/dads/HTML/discretintrv.html"
+    }
+  ],
+  "fixture_ids": [
+    "empty-trace-null-output",
+    "bridge-two-runs-split-and-rejoin",
+    "duplicate-insert-absent-delete",
+    "maximum-frame-maximum-output",
+    "maximum-output-one-byte-short",
+    "maximum-parseable-trailing-word",
+    "invalid-opcode-precedes-capacity",
+    "key-outside-domain",
+    "nonempty-null-output",
+    "null-input"
+  ]
+}

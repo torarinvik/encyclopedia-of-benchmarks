@@ -12,10 +12,10 @@ def is_prime(value:i64)->bool:
     true
 
 def stirling_value(n:i64,k:usize,modulus:i64)->i64:
-    matrix:mutable InlineArray[i64,81]=zeroed
-    squared:mutable InlineArray[i64,81]=zeroed
-    vector:mutable InlineArray[i64,9]=zeroed
-    next_vector:mutable InlineArray[i64,9]=zeroed
+    matrix:mutable i64[81]=zeroed
+    squared:mutable i64[81]=zeroed
+    vector:mutable i64[9]=zeroed
+    next_vector:mutable i64[9]=zeroed
     dimension:usize=k+1
     index:mutable usize=0
     while index<dimension:
@@ -56,7 +56,7 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
                 row<-row+1
             row<-0
             while row<dimension:
-                column<-0
+                column:mutable usize=0
                 while column<dimension:
                     matrix[row*WIDTH+column]<-squared[row*WIDTH+column]
                     squared[row*WIDTH+column]<-0
@@ -67,16 +67,17 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
 
 def stirling_number_of_the_second_kind_small_p_large_n(input:i64&,length:usize)->i64 @export("stirling_number_of_the_second_kind_small_p_large_n"):
     if input.is_null() or length<4 or length>18:return -1
-    count_value:i64=input[0]
-    modulus:i64=input[1]
+    frame:view[i64]=input[0:length]
+    count_value:i64=frame[0]
+    modulus:i64=frame[1]
     if count_value<1 or count_value>8 or length!=(2+2*count_value).usize() or modulus<11 or modulus>97 or not is_prime(modulus):return -1
 
     result:mutable i64=0
     case_index:mutable usize=0
     count:usize=count_value.usize()
     while case_index<count:
-        n:i64=input[2+2*case_index]
-        k_value:i64=input[3+2*case_index]
+        n:i64=frame[2+2*case_index]
+        k_value:i64=frame[3+2*case_index]
         if n<0 or n>MAX_N or k_value<0 or k_value>8 or k_value>n:return -1
         k:usize=k_value.usize()
         value:i64=stirling_value(n,k,modulus)

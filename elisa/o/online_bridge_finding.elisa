@@ -93,7 +93,7 @@ def online_bridge_add_edge(left_input: i64, right_input: i64, dsu_2ecc: mutable 
     if left_cc != right_cc:
         bridges <- bridges + 1
         if dsu_cc_size[left_cc.usize()] > dsu_cc_size[right_cc.usize()]:
-            temporary: i64 = left
+            temporary: mutable i64 = left
             left <- right
             right <- temporary
             temporary <- left_cc
@@ -116,17 +116,18 @@ def online_bridge_store_i64(value: i64, output: mutable view[u8], position: usiz
 def online_bridge_finding_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    raw_vertices: i64 = input[0]
-    raw_edges: i64 = input[1]
+    values: view[i64] = input[0:length]
+    raw_vertices: i64 = values[0]
+    raw_edges: i64 = values[1]
     if raw_vertices < 1 or raw_vertices > i64(MAX_VERTICES) or raw_edges < 0 or raw_edges > i64(MAX_EDGES):
         return -1
     vertex_count: usize = raw_vertices.usize()
     edge_count: usize = raw_edges.usize()
     if length != 2 + 2 * edge_count:
         return -1
-    for edge in 0..<edge_count |input|:
-        left: i64 = input[2 + 2 * edge]
-        right: i64 = input[3 + 2 * edge]
+    for edge in 0..<edge_count |values|:
+        left: i64 = values[2 + 2 * edge]
+        right: i64 = values[3 + 2 * edge]
         if left < 0 or right < 0 or left >= raw_vertices or right >= raw_vertices:
             return -1
     output_bytes: usize = edge_count * 8
@@ -145,8 +146,8 @@ def online_bridge_finding_impl(input: i64&, length: usize, output: mutable u8&, 
         parent[vertex] <- -1
     bridges: mutable i64 = 0
     iteration: mutable i64 = 0
-    for edge in 0..<edge_count |input, dsu_2ecc, dsu_cc, dsu_cc_size, parent, last_visit, bridges, iteration, output|:
-        online_bridge_add_edge(input[2 + 2 * edge], input[3 + 2 * edge],
+    for edge in 0..<edge_count |values, dsu_2ecc, dsu_cc, dsu_cc_size, parent, last_visit, bridges, iteration, output|:
+        online_bridge_add_edge(values[2 + 2 * edge], values[3 + 2 * edge],
             dsu_2ecc[0:MAX_VERTICES], dsu_cc[0:MAX_VERTICES], dsu_cc_size[0:MAX_VERTICES],
             parent[0:MAX_VERTICES], last_visit[0:MAX_VERTICES], bridges, iteration)
         online_bridge_store_i64(bridges, output[0:output_bytes], edge * 8)

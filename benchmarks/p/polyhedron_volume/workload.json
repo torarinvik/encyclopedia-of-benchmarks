@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": "polyhedron-volume-i64-array-bytes-output-v1",
+  "algorithm": "polyhedron_volume",
+  "function_symbol": "polyhedron_volume",
+  "abi": "i64_array_bytes_output",
+  "description": "Computes exact rounded algebraic signed volume from an edge-paired oriented triangle mesh.",
+  "source": {
+    "title": "Approximate Volume of a Nonplanar Quadrilateral Mesh",
+    "url": "https://www.cs.cmu.edu/~kmcrane/Projects/Other/QuadMeshVolume.pdf",
+    "secondary_title": "Fast and Accurate Computation of Polyhedral Mass Properties",
+    "secondary_url": "https://doi.org/10.1080/10867651.1996.10487458",
+    "discovery_title": "PolyhedronVolume.h",
+    "discovery_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/geometry/chapter.tex",
+    "algorithm_description_url": "https://github.com/kth-competitive-programming/kactl/blob/main/content/geometry/PolyhedronVolume.h",
+    "discovery_scope": "The KACTL title and public header description were used to confirm the operation only; no code, tests, examples, or prose were copied."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[F, ax,ay,az,bx,by,bz,cx,cy,cz, ...]",
+    "face_count_range": [4, 32],
+    "coordinate_range": [-50, 50],
+    "face_rule": "Every triangle is nondegenerate; every directed edge occurs once and its reverse occurs once.",
+    "components": "Disconnected components are allowed.",
+    "self_intersections": "Allowed with algebraic winding-weighted volume semantics, not geometric-union semantics.",
+    "exact_length": "1+9*F",
+    "maximum_valid_length": 289,
+    "maximum_parseable_length": 290,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one signed 64-bit little-endian signed volume multiplied by 1000000",
+    "rounding": "nearest integer, exact ties away from zero",
+    "maximum_bytes": 8,
+    "success_result": 8,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "Maximum external output capacity; all face and edge validation state uses bounded fixed storage."
+  },
+  "algorithm_details": {
+    "primary": "Sum det(a,b,c)=a·(b×c) over oriented triangles, then round the exact signed sum divided by six to micro-units.",
+    "independent_oracle": "Use the divergence-theorem face formula: sum (a+b+c)·((b−a)×(c−a))/18.",
+    "validation": "Reject malformed frames, out-of-range coordinates, degenerate triangles, and any undirected edge without exactly one occurrence in each direction.",
+    "complexity": "O(F^2) edge-pair validation and O(F) volume accumulation."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "outward-tetrahedron",
+      "input_values": [4,
+        0,0,0, 0,6,0, 6,0,0,
+        0,0,0, 0,0,6, 0,6,0,
+        0,0,0, 6,0,0, 0,0,6,
+        6,0,0, 0,6,0, 0,0,6],
+      "input_length": 37, "output_capacity": 8, "expected_result": 8,
+      "expected_output_hex": "0051250200000000"
+    },
+    {
+      "id": "inward-tetrahedron",
+      "input_values": [4,
+        0,0,0, 6,0,0, 0,6,0,
+        0,0,0, 0,6,0, 0,0,6,
+        0,0,0, 0,0,6, 6,0,0,
+        6,0,0, 0,0,6, 0,6,0],
+      "input_length": 37, "output_capacity": 8, "expected_result": 8,
+      "expected_output_hex": "00afdafdffffffff"
+    },
+    {
+      "id": "triangulated-outward-cube",
+      "input_values": [12,
+        0,0,0, 2,2,0, 2,0,0,
+        0,0,0, 0,2,0, 2,2,0,
+        0,0,2, 2,0,2, 2,2,2,
+        0,0,2, 2,2,2, 0,2,2,
+        0,0,0, 2,0,0, 2,0,2,
+        0,0,0, 2,0,2, 0,0,2,
+        2,0,0, 2,2,0, 2,2,2,
+        2,0,0, 2,2,2, 2,0,2,
+        2,2,0, 0,2,0, 0,2,2,
+        2,2,0, 0,2,2, 2,2,2,
+        0,2,0, 0,0,0, 0,0,2,
+        0,2,0, 0,0,2, 0,2,2],
+      "input_length": 109, "output_capacity": 8, "expected_result": 8,
+      "expected_output_hex": "00127a0000000000"
+    },
+    {
+      "id": "translated-tetrahedron",
+      "input_values": [4,
+        10,-5,3, 10,1,3, 16,-5,3,
+        10,-5,3, 10,-5,9, 10,1,3,
+        10,-5,3, 16,-5,3, 10,-5,9,
+        16,-5,3, 10,1,3, 10,-5,9],
+      "input_length": 37, "output_capacity": 8, "expected_result": 8,
+      "expected_output_hex": "0051250200000000"
+    },
+    {
+      "id": "one-reversed-face-invalidates-edge-orientation",
+      "input_values": [4,
+        0,0,0, 6,0,0, 0,6,0,
+        0,0,0, 0,0,6, 0,6,0,
+        0,0,0, 6,0,0, 0,0,6,
+        6,0,0, 0,6,0, 0,0,6],
+      "input_length": 37, "output_capacity": 8, "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-mesh-precedes-null-output",
+      "input_values": [4,
+        0,0,0, 6,0,0, 0,6,0,
+        0,0,0, 0,0,6, 0,6,0,
+        0,0,0, 6,0,0, 0,0,6,
+        6,0,0, 0,6,0, 0,0,6],
+      "input_length": 37, "output_capacity": 8, "output_is_null": true,
+      "expected_result": -1, "expected_output_hex": ""
+    },
+    {
+      "id": "open-edge-mesh",
+      "input_values": [4,
+        0,0,0, 0,6,0, 6,0,0,
+        0,0,0, 0,0,6, 0,6,0,
+        0,0,0, 6,0,0, 0,0,6,
+        10,10,10, 12,10,10, 10,12,10],
+      "input_length": 37, "output_capacity": 8, "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "degenerate-face",
+      "input_values": [4,
+        0,0,0, 3,0,0, 6,0,0,
+        0,0,0, 0,0,6, 0,6,0,
+        0,0,0, 6,0,0, 0,0,6,
+        6,0,0, 0,6,0, 0,0,6],
+      "input_length": 37, "output_capacity": 8, "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-word",
+      "input_values": [4,
+        0,0,0, 0,6,0, 6,0,0,
+        0,0,0, 0,0,6, 0,6,0,
+        0,0,0, 6,0,0, 0,0,6,
+        6,0,0, 0,6,0, 0,0,6, 99],
+      "input_length": 38, "output_capacity": 8, "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":8,"expected_result":-1,"expected_output_hex":""},
+    {
+      "id": "null-output-valid-mesh",
+      "input_values": [4,
+        0,0,0, 0,6,0, 6,0,0,
+        0,0,0, 0,0,6, 0,6,0,
+        0,0,0, 6,0,0, 0,0,6,
+        6,0,0, 0,6,0, 0,0,6],
+      "input_length": 37, "output_capacity": 8, "output_is_null": true,
+      "expected_result": -2, "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [4,
+        0,0,0, 0,6,0, 6,0,0,
+        0,0,0, 0,0,6, 0,6,0,
+        0,0,0, 6,0,0, 0,0,6,
+        6,0,0, 0,6,0, 0,0,6],
+      "input_length": 37, "output_capacity": 7, "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

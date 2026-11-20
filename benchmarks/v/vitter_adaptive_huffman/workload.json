@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "vitter-adaptive-huffman-i64-array-bytes-output-v1",
+  "algorithm": "vitter_adaptive_huffman",
+  "function_symbol": "vitter_adaptive_huffman",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Vitter Algorithm A adaptive Huffman coding",
+    "url": "https://xlinux.nist.gov/dads/HTML/vittersAlgorithm.html",
+    "primary_reference": "https://www.cs.utexas.edu/~plaxton/c/337/05f/projects/1/Vitter87.pdf",
+    "algorithm_attribution": "Implicit bottom-up numbering and leaf-before-internal blocks maintained by SlideAndIncrement.",
+    "implementation_status": "bounded clean-room profile; method descriptions only"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[symbol_count, symbol_ids...]",
+    "symbol_count_range": [0, 64],
+    "alphabet_size": 16,
+    "symbol_range": [0, 15],
+    "new_symbol_literal_bits": 4,
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_bit_count_then_msb_first_packed_bits",
+    "encoding": "u64le bit count followed by MSB-first bits; unused low tail bits are zero",
+    "maximum_bytes": 160,
+    "success_result": "bytes written",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "contract": {
+    "initial_tree": "One zero-weight NYT leaf represents all unseen symbols.",
+    "known_symbol": "Emit the current root-to-leaf path before updating the tree.",
+    "new_symbol": "Emit the current NYT path and then the symbol id as four MSB-first bits.",
+    "update": "Use bottom-up left-to-right implicit numbering; equal-weight leaves precede equal-weight internal nodes. Move each leader across its following eligible node-type block before incrementing.",
+    "last_new_symbol": "When all 16 symbols have appeared, reuse the NYT leaf as the final symbol leaf.",
+    "bit_packing": "First emitted bit occupies the most significant bit of the first payload byte.",
+    "validation_order": "Reject malformed input before output capacity; output remains untouched on error."
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "At most 31 tree nodes, implicit-order and block scratch, a 1216-bit staged stream, and bounded update storage."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {"id":"empty","input_values":[0],"input_length":1,"output_capacity":4096,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"first-symbol-literal","input_values":[1,0],"input_length":2,"output_capacity":4096,"expected_result":9,"expected_output_hex":"040000000000000000"},
+    {"id":"repeat-known-symbol","input_values":[2,0,0],"input_length":3,"output_capacity":4096,"expected_result":9,"expected_output_hex":"050000000000000008"},
+    {"id":"two-first-occurrences","input_values":[2,0,1],"input_length":3,"output_capacity":4096,"expected_result":10,"expected_output_hex":"09000000000000000080"},
+    {"id":"fgk-vitter-distinguishing-prefix","input_values":[3,0,1,1],"input_length":4,"output_capacity":4096,"expected_result":10,"expected_output_hex":"0b0000000000000000e0"},
+    {"id":"maximum-repeated-symbol-stream","input_values":[64,
+      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+      "input_length":65,"output_capacity":4096,"expected_result":17,"expected_output_hex":"43000000000000000fffffffffffffffe0"},
+    {"id":"invalid-symbol","input_values":[1,16],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[0,1],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,0],"input_length":2,"output_capacity":8,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[0],"input_length":1,"output_capacity":4096,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":0,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

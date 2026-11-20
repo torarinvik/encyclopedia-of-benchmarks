@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "encyclopedia-three-dimensional-bird-baker-matching-i64-array-bytes-output-v1",
+  "algorithm": "three_dimensional_bird_baker_matching",
+  "function_symbol": "three_dimensional_bird_baker_matching",
+  "abi": "i64_array_bytes_output",
+  "description": "Exact three-dimensional matching by recursive Bird–Baker slice labeling and KMP along depth.",
+  "source": {
+    "title": "Multidimensional String Matching",
+    "authors": ["Juha Kärkkäinen"],
+    "year": 2016,
+    "reference": "Encyclopedia of Algorithms, DOI 10.1007/978-1-4939-2864-4_247",
+    "url": "https://doi.org/10.1007/978-1-4939-2864-4_247",
+    "algorithm_attribution": "Bird–Baker row reduction applied recursively to 3D slices, followed by KMP over slice labels",
+    "implementation_status": "bounded clean-room 3D repeated-reduction profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_rows,text_columns,text_depths,pattern_rows,pattern_columns,pattern_depths,text_depth_major_row_major,pattern_depth_major_row_major]",
+    "text_dimension_range": [1, 5],
+    "pattern_dimension_range": [1, 4],
+    "pattern_not_larger_than_text": true,
+    "alphabet_range": [0, 3],
+    "maximum_valid_length": 195,
+    "maximum_parseable_length": 196,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[match_count,(zero_based_row,zero_based_column,zero_based_depth)*match_count]",
+    "coordinate_order": "lexicographic row, then column, then depth",
+    "overlapping_occurrences_included": true,
+    "maximum_matches": 125,
+    "maximum_bytes": 3008,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 8192, "meaning": "bounded slice-label table, row-match marks, KMP prefixes, and occurrence coordinates"},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 8, "warmup_rounds": 2, "repetitions_per_sample": 100},
+  "cases": [
+    {"id":"exact_two_by_two_by_two_match","input_values":[2,2,2,2,2,2,0,1,2,3,1,0,3,2,0,1,2,3,1,0,3,2],"input_length":22,"output_capacity":3008,"expected_result":32,"expected_output_hex":"0100000000000000 0000000000000000 0000000000000000 0000000000000000"},
+    {"id":"one_cell_pattern_maximal_overlap_and_coordinate_order","input_values":[2,2,2,1,1,1,0,0,0,0,0,0,0,0,0],"input_length":15,"output_capacity":3008,"expected_result":200,"expected_output_hex":"0800000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0000000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000 0000000000000000 0000000000000000 0100000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000 0000000000000000 0100000000000000 0100000000000000 0100000000000000"},
+    {"id":"repeated_slice_kmp_overlapping_depth_matches","input_values":[1,1,5,1,1,3,0,1,0,1,0,0,1,0],"input_length":14,"output_capacity":3008,"expected_result":56,"expected_output_hex":"0200000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0200000000000000"},
+    {"id":"valid_pattern_with_no_matches","input_values":[2,2,2,1,1,1,0,0,0,0,0,0,0,0,1],"input_length":15,"output_capacity":3008,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"pattern_exceeds_text_row_dimension","input_values":[1,1,1,2,1,1,0,0,0],"input_length":9,"output_capacity":3008,"expected_result":-1,"expected_output_hex":""},
+    {"id":"symbol_outside_alphabet","input_values":[1,1,1,1,1,1,4,0],"input_length":8,"output_capacity":3008,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_input_word","input_values":[1,1,1,1,1,1,0,0,99],"input_length":9,"output_capacity":3008,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":3008,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null_output","input_values":[2,2,2,2,2,2,0,1,2,3,1,0,3,2,0,1,2,3,1,0,3,2],"input_length":22,"output_capacity":32,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short_output","input_values":[2,2,2,2,2,2,0,1,2,3,1,0,3,2,0,1,2,3,1,0,3,2],"input_length":22,"output_capacity":31,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

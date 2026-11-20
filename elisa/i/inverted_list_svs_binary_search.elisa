@@ -1,0 +1,105 @@
+from std.collections import InlineArray
+
+const MIN_LISTS: usize = 2
+const MAX_LISTS: usize = 8
+const MAX_LIST_LENGTH: usize = 32
+const MAX_INPUT_LENGTH: usize = 266
+const BYTES_PER_VALUE: usize = 4
+
+def inverted_list_svs_binary_search_store(value: i64, output: mutable view[u8], position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def inverted_list_svs_binary_search_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < MIN_LISTS + 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < i64(MIN_LISTS) or input[0] > i64(MAX_LISTS):
+        return -1
+    count: usize = input[0].usize()
+    starts: mutable InlineArray[Int, MAX_LISTS] = zeroed
+    sizes: mutable InlineArray[Int, MAX_LISTS] = zeroed
+    order: mutable InlineArray[Int, MAX_LISTS] = zeroed
+    position: mutable usize = 1
+    list: mutable usize = 0
+    while list < count:
+        if position >= length or input[position] < 0 or input[position] > i64(MAX_LIST_LENGTH):
+            return -1
+        size: usize = input[position].usize()
+        position <- position + 1
+        if size > length - position:
+            return -1
+        starts[list] <- Int(position)
+        sizes[list] <- Int(size)
+        order[list] <- Int(list)
+        index: mutable usize = 0
+        while index < size:
+            let value = input[position + index]
+            if value < -2147483648 or value > 2147483647:
+                return -1
+            if index > 0 and input[position + index - 1] >= value:
+                return -1
+            index <- index + 1
+        position <- position + size
+        list <- list + 1
+    if position != length:
+        return -1
+
+    i: mutable usize = 1
+    while i < count:
+        let key = order[i]
+        j: mutable usize = i
+        while j > 0 and sizes[order[j - 1]] > sizes[key]:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- key
+        i <- i + 1
+
+    maximum_result: usize = sizes[order[0]].usize()
+    if output_capacity < maximum_result * BYTES_PER_VALUE or (maximum_result > 0 and output.is_null()):
+        return -2
+    var candidates = InlineArray[Int64, MAX_LIST_LENGTH](fill=0)
+    candidate_count: mutable usize = maximum_result
+    i = 0
+    while i < candidate_count:
+        candidates[i] <- input[starts[order[0]].usize() + i]
+        i <- i + 1
+
+    rank: mutable usize = 1
+    while rank < count and candidate_count > 0:
+        let list_id = order[rank].usize()
+        let start = starts[list_id].usize()
+        let size = sizes[list_id].usize()
+        cursor: mutable usize = 0
+        kept: mutable usize = 0
+        i = 0
+        while i < candidate_count:
+            let candidate = candidates[i]
+            low: mutable usize = cursor
+            high: mutable usize = size
+            while low < high:
+                let middle = low + (high - low) / 2
+                if input[start + middle] < candidate:
+                    low <- middle + 1
+                else:
+                    high <- middle
+            if low < size and input[start + low] == candidate:
+                candidates[kept] <- candidate
+                kept <- kept + 1
+                cursor <- low + 1
+            else:
+                cursor <- low
+            i <- i + 1
+        candidate_count <- kept
+        rank <- rank + 1
+
+    if candidate_count > 0:
+        for i in range(candidate_count):
+            inverted_list_svs_binary_search_store(candidates[i], output[0:maximum_result * BYTES_PER_VALUE], i * BYTES_PER_VALUE)
+    candidate_count.i64()
+
+export fn inverted_list_svs_binary_search(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = inverted_list_svs_binary_search_impl

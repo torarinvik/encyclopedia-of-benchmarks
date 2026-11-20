@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "minkowski-question-mark-rational-i64-array-bytes-output-v1",
+  "algorithm": "minkowski_question_mark_rational",
+  "function_symbol": "minkowski_question_mark_rational",
+  "abi": "i64_array_bytes_output",
+  "description": "Evaluate the exact Minkowski question-mark function on a bounded rational in [0,1].",
+  "source": {
+    "title": "Minkowski-question-mark-function",
+    "discovery_index": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_score": 20,
+    "algorithm_reference": "https://doi.org/10.1017/S0017089509990152",
+    "algorithm_reference_title": "The moments of Minkowski question mark function: the dyadic period function",
+    "author": "Giedrius Alkauskas",
+    "pinned_behavior": "For an interior rational with regular continued fraction [0;a1,...,an], return the exact dyadic value sum(j=1..n, (-1)^(j-1)*2^(1-(a1+...+aj))). Endpoints map to 0 and 1."
+  },
+  "contract": {
+    "definition": "Return the reduced dyadic pair [numerator, exponent] for Minkowski's question-mark value ?(p/q)=numerator/2^exponent, with denominator 1 represented by exponent 0.",
+    "input_encoding": "[p,q]",
+    "rational_domain": "0<=p<=q and 1<=q<=1000000; p and q need not be relatively prime.",
+    "continued_fraction_convention": "For 0<p<q use the unique regular finite expansion [0;a1,...,an] with positive partial quotients and an>=2. The endpoints 0 and 1 are explicit special cases.",
+    "profile_cap": "The sum a1+...+an must be at most 60; otherwise the input is outside this bounded profile and returns -1.",
+    "arithmetic_bounds": "No shift exceeds 59; each alternating numerator prefix has absolute magnitude below 2^60. Stern-Brocot comparison products are at most 1000000^2, and dyadic endpoint numerators remain below 2^60.",
+    "primary_method": "Compute Euclidean partial quotients and the alternating dyadic sum from their prefix sums.",
+    "independent_method": "Locate p/q by Stern-Brocot mediant bisection while bisecting endpoint question-mark values in parallel.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[p,q]",
+    "numerator_range": [0, 1000000],
+    "denominator_range": [1, 1000000],
+    "numerator_must_not_exceed_denominator": true,
+    "maximum_partial_quotient_sum": 60,
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_array",
+    "encoding": "[dyadic_numerator, dyadic_exponent] represents numerator/2^exponent",
+    "word_count": 2,
+    "maximum_exponent": 59,
+    "maximum_bytes": 16,
+    "success_result": "number of output bytes, always 16",
+    "invalid_input_result": -1,
+    "null_or_short_output_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Native ports use scalar Euclidean or Stern-Brocot state and scalar byte-packing temporaries; no heap or variable-size scratch arrays are used. Caller-owned buffers are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/m/minkowski_question_mark_rational/primary_oracle.py",
+  "independent_oracle": "benchmarks/m/minkowski_question_mark_rational/independent_oracle.py",
+  "cases": [
+    {"id":"zero-endpoint","input_values":[0,7],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"00000000000000000000000000000000"},
+    {"id":"one-endpoint","input_values":[1,1],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000000000000000000"},
+    {"id":"one-half","input_values":[1,2],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"one-third","input_values":[1,3],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000200000000000000"},
+    {"id":"two-thirds","input_values":[2,3],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000000200000000000000"},
+    {"id":"one-quarter","input_values":[1,4],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000300000000000000"},
+    {"id":"two-fifths","input_values":[2,5],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"03000000000000000300000000000000"},
+    {"id":"three-fifths","input_values":[3,5],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000000300000000000000"},
+    {"id":"three-eighths","input_values":[3,8],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"05000000000000000400000000000000"},
+    {"id":"maximum-partial-sum","input_values":[1,60],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000003b00000000000000"},
+    {"id":"maximum-partial-sum-near-one","input_values":[59,60],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"ffffffffffffff073b00000000000000"},
+    {"id":"nonreduced-input","input_values":[6,12],"input_length":2,"output_capacity":16,"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"empty-frame","input_values":[],"input_length":0,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"one-word-frame","input_values":[1],"input_length":1,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[1,3,0],"input_length":3,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-numerator","input_values":[-1,3],"input_length":2,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero-denominator","input_values":[0,0],"input_length":2,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"numerator-above-denominator","input_values":[4,3],"input_length":2,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"denominator-above-bound","input_values":[1,1000001],"input_length":2,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"partial-quotient-sum-above-bound","input_values":[1,61],"input_length":2,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output","input_values":[1,3],"input_length":2,"output_capacity":15,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,3],"input_length":2,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid-input-before-output-error","input_values":[1,61],"input_length":2,"output_capacity":0,"output_is_null":true,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

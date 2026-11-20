@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.math import isfinite
 @export("weight_conversion")
 fn weight_conversion(value:Float64,from:Float64,to:Float64) abi("C")->Float64:

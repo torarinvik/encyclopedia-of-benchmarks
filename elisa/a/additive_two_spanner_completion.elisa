@@ -1,0 +1,130 @@
+const A2_MAX_N: usize = 8
+const A2_MAX_M: usize = 28
+const A2_MAX_INPUT: usize = 59
+const A2_INF: usize = 9
+
+def fn a2_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def fn a2_distances(n: usize, m: usize, u: view[usize], v: view[usize],
+                    selected: view[bool], only_selected: bool,
+                    distance: mutable view[usize]) -> void:
+    left: mutable usize = 0
+    while left < n:
+        right: mutable usize = 0
+        while right < n:
+            distance[left * 8 + right] <- if left == right: 0 else: A2_INF
+            right <- right + 1
+        left <- left + 1
+    edge: mutable usize = 0
+    while edge < m:
+        if not only_selected or selected[edge]:
+            distance[u[edge] * 8 + v[edge]] <- 1
+            distance[v[edge] * 8 + u[edge]] <- 1
+        edge <- edge + 1
+    via: mutable usize = 0
+    while via < n:
+        left <- 0
+        while left < n:
+            right <- 0
+            while right < n:
+                candidate: usize = distance[left * 8 + via] + distance[via * 8 + right]
+                if candidate < distance[left * 8 + right]:
+                    distance[left * 8 + right] <- candidate
+                right <- right + 1
+            left <- left + 1
+        via <- via + 1
+
+@export("additive_two_spanner_completion")
+def additive_two_spanner_completion(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > A2_MAX_INPUT: return -1
+    input_view: view[i64] = input[0:length]
+    n64: i64 = input_view[0]
+    m64: i64 = input_view[1]
+    if n64 < 1 or n64 > 8 or m64 < 0 or m64 > 28: return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != 2 + 2 * m: return -1
+    u: mutable usize[28] = zeroed
+    v: mutable usize[28] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        a: i64 = input_view[2 + 2 * edge]
+        b: i64 = input_view[3 + 2 * edge]
+        if a < 0 or a >= b or b >= n64: return -1
+        u[edge] <- a.usize()
+        v[edge] <- b.usize()
+        prior: mutable usize = 0
+        while prior < edge:
+            if u[prior] == u[edge] and v[prior] == v[edge]: return -1
+            prior <- prior + 1
+        edge <- edge + 1
+    u_view: view[usize] = u[0:m]
+    v_view: view[usize] = v[0:m]
+    selected: mutable bool[28] = zeroed
+    selected_view: view[bool] = selected[0:m]
+    original: mutable usize[64] = zeroed
+    original_view: mutable view[usize] = original[0:64]
+    a2_distances(n, m, u_view, v_view, selected_view, false, original_view)
+
+    round: mutable usize = 0
+    while round <= m:
+        current: mutable usize[64] = zeroed
+        current_view: mutable view[usize] = current[0:64]
+        a2_distances(n, m, u_view, v_view, selected_view, true, current_view)
+        source: mutable usize = n
+        target: mutable usize = n
+        a: mutable usize = 0
+        while a < n and source == n:
+            b: mutable usize = a + 1
+            while b < n:
+                if original_view[a * 8 + b] < A2_INF and current_view[a * 8 + b] > original_view[a * 8 + b] + 2:
+                    source <- a
+                    target <- b
+                    break
+                b <- b + 1
+            a <- a + 1
+        if source == n: break
+        if round == m: return -1
+        vertex: mutable usize = source
+        while vertex != target:
+            next_vertex: mutable usize = n
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                if neighbor != vertex and original_view[neighbor * 8 + target] + 1 == original_view[vertex * 8 + target]:
+                    edge <- 0
+                    while edge < m:
+                        if (u_view[edge] == vertex and v_view[edge] == neighbor) or (v_view[edge] == vertex and u_view[edge] == neighbor):
+                            next_vertex <- neighbor
+                            selected[edge] <- true
+                            break
+                        edge <- edge + 1
+                    if next_vertex != n: break
+                neighbor <- neighbor + 1
+            if next_vertex == n: return -1
+            vertex <- next_vertex
+        round <- round + 1
+
+    count: mutable usize = 0
+    edge <- 0
+    while edge < m:
+        if selected[edge]: count <- count + 1
+        edge <- edge + 1
+    bytes: usize = 8 * (1 + 2 * count)
+    if output.is_null() or capacity < bytes: return -2
+    output_view: mutable view[u8] = output[0:bytes]
+    a2_put_i64(count.i64(), output_view, 0)
+    slot: mutable usize = 0
+    edge <- 0
+    while edge < m:
+        if selected[edge]:
+            a2_put_i64(u_view[edge].i64(), output_view, 8 * (1 + 2 * slot))
+            a2_put_i64(v_view[edge].i64(), output_view, 8 * (2 + 2 * slot))
+            slot <- slot + 1
+        edge <- edge + 1
+    return bytes.i64()

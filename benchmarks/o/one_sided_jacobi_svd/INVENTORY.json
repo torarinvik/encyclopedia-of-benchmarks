@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "algorithm": "one_sided_jacobi_svd",
+  "status": "integrated",
+  "abi": "i64_array_scalar",
+  "languages": ["c", "c3", "cpp", "elisa", "mojo", "nim", "odin", "rust", "v", "zig"],
+  "suite": {
+    "runner": "benchmarks/run_i64_array_scalar.py",
+    "verifier": "benchmarks/verify_i64_array_scalar.py",
+    "registered": true
+  },
+  "references": {
+    "primary": "one-sided cyclic Jacobi column orthogonalization",
+    "independent": "symmetric Jacobi diagonalization of A^T A"
+  },
+  "provenance": [
+    "RosettaCodeData pinned popular-task title index used for discovery only",
+    "Drmac and Veselic one-sided Jacobi SVD paper used for method description"
+  ],
+  "execution": "No programs, tests, helpers, checkers, builds, or compilers were run."
+}

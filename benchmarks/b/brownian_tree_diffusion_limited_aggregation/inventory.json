@@ -1,0 +1,24 @@
+{
+  "algorithm": "brownian_tree_diffusion_limited_aggregation",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "brownian_tree_diffusion_limited_aggregation",
+  "source_url": "https://doi.org/10.1103/PhysRevLett.47.1400",
+  "additional_source_urls": ["https://rosettagit.org/tasks/brownian-tree/"],
+  "ports": {
+    "c": "../../../c/b/brownian_tree_diffusion_limited_aggregation.c",
+    "c3": "../../../c3/b/brownian_tree_diffusion_limited_aggregation.c3",
+    "cpp": "../../../cpp/b/brownian_tree_diffusion_limited_aggregation.cpp",
+    "elisa": "../../../elisa/b/brownian_tree_diffusion_limited_aggregation.elisa",
+    "mojo": "../../../mojo/b/brownian_tree_diffusion_limited_aggregation.mojo",
+    "nim": "../../../nim/b/brownian_tree_diffusion_limited_aggregation.nim",
+    "odin": "../../../odin/b/brownian_tree_diffusion_limited_aggregation.odin",
+    "rust": "../../../rust/b/brownian_tree_diffusion_limited_aggregation.rs",
+    "v": "../../../v/b/brownian_tree_diffusion_limited_aggregation.v",
+    "zig": "../../../zig/b/brownian_tree_diffusion_limited_aggregation.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_verifier": "check_inventory.py",
+  "workload_verifier": "verify_workload.py",
+  "execution_status": "source-only; no programs, tests, or checks run"
+}

@@ -4,9 +4,9 @@ module narcissistic_number;
 fn long narcissistic_number(long limit, char* output, usz output_capacity) @export("narcissistic_number") {
     if (limit > 100000) return -1;
     if (limit <= 0) return 0;
-    long numbers[32];
-    long powers[60];
-    bool cached[60];
+    long[32] numbers;
+    long[60] powers;
+    bool[60] cached;
     for (usz key = 0; key < 60; key++) cached[key] = false;
     usz count = 0;
     for (long number = 0; number < limit; number++) {

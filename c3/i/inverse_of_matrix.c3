@@ -27,8 +27,8 @@ fn long absolute_coefficient(long value) {
 }
 
 fn bool valid_dominance(long* matrix, usz dimension) {
-    int dominant_column[3] = {-1, -1, -1};
-    int column_seen[3] = {0, 0, 0};
+    int[3] dominant_column = {-1, -1, -1};
+    int[3] column_seen = {};
     for (usz row = 0; row < dimension; row++) {
         for (usz column = 0; column < dimension; column++) {
             long other_sum = 0;
@@ -49,10 +49,10 @@ fn bool valid_dominance(long* matrix, usz dimension) {
 }
 
 fn bool scaled_pivot_inverse(double* matrix, usz dimension, double* inverse) {
-    double a[9] = {0.0};
-    double b[9] = {0.0};
-    double scale[3] = {0.0, 0.0, 0.0};
-    int index[3] = {0, 1, 2};
+    double[9] a = {};
+    double[9] b = {};
+    double[3] scale = {};
+    int[3] index = {0, 1, 2};
     for (usz row = 0; row < dimension; row++) {
         for (usz column = 0; column < dimension; column++) {
             a[row * dimension + column] = matrix[row * dimension + column];
@@ -138,7 +138,7 @@ fn bool scaled_pivot_inverse(double* matrix, usz dimension, double* inverse) {
 }
 
 fn void store_little_endian_double(uint8* output, double value) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++)
         output[byte] = (uint8)(bits >> (byte * 8));
 }
@@ -151,8 +151,8 @@ fn long inverse_of_matrix(long* input, usz input_length, uint8* output,
     usz dimension = (usz)input[0];
     if (input_length != 1 + dimension * dimension) return INVALID_RESULT;
 
-    long matrix_q[9] = {0};
-    double matrix[9] = {0.0};
+    long[9] matrix_q = {};
+    double[9] matrix = {};
     for (usz index = 0; index < dimension * dimension; index++) {
         long value = input[index + 1];
         if (value < -COEFFICIENT_LIMIT || value > COEFFICIENT_LIMIT)
@@ -160,13 +160,13 @@ fn long inverse_of_matrix(long* input, usz input_length, uint8* output,
         matrix_q[index] = value;
         matrix[index] = (double)value / 16.0;
     }
-    if (!valid_dominance(matrix_q, dimension)) return INVALID_RESULT;
+    if (!valid_dominance(&matrix_q[0], dimension)) return INVALID_RESULT;
 
-    double inverse[9] = {0.0};
-    if (!scaled_pivot_inverse(matrix, dimension, inverse)) return INVALID_RESULT;
+    double[9] inverse = {};
+    if (!scaled_pivot_inverse(&matrix[0], dimension, &inverse[0])) return INVALID_RESULT;
 
     usz output_bytes = dimension * dimension * 8;
-    uint8 encoded[MAX_OUTPUT_BYTES] = {0};
+    uint8[MAX_OUTPUT_BYTES] encoded = {};
     for (usz index = 0; index < dimension * dimension; index++)
         store_little_endian_double(&encoded[index * 8], inverse[index]);
 

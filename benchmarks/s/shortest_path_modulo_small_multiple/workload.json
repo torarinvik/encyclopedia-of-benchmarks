@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "shortest-path-modulo-small-multiple-i64-array-scalar-v1",
+  "algorithm": "shortest_path_modulo_small_multiple",
+  "function_symbol": "shortest_path_modulo_small_multiple",
+  "abi": "i64_array_scalar",
+  "input": {
+    "kind": "one_element_signed_64_bit_array",
+    "elements": ["n"],
+    "n_range": [1, 16],
+    "exact_length": 1,
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "minimum digit sum of a positive multiple of n written with only decimal digits 0 and 1",
+    "result_range": [1, 16],
+    "invalid_input_result": -1
+  },
+  "source": {
+    "definition_url": "https://atcoder.jp/contests/arc084/tasks/arc084_b",
+    "method_url": "https://www.timothywang.ca/OI-wiki/graph/mod-shortest-path/"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "one-divides-one", "input_values": [1], "input_length": 1, "expected_result": 1},
+    {"id": "two-power-of-ten", "input_values": [2], "input_length": 1, "expected_result": 1},
+    {"id": "three-three-ones", "input_values": [3], "input_length": 1, "expected_result": 3},
+    {"id": "four-power-of-ten", "input_values": [4], "input_length": 1, "expected_result": 1},
+    {"id": "five-power-of-ten", "input_values": [5], "input_length": 1, "expected_result": 1},
+    {"id": "six-needs-three-ones", "input_values": [6], "input_length": 1, "expected_result": 3},
+    {"id": "seven-two-ones", "input_values": [7], "input_length": 1, "expected_result": 2},
+    {"id": "eight-power-of-ten", "input_values": [8], "input_length": 1, "expected_result": 1},
+    {"id": "nine-nine-ones", "input_values": [9], "input_length": 1, "expected_result": 9},
+    {"id": "ten-power-of-ten", "input_values": [10], "input_length": 1, "expected_result": 1},
+    {"id": "eleven-two-ones", "input_values": [11], "input_length": 1, "expected_result": 2},
+    {"id": "twelve-three-ones", "input_values": [12], "input_length": 1, "expected_result": 3},
+    {"id": "thirteen-two-ones", "input_values": [13], "input_length": 1, "expected_result": 2},
+    {"id": "fourteen-two-ones", "input_values": [14], "input_length": 1, "expected_result": 2},
+    {"id": "fifteen-three-ones", "input_values": [15], "input_length": 1, "expected_result": 3},
+    {"id": "maximum-n-sixteen", "input_values": [16], "input_length": 1, "expected_result": 1},
+    {"id": "missing-value", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "trailing-value", "input_values": [3, 0], "input_length": 2, "expected_result": -1},
+    {"id": "n-below-bound", "input_values": [0], "input_length": 1, "expected_result": -1},
+    {"id": "n-above-bound", "input_values": [17], "input_length": 1, "expected_result": -1},
+    {"id": "negative-n", "input_values": [-1], "input_length": 1, "expected_result": -1},
+    {"id": "null-empty-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1},
+    {"id": "null-parser-limit", "input_values": [], "input_length": 2, "input_is_null": true, "expected_result": -1}
+  ]
+}

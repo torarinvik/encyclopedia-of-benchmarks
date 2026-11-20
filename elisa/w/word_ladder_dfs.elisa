@@ -52,8 +52,9 @@ def word_ladder_dfs_write_i64_le(output: mutable view[u8], offset: usize, value:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def word_ladder_dfs_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+def word_ladder_dfs_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input.len()
+    if length < 4 or length > MAX_INPUT_LENGTH:
         return -1
     width_value: i64 = input[0]
     begin: i64 = input[1]
@@ -123,10 +124,13 @@ def word_ladder_dfs_impl(input: i64&, length: usize, output: mutable u8&, capaci
     required: usize = field_count * 8
     if output.is_null() or capacity < required:
         return -2
+    result: mutable view[u8] = output[0:required]
     index <- 0
     while index < field_count:
-        word_ladder_dfs_write_i64_le(output[0:capacity], index * 8, fields[index])
+        word_ladder_dfs_write_i64_le(result, index * 8, fields[index])
         index <- index + 1
     required.i64()
 
-export fn word_ladder_dfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_ladder_dfs_impl
+export fn word_ladder_dfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH: return -1
+    word_ladder_dfs_impl(input[0:length], output, capacity)

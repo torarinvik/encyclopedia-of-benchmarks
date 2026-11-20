@@ -7,7 +7,7 @@ const double Q_SCALE = 1000000.0;
 extern fn double exp(double value);
 
 fn void put_f64(double value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
+    ulong bits = bitcast(value, ulong);
     for (usz byte = 0; byte < 8; byte++) output[offset + byte] = (char)(bits >> (8 * byte));
 }
 

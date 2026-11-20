@@ -11,7 +11,7 @@ fn void store_i64_le(uchar* output, usz offset, long value) {
     }
 }
 
-long tsvc_s123_conditional_pair_expansion(long* input, usz length,
+fn long tsvc_s123_conditional_pair_expansion(long* input, usz length,
         uchar* output, usz capacity) @export("tsvc_s123_conditional_pair_expansion") {
     if (input == null || length < 5 || length > 129) return -1;
     if (input[0] < 1 || input[0] > (long)MAX_N) return -1;

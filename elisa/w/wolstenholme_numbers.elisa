@@ -1,0 +1,38 @@
+const WN_MAX_N: i64 = 22
+const WN_MAX_PARSEABLE_LENGTH: usize = 2
+
+def wn_gcd(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def wn_numerator(n: i64) -> i64:
+    numerator: mutable i64 = 0
+    denominator: mutable i64 = 1
+    k: mutable i64 = 1
+    while k <= n:
+        square: i64 = k * k
+        common: i64 = wn_gcd(denominator, square)
+        scale: i64 = square / common
+        numerator <- numerator * scale + denominator / common
+        denominator <- denominator * scale
+        factor: i64 = wn_gcd(numerator, denominator)
+        numerator <- numerator / factor
+        denominator <- denominator / factor
+        k <- k + 1
+    numerator
+
+def wn_impl(input: view[i64]) -> i64:
+    if input.length != 1: return -1
+    n: i64 = input[0]
+    if n < 1 or n > WN_MAX_N: return -1
+    wn_numerator(n)
+
+export fn wolstenholme_numbers(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > WN_MAX_PARSEABLE_LENGTH: return -1
+    input_view: view[i64] = input[0:input_length]
+    wn_impl(input_view)

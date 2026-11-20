@@ -10,7 +10,7 @@ fn void store_i64_le(char* output, usz offset, long value) {
     for (usz byte = 0; byte < 8; byte += 1) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-long frequency_count_list_update(long* input, usz length, char* output, usz capacity)
+fn long frequency_count_list_update(long* input, usz length, char* output, usz capacity)
         @export("frequency_count_list_update") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long n_raw = input[0], requests_raw = input[1];

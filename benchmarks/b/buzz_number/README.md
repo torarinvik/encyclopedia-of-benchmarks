@@ -18,6 +18,7 @@ The source program reads an `int` and prints a sentence per input. This benchmar
 | C3 | [`c3/b/buzz_number.c3`](../../../c3/b/buzz_number.c3) |
 | C++ | [`cpp/b/buzz_number.cpp`](../../../cpp/b/buzz_number.cpp) |
 | Elisa | [`elisa/b/buzz_number.elisa`](../../../elisa/b/buzz_number.elisa) |
+| Mojo | [`mojo/b/buzz_number.mojo`](../../../mojo/b/buzz_number.mojo) |
 | Nim | [`nim/b/buzz_number.nim`](../../../nim/b/buzz_number.nim) |
 | Odin | [`odin/b/buzz_number.odin`](../../../odin/b/buzz_number.odin) |
 | Rust | [`rust/b/buzz_number.rs`](../../../rust/b/buzz_number.rs) |
@@ -27,3 +28,6 @@ The source program reads an `int` and prints a sentence per input. This benchmar
 ## Upstream source review
 
 The benchmark maps candidate `buzz_number` to TheAlgorithms/C-Plus-Plus `others/buzz_number.cpp` at commit [`fdcc29b0ac2848e9d1a8d926e171cc5b39f97759`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/buzz_number.cpp). The candidate catalog also records the matching file from TheAlgorithms/C-Plus-Plus-1 at commit [`0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/others/buzz_number.cpp). Both implementations use `(n % 7 == 0) || (n % 10 == 7)` and print whether each input is a Buzz Number.
+
+Scalar verifier registration and a string-digit reference are drafted and
+have not been executed.

@@ -1,0 +1,26 @@
+{
+  "algorithm": "kirkpatrick_seidel_convex_hull",
+  "abi": "i64_array_bytes_output",
+  "function_symbol": "kirkpatrick_seidel_convex_hull",
+  "sources": {
+    "method": "https://doi.org/10.1137/0215021",
+    "title_discovery": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+  },
+  "ports": {
+    "c": "../../../c/k/kirkpatrick_seidel_convex_hull.c",
+    "c3": "../../../c3/k/kirkpatrick_seidel_convex_hull.c3",
+    "cpp": "../../../cpp/k/kirkpatrick_seidel_convex_hull.cpp",
+    "elisa": "../../../elisa/k/kirkpatrick_seidel_convex_hull.elisa",
+    "mojo": "../../../mojo/k/kirkpatrick_seidel_convex_hull.mojo",
+    "nim": "../../../nim/k/kirkpatrick_seidel_convex_hull.nim",
+    "odin": "../../../odin/k/kirkpatrick_seidel_convex_hull.odin",
+    "rust": "../../../rust/k/kirkpatrick_seidel_convex_hull.rs",
+    "v": "../../../v/k/kirkpatrick_seidel_convex_hull.v",
+    "zig": "../../../zig/k/kirkpatrick_seidel_convex_hull.zig"
+  },
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_checker": "check_inventory.py",
+  "suite_status": "package-local; parent handles integration",
+  "execution_status": "source-only; no programs or checks run"
+}

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
 fn wpm_search(pat:InlineArray[UInt8,8],pn:Int,txt:InlineArray[UInt8,32],tn:Int,pi:Int,ti:Int,inout starts:InlineArray[Int32,128],inout lens:InlineArray[Int32,128],inout used:InlineArray[Bool,128])->Bool:
@@ -30,5 +31,5 @@ fn word_pattern_matcher(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:Unsaf
     var pat=InlineArray[UInt8,8]();var txt=InlineArray[UInt8,32]()
     for i in range(Int(pn)):if a[i+1]<32 or a[i+1]>126:return -1;else:pat[i]=UInt8(a[i+1])
     for i in range(Int(tn)):if a[ti+1+i]<32 or a[ti+1+i]>126:return -1;else:txt[i]=UInt8(a[ti+1+i])
-    var starts=InlineArray[Int32,128]();var lens=InlineArray[Int32,128]();var used=InlineArray[Bool,128]()
+    var starts=InlineArray[Int32,128](fill=0);var lens=InlineArray[Int32,128](fill=0);var used=InlineArray[Bool,128](fill=False)
     return 1 if wpm_search(pat,Int(pn),txt,Int(tn),0,0,starts,lens,used) else 0

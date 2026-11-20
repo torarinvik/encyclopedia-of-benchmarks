@@ -4,7 +4,7 @@ module nth_ugly_number;
 fn long nth_ugly_number(long n) @export("nth_ugly_number") {
     if (n < 0 || n > 12690) return -1;
 
-    long values[12691];
+    long[12691] values;
     values[0] = 1;
     usz i2 = 0, i3 = 0, i5 = 0;
     for (usz index = 1; index <= (usz)n; index++) {

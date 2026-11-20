@@ -28,7 +28,7 @@ fn second_best_mst(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t
     var edge_v = InlineArray[Int, MAX_M]()
     var edge_weight = InlineArray[Int64, MAX_M]()
     var order = InlineArray[Int, MAX_M]()
-    var seen = InlineArray[Bool, MAX_N * MAX_N]()
+    var seen = InlineArray[Bool, MAX_N * MAX_N](fill=False)
     for edge in range(m):
         let u_value = input[2 + 3 * edge]
         let v_value = input[3 + 3 * edge]
@@ -59,10 +59,10 @@ fn second_best_mst(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t
     for vertex in range(n):
         dsu[vertex] = vertex
         component_size[vertex] = 1
-    var in_mst = InlineArray[Bool, MAX_M]()
+    var in_mst = InlineArray[Bool, MAX_M](fill=False)
     var tree_to = InlineArray[Int, MAX_N * MAX_N]()
     var tree_edge = InlineArray[Int, MAX_N * MAX_N]()
-    var degree = InlineArray[Int, MAX_N]()
+    var degree = InlineArray[Int, MAX_N](fill=0)
     var selected = 0
     var mst_weight: Int64 = 0
     for position in range(m):

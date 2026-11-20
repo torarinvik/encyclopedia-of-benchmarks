@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("minimum_squares_to_represent_a_number")
 fn minimum_squares_to_represent_a_number(n:Int64) abi("C")->Int64:
     if n<0 or n>4096:return -1

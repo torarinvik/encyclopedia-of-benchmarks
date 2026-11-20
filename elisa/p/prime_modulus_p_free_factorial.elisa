@@ -1,0 +1,43 @@
+const PFF_MAX_PRIME: usize = 1009
+
+def pff_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    divisor: mutable i64 = 2
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+def prime_modulus_p_free_factorial_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2:
+        return -1
+    n: i64 = input[0]
+    prime: i64 = input[1]
+    if n < 0 or prime < 2 or prime > PFF_MAX_PRIME.i64():
+        return -1
+    if not pff_is_prime(prime):
+        return -1
+
+    prime_size: usize = prime.usize()
+    factorial: mutable i64[PFF_MAX_PRIME] = zeroed
+    factorial[0] <- 1
+    value: mutable usize = 1
+    while value < prime_size:
+        factorial[value] <- factorial[value - 1] * value.i64() % prime
+        value <- value + 1
+
+    result: mutable i64 = 1
+    remaining: mutable i64 = n
+    while remaining > 0:
+        quotient: i64 = remaining / prime
+        residue: usize = (remaining % prime).usize()
+        block: mutable i64 = factorial[residue]
+        if quotient % 2 != 0:
+            block <- (prime - block) % prime
+        result <- result * block % prime
+        remaining <- quotient
+    result
+
+export fn prime_modulus_p_free_factorial(input: i64&, length: usize) -> i64 = prime_modulus_p_free_factorial_impl

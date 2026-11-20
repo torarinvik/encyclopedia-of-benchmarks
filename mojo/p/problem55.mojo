@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p55_reverse_add(inout digits:InlineArray[UInt8,64],length:Int)->Int:
     var reverse_length=length
     while reverse_length>0 and digits[length-reverse_length]==0:reverse_length-=1

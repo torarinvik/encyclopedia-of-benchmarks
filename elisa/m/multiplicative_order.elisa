@@ -1,0 +1,61 @@
+def gcd_i64(a_input: i64, b_input: i64) -> i64:
+    a: mutable i64 = a_input
+    b: mutable i64 = b_input
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def pow_mod_i64(base_input: i64, exponent_input: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_input % modulus
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if exponent % 2 != 0:
+            result <- result * base % modulus
+        base <- base * base % modulus
+        exponent <- exponent / 2
+    result
+
+def totient_i64(value: i64) -> i64:
+    remaining: mutable i64 = value
+    result: mutable i64 = value
+    prime: mutable i64 = 2
+    while prime * prime <= remaining:
+        if remaining % prime == 0:
+            result <- result / prime * (prime - 1)
+            while remaining % prime == 0:
+                remaining <- remaining / prime
+        prime <- prime + 1
+    if remaining > 1:
+        result <- result / remaining * (remaining - 1)
+    result
+
+def reduce_order(base: i64, modulus: i64, initial_order: i64) -> i64:
+    remaining: mutable i64 = initial_order
+    order: mutable i64 = initial_order
+    prime: mutable i64 = 2
+    while prime * prime <= remaining:
+        if remaining % prime == 0:
+            while remaining % prime == 0:
+                remaining <- remaining / prime
+            while order % prime == 0 and pow_mod_i64(base, order / prime, modulus) == 1:
+                order <- order / prime
+        prime <- prime + 1
+    if remaining > 1:
+        while order % remaining == 0 and pow_mod_i64(base, order / remaining, modulus) == 1:
+            order <- order / remaining
+    order
+
+def multiplicative_order_impl(input: view[i64]) -> i64:
+    if input.len() != 2: return -1
+    let base: i64 = input[0]
+    let modulus: i64 = input[1]
+    if modulus < 2 or modulus > 1000 or base < 0 or base >= modulus: return -1
+    if gcd_i64(base, modulus) != 1: return 0
+    reduce_order(base, modulus, totient_i64(modulus))
+
+export fn multiplicative_order(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    multiplicative_order_impl(input[0:length])

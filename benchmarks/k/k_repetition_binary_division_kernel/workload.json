@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "k-repetition-binary-division-kernel-i64-array-bytes-output-v1",
+  "algorithm": "k_repetition_binary_division_kernel",
+  "function_symbol": "k_repetition_binary_division_kernel",
+  "abi": "i64_array_bytes_output",
+  "description": "Run the bounded copy-overlap LZ binary-division stage for maximal K-mismatch global repetitions.",
+  "source": {
+    "title": "Approximate Tandem Repeats",
+    "encyclopedia_chapter": 24,
+    "encyclopedia_doi": "10.1007/978-1-4939-2864-4_24",
+    "paper": "Finding Approximate Repetitions under Hamming Distance",
+    "paper_doi": "10.1016/S0304-3975(02)00448-6",
+    "technical_report": "INRIA RR-4163 (2001), section 3, Algorithm 1 and binary-division stage",
+    "reuse": "Algorithm definitions and ideas only; package implementation and fixtures are clean-room."
+  },
+  "contract": {
+    "input_layout": "[n,K,w0,...,w(n-1)]",
+    "text_length": [1, 32],
+    "mismatch_budget": [0, 3],
+    "symbol_range": [0, 4],
+    "terminal_precondition": "The last symbol occurs exactly once in the text.",
+    "lz_factorization": "Copy-overlap Lempel-Ziv factorization: each factor is the shortest prefix of the remaining suffix with no earlier occurrence, where earlier occurrences may overlap the current factor.",
+    "block_rule": "Partition the factor sequence into consecutive blocks of at most K+2 factors.",
+    "recursion_rule": "For each block interval [first,last] with first<last, choose mid=floor((first+last)/2), run Algorithm 1 on the interval at the head of factor mid, discard repetitions touching the interval's final factor head or containing its first character, then recurse on [first,mid] and [mid+1,last].",
+    "output_scope": "Union of the intra-block binary-division-stage outputs only; block-head and within-factor stages are excluded.",
+    "maximality": "A returned global repetition has length at least 2*period, at most K mismatching shifted pairs, and cannot be extended by one text symbol on either side while preserving the mismatch bound within its recursive interval.",
+    "output_encoding": "Little-endian signed-64 words [record_count,(start,length,period,mismatches)*record_count], sorted by start, length, then period.",
+    "position_base": 0,
+    "invalid_result": -1,
+    "null_or_short_output_result": -2,
+    "validation_order": "Validate the complete input frame before checking output nullness or capacity; error results write no bytes."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,K,w0,...,w(n-1)]",
+    "n_range": [1, 32],
+    "K_range": [0, 3],
+    "symbol_range": [0, 4],
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "encoding": "little-endian signed-64 count followed by four signed-64 fields per record",
+    "record_order": ["start", "length", "period", "mismatches"],
+    "maximum_records": 2856,
+    "maximum_output_bytes": 91400,
+    "success_result": "number of bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 8192,
+    "accounting": "The primary uses a 2,176-byte candidate bitset, fixed text and factor-boundary arrays, a bounded reverse view, and logarithmic recursion state; caller buffers are excluded."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "one-character-unique-terminal",
+      "input_values": [1, 0, 4],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "short-block-no-split-pivot",
+      "input_values": [3, 0, 0, 0, 4],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "binary-division-two-maximal-near-pivot-repetitions",
+      "input_values": [8, 1, 1, 0, 1, 0, 1, 0, 1, 4],
+      "input_length": 10,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "020000000000000001000000000000000200000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "invalid-budget",
+      "input_values": [1, 4, 4],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-terminal-not-unique",
+      "input_values": [3, 0, 0, 4, 0],
+      "input_length": 5,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-symbol-range",
+      "input_values": [1, 0, 5],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-trailing-word",
+      "input_values": [1, 0, 4, 99],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-before-short-output",
+      "input_values": [1, 4, 4],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [8, 1, 1, 0, 1, 0, 1, 0, 1, 4],
+      "input_length": 10,
+      "output_capacity": 71,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [8, 1, 1, 0, 1, 0, 1, 0, 1, 4],
+      "input_length": 10,
+      "output_capacity": 72,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 91400,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 module binary_heap_indexed_operations;
 const long I32_MIN = -2147483648;
 const long I32_MAX = 2147483647;
-fn void put_i64(char* out, usz slot, long value) { ulong bits = @bitcast(ulong, value); for (usz b=0;b<8;b++) { out[slot*8+b]=(char)(bits&255); bits>>=8; } }
+fn void put_i64(char* out, usz slot, long value) { ulong bits = bitcast(value, ulong); for (usz b=0;b<8;b++) { out[slot*8+b]=(char)(bits&255); bits>>=8; } }
 fn void down(long* h, usz n, usz i) { while (true) { usz l=2*i+1,r=l+1,s=i; if(l<n&&h[l]<h[s])s=l; if(r<n&&h[r]<h[s])s=r; if(s==i)return; long t=h[i];h[i]=h[s];h[s]=t;i=s; } }
 fn void up(long* h, usz i) { while(i>0) { usz p=(i-1)/2; if(h[p]<=h[i])return; long t=h[i];h[i]=h[p];h[p]=t;i=p; } }
 fn long binary_heap_indexed_operations(long* v, usz n, char* out, usz cap) @export("binary_heap_indexed_operations") {

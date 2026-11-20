@@ -1,0 +1,50 @@
+const CCM_MAX_MULTIPLIER: i64 = 950560
+
+def ccm_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value % 2 == 0:
+        return value == 2
+    divisor: mutable i64 = 3
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 2
+    true
+
+def ccm_factors_are_prime(n: i64, multiplier: i64) -> bool:
+    if not ccm_is_prime(6 * multiplier + 1):
+        return false
+    if not ccm_is_prime(12 * multiplier + 1):
+        return false
+
+    power_of_two: mutable i64 = 2
+    factor_index: mutable i64 = 1
+    while factor_index <= n - 2:
+        if not ccm_is_prime(9 * multiplier * power_of_two + 1):
+            return false
+        power_of_two <- power_of_two * 2
+        factor_index <- factor_index + 1
+    true
+
+def chernick_carmichael_least_multiplier_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+    n: i64 = input[0]
+    if n < 3 or n > 9:
+        return -1
+
+    step: mutable i64 = 1
+    if n > 4:
+        step <- 1 << (n - 4)
+    if n > 5:
+        step <- step * 5
+
+    multiplier: mutable i64 = step
+    while multiplier <= CCM_MAX_MULTIPLIER:
+        if ccm_factors_are_prime(n, multiplier):
+            return multiplier
+        multiplier <- multiplier + step
+    -1
+
+export fn chernick_carmichael_least_multiplier(input: i64&, length: usize) -> i64 = chernick_carmichael_least_multiplier_impl

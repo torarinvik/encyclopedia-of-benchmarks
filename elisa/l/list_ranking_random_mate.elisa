@@ -1,0 +1,132 @@
+const RANDOM_MATE_MAX_N: usize = 8
+const RANDOM_MATE_MAX_ROUNDS: usize = 32
+const RANDOM_MATE_MAX_INPUT: usize = 275
+const RANDOM_MATE_MAX_OUTPUT: usize = 64
+
+def random_mate_put64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+export fn list_ranking_random_mate(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > RANDOM_MATE_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    head_value: i64 = input[1]
+    if n_value < 1 or n_value > 8 or head_value < 0 or head_value >= n_value: return -1
+    n: usize = n_value.usize()
+    head: usize = head_value.usize()
+    if length < 3 + 2 * n: return -1
+    rounds_value: i64 = input[2 + 2 * n]
+    if rounds_value < 0 or rounds_value > RANDOM_MATE_MAX_ROUNDS.i64() or
+            length != 3 + 2 * n + rounds_value.usize() * n: return -1
+    rounds: usize = rounds_value.usize()
+
+    weight: mutable i64[RANDOM_MATE_MAX_N] = zeroed
+    successor: mutable i64[RANDOM_MATE_MAX_N] = zeroed
+    indegree: mutable usize[RANDOM_MATE_MAX_N] = zeroed
+    tails: mutable usize = 0
+    index: mutable usize = 0
+    while index < n:
+        weight[index] <- input[2 + index]
+        successor[index] <- input[2 + n + index]
+        if weight[index] < 1 or weight[index] > 10000 or successor[index] < -1 or successor[index] >= n_value:
+            return -1
+        if successor[index] == -1:
+            tails <- tails + 1
+        else:
+            target: usize = successor[index].usize()
+            indegree[target] <- indegree[target] + 1
+            if indegree[target] > 1: return -1
+        index <- index + 1
+    if tails != 1 or indegree[head] != 0: return -1
+
+    coin_start: usize = 3 + 2 * n
+    tape_index: mutable usize = 0
+    while tape_index < rounds * n:
+        coin: i64 = input[coin_start + tape_index]
+        if coin < 0 or coin > 1: return -1
+        tape_index <- tape_index + 1
+
+    seen: mutable bool[RANDOM_MATE_MAX_N] = zeroed
+    path_length: mutable usize = 0
+    node: mutable i64 = head_value
+    while node != -1:
+        current: usize = node.usize()
+        if seen[current] or path_length == n: return -1
+        seen[current] <- true
+        path_length <- path_length + 1
+        node <- successor[current]
+    if path_length != n: return -1
+
+    active: mutable bool[RANDOM_MATE_MAX_N] = zeroed
+    removal_round: mutable i64[RANDOM_MATE_MAX_N] = zeroed
+    index <- 0
+    while index < n:
+        active[index] <- true
+        removal_round[index] <- -1
+        index <- index + 1
+    round: mutable usize = 0
+    while round < rounds and successor[head] != -1:
+        old_successor: mutable i64[RANDOM_MATE_MAX_N] = zeroed
+        old_weight: mutable i64[RANDOM_MATE_MAX_N] = zeroed
+        remove: mutable bool[RANDOM_MATE_MAX_N] = zeroed
+        index <- 0
+        while index < n:
+            old_successor[index] <- successor[index]
+            old_weight[index] <- weight[index]
+            index <- index + 1
+        coin_offset: usize = coin_start + round * n
+        index <- 0
+        while index < n:
+            target_value: i64 = old_successor[index]
+            if active[index] and target_value != -1 and input[coin_offset + index] == 0 and
+                    input[coin_offset + target_value.usize()] == 1:
+                target: usize = target_value.usize()
+                remove[target] <- true
+                removal_round[target] <- round.i64()
+            index <- index + 1
+        index <- 0
+        while index < n:
+            target_value <- old_successor[index]
+            if active[index] and target_value != -1 and remove[target_value.usize()]:
+                target <- target_value.usize()
+                weight[index] <- old_weight[index] + old_weight[target]
+                successor[index] <- old_successor[target]
+            index <- index + 1
+        index <- 0
+        while index < n:
+            if remove[index]: active[index] <- false
+            index <- index + 1
+        round <- round + 1
+    if successor[head] != -1: return -1
+
+    rank: mutable i64[RANDOM_MATE_MAX_N] = zeroed
+    index <- 0
+    while index < n:
+        rank[index] <- weight[index]
+        index <- index + 1
+    remaining: mutable usize = rounds
+    while remaining > 0:
+        remaining <- remaining - 1
+        index <- 0
+        while index < n:
+            if removal_round[index] == remaining.i64() and successor[index] != -1:
+                target: usize = successor[index].usize()
+                rank[index] <- rank[index] + rank[target]
+            index <- index + 1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes: return -2
+    staged: mutable u8[RANDOM_MATE_MAX_OUTPUT] = zeroed
+    index <- 0
+    while index < n:
+        random_mate_put64(rank[index], staged&, 8 * index)
+        index <- index + 1
+    index <- 0
+    while index < output_bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    output_bytes.i64()

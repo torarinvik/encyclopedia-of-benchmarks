@@ -15,7 +15,7 @@ fn void put_i64_le(char* output, usz offset, long value) {
     }
 }
 
-long dial_bucket_shortest_paths(long* input, usz length, char* output, usz capacity)
+fn long dial_bucket_shortest_paths(long* input, usz length, char* output, usz capacity)
         @export("dial_bucket_shortest_paths") {
     if (input == null || length < 3 || length > 196) return -1;
     long n64 = input[0], m64 = input[1], source64 = input[2];

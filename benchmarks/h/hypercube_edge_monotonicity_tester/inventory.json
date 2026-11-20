@@ -1,0 +1,23 @@
+{
+  "algorithm": "hypercube_edge_monotonicity_tester",
+  "abi": "i64_array_bytes_output",
+  "primary_reference": "primary_oracle.py",
+  "independent_reference": "independent_oracle.py",
+  "workload": "workload.json",
+  "rights": "RIGHTS.md",
+  "ports": [
+    "c/h/hypercube_edge_monotonicity_tester.c",
+    "c3/h/hypercube_edge_monotonicity_tester.c3",
+    "cpp/h/hypercube_edge_monotonicity_tester.cpp",
+    "elisa/h/hypercube_edge_monotonicity_tester.elisa",
+    "mojo/h/hypercube_edge_monotonicity_tester.mojo",
+    "nim/h/hypercube_edge_monotonicity_tester.nim",
+    "odin/h/hypercube_edge_monotonicity_tester.odin",
+    "rust/h/hypercube_edge_monotonicity_tester.rs",
+    "v/h/hypercube_edge_monotonicity_tester.v",
+    "zig/h/hypercube_edge_monotonicity_tester.zig"
+  ],
+  "workspace_bytes": 1024,
+  "maximum_input_words": 130,
+  "maximum_output_bytes": 24
+}

@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "cp-algorithms-bounded-knapsack-binary-grouping-i64-array-scalar-v1",
+  "algorithm": "bounded_knapsack_binary_grouping",
+  "function_symbol": "bounded_knapsack_binary_grouping",
+  "abi": "i64_array_scalar",
+  "description": "Maximize bounded-multiplicity knapsack value by binary bundle expansion and descending 0/1 updates.",
+  "source": {
+    "title": "Knapsack Problem",
+    "section": "Multiple Knapsack / Binary Grouping Optimization",
+    "url": "https://cp-algorithms.com/dynamic_programming/knapsack.html#binary-grouping-optimization",
+    "license": "CC BY-SA 4.0 source consulted for the algorithmic idea only; implementation and fixtures are clean-room",
+    "algorithm_attribution": "Decompose each finite multiplicity into power-of-two bundles and a final remainder, then process each bundle once as a 0/1 item.",
+    "implementation_status": "bounded clean-room binary-grouping profile"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,capacity,(weight,value,count)*n]",
+    "item_type_count_range": [0, 16],
+    "capacity_range": [0, 64],
+    "weight_range": [1, 16],
+    "value_range": [0, 100],
+    "count_range": [0, 16],
+    "zero_count_valid": true,
+    "zero_value_valid": true,
+    "maximum_valid_length": 50,
+    "maximum_parseable_length": 51,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "maximum total value using at most capacity",
+    "valid_result_range": [0, 6400],
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "A fixed capacity DP array of 65 signed 64-bit values and scalar bundle state; bundles are processed as they are generated."
+  },
+  "contract": {
+    "primary_method": "For each item type, split its count into bundles of sizes 1,2,4,... and a final remainder so every copy count from zero through the bound is representable. Apply each bundle as a 0/1 item by scanning capacity downward.",
+    "independent_method": "For each item type, fill a fresh capacity-DP row by trying each allowed copy count directly against the previous row.",
+    "zero_count_and_value": "Both are valid; a zero count emits no bundle and zero-valued bundles do not change the optimum.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "primary_oracle": "benchmarks/b/bounded_knapsack_binary_grouping/primary_oracle.py",
+  "independent_oracle": "benchmarks/b/bounded_knapsack_binary_grouping/independent_oracle.py",
+  "cases": [
+    {"id":"no-item-types","input_values":[0,50],"input_length":2,"expected_result":0},
+    {"id":"zero-capacity","input_values":[1,0,1,7,3],"input_length":5,"expected_result":0},
+    {"id":"single-type-all-copies-fit","input_values":[1,6,2,7,3],"input_length":5,"expected_result":21},
+    {"id":"non-power-of-two-remainder-bundle","input_values":[1,13,3,4,5],"input_length":5,"expected_result":16},
+    {"id":"competing-item-types","input_values":[2,10,3,7,3,4,8,3],"input_length":8,"expected_result":22},
+    {"id":"zero-count-valid","input_values":[1,20,1,100,0],"input_length":5,"expected_result":0},
+    {"id":"zero-value-valid","input_values":[1,20,1,0,16],"input_length":5,"expected_result":0},
+    {"id":"equal-value-alternatives","input_values":[2,5,1,2,5,2,4,1],"input_length":8,"expected_result":10},
+    {"id":"maximum-capacity-and-result",
+      "input_values":[16,64,
+        1,100,16,1,100,16,1,100,16,1,100,16,
+        1,100,16,1,100,16,1,100,16,1,100,16,
+        1,100,16,1,100,16,1,100,16,1,100,16,
+        1,100,16,1,100,16,1,100,16,1,100,16],
+      "input_length":50,"expected_result":6400},
+    {"id":"trailing-word","input_values":[1,4,2,3,2,0],"input_length":6,"expected_result":-1},
+    {"id":"maximum-parseable-trailing-word",
+      "input_values":[16,64,
+        1,100,16,1,100,16,1,100,16,1,100,16,
+        1,100,16,1,100,16,1,100,16,1,100,16,
+        1,100,16,1,100,16,1,100,16,1,100,16,
+        1,100,16,1,100,16,1,100,16,1,100,16,9],
+      "input_length":51,"expected_result":-1},
+    {"id":"item-type-count-over-profile","input_values":[17,4],"input_length":2,"expected_result":-1},
+    {"id":"negative-capacity","input_values":[0,-1],"input_length":2,"expected_result":-1},
+    {"id":"capacity-over-profile","input_values":[0,65],"input_length":2,"expected_result":-1},
+    {"id":"zero-weight-invalid","input_values":[1,4,0,3,1],"input_length":5,"expected_result":-1},
+    {"id":"weight-over-profile","input_values":[1,4,17,3,1],"input_length":5,"expected_result":-1},
+    {"id":"negative-value-invalid","input_values":[1,4,1,-1,1],"input_length":5,"expected_result":-1},
+    {"id":"value-over-profile","input_values":[1,4,1,101,1],"input_length":5,"expected_result":-1},
+    {"id":"negative-count-invalid","input_values":[1,4,1,2,-1],"input_length":5,"expected_result":-1},
+    {"id":"count-over-profile","input_values":[1,4,1,2,17],"input_length":5,"expected_result":-1},
+    {"id":"truncated-record","input_values":[2,8,2,5,3],"input_length":5,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

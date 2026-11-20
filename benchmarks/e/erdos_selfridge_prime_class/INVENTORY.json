@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "algorithm": "erdos_selfridge_prime_class",
+  "function_symbol": "erdos_selfridge_prime_class",
+  "abi": "i64_array_scalar",
+  "status": "package and shared scalar suite integration complete",
+  "native_paths": [
+    "c/e/erdos_selfridge_prime_class.c",
+    "c3/e/erdos_selfridge_prime_class.c3",
+    "cpp/e/erdos_selfridge_prime_class.cpp",
+    "elisa/e/erdos_selfridge_prime_class.elisa",
+    "mojo/e/erdos_selfridge_prime_class.mojo",
+    "nim/e/erdos_selfridge_prime_class.nim",
+    "odin/e/erdos_selfridge_prime_class.odin",
+    "rust/e/erdos_selfridge_prime_class.rs",
+    "v/e/erdos_selfridge_prime_class.v",
+    "zig/e/erdos_selfridge_prime_class.zig"
+  ],
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_prime": 100000,
+    "maximum_selected_neighbor": 100001,
+    "maximum_class": 17,
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "workspace_bytes": 4096
+  },
+  "references": [
+    {
+      "role": "primary",
+      "method": "Recursive class evaluation over the distinct factors of p plus or minus one, factoring with trial division."
+    },
+    {
+      "role": "independent",
+      "method": "Sieve primes and compute plus or minus classes bottom-up with a smallest-prime-factor table."
+    }
+  ],
+  "sources": [
+    {
+      "role": "plus_class_definition",
+      "title": "OEIS A126433, plus class of prime(n)",
+      "url": "https://oeis.org/A126433/internal"
+    },
+    {
+      "role": "minus_class_definition",
+      "title": "OEIS A126805, minus class of prime(n)",
+      "url": "https://oeis.org/A126805/internal"
+    },
+    {
+      "role": "title_discovery_only",
+      "title": "RosettaCodeData popular-tasks at pinned revision",
+      "url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks"
+    }
+  ]
+}
+

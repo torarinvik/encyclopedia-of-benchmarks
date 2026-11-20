@@ -8,8 +8,8 @@ fn long segmented_sieve(long* input, usz length, char* output, usz capacity) @ex
     if (input == null || length != 1 || input[0] < 2 || input[0] > MAX_N) return -1;
     usz n = (usz)input[0], end = 0;
     while ((end + 1) * (end + 1) <= n) end++;
-    bool base_marks[101] = {};
-    long base[25] = {};
+    bool[101] base_marks = {};
+    long[25] base = {};
     usz base_count = 0;
     for (usz i = 2; i <= end; i++) base_marks[i] = true;
     for (usz p = 2; p <= end; p++) {
@@ -17,12 +17,12 @@ fn long segmented_sieve(long* input, usz length, char* output, usz capacity) @ex
         base[base_count++] = (long)p;
         for (usz m = p * p; m <= end; m += p) base_marks[m] = false;
     }
-    long primes[1229] = {};
+    long[1229] primes = {};
     usz prime_count = 0;
     for (usz i = 0; i < base_count; i++) primes[prime_count++] = base[i];
     usz low = end + 1, high = 2 * end < n ? 2 * end : n;
     while (low <= n) {
-        bool segment[201] = {};
+        bool[201] segment = {};
         usz segment_length = high - low + 1;
         for (usz i = 0; i < segment_length; i++) segment[i] = true;
         for (usz i = 0; i < base_count; i++) {

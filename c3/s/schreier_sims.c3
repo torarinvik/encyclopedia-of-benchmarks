@@ -130,12 +130,12 @@ fn bool read_permutation(long* input, usz offset, usz n, Code* result) {
     *result = encode(&images[0], n);
     return true;
 }
-fn void store_le(uint8* output, usz offset, long value) {
+fn void store_le(char* output, usz offset, long value) {
     ulong bits = ulong(value);
-    for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = uint8(bits & 255); bits >>= 8; }
+    for (usz byte = 0; byte < 8; byte++) { output[offset + byte] = (char)(bits & 255); bits >>= 8; }
 }
 
-fn long schreier_sims(long* input, usz length, uint8* output, usz capacity) @export("schreier_sims") {
+fn long schreier_sims(long* input, usz length, char* output, usz capacity) @export("schreier_sims") {
     if (input == null || length < 3 || length > MAX_INPUT) return -1;
     long nv = input[0], mv = input[1], qv = input[2];
     if (nv < 1 || nv > long(MAX_N) || mv < 0 || mv > long(MAX_GENERATORS) || qv < 1 || qv > long(MAX_QUERIES)) return -1;

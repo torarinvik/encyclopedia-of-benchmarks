@@ -11,7 +11,7 @@ fn long spigotpi(long* input, usz length, char* output, usz output_capacity)
 	if (digit_count == 0) return 0;
 
 	usz boxes = digit_count * 10 / 3;
-	long remainders[MAX_BOXES] = {0};
+	long[MAX_BOXES] remainders = {};
 	for (usz item = 0; item < boxes; item++) remainders[item] = 2;
 	usz digits_held = 0;
 	for (usz index = 0; index < digit_count; index++) {

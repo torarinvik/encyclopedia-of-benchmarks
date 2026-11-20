@@ -5,33 +5,33 @@ const MAX_OUTPUT: usize = 17
 
 def games_on_arbitrary_graphs_impl(input: view[i64], output: mutable view[u8],
                                    capacity: usize, output_is_null: bool) -> i64:
-    let length = input.len()
+    length: usize = input.len()
     if length < 2 or length > MAX_INPUT: return -1
-    let nv = input[0]
-    let me = input[1]
+    nv: i64 = input[0]
+    me: i64 = input[1]
     if nv < 0 or nv > MAX_V.i64() or me < 0 or me > MAX_E.i64(): return -1
-    let n = nv.usize()
-    let m = me.usize()
+    n: usize = nv.usize()
+    m: usize = me.usize()
     if length != 2 + 2 * m: return -1
 
-    var outmask: mutable u16[MAX_V] = zeroed
-    var head: mutable i32[MAX_V] = zeroed
-    var edge_source: mutable usize[MAX_E] = zeroed
-    var edge_next: mutable i32[MAX_E] = zeroed
-    var remaining: mutable usize[MAX_V] = zeroed
-    var status: mutable u8[MAX_V] = zeroed
-    var queue: mutable usize[MAX_V] = zeroed
-    var staged: mutable u8[MAX_OUTPUT] = zeroed
+    outmask: mutable u16[MAX_V] = zeroed
+    head: mutable i32[MAX_V] = zeroed
+    edge_source: mutable usize[MAX_E] = zeroed
+    edge_next: mutable i32[MAX_E] = zeroed
+    remaining: mutable usize[MAX_V] = zeroed
+    status: mutable u8[MAX_V] = zeroed
+    queue: mutable usize[MAX_V] = zeroed
+    staged: mutable u8[MAX_OUTPUT] = zeroed
     for v in 0..<n: head[v] <- -1
 
-    var unique_edges: mutable usize = 0
+    unique_edges: mutable usize = 0
     for i in 0..<m:
-        let sv = input[2 + 2 * i]
-        let tv = input[3 + 2 * i]
+        sv: i64 = input[2 + 2 * i]
+        tv: i64 = input[3 + 2 * i]
         if sv < 0 or sv >= nv or tv < 0 or tv >= nv: return -1
-        let s = sv.usize()
-        let t = tv.usize()
-        let bit = (1u16 << t)
+        s: usize = sv.usize()
+        t: usize = tv.usize()
+        bit: u16 = 1.u16() << t
         if (outmask[s] & bit) == 0:
             outmask[s] <- outmask[s] | bit
             edge_source[unique_edges] <- s
@@ -40,20 +40,20 @@ def games_on_arbitrary_graphs_impl(input: view[i64], output: mutable view[u8],
             unique_edges <- unique_edges + 1
             remaining[s] <- remaining[s] + 1
 
-    var first: mutable usize = 0
-    var count: mutable usize = 0
+    first: mutable usize = 0
+    count: mutable usize = 0
     for v in 0..<n:
         if remaining[v] == 0:
             status[v] <- 2
             queue[count] <- v
             count <- count + 1
     while first < count:
-        let resolved = queue[first]
+        resolved: usize = queue[first]
         first <- first + 1
-        var edge: mutable i32 = head[resolved]
+        edge: mutable i32 = head[resolved]
         while edge != -1:
-            let edge_index = edge.usize()
-            let predecessor = edge_source[edge_index]
+            edge_index: usize = edge.usize()
+            predecessor: usize = edge_source[edge_index]
             if status[predecessor] == 0:
                 if status[resolved] == 2:
                     status[predecessor] <- 1
@@ -69,15 +69,17 @@ def games_on_arbitrary_graphs_impl(input: view[i64], output: mutable view[u8],
 
     staged[0] <- n.u8()
     for v in 0..<n: staged[v + 1] <- status[v]
-    let needed = n + 1
+    needed: usize = n + 1
     if output_is_null or capacity < needed: return -2
     for i in 0..<needed: output[i] <- staged[i]
     needed.i64()
 
-def games_on_arbitrary_graphs(input: i64&, length: usize,
-                              output: mutable u8&, capacity: usize) -> i64 @export("games_on_arbitrary_graphs"):
-    if input == null or length < 2 or length > MAX_INPUT: return -1
-    if output == null:
-        var scratch: mutable u8[1] = zeroed
-        return games_on_arbitrary_graphs_impl(input[0:length], scratch[0:1], capacity, True)
-    games_on_arbitrary_graphs_impl(input[0:length], output[0:capacity], capacity, False)
+export fn games_on_arbitrary_graphs(input: i64&, length: usize,
+                                    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    if output.is_null():
+        scratch: mutable u8[1] = zeroed
+        return games_on_arbitrary_graphs_impl(input[0:length], scratch[0:1], capacity, true)
+    output_length: mutable usize = capacity
+    if output_length > MAX_OUTPUT: output_length <- MAX_OUTPUT
+    games_on_arbitrary_graphs_impl(input[0:length], output[0:output_length], capacity, false)

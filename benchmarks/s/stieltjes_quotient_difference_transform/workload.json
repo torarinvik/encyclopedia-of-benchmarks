@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "stieltjes-quotient-difference-f998244353-v1",
+  "algorithm": "stieltjes_quotient_difference_transform",
+  "function_symbol": "stieltjes_quotient_difference_transform",
+  "abi": "i64_array_bytes_output",
+  "description": "Convert a finite nonzero coefficient prefix into S-fraction coefficients via the Q-D rhombus rule over F_998244353.",
+  "source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.10(ii), Eqs. 3.10.8–3.10.10",
+    "url": "https://dlmf.nist.gov/3.10#E8",
+    "role": "primary Q-D recurrence and S-fraction output mapping"
+  },
+  "contract": {
+    "operation": "Apply the quotient-difference rhombus recurrence to c0..c_(N-1), then emit a0=c0, a_(2j-1)=q_j^0, a_(2j)=e_j^0 for indices below N.",
+    "field_modulus": 998244353,
+    "input_encoding": "[N,c0,...,c_(N-1)]",
+    "N_range": [2, 9],
+    "coefficient_range": [1, 998244352],
+    "exact_input_length": "N+1",
+    "retained_q_cells": "q_1^k for 0<=k<N-1; q_(j+1)^k for j>=1 and 0<=k<=N-2j-2",
+    "retained_e_cells": "e_j^k for j>=1 and 0<=k<=N-2j-1",
+    "zero_pivot": "Any e_j^k used as a divisor in a required q update being zero invalidates the entire input and returns -1 before output capacity.",
+    "output_encoding": "[N,a0,...,a_(N-1)] as little-endian signed-i64 words; residues are canonical in [0,p-1].",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors_write_nothing": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[N,c0,...,c_(N-1)]",
+    "minimum_valid_length": 3,
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 11,
+    "coefficient_range": [1, 998244352],
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_words_bytes",
+    "encoding": "[N,a0,...,a_(N-1)]",
+    "maximum_bytes": 80,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 720,
+    "description": "Two fixed 5x9 signed-i64 tables retain q and e cells; inputs and caller output storage are excluded."
+  },
+  "complexity": {
+    "primary_time": "O(N^2 log p) modular operations with exponentiation-based inverses",
+    "independent_time": "O(N^2 * 5!) modular operations using cached Leibniz determinants of size at most 5",
+    "space": "720 bytes primary tables; O(N^2) independent determinant cache"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-coefficient-prefix",
+      "input_values": [2, 1, 2],
+      "input_length": 3,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "020000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "order-two-rhombus-output",
+      "input_values": [3, 1, 2, 6],
+      "input_length": 4,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000010000000000000002000000000000000100000000000000"
+    },
+    {
+      "id": "zero-e-cell-at-final-order",
+      "input_values": [3, 1, 2, 4],
+      "input_length": 4,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000010000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "zero-required-division-pivot",
+      "input_values": [4, 1, 2, 4, 8],
+      "input_length": 5,
+      "output_capacity": 40,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "four-coefficient-prefix",
+      "input_values": [4, 1, 2, 6, 24],
+      "input_length": 5,
+      "output_capacity": 40,
+      "expected_result": 40,
+      "expected_output_hex": "04000000000000000100000000000000020000000000000001000000000000000300000000000000"
+    },
+    {
+      "id": "five-coefficient-prefix",
+      "input_values": [5, 1, 2, 6, 24, 120],
+      "input_length": 6,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "050000000000000001000000000000000200000000000000010000000000000003000000000000000200000000000000"
+    },
+    {
+      "id": "largest-field-residue",
+      "input_values": [2, 998244352, 1],
+      "input_length": 3,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "02000000000000000000803b000000000000803b00000000"
+    },
+    {
+      "id": "maximum-valid-frame-and-output",
+      "input_values": [9, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880],
+      "input_length": 10,
+      "output_capacity": 80,
+      "expected_result": 80,
+      "expected_output_hex": "0900000000000000010000000000000002000000000000000100000000000000030000000000000002000000000000000400000000000000030000000000000005000000000000000400000000000000"
+    },
+    {
+      "id": "maximum-output-one-byte-short",
+      "input_values": [9, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880],
+      "input_length": 10,
+      "output_capacity": 79,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum-parseable-trailing-word",
+      "input_values": [9, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 1],
+      "input_length": 11,
+      "output_capacity": 80,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-coefficient",
+      "input_values": [2, 1, 0],
+      "input_length": 3,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coefficient-outside-canonical-field",
+      "input_values": [2, 1, 998244353],
+      "input_length": 3,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input-buffer",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output-buffer",
+      "input_values": [2, 1, 2],
+      "input_length": 3,
+      "output_capacity": 24,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

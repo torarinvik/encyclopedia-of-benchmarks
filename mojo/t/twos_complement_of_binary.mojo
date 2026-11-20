@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 @export("twos_complement_of_binary")
 fn twos_complement_of_binary(n:Int64) abi("C")->Int64:
     if n<0 or n>1111111111111111:return -1

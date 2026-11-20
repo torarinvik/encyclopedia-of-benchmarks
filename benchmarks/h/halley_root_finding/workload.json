@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0.0",
+  "id": "nist-dlmf-halley-cube-root-two-f64-pair-v1",
+  "algorithm": "halley_root_finding",
+  "function_symbol": "halley_root_finding",
+  "description": "Apply a bounded number of Halley updates to f(x)=x^3-2 and return the final iterate.",
+  "pinned_source": {
+    "title": "NIST Digital Library of Mathematical Functions, §3.8(v), Halley's rule, Eq. 3.8.12",
+    "url": "https://dlmf.nist.gov/3.8#E12",
+    "role": "algorithm description only; the fixed polynomial profile is local"
+  },
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["initial_x", "iteration_count"],
+    "initial_x_range": [0.5, 2.0],
+    "iteration_count_range": [0.0, 8.0],
+    "iteration_count_integral": true,
+    "equation": "f(x)=x^3-2",
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "The value after exactly iteration_count Halley updates, with no early stopping rule.",
+    "invalid_input_result": -1.0
+  },
+  "references": {
+    "primary": "benchmarks/h/halley_root_finding/primary_oracle.py",
+    "independent": "benchmarks/h/halley_root_finding/independent_oracle.py"
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "zero-updates", "input_values": [1.5, 0.0], "expected_result": 1.5},
+    {"id": "one-update-from-one", "input_values": [1.0, 1.0], "expected_result": 1.25},
+    {"id": "two-updates-from-one", "input_values": [1.0, 2.0], "expected_result": 1.259920634920635},
+    {"id": "lower-initial-bound", "input_values": [0.5, 1.0], "expected_result": 0.9166666666666666},
+    {"id": "upper-initial-bound", "input_values": [2.0, 1.0], "expected_result": 1.3333333333333333},
+    {"id": "eight-updates-converge-to-cube-root-two", "input_values": [1.5, 8.0], "expected_result": 1.2599210498948732},
+    {"id": "fractional-iteration-count", "input_values": [1.0, 1.5], "expected_result": -1.0},
+    {"id": "negative-iteration-count", "input_values": [1.0, -1.0], "expected_result": -1.0},
+    {"id": "iteration-count-above-bound", "input_values": [1.0, 9.0], "expected_result": -1.0},
+    {"id": "initial-value-below-bound", "input_values": [0.49, 1.0], "expected_result": -1.0},
+    {"id": "initial-value-above-bound", "input_values": [2.01, 1.0], "expected_result": -1.0}
+  ]
+}

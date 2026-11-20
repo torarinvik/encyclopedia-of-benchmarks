@@ -9,8 +9,8 @@ const usz MAX_DELETES = 1024;
 const usz MAX_OUTPUT_VALUES = 2 + MAX_QUERIES + MAX_INSERTS;
 
 struct BTree {
-    int[MAX_NODE_COUNT][MAX_NODE_KEYS] keys;
-    usz[MAX_NODE_COUNT][MAX_NODE_KEYS + 1] children;
+    int[MAX_NODE_KEYS][MAX_NODE_COUNT] keys;
+    usz[MAX_NODE_KEYS + 1][MAX_NODE_COUNT] children;
     usz[MAX_NODE_COUNT] key_count;
     bool[MAX_NODE_COUNT] leaf;
     usz used_nodes;

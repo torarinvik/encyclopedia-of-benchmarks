@@ -1,0 +1,93 @@
+# Online rectangle counts using an outer Fenwick tree over x-blocks.
+def fenwick_block_inner_add(trees: mutable view[i64], n: usize, node: usize,
+                            y: i64, delta: i64) -> void:
+    index: mutable usize = y.usize() + 1
+    while index <= n:
+        trees[node * 25 + index] <- trees[node * 25 + index] + delta
+        index <- index + (index & (~index + 1))
+
+def fenwick_block_inner_prefix(trees: view[i64], node: usize, y_limit: i64) -> i64:
+    index: mutable usize = y_limit.usize()
+    total: mutable i64 = 0
+    while index > 0:
+        total <- total + trees[node * 25 + index]
+        index <- index & (index - 1)
+    total
+
+def fenwick_block_prefix_count(ys: view[i64], trees: view[i64], block_size: usize,
+                               x_limit: usize, y_limit: i64) -> i64:
+    full_blocks: usize = x_limit / block_size
+    node: mutable usize = full_blocks
+    total: mutable i64 = 0
+    while node > 0:
+        total <- total + fenwick_block_inner_prefix(trees, node, y_limit)
+        node <- node & (node - 1)
+    x: mutable usize = full_blocks * block_size
+    while x < x_limit:
+        if ys[x] < y_limit: total <- total + 1
+        x <- x + 1
+    total
+
+def fenwick_tree_in_block_array_rectangle_count_impl(input: view[i64]) -> i64:
+    length: usize = input.length
+    if length < 2 or length > 187: return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 24 or q_value < 1 or q_value > 32: return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    operations_at: usize = 2 + n
+    if length != operations_at + 5 * q: return -1
+
+    ys: mutable [24]i64 = [0; 24]
+    for x in 0..<n:
+        ys[x] <- input[2 + x]
+        if ys[x] < 0 or ys[x] >= n_value: return -1
+    for j in 0..<q:
+        at: usize = operations_at + 5 * j
+        kind: i64 = input[at]
+        if kind == 0:
+            if input[at + 1] < 0 or input[at + 1] >= n_value or input[at + 2] < 0 or input[at + 2] >= n_value or input[at + 3] != 0 or input[at + 4] != 0: return -1
+        elif kind == 1:
+            if input[at + 1] < 0 or input[at + 1] > input[at + 2] or input[at + 2] > n_value or input[at + 3] < 0 or input[at + 3] > input[at + 4] or input[at + 4] > n_value: return -1
+        else:
+            return -1
+
+    block_size: mutable usize = 1
+    while block_size * block_size < n: block_size <- block_size + 1
+    block_count: usize = (n + block_size - 1) / block_size
+    trees: mutable [150]i64 = [0; 150]
+    ys_view: mutable view[i64] = ys[0..<24]
+    trees_view: mutable view[i64] = trees[0..<150]
+    for x in 0..<n:
+        node: mutable usize = x / block_size + 1
+        while node <= block_count:
+            fenwick_block_inner_add(trees_view, n, node, ys[x], 1)
+            node <- node + (node & (~node + 1))
+
+    checksum: mutable i64 = 0
+    query_ordinal: mutable i64 = 0
+    for j in 0..<q:
+        at: usize = operations_at + 5 * j
+        if input[at] == 0:
+            x: usize = input[at + 1].usize()
+            new_y: i64 = input[at + 2]
+            node: mutable usize = x / block_size + 1
+            while node <= block_count:
+                fenwick_block_inner_add(trees_view, n, node, ys[x], -1)
+                fenwick_block_inner_add(trees_view, n, node, new_y, 1)
+                node <- node + (node & (~node + 1))
+            ys[x] <- new_y
+        else:
+            x_left: usize = input[at + 1].usize()
+            x_right: usize = input[at + 2].usize()
+            y_low: i64 = input[at + 3]
+            y_high: i64 = input[at + 4]
+            count: i64 = fenwick_block_prefix_count(ys_view, trees_view, block_size, x_right, y_high) - fenwick_block_prefix_count(ys_view, trees_view, block_size, x_left, y_high) - fenwick_block_prefix_count(ys_view, trees_view, block_size, x_right, y_low) + fenwick_block_prefix_count(ys_view, trees_view, block_size, x_left, y_low)
+            query_ordinal <- query_ordinal + 1
+            checksum <- checksum + query_ordinal * count
+    checksum
+
+export fn fenwick_tree_in_block_array_rectangle_count(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 187: return -1
+    fenwick_tree_in_block_array_rectangle_count_impl(input[0:length])

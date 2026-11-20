@@ -23,6 +23,12 @@ consistent with the supplied prefixes and uses coefficient-level divisor
 recurrence; this produces the same queried prefix sums without assuming values
 at unrepresented indices.
 
+The quotient set has at most 15 entries for the local bound `N <= 64`.
+Nested floor quotients remain in that set: for positive integers,
+`floor(floor(N/a)/b) = floor(N/(a*b))`. Thus the grouped recurrence can look
+up its quotient values and group endpoints in the same table. Products of two
+residues plus one residue remain below `998244353²`, and fit in signed i64.
+
 The [Library Checker task](https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/number_theory/dirichlet_inverse_and_prefix_sums/task.md)
 provides the operation idea; its repository declares Apache-2.0. The local
 contract, code, and reference are independently written. No upstream task prose,

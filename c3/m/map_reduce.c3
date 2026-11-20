@@ -23,7 +23,7 @@ fn bool token_equal(long* input, usz start, usz length, usz other_start, usz oth
 }
 
 fn usz write_count(char* output, usz position, usz count) {
-    char digits[3];
+    char[3] digits;
     usz digit_count = 0;
     do {
         digits[digit_count++] = (char)('0' + count % 10);
@@ -41,10 +41,10 @@ fn long map_reduce(long* input, usz length, char* output, usz output_capacity)
         if (!is_space_byte(value) && (value < 32 || value > 126)) return -1;
     }
 
-    usz starts[MAX_WORDS];
-    usz lengths[MAX_WORDS];
-    usz counts[MAX_WORDS] = {0};
-    usz table[TABLE_SIZE] = {0};
+    usz[MAX_WORDS] starts;
+    usz[MAX_WORDS] lengths;
+    usz[MAX_WORDS] counts = {};
+    usz[TABLE_SIZE] table = {};
     usz unique_count = 0, begin = 0, end = length;
     while (begin < end && input[begin] <= 32) begin++;
     while (end > begin && input[end - 1] <= 32) end--;

@@ -1,3 +1,4 @@
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 fn tsm_binary(inout keys:InlineArray[Int64,512],inout ids:InlineArray[Int64,512],start:Int,end:Int,first:Int):
@@ -42,7 +43,7 @@ fn tim_sorter_benchmark(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<1 or n>1026:return -1
     let count0=a[0]
     if count0<0 or count0>512 or n!=c_size_t(1+2*count0):return -1
-    let count=Int(count0);var keys=InlineArray[Int64,512]();var ids=InlineArray[Int64,512]();var seen=InlineArray[Bool,512]()
+    let count=Int(count0);var keys=InlineArray[Int64,512]();var ids=InlineArray[Int64,512]();var seen=InlineArray[Bool,512](fill=False)
     for i in range(count):
         let key=a[1+2*i];let id=a[2+2*i]
         if key< -1000 or key>1000 or id<0 or id>=count0 or seen[Int(id)]:return -1

@@ -1,4 +1,5 @@
 # Independent NetBench CRC profile; see package LICENSE_NOTICE.txt.
+from std.collections import InlineArray
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
 

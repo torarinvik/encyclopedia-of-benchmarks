@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "gregorian-daycount-to-ordinal-date-i64-array-bytes-v1",
+  "algorithm": "gregorian_daycount_to_ordinal_date",
+  "function_symbol": "gregorian_daycount_to_ordinal_date",
+  "abi": "i64_array_bytes_output",
+  "source": {
+    "title": "Convert day count to ordinal date",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "algorithm_reference": "https://howardhinnant.github.io/date_algorithms.html",
+    "calendar_reference": "https://aa.usno.navy.mil/faq/JD_formula.html",
+    "discovery_scope": "The pinned RosettaCodeData index is title discovery only. Hinnant's author-hosted article and USNO calendar material supply algorithm context. This package fixes the epoch, calendar, year numbering, bounds, and output frame independently; no task wording, code, examples, or tests are reused."
+  },
+  "contract": {
+    "input_layout": "[day_offset]",
+    "day_offset_range": [-146097, 146097],
+    "epoch": "1970-01-01 is day offset 0",
+    "calendar": "Proleptic Gregorian calendar with astronomical year numbering",
+    "output_fields": ["calendar_year", "one_based_ordinal_day_of_year"],
+    "output_encoding": "Two little-endian signed-i64 words in the listed field order",
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "validation_precedes_output_capacity": true,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "bytes",
+    "maximum_bytes": 16,
+    "success_bytes": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Bounded scalar era/year/date intermediates and integer encoder state; caller-owned input and output are excluded."
+  },
+  "complexity": {
+    "primary_time": "O(1) 400-year era decomposition",
+    "primary_auxiliary_space": "O(1)",
+    "independent_reference_time": "O(log 801) binary-search iterations",
+    "independent_reference_auxiliary_space": "O(1)"
+  },
+  "oracle": "benchmarks/g/gregorian_daycount_to_ordinal_date/primary_oracle.py",
+  "independent_oracle": "benchmarks/g/gregorian_daycount_to_ordinal_date/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"unix-epoch","input_values":[0],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"b2070000000000000100000000000000"},
+    {"id":"previous-day","input_values":[-1],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"b1070000000000006d01000000000000"},
+    {"id":"common-year-march-start","input_values":[59],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"b2070000000000003c00000000000000"},
+    {"id":"leap-day-1972","input_values":[789],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"b4070000000000003c00000000000000"},
+    {"id":"day-after-leap-day-1972","input_values":[790],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"b4070000000000003d00000000000000"},
+    {"id":"century-leap-year-2000","input_values":[10957],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"d0070000000000000100000000000000"},
+    {"id":"century-common-year-2100-march","input_values":[47541],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"34080000000000003c00000000000000"},
+    {"id":"minimum-offset","input_values":[-146097],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"22060000000000000100000000000000"},
+    {"id":"maximum-offset","input_values":[146097],"input_length":1,"output_capacity":16,"expected_result":16,"expected_output_hex":"42090000000000000100000000000000"},
+    {"id":"out-of-range-low","input_values":[-146098],"input_length":1,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"out-of-range-high","input_values":[146098],"input_length":1,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-word","input_values":[0,1],"input_length":2,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":16,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[0],"input_length":1,"output_capacity":16,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output","input_values":[0],"input_length":1,"output_capacity":15,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

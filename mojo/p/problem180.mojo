@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p180_gcd(left_in:Int64,right_in:Int64)->Int64:
     var left=left_in;var right=right_in
     while right!=0:let rem=left%right;left=right;right=rem

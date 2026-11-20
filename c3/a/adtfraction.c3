@@ -1,7 +1,7 @@
 module adtfraction;
 
-fn int wrap_add(int a, int b) { return @bitcast(int, (uint)a + (uint)b); }
-fn int wrap_mul(int a, int b) { return @bitcast(int, (uint)a * (uint)b); }
+fn int wrap_add(int a, int b) { uint result = (uint)a + (uint)b; return bitcast(result, int); }
+fn int wrap_mul(int a, int b) { uint result = (uint)a * (uint)b; return bitcast(result, int); }
 fn long pack(int n, int d) { return (long)n * 4294967296 + (long)(uint)d; }
 
 fn long adtfraction(long* input, usz length) @export("adtfraction") {
@@ -13,5 +13,5 @@ fn long adtfraction(long* input, usz length) @export("adtfraction") {
     if (op == 1) { if(d==0)return -1; return pack(wrap_mul(n,m),d); }
     if (op == 2) { if(d==0||e==0)return -1; int den=wrap_mul(d,e); if(den==0)return -1; return pack(wrap_mul(n,m),den); }
     if (op == 3) { if(n==0)return -1; return pack(d,n); }
-    if (d==0)return -1; float value=(float)n/(float)d; uint bits=@bitcast(uint,value); return (long)bits;
+    if (d==0)return -1; float value=(float)n/(float)d; uint bits=bitcast(value,uint); return (long)bits;
 }

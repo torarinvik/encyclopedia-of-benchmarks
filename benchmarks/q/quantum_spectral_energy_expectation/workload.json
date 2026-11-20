@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "quantum-spectral-energy-expectation-i64-array-float64-v1",
+  "algorithm": "quantum_spectral_energy_expectation",
+  "function_symbol": "quantum_spectral_energy_expectation",
+  "abi": "i64_array_float64",
+  "description": "Evaluate the normalized Hamiltonian energy expectation for a periodic one-dimensional complex wavefunction using a Fourier spectral kinetic operator.",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[N,V_q[N],psi_re_q[N],psi_im_q[N]]",
+    "minimum_N": 2,
+    "maximum_N": 32,
+    "N_must_be_power_of_two": true,
+    "maximum_valid_input_length": 97,
+    "maximum_parseable_input_length": 98,
+    "fixed_point_scale": 256,
+    "grid": "Periodic interval of unit length with dx=1/N; hbar=m=1.",
+    "potential_q_bounds": [-2048, 2048],
+    "wavefunction_component_q_bounds": [-2048, 2048],
+    "normalization": "sum(psi_re_q[j]^2+psi_im_q[j]^2)=256^2*N",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "Expectation value E=(1/N)*sum_j Re(conj(psi[j])*(Tpsi[j]+V[j]*psi[j])).",
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-10,
+    "invalid_input_result": -1e300
+  },
+  "arithmetic": {
+    "frequencies": "f_j=j for j<=N/2 and f_j=j-N otherwise; k_j=2*pi*f_j.",
+    "kinetic_operator": "Tpsi=IFFT((k_j^2/2)*FFT(psi)); forward transform is unnormalized and inverse transform is normalized by N.",
+    "potential": "V[j]=V_q[j]/256 and psi[j]=(psi_re_q[j]+i*psi_im_q[j])/256."
+  },
+  "complexity": {
+    "time": "O(N log N)",
+    "auxiliary_space": "O(N)",
+    "independent_reference": "O(N^2) direct DFT and inverse-DFT sums with O(N) scratch."
+  },
+  "provenance": {
+    "source": "Algorithm Archive, Quantum Systems chapter, Energy Calculations section.",
+    "url": "https://www.algorithm-archive.org/contents/quantum_systems/quantum_systems.html",
+    "use": "Algorithm idea only; no source code, prose, examples, figures, or tests reused.",
+    "license_review": "The Archive identifies example code as MIT and chapter text as CC BY-SA 4.0; this package contains clean-room implementations."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-10
+  },
+  "cases": [
+    {"id":"constant-state-potential-average","input_values":[2,256,512,256,256,0,0],"input_length":7,"expected_result":1.5},
+    {"id":"two-point-nyquist-kinetic-energy","input_values":[2,0,0,256,-256,0,0],"input_length":7,"expected_result":19.739208802178716},
+    {"id":"complex-traveling-wave","input_values":[4,0,0,0,0,256,0,-256,0,0,256,0,-256],"input_length":13,"expected_result":19.739208802178716},
+    {"id":"single-site-density-and-spectral-kinetic-term","input_values":[4,256,512,768,1024,512,0,0,0,0,0,0,0],"input_length":13,"expected_result":30.608813203268075},
+    {"id":"maximum-size-constant-state","input_values":[
+      32,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      256,256,256,256,256,256,256,256,
+      256,256,256,256,256,256,256,256,
+      256,256,256,256,256,256,256,256,
+      256,256,256,256,256,256,256,256,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0
+    ],"input_length":97,"expected_result":0.0},
+    {"id":"invalid-non-power-of-two-grid","input_values":[3,0,0,0,0,0,0,0,0,0],"input_length":10,"expected_result":-1e300},
+    {"id":"invalid-discrete-normalization","input_values":[2,0,0,0,0,256,0],"input_length":7,"expected_result":-1e300},
+    {"id":"invalid-potential-bound","input_values":[2,2049,0,256,256,0,0],"input_length":7,"expected_result":-1e300},
+    {"id":"invalid-extra-input-word","input_values":[2,0,0,256,256,0,0,0],"input_length":8,"expected_result":-1e300},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1e300}
+  ]
+}

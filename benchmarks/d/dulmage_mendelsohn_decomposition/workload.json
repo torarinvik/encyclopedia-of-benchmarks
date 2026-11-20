@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "dulmage-mendelsohn-decomposition-i64-array-scalar-v1",
+  "algorithm": "dulmage_mendelsohn_decomposition",
+  "function_symbol": "dulmage_mendelsohn_decomposition",
+  "abi": "i64_array_scalar",
+  "description": "Partition a bounded bipartite graph into even-reachable, odd-reachable, and unreachable Dulmage–Mendelsohn classes.",
+  "source": {
+    "title": "Bipartite Matching — Dulmage–Mendelsohn Decomposition",
+    "author": "OI Wiki contributors",
+    "url": "https://github.com/OI-wiki/OI-wiki/blob/master/docs/graph/graph-matching/bigraph-match.md",
+    "foundational_paper": "A. L. Dulmage and N. S. Mendelsohn, Coverings of Bipartite Graphs, Canadian Journal of Mathematics 10 (1958), 517–534.",
+    "paper_url": "https://doi.org/10.4153/CJM-1958-052-0",
+    "reuse": "Algorithm descriptions and theorem attribution only; contract, code, fixtures, and port implementations are clean-room."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[L,R,M,(left_id,right_id)*M]",
+    "left_vertex_count_range": [0, 6],
+    "right_vertex_count_range": [0, 6],
+    "total_vertex_count_range": [1, 12],
+    "edge_count_range": [0, 36],
+    "vertex_ids": "left IDs are 0..L-1 and right IDs are 0..R-1; output order concatenates left vertices then right vertices",
+    "graph": "simple bipartite graph; each left-right pair occurs at most once",
+    "maximum_valid_input_length": 75,
+    "maximum_parseable_input_length": 76,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Maximum matching size and the canonical even/odd/unreachable vertex classes.",
+    "encoding": "(maximum_matching_size << 32) | sum(class_code[v] << (2*v)); class codes are E=0, O=1, U=2 in concatenated left-then-right vertex order.",
+    "maximum_result": 25786580991,
+    "maximum_result_derivation": "Conservative packed-field ceiling: (6 << 32) | (2^24 - 1); the matching size is at most 6 and 12 vertices occupy 24 class bits.",
+    "invalid_input_result": -1
+  },
+  "algorithm_profile": {
+    "primary": "Compute a maximum bipartite matching with ascending-neighbor Kuhn DFS. Start an alternating-path BFS at every unmatched vertex, including unmatched vertices on both sides. Even states follow only unmatched edges; odd states follow only matched edges. Reachable parity gives E/O; vertices with neither parity are U.",
+    "independent": "Enumerate every matching in the bounded graph, retain the vertices left unmatched by at least one maximum matching as E, mark their neighbors O, and label the remaining vertices U.",
+    "tie_policy": "Matching construction scans left IDs and right IDs ascending. The DM partition is invariant across maximum matchings; no arbitrary matching edge is part of the encoded result.",
+    "class_meaning": "E is even-reachable from an unmatched vertex by an alternating path; O is odd-reachable; U is unreachable from every unmatched vertex. E/O/U are disjoint and cover all vertices for a maximum matching."
+  },
+  "complexity": {
+    "primary_time": "O(L*R + L*E + V+E) for bounded Kuhn matching and alternating BFS; L,R<=6 and E<=36",
+    "independent_time": "O(number_of_partial_matchings * (L+R+E)); at most 13,327 matchings for K6,6",
+    "auxiliary_space": "O(V+E) primary; O(V+E) independent recursion and graph state"
+  },
+  "workspace": {
+    "bytes": 4096,
+    "meaning": "Fixed adjacency masks, at most 24 alternating-path states, matching arrays, and 12 two-bit class codes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "primary_oracle": "benchmarks/d/dulmage_mendelsohn_decomposition/primary_oracle.py",
+  "independent_oracle": "benchmarks/d/dulmage_mendelsohn_decomposition/independent_oracle.py",
+  "cases": [
+    {"id":"single_isolated_left","input_values":[1,0,0],"input_length":3,"expected_result":0},
+    {"id":"single_isolated_right","input_values":[0,1,0],"input_length":3,"expected_result":0},
+    {"id":"single_perfect_edge","input_values":[1,1,1,0,0],"input_length":5,"expected_result":4294967306},
+    {"id":"left_surplus_alternating_chain","input_values":[1,2,2,0,0,0,1],"input_length":7,"expected_result":4294967297},
+    {"id":"right_surplus_alternating_chain","input_values":[2,1,2,0,0,1,0],"input_length":7,"expected_result":4294967312},
+    {"id":"free_vertices_on_both_sides","input_values":[2,2,1,0,0],"input_length":5,"expected_result":4294967330},
+    {"id":"complete_left_surplus","input_values":[3,2,6,0,0,0,1,1,0,1,1,2,0,2,2,1],"input_length":15,"expected_result":8589934912},
+    {"id":"perfect_alternating_square","input_values":[2,2,4,0,0,0,1,1,0,1,1],"input_length":11,"expected_result":8589934762},
+    {"id":"maximum_complete_bipartite","input_values":[6,6,36,0,0,0,1,0,2,0,3,0,4,0,5,1,0,1,1,1,2,1,3,1,4,1,5,2,0,2,1,2,2,2,3,2,4,2,5,3,0,3,1,3,2,3,3,3,4,3,5,4,0,4,1,4,2,4,3,4,4,4,5,5,0,5,1,5,2,5,3,5,4,5,5],"input_length":75,"expected_result":25780988586},
+    {"id":"duplicate_edge","input_values":[2,2,2,0,1,0,1],"input_length":7,"expected_result":-1},
+    {"id":"left_endpoint_out_of_range","input_values":[1,1,1,1,0],"input_length":5,"expected_result":-1},
+    {"id":"right_endpoint_out_of_range","input_values":[1,1,1,0,1],"input_length":5,"expected_result":-1},
+    {"id":"vertex_count_out_of_range","input_values":[7,0,0],"input_length":3,"expected_result":-1},
+    {"id":"edge_count_out_of_range","input_values":[6,6,37],"input_length":3,"expected_result":-1},
+    {"id":"truncated_edge","input_values":[2,2,1,0],"input_length":4,"expected_result":-1},
+    {"id":"trailing_word_at_parseable_bound","input_values":[6,6,36,0,0,0,1,0,2,0,3,0,4,0,5,1,0,1,1,1,2,1,3,1,4,1,5,2,0,2,1,2,2,2,3,2,4,2,5,3,0,3,1,3,2,3,3,3,4,3,5,4,0,4,1,4,2,4,3,4,4,4,5,5,0,5,1,5,2,5,3,5,4,5,5,0],"input_length":76,"expected_result":-1},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1},
+    {"id":"null_input_at_parseable_bound","input_values":[],"input_length":76,"input_is_null":true,"expected_result":-1}
+  ]
+}

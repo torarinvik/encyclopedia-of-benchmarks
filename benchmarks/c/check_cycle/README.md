@@ -13,9 +13,10 @@ This package follows the pinned [TheAlgorithms/Python `check_cycle`](https://git
 - Every endpoint must name a vertex in the declared range. All declared vertices are graph keys, including vertices with no outgoing edges. Duplicate edges are accepted; they do not change cycle existence.
 - Return `1` if a directed cycle exists and `0` otherwise. Invalid bounds, endpoints, or packed length return `-1`.
 - Ports use iterative three-color depth-first search, matching the source recursion-stack rule with storage bounded by 32 vertices.
+- The adjacency matrix requires `O(n²)` storage and scanning time, in addition to `O(m)` input validation.
 
 ## Workload and oracle
 
-[`workload.json`](workload.json) covers the pinned examples, self-loops, disconnected cycles, cross edges to completed vertices, duplicate edges, maximum bounds, and malformed inputs. The independent oracle uses Kahn's topological-removal algorithm, rather than DFS. Nine ports export `check_cycle` for the shared `i64_array_scalar` runner.
+[`workload.json`](workload.json) covers the pinned examples, self-loops, disconnected cycles, cross edges to completed vertices, duplicate edges, maximum bounds, and malformed inputs. The independent oracle uses Kahn's topological-removal algorithm, rather than DFS. Ten language drafts export `check_cycle` for the shared `i64_array_scalar` runner. Recent Mojo, V, and Zig changes and null-input verifier cases remain uncompiled and unexecuted.
 
-Verify the nine ports against the independent oracle with `python3 benchmarks/verify_i64_array_scalar.py --algorithms check_cycle`.
+The shared verifier can compare the ports against the independent oracle with `python3 benchmarks/verify_i64_array_scalar.py --algorithms check_cycle` when execution is permitted.

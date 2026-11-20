@@ -33,8 +33,8 @@ fn long pncounter(long* input, usz length, char* output, usz output_capacity)
     usz operation_count = (usz)input[4];
     if (length != 5 + operation_count) return -1;
 
-    long[3][16] positive = {0};
-    long[3][16] negative = {0};
+    long[16][3] positive = {0};
+    long[16][3] negative = {0};
     long[MAX_OUTPUT_WORDS] words;
     usz word_count = 0;
     usz position = 5;
@@ -46,14 +46,14 @@ fn long pncounter(long* input, usz length, char* output, usz output_capacity)
             usz counter = (usz)(opcode / 2);
             if (opcode % 2 == 0) positive[counter][ids[counter]]++;
             else negative[counter][ids[counter]]++;
-            append(words, &word_count, opcode);
+            append(&words[0], &word_count, opcode);
         } else if (opcode < 9) {
             usz counter = (usz)(opcode - 6);
             long value = 0;
             for (usz node = 0; node < node_count; node++)
                 value += positive[counter][node] - negative[counter][node];
-            append(words, &word_count, opcode);
-            append(words, &word_count, value);
+            append(&words[0], &word_count, opcode);
+            append(&words[0], &word_count, value);
         } else if (opcode < 15) {
             usz pair = (usz)(opcode - 9);
             usz target = PAIR_LEFT[pair];
@@ -64,7 +64,7 @@ fn long pncounter(long* input, usz length, char* output, usz output_capacity)
                 if (negative[target][node] < negative[source][node])
                     negative[target][node] = negative[source][node];
             }
-            append(words, &word_count, opcode);
+            append(&words[0], &word_count, opcode);
         } else {
             usz pair = (usz)(opcode - 15);
             usz left = PAIR_LEFT[pair];
@@ -77,8 +77,8 @@ fn long pncounter(long* input, usz length, char* output, usz output_capacity)
                     break;
                 }
             }
-            append(words, &word_count, opcode);
-            append(words, &word_count, result);
+            append(&words[0], &word_count, opcode);
+            append(&words[0], &word_count, result);
         }
     }
 

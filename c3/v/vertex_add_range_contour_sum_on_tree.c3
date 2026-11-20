@@ -13,13 +13,13 @@ struct Context {
     bool[MAX_N] removed;
     int[MAX_N] parent;
     int[MAX_N] subtree_size;
-    int[MAX_N][MAX_LEVEL] ancestor;
-    int[MAX_N][MAX_LEVEL] distance;
-    int[MAX_N][MAX_LEVEL] branch_for;
+    int[MAX_LEVEL][MAX_N] ancestor;
+    int[MAX_LEVEL][MAX_N] distance;
+    int[MAX_LEVEL][MAX_N] branch_for;
     int[MAX_N] path_length;
     int branch_count;
-    long[MAX_N][MAX_N + 1] total;
-    long[MAX_N][MAX_N + 1] branch;
+    long[MAX_N + 1][MAX_N] total;
+    long[MAX_N + 1][MAX_N] branch;
 }
 
 fn int collect_component(Context* ctx, int start, int[MAX_N]* order) {

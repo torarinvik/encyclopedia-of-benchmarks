@@ -1,0 +1,143 @@
+const MAX_N: usize = 16
+const MAX_EDGES: usize = 15
+const MAX_ARCS: usize = 30
+const MAX_INPUT_LENGTH: usize = 48
+
+def tree_random_walk_edge_hitting_cost_find(sets: mutable view[i64], vertex_value: usize) -> usize:
+    vertex: mutable usize = vertex_value
+    while sets[vertex] != vertex.i64():
+        sets[vertex] <- sets[sets[vertex].usize()]
+        vertex <- sets[vertex].usize()
+    vertex
+
+def tree_random_walk_edge_hitting_cost_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+export fn tree_random_walk_edge_hitting_cost(
+    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
+) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    root_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or root_value < 0 or root_value >= n_value:
+        return -1
+    n: usize = n_value.usize()
+    root: usize = root_value.usize()
+    edge_count: usize = n - 1
+    if input_length != 2 + 3 * edge_count: return -1
+
+    head: mutable i64[MAX_N] = zeroed
+    to: mutable i64[MAX_ARCS] = zeroed
+    next_arc: mutable i64[MAX_ARCS] = zeroed
+    sets: mutable i64[MAX_N] = zeroed
+    input_u: mutable i64[MAX_EDGES] = zeroed
+    input_v: mutable i64[MAX_EDGES] = zeroed
+    incident_sum: mutable i64[MAX_N] = zeroed
+    down: mutable i64[MAX_N] = zeroed
+    up: mutable i64[MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        head[vertex] <- -1
+        sets[vertex] <- vertex.i64()
+        vertex <- vertex + 1
+
+    arc_count: mutable usize = 0
+    edge: mutable usize = 0
+    while edge < edge_count:
+        offset: usize = 2 + 3 * edge
+        u_value: i64 = input[offset]
+        v_value: i64 = input[offset + 1]
+        weight: i64 = input[offset + 2]
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value
+                or u_value == v_value or weight < 1 or weight > 9: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        set_u: usize = tree_random_walk_edge_hitting_cost_find(sets[0:MAX_N], u)
+        set_v: usize = tree_random_walk_edge_hitting_cost_find(sets[0:MAX_N], v)
+        if set_u == set_v: return -1
+        sets[set_v] <- set_u.i64()
+        input_u[edge] <- u.i64()
+        input_v[edge] <- v.i64()
+        to[arc_count] <- v.i64()
+        next_arc[arc_count] <- head[u]
+        head[u] <- arc_count.i64()
+        arc_count <- arc_count + 1
+        to[arc_count] <- u.i64()
+        next_arc[arc_count] <- head[v]
+        head[v] <- arc_count.i64()
+        arc_count <- arc_count + 1
+        incident_sum[u] <- incident_sum[u] + weight
+        incident_sum[v] <- incident_sum[v] + weight
+        edge <- edge + 1
+
+    output_bytes: usize = 16 * edge_count
+    if output.is_null() or output_capacity < output_bytes: return -2
+
+    parent: mutable i64[MAX_N] = zeroed
+    order: mutable i64[MAX_N] = zeroed
+    vertex <- 0
+    while vertex < n:
+        parent[vertex] <- -1
+        vertex <- vertex + 1
+    parent[root] <- root.i64()
+    order[0] <- root.i64()
+    order_size: mutable usize = 1
+    cursor: mutable usize = 0
+    while cursor < order_size:
+        vertex <- order[cursor].usize()
+        arc: mutable i64 = head[vertex]
+        while arc >= 0:
+            index: usize = arc.usize()
+            neighbor: usize = to[index].usize()
+            if parent[neighbor] == -1:
+                parent[neighbor] <- vertex.i64()
+                order[order_size] <- neighbor.i64()
+                order_size <- order_size + 1
+            arc <- next_arc[index]
+        cursor <- cursor + 1
+
+    position: mutable usize = n
+    while position > 0:
+        position <- position - 1
+        vertex <- order[position].usize()
+        down[vertex] <- incident_sum[vertex]
+        arc <- head[vertex]
+        while arc >= 0:
+            index <- arc.usize()
+            child: usize = to[index].usize()
+            if parent[child] == vertex.i64():
+                down[vertex] <- down[vertex] + down[child]
+            arc <- next_arc[index]
+    position <- 0
+    while position < n:
+        vertex <- order[position].usize()
+        arc <- head[vertex]
+        while arc >= 0:
+            index <- arc.usize()
+            child <- to[index].usize()
+            if parent[child] == vertex.i64():
+                up[child] <- up[vertex] + down[vertex] - down[child]
+            arc <- next_arc[index]
+        position <- position + 1
+
+    result: mutable view[u8] = output[0:output_bytes]
+    edge <- 0
+    while edge < edge_count:
+        u: usize = input_u[edge].usize()
+        v: usize = input_v[edge].usize()
+        toward_v: mutable i64 = 0
+        toward_u: mutable i64 = 0
+        if parent[u] == v.i64():
+            toward_v <- down[u]
+            toward_u <- up[u]
+        else:
+            toward_v <- up[v]
+            toward_u <- down[v]
+        tree_random_walk_edge_hitting_cost_store(result, 16 * edge, toward_v)
+        tree_random_walk_edge_hitting_cost_store(result, 16 * edge + 8, toward_u)
+        edge <- edge + 1
+    output_bytes.i64()

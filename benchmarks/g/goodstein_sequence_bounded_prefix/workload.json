@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "goodstein-sequence-bounded-prefix-i64-array-bytes-output-v1",
+  "algorithm": "goodstein_sequence_bounded_prefix",
+  "function_symbol": "goodstein_sequence_bounded_prefix",
+  "abi": "i64_array_bytes_output",
+  "description": "Emit a bounded prefix of a classical hereditary-base Goodstein sequence.",
+  "source": {
+    "title": "Goodstein Sequence",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "primary_method_reference": "https://doi.org/10.2307/2268019",
+    "definition_reference": "https://www.math.ucla.edu/~marks/notes/set_theory_notes_2.pdf",
+    "discovery_scope": "RosettaCodeData is title discovery only. Goodstein and Marks define the hereditary-base transition. This package fixes a small start domain, a finite transition cap, and an integer output frame; no task wording, code, examples, or tests are reused."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[start, max_transitions]",
+    "start_range": [0, 4],
+    "max_transitions_range": [0, 16],
+    "exact_length": 2,
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array_bytes",
+    "encoding": "term_count followed by emitted terms, including the initial value and any terminal zero",
+    "result": "serialized output byte length",
+    "maximum_terms": 17,
+    "maximum_output_bytes": 144,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initial_base": 2,
+    "transition": "For each positive current term, form its canonical hereditary base-b expansion, recursively represent every exponent in the same hereditary base, replace every base symbol b by b+1 throughout, evaluate exactly, subtract one, then advance b by one.",
+    "prefix_rule": "Emit the initial term first; perform at most max_transitions transitions and stop immediately after emitting zero.",
+    "full_termination_claim": false,
+    "value_bound": "For starts 0..3, all emitted terms are at most 3. For start 4, the first successor is 26 at base 3; thereafter the hereditary exponents are at most 2 and each emitted value at base b is less than 3*b^2. Through the 16-transition cap b<=18, so every value and powered summand is below 972.",
+    "validation_precedes_capacity": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Includes the 17-word staged prefix, recursive hereditary-conversion/evaluation state, and scalar/index state; caller input/output are excluded."
+  },
+  "complexity": {
+    "primary_time": "At most 16 transitions of recursive digit decomposition, with all intermediate terms below 972",
+    "primary_auxiliary_space": "O(t+d) including the staged output and recursion",
+    "independent_reference_time": "Bounded expression-tree construction and evaluation for at most 16 transitions",
+    "independent_reference_auxiliary_space": "O(d) expression tree plus staged prefix"
+  },
+  "primary_oracle": "benchmarks/g/goodstein_sequence_bounded_prefix/primary_oracle.py",
+  "independent_oracle": "benchmarks/g/goodstein_sequence_bounded_prefix/independent_oracle.py",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"zero-stops-at-initial-term","input_values":[0,16],"input_length":2,"output_capacity":144,"expected_result":16,"expected_output_hex":"01000000000000000000000000000000"},
+    {"id":"four-without-transition","input_values":[4,0],"input_length":2,"output_capacity":144,"expected_result":16,"expected_output_hex":"01000000000000000400000000000000"},
+    {"id":"one-reaches-zero","input_values":[1,16],"input_length":2,"output_capacity":144,"expected_result":24,"expected_output_hex":"020000000000000001000000000000000000000000000000"},
+    {"id":"four-eight-transition-prefix","input_values":[4,8],"input_length":2,"output_capacity":144,"expected_result":80,"expected_output_hex":"090000000000000004000000000000001a0000000000000029000000000000003c0000000000000053000000000000006d000000000000008b00000000000000ad00000000000000d300000000000000"},
+    {"id":"maximum-transition-prefix","input_values":[4,16],"input_length":2,"output_capacity":144,"expected_result":144,"expected_output_hex":"110000000000000004000000000000001a0000000000000029000000000000003c0000000000000053000000000000006d000000000000008b00000000000000ad00000000000000d300000000000000fd000000000000002b010000000000005c010000000000009101000000000000ca01000000000000070200000000000048020000000000008d02000000000000"},
+    {"id":"negative-start","input_values":[-1,0],"input_length":2,"output_capacity":144,"expected_result":-1,"expected_output_hex":""},
+    {"id":"start-above-profile","input_values":[5,0],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative-transition-cap","input_values":[4,-1],"input_length":2,"output_capacity":144,"expected_result":-1,"expected_output_hex":""},
+    {"id":"transition-cap-above-profile","input_values":[4,17],"input_length":2,"output_capacity":144,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-word","input_values":[4,8,7],"input_length":3,"output_capacity":144,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":144,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-before-short-capacity","input_values":[5,16],"input_length":2,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output","input_values":[0,0],"input_length":2,"output_capacity":144,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output","input_values":[0,16],"input_length":2,"output_capacity":15,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

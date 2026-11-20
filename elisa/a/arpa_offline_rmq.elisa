@@ -1,0 +1,66 @@
+const MAX_INPUT_LENGTH = 195
+
+def arpa_offline_rmq_impl(input: view[i64]) -> i64:
+    if input.len() < 2 or input.len() > MAX_INPUT_LENGTH: return -1
+    let n_value: i64 = input[0]
+    let q_value: i64 = input[1]
+    if n_value < 1 or n_value > 64 or q_value < 0 or q_value > 64: return -1
+    let n: usize = n_value.usize()
+    let q: usize = q_value.usize()
+    if input.len() != 2 + n + 2 * q: return -1
+    index: mutable usize = 0
+    while index < n:
+        if input[2 + index] < -1000 or input[2 + index] > 1000: return -1
+        index <- index + 1
+    let query_start: usize = 2 + n
+    index <- 0
+    while index < q:
+        let left: i64 = input[query_start + 2 * index]
+        let right: i64 = input[query_start + 2 * index + 1]
+        if left < 0 or left > right or right >= n_value: return -1
+        index <- index + 1
+
+    parent: mutable i64[64] = zeroed
+    stack: mutable i64[64] = zeroed
+    head: mutable i64[64] = zeroed
+    query_next: mutable i64[64] = zeroed
+    index <- 0
+    while index < n:
+        parent[index] <- index.i64()
+        head[index] <- -1
+        index <- index + 1
+    index <- 0
+    while index < q:
+        let bucket: usize = input[query_start + 2 * index + 1].usize()
+        query_next[index] <- head[bucket]
+        head[bucket] <- index.i64()
+        index <- index + 1
+    checksum: mutable i64 = 0
+    stack_size: mutable usize = 0
+    right: mutable usize = 0
+    while right < n:
+        while stack_size > 0 and input[2 + stack[stack_size - 1].usize()] > input[2 + right]:
+            stack_size <- stack_size - 1
+            parent[stack[stack_size].usize()] <- right.i64()
+        stack[stack_size] <- right.i64()
+        stack_size <- stack_size + 1
+        query: mutable i64 = head[right]
+        while query >= 0:
+            let ordinal: usize = query.usize()
+            node: mutable usize = input[query_start + 2 * ordinal].usize()
+            root: mutable usize = node
+            while parent[root].usize() != root:
+                root <- parent[root].usize()
+            while parent[node].usize() != node:
+                let next: usize = parent[node].usize()
+                parent[node] <- root.i64()
+                node <- next
+            checksum <- checksum + (ordinal + 1).i64() * (root + 1).i64()
+            query <- query_next[ordinal]
+        right <- right + 1
+    checksum
+
+export fn arpa_offline_rmq(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    let input_view: view[i64] = input[0:length]
+    arpa_offline_rmq_impl(input_view)

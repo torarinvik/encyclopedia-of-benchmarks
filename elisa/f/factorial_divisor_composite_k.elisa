@@ -1,0 +1,39 @@
+# Largest exponent x for which composite k^x divides n!.
+const FDCK_MAX_N: u64 = 1000000000000
+const FDCK_MAX_K: u64 = 1000000
+
+def factorial_divisor_composite_k_valuation(n: u64, prime: u64) -> u64:
+    while quotient > 0 |quotient: mutable u64 = n, total: mutable u64 = 0| -> total:
+        quotient <- quotient / prime
+        total <- total + quotient
+
+def factorial_divisor_composite_k_impl(n: u64, k: u64) -> i64:
+    if n > FDCK_MAX_N or k < 4 or k > FDCK_MAX_K:
+        return -1
+
+    remaining: mutable u64 = k
+    divisor: mutable u64 = 2
+    answer: mutable u64 = n
+    composite: mutable bool = false
+    while divisor <= remaining / divisor:
+        if remaining % divisor == 0:
+            composite <- true
+            exponent: mutable u64 = 0
+            while remaining % divisor == 0:
+                remaining <- remaining / divisor
+                exponent <- exponent + 1
+            valuation: u64 = factorial_divisor_composite_k_valuation(n, divisor)
+            candidate: u64 = valuation / exponent
+            if candidate < answer:
+                answer <- candidate
+        divisor <- divisor + 1
+
+    if not composite:
+        return -1
+    if remaining > 1:
+        candidate: u64 = factorial_divisor_composite_k_valuation(n, remaining)
+        if candidate < answer:
+            answer <- candidate
+    answer.i64()
+
+export fn factorial_divisor_composite_k(n: u64, k: u64) -> i64 = factorial_divisor_composite_k_impl

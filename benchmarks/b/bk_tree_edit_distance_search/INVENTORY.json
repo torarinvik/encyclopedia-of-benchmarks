@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "algorithm": "bk_tree_edit_distance_search",
+  "abi": "i64_array_scalar",
+  "function_symbol": "bk_tree_edit_distance_search",
+  "status": "complete; scalar runner and verifier registered",
+  "sources": ["https://doi.org/10.1145/362003.362025"],
+  "input": {
+    "encoding": "[n,q,r,packed_dictionary_words[n],packed_query_words[q]]",
+    "dictionary_count_range": [0, 16],
+    "query_count_range": [0, 8],
+    "radius_range": [0, 3],
+    "packed_word_max_length": 10,
+    "maximum_valid_length": 27,
+    "maximum_parseable_length": 28,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "weighted per-query radius-match counts and dictionary-index sums",
+    "maximum_result": 14112,
+    "invalid_result": -1
+  },
+  "workspace": {
+    "bytes": 4096,
+    "accounting": "Fixed child table, packed node keys, DFS stack, two Levenshtein rows, parser/result locals, and alignment"
+  },
+  "methods": {
+    "primary": "Insertion-ordered distance-labelled BK-tree with triangle-inequality radius pruning",
+    "independent": "Exhaustive dictionary scan with full Levenshtein dynamic-programming matrices"
+  },
+  "package_files": [
+    "README.md", "RIGHTS.md", "INVENTORY.md", "INVENTORY.json", "workload.json",
+    "primary_oracle.py", "independent_oracle.py", "__init__.py",
+    "verify_workload.py", "check_inventory.py"
+  ],
+  "native_paths": [
+    "c/b/bk_tree_edit_distance_search.c",
+    "c3/b/bk_tree_edit_distance_search.c3",
+    "cpp/b/bk_tree_edit_distance_search.cpp",
+    "elisa/b/bk_tree_edit_distance_search.elisa",
+    "mojo/b/bk_tree_edit_distance_search.mojo",
+    "nim/b/bk_tree_edit_distance_search.nim",
+    "odin/b/bk_tree_edit_distance_search.odin",
+    "rust/b/bk_tree_edit_distance_search.rs",
+    "v/b/bk_tree_edit_distance_search.v",
+    "zig/b/bk_tree_edit_distance_search.zig"
+  ],
+  "suite_integration": "benchmarks/run_i64_array_scalar.py and benchmarks/verify_i64_array_scalar.py"
+}

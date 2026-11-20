@@ -51,5 +51,7 @@ language drafts are present.
 
 The byte-output runner and verifier are wired to the package. The verifier
 source includes both directions of bounded parabola chains and translated
-copies, which satisfy the simple and general-position promises. Static review
-is ongoing; nothing has been executed.
+copies, which satisfy the simple and general-position promises. Read-only
+review found all ten ports consistent on initial orientation, terminal-edge
+inside checks, deque pruning, and canonical counterclockwise output rotation.
+Nothing has been executed.

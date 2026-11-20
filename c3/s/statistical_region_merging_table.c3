@@ -5,7 +5,7 @@ fn usz srm_root(usz* parent, usz x) {
     return x;
 }
 
-long statistical_region_merging_table(long* input, usz length, char* output, usz capacity)
+fn long statistical_region_merging_table(long* input, usz length, char* output, usz capacity)
         @export("statistical_region_merging_table") {
     if (input == null || length < 4 || length > 74 || input[0] < 1 || input[0] > 6 || input[1] < 1 || input[1] > 6) return -1;
     usz width = (usz)input[1], n = (usz)input[0] * width;

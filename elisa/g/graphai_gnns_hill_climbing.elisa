@@ -1,0 +1,84 @@
+const GNNS_MAX_N: usize = 16
+const GNNS_MAX_D: usize = 4
+const GNNS_MAX_INPUT: usize = 89
+const GNNS_MAX_PARSEABLE: usize = 90
+const GNNS_COORD_LIMIT: i64 = 100
+const GNNS_DISTANCE_RADIX: i64 = 160001
+
+export fn graphai_gnns_hill_climbing(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 5 or length > GNNS_MAX_PARSEABLE: return -1
+    input_view: view[i64] = input[0:length]
+    n_value: i64 = input_view[0]
+    d_value: i64 = input_view[1]
+    start_value: i64 = input_view[2]
+    e_value: i64 = input_view[3]
+    t_value: i64 = input_view[4]
+    if n_value < 2 or n_value > GNNS_MAX_N.i64(): return -1
+    if d_value < 1 or d_value > GNNS_MAX_D.i64(): return -1
+    if start_value < 0 or start_value >= n_value or e_value < 1 or e_value >= n_value:
+        return -1
+    if t_value < 0 or t_value > 16: return -1
+    n: usize = n_value.usize()
+    d: usize = d_value.usize()
+    if length != 5 + n * d + n + d or length > GNNS_MAX_INPUT: return -1
+
+    coordinates: mutable i64[GNNS_MAX_N * GNNS_MAX_D] = zeroed
+    index: mutable usize = 0
+    while index < n * d:
+        coordinate: i64 = input_view[5 + index]
+        if coordinate < -GNNS_COORD_LIMIT or coordinate > GNNS_COORD_LIMIT: return -1
+        coordinates[index] <- coordinate
+        index <- index + 1
+    mask_offset: usize = 5 + n * d
+    allowed: i64 = (1 << n) - 1
+    masks: mutable i64[GNNS_MAX_N] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        mask: i64 = input_view[mask_offset + vertex]
+        if mask < 0 or (mask & ~allowed) != 0 or (mask & (1 << vertex)) != 0: return -1
+        masks[vertex] <- mask
+        vertex <- vertex + 1
+    query: mutable i64[GNNS_MAX_D] = zeroed
+    axis: mutable usize = 0
+    while axis < d:
+        coordinate: i64 = input_view[mask_offset + n + axis]
+        if coordinate < -GNNS_COORD_LIMIT or coordinate > GNNS_COORD_LIMIT: return -1
+        query[axis] <- coordinate
+        axis <- axis + 1
+
+    current: mutable usize = start_value.usize()
+    current_distance: mutable i64 = 0
+    axis <- 0
+    while axis < d:
+        delta: i64 = coordinates[current * d + axis] - query[axis]
+        current_distance <- current_distance + delta * delta
+        axis <- axis + 1
+    evaluations: mutable i64 = 1
+    moves: mutable i64 = 0
+    step: mutable i64 = 0
+    while step < t_value:
+        best_vertex: mutable usize = current
+        best_distance: mutable i64 = current_distance
+        inspected: mutable i64 = 0
+        vertex <- 0
+        while vertex < n:
+            if (masks[current] & (1 << vertex)) != 0:
+                distance: mutable i64 = 0
+                axis <- 0
+                while axis < d:
+                    delta: i64 = coordinates[vertex * d + axis] - query[axis]
+                    distance <- distance + delta * delta
+                    axis <- axis + 1
+                evaluations <- evaluations + 1
+                inspected <- inspected + 1
+                if distance < best_distance or (distance == best_distance and vertex < best_vertex):
+                    best_vertex <- vertex
+                    best_distance <- distance
+                if inspected == e_value: break
+            vertex <- vertex + 1
+        if best_distance >= current_distance: break
+        current <- best_vertex
+        current_distance <- best_distance
+        moves <- moves + 1
+        step <- step + 1
+    (((evaluations * 17 + moves) * 16 + current.i64()) * GNNS_DISTANCE_RADIX + current_distance)

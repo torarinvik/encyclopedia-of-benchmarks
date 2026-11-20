@@ -1,0 +1,247 @@
+const MTH_MIN_N: usize = 3
+const MTH_MAX_N: usize = 5
+const MTH_MAX_LENGTH: usize = 12
+const MTH_DP_SIZE: usize = 10
+const MTH_MAX_IMPROVEMENTS: usize = 30
+
+struct MthPoint:
+    x: i64
+    y: i64
+
+struct MthScore:
+    num: i64
+    den: i64
+
+struct MthCell:
+    minimum: MthScore
+    count: usize
+    valid: bool
+    split: usize
+
+struct MthTriangle:
+    a: usize
+    b: usize
+    c: usize
+
+struct MthObjective:
+    minimum: MthScore
+    count: usize
+
+def mth_cross(points: view[MthPoint], a: usize, b: usize, c: usize) -> i64:
+    (points[b].x - points[a].x) * (points[c].y - points[a].y) - (points[b].y - points[a].y) * (points[c].x - points[a].x)
+
+def mth_gcd(a_value: i64, b_value: i64) -> i64:
+    a: mutable i64 = a_value
+    b: mutable i64 = b_value
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def mth_fraction(numerator: i64, denominator: i64) -> MthScore:
+    divisor: i64 = mth_gcd(numerator, denominator)
+    MthScore{num: numerator / divisor, den: denominator / divisor}
+
+def mth_compare(a: MthScore, b: MthScore) -> i64:
+    left: i64 = a.num * b.den
+    right: i64 = b.num * a.den
+    if left < right: return -1
+    if left > right: return 1
+    0
+
+def mth_triangle_score(points: view[MthPoint], n: usize, a: usize, b: usize, c: usize) -> MthScore:
+    pa: usize = a % n
+    pb: usize = b % n
+    pc: usize = c % n
+    area: i64 = mth_cross(points, pa, pb, pc)
+    if area < 0: area <- -area
+    abx: i64 = points[pa].x - points[pb].x
+    aby: i64 = points[pa].y - points[pb].y
+    bcx: i64 = points[pb].x - points[pc].x
+    bcy: i64 = points[pb].y - points[pc].y
+    cax: i64 = points[pc].x - points[pa].x
+    cay: i64 = points[pc].y - points[pa].y
+    best: mutable MthScore = mth_fraction(area * area, abx * abx + aby * aby)
+    candidate: MthScore = mth_fraction(area * area, bcx * bcx + bcy * bcy)
+    if mth_compare(candidate, best) < 0: best <- candidate
+    candidate <- mth_fraction(area * area, cax * cax + cay * cay)
+    if mth_compare(candidate, best) < 0: best <- candidate
+    best
+
+def mth_join(left: MthCell, right: MthCell, triangle: MthScore) -> MthObjective:
+    minimum: mutable MthScore = triangle
+    count: mutable usize = 1
+    if left.valid:
+        comparison: i64 = mth_compare(left.minimum, minimum)
+        if comparison < 0:
+            minimum <- left.minimum
+            count <- left.count
+        elif comparison == 0:
+            count <- count + left.count
+    if right.valid:
+        comparison: i64 = mth_compare(right.minimum, minimum)
+        if comparison < 0:
+            minimum <- right.minimum
+            count <- right.count
+        elif comparison == 0:
+            count <- count + right.count
+    MthObjective{minimum: minimum, count: count}
+
+def mth_better(candidate: MthObjective, current: MthObjective) -> bool:
+    comparison: i64 = mth_compare(candidate.minimum, current.minimum)
+    comparison > 0 or (comparison == 0 and candidate.count < current.count)
+
+def mth_collect(start: usize, finish: usize, table: view[MthCell], n: usize,
+                output: mutable view[MthTriangle], count: mutable usize&) -> void:
+    if finish - start < 2: return
+    middle: usize = table[start * MTH_DP_SIZE + finish].split
+    output[count] <- MthTriangle{a: start % n, b: middle % n, c: finish % n}
+    count <- count + 1
+    mth_collect(start, middle, table, n, output, count)
+    mth_collect(middle, finish, table, n, output, count)
+
+def mth_edge_matches(a: usize, b: usize, left: usize, right: usize) -> bool:
+    low: usize = if a < b: a else: b
+    high: usize = if a < b: b else: a
+    low == left and high == right
+
+def mth_has_edge(triangles: view[MthTriangle], count: usize, left: usize, right: usize) -> bool:
+    i: mutable usize = 0
+    while i < count:
+        triangle: MthTriangle = triangles[i]
+        if mth_edge_matches(triangle.a, triangle.b, left, right): return true
+        if mth_edge_matches(triangle.b, triangle.c, left, right): return true
+        if mth_edge_matches(triangle.c, triangle.a, left, right): return true
+        i <- i + 1
+    false
+
+def mth_evaluate(points: view[MthPoint], n: usize, triangles: view[MthTriangle], count: usize) -> MthObjective:
+    first: MthTriangle = triangles[0]
+    minimum: mutable MthScore = mth_triangle_score(points, n, first.a, first.b, first.c)
+    worst_count: mutable usize = 1
+    i: mutable usize = 1
+    while i < count:
+        triangle: MthTriangle = triangles[i]
+        score: MthScore = mth_triangle_score(points, n, triangle.a, triangle.b, triangle.c)
+        comparison: i64 = mth_compare(score, minimum)
+        if comparison < 0:
+            minimum <- score
+            worst_count <- 1
+        elif comparison == 0:
+            worst_count <- worst_count + 1
+        i <- i + 1
+    MthObjective{minimum: minimum, count: worst_count}
+
+def mth_solve(points: view[MthPoint], n: usize) -> i64:
+    table: mutable MthCell[MTH_DP_SIZE * MTH_DP_SIZE] = zeroed
+    span: mutable usize = 2
+    while span + 1 < n:
+        start: mutable usize = 0
+        while start < n:
+            finish: usize = start + span
+            found: mutable bool = false
+            best: mutable MthObjective = MthObjective{minimum: MthScore{num: 0, den: 1}, count: 0}
+            best_middle: mutable usize = 0
+            middle: mutable usize = start + 1
+            while middle < finish:
+                candidate: MthObjective = mth_join(
+                    table[start * MTH_DP_SIZE + middle],
+                    table[middle * MTH_DP_SIZE + finish],
+                    mth_triangle_score(points, n, start, middle, finish))
+                if not found or mth_better(candidate, best):
+                    found <- true
+                    best <- candidate
+                    best_middle <- middle
+                middle <- middle + 1
+            table[start * MTH_DP_SIZE + finish] <- MthCell{
+                minimum: best.minimum, count: best.count, valid: true, split: best_middle}
+            start <- start + 1
+        span <- span + 1
+
+    current: mutable MthTriangle[MTH_MAX_N - 2] = zeroed
+    current_count: mutable usize = 0
+    middle: mutable usize = 1
+    while middle + 1 < n:
+        current[current_count] <- MthTriangle{a: 0, b: middle, c: middle + 1}
+        current_count <- current_count + 1
+        middle <- middle + 1
+    current_value: mutable MthObjective = mth_evaluate(points, n, current[0:current_count], current_count)
+    improvements: mutable usize = 0
+    while true:
+        changed: mutable bool = false
+        left: mutable usize = 0
+        while left < n and not changed:
+            right: mutable usize = left + 2
+            while right < n:
+                if not (left == 0 and right == n - 1) and not mth_has_edge(current[0:current_count], current_count, left, right):
+                    candidate: mutable MthTriangle[MTH_MAX_N - 2] = zeroed
+                    candidate_count: mutable usize = 0
+                    mth_collect(left, right, table[0:MTH_DP_SIZE * MTH_DP_SIZE], n, candidate[0:MTH_MAX_N - 2], candidate_count)
+                    mth_collect(right, left + n, table[0:MTH_DP_SIZE * MTH_DP_SIZE], n, candidate[0:MTH_MAX_N - 2], candidate_count)
+                    candidate_value: MthObjective = mth_evaluate(points, n, candidate[0:candidate_count], candidate_count)
+                    if mth_better(candidate_value, current_value):
+                        copy_index: mutable usize = 0
+                        while copy_index < candidate_count:
+                            current[copy_index] <- candidate[copy_index]
+                            copy_index <- copy_index + 1
+                        current_count <- candidate_count
+                        current_value <- candidate_value
+                        improvements <- improvements + 1
+                        if improvements > MTH_MAX_IMPROVEMENTS: return -1
+                        changed <- true
+                        break
+                right <- right + 1
+            left <- left + 1
+        if not changed:
+            return current_value.minimum.num * 513 + current_value.minimum.den
+    -1
+
+def mth_impl(input: view[i64]) -> i64:
+    length: usize = input.len()
+    if length < 1 or length > MTH_MAX_LENGTH: return -1
+    if input[0] < MTH_MIN_N.i64() or input[0] > MTH_MAX_N.i64(): return -1
+    n: usize = input[0].usize()
+    if length != 1 + 2 * n: return -1
+    points: mutable MthPoint[MTH_MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x: i64 = input[1 + 2 * i]
+        y: i64 = input[2 + 2 * i]
+        if x < -8 or x > 8 or y < -8 or y > 8: return -1
+        j: mutable usize = 0
+        while j < i:
+            if points[j].x == x and points[j].y == y: return -1
+            j <- j + 1
+        points[i] <- MthPoint{x: x, y: y}
+        i <- i + 1
+    area2: mutable i64 = 0
+    i <- 0
+    while i < n:
+        following: usize = (i + 1) % n
+        area2 <- area2 + points[i].x * points[following].y - points[i].y * points[following].x
+        i <- i + 1
+    if area2 <= 0: return -1
+    a: mutable usize = 0
+    while a < n:
+        b: mutable usize = a + 1
+        while b < n:
+            c: mutable usize = b + 1
+            while c < n:
+                if mth_cross(points[0:n], a, b, c) == 0: return -1
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+    edge: mutable usize = 0
+    while edge < n:
+        following: usize = (edge + 1) % n
+        vertex: mutable usize = 0
+        while vertex < n:
+            if vertex != edge and vertex != following and mth_cross(points[0:n], edge, following, vertex) <= 0: return -1
+            vertex <- vertex + 1
+        edge <- edge + 1
+    mth_solve(points[0:n], n)
+
+export fn max_min_triangle_height_triangulation(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > MTH_MAX_LENGTH: return -1
+    mth_impl(input[0:length])

@@ -13,7 +13,7 @@ fn void make_keys(ulong key,ulong* keys) { ulong mask=(1ul<<28)-1;ulong t=permut
 fn uint feistel(uint r,ulong key){ulong x=permute(r,&E[0],48,32)^key;uint s=0;for(uint i=0;i<8;i++){uint six=(uint)((x>>(42-6*i))&63);uint row=((six&32)>>4)|(six&1);uint col=(six>>1)&15;s=(s<<4)|(uint)SBOX[i*64+row*16+col];}return (uint)permute(s,&P[0],32,32);}
 fn ulong encrypt(ulong b,ulong* keys){ulong state=permute(b,&IP[0],64,64);uint l=(uint)(state>>32);uint r=(uint)state;for(int i=0;i<16;i++){uint next=l^feistel(r,keys[i]);l=r;r=next;}return permute(((ulong)r<<32)|l,&IP_INV[0],64,64);}
 fn void reverse_keys(ulong* k,ulong* r){for(int i=0;i<16;i++)r[i]=k[15-i];}
-fn ulong des_apply(ulong b,ulong key,bool decrypt){ulong k[16]={};ulong r[16]={};make_keys(key,&k[0]);if(decrypt){reverse_keys(&k[0],&r[0]);return encrypt(b,&r[0]);}return encrypt(b,&k[0]);}
+fn ulong des_apply(ulong b,ulong key,bool decrypt){ulong[16] k={};ulong[16] r={};make_keys(key,&k[0]);if(decrypt){reverse_keys(&k[0],&r[0]);return encrypt(b,&r[0]);}return encrypt(b,&k[0]);}
 fn long trimaran_enc_3des(long* input,usz length,char* output,usz capacity) @export("trimaran_enc_3des"){
  if(input==null||length!=9)return -1;if(input[0]<0||input[0]>1)return -1;for(usz i=1;i<9;i++)if(input[i]<0||input[i]>255)return -1;if(output==null||capacity<8)return -2;
  ulong b=0;for(usz i=1;i<9;i++)b=(b<<8)|(ulong)input[i];ulong k1=0x0123456789abcdeful;ulong k2=0x23456789abcdef01ul;ulong k3=0x456789abcdef0123ul;ulong r;

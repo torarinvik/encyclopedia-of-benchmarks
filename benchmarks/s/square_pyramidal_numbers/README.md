@@ -32,6 +32,7 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/s/square_pyramida
 | C3 | [`c3/s/square_pyramidal_numbers.c3`](../../../c3/s/square_pyramidal_numbers.c3) |
 | C++ | [`cpp/s/square_pyramidal_numbers.cpp`](../../../cpp/s/square_pyramidal_numbers.cpp) |
 | Elisa | [`elisa/s/square_pyramidal_numbers.elisa`](../../../elisa/s/square_pyramidal_numbers.elisa) |
+| Mojo | [`mojo/s/square_pyramidal_numbers.mojo`](../../../mojo/s/square_pyramidal_numbers.mojo) |
 | Nim | [`nim/s/square_pyramidal_numbers.nim`](../../../nim/s/square_pyramidal_numbers.nim) |
 | Odin | [`odin/s/square_pyramidal_numbers.odin`](../../../odin/s/square_pyramidal_numbers.odin) |
 | Rust | [`rust/s/square_pyramidal_numbers.rs`](../../../rust/s/square_pyramidal_numbers.rs) |
@@ -42,3 +43,6 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/s/square_pyramida
 
 - [Rust `square_pyramidal_numbers.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/square_pyramidal_numbers.rs)
 - [The distinct `sum_of_squares` benchmark](../sum_of_squares/README.md)
+
+Scalar verifier registration and a combination-based reference are drafted
+and have not been executed.

@@ -1,0 +1,47 @@
+const WIEFERICH_MAX_LIMIT: usize = 5000
+const WIEFERICH_MAX_PARSEABLE_LENGTH: usize = 2
+
+def wieferich_modular_power(base_value: i64, exponent_value: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        exponent <- exponent >> 1
+    result
+
+def wieferich_count_impl(limit: usize) -> i64:
+    prime: mutable bool[WIEFERICH_MAX_LIMIT + 1] = zeroed
+    n: mutable usize = 0
+    while n <= limit:
+        prime[n] <- true
+        n <- n + 1
+    prime[0] <- false
+    prime[1] <- false
+    divisor: mutable usize = 2
+    while divisor <= limit / divisor:
+        if prime[divisor]:
+            multiple: mutable usize = divisor * divisor
+            while multiple <= limit:
+                prime[multiple] <- false
+                multiple <- multiple + divisor
+        divisor <- divisor + 1
+    count: mutable i64 = 0
+    p: mutable usize = 3
+    while p <= limit:
+        if prime[p]:
+            p64: i64 = p.i64()
+            if wieferich_modular_power(2, p64 - 1, p64 * p64) == 1: count <- count + 1
+        p <- p + 2
+    count
+
+def wieferich_impl(input: view[i64]) -> i64:
+    if input.len() != 1: return -1
+    limit_value: i64 = input[0]
+    if limit_value < 2 or limit_value > WIEFERICH_MAX_LIMIT.i64(): return -1
+    wieferich_count_impl(limit_value.usize())
+
+export fn wieferich_prime_count_up_to_limit(input: i64&, length: usize) abi("C") -> i64:
+    if input.is_null() or length < 1 or length > WIEFERICH_MAX_PARSEABLE_LENGTH: return -1
+    wieferich_impl(input[0:length])

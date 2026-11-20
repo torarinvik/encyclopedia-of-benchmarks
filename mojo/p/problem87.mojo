@@ -1,3 +1,5 @@
+from std.collections import InlineArray
+
 fn p87_sqrt(value:Int64)->Int64:
     var low=Int64(0);var high=Int64(7072)
     while low<=high:

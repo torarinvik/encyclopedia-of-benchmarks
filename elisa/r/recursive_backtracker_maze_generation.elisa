@@ -1,0 +1,87 @@
+from std.collections import InlineArray
+from std.ffi import c_size_t
+
+const MAX_CELLS: usize = 64
+const MAX_INPUT: usize = 68
+
+def recursive_backtracker_maze_generation_impl(
+    input: view[i64], output: mutable u8&, capacity: usize,
+) -> i64:
+    let length: usize = input.len()
+    if length < 4 or length > MAX_INPUT: return -1
+    let rows_word: i64 = input[0]
+    let cols_word: i64 = input[1]
+    let start_word: i64 = input[2]
+    let draw_count: i64 = input[3]
+    if rows_word < 1 or rows_word > 64 or cols_word < 1 or cols_word > 64: return -1
+    let rows: usize = rows_word.usize()
+    let cols: usize = cols_word.usize()
+    let cells: usize = rows * cols
+    if cells > MAX_CELLS or start_word < 0 or start_word >= cells.i64() or
+        draw_count != (cells - 1).i64() or length != 4 + cells - 1: return -1
+    var draw: mutable usize = 0
+    while draw < cells - 1:
+        if input[4 + draw] < 0 or input[4 + draw] > 3: return -1
+        draw <- draw + 1
+
+    var visited = InlineArray[Bool, MAX_CELLS](fill=False)
+    var walls = InlineArray[UInt8, MAX_CELLS](fill=15)
+    var stack = InlineArray[usize, MAX_CELLS](fill=0)
+    var depth: mutable usize = 1
+    var cursor: mutable usize = 0
+    stack[0] <- start_word.usize()
+    visited[stack[0]] <- True
+    while depth > 0:
+        let cell: usize = stack[depth - 1]
+        let row: usize = cell / cols
+        let col: usize = cell % cols
+        var next_cells = InlineArray[usize, 4](fill=0)
+        var directions = InlineArray[usize, 4](fill=0)
+        var count: mutable usize = 0
+        if row > 0 and not visited[cell - cols]:
+            next_cells[count] <- cell - cols
+            directions[count] <- 0
+            count <- count + 1
+        if col + 1 < cols and not visited[cell + 1]:
+            next_cells[count] <- cell + 1
+            directions[count] <- 1
+            count <- count + 1
+        if row + 1 < rows and not visited[cell + cols]:
+            next_cells[count] <- cell + cols
+            directions[count] <- 2
+            count <- count + 1
+        if col > 0 and not visited[cell - 1]:
+            next_cells[count] <- cell - 1
+            directions[count] <- 3
+            count <- count + 1
+        if count == 0:
+            depth <- depth - 1
+            continue
+        if cursor >= cells - 1: return -1
+        let choice: usize = input[4 + cursor].usize()
+        cursor <- cursor + 1
+        if choice >= count: return -1
+        let next: usize = next_cells[choice]
+        let direction: usize = directions[choice]
+        visited[next] <- True
+        walls[cell] <- walls[cell] & (15 - (1 << direction)).u8()
+        walls[next] <- walls[next] & (15 - (1 << ((direction + 2) & 3))).u8()
+        stack[depth] <- next
+        depth <- depth + 1
+    if cursor != cells - 1: return -1
+    var cell: mutable usize = 0
+    while cell < cells:
+        if not visited[cell]: return -1
+        cell <- cell + 1
+    if output.is_null() or capacity < cells: return -2
+    cell <- 0
+    while cell < cells:
+        output[cell] <- walls[cell]
+        cell <- cell + 1
+    cells.i64()
+
+export fn recursive_backtracker_maze_generation(
+    input: i64&, length: c_size_t, output: mutable u8&, capacity: usize,
+) abi("C") -> Int64:
+    if input.is_null() or length < 4 or length > c_size_t(MAX_INPUT): return -1
+    recursive_backtracker_maze_generation_impl(input[0:length], output, capacity)

@@ -9,7 +9,7 @@ fn long npb_dc_smallest_parent(long* input, usz length) @export("npb_dc_smallest
     if (input == null || length < 4 || length > 98 || input[0] < 1 || input[0] > MAX_DIMS || input[1] < 1 || input[1] > MAX_ROWS) return -1;
     usz dimensions = (usz)input[0], rows = (usz)input[1];
     if (length != 2 + rows * (dimensions + 1)) return -1;
-    long[MAX_ROWS][MAX_DIMS] attributes = zeroed;
+    long[MAX_DIMS][MAX_ROWS] attributes = zeroed;
     long[MAX_ROWS] measures = zeroed;
     usz offset = 2;
     for (usz row = 0; row < rows; row++) {
@@ -22,8 +22,8 @@ fn long npb_dc_smallest_parent(long* input, usz length) @export("npb_dc_smallest
         if (measures[row] < 0 || measures[row] > 1000) return -1;
     }
 
-    long[MAX_MASKS][MAX_ROWS][MAX_DIMS] keys = zeroed;
-    long[MAX_MASKS][MAX_ROWS] sums = zeroed;
+    long[MAX_DIMS][MAX_ROWS][MAX_MASKS] keys = zeroed;
+    long[MAX_ROWS][MAX_MASKS] sums = zeroed;
     usz[MAX_MASKS] counts = zeroed;
     int[MAX_MASKS] parents = zeroed;
     for (int mask = 0; mask < MAX_MASKS; mask++) parents[mask] = -2;

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "consistent-overhead-byte-stuffing-i64-array-bytes-output-v1",
+  "algorithm": "consistent_overhead_byte_stuffing",
+  "function_symbol": "consistent_overhead_byte_stuffing",
+  "abi": "i64_array_bytes_output",
+  "description": "Encode a bounded payload with basic consistent overhead byte stuffing (COBS).",
+  "source": {
+    "title": "Consistent overhead byte stuffing",
+    "discovery_index_url": "https://github.com/acmeism/RosettaCodeData/blob/1d475861d7141ef2fafff293d9339f56e4b0f5db/popular-tasks",
+    "discovery_index_revision": "1d475861d7141ef2fafff293d9339f56e4b0f5db",
+    "primary_method_reference": "https://doi.org/10.1109/90.769765",
+    "definition_pdf": "https://stuartcheshire.org/papers/COBSforToN.pdf",
+    "discovery_scope": "RosettaCodeData supplies title discovery only. The benchmark follows basic COBS from Cheshire and Baker; no task text, code, examples, or tests are copied. COBS/ZPE is excluded."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[payload_byte_count, payload_bytes...]",
+    "payload_byte_range": [0, 255],
+    "maximum_payload_bytes": 255,
+    "maximum_valid_input_values": 256,
+    "maximum_parseable_input_values": 257,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "cobs_encoded_bytes",
+    "maximum_output_bytes": 257,
+    "result": "number of encoded bytes",
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "errors_write_nothing": true,
+    "framing_delimiter_included": false
+  },
+  "contract": {
+    "variant": "basic COBS, not COBS/ZPE",
+    "reserved_value": 0,
+    "code_block_rule": "Code 1..254 is followed by code-1 nonzero payload bytes and implies a zero when another block follows. Code 255 is followed by exactly 254 nonzero bytes and implies no zero.",
+    "terminal_rule": "The payload is logically zero-terminated for encoding. If it ends in a complete 254-byte nonzero block, omit the otherwise-empty terminal code block; this canonical optimization preserves the decoded payload and the tight overhead bound.",
+    "output_delimiter": "No zero frame delimiter is emitted; framing is outside this kernel.",
+    "validation_precedes_capacity": true,
+    "no_write_on_error": true,
+    "output_bound": "For payload length n=0, output length is 1. For 1<=n<=255, output length is at most n+ceil(n/254), hence at most 257 bytes."
+  },
+  "workspace": {
+    "bytes": 384,
+    "meaning": "Includes a fixed 257-byte staged output and scalar/index state; caller-owned input and output are excluded."
+  },
+  "complexity": {
+    "primary_time": "O(n) streaming code-slot pass, n<=255",
+    "primary_auxiliary_space": "O(n) fixed staging, at most 257 bytes",
+    "independent_reference_time": "O(n) zero-delimited run decomposition and block emission",
+    "independent_reference_auxiliary_space": "O(n) encoded result"
+  },
+  "primary_oracle": "benchmarks/c/consistent_overhead_byte_stuffing/primary_oracle.py",
+  "independent_oracle": "benchmarks/c/consistent_overhead_byte_stuffing/independent_oracle.py",
+  "suite_status": "integrated in i64_array_bytes_output runner and verifier",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-payload","input_values":[0],"input_length":1,"output_capacity":257,"expected_result":1,"expected_output_hex":"01"},
+    {"id":"single-zero","input_values":[1,0],"input_length":2,"output_capacity":257,"expected_result":2,"expected_output_hex":"0101"},
+    {"id":"single-nonzero","input_values":[1,255],"input_length":2,"output_capacity":257,"expected_result":2,"expected_output_hex":"02ff"},
+    {"id":"zero-between-runs","input_values":[3,17,0,34],"input_length":4,"output_capacity":257,"expected_result":4,"expected_output_hex":"02110222"},
+    {"id":"adjacent-zeroes","input_values":[2,0,0],"input_length":3,"output_capacity":257,"expected_result":3,"expected_output_hex":"010101"},
+    {"id":"exact-254-byte-block","input_values":[254,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254],"input_length":255,"output_capacity":257,"expected_result":255,"expected_output_hex":"ff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfe"},
+    {"id":"block-followed-by-one-byte","input_values":[255,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255],"input_length":256,"output_capacity":257,"expected_result":257,"expected_output_hex":"ff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfe02ff"},
+    {"id":"invalid-negative-payload-count","input_values":[-1],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"payload-count-above-bound","input_values":[256],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"byte-out-of-range","input_values":[1,256],"input_length":2,"output_capacity":257,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing-input-word","input_values":[1,7,8],"input_length":3,"output_capacity":257,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"output_capacity":257,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-before-short-output","input_values":[256],"input_length":1,"output_capacity":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"null-output-for-empty-payload","input_values":[0],"input_length":1,"output_capacity":257,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"short-output-for-empty-payload","input_values":[0],"input_length":1,"output_capacity":0,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

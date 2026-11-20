@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "algorithm": "symmetric_drawing_cyclic_wedge",
+  "function_symbol": "symmetric_drawing_cyclic_wedge",
+  "abi": "i64_array_bytes_output",
+  "languages": {
+    "c": "c/s/symmetric_drawing_cyclic_wedge.c",
+    "c3": "c3/s/symmetric_drawing_cyclic_wedge.c3",
+    "cpp": "cpp/s/symmetric_drawing_cyclic_wedge.cpp",
+    "elisa": "elisa/s/symmetric_drawing_cyclic_wedge.elisa",
+    "mojo": "mojo/s/symmetric_drawing_cyclic_wedge.mojo",
+    "nim": "nim/s/symmetric_drawing_cyclic_wedge.nim",
+    "odin": "odin/s/symmetric_drawing_cyclic_wedge.odin",
+    "rust": "rust/s/symmetric_drawing_cyclic_wedge.rs",
+    "v": "v/s/symmetric_drawing_cyclic_wedge.v",
+    "zig": "zig/s/symmetric_drawing_cyclic_wedge.zig"
+  },
+  "metadata": ["README.md", "RIGHTS.md", "workload.json", "primary_oracle.py", "independent_oracle.py", "check_inventory.py"],
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "source": {
+    "title": "Symmetric Graph Drawing",
+    "author": "Seokhee Hong",
+    "doi": "10.1007/978-1-4939-2864-4_654",
+    "section": "Overview of the Drawing Algorithm; The Cyclic Case; Find_Wedge_Cyclic"
+  },
+  "contract": {
+    "input_layout": "[n,k,b,outer_cycle[b],(degree[x],clockwise_neighbors[x]...)*n,rotation_permutation[n]]",
+    "maximum_valid_input_words": 54,
+    "maximum_parseable_input_words": 55,
+    "maximum_output_bytes": 128,
+    "workspace_bytes": 16384,
+    "measurement": {
+      "comparison_model": "i64_array_bytes_output_call",
+      "sample_count": 7,
+      "warmup_rounds": 2,
+      "repetitions_per_sample": 1000
+    },
+    "output_layout": "[len(P1),P1...,len(P2),P2...,len(P0),P0...,wedge_vertex_mask,wedge_edge_mask]",
+    "profile": "Chapter 654 Find_Wedge_Cyclic only: supplied simple 3-connected plane embedding and orientation-preserving exact-order rotational automorphism; deterministic shortest path, mapped path, generator-direction outer arc, and induced sector subgraph. No convex drawing or CYN construction."
+  }
+}

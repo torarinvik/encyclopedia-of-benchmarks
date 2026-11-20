@@ -1,0 +1,185 @@
+def sbt_size(sizes: view[i64], node: i64) -> i64:
+    if node == 0:
+        return 0
+    sizes[node.usize()]
+
+def sbt_update_size(sizes: mutable view[i64], left: view[i64], right: view[i64], node: i64) -> void:
+    sizes[node.usize()] <- sizes[left[node.usize()].usize()] + sizes[right[node.usize()].usize()] + 1
+
+def sbt_rotate_left(sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], root_input: i64) -> i64:
+    root: mutable i64 = root_input
+    pivot: i64 = right[root.usize()]
+    right[root.usize()] <- left[pivot.usize()]
+    left[pivot.usize()] <- root
+    sbt_update_size(sizes, left, right, root)
+    sbt_update_size(sizes, left, right, pivot)
+    pivot
+
+def sbt_rotate_right(sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], root_input: i64) -> i64:
+    root: mutable i64 = root_input
+    pivot: i64 = left[root.usize()]
+    left[root.usize()] <- right[pivot.usize()]
+    right[pivot.usize()] <- root
+    sbt_update_size(sizes, left, right, root)
+    sbt_update_size(sizes, left, right, pivot)
+    pivot
+
+def sbt_maintain(sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], root_input: i64) -> i64:
+    if root_input == 0:
+        return 0
+    root: mutable i64 = root_input
+    left_child: i64 = left[root.usize()]
+    right_child: i64 = right[root.usize()]
+    if sbt_size(sizes, left_child) < sbt_size(sizes, left[right_child.usize()]):
+        right[root.usize()] <- sbt_rotate_right(sizes, left, right, right_child)
+        root <- sbt_rotate_left(sizes, left, right, root)
+        left[root.usize()] <- sbt_maintain(sizes, left, right, left[root.usize()])
+        right[root.usize()] <- sbt_maintain(sizes, left, right, right[root.usize()])
+        return sbt_maintain(sizes, left, right, root)
+    if sbt_size(sizes, left_child) < sbt_size(sizes, right[right_child.usize()]):
+        root <- sbt_rotate_left(sizes, left, right, root)
+        left[root.usize()] <- sbt_maintain(sizes, left, right, left[root.usize()])
+        return sbt_maintain(sizes, left, right, root)
+    if sbt_size(sizes, right_child) < sbt_size(sizes, left[left_child.usize()]):
+        root <- sbt_rotate_right(sizes, left, right, root)
+        right[root.usize()] <- sbt_maintain(sizes, left, right, right[root.usize()])
+        return sbt_maintain(sizes, left, right, root)
+    if sbt_size(sizes, right_child) < sbt_size(sizes, right[left_child.usize()]):
+        left[root.usize()] <- sbt_rotate_left(sizes, left, right, left_child)
+        root <- sbt_rotate_right(sizes, left, right, root)
+        left[root.usize()] <- sbt_maintain(sizes, left, right, left[root.usize()])
+        right[root.usize()] <- sbt_maintain(sizes, left, right, right[root.usize()])
+        return sbt_maintain(sizes, left, right, root)
+    root
+
+def sbt_contains(keys: view[i64], left: view[i64], right: view[i64], root_input: i64, key: i64) -> bool:
+    root: mutable i64 = root_input
+    while root != 0:
+        if key < keys[root.usize()]:
+            root <- left[root.usize()]
+        else if key > keys[root.usize()]:
+            root <- right[root.usize()]
+        else:
+            return true
+    false
+
+def sbt_insert_new(keys: mutable view[i64], sizes: mutable view[i64], left: mutable view[i64], right: mutable view[i64], used: mutable view[i64], root_input: i64, key: i64) -> i64:
+    if root_input == 0:
+        used[0] <- used[0] + 1
+        node: i64 = used[0]
+        keys[node.usize()] <- key
+        sizes[node.usize()] <- 1
+        return node
+    root: mutable i64 = root_input
+    if key < keys[root.usize()]:
+        left[root.usize()] <- sbt_insert_new(keys, sizes, left, right, used, left[root.usize()], key)
+    else:
+        right[root.usize()] <- sbt_insert_new(keys, sizes, left, right, used, right[root.usize()], key)
+    sbt_update_size(sizes, left, right, root)
+    sbt_maintain(sizes, left, right, root)
+
+def sbt_rank_less(keys: view[i64], sizes: view[i64], left: view[i64], right: view[i64], root_input: i64, key: i64) -> i64:
+    root: mutable i64 = root_input
+    rank: mutable i64 = 0
+    while root != 0:
+        if key <= keys[root.usize()]:
+            root <- left[root.usize()]
+        else:
+            rank <- rank + sbt_size(sizes, left[root.usize()]) + 1
+            root <- right[root.usize()]
+    rank
+
+def sbt_kth(keys: view[i64], sizes: view[i64], left: view[i64], right: view[i64], root_input: i64, index_input: i64) -> i64:
+    if index_input < 0 or index_input >= sbt_size(sizes, root_input):
+        return -1025
+    root: mutable i64 = root_input
+    index: mutable i64 = index_input
+    while root != 0:
+        left_size: i64 = sbt_size(sizes, left[root.usize()])
+        if index == left_size:
+            return keys[root.usize()]
+        if index < left_size:
+            root <- left[root.usize()]
+        else:
+            index <- index - left_size - 1
+            root <- right[root.usize()]
+    -1025
+
+def sbt_predecessor(keys: view[i64], left: view[i64], right: view[i64], root_input: i64, key: i64) -> i64:
+    root: mutable i64 = root_input
+    answer: mutable i64 = -1025
+    while root != 0:
+        if keys[root.usize()] < key:
+            answer <- keys[root.usize()]
+            root <- right[root.usize()]
+        else:
+            root <- left[root.usize()]
+    answer
+
+def sbt_successor(keys: view[i64], left: view[i64], right: view[i64], root_input: i64, key: i64) -> i64:
+    root: mutable i64 = root_input
+    answer: mutable i64 = -1025
+    while root != 0:
+        if keys[root.usize()] > key:
+            answer <- keys[root.usize()]
+            root <- left[root.usize()]
+        else:
+            root <- right[root.usize()]
+    answer
+
+def size_balanced_ordered_set_impl(input: view[i64], length: usize) -> i64:
+    if length < 1 or length > 257:
+        return -1
+    operation_count_value: i64 = input[0]
+    if operation_count_value < 0 or operation_count_value > 128:
+        return -1
+    operation_count: usize = operation_count_value.usize()
+    if length != 1 + 2 * operation_count:
+        return -1
+
+    i: mutable usize = 0
+    while i < operation_count:
+        operation: i64 = input[1 + 2 * i]
+        argument: i64 = input[2 + 2 * i]
+        if operation < 0 or operation > 4:
+            return -1
+        if operation == 2:
+            if argument < 0 or argument > 127:
+                return -1
+        else if argument < -1024 or argument > 1023:
+            return -1
+        i <- i + 1
+
+    keys: mutable i64[129] = zeroed
+    sizes: mutable i64[129] = zeroed
+    left: mutable i64[129] = zeroed
+    right: mutable i64[129] = zeroed
+    used: mutable i64[1] = zeroed
+    root: mutable i64 = 0
+    checksum: mutable i64 = 0
+    i <- 0
+    while i < operation_count:
+        operation: i64 = input[1 + 2 * i]
+        argument: i64 = input[2 + 2 * i]
+        answer: mutable i64 = 0
+        if operation == 0:
+            if not sbt_contains(keys[0:129], left[0:129], right[0:129], root, argument):
+                root <- sbt_insert_new(keys[0:129], sizes[0:129], left[0:129], right[0:129], used[0:1], root, argument)
+        else:
+            if operation == 1:
+                answer <- sbt_rank_less(keys[0:129], sizes[0:129], left[0:129], right[0:129], root, argument)
+            else if operation == 2:
+                answer <- sbt_kth(keys[0:129], sizes[0:129], left[0:129], right[0:129], root, argument)
+            else if operation == 3:
+                answer <- sbt_predecessor(keys[0:129], left[0:129], right[0:129], root, argument)
+            else:
+                answer <- sbt_successor(keys[0:129], left[0:129], right[0:129], root, argument)
+            checksum <- checksum + (i.i64() + 1) * (answer + 1025)
+        i <- i + 1
+    checksum
+
+export fn size_balanced_ordered_set(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 257:
+        return -1
+    input_view: view[i64] = input[0:length]
+    size_balanced_ordered_set_impl(input_view, length)

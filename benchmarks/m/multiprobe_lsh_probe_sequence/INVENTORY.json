@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "algorithm": "multiprobe_lsh_probe_sequence",
+  "function_symbol": "multiprobe_lsh_probe_sequence",
+  "abi": "i64_array_bytes_output",
+  "status": "source package complete; byte-output runner and verifier registered",
+  "suite_integration": [
+    "benchmarks/run_i64_array_bytes_output.py",
+    "benchmarks/verify_i64_array_bytes_output.py"
+  ],
+  "native_paths": [
+    "c/m/multiprobe_lsh_probe_sequence.c",
+    "c3/m/multiprobe_lsh_probe_sequence.c3",
+    "cpp/m/multiprobe_lsh_probe_sequence.cpp",
+    "elisa/m/multiprobe_lsh_probe_sequence.elisa",
+    "mojo/m/multiprobe_lsh_probe_sequence.mojo",
+    "nim/m/multiprobe_lsh_probe_sequence.nim",
+    "odin/m/multiprobe_lsh_probe_sequence.odin",
+    "rust/m/multiprobe_lsh_probe_sequence.rs",
+    "v/m/multiprobe_lsh_probe_sequence.v",
+    "zig/m/multiprobe_lsh_probe_sequence.zig"
+  ],
+  "package_files": [
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "check_inventory.py"
+  ],
+  "oracle_paths": [
+    "benchmarks/multiprobe_lsh_probe_sequence_oracle.py",
+    "benchmarks/multiprobe_lsh_probe_sequence_verifier_oracle.py"
+  ],
+  "bounds": {
+    "minimum_dimensions": 1,
+    "maximum_dimensions": 4,
+    "maximum_width": 1000,
+    "maximum_valid_input_length": 7,
+    "maximum_parseable_input_length": 7,
+    "maximum_valid_probe_count": 80,
+    "maximum_output_bytes": 80,
+    "workspace_bytes": 4096
+  },
+  "fixture_ids": [
+    "single_projection",
+    "zero_cost_ties_and_invalid_ancestors",
+    "zero_requested",
+    "short_output",
+    "null_output_empty",
+    "distance_outside_bin",
+    "too_many_probes",
+    "null_input"
+  ],
+  "sources": [
+    {
+      "role": "method_description",
+      "title": "Multi-Probe LSH: Efficient Indexing for High-Dimensional Similarity Search",
+      "url": "https://www.cs.princeton.edu/cass/papers/mplsh_vldb07.pdf"
+    },
+    {
+      "role": "PARSEC_context",
+      "title": "PARSEC: A Benchmark Suite for Studies of Multicore and Multiprocessor Systems",
+      "url": "https://www.cs.princeton.edu/techreports/2010/890.pdf"
+    }
+  ],
+  "rights_summary": "Research publications are method references only; source code, prose, figures, and fixtures are independently authored."
+}

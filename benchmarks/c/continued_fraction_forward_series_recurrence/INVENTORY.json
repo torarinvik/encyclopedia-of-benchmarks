@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "algorithm": "continued_fraction_forward_series_recurrence",
+  "function_symbol": "continued_fraction_forward_series_recurrence",
+  "abi": "i64_array_bytes_output",
+  "status": "integrated in shared byte-output suite and catalog; execution deferred",
+  "input": {
+    "minimum_valid_length": 3,
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 11,
+    "coefficient_count_range": [2, 9],
+    "coefficient_residue_range": [0, 998244352]
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_word_bytes",
+    "encoding": "[N,S1,...,SN]",
+    "maximum_bytes": 80
+  },
+  "workspace": {"bytes": 0},
+  "references": ["primary_oracle.py", "independent_oracle.py"],
+  "workload": "workload.json",
+  "static_helpers": ["verify_workload.py", "check_inventory.py"],
+  "ports": [
+    "c/c/continued_fraction_forward_series_recurrence.c",
+    "c3/c/continued_fraction_forward_series_recurrence.c3",
+    "cpp/c/continued_fraction_forward_series_recurrence.cpp",
+    "elisa/c/continued_fraction_forward_series_recurrence.elisa",
+    "mojo/c/continued_fraction_forward_series_recurrence.mojo",
+    "nim/c/continued_fraction_forward_series_recurrence.nim",
+    "odin/c/continued_fraction_forward_series_recurrence.odin",
+    "rust/c/continued_fraction_forward_series_recurrence.rs",
+    "v/c/continued_fraction_forward_series_recurrence.v",
+    "zig/c/continued_fraction_forward_series_recurrence.zig"
+  ],
+  "source": "https://dlmf.nist.gov/3.10#E15"
+}

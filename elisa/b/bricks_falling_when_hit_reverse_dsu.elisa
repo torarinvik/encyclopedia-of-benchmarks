@@ -1,0 +1,147 @@
+const MAX_CELLS: usize = 64
+const MAX_HITS: usize = 16
+const MAX_INPUT_LENGTH: usize = 100
+
+def bfh_find_root(parent: mutable view[i32], vertex_value: usize) -> usize:
+    vertex: mutable usize = vertex_value
+    while parent[vertex].usize() != vertex:
+        parent[vertex] <- parent[parent[vertex].usize()]
+        vertex <- parent[vertex].usize()
+    vertex
+
+def bfh_unite(parent: mutable view[i32], component_size: mutable view[i32],
+        left: usize, right: usize) -> void:
+    left_root: mutable usize = bfh_find_root(parent, left)
+    right_root: mutable usize = bfh_find_root(parent, right)
+    if left_root == right_root:
+        return
+    if component_size[left_root] < component_size[right_root]:
+        temporary: usize = left_root
+        left_root <- right_root
+        right_root <- temporary
+    parent[right_root] <- left_root.i32()
+    component_size[left_root] <- component_size[left_root] + component_size[right_root]
+
+def bfh_build_dsu(grid: view[u8], rows: usize, columns: usize,
+        parent: mutable view[i32], component_size: mutable view[i32]) -> void:
+    cells: usize = rows * columns
+    cell: mutable usize = 0
+    while cell < cells:
+        parent[cell] <- cell.i32()
+        component_size[cell] <- grid[cell].i32()
+        cell <- cell + 1
+    parent[cells] <- cells.i32()
+    component_size[cells] <- 0
+    cell <- 0
+    while cell < cells:
+        if grid[cell] == 0:
+            cell <- cell + 1
+            continue
+        row: usize = cell / columns
+        column: usize = cell % columns
+        if row == 0:
+            bfh_unite(parent, component_size, cell, cells)
+        if row > 0 and grid[cell - columns] != 0:
+            bfh_unite(parent, component_size, cell, cell - columns)
+        if column > 0 and grid[cell - 1] != 0:
+            bfh_unite(parent, component_size, cell, cell - 1)
+        cell <- cell + 1
+
+def bfh_store_i64_le(output: mutable view[u8], offset: usize, value: i32) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+export fn bricks_falling_when_hit_reverse_dsu(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    values: view[i64] = input[0:length]
+    rows_value: i64 = values[0]
+    columns_value: i64 = values[1]
+    hit_value: i64 = values[2]
+    if rows_value < 1 or rows_value > 8 or columns_value < 1 or columns_value > 8 or hit_value < 0 or hit_value > MAX_HITS.i64():
+        return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    cells: usize = rows * columns
+    hits: usize = hit_value.usize()
+    if hits > cells or length != 3 + cells + 2 * hits:
+        return -1
+
+    grid: mutable u8[64] = zeroed
+    parent: mutable i32[65] = zeroed
+    component_size: mutable i32[65] = zeroed
+    cell: mutable usize = 0
+    while cell < cells:
+        value: i64 = values[3 + cell]
+        if value != 0 and value != 1:
+            return -1
+        grid[cell] <- value.u8()
+        cell <- cell + 1
+    hit_start: usize = 3 + cells
+    index: mutable usize = 0
+    while index < hits:
+        row: i64 = values[hit_start + 2 * index]
+        column: i64 = values[hit_start + 2 * index + 1]
+        if row < 0 or row >= rows_value or column < 0 or column >= columns_value:
+            return -1
+        previous: mutable usize = 0
+        while previous < index:
+            if values[hit_start + 2 * previous] == row and values[hit_start + 2 * previous + 1] == column:
+                return -1
+            previous <- previous + 1
+        index <- index + 1
+
+    bfh_build_dsu(grid[0:cells], rows, columns, parent[0:cells + 1], component_size[0:cells + 1])
+    roof_root: usize = bfh_find_root(parent[0:cells + 1], cells)
+    cell <- 0
+    while cell < cells:
+        if grid[cell] != 0 and bfh_find_root(parent[0:cells + 1], cell) != roof_root:
+            return -1
+        cell <- cell + 1
+
+    required: usize = hits * 8
+    if capacity < required or (required != 0 and output.is_null()):
+        return -2
+    if hits == 0:
+        return 0
+    result: mutable view[u8] = output[0:required]
+    index <- 0
+    while index < hits:
+        row: usize = values[hit_start + 2 * index].usize()
+        column: usize = values[hit_start + 2 * index + 1].usize()
+        grid[row * columns + column] <- 0
+        index <- index + 1
+    bfh_build_dsu(grid[0:cells], rows, columns, parent[0:cells + 1], component_size[0:cells + 1])
+
+    reverse: mutable usize = hits
+    while reverse > 0:
+        reverse <- reverse - 1
+        row: usize = values[hit_start + 2 * reverse].usize()
+        column: usize = values[hit_start + 2 * reverse + 1].usize()
+        cell <- row * columns + column
+        if values[3 + cell] == 0:
+            bfh_store_i64_le(result, reverse * 8, 0)
+            continue
+        before: i32 = component_size[bfh_find_root(parent[0:cells + 1], cells)]
+        grid[cell] <- 1
+        parent[cell] <- cell.i32()
+        component_size[cell] <- 1
+        if row == 0:
+            bfh_unite(parent[0:cells + 1], component_size[0:cells + 1], cell, cells)
+        if row > 0 and grid[cell - columns] != 0:
+            bfh_unite(parent[0:cells + 1], component_size[0:cells + 1], cell, cell - columns)
+        if row + 1 < rows and grid[cell + columns] != 0:
+            bfh_unite(parent[0:cells + 1], component_size[0:cells + 1], cell, cell + columns)
+        if column > 0 and grid[cell - 1] != 0:
+            bfh_unite(parent[0:cells + 1], component_size[0:cells + 1], cell, cell - 1)
+        if column + 1 < columns and grid[cell + 1] != 0:
+            bfh_unite(parent[0:cells + 1], component_size[0:cells + 1], cell, cell + 1)
+        after: i32 = component_size[bfh_find_root(parent[0:cells + 1], cells)]
+        fallen: i32 = if after > before + 1 then after - before - 1 else 0
+        bfh_store_i64_le(result, reverse * 8, fallen)
+    required.i64()

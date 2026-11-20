@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "algorithm": "rna_pair_activity_partition_function",
+  "function_symbol": "rna_pair_activity_partition_function",
+  "abi": "i64_array_scalar",
+  "status": "integrated",
+  "suite_status": "integrated",
+  "native_paths": [
+    "c/r/rna_pair_activity_partition_function.c",
+    "c3/r/rna_pair_activity_partition_function.c3",
+    "cpp/r/rna_pair_activity_partition_function.cpp",
+    "elisa/r/rna_pair_activity_partition_function.elisa",
+    "mojo/r/rna_pair_activity_partition_function.mojo",
+    "nim/r/rna_pair_activity_partition_function.nim",
+    "odin/r/rna_pair_activity_partition_function.odin",
+    "rust/r/rna_pair_activity_partition_function.rs",
+    "v/r/rna_pair_activity_partition_function.v",
+    "zig/r/rna_pair_activity_partition_function.zig"
+  ],
+  "package_files": [
+    "__init__.py",
+    "README.md",
+    "RIGHTS.md",
+    "INVENTORY.md",
+    "INVENTORY.json",
+    "workload.json",
+    "primary_oracle.py",
+    "independent_oracle.py",
+    "verify_workload.py",
+    "check_inventory.py"
+  ],
+  "bounds": {
+    "maximum_sequence_length": 16,
+    "maximum_pair_activity": 3,
+    "maximum_valid_input_length": 121,
+    "maximum_parseable_input_length": 122,
+    "workspace_bytes": 2048,
+    "conservative_maximum_result": 303162394896
+  },
+  "suite_registration": "i64_array_scalar"
+}

@@ -4,7 +4,7 @@ const usz MAX_DIMENSION = 64;
 const usz MAX_CELLS = MAX_DIMENSION * MAX_DIMENSION;
 const double INVALID_RESULT = -1e300;
 
-double bicg(long* values, ulong length) @export("bicg") {
+fn double bicg(long* values, ulong length) @export("bicg") {
     if (values == null || length != 2 || values[0] < 1 || values[0] > (long)MAX_DIMENSION ||
         values[1] < 1 || values[1] > (long)MAX_DIMENSION) return INVALID_RESULT;
     usz m = (usz)values[0], n = (usz)values[1];
