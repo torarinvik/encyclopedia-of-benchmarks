@@ -4,24 +4,20 @@ def perfect_cube_impl(value: i64) -> i64:
     target: u64 = 0.u64() - bits if value < 0 else bits
     if target > 1000000000000:
         return -1
-    # Below 64, the only cubes are 0, 1, 8 and 27.
     if target < 64:
         return ((0x08000103.u64() >> target) & 1).i64()
     # Cubes have residues 0, 1 or 8 modulo 9.
     residue: u64 = target % 9
     if residue > 1 and residue < 8:
         return 0
-    low: mutable u64 = 2
-    high: mutable u64 = 10000
-    while low <= high:
-        middle: u64 = (low + high) >> 1
-        cube: u64 = middle * middle * middle
-        if cube == target:
-            return 1
-        if cube < target:
-            low <- middle + 1
-        else:
-            high <- middle - 1
-    0
+    # Build the floor cube root from its highest possible bit downward.
+    root: mutable u64 = 0
+    step: mutable u64 = 8192
+    while step != 0:
+        candidate: u64 = root | step
+        cube: u64 = candidate * candidate * candidate
+        root <- candidate if cube <= target else root
+        step <- step >> 1
+    return 1 if root * root * root == target else 0
 
 export fn perfect_cube(value: i64) -> i64 = perfect_cube_impl
