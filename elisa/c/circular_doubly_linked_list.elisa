@@ -4,7 +4,8 @@ def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, n
     free_head: mutable usize = sentinel
     next_unused: mutable usize = 0
     count: mutable usize = 0
-    checksum: mutable i64 = 0
+    # Biased results and their weighted sum fit in i64 for every bounded trace.
+    checksum: mutable u64 = 0
     for operation in 0..<operation_count:
         opcode: i64 = values[2 * operation]
         payload: i64 = values[2 * operation + 1]
@@ -79,15 +80,15 @@ def circular_list_trace(values: i64&, operation_count: usize, sentinel: usize, n
         else:
             return -1
         if returns_value:
-            checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
-    checksum <- while forward != sentinel |forward: mutable usize = next_node[sentinel].usize(), backward: mutable usize = prev_node[sentinel].usize(), index: mutable usize = 0, total: mutable i64 = checksum| -> total:
-        weight: i64 = (operation_count + index + 1).i64()
-        total <- total + weight * (node_value[forward].i64() + 1000000)
-        total <- total + (weight + count.i64()) * (node_value[backward].i64() + 1000000)
+            checksum <- checksum + (operation + 1).u64() * (observed.u64() + 1000000)
+    checksum <- while forward != sentinel |forward: mutable usize = next_node[sentinel].usize(), backward: mutable usize = prev_node[sentinel].usize(), index: mutable usize = 0, total: mutable u64 = checksum| -> total:
+        weight: u64 = (operation_count + index + 1).u64()
+        total <- total + weight * (node_value[forward].u64() + 1000000)
+        total <- total + (weight + count.u64()) * (node_value[backward].u64() + 1000000)
         forward <- next_node[forward].usize()
         backward <- prev_node[backward].usize()
         index <- index + 1
-    checksum
+    checksum.i64()
 
 # Bounded circular doubly linked list using a circular sentinel ring.
 def circular_doubly_linked_list_impl(values: i64&, length: usize) -> i64:
