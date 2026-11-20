@@ -9,7 +9,8 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
         payload: i64 = values[2 * operation + 1]
         observed: mutable u64 = 1000000
         biased_payload: u64 = payload.u64() + 1000000
-        returns_value: mutable bool = true
+        removed: mutable usize = 0
+        predecessor: mutable usize = 0
         if opcode == 0 or opcode == 1:
             if biased_payload > 2000000 or count == 256:
                 return -1
@@ -29,7 +30,7 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
                 if count == 0:
                     tail_index <- node
             count <- count + 1
-            returns_value <- false
+            continue
         elif opcode == 2 or opcode == 3:
             if payload != 0 or count == 0:
                 return -1
@@ -66,7 +67,7 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
                 return -1
             observed <- count.u64() + 1000000
         elif opcode == 7 or opcode == 8:
-            if payload < 0 or payload > 1000000 or count == 0 or payload >= count.i64():
+            if payload.u64() >= count.u64():
                 return -1
             previous: mutable usize = 0
             for index in 0..<payload.usize():
@@ -82,8 +83,14 @@ def circular_linked_list_trace(values: i64&, operation_count: usize, node_value:
                 count <- count - 1
         else:
             return -1
-        if returns_value:
-            checksum <- checksum + (operation + 1).u64() * observed
+        if removed != 0:
+            next_node[predecessor] <- next_node[removed]
+            if removed == tail_index:
+                tail_index <- predecessor
+            next_node[removed] <- free_head.u16()
+            free_head <- removed
+            count <- count - 1
+        checksum <- checksum + (operation + 1).u64() * observed
     checksum <- while node != 0 |node: mutable usize = next_node[0].usize(), index: mutable usize = 0, total: mutable u64 = checksum| -> total:
         total <- total + (operation_count + index + 1).u64() * node_value[node].u64()
         node <- next_node[node].usize()
