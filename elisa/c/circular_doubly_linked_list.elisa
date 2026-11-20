@@ -6,7 +6,7 @@ def circular_doubly_linked_list_impl(values: i64&, length: usize) -> i64:
     if operation_count == 0:
         return 0
     checksum: i64 =
-        while operation < operation_count |operation: mutable usize = 0, node_value: mutable i64[256] = zeroed, next_node: mutable usize[257] = zeroed, prev_node: mutable usize[257] = zeroed, free_head: mutable usize = 256, next_unused: mutable usize = 0, count: mutable usize = 0, checksum: mutable i64 = 0| -> checksum:
+        while operation < operation_count |operation: mutable usize = 0, node_value: mutable i32[256] = zeroed, next_node: mutable u16[257] = zeroed, prev_node: mutable u16[257] = zeroed, free_head: mutable usize = 256, next_unused: mutable usize = 0, count: mutable usize = 0, checksum: mutable i64 = 0| -> checksum:
             if operation == 0:
                 next_node[256] <- 256
                 prev_node[256] <- 256
@@ -21,42 +21,42 @@ def circular_doubly_linked_list_impl(values: i64&, length: usize) -> i64:
                 if free_head == 256:
                     next_unused <- next_unused + 1
                 else:
-                    free_head <- next_node[node]
-                node_value[node] <- payload
+                    free_head <- next_node[node].usize()
+                node_value[node] <- payload.i32()
                 before: mutable usize = 256
                 after: mutable usize = 256
                 if opcode == 0:
-                    before <- prev_node[256]
+                    before <- prev_node[256].usize()
                 else:
-                    after <- next_node[256]
-                next_node[node] <- after
-                prev_node[node] <- before
-                next_node[before] <- node
-                prev_node[after] <- node
+                    after <- next_node[256].usize()
+                next_node[node] <- after.u16()
+                prev_node[node] <- before.u16()
+                next_node[before] <- node.u16()
+                prev_node[after] <- node.u16()
                 count <- count + 1
                 returns_value <- false
             elif opcode == 2 or opcode == 3:
                 if payload != 0 or count == 0:
                     break -1
-                node: usize = next_node[256] if opcode == 2 else prev_node[256]
-                observed <- node_value[node]
-                next_node[prev_node[node]] <- next_node[node]
-                prev_node[next_node[node]] <- prev_node[node]
-                next_node[node] <- free_head
+                node: usize = next_node[256].usize() if opcode == 2 else prev_node[256].usize()
+                observed <- node_value[node].i64()
+                next_node[prev_node[node].usize()] <- next_node[node]
+                prev_node[next_node[node].usize()] <- prev_node[node]
+                next_node[node] <- free_head.u16()
                 free_head <- node
                 count <- count - 1
             elif opcode == 4 or opcode == 5:
                 if payload < -1000000 or payload > 1000000:
                     break -1
                 node: usize =
-                    while current != 256 and node_value[current] != payload |current: mutable usize = next_node[256]| -> current:
-                        current <- next_node[current]
+                    while current != 256 and node_value[current].i64() != payload |current: mutable usize = next_node[256].usize()| -> current:
+                        current <- next_node[current].usize()
                 if node != 256:
                     observed <- 1
                 if opcode == 4 and node != 256:
-                    next_node[prev_node[node]] <- next_node[node]
-                    prev_node[next_node[node]] <- prev_node[node]
-                    next_node[node] <- free_head
+                    next_node[prev_node[node].usize()] <- next_node[node]
+                    prev_node[next_node[node].usize()] <- prev_node[node]
+                    next_node[node] <- free_head.u16()
                     free_head <- node
                     count <- count - 1
             elif opcode == 6:
@@ -70,14 +70,14 @@ def circular_doubly_linked_list_impl(values: i64&, length: usize) -> i64:
                 if opcode == 7:
                     index <- index % count
                 node: usize =
-                    while step < index |step: mutable usize = 0, current: mutable usize = next_node[256]| -> current:
-                        current <- next_node[current]
+                    while step < index |step: mutable usize = 0, current: mutable usize = next_node[256].usize()| -> current:
+                        current <- next_node[current].usize()
                         step <- step + 1
-                observed <- node_value[node]
+                observed <- node_value[node].i64()
                 if opcode == 8:
-                    next_node[prev_node[node]] <- next_node[node]
-                    prev_node[next_node[node]] <- prev_node[node]
-                    next_node[node] <- free_head
+                    next_node[prev_node[node].usize()] <- next_node[node]
+                    prev_node[next_node[node].usize()] <- prev_node[node]
+                    next_node[node] <- free_head.u16()
                     free_head <- node
                     count <- count - 1
             else:
@@ -85,13 +85,13 @@ def circular_doubly_linked_list_impl(values: i64&, length: usize) -> i64:
             if returns_value:
                 checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
             if operation + 1 == operation_count:
-                checksum <- while current != 256 |current: mutable usize = next_node[256], index: mutable usize = 0, total: mutable i64 = checksum| -> total:
-                    total <- total + (operation_count + index + 1).i64() * (node_value[current] + 1000000)
-                    current <- next_node[current]
+                checksum <- while current != 256 |current: mutable usize = next_node[256].usize(), index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    total <- total + (operation_count + index + 1).i64() * (node_value[current].i64() + 1000000)
+                    current <- next_node[current].usize()
                     index <- index + 1
-                checksum <- while current != 256 |current: mutable usize = prev_node[256], index: mutable usize = 0, total: mutable i64 = checksum| -> total:
-                    total <- total + (operation_count + count + index + 1).i64() * (node_value[current] + 1000000)
-                    current <- prev_node[current]
+                checksum <- while current != 256 |current: mutable usize = prev_node[256].usize(), index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    total <- total + (operation_count + count + index + 1).i64() * (node_value[current].i64() + 1000000)
+                    current <- prev_node[current].usize()
                     index <- index + 1
             operation <- operation + 1
     checksum
