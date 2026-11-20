@@ -119,11 +119,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         parent_edge: mutable i64[MAX_N] = zeroed
         parent_dir: mutable i64[MAX_N] = zeroed
         next_edge: mutable usize[MAX_N] = zeroed
-        x <- 0
-        while (x < n):
-            parent[x] <- (-1)
-            parent_edge[x] <- (-1)
-            x <- (x + 1)
+        # A discovered vertex has a parent chain back to the source.
         search_stack: mutable usize[MAX_N] = zeroed
         top: mutable usize = 0
         seen[s] <- true
