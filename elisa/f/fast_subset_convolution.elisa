@@ -21,15 +21,27 @@ def fast_subset_convolution_impl(input: i64&, length: usize, output: mutable u8&
     size: usize = 1 << n
     if length != 1 + 2 * size:
         return -1
+    if size == 1:
+        left: u64 = input[1].u64()
+        right: u64 = input[2].u64()
+        if left >= MOD.u64() or right >= MOD.u64():
+            return -1
+        if capacity < 8 or output == null:
+            return -2
+        fast_subset_convolution_put(output, 0, ((left * right) % MOD.u64()).i64())
+        return 8
     index: mutable usize = 0
     while index < 2 * size:
         value: i64 = input[1 + index]
-        if value < 0 or value >= MOD:
+        if value.u64() >= MOD.u64():
             return -1
         index <- index + 1
     required: usize = size * 8
     if capacity < required or output == null:
         return -2
+
+    left_coefficients: i64& = &input[1]
+    right_coefficients: i64& = &input[1 + size]
 
     # Stage results before any stores so the output may overlap the input.
     coefficients: mutable u64[16] = zeroed
@@ -38,8 +50,8 @@ def fast_subset_convolution_impl(input: i64&, length: usize, output: mutable u8&
         subset: mutable usize = mask
         sum: mutable u64 = 0
         while true:
-            left: u64 = input[1 + subset].u64()
-            right: u64 = input[1 + size + (mask ^ subset)].u64()
+            left: u64 = left_coefficients[subset].u64()
+            right: u64 = right_coefficients[mask ^ subset].u64()
             sum <- sum + left * right
             if subset == 0:
                 break
