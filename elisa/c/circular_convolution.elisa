@@ -1,5 +1,5 @@
 def circular_convolution_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length < 4:
+    if values == null or length < 4:
         return -1
     raw_a_length: i64 = values[0]
     raw_b_length: i64 = values[1]
@@ -9,29 +9,27 @@ def circular_convolution_impl(values: i64&, length: usize, output: mutable u8&, 
     b_length: usize = raw_b_length.usize()
     if length != 2 + a_length + b_length:
         return -1
-    index: usize = 0
+    index: mutable usize = 0
     while index < a_length + b_length:
         sample: i64 = values[2 + index]
         if sample < -2 or sample > 2:
             return -1
         index <- index + 1
-    n: usize = if a_length > b_length: a_length else: b_length
-    if output_capacity < n:
+    n: usize = a_length if a_length > b_length else b_length
+    if output == null or output_capacity < n:
         return -2
 
-    k: usize = 0
-    while k < n:
-        sum: mutable i64 = 0
-        i: usize = 0
-        while i < n:
-            b_index: usize = (k + n - i) % n
-            a_value: i64 = if i < a_length: values[2 + i] else: 0
-            b_value: i64 = if b_index < b_length: values[2 + a_length + b_index] else: 0
-            sum <- sum + a_value * b_value
-            i <- i + 1
-        encoded: i64 = if sum < 0: sum + 256 else: sum
-        output[k] <- encoded.u8()
-        k <- k + 1
+    coefficients: mutable u32[16] = zeroed
+    first: i64& = &values[2]
+    second: i64& = &values[2 + a_length]
+    # First form the linear convolution, then fold the tail into the prefix.
+    for left_index in 0..<a_length:
+        left: u32 = first[left_index].u32()
+        for right_index in 0..<b_length:
+            position: usize = left_index + right_index
+            coefficients[position] <- coefficients[position] + left * second[right_index].u32()
+    for position in 0..<n:
+        output[position] <- (coefficients[position] + coefficients[position + n]).u8()
     n.i64()
 
 export fn circular_convolution(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = circular_convolution_impl

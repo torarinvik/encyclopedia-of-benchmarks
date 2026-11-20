@@ -31,9 +31,9 @@
   "cases": [
     {
       "id": "unequal_length_zero_padding",
-      "input_values": [3, 2, 1, 2, 0, 3, -1],
+      "input_values": [3, 2, 1, 2, 0, 2, -1],
       "expected_result": 3,
-      "expected_output_hex": "0305fe"
+      "expected_output_hex": "0203fe"
     },
     {
       "id": "wraparound_from_high_indices_to_zero",
