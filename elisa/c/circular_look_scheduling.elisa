@@ -26,20 +26,22 @@ def circular_look_large(input: i64&, request_count: usize, max_cylinder: i64, st
     index <- 1
     while index < up_count:
         value: u8 = up[index]
-        position: mutable usize = index
-        while position > 0 and up[position - 1] > value:
-            up[position] <- up[position - 1]
-            position <- position - 1
-        up[position] <- value
+        if up[index - 1] > value:
+            position: mutable usize = index
+            while position > 0 and up[position - 1] > value:
+                up[position] <- up[position - 1]
+                position <- position - 1
+            up[position] <- value
         index <- index + 1
     index <- 1
     while index < down_count:
         value: u8 = down[index]
-        position: mutable usize = index
-        while position > 0 and down[position - 1] > value:
-            down[position] <- down[position - 1]
-            position <- position - 1
-        down[position] <- value
+        if down[index - 1] > value:
+            position: mutable usize = index
+            while position > 0 and down[position - 1] > value:
+                down[position] <- down[position - 1]
+                position <- position - 1
+            down[position] <- value
         index <- index + 1
 
     index <- 0
