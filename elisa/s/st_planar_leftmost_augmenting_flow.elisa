@@ -51,7 +51,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         arc_target[2 * e + 1] <- u.u8()
         residual_capacity[2 * e] <- c.u8()
         e <- (e + 1)
-    # Each rotation stores up to five five-bit arc codes, in input order.
+    # A leading one marks the end of up to five five-bit arc IDs.
     rotations: mutable u32[VERTEX_SLOTS] = zeroed
     # Each edge has two bits, one for each endpoint in the rotation.
     occurrences: mutable u64 = 0
@@ -64,7 +64,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         if d0.u64() >= n0.u64() or at + d0.usize() > length:
             return (-1)
         d: usize = d0.usize()
-        rotation: mutable u32 = 0
+        rotation: mutable u32 = 1 << (5 * d)
         j: mutable usize = 0
         while (j < d):
             e0: i64 = input[at + j]
@@ -81,7 +81,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             if (occurrences & bit) != 0:
                 return -1
             occurrences <- occurrences | bit
-            rotation <- rotation | ((arc.u32() + 1) << (5 * j))
+            rotation <- rotation | (arc.u32() << (5 * j))
             j <- (j + 1)
         at <- at + d
         rotations[x] <- rotation
@@ -113,13 +113,13 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         parent_capacity: mutable u8 = 5
         while not seen[t]:
             remaining: u32 = pending[u]
-            if remaining == 0:
+            if remaining == 1:
                 if u == s:
                     break
                 u <- path[u].usize() & (VERTEX_SLOTS - 1)
                 parent_capacity <- (path[u] >> 8).u8()
                 continue
-            arc: usize = (remaining.usize() - 1) & (ARC_SLOTS - 1)
+            arc: usize = remaining.usize() & (ARC_SLOTS - 1)
             pending[u] <- remaining >> 5
             v: usize = arc_target[arc].usize() & (VERTEX_SLOTS - 1)
             available: u8 = residual_capacity[arc]
