@@ -16,9 +16,11 @@ def dilation_operation_impl(input: i64&, length: usize, output: mutable u8&, out
     cells: usize = rows * columns
     if length != 2 + cells + 9:
         return -1
+    combined_cells: mutable i64 = 0
     for i in 0..<(cells + 9):
-        if input[2 + i] < 0 or input[2 + i] > 1:
-            return -1
+        combined_cells <- combined_cells | input[2 + i]
+    if combined_cells < 0 or combined_cells > 1:
+        return -1
     if output == null or output_capacity < cells * 4:
         return -2
     kernel_offset: usize = 2 + cells
