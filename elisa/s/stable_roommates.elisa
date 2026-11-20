@@ -12,6 +12,11 @@ def stable_roommates_impl(input: i64&?, length: usize) -> i64:
     if length != 1 + n * (n - 1):
         return -1
 
+    stable_roommates_valid_shape(input, n)
+
+@inline(never)
+def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
+    n_value: i64 = n.i64()
     preference: mutable i64[SR_MAX_PARTICIPANTS][SR_MAX_PARTICIPANTS] = zeroed
     rank: mutable i64[SR_MAX_PARTICIPANTS][SR_MAX_PARTICIPANTS] = zeroed
     cursor: mutable usize = 1
