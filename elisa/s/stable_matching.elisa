@@ -69,14 +69,15 @@ def stable_matching_valid_input(input: i64&, n: usize, output: mutable u8&?, cap
             next_proposal[active] <- rank + 1
             woman: usize = input[1 + active * n + rank].usize()
             incumbent_code: usize = woman_partner[woman].usize()
+            if incumbent_code != 0:
+                incumbent: usize = incumbent_code - 1
+                if women_rank[woman * MAX_N + active] >= women_rank[woman * MAX_N + incumbent]:
+                    continue
+            woman_partner[woman] <- (active + 1).u8()
+            man_partner[active] <- woman.i64()
             if incumbent_code == 0:
-                woman_partner[woman] <- (active + 1).u8()
-                man_partner[active] <- woman.i64()
                 break
-            if women_rank[woman * MAX_N + active] < women_rank[woman * MAX_N + (incumbent_code - 1)]:
-                woman_partner[woman] <- (active + 1).u8()
-                man_partner[active] <- woman.i64()
-                active <- (incumbent_code - 1)
+            active <- incumbent_code - 1
         proposer <- proposer + 1
 
     man: mutable usize = 0
