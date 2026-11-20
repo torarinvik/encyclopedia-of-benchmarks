@@ -48,6 +48,16 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
         output[t] <- 2
         return 2
 
+    if n == 3:
+        if m != 3:
+            return -1
+        if output == null or output_capacity < 3:
+            return -2
+        output[s] <- 1
+        output[3 - s - t] <- 2
+        output[t] <- 3
+        return 3
+
     parent: mutable i64[8] = zeroed
     discovery: mutable u8[8] = zeroed
     low_rank: mutable u8[8] = zeroed
