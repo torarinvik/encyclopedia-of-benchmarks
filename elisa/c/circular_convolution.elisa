@@ -42,6 +42,14 @@ def circular_convolution_impl(values: i64&, length: usize, output: mutable u8&, 
     if output == null or output_capacity < n:
         return -2
 
+    if a_length == 2 and b_length == 2:
+        left_first: u8 = values[2].u8()
+        left_second: u8 = values[3].u8()
+        right_first: u8 = values[4].u8()
+        right_second: u8 = values[5].u8()
+        output[0] <- left_first * right_first + left_second * right_second
+        output[1] <- left_first * right_second + left_second * right_first
+        return 2
     coefficients: mutable u8[16] = zeroed
     results: mutable u8& = &coefficients[0]
     first: i64& = &values[2]
