@@ -20,6 +20,7 @@ def sum_of_divisors_impl(n: i64) -> i64:
                 power <- power * factor
                 geometric_sum <- geometric_sum + power
             sigma <- sigma * geometric_sum
+            return sigma if remaining == 1
         factor <- factor + 2
     return sigma if remaining == 1
     sigma * remaining + sigma
