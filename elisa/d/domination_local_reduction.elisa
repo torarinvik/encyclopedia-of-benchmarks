@@ -29,33 +29,33 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
         v: usize = v0.usize()
         u_bit: u16 = 1.u16() << u
         v_bit: u16 = 1.u16() << v
-        if (adj[u & 15] & v_bit) != 0: return -1
+        if ((adj[u & 15].u32() >> v) & 1.u32()) != 0: return -1
         adj[u & 15] <- adj[u & 15] | v_bit
         adj[v & 15] <- adj[v & 15] | u_bit
-    neighbors: u16 = adj[p & 15]
-    closed: u16 = neighbors | (1.u16() << p)
-    exits: mutable u16 = 0
-    remaining_neighbors: mutable u32 = neighbors.u32()
+    neighbors: u32 = adj[p & 15].u32()
+    closed: u32 = neighbors | (1.u32() << p)
+    exits: mutable u32 = 0
+    remaining_neighbors: mutable u32 = neighbors
     while remaining_neighbors != 0:
         u: usize = domination_trailing_zeros(remaining_neighbors, true).usize()
         bit: u32 = remaining_neighbors & (0.u32() - remaining_neighbors)
         remaining_neighbors <- remaining_neighbors ^ bit
-        if (adj[u & 15] & ~closed) != 0:
-            exits <- exits | bit.u16()
-    candidates: u16 = neighbors & ~exits
-    remaining_candidates: mutable u32 = candidates.u32()
+        if (adj[u & 15].u32() & ~closed) != 0:
+            exits <- exits | bit
+    candidates: u32 = neighbors & ~exits
+    remaining_candidates: mutable u32 = candidates
     if remaining_candidates == 0: return -1
     if exits != 0:
         while true:
             u: usize = domination_trailing_zeros(remaining_candidates, true).usize()
-            if (adj[u & 15] & exits) == 0: break
+            if (adj[u & 15].u32() & exits) == 0: break
             remaining_candidates <- remaining_candidates & (remaining_candidates - 1.u32())
             if remaining_candidates == 0: return -1
     # At most twelve vertex IDs fit in twelve four-bit slots.
     packed_ids: mutable u64 = 0
     pivot_index: mutable usize = 0
     kept: mutable usize = 0
-    remaining_kept: mutable u32 = ((1.u32() << n) - 1.u32()) & ~candidates.u32()
+    remaining_kept: mutable u32 = ((1.u32() << n) - 1.u32()) & ~candidates
     while remaining_kept != 0:
         u: usize = domination_trailing_zeros(remaining_kept, true).usize()
         remaining_kept <- remaining_kept & (remaining_kept - 1.u32())
