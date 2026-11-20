@@ -1,3 +1,6 @@
+@intrinsic("llvm.cttz.i64")
+extern planar_flow_trailing_zeros(value: u64, zero_undefined: bool) -> u64
+
 const MAX_N: usize = 6
 
 # Packed predecessors use three bits for a vertex ID.
@@ -84,16 +87,17 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
     if occurrences != ((1.u64() << (2 * m)) - 1):
         return -1
     all_vertices: u64 = (1.u64() << n) - 1
-    connected: mutable u64 = 1 << s
-    while connected != all_vertices:
-        previous: u64 = connected
-        vertex: mutable usize = 0
-        while vertex < n:
-            if (connected & (1.u64() << vertex)) != 0:
-                connected <- connected | ((adjacency >> (8 * vertex)) & 255)
-            vertex <- vertex + 1
-        if connected == previous:
-            return -1
+    # Connectivity is undirected, so start at vertex zero.
+    frontier: mutable u64 = adjacency & 255
+    connected: mutable u64 = frontier | 1
+    while frontier != 0 and connected != all_vertices:
+        vertex: u64 = planar_flow_trailing_zeros(frontier, true)
+        neighbors: u64 = (adjacency >> (8 * vertex)) & 255
+        discovered: u64 = neighbors & ~connected
+        frontier <- (frontier & (frontier - 1)) | discovered
+        connected <- connected | discovered
+    if connected != all_vertices:
+        return -1
     total: mutable i64 = 0
     while true:
         seen: mutable bool[VERTEX_SLOTS] = zeroed
