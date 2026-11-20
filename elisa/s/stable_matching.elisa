@@ -9,8 +9,8 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     side_size: usize = n * n
     if length != 1 + 2 * side_size: return -1
 
-    men_preferences: mutable i64[64] = zeroed
-    women_rank: mutable i64[64] = zeroed
+    men_preferences: mutable u8[64] = zeroed
+    women_rank: mutable u8[64] = zeroed
     row: mutable usize = 0
     while row < 2 * n:
         seen: mutable bool[8] = zeroed
@@ -20,8 +20,8 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             participant: i64 = input[row_start + rank]
             if participant < 0 or participant >= n_arg or seen[participant.usize()]: return -1
             seen[participant.usize()] <- true
-            if row < n: men_preferences[row * n + rank] <- participant
-            else: women_rank[(row - n) * n + participant.usize()] <- rank.i64()
+            if row < n: men_preferences[row * MAX_N + rank] <- participant.u8()
+            else: women_rank[(row - n) * MAX_N + participant.usize()] <- rank.u8()
             rank <- rank + 1
         row <- row + 1
 
@@ -47,12 +47,12 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         queue_count <- queue_count - 1
         rank: usize = next_proposal[man]
         next_proposal[man] <- next_proposal[man] + 1
-        woman: usize = men_preferences[man * n + rank].usize()
+        woman: usize = men_preferences[man * MAX_N + rank].usize()
         incumbent: i64 = woman_partner[woman]
         if incumbent < 0:
             woman_partner[woman] <- man.i64()
             man_partner[man] <- woman.i64()
-        elif women_rank[woman * n + man] < women_rank[woman * n + incumbent.usize()]:
+        elif women_rank[woman * MAX_N + man] < women_rank[woman * MAX_N + incumbent.usize()]:
             woman_partner[woman] <- man.i64()
             man_partner[man] <- woman.i64()
             man_partner[incumbent.usize()] <- -1
