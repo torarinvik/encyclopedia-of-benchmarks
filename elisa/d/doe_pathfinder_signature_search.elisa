@@ -46,14 +46,16 @@ def doe_pathfinder_signature_search_impl(values: i64&, length: usize) -> i64:
        length != 3 + 2 * edge_count + node_count + signature_length:
         return -2
 
+    seen_targets: mutable u16[10] = zeroed
     for edge in 0..<edge_count:
-        edge_source: i64 = values[3 + 2 * edge]
-        edge_target: i64 = values[4 + 2 * edge]
-        if edge_source < 0 or edge_source >= node_count.i64() or edge_target < 0 or edge_target >= node_count.i64():
+        source: usize = values[3 + 2 * edge].usize()
+        target: usize = values[4 + 2 * edge].usize()
+        if source >= node_count or target >= node_count:
             return -2
-        for previous in 0..<edge:
-            if values[3 + 2 * previous] == edge_source and values[4 + 2 * previous] == edge_target:
-                return -2
+        bit: u16 = 1.u16() << target
+        if (seen_targets[source] & bit) != 0:
+            return -2
+        seen_targets[source] <- seen_targets[source] | bit
     labels_start: usize = 3 + 2 * edge_count
     signature_start: usize = labels_start + node_count
     for node in 0..<node_count:
