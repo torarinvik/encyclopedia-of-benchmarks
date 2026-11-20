@@ -59,6 +59,8 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
         output[t] <- 3
         return 3
 
+    # DFS links store validated vertex IDs in 0..7. Mask array indices after
+    # testing link sentinels so the compiler can eliminate redundant checks.
     parent: mutable i64[8] = zeroed
     discovery: mutable u8[8] = zeroed
     low_rank: mutable u8[8] = zeroed
@@ -81,7 +83,7 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
                 if child_low < low_rank[ancestor]:
                     low_rank[ancestor] <- child_low
             vertex <- ancestor
-            current_parent <- parent[vertex].usize()
+            current_parent <- parent[vertex].usize() & 7
             continue
         pending_neighbors[vertex] <- neighbors >> 4
         neighbor: usize = (neighbors & 7).usize()
@@ -109,15 +111,15 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     list_head: mutable usize = s
     order: mutable usize = 2
     while order < n:
-        vertex <- preorder[order]
-        ancestor: usize = parent[vertex].usize()
+        vertex <- preorder[order] & 7
+        ancestor: usize = parent[vertex].usize() & 7
         if (negative_signs & (1 << low_rank[vertex].usize())) != 0:
             left_value: i64 = previous[ancestor]
             previous[vertex] <- left_value
             following[vertex] <- ancestor.i64()
             previous[ancestor] <- vertex.i64()
             if left_value >= 0:
-                following[left_value.usize()] <- vertex.i64()
+                following[left_value.usize() & 7] <- vertex.i64()
             else:
                 list_head <- vertex
             negative_signs <- negative_signs & ~(1 << discovery[ancestor].usize())
@@ -127,7 +129,7 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
             following[vertex] <- right_value
             following[ancestor] <- vertex.i64()
             if right_value >= 0:
-                previous[right_value.usize()] <- vertex.i64()
+                previous[right_value.usize() & 7] <- vertex.i64()
             negative_signs <- negative_signs | (1 << discovery[ancestor].usize())
         order <- order + 1
 
@@ -136,7 +138,7 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     rank_value: mutable i64 = 1
     vertex_value: mutable i64 = list_head.i64()
     while vertex_value >= 0 and rank_value <= n.i64():
-        vertex <- vertex_value.usize()
+        vertex <- vertex_value.usize() & 7
         if vertex != s and vertex != t:
             # Previously visited vertices have lower rank, and self-loops were rejected.
             neighbors: u64 = (adjacency >> (vertex * 8)) & 255
