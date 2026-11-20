@@ -29,21 +29,22 @@ def stack_two(values: i64&) -> i64:
     first_payload: i64 = values[1]
     second_opcode: i64 = values[2]
     second_payload: i64 = values[3]
-    first: u64 = first_payload.u64() + 1000000
-    second: u64 = second_payload.u64() + 1000000
     if first_opcode == 0:
+        first: u64 = first_payload.u64() + 1000000
         if first > 2000000:
             return -1
         if second_opcode == 0:
+            second: u64 = second_payload.u64() + 1000000
             return (3 * first + 4 * second).i64() if second <= 2000000 else -1
         if (second_payload.u64() | (second_opcode.u64() >> 2)) != 0:
             return -1
         if second_opcode == 3:
             return (3 * first + 2000000).i64()
         return (2 * first).i64() if second_opcode == 1 else (5 * first).i64()
-    if first_opcode != 3 or first_payload != 0:
+    if ((first_opcode ^ 3) | first_payload) != 0:
         return -1
     if second_opcode == 0:
+        second: u64 = second_payload.u64() + 1000000
         return (1000001 + 3 * second).i64() if second <= 2000000 else -1
     return 3000003 if second_opcode == 3 and second_payload == 0 else -1
 
