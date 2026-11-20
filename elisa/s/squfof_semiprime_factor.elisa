@@ -57,7 +57,8 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     exact_root: i64 = sqrt(number.f64()).i32().i64()
     if exact_root * exact_root == number:
         return exact_root
-    if forward_cap == 0:
+    # A zero budget in either walk precludes a split after the square check.
+    if forward_cap.i32().i64() * reverse_cap.i32().i64() == 0:
         return 0
     discriminant: i64 = 2 * number if number % 4 == 1 else number
     a: i64 = sqrt(discriminant.f64()).i32().i64()
