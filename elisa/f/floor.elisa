@@ -1,10 +1,10 @@
-# Floor for bounded finite binary64 inputs, correcting truncation below zero.
+@link_name("llvm.floor.f64")
+extern round_down(value: f64) -> f64
+
 def floor_impl(value: f64) -> f64:
-    if value < -1000000.0 or value > 1000000.0:
+    if not (value >= -1000000.0 and value <= 1000000.0):
         return -1.0
-    truncated: i64 = i64(value)
-    if value < truncated.f64():
-        return (truncated - 1).f64()
-    truncated.f64()
+    # Preserve the original integer conversion’s positive zero result.
+    round_down(value) + 0.0
 
 export fn floor(value: f64) -> f64 = floor_impl
