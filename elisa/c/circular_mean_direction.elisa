@@ -1,28 +1,26 @@
 extern sin(value: f64) -> f64
 extern cos(value: f64) -> f64
 extern atan2(y: f64, x: f64) -> f64
+@intrinsic("llvm.floor.f64")
 extern floor(value: f64) -> f64
+@intrinsic("llvm.sqrt.f64")
 extern sqrt(value: f64) -> f64
+@intrinsic("llvm.fabs.f64")
 extern fabs(value: f64) -> f64
-extern trunc(value: f64) -> f64
 
 const CMD_PI: f64 = 3.14159265358979323846264338327950288
 const CMD_TAU: f64 = 6.28318530717958647692528676655900576
 
 def cmd_wrap(angle: f64) -> f64:
-    value: f64 = angle - floor((angle + CMD_PI) / CMD_TAU) * CMD_TAU
+    value: mutable f64 = angle - floor((angle + CMD_PI) / CMD_TAU) * CMD_TAU
     if value >= CMD_PI: value <- value - CMD_TAU
     if value < -CMD_PI: value <- value + CMD_TAU
     value
 
-def cmd_compute(values: view[f64], staged: mutable view[f64]) -> bool:
-    length: usize = values.len()
-    if length < 2 or length > 66: return false
-    count_value: f64 = values[0]
-    if count_value != count_value or trunc(count_value) != count_value or
-            count_value < 1.0 or count_value > 64.0: return false
-    count: usize = count_value.usize()
-    if length != count + 1: return false
+def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if values == null or length < 2 or length > 66: return -1
+    count: usize = length - 1
+    if count > 64 or values[0] != count.f64(): return -1
 
     sum_cos: mutable f64 = 0.0
     sum_sin: mutable f64 = 0.0
@@ -30,7 +28,7 @@ def cmd_compute(values: view[f64], staged: mutable view[f64]) -> bool:
     correction_sin: mutable f64 = 0.0
     for index in 0..<count:
         raw: f64 = values[index + 1]
-        if raw != raw or fabs(raw) > 8.0 * CMD_PI: return false
+        if raw != raw or fabs(raw) > 8.0 * CMD_PI: return -1
         angle: f64 = cmd_wrap(raw)
         adjusted_cos: f64 = cos(angle) - correction_cos
         next_cos: f64 = sum_cos + adjusted_cos
@@ -42,18 +40,9 @@ def cmd_compute(values: view[f64], staged: mutable view[f64]) -> bool:
         sum_sin <- next_sin
     resultant: f64 = sqrt(sum_cos * sum_cos + sum_sin * sum_sin)
     if resultant != resultant or resultant <= count.f64() * 0.0000000037252902984619140625:
-        return false
-    staged[0] <- cmd_wrap(atan2(sum_sin, sum_cos))
-    true
-
-export fn circular_mean_direction(input: f64&, input_length: usize,
-                                  output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > 66: return -1
-    input_view: view[f64] = input[0:input_length]
-    staged: mutable f64[1] = zeroed
-    staged_view: mutable view[f64] = staged[0:1]
-    if not cmd_compute(input_view, staged_view): return -1
-    if output.is_null() or output_capacity < 1: return -2
-    output_view: mutable view[f64] = output[0:1]
-    output_view[0] <- staged_view[0]
+        return -1
+    if output == null or output_capacity < 1: return -2
+    output[0] <- cmd_wrap(atan2(sum_sin, sum_cos))
     1
+
+export fn circular_mean_direction(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = circular_mean_direction_impl
