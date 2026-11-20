@@ -1,5 +1,5 @@
 @link_name("llvm.assume")
-extern assume_reduced_denominator(condition: bool) -> void
+extern assume_reduced_form_bound(condition: bool) -> void
 
 const SQ_MAX_NUMBER: i64 = 1000000000000
 const SQ_MAX_STEPS: i64 = 256
@@ -25,7 +25,7 @@ def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64)
     # For the nonsquare discriminant D, reduced forms keep p*p < D.
     # Consecutive denominators multiply to D - p*p and start positive.
     # Reduced denominators are at most twice the discriminant root.
-    assume_reduced_denominator(q > 0 and q < 3000000)
+    assume_reduced_form_bound(q > 0 and q < 3000000)
     root: i64 = sqrt(q.f64()).i32().i64()
     if root * root != q:
         return 0
@@ -34,10 +34,12 @@ def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64)
     s: mutable i64 = (discriminant - r.i32().i64() * r.i32().i64()) / root
     step: mutable i64 = 0
     while step < cap:
-        assume_reduced_denominator(s > 0 and s < 3000000)
+        assume_reduced_form_bound(s > 0 and s < 3000000)
         next_quotient: i64 = ((a.i32().i64() + r.i32().i64()).u32() / s.u32()).i64()
         next_r: i64 = a - ((a.i32().i64() + r.i32().i64()).u32() % s.u32()).i64()
         if next_r == r:
+            # At symmetry, 2*r is the positive quotient times s, and r <= a.
+            assume_reduced_form_bound(r > 0 and r < 1500000)
             factor: i64 = sq_gcd(number, r)
             if factor > 1 and factor < number:
                 other: i64 = number / factor
@@ -78,7 +80,7 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     remaining: mutable u32 = forward_cap.u32()
     while true:
         # The forward reduced-form recurrence also preserves positivity.
-        assume_reduced_denominator(q > 0)
+        assume_reduced_form_bound(q > 0)
         quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
         next_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
         next_q: i64 = previous_q + quotient.i32().i64() * (p.i32().i64() - next_p.i32().i64()).i32().i64()
@@ -91,10 +93,10 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
         if remaining == 1:
             return 0
         # The intervening odd-index step does not trigger a reverse walk.
-        assume_reduced_denominator(q > 0)
+        assume_reduced_form_bound(q > 0)
         second_quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
         second_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
-        assume_reduced_denominator(previous_q > 0 and previous_q < 3000000)
+        assume_reduced_form_bound(previous_q > 0 and previous_q < 3000000)
         second_q: i64 = previous_q + second_quotient.i32().i64() * (p.i32().i64() - second_p.i32().i64()).i32().i64()
         previous_q <- q
         q <- second_q
