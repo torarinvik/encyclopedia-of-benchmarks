@@ -33,6 +33,11 @@ def circular_look_scheduling_impl(input: i64&, length: usize, output: mutable u8
                 down_count <- down_count + 1
         index <- index + 1
 
+    output_count: usize = up_count + down_count
+    if output_capacity < output_count or (output_count > 0 and output == null):
+        return -2
+    if output_count == 0:
+        return 0
     index <- 1
     while index < up_count:
         value: u8 = up[index]
@@ -52,9 +57,6 @@ def circular_look_scheduling_impl(input: i64&, length: usize, output: mutable u8
         down[position] <- value
         index <- index + 1
 
-    output_count: usize = up_count + down_count
-    if output_capacity < output_count or (output_count > 0 and output == null):
-        return -2
     index <- 0
     position: mutable usize = 0
     if moving_up == 1:

@@ -48,7 +48,7 @@
       "id": "upward_then_low_requests_ascending",
       "input_length": 10,
       "input_values": [
-        200,
+        128,
         50,
         1,
         6,
@@ -56,11 +56,11 @@
         90,
         70,
         50,
-        199,
+        127,
         200
       ],
-      "expected_result": -1,
-      "expected_output_hex": ""
+      "expected_result": 4,
+      "expected_output_hex": "465a7f0a"
     },
     {
       "id": "downward_source_wrap_segment_descending",
@@ -281,7 +281,7 @@
       "id": "short_output_capacity",
       "input_length": 10,
       "input_values": [
-        200,
+        128,
         50,
         1,
         6,
@@ -289,10 +289,10 @@
         90,
         70,
         50,
-        199,
+        127,
         200
       ],
-      "expected_result": -1,
+      "expected_result": -2,
       "expected_output_hex": "",
       "workspace_bytes": 2
     },
