@@ -67,6 +67,19 @@ def doe_pathfinder_signature_search_impl(values: i64&, length: usize) -> i64:
 
     if edge_count == 0: return 0
     first_label: i64 = values[signature_start]
+    # A single edge can be reused only when it is a self-loop.
+    if edge_count == 1:
+        source: usize = values[3].usize()
+        target: usize = values[4].usize()
+        if values[labels_start + source] != first_label:
+            return 0
+        if source != target and signature_length != 2:
+            return 0
+        target_label: i64 = values[labels_start + target]
+        for index in 1..<signature_length:
+            if values[signature_start + index] != target_label:
+                return 0
+        return 1
     for node in 0..<node_count:
         if values[labels_start + node] == first_label:
             visited: mutable u64 = 0
