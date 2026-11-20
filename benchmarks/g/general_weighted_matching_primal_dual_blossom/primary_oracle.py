@@ -2,10 +2,11 @@
 
 MAX_N = 64
 MAX_WEIGHT = 1_000_000
+MAX_PARSEABLE_INPUT_LENGTH = 6051
 
 
 def _parse(values):
-    if len(values) < 2 or len(values) > 6051:
+    if len(values) < 2 or len(values) > MAX_PARSEABLE_INPUT_LENGTH:
         return None
     n, m = values[0], values[1]
     if not 1 <= n <= MAX_N or m < 0 or m > n * (n - 1) // 2:

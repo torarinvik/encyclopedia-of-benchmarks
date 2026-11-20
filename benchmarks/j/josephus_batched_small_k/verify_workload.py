@@ -5,8 +5,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from independent_oracle import josephus_linear, josephus_simulated
-from primary_oracle import josephus_batched_small_k
+if __package__:
+    from .independent_oracle import josephus_linear, josephus_simulated
+    from .primary_oracle import josephus_batched_small_k
+else:
+    from independent_oracle import josephus_linear, josephus_simulated
+    from primary_oracle import josephus_batched_small_k
 
 
 PACKAGE = Path(__file__).resolve().parent

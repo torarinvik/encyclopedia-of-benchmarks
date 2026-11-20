@@ -5,8 +5,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from independent_oracle import entringer_direct_enumeration, entringer_number_independent
-from primary_oracle import entringer_number
+if __package__:
+    from .independent_oracle import entringer_direct_enumeration, entringer_number_independent
+    from .primary_oracle import entringer_number
+else:
+    from independent_oracle import entringer_direct_enumeration, entringer_number_independent
+    from primary_oracle import entringer_number
 
 PACKAGE = Path(__file__).resolve().parent
 

@@ -3,6 +3,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+import sys
+
+# Some oracle packages import shared helpers through the benchmarks namespace.
+repository_root = str(Path(__file__).resolve().parents[1])
+if repository_root not in sys.path:
+    sys.path.append(repository_root)
+
 from f.four_square_sum_representation.primary_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as FOUR_SQUARE_MAX_PARSEABLE_INPUT_LENGTH,
     MAX_VALID_INPUT_LENGTH as FOUR_SQUARE_MAX_VALID_INPUT_LENGTH,
@@ -331,7 +339,7 @@ from g.gaussian_prime_classifier.check_inventory import (
 from g.gaussian_prime_classifier.verify_workload import (
     workload_issues as gaussian_prime_classifier_workload_issues,
 )
-from w.wulff_nilsen_distance_refinement.primary_oracle import (
+from wulff_nilsen_distance_refinement_oracle import (
     MAX_VALID_INPUT_LENGTH as WULFF_NILSEN_REFINEMENT_MAX_VALID_INPUT_LENGTH,
     MAX_PARSEABLE_INPUT_LENGTH as WULFF_NILSEN_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH,
     MAX_WORKSPACE_BYTES as WULFF_NILSEN_REFINEMENT_WORKSPACE_BYTES,
@@ -353,7 +361,7 @@ from e.erdos_selfridge_prime_class.check_inventory import (
     static_issues as erdos_selfridge_prime_class_static_issues,
 )
 from e.erdos_selfridge_prime_class.verify_workload import (
-    workload_issues as erdos_selfridge_prime_class_workload_issues,
+    static_issues as erdos_selfridge_prime_class_workload_issues,
 )
 from s.sieve_of_pritchard.primary_oracle import (
     MIN_LIMIT as PRITCHARD_MIN_LIMIT,
@@ -773,12 +781,10 @@ import heapq
 import json
 import math
 import os
-from pathlib import Path
 import platform
 import shlex
 import struct
 import subprocess
-import sys
 import zlib
 from functools import lru_cache
 from fractions import Fraction
@@ -3365,7 +3371,7 @@ from e.edge_connectivity_all_pairs_maxflow.primary_oracle import (
     MAX_VALID_INPUT_LENGTH as EDGE_CONNECTIVITY_MAX_VALID_INPUT_LENGTH,
     expected_result as edge_connectivity_all_pairs_maxflow_expected,
 )
-from e.edge_connectivity_all_pairs_maxflow.verify_edge_connectivity_all_pairs_maxflow_package import (
+from verify_edge_connectivity_all_pairs_maxflow_package import (
     static_issues as edge_connectivity_all_pairs_maxflow_static_issues,
 )
 from eertree_oracle import MAX_INPUT_LENGTH as EERTREE_MAX_INPUT_LENGTH
@@ -4200,7 +4206,7 @@ from o.oi_wiki_maximum_clique_branch_bound.primary_oracle import (
     expected_result as oi_wiki_maximum_clique_branch_bound_expected,
 )
 from o.oi_wiki_maximum_clique_branch_bound.verify_workload import (
-    verify as verify_oi_wiki_maximum_clique_branch_bound_package,
+    validate as verify_oi_wiki_maximum_clique_branch_bound_package,
 )
 from k.konc_maxclique_dyn.primary_oracle import (
     MAX_VALID_INPUT_LENGTH as KONC_MAXCLIQUE_DYN_MAX_VALID_INPUT_LENGTH,
