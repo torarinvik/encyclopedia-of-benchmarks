@@ -49,9 +49,10 @@ def stack_run(values: i64&, operation_count: usize, data_stack: mutable i32&) ->
             checksum <- checksum + operation.i64() * observed
         else:
             return -1
+    # Each product fits in i32 (weight at most 768, value at most 2000000).
     index: mutable usize = 0
     while index < top:
-        checksum <- checksum + (operation_count + index + 1).i64() * data_stack[index].i64()
+        checksum <- checksum + ((operation_count + index + 1).i32() * data_stack[index]).i64()
         index <- index + 1
     checksum
 
