@@ -4,15 +4,6 @@ const SQ_MAX_STEPS: i64 = 256
 @link_name("llvm.sqrt.f64")
 extern sqrt(value: f64) -> f64
 
-def sq_isqrt(value: i64, upper: i64) -> i64:
-    if value <= 0:
-        return 0
-    if value >= upper * upper:
-        return upper
-    # Below the cap, binary64 represents the input exactly and the rounded
-    # root cannot reach the next integer unless the input is a perfect square.
-    sqrt(value.f64()).i64()
-
 def sq_gcd(left_value: i64, right_value: i64) -> i64:
     left: mutable i64 = left_value
     right: mutable i64 = right_value
@@ -23,7 +14,10 @@ def sq_gcd(left_value: i64, right_value: i64) -> i64:
     left
 
 def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64) -> i64:
-    root: i64 = sq_isqrt(q, 1414214)
+    if q <= 0:
+        return 0
+    # Consecutive denominators multiply to D - p*p, so q is at most D.
+    root: i64 = sqrt(q.f64()).i64()
     if root * root != q:
         return 0
     quotient: i64 = (a - p) / root
@@ -33,7 +27,7 @@ def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64)
     step: mutable i64 = 0
     while step < cap:
         next_quotient: i64 = (a + r) / s
-        next_r: i64 = next_quotient * s - r
+        next_r: i64 = a - (a + r) % s
         if next_r == r:
             factor: i64 = sq_gcd(number, r)
             if factor > 1 and factor < number:
@@ -69,7 +63,7 @@ def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
     step: mutable i64 = 0
     while step < forward_cap:
         quotient: i64 = (a + p) / q
-        next_p: i64 = quotient * q - p
+        next_p: i64 = a - (a + p) % q
         next_q: i64 = previous_q + quotient * (p - next_p)
         previous_q <- q
         q <- next_q
