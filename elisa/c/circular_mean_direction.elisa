@@ -25,10 +25,8 @@ def cmd_wrap(angle: f64) -> f64:
 
 def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
     if values == null or length < 2 or length > 65: return -1
-    count: usize = length - 1
-    if values[0] != count.f64(): return -1
-
-    if count == 1:
+    if length == 2:
+        if values[0] != 1.0: return -1
         raw: f64 = values[1]
         magnitude: f64 = fabs(raw)
         angle: mutable f64 = raw
@@ -41,6 +39,8 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
         output[0] <- -direction if direction >= CMD_PI else direction
         return 1
 
+    count: usize = length - 1
+    if values[0] != count.f64(): return -1
     circular_mean_multiple(values, count, output, output_capacity)
 
 @inline(never)
