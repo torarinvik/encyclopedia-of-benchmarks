@@ -41,8 +41,7 @@ def stack_run(values: i64&, operation_count: u32, data_stack: mutable u32&, chec
     checksum: mutable u64 = 0
     operation: mutable u32 = 0
     cursor: mutable i64& = values
-    if operation_count == 0:
-        return 0
+    # The entry point handles empty and single-operation traces before either helper.
     while true:
         opcode: i64 = cursor[0]
         payload: i64 = cursor[1]
