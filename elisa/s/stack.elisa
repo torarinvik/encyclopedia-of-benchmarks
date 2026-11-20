@@ -2,14 +2,18 @@
 def stack_benchmark_impl(values: i64&, length: usize) -> i64:
     if length == 0:
         return 0
+    if length % 2 != 0:
+        return -1
     if length == 2:
         opcode: i64 = values[0]
         payload: i64 = values[1]
-        if opcode == 0:
-            encoded: u64 = payload.u64() + 1000000
-            return (2 * encoded).i64() if encoded <= 2000000 else -1
-        return 1000001 if opcode == 3 and payload == 0 else -1
-    if length > 1024 or length % 2 != 0:
+        if opcode == 3:
+            return 1000001 if payload == 0 else -1
+        if opcode != 0:
+            return -1
+        encoded: u64 = payload.u64() + 1000000
+        return (2 * encoded).i64() if encoded <= 2000000 else -1
+    if length > 1024:
         return -1
     # Validated length bounds the operation count to 512.
     operation_count: usize = length / 2
@@ -25,6 +29,8 @@ def stack_short(values: i64&, operation_count: u32) -> i64:
 
 @inline(never)
 def stack_large(values: i64&, operation_count: u32) -> i64:
+    if operation_count <= 8 or operation_count > 512:
+        return -1
     data_stack: mutable i32[256] = zeroed
     stack_run(values, operation_count, &data_stack[0], true)
 
