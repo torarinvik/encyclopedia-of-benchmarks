@@ -22,11 +22,11 @@ def stack_benchmark_impl(values: i64&, length: usize) -> i64:
             if payload != 0 or top == 0:
                 return -1
             top <- top - 1
-            observed <- data_stack[top].i64()
+            observed <- data_stack[top & 255].i64()
         elif opcode == 2:
             if payload != 0 or top == 0:
                 return -1
-            observed <- data_stack[top - 1].i64()
+            observed <- data_stack[(top - 1) & 255].i64()
         elif opcode == 3:
             if payload != 0:
                 return -1
