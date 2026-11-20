@@ -28,7 +28,7 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
     while edge < m:
         u_value: i64 = input[4 + 2 * edge]
         v_value: i64 = input[5 + 2 * edge]
-        if u_value.u64() >= n_value.u64() or v_value.u64() >= n_value.u64() or u_value == v_value:
+        if u_value == v_value or u_value.u64() >= n_value.u64() or v_value.u64() >= n_value.u64():
             return -1
         u: usize = u_value.usize()
         v: usize = v_value.usize()
