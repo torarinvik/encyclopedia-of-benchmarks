@@ -9,6 +9,13 @@ def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     side_size: usize = n * n
     if length != 1 + 2 * side_size: return -1
 
+    if n == 0: return -2 if output == null else 0
+    stable_matching_valid_input(input, n, output, capacity)
+
+@inline(never)
+def stable_matching_valid_input(input: i64&, n: usize, output: mutable u8&?, capacity: usize) -> i64:
+    n_arg: i64 = n.i64()
+    side_size: usize = n * n
     men_preferences: mutable u8[64] = zeroed
     women_rank: mutable u8[64] = zeroed
     complete_row: u64 = (1.u64() << n) - 1
