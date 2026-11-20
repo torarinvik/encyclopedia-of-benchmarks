@@ -80,7 +80,8 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
                 child_low: u8 = low_rank[vertex]
                 if child_low >= discovery[ancestor]:
                     return -1
-                if child_low < low_rank[ancestor]:
+                ancestor_low: u8 = low_rank[ancestor]
+                if child_low < ancestor_low:
                     low_rank[ancestor] <- child_low
             vertex <- ancestor
             current_parent <- parent[vertex].usize() & 7
@@ -98,8 +99,11 @@ def st_numbering_valid_shape(input: i64&, input_length: usize, output: mutable u
             low_rank[neighbor] <- 1 if (adjacency & (1 << (8 * s + neighbor))) != 0 else preorder_count.u8()
             current_parent <- vertex
             vertex <- neighbor
-        elif discovery[neighbor] < low_rank[vertex]:
-            low_rank[vertex] <- discovery[neighbor]
+        else:
+            neighbor_discovery: u8 = discovery[neighbor]
+            vertex_low: u8 = low_rank[vertex]
+            if neighbor_discovery < vertex_low:
+                low_rank[vertex] <- neighbor_discovery
     if preorder_count != n:
         return -1
     previous: mutable i64[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
