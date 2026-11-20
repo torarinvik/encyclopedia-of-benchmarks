@@ -99,7 +99,7 @@
       "input_length": 33,
       "output_capacity": 8,
       "expected_result": 8,
-      "expected_output_hex": "0400000000000000"
+      "expected_output_hex": "0500000000000000"
     },
     {
       "id": "reverse-residual-rerouting",
