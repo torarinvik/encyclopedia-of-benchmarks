@@ -1,71 +1,82 @@
 const MAX_N: usize = 8
 const MAX_SIZE: usize = 1 << MAX_N
 const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_SIZE
-const MODULUS: i64 = 998244353
+const MODULUS: u32 = 998244353
 
-def bitwise_xor_transform(values: mutable view[i64], size: usize) -> void:
+def bitwise_xor_transform(values: mutable view[u32], size: usize) -> void:
     half: mutable usize = 1
     while half < size:
         block: mutable usize = 0
         while block < size:
             offset: mutable usize = 0
             while offset < half:
-                left: i64 = values[block + offset]
-                right: i64 = values[block + half + offset]
-                values[block + offset] <- (left + right) % MODULUS
-                values[block + half + offset] <- (left - right + MODULUS) % MODULUS
+                left: u32 = values[block + offset]
+                right: u32 = values[block + half + offset]
+                # Both butterfly results fit below twice the modulus.
+                sum: u32 = left + right
+                difference: u32 = left + MODULUS - right
+                values[block + offset] <- sum - MODULUS if sum >= MODULUS else sum
+                values[block + half + offset] <- difference - MODULUS if difference >= MODULUS else difference
                 offset <- offset + 1
             block <- block + 2 * half
         half <- half * 2
 
-def bitwise_xor_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def bitwise_xor_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
-    byte: mutable usize = 0
-    while byte < 8:
-        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
-        byte <- byte + 1
+    output[offset + 0] <- (bits >> 0).u8()
+    output[offset + 1] <- (bits >> 8).u8()
+    output[offset + 2] <- (bits >> 16).u8()
+    output[offset + 3] <- (bits >> 24).u8()
+    output[offset + 4] <- (bits >> 32).u8()
+    output[offset + 5] <- (bits >> 40).u8()
+    output[offset + 6] <- (bits >> 48).u8()
+    output[offset + 7] <- (bits >> 56).u8()
 
-def bitwise_xor_convolution(
+
+def bitwise_xor_convolution_impl(
     input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
-) -> i64 @export("bitwise_xor_convolution"):
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+) -> i64:
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH:
+        return -1
     n_value: i64 = input[0]
-    if n_value < 0 or n_value > MAX_N.i64(): return -1
+    if n_value < 0 or n_value > MAX_N.i64():
+        return -1
     n: usize = n_value.usize()
     size: usize = 1 << n
-    if input_length != 1 + 2 * size: return -1
+    if input_length != 1 + 2 * size:
+        return -1
     index: mutable usize = 0
     while index < 2 * size:
         value: i64 = input[1 + index]
-        if value < 0 or value >= MODULUS: return -1
+        if value < 0 or value >= MODULUS.i64():
+            return -1
         index <- index + 1
 
     output_bytes: usize = 8 * size
-    if output.is_null() or output_capacity < output_bytes: return -2
-    first: mutable i64[MAX_SIZE] = zeroed
-    second: mutable i64[MAX_SIZE] = zeroed
+    if output == null or output_capacity < output_bytes:
+        return -2
+    first: mutable u32[MAX_SIZE] = zeroed
+    second: mutable u32[MAX_SIZE] = zeroed
     index <- 0
     while index < size:
-        first[index] <- input[1 + index]
-        second[index] <- input[1 + size + index]
+        first[index] <- input[1 + index].u32()
+        second[index] <- input[1 + size + index].u32()
         index <- index + 1
     bitwise_xor_transform(first[0:MAX_SIZE], size)
     bitwise_xor_transform(second[0:MAX_SIZE], size)
     index <- 0
     while index < size:
-        first[index] <- (first[index] * second[index]) % MODULUS
+        first[index] <- ((first[index].u64() * second[index].u64()) % MODULUS.u64()).u32()
         index <- index + 1
     bitwise_xor_transform(first[0:MAX_SIZE], size)
 
-    inverse_size: mutable i64 = 1
-    bit: mutable usize = 0
-    while bit < n:
-        inverse_size <- (inverse_size * ((MODULUS + 1) / 2)) % MODULUS
-        bit <- bit + 1
-    output_view: mutable view[u8] = output[0:output_bytes]
+    # The modulus is one modulo size, so size * inverse_size is one modulo the modulus.
+    inverse_size: u64 = MODULUS.u64() - ((MODULUS.u64() - 1) >> n)
     index <- 0
     while index < size:
-        bitwise_xor_store_i64(output_view, 8 * index,
-                              (first[index] * inverse_size) % MODULUS)
+        bitwise_xor_store_i64(output, 8 * index,
+                              ((first[index].u64() * inverse_size) % MODULUS.u64()).i64())
         index <- index + 1
     output_bytes.i64()
+
+export fn bitwise_xor_convolution(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bitwise_xor_convolution_impl
