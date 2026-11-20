@@ -102,7 +102,7 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
     first_unmatched: mutable usize = 0
     first_in_cycle: mutable usize = 0
     rotation_tail: mutable u64 = 0
-    cycle: mutable i64[SR_CYCLE_STORAGE] = zeroed
+    cycle: mutable u8[SR_CYCLE_STORAGE] = zeroed
 
     while true:
         while first_unmatched < n and left[first_unmatched] == right[first_unmatched]:
@@ -122,7 +122,7 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
         cycle_set: mutable u64 = 0
         position: mutable usize = 0
         if first_in_cycle > 0:
-            proposer <- cycle[first_in_cycle - 1]
+            proposer <- cycle[first_in_cycle - 1].i64()
             position <- first_in_cycle - 1
             cycle_set <- rotation_tail
         else:
@@ -132,7 +132,7 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
             cycle_set <- cycle_set | (1.u64() << proposer.u64())
             if position >= SR_CYCLE_STORAGE:
                 return 0
-            cycle[position] <- proposer
+            cycle[position] <- proposer.u8()
             position <- position + 1
 
             list_position: mutable i64 = second[proposer.usize()]
@@ -160,7 +160,7 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
         while cycle_position > 0:
             cycle_position <- cycle_position - 1
             rotation_tail <- rotation_tail & ~(1.u64() << cycle[cycle_position].u64())
-            if cycle[cycle_position] == proposer:
+            if cycle[cycle_position].i64() == proposer:
                 found_cycle_start <- true
                 break
         if not found_cycle_start:
@@ -169,7 +169,7 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
 
         cycle_index: mutable usize = first_in_cycle
         while cycle_index <= last_in_cycle:
-            proposer <- cycle[cycle_index]
+            proposer <- cycle[cycle_index].i64()
             left[proposer.usize()] <- second[proposer.usize()]
             second[proposer.usize()] <- left[proposer.usize()] + 1
             choice <- preference[proposer.usize()][left[proposer.usize()].usize()].i64()
