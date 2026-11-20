@@ -1,4 +1,7 @@
 # Newton-Raphson square root under the pinned integer input contract.
+@link_name("llvm.fabs.f64")
+extern absolute(value: f64) -> f64
+
 extern trunc(value: f64) -> f64
 
 def square_root_with_newton_raphson_method_impl(input: f64) -> f64:
@@ -6,7 +9,7 @@ def square_root_with_newton_raphson_method_impl(input: f64) -> f64:
         return -1.0e300
     guess: mutable f64 = input
     root: mutable f64 = 0.5 * (guess + input / guess)
-    while root - guess > 1e-7 or guess - root > 1e-7:
+    while absolute(root - guess) > 1e-7:
         guess <- root
         root <- 0.5 * (guess + input / guess)
     root
