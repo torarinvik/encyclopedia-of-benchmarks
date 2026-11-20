@@ -5,7 +5,8 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
         return -1
     max_size: u64 = input[0].u64()
     operation_count: u64 = input[1].u64()
-    if max_size > 64 or operation_count > 64:
+    # If neither field has a bit above bit 5, both are already below 64.
+    if (max_size | operation_count) > 63 and (max_size > 64 or operation_count > 64):
         return -1
 
     if operation_count == 0:
