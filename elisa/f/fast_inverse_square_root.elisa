@@ -3,8 +3,8 @@ extern copy_seed_bits(destination: mutable u32&, source: f32&, bytes: usize, is_
 @link_name("llvm.memcpy.inline.p0.p0.i64")
 extern copy_seed_value(destination: mutable f32&, source: u32&, bytes: usize, is_volatile: bool) -> void
 
-def fast_inverse_square_root_impl(value: f64) -> f64:
-    if not (value >= 1e-6 and value <= 1e6): return -1.0
+@inline(never)
+def inverse_square_root_seed(value: f64) -> f64:
     rounded: f32 = value.f32()
     bits: mutable u32 = 0
     copy_seed_bits(&bits, &rounded, 4, false)
@@ -13,5 +13,9 @@ def fast_inverse_square_root_impl(value: f64) -> f64:
     copy_seed_value(&seed, &seed_bits, 4, false)
     y: f64 = seed.f64()
     y * (1.5 - 0.5 * value * y * y)
+
+def fast_inverse_square_root_impl(value: f64) -> f64:
+    if not (value >= 1e-6 and value <= 1e6): return -1.0
+    inverse_square_root_seed(value)
 
 export fn fast_inverse_square_root(value: f64) -> f64 = fast_inverse_square_root_impl
