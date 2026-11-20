@@ -2,7 +2,8 @@
 @link_name("llvm.fabs.f64")
 extern absolute(value: f64) -> f64
 
-extern trunc(value: f64) -> f64
+@link_name("llvm.fptosi.sat.i32.f64")
+extern saturate_to_integer(value: f64) -> i32
 
 @inline(never)
 def refine(input: f64) -> f64:
@@ -14,7 +15,9 @@ def refine(input: f64) -> f64:
     root
 
 def square_root_with_newton_raphson_method_impl(input: f64) -> f64:
-    if not (input >= 1.0 and input < 2147483648.0 and trunc(input) == input):
+    # Only positive i32 values that round-trip exactly satisfy the input contract.
+    integer: i32 = saturate_to_integer(input)
+    if not (integer > 0 and integer.f64() == input):
         return -1.0e300
     refine(input)
 
