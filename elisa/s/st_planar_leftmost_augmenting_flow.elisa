@@ -25,7 +25,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
     t: usize = t0.usize()
     if length != 4 + 5 * m + n:
         return (-1)
-    arc_target: mutable usize[ARC_SLOTS] = zeroed
+    arc_target: mutable u8[ARC_SLOTS] = zeroed
     residual_capacity: mutable i64[ARC_SLOTS] = zeroed
     # Each byte holds the undirected neighbors of one vertex.
     adjacency: mutable u64 = 0
@@ -44,8 +44,8 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         if (adjacency & edge_bit) != 0:
             return -1
         adjacency <- adjacency | edge_bit | (1.u64() << (8 * v + u))
-        arc_target[2 * e] <- v
-        arc_target[2 * e + 1] <- u
+        arc_target[2 * e] <- v.u8()
+        arc_target[2 * e + 1] <- u.u8()
         residual_capacity[2 * e] <- c
         e <- (e + 1)
     # Each rotation stores up to five five-bit arc codes, in input order.
@@ -69,9 +69,9 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
                 return (-1)
             edge: usize = e0.usize()
             forward_arc: usize = 2 * edge
-            if arc_target[forward_arc + 1] != x and arc_target[forward_arc] != x:
+            if arc_target[forward_arc + 1].usize() != x and arc_target[forward_arc].usize() != x:
                 return -1
-            arc: usize = forward_arc + (0 if arc_target[forward_arc + 1] == x else 1)
+            arc: usize = forward_arc + (0 if arc_target[forward_arc + 1].usize() == x else 1)
             bit: u64 = 1 << arc
             if (occurrences & bit) != 0:
                 return -1
@@ -111,7 +111,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
                 continue
             arc: usize = (remaining.usize() - 1) & (ARC_SLOTS - 1)
             pending[u] <- remaining >> 5
-            v: usize = arc_target[arc] & (VERTEX_SLOTS - 1)
+            v: usize = arc_target[arc].usize() & (VERTEX_SLOTS - 1)
             available: i64 = residual_capacity[arc]
             if available > 0 and not seen[v]:
                 seen[v] <- true
