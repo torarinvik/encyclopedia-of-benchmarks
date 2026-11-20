@@ -101,7 +101,7 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
         person <- person + 1
     first_unmatched: mutable usize = 0
     first_in_cycle: mutable usize = 0
-    rotation_tail: mutable bool[SR_MAX_PARTICIPANTS] = zeroed
+    rotation_tail: mutable u64 = 0
     cycle: mutable i64[SR_CYCLE_STORAGE] = zeroed
 
     while true:
@@ -119,20 +119,17 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
                 person <- person + 1
             return 1
 
-        cycle_set: mutable bool[SR_MAX_PARTICIPANTS] = zeroed
+        cycle_set: mutable u64 = 0
         position: mutable usize = 0
         if first_in_cycle > 0:
             proposer <- cycle[first_in_cycle - 1]
             position <- first_in_cycle - 1
-            person <- 0
-            while person < n:
-                cycle_set[person] <- rotation_tail[person]
-                person <- person + 1
+            cycle_set <- rotation_tail
         else:
             proposer <- first_unmatched.i64()
         
         while true:
-            cycle_set[proposer.usize()] <- true
+            cycle_set <- cycle_set | (1.u64() << proposer.u64())
             if position >= SR_CYCLE_STORAGE:
                 return 0
             cycle[position] <- proposer
@@ -153,19 +150,16 @@ def stable_roommates_valid_shape(input: i64&, n: usize) -> i64:
                 return 0
             second[proposer.usize()] <- list_position - 1
             proposer <- preference[next_choice.usize()][right[next_choice.usize()].usize()].i64()
-            if cycle_set[proposer.usize()]:
+            if (cycle_set & (1.u64() << proposer.u64())) != 0:
                 break
 
         last_in_cycle: usize = position - 1
-        person <- 0
-        while person < n:
-            rotation_tail[person] <- cycle_set[person]
-            person <- person + 1
+        rotation_tail <- cycle_set
         cycle_position: mutable usize = position
         found_cycle_start: mutable bool = false
         while cycle_position > 0:
             cycle_position <- cycle_position - 1
-            rotation_tail[cycle[cycle_position].usize()] <- false
+            rotation_tail <- rotation_tail & ~(1.u64() << cycle[cycle_position].u64())
             if cycle[cycle_position] == proposer:
                 found_cycle_start <- true
                 break
