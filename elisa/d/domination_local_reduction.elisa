@@ -48,14 +48,12 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
             np <- np + 1
     if np == 0: return -1
     ids: mutable usize[12] = zeroed
-    remap: mutable i64[12] = zeroed
-    for u in 0..<n:
-        remap[u] <- -1
+    pivot_index: mutable usize = 0
     kept: mutable usize = 0
     for u in 0..<n:
         if not guards[u] and not prisoners[u]:
             ids[kept] <- u
-            remap[u] <- kept.i64()
+            if u == p: pivot_index <- kept
             kept <- kept + 1
     k: usize = kept + 1
     leaf: usize = k - 1
@@ -68,7 +66,7 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
         for j in 0..<kept:
             if adj[ids[i] * 12 + ids[j]]:
                 words[1 + k + i] <- words[1 + k + i] | (1.i64() << j)
-    rp: usize = remap[p].usize()
+    rp: usize = pivot_index
     words[1 + k + rp] <- words[1 + k + rp] | (1.i64() << leaf)
     words[1 + k + leaf] <- 1.i64() << rp
     count: usize = 1 + 2 * k
