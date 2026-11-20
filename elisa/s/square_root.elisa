@@ -31,13 +31,16 @@ def square_root_impl(value: f64) -> f64:
         copy_seed_value(&estimate, &seed, 8, false)
     else:
         estimate <- fallback_seed(value)
-    iteration: mutable usize = 0
-    while iteration < 1100:
+    pairs_remaining: mutable usize = 550
+    while pairs_remaining != 0:
         next: f64 = 0.5 * estimate + 0.5 * (value / estimate)
         if next >= estimate:
             return estimate
-        estimate <- next
-        iteration <- iteration + 1
+        second: f64 = 0.5 * next + 0.5 * (value / next)
+        if second >= next:
+            return next
+        estimate <- second
+        pairs_remaining <- pairs_remaining - 1
     estimate
 
 export fn square_root(value: f64) -> f64 = square_root_impl
