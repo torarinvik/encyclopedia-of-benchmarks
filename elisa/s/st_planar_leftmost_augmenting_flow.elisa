@@ -67,8 +67,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         rotation: mutable u32 = 0
         j: mutable usize = 0
         while (j < d):
-            e0: i64 = input[at]
-            at <- (at + 1)
+            e0: i64 = input[at + j]
             if e0.u64() >= m0.u64():
                 return (-1)
             edge: usize = e0.usize()
@@ -84,6 +83,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             occurrences <- occurrences | bit
             rotation <- rotation | ((arc.u32() + 1) << (5 * j))
             j <- (j + 1)
+        at <- at + d
         rotations[x] <- rotation
         x <- (x + 1)
     if occurrences != ((1.u64() << (2 * m)) - 1):
