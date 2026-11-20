@@ -25,6 +25,16 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
     count: usize = length - 1
     if values[0] != count.f64(): return -1
 
+    if count == 1:
+        raw: f64 = values[1]
+        if not (fabs(raw) <= 8.0 * CMD_PI): return -1
+        if output == null or output_capacity < 1: return -2
+        # A single unit vector cannot fall below the resultant cutoff.
+        angle: f64 = cmd_wrap(raw)
+        direction: f64 = atan2(0.0 + sin(angle), 0.0 + cos(angle))
+        output[0] <- -CMD_PI if direction >= CMD_PI else direction
+        return 1
+
     sum_cos: mutable f64 = 0.0
     sum_sin: mutable f64 = 0.0
     correction_cos: mutable f64 = 0.0
