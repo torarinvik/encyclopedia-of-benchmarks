@@ -44,17 +44,21 @@ def fast_subset_convolution_impl(input: i64&, length: usize, output: mutable u8&
 
     # Stage results before any stores so the output may overlap the input.
     coefficients: mutable u64[16] = zeroed
-    mask: mutable usize = 0
+    coefficients[0] <- (left_coefficients[0].u64() * right_coefficients[0].u64()) % MOD.u64()
+    mask: mutable usize = 1
     while mask < size:
-        subset: mutable usize = mask
+        lowest_bit: usize = mask & (0.usize() - mask)
+        # Each pair assigns the lowest bit to a different coefficient.
+        upper_mask: usize = mask ^ lowest_bit
+        subset: mutable usize = upper_mask
         sum: mutable u64 = 0
         while true:
-            left: u64 = left_coefficients[subset].u64()
-            right: u64 = right_coefficients[mask ^ subset].u64()
-            sum <- sum + left * right
+            complement: usize = upper_mask ^ subset
+            sum <- sum + left_coefficients[subset].u64() * right_coefficients[complement | lowest_bit].u64()
+            sum <- sum + left_coefficients[subset | lowest_bit].u64() * right_coefficients[complement].u64()
             if subset == 0:
                 break
-            subset <- (subset - 1) & mask
+            subset <- (subset - 1) & upper_mask
         # At most sixteen products fit in u64, so reduce only once.
         coefficients[mask] <- sum % MOD.u64()
         mask <- mask + 1
