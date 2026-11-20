@@ -18,9 +18,9 @@ def cmd_wrap(angle: f64) -> f64:
     value
 
 def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    if values == null or length < 2 or length > 66: return -1
+    if values == null or length < 2 or length > 65: return -1
     count: usize = length - 1
-    if count > 64 or values[0] != count.f64(): return -1
+    if values[0] != count.f64(): return -1
 
     sum_cos: mutable f64 = 0.0
     sum_sin: mutable f64 = 0.0
@@ -28,7 +28,7 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
     correction_sin: mutable f64 = 0.0
     for index in 0..<count:
         raw: f64 = values[index + 1]
-        if raw != raw or fabs(raw) > 8.0 * CMD_PI: return -1
+        if not (fabs(raw) <= 8.0 * CMD_PI): return -1
         angle: f64 = cmd_wrap(raw)
         adjusted_cos: f64 = cos(angle) - correction_cos
         next_cos: f64 = sum_cos + adjusted_cos
@@ -39,7 +39,7 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
         correction_sin <- (next_sin - sum_sin) - adjusted_sin
         sum_sin <- next_sin
     resultant: f64 = sqrt(sum_cos * sum_cos + sum_sin * sum_sin)
-    if resultant != resultant or resultant <= count.f64() * 0.0000000037252902984619140625:
+    if not (resultant > count.f64() * 0.0000000037252902984619140625):
         return -1
     if output == null or output_capacity < 1: return -2
     output[0] <- cmd_wrap(atan2(sum_sin, sum_cos))
