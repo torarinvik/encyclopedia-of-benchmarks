@@ -1,3 +1,6 @@
+@link_name("llvm.assume")
+extern domination_assume(condition: bool) -> void
+
 @intrinsic("llvm.cttz.i32")
 extern domination_trailing_zeros(value: u32, zero_undefined: bool) -> u32
 
@@ -25,12 +28,14 @@ def domination_local_reduction_impl(input: i64&, length: usize, output: mutable 
         v0: i64 = input[4 + 2 * e]
         # Unsigned ordering rejects negative endpoints and enforces 0 <= u < v < n.
         if v0.u64() >= n0.u64() or u0.u64() >= v0.u64(): return -1
+        # The checks above establish 0 <= u < v < n <= 12.
+        domination_assume(u0.u64() < 12.u64())
         u: usize = u0.usize()
         v: usize = v0.usize()
         u_bit: u16 = 1.u16() << u
         v_bit: u16 = 1.u16() << v
-        if ((adj[u & 15].u32() >> v) & 1.u32()) != 0: return -1
-        adj[u & 15] <- adj[u & 15] | v_bit
+        if ((adj[u].u32() >> v) & 1.u32()) != 0: return -1
+        adj[u] <- adj[u] | v_bit
         adj[v & 15] <- adj[v & 15] | u_bit
     neighbors: u32 = adj[p & 15].u32()
     closed: u32 = neighbors | (1.u32() << p)
