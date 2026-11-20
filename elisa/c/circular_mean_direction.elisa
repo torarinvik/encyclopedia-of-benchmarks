@@ -44,7 +44,9 @@ def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f6
     if not (resultant > count.f64() * 0.0000000037252902984619140625):
         return -1
     if output == null or output_capacity < 1: return -2
-    output[0] <- cmd_wrap(atan2(sum_sin, sum_cos))
+    # atan2 already returns an angle in [-pi, pi].
+    direction: f64 = atan2(sum_sin, sum_cos)
+    output[0] <- -CMD_PI if direction >= CMD_PI else direction
     1
 
 export fn circular_mean_direction(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = circular_mean_direction_impl
