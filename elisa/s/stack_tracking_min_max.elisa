@@ -29,6 +29,10 @@ def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&
     if position != length:
         return -1
 
+    # A nonempty valid trace always emits at least one 24-byte record.
+    if output == null or capacity < 24:
+        return -2
+
     values: mutable i32[64] = zeroed
     minima: mutable i32[64] = zeroed
     maxima: mutable i32[64] = zeroed
