@@ -48,8 +48,8 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         arc_target[2 * e + 1] <- u
         residual_capacity[2 * e] <- c
         e <- (e + 1)
-    degree: mutable usize[VERTEX_SLOTS] = zeroed
-    rot: mutable usize[VERTEX_SLOTS * VERTEX_SLOTS] = zeroed
+    # Each rotation stores up to five five-bit arc codes, in input order.
+    rotations: mutable u32[VERTEX_SLOTS] = zeroed
     # Each edge has two bits, one for each endpoint in the rotation.
     occurrences: mutable u64 = 0
     x: mutable usize = 0
@@ -61,7 +61,6 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         if (((d0 < 0) or (d0 >= n0)) or ((at + d0.usize()) > length)):
             return (-1)
         d: usize = d0.usize()
-        degree[x] <- d
         j: mutable usize = 0
         while (j < d):
             e0: i64 = input[at]
@@ -77,7 +76,7 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
             if (occurrences & bit) != 0:
                 return -1
             occurrences <- occurrences | bit
-            rot[x * VERTEX_SLOTS + j] <- arc
+            rotations[x] <- rotations[x] | ((arc.u32() + 1) << (5 * j))
             j <- (j + 1)
         x <- (x + 1)
     if at != length or occurrences != ((1.u64() << (2 * m)) - 1):
@@ -99,18 +98,19 @@ def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usi
         # The low byte stores predecessor and arc, and the high byte stores capacity.
         path: mutable u16[VERTEX_SLOTS] = zeroed
         path[s] <- 5 << 8
-        next_edge: mutable usize[VERTEX_SLOTS] = zeroed
+        pending: mutable u32[VERTEX_SLOTS] = rotations
         # A discovered vertex has a parent chain back to the source.
         seen[s] <- true
         u: mutable usize = s & (VERTEX_SLOTS - 1)
         while not seen[t]:
-            if next_edge[u] >= degree[u]:
+            remaining: u32 = pending[u]
+            if remaining == 0:
                 if u == s:
                     break
                 u <- path[u].usize() & (VERTEX_SLOTS - 1)
                 continue
-            arc: usize = rot[u * VERTEX_SLOTS + (next_edge[u] & (VERTEX_SLOTS - 1))] & (ARC_SLOTS - 1)
-            next_edge[u] <- next_edge[u] + 1
+            arc: usize = (remaining.usize() - 1) & (ARC_SLOTS - 1)
+            pending[u] <- remaining >> 5
             v: usize = arc_target[arc] & (VERTEX_SLOTS - 1)
             available: i64 = residual_capacity[arc]
             if available > 0 and not seen[v]:
