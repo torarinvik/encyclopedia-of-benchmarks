@@ -15,22 +15,8 @@ def inverse_square_root_seed(value: f64) -> f64:
     first * (1.5 - half_value * first * first)
 
 @inline(never)
-def fallback_seed(value: f64) -> f64:
-    1.0 if value < 1.0 else value
-
-# Newton square root using binary64 arithmetic and a portable initial estimate.
-def square_root_impl(value: f64) -> f64:
-    if value == 0.0:
-        return 0.0
-    estimate: mutable f64 = 0.0
-    bits: mutable u64 = 0
-    copy_seed_bits(&bits, &value, 8, false)
-    if bits < 0x7ff0000000000000:
-        # Positive finite binary64 values have unsigned encodings below infinity.
-        seed: u64 = (bits >> 1) + 0x1ff8000000000000
-        copy_seed_value(&estimate, &seed, 8, false)
-    else:
-        estimate <- fallback_seed(value)
+def refine_square_root(value: f64, initial: f64) -> f64:
+    estimate: mutable f64 = initial
     pairs_remaining: mutable usize = 550
     while pairs_remaining != 0:
         next: f64 = 0.5 * estimate + 0.5 * (value / estimate)
@@ -42,5 +28,18 @@ def square_root_impl(value: f64) -> f64:
         estimate <- second
         pairs_remaining <- pairs_remaining - 1
     estimate
+
+# Select the seed before tail-calling the Newton refinement loop.
+def square_root_impl(value: f64) -> f64:
+    if value == 0.0:
+        return 0.0
+    bits: mutable u64 = 0
+    copy_seed_bits(&bits, &value, 8, false)
+    if bits < 0x7ff0000000000000:
+        seed: u64 = (bits >> 1) + 0x1ff8000000000000
+        initial: mutable f64 = 0.0
+        copy_seed_value(&initial, &seed, 8, false)
+        return refine_square_root(value, initial)
+    refine_square_root(value, 1.0 if value < 1.0 else value)
 
 export fn square_root(value: f64) -> f64 = square_root_impl
