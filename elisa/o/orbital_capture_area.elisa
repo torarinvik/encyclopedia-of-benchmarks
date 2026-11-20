@@ -2,10 +2,14 @@
 @link_name("llvm.roundeven.f64")
 extern round_nonnegative(value: f64) -> f64
 
+@inline(never)
+def rounded_capture_area(capture_radius: f64) -> f64:
+    area: f64 = 3.14159265358979323846 * capture_radius * capture_radius
+    return round_nonnegative(area)
+
 def orbital_capture_area_impl(capture_radius: f64) -> f64:
     if not (capture_radius >= 0.0 and capture_radius <= 1.0e10):
         return -1e300
-    area: f64 = 3.14159265358979323846 * capture_radius * capture_radius
-    return round_nonnegative(area)
+    return rounded_capture_area(capture_radius)
 
 export fn orbital_capture_area(capture_radius: f64) -> f64 = orbital_capture_area_impl
