@@ -1,18 +1,23 @@
 # Trial-division primality check over the shared bounded integer domain.
 def prime_check_impl(n: i64) -> i64:
-    if n < 2:
-        return 0
+    if n <= 3:
+        return 1 if n >= 2 else 0
     if n > 2147483647:
         return -1
     if n % 2 == 0:
-        if n == 2:
-            return 1
         return 0
+    number: u32 = n.u32()
+    if number % 3 == 0:
+        return 0
+    # Every prime factor above 3 is one below or one above a multiple of 6.
     composite: bool =
-        while factor <= n / factor |factor: i64 = 3, found: bool = false| -> found:
-            if n % factor == 0:
+        while factor * factor <= number |factor: u32 = 5, found: bool = false| -> found:
+            if number % factor == 0:
                 break true
-            factor <- factor + 2
+            # factor + 2 is smaller than number whenever factor squared fits.
+            if number % (factor + 2) == 0:
+                break true
+            factor <- factor + 6
     if composite:
         return 0
     1
