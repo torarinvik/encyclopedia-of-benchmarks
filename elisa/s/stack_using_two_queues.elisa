@@ -1,10 +1,10 @@
 # The validated limit of 128 operations bounds both queues. Each push
 # copies into the other array and can increase the live length by at most one.
-def push_new(main_queue: i64&, temp_queue: mutable i64&, head: usize, queue_end: usize, value: i64) -> usize:
+def push_new(main_queue: i64&, temp_queue: mutable i64&, head: usize, queue_size: usize, value: i64) -> usize:
     temp_queue[0] <- value
-    for index in head..<queue_end:
-        temp_queue[index - head + 1] <- main_queue[index]
-    queue_end - head + 1
+    for index in 0.usize()..<queue_size:
+        temp_queue[index + 1] <- main_queue[head + index]
+    queue_size + 1
 
 def stack_using_two_queues_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 1 or length > 257: return -1
@@ -20,7 +20,7 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
     records: mutable i64[256] = zeroed
     main_is_a: mutable bool = true
     head: mutable usize = 0
-    queue_end: mutable usize = 0
+    queue_size: mutable usize = 0
     record_count: mutable usize = 0
     position: mutable usize = 1
     operation_index: mutable usize = 0
@@ -31,21 +31,22 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
         if opcode == 0:
             if operand < -2147483648 or operand > 2147483647: return -1
             if main_is_a:
-                queue_end <- push_new(&queue_a[0], &queue_b[0], head, queue_end, operand)
+                queue_size <- push_new(&queue_a[0], &queue_b[0], head, queue_size, operand)
             else:
-                queue_end <- push_new(&queue_b[0], &queue_a[0], head, queue_end, operand)
+                queue_size <- push_new(&queue_b[0], &queue_a[0], head, queue_size, operand)
             head <- 0
             main_is_a <- not main_is_a
         elif opcode == 1:
-            if operand != 0 or head == queue_end: return -1
+            if operand != 0 or queue_size == 0: return -1
             records[2 * record_count] <- 0
             if main_is_a: records[2 * record_count + 1] <- queue_a[head]
             else: records[2 * record_count + 1] <- queue_b[head]
             record_count <- record_count + 1
             head <- head + 1
+            queue_size <- queue_size - 1
         elif opcode == 2:
             if operand != 0: return -1
-            if head == queue_end:
+            if queue_size == 0:
                 records[2 * record_count] <- 1
                 records[2 * record_count + 1] <- 0
             else:
