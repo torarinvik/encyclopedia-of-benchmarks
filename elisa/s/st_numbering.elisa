@@ -87,9 +87,8 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
         return -1
     previous: mutable i64[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
     following: mutable i64[8] = [-1, -1, -1, -1, -1, -1, -1, -1]
-    # Index the signs by the one-based discovery rank used for lowpoints.
-    sign: mutable i8[9] = zeroed
-    sign[1] <- -1
+    # Only negative signs affect insertion. One bit per discovery rank is enough.
+    negative_signs: mutable u64 = 2
     following[s] <- t.i64()
     previous[t] <- s.i64()
     list_head: mutable usize = s
@@ -97,7 +96,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
     while order < n:
         vertex <- preorder[order]
         ancestor: usize = parent[vertex].usize()
-        if sign[low_rank[vertex].usize()] == -1:
+        if (negative_signs & (1 << low_rank[vertex].usize())) != 0:
             left_value: i64 = previous[ancestor]
             previous[vertex] <- left_value
             following[vertex] <- ancestor.i64()
@@ -106,7 +105,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
                 following[left_value.usize()] <- vertex.i64()
             else:
                 list_head <- vertex
-            sign[discovery[ancestor].usize()] <- 1
+            negative_signs <- negative_signs & ~(1 << discovery[ancestor].usize())
         else:
             right_value: i64 = following[ancestor]
             previous[vertex] <- ancestor.i64()
@@ -114,7 +113,7 @@ def st_numbering_impl(input: i64&?, input_length: usize, output: mutable u8&?, o
             following[ancestor] <- vertex.i64()
             if right_value >= 0:
                 previous[right_value.usize()] <- vertex.i64()
-            sign[discovery[ancestor].usize()] <- -1
+            negative_signs <- negative_signs | (1 << discovery[ancestor].usize())
         order <- order + 1
 
     staged: mutable u8[8] = zeroed
