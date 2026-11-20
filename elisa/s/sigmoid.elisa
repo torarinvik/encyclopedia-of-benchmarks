@@ -1,7 +1,9 @@
+@link_name("llvm.fabs.f64")
+extern abs_value(value: f64) -> f64
 extern exp(value: f64) -> f64
 
 def sigmoid_impl(x: f64) -> f64:
-    if x != x or x < -20.0 or x > 20.0:
+    if not (abs_value(x) <= 20.0):
         return -1.0e300
     1.0 / (1.0 + exp(-x))
 
