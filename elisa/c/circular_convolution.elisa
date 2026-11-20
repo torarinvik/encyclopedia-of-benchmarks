@@ -9,6 +9,16 @@ def circular_convolution_impl(values: i64&, length: usize, output: mutable u8&, 
     b_length: usize = raw_b_length.usize()
     if length != 2 + a_length + b_length:
         return -1
+    # The output stores coefficients modulo 256, so byte arithmetic preserves each result.
+    if a_length == 1 and b_length == 1:
+        left: i64 = values[2]
+        right: i64 = values[3]
+        if left < -2 or left > 2 or right < -2 or right > 2:
+            return -1
+        if output == null or output_capacity == 0:
+            return -2
+        output[0] <- left.u8() * right.u8()
+        return 1
     index: mutable usize = 0
     while index < a_length + b_length:
         sample: i64 = values[2 + index]
@@ -19,10 +29,6 @@ def circular_convolution_impl(values: i64&, length: usize, output: mutable u8&, 
     if output == null or output_capacity < n:
         return -2
 
-    # The output stores coefficients modulo 256, so byte arithmetic preserves each result.
-    if n == 1:
-        output[0] <- values[2].u8() * values[3].u8()
-        return 1
     coefficients: mutable u8[16] = zeroed
     results: mutable u8& = &coefficients[0]
     first: i64& = &values[2]
