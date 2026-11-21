@@ -30,9 +30,8 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
             continue
         if value < 32 or value > 126:
             return -1
-        symbol_index: u64 = value.u64() - 32
-        bit: u64 = 1.u64() << (symbol_index & 63)
-        if symbol_index < 64:
+        bit: u64 = 1.u64() << (value.u64() & 63)
+        if value < 64:
             if (seen_low & bit) != 0:
                 return -1
             seen_low <- seen_low | bit
