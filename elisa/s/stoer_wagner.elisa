@@ -43,22 +43,17 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
     graph: mutable i32[256] = zeroed
     row: mutable usize = 0
     while row < n:
-        column: mutable usize = 0
-        while column < n:
-            weight: i64 = input[1 + row * n + column]
-            if weight < 0 or weight > MAX_WEIGHT:
-                return -1
-            graph[row * MAX_N + column] <- weight.i32()
-            column <- column + 1
-        row <- row + 1
-    row <- 0
-    while row < n:
-        if graph[row * MAX_N + row] != 0:
+        input_row: usize = 1 + row * n
+        graph_row: usize = row * MAX_N
+        if input[input_row + row] != 0:
             return -1
         column: mutable usize = row + 1
         while column < n:
-            if graph[row * MAX_N + column] != graph[column * MAX_N + row]:
+            weight: i64 = input[input_row + column]
+            if weight.u64() > MAX_WEIGHT.u64() or weight != input[1 + column * n + row]:
                 return -1
+            graph[graph_row + column] <- weight.i32()
+            graph[column * MAX_N + row] <- weight.i32()
             column <- column + 1
         row <- row + 1
 
