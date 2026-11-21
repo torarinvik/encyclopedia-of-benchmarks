@@ -18,6 +18,10 @@ def streaming_moving_average_impl(input: i64&?, length: usize, output: mutable u
         if input[2 + index] < -2147483648 or input[2 + index] > 2147483647: return -1
         index <- index + 1
     if capacity < count * 8 or output == null: return -2
+    if window == 1:
+        for index in 0..<count:
+            streaming_moving_average_put_f64(output, index * 8, input[2 + index].f64())
+        return (count * 8).i64()
     index <- 0
     # At most 256 signed 32-bit inputs fit in the exact binary64 integer range.
     sum: mutable u64 = 0
