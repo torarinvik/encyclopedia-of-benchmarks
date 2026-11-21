@@ -62,6 +62,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     eu: mutable usize[MT_M] = zeroed
     ev: mutable usize[MT_M] = zeroed
     weight: mutable u32[MT_M] = zeroed
+    input_labels: mutable u32 = MT_SINGLETON_LABELS
     incident: mutable u32[MT_N] = zeroed
     pair_seen: mutable bool[MT_N*MT_N] = zeroed
     edge: mutable usize = 0
@@ -80,6 +81,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         eu[edge] <- u
         ev[edge] <- v
         weight[edge] <- w.u32()
+        mt_join(&input_labels, u, v)
         bit: u32 = 1.u32() << edge
         incident[u] <- incident[u] | bit
         incident[v] <- incident[v] | bit
@@ -87,30 +89,11 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     if at != length:
         return -1
 
-    reached: mutable bool[MT_N] = zeroed
-    queue: mutable usize[MT_N] = zeroed
-    head: mutable usize = 0
-    queue_end: mutable usize = 0
-    reached[0] <- true
-    queue[queue_end] <- 0
-    queue_end <- queue_end+1
-    while head < queue_end:
-        u: usize = queue[head]
-        head <- head+1
-        pending: mutable u32 = incident[u]
-        while pending != 0:
-            edge <- mt_edge_index(pending, true).usize()
-            pending <- pending & (pending - 1)
-            v: usize = eu[edge] ^ ev[edge] ^ u
-            if not reached[v]:
-                reached[v] <- true
-                queue[queue_end] <- v
-                queue_end <- queue_end+1
-    vertex: mutable usize = 0
-    while vertex < n:
-        if not reached[vertex]:
+    first_component: u32 = mt_label(input_labels, 0)
+    for vertex in 1..<n:
+        if mt_label(input_labels, vertex) != first_component:
             return -1
-        vertex <- vertex+1
+    vertex: mutable usize = 0
 
     # Order by distance, then by owner in the low three bits.
     distance_key: mutable u32[MT_N] = zeroed
@@ -273,8 +256,8 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             return -1
     leaves: mutable usize[MT_N] = zeroed
     queued: mutable bool[MT_N] = zeroed
-    head <- 0
-    queue_end <- 0
+    head: mutable usize = 0
+    queue_end: mutable usize = 0
     vertex <- 0
     while vertex < n:
         if not is_terminal[vertex] and degree[vertex] <= 1:
