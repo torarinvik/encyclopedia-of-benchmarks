@@ -18,7 +18,7 @@ def star_delta_conversions_impl(v: i64&?, n: usize) -> i64:
 # Products and sums are exact in binary64. Non-ties are at least 1/(2*denominator)
 # from a half integer, farther than binary64 rounding can move them here.
 def quantize(numerator: u64, denominator: u64) -> u64:
-    (2 * numerator + denominator) / (2 * denominator)
+    (numerator + denominator / 2) / denominator
 
 def hash_quantized(seed: u64, bits: u64) -> u64:
     hash: mutable u64 = seed
