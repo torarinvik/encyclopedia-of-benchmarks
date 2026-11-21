@@ -1,6 +1,6 @@
 const SCI_MAX_N: usize = 12
 const SCI_MAX_INPUT: usize = 15
-const SCI_WIDTH: usize = SCI_MAX_N + 1
+const SCI_WIDTH: usize = 16
 const SCI_CELLS: usize = SCI_WIDTH * SCI_WIDTH
 const SCI_INF: i64 = 1000
 

@@ -3,7 +3,7 @@
 
 #define SCI_MAX_N 12
 #define SCI_MAX_INPUT 15
-#define SCI_WIDTH (SCI_MAX_N + 1)
+#define SCI_WIDTH 16
 #define SCI_INF INT64_C(1000)
 
 static int64_t sci_run_cost(int kept) {
