@@ -2,13 +2,12 @@ const SP_MAX_LENGTH: usize = 8
 const SP_TABLE_SIDE: usize = 8
 
 @inline(always)
-def append_printer_symbol(symbol: u64, symbols: mutable u64&, count: mutable usize&, previous: mutable u64&) -> bool:
+def append_printer_symbol(symbol: u64, symbols: mutable u64&, previous: mutable u64&) -> bool:
     if symbol > 2: return false
     if symbol != previous[0]:
         # Fixed shifts pack the runs in reverse order. Reversing every print
         # interval preserves the optimal turn count.
         symbols[0] <- (symbols[0] << 2) | symbol
-        count[0] <- count[0] + 1
         previous[0] <- symbol
     true
 
@@ -19,27 +18,30 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if length_from_header == 0: return 0
     first: u64 = input[1].u64()
     if first > 2: return -1
-    symbols: mutable u64 = first
-    n: mutable usize = 1
+    # The leading 1 sits just above the two bits for each run.
+    symbols: mutable u64 = 4 | first
     previous: mutable u64 = first
-    if length > 2 and not append_printer_symbol(input[2].u64(), &symbols, &n, &previous): return -1
-    if length > 3 and not append_printer_symbol(input[3].u64(), &symbols, &n, &previous): return -1
-    if length > 4 and not append_printer_symbol(input[4].u64(), &symbols, &n, &previous): return -1
-    if length > 5 and not append_printer_symbol(input[5].u64(), &symbols, &n, &previous): return -1
-    if length > 6 and not append_printer_symbol(input[6].u64(), &symbols, &n, &previous): return -1
-    if length > 7 and not append_printer_symbol(input[7].u64(), &symbols, &n, &previous): return -1
-    if length > 8 and not append_printer_symbol(input[8].u64(), &symbols, &n, &previous): return -1
-    if n < 2: return n.i64()
-
-    if n == 2: return 2
-    if n == 3:
+    if length > 2 and not append_printer_symbol(input[2].u64(), &symbols, &previous): return -1
+    if length > 3 and not append_printer_symbol(input[3].u64(), &symbols, &previous): return -1
+    if length > 4 and not append_printer_symbol(input[4].u64(), &symbols, &previous): return -1
+    if length > 5 and not append_printer_symbol(input[5].u64(), &symbols, &previous): return -1
+    if length > 6 and not append_printer_symbol(input[6].u64(), &symbols, &previous): return -1
+    if length > 7 and not append_printer_symbol(input[7].u64(), &symbols, &previous): return -1
+    if length > 8 and not append_printer_symbol(input[8].u64(), &symbols, &previous): return -1
+    if symbols < 16: return 1
+    if symbols < 64: return 2
+    if symbols < 256:
         if (symbols & 3) == ((symbols >> 4) & 3): return 2
         return 3
-
     # Two turns can create at most three runs. Four runs over three symbols
     # repeat some symbol, so one shared turn plus two others suffices.
-    if n == 4: return 3
+    if symbols < 1024: return 3
 
+    n: mutable usize = 5
+    n <- 6 if symbols >= 4096
+    n <- 7 if symbols >= 16384
+    n <- 8 if symbols >= 65536
+    # The interval worker only reads lanes below n, excluding the marker.
     strange_printer_interval(symbols, n)
 
 @inline(always)
