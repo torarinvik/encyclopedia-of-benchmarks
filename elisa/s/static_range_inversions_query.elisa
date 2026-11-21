@@ -40,14 +40,14 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
         while current_left > target_left:
             current_left <- current_left - 1
             rank: usize = ranks[current_left].usize()
-            inversions <- inversions + (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
+            inversions <- inversions + (current_right-current_left-1).i64() - (srin_packed_sum(prefixes, rank + 8) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
             if use_packed:
                 prefixes <- prefixes + (0x0101010101010101.u64() << rank)
             else:
                 srin_bit_add(&bit[0], rank >> 3, distinct, 1)
         while current_right < target_right:
             rank: usize = ranks[current_right].usize()
-            inversions <- inversions + (current_right-current_left).i64() - (srin_packed_sum(prefixes, rank + 8) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
+            inversions <- inversions + (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
             if use_packed:
                 prefixes <- prefixes + (0x0101010101010101.u64() << rank)
             else:
@@ -55,7 +55,7 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
             current_right <- current_right + 1
         while current_left < target_left:
             rank: usize = ranks[current_left].usize()
-            inversions <- inversions - (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
+            inversions <- inversions - (current_right-current_left).i64() + (srin_packed_sum(prefixes, rank + 8) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
             if use_packed:
                 prefixes <- prefixes - (0x0101010101010101.u64() << rank)
             else:
@@ -64,7 +64,7 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
         while current_right > target_right:
             current_right <- current_right - 1
             rank: usize = ranks[current_right].usize()
-            inversions <- inversions - (current_right+1-current_left).i64() + (srin_packed_sum(prefixes, rank + 8) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
+            inversions <- inversions - (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
             if use_packed:
                 prefixes <- prefixes - (0x0101010101010101.u64() << rank)
             else:
@@ -146,15 +146,15 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
     ranks: mutable u16[MAX_N] = zeroed
     distinct: mutable usize = 0
     previous: mutable i64 = -1
-    i <- 0
-    while i < n:
+    i <- n
+    while i > 0:
+        i <- i - 1
         item: u64 = sorted[i]
         value: i64 = (item >> 7).i64()
         if value != previous:
             distinct <- distinct + 1
             previous <- value
         ranks[(item & 127).usize()] <- ((distinct - 1) << 3).u16()
-        i <- i + 1
     i <- 1
     while i < q:
         query: u32 = queries[i]
