@@ -7,8 +7,16 @@ int64_t string_compression(const int64_t *input, size_t length, uint8_t *output,
                            size_t output_capacity) {
     if (length == 0) return 0;
     if (length > MAX_INPUT_LENGTH || input == NULL) return -1;
-    for (size_t index = 0; index < length; ++index)
-        if (input[index] < 0 || input[index] > 127) return -1;
+    /* A set bit above bit 6 marks an invalid ASCII code unit. */
+    if (length >= 8) {
+        uint64_t combined = 0;
+        for (size_t index = 0; index < length; ++index)
+            combined |= (uint64_t)input[index];
+        if (combined > 127) return -1;
+    } else {
+        for (size_t index = 0; index < length; ++index)
+            if ((uint64_t)input[index] > 127) return -1;
+    }
 
     if (output == NULL) return -2;
     /* Each run encodes to at most as many bytes as it consumes. */
