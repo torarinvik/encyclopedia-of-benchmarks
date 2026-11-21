@@ -1,24 +1,25 @@
-extern pow(base: f64, exponent: f64) -> f64
+@link_name("llvm.sqrt.f64")
 extern sqrt(value: f64) -> f64
 
-def standard_deviation_impl(values: i64&, length: usize) -> f64:
-    if length == 0 or length > 64:
+def standard_deviation_impl(values: i64&?, length: usize) -> f64:
+    if length == 0 or length > 64 or values == null:
         return -1.0e300
-    total: mutable f64 = 0.0
+    # Bounded integer partial sums are exactly representable in binary64.
+    total: mutable i64 = 0
     index: mutable usize = 0
     while index < length:
         value: i64 = values[index]
         if value < -1000000 or value > 1000000:
             return -1.0e300
-        total <- total + value.f64()
+        total <- total + value
         index <- index + 1
-    average: f64 = total / length.f64()
+    average: f64 = total.f64() / length.f64()
     squared_deviations: mutable f64 = 0.0
     index <- 0
     while index < length:
         difference: f64 = values[index].f64() - average
-        squared_deviations <- squared_deviations + pow(difference, 2.0)
+        squared_deviations <- squared_deviations + difference * difference
         index <- index + 1
     sqrt(squared_deviations / length.f64())
 
-export fn standard_deviation(values: i64&, length: usize) -> f64 = standard_deviation_impl
+export fn standard_deviation(values: i64&?, length: usize) -> f64 = standard_deviation_impl
