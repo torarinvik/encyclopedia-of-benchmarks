@@ -54,22 +54,22 @@ def star_triangle_hits_box(data: i32&, tid: usize,
 def star_visit(triangles: i32&, edges: i32&,
                triangle_count: usize, edge_count: usize,
                pairs: mutable i64&, initial_pair_count: i32,
-               depth: usize, xmin: i32, ymax: i32, size: i32, path: usize) -> i32:
+               key_shift: usize, xmin: i32, ymax: i32, size: i32, key: usize) -> i32:
     pair_count: mutable i32 = initial_pair_count
     xmax: i32 = xmin + size
     ymin: i32 = ymax - size
     if not star_stops(edges,edge_count,xmin,ymin,xmax,ymax):
-        if depth >= STAR_MAX_DEPTH: return -1
+        if key_shift == 0: return -1
+        child_shift: usize = key_shift - 2
         half: i32 = size >> 1
         q: mutable usize = 0
         while q < 4:
             pair_count <- star_visit(triangles,edges,triangle_count,edge_count,
-                pairs,pair_count,depth+1,xmin+(q%2).i32()*half,
-                ymax-(q/2).i32()*half,half,4*path+q)
+                pairs,pair_count,child_shift,xmin+(q%2).i32()*half,
+                ymax-(q/2).i32()*half,half,key+(q<<child_shift))
             if pair_count < 0: return -1
             q <- q + 1
         return pair_count
-    key: usize = path << (2 * (STAR_MAX_DEPTH-depth))
     tid: mutable usize = 0
     while tid < triangle_count:
         if star_triangle_hits_box(triangles,tid,xmin,ymin,xmax,ymax):
@@ -194,7 +194,7 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
     pairs_data: mutable i64[128] = zeroed
     pairs: mutable i64& = &pairs_data[0]
     result: i32 = star_visit(projections,edges,triangle_count,edge_count,
-        pairs,0,0,0,8,8,0)
+        pairs,0,2*STAR_MAX_DEPTH,0,8,8,0)
     if result < 0: return -1
     pair_count: usize = result.usize()
     required: usize = (1 + 2*pair_count)*8
