@@ -111,19 +111,22 @@ def star_validate_mesh(input: i64&, length: usize, output: mutable u8&?, capacit
         if triangles[i] != fan[i]: fan_ok <- false
         i <- i + 1
     if not diag02 and not diag13 and not fan_ok: return -1
-    star_mesh_output(vertices,triangles,triangle_count,output,capacity)
+    star_mesh_output(vertices,triangles,vertex_count,triangle_count,output,capacity)
 
-def star_min(a: i32, b: i32, c: i32) -> i32:
-    first: i32 = a if a < b else b
-    first if first < c else c
-
-def star_max(a: i32, b: i32, c: i32) -> i32:
-    first: i32 = a if a > b else b
-    first if first > c else c
+def star_bounds_union(left: u64, right: u64) -> u64:
+    # Each guard bit records whether the left lane is at least the right lane.
+    guards: u64 = 0x8080808080808080
+    choose_left: u64 = ((((left | guards) - right) & guards) >> 7) * 255
+    right ^ ((left ^ right) & choose_left)
 
 @inline(never)
-def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
+def star_mesh_output(vertices: i32&, triangles: i32&, vertex_count: usize, triangle_count: usize,
                      output: mutable u8&?, capacity: usize) -> i64:
+    vertex_projections: mutable u64[5] = zeroed
+    for vertex in 0..<vertex_count:
+        x: i32 = vertices[2*vertex]
+        y: i32 = vertices[2*vertex+1]
+        vertex_projections[vertex] <- star_pack_bounds(x,-x,y,-y,x+y,-(x+y),y-x,x-y)
     projections_data: mutable u64[4] = zeroed
     projections: mutable u64& = &projections_data[0]
     edges_data: mutable u64[16] = zeroed
@@ -132,20 +135,11 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
     seen_edges: mutable u32 = 0
     tid: mutable usize = 0
     while tid < triangle_count:
-        a: usize = triangles[3*tid+0].usize()
-        ax: i32 = vertices[2*a]
-        ay: i32 = vertices[2*a+1]
+        a: usize = triangles[3*tid].usize()
         b: usize = triangles[3*tid+1].usize()
-        bx: i32 = vertices[2*b]
-        by: i32 = vertices[2*b+1]
         c: usize = triangles[3*tid+2].usize()
-        cx: i32 = vertices[2*c]
-        cy: i32 = vertices[2*c+1]
-        projections[tid] <- star_pack_bounds(
-            star_max(ax,bx,cx),-star_min(ax,bx,cx),
-            star_max(ay,by,cy),-star_min(ay,by,cy),
-            star_max(ax+ay,bx+by,cx+cy),-star_min(ax+ay,bx+by,cx+cy),
-            star_max(ay-ax,by-bx,cy-cx),-star_min(ay-ax,by-bx,cy-cx)) | 0x8080808080808080.u64()
+        bounds: u64 = star_bounds_union(vertex_projections[a],vertex_projections[b])
+        projections[tid] <- star_bounds_union(bounds,vertex_projections[c]) | 0x8080808080808080.u64()
         k: mutable usize = 0
         while k < 3:
             a: usize = triangles[3*tid+k].usize()
@@ -157,15 +151,8 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
             if (seen_edges & edge_bit) == 0:
                 seen_edges <- seen_edges | edge_bit
                 slot: usize = 2 * edge_count
-                ax: i32 = vertices[2*low]
-                ay: i32 = vertices[2*low+1]
-                bx: i32 = vertices[2*high]
-                by: i32 = vertices[2*high+1]
-                edges[slot] <- star_pack_bounds(
-                    (ax if ax > bx else bx),-(ax if ax < bx else bx),
-                    (ay if ay > by else by),-(ay if ay < by else by),
-                    ((ax+ay) if (ax+ay) > (bx+by) else (bx+by)),-((ax+ay) if (ax+ay) < (bx+by) else (bx+by)),
-                    ((ay-ax) if (ay-ax) > (by-bx) else (by-bx)),-((ay-ax) if (ay-ax) < (by-bx) else (by-bx))) | 0x8080808080808080.u64()
+                edges[slot] <- (star_bounds_union(vertex_projections[low],vertex_projections[high]) |
+                    0x8080808080808080.u64())
                 edges[slot+1] <- (1.u64() << low) | (1.u64() << high)
                 edge_count <- edge_count + 1
             k <- k + 1
