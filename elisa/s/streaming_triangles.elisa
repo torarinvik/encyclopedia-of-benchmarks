@@ -16,8 +16,7 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
     stride: usize = 2 + 2 * sw
     if length != 4 + 2 * m + m * stride: return -1
     seen: mutable u64 = 0
-    edge_u: mutable i64[28] = zeroed
-    edge_v: mutable i64[28] = zeroed
+    edges: mutable u64[28] = zeroed
     for i in 0..<m:
         u: i64 = input[4 + 2 * i]
         v: i64 = input[5 + 2 * i]
@@ -25,14 +24,9 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
         bit: u64 = 1.u64() << ((u.u64() << 3) | v.u64())
         if (seen & bit) != 0: return -1
         seen <- seen | bit
-        edge_u[i] <- u
-        edge_v[i] <- v
-    edge_ids: mutable i64[4] = zeroed
-    for i in 0..<4:
-        edge_ids[i] <- -1
-    wedge_u: mutable i64[4] = zeroed
-    wedge_v: mutable i64[4] = zeroed
-    wedge_valid: mutable bool[4] = zeroed
+        edges[i] <- (1.u64() << u.u64()) | (1.u64() << v.u64())
+    edge_slots: mutable u64[4] = zeroed
+    wedge_slots: mutable u64[4] = zeroed
     closed: mutable bool[4] = zeroed
     total: mutable i64 = 0
     staged: mutable i64[84] = zeroed
@@ -42,8 +36,9 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
     for ti in 0..<m:
         t: usize = ti + 1
         rec: usize = tape + ti * stride
+        incoming: u64 = edges[ti]
         for s in 0..<sw:
-            if wedge_valid[s] and wedge_u[s] == edge_u[ti] and wedge_v[s] == edge_v[ti]: closed[s] <- true
+            if wedge_slots[s] == incoming: closed[s] <- true
         draw: i64 = input[rec]
         slot0: i64 = input[rec + 1]
         time_squared: u64 = t.u64() * t.u64()
@@ -52,39 +47,23 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
         previous_limit <- limit
         if draw.u64() >= limit: return -1
         update: bool = draw.u64() < threshold
-        fresh_u: mutable i64[4] = zeroed
-        fresh_v: mutable i64[4] = zeroed
+        fresh_wedge: mutable u64[4] = zeroed
         fresh_count: mutable usize = 0
         removed_count: mutable usize = 0
         if update:
             if slot0 < 0 or slot0 >= se.i64(): return -1
             slot: usize = slot0.usize()
-            old_id: i64 = edge_ids[slot]
-            if old_id >= 0:
-                for j in 0..<se:
-                    if j != slot and edge_ids[j] >= 0:
-                        old: usize = edge_ids[j].usize()
-                        common_old: mutable i64 = -1
-                        if edge_u[old_id.usize()] == edge_u[old] or edge_u[old_id.usize()] == edge_v[old]: common_old <- edge_u[old_id.usize()]
-                        if edge_v[old_id.usize()] == edge_u[old] or edge_v[old_id.usize()] == edge_v[old]: common_old <- edge_v[old_id.usize()]
-                        if common_old >= 0:
-                            old_x: i64 = edge_v[old_id.usize()] if edge_u[old_id.usize()] == common_old else edge_u[old_id.usize()]
-                            old_y: i64 = edge_v[old] if edge_u[old] == common_old else edge_u[old]
-                            if old_x != old_y: removed_count <- removed_count + 1
-            edge_ids[slot] <- ti.i64()
+            evicted: u64 = edge_slots[slot]
             for j in 0..<se:
-                if j != slot and edge_ids[j] >= 0:
-                    old: usize = edge_ids[j].usize()
-                    common: mutable i64 = -1
-                    if edge_u[ti] == edge_u[old] or edge_u[ti] == edge_v[old]: common <- edge_u[ti]
-                    if edge_v[ti] == edge_u[old] or edge_v[ti] == edge_v[old]: common <- edge_v[ti]
-                    if common >= 0:
-                        x: i64 = edge_v[ti] if edge_u[ti] == common else edge_u[ti]
-                        y: i64 = edge_v[old] if edge_u[old] == common else edge_u[old]
-                        if x != y:
-                            fresh_u[fresh_count] <- x if x < y else y
-                            fresh_v[fresh_count] <- y if x < y else x
-                            fresh_count <- fresh_count + 1
+                if j != slot:
+                    resident: u64 = edge_slots[j]
+                    if (evicted & resident) != 0:
+                        removed_count <- removed_count + 1
+                    # Distinct edges share at most one vertex. XOR leaves the two endpoints.
+                    if (incoming & resident) != 0:
+                        fresh_wedge[fresh_count] <- incoming ^ resident
+                        fresh_count <- fresh_count + 1
+            edge_slots[slot] <- incoming
         else:
             if slot0 != 0: return -1
         total <- total + fresh_count.i64() - removed_count.i64()
@@ -96,9 +75,7 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
                 if wd < 0 or wd >= total: return -1
                 if wd < fresh_count.i64():
                     if pick < 0 or pick >= fresh_count.i64(): return -1
-                    wedge_u[s] <- fresh_u[pick.usize()]
-                    wedge_v[s] <- fresh_v[pick.usize()]
-                    wedge_valid[s] <- true
+                    wedge_slots[s] <- fresh_wedge[pick.usize()]
                     closed[s] <- false
                 elif pick != 0: return -1
             elif wd != 0 or pick != 0: return -1
