@@ -37,6 +37,24 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
         middle: u64 = (input[4].u64() ^ first) | (input[5].u64() ^ first)
         right: u64 = (input[6].u64() ^ first) | (input[7].u64() ^ first)
         if (left | middle | right) == 0: return 1
+    # A single transition means every symbol equals one of the validated endpoints.
+    if length_from_header == SP_MAX_LENGTH:
+        last: u64 = input[8].u64()
+        if last <= 2 and last != first:
+            symbol_2: u64 = input[2].u64()
+            symbol_3: u64 = input[3].u64()
+            symbol_4: u64 = input[4].u64()
+            symbol_5: u64 = input[5].u64()
+            symbol_6: u64 = input[6].u64()
+            symbol_7: u64 = input[7].u64()
+            transitions: mutable i64 = (1 if first != symbol_2 else 0)
+            transitions <- transitions + (1 if symbol_2 != symbol_3 else 0)
+            transitions <- transitions + (1 if symbol_3 != symbol_4 else 0)
+            transitions <- transitions + (1 if symbol_4 != symbol_5 else 0)
+            transitions <- transitions + (1 if symbol_5 != symbol_6 else 0)
+            transitions <- transitions + (1 if symbol_6 != symbol_7 else 0)
+            transitions <- transitions + (1 if symbol_7 != last else 0)
+            if transitions == 1: return 2
     # The leading 1 sits just above the two bits for each run.
     symbols: mutable u64 = 4 | first
     previous: mutable u64 = first
