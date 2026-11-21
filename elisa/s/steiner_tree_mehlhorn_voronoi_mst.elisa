@@ -8,20 +8,6 @@ const MT_MAX_OUTPUT: usize = 72
 # A shortest path uses at most seven edges of weight at most nine.
 const MT_UNREACHED: u32 = 256 << 3
 
-def mt_candidate_before(aw: u32, aa: usize, ab: usize, al: usize, ar: usize, ae: usize,
-                           bw: u32, ba: usize, bb: usize, bl: usize, br: usize, be: usize) -> bool:
-    if aw != bw:
-        return aw < bw
-    if aa != ba:
-        return aa < ba
-    if ab != bb:
-        return ab < bb
-    if al != bl:
-        return al < bl
-    if ar != br:
-        return ar < br
-    ae < be
-
 def mt_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for i in 0..<8:
@@ -158,11 +144,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             return -1
         vertex <- vertex+1
 
-    has: mutable bool[MT_N*MT_N] = zeroed
-    best_weight: mutable u32[MT_N*MT_N] = zeroed
-    best_left: mutable usize[MT_N*MT_N] = zeroed
-    best_right: mutable usize[MT_N*MT_N] = zeroed
-    best_edge: mutable usize[MT_N*MT_N] = zeroed
+    best_candidate: mutable u32[64] = zeroed
     edge <- 0
     while edge < m:
         u: usize = eu[edge]
@@ -180,59 +162,33 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 right <- u
             ix: usize = a*MT_N+b
             cw: u32 = (distance_key[u] >> 3) + weight[edge] + (distance_key[v] >> 3)
-            if not has[ix] or mt_candidate_before(cw,a,b,left,right,edge,best_weight[ix],a,b,best_left[ix],best_right[ix],best_edge[ix]):
-                has[ix] <- true
-                best_weight[ix] <- cw
-                best_left[ix] <- left
-                best_right[ix] <- right
-                best_edge[ix] <- edge
+            # The key orders weight, owners, endpoints and original edge ID.
+            key: u32 = (cw << 16) | (a.u32() << 13) | (b.u32() << 10) | (left.u32() << 7) | (right.u32() << 4) | edge.u32()
+            previous: u32 = best_candidate[ix]
+            if previous == 0 or key < previous:
+                best_candidate[ix] <- key
         edge <- edge+1
-    cw_arr: mutable u32[MT_M] = zeroed
-    ca: mutable usize[MT_M] = zeroed
-    cb: mutable usize[MT_M] = zeroed
-    cl: mutable usize[MT_M] = zeroed
-    cr: mutable usize[MT_M] = zeroed
-    ce: mutable usize[MT_M] = zeroed
+    candidates: mutable u32[16] = zeroed
     cn: mutable usize = 0
     a: mutable usize = 0
     while a < n:
         b: mutable usize = a+1
         while b < n:
-            pair_idx: usize = a*MT_N+b
-            if has[pair_idx]:
-                cw_arr[cn] <- best_weight[pair_idx]
-                ca[cn] <- a
-                cb[cn] <- b
-                cl[cn] <- best_left[pair_idx]
-                cr[cn] <- best_right[pair_idx]
-                ce[cn] <- best_edge[pair_idx]
+            key: u32 = best_candidate[a*MT_N+b]
+            if key != 0:
+                candidates[cn & 15] <- key
                 cn <- cn+1
             b <- b+1
         a <- a+1
     i: mutable usize = 1
     j: mutable usize = 0
     while i < cn:
-        w: u32 = cw_arr[i]
-        va: usize = ca[i]
-        vb: usize = cb[i]
-        vl: usize = cl[i]
-        vr: usize = cr[i]
-        ve: usize = ce[i]
+        key: u32 = candidates[i & 15]
         j <- i
-        while j > 0 and mt_candidate_before(w,va,vb,vl,vr,ve,cw_arr[j-1],ca[j-1],cb[j-1],cl[j-1],cr[j-1],ce[j-1]):
-            cw_arr[j] <- cw_arr[j-1]
-            ca[j] <- ca[j-1]
-            cb[j] <- cb[j-1]
-            cl[j] <- cl[j-1]
-            cr[j] <- cr[j-1]
-            ce[j] <- ce[j-1]
+        while j > 0 and key < candidates[(j-1) & 15]:
+            candidates[j & 15] <- candidates[(j-1) & 15]
             j <- j-1
-        cw_arr[j] <- w
-        ca[j] <- va
-        cb[j] <- vb
-        cl[j] <- vl
-        cr[j] <- vr
-        ce[j] <- ve
+        candidates[j & 15] <- key
         i <- i+1
     parent: mutable usize[MT_N] = zeroed
     ranks: mutable usize[MT_N] = zeroed
@@ -247,8 +203,9 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     ch: mutable usize = 0
     i <- 0
     while i < cn and ch < k-1:
-        ra <- ca[i]
-        rb <- cb[i]
+        key: u32 = candidates[i & 15]
+        ra <- ((key >> 13) & 7).usize()
+        rb <- ((key >> 10) & 7).usize()
         while parent[ra] != ra:
             parent[ra] <- parent[parent[ra]]
             ra <- parent[ra]
@@ -273,15 +230,16 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     i <- 0
     while i < ch:
         ix <- chosen[i]
-        used[ce[ix]] <- true
-        x: mutable usize = cl[ix]
-        while x != ca[ix]:
+        key: u32 = candidates[ix & 15]
+        used[(key & 15).usize()] <- true
+        x: mutable usize = ((key >> 7) & 7).usize()
+        while x != ((key >> 13) & 7).usize():
             if pred_edge[x] < 0:
                 return -1
             used[pred_edge[x].usize()] <- true
             x <- pred[x].usize()
-        x <- cr[ix]
-        while x != cb[ix]:
+        x <- ((key >> 4) & 7).usize()
+        while x != ((key >> 10) & 7).usize():
             if pred_edge[x] < 0:
                 return -1
             used[pred_edge[x].usize()] <- true
