@@ -112,10 +112,14 @@ def strange_printer_interval(symbols: u64, n: usize) -> i64:
         # One low bit per two-bit lane marks each equal symbol.
         differences: u64 = symbols ^ (lane * 0x5555)
         matches: u64 = ~(differences | (differences >> 1)) & 0x5555
+        lower_mask: u64 = (1.u64() << ((left + 2) * 2)) - 1
+        eligible: u64 = matches & ~lower_mask
+        # Admit one more two-bit lane as the right endpoint advances.
+        upper_mask: mutable u64 = lower_mask
         right: mutable usize = left + 1
         while right < n:
             best: mutable u8 = dp[(left + 1) * SP_TABLE_SIDE + right] + 1
-            candidates: mutable u64 = matches & ((1.u64() << ((right + 1) * 2)) - 1) & ~((1.u64() << ((left + 2) * 2)) - 1)
+            candidates: mutable u64 = eligible & upper_mask
             while candidates != 0:
                 merge: usize = first_printer_lane(candidates)
                 middle: u8 = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
@@ -123,6 +127,7 @@ def strange_printer_interval(symbols: u64, n: usize) -> i64:
                 if candidate < best: best <- candidate
                 candidates <- candidates & (candidates - 1)
             dp[left * SP_TABLE_SIDE + right] <- best
+            upper_mask <- (upper_mask << 2) | 3
             right <- right + 1
     return dp[n - 1].i64()
 
