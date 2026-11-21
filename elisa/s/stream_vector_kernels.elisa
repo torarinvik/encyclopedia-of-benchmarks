@@ -29,10 +29,18 @@ def stream_vector_kernels_impl(input: i64&?, length: usize, output: mutable u8&?
     if output == null or capacity < output_bytes:
         return -2
     if count == 0: return 0
+    if count <= 4:
+        staged: mutable u64[4] = zeroed
+        return stream_vector_compute(input, output, count, mode, alpha, a_start, &staged[0])
+    staged: mutable u64[128] = zeroed
+    return stream_vector_compute(input, output, count, mode, alpha, a_start, &staged[0])
+
+@inline(always)
+def stream_vector_compute(input: i64&, output: mutable u8&, count: usize, mode: i64, alpha: i64, a_start: usize, staged: mutable u64&) -> i64:
+    output_bytes: usize = count * 8
     left: i64& = &input[a_start]
     # Validated operands keep results within i64. Modular arithmetic preserves
     # their exact two's-complement output bytes.
-    staged: mutable u64[128] = zeroed
     if mode == 0:
         for index in 0..<count:
             staged[index] <- left[index].u64()
