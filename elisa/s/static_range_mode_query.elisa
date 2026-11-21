@@ -211,19 +211,19 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                 row_state[first_full] <- ((best_score << 3) | after_full).u16()
                 stored <- best_score
             id: usize = 31 - (stored & 31)
-            if left == span_start and right == span_end:
+            if ((left | right) & (block_size - 1)) == 0:
                 # Convert the cached block score to the query score.
                 best_score_query <- 31 - stored.i64()
             else:
                 best_score_query <- id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
-            for index in left..<span_start:
-                id: usize = compressed[index].usize()
-                score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
-                best_score_query <- score if score < best_score_query
-            for index in span_end..<right:
-                id: usize = compressed[index].usize()
-                score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
-                best_score_query <- score if score < best_score_query
+                for index in left..<span_start:
+                    id: usize = compressed[index].usize()
+                    score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
+                    best_score_query <- score if score < best_score_query
+                for index in span_end..<right:
+                    id: usize = compressed[index].usize()
+                    score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
+                    best_score_query <- score if score < best_score_query
         else:
             for index in left..<right:
                 id: usize = compressed[index].usize()
