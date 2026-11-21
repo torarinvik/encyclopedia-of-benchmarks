@@ -60,7 +60,7 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
     active: mutable u64 = (1.u64() << n) - 1
     min_cut: mutable i64 = 120000001
     phase: mutable usize = 0
-    while phase + 1 < n:
+    while phase + 2 < n:
         # Zero initial weights select vertex zero first. It cannot be the
         # last vertex of a phase, so it remains active after every contraction.
         available: mutable u64 = active & ~1.u64()
@@ -99,6 +99,11 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
             graph[vertex * MAX_N + previous_index] <- merged_weight
             neighbors <- neighbors & (neighbors - 1)
         phase <- phase + 1
+    # The final two supervertices have only one edge between them.
+    remaining_vertex: usize = stoer_trailing_zeros(active & ~1.u64(), true).usize() & 15
+    final_cut: i64 = graph[remaining_vertex].i64()
+    if final_cut < min_cut:
+        return final_cut
     min_cut
 
 export fn stoer_wagner(input: i64&?, length: usize) -> i64 = stoer_wagner_impl
