@@ -238,6 +238,9 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
     tree_n: mutable usize = 0
     cost: mutable u32 = 0
     groups: mutable usize = terminals
+    if count == 1:
+        cost <- st_mst_h(n, w, family_h, &tree, &tree_n)
+        groups <- 1
     while groups > 1:
         best: mutable usize = 4
         best_cost: mutable u32 = 0
