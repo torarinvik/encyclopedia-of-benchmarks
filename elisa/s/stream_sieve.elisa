@@ -10,25 +10,29 @@ def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacit
     if output == null or output_capacity < required: return -2
 
     can Global.Read, Global.Write:
-        if STREAM_SIEVE_PRIME_COUNT == 0:
+        cached_count: mutable usize = STREAM_SIEVE_PRIME_COUNT
+        if cached_count == 0:
             STREAM_SIEVE_PRIME_CACHE[0] <- 2
+            cached_count <- 1
             STREAM_SIEVE_PRIME_COUNT <- 1
-        while STREAM_SIEVE_PRIME_COUNT < count:
-            candidate: i32 = STREAM_SIEVE_NEXT_CANDIDATE
-            # The cache already contains 2. All later candidates are odd.
-            STREAM_SIEVE_NEXT_CANDIDATE <- STREAM_SIEVE_NEXT_CANDIDATE + 2
-            is_prime: mutable bool = true
-            prime_index: mutable usize = 1
-            while prime_index < STREAM_SIEVE_PRIME_COUNT:
-                divisor: i32 = STREAM_SIEVE_PRIME_CACHE[prime_index]
-                if divisor > candidate / divisor: break
-                if candidate % divisor == 0:
-                    is_prime <- false
-                    break
-                prime_index <- prime_index + 1
-            if is_prime:
-                STREAM_SIEVE_PRIME_CACHE[STREAM_SIEVE_PRIME_COUNT] <- candidate
-                STREAM_SIEVE_PRIME_COUNT <- STREAM_SIEVE_PRIME_COUNT + 1
+        if cached_count < count:
+            candidate: mutable u32 = STREAM_SIEVE_NEXT_CANDIDATE.u32()
+            while cached_count < count:
+                is_prime: mutable bool = true
+                prime_index: mutable usize = 1
+                while prime_index < cached_count:
+                    divisor: u32 = STREAM_SIEVE_PRIME_CACHE[prime_index].u32()
+                    if divisor > candidate / divisor: break
+                    if candidate % divisor == 0:
+                        is_prime <- false
+                        break
+                    prime_index <- prime_index + 1
+                if is_prime:
+                    STREAM_SIEVE_PRIME_CACHE[cached_count] <- candidate.i32()
+                    cached_count <- cached_count + 1
+                candidate <- candidate + 2
+            STREAM_SIEVE_NEXT_CANDIDATE <- candidate.i32()
+            STREAM_SIEVE_PRIME_COUNT <- cached_count
 
         index: mutable usize = 0
         while index < count:
