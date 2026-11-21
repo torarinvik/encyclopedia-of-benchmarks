@@ -66,7 +66,7 @@ def star_visit(triangles: u64&, edges: i32&, triangle_count: usize,
                 size.u64() * 0xfffdfefefffeff00.u64())
             guards: u64 = 0x8080808080808080
             for tid in 0..<triangle_count:
-                if (((triangles[tid] | guards) - bounds) & guards) == guards:
+                if ((triangles[tid] - bounds) & guards) == guards:
                     if pair_count >= STAR_MAX_PAIRS: return -1
                     pairs[2*pair_count] <- key.i64()
                     pairs[2*pair_count+1] <- tid.i64()
@@ -160,7 +160,7 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
             star_max(ax,bx,cx),-star_min(ax,bx,cx),
             star_max(ay,by,cy),-star_min(ay,by,cy),
             star_max(ax+ay,bx+by,cx+cy),-star_min(ax+ay,bx+by,cx+cy),
-            star_max(ay-ax,by-bx,cy-cx),-star_min(ay-ax,by-bx,cy-cx))
+            star_max(ay-ax,by-bx,cy-cx),-star_min(ay-ax,by-bx,cy-cx)) | 0x8080808080808080.u64()
         k: mutable usize = 0
         while k < 3:
             a: usize = triangles[3*tid+k].usize()
