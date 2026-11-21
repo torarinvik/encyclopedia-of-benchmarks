@@ -1,5 +1,6 @@
 const STAR_MAX_DEPTH: usize = 2
-const STAR_MAX_INPUT: usize = 25
+const STAR_DIAGONAL_INPUT: usize = 16
+const STAR_FAN_INPUT: usize = 24
 const STAR_MAX_VERTICES: usize = 5
 const STAR_MAX_TRIANGLES: usize = 4
 const STAR_MAX_EDGES: usize = 8
@@ -217,7 +218,8 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
 
 def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize,
         output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length < 2 or length > STAR_MAX_INPUT: return -1
+    if input == null: return -1
+    if length != STAR_DIAGONAL_INPUT and length != STAR_FAN_INPUT: return -1
     star_validate_mesh(input,length,output,capacity)
 
 export fn star_quadtree_fat_triangulation(input: i64&?, length: usize,
