@@ -34,13 +34,13 @@ def statemate_settle(snapshot: mutable u8&) -> void:
         snapshot[BITLIST_COUNT + STATE_COUNT + index] <- timers[index]
         index <- index + 1
 
-def statemate_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+def statemate_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length != 1 or input[0] < 1 or input[0] > MAX_RUNS: return -1
     if output == null or capacity < OUTPUT_BYTES: return -2
     staged: mutable u8[OUTPUT_BYTES] = zeroed
     run: mutable i64 = 0
     while run < input[0]:
-        statemate_settle(staged[0]&)
+        statemate_settle(&staged[0])
         run <- run + 1
     index: mutable usize = 0
     while index < OUTPUT_BYTES:
@@ -48,4 +48,4 @@ def statemate_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
         index <- index + 1
     OUTPUT_BYTES.i64()
 
-export fn statemate(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = statemate_impl
+export fn statemate(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = statemate_impl
