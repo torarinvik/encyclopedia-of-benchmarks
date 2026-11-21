@@ -35,12 +35,18 @@ def star_visit(triangles: u64&, edges: u64&, triangle_count: usize,
     # Every accepted mesh contains the four boundary edges. They all hit
     # the root and share no endpoint, so the root always splits.
     stride: mutable usize = 4
+    # Packed bounds for the fixed 8-by-8 grid in Morton order.
+    # The sixteen finest cells are followed by their four parents.
+    cell_bounds: u64[20] = [
+        0x814061608160e10, 0xa12041808160c12, 0xa1208140a140e10, 0xc1006160a140c12,
+        0xc10021a08160a14, 0xe0e001c08160816, 0xe0e04180a140a14, 0x100c021a0a140816,
+        0xc100a120c120e10, 0xe0e08140c120c12, 0xe0e0c100e100e10, 0x100c0a120e100c12,
+        0x100c06160c120a14, 0x120a04180c120816, 0x120a08140e100a14, 0x140806160e100816,
+        0x810041408140c10, 0xc0c001808140814, 0xc0c08100c100c10, 0x100804140c100814
+    ]
     while key < 16:
-        # A cell is identified by the Morton key of its first finest-level cell.
-        xmin: i32 = (2 * (key & 1) + (key & 4)).i32()
-        ymax: i32 = 8 - ((key & 2) + ((key & 8) >> 1)).i32()
-        size: i32 = 2 if stride == 1 else 4
-        bounds: u64 = star_pack_cell(xmin,ymax,size)
+        index: usize = key if stride == 1 else 16 + (key >> 2)
+        bounds: u64 = cell_bounds[index]
         if not star_stops(edges,edge_count,bounds):
             if stride == 1: return -1
             stride <- 1
