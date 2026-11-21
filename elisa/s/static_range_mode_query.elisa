@@ -175,7 +175,8 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
     block_size: usize = 1.usize() << block_shift
     # Extend each starting block’s histogram only as far as requested.
-    row_counts: mutable u8[MAX_BLOCKS * MAX_N] = zeroed
+    # Store counts scaled by 32 so the score update can subtract them directly.
+    row_counts: mutable u16[MAX_BLOCKS * MAX_N] = zeroed
     # The low three bits hold the exclusive block end, at most four.
     row_state: mutable i16[MAX_BLOCKS] = zeroed
     # Stage each pair in one word before writing the two 64-bit ABI fields.
@@ -203,9 +204,9 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                     for index in begin..<(begin + block_size):
                         id: usize = compressed[index].usize()
                         count_slot: usize = count_base + id
-                        count: u8 = row_counts[count_slot] + 1
-                        row_counts[count_slot] <- count
-                        score: i64 = id.i64() - (count.i64() << 5)
+                        scaled_count: u16 = row_counts[count_slot] + 32
+                        row_counts[count_slot] <- scaled_count
+                        score: i64 = id.i64() - scaled_count.i64()
                         best_score <- score if score < best_score
                     block_mode[first_full * MAX_BLOCKS + next_block] <- best_score.i16()
                     next_block <- next_block + 1
