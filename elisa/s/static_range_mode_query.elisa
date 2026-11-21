@@ -177,7 +177,7 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     # Extend each starting block’s histogram only as far as requested.
     row_counts: mutable u8[MAX_BLOCKS * MAX_N] = zeroed
     # The low three bits hold the exclusive block end, at most four.
-    row_state: mutable u16[MAX_BLOCKS] = zeroed
+    row_state: mutable i16[MAX_BLOCKS] = zeroed
     # Stage each pair in one word before writing the two 64-bit ABI fields.
     answers: mutable u64[MAX_Q] = zeroed
     for query in 0..<q:
@@ -193,10 +193,10 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
             slot: usize = first_full * MAX_BLOCKS + after_full - 1
             stored: mutable i64 = block_mode[slot].i64()
             if stored == 0:
-                state: usize = row_state[first_full].usize()
-                previous_end: usize = state & 7
+                state: i64 = row_state[first_full].i64()
+                previous_end: usize = (state & 7).usize()
                 next_block: mutable usize = first_full if previous_end == 0 else previous_end
-                best_score: mutable i64 = 0 - (state >> 3).i64()
+                best_score: mutable i64 = state >> 3
                 count_base: usize = first_full * MAX_N
                 while next_block < after_full:
                     begin: usize = next_block << block_shift
@@ -209,7 +209,7 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                         best_score <- score if score < best_score
                     block_mode[first_full * MAX_BLOCKS + next_block] <- best_score.i16()
                     next_block <- next_block + 1
-                row_state[first_full] <- (((0 - best_score).usize() << 3) | after_full).u16()
+                row_state[first_full] <- ((best_score << 3) | after_full.i64()).i16()
                 stored <- best_score
             id: usize = (stored & 31).usize()
             if ((left | right) & (block_size - 1)) == 0:
