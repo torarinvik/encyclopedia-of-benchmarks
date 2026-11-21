@@ -21,6 +21,7 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
     queue_a: mutable i64[128] = zeroed
     queue_b: mutable i64[128] = zeroed
     # Each operation emits at most two words, so the validated operation count bounds this buffer.
+    # Each record is written once, leaving its default zero words intact.
     record_storage: mutable i64[256] = zeroed
     records: mutable i64& = &record_storage[0]
     main_is_a: mutable bool = true
@@ -44,7 +45,6 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
             main_is_a <- not main_is_a
         elif opcode == 1:
             if queue_size == 0 or operand != 0: return -1
-            records[record_end] <- 0
             selected_queue: i64& = &queue_a[0] if main_is_a else &queue_b[0]
             records[record_end + 1] <- selected_queue[head]
             record_end <- record_end + 2
@@ -54,9 +54,7 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
             if operand != 0: return -1
             if queue_size == 0:
                 records[record_end] <- 1
-                records[record_end + 1] <- 0
             else:
-                records[record_end] <- 0
                 if main_is_a: records[record_end + 1] <- queue_a[head]
                 else: records[record_end + 1] <- queue_b[head]
             record_end <- record_end + 2
