@@ -29,7 +29,8 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
     record_end: mutable usize = 0
     position: mutable usize = 1
     operation_index: mutable usize = 0
-    while operation_index < operation_count:
+    # The entry point handles zero operations before calling this function.
+    while true:
         opcode: i64 = input[position]
         operand: i64 = input[position + 1]
         position <- position + 2
@@ -62,6 +63,7 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
         else:
             return -1
         operation_index <- operation_index + 1
+        if operation_index == operation_count: break
     output_length: usize = record_end * 8
     if output == null or capacity < output_length: return -2
     for index in 0..<record_end:
