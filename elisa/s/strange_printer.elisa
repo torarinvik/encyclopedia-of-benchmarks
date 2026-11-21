@@ -5,7 +5,7 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if input == null or length - 1 > SP_MAX_LENGTH: return -1
     length_from_header: usize = length - 1
     if input[0].usize() != length_from_header: return -1
-    symbols: mutable u8[8] = zeroed
+    symbols: mutable u64 = 0
     n: mutable usize = 0
     previous: mutable u64 = 3
     position: mutable usize = 0
@@ -13,7 +13,7 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
         symbol: u64 = input[position + 1].u64()
         if symbol > 2: return -1
         if symbol != previous:
-            symbols[n] <- symbol.u8()
+            symbols <- symbols | (symbol << (n * 2))
             n <- n + 1
             previous <- symbol
         position <- position + 1
@@ -21,9 +21,13 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
 
     if n == 2: return 2
     if n == 3:
-        if symbols[0] == symbols[2]: return 2
+        if (symbols & 3) == ((symbols >> 4) & 3): return 2
         return 3
 
+    strange_printer_interval(symbols, n)
+
+@inline(never)
+def strange_printer_interval(symbols: u64, n: usize) -> i64:
     dp: mutable u8[64] = zeroed
     left: mutable usize = n
     while left > 0:
@@ -34,7 +38,7 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
             best: mutable u8 = dp[(left + 1) * SP_TABLE_SIDE + right] + 1
             merge: mutable usize = left + 2
             while merge <= right:
-                if symbols[left] == symbols[merge]:
+                if ((symbols >> (left * 2)) & 3) == ((symbols >> (merge * 2)) & 3):
                     middle: u8 = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
                     candidate: u8 = middle + dp[merge * SP_TABLE_SIDE + right]
                     if candidate < best: best <- candidate
