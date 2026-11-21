@@ -36,6 +36,7 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             counts[65*level+i+1] <- zeros
             sums[65*level+i+1] <- zero_sum
         offsets[level] <- zeros
+        if level == 29: break
         z: mutable usize = 0
         o: mutable usize = zeros
         for i in 0..<n:
