@@ -134,6 +134,22 @@ def srin_dense_ranks(sorted: u64&, ranks: mutable u16&, n: usize) -> usize:
         ranks[(item & 127).usize()] <- by_value[((item >> 7) & 255).usize()]
     distinct
 
+# For short input, count pairs directly and skip rank compression and query sorting.
+def srin_short_queries(values: u64&, queries: u32&, output: mutable u8&, count: usize) -> void:
+    for id in 0..<count:
+        query: u32 = queries[id]
+        left: usize = (query & 255).usize()
+        sweep: u32 = (query >> 13) & 255
+        right: usize = (MAX_N.u32() - sweep if ((query >> 21) & 1) != 0 else sweep).usize()
+        inversions: mutable u8 = 0
+        for later in (left + 1)..<right:
+            value: u64 = values[later]
+            for earlier in left..<later:
+                inversions <- inversions + (1.u8() if values[earlier] > value else 0.u8())
+        output[8 * id] <- inversions
+        for byte in 1..<8:
+            output[8 * id + byte] <- 0
+
 def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 195: return -1
     n64: i64 = input[0]
@@ -177,6 +193,9 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
     if ordered == n:
         for byte in 0..<bytes:
             output[byte] <- 0
+        return bytes.i64()
+    if n <= 8:
+        srin_short_queries(&sorted[0], &queries[0], output, q)
         return bytes.i64()
     # A low-byte rank table suffices when all values share their high bits.
     ranks: mutable u16[MAX_N] = zeroed
