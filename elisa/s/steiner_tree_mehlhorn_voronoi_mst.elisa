@@ -2,10 +2,11 @@ const MT_N: usize = 8
 const MT_M: usize = 14
 const MT_MAX_INPUT: usize = 54
 const MT_MAX_OUTPUT: usize = 72
-const MT_INF: i64 = 4611686018427387903
+# A shortest path uses at most seven edges of weight at most nine.
+const MT_INF: u32 = 256
 
-def mt_candidate_before(aw: i64, aa: usize, ab: usize, al: usize, ar: usize, ae: usize,
-                           bw: i64, ba: usize, bb: usize, bl: usize, br: usize, be: usize) -> bool:
+def mt_candidate_before(aw: u32, aa: usize, ab: usize, al: usize, ar: usize, ae: usize,
+                           bw: u32, ba: usize, bb: usize, bl: usize, br: usize, be: usize) -> bool:
     if aw != bw:
         return aw < bw
     if aa != ba:
@@ -54,7 +55,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         is_terminal[t] <- true
     eu: mutable usize[MT_M] = zeroed
     ev: mutable usize[MT_M] = zeroed
-    weight: mutable i64[MT_M] = zeroed
+    weight: mutable u32[MT_M] = zeroed
     pair_seen: mutable bool[MT_N*MT_N] = zeroed
     edge: mutable usize = 0
     while edge < m:
@@ -71,7 +72,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         pair_seen[u*MT_N+v] <- true
         eu[edge] <- u
         ev[edge] <- v
-        weight[edge] <- w
+        weight[edge] <- w.u32()
         edge <- edge+1
     if at != length:
         return -1
@@ -104,7 +105,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             return -1
         vertex <- vertex+1
 
-    dist: mutable i64[MT_N] = zeroed
+    dist: mutable u32[MT_N] = zeroed
     owner: mutable usize[MT_N] = zeroed
     pred: mutable i64[MT_N] = zeroed
     pred_edge: mutable i64[MT_N] = zeroed
@@ -141,7 +142,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             elif ev[edge] == chosen_vertex:
                 next_vertex <- eu[edge]
             if next_vertex < MT_N:
-                nd: i64 = dist[chosen_vertex]+weight[edge]
+                nd: u32 = dist[chosen_vertex]+weight[edge]
                 if nd < dist[next_vertex] or (nd == dist[next_vertex] and owner[chosen_vertex] < owner[next_vertex]):
                     dist[next_vertex] <- nd
                     owner[next_vertex] <- owner[chosen_vertex]
@@ -161,7 +162,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         vertex <- vertex+1
 
     has: mutable bool[MT_N*MT_N] = zeroed
-    best_weight: mutable i64[MT_N*MT_N] = zeroed
+    best_weight: mutable u32[MT_N*MT_N] = zeroed
     best_left: mutable usize[MT_N*MT_N] = zeroed
     best_right: mutable usize[MT_N*MT_N] = zeroed
     best_edge: mutable usize[MT_N*MT_N] = zeroed
@@ -181,7 +182,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 left <- v
                 right <- u
             ix: usize = a*MT_N+b
-            cw: i64 = dist[u]+weight[edge]+dist[v]
+            cw: u32 = dist[u]+weight[edge]+dist[v]
             if not has[ix] or mt_candidate_before(cw,a,b,left,right,edge,best_weight[ix],a,b,best_left[ix],best_right[ix],best_edge[ix]):
                 has[ix] <- true
                 best_weight[ix] <- cw
@@ -189,7 +190,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 best_right[ix] <- right
                 best_edge[ix] <- edge
         edge <- edge+1
-    cw_arr: mutable i64[MT_M] = zeroed
+    cw_arr: mutable u32[MT_M] = zeroed
     ca: mutable usize[MT_M] = zeroed
     cb: mutable usize[MT_M] = zeroed
     cl: mutable usize[MT_M] = zeroed
@@ -214,7 +215,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     i: mutable usize = 1
     j: mutable usize = 0
     while i < cn:
-        w: i64 = cw_arr[i]
+        w: u32 = cw_arr[i]
         va: usize = ca[i]
         vb: usize = cb[i]
         vl: usize = cl[i]
@@ -386,7 +387,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             edge <- edge+1
     result: mutable usize[MT_M] = zeroed
     count: mutable usize = 0
-    cost: mutable i64 = 0
+    cost: mutable u32 = 0
     edge <- 0
     while edge < m:
         if tree[edge]:
@@ -399,7 +400,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     bytes: usize = (2+count)*8
     if output == null or capacity < bytes:
         return -2
-    mt_put_i64(output,0,cost)
+    mt_put_i64(output,0,cost.i64())
     mt_put_i64(output,8,count.i64())
     i <- 0
     while i < count:
