@@ -5,15 +5,15 @@ def srin_bit_sum(bit: i64&, count: usize) -> i64:
     i: mutable usize = count
     total: mutable i64 = 0
     while i > 0:
-        total <- total + bit[i]
-        i <- i - (i & (~i + 1))
+        total <- total + bit[i - 1]
+        i <- i & (i - 1)
     total
 
 def srin_bit_add(bit: mutable i64&, rank: usize, distinct: usize, delta: i64) -> void:
-    i: mutable usize = rank + 1
-    while i <= distinct:
+    i: mutable usize = rank
+    while i < distinct:
         bit[i] <- bit[i] + delta
-        i <- i + (i & (~i + 1))
+        i <- i | (i + 1)
 
 def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 195: return -1
@@ -79,7 +79,7 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
             j <- j - 1
         queries[j] <- query
         i <- i + 1
-    bit: mutable i64[MAX_N + 1] = zeroed
+    bit: mutable i64[MAX_N] = zeroed
     answers: mutable i64[MAX_Q] = zeroed
     current_left: mutable usize = 0
     current_right: mutable usize = 0
