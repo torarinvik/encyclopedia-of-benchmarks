@@ -47,7 +47,8 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
                 differences <- differences | (input[position].u64() ^ first)
             if differences == 0: return 1
         # One change between distinct valid endpoints proves two runs.
-        elif last <= 2:
+        else:
+            if last > 2: return -1
             equal_edges: mutable i64 = 0
             previous: mutable u64 = first
             for position in 2..<9:
