@@ -1,19 +1,23 @@
+@inline(always)
+def strassen_two(a: i64&, b: i64&, c: mutable i64&) -> void:
+    m1: i64 = (a[0] + a[3]) * (b[0] + b[3])
+    m2: i64 = (a[2] + a[3]) * b[0]
+    m3: i64 = a[0] * (b[1] - b[3])
+    m4: i64 = a[3] * (b[2] - b[0])
+    m5: i64 = (a[0] + a[1]) * b[3]
+    m6: i64 = (a[2] - a[0]) * (b[0] + b[1])
+    m7: i64 = (a[1] - a[3]) * (b[2] + b[3])
+    c[0] <- m1 + m4 - m5 + m7
+    c[1] <- m3 + m5
+    c[2] <- m2 + m4
+    c[3] <- m1 - m2 + m3 + m6
+
 def strassen_multiply(a: i64&, b: i64&, c: mutable i64&, n: usize) -> void:
     if n == 1:
         c[0] <- a[0] * b[0]
         return
     if n == 2:
-        m1: i64 = (a[0] + a[3]) * (b[0] + b[3])
-        m2: i64 = (a[2] + a[3]) * b[0]
-        m3: i64 = a[0] * (b[1] - b[3])
-        m4: i64 = a[3] * (b[2] - b[0])
-        m5: i64 = (a[0] + a[1]) * b[3]
-        m6: i64 = (a[2] - a[0]) * (b[0] + b[1])
-        m7: i64 = (a[1] - a[3]) * (b[2] + b[3])
-        c[0] <- m1 + m4 - m5 + m7
-        c[1] <- m3 + m5
-        c[2] <- m2 + m4
-        c[3] <- m1 - m2 + m3 + m6
+        strassen_two(a, b, c)
         return
     h: usize = n / 2
     x: mutable i64[16] = zeroed
@@ -135,7 +139,10 @@ def strassen_matrix_multiplication_impl(input: i64&?, length: usize, output: mut
 @inline(never)
 def strassen_product(input: i64&, output: mutable u8&, n: usize, cells: usize, output_bytes: usize) -> i64:
     result: mutable i64[64] = zeroed
-    strassen_multiply(&input[1], &input[1 + cells], &result[0], n)
+    if n == 2:
+        strassen_two(&input[1], &input[5], &result[0])
+    else:
+        strassen_multiply(&input[1], &input[1 + cells], &result[0], n)
     i: mutable usize = 0
     while i < cells:
         bits: mutable u64 = result[i].u64()
