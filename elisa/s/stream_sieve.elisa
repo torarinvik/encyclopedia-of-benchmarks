@@ -36,30 +36,31 @@ def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacit
                 STREAM_SIEVE_PRIME_CACHE[2] <- 5
                 STREAM_SIEVE_PRIME_CACHE[3] <- STREAM_SIEVE_END_DIVISOR
                 cached_count <- 3
-            candidate: mutable u32 = STREAM_SIEVE_NEXT_CANDIDATE.u32()
-            wheel_gaps: mutable u32 = STREAM_SIEVE_WHEEL_GAPS
-            while cached_count < count:
-                is_prime: mutable bool = true
-                if candidate >= 49:
-                    is_prime <- candidate % 7 != 0
+            if cached_count < count:
+                candidate: mutable u32 = STREAM_SIEVE_NEXT_CANDIDATE.u32()
+                wheel_gaps: mutable u32 = STREAM_SIEVE_WHEEL_GAPS
+                while cached_count < count:
+                    is_prime: mutable bool = true
+                    if candidate >= 49:
+                        is_prime <- candidate % 7 != 0
+                        if is_prime:
+                            divisors: mutable i32& = &STREAM_SIEVE_PRIME_CACHE[4]
+                            while true:
+                                divisor: u32 = divisors[0].u32()
+                                if divisor > candidate / divisor: break
+                                if candidate % divisor == 0:
+                                    is_prime <- false
+                                    break
+                                divisors <- &divisors[1]
                     if is_prime:
-                        divisors: mutable i32& = &STREAM_SIEVE_PRIME_CACHE[4]
-                        while true:
-                            divisor: u32 = divisors[0].u32()
-                            if divisor > candidate / divisor: break
-                            if candidate % divisor == 0:
-                                is_prime <- false
-                                break
-                            divisors <- &divisors[1]
-                if is_prime:
-                    STREAM_SIEVE_PRIME_CACHE[cached_count] <- candidate.i32()
-                    cached_count <- cached_count + 1
-                    STREAM_SIEVE_PRIME_CACHE[cached_count] <- STREAM_SIEVE_END_DIVISOR
-                # Gaps for residues 7, 11, 13, 17, 19, 23, 29, and 1 modulo 30.
-                candidate <- candidate + (wheel_gaps & 15)
-                wheel_gaps <- (wheel_gaps >> 4) | (wheel_gaps << 28)
-            STREAM_SIEVE_NEXT_CANDIDATE <- candidate.i32()
-            STREAM_SIEVE_WHEEL_GAPS <- wheel_gaps
+                        STREAM_SIEVE_PRIME_CACHE[cached_count] <- candidate.i32()
+                        cached_count <- cached_count + 1
+                        STREAM_SIEVE_PRIME_CACHE[cached_count] <- STREAM_SIEVE_END_DIVISOR
+                    # Gaps for residues 7, 11, 13, 17, 19, 23, 29, and 1 modulo 30.
+                    candidate <- candidate + (wheel_gaps & 15)
+                    wheel_gaps <- (wheel_gaps >> 4) | (wheel_gaps << 28)
+                STREAM_SIEVE_NEXT_CANDIDATE <- candidate.i32()
+                STREAM_SIEVE_WHEEL_GAPS <- wheel_gaps
             STREAM_SIEVE_PRIME_COUNT <- cached_count
 
         index: mutable usize = 0
