@@ -111,8 +111,8 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     block_size: usize = 1.usize() << block_shift
     # Extend each starting block’s histogram only as far as requested.
     row_counts: mutable u8[MAX_BLOCKS * MAX_N] = zeroed
-    row_score: mutable usize[MAX_BLOCKS] = zeroed
-    row_end: mutable usize[MAX_BLOCKS] = zeroed
+    # The low three bits hold the exclusive block end, at most four.
+    row_state: mutable u16[MAX_BLOCKS] = zeroed
     answers: mutable i64[2 * MAX_Q] = zeroed
     for query in 0..<q:
         left: usize = input[2 + n + 2 * query].usize()
@@ -130,8 +130,10 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
             slot: usize = first_full * MAX_BLOCKS + after_full - 1
             stored: u8 = block_mode[slot]
             if stored == 0:
-                next_block: mutable usize = first_full if row_end[first_full] == 0 else row_end[first_full]
-                best_score: mutable usize = row_score[first_full]
+                state: usize = row_state[first_full].usize()
+                previous_end: usize = state & 7
+                next_block: mutable usize = first_full if previous_end == 0 else previous_end
+                best_score: mutable usize = state >> 3
                 count_base: usize = first_full * MAX_N
                 while next_block < after_full:
                     begin: usize = next_block << block_shift
@@ -144,8 +146,7 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                         best_score <- score if score > best_score
                     block_mode[first_full * MAX_BLOCKS + next_block] <- (32 - (best_score & 31)).u8()
                     next_block <- next_block + 1
-                row_end[first_full] <- after_full
-                row_score[first_full] <- best_score
+                row_state[first_full] <- ((best_score << 3) | after_full).u16()
                 best_id <- 31 - (best_score & 31)
             else:
                 best_id <- stored.usize() - 1
