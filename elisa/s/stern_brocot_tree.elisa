@@ -104,7 +104,7 @@ def sbt_common_prefix(left: view[SbtRun], right: view[SbtRun], prefix: mutable v
     count
 
 def sbt_append(words: mutable view[i64], word_count: mutable usize&, value: i64) -> bool:
-    if word_count >= MAX_OUTPUT_WORDS: return false
+    if word_count >= words.len: return false
     words[word_count] <- value
     word_count <- word_count + 1
     true
@@ -113,7 +113,19 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
     if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     query_count: i64 = input[0]
     if query_count < 1 or query_count > MAX_QUERIES.i64(): return -1
+    if query_count == 1:
+        # A path record uses two header words and at most two words per run.
+        words: mutable i64[2+2*MAX_RUNS] = zeroed
+        return sbt_process(input, length, output, output_capacity, query_count, words[0:2+2*MAX_RUNS])
+    sbt_process_batch(input, length, output, output_capacity, query_count)
+
+@inline(never)
+def sbt_process_batch(input: i64&, length: usize, output: mutable u8&?, output_capacity: usize, query_count: i64) -> i64:
     words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    sbt_process(input, length, output, output_capacity, query_count, words[0:MAX_OUTPUT_WORDS])
+
+@inline(never)
+def sbt_process(input: i64&, length: usize, output: mutable u8&?, output_capacity: usize, query_count: i64, words: mutable view[i64]) -> i64:
     word_count: mutable usize = 0
     position: mutable usize = 1
     query: mutable i64 = 0
@@ -129,12 +141,12 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
             if not sbt_valid_fraction(numerator, denominator): return -1
             runs: mutable SbtRun[MAX_RUNS] = zeroed
             run_count: i64 = sbt_encode_path(numerator, denominator, runs[0:MAX_RUNS])
-            if run_count < 0 or not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, run_count): return -1
+            if run_count < 0 or not sbt_append(words, word_count, operation) or
+                not sbt_append(words, word_count, run_count): return -1
             index: mutable usize = 0
             while index < run_count.usize():
-                if not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, runs[index].direction) or
-                    not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, runs[index].count): return -1
+                if not sbt_append(words, word_count, runs[index].direction) or
+                    not sbt_append(words, word_count, runs[index].count): return -1
                 index <- index + 1
         elif operation == 1:
             if position >= length: return -1
@@ -149,9 +161,9 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
                 index <- index + 1
             decoded: mutable SbtDecoded = zeroed
             if not sbt_decode_path(runs[0:raw_count.usize()], decoded) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.numerator) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.denominator): return -1
+                not sbt_append(words, word_count, operation) or
+                not sbt_append(words, word_count, decoded.numerator) or
+                not sbt_append(words, word_count, decoded.denominator): return -1
         elif operation == 2:
             if position + 4 > length: return -1
             a: i64 = input[position]
@@ -169,9 +181,9 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
             prefix_count: usize = sbt_common_prefix(left[0:left_count.usize()], right[0:right_count.usize()], prefix[0:MAX_RUNS])
             decoded: mutable SbtDecoded = zeroed
             if not sbt_decode_path(prefix[0:prefix_count], decoded) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.numerator) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.denominator): return -1
+                not sbt_append(words, word_count, operation) or
+                not sbt_append(words, word_count, decoded.numerator) or
+                not sbt_append(words, word_count, decoded.denominator): return -1
         elif operation == 3:
             if position + 3 > length: return -1
             depth: i64 = input[position]
@@ -182,14 +194,14 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
             path: mutable SbtRun[MAX_RUNS] = zeroed
             prefix: mutable SbtRun[MAX_RUNS] = zeroed
             path_count: i64 = sbt_encode_path(numerator, denominator, path[0:MAX_RUNS])
-            if path_count < 0 or not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation): return -1
+            if path_count < 0 or not sbt_append(words, word_count, operation): return -1
             total_depth: mutable i64 = 0
             index: mutable usize = 0
             while index < path_count.usize():
                 total_depth <- total_depth + path[index].count
                 index <- index + 1
             if depth > total_depth:
-                if not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, -1): return -1
+                if not sbt_append(words, word_count, -1): return -1
             else:
                 remaining: mutable i64 = depth
                 prefix_count: mutable usize = 0
@@ -202,8 +214,8 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
                     index <- index + 1
                 decoded: mutable SbtDecoded = zeroed
                 if not sbt_decode_path(prefix[0:prefix_count], decoded) or
-                    not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.numerator) or
-                    not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.denominator): return -1
+                    not sbt_append(words, word_count, decoded.numerator) or
+                    not sbt_append(words, word_count, decoded.denominator): return -1
         elif operation == 4:
             if position + 2 > length: return -1
             numerator: i64 = input[position]
@@ -215,11 +227,11 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
             if path_count < 0: return -1
             decoded: mutable SbtDecoded = zeroed
             if not sbt_decode_path(path[0:path_count.usize()], decoded) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, operation) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.lower_num) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.lower_den) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.upper_num) or
-                not sbt_append(words[0:MAX_OUTPUT_WORDS], word_count, decoded.upper_den): return -1
+                not sbt_append(words, word_count, operation) or
+                not sbt_append(words, word_count, decoded.lower_num) or
+                not sbt_append(words, word_count, decoded.lower_den) or
+                not sbt_append(words, word_count, decoded.upper_num) or
+                not sbt_append(words, word_count, decoded.upper_den): return -1
         else:
             return -1
         query <- query + 1
