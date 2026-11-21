@@ -38,26 +38,28 @@ def stream_vector_kernels_impl(input: i64&?, length: usize, output: mutable u8&?
             return -1
         index <- index + 1
 
-    staged: mutable i64[128] = zeroed
-    index <- 0
-    while index < count:
-        a: i64 = input[a_start + index]
-        value: mutable i64 = a
-        if mode == 1:
-            value <- alpha * a
-        elif mode == 2:
-            value <- a + input[b_start + index]
-        elif mode == 3:
-            value <- a + alpha * input[b_start + index]
-        staged[index] <- value
-        index <- index + 1
-
     output_bytes: usize = count * 8
     if output == null or capacity < output_bytes:
         return -2
+    if count == 0: return 0
+    # Validated operands keep results within i64. Modular arithmetic preserves
+    # their exact two's-complement output bytes.
+    staged: mutable u64[128] = zeroed
+    if mode == 0:
+        for index in 0..<count:
+            staged[index] <- input[a_start + index].u64()
+    elif mode == 1:
+        for index in 0..<count:
+            staged[index] <- alpha.u64() * input[a_start + index].u64()
+    elif mode == 2:
+        for index in 0..<count:
+            staged[index] <- input[a_start + index].u64() + input[b_start + index].u64()
+    else:
+        for index in 0..<count:
+            staged[index] <- input[a_start + index].u64() + alpha.u64() * input[b_start + index].u64()
     index <- 0
     while index < count:
-        stream_vector_kernels_write_i64_le(output, index * 8, staged[index])
+        stream_vector_kernels_write_i64_le(output, index * 8, staged[index].i64())
         index <- index + 1
     output_bytes.i64()
 
