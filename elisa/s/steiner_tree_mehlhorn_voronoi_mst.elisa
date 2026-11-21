@@ -251,22 +251,14 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             remaining_terminals <- remaining_terminals & (remaining_terminals - 1)
             if mt_label(labels, terminal) != first_label:
                 return -1
-        leaves: mutable usize[MT_N] = zeroed
-        queued: mutable bool[MT_N] = zeroed
-        head: mutable usize = 0
-        queue_end: mutable usize = 0
-        vertex <- 0
-        while vertex < n:
-            if not ((terminal_mask & (1.u32() << vertex)) != 0) and degree[vertex] <= 1:
-                leaves[queue_end] <- vertex
-                queue_end <- queue_end+1
-                queued[vertex] <- true
-            vertex <- vertex+1
-        while head < queue_end:
-            u: usize = leaves[head]
-            head <- head+1
-            if degree[u] > 1:
-                continue
+        leaves: mutable u32 = 0
+        for index in 0..<n:
+            bit: u32 = 1.u32() << index
+            if (terminal_mask & bit) == 0 and degree[index] == 1:
+                leaves <- leaves | bit
+        while leaves != 0:
+            u: usize = (mt_edge_index(leaves, true) & 7).usize()
+            leaves <- leaves & (leaves - 1)
             pending: u32 = incident[u] & tree
             if pending != 0:
                 edge <- mt_edge_index(pending, true).usize()
@@ -276,10 +268,9 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 v: usize = ((edges[edge & 15] >> 13) & 7).usize() ^ ((edges[edge & 15] >> 10) & 7).usize() ^ u
                 degree[u] <- 0
                 degree[v] <- degree[v]-1
-                if not ((terminal_mask & (1.u32() << v)) != 0) and degree[v] <= 1 and not queued[v]:
-                    leaves[queue_end] <- v
-                    queue_end <- queue_end+1
-                    queued[v] <- true
+                bit: u32 = 1.u32() << v
+                if (terminal_mask & bit) == 0 and degree[v] == 1:
+                    leaves <- leaves | bit
     if count == 0 or count > n-1:
         return -1
     bytes: usize = (2+count)*8
