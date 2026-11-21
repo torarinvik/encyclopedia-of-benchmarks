@@ -72,12 +72,14 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
                 pending <- pending & (pending - 1)
         if weights[last_index] < min_cut:
             min_cut <- weights[last_index]
-        vertex <- 0
-        while vertex < n:
-            graph[previous_index * MAX_N + vertex] <- graph[previous_index * MAX_N + vertex] + graph[last_index * MAX_N + vertex]
-            graph[vertex * MAX_N + previous_index] <- graph[previous_index * MAX_N + vertex]
-            vertex <- vertex + 1
         active <- active & ~(1.u64() << (last_index & 15))
+        neighbors: mutable u64 = active & ~(1.u64() << (previous_index & 15))
+        while neighbors != 0:
+            vertex <- stoer_trailing_zeros(neighbors, true).usize() & 15
+            merged_weight: i64 = graph[previous_index * MAX_N + vertex] + graph[last_index * MAX_N + vertex]
+            graph[previous_index * MAX_N + vertex] <- merged_weight
+            graph[vertex * MAX_N + previous_index] <- merged_weight
+            neighbors <- neighbors & (neighbors - 1)
         phase <- phase + 1
     min_cut
 
