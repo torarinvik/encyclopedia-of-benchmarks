@@ -31,9 +31,9 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
         minimum[i] <- i
         sums[i] <- input[2+n+i].u64()
     occupied: mutable u64[4] = zeroed
-    heads: mutable usize[256] = zeroed
-    edges: mutable usize[64] = zeroed
-    links: mutable usize[64] = zeroed
+    heads: mutable u8[256] = zeroed
+    edges: mutable u16[64] = zeroed
+    links: mutable u8[64] = zeroed
     edge_count: mutable usize = 0
     # Prepend edges in reverse order to retain row-major, right-before-down ties.
     for reverse in 0..<n:
@@ -47,9 +47,9 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
             bucket: usize = distance.usize() & 255
             edge_count <- edge_count + 1
             edge: usize = edge_count & 63
-            edges[edge] <- (p << 6) | q
+            edges[edge] <- ((p << 6) | q).u16()
             links[edge] <- heads[bucket]
-            heads[bucket] <- edge
+            heads[bucket] <- edge.u8()
             word: usize = bucket >> 6
             occupied[word] <- occupied[word] | (1.u64() << (bucket & 63))
     for word in 0..<4:
@@ -57,10 +57,10 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
         while pending != 0:
             difference: usize = 64*word + srm_trailing_zeros(pending, true).usize()
             pending <- pending & (pending - 1)
-            edge: mutable usize = heads[difference]
+            edge: mutable usize = heads[difference].usize()
             while edge != 0:
-                pair: usize = edges[edge & 63]
-                edge <- links[edge & 63]
+                pair: usize = edges[edge & 63].usize()
+                edge <- links[edge & 63].usize()
                 p: usize = pair >> 6
                 q: usize = pair & 63
                 a: mutable usize = srm_root(&parent, p)
