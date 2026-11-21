@@ -209,18 +209,6 @@ def srin_write_queries(input: i64&, output: mutable u8&, n: usize, q: usize, byt
         # Sort by block, sweep, then original ID. The endpoints travel with the key.
         queries[k] <- (block << 21) | (sweep << 13) | (k.u32() << 8) | left.u32()
         k <- k + 1
-    ordered: mutable usize = 1
-    previous: mutable u64 = sorted[0]
-    while ordered < n:
-        value: u64 = sorted[ordered]
-        if previous > value: break
-        previous <- value
-        ordered <- ordered + 1
-    # Every subrange of a nondecreasing input has zero inversions.
-    if ordered == n:
-        for byte in 0..<bytes:
-            output[byte] <- 0
-        return bytes.i64()
     if n <= 8:
         srin_short_queries(&sorted[0], &queries[0], output, q)
         return bytes.i64()
@@ -228,6 +216,13 @@ def srin_write_queries(input: i64&, output: mutable u8&, n: usize, q: usize, byt
     ranks: mutable u16[MAX_N] = zeroed
     distinct: mutable usize = srin_dense_ranks(&sorted[0],&ranks[0],n) if n >= 32 else 0
     if n < 16:
+        ordered: mutable usize = 1
+        previous: mutable u64 = sorted[0]
+        while ordered < n:
+            value: u64 = sorted[ordered]
+            if previous > value: break
+            previous <- value
+            ordered <- ordered + 1
         distinct <- srin_rank_short_prefix(&sorted[0], &ranks[0], n, ordered)
     elif distinct == 0:
         # Select the same Knuth gap for the supported lengths 16 through 128.
@@ -281,15 +276,25 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
     if length != 2 + n + 2 * q: return -1
     bytes: usize = 8 * q
     if output != null and capacity >= bytes:
-        return srin_write_queries(input, output, n, q, bytes)
-    # A malformed input still takes precedence over unusable output.
-    for index in 2..<(2 + n):
-        if input[index].u64() > 1000000000: return -1
+        previous: mutable u64 = input[2].u64()
+        for index in 3..<(2 + n):
+            value: u64 = input[index].u64()
+            if previous > value: return srin_write_queries(input, output, n, q, bytes)
+            previous <- value
+        # On nondecreasing input the last value bounds every earlier value.
+        if previous > 1000000000: return -1
+    else:
+        # A malformed input still takes precedence over unusable output.
+        for index in 2..<(2 + n):
+            if input[index].u64() > 1000000000: return -1
     for index in 0..<q:
         offset: usize = 2 + n + 2 * index
         left: u64 = input[offset].u64()
         right: u64 = input[offset + 1].u64()
         if left >= right or right > n.u64(): return -1
-    -2
+    if output == null or capacity < bytes: return -2
+    for byte in 0..<bytes:
+        output[byte] <- 0
+    bytes.i64()
 
 export fn static_range_inversions_query(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = static_range_inversions_query_impl
