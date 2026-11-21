@@ -20,12 +20,13 @@ def star_stops(edges: u64&, edge_count: usize, bounds: u64) -> bool:
 # Overlap on the four corresponding axes is sufficient for the closed box test.
 # Each signed projection lies between -16 and 16. Bias each byte to
 # keep its top bit free as a guard against borrow into the next lane.
-def star_pack_bounds(x: i32, neg_x: i32, y: i32, neg_y: i32,
-                     sum: i32, neg_sum: i32, diff: i32, neg_diff: i32) -> u64:
-    ((x+16).u64() | ((neg_x+16).u64() << 8) |
-      ((y+16).u64() << 16) | ((neg_y+16).u64() << 24) |
-      ((sum+16).u64() << 32) | ((neg_sum+16).u64() << 40) |
-      ((diff+16).u64() << 48) | ((neg_diff+16).u64() << 56))
+def star_pack_cell(x: i32, y: i32, size: i32) -> u64:
+    # Each lane is affine in the left edge, top edge and side length.
+    # A vertex uses the same formula with a zero side length.
+    (0x1010101010101010.u64() +
+        x.u64() * 0xfeff00ffffff01.u64() +
+        y.u64() * 0xff00ff00ff010000.u64() +
+        size.u64() * 0xfffdfefefffeff00.u64())
 
 def star_visit(triangles: u64&, edges: u64&, triangle_count: usize,
                edge_count: usize, pairs: mutable i64&) -> i32:
@@ -39,12 +40,7 @@ def star_visit(triangles: u64&, edges: u64&, triangle_count: usize,
         xmin: i32 = (2 * (key & 1) + (key & 4)).i32()
         ymax: i32 = 8 - ((key & 2) + ((key & 8) >> 1)).i32()
         size: i32 = 2 if stride == 1 else 4
-        # X is the left edge, Y the top edge. Each lane is affine in X, Y
-        # and the side length. The combined word uses wrapping arithmetic.
-        bounds: u64 = (0x1010101010101010.u64() +
-            xmin.u64() * 0xfeff00ffffff01.u64() +
-            ymax.u64() * 0xff00ff00ff010000.u64() +
-            size.u64() * 0xfffdfefefffeff00.u64())
+        bounds: u64 = star_pack_cell(xmin,ymax,size)
         if not star_stops(edges,edge_count,bounds):
             if stride == 1: return -1
             stride <- 1
@@ -126,7 +122,7 @@ def star_mesh_output(vertices: i32&, triangles: i32&, vertex_count: usize, trian
     for vertex in 0..<vertex_count:
         x: i32 = vertices[2*vertex]
         y: i32 = vertices[2*vertex+1]
-        vertex_projections[vertex] <- star_pack_bounds(x,-x,y,-y,x+y,-(x+y),y-x,x-y)
+        vertex_projections[vertex] <- star_pack_cell(x,y,0)
     projections_data: mutable u64[4] = zeroed
     projections: mutable u64& = &projections_data[0]
     edges_data: mutable u64[16] = zeroed
