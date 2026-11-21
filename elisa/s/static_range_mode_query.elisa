@@ -245,7 +245,8 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         if first_full < after_full:
             span_start: usize = first_full << block_shift
             span_end: usize = after_full << block_shift
-            slot: usize = first_full * MAX_BLOCKS + after_full - 1
+            # Validated endpoints limit this table to four blocks in either dimension.
+            slot: usize = (first_full * MAX_BLOCKS + after_full - 1) & (MAX_BLOCKS * MAX_BLOCKS - 1)
             stored: mutable i64 = block_mode[slot].i64()
             if stored == 0:
                 state: i64 = row_state[first_full].i64()
@@ -257,7 +258,8 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                     begin: usize = next_block << block_shift
                     for index in begin..<(begin + block_size):
                         id: usize = compressed[index].usize()
-                        count_slot: usize = count_base + id
+                        # A row base and a five-bit rank occupy disjoint bits.
+                        count_slot: usize = (count_base | id) & (MAX_BLOCKS * MAX_N - 1)
                         scaled_count: u16 = row_counts[count_slot] + 32
                         row_counts[count_slot] <- scaled_count
                         score: i64 = id.i64() - scaled_count.i64()
