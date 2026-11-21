@@ -78,6 +78,36 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
             byte <- byte + 1
         qi <- qi + 1
 
+def srin_radix_sort(items: mutable u64&, n: usize) -> bool:
+    different: mutable u64 = 0
+    first: u64 = items[0]
+    for index in 1..<n:
+        different <- different | (first ^ items[index])
+        if (different >> 15) != 0: return false
+    scratch: mutable u64[MAX_N] = zeroed
+    # Low seven bits retain the original position and are not sort digits.
+    digit: mutable usize = 7
+    while digit < 15:
+        if ((different >> digit) & 15) != 0:
+            counts: mutable usize[16] = zeroed
+            for index in 0..<n:
+                bucket: usize = ((items[index] >> digit) & 15).usize()
+                counts[bucket] <- counts[bucket] + 1
+            total: mutable usize = 0
+            for bucket in 0..<16:
+                count: usize = counts[bucket]
+                counts[bucket] <- total
+                total <- total + count
+            for index in 0..<n:
+                value: u64 = items[index]
+                bucket: usize = ((value >> digit) & 15).usize()
+                scratch[counts[bucket]] <- value
+                counts[bucket] <- counts[bucket] + 1
+            for index in 0..<n:
+                items[index] <- scratch[index]
+        digit <- digit + 4
+    true
+
 def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 195: return -1
     n64: i64 = input[0]
@@ -121,30 +151,32 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         for byte in 0..<bytes:
             output[byte] <- 0
         return bytes.i64()
-    if n >= 16:
-        gap: mutable usize = 4
-        while gap < n / 3:
-            gap <- 3 * gap + 1
-        while gap > 1:
-            i <- gap
-            while i < n:
-                value: u64 = sorted[i]
-                j: mutable usize = i
-                while j >= gap and sorted[j - gap] > value:
-                    sorted[j] <- sorted[j - gap]
-                    j <- j - gap
-                sorted[j] <- value
-                i <- i + 1
-            gap <- (gap - 1) / 3
-    i <- 1
-    while i < n:
-        value: u64 = sorted[i]
-        j: mutable usize = i
-        while j > 0 and sorted[j - 1] > value:
-            sorted[j] <- sorted[j - 1]
-            j <- j - 1
-        sorted[j] <- value
-        i <- i + 1
+    # Two radix passes are enough when all values share their high bits.
+    if n < 32 or not srin_radix_sort(&sorted[0],n):
+        if n >= 16:
+            gap: mutable usize = 4
+            while gap < n / 3:
+                gap <- 3 * gap + 1
+            while gap > 1:
+                i <- gap
+                while i < n:
+                    value: u64 = sorted[i]
+                    j: mutable usize = i
+                    while j >= gap and sorted[j - gap] > value:
+                        sorted[j] <- sorted[j - gap]
+                        j <- j - gap
+                    sorted[j] <- value
+                    i <- i + 1
+                gap <- (gap - 1) / 3
+        i <- 1
+        while i < n:
+            value: u64 = sorted[i]
+            j: mutable usize = i
+            while j > 0 and sorted[j - 1] > value:
+                sorted[j] <- sorted[j - 1]
+                j <- j - 1
+            sorted[j] <- value
+            i <- i + 1
     ranks: mutable u16[MAX_N] = zeroed
     distinct: mutable usize = 0
     previous: mutable i64 = -1
