@@ -22,7 +22,7 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
         third: i64 = input[6]
         if first.u64() > MAX_WEIGHT.u64() or second.u64() > MAX_WEIGHT.u64() or third.u64() > MAX_WEIGHT.u64():
             return -1
-        if first != input[4] or second != input[7] or third != input[8]:
+        if ((first ^ input[4]) | (second ^ input[7]) | (third ^ input[8])) != 0:
             return -1
         # Every nontrivial cut isolates one vertex. Use the two lightest edges.
         largest: mutable i64 = first
