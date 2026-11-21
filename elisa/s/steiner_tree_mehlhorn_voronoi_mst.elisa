@@ -47,7 +47,6 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     k: usize = k0.usize()
     if length != 3+k+3*m:
         return -1
-    terminals: mutable usize[MT_N] = zeroed
     terminal_mask: mutable u32 = 0
     at: mutable usize = 3
     for i in 0..<k:
@@ -59,7 +58,6 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         terminal_bit: u32 = 1.u32() << t
         if (terminal_mask & terminal_bit) != 0:
             return -1
-        terminals[i] <- t
         terminal_mask <- terminal_mask | terminal_bit
     # Store each edge in the same format as an all-terminal Kruskal candidate.
     edges: mutable u32[16] = zeroed
@@ -91,13 +89,11 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     # Equal-distance vertices can settle in either order because weights are positive.
     distance_key: mutable u32[MT_N] = zeroed
     if k != n:
-        vertex <- 0
-        while vertex < n:
-            distance_key[vertex] <- MT_UNREACHED
-            vertex <- vertex+1
-        for i in 0..<k:
-            t: usize = terminals[i]
-            distance_key[t] <- (t.u32() << 8) | 255
+        for index in 0..<n:
+            if (terminal_mask & (1.u32() << index)) != 0:
+                distance_key[index] <- (index.u32() << 8) | 255
+            else:
+                distance_key[index] <- MT_UNREACHED
         unsettled: mutable u32 = (1.u32() << n) - 1
         while unsettled != 0:
             chosen_vertex: mutable usize = MT_N
@@ -247,9 +243,13 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 degree[v] <- degree[v]+1
                 count <- count+1
                 cost <- cost+(key >> 4)
-        first_label: u32 = mt_label(labels, terminals[0])
-        for index in 1..<k:
-            if mt_label(labels, terminals[index]) != first_label:
+        first_terminal: usize = (mt_edge_index(terminal_mask, true) & 7).usize()
+        first_label: u32 = mt_label(labels, first_terminal)
+        remaining_terminals: mutable u32 = terminal_mask & (terminal_mask - 1)
+        while remaining_terminals != 0:
+            terminal: usize = (mt_edge_index(remaining_terminals, true) & 7).usize()
+            remaining_terminals <- remaining_terminals & (remaining_terminals - 1)
+            if mt_label(labels, terminal) != first_label:
                 return -1
         leaves: mutable usize[MT_N] = zeroed
         queued: mutable bool[MT_N] = zeroed
