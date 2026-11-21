@@ -65,7 +65,6 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         terminal_mask <- terminal_mask | terminal_bit
     # Store each edge in the same format as an all-terminal Kruskal candidate.
     edges: mutable u32[16] = zeroed
-    input_labels: mutable u32 = MT_SINGLETON_LABELS
     incident: mutable u32[MT_N] = zeroed
     pair_seen: mutable u64 = 0
     edge: mutable usize = 0
@@ -83,7 +82,6 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             return -1
         pair_seen <- pair_seen | pair_bit
         edges[edge & 15] <- (w.u32() << 16) | (u.u32() << 13) | (v.u32() << 10) | edge.u32()
-        mt_join(&input_labels, u, v)
         bit: u32 = 1.u32() << edge
         incident[u] <- incident[u] | bit
         incident[v] <- incident[v] | bit
@@ -91,10 +89,6 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     if at != length:
         return -1
 
-    first_component: u32 = mt_label(input_labels, 0)
-    for vertex in 1..<n:
-        if mt_label(input_labels, vertex) != first_component:
-            return -1
     vertex: mutable usize = 0
 
     # Order by distance, owner, then predecessor vertex and edge.
@@ -120,8 +114,9 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 if distance_key[vertex] < chosen_key:
                     chosen_vertex <- vertex
                     chosen_key <- distance_key[vertex]
+            # A component without a terminal cannot be reached.
             if chosen_vertex == MT_N:
-                break
+                return -1
             chosen_bit: u32 = 1.u32() << chosen_vertex
             settled <- settled | chosen_bit
             unsettled <- unsettled ^ chosen_bit
@@ -137,11 +132,6 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 next_key: u32 = (chosen_distance_owner + ((edges[edge & 15] >> 16) << 11)) | route
                 if next_key < distance_key[next_vertex]:
                     distance_key[next_vertex] <- next_key
-        vertex <- 0
-        while vertex < n:
-            if distance_key[vertex] == MT_UNREACHED:
-                return -1
-            vertex <- vertex+1
 
     candidates: mutable u32[16] = zeroed
     cn: mutable usize = 0
@@ -209,6 +199,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 chosen[ch] <- i
             ch <- ch+1
         i <- i+1
+    # Distinct components containing terminals cannot be joined by Kruskal.
     if ch != k-1:
         return -1
     if k == n:
