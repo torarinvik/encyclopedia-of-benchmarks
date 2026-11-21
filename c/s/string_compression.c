@@ -6,7 +6,7 @@
 int64_t string_compression(const int64_t *input, size_t length, uint8_t *output,
                            size_t output_capacity) {
     if (length == 0) return 0;
-    if (length > MAX_INPUT_LENGTH || input == NULL) return -1;
+    if (input == NULL || length > MAX_INPUT_LENGTH) return -1;
     if (length == 1) {
         const uint64_t value = (uint64_t)input[0];
         if (value > 127) return -1;
@@ -22,8 +22,8 @@ int64_t string_compression(const int64_t *input, size_t length, uint8_t *output,
             combined |= (uint64_t)input[index];
         if (combined > 127) return -1;
     } else {
-        for (size_t index = 0; index < length; ++index)
-            if ((uint64_t)input[index] > 127) return -1;
+        for (size_t remaining = length; remaining != 0;)
+            if ((uint64_t)input[--remaining] > 127) return -1;
     }
 
     if (output == NULL) return -2;

@@ -1,6 +1,6 @@
 def string_compression_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if length == 0: return 0
-    if length > 64 or input == null:
+    if input == null or length > 64:
         return -1
 
     if length == 1:
@@ -17,15 +17,10 @@ def string_compression_impl(input: i64&?, length: usize, output: mutable u8&?, o
             combined <- combined | input[index].u64()
         if combined > 127: return -1
     else:
-        valid_input: bool =
-            while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
-                value: i64 = input[index]
-                if value < 0 or value > 127:
-                    break false
-                index <- index + 1
-                valid
-        if not valid_input:
-            return -1
+        remaining: mutable usize = length
+        while remaining != 0:
+            remaining <- remaining - 1
+            if input[remaining].u64() > 127: return -1
 
     if output == null: return -2
     if output_capacity < length:
