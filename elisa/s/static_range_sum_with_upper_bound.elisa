@@ -89,9 +89,15 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     for i in 0..<q:
         count: i64 = answers[2*i]
         total: i64 = answers[2*i+1]
-        for byte in 0..<8:
-            output[16*i+byte] <- ((count >> (8*byte)) & 255).u8()
-            output[16*i+8+byte] <- ((total >> (8*byte)) & 255).u8()
+        position: usize = 16*i
+        # At most 64 values contribute, and their sum fits in 36 bits.
+        output[position] <- count.u8()
+        for byte in 1..<8:
+            output[position+byte] <- 0
+        for byte in 0..<5:
+            output[position+8+byte] <- ((total >> (8*byte)) & 255).u8()
+        for byte in 13..<16:
+            output[position+byte] <- 0
     return (16*q).i64()
 
 export fn static_range_sum_with_upper_bound(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = range_sum_upper_impl
