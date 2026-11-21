@@ -83,7 +83,6 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
     answers: mutable i64[MAX_Q] = zeroed
     current_left: mutable usize = 0
     current_right: mutable usize = 0
-    window_size: mutable usize = 0
     inversions: mutable i64 = 0
     qi: mutable usize = 0
     while qi < q:
@@ -97,25 +96,21 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
             rank: usize = ranks[current_left]
             inversions <- inversions + srin_bit_sum(&bit[0], rank)
             srin_bit_add(&bit[0], rank, distinct, 1)
-            window_size <- window_size + 1
         while current_right < target_right:
             rank: usize = ranks[current_right]
-            inversions <- inversions + window_size.i64() - srin_bit_sum(&bit[0], rank + 1)
+            inversions <- inversions + (current_right-current_left).i64() - srin_bit_sum(&bit[0], rank + 1)
             srin_bit_add(&bit[0], rank, distinct, 1)
-            window_size <- window_size + 1
             current_right <- current_right + 1
         while current_left < target_left:
             rank: usize = ranks[current_left]
             inversions <- inversions - srin_bit_sum(&bit[0], rank)
             srin_bit_add(&bit[0], rank, distinct, -1)
-            window_size <- window_size - 1
             current_left <- current_left + 1
         while current_right > target_right:
             current_right <- current_right - 1
             rank: usize = ranks[current_right]
-            inversions <- inversions - window_size.i64() + srin_bit_sum(&bit[0], rank + 1)
+            inversions <- inversions - (current_right+1-current_left).i64() + srin_bit_sum(&bit[0], rank + 1)
             srin_bit_add(&bit[0], rank, distinct, -1)
-            window_size <- window_size - 1
         answers[id] <- inversions
         qi <- qi + 1
     k <- 0
