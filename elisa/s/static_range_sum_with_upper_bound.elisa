@@ -13,13 +13,17 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         value: i64 = input[2+i]
         maximum <- value if value > maximum
         minimum <- value if value < minimum
+    full_scan_length: mutable usize = 0
     filtered_scan_length: mutable usize = 0
     for i in 0..<q:
         b: usize = 2+n+3*i
         if input[b] < 0 or input[b] > input[b+1] or input[b+1] > n.i64(): return -1
         if input[b+2] < 0 or input[b+2] > 1000000000: return -1
-        if input[b+2] >= minimum and input[b+2] < maximum:
-            filtered_scan_length <- filtered_scan_length + input[b+1].usize() - input[b].usize()
+        width: usize = input[b+1].usize() - input[b].usize()
+        if input[b+2] >= maximum:
+            full_scan_length <- full_scan_length + width
+        elif input[b+2] >= minimum:
+            filtered_scan_length <- filtered_scan_length + width
     if output == null or capacity < 16*q: return -2
     # The maximum sum is 64 billion, which fits below bit 36.
     # Each valid prefix index is below 1950. Round up to bound the index in LLVM.
@@ -61,6 +65,13 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                     current[(target + o) & 127] <- value
                     o <- o+1
             source <- target
+    # Store the ordinary prefix row in the padding beyond the wavelet rows.
+    use_full_prefix: bool = full_scan_length > 2*n
+    if use_full_prefix:
+        running_sum: mutable u64 = 0
+        for index in 0..<n:
+            running_sum <- running_sum + input[2+index].u64()
+            prefixes[1984+index] <- running_sum
     answers: mutable i64[128] = zeroed
     for i in 0..<q:
         b: usize = 2+n+3*i
@@ -71,10 +82,13 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         total: mutable i64 = 0
         if key > maximum:
             count <- (r - l).i64()
-            range_sum: mutable u64 = 0
-            for index in l..<r:
-                range_sum <- range_sum + input[2 + index].u64()
-            total <- range_sum.i64()
+            if use_full_prefix:
+                total <- (prefixes[(1983+r) & 2047] - prefixes[(1983+l) & 2047]).i64()
+            else:
+                range_sum: mutable u64 = 0
+                for index in l..<r:
+                    range_sum <- range_sum + input[2 + index].u64()
+                total <- range_sum.i64()
         elif key <= minimum:
             count <- 0
         elif not use_matrix:
