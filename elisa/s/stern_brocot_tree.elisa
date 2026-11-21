@@ -286,10 +286,14 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
             return sbt_single_ancestor(input, output, output_capacity)
         if input[1] == 1:
             return sbt_single_decode(input, length, output, output_capacity)
-        # A path record uses two header words and at most two words per run.
-        words: mutable i64[2+2*MAX_RUNS] = zeroed
-        return sbt_process(input, length, output, output_capacity, query_count, words[0:2+2*MAX_RUNS])
+        return sbt_process_single(input, length, output, output_capacity)
     sbt_process_batch(input, length, output, output_capacity, query_count)
+
+@inline(never)
+def sbt_process_single(input: i64&, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
+    # A path record uses two header words and at most two words per run.
+    words: mutable i64[2+2*MAX_RUNS] = zeroed
+    sbt_process(input, length, output, output_capacity, 1, words[0:2+2*MAX_RUNS])
 
 @inline(never)
 def sbt_process_batch(input: i64&, length: usize, output: mutable u8&?, output_capacity: usize, query_count: i64) -> i64:
