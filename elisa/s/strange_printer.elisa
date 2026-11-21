@@ -18,6 +18,17 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if length_from_header == 0: return 0
     first: u64 = input[1].u64()
     if first > 2: return -1
+    # Up to three positions need exactly one turn per distinct symbol.
+    if length_from_header == 1: return 1
+    if length_from_header <= 3:
+        second: u64 = input[2].u64()
+        if second > 2: return -1
+        if length_from_header == 2:
+            return 1 if first == second else 2
+        third: u64 = input[3].u64()
+        if third > 2: return -1
+        if first == second and second == third: return 1
+        return 2 if first == second or second == third or first == third else 3
     # The leading 1 sits just above the two bits for each run.
     symbols: mutable u64 = 4 | first
     previous: mutable u64 = first
