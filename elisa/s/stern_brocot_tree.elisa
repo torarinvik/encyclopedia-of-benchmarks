@@ -205,6 +205,7 @@ def sbt_single_decode(input: i64&, length: usize, output: mutable u8&?, capacity
     1
 
 def sbt_is_reduced(numerator: i64, denominator: i64) -> bool:
+    if numerator == 1 or denominator == 1: return true
     a: mutable i64 = numerator
     b: mutable i64 = denominator
     while b != 0:
