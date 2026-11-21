@@ -7,6 +7,14 @@ int64_t string_compression(const int64_t *input, size_t length, uint8_t *output,
                            size_t output_capacity) {
     if (length == 0) return 0;
     if (length > MAX_INPUT_LENGTH || input == NULL) return -1;
+    if (length == 1) {
+        const uint64_t value = (uint64_t)input[0];
+        if (value > 127) return -1;
+        if (output == NULL || output_capacity == 0) return -2;
+        output[0] = (uint8_t)value;
+        return 1;
+    }
+
     /* A set bit above bit 6 marks an invalid ASCII code unit. */
     if (length >= 8) {
         uint64_t combined = 0;
