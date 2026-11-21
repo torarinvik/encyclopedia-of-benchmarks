@@ -6,29 +6,28 @@ const STAR_MAX_EDGES: usize = 8
 const STAR_MAX_PAIRS: usize = 64
 const STAR_MAX_OUTPUT_BYTES: usize = 1032
 
-def star_edge_hits_box(ax: i32, ay: i32, bx: i32, by: i32,
+def star_edge_hits_box(edges: i32&, slot: usize,
                       xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
-    if (ax < xmin and bx < xmin) or (ax > xmax and bx > xmax) or
-       (ay < ymin and by < ymin) or (ay > ymax and by > ymax): return false
-    # The box axes overlap. The perpendicular to the segment is the last axis.
-    dx: i32 = bx - ax
-    dy: i32 = by - ay
+    if edges[slot+1] < xmin or edges[slot] > xmax or
+       edges[slot+3] < ymin or edges[slot+2] > ymax: return false
+    dx: i32 = edges[slot+4]
+    dy: i32 = edges[slot+5]
+    projection: i32 = edges[slot+6]
     far_x: i32 = xmin if dy >= 0 else xmax
     far_y: i32 = ymax if dx >= 0 else ymin
     near_x: i32 = xmax if dy >= 0 else xmin
     near_y: i32 = ymin if dx >= 0 else ymax
-    dx * (far_y - ay) - dy * (far_x - ax) >= 0 and
-        dx * (near_y - ay) - dy * (near_x - ax) <= 0
+    dx * far_y - dy * far_x >= projection and
+        dx * near_y - dy * near_x <= projection
 
 def star_stops(edges: i32&, edge_count: usize,
                xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
     # The first intersecting edge restricts the candidates to its endpoints.
     candidates: mutable i32 = 31
     for edge in 0..<edge_count:
-        slot: usize = 5 * edge
-        if star_edge_hits_box(edges[slot],edges[slot+1],edges[slot+2],edges[slot+3],
-                              xmin,ymin,xmax,ymax):
-            endpoints: i32 = edges[slot+4]
+        slot: usize = 8 * edge
+        if star_edge_hits_box(edges,slot,xmin,ymin,xmax,ymax):
+            endpoints: i32 = edges[slot+7]
             candidates <- candidates & endpoints
             if candidates == 0: return false
     true
@@ -100,8 +99,8 @@ def star_store_le(output: mutable u8&, offset: usize, value: i64) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length < 2 or length > STAR_MAX_INPUT: return -1
+@inline(never)
+def star_validate_mesh(input: i64&, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     vertex_count_raw: i64 = input[0]
     triangle_count_raw: i64 = input[1]
     if not ((vertex_count_raw == 4 and triangle_count_raw == 2) or
@@ -141,7 +140,12 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
         if triangles[i] != fan[i]: fan_ok <- false
         i <- i + 1
     if not diag02 and not diag13 and not fan_ok: return -1
-    edges_data: mutable i32[40] = zeroed
+    star_mesh_output(vertices,triangles,triangle_count,output,capacity)
+
+@inline(never)
+def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
+                     output: mutable u8&?, capacity: usize) -> i64:
+    edges_data: mutable i32[64] = zeroed
     edges: mutable i32& = &edges_data[0]
     edge_count: mutable usize = 0
     seen_edges: mutable u32 = 0
@@ -157,12 +161,21 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
             edge_bit: u32 = 1.u32() << (5 * low + high)
             if (seen_edges & edge_bit) == 0:
                 seen_edges <- seen_edges | edge_bit
-                slot: usize = 5 * edge_count
-                edges[slot] <- vertices[2*low]
-                edges[slot+1] <- vertices[2*low+1]
-                edges[slot+2] <- vertices[2*high]
-                edges[slot+3] <- vertices[2*high+1]
-                edges[slot+4] <- (1.i32() << low) | (1.i32() << high)
+                slot: usize = 8 * edge_count
+                ax: i32 = vertices[2*low]
+                ay: i32 = vertices[2*low+1]
+                bx: i32 = vertices[2*high]
+                by: i32 = vertices[2*high+1]
+                dx: i32 = bx - ax
+                dy: i32 = by - ay
+                edges[slot] <- ax if ax < bx else bx
+                edges[slot+1] <- ax if ax > bx else bx
+                edges[slot+2] <- ay if ay < by else by
+                edges[slot+3] <- ay if ay > by else by
+                edges[slot+4] <- dx
+                edges[slot+5] <- dy
+                edges[slot+6] <- dx * ay - dy * ax
+                edges[slot+7] <- (1.i32() << low) | (1.i32() << high)
                 edge_count <- edge_count + 1
             k <- k + 1
         tid <- tid + 1
@@ -175,12 +188,17 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
     required: usize = (1 + 2*pair_count)*8
     if output == null or capacity < required: return -2
     star_store_le(output,0,pair_count.i64())
-    i <- 0
+    i: mutable usize = 0
     while i < pair_count:
         star_store_le(output,8+16*i,pairs[2*i])
         star_store_le(output,16+16*i,pairs[2*i+1])
         i <- i + 1
     required.i64()
+
+def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize,
+        output: mutable u8&?, capacity: usize) -> i64:
+    if input == null or length < 2 or length > STAR_MAX_INPUT: return -1
+    star_validate_mesh(input,length,output,capacity)
 
 export fn star_quadtree_fat_triangulation(input: i64&?, length: usize,
         output: mutable u8&?, capacity: usize) -> i64 = star_quadtree_fat_triangulation_impl
