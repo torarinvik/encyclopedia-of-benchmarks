@@ -24,6 +24,7 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
         index<-index+1
     vector[0]<-1
 
+    # The transition is lower triangular. A dot product is at most 9*96*96.
     exponent:mutable i64=n
     while exponent>0:
         if exponent%2!=0:
@@ -31,10 +32,10 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
             while row<dimension:
                 total:mutable i64=0
                 column:mutable usize=0
-                while column<dimension:
-                    total<-(total+matrix[row*WIDTH+column]*vector[column])%modulus
+                while column<=row:
+                    total<-total+matrix[row*WIDTH+column]*vector[column]
                     column<-column+1
-                next_vector[row]<-total
+                next_vector[row]<-total%modulus
                 row<-row+1
             row<-0
             while row<dimension:
@@ -45,21 +46,20 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
             row:mutable usize=0
             while row<dimension:
                 column:mutable usize=0
-                while column<dimension:
+                while column<=row:
                     total:mutable i64=0
-                    inner:mutable usize=0
-                    while inner<dimension:
-                        total<-(total+matrix[row*WIDTH+inner]*matrix[inner*WIDTH+column])%modulus
+                    inner:mutable usize=column
+                    while inner<=row:
+                        total<-total+matrix[row*WIDTH+inner]*matrix[inner*WIDTH+column]
                         inner<-inner+1
-                    squared[row*WIDTH+column]<-total
+                    squared[row*WIDTH+column]<-total%modulus
                     column<-column+1
                 row<-row+1
             row<-0
             while row<dimension:
                 column:mutable usize=0
-                while column<dimension:
+                while column<=row:
                     matrix[row*WIDTH+column]<-squared[row*WIDTH+column]
-                    squared[row*WIDTH+column]<-0
                     column<-column+1
                 row<-row+1
 
