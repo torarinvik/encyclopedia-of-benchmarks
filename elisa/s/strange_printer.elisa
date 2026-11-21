@@ -2,14 +2,13 @@ const SP_MAX_LENGTH: usize = 8
 const SP_TABLE_SIDE: usize = 8
 
 @inline(always)
-def append_printer_symbol(symbol: u64, symbols: mutable u64&, previous: mutable u64&) -> bool:
-    if symbol > 2: return false
+def append_printer_symbol(symbol: u64, symbols: mutable u64&, previous: mutable u64&, invalid: mutable u64&) -> void:
+    invalid[0] <- invalid[0] | (1 if symbol > 2 else 0)
     if symbol != previous[0]:
         # Fixed shifts pack the runs in reverse order. Reversing every print
         # interval preserves the optimal turn count.
         symbols[0] <- (symbols[0] << 2) | symbol
         previous[0] <- symbol
-    true
 
 def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if input == null or length - 1 > SP_MAX_LENGTH: return -1
@@ -58,13 +57,16 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     # The leading 1 sits just above the two bits for each run.
     symbols: mutable u64 = 4 | first
     previous: mutable u64 = first
-    if length > 2 and not append_printer_symbol(input[2].u64(), &symbols, &previous): return -1
-    if length > 3 and not append_printer_symbol(input[3].u64(), &symbols, &previous): return -1
-    if length > 4 and not append_printer_symbol(input[4].u64(), &symbols, &previous): return -1
-    if length > 5 and not append_printer_symbol(input[5].u64(), &symbols, &previous): return -1
-    if length > 6 and not append_printer_symbol(input[6].u64(), &symbols, &previous): return -1
-    if length > 7 and not append_printer_symbol(input[7].u64(), &symbols, &previous): return -1
-    if length > 8 and not append_printer_symbol(input[8].u64(), &symbols, &previous): return -1
+    # Reject accumulated invalid symbols before interpreting the packed runs.
+    invalid: mutable u64 = 0
+    if length > 2: append_printer_symbol(input[2].u64(), &symbols, &previous, &invalid)
+    if length > 3: append_printer_symbol(input[3].u64(), &symbols, &previous, &invalid)
+    if length > 4: append_printer_symbol(input[4].u64(), &symbols, &previous, &invalid)
+    if length > 5: append_printer_symbol(input[5].u64(), &symbols, &previous, &invalid)
+    if length > 6: append_printer_symbol(input[6].u64(), &symbols, &previous, &invalid)
+    if length > 7: append_printer_symbol(input[7].u64(), &symbols, &previous, &invalid)
+    if length > 8: append_printer_symbol(input[8].u64(), &symbols, &previous, &invalid)
+    if invalid != 0: return -1
     if symbols < 64: return 1 if symbols < 16 else 2
     if symbols < 256:
         if (symbols & 3) == ((symbols >> 4) & 3): return 2
