@@ -17,18 +17,28 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if length_from_header == 0: return 0
     first: u64 = input[1].u64()
     if first > 2: return -1
-    # Up to three positions need exactly one turn per distinct symbol.
     if length_from_header == 1: return 1
-    if length_from_header <= 3:
+    if length_from_header <= 4:
         second: u64 = input[2].u64()
         if second > 2: return -1
         if length_from_header == 2:
             return 1 if first == second else 2
         third: u64 = input[3].u64()
         if third > 2: return -1
-        second_is_new: i64 = 1 if first != second else 0
-        third_is_new: i64 = 1 if first != third and second != third else 0
-        return 1 + second_is_new + third_is_new
+        if length_from_header == 3:
+            second_is_new: i64 = 1 if first != second else 0
+            third_is_new: i64 = 1 if first != third and second != third else 0
+            return 1 + second_is_new + third_is_new
+        fourth: u64 = input[4].u64()
+        if fourth > 2: return -1
+        # Count run boundaries directly. Three runs with equal endpoints
+        # take two turns, and four runs over three symbols take three.
+        left: i64 = 1 if first != second else 0
+        middle: i64 = 1 if second != third else 0
+        right: i64 = 1 if third != fourth else 0
+        count: i64 = left + middle + right
+        if count < 2: return count + 1
+        return 2 if count == 2 and first == fourth else 3
     # A full-length uniform input needs one turn. A different last symbol
     # rules it out before reading the interior a second time.
     if length_from_header == SP_MAX_LENGTH and input[8].u64() == first:
