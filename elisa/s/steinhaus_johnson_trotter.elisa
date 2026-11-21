@@ -23,6 +23,11 @@ def sjt_emit_row(values: mutable i32[MAX_LENGTH]&, length: usize, output: mutabl
         sjt_emit_value(values[5], output, offset+20)
     offset <- offset+4*length
 
+def sjt_emit_triple(first: i32, second: i32, third: i32, output: mutable u8&, offset: usize) -> void:
+    sjt_emit_value(first, output, offset)
+    sjt_emit_value(second, output, offset+4)
+    sjt_emit_value(third, output, offset+8)
+
 def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
         output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or length == 0 or length > MAX_LENGTH:
@@ -42,6 +47,20 @@ def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
         sjt_emit_value(second, output, 8)
         sjt_emit_value(first, output, 12)
         return 16
+    if length == 3:
+        if output == null or output_capacity < 72:
+            return -2
+        first: i32 = input[0]
+        second: i32 = input[1]
+        third: i32 = input[2]
+        # The pinned inversion-vector order for three positions.
+        sjt_emit_triple(first, second, third, output, 0)
+        sjt_emit_triple(second, first, third, output, 12)
+        sjt_emit_triple(third, first, second, output, 24)
+        sjt_emit_triple(first, third, second, output, 36)
+        sjt_emit_triple(second, third, first, output, 48)
+        sjt_emit_triple(third, second, first, output, 60)
+        return 72
     sjt_emit_many(input, length, output, output_capacity)
 
 @inline(never)
