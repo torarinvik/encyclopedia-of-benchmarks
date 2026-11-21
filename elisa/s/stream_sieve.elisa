@@ -15,9 +15,10 @@ def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacit
             STREAM_SIEVE_PRIME_COUNT <- 1
         while STREAM_SIEVE_PRIME_COUNT < count:
             candidate: i32 = STREAM_SIEVE_NEXT_CANDIDATE
-            STREAM_SIEVE_NEXT_CANDIDATE <- STREAM_SIEVE_NEXT_CANDIDATE + 1
+            # The cache already contains 2. All later candidates are odd.
+            STREAM_SIEVE_NEXT_CANDIDATE <- STREAM_SIEVE_NEXT_CANDIDATE + 2
             is_prime: mutable bool = true
-            prime_index: mutable usize = 0
+            prime_index: mutable usize = 1
             while prime_index < STREAM_SIEVE_PRIME_COUNT:
                 divisor: i32 = STREAM_SIEVE_PRIME_CACHE[prime_index]
                 if divisor > candidate / divisor: break
