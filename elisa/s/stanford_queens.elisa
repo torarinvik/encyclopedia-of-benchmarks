@@ -60,6 +60,10 @@ def append_integer(buffer: mutable view[u8], used: mutable usize&, value: usize)
 def stanford_queens_impl(runs: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if runs < MIN_RUNS or runs > MAX_RUNS: return -1
     if output == null: return -2
+    stanford_queens_run(runs, output, output_capacity)
+
+@inline(never)
+def stanford_queens_run(runs: i64, output: mutable u8&, output_capacity: usize) -> i64:
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     used: mutable usize = 0
     for run in 0..<runs.usize():
