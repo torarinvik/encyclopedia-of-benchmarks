@@ -6,12 +6,7 @@ const SCI_INF: i64 = 1000
 
 def sci_run_cost(kept: usize) -> i64:
     if kept == 1: return 1
-    value: mutable usize = kept
-    digits: mutable usize = 0
-    while value > 0:
-        digits <- digits + 1
-        value <- value / 10
-    (1 + digits).i64()
+    3 if kept >= 10 else 2
 
 def sci_compute(input: i64&?, length: usize) -> i64:
     if input == null or length < 2 or length > SCI_MAX_INPUT: return -1
@@ -39,9 +34,11 @@ def sci_compute(input: i64&?, length: usize) -> i64:
             for ending in start..<n:
                 if input[ending + 2] == input[start + 2]: same <- same + 1
                 span: usize = ending - start + 1
-                for kept in 1..=same:
+                # The minimum deletion cost cannot decrease as this span grows.
+                if used + span - same > budget: break
+                first_kept: usize = used + span - budget if used + span > budget else 1
+                for kept in first_kept..=same:
                     deleted: usize = used + span - kept
-                    if deleted > budget: continue
                     candidate: i64 = prefix_cost + sci_run_cost(kept)
                     state: usize = (ending + 1) * SCI_WIDTH + deleted
                     if candidate < dp[state]: dp[state] <- candidate
