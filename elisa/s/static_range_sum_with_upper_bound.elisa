@@ -75,13 +75,14 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                     total <- total + value
         else:
             prefix_total: mutable u64 = 0
-            key_mask: mutable i64 = 1.i64() << (29-first_level)
+            # Align the first active key bit with the high bit for each step.
+            query_bits: mutable u32 = key.u32() << (first_level + 2)
             for level in first_level..<30:
                 left: u64 = prefixes[(65*level+l) & 2047]
                 right: u64 = prefixes[(65*level+r) & 2047]
                 zl: usize = (left >> 36).usize()
                 zr: usize = (right >> 36).usize()
-                if (key & key_mask) != 0:
+                if (query_bits & 0x80000000.u32()) != 0:
                     prefix_total <- prefix_total + right - left
                     partition_size: usize = (prefixes[(65*level+n) & 2047] >> 36).usize()
                     l <- l+partition_size-zl
@@ -89,7 +90,7 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                 else:
                     l <- zl
                     r <- zr
-                key_mask <- key_mask >> 1
+                query_bits <- query_bits << 1
             count <- (prefix_total >> 36).i64()
             total <- (prefix_total & ((1.u64() << 36) - 1)).i64()
         answers[2*i] <- count
