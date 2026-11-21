@@ -30,9 +30,9 @@ def stockham_stage(source: view[f64], destination: mutable view[f64],
         destination[out_right + 1] <- first_imag - product_imag
         j <- j + 1
 
-def stockham_autosort_radix2_fft_impl(input: f64&, input_length: usize,
-                                      output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > max_input_length:
+def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
+                                      output: mutable f64&?, output_capacity: usize) -> i64:
+    if input == null or input_length < 3 or input_length > max_input_length:
         return -1
     n_value: f64 = input[0]
     if n_value != n_value:
@@ -54,8 +54,8 @@ def stockham_autosort_radix2_fft_impl(input: f64&, input_length: usize,
             return -1
         index <- index + 1
 
-    first: mutable f64[max_scalars] = zeroed
-    second: mutable f64[max_scalars] = zeroed
+    first: mutable f64[128] = zeroed
+    second: mutable f64[128] = zeroed
     index <- 0
     while index < 2 * n:
         first[index] <- input[index + 1]
@@ -67,11 +67,11 @@ def stockham_autosort_radix2_fft_impl(input: f64&, input_length: usize,
             stockham_stage(first[0:max_scalars], second[0:max_scalars], n, stride)
         else:
             stockham_stage(second[0:max_scalars], first[0:max_scalars], n, stride)
-        source_is_first <- !source_is_first
+        source_is_first <- not source_is_first
         stride <- stride * 2
 
     needed: usize = 2 * n
-    if output.is_null() or output_capacity < needed:
+    if output == null or output_capacity < needed:
         return -2
     index <- 0
     while index < needed:
@@ -82,5 +82,5 @@ def stockham_autosort_radix2_fft_impl(input: f64&, input_length: usize,
         index <- index + 1
     needed.i64()
 
-export fn stockham_autosort_radix2_fft(input: f64&, input_length: usize,
-                                       output: mutable f64&, output_capacity: usize) -> i64 = stockham_autosort_radix2_fft_impl
+export fn stockham_autosort_radix2_fft(input: f64&?, input_length: usize,
+                                       output: mutable f64&?, output_capacity: usize) -> i64 = stockham_autosort_radix2_fft_impl
