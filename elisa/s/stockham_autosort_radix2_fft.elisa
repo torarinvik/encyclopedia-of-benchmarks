@@ -1,6 +1,5 @@
 const max_n: usize = 64
 const max_input_length: usize = 130
-const max_scalars: usize = 128
 # The 32 distinct twiddles of the largest stage cover every supported length.
 const TWIDDLE_REAL: f64[32] = [
     1.0, 0.9951847266721969, 0.9807852804032304, 0.9569403357322088,
@@ -23,24 +22,25 @@ const TWIDDLE_IMAG: f64[32] = [
     -0.3826834323650899, -0.2902846772544624, -0.1950903220161286, -0.09801714032956083,
 ]
 
-def stockham_stage(source: view[f64], destination: mutable view[f64],
-                   n: usize, stride: usize) -> void:
+def stockham_stage(source: f64[128]&, destination: mutable f64[128]&,
+                   n: usize, stride: usize, twiddle_step: usize) -> void:
     half: usize = n / 2
     for column in 0..<stride:
-        twiddle: usize = (column * (32 / stride)) & 31
+        twiddle: usize = (column * twiddle_step) & 31
         cosine: f64 = TWIDDLE_REAL[twiddle]
         sine: f64 = TWIDDLE_IMAG[twiddle]
         j: mutable usize = column
         base: mutable usize = column
         while j < half:
-            left: usize = 2 * j
-            right: usize = 2 * (j + n / 2)
+            # Valid lengths keep each complex pair start in 0..126.
+            left: usize = (2 * j) & 126
+            right: usize = (2 * (j + half)) & 126
             product_real: f64 = cosine * source[right] - sine * source[right + 1]
             product_imag: f64 = cosine * source[right + 1] + sine * source[right]
             first_real: f64 = source[left]
             first_imag: f64 = source[left + 1]
-            out_left: usize = 2 * base
-            out_right: usize = 2 * (base + stride)
+            out_left: usize = (2 * base) & 126
+            out_right: usize = (2 * (base + stride)) & 126
             destination[out_left] <- first_real + product_real
             destination[out_left + 1] <- first_imag + product_imag
             destination[out_right] <- first_real - product_real
@@ -80,13 +80,15 @@ def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
         index <- index + 1
     source_is_first: mutable bool = true
     stride: mutable usize = 1
+    twiddle_step: mutable usize = 32
     while stride < n:
         if source_is_first:
-            stockham_stage(first[0:max_scalars], second[0:max_scalars], n, stride)
+            stockham_stage(&first, &second, n, stride, twiddle_step)
         else:
-            stockham_stage(second[0:max_scalars], first[0:max_scalars], n, stride)
+            stockham_stage(&second, &first, n, stride, twiddle_step)
         source_is_first <- not source_is_first
         stride <- stride * 2
+        twiddle_step <- twiddle_step >> 1
 
     needed: usize = 2 * n
     if output == null or output_capacity < needed:
