@@ -28,20 +28,26 @@ def st_join(labels: mutable u32&, a: usize, b: usize) -> bool:
     labels <- labels ^ (matching * (ra ^ rb).u32())
     true
 
-def st_group_count(n: usize, mask: i64, h: u32) -> usize:
+@intrinsic("llvm.cttz.i32")
+extern st_trailing_zeros(value: u32, zero_undefined: bool) -> u32
+
+def st_group_count(mask: i64, h: u32) -> usize:
     labels: mutable u32 = SINGLETON_LABELS
-    for i in 0..<n:
-        for j in (i + 1)..<n:
-            if (h & (1.u32() << (i * 4 + j))) != 0:
-                st_join(&labels, i, j)
-    seen: mutable bool[4] = zeroed
+    pending: mutable u32 = h
+    while pending != 0:
+        edge: usize = st_trailing_zeros(pending, true).usize()
+        st_join(&labels, edge >> 2, edge & 3)
+        pending <- pending & (pending - 1)
+    seen: mutable u32 = 0
     count: mutable usize = 0
-    for i in 0..<n:
-        if (mask & (1.i64() << i)) != 0:
-            r: usize = st_label(labels, i)
-            if not seen[r]:
-                seen[r] <- true
-                count <- count + 1
+    vertices: mutable u32 = mask.u32()
+    while vertices != 0:
+        vertex: usize = st_trailing_zeros(vertices, true).usize()
+        bit: u32 = 1.u32() << st_label(labels, vertex)
+        if (seen & bit) == 0:
+            seen <- seen | bit
+            count <- count + 1
+        vertices <- vertices & (vertices - 1)
     count
 
 def st_less(a: ST_Edge, b: ST_Edge) -> bool:
@@ -205,7 +211,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
         if seen != ec + 1 or leaves < 2 or leaves > 3 or (count == 1 and leaves != terminals):
             return -1
         sizes[c] <- ec
-    if at != length or (count > 1 and st_group_count(n, mask, family_h) != 1):
+    if at != length or (count > 1 and st_group_count(mask, family_h) != 1):
         return -1
     h: mutable u32 = 0
     selected: mutable bool[4] = zeroed
@@ -250,7 +256,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
             if selected[c]:
                 continue
             trial: u32 = h | component_edges[c]
-            trial_groups: usize = st_group_count(n, mask, trial)
+            trial_groups: usize = st_group_count(mask, trial)
             if trial_groups >= groups:
                 continue
             scratch: mutable ST_Edge[3] = zeroed
