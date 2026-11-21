@@ -15,7 +15,7 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         if input[b] < 0 or input[b] > input[b+1] or input[b+1] > n.i64(): return -1
         if input[b+2] < 0 or input[b+2] > 1000000000: return -1
     if output == null or capacity < 16*q: return -2
-    counts: mutable usize[1950] = zeroed
+    counts: mutable u8[1950] = zeroed
     sums: mutable i64[1950] = zeroed
     offsets: mutable usize[30] = zeroed
     # Leading zero bits cannot partition any input value.
@@ -33,7 +33,7 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             if (value & mask) == 0:
                 zeros <- zeros + 1
                 zero_sum <- zero_sum + value
-            counts[65*level+i+1] <- zeros
+            counts[65*level+i+1] <- zeros.u8()
             sums[65*level+i+1] <- zero_sum
         offsets[level] <- zeros
         if level == 29: break
@@ -61,8 +61,8 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                 total <- total + input[2 + index]
         else:
             for level in first_level..<30:
-                zl: usize = counts[65*level+l]
-                zr: usize = counts[65*level+r]
+                zl: usize = counts[65*level+l].usize()
+                zr: usize = counts[65*level+r].usize()
                 if (key & (1.i64() << (29-level))) != 0:
                     count <- count+(zr-zl).i64()
                     total <- total+sums[65*level+r]-sums[65*level+l]
