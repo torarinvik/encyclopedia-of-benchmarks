@@ -40,10 +40,20 @@ def stieltjes_impl(input: i64&?, length: usize,
 
     q: mutable i64[45] = zeroed
     e: mutable i64[45] = zeroed
-    k: mutable usize = 0
+    # Prefix products let the first row share one modular inverse.
+    q[TABLE_COLUMNS] <- input[1]
+    k: mutable usize = 1
     while k + 1 < n:
-        q[TABLE_COLUMNS + k] <- stieltjes_mul(input[k + 2], stieltjes_power(input[k + 1], MODULUS - 2))
-        k <- k + 1
+        q[TABLE_COLUMNS+k] <- stieltjes_mul(q[TABLE_COLUMNS+k-1], input[k+1])
+        k <- k+1
+    k <- n-2
+    inverse_prefix: mutable i64 = stieltjes_power(q[TABLE_COLUMNS+k], MODULUS-2)
+    while k > 0:
+        inverse: i64 = stieltjes_mul(inverse_prefix, q[TABLE_COLUMNS+k-1])
+        q[TABLE_COLUMNS+k] <- stieltjes_mul(input[k+2], inverse)
+        inverse_prefix <- stieltjes_mul(inverse_prefix, input[k+1])
+        k <- k-1
+    q[TABLE_COLUMNS] <- stieltjes_mul(input[2], inverse_prefix)
     j: mutable usize = 1
     while j <= 4:
         last_e: i64 = n.i64() - 2 * j.i64() - 1
