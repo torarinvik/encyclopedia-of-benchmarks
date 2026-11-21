@@ -7,25 +7,27 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     q: usize = input[1].usize()
     if length != 2+n+3*q: return -1
     maximum: mutable i64 = 0
+    minimum: mutable i64 = 1000000000
     for i in 0..<n:
         if input[2+i] < 0 or input[2+i] > 1000000000: return -1
         value: i64 = input[2+i]
         maximum <- value if value > maximum
+        minimum <- value if value < minimum
     filtered_scan_length: mutable usize = 0
     for i in 0..<q:
         b: usize = 2+n+3*i
         if input[b] < 0 or input[b] > input[b+1] or input[b+1] > n.i64(): return -1
         if input[b+2] < 0 or input[b+2] > 1000000000: return -1
-        if input[b+2] < maximum:
+        if input[b+2] >= minimum and input[b+2] < maximum:
             filtered_scan_length <- filtered_scan_length + input[b+1].usize() - input[b].usize()
     if output == null or capacity < 16*q: return -2
     # The maximum sum is 64 billion, which fits below bit 36.
     # Each valid prefix index is below 1950. Round up to bound the index in LLVM.
     prefixes: mutable u64[2048] = zeroed
-    # Leading zero bits cannot partition any input value.
-    first_level: usize = (leading_zeros(maximum.u32() | 1, false) - 2).usize()
-    # Compare filtered scan length with the matrix construction work per level.
-    use_matrix: bool = filtered_scan_length > n * (30 - first_level)
+    # Bits shared by the minimum and maximum cannot partition any input value.
+    first_level: usize = (leading_zeros((maximum ^ minimum).u32() | 1, false) - 2).usize()
+    # Each matrix level scans and partitions values, then queries traverse it.
+    use_matrix: bool = filtered_scan_length > 4 * n * (30 - first_level)
     if use_matrix:
         current: mutable i64[128] = zeroed
         for i in 0..<n:
@@ -71,6 +73,8 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             count <- (r - l).i64()
             for index in l..<r:
                 total <- total + input[2 + index]
+        elif key <= minimum:
+            count <- 0
         elif not use_matrix:
             for index in l..<r:
                 value: i64 = input[2 + index]
