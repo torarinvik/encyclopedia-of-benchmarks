@@ -40,6 +40,27 @@ def sbt_encode_path(numerator_value: i64, denominator_value: i64,
     if numerator != 1: return -1
     run_count.i64()
 
+# Walk the quotient runs while accumulating their Farey bounds.
+def sbt_descendant_bounds(numerator_value: i64, denominator_value: i64, bounds: mutable SbtDecoded&) -> bool:
+    numerator: mutable i64 = numerator_value
+    denominator: mutable i64 = denominator_value
+    bounds.lower_num <- 0
+    bounds.lower_den <- 1
+    bounds.upper_num <- 1
+    bounds.upper_den <- 0
+    while numerator != denominator:
+        if numerator < denominator:
+            count: i64 = (denominator - 1) / numerator
+            denominator <- denominator - count * numerator
+            bounds.upper_num <- bounds.upper_num + count * bounds.lower_num
+            bounds.upper_den <- bounds.upper_den + count * bounds.lower_den
+        else:
+            count: i64 = (numerator - 1) / denominator
+            numerator <- numerator - count * denominator
+            bounds.lower_num <- bounds.lower_num + count * bounds.upper_num
+            bounds.lower_den <- bounds.lower_den + count * bounds.upper_den
+    numerator == 1
+
 def sbt_decode_path(runs: view[SbtRun], decoded: mutable SbtDecoded&) -> bool:
     lower_num: mutable i64 = 0
     lower_den: mutable i64 = 1
@@ -216,11 +237,8 @@ def sbt_process(input: i64&, length: usize, output: mutable u8&?, output_capacit
             denominator: i64 = input[position + 1]
             position <- position + 2
             if not sbt_fraction_in_range(numerator, denominator): return -1
-            path: mutable SbtRun[MAX_RUNS] = zeroed
-            path_count: i64 = sbt_encode_path(numerator, denominator, path[0:MAX_RUNS])
-            if path_count < 0: return -1
             decoded: mutable SbtDecoded = zeroed
-            if not sbt_decode_path(path[0:path_count.usize()], decoded) or
+            if not sbt_descendant_bounds(numerator, denominator, decoded) or
                 not sbt_append(words, word_count, operation) or
                 not sbt_append(words, word_count, decoded.lower_num) or
                 not sbt_append(words, word_count, decoded.lower_den) or
