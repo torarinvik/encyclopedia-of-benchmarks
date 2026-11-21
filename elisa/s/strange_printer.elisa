@@ -21,11 +21,11 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if length_from_header == 1: return 1
     if length_from_header <= 4:
         second: u64 = input[2].u64()
-        if second > 2: return -1
         if length_from_header == 2:
+            if second > 2: return -1
             return 1 if first == second else 2
         third: u64 = input[3].u64()
-        if third > 2: return -1
+        if (second if second > third else third) > 2: return -1
         if length_from_header == 3:
             if first == third: return 1 if first == second else 2
             return 2 if second == first or second == third else 3
