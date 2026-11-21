@@ -18,7 +18,6 @@ def stack_with_doubly_linked_list_impl(input: i64&, length: usize,
     scratch: mutable StackScratch = zeroed
     node_count: mutable usize = 0
     head: mutable usize = 0
-    written: mutable usize = 0
     cursor: mutable usize = 1
     index: mutable usize = 0
     while index < count:
@@ -57,13 +56,14 @@ def stack_with_doubly_linked_list_impl(input: i64&, length: usize,
                     while node != 0:
                         value <- value + 1
                         node <- scratch.next_ids[node]
+        written: usize = index * 3
         scratch.buffer[written] <- opcode
         scratch.buffer[written + 1] <- tag
         scratch.buffer[written + 2] <- value
-        written <- written + 3
         index <- index + 1
 
     if cursor != length: return -1
+    written: usize = count * 3
     output_length: usize = written * 8
     if output == null or capacity < output_length: return -2
     for word in 0..<written:
