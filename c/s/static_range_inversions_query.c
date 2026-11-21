@@ -40,7 +40,7 @@ int64_t static_range_inversions_query(const int64_t *input, size_t length,
     size_t n=(size_t)n64,q=(size_t)q64;
     if(length!=2+n+2*q)return -1;
     int64_t values[MAX_N],sorted[MAX_N];
-    for(size_t i=0;i<n;++i){values[i]=input[2+i];if(values[i]<0||values[i]>1_000_000_000)return -1;sorted[i]=values[i];}
+    for(size_t i=0;i<n;++i){values[i]=input[2+i];if(values[i]<0||values[i]>1000000000)return -1;sorted[i]=values[i];}
     for(size_t i=1;i<n;++i){int64_t x=sorted[i];size_t j=i;while(j&&sorted[j-1]>x){sorted[j]=sorted[j-1];--j;}sorted[j]=x;}
     size_t distinct=0;for(size_t i=0;i<n;++i)if(!distinct||sorted[i]!=sorted[distinct-1])sorted[distinct++]=sorted[i];
     size_t rank[MAX_N];for(size_t i=0;i<n;++i)rank[i]=lower_bound_i64(sorted,distinct,values[i]);
