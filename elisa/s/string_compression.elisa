@@ -46,8 +46,10 @@ def string_compression_impl(input: i64&?, length: usize, output: mutable u8&?, o
         while index < length |index: mutable usize = 0, write_index: mutable usize = 0, output| -> write_index:
             value: i64 = input[index]
             end: mutable usize = index + 1
-            while end < length and input[end] == value:
+            remaining: mutable usize = length - end
+            while remaining != 0 and input[end] == value:
                 end <- end + 1
+                remaining <- remaining - 1
             count: usize = end - index
             output[write_index] <- value.u8()
             write_index <- write_index + 1
