@@ -235,6 +235,41 @@ def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
     sbt_store_word(output, 16, lower_den+upper_den)
     1
 
+def sbt_single_ancestor(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
+    remaining: mutable i64 = input[2]
+    numerator: mutable i64 = input[3]
+    denominator: mutable i64 = input[4]
+    if remaining < 1 or remaining > MAX_COMPONENT or not sbt_fraction_in_range(numerator, denominator): return -1
+    lower_num: mutable i64 = 0
+    lower_den: mutable i64 = 1
+    upper_num: mutable i64 = 1
+    upper_den: mutable i64 = 0
+    while numerator != denominator:
+        if numerator < denominator:
+            count: i64 = (denominator-1)/numerator
+            take: i64 = remaining if remaining < count else count
+            denominator <- denominator-count*numerator
+            upper_num <- upper_num+take*lower_num
+            upper_den <- upper_den+take*lower_den
+            remaining <- remaining-take
+        else:
+            count: i64 = (numerator-1)/denominator
+            take: i64 = remaining if remaining < count else count
+            numerator <- numerator-count*denominator
+            lower_num <- lower_num+take*upper_num
+            lower_den <- lower_den+take*upper_den
+            remaining <- remaining-take
+    if numerator != 1: return -1
+    required: usize = 16 if remaining != 0 else 24
+    if output == null or capacity < required: return -2
+    sbt_store_word(output, 0, 3)
+    if remaining != 0:
+        sbt_store_word(output, 8, -1)
+    else:
+        sbt_store_word(output, 8, lower_num+upper_num)
+        sbt_store_word(output, 16, lower_den+upper_den)
+    1
+
 def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     query_count: i64 = input[0]
@@ -247,6 +282,8 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
                 return sbt_single_path(input[2], input[3], output, output_capacity)
         if length == 6 and input[1] == 2:
             return sbt_single_lca(input, output, output_capacity)
+        if length == 5 and input[1] == 3:
+            return sbt_single_ancestor(input, output, output_capacity)
         if input[1] == 1:
             return sbt_single_decode(input, length, output, output_capacity)
         # A path record uses two header words and at most two words per run.
