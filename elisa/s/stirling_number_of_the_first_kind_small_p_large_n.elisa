@@ -16,19 +16,22 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
     remainder:i64=n%modulus
     if quotient>k.i64():return 0
     target:usize=k-quotient.usize()
-    coefficients:mutable i64[9]=zeroed
-    coefficients[0]<-1
-    residue:mutable i64=0
-    while residue<remainder:
-        degree:mutable usize=target
-        while degree>0:
-            coefficients[degree]<-(coefficients[degree-1]-residue*coefficients[degree])%modulus
-            if coefficients[degree]<0:coefficients[degree]<-coefficients[degree]+modulus
-            degree<-degree-1
-        coefficients[0]<-(-residue*coefficients[0])%modulus
-        if coefficients[0]<0:coefficients[0]<-coefficients[0]+modulus
-        residue<-residue+1
-    coefficient:i64=coefficients[target]
+    if remainder == 0:
+        if target != 0: return 0
+        return 1 if (quotient & 1) == 0 else modulus-1
+    if target == 0 or target.i64() > remainder: return 0
+    # The first factor is x, so the constant coefficient stays zero.
+    prime: u64 = modulus.u64()
+    coefficients: mutable u64[9] = zeroed
+    coefficients[1] <- 1
+    residue: mutable u64 = 1
+    while residue < remainder.u64():
+        degree: mutable usize = target
+        while degree > 0:
+            coefficients[degree] <- (coefficients[degree-1]+residue*(prime-coefficients[degree]))%prime
+            degree <- degree-1
+        residue <- residue+1
+    coefficient:i64=coefficients[target].i64()
     if quotient%2==0 or coefficient==0:return coefficient
     modulus-coefficient
 

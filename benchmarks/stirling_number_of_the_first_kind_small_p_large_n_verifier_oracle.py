@@ -51,7 +51,7 @@ def stirling_value_by_polynomial_power(n, k, modulus):
     for residue in range(remainder):
         next_poly = [0] * (k + 1)
         for degree, coefficient in enumerate(remainder_poly):
-            next_poly[degree] = (-residue * coefficient) % modulus
+            next_poly[degree] = (next_poly[degree] - residue * coefficient) % modulus
             if degree < k:
                 next_poly[degree + 1] = (
                     next_poly[degree + 1] + coefficient
