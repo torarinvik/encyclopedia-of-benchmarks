@@ -21,6 +21,23 @@ def sci_compute(input: i64&?, length: usize) -> i64:
 
     if budget == n: return 0
 
+    if budget == 0:
+        cost: mutable i64 = 0
+        kept: mutable usize = 1
+        for index in 1..<n:
+            if input[index + 2] == input[index + 1]:
+                kept <- kept + 1
+            else:
+                cost <- cost + sci_run_cost(kept)
+                kept <- 1
+        return cost + sci_run_cost(kept)
+
+    first_symbol: i64 = input[2]
+    matching_prefix: mutable usize = 1
+    while matching_prefix < n and input[matching_prefix + 2] == first_symbol:
+        matching_prefix <- matching_prefix + 1
+    if matching_prefix == n: return sci_run_cost(n - budget)
+
     dp: mutable i64[SCI_CELLS] = zeroed
     for i in 0..<SCI_CELLS:
         dp[i] <- SCI_INF

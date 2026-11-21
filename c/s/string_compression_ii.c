@@ -20,6 +20,26 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
 
     if (budget == n) return 0;
 
+    if (budget == 0) {
+        int64_t cost = 0;
+        int kept = 1;
+        for (size_t index = 1; index < n; ++index) {
+            if (input[index + 2] == input[index + 1]) {
+                ++kept;
+            } else {
+                cost += sci_run_cost(kept);
+                kept = 1;
+            }
+        }
+        return cost + sci_run_cost(kept);
+    }
+
+    const int64_t first_symbol = input[2];
+    size_t matching_prefix = 1;
+    while (matching_prefix < n && input[matching_prefix + 2] == first_symbol)
+        ++matching_prefix;
+    if (matching_prefix == n) return sci_run_cost((int)(n - budget));
+
     int64_t dp[SCI_WIDTH][SCI_WIDTH];
     for (size_t i = 0; i < SCI_WIDTH; ++i)
         for (size_t d = 0; d < SCI_WIDTH; ++d) dp[i][d] = SCI_INF;
