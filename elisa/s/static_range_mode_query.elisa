@@ -4,7 +4,7 @@ const MAX_Q: usize = 16
 const MAX_BLOCKS: usize = 6
 const MAX_INPUT_LENGTH: usize = 66
 
-def mode_lower_bound(values: view[i64], count: usize, target: i64) -> usize:
+def mode_lower_bound(values: i64&, count: usize, target: i64) -> usize:
     begin: mutable usize = 0
     end: mutable usize = count
     while begin < end:
@@ -15,7 +15,7 @@ def mode_lower_bound(values: view[i64], count: usize, target: i64) -> usize:
             end <- middle
     begin
 
-def mode_lower_bound_positions(values: view[usize], begin_value: usize,
+def mode_lower_bound_positions(values: usize&, begin_value: usize,
                                end_value: usize, target: usize) -> usize:
     begin: mutable usize = begin_value
     end: mutable usize = end_value
@@ -27,44 +27,39 @@ def mode_lower_bound_positions(values: view[usize], begin_value: usize,
             end <- middle
     begin
 
-def mode_range_frequency(occurrences: view[usize], offsets: view[usize],
+def mode_range_frequency(occurrences: usize&, offsets: usize&,
                          id: usize, left: usize, right: usize) -> usize:
     begin: usize = offsets[id]
     end: usize = offsets[id + 1]
-    mode_lower_bound_positions(occurrences, begin, end, right) -
-        mode_lower_bound_positions(occurrences, begin, end, left)
+    mode_lower_bound_positions(occurrences, begin, end, right) - mode_lower_bound_positions(occurrences, begin, end, left)
 
-def mode_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def mode_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
-    for byte in 0..8:
+    for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
-def static_range_mode_query(input: i64&, input_length: usize,
-                            output: mutable u8&, output_capacity: usize) -> i64
-        @export("static_range_mode_query"):
-    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH:
+def static_range_mode_query_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
+    if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
-    frame: view[i64] = input[0:input_length]
-    n_value: i64 = frame[0]
-    q_value: i64 = frame[1]
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
     if n_value < 1 or n_value > 32 or q_value < 1 or q_value > 16:
         return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
     if input_length != 2 + n + 2 * q:
         return -1
-    for index in 0..n:
-        value: i64 = frame[2 + index]
+    for index in 0..<n:
+        value: i64 = input[2 + index]
         if value < 0 or value > 1000000000:
             return -1
-    for query in 0..q:
-        left: i64 = frame[2 + n + 2 * query]
-        right: i64 = frame[3 + n + 2 * query]
+    for query in 0..<q:
+        left: i64 = input[2 + n + 2 * query]
+        right: i64 = input[3 + n + 2 * query]
         if left < 0 or right <= left or right > n_value:
             return -1
-    if output.is_null() or output_capacity < 16 * q:
+    if output == null or output_capacity < 16 * q:
         return -2
-    output_view: mutable view[u8] = output[0:16 * q]
 
     sorted: mutable i64[MAX_N] = zeroed
     unique_values: mutable i64[MAX_N] = zeroed
@@ -74,8 +69,8 @@ def static_range_mode_query(input: i64&, input_length: usize,
     cursor: mutable usize[MAX_N] = zeroed
     occurrences: mutable usize[MAX_N] = zeroed
     block_mode: mutable usize[MAX_BLOCKS * MAX_BLOCKS] = zeroed
-    for index in 0..n:
-        value: i64 = frame[2 + index]
+    for index in 0..<n:
+        value: i64 = input[2 + index]
         position: mutable usize = index
         while position > 0 and sorted[position - 1] > value:
             sorted[position] <- sorted[position - 1]
@@ -83,19 +78,19 @@ def static_range_mode_query(input: i64&, input_length: usize,
         sorted[position] <- value
 
     distinct: mutable usize = 0
-    for index in 0..n:
+    for index in 0..<n:
         if distinct == 0 or sorted[index] != unique_values[distinct - 1]:
             unique_values[distinct] <- sorted[index]
             distinct <- distinct + 1
-    for index in 0..n:
-        id: usize = mode_lower_bound(unique_values, distinct, frame[2 + index])
+    for index in 0..<n:
+        id: usize = mode_lower_bound(&unique_values[0], distinct, input[2 + index])
         compressed[index] <- id
         frequencies[id] <- frequencies[id] + 1
-    for id in 0..distinct:
+    for id in 0..<distinct:
         offsets[id + 1] <- offsets[id] + frequencies[id]
-    for id in 0..distinct:
+    for id in 0..<distinct:
         cursor[id] <- offsets[id]
-    for index in 0..n:
+    for index in 0..<n:
         id: usize = compressed[index]
         occurrences[cursor[id]] <- index
         cursor[id] <- cursor[id] + 1
@@ -105,8 +100,8 @@ def static_range_mode_query(input: i64&, input_length: usize,
         block_size <- block_size + 1
     block_count: usize = (n + block_size - 1) / block_size
     frequency: mutable usize[MAX_N] = zeroed
-    for first in 0..block_count:
-        for id in 0..distinct:
+    for first in 0..<block_count:
+        for id in 0..<distinct:
             frequency[id] <- 0
         best_id: mutable usize = 0
         best_count: mutable usize = 0
@@ -115,7 +110,7 @@ def static_range_mode_query(input: i64&, input_length: usize,
             begin: usize = last * block_size
             end: mutable usize = begin + block_size
             if end > n: end <- n
-            for index in begin..end:
+            for index in begin..<end:
                 id: usize = compressed[index]
                 frequency[id] <- frequency[id] + 1
                 count: usize = frequency[id]
@@ -125,37 +120,42 @@ def static_range_mode_query(input: i64&, input_length: usize,
             block_mode[first * MAX_BLOCKS + last] <- best_id
             last <- last + 1
 
-    for query in 0..q:
-        left: usize = frame[2 + n + 2 * query].usize()
-        right: usize = frame[3 + n + 2 * query].usize()
+    answers: mutable i64[2 * MAX_Q] = zeroed
+    for query in 0..<q:
+        left: usize = input[2 + n + 2 * query].usize()
+        right: usize = input[3 + n + 2 * query].usize()
         first_full: usize = (left + block_size - 1) / block_size
         after_full: usize = right / block_size
         best_id: mutable usize = 0
         best_count: mutable usize = 0
         if first_full < after_full:
             best_id <- block_mode[first_full * MAX_BLOCKS + after_full - 1]
-            best_count <- mode_range_frequency(occurrences, offsets, best_id, left, right)
+            best_count <- mode_range_frequency(&occurrences[0], &offsets[0], best_id, left, right)
             span_start: usize = first_full * block_size
             span_end: usize = after_full * block_size
-            for index in left..span_start:
+            for index in left..<span_start:
                 id: usize = compressed[index]
-                count: usize = mode_range_frequency(occurrences, offsets, id, left, right)
+                count: usize = mode_range_frequency(&occurrences[0], &offsets[0], id, left, right)
                 if count > best_count or (count == best_count and id < best_id):
                     best_id <- id
                     best_count <- count
-            for index in span_end..right:
+            for index in span_end..<right:
                 id: usize = compressed[index]
-                count: usize = mode_range_frequency(occurrences, offsets, id, left, right)
+                count: usize = mode_range_frequency(&occurrences[0], &offsets[0], id, left, right)
                 if count > best_count or (count == best_count and id < best_id):
                     best_id <- id
                     best_count <- count
         else:
-            for index in left..right:
+            for index in left..<right:
                 id: usize = compressed[index]
-                count: usize = mode_range_frequency(occurrences, offsets, id, left, right)
+                count: usize = mode_range_frequency(&occurrences[0], &offsets[0], id, left, right)
                 if count > best_count or (count == best_count and id < best_id):
                     best_id <- id
                     best_count <- count
-        mode_write_i64(output_view, 16 * query, unique_values[best_id])
-        mode_write_i64(output_view, 16 * query + 8, best_count.i64())
+        answers[2 * query] <- unique_values[best_id]
+        answers[2 * query + 1] <- best_count.i64()
+    for answer in 0..<(2 * q):
+        mode_write_i64(output, 8 * answer, answers[answer])
     (16 * q).i64()
+
+export fn static_range_mode_query(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64 = static_range_mode_query_impl

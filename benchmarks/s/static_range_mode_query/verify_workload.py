@@ -51,7 +51,7 @@ def verify_workload() -> int:
         "maximum_parseable_length": MAX_INPUT_LENGTH, "invalid_result": -1,
         "null_input_result": -1,
     }
-    expected_output = {
+    expected_output_spec = {
         "kind": "little_endian_signed_64_bit_pairs", "maximum_bytes": MAX_OUTPUT_BYTES,
         "success_result": "16*q bytes", "invalid_input_result": -1,
         "null_output_result": -2, "insufficient_output_capacity_result": -2,
@@ -72,7 +72,7 @@ def verify_workload() -> int:
             }
             or workload.get("contract") != expected_contract
             or workload.get("input") != expected_input
-            or workload.get("output") != expected_output
+            or workload.get("output") != expected_output_spec
             or workload.get("workspace") != {
                 "bytes": 4096,
                 "meaning": "Rank compression, occurrence positions, and the bounded block-mode table.",
@@ -104,7 +104,7 @@ def verify_workload() -> int:
     readme = (PACKAGE / "README.md").read_text(encoding="utf-8")
     if (ISSUE_URL not in readme or PAPER_URL not in readme
             or "O(n^2 + n*ceil(n/B) + q*B*log n)" not in readme
-            or "smallest mode value" not in readme):
+            or "smallest mode value" not in " ".join(readme.split())):
         raise ValueError("README is missing provenance, complexity, or tie-rule documentation")
     for relative in SOURCE_PATHS:
         source = ROOT / relative
