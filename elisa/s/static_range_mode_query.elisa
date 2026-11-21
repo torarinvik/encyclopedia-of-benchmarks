@@ -1,7 +1,7 @@
 # Static range mode queries with whole-block modes and occurrence bitmasks.
 const MAX_N: usize = 32
 const MAX_Q: usize = 16
-const MAX_BLOCKS: usize = 6
+const MAX_BLOCKS: usize = 4
 const MAX_INPUT_LENGTH: usize = 66
 
 def mode_frequency(positions: u32, range_mask: u32) -> usize:
