@@ -8,7 +8,7 @@ def stieltjes_mod(value_input: i64) -> i64:
     reduced
 
 def stieltjes_mul(left: i64, right: i64) -> i64:
-    (left * right) % MODULUS
+    ((left.u64() * right.u64()) % MODULUS.u64()).i64()
 
 def stieltjes_power(base_input: i64, exponent_input: i64) -> i64:
     base: mutable i64 = base_input
