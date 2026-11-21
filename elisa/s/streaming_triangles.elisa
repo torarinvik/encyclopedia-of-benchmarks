@@ -1,9 +1,3 @@
-def streaming_triangles_power(base: i64, exponent: usize) -> i64:
-    result: mutable i64 = 1
-    for i in 0..<exponent:
-        result <- result * base
-    result
-
 def streaming_triangles_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
@@ -43,6 +37,7 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
     staged: mutable i64[84] = zeroed
     at: mutable usize = 0
     tape: usize = 4 + 2 * m
+    previous_limit: mutable u64 = 0
     for ti in 0..<m:
         t: usize = ti + 1
         rec: usize = tape + ti * stride
@@ -50,10 +45,12 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
             if wedge_valid[s] and wedge_u[s] == edge_u[ti] and wedge_v[s] == edge_v[ti]: closed[s] <- true
         draw: i64 = input[rec]
         slot0: i64 = input[rec + 1]
-        limit: i64 = streaming_triangles_power(t.i64(), se)
-        threshold: i64 = limit - streaming_triangles_power((t - 1).i64(), se)
-        if draw < 0 or draw >= limit: return -1
-        update: bool = draw < threshold
+        time_squared: u64 = t.u64() * t.u64()
+        limit: u64 = time_squared if se == 2 else (time_squared * t.u64() if se == 3 else time_squared * time_squared)
+        threshold: u64 = limit - previous_limit
+        previous_limit <- limit
+        if draw.u64() >= limit: return -1
+        update: bool = draw.u64() < threshold
         fresh_u: mutable i64[4] = zeroed
         fresh_v: mutable i64[4] = zeroed
         fresh_count: mutable usize = 0
@@ -108,8 +105,8 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
         for s in 0..<sw:
             if closed[s]: hits <- hits + 1
         staged[at] <- total
-        staged[at + 1] <- (3 * hits * 1000000) / sw.i64()
-        staged[at + 2] <- (hits * t.i64() * t.i64() * total * 1000000) / (sw * se * (se - 1)).i64()
+        staged[at + 1] <- ((3000000 * hits.u64()) / sw.u64()).i64()
+        staged[at + 2] <- ((hits.u64() * time_squared * total.u64() * 1000000) / (sw * se * (se - 1)).u64()).i64()
         at <- at + 3
     bytes: usize = 24 * m
     if output == null or capacity < bytes: return -2
