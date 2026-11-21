@@ -1,3 +1,5 @@
+extern memcpy(destination: mutable u8&, source: i64&, length: usize) -> mutable u8&
+
 struct StackScratch:
     node_values: i64[65]
     next_ids: usize[65]
@@ -15,6 +17,10 @@ def stack_with_doubly_linked_list_impl(input: i64&, length: usize,
     if count == 0:
         if length != 1: return -1
         return -2 if output == null else 0
+    stack_doubly_run(input, length, output, capacity, count)
+
+@inline(never)
+def stack_doubly_run(input: i64&, length: usize, output: mutable u8&, capacity: usize, count: usize) -> i64:
     scratch: mutable StackScratch = zeroed
     node_count: mutable usize = 0
     head: mutable usize = 0
@@ -66,6 +72,13 @@ def stack_with_doubly_linked_list_impl(input: i64&, length: usize,
     written: usize = count * 3
     output_length: usize = written * 8
     if output == null or capacity < output_length: return -2
+    # Copy the native words directly only when they match the little-endian ABI.
+    marker: i64 = 1
+    bytes: mutable u8[8] = zeroed
+    memcpy(&bytes[0], &marker, 8)
+    if bytes[0] == 1:
+        memcpy(output, &scratch.buffer[0], output_length)
+        return output_length.i64()
     for word in 0..<written:
         bits: u64 = scratch.buffer[word].u64()
         for byte in 0..<8:
