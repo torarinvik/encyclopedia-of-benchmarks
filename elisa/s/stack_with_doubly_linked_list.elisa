@@ -12,6 +12,9 @@ def stack_with_doubly_linked_list_impl(input: i64&, length: usize,
     count_value: i64 = input[0]
     if count_value < 0 or count_value > 64: return -1
     count: usize = count_value.usize()
+    if count == 0:
+        if length != 1: return -1
+        return -2 if output == null else 0
     scratch: mutable StackScratch = zeroed
     node_count: mutable usize = 0
     head: mutable usize = 0
