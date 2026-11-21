@@ -1,4 +1,8 @@
-global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[100] = zeroed
+# This divisor exceeds sqrt(541), the largest candidate. The spare slot
+# terminates the divisor scan even when every stored prime was tried.
+const STREAM_SIEVE_END_DIVISOR: i32 = 65535
+
+global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[101] = zeroed
 global mutable STREAM_SIEVE_PRIME_COUNT: usize = 0
 global mutable STREAM_SIEVE_NEXT_CANDIDATE: i32 = 5
 global mutable STREAM_SIEVE_NEXT_STEP: u32 = 2
@@ -19,13 +23,14 @@ def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacit
         if cached_count < count:
             if cached_count == 1:
                 STREAM_SIEVE_PRIME_CACHE[1] <- 3
+                STREAM_SIEVE_PRIME_CACHE[2] <- STREAM_SIEVE_END_DIVISOR
                 cached_count <- 2
             candidate: mutable u32 = STREAM_SIEVE_NEXT_CANDIDATE.u32()
             step: mutable u32 = STREAM_SIEVE_NEXT_STEP
             while cached_count < count:
                 is_prime: mutable bool = true
                 prime_index: mutable usize = 2
-                while prime_index < cached_count:
+                while true:
                     divisor: u32 = STREAM_SIEVE_PRIME_CACHE[prime_index].u32()
                     if divisor > candidate / divisor: break
                     if candidate % divisor == 0:
@@ -35,9 +40,10 @@ def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacit
                 if is_prime:
                     STREAM_SIEVE_PRIME_CACHE[cached_count] <- candidate.i32()
                     cached_count <- cached_count + 1
+                    STREAM_SIEVE_PRIME_CACHE[cached_count] <- STREAM_SIEVE_END_DIVISOR
                 # Candidates alternate between 5 and 1 modulo 6.
                 candidate <- candidate + step
-                step <- 6 - step
+                step <- step ^ 6
             STREAM_SIEVE_NEXT_CANDIDATE <- candidate.i32()
             STREAM_SIEVE_NEXT_STEP <- step
             STREAM_SIEVE_PRIME_COUNT <- cached_count
