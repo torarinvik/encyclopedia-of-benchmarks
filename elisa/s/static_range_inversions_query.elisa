@@ -1,7 +1,7 @@
 const MAX_N: usize = 128
 const MAX_Q: usize = 32
 
-# Short inputs keep query endpoints in their original order by using block zero.
+# The first eight entries are unused by the rank-sorting path.
 # For longer inputs, entry n-1 is ceil(2048 / floor(sqrt(n))). The round-up error
 # for left < 128 is less than 1/11, the smallest quotient step.
 const BLOCK_RECIPROCALS: u16[MAX_N] = [
@@ -157,20 +157,28 @@ def srin_dense_ranks(sorted: u64&, ranks: mutable u16&, n: usize) -> usize:
         ranks[(item & 127).usize()] <- by_value[((item >> 7) & 255).usize()]
     distinct
 
-# For short input, count pairs directly and skip rank compression and query sorting.
-def srin_short_queries(values: u64&, queries: u32&, output: mutable u8&, count: usize) -> void:
-    for id in 0..<count:
-        query: u32 = queries[id]
-        left: usize = (query & 255).usize()
-        right: usize = (query >> 13).usize()
+# Stage counts before writing so output may overlap the input frame.
+@inline(never)
+def srin_write_short_queries(input: i64&, output: mutable u8&, n: usize, q: usize, bytes: usize) -> i64:
+    for index in 2..<(2 + n):
+        if input[index].u64() > 1000000000: return -1
+    counts: mutable u8[MAX_Q] = zeroed
+    for id in 0..<q:
+        offset: usize = 2 + n + 2 * id
+        left: u64 = input[offset].u64()
+        right: u64 = input[offset + 1].u64()
+        if left >= right or right > n.u64(): return -1
         inversions: mutable u8 = 0
-        for later in (left + 1)..<right:
-            value: u64 = values[later]
-            for earlier in left..<later:
-                inversions <- inversions + (1.u8() if values[earlier] > value else 0.u8())
-        output[8 * id] <- inversions
+        for later in (left.usize() + 3)..<(right.usize() + 2):
+            value: i64 = input[later]
+            for earlier in (left.usize() + 2)..<later:
+                inversions <- inversions + (1.u8() if input[earlier] > value else 0.u8())
+        counts[id] <- inversions
+    for id in 0..<q:
+        output[8 * id] <- counts[id]
         for byte in 1..<8:
             output[8 * id + byte] <- 0
+    bytes.i64()
 
 @inline(never)
 def srin_rank_short_prefix(sorted: mutable u64&, ranks: mutable u16&, n: usize, ordered: usize) -> usize:
@@ -209,9 +217,6 @@ def srin_write_queries(input: i64&, output: mutable u8&, n: usize, q: usize, byt
         # Sort by block, sweep, then original ID. The endpoints travel with the key.
         queries[k] <- (block << 21) | (sweep << 13) | (k.u32() << 8) | left.u32()
         k <- k + 1
-    if n <= 8:
-        srin_short_queries(&sorted[0], &queries[0], output, q)
-        return bytes.i64()
     # A low-byte rank table suffices when all values share their high bits.
     ranks: mutable u16[MAX_N] = zeroed
     distinct: mutable usize = srin_dense_ranks(&sorted[0],&ranks[0],n) if n >= 32 else 0
@@ -279,7 +284,9 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         previous: mutable u64 = input[2].u64()
         for index in 3..<(2 + n):
             value: u64 = input[index].u64()
-            if previous > value: return srin_write_queries(input, output, n, q, bytes)
+            if previous > value:
+                if n <= 8: return srin_write_short_queries(input, output, n, q, bytes)
+                return srin_write_queries(input, output, n, q, bytes)
             previous <- value
         # On nondecreasing input the last value bounds every earlier value.
         if previous > 1000000000: return -1
