@@ -14,10 +14,10 @@ def append_printer_symbol(symbol: u64, symbols: mutable u64&, previous: mutable 
 def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if input == null or length - 1 > SP_MAX_LENGTH: return -1
     length_from_header: usize = length - 1
-    if input[0].usize() != length_from_header: return -1
+    if unlikely input[0].usize() != length_from_header: return -1
     if length_from_header == 0: return 0
     first: u64 = input[1].u64()
-    if first > 2: return -1
+    if unlikely first > 2: return -1
     if length_from_header == 1: return 1
     if length_from_header <= 4:
         second: u64 = input[2].u64()
