@@ -35,9 +35,9 @@ def star_box_inside_edge(data: i32&, slot: usize,
                          xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
     dx: i32 = data[slot]
     dy: i32 = data[slot+1]
-    x: i32 = xmin if dy >= 0 else xmax
-    y: i32 = ymax if dx >= 0 else ymin
-    dx * y - dy * x >= data[slot+2]
+    y_support: i32 = ymax if dx > 0 else -ymin
+    x_support: i32 = xmax if dy < 0 else -xmin
+    y_support + x_support >= data[slot+2]
 
 def star_triangle_hits_box(data: i32&, tid: usize,
                           xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
@@ -160,9 +160,12 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
             dy: i32 = vertices[2*b+1] - ay
             if dx != 0 and dy != 0:
                 plane: usize = triangle_slot+4+3*plane_count
+                # Non-axis-aligned edges of the validated mesh have |dx| = |dy|.
                 projections[plane] <- dx
                 projections[plane+1] <- dy
-                projections[plane+2] <- dx * ay - dy * ax
+                y_projection: i32 = ay if dx > 0 else -ay
+                x_projection: i32 = ax if dy < 0 else -ax
+                projections[plane+2] <- y_projection + x_projection
                 plane_count <- plane_count + 1
             projections[triangle_slot] <- ax if ax < projections[triangle_slot]
             projections[triangle_slot+1] <- ax if ax > projections[triangle_slot+1]
