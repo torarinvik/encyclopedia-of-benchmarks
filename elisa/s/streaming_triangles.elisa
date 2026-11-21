@@ -15,15 +15,16 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
     sw: usize = sw0.usize()
     stride: usize = 2 + 2 * sw
     if length != 4 + 2 * m + m * stride: return -1
-    seen: mutable bool[64] = zeroed
+    seen: mutable u64 = 0
     edge_u: mutable i64[28] = zeroed
     edge_v: mutable i64[28] = zeroed
     for i in 0..<m:
         u: i64 = input[4 + 2 * i]
         v: i64 = input[5 + 2 * i]
-        if u < 0 or v <= u or v >= n0 or seen[(u * 8 + v).usize()]: return -1
-        seen[(u * 8 + v).usize()] <- true
-        seen[(v * 8 + u).usize()] <- true
+        if u < 0 or v <= u or v >= n0: return -1
+        bit: u64 = 1.u64() << ((u.u64() << 3) | v.u64())
+        if (seen & bit) != 0: return -1
+        seen <- seen | bit
         edge_u[i] <- u
         edge_v[i] <- v
     edge_ids: mutable i64[4] = zeroed
