@@ -57,42 +57,34 @@ def star_stops(vertices: i64&, edges: i64&, edge_count: usize,
             if candidates == 0: return false
     true
 
-def star_point_in_triangle(px: i64, py: i64, vertices: i64&,
-                           a: usize, b: usize, c: usize) -> bool:
-    star_orient(vertices[2*a],vertices[2*a+1],vertices[2*b],vertices[2*b+1],px,py) >= 0 and
-    star_orient(vertices[2*b],vertices[2*b+1],vertices[2*c],vertices[2*c+1],px,py) >= 0 and
-    star_orient(vertices[2*c],vertices[2*c+1],vertices[2*a],vertices[2*a+1],px,py) >= 0
+# A separating edge has every box corner strictly outside the triangle.
+# The orientation is affine, so its maximum occurs at this chosen corner.
+def star_box_inside_edge(ax: i64, ay: i64, bx: i64, by: i64,
+                         xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
+    dx: i64 = bx - ax
+    dy: i64 = by - ay
+    x: i64 = xmin if dy >= 0 else xmax
+    y: i64 = ymax if dx >= 0 else ymin
+    dx * (y - ay) - dy * (x - ax) >= 0
 
 def star_triangle_hits_box(vertices: i64&, triangles: i64&, tid: usize,
                           xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
     a: usize = triangles[3*tid].usize()
     b: usize = triangles[3*tid+1].usize()
     c: usize = triangles[3*tid+2].usize()
-    v: mutable usize = 0
-    while v < 3:
-        id: usize = triangles[3*tid+v].usize()
-        x: i64 = vertices[2*id]
-        y: i64 = vertices[2*id+1]
-        if xmin <= x and x <= xmax and ymin <= y and y <= ymax: return true
-        v <- v + 1
-    if star_point_in_triangle(xmin,ymin,vertices,a,b,c) or
-       star_point_in_triangle(xmax,ymin,vertices,a,b,c) or
-       star_point_in_triangle(xmax,ymax,vertices,a,b,c) or
-       star_point_in_triangle(xmin,ymax,vertices,a,b,c): return true
-    v <- 0
-    while v < 3:
-        id0: usize = triangles[3*tid+v].usize()
-        id1: usize = triangles[3*tid+(v+1)%3].usize()
-        ax: i64 = vertices[2*id0]
-        ay: i64 = vertices[2*id0+1]
-        bx: i64 = vertices[2*id1]
-        by: i64 = vertices[2*id1+1]
-        if star_segments_intersect(ax,ay,bx,by,xmin,ymin,xmax,ymin) or
-           star_segments_intersect(ax,ay,bx,by,xmax,ymin,xmax,ymax) or
-           star_segments_intersect(ax,ay,bx,by,xmax,ymax,xmin,ymax) or
-           star_segments_intersect(ax,ay,bx,by,xmin,ymax,xmin,ymin): return true
-        v <- v + 1
-    false
+    ax: i64 = vertices[2*a]
+    ay: i64 = vertices[2*a+1]
+    bx: i64 = vertices[2*b]
+    by: i64 = vertices[2*b+1]
+    cx: i64 = vertices[2*c]
+    cy: i64 = vertices[2*c+1]
+    if (ax < xmin and bx < xmin and cx < xmin) or
+       (ax > xmax and bx > xmax and cx > xmax) or
+       (ay < ymin and by < ymin and cy < ymin) or
+       (ay > ymax and by > ymax and cy > ymax): return false
+    star_box_inside_edge(ax, ay, bx, by, xmin, ymin, xmax, ymax) and
+    star_box_inside_edge(bx, by, cx, cy, xmin, ymin, xmax, ymax) and
+    star_box_inside_edge(cx, cy, ax, ay, xmin, ymin, xmax, ymax)
 
 def star_add_pair(pairs: mutable i64&, pair_count: mutable usize&, key: usize, tid: usize) -> bool:
     if pair_count >= STAR_MAX_PAIRS: return false
