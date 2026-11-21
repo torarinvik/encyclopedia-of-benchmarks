@@ -20,14 +20,14 @@ number of decimal digits in `r`; the count `1` is never emitted. The answer is
 the minimum total run cost among subsequences formed by deleting no more than
 `k` input symbols. Return values are in `0..12` for valid input.
 
-The primary uses prefix dynamic programming over input position and the exact
-number of deletions already used. From a state at position `i`, it either
-deletes the next symbol or starts a run with that symbol and scans a later
-endpoint `j`. For that span it considers every positive number of retained
-copies of the starting symbol; all other span symbols are deleted. The
-transition adds the run's encoded length and advances to `j+1`. Taking the
-minimum over final deletion counts `0..k` enforces the at-most budget. This
-takes `O(n^3 k)` time and `O(nk)` space under the fixed bound.
+The C and Elisa ports use prefix dynamic programming over input position and
+exact deletions used. A state can delete the next symbol or start a run there.
+For each matching endpoint, the transition retains every matching symbol up
+to that endpoint and deletes the other symbols in the span. Any chosen run
+can instead retain its earliest matching occurrences and delete the skipped
+suffix separately, so one transition per endpoint suffices. This takes
+`O(n²(k+1))` time and `O(n(k+1))` space under the fixed bound. The original
+primary oracle enumerates all feasible retained counts in each span.
 
 The independent reference enumerates every deletion mask of size at most `k`,
 builds the retained symbol sequence, and counts each maximal run directly. It

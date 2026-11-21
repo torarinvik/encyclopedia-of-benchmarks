@@ -7,10 +7,7 @@
 #define SCI_INF INT64_C(1000)
 
 static int64_t sci_run_cost(int kept) {
-    if (kept == 1) return 1;
-    int digits = 0;
-    while (kept > 0) { ++digits; kept /= 10; }
-    return 1 + digits;
+    return kept == 1 ? 1 : kept >= 10 ? 3 : 2;
 }
 
 int64_t string_compression_ii(const int64_t *input, size_t length) {
@@ -20,6 +17,8 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     size_t n = (size_t)raw_n, budget = (size_t)raw_k;
     if (length != n + 2) return -1;
     for (size_t i = 0; i < n; ++i) if (input[i + 2] < 0 || input[i + 2] > 25) return -1;
+
+    if (budget == n) return 0;
 
     int64_t dp[SCI_WIDTH][SCI_WIDTH];
     for (size_t i = 0; i < SCI_WIDTH; ++i)
@@ -33,17 +32,17 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
             if (used < budget && prefix_cost < dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_cost;
 
-            int same = 0;
+            const int64_t symbol = input[start + 2];
+            int kept = 0;
+            size_t deleted = used;
             for (size_t end = start; end < n; ++end) {
-                if (input[end + 2] == input[start + 2]) ++same;
-                int span = (int)(end - start + 1);
-                for (int kept = 1; kept <= same; ++kept) {
-                    size_t total_deleted = used + (size_t)(span - kept);
-                    if (total_deleted > budget) continue;
-                    int64_t candidate = prefix_cost + sci_run_cost(kept);
-                    if (candidate < dp[end + 1][total_deleted])
-                        dp[end + 1][total_deleted] = candidate;
+                if (input[end + 2] != symbol) {
+                    if (++deleted > budget) break;
+                    continue;
                 }
+                const int64_t candidate = prefix_cost + sci_run_cost(++kept);
+                if (candidate < dp[end + 1][deleted])
+                    dp[end + 1][deleted] = candidate;
             }
         }
     }
