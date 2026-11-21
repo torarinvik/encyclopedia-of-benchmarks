@@ -1,7 +1,6 @@
 const MAX_INPUT: usize = 97
 const MAX_TEXT: usize = 64
 const BOARD_SIZE: usize = 30
-const MAX_OUTPUT: usize = 128
 
 def straddling_checkerboard_find_symbol(values: i64&, value: i64) -> i64:
     for position in 0..<BOARD_SIZE |position, values|:
@@ -50,41 +49,13 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
     if input_length != 32 + text_length:
         return -1
 
-    result_length: mutable usize = 0
+    out: mutable usize = 0
     if mode == 0:
-        for index in 0..<text_length |index, values, result_length|:
-            position: i64 = straddling_checkerboard_find_symbol(values, values[32 + index])
-            if position < 0:
-                return -1
-            if position < 10:
-                result_length <- result_length + 1
-            else:
-                result_length <- result_length + 2
-    else:
-        index: mutable usize = 0
-        while index < text_length |index, values, result_length, hole_a, hole_b|:
-            value: i64 = values[32 + index]
-            if value < 48 or value > 57:
-                return -1
-            column: usize = (value - 48).usize()
-            if values[1 + column] != 0:
-                result_length <- result_length + 1
-                index <- index + 1
-                continue
-            if (column != hole_a and column != hole_b) or index + 1 >= text_length:
-                return -1
-            next_value: i64 = values[32 + index + 1]
-            if next_value < 48 or next_value > 57:
-                return -1
-            result_length <- result_length + 1
-            index <- index + 2
-    if result_length > MAX_OUTPUT:
-        return -2
-
-    if mode == 0:
-        out: mutable usize = 0
         for index in 0..<text_length |index, values, output, out, hole_a, hole_b|:
-            position: usize = straddling_checkerboard_find_symbol(values, values[32 + index]).usize()
+            found: i64 = straddling_checkerboard_find_symbol(values, values[32 + index])
+            if found < 0:
+                return -1
+            position: usize = found.usize()
             if position < 10:
                 output[out] <- (48 + position).u8()
                 out <- out + 1
@@ -95,21 +66,26 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
                 out <- out + 2
     else:
         index: mutable usize = 0
-        out: mutable usize = 0
         while index < text_length |index, out, values, output, hole_a|:
-            column: usize = (values[32 + index] - 48).usize()
-            if values[1 + column] != 0:
-                output[out] <- values[1 + column].u8()
+            digit: u64 = values[32 + index].u64() - 48
+            if digit > 9:
+                return -1
+            column: usize = digit.usize()
+            top: i64 = values[1 + column]
+            if top != 0:
+                output[out] <- top.u8()
                 index <- index + 1
             else:
-                row: mutable usize = 1
-                if column != hole_a:
-                    row <- 2
-                next_column: usize = (values[32 + index + 1] - 48).usize()
-                output[out] <- values[1 + row * 10 + next_column].u8()
+                if index + 1 >= text_length:
+                    return -1
+                next_digit: u64 = values[32 + index + 1].u64() - 48
+                if next_digit > 9:
+                    return -1
+                row_offset: usize = 10 if column == hole_a else 20
+                output[out] <- values[1 + row_offset + next_digit.usize()].u8()
                 index <- index + 2
             out <- out + 1
-    result_length.i64()
+    out.i64()
 
 def straddling_checkerboard_entry(input: i64&?, input_length: usize,
         output: mutable u8&?, output_capacity: usize) -> i64:
