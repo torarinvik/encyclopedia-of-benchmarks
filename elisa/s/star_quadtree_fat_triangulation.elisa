@@ -6,28 +6,6 @@ const STAR_MAX_EDGES: usize = 8
 const STAR_MAX_PAIRS: usize = 64
 const STAR_MAX_OUTPUT_BYTES: usize = 1032
 
-def star_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
-    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
-
-def star_between(a: i64, b: i64, p: i64) -> bool:
-    (a <= p and p <= b) or (b <= p and p <= a)
-
-def star_on_segment(ax: i64, ay: i64, bx: i64, by: i64, px: i64, py: i64) -> bool:
-    star_between(ax,bx,px) and star_between(ay,by,py)
-
-def star_segments_intersect(ax: i64, ay: i64, bx: i64, by: i64,
-                            cx: i64, cy: i64, dx: i64, dy: i64) -> bool:
-    o1: i64 = star_orient(ax,ay,bx,by,cx,cy)
-    o2: i64 = star_orient(ax,ay,bx,by,dx,dy)
-    o3: i64 = star_orient(cx,cy,dx,dy,ax,ay)
-    o4: i64 = star_orient(cx,cy,dx,dy,bx,by)
-    if ((o1 < 0 and o2 > 0) or (o1 > 0 and o2 < 0)) and
-       ((o3 < 0 and o4 > 0) or (o3 > 0 and o4 < 0)): return true
-    (o1 == 0 and star_on_segment(ax,ay,bx,by,cx,cy)) or
-    (o2 == 0 and star_on_segment(ax,ay,bx,by,dx,dy)) or
-    (o3 == 0 and star_on_segment(cx,cy,dx,dy,ax,ay)) or
-    (o4 == 0 and star_on_segment(cx,cy,dx,dy,bx,by))
-
 def star_edge_hits_box(vertices: i64&, edges: i64&, edge_id: usize,
                       xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
     a: usize = edges[2 * edge_id].usize()
@@ -38,12 +16,15 @@ def star_edge_hits_box(vertices: i64&, edges: i64&, edge_id: usize,
     by: i64 = vertices[2 * b + 1]
     if (ax < xmin and bx < xmin) or (ax > xmax and bx > xmax) or
        (ay < ymin and by < ymin) or (ay > ymax and by > ymax): return false
-    if (xmin <= ax and ax <= xmax and ymin <= ay and ay <= ymax) or
-       (xmin <= bx and bx <= xmax and ymin <= by and by <= ymax): return true
-    star_segments_intersect(ax,ay,bx,by,xmin,ymin,xmax,ymin) or
-    star_segments_intersect(ax,ay,bx,by,xmax,ymin,xmax,ymax) or
-    star_segments_intersect(ax,ay,bx,by,xmax,ymax,xmin,ymax) or
-    star_segments_intersect(ax,ay,bx,by,xmin,ymax,xmin,ymin)
+    # The box axes overlap. The perpendicular to the segment is the last axis.
+    dx: i64 = bx - ax
+    dy: i64 = by - ay
+    far_x: i64 = xmin if dy >= 0 else xmax
+    far_y: i64 = ymax if dx >= 0 else ymin
+    near_x: i64 = xmax if dy >= 0 else xmin
+    near_y: i64 = ymin if dx >= 0 else ymax
+    dx * (far_y - ay) - dy * (far_x - ax) >= 0 and
+        dx * (near_y - ay) - dy * (near_x - ax) <= 0
 
 def star_stops(vertices: i64&, edges: i64&, edge_count: usize,
                vertex_count: usize, xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
