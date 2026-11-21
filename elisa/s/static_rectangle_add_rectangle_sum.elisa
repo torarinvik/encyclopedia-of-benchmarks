@@ -48,6 +48,47 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
     n: usize = n64.usize()
     q: usize = q64.usize()
     if length != 2 + 5 * n + 4 * q: return -1
+    for update in 0..<n:
+        base: usize = 2 + 5*update
+        left: i64 = input[base]
+        down: i64 = input[base+1]
+        right: i64 = input[base+2]
+        up: i64 = input[base+3]
+        weight: i64 = input[base+4]
+        if left < 0 or left >= right or right > 1000000 or down < 0 or down >= up or up > 1000000 or weight < 0 or weight >= MODULUS: return -1
+    for query in 0..<q:
+        base: usize = 2 + 5*n + 4*query
+        left: i64 = input[base]
+        down: i64 = input[base+1]
+        right: i64 = input[base+2]
+        up: i64 = input[base+3]
+        if left < 0 or left >= right or right > 1000000 or down < 0 or down >= up or up > 1000000: return -1
+    bytes: usize = 8 * q
+    if output == null or capacity < bytes: return -2
+    if q == 0: return 0
+    if n*q <= 64:
+        direct: mutable i64[MAX_Q] = zeroed
+        for query in 0..<q:
+            query_base: usize = 2 + 5*n + 4*query
+            residue: mutable u64 = 0
+            for update in 0..<n:
+                update_base: usize = 2 + 5*update
+                left: mutable i64 = input[query_base + 0]
+                left <- input[update_base + 0] if input[update_base + 0] > input[query_base + 0]
+                right: mutable i64 = input[query_base + 2]
+                right <- input[update_base + 2] if input[update_base + 2] < input[query_base + 2]
+                down: mutable i64 = input[query_base + 1]
+                down <- input[update_base + 1] if input[update_base + 1] > input[query_base + 1]
+                up: mutable i64 = input[query_base + 3]
+                up <- input[update_base + 3] if input[update_base + 3] < input[query_base + 3]
+                if right > left and up > down:
+                    area: u64 = (right.u64() - left.u64()) * (up.u64() - down.u64())
+                    weighted: u64 = ((area % MODULUS.u64()) * input[update_base + 4].u64()) % MODULUS.u64()
+                    residue <- residue + weighted
+            direct[query] <- (residue % MODULUS.u64()).i64()
+        for query in 0..<q:
+            sras_put64(direct[query], output, 8*query)
+        return bytes.i64()
     ul: mutable i64[MAX_N] = zeroed
     ud: mutable i64[MAX_N] = zeroed
     ur: mutable i64[MAX_N] = zeroed
@@ -70,7 +111,6 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         uu[i] <- input[off + 3]
         uw[i] <- input[off + 4]
         off <- off + 5
-        if ul[i] < 0 or ul[i] >= ur[i] or ur[i] > 1000000 or ud[i] < 0 or ud[i] >= uu[i] or uu[i] > 1000000 or uw[i] < 0 or uw[i] >= MODULUS: return -1
         xs[nx] <- ul[i]
         xs[nx + 1] <- ur[i]
         ys[ny] <- ud[i]
@@ -85,7 +125,6 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         qr[i] <- input[off + 2]
         qu[i] <- input[off + 3]
         off <- off + 4
-        if ql[i] < 0 or ql[i] >= qr[i] or qr[i] > 1000000 or qd[i] < 0 or qd[i] >= qu[i] or qu[i] > 1000000: return -1
         xs[nx] <- ql[i]
         xs[nx + 1] <- qr[i]
         ys[ny] <- qd[i]
@@ -93,30 +132,6 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         nx <- nx + 2
         ny <- ny + 2
         i <- i + 1
-    bytes: usize = 8 * q
-    if output == null or capacity < bytes: return -2
-    if q == 0: return 0
-    if n*q <= 64:
-        direct: mutable i64[MAX_Q] = zeroed
-        for query in 0..<q:
-            residue: mutable u64 = 0
-            for update in 0..<n:
-                left: mutable i64 = ql[query]
-                left <- ul[update] if ul[update] > ql[query]
-                right: mutable i64 = qr[query]
-                right <- ur[update] if ur[update] < qr[query]
-                down: mutable i64 = qd[query]
-                down <- ud[update] if ud[update] > qd[query]
-                up: mutable i64 = qu[query]
-                up <- uu[update] if uu[update] < qu[query]
-                if right > left and up > down:
-                    area: u64 = (right.u64() - left.u64()) * (up.u64() - down.u64())
-                    weighted: u64 = ((area % MODULUS.u64()) * uw[update].u64()) % MODULUS.u64()
-                    residue <- residue + weighted
-            direct[query] <- (residue % MODULUS.u64()).i64()
-        for query in 0..<q:
-            sras_put64(direct[query], output, 8*query)
-        return bytes.i64()
     sras_sort_unique(xs[0:MAX_COORDS], nx)
     sras_sort_unique(ys[0:MAX_COORDS], ny)
     diff: mutable i64[MAX_COORDS * MAX_COORDS] = zeroed
