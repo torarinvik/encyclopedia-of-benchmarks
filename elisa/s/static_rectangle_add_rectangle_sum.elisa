@@ -93,6 +93,9 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         nx <- nx + 2
         ny <- ny + 2
         i <- i + 1
+    bytes: usize = 8 * q
+    if output == null or capacity < bytes: return -2
+    if q == 0: return 0
     sras_sort_unique(xs[0:MAX_COORDS], nx)
     sras_sort_unique(ys[0:MAX_COORDS], ny)
     diff: mutable i64[MAX_COORDS * MAX_COORDS] = zeroed
@@ -146,8 +149,6 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         if value < 0: value <- value + MODULUS
         answer[k] <- value
         k <- k + 1
-    bytes: usize = 8 * q
-    if output == null or capacity < bytes: return -2
     k <- 0
     while k < q:
         sras_put64(answer[k], output, 8 * k)
