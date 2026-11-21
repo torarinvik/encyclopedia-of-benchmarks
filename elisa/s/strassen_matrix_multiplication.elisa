@@ -136,13 +136,9 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
             col <- col + 1
         r <- r + 1
     if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &product[0])
+        strassen_two[u64](&x[0], &y[0], &previous_product[0])
     else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
-    for row in 0..<h:
-        for column in 0..<h:
-            i: usize = row * h + column
-            c[row * dimension + column] <- c[row * dimension + column] + product[i]
+        strassen_multiply[u64, 4](&x[0], &y[0], &previous_product[0])
     r <- 0
     while r < h:
         col: mutable usize = 0
@@ -159,7 +155,7 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
     for row in 0..<h:
         for column in 0..<h:
             i: usize = row * h + column
-            c[row * dimension + column] <- c[row * dimension + column] + product[i]
+            c[row * dimension + column] <- (c[row * dimension + column] + previous_product[i]) + product[i]
             c[(row + h) * dimension + column] <- c[(row + h) * dimension + column] + product[i]
 
 
