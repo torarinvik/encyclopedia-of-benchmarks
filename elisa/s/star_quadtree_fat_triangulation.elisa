@@ -32,8 +32,8 @@ def star_append_leaf(triangles: u64&, triangle_count: usize, pairs: mutable i64&
                      start: i32, bounds: u64, key: usize) -> i32:
     pair_count: mutable usize = start.usize()
     guards: u64 = 0x8080808080808080
-    for tid in 0..<triangle_count:
-        if ((triangles[tid] - bounds) & guards) == guards:
+    for tid in 0..<STAR_MAX_TRIANGLES:
+        if tid < triangle_count and ((triangles[tid] - bounds) & guards) == guards:
             if pair_count >= STAR_MAX_PAIRS: return -1
             pairs[2*pair_count] <- key.i64()
             pairs[2*pair_count+1] <- tid.i64()
