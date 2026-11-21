@@ -13,7 +13,7 @@ def star_delta_conversions_impl(v: i64&?, n: usize) -> i64:
         pair_sum: u64 = a * b + b * c + c * a
         return hash_quantized(hash_quantized(hash_quantized(seed, quantize(pair_sum, a)), quantize(pair_sum, b)), quantize(pair_sum, c)).i64()
     total: u64 = a + b + c
-    hash_quantized(hash_quantized(hash_quantized(seed, quantize(b * c, total)), quantize(c * a, total)), quantize(a * b, total)).i64()
+    hash_delta_to_star(hash_delta_to_star(hash_delta_to_star(seed, quantize(b * c, total)), quantize(c * a, total)), quantize(a * b, total)).i64()
 
 # Products and sums are exact in binary64. Non-ties are at least 1/(2*denominator)
 # from a half integer, farther than binary64 rounding can move them here.
@@ -26,5 +26,10 @@ def hash_quantized(seed: u64, bits: u64) -> u64:
     second: u64 = (first ^ ((bits >> 8) & 255.u64())) * 1099511628211.u64()
     # Combine the third byte's multiply with those for the five zero bytes.
     (second ^ (bits >> 16)) * 15895002104753931833.u64()
+
+def hash_delta_to_star(seed: u64, bits: u64) -> u64:
+    # a+b+c > 2*min(b,c), so rounding b*c/(a+b+c) gives at most 50,000.
+    first: u64 = (seed ^ (bits & 255.u64())) * 1099511628211.u64()
+    (first ^ (bits >> 8)) * 14218562807570617051.u64()
 
 export fn star_delta_conversions(v: i64&?, n: usize) -> i64 = star_delta_conversions_impl
