@@ -13,7 +13,7 @@ def sticky_solve(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
     t: usize = input[0].usize()
     n: usize = input[1].usize()
     k: usize = input[2].usize()
-    counts: mutable i64[16] = zeroed
+    counts: mutable u32[16] = zeroed
     occupied: mutable u32 = 0
     cursor: mutable usize = 0
     rate: mutable usize = 1
@@ -54,7 +54,7 @@ def sticky_solve(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
         item: usize = (sticky_first_item(occupied, true) & 15).usize()
         occupied <- occupied & (occupied-1)
         sticky_put_word(output, offset, item.i64())
-        sticky_put_word(output, offset+8, counts[item])
+        sticky_put_word(output, offset+8, counts[item].i64())
         offset <- offset+16
     bytes.i64()
 
