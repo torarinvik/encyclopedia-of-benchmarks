@@ -26,6 +26,7 @@ struct StockhamComplex:
     real: f64
     imaginary: f64
 
+@inline(always)
 def stockham_stage(source: StockhamComplex[64]&, destination: mutable StockhamComplex[64]&,
                    n: usize, stride: usize, twiddle_step: usize) -> void:
     half: usize = n >> 1
@@ -115,17 +116,23 @@ def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
         index <- index + 2
 
     source_is_first: mutable bool = true
-    stride: mutable usize = 2
     twiddle_step: mutable usize = 16
-    final_stride: usize = n >> 1
-    while stride < final_stride:
-        if source_is_first:
-            stockham_stage(&first, &second, n, stride, twiddle_step)
-        else:
-            stockham_stage(&second, &first, n, stride, twiddle_step)
-        source_is_first <- not source_is_first
-        stride <- stride * 2
-        twiddle_step <- twiddle_step >> 1
+    if n > 4:
+        stockham_stage(&first, &second, n, 2, 16)
+        source_is_first <- false
+        twiddle_step <- 8
+    if n > 8:
+        stockham_stage(&second, &first, n, 4, 8)
+        source_is_first <- true
+        twiddle_step <- 4
+    if n > 16:
+        stockham_stage(&first, &second, n, 8, 4)
+        source_is_first <- false
+        twiddle_step <- 2
+    if n > 32:
+        stockham_stage(&second, &first, n, 16, 2)
+        source_is_first <- true
+        twiddle_step <- 1
 
     if n == 2:
         output[0] <- first[0].real
