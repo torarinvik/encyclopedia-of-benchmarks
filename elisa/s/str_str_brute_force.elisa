@@ -1,6 +1,6 @@
 # Return the first pattern occurrence using a direct character-by-character scan.
-def str_str_brute_force_impl(input_values: i64&, length: usize) -> i64:
-    if length < 2 or length > 2050:
+def str_str_brute_force_impl(input_values: i64&?, length: usize) -> i64:
+    if input_values == null or length < 2 or length > 2050:
         return -1
     text_length_value: i64 = input_values[0]
     pattern_length_value: i64 = input_values[1]
@@ -41,4 +41,4 @@ def str_str_brute_force_impl(input_values: i64&, length: usize) -> i64:
             result
     result
 
-export fn str_str_brute_force(input_values: i64&, length: usize) -> i64 = str_str_brute_force_impl
+export fn str_str_brute_force(input_values: i64&?, length: usize) -> i64 = str_str_brute_force_impl
