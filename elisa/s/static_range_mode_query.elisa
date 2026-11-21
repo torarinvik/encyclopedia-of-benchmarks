@@ -70,7 +70,8 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     # Round the block width up to a power of two for shift-based indexing.
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
     block_size: usize = 1.usize() << block_shift
-    block_count: usize = (n + block_size - 1) >> block_shift
+    # The final partial block can only be scanned as a boundary fragment.
+    block_count: usize = n >> block_shift
     frequency: mutable u8[MAX_N] = zeroed
     for first in 0..<block_count:
         for id in 0..<distinct:
@@ -79,8 +80,7 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         last: mutable usize = first
         while last < block_count:
             begin: usize = last << block_shift
-            end: mutable usize = begin + block_size
-            if end > n: end <- n
+            end: usize = begin + block_size
             for index in begin..<end:
                 id: usize = compressed[index].usize()
                 frequency[id] <- frequency[id] + 1
