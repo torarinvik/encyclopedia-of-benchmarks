@@ -48,21 +48,7 @@ def st_group_count(n: usize, mask: i64, h: bool[16]) -> usize:
 def st_less(a: ST_Edge, b: ST_Edge) -> bool:
     a.w < b.w or (a.w == b.w and (a.u < b.u or (a.u == b.u and a.v < b.v)))
 
-def st_mst_h(n: usize, w: u32[16], h: bool[16], tree: mutable ST_Edge[3]&, tree_n: mutable usize&) -> u32:
-    edges: mutable ST_Edge[6] = zeroed
-    ec: mutable usize = 0
-    for i in 0..<n:
-        for j in (i + 1)..<n:
-            if h[i * 4 + j]:
-                edges[ec] <- ST_Edge{u: i, v: j, w: w[i * 4 + j]}
-                ec <- ec + 1
-    for i in 1..<ec:
-        x: ST_Edge = edges[i]
-        j: mutable usize = i
-        while j > 0 and st_less(x, edges[j - 1]):
-            edges[j] <- edges[j - 1]
-            j <- j - 1
-        edges[j] <- x
+def st_mst_h(edges: ST_Edge[6]&, ec: usize, h: bool[16], tree: mutable ST_Edge[3]&, tree_n: mutable usize&) -> u32:
     parent: mutable usize[4] = zeroed
     for i in 0..<4:
         parent[i] <- i
@@ -70,7 +56,7 @@ def st_mst_h(n: usize, w: u32[16], h: bool[16], tree: mutable ST_Edge[3]&, tree_
     cost: mutable u32 = 0
     for i in 0..<ec:
         e: ST_Edge = edges[i]
-        if st_join(&parent, e.u, e.v):
+        if h[e.u * 4 + e.v] and st_join(&parent, e.u, e.v):
             tree[tree_n] <- e
             tree_n <- tree_n + 1
             cost <- cost + e.w
@@ -252,6 +238,21 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
                 position <- position - 1
             tree[position] <- entry
         groups <- 1
+    edges: mutable ST_Edge[6] = zeroed
+    ec: mutable usize = 0
+    if groups > 1:
+        for i in 0..<n:
+            for j in (i + 1)..<n:
+                if family_h[i * 4 + j]:
+                    edges[ec] <- ST_Edge{u: i, v: j, w: w[i * 4 + j]}
+                    ec <- ec + 1
+        for i in 1..<ec:
+            x: ST_Edge = edges[i]
+            j: mutable usize = i
+            while j > 0 and st_less(x, edges[j - 1]):
+                edges[j] <- edges[j - 1]
+                j <- j - 1
+            edges[j] <- x
     while groups > 1:
         best: mutable usize = 4
         best_cost: mutable u32 = 0
@@ -275,7 +276,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
             contracted: mutable u32 = 0
             if trial_groups > 1:
                 contracted <- st_contracted_mst(n, mask, w, trial)
-            forest_cost: u32 = st_mst_h(n, w, trial, &scratch, &scratch_n)
+            forest_cost: u32 = st_mst_h(&edges, ec, trial, &scratch, &scratch_n)
             trial_cost: u32 = contracted + forest_cost
             if best == 4 or trial_cost < best_cost:
                 best <- c
