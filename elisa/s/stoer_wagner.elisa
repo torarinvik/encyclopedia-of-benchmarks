@@ -62,6 +62,9 @@ def stoer_wagner_contract(input: i64&, n: usize) -> i64:
             column <- column + 1
         row <- row + 1
 
+    if n == 4:
+        return stoer_wagner_four_cut(&graph)
+
     active: mutable u64 = (1.u64() << n) - 1
     min_cut: mutable i64 = 120000001
     remaining: mutable usize = n - 2
@@ -115,5 +118,34 @@ def stoer_wagner_contract(input: i64&, n: usize) -> i64:
     if final_cut < min_cut:
         return final_cut
     min_cut
+
+def stoer_wagner_four_cut(graph: i32[256]&) -> i64:
+    # Four singleton cuts and three pair cuts exhaust the partitions.
+    ab: i64 = graph[1].i64()
+    ac: i64 = graph[2].i64()
+    ad: i64 = graph[3].i64()
+    bc: i64 = graph[18].i64()
+    bd: i64 = graph[19].i64()
+    cd: i64 = graph[35].i64()
+    best: mutable i64 = ab + ac + ad
+    isolate_b: i64 = ab + bc + bd
+    if isolate_b < best:
+        best <- isolate_b
+    isolate_c: i64 = ac + bc + cd
+    if isolate_c < best:
+        best <- isolate_c
+    isolate_d: i64 = ad + bd + cd
+    if isolate_d < best:
+        best <- isolate_d
+    separate_ab: i64 = ac + ad + bc + bd
+    if separate_ab < best:
+        best <- separate_ab
+    separate_ac: i64 = ab + ad + bc + cd
+    if separate_ac < best:
+        best <- separate_ac
+    separate_ad: i64 = ab + ac + bd + cd
+    if separate_ad < best:
+        best <- separate_ad
+    best
 
 export fn stoer_wagner(input: i64&?, length: usize) -> i64 = stoer_wagner_impl
