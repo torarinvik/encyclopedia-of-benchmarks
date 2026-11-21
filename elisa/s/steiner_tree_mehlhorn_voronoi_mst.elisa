@@ -1,3 +1,6 @@
+@intrinsic("llvm.cttz.i64")
+extern mt_pair_index(bits: u64, zero_undefined: bool) -> u64
+
 @intrinsic("llvm.cttz.i32")
 extern mt_edge_index(bits: u32, zero_undefined: bool) -> u32
 
@@ -145,6 +148,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         vertex <- vertex+1
 
     best_candidate: mutable u32[64] = zeroed
+    occupied_pairs: mutable u64 = 0
     edge <- 0
     while edge < m:
         u: usize = eu[edge]
@@ -164,22 +168,18 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             cw: u32 = (distance_key[u] >> 3) + weight[edge] + (distance_key[v] >> 3)
             # The key orders weight, owners, endpoints and original edge ID.
             key: u32 = (cw << 16) | (a.u32() << 13) | (b.u32() << 10) | (left.u32() << 7) | (right.u32() << 4) | edge.u32()
-            previous: u32 = best_candidate[ix]
+            occupied_pairs <- occupied_pairs | (1.u64() << ix)
+            previous: u32 = best_candidate[ix & 63]
             if previous == 0 or key < previous:
-                best_candidate[ix] <- key
+                best_candidate[ix & 63] <- key
         edge <- edge+1
     candidates: mutable u32[16] = zeroed
     cn: mutable usize = 0
-    a: mutable usize = 0
-    while a < n:
-        b: mutable usize = a+1
-        while b < n:
-            key: u32 = best_candidate[a*MT_N+b]
-            if key != 0:
-                candidates[cn & 15] <- key
-                cn <- cn+1
-            b <- b+1
-        a <- a+1
+    while occupied_pairs != 0:
+        pair: usize = mt_pair_index(occupied_pairs, true).usize()
+        occupied_pairs <- occupied_pairs & (occupied_pairs - 1)
+        candidates[cn & 15] <- best_candidate[pair & 63]
+        cn <- cn+1
     i: mutable usize = 1
     j: mutable usize = 0
     while i < cn:
