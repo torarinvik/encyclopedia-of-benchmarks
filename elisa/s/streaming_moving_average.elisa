@@ -13,10 +13,12 @@ def streaming_moving_average_impl(input: i64&?, length: usize, output: mutable u
     window: usize = input[0].usize()
     count: usize = input[1].usize()
     if length != count + 2: return -1
+    invalid: mutable u64 = 0
+    for index in 0..<count:
+        value: i64 = input[2 + index]
+        invalid <- invalid + (1.u64() if value != value.i32().i64() else 0.u64())
+    if invalid != 0: return -1
     index: mutable usize = 0
-    while index < count:
-        if input[2 + index] < -2147483648 or input[2 + index] > 2147483647: return -1
-        index <- index + 1
     if capacity < count * 8 or output == null: return -2
     if window == 1:
         for index in 0..<count:
