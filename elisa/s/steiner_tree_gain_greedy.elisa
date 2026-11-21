@@ -12,34 +12,33 @@ def st_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
         output[word * 8 + b] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def st_root(parent: mutable usize[4]&, value: usize) -> usize:
-    x: mutable usize = value
-    while parent[x] != x:
-        parent[x] <- parent[parent[x]]
-        x <- parent[x]
-    x
+# Component labels occupy four two-bit fields, initially 0, 1, 2 and 3.
+const SINGLETON_LABELS: u32 = 0xe4
 
-def st_join(parent: mutable usize[4]&, a: usize, b: usize) -> bool:
-    ra: usize = st_root(parent, a)
-    rb: usize = st_root(parent, b)
+def st_label(labels: u32, value: usize) -> usize:
+    ((labels >> (2*value)) & 3).usize()
+
+def st_join(labels: mutable u32&, a: usize, b: usize) -> bool:
+    ra: usize = st_label(labels, a)
+    rb: usize = st_label(labels, b)
     if ra == rb:
         return false
-    parent[rb] <- ra
+    differing: u32 = labels ^ (rb.u32() * 0x55)
+    matching: u32 = ~(differing | (differing >> 1)) & 0x55
+    labels <- labels ^ (matching * (ra ^ rb).u32())
     true
 
 def st_group_count(n: usize, mask: i64, h: bool[16]) -> usize:
-    parent: mutable usize[4] = zeroed
-    for i in 0..<4:
-        parent[i] <- i
+    labels: mutable u32 = SINGLETON_LABELS
     for i in 0..<n:
         for j in (i + 1)..<n:
             if h[i * 4 + j]:
-                st_join(&parent, i, j)
+                st_join(&labels, i, j)
     seen: mutable bool[4] = zeroed
     count: mutable usize = 0
     for i in 0..<n:
         if (mask & (1.i64() << i)) != 0:
-            r: usize = st_root(&parent, i)
+            r: usize = st_label(labels, i)
             if not seen[r]:
                 seen[r] <- true
                 count <- count + 1
@@ -49,14 +48,12 @@ def st_less(a: ST_Edge, b: ST_Edge) -> bool:
     a.w < b.w or (a.w == b.w and (a.u < b.u or (a.u == b.u and a.v < b.v)))
 
 def st_mst_h(edges: ST_Edge[6]&, ec: usize, h: bool[16], tree: mutable ST_Edge[3]&, tree_n: mutable usize&) -> u32:
-    parent: mutable usize[4] = zeroed
-    for i in 0..<4:
-        parent[i] <- i
+    labels: mutable u32 = SINGLETON_LABELS
     tree_n <- 0
     cost: mutable u32 = 0
     for i in 0..<ec:
         e: ST_Edge = edges[i]
-        if h[e.u * 4 + e.v] and st_join(&parent, e.u, e.v):
+        if h[e.u * 4 + e.v] and st_join(&labels, e.u, e.v):
             tree[tree_n] <- e
             tree_n <- tree_n + 1
             cost <- cost + e.w
@@ -64,9 +61,8 @@ def st_mst_h(edges: ST_Edge[6]&, ec: usize, h: bool[16], tree: mutable ST_Edge[3
 
 def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: bool[16]) -> u32:
     d: mutable u32[16] = zeroed
-    parent: mutable usize[4] = zeroed
+    labels: mutable u32 = SINGLETON_LABELS
     for i in 0..<4:
-        parent[i] <- i
         for j in 0..<4:
             d[i * 4 + j] <- w[i * 4 + j]
     for i in 0..<n:
@@ -74,7 +70,7 @@ def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: bool[16]) -> u32:
             if h[i * 4 + j]:
                 d[i * 4 + j] <- 0
                 d[j * 4 + i] <- 0
-                st_join(&parent, i, j)
+                st_join(&labels, i, j)
     for k in 0..<n:
         for i in 0..<n:
             for j in 0..<n:
@@ -84,7 +80,7 @@ def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: bool[16]) -> u32:
     g: mutable usize = 0
     for v in 0..<n:
         if (mask & (1.i64() << v)) != 0:
-            r: usize = st_root(&parent, v)
+            r: usize = st_label(labels, v)
             found: mutable bool = false
             for x in 0..<g:
                 if roots[x] == r:
@@ -99,9 +95,9 @@ def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: bool[16]) -> u32:
         for b in (a + 1)..<g:
             best: mutable u32 = 10000.u32()
             for u in 0..<n:
-                if st_root(&parent, u) == roots[a]:
+                if st_label(labels, u) == roots[a]:
                     for v in 0..<n:
-                        if st_root(&parent, v) == roots[b] and d[u * 4 + v] < best:
+                        if st_label(labels, v) == roots[b] and d[u * 4 + v] < best:
                             best <- d[u * 4 + v]
             q[a * 4 + b] <- best
             q[b * 4 + a] <- best
@@ -170,10 +166,8 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
         if ec0 < 1 or ec0 > n0 - 1 or at + 2 * ec0.usize() > length:
             return -1
         ec: usize = ec0.usize()
-        parent: mutable usize[4] = zeroed
+        labels: mutable u32 = SINGLETON_LABELS
         degree: mutable usize[4] = zeroed
-        for i in 0..<4:
-            parent[i] <- i
         for e in 0..<ec:
             u0: i64 = input[at]
             v0: i64 = input[at + 1]
@@ -182,7 +176,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
                 return -1
             u: mutable usize = u0.usize()
             v: mutable usize = v0.usize()
-            if not st_join(&parent, u, v):
+            if not st_join(&labels, u, v):
                 return -1
             if u > v:
                 tmp: usize = u
@@ -203,8 +197,8 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
         for v in 0..<n:
             if degree[v] > 0:
                 if first == 4:
-                    first <- st_root(&parent, v)
-                elif st_root(&parent, v) != first:
+                    first <- st_label(labels, v)
+                elif st_label(labels, v) != first:
                     return -1
                 seen <- seen + 1
                 if degree[v] == 1:
