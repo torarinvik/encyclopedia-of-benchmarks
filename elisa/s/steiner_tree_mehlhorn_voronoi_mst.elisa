@@ -109,19 +109,22 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         for i in 0..<k:
             t: usize = terminals[i]
             distance_key[t] <- (t.u32() << 8) | 255
-        step: mutable usize = 0
-        while step < n:
+        unsettled: mutable u32 = (1.u32() << n) - 1
+        while unsettled != 0:
             chosen_vertex: mutable usize = MT_N
             chosen_key: mutable u32 = MT_UNREACHED
-            vertex <- 0
-            while vertex < n:
-                if (settled & (1.u32() << vertex)) == 0 and distance_key[vertex] < chosen_key:
+            remaining: mutable u32 = unsettled
+            while remaining != 0:
+                vertex <- (mt_edge_index(remaining, true) & 7).usize()
+                remaining <- remaining & (remaining - 1)
+                if distance_key[vertex] < chosen_key:
                     chosen_vertex <- vertex
                     chosen_key <- distance_key[vertex]
-                vertex <- vertex+1
             if chosen_vertex == MT_N:
                 break
-            settled <- settled | (1.u32() << chosen_vertex)
+            chosen_bit: u32 = 1.u32() << chosen_vertex
+            settled <- settled | chosen_bit
+            unsettled <- unsettled ^ chosen_bit
             chosen_distance_owner: u32 = chosen_key & 0xffffff00
             pending: mutable u32 = incident[chosen_vertex]
             while pending != 0:
@@ -134,7 +137,6 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 next_key: u32 = (chosen_distance_owner + ((edges[edge & 15] >> 16) << 11)) | route
                 if next_key < distance_key[next_vertex]:
                     distance_key[next_vertex] <- next_key
-            step <- step+1
         vertex <- 0
         while vertex < n:
             if distance_key[vertex] == MT_UNREACHED:
