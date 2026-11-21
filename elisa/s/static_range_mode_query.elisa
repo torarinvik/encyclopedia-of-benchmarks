@@ -93,6 +93,76 @@ def mode_distinct_ranges(input: i64&, output: mutable u8&, n: usize, q: usize) -
         mode_write_i64(output, 16 * query + 8, 1)
     (16 * q).i64()
 
+@inline(never)
+def mode_build_ranks(input: i64&, n: usize, unique_values: mutable u32&, compressed: mutable u8&, positions: mutable u32&) -> bool:
+    sorted: mutable i64[MAX_N] = zeroed
+    value_group: u32 = input[2].u32() >> 5
+    nearby: mutable usize = 1
+    while nearby < n:
+        if (input[2 + nearby].u32() >> 5) != value_group: break
+        nearby <- nearby + 1
+    if nearby == n:
+        # Value offsets preserve tie order and fit the existing rank tables.
+        for index in 0..<n:
+            value: u32 = input[2 + index].u32()
+            rank: usize = (value & 31).usize()
+            compressed[index] <- rank.u8()
+            unique_values[rank] <- value
+            positions[rank] <- positions[rank] | (1.u32() << index)
+    else:
+        if n >= 16:
+            for index in 0..<n:
+                sorted[index] <- (input[2 + index] << 5) | index.i64()
+            # A gap of four limits long shifts before the final insertion pass.
+            for index in 4..<n:
+                value: i64 = sorted[index]
+                position: mutable usize = index
+                while position >= 4:
+                    previous: i64 = sorted[position - 4]
+                    if previous <= value: break
+                    sorted[position] <- previous
+                    position <- position - 4
+                sorted[position] <- value
+            for index in 1..<n:
+                mode_insert(&sorted[0], index, sorted[index])
+        else:
+            for index in 0..<n:
+                mode_insert(&sorted[0], index, (input[2 + index] << 5) | index.i64())
+
+        distinct_prefix: mutable usize = 1
+        preceding: mutable i64 = sorted[0] >> 5
+        while distinct_prefix < n:
+            value: i64 = sorted[distinct_prefix] >> 5
+            if preceding == value: break
+            preceding <- value
+            distinct_prefix <- distinct_prefix + 1
+        if distinct_prefix == n:
+            return true
+
+        # Accumulate each sorted run's position mask in a register.
+        id: mutable usize = 0
+        first_item: i64 = sorted[0]
+        first_position: usize = (first_item & 31).usize()
+        previous: mutable i64 = first_item >> 5
+        mask: mutable u32 = 1.u32() << first_position
+        unique_values[0] <- previous.u32()
+        compressed[first_position] <- 0
+        for index in 1..<n:
+            item: i64 = sorted[index]
+            value: i64 = item >> 5
+            if value != previous:
+                positions[id] <- mask
+                id <- id + 1
+                unique_values[id] <- value.u32()
+                previous <- value
+                mask <- 0
+            position: usize = (item & 31).usize()
+            compressed[position] <- id.u8()
+            mask <- mask | (1.u32() << position)
+        positions[id] <- mask
+
+    false
+
 def static_range_mode_query_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
@@ -141,61 +211,12 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     small_result: i64 = mode_try_few_values(input, output, n, q)
     if small_result != 0: return small_result
 
-    sorted: mutable i64[MAX_N] = zeroed
     unique_values: mutable u32[MAX_N] = zeroed
     compressed: mutable u8[MAX_N] = zeroed
     positions: mutable u32[MAX_N] = zeroed
     block_mode: mutable i16[MAX_BLOCKS * MAX_BLOCKS] = zeroed
-    if n >= 16:
-        for index in 0..<n:
-            sorted[index] <- (input[2 + index] << 5) | index.i64()
-        # A gap of four limits long shifts before the final insertion pass.
-        for index in 4..<n:
-            value: i64 = sorted[index]
-            position: mutable usize = index
-            while position >= 4:
-                previous: i64 = sorted[position - 4]
-                if previous <= value: break
-                sorted[position] <- previous
-                position <- position - 4
-            sorted[position] <- value
-        for index in 1..<n:
-            mode_insert(&sorted[0], index, sorted[index])
-    else:
-        for index in 0..<n:
-            mode_insert(&sorted[0], index, (input[2 + index] << 5) | index.i64())
-
-    distinct_prefix: mutable usize = 1
-    preceding: mutable i64 = sorted[0] >> 5
-    while distinct_prefix < n:
-        value: i64 = sorted[distinct_prefix] >> 5
-        if preceding == value: break
-        preceding <- value
-        distinct_prefix <- distinct_prefix + 1
-    if distinct_prefix == n:
+    if mode_build_ranks(input, n, &unique_values[0], &compressed[0], &positions[0]):
         return mode_distinct_ranges(input, output, n, q)
-
-    # Accumulate each sorted run's position mask in a register.
-    id: mutable usize = 0
-    first_item: i64 = sorted[0]
-    first_position: usize = (first_item & 31).usize()
-    previous: mutable i64 = first_item >> 5
-    mask: mutable u32 = 1.u32() << first_position
-    unique_values[0] <- previous.u32()
-    compressed[first_position] <- 0
-    for index in 1..<n:
-        item: i64 = sorted[index]
-        value: i64 = item >> 5
-        if value != previous:
-            positions[id] <- mask
-            id <- id + 1
-            unique_values[id] <- value.u32()
-            previous <- value
-            mask <- 0
-        position: usize = (item & 31).usize()
-        compressed[position] <- id.u8()
-        mask <- mask | (1.u32() << position)
-    positions[id] <- mask
 
     # Round the block width up to a power of two for shift-based indexing.
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)

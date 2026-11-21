@@ -36,7 +36,8 @@ working space. This states the actual bounded implementation cost rather than
 the stronger asymptotic preprocessing bound of the paper's comparison model.
 
 The Elisa port carries original positions through the rank sort and stores
-occurrences as one 32-bit mask per rank. A boundary candidate’s frequency is
+occurrences as one 32-bit mask per rank. When all values share their high
+bits, the low five bits serve as ranks and the sort is unnecessary. A boundary candidate’s frequency is
 the population count after masking to the queried interval, reducing the
 query term to `O(q*B)` for this 32-position profile. Elisa rounds the block
 width up to a power of two, so it can locate blocks with shifts. It builds
