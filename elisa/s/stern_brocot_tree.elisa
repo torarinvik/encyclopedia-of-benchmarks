@@ -141,13 +141,29 @@ def sbt_single_bounds(numerator: i64, denominator: i64, output: mutable u8&?, ca
     sbt_store_word(output, 32, bounds.upper_den)
     1
 
+def sbt_single_path(numerator: i64, denominator: i64, output: mutable u8&?, capacity: usize) -> i64:
+    if not sbt_fraction_in_range(numerator, denominator): return -1
+    runs: mutable SbtRun[MAX_RUNS] = zeroed
+    run_count: i64 = sbt_encode_path(numerator, denominator, runs[0:MAX_RUNS])
+    if run_count < 0: return -1
+    if output == null or capacity < 16+16*run_count.usize(): return -2
+    sbt_store_word(output, 0, 0)
+    sbt_store_word(output, 8, run_count)
+    for index in 0..<run_count.usize():
+        sbt_store_word(output, 16+16*index, runs[index].direction)
+        sbt_store_word(output, 24+16*index, runs[index].count)
+    1
+
 def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     query_count: i64 = input[0]
     if query_count < 1 or query_count > MAX_QUERIES.i64(): return -1
     if query_count == 1:
-        if length == 4 and input[1] == 4:
-            return sbt_single_bounds(input[2], input[3], output, output_capacity)
+        if length == 4:
+            if input[1] == 4:
+                return sbt_single_bounds(input[2], input[3], output, output_capacity)
+            if input[1] == 0:
+                return sbt_single_path(input[2], input[3], output, output_capacity)
         # A path record uses two header words and at most two words per run.
         words: mutable i64[2+2*MAX_RUNS] = zeroed
         return sbt_process(input, length, output, output_capacity, query_count, words[0:2+2*MAX_RUNS])
