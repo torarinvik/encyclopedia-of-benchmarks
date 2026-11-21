@@ -81,23 +81,27 @@ def sjt_emit_many(input: i32&, length: usize, output: mutable u8&?, output_capac
     if length > 5:
         values[5] <- input[5]
     offset: mutable usize = 0
-    sjt_emit_row(&values, length, output, offset)
+    # Inversion digit 1 alternates between emitting a swapped pair and carrying to digit 2.
+    while true:
+        sjt_emit_row(&values, length, output, offset)
+        first: i32 = values[0]
+        values[0] <- values[1]
+        values[1] <- first
+        sjt_emit_row(&values, length, output, offset)
 
-    index: mutable usize = 1
-    while index < length |values, inversion, output, offset, index|:
-        if inversion[index] < index:
-            swap_index: mutable usize = 0
-            if index % 2 != 0:
-                swap_index <- inversion[index]
-            temporary: i32 = values[swap_index]
-            values[swap_index] <- values[index]
-            values[index] <- temporary
-            sjt_emit_row(&values, length, output, offset)
-            inversion[index] <- inversion[index] + 1
-            index <- 1
-        else:
+        index: mutable usize = 2
+        while index < length and inversion[index] == index:
             inversion[index] <- 0
             index <- index + 1
+        if index == length:
+            break
+        swap_index: mutable usize = 0
+        if index % 2 != 0:
+            swap_index <- inversion[index]
+        temporary: i32 = values[swap_index]
+        values[swap_index] <- values[index]
+        values[index] <- temporary
+        inversion[index] <- inversion[index] + 1
     required.i64()
 
 export fn steinhaus_johnson_trotter(input: i32&?, length: usize,
