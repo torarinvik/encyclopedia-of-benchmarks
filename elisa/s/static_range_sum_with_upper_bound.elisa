@@ -76,15 +76,13 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         elif key <= minimum:
             count <- 0
         elif not use_matrix:
-            filtered_count: mutable u64 = 0
-            filtered_sum: mutable u64 = 0
+            filtered: mutable u64 = 0
             for index in l..<r:
                 value: u64 = input[2 + index].u64()
-                included: bool = value < key.u64()
-                filtered_count <- filtered_count + (1.u64() if included else 0)
-                filtered_sum <- filtered_sum + (value if included else 0)
-            count <- filtered_count.i64()
-            total <- filtered_sum.i64()
+                contribution: u64 = (value | (1.u64() << 36)) if value < key.u64() else 0
+                filtered <- filtered + contribution
+            count <- (filtered >> 36).i64()
+            total <- (filtered & ((1.u64() << 36) - 1)).i64()
         else:
             prefix_total: mutable u64 = 0
             # Align the first active key bit with the high bit for each step.
