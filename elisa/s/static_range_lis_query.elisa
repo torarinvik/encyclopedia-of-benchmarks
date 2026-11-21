@@ -30,14 +30,17 @@ def static_range_lis_query_impl(input: i64&?, length: usize, output: mutable u8&
             count: mutable usize = 0
             for index in (2 + left.usize())..<(2 + right.usize()):
                 value: u8 = input[index].u8()
-                lo: mutable usize = 0
-                hi: mutable usize = count
-                while lo < hi:
-                    mid: usize = (lo + hi) >> 1
-                    if tails[mid] < value: lo <- mid + 1
-                    else: hi <- mid
-                tails[lo] <- value
-                if lo == count: count <- count + 1
+                if count == 0 or tails[count - 1] < value:
+                    tails[count] <- value
+                    count <- count + 1
+                else:
+                    lo: mutable usize = 0
+                    hi: mutable usize = count - 1
+                    while lo < hi:
+                        mid: usize = (lo + hi) >> 1
+                        if tails[mid] < value: lo <- mid + 1
+                        else: hi <- mid
+                    tails[lo] <- value
             answers[query] <- count.u8()
     if output == null or capacity < bytes: return -2
     # All reads are finished, so output can overlap the input frame.
