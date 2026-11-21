@@ -1,14 +1,24 @@
 const MODULUS: u64 = 998244353
 const MAX_INPUT_LENGTH: usize = 19
 
-def mod_pow(base_value: u64, exponent_value: u64) -> u64:
-    base: mutable u64 = base_value
-    exponent: mutable u64 = exponent_value
-    result: mutable u64 = 1
-    while exponent > 0:
-        if (exponent & 1) != 0: result <- (result * base) % MODULUS
-        base <- (base * base) % MODULUS
-        exponent <- exponent >> 1
+def square_four(value: u64) -> u64:
+    squared: u64 = (value * value) % MODULUS
+    fourth: u64 = (squared * squared) % MODULUS
+    eighth: u64 = (fourth * fourth) % MODULUS
+    (eighth * eighth) % MODULUS
+
+def field_inverse(value: u64) -> u64:
+    # Fermat's exponent p-2 is 0x3B7FFFFF. Append one hex digit at a time.
+    second: u64 = (value * value) % MODULUS
+    third: u64 = (second * value) % MODULUS
+    fourth: u64 = (second * second) % MODULUS
+    seventh: u64 = (third * fourth) % MODULUS
+    eleventh: u64 = (seventh * fourth) % MODULUS
+    fifteenth: u64 = (eleventh * fourth) % MODULUS
+    high: u64 = (square_four(third) * eleventh) % MODULUS
+    result: mutable u64 = (square_four(high) * seventh) % MODULUS
+    for digit in 0..<5:
+        result <- (square_four(result) * fifteenth) % MODULUS
     result
 
 def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
@@ -31,7 +41,7 @@ def steed_continued_fraction_impl(input: i64&?, length: usize, output: mutable u
     convergents: mutable u64[9] = zeroed
     current: mutable u64 = input[1].u64()
     convergents[0] <- current
-    d_value: mutable u64 = mod_pow(input[2].u64(), MODULUS - 2)
+    d_value: mutable u64 = field_inverse(input[2].u64())
     delta: mutable u64 = (input[3].u64() * d_value) % MODULUS
     current <- (current + delta) % MODULUS
     convergents[1] <- current
@@ -40,7 +50,7 @@ def steed_continued_fraction_impl(input: i64&?, length: usize, output: mutable u
         a_value: u64 = input[2 * level + 1].u64()
         denominator: u64 = (d_value * a_value + b_value) % MODULUS
         if denominator == 0: return -1
-        d_value <- mod_pow(denominator, MODULUS - 2)
+        d_value <- field_inverse(denominator)
         factor: u64 = (b_value * d_value + MODULUS - 1) % MODULUS
         delta <- (factor * delta) % MODULUS
         current <- (current + delta) % MODULUS
