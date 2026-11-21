@@ -42,6 +42,16 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
 
     strange_printer_interval(symbols, n)
 
+@inline(always)
+def first_printer_lane(bits: u64) -> usize:
+    if bits == 0: return 0
+    remaining: mutable u64 = bits
+    zeros: mutable usize = 0
+    while (remaining & 1) == 0:
+        remaining <- remaining >> 1
+        zeros <- zeros + 1
+    zeros >> 1
+
 @inline(never)
 def strange_printer_interval(symbols: u64, n: usize) -> i64:
     if n < 5 or n > SP_MAX_LENGTH: return -1
@@ -61,11 +71,7 @@ def strange_printer_interval(symbols: u64, n: usize) -> i64:
             best: mutable u8 = dp[(left + 1) * SP_TABLE_SIDE + right] + 1
             candidates: mutable u64 = matches & ((1.u64() << ((right + 1) * 2)) - 1) & ~((1.u64() << ((left + 2) * 2)) - 1)
             while candidates != 0:
-                bit: u64 = candidates & (0.u64() - candidates)
-                # The multiplier maps the eight one-hot lanes to distinct
-                # three-bit slots. The packed table maps each slot to its lane.
-                slot: u64 = ((bit * 0x5AF) >> 10) & 7
-                merge: usize = ((0xA8E8C7.u64() >> (slot * 3)) & 7).usize()
+                merge: usize = first_printer_lane(candidates)
                 middle: u8 = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
                 candidate: u8 = middle + dp[merge * SP_TABLE_SIDE + right]
                 if candidate < best: best <- candidate
