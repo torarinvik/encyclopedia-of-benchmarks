@@ -187,6 +187,54 @@ def sbt_single_decode(input: i64&, length: usize, output: mutable u8&?, capacity
     sbt_store_word(output, 16, denominator)
     1
 
+def sbt_is_reduced(numerator: i64, denominator: i64) -> bool:
+    a: mutable i64 = numerator
+    b: mutable i64 = denominator
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a == 1
+
+def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
+    a: mutable i64 = input[2]
+    b: mutable i64 = input[3]
+    c: mutable i64 = input[4]
+    d: mutable i64 = input[5]
+    if not sbt_fraction_in_range(a, b) or not sbt_fraction_in_range(c, d): return -1
+    if not sbt_is_reduced(a, b) or not sbt_is_reduced(c, d): return -1
+    if output == null or capacity < 24: return -2
+
+    lower_num: mutable i64 = 0
+    lower_den: mutable i64 = 1
+    upper_num: mutable i64 = 1
+    upper_den: mutable i64 = 0
+    while a != b and c != d:
+        if a < b and c < d:
+            left_count: i64 = (b-1)/a
+            right_count: i64 = (d-1)/c
+            shared: i64 = left_count if left_count < right_count else right_count
+            upper_num <- upper_num + shared*lower_num
+            upper_den <- upper_den + shared*lower_den
+            if left_count != right_count: break
+            b <- b-shared*a
+            d <- d-shared*c
+        elif a > b and c > d:
+            left_count: i64 = (a-1)/b
+            right_count: i64 = (c-1)/d
+            shared: i64 = left_count if left_count < right_count else right_count
+            lower_num <- lower_num + shared*upper_num
+            lower_den <- lower_den + shared*upper_den
+            if left_count != right_count: break
+            a <- a-shared*b
+            c <- c-shared*d
+        else:
+            break
+    sbt_store_word(output, 0, 2)
+    sbt_store_word(output, 8, lower_num+upper_num)
+    sbt_store_word(output, 16, lower_den+upper_den)
+    1
+
 def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     query_count: i64 = input[0]
@@ -197,6 +245,8 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
                 return sbt_single_bounds(input[2], input[3], output, output_capacity)
             if input[1] == 0:
                 return sbt_single_path(input[2], input[3], output, output_capacity)
+        if length == 6 and input[1] == 2:
+            return sbt_single_lca(input, output, output_capacity)
         if input[1] == 1:
             return sbt_single_decode(input, length, output, output_capacity)
         # A path record uses two header words and at most two words per run.
