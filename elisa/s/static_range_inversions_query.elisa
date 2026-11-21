@@ -1,6 +1,19 @@
 const MAX_N: usize = 128
 const MAX_Q: usize = 32
 
+# Entry n-1 is ceil(2048 / floor(sqrt(n))). The round-up error
+# for left < 128 is less than 1/11, the smallest quotient step.
+const BLOCK_RECIPROCALS: u16[MAX_N] = [
+    2048, 2048, 2048, 1024, 1024, 1024, 1024, 1024, 683, 683, 683, 683, 683, 683, 683, 512,
+    512, 512, 512, 512, 512, 512, 512, 512, 410, 410, 410, 410, 410, 410, 410, 410,
+    410, 410, 410, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342,
+    293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 256,
+    256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256,
+    228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228,
+    228, 228, 228, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205,
+    205, 205, 205, 205, 205, 205, 205, 205, 187, 187, 187, 187, 187, 187, 187, 187
+]
+
 def srin_bit_sum(bit: i64&, count: usize) -> i64:
     i: mutable usize = count
     total: mutable i64 = 0
@@ -133,9 +146,7 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         if value.u64() > 1000000000: return -1
         sorted[i] <- (value.u64() << 7) | i.u64()
         i <- i + 1
-    block_size: mutable usize = 1
-    while (block_size + 1) * (block_size + 1) <= n:
-        block_size <- block_size + 1
+    block_reciprocal: u32 = BLOCK_RECIPROCALS[n - 1].u32()
     queries: mutable u32[MAX_Q] = zeroed
     off: mutable usize = 2 + n
     k: mutable usize = 0
@@ -144,7 +155,7 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         right: i64 = input[off + 1]
         off <- off + 2
         if left.u64() >= right.u64() or right.u64() > n64.u64(): return -1
-        block: u32 = (left.usize() / block_size).u32()
+        block: u32 = (left.u32() * block_reciprocal) >> 11
         endpoint: u32 = right.u32()
         sweep: u32 = MAX_N.u32() - endpoint if (block & 1) != 0 else endpoint
         # Sort by block, sweep, then original ID. The endpoints travel with the key.
