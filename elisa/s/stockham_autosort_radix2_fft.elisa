@@ -71,14 +71,11 @@ def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
                                       output: mutable f64&?, output_capacity: usize) -> i64:
     if input == null or input_length < 3 or input_length > max_input_length:
         return -1
-    n_value: f64 = input[0]
-    if not (n_value >= 1.0 and n_value <= 64.0):
+    # The odd input length gives the number of complex pairs exactly.
+    n: usize = input_length >> 1
+    if (input_length & 1) == 0 or (n & (n - 1)) != 0:
         return -1
-    n_i64: i64 = n_value.i64()
-    if n_value != n_i64.f64():
-        return -1
-    n: usize = n_i64.usize()
-    if (n & (n - 1)) != 0 or input_length != 1 + 2 * n:
+    if not (input[0] == n.f64()):
         return -1
     index: mutable usize = 1
     while index < input_length:
