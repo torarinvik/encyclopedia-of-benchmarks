@@ -25,16 +25,17 @@ def stalin_sort_run(values: i64&, length: usize, output: mutable u8&?, output_ca
     buffer: mutable i32[128] = zeroed
     # The validated input length bounds the number of retained values.
     retained: mutable i32& = &buffer[0]
-    retained[0] <- first.i32()
     kept: mutable usize = 1
     last: mutable i64 = first
     for index in 1.usize()..<length:
         value: i64 = values[index]
         if value < -2147483648 or value > 2147483647: return -1
+        # Discarded values use the next free slot, outside the copied prefix.
+        retained[kept] <- value.i32()
         if value >= last:
-            retained[kept] <- value.i32()
             kept <- kept + 1
             last <- value
+    retained[0] <- first.i32()
     output_bytes: usize = kept * 4
     if output == null or output_capacity < output_bytes: return -2
     for index in 0..<kept:
