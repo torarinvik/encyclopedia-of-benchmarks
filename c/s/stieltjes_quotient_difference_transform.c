@@ -72,11 +72,13 @@ int64_t stieltjes_quotient_difference_transform(
 
     const size_t required = 8 * (n + 1);
     if (output == NULL || output_capacity < required) return -2;
+    const int64_t first_coefficient = input[1];
     stieltjes_store_i64(output, 0, (int64_t)n);
+    stieltjes_store_i64(output, 8, first_coefficient);
     for (size_t index = 1; index < n; ++index) {
         const int row = (int)((index + 1) / 2);
         const int64_t value = (index & 1) ? q[row][0] : e[index / 2][0];
-        stieltjes_store_i64(output, 8 * index, value);
+        stieltjes_store_i64(output, 8 * (index + 1), value);
     }
     return (int64_t)required;
 }
