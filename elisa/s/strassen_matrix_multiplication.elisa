@@ -182,7 +182,8 @@ def strassen_large_dispatch(input: i64&, n: usize, output: mutable u8&?, capacit
 def strassen_large_frame[dimension: usize, cells: usize](input: i64&, output: mutable u8&?, capacity: usize) -> i64:
     invalid: mutable u64 = 0
     for index in 0..<2 * cells:
-        invalid <- invalid | (1.u64() if input[index + 1].u64() + 2 > 4 else 0.u64())
+        out_of_range: u64 = 1.u64() if input[index + 1].u64() + 2 > 4 else 0.u64()
+        invalid <- invalid + out_of_range if dimension == 4 else invalid | out_of_range
     if invalid != 0: return -1
     if output == null or capacity < 8 * cells: return -2
     return strassen_product[dimension, cells](input, output)
