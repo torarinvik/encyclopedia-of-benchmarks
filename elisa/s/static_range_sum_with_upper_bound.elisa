@@ -71,8 +71,10 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         total: mutable i64 = 0
         if key > maximum:
             count <- (r - l).i64()
+            range_sum: mutable u64 = 0
             for index in l..<r:
-                total <- total + input[2 + index]
+                range_sum <- range_sum + input[2 + index].u64()
+            total <- range_sum.i64()
         elif key <= minimum:
             count <- 0
         elif not use_matrix:
