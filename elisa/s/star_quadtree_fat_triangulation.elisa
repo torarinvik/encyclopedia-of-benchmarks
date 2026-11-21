@@ -73,10 +73,9 @@ def star_visit(triangles: i32&, edges: i32&, triangle_count: usize,
                     pairs[2*pair_count+1] <- tid.i64()
                     pair_count <- pair_count + 1
             key <- key + (1.usize() << shift)
-            # At a parent boundary the next visit starts at that parent's level.
-            while shift < 2 * STAR_MAX_DEPTH and
-                  (key & ((1.usize() << (shift+2))-1)) == 0:
-                shift <- shift + 2
+            # Each group of four finest cells starts at depth one.
+            # The root is only visited at entry.
+            shift <- 2 if (key & 3) == 0 else 0
     pair_count.i32()
 
 def star_store_le(output: mutable u8&, offset: usize, value: i64) -> void:
