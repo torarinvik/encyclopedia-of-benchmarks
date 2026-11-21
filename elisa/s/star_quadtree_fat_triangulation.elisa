@@ -6,28 +6,28 @@ const STAR_MAX_EDGES: usize = 8
 const STAR_MAX_PAIRS: usize = 64
 const STAR_MAX_OUTPUT_BYTES: usize = 1032
 
-def star_edge_hits_box(vertices: i64&, edges: i64&, edge_id: usize,
-                      xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
+def star_edge_hits_box(vertices: i32&, edges: i32&, edge_id: usize,
+                      xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
     a: usize = edges[2 * edge_id].usize()
     b: usize = edges[2 * edge_id + 1].usize()
-    ax: i64 = vertices[2 * a]
-    ay: i64 = vertices[2 * a + 1]
-    bx: i64 = vertices[2 * b]
-    by: i64 = vertices[2 * b + 1]
+    ax: i32 = vertices[2 * a]
+    ay: i32 = vertices[2 * a + 1]
+    bx: i32 = vertices[2 * b]
+    by: i32 = vertices[2 * b + 1]
     if (ax < xmin and bx < xmin) or (ax > xmax and bx > xmax) or
        (ay < ymin and by < ymin) or (ay > ymax and by > ymax): return false
     # The box axes overlap. The perpendicular to the segment is the last axis.
-    dx: i64 = bx - ax
-    dy: i64 = by - ay
-    far_x: i64 = xmin if dy >= 0 else xmax
-    far_y: i64 = ymax if dx >= 0 else ymin
-    near_x: i64 = xmax if dy >= 0 else xmin
-    near_y: i64 = ymin if dx >= 0 else ymax
+    dx: i32 = bx - ax
+    dy: i32 = by - ay
+    far_x: i32 = xmin if dy >= 0 else xmax
+    far_y: i32 = ymax if dx >= 0 else ymin
+    near_x: i32 = xmax if dy >= 0 else xmin
+    near_y: i32 = ymin if dx >= 0 else ymax
     dx * (far_y - ay) - dy * (far_x - ax) >= 0 and
         dx * (near_y - ay) - dy * (near_x - ax) <= 0
 
-def star_stops(vertices: i64&, edges: i64&, edge_count: usize,
-               vertex_count: usize, xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
+def star_stops(vertices: i32&, edges: i32&, edge_count: usize,
+               vertex_count: usize, xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
     # Intersect the endpoint sets of all edges that hit the closed box.
     candidates: mutable u64 = (1.u64() << vertex_count) - 1
     for edge in 0..<edge_count:
@@ -40,25 +40,25 @@ def star_stops(vertices: i64&, edges: i64&, edge_count: usize,
 
 # A separating edge has every box corner strictly outside the triangle.
 # The orientation is affine, so its maximum occurs at this chosen corner.
-def star_box_inside_edge(ax: i64, ay: i64, bx: i64, by: i64,
-                         xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
-    dx: i64 = bx - ax
-    dy: i64 = by - ay
-    x: i64 = xmin if dy >= 0 else xmax
-    y: i64 = ymax if dx >= 0 else ymin
+def star_box_inside_edge(ax: i32, ay: i32, bx: i32, by: i32,
+                         xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
+    dx: i32 = bx - ax
+    dy: i32 = by - ay
+    x: i32 = xmin if dy >= 0 else xmax
+    y: i32 = ymax if dx >= 0 else ymin
     dx * (y - ay) - dy * (x - ax) >= 0
 
-def star_triangle_hits_box(vertices: i64&, triangles: i64&, tid: usize,
-                          xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
+def star_triangle_hits_box(vertices: i32&, triangles: i32&, tid: usize,
+                          xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
     a: usize = triangles[3*tid].usize()
     b: usize = triangles[3*tid+1].usize()
     c: usize = triangles[3*tid+2].usize()
-    ax: i64 = vertices[2*a]
-    ay: i64 = vertices[2*a+1]
-    bx: i64 = vertices[2*b]
-    by: i64 = vertices[2*b+1]
-    cx: i64 = vertices[2*c]
-    cy: i64 = vertices[2*c+1]
+    ax: i32 = vertices[2*a]
+    ay: i32 = vertices[2*a+1]
+    bx: i32 = vertices[2*b]
+    by: i32 = vertices[2*b+1]
+    cx: i32 = vertices[2*c]
+    cy: i32 = vertices[2*c+1]
     if (ax < xmin and bx < xmin and cx < xmin) or
        (ax > xmax and bx > xmax and cx > xmax) or
        (ay < ymin and by < ymin and cy < ymin) or
@@ -74,16 +74,16 @@ def star_add_pair(pairs: mutable i64&, pair_count: mutable usize&, key: usize, t
     pair_count <- pair_count + 1
     true
 
-def star_visit(vertices: i64&, triangles: i64&, edges: i64&,
+def star_visit(vertices: i32&, triangles: i32&, edges: i32&,
                vertex_count: usize, triangle_count: usize, edge_count: usize,
                pairs: mutable i64&, pair_count: mutable usize&, failed: mutable u8&,
                depth: usize, ix: usize, iy: usize, path: usize) -> void:
     if failed[0] != 0: return
     size: usize = 8 >> depth
-    xmin: i64 = (ix * size).i64()
-    xmax: i64 = xmin + size.i64()
-    ymax: i64 = 8 - (iy * size).i64()
-    ymin: i64 = ymax - size.i64()
+    xmin: i32 = (ix * size).i32()
+    xmax: i32 = xmin + size.i32()
+    ymax: i32 = 8 - (iy * size).i32()
+    ymin: i32 = ymax - size.i32()
     if not star_stops(vertices,edges,edge_count,vertex_count,xmin,ymin,xmax,ymax):
         if depth >= STAR_MAX_DEPTH:
             failed[0] <- 1
@@ -119,40 +119,41 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
     triangle_count: usize = triangle_count_raw.usize()
     if length != 2 + 2*vertex_count + 3*triangle_count: return -1
     corners: i64[8] = [0,0,8,0,8,8,0,8]
-    vertices_data: mutable i64[10] = zeroed
-    vertices: mutable i64& = &vertices_data[0]
+    vertices_data: mutable i32[10] = zeroed
+    vertices: mutable i32& = &vertices_data[0]
     i: mutable usize = 0
     while i < 8:
         if input[2+i] != corners[i]: return -1
-        vertices[i] <- corners[i]
+        vertices[i] <- corners[i].i32()
         i <- i + 1
     if vertex_count == 5:
         if input[10] != 4 or input[11] != 4: return -1
         vertices[8] <- 4
         vertices[9] <- 4
-    triangles_data: mutable i64[12] = zeroed
-    triangles: mutable i64& = &triangles_data[0]
+    triangles_data: mutable i32[12] = zeroed
+    triangles: mutable i32& = &triangles_data[0]
     start: usize = 2 + 2*vertex_count
     i <- 0
     while i < 3*triangle_count:
         id: i64 = input[start+i]
         if id < 0 or id >= vertex_count_raw: return -1
-        triangles[i] <- id
+        triangles[i] <- id.i32()
         i <- i + 1
     diag02: bool = vertex_count == 4 and triangles[0] == 0 and triangles[1] == 1 and triangles[2] == 2 and
         triangles[3] == 0 and triangles[4] == 2 and triangles[5] == 3
     diag13: bool = vertex_count == 4 and triangles[0] == 0 and triangles[1] == 1 and triangles[2] == 3 and
         triangles[3] == 1 and triangles[4] == 2 and triangles[5] == 3
-    fan: i64[12] = [0,1,4,1,2,4,2,3,4,3,0,4]
+    fan: i32[12] = [0,1,4,1,2,4,2,3,4,3,0,4]
     fan_ok: mutable bool = vertex_count == 5
     i <- 0
     while i < 12:
         if triangles[i] != fan[i]: fan_ok <- false
         i <- i + 1
     if not diag02 and not diag13 and not fan_ok: return -1
-    edges_data: mutable i64[16] = zeroed
-    edges: mutable i64& = &edges_data[0]
+    edges_data: mutable i32[16] = zeroed
+    edges: mutable i32& = &edges_data[0]
     edge_count: mutable usize = 0
+    seen_edges: mutable u32 = 0
     tid: mutable usize = 0
     while tid < triangle_count:
         k: mutable usize = 0
@@ -161,16 +162,12 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
             b: usize = triangles[3*tid+(k+1)%3].usize()
             low: usize = a if a < b else b
             high: usize = b if a < b else a
-            found: mutable bool = false
-            j: mutable usize = 0
-            while j < edge_count:
-                if edges[2*j] == low.i64() and edges[2*j+1] == high.i64():
-                    found <- true
-                    break
-                j <- j + 1
-            if not found:
-                edges[2*edge_count] <- low.i64()
-                edges[2*edge_count+1] <- high.i64()
+            # Validated vertex IDs are in 0..4, so 25 bits cover all pairs.
+            edge_bit: u32 = 1.u32() << (5 * low + high)
+            if (seen_edges & edge_bit) == 0:
+                seen_edges <- seen_edges | edge_bit
+                edges[2*edge_count] <- low.i32()
+                edges[2*edge_count+1] <- high.i32()
                 edge_count <- edge_count + 1
             k <- k + 1
         tid <- tid + 1
