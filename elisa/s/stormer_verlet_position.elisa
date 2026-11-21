@@ -42,6 +42,31 @@ def stormer_verlet_position_impl(input: i64&?, length: usize,
         if count == 4:
             svp_store_i64_le(output, 24, fourth.i64())
         return byte_count.i64()
+    if count <= 6:
+        first_acceleration: u64 = input[3].u64()
+        second_acceleration: u64 = input[4].u64()
+        third_acceleration: u64 = input[5].u64()
+        if first_acceleration + 64 > 128 or second_acceleration + 64 > 128 or third_acceleration + 64 > 128:
+            return -1
+        third: u64 = 2 * second.u64() - first.u64() + first_acceleration
+        fourth: u64 = 2 * third - second.u64() + second_acceleration
+        fifth: u64 = 2 * fourth - third + third_acceleration
+        sixth: mutable u64 = 0
+        if count == 6:
+            acceleration: u64 = input[6].u64()
+            if acceleration + 64 > 128:
+                return -1
+            sixth <- 2 * fifth - fourth + acceleration
+        if output == null or capacity < byte_count:
+            return -2
+        svp_store_i64_le(output, 0, first)
+        svp_store_i64_le(output, 8, second)
+        svp_store_i64_le(output, 16, third.i64())
+        svp_store_i64_le(output, 24, fourth.i64())
+        svp_store_i64_le(output, 32, fifth.i64())
+        if count == 6:
+            svp_store_i64_le(output, 40, sixth.i64())
+        return byte_count.i64()
     staged: mutable u8[SVP_MAX_OUTPUT_BYTES] = zeroed
     staged_view: mutable u8& = &staged[0]
     # The validated trajectory fits in signed 64 bits. Unsigned arithmetic
