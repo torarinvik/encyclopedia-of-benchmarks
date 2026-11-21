@@ -32,19 +32,18 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
     if quotient%2==0 or coefficient==0:return coefficient
     modulus-coefficient
 
-def stirling_number_of_the_first_kind_small_p_large_n(input:i64&,length:usize)->i64 @export("stirling_number_of_the_first_kind_small_p_large_n"):
-    if input.is_null() or length<4 or length>18:return -1
-    frame:view[i64]=input[0:length]
-    count_value:i64=frame[0]
-    modulus:i64=frame[1]
+def stirling_impl(input: i64&?, length: usize) -> i64:
+    if input == null or length<4 or length>18:return -1
+    count_value:i64=input[0]
+    modulus:i64=input[1]
     if count_value<1 or count_value>8 or length!=(2+2*count_value).usize() or modulus<11 or modulus>97 or not is_prime(modulus):return -1
 
     result:mutable i64=0
     case_index:mutable usize=0
     count:usize=count_value.usize()
     while case_index<count:
-        n:i64=frame[2+2*case_index]
-        k_value:i64=frame[3+2*case_index]
+        n:i64=input[2+2*case_index]
+        k_value:i64=input[3+2*case_index]
         if n<0 or n>MAX_N or k_value<0 or k_value>8 or k_value>n:return -1
         k:usize=k_value.usize()
         value:i64=stirling_value(n,k,modulus)
@@ -52,3 +51,5 @@ def stirling_number_of_the_first_kind_small_p_large_n(input:i64&,length:usize)->
         result<-(result+next*next*value)%modulus
         case_index<-case_index+1
     result
+
+export fn stirling_number_of_the_first_kind_small_p_large_n(input: i64&?, length: usize) -> i64 = stirling_impl
