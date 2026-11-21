@@ -24,6 +24,13 @@ def streaming_moving_average_impl(input: i64&?, length: usize, output: mutable u
         for index in 0..<count:
             streaming_moving_average_put_f64(output, index * 8, input[2 + index].f64())
         return (count * 8).i64()
+    if count <= window:
+        sum: mutable i64 = 0
+        for index in 0..<count:
+            sum <- (sum.u64() + input[2 + index].u64()).i64()
+            average: f64 = sum.f64() / (index + 1).f64()
+            streaming_moving_average_put_f64(output, index * 8, average)
+        return (count * 8).i64()
     index <- 0
     # At most 256 signed 32-bit inputs fit in the exact binary64 integer range.
     sum: mutable u64 = 0
