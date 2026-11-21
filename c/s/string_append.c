@@ -12,8 +12,8 @@ int64_t string_append(const int64_t *input, size_t length, uint8_t *output, size
     if ((first_length > second_length ? first_length : second_length) > MAX_SIDE) return -1;
     const size_t count = length - 2;
     if (count != first_length + second_length) return -1;
-    for (size_t i = 0; i < count; ++i) {
-        const int64_t value = input[2 + i];
+    for (size_t remaining = count, index = 2; remaining != 0; --remaining, ++index) {
+        const int64_t value = input[index];
         if (value < 32 || value > 126) return -1;
     }
     if (capacity < count || (count != 0 && output == NULL)) return -2;
