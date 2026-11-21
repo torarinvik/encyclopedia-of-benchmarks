@@ -239,7 +239,18 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
     cost: mutable u32 = 0
     groups: mutable usize = terminals
     if count == 1:
-        cost <- st_mst_h(n, w, family_h, &tree, &tree_n)
+        # The component is already a tree. Order its edges as Kruskal would.
+        tree_n <- sizes[0]
+        for edge in 0..<tree_n:
+            u: usize = family_u[edge]
+            v: usize = family_v[edge]
+            entry: ST_Edge = ST_Edge{u: u, v: v, w: w[u * 4 + v]}
+            cost <- cost + entry.w
+            position: mutable usize = edge
+            while position > 0 and st_less(entry, tree[position - 1]):
+                tree[position] <- tree[position - 1]
+                position <- position - 1
+            tree[position] <- entry
         groups <- 1
     while groups > 1:
         best: mutable usize = 4
