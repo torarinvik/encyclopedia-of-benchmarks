@@ -12,21 +12,22 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         if input[2+i] < 0 or input[2+i] > 1000000000: return -1
         current[i] <- input[2+i]
         maximum <- current[i] if current[i] > maximum
-    needs_partitions: mutable bool = false
+    filtered_scan_length: mutable usize = 0
     for i in 0..<q:
         b: usize = 2+n+3*i
         if input[b] < 0 or input[b] > input[b+1] or input[b+1] > n.i64(): return -1
         if input[b+2] < 0 or input[b+2] > 1000000000: return -1
-        needs_partitions <- needs_partitions or input[b+2] < maximum
+        if input[b+2] < maximum:
+            filtered_scan_length <- filtered_scan_length + input[b+1].usize() - input[b].usize()
     if output == null or capacity < 16*q: return -2
     # The maximum sum is 64 billion, which fits below bit 36.
     # Each valid prefix index is below 1950. Round up to bound the index in LLVM.
     prefixes: mutable u64[2048] = zeroed
     # Leading zero bits cannot partition any input value.
-    first_level: mutable usize = 0
-    use_matrix: bool = needs_partitions and n*q > 64
+    first_level: usize = (leading_zeros(maximum.u32() | 1, false) - 2).usize()
+    # Compare filtered scan length with the matrix construction work per level.
+    use_matrix: bool = filtered_scan_length > n * (30 - first_level)
     if use_matrix:
-        first_level <- (leading_zeros(maximum.u32() | 1, false) - 2).usize()
         for level in first_level..<30:
             mask: i64 = 1.i64() << (29-level)
             source: usize = ((level - first_level) & 1) << 6
