@@ -20,7 +20,7 @@ def srin_bit_add(bit: mutable i64&, rank: usize, distinct: usize, delta: i64) ->
 # between bytes because even a full window contains at most 128 values.
 def srin_packed_sum(prefixes: u64, count: usize) -> i64:
     if count == 0: return 0
-    ((prefixes >> (8 * (count - 1))) & 255).i64()
+    ((prefixes << (64 - 8 * count)) >> 56).i64()
 
 @inline(always)
 def srin_sweep(queries: u32&, ranks: usize&, output: mutable u8&,
