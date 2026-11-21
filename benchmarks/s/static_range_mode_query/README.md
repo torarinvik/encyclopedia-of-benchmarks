@@ -39,7 +39,9 @@ The Elisa port carries original positions through the rank sort and stores
 occurrences as one 32-bit mask per rank. A boundary candidate’s frequency is
 the population count after masking to the queried interval, reducing the
 query term to `O(q*B)` for this 32-position profile. Elisa rounds the block
-width up to a power of two, so it can locate blocks with shifts.
+width up to a power of two, so it can locate blocks with shifts. It builds
+whole-block mode rows on demand and retains each row’s histogram for later
+queries that extend the same span.
 
 The independent oracle scans each query directly. See [`workload.json`](workload.json)
 and [`verify_workload.py`](verify_workload.py).

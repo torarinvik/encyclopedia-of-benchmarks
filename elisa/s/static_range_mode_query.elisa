@@ -70,26 +70,10 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     # Round the block width up to a power of two for shift-based indexing.
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
     block_size: usize = 1.usize() << block_shift
-    # The final partial block can only be scanned as a boundary fragment.
-    block_count: usize = n >> block_shift
-    frequency: mutable u8[MAX_N] = zeroed
-    for first in 0..<block_count:
-        for id in 0..<distinct:
-            frequency[id] <- 0
-        best_score: mutable usize = 0
-        last: mutable usize = first
-        while last < block_count:
-            begin: usize = last << block_shift
-            end: usize = begin + block_size
-            for index in begin..<end:
-                id: usize = compressed[index].usize()
-                frequency[id] <- frequency[id] + 1
-                # Larger counts win, then smaller ranks.
-                score: usize = (frequency[id].usize() << 5) | (31 - id)
-                best_score <- score if score > best_score
-            block_mode[first * MAX_BLOCKS + last] <- (31 - (best_score & 31)).u8()
-            last <- last + 1
-
+    # Extend each starting block’s histogram only as far as requested.
+    row_counts: mutable u8[MAX_BLOCKS * MAX_N] = zeroed
+    row_score: mutable usize[MAX_BLOCKS] = zeroed
+    row_end: mutable usize[MAX_BLOCKS] = zeroed
     answers: mutable i64[2 * MAX_Q] = zeroed
     for query in 0..<q:
         left: usize = input[2 + n + 2 * query].usize()
@@ -101,10 +85,31 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         best_id: mutable usize = 0
         best_count: mutable usize = 0
         if first_full < after_full:
-            best_id <- block_mode[first_full * MAX_BLOCKS + after_full - 1].usize()
-            best_count <- mode_frequency(positions[best_id], range_mask)
             span_start: usize = first_full << block_shift
             span_end: usize = after_full << block_shift
+            slot: usize = first_full * MAX_BLOCKS + after_full - 1
+            stored: u8 = block_mode[slot]
+            if stored == 0:
+                next_block: mutable usize = first_full if row_end[first_full] == 0 else row_end[first_full]
+                best_score: mutable usize = row_score[first_full]
+                count_base: usize = first_full * MAX_N
+                while next_block < after_full:
+                    begin: usize = next_block << block_shift
+                    for index in begin..<(begin + block_size):
+                        id: usize = compressed[index].usize()
+                        count_slot: usize = count_base + id
+                        count: u8 = row_counts[count_slot] + 1
+                        row_counts[count_slot] <- count
+                        score: usize = (count.usize() << 5) | (31 - id)
+                        best_score <- score if score > best_score
+                    block_mode[first_full * MAX_BLOCKS + next_block] <- (32 - (best_score & 31)).u8()
+                    next_block <- next_block + 1
+                row_end[first_full] <- after_full
+                row_score[first_full] <- best_score
+                best_id <- 31 - (best_score & 31)
+            else:
+                best_id <- stored.usize() - 1
+            best_count <- mode_frequency(positions[best_id], range_mask)
             for index in left..<span_start:
                 id: usize = compressed[index].usize()
                 count: usize = mode_frequency(positions[id], range_mask)
