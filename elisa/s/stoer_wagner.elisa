@@ -1,3 +1,6 @@
+@intrinsic("llvm.cttz.i64")
+extern stoer_trailing_zeros(value: u64, zero_undefined: bool) -> u64
+
 const MAX_N: usize = 16
 const MAX_INPUT_VALUES: usize = 257
 const MAX_WEIGHT: i64 = 1000000
@@ -40,11 +43,11 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
             column <- column + 1
         row <- row + 1
 
-    merged: mutable bool[16] = zeroed
+    active: mutable u64 = (1.u64() << n) - 1
     min_cut: mutable i64 = 120000001
     phase: mutable usize = 0
     while phase + 1 < n:
-        in_set: mutable bool[16] = zeroed
+        available: mutable u64 = active
         weights: mutable i64[16] = zeroed
         previous: mutable i64 = -1
         last: mutable i64 = -1
@@ -53,23 +56,24 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
         while step < n - phase:
             current: mutable i64 = -1
             max_weight: mutable i64 = -1
-            vertex <- 0
-            while vertex < n:
-                if not merged[vertex] and not in_set[vertex] and weights[vertex] > max_weight:
+            pending: mutable u64 = available
+            while pending != 0:
+                vertex <- stoer_trailing_zeros(pending, true).usize() & 15
+                if weights[vertex] > max_weight:
                     current <- vertex.i64()
                     max_weight <- weights[vertex]
-                vertex <- vertex + 1
+                pending <- pending & (pending - 1)
             if current < 0:
                 break
             current_index: usize = current.usize()
-            in_set[current_index] <- true
+            available <- available & ~(1.u64() << (current_index & 15))
             previous <- last
             last <- current
-            vertex <- 0
-            while vertex < n:
-                if not merged[vertex] and not in_set[vertex]:
-                    weights[vertex] <- weights[vertex] + graph[current_index * MAX_N + vertex]
-                vertex <- vertex + 1
+            pending <- available
+            while pending != 0:
+                vertex <- stoer_trailing_zeros(pending, true).usize() & 15
+                weights[vertex] <- weights[vertex] + graph[current_index * MAX_N + vertex]
+                pending <- pending & (pending - 1)
             step <- step + 1
         if last < 0 or previous < 0:
             return -1
@@ -82,7 +86,7 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
             graph[previous_index * MAX_N + vertex] <- graph[previous_index * MAX_N + vertex] + graph[last_index * MAX_N + vertex]
             graph[vertex * MAX_N + previous_index] <- graph[previous_index * MAX_N + vertex]
             vertex <- vertex + 1
-        merged[last_index] <- true
+        active <- active & ~(1.u64() << (last_index & 15))
         phase <- phase + 1
     min_cut
 
