@@ -16,14 +16,19 @@ def stalin_sort_impl(values: i64&?, length: usize,
     if length == 0: return -2 if output == null else 0
     first: i64 = values[0]
     if first < -2147483648 or first > 2147483647: return -1
-    stalin_sort_run(values, length, output, output_capacity)
+    if length == 1:
+        if output == null or output_capacity < 4: return -2
+        store_i32_le(first, output, 0)
+        return 4
+    stalin_sort_run(values, length, output, output_capacity, first)
 
 @inline(never)
-def stalin_sort_run(values: i64&, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
+def stalin_sort_run(values: i64&, length: usize, output: mutable u8&?, output_capacity: usize, first: i64) -> i64:
     buffer: mutable i32[128] = zeroed
-    kept: mutable usize = 0
-    last: mutable i64 = -2147483648
-    for index in 0..<length:
+    buffer[0] <- first.i32()
+    kept: mutable usize = 1
+    last: mutable i64 = first
+    for index in 1.usize()..<length:
         value: i64 = values[index]
         if value < -2147483648 or value > 2147483647: return -1
         if value >= last:
