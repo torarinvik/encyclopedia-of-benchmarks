@@ -4,8 +4,7 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     n: usize = input[0].usize()
     q: usize = input[1].usize()
     if length != 2+n+3*q: return -1
-    current: mutable i64[64] = zeroed
-    scratch: mutable i64[64] = zeroed
+    current: mutable i64[128] = zeroed
     maximum: mutable i64 = 0
     for i in 0..<n:
         if input[2+i] < 0 or input[2+i] > 1000000000: return -1
@@ -25,24 +24,28 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         first_level <- first_level + 1
     for level in first_level..<30:
         mask: i64 = 1.i64() << (29-level)
+        source: usize = ((level - first_level) & 1) << 6
+        target: usize = source ^ 64
+        zeros: mutable usize = 0
+        zero_sum: mutable i64 = 0
         for i in 0..<n:
-            counts[65*level+i+1] <- counts[65*level+i]
-            sums[65*level+i+1] <- sums[65*level+i]
-            if (current[i] & mask) == 0:
-                counts[65*level+i+1] <- counts[65*level+i+1]+1
-                sums[65*level+i+1] <- sums[65*level+i+1]+current[i]
-        offsets[level] <- counts[65*level+n]
+            value: i64 = current[source + i]
+            if (value & mask) == 0:
+                zeros <- zeros + 1
+                zero_sum <- zero_sum + value
+            counts[65*level+i+1] <- zeros
+            sums[65*level+i+1] <- zero_sum
+        offsets[level] <- zeros
         z: mutable usize = 0
-        o: mutable usize = offsets[level]
+        o: mutable usize = zeros
         for i in 0..<n:
-            if (current[i] & mask) == 0:
-                scratch[z] <- current[i]
+            value: i64 = current[source + i]
+            if (value & mask) == 0:
+                current[target + z] <- value
                 z <- z+1
             else:
-                scratch[o] <- current[i]
+                current[target + o] <- value
                 o <- o+1
-        for i in 0..<n:
-            current[i] <- scratch[i]
     answers: mutable i64[128] = zeroed
     for i in 0..<q:
         b: usize = 2+n+3*i
