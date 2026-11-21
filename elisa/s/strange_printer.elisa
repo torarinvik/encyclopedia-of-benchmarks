@@ -1,39 +1,44 @@
 const SP_MAX_LENGTH: usize = 8
-const SP_TABLE_SIDE: usize = 9
+const SP_TABLE_SIDE: usize = 8
 
-def strange_printer_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
-    if length < 1 or length > 10: return -1
+def strange_printer_impl(input: i64&?, length: usize) -> i64:
+    if input == null or length < 1 or length > 10: return -1
     n_value: i64 = input[0]
     if n_value < 0 or n_value > 8 or length != n_value.usize() + 1: return -1
-    n: usize = n_value.usize()
+    length_from_header: usize = n_value.usize()
+    symbols: mutable u8[8] = zeroed
+    n: mutable usize = 0
+    previous: mutable u64 = 3
     position: mutable usize = 0
-    while position < n:
-        if input[position + 1] < 0 or input[position + 1] > 2: return -1
+    while position < length_from_header:
+        symbol: u64 = input[position + 1].u64()
+        if symbol > 2: return -1
+        if symbol != previous:
+            symbols[n] <- symbol.u8()
+            n <- n + 1
+            previous <- symbol
         position <- position + 1
-    if n == 0: return 0
+    if n < 2: return n.i64()
 
-    dp: mutable i64[81] = zeroed
+    dp: mutable u8[64] = zeroed
     left: mutable usize = n
     while left > 0:
         left <- left - 1
         dp[left * SP_TABLE_SIDE + left] <- 1
         right: mutable usize = left + 1
         while right < n:
-            best: mutable i64 = dp[(left + 1) * SP_TABLE_SIDE + right] + 1
+            best: mutable u8 = dp[(left + 1) * SP_TABLE_SIDE + right] + 1
             merge: mutable usize = left + 1
             while merge <= right:
-                if input[left + 1] == input[merge + 1]:
-                    middle: i64 = 0
-                    if merge > left + 1: middle = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
-                    candidate: i64 = middle + dp[merge * SP_TABLE_SIDE + right]
+                if symbols[left] == symbols[merge]:
+                    middle: mutable u8 = 0
+                    if merge > left + 1: middle <- dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
+                    candidate: u8 = middle + dp[merge * SP_TABLE_SIDE + right]
                     if candidate < best: best <- candidate
                 merge <- merge + 1
             dp[left * SP_TABLE_SIDE + right] <- best
             right <- right + 1
-    return dp[n - 1]
+    return dp[n - 1].i64()
 
-export fn strange_printer(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 10: return -1
-    input_view: view[i64] = input[0:length]
-    strange_printer_impl(input_view)
+
+export fn strange_printer(input: i64&?, length: usize) -> i64 = strange_printer_impl

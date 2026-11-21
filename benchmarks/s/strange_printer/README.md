@@ -60,3 +60,5 @@ copy code, editorial material, examples, or statement text. See
 | Rust | [`rust/s/strange_printer.rs`](../../../rust/s/strange_printer.rs) |
 | V | [`v/s/strange_printer.v`](../../../v/s/strange_printer.v) |
 | Zig | [`zig/s/strange_printer.zig`](../../../zig/s/strange_printer.zig) |
+
+The Elisa implementation collapses adjacent equal symbols before running the same interval recurrence. Each run can be contracted to one position and expanded back without changing the minimum number of turns. With at most eight runs, each interval cost fits in one byte.
