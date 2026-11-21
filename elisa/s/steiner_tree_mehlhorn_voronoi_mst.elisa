@@ -63,9 +63,8 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             return -1
         terminals[i] <- t
         terminal_mask <- terminal_mask | terminal_bit
-    eu: mutable usize[MT_M] = zeroed
-    ev: mutable usize[MT_M] = zeroed
-    weight: mutable u32[MT_M] = zeroed
+    # Store each edge in the same format as an all-terminal Kruskal candidate.
+    edges: mutable u32[16] = zeroed
     input_labels: mutable u32 = MT_SINGLETON_LABELS
     incident: mutable u32[MT_N] = zeroed
     pair_seen: mutable u64 = 0
@@ -83,9 +82,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         if (pair_seen & pair_bit) != 0:
             return -1
         pair_seen <- pair_seen | pair_bit
-        eu[edge] <- u
-        ev[edge] <- v
-        weight[edge] <- w.u32()
+        edges[edge & 15] <- (w.u32() << 16) | (u.u32() << 13) | (v.u32() << 10) | edge.u32()
         mt_join(&input_labels, u, v)
         bit: u32 = 1.u32() << edge
         incident[u] <- incident[u] | bit
@@ -134,10 +131,10 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             while pending != 0:
                 edge <- mt_edge_index(pending, true).usize()
                 pending <- pending & (pending - 1)
-                next_vertex: usize = eu[edge] ^ ev[edge] ^ chosen_vertex
+                next_vertex: usize = ((edges[edge & 15] >> 13) & 7).usize() ^ ((edges[edge & 15] >> 10) & 7).usize() ^ chosen_vertex
                 if (settled & (1.u32() << next_vertex)) != 0:
                     continue
-                next_key: u32 = chosen_key + (weight[edge] << 3)
+                next_key: u32 = chosen_key + ((edges[edge & 15] >> 16) << 3)
                 route: u8 = ((chosen_vertex << 4) | edge).u8()
                 if next_key < distance_key[next_vertex]:
                     distance_key[next_vertex] <- next_key
@@ -156,15 +153,15 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     if k == n:
         # Each edge already connects its own pair of terminal owners.
         for index in 0..<m:
-            candidates[index & 15] <- (weight[index] << 16) | (eu[index].u32() << 13) | (ev[index].u32() << 10) | index.u32()
+            candidates[index & 15] <- edges[index & 15]
         cn <- m
     else:
         best_candidate: mutable u32[64] = zeroed
         occupied_pairs: mutable u64 = 0
         edge <- 0
         while edge < m:
-            u: usize = eu[edge]
-            v: usize = ev[edge]
+            u: usize = ((edges[edge & 15] >> 13) & 7).usize()
+            v: usize = ((edges[edge & 15] >> 10) & 7).usize()
             a: mutable usize = (distance_key[u] & 7).usize()
             b: mutable usize = (distance_key[v] & 7).usize()
             if a != b:
@@ -177,7 +174,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                     left <- v
                     right <- u
                 ix: usize = a*MT_N+b
-                cw: u32 = (distance_key[u] >> 3) + weight[edge] + (distance_key[v] >> 3)
+                cw: u32 = (distance_key[u] >> 3) + (edges[edge & 15] >> 16) + (distance_key[v] >> 3)
                 # The key orders weight, owners, endpoints and original edge ID.
                 key: u32 = (cw << 16) | (a.u32() << 13) | (b.u32() << 10) | (left.u32() << 7) | (right.u32() << 4) | edge.u32()
                 occupied_pairs <- occupied_pairs | (1.u64() << ix)
@@ -250,7 +247,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         while used != 0:
             edge <- mt_edge_index(used, true).usize()
             used <- used & (used - 1)
-            key: u32 = (weight[edge] << 4) | edge.u32()
+            key: u32 = ((edges[edge & 15] >> 16) << 4) | edge.u32()
             j <- on
             while j > 0 and key < order[(j-1) & 15]:
                 order[j & 15] <- order[(j-1) & 15]
@@ -262,8 +259,8 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         for index in 0..<on:
             key: u32 = order[index & 15]
             e: usize = (key & 15).usize()
-            u: usize = eu[e]
-            v: usize = ev[e]
+            u: usize = ((edges[e & 15] >> 13) & 7).usize()
+            v: usize = ((edges[e & 15] >> 10) & 7).usize()
             if mt_join(&labels, u, v):
                 tree <- tree | (1.u32() << e)
                 degree[u] <- degree[u]+1
@@ -295,8 +292,8 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 edge <- mt_edge_index(pending, true).usize()
                 tree <- tree ^ pending
                 count <- count-1
-                cost <- cost-weight[edge]
-                v: usize = eu[edge] ^ ev[edge] ^ u
+                cost <- cost-(edges[edge & 15] >> 16)
+                v: usize = ((edges[edge & 15] >> 13) & 7).usize() ^ ((edges[edge & 15] >> 10) & 7).usize() ^ u
                 degree[u] <- 0
                 degree[v] <- degree[v]-1
                 if not ((terminal_mask & (1.u32() << v)) != 0) and degree[v] <= 1 and not queued[v]:
