@@ -43,15 +43,16 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                 prefixes[(65*level+i+1) & 2047] <- prefix
             zeros: usize = (prefix >> 36).usize()
             if level == 29: break
+            # Each stable partition writes exactly n entries into the target half.
             z: mutable usize = 0
             o: mutable usize = zeros
             for i in 0..<n:
                 value: i64 = current[source + i]
                 if (value & mask) == 0:
-                    current[target + z] <- value
+                    current[(target + z) & 127] <- value
                     z <- z+1
                 else:
-                    current[target + o] <- value
+                    current[(target + o) & 127] <- value
                     o <- o+1
             mask <- mask >> 1
     answers: mutable i64[128] = zeroed
