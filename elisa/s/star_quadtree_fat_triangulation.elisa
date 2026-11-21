@@ -77,21 +77,20 @@ def star_add_pair(pairs: mutable i64&, pair_count: mutable usize&, key: usize, t
 def star_visit(vertices: i32&, triangles: i32&, edges: i32&,
                vertex_count: usize, triangle_count: usize, edge_count: usize,
                pairs: mutable i64&, pair_count: mutable usize&, failed: mutable u8&,
-               depth: usize, ix: usize, iy: usize, path: usize) -> void:
+               depth: usize, xmin: i32, ymax: i32, size: i32, path: usize) -> void:
     if failed[0] != 0: return
-    size: usize = 8 >> depth
-    xmin: i32 = (ix * size).i32()
-    xmax: i32 = xmin + size.i32()
-    ymax: i32 = 8 - (iy * size).i32()
-    ymin: i32 = ymax - size.i32()
+    xmax: i32 = xmin + size
+    ymin: i32 = ymax - size
     if not star_stops(vertices,edges,edge_count,vertex_count,xmin,ymin,xmax,ymax):
         if depth >= STAR_MAX_DEPTH:
             failed[0] <- 1
             return
+        half: i32 = size >> 1
         q: mutable usize = 0
         while q < 4:
             star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
-                pairs,pair_count,failed,depth+1,2*ix+(q%2),2*iy+(q/2),4*path+q)
+                pairs,pair_count,failed,depth+1,xmin+(q%2).i32()*half,
+                ymax-(q/2).i32()*half,half,4*path+q)
             q <- q + 1
         return
     key: usize = path << (2 * (STAR_MAX_DEPTH-depth))
@@ -176,7 +175,7 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
     pair_count: mutable usize = 0
     failed: mutable u8 = 0
     star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
-        pairs,pair_count,&failed,0,0,0,0)
+        pairs,pair_count,&failed,0,0,8,8,0)
     if failed != 0: return -1
     required: usize = (1 + 2*pair_count)*8
     if output == null or capacity < required: return -2
