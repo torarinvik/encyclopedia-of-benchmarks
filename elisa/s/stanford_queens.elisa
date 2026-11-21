@@ -3,38 +3,38 @@ const MAX_RUNS: i64 = 100
 const SOLVE_REPETITIONS: usize = 50
 const MAX_OUTPUT_BYTES: usize = 292
 
-def try_queens(row: usize, columns: mutable bool&, diagonal_sum: mutable bool&,
-               diagonal_diff: mutable bool&, positions: mutable usize&) -> bool:
+def try_queens(row: usize, columns: mutable u8&, diagonal_sum: mutable u8&,
+               diagonal_diff: mutable u8&, positions: mutable usize&) -> bool:
     j: mutable usize = 0
     found: mutable bool = false
     while not found and j != 8:
         j <- j + 1
         found <- false
-        if columns[j] and diagonal_sum[row + j] and diagonal_diff[row + 7 - j]:
+        if columns[j] != 0 and diagonal_sum[row + j] != 0 and diagonal_diff[row + 7 - j] != 0:
             positions[row] <- j
-            columns[j] <- false
-            diagonal_sum[row + j] <- false
-            diagonal_diff[row + 7 - j] <- false
+            columns[j] <- 0
+            diagonal_sum[row + j] <- 0
+            diagonal_diff[row + 7 - j] <- 0
             if row < 8:
                 found <- try_queens(row + 1, columns, diagonal_sum, diagonal_diff, positions)
                 if not found:
-                    columns[j] <- true
-                    diagonal_sum[row + j] <- true
-                    diagonal_diff[row + 7 - j] <- true
+                    columns[j] <- 1
+                    diagonal_sum[row + j] <- 1
+                    diagonal_diff[row + 7 - j] <- 1
             else:
                 found <- true
     found
 
 def doit() -> bool:
-    a: mutable bool[9] = zeroed
-    b: mutable bool[17] = zeroed
-    c: mutable bool[15] = zeroed
+    a: mutable u8[9] = zeroed
+    b: mutable u8[17] = zeroed
+    c: mutable u8[15] = zeroed
     x: mutable usize[9] = zeroed
     i: mutable i64 = -7
     while i <= 16:
-        if i >= 1 and i <= 8: a[i.usize()] <- true
-        if i >= 2: b[i.usize()] <- true
-        if i <= 7: c[(i + 7).usize()] <- true
+        if i >= 1 and i <= 8: a[i.usize()] <- 1
+        if i >= 2: b[i.usize()] <- 1
+        if i <= 7: c[(i + 7).usize()] <- 1
         i <- i + 1
     try_queens(1, &a[0], &b[0], &c[0], &x[0])
 
