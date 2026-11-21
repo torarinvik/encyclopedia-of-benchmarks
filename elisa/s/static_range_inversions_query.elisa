@@ -31,9 +31,12 @@ def srin_bit_add(bit: mutable i64&, rank: usize, distinct: usize, delta: i64) ->
 # Each byte holds the number of values at or below that rank.
 # Adding a rank increments every prefix at or above it, with no carry
 # between bytes because even a full window contains at most 128 values.
-def srin_packed_sum(prefixes: u64, bits: usize) -> i64:
-    if bits == 0: return 0
-    ((prefixes << (64 - bits)) >> 56).i64()
+def srin_packed_sum(prefixes: u64, rank: usize) -> i64:
+    ((prefixes << (56 - rank)) >> 56).i64()
+
+def srin_packed_sum_below(prefixes: u64, rank: usize) -> i64:
+    # Shift in two steps so the lowest rank yields zero without shifting by 64.
+    (((prefixes << 8) << (56 - rank)) >> 56).i64()
 
 @inline(always)
 def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
@@ -55,14 +58,14 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
         while current_left > target_left:
             current_left <- current_left - 1
             rank: usize = ranks[current_left].usize()
-            inversions <- inversions + (current_right-current_left-1).i64() - (srin_packed_sum(prefixes, rank + 8) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
+            inversions <- inversions + (current_right-current_left-1).i64() - (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
             if use_packed:
                 prefixes <- prefixes + (0x0101010101010101.u64() << rank)
             else:
                 srin_bit_add(&bit[0], rank >> 3, distinct, 1)
         while current_right < target_right:
             rank: usize = ranks[current_right].usize()
-            inversions <- inversions + (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
+            inversions <- inversions + (srin_packed_sum_below(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
             if use_packed:
                 prefixes <- prefixes + (0x0101010101010101.u64() << rank)
             else:
@@ -70,7 +73,7 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
             current_right <- current_right + 1
         while current_left < target_left:
             rank: usize = ranks[current_left].usize()
-            inversions <- inversions - (current_right-current_left).i64() + (srin_packed_sum(prefixes, rank + 8) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
+            inversions <- inversions - (current_right-current_left).i64() + (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
             if use_packed:
                 prefixes <- prefixes - (0x0101010101010101.u64() << rank)
             else:
@@ -79,7 +82,7 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
         while current_right > target_right:
             current_right <- current_right - 1
             rank: usize = ranks[current_right].usize()
-            inversions <- inversions - (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
+            inversions <- inversions - (srin_packed_sum_below(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
             if use_packed:
                 prefixes <- prefixes - (0x0101010101010101.u64() << rank)
             else:
