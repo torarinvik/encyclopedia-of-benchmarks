@@ -15,21 +15,29 @@ def stormer_verlet_position_impl(input: i64&?, length: usize,
     if input[0] != count.i64(): return -1
     if input[1].u64() + 1024 > 2048 or input[2].u64() + 1024 > 2048: return -1
     byte_count: usize = 8 * count
-    if count <= 3:
+    if count <= 4:
         first: i64 = input[1]
         second: i64 = input[2]
         third: mutable u64 = 0
-        if count == 3:
+        fourth: mutable u64 = 0
+        if count >= 3:
             acceleration: u64 = input[3].u64()
             if acceleration + 64 > 128:
                 return -1
             third <- 2 * second.u64() - first.u64() + acceleration
+        if count == 4:
+            acceleration: u64 = input[4].u64()
+            if acceleration + 64 > 128:
+                return -1
+            fourth <- 2 * third - second.u64() + acceleration
         if output == null or capacity < byte_count:
             return -2
         svp_store_i64_le(output, 0, first)
         svp_store_i64_le(output, 8, second)
-        if count == 3:
+        if count >= 3:
             svp_store_i64_le(output, 16, third.i64())
+        if count == 4:
+            svp_store_i64_le(output, 24, fourth.i64())
         return byte_count.i64()
     staged: mutable u8[SVP_MAX_OUTPUT_BYTES] = zeroed
     staged_view: mutable u8& = &staged[0]
