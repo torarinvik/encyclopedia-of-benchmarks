@@ -10,8 +10,8 @@ const STAR_MAX_OUTPUT_BYTES: usize = 1032
 def star_stops(edges: u64&, edge_count: usize, bounds: u64) -> bool:
     guards: u64 = 0x8080808080808080
     candidates: mutable u64 = 31
-    for edge in 0..<edge_count:
-        if ((edges[2*edge] - bounds) & guards) == guards:
+    for edge in 0..<STAR_MAX_EDGES:
+        if edge < edge_count and ((edges[2*edge] - bounds) & guards) == guards:
             candidates <- candidates & edges[2*edge+1]
             if candidates == 0: return false
     true
