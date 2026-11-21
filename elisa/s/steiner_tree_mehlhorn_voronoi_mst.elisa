@@ -149,39 +149,45 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 return -1
             vertex <- vertex+1
 
-    best_candidate: mutable u32[64] = zeroed
-    occupied_pairs: mutable u64 = 0
-    edge <- 0
-    while edge < m:
-        u: usize = eu[edge]
-        v: usize = ev[edge]
-        a: mutable usize = (distance_key[u] & 7).usize()
-        b: mutable usize = (distance_key[v] & 7).usize()
-        if a != b:
-            left: mutable usize = u
-            right: mutable usize = v
-            if a > b:
-                tmp: usize = a
-                a <- b
-                b <- tmp
-                left <- v
-                right <- u
-            ix: usize = a*MT_N+b
-            cw: u32 = (distance_key[u] >> 3) + weight[edge] + (distance_key[v] >> 3)
-            # The key orders weight, owners, endpoints and original edge ID.
-            key: u32 = (cw << 16) | (a.u32() << 13) | (b.u32() << 10) | (left.u32() << 7) | (right.u32() << 4) | edge.u32()
-            occupied_pairs <- occupied_pairs | (1.u64() << ix)
-            previous: u32 = best_candidate[ix & 63]
-            if previous == 0 or key < previous:
-                best_candidate[ix & 63] <- key
-        edge <- edge+1
     candidates: mutable u32[16] = zeroed
     cn: mutable usize = 0
-    while occupied_pairs != 0:
-        pair: usize = mt_pair_index(occupied_pairs, true).usize()
-        occupied_pairs <- occupied_pairs & (occupied_pairs - 1)
-        candidates[cn & 15] <- best_candidate[pair & 63]
-        cn <- cn+1
+    if k == n:
+        # Each edge already connects its own pair of terminal owners.
+        for index in 0..<m:
+            candidates[index & 15] <- (weight[index] << 16) | (eu[index].u32() << 13) | (ev[index].u32() << 10) | index.u32()
+        cn <- m
+    else:
+        best_candidate: mutable u32[64] = zeroed
+        occupied_pairs: mutable u64 = 0
+        edge <- 0
+        while edge < m:
+            u: usize = eu[edge]
+            v: usize = ev[edge]
+            a: mutable usize = (distance_key[u] & 7).usize()
+            b: mutable usize = (distance_key[v] & 7).usize()
+            if a != b:
+                left: mutable usize = u
+                right: mutable usize = v
+                if a > b:
+                    tmp: usize = a
+                    a <- b
+                    b <- tmp
+                    left <- v
+                    right <- u
+                ix: usize = a*MT_N+b
+                cw: u32 = (distance_key[u] >> 3) + weight[edge] + (distance_key[v] >> 3)
+                # The key orders weight, owners, endpoints and original edge ID.
+                key: u32 = (cw << 16) | (a.u32() << 13) | (b.u32() << 10) | (left.u32() << 7) | (right.u32() << 4) | edge.u32()
+                occupied_pairs <- occupied_pairs | (1.u64() << ix)
+                previous: u32 = best_candidate[ix & 63]
+                if previous == 0 or key < previous:
+                    best_candidate[ix & 63] <- key
+            edge <- edge+1
+        while occupied_pairs != 0:
+            pair: usize = mt_pair_index(occupied_pairs, true).usize()
+            occupied_pairs <- occupied_pairs & (occupied_pairs - 1)
+            candidates[cn & 15] <- best_candidate[pair & 63]
+            cn <- cn+1
     i: mutable usize = 1
     j: mutable usize = 0
     while i < cn:
@@ -193,100 +199,108 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         candidates[j & 15] <- key
         i <- i+1
     labels: mutable u32 = MT_SINGLETON_LABELS
+    tree: mutable u32 = 0
+    count: mutable usize = 0
+    cost: mutable u32 = 0
     chosen: mutable usize[MT_N] = zeroed
     ch: mutable usize = 0
     i <- 0
     while i < cn and ch < k-1:
         key: u32 = candidates[i & 15]
         if mt_join(&labels, ((key >> 13) & 7).usize(), ((key >> 10) & 7).usize()):
-            chosen[ch] <- i
+            if k == n:
+                tree <- tree | (1.u32() << (key & 15))
+                cost <- cost+(key >> 16)
+            else:
+                chosen[ch] <- i
             ch <- ch+1
         i <- i+1
     if ch != k-1:
         return -1
-    used: mutable u32 = 0
-    ix: mutable usize = 0
-    i <- 0
-    while i < ch:
-        ix <- chosen[i]
-        key: u32 = candidates[ix & 15]
-        used <- used | (1.u32() << (key & 15))
-        x: mutable usize = ((key >> 7) & 7).usize()
-        while x != ((key >> 13) & 7).usize():
-            route: u8 = predecessor[x]
-            if route == 255:
+    if k == n:
+        # The first Kruskal pass already produced the required tree.
+        count <- ch
+    else:
+        used: mutable u32 = 0
+        ix: mutable usize = 0
+        i <- 0
+        while i < ch:
+            ix <- chosen[i]
+            key: u32 = candidates[ix & 15]
+            used <- used | (1.u32() << (key & 15))
+            x: mutable usize = ((key >> 7) & 7).usize()
+            while x != ((key >> 13) & 7).usize():
+                route: u8 = predecessor[x]
+                if route == 255:
+                    return -1
+                used <- used | (1.u32() << (route & 15).usize())
+                x <- (route >> 4).usize()
+            x <- ((key >> 4) & 7).usize()
+            while x != ((key >> 10) & 7).usize():
+                route: u8 = predecessor[x]
+                if route == 255:
+                    return -1
+                used <- used | (1.u32() << (route & 15).usize())
+                x <- (route >> 4).usize()
+            i <- i+1
+        order: mutable u32[16] = zeroed
+        on: mutable usize = 0
+        while used != 0:
+            edge <- mt_edge_index(used, true).usize()
+            used <- used & (used - 1)
+            key: u32 = (weight[edge] << 4) | edge.u32()
+            j <- on
+            while j > 0 and key < order[(j-1) & 15]:
+                order[j & 15] <- order[(j-1) & 15]
+                j <- j-1
+            order[j & 15] <- key
+            on <- on+1
+        labels <- MT_SINGLETON_LABELS
+        degree: mutable usize[MT_N] = zeroed
+        for index in 0..<on:
+            key: u32 = order[index & 15]
+            e: usize = (key & 15).usize()
+            u: usize = eu[e]
+            v: usize = ev[e]
+            if mt_join(&labels, u, v):
+                tree <- tree | (1.u32() << e)
+                degree[u] <- degree[u]+1
+                degree[v] <- degree[v]+1
+                count <- count+1
+                cost <- cost+(key >> 4)
+        first_label: u32 = mt_label(labels, terminals[0])
+        for index in 1..<k:
+            if mt_label(labels, terminals[index]) != first_label:
                 return -1
-            used <- used | (1.u32() << (route & 15).usize())
-            x <- (route >> 4).usize()
-        x <- ((key >> 4) & 7).usize()
-        while x != ((key >> 10) & 7).usize():
-            route: u8 = predecessor[x]
-            if route == 255:
-                return -1
-            used <- used | (1.u32() << (route & 15).usize())
-            x <- (route >> 4).usize()
-        i <- i+1
-    order: mutable u32[16] = zeroed
-    on: mutable usize = 0
-    while used != 0:
-        edge <- mt_edge_index(used, true).usize()
-        used <- used & (used - 1)
-        key: u32 = (weight[edge] << 4) | edge.u32()
-        j <- on
-        while j > 0 and key < order[(j-1) & 15]:
-            order[j & 15] <- order[(j-1) & 15]
-            j <- j-1
-        order[j & 15] <- key
-        on <- on+1
-    labels <- MT_SINGLETON_LABELS
-    tree: mutable u32 = 0
-    degree: mutable usize[MT_N] = zeroed
-    count: mutable usize = 0
-    cost: mutable u32 = 0
-    for index in 0..<on:
-        key: u32 = order[index & 15]
-        e: usize = (key & 15).usize()
-        u: usize = eu[e]
-        v: usize = ev[e]
-        if mt_join(&labels, u, v):
-            tree <- tree | (1.u32() << e)
-            degree[u] <- degree[u]+1
-            degree[v] <- degree[v]+1
-            count <- count+1
-            cost <- cost+(key >> 4)
-    first_label: u32 = mt_label(labels, terminals[0])
-    for index in 1..<k:
-        if mt_label(labels, terminals[index]) != first_label:
-            return -1
-    leaves: mutable usize[MT_N] = zeroed
-    queued: mutable bool[MT_N] = zeroed
-    head: mutable usize = 0
-    queue_end: mutable usize = 0
-    vertex <- 0
-    while vertex < n:
-        if not is_terminal[vertex] and degree[vertex] <= 1:
-            leaves[queue_end] <- vertex
-            queue_end <- queue_end+1
-            queued[vertex] <- true
-        vertex <- vertex+1
-    while head < queue_end:
-        u: usize = leaves[head]
-        head <- head+1
-        if degree[u] > 1:
-            continue
-        pending: u32 = incident[u] & tree
-        if pending != 0:
-            edge <- mt_edge_index(pending, true).usize()
-            tree <- tree ^ pending
-            count <- count-1
-            cost <- cost-weight[edge]
-            v: usize = eu[edge] ^ ev[edge] ^ u
-            degree[u] <- 0
-            degree[v] <- degree[v]-1
-            if not is_terminal[v] and degree[v] <= 1 and not queued[v]:
-                leaves[queue_end] <- v
+        leaves: mutable usize[MT_N] = zeroed
+        queued: mutable bool[MT_N] = zeroed
+        head: mutable usize = 0
+        queue_end: mutable usize = 0
+        vertex <- 0
+        while vertex < n:
+            if not is_terminal[vertex] and degree[vertex] <= 1:
+                leaves[queue_end] <- vertex
                 queue_end <- queue_end+1
-                queued[v] <- true
+                queued[vertex] <- true
+            vertex <- vertex+1
+        while head < queue_end:
+            u: usize = leaves[head]
+            head <- head+1
+            if degree[u] > 1:
+                continue
+            pending: u32 = incident[u] & tree
+            if pending != 0:
+                edge <- mt_edge_index(pending, true).usize()
+                tree <- tree ^ pending
+                count <- count-1
+                cost <- cost-weight[edge]
+                v: usize = eu[edge] ^ ev[edge] ^ u
+                degree[u] <- 0
+                degree[v] <- degree[v]-1
+                if not is_terminal[v] and degree[v] <= 1 and not queued[v]:
+                    leaves[queue_end] <- v
+                    queue_end <- queue_end+1
+                    queued[v] <- true
     if count == 0 or count > n-1:
         return -1
     bytes: usize = (2+count)*8
