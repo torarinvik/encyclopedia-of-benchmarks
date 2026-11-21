@@ -3,13 +3,11 @@ const MAX_T:usize=8
 const MAX_K:usize=8
 const WIDTH:usize=9
 
-def is_prime(value:i64)->bool:
-    if value<2:return false
-    divisor:mutable i64=2
-    while divisor<=value/divisor:
-        if value%divisor==0:return false
-        divisor<-divisor+1
-    true
+# Bit i marks whether the odd candidate 2*i+1 is prime in the supported range.
+const PRIME_MASK: u64 = 0x1129a64b4cb60
+
+def is_prime(value: i64) -> bool:
+    (value & 1) != 0 and (PRIME_MASK & (1.u64() << (value.u64() >> 1))) != 0
 
 def stirling_value(n:i64,k:usize,modulus:i64)->i64:
     quotient:i64=n/modulus
