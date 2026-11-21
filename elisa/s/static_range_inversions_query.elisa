@@ -150,6 +150,19 @@ def srin_short_queries(values: u64&, queries: u32&, output: mutable u8&, count: 
         for byte in 1..<8:
             output[8 * id + byte] <- 0
 
+@inline(never)
+def srin_rank_short_prefix(sorted: mutable u64&, ranks: mutable u16&, n: usize, ordered: usize) -> usize:
+    i: mutable usize = ordered
+    while i < n:
+        value: u64 = sorted[i]
+        j: mutable usize = i
+        while j > 0 and sorted[j - 1] > value:
+            sorted[j] <- sorted[j - 1]
+            j <- j - 1
+        sorted[j] <- value
+        i <- i + 1
+    srin_assign_ranks(sorted, ranks, n)
+
 def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 195: return -1
     n64: i64 = input[0]
@@ -200,21 +213,22 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
     # A low-byte rank table suffices when all values share their high bits.
     ranks: mutable u16[MAX_N] = zeroed
     distinct: mutable usize = srin_dense_ranks(&sorted[0],&ranks[0],n) if n >= 32 else 0
-    if distinct == 0:
-        if n >= 16:
-            # Select the same Knuth gap for the supported lengths 16 through 128.
-            gap: mutable usize = 121 if n >= 123 else (40 if n >= 42 else 13)
-            while gap > 1:
-                i <- gap
-                while i < n:
-                    value: u64 = sorted[i]
-                    j: mutable usize = i
-                    while j >= gap and sorted[j - gap] > value:
-                        sorted[j] <- sorted[j - gap]
-                        j <- j - gap
-                    sorted[j] <- value
-                    i <- i + 1
-                gap <- gap / 3
+    if n < 16:
+        distinct <- srin_rank_short_prefix(&sorted[0], &ranks[0], n, ordered)
+    elif distinct == 0:
+        # Select the same Knuth gap for the supported lengths 16 through 128.
+        gap: mutable usize = 121 if n >= 123 else (40 if n >= 42 else 13)
+        while gap > 1:
+            i <- gap
+            while i < n:
+                value: u64 = sorted[i]
+                j: mutable usize = i
+                while j >= gap and sorted[j - gap] > value:
+                    sorted[j] <- sorted[j - gap]
+                    j <- j - gap
+                sorted[j] <- value
+                i <- i + 1
+            gap <- gap / 3
         i <- 1
         while i < n:
             value: u64 = sorted[i]
