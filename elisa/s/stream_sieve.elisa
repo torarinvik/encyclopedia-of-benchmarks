@@ -4,8 +4,8 @@ const STREAM_SIEVE_END_DIVISOR: i32 = 65535
 
 global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[101] = zeroed
 global mutable STREAM_SIEVE_PRIME_COUNT: usize = 0
-global mutable STREAM_SIEVE_NEXT_CANDIDATE: i32 = 5
-global mutable STREAM_SIEVE_NEXT_STEP: u32 = 2
+global mutable STREAM_SIEVE_NEXT_CANDIDATE: i32 = 7
+global mutable STREAM_SIEVE_WHEEL_GAPS: u32 = 0x62642424
 
 def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if number_of_primes < -2147483648 or number_of_primes > 100: return -1
@@ -23,32 +23,32 @@ def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacit
         if cached_count < count:
             if cached_count == 1:
                 STREAM_SIEVE_PRIME_CACHE[1] <- 3
-                STREAM_SIEVE_PRIME_CACHE[2] <- STREAM_SIEVE_END_DIVISOR
                 cached_count <- 2
+            if cached_count == 2 and count > 2:
+                STREAM_SIEVE_PRIME_CACHE[2] <- 5
+                STREAM_SIEVE_PRIME_CACHE[3] <- STREAM_SIEVE_END_DIVISOR
+                cached_count <- 3
             candidate: mutable u32 = STREAM_SIEVE_NEXT_CANDIDATE.u32()
-            step: mutable u32 = STREAM_SIEVE_NEXT_STEP
+            wheel_gaps: mutable u32 = STREAM_SIEVE_WHEEL_GAPS
             while cached_count < count:
                 is_prime: mutable bool = true
-                if candidate >= 25:
-                    is_prime <- candidate % 5 != 0
-                    if is_prime:
-                        divisors: mutable i32& = &STREAM_SIEVE_PRIME_CACHE[3]
-                        while true:
-                            divisor: u32 = divisors[0].u32()
-                            if divisor > candidate / divisor: break
-                            if candidate % divisor == 0:
-                                is_prime <- false
-                                break
-                            divisors <- &divisors[1]
+                divisors: mutable i32& = &STREAM_SIEVE_PRIME_CACHE[3]
+                while true:
+                    divisor: u32 = divisors[0].u32()
+                    if divisor > candidate / divisor: break
+                    if candidate % divisor == 0:
+                        is_prime <- false
+                        break
+                    divisors <- &divisors[1]
                 if is_prime:
                     STREAM_SIEVE_PRIME_CACHE[cached_count] <- candidate.i32()
                     cached_count <- cached_count + 1
                     STREAM_SIEVE_PRIME_CACHE[cached_count] <- STREAM_SIEVE_END_DIVISOR
-                # Candidates alternate between 5 and 1 modulo 6.
-                candidate <- candidate + step
-                step <- step ^ 6
+                # Gaps for residues 7, 11, 13, 17, 19, 23, 29, and 1 modulo 30.
+                candidate <- candidate + (wheel_gaps & 15)
+                wheel_gaps <- (wheel_gaps >> 4) | (wheel_gaps << 28)
             STREAM_SIEVE_NEXT_CANDIDATE <- candidate.i32()
-            STREAM_SIEVE_NEXT_STEP <- step
+            STREAM_SIEVE_WHEEL_GAPS <- wheel_gaps
             STREAM_SIEVE_PRIME_COUNT <- cached_count
 
         index: mutable usize = 0
