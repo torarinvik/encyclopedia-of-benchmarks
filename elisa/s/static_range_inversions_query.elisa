@@ -65,7 +65,7 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
         id: usize = ((query >> 8) & 31).usize()
         target_left: usize = (query & 255).usize()
         sweep: u32 = (query >> 13) & 255
-        target_right: usize = (MAX_N.u32() - sweep if ((query >> 21) & 1) != 0 else sweep).usize()
+        target_right: usize = (sweep ^ ((0.u32() - ((query >> 21) & 1)) & 255)).usize()
         while current_left > target_left:
             current_left <- current_left - 1
             rank: usize = ranks[current_left].usize()
@@ -213,7 +213,7 @@ def srin_write_queries(input: i64&, output: mutable u8&, n: usize, q: usize, byt
         if left.u64() >= right.u64() or right.u64() > n.u64(): return -1
         block: u32 = (left.u32() * block_reciprocal) >> 11
         endpoint: u32 = right.u32()
-        sweep: u32 = MAX_N.u32() - endpoint if (block & 1) != 0 else endpoint
+        sweep: u32 = endpoint ^ ((0.u32() - (block & 1)) & 255)
         # Sort by block, sweep, then original ID. The endpoints travel with the key.
         queries[k] <- (block << 21) | (sweep << 13) | (k.u32() << 8) | left.u32()
         k <- k + 1
