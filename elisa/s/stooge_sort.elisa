@@ -20,6 +20,13 @@ def stooge_sort_three(values: mutable i64&) -> void:
     values[1] <- inner_high if inner_high <= outer_high else outer_high
     values[2] <- outer_high if inner_high <= outer_high else inner_high
 
+@inline(always)
+def stooge_sort_four(values: mutable i64&) -> void:
+    stooge_compare_endpoints(values, 3)
+    stooge_sort_three(values)
+    stooge_sort_three(&values[1])
+    stooge_sort_three(values)
+
 # Each recursive call receives the start and length of its subrange.
 def stooge_sort_range(values: mutable i64&, length: usize) -> void:
     span: mutable usize = length
@@ -45,6 +52,8 @@ def stooge_sort_impl(values: mutable i64&, length: usize) -> void:
         return
     if length == 2:
         stooge_compare_endpoints(values, 1)
+    elif length == 4:
+        stooge_sort_four(values)
     else:
         stooge_sort_range(values, length)
 
