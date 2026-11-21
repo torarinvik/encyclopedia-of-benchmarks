@@ -50,7 +50,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     if length < 3+k+3*m:
         return -1
     terminals: mutable usize[MT_N] = zeroed
-    is_terminal: mutable bool[MT_N] = zeroed
+    terminal_mask: mutable u32 = 0
     at: mutable usize = 3
     for i in 0..<k:
         raw: i64 = input[at]
@@ -58,16 +58,17 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         if raw < 0 or raw >= n0:
             return -1
         t: usize = raw.usize()
-        if is_terminal[t]:
+        terminal_bit: u32 = 1.u32() << t
+        if (terminal_mask & terminal_bit) != 0:
             return -1
         terminals[i] <- t
-        is_terminal[t] <- true
+        terminal_mask <- terminal_mask | terminal_bit
     eu: mutable usize[MT_M] = zeroed
     ev: mutable usize[MT_M] = zeroed
     weight: mutable u32[MT_M] = zeroed
     input_labels: mutable u32 = MT_SINGLETON_LABELS
     incident: mutable u32[MT_N] = zeroed
-    pair_seen: mutable bool[MT_N*MT_N] = zeroed
+    pair_seen: mutable u64 = 0
     edge: mutable usize = 0
     while edge < m:
         u0: i64 = input[at]
@@ -78,9 +79,10 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             return -1
         u: usize = u0.usize()
         v: usize = v0.usize()
-        if pair_seen[u*MT_N+v]:
+        pair_bit: u64 = 1.u64() << (u*MT_N+v)
+        if (pair_seen & pair_bit) != 0:
             return -1
-        pair_seen[u*MT_N+v] <- true
+        pair_seen <- pair_seen | pair_bit
         eu[edge] <- u
         ev[edge] <- v
         weight[edge] <- w.u32()
@@ -278,7 +280,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         queue_end: mutable usize = 0
         vertex <- 0
         while vertex < n:
-            if not is_terminal[vertex] and degree[vertex] <= 1:
+            if not ((terminal_mask & (1.u32() << vertex)) != 0) and degree[vertex] <= 1:
                 leaves[queue_end] <- vertex
                 queue_end <- queue_end+1
                 queued[vertex] <- true
@@ -297,7 +299,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 v: usize = eu[edge] ^ ev[edge] ^ u
                 degree[u] <- 0
                 degree[v] <- degree[v]-1
-                if not is_terminal[v] and degree[v] <= 1 and not queued[v]:
+                if not ((terminal_mask & (1.u32() << v)) != 0) and degree[v] <= 1 and not queued[v]:
                     leaves[queue_end] <- v
                     queue_end <- queue_end+1
                     queued[v] <- true
