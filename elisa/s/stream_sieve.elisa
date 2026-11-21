@@ -2,8 +2,20 @@
 # terminates the divisor scan even when every stored prime was tried.
 const STREAM_SIEVE_END_DIVISOR: i32 = 65535
 
-global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[101] = zeroed
-global mutable STREAM_SIEVE_PRIME_COUNT: usize = 0
+global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[101] = [
+    2,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+]
+global mutable STREAM_SIEVE_PRIME_COUNT: usize = 1
 global mutable STREAM_SIEVE_NEXT_CANDIDATE: i32 = 7
 global mutable STREAM_SIEVE_WHEEL_GAPS: u32 = 0x62642424
 
@@ -16,10 +28,6 @@ def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacit
 
     can Global.Read, Global.Write:
         cached_count: mutable usize = STREAM_SIEVE_PRIME_COUNT
-        if cached_count == 0:
-            STREAM_SIEVE_PRIME_CACHE[0] <- 2
-            cached_count <- 1
-            STREAM_SIEVE_PRIME_COUNT <- 1
         if cached_count < count:
             if cached_count == 1:
                 STREAM_SIEVE_PRIME_CACHE[1] <- 3
