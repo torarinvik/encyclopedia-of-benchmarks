@@ -11,14 +11,15 @@ def is_prime(value:i64)->bool:
     true
 
 def stirling_power(base_value: u32, exponent_value: u32, prime: u32) -> u32:
+    if exponent_value == 0 or base_value == 1: return 1
     base: mutable u32 = base_value
     exponent: mutable u32 = exponent_value
     result: mutable u32 = 1
-    while exponent != 0:
+    while exponent > 1:
         if (exponent & 1) != 0: result <- (result*base)%prime
         base <- (base*base)%prime
         exponent <- exponent >> 1
-    result
+    (result*base)%prime
 
 def stirling_value(n: i64, k: usize, modulus: i64) -> i64:
     if k == 0: return 1 if n == 0 else 0
