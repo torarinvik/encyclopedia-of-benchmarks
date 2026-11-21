@@ -101,6 +101,20 @@ def strange_printer_interval(symbols: u64, n: usize) -> i64:
         if first_run == ((symbols >> 4) & 3): return 3
         return 3 if ((symbols >> 2) & 3) == ((symbols >> 6) & 3) else 4
 
+    if n == 6:
+        # Three turns can cover at most five runs. Check each way the
+        # recurrence can attain four turns before falling back to five.
+        first_run: u64 = symbols & 3
+        third_run: u64 = (symbols >> 4) & 3
+        last_run: u64 = (symbols >> 10) & 3
+        if first_run == third_run or first_run == last_run: return 4
+        fourth_run: u64 = (symbols >> 6) & 3
+        second_run: u64 = (symbols >> 2) & 3
+        fifth_run: u64 = (symbols >> 8) & 3
+        if first_run == fifth_run and second_run == fourth_run: return 4
+        if second_run == last_run and (second_run == fourth_run or third_run == fifth_run): return 4
+        return 5
+
     table: mutable u8[64] = zeroed
     # Every row and column index is below n, so offsets stay below 64.
     dp: mutable u8& = &table[0]
