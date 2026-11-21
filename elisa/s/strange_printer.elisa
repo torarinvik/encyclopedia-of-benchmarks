@@ -117,6 +117,10 @@ def strange_printer_interval(symbols: u64, n: usize) -> i64:
                 middle: u8 = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
                 candidate: u8 = middle + dp[merge * SP_TABLE_SIDE + right]
                 if candidate < best: best <- candidate
+                # At width two there is at most one merge. Wider compressed
+                # intervals need at least three turns.
+
+                if best <= 3: break
                 candidates <- candidates & (candidates - 1)
             dp[left * SP_TABLE_SIDE + right] <- best
             upper_mask <- (upper_mask << 2) | 3
