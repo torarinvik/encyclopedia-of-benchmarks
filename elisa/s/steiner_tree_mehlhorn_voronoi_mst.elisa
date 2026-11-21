@@ -1,3 +1,6 @@
+@intrinsic("llvm.cttz.i32")
+extern mt_edge_index(bits: u32, zero_undefined: bool) -> u32
+
 const MT_N: usize = 8
 const MT_M: usize = 14
 const MT_MAX_INPUT: usize = 54
@@ -56,6 +59,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     eu: mutable usize[MT_M] = zeroed
     ev: mutable usize[MT_M] = zeroed
     weight: mutable u32[MT_M] = zeroed
+    incident: mutable u32[MT_N] = zeroed
     pair_seen: mutable bool[MT_N*MT_N] = zeroed
     edge: mutable usize = 0
     while edge < m:
@@ -73,6 +77,9 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         eu[edge] <- u
         ev[edge] <- v
         weight[edge] <- w.u32()
+        bit: u32 = 1.u32() << edge
+        incident[u] <- incident[u] | bit
+        incident[v] <- incident[v] | bit
         edge <- edge+1
     if at != length:
         return -1
@@ -87,18 +94,15 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     while head < queue_end:
         u: usize = queue[head]
         head <- head+1
-        edge <- 0
-        while edge < m:
-            v: mutable usize = MT_N
-            if eu[edge] == u:
-                v <- ev[edge]
-            elif ev[edge] == u:
-                v <- eu[edge]
-            if v < MT_N and not reached[v]:
+        pending: mutable u32 = incident[u]
+        while pending != 0:
+            edge <- mt_edge_index(pending, true).usize()
+            pending <- pending & (pending - 1)
+            v: usize = eu[edge] ^ ev[edge] ^ u
+            if not reached[v]:
                 reached[v] <- true
                 queue[queue_end] <- v
                 queue_end <- queue_end+1
-            edge <- edge+1
     vertex: mutable usize = 0
     while vertex < n:
         if not reached[vertex]:
@@ -134,26 +138,22 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         if chosen_vertex == MT_N or dist[chosen_vertex] == MT_INF:
             break
         settled[chosen_vertex] <- true
-        edge <- 0
-        while edge < m:
-            next_vertex: mutable usize = MT_N
-            if eu[edge] == chosen_vertex:
-                next_vertex <- ev[edge]
-            elif ev[edge] == chosen_vertex:
-                next_vertex <- eu[edge]
-            if next_vertex < MT_N:
-                nd: u32 = dist[chosen_vertex]+weight[edge]
-                if nd < dist[next_vertex] or (nd == dist[next_vertex] and owner[chosen_vertex] < owner[next_vertex]):
-                    dist[next_vertex] <- nd
-                    owner[next_vertex] <- owner[chosen_vertex]
-                    pred[next_vertex] <- chosen_vertex.i64()
-                    pred_edge[next_vertex] <- edge.i64()
-                elif nd == dist[next_vertex] and owner[chosen_vertex] == owner[next_vertex] and not settled[next_vertex] and
-                        (pred[next_vertex] < 0 or chosen_vertex.i64() < pred[next_vertex] or
-                        (chosen_vertex.i64() == pred[next_vertex] and edge.i64() < pred_edge[next_vertex])):
-                    pred[next_vertex] <- chosen_vertex.i64()
-                    pred_edge[next_vertex] <- edge.i64()
-            edge <- edge+1
+        pending: mutable u32 = incident[chosen_vertex]
+        while pending != 0:
+            edge <- mt_edge_index(pending, true).usize()
+            pending <- pending & (pending - 1)
+            next_vertex: usize = eu[edge] ^ ev[edge] ^ chosen_vertex
+            nd: u32 = dist[chosen_vertex]+weight[edge]
+            if nd < dist[next_vertex] or (nd == dist[next_vertex] and owner[chosen_vertex] < owner[next_vertex]):
+                dist[next_vertex] <- nd
+                owner[next_vertex] <- owner[chosen_vertex]
+                pred[next_vertex] <- chosen_vertex.i64()
+                pred_edge[next_vertex] <- edge.i64()
+            elif nd == dist[next_vertex] and owner[chosen_vertex] == owner[next_vertex] and not settled[next_vertex] and
+                    (pred[next_vertex] < 0 or chosen_vertex.i64() < pred[next_vertex] or
+                    (chosen_vertex.i64() == pred[next_vertex] and edge.i64() < pred_edge[next_vertex])):
+                pred[next_vertex] <- chosen_vertex.i64()
+                pred_edge[next_vertex] <- edge.i64()
         step <- step+1
     vertex <- 0
     while vertex < n:
@@ -371,20 +371,19 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         head <- head+1
         if degree[u] > 1:
             continue
-        edge <- 0
-        while edge < m:
-            if tree[edge] and (eu[edge] == u or ev[edge] == u):
+        pending: mutable u32 = incident[u]
+        while pending != 0:
+            edge <- mt_edge_index(pending, true).usize()
+            pending <- pending & (pending - 1)
+            if tree[edge]:
                 tree[edge] <- false
-                v: mutable usize = eu[edge]
-                if v == u:
-                    v <- ev[edge]
+                v: usize = eu[edge] ^ ev[edge] ^ u
                 degree[u] <- degree[u]-1
                 degree[v] <- degree[v]-1
                 if not is_terminal[v] and degree[v] <= 1 and not queued[v]:
                     leaves[queue_end] <- v
                     queue_end <- queue_end+1
                     queued[v] <- true
-            edge <- edge+1
     result: mutable usize[MT_M] = zeroed
     count: mutable usize = 0
     cost: mutable u32 = 0
