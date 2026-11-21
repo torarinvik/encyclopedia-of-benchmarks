@@ -100,8 +100,8 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
 
     # Order by distance, then by owner in the low three bits.
     distance_key: mutable u32[MT_N] = zeroed
-    pred: mutable i64[MT_N] = zeroed
-    pred_edge: mutable i64[MT_N] = zeroed
+    # The predecessor vertex occupies the high bits for tie-breaking.
+    predecessor: mutable u8[MT_N] = zeroed
     settled: mutable u32 = 0
     if k == n:
         for vertex in 0..<n:
@@ -110,8 +110,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         vertex <- 0
         while vertex < n:
             distance_key[vertex] <- MT_UNREACHED
-            pred[vertex] <- -1
-            pred_edge[vertex] <- -1
+            predecessor[vertex] <- 255
             vertex <- vertex+1
         for i in 0..<k:
             t: usize = terminals[i]
@@ -137,15 +136,12 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 if (settled & (1.u32() << next_vertex)) != 0:
                     continue
                 next_key: u32 = chosen_key + (weight[edge] << 3)
+                route: u8 = ((chosen_vertex << 4) | edge).u8()
                 if next_key < distance_key[next_vertex]:
                     distance_key[next_vertex] <- next_key
-                    pred[next_vertex] <- chosen_vertex.i64()
-                    pred_edge[next_vertex] <- edge.i64()
-                elif next_key == distance_key[next_vertex] and
-                        (pred[next_vertex] < 0 or chosen_vertex.i64() < pred[next_vertex] or
-                        (chosen_vertex.i64() == pred[next_vertex] and edge.i64() < pred_edge[next_vertex])):
-                    pred[next_vertex] <- chosen_vertex.i64()
-                    pred_edge[next_vertex] <- edge.i64()
+                    predecessor[next_vertex] <- route
+                elif next_key == distance_key[next_vertex] and route < predecessor[next_vertex]:
+                    predecessor[next_vertex] <- route
             step <- step+1
         vertex <- 0
         while vertex < n:
@@ -217,16 +213,18 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         used <- used | (1.u32() << (key & 15))
         x: mutable usize = ((key >> 7) & 7).usize()
         while x != ((key >> 13) & 7).usize():
-            if pred_edge[x] < 0:
+            route: u8 = predecessor[x]
+            if route == 255:
                 return -1
-            used <- used | (1.u32() << pred_edge[x].usize())
-            x <- pred[x].usize()
+            used <- used | (1.u32() << (route & 15).usize())
+            x <- (route >> 4).usize()
         x <- ((key >> 4) & 7).usize()
         while x != ((key >> 10) & 7).usize():
-            if pred_edge[x] < 0:
+            route: u8 = predecessor[x]
+            if route == 255:
                 return -1
-            used <- used | (1.u32() << pred_edge[x].usize())
-            x <- pred[x].usize()
+            used <- used | (1.u32() << (route & 15).usize())
+            x <- (route >> 4).usize()
         i <- i+1
     order: mutable u32[16] = zeroed
     on: mutable usize = 0
