@@ -6,7 +6,7 @@ const MT_M: usize = 14
 const MT_MAX_INPUT: usize = 54
 const MT_MAX_OUTPUT: usize = 72
 # A shortest path uses at most seven edges of weight at most nine.
-const MT_INF: u32 = 256
+const MT_UNREACHED: u32 = 256 << 3
 
 def mt_candidate_before(aw: u32, aa: usize, ab: usize, al: usize, ar: usize, ae: usize,
                            bw: u32, ba: usize, bb: usize, bl: usize, br: usize, be: usize) -> bool:
@@ -109,33 +109,31 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             return -1
         vertex <- vertex+1
 
-    dist: mutable u32[MT_N] = zeroed
-    owner: mutable usize[MT_N] = zeroed
+    # Order by distance, then by owner in the low three bits.
+    distance_key: mutable u32[MT_N] = zeroed
     pred: mutable i64[MT_N] = zeroed
     pred_edge: mutable i64[MT_N] = zeroed
     settled: mutable bool[MT_N] = zeroed
     vertex <- 0
     while vertex < n:
-        dist[vertex] <- MT_INF
-        owner[vertex] <- n
+        distance_key[vertex] <- MT_UNREACHED
         pred[vertex] <- -1
         pred_edge[vertex] <- -1
         vertex <- vertex+1
     for i in 0..<k:
         t: usize = terminals[i]
-        dist[t] <- 0
-        owner[t] <- t
+        distance_key[t] <- t.u32()
     step: mutable usize = 0
     while step < n:
         chosen_vertex: mutable usize = MT_N
+        chosen_key: mutable u32 = MT_UNREACHED
         vertex <- 0
         while vertex < n:
-            if not settled[vertex] and (chosen_vertex == MT_N or dist[vertex] < dist[chosen_vertex] or
-                (dist[vertex] == dist[chosen_vertex] and (owner[vertex] < owner[chosen_vertex] or
-                (owner[vertex] == owner[chosen_vertex] and vertex < chosen_vertex)))):
+            if not settled[vertex] and distance_key[vertex] < chosen_key:
                 chosen_vertex <- vertex
+                chosen_key <- distance_key[vertex]
             vertex <- vertex+1
-        if chosen_vertex == MT_N or dist[chosen_vertex] == MT_INF:
+        if chosen_vertex == MT_N:
             break
         settled[chosen_vertex] <- true
         pending: mutable u32 = incident[chosen_vertex]
@@ -143,13 +141,12 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             edge <- mt_edge_index(pending, true).usize()
             pending <- pending & (pending - 1)
             next_vertex: usize = eu[edge] ^ ev[edge] ^ chosen_vertex
-            nd: u32 = dist[chosen_vertex]+weight[edge]
-            if nd < dist[next_vertex] or (nd == dist[next_vertex] and owner[chosen_vertex] < owner[next_vertex]):
-                dist[next_vertex] <- nd
-                owner[next_vertex] <- owner[chosen_vertex]
+            next_key: u32 = chosen_key + (weight[edge] << 3)
+            if next_key < distance_key[next_vertex]:
+                distance_key[next_vertex] <- next_key
                 pred[next_vertex] <- chosen_vertex.i64()
                 pred_edge[next_vertex] <- edge.i64()
-            elif nd == dist[next_vertex] and owner[chosen_vertex] == owner[next_vertex] and not settled[next_vertex] and
+            elif next_key == distance_key[next_vertex] and not settled[next_vertex] and
                     (pred[next_vertex] < 0 or chosen_vertex.i64() < pred[next_vertex] or
                     (chosen_vertex.i64() == pred[next_vertex] and edge.i64() < pred_edge[next_vertex])):
                 pred[next_vertex] <- chosen_vertex.i64()
@@ -157,7 +154,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         step <- step+1
     vertex <- 0
     while vertex < n:
-        if dist[vertex] == MT_INF or owner[vertex] == n:
+        if distance_key[vertex] == MT_UNREACHED:
             return -1
         vertex <- vertex+1
 
@@ -170,8 +167,8 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     while edge < m:
         u: usize = eu[edge]
         v: usize = ev[edge]
-        a: mutable usize = owner[u]
-        b: mutable usize = owner[v]
+        a: mutable usize = (distance_key[u] & 7).usize()
+        b: mutable usize = (distance_key[v] & 7).usize()
         if a != b:
             left: mutable usize = u
             right: mutable usize = v
@@ -182,7 +179,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 left <- v
                 right <- u
             ix: usize = a*MT_N+b
-            cw: u32 = dist[u]+weight[edge]+dist[v]
+            cw: u32 = (distance_key[u] >> 3) + weight[edge] + (distance_key[v] >> 3)
             if not has[ix] or mt_candidate_before(cw,a,b,left,right,edge,best_weight[ix],a,b,best_left[ix],best_right[ix],best_edge[ix]):
                 has[ix] <- true
                 best_weight[ix] <- cw
