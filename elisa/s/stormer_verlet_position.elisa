@@ -25,16 +25,16 @@ def stormer_verlet_position_impl(input: i64&?, length: usize,
     if output == null or capacity < byte_count: return -2
     staged: mutable u8[SVP_MAX_OUTPUT_BYTES] = zeroed
     staged_view: mutable u8& = &staged[0]
-    previous: mutable i64 = input[1]
+    previous: i64 = input[1]
     current: mutable i64 = input[2]
     svp_store_i64_le(staged_view, 0, previous)
     svp_store_i64_le(staged_view, 8, current)
+    delta: mutable i64 = current - previous
     index: mutable usize = 2
     while index < count:
-        next: i64 = 2 * current - previous + input[index + 1]
-        svp_store_i64_le(staged_view, 8 * index, next)
-        previous <- current
-        current <- next
+        delta <- delta + input[index + 1]
+        current <- current + delta
+        svp_store_i64_le(staged_view, 8 * index, current)
         index <- index + 1
     for byte in 0..<byte_count:
         output[byte] <- staged[byte]
