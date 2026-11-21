@@ -150,6 +150,7 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         diff[(x0 * MAX_COORDS + y1) & GRID_INDEX_MASK] <- diff[(x0 * MAX_COORDS + y1) & GRID_INDEX_MASK] - uw[k].u64()
         diff[(x1 * MAX_COORDS + y1) & GRID_INDEX_MASK] <- diff[(x1 * MAX_COORDS + y1) & GRID_INDEX_MASK] + uw[k].u64()
         k <- k + 1
+    previous_weights: mutable u64[MAX_COORDS] = zeroed
     i <- 0
     while i + 1 < nx:
         row_weight: mutable u64 = 0
@@ -159,9 +160,9 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         while j + 1 < ny:
             index: usize = i * MAX_COORDS + j
             row_weight <- row_weight + diff[(index) & GRID_INDEX_MASK]
-            weight: mutable u64 = row_weight
-            if i > 0: weight <- weight + diff[(index - MAX_COORDS) & GRID_INDEX_MASK]
-            diff[(index) & GRID_INDEX_MASK] <- weight
+            column: usize = j & (MAX_COORDS - 1)
+            weight: u64 = row_weight + previous_weights[column]
+            previous_weights[column] <- weight
             height: u64 = ys[j + 1].u64() - ys[j].u64()
             # Total height is at most one million, so this sum fits in u64.
             weighted_height <- weighted_height + weight * height
