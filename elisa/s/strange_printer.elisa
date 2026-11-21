@@ -5,10 +5,13 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if input == null or length - 1 > SP_MAX_LENGTH: return -1
     length_from_header: usize = length - 1
     if input[0].usize() != length_from_header: return -1
-    symbols: mutable u64 = 0
-    n: mutable usize = 0
-    previous: mutable u64 = 3
-    position: mutable usize = 0
+    if length_from_header == 0: return 0
+    first: u64 = input[1].u64()
+    if first > 2: return -1
+    symbols: mutable u64 = first
+    n: mutable usize = 1
+    previous: mutable u64 = first
+    position: mutable usize = 1
     while position < length_from_header:
         symbol: u64 = input[position + 1].u64()
         if symbol > 2: return -1
@@ -23,6 +26,10 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if n == 3:
         if (symbols & 3) == ((symbols >> 4) & 3): return 2
         return 3
+
+    # Two turns can create at most three runs. Four runs over three symbols
+    # repeat some symbol, so one shared turn plus two others suffices.
+    if n == 4: return 3
 
     strange_printer_interval(symbols, n)
 
