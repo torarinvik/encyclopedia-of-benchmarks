@@ -30,7 +30,7 @@ def sjt_emit_triple(first: i32, second: i32, third: i32, output: mutable u8&, of
 
 def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
         output: mutable u8&?, output_capacity: usize) -> i64:
-    if input == null or length == 0 or length > MAX_LENGTH:
+    if input == null:
         return -1
     if length == 1:
         if output == null or output_capacity < 4:
@@ -61,6 +61,8 @@ def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
         sjt_emit_triple(second, third, first, output, 48)
         sjt_emit_triple(third, second, first, output, 60)
         return 72
+    if length == 0 or length > MAX_LENGTH:
+        return -1
     sjt_emit_many(input, length, output, output_capacity)
 
 @inline(never)
