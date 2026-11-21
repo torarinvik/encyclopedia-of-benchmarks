@@ -32,8 +32,8 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             # Keep the count bit above the value bits used for partitioning.
             current[i] <- input[2+i] | (1.i64() << 36)
         mask: mutable i64 = 1.i64() << (29-first_level)
+        source: mutable usize = 0
         for level in first_level..<30:
-            source: usize = ((level - first_level) & 1) << 6
             target: usize = source ^ 64
             prefix: mutable u64 = 0
             for i in 0..<n:
@@ -43,18 +43,22 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                 prefixes[(65*level+i+1) & 2047] <- prefix
             zeros: usize = (prefix >> 36).usize()
             if level == 29: break
+            partition_mask: i64 = mask
+            mask <- mask >> 1
+            # A uniform bit leaves the stable partition in its original order.
+            if zeros == 0 or zeros == n: continue
             # Each stable partition writes exactly n entries into the target half.
             z: mutable usize = 0
             o: mutable usize = zeros
             for i in 0..<n:
                 value: i64 = current[source + i]
-                if (value & mask) == 0:
+                if (value & partition_mask) == 0:
                     current[(target + z) & 127] <- value
                     z <- z+1
                 else:
                     current[(target + o) & 127] <- value
                     o <- o+1
-            mask <- mask >> 1
+            source <- target
     answers: mutable i64[128] = zeroed
     for i in 0..<q:
         b: usize = 2+n+3*i
