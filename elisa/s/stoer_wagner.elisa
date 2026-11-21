@@ -130,7 +130,8 @@ def stoer_wagner_four_cut(input: i64&) -> i64:
     if (diagonal | asymmetric) != 0:
         return -1
     limit: u64 = MAX_WEIGHT.u64()
-    if ab.u64() > limit or ac.u64() > limit or ad.u64() > limit or bc.u64() > limit or bd.u64() > limit or cd.u64() > limit:
+    invalid_weight: i64 = (1 if ab.u64() > limit else 0) | (1 if ac.u64() > limit else 0) | (1 if ad.u64() > limit else 0) | (1 if bc.u64() > limit else 0) | (1 if bd.u64() > limit else 0) | (1 if cd.u64() > limit else 0)
+    if invalid_weight != 0:
         return -1
     # Four singleton cuts and three pair cuts exhaust the partitions.
     best: mutable i64 = ab.i32().i64() + ac.i32().i64() + ad.i32().i64()
