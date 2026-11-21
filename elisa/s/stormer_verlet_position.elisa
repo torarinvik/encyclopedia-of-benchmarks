@@ -2,15 +2,15 @@ const SVP_MAX_STEPS: usize = 32
 const SVP_MAX_INPUT_VALUES: usize = SVP_MAX_STEPS + 1
 const SVP_MAX_OUTPUT_BYTES: usize = SVP_MAX_STEPS * 8
 
-def svp_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def svp_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def stormer_verlet_position_impl(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > SVP_MAX_INPUT_VALUES: return -1
+def stormer_verlet_position_impl(input: i64&?, length: usize,
+        output: mutable u8&?, capacity: usize) -> i64:
+    if input == null or length < 3 or length > SVP_MAX_INPUT_VALUES: return -1
     count_value: i64 = input[0]
     if count_value < 2 or count_value > SVP_MAX_STEPS.i64(): return -1
     if length != (count_value + 1).usize(): return -1
@@ -22,9 +22,9 @@ def stormer_verlet_position_impl(input: i64&, length: usize,
         step <- step + 1
 
     byte_count: usize = 8 * count
-    if output.is_null() or capacity < byte_count: return -2
+    if output == null or capacity < byte_count: return -2
     staged: mutable u8[SVP_MAX_OUTPUT_BYTES] = zeroed
-    staged_view: mutable view[u8] = staged[0:SVP_MAX_OUTPUT_BYTES]
+    staged_view: mutable u8& = &staged[0]
     previous: mutable i64 = input[1]
     current: mutable i64 = input[2]
     svp_store_i64_le(staged_view, 0, previous)
@@ -36,8 +36,9 @@ def stormer_verlet_position_impl(input: i64&, length: usize,
         previous <- current
         current <- next
         index <- index + 1
-    for byte in 0..<byte_count: output[byte] <- staged[byte]
+    for byte in 0..<byte_count:
+        output[byte] <- staged[byte]
     byte_count.i64()
 
-export fn stormer_verlet_position(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 = stormer_verlet_position_impl
+export fn stormer_verlet_position(input: i64&?, length: usize,
+        output: mutable u8&?, capacity: usize) -> i64 = stormer_verlet_position_impl
