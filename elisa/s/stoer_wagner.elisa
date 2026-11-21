@@ -64,8 +64,8 @@ def stoer_wagner_contract(input: i64&, n: usize) -> i64:
 
     active: mutable u64 = (1.u64() << n) - 1
     min_cut: mutable i64 = 120000001
-    phase: mutable usize = 0
-    while phase + 2 < n:
+    remaining: mutable usize = n - 2
+    while remaining != 0:
         # Zero initial weights select vertex zero first. It cannot be the
         # last vertex of a phase, so it remains active after every contraction.
         available: mutable u64 = active & ~1.u64()
@@ -102,7 +102,7 @@ def stoer_wagner_contract(input: i64&, n: usize) -> i64:
             graph[previous_index * MAX_N + vertex] <- merged_weight
             graph[vertex * MAX_N + previous_index] <- merged_weight
             neighbors <- neighbors & (neighbors - 1)
-        phase <- phase + 1
+        remaining <- remaining - 1
     # The final two supervertices have only one edge between them.
     remaining_vertex: usize = stoer_trailing_zeros(active & ~1.u64(), true).usize() & 15
     final_cut: i64 = graph[remaining_vertex].i64()
