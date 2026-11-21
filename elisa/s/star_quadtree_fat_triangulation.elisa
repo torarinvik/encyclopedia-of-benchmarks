@@ -6,14 +6,8 @@ const STAR_MAX_EDGES: usize = 8
 const STAR_MAX_PAIRS: usize = 64
 const STAR_MAX_OUTPUT_BYTES: usize = 1032
 
-def star_edge_hits_box(vertices: i32&, edges: i32&, edge_id: usize,
+def star_edge_hits_box(ax: i32, ay: i32, bx: i32, by: i32,
                       xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
-    a: usize = edges[2 * edge_id].usize()
-    b: usize = edges[2 * edge_id + 1].usize()
-    ax: i32 = vertices[2 * a]
-    ay: i32 = vertices[2 * a + 1]
-    bx: i32 = vertices[2 * b]
-    by: i32 = vertices[2 * b + 1]
     if (ax < xmin and bx < xmin) or (ax > xmax and bx > xmax) or
        (ay < ymin and by < ymin) or (ay > ymax and by > ymax): return false
     # The box axes overlap. The perpendicular to the segment is the last axis.
@@ -26,14 +20,15 @@ def star_edge_hits_box(vertices: i32&, edges: i32&, edge_id: usize,
     dx * (far_y - ay) - dy * (far_x - ax) >= 0 and
         dx * (near_y - ay) - dy * (near_x - ax) <= 0
 
-def star_stops(vertices: i32&, edges: i32&, edge_count: usize,
-               vertex_count: usize, xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
-    # Intersect the endpoint sets of all edges that hit the closed box.
-    candidates: mutable u64 = (1.u64() << vertex_count) - 1
+def star_stops(edges: i32&, edge_count: usize,
+               xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
+    # The first intersecting edge restricts the candidates to its endpoints.
+    candidates: mutable i32 = 31
     for edge in 0..<edge_count:
-        if star_edge_hits_box(vertices, edges, edge, xmin, ymin, xmax, ymax):
-            endpoints: u64 = ((1.u64() << edges[2 * edge].usize()) |
-                (1.u64() << edges[2 * edge + 1].usize()))
+        slot: usize = 5 * edge
+        if star_edge_hits_box(edges[slot],edges[slot+1],edges[slot+2],edges[slot+3],
+                              xmin,ymin,xmax,ymax):
+            endpoints: i32 = edges[slot+4]
             candidates <- candidates & endpoints
             if candidates == 0: return false
     true
@@ -68,18 +63,18 @@ def star_triangle_hits_box(vertices: i32&, triangles: i32&, tid: usize,
     star_box_inside_edge(cx, cy, ax, ay, xmin, ymin, xmax, ymax)
 
 def star_visit(vertices: i32&, triangles: i32&, edges: i32&,
-               vertex_count: usize, triangle_count: usize, edge_count: usize,
+               triangle_count: usize, edge_count: usize,
                pairs: mutable i64&, initial_pair_count: i32,
                depth: usize, xmin: i32, ymax: i32, size: i32, path: usize) -> i32:
     pair_count: mutable i32 = initial_pair_count
     xmax: i32 = xmin + size
     ymin: i32 = ymax - size
-    if not star_stops(vertices,edges,edge_count,vertex_count,xmin,ymin,xmax,ymax):
+    if not star_stops(edges,edge_count,xmin,ymin,xmax,ymax):
         if depth >= STAR_MAX_DEPTH: return -1
         half: i32 = size >> 1
         q: mutable usize = 0
         while q < 4:
-            pair_count <- star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
+            pair_count <- star_visit(vertices,triangles,edges,triangle_count,edge_count,
                 pairs,pair_count,depth+1,xmin+(q%2).i32()*half,
                 ymax-(q/2).i32()*half,half,4*path+q)
             if pair_count < 0: return -1
@@ -146,7 +141,7 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
         if triangles[i] != fan[i]: fan_ok <- false
         i <- i + 1
     if not diag02 and not diag13 and not fan_ok: return -1
-    edges_data: mutable i32[16] = zeroed
+    edges_data: mutable i32[40] = zeroed
     edges: mutable i32& = &edges_data[0]
     edge_count: mutable usize = 0
     seen_edges: mutable u32 = 0
@@ -162,14 +157,18 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
             edge_bit: u32 = 1.u32() << (5 * low + high)
             if (seen_edges & edge_bit) == 0:
                 seen_edges <- seen_edges | edge_bit
-                edges[2*edge_count] <- low.i32()
-                edges[2*edge_count+1] <- high.i32()
+                slot: usize = 5 * edge_count
+                edges[slot] <- vertices[2*low]
+                edges[slot+1] <- vertices[2*low+1]
+                edges[slot+2] <- vertices[2*high]
+                edges[slot+3] <- vertices[2*high+1]
+                edges[slot+4] <- (1.i32() << low) | (1.i32() << high)
                 edge_count <- edge_count + 1
             k <- k + 1
         tid <- tid + 1
     pairs_data: mutable i64[128] = zeroed
     pairs: mutable i64& = &pairs_data[0]
-    result: i32 = star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
+    result: i32 = star_visit(vertices,triangles,edges,triangle_count,edge_count,
         pairs,0,0,0,8,8,0)
     if result < 0: return -1
     pair_count: usize = result.usize()
