@@ -42,6 +42,39 @@ def mode_few_ranks(input: i64&, output: mutable u8&, n: usize, q: usize, values:
         mode_write_i64(output, 16 * query + 8, (answer >> 32).i64())
     (16 * q).i64()
 
+@inline(never)
+def mode_try_few_values(input: i64&, output: mutable u8&, n: usize, q: usize) -> i64:
+    # Bias each value so zero can mark an unused slot.
+    first: mutable u32 = 0
+    second: mutable u32 = 0
+    third: mutable u32 = 0
+    fourth: mutable u32 = 0
+    small_positions: mutable u32[4] = zeroed
+    scanned: mutable usize = 0
+    while scanned < n:
+        key: u32 = input[2 + scanned].u32() + 1
+        id: mutable usize = 0
+        if first == 0 or first == key:
+            first <- key
+        elif second == 0 or second == key:
+            second <- key
+            id <- 1
+        elif third == 0 or third == key:
+            third <- key
+            id <- 2
+        elif fourth == 0 or fourth == key:
+            fourth <- key
+            id <- 3
+        else:
+            break
+        small_positions[id] <- small_positions[id] | (1.u32() << scanned)
+        scanned <- scanned + 1
+    if scanned == n:
+        small_values: u32[4] = [first - 1, second - 1, third - 1, fourth - 1]
+        small_distinct: usize = 4 if fourth != 0 else (3 if third != 0 else (2 if second != 0 else 1))
+        return mode_few_ranks(input, output, n, q, &small_values[0], &small_positions[0], small_distinct)
+    0
+
 def static_range_mode_query_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
@@ -87,35 +120,8 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         mode_write_i64(output, 8, 0 - (best_score >> 30))
         return 16
 
-    # Bias each value so zero can mark an unused slot.
-    first: mutable u32 = 0
-    second: mutable u32 = 0
-    third: mutable u32 = 0
-    fourth: mutable u32 = 0
-    small_positions: mutable u32[4] = zeroed
-    scanned: mutable usize = 0
-    while scanned < n:
-        key: u32 = input[2 + scanned].u32() + 1
-        id: mutable usize = 0
-        if first == 0 or first == key:
-            first <- key
-        elif second == 0 or second == key:
-            second <- key
-            id <- 1
-        elif third == 0 or third == key:
-            third <- key
-            id <- 2
-        elif fourth == 0 or fourth == key:
-            fourth <- key
-            id <- 3
-        else:
-            break
-        small_positions[id] <- small_positions[id] | (1.u32() << scanned)
-        scanned <- scanned + 1
-    if scanned == n:
-        small_values: u32[4] = [first - 1, second - 1, third - 1, fourth - 1]
-        small_distinct: usize = 4 if fourth != 0 else (3 if third != 0 else (2 if second != 0 else 1))
-        return mode_few_ranks(input, output, n, q, &small_values[0], &small_positions[0], small_distinct)
+    small_result: i64 = mode_try_few_values(input, output, n, q)
+    if small_result != 0: return small_result
 
     sorted: mutable i64[MAX_N] = zeroed
     unique_values: mutable u32[MAX_N] = zeroed
