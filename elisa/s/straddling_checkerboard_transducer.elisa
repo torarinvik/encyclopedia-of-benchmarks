@@ -3,14 +3,13 @@ const MAX_TEXT: usize = 64
 const BOARD_SIZE: usize = 30
 const MAX_OUTPUT: usize = 128
 
-def straddling_checkerboard_find_symbol(values: view[i64], value: i64) -> i64:
+def straddling_checkerboard_find_symbol(values: i64&, value: i64) -> i64:
     for position in 0..<BOARD_SIZE |position, values|:
         if values[1 + position] != 0 and values[1 + position] == value:
             return position.i64()
     -1
 
-def straddling_checkerboard_impl(values: view[i64], output: mutable view[u8]) -> i64:
-    input_length: usize = values.len()
+def straddling_checkerboard_impl(values: i64&, input_length: usize, output: mutable u8&) -> i64:
     if input_length < 32 or input_length > MAX_INPUT:
         return -1
     mode: i64 = values[0]
@@ -70,7 +69,7 @@ def straddling_checkerboard_impl(values: view[i64], output: mutable view[u8]) ->
                 return -1
             result_length <- result_length + 1
             index <- index + 2
-    if result_length > MAX_OUTPUT or output.len() < result_length:
+    if result_length > MAX_OUTPUT:
         return -2
 
     if mode == 0:
@@ -81,9 +80,7 @@ def straddling_checkerboard_impl(values: view[i64], output: mutable view[u8]) ->
                 output[out] <- (48 + position).u8()
                 out <- out + 1
             else:
-                row_digit: usize = hole_a
-                if position >= 20:
-                    row_digit <- hole_b
+                row_digit: usize = hole_b if position >= 20 else hole_a
                 output[out] <- (48 + row_digit).u8()
                 output[out + 1] <- (48 + (position % 10)).u8()
                 out <- out + 2
@@ -105,18 +102,20 @@ def straddling_checkerboard_impl(values: view[i64], output: mutable view[u8]) ->
             out <- out + 1
     result_length.i64()
 
-export fn straddling_checkerboard_transducer(input: i64&, input_length: usize,
-        output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 32 or input_length > MAX_INPUT:
+def straddling_checkerboard_entry(input: i64&?, input_length: usize,
+        output: mutable u8&?, output_capacity: usize) -> i64:
+    if input == null or input_length < 32 or input_length > MAX_INPUT:
         return -1
-    let values: view[i64] = input[0:input_length]
-    mutable staged: u8[128] = zeroed
-    let staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
-    result: i64 = straddling_checkerboard_impl(values, staged_view)
+    staged: mutable u8[128] = zeroed
+    staged_view: mutable u8& = &staged[0]
+    result: i64 = straddling_checkerboard_impl(input, input_length, staged_view)
     if result < 0:
         return result
-    if output.is_null() or output_capacity < result.usize():
+    if output == null or output_capacity < result.usize():
         return -2
     for index in 0..<result.usize() |index, staged_view, output|:
         output[index] <- staged_view[index]
     result
+
+export fn straddling_checkerboard_transducer(input: i64&?, input_length: usize,
+        output: mutable u8&?, output_capacity: usize) -> i64 = straddling_checkerboard_entry
