@@ -22,6 +22,10 @@ def stack_with_doubly_linked_list_impl(input: i64&, length: usize,
 @inline(never)
 def stack_doubly_run(input: i64&, length: usize, output: mutable u8&, capacity: usize, count: usize) -> i64:
     scratch: mutable StackScratch = zeroed
+    # A validated trace creates at most 64 nodes. Links contain only node IDs or zero.
+    node_values: mutable i64& = &scratch.node_values[0]
+    next_ids: mutable usize& = &scratch.next_ids[0]
+    prev_ids: mutable usize& = &scratch.prev_ids[0]
     node_count: mutable usize = 0
     head: mutable usize = 0
     cursor: mutable usize = 1
@@ -39,29 +43,29 @@ def stack_doubly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
             cursor <- cursor + 1
             if pushed < -2147483648 or pushed > 2147483647: return -1
             node_count <- node_count + 1
-            scratch.node_values[node_count] <- pushed
-            scratch.next_ids[node_count] <- head
-            scratch.prev_ids[node_count] <- 0
-            if head != 0: scratch.prev_ids[head] <- node_count
+            node_values[node_count] <- pushed
+            next_ids[node_count] <- head
+            prev_ids[node_count] <- 0
+            if head != 0: prev_ids[head] <- node_count
             head <- node_count
         else:
             if opcode == 2:
                 if head != 0:
                     tag <- 0
-                    value <- scratch.node_values[head]
-                    head <- scratch.next_ids[head]
-                    if head != 0: scratch.prev_ids[head] <- 0
+                    value <- node_values[head]
+                    head <- next_ids[head]
+                    if head != 0: prev_ids[head] <- 0
             else:
                 if opcode == 3:
                     if head != 0:
                         tag <- 0
-                        value <- scratch.node_values[head]
+                        value <- node_values[head]
                 else:
                     tag <- 0
                     node: mutable usize = head
                     while node != 0:
                         value <- value + 1
-                        node <- scratch.next_ids[node]
+                        node <- next_ids[node]
         written: usize = index * 3
         scratch.buffer[written] <- opcode
         scratch.buffer[written + 1] <- tag
