@@ -1,6 +1,15 @@
 const SP_MAX_LENGTH: usize = 8
 const SP_TABLE_SIDE: usize = 8
 
+@inline(always)
+def append_printer_symbol(symbol: u64, symbols: mutable u64&, count: mutable usize&, previous: mutable u64&) -> bool:
+    if symbol > 2: return false
+    if symbol != previous[0]:
+        symbols[0] <- symbols[0] | (symbol << (count[0] * 2))
+        count[0] <- count[0] + 1
+        previous[0] <- symbol
+    true
+
 def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if input == null or length - 1 > SP_MAX_LENGTH: return -1
     length_from_header: usize = length - 1
@@ -11,15 +20,13 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     symbols: mutable u64 = first
     n: mutable usize = 1
     previous: mutable u64 = first
-    position: mutable usize = 1
-    while position < length_from_header:
-        symbol: u64 = input[position + 1].u64()
-        if symbol > 2: return -1
-        if symbol != previous:
-            symbols <- symbols | (symbol << (n * 2))
-            n <- n + 1
-            previous <- symbol
-        position <- position + 1
+    if length > 2 and not append_printer_symbol(input[2].u64(), &symbols, &n, &previous): return -1
+    if length > 3 and not append_printer_symbol(input[3].u64(), &symbols, &n, &previous): return -1
+    if length > 4 and not append_printer_symbol(input[4].u64(), &symbols, &n, &previous): return -1
+    if length > 5 and not append_printer_symbol(input[5].u64(), &symbols, &n, &previous): return -1
+    if length > 6 and not append_printer_symbol(input[6].u64(), &symbols, &n, &previous): return -1
+    if length > 7 and not append_printer_symbol(input[7].u64(), &symbols, &n, &previous): return -1
+    if length > 8 and not append_printer_symbol(input[8].u64(), &symbols, &n, &previous): return -1
     if n < 2: return n.i64()
 
     if n == 2: return 2
