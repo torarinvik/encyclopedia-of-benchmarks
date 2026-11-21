@@ -58,8 +58,12 @@ def star_visit(triangles: u64&, edges: i32&, triangle_count: usize,
             if shift == 0: return -1
             shift <- shift - 2
         else:
-            bounds: u64 = star_pack_bounds(xmin,-xmax,ymin,-ymax,
-                xmin+ymin,-(xmax+ymax),ymin-xmax,-(ymax-xmin))
+            # X is the left edge, Y the top edge. Each lane is affine in X, Y
+            # and the side length. The combined word uses wrapping arithmetic.
+            bounds: u64 = (0x1010101010101010.u64() +
+                xmin.u64() * 0xfeff00ffffff01.u64() +
+                ymax.u64() * 0xff00ff00ff010000.u64() +
+                size.u64() * 0xfffdfefefffeff00.u64())
             guards: u64 = 0x8080808080808080
             for tid in 0..<triangle_count:
                 if (((triangles[tid] | guards) - bounds) & guards) == guards:
