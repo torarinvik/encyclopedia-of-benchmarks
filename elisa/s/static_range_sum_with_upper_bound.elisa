@@ -20,7 +20,8 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         needs_partitions <- needs_partitions or input[b+2] < maximum
     if output == null or capacity < 16*q: return -2
     # The maximum sum is 64 billion, which fits below bit 36.
-    prefixes: mutable u64[1950] = zeroed
+    # Each valid prefix index is below 1950. Round up to bound the index in LLVM.
+    prefixes: mutable u64[2048] = zeroed
     # Leading zero bits cannot partition any input value.
     first_level: mutable usize = 0
     use_matrix: bool = needs_partitions and n*q > 64
@@ -35,7 +36,7 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                 value: i64 = current[source + i]
                 if (value & mask) == 0:
                     prefix <- prefix + (1.u64() << 36) + value.u64()
-                prefixes[65*level+i+1] <- prefix
+                prefixes[(65*level+i+1) & 2047] <- prefix
             zeros: usize = (prefix >> 36).usize()
             if level == 29: break
             z: mutable usize = 0
@@ -69,13 +70,13 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         else:
             prefix_total: mutable u64 = 0
             for level in first_level..<30:
-                left: u64 = prefixes[65*level+l]
-                right: u64 = prefixes[65*level+r]
+                left: u64 = prefixes[(65*level+l) & 2047]
+                right: u64 = prefixes[(65*level+r) & 2047]
                 zl: usize = (left >> 36).usize()
                 zr: usize = (right >> 36).usize()
                 if (key & (1.i64() << (29-level))) != 0:
                     prefix_total <- prefix_total + right - left
-                    partition_size: usize = (prefixes[65*level+n] >> 36).usize()
+                    partition_size: usize = (prefixes[(65*level+n) & 2047] >> 36).usize()
                     l <- l+partition_size-zl
                     r <- r+partition_size-zr
                 else:
