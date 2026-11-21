@@ -2,11 +2,10 @@ const MAX_N: usize = 16
 const MAX_INPUT_VALUES: usize = 257
 const MAX_WEIGHT: i64 = 1000000
 
-def stoer_wagner_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES:
+def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_VALUES:
         return -1
-    values: view[i64] = input[0:length]
-    n_value: i64 = values[0]
+    n_value: i64 = input[0]
     if n_value < 2 or n_value > 16:
         return -1
     n: usize = n_value.usize()
@@ -18,7 +17,7 @@ def stoer_wagner_impl(input: i64&, length: usize) -> i64:
     while row < n:
         column: mutable usize = 0
         while column < n:
-            weight: i64 = values[1 + row * n + column]
+            weight: i64 = input[1 + row * n + column]
             if weight < 0 or weight > MAX_WEIGHT:
                 return -1
             graph[row * MAX_N + column] <- weight
@@ -81,4 +80,4 @@ def stoer_wagner_impl(input: i64&, length: usize) -> i64:
         phase <- phase + 1
     min_cut
 
-export fn stoer_wagner(input: i64&, length: usize) -> i64 = stoer_wagner_impl
+export fn stoer_wagner(input: i64&?, length: usize) -> i64 = stoer_wagner_impl
