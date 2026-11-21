@@ -49,36 +49,27 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
     while phase + 1 < n:
         available: mutable u64 = active
         weights: mutable i64[16] = zeroed
-        previous: mutable i64 = -1
-        last: mutable i64 = -1
-        step: mutable usize = 0
+        previous_index: mutable usize = 0
+        last_index: mutable usize = 0
         vertex: mutable usize = 0
-        while step < n - phase:
-            current: mutable i64 = -1
-            max_weight: mutable i64 = -1
-            pending: mutable u64 = available
+        while available != 0:
+            current: mutable usize = stoer_trailing_zeros(available, true).usize() & 15
+            max_weight: mutable i64 = weights[current]
+            pending: mutable u64 = available & (available - 1)
             while pending != 0:
                 vertex <- stoer_trailing_zeros(pending, true).usize() & 15
                 if weights[vertex] > max_weight:
-                    current <- vertex.i64()
+                    current <- vertex
                     max_weight <- weights[vertex]
                 pending <- pending & (pending - 1)
-            if current < 0:
-                break
-            current_index: usize = current.usize()
-            available <- available & ~(1.u64() << (current_index & 15))
-            previous <- last
-            last <- current
+            available <- available & ~(1.u64() << (current & 15))
+            previous_index <- last_index
+            last_index <- current
             pending <- available
             while pending != 0:
                 vertex <- stoer_trailing_zeros(pending, true).usize() & 15
-                weights[vertex] <- weights[vertex] + graph[current_index * MAX_N + vertex]
+                weights[vertex] <- weights[vertex] + graph[current * MAX_N + vertex]
                 pending <- pending & (pending - 1)
-            step <- step + 1
-        if last < 0 or previous < 0:
-            return -1
-        last_index: usize = last.usize()
-        previous_index: usize = previous.usize()
         if weights[last_index] < min_cut:
             min_cut <- weights[last_index]
         vertex <- 0
