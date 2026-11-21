@@ -91,7 +91,7 @@ def first_printer_lane(bits: u64) -> usize:
         zeros <- zeros + 1
     zeros >> 1
 
-@inline(never)
+@inline(always)
 def strange_printer_compressed(symbols: u64, n: usize) -> i64:
     # The sole caller derives a run count from 5 through 8 from the marker.
     if n == 5:
