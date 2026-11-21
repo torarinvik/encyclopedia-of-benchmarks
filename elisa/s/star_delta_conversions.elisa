@@ -21,13 +21,10 @@ def quantize(numerator: u64, denominator: u64) -> u64:
     (numerator + denominator / 2) / denominator
 
 def hash_quantized(seed: u64, bits: u64) -> u64:
-    hash: mutable u64 = seed
-    # The largest star-to-delta result is b + c + b*c/a <= 10,200,000.
-    # Delta-to-star results are smaller, so either direction fits in 24 bits.
-    for byte_index in 0..<3:
-        byte: u64 = (bits >> (8 * byte_index)) & 255.u64()
-        hash <- (hash ^ byte) * 1099511628211.u64()
-    # The five high bytes are zero, so fold their FNV multiplications.
-    hash * 913917546033277539.u64()
+    # Quantized values fit in 24 bits. The third byte needs no mask.
+    first: u64 = (seed ^ (bits & 255.u64())) * 1099511628211.u64()
+    second: u64 = (first ^ ((bits >> 8) & 255.u64())) * 1099511628211.u64()
+    # Combine the third byte's multiply with those for the five zero bytes.
+    (second ^ (bits >> 16)) * 15895002104753931833.u64()
 
 export fn star_delta_conversions(v: i64&?, n: usize) -> i64 = star_delta_conversions_impl
