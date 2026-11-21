@@ -183,8 +183,6 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     for query in 0..<q:
         left: usize = input[2 + n + 2 * query].usize()
         right: usize = input[3 + n + 2 * query].usize()
-        # Use a wider word so the final right endpoint may be 32.
-        range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
         first_full: usize = (left + block_size - 1) >> block_shift
         after_full: usize = right >> block_shift
         # Minimize rank minus 32 times frequency, so ties favor the smaller rank.
@@ -218,6 +216,7 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                 # Convert the cached block score to the query score.
                 best_score_query <- 31 - stored.i64()
             else:
+                range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
                 best_score_query <- id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
                 for index in left..<span_start:
                     id: usize = compressed[index].usize()
@@ -228,6 +227,7 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                     score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
                     best_score_query <- score if score < best_score_query
         else:
+            range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
             for index in left..<right:
                 id: usize = compressed[index].usize()
                 score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
