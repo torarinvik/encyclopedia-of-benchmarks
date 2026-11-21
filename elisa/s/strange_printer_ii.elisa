@@ -4,7 +4,7 @@ const SPII_MAX_COLORS: usize = 6
 const SPII_COLOR_SIDE: usize = 7
 
 def strange_printer_ii_impl(input: i64&?, length: usize) -> i64:
-    if input == null or length < 2 or length > 39: return -1
+    if input == null or length - 2 > SPII_MAX_ROWS * SPII_MAX_COLUMNS: return -1
     rows_value: i64 = input[0]
     columns_value: i64 = input[1]
     if rows_value < 1 or rows_value > 6 or columns_value < 1 or columns_value > 6: return -1
@@ -14,11 +14,6 @@ def strange_printer_ii_impl(input: i64&?, length: usize) -> i64:
     if length == 3:
         color_value: u64 = input[2].u64()
         return 1 if color_value - 1 < SPII_MAX_COLORS.u64() else -1
-    cell: mutable usize = 0
-    while cell < rows * columns:
-        if input[cell + 2] < 1 or input[cell + 2] > 6: return -1
-        cell <- cell + 1
-
     first_row: mutable i64[7] = zeroed
     last_row: mutable i64[7] = zeroed
     first_column: mutable i64[7] = zeroed
@@ -38,6 +33,7 @@ def strange_printer_ii_impl(input: i64&?, length: usize) -> i64:
         column: mutable usize = 0
         while column < columns:
             color_value: i64 = input[2 + row * columns + column]
+            if color_value.u64() - 1 >= SPII_MAX_COLORS.u64(): return -1
             color_index: usize = color_value.usize()
             if row.i64() < first_row[color_index]: first_row[color_index] <- row.i64()
             if row.i64() > last_row[color_index]: last_row[color_index] <- row.i64()
