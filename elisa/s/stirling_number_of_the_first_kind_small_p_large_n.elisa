@@ -19,11 +19,11 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
         return 1 if (quotient & 1) == 0 else modulus-1
     if target == 0 or target.i64() > remainder: return 0
     # The first factor is x, so the constant coefficient stays zero.
-    prime: u64 = modulus.u64()
-    coefficients: mutable u64[9] = zeroed
+    prime: u32 = modulus.u32()
+    coefficients: mutable u32[9] = zeroed
     coefficients[1] <- 1
-    residue: mutable u64 = 1
-    while residue < remainder.u64():
+    residue: mutable u32 = 1
+    while residue < remainder.u32():
         degree: mutable usize = target
         while degree > 0:
             coefficients[degree] <- (coefficients[degree-1]+residue*(prime-coefficients[degree]))%prime
