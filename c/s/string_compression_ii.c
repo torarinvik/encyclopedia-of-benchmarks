@@ -34,11 +34,15 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
         return cost + sci_run_cost(kept);
     }
 
+    /* A single run attains the minimum possible cost for this retained length. */
+    const size_t retained = n - budget;
+    if (retained == 1) return 1;
     const int64_t first_symbol = input[2];
-    size_t matching_prefix = 1;
-    while (matching_prefix < n && input[matching_prefix + 2] == first_symbol)
-        ++matching_prefix;
-    if (matching_prefix == n) return sci_run_cost((int)(n - budget));
+    size_t matching = 1;
+    for (size_t index = 1; index < n; ++index) {
+        if (input[index + 2] == first_symbol && ++matching == retained)
+            return sci_run_cost((int)retained);
+    }
 
     int64_t dp[SCI_WIDTH][SCI_WIDTH];
     for (size_t i = 0; i < SCI_WIDTH; ++i)
