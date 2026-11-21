@@ -17,21 +17,21 @@ def stock_span_problem_impl(input: i64&?, length: usize, output: mutable u8&?, c
         for byte in 1..<8:
             output[byte] <- 0
         return 1
-    decreasing: mutable usize[64] = zeroed
+    decreasing: mutable u8[64] = zeroed
     top: mutable usize = 0
     day <- 0
     while day < count:
         price: i64 = input[day + 1]
-        while top > 0 and input[decreasing[top - 1] + 1] <= price:
+        while top > 0 and input[decreasing[(top - 1) & 63].usize() + 1] <= price:
             top <- top - 1
-        span: usize = day + 1 if top == 0 else day - decreasing[top - 1]
+        span: usize = day + 1 if top == 0 else day - decreasing[(top - 1) & 63].usize()
         encoded: mutable u64 = span.u64()
         byte: mutable usize = 0
         while byte < 8:
             output[day * 8 + byte] <- (encoded & 255).u8()
             encoded <- encoded >> 8
             byte <- byte + 1
-        decreasing[top] <- day
+        decreasing[top & 63] <- day.u8()
         top <- top + 1
         day <- day + 1
     count_value
