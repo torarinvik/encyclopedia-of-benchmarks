@@ -5,8 +5,8 @@ export fn string_append(input: ?[*]const i64, length: usize,
     const values = input.?[0..length];
     if (values[0] < 0 or values[0] > 64) return -1;
     const first_length: usize = @intCast(values[0]);
-    if (1 + first_length >= length or values[1 + first_length] < 0 or values[1 + first_length] > 64) return -1;
-    const second_length: usize = @intCast(values[1 + first_length]);
+    if (values[1] < 0 or values[1] > 64) return -1;
+    const second_length: usize = @intCast(values[1]);
     if (length != 2 + first_length + second_length) return -1;
     const first = values[2 .. 2 + first_length];
     const second = values[2 + first_length .. length];

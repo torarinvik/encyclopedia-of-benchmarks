@@ -5,8 +5,8 @@ proc string_append*(input: ptr UncheckedArray[int64], length: csize_t,
     {.cdecl, exportc: "string_append".} =
   if input == nil or length < 2 or input[0] < 0 or input[0] > 64: return -1
   let firstLength = int(input[0])
-  if csize_t(1 + firstLength) >= length or input[1 + firstLength] < 0 or input[1 + firstLength] > 64: return -1
-  let secondLength = int(input[1 + firstLength])
+  if input[1] < 0 or input[1] > 64: return -1
+  let secondLength = int(input[1])
   if length != csize_t(2 + firstLength + secondLength): return -1
   for i in 0 ..< firstLength:
     if input[2 + i] < 32 or input[2 + i] > 126: return -1

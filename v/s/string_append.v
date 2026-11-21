@@ -6,8 +6,8 @@ pub fn string_append(input &i64, length usize, mut output &u8, output_capacity u
 	unsafe {
 		if input[0] < 0 || input[0] > 64 { return -1 }
 		first_length := int(input[0])
-		if usize(1 + first_length) >= length || input[1 + first_length] < 0 || input[1 + first_length] > 64 { return -1 }
-		second_length := int(input[1 + first_length])
+		if input[1] < 0 || input[1] > 64 { return -1 }
+		second_length := int(input[1])
 		if length != usize(2 + first_length + second_length) { return -1 }
 		for i in 0 .. first_length { if input[2 + i] < 32 || input[2 + i] > 126 { return -1 } }
 		for i in 0 .. second_length { if input[2 + first_length + i] < 32 || input[2 + first_length + i] > 126 { return -1 } }
