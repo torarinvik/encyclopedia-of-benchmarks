@@ -3,9 +3,8 @@ const SPII_MAX_COLUMNS: usize = 6
 const SPII_MAX_COLORS: usize = 6
 const SPII_COLOR_SIDE: usize = 7
 
-def strange_printer_ii_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
-    if length < 2 or length > 39: return -1
+def strange_printer_ii_impl(input: i64&?, length: usize) -> i64:
+    if input == null or length < 2 or length > 39: return -1
     rows_value: i64 = input[0]
     columns_value: i64 = input[1]
     if rows_value < 1 or rows_value > 6 or columns_value < 1 or columns_value > 6: return -1
@@ -63,15 +62,15 @@ def strange_printer_ii_impl(input: view[i64]) -> i64:
         color <- color + 1
 
     head: mutable usize = 0
-    tail: mutable usize = 0
+    queue_end: mutable usize = 0
     color <- 1
     while color <= SPII_MAX_COLORS:
         if last_row[color] >= 0 and indegree[color] == 0:
-            queue[tail] <- color.i64()
-            tail <- tail + 1
+            queue[queue_end] <- color.i64()
+            queue_end <- queue_end + 1
         color <- color + 1
     processed: mutable i64 = 0
-    while head < tail:
+    while head < queue_end:
         current: usize = queue[head].usize()
         head <- head + 1
         processed <- processed + 1
@@ -80,13 +79,10 @@ def strange_printer_ii_impl(input: view[i64]) -> i64:
             if (outgoing[current] & (1.i64() << later)) != 0:
                 indegree[later] <- indegree[later] - 1
                 if indegree[later] == 0:
-                    queue[tail] <- later.i64()
-                    tail <- tail + 1
+                    queue[queue_end] <- later.i64()
+                    queue_end <- queue_end + 1
             later <- later + 1
     if processed == present_count: return 1
     return 0
 
-export fn strange_printer_ii(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 39: return -1
-    input_view: view[i64] = input[0:length]
-    strange_printer_ii_impl(input_view)
+export fn strange_printer_ii(input: i64&?, length: usize) -> i64 = strange_printer_ii_impl
