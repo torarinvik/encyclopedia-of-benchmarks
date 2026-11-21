@@ -2,13 +2,11 @@ const MAX_N:i64=1000000000000000000
 const MAX_T:usize=8
 const MAX_K:usize=8
 
-def is_prime(value:i64)->bool:
-    if value<2:return false
-    divisor:mutable i64=2
-    while divisor<=value/divisor:
-        if value%divisor==0:return false
-        divisor<-divisor+1
-    true
+# Bit i represents the odd candidate 2*i+1 in the supported prime range.
+const PRIME_MASK: u64 = 0x1129a64b4cb60
+
+def is_prime(value: i64) -> bool:
+    (value & 1) != 0 and (PRIME_MASK & (1.u64() << (value.u64() >> 1))) != 0
 
 def stirling_power(base_value: u32, exponent_value: u32, prime: u32) -> u32:
     if exponent_value == 0 or base_value == 1: return 1
