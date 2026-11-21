@@ -14,6 +14,8 @@ The profile uses the recurrence
 j=0..k form a k+1 state vector. The ports exponentiate its lower-bidiagonal
 transition matrix by n, so the number of steps grows logarithmically with n.
 The bounded matrix calculation costs O(k^3 log n) time and O(k^2) workspace.
+The Elisa implementation uses the inclusion-exclusion formula with exponents
+reduced modulo p-1. It takes O(k log p) time and constant workspace.
 This is a different kernel from building a complete row with the S2 package's
 O(N^2) triangle recurrence.
 

@@ -1,7 +1,6 @@
 const MAX_N:i64=1000000000000000000
 const MAX_T:usize=8
 const MAX_K:usize=8
-const WIDTH:usize=9
 
 def is_prime(value:i64)->bool:
     if value<2:return false
@@ -11,43 +10,34 @@ def is_prime(value:i64)->bool:
         divisor<-divisor+1
     true
 
-def stirling_value(n:i64,k:usize,modulus:i64)->i64:
-    prime: u32 = modulus.u32()
-    matrix:mutable u32[81]=zeroed
-    vector:mutable u32[9]=zeroed
-    dimension:usize=k+1
-    index:mutable usize=0
-    while index<dimension:
-        matrix[index*WIDTH+index]<-index.u32()
-        if index>0:matrix[index*WIDTH+index-1]<-1
-        index<-index+1
-    vector[0]<-1
+def stirling_power(base_value: u32, exponent_value: u32, prime: u32) -> u32:
+    base: mutable u32 = base_value
+    exponent: mutable u32 = exponent_value
+    result: mutable u32 = 1
+    while exponent != 0:
+        if (exponent & 1) != 0: result <- (result*base)%prime
+        base <- (base*base)%prime
+        exponent <- exponent >> 1
+    result
 
-    # The transition is lower triangular. A dot product is at most 9*96*96.
-    exponent:mutable i64=n
-    while exponent>0:
-        if exponent%2!=0:
-            row_count: mutable usize = dimension
-            while row_count > 0:
-                row_count <- row_count-1
-                row: usize = row_count
-                total: mutable u32 = 0
-                for column in 0..=row:
-                    total <- total+matrix[row*WIDTH+column]*vector[column]
-                vector[row] <- total%prime
-        exponent <- exponent/2
-        if exponent>0:
-            # Descending rows and ascending columns preserve every cell still needed.
-            row_count: mutable usize = dimension
-            while row_count > 0:
-                row_count <- row_count-1
-                row: usize = row_count
-                for column in 0..=row:
-                    total: mutable u32 = 0
-                    for inner in column..=row:
-                        total <- total+matrix[row*WIDTH+inner]*matrix[inner*WIDTH+column]
-                    matrix[row*WIDTH+column] <- total%prime
-    vector[k].i64()
+def stirling_value(n: i64, k: usize, modulus: i64) -> i64:
+    if k == 0: return 1 if n == 0 else 0
+    if k == 1 or n == k.i64(): return 1
+    prime: u32 = modulus.u32()
+    # All nonzero bases and k! are invertible because k < prime.
+    exponent: u32 = (n.u64()%(prime.u64()-1)).u32()
+    factorial: mutable u32 = 1
+    binomial: mutable u32 = k.u32()
+    total: mutable u32 = 0
+    for base in 1..=k.u32():
+        factorial <- (factorial*base)%prime
+        term: u32 = (binomial*stirling_power(base, exponent, prime))%prime
+        if ((k.u32()-base) & 1) == 0:
+            total <- (total+term)%prime
+        else:
+            total <- (total+prime-term)%prime
+        binomial <- binomial*(k.u32()-base)/(base+1)
+    ((total*stirling_power(factorial, prime-2, prime))%prime).i64()
 
 def stirling_small_prime_impl(input: i64&?, length: usize) -> i64:
     if input == null or length<4 or length>18:return -1
