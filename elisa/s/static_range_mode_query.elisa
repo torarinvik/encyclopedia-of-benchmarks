@@ -77,6 +77,22 @@ def mode_try_few_values(input: i64&, output: mutable u8&, n: usize, q: usize) ->
         return mode_few_ranks(input, output, n, q, &small_values[0], &small_positions[0], small_distinct)
     0
 
+@inline(never)
+def mode_distinct_ranges(input: i64&, output: mutable u8&, n: usize, q: usize) -> i64:
+    minima: mutable i64[MAX_Q] = zeroed
+    for query in 0..<q:
+        left: usize = input[2 + n + 2 * query].usize()
+        right: usize = input[3 + n + 2 * query].usize()
+        minimum: mutable i64 = input[2 + left]
+        for index in (left + 1)..<right:
+            value: i64 = input[2 + index]
+            minimum <- value if value < minimum
+        minima[query] <- minimum
+    for query in 0..<q:
+        mode_write_i64(output, 16 * query, minima[query])
+        mode_write_i64(output, 16 * query + 8, 1)
+    (16 * q).i64()
+
 def static_range_mode_query_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
@@ -170,6 +186,10 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         compressed[position] <- id.u8()
         mask <- mask | (1.u32() << position)
     positions[id] <- mask
+
+    # With no duplicates, the smallest value wins every range at frequency one.
+    if id + 1 == n:
+        return mode_distinct_ranges(input, output, n, q)
 
     # Round the block width up to a power of two for shift-based indexing.
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
