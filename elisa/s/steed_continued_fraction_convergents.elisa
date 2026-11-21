@@ -1,10 +1,10 @@
-const MODULUS: i64 = 998244353
+const MODULUS: u64 = 998244353
 const MAX_INPUT_LENGTH: usize = 19
 
-def mod_pow(base_value: i64, exponent_value: i64) -> i64:
-    base: mutable i64 = base_value
-    exponent: mutable i64 = exponent_value
-    result: mutable i64 = 1
+def mod_pow(base_value: u64, exponent_value: u64) -> u64:
+    base: mutable u64 = base_value
+    exponent: mutable u64 = exponent_value
+    result: mutable u64 = 1
     while exponent > 0:
         if (exponent & 1) != 0: result <- (result * base) % MODULUS
         base <- (base * base) % MODULUS
@@ -26,22 +26,22 @@ def steed_continued_fraction_impl(input: i64&?, length: usize, output: mutable u
     levels: usize = levels_value.usize()
     if length != 2 + 2 * levels: return -1
     for index in 1..<length:
-        if input[index] < 0 or input[index] >= MODULUS: return -1
+        if input[index] < 0 or input[index].u64() >= MODULUS: return -1
     if input[2] == 0: return -1
-    convergents: mutable i64[9] = zeroed
-    current: mutable i64 = input[1]
+    convergents: mutable u64[9] = zeroed
+    current: mutable u64 = input[1].u64()
     convergents[0] <- current
-    d_value: mutable i64 = mod_pow(input[2], MODULUS - 2)
-    delta: mutable i64 = (input[3] * d_value) % MODULUS
+    d_value: mutable u64 = mod_pow(input[2].u64(), MODULUS - 2)
+    delta: mutable u64 = (input[3].u64() * d_value) % MODULUS
     current <- (current + delta) % MODULUS
     convergents[1] <- current
     for level in 2..<(levels + 1):
-        b_value: i64 = input[2 * level]
-        a_value: i64 = input[2 * level + 1]
-        denominator: i64 = (d_value * a_value + b_value) % MODULUS
+        b_value: u64 = input[2 * level].u64()
+        a_value: u64 = input[2 * level + 1].u64()
+        denominator: u64 = (d_value * a_value + b_value) % MODULUS
         if denominator == 0: return -1
         d_value <- mod_pow(denominator, MODULUS - 2)
-        factor: i64 = (b_value * d_value + MODULUS - 1) % MODULUS
+        factor: u64 = (b_value * d_value + MODULUS - 1) % MODULUS
         delta <- (factor * delta) % MODULUS
         current <- (current + delta) % MODULUS
         convergents[level] <- current
@@ -49,7 +49,7 @@ def steed_continued_fraction_impl(input: i64&?, length: usize, output: mutable u
     if output == null or capacity < required: return -2
     store_i64_le(levels_value + 1, output, 0)
     for index in 0..<(levels + 1):
-        store_i64_le(convergents[index], output, 8 * (index + 1))
+        store_i64_le(convergents[index].i64(), output, 8 * (index + 1))
     required.i64()
 
 export fn steed_continued_fraction_convergents(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = steed_continued_fraction_impl
