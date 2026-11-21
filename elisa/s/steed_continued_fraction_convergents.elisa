@@ -2,64 +2,60 @@ const MODULUS: i64 = 998244353
 const MAX_INPUT_LENGTH: usize = 19
 
 def mod_pow(base_value: i64, exponent_value: i64) -> i64:
-    let base: mutable i64 = base_value
-    let exponent: mutable i64 = exponent_value
-    let result: mutable i64 = 1
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
     while exponent > 0:
         if (exponent & 1) != 0: result <- (result * base) % MODULUS
         base <- (base * base) % MODULUS
         exponent <- exponent >> 1
     result
 
-def divisors_are_nonzero(input: view[i64], levels: usize) -> bool:
+def divisors_are_nonzero(input: i64&, levels: usize) -> bool:
     if input[2] == 0: return false
-    let d_value: mutable i64 = mod_pow(input[2], MODULUS - 2)
-    for level in 2..<=levels:
-        let denominator: i64 = (d_value * input[2 * level + 1] + input[2 * level]) % MODULUS
+    d_value: mutable i64 = mod_pow(input[2], MODULUS - 2)
+    for level in 2..<(levels + 1):
+        denominator: i64 = (d_value * input[2 * level + 1] + input[2 * level]) % MODULUS
         if denominator == 0: return false
         d_value <- mod_pow(denominator, MODULUS - 2)
     true
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    let bits: mutable u64 = value.u64()
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def steed_continued_fraction_impl(input: view[i64], output: mutable u8&,
+def steed_continued_fraction_impl(input: i64&?, length: usize, output: mutable u8&?,
                                   capacity: usize) -> i64:
-    let length: usize = input.len()
-    if length < 4 or length > MAX_INPUT_LENGTH: return -1
-    let levels_value: i64 = input[0]
+
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH: return -1
+    levels_value: i64 = input[0]
     if levels_value < 1 or levels_value > 8: return -1
-    let levels: usize = levels_value.usize()
+    levels: usize = levels_value.usize()
     if length != 2 + 2 * levels: return -1
     for index in 1..<length:
         if input[index] < 0 or input[index] >= MODULUS: return -1
     if not divisors_are_nonzero(input, levels): return -1
 
-    let required: usize = 8 * (levels + 2)
+    required: usize = 8 * (levels + 2)
     if output == null or capacity < required: return -2
-    let bytes: mutable view[u8] = output[0:required]
-    store_i64_le(levels_value + 1, bytes, 0)
-    let current: mutable i64 = input[1]
-    store_i64_le(current, bytes, 8)
-    let d_value: mutable i64 = mod_pow(input[2], MODULUS - 2)
-    let delta: mutable i64 = (input[3] * d_value) % MODULUS
+    store_i64_le(levels_value + 1, output, 0)
+    current: mutable i64 = input[1]
+    store_i64_le(current, output, 8)
+    d_value: mutable i64 = mod_pow(input[2], MODULUS - 2)
+    delta: mutable i64 = (input[3] * d_value) % MODULUS
     current <- (current + delta) % MODULUS
-    store_i64_le(current, bytes, 16)
-    for level in 2..<=levels:
-        let b_value: i64 = input[2 * level]
-        let a_value: i64 = input[2 * level + 1]
-        let denominator: i64 = (d_value * a_value + b_value) % MODULUS
+    store_i64_le(current, output, 16)
+    for level in 2..<(levels + 1):
+        b_value: i64 = input[2 * level]
+        a_value: i64 = input[2 * level + 1]
+        denominator: i64 = (d_value * a_value + b_value) % MODULUS
         d_value <- mod_pow(denominator, MODULUS - 2)
-        let factor: i64 = (b_value * d_value + MODULUS - 1) % MODULUS
+        factor: i64 = (b_value * d_value + MODULUS - 1) % MODULUS
         delta <- (factor * delta) % MODULUS
         current <- (current + delta) % MODULUS
-        store_i64_le(current, bytes, 8 * (level + 1))
+        store_i64_le(current, output, 8 * (level + 1))
     required.i64()
 
-export fn steed_continued_fraction_convergents(input: i64&, length: usize,
-                                                output: mutable u8&, capacity: usize) -> i64:
-    if input == null or length < 4 or length > MAX_INPUT_LENGTH: return -1
-    steed_continued_fraction_impl(input[0:length], output, capacity)
+export fn steed_continued_fraction_convergents(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = steed_continued_fraction_impl
