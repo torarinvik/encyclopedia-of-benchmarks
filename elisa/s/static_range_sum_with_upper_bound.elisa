@@ -10,43 +10,46 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         if input[2+i] < 0 or input[2+i] > 1000000000: return -1
         current[i] <- input[2+i]
         maximum <- current[i] if current[i] > maximum
+    needs_partitions: mutable bool = false
     for i in 0..<q:
         b: usize = 2+n+3*i
         if input[b] < 0 or input[b] > input[b+1] or input[b+1] > n.i64(): return -1
         if input[b+2] < 0 or input[b+2] > 1000000000: return -1
+        needs_partitions <- needs_partitions or input[b+2] < maximum
     if output == null or capacity < 16*q: return -2
     counts: mutable u8[1950] = zeroed
     sums: mutable i64[1950] = zeroed
     offsets: mutable usize[30] = zeroed
     # Leading zero bits cannot partition any input value.
     first_level: mutable usize = 0
-    while first_level < 29 and maximum < (1.i64() << (29 - first_level)):
-        first_level <- first_level + 1
-    for level in first_level..<30:
-        mask: i64 = 1.i64() << (29-level)
-        source: usize = ((level - first_level) & 1) << 6
-        target: usize = source ^ 64
-        zeros: mutable usize = 0
-        zero_sum: mutable i64 = 0
-        for i in 0..<n:
-            value: i64 = current[source + i]
-            if (value & mask) == 0:
-                zeros <- zeros + 1
-                zero_sum <- zero_sum + value
-            counts[65*level+i+1] <- zeros.u8()
-            sums[65*level+i+1] <- zero_sum
-        offsets[level] <- zeros
-        if level == 29: break
-        z: mutable usize = 0
-        o: mutable usize = zeros
-        for i in 0..<n:
-            value: i64 = current[source + i]
-            if (value & mask) == 0:
-                current[target + z] <- value
-                z <- z+1
-            else:
-                current[target + o] <- value
-                o <- o+1
+    if needs_partitions:
+        while first_level < 29 and maximum < (1.i64() << (29 - first_level)):
+            first_level <- first_level + 1
+        for level in first_level..<30:
+            mask: i64 = 1.i64() << (29-level)
+            source: usize = ((level - first_level) & 1) << 6
+            target: usize = source ^ 64
+            zeros: mutable usize = 0
+            zero_sum: mutable i64 = 0
+            for i in 0..<n:
+                value: i64 = current[source + i]
+                if (value & mask) == 0:
+                    zeros <- zeros + 1
+                    zero_sum <- zero_sum + value
+                counts[65*level+i+1] <- zeros.u8()
+                sums[65*level+i+1] <- zero_sum
+            offsets[level] <- zeros
+            if level == 29: break
+            z: mutable usize = 0
+            o: mutable usize = zeros
+            for i in 0..<n:
+                value: i64 = current[source + i]
+                if (value & mask) == 0:
+                    current[target + z] <- value
+                    z <- z+1
+                else:
+                    current[target + o] <- value
+                    o <- o+1
     answers: mutable i64[128] = zeroed
     for i in 0..<q:
         b: usize = 2+n+3*i
