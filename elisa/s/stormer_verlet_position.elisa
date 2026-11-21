@@ -51,6 +51,7 @@ def stormer_verlet_position_impl(input: i64&?, length: usize,
     svp_store_i64_le(staged_view, 8, current.i64())
     delta: mutable u64 = current - first.u64()
     pair_limit: usize = count >> 1
+    byte_offset: mutable usize = 16
     for pair in 1..<pair_limit:
         index: usize = 1 + 2 * pair
         acceleration: u64 = input[index].u64()
@@ -59,16 +60,17 @@ def stormer_verlet_position_impl(input: i64&?, length: usize,
             return -1
         delta <- delta + acceleration
         current <- current + delta
-        svp_store_i64_le(staged_view, 8 * (index - 1), current.i64())
+        svp_store_i64_le(staged_view, byte_offset, current.i64())
         delta <- delta + next_acceleration
         current <- current + delta
-        svp_store_i64_le(staged_view, 8 * index, current.i64())
+        svp_store_i64_le(staged_view, byte_offset + 8, current.i64())
+        byte_offset <- byte_offset + 16
     if (count & 1) != 0:
         acceleration: u64 = input[count].u64()
         if acceleration + 64 > 128:
             return -1
         current <- current + delta + acceleration
-        svp_store_i64_le(staged_view, 8 * (count - 1), current.i64())
+        svp_store_i64_le(staged_view, byte_offset, current.i64())
     if output == null or capacity < byte_count: return -2
     for byte in 0..<byte_count:
         output[byte] <- staged[byte]
