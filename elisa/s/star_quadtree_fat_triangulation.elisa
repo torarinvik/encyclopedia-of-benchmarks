@@ -76,29 +76,27 @@ def star_add_pair(pairs: mutable i64&, pair_count: mutable usize&, key: usize, t
 
 def star_visit(vertices: i32&, triangles: i32&, edges: i32&,
                vertex_count: usize, triangle_count: usize, edge_count: usize,
-               pairs: mutable i64&, pair_count: mutable usize&, failed: mutable u8&,
-               depth: usize, xmin: i32, ymax: i32, size: i32, path: usize) -> void:
-    if failed[0] != 0: return
+               pairs: mutable i64&, pair_count: mutable usize&,
+               depth: usize, xmin: i32, ymax: i32, size: i32, path: usize) -> bool:
     xmax: i32 = xmin + size
     ymin: i32 = ymax - size
     if not star_stops(vertices,edges,edge_count,vertex_count,xmin,ymin,xmax,ymax):
-        if depth >= STAR_MAX_DEPTH:
-            failed[0] <- 1
-            return
+        if depth >= STAR_MAX_DEPTH: return false
         half: i32 = size >> 1
         q: mutable usize = 0
         while q < 4:
-            star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
-                pairs,pair_count,failed,depth+1,xmin+(q%2).i32()*half,
-                ymax-(q/2).i32()*half,half,4*path+q)
+            if not star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
+                pairs,pair_count,depth+1,xmin+(q%2).i32()*half,
+                ymax-(q/2).i32()*half,half,4*path+q): return false
             q <- q + 1
-        return
+        return true
     key: usize = path << (2 * (STAR_MAX_DEPTH-depth))
     tid: mutable usize = 0
     while tid < triangle_count:
         if star_triangle_hits_box(vertices,triangles,tid,xmin,ymin,xmax,ymax) and
-           not star_add_pair(pairs,pair_count,key,tid): failed[0] <- 1
+           not star_add_pair(pairs,pair_count,key,tid): return false
         tid <- tid + 1
+    true
 
 def star_store_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
@@ -173,10 +171,8 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
     pairs_data: mutable i64[128] = zeroed
     pairs: mutable i64& = &pairs_data[0]
     pair_count: mutable usize = 0
-    failed: mutable u8 = 0
-    star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
-        pairs,pair_count,&failed,0,0,8,8,0)
-    if failed != 0: return -1
+    if not star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
+        pairs,pair_count,0,0,8,8,0): return -1
     required: usize = (1 + 2*pair_count)*8
     if output == null or capacity < required: return -2
     star_store_le(output,0,pair_count.i64())
