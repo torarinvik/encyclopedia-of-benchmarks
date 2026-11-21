@@ -8,6 +8,20 @@ def straddling_checkerboard_find_symbol(values: i64&, value: i64) -> i64:
             return position.i64()
     -1
 
+def checkerboard_record_symbol(value: i64, seen_low: mutable u64&, seen_high: mutable u64&) -> bool:
+    if value < 32 or value > 126:
+        return false
+    bit: u64 = 1.u64() << (value.u64() & 63)
+    if value < 64:
+        if (seen_low[0] & bit) != 0:
+            return false
+        seen_low[0] <- seen_low[0] | bit
+    else:
+        if (seen_high[0] & bit) != 0:
+            return false
+        seen_high[0] <- seen_high[0] | bit
+    true
+
 def straddling_checkerboard_impl(values: i64&, input_length: usize, output: mutable u8&) -> i64:
     if input_length < 32 or input_length > MAX_INPUT:
         return -1
@@ -19,28 +33,22 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
     holes: mutable usize = 0
     seen_low: mutable u64 = 0
     seen_high: mutable u64 = 0
-    for position in 0..<BOARD_SIZE |position, values, hole_a, hole_b, holes, seen_low, seen_high|:
+    for position in 0..<10 |position, values, hole_a, hole_b, holes, seen_low, seen_high|:
         value: i64 = values[1 + position]
-        if position < 10 and value == 0:
+        if value == 0:
             if holes == 0:
                 hole_a <- position
             elif holes == 1:
                 hole_b <- position
             holes <- holes + 1
             continue
-        if value < 32 or value > 126:
+        if not checkerboard_record_symbol(value, &seen_low, &seen_high):
             return -1
-        bit: u64 = 1.u64() << (value.u64() & 63)
-        if value < 64:
-            if (seen_low & bit) != 0:
-                return -1
-            seen_low <- seen_low | bit
-        else:
-            if (seen_high & bit) != 0:
-                return -1
-            seen_high <- seen_high | bit
     if holes != 2:
         return -1
+    for position in 10..<BOARD_SIZE |position, values, seen_low, seen_high|:
+        if not checkerboard_record_symbol(values[1 + position], &seen_low, &seen_high):
+            return -1
     text_length_value: i64 = values[31]
     if text_length_value < 0 or text_length_value > MAX_TEXT.i64():
         return -1
