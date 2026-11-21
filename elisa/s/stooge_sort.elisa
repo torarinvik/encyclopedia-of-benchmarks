@@ -6,24 +6,33 @@ def stooge_compare_endpoints(values: mutable i64&, last: usize) -> void:
         values[0] <- last_value
         values[last] <- first_value
 
+@inline(always)
+def stooge_sort_three(values: mutable i64&) -> void:
+    # Compare the outer pair, then the adjacent pairs. The final
+    # left comparison is redundant because the minimum is in place.
+    first: i64 = values[0]
+    middle: i64 = values[1]
+    last: i64 = values[2]
+    outer_low: i64 = first if first <= last else last
+    outer_high: i64 = last if first <= last else first
+    inner_high: i64 = middle if outer_low <= middle else outer_low
+    values[0] <- outer_low if outer_low <= middle else middle
+    values[1] <- inner_high if inner_high <= outer_high else outer_high
+    values[2] <- outer_high if inner_high <= outer_high else inner_high
+
 # Each recursive call receives the start and length of its subrange.
 def stooge_sort_range(values: mutable i64&, length: usize) -> void:
     span: mutable usize = length
     while span > 2:
         if span == 3:
-            # Compare the outer pair, then the adjacent pairs. The final
-            # left comparison is redundant because the minimum is in place.
-            first: i64 = values[0]
-            middle: i64 = values[1]
-            last: i64 = values[2]
-            outer_low: i64 = first if first <= last else last
-            outer_high: i64 = last if first <= last else first
-            inner_high: i64 = middle if outer_low <= middle else outer_low
-            values[0] <- outer_low if outer_low <= middle else middle
-            values[1] <- inner_high if inner_high <= outer_high else outer_high
-            values[2] <- outer_high if inner_high <= outer_high else inner_high
+            stooge_sort_three(values)
             return
         stooge_compare_endpoints(values, span - 1)
+        if span == 4:
+            stooge_sort_three(values)
+            stooge_sort_three(&values[1])
+            stooge_sort_three(values)
+            return
         third: usize = span / 3
         span <- span - third
         stooge_sort_range(values, span)
