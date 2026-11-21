@@ -47,8 +47,12 @@ int64_t string_compression(const int64_t *input, size_t length, uint8_t *output,
         const size_t count = end - index;
         output[write_index++] = (uint8_t)input[index];
         if (count > 1) {
-            if (count >= 10) output[write_index++] = (uint8_t)(48 + count / 10);
-            output[write_index++] = (uint8_t)(48 + count % 10);
+            if (count < 10) {
+                output[write_index++] = (uint8_t)(48 + count);
+            } else {
+                output[write_index++] = (uint8_t)(48 + count / 10);
+                output[write_index++] = (uint8_t)(48 + count % 10);
+            }
         }
         index = end;
     }
