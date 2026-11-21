@@ -10,12 +10,20 @@ def stooge_compare_endpoints(values: mutable i64&, last: usize) -> void:
 def stooge_sort_range(values: mutable i64&, length: usize) -> void:
     span: mutable usize = length
     while span > 2:
-        stooge_compare_endpoints(values, span - 1)
         if span == 3:
-            stooge_compare_endpoints(values, 1)
-            stooge_compare_endpoints(&values[1], 1)
-            stooge_compare_endpoints(values, 1)
+            # Compare the outer pair, then the adjacent pairs. The final
+            # left comparison is redundant because the minimum is in place.
+            first: i64 = values[0]
+            middle: i64 = values[1]
+            last: i64 = values[2]
+            outer_low: i64 = first if first <= last else last
+            outer_high: i64 = last if first <= last else first
+            inner_high: i64 = middle if outer_low <= middle else outer_low
+            values[0] <- outer_low if outer_low <= middle else middle
+            values[1] <- inner_high if inner_high <= outer_high else outer_high
+            values[2] <- outer_high if inner_high <= outer_high else inner_high
             return
+        stooge_compare_endpoints(values, span - 1)
         third: usize = span / 3
         span <- span - third
         stooge_sort_range(values, span)
@@ -23,9 +31,11 @@ def stooge_sort_range(values: mutable i64&, length: usize) -> void:
     stooge_compare_endpoints(values, 1)
 
 def stooge_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
     if length == 2:
         stooge_compare_endpoints(values, 1)
-    elif length > 2:
+    else:
         stooge_sort_range(values, length)
 
 export fn stooge_sort(values: mutable i64&, length: usize) -> void = stooge_sort_impl
