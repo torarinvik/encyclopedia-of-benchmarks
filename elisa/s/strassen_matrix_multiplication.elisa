@@ -1,4 +1,15 @@
 @inline(always)
+def strassen_store_word(output: mutable u8&, offset: usize, bits: u64) -> void:
+    output[offset + 0] <- (bits >> 0).u8()
+    output[offset + 1] <- (bits >> 8).u8()
+    output[offset + 2] <- (bits >> 16).u8()
+    output[offset + 3] <- (bits >> 24).u8()
+    output[offset + 4] <- (bits >> 32).u8()
+    output[offset + 5] <- (bits >> 40).u8()
+    output[offset + 6] <- (bits >> 48).u8()
+    output[offset + 7] <- (bits >> 56).u8()
+
+@inline(always)
 def strassen_two(a: i64&, b: i64&, c: mutable i64&) -> void:
     m1: i64 = (a[0] + a[3]) * (b[0] + b[3])
     m2: i64 = (a[2] + a[3]) * b[0]
@@ -148,11 +159,14 @@ def strassen_matrix_frame(input: i64&, n: usize, output: mutable u8&?, capacity:
 
 @inline(never)
 def strassen_product(input: i64&, output: mutable u8&, n: usize, cells: usize, output_bytes: usize) -> i64:
-    result: mutable i64[64] = zeroed
     if n == 2:
-        strassen_two(&input[1], &input[5], &result[0])
-    else:
-        strassen_multiply(&input[1], &input[1 + cells], &result[0], n)
+        small_result: mutable i64[4] = zeroed
+        strassen_two(&input[1], &input[5], &small_result[0])
+        for index in 0..<4:
+            strassen_store_word(output, 8 * index, small_result[index].u64())
+        return 32
+    result: mutable i64[64] = zeroed
+    strassen_multiply(&input[1], &input[1 + cells], &result[0], n)
     i: mutable usize = 0
     while i < cells:
         bits: mutable u64 = result[i].u64()
