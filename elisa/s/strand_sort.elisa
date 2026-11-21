@@ -5,17 +5,17 @@ def strand_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize)
     remaining: mutable usize = length
     result_length: mutable usize = 0
     while remaining > 0:
-        strand_length: mutable usize = 0
+        last: mutable i64 = values[0]
+        scratch[0] <- last
+        strand_length: mutable usize = 1
         remaining_write: mutable usize = 0
-        read: mutable usize = 0
+        read: mutable usize = 1
         while read < remaining:
             value: i64 = values[read]
-            take: mutable bool = strand_length == 0
-            if strand_length > 0 and value >= scratch[strand_length - 1]:
-                take <- true
-            if take:
+            if value >= last:
                 scratch[strand_length] <- value
                 strand_length <- strand_length + 1
+                last <- value
             else:
                 values[remaining_write] <- value
                 remaining_write <- remaining_write + 1
