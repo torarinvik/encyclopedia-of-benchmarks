@@ -202,8 +202,6 @@ def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
     c: mutable i64 = input[4]
     d: mutable i64 = input[5]
     if not sbt_fraction_in_range(a, b) or not sbt_fraction_in_range(c, d): return -1
-    if not sbt_is_reduced(a, b) or not sbt_is_reduced(c, d): return -1
-    if output == null or capacity < 24: return -2
 
     lower_num: mutable i64 = 0
     lower_den: mutable i64 = 1
@@ -230,6 +228,9 @@ def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
             c <- c-shared*d
         else:
             break
+    # Common quotient steps preserve both gcds. Check only the residual pairs.
+    if not sbt_is_reduced(a, b) or not sbt_is_reduced(c, d): return -1
+    if output == null or capacity < 24: return -2
     sbt_store_word(output, 0, 2)
     sbt_store_word(output, 8, lower_num+upper_num)
     sbt_store_word(output, 16, lower_den+upper_den)
