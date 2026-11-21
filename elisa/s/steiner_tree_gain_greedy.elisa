@@ -31,6 +31,10 @@ def st_join(labels: mutable u32&, a: usize, b: usize) -> bool:
 @intrinsic("llvm.cttz.i32")
 extern st_trailing_zeros(value: u32, zero_undefined: bool) -> u32
 
+def st_count_vertices(bits: u32) -> usize:
+    pairs: u32 = bits - ((bits >> 1) & 5)
+    ((pairs & 3) + (pairs >> 2)).usize()
+
 def st_group_count(mask: i64, h: u32) -> usize:
     labels: mutable u32 = SINGLETON_LABELS
     pending: mutable u32 = h
@@ -39,16 +43,13 @@ def st_group_count(mask: i64, h: u32) -> usize:
         st_join(&labels, edge >> 2, edge & 3)
         pending <- pending & (pending - 1)
     seen: mutable u32 = 0
-    count: mutable usize = 0
     vertices: mutable u32 = mask.u32()
     while vertices != 0:
         vertex: usize = st_trailing_zeros(vertices, true).usize()
         bit: u32 = 1.u32() << st_label(labels, vertex)
-        if (seen & bit) == 0:
-            seen <- seen | bit
-            count <- count + 1
+        seen <- seen | bit
         vertices <- vertices & (vertices - 1)
-    count
+    st_count_vertices(seen)
 
 def st_less(a: ST_Edge, b: ST_Edge) -> bool:
     a.w < b.w or (a.w == b.w and (a.u < b.u or (a.u == b.u and a.v < b.v)))
@@ -137,10 +138,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
         return -1
     n: usize = n0.usize()
     count: usize = count0.usize()
-    terminals: mutable usize = 0
-    for i in 0..<n:
-        if (mask & (1.i64() << i)) != 0:
-            terminals <- terminals + 1
+    terminals: usize = st_count_vertices(mask.u32())
     if terminals < 2:
         return -1
     w: mutable u32[16] = zeroed
