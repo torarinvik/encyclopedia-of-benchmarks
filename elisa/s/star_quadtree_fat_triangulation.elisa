@@ -32,12 +32,13 @@ def star_stops(edges: i32&, edge_count: usize,
 # Every triangle edge in the validated mesh is horizontal, vertical, or diagonal.
 # Overlap on the four corresponding axes is sufficient for the closed box test.
 def star_triangle_hits_box(data: i32&, tid: usize,
-                          xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
+                          xmin: i32, ymin: i32, xmax: i32, ymax: i32,
+                          sum_min: i32, sum_max: i32, diff_min: i32, diff_max: i32) -> bool:
     slot: usize = 8 * tid
     data[slot+1] >= xmin and data[slot] <= xmax and
     data[slot+3] >= ymin and data[slot+2] <= ymax and
-    data[slot+5] >= xmin+ymin and data[slot+4] <= xmax+ymax and
-    data[slot+7] >= ymin-xmax and data[slot+6] <= ymax-xmin
+    data[slot+5] >= sum_min and data[slot+4] <= sum_max and
+    data[slot+7] >= diff_min and data[slot+6] <= diff_max
 
 def star_visit(triangles: i32&, edges: i32&, triangle_count: usize,
                edge_count: usize, pairs: mutable i64&) -> i32:
@@ -57,8 +58,13 @@ def star_visit(triangles: i32&, edges: i32&, triangle_count: usize,
             if shift == 0: return -1
             shift <- shift - 2
         else:
+            sum_min: i32 = xmin + ymin
+            sum_max: i32 = xmax + ymax
+            diff_min: i32 = ymin - xmax
+            diff_max: i32 = ymax - xmin
             for tid in 0..<triangle_count:
-                if star_triangle_hits_box(triangles,tid,xmin,ymin,xmax,ymax):
+                if star_triangle_hits_box(triangles,tid,xmin,ymin,xmax,ymax,
+                                          sum_min,sum_max,diff_min,diff_max):
                     if pair_count >= STAR_MAX_PAIRS: return -1
                     pairs[2*pair_count] <- key.i64()
                     pairs[2*pair_count+1] <- tid.i64()
