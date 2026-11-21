@@ -57,8 +57,11 @@ def string_compression_impl(input: i64&?, length: usize, output: mutable u8&?, o
                 if count < 10:
                     output[write_index] <- (48 + count).u8()
                 else:
-                    output[write_index] <- (48 + count / 10).u8()
-                    output[write_index + 1] <- (48 + count % 10).u8()
+                    digits: u32 = count.u32()
+                    # This reciprocal gives the exact quotient for counts up to 64.
+                    tens: u32 = (digits * 103) >> 10
+                    output[write_index] <- (48 + tens).u8()
+                    output[write_index + 1] <- (48 + digits - tens * 10).u8()
                     write_index <- write_index + 1
                 write_index <- write_index + 1
             index <- end

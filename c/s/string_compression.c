@@ -54,8 +54,11 @@ int64_t string_compression(const int64_t *input, size_t length, uint8_t *output,
             if (count < 10) {
                 output[write_index++] = (uint8_t)(48 + count);
             } else {
-                output[write_index++] = (uint8_t)(48 + count / 10);
-                output[write_index++] = (uint8_t)(48 + count % 10);
+                /* This reciprocal gives the exact quotient for counts up to 64. */
+                const uint32_t digits = (uint32_t)count;
+                const uint32_t tens = (digits * 103) >> 10;
+                output[write_index++] = (uint8_t)(48 + tens);
+                output[write_index++] = (uint8_t)(48 + digits - tens * 10);
             }
         }
         index = end;
