@@ -28,16 +28,17 @@ def stirling_value(n: i64, k: usize, modulus: i64) -> i64:
     exponent: u32 = (n.u64()%(prime.u64()-1)).u32()
     factorial: mutable u32 = 1
     binomial: mutable u32 = k.u32()
-    total: mutable u32 = 0
+    # The binomial weights sum to at most 256, so this offset keeps the sum nonnegative.
+    total: mutable u32 = 256*prime
     for base in 1..=k.u32():
-        factorial <- (factorial*base)%prime
-        term: u32 = (binomial*stirling_power(base, exponent, prime))%prime
+        factorial <- factorial*base
+        term: u32 = binomial*stirling_power(base, exponent, prime)
         if ((k.u32()-base) & 1) == 0:
-            total <- (total+term)%prime
+            total <- total+term
         else:
-            total <- (total+prime-term)%prime
+            total <- total-term
         binomial <- binomial*(k.u32()-base)/(base+1)
-    ((total*stirling_power(factorial, prime-2, prime))%prime).i64()
+    (((total%prime)*stirling_power(factorial%prime, prime-2, prime))%prime).i64()
 
 def stirling_small_prime_impl(input: i64&?, length: usize) -> i64:
     if input == null or length<4 or length>18:return -1
