@@ -18,9 +18,9 @@ def srin_bit_sum(bit: i64&, count: usize) -> i64:
         i <- i - (i & (~i + 1))
     total
 
-def srin_bit_add(bit: mutable i64&, rank: usize, delta: i64) -> void:
+def srin_bit_add(bit: mutable i64&, rank: usize, distinct: usize, delta: i64) -> void:
     i: mutable usize = rank + 1
-    while i <= MAX_N:
+    while i <= distinct:
         bit[i] <- bit[i] + delta
         i <- i + (i & (~i + 1))
 
@@ -105,25 +105,25 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
             current_left <- current_left - 1
             rank: usize = ranks[current_left]
             inversions <- inversions + srin_bit_sum(&bit[0], rank)
-            srin_bit_add(&bit[0], rank, 1)
+            srin_bit_add(&bit[0], rank, distinct, 1)
             window_size <- window_size + 1
         while current_right < target_right:
             rank: usize = ranks[current_right]
             inversions <- inversions + window_size.i64() - srin_bit_sum(&bit[0], rank + 1)
-            srin_bit_add(&bit[0], rank, 1)
+            srin_bit_add(&bit[0], rank, distinct, 1)
             window_size <- window_size + 1
             current_right <- current_right + 1
         while current_left < target_left:
             rank: usize = ranks[current_left]
             inversions <- inversions - srin_bit_sum(&bit[0], rank)
-            srin_bit_add(&bit[0], rank, -1)
+            srin_bit_add(&bit[0], rank, distinct, -1)
             window_size <- window_size - 1
             current_left <- current_left + 1
         while current_right > target_right:
             current_right <- current_right - 1
             rank: usize = ranks[current_right]
             inversions <- inversions - window_size.i64() + srin_bit_sum(&bit[0], rank + 1)
-            srin_bit_add(&bit[0], rank, -1)
+            srin_bit_add(&bit[0], rank, distinct, -1)
             window_size <- window_size - 1
         answers[id] <- inversions
         qi <- qi + 1
