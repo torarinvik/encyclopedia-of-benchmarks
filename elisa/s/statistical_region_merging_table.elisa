@@ -1,3 +1,6 @@
+@intrinsic("llvm.cttz.i64")
+extern srm_trailing_zeros(value: u64, zero_undefined: bool) -> u64
+
 def srm_root(parent: mutable usize[36]&, start: usize) -> usize:
     x: mutable usize = start
     while parent[x] != x:
@@ -23,6 +26,7 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
         sizes[i] <- 1
         minimum[i] <- i
         sums[i] <- input[2+n+i]
+    occupied: mutable u64[4] = zeroed
     heads: mutable usize[256] = zeroed
     edges: mutable usize[64] = zeroed
     links: mutable usize[64] = zeroed
@@ -42,29 +46,35 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
             edges[edge] <- (p << 6) | q
             links[edge] <- heads[bucket]
             heads[bucket] <- edge
-    for difference in 0..<256:
-        edge: mutable usize = heads[difference]
-        while edge != 0:
-            pair: usize = edges[edge & 63]
-            edge <- links[edge & 63]
-            p: usize = pair >> 6
-            q: usize = pair & 63
-            a: mutable usize = srm_root(&parent, p)
-            b: mutable usize = srm_root(&parent, q)
-            if a == b: continue
-            na: i64 = sizes[a].i64()
-            nb: i64 = sizes[b].i64()
-            delta: i64 = sums[a]*nb - sums[b]*na
-            bound: i64 = input[1+sizes[a]] + input[1+sizes[b]]
-            if delta*delta > bound*na*na*nb*nb: continue
-            if sizes[a] < sizes[b]:
-                t: usize = a
-                a <- b
-                b <- t
-            parent[b] <- a
-            sizes[a] <- sizes[a] + sizes[b]
-            sums[a] <- sums[a] + sums[b]
-            if minimum[b] < minimum[a]: minimum[a] <- minimum[b]
+            word: usize = bucket >> 6
+            occupied[word] <- occupied[word] | (1.u64() << (bucket & 63))
+    for word in 0..<4:
+        pending: mutable u64 = occupied[word]
+        while pending != 0:
+            difference: usize = 64*word + srm_trailing_zeros(pending, true).usize()
+            pending <- pending & (pending - 1)
+            edge: mutable usize = heads[difference]
+            while edge != 0:
+                pair: usize = edges[edge & 63]
+                edge <- links[edge & 63]
+                p: usize = pair >> 6
+                q: usize = pair & 63
+                a: mutable usize = srm_root(&parent, p)
+                b: mutable usize = srm_root(&parent, q)
+                if a == b: continue
+                na: i64 = sizes[a].i64()
+                nb: i64 = sizes[b].i64()
+                delta: i64 = sums[a]*nb - sums[b]*na
+                bound: i64 = input[1+sizes[a]] + input[1+sizes[b]]
+                if delta*delta > bound*na*na*nb*nb: continue
+                if sizes[a] < sizes[b]:
+                    t: usize = a
+                    a <- b
+                    b <- t
+                parent[b] <- a
+                sizes[a] <- sizes[a] + sizes[b]
+                sums[a] <- sums[a] + sums[b]
+                if minimum[b] < minimum[a]: minimum[a] <- minimum[b]
     if output == null or capacity < n: return -2
     for i in 0..<n:
         output[i] <- minimum[srm_root(&parent, i)].u8()
