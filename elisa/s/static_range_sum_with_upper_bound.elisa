@@ -23,7 +23,8 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     prefixes: mutable i64[1950] = zeroed
     # Leading zero bits cannot partition any input value.
     first_level: mutable usize = 0
-    if needs_partitions:
+    use_matrix: bool = needs_partitions and n*q > 64
+    if use_matrix:
         first_level <- (leading_zeros(maximum.u32() | 1, false) - 2).usize()
         for level in first_level..<30:
             mask: i64 = 1.i64() << (29-level)
@@ -59,6 +60,12 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             count <- (r - l).i64()
             for index in l..<r:
                 total <- total + input[2 + index]
+        elif not use_matrix:
+            for index in l..<r:
+                value: i64 = input[2 + index]
+                if value < key:
+                    count <- count + 1
+                    total <- total + value
         else:
             prefix_total: mutable i64 = 0
             for level in first_level..<30:
