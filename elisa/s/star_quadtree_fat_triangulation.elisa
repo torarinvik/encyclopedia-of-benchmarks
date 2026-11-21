@@ -10,13 +10,16 @@ def star_edge_hits_box(edges: i32&, slot: usize,
                       xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
     if edges[slot+1] < xmin or edges[slot] > xmax or
        edges[slot+3] < ymin or edges[slot+2] > ymax: return false
+    # Overlapping axis-aligned segments need only the box-axis checks.
+    normal_weight: i32 = edges[slot+8]
+    if normal_weight == 0: return true
     dx: i32 = edges[slot+4]
     dy: i32 = edges[slot+5]
     projection: i32 = edges[slot+6]
     # Project the doubled center and compare against the doubled radius.
     center_projection: i32 = dx * (ymin + ymax) - dy * (xmin + xmax) - projection
     absolute: i32 = center_projection if center_projection >= 0 else -center_projection
-    radius: i32 = edges[slot+8] * (xmax - xmin)
+    radius: i32 = normal_weight * (xmax - xmin)
     absolute <= radius
 
 def star_stops(edges: i32&, edge_count: usize,
@@ -186,7 +189,7 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
                 edges[slot+6] <- 2 * (dx * ay - dy * ax)
                 abs_dx: i32 = dx if dx >= 0 else -dx
                 abs_dy: i32 = dy if dy >= 0 else -dy
-                edges[slot+8] <- abs_dx + abs_dy
+                edges[slot+8] <- abs_dx + abs_dy if dx != 0 and dy != 0 else 0
                 edges[slot+7] <- (1.i32() << low) | (1.i32() << high)
                 edge_count <- edge_count + 1
             k <- k + 1
