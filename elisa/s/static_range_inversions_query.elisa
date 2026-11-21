@@ -27,8 +27,10 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
                q: usize, distinct: usize, use_packed: bool) -> void:
     bit: mutable i64[MAX_N] = zeroed
     prefixes: mutable u64 = 0
-    current_left: mutable usize = 0
-    current_right: mutable usize = 0
+    # Start with an empty window at the first query, skipping its unused prefix.
+    first_left: usize = (queries[0] & 255).usize()
+    current_left: mutable usize = first_left
+    current_right: mutable usize = first_left
     inversions: mutable i64 = 0
     qi: mutable usize = 0
     while qi < q:
