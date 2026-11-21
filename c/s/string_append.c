@@ -11,11 +11,12 @@ int64_t string_append(const int64_t *input, size_t length, uint8_t *output, size
     if (input[1] < 0 || input[1] > MAX_SIDE) return -1;
     const size_t second_length = (size_t)input[1];
     if (length != 2 + first_length + second_length) return -1;
-    for (size_t i = 0; i < first_length; ++i) if (input[2 + i] < 32 || input[2 + i] > 126) return -1;
-    for (size_t i = 0; i < second_length; ++i) if (input[2 + first_length + i] < 32 || input[2 + first_length + i] > 126) return -1;
     const size_t count = first_length + second_length;
+    for (size_t i = 0; i < count; ++i) {
+        const int64_t value = input[2 + i];
+        if (value < 32 || value > 126) return -1;
+    }
     if (capacity < count || (count != 0 && output == NULL)) return -2;
-    for (size_t i = 0; i < first_length; ++i) output[i] = (uint8_t)input[2 + i];
-    for (size_t i = 0; i < second_length; ++i) output[first_length + i] = (uint8_t)input[2 + first_length + i];
+    for (size_t i = 0; i < count; ++i) output[i] = (uint8_t)input[2 + i];
     return (int64_t)count;
 }

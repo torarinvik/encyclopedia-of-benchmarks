@@ -12,28 +12,16 @@ def string_append_impl(input: i64&?, length: usize, output: mutable u8&?, output
     second_length: usize = second_value.usize()
     if length != 2 + first_length + second_length:
         return -1
-    i: mutable usize = 0
-    while i < first_length:
-        if input[2 + i] < 32 or input[2 + i] > 126:
-            return -1
-        i <- i + 1
-    i <- 0
-    while i < second_length:
-        if input[2 + first_length + i] < 32 or input[2 + first_length + i] > 126:
-            return -1
-        i <- i + 1
     count: usize = first_length + second_length
+    for index in 0.usize()..<count:
+        value: i64 = input[2 + index]
+        if value < 32 or value > 126:
+            return -1
     if count == 0: return 0
     if output_capacity < count or output == null:
         return -2
-    i <- 0
-    while i < first_length:
-        output[i] <- input[2 + i].u8()
-        i <- i + 1
-    i <- 0
-    while i < second_length:
-        output[first_length + i] <- input[2 + first_length + i].u8()
-        i <- i + 1
+    for index in 0.usize()..<count:
+        output[index] <- input[2 + index].u8()
     count.i64()
 
 export fn string_append(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64 = string_append_impl
