@@ -124,11 +124,30 @@ def sbt_append(words: mutable view[i64], word_count: mutable usize&, value: i64)
     word_count <- word_count + 1
     true
 
+def sbt_store_word(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset+byte] <- (bits >> (byte*8)).u8()
+
+def sbt_single_bounds(numerator: i64, denominator: i64, output: mutable u8&?, capacity: usize) -> i64:
+    if not sbt_fraction_in_range(numerator, denominator): return -1
+    bounds: mutable SbtDecoded = zeroed
+    if not sbt_descendant_bounds(numerator, denominator, bounds): return -1
+    if output == null or capacity < 40: return -2
+    sbt_store_word(output, 0, 4)
+    sbt_store_word(output, 8, bounds.lower_num)
+    sbt_store_word(output, 16, bounds.lower_den)
+    sbt_store_word(output, 24, bounds.upper_num)
+    sbt_store_word(output, 32, bounds.upper_den)
+    1
+
 def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     query_count: i64 = input[0]
     if query_count < 1 or query_count > MAX_QUERIES.i64(): return -1
     if query_count == 1:
+        if length == 4 and input[1] == 4:
+            return sbt_single_bounds(input[2], input[3], output, output_capacity)
         # A path record uses two header words and at most two words per run.
         words: mutable i64[2+2*MAX_RUNS] = zeroed
         return sbt_process(input, length, output, output_capacity, query_count, words[0:2+2*MAX_RUNS])
