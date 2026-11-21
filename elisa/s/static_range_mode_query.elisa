@@ -24,6 +24,24 @@ def mode_insert(sorted: mutable i64&, index: usize, value: i64) -> void:
         position <- position - 1
     sorted[position] <- value
 
+@inline(never)
+def mode_few_ranks(input: i64&, output: mutable u8&, n: usize, q: usize, values: u32&, positions: u32&, distinct: usize) -> i64:
+    answers: mutable u64[MAX_Q] = zeroed
+    for query in 0..<q:
+        left: usize = input[2 + n + 2 * query].usize()
+        right: usize = input[3 + n + 2 * query].usize()
+        range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
+        best: mutable i64 = 0
+        for id in 0..<distinct:
+            score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
+            best <- score if score < best
+        answers[query] <- values[(best & 31).usize()].u64() | ((0 - (best >> 5)).u64() << 32)
+    for query in 0..<q:
+        answer: u64 = answers[query]
+        mode_write_i64(output, 16 * query, answer.u32().i64())
+        mode_write_i64(output, 16 * query + 8, (answer >> 32).i64())
+    (16 * q).i64()
+
 def static_range_mode_query_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
@@ -105,6 +123,9 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         position: usize = (item & 31).usize()
         compressed[position] <- id.u8()
         positions[id] <- positions[id] | (1.u32() << position)
+
+    if distinct <= 4:
+        return mode_few_ranks(input, output, n, q, &unique_values[0], &positions[0], distinct)
 
     # Round the block width up to a power of two for shift-based indexing.
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
