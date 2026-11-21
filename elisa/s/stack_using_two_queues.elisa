@@ -1,3 +1,8 @@
+struct Scratch:
+    queue_a: i64[128]
+    queue_b: i64[128]
+    record_storage: i64[256]
+
 # The validated limit of 128 operations bounds both queues. Each push
 # copies into the other array and can increase the live length by at most one.
 def push_new(main_queue: i64&, temp_queue: mutable i64&, head: usize, queue_size: usize, value: i64) -> usize:
@@ -18,12 +23,8 @@ def stack_using_two_queues_impl(input: i64&?, length: usize, output: mutable u8&
 
 @inline(never)
 def stack_using_two_queues_run(input: i64&, operation_count: usize, output: mutable u8&?, capacity: usize) -> i64:
-    queue_a: mutable i64[128] = zeroed
-    queue_b: mutable i64[128] = zeroed
-    # Each operation emits at most two words, so the validated operation count bounds this buffer.
-    # Each record is written once, leaving its default zero words intact.
-    record_storage: mutable i64[256] = zeroed
-    records: mutable i64& = &record_storage[0]
+    scratch: mutable Scratch = zeroed
+    records: mutable i64& = &scratch.record_storage[0]
     main_is_a: mutable bool = true
     head: mutable usize = 0
     queue_size: mutable usize = 0
@@ -38,14 +39,14 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
         if opcode == 0:
             if operand < -2147483648 or operand > 2147483647: return -1
             if main_is_a:
-                queue_size <- push_new(&queue_a[0], &queue_b[0], head, queue_size, operand)
+                queue_size <- push_new(&scratch.queue_a[0], &scratch.queue_b[0], head, queue_size, operand)
             else:
-                queue_size <- push_new(&queue_b[0], &queue_a[0], head, queue_size, operand)
+                queue_size <- push_new(&scratch.queue_b[0], &scratch.queue_a[0], head, queue_size, operand)
             head <- 0
             main_is_a <- not main_is_a
         elif opcode == 1:
             if queue_size == 0 or operand != 0: return -1
-            selected_queue: i64& = &queue_a[0] if main_is_a else &queue_b[0]
+            selected_queue: i64& = &scratch.queue_a[0] if main_is_a else &scratch.queue_b[0]
             records[record_end + 1] <- selected_queue[head]
             record_end <- record_end + 2
             head <- head + 1
@@ -55,8 +56,8 @@ def stack_using_two_queues_run(input: i64&, operation_count: usize, output: muta
             if queue_size == 0:
                 records[record_end] <- 1
             else:
-                if main_is_a: records[record_end + 1] <- queue_a[head]
-                else: records[record_end + 1] <- queue_b[head]
+                if main_is_a: records[record_end + 1] <- scratch.queue_a[head]
+                else: records[record_end + 1] <- scratch.queue_b[head]
             record_end <- record_end + 2
         else:
             return -1
