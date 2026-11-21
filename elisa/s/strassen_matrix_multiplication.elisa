@@ -73,6 +73,23 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
+            x[i] <- a[(r + h) * dimension + col].u64() - a[r * dimension + col].u64()
+            y[i] <- b[r * dimension + col].u64() + b[r * dimension + col + h].u64()
+            col <- col + 1
+        r <- r + 1
+    if dimension == 4:
+        strassen_two[u64](&x[0], &y[0], &product[0])
+    else:
+        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
+    for row in 0..<h:
+        for column in 0..<h:
+            i: usize = row * h + column
+            c[(row + h) * dimension + column + h] <- c[(row + h) * dimension + column + h] + product[i]
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
             x[i] <- a[r * dimension + col].u64()
             y[i] <- b[r * dimension + col + h].u64() - b[(r + h) * dimension + col + h].u64()
             col <- col + 1
@@ -86,24 +103,6 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
             i: usize = row * h + column
             c[row * dimension + column + h] <- product[i]
             c[(row + h) * dimension + column + h] <- c[(row + h) * dimension + column + h] + product[i]
-    r <- 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
-            x[i] <- a[(r + h) * dimension + col + h].u64()
-            y[i] <- b[(r + h) * dimension + col].u64() - b[r * dimension + col].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &product[0])
-    else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
-    for row in 0..<h:
-        for column in 0..<h:
-            i: usize = row * h + column
-            c[row * dimension + column] <- c[row * dimension + column] + product[i]
-            c[(row + h) * dimension + column] <- c[(row + h) * dimension + column] + product[i]
     r <- 0
     while r < h:
         col: mutable usize = 0
@@ -127,23 +126,6 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
-            x[i] <- a[(r + h) * dimension + col].u64() - a[r * dimension + col].u64()
-            y[i] <- b[r * dimension + col].u64() + b[r * dimension + col + h].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &product[0])
-    else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
-    for row in 0..<h:
-        for column in 0..<h:
-            i: usize = row * h + column
-            c[(row + h) * dimension + column + h] <- c[(row + h) * dimension + column + h] + product[i]
-    r <- 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
             x[i] <- a[r * dimension + col + h].u64() - a[(r + h) * dimension + col + h].u64()
             y[i] <- b[(r + h) * dimension + col].u64() + b[(r + h) * dimension + col + h].u64()
             col <- col + 1
@@ -156,6 +138,25 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
         for column in 0..<h:
             i: usize = row * h + column
             c[row * dimension + column] <- c[row * dimension + column] + product[i]
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            x[i] <- a[(r + h) * dimension + col + h].u64()
+            y[i] <- b[(r + h) * dimension + col].u64() - b[r * dimension + col].u64()
+            col <- col + 1
+        r <- r + 1
+    if dimension == 4:
+        strassen_two[u64](&x[0], &y[0], &product[0])
+    else:
+        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
+    for row in 0..<h:
+        for column in 0..<h:
+            i: usize = row * h + column
+            c[row * dimension + column] <- c[row * dimension + column] + product[i]
+            c[(row + h) * dimension + column] <- c[(row + h) * dimension + column] + product[i]
+
 
 def strassen_matrix_multiplication_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null: return -1
