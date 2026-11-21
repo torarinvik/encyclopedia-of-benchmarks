@@ -102,7 +102,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
     distance_key: mutable u32[MT_N] = zeroed
     pred: mutable i64[MT_N] = zeroed
     pred_edge: mutable i64[MT_N] = zeroed
-    settled: mutable bool[MT_N] = zeroed
+    settled: mutable u32 = 0
     if k == n:
         for vertex in 0..<n:
             distance_key[vertex] <- vertex.u32()
@@ -122,24 +122,26 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             chosen_key: mutable u32 = MT_UNREACHED
             vertex <- 0
             while vertex < n:
-                if not settled[vertex] and distance_key[vertex] < chosen_key:
+                if (settled & (1.u32() << vertex)) == 0 and distance_key[vertex] < chosen_key:
                     chosen_vertex <- vertex
                     chosen_key <- distance_key[vertex]
                 vertex <- vertex+1
             if chosen_vertex == MT_N:
                 break
-            settled[chosen_vertex] <- true
+            settled <- settled | (1.u32() << chosen_vertex)
             pending: mutable u32 = incident[chosen_vertex]
             while pending != 0:
                 edge <- mt_edge_index(pending, true).usize()
                 pending <- pending & (pending - 1)
                 next_vertex: usize = eu[edge] ^ ev[edge] ^ chosen_vertex
+                if (settled & (1.u32() << next_vertex)) != 0:
+                    continue
                 next_key: u32 = chosen_key + (weight[edge] << 3)
                 if next_key < distance_key[next_vertex]:
                     distance_key[next_vertex] <- next_key
                     pred[next_vertex] <- chosen_vertex.i64()
                     pred_edge[next_vertex] <- edge.i64()
-                elif next_key == distance_key[next_vertex] and not settled[next_vertex] and
+                elif next_key == distance_key[next_vertex] and
                         (pred[next_vertex] < 0 or chosen_vertex.i64() < pred[next_vertex] or
                         (chosen_vertex.i64() == pred[next_vertex] and edge.i64() < pred_edge[next_vertex])):
                     pred[next_vertex] <- chosen_vertex.i64()
