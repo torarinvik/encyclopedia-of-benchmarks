@@ -39,6 +39,10 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
             largest <- third
         return first + second + third - largest
 
+    stoer_wagner_contract(input, n)
+
+@inline(never)
+def stoer_wagner_contract(input: i64&, n: usize) -> i64:
     # Contracted weights are bounded by the total of all original edges.
     graph: mutable i32[256] = zeroed
     row: mutable usize = 0
