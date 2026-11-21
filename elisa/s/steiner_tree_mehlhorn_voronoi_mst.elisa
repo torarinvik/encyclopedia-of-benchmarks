@@ -8,6 +8,23 @@ const MT_MAX_OUTPUT: usize = 72
 # A shortest path uses at most seven edges of weight at most nine.
 const MT_UNREACHED: u32 = 256 << 3
 
+# The eight component labels occupy consecutive three-bit fields.
+const MT_SINGLETON_LABELS: u32 = 0xfac688
+const MT_LABEL_LOW_BITS: u32 = 0x249249
+
+def mt_label(labels: u32, vertex: usize) -> u32:
+    (labels >> (3*vertex)) & 7
+
+def mt_join(labels: mutable u32&, a: usize, b: usize) -> bool:
+    first: u32 = mt_label(labels, a)
+    second: u32 = mt_label(labels, b)
+    if first == second:
+        return false
+    different: u32 = labels ^ (second * MT_LABEL_LOW_BITS)
+    matching: u32 = ~(different | (different >> 1) | (different >> 2)) & MT_LABEL_LOW_BITS
+    labels <- labels ^ (matching * (first ^ second))
+    true
+
 def mt_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for i in 0..<8:
@@ -190,36 +207,13 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             j <- j-1
         candidates[j & 15] <- key
         i <- i+1
-    parent: mutable usize[MT_N] = zeroed
-    ranks: mutable usize[MT_N] = zeroed
-    ra: mutable usize = 0
-    rb: mutable usize = 0
-    temporary: mutable usize = 0
-    vertex <- 0
-    while vertex < n:
-        parent[vertex] <- vertex
-        vertex <- vertex+1
+    labels: mutable u32 = MT_SINGLETON_LABELS
     chosen: mutable usize[MT_N] = zeroed
     ch: mutable usize = 0
     i <- 0
     while i < cn and ch < k-1:
         key: u32 = candidates[i & 15]
-        ra <- ((key >> 13) & 7).usize()
-        rb <- ((key >> 10) & 7).usize()
-        while parent[ra] != ra:
-            parent[ra] <- parent[parent[ra]]
-            ra <- parent[ra]
-        while parent[rb] != rb:
-            parent[rb] <- parent[parent[rb]]
-            rb <- parent[rb]
-        if ra != rb:
-            if ranks[ra] < ranks[rb]:
-                temporary <- ra
-                ra <- rb
-                rb <- temporary
-            parent[rb] <- ra
-            if ranks[ra] == ranks[rb]:
-                ranks[ra] <- ranks[ra]+1
+        if mt_join(&labels, ((key >> 13) & 7).usize(), ((key >> 10) & 7).usize()):
             chosen[ch] <- i
             ch <- ch+1
         i <- i+1
@@ -263,46 +257,18 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             j <- j-1
         order[j] <- e
         i <- i+1
-    vertex <- 0
-    while vertex < n:
-        parent[vertex] <- vertex
-        ranks[vertex] <- 0
-        vertex <- vertex+1
+    labels <- MT_SINGLETON_LABELS
     tree: mutable bool[MT_M] = zeroed
     i <- 0
     while i < on:
         e <- order[i]
-        ra <- eu[e]
-        rb <- ev[e]
-        while parent[ra] != ra:
-            parent[ra] <- parent[parent[ra]]
-            ra <- parent[ra]
-        while parent[rb] != rb:
-            parent[rb] <- parent[parent[rb]]
-            rb <- parent[rb]
-        if ra != rb:
-            if ranks[ra] < ranks[rb]:
-                temporary <- ra
-                ra <- rb
-                rb <- temporary
-            parent[rb] <- ra
-            if ranks[ra] == ranks[rb]:
-                ranks[ra] <- ranks[ra]+1
+        if mt_join(&labels, eu[e], ev[e]):
             tree[e] <- true
         i <- i+1
-    ra <- terminals[0]
-    while parent[ra] != ra:
-        parent[ra] <- parent[parent[ra]]
-        ra <- parent[ra]
-    i <- 1
-    while i < k:
-        rb <- terminals[i]
-        while parent[rb] != rb:
-            parent[rb] <- parent[parent[rb]]
-            rb <- parent[rb]
-        if rb != ra:
+    first_label: u32 = mt_label(labels, terminals[0])
+    for index in 1..<k:
+        if mt_label(labels, terminals[index]) != first_label:
             return -1
-        i <- i+1
     degree: mutable usize[MT_N] = zeroed
     edge <- 0
     while edge < m:
