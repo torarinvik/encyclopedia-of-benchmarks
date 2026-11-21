@@ -10,7 +10,7 @@ The C ABI entry point is:
 void strand_sort(int64_t *values, int64_t *scratch, size_t length);
 ```
 
-Each pass extracts a nondecreasing strand from the remaining prefix, compacts the unselected values in order, shifts the accumulated result to make room, and merges the new strand into that sorted result. The caller-provided scratch array needs `length` signed 64-bit slots and is allocated outside timing. Strand sort is `O(n)` on already sorted input and can take `O(n^2)` in the worst case.
+Each pass extracts a nondecreasing strand from the remaining prefix, compacts the unselected values in order, shifts the accumulated result to make room, and merges the new strand into that sorted result. The Elisa port merges forward into the gap before the sorted suffix, avoiding a separate shift. The caller-provided scratch array needs `length` signed 64-bit slots and is allocated outside timing. Strand sort is `O(n)` on already sorted input and can take `O(n^2)` in the worst case.
 
 ## Workload
 

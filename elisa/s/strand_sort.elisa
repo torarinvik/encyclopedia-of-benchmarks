@@ -1,5 +1,5 @@
 # Stable strand sort using caller-provided temporary storage.
-def strand_sort_impl(values: mutable view[i64], scratch: mutable view[i64], length: usize) -> void:
+def strand_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
     if length < 2:
         return
     remaining: mutable usize = length
@@ -22,28 +22,25 @@ def strand_sort_impl(values: mutable view[i64], scratch: mutable view[i64], leng
             read <- read + 1
         old_start: usize = length - result_length
         new_start: usize = old_start - strand_length
-        index: mutable usize = 0
-        while index < result_length:
-            values[new_start + index] <- values[old_start + index]
-            index <- index + 1
-        left: mutable usize = result_length
-        right: mutable usize = strand_length
-        destination: mutable usize = length
-        while left > 0 and right > 0:
-            if values[new_start + left - 1] > scratch[right - 1]:
-                left <- left - 1
-                destination <- destination - 1
-                values[destination] <- values[new_start + left]
+        # The gap before the unread suffix equals the number of strand items left.
+        # Once the strand is exhausted, the rest of the suffix is already in place.
+        left: mutable usize = old_start
+        right: mutable usize = 0
+        destination: mutable usize = new_start
+        while left < length and right < strand_length:
+            if values[left] <= scratch[right]:
+                values[destination] <- values[left]
+                left <- left + 1
             else:
-                right <- right - 1
-                destination <- destination - 1
                 values[destination] <- scratch[right]
-        while right > 0:
-            right <- right - 1
-            destination <- destination - 1
+                right <- right + 1
+            destination <- destination + 1
+        while right < strand_length:
             values[destination] <- scratch[right]
+            right <- right + 1
+            destination <- destination + 1
         remaining <- remaining_write
         result_length <- result_length + strand_length
 
-export fn strand_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
-    strand_sort_impl(values[0:length], scratch[0:length], length)
+
+export fn strand_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = strand_sort_impl
