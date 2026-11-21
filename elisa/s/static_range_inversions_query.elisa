@@ -166,9 +166,12 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         k <- k + 1
     bytes: usize = 8 * q
     if output == null or capacity < bytes: return -2
-    # Gapped insertion passes limit long shifts on larger inputs.
     ordered: mutable usize = 1
-    while ordered < n and sorted[ordered - 1] <= sorted[ordered]:
+    previous: mutable u64 = sorted[0]
+    while ordered < n:
+        value: u64 = sorted[ordered]
+        if previous > value: break
+        previous <- value
         ordered <- ordered + 1
     # Every subrange of a nondecreasing input has zero inversions.
     if ordered == n:
