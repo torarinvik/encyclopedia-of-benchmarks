@@ -41,7 +41,8 @@ the population count after masking to the queried interval, reducing the
 query term to `O(q*B)` for this 32-position profile. Elisa rounds the block
 width up to a power of two, so it can locate blocks with shifts. It builds
 whole-block mode rows on demand and retains each row’s histogram for later
-queries that extend the same span.
+queries that extend the same span. For a single query, Elisa uses a bounded
+hash table to count the original values directly.
 
 The independent oracle scans each query directly. See [`workload.json`](workload.json)
 and [`verify_workload.py`](verify_workload.py).

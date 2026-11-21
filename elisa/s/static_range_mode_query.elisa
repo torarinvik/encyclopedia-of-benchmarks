@@ -47,6 +47,28 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     if output == null or output_capacity < 16 * q:
         return -2
 
+    if q == 1:
+        left: usize = input[2 + n].usize()
+        right: usize = input[3 + n].usize()
+        # Bias keys by one to reserve zero for an empty slot. At most 32 slots fill.
+        keys: mutable u32[64] = zeroed
+        counts: mutable u8[64] = zeroed
+        best_score: mutable i64 = 0
+        for index in left..<right:
+            key: u32 = input[2 + index].u32() + 1
+            slot: mutable usize = ((key * 2654435761.u32()) >> 26).usize()
+            while keys[slot] != 0 and keys[slot] != key:
+                slot <- (slot + 1) & 63
+            keys[slot] <- key
+            count: u8 = counts[slot] + 1
+            counts[slot] <- count
+            # A frequency increment outweighs any difference between values.
+            score: i64 = (key.i64() - 1) - (count.i64() << 30)
+            best_score <- score if score < best_score
+        mode_write_i64(output, 0, best_score & 1073741823)
+        mode_write_i64(output, 8, 0 - (best_score >> 30))
+        return 16
+
     sorted: mutable i64[MAX_N] = zeroed
     unique_values: mutable u32[MAX_N] = zeroed
     compressed: mutable u8[MAX_N] = zeroed
@@ -83,21 +105,6 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         position: usize = (item & 31).usize()
         compressed[position] <- id.u8()
         positions[id] <- positions[id] | (1.u32() << position)
-
-    if q == 1:
-        left: usize = input[2 + n].usize()
-        right: usize = input[3 + n].usize()
-        counts: mutable u8[MAX_N] = zeroed
-        best_score: mutable i64 = 0
-        for index in left..<right:
-            id: usize = compressed[index].usize()
-            count: u8 = counts[id] + 1
-            counts[id] <- count
-            score: i64 = id.i64() - (count.i64() << 5)
-            best_score <- score if score < best_score
-        mode_write_i64(output, 0, unique_values[(best_score & 31).usize()].i64())
-        mode_write_i64(output, 8, 0 - (best_score >> 5))
-        return 16
 
     # Round the block width up to a power of two for shift-based indexing.
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
