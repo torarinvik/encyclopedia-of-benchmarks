@@ -67,22 +67,15 @@ def st_mst_h(edges: ST_Edge[6]&, ec: usize, h: u32, tree: mutable ST_Edge[3]&, t
     cost
 
 def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: u32) -> u32:
-    d: mutable u32[16] = zeroed
+    # An eligible trial merges terminals, so at most one nonterminal vertex
+    # remains outside their components. The input metric makes detours through
+    # that isolated vertex unnecessary. Metric closure preserves MST cost.
     labels: mutable u32 = SINGLETON_LABELS
-    for i in 0..<4:
-        for j in 0..<4:
-            d[i * 4 + j] <- w[i * 4 + j]
-    for i in 0..<n:
-        for j in (i + 1)..<n:
-            if (h & (1.u32() << (i * 4 + j))) != 0:
-                d[i * 4 + j] <- 0
-                d[j * 4 + i] <- 0
-                st_join(&labels, i, j)
-    for k in 0..<n:
-        for i in 0..<n:
-            for j in 0..<n:
-                if d[i * 4 + j] > d[i * 4 + k] + d[k * 4 + j]:
-                    d[i * 4 + j] <- d[i * 4 + k] + d[k * 4 + j]
+    pending: mutable u32 = h
+    while pending != 0:
+        edge: usize = st_trailing_zeros(pending, true).usize()
+        st_join(&labels, edge >> 2, edge & 3)
+        pending <- pending & (pending - 1)
     roots: mutable usize[4] = zeroed
     g: mutable usize = 0
     for v in 0..<n:
@@ -97,36 +90,22 @@ def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: u32) -> u32:
                 g <- g + 1
     if g <= 1:
         return 0
-    q: mutable u32[16] = zeroed
+    total: mutable u32 = 0
+    largest: mutable u32 = 0
     for a in 0..<g:
         for b in (a + 1)..<g:
-            best: mutable u32 = 10000.u32()
+            best: mutable u32 = 10000
             for u in 0..<n:
                 if st_label(labels, u) == roots[a]:
                     for v in 0..<n:
-                        if st_label(labels, v) == roots[b] and d[u * 4 + v] < best:
-                            best <- d[u * 4 + v]
-            q[a * 4 + b] <- best
-            q[b * 4 + a] <- best
-    used: mutable bool[4] = zeroed
-    best: mutable u32[4] = zeroed
-    for i in 0..<4:
-        best[i] <- 10000.u32()
-    used[0] <- true
-    for j in 1..<g:
-        best[j] <- q[j]
-    total: mutable u32 = 0
-    for _ in 1..<g:
-        pick: mutable usize = 4
-        for v in 0..<g:
-            if not used[v] and (pick == 4 or best[v] < best[pick] or (best[v] == best[pick] and v < pick)):
-                pick <- v
-        total <- total + best[pick]
-        used[pick] <- true
-        for v in 0..<g:
-            if not used[v] and q[pick * 4 + v] < best[v]:
-                best[v] <- q[pick * 4 + v]
-    total
+                        if st_label(labels, v) == roots[b] and w[u * 4 + v] < best:
+                            best <- w[u * 4 + v]
+            total <- total + best
+            largest <- best if largest < best
+    # At most three groups remain, since the trial merged at least two.
+    if g == 2:
+        return total
+    total - largest
 
 def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 4 or length > ST_MAX_INPUT:
