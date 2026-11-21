@@ -1,10 +1,11 @@
 const MAX_N: usize = 128
 const MAX_Q: usize = 32
 
-# Entry n-1 is ceil(2048 / floor(sqrt(n))). The round-up error
+# Short inputs keep query endpoints in their original order by using block zero.
+# For longer inputs, entry n-1 is ceil(2048 / floor(sqrt(n))). The round-up error
 # for left < 128 is less than 1/11, the smallest quotient step.
 const BLOCK_RECIPROCALS: u16[MAX_N] = [
-    2048, 2048, 2048, 1024, 1024, 1024, 1024, 1024, 683, 683, 683, 683, 683, 683, 683, 512,
+    0, 0, 0, 0, 0, 0, 0, 0, 683, 683, 683, 683, 683, 683, 683, 512,
     512, 512, 512, 512, 512, 512, 512, 512, 410, 410, 410, 410, 410, 410, 410, 410,
     410, 410, 410, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342,
     293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 256,
@@ -139,8 +140,7 @@ def srin_short_queries(values: u64&, queries: u32&, output: mutable u8&, count: 
     for id in 0..<count:
         query: u32 = queries[id]
         left: usize = (query & 255).usize()
-        sweep: u32 = (query >> 13) & 255
-        right: usize = (MAX_N.u32() - sweep if ((query >> 21) & 1) != 0 else sweep).usize()
+        right: usize = (query >> 13).usize()
         inversions: mutable u8 = 0
         for later in (left + 1)..<right:
             value: u64 = values[later]
