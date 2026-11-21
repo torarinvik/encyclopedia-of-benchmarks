@@ -4,17 +4,6 @@ const MAX_Q: usize = 16
 const MAX_BLOCKS: usize = 6
 const MAX_INPUT_LENGTH: usize = 66
 
-def mode_lower_bound(values: i64&, count: usize, target: i64) -> usize:
-    begin: mutable usize = 0
-    end: mutable usize = count
-    while begin < end:
-        middle: usize = begin + (end - begin) / 2
-        if values[middle] < target:
-            begin <- middle + 1
-        else:
-            end <- middle
-    begin
-
 def mode_lower_bound_positions(values: usize&, begin_value: usize,
                                end_value: usize, target: usize) -> usize:
     begin: mutable usize = begin_value
@@ -70,21 +59,25 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     occurrences: mutable usize[MAX_N] = zeroed
     block_mode: mutable usize[MAX_BLOCKS * MAX_BLOCKS] = zeroed
     for index in 0..<n:
-        value: i64 = input[2 + index]
+        value: i64 = (input[2 + index] << 5) | index.i64()
         position: mutable usize = index
         while position > 0 and sorted[position - 1] > value:
             sorted[position] <- sorted[position - 1]
             position <- position - 1
         sorted[position] <- value
 
+    # The low five bits carry the original position through the sort.
     distinct: mutable usize = 0
+    previous: mutable i64 = -1
     for index in 0..<n:
-        if distinct == 0 or sorted[index] != unique_values[distinct - 1]:
-            unique_values[distinct] <- sorted[index]
+        item: i64 = sorted[index]
+        value: i64 = item >> 5
+        if value != previous:
+            unique_values[distinct] <- value
             distinct <- distinct + 1
-    for index in 0..<n:
-        id: usize = mode_lower_bound(&unique_values[0], distinct, input[2 + index])
-        compressed[index] <- id
+            previous <- value
+        id: usize = distinct - 1
+        compressed[(item & 31).usize()] <- id
         frequencies[id] <- frequencies[id] + 1
     for id in 0..<distinct:
         offsets[id + 1] <- offsets[id] + frequencies[id]
