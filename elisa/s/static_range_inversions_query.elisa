@@ -19,11 +19,11 @@ const BLOCK_RECIPROCALS: u16[MAX_N] = [
 # Adding a rank increments every prefix at or above it, with no carry
 # between bytes because even a full window contains at most 128 values.
 def srin_packed_sum(prefixes: u64, rank: usize) -> i64:
-    ((prefixes << (56 - rank)) >> 56).i64()
+    ((prefixes >> rank) & 255).i64()
 
 def srin_packed_sum_below(prefixes: u64, rank: usize) -> i64:
-    # Shift in two steps so the lowest rank yields zero without shifting by 64.
-    (((prefixes << 8) << (56 - rank)) >> 56).i64()
+    # Insert a zero byte before rank zero for the exclusive count.
+    (((prefixes << 8) >> rank) & 255).i64()
 
 # Each local word counts prefixes within eight ranks. Two more words count
 # prefixes across the sixteen groups, using the same carry-free byte lanes.
