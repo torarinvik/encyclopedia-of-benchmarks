@@ -96,6 +96,27 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
     bytes: usize = 8 * q
     if output == null or capacity < bytes: return -2
     if q == 0: return 0
+    if n*q <= 64:
+        direct: mutable i64[MAX_Q] = zeroed
+        for query in 0..<q:
+            residue: mutable u64 = 0
+            for update in 0..<n:
+                left: mutable i64 = ql[query]
+                left <- ul[update] if ul[update] > ql[query]
+                right: mutable i64 = qr[query]
+                right <- ur[update] if ur[update] < qr[query]
+                down: mutable i64 = qd[query]
+                down <- ud[update] if ud[update] > qd[query]
+                up: mutable i64 = qu[query]
+                up <- uu[update] if uu[update] < qu[query]
+                if right > left and up > down:
+                    area: u64 = (right.u64() - left.u64()) * (up.u64() - down.u64())
+                    weighted: u64 = ((area % MODULUS.u64()) * uw[update].u64()) % MODULUS.u64()
+                    residue <- residue + weighted
+            direct[query] <- (residue % MODULUS.u64()).i64()
+        for query in 0..<q:
+            sras_put64(direct[query], output, 8*query)
+        return bytes.i64()
     sras_sort_unique(xs[0:MAX_COORDS], nx)
     sras_sort_unique(ys[0:MAX_COORDS], ny)
     diff: mutable i64[MAX_COORDS * MAX_COORDS] = zeroed
