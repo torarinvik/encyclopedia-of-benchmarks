@@ -31,16 +31,16 @@ def star_stops(edges: i32&, edge_count: usize,
 
 # Every triangle edge in the validated mesh is horizontal, vertical, or diagonal.
 # Overlap on the four corresponding axes is sufficient for the closed box test.
-def star_triangle_hits_box(data: i32&, tid: usize,
-                          xmin: i32, ymin: i32, xmax: i32, ymax: i32,
-                          sum_min: i32, sum_max: i32, diff_min: i32, diff_max: i32) -> bool:
-    slot: usize = 8 * tid
-    data[slot+1] >= xmin and data[slot] <= xmax and
-    data[slot+3] >= ymin and data[slot+2] <= ymax and
-    data[slot+5] >= sum_min and data[slot+4] <= sum_max and
-    data[slot+7] >= diff_min and data[slot+6] <= diff_max
+# Each signed projection lies between -16 and 16. Bias each byte to
+# keep its top bit free as a guard against borrow into the next lane.
+def star_pack_bounds(x: i32, neg_x: i32, y: i32, neg_y: i32,
+                     sum: i32, neg_sum: i32, diff: i32, neg_diff: i32) -> u64:
+    ((x+16).u64() | ((neg_x+16).u64() << 8) |
+      ((y+16).u64() << 16) | ((neg_y+16).u64() << 24) |
+      ((sum+16).u64() << 32) | ((neg_sum+16).u64() << 40) |
+      ((diff+16).u64() << 48) | ((neg_diff+16).u64() << 56))
 
-def star_visit(triangles: i32&, edges: i32&, triangle_count: usize,
+def star_visit(triangles: u64&, edges: i32&, triangle_count: usize,
                edge_count: usize, pairs: mutable i64&) -> i32:
     pair_count: mutable usize = 0
     key: mutable usize = 0
@@ -58,13 +58,11 @@ def star_visit(triangles: i32&, edges: i32&, triangle_count: usize,
             if shift == 0: return -1
             shift <- shift - 2
         else:
-            sum_min: i32 = xmin + ymin
-            sum_max: i32 = xmax + ymax
-            diff_min: i32 = ymin - xmax
-            diff_max: i32 = ymax - xmin
+            bounds: u64 = star_pack_bounds(xmin,-xmax,ymin,-ymax,
+                xmin+ymin,-(xmax+ymax),ymin-xmax,-(ymax-xmin))
+            guards: u64 = 0x8080808080808080
             for tid in 0..<triangle_count:
-                if star_triangle_hits_box(triangles,tid,xmin,ymin,xmax,ymax,
-                                          sum_min,sum_max,diff_min,diff_max):
+                if (((triangles[tid] | guards) - bounds) & guards) == guards:
                     if pair_count >= STAR_MAX_PAIRS: return -1
                     pairs[2*pair_count] <- key.i64()
                     pairs[2*pair_count+1] <- tid.i64()
@@ -137,15 +135,14 @@ def star_max(a: i32, b: i32, c: i32) -> i32:
 @inline(never)
 def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
                      output: mutable u8&?, capacity: usize) -> i64:
-    projections_data: mutable i32[32] = zeroed
-    projections: mutable i32& = &projections_data[0]
+    projections_data: mutable u64[4] = zeroed
+    projections: mutable u64& = &projections_data[0]
     edges_data: mutable i32[48] = zeroed
     edges: mutable i32& = &edges_data[0]
     edge_count: mutable usize = 0
     seen_edges: mutable u32 = 0
     tid: mutable usize = 0
     while tid < triangle_count:
-        triangle_slot: usize = 8 * tid
         a: usize = triangles[3*tid+0].usize()
         ax: i32 = vertices[2*a]
         ay: i32 = vertices[2*a+1]
@@ -155,14 +152,11 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
         c: usize = triangles[3*tid+2].usize()
         cx: i32 = vertices[2*c]
         cy: i32 = vertices[2*c+1]
-        projections[triangle_slot+0] <- star_min(ax,bx,cx)
-        projections[triangle_slot+1] <- star_max(ax,bx,cx)
-        projections[triangle_slot+2] <- star_min(ay,by,cy)
-        projections[triangle_slot+3] <- star_max(ay,by,cy)
-        projections[triangle_slot+4] <- star_min(ax+ay,bx+by,cx+cy)
-        projections[triangle_slot+5] <- star_max(ax+ay,bx+by,cx+cy)
-        projections[triangle_slot+6] <- star_min(ay-ax,by-bx,cy-cx)
-        projections[triangle_slot+7] <- star_max(ay-ax,by-bx,cy-cx)
+        projections[tid] <- star_pack_bounds(
+            star_max(ax,bx,cx),-star_min(ax,bx,cx),
+            star_max(ay,by,cy),-star_min(ay,by,cy),
+            star_max(ax+ay,bx+by,cx+cy),-star_min(ax+ay,bx+by,cx+cy),
+            star_max(ay-ax,by-bx,cy-cx),-star_min(ay-ax,by-bx,cy-cx))
         k: mutable usize = 0
         while k < 3:
             a: usize = triangles[3*tid+k].usize()
