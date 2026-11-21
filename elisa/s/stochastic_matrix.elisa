@@ -4,8 +4,8 @@ const MAX_ABS_CELL: i64 = 1000000000000
 const CELL_SCALE: f64 = 1.0e12
 const TOLERANCE: f64 = 1.0e-9
 
-def stochastic_matrix_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
+def stochastic_matrix_impl(input: i64&?, length: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_VALUES: return -1
     mode: i64 = input[0]
     rows_value: i64 = input[1]
     columns_value: i64 = input[2]
@@ -50,4 +50,4 @@ def stochastic_matrix_impl(input: i64&, length: usize) -> i64:
             column <- column + 1
     1
 
-export fn stochastic_matrix(input: i64&, length: usize) -> i64 = stochastic_matrix_impl
+export fn stochastic_matrix(input: i64&?, length: usize) -> i64 = stochastic_matrix_impl
