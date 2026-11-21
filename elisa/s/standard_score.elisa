@@ -1,9 +1,10 @@
-# Bounded direct standard score formula, in source operation order.
+@link_name("llvm.fabs.f64")
+extern magnitude(value: f64) -> f64
+
 def standard_score_impl(value: f64, mean: f64, std_dev: f64) -> f64:
-    valid_std_dev: bool = ((std_dev >= -1000000.0 and std_dev <= -0.000001) or
-                           (std_dev >= 0.000001 and std_dev <= 1000000.0))
-    if (not (value >= -1000000.0 and value <= 1000000.0) or
-        not (mean >= -1000000.0 and mean <= 1000000.0) or not valid_std_dev):
+    deviation_magnitude: f64 = magnitude(std_dev)
+    if not (magnitude(value) <= 1000000.0 and magnitude(mean) <= 1000000.0 and
+            deviation_magnitude >= 0.000001 and deviation_magnitude <= 1000000.0):
         return -1e300
     (value - mean) / std_dev
 
