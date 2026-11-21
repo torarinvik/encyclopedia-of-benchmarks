@@ -11,6 +11,11 @@ def stooge_sort_range(values: mutable i64&, length: usize) -> void:
     span: mutable usize = length
     while span > 2:
         stooge_compare_endpoints(values, span - 1)
+        if span == 3:
+            stooge_compare_endpoints(values, 1)
+            stooge_compare_endpoints(&values[1], 1)
+            stooge_compare_endpoints(values, 1)
+            return
         third: usize = span / 3
         span <- span - third
         stooge_sort_range(values, span)
@@ -18,7 +23,9 @@ def stooge_sort_range(values: mutable i64&, length: usize) -> void:
     stooge_compare_endpoints(values, 1)
 
 def stooge_sort_impl(values: mutable i64&, length: usize) -> void:
-    if length > 1:
+    if length == 2:
+        stooge_compare_endpoints(values, 1)
+    elif length > 2:
         stooge_sort_range(values, length)
 
 export fn stooge_sort(values: mutable i64&, length: usize) -> void = stooge_sort_impl
