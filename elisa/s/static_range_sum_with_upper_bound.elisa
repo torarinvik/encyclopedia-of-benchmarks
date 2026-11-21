@@ -30,14 +30,13 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             mask: i64 = 1.i64() << (29-level)
             source: usize = ((level - first_level) & 1) << 6
             target: usize = source ^ 64
-            zeros: mutable usize = 0
             prefix: mutable i64 = 0
             for i in 0..<n:
                 value: i64 = current[source + i]
                 if (value & mask) == 0:
-                    zeros <- zeros + 1
                     prefix <- prefix + (1.i64() << 36) + value
                 prefixes[65*level+i+1] <- prefix
+            zeros: usize = (prefix >> 36).usize()
             offsets[level] <- zeros
             if level == 29: break
             z: mutable usize = 0
