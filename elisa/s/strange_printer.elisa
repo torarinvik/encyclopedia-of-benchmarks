@@ -26,9 +26,8 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
         third: u64 = input[3].u64()
         if third > 2: return -1
         if length_from_header == 3:
-            second_is_new: i64 = 1 if first != second else 0
-            third_is_new: i64 = 1 if first != third and second != third else 0
-            return 1 + second_is_new + third_is_new
+            if first == third: return 1 if first == second else 2
+            return 2 if second == first or second == third else 3
         fourth: u64 = input[4].u64()
         if fourth > 2: return -1
         # Count run boundaries directly. Three runs with equal endpoints
