@@ -16,6 +16,14 @@ def mode_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
+@inline(always)
+def mode_insert(sorted: mutable i64&, index: usize, value: i64) -> void:
+    position: mutable usize = index
+    while position > 0 and sorted[position - 1] > value:
+        sorted[position] <- sorted[position - 1]
+        position <- position - 1
+    sorted[position] <- value
+
 def static_range_mode_query_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
@@ -55,13 +63,11 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                 sorted[position] <- sorted[position - 4]
                 position <- position - 4
             sorted[position] <- value
-    for index in 0..<n:
-        value: i64 = sorted[index] if n >= 16 else ((input[2 + index] << 5) | index.i64())
-        position: mutable usize = index
-        while position > 0 and sorted[position - 1] > value:
-            sorted[position] <- sorted[position - 1]
-            position <- position - 1
-        sorted[position] <- value
+        for index in 1..<n:
+            mode_insert(&sorted[0], index, sorted[index])
+    else:
+        for index in 0..<n:
+            mode_insert(&sorted[0], index, (input[2 + index] << 5) | index.i64())
 
     # The low five bits carry the original position through the sort.
     distinct: mutable usize = 0
