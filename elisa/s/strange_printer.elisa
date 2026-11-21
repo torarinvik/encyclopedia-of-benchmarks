@@ -67,7 +67,11 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     if length > 5: append_printer_symbol(input[5].u64(), &symbols, &previous, &invalid)
     if length > 6: append_printer_symbol(input[6].u64(), &symbols, &previous, &invalid)
     if length > 7: append_printer_symbol(input[7].u64(), &symbols, &previous, &invalid)
-    if length > 8: append_printer_symbol(input[8].u64(), &symbols, &previous, &invalid)
+    # The maximum-length path already validated the final symbol.
+
+    if length > 8:
+        last_symbol: u64 = input[8].u64()
+        if last_symbol != previous: symbols <- (symbols << 2) | last_symbol
     if invalid != 0: return -1
     if symbols < 64: return 1 if symbols < 16 else 2
     if symbols < 256:
