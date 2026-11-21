@@ -10,9 +10,9 @@ def string_append_impl(input: i64&?, length: usize, output: mutable u8&?, output
     if second_value < 0 or second_value > 64:
         return -1
     second_length: usize = second_value.usize()
-    if length != 2 + first_length + second_length:
+    count: usize = length - 2
+    if count != first_length + second_length:
         return -1
-    count: usize = first_length + second_length
     for index in 0.usize()..<count:
         value: i64 = input[2 + index]
         if value < 32 or value > 126:
