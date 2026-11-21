@@ -26,7 +26,6 @@ def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
     next_ids: mutable usize& = &scratch.next_ids[0]
     node_count: mutable usize = 0
     head: mutable usize = 0
-    written: mutable usize = 0
     cursor: mutable usize = 1
     index: mutable usize = 0
     while index < count:
@@ -40,6 +39,7 @@ def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
             pushed <- input[cursor]
             cursor <- cursor + 1
             if pushed < -2147483648 or pushed > 2147483647: return -1
+        written: usize = index * 3
         index <- index + 1
         tag: mutable i64 = 2
         value: mutable i64 = 0
@@ -54,7 +54,6 @@ def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
                     scratch.buffer[written] <- opcode
                     scratch.buffer[written + 1] <- 4
                     scratch.buffer[written + 2] <- 2
-                    written <- written + 3
                     break
                 tag <- 0
                 value <- node_values[head]
@@ -71,8 +70,8 @@ def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
         scratch.buffer[written] <- opcode
         scratch.buffer[written + 1] <- tag
         scratch.buffer[written + 2] <- value
-        written <- written + 3
 
+    written: usize = index * 3
     # An empty pop or peek stops execution. Validate the remaining input.
     while index < count:
         if cursor >= length: return -1
