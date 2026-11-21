@@ -10,7 +10,7 @@ def push_new(main_queue: i64&, temp_queue: mutable i64&, head: usize, queue_size
     queue_size + 1
 
 def stack_using_two_queues_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length > 257 or (length & 1) == 0: return -1
+    if (length & 1) == 0 or length > 257 or input == null: return -1
     if input[0] != (length >> 1).i64(): return -1
     if input[0] == 0:
         return -2 if output == null else 0
