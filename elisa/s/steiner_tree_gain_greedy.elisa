@@ -231,6 +231,9 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
         return -1
     h: mutable bool[16] = zeroed
     selected: mutable bool[4] = zeroed
+    tree: mutable ST_Edge[3] = zeroed
+    tree_n: mutable usize = 0
+    cost: mutable i64 = 0
     groups: mutable usize = terminals
     while groups > 1:
         best: mutable usize = 4
@@ -255,11 +258,16 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
             contracted: mutable i64 = 0
             if trial_groups > 1:
                 contracted <- st_contracted_mst(n, mask, w, trial)
-            cost: i64 = contracted + st_mst_h(n, w, trial, &scratch, &scratch_n)
-            if best == 4 or cost < best_cost:
+            forest_cost: i64 = st_mst_h(n, w, trial, &scratch, &scratch_n)
+            trial_cost: i64 = contracted + forest_cost
+            if best == 4 or trial_cost < best_cost:
                 best <- c
-                best_cost <- cost
+                best_cost <- trial_cost
                 best_groups <- trial_groups
+                if trial_groups == 1:
+                    tree <- scratch
+                    tree_n <- scratch_n
+                    cost <- forest_cost
         if best == 4:
             return -1
         groups <- best_groups
@@ -269,9 +277,6 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
             v: usize = family_v[best * 3 + e]
             h[u * 4 + v] <- true
             h[v * 4 + u] <- true
-    tree: mutable ST_Edge[3] = zeroed
-    tree_n: mutable usize = 0
-    cost: i64 = st_mst_h(n, w, h, &tree, &tree_n)
     bytes: usize = 8 * (3 + 2 * tree_n)
     if output == null or capacity < bytes:
         return -2
