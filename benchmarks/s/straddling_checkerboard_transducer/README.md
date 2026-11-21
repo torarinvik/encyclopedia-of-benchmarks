@@ -15,7 +15,7 @@ This benchmark encodes and decodes a caller-supplied three-row decimal checkerbo
 
 The primary port uses direct row/column lookup and consumes one or two digits according to whether the first digit names a top-row hole. The independent reference builds each symbol's codeword and decodes with a prefix trie. The two empty cells make the code prefix-free: no top-row one-digit code begins with a row indicator.
 
-For a text of length `n <= 64`, board validation takes `O(28^2)` comparisons to reject duplicate symbols. Encoding uses a bounded scan of 30 board cells per symbol, and decoding visits each digit once, so both are `O(n)` for this fixed-size board. Scratch is `O(1)` fixed storage apart from the Elisa port's 128-byte staged output; total declared workspace is bounded by 256 bytes, excluding caller-owned input/output memory. The workload includes a 64-symbol lower-row encoding that reaches 128 output bytes and a capacity-127 probe that must fail without writing output.
+For a text of length `n <= 64`, the reference board validator takes `O(28^2)` comparisons to reject duplicate symbols. The Elisa port tracks the 95 printable ASCII values in two 64-bit masks and checks each board cell once. Encoding uses a bounded scan of 30 board cells per symbol, and decoding visits each digit once, so both are `O(n)` for this fixed-size board. Scratch is `O(1)` fixed storage apart from the Elisa port's 128-byte staged output; total declared workspace is bounded by 256 bytes, excluding caller-owned input/output memory. The workload includes a 64-symbol lower-row encoding that reaches 128 output bytes and a capacity-127 probe that must fail without writing output.
 
 ## Sources and rights
 

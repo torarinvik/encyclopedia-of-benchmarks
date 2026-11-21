@@ -18,7 +18,9 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
     hole_a: mutable usize = 0
     hole_b: mutable usize = 0
     holes: mutable usize = 0
-    for position in 0..<BOARD_SIZE |position, values, hole_a, hole_b, holes|:
+    seen_low: mutable u64 = 0
+    seen_high: mutable u64 = 0
+    for position in 0..<BOARD_SIZE |position, values, hole_a, hole_b, holes, seen_low, seen_high|:
         value: i64 = values[1 + position]
         if position < 10 and value == 0:
             if holes == 0:
@@ -29,9 +31,16 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
             continue
         if value < 32 or value > 126:
             return -1
-        for prior in 0..<position |prior, values, position, value|:
-            if values[1 + prior] == value:
+        symbol_index: u64 = value.u64() - 32
+        bit: u64 = 1.u64() << (symbol_index & 63)
+        if symbol_index < 64:
+            if (seen_low & bit) != 0:
                 return -1
+            seen_low <- seen_low | bit
+        else:
+            if (seen_high & bit) != 0:
+                return -1
+            seen_high <- seen_high | bit
     if holes != 2:
         return -1
     text_length_value: i64 = values[31]
