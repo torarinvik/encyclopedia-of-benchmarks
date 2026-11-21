@@ -164,7 +164,9 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
             found: mutable bool = false
             j: mutable usize = 0
             while j < edge_count:
-                if edges[2*j] == low.i64() and edges[2*j+1] == high.i64(): found <- true
+                if edges[2*j] == low.i64() and edges[2*j+1] == high.i64():
+                    found <- true
+                    break
                 j <- j + 1
             if not found:
                 edges[2*edge_count] <- low.i64()
