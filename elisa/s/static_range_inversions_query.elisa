@@ -80,7 +80,7 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
     if input == null or length < 2 or length > 195: return -1
     n64: i64 = input[0]
     q64: i64 = input[1]
-    if n64 < 1 or n64 > 128 or q64 < 1 or q64 > 32: return -1
+    if (n64.u64() - 1) >= 128 or (q64.u64() - 1) >= 32: return -1
     n: usize = n64.usize()
     q: usize = q64.usize()
     if length != 2 + n + 2 * q: return -1
@@ -88,7 +88,7 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
     i: mutable usize = 0
     while i < n:
         value: i64 = input[2 + i]
-        if value < 0 or value > 1000000000: return -1
+        if value.u64() > 1000000000: return -1
         sorted[i] <- (value.u64() << 7) | i.u64()
         i <- i + 1
     block_size: mutable usize = 1
@@ -101,7 +101,7 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         left: i64 = input[off]
         right: i64 = input[off + 1]
         off <- off + 2
-        if left < 0 or left >= right or right > n64: return -1
+        if left.u64() >= right.u64() or right.u64() > n64.u64(): return -1
         block: u32 = (left.usize() / block_size).u32()
         endpoint: u32 = right.u32()
         sweep: u32 = MAX_N.u32() - endpoint if (block & 1) != 0 else endpoint
