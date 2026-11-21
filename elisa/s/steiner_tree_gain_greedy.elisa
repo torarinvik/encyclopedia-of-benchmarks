@@ -165,9 +165,12 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
             w[j * 4 + i] <- input[at]
             at <- at + 1
     for i in 0..<n:
-        for j in 0..<n:
-            for k in 0..<n:
-                if w[i * 4 + j] > w[i * 4 + k] + w[k * 4 + j]:
+        for j in (i + 1)..<n:
+            ij: u64 = w[i * 4 + j].u64()
+            for k in (j + 1)..<n:
+                ik: u64 = w[i * 4 + k].u64()
+                jk: u64 = w[j * 4 + k].u64()
+                if ij > ik + jk or ik > ij + jk or jk > ij + ik:
                     return -1
     family_u: mutable usize[12] = zeroed
     family_v: mutable usize[12] = zeroed
