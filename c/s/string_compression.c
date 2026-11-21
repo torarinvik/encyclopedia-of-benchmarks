@@ -5,19 +5,24 @@
 
 int64_t string_compression(const int64_t *input, size_t length, uint8_t *output,
                            size_t output_capacity) {
-    if (length > MAX_INPUT_LENGTH || (length != 0 && input == NULL)) return -1;
+    if (length == 0) return 0;
+    if (length > MAX_INPUT_LENGTH || input == NULL) return -1;
     for (size_t index = 0; index < length; ++index)
         if (input[index] < 0 || input[index] > 127) return -1;
 
-    size_t encoded_length = 0;
-    for (size_t index = 0; index < length;) {
-        size_t end = index + 1;
-        while (end < length && input[end] == input[index]) ++end;
-        const size_t count = end - index;
-        encoded_length += 1 + (count > 1 ? (count >= 10 ? 2 : 1) : 0);
-        index = end;
+    if (output == NULL) return -2;
+    /* Each run encodes to at most as many bytes as it consumes. */
+    if (output_capacity < length) {
+        size_t encoded_length = 0;
+        for (size_t index = 0; index < length;) {
+            size_t end = index + 1;
+            while (end < length && input[end] == input[index]) ++end;
+            const size_t count = end - index;
+            encoded_length += 1 + (count > 1 ? (count >= 10 ? 2 : 1) : 0);
+            index = end;
+        }
+        if (output_capacity < encoded_length) return -2;
     }
-    if (output_capacity < encoded_length || (encoded_length != 0 && output == NULL)) return -2;
 
     size_t write_index = 0;
     for (size_t index = 0; index < length;) {
