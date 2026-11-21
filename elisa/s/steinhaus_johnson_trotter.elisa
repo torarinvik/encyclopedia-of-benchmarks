@@ -1,4 +1,6 @@
 const MAX_LENGTH: usize = 6
+# Four bytes per value, with length! rows.
+const ROW_BYTES: usize[8] = [0, 4, 16, 72, 384, 2400, 17280, 0]
 
 def sjt_emit_value(value: i32, output: mutable u8&, offset: usize) -> void:
     bits: u32 = value.u32()
@@ -40,12 +42,11 @@ def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
         sjt_emit_value(second, output, 8)
         sjt_emit_value(first, output, 12)
         return 16
-    permutations: mutable usize = 1
-    factor: mutable usize = 2
-    while factor <= length |permutations, factor|:
-        permutations <- permutations * factor
-        factor <- factor + 1
-    required: usize = 4 * length * permutations
+    sjt_emit_many(input, length, output, output_capacity)
+
+@inline(never)
+def sjt_emit_many(input: i32&, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
+    required: usize = ROW_BYTES[length & 7]
     if output == null or output_capacity < required:
         return -2
 
