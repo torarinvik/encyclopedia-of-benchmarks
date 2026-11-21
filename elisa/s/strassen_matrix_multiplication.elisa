@@ -110,9 +110,19 @@ def strassen_matrix_multiplication_impl(input: i64&?, length: usize, output: mut
         i <- i + 1
     output_bytes: usize = 8 * cells
     if output == null or capacity < output_bytes: return -2
+    if n == 1:
+        bits: mutable u64 = (input[1] * input[2]).u64()
+        for byte in 0..<8:
+            output[byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+        return 8
+    return strassen_product(input, output, n, cells, output_bytes)
+
+@inline(never)
+def strassen_product(input: i64&, output: mutable u8&, n: usize, cells: usize, output_bytes: usize) -> i64:
     result: mutable i64[64] = zeroed
     strassen_multiply(&input[1], &input[1 + cells], &result[0], n)
-    i <- 0
+    i: mutable usize = 0
     while i < cells:
         bits: mutable u64 = result[i].u64()
         byte: mutable usize = 0
