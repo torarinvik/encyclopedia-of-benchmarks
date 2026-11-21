@@ -5,18 +5,22 @@ def star_delta_conversions_impl(v: i64&?, n: usize) -> i64:
     while i < 4:
         if v[i] < 1000 or v[i] > 100000: return INVALID
         i <- i + 1
-    a: f64 = v[1].f64()
-    b: f64 = v[2].f64()
-    c: f64 = v[3].f64()
+    a: u64 = v[1].u64()
+    b: u64 = v[2].u64()
+    c: u64 = v[3].u64()
     seed: u64 = 14695981039346656037.u64()
     if v[0] == 0:
-        pair_sum: f64 = a * b + b * c + c * a
-        return hash_quantized(hash_quantized(hash_quantized(seed, pair_sum / a), pair_sum / b), pair_sum / c).i64()
-    total: f64 = a + b + c
-    hash_quantized(hash_quantized(hash_quantized(seed, b * c / total), c * a / total), a * b / total).i64()
+        pair_sum: u64 = a * b + b * c + c * a
+        return hash_quantized(hash_quantized(hash_quantized(seed, quantize(pair_sum, a)), quantize(pair_sum, b)), quantize(pair_sum, c)).i64()
+    total: u64 = a + b + c
+    hash_quantized(hash_quantized(hash_quantized(seed, quantize(b * c, total)), quantize(c * a, total)), quantize(a * b, total)).i64()
 
-def hash_quantized(seed: u64, value: f64) -> u64:
-    bits: u64 = (value + 0.5).i64().u64()
+# Products and sums are exact in binary64. Non-ties are at least 1/(2*denominator)
+# from a half integer, farther than binary64 rounding can move them here.
+def quantize(numerator: u64, denominator: u64) -> u64:
+    (2 * numerator + denominator) / (2 * denominator)
+
+def hash_quantized(seed: u64, bits: u64) -> u64:
     hash: mutable u64 = seed
     # The largest star-to-delta result is b + c + b*c/a <= 10,200,000.
     # Delta-to-star results are smaller, so either direction fits in 24 bits.
