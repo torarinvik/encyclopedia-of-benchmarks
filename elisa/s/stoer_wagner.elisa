@@ -61,8 +61,12 @@ def stoer_wagner_impl(input: i64&?, length: usize) -> i64:
     min_cut: mutable i64 = 120000001
     phase: mutable usize = 0
     while phase + 1 < n:
-        available: mutable u64 = active
+        # Zero initial weights select vertex zero first. It cannot be the
+        # last vertex of a phase, so it remains active after every contraction.
+        available: mutable u64 = active & ~1.u64()
         weights: mutable i32[16] = zeroed
+        for vertex in 0..<MAX_N:
+            weights[vertex] <- graph[vertex]
         previous_index: mutable usize = 0
         last_index: mutable usize = 0
         vertex: mutable usize = 0
