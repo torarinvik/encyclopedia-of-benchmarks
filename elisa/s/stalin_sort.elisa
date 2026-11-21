@@ -10,10 +10,8 @@ def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
 def stalin_sort_impl(values: i64&?, length: usize,
         output: mutable u8&?, output_capacity: usize) -> i64:
     if length > MAX_INPUT_LENGTH: return -1
-    if values == null:
-        if length != 0: return -1
-        return -2 if output == null else 0
     if length == 0: return -2 if output == null else 0
+    if values == null: return -1
     first: i64 = values[0]
     if first < -2147483648 or first > 2147483647: return -1
     if length == 1:
@@ -25,20 +23,22 @@ def stalin_sort_impl(values: i64&?, length: usize,
 @inline(never)
 def stalin_sort_run(values: i64&, length: usize, output: mutable u8&?, output_capacity: usize, first: i64) -> i64:
     buffer: mutable i32[128] = zeroed
-    buffer[0] <- first.i32()
+    # The validated input length bounds the number of retained values.
+    retained: mutable i32& = &buffer[0]
+    retained[0] <- first.i32()
     kept: mutable usize = 1
     last: mutable i64 = first
     for index in 1.usize()..<length:
         value: i64 = values[index]
         if value < -2147483648 or value > 2147483647: return -1
         if value >= last:
-            buffer[kept] <- value.i32()
+            retained[kept] <- value.i32()
             kept <- kept + 1
             last <- value
     output_bytes: usize = kept * 4
     if output == null or output_capacity < output_bytes: return -2
     for index in 0..<kept:
-        store_i32_le(buffer[index].i64(), output, index * 4)
+        store_i32_le(retained[index].i64(), output, index * 4)
     output_bytes.i64()
 
 
