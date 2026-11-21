@@ -5,7 +5,9 @@ const SP_TABLE_SIDE: usize = 8
 def append_printer_symbol(symbol: u64, symbols: mutable u64&, count: mutable usize&, previous: mutable u64&) -> bool:
     if symbol > 2: return false
     if symbol != previous[0]:
-        symbols[0] <- symbols[0] | (symbol << (count[0] * 2))
+        # Fixed shifts pack the runs in reverse order. Reversing every print
+        # interval preserves the optimal turn count.
+        symbols[0] <- (symbols[0] << 2) | symbol
         count[0] <- count[0] + 1
         previous[0] <- symbol
     true
