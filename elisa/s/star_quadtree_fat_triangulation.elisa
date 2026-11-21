@@ -29,25 +29,15 @@ def star_stops(edges: i32&, edge_count: usize,
             if candidates == 0: return false
     true
 
-# A separating edge has every box corner strictly outside the triangle.
-# The orientation is affine, so its maximum occurs at this chosen corner.
-def star_box_inside_edge(data: i32&, slot: usize,
-                         xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
-    dx: i32 = data[slot]
-    dy: i32 = data[slot+1]
-    y_support: i32 = ymax if dx > 0 else -ymin
-    x_support: i32 = xmax if dy < 0 else -xmin
-    y_support + x_support >= data[slot+2]
-
+# Every triangle edge in the validated mesh is horizontal, vertical, or diagonal.
+# Overlap on the four corresponding axes is sufficient for the closed box test.
 def star_triangle_hits_box(data: i32&, tid: usize,
                           xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
-    slot: usize = 16 * tid
-    if data[slot+1] < xmin or data[slot] > xmax or
-       data[slot+3] < ymin or data[slot+2] > ymax: return false
-    plane_count: i32 = data[slot+13]
-    (plane_count < 1 or star_box_inside_edge(data,slot+4,xmin,ymin,xmax,ymax)) and
-    (plane_count < 2 or star_box_inside_edge(data,slot+7,xmin,ymin,xmax,ymax)) and
-    (plane_count < 3 or star_box_inside_edge(data,slot+10,xmin,ymin,xmax,ymax))
+    slot: usize = 8 * tid
+    data[slot+1] >= xmin and data[slot] <= xmax and
+    data[slot+3] >= ymin and data[slot+2] <= ymax and
+    data[slot+5] >= xmin+ymin and data[slot+4] <= xmax+ymax and
+    data[slot+7] >= ymin-xmax and data[slot+6] <= ymax-xmin
 
 def star_visit(triangles: i32&, edges: i32&, triangle_count: usize,
                edge_count: usize, pairs: mutable i64&) -> i32:
@@ -133,7 +123,7 @@ def star_validate_mesh(input: i64&, length: usize, output: mutable u8&?, capacit
 @inline(never)
 def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
                      output: mutable u8&?, capacity: usize) -> i64:
-    projections_data: mutable i32[64] = zeroed
+    projections_data: mutable i32[32] = zeroed
     projections: mutable i32& = &projections_data[0]
     edges_data: mutable i32[48] = zeroed
     edges: mutable i32& = &edges_data[0]
@@ -141,7 +131,7 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
     seen_edges: mutable u32 = 0
     tid: mutable usize = 0
     while tid < triangle_count:
-        triangle_slot: usize = 16 * tid
+        triangle_slot: usize = 8 * tid
         first: usize = triangles[3*tid].usize()
         x: i32 = vertices[2*first]
         y: i32 = vertices[2*first+1]
@@ -149,24 +139,22 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
         projections[triangle_slot+1] <- x
         projections[triangle_slot+2] <- y
         projections[triangle_slot+3] <- y
-        plane_count: mutable usize = 0
+        projections[triangle_slot+4] <- x+y
+        projections[triangle_slot+5] <- x+y
+        projections[triangle_slot+6] <- y-x
+        projections[triangle_slot+7] <- y-x
         k: mutable usize = 0
         while k < 3:
             a: usize = triangles[3*tid+k].usize()
             b: usize = triangles[3*tid+(k+1)%3].usize()
             ax: i32 = vertices[2*a]
             ay: i32 = vertices[2*a+1]
-            dx: i32 = vertices[2*b] - ax
-            dy: i32 = vertices[2*b+1] - ay
-            if dx != 0 and dy != 0:
-                plane: usize = triangle_slot+4+3*plane_count
-                # Non-axis-aligned edges of the validated mesh have |dx| = |dy|.
-                projections[plane] <- dx
-                projections[plane+1] <- dy
-                y_projection: i32 = ay if dx > 0 else -ay
-                x_projection: i32 = ax if dy < 0 else -ax
-                projections[plane+2] <- y_projection + x_projection
-                plane_count <- plane_count + 1
+            diagonal_sum: i32 = ax + ay
+            diagonal_difference: i32 = ay - ax
+            projections[triangle_slot+4] <- diagonal_sum if diagonal_sum < projections[triangle_slot+4]
+            projections[triangle_slot+5] <- diagonal_sum if diagonal_sum > projections[triangle_slot+5]
+            projections[triangle_slot+6] <- diagonal_difference if diagonal_difference < projections[triangle_slot+6]
+            projections[triangle_slot+7] <- diagonal_difference if diagonal_difference > projections[triangle_slot+7]
             projections[triangle_slot] <- ax if ax < projections[triangle_slot]
             projections[triangle_slot+1] <- ax if ax > projections[triangle_slot+1]
             projections[triangle_slot+2] <- ay if ay < projections[triangle_slot+2]
@@ -193,7 +181,6 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
                 edges[slot+5] <- (1.i32() << low) | (1.i32() << high)
                 edge_count <- edge_count + 1
             k <- k + 1
-        projections[triangle_slot+13] <- plane_count.i32()
         tid <- tid + 1
     pairs_data: mutable i64[128] = zeroed
     pairs: mutable i64& = &pairs_data[0]
