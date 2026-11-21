@@ -83,7 +83,8 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         first_full: usize = (left + block_size - 1) >> block_shift
         after_full: usize = right >> block_shift
         best_id: mutable usize = 0
-        best_count: mutable usize = 0
+        # Minimize rank minus 32 times frequency, so ties favor the smaller rank.
+        best_score_query: mutable i64 = 0
         if first_full < after_full:
             span_start: usize = first_full << block_shift
             span_end: usize = after_full << block_shift
@@ -109,28 +110,22 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                 best_id <- 31 - (best_score & 31)
             else:
                 best_id <- stored.usize() - 1
-            best_count <- mode_frequency(positions[best_id], range_mask)
+            best_score_query <- best_id.i64() - (mode_frequency(positions[best_id], range_mask).i64() << 5)
             for index in left..<span_start:
                 id: usize = compressed[index].usize()
-                count: usize = mode_frequency(positions[id], range_mask)
-                if count > best_count or (count == best_count and id < best_id):
-                    best_id <- id
-                    best_count <- count
+                score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
+                best_score_query <- score if score < best_score_query
             for index in span_end..<right:
                 id: usize = compressed[index].usize()
-                count: usize = mode_frequency(positions[id], range_mask)
-                if count > best_count or (count == best_count and id < best_id):
-                    best_id <- id
-                    best_count <- count
+                score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
+                best_score_query <- score if score < best_score_query
         else:
             for index in left..<right:
                 id: usize = compressed[index].usize()
-                count: usize = mode_frequency(positions[id], range_mask)
-                if count > best_count or (count == best_count and id < best_id):
-                    best_id <- id
-                    best_count <- count
-        answers[2 * query] <- unique_values[best_id].i64()
-        answers[2 * query + 1] <- best_count.i64()
+                score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
+                best_score_query <- score if score < best_score_query
+        answers[2 * query] <- unique_values[(best_score_query & 31).usize()].i64()
+        answers[2 * query + 1] <- 0 - (best_score_query >> 5)
     for answer in 0..<(2 * q):
         mode_write_i64(output, 8 * answer, answers[answer])
     (16 * q).i64()
