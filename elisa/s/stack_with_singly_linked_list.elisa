@@ -1,3 +1,5 @@
+extern memcpy(destination: mutable u8&, source: i64&, length: usize) -> mutable u8&
+
 struct StackScratch:
     node_values: i64[65]
     next_ids: usize[65]
@@ -14,7 +16,14 @@ def stack_with_singly_linked_list_impl(input: i64&, length: usize,
     if count == 0:
         if length != 1: return -1
         return -2 if output == null else 0
+    stack_singly_run(input, length, output, capacity, count)
+
+@inline(never)
+def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: usize, count: usize) -> i64:
     scratch: mutable StackScratch = zeroed
+    # A validated trace creates at most 64 nodes. Links contain only node IDs or zero.
+    node_values: mutable i64& = &scratch.node_values[0]
+    next_ids: mutable usize& = &scratch.next_ids[0]
     node_count: mutable usize = 0
     head: mutable usize = 0
     written: mutable usize = 0
@@ -39,8 +48,8 @@ def stack_with_singly_linked_list_impl(input: i64&, length: usize,
         value: mutable i64 = 0
         if opcode == 1:
             node_count <- node_count + 1
-            scratch.node_values[node_count] <- pushed
-            scratch.next_ids[node_count] <- head
+            node_values[node_count] <- pushed
+            next_ids[node_count] <- head
             head <- node_count
         else:
             if opcode == 2 or opcode == 3:
@@ -52,8 +61,8 @@ def stack_with_singly_linked_list_impl(input: i64&, length: usize,
                     stopped <- true
                     continue
                 tag <- 0
-                value <- scratch.node_values[head]
-                if opcode == 2: head <- scratch.next_ids[head]
+                value <- node_values[head]
+                if opcode == 2: head <- next_ids[head]
             else:
                 if opcode == 4:
                     head <- 0
@@ -62,7 +71,7 @@ def stack_with_singly_linked_list_impl(input: i64&, length: usize,
                     node: mutable usize = head
                     while node != 0:
                         value <- value + 1
-                        node <- scratch.next_ids[node]
+                        node <- next_ids[node]
         scratch.buffer[written] <- opcode
         scratch.buffer[written + 1] <- tag
         scratch.buffer[written + 2] <- value
@@ -71,6 +80,13 @@ def stack_with_singly_linked_list_impl(input: i64&, length: usize,
     if cursor != length: return -1
     output_length: usize = written * 8
     if output == null or capacity < output_length: return -2
+    # The output ABI uses little-endian words.
+    marker: i64 = 1
+    bytes: mutable u8[8] = zeroed
+    memcpy(&bytes[0], &marker, 8)
+    if bytes[0] == 1:
+        memcpy(output, &scratch.buffer[0], output_length)
+        return output_length.i64()
     for word in 0..<written:
         bits: u64 = scratch.buffer[word].u64()
         for byte in 0..<8:
