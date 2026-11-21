@@ -6,9 +6,11 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     if length != 2+n+3*q: return -1
     current: mutable i64[64] = zeroed
     scratch: mutable i64[64] = zeroed
+    maximum: mutable i64 = 0
     for i in 0..<n:
         if input[2+i] < 0 or input[2+i] > 1000000000: return -1
         current[i] <- input[2+i]
+        maximum <- current[i] if current[i] > maximum
     for i in 0..<q:
         b: usize = 2+n+3*i
         if input[b] < 0 or input[b] > input[b+1] or input[b+1] > n.i64(): return -1
@@ -17,7 +19,11 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     counts: mutable usize[1950] = zeroed
     sums: mutable i64[1950] = zeroed
     offsets: mutable usize[30] = zeroed
-    for level in 0..<30:
+    # Leading zero bits cannot partition any input value.
+    first_level: mutable usize = 0
+    while first_level < 29 and maximum < (1.i64() << (29 - first_level)):
+        first_level <- first_level + 1
+    for level in first_level..<30:
         mask: i64 = 1.i64() << (29-level)
         for i in 0..<n:
             counts[65*level+i+1] <- counts[65*level+i]
@@ -45,17 +51,22 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
         key: i64 = input[b+2]+1
         count: mutable i64 = 0
         total: mutable i64 = 0
-        for level in 0..<30:
-            zl: usize = counts[65*level+l]
-            zr: usize = counts[65*level+r]
-            if (key & (1.i64() << (29-level))) != 0:
-                count <- count+(zr-zl).i64()
-                total <- total+sums[65*level+r]-sums[65*level+l]
-                l <- l+offsets[level]-zl
-                r <- r+offsets[level]-zr
-            else:
-                l <- zl
-                r <- zr
+        if key > maximum:
+            count <- (r - l).i64()
+            for index in l..<r:
+                total <- total + input[2 + index]
+        else:
+            for level in first_level..<30:
+                zl: usize = counts[65*level+l]
+                zr: usize = counts[65*level+r]
+                if (key & (1.i64() << (29-level))) != 0:
+                    count <- count+(zr-zl).i64()
+                    total <- total+sums[65*level+r]-sums[65*level+l]
+                    l <- l+offsets[level]-zl
+                    r <- r+offsets[level]-zr
+                else:
+                    l <- zl
+                    r <- zr
         answers[2*i] <- count
         answers[2*i+1] <- total
     for i in 0..<q:
