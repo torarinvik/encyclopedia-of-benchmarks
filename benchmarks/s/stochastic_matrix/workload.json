@@ -38,6 +38,7 @@
     "path": "src/main/java/com/thealgorithms/matrix/StochasticMatrix.java"
   },
   "cases": [
+    {"id": "row_rounding_at_positive_tolerance", "input_values": [0, 2, 7, 75668944184, 126432776535, 158171633299, 16363632111, 76738536681, 545271760979, 1352716211, 24624396793, 36522652853, 41857349716, 97392586163, 226956432184, 36195398346, 536451184945], "expected_result": 0, "input_length": 17},
     {
       "id": "row_stochastic_matrix",
       "input_values": [

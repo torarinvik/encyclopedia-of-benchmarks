@@ -9,6 +9,8 @@ Check every row or every column of a bounded rectangular matrix for stochasticit
 - A row or column passes when it contains no negative entries and `abs(sum - 1.0) <= 1e-9`. Sums use binary64 additions in the source order: left-to-right for each row and top-to-bottom for each column. The result is `1` when every row or every column passes, according to the mode, and `0` otherwise. Invalid mode, dimensions, length, or cell units return `-1`.
 - The rectangular, finite fixed-point domain is a bounded subset of the source's `double[][]` input. It avoids the source's inconsistent behavior on ragged rows and excludes NaN and infinity.
 
+Build the Elisa port with `ELISACORE_STRICT_FP=1` to preserve separate binary64 division and addition at the tolerance boundary.
+
 The package follows [`StochasticMatrix.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/matrix/StochasticMatrix.java) at commit `e43ec3897e48f23843972d02cd05a5bb1b6864a2`. See the [workload](workload.json) and [oracle](../../stochastic_matrix_oracle.py).
 
 | Language | Port |

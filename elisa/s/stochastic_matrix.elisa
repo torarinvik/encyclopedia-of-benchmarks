@@ -19,11 +19,14 @@ def stochastic_matrix_impl(input: i64&?, length: usize) -> i64:
     total: usize = rows * columns
     if length != 3 + total: return -1
 
+    signs: mutable u64 = 0
     index: mutable usize = 0
     while index < total:
         units: i64 = input[3 + index]
         if units < -MAX_ABS_CELL or units > MAX_ABS_CELL: return -1
+        signs <- signs | units.u64()
         index <- index + 1
+    if (signs >> 63) != 0: return 0
 
     if mode == 0:
         row: mutable usize = 0
@@ -32,7 +35,6 @@ def stochastic_matrix_impl(input: i64&?, length: usize) -> i64:
             column: mutable usize = 0
             while column < columns:
                 units: i64 = input[3 + row * columns + column]
-                if units < 0: return 0
                 value: f64 = units.f64() / CELL_SCALE
                 sum <- sum + value
                 column <- column + 1
@@ -46,7 +48,6 @@ def stochastic_matrix_impl(input: i64&?, length: usize) -> i64:
             row: mutable usize = 0
             while row < rows:
                 units: i64 = input[3 + row * columns + column]
-                if units < 0: return 0
                 value: f64 = units.f64() / CELL_SCALE
                 sum <- sum + value
                 row <- row + 1
