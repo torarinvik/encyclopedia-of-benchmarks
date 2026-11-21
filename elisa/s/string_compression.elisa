@@ -9,6 +9,15 @@ def string_compression_impl(input: i64&?, length: usize, output: mutable u8&?, o
         return 1
     if input == null or length > 64: return -1
 
+    if length == 2:
+        first: u64 = input[0].u64()
+        second: u64 = input[1].u64()
+        if (first | second) > 127: return -1
+        if output_capacity < 2 or output == null: return -2
+        output[0] <- first.u8()
+        output[1] <- 50 if first == second else second.u8()
+        return 2
+
     # A set bit above bit 6 marks an invalid ASCII code unit.
     if length >= 8:
         combined: mutable u64 = 0

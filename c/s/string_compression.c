@@ -16,6 +16,16 @@ int64_t string_compression(const int64_t *input, size_t length, uint8_t *output,
     }
     if (input == NULL || length > MAX_INPUT_LENGTH) return -1;
 
+    if (length == 2) {
+        const uint64_t first = (uint64_t)input[0];
+        const uint64_t second = (uint64_t)input[1];
+        if ((first | second) > 127) return -1;
+        if (output_capacity < 2 || output == NULL) return -2;
+        output[0] = (uint8_t)first;
+        output[1] = first == second ? 50 : (uint8_t)second;
+        return 2;
+    }
+
     /* A set bit above bit 6 marks an invalid ASCII code unit. */
     if (length >= 8) {
         uint64_t combined = 0;
