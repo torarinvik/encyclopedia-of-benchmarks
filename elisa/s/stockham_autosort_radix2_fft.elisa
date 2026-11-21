@@ -69,15 +69,38 @@ def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
             return -1
         index <- index + 1
 
+    needed: usize = 2 * n
+    if output == null or output_capacity < needed:
+        return -2
+    if n == 1:
+        real: f64 = input[1]
+        imaginary: f64 = input[2]
+        output[0] <- real
+        output[1] <- imaginary
+        return 2
+
     first: mutable f64[128] = zeroed
     second: mutable f64[128] = zeroed
+    # The stride-one stage has a single twiddle and writes contiguous pairs.
     index <- 0
-    while index < 2 * n:
-        first[index] <- input[index + 1]
-        index <- index + 1
+    while index < n:
+        left_real: f64 = input[index + 1]
+        left_imaginary: f64 = input[index + 2]
+        right_real: f64 = input[index + n + 1]
+        right_imaginary: f64 = input[index + n + 2]
+        # Keep the signed-zero behavior of the general complex multiply.
+        product_real: f64 = right_real - TWIDDLE_IMAG[0] * right_imaginary
+        product_imaginary: f64 = right_imaginary + TWIDDLE_IMAG[0] * right_real
+        destination: usize = (2 * index) & 124
+        first[destination] <- left_real + product_real
+        first[destination + 1] <- left_imaginary + product_imaginary
+        first[destination + 2] <- left_real - product_real
+        first[destination + 3] <- left_imaginary - product_imaginary
+        index <- index + 2
+
     source_is_first: mutable bool = true
-    stride: mutable usize = 1
-    twiddle_step: mutable usize = 32
+    stride: mutable usize = 2
+    twiddle_step: mutable usize = 16
     while stride < n:
         if source_is_first:
             stockham_stage(&first, &second, n, stride, twiddle_step)
@@ -87,9 +110,6 @@ def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
         stride <- stride * 2
         twiddle_step <- twiddle_step >> 1
 
-    needed: usize = 2 * n
-    if output == null or output_capacity < needed:
-        return -2
     index <- 0
     while index < needed:
         if source_is_first:
