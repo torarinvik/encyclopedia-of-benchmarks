@@ -33,9 +33,9 @@ def mode_few_ranks(input: i64&, output: mutable u8&, n: usize, q: usize, values:
         range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
         best: mutable i64 = 0
         for id in 0..<distinct:
-            score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
+            score: i64 = values[id].i64() - (mode_frequency(positions[id], range_mask).i64() << 30)
             best <- score if score < best
-        answers[query] <- values[(best & 31).usize()].u64() | ((0 - (best >> 5)).u64() << 32)
+        answers[query] <- (best & 1073741823).u64() | ((0 - (best >> 30)).u64() << 32)
     for query in 0..<q:
         answer: u64 = answers[query]
         mode_write_i64(output, 16 * query, answer.u32().i64())
@@ -87,6 +87,36 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         mode_write_i64(output, 8, 0 - (best_score >> 30))
         return 16
 
+    # Bias each value so zero can mark an unused slot.
+    first: mutable u32 = 0
+    second: mutable u32 = 0
+    third: mutable u32 = 0
+    fourth: mutable u32 = 0
+    small_positions: mutable u32[4] = zeroed
+    scanned: mutable usize = 0
+    while scanned < n:
+        key: u32 = input[2 + scanned].u32() + 1
+        id: mutable usize = 0
+        if first == 0 or first == key:
+            first <- key
+        elif second == 0 or second == key:
+            second <- key
+            id <- 1
+        elif third == 0 or third == key:
+            third <- key
+            id <- 2
+        elif fourth == 0 or fourth == key:
+            fourth <- key
+            id <- 3
+        else:
+            break
+        small_positions[id] <- small_positions[id] | (1.u32() << scanned)
+        scanned <- scanned + 1
+    if scanned == n:
+        small_values: u32[4] = [first - 1, second - 1, third - 1, fourth - 1]
+        small_distinct: usize = 4 if fourth != 0 else (3 if third != 0 else (2 if second != 0 else 1))
+        return mode_few_ranks(input, output, n, q, &small_values[0], &small_positions[0], small_distinct)
+
     sorted: mutable i64[MAX_N] = zeroed
     unique_values: mutable u32[MAX_N] = zeroed
     compressed: mutable u8[MAX_N] = zeroed
@@ -123,9 +153,6 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         position: usize = (item & 31).usize()
         compressed[position] <- id.u8()
         positions[id] <- positions[id] | (1.u32() << position)
-
-    if distinct <= 4:
-        return mode_few_ranks(input, output, n, q, &unique_values[0], &positions[0], distinct)
 
     # Round the block width up to a power of two for shift-based indexing.
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
