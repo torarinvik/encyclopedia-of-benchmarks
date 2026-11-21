@@ -29,7 +29,6 @@ def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
     written: mutable usize = 0
     cursor: mutable usize = 1
     index: mutable usize = 0
-    stopped: mutable bool = false
     while index < count:
         if cursor >= length: return -1
         opcode: i64 = input[cursor]
@@ -42,8 +41,6 @@ def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
             cursor <- cursor + 1
             if pushed < -2147483648 or pushed > 2147483647: return -1
         index <- index + 1
-        # An empty pop or peek stops output but the remaining input still needs validation.
-        if stopped: continue
         tag: mutable i64 = 2
         value: mutable i64 = 0
         if opcode == 1:
@@ -58,8 +55,7 @@ def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
                     scratch.buffer[written + 1] <- 4
                     scratch.buffer[written + 2] <- 2
                     written <- written + 3
-                    stopped <- true
-                    continue
+                    break
                 tag <- 0
                 value <- node_values[head]
                 if opcode == 2: head <- next_ids[head]
@@ -77,6 +73,18 @@ def stack_singly_run(input: i64&, length: usize, output: mutable u8&, capacity: 
         scratch.buffer[written + 2] <- value
         written <- written + 3
 
+    # An empty pop or peek stops execution. Validate the remaining input.
+    while index < count:
+        if cursor >= length: return -1
+        opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        if opcode < 1 or opcode > 5: return -1
+        if opcode == 1:
+            if cursor >= length: return -1
+            pushed: i64 = input[cursor]
+            cursor <- cursor + 1
+            if pushed < -2147483648 or pushed > 2147483647: return -1
+        index <- index + 1
     if cursor != length: return -1
     output_length: usize = written * 8
     if output == null or capacity < output_length: return -2
