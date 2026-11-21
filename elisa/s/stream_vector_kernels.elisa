@@ -31,12 +31,11 @@ def stream_vector_kernels_impl(input: i64&?, length: usize, output: mutable u8&?
             return -1
         a_start <- 3
     b_start: usize = a_start + count
-    index: mutable usize = 0
-    while index < array_count * count:
-        value: i64 = input[a_start + index]
-        if value < -1000 or value > 1000:
-            return -1
-        index <- index + 1
+    invalid: mutable u64 = 0
+    for index in 0..<array_count * count:
+        out_of_range: u64 = 1.u64() if input[a_start + index].u64() + 1000 > 2000 else 0.u64()
+        invalid <- invalid + out_of_range
+    if invalid != 0: return -1
 
     output_bytes: usize = count * 8
     if output == null or capacity < output_bytes:
@@ -57,7 +56,7 @@ def stream_vector_kernels_impl(input: i64&?, length: usize, output: mutable u8&?
     else:
         for index in 0..<count:
             staged[index] <- input[a_start + index].u64() + alpha.u64() * input[b_start + index].u64()
-    index <- 0
+    index: mutable usize = 0
     while index < count:
         stream_vector_kernels_write_i64_le(output, index * 8, staged[index].i64())
         index <- index + 1
