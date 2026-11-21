@@ -96,12 +96,13 @@ def mode_distinct_ranges(input: i64&, output: mutable u8&, n: usize, q: usize) -
 @inline(never)
 def mode_build_ranks(input: i64&, n: usize, unique_values: mutable u32&, compressed: mutable u8&, positions: mutable u32&) -> bool:
     sorted: mutable i64[MAX_N] = zeroed
-    value_group: u32 = input[2].u32() >> 5
-    nearby: mutable usize = 1
-    while nearby < n:
-        if (input[2 + nearby].u32() >> 5) != value_group: break
-        nearby <- nearby + 1
-    if nearby == n:
+    # Reject an obvious mismatch before the vectorizable group check.
+    first_value: u64 = input[2].u64()
+    difference: mutable u64 = (input[3].u64() ^ first_value) if n > 1 else 0
+    if difference < 32:
+        for index in 2..<n:
+            difference <- difference | (input[2 + index].u64() ^ first_value)
+    if difference < 32:
         # Value offsets preserve tie order and fit the existing rank tables.
         for index in 0..<n:
             value: u32 = input[2 + index].u32()
