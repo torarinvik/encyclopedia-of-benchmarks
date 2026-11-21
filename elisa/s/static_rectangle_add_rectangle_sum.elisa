@@ -150,29 +150,22 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         diff[x1 * MAX_COORDS + y1] <- diff[x1 * MAX_COORDS + y1] + uw[k].u64()
         k <- k + 1
     i <- 0
-    while i < nx:
-        row_weight: mutable u64 = 0
-        j: mutable usize = 0
-        while j < ny:
-            at: usize = i * MAX_COORDS + j
-            row_weight <- row_weight + diff[at]
-            value: mutable u64 = row_weight
-            if i > 0: value <- value + diff[(i - 1) * MAX_COORDS + j]
-            diff[at] <- value
-            j <- j + 1
-        i <- i + 1
-    i <- 0
     while i + 1 < nx:
+        row_weight: mutable u64 = 0
         row_sum: mutable u64 = 0
-        dx: u64 = xs[i + 1].u64() - xs[i].u64()
+        width: u64 = xs[i + 1].u64() - xs[i].u64()
         j: mutable usize = 0
         while j + 1 < ny:
-            value: u64 = diff[i * MAX_COORDS + j] % MODULUS.u64()
-            dy: u64 = ys[j + 1].u64() - ys[j].u64()
-            cell: u64 = value * ((dx * dy) % MODULUS.u64()) % MODULUS.u64()
-            at: usize = (i + 1) * STRIDE + j + 1
+            index: usize = i * MAX_COORDS + j
+            row_weight <- row_weight + diff[index]
+            weight: mutable u64 = row_weight
+            if i > 0: weight <- weight + diff[index - MAX_COORDS]
+            diff[index] <- weight
+            height: u64 = ys[j + 1].u64() - ys[j].u64()
+            area: u64 = (width * height) % MODULUS.u64()
+            cell: u64 = ((weight % MODULUS.u64()) * area) % MODULUS.u64()
             row_sum <- row_sum + cell
-            prefix[at] <- (row_sum + prefix[i * STRIDE + j + 1]) % MODULUS.u64()
+            prefix[(i + 1) * STRIDE + j + 1] <- (row_sum + prefix[i * STRIDE + j + 1]) % MODULUS.u64()
             j <- j + 1
         i <- i + 1
     answer: mutable i64[MAX_Q] = zeroed
