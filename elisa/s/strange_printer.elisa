@@ -93,7 +93,7 @@ def first_printer_lane(bits: u64) -> usize:
 
 @inline(never)
 def strange_printer_compressed(symbols: u64, n: usize) -> i64:
-    if n < 5 or n > SP_MAX_LENGTH: return -1
+    # The sole caller derives a run count from 5 through 8 from the marker.
     if n == 5:
         # With five runs, a three-turn solution must merge the endpoints.
         # The middle run can share that turn, or the other two can share one.
@@ -102,25 +102,14 @@ def strange_printer_compressed(symbols: u64, n: usize) -> i64:
         if first_run == ((symbols >> 4) & 3): return 3
         return 3 if ((symbols >> 2) & 3) == ((symbols >> 6) & 3) else 4
 
-    if n == 6:
-        # Three turns can cover at most five runs. Check each way the
-        # recurrence can attain four turns before falling back to five.
-        first_run: u64 = symbols & 3
-        third_run: u64 = (symbols >> 4) & 3
-        last_run: u64 = (symbols >> 10) & 3
-        if first_run == third_run or first_run == last_run: return 4
-        fourth_run: u64 = (symbols >> 6) & 3
-        second_run: u64 = (symbols >> 2) & 3
-        fifth_run: u64 = (symbols >> 8) & 3
-        if first_run == fifth_run and second_run == fourth_run: return 4
-        if second_run == last_run and (second_run == fourth_run or third_run == fifth_run): return 4
-        return 5
-
     # After two distinct runs, each new run either repeats the symbol two
     # positions back or uses the remaining symbol. That determines the
     # string up to renaming. Gather those equality bits into a pattern.
     differences: u64 = symbols ^ (symbols >> 4)
     equal_lanes: u64 = ~(differences | (differences >> 1)) & 0x555
+    # A six-run string needs five turns only when each run uses the
+    # remaining symbol, so none of the first four pairs match.
+    if n == 6: return 5 if (equal_lanes & 0x55) == 0 else 4
     pairs: u64 = (equal_lanes | (equal_lanes >> 1)) & 0x333
     groups: u64 = (pairs | (pairs >> 2)) & 0x0f0f
     pattern: u64 = (groups | (groups >> 4)) & 63
