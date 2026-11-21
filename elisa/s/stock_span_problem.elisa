@@ -12,6 +12,11 @@ def stock_span_problem_impl(input: i64&?, length: usize, output: mutable u8&?, c
 
     output_bytes: usize = count * 8
     if output == null or capacity < output_bytes: return -2
+    if count == 1:
+        output[0] <- 1
+        for byte in 1..<8:
+            output[byte] <- 0
+        return 1
     decreasing: mutable usize[64] = zeroed
     top: mutable usize = 0
     day <- 0
