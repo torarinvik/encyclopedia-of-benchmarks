@@ -226,7 +226,8 @@ def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
     upper_num: mutable i64 = 1
     upper_den: mutable i64 = 0
     while a != b and c != d:
-        if a < b and c < d:
+        if a < b:
+            if c >= d: break
             left_count: i64 = (b-1)/a
             right_count: i64 = (d-1)/c
             shared: i64 = left_count if left_count < right_count else right_count
@@ -235,7 +236,8 @@ def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
             if left_count != right_count: break
             b <- b-shared*a
             d <- d-shared*c
-        elif a > b and c > d:
+        else:
+            if c <= d: break
             left_count: i64 = (a-1)/b
             right_count: i64 = (c-1)/d
             shared: i64 = left_count if left_count < right_count else right_count
@@ -244,8 +246,6 @@ def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
             if left_count != right_count: break
             a <- a-shared*b
             c <- c-shared*d
-        else:
-            break
     # Common quotient steps preserve both gcds. Check only the residual pairs.
     if not sbt_is_reduced(a, b) or not sbt_is_reduced(c, d): return -1
     if output == null or capacity < 24: return -2
