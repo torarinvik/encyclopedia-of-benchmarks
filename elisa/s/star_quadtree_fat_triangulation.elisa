@@ -51,35 +51,34 @@ def star_triangle_hits_box(data: i32&, tid: usize,
     star_box_inside_edge(data,slot+7,xmin,ymin,xmax,ymax) and
     star_box_inside_edge(data,slot+10,xmin,ymin,xmax,ymax)
 
-def star_visit(triangles: i32&, edges: i32&,
-               triangle_count: usize, edge_count: usize,
-               pairs: mutable i64&, initial_pair_count: i32,
-               key_shift: usize, xmin: i32, ymax: i32, size: i32, key: usize) -> i32:
-    pair_count: mutable i32 = initial_pair_count
-    xmax: i32 = xmin + size
-    ymin: i32 = ymax - size
-    if not star_stops(edges,edge_count,xmin,ymin,xmax,ymax):
-        if key_shift == 0: return -1
-        child_shift: usize = key_shift - 2
-        half: i32 = size >> 1
-        q: mutable usize = 0
-        while q < 4:
-            pair_count <- star_visit(triangles,edges,triangle_count,edge_count,
-                pairs,pair_count,child_shift,xmin+(q%2).i32()*half,
-                ymax-(q/2).i32()*half,half,key+(q<<child_shift))
-            if pair_count < 0: return -1
-            q <- q + 1
-        return pair_count
-    tid: mutable usize = 0
-    while tid < triangle_count:
-        if star_triangle_hits_box(triangles,tid,xmin,ymin,xmax,ymax):
-            index: usize = pair_count.usize()
-            if index >= STAR_MAX_PAIRS: return -1
-            pairs[2*index] <- key.i64()
-            pairs[2*index+1] <- tid.i64()
-            pair_count <- pair_count + 1
-        tid <- tid + 1
-    pair_count
+def star_visit(triangles: i32&, edges: i32&, triangle_count: usize,
+               edge_count: usize, pairs: mutable i64&) -> i32:
+    pair_count: mutable usize = 0
+    key: mutable usize = 0
+    shift: mutable usize = 2 * STAR_MAX_DEPTH
+    while key < 16:
+        # A cell is identified by the Morton key of its first finest-level cell.
+        xmin: i32 = (2 * (key & 1) + (key & 4)).i32()
+        ymax: i32 = 8 - ((key & 2) + ((key & 8) >> 1)).i32()
+        size: i32 = 2.i32() << (shift >> 1)
+        xmax: i32 = xmin + size
+        ymin: i32 = ymax - size
+        if not star_stops(edges,edge_count,xmin,ymin,xmax,ymax):
+            if shift == 0: return -1
+            shift <- shift - 2
+        else:
+            for tid in 0..<triangle_count:
+                if star_triangle_hits_box(triangles,tid,xmin,ymin,xmax,ymax):
+                    if pair_count >= STAR_MAX_PAIRS: return -1
+                    pairs[2*pair_count] <- key.i64()
+                    pairs[2*pair_count+1] <- tid.i64()
+                    pair_count <- pair_count + 1
+            key <- key + (1.usize() << shift)
+            # At a parent boundary the next visit starts at that parent's level.
+            while shift < 2 * STAR_MAX_DEPTH and
+                  (key & ((1.usize() << (shift+2))-1)) == 0:
+                shift <- shift + 2
+    pair_count.i32()
 
 def star_store_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
@@ -194,7 +193,7 @@ def star_mesh_output(vertices: i32&, triangles: i32&, triangle_count: usize,
     pairs_data: mutable i64[128] = zeroed
     pairs: mutable i64& = &pairs_data[0]
     result: i32 = star_visit(projections,edges,triangle_count,edge_count,
-        pairs,0,2*STAR_MAX_DEPTH,0,8,8,0)
+        pairs)
     if result < 0: return -1
     pair_count: usize = result.usize()
     required: usize = (1 + 2*pair_count)*8
