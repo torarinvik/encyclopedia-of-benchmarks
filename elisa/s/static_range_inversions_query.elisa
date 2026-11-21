@@ -78,35 +78,54 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
             byte <- byte + 1
         qi <- qi + 1
 
-def srin_radix_sort(items: mutable u64&, n: usize) -> bool:
+def srin_radix_digits(items: u64&, n: usize) -> u64:
     different: mutable u64 = 0
     first: u64 = items[0]
     for index in 1..<n:
         different <- different | (first ^ items[index])
-        if (different >> 15) != 0: return false
+        if (different >> 15) != 0: return 0
+    different >> 7
+
+def srin_radix_pass(items: u64&, scratch: mutable u64&, n: usize, digit: usize) -> void:
+    counts: mutable usize[16] = zeroed
+    for index in 0..<n:
+        bucket: usize = ((items[index] >> digit) & 15).usize()
+        counts[bucket] <- counts[bucket] + 1
+    total: mutable usize = 0
+    for bucket in 0..<16:
+        count: usize = counts[bucket]
+        counts[bucket] <- total
+        total <- total + count
+    for index in 0..<n:
+        value: u64 = items[index]
+        bucket: usize = ((value >> digit) & 15).usize()
+        scratch[counts[bucket]] <- value
+        counts[bucket] <- counts[bucket] + 1
+
+def srin_assign_ranks(ranked_items: u64&, ranks: mutable u16&, n: usize) -> usize:
+    distinct: mutable usize = 0
+    previous: mutable i64 = -1
+    i: mutable usize = n
+    while i > 0:
+        i <- i - 1
+        item: u64 = ranked_items[i]
+        value: i64 = (item >> 7).i64()
+        if value != previous:
+            distinct <- distinct + 1
+            previous <- value
+        ranks[(item & 127).usize()] <- ((distinct - 1) << 3).u16()
+    distinct
+
+@inline(never)
+def srin_radix_ranks(sorted: mutable u64&, ranks: mutable u16&, n: usize) -> usize:
+    digits: u64 = srin_radix_digits(sorted,n)
+    if digits == 0: return 0
     scratch: mutable u64[MAX_N] = zeroed
-    # Low seven bits retain the original position and are not sort digits.
-    digit: mutable usize = 7
-    while digit < 15:
-        if ((different >> digit) & 15) != 0:
-            counts: mutable usize[16] = zeroed
-            for index in 0..<n:
-                bucket: usize = ((items[index] >> digit) & 15).usize()
-                counts[bucket] <- counts[bucket] + 1
-            total: mutable usize = 0
-            for bucket in 0..<16:
-                count: usize = counts[bucket]
-                counts[bucket] <- total
-                total <- total + count
-            for index in 0..<n:
-                value: u64 = items[index]
-                bucket: usize = ((value >> digit) & 15).usize()
-                scratch[counts[bucket]] <- value
-                counts[bucket] <- counts[bucket] + 1
-            for index in 0..<n:
-                items[index] <- scratch[index]
-        digit <- digit + 4
-    true
+    srin_radix_pass(sorted,&scratch[0],n,7 if (digits & 15) != 0 else 11)
+    if (digits & 15) != 0 and (digits >> 4) != 0:
+        srin_radix_pass(&scratch[0],sorted,n,11)
+        return srin_assign_ranks(sorted,ranks,n)
+    srin_assign_ranks(&scratch[0],ranks,n)
 
 def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 195: return -1
@@ -152,7 +171,9 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
             output[byte] <- 0
         return bytes.i64()
     # Two radix passes are enough when all values share their high bits.
-    if n < 32 or not srin_radix_sort(&sorted[0],n):
+    ranks: mutable u16[MAX_N] = zeroed
+    distinct: mutable usize = srin_radix_ranks(&sorted[0],&ranks[0],n) if n >= 32 else 0
+    if distinct == 0:
         if n >= 16:
             gap: mutable usize = 4
             while gap < n / 3:
@@ -177,18 +198,7 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
                 j <- j - 1
             sorted[j] <- value
             i <- i + 1
-    ranks: mutable u16[MAX_N] = zeroed
-    distinct: mutable usize = 0
-    previous: mutable i64 = -1
-    i <- n
-    while i > 0:
-        i <- i - 1
-        item: u64 = sorted[i]
-        value: i64 = (item >> 7).i64()
-        if value != previous:
-            distinct <- distinct + 1
-            previous <- value
-        ranks[(item & 127).usize()] <- ((distinct - 1) << 3).u16()
+        distinct <- srin_assign_ranks(&sorted[0],&ranks[0],n)
     i <- 1
     while i < q:
         query: u32 = queries[i]
