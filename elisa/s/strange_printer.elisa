@@ -75,10 +75,7 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
     # repeat some symbol, so one shared turn plus two others suffices.
     if symbols < 1024: return 3
 
-    n: mutable usize = 5
-    n <- 6 if symbols >= 4096
-    n <- 7 if symbols >= 16384
-    n <- 8 if symbols >= 65536
+    n: usize = (5 if symbols < 4096 else 6) if symbols < 16384 else (7 if symbols < 65536 else 8)
     # The interval worker only reads lanes below n, excluding the marker.
     strange_printer_interval(symbols, n)
 
