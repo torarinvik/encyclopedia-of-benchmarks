@@ -13,9 +13,8 @@ def sci_run_cost(kept: usize) -> i64:
         value <- value / 10
     (1 + digits).i64()
 
-def sci_compute(input: view[i64]) -> i64:
-    length: usize = input.len()
-    if length < 2 or length > SCI_MAX_INPUT: return -1
+def sci_compute(input: i64&?, length: usize) -> i64:
+    if input == null or length < 2 or length > SCI_MAX_INPUT: return -1
     n_raw: i64 = input[0]
     k_raw: i64 = input[1]
     if n_raw < 0 or n_raw > SCI_MAX_N.i64() or k_raw < 0 or k_raw > n_raw: return -1
@@ -25,12 +24,12 @@ def sci_compute(input: view[i64]) -> i64:
     for i in 0..<n:
         if input[i + 2] < 0 or input[i + 2] > 25: return -1
 
-    dp_storage: mutable i64[SCI_CELLS] = zeroed
-    dp: mutable view[i64] = dp_storage[0:SCI_CELLS]
-    for i in 0..<SCI_CELLS: dp[i] <- SCI_INF
+    dp: mutable i64[SCI_CELLS] = zeroed
+    for i in 0..<SCI_CELLS:
+        dp[i] <- SCI_INF
     dp[0] <- 0
     for start in 0..<n:
-        for used in 0..budget:
+        for used in 0..=budget:
             prefix_cost: i64 = dp[start * SCI_WIDTH + used]
             if prefix_cost == SCI_INF: continue
             if used < budget:
@@ -40,21 +39,16 @@ def sci_compute(input: view[i64]) -> i64:
             for ending in start..<n:
                 if input[ending + 2] == input[start + 2]: same <- same + 1
                 span: usize = ending - start + 1
-                for kept in 1..same:
+                for kept in 1..=same:
                     deleted: usize = used + span - kept
                     if deleted > budget: continue
                     candidate: i64 = prefix_cost + sci_run_cost(kept)
                     state: usize = (ending + 1) * SCI_WIDTH + deleted
                     if candidate < dp[state]: dp[state] <- candidate
     answer: mutable i64 = SCI_INF
-    for deleted in 0..budget:
+    for deleted in 0..=budget:
         value: i64 = dp[n * SCI_WIDTH + deleted]
         if value < answer: answer <- value
     answer
 
-export fn string_compression_ii(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > SCI_MAX_INPUT: return -1
-    string_compression_ii_impl(input[0:length])
-
-def string_compression_ii_impl(input: view[i64]) -> i64:
-    sci_compute(input)
+export fn string_compression_ii(input: i64&?, length: usize) -> i64 = sci_compute
