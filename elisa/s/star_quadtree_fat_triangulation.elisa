@@ -67,36 +67,35 @@ def star_triangle_hits_box(vertices: i32&, triangles: i32&, tid: usize,
     star_box_inside_edge(bx, by, cx, cy, xmin, ymin, xmax, ymax) and
     star_box_inside_edge(cx, cy, ax, ay, xmin, ymin, xmax, ymax)
 
-def star_add_pair(pairs: mutable i64&, pair_count: mutable usize&, key: usize, tid: usize) -> bool:
-    if pair_count >= STAR_MAX_PAIRS: return false
-    pairs[2*pair_count] <- key.i64()
-    pairs[2*pair_count+1] <- tid.i64()
-    pair_count <- pair_count + 1
-    true
-
 def star_visit(vertices: i32&, triangles: i32&, edges: i32&,
                vertex_count: usize, triangle_count: usize, edge_count: usize,
-               pairs: mutable i64&, pair_count: mutable usize&,
-               depth: usize, xmin: i32, ymax: i32, size: i32, path: usize) -> bool:
+               pairs: mutable i64&, initial_pair_count: i32,
+               depth: usize, xmin: i32, ymax: i32, size: i32, path: usize) -> i32:
+    pair_count: mutable i32 = initial_pair_count
     xmax: i32 = xmin + size
     ymin: i32 = ymax - size
     if not star_stops(vertices,edges,edge_count,vertex_count,xmin,ymin,xmax,ymax):
-        if depth >= STAR_MAX_DEPTH: return false
+        if depth >= STAR_MAX_DEPTH: return -1
         half: i32 = size >> 1
         q: mutable usize = 0
         while q < 4:
-            if not star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
+            pair_count <- star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
                 pairs,pair_count,depth+1,xmin+(q%2).i32()*half,
-                ymax-(q/2).i32()*half,half,4*path+q): return false
+                ymax-(q/2).i32()*half,half,4*path+q)
+            if pair_count < 0: return -1
             q <- q + 1
-        return true
+        return pair_count
     key: usize = path << (2 * (STAR_MAX_DEPTH-depth))
     tid: mutable usize = 0
     while tid < triangle_count:
-        if star_triangle_hits_box(vertices,triangles,tid,xmin,ymin,xmax,ymax) and
-           not star_add_pair(pairs,pair_count,key,tid): return false
+        if star_triangle_hits_box(vertices,triangles,tid,xmin,ymin,xmax,ymax):
+            index: usize = pair_count.usize()
+            if index >= STAR_MAX_PAIRS: return -1
+            pairs[2*index] <- key.i64()
+            pairs[2*index+1] <- tid.i64()
+            pair_count <- pair_count + 1
         tid <- tid + 1
-    true
+    pair_count
 
 def star_store_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
@@ -170,9 +169,10 @@ def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mu
         tid <- tid + 1
     pairs_data: mutable i64[128] = zeroed
     pairs: mutable i64& = &pairs_data[0]
-    pair_count: mutable usize = 0
-    if not star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
-        pairs,pair_count,0,0,8,8,0): return -1
+    result: i32 = star_visit(vertices,triangles,edges,vertex_count,triangle_count,edge_count,
+        pairs,0,0,0,8,8,0)
+    if result < 0: return -1
+    pair_count: usize = result.usize()
     required: usize = (1 + 2*pair_count)*8
     if output == null or capacity < required: return -2
     star_store_le(output,0,pair_count.i64())
