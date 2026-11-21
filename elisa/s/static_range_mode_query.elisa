@@ -19,8 +19,10 @@ def mode_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
 @inline(always)
 def mode_insert(sorted: mutable i64&, index: usize, value: i64) -> void:
     position: mutable usize = index
-    while position > 0 and sorted[position - 1] > value:
-        sorted[position] <- sorted[position - 1]
+    while position > 0:
+        previous: i64 = sorted[position - 1]
+        if previous <= value: break
+        sorted[position] <- previous
         position <- position - 1
     sorted[position] <- value
 
@@ -135,8 +137,10 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         for index in 4..<n:
             value: i64 = sorted[index]
             position: mutable usize = index
-            while position >= 4 and sorted[position - 4] > value:
-                sorted[position] <- sorted[position - 4]
+            while position >= 4:
+                previous: i64 = sorted[position - 4]
+                if previous <= value: break
+                sorted[position] <- previous
                 position <- position - 4
             sorted[position] <- value
         for index in 1..<n:
