@@ -40,10 +40,10 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         return -2
 
     sorted: mutable i64[MAX_N] = zeroed
-    unique_values: mutable i64[MAX_N] = zeroed
-    compressed: mutable usize[MAX_N] = zeroed
+    unique_values: mutable u32[MAX_N] = zeroed
+    compressed: mutable u8[MAX_N] = zeroed
     positions: mutable u32[MAX_N] = zeroed
-    block_mode: mutable usize[MAX_BLOCKS * MAX_BLOCKS] = zeroed
+    block_mode: mutable u8[MAX_BLOCKS * MAX_BLOCKS] = zeroed
     for index in 0..<n:
         value: i64 = (input[2 + index] << 5) | index.i64()
         position: mutable usize = index
@@ -59,12 +59,12 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         item: i64 = sorted[index]
         value: i64 = item >> 5
         if value != previous:
-            unique_values[distinct] <- value
+            unique_values[distinct] <- value.u32()
             distinct <- distinct + 1
             previous <- value
         id: usize = distinct - 1
         position: usize = (item & 31).usize()
-        compressed[position] <- id
+        compressed[position] <- id.u8()
         positions[id] <- positions[id] | (1.u32() << position)
 
     # Round the block width up to a power of two for shift-based indexing.
@@ -82,12 +82,12 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
             end: mutable usize = begin + block_size
             if end > n: end <- n
             for index in begin..<end:
-                id: usize = compressed[index]
+                id: usize = compressed[index].usize()
                 frequency[id] <- frequency[id] + 1
                 # Larger counts win, then smaller ranks.
                 score: usize = (frequency[id].usize() << 5) | (31 - id)
                 best_score <- score if score > best_score
-            block_mode[first * MAX_BLOCKS + last] <- 31 - (best_score & 31)
+            block_mode[first * MAX_BLOCKS + last] <- (31 - (best_score & 31)).u8()
             last <- last + 1
 
     answers: mutable i64[2 * MAX_Q] = zeroed
@@ -101,30 +101,30 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         best_id: mutable usize = 0
         best_count: mutable usize = 0
         if first_full < after_full:
-            best_id <- block_mode[first_full * MAX_BLOCKS + after_full - 1]
+            best_id <- block_mode[first_full * MAX_BLOCKS + after_full - 1].usize()
             best_count <- mode_frequency(positions[best_id], range_mask)
             span_start: usize = first_full << block_shift
             span_end: usize = after_full << block_shift
             for index in left..<span_start:
-                id: usize = compressed[index]
+                id: usize = compressed[index].usize()
                 count: usize = mode_frequency(positions[id], range_mask)
                 if count > best_count or (count == best_count and id < best_id):
                     best_id <- id
                     best_count <- count
             for index in span_end..<right:
-                id: usize = compressed[index]
+                id: usize = compressed[index].usize()
                 count: usize = mode_frequency(positions[id], range_mask)
                 if count > best_count or (count == best_count and id < best_id):
                     best_id <- id
                     best_count <- count
         else:
             for index in left..<right:
-                id: usize = compressed[index]
+                id: usize = compressed[index].usize()
                 count: usize = mode_frequency(positions[id], range_mask)
                 if count > best_count or (count == best_count and id < best_id):
                     best_id <- id
                     best_count <- count
-        answers[2 * query] <- unique_values[best_id]
+        answers[2 * query] <- unique_values[best_id].i64()
         answers[2 * query + 1] <- best_count.i64()
     for answer in 0..<(2 * q):
         mode_write_i64(output, 8 * answer, answers[answer])
