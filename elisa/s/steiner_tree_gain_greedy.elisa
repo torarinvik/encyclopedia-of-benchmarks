@@ -45,37 +45,6 @@ def st_group_count(n: usize, mask: i64, h: bool[16]) -> usize:
                 count <- count + 1
     count
 
-def st_metric_mst(n: usize, mask: i64, w: i64[16]) -> i64:
-    verts: mutable usize[4] = zeroed
-    vn: mutable usize = 0
-    for i in 0..<n:
-        if (mask & (1.i64() << i)) != 0:
-            verts[vn] <- i
-            vn <- vn + 1
-    if vn <= 1:
-        return 0
-    used: mutable bool[4] = zeroed
-    best: mutable i64[4] = zeroed
-    for i in 0..<4:
-        best[i] <- 0x7fffffffffffffff.i64()
-    used[verts[0]] <- true
-    for k in 1..<vn:
-        best[verts[k]] <- w[verts[0] * 4 + verts[k]]
-    total: mutable i64 = 0
-    for _ in 1..<vn:
-        pick: mutable usize = 4
-        for k in 0..<vn:
-            v: usize = verts[k]
-            if not used[v] and (pick == 4 or best[v] < best[pick] or (best[v] == best[pick] and v < pick)):
-                pick <- v
-        total <- total + best[pick]
-        used[pick] <- true
-        for k in 0..<vn:
-            v: usize = verts[k]
-            if not used[v] and w[pick * 4 + v] < best[v]:
-                best[v] <- w[pick * 4 + v]
-    total
-
 def st_less(a: ST_Edge, b: ST_Edge) -> bool:
     a.w < b.w or (a.w == b.w and (a.u < b.u or (a.u == b.u and a.v < b.v)))
 
@@ -260,13 +229,13 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
         sizes[c] <- ec
     if at != length or st_group_count(n, mask, family_h) != 1:
         return -1
-    baseline: i64 = st_metric_mst(n, mask, w)
     h: mutable bool[16] = zeroed
     selected: mutable bool[4] = zeroed
-    while st_group_count(n, mask, h) > 1:
-        before: usize = st_group_count(n, mask, h)
+    groups: mutable usize = terminals
+    while groups > 1:
         best: mutable usize = 4
-        best_gain: mutable i64 = -0x7fffffffffffffff.i64()
+        best_cost: mutable i64 = 0
+        best_groups: mutable usize = groups
         for c in 0..<count:
             if selected[c]:
                 continue
@@ -278,16 +247,22 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
                 v: usize = family_v[c * 3 + e]
                 trial[u * 4 + v] <- true
                 trial[v * 4 + u] <- true
-            if st_group_count(n, mask, trial) >= before:
+            trial_groups: usize = st_group_count(n, mask, trial)
+            if trial_groups >= groups:
                 continue
             scratch: mutable ST_Edge[3] = zeroed
             scratch_n: mutable usize = 0
-            gain: i64 = baseline - st_contracted_mst(n, mask, w, trial) - st_mst_h(n, w, trial, &scratch, &scratch_n)
-            if best == 4 or gain > best_gain:
+            contracted: mutable i64 = 0
+            if trial_groups > 1:
+                contracted <- st_contracted_mst(n, mask, w, trial)
+            cost: i64 = contracted + st_mst_h(n, w, trial, &scratch, &scratch_n)
+            if best == 4 or cost < best_cost:
                 best <- c
-                best_gain <- gain
+                best_cost <- cost
+                best_groups <- trial_groups
         if best == 4:
             return -1
+        groups <- best_groups
         selected[best] <- true
         for e in 0..<sizes[best]:
             u: usize = family_u[best * 3 + e]
