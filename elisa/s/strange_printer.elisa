@@ -93,6 +93,14 @@ def first_printer_lane(bits: u64) -> usize:
 @inline(never)
 def strange_printer_interval(symbols: u64, n: usize) -> i64:
     if n < 5 or n > SP_MAX_LENGTH: return -1
+    if n == 5:
+        # With five runs, a three-turn solution must merge the endpoints.
+        # The middle run can share that turn, or the other two can share one.
+        first_run: u64 = symbols & 3
+        if first_run != ((symbols >> 8) & 3): return 4
+        if first_run == ((symbols >> 4) & 3): return 3
+        return 3 if ((symbols >> 2) & 3) == ((symbols >> 6) & 3) else 4
+
     table: mutable u8[64] = zeroed
     # Every row and column index is below n, so offsets stay below 64.
     dp: mutable u8& = &table[0]
