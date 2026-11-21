@@ -12,15 +12,15 @@ def strassen_store_word(output: mutable u8&, offset: usize, bits: u64) -> void:
 # The validated product fits in i64. Arithmetic modulo 2^64 preserves its
 # exact little-endian bit pattern, including negative results.
 @inline(always)
-def strassen_two[T](a: T&, b: T&, c: mutable u64&) -> void:
+def strassen_two[Left, Right, left_stride: usize, right_stride: usize](a: Left&, b: Right&, c: mutable u64&) -> void:
     a0: u64 = a[0].u64()
     b0: u64 = b[0].u64()
-    a3: u64 = a[3].u64()
-    b3: u64 = b[3].u64()
+    a3: u64 = a[left_stride + 1].u64()
+    b3: u64 = b[right_stride + 1].u64()
     a1: u64 = a[1].u64()
     b1: u64 = b[1].u64()
-    a2: u64 = a[2].u64()
-    b2: u64 = b[2].u64()
+    a2: u64 = a[left_stride].u64()
+    b2: u64 = b[right_stride].u64()
     m1: u64 = (a0 + a3) * (b0 + b3)
     m2: u64 = (a2 + a3) * b0
     m3: u64 = a0 * (b1 - b3)
@@ -34,7 +34,7 @@ def strassen_two[T](a: T&, b: T&, c: mutable u64&) -> void:
     c[3] <- m1 - m2 + m3 + m6
 
 @inline(never)
-def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> void:
+def strassen_multiply[Left, Right, dimension: usize, left_stride: usize, right_stride: usize](a: Left&, b: Right&, c: mutable u64&) -> void:
     h: usize = dimension / 2
     x: mutable u64[16] = zeroed
     y: mutable u64[16] = zeroed
@@ -45,28 +45,26 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
-            q: usize = r * dimension + col
-            x[i] <- a[q].u64() + a[(r + h) * dimension + col + h].u64()
-            y[i] <- b[q].u64() + b[(r + h) * dimension + col + h].u64()
+            x[i] <- a[r * left_stride + col].u64() + a[(r + h) * left_stride + col + h].u64()
+            y[i] <- b[r * right_stride + col].u64() + b[(r + h) * right_stride + col + h].u64()
             col <- col + 1
         r <- r + 1
     if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &previous_product[0])
+        strassen_two[u64, u64, 2, 2](&x[0], &y[0], &previous_product[0])
     else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &previous_product[0])
+        strassen_multiply[u64, u64, 4, 4, 4](&x[0], &y[0], &previous_product[0])
     r <- 0
     while r < h:
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
-            x[i] <- a[(r + h) * dimension + col].u64() + a[(r + h) * dimension + col + h].u64()
-            y[i] <- b[r * dimension + col].u64()
+            x[i] <- a[(r + h) * left_stride + col].u64() + a[(r + h) * left_stride + col + h].u64()
             col <- col + 1
         r <- r + 1
     if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &product[0])
+        strassen_two[u64, Right, 2, right_stride](&x[0], &b[0], &product[0])
     else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
+        strassen_multiply[u64, Right, 4, 4, right_stride](&x[0], &b[0], &product[0])
     for row in 0..<h:
         for column in 0..<h:
             i: usize = row * h + column
@@ -78,14 +76,14 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
-            x[i] <- a[(r + h) * dimension + col].u64() - a[r * dimension + col].u64()
-            y[i] <- b[r * dimension + col].u64() + b[r * dimension + col + h].u64()
+            x[i] <- a[(r + h) * left_stride + col].u64() - a[r * left_stride + col].u64()
+            y[i] <- b[r * right_stride + col].u64() + b[r * right_stride + col + h].u64()
             col <- col + 1
         r <- r + 1
     if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &product[0])
+        strassen_two[u64, u64, 2, 2](&x[0], &y[0], &product[0])
     else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
+        strassen_multiply[u64, u64, 4, 4, 4](&x[0], &y[0], &product[0])
     for row in 0..<h:
         for column in 0..<h:
             i: usize = row * h + column
@@ -95,14 +93,13 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
-            x[i] <- a[r * dimension + col].u64()
-            y[i] <- b[r * dimension + col + h].u64() - b[(r + h) * dimension + col + h].u64()
+            y[i] <- b[r * right_stride + col + h].u64() - b[(r + h) * right_stride + col + h].u64()
             col <- col + 1
         r <- r + 1
     if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &product[0])
+        strassen_two[Left, u64, left_stride, 2](&a[0], &y[0], &product[0])
     else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
+        strassen_multiply[Left, u64, 4, left_stride, 4](&a[0], &y[0], &product[0])
     for row in 0..<h:
         for column in 0..<h:
             i: usize = row * h + column
@@ -113,14 +110,13 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
-            x[i] <- a[r * dimension + col].u64() + a[r * dimension + col + h].u64()
-            y[i] <- b[(r + h) * dimension + col + h].u64()
+            x[i] <- a[r * left_stride + col].u64() + a[r * left_stride + col + h].u64()
             col <- col + 1
         r <- r + 1
     if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &product[0])
+        strassen_two[u64, Right, 2, right_stride](&x[0], &b[h * right_stride + h], &product[0])
     else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
+        strassen_multiply[u64, Right, 4, 4, right_stride](&x[0], &b[h * right_stride + h], &product[0])
     for row in 0..<h:
         for column in 0..<h:
             i: usize = row * h + column
@@ -131,27 +127,26 @@ def strassen_multiply[T, dimension: usize](a: T&, b: T&, c: mutable u64&) -> voi
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
-            x[i] <- a[r * dimension + col + h].u64() - a[(r + h) * dimension + col + h].u64()
-            y[i] <- b[(r + h) * dimension + col].u64() + b[(r + h) * dimension + col + h].u64()
+            x[i] <- a[r * left_stride + col + h].u64() - a[(r + h) * left_stride + col + h].u64()
+            y[i] <- b[(r + h) * right_stride + col].u64() + b[(r + h) * right_stride + col + h].u64()
             col <- col + 1
         r <- r + 1
     if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &previous_product[0])
+        strassen_two[u64, u64, 2, 2](&x[0], &y[0], &previous_product[0])
     else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &previous_product[0])
+        strassen_multiply[u64, u64, 4, 4, 4](&x[0], &y[0], &previous_product[0])
     r <- 0
     while r < h:
         col: mutable usize = 0
         while col < h:
             i: usize = r * h + col
-            x[i] <- a[(r + h) * dimension + col + h].u64()
-            y[i] <- b[(r + h) * dimension + col].u64() - b[r * dimension + col].u64()
+            y[i] <- b[(r + h) * right_stride + col].u64() - b[r * right_stride + col].u64()
             col <- col + 1
         r <- r + 1
     if dimension == 4:
-        strassen_two[u64](&x[0], &y[0], &product[0])
+        strassen_two[Left, u64, left_stride, 2](&a[h * left_stride + h], &y[0], &product[0])
     else:
-        strassen_multiply[u64, 4](&x[0], &y[0], &product[0])
+        strassen_multiply[Left, u64, 4, left_stride, 4](&a[h * left_stride + h], &y[0], &product[0])
     for row in 0..<h:
         for column in 0..<h:
             i: usize = row * h + column
@@ -185,7 +180,7 @@ def strassen_matrix_frame(input: i64&, n: usize, output: mutable u8&?, capacity:
         if invalid != 0: return -1
         if output == null or capacity < 32: return -2
         small_result: mutable u64[4] = zeroed
-        strassen_two[i64](&input[1], &input[5], &small_result[0])
+        strassen_two[i64, i64, 2, 2](&input[1], &input[5], &small_result[0])
         for index in 0..<4:
             strassen_store_word(output, 8 * index, small_result[index].u64())
         return 32
@@ -209,7 +204,7 @@ def strassen_large_frame[dimension: usize, cells: usize](input: i64&, output: mu
 @inline(never)
 def strassen_product[dimension: usize, cells: usize](input: i64&, output: mutable u8&) -> i64:
     result: mutable u64[64] = zeroed
-    strassen_multiply[i64, dimension](&input[1], &input[1 + cells], &result[0])
+    strassen_multiply[i64, i64, dimension, dimension, dimension](&input[1], &input[1 + cells], &result[0])
     i: mutable usize = 0
     while i < cells:
         bits: mutable u64 = result[i].u64()
