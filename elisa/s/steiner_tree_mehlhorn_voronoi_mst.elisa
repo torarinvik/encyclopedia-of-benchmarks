@@ -9,7 +9,7 @@ const MT_M: usize = 14
 const MT_MAX_INPUT: usize = 54
 const MT_MAX_OUTPUT: usize = 72
 # A shortest path uses at most seven edges of weight at most nine.
-const MT_UNREACHED: u32 = 256 << 3
+const MT_UNREACHED: u32 = 256 << 11
 
 # The eight component labels occupy consecutive three-bit fields.
 const MT_SINGLETON_LABELS: u32 = 0xfac688
@@ -97,23 +97,18 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             return -1
     vertex: mutable usize = 0
 
-    # Order by distance, then by owner in the low three bits.
+    # Order by distance, owner, then predecessor vertex and edge.
+    # Equal-distance vertices can settle in either order because weights are positive.
     distance_key: mutable u32[MT_N] = zeroed
-    # The predecessor vertex occupies the high bits for tie-breaking.
-    predecessor: mutable u8[MT_N] = zeroed
     settled: mutable u32 = 0
-    if k == n:
-        for vertex in 0..<n:
-            distance_key[vertex] <- vertex.u32()
-    else:
+    if k != n:
         vertex <- 0
         while vertex < n:
             distance_key[vertex] <- MT_UNREACHED
-            predecessor[vertex] <- 255
             vertex <- vertex+1
         for i in 0..<k:
             t: usize = terminals[i]
-            distance_key[t] <- t.u32()
+            distance_key[t] <- (t.u32() << 8) | 255
         step: mutable usize = 0
         while step < n:
             chosen_vertex: mutable usize = MT_N
@@ -127,6 +122,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             if chosen_vertex == MT_N:
                 break
             settled <- settled | (1.u32() << chosen_vertex)
+            chosen_distance_owner: u32 = chosen_key & 0xffffff00
             pending: mutable u32 = incident[chosen_vertex]
             while pending != 0:
                 edge <- mt_edge_index(pending, true).usize()
@@ -134,13 +130,10 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                 next_vertex: usize = ((edges[edge & 15] >> 13) & 7).usize() ^ ((edges[edge & 15] >> 10) & 7).usize() ^ chosen_vertex
                 if (settled & (1.u32() << next_vertex)) != 0:
                     continue
-                next_key: u32 = chosen_key + ((edges[edge & 15] >> 16) << 3)
-                route: u8 = ((chosen_vertex << 4) | edge).u8()
+                route: u32 = ((chosen_vertex << 4) | edge).u32()
+                next_key: u32 = (chosen_distance_owner + ((edges[edge & 15] >> 16) << 11)) | route
                 if next_key < distance_key[next_vertex]:
                     distance_key[next_vertex] <- next_key
-                    predecessor[next_vertex] <- route
-                elif next_key == distance_key[next_vertex] and route < predecessor[next_vertex]:
-                    predecessor[next_vertex] <- route
             step <- step+1
         vertex <- 0
         while vertex < n:
@@ -162,8 +155,8 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
         while edge < m:
             u: usize = ((edges[edge & 15] >> 13) & 7).usize()
             v: usize = ((edges[edge & 15] >> 10) & 7).usize()
-            a: mutable usize = (distance_key[u] & 7).usize()
-            b: mutable usize = (distance_key[v] & 7).usize()
+            a: mutable usize = ((distance_key[u] >> 8) & 7).usize()
+            b: mutable usize = ((distance_key[v] >> 8) & 7).usize()
             if a != b:
                 left: mutable usize = u
                 right: mutable usize = v
@@ -174,7 +167,7 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
                     left <- v
                     right <- u
                 ix: usize = a*MT_N+b
-                cw: u32 = (distance_key[u] >> 3) + (edges[edge & 15] >> 16) + (distance_key[v] >> 3)
+                cw: u32 = (distance_key[u] >> 11) + (edges[edge & 15] >> 16) + (distance_key[v] >> 11)
                 # The key orders weight, owners, endpoints and original edge ID.
                 key: u32 = (cw << 16) | (a.u32() << 13) | (b.u32() << 10) | (left.u32() << 7) | (right.u32() << 4) | edge.u32()
                 occupied_pairs <- occupied_pairs | (1.u64() << ix)
@@ -229,14 +222,14 @@ def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) 
             used <- used | (1.u32() << (key & 15))
             x: mutable usize = ((key >> 7) & 7).usize()
             while x != ((key >> 13) & 7).usize():
-                route: u8 = predecessor[x]
+                route: u8 = distance_key[x].u8()
                 if route == 255:
                     return -1
                 used <- used | (1.u32() << (route & 15).usize())
                 x <- (route >> 4).usize()
             x <- ((key >> 4) & 7).usize()
             while x != ((key >> 10) & 7).usize():
-                route: u8 = predecessor[x]
+                route: u8 = distance_key[x].u8()
                 if route == 255:
                     return -1
                 used <- used | (1.u32() << (route & 15).usize())
