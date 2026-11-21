@@ -11,6 +11,7 @@ def sticky_solve(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
     counts: mutable i64[16] = zeroed
     cursor: mutable usize = 0
     rate: mutable usize = 1
+    # The sampling rate is a power of two, so divisibility uses its low bits.
     phase_end: mutable usize = 2*t
     for i in 0..<n:
         if i == phase_end:
@@ -21,7 +22,7 @@ def sticky_solve(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
                     if cursor == k: return -1
                     draw: i64 = input[3+n+cursor]
                     cursor <- cursor+1
-                    if draw%2 == 1: break
+                    if (draw & 1) == 1: break
                     counts[item] <- counts[item]-1
         item: usize = input[3+i].usize()
         if counts[item] != 0:
@@ -30,7 +31,7 @@ def sticky_solve(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
             if cursor == k: return -1
             draw: usize = input[3+n+cursor].usize()
             cursor <- cursor+1
-            if draw%rate == 0: counts[item] <- 1
+            if (draw & (rate-1)) == 0: counts[item] <- 1
     if cursor != k: return -1
     active: mutable usize = 0
     for item in 0..<16:
