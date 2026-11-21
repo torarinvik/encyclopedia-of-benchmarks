@@ -28,11 +28,11 @@ def st_join(labels: mutable u32&, a: usize, b: usize) -> bool:
     labels <- labels ^ (matching * (ra ^ rb).u32())
     true
 
-def st_group_count(n: usize, mask: i64, h: bool[16]) -> usize:
+def st_group_count(n: usize, mask: i64, h: u32) -> usize:
     labels: mutable u32 = SINGLETON_LABELS
     for i in 0..<n:
         for j in (i + 1)..<n:
-            if h[i * 4 + j]:
+            if (h & (1.u32() << (i * 4 + j))) != 0:
                 st_join(&labels, i, j)
     seen: mutable bool[4] = zeroed
     count: mutable usize = 0
@@ -47,19 +47,19 @@ def st_group_count(n: usize, mask: i64, h: bool[16]) -> usize:
 def st_less(a: ST_Edge, b: ST_Edge) -> bool:
     a.w < b.w or (a.w == b.w and (a.u < b.u or (a.u == b.u and a.v < b.v)))
 
-def st_mst_h(edges: ST_Edge[6]&, ec: usize, h: bool[16], tree: mutable ST_Edge[3]&, tree_n: mutable usize&) -> u32:
+def st_mst_h(edges: ST_Edge[6]&, ec: usize, h: u32, tree: mutable ST_Edge[3]&, tree_n: mutable usize&) -> u32:
     labels: mutable u32 = SINGLETON_LABELS
     tree_n <- 0
     cost: mutable u32 = 0
     for i in 0..<ec:
         e: ST_Edge = edges[i]
-        if h[e.u * 4 + e.v] and st_join(&labels, e.u, e.v):
+        if (h & (1.u32() << (e.u * 4 + e.v))) != 0 and st_join(&labels, e.u, e.v):
             tree[tree_n] <- e
             tree_n <- tree_n + 1
             cost <- cost + e.w
     cost
 
-def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: bool[16]) -> u32:
+def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: u32) -> u32:
     d: mutable u32[16] = zeroed
     labels: mutable u32 = SINGLETON_LABELS
     for i in 0..<4:
@@ -67,7 +67,7 @@ def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: bool[16]) -> u32:
             d[i * 4 + j] <- w[i * 4 + j]
     for i in 0..<n:
         for j in (i + 1)..<n:
-            if h[i * 4 + j]:
+            if (h & (1.u32() << (i * 4 + j))) != 0:
                 d[i * 4 + j] <- 0
                 d[j * 4 + i] <- 0
                 st_join(&labels, i, j)
@@ -157,7 +157,8 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
     family_u: mutable usize[12] = zeroed
     family_v: mutable usize[12] = zeroed
     sizes: mutable usize[4] = zeroed
-    family_h: mutable bool[16] = zeroed
+    family_h: mutable u32 = 0
+    component_edges: mutable u32[4] = zeroed
     for c in 0..<count:
         if at >= length:
             return -1
@@ -187,8 +188,9 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
                     return -1
             family_u[c * 3 + e] <- u
             family_v[c * 3 + e] <- v
-            family_h[u * 4 + v] <- true
-            family_h[v * 4 + u] <- true
+            edge_bit: u32 = 1.u32() << (u * 4 + v)
+            family_h <- family_h | edge_bit
+            component_edges[c] <- component_edges[c] | edge_bit
             degree[u] <- degree[u] + 1
             degree[v] <- degree[v] + 1
         seen: mutable usize = 0
@@ -212,7 +214,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
         sizes[c] <- ec
     if at != length or st_group_count(n, mask, family_h) != 1:
         return -1
-    h: mutable bool[16] = zeroed
+    h: mutable u32 = 0
     selected: mutable bool[4] = zeroed
     tree: mutable ST_Edge[3] = zeroed
     tree_n: mutable usize = 0
@@ -237,7 +239,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
     if groups > 1:
         for i in 0..<n:
             for j in (i + 1)..<n:
-                if family_h[i * 4 + j]:
+                if (family_h & (1.u32() << (i * 4 + j))) != 0:
                     edges[ec] <- ST_Edge{u: i, v: j, w: w[i * 4 + j]}
                     ec <- ec + 1
         for i in 1..<ec:
@@ -254,14 +256,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
         for c in 0..<count:
             if selected[c]:
                 continue
-            trial: mutable bool[16] = zeroed
-            for x in 0..<16:
-                trial[x] <- h[x]
-            for e in 0..<sizes[c]:
-                u: usize = family_u[c * 3 + e]
-                v: usize = family_v[c * 3 + e]
-                trial[u * 4 + v] <- true
-                trial[v * 4 + u] <- true
+            trial: u32 = h | component_edges[c]
             trial_groups: usize = st_group_count(n, mask, trial)
             if trial_groups >= groups:
                 continue
@@ -284,11 +279,7 @@ def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, ca
             return -1
         groups <- best_groups
         selected[best] <- true
-        for e in 0..<sizes[best]:
-            u: usize = family_u[best * 3 + e]
-            v: usize = family_v[best * 3 + e]
-            h[u * 4 + v] <- true
-            h[v * 4 + u] <- true
+        h <- h | component_edges[best]
     bytes: usize = 8 * (3 + 2 * tree_n)
     if output == null or capacity < bytes:
         return -2
