@@ -44,7 +44,10 @@ def strange_printer_impl(input: i64&?, length: usize) -> i64:
 
 @inline(never)
 def strange_printer_interval(symbols: u64, n: usize) -> i64:
-    dp: mutable u8[64] = zeroed
+    if n < 5 or n > SP_MAX_LENGTH: return -1
+    table: mutable u8[64] = zeroed
+    # Every row and column index is below n, so offsets stay below 64.
+    dp: mutable u8& = &table[0]
     left: mutable usize = n
     while left > 0:
         left <- left - 1
