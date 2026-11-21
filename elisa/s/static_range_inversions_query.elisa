@@ -78,30 +78,6 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
             byte <- byte + 1
         qi <- qi + 1
 
-def srin_radix_digits(items: u64&, n: usize) -> u64:
-    different: mutable u64 = 0
-    first: u64 = items[0]
-    for index in 1..<n:
-        different <- different | (first ^ items[index])
-        if (different >> 15) != 0: return 0
-    different >> 7
-
-def srin_radix_pass(items: u64&, scratch: mutable u64&, n: usize, digit: usize) -> void:
-    counts: mutable usize[16] = zeroed
-    for index in 0..<n:
-        bucket: usize = ((items[index] >> digit) & 15).usize()
-        counts[bucket] <- counts[bucket] + 1
-    total: mutable usize = 0
-    for bucket in 0..<16:
-        count: usize = counts[bucket]
-        counts[bucket] <- total
-        total <- total + count
-    for index in 0..<n:
-        value: u64 = items[index]
-        bucket: usize = ((value >> digit) & 15).usize()
-        scratch[counts[bucket]] <- value
-        counts[bucket] <- counts[bucket] + 1
-
 def srin_assign_ranks(ranked_items: u64&, ranks: mutable u16&, n: usize) -> usize:
     distinct: mutable usize = 0
     previous: mutable i64 = -1
@@ -117,15 +93,30 @@ def srin_assign_ranks(ranked_items: u64&, ranks: mutable u16&, n: usize) -> usiz
     distinct
 
 @inline(never)
-def srin_radix_ranks(sorted: mutable u64&, ranks: mutable u16&, n: usize) -> usize:
-    digits: u64 = srin_radix_digits(sorted,n)
-    if digits == 0: return 0
-    scratch: mutable u64[MAX_N] = zeroed
-    srin_radix_pass(sorted,&scratch[0],n,7 if (digits & 15) != 0 else 11)
-    if (digits & 15) != 0 and (digits >> 4) != 0:
-        srin_radix_pass(&scratch[0],sorted,n,11)
-        return srin_assign_ranks(sorted,ranks,n)
-    srin_assign_ranks(&scratch[0],ranks,n)
+def srin_dense_ranks(sorted: u64&, ranks: mutable u16&, n: usize) -> usize:
+    high_bits: u64 = sorted[0] >> 15
+    for index in 1..<n:
+        if (sorted[index] >> 15) != high_bits: return 0
+    # Equal high bits make the low byte sufficient to order the values.
+    by_value: mutable u16[256] = zeroed
+    low: mutable usize = 255
+    high: mutable usize = 0
+    for index in 0..<n:
+        value: usize = ((sorted[index] >> 7) & 255).usize()
+        by_value[value] <- 1
+        low <- value if value < low
+        high <- value if value > high
+    distinct: mutable usize = 0
+    remaining: mutable usize = high + 1
+    while remaining > low:
+        remaining <- remaining - 1
+        if by_value[remaining] != 0:
+            by_value[remaining] <- (distinct << 3).u16()
+            distinct <- distinct + 1
+    for index in 0..<n:
+        item: u64 = sorted[index]
+        ranks[(item & 127).usize()] <- by_value[((item >> 7) & 255).usize()]
+    distinct
 
 def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 195: return -1
@@ -170,9 +161,9 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         for byte in 0..<bytes:
             output[byte] <- 0
         return bytes.i64()
-    # Two radix passes are enough when all values share their high bits.
+    # A low-byte rank table suffices when all values share their high bits.
     ranks: mutable u16[MAX_N] = zeroed
-    distinct: mutable usize = srin_radix_ranks(&sorted[0],&ranks[0],n) if n >= 32 else 0
+    distinct: mutable usize = srin_dense_ranks(&sorted[0],&ranks[0],n) if n >= 32 else 0
     if distinct == 0:
         if n >= 16:
             gap: mutable usize = 4
