@@ -23,7 +23,7 @@ def srin_packed_sum(prefixes: u64, count: usize) -> i64:
     ((prefixes >> (8 * (count - 1))) & 255).i64()
 
 @inline(always)
-def srin_sweep(queries: u32&, ranks: usize&, answers: mutable i64&,
+def srin_sweep(queries: u32&, ranks: usize&, output: mutable u8&,
                q: usize, distinct: usize, use_packed: bool) -> void:
     bit: mutable i64[MAX_N] = zeroed
     prefixes: mutable u64 = 0
@@ -69,7 +69,11 @@ def srin_sweep(queries: u32&, ranks: usize&, answers: mutable i64&,
                 prefixes <- prefixes - (0x0101010101010101.u64() << (8 * rank))
             else:
                 srin_bit_add(&bit[0], rank, distinct, -1)
-        answers[id] <- inversions
+        bits: u64 = inversions.u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[8 * id + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
         qi <- qi + 1
 
 def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
@@ -160,19 +164,11 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
             j <- j - 1
         queries[j] <- query
         i <- i + 1
-    answers: mutable i64[MAX_Q] = zeroed
+    # All input data needed by the sweep is now in ranks and query keys.
     if distinct <= 8:
-        srin_sweep(&queries[0],&ranks[0],&answers[0],q,distinct,true)
+        srin_sweep(&queries[0],&ranks[0],output,q,distinct,true)
     else:
-        srin_sweep(&queries[0],&ranks[0],&answers[0],q,distinct,false)
-    k <- 0
-    while k < q:
-        bits: u64 = answers[k].u64()
-        b: mutable usize = 0
-        while b < 8:
-            output[k * 8 + b] <- ((bits >> (b * 8)) & 255).u8()
-            b <- b + 1
-        k <- k + 1
+        srin_sweep(&queries[0],&ranks[0],output,q,distinct,false)
     bytes.i64()
 
 export fn static_range_inversions_query(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = static_range_inversions_query_impl
