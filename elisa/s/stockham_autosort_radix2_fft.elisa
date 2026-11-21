@@ -51,10 +51,11 @@ def stockham_final_stage(source: f64[128]&, output: mutable f64&,
                          n: usize, twiddle_step: usize) -> void:
     # The final stage has one butterfly per column and writes two contiguous halves.
     offset: mutable usize = 0
+    twiddle_index: mutable usize = 0
     while offset < n:
         left: usize = offset & 126
         right: usize = (offset + n) & 126
-        twiddle: usize = ((offset >> 1) * twiddle_step) & 31
+        twiddle: usize = twiddle_index & 31
         cosine: f64 = TWIDDLE_REAL[twiddle]
         sine: f64 = TWIDDLE_IMAG[twiddle]
         product_real: f64 = cosine * source[right] - sine * source[right + 1]
@@ -66,6 +67,7 @@ def stockham_final_stage(source: f64[128]&, output: mutable f64&,
         output[offset + n] <- first_real - product_real
         output[offset + n + 1] <- first_imag - product_imag
         offset <- offset + 2
+        twiddle_index <- twiddle_index + twiddle_step
 
 def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
                                       output: mutable f64&?, output_capacity: usize) -> i64:
