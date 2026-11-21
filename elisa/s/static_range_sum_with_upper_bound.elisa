@@ -21,7 +21,6 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     if output == null or capacity < 16*q: return -2
     # The maximum sum is 64 billion, which fits below bit 36.
     prefixes: mutable i64[1950] = zeroed
-    offsets: mutable usize[30] = zeroed
     # Leading zero bits cannot partition any input value.
     first_level: mutable usize = 0
     if needs_partitions:
@@ -37,7 +36,6 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                     prefix <- prefix + (1.i64() << 36) + value
                 prefixes[65*level+i+1] <- prefix
             zeros: usize = (prefix >> 36).usize()
-            offsets[level] <- zeros
             if level == 29: break
             z: mutable usize = 0
             o: mutable usize = zeros
@@ -70,8 +68,9 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
                 zr: usize = (right >> 36).usize()
                 if (key & (1.i64() << (29-level))) != 0:
                     prefix_total <- prefix_total + right - left
-                    l <- l+offsets[level]-zl
-                    r <- r+offsets[level]-zr
+                    partition_size: usize = (prefixes[65*level+n] >> 36).usize()
+                    l <- l+partition_size-zl
+                    r <- r+partition_size-zr
                 else:
                     l <- zl
                     r <- zr
