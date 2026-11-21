@@ -96,19 +96,27 @@ def strange_printer_interval(symbols: u64, n: usize) -> i64:
     table: mutable u8[64] = zeroed
     # Every row and column index is below n, so offsets stay below 64.
     dp: mutable u8& = &table[0]
-    left: mutable usize = n
+    # Seed the last two rows; adjacent compressed symbols always differ.
+    dp[(n - 1) * SP_TABLE_SIDE + n - 1] <- 1
+    dp[(n - 2) * SP_TABLE_SIDE + n - 2] <- 1
+    dp[(n - 2) * SP_TABLE_SIDE + n - 1] <- 2
+    left: mutable usize = n - 2
     while left > 0:
         left <- left - 1
         dp[left * SP_TABLE_SIDE + left] <- 1
+        dp[left * SP_TABLE_SIDE + left + 1] <- 2
         lane: u64 = (symbols >> (left * 2)) & 3
         # One low bit per two-bit lane marks each equal symbol.
         differences: u64 = symbols ^ (lane * 0x5555)
         matches: u64 = ~(differences | (differences >> 1)) & 0x5555
         lower_mask: u64 = (1.u64() << ((left + 2) * 2)) - 1
         eligible: u64 = matches & ~lower_mask
+        # Three symbols can share a turn only when their endpoints match.
+        third_lane: u64 = 1.u64() << ((left + 2) * 2)
+        dp[left * SP_TABLE_SIDE + left + 2] <- 2 if (matches & third_lane) != 0 else 3
         # Admit one more two-bit lane as the right endpoint advances.
-        upper_mask: mutable u64 = lower_mask
-        right: mutable usize = left + 1
+        upper_mask: mutable u64 = (lower_mask << 4) | 15
+        right: mutable usize = left + 3
         while right < n:
             best: mutable u8 = dp[(left + 1) * SP_TABLE_SIDE + right] + 1
             candidates: mutable u64 = eligible & upper_mask
@@ -117,8 +125,7 @@ def strange_printer_interval(symbols: u64, n: usize) -> i64:
                 middle: u8 = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
                 candidate: u8 = middle + dp[merge * SP_TABLE_SIDE + right]
                 if candidate < best: best <- candidate
-                # At width two there is at most one merge. Wider compressed
-                # intervals need at least three turns.
+                # Four or more compressed symbols need at least three turns.
 
                 if best <= 3: break
                 candidates <- candidates & (candidates - 1)
