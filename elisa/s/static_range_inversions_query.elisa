@@ -18,9 +18,9 @@ def srin_bit_add(bit: mutable i64&, rank: usize, distinct: usize, delta: i64) ->
 # Each byte holds the number of values at or below that rank.
 # Adding a rank increments every prefix at or above it, with no carry
 # between bytes because even a full window contains at most 128 values.
-def srin_packed_sum(prefixes: u64, count: usize) -> i64:
-    if count == 0: return 0
-    ((prefixes << (64 - 8 * count)) >> 56).i64()
+def srin_packed_sum(prefixes: u64, bits: usize) -> i64:
+    if bits == 0: return 0
+    ((prefixes << (64 - bits)) >> 56).i64()
 
 @inline(always)
 def srin_sweep(queries: u32&, ranks: usize&, output: mutable u8&,
@@ -40,35 +40,35 @@ def srin_sweep(queries: u32&, ranks: usize&, output: mutable u8&,
         while current_left > target_left:
             current_left <- current_left - 1
             rank: usize = ranks[current_left]
-            inversions <- inversions + (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank))
+            inversions <- inversions + (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
             if use_packed:
-                prefixes <- prefixes + (0x0101010101010101.u64() << (8 * rank))
+                prefixes <- prefixes + (0x0101010101010101.u64() << rank)
             else:
-                srin_bit_add(&bit[0], rank, distinct, 1)
+                srin_bit_add(&bit[0], rank >> 3, distinct, 1)
         while current_right < target_right:
             rank: usize = ranks[current_right]
-            inversions <- inversions + (current_right-current_left).i64() - (srin_packed_sum(prefixes, rank + 1) if use_packed else srin_bit_sum(&bit[0], rank + 1))
+            inversions <- inversions + (current_right-current_left).i64() - (srin_packed_sum(prefixes, rank + 8) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
             if use_packed:
-                prefixes <- prefixes + (0x0101010101010101.u64() << (8 * rank))
+                prefixes <- prefixes + (0x0101010101010101.u64() << rank)
             else:
-                srin_bit_add(&bit[0], rank, distinct, 1)
+                srin_bit_add(&bit[0], rank >> 3, distinct, 1)
             current_right <- current_right + 1
         while current_left < target_left:
             rank: usize = ranks[current_left]
-            inversions <- inversions - (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank))
+            inversions <- inversions - (srin_packed_sum(prefixes, rank) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
             if use_packed:
-                prefixes <- prefixes - (0x0101010101010101.u64() << (8 * rank))
+                prefixes <- prefixes - (0x0101010101010101.u64() << rank)
             else:
-                srin_bit_add(&bit[0], rank, distinct, -1)
+                srin_bit_add(&bit[0], rank >> 3, distinct, -1)
             current_left <- current_left + 1
         while current_right > target_right:
             current_right <- current_right - 1
             rank: usize = ranks[current_right]
-            inversions <- inversions - (current_right+1-current_left).i64() + (srin_packed_sum(prefixes, rank + 1) if use_packed else srin_bit_sum(&bit[0], rank + 1))
+            inversions <- inversions - (current_right+1-current_left).i64() + (srin_packed_sum(prefixes, rank + 8) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
             if use_packed:
-                prefixes <- prefixes - (0x0101010101010101.u64() << (8 * rank))
+                prefixes <- prefixes - (0x0101010101010101.u64() << rank)
             else:
-                srin_bit_add(&bit[0], rank, distinct, -1)
+                srin_bit_add(&bit[0], rank >> 3, distinct, -1)
         bits: u64 = inversions.u64()
         byte: mutable usize = 0
         while byte < 8:
@@ -153,7 +153,7 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         if value != previous:
             distinct <- distinct + 1
             previous <- value
-        ranks[(item & 127).usize()] <- distinct - 1
+        ranks[(item & 127).usize()] <- (distinct - 1) << 3
         i <- i + 1
     i <- 1
     while i < q:
