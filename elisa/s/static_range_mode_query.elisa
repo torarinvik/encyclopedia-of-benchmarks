@@ -129,7 +129,7 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     unique_values: mutable u32[MAX_N] = zeroed
     compressed: mutable u8[MAX_N] = zeroed
     positions: mutable u32[MAX_N] = zeroed
-    block_mode: mutable u16[MAX_BLOCKS * MAX_BLOCKS] = zeroed
+    block_mode: mutable i16[MAX_BLOCKS * MAX_BLOCKS] = zeroed
     if n >= 16:
         for index in 0..<n:
             sorted[index] <- (input[2 + index] << 5) | index.i64()
@@ -191,12 +191,12 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
             span_start: usize = first_full << block_shift
             span_end: usize = after_full << block_shift
             slot: usize = first_full * MAX_BLOCKS + after_full - 1
-            stored: mutable usize = block_mode[slot].usize()
+            stored: mutable i64 = block_mode[slot].i64()
             if stored == 0:
                 state: usize = row_state[first_full].usize()
                 previous_end: usize = state & 7
                 next_block: mutable usize = first_full if previous_end == 0 else previous_end
-                best_score: mutable usize = state >> 3
+                best_score: mutable i64 = 0 - (state >> 3).i64()
                 count_base: usize = first_full * MAX_N
                 while next_block < after_full:
                     begin: usize = next_block << block_shift
@@ -205,16 +205,15 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                         count_slot: usize = count_base + id
                         count: u8 = row_counts[count_slot] + 1
                         row_counts[count_slot] <- count
-                        score: usize = (count.usize() << 5) | (31 - id)
-                        best_score <- score if score > best_score
-                    block_mode[first_full * MAX_BLOCKS + next_block] <- best_score.u16()
+                        score: i64 = id.i64() - (count.i64() << 5)
+                        best_score <- score if score < best_score
+                    block_mode[first_full * MAX_BLOCKS + next_block] <- best_score.i16()
                     next_block <- next_block + 1
-                row_state[first_full] <- ((best_score << 3) | after_full).u16()
+                row_state[first_full] <- (((0 - best_score).usize() << 3) | after_full).u16()
                 stored <- best_score
-            id: usize = 31 - (stored & 31)
+            id: usize = (stored & 31).usize()
             if ((left | right) & (block_size - 1)) == 0:
-                # Convert the cached block score to the query score.
-                best_score_query <- 31 - stored.i64()
+                best_score_query <- stored
             else:
                 range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
                 best_score_query <- id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
