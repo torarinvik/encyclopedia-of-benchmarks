@@ -166,8 +166,11 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
             mode_insert(&sorted[0], index, (input[2 + index] << 5) | index.i64())
 
     distinct_prefix: mutable usize = 1
+    preceding: mutable i64 = sorted[0] >> 5
     while distinct_prefix < n:
-        if (sorted[distinct_prefix - 1] >> 5) == (sorted[distinct_prefix] >> 5): break
+        value: i64 = sorted[distinct_prefix] >> 5
+        if preceding == value: break
+        preceding <- value
         distinct_prefix <- distinct_prefix + 1
     if distinct_prefix == n:
         return mode_distinct_ranges(input, output, n, q)
