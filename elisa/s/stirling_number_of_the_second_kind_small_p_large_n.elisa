@@ -45,7 +45,8 @@ def stirling_small_prime_impl(input: i64&?, length: usize) -> i64:
     modulus:i64=input[1]
     if count_value<1 or count_value>8 or length!=(2+2*count_value).usize() or modulus<11 or modulus>97 or not is_prime(modulus):return -1
 
-    result:mutable i64=0
+    # At most eight terms, each bounded by 8*8*(97-1).
+    result:mutable u32=0
     case_index:mutable usize=0
     count:usize=count_value.usize()
     while case_index<count:
@@ -54,9 +55,9 @@ def stirling_small_prime_impl(input: i64&?, length: usize) -> i64:
         if n<0 or n>MAX_N or k_value<0 or k_value>8 or k_value>n:return -1
         k:usize=k_value.usize()
         value:i64=stirling_value(n,k,modulus)
-        next:i64=(case_index+1).i64()
-        result<-(result+next*next*value)%modulus
+        weight: u32 = (case_index+1).u32()
+        result <- result + weight*weight*value.u32()
         case_index<-case_index+1
-    result
+    (result%modulus.u32()).i64()
 
 export fn stirling_number_of_the_second_kind_small_p_large_n(input: i64&?, length: usize) -> i64 = stirling_small_prime_impl
