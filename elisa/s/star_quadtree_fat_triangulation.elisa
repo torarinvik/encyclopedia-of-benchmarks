@@ -40,6 +40,7 @@ def star_box_inside_edge(data: i32&, slot: usize,
                          xmin: i32, ymin: i32, xmax: i32, ymax: i32) -> bool:
     dx: i32 = data[slot]
     dy: i32 = data[slot+1]
+    if dx == 0 or dy == 0: return true
     x: i32 = xmin if dy >= 0 else xmax
     y: i32 = ymax if dx >= 0 else ymin
     dx * y - dy * x >= data[slot+2]
