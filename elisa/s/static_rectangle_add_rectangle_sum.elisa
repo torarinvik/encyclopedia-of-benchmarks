@@ -152,7 +152,7 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
     i <- 0
     while i + 1 < nx:
         row_weight: mutable u64 = 0
-        row_sum: mutable u64 = 0
+        weighted_height: mutable u64 = 0
         width: u64 = xs[i + 1].u64() - xs[i].u64()
         j: mutable usize = 0
         while j + 1 < ny:
@@ -162,10 +162,10 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
             if i > 0: weight <- weight + diff[index - MAX_COORDS]
             diff[index] <- weight
             height: u64 = ys[j + 1].u64() - ys[j].u64()
-            area: u64 = (width * height) % MODULUS.u64()
-            cell: u64 = ((weight % MODULUS.u64()) * area) % MODULUS.u64()
-            row_sum <- row_sum + cell
-            prefix[(i + 1) * STRIDE + j + 1] <- (row_sum + prefix[i * STRIDE + j + 1]) % MODULUS.u64()
+            # Total height is at most one million, so this sum fits in u64.
+            weighted_height <- weighted_height + weight * height
+            row_area: u64 = (weighted_height % MODULUS.u64()) * width
+            prefix[(i + 1) * STRIDE + j + 1] <- (row_area + prefix[i * STRIDE + j + 1]) % MODULUS.u64()
             j <- j + 1
         i <- i + 1
     answer: mutable i64[MAX_Q] = zeroed
