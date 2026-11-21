@@ -2,24 +2,11 @@ const MAX_INPUT: usize = 97
 const MAX_TEXT: usize = 64
 const BOARD_SIZE: usize = 30
 
-def straddling_checkerboard_find_symbol(values: i64&, value: i64) -> i64:
-    for position in 0..<BOARD_SIZE |position, values|:
-        if values[1 + position] != 0 and values[1 + position] == value:
-            return position.i64()
-    -1
-
-def checkerboard_record_symbol(value: i64, seen_low: mutable u64&, seen_high: mutable u64&) -> bool:
-    if value < 32 or value > 126:
+def checkerboard_record_symbol(value: i64, position: usize, positions: mutable u8&) -> bool:
+    symbol: u64 = value.u64() - 32
+    if symbol > 94 or positions[symbol.usize()] != 0:
         return false
-    bit: u64 = 1.u64() << (value.u64() & 63)
-    if value < 64:
-        if (seen_low[0] & bit) != 0:
-            return false
-        seen_low[0] <- seen_low[0] | bit
-    else:
-        if (seen_high[0] & bit) != 0:
-            return false
-        seen_high[0] <- seen_high[0] | bit
+    positions[symbol.usize()] <- (position + 1).u8()
     true
 
 def straddling_checkerboard_impl(values: i64&, input_length: usize, output: mutable u8&) -> i64:
@@ -31,9 +18,9 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
     hole_a: mutable usize = 0
     hole_b: mutable usize = 0
     holes: mutable usize = 0
-    seen_low: mutable u64 = 0
-    seen_high: mutable u64 = 0
-    for position in 0..<10 |position, values, hole_a, hole_b, holes, seen_low, seen_high|:
+    positions: mutable u8[96] = zeroed
+    position_table: mutable u8& = &positions[0]
+    for position in 0..<10 |position, values, hole_a, hole_b, holes, position_table|:
         value: i64 = values[1 + position]
         if value == 0:
             if holes == 0:
@@ -42,12 +29,12 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
                 hole_b <- position
             holes <- holes + 1
             continue
-        if not checkerboard_record_symbol(value, &seen_low, &seen_high):
+        if not checkerboard_record_symbol(value, position, position_table):
             return -1
     if holes != 2:
         return -1
-    for position in 10..<BOARD_SIZE |position, values, seen_low, seen_high|:
-        if not checkerboard_record_symbol(values[1 + position], &seen_low, &seen_high):
+    for position in 10..<BOARD_SIZE |position, values, position_table|:
+        if not checkerboard_record_symbol(values[1 + position], position, position_table):
             return -1
     text_length_value: i64 = values[31]
     if text_length_value < 0 or text_length_value > MAX_TEXT.i64():
@@ -58,11 +45,14 @@ def straddling_checkerboard_impl(values: i64&, input_length: usize, output: muta
 
     out: mutable usize = 0
     if mode == 0:
-        for index in 0..<text_length |index, values, output, out, hole_a, hole_b|:
-            found: i64 = straddling_checkerboard_find_symbol(values, values[32 + index])
-            if found < 0:
+        for index in 0..<text_length |index, values, output, out, hole_a, hole_b, position_table|:
+            symbol: u64 = values[32 + index].u64() - 32
+            if symbol > 94:
                 return -1
-            position: usize = found.usize()
+            entry: u8 = position_table[symbol.usize()]
+            if entry == 0:
+                return -1
+            position: usize = entry.usize() - 1
             if position < 10:
                 output[out] <- (48 + position).u8()
                 out <- out + 1
