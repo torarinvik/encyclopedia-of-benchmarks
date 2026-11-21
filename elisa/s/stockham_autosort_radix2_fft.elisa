@@ -72,9 +72,7 @@ def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
     if input == null or input_length < 3 or input_length > max_input_length:
         return -1
     n_value: f64 = input[0]
-    if n_value != n_value:
-        return -1
-    if n_value < 1.0 or n_value > 64.0:
+    if not (n_value >= 1.0 and n_value <= 64.0):
         return -1
     n_i64: i64 = n_value.i64()
     if n_value != n_i64.f64():
