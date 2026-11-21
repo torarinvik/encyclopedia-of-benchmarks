@@ -151,10 +151,13 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
 
     # Accumulate each sorted run's position mask in a register.
     id: mutable usize = 0
-    previous: mutable i64 = sorted[0] >> 5
-    mask: mutable u32 = 0
+    first_item: i64 = sorted[0]
+    first_position: usize = (first_item & 31).usize()
+    previous: mutable i64 = first_item >> 5
+    mask: mutable u32 = 1.u32() << first_position
     unique_values[0] <- previous.u32()
-    for index in 0..<n:
+    compressed[first_position] <- 0
+    for index in 1..<n:
         item: i64 = sorted[index]
         value: i64 = item >> 5
         if value != previous:
