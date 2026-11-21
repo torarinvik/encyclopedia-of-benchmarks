@@ -1,3 +1,6 @@
+@intrinsic("llvm.fabs.f64")
+extern stochastic_absolute(value: f64) -> f64
+
 const MAX_DIMENSION: i64 = 63
 const MAX_INPUT_VALUES: usize = 3972
 const MAX_ABS_CELL: i64 = 1000000000000
@@ -28,12 +31,13 @@ def stochastic_matrix_impl(input: i64&?, length: usize) -> i64:
             sum: mutable f64 = 0.0
             column: mutable usize = 0
             while column < columns:
-                value: f64 = input[3 + row * columns + column].f64() / CELL_SCALE
-                if value < 0.0: return 0
+                units: i64 = input[3 + row * columns + column]
+                if units < 0: return 0
+                value: f64 = units.f64() / CELL_SCALE
                 sum <- sum + value
                 column <- column + 1
             difference: f64 = sum - 1.0
-            if difference > TOLERANCE or difference < -TOLERANCE: return 0
+            if stochastic_absolute(difference) > TOLERANCE: return 0
             row <- row + 1
     else:
         column: mutable usize = 0
@@ -41,12 +45,13 @@ def stochastic_matrix_impl(input: i64&?, length: usize) -> i64:
             sum: mutable f64 = 0.0
             row: mutable usize = 0
             while row < rows:
-                value: f64 = input[3 + row * columns + column].f64() / CELL_SCALE
-                if value < 0.0: return 0
+                units: i64 = input[3 + row * columns + column]
+                if units < 0: return 0
+                value: f64 = units.f64() / CELL_SCALE
                 sum <- sum + value
                 row <- row + 1
             difference: f64 = sum - 1.0
-            if difference > TOLERANCE or difference < -TOLERANCE: return 0
+            if stochastic_absolute(difference) > TOLERANCE: return 0
             column <- column + 1
     1
 
