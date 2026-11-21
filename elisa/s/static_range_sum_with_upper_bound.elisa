@@ -31,7 +31,7 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
     # Bits shared by the minimum and maximum cannot partition any input value.
     first_level: usize = (leading_zeros((maximum ^ minimum).u32() | 1, false) - 2).usize()
     # Each matrix level scans and partitions values, then queries traverse it.
-    use_matrix: bool = filtered_scan_length > 4 * n * (30 - first_level)
+    use_matrix: bool = filtered_scan_length > 6 * n * (30 - first_level)
     if use_matrix:
         current: mutable i64[128] = zeroed
         for i in 0..<n:
