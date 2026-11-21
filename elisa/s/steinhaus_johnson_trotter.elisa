@@ -1,15 +1,15 @@
 const MAX_LENGTH: usize = 6
 
-def sjt_emit_row(values: mutable view[i32], length: usize, output: mutable view[u8], offset: mutable usize&) -> void:
+def sjt_emit_row(values: mutable view[i32], length: usize, output: mutable u8&, offset: mutable usize&) -> void:
     for index in 0..<length |values, output, offset|:
         bits: u32 = values[index].u32()
         for byte in 0..<4 |output, offset, bits|:
             output[offset] <- ((bits >> (8 * byte)) & 255).u8()
             offset <- offset + 1
 
-def steinhaus_johnson_trotter_impl(input: i32&, length: usize,
-        output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length == 0 or length > MAX_LENGTH:
+def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
+        output: mutable u8&?, output_capacity: usize) -> i64:
+    if input == null or length == 0 or length > MAX_LENGTH:
         return -1
     permutations: mutable usize = 1
     factor: mutable usize = 2
@@ -17,7 +17,7 @@ def steinhaus_johnson_trotter_impl(input: i32&, length: usize,
         permutations <- permutations * factor
         factor <- factor + 1
     required: usize = 4 * length * permutations
-    if output.is_null() or output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
 
     values: mutable i32[MAX_LENGTH] = zeroed
@@ -27,16 +27,18 @@ def steinhaus_johnson_trotter_impl(input: i32&, length: usize,
         values[index] <- input[index]
         index <- index + 1
     offset: mutable usize = 0
-    sjt_emit_row(values[0:length], length, output[0:required], offset)
+    sjt_emit_row(values[0:length], length, output, offset)
 
     index <- 1
     while index < length |values, inversion, output, offset, index|:
         if inversion[index] < index:
-            swap_index: usize = if index % 2 == 0: 0 else: inversion[index]
+            swap_index: mutable usize = 0
+            if index % 2 != 0:
+                swap_index <- inversion[index]
             temporary: i32 = values[swap_index]
             values[swap_index] <- values[index]
             values[index] <- temporary
-            sjt_emit_row(values[0:length], length, output[0:required], offset)
+            sjt_emit_row(values[0:length], length, output, offset)
             inversion[index] <- inversion[index] + 1
             index <- 1
         else:
@@ -44,5 +46,5 @@ def steinhaus_johnson_trotter_impl(input: i32&, length: usize,
             index <- index + 1
     required.i64()
 
-export fn steinhaus_johnson_trotter(input: i32&, length: usize,
-        output: mutable u8&, output_capacity: usize) -> i64 = steinhaus_johnson_trotter_impl
+export fn steinhaus_johnson_trotter(input: i32&?, length: usize,
+        output: mutable u8&?, output_capacity: usize) -> i64 = steinhaus_johnson_trotter_impl
