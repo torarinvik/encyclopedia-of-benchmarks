@@ -13,11 +13,14 @@ def stormer_verlet_position_impl(input: i64&?, length: usize,
     if input == null or length < 3 or length > SVP_MAX_INPUT_VALUES: return -1
     count: usize = length - 1
     if input[0] != count.i64(): return -1
-    if input[1].u64() + 1024 > 2048 or input[2].u64() + 1024 > 2048: return -1
+    first: i64 = input[1]
+    second: i64 = input[2]
+    invalid_first: i64 = 1 if first.u64() + 1024 > 2048 else 0
+    invalid_second: i64 = 1 if second.u64() + 1024 > 2048 else 0
+    if (invalid_first | invalid_second) != 0:
+        return -1
     byte_count: usize = 8 * count
     if count <= 4:
-        first: i64 = input[1]
-        second: i64 = input[2]
         third: mutable u64 = 0
         fourth: mutable u64 = 0
         if count >= 3:
@@ -41,13 +44,12 @@ def stormer_verlet_position_impl(input: i64&?, length: usize,
         return byte_count.i64()
     staged: mutable u8[SVP_MAX_OUTPUT_BYTES] = zeroed
     staged_view: mutable u8& = &staged[0]
-    previous: i64 = input[1]
     # The validated trajectory fits in signed 64 bits. Unsigned arithmetic
     # keeps the two’s-complement representation of each position.
-    current: mutable u64 = input[2].u64()
-    svp_store_i64_le(staged_view, 0, previous)
+    current: mutable u64 = second.u64()
+    svp_store_i64_le(staged_view, 0, first)
     svp_store_i64_le(staged_view, 8, current.i64())
-    delta: mutable u64 = current - previous.u64()
+    delta: mutable u64 = current - first.u64()
     for index in 3..<length:
         acceleration: i64 = input[index]
         if acceleration.u64() + 64 > 128:
