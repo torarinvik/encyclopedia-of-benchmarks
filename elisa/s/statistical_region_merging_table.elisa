@@ -1,11 +1,14 @@
 @intrinsic("llvm.cttz.i64")
 extern srm_trailing_zeros(value: u64, zero_undefined: bool) -> u64
 
-def srm_root(parent: mutable usize[36]&, start: usize) -> usize:
+def srm_root(regions: mutable u32[64]&, start: usize) -> usize:
     x: mutable usize = start
-    while parent[x] != x:
-        parent[x] <- parent[parent[x]]
-        x <- parent[x]
+    ancestor: mutable usize = (regions[x & 63] & 63).usize()
+    while ancestor != x:
+        grandparent: usize = (regions[ancestor & 63] & 63).usize()
+        regions[x & 63] <- grandparent.u32()
+        x <- grandparent
+        ancestor <- (regions[x & 63] & 63).usize()
     x
 
 def statistical_region_merging_table_impl(input: i64&?, length: usize,
@@ -21,15 +24,10 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
     if n == 1:
         output[0] <- 0
         return 1
-    parent: mutable usize[36] = zeroed
-    sizes: mutable usize[36] = zeroed
-    minimum: mutable usize[36] = zeroed
-    sums: mutable u64[36] = zeroed
+    # Parent, size and minimum use six bits each. The pixel sum uses fourteen.
+    regions: mutable u32[64] = zeroed
     for i in 0..<n:
-        parent[i] <- i
-        sizes[i] <- 1
-        minimum[i] <- i
-        sums[i] <- input[2+n+i].u64()
+        regions[i & 63] <- (input[2+n+i].u32() << 18) | (i.u32() << 12) | 64 | i.u32()
     occupied: mutable u64[4] = zeroed
     heads: mutable u8[256] = zeroed
     edges: mutable u16[64] = zeroed
@@ -63,25 +61,30 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
                 edge <- links[edge & 63].usize()
                 p: usize = pair >> 6
                 q: usize = pair & 63
-                a: mutable usize = srm_root(&parent, p)
-                b: mutable usize = srm_root(&parent, q)
+                a: mutable usize = srm_root(&regions, p)
+                b: mutable usize = srm_root(&regions, q)
                 if a == b: continue
-                na: u64 = sizes[a].u64()
-                nb: u64 = sizes[b].u64()
-                delta: u64 = sums[a]*nb - sums[b]*na
-                bound: u64 = input[1+sizes[a]].u64() + input[1+sizes[b]].u64()
-                # The square fits in u64, even when the subtraction wraps.
+                first: u32 = regions[a & 63]
+                second: u32 = regions[b & 63]
+                na: u64 = ((first >> 6) & 63).u64()
+                nb: u64 = ((second >> 6) & 63).u64()
+                first_sum: u32 = first >> 18
+                second_sum: u32 = second >> 18
+                delta: u64 = first_sum.u64()*nb - second_sum.u64()*na
+                bound: u64 = input[1+na.usize()].u64() + input[1+nb.usize()].u64()
                 if delta*delta > bound*na*na*nb*nb: continue
-                if sizes[a] < sizes[b]:
-                    t: usize = a
+                if na < nb:
+                    temp: usize = a
                     a <- b
-                    b <- t
-                parent[b] <- a
-                sizes[a] <- sizes[a] + sizes[b]
-                sums[a] <- sums[a] + sums[b]
-                if minimum[b] < minimum[a]: minimum[a] <- minimum[b]
+                    b <- temp
+                first_minimum: u32 = (first >> 12) & 63
+                second_minimum: u32 = (second >> 12) & 63
+                minimum: mutable u32 = first_minimum
+                minimum <- second_minimum if second_minimum < first_minimum
+                regions[b & 63] <- a.u32()
+                regions[a & 63] <- ((first_sum + second_sum) << 18) | (minimum << 12) | ((na + nb).u32() << 6) | a.u32()
     for i in 0..<n:
-        output[i] <- minimum[srm_root(&parent, i)].u8()
+        output[i] <- ((regions[srm_root(&regions, i) & 63] >> 12) & 63).u8()
     n.i64()
 
 export fn statistical_region_merging_table(input: i64&?, length: usize,
