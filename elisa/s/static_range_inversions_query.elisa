@@ -39,10 +39,23 @@ def srin_packed_sum_below(prefixes: u64, rank: usize) -> i64:
     # Shift in two steps so the lowest rank yields zero without shifting by 64.
     (((prefixes << 8) << (56 - rank)) >> 56).i64()
 
+def srin_group_sum(groups: i64&, local_prefixes: u64&, rank: usize, inclusive: bool) -> i64:
+    group: usize = rank >> 6
+    local_rank: usize = rank & 63
+    local_count: i64 = srin_packed_sum(local_prefixes[group], local_rank) if inclusive else srin_packed_sum_below(local_prefixes[group], local_rank)
+    srin_bit_sum(groups, group) + local_count
+
+def srin_group_add(groups: mutable i64&, local_prefixes: mutable u64&, rank: usize, distinct: usize, delta: i64) -> void:
+    group: usize = rank >> 6
+    increment: u64 = 0x0101010101010101.u64() << (rank & 63)
+    local_prefixes[group] <- local_prefixes[group] + increment if delta > 0 else local_prefixes[group] - increment
+    srin_bit_add(groups, group, (distinct + 7) >> 3, delta)
+
 @inline(always)
 def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
                q: usize, distinct: usize, use_packed: bool, use_wide: bool) -> void:
-    bit: mutable i64[MAX_N] = zeroed
+    bit: mutable i64[MAX_N / 8] = zeroed
+    local_prefixes: mutable u64[MAX_N / 8] = zeroed
     prefixes: mutable u64 = 0
     # The second word holds cumulative counts for ranks eight through fifteen.
     upper_prefixes: mutable u64 = 0
@@ -61,47 +74,47 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
         while current_left > target_left:
             current_left <- current_left - 1
             rank: usize = ranks[current_left].usize()
-            inversions <- inversions + (current_right-current_left-1).i64() - (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
+            inversions <- inversions + (current_right-current_left-1).i64() - (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_group_sum(&bit[0], &local_prefixes[0], rank, true))
             if use_packed:
                 increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
                 if use_wide:
                     upper_prefixes <- upper_prefixes + (increment if rank >= 64 else 0x0101010101010101.u64())
                 prefixes <- prefixes + (0.u64() if use_wide and rank >= 64 else increment)
             else:
-                srin_bit_add(&bit[0], rank >> 3, distinct, 1)
+                srin_group_add(&bit[0], &local_prefixes[0], rank, distinct, 1)
         while current_right < target_right:
             rank: usize = ranks[current_right].usize()
-            inversions <- inversions + ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
+            inversions <- inversions + ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_group_sum(&bit[0], &local_prefixes[0], rank, false))
             if use_packed:
                 increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
                 if use_wide:
                     upper_prefixes <- upper_prefixes + (increment if rank >= 64 else 0x0101010101010101.u64())
                 prefixes <- prefixes + (0.u64() if use_wide and rank >= 64 else increment)
             else:
-                srin_bit_add(&bit[0], rank >> 3, distinct, 1)
+                srin_group_add(&bit[0], &local_prefixes[0], rank, distinct, 1)
             current_right <- current_right + 1
         while current_left < target_left:
             rank: usize = ranks[current_left].usize()
-            inversions <- inversions - (current_right-current_left).i64() + (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_bit_sum(&bit[0], (rank >> 3) + 1))
+            inversions <- inversions - (current_right-current_left).i64() + (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_group_sum(&bit[0], &local_prefixes[0], rank, true))
             if use_packed:
                 increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
                 if use_wide:
                     upper_prefixes <- upper_prefixes - (increment if rank >= 64 else 0x0101010101010101.u64())
                 prefixes <- prefixes - (0.u64() if use_wide and rank >= 64 else increment)
             else:
-                srin_bit_add(&bit[0], rank >> 3, distinct, -1)
+                srin_group_add(&bit[0], &local_prefixes[0], rank, distinct, -1)
             current_left <- current_left + 1
         while current_right > target_right:
             current_right <- current_right - 1
             rank: usize = ranks[current_right].usize()
-            inversions <- inversions - ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_bit_sum(&bit[0], rank >> 3))
+            inversions <- inversions - ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_group_sum(&bit[0], &local_prefixes[0], rank, false))
             if use_packed:
                 increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
                 if use_wide:
                     upper_prefixes <- upper_prefixes - (increment if rank >= 64 else 0x0101010101010101.u64())
                 prefixes <- prefixes - (0.u64() if use_wide and rank >= 64 else increment)
             else:
-                srin_bit_add(&bit[0], rank >> 3, distinct, -1)
+                srin_group_add(&bit[0], &local_prefixes[0], rank, distinct, -1)
         bits: u64 = inversions.u64()
         byte: mutable usize = 0
         while byte < 8:
