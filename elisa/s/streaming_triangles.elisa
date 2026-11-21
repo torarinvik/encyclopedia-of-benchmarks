@@ -1,3 +1,6 @@
+@intrinsic("llvm.ctpop.i64")
+extern streaming_triangles_popcount(value: u64) -> u64
+
 def streaming_triangles_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
@@ -27,7 +30,7 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
         edges[i] <- (1.u64() << u.u64()) | (1.u64() << v.u64())
     edge_slots: mutable u64[4] = zeroed
     wedge_slots: mutable u64[4] = zeroed
-    closed: mutable bool[4] = zeroed
+    closed: mutable u64 = 0
     total: mutable i64 = 0
     staged: mutable i64[84] = zeroed
     at: mutable usize = 0
@@ -38,7 +41,7 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
         rec: usize = tape + ti * stride
         incoming: u64 = edges[ti]
         for s in 0..<sw:
-            if wedge_slots[s] == incoming: closed[s] <- true
+            closed <- closed | (1.u64() << s) if wedge_slots[s] == incoming
         draw: i64 = input[rec]
         slot0: i64 = input[rec + 1]
         time_squared: u64 = t.u64() * t.u64()
@@ -76,12 +79,10 @@ def streaming_triangles_impl(input: i64&?, length: usize, output: mutable u8&?, 
                 if wd < fresh_count.i64():
                     if pick < 0 or pick >= fresh_count.i64(): return -1
                     wedge_slots[s] <- fresh_wedge[pick.usize()]
-                    closed[s] <- false
+                    closed <- closed & ~(1.u64() << s)
                 elif pick != 0: return -1
             elif wd != 0 or pick != 0: return -1
-        hits: mutable i64 = 0
-        for s in 0..<sw:
-            if closed[s]: hits <- hits + 1
+        hits: u64 = streaming_triangles_popcount(closed)
         staged[at] <- total
         staged[at + 1] <- ((3000000 * hits.u64()) / sw.u64()).i64()
         staged[at + 2] <- ((hits.u64() * time_squared * total.u64() * 1000000) / (sw * se * (se - 1)).u64()).i64()
