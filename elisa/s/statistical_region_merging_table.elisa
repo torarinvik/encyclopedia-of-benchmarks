@@ -30,8 +30,7 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
         regions[i & 63] <- (input[2+n+i].u32() << 18) | (i.u32() << 12) | 64 | i.u32()
     occupied: mutable u64[4] = zeroed
     heads: mutable u8[256] = zeroed
-    edges: mutable u16[64] = zeroed
-    links: mutable u8[64] = zeroed
+    edges: mutable u32[64] = zeroed
     edge_count: mutable usize = 0
     # Prepend edges in reverse order to retain row-major, right-before-down ties.
     for reverse in 0..<n:
@@ -45,8 +44,7 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
             bucket: usize = distance.usize() & 255
             edge_count <- edge_count + 1
             edge: usize = edge_count & 63
-            edges[edge] <- ((p << 6) | q).u16()
-            links[edge] <- heads[bucket]
+            edges[edge] <- ((heads[bucket].usize() << 12) | (p << 6) | q).u32()
             heads[bucket] <- edge.u8()
             word: usize = bucket >> 6
             occupied[word] <- occupied[word] | (1.u64() << (bucket & 63))
@@ -58,8 +56,8 @@ def statistical_region_merging_table_impl(input: i64&?, length: usize,
             edge: mutable usize = heads[difference].usize()
             while edge != 0:
                 pair: usize = edges[edge & 63].usize()
-                edge <- links[edge & 63].usize()
-                p: usize = pair >> 6
+                edge <- pair >> 12
+                p: usize = (pair >> 6) & 63
                 q: usize = pair & 63
                 a: mutable usize = srm_root(&regions, p)
                 b: mutable usize = srm_root(&regions, q)
