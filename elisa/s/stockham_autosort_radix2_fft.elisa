@@ -99,6 +99,19 @@ def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
         output[1] <- imaginary
         return 2
 
+    if n == 2:
+        left_real: f64 = input[1]
+        left_imaginary: f64 = input[2]
+        right_real: f64 = input[3]
+        right_imaginary: f64 = input[4]
+        product_real: f64 = right_real - TWIDDLE_IMAG[0] * right_imaginary
+        product_imaginary: f64 = right_imaginary + TWIDDLE_IMAG[0] * right_real
+        output[0] <- left_real + product_real
+        output[1] <- left_imaginary + product_imaginary
+        output[2] <- left_real - product_real
+        output[3] <- left_imaginary - product_imaginary
+        return 4
+
     first: mutable StockhamComplex[64] = zeroed
     second: mutable StockhamComplex[64] = zeroed
     # The stride-one stage has a single twiddle and writes contiguous pairs.
@@ -116,12 +129,6 @@ def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
         first[destination + 1] <- StockhamComplex{real: left_real - product_real, imaginary: left_imaginary - product_imaginary}
         index <- index + 2
 
-    if n == 2:
-        output[0] <- first[0].real
-        output[1] <- first[0].imaginary
-        output[2] <- first[1].real
-        output[3] <- first[1].imaginary
-        return needed.i64()
     if n == 4:
         stockham_final_stage(&first, output, 4, 16)
         return needed.i64()
