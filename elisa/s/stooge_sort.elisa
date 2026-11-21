@@ -23,7 +23,9 @@ def stooge_sort_three(values: mutable i64&) -> void:
 # Each recursive call receives the start and length of its subrange.
 def stooge_sort_range(values: mutable i64&, length: usize) -> void:
     span: mutable usize = length
-    while span > 2:
+    # The caller handles lengths below three, and splitting a span of at least
+    # five leaves at least four elements in each recursive subrange.
+    while true:
         if span == 3:
             stooge_sort_three(values)
             return
@@ -37,7 +39,6 @@ def stooge_sort_range(values: mutable i64&, length: usize) -> void:
         span <- span - third
         stooge_sort_range(values, span)
         stooge_sort_range(&values[third], span)
-    stooge_compare_endpoints(values, 1)
 
 def stooge_sort_impl(values: mutable i64&, length: usize) -> void:
     if length < 2:
