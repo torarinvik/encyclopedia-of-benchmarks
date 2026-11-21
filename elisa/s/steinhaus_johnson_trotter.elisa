@@ -1,11 +1,25 @@
 const MAX_LENGTH: usize = 6
 
-def sjt_emit_row(values: mutable view[i32], length: usize, output: mutable u8&, offset: mutable usize&) -> void:
-    for index in 0..<length |values, output, offset|:
-        bits: u32 = values[index].u32()
-        for byte in 0..<4 |output, offset, bits|:
-            output[offset] <- ((bits >> (8 * byte)) & 255).u8()
-            offset <- offset + 1
+def sjt_emit_value(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: u32 = value.u32()
+    output[offset] <- bits.u8()
+    output[offset+1] <- (bits >> 8).u8()
+    output[offset+2] <- (bits >> 16).u8()
+    output[offset+3] <- (bits >> 24).u8()
+
+def sjt_emit_row(values: mutable i32[MAX_LENGTH]&, length: usize, output: mutable u8&, offset: mutable usize&) -> void:
+    sjt_emit_value(values[0], output, offset)
+    if length > 1:
+        sjt_emit_value(values[1], output, offset+4)
+    if length > 2:
+        sjt_emit_value(values[2], output, offset+8)
+    if length > 3:
+        sjt_emit_value(values[3], output, offset+12)
+    if length > 4:
+        sjt_emit_value(values[4], output, offset+16)
+    if length > 5:
+        sjt_emit_value(values[5], output, offset+20)
+    offset <- offset+4*length
 
 def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
         output: mutable u8&?, output_capacity: usize) -> i64:
@@ -27,7 +41,7 @@ def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
         values[index] <- input[index]
         index <- index + 1
     offset: mutable usize = 0
-    sjt_emit_row(values[0:length], length, output, offset)
+    sjt_emit_row(&values, length, output, offset)
 
     index <- 1
     while index < length |values, inversion, output, offset, index|:
@@ -38,7 +52,7 @@ def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
             temporary: i32 = values[swap_index]
             values[swap_index] <- values[index]
             values[index] <- temporary
-            sjt_emit_row(values[0:length], length, output, offset)
+            sjt_emit_row(&values, length, output, offset)
             inversion[index] <- inversion[index] + 1
             index <- 1
         else:
