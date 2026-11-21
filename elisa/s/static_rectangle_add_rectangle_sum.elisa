@@ -2,6 +2,7 @@ const MAX_N: usize = 32
 const MAX_Q: usize = 32
 const MAX_COORDS: usize = 128
 const STRIDE: usize = 129
+const GRID_INDEX_MASK: usize = MAX_COORDS * MAX_COORDS - 1
 const MODULUS: i64 = 998244353
 
 def sras_lower(a: view[i64], count: usize, value: i64) -> usize:
@@ -144,10 +145,10 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         x1: usize = sras_lower(xs[0:MAX_COORDS], nx, ur[k])
         y0: usize = sras_lower(ys[0:MAX_COORDS], ny, ud[k])
         y1: usize = sras_lower(ys[0:MAX_COORDS], ny, uu[k])
-        diff[x0 * MAX_COORDS + y0] <- diff[x0 * MAX_COORDS + y0] + uw[k].u64()
-        diff[x1 * MAX_COORDS + y0] <- diff[x1 * MAX_COORDS + y0] - uw[k].u64()
-        diff[x0 * MAX_COORDS + y1] <- diff[x0 * MAX_COORDS + y1] - uw[k].u64()
-        diff[x1 * MAX_COORDS + y1] <- diff[x1 * MAX_COORDS + y1] + uw[k].u64()
+        diff[(x0 * MAX_COORDS + y0) & GRID_INDEX_MASK] <- diff[(x0 * MAX_COORDS + y0) & GRID_INDEX_MASK] + uw[k].u64()
+        diff[(x1 * MAX_COORDS + y0) & GRID_INDEX_MASK] <- diff[(x1 * MAX_COORDS + y0) & GRID_INDEX_MASK] - uw[k].u64()
+        diff[(x0 * MAX_COORDS + y1) & GRID_INDEX_MASK] <- diff[(x0 * MAX_COORDS + y1) & GRID_INDEX_MASK] - uw[k].u64()
+        diff[(x1 * MAX_COORDS + y1) & GRID_INDEX_MASK] <- diff[(x1 * MAX_COORDS + y1) & GRID_INDEX_MASK] + uw[k].u64()
         k <- k + 1
     i <- 0
     while i + 1 < nx:
@@ -157,10 +158,10 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         j: mutable usize = 0
         while j + 1 < ny:
             index: usize = i * MAX_COORDS + j
-            row_weight <- row_weight + diff[index]
+            row_weight <- row_weight + diff[(index) & GRID_INDEX_MASK]
             weight: mutable u64 = row_weight
-            if i > 0: weight <- weight + diff[index - MAX_COORDS]
-            diff[index] <- weight
+            if i > 0: weight <- weight + diff[(index - MAX_COORDS) & GRID_INDEX_MASK]
+            diff[(index) & GRID_INDEX_MASK] <- weight
             height: u64 = ys[j + 1].u64() - ys[j].u64()
             # Total height is at most one million, so this sum fits in u64.
             weighted_height <- weighted_height + weight * height
