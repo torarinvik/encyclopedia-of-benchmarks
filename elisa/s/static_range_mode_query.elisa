@@ -84,6 +84,21 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         compressed[position] <- id.u8()
         positions[id] <- positions[id] | (1.u32() << position)
 
+    if q == 1:
+        left: usize = input[2 + n].usize()
+        right: usize = input[3 + n].usize()
+        counts: mutable u8[MAX_N] = zeroed
+        best_score: mutable i64 = 0
+        for index in left..<right:
+            id: usize = compressed[index].usize()
+            count: u8 = counts[id] + 1
+            counts[id] <- count
+            score: i64 = id.i64() - (count.i64() << 5)
+            best_score <- score if score < best_score
+        mode_write_i64(output, 0, unique_values[(best_score & 31).usize()].i64())
+        mode_write_i64(output, 8, 0 - (best_score >> 5))
+        return 16
+
     # Round the block width up to a power of two for shift-based indexing.
     block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
     block_size: usize = 1.usize() << block_shift
