@@ -15,20 +15,6 @@ const BLOCK_RECIPROCALS: u16[MAX_N] = [
     205, 205, 205, 205, 205, 205, 205, 205, 187, 187, 187, 187, 187, 187, 187, 187
 ]
 
-def srin_bit_sum(bit: i64&, count: usize) -> i64:
-    i: mutable usize = count
-    total: mutable i64 = 0
-    while i > 0:
-        total <- total + bit[i - 1]
-        i <- i & (i - 1)
-    total
-
-def srin_bit_add(bit: mutable i64&, rank: usize, distinct: usize, delta: i64) -> void:
-    i: mutable usize = rank
-    while i < distinct:
-        bit[i] <- bit[i] + delta
-        i <- i | (i + 1)
-
 # Each byte holds the number of values at or below that rank.
 # Adding a rank increments every prefix at or above it, with no carry
 # between bytes because even a full window contains at most 128 values.
@@ -39,22 +25,31 @@ def srin_packed_sum_below(prefixes: u64, rank: usize) -> i64:
     # Shift in two steps so the lowest rank yields zero without shifting by 64.
     (((prefixes << 8) << (56 - rank)) >> 56).i64()
 
-def srin_group_sum(groups: i64&, local_prefixes: u64&, rank: usize, inclusive: bool) -> i64:
+# Each local word counts prefixes within eight ranks. Two more words count
+# prefixes across the sixteen groups, using the same carry-free byte lanes.
+def srin_group_sum(groups: u64&, local_prefixes: u64&, rank: usize, inclusive: bool) -> i64:
     group: usize = rank >> 6
     local_rank: usize = rank & 63
     local_count: i64 = srin_packed_sum(local_prefixes[group], local_rank) if inclusive else srin_packed_sum_below(local_prefixes[group], local_rank)
-    srin_bit_sum(groups, group) + local_count
+    group_rank: usize = group << 3
+    preceding: i64 = srin_packed_sum(groups[0], 56) if group == 8 else srin_packed_sum_below(groups[group >> 3], group_rank & 63)
+    preceding + local_count
 
-def srin_group_add(groups: mutable i64&, local_prefixes: mutable u64&, rank: usize, distinct: usize, delta: i64) -> void:
+def srin_group_add(groups: mutable u64&, local_prefixes: mutable u64&, rank: usize, delta: i64) -> void:
     group: usize = rank >> 6
     increment: u64 = 0x0101010101010101.u64() << (rank & 63)
     local_prefixes[group] <- local_prefixes[group] + increment if delta > 0 else local_prefixes[group] - increment
-    srin_bit_add(groups, group, (distinct + 7) >> 3, delta)
+    all_bytes: u64 = 0x0101010101010101.u64()
+    increment_groups: u64 = all_bytes << ((group & 7) << 3)
+    lower: u64 = increment_groups if group < 8 else 0.u64()
+    upper: u64 = all_bytes if group < 8 else increment_groups
+    groups[0] <- groups[0] + lower if delta > 0 else groups[0] - lower
+    groups[1] <- groups[1] + upper if delta > 0 else groups[1] - upper
 
 @inline(always)
 def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
-               q: usize, distinct: usize, use_packed: bool, use_wide: bool) -> void:
-    bit: mutable i64[MAX_N / 8] = zeroed
+               q: usize, use_packed: bool, use_wide: bool) -> void:
+    group_prefixes: mutable u64[2] = zeroed
     local_prefixes: mutable u64[MAX_N / 8] = zeroed
     prefixes: mutable u64 = 0
     # The second word holds cumulative counts for ranks eight through fifteen.
@@ -74,47 +69,47 @@ def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
         while current_left > target_left:
             current_left <- current_left - 1
             rank: usize = ranks[current_left].usize()
-            inversions <- inversions + (current_right-current_left-1).i64() - (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_group_sum(&bit[0], &local_prefixes[0], rank, true))
+            inversions <- inversions + (current_right-current_left-1).i64() - (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_group_sum(&group_prefixes[0], &local_prefixes[0], rank, true))
             if use_packed:
                 increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
                 if use_wide:
                     upper_prefixes <- upper_prefixes + (increment if rank >= 64 else 0x0101010101010101.u64())
                 prefixes <- prefixes + (0.u64() if use_wide and rank >= 64 else increment)
             else:
-                srin_group_add(&bit[0], &local_prefixes[0], rank, distinct, 1)
+                srin_group_add(&group_prefixes[0], &local_prefixes[0], rank, 1)
         while current_right < target_right:
             rank: usize = ranks[current_right].usize()
-            inversions <- inversions + ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_group_sum(&bit[0], &local_prefixes[0], rank, false))
+            inversions <- inversions + ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_group_sum(&group_prefixes[0], &local_prefixes[0], rank, false))
             if use_packed:
                 increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
                 if use_wide:
                     upper_prefixes <- upper_prefixes + (increment if rank >= 64 else 0x0101010101010101.u64())
                 prefixes <- prefixes + (0.u64() if use_wide and rank >= 64 else increment)
             else:
-                srin_group_add(&bit[0], &local_prefixes[0], rank, distinct, 1)
+                srin_group_add(&group_prefixes[0], &local_prefixes[0], rank, 1)
             current_right <- current_right + 1
         while current_left < target_left:
             rank: usize = ranks[current_left].usize()
-            inversions <- inversions - (current_right-current_left).i64() + (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_group_sum(&bit[0], &local_prefixes[0], rank, true))
+            inversions <- inversions - (current_right-current_left).i64() + (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_group_sum(&group_prefixes[0], &local_prefixes[0], rank, true))
             if use_packed:
                 increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
                 if use_wide:
                     upper_prefixes <- upper_prefixes - (increment if rank >= 64 else 0x0101010101010101.u64())
                 prefixes <- prefixes - (0.u64() if use_wide and rank >= 64 else increment)
             else:
-                srin_group_add(&bit[0], &local_prefixes[0], rank, distinct, -1)
+                srin_group_add(&group_prefixes[0], &local_prefixes[0], rank, -1)
             current_left <- current_left + 1
         while current_right > target_right:
             current_right <- current_right - 1
             rank: usize = ranks[current_right].usize()
-            inversions <- inversions - ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_group_sum(&bit[0], &local_prefixes[0], rank, false))
+            inversions <- inversions - ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_group_sum(&group_prefixes[0], &local_prefixes[0], rank, false))
             if use_packed:
                 increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
                 if use_wide:
                     upper_prefixes <- upper_prefixes - (increment if rank >= 64 else 0x0101010101010101.u64())
                 prefixes <- prefixes - (0.u64() if use_wide and rank >= 64 else increment)
             else:
-                srin_group_add(&bit[0], &local_prefixes[0], rank, distinct, -1)
+                srin_group_add(&group_prefixes[0], &local_prefixes[0], rank, -1)
         bits: u64 = inversions.u64()
         byte: mutable usize = 0
         while byte < 8:
@@ -277,11 +272,11 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         i <- i + 1
     # All input data needed by the sweep is now in ranks and query keys.
     if distinct <= 8:
-        srin_sweep(&queries[0],&ranks[0],output,q,distinct,true,false)
+        srin_sweep(&queries[0],&ranks[0],output,q,true,false)
     elif distinct <= 16:
-        srin_sweep(&queries[0],&ranks[0],output,q,distinct,true,true)
+        srin_sweep(&queries[0],&ranks[0],output,q,true,true)
     else:
-        srin_sweep(&queries[0],&ranks[0],output,q,distinct,false,false)
+        srin_sweep(&queries[0],&ranks[0],output,q,false,false)
     bytes.i64()
 
 export fn static_range_inversions_query(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = static_range_inversions_query_impl
