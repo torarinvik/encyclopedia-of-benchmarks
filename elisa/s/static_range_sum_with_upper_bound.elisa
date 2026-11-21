@@ -79,7 +79,7 @@ def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capa
             query_bits: mutable u32 = key.u32() << (first_level + 2)
             level: mutable usize = first_level
             # Remaining zero bits cannot add any more prefixes to the result.
-            while query_bits != 0:
+            while query_bits != 0 and l != r:
                 left: u64 = prefixes[(65*level+l) & 2047]
                 right: u64 = prefixes[(65*level+r) & 2047]
                 zl: usize = (left >> 36).usize()
