@@ -134,25 +134,27 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         i <- i + 1
     sras_sort_unique(xs[0:MAX_COORDS], nx)
     sras_sort_unique(ys[0:MAX_COORDS], ny)
-    diff: mutable i64[MAX_COORDS * MAX_COORDS] = zeroed
-    prefix: mutable i64[STRIDE * STRIDE] = zeroed
+    # Corner differences can wrap while accumulating. The recovered cell weight
+    # is nonnegative and at most MAX_N times the largest allowed weight.
+    diff: mutable u64[MAX_COORDS * MAX_COORDS] = zeroed
+    prefix: mutable u64[STRIDE * STRIDE] = zeroed
     k: mutable usize = 0
     while k < n:
         x0: usize = sras_lower(xs[0:MAX_COORDS], nx, ul[k])
         x1: usize = sras_lower(xs[0:MAX_COORDS], nx, ur[k])
         y0: usize = sras_lower(ys[0:MAX_COORDS], ny, ud[k])
         y1: usize = sras_lower(ys[0:MAX_COORDS], ny, uu[k])
-        diff[x0 * MAX_COORDS + y0] <- diff[x0 * MAX_COORDS + y0] + uw[k]
-        diff[x1 * MAX_COORDS + y0] <- diff[x1 * MAX_COORDS + y0] - uw[k]
-        diff[x0 * MAX_COORDS + y1] <- diff[x0 * MAX_COORDS + y1] - uw[k]
-        diff[x1 * MAX_COORDS + y1] <- diff[x1 * MAX_COORDS + y1] + uw[k]
+        diff[x0 * MAX_COORDS + y0] <- diff[x0 * MAX_COORDS + y0] + uw[k].u64()
+        diff[x1 * MAX_COORDS + y0] <- diff[x1 * MAX_COORDS + y0] - uw[k].u64()
+        diff[x0 * MAX_COORDS + y1] <- diff[x0 * MAX_COORDS + y1] - uw[k].u64()
+        diff[x1 * MAX_COORDS + y1] <- diff[x1 * MAX_COORDS + y1] + uw[k].u64()
         k <- k + 1
     i <- 0
     while i < nx:
         j: mutable usize = 0
         while j < ny:
             at: usize = i * MAX_COORDS + j
-            value: mutable i64 = diff[at]
+            value: mutable u64 = diff[at]
             if i > 0: value <- value + diff[(i - 1) * MAX_COORDS + j]
             if j > 0: value <- value + diff[i * MAX_COORDS + j - 1]
             if i > 0 and j > 0: value <- value - diff[(i - 1) * MAX_COORDS + j - 1]
@@ -163,13 +165,12 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
     while i + 1 < nx:
         j: mutable usize = 0
         while j + 1 < ny:
-            value: i64 = diff[i * MAX_COORDS + j] % MODULUS
-            dx: i64 = (xs[i + 1] - xs[i]) % MODULUS
-            dy: i64 = (ys[j + 1] - ys[j]) % MODULUS
-            cell: i64 = value * ((dx * dy) % MODULUS) % MODULUS
+            value: u64 = diff[i * MAX_COORDS + j] % MODULUS.u64()
+            dx: u64 = xs[i + 1].u64() - xs[i].u64()
+            dy: u64 = ys[j + 1].u64() - ys[j].u64()
+            cell: u64 = value * ((dx * dy) % MODULUS.u64()) % MODULUS.u64()
             at: usize = (i + 1) * STRIDE + j + 1
-            sum: mutable i64 = (cell + prefix[i * STRIDE + j + 1] + prefix[(i + 1) * STRIDE + j] - prefix[i * STRIDE + j]) % MODULUS
-            if sum < 0: sum <- sum + MODULUS
+            sum: u64 = (MODULUS.u64() + cell + prefix[i * STRIDE + j + 1] + prefix[(i + 1) * STRIDE + j] - prefix[i * STRIDE + j]) % MODULUS.u64()
             prefix[at] <- sum
             j <- j + 1
         i <- i + 1
@@ -180,10 +181,8 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         x1: usize = sras_lower(xs[0:MAX_COORDS], nx, qr[k])
         y0: usize = sras_lower(ys[0:MAX_COORDS], ny, qd[k])
         y1: usize = sras_lower(ys[0:MAX_COORDS], ny, qu[k])
-        value: mutable i64 = prefix[x1 * STRIDE + y1] - prefix[x0 * STRIDE + y1] - prefix[x1 * STRIDE + y0] + prefix[x0 * STRIDE + y0]
-        value <- value % MODULUS
-        if value < 0: value <- value + MODULUS
-        answer[k] <- value
+        value: u64 = 2 * MODULUS.u64() + prefix[x1 * STRIDE + y1] - prefix[x0 * STRIDE + y1] - prefix[x1 * STRIDE + y0] + prefix[x0 * STRIDE + y0]
+        answer[k] <- (value % MODULUS.u64()).i64()
         k <- k + 1
     k <- 0
     while k < q:
