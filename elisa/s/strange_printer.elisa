@@ -52,16 +52,24 @@ def strange_printer_interval(symbols: u64, n: usize) -> i64:
     while left > 0:
         left <- left - 1
         dp[left * SP_TABLE_SIDE + left] <- 1
+        lane: u64 = (symbols >> (left * 2)) & 3
+        # One low bit per two-bit lane marks each equal symbol.
+        differences: u64 = symbols ^ (lane * 0x5555)
+        matches: u64 = ~(differences | (differences >> 1)) & 0x5555
         right: mutable usize = left + 1
         while right < n:
             best: mutable u8 = dp[(left + 1) * SP_TABLE_SIDE + right] + 1
-            merge: mutable usize = left + 2
-            while merge <= right:
-                if ((symbols >> (left * 2)) & 3) == ((symbols >> (merge * 2)) & 3):
-                    middle: u8 = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
-                    candidate: u8 = middle + dp[merge * SP_TABLE_SIDE + right]
-                    if candidate < best: best <- candidate
-                merge <- merge + 1
+            candidates: mutable u64 = matches & ((1.u64() << ((right + 1) * 2)) - 1) & ~((1.u64() << ((left + 2) * 2)) - 1)
+            while candidates != 0:
+                bit: u64 = candidates & (0.u64() - candidates)
+                # The multiplier maps the eight one-hot lanes to distinct
+                # three-bit slots. The packed table maps each slot to its lane.
+                slot: u64 = ((bit * 0x5AF) >> 10) & 7
+                merge: usize = ((0xA8E8C7.u64() >> (slot * 3)) & 7).usize()
+                middle: u8 = dp[(left + 1) * SP_TABLE_SIDE + merge - 1]
+                candidate: u8 = middle + dp[merge * SP_TABLE_SIDE + right]
+                if candidate < best: best <- candidate
+                candidates <- candidates & (candidates - 1)
             dp[left * SP_TABLE_SIDE + right] <- best
             right <- right + 1
     return dp[n - 1].i64()
