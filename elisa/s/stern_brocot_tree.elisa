@@ -204,33 +204,39 @@ def sbt_single_decode(input: i64&, length: usize, output: mutable u8&?, capacity
     sbt_store_word(output, 16, denominator)
     1
 
-def sbt_is_reduced(numerator: i64, denominator: i64) -> bool:
+def sbt_is_reduced(numerator: u64, denominator: u64) -> bool:
     if numerator == 1 or denominator == 1: return true
-    a: mutable i64 = numerator
-    b: mutable i64 = denominator
+    a: mutable u64 = numerator
+    b: mutable u64 = denominator
     while b != 0:
-        remainder: i64 = a % b
+        remainder: u64 = a % b
         a <- b
         b <- remainder
     a == 1
 
 def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
-    a: mutable i64 = input[2]
-    b: mutable i64 = input[3]
-    c: mutable i64 = input[4]
-    d: mutable i64 = input[5]
-    if not sbt_fraction_in_range(a, b) or not sbt_fraction_in_range(c, d): return -1
+    a_input: i64 = input[2]
+    b_input: i64 = input[3]
+    c_input: i64 = input[4]
+    d_input: i64 = input[5]
+    if not sbt_fraction_in_range(a_input, b_input) or not sbt_fraction_in_range(c_input, d_input): return -1
 
-    lower_num: mutable i64 = 0
-    lower_den: mutable i64 = 1
-    upper_num: mutable i64 = 1
-    upper_den: mutable i64 = 0
+    # Inputs are positive and at most MAX_COMPONENT. Reductions preserve positivity,
+    # and each common-prefix bound stays within the input fractions’ components.
+    a: mutable u64 = a_input.u64()
+    b: mutable u64 = b_input.u64()
+    c: mutable u64 = c_input.u64()
+    d: mutable u64 = d_input.u64()
+    lower_num: mutable u64 = 0
+    lower_den: mutable u64 = 1
+    upper_num: mutable u64 = 1
+    upper_den: mutable u64 = 0
     while a != b and c != d:
         if a < b:
             if c >= d: break
-            left_count: i64 = (b-1)/a
-            right_count: i64 = (d-1)/c
-            shared: i64 = left_count if left_count < right_count else right_count
+            left_count: u64 = (b-1)/a
+            right_count: u64 = (d-1)/c
+            shared: u64 = left_count if left_count < right_count else right_count
             upper_num <- upper_num + shared*lower_num
             upper_den <- upper_den + shared*lower_den
             if left_count != right_count: break
@@ -238,9 +244,9 @@ def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
             d <- d-shared*c
         else:
             if c <= d: break
-            left_count: i64 = (a-1)/b
-            right_count: i64 = (c-1)/d
-            shared: i64 = left_count if left_count < right_count else right_count
+            left_count: u64 = (a-1)/b
+            right_count: u64 = (c-1)/d
+            shared: u64 = left_count if left_count < right_count else right_count
             lower_num <- lower_num + shared*upper_num
             lower_den <- lower_den + shared*upper_den
             if left_count != right_count: break
@@ -250,8 +256,8 @@ def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
     if not sbt_is_reduced(a, b) or not sbt_is_reduced(c, d): return -1
     if output == null or capacity < 24: return -2
     sbt_store_word(output, 0, 2)
-    sbt_store_word(output, 8, lower_num+upper_num)
-    sbt_store_word(output, 16, lower_den+upper_den)
+    sbt_store_word(output, 8, (lower_num+upper_num).i64())
+    sbt_store_word(output, 16, (lower_den+upper_den).i64())
     1
 
 def sbt_single_ancestor(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
