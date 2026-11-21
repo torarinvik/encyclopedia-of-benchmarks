@@ -30,6 +30,16 @@ def steinhaus_johnson_trotter_impl(input: i32&?, length: usize,
             return -2
         sjt_emit_value(input[0], output, 0)
         return 4
+    if length == 2:
+        if output == null or output_capacity < 16:
+            return -2
+        first: i32 = input[0]
+        second: i32 = input[1]
+        sjt_emit_value(first, output, 0)
+        sjt_emit_value(second, output, 4)
+        sjt_emit_value(second, output, 8)
+        sjt_emit_value(first, output, 12)
+        return 16
     permutations: mutable usize = 1
     factor: mutable usize = 2
     while factor <= length |permutations, factor|:
