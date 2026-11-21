@@ -38,7 +38,8 @@ the stronger asymptotic preprocessing bound of the paper's comparison model.
 The Elisa port carries original positions through the rank sort and stores
 occurrences as one 32-bit mask per rank. A boundary candidate’s frequency is
 the population count after masking to the queried interval, reducing the
-query term to `O(q*B)` for this 32-position profile.
+query term to `O(q*B)` for this 32-position profile. Elisa rounds the block
+width up to a power of two, so it can locate blocks with shifts.
 
 The independent oracle scans each query directly. See [`workload.json`](workload.json)
 and [`verify_workload.py`](verify_workload.py).

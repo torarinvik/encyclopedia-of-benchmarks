@@ -67,10 +67,10 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         compressed[position] <- id
         positions[id] <- positions[id] | (1.u32() << position)
 
-    block_size: mutable usize = 1
-    while block_size * block_size < n:
-        block_size <- block_size + 1
-    block_count: usize = (n + block_size - 1) / block_size
+    # Round the block width up to a power of two for shift-based indexing.
+    block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
+    block_size: usize = 1.usize() << block_shift
+    block_count: usize = (n + block_size - 1) >> block_shift
     frequency: mutable u8[MAX_N] = zeroed
     for first in 0..<block_count:
         for id in 0..<distinct:
@@ -78,7 +78,7 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         best_score: mutable usize = 0
         last: mutable usize = first
         while last < block_count:
-            begin: usize = last * block_size
+            begin: usize = last << block_shift
             end: mutable usize = begin + block_size
             if end > n: end <- n
             for index in begin..<end:
@@ -96,15 +96,15 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         right: usize = input[3 + n + 2 * query].usize()
         # Use a wider word so the final right endpoint may be 32.
         range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
-        first_full: usize = (left + block_size - 1) / block_size
-        after_full: usize = right / block_size
+        first_full: usize = (left + block_size - 1) >> block_shift
+        after_full: usize = right >> block_shift
         best_id: mutable usize = 0
         best_count: mutable usize = 0
         if first_full < after_full:
             best_id <- block_mode[first_full * MAX_BLOCKS + after_full - 1]
             best_count <- mode_frequency(positions[best_id], range_mask)
-            span_start: usize = first_full * block_size
-            span_end: usize = after_full * block_size
+            span_start: usize = first_full << block_shift
+            span_end: usize = after_full << block_shift
             for index in left..<span_start:
                 id: usize = compressed[index]
                 count: usize = mode_frequency(positions[id], range_mask)
