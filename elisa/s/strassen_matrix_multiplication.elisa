@@ -125,12 +125,12 @@ def strassen_matrix_multiplication_impl(input: i64&?, length: usize, output: mut
             output[byte] <- (bits & 255).u8()
             bits <- bits >> 8
         return 8
-    return strassen_matrix_frame(input, length, output, capacity)
-
-@inline(never)
-def strassen_matrix_frame(input: i64&, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     n: usize = (2 if length == 9 else 0) if length < 33 else (4 if length == 33 else (8 if length == 129 else 0))
     if n == 0 or input[0].usize() != n: return -1
+    return strassen_matrix_frame(input, n, output, capacity)
+
+@inline(never)
+def strassen_matrix_frame(input: i64&, n: usize, output: mutable u8&?, capacity: usize) -> i64:
     cells: usize = n * n
     if n == 2:
         invalid: mutable u64 = 0
