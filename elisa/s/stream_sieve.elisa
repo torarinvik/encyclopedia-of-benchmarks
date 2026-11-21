@@ -29,14 +29,17 @@ def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacit
             step: mutable u32 = STREAM_SIEVE_NEXT_STEP
             while cached_count < count:
                 is_prime: mutable bool = true
-                divisors: mutable i32& = &STREAM_SIEVE_PRIME_CACHE[2]
-                while true:
-                    divisor: u32 = divisors[0].u32()
-                    if divisor > candidate / divisor: break
-                    if candidate % divisor == 0:
-                        is_prime <- false
-                        break
-                    divisors <- &divisors[1]
+                if candidate >= 25:
+                    is_prime <- candidate % 5 != 0
+                    if is_prime:
+                        divisors: mutable i32& = &STREAM_SIEVE_PRIME_CACHE[3]
+                        while true:
+                            divisor: u32 = divisors[0].u32()
+                            if divisor > candidate / divisor: break
+                            if candidate % divisor == 0:
+                                is_prime <- false
+                                break
+                            divisors <- &divisors[1]
                 if is_prime:
                     STREAM_SIEVE_PRIME_CACHE[cached_count] <- candidate.i32()
                     cached_count <- cached_count + 1
