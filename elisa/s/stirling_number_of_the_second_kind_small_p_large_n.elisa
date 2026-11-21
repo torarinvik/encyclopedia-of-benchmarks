@@ -12,14 +12,13 @@ def is_prime(value:i64)->bool:
     true
 
 def stirling_value(n:i64,k:usize,modulus:i64)->i64:
-    matrix:mutable i64[81]=zeroed
-    squared:mutable i64[81]=zeroed
-    vector:mutable i64[9]=zeroed
-    next_vector:mutable i64[9]=zeroed
+    prime: u32 = modulus.u32()
+    matrix:mutable u32[81]=zeroed
+    vector:mutable u32[9]=zeroed
     dimension:usize=k+1
     index:mutable usize=0
     while index<dimension:
-        matrix[index*WIDTH+index]<-(index.i64())%modulus
+        matrix[index*WIDTH+index]<-index.u32()
         if index>0:matrix[index*WIDTH+index-1]<-1
         index<-index+1
     vector[0]<-1
@@ -28,42 +27,27 @@ def stirling_value(n:i64,k:usize,modulus:i64)->i64:
     exponent:mutable i64=n
     while exponent>0:
         if exponent%2!=0:
-            row:mutable usize=0
-            while row<dimension:
-                total:mutable i64=0
-                column:mutable usize=0
-                while column<=row:
-                    total<-total+matrix[row*WIDTH+column]*vector[column]
-                    column<-column+1
-                next_vector[row]<-total%modulus
-                row<-row+1
-            row<-0
-            while row<dimension:
-                vector[row]<-next_vector[row]
-                row<-row+1
-        exponent<-exponent/2
+            row_count: mutable usize = dimension
+            while row_count > 0:
+                row_count <- row_count-1
+                row: usize = row_count
+                total: mutable u32 = 0
+                for column in 0..=row:
+                    total <- total+matrix[row*WIDTH+column]*vector[column]
+                vector[row] <- total%prime
+        exponent <- exponent/2
         if exponent>0:
-            row:mutable usize=0
-            while row<dimension:
-                column:mutable usize=0
-                while column<=row:
-                    total:mutable i64=0
-                    inner:mutable usize=column
-                    while inner<=row:
-                        total<-total+matrix[row*WIDTH+inner]*matrix[inner*WIDTH+column]
-                        inner<-inner+1
-                    squared[row*WIDTH+column]<-total%modulus
-                    column<-column+1
-                row<-row+1
-            row<-0
-            while row<dimension:
-                column:mutable usize=0
-                while column<=row:
-                    matrix[row*WIDTH+column]<-squared[row*WIDTH+column]
-                    column<-column+1
-                row<-row+1
-
-    vector[k]
+            # Descending rows and ascending columns preserve every cell still needed.
+            row_count: mutable usize = dimension
+            while row_count > 0:
+                row_count <- row_count-1
+                row: usize = row_count
+                for column in 0..=row:
+                    total: mutable u32 = 0
+                    for inner in column..=row:
+                        total <- total+matrix[row*WIDTH+inner]*matrix[inner*WIDTH+column]
+                    matrix[row*WIDTH+column] <- total%prime
+    vector[k].i64()
 
 def stirling_small_prime_impl(input: i64&?, length: usize) -> i64:
     if input == null or length<4 or length>18:return -1
