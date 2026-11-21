@@ -4,7 +4,7 @@ This package ports the pinned [TheAlgorithms/Python streaming calculator](https:
 
 The `i64_array_bytes_output` ABI packs `[window_size, n, values[0..n]]`. The benchmarked domain is `1 <= window_size <= 256`, `1 <= n <= 256`, with signed 32-bit integer values (a bounded subset of the source's floating-point values). It returns `n` little-endian IEEE-754 binary64 results. Invalid input returns `-1`; insufficient output capacity returns `-2`; success returns `8*n`.
 
-Each result is computed as the exact integer sum of the current trailing window divided by its current length, matching the source's `sum(self.window) / len(self.window)` on this domain. Runtime is `O(n * window_size)` and auxiliary space is `O(1)` beyond the output buffer.
+Each result is computed as the exact integer sum of the current trailing window divided by its current length, matching the source's `sum(self.window) / len(self.window)` on this domain. The direct implementation takes `O(n * window_size)` time. The Elisa port maintains the exact integer sum as values enter and leave the window, taking `O(n)` time. Both approaches use `O(1)` auxiliary space beyond the output buffer.
 
 ## Workload
 
