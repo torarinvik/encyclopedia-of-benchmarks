@@ -36,6 +36,8 @@ def star_edge_hits_box(vertices: i64&, edges: i64&, edge_id: usize,
     ay: i64 = vertices[2 * a + 1]
     bx: i64 = vertices[2 * b]
     by: i64 = vertices[2 * b + 1]
+    if (ax < xmin and bx < xmin) or (ax > xmax and bx > xmax) or
+       (ay < ymin and by < ymin) or (ay > ymax and by > ymax): return false
     if (xmin <= ax and ax <= xmax and ymin <= ay and ay <= ymax) or
        (xmin <= bx and bx <= xmax and ymin <= by and by <= ymax): return true
     star_segments_intersect(ax,ay,bx,by,xmin,ymin,xmax,ymin) or
@@ -45,24 +47,15 @@ def star_edge_hits_box(vertices: i64&, edges: i64&, edge_id: usize,
 
 def star_stops(vertices: i64&, edges: i64&, edge_count: usize,
                vertex_count: usize, xmin: i64, ymin: i64, xmax: i64, ymax: i64) -> bool:
-    touched: mutable bool[STAR_MAX_EDGES] = zeroed
-    count: mutable usize = 0
-    e: mutable usize = 0
-    while e < edge_count:
-        touched[e] <- star_edge_hits_box(vertices,edges,e,xmin,ymin,xmax,ymax)
-        if touched[e]: count <- count + 1
-        e <- e + 1
-    if count == 0: return true
-    v: mutable usize = 0
-    while v < vertex_count:
-        common: mutable bool = true
-        e <- 0
-        while e < edge_count:
-            if touched[e] and edges[2*e] != v.i64() and edges[2*e+1] != v.i64(): common <- false
-            e <- e + 1
-        if common: return true
-        v <- v + 1
-    false
+    # Intersect the endpoint sets of all edges that hit the closed box.
+    candidates: mutable u64 = (1.u64() << vertex_count) - 1
+    for edge in 0..<edge_count:
+        if star_edge_hits_box(vertices, edges, edge, xmin, ymin, xmax, ymax):
+            endpoints: u64 = ((1.u64() << edges[2 * edge].usize()) |
+                (1.u64() << edges[2 * edge + 1].usize()))
+            candidates <- candidates & endpoints
+            if candidates == 0: return false
+    true
 
 def star_point_in_triangle(px: i64, py: i64, vertices: i64&,
                            a: usize, b: usize, c: usize) -> bool:
