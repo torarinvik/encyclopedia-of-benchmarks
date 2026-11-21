@@ -15,6 +15,11 @@ def srin_bit_add(bit: mutable i64&, rank: usize, distinct: usize, delta: i64) ->
         bit[i] <- bit[i] + delta
         i <- i | (i + 1)
 
+def srin_packed_sum(frequencies: u64, count: usize) -> i64:
+    if count == 0: return 0
+    mask: u64 = 0xffffffffffffffff.u64() >> (64 - 8 * count)
+    (((frequencies & mask) * 0x0101010101010101.u64()) >> 56).i64()
+
 def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 195: return -1
     n64: i64 = input[0]
@@ -80,6 +85,8 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         queries[j] <- query
         i <- i + 1
     bit: mutable i64[MAX_N] = zeroed
+    frequencies: mutable u64 = 0
+    use_packed: bool = distinct <= 8
     answers: mutable i64[MAX_Q] = zeroed
     current_left: mutable usize = 0
     current_right: mutable usize = 0
@@ -94,23 +101,35 @@ def static_range_inversions_query_impl(input: i64&?, length: usize, output: muta
         while current_left > target_left:
             current_left <- current_left - 1
             rank: usize = ranks[current_left]
-            inversions <- inversions + srin_bit_sum(&bit[0], rank)
-            srin_bit_add(&bit[0], rank, distinct, 1)
+            inversions <- inversions + (srin_packed_sum(frequencies, rank) if use_packed else srin_bit_sum(&bit[0], rank))
+            if use_packed:
+                frequencies <- frequencies + (1.u64() << (8 * rank))
+            else:
+                srin_bit_add(&bit[0], rank, distinct, 1)
         while current_right < target_right:
             rank: usize = ranks[current_right]
-            inversions <- inversions + (current_right-current_left).i64() - srin_bit_sum(&bit[0], rank + 1)
-            srin_bit_add(&bit[0], rank, distinct, 1)
+            inversions <- inversions + (current_right-current_left).i64() - (srin_packed_sum(frequencies, rank + 1) if use_packed else srin_bit_sum(&bit[0], rank + 1))
+            if use_packed:
+                frequencies <- frequencies + (1.u64() << (8 * rank))
+            else:
+                srin_bit_add(&bit[0], rank, distinct, 1)
             current_right <- current_right + 1
         while current_left < target_left:
             rank: usize = ranks[current_left]
-            inversions <- inversions - srin_bit_sum(&bit[0], rank)
-            srin_bit_add(&bit[0], rank, distinct, -1)
+            inversions <- inversions - (srin_packed_sum(frequencies, rank) if use_packed else srin_bit_sum(&bit[0], rank))
+            if use_packed:
+                frequencies <- frequencies - (1.u64() << (8 * rank))
+            else:
+                srin_bit_add(&bit[0], rank, distinct, -1)
             current_left <- current_left + 1
         while current_right > target_right:
             current_right <- current_right - 1
             rank: usize = ranks[current_right]
-            inversions <- inversions - (current_right+1-current_left).i64() + srin_bit_sum(&bit[0], rank + 1)
-            srin_bit_add(&bit[0], rank, distinct, -1)
+            inversions <- inversions - (current_right+1-current_left).i64() + (srin_packed_sum(frequencies, rank + 1) if use_packed else srin_bit_sum(&bit[0], rank + 1))
+            if use_packed:
+                frequencies <- frequencies - (1.u64() << (8 * rank))
+            else:
+                srin_bit_add(&bit[0], rank, distinct, -1)
         answers[id] <- inversions
         qi <- qi + 1
     k <- 0
