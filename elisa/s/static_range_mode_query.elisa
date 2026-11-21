@@ -113,7 +113,8 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
     row_counts: mutable u8[MAX_BLOCKS * MAX_N] = zeroed
     # The low three bits hold the exclusive block end, at most four.
     row_state: mutable u16[MAX_BLOCKS] = zeroed
-    answers: mutable i64[2 * MAX_Q] = zeroed
+    # Stage each pair in one word before writing the two 64-bit ABI fields.
+    answers: mutable u64[MAX_Q] = zeroed
     for query in 0..<q:
         left: usize = input[2 + n + 2 * query].usize()
         right: usize = input[3 + n + 2 * query].usize()
@@ -164,10 +165,13 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
                 id: usize = compressed[index].usize()
                 score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
                 best_score_query <- score if score < best_score_query
-        answers[2 * query] <- unique_values[(best_score_query & 31).usize()].i64()
-        answers[2 * query + 1] <- 0 - (best_score_query >> 5)
-    for answer in 0..<(2 * q):
-        mode_write_i64(output, 8 * answer, answers[answer])
+        value: u64 = unique_values[(best_score_query & 31).usize()].u64()
+        count: u64 = (0 - (best_score_query >> 5)).u64()
+        answers[query] <- value | (count << 32)
+    for query in 0..<q:
+        answer: u64 = answers[query]
+        mode_write_i64(output, 16 * query, answer.u32().i64())
+        mode_write_i64(output, 16 * query + 8, (answer >> 32).i64())
     (16 * q).i64()
 
 export fn static_range_mode_query(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64 = static_range_mode_query_impl
