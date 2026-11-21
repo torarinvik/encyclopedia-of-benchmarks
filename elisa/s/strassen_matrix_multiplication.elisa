@@ -148,6 +148,12 @@ def strassen_matrix_frame(input: i64&, n: usize, output: mutable u8&?, capacity:
         for index in 1..<9:
             invalid <- invalid | (1.u64() if input[index].u64() + 2 > 4 else 0.u64())
         if invalid != 0: return -1
+        if output == null or capacity < 32: return -2
+        small_result: mutable i64[4] = zeroed
+        strassen_two(&input[1], &input[5], &small_result[0])
+        for index in 0..<4:
+            strassen_store_word(output, 8 * index, small_result[index].u64())
+        return 32
     else:
         invalid: mutable u64 = 0
         for index in 0..<2 * cells:
@@ -159,12 +165,6 @@ def strassen_matrix_frame(input: i64&, n: usize, output: mutable u8&?, capacity:
 
 @inline(never)
 def strassen_product(input: i64&, output: mutable u8&, n: usize, cells: usize, output_bytes: usize) -> i64:
-    if n == 2:
-        small_result: mutable i64[4] = zeroed
-        strassen_two(&input[1], &input[5], &small_result[0])
-        for index in 0..<4:
-            strassen_store_word(output, 8 * index, small_result[index].u64())
-        return 32
     result: mutable i64[64] = zeroed
     strassen_multiply(&input[1], &input[1 + cells], &result[0], n)
     i: mutable usize = 0
