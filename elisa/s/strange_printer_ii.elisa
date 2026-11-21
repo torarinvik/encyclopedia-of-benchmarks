@@ -4,7 +4,7 @@ const SPII_MAX_COLORS: usize = 6
 const SPII_COLOR_SIDE: usize = 7
 
 def strange_printer_ii_impl(input: i64&?, length: usize) -> i64:
-    if input == null or length - 2 > SPII_MAX_ROWS * SPII_MAX_COLUMNS: return -1
+    if input == null or length - 3 >= SPII_MAX_ROWS * SPII_MAX_COLUMNS: return -1
     rows_value: i64 = input[0]
     columns_value: i64 = input[1]
     if rows_value < 1 or rows_value > 6 or columns_value < 1 or columns_value > 6: return -1
