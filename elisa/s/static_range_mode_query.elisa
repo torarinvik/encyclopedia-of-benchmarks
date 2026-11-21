@@ -45,9 +45,9 @@ def mode_few_ranks(input: i64&, output: mutable u8&, n: usize, q: usize, values:
 def static_range_mode_query_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
-    n_value: i64 = input[0]
-    q_value: i64 = input[1]
-    if n_value < 1 or n_value > 32 or q_value < 1 or q_value > 16:
+    n_value: u64 = input[0].u64()
+    q_value: u64 = input[1].u64()
+    if n_value - 1 >= 32 or q_value - 1 >= 16:
         return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
@@ -55,12 +55,12 @@ def static_range_mode_query_impl(input: i64&?, input_length: usize, output: muta
         return -1
     for index in 0..<n:
         value: i64 = input[2 + index]
-        if value < 0 or value > 1000000000:
+        if value.u64() > 1000000000:
             return -1
     for query in 0..<q:
-        left: i64 = input[2 + n + 2 * query]
-        right: i64 = input[3 + n + 2 * query]
-        if left < 0 or right <= left or right > n_value:
+        left: u64 = input[2 + n + 2 * query].u64()
+        right: u64 = input[3 + n + 2 * query].u64()
+        if left >= right or right > n_value:
             return -1
     if output == null or output_capacity < 16 * q:
         return -2
