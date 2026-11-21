@@ -50,12 +50,24 @@ def stormer_verlet_position_impl(input: i64&?, length: usize,
     svp_store_i64_le(staged_view, 0, first)
     svp_store_i64_le(staged_view, 8, current.i64())
     delta: mutable u64 = current - first.u64()
-    for index in 3..<length:
-        acceleration: i64 = input[index]
-        if acceleration.u64() + 64 > 128:
+    index: mutable usize = 3
+    while index + 1 < length:
+        acceleration: u64 = input[index].u64()
+        next_acceleration: u64 = input[index + 1].u64()
+        if acceleration + 64 > 128 or next_acceleration + 64 > 128:
             return -1
-        delta <- delta + acceleration.u64()
+        delta <- delta + acceleration
         current <- current + delta
+        svp_store_i64_le(staged_view, 8 * (index - 1), current.i64())
+        delta <- delta + next_acceleration
+        current <- current + delta
+        svp_store_i64_le(staged_view, 8 * index, current.i64())
+        index <- index + 2
+    if index < length:
+        acceleration: u64 = input[index].u64()
+        if acceleration + 64 > 128:
+            return -1
+        current <- current + delta + acceleration
         svp_store_i64_le(staged_view, 8 * (index - 1), current.i64())
     if output == null or capacity < byte_count: return -2
     for byte in 0..<byte_count:
