@@ -14,6 +14,12 @@ def strange_printer_ii_impl(input: i64&?, length: usize) -> i64:
     if length == 3:
         color_value: u64 = input[2].u64()
         return 1 if color_value - 1 < SPII_MAX_COLORS.u64() else -1
+    return printer_grid_feasible(input, rows_value, columns_value)
+
+@inline(never)
+def printer_grid_feasible(input: i64&, rows_value: i64, columns_value: i64) -> i64:
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
     first_row: mutable i64[7] = zeroed
     last_row: mutable i64[7] = zeroed
     first_column: mutable i64[7] = zeroed
