@@ -63,7 +63,6 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
         const size_t last_used = start < budget ? start : budget;
         for (size_t used = first_used; used <= last_used; ++used) {
             int64_t prefix_cost = dp[start][used];
-            if (prefix_cost == SCI_INF) continue;
             const size_t kept_limit = retained - (start - used);
             if (used < budget && prefix_cost < dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_cost;
