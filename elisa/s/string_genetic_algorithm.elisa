@@ -70,7 +70,6 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
     population: mutable u64[200] = zeroed
     next_population: mutable u64[200] = zeroed
     mismatches: mutable u8[200] = zeroed
-    ranked_mismatches: mutable u8[66] = zeroed
     state: mutable u64 = seed_value.u64()
     for individual in 0..<200 |individual, population, gene_table, state, target_length, gene_count, target_word, output, output_capacity|:
         word: mutable u64 = 0.u64()
@@ -86,7 +85,7 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
         population[individual] <- candidate
 
     generation: mutable usize = 1
-    while generation < max_generations |generation, population, mismatches, ranked_mismatches, target_word, target_length, output, next_population, state, gene_table, gene_count|:
+    while generation < max_generations |generation, population, mismatches, target_word, target_length, output, next_population, state, gene_table, gene_count|:
         for individual in 0..<200:
             # ASCII XOR leaves the high bit clear. Adding 127 flags each unequal byte.
             difference: u64 = population[individual] ^ target_word
@@ -116,18 +115,18 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
             destination: usize = buckets[rank]
             if destination < 66:
                 next_population[destination] <- population[individual]
-                ranked_mismatches[destination] <- mismatches[individual]
             buckets[rank] <- destination + 1
+        # After scattering, this bucket ends just before the zero-fitness parents.
+        positive_parents: usize = buckets[target_length - 1]
         next_count: mutable usize = 66
         # Pairs start at an even index below 200, so both slots exist.
         offspring: mutable u64& = &next_population[0]
-        for parent_rank in 0..<50 |parent_rank, next_count, ranked_mismatches, target_length, state, gene_table, gene_count, next_population|:
+        for parent_rank in 0..<50 |parent_rank, next_count, positive_parents, target_length, state, gene_table, gene_count, next_population|:
             if next_count >= 200:
                 break
             first: u64 = next_population[parent_rank]
-            child_count: mutable usize = (target_length - ranked_mismatches[parent_rank].usize()) * 100 / target_length + 1
-            if child_count > 10:
-                child_count <- 10
+            # Every positive fitness reaches the cap for target lengths from one to eight.
+            child_count: usize = 10 if parent_rank < positive_parents else 1
             for round in 0..<child_count |round, next_count, state, first, target_length, gene_table, gene_count, next_population, offspring|:
                 if next_count >= 200:
                     break
