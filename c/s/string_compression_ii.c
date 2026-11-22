@@ -151,13 +151,11 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
             const uint32_t first_endpoint = start + 1;
             if (singleton_score > dp[first_endpoint][used])
                 dp[first_endpoint][used] = singleton_score;
+            /* Two singleton transitions already cover the cost of a pair. */
             const uint32_t second_endpoint = next_match[first_endpoint];
             /* A missing endpoint is zero. Since used <= start, subtraction wraps past budget. */
             const uint32_t pair_deleted = used + second_endpoint - start - 2;
             if (pair_deleted > budget) continue;
-            const uint32_t pair_score = prefix_score - 2;
-            if (pair_score > dp[second_endpoint][pair_deleted])
-                dp[second_endpoint][pair_deleted] = pair_score;
             uint32_t endpoint = next_match[second_endpoint];
             for (uint32_t kept = 3; endpoint != 0; ++kept) {
                 const uint32_t deleted = used + endpoint - start - kept;
