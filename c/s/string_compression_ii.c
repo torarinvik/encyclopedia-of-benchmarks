@@ -52,6 +52,15 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     if (retained == 1) return 1;
     if (matching >= retained) return sci_run_cost((int)retained);
 
+    /* Store matching endpoints as one-based positions. Zero ends a chain. */
+    size_t next_match[SCI_MAX_N];
+    size_t latest_match[26] = {0};
+    for (size_t position = n; position != 0; --position) {
+        const size_t symbol = (size_t)input[position + 1];
+        next_match[position - 1] = latest_match[symbol];
+        latest_match[symbol] = position;
+    }
+
     int64_t dp[SCI_WIDTH][SCI_WIDTH];
     for (size_t i = 0; i < SCI_WIDTH; ++i)
         for (size_t d = 0; d < SCI_WIDTH; ++d) dp[i][d] = SCI_INF;
@@ -68,21 +77,17 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
                 dp[start + 1][used + 1] = prefix_cost;
 
             if (kept_limit == 0) continue;
-            const int64_t symbol = input[start + 2];
-            int kept = 0;
-            size_t deleted = used;
-            for (size_t end = start; end < n; ++end) {
-                if (input[end + 2] != symbol) {
-                    if (++deleted > budget) break;
-                    continue;
-                }
-                const int64_t candidate = prefix_cost + sci_run_cost(++kept);
-                if (candidate < dp[end + 1][deleted])
-                    dp[end + 1][deleted] = candidate;
-                if ((size_t)kept == kept_limit) break;
+            size_t endpoint = start + 1;
+            for (size_t kept = 1; endpoint != 0; ++kept) {
+                const size_t deleted = used + endpoint - start - kept;
+                if (deleted > budget) break;
+                const int64_t candidate = prefix_cost + sci_run_cost((int)kept);
+                if (candidate < dp[endpoint][deleted])
+                    dp[endpoint][deleted] = candidate;
+                if (kept == kept_limit) break;
+                endpoint = next_match[endpoint - 1];
             }
         }
     }
-
     return dp[n][budget];
 }

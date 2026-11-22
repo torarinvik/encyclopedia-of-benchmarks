@@ -46,6 +46,16 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     if retained == 1: return 1
     if matching >= retained: return sci_run_cost(retained)
 
+    # Store matching endpoints as one-based positions. Zero ends a chain.
+    next_match: mutable usize[SCI_MAX_N] = zeroed
+    latest_match: mutable usize[26] = zeroed
+    position: mutable usize = n
+    while position != 0:
+        symbol: usize = input[position + 1].usize()
+        next_match[position - 1] <- latest_match[symbol]
+        latest_match[symbol] <- position
+        position <- position - 1
+
     dp: mutable i64[SCI_CELLS] = zeroed
     for i in 0..<SCI_CELLS:
         dp[i] <- SCI_INF
@@ -61,20 +71,17 @@ def sci_compute(input: i64&?, length: usize) -> i64:
                 next_state: usize = (start + 1) * SCI_WIDTH + used + 1
                 if prefix_cost < dp[next_state]: dp[next_state] <- prefix_cost
             if kept_limit == 0: continue
-            symbol: i64 = input[start + 2]
-            kept: mutable usize = 0
-            deleted: mutable usize = used
-            for ending in start..<n:
-                if input[ending + 2] != symbol:
-                    deleted <- deleted + 1
-                    if deleted > budget: break
-                    continue
-                # An optimal run can retain the earliest copies of its symbol.
-                kept <- kept + 1
+            endpoint: mutable usize = start + 1
+            kept: mutable usize = 1
+            while endpoint != 0:
+                deleted: usize = used + endpoint - start - kept
+                if deleted > budget: break
                 candidate: i64 = prefix_cost + sci_run_cost(kept)
-                state: usize = (ending + 1) * SCI_WIDTH + deleted
+                state: usize = endpoint * SCI_WIDTH + deleted
                 if candidate < dp[state]: dp[state] <- candidate
                 if kept == kept_limit: break
+                endpoint <- next_match[endpoint - 1]
+                kept <- kept + 1
     dp[n * SCI_WIDTH + budget]
 
 export fn string_compression_ii(input: i64&?, length: usize) -> i64 = sci_compute
