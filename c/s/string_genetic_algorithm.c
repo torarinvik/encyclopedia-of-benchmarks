@@ -65,7 +65,7 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
     uint32_t random_state = (uint32_t)seed_value;
     uint64_t population[POPULATION_SIZE];
     uint64_t next_population[POPULATION_SIZE];
-    uint8_t scores[POPULATION_SIZE];
+    uint8_t mismatches[POPULATION_SIZE];
     size_t order[POPULATION_SIZE];
     for (size_t individual = 0; individual < POPULATION_SIZE; ++individual) {
         uint64_t word = 0;
@@ -92,9 +92,8 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
             const uint64_t unequal = ((difference + UINT64_C(0x7f7f7f7f7f7f7f7f)) >> 7)
                                      & UINT64_C(0x0101010101010101);
             const size_t mismatch_count = (unequal * UINT64_C(0x0101010101010101)) >> 56;
-            const uint8_t score = (uint8_t)(target_length - mismatch_count);
-            scores[individual] = score;
-            if (score == target_length_value) {
+            mismatches[individual] = (uint8_t)mismatch_count;
+            if (mismatch_count == 0) {
                 if (output_capacity < 16) return -2;
                 write_i64_le(output, 0, (int64_t)generation);
                 write_i64_le(output, 8, total_population);
@@ -102,26 +101,25 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
             }
         }
 
-        // Count fitness buckets, then scatter in population order to preserve ties.
+        // Count mismatch buckets, then scatter in population order to preserve ties.
         size_t offsets[9] = {0};
         for (size_t individual = 0; individual < POPULATION_SIZE; ++individual)
-            ++offsets[scores[individual]];
+            ++offsets[mismatches[individual]];
         size_t offset = 0;
-        for (size_t descending = 0; descending < 9; ++descending) {
-            const size_t rank = 8 - descending;
+        for (size_t rank = 0; rank < 9; ++rank) {
             const size_t count = offsets[rank];
             offsets[rank] = offset;
             offset += count;
         }
         for (size_t individual = 0; individual < POPULATION_SIZE; ++individual)
-            order[offsets[scores[individual]]++] = individual;
+            order[offsets[mismatches[individual]]++] = individual;
 
         size_t next_count = 0;
         for (; next_count < ELITE_SIZE; ++next_count)
             next_population[next_count] = population[order[next_count]];
         for (size_t parent_rank = 0; parent_rank < SELECTED_SIZE && next_count < POPULATION_SIZE; ++parent_rank) {
             const uint64_t first = population[order[parent_rank]];
-            const size_t child_count = (size_t)(scores[order[parent_rank]] * 100 / target_length) + 1;
+            const size_t child_count = (size_t)((target_length - mismatches[order[parent_rank]]) * 100 / target_length) + 1;
             const size_t bounded_child_count = child_count < 10 ? child_count : 10;
             for (size_t child_round = 0; child_round < bounded_child_count && next_count < POPULATION_SIZE; ++child_round) {
                 const uint64_t second = population[order[next_random(&random_state) % 51]];

@@ -69,8 +69,8 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
     gene_table: u8& = &genes[0]
     population: mutable u64[200] = zeroed
     next_population: mutable u64[200] = zeroed
-    scores: mutable u8[200] = zeroed
-    ranked_scores: mutable u8[66] = zeroed
+    mismatches: mutable u8[200] = zeroed
+    ranked_mismatches: mutable u8[66] = zeroed
     state: mutable u64 = seed_value.u64()
     for individual in 0..<200 |individual, population, gene_table, state, target_length, gene_count, target_word, output, output_capacity|:
         word: mutable u64 = 0.u64()
@@ -87,47 +87,45 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
 
     total_population: mutable i64 = 0
     generation: mutable usize = 1
-    while generation < max_generations |generation, population, scores, ranked_scores, target_word, target_length, total_population, output, next_population, state, gene_table, gene_count|:
+    while generation < max_generations |generation, population, mismatches, ranked_mismatches, target_word, target_length, total_population, output, next_population, state, gene_table, gene_count|:
         total_population <- total_population + 200
         for individual in 0..<200:
             # ASCII XOR leaves the high bit clear. Adding 127 flags each unequal byte.
             difference: u64 = population[individual] ^ target_word
             unequal: u64 = ((difference + 0x7f7f7f7f7f7f7f7f.u64()) >> 7) & 0x0101010101010101.u64()
             mismatch_count: usize = ((unequal * 0x0101010101010101.u64()) >> 56).usize()
-            score: u8 = (target_length - mismatch_count).u8()
-            scores[individual] <- score
-            if score.usize() == target_length:
+            mismatches[individual] <- mismatch_count.u8()
+            if mismatch_count == 0:
                 if output_capacity < 16:
                     return -2
                 string_genetic_algorithm_write_i64(output, 0, generation.i64())
                 string_genetic_algorithm_write_i64(output, 8, total_population)
                 return 16
-        # Count fitness buckets, then scatter in population order to preserve ties.
+        # Count mismatch buckets, then scatter in population order to preserve ties.
         offsets: mutable usize[9] = zeroed
-        # Fitness is the number of matching target bytes, from zero through eight.
+        # Mismatch counts range from zero through eight.
         buckets: mutable usize& = &offsets[0]
         for individual in 0..<200:
-            rank: usize = scores[individual].usize()
+            rank: usize = mismatches[individual].usize()
             buckets[rank] <- buckets[rank] + 1
         offset: mutable usize = 0
-        for descending in 0..<9:
-            rank: usize = 8 - descending
+        for rank in 0..<9:
             count: usize = buckets[rank]
             buckets[rank] <- offset
             offset <- offset + count
         for individual in 0..<200:
-            rank: usize = scores[individual].usize()
+            rank: usize = mismatches[individual].usize()
             destination: usize = buckets[rank]
             if destination < 66:
                 next_population[destination] <- population[individual]
-                ranked_scores[destination] <- scores[individual]
+                ranked_mismatches[destination] <- mismatches[individual]
             buckets[rank] <- destination + 1
         next_count: mutable usize = 66
-        for parent_rank in 0..<50 |parent_rank, next_count, ranked_scores, target_length, state, gene_table, gene_count, next_population|:
+        for parent_rank in 0..<50 |parent_rank, next_count, ranked_mismatches, target_length, state, gene_table, gene_count, next_population|:
             if next_count >= 200:
                 break
             first: u64 = next_population[parent_rank]
-            child_count: mutable usize = ranked_scores[parent_rank].usize() * 100 / target_length + 1
+            child_count: mutable usize = (target_length - ranked_mismatches[parent_rank].usize()) * 100 / target_length + 1
             if child_count > 10:
                 child_count <- 10
             for round in 0..<child_count |round, next_count, state, first, target_length, gene_table, gene_count, next_population|:
