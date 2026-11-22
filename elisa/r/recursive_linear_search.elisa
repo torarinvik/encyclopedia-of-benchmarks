@@ -1,7 +1,7 @@
 const MAX_N: usize = 64
 const MAX_INPUT_LENGTH: usize = 66
 
-def search_recursive(items: view[i64], left: i64, right: i64, target: i64) -> i64:
+def search_recursive(items: view[i32], left: i64, right: i64, target: i32) -> i64:
     if left > right: return -1
     if items[left.usize()] == target: return left
     if items[right.usize()] == target: return right
@@ -10,19 +10,15 @@ def search_recursive(items: view[i64], left: i64, right: i64, target: i64) -> i6
 def recursive_linear_search_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 4 or length > MAX_INPUT_LENGTH: return -1
     if input[0] < 2 or input[0] > MAX_N.i64() or length != input[0].usize() + 2: return -1
-    target: i64 = input[1]
-    if target < -2147483648 or target > 2147483647: return -1
+    if input[1] < -2147483648 or input[1] > 2147483647: return -1
     n: usize = input[0].usize()
-    items: mutable i64[MAX_N] = zeroed
-    i: mutable usize = 0
-    while i < n:
-        if input[i + 2] < -2147483648 or input[i + 2] > 2147483647: return -1
-        items[i] <- input[i + 2]
-        j: usize = 0
-        while j < i:
+    items: mutable i32[MAX_N] = zeroed
+    for i in 0..<n:
+        value: i64 = input[i + 2]
+        if value < -2147483648 or value > 2147483647: return -1
+        items[i] <- value.i32()
+        for j in 0..<i:
             if items[j] == items[i]: return -1
-            j <- j + 1
-        i <- i + 1
-    search_recursive(items[0:n], 0, n.i64() - 1, target)
+    search_recursive(items[0:n], 0, n.i64() - 1, input[1].i32())
 
 export fn recursive_linear_search(input: i64&, length: usize) -> i64 = recursive_linear_search_impl
