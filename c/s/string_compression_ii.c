@@ -144,7 +144,8 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
             }
             /* Any completion with at least three symbols costs at least two bytes. */
             if (prefix_score <= best_score + 2) continue;
-            if (used < budget && prefix_score > dp[start + 1][used + 1])
+            /* The padding column absorbs deletions beyond budget. No later state reads it. */
+            if (prefix_score > dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_score;
             const uint32_t singleton_score = prefix_score - 1;
             const uint32_t first_endpoint = start + 1;

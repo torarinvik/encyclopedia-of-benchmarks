@@ -136,9 +136,9 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
                 continue
             # Any completion with at least three symbols costs at least two bytes.
             if prefix_score <= best_score + 2: continue
-            if used < budget:
-                next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
-                if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
+            # The padding column absorbs deletions beyond budget. No later state reads it.
+            next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
+            if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
             singleton_score: u32 = prefix_score - 1
             first_endpoint: u32 = start + 1
             singleton_state: u32 = first_endpoint * SCI_WIDTH.u32() + used
