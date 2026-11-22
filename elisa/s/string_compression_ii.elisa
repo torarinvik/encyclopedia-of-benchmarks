@@ -124,8 +124,7 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
     dp: mutable u32[SCI_CELLS] = zeroed
     # Scores are the base minus the encoded cost. Zero marks an unset state.
     dp[0] <- SCI_SCORE_BASE
-    final_state: u32 = n * SCI_WIDTH.u32() + budget
-    dp[final_state] <- SCI_SCORE_BASE - retained
+    best_score: mutable u32 = SCI_SCORE_BASE - retained
     for start in 0..<n:
         remaining: u32 = n - start
         first_used: u32 = budget - remaining + 1 if budget >= remaining else 0
@@ -134,7 +133,7 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
             prefix_score: u32 = dp[start * SCI_WIDTH.u32() + used]
             kept_limit: u32 = retained - (start - used)
             # Passing this bound leaves enough score to subtract any allowed run cost.
-            if prefix_score <= dp[final_state] + sci_run_cost(kept_limit.usize()).u32(): continue
+            if prefix_score <= best_score + sci_run_cost(kept_limit.usize()).u32(): continue
             if used < budget:
                 next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
                 if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
@@ -145,12 +144,12 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
                 if deleted > budget: break
                 candidate: u32 = prefix_score - sci_run_cost(kept.usize()).u32()
                 if kept == kept_limit:
-                    if candidate > dp[final_state]: dp[final_state] <- candidate
+                    if candidate > best_score: best_score <- candidate
                     break
                 state: u32 = endpoint * SCI_WIDTH.u32() + deleted
                 if candidate > dp[state]: dp[state] <- candidate
                 endpoint <- next_match[endpoint]
                 kept <- kept + 1
-    (SCI_SCORE_BASE - dp[final_state]).i64()
+    (SCI_SCORE_BASE - best_score).i64()
 
 export fn string_compression_ii(input: i64&?, length: usize) -> i64 = sci_compute
