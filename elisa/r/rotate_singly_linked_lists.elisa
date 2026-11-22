@@ -1,9 +1,9 @@
 const MAX_N: usize = 64
 const MAX_INPUT_LENGTH: usize = 66
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
-    byte: usize = 0
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
@@ -15,13 +15,12 @@ def rotate_singly_linked_lists_impl(input: i64&, length: usize, output: mutable 
     n: usize = input[0].usize()
     k: i64 = input[1]
     if length != n + 2: return -1
-    index: usize = 0
+    index: mutable usize = 0
     while index < n:
         if input[index + 2] < -2147483648 or input[index + 2] > 2147483647: return -1
         index <- index + 1
     bytes: usize = 8 * (n + 1)
     if output == null or capacity < bytes: return -2
-    output_view: mutable view[u8] = output[0:bytes]
 
     nodes: mutable i64[MAX_N] = zeroed
     next: mutable i64[MAX_N] = zeroed
@@ -31,25 +30,25 @@ def rotate_singly_linked_lists_impl(input: i64&, length: usize, output: mutable 
         if index + 1 < n: next[index] <- (index + 1).i64()
         else: next[index] <- -1
         index <- index + 1
-    head: i64 = -1
+    head: mutable i64 = -1
     if n > 0: head <- 0
     if n > 1 and k > 0:
-        tail: usize = n - 1
-        next[tail] <- head
+        last: usize = n - 1
+        next[last] <- head
         shift: usize = (k % n.i64()).usize()
         steps: usize = n - shift
-        new_tail: usize = tail
+        new_tail: mutable usize = last
         index <- 0
         while index < steps:
             new_tail <- next[new_tail].usize()
             index <- index + 1
         head <- next[new_tail]
         next[new_tail] <- -1
-    store_i64_le(n.i64(), output_view, 0)
-    node: i64 = head
+    store_i64_le(n.i64(), output, 0)
+    node: mutable i64 = head
     index <- 0
     while index < n:
-        store_i64_le(nodes[node.usize()], output_view, 8 + index * 8)
+        store_i64_le(nodes[node.usize()], output, 8 + index * 8)
         if index + 1 < n: node <- next[node.usize()]
         index <- index + 1
     bytes.i64()
