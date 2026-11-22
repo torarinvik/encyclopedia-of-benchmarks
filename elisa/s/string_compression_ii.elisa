@@ -69,7 +69,10 @@ def sci_delete_one(input: i64&, n: usize, next_match: usize&) -> i64:
             if saving == 0: saving <- 1
         # Deleting a singleton can join the equal runs on either side.
         if previous_length == 1 and older_symbol == symbol:
-            merged_saving: i64 = 1 + sci_run_cost(older_length) + run_cost - sci_run_cost(older_length + run_length)
+            extra_left: i64 = 1 if older_length > 1 else 0
+            extra_right: i64 = 1 if run_length > 1 else 0
+            crosses_ten: i64 = 1 if older_length < 10 and run_length < 10 and older_length + run_length >= 10 else 0
+            merged_saving: i64 = 1 + extra_left + extra_right - crosses_ten
             if merged_saving > saving: saving <- merged_saving
         older_symbol <- previous_symbol
         older_length <- previous_length

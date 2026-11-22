@@ -25,8 +25,9 @@ static int64_t sci_delete_one(const int64_t *input, size_t n, const size_t *next
             saving = 1;
         /* Deleting a singleton can join the equal runs on either side. */
         if (previous_length == 1 && older_symbol == symbol) {
-            const int64_t merged_saving = 1 + sci_run_cost((int)older_length)
-                + run_cost - sci_run_cost((int)(older_length + run_length));
+            const int64_t crosses_ten = older_length < 10 && run_length < 10
+                && older_length + run_length >= 10;
+            const int64_t merged_saving = 1 + (older_length > 1) + (run_length > 1) - crosses_ten;
             if (merged_saving > saving) saving = merged_saving;
         }
         older_symbol = previous_symbol;
