@@ -1,73 +1,67 @@
 const IDA_INVALID: i64 = -9223372036854775807 - 1
+const UNREACHED: i32 = 1000
+
+struct Search:
+    n: mutable i32
+    goal: mutable i32
+    threshold: mutable i32
+    next_threshold: mutable i32
+    h: i32[12]
+    adjacency: u32[12]
+
+def visit(search: mutable Search&, vertex: usize, distance: i32, path: u32) -> i32:
+    estimate: i32 = distance + search.h[vertex]
+    if estimate > search.threshold:
+        if estimate < search.next_threshold:
+            search.next_threshold <- estimate
+        return -1
+    if vertex.i32() == search.goal:
+        return distance
+    for next in 0..<search.n.usize():
+        bit: u32 = 1.u32() << next.u32()
+        if (search.adjacency[vertex] & bit) != 0 and (path & bit) == 0:
+            result: i32 = visit(search, next, distance + 1, path | bit)
+            if result >= 0:
+                return result
+    -1
 
 def ida_star_graph_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 5 or length > 112:
         return IDA_INVALID
-    values: view[i64] = input[0:length]
-    nv: i64 = values[0]
-    mv: i64 = values[1]
-    sv: i64 = values[2]
-    gv: i64 = values[3]
-    if nv < 1 or nv > 12 or mv < 0 or mv > 48 or sv < 0 or sv >= nv or gv < 0 or gv >= nv:
+    nv: i64 = input[0]
+    mv: i64 = input[1]
+    sv: i64 = input[2]
+    gv: i64 = input[3]
+    if nv < 1 or nv > 12 or mv < 0 or mv > 48 or sv < 0 or sv >= nv or gv < 0 or gv >= nv or
+            length != (4 + nv + 2 * mv).usize():
         return IDA_INVALID
-    n: usize = nv.usize()
-    m: usize = mv.usize()
-    start: usize = sv.usize()
-    goal: usize = gv.usize()
-    if length != 4 + n + 2 * m:
+    search: mutable Search = zeroed
+    search.n <- nv.i32()
+    search.goal <- gv.i32()
+    for i in 0..<nv.usize():
+        value: i64 = input[4 + i]
+        if value < 0 or value >= nv:
+            return IDA_INVALID
+        search.h[i] <- value.i32()
+    if search.h[gv.usize()] != 0:
         return IDA_INVALID
-    h: mutable i64[12] = zeroed
-    adjacency: mutable bool[144] = zeroed
-    for i in 0..<n:
-        if values[4+i] < 0 or values[4+i] >= nv:
+    for i in 0..<mv.usize():
+        u: i64 = input[4 + nv.usize() + 2 * i]
+        v: i64 = input[5 + nv.usize() + 2 * i]
+        if u < 0 or u >= nv or v < 0 or v >= nv or u == v or
+                (search.adjacency[u.usize()] & (1.u32() << v.u32())) != 0 or
+                search.h[u.usize()] > search.h[v.usize()] + 1:
             return IDA_INVALID
-        h[i] <- values[4+i]
-    if h[goal] != 0:
-        return IDA_INVALID
-    for i in 0..<m:
-        uv: i64 = values[4+n+2*i]
-        vv: i64 = values[5+n+2*i]
-        if uv < 0 or uv >= nv or vv < 0 or vv >= nv or uv == vv:
-            return IDA_INVALID
-        u: usize = uv.usize()
-        v: usize = vv.usize()
-        if adjacency[u*12+v] or h[u] > h[v]+1:
-            return IDA_INVALID
-        adjacency[u*12+v] <- true
-    bound: mutable i64 = h[start]
+        search.adjacency[u.usize()] <- search.adjacency[u.usize()] | (1.u32() << v.u32())
+    search.threshold <- search.h[sv.usize()]
     while true:
-        next_bound: mutable i64 = 1000
-        vertices: mutable usize[12] = zeroed
-        neighbors: mutable usize[12] = zeroed
-        on_path: mutable bool[12] = zeroed
-        top: mutable usize = 1
-        vertices[0] <- start
-        on_path[start] <- true
-        while top > 0:
-            depth: usize = top-1
-            u: usize = vertices[depth]
-            if u == goal:
-                return depth.i64()
-            v: mutable usize = neighbors[depth]
-            while v < n and (not adjacency[u*12+v] or on_path[v]):
-                v <- v+1
-            if v == n:
-                on_path[u] <- false
-                top <- top-1
-            else:
-                neighbors[depth] <- v+1
-                score: i64 = top.i64()+h[v]
-                if score > bound:
-                    if score < next_bound:
-                        next_bound <- score
-                else:
-                    vertices[top] <- v
-                    neighbors[top] <- 0
-                    on_path[v] <- true
-                    top <- top+1
-        if next_bound == 1000:
+        search.next_threshold <- UNREACHED
+        distance: i32 = visit(search, sv.usize(), 0, 1.u32() << sv.u32())
+        if distance >= 0:
+            return distance.i64()
+        if search.next_threshold == UNREACHED:
             return -1
-        bound <- next_bound
-    return -1
+        search.threshold <- search.next_threshold
+    -1
 
 export fn ida_star_graph(input: i64&, length: usize) -> i64 = ida_star_graph_impl
