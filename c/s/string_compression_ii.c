@@ -93,14 +93,14 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
     /* With at most two occurrences of each symbol, every kept byte costs one. */
     /* The high bit of each two-bit counter is set after the second occurrence. */
     uint64_t counts = 0;
-    size_t position = n;
-    for (; position != 0; --position) {
-        const unsigned shift = 2 * (unsigned)input[position + 1];
+    size_t position = 0;
+    for (; position < n; ++position) {
+        const unsigned shift = 2 * (unsigned)input[position + 2];
         const uint64_t increment = UINT64_C(1) << shift;
-        if ((counts & (increment << 1)) != 0) break;
+        if (((counts >> shift) & 2) != 0) break;
         counts += increment;
     }
-    if (position == 0) return (int64_t)retained;
+    if (position == n) return (int64_t)retained;
 
     size_t next_match[SCI_MAX_N + 1];
     uint8_t latest_match[26] = {0};
