@@ -10,6 +10,21 @@ static int64_t sci_run_cost(int kept) {
 }
 
 __attribute__((noinline))
+static int64_t sci_keep_four(const int64_t *input, size_t n) {
+    uint64_t counts = 0;
+    for (size_t index = 0; index < n; ++index) {
+        const unsigned shift = 2 * (unsigned)input[index + 2];
+        if (((counts >> shift) & 3) == 3) return 2;
+        counts += UINT64_C(1) << shift;
+    }
+    uint64_t triples = counts & (counts >> 1) & UINT64_C(0x5555555555555555);
+    /* The fourth symbol must fit before or after the chosen triple. */
+    if (input[2] == input[n + 1])
+        triples &= ~(UINT64_C(1) << (2 * (unsigned)input[2]));
+    return triples != 0 ? 3 : 4;
+}
+
+__attribute__((noinline))
 static int64_t sci_delete_one(const int64_t *input, size_t n, const size_t *next_match) {
     int64_t cost = 0, saving = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
@@ -85,6 +100,7 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     if (retained <= 2) return (int64_t)retained;
     if (matching >= retained) return sci_run_cost((int)retained);
 
+    if (retained == 4) return sci_keep_four(input, n);
     return sci_search(input, n, budget, retained);
 }
 

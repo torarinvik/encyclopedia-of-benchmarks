@@ -46,6 +46,7 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     if retained <= 2: return retained.i64()
     if matching >= retained: return sci_run_cost(retained)
 
+    if retained == 4: return sci_keep_four(input, n)
     sci_search(input, n, budget, retained)
 
 @inline(never)
@@ -80,6 +81,19 @@ def sci_delete_one(input: i64&, n: usize, next_match: usize&) -> i64:
         previous_length <- run_length
         start <- ending
     cost - saving
+
+@inline(never)
+def sci_keep_four(input: i64&, n: usize) -> i64:
+    counts: mutable u64 = 0
+    for index in 0..<n:
+        shift: u64 = input[index + 2].u64() * 2
+        if ((counts >> shift) & 3) == 3: return 2
+        counts <- counts + (1.u64() << shift)
+    triples: mutable u64 = counts & (counts >> 1) & 0x5555555555555555.u64()
+    # The fourth symbol must fit before or after the chosen triple.
+    if input[2] == input[n + 1]:
+        triples <- triples & (0xffffffffffffffff.u64() ^ (1.u64() << (input[2].u64() * 2)))
+    3 if triples != 0 else 4
 
 @inline(never)
 def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
