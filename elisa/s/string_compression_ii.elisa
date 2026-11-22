@@ -133,7 +133,8 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
         for used in first_used..=last_used:
             prefix_score: i32 = dp[start * SCI_WIDTH.u32() + used]
             kept_limit: u32 = retained - (start - used)
-            if prefix_score - sci_run_cost(kept_limit.usize()).i32() <= dp[final_state]: continue
+            # Widen score arithmetic so LLVM can rule out signed overflow.
+            if prefix_score.i64() - sci_run_cost(kept_limit.usize()) <= dp[final_state].i64(): continue
             if used < budget:
                 next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
                 if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
@@ -143,7 +144,7 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
             while endpoint != 0:
                 deleted: u32 = used + endpoint - start - kept
                 if deleted > budget: break
-                candidate: i32 = prefix_score - sci_run_cost(kept.usize()).i32()
+                candidate: i32 = (prefix_score.i64() - sci_run_cost(kept.usize())).i32()
                 state: u32 = final_state if kept == kept_limit else endpoint * SCI_WIDTH.u32() + deleted
                 if candidate > dp[state]: dp[state] <- candidate
                 if kept == kept_limit: break
