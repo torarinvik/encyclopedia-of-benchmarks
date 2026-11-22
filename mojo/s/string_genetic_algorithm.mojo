@@ -1,59 +1,139 @@
-from std.collections import InlineArray
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
-comptime POP=200
-fn ga_rand(state:UnsafePointer[UInt32,MutAnyOrigin])->UInt32:
-    state[0]=UInt32((UInt64(state[0])*48271)%2147483647);return state[0]
+from std.memory import Pointer
+from std.origin import ImmUntrackedOrigin, MutUntrackedOrigin
+
+comptime POPULATION_SIZE = 200
+comptime ELITE_SIZE = 66
+comptime SELECTED_SIZE = 50
+comptime MODULUS = UInt64(2147483647)
+
+
+def next_random(mut state: UInt64) -> UInt64:
+    state = (state * 48271) % MODULUS
+    return state
+
+
+def write_result(output: Pointer[UInt8, MutUntrackedOrigin], generation: Int) -> Int64:
+    for byte in range(8):
+        output[unsafe_offset=byte] = UInt8((UInt64(generation) >> UInt64(8 * byte)) & 255)
+        output[unsafe_offset=8 + byte] = UInt8((UInt64(generation * POPULATION_SIZE) >> UInt64(8 * byte)) & 255)
+    return 16
+
+
 @export("string_genetic_algorithm")
-fn string_genetic_algorithm(v:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t,o:UnsafePointer[UInt8,MutAnyOrigin],cap:c_size_t) abi("C")->Int64:
-    if v==UnsafePointer[Int64,ImmutAnyOrigin]() or n<6 or n>44:return -2
-    let tl=v[0];let gc=v[1];let seed=v[2];let mg=v[3]
-    if tl<1 or tl>8 or gc<1 or gc>32 or seed<1 or seed>=2147483647 or mg<1 or mg>1000 or n!=c_size_t(4+tl+gc):return -2
-    let tlen=Int(tl);let genesn=Int(gc)
-    var target=InlineArray[UInt8,8](fill=0);var genes=InlineArray[UInt8,32](fill=0)
-    for i in range(tlen):if v[4+i]<32 or v[4+i]>126:return -2;target[i]=UInt8(v[4+i])
-    for i in range(genesn):if v[4+tlen+i]<32 or v[4+tlen+i]>126:return -2;genes[i]=UInt8(v[4+tlen+i])
-    for i in range(tlen):
-        var found=False
-        for j in range(genesn):if target[i]==genes[j]:found=True
-        if not found:return -2
-    if o==UnsafePointer[UInt8,MutAnyOrigin]():return -2
-    var state=InlineArray[UInt32,1](UInt32(seed));var pop=InlineArray[UInt64,200](fill=0);var nextpop=InlineArray[UInt64,200](fill=0);var scores=InlineArray[UInt8,200](fill=0);var order=InlineArray[Int,200](fill=0)
-    for ind in range(POP):
-        var word:UInt64=0
-        for p in range(tlen):let gene=genes[Int(ga_rand(state.unsafe_ptr())%UInt32(genesn))];word=word|(UInt64(gene)<<UInt(8*p))
-        pop[ind]=word
-    var total:Int64=0
-    for gen in range(1,Int(mg)+1):
-        total+=200
-        for ind in range(POP):
-            var score=0
-            for p in range(tlen):if UInt8((pop[ind]>>UInt(8*p))&255)==target[p]:score+=1
-            scores[ind]=UInt8(score);order[ind]=ind
-            if score==tlen:
-                if cap<16:return -2
-                for w in range(2):let x=if w==0 then Int64(gen) else total;let bits=bitcast[UInt64](x);for b in range(8):o[w*8+b]=UInt8((bits>>UInt(8*b))&255)
-                return 16
-        for i in range(1,POP):
-            let selected=order[i];var j=i
-            while j>0 and scores[order[j-1]]<scores[selected]:order[j]=order[j-1];j-=1
-            order[j]=selected
-        var nc=0
-        while nc<66:nextpop[nc]=pop[order[nc]];nc+=1
-        for rank in range(50):
-            if nc>=POP:break
-            let first=pop[order[rank]];let childcount=Int(scores[order[rank]])*100/tlen+1
-            for _ in range(if childcount<10 then childcount else 10):
-                if nc>=POP:break
-                let second=pop[order[Int(ga_rand(state.unsafe_ptr())%51)]];let cut=Int(ga_rand(state.unsafe_ptr())%UInt32(tlen));var children=InlineArray[UInt64,2](fill=0)
-                for p in range(tlen):
-                    let shift=UInt(8*p);let a=(first>>shift)&255;let b=(second>>shift)&255
-                    children[0]=children[0]|((if p<cut then a else b)<<shift);children[1]=children[1]|((if p<cut then b else a)<<shift)
-                for ci in range(2):
-                    if ga_rand(state.unsafe_ptr())%5<2:
-                        let p=Int(ga_rand(state.unsafe_ptr())%UInt32(tlen));let sh=UInt(8*p);let replacement=UInt64(genes[Int(ga_rand(state.unsafe_ptr())%UInt32(genesn))]);children[ci]=(children[ci]&~(UInt64(255)<<sh))|(replacement<<sh)
-                    if nc<POP:nextpop[nc]=children[ci];nc+=1
-                if nc==POP:break
-            if nc==POP:break
-        pop=nextpop
+def string_genetic_algorithm(
+    input: Optional[Pointer[Int64, ImmUntrackedOrigin]],
+    length: c_size_t,
+    result: Optional[Pointer[UInt8, MutUntrackedOrigin]],
+    capacity: c_size_t,
+) abi("C") -> Int64:
+    if input == None or length < 6 or length > 44:
+        return -2
+    var values = input.value()
+    var target_length = Int(values[unsafe_offset=0])
+    var gene_count = Int(values[unsafe_offset=1])
+    var seed = values[unsafe_offset=2]
+    var max_generations = Int(values[unsafe_offset=3])
+    if target_length < 1 or target_length > 8 or gene_count < 1 or gene_count > 32:
+        return -2
+    if seed < 1 or seed >= Int64(MODULUS) or max_generations < 1 or max_generations > 1000:
+        return -2
+    if Int(length) != 4 + target_length + gene_count or result == None:
+        return -2
+    var output = result.value()
+    var target_word: UInt64 = 0
+    var target_symbols_storage = Array[UInt64, 2](fill=0)
+    var target_symbols = target_symbols_storage.unsafe_ptr()
+    var gene_symbols_storage = Array[UInt64, 2](fill=0)
+    var gene_symbols = gene_symbols_storage.unsafe_ptr()
+    var genes_storage = Array[UInt8, 32](fill=0)
+    var genes = genes_storage.unsafe_ptr()
+    for index in range(target_length):
+        var value = values[unsafe_offset=4 + index]
+        if value < 32 or value > 126:
+            return -2
+        target_word |= UInt64(value) << UInt64(8 * index)
+        target_symbols[unsafe_offset=Int(value >> 6)] |= UInt64(1) << UInt64(value & 63)
+    for index in range(gene_count):
+        var value = values[unsafe_offset=4 + target_length + index]
+        if value < 32 or value > 126:
+            return -2
+        genes[unsafe_offset=index] = UInt8(value)
+        gene_symbols[unsafe_offset=Int(value >> 6)] |= UInt64(1) << UInt64(value & 63)
+    if (target_symbols[unsafe_offset=0] & ~gene_symbols[unsafe_offset=0]) != 0 or (target_symbols[unsafe_offset=1] & ~gene_symbols[unsafe_offset=1]) != 0:
+        return -2
+
+    var state = UInt64(seed)
+    var population_storage = Array[UInt64, POPULATION_SIZE](fill=0)
+    var population = population_storage.unsafe_ptr()
+    var next_population_storage = Array[UInt64, POPULATION_SIZE](fill=0)
+    var next_population = next_population_storage.unsafe_ptr()
+    var mismatches_storage = Array[Int, POPULATION_SIZE](fill=0)
+    var mismatches = mismatches_storage.unsafe_ptr()
+    var order_storage = Array[Int, POPULATION_SIZE](fill=0)
+    var order = order_storage.unsafe_ptr()
+    for individual in range(POPULATION_SIZE):
+        var word: UInt64 = 0
+        for position in range(target_length):
+            var gene = genes[unsafe_offset=Int(next_random(state) % UInt64(gene_count))]
+            word |= UInt64(gene) << UInt64(8 * position)
+        if word == target_word:
+            if capacity < 16:
+                return -2
+            return write_result(output, 1)
+        population[unsafe_offset=individual] = word
+
+    for generation in range(1, max_generations + 1):
+        var offsets_storage = Array[Int, 9](fill=0)
+        var offsets = offsets_storage.unsafe_ptr()
+        for individual in range(POPULATION_SIZE):
+            # The bias marks unequal ASCII bytes without carrying across bytes.
+            var difference = population[unsafe_offset=individual] ^ target_word
+            var unequal = ((difference + UInt64(0x7f7f7f7f7f7f7f7f)) >> 7) & UInt64(0x0101010101010101)
+            var count = Int((unequal * UInt64(0x0101010101010101)) >> 56)
+            if count == 0:
+                if capacity < 16:
+                    return -2
+                return write_result(output, generation)
+            mismatches[unsafe_offset=individual] = count
+            offsets[unsafe_offset=count] += 1
+        if generation == max_generations:
+            break
+        var start = 0
+        for rank in range(9):
+            var count = offsets[unsafe_offset=rank]
+            offsets[unsafe_offset=rank] = start
+            start += count
+        for individual in range(POPULATION_SIZE):
+            var count = mismatches[unsafe_offset=individual]
+            order[unsafe_offset=offsets[unsafe_offset=count]] = individual
+            offsets[unsafe_offset=count] += 1
+        for rank in range(ELITE_SIZE):
+            next_population[unsafe_offset=rank] = population[unsafe_offset=order[unsafe_offset=rank]]
+        var next_count = ELITE_SIZE
+        for rank in range(SELECTED_SIZE):
+            if next_count == POPULATION_SIZE:
+                break
+            var first = population[unsafe_offset=order[unsafe_offset=rank]]
+            var rounds = min(10, (target_length - mismatches[unsafe_offset=order[unsafe_offset=rank]]) * 100 // target_length + 1)
+            for _ in range(rounds):
+                if next_count == POPULATION_SIZE:
+                    break
+                var second = population[unsafe_offset=order[unsafe_offset=Int(next_random(state) % 51)]]
+                var cut = next_random(state) % UInt64(target_length)
+                var mask = (UInt64(1) << UInt64(8 * cut)) - 1
+                var children_storage = Array[UInt64, 2](fill=0)
+                var children = children_storage.unsafe_ptr()
+                children[unsafe_offset=0] = (first & mask) | (second & ~mask)
+                children[unsafe_offset=1] = (second & mask) | (first & ~mask)
+                for child in range(2):
+                    if next_random(state) % 5 < 2:
+                        var shift = UInt64(8 * (next_random(state) % UInt64(target_length)))
+                        var replacement = UInt64(genes[unsafe_offset=Int(next_random(state) % UInt64(gene_count))])
+                        children[unsafe_offset=child] = (children[unsafe_offset=child] & ~(UInt64(255) << shift)) | (replacement << shift)
+                    if next_count < POPULATION_SIZE:
+                        next_population[unsafe_offset=next_count] = children[unsafe_offset=child]
+                        next_count += 1
+        for individual in range(POPULATION_SIZE):
+            population[unsafe_offset=individual] = next_population[unsafe_offset=individual]
     return -1
