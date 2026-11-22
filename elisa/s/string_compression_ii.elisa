@@ -50,7 +50,7 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     sci_search(input, n.u32(), budget.u32(), retained.u32())
 
 @inline(never)
-def sci_delete_one(input: i64&, n: usize, next_match: u8&) -> i64:
+def sci_delete_one(input: i64&, n: usize) -> i64:
     cost: mutable i64 = 0
     saving: mutable i64 = 0
     older_symbol: mutable i64 = -1
@@ -61,7 +61,7 @@ def sci_delete_one(input: i64&, n: usize, next_match: u8&) -> i64:
     while start < n:
         symbol: i64 = input[start + 2]
         ending: mutable usize = start + 1
-        while next_match[ending].usize() == ending + 1:
+        while ending < n and input[ending + 2] == symbol:
             ending <- ending + 1
         run_length: usize = ending - start
         # Each nibble holds the cost in bits 0–1 and deletion saving in bit 2.
@@ -111,6 +111,8 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
     if position == n: return retained.i64()
     if retained == 3: return 2
 
+    if budget == 1: return sci_delete_one(input, n.usize())
+
     next_match: mutable u8[SCI_MAX_N + 1] = zeroed
     latest_match: mutable u8[26] = zeroed
     # sci_compute validates every symbol before calling sci_search.
@@ -121,8 +123,6 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
         next_match[position] <- latest[symbol]
         latest[symbol] <- position.u8()
         position <- position - 1
-
-    if budget == 1: return sci_delete_one(input, n.usize(), &next_match[0])
 
     # All links are initialized to zero or a position in 1..=n.
     links: u8& = &next_match[0]

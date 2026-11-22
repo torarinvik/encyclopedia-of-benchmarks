@@ -25,14 +25,14 @@ static int64_t sci_keep_four(const int64_t *input, size_t n) {
 }
 
 __attribute__((noinline))
-static int64_t sci_delete_one(const int64_t *input, size_t n, const uint8_t *next_match) {
+static int64_t sci_delete_one(const int64_t *input, size_t n) {
     int64_t cost = 0, saving = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
     size_t older_length = 0, previous_length = 0;
     for (size_t start = 0; start < n;) {
         const int64_t symbol = input[start + 2];
         size_t end = start + 1;
-        while (next_match[end] == end + 1) ++end;
+        while (end < n && input[end + 2] == symbol) ++end;
         const size_t run_length = end - start;
         /* Each nibble holds the cost in bits 0–1 and deletion saving in bit 2. */
         const uint64_t run = UINT64_C(0x3372222222650) >> (run_length * 4);
@@ -120,6 +120,8 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
     if (position == n) return (int64_t)retained;
     if (retained == 3) return 2;
 
+    if (budget == 1) return sci_delete_one(input, n);
+
     uint8_t next_match[SCI_MAX_N + 1];
     next_match[0] = 0;
     uint8_t latest_match[26] = {0};
@@ -129,7 +131,6 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
         latest_match[symbol] = (uint8_t)position;
     }
 
-    if (budget == 1) return sci_delete_one(input, n, next_match);
 
     /* Scores are the base minus the encoded cost. Zero marks an unset state. */
     uint32_t dp[SCI_MAX_N + 1][SCI_WIDTH] = {{SCI_SCORE_BASE}};
