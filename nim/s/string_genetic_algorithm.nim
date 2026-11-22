@@ -27,56 +27,63 @@ proc string_genetic_algorithm*(values: ptr UncheckedArray[int64], length: csize_
   let geneCount = int(geneCountValue)
   let maxGenerations = int(maxGenerationsValue)
   if int(length) != 4 + targetLength + geneCount: return -2
-  var target: array[8, uint8]
+  var targetWord = 0'u64
+  var targetSymbols, geneSymbols: array[2, uint64]
   var genes: array[32, uint8]
   for i in 0 ..< targetLength:
     let value = values[4 + i]
     if value < 32 or value > 126: return -2
-    target[i] = uint8(value)
+    targetWord = targetWord or (uint64(value) shl (8 * i))
+    targetSymbols[value shr 6] = targetSymbols[value shr 6] or (1'u64 shl (value and 63))
   for i in 0 ..< geneCount:
     let value = values[4 + targetLength + i]
     if value < 32 or value > 126: return -2
     genes[i] = uint8(value)
-  for position in 0 ..< targetLength:
-    var found = false
-    for gene in 0 ..< geneCount:
-      if genes[gene] == target[position]: found = true
-    if not found: return -2
-  if output == nil: return -2
+    geneSymbols[value shr 6] = geneSymbols[value shr 6] or (1'u64 shl (value and 63))
+  if output == nil or (targetSymbols[0] and not geneSymbols[0]) != 0 or
+      (targetSymbols[1] and not geneSymbols[1]) != 0: return -2
 
   var state = uint64(seedValue)
   var population: array[PopulationSize, uint64]
   var nextPopulation: array[PopulationSize, uint64]
-  var scores: array[PopulationSize, uint8]
+  var mismatches: array[PopulationSize, uint8]
   var order: array[PopulationSize, int]
   for individual in 0 ..< PopulationSize:
     var word = 0'u64
     for position in 0 ..< targetLength:
       let gene = genes[int(nextRandom(state) mod uint64(geneCount))]
       word = word or (uint64(gene) shl (8 * position))
+    if word == targetWord:
+      if outputCapacity < 16: return -2
+      writeI64Le(output, 0, 1)
+      writeI64Le(output, 8, PopulationSize)
+      return 16
     population[individual] = word
 
   var totalPopulation = 0'i64
   for generation in 1 .. maxGenerations:
     totalPopulation += int64(PopulationSize)
+    var offsets: array[9, int]
     for individual in 0 ..< PopulationSize:
-      var score = 0'u8
-      for position in 0 ..< targetLength:
-        if uint8((population[individual] shr (8 * position)) and 0xff'u64) == target[position]: inc score
-      scores[individual] = score
-      order[individual] = individual
-      if int(score) == targetLength:
+      # The bias marks unequal ASCII bytes without carrying across bytes.
+      let difference = population[individual] xor targetWord
+      let unequal = ((difference + 0x7f7f7f7f7f7f7f7f'u64) shr 7) and 0x0101010101010101'u64
+      let count = uint8((unequal * 0x0101010101010101'u64) shr 56)
+      mismatches[individual] = count
+      inc offsets[count]
+      if count == 0:
         if outputCapacity < 16: return -2
         writeI64Le(output, 0, int64(generation))
         writeI64Le(output, 8, totalPopulation)
         return 16
-    for index in 1 ..< PopulationSize:
-      let selected = order[index]
-      var insertion = index
-      while insertion > 0 and scores[order[insertion - 1]] < scores[selected]:
-        order[insertion] = order[insertion - 1]
-        dec insertion
-      order[insertion] = selected
+    var start = 0
+    for offset in offsets.mitems:
+      let count = offset
+      offset = start
+      start += count
+    for individual, count in mismatches:
+      order[offsets[count]] = individual
+      inc offsets[count]
     var nextCount = 0
     while nextCount < EliteSize:
       nextPopulation[nextCount] = population[order[nextCount]]
@@ -84,22 +91,14 @@ proc string_genetic_algorithm*(values: ptr UncheckedArray[int64], length: csize_
     for parentRank in 0 ..< SelectedSize:
       if nextCount >= PopulationSize: break
       let first = population[order[parentRank]]
-      let childCount = min(10, int(scores[order[parentRank]]) * 100 div targetLength + 1)
+      let childCount = min(10, (targetLength - int(mismatches[order[parentRank]])) * 100 div targetLength + 1)
       for _ in 0 ..< childCount:
         if nextCount >= PopulationSize: break
         let second = population[order[int(nextRandom(state) mod 51'u64)]]
         let cut = int(nextRandom(state) mod uint64(targetLength))
-        var children: array[2, uint64]
-        for position in 0 ..< targetLength:
-          let shift = 8 * position
-          let firstGene = (first shr shift) and 0xff'u64
-          let secondGene = (second shr shift) and 0xff'u64
-          if position < cut:
-            children[0] = children[0] or (firstGene shl shift)
-            children[1] = children[1] or (secondGene shl shift)
-          else:
-            children[0] = children[0] or (secondGene shl shift)
-            children[1] = children[1] or (firstGene shl shift)
+        let lowMask = (1'u64 shl (8 * cut)) - 1
+        var children = [(first and lowMask) or (second and not lowMask),
+                        (second and lowMask) or (first and not lowMask)]
         for child in 0 ..< 2:
           if nextRandom(state) mod 5'u64 < 2'u64:
             let position = int(nextRandom(state) mod uint64(targetLength))
