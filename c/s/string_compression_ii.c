@@ -25,7 +25,7 @@ static int64_t sci_keep_four(const int64_t *input, size_t n) {
 }
 
 __attribute__((noinline))
-static int64_t sci_delete_one(const int64_t *input, size_t n, const size_t *next_match) {
+static int64_t sci_delete_one(const int64_t *input, size_t n, const uint32_t *next_match) {
     int64_t cost = 0, saving = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
     size_t older_length = 0, previous_length = 0;
@@ -55,7 +55,7 @@ static int64_t sci_delete_one(const int64_t *input, size_t n, const size_t *next
 }
 
 __attribute__((noinline))
-static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t retained);
+static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uint32_t retained);
 
 int64_t string_compression_ii(const int64_t *input, size_t length) {
     if (input == NULL || length < 2) return -1;
@@ -105,11 +105,11 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
 }
 
 __attribute__((noinline))
-static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t retained) {
+static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uint32_t retained) {
     /* With at most two occurrences of each symbol, every kept byte costs one. */
     /* The high bit of each two-bit counter is set after the second occurrence. */
     uint64_t counts = 0;
-    size_t position = 0;
+    uint32_t position = 0;
     for (; position < n; ++position) {
         const unsigned shift = 2 * (unsigned)input[position + 2];
         const uint64_t increment = UINT64_C(1) << shift;
@@ -119,10 +119,10 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
     if (position == n) return (int64_t)retained;
     if (retained == 3) return 2;
 
-    size_t next_match[SCI_MAX_N + 1];
+    uint32_t next_match[SCI_MAX_N + 1];
     uint8_t latest_match[26] = {0};
     for (position = n; position != 0; --position) {
-        const size_t symbol = (size_t)input[position + 1];
+        const uint32_t symbol = (uint32_t)input[position + 1];
         next_match[position] = latest_match[symbol];
         latest_match[symbol] = (uint8_t)position;
     }
@@ -132,21 +132,21 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
     /* Scores are the base minus the encoded cost. Zero marks an unset state. */
     int32_t dp[SCI_MAX_N + 1][SCI_WIDTH] = {{SCI_SCORE_BASE}};
     dp[n][budget] = SCI_SCORE_BASE - (int32_t)retained;
-    for (size_t start = 0; start < n; ++start) {
-        const size_t remaining = n - start;
-        const size_t first_used = budget >= remaining ? budget - remaining + 1 : 0;
-        const size_t last_used = start < budget ? start : budget;
-        for (size_t used = first_used; used <= last_used; ++used) {
+    for (uint32_t start = 0; start < n; ++start) {
+        const uint32_t remaining = n - start;
+        const uint32_t first_used = budget >= remaining ? budget - remaining + 1 : 0;
+        const uint32_t last_used = start < budget ? start : budget;
+        for (uint32_t used = first_used; used <= last_used; ++used) {
             int32_t prefix_score = dp[start][used];
-            const size_t kept_limit = retained - (start - used);
+            const uint32_t kept_limit = retained - (start - used);
             if (prefix_score - sci_run_cost((int)kept_limit) <= dp[n][budget]) continue;
             if (used < budget && prefix_score > dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_score;
 
             if (kept_limit == 0) continue;
-            size_t endpoint = start + 1;
-            for (size_t kept = 1; endpoint != 0; ++kept) {
-                const size_t deleted = used + endpoint - start - kept;
+            uint32_t endpoint = start + 1;
+            for (uint32_t kept = 1; endpoint != 0; ++kept) {
+                const uint32_t deleted = used + endpoint - start - kept;
                 if (deleted > budget) break;
                 const int32_t candidate = prefix_score - sci_run_cost((int)kept);
                 if (kept == kept_limit) {

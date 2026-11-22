@@ -47,10 +47,10 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     if matching >= retained: return sci_run_cost(retained)
 
     if retained == 4: return sci_keep_four(input, n)
-    sci_search(input, n, budget, retained)
+    sci_search(input, n.u32(), budget.u32(), retained.u32())
 
 @inline(never)
-def sci_delete_one(input: i64&, n: usize, next_match: usize&) -> i64:
+def sci_delete_one(input: i64&, n: usize, next_match: u32&) -> i64:
     cost: mutable i64 = 0
     saving: mutable i64 = 0
     older_symbol: mutable i64 = -1
@@ -96,11 +96,11 @@ def sci_keep_four(input: i64&, n: usize) -> i64:
     3 if triples != 0 else 4
 
 @inline(never)
-def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
+def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
     # With at most two occurrences of each symbol, every kept byte costs one.
     # The high bit of each two-bit counter is set after the second occurrence.
     counts: mutable u64 = 0
-    position: mutable usize = 0
+    position: mutable u32 = 0
     while position < n:
         shift: u64 = input[position + 2].u64() * 2
         increment: u64 = 1.u64() << shift
@@ -110,41 +110,41 @@ def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
     if position == n: return retained.i64()
     if retained == 3: return 2
 
-    next_match: mutable usize[SCI_MAX_N + 1] = zeroed
+    next_match: mutable u32[SCI_MAX_N + 1] = zeroed
     latest_match: mutable u8[26] = zeroed
     position <- n
     while position != 0:
-        symbol: usize = input[position + 1].usize()
-        next_match[position] <- latest_match[symbol].usize()
+        symbol: u32 = input[position + 1].u32()
+        next_match[position] <- latest_match[symbol].u32()
         latest_match[symbol] <- position.u8()
         position <- position - 1
 
-    if budget == 1: return sci_delete_one(input, n, &next_match[0])
+    if budget == 1: return sci_delete_one(input, n.usize(), &next_match[0])
 
     dp: mutable i32[SCI_CELLS] = zeroed
     # Scores are the base minus the encoded cost. Zero marks an unset state.
     dp[0] <- SCI_SCORE_BASE
-    final_state: usize = n * SCI_WIDTH + budget
+    final_state: u32 = n * SCI_WIDTH.u32() + budget
     dp[final_state] <- SCI_SCORE_BASE - retained.i32()
     for start in 0..<n:
-        remaining: usize = n - start
-        first_used: usize = budget - remaining + 1 if budget >= remaining else 0
-        last_used: usize = start if start < budget else budget
+        remaining: u32 = n - start
+        first_used: u32 = budget - remaining + 1 if budget >= remaining else 0
+        last_used: u32 = start if start < budget else budget
         for used in first_used..=last_used:
-            prefix_score: i32 = dp[start * SCI_WIDTH + used]
-            kept_limit: usize = retained - (start - used)
-            if prefix_score - sci_run_cost(kept_limit).i32() <= dp[final_state]: continue
+            prefix_score: i32 = dp[start * SCI_WIDTH.u32() + used]
+            kept_limit: u32 = retained - (start - used)
+            if prefix_score - sci_run_cost(kept_limit.usize()).i32() <= dp[final_state]: continue
             if used < budget:
-                next_state: usize = (start + 1) * SCI_WIDTH + used + 1
+                next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
                 if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
             if kept_limit == 0: continue
-            endpoint: mutable usize = start + 1
-            kept: mutable usize = 1
+            endpoint: mutable u32 = start + 1
+            kept: mutable u32 = 1
             while endpoint != 0:
-                deleted: usize = used + endpoint - start - kept
+                deleted: u32 = used + endpoint - start - kept
                 if deleted > budget: break
-                candidate: i32 = prefix_score - sci_run_cost(kept).i32()
-                state: usize = final_state if kept == kept_limit else endpoint * SCI_WIDTH + deleted
+                candidate: i32 = prefix_score - sci_run_cost(kept.usize()).i32()
+                state: u32 = final_state if kept == kept_limit else endpoint * SCI_WIDTH.u32() + deleted
                 if candidate > dp[state]: dp[state] <- candidate
                 if kept == kept_limit: break
                 endpoint <- next_match[endpoint]
