@@ -131,15 +131,15 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
         for used in first_used..=last_used:
             prefix_score: u32 = dp[start * SCI_WIDTH.u32() + used]
             kept_limit: u32 = retained - (start - used)
-            # Passing this bound leaves enough score to subtract any allowed run cost.
-            if prefix_score <= best_score + sci_run_cost(kept_limit.usize()).u32(): continue
+            if kept_limit == 1:
+                if prefix_score > best_score + 1: best_score <- prefix_score - 1
+                continue
+            minimum_cost: u32 = 2 if kept_limit < 10 else 3
+            if prefix_score <= best_score + minimum_cost: continue
             if used < budget:
                 next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
                 if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
             singleton_score: u32 = prefix_score - 1
-            if kept_limit == 1:
-                if singleton_score > best_score: best_score <- singleton_score
-                continue
             first_endpoint: u32 = start + 1
             singleton_state: u32 = first_endpoint * SCI_WIDTH.u32() + used
             if singleton_score > dp[singleton_state]: dp[singleton_state] <- singleton_score
@@ -148,7 +148,8 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
             while endpoint != 0:
                 deleted: u32 = used + endpoint - start - kept
                 if deleted > budget: break
-                candidate: u32 = prefix_score - sci_run_cost(kept.usize()).u32()
+                run_cost: u32 = 2 if kept < 10 else 3
+                candidate: u32 = prefix_score - run_cost
                 if kept == kept_limit:
                     if candidate > best_score: best_score <- candidate
                     break

@@ -138,15 +138,15 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
         for (uint32_t used = first_used; used <= last_used; ++used) {
             uint32_t prefix_score = dp[start][used];
             const uint32_t kept_limit = retained - (start - used);
-            if (prefix_score <= best_score + (uint32_t)sci_run_cost((int)kept_limit)) continue;
-            if (used < budget && prefix_score > dp[start + 1][used + 1])
-                dp[start + 1][used + 1] = prefix_score;
-
-            const uint32_t singleton_score = prefix_score - 1;
             if (kept_limit == 1) {
-                if (singleton_score > best_score) best_score = singleton_score;
+                if (prefix_score > best_score + 1) best_score = prefix_score - 1;
                 continue;
             }
+            const uint32_t minimum_cost = kept_limit < 10 ? 2 : 3;
+            if (prefix_score <= best_score + minimum_cost) continue;
+            if (used < budget && prefix_score > dp[start + 1][used + 1])
+                dp[start + 1][used + 1] = prefix_score;
+            const uint32_t singleton_score = prefix_score - 1;
             const uint32_t first_endpoint = start + 1;
             if (singleton_score > dp[first_endpoint][used])
                 dp[first_endpoint][used] = singleton_score;
@@ -154,7 +154,8 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
             for (uint32_t kept = 2; endpoint != 0; ++kept) {
                 const uint32_t deleted = used + endpoint - start - kept;
                 if (deleted > budget) break;
-                const uint32_t candidate = prefix_score - (uint32_t)sci_run_cost((int)kept);
+                const uint32_t run_cost = kept < 10 ? 2 : 3;
+                const uint32_t candidate = prefix_score - run_cost;
                 if (kept == kept_limit) {
                     if (candidate > best_score) best_score = candidate;
                     break;
