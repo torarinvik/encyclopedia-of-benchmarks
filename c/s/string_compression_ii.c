@@ -99,6 +99,23 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
             if ((uint64_t)input[index + 2] > 25) return -1;
         return 0;
     }
+    /* One deletion can only join symbols at distance two. */
+    if (budget == 1) {
+        int64_t older = input[2], previous = input[3];
+        if ((uint64_t)older > 25 || (uint64_t)previous > 25) return -1;
+        if (older != previous) {
+            size_t position = 2;
+            for (; position < n; ++position) {
+                const int64_t symbol = input[position + 2];
+                if ((uint64_t)symbol > 25) return -1;
+                if (symbol == older || symbol == previous) break;
+                older = previous;
+                previous = symbol;
+            }
+            if (position == n) return (int64_t)(n - 1);
+        }
+    }
+
     const int64_t first_symbol = input[2];
     if ((uint64_t)first_symbol > 25) return -1;
     size_t matching = 1;

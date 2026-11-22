@@ -33,6 +33,21 @@ def sci_compute(input: i64&?, length: usize) -> i64:
         for index in 0..<n:
             if input[index + 2].u64() > 25: return -1
         return 0
+    if budget == 1:
+        older: mutable i64 = input[2]
+        previous: mutable i64 = input[3]
+        if older.u64() > 25 or previous.u64() > 25: return -1
+        if older != previous:
+            position: mutable usize = 2
+            while position < n:
+                symbol: i64 = input[position + 2]
+                if symbol.u64() > 25: return -1
+                if symbol == older or symbol == previous: break
+                older <- previous
+                previous <- symbol
+                position <- position + 1
+            if position == n: return (n - 1).i64()
+
     first_symbol: i64 = input[2]
     if first_symbol.u64() > 25: return -1
     matching: mutable usize = 1
