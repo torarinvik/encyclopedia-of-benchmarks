@@ -4,8 +4,8 @@ def string_genetic_algorithm_next_random(state: mutable u64&) -> u64:
     modulus: u64 = 2147483647
     product: u64 = state * 48271.u64()
     folded: u64 = (product & modulus) + (product >> 31)
-    # Adding one and masking the low 31 bits subtracts the modulus when needed.
-    state <- (folded + (1.u64() if folded >= modulus else 0)) & modulus
+    # Adding one carries into bit 31 exactly when the folded value reaches the modulus.
+    state <- (folded + ((folded + 1) >> 31)) & modulus
     state
 
 def string_genetic_algorithm_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
