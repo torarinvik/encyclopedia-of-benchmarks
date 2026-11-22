@@ -53,6 +53,7 @@ def sci_compute(input: i64&?, length: usize) -> i64:
 def sci_delete_one(input: i64&, n: usize) -> i64:
     cost: mutable u64 = 0
     saving: mutable i64 = 0
+    shrink_available: mutable bool = false
     older_symbol: mutable i64 = -1
     older_length: mutable usize = 0
     previous_symbol: mutable i64 = -1
@@ -61,21 +62,22 @@ def sci_delete_one(input: i64&, n: usize) -> i64:
     next_symbol: mutable i64 = input[0]
     while start < n:
         symbol: i64 = next_symbol
-        ending: mutable usize = start + 1
+        first_boundary: usize = start + 1
+        ending: mutable usize = first_boundary
         while ending < n:
             next_symbol <- input[ending]
             if next_symbol != symbol: break
             ending <- ending + 1
         run_length: usize = ending - start
-        if run_length == 1:
+        if ending == first_boundary:
             cost <- cost + 1
-            if saving == 0: saving <- 1
+            shrink_available <- true
         else:
             # Each nibble holds the cost in bits 0–1 and deletion saving in bit 2.
             run: u64 = 0x3372222222650.u64() >> (run_length.u64() * 4)
             cost <- cost + (run & 3)
-            shrink: i64 = ((run >> 2) & 1).i64()
-            if shrink > saving: saving <- shrink
+            shrink: bool = (run & 4) != 0
+            shrink_available <- shrink_available or shrink
         # Deleting a singleton can join the equal runs on either side.
         if older_symbol == symbol:
             extra_left: i64 = 1 if older_length > 1 else 0
@@ -83,12 +85,13 @@ def sci_delete_one(input: i64&, n: usize) -> i64:
             crosses_ten: i64 = 1 if older_length < 10 and run_length < 10 and older_length + run_length >= 10 else 0
             merged_saving: i64 = 1 + extra_left + extra_right - crosses_ten
             if merged_saving > saving: saving <- merged_saving
-        older_symbol <- previous_symbol if run_length == 1 else -1
+        older_symbol <- previous_symbol if ending == first_boundary else -1
         older_length <- previous_length
         previous_symbol <- symbol
         previous_length <- run_length
         start <- ending
-    (cost - saving.u64()).i64()
+    fallback: u64 = 1 if shrink_available else 0
+    (cost - (saving.u64() if saving != 0 else fallback)).i64()
 
 @inline(never)
 def sci_keep_four(input: i64&, n: usize) -> i64:

@@ -28,27 +28,28 @@ __attribute__((noinline))
 static int64_t sci_delete_one(const int64_t *input, size_t n) {
     uint64_t cost = 0;
     int64_t saving = 0;
+    unsigned shrink_available = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
     size_t older_length = 0, previous_length = 0;
     int64_t next_symbol = input[0];
     for (size_t start = 0; start < n;) {
         const int64_t symbol = next_symbol;
-        size_t end = start + 1;
+        const size_t first_boundary = start + 1;
+        size_t end = first_boundary;
         while (end < n) {
             next_symbol = input[end];
             if (next_symbol != symbol) break;
             ++end;
         }
         const size_t run_length = end - start;
-        if (run_length == 1) {
+        if (end == first_boundary) {
             ++cost;
-            if (saving == 0) saving = 1;
+            shrink_available = 1;
         } else {
             /* Each nibble holds the cost in bits 0–1 and deletion saving in bit 2. */
             const uint64_t run = UINT64_C(0x3372222222650) >> (run_length * 4);
             cost += run & 3;
-            const int64_t shrink = (int64_t)((run >> 2) & 1);
-            if (shrink > saving) saving = shrink;
+            shrink_available |= (unsigned)((run >> 2) & 1);
         }
         /* Deleting a singleton can join the equal runs on either side. */
         if (older_symbol == symbol) {
@@ -57,13 +58,13 @@ static int64_t sci_delete_one(const int64_t *input, size_t n) {
             const int64_t merged_saving = 1 + (older_length > 1) + (run_length > 1) - crosses_ten;
             if (merged_saving > saving) saving = merged_saving;
         }
-        older_symbol = run_length == 1 ? previous_symbol : -1;
+        older_symbol = end == first_boundary ? previous_symbol : -1;
         older_length = previous_length;
         previous_symbol = symbol;
         previous_length = run_length;
         start = end;
     }
-    return (int64_t)(cost - (uint64_t)saving);
+    return (int64_t)(cost - (saving != 0 ? (uint64_t)saving : shrink_available));
 }
 
 __attribute__((noinline))
