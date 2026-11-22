@@ -142,8 +142,16 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
             if (used < budget && prefix_score > dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_score;
 
-            uint32_t endpoint = start + 1;
-            for (uint32_t kept = 1; endpoint != 0; ++kept) {
+            const uint32_t singleton_score = prefix_score - 1;
+            if (kept_limit == 1) {
+                if (singleton_score > best_score) best_score = singleton_score;
+                continue;
+            }
+            const uint32_t first_endpoint = start + 1;
+            if (singleton_score > dp[first_endpoint][used])
+                dp[first_endpoint][used] = singleton_score;
+            uint32_t endpoint = next_match[first_endpoint];
+            for (uint32_t kept = 2; endpoint != 0; ++kept) {
                 const uint32_t deleted = used + endpoint - start - kept;
                 if (deleted > budget) break;
                 const uint32_t candidate = prefix_score - (uint32_t)sci_run_cost((int)kept);
