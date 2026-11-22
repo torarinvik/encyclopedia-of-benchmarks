@@ -30,33 +30,37 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
     max_generations: usize = max_generations_value.usize()
     if length != 4 + target_length + gene_count:
         return -2
-    target: mutable u8[8] = zeroed
     genes: mutable u8[32] = zeroed
+    target_word: mutable u64 = 0
+    target_low: mutable u64 = 0
+    target_high: mutable u64 = 0
     for index in 0..<target_length:
         value: i64 = values[4 + index]
         if value < 32 or value > 126:
             return -2
-        target[index] <- value.u8()
+        target_word <- target_word | (value.u64() << (8 * index))
+        bit: u64 = 1.u64() << (value.u64() & 63)
+        if value < 64:
+            target_low <- target_low | bit
+        else:
+            target_high <- target_high | bit
+    gene_low: mutable u64 = 0
+    gene_high: mutable u64 = 0
     for index in 0..<gene_count:
         value: i64 = values[4 + target_length + index]
         if value < 32 or value > 126:
             return -2
         genes[index] <- value.u8()
-    for position in 0..<target_length:
-        found: mutable bool = false
-        for gene in 0..<gene_count:
-            if genes[gene] == target[position]:
-                found <- true
-        if not found:
-            return -2
-    if output == null:
+        bit: u64 = 1.u64() << (value.u64() & 63)
+        if value < 64:
+            gene_low <- gene_low | bit
+        else:
+            gene_high <- gene_high | bit
+    if (target_low & ~gene_low) != 0 or (target_high & ~gene_high) != 0 or output == null:
         return -2
 
     # Every random gene index is reduced modulo the validated gene count.
     gene_table: u8& = &genes[0]
-    target_word: mutable u64 = 0
-    for position in 0..<target_length:
-        target_word <- target_word | (target[position].u64() << (8 * position))
     population: mutable u64[200] = zeroed
     next_population: mutable u64[200] = zeroed
     scores: mutable u8[200] = zeroed

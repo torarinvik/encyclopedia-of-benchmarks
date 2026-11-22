@@ -32,29 +32,29 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
     const size_t gene_count = (size_t)gene_count_value;
     const size_t max_generations = (size_t)max_generations_value;
     if (length != 4 + target_length + gene_count) return -2;
-    uint8_t target[8];
     uint8_t genes[32];
+    uint64_t target_word = 0;
+    uint64_t target_low = 0, target_high = 0;
     for (size_t index = 0; index < target_length; ++index) {
         const int64_t value = values[4 + index];
         if (value < 32 || value > 126) return -2;
-        target[index] = (uint8_t)value;
+        target_word |= (uint64_t)value << (8 * index);
+        const uint64_t bit = UINT64_C(1) << ((uint64_t)value & 63);
+        if (value < 64) target_low |= bit;
+        else target_high |= bit;
     }
+    uint64_t gene_low = 0, gene_high = 0;
     for (size_t index = 0; index < gene_count; ++index) {
         const int64_t value = values[4 + target_length + index];
         if (value < 32 || value > 126) return -2;
         genes[index] = (uint8_t)value;
+        const uint64_t bit = UINT64_C(1) << ((uint64_t)value & 63);
+        if (value < 64) gene_low |= bit;
+        else gene_high |= bit;
     }
-    for (size_t position = 0; position < target_length; ++position) {
-        int found = 0;
-        for (size_t gene = 0; gene < gene_count; ++gene)
-            if (genes[gene] == target[position]) found = 1;
-        if (!found) return -2;
-    }
-    if (output == NULL) return -2;
+    if ((target_low & ~gene_low) != 0 || (target_high & ~gene_high) != 0 || output == NULL)
+        return -2;
 
-    uint64_t target_word = 0;
-    for (size_t position = 0; position < target_length; ++position)
-        target_word |= (uint64_t)target[position] << (8 * position);
     uint32_t random_state = (uint32_t)seed_value;
     uint64_t population[POPULATION_SIZE];
     uint64_t next_population[POPULATION_SIZE];
