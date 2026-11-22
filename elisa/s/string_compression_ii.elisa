@@ -51,7 +51,7 @@ def sci_compute(input: i64&?, length: usize) -> i64:
 
 @inline(never)
 def sci_delete_one(input: i64&, n: usize) -> i64:
-    cost: mutable i64 = 0
+    cost: mutable u64 = 0
     saving: mutable i64 = 0
     older_symbol: mutable i64 = -1
     older_length: mutable usize = 0
@@ -73,7 +73,7 @@ def sci_delete_one(input: i64&, n: usize) -> i64:
         else:
             # Each nibble holds the cost in bits 0–1 and deletion saving in bit 2.
             run: u64 = 0x3372222222650.u64() >> (run_length.u64() * 4)
-            cost <- cost + (run & 3).i64()
+            cost <- cost + (run & 3)
             shrink: i64 = ((run >> 2) & 1).i64()
             if shrink > saving: saving <- shrink
         # Deleting a singleton can join the equal runs on either side.
@@ -88,7 +88,7 @@ def sci_delete_one(input: i64&, n: usize) -> i64:
         previous_symbol <- symbol
         previous_length <- run_length
         start <- ending
-    cost - saving
+    (cost - saving.u64()).i64()
 
 @inline(never)
 def sci_keep_four(input: i64&, n: usize) -> i64:

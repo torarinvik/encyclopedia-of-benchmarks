@@ -26,7 +26,8 @@ static int64_t sci_keep_four(const int64_t *input, size_t n) {
 
 __attribute__((noinline))
 static int64_t sci_delete_one(const int64_t *input, size_t n) {
-    int64_t cost = 0, saving = 0;
+    uint64_t cost = 0;
+    int64_t saving = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
     size_t older_length = 0, previous_length = 0;
     int64_t next_symbol = input[0];
@@ -45,7 +46,7 @@ static int64_t sci_delete_one(const int64_t *input, size_t n) {
         } else {
             /* Each nibble holds the cost in bits 0–1 and deletion saving in bit 2. */
             const uint64_t run = UINT64_C(0x3372222222650) >> (run_length * 4);
-            cost += (int64_t)(run & 3);
+            cost += run & 3;
             const int64_t shrink = (int64_t)((run >> 2) & 1);
             if (shrink > saving) saving = shrink;
         }
@@ -62,7 +63,7 @@ static int64_t sci_delete_one(const int64_t *input, size_t n) {
         previous_length = run_length;
         start = end;
     }
-    return cost - saving;
+    return (int64_t)(cost - (uint64_t)saving);
 }
 
 __attribute__((noinline))
