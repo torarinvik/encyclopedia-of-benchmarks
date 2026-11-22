@@ -11,13 +11,13 @@ struct AxisSolution:
 def solve_axis(x: i64[3], y: i64[3], target: i64[3]) -> AxisSolution:
     determinant: i64 = x[0] * (y[1] - y[2]) + x[1] * (y[2] - y[0]) + x[2] * (y[0] - y[1])
     if determinant == 0:
-        return AxisSolution()
+        return AxisSolution{first: 0, second: 0, translation: 0, valid: false}
     first: i64 = target[0] * (y[1] - y[2]) + target[1] * (y[2] - y[0]) + target[2] * (y[0] - y[1])
     second: i64 = x[0] * (target[1] - target[2]) + x[1] * (target[2] - target[0]) + x[2] * (target[0] - target[1])
     translation: i64 = x[0] * (y[1] * target[2] - y[2] * target[1]) + x[1] * (y[2] * target[0] - y[0] * target[2]) + x[2] * (y[0] * target[1] - y[1] * target[0])
     if first % determinant != 0 or second % determinant != 0 or translation % determinant != 0:
-        return AxisSolution()
-    AxisSolution(first: first / determinant, second: second / determinant, translation: translation / determinant, valid: true)
+        return AxisSolution{first: 0, second: 0, translation: 0, valid: false}
+    AxisSolution{first: first / determinant, second: second / determinant, translation: translation / determinant, valid: true}
 
 def affine_image_rotation_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT_LENGTH:
