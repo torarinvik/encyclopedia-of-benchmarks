@@ -1,6 +1,10 @@
 # Seeded, bounded string evolution with fixed population and portable byte output.
 def string_genetic_algorithm_next_random(state: mutable u64&) -> u64:
-    state <- (state * 48271.u64()) % 2147483647.u64()
+    # Since 2^31 is congruent to 1, fold the high bits and reduce once.
+    modulus: u64 = 2147483647
+    product: u64 = state * 48271.u64()
+    folded: u64 = (product & modulus) + (product >> 31)
+    state <- folded - modulus if folded >= modulus else folded
     state
 
 def string_genetic_algorithm_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
