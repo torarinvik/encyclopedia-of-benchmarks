@@ -103,17 +103,19 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     if (budget == 1) {
         int64_t older = input[2], previous = input[3];
         if ((uint64_t)older > 25 || (uint64_t)previous > 25) return -1;
-        if (older != previous) {
-            size_t position = 2;
-            for (; position < n; ++position) {
-                const int64_t symbol = input[position + 2];
-                if ((uint64_t)symbol > 25) return -1;
-                if (symbol == older || symbol == previous) break;
-                older = previous;
-                previous = symbol;
-            }
-            if (position == n) return (int64_t)(n - 1);
+        size_t position = 4;
+        int repeated = older == previous;
+        while (!repeated && position < length) {
+            const int64_t symbol = input[position++];
+            if ((uint64_t)symbol > 25) return -1;
+            repeated = symbol == older || symbol == previous;
+            older = previous;
+            previous = symbol;
         }
+        if (!repeated) return (int64_t)(n - 1);
+        for (; position < length; ++position)
+            if ((uint64_t)input[position] > 25) return -1;
+        return sci_delete_one(input + 2, n);
     }
 
     const int64_t first_symbol = input[2];
@@ -149,7 +151,6 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
     if (position == n) return (int64_t)retained;
     if (retained == 3) return 2;
 
-    if (budget == 1) return sci_delete_one(input + 2, n);
 
     uint8_t next_match[SCI_MAX_N + 1];
     next_match[0] = 0;
