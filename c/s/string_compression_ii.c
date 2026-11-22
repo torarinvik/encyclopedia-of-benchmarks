@@ -55,11 +55,16 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     /* Store matching endpoints as one-based positions. Zero ends a chain. */
     size_t next_match[SCI_MAX_N];
     size_t latest_match[26] = {0};
+    size_t repeated_endpoint = 0;
     for (size_t position = n; position != 0; --position) {
         const size_t symbol = (size_t)input[position + 1];
-        next_match[position - 1] = latest_match[symbol];
+        const size_t next_position = latest_match[symbol];
+        next_match[position - 1] = next_position;
+        repeated_endpoint |= next_position;
         latest_match[symbol] = position;
     }
+
+    if (repeated_endpoint == 0) return (int64_t)retained;
 
     int64_t dp[SCI_WIDTH][SCI_WIDTH];
     for (size_t i = 0; i < SCI_WIDTH; ++i)

@@ -49,12 +49,17 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     # Store matching endpoints as one-based positions. Zero ends a chain.
     next_match: mutable usize[SCI_MAX_N] = zeroed
     latest_match: mutable usize[26] = zeroed
+    repeated_endpoint: mutable usize = 0
     position: mutable usize = n
     while position != 0:
         symbol: usize = input[position + 1].usize()
-        next_match[position - 1] <- latest_match[symbol]
+        next_position: usize = latest_match[symbol]
+        next_match[position - 1] <- next_position
+        repeated_endpoint <- repeated_endpoint | next_position
         latest_match[symbol] <- position
         position <- position - 1
+
+    if repeated_endpoint == 0: return retained.i64()
 
     dp: mutable i64[SCI_CELLS] = zeroed
     for i in 0..<SCI_CELLS:
