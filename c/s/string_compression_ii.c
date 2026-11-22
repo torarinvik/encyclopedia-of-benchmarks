@@ -10,14 +10,14 @@ static int64_t sci_run_cost(int kept) {
 }
 
 __attribute__((noinline))
-static int64_t sci_delete_one(const int64_t *input, size_t n) {
+static int64_t sci_delete_one(const int64_t *input, size_t n, const size_t *next_match) {
     int64_t cost = 0, saving = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
     size_t older_length = 0, previous_length = 0;
     for (size_t start = 0; start < n;) {
         const int64_t symbol = input[start + 2];
         size_t end = start + 1;
-        while (end < n && input[end + 2] == symbol) ++end;
+        while (next_match[end] == end + 1) ++end;
         const size_t run_length = end - start;
         const int64_t run_cost = sci_run_cost((int)run_length);
         cost += run_cost;
@@ -102,7 +102,7 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
     }
 
     if (repeated_endpoint == 0) return (int64_t)retained;
-    if (budget == 1) return sci_delete_one(input, n);
+    if (budget == 1) return sci_delete_one(input, n, next_match);
 
     /* Scores are the base minus the encoded cost. Zero marks an unset state. */
     int32_t dp[SCI_MAX_N + 1][SCI_WIDTH] = {{SCI_SCORE_BASE}};

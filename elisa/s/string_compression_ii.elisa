@@ -49,7 +49,7 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     sci_search(input, n, budget, retained)
 
 @inline(never)
-def sci_delete_one(input: i64&, n: usize) -> i64:
+def sci_delete_one(input: i64&, n: usize, next_match: usize&) -> i64:
     cost: mutable i64 = 0
     saving: mutable i64 = 0
     older_symbol: mutable i64 = -1
@@ -60,7 +60,7 @@ def sci_delete_one(input: i64&, n: usize) -> i64:
     while start < n:
         symbol: i64 = input[start + 2]
         ending: mutable usize = start + 1
-        while ending < n and input[ending + 2] == symbol:
+        while next_match[ending] == ending + 1:
             ending <- ending + 1
         run_length: usize = ending - start
         run_cost: i64 = sci_run_cost(run_length)
@@ -94,7 +94,7 @@ def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
         position <- position - 1
 
     if repeated_endpoint == 0: return retained.i64()
-    if budget == 1: return sci_delete_one(input, n)
+    if budget == 1: return sci_delete_one(input, n, &next_match[0])
 
     dp: mutable i32[SCI_CELLS] = zeroed
     # Scores are the base minus the encoded cost. Zero marks an unset state.
