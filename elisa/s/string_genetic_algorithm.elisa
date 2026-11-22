@@ -121,6 +121,8 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
                 ranked_mismatches[destination] <- mismatches[individual]
             buckets[rank] <- destination + 1
         next_count: mutable usize = 66
+        # Pairs start at an even index below 200, so both slots exist.
+        offspring: mutable u64& = &next_population[0]
         for parent_rank in 0..<50 |parent_rank, next_count, ranked_mismatches, target_length, state, gene_table, gene_count, next_population|:
             if next_count >= 200:
                 break
@@ -128,7 +130,7 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
             child_count: mutable usize = (target_length - ranked_mismatches[parent_rank].usize()) * 100 / target_length + 1
             if child_count > 10:
                 child_count <- 10
-            for round in 0..<child_count |round, next_count, state, first, target_length, gene_table, gene_count, next_population|:
+            for round in 0..<child_count |round, next_count, state, first, target_length, gene_table, gene_count, next_population, offspring|:
                 if next_count >= 200:
                     break
                 second: u64 = next_population[(string_genetic_algorithm_next_random(state) % 51.u64()).usize()]
@@ -137,16 +139,15 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
                 low_mask: u64 = (1.u64() << (8 * cut)) - 1
                 exchanged: u64 = (first ^ second) & low_mask
                 children: mutable u64[2] = [second ^ exchanged, first ^ exchanged]
-                for child in 0..<2 |child, children, state, target_length, gene_table, gene_count, next_count, next_population|:
+                for child in 0..<2 |child, children, state, target_length, gene_table, gene_count, next_count, offspring|:
                     if string_genetic_algorithm_next_random(state) % 5.u64() < 2.u64():
                         position: usize = (string_genetic_algorithm_next_random(state) % target_length.u64()).usize()
                         replacement_index: usize = (string_genetic_algorithm_next_random(state) % gene_count.u64()).usize()
                         shift: usize = 8 * position
                         mask: u64 = 255.u64() << shift
                         children[child] <- (children[child] & ~mask) | (gene_table[replacement_index].u64() << shift)
-                    if next_count < 200:
-                        next_population[next_count] <- children[child]
-                        next_count <- next_count + 1
+                    offspring[next_count + child] <- children[child]
+                next_count <- next_count + 2
         for index in 0..<200:
             population[index] <- next_population[index]
         generation <- generation + 1
