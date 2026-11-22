@@ -91,18 +91,19 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
 __attribute__((noinline))
 static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t retained) {
     /* Store matching endpoints as one-based positions. Zero ends a chain. */
-    size_t next_match[SCI_MAX_N + 1];
+    size_t next_match[SCI_MAX_N + 1] = {0};
     size_t latest_match[26] = {0};
-    size_t repeated_endpoint = 0;
+    size_t third_endpoint = 0;
     for (size_t position = n; position != 0; --position) {
         const size_t symbol = (size_t)input[position + 1];
         const size_t next_position = latest_match[symbol];
         next_match[position] = next_position;
-        repeated_endpoint |= next_position;
+        third_endpoint |= next_match[next_position];
         latest_match[symbol] = position;
     }
 
-    if (repeated_endpoint == 0) return (int64_t)retained;
+    /* Runs of one or two symbols cost one encoded byte per retained symbol. */
+    if (third_endpoint == 0) return (int64_t)retained;
     if (budget == 1) return sci_delete_one(input, n, next_match);
 
     /* Scores are the base minus the encoded cost. Zero marks an unset state. */
