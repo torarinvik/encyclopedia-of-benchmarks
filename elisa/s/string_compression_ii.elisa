@@ -73,8 +73,8 @@ def sci_compute(input: i64&?, length: usize) -> i64:
         last_used: usize = start if start < budget else budget
         for used in first_used..=last_used:
             prefix_cost: i64 = dp[start * SCI_WIDTH + used]
-            if prefix_cost + 1 >= dp[final_state]: continue
             kept_limit: usize = retained - (start - used)
+            if prefix_cost + sci_run_cost(kept_limit) >= dp[final_state]: continue
             if used < budget:
                 next_state: usize = (start + 1) * SCI_WIDTH + used + 1
                 if prefix_cost < dp[next_state]: dp[next_state] <- prefix_cost
