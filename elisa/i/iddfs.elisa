@@ -6,11 +6,10 @@ const MAX_PARSEABLE_INPUT_LENGTH: usize = 101
 const MAX_PATH_LENGTH: usize = 9
 const MAX_OUTPUT_VALUES: usize = 12
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: mutable u64 = value.u64()
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
     for byte in 0..<8:
-        output[offset + byte] <- (bits % 256.u64()).u8()
-        bits <- bits / 256.u64()
+        output[offset + byte] <- (bits >> (8 * byte).u64()).u8()
 
 def iddfs_impl(values: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
@@ -28,7 +27,7 @@ def iddfs_impl(values: i64&, length: usize, output: mutable u8&,
     depth_limit: usize = raw_depth.usize()
     entry_count: usize = raw_entries.usize()
 
-    adjacency: mutable i64[MAX_VERTICES * MAX_NEIGHBORS] = zeroed
+    adjacency: mutable i32[MAX_VERTICES * MAX_NEIGHBORS] = zeroed
     degree_count: mutable usize[MAX_VERTICES] = zeroed
     named: mutable bool[MAX_VERTICES] = zeroed
     max_vertex: mutable usize = 0
@@ -60,7 +59,7 @@ def iddfs_impl(values: i64&, length: usize, output: mutable u8&,
                 max_vertex <- raw_neighbor.usize()
             if raw_neighbor >= 1:
                 slot: usize = (vertex - 1) * MAX_NEIGHBORS + degree_count[vertex - 1]
-                adjacency[slot] <- raw_neighbor
+                adjacency[slot] <- raw_neighbor.i32()
                 degree_count[vertex - 1] <- degree_count[vertex - 1] + 1
     if cursor != length:
         return -1
@@ -122,7 +121,7 @@ def iddfs_impl(values: i64&, length: usize, output: mutable u8&,
     if output == null or output_capacity < required:
         return -2
     for index in 0..<result_count:
-        store_i64_le(result[index], output[0:required], 8 * index)
+        store_i64_le(result[index], output, 8 * index)
     required.i64()
 
 export fn iddfs(values: i64&, length: usize, output: mutable u8&,
