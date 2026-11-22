@@ -15,6 +15,9 @@ def sift_down(keys: mutable view[u32], root_value: usize, end: usize) -> void:
 def string_heap_sort_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if values == null or length < 1 or length > 257: return -1
     raw_count: i64 = values[0]
+    if raw_count == 0:
+        if length != 1: return -1
+        return -2 if output == null else 0
     if raw_count < 0 or raw_count > 64 or length != 1 + 4 * raw_count.usize(): return -1
     count: usize = raw_count.usize()
     keys: mutable u32[MAX_KEYS] = zeroed
