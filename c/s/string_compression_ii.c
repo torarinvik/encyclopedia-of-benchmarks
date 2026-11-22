@@ -20,20 +20,17 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     if (budget == 0 && n != 0) {
         int64_t previous = input[2];
         if ((uint64_t)previous > 25) return -1;
-        int64_t cost = 0;
+        int64_t cost = 1;
         int kept = 1;
         for (size_t index = 1; index < n; ++index) {
             const int64_t symbol = input[index + 2];
             if ((uint64_t)symbol > 25) return -1;
-            if (symbol == previous) {
-                ++kept;
-            } else {
-                cost += sci_run_cost(kept);
-                kept = 1;
-            }
+            kept = symbol == previous ? kept + 1 : 1;
+            /* Run lengths 1, 2, and 10 each add an encoded byte. */
+            cost += (UINT64_C(1030) >> kept) & 1;
             previous = symbol;
         }
-        return cost + sci_run_cost(kept);
+        return cost;
     }
 
     if (budget == n) {

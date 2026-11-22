@@ -18,18 +18,16 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     if budget == 0 and n != 0:
         previous: mutable i64 = input[2]
         if previous.u64() > 25: return -1
-        cost: mutable i64 = 0
+        cost: mutable i64 = 1
         kept: mutable usize = 1
         for index in 1..<n:
             symbol: i64 = input[index + 2]
             if symbol.u64() > 25: return -1
-            if symbol == previous:
-                kept <- kept + 1
-            else:
-                cost <- cost + sci_run_cost(kept)
-                kept <- 1
+            kept <- kept + 1 if symbol == previous else 1
+            # Run lengths 1, 2, and 10 each add an encoded byte.
+            cost <- cost + ((1030.u64() >> kept.u64()) & 1).i64()
             previous <- symbol
-        return cost + sci_run_cost(kept)
+        return cost
 
     if budget == n:
         for index in 0..<n:
