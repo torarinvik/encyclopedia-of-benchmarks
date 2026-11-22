@@ -30,15 +30,17 @@ fn long string_heap_sort(long* values, usz length, char* output, usz output_capa
         }
         keys[i] = key;
     }
-    for (usz start = count / 2; start > 0;) { start -= 1; sift_down(keys, start, count); }
+    for (usz start = count / 2; start > 0;) { start -= 1; sift_down(&keys[0], start, count); }
     for (usz end = count; end > 1;) {
         end -= 1; uint t = keys[0]; keys[0] = keys[end]; keys[end] = t;
-        sift_down(keys, 0, end);
+        sift_down(&keys[0], 0, end);
     }
     usz bytes = count * KEY_WIDTH;
     if (output == null || output_capacity < bytes) return -2;
-    for (usz i = 0; i < count; i += 1)
-        for (usz b = 0; b < KEY_WIDTH; b += 1)
+    for (usz i = 0; i < count; i += 1) {
+        for (usz b = 0; b < KEY_WIDTH; b += 1) {
             output[i * KEY_WIDTH + b] = (char)((keys[i] >> (24 - 8 * b)) & 255);
+        }
+    }
     return (long)bytes;
 }

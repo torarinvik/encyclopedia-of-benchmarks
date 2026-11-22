@@ -1,40 +1,51 @@
 # Independent bounded NBench-style heap sort; see package NBENCH-LICENSE.
-from std.collections import List
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
+from std.memory import Pointer
+from std.origin import ImmUntrackedOrigin, MutUntrackedOrigin
 
-fn string_heap_sift(mut keys: List[UInt32], start: Int, end: Int):
+def string_heap_sift[origin: MutOrigin](keys: Pointer[UInt32, origin], start: Int, end: Int):
     var root = start
     while root < end//2:
         var child = 2*root+1
-        if child+1 < end and keys[child] < keys[child+1]: child += 1
-        if keys[root] >= keys[child]: break
-        let value = keys[root]
-        keys[root] = keys[child]; keys[child] = value
+        if child+1 < end and keys[unsafe_offset=child] < keys[unsafe_offset=child+1]: child += 1
+        if keys[unsafe_offset=root] >= keys[unsafe_offset=child]: break
+        var value = keys[unsafe_offset=root]
+        keys[unsafe_offset=root] = keys[unsafe_offset=child]
+        keys[unsafe_offset=child] = value
         root = child
 
 @export("string_heap_sort")
-fn string_heap_sort(input: UnsafePointer[Int64, ImmutAnyOrigin], length: c_size_t,
-        output: UnsafePointer[UInt8, MutAnyOrigin], capacity: c_size_t) abi("C") -> Int64:
-    if input == UnsafePointer[Int64, ImmutAnyOrigin]() or length < 1 or length > 257: return -1
-    let nv = input[0]
-    if nv < 0 or nv > 64 or length != c_size_t(1+4*Int(nv)): return -1
-    let n = Int(nv)
-    var keys = List[UInt32](capacity=n)
-    for i in range(n):
+def string_heap_sort(input: Optional[Pointer[Int64, ImmUntrackedOrigin]], length: c_size_t,
+        output: Optional[Pointer[UInt8, MutUntrackedOrigin]], capacity: c_size_t) abi("C") -> Int64:
+    if input == None or length < 1 or length > 257:
+        return -1
+    var values = input.value()
+    var count = Int(values[unsafe_offset=0])
+    if count < 0 or count > 64 or Int(length) != 1 + 4 * count:
+        return -1
+    var storage = Array[UInt32, 64](fill=0)
+    var keys = storage.unsafe_ptr()
+    for index in range(count):
         var key = UInt32(0)
-        for j in range(4):
-            let byte = input[1+4*i+j]
-            if byte < 0 or byte > 127: return -1
+        for byte_index in range(4):
+            var byte = values[unsafe_offset=1 + 4 * index + byte_index]
+            if byte < 0 or byte > 127:
+                return -1
             key = (key << 8) | UInt32(byte)
-        keys.append(key)
-    for i in range(n//2): string_heap_sift(keys,n//2-1-i,n)
-    for i in range(1,n):
-        let end = n-i
-        let temp = keys[0]; keys[0] = keys[end]; keys[end] = temp
-        string_heap_sift(keys,0,end)
-    let bytes = 4*n
-    if output == UnsafePointer[UInt8, MutAnyOrigin]() or capacity < c_size_t(bytes): return -2
-    for i in range(n):
-        for j in range(4): output[4*i+j] = UInt8((keys[i] >> (24-8*j)) & 255)
-    return Int64(bytes)
+        keys[unsafe_offset=index] = key
+    for index in range(count // 2):
+        string_heap_sift(keys, count // 2 - 1 - index, count)
+    for index in range(1, count):
+        var end = count - index
+        var root = keys[unsafe_offset=0]
+        keys[unsafe_offset=0] = keys[unsafe_offset=end]
+        keys[unsafe_offset=end] = root
+        string_heap_sift(keys, 0, end)
+    var byte_count = 4 * count
+    if output == None or capacity < c_size_t(byte_count):
+        return -2
+    var result = output.value()
+    for index in range(count):
+        for byte_index in range(4):
+            result[unsafe_offset=4 * index + byte_index] = UInt8((keys[unsafe_offset=index] >> UInt32(24 - 8 * byte_index)) & 255)
+    return Int64(byte_count)
