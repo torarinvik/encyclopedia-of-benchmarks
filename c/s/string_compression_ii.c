@@ -70,13 +70,15 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     for (size_t i = 0; i < SCI_WIDTH; ++i)
         for (size_t d = 0; d < SCI_WIDTH; ++d) dp[i][d] = SCI_INF;
     dp[0][0] = 0;
+    dp[n][budget] = (int64_t)retained;
 
     for (size_t start = 0; start < n; ++start) {
         const size_t remaining = n - start;
-        const size_t first_used = budget > remaining ? budget - remaining : 0;
+        const size_t first_used = budget >= remaining ? budget - remaining + 1 : 0;
         const size_t last_used = start < budget ? start : budget;
         for (size_t used = first_used; used <= last_used; ++used) {
             int64_t prefix_cost = dp[start][used];
+            if (prefix_cost + 1 >= dp[n][budget]) continue;
             const size_t kept_limit = retained - (start - used);
             if (used < budget && prefix_cost < dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_cost;
@@ -87,9 +89,12 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
                 const size_t deleted = used + endpoint - start - kept;
                 if (deleted > budget) break;
                 const int64_t candidate = prefix_cost + sci_run_cost((int)kept);
+                if (kept == kept_limit) {
+                    if (candidate < dp[n][budget]) dp[n][budget] = candidate;
+                    break;
+                }
                 if (candidate < dp[endpoint][deleted])
                     dp[endpoint][deleted] = candidate;
-                if (kept == kept_limit) break;
                 endpoint = next_match[endpoint - 1];
             }
         }
