@@ -82,7 +82,7 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
 
     /* A single run attains the minimum possible cost for this retained length. */
     const size_t retained = n - budget;
-    if (retained == 1) return 1;
+    if (retained <= 2) return (int64_t)retained;
     if (matching >= retained) return sci_run_cost((int)retained);
 
     return sci_search(input, n, budget, retained);
@@ -101,6 +101,7 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
         counts += increment;
     }
     if (position == n) return (int64_t)retained;
+    if (retained == 3) return 2;
 
     size_t next_match[SCI_MAX_N + 1];
     uint8_t latest_match[26] = {0};
