@@ -32,19 +32,19 @@ def sci_compute(input: i64&?, length: usize) -> i64:
             previous <- symbol
         return cost + sci_run_cost(kept)
 
-    for i in 0..<n:
-        if input[i + 2] < 0 or input[i + 2] > 25: return -1
-    if budget == n: return 0
+    if n == 0: return 0
+    first_symbol: i64 = input[2]
+    if first_symbol.u64() > 25: return -1
+    matching: mutable usize = 1
+    for index in 1..<n:
+        symbol: i64 = input[index + 2]
+        if symbol.u64() > 25: return -1
+        matching <- matching + (1 if symbol == first_symbol else 0)
 
     # A single run attains the minimum possible cost for this retained length.
     retained: usize = n - budget
-    if retained == 1: return 1
-    first_symbol: i64 = input[2]
-    needed: mutable usize = retained - 1
-    for index in 1..<n:
-        if input[index + 2] == first_symbol:
-            needed <- needed - 1
-            if needed == 0: return sci_run_cost(retained)
+    if retained <= 1: return retained.i64()
+    if matching >= retained: return sci_run_cost(retained)
 
     dp: mutable i64[SCI_CELLS] = zeroed
     for i in 0..<SCI_CELLS:
