@@ -29,10 +29,15 @@ static int64_t sci_delete_one(const int64_t *input, size_t n) {
     int64_t cost = 0, saving = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
     size_t older_length = 0, previous_length = 0;
+    int64_t next_symbol = input[2];
     for (size_t start = 0; start < n;) {
-        const int64_t symbol = input[start + 2];
+        const int64_t symbol = next_symbol;
         size_t end = start + 1;
-        while (end < n && input[end + 2] == symbol) ++end;
+        while (end < n) {
+            next_symbol = input[end + 2];
+            if (next_symbol != symbol) break;
+            ++end;
+        }
         const size_t run_length = end - start;
         if (run_length == 1) {
             ++cost;

@@ -58,10 +58,13 @@ def sci_delete_one(input: i64&, n: usize) -> i64:
     previous_symbol: mutable i64 = -1
     previous_length: mutable usize = 0
     start: mutable usize = 0
+    next_symbol: mutable i64 = input[2]
     while start < n:
-        symbol: i64 = input[start + 2]
+        symbol: i64 = next_symbol
         ending: mutable usize = start + 1
-        while ending < n and input[ending + 2] == symbol:
+        while ending < n:
+            next_symbol <- input[ending + 2]
+            if next_symbol != symbol: break
             ending <- ending + 1
         run_length: usize = ending - start
         if run_length == 1:
