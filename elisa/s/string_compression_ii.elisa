@@ -1,5 +1,4 @@
 const SCI_MAX_N: usize = 12
-const SCI_MAX_INPUT: usize = 15
 const SCI_WIDTH: usize = 16
 const SCI_CELLS: usize = SCI_WIDTH * SCI_WIDTH
 const SCI_INF: i64 = 1000
@@ -9,13 +8,13 @@ def sci_run_cost(kept: usize) -> i64:
     3 if kept >= 10 else 2
 
 def sci_compute(input: i64&?, length: usize) -> i64:
-    if input == null or length < 2 or length > SCI_MAX_INPUT: return -1
-    n_raw: i64 = input[0]
-    k_raw: i64 = input[1]
-    if n_raw < 0 or n_raw > SCI_MAX_N.i64() or k_raw < 0 or k_raw > n_raw: return -1
-    n: usize = n_raw.usize()
-    budget: usize = k_raw.usize()
-    if length != n + 2: return -1
+    if input == null or length < 2: return -1
+    raw_length: u64 = input[0].u64()
+    if raw_length > SCI_MAX_N.u64() or raw_length != (length - 2).u64(): return -1
+    raw_budget: u64 = input[1].u64()
+    if raw_budget > raw_length: return -1
+    n: usize = raw_length.usize()
+    budget: usize = raw_budget.usize()
     if budget == 0 and n != 0:
         previous: mutable i64 = input[2]
         if previous.u64() > 25: return -1

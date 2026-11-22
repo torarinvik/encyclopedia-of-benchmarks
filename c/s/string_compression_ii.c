@@ -2,7 +2,6 @@
 #include <stdint.h>
 
 #define SCI_MAX_N 12
-#define SCI_MAX_INPUT 15
 #define SCI_WIDTH 16
 #define SCI_INF INT64_C(1000)
 
@@ -11,11 +10,13 @@ static int64_t sci_run_cost(int kept) {
 }
 
 int64_t string_compression_ii(const int64_t *input, size_t length) {
-    if (input == NULL || length < 2 || length > SCI_MAX_INPUT) return -1;
-    int64_t raw_n = input[0], raw_k = input[1];
-    if (raw_n < 0 || raw_n > SCI_MAX_N || raw_k < 0 || raw_k > raw_n) return -1;
-    size_t n = (size_t)raw_n, budget = (size_t)raw_k;
-    if (length != n + 2) return -1;
+    if (input == NULL || length < 2) return -1;
+    const uint64_t raw_length = (uint64_t)input[0];
+    if (raw_length > SCI_MAX_N || raw_length != length - 2) return -1;
+    const uint64_t raw_budget = (uint64_t)input[1];
+    if (raw_budget > raw_length) return -1;
+    const size_t n = (size_t)raw_length;
+    const size_t budget = (size_t)raw_budget;
     if (budget == 0 && n != 0) {
         int64_t previous = input[2];
         if ((uint64_t)previous > 25) return -1;
