@@ -64,9 +64,11 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
         for (size_t used = first_used; used <= last_used; ++used) {
             int64_t prefix_cost = dp[start][used];
             if (prefix_cost == SCI_INF) continue;
+            const size_t kept_limit = retained - (start - used);
             if (used < budget && prefix_cost < dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_cost;
 
+            if (kept_limit == 0) continue;
             const int64_t symbol = input[start + 2];
             int kept = 0;
             size_t deleted = used;
@@ -78,6 +80,7 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
                 const int64_t candidate = prefix_cost + sci_run_cost(++kept);
                 if (candidate < dp[end + 1][deleted])
                     dp[end + 1][deleted] = candidate;
+                if ((size_t)kept == kept_limit) break;
             }
         }
     }
