@@ -65,8 +65,8 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
         word: mutable u64 = 0.u64()
         for position in 0..<target_length:
             gene_index: usize = (string_genetic_algorithm_next_random(state) % gene_count.u64()).usize()
-            word <- word | (gene_table[gene_index].u64() << (8 * position))
-        population[individual] <- word
+            word <- (word >> 8) | (gene_table[gene_index].u64() << 56)
+        population[individual] <- word >> ((8 - target_length) * 8)
 
     total_population: mutable i64 = 0
     generation: mutable usize = 1

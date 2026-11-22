@@ -64,9 +64,9 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
         uint64_t word = 0;
         for (size_t position = 0; position < target_length; ++position) {
             const uint8_t gene = genes[next_random(&random_state) % gene_count];
-            word |= (uint64_t)gene << (8 * position);
+            word = (word >> 8) | ((uint64_t)gene << 56);
         }
-        population[individual] = word;
+        population[individual] = word >> ((8 - target_length) * 8);
     }
 
     int64_t total_population = 0;
