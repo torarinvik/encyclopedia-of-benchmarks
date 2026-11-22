@@ -10,22 +10,31 @@ export fn string_left_rotation(input_opt: ?[*]const i64, length: usize,
     if (raw_length < 0 or raw_length > MAX_STRING_LENGTH or raw_rotation < 0 or raw_rotation > raw_length) return -1;
     const text_length: usize = @intCast(raw_length);
     if (length != text_length + 2) return -1;
-    var units: [MAX_STRING_LENGTH]u16 = [_]u16{0} ** MAX_STRING_LENGTH;
+    if (text_length == 0) return 0;
+    var units: [MAX_STRING_LENGTH]u16 = @splat(0);
+    var observed_bits: u64 = 0;
     for (0..text_length) |i| {
-        if (input[i + 2] < 0 or input[i + 2] > 65535) return -1;
-        units[i] = @intCast(input[i + 2]);
+        const value: u64 = @bitCast(input[i + 2]);
+        observed_bits |= value;
+        units[i] = @truncate(value);
     }
+    if (observed_bits > 65535) return -1;
     const required = text_length * 2;
-    if (required == 0) return 0;
     if (output_opt == null or capacity < required) return -2;
     const output = output_opt.?;
     const rotation: usize = @intCast(raw_rotation);
-    for (0..text_length) |i| {
-        var source = rotation + i;
-        if (source >= text_length) source -= text_length;
+    for (rotation..text_length) |source| {
+        const destination = 2 * (source - rotation);
         const value = units[source];
-        output[2 * i] = @truncate(value);
-        output[2 * i + 1] = @truncate(value >> 8);
+        output[destination] = @truncate(value);
+        output[destination + 1] = @truncate(value >> 8);
+    }
+    const suffix_bytes = 2 * (text_length - rotation);
+    for (0..rotation) |source| {
+        const destination = suffix_bytes + 2 * source;
+        const value = units[source];
+        output[destination] = @truncate(value);
+        output[destination + 1] = @truncate(value >> 8);
     }
     return @intCast(required);
 }

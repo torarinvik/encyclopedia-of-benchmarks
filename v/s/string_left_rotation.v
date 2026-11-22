@@ -12,21 +12,30 @@ pub fn string_left_rotation(input &i64, length usize, mut output &u8, capacity u
 		if raw_length < 0 || raw_length > max_string_length || raw_rotation < 0 || raw_rotation > raw_length { return -1 }
 		text_length := int(raw_length)
 		if length != usize(text_length + 2) { return -1 }
+		if text_length == 0 { return 0 }
 		mut units := [max_string_length]u16{}
+		mut observed_bits := u64(0)
 		for i in 0 .. text_length {
-			if input[i + 2] < 0 || input[i + 2] > 65535 { return -1 }
-			units[i] = u16(input[i + 2])
+			value := u64(input[i + 2])
+			observed_bits |= value
+			units[i] = u16(value)
 		}
+		if observed_bits > 65535 { return -1 }
 		required := text_length * 2
-		if required == 0 { return 0 }
-		if unsafe { output == nil } || capacity < usize(required) { return -2 }
+		if output == nil || capacity < usize(required) { return -2 }
 		rotation := int(raw_rotation)
-		for i in 0 .. text_length {
-			source := rotation + i
-			if source >= text_length { source -= text_length }
+		for source in rotation .. text_length {
+			destination := 2 * (source - rotation)
 			value := units[source]
-			output[2 * i] = u8(value & 0xff)
-			output[2 * i + 1] = u8(value >> 8)
+			output[destination] = u8(value)
+			output[destination + 1] = u8(value >> 8)
+		}
+		suffix_bytes := 2 * (text_length - rotation)
+		for source in 0 .. rotation {
+			destination := suffix_bytes + 2 * source
+			value := units[source]
+			output[destination] = u8(value)
+			output[destination + 1] = u8(value >> 8)
 		}
 		return i64(required)
 	}

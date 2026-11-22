@@ -13,21 +13,30 @@ string_left_rotation :: proc "c" (input: [^]i64, length: c.size_t,
 	if raw_length < 0 || raw_length > MAX_STRING_LENGTH || raw_rotation < 0 || raw_rotation > raw_length do return -1
 	text_length := int(raw_length)
 	if int(length) != text_length + 2 do return -1
+	if text_length == 0 do return 0
 	units: [MAX_STRING_LENGTH]u16
+	observed_bits: u64
 	for i := 0; i < text_length; i += 1 {
-		if input[i + 2] < 0 || input[i + 2] > 65535 do return -1
-		units[i] = u16(input[i + 2])
+		value := u64(input[i + 2])
+		observed_bits |= value
+		units[i] = u16(value)
 	}
+	if observed_bits > 65535 do return -1
 	required := text_length * 2
-	if required == 0 do return 0
 	if output == nil || capacity < c.size_t(required) do return -2
 	rotation := int(raw_rotation)
-	for i := 0; i < text_length; i += 1 {
-		source := rotation + i
-		if source >= text_length do source -= text_length
+	for source := rotation; source < text_length; source += 1 {
+		destination := 2 * (source - rotation)
 		value := units[source]
-		output[2 * i] = u8(value & 0xff)
-		output[2 * i + 1] = u8(value >> 8)
+		output[destination] = u8(value & 0xff)
+		output[destination + 1] = u8(value >> 8)
+	}
+	suffix_bytes := 2 * (text_length - rotation)
+	for source := 0; source < rotation; source += 1 {
+		destination := suffix_bytes + 2 * source
+		value := units[source]
+		output[destination] = u8(value & 0xff)
+		output[destination + 1] = u8(value >> 8)
 	}
 	return i64(required)
 }
