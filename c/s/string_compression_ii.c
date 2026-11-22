@@ -120,6 +120,7 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
     if (retained == 3) return 2;
 
     uint8_t next_match[SCI_MAX_N + 1];
+    next_match[0] = 0;
     uint8_t latest_match[26] = {0};
     for (position = n; position != 0; --position) {
         const uint32_t symbol = (uint32_t)input[position + 1];
@@ -151,11 +152,8 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
             const uint32_t first_endpoint = start + 1;
             if (singleton_score > dp[first_endpoint][used])
                 dp[first_endpoint][used] = singleton_score;
-            /* Two singleton transitions already cover the cost of a pair. */
+            /* A missing link stays at zero, so only check the budget from length three. */
             const uint32_t second_endpoint = next_match[first_endpoint];
-            /* A missing endpoint is zero. Since used <= start, subtraction wraps past budget. */
-            const uint32_t pair_deleted = used + second_endpoint - start - 2;
-            if (pair_deleted > budget) continue;
             uint32_t endpoint = next_match[second_endpoint];
             for (uint32_t kept = 3; endpoint != 0; ++kept) {
                 const uint32_t deleted = used + endpoint - start - kept;
