@@ -138,8 +138,8 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
         for (uint32_t used = first_used; used <= last_used; ++used) {
             uint32_t prefix_score = dp[start][used];
             const uint32_t kept_limit = retained - (start - used);
-            if (kept_limit == 1) {
-                if (prefix_score > best_score + 1) best_score = prefix_score - 1;
+            if (kept_limit <= 2) {
+                if (prefix_score > best_score + kept_limit) best_score = prefix_score - kept_limit;
                 continue;
             }
             const uint32_t minimum_cost = kept_limit < 10 ? 2 : 3;
