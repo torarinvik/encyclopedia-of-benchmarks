@@ -13,7 +13,7 @@ def string_left_rotation_impl(input: i64&, length: usize, output: mutable u8&, o
     units: mutable u16[256] = zeroed
     index: mutable usize = 0
     while index < text_length:
-        if input[index + 2] < 0 or input[index + 2] > 65_535:
+        if input[index + 2] < 0 or input[index + 2] > 65535:
             return -1
         units[index] <- input[index + 2].u16()
         index <- index + 1
@@ -24,9 +24,8 @@ def string_left_rotation_impl(input: i64&, length: usize, output: mutable u8&, o
         return -2
     index <- 0
     while index < text_length:
-        source: usize = rotation + index
-        if source >= text_length:
-            source <- source - text_length
+        position: usize = rotation + index
+        source: usize = position - text_length if position >= text_length else position
         value: u16 = units[source]
         output[index * 2] <- (value & 255).u8()
         output[index * 2 + 1] <- (value >> 8).u8()
