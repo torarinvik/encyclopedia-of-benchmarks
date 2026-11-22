@@ -1,7 +1,7 @@
 const SCI_MAX_N: usize = 12
 const SCI_WIDTH: usize = 16
 const SCI_CELLS: usize = SCI_WIDTH * (SCI_MAX_N + 1)
-const SCI_SCORE_BASE: i32 = 16
+const SCI_SCORE_BASE: u32 = 16
 
 def sci_run_cost(kept: usize) -> i64:
     if kept == 1: return 1
@@ -121,20 +121,20 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
 
     if budget == 1: return sci_delete_one(input, n.usize(), &next_match[0])
 
-    dp: mutable i32[SCI_CELLS] = zeroed
+    dp: mutable u32[SCI_CELLS] = zeroed
     # Scores are the base minus the encoded cost. Zero marks an unset state.
     dp[0] <- SCI_SCORE_BASE
     final_state: u32 = n * SCI_WIDTH.u32() + budget
-    dp[final_state] <- SCI_SCORE_BASE - retained.i32()
+    dp[final_state] <- SCI_SCORE_BASE - retained
     for start in 0..<n:
         remaining: u32 = n - start
         first_used: u32 = budget - remaining + 1 if budget >= remaining else 0
         last_used: u32 = start if start < budget else budget
         for used in first_used..=last_used:
-            prefix_score: i32 = dp[start * SCI_WIDTH.u32() + used]
+            prefix_score: u32 = dp[start * SCI_WIDTH.u32() + used]
             kept_limit: u32 = retained - (start - used)
-            # Widen score arithmetic so LLVM can rule out signed overflow.
-            if prefix_score.i64() - sci_run_cost(kept_limit.usize()) <= dp[final_state].i64(): continue
+            # Passing this bound leaves enough score to subtract any allowed run cost.
+            if prefix_score <= dp[final_state] + sci_run_cost(kept_limit.usize()).u32(): continue
             if used < budget:
                 next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
                 if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
@@ -143,7 +143,7 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
             while endpoint != 0:
                 deleted: u32 = used + endpoint - start - kept
                 if deleted > budget: break
-                candidate: i32 = (prefix_score.i64() - sci_run_cost(kept.usize())).i32()
+                candidate: u32 = prefix_score - sci_run_cost(kept.usize()).u32()
                 if kept == kept_limit:
                     if candidate > dp[final_state]: dp[final_state] <- candidate
                     break

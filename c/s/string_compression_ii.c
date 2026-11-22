@@ -3,7 +3,7 @@
 
 #define SCI_MAX_N 12
 #define SCI_WIDTH 16
-#define SCI_SCORE_BASE INT32_C(16)
+#define SCI_SCORE_BASE UINT32_C(16)
 
 static int64_t sci_run_cost(int kept) {
     return kept == 1 ? 1 : kept >= 10 ? 3 : 2;
@@ -130,16 +130,16 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
     if (budget == 1) return sci_delete_one(input, n, next_match);
 
     /* Scores are the base minus the encoded cost. Zero marks an unset state. */
-    int32_t dp[SCI_MAX_N + 1][SCI_WIDTH] = {{SCI_SCORE_BASE}};
-    dp[n][budget] = SCI_SCORE_BASE - (int32_t)retained;
+    uint32_t dp[SCI_MAX_N + 1][SCI_WIDTH] = {{SCI_SCORE_BASE}};
+    dp[n][budget] = SCI_SCORE_BASE - retained;
     for (uint32_t start = 0; start < n; ++start) {
         const uint32_t remaining = n - start;
         const uint32_t first_used = budget >= remaining ? budget - remaining + 1 : 0;
         const uint32_t last_used = start < budget ? start : budget;
         for (uint32_t used = first_used; used <= last_used; ++used) {
-            int32_t prefix_score = dp[start][used];
+            uint32_t prefix_score = dp[start][used];
             const uint32_t kept_limit = retained - (start - used);
-            if (prefix_score - sci_run_cost((int)kept_limit) <= dp[n][budget]) continue;
+            if (prefix_score <= dp[n][budget] + (uint32_t)sci_run_cost((int)kept_limit)) continue;
             if (used < budget && prefix_score > dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_score;
 
@@ -147,7 +147,7 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
             for (uint32_t kept = 1; endpoint != 0; ++kept) {
                 const uint32_t deleted = used + endpoint - start - kept;
                 if (deleted > budget) break;
-                const int32_t candidate = prefix_score - sci_run_cost((int)kept);
+                const uint32_t candidate = prefix_score - (uint32_t)sci_run_cost((int)kept);
                 if (kept == kept_limit) {
                     if (candidate > dp[n][budget]) dp[n][budget] = candidate;
                     break;
