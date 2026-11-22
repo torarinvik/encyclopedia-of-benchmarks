@@ -35,47 +35,57 @@ pub unsafe extern "C" fn string_genetic_algorithm(
     let gene_count = gene_count_value as usize;
     let max_generations = max_generations_value as usize;
     if length != 4 + target_length + gene_count { return -2; }
-    let mut target = [0u8; 8];
+    let mut target_word = 0u64;
+    let mut target_symbols = 0u128;
+    let mut gene_symbols = 0u128;
     let mut genes = [0u8; 32];
     for index in 0..target_length {
         let value = *values.add(4 + index);
         if !(32..=126).contains(&value) { return -2; }
-        target[index] = value as u8;
+        target_word |= (value as u64) << (8 * index);
+        target_symbols |= 1u128 << value;
     }
     for index in 0..gene_count {
         let value = *values.add(4 + target_length + index);
         if !(32..=126).contains(&value) { return -2; }
         genes[index] = value as u8;
+        gene_symbols |= 1u128 << value;
     }
-    for position in 0..target_length {
-        if !genes[..gene_count].contains(&target[position]) { return -2; }
-    }
-    if output.is_null() { return -2; }
+    if target_symbols & !gene_symbols != 0 || output.is_null() { return -2; }
 
     let mut random_state = seed_value as u32;
     let mut population = [0u64; POPULATION_SIZE];
     let mut next_population = [0u64; POPULATION_SIZE];
     let mut scores = [0u8; POPULATION_SIZE];
     let mut order = [0usize; POPULATION_SIZE];
-    for individual in 0..POPULATION_SIZE {
+    for candidate in &mut population {
         let mut word = 0u64;
         for position in 0..target_length {
             let gene = genes[(next_random(&mut random_state) as usize) % gene_count];
             word |= (gene as u64) << (8 * position);
         }
-        population[individual] = word;
+        if word == target_word {
+            if output_capacity < 16 { return -2; }
+            write_i64_le(output, 0, 1);
+            write_i64_le(output, 8, POPULATION_SIZE as i64);
+            return 16;
+        }
+        *candidate = word;
     }
 
     let mut total_population = 0i64;
     for generation in 1..=max_generations {
         total_population += POPULATION_SIZE as i64;
+        let mut offsets = [0usize; 9];
         for individual in 0..POPULATION_SIZE {
-            let mut score = 0u8;
-            for position in 0..target_length {
-                score += (((population[individual] >> (8 * position)) & 0xff) as u8 == target[position]) as u8;
-            }
+            // ASCII XOR clears each byte's high bit, so the bias marks
+            // unequal bytes without carrying into adjacent positions.
+            let difference = population[individual] ^ target_word;
+            let unequal = ((difference + 0x7f7f_7f7f_7f7f_7f7f) >> 7) & 0x0101_0101_0101_0101;
+            let mismatches = (unequal.wrapping_mul(0x0101_0101_0101_0101) >> 56) as usize;
+            let score = (target_length - mismatches) as u8;
             scores[individual] = score;
-            order[individual] = individual;
+            offsets[mismatches] += 1;
             if score as usize == target_length {
                 if output_capacity < 16 { return -2; }
                 write_i64_le(output, 0, generation as i64);
@@ -83,14 +93,16 @@ pub unsafe extern "C" fn string_genetic_algorithm(
                 return 16;
             }
         }
-        for index in 1..POPULATION_SIZE {
-            let selected = order[index];
-            let mut insertion = index;
-            while insertion > 0 && scores[order[insertion - 1]] < scores[selected] {
-                order[insertion] = order[insertion - 1];
-                insertion -= 1;
-            }
-            order[insertion] = selected;
+        let mut start = 0;
+        for offset in &mut offsets {
+            let count = *offset;
+            *offset = start;
+            start += count;
+        }
+        for (individual, &score) in scores.iter().enumerate() {
+            let bucket = &mut offsets[target_length - score as usize];
+            order[*bucket] = individual;
+            *bucket += 1;
         }
         let mut next_count = 0usize;
         while next_count < ELITE_SIZE {
