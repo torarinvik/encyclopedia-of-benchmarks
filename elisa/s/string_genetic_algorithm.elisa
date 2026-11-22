@@ -8,7 +8,7 @@ def string_genetic_algorithm_next_random(state: mutable u64&) -> u64:
     state <- (folded + ((folded + 1) >> 31)) & modulus
     state
 
-def string_genetic_algorithm_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def string_genetic_algorithm_write_i64(output: mutable u8&, offset: usize, value: u32) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
@@ -85,10 +85,8 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
             return 16
         population[individual] <- candidate
 
-    total_population: mutable i64 = 0
     generation: mutable usize = 1
-    while generation < max_generations |generation, population, mismatches, ranked_mismatches, target_word, target_length, total_population, output, next_population, state, gene_table, gene_count|:
-        total_population <- total_population + 200
+    while generation < max_generations |generation, population, mismatches, ranked_mismatches, target_word, target_length, output, next_population, state, gene_table, gene_count|:
         for individual in 0..<200:
             # ASCII XOR leaves the high bit clear. Adding 127 flags each unequal byte.
             difference: u64 = population[individual] ^ target_word
@@ -98,8 +96,8 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
             if mismatch_count == 0:
                 if output_capacity < 16:
                     return -2
-                string_genetic_algorithm_write_i64(output, 0, generation.i64())
-                string_genetic_algorithm_write_i64(output, 8, total_population)
+                string_genetic_algorithm_write_i64(output, 0, generation.u32())
+                string_genetic_algorithm_write_i64(output, 8, generation.u32() * 200)
                 return 16
         # Count mismatch buckets, then scatter in population order to preserve ties.
         offsets: mutable usize[9] = zeroed
@@ -156,8 +154,8 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
         for individual in 0..<200:
             if population[individual] == target_word:
                 if output_capacity < 16: return -2
-                string_genetic_algorithm_write_i64(output, 0, generation.i64())
-                string_genetic_algorithm_write_i64(output, 8, total_population + 200)
+                string_genetic_algorithm_write_i64(output, 0, generation.u32())
+                string_genetic_algorithm_write_i64(output, 8, generation.u32() * 200)
                 return 16
     -1
 
