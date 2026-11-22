@@ -24,7 +24,7 @@ proc solveAxis(x, y, target: array[3, int64]): AxisSolution =
 
 proc affine_image_rotation*(input: ptr UncheckedArray[int32], length: csize_t,
     output: ptr UncheckedArray[uint8], capacity: csize_t): int64
-    {.cdecl, exportc: "affine_image_rotation".} =
+    {.cdecl, dynlib, exportc: "affine_image_rotation".} =
   if input.isNil or length < 2 or length > csize_t(MaxInputLength): return -1
   let rowsValue = input[0]
   let colsValue = input[1]

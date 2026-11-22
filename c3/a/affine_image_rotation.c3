@@ -24,18 +24,23 @@ fn bool solve_axis(long* x, long* y, long* target,
 fn long affine_image_rotation(int* input, usz length, char* output, usz capacity)
     @export("affine_image_rotation") {
     if (input == null || length < 2 || length > MAX_INPUT_LENGTH) return -1;
-    long rows_value = input[0], cols_value = input[1];
+    long rows_value = input[0];
+    long cols_value = input[1];
     if (rows_value < 1 || rows_value > 8 || cols_value < 1 || cols_value > 8) return -1;
-    usz rows = (usz)rows_value, cols = (usz)cols_value;
+    usz rows = (usz)rows_value;
+    usz cols = (usz)cols_value;
     usz cells = rows * cols;
     if (length != 14 + cells) return -1;
-    uint8[MAX_CELLS] pixels = zeroed;
+    char[MAX_CELLS] pixels = {};
     for (usz i = 0; i < cells; i += 1) {
         if (input[2 + i] < 0 || input[2 + i] > 255) return -1;
-        pixels[i] = (uint8)input[2 + i];
+        pixels[i] = (char)input[2 + i];
     }
     usz point_offset = 2 + cells;
-    long[3] source_x = zeroed, source_y = zeroed, destination_x = zeroed, destination_y = zeroed;
+    long[3] source_x = {};
+    long[3] source_y = {};
+    long[3] destination_x = {};
+    long[3] destination_y = {};
     for (usz i = 0; i < 3; i += 1) {
         source_x[i] = input[point_offset + 2 * i];
         source_y[i] = input[point_offset + 2 * i + 1];
@@ -51,19 +56,23 @@ fn long affine_image_rotation(int* input, usz length, char* output, usz capacity
         tx < -16 || tx > 16 || ty < -16 || ty > 16) return -1;
     long determinant = a * d - b * c;
     if (determinant != -1 && determinant != 1) return -1;
-    for (usz i = 0; i < 3; i += 1)
+    for (usz i = 0; i < 3; i += 1) {
         if (destination_x[i] != a * source_x[i] + b * source_y[i] + tx ||
             destination_y[i] != c * source_x[i] + d * source_y[i] + ty) return -1;
+    }
     if (output == null || capacity < cells) return -2;
     usz written = 0;
     for (long y = 0; y < (long)cols; y += 1) {
         for (long x = 0; x < (long)rows; x += 1) {
-            long px = x - tx, py = y - ty;
+            long px = x - tx;
+            long py = y - ty;
             long source_column = (d * px - b * py) / determinant;
             long source_row = (-c * px + a * py) / determinant;
-            if (source_column >= 0 && source_column < (long)cols && source_row >= 0 && source_row < (long)rows)
+            if (source_column >= 0 && source_column < (long)cols && source_row >= 0 && source_row < (long)rows) {
                 output[written] = (char)pixels[(usz)source_row * cols + (usz)source_column];
-            else output[written] = 0;
+            } else {
+                output[written] = 0;
+            }
             written += 1;
         }
     }

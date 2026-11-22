@@ -22,10 +22,10 @@ export fn affine_image_rotation(input_opt: ?[*]const i32, length: usize,
     if (rows_value < 1 or rows_value > MAX_DIMENSION or cols_value < 1 or cols_value > MAX_DIMENSION) return -1;
     const rows: usize = @intCast(rows_value); const cols: usize = @intCast(cols_value); const cells = rows * cols;
     if (length != 14 + cells) return -1;
-    var pixels = [_]u8{0} ** MAX_CELLS;
+    var pixels: [MAX_CELLS]u8 = @splat(0);
     for (0..cells) |i| { if (input[2+i] < 0 or input[2+i] > 255) return -1; pixels[i] = @intCast(input[2+i]); }
     const point_offset = 2 + cells;
-    var sx = [_]i64{0} ** 3; var sy = [_]i64{0} ** 3; var dx = [_]i64{0} ** 3; var dy = [_]i64{0} ** 3;
+    var sx : [3]i64 = @splat(0); var sy : [3]i64 = @splat(0); var dx : [3]i64 = @splat(0); var dy : [3]i64 = @splat(0);
     for (0..3) |i| {
         sx[i] = input[point_offset+2*i]; sy[i] = input[point_offset+2*i+1];
         dx[i] = input[point_offset+6+2*i]; dy[i] = input[point_offset+7+2*i];

@@ -50,7 +50,7 @@ pub fn affine_image_rotation(input &i32, length usize, mut output &u8, capacity 
 		determinant := a * d - b * c
 		if determinant != -1 && determinant != 1 { return -1 }
 		for i in 0 .. 3 { if dx[i] != a * sx[i] + b * sy[i] + tx || dy[i] != c * sx[i] + d * sy[i] + ty { return -1 } }
-		if unsafe { output == nil } || capacity < usize(cells) { return -2 }
+		if output == nil || capacity < usize(cells) { return -2 }
 		mut written := 0
 		for y in 0 .. cols {
 			for x in 0 .. rows {
