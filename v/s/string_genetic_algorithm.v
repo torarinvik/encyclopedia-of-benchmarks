@@ -32,31 +32,29 @@ pub fn string_genetic_algorithm(values &i64, length usize, mut output &u8, outpu
 	gene_count := int(gene_count_value)
 	max_generations := int(max_generations_value)
 	if int(length) != 4 + target_length + gene_count { return -2 }
-	mut target := [8]u8{}
+	mut target_word := u64(0)
+	mut target_symbols := [2]u64{}
+	mut gene_symbols := [2]u64{}
 	mut genes := [32]u8{}
 	for index in 0 .. target_length {
 		value := unsafe { values[4 + index] }
 		if value < 32 || value > 126 { return -2 }
-		target[index] = u8(value)
+		target_word |= u64(value) << (8 * index)
+		target_symbols[int(value >> 6)] |= u64(1) << (value & 63)
 	}
 	for index in 0 .. gene_count {
 		value := unsafe { values[4 + target_length + index] }
 		if value < 32 || value > 126 { return -2 }
 		genes[index] = u8(value)
+		gene_symbols[int(value >> 6)] |= u64(1) << (value & 63)
 	}
-	for position in 0 .. target_length {
-		mut found := false
-		for gene in 0 .. gene_count {
-			if genes[gene] == target[position] { found = true }
-		}
-		if !found { return -2 }
-	}
-	if unsafe { output == nil } { return -2 }
+	if unsafe { output == nil } || (target_symbols[0] & ~gene_symbols[0]) != 0 ||
+		(target_symbols[1] & ~gene_symbols[1]) != 0 { return -2 }
 
 	mut state := u64(seed_value)
 	mut population := [population_size]u64{}
 	mut next_population := [population_size]u64{}
-	mut scores := [population_size]u8{}
+	mut mismatches := [population_size]u8{}
 	mut order := [population_size]int{}
 	for individual in 0 .. population_size {
 		mut word := u64(0)
@@ -64,33 +62,42 @@ pub fn string_genetic_algorithm(values &i64, length usize, mut output &u8, outpu
 			gene := genes[int(next_random(mut state) % u64(gene_count))]
 			word |= u64(gene) << (8 * position)
 		}
+		if word == target_word {
+			if output_capacity < 16 { return -2 }
+			write_i64_le(mut output, 0, 1)
+			write_i64_le(mut output, 8, population_size)
+			return 16
+		}
 		population[individual] = word
 	}
 	mut total_population := i64(0)
 	for generation in 1 .. max_generations + 1 {
 		total_population += population_size
+		mut offsets := [9]int{}
 		for individual in 0 .. population_size {
-			mut score := u8(0)
-			for position in 0 .. target_length {
-				if u8((population[individual] >> (8 * position)) & 0xff) == target[position] { score++ }
-			}
-			scores[individual] = score
-			order[individual] = individual
-			if int(score) == target_length {
+			// The bias marks unequal ASCII bytes without carrying across bytes.
+			difference := population[individual] ^ target_word
+			unequal := ((difference + u64(0x7f7f7f7f7f7f7f7f)) >> 7) & u64(0x0101010101010101)
+			count := int((unequal * u64(0x0101010101010101)) >> 56)
+			mismatches[individual] = u8(count)
+			offsets[count]++
+			if count == 0 {
 				if output_capacity < 16 { return -2 }
 				write_i64_le(mut output, 0, i64(generation))
 				write_i64_le(mut output, 8, total_population)
 				return 16
 			}
 		}
-		for index in 1 .. population_size {
-			selected := order[index]
-			mut insertion := index
-			for insertion > 0 && scores[order[insertion - 1]] < scores[selected] {
-				order[insertion] = order[insertion - 1]
-				insertion--
-			}
-			order[insertion] = selected
+		mut start := 0
+		for rank in 0 .. offsets.len {
+			count := offsets[rank]
+			offsets[rank] = start
+			start += count
+		}
+		for individual in 0 .. population_size {
+			count := int(mismatches[individual])
+			order[offsets[count]] = individual
+			offsets[count]++
 		}
 		mut next_count := 0
 		for next_count < elite_size {
@@ -100,25 +107,15 @@ pub fn string_genetic_algorithm(values &i64, length usize, mut output &u8, outpu
 		for parent_rank in 0 .. selected_size {
 			if next_count >= population_size { break }
 			first := population[order[parent_rank]]
-			mut child_count := int(scores[order[parent_rank]]) * 100 / target_length + 1
+			mut child_count := (target_length - int(mismatches[order[parent_rank]])) * 100 / target_length + 1
 			if child_count > 10 { child_count = 10 }
 			for _ in 0 .. child_count {
 				if next_count >= population_size { break }
 				second := population[order[int(next_random(mut state) % u64(51))]]
 				cut := int(next_random(mut state) % u64(target_length))
-				mut children := [2]u64{}
-				for position in 0 .. target_length {
-					shift := 8 * position
-					first_gene := (first >> shift) & 0xff
-					second_gene := (second >> shift) & 0xff
-					if position < cut {
-						children[0] |= first_gene << shift
-						children[1] |= second_gene << shift
-					} else {
-						children[0] |= second_gene << shift
-						children[1] |= first_gene << shift
-					}
-				}
+				low_mask := (u64(1) << (8 * cut)) - 1
+				mut children := [(first & low_mask) | (second & ~low_mask),
+					(second & low_mask) | (first & ~low_mask)]!
 			for child in 0 .. 2 {
 				if next_random(mut state) % u64(5) < u64(2) {
 					position := int(next_random(mut state) % u64(target_length))
