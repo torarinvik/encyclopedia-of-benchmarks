@@ -9,6 +9,9 @@ static int64_t sci_run_cost(int kept) {
     return kept == 1 ? 1 : kept >= 10 ? 3 : 2;
 }
 
+__attribute__((noinline))
+static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t retained);
+
 int64_t string_compression_ii(const int64_t *input, size_t length) {
     if (input == NULL || length < 2) return -1;
     const uint64_t raw_length = (uint64_t)input[0];
@@ -52,6 +55,11 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     if (retained == 1) return 1;
     if (matching >= retained) return sci_run_cost((int)retained);
 
+    return sci_search(input, n, budget, retained);
+}
+
+__attribute__((noinline))
+static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t retained) {
     /* Store matching endpoints as one-based positions. Zero ends a chain. */
     size_t next_match[SCI_MAX_N + 1];
     size_t latest_match[26] = {0};

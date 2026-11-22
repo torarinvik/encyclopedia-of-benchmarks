@@ -46,6 +46,10 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     if retained == 1: return 1
     if matching >= retained: return sci_run_cost(retained)
 
+    sci_search(input, n, budget, retained)
+
+@inline(never)
+def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
     # Store matching endpoints as one-based positions. Zero ends a chain.
     next_match: mutable usize[SCI_MAX_N + 1] = zeroed
     latest_match: mutable usize[26] = zeroed
