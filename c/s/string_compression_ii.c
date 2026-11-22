@@ -29,12 +29,12 @@ static int64_t sci_delete_one(const int64_t *input, size_t n) {
     int64_t cost = 0, saving = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
     size_t older_length = 0, previous_length = 0;
-    int64_t next_symbol = input[2];
+    int64_t next_symbol = input[0];
     for (size_t start = 0; start < n;) {
         const int64_t symbol = next_symbol;
         size_t end = start + 1;
         while (end < n) {
-            next_symbol = input[end + 2];
+            next_symbol = input[end];
             if (next_symbol != symbol) break;
             ++end;
         }
@@ -130,7 +130,7 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
     if (position == n) return (int64_t)retained;
     if (retained == 3) return 2;
 
-    if (budget == 1) return sci_delete_one(input, n);
+    if (budget == 1) return sci_delete_one(input + 2, n);
 
     uint8_t next_match[SCI_MAX_N + 1];
     next_match[0] = 0;
