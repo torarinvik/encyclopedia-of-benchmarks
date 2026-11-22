@@ -126,7 +126,7 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
     dp[0] <- SCI_SCORE_BASE
     best_score: mutable u32 = SCI_SCORE_BASE - retained
     for start in 0..<n:
-        first_used: u32 = start - retained + 1 if start >= retained else 0
+        first_used: u32 = (start + 1 if start + 1 > retained else retained) - retained
         last_used: u32 = start if start < budget else budget
         for used in first_used..=last_used:
             prefix_score: u32 = dp[start * SCI_WIDTH.u32() + used]
