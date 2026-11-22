@@ -3,7 +3,7 @@
 
 #define SCI_MAX_N 12
 #define SCI_WIDTH 16
-#define SCI_INF INT64_C(1000)
+#define SCI_INF INT32_C(1000)
 
 static int64_t sci_run_cost(int kept) {
     return kept == 1 ? 1 : kept >= 10 ? 3 : 2;
@@ -74,7 +74,7 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
 
     if (repeated_endpoint == 0) return (int64_t)retained;
 
-    int64_t dp[SCI_WIDTH][SCI_WIDTH];
+    int32_t dp[SCI_WIDTH][SCI_WIDTH];
     for (size_t i = 0; i < SCI_WIDTH; ++i)
         for (size_t d = 0; d < SCI_WIDTH; ++d) dp[i][d] = SCI_INF;
     dp[0][0] = 0;
@@ -85,7 +85,7 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
         const size_t first_used = budget >= remaining ? budget - remaining + 1 : 0;
         const size_t last_used = start < budget ? start : budget;
         for (size_t used = first_used; used <= last_used; ++used) {
-            int64_t prefix_cost = dp[start][used];
+            int32_t prefix_cost = dp[start][used];
             const size_t kept_limit = retained - (start - used);
             if (prefix_cost + sci_run_cost((int)kept_limit) >= dp[n][budget]) continue;
             if (used < budget && prefix_cost < dp[start + 1][used + 1])
@@ -96,7 +96,7 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
             for (size_t kept = 1; endpoint != 0; ++kept) {
                 const size_t deleted = used + endpoint - start - kept;
                 if (deleted > budget) break;
-                const int64_t candidate = prefix_cost + sci_run_cost((int)kept);
+                const int32_t candidate = prefix_cost + sci_run_cost((int)kept);
                 if (kept == kept_limit) {
                     if (candidate < dp[n][budget]) dp[n][budget] = candidate;
                     break;
