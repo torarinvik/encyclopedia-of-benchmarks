@@ -22,14 +22,17 @@ def string_left_rotation_impl(input: i64&, length: usize, output: mutable u8&, o
         return 0
     if output == null or output_capacity < required:
         return -2
-    index <- 0
-    while index < text_length:
-        position: usize = rotation + index
-        source: usize = position - text_length if position >= text_length else position
+    for source in rotation..<text_length:
+        destination: usize = 2 * (source - rotation)
         value: u16 = units[source]
-        output[index * 2] <- (value & 255).u8()
-        output[index * 2 + 1] <- (value >> 8).u8()
-        index <- index + 1
+        output[destination] <- (value & 255).u8()
+        output[destination + 1] <- (value >> 8).u8()
+    suffix_bytes: usize = 2 * (text_length - rotation)
+    for source in 0..<rotation:
+        destination: usize = suffix_bytes + 2 * source
+        value: u16 = units[source]
+        output[destination] <- (value & 255).u8()
+        output[destination + 1] <- (value >> 8).u8()
     required.i64()
 
 export fn string_left_rotation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = string_left_rotation_impl
