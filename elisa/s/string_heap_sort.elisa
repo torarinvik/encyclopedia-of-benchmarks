@@ -13,22 +13,18 @@ def sift_down(keys: mutable view[u32], root_value: usize, end: usize) -> void:
         root <- child
 
 def string_heap_sort_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values.is_null() or length < 1 or length > 257: return -1
+    if values == null or length < 1 or length > 257: return -1
     raw_count: i64 = values[0]
     if raw_count < 0 or raw_count > 64 or length != 1 + 4 * raw_count.usize(): return -1
     count: usize = raw_count.usize()
     keys: mutable u32[MAX_KEYS] = zeroed
-    index: usize = 0
-    while index < count:
+    for index in 0..<count:
         key: mutable u32 = 0
-        byte_index: usize = 0
-        while byte_index < WIDTH:
+        for byte_index in 0..<WIDTH:
             byte: i64 = values[1 + WIDTH * index + byte_index]
             if byte < 0 or byte > 127: return -1
             key <- (key << 8) | byte.u32()
-            byte_index <- byte_index + 1
         keys[index] <- key
-        index <- index + 1
     start: mutable usize = count / 2
     while start > 0:
         start <- start - 1
@@ -41,14 +37,10 @@ def string_heap_sort_impl(values: i64&, length: usize, output: mutable u8&, capa
         keys[end] <- temp
         sift_down(keys[0:MAX_KEYS], 0, end)
     byte_count: usize = count * WIDTH
-    if output.is_null() or capacity < byte_count: return -2
-    index <- 0
-    while index < count:
-        byte_index <- 0
-        while byte_index < WIDTH:
+    if output == null or capacity < byte_count: return -2
+    for index in 0..<count:
+        for byte_index in 0..<WIDTH:
             output[index * WIDTH + byte_index] <- ((keys[index] >> (24 - 8 * byte_index)) & 255).u8()
-            byte_index <- byte_index + 1
-        index <- index + 1
     byte_count.i64()
 
 export fn string_heap_sort(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = string_heap_sort_impl
