@@ -38,9 +38,9 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     const size_t retained = n - budget;
     if (retained == 1) return 1;
     const int64_t first_symbol = input[2];
-    size_t matching = 1;
+    size_t needed = retained - 1;
     for (size_t index = 1; index < n; ++index) {
-        if (input[index + 2] == first_symbol && ++matching == retained)
+        if (input[index + 2] == first_symbol && --needed == 0)
             return sci_run_cost((int)retained);
     }
 

@@ -36,11 +36,11 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     retained: usize = n - budget
     if retained == 1: return 1
     first_symbol: i64 = input[2]
-    matching: mutable usize = 1
+    needed: mutable usize = retained - 1
     for index in 1..<n:
         if input[index + 2] == first_symbol:
-            matching <- matching + 1
-            if matching == retained: return sci_run_cost(retained)
+            needed <- needed - 1
+            if needed == 0: return sci_run_cost(retained)
 
     dp: mutable i64[SCI_CELLS] = zeroed
     for i in 0..<SCI_CELLS:
