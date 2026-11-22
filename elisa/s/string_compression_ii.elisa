@@ -83,23 +83,27 @@ def sci_delete_one(input: i64&, n: usize, next_match: usize&) -> i64:
 
 @inline(never)
 def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
-    # Store matching endpoints as one-based positions. Zero ends a chain.
-    next_match: mutable usize[SCI_MAX_N + 1] = zeroed
-    # Each symbol stores its two latest positions in adjacent four-bit fields.
-    latest_match: mutable u8[26] = zeroed
-    recent_positions: mutable usize = 0
+    # With at most two occurrences of each symbol, every kept byte costs one.
+    seen: mutable u32 = 0
+    paired: mutable u32 = 0
     position: mutable usize = n
     while position != 0:
+        symbol_bit: u32 = 1.u32() << input[position + 1].u32()
+        if (paired & symbol_bit) != 0: break
+        paired <- paired | (seen & symbol_bit)
+        seen <- seen | symbol_bit
+        position <- position - 1
+    if position == 0: return retained.i64()
+
+    next_match: mutable usize[SCI_MAX_N + 1] = zeroed
+    latest_match: mutable u8[26] = zeroed
+    position <- n
+    while position != 0:
         symbol: usize = input[position + 1].usize()
-        recent: usize = latest_match[symbol].usize()
-        next_position: usize = recent & 15
-        next_match[position] <- next_position
-        recent_positions <- recent_positions | recent
-        latest_match[symbol] <- (position | (next_position << 4)).u8()
+        next_match[position] <- latest_match[symbol].usize()
+        latest_match[symbol] <- position.u8()
         position <- position - 1
 
-    # Runs of one or two symbols cost one encoded byte per retained symbol.
-    if recent_positions < 16: return retained.i64()
     if budget == 1: return sci_delete_one(input, n, &next_match[0])
 
     dp: mutable i32[SCI_CELLS] = zeroed

@@ -90,22 +90,25 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
 
 __attribute__((noinline))
 static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t retained) {
-    /* Store matching endpoints as one-based positions. Zero ends a chain. */
+    /* With at most two occurrences of each symbol, every kept byte costs one. */
+    uint32_t seen = 0, paired = 0;
+    size_t position = n;
+    for (; position != 0; --position) {
+        const uint32_t symbol_bit = UINT32_C(1) << input[position + 1];
+        if ((paired & symbol_bit) != 0) break;
+        paired |= seen & symbol_bit;
+        seen |= symbol_bit;
+    }
+    if (position == 0) return (int64_t)retained;
+
     size_t next_match[SCI_MAX_N + 1];
-    /* Each symbol stores its two latest positions in adjacent four-bit fields. */
     uint8_t latest_match[26] = {0};
-    size_t recent_positions = 0;
-    for (size_t position = n; position != 0; --position) {
+    for (position = n; position != 0; --position) {
         const size_t symbol = (size_t)input[position + 1];
-        const size_t recent = latest_match[symbol];
-        const size_t next_position = recent & 15;
-        next_match[position] = next_position;
-        recent_positions |= recent;
-        latest_match[symbol] = (uint8_t)(position | (next_position << 4));
+        next_match[position] = latest_match[symbol];
+        latest_match[symbol] = (uint8_t)position;
     }
 
-    /* Runs of one or two symbols cost one encoded byte per retained symbol. */
-    if (recent_positions < 16) return (int64_t)retained;
     if (budget == 1) return sci_delete_one(input, n, next_match);
 
     /* Scores are the base minus the encoded cost. Zero marks an unset state. */
