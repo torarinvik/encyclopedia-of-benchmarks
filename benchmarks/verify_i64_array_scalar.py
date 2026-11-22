@@ -3237,6 +3237,7 @@ from string_hash_equality_oracle import MAX_INPUT_LENGTH as STRING_HASH_EQUALITY
 from string_hash_equality_oracle import MAX_PARSEABLE_INPUT_LENGTH as STRING_HASH_EQUALITY_MAX_PARSEABLE_INPUT_LENGTH
 from string_hash_equality_oracle import RATE_BYTES as STRING_HASH_EQUALITY_RATE_BYTES
 from string_hash_equality_oracle import expected_result as string_hash_equality_oracle
+from string_hash_equality_oracle import keccak256 as string_hash_equality_keccak256
 from support_vector_classifier_oracle import MAX_FEATURES as SUPPORT_VECTOR_CLASSIFIER_MAX_FEATURES
 from support_vector_classifier_oracle import MAX_INPUT_VALUES as SUPPORT_VECTOR_CLASSIFIER_MAX_INPUT_VALUES
 from support_vector_classifier_oracle import MAX_PARSEABLE_INPUT_VALUES as SUPPORT_VECTOR_CLASSIFIER_MAX_PARSEABLE_INPUT_VALUES
@@ -30374,6 +30375,8 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                     b"": bytes.fromhex("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"),
                     b"abc": bytes.fromhex("4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"),
                 }
+                or any(string_hash_equality_keccak256(message) != digest
+                       for message, digest in STRING_HASH_EQUALITY_KECCAK256_KNOWN_VECTORS.items())
                 or len(case_ids) != len(required_case_ids)
                 or len(case_ids) != len(set(case_ids))
                 or set(case_ids) != required_case_ids
