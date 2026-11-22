@@ -10,13 +10,16 @@ fn long string_left_rotation(long* input, usz length, char* output, usz capacity
     if (raw_length < 0 || raw_length > 256 || raw_rotation < 0 || raw_rotation > raw_length || length != (usz)raw_length + 2) return -1;
     usz text_length = (usz)raw_length;
     usz rotation = (usz)raw_rotation;
+    if (text_length == 0) return 0;
     ushort[256] units = {};
+    ulong observed_bits = 0;
     for (usz i = 0; i < text_length; i += 1) {
-        if (input[i + 2] < 0 || input[i + 2] > 65535) return -1;
-        units[i] = (ushort)input[i + 2];
+        ulong value = (ulong)input[i + 2];
+        observed_bits |= value;
+        units[i] = (ushort)value;
     }
+    if (observed_bits > 65535) return -1;
     usz required = text_length * 2;
-    if (required == 0) return 0;
     if (output == null || capacity < required) return -2;
     for (usz source = rotation; source < text_length; ++source) {
         ushort value = units[source];

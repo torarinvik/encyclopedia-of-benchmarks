@@ -14,13 +14,16 @@ extern "C" std::int64_t string_left_rotation(const std::int64_t* input, std::siz
         raw_rotation > raw_length || length != std::size_t(raw_length) + 2) return -1;
 
     const std::size_t text_length = std::size_t(raw_length), rotation = std::size_t(raw_rotation);
+    if (text_length == 0) return 0;
     std::uint16_t units[max_string_length]{};
+    std::uint64_t observed_bits = 0;
     for (std::size_t i = 0; i < text_length; ++i) {
-        if (input[i + 2] < 0 || input[i + 2] > 65535) return -1;
-        units[i] = std::uint16_t(input[i + 2]);
+        const std::uint64_t value = (std::uint64_t)input[i + 2];
+        observed_bits |= value;
+        units[i] = std::uint16_t(value);
     }
+    if (observed_bits > 65535) return -1;
     const std::size_t required = text_length * 2;
-    if (required == 0) return 0;
     if (output == nullptr || capacity < required) return -2;
     for (std::size_t source = rotation; source < text_length; ++source) {
         const std::uint16_t value = units[source];

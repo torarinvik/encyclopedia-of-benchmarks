@@ -14,13 +14,16 @@ int64_t string_left_rotation(const int64_t *input, size_t length,
 
     const size_t text_length = (size_t)raw_length;
     const size_t rotation = (size_t)raw_rotation;
+    if (text_length == 0) return 0;
     uint16_t units[MAX_STRING_LENGTH];
+    uint64_t observed_bits = 0;
     for (size_t i = 0; i < text_length; ++i) {
-        if (input[i + 2] < 0 || input[i + 2] > 65535) return -1;
-        units[i] = (uint16_t)input[i + 2];
+        const uint64_t value = (uint64_t)input[i + 2];
+        observed_bits |= value;
+        units[i] = (uint16_t)value;
     }
+    if (observed_bits > 65535) return -1;
     const size_t required = text_length * 2;
-    if (required == 0) return 0;
     if (output == NULL || capacity < required) return -2;
 
     for (size_t source = rotation; source < text_length; ++source) {
