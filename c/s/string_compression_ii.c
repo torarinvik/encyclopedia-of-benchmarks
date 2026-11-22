@@ -10,6 +10,35 @@ static int64_t sci_run_cost(int kept) {
 }
 
 __attribute__((noinline))
+static int64_t sci_delete_one(const int64_t *input, size_t n) {
+    int64_t cost = 0, saving = 0;
+    int64_t older_symbol = -1, previous_symbol = -1;
+    size_t older_length = 0, previous_length = 0;
+    for (size_t start = 0; start < n;) {
+        const int64_t symbol = input[start + 2];
+        size_t end = start + 1;
+        while (end < n && input[end + 2] == symbol) ++end;
+        const size_t run_length = end - start;
+        const int64_t run_cost = sci_run_cost((int)run_length);
+        cost += run_cost;
+        if ((run_length == 1 || run_length == 2 || run_length == 10) && saving == 0)
+            saving = 1;
+        /* Deleting a singleton can join the equal runs on either side. */
+        if (previous_length == 1 && older_symbol == symbol) {
+            const int64_t merged_saving = 1 + sci_run_cost((int)older_length)
+                + run_cost - sci_run_cost((int)(older_length + run_length));
+            if (merged_saving > saving) saving = merged_saving;
+        }
+        older_symbol = previous_symbol;
+        older_length = previous_length;
+        previous_symbol = symbol;
+        previous_length = run_length;
+        start = end;
+    }
+    return cost - saving;
+}
+
+__attribute__((noinline))
 static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t retained);
 
 int64_t string_compression_ii(const int64_t *input, size_t length) {
@@ -73,6 +102,7 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
     }
 
     if (repeated_endpoint == 0) return (int64_t)retained;
+    if (budget == 1) return sci_delete_one(input, n);
 
     /* Scores are the base minus the encoded cost. Zero marks an unset state. */
     int32_t dp[SCI_MAX_N + 1][SCI_WIDTH] = {{SCI_SCORE_BASE}};

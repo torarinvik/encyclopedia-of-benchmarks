@@ -49,6 +49,36 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     sci_search(input, n, budget, retained)
 
 @inline(never)
+def sci_delete_one(input: i64&, n: usize) -> i64:
+    cost: mutable i64 = 0
+    saving: mutable i64 = 0
+    older_symbol: mutable i64 = -1
+    older_length: mutable usize = 0
+    previous_symbol: mutable i64 = -1
+    previous_length: mutable usize = 0
+    start: mutable usize = 0
+    while start < n:
+        symbol: i64 = input[start + 2]
+        ending: mutable usize = start + 1
+        while ending < n and input[ending + 2] == symbol:
+            ending <- ending + 1
+        run_length: usize = ending - start
+        run_cost: i64 = sci_run_cost(run_length)
+        cost <- cost + run_cost
+        if run_length == 1 or run_length == 2 or run_length == 10:
+            if saving == 0: saving <- 1
+        # Deleting a singleton can join the equal runs on either side.
+        if previous_length == 1 and older_symbol == symbol:
+            merged_saving: i64 = 1 + sci_run_cost(older_length) + run_cost - sci_run_cost(older_length + run_length)
+            if merged_saving > saving: saving <- merged_saving
+        older_symbol <- previous_symbol
+        older_length <- previous_length
+        previous_symbol <- symbol
+        previous_length <- run_length
+        start <- ending
+    cost - saving
+
+@inline(never)
 def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
     # Store matching endpoints as one-based positions. Zero ends a chain.
     next_match: mutable usize[SCI_MAX_N + 1] = zeroed
@@ -64,6 +94,7 @@ def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
         position <- position - 1
 
     if repeated_endpoint == 0: return retained.i64()
+    if budget == 1: return sci_delete_one(input, n)
 
     dp: mutable i32[SCI_CELLS] = zeroed
     # Scores are the base minus the encoded cost. Zero marks an unset state.
