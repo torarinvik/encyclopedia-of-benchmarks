@@ -104,22 +104,24 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
                 return 16
         # Count fitness buckets, then scatter in population order to preserve ties.
         offsets: mutable usize[9] = zeroed
+        # Fitness is the number of matching target bytes, from zero through eight.
+        buckets: mutable usize& = &offsets[0]
         for individual in 0..<200:
             rank: usize = scores[individual].usize()
-            offsets[rank] <- offsets[rank] + 1
+            buckets[rank] <- buckets[rank] + 1
         offset: mutable usize = 0
         for descending in 0..<9:
             rank: usize = 8 - descending
-            count: usize = offsets[rank]
-            offsets[rank] <- offset
+            count: usize = buckets[rank]
+            buckets[rank] <- offset
             offset <- offset + count
         for individual in 0..<200:
             rank: usize = scores[individual].usize()
-            destination: usize = offsets[rank]
+            destination: usize = buckets[rank]
             if destination < 66:
                 next_population[destination] <- population[individual]
                 ranked_scores[destination] <- scores[individual]
-            offsets[rank] <- destination + 1
+            buckets[rank] <- destination + 1
         next_count: mutable usize = 66
         for parent_rank in 0..<50 |parent_rank, next_count, ranked_scores, target_length, state, gene_table, gene_count, next_population|:
             if next_count >= 200:
