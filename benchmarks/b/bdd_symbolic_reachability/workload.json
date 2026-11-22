@@ -301,7 +301,7 @@
     {
       "id": "i64-min-invalid",
       "input_values": [
-        -9223372036854776000
+        -9223372036854775808
       ],
       "input_length": 1,
       "expected_result": -1
@@ -309,7 +309,7 @@
     {
       "id": "i64-max-invalid",
       "input_values": [
-        9223372036854776000
+        9223372036854775807
       ],
       "input_length": 1,
       "expected_result": -1
