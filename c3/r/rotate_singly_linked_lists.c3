@@ -19,8 +19,9 @@ fn long rotate_singly_linked_lists(long* input, usz length, char* output, usz ca
     usz n = (usz)input[0];
     long k = input[1];
     if (length != n + 2) return -1;
-    for (usz i = 0; i < n; i++)
+    for (usz i = 0; i < n; i++) {
         if (input[i + 2] < I32_MIN_VALUE || input[i + 2] > I32_MAX_VALUE) return -1;
+    }
     usz bytes = 8 * (n + 1);
     if (output == null || capacity < bytes) return -2;
 
@@ -28,9 +29,9 @@ fn long rotate_singly_linked_lists(long* input, usz length, char* output, usz ca
     long[MAX_N] next;
     for (usz i = 0; i < n; i++) {
         nodes[i] = (int)input[i + 2];
-        next[i] = if i + 1 < n then (long)(i + 1) else -1;
+        next[i] = i + 1 < n ? (long)(i + 1) : -1;
     }
-    long head = if n > 0 then 0 else -1;
+    long head = n > 0 ? 0 : -1;
     if (n > 1 && k > 0) {
         usz tail = n - 1;
         next[tail] = head;
