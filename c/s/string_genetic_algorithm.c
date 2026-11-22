@@ -77,7 +77,7 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
     }
 
     int64_t total_population = 0;
-    for (size_t generation = 1; generation <= max_generations; ++generation) {
+    for (size_t generation = 1; generation < max_generations; ++generation) {
         total_population += POPULATION_SIZE;
         for (size_t individual = 0; individual < POPULATION_SIZE; ++individual) {
             // ASCII XOR leaves the high bit clear. Adding 127 flags each unequal byte.
@@ -95,7 +95,6 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
             }
         }
 
-        if (generation == max_generations) return -1;
         // Count fitness buckets, then scatter in population order to preserve ties.
         size_t offsets[9] = {0};
         for (size_t individual = 0; individual < POPULATION_SIZE; ++individual)
@@ -139,6 +138,17 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
         }
         for (size_t index = 0; index < POPULATION_SIZE; ++index)
             population[index] = next_population[index];
+    }
+    // The last generation needs equality only because it has no offspring.
+    if (max_generations != 1) {
+        for (size_t individual = 0; individual < POPULATION_SIZE; ++individual) {
+            if (population[individual] == target_word) {
+                if (output_capacity < 16) return -2;
+                write_i64_le(output, 0, (int64_t)max_generations);
+                write_i64_le(output, 8, total_population + POPULATION_SIZE);
+                return 16;
+            }
+        }
     }
     return -1;
 }
