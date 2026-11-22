@@ -23,12 +23,16 @@ int64_t string_left_rotation(const int64_t *input, size_t length,
     if (required == 0) return 0;
     if (output == NULL || capacity < required) return -2;
 
-    for (size_t i = 0; i < text_length; ++i) {
-        size_t source = rotation + i;
-        if (source >= text_length) source -= text_length;
+    for (size_t source = rotation; source < text_length; ++source) {
         const uint16_t value = units[source];
-        output[2 * i] = (uint8_t)(value & 255u);
-        output[2 * i + 1] = (uint8_t)(value >> 8);
+        output[2 * (source - rotation)] = (uint8_t)(value & 255u);
+        output[2 * (source - rotation) + 1] = (uint8_t)(value >> 8);
+    }
+    const size_t suffix_bytes = 2 * (text_length - rotation);
+    for (size_t source = 0; source < rotation; ++source) {
+        const uint16_t value = units[source];
+        output[suffix_bytes + 2 * source] = (uint8_t)(value & 255u);
+        output[suffix_bytes + 2 * source + 1] = (uint8_t)(value >> 8);
     }
     return (int64_t)required;
 }

@@ -22,12 +22,16 @@ extern "C" std::int64_t string_left_rotation(const std::int64_t* input, std::siz
     const std::size_t required = text_length * 2;
     if (required == 0) return 0;
     if (output == nullptr || capacity < required) return -2;
-    for (std::size_t i = 0; i < text_length; ++i) {
-        std::size_t source = rotation + i;
-        if (source >= text_length) source -= text_length;
+    for (std::size_t source = rotation; source < text_length; ++source) {
         const std::uint16_t value = units[source];
-        output[2 * i] = std::uint8_t(value & 255);
-        output[2 * i + 1] = std::uint8_t(value >> 8);
+        output[2 * (source - rotation)] = std::uint8_t(value & 255);
+        output[2 * (source - rotation) + 1] = std::uint8_t(value >> 8);
+    }
+    const std::size_t suffix_bytes = 2 * (text_length - rotation);
+    for (std::size_t source = 0; source < rotation; ++source) {
+        const std::uint16_t value = units[source];
+        output[suffix_bytes + 2 * source] = std::uint8_t(value & 255);
+        output[suffix_bytes + 2 * source + 1] = std::uint8_t(value >> 8);
     }
     return std::int64_t(required);
 }
