@@ -16,7 +16,7 @@ fn reverse_links(mut next []int, previous int, current int) int {
 
 @[export: 'reverse_a_linked_list_using_recusion']
 pub fn reverse_a_linked_list_using_recusion(input &i64, length usize, mut output &u8, capacity usize) i64 {
-	if input == nil || length < 1 || length > max_n + 1 { return -1 }
+	if unsafe { input == nil } || length < 1 || length > max_n + 1 { return -1 }
 	n_value := unsafe { input[0] }
 	if n_value < 2 || n_value > max_n { return -1 }
 	n := int(n_value)
@@ -26,7 +26,7 @@ pub fn reverse_a_linked_list_using_recusion(input &i64, length usize, mut output
 		if value < -2147483648 || value > 2147483647 { return -1 }
 	}
 	bytes := 4 * n
-	if output == nil || capacity < usize(bytes) { return -2 }
+	if unsafe { output == nil } || capacity < usize(bytes) { return -2 }
 
 	mut nodes := [max_n]i32{}
 	mut next := []int{len: max_n, init: -1}

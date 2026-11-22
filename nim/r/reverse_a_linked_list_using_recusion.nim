@@ -12,7 +12,7 @@ proc reverseLinks(next: var array[MaxN, int], previous, current: int): int =
 
 proc reverse_a_linked_list_using_recusion*(input: ptr UncheckedArray[int64], length: csize_t,
     output: ptr UncheckedArray[uint8], capacity: csize_t): int64
-    {.cdecl, exportc: "reverse_a_linked_list_using_recusion".} =
+    {.cdecl, dynlib, exportc: "reverse_a_linked_list_using_recusion".} =
   if input == nil or length < 1 or length > csize_t(MaxN + 1): return -1
   if input[0] < 2 or input[0] > MaxN: return -1
   let n = int(input[0])

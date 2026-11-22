@@ -6,7 +6,7 @@ MAX_N :: 64
 I32_MIN :: -2147483648
 I32_MAX :: 2147483647
 
-reverse_links :: proc(next: ^[MAX_N]int, previous, current: int) -> int {
+reverse_links :: proc "contextless"(next: ^[MAX_N]int, previous, current: int) -> int {
 	if next[current] >= 0 {
 		head := reverse_links(next, current, next[current])
 		next[current] = previous
@@ -42,7 +42,7 @@ reverse_a_linked_list_using_recusion :: proc "c" (input: [^]i64, length: c.size_
 	for i := 0; i < n; i += 1 {
 		bits := transmute(u32)(nodes[node])
 		for byte := 0; byte < 4; byte += 1 {
-			output[i*4+byte] = u8((bits >> (8*byte)) & 255)
+			output[i*4+byte] = u8((bits >> uint(8 * byte)) & 255)
 		}
 		if i + 1 < n do node = next[node]
 	}

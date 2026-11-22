@@ -1,4 +1,4 @@
-module reverse_a_linked_list_using_recusion;
+module recursive_list_reversal;
 
 const usz MAX_N = 64;
 const long I32_MIN_VALUE = -2147483648;
@@ -32,8 +32,9 @@ fn long reverse_a_linked_list_using_recusion(long* input, usz length, char* outp
     if (n_value < 2 || n_value > (long)MAX_N) return -1;
     usz n = (usz)n_value;
     if (length != n + 1) return -1;
-    for (usz i = 0; i < n; i++)
+    for (usz i = 0; i < n; i++) {
         if (input[i + 1] < I32_MIN_VALUE || input[i + 1] > I32_MAX_VALUE) return -1;
+    }
     usz bytes = 4 * n;
     if (output == null || capacity < bytes) return -2;
 
@@ -41,9 +42,9 @@ fn long reverse_a_linked_list_using_recusion(long* input, usz length, char* outp
     long[MAX_N] next;
     for (usz i = 0; i < n; i++) {
         nodes[i] = (int)input[i + 1];
-        next[i] = if i + 1 < n then (long)(i + 1) else -1;
+        next[i] = i + 1 < n ? (long)(i + 1) : -1;
     }
-    long node = reverse_links(next, 0, next[0]);
+    long node = reverse_links(&next[0], 0, next[0]);
     for (usz i = 0; i < n; i++) {
         store_i32_le(output, i * 4, (long)nodes[(usz)node]);
         if (i + 1 < n) node = next[(usz)node];
