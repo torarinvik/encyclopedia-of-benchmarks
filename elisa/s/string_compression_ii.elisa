@@ -112,11 +112,13 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
 
     next_match: mutable u8[SCI_MAX_N + 1] = zeroed
     latest_match: mutable u8[26] = zeroed
+    # sci_compute validates every symbol before calling sci_search.
+    latest: mutable u8& = &latest_match[0]
     position <- n
     while position != 0:
         symbol: u32 = input[position + 1].u32()
-        next_match[position] <- latest_match[symbol]
-        latest_match[symbol] <- position.u8()
+        next_match[position] <- latest[symbol]
+        latest[symbol] <- position.u8()
         position <- position - 1
 
     if budget == 1: return sci_delete_one(input, n.usize(), &next_match[0])
