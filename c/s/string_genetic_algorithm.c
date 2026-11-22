@@ -32,6 +32,16 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
     const size_t gene_count = (size_t)gene_count_value;
     const size_t max_generations = (size_t)max_generations_value;
     if (length != 4 + target_length + gene_count) return -2;
+    if (gene_count == 1) {
+        const int64_t gene = values[4 + target_length];
+        if (gene < 32 || gene > 126 || output == NULL || output_capacity < 16) return -2;
+        for (size_t index = 0; index < target_length; ++index)
+            if (values[4 + index] != gene) return -2;
+        write_i64_le(output, 0, 1);
+        write_i64_le(output, 8, POPULATION_SIZE);
+        return 16;
+    }
+
     uint8_t genes[32];
     uint64_t target_word = 0;
     uint64_t target_low = 0, target_high = 0;
@@ -54,13 +64,6 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
     }
     if ((target_low & ~gene_low) != 0 || (target_high & ~gene_high) != 0 || output == NULL)
         return -2;
-
-    if (gene_count == 1) {
-        if (output_capacity < 16) return -2;
-        write_i64_le(output, 0, 1);
-        write_i64_le(output, 8, POPULATION_SIZE);
-        return 16;
-    }
 
     uint32_t random_state = (uint32_t)seed_value;
     uint64_t population[POPULATION_SIZE];
