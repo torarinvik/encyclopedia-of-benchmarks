@@ -70,20 +70,28 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
                 if value == target[position]:
                     score <- score + 1.u8()
             scores[individual] <- score
-            order[individual] <- individual
             if score.usize() == target_length:
                 if output_capacity < 16:
                     return -2
                 string_genetic_algorithm_write_i64(output, 0, generation.i64())
                 string_genetic_algorithm_write_i64(output, 8, total_population)
                 return 16
-        for index in 1..<200:
-            selected: usize = order[index]
-            insertion: mutable usize = index
-            while insertion > 0 and scores[order[insertion - 1]] < scores[selected] |insertion, order, scores, selected|:
-                order[insertion] <- order[insertion - 1]
-                insertion <- insertion - 1
-            order[insertion] <- selected
+        # Count fitness buckets, then scatter in population order to preserve ties.
+        offsets: mutable usize[9] = zeroed
+        for individual in 0..<200:
+            rank: usize = scores[individual].usize()
+            offsets[rank] <- offsets[rank] + 1
+        offset: mutable usize = 0
+        for descending in 0..<9:
+            rank: usize = 8 - descending
+            count: usize = offsets[rank]
+            offsets[rank] <- offset
+            offset <- offset + count
+        for individual in 0..<200:
+            rank: usize = scores[individual].usize()
+            destination: usize = offsets[rank]
+            order[destination] <- individual
+            offsets[rank] <- destination + 1
         next_count: mutable usize = 0
         while next_count < 66 |next_count, next_population, population, order|:
             next_population[next_count] <- population[order[next_count]]

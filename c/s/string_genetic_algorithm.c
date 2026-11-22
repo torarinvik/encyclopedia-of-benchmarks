@@ -75,7 +75,6 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
                 score += (uint8_t)(((population[individual] >> (8 * position)) & UINT64_C(0xFF)) == target[position]);
             }
             scores[individual] = score;
-            order[individual] = individual;
             if (score == target_length_value) {
                 if (output_capacity < 16) return -2;
                 write_i64_le(output, 0, (int64_t)generation);
@@ -84,16 +83,19 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
             }
         }
 
-        // Stable descending fitness order, so equal scores preserve population order.
-        for (size_t index = 1; index < POPULATION_SIZE; ++index) {
-            const size_t selected = order[index];
-            size_t insertion = index;
-            while (insertion > 0 && scores[order[insertion - 1]] < scores[selected]) {
-                order[insertion] = order[insertion - 1];
-                --insertion;
-            }
-            order[insertion] = selected;
+        // Count fitness buckets, then scatter in population order to preserve ties.
+        size_t offsets[9] = {0};
+        for (size_t individual = 0; individual < POPULATION_SIZE; ++individual)
+            ++offsets[scores[individual]];
+        size_t offset = 0;
+        for (size_t descending = 0; descending < 9; ++descending) {
+            const size_t rank = 8 - descending;
+            const size_t count = offsets[rank];
+            offsets[rank] = offset;
+            offset += count;
         }
+        for (size_t individual = 0; individual < POPULATION_SIZE; ++individual)
+            order[offsets[scores[individual]]++] = individual;
 
         size_t next_count = 0;
         for (; next_count < ELITE_SIZE; ++next_count)
