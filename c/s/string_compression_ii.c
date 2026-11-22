@@ -91,13 +91,14 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
 __attribute__((noinline))
 static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t retained) {
     /* With at most two occurrences of each symbol, every kept byte costs one. */
-    uint32_t seen = 0, paired = 0;
+    /* The high bit of each two-bit counter is set after the second occurrence. */
+    uint64_t counts = 0;
     size_t position = n;
     for (; position != 0; --position) {
-        const uint32_t symbol_bit = UINT32_C(1) << input[position + 1];
-        if ((paired & symbol_bit) != 0) break;
-        paired |= seen & symbol_bit;
-        seen |= symbol_bit;
+        const unsigned shift = 2 * (unsigned)input[position + 1];
+        const uint64_t increment = UINT64_C(1) << shift;
+        if ((counts & (increment << 1)) != 0) break;
+        counts += increment;
     }
     if (position == 0) return (int64_t)retained;
 

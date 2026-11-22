@@ -84,14 +84,14 @@ def sci_delete_one(input: i64&, n: usize, next_match: usize&) -> i64:
 @inline(never)
 def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
     # With at most two occurrences of each symbol, every kept byte costs one.
-    seen: mutable u32 = 0
-    paired: mutable u32 = 0
+    # The high bit of each two-bit counter is set after the second occurrence.
+    counts: mutable u64 = 0
     position: mutable usize = n
     while position != 0:
-        symbol_bit: u32 = 1.u32() << input[position + 1].u32()
-        if (paired & symbol_bit) != 0: break
-        paired <- paired | (seen & symbol_bit)
-        seen <- seen | symbol_bit
+        shift: u64 = input[position + 1].u64() * 2
+        increment: u64 = 1.u64() << shift
+        if (counts & (increment << 1)) != 0: break
+        counts <- counts + increment
         position <- position - 1
     if position == 0: return retained.i64()
 
