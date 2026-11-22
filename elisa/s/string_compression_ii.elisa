@@ -128,6 +128,8 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
     dp: mutable u32[SCI_CELLS] = zeroed
     # Scores are the base minus the encoded cost. Zero marks an unset state.
     dp[0] <- SCI_SCORE_BASE
+    # Each run endpoint is at most n, and its checked deletion count fits the row.
+    scores: mutable u32& = &dp[0]
     best_score: mutable u32 = SCI_SCORE_BASE - retained
     for start in 0..<n:
         first_used: u32 = (start + 1 if start + 1 > retained else retained) - retained
@@ -160,7 +162,7 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
                     if candidate > best_score: best_score <- candidate
                     break
                 state: u32 = endpoint * SCI_WIDTH.u32() + deleted
-                if candidate > dp[state]: dp[state] <- candidate
+                if candidate > scores[state]: scores[state] <- candidate
                 endpoint <- links[endpoint].u32()
                 kept <- kept + 1
     (SCI_SCORE_BASE - best_score).i64()
