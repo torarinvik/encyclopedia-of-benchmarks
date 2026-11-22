@@ -47,6 +47,9 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
     if output == null:
         return -2
 
+    target_word: mutable u64 = 0
+    for position in 0..<target_length:
+        target_word <- target_word | (target[position].u64() << (8 * position))
     population: mutable u64[200] = zeroed
     next_population: mutable u64[200] = zeroed
     scores: mutable u8[200] = zeroed
@@ -61,14 +64,14 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
 
     total_population: mutable i64 = 0
     generation: mutable usize = 1
-    while generation <= max_generations |generation, population, scores, order, target, target_length, total_population, output, next_population, state, genes, gene_count|:
+    while generation <= max_generations |generation, population, scores, order, target_word, target_length, total_population, output, next_population, state, genes, gene_count|:
         total_population <- total_population + 200
         for individual in 0..<200:
-            score: mutable u8 = 0.u8()
-            for position in 0..<target_length:
-                value: u8 = ((population[individual] >> (8 * position)) & 255.u64()).u8()
-                if value == target[position]:
-                    score <- score + 1.u8()
+            # ASCII XOR leaves the high bit clear. Adding 127 flags each unequal byte.
+            difference: u64 = population[individual] ^ target_word
+            unequal: u64 = ((difference + 0x7f7f7f7f7f7f7f7f.u64()) >> 7) & 0x0101010101010101.u64()
+            mismatch_count: usize = ((unequal * 0x0101010101010101.u64()) >> 56).usize()
+            score: u8 = (target_length - mismatch_count).u8()
             scores[individual] <- score
             if score.usize() == target_length:
                 if output_capacity < 16:

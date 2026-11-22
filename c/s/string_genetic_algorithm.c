@@ -52,6 +52,9 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
     }
     if (output == NULL) return -2;
 
+    uint64_t target_word = 0;
+    for (size_t position = 0; position < target_length; ++position)
+        target_word |= (uint64_t)target[position] << (8 * position);
     uint32_t random_state = (uint32_t)seed_value;
     uint64_t population[POPULATION_SIZE];
     uint64_t next_population[POPULATION_SIZE];
@@ -70,10 +73,12 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
     for (size_t generation = 1; generation <= max_generations; ++generation) {
         total_population += POPULATION_SIZE;
         for (size_t individual = 0; individual < POPULATION_SIZE; ++individual) {
-            uint8_t score = 0;
-            for (size_t position = 0; position < target_length; ++position) {
-                score += (uint8_t)(((population[individual] >> (8 * position)) & UINT64_C(0xFF)) == target[position]);
-            }
+            // ASCII XOR leaves the high bit clear. Adding 127 flags each unequal byte.
+            const uint64_t difference = population[individual] ^ target_word;
+            const uint64_t unequal = ((difference + UINT64_C(0x7f7f7f7f7f7f7f7f)) >> 7)
+                                     & UINT64_C(0x0101010101010101);
+            const size_t mismatch_count = (unequal * UINT64_C(0x0101010101010101)) >> 56;
+            const uint8_t score = (uint8_t)(target_length - mismatch_count);
             scores[individual] = score;
             if (score == target_length_value) {
                 if (output_capacity < 16) return -2;
