@@ -1,6 +1,6 @@
 module string_hash_equality
 
-const round_constants = [24]u64{
+const round_constants = [
     u64(0x0000000000000001),
 	u64(0x0000000000008082),
 	u64(0x800000000000808a),
@@ -25,8 +25,8 @@ const round_constants = [24]u64{
 	u64(0x8000000000008080),
 	u64(0x0000000080000001),
 	u64(0x8000000080008008)
-}
-const rotation_offsets = [25]int{0, 1, 62, 28, 27, 36, 44, 6, 55, 20, 3, 10, 43, 25, 39, 41, 45, 15, 21, 8, 18, 2, 61, 56, 14}
+]!
+const rotation_offsets = [0, 1, 62, 28, 27, 36, 44, 6, 55, 20, 3, 10, 43, 25, 39, 41, 45, 15, 21, 8, 18, 2, 61, 56, 14]!
 
 fn keccak_rotate_left(value u64, amount int) u64 {
     if amount == 0 { return value }

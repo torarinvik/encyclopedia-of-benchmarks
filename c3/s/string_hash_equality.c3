@@ -45,20 +45,22 @@ fn void keccak_f1600(ulong* state) {
             usz target = y + 5 * ((2 * x + 3 * y) % 5);
             moved[target] = rotate_left(state[source] ^ delta[x], ROTATION_OFFSETS[source]);
         }
-        for (usz y = 0; y < 5; y++) for (usz x = 0; x < 5; x++)
+        for (usz y = 0; y < 5; y++) for (usz x = 0; x < 5; x++) {
             state[x + 5 * y] = moved[x + 5 * y] ^ ((~moved[(x + 1) % 5 + 5 * y]) & moved[(x + 2) % 5 + 5 * y]);
+        }
         state[0] ^= ROUND_CONSTANTS[round];
     }
 }
 
 fn void keccak256_bytes(long* input, usz start, usz byte_length, ulong* digest) {
-    uchar[136] block = {};
-    for (usz i = 0; i < byte_length; i++) block[i] = (uchar)input[start + i];
+    char[136] block = {};
+    for (usz i = 0; i < byte_length; i++) block[i] = (char)input[start + i];
     block[byte_length] ^= 1;
     block[135] ^= 128;
     ulong[25] state = {};
-    for (usz lane = 0; lane < 17; lane++) for (usz byte = 0; byte < 8; byte++)
-        state[lane] |= (ulong)block[lane * 8 + byte] << (8 * byte);
+    for (usz lane = 0; lane < 17; lane++) for (usz index = 0; index < 8; index++) {
+        state[lane] |= (ulong)block[lane * 8 + index] << (8 * index);
+    }
     keccak_f1600(&state[0]);
     for (usz lane = 0; lane < 4; lane++) digest[lane] = state[lane];
 }
@@ -66,7 +68,8 @@ fn void keccak256_bytes(long* input, usz start, usz byte_length, ulong* digest) 
 fn long string_hash_equality(long* input, usz length) @export("string_hash_equality") {
     if (input == null || length < 2 || length > 131) return -1;
     if (input[0] < 0 || input[0] > 64 || input[1] < 0 || input[1] > 64) return -1;
-    usz length_a = (usz)input[0], length_b = (usz)input[1];
+    usz length_a = (usz)input[0];
+    usz length_b = (usz)input[1];
     if (length != 2 + length_a + length_b) return -1;
     for (usz i = 0; i < length_a + length_b; i++) if (input[2 + i] < 0 || input[2 + i] > 255) return -1;
     ulong[4] digest_a = {}; ulong[4] digest_b = {};

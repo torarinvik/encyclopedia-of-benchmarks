@@ -34,6 +34,8 @@ rotate_left :: proc "contextless" (value: u64, amount: int) -> u64 {
 }
 
 keccak_f1600 :: proc "contextless" (state: ^[25]u64) {
+	rotation_offsets := ROTATION_OFFSETS
+	round_constants := ROUND_CONSTANTS
     for round := 0; round < 24; round += 1 {
         column: [5]u64
         delta: [5]u64
@@ -44,7 +46,7 @@ keccak_f1600 :: proc "contextless" (state: ^[25]u64) {
             for x := 0; x < 5; x += 1 {
                 source := x + 5 * y
                 target := y + 5 * ((2 * x + 3 * y) % 5)
-                moved[target] = rotate_left(state[source] ~ delta[x], ROTATION_OFFSETS[source])
+                moved[target] = rotate_left(state[source] ~ delta[x], rotation_offsets[source])
             }
         }
         for y := 0; y < 5; y += 1 {
@@ -52,7 +54,7 @@ keccak_f1600 :: proc "contextless" (state: ^[25]u64) {
                 state[x + 5 * y] = moved[x + 5 * y] ~ ((~moved[(x + 1) % 5 + 5 * y]) & moved[(x + 2) % 5 + 5 * y])
             }
         }
-        state[0] ~= ROUND_CONSTANTS[round]
+        state[0] ~= round_constants[round]
     }
 }
 
