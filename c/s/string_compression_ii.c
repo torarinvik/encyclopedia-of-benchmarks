@@ -143,7 +143,6 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
             if (used < budget && prefix_score > dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_score;
 
-            if (kept_limit == 0) continue;
             uint32_t endpoint = start + 1;
             for (uint32_t kept = 1; endpoint != 0; ++kept) {
                 const uint32_t deleted = used + endpoint - start - kept;

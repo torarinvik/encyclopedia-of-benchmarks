@@ -138,16 +138,17 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
             if used < budget:
                 next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
                 if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
-            if kept_limit == 0: continue
             endpoint: mutable u32 = start + 1
             kept: mutable u32 = 1
             while endpoint != 0:
                 deleted: u32 = used + endpoint - start - kept
                 if deleted > budget: break
                 candidate: i32 = (prefix_score.i64() - sci_run_cost(kept.usize())).i32()
-                state: u32 = final_state if kept == kept_limit else endpoint * SCI_WIDTH.u32() + deleted
+                if kept == kept_limit:
+                    if candidate > dp[final_state]: dp[final_state] <- candidate
+                    break
+                state: u32 = endpoint * SCI_WIDTH.u32() + deleted
                 if candidate > dp[state]: dp[state] <- candidate
-                if kept == kept_limit: break
                 endpoint <- next_match[endpoint]
                 kept <- kept + 1
     (SCI_SCORE_BASE - dp[final_state]).i64()
