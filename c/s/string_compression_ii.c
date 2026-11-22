@@ -3,7 +3,7 @@
 
 #define SCI_MAX_N 12
 #define SCI_WIDTH 16
-#define SCI_INF INT32_C(1000)
+#define SCI_SCORE_BASE INT32_C(16)
 
 static int64_t sci_run_cost(int kept) {
     return kept == 1 ? 1 : kept >= 10 ? 3 : 2;
@@ -74,38 +74,35 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
 
     if (repeated_endpoint == 0) return (int64_t)retained;
 
-    int32_t dp[SCI_MAX_N + 1][SCI_WIDTH];
-    for (size_t i = 0; i <= SCI_MAX_N; ++i)
-        for (size_t d = 0; d < SCI_WIDTH; ++d) dp[i][d] = SCI_INF;
-    dp[0][0] = 0;
-    dp[n][budget] = (int64_t)retained;
-
+    /* Scores are the base minus the encoded cost. Zero marks an unset state. */
+    int32_t dp[SCI_MAX_N + 1][SCI_WIDTH] = {{SCI_SCORE_BASE}};
+    dp[n][budget] = SCI_SCORE_BASE - (int32_t)retained;
     for (size_t start = 0; start < n; ++start) {
         const size_t remaining = n - start;
         const size_t first_used = budget >= remaining ? budget - remaining + 1 : 0;
         const size_t last_used = start < budget ? start : budget;
         for (size_t used = first_used; used <= last_used; ++used) {
-            int32_t prefix_cost = dp[start][used];
+            int32_t prefix_score = dp[start][used];
             const size_t kept_limit = retained - (start - used);
-            if (prefix_cost + sci_run_cost((int)kept_limit) >= dp[n][budget]) continue;
-            if (used < budget && prefix_cost < dp[start + 1][used + 1])
-                dp[start + 1][used + 1] = prefix_cost;
+            if (prefix_score - sci_run_cost((int)kept_limit) <= dp[n][budget]) continue;
+            if (used < budget && prefix_score > dp[start + 1][used + 1])
+                dp[start + 1][used + 1] = prefix_score;
 
             if (kept_limit == 0) continue;
             size_t endpoint = start + 1;
             for (size_t kept = 1; endpoint != 0; ++kept) {
                 const size_t deleted = used + endpoint - start - kept;
                 if (deleted > budget) break;
-                const int32_t candidate = prefix_cost + sci_run_cost((int)kept);
+                const int32_t candidate = prefix_score - sci_run_cost((int)kept);
                 if (kept == kept_limit) {
-                    if (candidate < dp[n][budget]) dp[n][budget] = candidate;
+                    if (candidate > dp[n][budget]) dp[n][budget] = candidate;
                     break;
                 }
-                if (candidate < dp[endpoint][deleted])
+                if (candidate > dp[endpoint][deleted])
                     dp[endpoint][deleted] = candidate;
                 endpoint = next_match[endpoint];
             }
         }
     }
-    return dp[n][budget];
+    return SCI_SCORE_BASE - dp[n][budget];
 }
