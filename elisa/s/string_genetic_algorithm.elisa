@@ -59,7 +59,7 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
     population: mutable u64[200] = zeroed
     next_population: mutable u64[200] = zeroed
     scores: mutable u8[200] = zeroed
-    order: mutable usize[200] = zeroed
+    order: mutable usize[66] = zeroed
     state: mutable u64 = seed_value.u64()
     for individual in 0..<200 |individual, population, gene_table, state, target_length, gene_count|:
         word: mutable u64 = 0.u64()
@@ -99,7 +99,7 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
         for individual in 0..<200:
             rank: usize = scores[individual].usize()
             destination: usize = offsets[rank]
-            order[destination] <- individual
+            if destination < 66: order[destination] <- individual
             offsets[rank] <- destination + 1
         next_count: mutable usize = 0
         while next_count < 66 |next_count, next_population, population, order|:
