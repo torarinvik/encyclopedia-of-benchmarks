@@ -59,6 +59,12 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
     if (target_low & ~gene_low) != 0 or (target_high & ~gene_high) != 0 or output == null:
         return -2
 
+    if gene_count == 1:
+        if output_capacity < 16: return -2
+        string_genetic_algorithm_write_i64(output, 0, 1)
+        string_genetic_algorithm_write_i64(output, 8, 200)
+        return 16
+
     # Every random gene index is reduced modulo the validated gene count.
     gene_table: u8& = &genes[0]
     population: mutable u64[200] = zeroed
