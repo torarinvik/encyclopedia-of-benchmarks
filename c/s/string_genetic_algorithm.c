@@ -107,14 +107,10 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
             for (size_t child_round = 0; child_round < bounded_child_count && next_count < POPULATION_SIZE; ++child_round) {
                 const uint64_t second = population[order[next_random(&random_state) % 51]];
                 const size_t cut = next_random(&random_state) % target_length;
-                uint64_t children[2] = {0, 0};
-                for (size_t position = 0; position < target_length; ++position) {
-                    const unsigned shift = (unsigned)(8 * position);
-                    const uint64_t first_gene = (first >> shift) & UINT64_C(0xFF);
-                    const uint64_t second_gene = (second >> shift) & UINT64_C(0xFF);
-                    children[0] |= (position < cut ? first_gene : second_gene) << shift;
-                    children[1] |= (position < cut ? second_gene : first_gene) << shift;
-                }
+                // The low bytes come from one parent and the high bytes from the other.
+                const uint64_t low_mask = (UINT64_C(1) << (8 * cut)) - 1;
+                const uint64_t exchanged = (first ^ second) & low_mask;
+                uint64_t children[2] = {second ^ exchanged, first ^ exchanged};
                 for (size_t child_index = 0; child_index < 2; ++child_index) {
                     if (next_random(&random_state) % 5 < 2) {
                         const size_t position = next_random(&random_state) % target_length;

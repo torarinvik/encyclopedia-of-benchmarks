@@ -108,17 +108,10 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
                     break
                 second: u64 = population[order[(string_genetic_algorithm_next_random(state) % 51.u64()).usize()]]
                 cut: usize = (string_genetic_algorithm_next_random(state) % target_length.u64()).usize()
-                children: mutable u64[2] = zeroed
-                for position in 0..<target_length:
-                    shift: usize = 8 * position
-                    first_gene: u64 = (first >> shift) & 255.u64()
-                    second_gene: u64 = (second >> shift) & 255.u64()
-                    if position < cut:
-                        children[0] <- children[0] | (first_gene << shift)
-                        children[1] <- children[1] | (second_gene << shift)
-                    else:
-                        children[0] <- children[0] | (second_gene << shift)
-                        children[1] <- children[1] | (first_gene << shift)
+                # The low bytes come from one parent and the high bytes from the other.
+                low_mask: u64 = (1.u64() << (8 * cut)) - 1
+                exchanged: u64 = (first ^ second) & low_mask
+                children: mutable u64[2] = [second ^ exchanged, first ^ exchanged]
                 for child in 0..<2 |child, children, state, target_length, genes, gene_count, next_count, next_population|:
                     if string_genetic_algorithm_next_random(state) % 5.u64() < 2.u64():
                         position: usize = (string_genetic_algorithm_next_random(state) % target_length.u64()).usize()
