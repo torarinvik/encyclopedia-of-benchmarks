@@ -1,6 +1,6 @@
 const SCI_MAX_N: usize = 12
 const SCI_WIDTH: usize = 16
-const SCI_CELLS: usize = SCI_WIDTH * SCI_WIDTH
+const SCI_CELLS: usize = SCI_WIDTH * (SCI_MAX_N + 1)
 const SCI_INF: i32 = 1000
 
 def sci_run_cost(kept: usize) -> i64:

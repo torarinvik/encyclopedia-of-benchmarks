@@ -74,8 +74,8 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
 
     if (repeated_endpoint == 0) return (int64_t)retained;
 
-    int32_t dp[SCI_WIDTH][SCI_WIDTH];
-    for (size_t i = 0; i < SCI_WIDTH; ++i)
+    int32_t dp[SCI_MAX_N + 1][SCI_WIDTH];
+    for (size_t i = 0; i <= SCI_MAX_N; ++i)
         for (size_t d = 0; d < SCI_WIDTH; ++d) dp[i][d] = SCI_INF;
     dp[0][0] = 0;
     dp[n][budget] = (int64_t)retained;
