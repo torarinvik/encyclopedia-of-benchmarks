@@ -93,7 +93,7 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
     /* Store matching endpoints as one-based positions. Zero ends a chain. */
     size_t next_match[SCI_MAX_N + 1];
     /* Each symbol stores its two latest positions in adjacent four-bit fields. */
-    size_t latest_match[26] = {0};
+    uint8_t latest_match[26] = {0};
     size_t recent_positions = 0;
     for (size_t position = n; position != 0; --position) {
         const size_t symbol = (size_t)input[position + 1];
@@ -101,7 +101,7 @@ static int64_t sci_search(const int64_t *input, size_t n, size_t budget, size_t 
         const size_t next_position = recent & 15;
         next_match[position] = next_position;
         recent_positions |= recent;
-        latest_match[symbol] = position | (next_position << 4);
+        latest_match[symbol] = (uint8_t)(position | (next_position << 4));
     }
 
     /* Runs of one or two symbols cost one encoded byte per retained symbol. */
