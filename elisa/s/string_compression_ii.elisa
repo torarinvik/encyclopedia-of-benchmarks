@@ -47,14 +47,14 @@ def sci_compute(input: i64&?, length: usize) -> i64:
     if matching >= retained: return sci_run_cost(retained)
 
     # Store matching endpoints as one-based positions. Zero ends a chain.
-    next_match: mutable usize[SCI_MAX_N] = zeroed
+    next_match: mutable usize[SCI_MAX_N + 1] = zeroed
     latest_match: mutable usize[26] = zeroed
     repeated_endpoint: mutable usize = 0
     position: mutable usize = n
     while position != 0:
         symbol: usize = input[position + 1].usize()
         next_position: usize = latest_match[symbol]
-        next_match[position - 1] <- next_position
+        next_match[position] <- next_position
         repeated_endpoint <- repeated_endpoint | next_position
         latest_match[symbol] <- position
         position <- position - 1
@@ -88,7 +88,7 @@ def sci_compute(input: i64&?, length: usize) -> i64:
                 state: usize = final_state if kept == kept_limit else endpoint * SCI_WIDTH + deleted
                 if candidate < dp[state]: dp[state] <- candidate
                 if kept == kept_limit: break
-                endpoint <- next_match[endpoint - 1]
+                endpoint <- next_match[endpoint]
                 kept <- kept + 1
     dp[final_state]
 

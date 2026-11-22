@@ -53,13 +53,13 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     if (matching >= retained) return sci_run_cost((int)retained);
 
     /* Store matching endpoints as one-based positions. Zero ends a chain. */
-    size_t next_match[SCI_MAX_N];
+    size_t next_match[SCI_MAX_N + 1];
     size_t latest_match[26] = {0};
     size_t repeated_endpoint = 0;
     for (size_t position = n; position != 0; --position) {
         const size_t symbol = (size_t)input[position + 1];
         const size_t next_position = latest_match[symbol];
-        next_match[position - 1] = next_position;
+        next_match[position] = next_position;
         repeated_endpoint |= next_position;
         latest_match[symbol] = position;
     }
@@ -95,7 +95,7 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
                 }
                 if (candidate < dp[endpoint][deleted])
                     dp[endpoint][deleted] = candidate;
-                endpoint = next_match[endpoint - 1];
+                endpoint = next_match[endpoint];
             }
         }
     }
