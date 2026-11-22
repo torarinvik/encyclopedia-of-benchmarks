@@ -41,6 +41,7 @@ def reverse_a_linked_list_using_recusion_impl(input: i64&, length: usize, output
     node: mutable usize = reverse_links(next[0:n], 0, next[0].usize())
     index <- 0
     while index < n:
+        if node >= n: return -1
         store_i32_le(nodes[node], output, index * 4)
         if index + 1 < n: node <- next[node].usize()
         index <- index + 1
