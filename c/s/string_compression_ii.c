@@ -25,7 +25,7 @@ static int64_t sci_keep_four(const int64_t *input, size_t n) {
 }
 
 __attribute__((noinline))
-static int64_t sci_delete_one(const int64_t *input, size_t n, const uint32_t *next_match) {
+static int64_t sci_delete_one(const int64_t *input, size_t n, const uint8_t *next_match) {
     int64_t cost = 0, saving = 0;
     int64_t older_symbol = -1, previous_symbol = -1;
     size_t older_length = 0, previous_length = 0;
@@ -119,7 +119,7 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
     if (position == n) return (int64_t)retained;
     if (retained == 3) return 2;
 
-    uint32_t next_match[SCI_MAX_N + 1];
+    uint8_t next_match[SCI_MAX_N + 1];
     uint8_t latest_match[26] = {0};
     for (position = n; position != 0; --position) {
         const uint32_t symbol = (uint32_t)input[position + 1];
