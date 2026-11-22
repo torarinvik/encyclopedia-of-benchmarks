@@ -10,16 +10,17 @@ def string_left_rotation_impl(input: i64&, length: usize, output: mutable u8&, o
         return -1
     text_length: usize = raw_length.usize()
     rotation: usize = raw_rotation.usize()
-    units: mutable u16[256] = zeroed
-    index: mutable usize = 0
-    while index < text_length:
-        if input[index + 2] < 0 or input[index + 2] > 65535:
-            return -1
-        units[index] <- input[index + 2].u16()
-        index <- index + 1
-    required: usize = text_length * 2
-    if required == 0:
+    if text_length == 0:
         return 0
+    units: mutable u16[256] = zeroed
+    observed_bits: mutable u64 = 0
+    for index in 0..<text_length:
+        value: u64 = input[index + 2].u64()
+        observed_bits <- observed_bits | value
+        units[index] <- value.u16()
+    if observed_bits > 65535:
+        return -1
+    required: usize = text_length * 2
     if output == null or output_capacity < required:
         return -2
     for source in rotation..<text_length:
