@@ -133,8 +133,7 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
     uint32_t dp[SCI_MAX_N + 1][SCI_WIDTH] = {{SCI_SCORE_BASE}};
     uint32_t best_score = SCI_SCORE_BASE - retained;
     for (uint32_t start = 0; start < n; ++start) {
-        const uint32_t remaining = n - start;
-        const uint32_t first_used = budget >= remaining ? budget - remaining + 1 : 0;
+        const uint32_t first_used = start >= retained ? start - retained + 1 : 0;
         const uint32_t last_used = start < budget ? start : budget;
         for (uint32_t used = first_used; used <= last_used; ++used) {
             uint32_t prefix_score = dp[start][used];
