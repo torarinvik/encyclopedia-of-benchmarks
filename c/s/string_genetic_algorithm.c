@@ -88,6 +88,7 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
             }
         }
 
+        if (generation == max_generations) return -1;
         // Count fitness buckets, then scatter in population order to preserve ties.
         size_t offsets[9] = {0};
         for (size_t individual = 0; individual < POPULATION_SIZE; ++individual)

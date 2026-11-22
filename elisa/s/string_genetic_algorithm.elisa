@@ -86,6 +86,7 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
                 string_genetic_algorithm_write_i64(output, 0, generation.i64())
                 string_genetic_algorithm_write_i64(output, 8, total_population)
                 return 16
+        if generation == max_generations: return -1
         # Count fitness buckets, then scatter in population order to preserve ties.
         offsets: mutable usize[9] = zeroed
         for individual in 0..<200:
