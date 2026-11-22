@@ -34,10 +34,11 @@ static int64_t sci_delete_one(const int64_t *input, size_t n, const uint8_t *nex
         size_t end = start + 1;
         while (next_match[end] == end + 1) ++end;
         const size_t run_length = end - start;
-        const int64_t run_cost = sci_run_cost((int)run_length);
-        cost += run_cost;
-        if ((run_length == 1 || run_length == 2 || run_length == 10) && saving == 0)
-            saving = 1;
+        /* Each nibble holds the cost in bits 0–1 and deletion saving in bit 2. */
+        const uint64_t run = UINT64_C(0x3372222222650) >> (run_length * 4);
+        cost += (int64_t)(run & 3);
+        const int64_t shrink = (int64_t)((run >> 2) & 1);
+        if (shrink > saving) saving = shrink;
         /* Deleting a singleton can join the equal runs on either side. */
         if (previous_length == 1 && older_symbol == symbol) {
             const int64_t crosses_ten = older_length < 10 && run_length < 10
