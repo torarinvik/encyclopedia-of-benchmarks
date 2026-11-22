@@ -66,7 +66,14 @@ int64_t string_genetic_algorithm(const int64_t *values, size_t length,
             const uint8_t gene = genes[next_random(&random_state) % gene_count];
             word = (word >> 8) | ((uint64_t)gene << 56);
         }
-        population[individual] = word >> ((8 - target_length) * 8);
+        const uint64_t candidate = word >> ((8 - target_length) * 8);
+        if (candidate == target_word) {
+            if (output_capacity < 16) return -2;
+            write_i64_le(output, 0, 1);
+            write_i64_le(output, 8, POPULATION_SIZE);
+            return 16;
+        }
+        population[individual] = candidate;
     }
 
     int64_t total_population = 0;
