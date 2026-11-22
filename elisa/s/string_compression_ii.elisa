@@ -85,19 +85,21 @@ def sci_delete_one(input: i64&, n: usize, next_match: usize&) -> i64:
 def sci_search(input: i64&, n: usize, budget: usize, retained: usize) -> i64:
     # Store matching endpoints as one-based positions. Zero ends a chain.
     next_match: mutable usize[SCI_MAX_N + 1] = zeroed
+    # Each symbol stores its two latest positions in adjacent four-bit fields.
     latest_match: mutable usize[26] = zeroed
-    third_endpoint: mutable usize = 0
+    recent_positions: mutable usize = 0
     position: mutable usize = n
     while position != 0:
         symbol: usize = input[position + 1].usize()
-        next_position: usize = latest_match[symbol]
+        recent: usize = latest_match[symbol]
+        next_position: usize = recent & 15
         next_match[position] <- next_position
-        third_endpoint <- third_endpoint | next_match[next_position]
-        latest_match[symbol] <- position
+        recent_positions <- recent_positions | recent
+        latest_match[symbol] <- position | (next_position << 4)
         position <- position - 1
 
     # Runs of one or two symbols cost one encoded byte per retained symbol.
-    if third_endpoint == 0: return retained.i64()
+    if recent_positions < 16: return retained.i64()
     if budget == 1: return sci_delete_one(input, n, &next_match[0])
 
     dp: mutable i32[SCI_CELLS] = zeroed
