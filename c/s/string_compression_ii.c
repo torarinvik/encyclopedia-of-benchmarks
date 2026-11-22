@@ -142,8 +142,8 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
                 if (prefix_score > best_score + kept_limit) best_score = prefix_score - kept_limit;
                 continue;
             }
-            const uint32_t minimum_cost = kept_limit < 10 ? 2 : 3;
-            if (prefix_score <= best_score + minimum_cost) continue;
+            /* Any completion with at least three symbols costs at least two bytes. */
+            if (prefix_score <= best_score + 2) continue;
             if (used < budget && prefix_score > dp[start + 1][used + 1])
                 dp[start + 1][used + 1] = prefix_score;
             const uint32_t singleton_score = prefix_score - 1;

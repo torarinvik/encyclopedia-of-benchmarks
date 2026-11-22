@@ -134,8 +134,8 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
             if kept_limit <= 2:
                 if prefix_score > best_score + kept_limit: best_score <- prefix_score - kept_limit
                 continue
-            minimum_cost: u32 = 2 if kept_limit < 10 else 3
-            if prefix_score <= best_score + minimum_cost: continue
+            # Any completion with at least three symbols costs at least two bytes.
+            if prefix_score <= best_score + 2: continue
             if used < budget:
                 next_state: u32 = (start + 1) * SCI_WIDTH.u32() + used + 1
                 if prefix_score > dp[next_state]: dp[next_state] <- prefix_score
