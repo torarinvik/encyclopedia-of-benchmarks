@@ -25,7 +25,9 @@ exact deletions used. A state can delete the next symbol or start a run there.
 For each matching endpoint, the transition retains every matching symbol up
 to that endpoint and deletes the other symbols in the span. Any chosen run
 can instead retain its earliest matching occurrences and delete the skipped
-suffix separately, so one transition per endpoint suffices. This takes
+suffix separately, so one transition per endpoint suffices. Deleting another
+symbol cannot increase the encoded length, so the ports use the full budget
+and skip prefix states with too few symbols left to spend it. This takes
 `O(n²(k+1))` time and `O(n(k+1))` space under the fixed bound. The original
 primary oracle enumerates all feasible retained counts in each span.
 

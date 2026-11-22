@@ -58,7 +58,10 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
     dp[0][0] = 0;
 
     for (size_t start = 0; start < n; ++start) {
-        for (size_t used = 0; used <= budget; ++used) {
+        const size_t remaining = n - start;
+        const size_t first_used = budget > remaining ? budget - remaining : 0;
+        const size_t last_used = start < budget ? start : budget;
+        for (size_t used = first_used; used <= last_used; ++used) {
             int64_t prefix_cost = dp[start][used];
             if (prefix_cost == SCI_INF) continue;
             if (used < budget && prefix_cost < dp[start + 1][used + 1])
@@ -79,8 +82,5 @@ int64_t string_compression_ii(const int64_t *input, size_t length) {
         }
     }
 
-    int64_t answer = SCI_INF;
-    for (size_t deleted = 0; deleted <= budget; ++deleted)
-        if (dp[n][deleted] < answer) answer = dp[n][deleted];
-    return answer;
+    return dp[n][budget];
 }

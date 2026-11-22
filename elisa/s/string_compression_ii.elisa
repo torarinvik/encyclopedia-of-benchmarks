@@ -51,7 +51,10 @@ def sci_compute(input: i64&?, length: usize) -> i64:
         dp[i] <- SCI_INF
     dp[0] <- 0
     for start in 0..<n:
-        for used in 0..=budget:
+        remaining: usize = n - start
+        first_used: usize = budget - remaining if budget > remaining else 0
+        last_used: usize = start if start < budget else budget
+        for used in first_used..=last_used:
             prefix_cost: i64 = dp[start * SCI_WIDTH + used]
             if prefix_cost == SCI_INF: continue
             if used < budget:
@@ -70,10 +73,6 @@ def sci_compute(input: i64&?, length: usize) -> i64:
                 candidate: i64 = prefix_cost + sci_run_cost(kept)
                 state: usize = (ending + 1) * SCI_WIDTH + deleted
                 if candidate < dp[state]: dp[state] <- candidate
-    answer: mutable i64 = SCI_INF
-    for deleted in 0..=budget:
-        value: i64 = dp[n * SCI_WIDTH + deleted]
-        if value < answer: answer <- value
-    answer
+    dp[n * SCI_WIDTH + budget]
 
 export fn string_compression_ii(input: i64&?, length: usize) -> i64 = sci_compute
