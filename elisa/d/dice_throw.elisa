@@ -9,7 +9,7 @@ def dice_throw_impl(values: i64&, length: usize) -> i64:
     faces: usize = faces_value.usize()
     dice: usize = dice_value.usize()
     target: usize = target_value.usize()
-    table: mutable i64[9][65] = zeroed
+    table: mutable i64[65][9] = zeroed
     for total in 1..<(faces + 1):
         if total <= target:
             table[1][total] <- 1
