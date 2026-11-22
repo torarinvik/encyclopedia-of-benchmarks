@@ -152,7 +152,7 @@ static int64_t sci_search(const int64_t *input, uint32_t n, uint32_t budget, uin
             if (singleton_score > dp[first_endpoint][used])
                 dp[first_endpoint][used] = singleton_score;
             const uint32_t second_endpoint = next_match[first_endpoint];
-            if (second_endpoint == 0) continue;
+            /* A missing endpoint is zero. Since used <= start, subtraction wraps past budget. */
             const uint32_t pair_deleted = used + second_endpoint - start - 2;
             if (pair_deleted > budget) continue;
             const uint32_t pair_score = prefix_score - 2;

@@ -144,7 +144,7 @@ def sci_search(input: i64&, n: u32, budget: u32, retained: u32) -> i64:
             singleton_state: u32 = first_endpoint * SCI_WIDTH.u32() + used
             if singleton_score > dp[singleton_state]: dp[singleton_state] <- singleton_score
             second_endpoint: u32 = next_match[first_endpoint].u32()
-            if second_endpoint == 0: continue
+            # A missing endpoint is zero. Since used <= start, subtraction wraps past budget.
             pair_deleted: u32 = used + second_endpoint - start - 2
             if pair_deleted > budget: continue
             pair_state: u32 = second_endpoint * SCI_WIDTH.u32() + pair_deleted
