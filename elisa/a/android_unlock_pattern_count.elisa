@@ -21,15 +21,13 @@ def android_unlock_count_from(last: usize, visited: i64, used: usize, target: us
         bit: i64 = 1.i64() << next
         if (visited & bit) == 0:
             middle: i64 = android_unlock_middle_point(last, next)
-            if middle < 0:
-                count <- count + android_unlock_count_from(next, visited | bit, used + 1, target)
-            elif (visited & (1.i64() << middle.usize())) == 0:
+            if middle < 0 or (visited & (1.i64() << middle.usize())) != 0:
                 count <- count + android_unlock_count_from(next, visited | bit, used + 1, target)
         next <- next + 1
     count
 
-export fn android_unlock_pattern_count(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1: return -1
+def android_unlock_pattern_count_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 1: return -1
     target_value: i64 = input[0]
     if target_value < 4 or target_value > 9: return -1
     target: usize = target_value.usize()
@@ -39,3 +37,5 @@ export fn android_unlock_pattern_count(input: i64&, length: usize) -> i64:
         count <- count + android_unlock_count_from(start, 1.i64() << start, 1, target)
         start <- start + 1
     count
+
+export fn android_unlock_pattern_count(input: i64&, length: usize) -> i64 = android_unlock_pattern_count_impl

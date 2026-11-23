@@ -1,13 +1,14 @@
-def astar_write_i64(output: mutable view[u8], position: mutable usize&, value: i64) -> usize:
-    shift: mutable usize = 0
+def astar_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    position: mutable usize = offset
+    shift: mutable u64 = 0
     while shift < 64:
-        output[position] <- ((value >> shift) & 255).u8()
+        output[position] <- ((bits >> shift) & 255).u8()
         position <- position + 1
         shift <- shift + 8
-    position
 
 def astar_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 6: return -1
+    if input == null or length != 6: return -1
     rows: i64 = input[0]
     cols: i64 = input[1]
     sx: i64 = input[2]
@@ -72,13 +73,13 @@ def astar_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize)
         path_count <- path_count + 1
         cursor <- node_parent[cursor.usize()]
     output_bytes: usize = path_count * 16
-    if output.is_null() or capacity < output_bytes: return -2
-    position: mutable usize = output_bytes
+    if output == null or capacity < output_bytes: return -2
+    offset: mutable usize = output_bytes
     cursor <- current.i64()
     while cursor >= 0:
-        position <- position - 16
-        astar_write_i64(output[0:output_bytes], &position, node_x[cursor.usize()])
-        astar_write_i64(output[0:output_bytes], &position, node_y[cursor.usize()])
+        offset <- offset - 16
+        astar_write_i64(output, offset, node_x[cursor.usize()])
+        astar_write_i64(output, offset + 8, node_y[cursor.usize()])
         cursor <- node_parent[cursor.usize()]
     output_bytes.i64()
 

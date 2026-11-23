@@ -35,8 +35,8 @@ def dfuds_previous_zero(bits: u64, position: usize) -> usize:
         candidate <- candidate - 1
     0
 
-def dfuds_compute(input: view[i64], words: mutable view[i64]) -> i64:
-    length: usize = input.len()
+def dfuds_compute(input: i64&, input_length: usize, words: mutable view[i64]) -> i64:
+    length: usize = input_length
     if length < 2 or length > DFUDS_MAX_INPUT: return -1
     n_value: i64 = input[0]
     q_value: i64 = input[1]
@@ -73,6 +73,7 @@ def dfuds_compute(input: view[i64], words: mutable view[i64]) -> i64:
     next_child: mutable usize[DFUDS_MAX_N] = zeroed
     order_count: mutable usize = 1
     depth: mutable usize = 1
+    next_child[0] <- 1
     while depth > 0:
         frame: usize = depth - 1
         node: usize = stack_node[frame]
@@ -96,7 +97,7 @@ def dfuds_compute(input: view[i64], words: mutable view[i64]) -> i64:
     while index < DFUDS_MAX_BITS + 2:
         position_to_node[index] <- -1
         index <- index + 1
-    packed: mutable u64 = 1
+    packed_value: mutable u64 = 1
     bit_length: mutable usize = 1
     node: mutable usize = 0
     while node < n:
@@ -109,7 +110,7 @@ def dfuds_compute(input: view[i64], words: mutable view[i64]) -> i64:
         position_to_node[descriptor[node]] <- node.i64()
         index <- 0
         while index < degree:
-            packed <- packed | (1.u64() << bit_length)
+            packed_value <- packed_value | (1.u64() << bit_length)
             bit_length <- bit_length + 1
             index <- index + 1
         bit_length <- bit_length + 1
@@ -118,7 +119,7 @@ def dfuds_compute(input: view[i64], words: mutable view[i64]) -> i64:
 
     words[0] <- n_value
     words[1] <- bit_length.i64()
-    words[2] <- packed.i64()
+    words[2] <- packed_value.i64()
     words[3] <- q_value
     index <- 0
     while index < q:
@@ -128,7 +129,7 @@ def dfuds_compute(input: view[i64], words: mutable view[i64]) -> i64:
         argument: i64 = input[offset + 2]
         start: usize = descriptor[node]
         degree: mutable usize = 0
-        while start + degree <= bit_length and dfuds_bit_at(packed, start + degree):
+        while start + degree <= bit_length and dfuds_bit_at(packed_value, start + degree):
             degree <- degree + 1
         answer: mutable i64 = -1
         if opcode == 0:
@@ -136,12 +137,12 @@ def dfuds_compute(input: view[i64], words: mutable view[i64]) -> i64:
         elif opcode == 1:
             if argument.usize() < degree:
                 target: usize = start + degree - (argument.usize() + 1)
-                child_start: usize = dfuds_find_close(packed, bit_length, target) + 1
+                child_start: usize = dfuds_find_close(packed_value, bit_length, target) + 1
                 if child_start > DFUDS_MAX_BITS + 1 or position_to_node[child_start] < 0: return -1
                 answer <- position_to_node[child_start]
         elif node != 0:
-            matched_open: usize = dfuds_find_open(packed, start - 1)
-            parent_position: usize = dfuds_previous_zero(packed, matched_open) + 1
+            matched_open: usize = dfuds_find_open(packed_value, start - 1)
+            parent_position: usize = dfuds_previous_zero(packed_value, matched_open) + 1
             if parent_position == 1:
                 answer <- 0
             elif parent_position <= DFUDS_MAX_BITS + 1 and position_to_node[parent_position] >= 0:
@@ -152,25 +153,28 @@ def dfuds_compute(input: view[i64], words: mutable view[i64]) -> i64:
         index <- index + 1
     (4 + q).i64()
 
-def dfuds_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def dfuds_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
         byte <- byte + 1
 
-export fn dfuds_ordered_tree_navigation(input: i64&, length: usize,
+def dfuds_ordered_tree_navigation_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > DFUDS_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+    if input == null or length < 2 or length > DFUDS_MAX_INPUT: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
     words: mutable i64[DFUDS_MAX_OUTPUT_WORDS] = zeroed
-    word_count: i64 = dfuds_compute(input_view, words[0:DFUDS_MAX_OUTPUT_WORDS])
+    word_count: i64 = dfuds_compute(input_view, input_view_length, words[0:DFUDS_MAX_OUTPUT_WORDS])
     if word_count < 0: return word_count
     required: usize = word_count.usize() * 8
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     index: mutable usize = 0
     while index < word_count.usize():
         dfuds_store_i64(words[index], output_view, 8 * index)
         index <- index + 1
     required.i64()
+
+export fn dfuds_ordered_tree_navigation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dfuds_ordered_tree_navigation_impl
